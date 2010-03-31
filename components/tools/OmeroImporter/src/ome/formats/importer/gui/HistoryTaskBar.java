@@ -26,6 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package ome.formats.importer.gui;
 
 import info.clearthought.layout.TableLayout;
@@ -87,8 +88,10 @@ public class HistoryTaskBar extends JXPanel implements ActionListener
     }
     
     /**
-     * @param name
-     * @param list
+     * Add a new task pane to the bar
+     * 
+     * @param name - string name to use for task pane
+     * @param list - pane's contents
      */
     public void addTaskPane( String name, JList list )
     {
@@ -104,6 +107,11 @@ public class HistoryTaskBar extends JXPanel implements ActionListener
         tpContainer.add(taskPane);
     }
 
+    /**
+     * Fire property change and retrieve a list when its clicked on
+     * @param list - original list
+     * @return returned list
+     */
     public JList getList(JList list)
     {
         list.setCellRenderer(new ImportCellRenderer());
@@ -128,6 +136,13 @@ public class HistoryTaskBar extends JXPanel implements ActionListener
     }
     
 
+    /**
+     * Update task list adding theirs to mine
+     * 
+     * @param list - list
+     * @param mine - defaultListModel being added to 
+     * @param theirs - defaultListModel being added from
+     */
     public void updateList(JList list, DefaultListModel mine, DefaultListModel theirs)
     {
         mine.clear();
@@ -139,19 +154,31 @@ public class HistoryTaskBar extends JXPanel implements ActionListener
         tpContainer.validate();
     }
 
-    public void actionPerformed(ActionEvent event)
-    {
-    }
+    /* (non-Javadoc)
+     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+     */
+    public void actionPerformed(ActionEvent event) {}
 }
 
-class ImportCellRenderer extends JLabel implements ListCellRenderer {
+/**
+ * @author Brian W. Loranger
+ *
+ */
+class ImportCellRenderer extends JLabel implements ListCellRenderer 
+{
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Set defaults for cell rendered to render correctly
+     */
     public ImportCellRenderer() {
         setOpaque(true);
         setIconTextGap(0);
     }
 
+    /* (non-Javadoc)
+     * @see javax.swing.ListCellRenderer#getListCellRendererComponent(javax.swing.JList, java.lang.Object, int, boolean, boolean)
+     */
     public Component getListCellRendererComponent(JList list, Object value,
             int index, boolean isSelected, boolean cellHasFocus) {
         ImportEntry entry = (ImportEntry) value;
@@ -171,7 +198,12 @@ class ImportCellRenderer extends JLabel implements ListCellRenderer {
     }
 }
 
-class ImportEntry {
+/**
+ * @author Brian W. Loranger
+ *
+ */
+class ImportEntry 
+{
     private final String title;
     private final String imagePath;
     private ImageIcon image;
@@ -183,11 +215,21 @@ class ImportEntry {
         this.importKey = importKey;
     }
 
-    public String getTitle() {
+    /**
+     * Returns the title string for the import entry
+     * @return - title string
+     */
+    public String getTitle() 
+    {
         return title;
     }
         
-    public ImageIcon getImage() {
+    //TODO: merge getImage with GuiCommonElements
+    /**
+     * @return - image icon for the 
+     */
+    public ImageIcon getImage() 
+    {
         if (imagePath != null)
         {
             java.net.URL imgURL = GuiImporter.class.getResource(imagePath);
@@ -203,6 +245,9 @@ class ImportEntry {
     }
 
     // Override standard toString method to give a useful result
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
     public String toString() {
         return title;
     }

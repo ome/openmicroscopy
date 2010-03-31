@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Container for errors
+ * 
  * @author Brian W. Loranger
  *
  */
@@ -53,13 +55,16 @@ public class ErrorContainer
     private int status = -1;
     private int index = 0;
     
+    /**
+     * @param s - file to add to container
+     */
     public void addFile(String s)
     {
         filesArray.add(s);
     }
     
     /**
-     * @return Returns the files.
+     * @return Returns the files in this container.
      */
     public String[] getFiles()
     {
@@ -68,7 +73,7 @@ public class ErrorContainer
     }
     
     /**
-     * @param files The files to set.
+     * @param files - files to set.
      */
     public void setFiles(String[] files)
     {
@@ -361,39 +366,75 @@ public class ErrorContainer
         this.uploadUrl = uploadURL;
     }
 
+    /**
+     * set file format for import 
+     * 
+     * @param file_format
+     */
     public void setReaderType(String file_format)
     {
         this.file_format = file_format;
     }  
     
+    /**
+     * get the file format for import
+     * 
+     * @return
+     */
     public String getFileFormat()
     {
         return file_format;
     }
 
+    /**
+     * set path for file 
+     * 
+     * @param absolute_path
+     */
     public void setAbsolutePath(String absolute_path)
     {
     	this.absolute_path = absolute_path;
         
     }
     
+    /**
+     * get path for file
+     * @return
+     */
     public String getAbsolutePath()
     {
         return absolute_path;
     }
 
+	/**
+	 * return the error status
+	 * 
+	 * @return
+	 */
 	public int getStatus() {
 		return status;
 	}
 
+	/**
+	 * set the status for this error
+	 * @param status
+	 */
 	public void setStatus(int status) {
 		this.status = status;
 	}
 
+	/**
+	 * get the index for this error container
+	 * @return
+	 */
 	public int getIndex() {
 		return index;
 	}
 
+	/**
+	 * Set index 
+	 * @param index
+	 */
 	public void setIndex(int index) {
 		this.index = index;
 	}

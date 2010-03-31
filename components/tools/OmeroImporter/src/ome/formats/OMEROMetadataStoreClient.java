@@ -1,3 +1,25 @@
+/*
+ * ome.formats.importer.gui.GuiCommonElements
+ *
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
 package ome.formats;
 
 import static omero.rtypes.rbool;
@@ -264,6 +286,11 @@ public class OMEROMetadataStoreClient
     /** The default longest side of a thumbnail in OMERO.insight. */
     private static final int DEFAULT_INSIGHT_THUMBNAIL_LONGEST_SIDE = 96;
 
+    /**
+     * Initialize all services needed
+     * 
+     * @throws ServerError
+     */
     private void initializeServices()
         throws ServerError
     {
@@ -305,6 +332,9 @@ public class OMEROMetadataStoreClient
         keepAlive.setClient(this);
     }
     
+    /**
+     * @return IQuery proxy
+     */
     public IQueryPrx getIQuery()
     {
         return iQuery;
@@ -1169,6 +1199,11 @@ public class OMEROMetadataStoreClient
         o.setType((ArcType) getEnumeration(ArcType.class, type));
     }
 
+    /**
+     * @param instrumentIndex
+     * @param lightSourceIndex
+     * @return Arc
+     */
     private Arc getArc(int instrumentIndex, int lightSourceIndex)
     {
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
@@ -1195,6 +1230,9 @@ public class OMEROMetadataStoreClient
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorGain(java.lang.Double, int, int)
+     */
     public void setDetectorGain(Double gain, int instrumentIndex,
             int detectorIndex)
     {
@@ -1202,6 +1240,11 @@ public class OMEROMetadataStoreClient
         o.setGain(toRType(gain));
     }
 
+    /**
+     * @param instrumentIndex
+     * @param detectorIndex
+     * @return
+     */
     public Detector getDetector(int instrumentIndex, int detectorIndex)
     {
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
@@ -1210,6 +1253,9 @@ public class OMEROMetadataStoreClient
         return getSourceObject(Detector.class, indexes);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorID(java.lang.String, int, int)
+     */
     public void setDetectorID(String id, int instrumentIndex, int detectorIndex)
     {
     	checkDuplicateLSID(Detector.class, id);
@@ -1221,6 +1267,9 @@ public class OMEROMetadataStoreClient
         addAuthoritativeContainer(Detector.class, id, o);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorManufacturer(java.lang.String, int, int)
+     */
     public void setDetectorManufacturer(String manufacturer,
             int instrumentIndex, int detectorIndex)
     {        
@@ -1228,6 +1277,9 @@ public class OMEROMetadataStoreClient
         o.setManufacturer(toRType(manufacturer));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorModel(java.lang.String, int, int)
+     */
     public void setDetectorModel(String model, int instrumentIndex,
             int detectorIndex)
     {
@@ -1235,6 +1287,9 @@ public class OMEROMetadataStoreClient
         o.setModel(toRType(model));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorOffset(java.lang.Double, int, int)
+     */
     public void setDetectorOffset(Double offset, int instrumentIndex,
             int detectorIndex)
     {
@@ -1242,6 +1297,9 @@ public class OMEROMetadataStoreClient
         o.setOffsetValue(toRType(offset));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorSerialNumber(java.lang.String, int, int)
+     */
     public void setDetectorSerialNumber(String serialNumber,
             int instrumentIndex, int detectorIndex)
     {
@@ -1249,6 +1307,9 @@ public class OMEROMetadataStoreClient
         o.setSerialNumber(toRType(serialNumber));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorSettingsDetector(java.lang.String, int, int)
+     */
     public void setDetectorSettingsDetector(String detector, int imageIndex,
             int logicalChannelIndex)
     {
@@ -1256,6 +1317,11 @@ public class OMEROMetadataStoreClient
         addReference(key, new LSID(detector));
     }
 
+    /**
+     * @param imageIndex
+     * @param logicalChannelIndex
+     * @return
+     */
     private DetectorSettings getDetectorSettings(int imageIndex,
             int logicalChannelIndex)
     {
@@ -1265,6 +1331,9 @@ public class OMEROMetadataStoreClient
         return getSourceObject(DetectorSettings.class, indexes);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorSettingsBinning(java.lang.String, int, int)
+     */
     public void setDetectorSettingsBinning(String binning, int imageIndex,
             int logicalChannelIndex)
     {
@@ -1272,6 +1341,9 @@ public class OMEROMetadataStoreClient
         o.setBinning((Binning) getEnumeration(Binning.class, binning));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorSettingsReadOutRate(java.lang.Double, int, int)
+     */
     public void setDetectorSettingsReadOutRate(Double readOutRate,
             int imageIndex, int logicalChannelIndex)
     {
@@ -1279,6 +1351,9 @@ public class OMEROMetadataStoreClient
         o.setReadOutRate(toRType(readOutRate));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorSettingsVoltage(java.lang.Double, int, int)
+     */
     public void setDetectorSettingsVoltage(Double voltage, int imageIndex,
             int logicalChannelIndex)
     {
@@ -1286,6 +1361,9 @@ public class OMEROMetadataStoreClient
         o.setVoltage(toRType(voltage));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorSettingsGain(java.lang.Double, int, int)
+     */
     public void setDetectorSettingsGain(Double gain, int imageIndex,
             int logicalChannelIndex)
     {
@@ -1293,6 +1371,9 @@ public class OMEROMetadataStoreClient
         o.setGain(toRType(gain));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorSettingsOffset(java.lang.Double, int, int)
+     */
     public void setDetectorSettingsOffset(Double offset, int imageIndex,
             int logicalChannelIndex)
     {
@@ -1300,6 +1381,9 @@ public class OMEROMetadataStoreClient
         o.setOffsetValue(toRType(offset));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorType(java.lang.String, int, int)
+     */
     public void setDetectorType(String type, int instrumentIndex,
             int detectorIndex)
     {
@@ -1307,6 +1391,9 @@ public class OMEROMetadataStoreClient
         o.setType((DetectorType) getEnumeration(DetectorType.class, type));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorVoltage(java.lang.Double, int, int)
+     */
     public void setDetectorVoltage(Double voltage, int instrumentIndex,
             int detectorIndex)
     {
@@ -1314,6 +1401,9 @@ public class OMEROMetadataStoreClient
         o.setVoltage(toRType(voltage));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDimensionsPhysicalSizeX(java.lang.Double, int, int)
+     */
     public void setDimensionsPhysicalSizeX(Double physicalSizeX, int imageIndex,
             int pixelsIndex)
     {
@@ -1321,6 +1411,11 @@ public class OMEROMetadataStoreClient
         o.setPhysicalSizeX(toRType(physicalSizeX));
     }
 
+    /**
+     * @param imageIndex
+     * @param pixelsIndex
+     * @return
+     */
     private Pixels getPixels(int imageIndex, int pixelsIndex)
     {
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
@@ -1331,6 +1426,9 @@ public class OMEROMetadataStoreClient
         return p;
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDimensionsPhysicalSizeY(java.lang.Double, int, int)
+     */
     public void setDimensionsPhysicalSizeY(Double physicalSizeY, int imageIndex,
             int pixelsIndex)
     {
@@ -1338,6 +1436,9 @@ public class OMEROMetadataStoreClient
         o.setPhysicalSizeY(toRType(physicalSizeY));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDimensionsPhysicalSizeZ(java.lang.Double, int, int)
+     */
     public void setDimensionsPhysicalSizeZ(Double physicalSizeZ, int imageIndex,
             int pixelsIndex)
     {
@@ -1345,50 +1446,83 @@ public class OMEROMetadataStoreClient
         o.setPhysicalSizeZ(toRType(physicalSizeZ));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDimensionsTimeIncrement(java.lang.Double, int, int)
+     */
     public void setDimensionsTimeIncrement(Double timeIncrement, int imageIndex,
             int pixelsIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDimensionsWaveIncrement(java.lang.Integer, int, int)
+     */
     public void setDimensionsWaveIncrement(Integer waveIncrement,
             int imageIndex, int pixelsIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDimensionsWaveStart(java.lang.Integer, int, int)
+     */
     public void setDimensionsWaveStart(Integer waveStart, int imageIndex,
             int pixelsIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDisplayOptionsID(java.lang.String, int)
+     */
     public void setDisplayOptionsID(String id, int imageIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDisplayOptionsZoom(java.lang.Double, int)
+     */
     public void setDisplayOptionsZoom(Double zoom, int imageIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExperimenterEmail(java.lang.String, int)
+     */
     public void setExperimenterEmail(String email, int experimenterIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExperimenterFirstName(java.lang.String, int)
+     */
     public void setExperimenterFirstName(String firstName, int experimenterIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExperimenterID(java.lang.String, int)
+     */
     public void setExperimenterID(String id, int experimenterIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExperimenterInstitution(java.lang.String, int)
+     */
     public void setExperimenterInstitution(String institution,
             int experimenterIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExperimenterLastName(java.lang.String, int)
+     */
     public void setExperimenterLastName(String lastName, int experimenterIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilamentType(java.lang.String, int, int)
+     */
     public void setFilamentType(String type, int instrumentIndex,
             int lightSourceIndex)
     {
@@ -1396,6 +1530,11 @@ public class OMEROMetadataStoreClient
         o.setType((FilamentType) getEnumeration(FilamentType.class, type));
     }
 
+    /**
+     * @param instrumentIndex
+     * @param lightSourceIndex
+     * @return
+     */
     private Filament getFilament(int instrumentIndex, int lightSourceIndex)
     {
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
@@ -1404,6 +1543,9 @@ public class OMEROMetadataStoreClient
         return getSourceObject(Filament.class, indexes);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageCreationDate(java.lang.String, int)
+     */
     public void setImageCreationDate(String creationDate, int imageIndex)
     {
         if (creationDate != null)
@@ -1423,6 +1565,10 @@ public class OMEROMetadataStoreClient
         }
     }
 
+    /**
+     * @param imageIndex
+     * @return
+     */
     private Image getImage(int imageIndex)
     {
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
@@ -1430,12 +1576,18 @@ public class OMEROMetadataStoreClient
         return getSourceObject(Image.class, indexes);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageDescription(java.lang.String, int)
+     */
     public void setImageDescription(String description, int imageIndex)
     {
         Image o = getImage(imageIndex);
         o.setDescription(toRType(description));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageID(java.lang.String, int)
+     */
     public void setImageID(String id, int imageIndex)
     {
     	checkDuplicateLSID(Image.class, id);
@@ -1446,12 +1598,18 @@ public class OMEROMetadataStoreClient
         addAuthoritativeContainer(Image.class, id, o);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageInstrumentRef(java.lang.String, int)
+     */
     public void setImageInstrumentRef(String instrumentRef, int imageIndex)
     {
         LSID key = new LSID(Image.class, imageIndex);
         addReference(key, new LSID(instrumentRef));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageName(java.lang.String, int)
+     */
     public void setImageName(String name, int imageIndex)
     {
         // We don't want empty string image names
@@ -1466,6 +1624,9 @@ public class OMEROMetadataStoreClient
         o.setName(toRType(name));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImagingEnvironmentAirPressure(java.lang.Double, int)
+     */
     public void setImagingEnvironmentAirPressure(Double airPressure,
             int imageIndex)
     {
@@ -1473,6 +1634,10 @@ public class OMEROMetadataStoreClient
         o.setAirPressure(toRType(airPressure));
     }
 
+    /**
+     * @param imageIndex
+     * @return
+     */
     private ImagingEnvironment getImagingEnvironment(int imageIndex)
     {
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
@@ -1480,18 +1645,27 @@ public class OMEROMetadataStoreClient
         return getSourceObject(ImagingEnvironment.class, indexes);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImagingEnvironmentCO2Percent(java.lang.Double, int)
+     */
     public void setImagingEnvironmentCO2Percent(Double percent, int imageIndex)
     {
         ImagingEnvironment o = getImagingEnvironment(imageIndex);
         o.setCo2percent(toRType(percent));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImagingEnvironmentHumidity(java.lang.Double, int)
+     */
     public void setImagingEnvironmentHumidity(Double humidity, int imageIndex)
     {
         ImagingEnvironment o = getImagingEnvironment(imageIndex);
         o.setHumidity(toRType(humidity));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImagingEnvironmentTemperature(java.lang.Double, int)
+     */
     public void setImagingEnvironmentTemperature(Double temperature,
             int imageIndex)
     {
@@ -1499,6 +1673,10 @@ public class OMEROMetadataStoreClient
         o.setTemperature(toRType(temperature));
     }
     
+    /**
+     * @param instrumentIndex
+     * @return
+     */
     private Instrument getInstrument(int instrumentIndex)
     {
         LinkedHashMap<String, Integer> indexes = 
@@ -1507,6 +1685,9 @@ public class OMEROMetadataStoreClient
         return getSourceObject(Instrument.class, indexes);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setInstrumentID(java.lang.String, int)
+     */
     public void setInstrumentID(String id, int instrumentIndex)
     {
     	checkDuplicateLSID(Instrument.class, id);
@@ -1517,6 +1698,9 @@ public class OMEROMetadataStoreClient
         addAuthoritativeContainer(Instrument.class, id, o);
     }
     
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLaserRepetitionRate(java.lang.Double, int, int)
+     */
     public void setLaserRepetitionRate(Double repetitionRate,
     		int instrumentIndex, int lightSourceIndex)
     {
@@ -1524,6 +1708,9 @@ public class OMEROMetadataStoreClient
         o.setRepetitionRate(toRType(repetitionRate));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLaserFrequencyMultiplication(java.lang.Integer, int, int)
+     */
     public void setLaserFrequencyMultiplication(
             Integer frequencyMultiplication, int instrumentIndex,
             int lightSourceIndex)
@@ -1532,6 +1719,11 @@ public class OMEROMetadataStoreClient
         o.setFrequencyMultiplication(toRType(frequencyMultiplication));
     }
 
+    /**
+     * @param instrumentIndex
+     * @param lightSourceIndex
+     * @return
+     */
     private Laser getLaser(int instrumentIndex, int lightSourceIndex)
     {
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
@@ -1540,6 +1732,9 @@ public class OMEROMetadataStoreClient
         return getSourceObject(Laser.class, indexes);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLaserLaserMedium(java.lang.String, int, int)
+     */
     public void setLaserLaserMedium(String laserMedium, int instrumentIndex,
             int lightSourceIndex)
     {
@@ -1547,6 +1742,9 @@ public class OMEROMetadataStoreClient
         o.setLaserMedium((LaserMedium) getEnumeration(LaserMedium.class, laserMedium));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLaserPulse(java.lang.String, int, int)
+     */
     public void setLaserPulse(String pulse, int instrumentIndex,
             int lightSourceIndex)
     {
@@ -1554,6 +1752,9 @@ public class OMEROMetadataStoreClient
         o.setPulse((Pulse) getEnumeration(Pulse.class, pulse));  
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLaserTuneable(java.lang.Boolean, int, int)
+     */
     public void setLaserTuneable(Boolean tuneable, int instrumentIndex,
             int lightSourceIndex)
     {
@@ -1561,6 +1762,9 @@ public class OMEROMetadataStoreClient
         o.setTuneable(toRType(tuneable));  
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLaserType(java.lang.String, int, int)
+     */
     public void setLaserType(String type, int instrumentIndex,
             int lightSourceIndex)
     {
@@ -1568,6 +1772,9 @@ public class OMEROMetadataStoreClient
         o.setType((LaserType) getEnumeration(LaserType.class, type)); 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLaserWavelength(java.lang.Integer, int, int)
+     */
     public void setLaserWavelength(Integer wavelength, int instrumentIndex,
             int lightSourceIndex)
     {
@@ -1575,6 +1782,9 @@ public class OMEROMetadataStoreClient
         o.setWavelength(toRType(wavelength));  
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLightSourceID(java.lang.String, int, int)
+     */
     public void setLightSourceID(String id, int instrumentIndex,
             int lightSourceIndex)
     {
@@ -1587,6 +1797,9 @@ public class OMEROMetadataStoreClient
         addAuthoritativeContainer(LightSource.class, id, o);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLightSourceManufacturer(java.lang.String, int, int)
+     */
     public void setLightSourceManufacturer(String manufacturer,
             int instrumentIndex, int lightSourceIndex)
     {
@@ -1594,6 +1807,11 @@ public class OMEROMetadataStoreClient
         o.setManufacturer(toRType(manufacturer)); 
     }
 
+    /**
+     * @param instrumentIndex
+     * @param lightSourceIndex
+     * @return
+     */
     public LightSource getLightSource(int instrumentIndex, int lightSourceIndex)
     {
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
@@ -1602,6 +1820,9 @@ public class OMEROMetadataStoreClient
         return getSourceObject(LightSource.class, indexes);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLightSourceModel(java.lang.String, int, int)
+     */
     public void setLightSourceModel(String model, int instrumentIndex,
             int lightSourceIndex)
     {
@@ -1609,6 +1830,9 @@ public class OMEROMetadataStoreClient
         o.setModel(toRType(model)); 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLightSourcePower(java.lang.Double, int, int)
+     */
     public void setLightSourcePower(Double power, int instrumentIndex,
             int lightSourceIndex)
     {
@@ -1616,6 +1840,9 @@ public class OMEROMetadataStoreClient
         o.setPower(toRType(power)); 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLightSourceSerialNumber(java.lang.String, int, int)
+     */
     public void setLightSourceSerialNumber(String serialNumber,
             int instrumentIndex, int lightSourceIndex)
     {
@@ -1623,6 +1850,9 @@ public class OMEROMetadataStoreClient
         o.setSerialNumber(toRType(serialNumber)); 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLightSourceSettingsAttenuation(java.lang.Double, int, int)
+     */
     public void setLightSourceSettingsAttenuation(Double attenuation,
             int imageIndex, int logicalChannelIndex)
     {
@@ -1630,6 +1860,11 @@ public class OMEROMetadataStoreClient
         o.setAttenuation(toRType(attenuation)); 
     }
 
+    /**
+     * @param imageIndex
+     * @param logicalChannelIndex
+     * @return
+     */
     private LightSettings getLightSettings(int imageIndex,
             int logicalChannelIndex)
     {
@@ -1639,6 +1874,9 @@ public class OMEROMetadataStoreClient
         return getSourceObject(LightSettings.class, indexes);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLightSourceSettingsLightSource(java.lang.String, int, int)
+     */
     public void setLightSourceSettingsLightSource(String lightSource,
             int imageIndex, int logicalChannelIndex)
     {
@@ -1646,6 +1884,9 @@ public class OMEROMetadataStoreClient
         addReference(key, new LSID(lightSource));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLightSourceSettingsWavelength(java.lang.Integer, int, int)
+     */
     public void setLightSourceSettingsWavelength(Integer wavelength,
             int imageIndex, int logicalChannelIndex)
     {
@@ -1653,6 +1894,9 @@ public class OMEROMetadataStoreClient
         o.setWavelength(toRType(wavelength)); 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelContrastMethod(java.lang.String, int, int)
+     */
     public void setLogicalChannelContrastMethod(String contrastMethod,
             int imageIndex, int logicalChannelIndex)
     {
@@ -1661,6 +1905,11 @@ public class OMEROMetadataStoreClient
             getEnumeration(ContrastMethod.class, contrastMethod));
     }
 
+    /**
+     * @param imageIndex
+     * @param logicalChannelIndex
+     * @return
+     */
     public LogicalChannel getLogicalChannel(int imageIndex,
             int logicalChannelIndex)
     {
@@ -1670,6 +1919,9 @@ public class OMEROMetadataStoreClient
         return getSourceObject(LogicalChannel.class, indexes);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelEmWave(java.lang.Integer, int, int)
+     */
     public void setLogicalChannelEmWave(Integer emWave, int imageIndex,
             int logicalChannelIndex)
     {
@@ -1677,6 +1929,9 @@ public class OMEROMetadataStoreClient
         o.setEmissionWave(toRType(emWave));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelExWave(java.lang.Integer, int, int)
+     */
     public void setLogicalChannelExWave(Integer exWave, int imageIndex,
             int logicalChannelIndex)
     {
@@ -1684,6 +1939,9 @@ public class OMEROMetadataStoreClient
         o.setExcitationWave(toRType(exWave));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelFluor(java.lang.String, int, int)
+     */
     public void setLogicalChannelFluor(String fluor, int imageIndex,
             int logicalChannelIndex)
     {
@@ -1691,6 +1949,9 @@ public class OMEROMetadataStoreClient
         o.setFluor(toRType(fluor));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelID(java.lang.String, int, int)
+     */
     public void setLogicalChannelID(String id, int imageIndex,
             int logicalChannelIndex)
     {
@@ -1703,6 +1964,9 @@ public class OMEROMetadataStoreClient
         addAuthoritativeContainer(LogicalChannel.class, id, o);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelIlluminationType(java.lang.String, int, int)
+     */
     public void setLogicalChannelIlluminationType(String illuminationType,
             int imageIndex, int logicalChannelIndex)
     {
@@ -1711,6 +1975,9 @@ public class OMEROMetadataStoreClient
             getEnumeration(Illumination.class, illuminationType));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelMode(java.lang.String, int, int)
+     */
     public void setLogicalChannelMode(String mode, int imageIndex,
             int logicalChannelIndex)
     {
@@ -1719,6 +1986,9 @@ public class OMEROMetadataStoreClient
             getEnumeration(AcquisitionMode.class, mode));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelName(java.lang.String, int, int)
+     */
     public void setLogicalChannelName(String name, int imageIndex,
             int logicalChannelIndex)
     {
@@ -1726,6 +1996,9 @@ public class OMEROMetadataStoreClient
         o.setName(toRType(name));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelNdFilter(java.lang.Double, int, int)
+     */
     public void setLogicalChannelNdFilter(Double ndFilter, int imageIndex,
             int logicalChannelIndex)
     {
@@ -1733,6 +2006,9 @@ public class OMEROMetadataStoreClient
         o.setNdFilter(toRType(ndFilter));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelPhotometricInterpretation(java.lang.String, int, int)
+     */
     public void setLogicalChannelPhotometricInterpretation(
             String photometricInterpretation, int imageIndex,
             int logicalChannelIndex)
@@ -1742,6 +2018,9 @@ public class OMEROMetadataStoreClient
                     PhotometricInterpretation.class, photometricInterpretation));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelPinholeSize(java.lang.Double, int, int)
+     */
     public void setLogicalChannelPinholeSize(Double pinholeSize,
             int imageIndex, int logicalChannelIndex)
     {
@@ -1749,6 +2028,9 @@ public class OMEROMetadataStoreClient
         o.setPinHoleSize(toRType(pinholeSize));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelPockelCellSetting(java.lang.Integer, int, int)
+     */
     public void setLogicalChannelPockelCellSetting(Integer pockelCellSetting,
             int imageIndex, int logicalChannelIndex)
     {
@@ -1756,11 +2038,17 @@ public class OMEROMetadataStoreClient
         o.setPockelCellSetting(toRType(pockelCellSetting));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelSamplesPerPixel(java.lang.Integer, int, int)
+     */
     public void setLogicalChannelSamplesPerPixel(Integer samplesPerPixel,
             int imageIndex, int logicalChannelIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setOTFID(java.lang.String, int, int)
+     */
     public void setOTFID(String id, int instrumentIndex, int otfIndex)
     {
     	checkDuplicateLSID(OTF.class, id);
@@ -1772,6 +2060,9 @@ public class OMEROMetadataStoreClient
         addAuthoritativeContainer(OTF.class, id, o);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setOTFOpticalAxisAveraged(java.lang.Boolean, int, int)
+     */
     public void setOTFOpticalAxisAveraged(Boolean opticalAxisAveraged,
             int instrumentIndex, int otfIndex)
     {
@@ -1779,6 +2070,11 @@ public class OMEROMetadataStoreClient
         o.setOpticalAxisAveraged(toRType(opticalAxisAveraged));
     }
 
+    /**
+     * @param instrumentIndex
+     * @param otfIndex
+     * @return
+     */
     private OTF getOTF(int instrumentIndex, int otfIndex)
     {
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
@@ -1787,6 +2083,9 @@ public class OMEROMetadataStoreClient
         return getSourceObject(OTF.class, indexes);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setOTFPixelType(java.lang.String, int, int)
+     */
     public void setOTFPixelType(String pixelType, int instrumentIndex,
             int otfIndex)
     {
@@ -1794,18 +2093,27 @@ public class OMEROMetadataStoreClient
         o.setPixelsType((PixelsType) getEnumeration(PixelsType.class, pixelType));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setOTFSizeX(java.lang.Integer, int, int)
+     */
     public void setOTFSizeX(Integer sizeX, int instrumentIndex, int otfIndex)
     {
         OTF o = getOTF(instrumentIndex, otfIndex);
         o.setSizeX(toRType(sizeX));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setOTFSizeY(java.lang.Integer, int, int)
+     */
     public void setOTFSizeY(Integer sizeY, int instrumentIndex, int otfIndex)
     {
         OTF o = getOTF(instrumentIndex, otfIndex);
         o.setSizeY(toRType(sizeY));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setObjectiveIris(java.lang.Boolean, int, int)
+     */
     public void setObjectiveIris(Boolean iris, int instrumentIndex,
             int objectiveIndex)
     {
@@ -1813,6 +2121,11 @@ public class OMEROMetadataStoreClient
         o.setIris(toRType(iris));
     }
     
+    /**
+     * @param instrumentIndex
+     * @param objectiveIndex
+     * @return
+     */
     public Objective getObjective(int instrumentIndex, int objectiveIndex)
     {
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
@@ -1821,6 +2134,9 @@ public class OMEROMetadataStoreClient
         return getSourceObject(Objective.class, indexes);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setObjectiveCalibratedMagnification(java.lang.Double, int, int)
+     */
     public void setObjectiveCalibratedMagnification(
             Double calibratedMagnification, int instrumentIndex,
             int objectiveIndex)
@@ -1829,6 +2145,9 @@ public class OMEROMetadataStoreClient
         o.setCalibratedMagnification(toRType(calibratedMagnification));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setObjectiveCorrection(java.lang.String, int, int)
+     */
     public void setObjectiveCorrection(String correction, int instrumentIndex,
             int objectiveIndex)
     {
@@ -1836,6 +2155,9 @@ public class OMEROMetadataStoreClient
         o.setCorrection((Correction) getEnumeration(Correction.class, correction));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setObjectiveID(java.lang.String, int, int)
+     */
     public void setObjectiveID(String id, int instrumentIndex,
             int objectiveIndex)
     {
@@ -1848,6 +2170,9 @@ public class OMEROMetadataStoreClient
         addAuthoritativeContainer(Objective.class, id, o);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setObjectiveImmersion(java.lang.String, int, int)
+     */
     public void setObjectiveImmersion(String immersion, int instrumentIndex,
             int objectiveIndex)
     {
@@ -1855,6 +2180,9 @@ public class OMEROMetadataStoreClient
         o.setImmersion((Immersion) getEnumeration(Immersion.class, immersion));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setObjectiveLensNA(java.lang.Double, int, int)
+     */
     public void setObjectiveLensNA(Double lensNA, int instrumentIndex,
             int objectiveIndex)
     {
@@ -1862,6 +2190,9 @@ public class OMEROMetadataStoreClient
         o.setLensNA(toRType(lensNA));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setObjectiveManufacturer(java.lang.String, int, int)
+     */
     public void setObjectiveManufacturer(String manufacturer,
             int instrumentIndex, int objectiveIndex)
     {
@@ -1869,6 +2200,9 @@ public class OMEROMetadataStoreClient
         o.setManufacturer(toRType(manufacturer));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setObjectiveModel(java.lang.String, int, int)
+     */
     public void setObjectiveModel(String model, int instrumentIndex,
             int objectiveIndex)
     {
@@ -1876,6 +2210,9 @@ public class OMEROMetadataStoreClient
         o.setModel(toRType(model));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setObjectiveNominalMagnification(java.lang.Integer, int, int)
+     */
     public void setObjectiveNominalMagnification(Integer nominalMagnification,
             int instrumentIndex, int objectiveIndex)
     {
@@ -1883,6 +2220,9 @@ public class OMEROMetadataStoreClient
         o.setNominalMagnification(toRType(nominalMagnification));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setObjectiveSerialNumber(java.lang.String, int, int)
+     */
     public void setObjectiveSerialNumber(String serialNumber,
             int instrumentIndex, int objectiveIndex)
     {
@@ -1890,6 +2230,9 @@ public class OMEROMetadataStoreClient
         o.setSerialNumber(toRType(serialNumber));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setObjectiveWorkingDistance(java.lang.Double, int, int)
+     */
     public void setObjectiveWorkingDistance(Double workingDistance,
             int instrumentIndex, int objectiveIndex)
     {
@@ -1897,11 +2240,17 @@ public class OMEROMetadataStoreClient
         o.setWorkingDistance(toRType(workingDistance));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsBigEndian(java.lang.Boolean, int, int)
+     */
     public void setPixelsBigEndian(Boolean bigEndian, int imageIndex,
             int pixelsIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsDimensionOrder(java.lang.String, int, int)
+     */
     public void setPixelsDimensionOrder(String dimensionOrder, int imageIndex,
             int pixelsIndex)
     {
@@ -1909,6 +2258,9 @@ public class OMEROMetadataStoreClient
         o.setDimensionOrder((DimensionOrder) getEnumeration(DimensionOrder.class, dimensionOrder));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsID(java.lang.String, int, int)
+     */
     public void setPixelsID(String id, int imageIndex, int pixelsIndex)
     {
     	checkDuplicateLSID(Pixels.class, id);
@@ -1920,6 +2272,9 @@ public class OMEROMetadataStoreClient
         addAuthoritativeContainer(Pixels.class, id, o);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsPixelType(java.lang.String, int, int)
+     */
     public void setPixelsPixelType(String pixelType, int imageIndex,
             int pixelsIndex)
     {
@@ -1927,36 +2282,54 @@ public class OMEROMetadataStoreClient
         o.setPixelsType((PixelsType) getEnumeration(PixelsType.class, pixelType));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsSizeC(java.lang.Integer, int, int)
+     */
     public void setPixelsSizeC(Integer sizeC, int imageIndex, int pixelsIndex)
     {
         Pixels o = getPixels(imageIndex, pixelsIndex);
         o.setSizeC(toRType(sizeC));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsSizeT(java.lang.Integer, int, int)
+     */
     public void setPixelsSizeT(Integer sizeT, int imageIndex, int pixelsIndex)
     {
         Pixels o = getPixels(imageIndex, pixelsIndex);
         o.setSizeT(toRType(sizeT));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsSizeZ(java.lang.Integer, int, int)
+     */
     public void setPixelsSizeZ(Integer sizeZ, int imageIndex, int pixelsIndex)
     {
         Pixels o = getPixels(imageIndex, pixelsIndex);
         o.setSizeZ(toRType(sizeZ));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsSizeX(java.lang.Integer, int, int)
+     */
     public void setPixelsSizeX(Integer sizeX, int imageIndex, int pixelsIndex)
     {       
         Pixels o = getPixels(imageIndex, pixelsIndex);
         o.setSizeX(toRType(sizeX));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsSizeY(java.lang.Integer, int, int)
+     */
     public void setPixelsSizeY(Integer sizeY, int imageIndex, int pixelsIndex)
     {
         Pixels o = getPixels(imageIndex, pixelsIndex);
         o.setSizeY(toRType(sizeY));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlaneTheC(java.lang.Integer, int, int, int)
+     */
     public void setPlaneTheC(Integer theC, int imageIndex, int pixelsIndex,
             int planeIndex)
     {    
@@ -1964,6 +2337,12 @@ public class OMEROMetadataStoreClient
         o.setTheC(toRType(theC));
     }
 
+    /**
+     * @param imageIndex
+     * @param pixelsIndex
+     * @param planeIndex
+     * @return
+     */
     private PlaneInfo getPlaneInfo(int imageIndex, int pixelsIndex,
             int planeIndex)
     {
@@ -1974,6 +2353,9 @@ public class OMEROMetadataStoreClient
         return getSourceObject(PlaneInfo.class, indexes);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlaneTheT(java.lang.Integer, int, int, int)
+     */
     public void setPlaneTheT(Integer theT, int imageIndex, int pixelsIndex,
             int planeIndex)
     {
@@ -1981,6 +2363,9 @@ public class OMEROMetadataStoreClient
         o.setTheT(toRType(theT));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlaneTheZ(java.lang.Integer, int, int, int)
+     */
     public void setPlaneTheZ(Integer theZ, int imageIndex, int pixelsIndex,
             int planeIndex)
     {
@@ -1988,6 +2373,9 @@ public class OMEROMetadataStoreClient
         o.setTheZ(toRType(theZ));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlaneTimingDeltaT(java.lang.Double, int, int, int)
+     */
     public void setPlaneTimingDeltaT(Double deltaT, int imageIndex,
             int pixelsIndex, int planeIndex)
     {
@@ -1995,6 +2383,9 @@ public class OMEROMetadataStoreClient
         o.setDeltaT(toRType(deltaT));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlaneTimingExposureTime(java.lang.Double, int, int, int)
+     */
     public void setPlaneTimingExposureTime(Double exposureTime, int imageIndex,
             int pixelsIndex, int planeIndex)
     {
@@ -2002,12 +2393,19 @@ public class OMEROMetadataStoreClient
         o.setExposureTime(toRType(exposureTime));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateDescription(java.lang.String, int)
+     */
     public void setPlateDescription(String description, int plateIndex)
     {
         Plate o = getPlate(plateIndex);
         o.setDescription(toRType(description));
     }
 
+    /**
+     * @param plateIndex
+     * @return
+     */
     private Plate getPlate(int plateIndex)
     {
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
@@ -2015,6 +2413,9 @@ public class OMEROMetadataStoreClient
         return getSourceObject(Plate.class, indexes);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateExternalIdentifier(java.lang.String, int)
+     */
     public void setPlateExternalIdentifier(String externalIdentifier,
             int plateIndex)
     {
@@ -2022,6 +2423,9 @@ public class OMEROMetadataStoreClient
         o.setExternalIdentifier(toRType(externalIdentifier));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateID(java.lang.String, int)
+     */
     public void setPlateID(String id, int plateIndex)
     {
     	checkDuplicateLSID(Plate.class, id);
@@ -2032,58 +2436,97 @@ public class OMEROMetadataStoreClient
         addAuthoritativeContainer(Plate.class, id, o);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateName(java.lang.String, int)
+     */
     public void setPlateName(String name, int plateIndex)
     {
         Plate o = getPlate(plateIndex);
         o.setName(toRType(name));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateRefID(java.lang.String, int, int)
+     */
     public void setPlateRefID(String id, int screenIndex, int plateRefIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateStatus(java.lang.String, int)
+     */
     public void setPlateStatus(String status, int plateIndex)
     {
         Plate o = getPlate(plateIndex);
         o.setStatus(toRType(status));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setROIID(java.lang.String, int, int)
+     */
     public void setROIID(String id, int imageIndex, int roiIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setROIT0(java.lang.Integer, int, int)
+     */
     public void setROIT0(Integer t0, int imageIndex, int roiIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setROIT1(java.lang.Integer, int, int)
+     */
     public void setROIT1(Integer t1, int imageIndex, int roiIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setROIX0(java.lang.Integer, int, int)
+     */
     public void setROIX0(Integer x0, int imageIndex, int roiIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setROIX1(java.lang.Integer, int, int)
+     */
     public void setROIX1(Integer x1, int imageIndex, int roiIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setROIY0(java.lang.Integer, int, int)
+     */
     public void setROIY0(Integer y0, int imageIndex, int roiIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setROIY1(java.lang.Integer, int, int)
+     */
     public void setROIY1(Integer y1, int imageIndex, int roiIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setROIZ0(java.lang.Integer, int, int)
+     */
     public void setROIZ0(Integer z0, int imageIndex, int roiIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setROIZ1(java.lang.Integer, int, int)
+     */
     public void setROIZ1(Integer z1, int imageIndex, int roiIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setReagentDescription(java.lang.String, int, int)
+     */
     public void setReagentDescription(String description, int screenIndex,
             int reagentIndex)
     {
@@ -2091,6 +2534,11 @@ public class OMEROMetadataStoreClient
         o.setDescription(toRType(description));
     }
 
+    /**
+     * @param screenIndex
+     * @param reagentIndex
+     * @return
+     */
     private Reagent getReagent(int screenIndex, int reagentIndex)
     {
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
@@ -2099,6 +2547,9 @@ public class OMEROMetadataStoreClient
         return getSourceObject(Reagent.class, indexes);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setReagentID(java.lang.String, int, int)
+     */
     public void setReagentID(String id, int screenIndex, int reagentIndex)
     {
     	checkDuplicateLSID(Reagent.class, id);
@@ -2110,12 +2561,18 @@ public class OMEROMetadataStoreClient
         addAuthoritativeContainer(Reagent.class, id, o);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setReagentName(java.lang.String, int, int)
+     */
     public void setReagentName(String name, int screenIndex, int reagentIndex)
     {
         Reagent o = getReagent(screenIndex, reagentIndex);
         o.setName(toRType(name));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setReagentReagentIdentifier(java.lang.String, int, int)
+     */
     public void setReagentReagentIdentifier(String reagentIdentifier,
             int screenIndex, int reagentIndex)
     {
@@ -2123,68 +2580,105 @@ public class OMEROMetadataStoreClient
         o.setReagentIdentifier(toRType(reagentIdentifier));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRoot(java.lang.Object)
+     */
     public void setRoot(Object root)
     {
         log.debug(String.format("IGNORING: setRoot[%s]", root));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setScreenAcquisitionEndTime(java.lang.String, int, int)
+     */
     public void setScreenAcquisitionEndTime(String endTime, int screenIndex,
             int screenAcquisitionIndex)
     {
         // Disabled
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setScreenAcquisitionID(java.lang.String, int, int)
+     */
     public void setScreenAcquisitionID(String id, int screenIndex,
             int screenAcquisitionIndex)
     {
         // Disabled
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setScreenAcquisitionStartTime(java.lang.String, int, int)
+     */
     public void setScreenAcquisitionStartTime(String startTime,
             int screenIndex, int screenAcquisitionIndex)
     {
         // Disabled
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setScreenID(java.lang.String, int)
+     */
     public void setScreenID(String id, int screenIndex)
     {
         // Disabled
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setScreenName(java.lang.String, int)
+     */
     public void setScreenName(String name, int screenIndex)
     {
         // Disabled
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setScreenProtocolDescription(java.lang.String, int)
+     */
     public void setScreenProtocolDescription(String protocolDescription,
             int screenIndex)
     {
         // Disabled
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setScreenProtocolIdentifier(java.lang.String, int)
+     */
     public void setScreenProtocolIdentifier(String protocolIdentifier,
             int screenIndex)
     {
         // Disabled
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setScreenReagentSetDescription(java.lang.String, int)
+     */
     public void setScreenReagentSetDescription(String reagentSetDescription,
             int screenIndex)
     {
         // Disabled
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setScreenType(java.lang.String, int)
+     */
     public void setScreenType(String type, int screenIndex)
     {
         // Disabled
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setStageLabelName(java.lang.String, int)
+     */
     public void setStageLabelName(String name, int imageIndex)
     {
         StageLabel o = getStageLabel(imageIndex);
         o.setName(toRType(name));
     }
 
+    /**
+     * @param imageIndex
+     * @return
+     */
     private StageLabel getStageLabel(int imageIndex)
     {
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
@@ -2192,24 +2686,36 @@ public class OMEROMetadataStoreClient
         return getSourceObject(StageLabel.class, indexes);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setStageLabelX(java.lang.Double, int)
+     */
     public void setStageLabelX(Double x, int imageIndex)
     {
         StageLabel o = getStageLabel(imageIndex);
         o.setPositionX(toRType(x));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setStageLabelY(java.lang.Double, int)
+     */
     public void setStageLabelY(Double y, int imageIndex)
     {
         StageLabel o = getStageLabel(imageIndex);
         o.setPositionY(toRType(y));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setStageLabelZ(java.lang.Double, int)
+     */
     public void setStageLabelZ(Double z, int imageIndex)
     {
         StageLabel o = getStageLabel(imageIndex);
         o.setPositionZ(toRType(z));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setStagePositionPositionX(java.lang.Double, int, int, int)
+     */
     public void setStagePositionPositionX(Double positionX, int imageIndex,
             int pixelsIndex, int planeIndex)
     {    
@@ -2217,6 +2723,9 @@ public class OMEROMetadataStoreClient
         o.setPositionX(toRType(positionX));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setStagePositionPositionY(java.lang.Double, int, int, int)
+     */
     public void setStagePositionPositionY(Double positionY, int imageIndex,
             int pixelsIndex, int planeIndex)
     {
@@ -2224,6 +2733,9 @@ public class OMEROMetadataStoreClient
         o.setPositionY(toRType(positionY));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setStagePositionPositionZ(java.lang.Double, int, int, int)
+     */
     public void setStagePositionPositionZ(Double positionZ, int imageIndex,
             int pixelsIndex, int planeIndex)
     {
@@ -2231,51 +2743,83 @@ public class OMEROMetadataStoreClient
         o.setPositionZ(toRType(positionZ));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTiffDataFileName(java.lang.String, int, int, int)
+     */
     public void setTiffDataFileName(String fileName, int imageIndex,
             int pixelsIndex, int tiffDataIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTiffDataFirstC(java.lang.Integer, int, int, int)
+     */
     public void setTiffDataFirstC(Integer firstC, int imageIndex,
             int pixelsIndex, int tiffDataIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTiffDataFirstT(java.lang.Integer, int, int, int)
+     */
     public void setTiffDataFirstT(Integer firstT, int imageIndex,
             int pixelsIndex, int tiffDataIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTiffDataFirstZ(java.lang.Integer, int, int, int)
+     */
     public void setTiffDataFirstZ(Integer firstZ, int imageIndex,
             int pixelsIndex, int tiffDataIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTiffDataIFD(java.lang.Integer, int, int, int)
+     */
     public void setTiffDataIFD(Integer ifd, int imageIndex, int pixelsIndex,
             int tiffDataIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTiffDataNumPlanes(java.lang.Integer, int, int, int)
+     */
     public void setTiffDataNumPlanes(Integer numPlanes, int imageIndex,
             int pixelsIndex, int tiffDataIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTiffDataUUID(java.lang.String, int, int, int)
+     */
     public void setTiffDataUUID(String uuid, int imageIndex, int pixelsIndex,
             int tiffDataIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setUUID(java.lang.String)
+     */
     public void setUUID(String uuid)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellColumn(java.lang.Integer, int, int)
+     */
     public void setWellColumn(Integer column, int plateIndex, int wellIndex)
     {
         Well o = getWell(plateIndex, wellIndex);
         o.setColumn(toRType(column));
     }
 
+    /**
+     * @param plateIndex
+     * @param wellIndex
+     * @return
+     */
     private Well getWell(int plateIndex, int wellIndex)
     {
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
@@ -2284,6 +2828,9 @@ public class OMEROMetadataStoreClient
         return getSourceObject(Well.class, indexes);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellExternalDescription(java.lang.String, int, int)
+     */
     public void setWellExternalDescription(String externalDescription,
             int plateIndex, int wellIndex)
     {
@@ -2291,6 +2838,9 @@ public class OMEROMetadataStoreClient
         o.setExternalDescription(toRType(externalDescription));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellExternalIdentifier(java.lang.String, int, int)
+     */
     public void setWellExternalIdentifier(String externalIdentifier,
             int plateIndex, int wellIndex)
     {
@@ -2298,6 +2848,9 @@ public class OMEROMetadataStoreClient
         o.setExternalIdentifier(toRType(externalIdentifier));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellID(java.lang.String, int, int)
+     */
     public void setWellID(String id, int plateIndex, int wellIndex)
     {
     	checkDuplicateLSID(Well.class, id);
@@ -2309,12 +2862,18 @@ public class OMEROMetadataStoreClient
         addAuthoritativeContainer(Well.class, id, o);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellRow(java.lang.Integer, int, int)
+     */
     public void setWellRow(Integer row, int plateIndex, int wellIndex)
     {
         Well o = getWell(plateIndex, wellIndex);
         o.setRow(toRType(row));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellSampleID(java.lang.String, int, int, int)
+     */
     public void setWellSampleID(String id, int plateIndex, int wellIndex,
             int wellSampleIndex)
     {
@@ -2328,11 +2887,17 @@ public class OMEROMetadataStoreClient
         addAuthoritativeContainer(WellSample.class, id, o);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellSampleIndex(java.lang.Integer, int, int, int)
+     */
     public void setWellSampleIndex(Integer index, int plateIndex,
             int wellIndex, int wellSampleIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellSamplePosX(java.lang.Double, int, int, int)
+     */
     public void setWellSamplePosX(Double posX, int plateIndex, int wellIndex,
             int wellSampleIndex)
     {
@@ -2340,6 +2905,12 @@ public class OMEROMetadataStoreClient
         o.setPosX(toRType(posX));
     }
 
+    /**
+     * @param plateIndex
+     * @param wellIndex
+     * @param wellSampleIndex
+     * @return
+     */
     private WellSample getWellSample(int plateIndex, int wellIndex,
             int wellSampleIndex)
     {
@@ -2350,6 +2921,9 @@ public class OMEROMetadataStoreClient
         return getSourceObject(WellSample.class, indexes);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellSamplePosY(java.lang.Double, int, int, int)
+     */
     public void setWellSamplePosY(Double posY, int plateIndex, int wellIndex,
             int wellSampleIndex)
     {
@@ -2357,6 +2931,9 @@ public class OMEROMetadataStoreClient
         o.setPosY(toRType(posY));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellSampleTimepoint(java.lang.Integer, int, int, int)
+     */
     public void setWellSampleTimepoint(Integer timepoint, int plateIndex,
             int wellIndex, int wellSampleIndex)
     {
@@ -2364,12 +2941,18 @@ public class OMEROMetadataStoreClient
         o.setTimepoint(toRType(timepoint));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellType(java.lang.String, int, int)
+     */
     public void setWellType(String type, int plateIndex, int wellIndex)
     {
         Well o = getWell(plateIndex, wellIndex);
         o.setType(toRType(type));
     }
     
+    /**
+     * @return - experimenter id
+     */
     public long getExperimenterID()
     {
         try
@@ -2800,6 +3383,9 @@ public class OMEROMetadataStoreClient
         }
     }
     
+    /**
+     * @return repository space as a long
+     */
     public long getRepositorySpace()
     {
         try
@@ -2898,19 +3484,15 @@ public class OMEROMetadataStoreClient
             return null;
         }
     }
-    
-    public Project getProject(long projectId)
-    {
-        try
-        {
-            return (Project) iQuery.get("Project", projectId);
-        }
-        catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-
+   
+    /**
+     * Helper method to retrieve an object from iQuery
+     * 
+     * @param <T>
+     * @param klass
+     * @param id
+     * @return
+     */
     @SuppressWarnings("unchecked")
     public <T extends IObject> T getTarget(Class<T> klass, long id)
     {
@@ -2923,7 +3505,29 @@ public class OMEROMetadataStoreClient
             throw new RuntimeException(e);
         }
     }
+    
+    /**
+     * @param projectId
+     * @return
+     */
+    public Project getProject(long projectId)
+    {
+        try
+        {
+            return (Project) iQuery.get("Project", projectId);
+        }
+        catch (ServerError e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
 
+    /**
+     * @param datasetName
+     * @param datasetDescription
+     * @param project
+     * @return
+     */
     public Dataset addDataset(String datasetName, String datasetDescription,
             Project project)
     {
@@ -2945,6 +3549,9 @@ public class OMEROMetadataStoreClient
         }
     }
 
+    /**
+     * @return
+     */
     public List<Screen> getScreens()
     {
         try
@@ -2965,6 +3572,9 @@ public class OMEROMetadataStoreClient
     }
 
     
+    /**
+     * @return
+     */
     public List<Project> getProjects()
     {
         try
@@ -2987,6 +3597,10 @@ public class OMEROMetadataStoreClient
         }
     }
 
+    /**
+     * @param p
+     * @return
+     */
     public List<Dataset> getDatasets(Project p)
     {
         try
@@ -3011,6 +3625,11 @@ public class OMEROMetadataStoreClient
         }
     }
 
+    /**
+     * @param projectName
+     * @param projectDescription
+     * @return
+     */
     public Project addProject(String projectName, String projectDescription)
     {
         Project project = new ProjectI();
@@ -3028,6 +3647,11 @@ public class OMEROMetadataStoreClient
         }
     }
     
+    /**
+     * @param screenName
+     * @param screenDescription
+     * @return
+     */
     public Screen addScreen(String screenName, String screenDescription)
     {
         Screen screen = new ScreenI();
@@ -3061,6 +3685,14 @@ public class OMEROMetadataStoreClient
         }
     }
 
+    /**
+     * @param pixId
+     * @param arrayBuf
+     * @param z
+     * @param c
+     * @param t
+     * @throws ServerError
+     */
     public void setPlane(Long pixId, byte[] arrayBuf, int z, int c, int t)
         throws ServerError
     {
@@ -3129,6 +3761,10 @@ public class OMEROMetadataStoreClient
         }
     }
 
+    /**
+     * @param in
+     * @return
+     */
     public static String byteArrayToHexString(byte in[]) {
 
         byte ch = 0x00;
@@ -3201,12 +3837,19 @@ public class OMEROMetadataStoreClient
     	}
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExperimentDescription(java.lang.String, int)
+     */
     public void setExperimentDescription(String description, int experimentIndex)
     {
         Experiment o = getExperiment(experimentIndex);
         o.setDescription(toRType(description));
     }
 
+    /**
+     * @param experimentIndex
+     * @return
+     */
     private Experiment getExperiment(int experimentIndex)
     {
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
@@ -3214,6 +3857,9 @@ public class OMEROMetadataStoreClient
         return getSourceObject(Experiment.class, indexes);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExperimentID(java.lang.String, int)
+     */
     public void setExperimentID(String id, int experimentIndex)
     {
     	checkDuplicateLSID(Experiment.class, id);
@@ -3224,17 +3870,26 @@ public class OMEROMetadataStoreClient
         addAuthoritativeContainer(Experiment.class, id, o);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExperimentType(java.lang.String, int)
+     */
     public void setExperimentType(String type, int experimentIndex)
     {
         Experiment o = getExperiment(experimentIndex);
         o.setType((ExperimentType) getEnumeration(ExperimentType.class, type));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExperimenterMembershipGroup(java.lang.String, int, int)
+     */
     public void setExperimenterMembershipGroup(String group,
             int experimenterIndex, int groupRefIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageDefaultPixels(java.lang.String, int)
+     */
     public void setImageDefaultPixels(String defaultPixels, int imageIndex)
     {
         //FIXME: make this work!
@@ -3242,6 +3897,9 @@ public class OMEROMetadataStoreClient
         //referenceCache.put(key, new LSID(defaultPixels));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelOTF(java.lang.String, int, int)
+     */
     public void setLogicalChannelOTF(String otf, int imageIndex,
             int logicalChannelIndex)
     {
@@ -3249,6 +3907,9 @@ public class OMEROMetadataStoreClient
         addReference(key, new LSID(otf));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setOTFObjective(java.lang.String, int, int)
+     */
     public void setOTFObjective(String objective, int instrumentIndex,
             int otfIndex)
     {
@@ -3258,6 +3919,9 @@ public class OMEROMetadataStoreClient
 
     /* ---- Objective Settings ---- */
     
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setObjectiveSettingsCorrectionCollar(java.lang.Double, int)
+     */
     public void setObjectiveSettingsCorrectionCollar(Double correctionCollar,
             int imageIndex)
     {
@@ -3265,6 +3929,10 @@ public class OMEROMetadataStoreClient
         o.setCorrectionCollar(toRType(correctionCollar));
     }
 
+    /**
+     * @param imageIndex
+     * @return
+     */
     private ObjectiveSettings getObjectiveSettings(int imageIndex)
     {
         LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
@@ -3272,18 +3940,27 @@ public class OMEROMetadataStoreClient
         return getSourceObject(ObjectiveSettings.class, indexes);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setObjectiveSettingsMedium(java.lang.String, int)
+     */
     public void setObjectiveSettingsMedium(String medium, int imageIndex)
     {
         ObjectiveSettings o = getObjectiveSettings(imageIndex);
         o.setMedium((Medium) getEnumeration(Medium.class, medium));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setObjectiveSettingsObjective(java.lang.String, int)
+     */
     public void setObjectiveSettingsObjective(String objective, int imageIndex)
     {
         LSID key = new LSID(ObjectiveSettings.class, imageIndex);
         addReference(key, new LSID(objective));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setObjectiveSettingsRefractiveIndex(java.lang.Double, int)
+     */
     public void setObjectiveSettingsRefractiveIndex(Double refractiveIndex,
             int imageIndex)
     {
@@ -3416,6 +4093,9 @@ public class OMEROMetadataStoreClient
         }
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelComponentPixels(java.lang.String, int, int, int)
+     */
     public void setChannelComponentPixels(String arg0, int arg1, int arg2,
             int arg3)
     {
@@ -3424,6 +4104,12 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /**
+     * @param imageIndex
+     * @param roiIndex
+     * @param shapeIndex
+     * @return
+     */
     private Ellipse getCircle(int imageIndex, int roiIndex, int shapeIndex)
     {
         LinkedHashMap<String, Integer> indexes =
@@ -3434,6 +4120,9 @@ public class OMEROMetadataStoreClient
         return getSourceObject(Ellipse.class, indexes);
     }
     
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setCircleCx(java.lang.String, int, int, int)
+     */
     public void setCircleCx(String cx, int imageIndex, int roiIndex,
 			int shapeIndex)
     {
@@ -3442,6 +4131,9 @@ public class OMEROMetadataStoreClient
     	//o.setCx(toRType(Double.parseDouble(cx)));
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setCircleCy(java.lang.String, int, int, int)
+	 */
 	public void setCircleCy(String cy, int imageIndex, int roiIndex,
 			int shapeIndex)
 	{
@@ -3450,6 +4142,9 @@ public class OMEROMetadataStoreClient
     	//o.setCy(toRType(Double.parseDouble(cy)));
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setCircleID(java.lang.String, int, int, int)
+	 */
 	public void setCircleID(String id, int imageIndex, int roiIndex,
 			int shapeIndex)
 	{
@@ -3464,6 +4159,9 @@ public class OMEROMetadataStoreClient
         //o.LSID = id;
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setCircleR(java.lang.String, int, int, int)
+	 */
 	public void setCircleR(String r, int imageIndex, int roiIndex,
 			int shapeIndex)
 	{
@@ -3474,6 +4172,9 @@ public class OMEROMetadataStoreClient
     	//o.setRy(toRType(radius));
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setCircleTransform(java.lang.String, int, int, int)
+	 */
 	public void setCircleTransform(String transform, int imageIndex,
 			int roiIndex, int shapeIndex)
 	{
@@ -3482,6 +4183,9 @@ public class OMEROMetadataStoreClient
     	//o.setTransform(toRType(transform));
 	}
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setContactExperimenter(java.lang.String, int)
+     */
     public void setContactExperimenter(String arg0, int arg1)
     {
 
@@ -3489,6 +4193,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDatasetDescription(java.lang.String, int)
+     */
     public void setDatasetDescription(String arg0, int arg1)
     {
 
@@ -3496,6 +4203,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDatasetExperimenterRef(java.lang.String, int)
+     */
     public void setDatasetExperimenterRef(String arg0, int arg1)
     {
 
@@ -3503,6 +4213,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDatasetGroupRef(java.lang.String, int)
+     */
     public void setDatasetGroupRef(String arg0, int arg1)
     {
 
@@ -3510,6 +4223,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDatasetID(java.lang.String, int)
+     */
     public void setDatasetID(String arg0, int arg1)
     {
 
@@ -3517,6 +4233,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDatasetLocked(java.lang.Boolean, int)
+     */
     public void setDatasetLocked(Boolean arg0, int arg1)
     {
 
@@ -3524,6 +4243,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDatasetName(java.lang.String, int)
+     */
     public void setDatasetName(String arg0, int arg1)
     {
 
@@ -3531,6 +4253,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDatasetRefID(java.lang.String, int, int)
+     */
     public void setDatasetRefID(String arg0, int arg1, int arg2)
     {
 
@@ -3538,6 +4263,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorAmplificationGain(java.lang.Double, int, int)
+     */
     public void setDetectorAmplificationGain(Double amplificationGain,
     		                                 int instrumentIndex,
                                              int detectorIndex)
@@ -3546,6 +4274,9 @@ public class OMEROMetadataStoreClient
     	o.setAmplificationGain(toRType(amplificationGain));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorZoom(java.lang.Double, int, int)
+     */
     public void setDetectorZoom(Double zoom, int instrumentIndex,
     		                    int detectorIndex)
     {
@@ -3553,6 +4284,11 @@ public class OMEROMetadataStoreClient
     	o.setZoom(toRType(zoom));
     }
 
+    /**
+     * @param instrumentIndex
+     * @param dichroicIndex
+     * @return
+     */
     private Dichroic getDichroic(int instrumentIndex, int dichroicIndex)
 	{
 	    LinkedHashMap<String, Integer> indexes = 
@@ -3562,6 +4298,9 @@ public class OMEROMetadataStoreClient
 	    return getSourceObject(Dichroic.class, indexes);
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setDichroicLotNumber(java.lang.String, int, int)
+	 */
 	public void setDichroicLotNumber(String lotNumber,
                                      int instrumentIndex,
                                      int dichroicIndex)
@@ -3570,6 +4309,9 @@ public class OMEROMetadataStoreClient
     	o.setLotNumber(toRType(lotNumber));
     }
     
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDichroicManufacturer(java.lang.String, int, int)
+     */
     public void setDichroicManufacturer(String manufacturer,
     		                            int instrumentIndex,
     		                            int dichroicIndex)
@@ -3578,6 +4320,9 @@ public class OMEROMetadataStoreClient
     	o.setManufacturer(toRType(manufacturer));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDichroicModel(java.lang.String, int, int)
+     */
     public void setDichroicModel(String model,
                                  int instrumentIndex,
                                  int dichroicIndex)
@@ -3586,6 +4331,9 @@ public class OMEROMetadataStoreClient
     	o.setModel(toRType(model));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDisplayOptionsDisplay(java.lang.String, int)
+     */
     public void setDisplayOptionsDisplay(String arg0, int arg1)
     {
 
@@ -3593,6 +4341,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setEllipseID(java.lang.String, int, int, int)
+     */
     public void setEllipseID(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -3600,6 +4351,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setEllipseCx(java.lang.String, int, int, int)
+     */
     public void setEllipseCx(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -3607,6 +4361,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setEllipseCy(java.lang.String, int, int, int)
+     */
     public void setEllipseCy(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -3614,6 +4371,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setEllipseRx(java.lang.String, int, int, int)
+     */
     public void setEllipseRx(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -3621,6 +4381,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setEllipseRy(java.lang.String, int, int, int)
+     */
     public void setEllipseRy(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -3628,6 +4391,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setEllipseTransform(java.lang.String, int, int, int)
+     */
     public void setEllipseTransform(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -3635,6 +4401,11 @@ public class OMEROMetadataStoreClient
 
     }
     
+    /**
+     * @param instrumentIndex
+     * @param filterIndex
+     * @return
+     */
     private Filter getFilter(int instrumentIndex, int filterIndex)
     {
         LinkedHashMap<String, Integer> indexes = 
@@ -3644,6 +4415,11 @@ public class OMEROMetadataStoreClient
         return getSourceObject(Filter.class, indexes);
     }
     
+    /**
+     * @param instrumentIndex
+     * @param filterIndex
+     * @return
+     */
     private TransmittanceRange getTransmittanceRange(int instrumentIndex,
     		                                         int filterIndex)
     {
@@ -3657,6 +4433,9 @@ public class OMEROMetadataStoreClient
         return range;
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setEmFilterLotNumber(java.lang.String, int, int)
+     */
     public void setEmFilterLotNumber(String arg0, int arg1, int arg2)
     {
 
@@ -3664,6 +4443,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setEmFilterManufacturer(java.lang.String, int, int)
+     */
     public void setEmFilterManufacturer(String arg0, int arg1, int arg2)
     {
 
@@ -3671,6 +4453,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setEmFilterModel(java.lang.String, int, int)
+     */
     public void setEmFilterModel(String arg0, int arg1, int arg2)
     {
 
@@ -3678,6 +4463,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setEmFilterType(java.lang.String, int, int)
+     */
     public void setEmFilterType(String arg0, int arg1, int arg2)
     {
 
@@ -3685,6 +4473,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExFilterLotNumber(java.lang.String, int, int)
+     */
     public void setExFilterLotNumber(String arg0, int arg1, int arg2)
     {
 
@@ -3692,6 +4483,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExFilterManufacturer(java.lang.String, int, int)
+     */
     public void setExFilterManufacturer(String arg0, int arg1, int arg2)
     {
 
@@ -3699,6 +4493,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExFilterModel(java.lang.String, int, int)
+     */
     public void setExFilterModel(String arg0, int arg1, int arg2)
     {
 
@@ -3706,6 +4503,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExFilterType(java.lang.String, int, int)
+     */
     public void setExFilterType(String arg0, int arg1, int arg2)
     {
 
@@ -3713,6 +4513,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExperimentExperimenterRef(java.lang.String, int)
+     */
     public void setExperimentExperimenterRef(String arg0, int arg1)
     {
 
@@ -3720,6 +4523,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExperimenterOMEName(java.lang.String, int)
+     */
     public void setExperimenterOMEName(String arg0, int arg1)
     {
 
@@ -3727,6 +4533,9 @@ public class OMEROMetadataStoreClient
 
     }
     
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilterFilterWheel(java.lang.String, int, int)
+     */
     public void setFilterFilterWheel(String filterWheel, int instrumentIndex,
     		                         int filterIndex)
     {
@@ -3734,6 +4543,9 @@ public class OMEROMetadataStoreClient
     	o.setFilterWheel(toRType(filterWheel));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilterLotNumber(java.lang.String, int, int)
+     */
     public void setFilterLotNumber(String lotNumber, int instrumentIndex,
                                    int filterIndex)
     {
@@ -3741,6 +4553,9 @@ public class OMEROMetadataStoreClient
     	o.setLotNumber(toRType(lotNumber));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilterManufacturer(java.lang.String, int, int)
+     */
     public void setFilterManufacturer(String lotNumber, int instrumentIndex,
                                       int filterIndex)
     {
@@ -3748,6 +4563,9 @@ public class OMEROMetadataStoreClient
     	o.setLotNumber(toRType(lotNumber));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilterModel(java.lang.String, int, int)
+     */
     public void setFilterModel(String model, int instrumentIndex,
                                int filterIndex)
     {
@@ -3755,6 +4573,11 @@ public class OMEROMetadataStoreClient
     	o.setModel(toRType(model));
     }
     
+    /**
+     * @param instrumentIndex
+     * @param filterSetIndex
+     * @return
+     */
     private FilterSet getFilterSet(int instrumentIndex,
     		                       int filterSetIndex)
     {
@@ -3765,6 +4588,9 @@ public class OMEROMetadataStoreClient
     	return getSourceObject(FilterSet.class, indexes);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilterSetDichroic(java.lang.String, int, int)
+     */
     public void setFilterSetDichroic(String dichroic, int instrumentIndex,
     		                         int filterSetIndex)
     {
@@ -3772,6 +4598,9 @@ public class OMEROMetadataStoreClient
         addReference(key, new LSID(dichroic));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilterSetEmFilter(java.lang.String, int, int)
+     */
     public void setFilterSetEmFilter(String emFilter, int instrumentIndex,
     		                         int filterSetIndex)
     {
@@ -3784,6 +4613,9 @@ public class OMEROMetadataStoreClient
         addReference(key, new LSID(emFilter));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilterSetExFilter(java.lang.String, int, int)
+     */
     public void setFilterSetExFilter(String exFilter, int instrumentIndex,
     		                         int filterSetIndex)
     {
@@ -3796,6 +4628,9 @@ public class OMEROMetadataStoreClient
         addReference(key, new LSID(exFilter));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilterSetLotNumber(java.lang.String, int, int)
+     */
     public void setFilterSetLotNumber(String lotNumber, int instrumentIndex,
     		                          int filterSetIndex)
     {
@@ -3803,6 +4638,9 @@ public class OMEROMetadataStoreClient
     	o.setLotNumber(toRType(lotNumber));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilterSetManufacturer(java.lang.String, int, int)
+     */
     public void setFilterSetManufacturer(String manufacturer,
     		                             int instrumentIndex,
     		                             int filterSetIndex)
@@ -3811,6 +4649,9 @@ public class OMEROMetadataStoreClient
     	o.setManufacturer(toRType(manufacturer));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilterSetModel(java.lang.String, int, int)
+     */
     public void setFilterSetModel(String model, int instrumentIndex,
     		                      int filterIndex)
     {
@@ -3818,12 +4659,18 @@ public class OMEROMetadataStoreClient
     	o.setModel(toRType(model));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilterType(java.lang.String, int, int)
+     */
     public void setFilterType(String type, int instrumentIndex, int filterIndex)
     {
     	Filter o = getFilter(instrumentIndex, filterIndex);
     	o.setType((FilterType) getEnumeration(FilterType.class, type));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setGroupName(java.lang.String, int)
+     */
     public void setGroupName(String arg0, int arg1)
     {
 
@@ -3831,6 +4678,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageAcquiredPixels(java.lang.String, int)
+     */
     public void setImageAcquiredPixels(String arg0, int arg1)
     {
 
@@ -3838,6 +4688,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageExperimentRef(java.lang.String, int)
+     */
     public void setImageExperimentRef(String arg0, int arg1)
     {
 
@@ -3845,6 +4698,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageExperimenterRef(java.lang.String, int)
+     */
     public void setImageExperimenterRef(String arg0, int arg1)
     {
 
@@ -3852,6 +4708,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageGroupRef(java.lang.String, int)
+     */
     public void setImageGroupRef(String arg0, int arg1)
     {
 
@@ -3859,6 +4718,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLaserPockelCell(java.lang.Boolean, int, int)
+     */
     public void setLaserPockelCell(Boolean pockelCell, int instrumentIndex,
     		                       int lightSourceIndex)
     {
@@ -3866,6 +4728,11 @@ public class OMEROMetadataStoreClient
     	o.setPockelCell(toRType(pockelCell));
     }
 
+    /**
+     * @param repetitionRate
+     * @param instrumentIndex
+     * @param lightSourceIndex
+     */
     public void setLaserRepetitionRate(Boolean repetitionRate, 
     		                           int instrumentIndex,
     		                           int lightSourceIndex)
@@ -3874,6 +4741,12 @@ public class OMEROMetadataStoreClient
     	//o.setRepetitionRate(toRType(repetitionRate));
     }
     
+    /**
+     * @param imageIndex
+     * @param microbeamManipulationIndex
+     * @param lightSourceRefIndex
+     * @return
+     */
     private LightSettings getLightSettings(int imageIndex,
     		                               int microbeamManipulationIndex,
     		                               int lightSourceRefIndex)
@@ -3886,6 +4759,9 @@ public class OMEROMetadataStoreClient
         return getSourceObject(LightSettings.class, indexes);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLightSourceRefAttenuation(java.lang.Double, int, int, int)
+     */
     public void setLightSourceRefAttenuation(Double attenuation, int imageIndex,
     		                                 int microbeamManipulationIndex,
     		                                 int lightSourceRefIndex)
@@ -3896,6 +4772,9 @@ public class OMEROMetadataStoreClient
     	o.setAttenuation(toRType(attenuation));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLightSourceRefLightSource(java.lang.String, int, int, int)
+     */
     public void setLightSourceRefLightSource(String lightSource, int imageIndex,
                                              int microbeamManipulationIndex,
                                              int lightSourceRefIndex)
@@ -3906,6 +4785,9 @@ public class OMEROMetadataStoreClient
         addReference(key, new LSID(lightSource));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLightSourceRefWavelength(java.lang.Integer, int, int, int)
+     */
     public void setLightSourceRefWavelength(Integer wavelength, int imageIndex,
                                             int microbeamManipulationIndex,
                                             int lightSourceRefIndex)
@@ -3916,6 +4798,9 @@ public class OMEROMetadataStoreClient
     	o.setWavelength(toRType(wavelength));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLineID(java.lang.String, int, int, int)
+     */
     public void setLineID(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -3923,6 +4808,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLineTransform(java.lang.String, int, int, int)
+     */
     public void setLineTransform(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -3930,6 +4818,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLineX1(java.lang.String, int, int, int)
+     */
     public void setLineX1(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -3937,6 +4828,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLineX2(java.lang.String, int, int, int)
+     */
     public void setLineX2(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -3944,6 +4838,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLineY1(java.lang.String, int, int, int)
+     */
     public void setLineY1(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -3951,6 +4848,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLineY2(java.lang.String, int, int, int)
+     */
     public void setLineY2(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -3958,6 +4858,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelDetector(java.lang.String, int, int)
+     */
     public void setLogicalChannelDetector(
     		String detector, int imageIndex, int logicalChannelIndex)
     {
@@ -3970,6 +4873,9 @@ public class OMEROMetadataStoreClient
     	setDetectorSettingsDetector(detector, imageIndex, logicalChannelIndex);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelFilterSet(java.lang.String, int, int)
+     */
     public void setLogicalChannelFilterSet(
     		String filterSet, int imageIndex, int logicalChannelIndex)
     {
@@ -3978,6 +4884,9 @@ public class OMEROMetadataStoreClient
         addReference(key, new LSID(filterSet));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelLightSource(java.lang.String, int, int)
+     */
     public void setLogicalChannelLightSource(
     		String lightSource, int imageIndex, int logicalChannelIndex)
     {
@@ -3991,6 +4900,9 @@ public class OMEROMetadataStoreClient
     			                          logicalChannelIndex);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelSecondaryEmissionFilter(java.lang.String, int, int)
+     */
     public void setLogicalChannelSecondaryEmissionFilter(
     		String secondaryEmissionFilter, int imageIndex,
     		int logicalChannelIndex)
@@ -4005,6 +4917,9 @@ public class OMEROMetadataStoreClient
         addReference(key, new LSID(secondaryEmissionFilter));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelSecondaryExcitationFilter(java.lang.String, int, int)
+     */
     public void setLogicalChannelSecondaryExcitationFilter(
     		String secondaryExcitationFilter, int imageIndex,
     		int logicalChannelIndex)
@@ -4019,6 +4934,12 @@ public class OMEROMetadataStoreClient
         addReference(key, new LSID(secondaryExcitationFilter));
     }
     
+    /**
+     * @param imageIndex
+     * @param roiIndex
+     * @param shapeIndex
+     * @return
+     */
     public Mask getMask(int imageIndex, int roiIndex, int shapeIndex)
     {
         LinkedHashMap<String, Integer> indexes =
@@ -4029,6 +4950,9 @@ public class OMEROMetadataStoreClient
         return getSourceObject(Mask.class, indexes);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMaskHeight(java.lang.String, int, int, int)
+     */
     public void setMaskHeight(String height, int imageIndex, int roiIndex, int shapeIndex)
     {
     	// XXX: Disabled for now
@@ -4036,6 +4960,9 @@ public class OMEROMetadataStoreClient
     	//o.setHeight(toRType(Double.parseDouble(height)));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMaskID(java.lang.String, int, int, int)
+     */
     public void setMaskID(String id, int imageIndex, int roiIndex, int shapeIndex)
     {
     	// XXX: Disabled for now
@@ -4049,6 +4976,9 @@ public class OMEROMetadataStoreClient
         //o.LSID = id;
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMaskTransform(java.lang.String, int, int, int)
+     */
     public void setMaskTransform(String transform, int imageIndex, int roiIndex, int shapeIndex)
     {
     	// XXX: Disabled for now
@@ -4056,6 +4986,9 @@ public class OMEROMetadataStoreClient
     	//o.setTransform(toRType(transform));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMaskWidth(java.lang.String, int, int, int)
+     */
     public void setMaskWidth(String width, int imageIndex, int roiIndex, int shapeIndex)
     {
     	// XXX: Disabled for now
@@ -4063,6 +4996,9 @@ public class OMEROMetadataStoreClient
     	//o.setWidth(toRType(Double.parseDouble(width)));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMaskX(java.lang.String, int, int, int)
+     */
     public void setMaskX(String x, int imageIndex, int roiIndex, int shapeIndex)
     {
     	// XXX: Disabled for now
@@ -4070,6 +5006,9 @@ public class OMEROMetadataStoreClient
     	//o.setX(toRType(Double.parseDouble(x)));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMaskY(java.lang.String, int, int, int)
+     */
     public void setMaskY(String y, int imageIndex, int roiIndex, int shapeIndex)
     {
     	// XXX: Disabled for now
@@ -4077,10 +5016,16 @@ public class OMEROMetadataStoreClient
     	//o.setY(toRType(Double.parseDouble(y)));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMaskPixelsBigEndian(java.lang.Boolean, int, int, int)
+     */
     public void setMaskPixelsBigEndian(Boolean bigEndian, int imageIndex, int roiIndex, int shapeIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMaskPixelsBinData(byte[], int, int, int)
+     */
     public void setMaskPixelsBinData(byte[] binData, int imageIndex, int roiIndex, int shapeIndex)
     {
     	// XXX: Disabled for now
@@ -4088,22 +5033,37 @@ public class OMEROMetadataStoreClient
     	//o.setBytes(binData);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMaskPixelsExtendedPixelType(java.lang.String, int, int, int)
+     */
     public void setMaskPixelsExtendedPixelType(String extendedPixelType, int imageIndex, int roiIndex, int shapeIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMaskPixelsID(java.lang.String, int, int, int)
+     */
     public void setMaskPixelsID(String id, int imageIndex, int roiIndex, int shapeIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMaskPixelsSizeX(java.lang.Integer, int, int, int)
+     */
     public void setMaskPixelsSizeX(Integer sizeX, int imageIndex, int roiIndex, int shapeIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMaskPixelsSizeY(java.lang.Integer, int, int, int)
+     */
     public void setMaskPixelsSizeY(Integer sizeY, int imageIndex, int roiIndex, int shapeIndex)
     {
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationExperimenterRef(java.lang.String, int, int)
+     */
     public void setMicrobeamManipulationExperimenterRef(String arg0, int arg1,
             int arg2)
     {
@@ -4112,6 +5072,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationID(java.lang.String, int, int)
+     */
     public void setMicrobeamManipulationID(String arg0, int arg1, int arg2)
     {
 
@@ -4119,6 +5082,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationRefID(java.lang.String, int, int)
+     */
     public void setMicrobeamManipulationRefID(String arg0, int arg1, int arg2)
     {
 
@@ -4126,6 +5092,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationType(java.lang.String, int, int)
+     */
     public void setMicrobeamManipulationType(String arg0, int arg1, int arg2)
     {
 
@@ -4133,6 +5102,10 @@ public class OMEROMetadataStoreClient
 
     }
     
+    /**
+     * @param instrumentIndex
+     * @return
+     */
     private Microscope getMicroscope(int instrumentIndex)
     {
     	Instrument instrument = getInstrument(instrumentIndex);
@@ -4145,11 +5118,17 @@ public class OMEROMetadataStoreClient
     	return microscope;
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMicroscopeID(java.lang.String, int)
+     */
     public void setMicroscopeID(String id, int instrumentIndex)
     {
     	// TODO: Not in model, etc.
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMicroscopeManufacturer(java.lang.String, int)
+     */
     public void setMicroscopeManufacturer(String manufacturer,
     		                              int instrumentIndex)
     {
@@ -4157,12 +5136,18 @@ public class OMEROMetadataStoreClient
     	o.setManufacturer(toRType(manufacturer));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMicroscopeModel(java.lang.String, int)
+     */
     public void setMicroscopeModel(String model, int instrumentIndex)
     {
     	Microscope o = getMicroscope(instrumentIndex);
     	o.setModel(toRType(model));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMicroscopeSerialNumber(java.lang.String, int)
+     */
     public void setMicroscopeSerialNumber(String serialNumber,
     		                              int instrumentIndex)
     {
@@ -4170,12 +5155,18 @@ public class OMEROMetadataStoreClient
     	o.setSerialNumber(toRType(serialNumber));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMicroscopeType(java.lang.String, int)
+     */
     public void setMicroscopeType(String type, int instrumentIndex)
     {
     	Microscope o = getMicroscope(instrumentIndex);
     	o.setType((MicroscopeType) getEnumeration(MicroscopeType.class, type));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setOTFBinaryFile(java.lang.String, int, int)
+     */
     public void setOTFBinaryFile(String arg0, int arg1, int arg2)
     {
 
@@ -4183,6 +5174,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlaneHashSHA1(java.lang.String, int, int, int)
+     */
     public void setPlaneHashSHA1(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -4190,6 +5184,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlaneID(java.lang.String, int, int, int)
+     */
     public void setPlaneID(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -4197,6 +5194,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateRefSample(java.lang.Integer, int, int)
+     */
     public void setPlateRefSample(Integer arg0, int arg1, int arg2)
     {
 
@@ -4204,6 +5204,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateRefWell(java.lang.String, int, int)
+     */
     public void setPlateRefWell(String arg0, int arg1, int arg2)
     {
 
@@ -4211,6 +5214,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPointID(java.lang.String, int, int, int)
+     */
     public void setPointID(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -4218,6 +5224,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPointCx(java.lang.String, int, int, int)
+     */
     public void setPointCx(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -4225,6 +5234,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPointCy(java.lang.String, int, int, int)
+     */
     public void setPointCy(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -4232,6 +5244,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPointR(java.lang.String, int, int, int)
+     */
     public void setPointR(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -4239,6 +5254,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPointTransform(java.lang.String, int, int, int)
+     */
     public void setPointTransform(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -4246,6 +5264,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolygonID(java.lang.String, int, int, int)
+     */
     public void setPolygonID(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -4253,6 +5274,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolygonPoints(java.lang.String, int, int, int)
+     */
     public void setPolygonPoints(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -4260,6 +5284,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolygonTransform(java.lang.String, int, int, int)
+     */
     public void setPolygonTransform(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -4267,6 +5294,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylineID(java.lang.String, int, int, int)
+     */
     public void setPolylineID(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -4274,6 +5304,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylinePoints(java.lang.String, int, int, int)
+     */
     public void setPolylinePoints(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -4281,6 +5314,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylineTransform(java.lang.String, int, int, int)
+     */
     public void setPolylineTransform(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -4288,6 +5324,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setProjectDescription(java.lang.String, int)
+     */
     public void setProjectDescription(String arg0, int arg1)
     {
 
@@ -4295,6 +5334,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setProjectExperimenterRef(java.lang.String, int)
+     */
     public void setProjectExperimenterRef(String arg0, int arg1)
     {
 
@@ -4302,6 +5344,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setProjectGroupRef(java.lang.String, int)
+     */
     public void setProjectGroupRef(String arg0, int arg1)
     {
 
@@ -4309,6 +5354,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setProjectID(java.lang.String, int)
+     */
     public void setProjectID(String arg0, int arg1)
     {
 
@@ -4316,6 +5364,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setProjectName(java.lang.String, int)
+     */
     public void setProjectName(String arg0, int arg1)
     {
 
@@ -4323,6 +5374,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setProjectRefID(java.lang.String, int, int)
+     */
     public void setProjectRefID(String arg0, int arg1, int arg2)
     {
 
@@ -4330,6 +5384,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPumpLightSource(java.lang.String, int, int)
+     */
     public void setPumpLightSource(String lightSource, int instrumentIndex,
     		                       int lightSourceIndex)
     {
@@ -4338,6 +5395,9 @@ public class OMEROMetadataStoreClient
         addReference(key, new LSID(lightSource));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setROIRefID(java.lang.String, int, int, int)
+     */
     public void setROIRefID(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -4345,6 +5405,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRectID(java.lang.String, int, int, int)
+     */
     public void setRectID(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -4352,6 +5415,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRectHeight(java.lang.String, int, int, int)
+     */
     public void setRectHeight(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -4359,6 +5425,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRectTransform(java.lang.String, int, int, int)
+     */
     public void setRectTransform(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -4366,6 +5435,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRectWidth(java.lang.String, int, int, int)
+     */
     public void setRectWidth(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -4373,6 +5445,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRectX(java.lang.String, int, int, int)
+     */
     public void setRectX(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -4380,6 +5455,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRectY(java.lang.String, int, int, int)
+     */
     public void setRectY(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -4387,6 +5465,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRegionID(java.lang.String, int, int)
+     */
     public void setRegionID(String arg0, int arg1, int arg2)
     {
 
@@ -4394,6 +5475,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRegionName(java.lang.String, int, int)
+     */
     public void setRegionName(String arg0, int arg1, int arg2)
     {
 
@@ -4401,6 +5485,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRegionTag(java.lang.String, int, int)
+     */
     public void setRegionTag(String arg0, int arg1, int arg2)
     {
 
@@ -4408,6 +5495,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setScreenDescription(java.lang.String, int)
+     */
     public void setScreenDescription(String description, int screenIndex)
     {
     	//Screen o = getScreen(screenIndex);
@@ -4415,11 +5505,17 @@ public class OMEROMetadataStoreClient
     	// Disabled
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setScreenExtern(java.lang.String, int)
+     */
     public void setScreenExtern(String extern, int screenIndex)
     {
     	//
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setScreenReagentSetIdentifier(java.lang.String, int)
+     */
     public void setScreenReagentSetIdentifier(String reagentSetIdentifier,
     		                                  int screenIndex)
     {
@@ -4428,26 +5524,41 @@ public class OMEROMetadataStoreClient
     	// Disabled
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setScreenRefID(java.lang.String, int, int)
+     */
     public void setScreenRefID(String arg0, int arg1, int arg2)
     {
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setThumbnailID(java.lang.String, int)
+     */
     public void setThumbnailID(String arg0, int arg1)
     {
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setThumbnailMIMEtype(java.lang.String, int)
+     */
     public void setThumbnailMIMEtype(String arg0, int arg1)
     {
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setThumbnailHref(java.lang.String, int)
+     */
     public void setThumbnailHref(String arg0, int arg1)
     {
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTransmittanceRangeCutIn(java.lang.Integer, int, int)
+     */
     public void setTransmittanceRangeCutIn(Integer cutIn, int instrumentIndex,
     		                               int filterIndex)
     {
@@ -4456,6 +5567,9 @@ public class OMEROMetadataStoreClient
         o.setCutIn(toRType(cutIn));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTransmittanceRangeCutInTolerance(java.lang.Integer, int, int)
+     */
     public void setTransmittanceRangeCutInTolerance(Integer cutInTolerance,
     		                                        int instrumentIndex,
     		                                        int filterIndex)
@@ -4465,6 +5579,9 @@ public class OMEROMetadataStoreClient
     	o.setCutInTolerance(toRType(cutInTolerance));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTransmittanceRangeCutOut(java.lang.Integer, int, int)
+     */
     public void setTransmittanceRangeCutOut(Integer cutOut, 
     		                                int instrumentIndex,
     		                                int filterIndex)
@@ -4474,6 +5591,9 @@ public class OMEROMetadataStoreClient
     	o.setCutOut(toRType(cutOut));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTransmittanceRangeCutOutTolerance(java.lang.Integer, int, int)
+     */
     public void setTransmittanceRangeCutOutTolerance(Integer cutOutTolerance,
     		                                         int instrumentIndex,
     		                                         int filterIndex)
@@ -4483,6 +5603,9 @@ public class OMEROMetadataStoreClient
     	o.setCutOutTolerance(toRType(cutOutTolerance));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTransmittanceRangeTransmittance(java.lang.Integer, int, int)
+     */
     public void setTransmittanceRangeTransmittance(Integer transmittance,
     		                                       int instrumentIndex,
     		                                       int filterIndex)
@@ -4493,12 +5616,18 @@ public class OMEROMetadataStoreClient
     	o.setTransmittance(toRType(new Double(transmittance)));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellReagent(java.lang.String, int, int)
+     */
     public void setWellReagent(String reagent, int plateIndex, int wellIndex)
     {
         LSID key = new LSID(Well.class, plateIndex, wellIndex);
         addReference(key, new LSID(reagent));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellSampleImageRef(java.lang.String, int, int, int)
+     */
     public void setWellSampleImageRef(String image, int plateIndex, 
             int wellIndex, int wellSampleIndex)
     {
@@ -4507,11 +5636,17 @@ public class OMEROMetadataStoreClient
         addReference(key, new LSID(image));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellSampleRefID(java.lang.String, int, int, int)
+     */
     public void setWellSampleRefID(String arg0, int arg1, int arg2, int arg3)
     {
     	//
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateColumnNamingConvention(java.lang.String, int)
+     */
     public void setPlateColumnNamingConvention(String columnNamingConvention,
     		                                   int plateIndex)
     {
@@ -4519,6 +5654,9 @@ public class OMEROMetadataStoreClient
         o.setColumnNamingConvention(toRType(columnNamingConvention));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateRowNamingConvention(java.lang.String, int)
+     */
     public void setPlateRowNamingConvention(String rowNamingConvention,
     		                                int plateIndex)
     {
@@ -4526,18 +5664,27 @@ public class OMEROMetadataStoreClient
         o.setRowNamingConvention(toRType(rowNamingConvention));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateWellOriginX(java.lang.Double, int)
+     */
     public void setPlateWellOriginX(Double wellOriginX, int plateIndex)
     {
         Plate o = getPlate(plateIndex);
         o.setWellOriginX(toRType(wellOriginX));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateWellOriginY(java.lang.Double, int)
+     */
     public void setPlateWellOriginY(Double wellOriginY, int plateIndex)
     {
         Plate o = getPlate(plateIndex);
         o.setWellOriginX(toRType(wellOriginY));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPathD(java.lang.String, int, int, int)
+     */
     public void setPathD(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -4545,6 +5692,9 @@ public class OMEROMetadataStoreClient
 
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPathID(java.lang.String, int, int, int)
+     */
     public void setPathID(String arg0, int arg1, int arg2, int arg3)
     {
 
@@ -4552,6 +5702,12 @@ public class OMEROMetadataStoreClient
 
     }
     
+    /**
+     * @param imageIndex
+     * @param roiIndex
+     * @param shapeIndex
+     * @return
+     */
     private Shape getShape(int imageIndex, int roiIndex, int shapeIndex)
     {
         LinkedHashMap<String, Integer> indexes =
@@ -4562,120 +5718,207 @@ public class OMEROMetadataStoreClient
         return getSourceObject(Shape.class, indexes);
     }
     
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setShapeBaselineShift(java.lang.String, int, int, int)
+     */
     public void setShapeBaselineShift(String baselineShift, int imageIndex,
 			int roiIndex, int shapeIndex)
     {
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setShapeDirection(java.lang.String, int, int, int)
+	 */
 	public void setShapeDirection(String direction, int imageIndex,
 			int roiIndex, int shapeIndex)
 	{
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setShapeFillColor(java.lang.String, int, int, int)
+	 */
 	public void setShapeFillColor(String fillColor, int imageIndex,
 			int roiIndex, int shapeIndex) {
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setShapeFillOpacity(java.lang.String, int, int, int)
+	 */
 	public void setShapeFillOpacity(String fillOpacity, int imageIndex,
 			int roiIndex, int shapeIndex) {
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setShapeFillRule(java.lang.String, int, int, int)
+	 */
 	public void setShapeFillRule(String fillRule, int imageIndex, int roiIndex,
 			int shapeIndex) {
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setShapeFontFamily(java.lang.String, int, int, int)
+	 */
 	public void setShapeFontFamily(String fontFamily, int imageIndex,
 			int roiIndex, int shapeIndex) {
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setShapeFontSize(java.lang.Integer, int, int, int)
+	 */
 	public void setShapeFontSize(Integer fontSize, int imageIndex,
 			int roiIndex, int shapeIndex) {
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setShapeFontStretch(java.lang.String, int, int, int)
+	 */
 	public void setShapeFontStretch(String fontStretch, int imageIndex,
 			int roiIndex, int shapeIndex) {
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setShapeFontStyle(java.lang.String, int, int, int)
+	 */
 	public void setShapeFontStyle(String fontStyle, int imageIndex,
 			int roiIndex, int shapeIndex) {
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setShapeFontVariant(java.lang.String, int, int, int)
+	 */
 	public void setShapeFontVariant(String fontVariant, int imageIndex,
 			int roiIndex, int shapeIndex) {
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setShapeFontWeight(java.lang.String, int, int, int)
+	 */
 	public void setShapeFontWeight(String fontWeight, int imageIndex,
 			int roiIndex, int shapeIndex) {
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setShapeG(java.lang.String, int, int, int)
+	 */
 	public void setShapeG(String g, int imageIndex, int roiIndex, int shapeIndex) {
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setShapeGlyphOrientationVertical(java.lang.Integer, int, int, int)
+	 */
 	public void setShapeGlyphOrientationVertical(
 			Integer glyphOrientationVertical, int imageIndex, int roiIndex,
 			int shapeIndex) {
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setShapeID(java.lang.String, int, int, int)
+	 */
 	public void setShapeID(String id, int imageIndex, int roiIndex,
 			int shapeIndex) {
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setShapeLocked(java.lang.Boolean, int, int, int)
+	 */
 	public void setShapeLocked(Boolean locked, int imageIndex, int roiIndex,
 			int shapeIndex) {
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setShapeStrokeAttribute(java.lang.String, int, int, int)
+	 */
 	public void setShapeStrokeAttribute(String strokeAttribute, int imageIndex,
 			int roiIndex, int shapeIndex) {
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setShapeStrokeColor(java.lang.String, int, int, int)
+	 */
 	public void setShapeStrokeColor(String strokeColor, int imageIndex,
 			int roiIndex, int shapeIndex) {
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setShapeStrokeDashArray(java.lang.String, int, int, int)
+	 */
 	public void setShapeStrokeDashArray(String strokeDashArray, int imageIndex,
 			int roiIndex, int shapeIndex) {
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setShapeStrokeLineCap(java.lang.String, int, int, int)
+	 */
 	public void setShapeStrokeLineCap(String strokeLineCap, int imageIndex,
 			int roiIndex, int shapeIndex) {
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setShapeStrokeLineJoin(java.lang.String, int, int, int)
+	 */
 	public void setShapeStrokeLineJoin(String strokeLineJoin, int imageIndex,
 			int roiIndex, int shapeIndex) {
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setShapeStrokeMiterLimit(java.lang.Integer, int, int, int)
+	 */
 	public void setShapeStrokeMiterLimit(Integer strokeMiterLimit,
 			int imageIndex, int roiIndex, int shapeIndex) {
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setShapeStrokeOpacity(java.lang.Double, int, int, int)
+	 */
 	public void setShapeStrokeOpacity(Double strokeOpacity, int imageIndex,
 			int roiIndex, int shapeIndex) {
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setShapeStrokeWidth(java.lang.Integer, int, int, int)
+	 */
 	public void setShapeStrokeWidth(Integer strokeWidth, int imageIndex,
 			int roiIndex, int shapeIndex) {
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setShapeText(java.lang.String, int, int, int)
+	 */
 	public void setShapeText(String text, int imageIndex, int roiIndex,
 			int shapeIndex) {
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setShapeTextAnchor(java.lang.String, int, int, int)
+	 */
 	public void setShapeTextAnchor(String textAnchor, int imageIndex,
 			int roiIndex, int shapeIndex) {
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setShapeTextDecoration(java.lang.String, int, int, int)
+	 */
 	public void setShapeTextDecoration(String textDecoration, int imageIndex,
 			int roiIndex, int shapeIndex) {
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setShapeTextFill(java.lang.String, int, int, int)
+	 */
 	public void setShapeTextFill(String textFill, int imageIndex, int roiIndex,
 			int shapeIndex) {
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setShapeTextStroke(java.lang.String, int, int, int)
+	 */
 	public void setShapeTextStroke(String textStroke, int imageIndex,
 			int roiIndex, int shapeIndex) {
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setShapeTheT(java.lang.Integer, int, int, int)
+	 */
 	public void setShapeTheT(Integer theT, int imageIndex, int roiIndex,
 			int shapeIndex) {
 		// XXx: Disabled for now
@@ -4683,6 +5926,9 @@ public class OMEROMetadataStoreClient
 		//o.setTheT(toRType(theT));
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setShapeTheZ(java.lang.Integer, int, int, int)
+	 */
 	public void setShapeTheZ(Integer theZ, int imageIndex, int roiIndex,
 			int shapeIndex) {
 		// XXX: Disabled for now
@@ -4690,14 +5936,23 @@ public class OMEROMetadataStoreClient
 		//o.setTheZ(toRType(theZ));
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setShapeVectorEffect(java.lang.String, int, int, int)
+	 */
 	public void setShapeVectorEffect(String vectorEffect, int imageIndex,
 			int roiIndex, int shapeIndex) {
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setShapeVisibility(java.lang.Boolean, int, int, int)
+	 */
 	public void setShapeVisibility(Boolean visibility, int imageIndex,
 			int roiIndex, int shapeIndex) {
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setShapeWritingMode(java.lang.String, int, int, int)
+	 */
 	public void setShapeWritingMode(String writingMode, int imageIndex,
 			int roiIndex, int shapeIndex) {
 	}
@@ -4705,6 +5960,10 @@ public class OMEROMetadataStoreClient
 
    /*-----------*/
     
+	/**
+	 * @author Brian Loranger brain at lifesci.dundee.ac.uk
+	 *
+	 */
     public class SortProjectsByName implements Comparator<Project>{
         public int compare(Project o1, Project o2)
         {
@@ -4712,7 +5971,10 @@ public class OMEROMetadataStoreClient
         }
      }
     
-    
+    /**
+     * @author Brian Loranger brain at lifesci.dundee.ac.uk
+     *
+     */   
     public class SortDatasetsByName implements Comparator<Dataset>{
         public int compare(Dataset o1, Dataset o2)
         {
@@ -4779,6 +6041,9 @@ public class OMEROMetadataStoreClient
         }
     }
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setDichroicID(java.lang.String, int, int)
+	 */
 	public void setDichroicID(String id, int instrumentIndex, int dichroicIndex)
 	{
 		checkDuplicateLSID(Dichroic.class, id);
@@ -4791,6 +6056,9 @@ public class OMEROMetadataStoreClient
         addAuthoritativeContainer(Dichroic.class, id, o);
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setFilterID(java.lang.String, int, int)
+	 */
 	public void setFilterID(String id, int instrumentIndex, int filterIndex)
 	{
 		checkDuplicateLSID(Filter.class, id);
@@ -4803,6 +6071,9 @@ public class OMEROMetadataStoreClient
         addAuthoritativeContainer(Filter.class, id, o);
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setFilterSetID(java.lang.String, int, int)
+	 */
 	public void setFilterSetID(String id, int instrumentIndex,
 			                   int filterSetIndex)
 	{
@@ -4816,21 +6087,33 @@ public class OMEROMetadataStoreClient
         addAuthoritativeContainer(FilterSet.class, id, o);
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setRoiLinkDirection(java.lang.String, int, int, int)
+	 */
 	public void setRoiLinkDirection(String arg0, int arg1, int arg2, int arg3) {
 		// TODO Auto-generated method stub
 		
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setRoiLinkName(java.lang.String, int, int, int)
+	 */
 	public void setRoiLinkName(String arg0, int arg1, int arg2, int arg3) {
 		// TODO Auto-generated method stub
 		
 	}
 
+	/* (non-Javadoc)
+	 * @see loci.formats.meta.MetadataStore#setRoiLinkRef(java.lang.String, int, int, int)
+	 */
 	public void setRoiLinkRef(String arg0, int arg1, int arg2, int arg3) {
 		// TODO Auto-generated method stub
 		
 	}
 	
+        /* (non-Javadoc)
+         * @see loci.formats.meta.MetadataStore#setGroupID(java.lang.String, int)
+         */
         public void setGroupID(String arg0, int arg1) {
 		// TODO Auto-generated method stub
 		

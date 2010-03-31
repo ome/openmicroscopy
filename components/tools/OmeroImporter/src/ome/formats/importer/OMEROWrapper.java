@@ -1,3 +1,26 @@
+/*
+ * ome.formats.importer.gui.GuiCommonElements
+ *
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
+
 package ome.formats.importer;
 
 import java.io.File;
@@ -24,6 +47,11 @@ import omero.model.Pixels;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+/**
+ * @author Brian Loranger brain at lifesci.dundee.ac.uk
+ * @author Chris Allan callan at blackcat.ca
+ *
+ */
 public class OMEROWrapper extends MinMaxCalculator {
 
     @SuppressWarnings("unused")
@@ -40,6 +68,11 @@ public class OMEROWrapper extends MinMaxCalculator {
      */
     private ImageReader iReader;
 
+    /**
+     * Wrapper for bio-formats
+     * 
+     * @param config - ImportConfig¶
+     */
     public OMEROWrapper(ImportConfig config)
     {
         if (config == null) {
@@ -112,6 +145,9 @@ public class OMEROWrapper extends MinMaxCalculator {
                 getSizeY());
     }
 
+    /**
+     * @return true if reader being used is LeicaReader
+     */
     public boolean isLeicaReader() {
         if (iReader.getReader() instanceof LeicaReader) {
             return true;
@@ -120,6 +156,11 @@ public class OMEROWrapper extends MinMaxCalculator {
         }
     }
 
+    /**
+     * @return true if min-max is set
+     * @throws FormatException
+     * @throws IOException
+     */
     @SuppressWarnings("unchecked")
     public boolean isMinMaxSet() throws FormatException, IOException {
         if (minMaxSet == null) {
@@ -137,6 +178,9 @@ public class OMEROWrapper extends MinMaxCalculator {
         return minMaxSet;
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.MinMaxCalculator#updateMinMax(byte[], int)
+     */
     @Override
     protected void updateMinMax(byte[] b, int ndx) throws FormatException,
             IOException {
@@ -144,6 +188,9 @@ public class OMEROWrapper extends MinMaxCalculator {
             super.updateMinMax(b, ndx);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.ReaderWrapper#close()
+     */
     public void close() throws IOException {
         minMaxSet = null;
         super.close(false);
@@ -158,6 +205,9 @@ public class OMEROWrapper extends MinMaxCalculator {
         return iReader;
     }
     
+    /**
+     * @return true if using SPW reader
+     */
     public boolean isSPWReader()
     {
         String[] domains = reader.getDomains();
@@ -166,6 +216,10 @@ public class OMEROWrapper extends MinMaxCalculator {
     
 }
 
+/**
+ * @author Chris Allan
+ *
+ */
 class ReaderInvocationHandler implements InvocationHandler {
 
     private final IFormatReader reader;

@@ -38,10 +38,10 @@ import org.apache.commons.httpclient.methods.multipart.StringPart;
 import org.apache.commons.httpclient.params.HttpClientParams;
 
 /**
- * @author TheBrain
- *
- * This class allows you to submit a URL and a String hashmap of 
- * key-value pairs to be posted to the url in question.
+ * This class allows you to submit a URL and a String hash map of 
+ * key-value pairs to be posted to the URL in question.
+ * 
+ * @author Brian W. Loranger
  */ 
 public class HtmlMessenger
 {
@@ -58,6 +58,13 @@ public class HtmlMessenger
 	HttpClient client = null;
 	PostMethod method = null;
 
+	/**
+	 * Instantiate html messenger
+	 * 
+	 * @param url
+	 * @param postList - variables list in post
+	 * @throws HtmlMessengerException
+	 */
 	public HtmlMessenger(String url,  List<Part> postList) throws HtmlMessengerException
 	{
 		try 
@@ -66,7 +73,8 @@ public class HtmlMessenger
 			cfg.setHost(url);
 			String proxyHost = System.getProperty(PROXY_HOST);
 			String proxyPort = System.getProperty(PROXY_PORT);
-			if (proxyHost != null && proxyPort != null) {
+			if (proxyHost != null && proxyPort != null) 
+			{
 				int port = Integer.parseInt(proxyPort);
 				cfg.setProxy(proxyHost, port);
 			}
@@ -92,8 +100,11 @@ public class HtmlMessenger
 			MultipartRequestEntity mpre = 
 				new MultipartRequestEntity(parts, method.getParams());
 
-			ProgressListener listener = new ProgressListener(){
-
+			ProgressListener listener = new ProgressListener()
+			{
+				/* (non-Javadoc)
+				 * @see ome.formats.importer.util.FileUploadCounter.ProgressListener#update(long)
+				 */
 				public void update(long bytesRead)
 				{
 				}
@@ -113,11 +124,11 @@ public class HtmlMessenger
 	}
 
 	/**
-	 * @return
-	 * @throws HtmlMessengerException
-	 * 
+	 * Execute a post action and retrieve server reply
 	 * This method executes the post created when this class is instantiated
 	 * 
+	 * @return server reply
+	 * @throws HtmlMessengerException
 	 */
 	 public String executePost() throws HtmlMessengerException
 	 {
@@ -142,12 +153,24 @@ public class HtmlMessenger
 		}
 	 }
 
-	 public HttpClient getHttpClient()
+	 /**
+	 * @return http client
+	 */
+	public HttpClient getHttpClient()
 	 {
 		 return client;
 	 }
 
-	 public String login(String url, String username, String password) throws HtmlMessengerException {
+	 /**
+	  * Login to website
+	  * 
+	 * @param url
+	 * @param username
+	 * @param password
+	 * @return
+	 * @throws HtmlMessengerException
+	 */
+	public String login(String url, String username, String password) throws HtmlMessengerException {
 		 String serverReply = "";
 		 try {
 			 // Execute the POST method
@@ -161,9 +184,12 @@ public class HtmlMessenger
 			 MultipartRequestEntity mpre = 
 				 new MultipartRequestEntity(parts, loginMethod.getParams());
 
-			 ProgressListener listener = new ProgressListener(){
-
-				 public void update(long bytesRead)
+			 ProgressListener listener = new ProgressListener()
+			 {
+				 /* (non-Javadoc)
+				 * @see ome.formats.importer.util.FileUploadCounter.ProgressListener#update(long)
+				 */
+				public void update(long bytesRead)
 				 {
 				 }
 			 };        	

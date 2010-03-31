@@ -1,5 +1,5 @@
 /*
- * ome.formats.importer.gui.LoginFrame
+ * ome.formats.importer.gui.History
  *
  *------------------------------------------------------------------------------
  *
@@ -8,8 +8,26 @@
  *      National Institutes of Health,
  *      University of Dundee
  *
+ *
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; either
+ *    version 2.1 of the License, or (at your option) any later version.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
  *------------------------------------------------------------------------------
  */
+
+// TODO: This is old code that should be depreciated
 
 package ome.formats.importer.gui;
 
@@ -43,8 +61,11 @@ import javax.swing.text.StyleContext;
 
 import ome.formats.importer.ImportConfig;
 
-public class LoginFrame extends JFrame 
-    implements ActionListener, PropertyChangeListener
+/**
+ * @author Brian W. Loranger
+ *
+ */
+public class LoginFrame extends JFrame implements ActionListener, PropertyChangeListener
 {
     private static final long serialVersionUID = 1L;
 
@@ -90,6 +111,16 @@ public class LoginFrame extends JFrame
     
     public boolean          cancelled = true;
 
+    /**
+     * Set up and display login. Frame version of LoginDialog
+     * 
+     * @param config - ImportConfig for default valutes
+     * @param owner - parent window
+     * @param main - set relative to this window
+     * @param title - dialog title
+     * @param modal - modal dialog yes/no
+     * @param center - center relative to main yes/no
+     */
     LoginFrame (ImportConfig config, JFrame owner, JFrame main, String title, boolean modal, boolean center)
     {   
         this.main = main;
@@ -230,7 +261,9 @@ public class LoginFrame extends JFrame
         
     }
 
-
+    /* (non-Javadoc)
+     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+     */
     public void actionPerformed(ActionEvent event)
     {
         if (event.getSource() == loginBtn)
@@ -267,7 +300,7 @@ public class LoginFrame extends JFrame
     
     /**
      * Reacts to property changes fired by the {@link ServerDialog}.
-     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
      */
     public void propertyChange(PropertyChangeEvent evt)
     {
@@ -280,9 +313,11 @@ public class LoginFrame extends JFrame
         }
     }
     
-    ///////////////////////////////////////////////////////////////////////
     /**
-     * Main used for testing standalone dialog
+     * Main for testing (debugging only)
+     * 
+     * @param args
+     * @throws Exception 
      */
     public static void main(String[] args)
     {

@@ -1,5 +1,5 @@
 /*
- * ome.formats.importer.gui.ImportDialog
+ * ome.formats.importer.gui.History
  *
  *------------------------------------------------------------------------------
  *
@@ -7,6 +7,22 @@
  *      Massachusetts Institute of Technology,
  *      National Institutes of Health,
  *      University of Dundee
+ *
+ *
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; either
+ *    version 2.1 of the License, or (at your option) any later version.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *------------------------------------------------------------------------------
  */
@@ -116,6 +132,15 @@ public class ImportDialog extends JDialog implements ActionListener
 
     public OMEROMetadataStoreClient store;
 
+    /**
+     * Display a dialog so the user can choose project/dataset for importing
+     * 
+     * @param config - ImportConfig
+     * @param owner - parent frame
+     * @param title - dialog title
+     * @param modal - modal yes/no
+     * @param store - Initialized OMEROMetadataStore
+     */
     ImportDialog(ImportConfig config, JFrame owner, String title, boolean modal, OMEROMetadataStoreClient store)
     {
         this.store = store;
@@ -338,6 +363,9 @@ public class ImportDialog extends JDialog implements ActionListener
         setVisible(true);
     }
 
+    /**
+     * Create projects and dataset dialogs
+     */
     private void buildProjectsAndDatasets()
     {
         long savedProject = config.savedProject.get();
@@ -384,6 +412,9 @@ public class ImportDialog extends JDialog implements ActionListener
 
     }
 
+    /**
+     * Refresh project menu (when new project added)
+     */
     private void refreshAndSetProject()
     {
         if (store != null)
@@ -405,6 +436,11 @@ public class ImportDialog extends JDialog implements ActionListener
         }
     }
 
+    /**
+     * Refresh dataset when project changes
+     * 
+     * @param p - project parent of dataset
+     */
     private void refreshAndSetDataset(Project p)
     {
         datasetItems = 
@@ -424,6 +460,11 @@ public class ImportDialog extends JDialog implements ActionListener
         }
     }
     
+    /**
+     * Dialog explaining metadata limitations when changing the main dialog's naming settings
+     * 
+     * @param frame - parent component
+     */
     public void sendingNamingWarning(Component frame)
     {
         final JOptionPane optionPane = new JOptionPane(
@@ -454,6 +495,9 @@ public class ImportDialog extends JDialog implements ActionListener
     }
 
     
+    /* (non-Javadoc)
+     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+     */
     public void actionPerformed(ActionEvent event)
     {
        
@@ -545,6 +589,12 @@ public class ImportDialog extends JDialog implements ActionListener
         }
     }
 
+    /**
+     * Main for testing (debugging only)
+     * 
+     * @param args
+     * @throws Exception 
+     */
     public static void main (String[] args) {
 
         String laf = UIManager.getSystemLookAndFeelClassName() ;
@@ -569,6 +619,10 @@ public class ImportDialog extends JDialog implements ActionListener
 }
 
 //Helper classes used by the dialog comboboxes
+
+/**
+ * @author "Brian W. Loranger"
+ */
 class DatasetItem
 {
     private Dataset dataset;
@@ -614,6 +668,9 @@ class DatasetItem
     }
 }
 
+/**
+ * @author "Brian W. Loranger"
+ */
 class ProjectItem
 {
     private Project project;

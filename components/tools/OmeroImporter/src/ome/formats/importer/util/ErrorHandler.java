@@ -33,18 +33,32 @@ import org.apache.commons.logging.LogFactory;
  * a change to handle all {@link ImportEvent} instances, but should
  * try not to duplicate handling.
  *
+ * @author Brian W. Loranger
+ * @author Josh Moore
+ *
  * @since Beta4.1
  */
 public abstract class ErrorHandler implements IObserver, IObservable {
 
+    /**
+     * @author Brian W. Loranger
+     * @author Josh Moore
+     */
     public abstract static class EXCEPTION_EVENT extends ImportEvent {
         public final Exception exception;
 
+        /**
+         * @param exception - set exception
+         */
         public EXCEPTION_EVENT(Exception exception) {
             this.exception = exception;
         }
     }
 
+    /**
+     * @author Brian W. Loranger
+     * @author Josh Moore
+     */
     public static class INTERNAL_EXCEPTION extends EXCEPTION_EVENT {
         public final String filename;
         public final String[] usedFiles;
@@ -55,6 +69,9 @@ public abstract class ErrorHandler implements IObserver, IObservable {
             this.usedFiles = usedFiles;
             this.reader = reader;
         }
+        /* (non-Javadoc)
+         * @see ome.formats.importer.ImportEvent#toLog()
+         */
         @Override
         public String toLog() {
         	return String.format("%s: %s\n%s", super.toLog(), filename,
@@ -69,15 +86,27 @@ public abstract class ErrorHandler implements IObserver, IObservable {
      * than a {@link FILE_EXCEPTION}, but if the user is specifically saying
      * that a file should be imported, and an {@link UNKNOWN_FORMAT} is raised,
      * then perhaps there is a configuration issue.
+     * 
+     * @author Brian W. Loranger
+     * @author Josh Moore
      */
     public static class UNKNOWN_FORMAT extends EXCEPTION_EVENT {
         public final String filename;
         public final Object source;
+        
+        /**
+         * @param filename
+         * @param exception
+         * @param source
+         */
         public UNKNOWN_FORMAT(String filename, Exception exception, Object source) {
             super(exception);
             this.filename = filename;
             this.source = source;
         }
+        /* (non-Javadoc)
+         * @see ome.formats.importer.ImportEvent#toLog()
+         */
         @Override
         public String toLog() {
             return super.toLog() + ": "+filename;
@@ -140,10 +169,19 @@ public abstract class ErrorHandler implements IObserver, IObservable {
 
     private FileUploader fileUploader;
 
-    public ErrorHandler(ImportConfig config) {
+    /**
+     * Initialize 
+     * 
+     * @param config
+     */
+    public ErrorHandler(ImportConfig config) 
+    {
         this.config = config;
     }
 
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObserver#update(ome.formats.importer.IObservable, ome.formats.importer.ImportEvent)
+     */
     public final void update(IObservable observable, ImportEvent event) {
 
 
@@ -181,12 +219,25 @@ public abstract class ErrorHandler implements IObserver, IObservable {
 
     }
 
-    public int errorCount() {
+    /**
+     * @return number of errors in ErrorContainer array
+     */
+    public int errorCount() 
+    {
         return errors.size();
     }
 
+    /**
+     * abstract on update method
+     * 
+     * @param importLibrary
+     * @param event - importEvent
+     */
     protected abstract void onUpdate(IObservable importLibrary, ImportEvent event);
 
+    /**
+     * Send existing errors in ErrorContainer array to server
+     */
     protected void sendErrors() {
 
         for (int i = 0; i < errors.size(); i++) {
@@ -291,6 +342,13 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     }
 
 
+    /**
+     * Add detailed error to error container array
+     * @param error - error thrown
+     * @param file - head file for error 
+     * @param files - all files in import collection
+     * @param readerType - reader type supplied from bio-formats
+     */
     protected void addError(Throwable error, File file, String[] files,
             String readerType) {
         ErrorContainer errorContainer = new ErrorContainer();
@@ -309,6 +367,11 @@ public abstract class ErrorHandler implements IObserver, IObservable {
         addError(errorContainer);
     }
     
+    /**
+     * add simple error to error container array
+     * 
+     * @param errorContainer
+     */
     private void addError(ErrorContainer errorContainer) {
         String errorMessage = errorContainer.getError().toString();
         String[] splitMessage = errorMessage.split("\n");
@@ -328,11 +391,19 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     // OBSERVER PATTERN
     //
     
-    public final boolean addObserver(IObserver object) {
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObservable#addObserver(ome.formats.importer.IObserver)
+     */
+    public final boolean addObserver(IObserver object) 
+    {
         return observers.add(object);
     }
 
-    public final boolean deleteObserver(IObserver object) {
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObservable#deleteObserver(ome.formats.importer.IObserver)
+     */
+    public final boolean deleteObserver(IObserver object) 
+    {
         return observers.remove(object);
 
     }
@@ -340,8 +411,10 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     /* (non-Javadoc)
      * @see ome.formats.importer.IObservable#notifyObservers(ome.formats.importer.ImportEvent)
      */
-    public final void notifyObservers(ImportEvent event) {
-        for (IObserver observer : observers) {
+    public final void notifyObservers(ImportEvent event) 
+    {
+        for (IObserver observer : observers) 
+        {
             observer.update(this, event);
         }
     }
@@ -351,46 +424,92 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     // OVERRIDEABLE METHODS
     //
     
-    protected void onCancel() {
+    /**
+     * action to take on cancel
+     */
+    protected void onCancel() 
+    {
         fileUploader.cancel();
     }
  
     
-    protected void onAddError(ErrorContainer errorContainer, String message) {
+    /**
+     * Action to take on adding an error to container
+     * 
+     * @param errorContainer - error container
+     * @param message - message string for action (if needed)
+     */
+    protected void onAddError(ErrorContainer errorContainer, String message) 
+    {
     }
  
-    protected boolean isSend(int index) {
+    /**
+     * Check if files need sending at error container index
+     * @param index - index in error container
+     * @return - true if file is to be sent
+     */
+    protected boolean isSend(int index) 
+    {
         if (errors.get(index).getSelectedFile() == null) {
             return false;
         }
         return true;
     }
  
-    protected void onSending(int index) {
-        
+    /**
+     * @param index
+     */
+    protected void onSending(int index) 
+    { 
     }
     
-    protected void onSent(int index) {
-        
+    /**
+     * @param index
+     */
+    protected void onSent(int index) 
+    {  
     }
     
-    protected void onNotSending(int index, String serverReply) {
-        
+    /**
+     * @param index
+     * @param serverReply
+     */
+    protected void onNotSending(int index, String serverReply) 
+    {   
     }
     
-    protected void onException(Exception e) {
+    /**
+     * Action to take on exception
+     * @param exception
+     */
+    protected void onException(Exception exception) 
+    {
         notifyObservers(new ImportEvent.ERRORS_FAILED());
     }
     
-    protected void finishCancelled() {
+    /**
+     * Action to take when finish cancelled
+     */
+    protected void finishCancelled() 
+    {
         fileUploader.cancel();
     }
 
-    protected void finishComplete() {
+    /**
+     * Action to take when finish completed
+     */
+    protected void finishComplete() 
+    {
     }
     
     
-    public static String getStackTrace(Throwable throwable) {
+    /**
+     * Return stack trace from throwable
+     * @param throwable
+     * @return stack trace
+     */
+    public static String getStackTrace(Throwable throwable) 
+    {
         final Writer writer = new StringWriter();
         final PrintWriter printWriter = new PrintWriter(writer);
         throwable.printStackTrace(printWriter);

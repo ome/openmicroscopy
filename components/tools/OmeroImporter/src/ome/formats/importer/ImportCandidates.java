@@ -44,7 +44,8 @@ import org.apache.commons.logging.LogFactory;
  * 
  * @since Beta4.1
  */
-public class ImportCandidates extends DirectoryWalker {
+public class ImportCandidates extends DirectoryWalker 
+{
 
     /**
      * Event raised during a pass through the directory structure given to
@@ -60,14 +61,16 @@ public class ImportCandidates extends DirectoryWalker {
      * {@link ImportCandidates} instance will be left with <em>no</em>
      * {@link ImportContainer}s.
      */
-    public static class SCANNING extends ImportEvent {
+    public static class SCANNING extends ImportEvent 
+    {
         public final File file;
         public final int depth;
         public final int numFiles;
         public final int totalFiles;
         private boolean cancel = false;
 
-        public SCANNING(File file, int depth, int numFiles, int totalFiles) {
+        public SCANNING(File file, int depth, int numFiles, int totalFiles) 
+        {
             this.file = file;
             this.depth = depth;
             this.numFiles = numFiles;
@@ -77,13 +80,16 @@ public class ImportCandidates extends DirectoryWalker {
         /**
          * Can be called to cancel the current action.
          */
-        public void cancel() {
+        public void cancel() 
+        {
             this.cancel = true;
         }
 
-        public String toLog() {
+        public String toLog() 
+        {
             int l = file.toString().length() - 16;
-            if (l < 0) {
+            if (l < 0) 
+            {
                 l = 0;
             }
             String f = file.toString().substring(l);
@@ -163,7 +169,8 @@ public class ImportCandidates extends DirectoryWalker {
      *            reporting takes place.
      */
     public ImportCandidates(OMEROWrapper reader, String[] paths,
-            IObserver observer) {
+            IObserver observer) 
+    {
         this(DEPTH, reader, paths, observer);
     }
     
@@ -185,16 +192,17 @@ public class ImportCandidates extends DirectoryWalker {
      *            reporting takes place.
      */
     public ImportCandidates(int depth, OMEROWrapper reader, String[] paths,
-            IObserver observer) {
+            IObserver observer) 
+    {
         super(TrueFileFilter.INSTANCE, depth);
         this.reader = reader;
         this.observer = observer;
-	log.debug(String.format("Depth: %s%s", depth,
+        log.debug(String.format("Depth: %s%s", depth,
 	                       (METADATA ? " - Metadata collected!" : "")));
 
         if (paths != null && paths.length == 2 && "".equals(paths[0])
-                && "".equals(paths[1])) {
-
+                && "".equals(paths[1])) 
+        {
             // Easter egg for testing.
             // groups is not null, therefore usage() won't need to be
             // called.
@@ -202,7 +210,8 @@ public class ImportCandidates extends DirectoryWalker {
             return;
         }
 
-        if (paths == null || paths.length == 0) {
+        if (paths == null || paths.length == 0) 
+        {
             return;
         }
 
@@ -219,7 +228,8 @@ public class ImportCandidates extends DirectoryWalker {
                     + "%s group(s) with %s call(s) to setId in "
                     + "%sms. (%sms total) [%s unknowns]", this.total, size(), this.setids,
                     readerTime, totalElapsed, unknown));
-        } catch (CANCEL c) {
+        } catch (CANCEL c) 
+        {
             log.info(String.format("Cancelling search after %sms "
                     + "with %s containers found (%sms in %s calls to setIds)",
                     (System.currentTimeMillis() - start), containers.size(),
@@ -242,56 +252,93 @@ public class ImportCandidates extends DirectoryWalker {
      * Similar logic is contained in {@link Groups#print()} but it does not
      * take the ordering of the used files into account.
      */
-    public void print() {
-        if (containers == null) {
+    public void print() 
+    {
+        if (containers == null) 
+        {
             return;
         }
-        for (ImportContainer container : containers) {
+        for (ImportContainer container : containers) 
+        {
             System.out.println("#======================================");
             System.out.println(String.format(
                     "# Group: %s SPW: %s Reader: %s", container.file,
                     container.isSPW, container.reader));
-            for (String file : container.usedFiles) {
+            for (String file : container.usedFiles) 
+            {
                 System.out.println(file);
             }
         }
     }
 
-    public int size() {
+    /**
+     * @return containers size
+     */
+    public int size() 
+    {
         return containers.size();
     }
 
-    public boolean wasCancelled() {
+    /**
+     * @return if import was cancelled
+     */
+    public boolean wasCancelled() 
+    {
         return cancelled;
     }
 
-    public List<String> getPaths() {
+    /**
+     * @return array of string paths for files in containers
+     */
+    public List<String> getPaths() 
+    {
         List<String> paths = new ArrayList<String>();
-        for (ImportContainer i : containers) {
+        for (ImportContainer i : containers) 
+        {
             paths.add(i.file.getAbsolutePath());
         }
         return paths;
     }
 
-    public String getReaderType(String abs) {
+    /**
+     * Retrieve reader type for file specified in path
+     * 
+     * @param path - absolute path for container
+     * @return reader type
+     */
+    public String getReaderType(String path) 
+    {
         for (ImportContainer i : containers) {
-            if (i.file.getAbsolutePath().equals(abs)) {
+            if (i.file.getAbsolutePath().equals(path)) {
                 return i.reader;
             }
         }
-        throw new RuntimeException("Unfound reader for: " + abs);
+        throw new RuntimeException("Unfound reader for: " + path);
     }
 
-    public String[] getUsedFiles(String abs) {
-        for (ImportContainer i : containers) {
-            if (i.file.getAbsolutePath().equals(abs)) {
+    /**
+     * Return string of files used by container item at path
+     * 
+     * @param path - absolute path for container
+     * @return string array of used files
+     */
+    public String[] getUsedFiles(String path) 
+    {
+        for (ImportContainer i : containers) 
+        {
+            if (i.file.getAbsolutePath().equals(path)) 
+            {
                 return i.usedFiles;
             }
         }
-        throw new RuntimeException("Unfound reader for: " + abs);
+        throw new RuntimeException("Unfound reader for: " + path);
     }
 
-    public List<ImportContainer> getContainers() {
+    /**
+     * @return all containers as a array list
+     */
+    public List<ImportContainer> getContainers() 
+    {
         return new ArrayList<ImportContainer>(containers);
     }
 
@@ -304,25 +351,36 @@ public class ImportCandidates extends DirectoryWalker {
      *
      * @param paths
      */
-    protected void execute(String[] paths) {
-        for (String string : paths) {
+    protected void execute(String[] paths) 
+    {
+        for (String string : paths) 
+        {
             try {
                 File f = new File(string);
-                if (f.isDirectory()) {
+                if (f.isDirectory()) 
+                {
                     walk(f, null);
-                } else {
+                } else 
+                {
                     handleFile(f, 0, null);
                 }
                 // Forcing an event for each path, so that at least one
                 // event is raised per file despite the count of handlefile.
                 scanWithCancel(f, 0);
-            } catch (IOException e) {
+            } catch (IOException e) 
+            {
                 throw new RuntimeException(e);
             }
         }
     }
 
-    protected ImportContainer singleFile(File file) {
+    /**
+     * Return an import container for a single file
+     * @param file - single file
+     * @return importer container
+     */
+    protected ImportContainer singleFile(File file) 
+    {
 
         if (file == null) {
             return null;
@@ -351,17 +409,21 @@ public class ImportCandidates extends DirectoryWalker {
                 ic.bfPixels = getPixelsWithDimensions();
                 ic.bfImageNames = getImageNames();
                 return ic;
-            } finally {
+            } finally 
+            {
                 readerTime += (System.currentTimeMillis() - start);
                 reader.close();
             }
 
-        } catch (UnknownFormatException ufe) {
+        } catch (UnknownFormatException ufe) 
+        {
             unknown++;
             safeUpdate(new ErrorHandler.UNKNOWN_FORMAT(path, ufe, this));
-        } catch (MissingLibraryException mle) {
+        } catch (MissingLibraryException mle) 
+        {
             safeUpdate(new ErrorHandler.MISSING_LIBRARY(path, mle, usedFiles, format));
-        } catch (Exception e) {
+        } catch (Exception e) 
+        {
             safeUpdate(new ErrorHandler.FILE_EXCEPTION(path, e, usedFiles, format));
         }
 
@@ -389,9 +451,11 @@ public class ImportCandidates extends DirectoryWalker {
      * @return A list of Pixels objects, in the order of <i>series</i>
      * populated with dimensions X, Y, Z, C and T.
      */
-    private List<Pixels> getPixelsWithDimensions() {
+    private List<Pixels> getPixelsWithDimensions() 
+    {
         List<Pixels> toReturn = new ArrayList<Pixels>();
-        for (int i = 0; i < reader.getSeriesCount(); i++) {
+        for (int i = 0; i < reader.getSeriesCount(); i++) 
+        {
             reader.setSeries(i);
             Pixels pixels = new PixelsI();
             pixels.setSizeX(rint(reader.getSizeX()));
@@ -428,6 +492,11 @@ public class ImportCandidates extends DirectoryWalker {
         return usedFiles;
     }
     
+    /**
+     * @param f
+     * @param d
+     * @throws CANCEL
+     */
     private void scanWithCancel(File f, int d) throws CANCEL{
         SCANNING s = new SCANNING(f, d, count, total);
         safeUpdate(s);
@@ -436,6 +505,11 @@ public class ImportCandidates extends DirectoryWalker {
         }
     }
     
+    /**
+     * Update observers with event 
+     * 
+     * @param event
+     */
     private void safeUpdate(ImportEvent event) {
         try {
             observer.update(null, event);
@@ -446,6 +520,13 @@ public class ImportCandidates extends DirectoryWalker {
         }
     }
 
+    /**
+     * Handle a file import
+     * 
+     * @param file - file selected
+     * @param depth - depth of scan
+     * @param collection
+     */
     @Override
     public void handleFile(File file, int depth, Collection collection) {
 

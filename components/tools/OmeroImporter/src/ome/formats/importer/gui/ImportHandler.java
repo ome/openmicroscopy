@@ -1,5 +1,5 @@
 /*
- * ome.formats.importer.gui.ImportHandler
+ * ome.formats.importer.gui.History
  *
  *------------------------------------------------------------------------------
  *
@@ -8,6 +8,21 @@
  *      National Institutes of Health,
  *      University of Dundee
  *
+ *
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; either
+ *    version 2.1 of the License, or (at your option) any later version.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *------------------------------------------------------------------------------
  */
@@ -38,10 +53,11 @@ import org.apache.commons.logging.LogFactory;
  * Importer is master file format importer for all supported formats and imports
  * the files to an OMERO database
  * 
- * @author Brian Loranger brain at lifesci.dundee.ac.uk
+ * @author Brian W. Loranger
  * @basedOnCodeFrom Curtis Rueden ctrueden at wisc.edu
  */
-public class ImportHandler implements IObservable {
+public class ImportHandler implements IObservable 
+{
 
     private static Log log = LogFactory.getLog(ImportHandler.class);
 
@@ -61,6 +77,14 @@ public class ImportHandler implements IObservable {
 
     private ImportConfig config;
     
+    /**
+     * @param ex -scheduled executor service for background processing
+     * @param viewer - parent
+     * @param qTable - fileQueueTable to recieve notifications
+     * @param config - passed in config
+     * @param library - passed in library
+     * @param containers - importContainers
+     */
     public ImportHandler(final ScheduledExecutorService ex, GuiImporter viewer, FileQueueTable qTable,
             ImportConfig config, ImportLibrary library,
             ImportContainer[] containers) {
@@ -68,39 +92,52 @@ public class ImportHandler implements IObservable {
         this.config = config;
         this.library = library;
         this.importContainer = containers;
-        if (viewer.historyTable != null) {
+        if (viewer.historyTable != null) 
+        {
             this.db = viewer.historyTable.db;
-        } else {
+        } else 
+        {
             this.db = null;
         }
 
-        if (runState == true) {
+        if (runState == true) 
+        {
             log.error("ImportHandler running twice");
             throw new RuntimeException("ImportHandler running twice");
         }
         runState = true;
-        try {
+        try 
+        {
             this.viewer = viewer;
             this.qTable = qTable;
             library.addObserver(qTable);
             library.addObserver(viewer);
             library.addObserver(viewer.errorHandler.delegate);
-            library.addObserver(new IObserver(){
-                public void update(IObservable importLibrary, ImportEvent event) {
-                    if (ex.isShutdown()) {
+            library.addObserver(new IObserver()
+            {
+                public void update(IObservable importLibrary, ImportEvent event) 
+                {
+                    if (ex.isShutdown()) 
+                    {
                         log.info("Cancelling import");
                         throw new RuntimeException("CLIENT SHUTDOWN");
                     }
-                }});
+                
+                }
+            });
 
-            Runnable run = new Runnable() {
-                public void run() {
+            Runnable run = new Runnable() 
+            {
+                public void run() 
+                {
                     log.info("Background: Importing images");
                     importImages();
                 }
             };
             ex.execute(run);
-        } finally {
+        } 
+        finally 
+        {
             runState = false; // FIXME this should be set from inside the thread, right?
         }
     }
@@ -325,11 +362,17 @@ public class ImportHandler implements IObservable {
         notifyObservers(new ImportEvent.IMPORT_QUEUE_DONE());
     }
 
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObservable#addObserver(ome.formats.importer.IObserver)
+     */
     public boolean addObserver(IObserver object)
     {
         return observers.add(object);
     }
     
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObservable#deleteObserver(ome.formats.importer.IObserver)
+     */
     public boolean deleteObserver(IObserver object)
     {
         return observers.remove(object);

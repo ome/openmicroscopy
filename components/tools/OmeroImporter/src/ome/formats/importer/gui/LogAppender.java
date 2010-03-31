@@ -1,5 +1,5 @@
 /*
- * ome.formats.importer.gui.LogAppender
+ * ome.formats.importer.gui.History
  *
  *------------------------------------------------------------------------------
  *
@@ -8,6 +8,21 @@
  *      National Institutes of Health,
  *      University of Dundee
  *
+ *
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; either
+ *    version 2.1 of the License, or (at your option) any later version.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *------------------------------------------------------------------------------
  */
@@ -25,6 +40,11 @@ import javax.swing.text.StyledDocument;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+/**
+ * Returns and manages the log appender for display
+ * @author Brian W. Loranger
+ *
+ */
 public class LogAppender
 {
 
@@ -36,18 +56,26 @@ public class LogAppender
 
     private static LogAppender soleInstance;
 
+    /**
+     * Returns the appender
+     * @return soleInstance of LogAppender
+     */
     public static LogAppender getInstance()
     {
         if (soleInstance == null) soleInstance = new LogAppender();
         return soleInstance;
     }
 
-    private LogAppender()
-    {
+    /**
+     * Stub used by getInstance
+     */
+    private LogAppender() {}
 
-    }
-
-    public void append(String s)
+    /**
+     * Formats and appends string to log
+     * @param string - string to append
+     */
+    public void append(String string)
     {
         if (t == null)
         {
@@ -63,7 +91,7 @@ public class LogAppender
                 StyleConstants.setFontFamily(style, "SansSerif");
                 StyleConstants.setFontSize(style, 12);
 
-                doc.insertString(doc.getLength(), s, style);
+                doc.insertString(doc.getLength(), string, style);
                 
                 int maxChars = 100000;
                 if (doc.getLength() > maxChars)
@@ -81,6 +109,11 @@ public class LogAppender
         }
     }
 
+    /**
+     * Set the text area to display logs to
+     * 
+     * @param debugTextPane
+     */
     public void setTextArea(JTextPane debugTextPane)
     {
         this.t = debugTextPane;
@@ -90,7 +123,7 @@ public class LogAppender
     /**
      * Sets the logging detail level for all loggers attached to the importer.
      * 
-     * @param level
+     * @param level - set the default logging level
      */
     public static void setLoggingLevel(Level level)
     {        

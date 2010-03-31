@@ -1,5 +1,5 @@
 /*
- * ome.formats.importer.gui.LoginHandler
+ * ome.formats.importer.gui.History
  *
  *------------------------------------------------------------------------------
  *
@@ -8,10 +8,28 @@
  *      National Institutes of Health,
  *      University of Dundee
  *
+ *
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; either
+ *    version 2.1 of the License, or (at your option) any later version.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
  *------------------------------------------------------------------------------
  */
 
 package ome.formats.importer.gui;
+
+//TODO: some old code in this class that needs cleaning up
 
 import java.awt.Dimension;
 import java.awt.Image;
@@ -45,11 +63,8 @@ import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogo;
 
 /**
- * ImageExporter is master file format exporter for all supported formats and
- * exports the files to an OMERO database
- * 
- * @author Brian Loranger brain at lifesci.dundee.ac.uk
- * @basedOnCodeFrom Curtis Rueden ctrueden at wisc.edu
+ * @author Brian W. Loranger
+ *
  */
 public class LoginHandler implements IObservable, ActionListener, WindowListener, PropertyChangeListener, WindowStateListener, WindowFocusListener
 {
@@ -87,11 +102,26 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     private final ImportConfig config;
 
     
-    public LoginHandler(GuiImporter viewer, HistoryTable table)
+    /**
+     * Initialize the login handler
+     * 
+     * @param viewer - parent viewer
+     * @param table - history table (for post login initialization) 
+     */
+    public LoginHandler(GuiImporter viewer, HistoryTable table) // TODO fix this history table shouldn't be here
     {
         this(viewer, table, false, false, true);
     }    
     
+    /**
+     * Initialize the login handler 
+     * 
+     * @param viewer - parent viewer
+     * @param table - history table
+     * @param modal - modal yes/no
+     * @param center - center yes/no
+     * @param displayTop - display the top 
+     */
     public LoginHandler(GuiImporter viewer, HistoryTable table, boolean modal, boolean center, boolean displayTop)
     {
         this.viewer = viewer;
@@ -108,6 +138,11 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         displayLogin(displayTop);
     }
     
+    /**
+     * Display the login dialog
+     * 
+     * @param displayTop - display the top part of the login yes/no
+     */
     public void displayLogin(boolean displayTop)
     {
         boolean cancelled;
@@ -126,6 +161,9 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         }
     }
     
+    /**
+     * Attempt a login
+     */
     public void tryLogin()
     {
         new Thread()
@@ -235,6 +273,9 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         }.start();
     }
 
+    /**
+     *  refresh login
+     */
     void refreshNewLogin()
     {
         view.setAlwaysOnTop(true);
@@ -242,6 +283,9 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         view.requestFocusOnField();
     }
     
+    /**
+     * cancel login
+     */
     void loginCancelled() {
         viewer.loggedIn = false;
         viewer.enableMenus(true);
@@ -249,6 +293,13 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         viewer.setVisible(true);
     }
     
+    /**
+     * Display the login dialog
+     * 
+     * @param viewer - parent
+     * @param modal - modal yes/no
+     * @return true if login successful
+     */
     @SuppressWarnings("unused")
     private boolean displayLoginDialog(GuiImporter viewer, boolean modal)
     {
@@ -267,6 +318,14 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         return false;
     }
 
+    /**
+     * Display login dialog
+     * 
+     * @param viewer - parent
+     * @param modal - modal yes/no
+     * @param displayTop - display the top part of the login yes/no
+     * @return
+     */
     public boolean displayLoginDialog(Object viewer, boolean modal, boolean displayTop)
     {   
         Image img = Toolkit.getDefaultToolkit().createImage(GuiImporter.ICON);
@@ -316,6 +375,10 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     
 
     
+    /**
+     * @return true if valid login
+     * @throws Exception
+     */
     protected boolean isValidLogin() throws Exception
     {
         try
@@ -341,16 +404,25 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         return true;
     }
 
+    /**
+     *  logout of the server
+     */
     public void logout()
     {
     	store.logout();
     }
     
+    /**
+     * @return OMEROMetadataStore
+     */
     public OMEROMetadataStoreClient getMetadataStore()
     {
         return store;
     }
 
+    /* (non-Javadoc)
+     * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
+     */
     public void propertyChange(PropertyChangeEvent evt)
     {
         String prop = evt.getPropertyName();
@@ -393,11 +465,17 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
 
     // Observable methods
     
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObservable#addObserver(ome.formats.importer.IObserver)
+     */
     public boolean addObserver(IObserver object)
     {
         return observers.add(object);
     }
     
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObservable#deleteObserver(ome.formats.importer.IObserver)
+     */
     public boolean deleteObserver(IObserver object)
     {
         return observers.remove(object);
@@ -420,46 +498,79 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         }
     }
 
+    /* (non-Javadoc)
+     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+     */
     public void actionPerformed(ActionEvent event)
     {
     }
 
+    /* (non-Javadoc)
+     * @see java.awt.event.WindowListener#windowActivated(java.awt.event.WindowEvent)
+     */
     public void windowActivated(WindowEvent e)
     {
     }
 
+    /* (non-Javadoc)
+     * @see java.awt.event.WindowListener#windowClosed(java.awt.event.WindowEvent)
+     */
     public void windowClosed(WindowEvent e)
     {
     }
 
+    /* (non-Javadoc)
+     * @see java.awt.event.WindowListener#windowClosing(java.awt.event.WindowEvent)
+     */
     public void windowClosing(WindowEvent e)
     {
     }
 
+    /* (non-Javadoc)
+     * @see java.awt.event.WindowListener#windowDeactivated(java.awt.event.WindowEvent)
+     */
     public void windowDeactivated(WindowEvent e)
     {
     }
 
+    /* (non-Javadoc)
+     * @see java.awt.event.WindowListener#windowDeiconified(java.awt.event.WindowEvent)
+     */
     public void windowDeiconified(WindowEvent e)
     {
     }
 
+    /* (non-Javadoc)
+     * @see java.awt.event.WindowListener#windowIconified(java.awt.event.WindowEvent)
+     */
     public void windowIconified(WindowEvent e)
     {
     }
 
+    /* (non-Javadoc)
+     * @see java.awt.event.WindowListener#windowOpened(java.awt.event.WindowEvent)
+     */
     public void windowOpened(WindowEvent e)
     {
     }
 
+    /* (non-Javadoc)
+     * @see java.awt.event.WindowStateListener#windowStateChanged(java.awt.event.WindowEvent)
+     */
     public void windowStateChanged(WindowEvent e)
     {
     }
 
+    /* (non-Javadoc)
+     * @see java.awt.event.WindowFocusListener#windowGainedFocus(java.awt.event.WindowEvent)
+     */
     public void windowGainedFocus(WindowEvent e)
     {
     }
 
+    /* (non-Javadoc)
+     * @see java.awt.event.WindowFocusListener#windowLostFocus(java.awt.event.WindowEvent)
+     */
     public void windowLostFocus(WindowEvent e)
     {
     }

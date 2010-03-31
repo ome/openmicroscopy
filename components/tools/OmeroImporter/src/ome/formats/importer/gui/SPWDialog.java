@@ -1,12 +1,21 @@
 /*
- * ome.formats.importer.gui.ImportDialog
- *
+ *  ome.formats.importer.gui.StatusBar
  *------------------------------------------------------------------------------
+ *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
- *  Copyright (C) 2005 Open Microscopy Environment
- *      Massachusetts Institute of Technology,
- *      National Institutes of Health,
- *      University of Dundee
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *------------------------------------------------------------------------------
  */
@@ -81,6 +90,15 @@ public class SPWDialog extends JDialog implements ActionListener
 
     public OMEROMetadataStoreClient store;
 
+    /**
+     * Create and display a Screen/Plate/Well dialog for import selection
+     * 
+     * @param config - ImportConfig for saving/retrieving defaults
+     * @param owner - parent dialog
+     * @param title - dialog tible
+     * @param modal - modal yes/no
+     * @param store - OMEROMetadataStore to retrieve SPW data from
+     */
     SPWDialog(ImportConfig config, JFrame owner, String title, boolean modal, OMEROMetadataStoreClient store)
     {
         super(owner);
@@ -186,6 +204,9 @@ public class SPWDialog extends JDialog implements ActionListener
         setVisible(true);
     }
 
+    /**
+     * Build the screen list for drop down dialog
+     */
     private void buildScreens()
     {
         if (config.savedScreen.get() != 0 && screenItems != null) {
@@ -202,7 +223,10 @@ public class SPWDialog extends JDialog implements ActionListener
 
     }
 
-    private void refreshAndSetProject()
+    /**
+     * Refresh drop down and set the screen
+     */
+    private void refreshAndSetScreen()
     {
         if (store != null)
         {
@@ -221,12 +245,15 @@ public class SPWDialog extends JDialog implements ActionListener
         }
     }
 
+    /* (non-Javadoc)
+     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+     */
     public void actionPerformed(ActionEvent event)
     {
         if (event.getSource() == addScreenBtn)
         {
             new AddScreenDialog(config, this, "Add a new Screen", true, store);
-            refreshAndSetProject();
+            refreshAndSetScreen();
         }
 
         if (event.getSource() == cancelBtn)
@@ -257,6 +284,11 @@ public class SPWDialog extends JDialog implements ActionListener
         }
     }
 
+    /**
+     * Internal testing main (for debugging only)
+     * @param args
+     * @throws Exception 
+     */
     public static void main (String[] args) {
 
         String laf = UIManager.getSystemLookAndFeelClassName() ;
@@ -275,33 +307,57 @@ public class SPWDialog extends JDialog implements ActionListener
     }
 }
 
-//Helper classes used by the dialog comboboxes
+// Helper classes used by the dialog combo boxes
 
+
+/**
+ * @author "Brian W. Loranger"
+ */
 class ScreenItem
 {
     private Screen screen;
 
+    /**
+     * Initialize a new screen item
+     * 
+     * @param screen - screen for this item
+     */
     public ScreenItem(Screen screen)
     {
         this.screen = screen;
     }
 
+    /**
+     * @return screen used for this item
+     */
     public Screen getScreen()
     {
         return screen;
     }
 
+    /* Return the screen's name
+     * @see java.lang.Object#toString()
+     */
     @Override
     public String toString()
     {
         return screen.getName().getValue();
     }
 
+    /**
+     * @return screen's id
+     */
     public Long getId()
     {
         return screen.getId().getValue();
     }
 
+    /**
+     * Create a new item for pull down
+     * 
+     * @param screens - list of Screen's
+     * @return screen item array
+     */
     public static ScreenItem[] createScreenItem(List<Screen> screens)
     {
         ScreenItem[] items = new ScreenItem[screens.size() + 1];

@@ -35,7 +35,7 @@ import javax.swing.table.TableColumnModel;
  * more like a Cocoa table than the default Aqua LAF manages.
  * 
  * @author Elliott Hughes
- * @author Some additions added by Brian W. Loranger
+ * @author Some customization by Brian W. Loranger
  */
 public class ETable extends JTable {
 	/**

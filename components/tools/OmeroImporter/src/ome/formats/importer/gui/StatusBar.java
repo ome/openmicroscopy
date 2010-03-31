@@ -81,7 +81,9 @@ public class StatusBar extends JPanel
         status.setFont(getFont().deriveFont(11.0f));
     }
 
-    /** Build and lay out the UI. */
+    /**
+     * Build and lay out the UI
+     */
     private void buildUI()
     {
         Border compoundBorder = BorderFactory.createCompoundBorder(
@@ -143,16 +145,26 @@ public class StatusBar extends JPanel
         }
     }
 
+    /**
+     * @param max
+     */
     public void setProgressMaximum(int max)
     {
         progressBar.setMaximum(max);
     }
     
+    /**
+     * @param val
+     */
     public void setProgressValue(int val)
     {
         progressBar.setValue(val);
     }
      
+    /**
+     * @param component
+     * @return
+     */
     public JPanel buildComponentPanelRight(JComponent component)
     {
         JPanel p = new JPanel();
@@ -162,6 +174,10 @@ public class StatusBar extends JPanel
     }
 
     /** Returns an ImageIcon, or null if the path was invalid. */
+    /**
+     * @param path
+     * @param description
+     */
     protected void setStatusIcon(String path, String description)
     {
         if (path != null)

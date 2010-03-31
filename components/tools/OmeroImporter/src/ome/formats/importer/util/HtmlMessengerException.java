@@ -25,14 +25,18 @@ package ome.formats.importer.util;
 
 
 /**
- * @author TheBrain
+ * @author Brian W. Loranger
  *
  */
 @SuppressWarnings("serial")
 public class HtmlMessengerException extends Exception
 {
-    public HtmlMessengerException(String message, Exception e)
+    /**
+     * @param message
+     * @param exception
+     */
+    public HtmlMessengerException(String message, Exception exception)
     {
-        super(message, e);
+        super(message, exception);
     }
 }

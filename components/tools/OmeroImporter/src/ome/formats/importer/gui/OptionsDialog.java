@@ -1,5 +1,5 @@
 /*
- * ome.formats.importer.GuiCommonElements.OptionsDialog
+ * ome.formats.importer.gui.History
  *
  *------------------------------------------------------------------------------
  *
@@ -7,6 +7,22 @@
  *      Massachusetts Institute of Technology,
  *      National Institutes of Health,
  *      University of Dundee
+ *
+ *
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; either
+ *    version 2.1 of the License, or (at your option) any later version.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *------------------------------------------------------------------------------
  */
@@ -117,6 +133,14 @@ public class OptionsDialog extends JDialog implements ActionListener
 
     private JCheckBox companionFileCheckbox;
 
+    /**
+     * Initialize and show the options dialog
+     * 
+     * @param config - ImportConfig to store/save settings too
+     * @param owner - parent 
+     * @param title - dialog title
+     * @param modal - modal yes/no
+     */
     OptionsDialog(ImportConfig config, JFrame owner, String title, boolean modal)
     {
         super(owner);
@@ -277,6 +301,9 @@ public class OptionsDialog extends JDialog implements ActionListener
         setVisible(true);
     }
 
+    /* (non-Javadoc)
+     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+     */
     public void actionPerformed(ActionEvent event)
     {
         if (event.getSource() == cancelBtn)
@@ -315,6 +342,11 @@ public class OptionsDialog extends JDialog implements ActionListener
         }
     }
     
+    /**
+     * Internal testing main (for debugging only)
+     * @param args
+     * @throws Exception 
+     */
     public static void main (String[] args) {
 
         String laf = UIManager.getSystemLookAndFeelClassName() ;
@@ -335,12 +367,22 @@ public class OptionsDialog extends JDialog implements ActionListener
     }
 }
 
+/**
+ * @author "Brian W. Loranger"
+ */
 class DebugItem
 {
     private String text;
     private int level;
     private String description;
 
+    /**
+     * Set the current debug item values
+     * 
+     * @param text - text name for debug item
+     * @param level - level of this debug setting
+     * @param description - long description of debug setting
+     */
     public DebugItem(final String text, final int level, final String description)
     {
         this.text = text;
@@ -348,17 +390,30 @@ class DebugItem
         this.description = description;
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
     @Override
     public String toString()
     {
         return text;
     }
 
+    /**
+     * Return the debug level
+     * 
+     * @return debug level as (int)
+     */
     public int getLevel()
     {
         return level;
     }
     
+    /**
+     * Return the description text for this level
+     * 
+     * @return description as text
+     */
     public String getDescription()
     {
         return description;

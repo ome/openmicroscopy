@@ -1,3 +1,31 @@
+/*
+ * ome.formats.importer.gui.History
+ *
+ *------------------------------------------------------------------------------
+ *
+ *  Copyright (C) 2005 Open Microscopy Environment
+ *      Massachusetts Institute of Technology,
+ *      National Institutes of Health,
+ *      University of Dundee
+ *
+ *
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; either
+ *    version 2.1 of the License, or (at your option) any later version.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *------------------------------------------------------------------------------
+ */
 package ome.formats.importer.util;
 
 import java.io.File;
@@ -19,7 +47,10 @@ import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-
+/**
+ * @author Brian W. Loranger
+ *
+ */
 public class FileUploader implements IObservable
 {   
 
@@ -38,11 +69,21 @@ public class FileUploader implements IObservable
 
     private boolean cancelUpload;
 
+    /**
+     * Initialize upload with httpClient
+     * 
+     * @param httpClient
+     */
     public FileUploader(HttpClient httpClient)
     {
         this.client = httpClient;
     }
 
+    /**
+     * Set specific sessionID
+     * 
+     * @param sessionId
+     */
     public void setSessionId(String sessionId)
     {
         if (sessionId != null)
@@ -55,11 +96,21 @@ public class FileUploader implements IObservable
 
     }
 
+    /**
+     * @return session_id
+     */
     public String getSessionId()
     {
         return this.session_id;
     }
     
+    /**
+     * Upload files from error container to url
+     * 
+     * @param url - url to send to
+     * @param timeout - timeout 
+     * @param upload - error container with files in it
+     */
     public void uploadFiles(String url, int timeout, ErrorContainer upload)
     {
         if (client == null)
@@ -112,6 +163,9 @@ public class FileUploader implements IObservable
 
                     private long parts = -1;
 
+                    /* (non-Javadoc)
+                     * @see ome.formats.importer.util.FileUploadCounter.ProgressListener#update(long)
+                     */
                     public void update(long bytesRead)
                     {                       
                         long partsDone = 0;
@@ -170,11 +224,19 @@ public class FileUploader implements IObservable
     }
 
     // Observable methods
+    
+    
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObservable#addObserver(ome.formats.importer.IObserver)
+     */
     public boolean addObserver(IObserver object)
     {
         return observers.add(object);
     }
 
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObservable#deleteObserver(ome.formats.importer.IObserver)
+     */
     public boolean deleteObserver(IObserver object)
     {
         return observers.remove(object);
@@ -192,11 +254,20 @@ public class FileUploader implements IObservable
         }
     }
 
+    /**
+     * cancel's upload
+     */
     public void cancel()
     {
         //this.cancelUpload = true;
     }
 
+    /**
+     * Main for testing (debugging only)
+     * 
+     * @param args
+     * @throws Exception 
+     */
     public static void main(String[] args)
     {
 

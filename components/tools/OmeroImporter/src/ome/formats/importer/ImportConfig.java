@@ -301,6 +301,11 @@ public class ImportConfig {
     // Login methods
     //
 
+    /**
+     * Create and return a new OMEROMetadataStoreClient
+     * @return - OMEORMetadataStoreClient
+     * @throws Exception
+     */
     public OMEROMetadataStoreClient createStore() throws Exception {
         if (!canLogin()) {
             throw new RuntimeException("Can't create store. See canLogin()");
@@ -316,6 +321,11 @@ public class ImportConfig {
         return client;
     }
 
+    /**
+     * Confirm all information for login is supplied
+     * 
+     * @return true if all is ok
+     */
     public boolean canLogin() {
         if (((username.empty() || password.empty())
                 && sessionKey.empty()) || hostname.empty()) {
@@ -328,69 +338,117 @@ public class ImportConfig {
     // GUI related. Delegates to IniFileLoader
     //
 
+    /**
+     * @return ini log file
+     */
     public String getLogFile() {
         return ini.getLogFile();
     }
 
+    /**
+     * @return ini home URL
+     */
     public String getHomeUrl() {
         return ini.getHomeUrl();
     }
     
+    /**
+     * @return ini forum URL
+     */
     public String getForumUrl() {
     	return ini.getForumUrl();
     }
 
+    /**
+     * @return ini application title
+     */
     public String getAppTitle() {
         return ini.getAppTitle();
     }
 
+    /**
+     * @return ini version note
+     */
     public String getVersionNumber() {
         return this.omeroVersion + " " + ini.getVersionNote();
     }
 
+    /**
+     * @return ini version number
+     */
     public String getIniVersionNumber() {
     	return ini.getVersionNumber();
     }
     
+    /**
+     * @return ini user settings directory
+     */
     public String getUserSettingsDirectory() {
         return ini.getUserSettingsDirectory();
     }
 
+    /**
+     * @return ini option for if Qquaqua should be use for Macs
+     */
     public boolean getUseQuaqua() {
         return ini.getUseQuaqua();
     }
 
+    /**
+     * @param b - true if Quaqua should be used
+      */
     public void setUseQuaqua(boolean b) {
         ini.setUseQuaqua(b);
     }
 
 
+    /**
+     * @param level - default debug level
+     */
     public void setDebugLevel(int level)
     {
         ini.setDebugLevel(level);
     }
 
+    /**
+     * @return current debug level
+     */
     public int getDebugLevel()
     {
         return ini.getDebugLevel();
     }
     
+    /**
+     * @return UI bounds for application window
+     */
     public Rectangle getUIBounds() {
         return ini.getUIBounds();
     }
 
+    /**
+     * @param bounds - set UI bounds for application window
+     */
     public void setUIBounds(Rectangle bounds) {
         ini.setUIBounds(bounds);
     }
 
+    /**
+     * @return ini feedback URL for QA system
+     */
     public String getFeedbackUrl() {
         return ini.getUploaderURL();
     }
 
+    /**
+     * @return ini token URL for QA system
+     */
     public String getTokenUrl() {
         return ini.getUploaderTokenURL();
     }
 
+    /**
+     * @return ini upload URL for QA system
+     */
     public String getUploaderUrl() {
         return ini.getUploaderURL();
     }
@@ -399,6 +457,9 @@ public class ImportConfig {
     // Server list
     //
 
+    /**
+     * @return server list
+     */
     public List<String> getServerList() {
         if (serverList.empty() || serverList.get().trim().length() == 0) {
             return null;
@@ -438,6 +499,9 @@ public class ImportConfig {
         }
     }
 
+    /**
+     * @param server - remove this server from the server list
+     */
     public void removeServer(String server) {
         List<String> l = getServerList();
         if (l == null)
@@ -460,6 +524,13 @@ public class ImportConfig {
     // HELPERS
     //
 
+    /**
+     * Build prompt
+     * 
+     * @param value
+     * @param prompt
+     * @param hide - use *s for characters
+     */
     protected void prompt(Value value, String prompt, boolean hide) {
 
         String v = value.toString();
@@ -486,6 +557,9 @@ public class ImportConfig {
         }
     }
 
+    /**
+     *  if can't log in request needed information
+     */
     public void requestFromUser() {
         if (!canLogin()) {
             loadAll();

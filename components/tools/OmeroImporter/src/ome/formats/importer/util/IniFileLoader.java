@@ -1,14 +1,26 @@
 /*
- * glencoe.importer.IniFileLoader
+ * ome.formats.importer.util.HtmlMessenger
  *
  *------------------------------------------------------------------------------
+ *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
- *  Copyright (C) 2007 Brian W. Loranger
- *  This class loads in the default Importer.ini file 
- *  (or one specified from the command line when starting the app)
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *------------------------------------------------------------------------------
  */
+
 package ome.formats.importer.util;
 
 import java.awt.Rectangle;
@@ -63,6 +75,11 @@ public class IniFileLoader {
 
     // ////////////// Class Intialization Section ////////////////
 
+    /**
+     * Load given file
+     * 
+     * @param userConfigFile
+     */
     public IniFileLoader(File userConfigFile) {
         staticConfigDirectory = System.getProperty("user.dir") + File.separator
                 + "config";
@@ -97,6 +114,9 @@ public class IniFileLoader {
         }
     }
 
+    /**
+     * Flush preferences to disk
+     */
     public void flushPreferences() {
         try {
             userPrefs.flush();
@@ -115,59 +135,106 @@ public class IniFileLoader {
         return userPrefs.node("General").getInt("debug", -1);
     }
     
+    /**
+     * @return if quaqua should be used on mac
+     */
     public boolean getUseQuaqua() {
         return userPrefs.node("General").getBoolean("useQuaqua", true);
     }
 
+    /**
+     * @return location of log file
+     */
     public String getLogFile() {
         return staticPrefs.node("General").get("logfile", LOGFILE);
     }
     
-    public String getHomeUrl() {
+    /**
+     * @return URL for product feature list
+     */
+    public String getHomeUrl() 
+    {
         return staticPrefs.node("General").get("url", "https://www.openmicroscopy.org/site/support/omero4/products/feature-list");
     }
-    public String getForumUrl() {
+    
+    /**
+     * @return URL for community forums
+     */
+    public String getForumUrl() 
+    {
         return staticPrefs.node("General").get("forumUrl", "https://www.openmicroscopy.org/community/");
     }
-    public String getAppTitle() {
+    
+    /**
+     * @return application title
+     */
+    public String getAppTitle() 
+    {
         return staticPrefs.node("General").get("appTitle", "OMERO.importer");
     }
 
-    public void setDebugLevel(int level) {
+    /**
+     * Set debug level for application
+     * 
+     * @param level
+     */
+    public void setDebugLevel(int level) 
+    {
         userPrefs.node("General").putInt("debug", level);
         this.flushPreferences();
     }
     
-    public void setUseQuaqua(boolean b) {
+    /**
+     * @param b - set to use quaqua yes/no
+     */
+    public void setUseQuaqua(boolean b) 
+    {
         userPrefs.node("General").putBoolean("useQuaqua", b);
         this.flushPreferences();
     }
 
-    public String getVersionNote() {
+    /**
+     * @return application version note
+     */
+    public String getVersionNote() 
+    {
         // return Main.versionNumber;
         return staticPrefs.node("General").get("appVersionNote",
                 Version.versionNote);
     }
 
-    public String getVersionNumber() {
+    /**
+     * @return application version number
+     */
+    public String getVersionNumber() 
+    {
         // return Main.versionNumber;
         return staticPrefs.node("General").get("appVersionNumber",
                 "Dev Build");
     }    
     
-    public Boolean isDebugConsole() {
+    /**
+     * @return if debug console should be shown 
+     */
+    public Boolean isDebugConsole() 
+    {
         return staticPrefs.node("General").getBoolean("displayDebugConsole",
                 true);
     }
 
-    public String getServerPort() {
+    /**
+     * @return server port
+     */
+    public String getServerPort() 
+    {
         return staticPrefs.node("General").get("port", "4063");
     }
 
     /**
      * Updates the Flex reader server maps from the configuration file.
      */
-    public void updateFlexReaderServerMaps() {
+    public void updateFlexReaderServerMaps() 
+    {
         Preferences maps = userPrefs.node("FlexReaderServerMaps");
         Map<String, List<String>> values = parseFlexMaps(maps);
         for (Map.Entry<String, List<String>> entry : values.entrySet()) {
@@ -180,29 +247,46 @@ public class IniFileLoader {
         }
     }
     
-    public Map<String, List<String>> parseFlexMaps(Preferences maps) {
+    /**
+     * Parse Flex reader server maps
+     * 
+     * @param maps
+     * @return
+     */
+    public Map<String, List<String>> parseFlexMaps(Preferences maps) 
+    {
         Map<String, List<String>> rv = new HashMap<String, List<String>>();
         try {
-            for (String key : maps.keys()) {
+            for (String key : maps.keys()) 
+            {
                 String mapValues = maps.get(key, null);
                 log.info("Raw Flex reader map values: " + mapValues);
-                if (mapValues == null) {
+                if (mapValues == null) 
+                {
                     continue;
                 }
                 List<String> list = new ArrayList<String>();
                 rv.put(key, list);
-                for(String value : mapValues.split(";")) {
+                for(String value : mapValues.split(";")) 
+                {
                     value = value.trim();
                     value = value.replaceAll("/", "\\\\");
                     list.add(value);
                 }
             }
-        } catch (BackingStoreException e) {
+        } catch (BackingStoreException e) 
+        {
             log.warn("Error updating Flex reader server maps.", e);
         }
         return rv;
     }
     
+    /**
+     * Append kep to server map
+     * 
+     * @param key
+     * @param mapValue
+     */
     protected void mapFlexServer(String key, String mapValue) {
         try {
             FlexReader.appendServerMap(key, mapValue);
@@ -217,14 +301,22 @@ public class IniFileLoader {
     }
 
     // ////////////// [UI] Section ////////////////
+    
+    
+    /**
+     * @return is debug ui present
+     */
     public Boolean isDebugUI() {
         return staticPrefs.node("UI").getBoolean("displayRedBorders", false);
     }
 
     // TODO: UI locations should handled multiple monitors
 
-    public Rectangle getUIBounds() {
-
+    /**
+     * @return the ui bounds of the application
+     */
+    public Rectangle getUIBounds() 
+    {
         Rectangle rect = new Rectangle();
 
         rect.width = userPrefs.node("UI").getInt("width", 980);
@@ -235,7 +327,13 @@ public class IniFileLoader {
         return rect;
     }
 
-    public void setUIBounds(Rectangle bounds) {
+    /**
+     * Set ui bounds for application
+     * 
+     * @param bounds 
+     */
+    public void setUIBounds(Rectangle bounds) 
+    {
 
         if (bounds.x < 0)
             bounds.x = 0;
@@ -252,17 +350,29 @@ public class IniFileLoader {
         userPrefs.node("UI").putInt("yOffset", bounds.y);
     }
 
-    public String getUploaderTokenURL() {
+    /**
+     * @return uploader token URL for QA
+     */
+    public String getUploaderTokenURL() 
+    {
         return staticPrefs.node("Uploader").get("TokenURL",
                 "http://qa.openmicroscopy.org.uk/qa/initial/");
     }
 
-    public String getUploaderURL() {
+    /**
+     * @return uploader URL for QA
+     */
+    public String getUploaderURL() 
+    {
         return staticPrefs.node("Uploader").get("URL",
                 "http://qa.openmicroscopy.org.uk/qa/upload_processing/");
     }
 
-    public String getBugTrackerURL() {
+    /**
+     * @return bug tracker URL for QA
+     */
+    public String getBugTrackerURL() 
+    {
         return staticPrefs.node("Uploader").get("BugTrackerURL",
                 "http://qa.openmicroscopy.org.uk/qa/upload_processing/");
     }
@@ -270,7 +380,8 @@ public class IniFileLoader {
     /**
      * @return Returns the userSettingsDirectory.
      */
-    public String getUserSettingsDirectory() {
+    public String getUserSettingsDirectory() 
+    {
         return userSettingsDirectory;
     }
 
@@ -278,14 +389,17 @@ public class IniFileLoader {
      * To prevent exceptions when the configuration directory is not present we
      * create a temporary file with no values in it.
      */
-    private File staticFileOrTempDummy() {
+    private File staticFileOrTempDummy() 
+    {
         File staticFile = new File(staticConfigFile);
-        if (!staticFile.exists() || !staticFile.canRead()) {
+        if (!staticFile.exists() || !staticFile.canRead()) 
+        {
             try {
                 staticFile = TempFileManager.createTempFile(".omero.importer", "ini");
                 log.warn("Creating temporary ini file: "
                         + staticFile.getAbsolutePath());
-            } catch (IOException e) {
+            } catch (IOException e) 
+            {
                 throw new RuntimeException(e);
             }
             staticFile.deleteOnExit();
