@@ -123,9 +123,9 @@ class TestIShare(lib.ITest):
         client_share1 = omero.client()
         client_share1.createSession(user1.omeName.val,"ome")
         
-        # create image and get thumbnail (in private group)
+        # create image in private group
         privateImageId = createTestImage(client_share1.sf)
-        self.getThumbnail(client_share1.sf, privateImageId)
+        #self.getThumbnail(client_share1.sf, privateImageId)    # if we don't get thumbnail, test fails when another user does
         
         # change user into read-only group. Use object Ids for this, NOT objects from a different context
         a = client_share1.sf.getAdminService()
