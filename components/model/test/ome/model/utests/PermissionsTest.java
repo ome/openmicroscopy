@@ -234,22 +234,16 @@ public class PermissionsTest extends TestCase {
     public void testFlags() throws Exception {
         Permissions t = new Permissions();
         assertFalse(t.isSet(SOFT));
-        assertFalse(t.isSet(LOCKED));
         t.set(SOFT);
-        t.set(LOCKED);
         assertTrue(t.isSet(SOFT));
-        assertTrue(t.isSet(LOCKED));
     }
 
     @Test(groups = "ticket:215")
     public void testCopyCtorCopiesFlags() throws Exception {
         p = new Permissions();
-        assertFalse(p.isSet(LOCKED));
         assertFalse(p.isSet(SOFT));
-        p.set(LOCKED);
         p.set(SOFT);
         Permissions t = new Permissions(p);
-        assertTrue(t.isSet(LOCKED));
         assertTrue(t.isSet(SOFT));
 
     }
@@ -300,7 +294,7 @@ public class PermissionsTest extends TestCase {
         Permissions.PUBLIC.toString();
         Permissions.PUBLIC.identical(Permissions.PUBLIC);
         Permissions.PUBLIC.isGranted(GROUP, READ);
-        Permissions.PUBLIC.isSet(LOCKED);
+        Permissions.PUBLIC.isSet(SOFT);
         Permissions.PUBLIC.sameRights(p);
         try {
             Permissions.PUBLIC.grant(GROUP, READ);
@@ -323,31 +317,31 @@ public class PermissionsTest extends TestCase {
         }
         ;
         try {
-            Permissions.PUBLIC.set(LOCKED);
+            Permissions.PUBLIC.set(SOFT);
         } catch (UnsupportedOperationException uoe) {
         }
         ;
         try {
-            Permissions.PUBLIC.unSet(LOCKED);
+            Permissions.PUBLIC.unSet(SOFT);
         } catch (UnsupportedOperationException uoe) {
         }
         ;
     }
 
     @Test
-    public void testConstantsAreNotLocked() throws Exception {
-        assertFalse(Permissions.EMPTY.isSet(LOCKED));
-        assertFalse(Permissions.GROUP_IMMUTABLE.isSet(LOCKED));
-        assertFalse(Permissions.GROUP_PRIVATE.isSet(LOCKED));
-        assertFalse(Permissions.GROUP_READABLE.isSet(LOCKED));
-        assertFalse(Permissions.GROUP_WRITEABLE.isSet(LOCKED));
-        assertFalse(Permissions.PUBLIC.isSet(LOCKED));
-        assertFalse(Permissions.READ_ONLY.isSet(LOCKED));
-        assertFalse(Permissions.USER_IMMUTABLE.isSet(LOCKED));
-        assertFalse(Permissions.USER_PRIVATE.isSet(LOCKED));
-        assertFalse(Permissions.USER_WRITEABLE.isSet(LOCKED));
-        assertFalse(Permissions.WORLD_IMMUTABLE.isSet(LOCKED));
-        assertFalse(Permissions.WORLD_WRITEABLE.isSet(LOCKED));
+    public void testConstantsAreNotSoft() throws Exception {
+        assertFalse(Permissions.EMPTY.isSet(SOFT));
+        assertFalse(Permissions.GROUP_IMMUTABLE.isSet(SOFT));
+        assertFalse(Permissions.GROUP_PRIVATE.isSet(SOFT));
+        assertFalse(Permissions.GROUP_READABLE.isSet(SOFT));
+        assertFalse(Permissions.GROUP_WRITEABLE.isSet(SOFT));
+        assertFalse(Permissions.PUBLIC.isSet(SOFT));
+        assertFalse(Permissions.READ_ONLY.isSet(SOFT));
+        assertFalse(Permissions.USER_IMMUTABLE.isSet(SOFT));
+        assertFalse(Permissions.USER_PRIVATE.isSet(SOFT));
+        assertFalse(Permissions.USER_WRITEABLE.isSet(SOFT));
+        assertFalse(Permissions.WORLD_IMMUTABLE.isSet(SOFT));
+        assertFalse(Permissions.WORLD_WRITEABLE.isSet(SOFT));
     }
 
     // ~ Serialization

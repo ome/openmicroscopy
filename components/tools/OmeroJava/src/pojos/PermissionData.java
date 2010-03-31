@@ -159,23 +159,4 @@ public class PermissionData {
         p.setWorldWrite(worldWrite);
     }
 
-    // ~ Flags
-    // =====================================================================
-
-    /**
-     * Returns <code>true</code> if the instance is locked, <code>false</code>
-     * otherwise.
-     * 
-     * @return See above.
-     */
-    public boolean isLocked() { return p.isLocked(); }
-
-    /**
-     * Sets to <code>true</code> to lock the instance,
-     * <code>false</code> otherwise.
-     * 
-     * @param locked The value to set.
-     */
-    public void setLocked(boolean locked) { p.setLocked(locked); }
-
 }

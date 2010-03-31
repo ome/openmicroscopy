@@ -67,24 +67,6 @@ public class HibernateUtilsTest extends MockObjectTestCase {
 
     int[] dirty = { 0 };
 
-    @Test
-    public void testOnlyLockedChanged() throws Exception {
-
-        Object[] state = { null, null, null };
-        Object[] current = { Details.create(), null, null };
-        setupMocks(current);
-
-        assertOnlyLockedChanged(state, true);
-
-        Details d = Details.create();
-        d.setPermissions(Permissions.READ_ONLY);
-        current = new Object[] { d, null, null };
-        setupMocks(current);
-
-        assertOnlyLockedChanged(state, false);
-
-    }
-
     // ~ Helpers
     // =========================================================================
 
@@ -98,9 +80,4 @@ public class HibernateUtilsTest extends MockObjectTestCase {
 
     }
 
-    protected void assertOnlyLockedChanged(Object[] state,
-            boolean onlyLockChanged) {
-        assertTrue(onlyLockChanged == HibernateUtils.onlyLockChanged(null,
-                persister, entity, state, names));
-    }
 }

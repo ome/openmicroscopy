@@ -124,10 +124,8 @@ public class ACLEventListener implements
         if (entity instanceof IObject) {
             IObject obj = (IObject) entity;
 
-            if (!HibernateUtils.onlyLockChanged(event.getSource(), event
-                    .getPersister(), obj, state, names)
-                    && !aclVoter.allowUpdate(obj, HibernateUtils.getDetails(
-                            state, names))) {
+            if (!aclVoter.allowUpdate(obj,
+                    HibernateUtils.getDetails(state, names))) {
                 aclVoter.throwUpdateViolation(obj);
             }
         }

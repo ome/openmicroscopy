@@ -47,7 +47,6 @@ module omero {
       bool isGroupWrite();
       bool isWorldRead();
       bool isWorldWrite();
-      bool isLocked();
 
       void setUserRead(bool value);
       void setUserWrite(bool value);
@@ -55,7 +54,6 @@ module omero {
       void setGroupWrite(bool value);
       void setWorldRead(bool value);
       void setWorldWrite(bool value);
-      void setLocked(bool value);
     };
   };
 };

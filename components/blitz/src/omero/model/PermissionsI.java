@@ -134,19 +134,6 @@ public class PermissionsI extends Permissions implements ome.model.ModelBased {
         set(2, 0, value);
     }
 
-    // bit 18
-    public boolean isLocked(Ice.Current c) {
-        return !granted(1, 18); // Here we use the granted
-        // logic but without a shift. The not is because
-        // flags are stored with reverse semantics.
-    }
-
-    public void setLocked(boolean value, Ice.Current c) {
-        set(1, 18, !value); // Here we use the granted
-        // logic but without a shift. The not is because
-        // flags are stored with reverse semantics.
-    }
-
     protected boolean granted(int mask, int shift) {
         return (perm1 & (mask << shift)) == (mask << shift);
     }

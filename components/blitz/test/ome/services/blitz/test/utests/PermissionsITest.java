@@ -41,7 +41,6 @@ public class PermissionsITest extends TestCase {
         assertFalse(pI.isWorldRead());
         assertFalse(pI.isGroupWrite());
         assertFalse(pI.isWorldWrite());
-        assertFalse(pI.isLocked());
     }
     
     public void testPermissionsUserRead() throws Exception {
@@ -98,15 +97,6 @@ public class PermissionsITest extends TestCase {
         verify(p,pI);
     }
 
-    public void testPermissionsLocked() throws Exception {
-        p.set(LOCKED);
-        pI.setLocked(true);
-        verify(p,pI);
-        p.unSet(LOCKED);
-        pI.setLocked(false);
-        verify(p,pI);
-    }
-
     void verify(Permissions p, PermissionsI pI) {
         assertEquals(p.isGranted(USER, READ), pI.isUserRead());
         assertEquals(p.isGranted(USER, WRITE), pI.isUserWrite());
@@ -114,7 +104,6 @@ public class PermissionsITest extends TestCase {
         assertEquals(p.isGranted(GROUP, WRITE), pI.isGroupWrite());
         assertEquals(p.isGranted(WORLD, READ), pI.isWorldRead());
         assertEquals(p.isGranted(WORLD, WRITE), pI.isWorldWrite());
-        assertEquals(p.isSet(LOCKED), pI.isLocked());
     }
 
 }

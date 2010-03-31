@@ -110,7 +110,7 @@ public class Permissions implements Serializable {
      * @see <a href="http://trac.openmicroscopy.org.uk/omero/ticket/1769>#1769</a>
      */
     public enum Flag {
-        LOCKED(1 << 18), SOFT(1 << 17);
+        SOFT(1 << 17);
 
         /*
          * Implementation note: -------------------- Flags work with reverse
@@ -344,7 +344,6 @@ public class Permissions implements Serializable {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(16);
-        sb.append(isSet(LOCKED) ? "L" : "");
         sb.append(isGranted(USER, READ) ? "r" : "-");
         sb.append(isGranted(USER, WRITE) ? "w" : "-");
         sb.append(isGranted(GROUP, READ) ? "r" : "-");

@@ -155,16 +155,16 @@ public class ExtendedMetadata implements ApplicationListener {
 
     /**
      * walks the {@link IObject} argument <em>non-</em>recursively and gathers
-     * all attached {@link IObject} instances which may need to be locked by the
-     * creation or updating of the argument.
+     * all {@link IObject} instances which will be linkd to by the
+     * creation or updating of the argument. (Previously this was called "locking"
+     * since a flag was set on the object to mark it as linked, but this was 
+     * removed in 4.2)
      * 
      * @param iObject
      *            A newly created or updated {@link IObject} instance which
      *            might possibly lock other {@link IObject IObjects}. A null
      *            argument will return an empty array to be checked.
-     * @return A non-null array of {@link IObject IObjects} which may need to be
-     *         locked.
-     * @see Permissions.Flag#LOCKED
+     * @return A non-null array of {@link IObject IObjects} which will be linked to.
      */
     public IObject[] getLockCandidates(IObject iObject) {
         if (iObject == null) {
@@ -176,7 +176,7 @@ public class ExtendedMetadata implements ApplicationListener {
     }
 
     /**
-     * returns all class/field name pairs which may possible link to an object
+     * returns all class/field name pairs which may possibly link to an object
      * of type <code>klass</code>.
      * 
      * @param klass

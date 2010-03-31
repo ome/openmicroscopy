@@ -150,7 +150,7 @@ public class OmeroInterceptor implements Interceptor {
             IObject iobj = (IObject) entity;
             int idx = HibernateUtils.detailsIndex(propertyNames);
 
-            markLockedIfNecessary(iobj);
+            evaluateLinkages(iobj);
 
             // Get a new details based on the current context
             Details d = newTransientDetails(iobj);
@@ -175,7 +175,7 @@ public class OmeroInterceptor implements Interceptor {
             IObject iobj = (IObject) entity;
             int idx = HibernateUtils.detailsIndex(propertyNames);
 
-            markLockedIfNecessary(iobj);
+            evaluateLinkages(iobj);
 
             altered |= resetDetails(iobj, currentState, previousState, idx);
 
@@ -336,17 +336,8 @@ public class OmeroInterceptor implements Interceptor {
     // =========================================================================
 
     /**
-     * checks, and if necessary, stores argument and entities attached to the
-     * argument entity in the current context for later modification (see
-     * {@link #lockMarked()}
-     *
-     * These modifications cannot be done during save and update because not
-     * just the entity itself but entities 1-step down the graph are to be
-     * edited, and it cannot be guaranteed that the graph walk will not
-     * subsequently re-write the changes. Instead, changes are all made during
-     * the flush procedure of {@link FlushEntityEventListener}. This also
-     * prevents accidental changes by administrative users by making the locking
-     * of an element the very last action.
+     * Checks the details of the objects which the given object links to in
+     * order to guarantee that linkages are valid.
      *
      * This method is called during
      * {@link OmeroInterceptor#onSave(Object, java.io.Serializable, Object[], String[], org.hibernate.type.Type[])
@@ -363,7 +354,7 @@ public class OmeroInterceptor implements Interceptor {
      *            current owner id will most likely be replaced. (If not, then
      *            a security exception will be raised later)
      */
-    public void markLockedIfNecessary(IObject iObject) {
+    public void evaluateLinkages(IObject iObject) {
 
         if (iObject == null ||
                 sysTypes.isSystemType(iObject.getClass()) ||
@@ -374,9 +365,6 @@ public class OmeroInterceptor implements Interceptor {
 
         IObject[] candidates = em.getLockCandidates(iObject);
         for (IObject object : candidates) {
-
-            // omitting system types since they don't have permissions
-            // which can be locked.
 
             if (!sysTypes.isSystemType(object.getClass()) &&
                     !sysTypes.isInSystemGroup(object.getDetails()) &&
@@ -601,12 +589,7 @@ public class OmeroInterceptor implements Interceptor {
             // are.
         } else {
 
-            boolean locked = false;
             boolean privileged = false;
-
-            if (previousDetails.getPermissions().isSet(Flag.LOCKED)) {
-                locked = true;
-            }
 
             if (tokenHolder.hasPrivilegedToken(iobj)) {
                 privileged = true;
@@ -623,25 +606,25 @@ public class OmeroInterceptor implements Interceptor {
 
             // isGlobal implies nothing (currently) about external info
             // see mapping.vm for more.
-            altered |= managedExternalInfo(locked, privileged, iobj,
+            altered |= managedExternalInfo(privileged, iobj,
                     previousDetails, currentDetails, newDetails);
 
             // implies that Permissions dosn't matter
             //if (!IGlobal.class.isAssignableFrom(iobj.getClass())) {
             // ticket:1434 re-activating permission mgmt for globals.
-                altered |= managedPermissions(locked, privileged, iobj,
+                altered |= managedPermissions(privileged, iobj,
                         previousDetails, currentDetails, newDetails, sysType);
             //}
 
             // implies that owner doesn't matter
             if (!sysType) {
-                altered |= managedOwner(locked, privileged, iobj,
+                altered |= managedOwner(privileged, iobj,
                         previousDetails, currentDetails, newDetails, bec);
             }
 
             // implies that group doesn't matter
             if (!sysType) {
-                altered |= managedGroup(locked, privileged, iobj,
+                altered |= managedGroup(privileged, iobj,
                         previousDetails, currentDetails, newDetails, bec);
             }
 
@@ -650,7 +633,7 @@ public class OmeroInterceptor implements Interceptor {
             // (i.e. last modification)
             // implies that event doesn't matter
             if (!sysType) {
-                altered |= managedEvent(locked, privileged, iobj,
+                altered |= managedEvent(privileged, iobj,
                         previousDetails, currentDetails, newDetails);
             }
 
@@ -676,7 +659,7 @@ public class OmeroInterceptor implements Interceptor {
      *            {@link Permissions}
      * @return true if the {@link Permissions} of newDetails are changed.
      */
-    protected boolean managedExternalInfo(boolean locked, boolean privileged,
+    protected boolean managedExternalInfo(boolean privileged,
             IObject obj, Details previousDetails, Details currentDetails,
             Details newDetails) {
 
@@ -726,7 +709,7 @@ public class OmeroInterceptor implements Interceptor {
      *            {@link Permissions}
      * @return true if the {@link Permissions} of newDetails are changed.
      */
-    protected boolean managedPermissions(boolean locked, boolean privileged,
+    protected boolean managedPermissions(boolean privileged,
             IObject obj, Details previousDetails, Details currentDetails,
             Details newDetails, boolean sysType) {
 
@@ -778,13 +761,6 @@ public class OmeroInterceptor implements Interceptor {
             newDetails.setPermissions(currentP);
             Permissions tmpPreviousP = new Permissions(previousP);
 
-            // see https://trac.openmicroscopy.org.uk/omero/ticket/553
-            if (currentP.isSet(Flag.LOCKED)) {
-                tmpPreviousP.set(Flag.LOCKED);
-            } else {
-                tmpPreviousP.unSet(Flag.LOCKED);
-            }
-
             // see https://trac.openmicroscopy.org.uk/omero/ticket/1434
             // and https://trac.openmicroscopy.org.uk/omero/ticket/1731
             if (!currentP.identical(tmpPreviousP) &&
@@ -816,38 +792,6 @@ public class OmeroInterceptor implements Interceptor {
             }
         }
 
-        // now we've calculated the desired permissions, throw
-        // a security violation if this instance was locked AND
-        // the read permissions have been lowered or if the lock
-        // was removed.
-        if (locked) {
-
-            if (previousP == null) {
-                throw new InternalException("Null permissions cannot be locked");
-            }
-
-            Permissions calculatedP = newDetails.getPermissions();
-
-            if (calculatedP != null) {
-
-                // can't override
-                if (!calculatedP.isSet(Flag.LOCKED)) {
-                    calculatedP.set(Flag.LOCKED);
-                    altered = true;
-                }
-
-                if (previousP.isGranted(USER, READ)
-                        && !calculatedP.isGranted(USER, READ)
-                        || previousP.isGranted(GROUP, READ)
-                        && !calculatedP.isGranted(GROUP, READ)
-                        || previousP.isGranted(WORLD, READ)
-                        && !calculatedP.isGranted(WORLD, READ)) {
-                    throw new SecurityViolation(
-                            "Cannot remove READ from locked entity:" + obj);
-                }
-            }
-        }
-
         // privileged plays no role since everyone can alter their permissions
         // (within bounds)
 
@@ -855,7 +799,7 @@ public class OmeroInterceptor implements Interceptor {
 
     }
 
-    protected boolean managedOwner(boolean locked, boolean privileged,
+    protected boolean managedOwner(boolean privileged,
             IObject obj, Details previousDetails, Details currentDetails,
             Details newDetails, final BasicEventContext bec) {
 
@@ -868,16 +812,6 @@ public class OmeroInterceptor implements Interceptor {
             if (currentDetails.getOwner() == null) {
                 newDetails.setOwner(previousDetails.getOwner());
                 return true;
-            }
-
-            // Locked items cannot have their owner altered, unless they
-            // are world-readable. In that case, the owner will play no
-            // real role. The WORLD-READ is also not removable. The check for
-            // this is in managedPermissions()
-            if (locked
-                    && !currentDetails.getPermissions().isGranted(WORLD, READ)) {
-                throw new SecurityViolation("Object locked! "
-                        + "Cannot change owner for:" + obj);
             }
 
             // if the current user is an admin or if the entity has been
@@ -904,7 +838,7 @@ public class OmeroInterceptor implements Interceptor {
         return false;
     }
 
-    protected boolean managedGroup(boolean locked, boolean privileged,
+    protected boolean managedGroup(boolean privileged,
             IObject obj, Details previousDetails, Details currentDetails,
             Details newDetails, final BasicEventContext bec) {
 
@@ -930,11 +864,6 @@ public class OmeroInterceptor implements Interceptor {
             if (currentDetails.getGroup() == null) {
                 newDetails.setGroup(previousDetails.getGroup());
                 return true;
-            }
-
-            if (locked) {
-                throw new SecurityViolation("Object locked! "
-                        + "Cannot change group for entity:" + obj);
             }
 
             // if user is a member of the group or the current user is an admin
@@ -972,7 +901,7 @@ public class OmeroInterceptor implements Interceptor {
         return false;
     }
 
-    protected boolean managedEvent(boolean locked, boolean privileged,
+    protected boolean managedEvent(boolean privileged,
             IObject obj, Details previousDetails, Details currentDetails,
             Details newDetails) {
 

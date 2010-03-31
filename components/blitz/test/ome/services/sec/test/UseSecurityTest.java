@@ -61,27 +61,18 @@ public class UseSecurityTest extends AbstractPermissionsTest {
     public void testSingleProject_U() throws Exception {
         createProject(u, new PermissionsI(RW_Rx_Rx.toString()), user_other_group);
         verifyDetails(prj, user, user_other_group, new PermissionsI(RW_Rx_Rx.toString()));
-        verifyLockStatus(prj, false);
-        verifyLocked(u, prj, d(prj, RW_xx_xx), true);
-        verifyLocked(u, prj, d(prj, common_group), true);
     }
 
     @Override
     public void testSingleProject_W() throws Exception {
         createProject(w, new PermissionsI(RW_Rx_Rx.toString()), common_group);
         verifyDetails(prj, world, common_group, new PermissionsI(RW_Rx_Rx.toString()));
-        verifyLockStatus(prj, false);
-        verifyLocked(w, prj, d(prj, RW_xx_xx), true); // no other group
     }
 
     @Override
     public void testSingleProject_R() throws Exception {
         createProject(r, new PermissionsI(RW_Rx_Rx.toString()), system_group);
         verifyDetails(prj, root, system_group, new PermissionsI(RW_Rx_Rx.toString()));
-        verifyLockStatus(prj, false);
-        verifyLocked(r, prj, d(prj, RW_xx_xx), true);
-        verifyLocked(r, prj, d(prj, common_group), true);
-        verifyLocked(r, prj, d(prj, world), true);
     }
 
     // ~ one-to-many
@@ -339,11 +330,6 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         createThumbnail(ownsfB, groupB, permsB, pix);
         verifyDetails(tb, ownerB, groupB, permsB);
 
-        verifyLockStatus(pix, will_lock);
-        for (Object object : details_changed) {
-            verifyLocked(sf, pix, d(pix, object), can_change);
-        }
-
     }
 
     // ~ unidirectional many-to-one
@@ -378,10 +364,6 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         createInstrument(ownsfB, groupB, permsB, micro);
         verifyDetails(instr, ownerB, groupB, permsB);
 
-        verifyLockStatus(micro, will_lock);
-        for (Object object : details_changed) {
-            verifyLocked(sf, micro, d(micro, object), can_change);
-        }
         // it is not at all easy to clear a Pixels locked status, but
         // microscope should be easy enough
         if (will_lock) {
@@ -466,9 +448,6 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         createPDLink(ownsfC, permsC, groupC);
         verifyDetails(link, ownerC, groupC, permsC);
 
-        verifyLockStatus(prj, will_lock);
-        verifyLockStatus(ds, will_lock);
-
         r.getUpdateService().deleteObject(link);
         // boolean[] unlocked = r.getAdminService().unlock(Arrays.asList(prj, ds));
         // assertTrue(unlocked[0]);
@@ -521,21 +500,6 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         verifyDetails(img, ownerA, groupA, permsA);
         verifyDetails(pix, ownerB, groupB, permsB);
 
-        // This is no longer true; the "default tag" metaphor no longer
-        // exists, and so the image will not be automatically locked.
-        // verifyLockStatus(img, will_lock);
-        verifyLockStatus(pix, will_lock); // both locked. see
-        // https://trac.openmicroscopy.org.uk/omero/ticket/357
-
-        for (Object object : details_changed) {
-            verifyLocked(sf, img, d(img, object), can_change_img);
-        }
-        for (Object object : details_changed) {
-            verifyLocked(sf, pix, d(pix, object), can_change_pix);
-        }
-
-        // TODO should try to clear lock status.
-
     }
 
     // ~ Other
@@ -550,7 +514,6 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         prj.setName(rstring("noloadonnonreadable"));
         prj.getDetails().setPermissions(USER_PRIVATE);
         prj = (Project) u.getUpdateService().saveAndReturnObject(prj);
-        assertFalse(prj.getDetails().getPermissions().isLocked());
 
         prj.unload();
         ds = new DatasetI();
@@ -565,135 +528,6 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         } catch (SecurityViolation sv) {
             // ok.
         }
-    }
-
-    @Test
-    public void testDeletingSingleLockedObject() throws Exception {
-        Permissions perms = new PermissionsI();
-        perms.setLocked(true);
-
-        prj = new ProjectI();
-        prj.setName(rstring("deletinglocked"));
-        prj.getDetails().setPermissions(perms);
-        prj = (Project) u.getUpdateService().saveAndReturnObject(prj);
-        assertTrue(prj.getDetails().getPermissions().isLocked());
-        u.getUpdateService().deleteObject(prj);
-    }
-
-    // ~ Copy of server-side locking test. See:
-    // https://trac.openmicroscopy.org.uk/omero/ticket/366
-    // =========================================================================
-    /** tests both transient and managed entities */
-    public void test_ProjectIsLockedOnAddedDataset() throws Exception {
-
-        prj = new ProjectI();
-        prj.setName(rstring("ticket:337"));
-        prj = (Project) u.getUpdateService().saveAndReturnObject(prj);
-
-        assertFalse(prj.getDetails().getPermissions().isLocked());
-
-        ds = new DatasetI();
-        ds.setName(rstring("ticket:337"));
-        prj.linkDataset(ds);
-
-        prj = (Project) u.getUpdateService().saveAndReturnObject(prj);
-        ds = prj.linkedDatasetList().get(0);
-
-        prj = (Project) u.getQueryService().find(prj.getClass().getName(), prj.getId().getValue());
-        ds = (Dataset) u.getQueryService().find(ds.getClass().getName(), ds.getId().getValue());
-
-        assertTrue(prj.getDetails().getPermissions().isLocked());
-        assertTrue(ds.getDetails().getPermissions().isLocked());
-
-    }
-
-    @Test(dependsOnMethods = "test_ProjectIsLockedOnAddedDataset")
-    public void test_RootCantOverride() throws Exception {
-        reacquire(r);
-
-        // try to change
-        prj.getDetails().getPermissions().setUserRead(false);
-        assertFails(r);
-
-        reacquire(r);
-        prj.getDetails().getPermissions().setLocked(false);
-        assertNoChange(r);
-
-        // this succeeds because of loosened semantics. see:
-        // https://trac.openmicroscopy.org.uk/omero/changeset/944
-        // https://trac.openmicroscopy.org.uk/omero/ticket/337
-        reacquire(r);
-        prj.getDetails().setOwner(other);
-        assertSucceeds(r);
-
-        // now return it to the previous owner for testing.
-        reacquire(r);
-        prj.getDetails().setOwner(user);
-        assertSucceeds(r);
-
-        // but we can't change the group. too dynamic.
-        reacquire(r);
-        prj.getDetails().setGroup(common_group);
-        assertFails(r);
-
-    }
-
-    @Test(dependsOnMethods = "test_ProjectIsLockedOnAddedDataset")
-    public void test_UserCantOverride() throws Exception {
-        reacquire(u);
-
-        // try to change
-        prj.getDetails().getPermissions().setUserRead(false);
-        assertFails(u);
-
-        reacquire(u);
-        prj.getDetails().getPermissions().setLocked(false);
-        assertNoChange(u);
-
-        // no set owner
-
-        reacquire(u);
-        prj.getDetails().setGroup(common_group);
-        assertFails(u);
-
-    }
-
-    @Test(dependsOnMethods = { "test_RootCantOverride", "test_UserCantOverride" })
-    public void test_OnceDatasetIsRemovedCanUnlock() throws Exception {
-
-        IObject link = r.getQueryService().findByQuery(
-                "select pdl from ProjectDatasetLink pdl "
-                        + "where parent.id = :pid and child.id = :cid",
-                new ParametersI().addLong("pid", prj.getId()).addLong("cid",
-                        ds.getId()));
-        r.getUpdateService().deleteObject(link);
-
-        // r.getAdminService().unlock(Arrays.<IObject>asList(prj));
-        // ticket:2039 - TOO BE REMOVED
-
-        prj = (Project) r.getQueryService().find(prj.getClass().getName(), prj.getId().getValue());
-        assertFalse(prj.getDetails().getPermissions().isLocked());
-    }
-
-    @Test
-    public void test_AllowInitialLock() throws Exception {
-
-        Permissions perms = new PermissionsI();
-        perms.setLocked(true);
-
-        prj = new ProjectI();
-        prj.setName(rstring("ticket:337"));
-        prj.getDetails().setPermissions(perms);
-
-        Project t = (Project) u.getUpdateService().saveAndReturnObject(prj);
-        assertTrue(t.getDetails().getPermissions().isLocked());
-
-        t = (Project) u.getUpdateService().saveAndReturnObject(prj); // cloning
-        t.getDetails().getPermissions().setLocked(true);
-        t = (Project) u.getUpdateService().saveAndReturnObject(t); // save changes on
-        // managed
-        assertTrue(t.getDetails().getPermissions().isLocked());
-
     }
 
     @Test(groups = "ticket:339")
@@ -713,33 +547,8 @@ public class UseSecurityTest extends AbstractPermissionsTest {
 
     }
 
-    @Test(groups = "ticket:357")
-    public void test_OneToOnesGetLockedAsWell() throws Exception {
-
-        Pixels _pix = ObjectFactory.createPixelGraph(null);
-        IceMapper mapper = new IceMapper();
-        
-        img = new ImageI();
-        img.setName(rstring("ticket:357"));
-        pix = (omero.model.Pixels) mapper.map(_pix);
-        img.addPixels(pix);
-
-        img = (Image) u.getUpdateService().saveAndReturnObject(img);
-        pix = img.getPixels(0);
-
-        assertTrue(pix.getDetails().getPermissions().isLocked());
-
-    }
-
     // ~ Helpers
     // =========================================================================
-
-    private void reacquire(ServiceFactoryPrx u) throws Exception {
-        prj = (Project) u.getQueryService()
-                .find(prj.getClass().getName(), prj.getId().getValue());
-        assertTrue("Permissions should still be locked.", prj.getDetails()
-                .getPermissions().isLocked());
-    }
 
     private void assertSucceeds(ServiceFactoryPrx sf) throws ServerError {
         prj = (Project) sf.getUpdateService().saveAndReturnObject(prj);
@@ -759,30 +568,6 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         prj = (Project) sf.getUpdateService().saveAndReturnObject(prj);
         Permissions p2 = prj.getDetails().getPermissions();
         assertSameRights(p1, p2);
-    }
-
-    protected void verifyLockStatus(IObject _i, boolean was_locked) throws Exception {
-        IObject v = rootQuery.get(_i.getClass().getName(), _i.getId().getValue());
-        Details d = v.getDetails();
-        assertEquals(was_locked, d.getPermissions().isLocked());
-    }
-
-    protected void verifyLocked(ServiceFactoryPrx u, IObject _i, Details d,
-            boolean can_change) throws Exception {
-
-        // shouldn't be able to remove read
-        try {
-            fail("IMPLEMENT: ticket:1478");
-            // _i.getDetails().copy(d);
-            u.getUpdateService().saveObject(_i);
-            if (!can_change) {
-                fail("secvio!");
-            }
-        } catch (SecurityViolation sv) {
-            if (can_change) {
-                throw sv;
-            }
-        }
     }
 
     protected Details d(IObject _i, Object _o) {
