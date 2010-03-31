@@ -39,13 +39,13 @@ import ome.model.IGlobal;
 import ome.model.IObject;
 import ome.model.annotations.ExperimenterAnnotationLink;
 import ome.model.annotations.FileAnnotation;
+import ome.model.core.Image;
 import ome.model.core.OriginalFile;
+import ome.model.core.Pixels;
 import ome.model.enums.Format;
 import ome.model.internal.Permissions;
-import ome.model.internal.Permissions.Flag;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
-import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
@@ -60,7 +60,6 @@ import ome.security.auth.PasswordChangeException;
 import ome.security.auth.PasswordProvider;
 import ome.security.auth.RoleProvider;
 import ome.security.basic.BasicSecuritySystem;
-import ome.security.basic.UpdateEventListener;
 import ome.services.query.Definitions;
 import ome.services.query.Query;
 import ome.services.query.QueryParameterDef;
@@ -68,7 +67,6 @@ import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Roles;
-import ome.system.ServiceFactory;
 import ome.system.SimpleEventContext;
 import ome.tools.hibernate.QueryBuilder;
 import ome.tools.hibernate.SecureMerge;
@@ -76,7 +74,6 @@ import ome.util.Utils;
 
 import org.apache.commons.logging.Log;
 import org.hibernate.Criteria;
-import org.hibernate.EmptyInterceptor;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -89,7 +86,6 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -815,16 +811,42 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         final IObject copy = iQuery.get(iObject.getClass(), iObject.getId());
         final ExperimenterGroup group = groupProxy(groupName);
 
-        // do check TODO refactor
+        // Check object
         final EventContext ec = getSecuritySystem().getEventContext();
-        if (!ec.getMemberOfGroupsList().contains(group.getId())
+        if (!ec.getCurrentUserId().equals(copy.getDetails().getOwner().getId())
                 && !ec.isCurrentUserAdmin()) {
             throw new SecurityViolation("Cannot change group for:" + iObject);
         }
-
+        
+        // Check target group
+        if (getSecurityRoles().getUserGroupId() == group.getId().longValue()) {
+            throw new SecurityViolation("Use moveToCommonSpace for moving to user group");
+        } else if (!ec.getMemberOfGroupsList().contains(group.getId())) {
+            throw new SecurityViolation("Can't change to group; " +
+            		"not a member of " + group.getId());
+        }
+        
         // make change.
         copy.getDetails().setGroup(group);
         secureFlush(copy);
+        
+        if (copy instanceof Image) {
+            Image img = (Image) copy;
+            Iterator<Pixels> it = img.iteratePixels();
+            while (it.hasNext()) {
+                Pixels pix = it.next();
+                pix.getDetails().setGroup(group);
+                secureFlush(pix);
+            }
+        }
+
+        // Detect group mismatch
+        // What would need to be changed?
+        Map<String, Long> locks = getLockingIds(copy, group.getId());
+        if (locks.size() > 0) {
+            throw new SecurityViolation("Locks: " + locks);
+        }
+        
     }
 
     private void secureFlush(final IObject copy) {
@@ -927,7 +949,17 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     public Map<String, Long> getLockingIds(IObject object) {
+        return getLockingIds(object, null);
+    }
+    
+    
+    public Map<String, Long> getLockingIds(IObject object, Long groupId) {
 
+        String groupClause = "";
+        if (groupId != null) {
+            groupClause = "and details.group.id <> " + groupId;
+        }
+        
         // since it's a managed entity it's class.getName() might
         // contain
         // some byte-code generation string
@@ -946,8 +978,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         // run the individual queries
         for (final String[] check : checks) {
             final String hql = String.format(
-                    "select id from %s where %s%s = :id ", check[0], check[1],
-                    ".id");
+                    "select id from %s where %s%s = :id %s",
+                    check[0], check[1], ".id", groupClause);
             this.iQuery.execute(new HibernateCallback() {
 
                 public Object doInHibernate(Session session)
@@ -1396,4 +1428,5 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         adminOrPiOfGroups(defaultGroup,
                 nonUserGroupGroups.toArray(new ExperimenterGroup[0]));
     }
+
 }

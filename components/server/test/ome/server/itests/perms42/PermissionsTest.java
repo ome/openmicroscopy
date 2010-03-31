@@ -81,21 +81,31 @@ public class PermissionsTest extends AbstractManagedContextTest {
         void use_fixture_group() {
             String uuid = iAdmin.getEventContext().getCurrentSessionUuid();
             Principal principal = new Principal(uuid);
-            sessionManager.setSecurityContext(principal, fixture.group());
+            sessionManager.setSecurityContext(principal, group());
         }
 
         void make_leader() {
             loginRoot();
-            iAdmin.addGroupOwners(fixture.group(), fixture.user);
-            fixture.log_in();
+            iAdmin.addGroupOwners(group(), user);
+            log_in();
         }
 
         void make_admin() {
             loginRoot();
             iAdmin.addGroupOwners(
                     new ExperimenterGroup(roles.getSystemGroupId(), false),
-                    fixture.user);
-            fixture.log_in();
+                    user);
+            log_in();
+        }
+        
+        ExperimenterGroup new_group() {
+            loginRoot();
+            ExperimenterGroup g = new ExperimenterGroup();
+            g.setName(uuid());
+            long gid = iAdmin.createGroup(g);
+            iAdmin.addGroups(user, new ExperimenterGroup(gid, false));
+            log_in();
+            return g;
         }
 
     }
@@ -109,6 +119,12 @@ public class PermissionsTest extends AbstractManagedContextTest {
     protected void setup(Permissions perms) {
         fixture = new Fixture(perms);
         fixture.log_in();
+    }
+
+    protected void setupOnce(Permissions perms) {
+        if (fixture == null) {
+            setup(perms);
+        }
     }
 
     @AfterMethod
