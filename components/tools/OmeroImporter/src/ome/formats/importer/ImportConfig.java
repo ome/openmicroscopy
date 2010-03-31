@@ -189,7 +189,7 @@ public class ImportConfig {
         hostname     = new StrValue("hostname", this, "omero.host");
         username     = new StrValue("username", this, "omero.name");
         password     = new StrValue("password", this, "omero.pass");
-        port         = new IntValue("port", this, 4063, "omero.port") {
+        port         = new IntValue("port", this, 4064, "omero.port") {
             @Override
             public synchronized void load() {
                 super.load();

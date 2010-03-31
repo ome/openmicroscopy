@@ -181,7 +181,7 @@ public class CommandLineImporter {
                                         + "  -r\tOMERO screen Id to import plate into\n"
                                         + "  -n\tImage name to use\n"
                                         + "  -x\tImage description to use\n"
-                                        + "  -p\tOMERO server port [defaults to 4063]\n"
+                                        + "  -p\tOMERO server port [defaults to 4064]\n"
                                         + "  -h\tDisplay this help and exit\n"
                                         + "\n"
                                         + "  --debug[=0|1|2]\tTurn debug logging on (optional level)\n"

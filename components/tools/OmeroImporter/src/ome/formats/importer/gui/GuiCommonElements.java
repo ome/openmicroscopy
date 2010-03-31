@@ -830,7 +830,7 @@ public class GuiCommonElements
             } catch (ParseException e) {
                 // This should never happen because insertString allows
                 // only properly formatted data to get in the field.
-                toolkit.beep();
+                log.error(e);
             }
             return retVal;
         }
@@ -978,7 +978,7 @@ public class GuiCommonElements
             {
                 // This should never happen because insertString allows
                 // only properly formatted data to get in the field.
-                toolkit.beep();
+                log.error(e);
             }
             return retVal;
         }

@@ -847,7 +847,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
     {
         OMEROMetadataStoreClient store = new OMEROMetadataStoreClient();
 
-        store.initialize(USER, PASS, SERVER, 4063);
+        store.initialize(USER, PASS, SERVER, 4064);
 
         boolean CLEAN = true;
         boolean TEST = false;

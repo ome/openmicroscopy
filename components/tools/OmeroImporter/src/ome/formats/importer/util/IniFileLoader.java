@@ -227,7 +227,7 @@ public class IniFileLoader {
      */
     public String getServerPort() 
     {
-        return staticPrefs.node("General").get("port", "4063");
+        return staticPrefs.node("General").get("port", "4064");
     }
 
     /**

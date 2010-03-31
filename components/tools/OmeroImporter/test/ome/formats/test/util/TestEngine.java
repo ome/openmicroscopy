@@ -261,7 +261,7 @@ public class TestEngine
                 "  -u\tOMERO experimenter name (username)\n" +
                 "  -w\tOMERO experimenter password\n" +
                 "  -k\tOMERO session key (can be used in place of -u and -w)\n" +
-                "  -p\tOMERO server port [defaults to 4063]\n" +
+                "  -p\tOMERO server port [defaults to 4064]\n" +
                 "  -e\tRaise error on given situation: any, minimal, never [defaults to any]\n" +
                 "  -f\tOMERO feedback url [defaults to %s]\n" +
                 "  -c\tConfiguration file location (instead of any of the above arguments)\n" +

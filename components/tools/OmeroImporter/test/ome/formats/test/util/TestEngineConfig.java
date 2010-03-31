@@ -31,6 +31,11 @@ import java.util.prefs.BackingStoreException;
 import org.ini4j.IniPreferences;
 import org.ini4j.InvalidIniFormatException;
 
+/**
+ * @author Brian W Loranger
+ * @author Chris Allan <callan at blackcat dot ca>
+ *
+ */
 public class TestEngineConfig extends IniPreferences
 {
     
@@ -188,7 +193,7 @@ public class TestEngineConfig extends IniPreferences
 	 */
 	public int getPort()
 	{
-		return node(CONFIG_ROOT).getInt(CONFIG_PORT, 4063);
+		return node(CONFIG_ROOT).getInt(CONFIG_PORT, 4064);
 	}
 	
 	/**
