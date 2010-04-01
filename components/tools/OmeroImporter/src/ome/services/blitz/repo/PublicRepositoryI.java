@@ -178,6 +178,36 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
     
     /**
+     * Register an IObject object
+     * 
+     * @param obj
+     *            IObject object.
+     * @param __current
+     *            ice context.
+     * @return The IObject with id set (unloaded)
+     *
+     */
+    public IObject registerObject(IObject obj, Current __current)
+            throws ServerError {
+
+        if (obj == null) {
+            throw new ValidationException(null, null,
+                    "obj is required argument");
+        }
+
+        if (obj instanceof OriginalFile) {
+            obj = registerOriginalFile((OriginalFile) obj, __current);
+        } else if (obj instanceof Image) {
+            obj = registerImage((Image) obj, __current);
+        } else {
+            throw new ValidationException(null, null,
+                    "Cannot register this type of IObject");
+        }
+        
+        return obj;
+    }
+
+    /**
      * Register an OriginalFile object
      * 
      * @param file
@@ -352,7 +382,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
                     }
                 }
                 
-                if (imageName == "") {
+                if (imageName != "") {
                     List<Image> iList = getImages(imageName);
                     if (iList != null && iList.size() != 0) {
                         image = iList.get(0);

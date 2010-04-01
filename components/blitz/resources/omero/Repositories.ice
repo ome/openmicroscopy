@@ -56,9 +56,7 @@ module omero {
             omero::model::OriginalFile root() throws ServerError;
 
             /*
-             * Basic directory listing methods. This needs to be flushed out.
-             * Possibly OriginalFile map or some special structure, since we
-             * need to know what is an original file and what is not yet.
+             * Directory listing methods. 
              */
 
             // A list of all files and/or directories, registered or not depending on cnfig.
@@ -111,9 +109,9 @@ module omero {
              * TODO should this final exception just return and not throw?
              *
              **/
-            /*omero::model::IObject registerObject(omero::model::IObject obj) 
+            omero::model::IObject registerObject(omero::model::IObject obj) 
                     throws ServerError;
-            */
+            
             
             /**
              * Create an Image in the database for the given Image.
