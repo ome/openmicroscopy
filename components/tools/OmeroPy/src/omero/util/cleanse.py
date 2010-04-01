@@ -188,6 +188,7 @@ def main():
 	
 	try:
 		client = omero.client('localhost')
+		client.setAgent("OMERO.cleanse")
 		session = None
 		if session_key is None:
 			session = client.createSession(username, password)

@@ -27,16 +27,22 @@ class ITest(unittest.TestCase):
         p = Ice.createProperties(sys.argv)
         rootpass = p.getProperty("omero.rootpass")
 
+        name = None
+        pasw = None
         if rootpass:
             self.root = omero.client()
-            self.root.createSession("root",rootpass)
+            self.root.setAgent("OMERO.py.root_test")
+            self.root.createSession("root", rootpass)
             newuser = self.new_user()
-            self.client = omero.client()
-            self.sf = self.client.createSession(newuser.omeName.val, "1")
+            name = newuser.omeName.val
+            pasw = "1"
         else:
             self.root = None
-            self.client = omero.client()
-            self.sf = self.client.createSession()
+
+        self.client = omero.client()
+        self.client.setAgent("OMERO.py.test")
+        self.sf = self.client.createSession(name, pasw)
+
         self.update = self.sf.getUpdateService()
         self.query = self.sf.getQueryService()
 

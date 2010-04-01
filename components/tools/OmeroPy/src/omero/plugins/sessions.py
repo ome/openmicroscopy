@@ -184,6 +184,7 @@ class SessionsControl(BaseControl):
         try:
             data = self.initData(properties)
             self._client = omero.client(sys.argv, id = data)
+            self._client.setAgent("OMERO.cli")
             self._client.createSession()
             return self._client
         except Exc, exc:

@@ -206,6 +206,7 @@ class Context(object):
         self.count = 0
         self.id = id
         self.client = omero.client(id)
+        self.client.setAgent("OMERO.perf_test")
         self.client.createSession()
         self.services = {}
         self.cli = omero.cli.CLI()

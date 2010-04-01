@@ -362,7 +362,10 @@ class _BlitzGateway (object):
         else:
             logger.info('--Ice.Config='+','.join(self.ice_config))
             self.c = omero.client(pmap=['--Ice.Config='+','.join(self.ice_config)])
-    
+
+        if hasattr(self.c, "setAgent"):
+            self.c.setAgent("OMERO.py.gateway")
+
     def connect (self, sUuid=None):
         """
         Creates or retrieves connection for the given sessionUuid.

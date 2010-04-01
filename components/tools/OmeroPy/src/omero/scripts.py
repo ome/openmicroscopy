@@ -153,6 +153,7 @@ def client(*args, **kwargs):
     if not kwargs.has_key("client"):
         kwargs["client"] = omero.client()
     c = kwargs["client"]
+    c.setAgent("OMERO.scripts")
 
     if args and isinstance(args[0], omero.grid.JobParams):
         c.params = args.pop(0)

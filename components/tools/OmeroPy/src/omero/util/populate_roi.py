@@ -1145,6 +1145,7 @@ if __name__ == "__main__":
     
     logging.basicConfig(level = logging_level)
     c = client(hostname, port)
+    c.setAgent("OMERO.populate_roi")
     c.enableKeepAlive(60)
     try:
         if session_key is not None:

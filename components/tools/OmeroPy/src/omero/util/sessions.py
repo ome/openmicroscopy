@@ -107,6 +107,7 @@ class SessionsStore(object):
         import omero.clients
         props = dict(props)
         client = omero.client(props)
+        client.setAgent("OMERO.sessions")
         sf = client.createSession(name, pasw)
         id = sf.ice_getIdentity().name
         sf.detachOnDestroy()

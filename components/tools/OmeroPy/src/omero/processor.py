@@ -160,6 +160,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         """
         try:
             client = omero.client(["--Ice.Config=%s" % str(self.config_path)])
+            client.setAgent("OMERO.process")
             client.createSession().detachOnDestroy()
             self.logger.debug("client: %s" % client.sf)
             return client
@@ -745,6 +746,7 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
         if rtr:
             args.insert(0, "--Ice.Default.Router=%s" % rtr) # FIXME : How do we find an internal router?
         client = omero.client(args)
+        client.setAgent("OMERO.parseJob")
 
         try:
             iskill = False
@@ -769,6 +771,7 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
         """
         self.logger.info("processJob: Session = %s, JobId = %s" % (session, job.id.val))
         client = omero.client(["--Ice.Config=%s" % (self.cfg)])
+        client.setAgent("OMERO.processJob")
         try:
             client.joinSession(session).detachOnDestroy()
             prx, process = self.process(client, session, job, current, params, iskill = True)
