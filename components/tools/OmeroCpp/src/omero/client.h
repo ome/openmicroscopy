@@ -76,6 +76,11 @@ namespace omero {
     protected:
 
 	/*
+         * See setAgent(string)
+	 */
+	std::string __agent;
+
+	/*
 	 * Identifier for this client instance. Multiple client uuids may be
 	 * attached to a single session uuid.
 	 */
@@ -142,6 +147,14 @@ namespace omero {
 	 * which defaults to omero::constants::GLACIER2PORT if none is given.
 	 */
 	client(const std::string& host, int port = omero::constants::GLACIER2PORT);
+
+        /*
+         * Sets the omero.model.Session#getUserAgent() string for
+         * this client. Every session creation will be passed this argument. Finding
+         * open sesssions with the same agent can be done via
+         * omero.api.ISessionPrx#getMyOpenAgentSessions(String).
+         */
+        void setAgent(const std::string& agent);
 
 	/*
 	 * Calls closeSession() and ignores all exceptions.

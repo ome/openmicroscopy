@@ -373,6 +373,7 @@ public class OMEROMetadataStoreClient
         throws CannotCreateSessionException, PermissionDeniedException, ServerError
     {
         c = new client(server, port);
+        c.setAgent("OMERO.importer");
         serviceFactory = c.createSession(username, password);
         initializeServices();
     }
@@ -387,6 +388,7 @@ public class OMEROMetadataStoreClient
         throws CannotCreateSessionException, PermissionDeniedException, ServerError
     {
         c = new client(server, port);
+        c.setAgent("OMERO.importer");
         serviceFactory = c.joinSession(sessionKey);
         initializeServices();
     }

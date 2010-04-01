@@ -160,7 +160,7 @@ namespace omero {
     // --------------------------------------------------------------------
 
     client::client(int& argc, char* argv[],
-	   const Ice::InitializationData& data) {
+	   const Ice::InitializationData& data) : __agent("OMERO.cpp") {
 
 	Ice::InitializationData id(data);
 
@@ -178,14 +178,14 @@ namespace omero {
     // --------------------------------------------------------------------
 
 
-    client::client(const Ice::InitializationData& id) {
+    client::client(const Ice::InitializationData& id) : __agent("OMERO.cpp") {
 	init(id);
     }
 
 
     // --------------------------------------------------------------------
 
-    client::client(const std::string& host, int port) {
+    client::client(const std::string& host, int port) : __agent("OMERO.cpp") {
 	int argc = 0;
 	char* argv[] = {0};
 	stringstream ss;
@@ -197,6 +197,12 @@ namespace omero {
 	init(id);
     }
 
+
+    // --------------------------------------------------------------------
+
+    void client::setAgent(const std::string& agent) {
+        __agent = agent;
+    }
 
     // --------------------------------------------------------------------
 
@@ -320,6 +326,8 @@ namespace omero {
 		__ic->getLogger()->warning(msg.str());
 	    }
 	    try {
+                std::map<string, string> ctx = getImplicitContext()->getContext();
+                ctx[omero::constants::AGENT] = __agent;
 		prx = getRouter(__ic)->createSession(username, password);
 		break;
 	    } catch (const omero::WrappedCreateSessionException& wrapped) {

@@ -26,6 +26,7 @@ import omero.api.ISessionPrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceFactoryPrxHelper;
 import omero.api._ClientCallbackDisp;
+import omero.constants.AGENT;
 import omero.model.DetailsI;
 import omero.model.OriginalFile;
 import omero.model.PermissionsI;
@@ -85,6 +86,11 @@ public class client {
             }
         });
     }
+
+    /**
+     * See {@link #setAgent(String)}
+     */
+    private volatile String __agent = "OMERO.java";
 
     /**
      * Identifier for this client instance. Multiple client uuids may be
@@ -342,6 +348,16 @@ public class client {
 
     }
 
+    /**
+     * Sets the {@link omero.model.Session#getUserAgent() user agent} string for
+     * this client. Every session creation will be passed this argument. Finding
+     * open sesssions with the same agent can be done via
+     * {@link omero.api.ISessionPrx#getMyOpenAgentSessions(String)}.
+     */
+    public void setAgent(String agent) {
+        __agent = agent;
+    }
+
     // Destruction
     // =========================================================================
 
@@ -505,7 +521,9 @@ public class client {
                         reason + " - createSession retry: " + retries);
             }
             try {
-                prx = getRouter(__ic).createSession(username, password);
+                Map<String, String> ctx = new HashMap<String, String>(getImplicitContext().getContext());
+                ctx.put(AGENT.value, __agent);
+                prx = getRouter(__ic).createSession(username, password, ctx);
                 break;
             } catch (omero.WrappedCreateSessionException wrapped) {
                 if (!wrapped.concurrency) {

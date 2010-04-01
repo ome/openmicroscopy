@@ -88,6 +88,7 @@ class BaseClient(object):
         """
 
         # Setting all protected values to prevent AttributeError
+        self.__agent = "OMERO.py" #: See setAgent
         self.__previous = None
         self.__ic = None
         self.__oa = None
@@ -255,6 +256,13 @@ class BaseClient(object):
         finally:
             self.__lock.release()
 
+    def setAgent(self, agent):
+        # Sets the omero.model.Session#getUserAgent() string for
+        # this client. Every session creation will be passed this argument. Finding
+        # open sesssions with the same agent can be done via
+        # omero.api.ISessionPrx#getMyOpenAgentSessions(String).
+        self.__agent = agent
+
     def __del__(self):
         """
         Calls closeSession() and ignores any exceptions.
@@ -394,7 +402,9 @@ class BaseClient(object):
                     self.__logger.warning(\
                     "%s - createSession retry: %s"% (reason, retries) )
                 try:
-                    prx = self.getRouter(self.__ic).createSession(username, password)
+                    ctx = dict(self.getImplicitContext().getContext())
+                    ctx[omero.constants.AGENT] = self.__agent
+                    prx = self.getRouter(self.__ic).createSession(username, password, ctx)
                     break
                 except omero.WrappedCreateSessionException, wrapped:
                     if not wrapped.concurrency:
