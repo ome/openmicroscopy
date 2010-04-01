@@ -443,8 +443,9 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
 
     private Session newSession(Current __current) {
         EventContext ec = mgr.getEventContext(principal);
-        Session newSession = mgr.create(new Principal(ec.getCurrentUserName(),
-                ec.getCurrentGroupName(), "Processing"));
+        Session newSession = mgr.createWithAgent(
+                new Principal(ec.getCurrentUserName(),
+                ec.getCurrentGroupName(), "Processing"), "OMERO.scripts");
         newSession.setTimeToIdle(0L);
         newSession.setTimeToLive(timeout);
         newSession = mgr.update(newSession, true);

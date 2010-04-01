@@ -268,7 +268,7 @@ public class AbstractManagedContextTest extends
     protected Principal login(String userName, String groupName,
             String eventType) {
         Principal p = new Principal(userName, groupName, eventType);
-        Session s = sessionManager.create(p);
+        Session s = sessionManager.createWithAgent(p, "AbstractManagedContext");
         loginAop.p = new Principal(s.getUuid(), groupName, eventType);
         return loginAop.p;
     }

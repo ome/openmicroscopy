@@ -163,10 +163,11 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             if (event == null) {
                 event = "User"; // FIXME This should be in Roles as well.
             }
+            String agent = getAgent(current);
 
             // Create the session for this ServiceFactory
             Principal p = new Principal(userId, group, event);
-            ome.model.meta.Session s = sessionManager.create(p);
+            ome.model.meta.Session s = sessionManager.createWithAgent(p, agent);
             Principal sp = new Principal(s.getUuid(), group, event);
             // Event raised to add to Ring
 
@@ -349,6 +350,13 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             return null;
         }
         return current.ctx.get(GROUP.value);
+    }
+
+    protected String getAgent(Ice.Current current) {
+        if (current.ctx == null) {
+            return null;
+        }
+        return current.ctx.get("omero.agent");
     }
 
     protected String getEvent(Ice.Current current) {

@@ -47,14 +47,14 @@ public interface SessionManager extends ApplicationListener {
      * @param credentials
      * @return Not null. Instead an exception will be thrown.
      */
-    Session create(Principal principal, String credentials);
+    Session createWithAgent(Principal principal, String credentials, String agent);
 
     /**
      * 
      * @param principal
      * @return Not null. Instead an exception will be thrown.
      */
-    Session create(Principal principal);
+    Session createWithAgent(Principal principal, String agent);
 
     /**
      * 

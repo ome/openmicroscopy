@@ -73,7 +73,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
             Session s = new Session();
             define(s, "uuid", "message", System.currentTimeMillis(),
                     defaultTimeToIdle, defaultTimeToLive, "Test",
-                    Permissions.USER_PRIVATE);
+                    "Test");
             return s;
         }
     }
@@ -189,7 +189,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
          */
 
         prepareSessionCreation();
-        assert session == mgr.create(principal, credentials);
+        assert session == mgr.createWithAgent(principal, credentials, "Test");
         assertNotNull(session);
         assertNotNull(session.getUuid());
 
@@ -203,12 +203,6 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         assertFalse(p.isGranted(Role.GROUP, Right.WRITE));
         assertFalse(p.isGranted(Role.WORLD, Right.READ));
         assertFalse(p.isGranted(Role.WORLD, Right.WRITE));
-    }
-
-    @Test
-    public void testThatDefaultPermissionsAreAssigned() throws Exception {
-        testCreateNewSession();
-        assertNotNull(session.getDefaultPermissions());
     }
 
     @Test
@@ -262,7 +256,6 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         assertNotNull(copy.getStarted());
         assertNotNull(copy.getUuid());
         assertNotNull(copy.getDefaultEventType());
-        assertNotNull(copy.getDefaultPermissions());
         assertNotNull(copy.getDetails().getPermissions());
     }
 
@@ -286,7 +279,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         cache.setApplicationContext(ctx);
 
         prepareSessionCreation();
-        Session s1 = mgr.create(principal, credentials);
+        Session s1 = mgr.createWithAgent(principal, credentials, "Test");
         s1.setTimeToIdle(2000L);
         mgr.update(s1);
         Thread.sleep(3000L);
@@ -376,8 +369,8 @@ public class SessMgrUnitTest extends MockObjectTestCase {
     @Test
     public void testReplacesNullGroupAndType() throws Exception {
         prepareForCreateSession();
-        Session session = mgr.create(new Principal("fake", null, null),
-                credentials);
+        Session session = mgr.createWithAgent(new Principal("fake", null, null),
+                credentials, "Test");
         assertNotNull(session.getDefaultEventType());
         assertNotNull(session.getDetails().getGroup());
     }
@@ -401,21 +394,21 @@ public class SessMgrUnitTest extends MockObjectTestCase {
     public void testCreateSessionFailsAUEOnNullPrincipal() throws Exception {
         sf.mockAdmin.expects(once()).method("checkPassword").will(
                 returnValue(false));
-        mgr.create(null, "password");
+        mgr.createWithAgent(null, "password", "Test");
     }
 
     @Test(expectedExceptions = AuthenticationException.class)
     public void testCreateSessionFailsAUEOnNullOmeName() throws Exception {
         sf.mockAdmin.expects(once()).method("checkPassword").will(
                 returnValue(false));
-        mgr.create(new Principal(null, null, null), "password");
+        mgr.createWithAgent(new Principal(null, null, null), "password", "Test");
     }
 
     @Test(expectedExceptions = AuthenticationException.class)
     public void testCreateSessionFailsSV() throws Exception {
         sf.mockAdmin.expects(once()).method("checkPassword").will(
                 returnValue(false));
-        mgr.create(principal, "password");
+        mgr.createWithAgent(principal, "password", "Test");
     }
 
     @Test(expectedExceptions = SecurityViolation.class)
@@ -425,7 +418,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
                 returnValue(group));
         sf.mockQuery.expects(once()).method("findAllByQuery").will(
                 returnValue(Collections.EMPTY_LIST));
-        mgr.create(new Principal("user", "user", "User"), "user");
+        mgr.createWithAgent(new Principal("user", "user", "User"), "user", "Test");
     }
 
     @Test
@@ -453,7 +446,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         assertEquals(1, ctx.refCount());
         assertNull(ctx.getSession().getClosed());
 
-        mgr.create(new Principal(uuid));
+        mgr.createWithAgent(new Principal(uuid), "Test");
         assertEquals(2, ctx.refCount());
         assertNull(ctx.getSession().getClosed());
 
