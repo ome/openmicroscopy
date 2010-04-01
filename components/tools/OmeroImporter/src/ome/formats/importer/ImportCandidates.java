@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static omero.rtypes.rint;
+import static omero.rtypes.rstring;
 
 import loci.formats.FileInfo;
 import loci.formats.FormatTools;
@@ -29,6 +30,8 @@ import ome.formats.ImageNameMetadataStore;
 import ome.formats.importer.util.ErrorHandler;
 import omero.model.Pixels;
 import omero.model.PixelsI;
+import omero.model.PixelsType;
+import omero.model.PixelsTypeI;
 
 import org.apache.commons.io.DirectoryWalker;
 import org.apache.commons.io.filefilter.TrueFileFilter;
@@ -458,11 +461,15 @@ public class ImportCandidates extends DirectoryWalker
         {
             reader.setSeries(i);
             Pixels pixels = new PixelsI();
+            PixelsType pixelsType = new PixelsTypeI();
+            pixelsType.setValue(rstring(
+                    FormatTools.getPixelTypeString(reader.getPixelType())));
             pixels.setSizeX(rint(reader.getSizeX()));
             pixels.setSizeY(rint(reader.getSizeY()));
             pixels.setSizeZ(rint(reader.getSizeZ()));
             pixels.setSizeC(rint(reader.getSizeC()));
             pixels.setSizeT(rint(reader.getSizeT()));
+            pixels.setPixelsType(pixelsType);
             toReturn.add(pixels);
         }
         return toReturn;
