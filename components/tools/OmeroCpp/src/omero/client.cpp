@@ -549,7 +549,7 @@ namespace omero {
     void CallbackI::execute(Callable callable, const string& action) {
 	try {
 	    callable();
-	    ic->getLogger()->trace("ClientCallback", action + " run");
+	    // ic->getLogger()->trace("ClientCallback", action + " run");
 	} catch (const std::exception& ex) {
 	    try {
 		ic->getLogger()->error("Error performing " + action+": "+ex.what());

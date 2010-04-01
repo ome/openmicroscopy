@@ -879,7 +879,7 @@ public class client {
         protected void execute(Runnable runnable, String action) {
             try {
                 runnable.run();
-                ic.getLogger().trace("ClientCallback", action + " run");
+                // ic.getLogger().trace("ClientCallback", action + " run");
             } catch (Exception e) {
                 try {
                     ic.getLogger().error(

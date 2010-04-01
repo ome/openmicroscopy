@@ -843,7 +843,7 @@ class BaseClient(object):
         def execute(self, myCallable, action):
             try:
                 myCallable()
-                self.ic.getLogger().trace("ClientCallback", action + " run")
+                # self.ic.getLogger().trace("ClientCallback", action + " run")
             except:
                 try:
                     self.ic.getLogger().error("Error performing %s" % action)
