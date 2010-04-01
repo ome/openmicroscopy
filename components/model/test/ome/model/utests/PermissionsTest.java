@@ -233,18 +233,18 @@ public class PermissionsTest extends TestCase {
     @Test(groups = "ticket:182")
     public void testFlags() throws Exception {
         Permissions t = new Permissions();
-        assertFalse(t.isSet(SOFT));
-        t.set(SOFT);
-        assertTrue(t.isSet(SOFT));
+        assertFalse(t.isSet(UNUSED));
+        t.set(UNUSED);
+        assertTrue(t.isSet(UNUSED));
     }
 
     @Test(groups = "ticket:215")
     public void testCopyCtorCopiesFlags() throws Exception {
         p = new Permissions();
-        assertFalse(p.isSet(SOFT));
-        p.set(SOFT);
+        assertFalse(p.isSet(UNUSED));
+        p.set(UNUSED);
         Permissions t = new Permissions(p);
-        assertTrue(t.isSet(SOFT));
+        assertTrue(t.isSet(UNUSED));
 
     }
 
@@ -294,7 +294,7 @@ public class PermissionsTest extends TestCase {
         Permissions.PUBLIC.toString();
         Permissions.PUBLIC.identical(Permissions.PUBLIC);
         Permissions.PUBLIC.isGranted(GROUP, READ);
-        Permissions.PUBLIC.isSet(SOFT);
+        Permissions.PUBLIC.isSet(UNUSED);
         Permissions.PUBLIC.sameRights(p);
         try {
             Permissions.PUBLIC.grant(GROUP, READ);
@@ -317,12 +317,12 @@ public class PermissionsTest extends TestCase {
         }
         ;
         try {
-            Permissions.PUBLIC.set(SOFT);
+            Permissions.PUBLIC.set(UNUSED);
         } catch (UnsupportedOperationException uoe) {
         }
         ;
         try {
-            Permissions.PUBLIC.unSet(SOFT);
+            Permissions.PUBLIC.unSet(UNUSED);
         } catch (UnsupportedOperationException uoe) {
         }
         ;
@@ -330,18 +330,18 @@ public class PermissionsTest extends TestCase {
 
     @Test
     public void testConstantsAreNotSoft() throws Exception {
-        assertFalse(Permissions.EMPTY.isSet(SOFT));
-        assertFalse(Permissions.GROUP_IMMUTABLE.isSet(SOFT));
-        assertFalse(Permissions.GROUP_PRIVATE.isSet(SOFT));
-        assertFalse(Permissions.GROUP_READABLE.isSet(SOFT));
-        assertFalse(Permissions.GROUP_WRITEABLE.isSet(SOFT));
-        assertFalse(Permissions.PUBLIC.isSet(SOFT));
-        assertFalse(Permissions.READ_ONLY.isSet(SOFT));
-        assertFalse(Permissions.USER_IMMUTABLE.isSet(SOFT));
-        assertFalse(Permissions.USER_PRIVATE.isSet(SOFT));
-        assertFalse(Permissions.USER_WRITEABLE.isSet(SOFT));
-        assertFalse(Permissions.WORLD_IMMUTABLE.isSet(SOFT));
-        assertFalse(Permissions.WORLD_WRITEABLE.isSet(SOFT));
+        assertFalse(Permissions.EMPTY.isSet(UNUSED));
+        assertFalse(Permissions.GROUP_IMMUTABLE.isSet(UNUSED));
+        assertFalse(Permissions.GROUP_PRIVATE.isSet(UNUSED));
+        assertFalse(Permissions.GROUP_READABLE.isSet(UNUSED));
+        assertFalse(Permissions.GROUP_WRITEABLE.isSet(UNUSED));
+        assertFalse(Permissions.PUBLIC.isSet(UNUSED));
+        assertFalse(Permissions.READ_ONLY.isSet(UNUSED));
+        assertFalse(Permissions.USER_IMMUTABLE.isSet(UNUSED));
+        assertFalse(Permissions.USER_PRIVATE.isSet(UNUSED));
+        assertFalse(Permissions.USER_WRITEABLE.isSet(UNUSED));
+        assertFalse(Permissions.WORLD_IMMUTABLE.isSet(UNUSED));
+        assertFalse(Permissions.WORLD_WRITEABLE.isSet(UNUSED));
     }
 
     // ~ Serialization

@@ -738,15 +738,8 @@ public class OmeroInterceptor implements Interceptor {
             }
         }
 
-        // WORKAROUND for ticket:307 by checking for SOFT below
-        // see https://trac.openmicroscopy.org.uk/omero/ticket/307
-        // see
-        // http://opensource.atlassian.com/projects/hibernate/browse/HHH-2027
-
-        // Users did not enter permission (normal case) so is null OR
-        // in the workaround permissions is SOFT, then
-        // need to copy whole sale those from database.
-        else if (currentP == null || currentP.isSet(Flag.SOFT)) {
+        // Users did not enter permission (normal case) so is null.
+        else if (currentP == null) {
             newDetails.setPermissions(previousP);
             altered = true;
         }

@@ -97,20 +97,10 @@ public class Permissions implements Serializable {
     }
 
     /**
-     * enumeration of flags which can be set on a {@link Permissions} instance.
-     * A {@link Flag#LOCKED} flag implies that the {@link Details#getOwner()
-     * owner}, {@link Details#getGroup() group}, and
-     * {@link Details#getPermissions() permissions} for an {@link IObject}
-     * instance may not be changed. {@link Flag#SOFT} implies that the given
-     * {@link Permissions} value is intended as a suggestion, and that other
-     * sources may override. {@link Flag#ADMIN} implies that the given
-     * {@link Permission} value was added by an administrator and so may should
-     * be visible under special circumstances.
-     *
-     * @see <a href="http://trac.openmicroscopy.org.uk/omero/ticket/1769>#1769</a>
+     * Currently unused.
      */
     public enum Flag {
-        SOFT(1 << 17);
+        UNUSED(1 << 19);
 
         /*
          * Implementation note: -------------------- Flags work with reverse
