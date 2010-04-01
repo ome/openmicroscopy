@@ -155,23 +155,6 @@ public class ServiceFactory {
         this.ctx = OmeroContext.getInstance(contextName);
     }
 
-    // ~ Accessors
-    // =========================================================================
-
-    /**
-     * sets the umask on the {@link Principal} instance which will be passed to
-     * the server-side on each invocation.
-     */
-    public void setUmask(Permissions mask) {
-        if (!ctx.containsBean("principal")) {
-            throw new UnsupportedOperationException("The context for this "
-                    + "ServiceFactory does not contain a Principal on which "
-                    + "the umask can be set.");
-        }
-        Principal p = (Principal) ctx.getBean("principal");
-        p.setUmask(mask);
-    }
-
     // ~ Stateless services
     // =========================================================================
 

@@ -190,7 +190,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     // =========================================================================
 
     protected void define(Session s, String uuid, String message, long started,
-            long idle, long live, String eventType, Permissions umask) {
+            long idle, long live, String eventType, String agent) {
 
         s.setUuid(uuid);
         s.setMessage(message);
@@ -198,7 +198,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         s.setTimeToIdle(idle);
         s.setTimeToLive(live);
         s.setDefaultEventType(eventType);
-        parseAndSetDefaultPermissions(umask, s);
+        s.setUserAgent(agent);
     }
 
     // ~ Session management
@@ -207,7 +207,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     /*
      * Is given trustable values by the {@link SessionBean}
      */
-    public Session create(final Principal _principal, final String credentials) {
+    public Session createWithAgent(final Principal _principal, final String credentials, String agent) {
 
         // If credentials exist as session, then return that
         try {
@@ -231,15 +231,14 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         }
 
         // authentication checked. Now delegating to the admin method (no pass)
-        return create(_principal);
+        return createWithAgent(_principal, agent);
     }
 
-    public Session create(Principal principal) {
+    public Session createWithAgent(Principal principal, String agent) {
         Session session = new Session();
         define(session, UUID.randomUUID().toString(), "Initial message.",
                 System.currentTimeMillis(), defaultTimeToIdle,
-                defaultTimeToLive, principal.getEventType(), principal
-                        .getUmask());
+                defaultTimeToLive, principal.getEventType(), agent);
         return createSession(principal, session);
     }
 
@@ -248,7 +247,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         Share share = new Share();
         define(share, UUID.randomUUID().toString(), description, System
                 .currentTimeMillis(), defaultTimeToIdle, timeToLive, eventType,
-                principal.getUmask());
+                "Share");
         share.setActive(enabled);
         share.setData(new byte[] {});
         share.setItemCount(0L);
@@ -388,8 +387,6 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                 // Unconditionally settable; these are open to the user for
                 // change
                 parseAndSetDefaultType(session.getDefaultEventType(), orig);
-                parseAndSetDefaultPermissions(session.getDefaultPermissions(),
-                        orig);
                 parseAndSetUserAgent(session.getUserAgent(), orig);
 
                 // Conditionally settable
@@ -442,7 +439,6 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         final Session session = (Session) list.get(6);
 
         parseAndSetDefaultType(principal.getEventType(), session);
-        parseAndSetDefaultPermissions(principal.getUmask(), session);
 
         session.getDetails().setOwner(exp);
         session.getDetails().setGroup(grp);
@@ -743,25 +739,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                 .getValue();
 
         Principal copy = new Principal(p.getName(), group, type);
-        Permissions umask = p.getUmask();
-        copy.setUmask(umask);
         return copy;
-    }
-
-    private void parseAndSetDefaultPermissions(Permissions perms,
-            Session session) {
-
-        // TODO: be careful of these two values.
-        // FIXME: REVIEW! ticket:1731
-        if (perms == null) {
-            perms = Permissions.USER_PRIVATE;
-        }
-        session.getDetails().setPermissions(perms);
-        parseAndSetDefaultPermissions(perms.toString(), session);
-    }
-
-    private void parseAndSetDefaultPermissions(String perms, Session session) {
-        session.setDefaultPermissions(perms);
     }
 
     private void parseAndSetDefaultType(String type, Session session) {
@@ -833,7 +811,6 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         target.setId(source.getId());
         target.setClosed(source.getClosed());
         target.setDefaultEventType(source.getDefaultEventType());
-        target.setDefaultPermissions(source.getDefaultPermissions());
         target.getDetails().shallowCopy(source.getDetails());
         target.setMessage(source.getMessage());
         target.setNode(source.getNode());
@@ -1006,12 +983,14 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                     @Transactional(readOnly = false)
                     public Object doWork(SimpleJdbcOperations jdbcOps) {
 
+                        log.warn("WORAROUND UNTIL DB UPGRADE");
+                        jdbcOps.update("alter table session alter defaultPermissions drop not null;");
+
                         // Create a basic session
-                        final Permissions p = Permissions.USER_PRIVATE;
                         final Session s = new Session();
                         define(s, internal_uuid, "Session Manager internal",
                                 System.currentTimeMillis(), Long.MAX_VALUE, 0L,
-                                "Sessions", p);
+                                "Sessions", "Internal");
 
                         // Set the owner and node specially for an internal sess
                         long nodeId = 0L;
@@ -1035,18 +1014,19 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                         params.put("ttl", s.getTimeToLive());
                         params.put("tti", s.getTimeToIdle());
                         params.put("start", s.getStarted());
-                        params.put("perms", s.getDefaultPermissions());
                         params.put("type", s.getDefaultEventType());
                         params.put("uuid", s.getUuid());
                         params.put("node", nodeId);
                         params.put("owner", roles.getRootId());
+                        params.put("agent", s.getUserAgent());
                         int count = jdbcOps
                                 .update(
+                                        // remember to remove the non-null alter
                                         "insert into session "
                                                 + "(id,permissions,timetoidle,timetolive,started,closed,"
-                                                + "defaultpermissions,defaulteventtype,uuid,owner,node)"
+                                                + "defaulteventtype,uuid,owner,node,defaultPermissions)"
                                                 + "values (:sid,-35,:ttl,:tti,:start,null,"
-                                                + ":perms,:type,:uuid,:owner,:node)",
+                                                + ":type,:uuid,:owner,:node,'unused')",
                                         params);
                         if (count == 0) {
                             throw new InternalException(

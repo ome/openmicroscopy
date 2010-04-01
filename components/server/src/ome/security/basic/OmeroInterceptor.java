@@ -1006,19 +1006,4 @@ public class OmeroInterceptor implements Interceptor {
         return false;
     }
 
-    /**
-     * transient details should have the umask applied to them if soft.
-     */
-    void applyUmaskIfNecessary(Details d) {
-        Principal pr = currentUser.getLast();
-        Permissions p = d.getPermissions();
-        if (p.isSet(Flag.SOFT)) {
-            if (pr.hasUmask()) {
-                p.grantAll(pr.getUmask());
-                p.revokeAll(pr.getUmask());
-            }
-            // don't store it in the DB.
-            p.unSet(Flag.SOFT);
-        }
-    }
 }

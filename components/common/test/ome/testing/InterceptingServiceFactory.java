@@ -194,11 +194,6 @@ public class InterceptingServiceFactory extends ServiceFactory {
     }
 
     @Override
-    public void setUmask(Permissions mask) {
-        sf.setUmask(mask);
-    }
-
-    @Override
     public String toString() {
         return sf.toString();
     }

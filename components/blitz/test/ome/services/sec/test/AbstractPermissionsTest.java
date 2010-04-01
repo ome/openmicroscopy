@@ -289,10 +289,7 @@ public abstract class AbstractPermissionsTest extends AbstractSecurityTest {
         pix = (Pixels) mapper.map(_pix);
         
         pix.getDetails().setGroup(group);
-        // pix.getDetails().setPermissions(perms); must be done for whole graph
-        setSFPermissionsMask(ownsfA2, perms);
         pix = (Pixels) ownsfA2.getUpdateService().saveAndReturnObject(pix);
-        setSFPermissionsMask(ownsfA2,null);
     }
 
     protected void createThumbnail(ServiceFactoryPrx ownsfB2, ExperimenterGroup group,
@@ -345,15 +342,6 @@ public abstract class AbstractPermissionsTest extends AbstractSecurityTest {
 
     protected String makeModifiedMessage() {
         return "user can modify:" + UUID.randomUUID();
-    }
-    
-    protected void setSFPermissionsMask(ServiceFactoryPrx sf, Permissions p) throws ServerError
-    {
-        ISessionPrx prx = sf.getSessionService();
-        IAdminPrx adm = sf.getAdminService();
-        EventContext ec = adm.getEventContext();
-        omero.model.Session s = prx.getSession(ec.sessionUuid);
-        s.setDefaultPermissions(rstring(p.toString()));
     }
 
     //TODO ticket:1478

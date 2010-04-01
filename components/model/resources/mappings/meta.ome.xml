@@ -60,7 +60,6 @@
 			<required name="started" type="timestamp"/>
 			<optional name="closed" type="timestamp"/>
 			<optional name="message" type="text"/>
-			<required name="defaultPermissions" type="string"/>
 			<required name="defaultEventType" type="string"/>
 			<optional name="userAgent" type="string"/>
 			<onemany name="events" type="ome.model.meta.Event" inverse="session"/>

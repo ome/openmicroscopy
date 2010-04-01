@@ -68,7 +68,6 @@ public class SessionInitializer {
         getSession();
         Principal sessionPrincipal = new Principal(this.session.getUuid(),
                 this.principal.getGroup(), this.principal.getEventType());
-        sessionPrincipal.setUmask(principal.getUmask());
         return sessionPrincipal;
     }
 

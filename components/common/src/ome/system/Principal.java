@@ -36,8 +36,6 @@ public class Principal implements java.security.Principal, Serializable {
 
     protected String type;
 
-    protected Permissions umask;
-
     /**
      * Creates a Principal with null group and event type. These must be taken
      * from the session.
@@ -66,20 +64,6 @@ public class Principal implements java.security.Principal, Serializable {
 
     public String getEventType() {
         return this.type;
-    }
-
-    // MUTABLE
-
-    public boolean hasUmask() {
-        return this.umask != null;
-    }
-
-    public Permissions getUmask() {
-        return this.umask;
-    }
-
-    public void setUmask(Permissions mask) {
-        this.umask = mask;
     }
 
     /**

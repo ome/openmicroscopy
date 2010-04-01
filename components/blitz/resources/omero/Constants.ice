@@ -97,7 +97,7 @@ module omero {
     const string PASSWORD = "omero.pass";
     const string GROUP    = "omero.group";
     const string EVENT    = "omero.event";
-    const string UMASK    = "omero.umask";
+    const string AGENT    = "omero.agent";
 
     module cluster {
         // config string used by the ConfigRedirector
@@ -115,7 +115,6 @@ module omero {
         const string NSMOVIEMPEG = "openmicroscopy.org/omero/movie/mpeg";
         const string NSMOVIEQT = "openmicroscopy.org/omero/movie/qt";
         const string NSMOVIEWMV = "openmicroscopy.org/omero/movie/wmv";
-        
     };
 
     /**
