@@ -146,7 +146,7 @@ public abstract class ScriptUploader {
      * Load all scripts that match the name, sha1, and format for script
      */
     protected List<OriginalFile> loadScripts(ServiceFactory sf, Parameters p) {
-        p.addLong("gid", roles.getSystemGroupId());
+        p.addLong("gid", roles.getUserGroupId());
         List<OriginalFile> files = sf.getQueryService().findAllByQuery(
                 "select f from OriginalFile f where f.sha1 = :sha1 "
                         + "and f.details.group.id = :gid "
