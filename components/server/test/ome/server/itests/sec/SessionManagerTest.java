@@ -44,7 +44,7 @@ public class SessionManagerTest extends AbstractManagedContextTest {
     public void testGetsEventAndBlocksOnNextCall() throws Exception {
         login("root", "user", "User");
         ApplicationEvent event = new UserGroupUpdateEvent(this);
-        Session s = sm.create(new Principal("root", "user", "Test"));
+        Session s = sm.createWithAgent(new Principal("root", "user", "Test"), "Test");
         long last1 = sc.getLastUpdated();
         sm.onApplicationEvent(event);
         Thread.sleep(2000L);
@@ -94,10 +94,7 @@ public class SessionManagerTest extends AbstractManagedContextTest {
                 gid, false));
 
         String sid = iAdmin.getEventContext().getCurrentSessionUuid();
-        Session sess = factory.getSessionService().getSession(sid);
-        ExperimenterGroup group = iAdmin.lookupGroup(uuid);
-        sess.getDetails().setGroup(group);
-        factory.getSessionService().updateSession(sess);
+        this.sessionManager.setSecurityContext(new Principal(sid), iAdmin.lookupGroup(uuid));
 
         assertEquals(uuid, iAdmin.getEventContext().getCurrentGroupName());
 
@@ -106,7 +103,7 @@ public class SessionManagerTest extends AbstractManagedContextTest {
     @Test
     public void testInputOutputEnvironments() throws Exception {
         login("root", "user", "User");
-        Session s = sm.create(new Principal("root", "user", "Test"));
+        Session s = sm.createWithAgent(new Principal("root", "user", "Test"), "Test");
         String uuid = s.getUuid();
 
         assertNull(sessionManager.getInput(uuid, "a"));
@@ -127,7 +124,7 @@ public class SessionManagerTest extends AbstractManagedContextTest {
     @Test
     public void testTimeouts() throws Exception {
         login("root", "user", "User");
-        Session s = sm.create(new Principal("root", "user", "Test"));
+        Session s = sm.createWithAgent(new Principal("root", "user", "Test"), "Test");
         String uuid = s.getUuid();
 
         // By default TTI is non-null, we're assuming this is the case here
@@ -145,7 +142,7 @@ public class SessionManagerTest extends AbstractManagedContextTest {
     @Test
     public void testTimeoutsWithNulls() throws Exception {
         login("root", "user", "User");
-        Session s = sm.create(new Principal("root", "user", "Test"));
+        Session s = sm.createWithAgent(new Principal("root", "user", "Test"), "Test");
         String uuid = s.getUuid();
 
         Session newSession = new Session();

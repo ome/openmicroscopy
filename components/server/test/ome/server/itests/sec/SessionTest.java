@@ -69,12 +69,15 @@ public class SessionTest extends AbstractManagedContextTest {
         
         loginUser(e.getOmeName());
         String uuid = a.getEventContext().getCurrentSessionUuid();
-        Session session = s.getSession(uuid);
-        session.getDetails().setGroup(g);
-        s.updateSession(session);
+        sessionManager.setSecurityContext(new Principal(uuid), g);
         
     }
     
+    /**
+     * This test original used ISession.updateSession() which is where the bug
+     * was. With setSecurityContext() this shouldn't be the case, but leaving
+     * test for the moment.
+     */
     @Test(groups = "ticket:1385")
     public void testUpdateDefaultGroupTwice() throws Exception {
         
@@ -92,11 +95,10 @@ public class SessionTest extends AbstractManagedContextTest {
         
         loginUser(e.getOmeName());
         String uuid = a.getEventContext().getCurrentSessionUuid();
-        Session session = s.getSession(uuid);
-        session.getDetails().setGroup(g1);
-        s.updateSession(session);
-        session.getDetails().setGroup(g2);
-        s.updateSession(session);
+        Principal principal = new Principal(uuid);
+
+        sessionManager.setSecurityContext(principal, g1);
+        sessionManager.setSecurityContext(principal, g2);
         
         // But now if we try to get the session again, boom.
         s.getSession(uuid);

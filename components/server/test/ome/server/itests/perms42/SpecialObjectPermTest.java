@@ -134,23 +134,6 @@ public class SpecialObjectPermTest extends PermissionsTest {
         assertPrivate(tag);
     }
 
-    @Test(groups = "ticket:1704", enabled = false)
-    public void testButAdminsCanSetAPublicUmaskToCreateGlobalData() {
-        // First set our mask
-        login("root", "system", "User");
-        EventContext ec = iAdmin.getEventContext();
-        String sess = ec.getCurrentSessionUuid();
-        Session s = iSession.getSession(sess);
-        s.setDefaultPermissions("rwrw--");
-        iSession.updateSession(s);
-
-        // Now try to create rwrw-- data
-        TagAnnotation t = new TagAnnotation();
-        t = iUpdate.saveAndReturnObject(t);
-        assertSharedAndWritable(t);
-    }
-
-
     //
     // misc
     //

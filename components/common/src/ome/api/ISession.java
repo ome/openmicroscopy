@@ -98,29 +98,6 @@ public interface ISession extends ServiceInterface {
             @Hidden String credentials);
 
     /**
-     * Updates subset of the fields from the {@link Session} object to the
-     * {@link Session} matching the given uuid. If the {@link Session#getUuid()
-     * uuid} is not present, then a {@link RemovedSessionException} is thrown.
-     * 
-     * Updated: group, {@link Session#userAgent}, {@link Session#message},
-     * {@link Session#defaultUmask}, {@link Session#setDefaultEventType(String)}
-     * 
-     * Conditionally updated: timeToLive, timeToIdle These can only be set
-     * within boundaries provided by the system administrator. Currently this is
-     * hard-coded to mean 10 times the defaultTimeToLive and defaultTimeToIdle,
-     * respectively.
-     * 
-     * Ignored: All others, but especially user, {@link Session#events}
-     * {@link Session#uuid}, and the timestamps.
-     * 
-     * @param session
-     *            The {@link Session} instance to be updated.
-     * @return The {@link Session} updated instance. Should replace the current
-     *         value: <code> session = iSession.updateSession(session); </code>
-     */
-    Session updateSession(@NotNull Session session);
-
-    /**
      * Retrieves the session associated with this uuid, updating the last access
      * time as well. Throws a {@link RemovedSessionException} if not present, or
      * a {@link SessionTimeoutException} if expired.

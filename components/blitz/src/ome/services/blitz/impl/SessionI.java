@@ -29,7 +29,6 @@ import omero.api.AMD_ISession_getReferenceCount;
 import omero.api.AMD_ISession_getSession;
 import omero.api.AMD_ISession_setInput;
 import omero.api.AMD_ISession_setOutput;
-import omero.api.AMD_ISession_updateSession;
 import omero.api._ISessionOperations;
 import omero.model.Session;
 import omero.sys.Principal;
@@ -131,12 +130,6 @@ public class SessionI extends AbstractAmdServant implements _ISessionOperations 
     public void setOutput_async(AMD_ISession_setOutput __cb, String sess,
             String key, RType value, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, sess, key, value);
-
-    }
-
-    public void updateSession_async(AMD_ISession_updateSession __cb,
-            Session sess, Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, sess);
 
     }
 

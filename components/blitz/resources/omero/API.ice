@@ -385,7 +385,6 @@ module omero {
 						    string defaultGroup, omero::model::Permissions umask) throws ServerError;
 	    omero::model::Session getSession(string sessionUuid) throws ServerError;
 	    int getReferenceCount(string sessionUuid) throws ServerError;
-	    omero::model::Session updateSession(omero::model::Session sess) throws ServerError;
 	    int closeSession(omero::model::Session sess) throws ServerError;
 	    // System users
 	    omero::model::Session createSessionWithTimeout(omero::sys::Principal p,
