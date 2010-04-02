@@ -85,7 +85,8 @@ public class FSFileSystemView
     {
     	if (file instanceof ImageData) {
     		ImageData img = (ImageData) file;
-    		String refPath = img.getName();
+    		String refPath = img.getPathToFile();
+    		if (img.getIndex() >= 0) refPath = img.getParentFilePath();
         	Entry entry;
         	Iterator i = repositories.entrySet().iterator();
         	String path;
@@ -131,9 +132,7 @@ public class FSFileSystemView
     {
     	if (elements == null) return;
 		Iterator<FileSet> i = elements.iterator();
-		List list;
 		File f;
-		Image object;
 		MultiImageData img;
 		Iterator j;
 		List<ImageData> components;
@@ -145,6 +144,8 @@ public class FSFileSystemView
 		List<IObject> usedFiles;
 		OriginalFile file = null;
 		ImageData image;
+		String parentName;
+		int index;
 		if (useFileHiding) {
 		} else {
 			while (i.hasNext()) {
@@ -157,7 +158,6 @@ public class FSFileSystemView
 					if (usedFiles.size() > 0) 
 						file = (OriginalFile) usedFiles.get(0);
 					if (count == 0) {
-						
 						if (file == null) {
 							of = new OriginalFileI();
 							of.setName(omero.rtypes.rstring(name));
@@ -169,18 +169,25 @@ public class FSFileSystemView
 						count = images.size();
 						if (count == 1) {
 							image = new ImageData(images.get(0));
-							//if (!image.getName().equals(name))
-							//	image.setName(f.getName());
+							image.setName(f.getName());
+							image.setPathToFile(f.getAbsolutePath());
 							files.addElement(image);
 						} else if (count > 1) {
 							img = new MultiImageData(file);
+							parentName = img.getName();
 							j = images.iterator();
 							components = new ArrayList<ImageData>();
+							index = 0;
 							while (j.hasNext()) {
 								image = new ImageData((Image) j.next()); 
-								//f = new File(image.getName());
-								//image.setName(f.getName());
+								image.setParentFilePath(img.getAbsolutePath(), 
+										index);
+								name = image.getName();
+								if (name == null || name.length() == 0) {
+									image.setName(parentName+"_"+index);
+								}
 								components.add(image);
+								index++;
 							}
 							img.setComponents(components);
 							files.addElement(img);
@@ -317,13 +324,17 @@ public class FSFileSystemView
     		}
     	} else if (object instanceof ImageData) {
     		ImageData img = (ImageData) object;
-    		String name = img.getName();
-    		if (!name.contains(".")) return null;
+    		String name = img.getPathToFile();
+    		int index = img.getIndex();
+    		if (index >= 0) name = img.getParentFilePath();
         	RepositoryPrx proxy = getRepository(object);
         	if (proxy == null) return null;
         	try {
+        		if (index >= 0) 
+        			return proxy.getThumbnailByIndex(name, index);
         		return proxy.getThumbnail(name);
     		} catch (Exception e) {
+    			e.printStackTrace();
     			new FSAccessException("Cannot retrieve the thumbnail for: " +
     					""+name, e);
     		}
