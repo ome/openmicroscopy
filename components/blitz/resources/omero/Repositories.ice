@@ -75,54 +75,30 @@ module omero {
             omero::model::Format format(string path) throws ServerError;
 
             /**
-             * Create an OriginalFile in the database for the given path.
-             * If the given path is already registered as an OriginalFile,
-             * a ValidationException is thrown. Otherwise, one is added and
-             * returned.
+             * Create an entry in the database for the given IObject using the given omeName.
              *
-             * TODO should this just return and not throw?
+             * If the given IObject is null a ValidationException is thrown. 
+             * If the given IObject is not a recognised type ValidationException is thrown. 
+             * If the given omeName is null or empty ValidationException is thrown. 
+             * Otherwise, an entry is added and an unloaded IObject returned with id set.
+             *
+             * TODO should this final exception just return and not throw?
              *
              **/
-            omero::model::OriginalFile register(string path, omero::model::Format fmt) 
+             omero::model::IObject register(omero::model::IObject obj, string omeName)
                     throws ServerError;
 
-            /**
-             * Create an OriginalFile in the database for the given OriginalFile.
-             * If the given OriginalFile is already registered as an OriginalFile,
-             * a ValidationException is thrown. Otherwise, one is added and
-             * returned.
-             *
-             * TODO should this just return and not throw?
-             *
-             **/
-            omero::model::OriginalFile registerOriginalFile(omero::model::OriginalFile file) 
-                    throws ServerError;
-            
             /**
              * Create an entry in the database for the given IObject.
              *
              * If the given IObject is null a ValidationException is thrown. 
              * If the given IObject is not a recognised type ValidationException is thrown. 
-             * If the given IObject is already registered a ValidationException is thrown. 
              * Otherwise, an entry is added and an unloaded IObject returned with id set.
              *
              * TODO should this final exception just return and not throw?
              *
              **/
             omero::model::IObject registerObject(omero::model::IObject obj) 
-                    throws ServerError;
-            
-            
-            /**
-             * Create an Image in the database for the given Image.
-             * If the given Image is already registered as an Image,
-             * a ValidationException is thrown. Otherwise, one is added and
-             * returned.
-             *
-             * TODO should this just return and not throw?
-             *
-             **/
-            omero::model::Image registerImage(omero::model::Image image) 
                     throws ServerError;
             
             /**

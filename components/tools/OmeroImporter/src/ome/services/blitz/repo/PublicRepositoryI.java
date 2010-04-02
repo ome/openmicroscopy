@@ -139,46 +139,47 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
 
     /**
-     * Register an OriginalFile using its path
+     * Register an IObject object
      * 
-     * @param path
-     *            Absolute path of the file to be registered.
+     * @param obj
+     *            IObject object.
      * @param __current
      *            ice context.
-     * @return The OriginalFile with id set (unloaded)
+     * @return The IObject with id set (unloaded)
      *
      */
-    public OriginalFile register(String path, Format fmt, Current __current)
+    public IObject register(IObject obj, String omeName, Current __current)
             throws ServerError {
 
-        if (path == null || fmt == null
-                || (fmt.getId() == null && fmt.getValue() == null)) {
+        if (obj == null) {
             throw new ValidationException(null, null,
-                    "path and fmt are required arguments");
+                    "obj is required argument");
         }
-
-        File file = new File(path).getAbsoluteFile();
-        OriginalFile omeroFile = new OriginalFileI();
-        omeroFile = createOriginalFile(file);
-        omeroFile.setFormat(fmt);
-
+        if (omeName == "" || omeName == null) {
+            throw new ValidationException(null, null,
+                    "omeName is required argument");
+        }
+        
         IceMapper mapper = new IceMapper();
-        final ome.model.core.OriginalFile omeFile = (ome.model.core.OriginalFile) mapper
-                .reverse(omeroFile);
+        final ome.model.IObject omeObj = (ome.model.IObject) mapper
+                .reverse(obj);
+        
         Long id = (Long) executor.execute(principal, new Executor.SimpleWork(
                 this, "register") {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
-                return sf.getUpdateService().saveAndReturnObject(omeFile).getId();
+                return sf.getUpdateService().saveAndReturnObject(omeObj).getId();
             }
         });
+        
+        obj.setId(rlong(id));
+        obj.unload();
+        
+        registerUserId(obj, omeName);
 
-        omeroFile.setId(rlong(id));
-        omeroFile.unload();
-        return omeroFile;
-
+        return obj;
     }
-    
+
     /**
      * Register an IObject object
      * 
@@ -196,87 +197,23 @@ public class PublicRepositoryI extends _RepositoryDisp {
             throw new ValidationException(null, null,
                     "obj is required argument");
         }
-
-        if (obj instanceof OriginalFile) {
-            obj = registerOriginalFile((OriginalFile) obj, __current);
-        } else if (obj instanceof Image) {
-            obj = registerImage((Image) obj, __current);
-        } else {
-            throw new ValidationException(null, null,
-                    "Cannot register this type of IObject");
-        }
+        
+        IceMapper mapper = new IceMapper();
+        final ome.model.IObject omeObj = (ome.model.IObject) mapper
+                .reverse(obj);
+        
+        Long id = (Long) executor.execute(principal, new Executor.SimpleWork(
+                this, "register") {
+            @Transactional(readOnly = false)
+            public Object doWork(Session session, ServiceFactory sf) {
+                return sf.getUpdateService().saveAndReturnObject(omeObj).getId();
+            }
+        });
+        
+        obj.setId(rlong(id));
+        obj.unload();
         
         return obj;
-    }
-
-    /**
-     * Register an OriginalFile object
-     * 
-     * @param file
-     *            OriginalFile object.
-     * @param __current
-     *            ice context.
-     * @return The OriginalFile with id set (unloaded)
-     *
-     */
-    public OriginalFile registerOriginalFile(OriginalFile file, Current __current)
-            throws ServerError {
-
-        if (file == null) {
-            throw new ValidationException(null, null,
-                    "file is required argument");
-        }
-
-        IceMapper mapper = new IceMapper();
-        final ome.model.core.OriginalFile omeFile = (ome.model.core.OriginalFile) mapper
-                .reverse(file);
-        Long id = (Long) executor.execute(principal, new Executor.SimpleWork(
-                this, "registerOriginalFile") {
-            @Transactional(readOnly = false)
-            public Object doWork(Session session, ServiceFactory sf) {
-                return sf.getUpdateService().saveAndReturnObject(omeFile).getId();
-            }
-        });
-        
-        file.setId(rlong(id));
-        file.unload();
-        return file;
-    }
-
-
-
-    /**
-     * Register an Image object
-     * 
-     * @param file
-     *            Image object.
-     * @param __current
-     *            ice context.
-     * @return The Image with id set (unloaded)
-     *
-     */
-    public Image registerImage(Image image, Current __current)
-            throws ServerError {
-
-        if (image == null) {
-            throw new ValidationException(null, null,
-                    "image is required argument");
-        }
-
-        IceMapper mapper = new IceMapper();
-        final ome.model.core.Image omeImage = (ome.model.core.Image) mapper
-                .reverse(image);
-        Long id = (Long) executor.execute(principal, new Executor.SimpleWork(
-                this, "registerImage") {
-            @Transactional(readOnly = false)
-            public Object doWork(Session session, ServiceFactory sf) {
-                return sf.getUpdateService().saveAndReturnObject(omeImage).getId();
-            }
-        });
-        
-        image.setId(rlong(id));
-        image.unload();
-        return image;
     }
 
     public void delete(String path, Current __current) throws ServerError {
@@ -585,6 +522,24 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
         return new File(path).getAbsoluteFile();
     }
+    
+
+    private void registerUserId(IObject obj, String omeName) throws ServerError {
+        
+        IceMapper mapper = new IceMapper();
+        final ome.model.IObject omeObj = (ome.model.IObject) mapper
+                .reverse(obj);
+        final String oName = omeName;
+        Long id = (Long) executor.execute(principal, new Executor.SimpleWork(
+                this, "registerUserId") {
+            @Transactional(readOnly = false)
+            public Object doWork(Session session, ServiceFactory sf) {
+                sf.getAdminService().changeOwner(omeObj, oName);
+                return omeObj.getId();
+            }
+        });
+        
+    }
 
    /**
      * Get a filtered file listing based on the config options.
@@ -686,6 +641,9 @@ public class PublicRepositoryI extends _RepositoryDisp {
      *            A string representing the pixels type
      * @return A PixelsType object
      *
+     * TODO: This db look-up per Pixels object needs 
+     * to be a local look-up from a HashMap built in
+     * the constructor.
      */
     private PixelsType getPixelsType(String pixelsType) {
         final String pType = pixelsType;
