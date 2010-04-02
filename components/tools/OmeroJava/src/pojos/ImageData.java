@@ -100,10 +100,20 @@ public class ImageData extends DataObject {
      */
     private Long annotationCount;
 
+    /** The path to the image file, for a single image. */
+    private String pathToFile;
+    
+    /** The index of the image if the image belongs to a multi-images file. */
+    private int 	index;
+    
+    /** The path to the multi-images file. */
+    private String	parentFilePath;
+    
     /** Creates a new instance. */
     public ImageData() {
         setDirty(true);
         setValue(new ImageI());
+        index = -1;
     }
 
     /**
@@ -120,8 +130,56 @@ public class ImageData extends DataObject {
             throw new IllegalArgumentException("Object cannot null.");
         }
         setValue(image);
+        index = -1;
     }
+    
+    /**
+     * Sets the path to the file.
+     * 
+     * @param path The value to set.
+     */
+    public void setPathToFile(String path)
+    {
+    	if (path == null) pathToFile = getName();
+    	else pathToFile = path;
+    }
+    
+    /**
+     * Returns the path to the file.
+     * 
+     * @return See above.
+     */
+    public String getPathToFile() { return pathToFile ;}
 
+    /**
+     * Sets the path to the file hosting the image. This should only
+     * be used to handle multi-images file e.g. some <code>Leica</code> files.
+     * Sets the index of the image within that file.
+     * 
+     * @param path The path to set.
+     * @param index The index to set.
+     */
+    public void setParentFilePath(String path, int index)
+    {
+    	parentFilePath = path;
+    	this.index = index;
+    }
+    
+    /**
+     * Returns the path to the file hosting the image. This should only
+     * be used to handle multi-images file e.g. some <code>Leica</code> files.
+     * 
+     * @return See above.
+     */
+    public String getParentFilePath() { return parentFilePath; }
+    
+    /**
+     * Returns the index of the image within the multi-images file.
+     * 
+     * @return See above.
+     */
+    public int getIndex() { return index; }
+    
     // Immutables
 
     /**
