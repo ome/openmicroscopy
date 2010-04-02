@@ -206,7 +206,7 @@ class EditorModel
 	private List<AnnotationData>		toDelete;
 	
 	/** Collection of uploaded scripts. */
-	private List						scripts;
+	private Map<Long, ScriptObject>		scripts;
 	
 	/**
 	 * Downloads the files.
@@ -2282,14 +2282,30 @@ class EditorModel
 	 * 
 	 * @param scripts The value to set.
 	 */
-	void setScripts(List scripts) { this.scripts = scripts; }
+	void setScripts(List scripts)
+	{ 
+		
+		Map<Long, ScriptObject> map = new HashMap<Long, ScriptObject>();
+		if (scripts == null) return;
+		Iterator i = scripts.iterator();
+		ScriptObject s;
+		while (i.hasNext()) {
+			s = (ScriptObject) i.next();
+			map.put(s.getScriptID(), s);
+		}
+		this.scripts = map; 
+	}
 	
 	/**
 	 * Returns the collection of scripts.
 	 * 
 	 * @return See above.
 	 */
-	List getScripts() { return scripts; }
+	Collection<ScriptObject> getScripts()
+	{ 
+		if (scripts == null) return null;
+		return scripts.values(); 
+	}
 	
 	/** 
 	 * Loads the specified script.
@@ -2311,14 +2327,9 @@ class EditorModel
 	void setScript(ScriptObject script)
 	{
 		if (scripts == null || scripts.size() == 0) return;
-		Iterator i = scripts.iterator();
-		ScriptObject s;
-		while (i.hasNext()) {
-			s = (ScriptObject) i.next();
-			if (s.getScriptID() == script.getScriptID()) {
-				s.setParameterTypes(script.getParameterTypes());
-			}
-		}
+		ScriptObject sc = scripts.get(script.getScriptID());
+		if (sc != null) script.setName(sc.getName());
+		scripts.put(script.getScriptID(), script);
 	}
 	
 	/** Loads the scripts. */

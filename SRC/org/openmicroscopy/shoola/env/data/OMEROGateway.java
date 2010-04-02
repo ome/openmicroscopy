@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
+import org.openmicroscopy.shoola.env.data.model.ParamData;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
@@ -120,7 +121,9 @@ import omero.grid.Column;
 import omero.grid.Data;
 import omero.grid.DoubleColumn;
 import omero.grid.ImageColumn;
+import omero.grid.JobParams;
 import omero.grid.LongColumn;
+import omero.grid.Param;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.grid.RoiColumn;
@@ -5268,16 +5271,27 @@ class OMEROGateway
 			if (map == null || map.size() == 0) return scripts;
 			Entry en;
 			Iterator j = map.entrySet().iterator();
-			long value;
 			ScriptObject script;
-			long id;
-			Map<String, RType> p;
+			long id = 0;
+			long o = 0;
+			String value;
+			Map<String, Long> ids = new HashMap<String, Long>();
 			while (j.hasNext()) {
 				en = (Entry) j.next();
 				id = (Long) en.getKey();
-				script = new ScriptObject(id, (String) en.getValue());
-				//script.setParameterTypes(convertParameters(svc.getParams(id)));
-				scripts.add(script);
+				value = (String) en.getValue();
+				if (ids.containsKey(value)) {
+					o = ids.get(value);
+					if (o < id) ids.put(value, id);
+				} else ids.put(value, id);
+				//script = new ScriptObject(id, value);
+				//scripts.add(script);
+			}
+			j = ids.entrySet().iterator();
+			while (j.hasNext()) {
+				en = (Entry) j.next();
+				scripts.add(new ScriptObject((Long) en.getValue(), 
+						(String) en.getKey()));
 			}
 		} catch (Exception e) {
 			handleException(e, "Cannot load the scripts. ");
@@ -5303,14 +5317,12 @@ class OMEROGateway
 		try {
 			IScriptPrx svc = getScripService();
 			String name = svc.getScript(scriptID);
-			Map<Long, String> map = svc.getScripts();
+			//Map<Long, String> map = svc.getScripts();
 			if (name == null || name.length() == 0) return null;
-			script = new ScriptObject(scriptID, "");
-			//script.setParameterTypes(
-			//		convertParameters(svc.getParams(scriptID)));
-			
+			script = new ScriptObject(scriptID, name);
+			script.setJobParams(svc.getParams(scriptID));
 		} catch (Exception e) {
-			handleException(e, "Cannot load the scripts. ");
+			handleException(e, "Cannot load the script: "+scriptID);
 		}
 		return script;
 	}
@@ -5336,42 +5348,6 @@ class OMEROGateway
 			handleException(e, "Cannot load the scripts. ");
 		}
 		return new HashMap<Long, String>();
-	}
-	
-	/**
-	 * Converts the passed map of parameters.
-	 * 
-	 * @param p The map to convert.
-	 * @return See above.
-	 */
-	private Map<String, Class> convertParameters(Map<String, RType> p)
-	{
-		Map<String, Class> parameters = new LinkedHashMap<String, Class>();
-		if (p == null) return parameters;
-		Entry entry;
-		Iterator i = p.entrySet().iterator();
-		RType type;
-		Class klass ;
-		while (i.hasNext()) {	
-			klass = null;
-			entry = (Entry) i.next();
-			type = (RType) entry.getValue();
-			if (type instanceof RString)
-				klass = String.class;
-			else if (type instanceof RLong)
-				klass = Long.class;
-			else if (type instanceof RInt)
-				klass = Integer.class;
-			else if (type instanceof RBool)
-				klass = Boolean.class;
-			else if (type instanceof RList)
-				klass = List.class;
-			else if (type instanceof RMap)
-				klass = Map.class;
-			if (klass != null)
-				parameters.put((String) entry.getKey(), klass);
-		}
-		return parameters;
 	}
 	
 	/**
@@ -6272,6 +6248,7 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
+			/*
 			long id = script.getScriptID();
 			if (id < 0) return Boolean.valueOf(false);
 			IScriptPrx svc = getScripService();
@@ -6293,7 +6270,9 @@ class OMEROGateway
 				}
 			}
 			runScript(id, map);
+			*/
 			//Figure out what is returned by the script.
+
 			return Boolean.valueOf(true);
 		} catch (Exception e) {
 			handleException(e, "Cannot run the script.");

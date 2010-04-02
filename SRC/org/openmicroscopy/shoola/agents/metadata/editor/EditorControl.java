@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
 import org.openmicroscopy.shoola.agents.metadata.util.FigureDialog;
 import org.openmicroscopy.shoola.agents.metadata.util.ScriptMenuItem;
+import org.openmicroscopy.shoola.agents.metadata.util.ScriptingDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
@@ -494,7 +495,7 @@ class EditorControl
 		if (e.getSource() instanceof ScriptMenuItem) {
 			ScriptMenuItem item = (ScriptMenuItem) e.getSource();
 			ScriptObject object = item.getScript();
-			if (object.getParameterTypes() == null)
+			if (!object.isParametersLoaded())
 				model.loadScript(object.getScriptID());
 			else model.setScript(object);
 			return;

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.editor.ScriptingDialog 
+ * org.openmicroscopy.shoola.agents.metadata.util.ScriptingDialog 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
@@ -20,12 +20,10 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.metadata.editor;
+package org.openmicroscopy.shoola.agents.metadata.util;
 
 
 //Java imports
-import info.clearthought.layout.TableLayout;
-
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -42,6 +40,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -51,19 +50,20 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 //Third-party libraries
+import info.clearthought.layout.TableLayout;
+import org.jdesktop.swingx.JXTaskPane;
+
 
 //Application-internal dependencies
-import org.jdesktop.swingx.JXTaskPane;
-import org.openmicroscopy.shoola.agents.metadata.util.ScriptComponent;
+import org.openmicroscopy.shoola.env.data.model.ParamData;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.ExperimenterData;
 
 /** 
- * Builds up a dialog to collect the parameters associated to the script.
+ * Dialog to run the selected script. The UI is created on the fly.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -75,36 +75,36 @@ import pojos.ExperimenterData;
  * </small>
  * @since 3.0-Beta4
  */
-class ScriptingDialog 
+public class ScriptingDialog 
 	extends JDialog
 	implements ActionListener
 {
-
+	
 	/** Bound property indicating to run the script. */
-	static final String RUN_SCRIPT_PROPERTY = "runScript";
+	public static final String RUN_SCRIPT_PROPERTY = "runScript";
 	
 	/** 
-     * The size of the invisible components used to separate buttons
-     * horizontally.
-     */
-    private static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
-    
-    /** Title of the dialog. */
-    private static final String		TITLE = "Run Script";
-    
-    /** The text displayed in the header. */
-    private static final String		TEXT = "Set the parameters for the " +
-    		"script ";
-    
-    /** The text displayed in the header. */
-    private static final String		TEXT_END = ".\n"+ScriptComponent.REQUIRED +
-    		" indicates the required parameter."+
-    		"\nIf (List) is indicated next to a parameter, use spaces " +
-    		"to separate values.\n"+
-    		"If (Map) is indicated next to a parameter, use "+
-    		ScriptComponent.MAP_SEPARATOR+
-    		"to separate (key, value) pair and spaces to separate pairs.\n";
-    
+	 * The size of the invisible components used to separate buttons
+	 * horizontally.
+	 */
+	private static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
+	
+	/** Title of the dialog. */
+	private static final String		TITLE = "Run Script";
+	
+	/** The text displayed in the header. */
+	private static final String		TEXT = "Set the parameters for the " +
+			"script ";
+	
+	/** The text displayed in the header. */
+	private static final String		TEXT_END = ".\n"+ScriptComponent.REQUIRED +
+			" indicates the required parameter."+
+			"\nIf (List) is indicated next to a parameter, use spaces " +
+			"to separate values.\n"+
+			"If (Map) is indicated next to a parameter, use "+
+			ScriptComponent.MAP_SEPARATOR+
+			"to separate (key, value) pair and spaces to separate pairs.\n";
+	
 	/** Indicates to close the dialog. */
 	private static final int CANCEL = 0;
 	
@@ -117,22 +117,22 @@ class ScriptingDialog
 	/** Run the script. */
 	private JButton applyButton;
 	
-    /** Component used to enter the author of the script. */
-    private JTextField	author;
-    
-    /** Component used to enter the author's e-mail address. */
-    private JTextField	eMail;
-    
-    /** Component used to enter the author's institution. */
-    private JTextField	institution;
-    
-    /** Component used to enter the description of the script. */
-    private JTextField	description;
-    
-    /** Component used to enter where the script was published if 
-     * published. */
-    private JTextField	journalRef;
-    
+	/** Component used to enter the author of the script. */
+	private JTextField	author;
+	
+	/** Component used to enter the author's e-mail address. */
+	private JTextField	eMail;
+	
+	/** Component used to enter the author's institution. */
+	private JTextField	institution;
+	
+	/** Component used to enter the description of the script. */
+	private JTextField	description;
+	
+	/** Component used to enter where the script was published if 
+	 * published. */
+	private JTextField	journalRef;
+	
 	/** The object to handle. */
 	private ScriptObject script;
 	
@@ -159,34 +159,52 @@ class ScriptingDialog
 			c = (ScriptComponent) entry.getValue();
 			values.put((String) entry.getKey(), c.getValue());
 		}
-		script.setParameterValues(values);
+		//script.setParameterValues(values);
 		firePropertyChange(RUN_SCRIPT_PROPERTY, null, script);
 		close();
+	}
+	
+	private JComboBox createValuesBox(List<Object> values)
+	{
+		if (values == null) return null;
+		Object[] v = new Object[values.size()];
+		
+		JComboBox box = new JComboBox(v);
+		
+		return box;
 	}
 	
 	/** Initializes the components. */
 	private void initComponents()
 	{
-		ExperimenterData exp = script.getAuthor();
+		List<ExperimenterData> experimenters = script.getAuthors();
+		Iterator<ExperimenterData> j;
 		author = new JTextField();
 		author.setEnabled(false);
-		if (exp != null) {
-			author.setText(exp.getFirstName()+" "+exp.getLastName());
+		if (experimenters != null && experimenters.size() > 0) {
+			StringBuffer buffer = new StringBuffer();
+			j = experimenters.iterator();
+			ExperimenterData exp;
+			int index = experimenters.size();
+			while (j.hasNext()) {
+				exp = j.next();
+				buffer.append(exp.getLastName());
+				if (index > 1) buffer.append(","); 
+			}
+			author.setText(buffer.toString());
 		}
-        eMail = new JTextField();
-        eMail.setEnabled(false);
-		if (exp != null) {
-			eMail.setText(exp.getEmail());
-		}
-        institution = new JTextField();
-        institution.setEnabled(false);
-		if (exp != null) {
-			institution.setText(exp.getInstitution());
-		}
-        journalRef = new JTextField(script.getJournalRef()); 
-        journalRef.setEnabled(false);
-        description = new JTextField(script.getDescription());
-        description.setEnabled(false);
+	    eMail = new JTextField();
+	    eMail.setEnabled(false);
+	    eMail.setText(script.getContact());
+	    institution = new JTextField();
+	    institution.setEnabled(false);
+		//if (exp != null) {
+			//institution.setText(exp.getInstitution());
+		//}
+	    journalRef = new JTextField(script.getJournalRef()); 
+	    journalRef.setEnabled(false);
+	    description = new JTextField(script.getDescription());
+	    description.setEnabled(false);
 		cancelButton = new JButton("Cancel");
 		cancelButton.setToolTipText("Close the dialog.");
 		cancelButton.setActionCommand(""+CANCEL);
@@ -196,39 +214,59 @@ class ScriptingDialog
 		applyButton.setActionCommand(""+APPLY);
 		applyButton.addActionListener(this);
 		components = new LinkedHashMap<String, ScriptComponent>();
-		Map<String, Class> types = script.getParameterTypes();
+		Map<String, ParamData> types = script.getInputs();
 		if (types == null) return;
 		Entry entry;
-		Iterator i = types.entrySet().iterator();
-		Class type;
+		ParamData param;
 		JComponent comp;
 		ScriptComponent c;
 		String name;
+		Class type;
+		Iterator i = types.entrySet().iterator();
+		List<Object> values;
+		Number n;
+		String details = "";
 		while (i.hasNext()) {
 			comp = null;
 			entry = (Entry) i.next();
-			type = (Class) entry.getValue();
+			param = (ParamData) entry.getValue();
 			name = (String) entry.getKey();
-			if (Long.class.equals(type) || Integer.class.equals(type)) {
-				comp = new NumericalTextField();
-				comp.setToolTipText("Number expected");
-				((NumericalTextField) comp).setNumberType(type);
-			} else if (String.class.equals(type)) {
-				comp = new JTextField();
-				comp.setToolTipText("String expected");
-			} else if (Boolean.class.equals(type)) {
-				comp = new JCheckBox();
-				((JCheckBox) comp).setSelected(true);
-			} else if (Map.class.equals(type)) {
-				comp = new JTextField();
-				name += " (Map)";
-			} else if (List.class.equals(type)) {
-				comp = new JTextField();
-				name += " (List)";
+			type = param.getPrototype();
+			values = param.getValues();
+			if (values != null && values.size() > 0) {
+				comp = createValuesBox(values);
+			} else {
+				if (Long.class.equals(type) || Integer.class.equals(type)) {
+					//if (param)
+					comp = new NumericalTextField();
+					n = param.getMaxValue();
+					if (n != null) 
+						((NumericalTextField) comp).setMaximum(n.doubleValue());
+					n = param.getMinValue();
+					if (n != null) 
+						((NumericalTextField) comp).setMinimum(n.doubleValue());
+					((NumericalTextField) comp).setNumberType(type);
+				} else if (String.class.equals(type)) {
+					comp = new JTextField();
+				} else if (Boolean.class.equals(type)) {
+					comp = new JCheckBox();
+					((JCheckBox) comp).setSelected(true);
+				} else if (Map.class.equals(type)) {
+					comp = new JTextField();
+					name += " (Map)";
+				} else if (List.class.equals(type)) {
+					comp = new JTextField();
+					name += " (List)";
+				}
 			}
+			
+			comp.setToolTipText(param.getDescription());
 			if (comp != null) {
 				c = new ScriptComponent(comp, name);
-				c.setRequired(true);
+				if (!(comp instanceof JComboBox))
+					c.setRequired(!param.isOptional());
+				if (details != null && details.trim().length() > 0)
+					c.setInfo(details);
 				components.put((String) entry.getKey(), c);
 			}
 		}
@@ -267,7 +305,7 @@ class ScriptingDialog
 		details.add(l, "0, "+row+", LEFT, TOP");
 		details.add(description, "2, "+row);
 		
-    	return details;
+		return details;
 	}
 	
 	/**
@@ -318,16 +356,20 @@ class ScriptingDialog
 			row++;
 		}
 		
-		JXTaskPane pane = new JXTaskPane();
-		pane.setCollapsed(true);
-		pane.setTitle("Script details");
-		pane.add(buildScriptDetails());
+		JXTaskPane pane = null;
+		if (script.hasDetails()) {
+			pane = new JXTaskPane();
+			pane.setCollapsed(true);
+			pane.setTitle("Script details");
+			pane.add(buildScriptDetails());
+		}
+		
 		JPanel controls = new JPanel();
-    	controls.setLayout(new BorderLayout(0, 0));
-    	controls.add(pane, BorderLayout.NORTH);
-    	controls.add(new JScrollPane(p), BorderLayout.CENTER);
-    	controls.add(buildControlPanel(), BorderLayout.SOUTH);
-    	return controls;
+		controls.setLayout(new BorderLayout(0, 0));
+		if (pane != null) controls.add(pane, BorderLayout.NORTH);
+		controls.add(new JScrollPane(p), BorderLayout.CENTER);
+		controls.add(buildControlPanel(), BorderLayout.SOUTH);
+		return controls;
 	}
 	
 	/** Builds and lays out the UI. */
@@ -346,9 +388,9 @@ class ScriptingDialog
 	 * Creates a new instance.
 	 * 
 	 * @param parent The parent of the frame.
-	 * @param script
+	 * @param script The script to run. Mustn't be <code>null</code>.
 	 */
-	ScriptingDialog(JFrame parent, ScriptObject script)
+	public ScriptingDialog(JFrame parent, ScriptObject script)
 	{
 		super(parent);
 		if (script == null)
@@ -358,7 +400,7 @@ class ScriptingDialog
 		buildGUI();
 		pack();
 	}
-
+	
 	/**
 	 * Closes or runs the scripts.
 	 * @see ActionListener#actionPerformed(ActionEvent)
@@ -373,7 +415,6 @@ class ScriptingDialog
 			case APPLY:
 				runScript();
 		}
-		
 	}
-	
+
 }

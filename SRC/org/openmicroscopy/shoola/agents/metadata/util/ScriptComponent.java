@@ -24,14 +24,17 @@ package org.openmicroscopy.shoola.agents.metadata.util;
 
 
 //Java imports
+import java.awt.Font;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 
@@ -80,6 +83,12 @@ public class ScriptComponent
 	
 	/** The text associated to the component. */
 	private JLabel label;
+	
+	/** 
+	 * The text explaining the component. It should only be set for
+	 * collections and maps.
+	 */
+	private JLabel info;
 	
 	/** Indicates if a value is required. */
 	private boolean required;
@@ -137,7 +146,22 @@ public class ScriptComponent
 			throw new IllegalArgumentException("No component specified.");
 		this.component = component;
 		label = UIUtilities.setTextFont(parameter);
+		
 		required = false;
+	}
+	
+	/**
+	 * Sets the text explaining the component when the component is a list
+	 * or a map.
+	 * 
+	 * @param text The value to set.
+	 */
+	public void setInfo(String text)
+	{
+		if (text == null || text.trim().length() == 0) return;
+		info = new JLabel();
+		Font f = info.getFont();
+		info.setFont(f.deriveFont(Font.ITALIC, f.getSize()-2));
 	}
 	
 	/**
@@ -178,7 +202,14 @@ public class ScriptComponent
 	 * 
 	 * @return See above.
 	 */
-	public JLabel getLabel() { return label; }
+	public JComponent getLabel()
+	{ 
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		p.add(label);
+		if (info != null) p.add(info);
+		return UIUtilities.buildComponentPanel(p, 0, 0); 
+	}
 	
 	/** 
 	 * Returns the value associated to a script.

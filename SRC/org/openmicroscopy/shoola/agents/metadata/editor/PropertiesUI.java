@@ -515,11 +515,10 @@ class PropertiesUI
     	value.setText(v);
     	content.add(label, "0, "+index);
     	content.add(value, "2, "+index);
-    	
     	index++;
     	layout.insertRow(index, TableLayout.PREFERRED);
     	
-    	if (!model.isNumerousChannel()) {
+    	if (!model.isNumerousChannel() && model.getRefObjectID() > 0) {
     		label = UIUtilities.setTextFont("Channels", Font.BOLD, size);
         	content.add(label, "0, "+index);
         	content.add(channelsArea, "2, "+index);

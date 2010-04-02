@@ -29,6 +29,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.BorderFactory;
@@ -315,13 +316,13 @@ class ToolBar
     private JPopupMenu getScriptsMenu()
     {
     	JPopupMenu menu = new JPopupMenu();
-    	List scripts = model.getScripts();
+    	Collection<ScriptObject> scripts = model.getScripts();
     	if (scripts == null) return menu;
-    	Iterator i = scripts.iterator();
+    	Iterator<ScriptObject> i = scripts.iterator();
     	ScriptObject so;
     	JMenuItem item;
     	while (i.hasNext()) {
-    		so = (ScriptObject) i.next();
+    		so = i.next();
     		setScriptIcon(so);
     		item = new ScriptMenuItem(so);
     		item.addActionListener(controller);

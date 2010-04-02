@@ -24,17 +24,19 @@ package org.openmicroscopy.shoola.env.data.model;
 
 
 //Java imports
-import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-
-//import javax.activation.MimetypesFileTypeMap;
+import java.util.Map.Entry;
 import javax.swing.Icon;
-
-import org.apache.axis.attachments.MimeUtils;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.grid.JobParams;
+import omero.grid.Param;
 import pojos.ExperimenterData;
 
 /** 
@@ -65,8 +67,14 @@ public class ScriptObject
 	/** The description of the script. */
 	private String journalRef;
 	
-	/** The owner of the script. */
-	private ExperimenterData author;
+	/** The e-mail address of the contact. */
+	private String contact;
+	
+	/** The version of the script. */
+	private String version;
+	
+	/** The owners of the script. */
+	private List<ExperimenterData> authors;
 	
 	/** The parameters of the script. */
 	private Map<String, Class> parameterTypes;
@@ -74,11 +82,60 @@ public class ScriptObject
 	/** The values to pass to the script. */
 	private Map<String, Object> parameterValues;
 	
+	/** The input parameters. */
+	private Map<String, ParamData> inputs;
+	
+	/** The output parameters. */
+	private Map<String, ParamData> outputs;
+	
 	/** The 16x16 icon associated to the script. */
-	private Icon icon;
+	private Icon 		icon;
 	
 	/** The 48x48 icon associated to the script. */
-	private Icon iconLarge;
+	private Icon 		iconLarge;
+	
+	/** Hold the parameters related to the script. */
+	private JobParams  parameters;
+	
+	/** Converts the parameters. */
+	private void convertJobParameters()
+	{
+		if (parameters == null) return;
+		//Convert authors if 
+		String[] authors = parameters.authors;
+		if (authors != null && authors.length > 0) {
+			//String[][] institutions = params.authorsInstitutions;
+			//
+			ExperimenterData exp;
+			for (int i = 0; i < authors.length; i++) {
+				exp = new ExperimenterData();
+				exp.setLastName(authors[i]);
+			}
+		}
+		Map<String, Param> map = parameters.inputs;
+		Entry entry;
+		Iterator i;
+		Param p;
+		inputs = new HashMap<String, ParamData>();
+		if (map != null) {
+			i = map.entrySet().iterator();
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				p = (Param) entry.getValue();
+				inputs.put((String) entry.getKey(), new ParamData(p));
+			}
+		}
+		map = parameters.outputs;
+		outputs = new HashMap<String, ParamData>();
+		if (map != null) {
+			i = map.entrySet().iterator();
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				p = (Param) entry.getValue();
+				outputs.put((String) entry.getKey(), new ParamData(p));
+			}
+		}
+	}
 	
 	/**
 	 * Creates a new instance.
@@ -92,6 +149,25 @@ public class ScriptObject
 		this.name = name;
 		description = "";
 		journalRef = "";
+		authors = new ArrayList<ExperimenterData>();
+	}
+	
+	/**
+	 * Sets the name of the script.
+	 * 
+	 * @param name The value to set.
+	 */
+	public void setName(String name) { this.name = name; }
+	
+	/**
+	 * Returns the parameters.
+	 * 
+	 * @param parameters The parameters to set.
+	 */
+	public void setJobParams(JobParams parameters)
+	{
+		this.parameters = parameters;
+		convertJobParameters();
 	}
 	
 	/**
@@ -121,11 +197,28 @@ public class ScriptObject
 	}
 	
 	/**
+	 * Returns <code>true</code> if the script has ownership information,
+	 * description etc, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasDetails()
+	{
+		if (authors.size() > 0) return true;
+		if (description != null && description.length() > 0) return true;
+		if (journalRef != null && journalRef.length() > 0) return true;
+		return false;
+	}
+	
+	/**
 	 * Sets the author of the script.
 	 * 
 	 * @param author The author of the script.
 	 */
-	public void setAuthor(ExperimenterData author) { this.author = author; }
+	public void setAuthor(ExperimenterData author)
+	{ 
+		if (author != null) authors.add(author);
+	}
 	
 	/**
 	 * Sets the description of the script.
@@ -149,18 +242,22 @@ public class ScriptObject
 	}
 	
 	/** 
-	 * Returns the author of the script.
+	 * Returns the authors of the script.
 	 * 
-	 * @return
+	 * @return See above
 	 */
-	public ExperimenterData getAuthor() { return author; }
+	public List<ExperimenterData> getAuthors() { return authors; }
 	
 	/**
 	 * Returns the description of the script.
 	 * 
 	 * @return See above.
 	 */
-	public String getDescription() { return description; }
+	public String getDescription()
+	{ 
+		if (parameters != null) return parameters.description;
+		return description;
+	}
 	
 	/**
 	 * Returns the journal where the script was published if
@@ -169,16 +266,6 @@ public class ScriptObject
 	 * @return See above.
 	 */
 	public String getJournalRef() { return journalRef; }
-	
-	/**
-	 * Sets the parameters associated to the script.
-	 * 
-	 * @param parameters The value to set. 
-	 */
-	public void setParameterTypes(Map<String, Class> parameterTypes)
-	{
-		this.parameterTypes = parameterTypes;
-	}
 	
 	/**
 	 * Returns the id of the script.
@@ -193,14 +280,7 @@ public class ScriptObject
 	 * @return See above.
 	 */
 	public String getName() { return name; }
-	
-	/**
-	 * Returns the script of the parameters.
-	 * 
-	 * @return See above.
-	 */
-	public Map<String, Class> getParameterTypes() { return parameterTypes; }
-	
+
 	/**
 	 * Sets the icon.
 	 * 
@@ -229,21 +309,55 @@ public class ScriptObject
 	 */
 	public Icon getIconLarge() { return iconLarge; }
 	
-	/**
-	 * Sets the parameters to pass to the script.
-	 * 
-	 * @param parameterValues The value to set.
-	 */
-	public void setParameterValues(Map<String, Object> parameterValues)
-	{
-		this.parameterValues = parameterValues;
-	}
-	
-	/**
-	 * Returns the values.
+	/** 
+	 * Returns the main contact.
 	 * 
 	 * @return See above.
 	 */
-	public Map<String, Object> getParameterValues() { return parameterValues; }
+	public String getContact()
+	{ 
+		if (parameters != null) return parameters.contact;
+		return contact;
+	}
+	
+	/**
+	 * Sets the details of the main contact.
+	 * 
+	 * @param contact The details of the contact.
+	 */
+	public void setContact(String contact) { this.contact = contact; }
+	
+	/**
+	 * Returns the version of the script.
+	 * 
+	 * @return See above.
+	 */
+	public String getVersion()
+	{ 
+		if (parameters != null) return parameters.version;
+		return version; 
+	}
+
+	/**
+	 * Returns the inputs.
+	 * 
+	 * @return See above.
+	 */
+	public Map<String, ParamData> getInputs() { return inputs; }
+	
+	/**
+	 * Returns the outputs.
+	 * 
+	 * @return See above.
+	 */
+	public Map<String, ParamData> getOutpus() { return inputs; }
+	
+	/**
+	 * Returns <code>true</code> if the parameters have been loaded,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isParametersLoaded() { return parameters != null; }
 	
 }
