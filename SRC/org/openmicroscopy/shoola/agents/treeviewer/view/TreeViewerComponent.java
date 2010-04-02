@@ -2848,6 +2848,7 @@ class TreeViewerComponent
 		if (toAdd) {
 			if (viewer == null || controls == null) return;
 		}
+		toDetach = false;
 		view.displayViewer(viewer, controls, toAdd, toDetach);
 	}
 
@@ -2857,10 +2858,12 @@ class TreeViewerComponent
 	 */
 	public void setFullScreen()
 	{
+		/*
 		if (model.getState() == DISCARDED) return;
 		boolean value = model.isFullScreen();
 		model.setFullScreen(!value);
 		if (value) view.displayBrowser(model.getDataViewer());
+		*/
 	}
 
 	/** 

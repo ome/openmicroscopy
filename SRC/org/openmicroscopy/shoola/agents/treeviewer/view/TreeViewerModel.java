@@ -1194,7 +1194,7 @@ class TreeViewerModel
 	 * 
 	 * @return See above.
 	 */
-	boolean isFullScreen() { return fullScreen; }
+	boolean isFullScreen() { return true; }//fullScreen; }
 	
 	/**
 	 * Sets to <code>true</code> to open the images in a separate 

@@ -239,9 +239,9 @@ public class TreeViewerAgent
     	long id = -1;
     	if (gp != null) id = gp.getId();
         TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
-        if (viewer != null)
-        	viewer.displayViewer(evt.getViewer(), evt.getControls(), 
-        			evt.isToAdd(), evt.isToDetach());
+        //if (viewer != null)
+        	//viewer.displayViewer(evt.getViewer(), evt.getControls(), 
+        	//		evt.isToAdd(), evt.isToDetach());
     }
     
     /**

@@ -675,6 +675,7 @@ class TreeViewerWin
         	} else splitPane.setRightComponent(rightPane);
         	splitPane.setDividerLocation(location);
     	} else {
+    		/*
     		if (toDetach) {
     			//open the viewer in a separate view.
     			DataBrowser db = model.getDataViewer();
@@ -690,6 +691,7 @@ class TreeViewerWin
             	splitPane.setRightComponent(rightPane);
             	splitPane.setDividerLocation(location);
     		}
+    		*/
     	}
 	}
     
