@@ -307,8 +307,11 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 			double min, double max)
 	{
 
-		// TODO Auto-generated method stub
-
+		Pixels pixels = retrievePixDescription(pixelsId);
+		StatsInfo stats = pixels.getChannel(channelIndex).getStatsInfo();
+		stats.setGlobalMax(max);
+		stats.setGlobalMin(min);
+		iUpdate.saveAndReturnObject(stats);
 	}
 
 	@RolesAllowed("user")
