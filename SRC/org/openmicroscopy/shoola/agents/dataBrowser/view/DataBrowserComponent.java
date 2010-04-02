@@ -184,7 +184,7 @@ class DataBrowserComponent
 		//Determine the view depending on the 
 		Integer max = (Integer) DataBrowserAgent.getRegistry().lookup(
 				          "/views/MAX_ENTRIES");
-		if (model.getNumberOfImages() < max.intValue())
+		if (model.getNumberOfImages() <= max.intValue())
 			model.loadData(false, null); 
 		else view.setSelectedView(DataBrowserUI.COLUMNS_VIEW);
 		if (model.getBrowser() != null) {
