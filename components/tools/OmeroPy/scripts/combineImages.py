@@ -152,6 +152,7 @@ def combineImages(session, parameterMap):
 					break
 				z,c,t = (0,0,0)
 				ddd = (dim1, dim2, dim3)
+				# bit of a hack, but this somehow does my head in!!
 				for i, d in enumerate(dims):
 					if d == "C": 
 						c = ddd[i]
@@ -204,7 +205,7 @@ def combineImages(session, parameterMap):
 					plane2D = getPlane(rawPixelStore, pixels, 0, 0, 0)	# just get first plane of each image (for now)
 				else:
 					print "Creating blank plane."
-					plane2D = zeros((sizeY, sizeZ))
+					plane2D = zeros((sizeY, sizeX))
 				print "Uploading plane: theZ: %s, theC: %s, theT: %s" % (theZ, theC, theT)
 				scriptUtil.uploadPlaneByRow(rawPixelStoreUpload, plane2D, theZ, theC, theT)
 				minValue = min(minValue, plane2D.min())
@@ -215,6 +216,28 @@ def combineImages(session, parameterMap):
 		if theC in colourMap:
 			rgba = colourMap[theC]
 		scriptUtil.resetRenderingSettings(renderingEngine, pixelsId, theC, minValue, maxValue, rgba)
+		
+	if "channelNames" in parameterMap:
+		cNames = []
+		for name in parameterMap["channelNames"]:
+			cNames.append(name.getValue())
+			
+		pixels = gateway.getPixels(pixelsId)
+		i = 0
+		for c in pixels.iterateChannels():        # c is an instance of omero.model.ChannelI
+			if i >= len(cNames): break
+			lc = c.getLogicalChannel()            # returns omero.model.LogicalChannelI
+			lc.setName(rstring(cNames[i]))
+			gateway.saveObject(lc)
+			i += 1
+			
+	# put the image in dataset, if specified. 
+	if dataset:
+		link = omero.model.DatasetImageLinkI()
+		link.parent = omero.model.DatasetI(dataset.id.val, False)
+		link.child = omero.model.ImageI(image.id.val, False)
+		gateway.saveAndReturnObject(link)
+	
 
 def runAsScript():
 	"""
@@ -227,7 +250,8 @@ def runAsScript():
 	scripts.Long("sizeZ", optional=True).inout(),	# number of Z planes in new image. Only needed if combining multiple dimensions
 	scripts.Long("sizeC", optional=True).inout(),	# number of channels in new image. Only needed if combining multiple dimensions
 	scripts.Long("sizeT", optional=True).inout(),	# number of T points in new image. Only needed if combining multiple dimensions
-	scripts.List("colours", optional=True).inout())	# Colours for channels. Options are 'blue' 'green' 'red' 'white'
+	scripts.List("colours", optional=True).inout(),	# Colours for channels. Options are 'blue' 'green' 'red' 'white'
+	scripts.List("channelNames", optional=True).inout())	# Names for channels in the new image. 
 	
 	session = client.getSession()
 	

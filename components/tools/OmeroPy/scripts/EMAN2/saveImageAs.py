@@ -87,31 +87,6 @@ def log(text):
 	logStrings.append(text)
 
 
-def getPlane(queryService, rawPixelStore, imageId, pixels, theZ):
-	"""
-	This method downloads the first (only?) plane of the OMERO image and saves it as a local image.
-	
-	@param session		The OMERO session
-	@param imageId		The ID of the image to download
-	@param pixels		The pixels object, with pixelsType
-	@param imageName	The name of the image to write. If no path, saved in the current directory. 
-	"""
-
-	theX = pixels.getSizeX().getValue()
-	theY = pixels.getSizeY().getValue()
-
-	# get the plane
-	theC, theT = (0, 0)
-	pixelsId = pixels.getId().getValue()
-	bypassOriginalFile = True
-	rawPixelStore.setPixelsId(pixelsId, bypassOriginalFile)
-	plane2D = scriptUtil.downloadPlane(rawPixelStore, pixels, theZ, theC, theT)
-	
-	plane2D.resize((theY, theX))		# not sure why we have to resize (y, x)
-	
-	return plane2D
-
-
 def saveImageAs(session, parameterMap):
 	
 	# get the services we need 

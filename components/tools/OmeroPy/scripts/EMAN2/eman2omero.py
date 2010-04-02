@@ -36,7 +36,7 @@ wjm:EMAN2 will$ python eman2omero.py -h localhost -u root -p omero -b /Users/wil
 This will upload raw images (not in bdb) that are in the /raw_data/ folder, 
 and will also upload images from bdb that are in subfolders of /raw_data/, e.g. /raw_data/particles#1160_ptcls
 
-wjm:EMAN2 will$ python eman2omero.py -h localhost -u root -p omero -b raw_data/particles#1160_ptcls
+wjm:EMAN2 will$ python eman2omero.py -h localhost -u root -p omero -b /Users/will/Documents/EM-data/EMAN2-tutorial/eman_demo/raw_data/particles#1160_ptcls
 Uploads the images in the 1160_ptcls bdb to a dataset called "1160_ptcls"
 	
 @author  Will Moore &nbsp;&nbsp;&nbsp;&nbsp;
