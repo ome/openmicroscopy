@@ -65,6 +65,8 @@ import omero.api.ThumbnailStorePrx;
 import omero.grid.RepositoryPrx;
 import omero.grid._RepositoryDisp;
 import omero.model.Format;
+import omero.model.DimensionOrder;
+import omero.model.PixelsType;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
@@ -332,6 +334,8 @@ public class PublicRepositoryI extends _RepositoryDisp {
      public List<FileSet> listObjects(String path, RepositoryListConfig config, Current __current)
             throws ServerError {
         List<FileSet> rv = new ArrayList<FileSet>();
+        // Use the same for all Pixels
+        DimensionOrder dimOrder = getDimensionOrder("XYZCT");
         File file = checkPath(path);
         RepositoryListConfig conf;
         
@@ -372,7 +376,9 @@ public class PublicRepositoryI extends _RepositoryDisp {
             for (Pixels pix : ic.bfPixels)  {
                 Image image;
                 String imageName;
-                // This needs to be unique ala ticket #1753 currently filename + number
+                pix.setDimensionOrder(dimOrder);
+                pix.setSha1(rstring("UNKNOWN"));
+                pix.setPixelsType(getPixelsType(pix.getPixelsType().getValue().getValue()));
                 if (set.imageCount == 1) {
                     imageName = set.imageName;
                 } else {
@@ -648,6 +654,58 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
 
     /**
+     * Get the DimensionOrder
+     * 
+     * @param String
+     *            A string representing the dimension order
+     * @return A DimensionOrder object
+     *
+     */
+    private DimensionOrder getDimensionOrder(String dimensionOrder) {
+        final String dim = dimensionOrder;
+        ome.model.enums.DimensionOrder dimOrder = (ome.model.enums.DimensionOrder) executor
+                .execute(principal, new Executor.SimpleWork(this, "getDimensionOrder") {
+
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        return sf.getQueryService().findByQuery(
+                                "from DimensionOrder as d where d.value='"
+                                        + dim + "'", null);
+                    }
+                });
+                
+        IceMapper mapper = new IceMapper();
+        return (DimensionOrder) mapper.map(dimOrder);
+
+    }
+
+    /**
+     * Get the PixelsType
+     * 
+     * @param String
+     *            A string representing the pixels type
+     * @return A PixelsType object
+     *
+     */
+    private PixelsType getPixelsType(String pixelsType) {
+        final String pType = pixelsType;
+        ome.model.enums.PixelsType pixType = (ome.model.enums.PixelsType) executor
+                .execute(principal, new Executor.SimpleWork(this, "getPixelsType") {
+
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        return sf.getQueryService().findByQuery(
+                                "from PixelsType as p where p.value='"
+                                        + pType + "'", null);
+                    }
+                });
+                
+        IceMapper mapper = new IceMapper();
+        return (PixelsType) mapper.map(pixType);
+
+    }
+
+    /**
      * Get OriginalFile objects corresponding to a collection of File objects.
      * 
      * @param files
@@ -662,28 +720,6 @@ public class PublicRepositoryI extends _RepositoryDisp {
         }
         return rv;
     }
-
-    /**
-     * Get IObject objects corresponding to a collection of File objects.
-     * 
-     * @param files
-     *            A collection of File objects.
-     * @return A list of new OriginalFile objects
-     *
-     */
-    // NOT USED 
-    /*
-    private Map<String, List<IObject>> filesToIObjects(Collection<File> files) {
-        Map<String, List<IObject>> rv = new HashMap<String, List<IObject>>();
-        for (File f : files) {
-            List iObjList = new ArrayList<IObject>();
-            OriginalFile iObj = createOriginalFile(f);
-            iObjList.add(iObj);
-            rv.put(f.getAbsolutePath(), iObjList);
-        }
-        return rv;
-    }
-    */
 
     /**
      * Get file paths corresponding to a collection of File objects.
@@ -701,25 +737,6 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return rv;
     }
 
-   /**
-     * Get files corresponding to a collection paths.
-     * 
-     * @param paths
-     *            A collection of Strings.
-     * @return A list of File objects
-     *
-     */
-    // NOT USED
-    /*
-    private List<File> pathsToFiles(Collection<String> paths) {
-        List rv = new ArrayList<File>();
-        for (String p : paths) {
-            rv.add(new File(p));
-        }
-        return rv;
-    }
-    */
-    
     /**
      * Get registered OriginalFile objects corresponding to a collection of File objects.
      * 
@@ -741,26 +758,6 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return rv;
     }
 
-    /**
-     * Get registered Image objects corresponding to a collection of File objects.
-     * 
-     * @param files
-     *            A collection of File objects.
-     * @return A list of registered Image objects. 
-     *
-     */
-    // NOT USED
-    /*
-    private List<Image> knownImages(Collection<File> files)  {
-        List rv = new ArrayList<Image>();
-        for (File f : files) {
-            List<Image> fileList = getImages(f.getAbsolutePath());
-            rv.addAll(fileList);
-        }
-        return rv;
-    }
-    */
-    
     
     private  List<ImportContainer> importableImageFiles(Collection<File> files, int depth) {
         List<String> pathList = filesToPaths(files);
