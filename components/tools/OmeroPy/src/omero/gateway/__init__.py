@@ -482,6 +482,8 @@ class BlitzObjectWrapper (object):
     #    return str(self._obj)
 
     def __getattr__ (self, attr):
+        if not hasattr(self._obj, attr) and hasattr(self._obj, '_'+attr):
+            attr = '_' + attr
         if hasattr(self._obj, attr):
             rv = getattr(self._obj, attr)
             if hasattr(rv, 'val'):
@@ -2228,6 +2230,33 @@ class ColorHolder (object):
         
         return (self._color['red'], self._color['green'], self._color['blue'])
 
+class _LogicalChannelWrapper (BlitzObjectWrapper):
+    """
+    omero_model_LogicalChannelI class wrapper extends BlitzObjectWrapper.
+    """
+    _attrs = ('name',
+              'pinHoleSize',
+              '#illumination',
+              'contrastMethod',
+              'excitationWave',
+              'emissionWave',
+              'fluor',
+              'ndFilter',
+              'otf',
+              'detectorSettings|DetectorSettingsWrapper',
+              'lightSourceSettings|LightSettingsWrapper',
+              'filterSet|FilterSetWrapper',
+              'secondaryEmissionFilter|FilterWrapper',
+              'secondaryExcitationFilter',
+              'samplesPerPixel',
+              '#photometricInterpretation',
+              'mode',
+              'pockelCellSetting',
+              'shapes',
+              'version')
+
+LogicalChannelWrapper = _LogicalChannelWrapper    
+
 class _ChannelWrapper (BlitzObjectWrapper):
     """
     omero_model_ChannelI class wrapper extends BlitzObjectWrapper.
@@ -2259,16 +2288,18 @@ class _ChannelWrapper (BlitzObjectWrapper):
     def isActive (self):
         return self._re.isActive(self._idx)
 
+    def getLogicalChannel (self):
+        if self._obj.logicalChannel is not None:
+            return LogicalChannelWrapper(self._conn, self._obj.logicalChannel)
+    
     def getEmissionWave (self):
-        lc = self._obj.getLogicalChannel()
-        if lc is not None and lc.name is not None:
-            return lc.name.val
-        emWave = lc.getEmissionWave()
-        if emWave is None: #pragma: no cover
-            # This is probably deprecated, as even tinyTest now gets an emissionWave
-            return self._idx
-        else:
-            return emWave.val
+        lc = self.getLogicalChannel()
+        rv = lc.name
+        if rv is None:
+            rv = emissionWave
+        if rv is None:
+            rv = self._idx
+        return rv
 
     def getColor (self):
         return ColorHolder.fromRGBA(*self._re.getRGBA(self._idx))
@@ -3033,6 +3064,22 @@ class _TransmittanceRangeWrapper (BlitzObjectWrapper):
 
 TransmittanceRangeWrapper = _TransmittanceRangeWrapper
 
+class _DetectorSettingsWrapper (BlitzObjectWrapper):
+    """
+    omero_model_DetectorSettingsI class wrapper extends BlitzObjectWrapper.
+    """
+    _attrs = ('voltage',
+              'gain',
+              'offsetValue',
+              'readOutRate',
+              'binning',
+              'detector|DetectorWrapper',
+              'version')
+
+    def __bstrap__ (self):
+        self.OMERO_CLASS = 'DetectorSettings'
+
+DetectorSettingsWrapper = _DetectorSettingsWrapper
 
 class _DetectorWrapper (BlitzObjectWrapper):
     """
@@ -3164,6 +3211,21 @@ class _OTFWrapper (BlitzObjectWrapper):
         self.OMERO_CLASS = 'OTF'
 
 OTFWrapper = _OTFWrapper
+
+class _LightSettingsWrapper (BlitzObjectWrapper):
+    """
+    base Light Source class wrapper, extends BlitzObjectWrapper.
+    """
+    _attrs = ('attenuation',
+              'wavelength',
+              'lightSource|LightSourceWrapper'
+              'microbeamManipulation',
+              'version')
+
+    def __bstrap__ (self):
+        self.OMERO_CLASS = 'LightSettings'
+
+LightSettingsWrapper = _LightSettingsWrapper
 
 class _LightSourceWrapper (BlitzObjectWrapper):
     """
