@@ -2466,11 +2466,11 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
         else:
             return ImageImagingEnvironmentWrapper(self._conn, self._obj.imagingEnvironment)
     
-    def getObjectiveSettings(self):
-        if self._obj.objectiveSettings is None:
-            return None
-        else:
-            return ImageObjectiveSettingsWrapper(self._conn, self._obj.objectiveSettings)
+#    def getObjectiveSettings(self):
+#        if self._obj.objectiveSettings is None:
+#            return None
+#        else:
+#            return ImageObjectiveSettingsWrapper(self._conn, self._obj.objectiveSettings)
     
     def getMedium(self):
         if self._obj.objectiveSettings.medium is None:
@@ -2504,94 +2504,94 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
 
 omero.gateway.ImageWrapper = ImageWrapper
     
-class ChannelWrapper (omero.gateway.ChannelWrapper):
-            
-    def getLogicalChannel(self):
-        meta_serv = self._conn.getMetadataService()
-        if self._obj is None:
-            return None
-        elif self._obj.logicalChannel is None:
-            return None
-        else:
-            lc = meta_serv.loadChannelAcquisitionData([long(self._obj.logicalChannel.id.val)])
-            if lc is not None and len(lc) > 0:
-                return LogicalChannelWrapper(self._conn, lc[0])
-            return None
-            
-omero.gateway.ChannelWrapper = ChannelWrapper
+#class ChannelWrapper (omero.gateway.ChannelWrapper):
+#            
+#    def getLogicalChannel(self):
+#        meta_serv = self._conn.getMetadataService()
+#        if self._obj is None:
+#            return None
+#        elif self._obj.logicalChannel is None:
+#            return None
+#        else:
+#            lc = meta_serv.loadChannelAcquisitionData([long(self._obj.logicalChannel.id.val)])
+#            if lc is not None and len(lc) > 0:
+#                return LogicalChannelWrapper(self._conn, lc[0])
+#            return None
+#            
+#omero.gateway.ChannelWrapper = ChannelWrapper
 
-class LogicalChannelWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
-    
-    def getIllumination(self):
-        if self._obj.illumination is None:
-            return None
-        else:
-            return EnumerationWrapper(self._conn, self._obj.illumination)
-    
-    def getContrastMethod(self):
-        if self._obj.contrastMethod is None:
-            return None
-        else:
-            return EnumerationWrapper(self._conn, self._obj.contrastMethod)
-    
-    def getMode(self):
-        if self._obj.mode is None:
-            return None
-        else:
-            return EnumerationWrapper(self._conn, self._obj.mode)
-    
-    def getEmissionFilter(self):
-        if self._obj.secondaryEmissionFilter is None:
-            return None
-        else:
-            return ImageFilterWrapper(self._conn, self._obj.secondaryEmissionFilter)
-    
-    def getDichroic(self):
-        if self._obj.filterSet is None:
-            return None
-        elif self._obj.filterSet.dichroic is None:
-            return None
-        else:
-            return DichroicWrapper(self._conn, self._obj.filterSet.dichroic)
-    
-    def getDetectorSettings(self):
-        if self._obj.detectorSettings is None:
-            return None
-        elif self._obj.detectorSettings.detector is None:
-            return None
-        else:
-            return ImageDetectorWrapper(self._conn, self._obj.detectorSettings.detector)
-    
-    def getLightSource(self):
-        if self._obj.lightSourceSettings is None:
-            return None
-        elif self._obj.lightSourceSettings.lightSource is None:
-            return None
-        else:
-            return LightSourceWrapper(self._conn, self._obj.lightSourceSettings.lightSource)
-
-class LightSourceWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
-    
-    def getLightSourceType(self):
-        if self._obj.type is None:
-            return None
-        else:
-            return TypeWrapper(self._conn, self._obj.type)
-    
-    def getLaserMedium(self):
-        if self._obj.laserMedium is None:
-            return None
-        else:
-            return EnumerationWrapper(self._conn, self._obj.laserMedium)
-    
-    def getPulse(self):
-        if self._obj.pulse is None:
-            return None
-        else:
-            return EnumerationWrapper(self._conn, self._obj.pulse)
-    
-class DichroicWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
-    pass
+#class LogicalChannelWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
+#    
+#    def getIllumination(self):
+#        if self._obj.illumination is None:
+#            return None
+#        else:
+#            return EnumerationWrapper(self._conn, self._obj.illumination)
+#    
+#    def getContrastMethod(self):
+#        if self._obj.contrastMethod is None:
+#            return None
+#        else:
+#            return EnumerationWrapper(self._conn, self._obj.contrastMethod)
+#    
+#    def getMode(self):
+#        if self._obj.mode is None:
+#            return None
+#        else:
+#            return EnumerationWrapper(self._conn, self._obj.mode)
+#    
+#    def getEmissionFilter(self):
+#        if self._obj.secondaryEmissionFilter is None:
+#            return None
+#        else:
+#            return ImageFilterWrapper(self._conn, self._obj.secondaryEmissionFilter)
+#    
+#    def getDichroic(self):
+#        if self._obj.filterSet is None:
+#            return None
+#        elif self._obj.filterSet.dichroic is None:
+#            return None
+#        else:
+#            return DichroicWrapper(self._conn, self._obj.filterSet.dichroic)
+#    
+#    def getDetectorSettings(self):
+#        if self._obj.detectorSettings is None:
+#            return None
+#        elif self._obj.detectorSettings.detector is None:
+#            return None
+#        else:
+#            return ImageDetectorWrapper(self._conn, self._obj.detectorSettings.detector)
+#    
+#    def getLightSource(self):
+#        if self._obj.lightSourceSettings is None:
+#            return None
+#        elif self._obj.lightSourceSettings.lightSource is None:
+#            return None
+#        else:
+#            return LightSourceWrapper(self._conn, self._obj.lightSourceSettings.lightSource)
+#
+#class LightSourceWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
+#    
+#    def getLightSourceType(self):
+#        if self._obj.type is None:
+#            return None
+#        else:
+#            return TypeWrapper(self._conn, self._obj.type)
+#    
+#    def getLaserMedium(self):
+#        if self._obj.laserMedium is None:
+#            return None
+#        else:
+#            return EnumerationWrapper(self._conn, self._obj.laserMedium)
+#    
+#    def getPulse(self):
+#        if self._obj.pulse is None:
+#            return None
+#        else:
+#            return EnumerationWrapper(self._conn, self._obj.pulse)
+#    
+#class DichroicWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
+#    pass
 
 class DatasetWrapper (OmeroWebObjectWrapper, omero.gateway.DatasetWrapper):
     LINK_NAME = "copyImageLinks"
