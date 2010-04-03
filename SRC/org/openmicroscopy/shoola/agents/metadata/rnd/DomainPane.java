@@ -38,6 +38,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -69,6 +70,7 @@ import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.actions.NoiseReductionAction;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
@@ -200,6 +202,9 @@ public class DomainPane
     
     /** The label displaying the selected plane. */
     private JLabel						selectedPlane;
+    
+    /** The component displaying the preview image. */
+    private PreviewCanvas				canvas;
     
     /**
      * Attaches listener to the passed slider and sets the default values.
@@ -358,17 +363,21 @@ public class DomainPane
         	channelButtonPanel = new JPanel();
         	channelButtonPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
         }
-        int maxZ = model.getMaxZ()-1;
-        int maxT = model.getMaxT()-1;
-        zSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 0, 1, 0);
-        zSlider.setEnabled(false);
-        tSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 0, 1, 0);
-        tSlider.setEnabled(false);
-        initSlider(tSlider, maxT, model.getDefaultT(), 
-        		T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
-        
-        initSlider(zSlider, maxZ, model.getDefaultZ(), 
-        			Z_SLIDER_DESCRIPTION, Z_SLIDER_TIPSTRING);
+        if (model.isGeneralIndex()) {
+        	 int maxZ = model.getMaxZ()-1;
+             int maxT = model.getMaxT()-1;
+             zSlider = new OneKnobSlider(OneKnobSlider.VERTICAL, 0, 1, 0);
+             zSlider.setEnabled(false);
+             tSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 0, 1, 0);
+             tSlider.setEnabled(false);
+             initSlider(tSlider, maxT, model.getDefaultT(), 
+             		T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
+             
+             initSlider(zSlider, maxZ, model.getDefaultZ(), 
+             			Z_SLIDER_DESCRIPTION, Z_SLIDER_TIPSTRING);
+             canvas = new PreviewCanvas();
+        }
+       
         selectedPlane = new JLabel();
         setSelectedPlaneLabel();
     }
@@ -473,30 +482,39 @@ public class DomainPane
     	p.setLayout(new BorderLayout());
     	if (channelButtonPanel != null)
     		p.add(channelButtonPanel, BorderLayout.WEST);
-    	p.add(graphicsPane, BorderLayout.CENTER);
-    	if (model.isGeneralIndex()) 
-    		p.add(buildPlaneSelectionPanel(), BorderLayout.SOUTH);
+    	if (model.isGeneralIndex()) {
+    		p.add(buildViewerPane(), BorderLayout.CENTER);
+    		p.add(graphicsPane, BorderLayout.SOUTH);
+    	} else {
+    		p.add(graphicsPane, BorderLayout.CENTER);
+    	}
+    	
+    	//if (model.isGeneralIndex()) 
+    	//	p.add(buildPlaneSelectionPanel(), BorderLayout.SOUTH);
     		
     	return p;
     }
     
-    /**
-     * Builds the panel hosting the sliders used to select
-     * the 2D-plane.
+    /** 
+     * Builds and lays out the component displaying the preview.
      * 
      * @return See above.
      */
-    private JPanel buildPlaneSelectionPanel()
+    private JPanel buildViewerPane()
     {
     	JPanel p = new JPanel();
-    	p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-    	p.add(new JSeparator(JSeparator.HORIZONTAL));
+    	double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, 
+				{TableLayout.FILL, TableLayout.PREFERRED, 
+    			TableLayout.PREFERRED}};
     	p.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	p.add(zSlider);
-    	p.add(tSlider);
-    	JPanel l = UIUtilities.buildComponentPanel(selectedPlane);
+		p.setLayout(new TableLayout(tl));
+		p.add(zSlider, "0, 0");
+		p.add(canvas, "1, 0");
+		p.add(tSlider, "1, 1");
+		
+		JPanel l = UIUtilities.buildComponentPanel(selectedPlane);
     	l.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	p.add(l);
+    	p.add(l, "0, 2, 1, 2");
     	return p;
     }
     
@@ -894,6 +912,20 @@ public class DomainPane
 		}
 		return false;
 	} 
+	
+	 /** Renders and displays the rendered image in the preview. */
+	void renderPreview()
+	{
+		if (canvas == null) return;
+		BufferedImage img = model.renderImage();
+		if (img == null) return;
+		Dimension d = model.getPreviewDimension();
+		img = Factory.scaleBufferedImage(img, d.width,  d.height);
+		canvas.setPreferredSize(d);
+		canvas.setSize(d);
+		canvas.setImage(img);
+	}
+	
     /**
      * Depending on the source of the event. Sets the gamma value or
      * the bit resolution.

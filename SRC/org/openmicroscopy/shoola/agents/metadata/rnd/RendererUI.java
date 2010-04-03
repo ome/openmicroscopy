@@ -90,18 +90,9 @@ class RendererUI
 	{
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 		DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
-		//add(new JScrollPane(pane));
 		double[][] size = {{TableLayout.FILL}, {TableLayout.PREFERRED}};
 		setLayout(new TableLayout(size));
 		add(pane, "0, 0");
-		/*setAlignmentX(LEFT_ALIGNMENT);
-		DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
-		insertTab(pane.getPaneName(), null, new JScrollPane(pane), 
-				pane.getPaneDescription(), pane.getPaneIndex());
-		insertTab("Metadata", null, new JScrollPane(metadataView), 
-				"Display the annotation and acquisition metadata", 
-						ControlPane.METADATA_PANE_INDEX);
-						*/
 	}
 
 	/**
@@ -284,6 +275,13 @@ class RendererUI
 	{
 		DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
 		return pane.isSourceDisplayed(source);
+	}
+	
+    /** Renders and displays the rendered image in the preview. */
+	void renderPreview()
+	{
+		DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
+		pane.renderPreview();
 	}
 	
 }

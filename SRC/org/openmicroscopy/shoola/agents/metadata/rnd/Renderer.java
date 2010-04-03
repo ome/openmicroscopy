@@ -591,4 +591,10 @@ public interface Renderer
     /** Refreshes the renderer view. */
     public void refresh();
     
+    /** 
+     * Renders and displays the rendered image in the preview. 
+     * Invokes only when the renderer is used for general purpose.
+     */
+    public void renderPreview();
+    
 }

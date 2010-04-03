@@ -34,6 +34,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
@@ -131,7 +132,6 @@ class GraphicsPane
     /** The equation of the vertical line. */
     private int						verticalLine = -1;
 
-    
     /** Button to apply the settings to all selected or displayed image. */
     private JButton					applyButton;
     
@@ -218,12 +218,34 @@ class GraphicsPane
     	         {TableLayout.PREFERRED, 5, TableLayout.PREFERRED}}; // Rows
     	    	setLayout(new TableLayout(size));
     	//setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        add(buildGraphicsPane(), "0, 0");
+    	if (model.isGeneralIndex()) add(buildGeneralPane(), "0, 0");
+    	else add(buildGraphicsPane(), "0, 0");
         add(buildFieldsControls(), "0, 2");
     }
     
+    /**
+     * Builds the component when displayed to handle a preview of the image.
+     * 
+     * @return See above.
+     */
+    private JPanel buildGeneralPane()
+    {
+    	JPanel p = new JPanel();
+    	p.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+    	p.add(new JSeparator());
+    	//add Text
+    	JLabel l = new JLabel("Pixels Intensity values");
+    	l.setBackground(UIUtilities.BACKGROUND_COLOR); 
+    	JPanel pp = UIUtilities.buildComponentPanel(l);
+    	pp.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	p.add(pp);
+    	p.add(domainSlider.getSlider());
+    	return p; 
+    }
+    
     /** 
-     * Builds the UI component hosting the controls used to determine th
+     * Builds the UI component hosting the controls used to determine the
      * input and output windows, and the histogram.
      * 
      * @return See above.
@@ -243,8 +265,8 @@ class GraphicsPane
     	 p.add(codomainSlider, "0, 0, 0, 2");
     	 p.add(uiDelegate, "2, 1");
     	 p.add(domainSlider.getSlider(), "1, 3, 3, 3");
-    	 if (!model.isGeneralIndex())
-    		 p.add(preview, "0, 4, 3, 4");
+    	 //if (!model.isGeneralIndex())
+    	 p.add(preview, "0, 4, 3, 4");
          return p;
     }
     

@@ -757,6 +757,7 @@ class MetadataViewerComponent
 		long imageID = ((ImageData) obj).getId();
 		switch (getRndIndex()) {
 			case RND_GENERAL:
+				model.getEditor().getRenderer().renderPreview();
 				firePropertyChange(RENDER_THUMBNAIL_PROPERTY, -1, imageID);
 				break;
 			case RND_SPECIFIC:

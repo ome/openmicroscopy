@@ -99,11 +99,11 @@ public class EditorUI
 	static final int	RND_INDEX = 2;
 	
 	/** The name of the tab pane. */
-	private static final String			RENDERER_NAME = "Renderer";
+	private static final String			RENDERER_NAME = "Preview";
 	
 	/** The description of the tab pane. */
 	private static final String			RENDERER_DESCRIPTION = 
-		"Renderer Control";
+		"Preview the image";
 	
 	/** Reference to the controller. */
 	private EditorControl				controller;
@@ -595,29 +595,12 @@ public class EditorUI
 	void setRenderer()
 	{
 		tabPane.removeAll();
-		
 		populateTabbedPane(false);
 		tabPane.addTab(RENDERER_NAME, null, 
 				new JScrollPane(model.getRenderer().getUI()), 
 				RENDERER_DESCRIPTION);
 		setSelectedTab(RND_INDEX);
-		/*
-		if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC) {
-			tabPane.removeAll();
-			tabPane.addTab("Renderer", null, 
-					new JScrollPane(model.getRenderer().getUI()), 
-			"Rendering Control.");
-			populateTabbedPane();
-		} else {
-			if (tabPane.getComponentCount() == 2) {
-				tabPane.addTab("Renderer", null, 
-						new JScrollPane(model.getRenderer().getUI()), 
-				"Rendering Control.");
-			}
-			tabPane.setSelectedIndex(RND_INDEX);
-		}
-		*/
-		
+		model.getRenderer().renderPreview();
 	}
 	
 	/**

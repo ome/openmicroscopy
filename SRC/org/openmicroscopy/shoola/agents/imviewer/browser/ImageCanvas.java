@@ -90,10 +90,10 @@ class ImageCanvas
     }
     
     /**
-	 * Sets the value of the selected z-section and timepoint.
+	 * Sets the value of the selected z-section and time-point.
 	 * 
 	 * @param pressedZ	The selected z-section.
-	 * @param pressedT	The selected timepoint.
+	 * @param pressedT	The selected time-point.
 	 */
 	void setPaintedString(int pressedZ, int pressedT)
 	{

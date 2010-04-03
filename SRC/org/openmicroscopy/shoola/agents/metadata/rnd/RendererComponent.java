@@ -941,5 +941,15 @@ class RendererComponent
 		firePropertyChange(COLOR_MODEL_PROPERTY, null, model.getColorModel());
 		view.resetDefaultRndSettings();
 	}
+
+	/** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#renderPreview()
+     */
+	public void renderPreview()
+	{
+		if (!model.isGeneralIndex()) return;
+		view.renderPreview();
+	}
 	
 }

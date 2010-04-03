@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 //Third-party libraries
+import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
@@ -44,10 +46,8 @@ import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-import com.sun.opengl.util.texture.TextureData;
-
 import pojos.ChannelData;
 import pojos.PixelsData;
 
@@ -66,6 +66,12 @@ import pojos.PixelsData;
  */
 class RendererModel 
 {
+
+	/** The maximum width of the preview image. */
+	static final int	PREVIEW_WIDTH = 256;
+	
+	/** The maximum height of the preview image. */
+	static final int	PREVIEW_HEIGHT = 256;
 
 	/** Identifies the minimum value of the device space. */
 	static final int    CD_START = 0;
@@ -142,6 +148,12 @@ class RendererModel
      */
     private Double				globalMaxChannels;
     
+    /** The plane object to render. */
+    private PlaneDef			plane;
+    
+    /** The dimension of the preview image. */
+    private Dimension			previewSize;
+    
 	/**
 	 * Creates a new instance.
 	 * 
@@ -158,6 +170,8 @@ class RendererModel
 		visible = false;
 		globalMaxChannels = null;
 		globalMinChannels = null;
+		plane = new PlaneDef();
+		plane.slice = omero.romio.XY.value;
 	}
 	
 	/**
@@ -1221,4 +1235,34 @@ class RendererModel
     	rndControl.setOverlays(tableID, overlays);
     }
 	
+    /** 
+     * Renders the default plane.
+     * 
+     * @return See above.
+     */
+    BufferedImage renderImage()
+    {
+    	plane.t = getDefaultT();
+    	plane.z = getDefaultZ();
+    	try {
+    		return renderPlane(plane);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+    	return null;
+    }
+    
+    /**
+     * Returns the dimension of the preview image.
+     * 
+     * @return See above.
+     */
+    Dimension getPreviewDimension()
+    {
+    	if (previewSize != null) return previewSize;
+    	previewSize = Factory.computeThumbnailSize(PREVIEW_WIDTH, 
+    			PREVIEW_HEIGHT, getMaxX(), getMaxY());
+    	return previewSize;
+    }
+    
 }
