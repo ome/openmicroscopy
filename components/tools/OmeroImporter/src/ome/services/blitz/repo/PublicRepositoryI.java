@@ -138,6 +138,49 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return new OriginalFileI(this.id, false); // SHOULD BE LOADED.
     }
 
+
+    /**
+     * Register an OriginalFile using its path
+     *
+     * @param path
+     *            Absolute path of the file to be registered.
+     * @param __current
+     *            ice context.
+     * @return The OriginalFile with id set (unloaded)
+     *
+     */
+    public OriginalFile register(String path, Format fmt, Current __current)
+            throws ServerError {
+
+        if (path == null || fmt == null
+                || (fmt.getId() == null && fmt.getValue() == null)) {
+            throw new ValidationException(null, null,
+                    "path and fmt are required arguments");
+        }
+
+        File file = new File(path).getAbsoluteFile();
+        OriginalFile omeroFile = new OriginalFileI();
+        omeroFile = createOriginalFile(file);
+        omeroFile.setFormat(fmt);
+
+        IceMapper mapper = new IceMapper();
+        final ome.model.core.OriginalFile omeFile = (ome.model.core.OriginalFile) mapper
+                .reverse(omeroFile);
+        Long id = (Long) executor.execute(principal, new Executor.SimpleWork(
+                this, "register") {
+            @Transactional(readOnly = false)
+            public Object doWork(Session session, ServiceFactory sf) {
+                return sf.getUpdateService().saveAndReturnObject(omeFile).getId();
+            }
+        });
+
+        omeroFile.setId(rlong(id));
+        omeroFile.unload();
+        return omeroFile;
+
+    }
+    
+    
     /**
      * Register an IObject object
      * 
@@ -148,7 +191,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * @return The IObject with id set (unloaded)
      *
      */
-    public IObject register(IObject obj, String omeName, Current __current)
+    public IObject registerObjectWithName(IObject obj, String omeName, Current __current)
             throws ServerError {
 
         if (obj == null) {
@@ -197,7 +240,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
             throw new ValidationException(null, null,
                     "obj is required argument");
         }
-        
+
         IceMapper mapper = new IceMapper();
         final ome.model.IObject omeObj = (ome.model.IObject) mapper
                 .reverse(obj);
@@ -214,6 +257,23 @@ public class PublicRepositoryI extends _RepositoryDisp {
         obj.unload();
         
         return obj;
+    }
+
+    private void registerUserId(IObject obj, String omeName) throws ServerError {
+        
+        IceMapper mapper = new IceMapper();
+        final ome.model.IObject omeObj = (ome.model.IObject) mapper
+                .reverse(obj);
+        final String oName = omeName;
+        Long id = (Long) executor.execute(principal, new Executor.SimpleWork(
+                this, "registerUserId") {
+            @Transactional(readOnly = false)
+            public Object doWork(Session session, ServiceFactory sf) {
+                sf.getAdminService().changeOwner(omeObj, oName);
+                return omeObj.getId();
+            }
+        });
+        
     }
 
     public void delete(String path, Current __current) throws ServerError {
@@ -521,24 +581,6 @@ public class PublicRepositoryI extends _RepositoryDisp {
         }
 
         return new File(path).getAbsoluteFile();
-    }
-    
-
-    private void registerUserId(IObject obj, String omeName) throws ServerError {
-        
-        IceMapper mapper = new IceMapper();
-        final ome.model.IObject omeObj = (ome.model.IObject) mapper
-                .reverse(obj);
-        final String oName = omeName;
-        Long id = (Long) executor.execute(principal, new Executor.SimpleWork(
-                this, "registerUserId") {
-            @Transactional(readOnly = false)
-            public Object doWork(Session session, ServiceFactory sf) {
-                sf.getAdminService().changeOwner(omeObj, oName);
-                return omeObj.getId();
-            }
-        });
-        
     }
 
    /**

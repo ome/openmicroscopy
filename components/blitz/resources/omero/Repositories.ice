@@ -75,24 +75,23 @@ module omero {
             omero::model::Format format(string path) throws ServerError;
 
             /**
-             * Create an entry in the database for the given IObject using the given omeName.
+             * Create an OriginalFile in the database for the given path.
+             * If the given path is already registered as an OriginalFile,
+             * a ValidationException is thrown. Otherwise, one is added and
+             * returned.
              *
-             * If the given IObject is null a ValidationException is thrown. 
-             * If the given IObject is not a recognised type ValidationException is thrown. 
-             * If the given omeName is null or empty ValidationException is thrown. 
-             * Otherwise, an entry is added and an unloaded IObject returned with id set.
-             *
-             * TODO should this final exception just return and not throw?
+             * TODO should this just return and not throw?
              *
              **/
-             omero::model::IObject register(omero::model::IObject obj, string omeName)
+            omero::model::OriginalFile register(string path, omero::model::Format fmt) 
                     throws ServerError;
 
-            /**
+           /**
              * Create an entry in the database for the given IObject.
              *
              * If the given IObject is null a ValidationException is thrown. 
              * If the given IObject is not a recognised type ValidationException is thrown. 
+             * If the given IObject is already registered a ValidationException is thrown. 
              * Otherwise, an entry is added and an unloaded IObject returned with id set.
              *
              * TODO should this final exception just return and not throw?
@@ -101,6 +100,9 @@ module omero {
             omero::model::IObject registerObject(omero::model::IObject obj) 
                     throws ServerError;
             
+            omero::model::IObject registerObjectWithName(omero::model::IObject obj, string omeName)
+                    throws ServerError;
+                       
             /**
              * Load the OriginalFile at the given path with annotations and
              * associated Pixels (if present). If the path does not point to
