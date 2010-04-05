@@ -461,8 +461,12 @@ class BlitzObjectWrapper (object):
                     if v is not None:
                         v = getattr(omero.gateway, w)(self._conn, v).simpleMarshal()
                 else:
-                    print self, k
-                    v = getattr(self, k[1:])._value if k.startswith('#') else getattr(self, k)
+                    if k.startswith('#'):
+                        v = getattr(self, k[1:])
+                        if v is not None:
+                            v = v._value
+                    else:
+                        v = getattr(self, k)
                     if hasattr(v, 'val'):
                         v = v.val
                 rv[rk] = v
@@ -651,7 +655,8 @@ class _BlitzGateway (object):
         #logger.debug('super: %s %s %s' % (try_super, str(group), self.c.ic.getProperties().getProperty('omero.gateway.admin_group')))
         if try_super:
             self.group = 'system' #self.c.ic.getProperties().getProperty('omero.gateway.admin_group')
-        self.group = group and group or None
+        else:
+            self.group = group and group or None
         self._sessionUuid = None
         self._session_cb = None
         self._session = None
