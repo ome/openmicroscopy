@@ -128,8 +128,8 @@ public interface Renderer
      * Sets the pixels intensity interval for the
      * currently selected channel.
      * 
-     * @param s         The lower bound of the interval.
-     * @param e         The upper bound of the interval.
+     * @param s The lower bound of the interval.
+     * @param e The upper bound of the interval.
      */
     void setInputInterval(double s, double e);
     
@@ -447,9 +447,11 @@ public interface Renderer
 	/**
 	 * Resets the rendering settings.
 	 * 
-	 * @param settings The settings to reset.
+	 * @param settings  The settings to reset.
+	 * @param update    Pass <code>true</code> to update the image,
+	 * 					<code>false</code> otherwise.
 	 */
-	void resetSettings(RndProxyDef settings);
+	void resetSettings(RndProxyDef settings, boolean update);
 
 	/** Resets the default settings. */
 	void resetSettings();

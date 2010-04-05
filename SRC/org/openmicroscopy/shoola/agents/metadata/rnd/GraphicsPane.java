@@ -28,6 +28,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -43,6 +46,7 @@ import info.clearthought.layout.TableLayout;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
+import pojos.ChannelData;
 
 /** 
  * Component hosting the diagram and the controls to select the pixels intensity 
@@ -69,7 +73,7 @@ class GraphicsPane
 	 * Factor used to determine the percentage of the range added 
 	 * (resp. removed) to (resp. from) the maximum (resp. the minimum).
 	 */
-	private static final double RATIO = 0.2;
+	static final double RATIO = 0.2;
 	
 	/** Text of the preview check box. */
 	private static final String	PREVIEW = "Immediate Update";
@@ -89,6 +93,9 @@ class GraphicsPane
      * images.
      */
     private static final int	APPLY = 1;
+    
+    /** Action command ID to reset the rendering settings. */
+    private static final int	RESET = 2;
     
     /** Slider to select a sub-interval of [0, 255]. */
     private TwoKnobsSlider      	codomainSlider;
@@ -134,6 +141,12 @@ class GraphicsPane
 
     /** Button to apply the settings to all selected or displayed image. */
     private JButton					applyButton;
+    
+    /** Button to reset the rendering settings. */
+    private JButton					resetButton;
+    
+    /** Hosts the sliders controlling the pixels intensity values. */
+    private List<ChannelSlider> 	sliders;
     
     /**
 	 * Formats the specified value.
@@ -208,6 +221,21 @@ class GraphicsPane
         applyButton.setBackground(UIUtilities.BACKGROUND_COLOR);
         applyButton.addActionListener(this);
         applyButton.setActionCommand(""+APPLY);
+        resetButton = new JButton("Reset");
+        resetButton.setToolTipText("Undo the changes.");
+        resetButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+        resetButton.addActionListener(this);
+        resetButton.setActionCommand(""+RESET);
+        if (model.isGeneralIndex() && model.getMaxC() < Renderer.MAX_CHANNELS) {
+        	sliders = new ArrayList<ChannelSlider>();
+        	List<ChannelData> channels = model.getChannelData();
+        	Iterator<ChannelData> i = channels.iterator();
+        	ChannelData data;
+        	while (i.hasNext()) {
+        		data = i.next();
+        		sliders.add(new ChannelSlider(model, controller, data));
+			}
+        }
     }
     
     /** Builds and lays out the GUI. */
@@ -218,32 +246,33 @@ class GraphicsPane
     	         {TableLayout.PREFERRED, 5, TableLayout.PREFERRED}}; // Rows
     	    	setLayout(new TableLayout(size));
     	//setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-    	if (model.isGeneralIndex()) add(buildGeneralPane(), "0, 0");
-    	else add(buildGraphicsPane(), "0, 0");
-        add(buildFieldsControls(), "0, 2");
+    	if (model.isGeneralIndex()) {
+    		add(buildGeneralPane(), "0, 0");
+    		add(buildChannelsControls(), "0, 2");
+    	} else {
+    		add(buildGraphicsPane(), "0, 0");
+            add(buildFieldsControls(), "0, 2");
+    	}
     }
     
-    /**
-     * Builds the component when displayed to handle a preview of the image.
+    /** 
+     * Builds hosting the various sliders
      * 
      * @return See above.
      */
     private JPanel buildGeneralPane()
     {
-    	JPanel p = new JPanel();
-    	p.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-    	p.add(new JSeparator());
-    	//add Text
-    	JLabel l = new JLabel("Pixels Intensity values");
-    	l.setBackground(UIUtilities.BACKGROUND_COLOR); 
-    	JPanel pp = UIUtilities.buildComponentPanel(l);
-    	pp.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	p.add(pp);
-    	p.add(domainSlider.getSlider());
-    	return p; 
+    	JPanel content = new JPanel();
+    	content.add(new JSeparator());
+   	 	content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+   	 	content.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	Iterator<ChannelSlider> i = sliders.iterator();
+    	while (i.hasNext()) {
+    		content.add(i.next());
+    	}
+    	return content;
+    	
     }
-    
     /** 
      * Builds the UI component hosting the controls used to determine the
      * input and output windows, and the histogram.
@@ -268,6 +297,25 @@ class GraphicsPane
     	 //if (!model.isGeneralIndex())
     	 p.add(preview, "0, 4, 3, 4");
          return p;
+    }
+    
+    private JPanel buildChannelsControls()
+    {
+   	 	JPanel controls = new JPanel();
+   	 	controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
+   	 	JPanel comp;
+   	 	if (model.getMaxC() < Renderer.MAX_CHANNELS) {
+	   	 	comp = UIUtilities.buildComponentPanel(rangeButton);
+	   	 	comp.setBackground(UIUtilities.BACKGROUND_COLOR);
+	   	 	controls.add(comp);
+   	 	}
+   	 	comp = UIUtilities.buildComponentPanel(resetButton);
+	 	comp.setBackground(UIUtilities.BACKGROUND_COLOR);
+	 	controls.add(comp);
+   	 	comp = UIUtilities.buildComponentPanel(applyButton);
+   	 	comp.setBackground(UIUtilities.BACKGROUND_COLOR);
+   	 	controls.add(comp);
+    	return controls;
     }
     
     /**
@@ -302,11 +350,12 @@ class GraphicsPane
 	   	 	comp.setBackground(UIUtilities.BACKGROUND_COLOR);
 	   	 	controls.add(comp);
    	 	}
+   	 	/*
    	 	if (model.isGeneralIndex()) {
 	   	 	comp = UIUtilities.buildComponentPanel(applyButton);
 	   	 	comp.setBackground(UIUtilities.BACKGROUND_COLOR);
 	   	 	controls.add(comp);
-   	 	}
+   	 	}*/
    	 	content.add(controls);
         return content;
     }
@@ -378,11 +427,24 @@ class GraphicsPane
     /** Sets the pixels intensity interval. */
     void setInputInterval()
     {
-    	int f = model.getRoundFactor();
-        int s = (int) (model.getWindowStart()*f);
-        int e = (int) (model.getWindowEnd()*f);
-        domainSlider.setInterval(s, e);
-        onCurveChange();
+    	int f, s, e;
+    	if (model.isGeneralIndex()) {
+    		Iterator<ChannelSlider> i = sliders.iterator();
+    		ChannelSlider slider;
+    		while (i.hasNext()) {
+    			slider = i.next();
+    			f = model.getRoundFactor(slider.getIndex());
+                s = (int) (model.getWindowStart(slider.getIndex())*f);
+                e = (int) (model.getWindowEnd(slider.getIndex())*f);
+                slider.setInterval(s, e);
+			}
+    	} else {
+    		f = model.getRoundFactor();
+            s = (int) (model.getWindowStart()*f);
+            e = (int) (model.getWindowEnd()*f);
+            domainSlider.setInterval(s, e);
+            onCurveChange();
+    	}
     }
     
     /** Sets the value of the codomain interval. */
@@ -482,6 +544,37 @@ class GraphicsPane
 		if (applyButton != null) applyButton.setEnabled(true);
 	}
 	
+	/** Toggles between color model and Greyscale. */
+    void setColorModelChanged() 
+    {
+    	if (sliders == null || sliders.size() == 0) return;
+    	Iterator<ChannelSlider> i = sliders.iterator();
+    	while (i.hasNext()) {
+			 i.next().setColorModelChanged();
+		}
+    }
+    
+    /**
+     * Sets the color of the passed channel.
+     *  
+     * @param index The index of the channel.
+     */
+    void setChannelColor(int index)
+    {
+    	if (sliders != null && sliders.size() > 0) {
+    		Iterator<ChannelSlider> i = sliders.iterator();
+    		ChannelSlider slider;
+        	while (i.hasNext()) {
+        		slider = i.next();
+        		if (slider.getIndex() == index) {
+        			slider.setChannelColor();
+        			break;
+        		}
+    		}
+    	}
+    	repaint();
+    }
+    
     /**
      * Reacts to property changes fired by the {@link TwoKnobsSlider}s.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -592,6 +685,9 @@ class GraphicsPane
 			case APPLY:
 				applyButton.setEnabled(false);
 				controller.applyToAll();
+				break;
+			case RESET:
+				controller.resetInitialSettings(model.getInitialRndSettings());
 		}
 	}
 

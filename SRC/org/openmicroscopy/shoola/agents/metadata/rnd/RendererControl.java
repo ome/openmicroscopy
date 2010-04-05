@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.agents.metadata.actions.PlaneSlicingAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.ReverseIntensityAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.RndAction;
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
 
@@ -202,12 +203,24 @@ class RendererControl
      * Sets the the pixels intensity interval for the
      * currently selected channel.
      * 
-     * @param s         The lower bound of the interval.
-     * @param e         The upper bound of the interval.
+     * @param s The lower bound of the interval.
+     * @param e	The upper bound of the interval.
      */
     void setInputInterval(double s, double e)
     {
         model.setInputInterval(s, e);
+    }
+    
+    /** 
+     * Sets the the pixels intensity interval for the specified channel.
+     * 
+     * @param s 	  The lower bound of the interval.
+     * @param e		  The upper bound of the interval.
+     * @param channel The channel to handle.
+     */
+    void setInputInterval(double s, double e, int channel)
+    {
+    	model.setChannelWindow(channel, s, e);
     }
     
     /** 
@@ -235,6 +248,16 @@ class RendererControl
 	/** Sets the maximum range for channels. */
 	void setRangeAllChannels() { model.setRangeAllChannels(); }
 
+	/**
+	 * Resets the initial rendering settings.
+	 * 
+	 * @param rndDef The settings to set.
+	 */
+	void resetInitialSettings(RndProxyDef rndDef)
+	{
+		model.resetSettings(rndDef, true);
+	}
+	
     /**
      * Reacts to property change events.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)

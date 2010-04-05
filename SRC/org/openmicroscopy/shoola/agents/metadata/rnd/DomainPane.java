@@ -620,10 +620,11 @@ public class DomainPane
     	double size[][] = {{TableLayout.FILL},  // Columns
          {TableLayout.PREFERRED, 5, TableLayout.PREFERRED}}; // Rows
     	setLayout(new TableLayout(size));
-   
-    	taskPane.add(buildControlsPane());
     	add(buildChannelGraphicsPanel(), "0, 0");
-		add(taskPane, "0, 2");
+    	if (!model.isGeneralIndex()) {
+    		taskPane.add(buildControlsPane());
+    		add(taskPane, "0, 2");
+    	}
     }
     
     /**
@@ -808,7 +809,8 @@ public class DomainPane
 			btn = i.next();
 			index = btn.getChannelIndex();
 			btn.setSelected(active.contains(index));
-			if (index == c) btn.setBorder(SELECTION_BORDER);
+			if (index == c && !model.isGeneralIndex()) 
+				btn.setBorder(SELECTION_BORDER);
 			btn.setGrayedOut(gs);
 			btn.setColor(model.getChannelColor(index));
 		}
@@ -837,7 +839,7 @@ public class DomainPane
 				 if (gs) btn.setGrayedOut(gs);
 			}
 		}
-    	graphicsPane.repaint();
+    	graphicsPane.setChannelColor(index);
     }
     
     /** Toggles between color model and Greyscale. */
@@ -853,8 +855,10 @@ public class DomainPane
             btn.setColor(model.getChannelColor(index));
             btn.setGrayedOut(gs);
             btn.setSelected(model.isChannelActive(index));
-            if (index == selected) btn.setBorder(SELECTION_BORDER);
+            if (index == selected && !model.isGeneralIndex()) 
+            	btn.setBorder(SELECTION_BORDER);
         }
+        graphicsPane.setColorModelChanged();
     }
     
     /** 

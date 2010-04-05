@@ -924,6 +924,7 @@ public class ScreenLogin
 		enableControls();
 		login.requestFocus();
 		configButton.setEnabled(b);
+		if (groupsBox != null) groupsBox.setEnabled(b);
 		if (b) {
 			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			setButtonDefault(login);

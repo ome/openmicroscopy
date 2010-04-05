@@ -176,10 +176,12 @@ class RendererUI
 	/** Resets the UI controls. */
 	void resetDefaultRndSettings()
 	{
-		Iterator i = controlPanes.keySet().iterator();
+		Entry entry;
+		Iterator i = controlPanes.entrySet().iterator();
 		ControlPane pane;
 		while (i.hasNext()) {
-			pane = controlPanes.get(i.next());
+			entry = (Entry) i.next();
+			pane = (ControlPane) entry.getValue();
 			pane.resetDefaultRndSettings();
 		}
 	}
@@ -218,7 +220,7 @@ class RendererUI
 			Entry entry;
 			while (i.hasNext()) {
 				entry = (Entry) i.next();
-				pane = controlPanes.get(entry.getKey());
+				pane = (ControlPane) entry.getValue();
 				pane.onStateChange(b);
 			}
 		}

@@ -340,11 +340,14 @@ public class IconManager
     /** The 48x48 <code>Analysis</code> icon. */
     public static final int           ANALYSIS_48 = 94;
     
+    /** The <code>Reset</code> icon. */
+    public static final int           RESET = 95;
+    
     /** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static final int          MAX_ID = 94;
+	private static final int          MAX_ID = 95;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -444,6 +447,7 @@ public class IconManager
         relPaths[JAVA_48] = "crystal_source_java48.png";
         relPaths[CPP_48] = "crystal_source_cpp48.png";
         relPaths[ANALYSIS_48] = "nuvola_kcmsystem48.png";
+        relPaths[RESET] = "nuvola_undo16.png";
 	}
    
 	/** The sole instance. */

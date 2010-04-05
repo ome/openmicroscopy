@@ -794,7 +794,7 @@ class ImViewerModel
 		try {
 			Renderer rnd = metadataViewer.getRenderer();
 			if (alternativeSettings != null && rnd != null)
-				rnd.resetSettings(alternativeSettings);
+				rnd.resetSettings(alternativeSettings, false);
 			alternativeSettings = null;
 			if (rnd != null) originalDef = rnd.getRndSettingsCopy();
 		} catch (Exception e) {}
@@ -1461,7 +1461,7 @@ class ImViewerModel
 	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
-		rnd.resetSettings(settings);
+		rnd.resetSettings(settings, false);
 	}
 
 	/**
@@ -1624,7 +1624,7 @@ class ImViewerModel
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
 		RndProxyDef rndDef = (RndProxyDef) renderingSettings.get(exp);
-		rnd.resetSettings(rndDef);
+		rnd.resetSettings(rndDef, false);
 	}
 	
 	/**

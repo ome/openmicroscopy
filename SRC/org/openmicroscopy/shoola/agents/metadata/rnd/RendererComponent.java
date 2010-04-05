@@ -265,44 +265,61 @@ class RendererComponent
 		int selectedIndex = index;
 		boolean render = true;
 		try {
-			if (GREY_SCALE_MODEL.equals(model.getColorModel())) {
-				if (model.isChannelActive(index)) return;
-				boolean c;
-				for (int i = 0; i < model.getMaxC(); i++) {
-					c = i == index;
-					if (c) selectedIndex = index;
-					model.setChannelActive(i, c);  
-				}
-			} else {
-				if (!selected && model.isChannelActive(index) &&
-						model.getSelectedChannel() != index) {
-					selectedIndex = index;
-					render = false;
+			if (model.isGeneralIndex()) {
+				if (GREY_SCALE_MODEL.equals(model.getColorModel())) {
+					if (model.isChannelActive(index)) return;
+					boolean c;
+					for (int i = 0; i < model.getMaxC(); i++) {
+						c = i == index;
+						//if (c) selectedIndex = index;
+						model.setChannelActive(i, c);  
+					}
 				} else {
 					model.setChannelActive(index, selected);
-					List<Integer> active = model.getActiveChannels();
-					if (!active.contains(index) && active.size() > 0) {
-						int oldSelected = model.getSelectedChannel();
-						if (active.contains(oldSelected)) 
-							selectedIndex = oldSelected;
-						else {
-							int setIndex = model.createSelectedChannel();
-							if (setIndex >= 0) selectedIndex = setIndex;
+				}
+			} else {
+				if (GREY_SCALE_MODEL.equals(model.getColorModel())) {
+					if (model.isChannelActive(index)) return;
+					boolean c;
+					for (int i = 0; i < model.getMaxC(); i++) {
+						c = i == index;
+						if (c) selectedIndex = index;
+						model.setChannelActive(i, c);  
+					}
+				} else {
+					if (!selected && model.isChannelActive(index) &&
+							model.getSelectedChannel() != index) {
+						selectedIndex = index;
+						render = false;
+					} else {
+						model.setChannelActive(index, selected);
+						List<Integer> active = model.getActiveChannels();
+						if (!active.contains(index) && active.size() > 0) {
+							int oldSelected = model.getSelectedChannel();
+							if (active.contains(oldSelected)) 
+								selectedIndex = oldSelected;
+							else {
+								int setIndex = model.createSelectedChannel();
+								if (setIndex >= 0) selectedIndex = setIndex;
+							}
 						}
 					}
 				}
 			}
-				
 			model.setSelectedChannel(selectedIndex);
 			view.setSelectedChannel();
         	if (model.isGeneralIndex()) model.saveRndSettings();
         	if (render)
         		firePropertyChange(RENDER_PLANE_PROPERTY, 
         				Boolean.valueOf(false), Boolean.valueOf(true));
-        	firePropertyChange(SELECTED_CHANNEL_PROPERTY, -1, selectedIndex);
+        	firePropertyChange(SELECTED_CHANNEL_PROPERTY, -1, 
+        			selectedIndex);
 		} catch (Exception ex) {
 			handleException(ex);
 		}
+		
+		
+		
 	}
 
     /** 
@@ -722,12 +739,17 @@ class RendererComponent
 
 	/** 
      * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#resetSettings(RndProxyDef)
+     * @see Renderer#resetSettings(RndProxyDef, boolean)
      */
-	public void resetSettings(RndProxyDef settings)
+	public void resetSettings(RndProxyDef settings, boolean update)
 	{
 		try {
 			model.resetSettings(settings);
+			if (update) {
+				view.resetDefaultRndSettings();
+				firePropertyChange(RENDER_PLANE_PROPERTY, 
+						Boolean.valueOf(false), Boolean.valueOf(true));
+			}
 		} catch (Throwable e) {
 			handleException(e);
 		}
@@ -776,7 +798,7 @@ class RendererComponent
 			handleException(e);
 		}
 	}
-
+	
 	/** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#setCompression(int)

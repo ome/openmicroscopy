@@ -154,6 +154,9 @@ class RendererModel
     /** The dimension of the preview image. */
     private Dimension			previewSize;
     
+    /** The rendering settings. */
+    private RndProxyDef			rndDef;
+    
 	/**
 	 * Creates a new instance.
 	 * 
@@ -165,7 +168,7 @@ class RendererModel
 	{
 		if (rndControl == null)
 			throw new NullPointerException("No rendering control.");
-		this.rndControl = rndControl;
+		setRenderingControl(rndControl);
 		this.rndIndex = rndIndex;
 		visible = false;
 		globalMaxChannels = null;
@@ -183,6 +186,7 @@ class RendererModel
 	void setRenderingControl(RenderingControl rndControl)
 	{
 		this.rndControl = rndControl;
+		if (rndControl != null) rndDef = rndControl.getRndSettingsCopy();
 	}
 	
 	/**
@@ -599,8 +603,19 @@ class RendererModel
 	 */
 	int getRoundFactor()
 	{
-		double min = getGlobalMin();
-		double max = getGlobalMax();
+		return getRoundFactor(selectedChannelIndex);
+	}
+	
+	/**
+	 * Returns the rounding factor used for the input value.
+	 * 
+	 * @param channel The channel to handle.
+	 * @return See above.
+	 */
+	int getRoundFactor(int channel)
+	{
+		double min = getGlobalMin(channel);
+		double max = getGlobalMax(channel);
 		double rmin = UIUtilities.roundTwoDecimals(min);
 		double rmax = UIUtilities.roundTwoDecimals(max);
 		if (rmin == min && rmax == max) return 1;
@@ -662,10 +677,21 @@ class RendererModel
 	 */
 	double getLowestValue()
 	{
-		if (rndControl == null) return -1;
-		return rndControl.getPixelsTypeLowerBound(selectedChannelIndex);
+		return getLowestValue(selectedChannelIndex);
 	}
 
+	/**
+	 * Returns the lowest possible value for the passed channel.
+	 * 
+	 * @param channel The channel to handle.
+	 * @return See above.
+	 */
+	double getLowestValue(int channel)
+	{
+		if (rndControl == null) return -1;
+		return rndControl.getPixelsTypeLowerBound(channel);
+	}
+	
 	/**
 	 * Returns the highest possible value.
 	 * 
@@ -673,8 +699,19 @@ class RendererModel
 	 */
 	double getHighestValue()
 	{
+		return getHighestValue(selectedChannelIndex);
+	}
+	
+	/**
+	 * Returns the highest possible value.
+	 * 
+	 * @param channel The channel to handle.
+	 * @return See above.
+	 */
+	double getHighestValue(int channel)
+	{
 		if (rndControl == null) return -1;
-		return rndControl.getPixelsTypeUpperBound(selectedChannelIndex);
+		return rndControl.getPixelsTypeUpperBound(channel);
 	}
 
 	/**
@@ -1001,6 +1038,13 @@ class RendererModel
 		return rndControl.getRndSettingsCopy();
 	}
 
+    /**
+     * Returns the initial rendering settings.
+     * 
+     * @return See above.
+     */
+	RndProxyDef getInitialRndSettings() { return rndDef; }
+	
 	/**
 	 * Returns <code>true</code> if an active channel 
 	 * is mapped to <code>Red</code> if the band is <code>0</code>,
@@ -1263,6 +1307,19 @@ class RendererModel
     	previewSize = Factory.computeThumbnailSize(PREVIEW_WIDTH, 
     			PREVIEW_HEIGHT, getMaxX(), getMaxY());
     	return previewSize;
+    }
+    
+    /** 
+     * Resets the rendering settings. 
+     * 
+     * @throws RenderingServiceException 	If an error occurred while setting 
+	 * 										the value.
+	 * @throws DSOutOfServiceException  	If the connection is broken.
+	 */
+    void resetRenderingSettings()
+    	throws RenderingServiceException, DSOutOfServiceException
+    {
+    	rndControl.resetSettings(rndDef);
     }
     
 }

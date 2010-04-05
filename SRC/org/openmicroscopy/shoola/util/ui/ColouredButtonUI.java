@@ -268,7 +268,7 @@ class ColouredButtonUI
        
         // Draw the bevel, it is drawn as four line from: topleft to 
         // topright, and topleft to bottom left. 
-        final int height =(int) buttonRect.getHeight();
+        final int height = (int) buttonRect.getHeight();
         final int width = (int) buttonRect.getWidth();
         g.drawLine(0, 0, 0, height);
         g.drawLine(0, 0, width, 0);

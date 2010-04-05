@@ -856,8 +856,7 @@ class ImViewerComponent
 					}
 				}
 				view.setChannelsSelection(l);
-			} else if (model.getTabbedIndex() == ImViewer.PROJECTION_INDEX) 
-			{
+			} else if (model.getTabbedIndex() == ImViewer.PROJECTION_INDEX) {
 				if (model.isChannelActive(index)) return;
 				boolean c;
 				for (int i = 0; i < model.getMaxC(); i++) {
@@ -865,7 +864,8 @@ class ImViewerComponent
 					model.setChannelActive(i, c);  
 					if (c) 
 						firePropertyChange(CHANNEL_ACTIVE_PROPERTY, 
-								new Integer(index-1), new Integer(index));
+								Integer.valueOf(index-1), 
+								Integer.valueOf(index));
 				}
 				uiIndex = ImViewerUI.PROJECTION_ONLY;
 			} else {

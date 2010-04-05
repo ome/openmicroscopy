@@ -136,7 +136,7 @@ public class TwoKnobsSlider
 	private TwoKnobsSliderUI    uiDelegate;
 
 	/** 
-	 * Indicates which knod is moved.
+	 * Indicates which knob is moved.
 	 * One of the following constants: {@link #INITIAL}, {@link #LEFT} or
 	 * {@link #RIGHT}.
 	 */
@@ -383,7 +383,7 @@ public class TwoKnobsSlider
 	}
 
 	/**
-	 * Creates a slider with two knobs of passed mininum, maximum, start and
+	 * Creates a slider with two knobs of passed minimum, maximum, start and
 	 * end value.
 	 * 
 	 * @param absoluteMin 	The absolute minimum value of the slider.

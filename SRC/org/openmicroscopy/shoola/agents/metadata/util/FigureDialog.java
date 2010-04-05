@@ -1475,7 +1475,7 @@ public class FigureDialog
 	/** Closes the dialog. */
 	private void close()
 	{
-		if (renderer != null) renderer.resetSettings(rndDef);
+		if (renderer != null) renderer.resetSettings(rndDef, false);
 		option = CLOSE;
 		firePropertyChange(CLOSE_FIGURE_PROPERTY, Boolean.valueOf(false), 
 				Boolean.valueOf(true));
