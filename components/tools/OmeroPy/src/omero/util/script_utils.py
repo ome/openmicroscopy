@@ -45,12 +45,14 @@ import omero_Constants_ice
 from omero.rtypes import *
 import omero.util.pixelstypetopython as pixelstypetopython
 
+
 try: 
     import hashlib 
     hash_sha1 = hashlib.sha1 
 except: 
     import sha 
     hash_sha1 = sha.new 
+    
 
 
 CSV_NS = 'text/csv';
@@ -265,6 +267,7 @@ def attachFileToParent(updateService, parent, originalFile, description=None, na
         l = omero.model.ImageAnnotationLinkI()
     else:
         return
+    parent = parent.__class__(parent.id.val, False)
     l.setParent(parent);
     l.setChild(fa);
     return updateService.saveAndReturnObject(l);
@@ -608,6 +611,7 @@ def resetRenderingSettings(renderingEngine, pixelsId, cIndex, minValue, maxValue
         red, green, blue, alpha = rgba
         renderingEngine.setRGBA(cIndex, red, green, blue, alpha)
     renderingEngine.saveCurrentSettings()
+
 
 
 def createNewImage(pixelsService, rawPixelStore, renderingEngine, pixelsType, gateway, plane2Dlist, imageName, description, dataset=None):
