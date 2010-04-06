@@ -1,0 +1,9 @@
+dn: ou=People,dc=glencoesoftware,dc=com
+objectclass: organizationalUnit
+objectClass: top
+ou: People
+
+dn: cn=test1,ou=People,dc=glencoesoftware,dc=com
+cn: test1
+sn: Tester
+objectClass: person
