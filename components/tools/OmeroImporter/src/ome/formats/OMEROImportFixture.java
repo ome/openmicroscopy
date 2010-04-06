@@ -18,6 +18,7 @@ import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.cli.ErrorHandler;
+import ome.formats.importer.util.ErrorHandler.EXCEPTION_EVENT;
 import omero.model.Pixels;
 
 import org.apache.commons.logging.Log;
@@ -58,6 +59,8 @@ public class OMEROImportFixture {
     private File file;
 
     private List<Pixels> pixels;
+
+    private EXCEPTION_EVENT exception = null;
 
     @SuppressWarnings("unused")
 	private String name;
@@ -136,6 +139,8 @@ public class OMEROImportFixture {
                 super.onUpdate(importLibrary, event);
                 if (event instanceof ImportEvent.IMPORT_DONE) {
                     pixels = ((ImportEvent.IMPORT_DONE) event).pixels;
+                } else if (event instanceof EXCEPTION_EVENT) {
+                    exception = (EXCEPTION_EVENT) event;
                 }
             }
         };
@@ -156,7 +161,10 @@ public class OMEROImportFixture {
      * Accessor for the created pixels. Should be called before the next call to
      * {@link #doImport()}
      */
-    public List<Pixels> getPixels() {
+    public List<Pixels> getPixels() throws Exception {
+        if (exception != null) {
+            throw exception.exception;
+        }
         return this.pixels;
     }
 
