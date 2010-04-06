@@ -13,6 +13,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.hibernate.search.bridge.FieldBridge;
+import org.hibernate.search.bridge.LuceneOptions;
 import org.springframework.context.ApplicationContext;
 
 /**
@@ -44,11 +45,8 @@ public class DetailsFieldBridge implements FieldBridge {
         DetailsFieldBridge.bridge = bridge;
     }
 
-    public void set(final String name, final Object value,
-            final Document document, final Field.Store store,
-            final Field.Index index, final Float boost) {
-
-        bridge.set(name, value, document, store, index, boost);
+    public void set(String name, Object value, Document document, LuceneOptions opts) {
+        bridge.set(name, value, document, opts);
 
     }
 

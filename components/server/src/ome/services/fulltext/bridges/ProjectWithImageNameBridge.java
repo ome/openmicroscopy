@@ -16,10 +16,12 @@ import ome.model.containers.Project;
 import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Image;
 import ome.services.fulltext.BridgeHelper;
+import ome.services.fulltext.SimpleLuceneOptions;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.hibernate.search.bridge.FieldBridge;
+import org.hibernate.search.bridge.LuceneOptions;
 
 /**
  * Example custom {@link FieldBridge} implementation which parses all
@@ -42,14 +44,15 @@ public class ProjectWithImageNameBridge extends BridgeHelper {
      */
     @Override
     public void set(final String name, final Object value,
-            final Document document, final Field.Store store,
-            final Field.Index index, final Float boost) {
+            final Document document, final LuceneOptions _opts) {
 
         if (value instanceof Project) {
 
             logger().info("Indexing all image names for " + value);
 
-            final float reduced_boost = boost.floatValue() / 2;
+            // Copying lucene options with a new boost value
+            final float reduced_boost = _opts.getBoost().floatValue() / 2;
+            final LuceneOptions opts = new SimpleLuceneOptions(_opts, reduced_boost);
 
             final Project p = (Project) value;
             for (final ProjectDatasetLink pdl : p.unmodifiableDatasetLinks()) {
@@ -61,11 +64,9 @@ public class ProjectWithImageNameBridge extends BridgeHelper {
                     // to always check the value for null, and either simply
                     // not call add() or to use a null token like "null".
                     if (i.getName() != null) {
-                        add(document, "image_name", i.getName(), store, index,
-                                reduced_boost);
+                        add(document, "image_name", i.getName(), opts);
                     } else {
-                        add(document, "image_name", "null", store, index,
-                                reduced_boost);
+                        add(document, "image_name", "null", opts);
                     }
                 }
             }

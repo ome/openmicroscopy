@@ -46,7 +46,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/repository/backport-util-concurrent-Java50-3.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/btm-1.3.3-20081114.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/bufr-1.1.00.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/cglib-2.1_3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/checkstyle-4.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/commons-beanutils-1.8.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/commons-codec-1.3.jar"/>
@@ -67,12 +66,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/repository/freemarker-3.2.0.beta11.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/geronimo-spec-jta-1.0.1B-rc4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/grib-5.1.03.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/hibernate-3.2.6.ga.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/hibernate-annotations-3.3.1.GA.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/hibernate-commons-annotations-3.0.0.ga.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/hibernate-search-3.0.1.GA.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/hibernate-tools-3.2.0.beta11.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/hibernate-validator-3.0.0.ga.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/hsqldb-1.8.0.9.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/ice-3.3.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/ice-db-3.3.1.jar"/>
@@ -88,9 +82,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/repository/jtidy-3.2.0.beta11.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/junit-3.8.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/log4j-1.2.14.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/lucene-core-2.2.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/lucene-highlighter-2.2.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/lucene-spellchecker-2.2.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/mail-1.4.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/netcdf-4.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/ome-java-2007-Aug-07-r3052.jar"/>
@@ -133,5 +124,17 @@
 	<classpathentry kind="lib" path="lib/repository/swingx-0.9.4.jar"/>
 	<classpathentry kind="lib" path="lib/repository/TableLayout-bin-jdk1.5-2009-08-26.jar"/>
 	<classpathentry kind="lib" path="lib/repository/jul-to-slf4j-1.5.8.jar"/>
+	<classpathentry kind="lib" path="lib/repository/cglib-2.2.jar"/>
+	<classpathentry kind="lib" path="lib/repository/hibernate-3.3.2.GA.jar"/>
+	<classpathentry kind="lib" path="lib/repository/hibernate-annotations-3.4.0.GA.jar"/>
+	<classpathentry kind="lib" path="lib/repository/hibernate-commons-annotations-3.1.0.GA.jar"/>
+	<classpathentry kind="lib" path="lib/repository/hibernate-search-3.1.1.GA.jar"/>
+	<classpathentry kind="lib" path="lib/repository/hibernate-validator-3.1.0.GA.jar"/>
+	<classpathentry kind="lib" path="lib/repository/javassist-3.9.0.GA.jar"/>
+	<classpathentry kind="lib" path="lib/repository/lucene-analyzers-2.4.1.jar"/>
+	<classpathentry kind="lib" path="lib/repository/lucene-core-2.4.1.jar"/>
+	<classpathentry kind="lib" path="lib/repository/lucene-highlighter-2.4.1.jar"/>
+	<classpathentry kind="lib" path="lib/repository/lucene-snowball-2.4.1.jar"/>
+	<classpathentry kind="lib" path="lib/repository/lucene-spellchecker-2.4.1.jar"/>
 	<classpathentry kind="output" path="target/eclipse-bin"/>
 </classpath>

@@ -31,8 +31,10 @@ import ome.util.Utils;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
 import org.hibernate.search.bridge.FieldBridge;
+import org.hibernate.search.bridge.LuceneOptions;
 import org.hibernate.search.bridge.builtin.DateBridge;
 
 /**
@@ -110,20 +112,18 @@ public class FullTextBridge extends BridgeHelper {
      * as well as all {@link Annotation annotations}.
      */
     @Override
-    public void set(final String name, final Object value,
-            final Document document, final Field.Store store,
-            final Field.Index index, final Float boost) {
+    public void set(String name, Object value, Document document, LuceneOptions opts) {
 
         IObject object = (IObject) value;
 
         // Store class in COMBINED
         String cls = Utils.trueClass(object.getClass()).getName();
-        add(document, null, cls, store, index, boost);
+        add(document, null, cls, opts);
 
-        set_file(name, object, document, store, index, boost);
-        set_annotations(name, object, document, store, index, boost);
-        set_details(name, object, document, store, index, boost);
-        set_custom(name, object, document, store, index, boost);
+        set_file(name, object, document, opts);
+        set_annotations(name, object, document, opts);
+        set_details(name, object, document, opts);
+        set_custom(name, object, document, opts);
 
     }
 
@@ -141,12 +141,11 @@ public class FullTextBridge extends BridgeHelper {
      * @param boost
      */
     public void set_file(final String name, final IObject object,
-            final Document document, final Field.Store store,
-            final Field.Index index, final Float boost) {
+            final Document document, final LuceneOptions opts) {
 
         if (object instanceof OriginalFile) {
             OriginalFile file = (OriginalFile) object;
-            addContents(document, "file.contents", file, files, parsers, boost);
+            addContents(document, "file.contents", file, files, parsers, opts);
         }
 
     }
@@ -163,8 +162,7 @@ public class FullTextBridge extends BridgeHelper {
      * @param boost
      */
     public void set_annotations(final String name, final IObject object,
-            final Document document, final Field.Store store,
-            final Field.Index index, final Float boost) {
+            final Document document, final LuceneOptions opts) {
 
         if (object instanceof ILink) {
             ILink link = (ILink) object;
@@ -177,20 +175,19 @@ public class FullTextBridge extends BridgeHelper {
             List<Annotation> list = annotated.linkedAnnotationList();
             for (Annotation annotation : list) {
                 String at = annotationTypeString(annotation);
-                add(document, "annotation.type", at, store, index, boost);
+                add(document, "annotation.type", at, opts);
                 if (annotation.getNs() != null) {
-                    add(document, "annotation.ns", annotation.getNs(), store,
-                            index, boost);
+                    add(document, "annotation.ns", annotation.getNs(), opts);
                 }
                 if (annotation instanceof TextAnnotation) {
                     TextAnnotation text = (TextAnnotation) annotation;
                     String textValue = text.getTextValue();
                     textValue = textValue == null ? "" : textValue;
-                    add(document, "annotation", textValue, store, index, boost);
+                    add(document, "annotation", textValue, opts);
                     if (annotation instanceof UriAnnotation) {
-                        add(document, "url", textValue, store, index, boost);
+                        add(document, "url", textValue, opts);
                     } else if (annotation instanceof TagAnnotation) {
-                        add(document, "tag", textValue, store, index, boost);
+                        add(document, "tag", textValue, opts);
                         List<Annotation> list2 = annotation
                                 .linkedAnnotationList();
                         for (Annotation annotation2 : list2) {
@@ -199,14 +196,13 @@ public class FullTextBridge extends BridgeHelper {
                                 String textValue2 = text2.getTextValue();
                                 textValue2 = textValue2 == null ? ""
                                         : textValue2;
-                                add(document, "annotation", textValue2, store,
-                                        index, boost);
+                                add(document, "annotation", textValue2, opts);
                             }
                         }
                     }
                 } else if (annotation instanceof FileAnnotation) {
                     FileAnnotation fileAnnotation = (FileAnnotation) annotation;
-                    handleFileAnnotation(document, store, index, boost,
+                    handleFileAnnotation(document, opts,
                             fileAnnotation);
                 }
             }
@@ -216,7 +212,7 @@ public class FullTextBridge extends BridgeHelper {
         // Don't use if/else
         if (object instanceof FileAnnotation) {
             FileAnnotation fileAnnotation = (FileAnnotation) object;
-            handleFileAnnotation(document, store, index, boost, fileAnnotation);
+            handleFileAnnotation(document, opts, fileAnnotation);
 
         }
     }
@@ -233,8 +229,10 @@ public class FullTextBridge extends BridgeHelper {
      * @param boost
      */
     public void set_details(final String name, final IObject object,
-            final Document document, final Field.Store store,
-            final Field.Index index, final Float boost) {
+            final Document document, final LuceneOptions opts) {
+
+        final LuceneOptions stored = new SimpleLuceneOptions(opts, Store.YES);
+        final LuceneOptions storedNotAnalyzed = new SimpleLuceneOptions(opts, Index.NOT_ANALYZED, Store.YES);
 
         Details details = object.getDetails();
         if (details != null) {
@@ -243,50 +241,44 @@ public class FullTextBridge extends BridgeHelper {
                 String omename = e.getOmeName();
                 String firstName = e.getFirstName();
                 String lastName = e.getLastName();
-                add(document, "details.owner.omeName", omename, Store.YES,
-                        index, boost);
-                add(document, "details.owner.firstName", firstName, store,
-                        index, boost);
-                add(document, "details.owner.lastName", lastName, store, index,
-                        boost);
+                add(document, "details.owner.omeName", omename, stored);
+                add(document, "details.owner.firstName", firstName, opts);
+                add(document, "details.owner.lastName", lastName, opts);
             }
 
             ExperimenterGroup g = details.getGroup();
             if (g != null && g.isLoaded()) {
                 String groupName = g.getName();
-                add(document, "details.group.name", groupName, Store.YES,
-                        index, boost);
-
+                add(document, "details.group.name", groupName, stored);
             }
 
             Event creationEvent = details.getCreationEvent();
             if (creationEvent != null) {
                 add(document, "details.creationEvent.id", creationEvent.getId()
-                        .toString(), Store.YES, Field.Index.UN_TOKENIZED, boost);
+                        .toString(), storedNotAnalyzed);
                 if (creationEvent.isLoaded()) {
                     String creation = DateBridge.DATE_SECOND
                             .objectToString(creationEvent.getTime());
                     add(document, "details.creationEvent.time", creation,
-                            Store.YES, Field.Index.UN_TOKENIZED, boost);
+                            storedNotAnalyzed);
                 }
             }
 
             Event updateEvent = details.getUpdateEvent();
             if (updateEvent != null) {
                 add(document, "details.updateEvent.id", updateEvent.getId()
-                        .toString(), Store.YES, Field.Index.UN_TOKENIZED, boost);
+                        .toString(), storedNotAnalyzed);
                 if (updateEvent.isLoaded()) {
                     String update = DateBridge.DATE_SECOND
                             .objectToString(updateEvent.getTime());
                     add(document, "details.updateEvent.time", update,
-                            Store.YES, Field.Index.UN_TOKENIZED, boost);
+                            storedNotAnalyzed);
                 }
             }
 
             Permissions perms = details.getPermissions();
             if (perms != null) {
-                add(document, "details.permissions", perms.toString(),
-                        Store.YES, index, boost);
+                add(document, "details.permissions", perms.toString(), stored);
             }
         }
 
@@ -305,8 +297,7 @@ public class FullTextBridge extends BridgeHelper {
      * @param boost
      */
     public void set_custom(final String name, final IObject object,
-            final Document document, final Field.Store store,
-            final Field.Index index, final Float boost) {
+            final Document document, final LuceneOptions opts) {
 
         for (Class<FieldBridge> bridgeClass : classes) {
             if (bridgeClass != null) {
@@ -317,7 +308,7 @@ public class FullTextBridge extends BridgeHelper {
                         BridgeHelper helper = (BridgeHelper) bridge;
                         helper.setApplicationEventPublisher(publisher);
                     }
-                    bridge.set(name, object, document, store, index, boost);
+                    bridge.set(name, object, document, opts);
                 } catch (Exception e) {
                     final String msg = String
                             .format(
@@ -340,17 +331,15 @@ public class FullTextBridge extends BridgeHelper {
      * @param fileAnnotation
      */
     private void handleFileAnnotation(final Document document,
-            final Field.Store store, final Field.Index index,
-            final Float boost, FileAnnotation fileAnnotation) {
+            final LuceneOptions opts, FileAnnotation fileAnnotation) {
         OriginalFile file = fileAnnotation.getFile();
         if (file != null) {
             // None of these values can be null
-            add(document, "file.name", file.getName(), store, index, boost);
-            add(document, "file.path", file.getPath(), store, index, boost);
-            add(document, "file.sha1", file.getSha1(), store, index, boost);
-            add(document, "file.format", file.getFormat().getValue(), store,
-                    index, boost);
-            addContents(document, "file.contents", file, files, parsers, boost);
+            add(document, "file.name", file.getName(), opts);
+            add(document, "file.path", file.getPath(), opts);
+            add(document, "file.sha1", file.getSha1(), opts);
+            add(document, "file.format", file.getFormat().getValue(), opts);
+            addContents(document, "file.contents", file, files, parsers, opts);
         }
     }
 

@@ -12,7 +12,7 @@ import java.io.Serializable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
-import org.hibernate.cache.CacheConcurrencyStrategy;
+import org.hibernate.cache.access.CollectionRegionAccessStrategy;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.collection.PersistentCollection;
 import org.hibernate.engine.SessionFactoryImplementor;
@@ -31,9 +31,9 @@ public class CountCollectionPersister extends BasicCollectionPersister {
     private static Log log = LogFactory.getLog(CountCollectionPersister.class);
 
     public CountCollectionPersister(Collection collection,
-            CacheConcurrencyStrategy cache, Configuration cfg,
+            CollectionRegionAccessStrategy regions, Configuration cfg,
             SessionFactoryImplementor factory) {
-        super(collection, cache, cfg, factory);
+        super(collection, regions, cfg, factory);
     }
 
     @Override

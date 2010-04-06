@@ -137,7 +137,7 @@
 
   Artifacts:    commons-*.jar
   Project:      The Jakarta Commons. The Commons is a Jakarta subproject focused on
-		all aspects of reusable Java components.
+	        all aspects of reusable Java components.
   Web Site:     http://jakarta.apache.org/commons/
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
@@ -260,7 +260,7 @@
 
   Artifacts:    jarbundler-*.jar
   Project:      The Jar Bundler Ant Task.  It lets Ant create Mac OS X application
-		bundles.
+                bundles.
   Web Site:     http://www.loomcom.com/jarbundler/
   License:      General Public License (GPL), Version 2
   License File: gpl.txt
@@ -269,6 +269,13 @@
   Artifacts:    java-getopt-*.jar
   Project:      GNU getopt -Java port
   Web Site:     http://www.urbanophile.com/~arenn/hacking/getopt/Package-gnu.getopt.html
+  License:      Lesser General Public License (LGPL) v2.1
+  License File: lgpl-v2.1.txt
+
+
+  Artifacts:    javassist-*.jar
+  Project:      Javassit, Java bytecode manipulation library
+  Web Site:     http://www.csg.is.titech.ac.jp/~chiba/javassist/
   License:      Lesser General Public License (LGPL) v2.1
   License File: lgpl-v2.1.txt
 
@@ -312,7 +319,7 @@
 
   Artifacts:    junit-*.jar
   Project:      The JUnit Testing Framework. A framework for unit-testing.  All our
-		regression tests make use of this framework in a way or another.
+                regression tests make use of this framework in a way or another.
   Web Site:     http://www.junit.org/
   License:      Common Public License (CPL) v1.0
   License File: cpl-v10.html

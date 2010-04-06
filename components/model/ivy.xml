@@ -20,6 +20,7 @@
     <dependency org="asm" name="asm" rev="${versions.asm}" conf="server->default"/>
     <dependency org="cglib" name="cglib" rev="${versions.cglib}" conf="server->default"/>
     <dependency org="dom4j" name="dom4j" rev="${versions.dom4j}" conf="server->default"/>
+    <dependency org="javassist" name="javassist" rev="${versions.javassist}" conf="server->default"/>
     <!-- Hibernate -->
     <dependency org="omero" name="postgresql" rev="${versions.postgresql}" conf="server->default"/>
     <dependency org="org/hibernate" name="hibernate" rev="${versions.hibernate}" conf="server->default"/>

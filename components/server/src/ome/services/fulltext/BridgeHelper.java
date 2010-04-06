@@ -25,8 +25,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
 import org.hibernate.search.bridge.FieldBridge;
+import org.hibernate.search.bridge.LuceneOptions;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 
@@ -74,8 +76,7 @@ public abstract class BridgeHelper implements FieldBridge,
      * walked.
      */
     public abstract void set(final String name, final Object value,
-            final Document document, final Field.Store store2,
-            final Field.Index index, final Float boost);
+            final Document document, final LuceneOptions opts);
 
     /**
      * Helper method which takes the parameters from the
@@ -98,23 +99,20 @@ public abstract class BridgeHelper implements FieldBridge,
      *            Value which has been parsed out for this field. Should
      *            <em/>not</em> be null. If you need to store a null value in
      *            the index, use a null token like "null".
-     * @param store
-     *            Whether or not to store the string value in the index. Note:
-     *            no values are stored in the {@link #COMBINED} field to prevent
-     *            duplication.
-     * @param index
-     *            Whether or not to make the string searchable.
-     * @param boost
-     *            Positive float which increases or decreases search importance
-     *            for a field. Default is 1.0.
+     * @param opts
+     *            LuceneOptions, passed in from the runtime. If overriding on
+     *            the interface values is required, see {@link SimpleLuceneOptions}
      */
-    protected void add(Document d, String field, String value,
-            Field.Store store, Field.Index index, Float boost) {
+    protected void add(Document d, String field, String value, LuceneOptions opts) {
 
         if (value == null) {
             throw new RuntimeException(
                     "Value for indexing cannot be null. Use a null token instead.");
         }
+
+        Float boost = opts.getBoost();
+        Store store = opts.getStore();
+        Index index = opts.getIndex();
 
         // If the field == null, then we ignore it, to allow easy addition
         // of Fields as COMBINED
@@ -170,7 +168,7 @@ public abstract class BridgeHelper implements FieldBridge,
      */
     protected void addContents(final Document d, final String name,
             final OriginalFile file, final OriginalFilesService files,
-            final Map<String, FileParser> parsers, final Float boost) {
+            final Map<String, FileParser> parsers, final LuceneOptions opts) {
 
         if (file == null) {
             throw new RuntimeException(
@@ -180,6 +178,7 @@ public abstract class BridgeHelper implements FieldBridge,
         }
 
         Field f;
+        Float boost = opts.getBoost();
         if (name != null) {
             for (Reader parsed : parse(file, files, parsers)) {
                 f = new Field(name, parsed);
