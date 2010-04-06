@@ -108,7 +108,13 @@ class TwoKnobsSliderUI
 
 	/** The image used to draw the thumb.  */
 	private Image 					thumbImage;
+	
+	/** The image used to draw the arrow thumb.  */
+	private Image 					upArrowImage;
 
+	/** The image used to draw the disabled arrow thumb.  */
+	private Image 					disabledUpArrowImage;
+	
 	/** The image used to draw the thumb when the slider is disabled.  */
 	private Image 					disabledThumbImage;
 
@@ -141,6 +147,11 @@ class TwoKnobsSliderUI
 		thumbImage = icon.getImage();
 		icon = icons.getImageIcon(IconManager.THUMB_DISABLED);
 		disabledThumbImage = icon.getImage();
+		icon = icons.getImageIcon(IconManager.UP_ARROW_10);
+		upArrowImage = icon.getImage();
+		icon = icons.getImageIcon(IconManager.UP_ARROW_DISABLED_10);
+		disabledUpArrowImage = icon.getImage();
+
 		/*
 		 * I will come back to list later to fix a nicer graphic. 
 		 * 
@@ -372,7 +383,7 @@ class TwoKnobsSliderUI
 	{
 		int l = xPositionForValue(model.getStartValue());
 		int r = xPositionForValue(model.getEndValue());
-		if(this.component.getColourGradient()==false)
+		if (!this.component.getColourGradient())
 		{
 			Paint paint = new GradientPaint(0, trackRect.y, 
 				UIUtilities.TRACK_GRADIENT_START, 0, 
@@ -400,17 +411,32 @@ class TwoKnobsSliderUI
 		//Draw the knobs
 		int w  = component.getKnobWidth();
 		int h = component.getKnobHeight();
-		Image img = thumbImage;
-		if (!model.isEnabled()) img = disabledThumbImage;
+		Image img;
+		int offset = 0;
+		if(!component.getColourGradient())
+			if (model.isEnabled()) 
+				img = thumbImage;
+			else
+				img = disabledThumbImage;
+		else
+		{
+			w = 12;
+			h = 12;
+			if (model.isEnabled()) 
+				img = upArrowImage;
+			else
+				img = disabledUpArrowImage;
+			offset = 5;	
+		}
 		if (component.getKnobControl() == TwoKnobsSlider.LEFT) 
 		{
-				g2D.drawImage(img, r-w/2, 1, w, h, null);
-				g2D.drawImage(img, l-w/2, 1, w, h, null);
+				g2D.drawImage(img, r-w/2, 1+offset, w, h, null);
+				g2D.drawImage(img, l-w/2, 1+offset, w, h, null);
 		} 
 		else 
 		{
-				g2D.drawImage(img, l-w/2, 1, w, h, null);
-				g2D.drawImage(img, r-w/2, 1, w, h, null);
+				g2D.drawImage(img, l-w/2, 1+offset, w, h, null);
+				g2D.drawImage(img, r-w/2, 1+offset, w, h, null);
 		}
 	}
 	
@@ -450,8 +476,22 @@ class TwoKnobsSliderUI
 		}
 	
 		//Draw the knobs
-		Image img = thumbImage;
-		if (!model.isEnabled()) img = disabledThumbImage;
+		Image img;
+	
+		if(!component.getColourGradient())
+			if (model.isEnabled()) 
+				img = thumbImage;
+			else
+				img = disabledThumbImage;
+		else
+		{
+			w = 10;
+			h = 10;
+			if (model.isEnabled()) 
+				img = upArrowImage;
+			else
+				img = disabledUpArrowImage;
+		}
 		if (component.getKnobControl() == TwoKnobsSlider.LEFT) {
 			g2D.drawImage(img, x, down, w, h, null);
 			g2D.drawImage(img, x, up, w, h, null);
