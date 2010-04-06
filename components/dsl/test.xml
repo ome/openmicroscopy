@@ -18,7 +18,10 @@
     <dependency org="findbugs" name="findbugs-ant" rev="${versions.findbugs}" conf="test->default"/>
     <dependency org="jakarta-oro" name="jakarta-oro" rev="2.0.8" conf="test->default"/>
     <dependency org="jamon" name="jamon" rev="${versions.jamon}" conf="test->default"/>
-    <dependency org="org.springframework" name="spring-test" rev="${versions.spring}" conf="test->default"/>
     <dependency org="testng" name="testng" rev="${versions.testng}" conf="test->default"/>
+    <!-- spring -->
+    <dependency org="org.springframework" name="org.springframework.test" rev="${versions.spring}" conf="test->runtime"/>
+    <dependency org="org.springframework" name="org.springframework.aop" rev="${versions.spring}" conf="test->default"/>
+    <dependency org="org.springframework" name="com.springsource.org.aopalliance" rev="1.0.0" conf="test->default"/>
   </dependencies>
 </ivy-module>

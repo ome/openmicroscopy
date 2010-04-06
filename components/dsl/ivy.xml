@@ -27,6 +27,6 @@
     <dependency org="emma" name="emma_ant" rev="${versions.emma}"/>
     <dependency org="checkstyle" name="checkstyle" rev="${versions.checkstyle}"/>
     <!-- spring -->
-    <dependency org="org.springframework" name="org.springframework.core" rev="${versions.spring}" conf="build,runtime->runtime"/>
+    <dependency org="org.springframework" name="org.springframework.core" rev="${versions.spring}" conf="build,runtime->default"/>
  </dependencies>
 </ivy-module>

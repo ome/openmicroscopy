@@ -29,12 +29,15 @@
     <dependency org="org/hibernate" name="jtidy" rev="${versions.hibernate-tools}" conf="build->default"/>
     <dependency org="hibernate" name="hibernate-search" rev="${versions.hibernate-search}"/>
     <dependency org="hibernate" name="hibernate-validator" rev="${versions.hibernate-validator}"/>
-    <dependency org="hibernate" name="hibernate-commons-annotations" rev="${versions.hibernate-commons-annotations}"/>
-    <dependency org="javax/persistence" name="persistence-api" rev="${versions.persistence-api}"/>
+    <dependency org="hibernate" name="hibernate-jpa-2.0-api" rev="${versions.persistence-api}"/>
     <dependency org="org/apache/lucene" name="lucene-core" rev="${versions.lucene}"/>
     <dependency org="org/apache/lucene" name="lucene-highlighter" rev="${versions.lucene}"/>
     <dependency org="org/apache/lucene" name="lucene-spellchecker" rev="${versions.lucene}"/>
     <!-- spring -->
-    <dependency org="org.springframework" name="org.springframework.orm" rev="${versions.spring}" conf="build,client,server->runtime"/>
+    <dependency org="org.springframework" name="org.springframework.beans" rev="${versions.spring}" conf="build,client,server->default"/>
+    <dependency org="org.springframework" name="org.springframework.context" rev="${versions.spring}" conf="build,client,server->default"/>
+    <dependency org="org.springframework" name="org.springframework.jdbc" rev="${versions.spring}" conf="build,client,server->default"/>
+    <dependency org="org.springframework" name="org.springframework.orm" rev="${versions.spring}" conf="build,client,server->default"/>
+    <dependency org="org.springframework" name="org.springframework.transaction" rev="${versions.spring}" conf="build,client,server->default"/>
   </dependencies>
 </ivy-module>
