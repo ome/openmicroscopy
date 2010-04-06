@@ -76,6 +76,9 @@ class TwoKnobsSliderModel
 	/** Indicates if the ticks are painted or not. */
 	private boolean     				paintTicks;
 
+	/** Indicates to paint the {@link #startValue} and {@link #endValue}. */
+	private boolean						paintCurrentValues;
+	
 	/** Indicates if the end labels are painted or not. */
 	private boolean     				paintEndLabels;
 
@@ -106,15 +109,15 @@ class TwoKnobsSliderModel
 	/** Creates labels for the minimum and maximum values. */
 	private void createEndLabels()
 	{
-		labels.put(new Integer(minimum), render(minimum));
-		labels.put(new Integer(maximum), render(maximum));
+		labels.put(Integer.valueOf(minimum), render(minimum));
+		labels.put(Integer.valueOf(maximum), render(maximum));
 	}
 
 	/** Creates the labels. */
 	private void createLabels()
 	{
 		for (int i = minimum; i <= maximum; i += increment)
-			labels.put(new Integer(i), render(i));
+			labels.put(Integer.valueOf(i), render(i));
 	}
 
 	/** Initializes the controls with the default values. */
@@ -162,21 +165,6 @@ class TwoKnobsSliderModel
 	void checkValues(int absoluteMax, int absoluteMin, int maximum, int minimum,
 			int startValue, int endValue)
 	{
-		/*
-		if (maximum >= minimum && startValue >= absoluteMin && 
-				startValue <= absoluteMax && endValue >= absoluteMin &&
-				endValue <= absoluteMax && startValue <= endValue &&
-				absoluteMax >= absoluteMin && maximum <= absoluteMax &&
-				minimum >= absoluteMin) {
-			this.startValue = startValue;
-			this.endValue = endValue;
-			this.minimum = minimum;
-			this.maximum = maximum;
-			this.absoluteMax = absoluteMax;
-			this.absoluteMin = absoluteMin;
-		} else
-			throw new IllegalArgumentException("Invalid range properties");
-		*/
 		if (maximum >= minimum && startValue <= endValue &&
 				absoluteMax >= absoluteMin && maximum <= absoluteMax &&
 				minimum >= absoluteMin) {
@@ -257,32 +245,14 @@ class TwoKnobsSliderModel
 	 * 
 	 * @return See above.
 	 */
-	int getPartialMinimum()
-	{
-		/*
-		if (absoluteMin == minimum && absoluteMax == maximum)
-			return minimum;
-		if (partialMin < absoluteMin) return absoluteMin;
-		return partialMin;
-		*/
-		return absoluteMin;
-	}
+	int getPartialMinimum() { return absoluteMin; }
 
 	/**
 	 * Returns the partial maximum.
 	 * 
 	 * @return See above.
 	 */
-	int getPartialMaximum()
-	{
-		return absoluteMax;
-		/*
-		if (absoluteMin == minimum && absoluteMax == maximum)
-			return maximum;
-		if (partialMax > absoluteMax) return absoluteMax;
-		return partialMax;
-		*/
-	}
+	int getPartialMaximum() { return absoluteMax; }
 
 	/**
 	 * Sets the value of the start knob, value in the range
@@ -335,6 +305,16 @@ class TwoKnobsSliderModel
 	 * 
 	 * @param paintLabels Passed <code>true</code> to paint the labels.
 	 */
+	void setPaintCurrentValues(boolean paintCurrentValues)
+	{ 
+		this.paintCurrentValues = paintCurrentValues;
+	}
+	
+	/**
+	 * Paints the labels if the passed flag is <code>true</code>.
+	 * 
+	 * @param paintLabels Passed <code>true</code> to paint the labels.
+	 */
 	void setPaintLabels(boolean paintLabels)
 	{ 
 		this.paintLabels = paintLabels;
@@ -368,6 +348,14 @@ class TwoKnobsSliderModel
 	 */
 	boolean isPaintLabels() { return paintLabels; }
 
+	/**
+	 * Returns <code>true</code> to paint the current values, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isPaintCurrentValues() { return paintCurrentValues; }
+	
 	/**
 	 * Returns <code>true</code> the ticks are painted, <code>false</code>
 	 * otherwise.
@@ -424,7 +412,7 @@ class TwoKnobsSliderModel
 	 * 
 	 * @return See above. 
 	 */
-	Map getLabels() { return labels; }
+	Map<Integer, String> getLabels() { return labels; }
 
 	/**
 	 * Formats the specified value.

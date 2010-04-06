@@ -2042,17 +2042,22 @@ class EditorModel
 	
 	/** 
 	 * Starts an asynchronous call to load the rendering control. 
+	 * Returns <code>false</code> if already loaded, <code>true</code>
+	 * otherwise.
 	 * 
 	 * @param pixelsID The id of the pixels set.
 	 * @param index One of the constants defined by the RenderingControlLoader
 	 * class
+	 * @return 
 	 */
-	void fireRenderingControlLoading(long pixelsID, int index)
+	boolean fireRenderingControlLoading(long pixelsID, int index)
 	{
-		if (isRendererLoaded() && index == RenderingControlLoader.LOAD) return;
+		if (isRendererLoaded() && index == RenderingControlLoader.LOAD) 
+			return false;
 		RenderingControlLoader loader = new RenderingControlLoader(component, 
 				pixelsID, index);
 		loader.load();
+		return true;
 	}
 	
 	/**
@@ -2065,7 +2070,8 @@ class EditorModel
 		if (renderer != null) {
 			renderer.onSettingsApplied(rndControl);
 		} else {
-			renderer = RendererFactory.createRenderer(rndControl, getRndIndex());
+			renderer = RendererFactory.createRenderer(rndControl, getImage(),
+					getRndIndex());
 		}
 	}
 	

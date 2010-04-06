@@ -317,9 +317,6 @@ class RendererComponent
 		} catch (Exception ex) {
 			handleException(ex);
 		}
-		
-		
-		
 	}
 
     /** 

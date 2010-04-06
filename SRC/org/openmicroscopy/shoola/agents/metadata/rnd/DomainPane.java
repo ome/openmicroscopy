@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -45,6 +46,7 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -70,6 +72,7 @@ import org.openmicroscopy.shoola.agents.metadata.actions.NoiseReductionAction;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
+import org.openmicroscopy.shoola.util.ui.ColorListRenderer;
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
@@ -134,6 +137,9 @@ public class DomainPane
     /** Identifies the <code>Family</code> selection. */
     private static final int    	FAMILY = 0;
    
+    /** Identifies the <code>Channels</code> selection. */
+    private static final int    	CHANNEL = 1;
+    
     /** Dimension of the box between the channel buttons. */
     private static final Dimension 	VBOX = new Dimension(1, 10);
        
@@ -204,6 +210,9 @@ public class DomainPane
     
     /** The component displaying the preview image. */
     private PreviewCanvas				canvas;
+    
+    /** The box hosting the channels. */
+    private JComboBox					channelsBox;
     
     /**
      * Attaches listener to the passed slider and sets the default values.
@@ -375,10 +384,49 @@ public class DomainPane
              initSlider(zSlider, maxZ, model.getDefaultZ(), 
              			Z_SLIDER_DESCRIPTION, Z_SLIDER_TIPSTRING);
              canvas = new PreviewCanvas();
+             canvas.addMouseListener(new MouseAdapter() {
+				
+            	 /**
+            	  * Posts an event to open the viewer when double-clicking 
+            	  * on the canvas.
+            	  */
+				public void mouseReleased(MouseEvent e)
+				{
+					if (e.getClickCount() == 2) model.viewImage();
+				}
+			});
         }
        
         selectedPlane = new JLabel();
+        Font font = selectedPlane.getFont();
+        selectedPlane.setFont(font.deriveFont(font.getStyle(), 
+        		font.getSize()-2));
         setSelectedPlaneLabel();
+        
+        List<ChannelData> channels = model.getChannelData();
+        channelsBox = new JComboBox();
+        
+        
+        Object[][] channelCols = new Object[channels.size()][2];
+		Iterator<ChannelData> i = channels.iterator();
+		ChannelData data;
+		int index = 0;
+		int selected = 0;
+		while (i.hasNext()) {
+			data = i.next();
+			channelCols[index] = new Object[]{ 
+					model.getChannelColor(data.getIndex()), 
+					data.getChannelLabeling() };
+			if (data.getIndex() == model.getSelectedChannel())
+				selected = index;
+			index++;
+		}
+		channelsBox.setModel(new DefaultComboBoxModel(channelCols));	
+		channelsBox.setRenderer(new ColorListRenderer());
+		channelsBox.setSelectedIndex(selected);
+		
+		channelsBox.addActionListener(this);
+        channelsBox.setActionCommand(""+CHANNEL);
     }
     
     /** Indicates the selected plane. */
@@ -459,11 +507,11 @@ public class DomainPane
         	controls.add(bar, "0, "+k+", CENTER, CENTER");
         	k = k+2;
         }
+        
         if (channelList.size() > Renderer.MAX_CHANNELS) 
         	controls.add(new JScrollPane(p), "0, "+k);
         else controls.add(p, "0, "+k);
-        
-        
+
         JPanel content = UIUtilities.buildComponentPanel(controls);  
         content.setBackground(UIUtilities.BACKGROUND_COLOR);
         return content;  
@@ -479,7 +527,7 @@ public class DomainPane
     	JPanel p = new JPanel();
     	p.setBackground(UIUtilities.BACKGROUND_COLOR);
     	p.setLayout(new BorderLayout());
-    	if (channelButtonPanel != null)
+    	if (channelButtonPanel != null && model.isGeneralIndex())
     		p.add(channelButtonPanel, BorderLayout.WEST);
     	if (model.isGeneralIndex()) {
     		p.add(buildViewerPane(), BorderLayout.CENTER);
@@ -591,7 +639,11 @@ public class DomainPane
 		c.anchor = GridBagConstraints.WEST;
 		c.insets = new Insets(0, 2, 2, 0);
 		c.gridy = 0;
-		JPanel comp = UIUtilities.buildComponentPanel(familyBox);
+		JPanel comp = UIUtilities.buildComponentPanel(channelsBox);
+		comp.setBackground(UIUtilities.BACKGROUND_COLOR);
+		addComponent(c, "Channels", comp, p);
+		c.gridy++;
+		comp = UIUtilities.buildComponentPanel(familyBox);
 		comp.setBackground(UIUtilities.BACKGROUND_COLOR);
 		addComponent(c, "Map", comp, p);
 		c.gridy++;
@@ -963,6 +1015,13 @@ public class DomainPane
                             ((JComboBox) e.getSource()).getSelectedItem();
                     firePropertyChange(FAMILY_PROPERTY, model.getFamily(), f);
                     break;
+                case CHANNEL:
+                	int v = channelsBox.getSelectedIndex();
+                	List<ChannelData> channels = model.getChannelData();
+                	ChannelData data = channels.get(v);
+                	controller.setChannelSelection(data.getIndex(), 
+                			model.isChannelActive(data.getIndex()));
+                	
             }
         } catch(NumberFormatException nfe) {  
             throw new Error("Invalid Action ID "+index, nfe);

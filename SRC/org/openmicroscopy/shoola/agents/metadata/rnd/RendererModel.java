@@ -38,17 +38,21 @@ import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
+
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ChannelData;
+import pojos.ImageData;
 import pojos.PixelsData;
 
 /** 
@@ -157,6 +161,9 @@ class RendererModel
     /** The rendering settings. */
     private RndProxyDef			rndDef;
     
+    /** Reference to the image. */
+    private ImageData			image;
+    
 	/**
 	 * Creates a new instance.
 	 * 
@@ -178,6 +185,13 @@ class RendererModel
 	}
 	
 	/**
+	 * Sets the image the component is for.
+	 * 
+	 * @param image The value to set.
+	 */
+	void setImage(ImageData image) { this.image = image; }
+	
+	/**
 	 * Sets the rendering control.
 	 * 
 	 * @param rndControl  Reference to the component that controls the
@@ -187,6 +201,14 @@ class RendererModel
 	{
 		this.rndControl = rndControl;
 		if (rndControl != null) rndDef = rndControl.getRndSettingsCopy();
+	}
+	
+	/** Posts an event to view the image. */
+	void viewImage()
+	{
+		if (image == null) return;
+		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
+		bus.post(new ViewImage(image, null));
 	}
 	
 	/**

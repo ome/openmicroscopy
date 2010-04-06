@@ -269,8 +269,8 @@ class IntensityView
 	{
 		Double data[][] = new Double[1][1];
 		Double summaryData[][] = new Double[1][1];
-		ArrayList<String> rowNames = new ArrayList<String>();
-		ArrayList<String> columnNames = new ArrayList<String>();
+		List<String> rowNames = new ArrayList<String>();
+		List<String> columnNames = new ArrayList<String>();
 		
 		rowNames.add("");
 		columnNames.add("");
@@ -425,10 +425,8 @@ class IntensityView
 			stdDevStats.clear();	
 		stdDevStats = null;
 	}
-
-
-
-	/** Clear the combo box. */
+	
+	/** Clears the combo box. */
 	private void clearAllValues()
 	{
 		channelSelection.removeAllItems();
@@ -1195,8 +1193,8 @@ class IntensityView
 		switch (index) {
 			case CHANNEL_SELECTION:
 				JComboBox cb = (JComboBox)e.getSource();
-				Object[] nameColour = (Object[])cb.getSelectedItem();
-				String string = (String)nameColour[1];
+				Object[] nameColour = (Object[]) cb.getSelectedItem();
+				String string = (String) nameColour[1];
 				if (!nameMap.containsKey(string))
 					return;
 				selectedChannelName = string;

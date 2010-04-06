@@ -258,6 +258,18 @@ class RendererControl
 		model.resetSettings(rndDef, true);
 	}
 	
+	/**
+	 * Indicates that a channel has been selected using the channel button.
+	 * 
+	 * @param index	 The index of the channel.
+	 * @param active Pass <code>true</code> to indicate that the channel is
+	 * 				 active, <code>false</code> otherwise.
+	 */
+	void setChannelSelection(int index, boolean active)
+	{
+		model.setChannelSelection(index, active);
+	}
+	
     /**
      * Reacts to property change events.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -299,7 +311,7 @@ class RendererControl
 			while (i.hasNext()) {
 				entry = (Entry) i.next();
 				index = (Integer) entry.getKey();
-				model.setChannelSelection(index.intValue(), 
+				setChannelSelection(index.intValue(), 
 						(Boolean) entry.getValue());
 			}
         } else if (ChannelButton.CHANNEL_COLOR_PROPERTY.equals(name)) {

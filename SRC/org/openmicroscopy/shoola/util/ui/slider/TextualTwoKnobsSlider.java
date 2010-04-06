@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.util.ui.slider;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -83,6 +85,9 @@ public class TextualTwoKnobsSlider
 	
 	/** Indicates to layout the slider and label only. */
 	public static final int		LAYOUT_SLIDER_AND_LABEL = 3;
+	
+	/** Indicates to layout the slider and label only. */
+	public static final int		LAYOUT_SLIDER_FIELDS_X_AXIS = 4;
 	
 	/** The id of the action linked to the {@link #startField}. */
 	public static final int 	START = 0;
@@ -219,6 +224,7 @@ public class TextualTwoKnobsSlider
 		int maxValue = Math.max(Math.abs(min), Math.abs(max));
 		if (min < 0 || max < 0) minus = "-";
 		int length = (minus+((double) maxValue/roundingFactor)).length(); 
+		length = length/2+1;
 		double minR = ((double) absMin)/roundingFactor;
 		double maxR = ((double) absMax)/roundingFactor;
 		
@@ -540,6 +546,12 @@ public class TextualTwoKnobsSlider
 			case LAYOUT_SLIDER:
 				add(slider);
 				break;
+			case LAYOUT_SLIDER_FIELDS_X_AXIS:
+				setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+				add(startField);
+				add(slider);
+				add(endField);
+				break;
 			case LAYOUT_SLIDER_AND_LABEL:
 				double size[][] =
 		        {{TableLayout.PREFERRED, TableLayout.PREFERRED},  // Columns
@@ -626,6 +638,7 @@ public class TextualTwoKnobsSlider
 		int maxValue = Math.max(Math.abs(min), Math.abs(max));
 		if (min < 0 || max < 0) minus = "-";
 		int length = (minus+((double) maxValue/roundingFactor)).length(); 
+		length = length/2+1;
 		if (roundingFactor > 1) {
 			startField.setNumberType(Double.class);
 			endField.setNumberType(Double.class);
@@ -681,6 +694,17 @@ public class TextualTwoKnobsSlider
 	}
 	
 	/**
+	 * Sets the colour gradient of the slider.
+	 * 
+	 * @param rgbStart The gradient start.
+	 * @param rgbEnd The gradient end.
+	 */
+	public void setColourGradients(Color rgbStart, Color rgbEnd)
+	{
+		slider.setColourGradients(rgbStart, rgbEnd);
+	}
+	
+	/**
 	 * Overridden to set the text fields and the slider enabled.
 	 * @see JPanel#setEnabled(boolean)
 	 */
@@ -702,6 +726,18 @@ public class TextualTwoKnobsSlider
 		if (slider != null) slider.setBackground(c);
 		if (endField != null) endField.setBackground(c);
 		if (startField != null) startField.setBackground(c);
+	}
+	
+	/**
+	 * Overridden to set the font of the various components.
+	 * @see JPanel#setFont(Font)
+	 */
+	public void setFont(Font font)
+	{
+		super.setFont(font);
+		if (slider != null) slider.setFont(font);
+		if (endField != null) endField.setFont(font);
+		if (startField != null) startField.setFont(font);
 	}
 	
 	/**
@@ -805,14 +841,5 @@ public class TextualTwoKnobsSlider
      * @see KeyListener#keyTyped(KeyEvent)
      */ 
 	public void keyTyped(KeyEvent e) {}
-	
-	/**
-	 * Set the colour gradient of the twoknobslider.
-	 * @param RGBStart The gradient start.
-	 * @param RGBEnd The gradient end.
-	 */
-	public void setColourGradients(Color RGBStart, Color RGBEnd)
-	{
-		slider.setColourGradients(RGBStart, RGBEnd);
-	}
+
 }

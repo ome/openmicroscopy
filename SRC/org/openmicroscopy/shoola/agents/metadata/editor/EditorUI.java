@@ -45,6 +45,7 @@ import org.jdesktop.swingx.JXTaskPane;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -105,6 +106,13 @@ public class EditorUI
 	private static final String			RENDERER_DESCRIPTION = 
 		"Preview the image";
 	
+	/** The name of the tab pane. */
+	private static final String			RENDERER_NAME_SPECIFIC = "Settings";
+	
+	/** The description of the tab pane. */
+	private static final String			RENDERER_DESCRIPTION_SPECIFIC = 
+		"Adjust the rendering settings";
+	
 	/** Reference to the controller. */
 	private EditorControl				controller;
 	
@@ -159,9 +167,15 @@ public class EditorUI
 		tabPane.addTab("General", null, generalPane, "General Information.");
 		tabPane.addTab("Acquisition", null, new JScrollPane(acquisitionPane), 
 			"Acquisition Metadata.");
-		if (init) tabPane.addTab(RENDERER_NAME, null, dummyPanel, 
-				RENDERER_DESCRIPTION);
-			
+		if (init) {
+			if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC) {
+				tabPane.addTab(RENDERER_NAME_SPECIFIC, null, dummyPanel, 
+						RENDERER_DESCRIPTION_SPECIFIC);
+			} else {
+				tabPane.addTab(RENDERER_NAME, null, dummyPanel, 
+						RENDERER_DESCRIPTION);
+			}
+		}	
 	}
 	
 	/** Initializes the UI components. */
@@ -597,9 +611,16 @@ public class EditorUI
 	{
 		tabPane.removeAll();
 		populateTabbedPane(false);
-		tabPane.addTab(RENDERER_NAME, null, 
-				new JScrollPane(model.getRenderer().getUI()), 
-				RENDERER_DESCRIPTION);
+		if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC) {
+			tabPane.addTab(RENDERER_NAME_SPECIFIC, null, 
+					new JScrollPane(model.getRenderer().getUI()), 
+					RENDERER_DESCRIPTION_SPECIFIC);
+		} else {
+			tabPane.addTab(RENDERER_NAME, null, 
+					new JScrollPane(model.getRenderer().getUI()), 
+					RENDERER_DESCRIPTION);
+		}
+		
 		setSelectedTab(RND_INDEX);
 		model.getRenderer().renderPreview();
 	}

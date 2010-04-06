@@ -579,7 +579,7 @@ public class UIUtilities
 	 * {@link javax.swing.JComponent}.
 	 *
 	 * @param toolTipText     The textual content of the tool tip.
-	 * @return An <i>HTML</i> fomatted string to be passed to 
+	 * @return An <i>HTML</i> formatted string to be passed to 
 	 * 			<code>setToolTipText()</code>.
 	 */
 	public static String formatToolTipText(List<String> toolTipText) 

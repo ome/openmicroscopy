@@ -1168,10 +1168,10 @@ class TreeViewerModel
 			*/
 		}
 		if (f == null) return null;
-		MimetypesFileTypeMap map = new MimetypesFileTypeMap();
-		String type = map.getContentType(f);
-		f.delete();
-		return type;
+		//MimetypesFileTypeMap map = new MimetypesFileTypeMap();
+		//String type = map.getContentType(f);
+		//f.delete();
+		return null;//type;
 	}
 	
 	/**

@@ -641,8 +641,7 @@ class EditorComponent
 			default:
 				value = index;
 		}
-		model.fireRenderingControlLoading(pixels.getId(), value);
-		setStatus(true);
+		setStatus(model.fireRenderingControlLoading(pixels.getId(), value));
 	}
 	
 	/** 

@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.util.ui.slider;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
@@ -59,7 +60,7 @@ import javax.swing.JPanel;
 public class TwoKnobsSlider
   	extends JPanel
 {
-  
+	
 	/** The default minimum value. */
 	public static final int    			DEFAULT_MIN = 0;
 
@@ -135,7 +136,11 @@ public class TwoKnobsSlider
 	/** The View component that renders this slider. */
 	private TwoKnobsSliderUI    uiDelegate;
 
-	Color RGBStart, RGBEnd;
+	/** The start color for the gradient. */
+	private Color 				rgbStart; 
+	
+	/** The end color for the gradient. */
+	private Color				rgbEnd;
 	
 	/** 
 	 * Indicates which knob is moved.
@@ -151,18 +156,24 @@ public class TwoKnobsSlider
 	private int                 fontHeight;
 
 	private boolean 			colourGradient;
-	
+
 	/** Computes the preferred size of this component. */
 	private void calculatePreferredSize()
 	{
 		int h = knobHeight;
+		int w = 0;
 		if (model.isPaintTicks()) h += knobHeight;
 		if (model.isPaintLabels() || model.isPaintEndLabels())
 			h += TwoKnobsSliderUI.EXTRA+fontHeight+2*TwoKnobsSliderUI.BUFFER;
+		if (model.isPaintCurrentValues()) {
+			FontMetrics fm = getFontMetrics(getFont());
+			w += fm.stringWidth(model.render(model.getAbsoluteMinimum()));
+			w += fm.stringWidth(model.render(model.getAbsoluteMaximum()));
+		}
 		if (model.getOrientation() == VERTICAL)
 			preferredSize_ = PREFERRED_VERTICAL;
 		else
-			preferredSize_ = new Dimension(PREFERRED_HORIZONTAL.width, h);
+			preferredSize_ = new Dimension(PREFERRED_HORIZONTAL.width+w, h);
 	}
 
 	/** Sets the default values. */
@@ -535,6 +546,19 @@ public class TwoKnobsSlider
 	}
 
 	/**
+	 * Paints the current values if the passed flag is <code>true</code>.
+	 * 
+	 * @param paintLabel Passed <code>true</code> to paint the labels.
+	 */
+	public void setPaintCurrentValues(boolean paintCurrentValues)
+	{
+		if (model.isPaintCurrentValues() == paintCurrentValues) return;
+		model.setPaintCurrentValues(paintCurrentValues);
+		calculatePreferredSize();
+		repaint();
+	}
+	
+	/**
 	 * Paints the minimum and maximum labels if the passed flag
 	 * is <code>true</code>.
 	 * 
@@ -620,7 +644,7 @@ public class TwoKnobsSlider
 	}
 
 	/**
-	 * Returns the minimum value if the asbolute min equals the minimum
+	 * Returns the minimum value if the absolute min equals the minimum
 	 * otherwise returns the minimum value.
 	 * 
 	 * @return See above.
@@ -631,7 +655,7 @@ public class TwoKnobsSlider
 	}
 
 	/**
-	 * Returns the maximum value if the asbolute max equals the maximum
+	 * Returns the maximum value if the absolute max equals the maximum
 	 * otherwise returns the maximum value.
 	 * 
 	 * @return See above.
@@ -641,6 +665,42 @@ public class TwoKnobsSlider
 		return model.getPartialMaximum();
 	}
 
+	/**
+	 * Sets the colour gradient of the slider. This will replace the track with
+	 * a gradient.
+	 * 
+	 * @param rgbStart Start colour of the gradient.
+	 * @param rgbEnd End colour of the gradient.
+	 */
+	public void setColourGradients(Color rgbStart, Color rgbEnd)
+	{
+		colourGradient = true;
+		this.rgbStart = rgbStart;
+		this.rgbEnd = rgbEnd;
+	}
+	
+	/**
+	 * Returns the start colour of the gradient.
+	 *  
+	 * @return See above.
+	 */
+	public Color getRGBStart() { return rgbStart; }
+	
+	/**
+	 * Returns the end colour of the gradient. 
+	 * 
+	 * @return See above.
+	 */
+	public Color getRGBEnd() { return rgbEnd; }
+	
+	/**
+	 * Returns <code>True</code> if the color gradient is set,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean getColourGradient() { return colourGradient; }
+	
 	/**
 	 * Overrides method to return the <code>Preferred Size</code>.
 	 * @see JPanel#getPreferredSize()
@@ -690,44 +750,4 @@ public class TwoKnobsSlider
 		uiDelegate.paintComponent((Graphics2D) g, getSize());
 	}
   
-	/**
-	 * Set the colour gradient of the slider. This will replace the track with
-	 * a gradient.
-	 * @param RGBStart Start colour of the gradient.
-	 * @param RGBEnd End colour of the gradient.
-	 */
-	public void setColourGradients(Color RGBStart, Color RGBEnd)
-	{
-		colourGradient = true;
-		this.RGBStart = RGBStart;
-		this.RGBEnd = RGBEnd;
-	}
-	
-	/**
-	 * Get the start colour of the gradient. 
-	 * @return See above.
-	 */
-	public Color getRGBStart()
-	{
-		return RGBStart;
-	}
-	
-	/**
-	 * Get the end colour of the gradient. 
-	 * @return See above.
-	 */
-	public Color getRGBEnd()
-	{
-		return RGBEnd;
-	}
-	
-	/**
-	 * Is the colour gradient set, return <code>True</code> if so.
-	 * @return See above.
-	 */
-	public boolean getColourGradient()
-	{
-		return colourGradient;
-	}
-	
 }

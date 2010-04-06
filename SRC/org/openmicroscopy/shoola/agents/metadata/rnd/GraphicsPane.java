@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -194,7 +195,8 @@ class GraphicsPane
         codomainSlider.setPaintLabels(false);
         codomainSlider.setPaintEndLabels(false);
         codomainSlider.setPaintTicks(false);
-        codomainSlider.setOrientation(TwoKnobsSlider.VERTICAL);
+        codomainSlider.setColourGradients(Color.BLACK, Color.WHITE);
+        //codomainSlider.setOrientation(TwoKnobsSlider.VERTICAL);
         codomainSlider.addPropertyChangeListener(this);
         
         domainSlider = new TextualTwoKnobsSlider();
@@ -226,14 +228,14 @@ class GraphicsPane
         resetButton.setBackground(UIUtilities.BACKGROUND_COLOR);
         resetButton.addActionListener(this);
         resetButton.setActionCommand(""+RESET);
-        if (model.isGeneralIndex() && model.getMaxC() < Renderer.MAX_CHANNELS) {
+        if (model.getMaxC() < Renderer.MAX_CHANNELS) {
+        //if (model.isGeneralIndex() && model.getMaxC() < Renderer.MAX_CHANNELS) {
         	sliders = new ArrayList<ChannelSlider>();
         	List<ChannelData> channels = model.getChannelData();
         	Iterator<ChannelData> i = channels.iterator();
-        	ChannelData data;
         	while (i.hasNext()) {
-        		data = i.next();
-        		sliders.add(new ChannelSlider(model, controller, data));
+        		sliders.add(new ChannelSlider(this, model, controller, 
+        				i.next()));
 			}
         }
     }
@@ -245,13 +247,16 @@ class GraphicsPane
     	double size[][] = {{TableLayout.FILL},  // Columns
     	         {TableLayout.PREFERRED, 5, TableLayout.PREFERRED}}; // Rows
     	    	setLayout(new TableLayout(size));
-    	//setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
     	if (model.isGeneralIndex()) {
     		add(buildGeneralPane(), "0, 0");
     		add(buildChannelsControls(), "0, 2");
     	} else {
+    		add(buildPane(), "0, 0");
+    		add(buildGeneralPane(), "0, 2");
+    		/*
     		add(buildGraphicsPane(), "0, 0");
             add(buildFieldsControls(), "0, 2");
+            */
     	}
     }
     
@@ -265,6 +270,9 @@ class GraphicsPane
     	JPanel content = new JPanel();
     	content.add(new JSeparator());
    	 	content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+   	 	JPanel p = UIUtilities.buildComponentPanel(preview);
+   	 	p.setBackground(UIUtilities.BACKGROUND_COLOR);
+   	 	content.add(p);
    	 	content.setBackground(UIUtilities.BACKGROUND_COLOR);
     	Iterator<ChannelSlider> i = sliders.iterator();
     	while (i.hasNext()) {
@@ -298,7 +306,26 @@ class GraphicsPane
     	 p.add(preview, "0, 4, 3, 4");
          return p;
     }
+ 
+    /** 
+     * Builds and lays out the slider.
+     * 
+     * @return See above.
+     */
+    private JPanel buildPane()
+    {
+    	 JPanel p = new JPanel();
+    	 p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+    	 p.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	 p.add(codomainSlider);
+    	 return p;
+    }
     
+    /**
+     * Builds and lays out the controls.
+     * 
+     * @return See above.
+     */
     private JPanel buildChannelsControls()
     {
    	 	JPanel controls = new JPanel();
@@ -350,12 +377,6 @@ class GraphicsPane
 	   	 	comp.setBackground(UIUtilities.BACKGROUND_COLOR);
 	   	 	controls.add(comp);
    	 	}
-   	 	/*
-   	 	if (model.isGeneralIndex()) {
-	   	 	comp = UIUtilities.buildComponentPanel(applyButton);
-	   	 	comp.setBackground(UIUtilities.BACKGROUND_COLOR);
-	   	 	controls.add(comp);
-   	 	}*/
    	 	content.add(controls);
         return content;
     }
@@ -472,6 +493,14 @@ class GraphicsPane
      * @return See above.
      */
     boolean isPaintLine() { return paintVertical() || paintHorizontal(); }
+    
+    /**
+     * Returns <code>true</code> if the preview is selected, 
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isPreviewSelected() { return preview.isSelected(); }
     
     /**
      * Returns <code>true</code> if a vertical line has 

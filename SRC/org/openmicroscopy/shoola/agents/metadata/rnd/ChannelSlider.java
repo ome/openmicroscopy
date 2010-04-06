@@ -29,6 +29,8 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JPanel;
 
 
@@ -36,6 +38,7 @@ import javax.swing.JPanel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
 import pojos.ChannelData;
 
@@ -59,20 +62,23 @@ class ChannelSlider
 {
 
 	/** The default color. */
-	private static final Color		GRADIENT_COLOR = Color.BLACK;
+	static final Color	GRADIENT_COLOR = Color.BLACK;
 	
 	/** Reference to the model. */
-	private RendererModel 	model;
+	private RendererModel 		model;
 	
 	/** Reference to the control. */
-	private RendererControl controller;
+	private RendererControl 	controller;
+	
+	/** The reference to the parent hosting the component. */
+	private GraphicsPane 		uiParent;
 	
 	/** Reference to the channel. */
-	private ChannelData 	channel;
+	private ChannelData 		channel;
 	
 	/** Selection slider. */
-	private TwoKnobsSlider 	slider;
-	
+	private TextualTwoKnobsSlider 	slider;
+
 	/** Initializes the component composing the display. */
 	private void initComponents()
 	{
@@ -82,22 +88,43 @@ class ChannelSlider
         int e = (int) (model.getWindowEnd(index)*f);
         int min = (int) (channel.getGlobalMin()*f);
         int max = (int) (channel.getGlobalMax()*f);
-        slider = new TwoKnobsSlider(min, max, min, max, s, e);
+        slider = new TextualTwoKnobsSlider();
+        slider.layoutComponents(
+        		TextualTwoKnobsSlider.LAYOUT_SLIDER_FIELDS_X_AXIS);
+        slider.setBackground(UIUtilities.BACKGROUND_COLOR);
+
+        int absMin = (int) (model.getLowestValue(index)*f);
+        int absMax = (int) (model.getHighestValue(index)*f);
+        double range = (max-min)*GraphicsPane.RATIO;
+        int lowestBound = (int) (min-range);
+        if (lowestBound < absMin) lowestBound = absMin;
+        int highestBound = (int) (max+range);
+        if (highestBound > absMax) highestBound = absMax;
+        //domainSlider.setValues(highestBound, lowestBound, max, min, s, e);
+        slider.setValues(max, min, highestBound, lowestBound,
+        		max, min, s, e, f);
+        
+        slider.getSlider().setPaintLabels(false);
+        slider.getSlider().setPaintEndLabels(false);
+        slider.getSlider().setPaintTicks(false);
+        slider.addPropertyChangeListener(this);
+        slider.setColourGradients(GRADIENT_COLOR, model.getChannelColor(index));
+        
+        
+        
         Font font = slider.getFont();
         slider.setFont(font.deriveFont(font.getStyle(), font.getSize()-2));
-        slider.setBackground(UIUtilities.BACKGROUND_COLOR);
-        slider.setColourGradients(GRADIENT_COLOR, model.getChannelColor(index));
-        slider.setPaintLabels(false);
-       // slider.setPaintEndLabels(false);
-        slider.setPaintTicks(false);
-        slider.addPropertyChangeListener(this);
+        List<String> list = new ArrayList<String>();
+        list.add(channel.getChannelLabeling());
+        list.add("min: "+min);
+        list.add("max: "+max);
+        slider.getSlider().setToolTipText(UIUtilities.formatToolTipText(list));
 	}
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
 		setBackground(UIUtilities.BACKGROUND_COLOR);
-		setBorder(null);
 		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		add(slider);
 	}
@@ -105,18 +132,24 @@ class ChannelSlider
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param model   		Reference to the model. Mustn't be <code>null</code>.
+	 * @param uiParent		Reference to the parent hosting the component.
+	 * 						Mustn't be <code>null</code>.
+	 * @param model   		Reference to the model.
+	 * 						Mustn't be <code>null</code>.
 	 * @param controller    Reference to the control. 
 	 * 						Mustn't be <code>null</code>.
 	 * @param channel		The channel this component is for.
 	 */
-	ChannelSlider(RendererModel model, RendererControl controller, 
-			ChannelData channel)
+	ChannelSlider(GraphicsPane uiParent, RendererModel model, 
+			RendererControl controller, ChannelData channel)
 	{
+		if (uiParent == null)
+			throw new IllegalArgumentException("UI cannot be null.");
 		if (model == null)
 			throw new IllegalArgumentException("Model cannot be null.");
 		if (controller == null)
 			throw new IllegalArgumentException("Control cannot be null.");
+		this.uiParent = uiParent;
 		this.model = model;
 		this.controller = controller;
 		this.channel = channel;
@@ -139,10 +172,7 @@ class ChannelSlider
 	 */
 	void setInterval(int s, int e)
 	{
-		slider.removePropertyChangeListener(this);
-		slider.setStartValue(s);
-		slider.setEndValue(e);
-		slider.addPropertyChangeListener(this);
+		slider.setInterval(s, e);
 	}
 	
 	/** Toggles between color model and Greyscale. */
@@ -167,10 +197,18 @@ class ChannelSlider
 	public void propertyChange(PropertyChangeEvent evt)
 	{
 		String name = evt.getPropertyName();
-		if (TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name)) {
-			controller.setInputInterval(slider.getStartValue(),
-					slider.getEndValue(), channel.getIndex());
+		if (uiParent.isPreviewSelected()) {
+			if (TwoKnobsSlider.LEFT_MOVED_PROPERTY.equals(name)
+					|| TwoKnobsSlider.RIGHT_MOVED_PROPERTY.equals(name)) {
+				controller.setInputInterval(slider.getStartValue(),
+						slider.getEndValue(), channel.getIndex());
+			}
+		} else {
+			if (TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name)) {
+				controller.setInputInterval(slider.getStartValue(),
+						slider.getEndValue(), channel.getIndex());
+			} 
 		}
 	}
-	
+
 }
