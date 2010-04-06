@@ -9,6 +9,9 @@ package ome.services.messages;
 
 import ome.system.OmeroContext;
 
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ApplicationEventMulticaster;
@@ -23,7 +26,7 @@ import org.springframework.context.event.SimpleApplicationEventMulticaster;
  * @see ome.system.OmeroContext#publishEvent(ApplicationEvent)
  * @see ome.system.OmeroContext#onRefresh()
  */
-public class GlobalMulticaster implements ApplicationEventMulticaster {
+public class GlobalMulticaster implements ApplicationEventMulticaster, BeanFactoryAware {
 
     private final static SimpleApplicationEventMulticaster _em = new SimpleApplicationEventMulticaster();
 
@@ -34,6 +37,11 @@ public class GlobalMulticaster implements ApplicationEventMulticaster {
      * {@link ApplicationListener listeners}.
      */
     public GlobalMulticaster() {
+    }
+
+
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        _em.setBeanFactory(beanFactory);
     }
 
     public void addApplicationListener(ApplicationListener arg0) {
@@ -56,11 +64,11 @@ public class GlobalMulticaster implements ApplicationEventMulticaster {
     }
 
     public void addApplicationListenerBean(String arg0) {
-        throw new UnsupportedOperationException();
+        _em.addApplicationListenerBean(arg0);
     }
 
     public void removeApplicationListenerBean(String arg0) {
-        throw new UnsupportedOperationException();
+        _em.removeApplicationListenerBean(arg0);
     }
 
 }
