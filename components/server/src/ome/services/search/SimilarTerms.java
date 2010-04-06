@@ -60,7 +60,7 @@ public class SimilarTerms extends SearchAction {
         }
         final Class<?> cls = values.onlyTypes.get(0);
 
-        final FullTextSession session = Search.createFullTextSession(s);
+        final FullTextSession session = Search.getFullTextSession(s);
         final SearchFactory factory = session.getSearchFactory();
         final DirectoryProvider[] directory = factory.getDirectoryProviders(cls);
         final ReaderProvider provider = factory.getReaderProvider();

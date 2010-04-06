@@ -14,14 +14,12 @@
 
 package ome.services.query;
 
-// Java imports
 import java.sql.SQLException;
 
-// Third-party libraries
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.criterion.Expression;
+import org.hibernate.criterion.Restrictions;
 
 // Application-internal dependencies
 import ome.parameters.Parameters;
@@ -64,7 +62,7 @@ public class IObjectClassQuery extends Query {
         Criteria c = session.createCriteria((Class) value(CLASS));
         for (QueryParameter qp : params.queryParameters()) {
             if (!qp.name.equals(CLASS)) {
-                c.add(Expression.eq(qp.name, qp.value)); // TODO checks for
+                c.add(Restrictions.eq(qp.name, qp.value)); // TODO checks for
                                                             // type.
             }
         }

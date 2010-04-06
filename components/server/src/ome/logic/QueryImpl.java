@@ -36,8 +36,8 @@ import org.hibernate.NonUniqueResultException;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Example;
-import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.MatchMode;
+import org.hibernate.criterion.Restrictions;
 import org.hibernate.metadata.ClassMetadata;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -276,7 +276,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                     throws HibernateException {
 
                 Criteria c = session.createCriteria(klass);
-                c.add(Expression.eq(fieldName, value));
+                c.add(Restrictions.eq(fieldName, value));
                 return c.uniqueResult();
 
             }
@@ -302,10 +302,10 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                         parseFilter(c, filter);
 
                         if (caseSensitive) {
-                            c.add(Expression.like(fieldName, value,
+                            c.add(Restrictions.like(fieldName, value,
                                     MatchMode.ANYWHERE));
                         } else {
-                            c.add(Expression.ilike(fieldName, value,
+                            c.add(Restrictions.ilike(fieldName, value,
                                     MatchMode.ANYWHERE));
                         }
 

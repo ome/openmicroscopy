@@ -6,6 +6,8 @@
  */
 package ome.security.basic;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.hibernate.engine.SessionImplementor;
+import org.hibernate.jdbc.Work;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.annotation.Transactional;
@@ -108,16 +111,22 @@ public class EventHandler implements MethodInterceptor {
         
         // ticket:1254
         Session session = factory.getSession();
-        Statement statement = session.connection().createStatement();
-        statement.execute("set constraints all deferred;");
+        session.doWork(new Work(){
+            public void execute(Connection connection) throws SQLException {
+                Statement statement = connection.createStatement();
+                statement.execute("set constraints all deferred;");
+            }});
         
         secSys.loadEventContext(readOnly, isClose);
         
         // and ticket:1266
         if (!readOnly) {
-            statement.execute("COMMIT;");
-            statement.execute("BEGIN");
+            session.doWork(new Work(){
+                public void execute(Connection connection) throws SQLException {
+                    connection.createStatement().execute("COMMIT;");
+                }});
         }
+
         // now the user can be considered to be logged in.
         EventContext ec = secSys.getEventContext();
         if (log.isInfoEnabled()) {

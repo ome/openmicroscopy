@@ -7,6 +7,8 @@
 
 package ome.services.fulltext;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 import ome.conditions.InternalException;
@@ -118,19 +120,21 @@ public class FullTextIndexer implements Work {
         int perbatch = 0;
         long start = System.currentTimeMillis();
         do {
-            try {
-                // ticket:1254 -
-                // The following is non-portable and can later be refactored
-                // for a more general solution.
-                Statement s = session.connection().createStatement();
-                s.execute("set constraints all deferred;");
-                // s.execute("set statement_timeout=10000");
-                // The Postgresql Driver does not currently support the
-                // "timeout" value on @Transactional and so if a query timeout
-                // is required, then this must be set.
-            } catch (Exception e) {
-                throw new InternalException("Failed to configure connection");
-            }
+
+            // ticket:1254 -
+            // The following is non-portable and can later be refactored
+            // for a more general solution.
+            session.doWork(new org.hibernate.jdbc.Work() {
+                public void execute(Connection connection) throws SQLException {
+                    Statement s = connection.createStatement();
+                    s.execute("set constraints all deferred;");
+                }
+            });
+            // s.execute("set statement_timeout=10000");
+            // The Postgresql Driver does not currently support the
+            // "timeout" value on @Transactional and so if a query timeout
+            // is required, then this must be set.
+
             FullTextSession fullTextSession = Search
                     .createFullTextSession(session);
             fullTextSession.setFlushMode(FlushMode.MANUAL);
