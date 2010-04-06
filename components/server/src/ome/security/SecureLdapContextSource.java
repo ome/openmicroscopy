@@ -22,22 +22,23 @@ public class SecureLdapContextSource extends DefaultSpringSecurityContextSource 
     private String trustStorePassword = null;
     private String protocol = null;
     
-    public SecureLdapContextSource() {
-        super();
+    public SecureLdapContextSource(String url) {
+        super(url);
     }
     
+    @SuppressWarnings("unchecked")
     @Override
     public void afterPropertiesSet() throws Exception {
         super.afterPropertiesSet();
         
         if(protocol.compareTo("")!=0) {
-            Hashtable<String, String> env = super.getAuthenticatedEnv();
+            Hashtable<String, String> env = super.getAuthenticatedEnv(userDn, password);
                     
             //specify use of ssl
             env.put(Context.SECURITY_PROTOCOL, protocol);
             
             //set the environment
-            super.setupAuthenticatedEnvironment(env);
+            super.setupAuthenticatedEnvironment(env, userDn, password);
             
             System.setProperty("javax.net.ssl.trustStore", trustStore);
             System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword);

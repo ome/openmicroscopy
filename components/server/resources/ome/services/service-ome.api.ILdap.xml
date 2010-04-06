@@ -53,9 +53,9 @@
 
 	<bean id="contextSource"
 		class="ome.security.SecureLdapContextSource">
-		<property name="urls" value="${omero.ldap.urls}" />
+		<constructor-arg value="${omero.ldap.urls}"/>
 		<property name="protocol" value="${omero.ldap.protocol}" />
-		<property name="userName" value="${omero.ldap.username}" />
+		<property name="userDn" value="${omero.ldap.username}" />
 		<property name="password" value="${omero.ldap.password}" />
 		<property name="base" value="${omero.ldap.base}" />
 		<property name="dirObjectFactory"
