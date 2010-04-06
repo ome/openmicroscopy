@@ -663,7 +663,6 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         # Will throw an exception if not allowed.
         self.logger.info("getTable: %s", (file_obj and file_obj.id and file_obj.id.val))
         file_path = self.repo_mgr.getFilePath(file_obj)
-        print "file_path:", file_path
         p = path(file_path).dirname()
         if not p.exists():
             p.makedirs()
