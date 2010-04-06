@@ -17,8 +17,9 @@
 #set($cascadeHib = "$cascadeHib org.hibernate.annotations.CascadeType.PERSIST,")
 #set($cascadeHib = "$cascadeHib org.hibernate.annotations.CascadeType.REPLICATE,")
 #set($cascadeHib = "$cascadeHib org.hibernate.annotations.CascadeType.REFRESH,")
-#set($cascadeHib = "$cascadeHib org.hibernate.annotations.CascadeType.SAVE_UPDATE,")
-#set($cascadeHib = "$cascadeHib org.hibernate.annotations.CascadeType.EVICT")
+#set($cascadeHib = "$cascadeHib org.hibernate.annotations.CascadeType.SAVE_UPDATE")
+## Deprecated in 3.5+
+## #set($cascadeHib = "$cascadeHib org.hibernate.annotations.CascadeType.EVICT")
 
 #set($errorIfUnloaded = "if (! _loaded ) errorIfUnloaded();" )
 ##
@@ -123,7 +124,9 @@ import ome.model.*;
             @org.hibernate.annotations.Parameter(name = "increment_size", value = "50")
         })
 #end############################################################
+#if(!$type.abstract)
 @org.hibernate.search.annotations.Indexed(index="FullText")
+#end
 @org.hibernate.search.annotations.ClassBridge(
     name="details",
     impl = ome.util.DetailsFieldBridge.class,
@@ -863,28 +866,33 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
         }
     }
 
+#if(!$prop.actualTarget.global)
     private java.util.Map<Long, Long> ${prop.name}CountPerOwner = null;
 
     protected void set${prop.nameCapped}CountPerOwner(java.util.Map<Long, Long> map) {
         this.${prop.name}CountPerOwner = map;
     }
 
+    /* DISABLED:
+    @org.hibernate.annotations.CollectionOfElements()
+    @org.hibernate.annotations.MapKey(columns=@javax.persistence.Column(name="owner_id"))
+    @javax.persistence.JoinTable(name="count_${type.shortname}_${prop.name}_by_owner")
+    */
     /**
      * If fetched, returns the count(*) of ${LinkType} that a user has.
      * If unfetched, returns null. No entries in the collection should be null.
      */
-    // Prevents deletes
-    @org.hibernate.annotations.Persister(impl = ome.util.CountCollectionPersister.class)
-    @javax.persistence.JoinTable(
-        name="count_${type.shortname}_${prop.name}_by_owner"
-    )
-    @javax.persistence.Column(name="count", nullable=false)
-    @org.hibernate.annotations.ForeignKey(name="FK_count_to_${type.shortname}_${prop.name}")
-    @org.hibernate.annotations.CollectionOfElements()
-    @org.hibernate.annotations.MapKey(columns=@javax.persistence.Column(name="owner_id"))
+    @org.hibernate.annotations.Persister(impl = ome.util.CountCollectionPersister.class) // prevents deletes
+    @org.hibernate.annotations.ForeignKey(name="FK_count_to_${type.shortname}_${prop.name}") // for code-gen
+    @javax.persistence.ElementCollection // new collection annotation
+    @javax.persistence.MapKeyColumn(name="owner_id", insertable=false, updatable=false, nullable=false)
+    @javax.persistence.Column(name="\"count\"", insertable=false, updatable=false, nullable=false)
+    @javax.persistence.CollectionTable(name="count_${type.shortname}_${prop.name}_by_owner",
+        joinColumns = @javax.persistence.JoinColumn(name="${type.shortname}_id"))
     public java.util.Map<Long, Long> get${prop.nameCapped}CountPerOwner() {
         return this.${prop.name}CountPerOwner;
     }
+#end
 
 #end## End isLink
 #elseif($prop.foreignKey)## REGULAR M-1 ##################################TYPE
@@ -987,7 +995,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
             this.version = (Integer) __filter.filter(VERSION, this.version);
 #end
 #foreach($prop in $type.classProperties)
-#if($prop.one2Many && $prop.isLink)
+#if($prop.one2Many && $prop.isLink && !$prop.actualTarget.global)
             this.${prop.name}CountPerOwner = (java.util.Map<Long, Long>) __filter.filter(${prop.name.toUpperCase()}COUNTPEROWNER, this.${prop.name}CountPerOwner );
 #end
             this.${prop.name} = (${prop.fieldType}) __filter.filter(${prop.name.toUpperCase()}, this.${prop.name} );
@@ -1030,7 +1038,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
     }
   
 #foreach($prop in $type.classProperties)
-#if($prop.one2Many && $prop.isLink)
+#if($prop.one2Many && $prop.isLink && !$prop.actualTarget.global)
     public final static String ${prop.name.toUpperCase()}COUNTPEROWNER = "${type.id}_${prop.name}CountPerOwner";
 #end
     public final static String ${prop.nameUpper} = "${type.id}_${prop.name}";
@@ -1046,7 +1054,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
        raw.add(VERSION);
 #end
 #foreach($prop in $type.classProperties)
-#if($prop.one2Many && $prop.isLink)
+#if($prop.one2Many && $prop.isLink && !$prop.actualTarget.global)
        raw.add(${prop.name.toUpperCase()}COUNTPEROWNER);
 #end
        raw.add(${prop.nameUpper});
@@ -1077,7 +1085,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
              return getVersion();
 #end
 #foreach($prop in $type.classProperties)
-#if($prop.one2Many && $prop.isLink)
+#if($prop.one2Many && $prop.isLink && !$prop.actualTarget.global)
         } else if (field.equals(${prop.name.toUpperCase()}COUNTPEROWNER)) {
             return get${prop.nameCapped}CountPerOwner();
 #end
@@ -1110,7 +1118,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
              setVersion((Integer) value);
 #end
 #foreach($prop in $type.classProperties)
-#if($prop.one2Many && $prop.isLink)
+#if($prop.one2Many && $prop.isLink && !$prop.actualTarget.global)
         } else if (field.equals(${prop.name.toUpperCase()}COUNTPEROWNER)) {
             set${prop.nameCapped}CountPerOwner((java.util.Map<Long,Long>)value);
 #end
@@ -1150,7 +1158,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
         this.version = null;
 #end
 #foreach($prop in $type.classProperties)
-#if($prop.one2Many && $prop.isLink)
+#if($prop.one2Many && $prop.isLink && !$prop.actualTarget.global)
         this.${prop.name}CountPerOwner = null;
 #end
         this.${prop.name} = null;

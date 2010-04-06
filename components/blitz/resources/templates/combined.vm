@@ -757,7 +757,7 @@ Properties used throughout the accessor generation
 
 [$Ice]       $seqName ${fieldName};
 [$Ice]       bool ${property.name}Loaded;
-#if( $property.isLink )
+#if( $property.isLink && !$property.actualTarget.global)
 [$Ice]       omero::sys::CountMap ${property.name}CountPerOwner;
 #end
 
@@ -934,7 +934,7 @@ the special set methods are added.
 [$jav]
 [$jav]       private void copy${PropertyName}($type.id source, omero.util.IceMapper mapper) {
 [$jav]           $copyMethod
-#if ($property.one2Many && $property.isLink)
+#if ($property.one2Many && $property.isLink && !$property.actualTarget.global)
 [$jav]           this.${property.name}CountPerOwner = source.get${property.nameCapped}CountPerOwner();
 #end
 [$jav]       }
@@ -1507,6 +1507,7 @@ have linked elements.
 
 COUNTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+#if( !$property.actualTarget.global )
 #set( $GETCOUNTMETHOD = "get${property.nameCapped}CountPerOwner" )
 #set( $GETCOUNTVALUE  = "${property.name}CountPerOwner" )
 [$Ice]       omero::sys::CountMap $GETCOUNTMETHOD();
@@ -1521,7 +1522,7 @@ COUNTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 [$pyc]       def $GETCOUNTMETHOD(self, $PYC_CURRENT):
 [$pyc]           return self._$GETCOUNTVALUE
 [$pyc]
-
+#end
 
 ADD ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
