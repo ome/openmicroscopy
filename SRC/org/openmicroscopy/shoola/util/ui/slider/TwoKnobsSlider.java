@@ -135,6 +135,8 @@ public class TwoKnobsSlider
 	/** The View component that renders this slider. */
 	private TwoKnobsSliderUI    uiDelegate;
 
+	Color RGBStart, RGBEnd;
+	
 	/** 
 	 * Indicates which knob is moved.
 	 * One of the following constants: {@link #INITIAL}, {@link #LEFT} or
@@ -148,6 +150,8 @@ public class TwoKnobsSlider
 	/** The height of the font. */
 	private int                 fontHeight;
 
+	private boolean 			colourGradient;
+	
 	/** Computes the preferred size of this component. */
 	private void calculatePreferredSize()
 	{
@@ -169,6 +173,7 @@ public class TwoKnobsSlider
 		knobControl = INITIAL;
 		knobWidth = uiDelegate.getKnobWidth();
 		knobHeight = uiDelegate.getKnobHeight();
+		colourGradient = false;
 		calculatePreferredSize();
 	}
 
@@ -685,4 +690,44 @@ public class TwoKnobsSlider
 		uiDelegate.paintComponent((Graphics2D) g, getSize());
 	}
   
+	/**
+	 * Set the colour gradient of the slider. This will replace the track with
+	 * a gradient.
+	 * @param RGBStart Start colour of the gradient.
+	 * @param RGBEnd End colour of the gradient.
+	 */
+	public void setColourGradients(Color RGBStart, Color RGBEnd)
+	{
+		colourGradient = true;
+		this.RGBStart = RGBStart;
+		this.RGBEnd = RGBEnd;
+	}
+	
+	/**
+	 * Get the start colour of the gradient. 
+	 * @return See above.
+	 */
+	public Color getRGBStart()
+	{
+		return RGBStart;
+	}
+	
+	/**
+	 * Get the end colour of the gradient. 
+	 * @return See above.
+	 */
+	public Color getRGBEnd()
+	{
+		return RGBEnd;
+	}
+	
+	/**
+	 * Is the colour gradient set, return <code>True</code> if so.
+	 * @return See above.
+	 */
+	public boolean getColourGradient()
+	{
+		return colourGradient;
+	}
+	
 }

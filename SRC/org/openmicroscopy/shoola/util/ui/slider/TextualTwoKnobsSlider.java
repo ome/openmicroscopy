@@ -806,4 +806,13 @@ public class TextualTwoKnobsSlider
      */ 
 	public void keyTyped(KeyEvent e) {}
 	
+	/**
+	 * Set the colour gradient of the twoknobslider.
+	 * @param RGBStart The gradient start.
+	 * @param RGBEnd The gradient end.
+	 */
+	public void setColourGradients(Color RGBStart, Color RGBEnd)
+	{
+		slider.setColourGradients(RGBStart, RGBEnd);
+	}
 }

@@ -31,14 +31,19 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.GradientPaint;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Paint;
+import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.util.Iterator;
 import java.util.Map;
 import javax.swing.ImageIcon;
+import javax.swing.JSlider;
 import javax.swing.UIManager;
+import javax.swing.plaf.basic.BasicGraphicsUtils;
+import javax.swing.plaf.basic.BasicSliderUI;
 
 
 //Third-party libraries
@@ -46,6 +51,7 @@ import javax.swing.UIManager;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.colourpicker.ColourSlider;
 
 /** 
 * The UI delegate for the {@link TwoKnobsSlider}.
@@ -64,6 +70,8 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 */
 class TwoKnobsSliderUI
 {
+	/** Static variable holding the colour of the track border. */
+	private final static Color	TRACK_BORDER_COLOUR = new Color(128, 128, 128);
 
 	/** Extra space added to the track. */
 	static final int            	EXTRA = 3;
@@ -104,6 +112,15 @@ class TwoKnobsSliderUI
 	/** The image used to draw the thumb when the slider is disabled.  */
 	private Image 					disabledThumbImage;
 
+	/** The colour of the border for the track. */
+	private Color 					trackBorderColour;
+	
+	/** Start of the gradient. */
+	private Color					RGBStart;
+	 
+	/** The end of the gradient. */
+	private Color					RGBEnd;
+	
 	/** Initializes the components. */
 	private void initialize()
 	{
@@ -112,6 +129,7 @@ class TwoKnobsSliderUI
 		labelRect = new Rectangle();
 		shadowColor = UIManager.getColor("Slider.shadow");
 		fontColor = UIUtilities.LINE_COLOR;
+		trackBorderColour = TRACK_BORDER_COLOUR;
 	}
 
 	/** Loads the thumb for the two knob slider.  */
@@ -354,29 +372,48 @@ class TwoKnobsSliderUI
 	{
 		int l = xPositionForValue(model.getStartValue());
 		int r = xPositionForValue(model.getEndValue());
-		Paint paint = new GradientPaint(0, trackRect.y, 
+		if(this.component.getColourGradient()==false)
+		{
+			Paint paint = new GradientPaint(0, trackRect.y, 
 				UIUtilities.TRACK_GRADIENT_START, 0, 
 				trackRect.y+trackRect.height-10, 
 				UIUtilities.TRACK_GRADIENT_END, false);
-		g2D.setPaint(paint);
-
-		g2D.fillRoundRect(trackRect.x, trackRect.y+3, trackRect.width,
-				trackRect.height-12, trackRect.height/3, trackRect.height/3);
-
+			g2D.setPaint(paint);
+			g2D.fillRoundRect(trackRect.x, trackRect.y+3, trackRect.width,
+					trackRect.height-12, trackRect.height/3, trackRect.height/3);
+		}
+		else
+		{
+			Paint paint = new GradientPaint((int) trackRect.getX(),
+					 (int) trackRect.getY()-2,  component.getRGBStart(),
+					 (int) trackRect.getWidth(),
+					 (int) trackRect.getHeight()+2,component.getRGBEnd(), false);
+		
+			
+			g2D.setPaint(paint);
+			g2D.fillRoundRect(trackRect.x, trackRect.y+2, trackRect.width,
+						trackRect.height-9, trackRect.height/3, trackRect.height/3);
+			g2D.setColor(Color.black);
+			g2D.drawRoundRect(trackRect.x, trackRect.y+2, trackRect.width,
+					trackRect.height-9, trackRect.height/3, trackRect.height/3);
+		}
 		//Draw the knobs
 		int w  = component.getKnobWidth();
 		int h = component.getKnobHeight();
 		Image img = thumbImage;
 		if (!model.isEnabled()) img = disabledThumbImage;
-		if (component.getKnobControl() == TwoKnobsSlider.LEFT) {
-			g2D.drawImage(img, r-w/2, 1, w, h, null);
-			g2D.drawImage(img, l-w/2, 1, w, h, null);
-		} else {
-			g2D.drawImage(img, l-w/2, 1, w, h, null);
-			g2D.drawImage(img, r-w/2, 1, w, h, null);
+		if (component.getKnobControl() == TwoKnobsSlider.LEFT) 
+		{
+				g2D.drawImage(img, r-w/2, 1, w, h, null);
+				g2D.drawImage(img, l-w/2, 1, w, h, null);
+		} 
+		else 
+		{
+				g2D.drawImage(img, l-w/2, 1, w, h, null);
+				g2D.drawImage(img, r-w/2, 1, w, h, null);
 		}
 	}
-
+	
 	/**
 	 * Paints the track and the knobs for a vertical slider.
 	 * 
@@ -389,7 +426,9 @@ class TwoKnobsSliderUI
 		int w = component.getKnobWidth();
 		int h = component.getKnobHeight();
 		int x = trackRect.x-w/2+(trackRect.width-w)/2;
-
+		if(this.component.getColourGradient()==false)
+		{
+	
 		Paint paint = new GradientPaint(trackRect.x+1, trackRect.y+h/2, 
 				UIUtilities.TRACK_GRADIENT_START, 
 				trackRect.x+1+trackRect.width-w-2, 
@@ -398,7 +437,18 @@ class TwoKnobsSliderUI
 		g2D.setPaint(paint);
 		g2D.fillRoundRect(trackRect.x+1, trackRect.y+h/2, trackRect.width-w-2,
 				trackRect.height, trackRect.width/3, trackRect.width/3);
-
+		}
+		else
+		{
+			Paint paint = new GradientPaint(trackRect.x+1, trackRect.y+h/2, 
+					component.RGBStart, 
+					trackRect.x+1+trackRect.width-w-2, 
+					trackRect.y+h/2, component.RGBEnd, false);
+			g2D.setPaint(paint);
+			g2D.fillRoundRect(trackRect.x, trackRect.y+3, trackRect.width,
+						trackRect.height-12, trackRect.height/3, trackRect.height/3);
+		}
+	
 		//Draw the knobs
 		Image img = thumbImage;
 		if (!model.isEnabled()) img = disabledThumbImage;
@@ -634,4 +684,63 @@ class TwoKnobsSliderUI
 			paintLabels(g2D, fontMetrics); 
 	}
 
+	private void paintThumb(Graphics2D g, int x, int y, int w, int h)
+	{
+        Rectangle knobBounds = new Rectangle(x,y,w,h);
+      
+        g.translate(knobBounds.x, knobBounds.y-2);
+        
+    
+	  if (component.getOrientation() == TwoKnobsSlider.HORIZONTAL ) {
+            int cw = w / 2;
+            g.fillRect(1, cw, w-3, h-1-cw);
+            g.setColor(UIUtilities.WINDOW_BACKGROUND_COLOR);
+                Polygon p = new Polygon();
+               // p.addPoint(1, h-cw);
+                //p.addPoint(cw-1, h-1);
+                //p.addPoint(w-2, h-1-cw);
+                p.addPoint(1, h);
+                p.addPoint(cw-1, h-cw);
+                p.addPoint(w-2, h);
+                g.fillPolygon(p);       
+            
+           /* g.setColor(UIUtilities.WINDOW_BACKGROUND_COLOR);
+            g.drawLine(0, 0, w-2, 0);
+            g.drawLine(0, 1, 0, h-1-cw);
+            g.drawLine(0, h-cw, cw-1, h-1); 
+
+            g.setColor(Color.black);
+            g.drawLine(w-1, 0, w-1, h-2-cw);    
+            g.drawLine(w-1, h-1-cw, w-1-cw, h-1);       
+
+            g.setColor(shadowColor);
+            g.drawLine(w-2, 1, w-2, h-2-cw);    
+            g.drawLine(w-2, h-1-cw, w-1-cw, h-2);       */
+        }
+        else {  // vertical
+            int cw = h / 2;
+	 	  g.fillRect(1, 1, w-1-cw, h-3);
+	          Polygon p = new Polygon();
+                  p.addPoint(w-cw-1, 0);
+                  p.addPoint(w-1, cw);
+                  p.addPoint(w-1-cw, h-2);
+                  g.fillPolygon(p);
+
+                  g.setColor(UIUtilities.WINDOW_BACKGROUND_COLOR);
+	          g.drawLine(0, 0, 0, h - 2);                  // left
+	          g.drawLine(1, 0, w-1-cw, 0);                 // top
+	          g.drawLine(w-cw-1, 0, w-1, cw);              // top slant
+
+                  g.setColor(Color.black);
+	          g.drawLine(0, h-1, w-2-cw, h-1);             // bottom
+	          g.drawLine(w-1-cw, h-1, w-1, h-1-cw);        // bottom slant
+
+                  g.setColor(shadowColor);
+                  g.drawLine(1, h-2, w-2-cw,  h-2 );         // bottom
+                  g.drawLine(w-1-cw, h-2, w-2, h-cw-1 );     // bottom slant
+	    }
+	 
+        g.translate(-knobBounds.x, -knobBounds.y);
+	}
+	
 }
