@@ -32,6 +32,19 @@ class TestTables(lib.ITest):
         self.assertEquals([0],table.getWhereList('(lc==1)',None,0,0,0))
         return table.getOriginalFile()
 
+    def testUpdate(self):
+        ofile = self.testBlankTable()
+        grid = self.client.sf.sharedResources()
+        table = grid.openTable(ofile)
+        data = table.slice([0],[0])
+        prev = data.columns[0].values[0]
+        data.columns[0].values[0] = 100
+        table.update(data)
+        data = table.slice([0],[0])
+        next = data.columns[0].values[0]
+        self.assert_( prev != next )
+        self.assert_( next == 100 )
+
 def test_suite():
     return 1
 
