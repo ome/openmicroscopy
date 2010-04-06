@@ -685,9 +685,10 @@ public class ThumbnailCtx
         StopWatch s1 = new CommonsLogStopWatch(
                 "omero.bulkLoadRenderingSettings");
         List<RenderingDef> toReturn = queryService.findAllByQuery(
-                "select r from RenderingDef as r join fetch r.pixels " +
+                "select r from RenderingDef as r " +
+                "join fetch r.pixels as p " +
                 "join fetch r.details.updateEvent " +
-                "join fetch r.pixels.details.updateEvent " +
+                "join p.details.updateEvent " +
                 "where r.details.owner.id = :id and r.pixels.id in (:ids)",
                 new Parameters().addId(userId).addIds(pixelsIds));
         s1.stop();
@@ -705,9 +706,10 @@ public class ThumbnailCtx
         StopWatch s1 = new CommonsLogStopWatch(
                 "omero.bulkLoadRenderingSettings");
         List<RenderingDef> toReturn = queryService.findAllByQuery(
-                "select r from RenderingDef as r join fetch r.pixels " +
+                "select r from RenderingDef as r " +
+                "join fetch r.pixels as p" +
                 "join fetch r.details.updateEvent " +
-                "join fetch r.pixels.details.updateEvent " +
+                "join fetch p.details.updateEvent " +
                 "where r.details.owner.id = :id " +
                 "and r.pixels.image.id in (:ids)",
                 new Parameters().addId(userId).addIds(imageIds));
@@ -729,7 +731,7 @@ public class ThumbnailCtx
                 "select r from RenderingDef as r " +
                 "join fetch r.pixels as p " +
                 "join fetch r.details.updateEvent " +
-                "join fetch r.pixels.details.updateEvent " +
+                "join fetch p.details.updateEvent " +
                 "where r.details.owner.id = p.details.owner.id " +
                 "and r.pixels.id in (:ids)",
                 new Parameters().addIds(pixelsIds));
