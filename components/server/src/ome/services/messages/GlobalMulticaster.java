@@ -55,4 +55,12 @@ public class GlobalMulticaster implements ApplicationEventMulticaster {
         _em.removeApplicationListener(arg0);
     }
 
+    public void addApplicationListenerBean(String arg0) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void removeApplicationListenerBean(String arg0) {
+        throw new UnsupportedOperationException();
+    }
+
 }

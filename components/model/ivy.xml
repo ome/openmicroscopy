@@ -34,5 +34,7 @@
     <dependency org="org/apache/lucene" name="lucene-core" rev="${versions.lucene}"/>
     <dependency org="org/apache/lucene" name="lucene-highlighter" rev="${versions.lucene}"/>
     <dependency org="org/apache/lucene" name="lucene-spellchecker" rev="${versions.lucene}"/>
+    <!-- spring -->
+    <dependency org="org.springframework" name="org.springframework.orm" rev="${versions.spring}" conf="build,client,server->runtime"/>
   </dependencies>
 </ivy-module>

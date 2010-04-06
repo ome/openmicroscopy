@@ -8,11 +8,13 @@
 package ome.security;
 
 import java.util.Hashtable;
+
 import javax.naming.Context;
-import org.springframework.ldap.core.support.LdapContextSource;
+
+import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 
 
-public class SecureLdapContextSource extends LdapContextSource {
+public class SecureLdapContextSource extends DefaultSpringSecurityContextSource {
     
     private String keyStore = null;
     private String keyStorePassword = null;

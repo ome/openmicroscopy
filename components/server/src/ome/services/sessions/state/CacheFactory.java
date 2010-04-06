@@ -36,7 +36,7 @@ public class CacheFactory extends EhCacheFactoryBean implements
     }
 
     @Override
-    public Object getObject() {
+    public Ehcache getObject() {
         Ehcache cache = (Ehcache) super.getObject();
         registerAll(cache, cacheListeners);
         return cache;

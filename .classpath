@@ -36,6 +36,7 @@
 	<classpathentry kind="src" output="target/eclipse-common" path="components/common/target/generated/src"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/activation-1.1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/apacheds-all-1.5.6.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/ant-1.6.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/ant-junit-1.6.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/ant-launcher-1.6.5.jar"/>
@@ -95,13 +96,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/repository/quartz-1.5.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/slf4j-api-1.5.8.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/slf4j-log4j12-1.5.8.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/spring-2.5.5.jar" sourcepath="lib/repository/spring-sources-2.5.5.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/spring-ldap-1.2.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/spring-ldap-tiger-1.2.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/spring-sources-2.5.5.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/spring-test-2.5.5.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/spring-test-sources-2.5.5.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/testng-5.11-jdk15.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/testng-5.2-jdk15.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/velocity-1.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/velocity-tools-generic-1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/xercesImpl-2.6.2.jar"/>
@@ -135,5 +130,34 @@
 	<classpathentry kind="lib" path="lib/repository/lucene-highlighter-2.4.1.jar"/>
 	<classpathentry kind="lib" path="lib/repository/lucene-snowball-2.4.1.jar"/>
 	<classpathentry kind="lib" path="lib/repository/lucene-spellchecker-2.4.1.jar"/>
+	<classpathentry kind="output" path="target/eclipse-bin"/>
+    <!-- spring -->
+	<classpathentry exported="true" kind="lib" path="lib/repository/com.springsource.org.aopalliance-1.0.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/org.springframework.transaction-sources-3.0.1.RELEASE-A.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/org.springframework.transaction-3.0.1.RELEASE-A.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/org.springframework.orm-sources-3.0.1.RELEASE-A.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/org.springframework.orm-3.0.1.RELEASE-A.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/org.springframework.jdbc-sources-3.0.1.RELEASE-A.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/org.springframework.jdbc-3.0.1.RELEASE-A.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/org.springframework.expression-sources-3.0.1.RELEASE-A.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/org.springframework.expression-3.0.1.RELEASE-A.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/org.springframework.core-sources-3.0.1.RELEASE-A.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/org.springframework.core-3.0.1.RELEASE-A.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/org.springframework.context.support-sources-3.0.1.RELEASE-A.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/org.springframework.context.support-3.0.1.RELEASE-A.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/org.springframework.context-sources-3.0.1.RELEASE-A.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/org.springframework.context-3.0.1.RELEASE-A.jar" sourcepath="lib/repository/org.springframework.context-sources-3.0.1.RELEASE-A.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/org.springframework.beans-sources-3.0.1.RELEASE-A.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/org.springframework.beans-3.0.1.RELEASE-A.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/org.springframework.asm-sources-3.0.1.RELEASE-A.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/org.springframework.asm-3.0.1.RELEASE-A.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/org.springframework.aop-sources-3.0.1.RELEASE-A.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/org.springframework.aop-3.0.1.RELEASE-A.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/spring-security-core-3.0.2.RELEASE-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/spring-security-core-3.0.2.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/spring-security-ldap-3.0.2.RELEASE-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/spring-security-ldap-3.0.2.RELEASE.jar" sourcepath="lib/repository/spring-security-ldap-3.0.2.RELEASE-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/spring-ldap-1.3.0.RELEASE-all.jar" sourcepath="lib/repository/spring-ldap-1.3.0.RELEASE-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/spring-ldap-1.3.0.RELEASE-sources.jar"/>
 	<classpathentry kind="output" path="target/eclipse-bin"/>
 </classpath>
