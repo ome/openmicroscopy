@@ -1901,7 +1901,8 @@ class ImViewerUI
 		layoutComponents(false);
 	}
 	
-	/** Shows or hides the renderer. 
+	/** 
+	 * Shows or hides the renderer. 
 	 * 
 	 * @param fromPreferences	Pass <code>true</code> to indicate that the 
 	 * 							method is invoked while setting the user 

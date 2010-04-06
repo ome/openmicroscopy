@@ -196,7 +196,8 @@ class EditorComponent
 		model.setRootObject(refObject);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		view.setRootObject();
-		if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC)
+		if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC ||
+			view.getSelectedTab() == EditorUI.RND_INDEX)
 			loadRenderingControl(RenderingControlLoader.LOAD);
 	}
 
@@ -601,6 +602,7 @@ class EditorComponent
 	{
 		boolean loaded = model.isRendererLoaded();
 		model.setRenderingControl(rndControl);
+		setStatus(false);
 		if (loaded) view.onSettingsApplied(false);
 		//if (model.isNumerousChannel()) return;
 		FigureDialog d = controller.getFigureDialog();
@@ -629,14 +631,7 @@ class EditorComponent
 		if (image == null) return;
 		if (image.getId() < 0) return;
 		PixelsData pixels = image.getDefaultPixels();
-		if  (pixels == null) {
-			/*
-			UserNotifier un = 
-				MetadataViewerAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Renderer", "The selected image is not valid.");
-			*/
-			return;
-		}
+		if  (pixels == null) return;
 		int value;
 		switch (index) {
 			case RenderingControlLoader.LOAD:
@@ -647,6 +642,7 @@ class EditorComponent
 				value = index;
 		}
 		model.fireRenderingControlLoading(pixels.getId(), value);
+		setStatus(true);
 	}
 	
 	/** 

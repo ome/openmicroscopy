@@ -892,12 +892,9 @@ class MetadataViewerComponent
 			DownloadActivityParam activity = new DownloadActivityParam(f,
 					folder, icons.getIcon(IconManager.DOWNLOAD_22));
 			un.notifyActivity(activity);
-
-			//un.notifyDownload(data, folder);
 		}
 		firePropertyChange(ANALYSE_PROPERTY, Boolean.valueOf(true), 
 				Boolean.valueOf(false));
-		
 	}
 
 	/**

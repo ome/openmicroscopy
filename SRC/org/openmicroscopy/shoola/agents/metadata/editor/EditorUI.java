@@ -290,13 +290,14 @@ public class EditorUI
 					tabPane.setEnabledAt(RND_INDEX, model.isWritable());
 					if (tabPane.getSelectedIndex() == RND_INDEX) {
 						tabPane.setComponentAt(RND_INDEX, dummyPanel);
-						tabPane.setSelectedIndex(GENERAL_INDEX);
+						//tabPane.setSelectedIndex(GENERAL_INDEX);
 					}
 				} else if (uo instanceof WellSampleData) {
 					ImageData img = ((WellSampleData) uo).getImage();
 					if (tabPane.getSelectedIndex() == RND_INDEX) {
 						tabPane.setComponentAt(RND_INDEX, dummyPanel);
-						tabPane.setSelectedIndex(GENERAL_INDEX);
+						if (model.isWritable())
+							tabPane.setSelectedIndex(GENERAL_INDEX);
 					}
 					if (img != null && img.getId() >= 0) {
 						load = true;

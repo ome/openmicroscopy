@@ -24,7 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 
 //Java imports
-import java.awt.Dimension;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.beans.PropertyChangeEvent;
@@ -35,7 +35,6 @@ import javax.swing.JPanel;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.ColouredButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
 import pojos.ChannelData;
@@ -59,8 +58,8 @@ class ChannelSlider
 	implements PropertyChangeListener
 {
 
-	/** The dimension of the icon. */
-	private static final Dimension ICON_DIMENSION = new Dimension(14, 14);
+	/** The default color. */
+	private static final Color		GRADIENT_COLOR = Color.BLACK;
 	
 	/** Reference to the model. */
 	private RendererModel 	model;
@@ -74,15 +73,10 @@ class ChannelSlider
 	/** Selection slider. */
 	private TwoKnobsSlider 	slider;
 	
-	/** Component displaying the color associated to the channel. */
-	private ColouredButton 	icon;
-	
 	/** Initializes the component composing the display. */
 	private void initComponents()
 	{
 		int index = channel.getIndex();
-		icon = new ColouredButton("", model.getChannelColor(index));
-		icon.setPreferredSize(ICON_DIMENSION);
 		int f = model.getRoundFactor(index);
     	int s = (int) (model.getWindowStart(index)*f);
         int e = (int) (model.getWindowEnd(index)*f);
@@ -92,6 +86,7 @@ class ChannelSlider
         Font font = slider.getFont();
         slider.setFont(font.deriveFont(font.getStyle(), font.getSize()-2));
         slider.setBackground(UIUtilities.BACKGROUND_COLOR);
+        slider.setColourGradients(GRADIENT_COLOR, model.getChannelColor(index));
         slider.setPaintLabels(false);
        // slider.setPaintEndLabels(false);
         slider.setPaintTicks(false);
@@ -102,13 +97,9 @@ class ChannelSlider
 	private void buildGUI()
 	{
 		setBackground(UIUtilities.BACKGROUND_COLOR);
-		JPanel p = new JPanel();
 		setBorder(null);
-		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.add(icon);
-		p.add(slider);
 		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		add(p);
+		add(slider);
 	}
 	
 	/**
@@ -157,16 +148,15 @@ class ChannelSlider
 	/** Toggles between color model and Greyscale. */
     void setColorModelChanged() 
     {
-    	icon.setColor(model.getChannelColor(getIndex()));
-    	icon.setGrayedOut(model.isGreyScale());
+    	 slider.setColourGradients(GRADIENT_COLOR, 
+    			 model.getChannelColor(getIndex()));
     }
     
     /** Modifies the color of the channel. */
     void setChannelColor()
     {
-    	boolean gs = model.isGreyScale();
-    	icon.setColor(model.getChannelColor(getIndex()));
-		 if (gs) icon.setGrayedOut(gs);
+    	slider.setColourGradients(GRADIENT_COLOR, 
+   			 model.getChannelColor(getIndex()));
     }
     
 	/**
