@@ -2,6 +2,7 @@ package ome.formats.utests;
 
 import java.io.IOException;
 import java.util.Hashtable;
+import java.util.Set;
 
 import loci.common.RandomAccessInputStream;
 import loci.formats.CoreMetadata;
@@ -9,6 +10,8 @@ import loci.formats.FileInfo;
 import loci.formats.FormatException;
 import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
+import loci.formats.in.MetadataLevel;
+import loci.formats.in.MetadataOptions;
 import loci.formats.meta.MetadataStore;
 
 public class TestReader implements IFormatReader {
@@ -426,5 +429,32 @@ public class TestReader implements IFormatReader {
 		// TODO Auto-generated method stub
         return 0;
 	}
+
+    /* (non-Javadoc)
+     * @see loci.formats.IMetadataConfigurable#getMetadataOptions()
+     */
+    public MetadataOptions getMetadataOptions()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.IMetadataConfigurable#getSupportedMetadataLevels()
+     */
+    public Set<MetadataLevel> getSupportedMetadataLevels()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.IMetadataConfigurable#setMetadataOptions(loci.formats.in.MetadataOptions)
+     */
+    public void setMetadataOptions(MetadataOptions arg0)
+    {
+        // TODO Auto-generated method stub
+        
+    }
 
 }
