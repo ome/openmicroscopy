@@ -29,7 +29,6 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -37,8 +36,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import loci.common.DataTools;
 
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
@@ -95,11 +92,11 @@ public class MetadataValidatorTest
 	private OMEROWrapper wrapper;
 	
 	/** Our current container cache. */
-    private Map<LSID, IObjectContainer> containerCache;
+    Map<LSID, IObjectContainer> containerCache;
     
     /** Our current reference cache. */
-    private Map<LSID, List<LSID>> referenceCache;
-
+    Map<LSID, List<LSID>> referenceCache;
+	
     @Parameters({ "target" })
 	@BeforeTest
 	public void setUp(String target) throws Exception
@@ -142,8 +139,6 @@ public class MetadataValidatorTest
         		+ " entries.");
 	}
     
-    
-
     @AfterTest
     public void tearDown() throws Exception
     {
@@ -153,19 +148,6 @@ public class MetadataValidatorTest
     	containerCache = null;
     	referenceCache = null;
     }
-
-    private String sha1(byte[] buf)
-    {
-        try
-        {
-          MessageDigest md = MessageDigest.getInstance("SHA-1");
-          return DataTools.bytesToHex(md.digest(buf));
-        }
-        catch (Exception e)
-        {
-          throw new RuntimeException(e);
-        }
-      }
 	
 	/**
 	 * Examines the container cache and returns whether or not an LSID is
