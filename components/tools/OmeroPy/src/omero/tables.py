@@ -328,7 +328,7 @@ class HdfStorage(object):
     # Stamped methods
     #
 
-    @locked
+    @stamped
     def update(self, stamp, data):
         if data:
             for rn in data.rowNumbers:
@@ -560,7 +560,7 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     @perf
     def update(self, data, current = None):
         if data:
-            self.storage.update(data)
+            self.storage.update(self.stamp, data)
             self.logger.info("Updated %s row(s) of data to %s", slen(data.rowNumbers), self)
 
 class TablesI(omero.grid.Tables, omero.util.Servant):
