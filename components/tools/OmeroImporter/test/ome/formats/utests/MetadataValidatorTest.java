@@ -29,13 +29,22 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
+import java.io.IOException;
+import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import loci.common.DataTools;
+import loci.formats.FormatException;
+import loci.formats.ImageReader;
+import loci.formats.in.DefaultMetadataOptions;
+import loci.formats.in.MetadataLevel;
 
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
@@ -67,6 +76,7 @@ import omero.model.WellSample;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.Parameters;
@@ -80,41 +90,52 @@ import org.testng.annotations.Test;
  *
  */
 public class MetadataValidatorTest
-{   
-	/** Logger for this class */
-	private static final Log log = 
-		LogFactory.getLog(MetadataValidatorTest.class);
-	
-	/** Our testing Metadata store client */
-	private OMEROMetadataStoreClient store;
-	
-	/** The OMERO basic wrapper for Bio-Formats readers */
-	private OMEROWrapper wrapper;
-	
-	/** Our current container cache. */
-    Map<LSID, IObjectContainer> containerCache;
-    
+{
+    /** Logger for this class */
+    private static final Log log =
+        LogFactory.getLog(MetadataValidatorTest.class);
+
+    /** Our testing Metadata store client */
+    private OMEROMetadataStoreClient store;
+
+    /** The OMERO basic wrapper for Bio-Formats readers */
+    private OMEROWrapper wrapper;
+
+    /** The OMERO basic wrapper (initialized with minimum metadata). */
+    private OMEROWrapper minimalWrapper;
+
+    /** Our current container cache. */
+    private Map<LSID, IObjectContainer> containerCache;
+
     /** Our current reference cache. */
-    Map<LSID, List<LSID>> referenceCache;
-	
+    private Map<LSID, List<LSID>> referenceCache;
+
     @Parameters({ "target" })
-	@BeforeTest
-	public void setUp(String target) throws Exception
-	{
+    @BeforeClass
+    public void setUp(String target) throws Exception
+    {
         log.info("METADATA VALIDATOR TARGET: " + target);
-		ServiceFactoryPrx sf = new TestServiceFactory();
+        ServiceFactoryPrx sf = new TestServiceFactory();
+        ImportConfig config = new ImportConfig();
         store = new OMEROMetadataStoreClient();
         store.initialize(sf);
         store.setEnumerationProvider(new TestEnumerationProvider());
         store.setInstanceProvider(
-        		new BlitzInstanceProvider(store.getEnumerationProvider()));
-        wrapper = new OMEROWrapper(new ImportConfig());
+                new BlitzInstanceProvider(store.getEnumerationProvider()));
+        wrapper = new OMEROWrapper(config);
+        wrapper.setMetadataOptions(
+                new DefaultMetadataOptions(MetadataLevel.ALL));
+        minimalWrapper = new OMEROWrapper(config);
+        minimalWrapper.setMetadataOptions(
+                new DefaultMetadataOptions(MetadataLevel.MINIMUM));
         wrapper.setMetadataStore(store);
         store.setReader(wrapper);
         wrapper.setId(target);
+        minimalWrapper.setId(target);
         store.postProcess();
         containerCache = store.getContainerCache();
         referenceCache = store.getReferenceCache();
+        /*
         log.debug("Starting container cache...");
         for (LSID key : containerCache.keySet())
         {
@@ -137,16 +158,108 @@ public class MetadataValidatorTest
         log.debug("referenceCache contains " 
         		+ store.countCachedReferences(null, null)
         		+ " entries.");
-	}
-    
-    @AfterTest
-    public void tearDown() throws Exception
+        */
+    }
+
+    @Test
+    public void testMetadataLevel()
+        throws FormatException, IOException
     {
-    	wrapper.close();
-    	store = null;
-    	wrapper = null;
-    	containerCache = null;
-    	referenceCache = null;
+        assertEquals(MetadataLevel.MINIMUM,
+                minimalWrapper.getMetadataOptions().getMetadataLevel());
+        assertEquals(MetadataLevel.ALL,
+                wrapper.getMetadataOptions().getMetadataLevel());
+        assertFalse(0 == (wrapper.getSeriesMetadata().size()
+                          + wrapper.getGlobalMetadata().size()));
+    }
+
+    @Test(dependsOnMethods={"testMetadataLevel"})
+    public void testMetadataLevelEquivilentDimensions()
+    {
+        assertEquals(wrapper.getSeriesCount(), minimalWrapper.getSeriesCount());
+        for (int i = 0; i < minimalWrapper.getSeriesCount(); i++)
+        {
+            wrapper.setSeries(i);
+            minimalWrapper.setSeries(i);
+            assertEquals(wrapper.getSizeX(), minimalWrapper.getSizeX());
+            assertEquals(wrapper.getSizeY(), minimalWrapper.getSizeY());
+            assertEquals(wrapper.getSizeZ(), minimalWrapper.getSizeZ());
+            assertEquals(wrapper.getSizeC(), minimalWrapper.getSizeC());
+            assertEquals(wrapper.getSizeT(), minimalWrapper.getSizeT());
+            assertEquals(wrapper.getPixelType(),
+                         minimalWrapper.getPixelType());
+            assertEquals(wrapper.isLittleEndian(),
+                         minimalWrapper.isLittleEndian());
+        }
+    }
+
+    @Test(dependsOnMethods={"testMetadataLevel"})
+    public void testMetadataLevelEquivilentUsedFiles()
+        throws FormatException, IOException
+    {
+        for (int i = 0; i < minimalWrapper.getSeriesCount(); i++)
+        {
+            minimalWrapper.setSeries(i);
+            wrapper.setSeries(i);
+
+            String[] pixelsOnlyFiles = minimalWrapper.getSeriesUsedFiles();
+            String[] allFiles = wrapper.getSeriesUsedFiles();
+
+            assertEquals(allFiles.length, pixelsOnlyFiles.length);
+
+            Arrays.sort(allFiles);
+            Arrays.sort(pixelsOnlyFiles);
+
+            for (int j = 0; j < pixelsOnlyFiles.length; j++)
+            {
+                assertEquals(allFiles[j], pixelsOnlyFiles[j]);
+            }
+        }
+    }
+
+    @Test(dependsOnMethods={"testMetadataLevel"}, groups={"disabled"})
+    public void testMetadataLevelEquivilentPlaneData()
+        throws FormatException, IOException
+    {
+        for (int i = 0; i < minimalWrapper.getSeriesCount(); i++)
+        {
+            minimalWrapper.setSeries(i);
+            wrapper.setSeries(i);
+            assertEquals(wrapper.getImageCount(),
+                         minimalWrapper.getImageCount());
+            for (int j = 0; j < minimalWrapper.getImageCount(); j++)
+            {
+                byte[] pixelsOnlyPlane = minimalWrapper.openBytes(j);
+                String pixelsOnlySHA1 = sha1(pixelsOnlyPlane);
+                byte[] allPlane = wrapper.openBytes(j);
+                String allSHA1 = sha1(allPlane);
+
+                if (!pixelsOnlySHA1.equals(allSHA1))
+                {
+                    fail(String.format(
+                            "MISMATCH: Series:%d Image:%d PixelsOnly%s All:%s",
+                            i, j, pixelsOnlySHA1, allSHA1));
+                }
+            }
+        }
+    }
+
+    /**
+     * Calculates a SHA-1 digest on a byte array.
+     * @param buf Byte array to calculate a SHA-1 digest for.
+     * @return Hex string of the SHA-1 digest for <code>buf</code>.
+     */
+    private String sha1(byte[] buf)
+    {
+        try
+        {
+            MessageDigest md = MessageDigest.getInstance("SHA-1");
+            return DataTools.bytesToHex(md.digest(buf));
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 	
 	/**

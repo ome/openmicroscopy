@@ -30,6 +30,7 @@ import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import loci.formats.ChannelFiller;
 import loci.formats.ChannelSeparator;
@@ -40,6 +41,8 @@ import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import loci.formats.MinMaxCalculator;
 import loci.formats.in.LeicaReader;
+import loci.formats.in.MetadataLevel;
+import loci.formats.in.MetadataOptions;
 import loci.formats.meta.MetadataStore;
 import omero.model.Channel;
 import omero.model.Pixels;
@@ -232,7 +235,33 @@ public class OMEROWrapper extends MinMaxCalculator {
         String[] domains = reader.getDomains();
         return Arrays.asList(domains).contains(FormatTools.HCS_DOMAIN);
     }
-    
+
+    /* (non-Javadoc)
+     * @see loci.formats.ReaderWrapper#getMetadataOptions()
+     */
+    @Override
+    public MetadataOptions getMetadataOptions()
+    {
+        return iReader.getMetadataOptions();
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.ReaderWrapper#setMetadataOptions(loci.formats.in.MetadataOptions)
+     */
+    @Override
+    public void setMetadataOptions(MetadataOptions options)
+    {
+        iReader.setMetadataOptions(options);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.ReaderWrapper#getSupportedMetadataLevels()
+     */
+    @Override
+    public Set<MetadataLevel> getSupportedMetadataLevels()
+    {
+        return iReader.getSupportedMetadataLevels();
+    }
 }
 
 /**
