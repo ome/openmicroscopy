@@ -21,7 +21,7 @@ import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Image;
 
 import org.hibernate.Criteria;
-import org.hibernate.transform.AliasToEntityMapResultTransformer;
+import org.hibernate.transform.BasicTransformerAdapter;
 import org.hibernate.transform.ResultTransformer;
 
 /**
@@ -274,7 +274,7 @@ public class Hierarchy {
  * @see ome.services.query.PojosCGCPathsQueryDefinition
  * 
  */
-class HierarchyToMapTransformer extends AliasToEntityMapResultTransformer {
+class HierarchyToMapTransformer extends BasicTransformerAdapter {
 
     /**
      * 

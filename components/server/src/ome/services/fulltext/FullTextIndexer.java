@@ -136,7 +136,7 @@ public class FullTextIndexer implements Work {
             // is required, then this must be set.
 
             FullTextSession fullTextSession = Search
-                    .createFullTextSession(session);
+                    .getFullTextSession(session);
             fullTextSession.setFlushMode(FlushMode.MANUAL);
             fullTextSession.setCacheMode(CacheMode.IGNORE);
             perbatch = doIndexing(fullTextSession);

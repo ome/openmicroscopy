@@ -57,7 +57,7 @@ public class UpdateEventListener implements PreUpdateEventListener {
         Object entity = event.getEntity();
         if (entity instanceof IObject && !cd.isDisabled(UPDATE_EVENT)) {
             int[] dirty = event.getPersister().findDirty(event.getState(),
-                    event.getOldState(), event.getEntity(), event.getSource());
+                    event.getOldState(), event.getEntity(), event.getSession());
             if (dirty == null || dirty.length == 0) {
                 // return true; // veto.
             }

@@ -124,6 +124,7 @@ public class EventHandler implements MethodInterceptor {
             session.doWork(new Work(){
                 public void execute(Connection connection) throws SQLException {
                     connection.createStatement().execute("COMMIT;");
+                    // Not calling BEGIN since it is inserted automatically.
                 }});
         }
 
