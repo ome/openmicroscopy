@@ -76,6 +76,7 @@ import omero.model.WellSample;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.AfterTest;
@@ -159,6 +160,14 @@ public class MetadataValidatorTest
         		+ store.countCachedReferences(null, null)
         		+ " entries.");
         */
+    }
+    
+    @AfterClass
+    public void tearDown() throws IOException
+    {
+        wrapper.close();
+        minimalWrapper.close();
+        store.logout();
     }
 
     @Test
