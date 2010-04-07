@@ -29,6 +29,10 @@ the EM images and deletes them from the server.
 Example usage, for exporting all the images in dataset ID: 901 as tif files to the given directory.
 python export2em.py -h localhost -u root -p omero -d 901 -e tif -o /Users/will/Desktop/EMAN-export/tif/
 
+Example, for exporting a single image, by image-id to the current folder, in mrc format
+python export2em.py -h localhost -u root -p omero -i 235 -e mrc
+
+
 The list of file formats supported by EMAN2 is listed on the EMAN2 web-site
 http://blake.bcm.edu/emanwiki/EMAN2ImageFormats
 	

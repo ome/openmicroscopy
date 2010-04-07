@@ -47,6 +47,8 @@ import numpy
 import omero
 import omero.scripts as scripts
 from omero.rtypes import *
+import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
+import omero_api_IRoi_ice
 import omero.util.script_utils as scriptUtil
 
 import Image # for saving as tiff. 
