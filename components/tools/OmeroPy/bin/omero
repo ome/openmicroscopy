@@ -71,8 +71,10 @@ else:
 
 top = os.path.normpath(top)
 lib = os.path.join(top, "lib")
-lib = os.path.join(top, "lib","python")
-sys.path.insert(0,lib);
+lpy = os.path.join(top, "lib","python")
+ipy = os.path.join(top, "lib","fallback")
+sys.path.insert(0,lpy);
+sys.path.append(ipy)
 
 not_root(top)
 

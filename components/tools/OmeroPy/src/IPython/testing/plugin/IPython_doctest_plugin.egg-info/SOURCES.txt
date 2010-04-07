@@ -1,8 +1,0 @@
-README.txt
-ipdoctest.py
-setup.py
-IPython_doctest_plugin.egg-info/PKG-INFO
-IPython_doctest_plugin.egg-info/SOURCES.txt
-IPython_doctest_plugin.egg-info/dependency_links.txt
-IPython_doctest_plugin.egg-info/entry_points.txt
-IPython_doctest_plugin.egg-info/top_level.txt
