@@ -27,6 +27,7 @@ import static omero.rtypes.*;
 
 import java.io.File;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -181,6 +182,7 @@ public class PixelsProcessor implements ModelProcessor
             {
                 saveName = image.getName().getValue();
             }
+            System.err.println("Using image name: " + saveName);
             image.setName(rstring(saveName));
             
             // Set the Image description if one was supplied by the user
