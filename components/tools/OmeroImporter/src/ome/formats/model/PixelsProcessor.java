@@ -83,6 +83,10 @@ public class PixelsProcessor implements ModelProcessor
             Double[] physicalPixelSizes = 
             	store.getUserSpecifiedPhysicalPixelSizes();
             List<Annotation> annotations = store.getUserSpecifiedAnnotations();
+            if (annotations == null)
+            {
+                annotations = new ArrayList<Annotation>();
+            }
             
             // If we have user specified annotations
             Map<LSID, IObjectContainer> containerCache = 
