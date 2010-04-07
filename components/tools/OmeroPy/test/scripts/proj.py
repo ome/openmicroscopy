@@ -19,10 +19,7 @@ class TestProjection(lib.ITest):
         here = os.path.dirname(me)
         proj = os.path.join(here, "Projection.py")
         file = self.root.upload(proj, type="text/x-python")
-        j = omero.model.ScriptJobI()
-        j.linkOriginalFile(file)
 
-        p = self.client.sf.acquireProcessor(j, 100)
         map = {}
         map["pixelsID"] = rlong(1)
         map["channelSet"] = rset([robject(omero.model.ChannelI())])
@@ -31,8 +28,8 @@ class TestProjection(lib.ITest):
         map["point1"] = rinternal(omero.Point(1,2))
         map["point2"] = rinternal(omero.Point(2,2))
         map["method"] = rstring("max")
-        input = rmap(map)
-        process = p.execute(input)
+
+        p = self.client.sf.getScriptService().runScript(file.id.val, map, None)
         process.wait()
         output = p.getResults(process)
         self.assert_( -1 == output.val["newPixelsID"].val )
