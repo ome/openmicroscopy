@@ -23,22 +23,125 @@ from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_PermissionsI import PermissionsI
 import omero_api_Gateway_ice
+import omero_api_IRoi_ice
 import omero.util.script_utils as scriptUtil
 
 import omero_SharedResources_ice
 import omero_api_IScript_ice
 
-#from numpy import arange
+import os
 from PIL import Image
 import numpy
 
-class TestIShare(lib.ITest):
+boxerTestImage = "/Users/will/Documents/biology-data/testData/boxerTest.tiff"
+smallTestImage = "/Users/will/Documents/biology-data/testData/smallTest.tiff"
+
+saveImageAsScriptPath = "/Users/will/Documents/workspace/Omero/components/tools/OmeroPy/scripts/EMAN2/saveImageAs.py"
+export2emScriptPath = "/Users/will/Documents/workspace/Omero/components/tools/OmeroPy/scripts/EMAN2/export2em.py"
+boxerScriptPath = "/Users/will/Documents/workspace/Omero/components/tools/OmeroPy/scripts/EMAN2/boxer.py" 
+imagesFromRoisPath = "/Users/will/Documents/workspace/Omero/components/tools/OmeroPy/scripts/EMAN2/imagesFromRois.py"
+
+class TestEmanScripts(lib.ITest):
+    
+    def testImagesFromRois(self):
+        """
+        Uploads an image, adds rectangle ROIs, then runs the imagesFromRois.py script to generate
+        new images in a dataset. Then we check that the dataset exists with the expected number of images.
+        """
+        # root session is root.sf
+        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        admin = self.root.sf.getAdminService()
+        # upload script as root
+        scriptService = self.root.sf.getScriptService()
+        scriptId = uploadScript(scriptService, imagesFromRoisPath)
+        
+        ### create user in group
+        listOfGroups = list()
+        listOfGroups.append(admin.lookupGroup("user"))  # all users need to be in 'user' group to do anything! 
+        
+        #group
+        new_gr1 = ExperimenterGroupI()
+        new_gr1.name = rstring("roi2images-test_%s" % uuid)
+        gid = admin.createGroup(new_gr1)
+        group = admin.getGroup(gid)
+        listOfGroups.append(group)
+        
+        # add user
+        new_exp = ExperimenterI()
+        new_exp.omeName = rstring("roi2images-user1_%s" % uuid)
+        new_exp.firstName = rstring("New")
+        new_exp.lastName = rstring("Test")
+        new_exp.email = rstring("newtest@emaildomain.com")
+        
+        eid = admin.createExperimenterWithPassword(new_exp, rstring("ome"), group, listOfGroups)
+        
+        # log in as user
+        user_client = omero.client()
+        user_client.createSession(new_exp.omeName.val,"ome")
+        session = user_client.sf
+        
+        # create user services 
+        gateway = session.createGateway()    
+        roiService = session.getRoiService() 
+        
+        # import image and manually add rois
+        imagePath = boxerTestImage
+        imageName = "roi2imageTest"
+        iId = importImage(session, imagePath, imageName)
+        image = gateway.getImage(iId)
+        x, y, width, height = (1355, 600, 320, 325)   
+        addRectangleRoi(gateway, x, y, width, height, image)
+        x, y, width, height = (890, 200, 310, 330)
+        addRectangleRoi(gateway, x, y, width, height, image)
+        
+        # put image in dataset and project
+        # create dataset
+        dataset = omero.model.DatasetI()
+        dataset.name = rstring("roi-dataset")
+        dataset = gateway.saveAndReturnObject(dataset)
+        # create project
+        project = omero.model.ProjectI()
+        project.name = rstring("roi-project")
+        project = gateway.saveAndReturnObject(project)
+        # put dataset in project 
+        link = omero.model.ProjectDatasetLinkI()
+        link.parent = omero.model.ProjectI(project.id.val, False)
+        link.child = omero.model.DatasetI(dataset.id.val, False)
+        gateway.saveAndReturnObject(link)
+        # put image in dataset
+        dlink = omero.model.DatasetImageLinkI()
+        dlink.parent = omero.model.DatasetI(dataset.id.val, False)
+        dlink.child = omero.model.ImageI(image.id.val, False)
+        gateway.saveAndReturnObject(dlink)
+        
+        containerName = "particles"
+        ids = [omero.rtypes.rint(iId), ]
+        argMap = {
+            "imageIds": omero.rtypes.rlist(ids),
+            "containerName": rstring(containerName),
+            }
+        runScript(session, scriptId, omero.rtypes.rmap(argMap))
+        
+        # now we should have a dataset with 2 images, in project
+        newDatasetName = "%s_%s" % (imageName, containerName)
+        pros = gateway.getProjects([project.id.val], True)
+        datasetFound = False
+        for p in pros:
+            for ds in p.linkedDatasetList():
+                if ds.name.val == newDatasetName:
+                    datasetFound = True
+                    dsId = ds.id.val
+                    iList = gateway.getImages(omero.api.ContainerClass.Dataset, [dsId])
+                    self.assertEquals(2, len(iList))
+        self.assertTrue(datasetFound, "No dataset found with images from ROIs")
+        
     
     def testBoxer(self):
         """
-        Uploads a single particle image and the boxer.py script (paths defined below)
+        Uploads a single particle image (path defined below)
         Then adds ROIs for a couple of user-picked particles. These match the test image.
-        Then runs the boxer.py script to add auto-picked particles as ROIs to the image.  
+        The 'root' uploads the "boxer.py" script, and it is run by a regular 
+        user, to add auto-picked particles as ROIs to the image.  
         This test, including running of script takes > 2 mins! 
         """
         
@@ -46,7 +149,7 @@ class TestIShare(lib.ITest):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         admin = self.root.sf.getAdminService()
         
-        ### create three users in 3 groups
+        ### create user in group
         listOfGroups = list()
         listOfGroups.append(admin.lookupGroup("user"))  # all users need to be in 'user' group to do anything! 
         
@@ -72,25 +175,111 @@ class TestIShare(lib.ITest):
         session = user_client.sf
         
         # create user services 
-        gateway = session.createGateway()     
+        gateway = session.createGateway()    
+        roiService = session.getRoiService() 
         
         # import image and manually pick particles. 
-        imagePath = "/Users/will/Documents/biology-data/testData/ctfTest.tiff"
+        imagePath = boxerTestImage
         iId = importImage(session, imagePath)
         image = gateway.getImage(iId)
-        x, y, width, height = (1355, 600, 330, 330)
+        x, y, width, height = (1355, 600, 320, 325)     # script should re-size to 330
         addRectangleRoi(gateway, x, y, width, height, image)
-        x, y, width, height = (890, 200, 330, 330)
+        x, y, width, height = (890, 200, 310, 330)
         addRectangleRoi(gateway, x, y, width, height, image)
         
         # upload (as root) and run the boxer.py script as user 
         scriptService = self.root.sf.getScriptService()
-        scriptPath = "/Users/will/Documents/workspace/Omero/components/tools/OmeroPy/scripts/EMAN2/boxer.py"
-        scriptId = uploadScript(scriptService, scriptPath)
+        scriptId = uploadScript(scriptService, boxerScriptPath)
         ids = [omero.rtypes.rint(iId), ]
         argMap = {"imageIds": omero.rtypes.rlist(ids),}
         runScript(session, scriptId, omero.rtypes.rmap(argMap))
         
+        # if the script ran OK, we should have more than the 2 ROIs we added above
+        result = roiService.findByImage(iId, None)
+        
+        rectCount = 0
+        for roi in result.rois:
+            for shape in roi.copyShapes():
+                if type(shape) == omero.model.RectI:
+                    width = shape.getWidth().getValue()
+                    height = shape.getHeight().getValue()
+                    self.assertEquals(330, width)
+                    self.assertEquals(330, height)
+                    rectCount += 1
+        self.assertTrue(rectCount > 2, "No ROIs added by boxer.py script")
+        
+        
+    def testExport2Em(self):
+        """
+        Tests the export2em.py command-line script by creating an image in OMERO, then
+        running the export2em.py script from command line and checking that an image has been exported. 
+        The saveImageAs.py script is first uploaded to the scripting service, since this is required by export2em.py
+        """
+        
+        # root session is root.sf
+        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        admin = self.root.sf.getAdminService()
+        
+        # upload saveImageAs.py script as root
+        scriptService = self.root.sf.getScriptService()
+        scriptId = uploadScript(scriptService, saveImageAsScriptPath)
+        
+        ### create user in group
+        listOfGroups = list()
+        listOfGroups.append(admin.lookupGroup("user"))  # all users need to be in 'user' group to do anything! 
+        
+        #group
+        new_gr1 = ExperimenterGroupI()
+        new_gr1.name = rstring("export-test_%s" % uuid)
+        gid = admin.createGroup(new_gr1)
+        group = admin.getGroup(gid)
+        listOfGroups.append(group)
+        
+        # add user
+        new_exp = ExperimenterI()
+        new_exp.omeName = rstring("export-user1_%s" % uuid)
+        new_exp.firstName = rstring("New")
+        new_exp.lastName = rstring("Test")
+        new_exp.email = rstring("newtest@emaildomain.com")
+        
+        eid = admin.createExperimenterWithPassword(new_exp, rstring("ome"), group, listOfGroups)
+        
+        # log in as user
+        user_client = omero.client()
+        user_client.createSession(new_exp.omeName.val,"ome")
+        #session = user_client.sf
+        
+        # upload image as root, since only root has only root has permission to run 
+        # export2em.py because it uses the scripting service to look up the 'saveImageAs.py'
+        # script we just uploaded as root. 
+        session = self.root.sf
+        
+        # import image
+        iId = importImage(session, smallTestImage)
+        imageName = os.path.basename(smallTestImage)
+        
+        extension = "png"
+        commandArgs = []
+        commandArgs.append("python %s" % export2emScriptPath)
+        commandArgs.append("-h localhost")
+        #commandArgs.append("-u %s" % new_exp.omeName.val)
+        commandArgs.append("-u root")
+        commandArgs.append("-p omero")
+        commandArgs.append("-i %s" % iId)
+        commandArgs.append("-e %s" % extension)
+        
+        commandString = " ".join(commandArgs)
+        #print commandString
+        # run from command line
+        os.system(commandString)
+        
+        # the downloaded file should be local. Try to find and open it. 
+        if not imageName.endswith(".%s" % extension):
+            imageName = "%s.%s" % (imageName, extension)
+        #i = Image.open(imageName)
+        #i.show()
+        assertTrue(os.path.exists(imageName))
+        os.remove(imageName)
         
 def runScript(session, scriptId, argMap, returnKey=None): 
     # TODO: this will be refactored 
@@ -104,7 +293,8 @@ def runScript(session, scriptId, argMap, returnKey=None):
         
     if 'stderr' in results:
         origFile = results['stderr'].getValue()
-        raise "Boxer script failed. StdErr in file:" , origFile.getId().getValue()
+        # But, we still get stderr from EMAN2 import (duplicate numpy etc.)
+        print "Script failed. StdErr in file:" , origFile.getId().getValue()
     if returnKey and returnKey in results:
         return results[returnKey]
 
@@ -154,7 +344,7 @@ def getPlaneFromImage(imagePath):
     return a
 
 
-def importImage(session, imagePath):
+def importImage(session, imagePath, imageName=None):
     
     gateway = session.createGateway()
     renderingEngine = session.createRenderingEngine()
@@ -166,7 +356,9 @@ def importImage(session, imagePath):
     pType = plane2D.dtype.name
     pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
     
-    image = scriptUtil.createNewImage(pixelsService, rawPixelStore, renderingEngine, pixelsType, gateway, [plane2D], imagePath, "description", dataset=None)
+    if imageName == None:
+        imageName = imagePath
+    image = scriptUtil.createNewImage(pixelsService, rawPixelStore, renderingEngine, pixelsType, gateway, [plane2D], imageName, "description", dataset=None)
     return image.getId().getValue()
 
 if __name__ == '__main__':
