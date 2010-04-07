@@ -121,5 +121,4 @@ urlpatterns = patterns('',
     url( r'^test/$', views.test, name="test"), 
     url( r'^histogram/(?P<oid>[0-9]+)/$', views.histogram, name="histogram"), 
     
-    url( r'^static/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.dirname(__file__), 'media').replace('\\','/') }, name="webstatic" ),
 )

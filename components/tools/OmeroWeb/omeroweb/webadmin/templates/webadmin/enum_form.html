@@ -1,0 +1,52 @@
+{% extends "webadmin/base.html" %}
+{% load i18n %}
+{% load markup %}
+{% load custom_tags %}
+
+{% block title %}
+{% if eid %}
+    {% trans "Edit scientist" %}
+{% else %}
+    {% trans "Add scientist" %}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div>
+{% ifequal action "new" %}
+    <h2>{% trans "Add new entry to " %} <strong>{{ controller.klass }}</strong></h2>
+    
+    <form action="{% url wamanageenum "new" controller.klass %}" method="POST">
+    <table>
+      <tbody>
+        {% for field in form %}
+        <tr><td class="form"> {{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text }}</td></tr>
+        {% endfor %}
+      </tbody>
+      <tr><td>&nbsp;</td><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Save' %}" /></td></tr>
+    </table>
+    </form>
+    
+    
+{% else %}
+
+<p><img src="{% url webstatic "images/add.png" %}" alt="add" title="add"> <a href="{% url wamanageenum "new" controller.klass %}">{% trans "Add new entry" %}</a></p>
+
+    <h2>{% trans "Edit" %} <strong>{{ controller.klass }}</strong></h2>
+    
+    <form action="{% url wamanageenum "save" controller.klass %}" method="POST">
+    <table>
+      <tbody>
+        {% for field in form %}
+        <tr><td class="form"><a href="{% url wamanageenum "delete" controller.klass field.name %}"><img src="{% url webstatic "images/del.png" %}" alt="delete" title="delete"></a> {{ field.label_tag }}</td><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text }}</td></tr>
+        {% endfor %}
+      </tbody>
+      <tr><td>&nbsp;</td><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Save' %}" /></td></tr>
+    </table>
+    </form>
+    
+{% endifequal %}
+
+
+</div>
+{% endblock %}

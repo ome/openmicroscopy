@@ -1,0 +1,380 @@
+html {
+    text-align: justify;
+}
+
+html.noscroll {
+    
+    overflow: hidden;
+}
+
+body {
+    font-size: 13px;
+    font-family: Arial, Verdana, Lucida, Helvetica, sans-serif;
+    color: #555;
+    margin: 0;
+    padding: 0;
+    background-color: #f3f3f3;  
+}
+
+#bodyWrapper {
+    margin: 0;
+    padding: 0;
+    min-width: 1010px;
+    background: #ffffff url(/static/images/background.png) repeat-x top left ;
+    border-bottom: 1px solid #bbb;
+}
+body.zoom {
+    width: 100%;
+    background: no-repeat;
+}
+
+.error {
+    color: #e3646f;
+}
+
+#headerWrapper {
+    border-bottom: 1px solid #bbb;
+}
+#header {
+    position: relative;
+    margin: 0 10px;
+    height:90px;
+}
+#header2 {
+    margin: 0 10px;
+    height: 25px;
+}
+
+#menu {
+    position: absolute;
+    top:0;
+    right: 0;
+}
+
+#content_zoom {
+    margin: 10px;
+}
+
+#contentWrapper {
+    position: relative;
+}
+table.contentWrapper {
+    width: 100%; 
+    background: #f3f3f3;
+}
+
+#left_panel {
+    width:400px;
+    background-color: #ffffff;
+    vertical-align: top;
+}
+#center_panel {
+    background-color: #ffffff;
+    vertical-align: top;
+}
+#right_panel {
+    width:370px;
+    background-color: #f3f3f3;
+    display: none;
+}
+
+#path {
+    position: relative;
+    height:22px;
+    padding:0;
+}
+#content_details {
+    padding: 10px 20px 0 10px;
+}
+
+.toolbar {
+    height:20px;
+    padding:5px;
+    background-color:#fff;
+    width: 100%; 
+    border-bottom: 1px solid #bbb;
+}
+.toolbar_noborder {
+    height:20px;
+    padding:5px;
+    width: 100%; 
+}
+.align_left {
+    float:left;
+}
+.align_right {
+    float:right;
+    text-align: right;
+}
+#searching {
+    padding: 10px;
+}
+#view_grey  {
+    height:20px;
+    padding:5px;
+    background-color:#f3f3f3;
+    width: 100%;    
+}
+
+#logout {
+    position: absolute;
+    padding: 2px 0;
+    top: 0;
+    right: 0;
+}
+
+#logo {
+    position: absolute;
+    margin: 0;
+    height: 90px;
+    width: 160px;
+    background: url(/static/images/logo.png) no-repeat bottom left ;
+    top: 0;
+    left: 25px;
+}
+
+.collapsibletrayhandle-right {
+    background:#F3F3F3 url(/static/images/tray_right_shadow.png) repeat-y scroll left top;
+}
+.collapsibletrayhandle-left {
+    background:#fff url(/static/images/tray_left_shadow.png) repeat-y scroll left top;
+}
+.trayhandle {
+    background-color:#F3F3F3;
+    padding:5px 1px 1px;
+    vertical-align:top;
+    width:18px;
+}
+.trayhandle-left {
+    background-color:#ffffff;
+    padding:5px 1px 1px;
+    vertical-align:top;
+    width:18px;
+}
+#lhid_trayhandle_icon_right {
+    cursor:pointer;
+    left:-1px;
+    position:relative;
+}
+
+#lhid_trayhandle_icon_left {
+    cursor:pointer;
+    left:-1px;
+    position:relative;
+}
+
+.expanded-left {
+    background:transparent url(/static/images/tray_left_button.png) no-repeat scroll;
+    height:24px;
+    width:16px;
+}
+.expanded-right {
+    background:transparent url(/static/images/tray_right_button.png) no-repeat scroll;
+    height:24px;
+    width:16px;
+}
+.collapsed-left {
+    background:transparent url(/static/images/tray_left_expand_button.png) no-repeat scroll;
+    height:24px;
+    width:16px;
+}
+.collapsed-right {
+    background:transparent url(/static/images/tray_right_expand_button.png) no-repeat scroll;
+    height:24px;
+    width:16px;
+}
+
+/* Breadcrumb */
+#breadcrumb{
+    border-top: 1px solid #bbb;
+    border-bottom: 1px solid #bbb;
+    padding: 4px 0;
+}
+
+ol.breadcrumb, ol.breadcrumb li{
+    display: inline;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#footer {
+    clear: both;
+    font-size: 11px;
+    text-align: center;
+    height: 50px;
+    padding: 10px;
+    background-color: #f3f3f3;
+}
+
+.tree {
+    overflow: auto;
+    min-width:400px;
+}
+
+img {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    vertical-align: middle;
+}
+
+img.action {
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+a {
+    color: #1b7bc7;
+    text-decoration: none;
+    border: none;
+}
+a:hover,a:link,a:visited {
+    color: #1b7bc7;
+    text-decoration: none;
+    border: none;
+}
+
+h1 {
+    font-size: 15px;
+    text-align: left;
+    margin: 0;
+    padding: 10px 0;
+}
+h2 {
+    font-size: 12px;
+    text-align: left;
+}
+
+p {
+    margin: 0px;
+    padding: 5px;
+}
+
+iframe {
+    border:0;
+    overflow: auto;
+}
+
+table {
+    text-align: center;
+}
+
+td {
+    text-align: left;
+    padding: 0px;
+    vertical-align:top;
+}
+
+th {
+    font-weight: bold;
+    vertical-align:top;
+}
+
+input {
+    margin: 0;
+    border: 1px solid #bbb;
+    background-color: #fff;
+    font-size: 12px;
+    font-family: Arial, Verdana, Lucida, Helvetica, sans-serif;
+    color: #444;
+}
+input.button {
+    border: 0;
+    background-color: transparent;
+    vertical-align:middle;
+}
+
+select {
+    margin: 0;
+    background-color: #fff;
+    border: 1px solid #bbb;
+    font-size: 12px;
+    font-family: Arial, Verdana, Lucida, Helvetica, sans-serif;
+    color: #444;
+}
+textarea {
+    margin: 0;
+    background-color: #fff;
+    border: 1px solid #bbb;
+}
+
+form table {
+    text-align: center;
+    border: 0px;
+}
+
+form td {
+    text-align: left;
+    padding: 2px;
+}
+
+form th {
+    text-align: left;
+    border: 0px;
+}
+
+ul.errorlist {
+    list-style: none;
+    color: #e3646f;
+    margin: 0;
+    padding: 10px 0 0;
+    text-align: center;
+}
+ul.errorlist li {
+    border-style:none;
+    border-width:0;
+}
+
+ul.criteria li{
+    list-style: none;
+    float: left;
+    margin: 0;
+    margin-right: 5px;
+}
+
+.clear {
+    clear: both;
+    width: 0px;
+    margin: 0px;
+    padding: 0px;
+}
+.separate70 {
+    clear: both;
+    height: 70px;
+    margin: 0px;
+    padding: 0px;
+}
+.separate50 {
+    clear: both;
+    height: 50px;
+    margin: 0px;
+    padding: 0px;
+}
+.separate30 {
+    clear: both;
+    height: 30px;
+    margin: 0px;
+    padding: 0px;
+}
+
+.details {
+    border-bottom:1px solid #BBBBBB;
+}
+.center {
+    text-align: center;
+}
+label {
+    font-weight: bold;
+}
+.box {
+    float:left;
+    margin:15px 0 10px 0;
+}
+
+.link_box {
+    border-top:1px solid #BBBBBB;
+}
+.content_details {
+    padding: 10px;
+}

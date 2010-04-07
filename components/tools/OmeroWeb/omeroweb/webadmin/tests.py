@@ -181,7 +181,7 @@ class LoginFormDynamicTestCase(TestCase):
         self.assertEquals(response.status_code, 301)
         response =  self.client.get('/webadmin/login/')
         self.assertEquals(response.status_code, 200)
-        self.assertTemplateUsed(response, 'omeroadmin/login.html')
+        self.assertTemplateUsed(response, 'webadmin/login.html')
 
     def test02(self):
         "POST invalid gateway details"

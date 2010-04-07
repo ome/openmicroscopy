@@ -42,7 +42,7 @@ from omeroweb.webadmin.custom_forms import ExperimenterModelChoiceField, \
 # Static values
 
 # TODO: change to reverse
-help_button = "/webclient/static/images/help16.png"
+help_button = "/static/images/help16.png"
 
 help_wiki = '<span id="markup" title="Markups - <small>If you\'d like to include URL please type:<br/><b>http://www.openmicroscopy.org.uk/</b></small>"><img src="%s" /></span>' % help_button
 
@@ -408,6 +408,66 @@ class MetadataDichroicForm(forms.Form):
         self.fields.keyOrder = ['manufacturer', 'model', 'lotNumber'] 
 
 
+class MetadataMicroscopeForm(forms.Form):
+    
+    def __init__(self, *args, **kwargs):
+        super(MetadataMicroscopeForm, self).__init__(*args, **kwargs)
+    
+        # Model
+        try:
+            if kwargs['initial']['microscope'].model is not None:
+                self.fields['model'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['microscope'].id)+', \'model\', this.value);'}), initial=kwargs['initial']['microscope'].model, required=False)
+            else:
+                self.fields['model'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['microscope'].id)+', \'model\', this.value);'}), required=False)
+            self.fields['model'].widget.attrs['disabled'] = True 
+            self.fields['model'].widget.attrs['class'] = 'disable'
+        except:
+            self.fields['model'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
+            self.fields['model'].widget.attrs['disabled'] = True 
+            self.fields['model'].widget.attrs['class'] = 'disabled'
+        
+        # Manufacturer
+        try:
+            if kwargs['initial']['microscope'].manufacturer is not None:
+                self.fields['manufacturer'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['microscope'].id)+', \'manufacturer\', this.value);'}), initial=kwargs['initial']['microscope'].manufacturer, required=False)
+            else:
+                self.fields['manufacturer'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['microscope'].id)+', \'manufacturer\', this.value);'}), required=False)
+            self.fields['manufacturer'].widget.attrs['disabled'] = True 
+            self.fields['manufacturer'].widget.attrs['class'] = 'disable'
+        except:
+            self.fields['manufacturer'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
+            self.fields['manufacturer'].widget.attrs['disabled'] = True 
+            self.fields['manufacturer'].widget.attrs['class'] = 'disabled'
+        
+        # Serial number
+        try:
+            if kwargs['initial']['microscope'].serialNumber is not None:
+                self.fields['serialNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['microscope'].id)+', \'lotNumber\', this.value);'}), initial=kwargs['initial']['microscope'].serialNumber, label="Serial number", required=False)
+            else:
+                self.fields['serialNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['microscope'].id)+', \'lotNumber\', this.value);'}), label="Serial number", required=False)
+            self.fields['serialNumber'].widget.attrs['disabled'] = True 
+            self.fields['serialNumber'].widget.attrs['class'] = 'disable'
+        except:
+            self.fields['serialNumber'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Serial number", required=False)
+            self.fields['serialNumber'].widget.attrs['disabled'] = True 
+            self.fields['serialNumber'].widget.attrs['class'] = 'disabled'
+        
+        # Type
+        try:
+            if kwargs['initial']['microscope'].type is not None:
+                self.fields['type'] = MetadataModelChoiceField(queryset=kwargs['initial']['microscopeTypes'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['microscope'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['microscope'].getType().value, required=False) 
+            else:
+                self.fields['type'] = MetadataModelChoiceField(queryset=kwargs['initial']['microscopeTypes'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['microscope'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), required=False) 
+            self.fields['type'].widget.attrs['disabled'] = True 
+            self.fields['type'].widget.attrs['class'] = 'disable'
+        except:
+            self.fields['type'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
+            self.fields['type'].widget.attrs['disabled'] = True 
+            self.fields['type'].widget.attrs['class'] = 'disabled'
+        
+        self.fields.keyOrder = ['model', 'manufacturer', 'serialNumber', 'type']
+
+
 class MetadataObjectiveForm(forms.Form):
     
     BOOLEAN_CHOICES = (
@@ -462,19 +522,6 @@ class MetadataObjectiveForm(forms.Form):
         
         # Objective
         
-        # Manufacturer
-        try:
-            if kwargs['initial']['image'].getObjective().manufacturer is not None:
-                self.fields['manufacturer'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'manufacturer\', this.value);'}), initial=kwargs['initial']['image'].getObjective().manufacturer, required=False)
-            else:
-                self.fields['manufacturer'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'manufacturer\', this.value);'}), required=False)
-            self.fields['manufacturer'].widget.attrs['disabled'] = True 
-            self.fields['manufacturer'].widget.attrs['class'] = 'disable'
-        except:
-            self.fields['manufacturer'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
-            self.fields['manufacturer'].widget.attrs['disabled'] = True 
-            self.fields['manufacturer'].widget.attrs['class'] = 'disabled'
-        
         # Model
         try:
             if kwargs['initial']['image'].getObjective().model is not None:
@@ -487,6 +534,19 @@ class MetadataObjectiveForm(forms.Form):
             self.fields['model'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['model'].widget.attrs['disabled'] = True 
             self.fields['model'].widget.attrs['class'] = 'disabled'
+        
+        # Manufacturer
+        try:
+            if kwargs['initial']['image'].getObjective().manufacturer is not None:
+                self.fields['manufacturer'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'manufacturer\', this.value);'}), initial=kwargs['initial']['image'].getObjective().manufacturer, required=False)
+            else:
+                self.fields['manufacturer'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'manufacturer\', this.value);'}), required=False)
+            self.fields['manufacturer'].widget.attrs['disabled'] = True 
+            self.fields['manufacturer'].widget.attrs['class'] = 'disable'
+        except:
+            self.fields['manufacturer'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
+            self.fields['manufacturer'].widget.attrs['disabled'] = True 
+            self.fields['manufacturer'].widget.attrs['class'] = 'disabled'
         
         # Serial Number
         try:
@@ -592,7 +652,7 @@ class MetadataObjectiveForm(forms.Form):
             self.fields['iris'].widget.attrs['disabled'] = True 
             self.fields['iris'].widget.attrs['class'] = 'disabled'
         
-        self.fields.keyOrder = ['manufacturer', 'model', 'serialNumber', 'nominalMagnification', 'calibratedMagnification', 'lensNA', 'immersion', 'correction', 'workingDistance', 'iris', 'correctionCollar',  'medium', 'refractiveIndex'] 
+        self.fields.keyOrder = ['model', 'manufacturer', 'serialNumber', 'nominalMagnification', 'calibratedMagnification', 'lensNA', 'immersion', 'correction', 'workingDistance', 'iris', 'correctionCollar',  'medium', 'refractiveIndex'] 
     
 
 class MetadataFilterForm(forms.Form):

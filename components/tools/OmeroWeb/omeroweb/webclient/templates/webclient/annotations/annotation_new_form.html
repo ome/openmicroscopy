@@ -1,0 +1,123 @@
+{% extends "webclient/base/base_frame.html" %}
+{% load i18n %}
+{% load markup %}
+{% load custom_tags %}
+
+{% block link %}
+    <link rel="stylesheet" href="{% url webstatic "css/googiespell.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/annotation.css" %}" type="text/css" media="screen"/>
+{% endblock %}
+
+{% block jscript %}
+    
+    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/AJS.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/googiespell.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/cookiesupport.js" %}"></script>
+    
+{% endblock %}
+
+{% block content %}
+
+{% if form_comment %}
+<div class="comment">
+    <h1>{% trans "Add new comment" %}:</h1>
+    
+    <form action="{% if manager.project %}{% url manage_action_containers "addcomment" "project" manager.project.id %}{% else %}{% if manager.dataset %}{% url manage_action_containers "addcomment" "dataset" manager.dataset.id %}{% else %}{% if manager.image %}{% url manage_action_containers "addcomment" "image" manager.image.id %}{% else %}{% if manager.screen %}{% url manage_action_containers "addcomment" "screen" manager.screen.id %}{% else %}{% if manager.plate %}{% url manage_action_containers "addcomment" "plate" manager.plate.id %}{% else %}{% if manager.well %}{% url manage_action_containers "addcomment" "well" manager.well.id %}{% else %}{{ url }}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}?url={{url}}#annotation_tab" method="post">
+    
+    <table>
+        {% for field in form_comment %}
+            <tr>
+                <td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td>
+            </tr>
+            <tr>
+                <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
+            </tr>
+        {% endfor %}
+            <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /> <input type="button" onclick='document.location.href="{{ url }}#annotation_tab";' value="{% trans 'Cancel' %}" /></td></tr>
+    </table>
+    </form>
+    <script type="text/javascript">
+        var googie_spell = new GoogieSpell("static_core/googiespell/", "{% url spellchecker %}"+"?lang=");
+        googie_spell.decorateTextarea("id_content", null, "600px");
+    </script>
+</div>
+{% endif %}
+
+{% if form_tag %}
+<div class="tags">
+    <h1>{% trans "Add new tag" %}:</h1>
+    <form action="{% if manager.project %}{% url manage_action_containers "addtag" "project" manager.project.id %}{% else %}{% if manager.dataset %}{% url manage_action_containers "addtag" "dataset" manager.dataset.id %}{% else %}{% if manager.image %}{% url manage_action_containers "addtag" "image" manager.image.id %}{% else %}{% if manager.screen %}{% url manage_action_containers "addtag" "screen" manager.screen.id %}{% else %}{% if manager.plate %}{% url manage_action_containers "addtag" "plate" manager.plate.id %}{% else %}{% if manager.well %}{% url manage_action_containers "addtag" "well" manager.well.id %}{% else %}{{ url }}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}?url={{url}}#annotation_tab" method="post">
+    <table>
+        {% for field in form_tag %}
+            <tr>
+                <td></td><td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td>
+            </tr>
+            <tr>
+                <td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
+            </tr>
+        {% endfor %}
+        <tr><td></td><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /> <input type="button" onclick='document.location.href="{{ url }}#annotation_tab";' value="{% trans 'Cancel' %}" /></td></tr>
+        </table>
+    </form>
+</div>
+{% endif %}
+
+{% if form_tags %}
+<div class="extags">
+    <h1>{% trans "Use existing tag" %}:</h1>
+    <form action="{% if manager.project %}{% url manage_action_containers "usetag" "project" manager.project.id %}{% else %}{% if manager.dataset %}{% url manage_action_containers "usetag" "dataset" manager.dataset.id %}{% else %}{% if manager.image %}{% url manage_action_containers "usetag" "image" manager.image.id %}{% else %}{% if manager.screen %}{% url manage_action_containers "usetag" "screen" manager.screen.id %}{% else %}{% if manager.plate %}{% url manage_action_containers "usetag" "plate" manager.plate.id %}{% else %}{% if manager.well %}{% url manage_action_containers "usetag" "well" manager.well.id %}{% else %}{{ url }}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}?url={{url}}#annotation_tab" method="post">
+    <table>
+    {% for field in form_tags %}
+        <tr>
+            <td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td>
+        </tr>
+        <tr>
+            <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
+        </tr>
+    {% endfor %}
+    <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /> <input type="button" onclick='document.location.href="{{ url }}#annotation_tab";' value="{% trans 'Cancel' %}" /></td></tr>
+    </table>
+    </form>
+</div>
+{% endif %}
+
+{% if form_file %}
+<div class="file">
+    <h1>{% trans "Upload a new file" %}:</h1>
+    <form action="{% if manager.project %}{% url manage_action_containers "addfile" "project" manager.project.id %}{% else %}{% if manager.dataset %}{% url manage_action_containers "addfile" "dataset" manager.dataset.id %}{% else %}{% if manager.image %}{% url manage_action_containers "addfile" "image" manager.image.id %}{% else %}{% if manager.screen %}{% url manage_action_containers "addfile" "screen" manager.screen.id %}{% else %}{% if manager.plate %}{% url manage_action_containers "addfile" "plate" manager.plate.id %}{% else %}{% if manager.well %}{% url manage_action_containers "addfile" "well" manager.well.id %}{% else %}{{ url }}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}?url={{url}}#annotation_tab" enctype="multipart/form-data" method="post"><input type="hidden" name="action" value="file" />
+    <table>
+    {% for field in form_file %}
+        <tr>
+            <td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td>
+        </tr>
+        <tr>
+            <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
+        </tr>
+    {% endfor %}
+    <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /> <input type="button" onclick='document.location.href="{{ url }}#annotation_tab";' value="{% trans 'Cancel' %}" /></td></tr>
+    </table>
+    </form>
+</div>
+{% endif %}
+
+{% if form_files %}
+<div class="exfile">
+    <h1>{% trans "Attache existing file" %}:</h1>
+    <form action="{% if manager.project %}{% url manage_action_containers "usefile" "project" manager.project.id %}{% else %}{% if manager.dataset %}{% url manage_action_containers "usefile" "dataset" manager.dataset.id %}{% else %}{% if manager.image %}{% url manage_action_containers "usefile" "image" manager.image.id %}{% else %}{% if manager.screen %}{% url manage_action_containers "usefile" "screen" manager.screen.id %}{% else %}{% if manager.plate %}{% url manage_action_containers "usefile" "plate" manager.plate.id %}{% else %}{% if manager.well %}{% url manage_action_containers "usefile" "well" manager.well.id %}{% else %}{{ url }}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}?url={{url}}#annotation_tab" method="post"><input type="hidden" name="action" value="usefile" />
+    <table>
+    {% for field in form_files %}
+        <tr>
+            <td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td>
+        </tr>
+        <tr>
+            <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
+        </tr>
+    {% endfor %}
+    <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /> <input type="button" onclick='document.location.href="{{ url }}#annotation_tab";' value="{% trans 'Cancel' %}" /></td></tr>
+    </table>
+    </form>
+</div>
+{% endif %}
+
+
+{% endblock %}

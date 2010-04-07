@@ -76,7 +76,7 @@ def send_feedback(request):
                 logger.error('handler500: Error could not be saved.')
                 logger.error(traceback.format_exc())
                 
-        return HttpResponseRedirect("/feedback/thanks/")
+        return HttpResponseRedirect(reverse("fthanks"))
         
     context = {'form':form, 'error':error}
     t = template_loader.get_template('500.html') 
@@ -101,19 +101,29 @@ def custom_server_error(request, error500):
 
 def handler500(request):
     logger.error('handler500: Server error')
-    exc_info = sys.exc_info()
-    logger.error(traceback.format_exc())
-    
-    error500 = debug.technical_500_response(request, *exc_info)
-    
+    as_string = '\n'.join(traceback.format_exception(*sys.exc_info()))
+    logger.error(as_string)
+        
+    try:
+        request_repr = repr(request)
+    except:
+        request_repr = "Request repr() unavailable"
+        
+    error500 = "%s\n\n%s" % (as_string, request_repr)
+        
     return custom_server_error(request, error500)
 
 def handler404(request):
     logger.error('handler404: Page not found')
-    exc_info = sys.exc_info()
-    logger.error(traceback.format_exc())
+    as_string = '\n'.join(traceback.format_exception(*sys.exc_info()))
+    logger.error(as_string)
     
-    error404 = debug.technical_404_response(request, exc_info[1])
+    try:
+        request_repr = repr(request)
+    except:
+        request_repr = "Request repr() unavailable"
+        
+    error404 = "%s\n\n%s" % (as_string, request_repr)
     
     return page_not_found(request, "404.html")
 

@@ -52,7 +52,7 @@ import omero.gateway
 import omero_api_IScript_ice
 from omero.rtypes import *
 from omero.model import FileAnnotationI, TagAnnotationI, DatasetI, ProjectI, ImageI, \
-                        DetectorI, FilterI, ObjectiveI, InstrumentI
+                        DetectorI, FilterI, ObjectiveI, InstrumentI, LaserI
 from omero.sys import ParametersI
 
 
@@ -383,6 +383,14 @@ class ImageFilterWrapper (omero.gateway.BlitzObjectWrapper):
 class FilterTransmittanceRangeWrapper (omero.gateway.BlitzObjectWrapper):
     pass
 
+class MicroscopeWrapper (omero.gateway.BlitzObjectWrapper):
+
+    def getMicroscopeType(self):
+        if self._obj.type is None:
+            return None
+        else:
+            return TypeWrapper(self._conn, self._obj.type)
+
 class ImageDetectorWrapper (omero.gateway.BlitzObjectWrapper):
     
     def getDetectorType(self):
@@ -448,6 +456,24 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
             for inst in meta_serv.loadInstrument(self._obj.instrument.id.val):
                 if isinstance(inst, FilterI):
                     yield ImageFilterWrapper(self._conn, inst)
+    
+    def getMicroscopLasers(self):
+        meta_serv = self._conn.getMetadataService()
+        if self._obj.instrument is None:
+            yield None
+        else:
+            for inst in meta_serv.loadInstrument(self._obj.instrument.id.val):
+                if isinstance(inst, LaserI):
+                    yield LightSourceWrapper(self._conn, inst)
+    
+    def getMicroscope(self):
+        meta_serv = self._conn.getMetadataService()
+        if self._obj.instrument is None:
+            return None
+        else:
+            for inst in meta_serv.loadInstrument(self._obj.instrument.id.val):
+                if isinstance(inst, InstrumentI):
+                    return MicroscopeWrapper(self._conn, inst.microscope)
     
     # from model
     def getImagingEnvironment(self):

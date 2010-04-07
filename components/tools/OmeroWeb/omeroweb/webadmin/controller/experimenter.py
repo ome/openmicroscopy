@@ -109,8 +109,8 @@ class BaseExperimenter(BaseController):
             flag = False
             if gr.name == "user":
                 flag = True
-            #elif gr.name == "system":
-            #    flag = True
+            elif gr.name == "system":
+                flag = True
             elif gr.name == "guest":
                 flag = True
             if gr.id in exclude:

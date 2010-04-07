@@ -1,0 +1,226 @@
+{% extends "webclient/base/base_main.html" %}
+{% load i18n %}
+{% load markup %}
+{% load custom_tags %}
+{% load wikitags %}
+
+{% block link %}
+    <link rel="stylesheet" href="{% url webstatic "css/thickbox.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/annotation.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/table.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/autocomplete.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
+{% endblock %}
+
+{% block jscript %}
+    
+    
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.dimensions.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.delegate.js" %}"></script>
+    
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.bgiframe.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.ajaxQueue.js" %}/"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.autocomplete.js" %}"></script>
+    
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tablesorter.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
+    
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.core.js" %}"></script>
+    
+    <script type="text/javascript" src="{% url webstatic "javascript/thickbox/thickbox.js" %}"></script>
+{% endblock %}
+
+
+{% block script %}
+    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
+        
+    
+    <script type="text/javascript">
+        $(document).ready(function() 
+            { 
+                $("#dataTable").tablesorter( {sortList: [[1,1]]} ); 
+            
+                $('table#dataTable tbody tr').quicksearch({
+                    attached: "div#tagsTable",
+                    position: "before",
+                    stripeRowClass: null,
+                    labelText: '{% trans "Filter" %}:',
+                    inputText: '...',
+                    loaderImg: '{% url webstatic "images/tree/spinner.gif" %}',
+                });
+                
+                $("div#tag").hide();
+                $("div#tagloader").html('<p>{% trans "Loading filters... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                
+                $.ajax({  
+                    type: "GET",  
+                    url: "{% url autocomplete_tags %}",  
+                    contentType: "application/json; charset=utf-8",  
+                    cache:false,
+    				async: false,
+    				dataType: "json",  
+                    success: function(json){  
+                        prepareAutocomplete(json);
+                        $("div#tagloader").remove();
+                        $("div#tag").show();
+                    },  
+                    error: function(xhr, msg){  
+                        alert("{% trans 'Could not load tag component. Please contact Administrator.' %}");  
+                    }
+                });
+                
+                function prepareAutocomplete(myjson){
+                    $("#id_tag, #id_tag2, #id_tag3, #id_tag4, #id_tag5").autocomplete(myjson, {
+                        //width: 320,
+                        max: 10,
+                        scroll: true,
+                        scrollHeight: 200,
+                        highlightItem: true,
+                        //multiple: true,
+                        //multipleSeparator: ";",
+                        formatItem: function(row, i, max, term) {
+                            if(row.desc!=null) {
+                                return row.tag + "<br/><small>" + row.desc + "</small>";
+                            } else {
+                                return row.tag
+                            }
+                        },
+                        formatMatch: function(row, i, max) {
+                            return row.tag + " " + row.id;
+                        },
+                        formatResult: function(row) {
+                            return row.tag;
+                        }
+                    });
+                }
+                
+                $("{% for t in manager.tags %}#tagdesc{{ t.id }}, {% endfor %}#tag").tooltip({ 
+                    track: true, 
+                    delay: 0, 
+                    showURL: false, 
+                    opacity: 1, 
+                    fixPNG: true, 
+                    showBody: " - ", 
+                    top: -15, 
+                    left: 5 
+                });
+
+        });
+    </script>
+    
+{% endblock %}
+
+{% block content %}
+
+<div class="tag">
+    <h1>{% trans "Tags" %}:</h1>
+    <p>{% trans "That page allows you to display the data by tags. Please start typing tag and choose correct tag from auto-complete list. You can choose from 1 to 5 tags. Filter will show you ever data associated with those tags." %}</p>
+</div>
+
+<div>
+    {% if manager.tags %}
+    <h1>{% trans "Selected tags" %}:</h1>
+    {% endif %}
+    <div id="tagloader"></div>
+    <div id="tag">
+        {% if form_filter %}
+        <form action="" method="post">
+        <table>
+            <tr>
+                {% for t in manager.tags %}
+                <td>{% if t %}
+                    ({{ t.id }}) <span id="tagdesc{{ t.id }}" title="{{ t.textValue }} - <small>{{ t.description|default_if_none:"no description"|safe|linebreaks  }}</small>"><a>{{ t.shortTag }}</a></span>{% if not t.isOwned %}<img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %} {% if t.isEditable %}<a href="{% url manage_action_containers "edit" "tag" t.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}
+                {% else %}
+                    <ul class="errorlist"><li>{% trans "This tag does not exist." %}</li></ul>
+                {% endif %}</td><td> </td>
+                {% endfor %}
+                <td> </td>
+            <tr>
+                <td>{{ form_filter.tag }}</td><td>{% if form_filter.tag.errors %}{{ form_filter.tag.errors }}{% endif %}<br/>{{ form_filter.tag.help_text|safe }}</td>
+                <td>{{ form_filter.tag2 }}</td><td>{% if form_filter.tag2.errors %}{{ form_filter.tag2.errors }}{% endif %}<br/>{{ form_filter.tag2.help_text|safe }}</td>
+                <td>{{ form_filter.tag3 }}</td><td>{% if form_filter.tag3.errors %}{{ form_filter.tag3.errors }}{% endif %}<br/>{{ form_filter.tag3.help_text|safe }}</td>
+                <td>{{ form_filter.tag4 }}</td><td>{% if form_filter.tag4.errors %}{{ form_filter.tag4.errors }}{% endif %}<br/>{{ form_filter.tag4.help_text|safe }}</td>
+                <td>{{ form_filter.tag5 }}</td><td>{% if form_filter.tag5.errors %}{{ form_filter.tag5.errors }}{% endif %}<br/>{{ form_filter.tag5.help_text|safe }}</td>
+                <td><input type="submit" value="Filter" /></td>
+            </tr>
+        </table>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+<div class="separate70"></div>
+
+<div> 
+
+    {% if manager.c_size %}
+        <h1>{% trans "Data" %} ({{ manager.c_size }} {% trans "items" %}):</h1>
+    {% else %}
+        <h1>{% trans "Data (no item)" %}:</h1>
+    {% endif %}
+    <!--| View <a href="{% if manager.project %}{% url load_data "project" manager.project.id %}{% else %}{% if manager.dataset.id %}{% url load_data "dataset" manager.dataset.id %}{% endif %}{% endif %}?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="details" title="details"/></a> <a href="{% if manager.project %}{% url load_data "project" manager.project.id %}{% else %}{% if manager.dataset.id %}{% url load_data "dataset" manager.dataset.id %}{% endif %}{% endif %}?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"/></a> <input onclick="location.href={% url load_data %}?view=tree" class="button"  type="image" src="{% url webstatic "images/view_tree16.png" %}"> |-->
+
+</div>
+
+<div class="clear"> </div>
+
+{% if not manager.c_size %}
+    <h1>{% trans "No data." %}</h1>
+{% else %}
+    
+    {% if manager.c_size %}
+    <div id="tagsTable">
+    <br/>
+    <table id="dataTable" class="tablesorter"> 
+    <thead> 
+    <tr> 
+        <th>{% trans "Type" %}</th> 
+        <th>{% trans "Name" %}</th> 
+        <th>{% trans "Action" %}</th> 
+        {% for t in manager.tags %}
+            {% if t %}<th>{{ t.id }}</th>{% endif %}
+        {% endfor %}
+    </tr> 
+    </thead> 
+    <tbody> 
+        {% for c in manager.containers.projects %}
+        <tr> 
+            <td class="product">{% if c.isOwned %}<a href="{% url load_data "project" c.id %}"><img id="{{ c.id }}" src="{% url webstatic "images/folder32.png" %}" title="{{ c.name }}" alt="project"/></a>{% else %}<a href="{% url load_data "project" c.id %}?filter=experimenter&experimenter={{ c.details.owner.id.val }}"><img id="{{ c.id }}" src="{% url webstatic "images/folder32.png" %}" title="{{ c.name }}" alt="project"/></a>{% endif %}</td> 
+            <td>{% if c.isOwned %}<a href="{% url load_data "project" c.id %}">{{ c.shortName }}</a>{% else %}<a href="{% url load_data "project" c.id %}?filter=experimenter&experimenter={{ c.details.owner.id.val }}">{{ c.shortName }}</a>{% endif %} <img alt="dataset" title="dataset" src="{% url webstatic "images/folder_image16.png" %}"/>[{{ c.countChildren2 }}]{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td> 
+            <td></td>
+            {% for t in manager.tags %}
+                {% if t %}<td>{% for ch in c.copyAnnotationLinks %}{%ifequal ch.child.id.val t.id %}{% if c.isEditable %}<a href="{% url manage_action_containers "remove" %}?parent=pr-{{ c.id }}&source=tann-{{ t.id }}&url={{ url }}" onClick="return confirm('Unlink tag?');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>{% else %}<img src="{% url webstatic "images/apply16.png" %}" alt="x" title="x"/>{% endif %}{% endifequal %}{% endfor %}</td>{% endif %}
+            {% endfor %}
+        </tr> 
+        {% endfor %}
+        {% for c in manager.containers.datasets %}
+        <tr> 
+            <td class="product">{% if c.isOwned %}<a href="{% if manager.project %}{% url load_data "project" manager.project.id "dataset" c.id %}{% else %}{% url load_data "dataset" c.id %}{% endif %}"><img id="{{ c.id }}" src="{% url webstatic "images/folder_image32.png" %}" title="{{ c.name }}" alt="project"/></a>{% else %}<a href="{% if manager.project %}{% url load_data "project" manager.project.id "dataset" c.id %}{% else %}{% url load_data "dataset" c.id %}{% endif %}?filter=experimenter&experimenter={{ c.details.owner.id.val }}"><img id="{{ c.id }}" src="{% url webstatic "images/folder_image32.png" %}" title="{{ c.name }}" alt="project"/></a>{% endif %}</td> 
+            <td>{% if c.isOwned %}<a href="{% if manager.project %}{% url load_data "project" manager.project.id "dataset" c.id %}{% else %}{% url load_data "dataset" c.id %}{% endif %}">{{ c.shortName }}</a>{% else %}<a href="{% if manager.project %}{% url load_data "project" manager.project.id "dataset" c.id %}{% else %}{% url load_data "dataset" c.id %}{% endif %}?filter=experimenter&experimenter={{ c.details.owner.id.val }}">{{ c.shortName }}</a>{% endif %} <img src="{% url webstatic "images/image16.png" %}" title="image" alt="image"/>[{{ c.countChildren2 }}]{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td> 
+            <td><!--{% if c.isOwned %}<a href="#" onclick="toBasket('dataset', '{{ c.id }}'); return false;"><img src="{% url webstatic "images/basket16.png" %}" alt="b" title="add to basket"/></a>{% endif %} --><a href="#" onclick="copyToClipboard('dataset', '{{ c.id }}'); return false;"><img src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="c" title="copy"/></a></td>
+            {% for t in manager.tags %}
+                {% if t %}<td>{% for ch in c.copyAnnotationLinks %}{%ifequal ch.child.id.val t.id %}{% if c.isEditable %}<a href="{% url manage_action_containers "remove" %}?parent=ds-{{ c.id }}&source=tann-{{ t.id }}&url={{ url }}" onClick="return confirm('Unlink tag?');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>{% else %}<img src="{% url webstatic "images/apply16.png" %}" alt="x" title="x"/>{% endif %}{% endifequal %}{% endfor %}</td>{% endif %}
+            {% endfor %}
+        </tr> 
+        {% endfor %}
+        {% for c in manager.containers.images %}
+        <tr> 
+            <td class="product">{% if c.isOwned %}<a href="{% if manager.project %}{% url load_data "project" manager.project.id "dataset" manager.dataset.id "image" c.id %}{% else %}{% if manager.dataset %}{% url load_data "dataset" manager.dataset.id "image" c.id %}{% else %}{% url load_data "image" c.id %}{% endif %}{% endif %}"><img id="{{ c.id }}" src="{% url webstatic "images/image32.png" %}" title="{{ c.name }}" alt="image"/></a>{% else %}<a href="{% if manager.project %}{% url load_data "project" manager.project.id "dataset" manager.dataset.id "image" c.id %}{% else %}{% if manager.dataset %}{% url load_data "dataset" manager.dataset.id "image" c.id %}{% else %}{% url load_data "image" c.id %}{% endif %}{% endif %}"><img id="{{ c.id }}" src="{% url webstatic "images/image32.png" %}" title="{{ c.name }}" alt="image"/></a>{% endif %}</td> 
+            <td>{% if c.isOwned %}<a href="{% if manager.project %}{% url load_data "project" manager.project.id "dataset" manager.dataset.id "image" c.id %}{% else %}{% if manager.dataset %}{% url load_data "dataset" manager.dataset.id "image" c.id %}{% else %}{% url load_data "image" c.id %}{% endif %}{% endif %}">{{ c.shortName }}</a> {% else %}<a href="{% if manager.project %}{% url load_data "project" manager.project.id "dataset" manager.dataset.id "image" c.id %}{% else %}{% if manager.dataset %}{% url load_data "dataset" manager.dataset.id "image" c.id %}{% else %}{% url load_data "image" c.id %}{% endif %}{% endif %}">{{ c.shortName }}</a>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td> 
+            <td><a href="#" onclick="return openPopup('{% url image_viewer c.id %}')"><img src="{% url webstatic "images/kview16.png" %}" title="{{ c.name }}" alt="image"/></a><a href="{% url manage_image_zoom c.id %}?keepThis=true&TB_iframe=true&height=500&width=860" alt="{{ c.shortName }}" class="thickbox" rel="gallery-omero" title="{{ c.shortName }} by {{ c.getOwnerFullName }} ({{ c.details.group.name.val }} {{ c.details.permissions }})"><img src="{% url webstatic "images/kpresenter16.png" %}" alt="p" title="presentation"/></a>{% if c.isOwned %} <a href="#" onclick="toBasket('image', '{{ c.id }}'); return false;"><img src="{% url webstatic "images/basket16.png" %}" alt="b" title="add to basket"/></a>{% endif %} <a href="#" onclick="copyToClipboard('image', '{{ c.id }}'); return false;"><img src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="c" title="copy"/></a></td>
+            {% for t in manager.tags %}
+                {% if t %}<td>{% for ch in c.copyAnnotationLinks %}{%ifequal ch.child.id.val t.id %}{% if c.isEditable %}<a href="{% url manage_action_containers "remove" %}?parent=img-{{ c.id }}&source=tann-{{ t.id }}&url={{ url }}" onClick="return confirm('Unlink tag?');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>{% else %}<img src="{% url webstatic "images/apply16.png" %}" alt="x" title="x"/>{% endif %}{% endifequal %}{% endfor %}</td>{% endif %}
+            {% endfor %}
+        </tr> 
+        {% endfor %}
+    </tbody> 
+    </table>
+    </div>
+    {% endif %}
+    
+{% endif %}
+
+<div class="separate70"></div>
+
+{% endblock %}

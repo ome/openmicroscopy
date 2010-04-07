@@ -1,0 +1,132 @@
+{% extends "webadmin/base.html" %}
+{% load i18n %}
+{% load markup %}
+{% load custom_tags %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% url webstatic "css/picklist.css" %}" type="text/css" media="screen"/>
+{% endblock %}
+
+{% block title %}
+{% if eid %}
+    {% trans "Edit scientist" %}
+{% else %}
+    {% trans "Add scientist" %}
+{% endif %}
+{% endblock %}
+
+{% block jscript %}
+    
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.3.2.js" %}"></script>
+    
+    <script type="text/javascript">
+    $(document).ready(function() 
+    {
+        $('#add').click(function() {
+            $("option:selected", "select[name=available_groups]").each(function(){
+                $('<li><label for="id_default_group_'+$(this).attr('value')+'"><input type="radio" name="default_group" value="'+$(this).attr('value')+'"> '+$(this).html()+'</label><input id="remove" name="remove" type="button" class="button removeButton" value="X" title="Choose selected and remove"></li>').appendTo("div.pickListRadio ul");
+                $("#id_other_groups").append(this);
+            });
+        });
+        
+        $("#remove").live("click", function() {
+            var val = $('label input', $(this).parent()).attr('value');
+            $("option:selected", "select[name=other_groups]").each(function(){
+                if(this.value == val) {
+                    $('<option value="'+$(this).attr('value')+'">'+$(this).html()+'</option>').appendTo("#id_available_groups");
+                    $(this).remove();
+                    return false;
+                }
+            });
+            $(this).parent().remove();
+        });
+        
+        $("input[name='administrator']").click( function() { 
+            if($("input[name='administrator']:checked").length > 0) {
+                $('<option value="0">system</option>').attr('selected', true).appendTo("#id_other_groups");
+                
+                $('<li><label for="id_default_group_'+$("option", "select[name=other_groups]").length+'"><input type="radio" name="default_group" value="0"> system</label><input id="remove" name="remove" type="button" class="button removeButton" value="X" title="Choose selected and remove"></li>').appendTo("div.pickListRadio ul");
+            } else {
+                $("option:selected", "select[name=other_groups]").each(function(){
+                    if(this.value == "0") {
+                        $(this).remove();
+                        return false;
+                    }
+                });
+                $('label input[value=0]').parent().parent().remove();
+            }
+        });
+        
+        for(i=0; i<$("option", "select[name=other_groups]").length; i++) {
+            $('#id_default_group_'+i).parent().parent().append('<input id="remove" name="remove" type="button" class="button removeButton" value="X" title="Choose selected and remove">')
+        }
+
+    });    
+    
+    </script>
+
+{% endblock %}
+
+{% block content %}
+
+{% if info.message %}<div class="error">{{ info.message|safe|linebreaks }}</div>{% endif %}
+
+<div>
+{% if eid %}
+    <h2>{% trans "Edit scientist" %}</h2>
+{% else %}
+    <h2>{% trans "Add scientist" %}</h2>
+{% endif %}
+
+<p>{% trans "Fields marked with an * are mandatory." %}</p>
+<br/>
+
+{% if eid %}
+    <form action="{% url wamanageexperimenterid "save" eid %}" method="POST">
+{% else %}
+    <form action="{% url wamanageexperimenterid "create" %}" method="POST">
+{% endif %}
+
+<table>
+    <tbody>
+        {% for field in form %}
+        
+        {% ifequal field.label_tag form.default_group.label_tag %}{% else %}{% ifequal field.label_tag form.other_groups.label_tag %}{% else %}{% ifequal field.label_tag form.available_groups.label_tag %}{% else %}
+        
+        <tr><td class="form">{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text }}</td></tr>
+        
+        {% endifequal %}{% endifequal %}{% endifequal %}
+        
+        {% endfor %}
+
+        {% if ldapAuth %}<tr><td class="form">LDAP: </td><td colspan="2">{{ ldapAuth }}</td></tr>{% endif %}
+        
+        {% if form.default_group.errors or form.available_groups.errors or form.other_groups.errors %}<tr><td></td><td>{{ form.default_group.errors }}{{ form.other_groups.errors }}</td><td>{{ form.available_groups.errors }}</td></tr>{% endif %}
+        <tr>
+            <td class="form">{{ form.default_group.label_tag }}{% if form.default_group.field.required %}*{% endif %}</td>
+            <td>
+                <div class="pickListRadio">
+                    {% if form.default_group %}
+                        {{ form.default_group }}
+                    {% else %}
+                        <ul></ul>
+                    {% endif %}
+                </div>
+                <div class="pickListSelectedHidden">
+                    {{ form.other_groups }}
+                </div>
+            </td>
+            <td>
+                <div class="pickListAvailable">
+                    {{ form.available_groups }}
+                </div>
+                <input id="add" name="add" type="button" class="button addButton" value="&lt;" title="Choose available and add">
+            </td>
+        </tr>    
+        <tr><td>&nbsp;</td><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Save' %}" /></td></tr>
+    </tbody>
+</table>
+</form>
+
+</div>
+{% endblock %}

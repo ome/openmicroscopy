@@ -37,7 +37,7 @@ import omero.clients
 
 # Debuging mode. 
 # A boolean that turns on/off debug mode.
-DEBUG = False # handler404 and handler500 works only when False
+DEBUG = True # handler404 and handler500 works only when False
 TEMPLATE_DEBUG = DEBUG
 
 # Configure logging and set place to store logs.
@@ -174,9 +174,8 @@ SESSION_COOKIE_AGE = 86400 # 1 day in sec (86400)
 FILE_UPLOAD_TEMP_DIR = '/tmp'
 FILE_UPLOAD_MAX_MEMORY_SIZE = 2621440 #default 2621440
 
-STATIC_LOGO = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'media'), "images", 'logo.png').replace('\\','/')
-DEFAULT_IMG = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'media'), "images", 'image128.png').replace('\\','/')
-DEFAULT_USER = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'media'), "images", 'personal32.png').replace('\\','/')
+DEFAULT_IMG = os.path.join(os.path.dirname(__file__), 'media', 'omeroweb', "images", 'image128.png').replace('\\','/')
+DEFAULT_USER = os.path.join(os.path.dirname(__file__), 'media', 'omeroweb', "images", 'personal32.png').replace('\\','/')
 
 # CUSTOM CONFIG
 try:

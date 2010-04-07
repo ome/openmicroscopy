@@ -199,7 +199,7 @@ def isAnythingCreated(f):
 # views controll
 
 def forgotten_password(request, **kwargs):
-    template = "omeroadmin/forgotten_password.html"
+    template = "webadmin/forgotten_password.html"
     
     conn = None
     error = None
@@ -286,7 +286,7 @@ def login(request):
         if request.method == 'POST' and request.REQUEST.get('server'):
             error = "Connection not available, please check your user name and password."
         
-        template = "omeroadmin/login.html"
+        template = "webadmin/login.html"
         if request.method == 'POST':
             form = LoginForm(data=request.REQUEST.copy())
         else:
@@ -351,7 +351,7 @@ def logout(request):
 @isAnythingCreated
 def experimenters(request, **kwargs):
     experimenters = True
-    template = "omeroadmin/experimenters.html"
+    template = "webadmin/experimenters.html"
     
     conn = None
     try:
@@ -377,7 +377,7 @@ def experimenters(request, **kwargs):
 @isAnythingCreated
 def manage_experimenter(request, action, eid=None, **kwargs):
     experimenters = True
-    template = "omeroadmin/experimenter_form.html"
+    template = "webadmin/experimenter_form.html"
     
     conn = None
     try:
@@ -537,7 +537,7 @@ def manage_experimenter(request, action, eid=None, **kwargs):
 @isAnythingCreated
 def groups(request, **kwargs):
     groups = True
-    template = "omeroadmin/groups.html"
+    template = "webadmin/groups.html"
     
     conn = None
     try:
@@ -563,7 +563,7 @@ def groups(request, **kwargs):
 @isAnythingCreated
 def manage_group(request, action, gid=None, **kwargs):
     groups = True
-    template = "omeroadmin/group_form.html"
+    template = "webadmin/group_form.html"
     
     conn = None
     try:
@@ -619,7 +619,7 @@ def manage_group(request, action, gid=None, **kwargs):
                 return HttpResponseRedirect(reverse("wagroups"))
             context = {'info':info, 'eventContext':eventContext, 'form':form, 'gid': gid}
     elif action == "update":
-        template = "omeroadmin/group_edit.html"
+        template = "webadmin/group_edit.html"
         controller.containedExperimenters()
         form = ContainedExperimentersForm(initial={'members':controller.members, 'available':controller.available})
         if not form.is_valid():
@@ -629,7 +629,7 @@ def manage_group(request, action, gid=None, **kwargs):
             return HttpResponseRedirect(reverse("wagroups"))
         context = {'info':info, 'eventContext':eventContext, 'form':form, 'controller': controller}
     elif action == "members":
-        template = "omeroadmin/group_edit.html"
+        template = "webadmin/group_edit.html"
         controller.containedExperimenters()
         form = ContainedExperimentersForm(initial={'members':controller.members, 'available':controller.available})
         context = {'info':info, 'eventContext':eventContext, 'form':form, 'controller': controller}
@@ -644,7 +644,7 @@ def manage_group(request, action, gid=None, **kwargs):
 @isOwnerConnected
 def manage_group_owner(request, action, gid, **kwargs):
     myaccount = True
-    template = "omeroadmin/group_form_owner.html"
+    template = "webadmin/group_form_owner.html"
     
     conn = None
     try:
@@ -683,7 +683,7 @@ def manage_group_owner(request, action, gid, **kwargs):
 @isAdminConnected
 def ldap(request, **kwargs):
     scripts = True
-    template = "omeroadmin/ldap_search.html"
+    template = "webadmin/ldap_search.html"
     
     conn = None
     try:
@@ -705,7 +705,7 @@ def ldap(request, **kwargs):
 @isAdminConnected
 def scripts(request, **kwargs):
     scripts = True
-    template = "omeroadmin/scripts.html"
+    template = "webadmin/scripts.html"
     
     conn = None
     try:
@@ -727,7 +727,7 @@ def scripts(request, **kwargs):
 @isAdminConnected
 def manage_script(request, action, sc_id=None, **kwargs):
     scripts = True
-    template = "omeroadmin/script_form.html"
+    template = "webadmin/script_form.html"
     
     conn = None
     try:
@@ -763,7 +763,7 @@ def manage_script(request, action, sc_id=None, **kwargs):
 @isAdminConnected
 def enums(request, **kwargs):
     enums = True
-    template = "omeroadmin/enums.html"
+    template = "webadmin/enums.html"
     error = request.REQUEST.get('error') and request.REQUEST.get('error').replace("_", " ") or None
     
     conn = None
@@ -786,7 +786,7 @@ def enums(request, **kwargs):
 @isAdminConnected
 def manage_enum(request, action, klass, eid=None, **kwargs):
     enums = True
-    template = "omeroadmin/enum_form.html"
+    template = "webadmin/enum_form.html"
         
     conn = None
     try:
@@ -839,7 +839,7 @@ def imports(request, **kwargs):
 @isUserConnected
 def my_account(request, action=None, **kwargs):
     myaccount = True
-    template = "omeroadmin/myaccount.html"
+    template = "webadmin/myaccount.html"
     
     conn = None
     try:
@@ -942,7 +942,7 @@ def myphoto(request, **kwargs):
 @isUserConnected
 def drivespace(request, **kwargs):
     drivespace = True
-    template = "omeroadmin/drivespace.html"
+    template = "webadmin/drivespace.html"
     
     conn = None
     try:
@@ -973,7 +973,6 @@ def piechart(request, **kwargs):
     from cStringIO import StringIO
     
     try:
-        import matplotlib
         from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
         import numpy as np
         import matplotlib.pyplot as plt
@@ -989,7 +988,6 @@ def piechart(request, **kwargs):
         keys.append(str(item[0]))
         values.append(long(item[1]))
     
-    print controller.usage
     explode = list()
     explode.append(0.1)
     for e in range(0, len(keys)):

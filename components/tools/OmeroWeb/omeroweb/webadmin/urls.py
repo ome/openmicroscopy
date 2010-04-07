@@ -54,7 +54,6 @@ urlpatterns = patterns('',
     url( r'^myphoto/$', views.myphoto, name="wamyphoto"),
 
     # static
-    url( r'^static/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.dirname(__file__), 'media').replace('\\','/') }, name="wastatic" ),
     url( r'^help/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.dirname(__file__), 'help').replace('\\','/') }, name="wahelp" ),
 
 )

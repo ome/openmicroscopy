@@ -1,0 +1,71 @@
+{% load i18n %}
+{% load markup %}
+{% load custom_tags %}
+{% load wikitags %}
+	
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.selectable.js" %}"></script>
+    
+    <script type="text/javascript">
+        $(document).ready(function(){
+
+            $("ul#dataIcons").selectable({
+            	stop: function(){
+            		var result = $("#select-result").empty();
+            		var l = $('li.ui-selected img', this).length;
+            		$("li.ui-selected input", this).each(function(){
+            		    this.checked = true;
+            		});
+            		if (l == 1) {
+            		    $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" onclick="manyCopyToClipboard();"> <input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" onclick="manyUnlink(\'ds-{{ manager.dataset.id }}\');"> | <input class="button" type="image" src="{% url webstatic "images/basket16.png" %}" onclick="manyAddToBasket();"> <input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table">');
+            		    
+            		    $("#right_panel").show();
+                        $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
+            		    $('li.ui-selected img', this).each(function(){  
+            		        var h = $(window).height()-169;          		        
+                		    $("div#metadata_details").html('<iframe width="100%" height="'+h+'" src="/webclient/metadata_details/image/'+this.id+'/" id="metadata_details" name="metadata_details"></iframe>');
+                            $('iframe#metadata_details').load();
+                        });
+            		} else {
+            		    var rel = $("div#content_details").attr('rel');
+                        if(rel=='orphaned') {
+                            $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" onclick="manyCopyToClipboard();"> <input class="button" type="image" src="{% url webstatic "images/basket16.png" %}" onclick="manyAddToBasket();"> | <a href="{% url load_metadata_details_multi %}" target="metadata_details"><img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/></a> <input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table">');
+                        } else {
+                            $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" onclick="manyCopyToClipboard();"> <input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" onclick="manyUnlink(\'ds-{{ manager.dataset.id }}\');"> | <input class="button" type="image" src="{% url webstatic "images/basket16.png" %}" onclick="manyAddToBasket();"> | <a href="{% url load_metadata_details_multi %}" target="metadata_details"><img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/></a> <input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table">');
+                        }            		    
+            		    
+            		    $("#right_panel").show();
+            		    $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
+            		    $("div#metadata_details").html('<p>'+ l +' elements selected.</p>');
+            		}
+            	},
+            	start: function(){
+            		$("li input", this).each(function(){
+            			this.checked = false;
+            		});
+            	}
+            });            
+        });
+    </script>
+
+{% if manager.c_size %}
+
+    <div id="toolbar" class="toolbar_noborder">
+        <input onclick="changeView('table');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table">
+    </div>
+    <div class="clear"> </div>
+    
+    <ul id="dataIcons">
+        {% for c in manager.containers.images %}
+        <li id="{{ c.id }}"><em>{{ c.name }}</em>
+            <img id="{{ c.id }}" src="{% url render_thumbnail c.id %}" alt="image" title="{{ c.name }}"/>
+            <input type="checkbox" name="image" id="{{ c.id }}">
+        </li>
+        {% endfor %}
+    </ul>
+    
+{% else %}
+    <p>{% trans "No data." %}</p>
+{% endif %}
+
+{% include "webclient/container_paging.html" %}
+

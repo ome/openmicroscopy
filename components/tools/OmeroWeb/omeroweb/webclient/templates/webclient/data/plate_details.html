@@ -1,0 +1,61 @@
+{% load i18n %}
+{% load markup %}
+{% load custom_tags %}
+{% load wikitags %}
+
+
+    <link rel="stylesheet" href="{% url webstatic "css/spw.css" %}" type="text/css" media="screen"/>
+
+       
+    <script>
+        $(document).ready(function(){
+            
+        });
+        
+        function changeIndex(index) {
+            if(index>0) {
+                var rel = $("div#content_details").attr('rel');
+                $("div#content_details").html('<p>Loading data... please wait <img src="/static/images/tree/spinner.gif"/></p>');
+                $("div#content_details").load('{{ url }}?view={{ nav.view }}&index='+index);
+                return false;
+            } else {
+                alert('Attribute error: index out of range');
+            }
+        }
+    </script>
+        
+
+<!--content-->
+<div id="index">
+    <form action="" method="POST">
+    <table>
+      <tbody>
+        {% for field in form_well_index %}
+        <tr><th>{{ field.label_tag }}</th><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </form>
+</div>
+
+<div id="spw">    
+<table>
+    <tr><th></th>
+        {% for cn in manager.names.column_names %}
+        <th>{{ cn }}</th>
+        {% endfor %}
+    </tr>
+    {% for row in manager.containers.wells %}
+    <tr>
+        <th>{{ row.0 }}</th>
+        {% for col in row.1 %}
+        {% if col.1.isWellSample %}
+        <td class="full"><a href="{% url load_metadata_details "well" col.1.id manager.index %}" target="metadata_details"><img class="imgzoom" src="{% url render_thumbnail_resize 25 col.1.selectedWellSample.image.id %}" alt="" title="{{ row.0 }}-{{ col.0 }}"/></a></td>
+        {% else %}
+        <td></td>
+        {% endif %}
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</table>
+</div>

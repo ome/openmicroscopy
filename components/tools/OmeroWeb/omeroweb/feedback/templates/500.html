@@ -8,7 +8,7 @@
         <p>{% trans "There's been an error. Please give us feedback to help to improve the OMERO applications. Thanks for your patience." %}</p>
         {% if error %}<ul class="errorlist"><li>{{ error }}</li></ul>{% endif %}
         
-        <form action="/feedback/send/" method="post">
+        <form action="{% url fsend %}" method="post">
         <table>
             {% for field in form %}
                 <tr><th>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</th>

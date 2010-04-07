@@ -76,7 +76,7 @@ from forms import ShareForm, ShareCommentForm, ContainerForm, CommentAnnotationF
                     UriAnnotationForm, UploadFileForm, UsersForm, ActiveGroupForm, HistoryTypeForm, \
                     MetadataFilterForm, MetadataDetectorForm, MetadataChannelForm, \
                     MetadataEnvironmentForm, MetadataObjectiveForm, MetadataStageLabelForm, \
-                    MetadataLightSourceForm, MetadataDichroicForm, \
+                    MetadataLightSourceForm, MetadataDichroicForm, MetadataMicroscopeForm, \
                     TagListForm, UrlListForm, CommentListForm, FileListForm, TagFilterForm, \
                     WellIndexForm
 from omeroweb.webadmin.forms import MyAccountForm, MyAccountLdapForm, UploadPhotoForm, LoginForm
@@ -248,7 +248,7 @@ def login(request):
         url = request.REQUEST.get("url")
         request.session['server'] = request.REQUEST.get('server')
         
-        template = "omeroweb/login.html"
+        template = "webclient/base/login.html"
         if request.method == 'POST':
             form = LoginForm(data=request.REQUEST.copy())
         else:
@@ -283,7 +283,7 @@ def login(request):
 
 @isUserConnected
 def index(request, **kwargs):
-    template = "omeroweb/index.html"
+    template = "webclient/index/index.html"
     
     conn = None
     try:
@@ -315,7 +315,7 @@ def index(request, **kwargs):
 
 @isUserConnected
 def index_context(request, **kwargs):
-    template = "omeroweb/index_context.html"
+    template = "webclient/index/index_context.html"
     conn = None
     try:
         conn = kwargs["conn"]
@@ -334,7 +334,7 @@ def index_context(request, **kwargs):
 
 @isUserConnected
 def index_last_imports(request, **kwargs):
-    template = "omeroweb/index_last_imports.html"
+    template = "webclient/index/index_last_imports.html"
     conn = None
     try:
         conn = kwargs["conn"]
@@ -353,7 +353,7 @@ def index_last_imports(request, **kwargs):
 
 @isUserConnected
 def index_most_recent(request, **kwargs):
-    template = "omeroweb/index_most_recent.html"
+    template = "webclient/index/index_most_recent.html"
     conn = None
     try:
         conn = kwargs["conn"]
@@ -372,7 +372,7 @@ def index_most_recent(request, **kwargs):
 
 @isUserConnected
 def index_tag_cloud(request, **kwargs):
-    template = "omeroweb/index_tag_cloud.html"
+    template = "webclient/index/index_tag_cloud.html"
     conn = None
     try:
         conn = kwargs["conn"]
@@ -464,9 +464,9 @@ def load_template(request, menu, **kwargs):
     request.session.modified = True
     
     if menu in ('mydata', 'userdata', 'groupdata'):
-        template = "omeroweb/containers.html"
+        template = "webclient/containers.html"
     else:
-        template = "omeroweb/%s.html" % menu
+        template = "webclient/%s.html" % menu
     request.session['nav']['menu'] = menu
     
     conn = None
@@ -610,19 +610,19 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     
     template = None
     if o1_type =='plate' or o2_type == 'plate':
-        template = "omeroweb/plate_details.html"
+        template = "webclient/plate_details.html"
     elif o1_type=='ajaxdataset' and o1_id > 0:
-        template = "omeroweb/container_subtree.html"        
+        template = "webclient/container_subtree.html"        
     elif o1_type=='ajaxorphaned':
-        template = "omeroweb/container_subtree.html"
+        template = "webclient/container_subtree.html"
     elif view =='tree':
-        template = "omeroweb/containers_tree.html"
+        template = "webclient/containers_tree.html"
     elif view =='icon':
-        template = "omeroweb/containers_icon.html"
+        template = "webclient/containers_icon.html"
     elif view =='table':
-        template = "omeroweb/containers_table.html"
+        template = "webclient/containers_table.html"
     else:
-        template = "omeroweb/containers.html"
+        template = "webclient/containers.html"
     
     context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_well_index':form_well_index}
     
@@ -673,7 +673,7 @@ def load_searching(request, form=None, **kwargs):
     manager = BaseSearch(conn)
     if form is not None: 
         query_search = request.REQUEST.get('query')
-        template = "omeroweb/search_details.html"
+        template = "webclient/search/search_details.html"
 
         onlyTypes = list()
         if request.REQUEST.get('projects') is not None and request.REQUEST.get('projects').encode('utf-8') == 'on':
@@ -693,7 +693,7 @@ def load_searching(request, form=None, **kwargs):
         
         manager.search(query_search, onlyTypes, period)
     else:
-        template = "omeroweb/search.html"
+        template = "webclient/search/search.html"
     
     form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['allGroups']})
     context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_active_group':form_active_group}
@@ -709,7 +709,7 @@ def manage_data_by_tag(request, tid=None, tid2=None, tid3=None, tid4=None, tid5=
     
     request.session.modified = True
 
-    template = "omeroweb/container_tags.html"
+    template = "webclient/container_tags.html"
     
     conn = None
     try:
@@ -817,7 +817,7 @@ def autocomplete_tags(request, **kwargs):
 
 @isUserConnected
 def load_metadata_details(request, c_type, c_id, index=None, **kwargs):   
-    template = "omeroweb/annotations_form.html"
+    template = "webclient/annotations/annotations.html"
      
     conn = None
     try:
@@ -834,24 +834,24 @@ def load_metadata_details(request, c_type, c_id, index=None, **kwargs):
         logger.error(traceback.format_exc())
     
     try:
-        manager = BaseContainer(conn, c_type, c_id, index=index)
+        manager = BaseContainer(conn, c_type, c_id, metadata=True, index=index)
     except AttributeError, x:
         return handlerInternalError(x)
     
     form_environment = None
     form_objective = None
+    form_microscope = None
     form_stageLabel = None
     form_filters = list()
     form_detectors = list()
     form_channels = list()
+    form_lasers = list()
     
     form_tags = None
     form_urls = None
     form_files = None
     
     if c_type == 'well' or c_type == 'image':
-
-        manager.annotationList()
 
         manager.originalMetadata()
         manager.channelMetadata()
@@ -883,6 +883,11 @@ def load_metadata_details(request, c_type, c_id, index=None, **kwargs):
             image = manager.well.selectedWellSample().image()
         except:
             image = manager.image
+       
+        microscope = image.getMicroscope()
+        if microscope is not None:
+            form_microscope = MetadataMicroscopeForm(initial={'microscopeTypes':list(conn.getEnumerationEntries("MicroscopeTypeI")), 'microscope': microscope})
+        
         if image.getObjectiveSettings() is not None:
             form_objective = MetadataObjectiveForm(initial={'image': image, 
                                     'mediums': list(conn.getEnumerationEntries("MediumI")), 
@@ -915,9 +920,25 @@ def load_metadata_details(request, c_type, c_id, index=None, **kwargs):
             for d in detectors:
                 form_detector = MetadataDetectorForm(initial={'detector': d, 'types':list(conn.getEnumerationEntries("DetectorTypeI"))})
                 form_detectors.append(form_detector)
-
+        
+        try:
+            if image.getMicroscopLasers().next() is not None:
+                lasers = list(image.getMicroscopLasers())
+            else:
+                lasers = list()
+        except StopIteration:
+            pass
+        else:
+            for l in lasers:
+                form_laser = MetadataLightSourceForm(initial={'lightSource': l, 
+                                    'types':list(conn.getEnumerationEntries("FilterTypeI")), 
+                                    'mediums': list(conn.getEnumerationEntries("LaserMediumI")),
+                                    'pulses': list(conn.getEnumerationEntries("PulseI"))})
+                form_lasers.append(form_laser)
+    
     manager.annotationList()
-    context = {'url':url, 'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form_channels':form_channels, 'form_environment':form_environment, 'form_objective':form_objective, 'form_filters':form_filters, 'form_detectors':form_detectors, 'form_stageLabel':form_stageLabel}
+    
+    context = {'url':url, 'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form_channels':form_channels, 'form_environment':form_environment, 'form_objective':form_objective, 'form_microscope':form_microscope, 'form_filters':form_filters, 'form_detectors':form_detectors, 'form_lasers':form_lasers, 'form_stageLabel':form_stageLabel}
             
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -925,7 +946,7 @@ def load_metadata_details(request, c_type, c_id, index=None, **kwargs):
 
 @isUserConnected
 def load_metadata_details_multi(request, **kwargs):   
-    template = "omeroweb/annotations_form_multi.html"
+    template = "webclient/annotations/annotations_form_multi.html"
      
     conn = None
     try:
@@ -955,7 +976,7 @@ def load_metadata_details_multi(request, **kwargs):
 
 @isUserConnected
 def load_hierarchies(request, o_type=None, o_id=None, **kwargs):
-    template = "omeroweb/hierarchy.html"
+    template = "webclient/hierarchy.html"
     conn = None
     try:
         conn = kwargs["conn"]
@@ -1038,54 +1059,54 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     
     form = None
     if action == 'new':
-        template = "omeroweb/container_new.html"
+        template = "webclient/container_new.html"
         form = ContainerForm()
         context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
     elif action == 'newcomment':
-        template = "omeroweb/annotation_new_form.html"
+        template = "webclient/annotations/annotation_new_form.html"
         form_comment = CommentAnnotationForm()
         context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_comment':form_comment, 'form_active_group':form_active_group}     
     elif action == 'newtag':
-        template = "omeroweb/annotation_new_form.html"
+        template = "webclient/annotations/annotation_new_form.html"
         form_tag = TagAnnotationForm()
         form_tags = TagListForm(initial={'tags':manager.listTags()})
         context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag, 'form_tags':form_tags, 'form_active_group':form_active_group}
     elif action == 'newfile':
-        template = "omeroweb/annotation_new_form.html"
+        template = "webclient/annotations/annotation_new_form.html"
         form_file = UploadFileForm()
         form_files = FileListForm(initial={'files':manager.listFiles()})
         context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_file':form_file, 'form_files':form_files,  'form_active_group':form_active_group}       
     elif action == 'edit':
         if o_type == "dataset":
-            template = "omeroweb/container_form.html"
+            template = "webclient/container_form.html"
             form = ContainerForm(initial={'name': manager.dataset.name, 'description':manager.dataset.description})
             context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
         elif o_type == "project":
-            template = "omeroweb/container_form.html"
+            template = "webclient/container_form.html"
             form = ContainerForm(initial={'name': manager.project.name, 'description':manager.project.description})
             context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
         elif o_type == "screen":
-            template = "omeroweb/container_form.html"
+            template = "webclient/container_form.html"
             form = ContainerForm(initial={'name': manager.screen.name, 'description':manager.screen.description})
             context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
         elif o_type == "plate":
-            template = "omeroweb/container_form.html"
+            template = "webclient/container_form.html"
             form = ContainerForm(initial={'name': manager.plate.name, 'description':manager.plate.description})
             context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
         elif o_type =="image" and o_id > 0:
-            template = "omeroweb/container_form.html"
+            template = "webclient/container_form.html"
             form = ContainerForm(initial={'name': manager.image.name, 'description':manager.image.description})
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
         elif o_type =="comment" and o_id > 0:
-            template = "omeroweb/annotation_form.html"
+            template = "webclient/annotations/annotation_form.html"
             form = CommentAnnotationForm(initial={'content':manager.comment.textValue})
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
         elif o_type =="url" and o_id > 0:
-            template = "omeroweb/annotation_form.html"
+            template = "webclient/annotations/annotation_form.html"
             form = UriAnnotationForm(initial={'link':manager.url.textValue})
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
         elif o_type =="tag" and o_id > 0:
-            template = "omeroweb/annotation_form.html"
+            template = "webclient/annotations/annotation_form.html"
             form = TagAnnotationForm(initial={'tag':manager.tag.textValue, 'description':manager.tag.description})
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
     elif action == 'move':
@@ -1134,7 +1155,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 manager.updateDataset(name, description)
                 return HttpResponseRedirect(url)
             else:
-                template = "omeroweb/container_form.html"
+                template = "webclient/container_form.html"
                 context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
         elif o_type == "project":
             form = ContainerForm(data=request.REQUEST.copy())
@@ -1144,7 +1165,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 manager.updateProject(name, description)
                 return HttpResponseRedirect(url)
             else:
-                template = "omeroweb/container_form.html"
+                template = "webclient/container_form.html"
                 context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
         elif o_type == "screen":
             form = ContainerForm(data=request.REQUEST.copy())
@@ -1154,7 +1175,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 manager.updateScreen(name, description)
                 return HttpResponseRedirect(url)
             else:
-                template = "omeroweb/container_form.html"
+                template = "webclient/container_form.html"
                 context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
         elif o_type == "plate":
             form = ContainerForm(data=request.REQUEST.copy())
@@ -1164,7 +1185,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 manager.updatePlate(name, description)
                 return HttpResponseRedirect(url)
             else:
-                template = "omeroweb/container_form.html"
+                template = "webclient/container_form.html"
                 context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
         elif o_type == 'image':
             form = ContainerForm(data=request.REQUEST.copy())
@@ -1174,7 +1195,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 manager.updateImage(name, description)
                 return HttpResponseRedirect(url)
             else:
-                template = "omeroweb/container_form.html"
+                template = "webclient/container_form.html"
                 context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
         elif o_type == 'comment':
             form = CommentAnnotationForm(data=request.REQUEST.copy())
@@ -1183,7 +1204,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 manager.saveCommentAnnotation(content)
                 return HttpResponseRedirect(url)
             else:
-                template = "omeroweb/container_form.html"
+                template = "webclient/container_form.html"
                 context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
         elif o_type == 'url':
             form = UriAnnotationForm(data=request.REQUEST.copy())
@@ -1192,7 +1213,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 manager.saveUrlAnnotation(content)
                 return HttpResponseRedirect(url)
             else:
-                template = "omeroweb/container_form.html"
+                template = "webclient/container_form.html"
                 context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
         elif o_type == 'tag':
             form = TagAnnotationForm(data=request.REQUEST.copy())
@@ -1202,7 +1223,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 manager.saveTagAnnotation(content, description)
                 return HttpResponseRedirect(url)
             else:
-                template = "omeroweb/container_form.html"
+                template = "webclient/container_form.html"
                 context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
     elif action == 'addnew':
         if not request.method == 'POST':
@@ -1215,7 +1236,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 manager.createDataset(name, description)
                 return HttpResponseRedirect(url)
             else:
-                template = "omeroweb/container_new.html"
+                template = "webclient/container_new.html"
                 context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
         else:
             if request.REQUEST.get('folder_type') == "dataset":
@@ -1226,7 +1247,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                     manager.createDataset(name, description)
                     return HttpResponseRedirect(url)
                 else:
-                    template = "omeroweb/container_new.html"
+                    template = "webclient/container_new.html"
                     context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
             elif request.REQUEST.get('folder_type') == "project":
                 form = ContainerForm(data=request.REQUEST.copy())
@@ -1236,7 +1257,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                     manager.createProject(name, description)
                     return HttpResponseRedirect(url)
                 else:
-                    template = "omeroweb/container_new.html"
+                    template = "webclient/container_new.html"
                     context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
             elif request.REQUEST.get('folder_type') == "screen":
                 form = ContainerForm(data=request.REQUEST.copy())
@@ -1246,7 +1267,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                     manager.createScreen(name, description)
                     return HttpResponseRedirect(url)
                 else:
-                    template = "omeroweb/container_new.html"
+                    template = "webclient/container_new.html"
                     context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
     elif action == 'addcomment':
         if not request.method == 'POST':
@@ -1266,7 +1287,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 manager.createPlateCommentAnnotation(content)    
             return HttpResponseRedirect(url)
         else:
-            template = "omeroweb/annotation_new_form.html"
+            template = "webclient/annotations/annotation_new_form.html"
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_comment':form_comment}
     elif action == 'addtag':
         if not request.method == 'POST':
@@ -1287,7 +1308,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 manager.createPlateTagAnnotation(tag, desc)    
             return HttpResponseRedirect(url)
         else:
-            template = "omeroweb/annotation_new_form.html"
+            template = "webclient/annotations/annotation_new_form.html"
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag}
     elif action == 'usetag':
         if not request.method == 'POST':
@@ -1308,7 +1329,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 manager.createPlateAnnotationLinks('tag', tags)    
             return HttpResponseRedirect(url)
         else:
-            template = "omeroweb/annotation_new_form.html"
+            template = "webclient/annotations/annotation_new_form.html"
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tags':form_tags}
     elif action == 'addfile':
         if not request.method == 'POST':
@@ -1328,7 +1349,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 manager.createPlateFileAnnotation(f)
             return HttpResponseRedirect(url)
         else:
-            template = "omeroweb/annotation_new_form.html"
+            template = "webclient/annotations/annotation_new_form.html"
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_file':form_file}
     elif action == 'usefile':
         if not request.method == 'POST':
@@ -1349,7 +1370,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 manager.createPlateAnnotationLinks('file', files)    
             return HttpResponseRedirect(url)
         else:
-            template = "omeroweb/annotation_new_form.html"
+            template = "webclient/annotations/annotation_new_form.html"
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_files':form_files}
     elif action == 'delete':
         pass
@@ -1407,9 +1428,9 @@ def manage_shares(request, **kwargs):
     view = request.session['nav']['view']
 
     if view == 'icon':
-        template = "omeroweb/shares_icon.html"
+        template = "webclient/share/shares_icon.html"
     else: # view == 'table':
-        template = "omeroweb/shares_table.html"
+        template = "webclient/share/shares_table.html"
     
     controller = BaseShare(conn=conn, menu=request.session['nav']['menu'])
     controller.getShares()
@@ -1450,7 +1471,7 @@ def manage_share(request, action, sid=None, **kwargs):
     context = None
     form = None
     if action == "create":
-        template = "omeroweb/basket_share_action.html"
+        template = "webclient/basket/basket_share_action.html"
         form = ShareForm(initial={'experimenters':experimenters}, data=request.REQUEST.copy())
         if form.is_valid():
             message = request.REQUEST['message'].encode('utf-8')
@@ -1480,7 +1501,7 @@ def manage_share(request, action, sid=None, **kwargs):
             form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['allGroups']})
             context = {'nav':request.session['nav'], 'eContext': share.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
     elif action == "createdisc":
-        template = "omeroweb/basket_discuss_action.html"
+        template = "webclient/basket/basket_discuss_action.html"
         form = ShareForm(initial={'experimenters':experimenters}, data=request.REQUEST.copy())
         if form.is_valid():
             message = request.REQUEST['message'].encode('utf-8')
@@ -1509,7 +1530,7 @@ def manage_share(request, action, sid=None, **kwargs):
             form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['allGroups']})
             context = {'nav':request.session['nav'], 'eContext': share.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
     elif action == 'edit':
-        template = "omeroweb/share_form.html"
+        template = "webclient/share/share_form.html"
         share.getMembers(sid)
         share.getComments(sid)
         
@@ -1547,13 +1568,13 @@ def manage_share(request, action, sid=None, **kwargs):
             share.updateShareOrDiscussion(host, request.session['server'], message, members, enable, expiration)
             return HttpResponseRedirect(reverse(viewname="manage_share", args=["view", sid]))
         else:
-            template = "omeroweb/share_form.html"
+            template = "webclient/share/share_form.html"
             share.getComments(sid)
             context = {'url':url, 'nav':request.session['nav'], 'eContext': share.eContext, 'share':share, 'form':form, 'form_active_group':form_active_group}
     elif action == 'delete':
         return HttpResponseRedirect(reverse("manage_shares"))
     elif action == 'view':
-        template = "omeroweb/share_details.html"
+        template = "webclient/share/share_details.html"
         share.getAllUsers(sid)
         share.getComments(sid)
         if share.share.isExpired():
@@ -1572,7 +1593,7 @@ def manage_share(request, action, sid=None, **kwargs):
             share.addComment(host, request.session['server'], comment)
             return HttpResponseRedirect(reverse(viewname="manage_share", args=["view", sid]))
         else:
-            template = "omeroweb/share_details.html"
+            template = "webclient/share/share_details.html"
             share.getComments(sid)
             form = ShareCommentForm(data=request.REQUEST.copy())
             context = {'nav':request.session['nav'], 'eContext': share.eContext, 'share':share, 'form':form, 'form_active_group':form_active_group}
@@ -1583,7 +1604,7 @@ def manage_share(request, action, sid=None, **kwargs):
 
 @isUserConnected
 def load_share_content(request, share_id, **kwargs):
-    template = "omeroweb/share_content.html"
+    template = "webclient/share/share_content.html"
     
     conn = None
     try:
@@ -1612,7 +1633,7 @@ def load_share_content(request, share_id, **kwargs):
 
 @isUserConnected
 def load_share_owner_content(request, share_id, **kwargs):
-    template = "omeroweb/share_content.html"
+    template = "webclient/share/share_content.html"
     
     conn = None
     try:
@@ -1650,7 +1671,7 @@ def basket_action (request, action=None, **kwargs):
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     if action == "toshare":
-        template = "omeroweb/basket_share_action.html"
+        template = "webclient/basket/basket_share_action.html"
         
         basket = BaseBasket(conn)
         basket.buildBreadcrumb(action)
@@ -1662,7 +1683,7 @@ def basket_action (request, action=None, **kwargs):
         form = ShareForm(initial={'experimenters': experimenters, 'enable':True})
         context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
     elif action == "todiscuss":
-        template = "omeroweb/basket_discuss_action.html"
+        template = "webclient/basket/basket_discuss_action.html"
         
         basket = BaseBasket(conn)
         basket.buildBreadcrumb(action)
@@ -1674,7 +1695,7 @@ def basket_action (request, action=None, **kwargs):
         context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
     elif action == "toannotate":
         # TODO
-        template = "omeroweb/basket_share_action.html"
+        template = "webclient/basket/basket_share_action.html"
         
         basket = BaseBasket(conn)
         basket.buildBreadcrumb(action)
@@ -1687,7 +1708,7 @@ def basket_action (request, action=None, **kwargs):
         context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
     elif action == "totag":
         # TODO
-        template = "omeroweb/basket_share_action.html"
+        template = "webclient/basket/basket_share_action.html"
         
         basket = BaseBasket(conn)
         basket.buildBreadcrumb(action)
@@ -1699,7 +1720,7 @@ def basket_action (request, action=None, **kwargs):
         form = ShareForm(initial={'experimenters': experimenters})
         context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
     else:
-        template = "omeroweb/basket.html"
+        template = "webclient/basket/basket.html"
         
         basket = BaseBasket(conn)
         basket.buildBreadcrumb()
@@ -1882,7 +1903,7 @@ def update_clipboard(request, **kwargs):
 @isUserConnected
 def importer(request, **kwargs):
     request.session['nav']['menu'] = 'import'
-    template = "omeroweb/importer.html"
+    template = "webclient/import/import.html"
     
     request.session.modified = True
 
@@ -1926,7 +1947,7 @@ def flash_uploader(request, **kwargs):
 
 @isUserConnected
 def manage_myaccount(request, action=None, **kwargs):
-    template = "omeroweb/myaccount.html"
+    template = "webclient/person/myaccount.html"
     request.session.modified = True
     request.session['nav']['menu'] = 'person'
     
@@ -1986,7 +2007,7 @@ def manage_myaccount(request, action=None, **kwargs):
 
 @isUserConnected
 def upload_myphoto(request, action=None, **kwargs):
-    template = "omeroweb/upload_myphoto.html"
+    template = "webclient/person/upload_myphoto.html"
     request.session.modified = True
     conn = None
     try:
@@ -2025,7 +2046,7 @@ def upload_myphoto(request, action=None, **kwargs):
 
 @isUserConnected
 def help(request, **kwargs):
-    template = "omeroweb/help.html"
+    template = "webclient/help.html"
     request.session.modified = True
     conn = None
     try:
@@ -2045,7 +2066,7 @@ def help(request, **kwargs):
 
 @isUserConnected
 def load_calendar(request, year=None, month=None, **kwargs):
-    template = "omeroweb/calendar.html"
+    template = "webclient/history/calendar.html"
     
     conn = None
     try:
@@ -2070,7 +2091,7 @@ def load_calendar(request, year=None, month=None, **kwargs):
 @isUserConnected
 def load_history(request, year, month, day, **kwargs):
     
-    template = "omeroweb/history_details.html"
+    template = "webclient/history/history_details.html"
     
     conn = None
     try:
@@ -2389,7 +2410,7 @@ def spellchecker(request):
 
 @isUserConnected
 def test(request, **kwargs):
-    template = "omeroweb/testROIs/test.html"
+    template = "webclient/testROIs/test.html"
     
     conn = None
     try:
