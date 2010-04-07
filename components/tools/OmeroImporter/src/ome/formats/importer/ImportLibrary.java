@@ -173,6 +173,7 @@ public class ImportLibrary implements IObservable, StatusListener
             int numDone = 0;
             for (int index = 0; index < containers.size(); index++) {
                 ImportContainer ic = containers.get(index);
+                ic.setUserSpecifiedFileName(config.name.get());
                 
                 if (config.targetClass.get() == "omero.model.Dataset")
                 {
