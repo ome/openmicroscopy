@@ -257,7 +257,6 @@ public class ManageRndSettingsAction
 				break;
 			case RESET:
 			case SET_ORIGINAL:
-			case SET_OWNER_SETTING:
 				if (selectedDisplay instanceof TreeImageTimeSet) {
 					handleTreeTimeNode(selected);
 					return;
@@ -269,6 +268,25 @@ public class ManageRndSettingsAction
 					for (int i = 0; i < selected.length; i++) {
 						//if (model.isUserOwner(selected[i].getUserObject()))
 						if (model.isObjectWritable(selected[i].getUserObject()))
+							count++;
+					}
+					setEnabled(count == selected.length);
+				}
+				break;
+			case SET_OWNER_SETTING:
+				if (selectedDisplay instanceof TreeImageTimeSet) {
+					handleTreeTimeNode(selected);
+					return;
+				}
+				if (!(ho instanceof ImageData || ho instanceof DatasetData ||
+						ho instanceof PlateData))
+					setEnabled(false);
+				else {
+					Object object;
+					for (int i = 0; i < selected.length; i++) {
+						object = selected[i].getUserObject();
+						if (model.isObjectWritable(object) && 
+								!model.isUserOwner(object))
 							count++;
 					}
 					setEnabled(count == selected.length);

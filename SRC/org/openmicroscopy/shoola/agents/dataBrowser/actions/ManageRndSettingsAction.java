@@ -224,6 +224,18 @@ public class ManageRndSettingsAction
 				break;
 			case RESET:
 			case SET_ORIGINAL:
+				if (!(ho instanceof ImageData || ho instanceof DatasetData ||
+						ho instanceof PlateData))
+					setEnabled(false);
+				else {
+					i = selected.iterator();
+					while (i.hasNext()) {
+						obj = i.next();
+						if (model.isWritable(obj)) count++;
+					}
+					setEnabled(count == selected.size());
+				}
+				break;
 			case SET_OWNER:
 				if (!(ho instanceof ImageData || ho instanceof DatasetData ||
 						ho instanceof PlateData))
@@ -233,7 +245,8 @@ public class ManageRndSettingsAction
 					while (i.hasNext()) {
 						obj = i.next();
 						//if (model.isUserOwner(obj)) count++;
-						if (model.isWritable(obj)) count++;
+						if (model.isWritable(obj) && !model.isUserOwner(ho)) 
+							count++;
 					}
 					setEnabled(count == selected.size());
 				}
