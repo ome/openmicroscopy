@@ -2,6 +2,9 @@
 
 """
    Integration test for testing various EMAN2 scripts functionality. 
+   
+   Not all of the scripts are covered. E.g ctf.py, openInChimera.py, eman2omero.py, either because they are 
+   too tricky to test or because they cover very similar functionality to other scripts tested below. 
 
    dir(self)
    'assertAlmostEqual', 'assertAlmostEquals', 'assertEqual', 'assertEquals', 'assertFalse', 'assertNotAlmostEqual', 'assertNotAlmostEquals', 
@@ -42,6 +45,7 @@ boxerScriptPath = "/Users/will/Documents/workspace/Omero/components/tools/OmeroP
 imagesFromRoisPath = "/Users/will/Documents/workspace/Omero/components/tools/OmeroPy/scripts/EMAN2/imagesFromRois.py"
 
 class TestEmanScripts(lib.ITest):
+    
     
     def testImagesFromRois(self):
         """
