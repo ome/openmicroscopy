@@ -12,6 +12,7 @@
 
 import exceptions
 
+__import_style__ = None
 
 def client_wrapper(*args, **kwargs):
     import omero.gateway

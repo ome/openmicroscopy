@@ -12,6 +12,8 @@
 #include <omero/client.h>
 #include <omero/RTypesI.h>
 #include <omero/Constants.h>
+#include <omero/api/IAdmin.h>
+#include <omero/api/ISession.h>
 #include <omero/model/IObject.h>
 
 using namespace std;

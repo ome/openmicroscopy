@@ -15,6 +15,7 @@
 #include <omero/Constants.h>
 #include <omero/ObjectFactoryRegistrar.h>
 #include <omero/ServerErrors.h>
+#include <omero/ServicesF.h>
 #include <omero/System.h>
 #include <omero/model/OriginalFile.h>
 #include <Ice/Ice.h>

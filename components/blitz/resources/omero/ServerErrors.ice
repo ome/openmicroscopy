@@ -6,8 +6,8 @@
  *
  */
 
-#ifndef OMERO_ERROR_ICE
-#define OMERO_ERROR_ICE
+#ifndef OMERO_SERVERERRORS_ICE
+#define OMERO_SERVERERRORS_ICE
 
 #include <Glacier2/Session.ice>
 
@@ -297,4 +297,4 @@ module omero
 
 };
 
-#endif // OMERO_ERROR_ICE
+#endif // OMERO_SERVERERRORS_ICE

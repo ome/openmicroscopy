@@ -9,30 +9,19 @@
 __save__ = __name__
 __name__ = 'omero'
 try:
-    import exceptions, traceback, threading, logging
-    import Ice, Glacier2, Glacier2_Router_ice
-    import uuid
-    sys = __import__("sys")
-
     api = __import__('omero.api')
     model = __import__('omero.model')
     util = __import__('omero.util')
     sys = __import__('omero.sys')
-
-    import omero_API_ice
-    import omero_Constants_ice
-    import omero_sys_ParametersI
-    import omero.rtypes
-    from omero.rtypes import rlong
-    from omero.rtypes import rint
-    from omero.rtypes import rstring
-    from omero.rtypes import rdouble
-    from omero.rtypes import rfloat
-    from omero.rtypes import unwrap
-
+    import omero.all
 finally:
     __name__ = __save__
     del __save__
+
+sys = __import__("sys")
+import exceptions, traceback, threading, logging
+import Ice, Glacier2, Glacier2_Router_ice
+import uuid
 
 class BaseClient(object):
     """
@@ -543,17 +532,17 @@ class BaseClient(object):
             if not ofile:
                 ofile = omero.model.OriginalFileI()
 
-            ofile.size = rlong(size)
-            ofile.sha1 = rstring(self.sha1(file.name))
+            ofile.size = omero.rtypes.rlong(size)
+            ofile.sha1 = omero.rtypes.rstring(self.sha1(file.name))
 
             if not ofile.name:
                 if name:
-                    ofile.name = rstring(name)
+                    ofile.name = omero.rtypes.rstring(name)
                 else:
-                    ofile.name = rstring(file.name)
+                    ofile.name = omero.rtypes.rstring(file.name)
 
             if not ofile.path:
-                ofile.path = rstring(os.path.abspath(file.name))
+                ofile.path = omero.rtypes.rstring(os.path.abspath(file.name))
 
             if not ofile.format:
                 if not type:
@@ -562,7 +551,7 @@ class BaseClient(object):
                     raise ClientError("no format given")
                 else:
                     ofile.format = omero.model.FormatI()
-                    ofile.format.value = rstring(type)
+                    ofile.format.value = omero.rtypes.rstring(type)
 
             if permissions:
                 ofile.details.permissions = permissions
@@ -728,7 +717,7 @@ class BaseClient(object):
         if callable(_unwrap):
             rv = _unwrap(rv) # Passed in function
         elif _unwrap:
-            rv = unwrap(rv) # Default method
+            rv = omero.rtypes.unwrap(rv) # Default method
         return rv
 
     def getInput(self, key, unwrap=False):

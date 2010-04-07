@@ -20,13 +20,14 @@ env.Repository(["generated","resources"])
 
 env["DEPMAP"] = {
     "omero/fwd.java" : "unknon",
-    "omero/API.java" : "omero/api/IAdmin.java",
+    "omero/API.java" : "omero/api/ServiceFactoryPrx.java",
     "omero/Constants.java" : "omero/constants/USERNAME.java",
     "omero/Collections.java" : "omero/api/ServiceListHolder.java",
     "omero/ROMIO.java" : "omero/romio/RedBand.java",
     "omero/RTypes.java" : "omero/RType.java",
     "omero/Scripts.java" : "omero/grid/Param.java",
     "omero/ServerErrors.java" : "omero/ServerError.java",
+    "omero/ServicesF.java" : "omero/api/ServiceInterfacePrx.java",
     "omero/System.java" : "omero/sys/Parameters.java"
 }
 

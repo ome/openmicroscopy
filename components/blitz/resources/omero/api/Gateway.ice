@@ -9,7 +9,8 @@
 #ifndef OMERO_GATEWAY_ICE
 #define OMERO_GATEWAY_ICE
 
-#include <omero/API.ice>
+#include <omero/Collections.ice>
+#include <omero/ServicesF.ice>
 #include <omero/ServerErrors.ice>
 
 module omero {

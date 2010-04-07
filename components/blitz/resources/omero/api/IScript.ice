@@ -9,8 +9,8 @@
 #ifndef OMERO_ISCRIPT_ICE
 #define OMERO_ISCRIPT_ICE
 
-#include <omero/API.ice>
-#include <omero/ServerErrors.ice>
+#include <omero/ServicesF.ice>
+#include <omero/Scripts.ice>
 
 module omero {
 

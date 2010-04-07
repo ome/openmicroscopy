@@ -9,8 +9,8 @@
 #ifndef OMERO_API_IROI_ICE
 #define OMERO_API_IROI_ICE
 
-#include <omero/API.ice>
-#include <omero/ServerErrors.ice>
+#include <omero/ServicesF.ice>
+#include <omero/Collections.ice>
 
 // Items for a separate service:
 // -----------------------------
