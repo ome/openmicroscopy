@@ -645,16 +645,47 @@ class EditorModel
 		Iterator i = m.entrySet().iterator();
 		DataObject o;
 		DataObject ann = (DataObject) annotation;
+		ExperimenterData exp;
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			o = (DataObject) entry.getKey();
 			if (o.getId() == ann.getId()) {
-				return id == ((Long) entry.getValue()).longValue();
+				exp = (ExperimenterData) entry.getValue();
+				return id == exp.getId();
 			}
 		}
 		return false;
 	}
 
+	/**
+	 * Returns the collection of experimenters who use the annotation.
+	 * 
+	 * @param annotation 	The annotation to handle.
+	 * @return See above.
+	 */
+	List<ExperimenterData> getAnnotators(Object annotation)
+	{
+		List<ExperimenterData> list = new ArrayList<ExperimenterData>();
+		StructuredDataResults data = parent.getStructuredData();
+		if (data == null) return list;
+		Map m = data.getOtherOwnerLinks();
+		if (m == null) return list;
+		long id = MetadataViewerAgent.getUserDetails().getId();
+		Entry entry;
+		Iterator i = m.entrySet().iterator();
+		DataObject o;
+		DataObject ann = (DataObject) annotation;
+		ExperimenterData exp;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			o = (DataObject) entry.getKey();
+			if (o.getId() == ann.getId()) {
+				list.add((ExperimenterData) entry.getValue());
+			}
+		}
+		return list;
+	}
+	
 	/**
 	 * Returns the collection of annotation that cannot be removed 
 	 * by the user currently logged.
@@ -672,10 +703,12 @@ class EditorModel
 		Entry entry;
 		Iterator i = m.entrySet().iterator();
 		DataObject o;
+		ExperimenterData exp;
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			o = (DataObject) entry.getKey();
-			if (id != ((Long) entry.getValue()).longValue())
+			exp = (ExperimenterData) entry.getValue();
+			if (id != exp.getId())
 				list.add(o);
 		}
 		return list;

@@ -793,7 +793,8 @@ class OmeroMetadataServiceImpl
 				List links = gateway.findAnnotationLinks(object.getClass(), 
 						annotationIds, -1);
 				if (links != null) {
-					Map<DataObject, Long> m = new HashMap<DataObject, Long>();
+					Map<DataObject, ExperimenterData> 
+						m = new HashMap<DataObject, ExperimenterData>();
 					Iterator j = links.iterator();
 					IObject link;
 					DataObject d;
@@ -802,8 +803,8 @@ class OmeroMetadataServiceImpl
 						d = PojoMapper.asDataObject(
 								ModelMapper.getChildFromLink(link));
 						if (d != null)
-							m.put(d,
-							link.getDetails().getOwner().getId().getValue());
+							m.put(d, (ExperimenterData) PojoMapper.asDataObject(
+									link.getDetails().getOwner()));
 					}
 					results.setOtherOwnerLinks(m);
 				}

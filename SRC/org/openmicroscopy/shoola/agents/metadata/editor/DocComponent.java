@@ -219,6 +219,25 @@ class DocComponent
 	}
 	
 	/**
+	 * Adds the experimenters who use the annotation if any.
+	 * 
+	 * @param buf The buffer
+	 * @param annotation The annotation to handle.
+	 */
+	private void checkAnnotators(StringBuffer buf, AnnotationData annotation)
+	{
+		List<ExperimenterData> annotators = model.getAnnotators(annotation);
+		if (annotators.size() == 0) return;
+		Iterator<ExperimenterData> i = annotators.iterator();
+		ExperimenterData annotator;
+		buf.append("<b>Added by:</b><br>");
+		while (i.hasNext()) {
+			annotator =  i.next();
+			buf.append(EditorUtil.formatExperimenter(annotator)+"<br>");
+		}
+	}
+	
+	/**
 	 * Formats the passed annotation.
 	 * 
 	 * @param annotation The value to format.
@@ -272,9 +291,11 @@ class DocComponent
 			long size = ((FileAnnotationData) annotation).getFileSize();
 			buf.append(UIUtilities.formatFileSize(size/1000));
 			buf.append("<br>");
+			checkAnnotators(buf, annotation);
 		} else if (data instanceof TagAnnotationData) {
-			TagAnnotationData tag = (TagAnnotationData) data;
-			exp = MetadataViewerAgent.getUserDetails();
+			
+			checkAnnotators(buf, annotation);
+			/*
 			String description = tag.getTagDescription();
 			List l;
 			Iterator j;
@@ -319,6 +340,7 @@ class DocComponent
 				}
 				
 			}
+			*/
 		}
 		buf.append("</body></html>");
 		return buf.toString();
