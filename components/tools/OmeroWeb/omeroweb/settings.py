@@ -37,7 +37,7 @@ import omero.clients
 
 # Debuging mode. 
 # A boolean that turns on/off debug mode.
-DEBUG = True # handler404 and handler500 works only when False
+DEBUG = False # handler404 and handler500 works only when False
 TEMPLATE_DEBUG = DEBUG
 
 # Configure logging and set place to store logs.
@@ -84,7 +84,7 @@ ADMINS = (
 MANAGERS = ADMINS
 
 # Local time zone for this installation. Choices can be found here:
-# http://www.postgresql.org/docs/8.1/static/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE
+# http://www.postgresql.org/docs/8.1/appmedia/omeroweb/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE
 # although not all variations may be possible on all operating systems.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
@@ -104,16 +104,16 @@ USE_I18N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = ''
+MEDIA_ROOT = os.path.join(os.path.dirname(__file__), 'media')
 
 # URL that handles the media served from MEDIA_ROOT.
 # Example: "http://media.lawrence.com"
-MEDIA_URL = ''
+MEDIA_URL = '/appmedia/'
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/admin_static/'
+ADMIN_MEDIA_PREFIX = '/admin_appmedia/omeroweb/'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '@@k%g#7=%4b6ib7yr1tloma&g0s2nni6ljf!m0h&x9c712c7yj'

@@ -42,7 +42,7 @@ from omeroweb.webadmin.custom_forms import ExperimenterModelChoiceField, \
 # Static values
 
 # TODO: change to reverse
-help_button = "/static/images/help16.png"
+help_button = "/appmedia/omeroweb/images/help16.png"
 
 help_wiki = '<span id="markup" title="Markups - <small>If you\'d like to include URL please type:<br/><b>http://www.openmicroscopy.org.uk/</b></small>"><img src="%s" /></span>' % help_button
 

@@ -464,9 +464,9 @@ def load_template(request, menu, **kwargs):
     request.session.modified = True
     
     if menu in ('mydata', 'userdata', 'groupdata'):
-        template = "webclient/containers.html"
+        template = "webclient/data/containers.html"
     else:
-        template = "webclient/%s.html" % menu
+        template = "webclient/%s/%s.html" % (menu,menu)
     request.session['nav']['menu'] = menu
     
     conn = None
@@ -612,17 +612,17 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     if o1_type =='plate' or o2_type == 'plate':
         template = "webclient/plate_details.html"
     elif o1_type=='ajaxdataset' and o1_id > 0:
-        template = "webclient/container_subtree.html"        
+        template = "webclient/data/container_subtree.html"        
     elif o1_type=='ajaxorphaned':
-        template = "webclient/container_subtree.html"
+        template = "webclient/data/container_subtree.html"
     elif view =='tree':
-        template = "webclient/containers_tree.html"
+        template = "webclient/data/containers_tree.html"
     elif view =='icon':
-        template = "webclient/containers_icon.html"
+        template = "webclient/data/containers_icon.html"
     elif view =='table':
-        template = "webclient/containers_table.html"
+        template = "webclient/data/containers_table.html"
     else:
-        template = "webclient/containers.html"
+        template = "webclient/data/containers.html"
     
     context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_well_index':form_well_index}
     
@@ -709,7 +709,7 @@ def manage_data_by_tag(request, tid=None, tid2=None, tid3=None, tid4=None, tid5=
     
     request.session.modified = True
 
-    template = "webclient/container_tags.html"
+    template = "webclient/data/container_tags.html"
     
     conn = None
     try:
@@ -1059,7 +1059,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     
     form = None
     if action == 'new':
-        template = "webclient/container_new.html"
+        template = "webclient/data/container_new.html"
         form = ContainerForm()
         context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
     elif action == 'newcomment':
@@ -1078,23 +1078,23 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_file':form_file, 'form_files':form_files,  'form_active_group':form_active_group}       
     elif action == 'edit':
         if o_type == "dataset":
-            template = "webclient/container_form.html"
+            template = "webclient/data/container_form.html"
             form = ContainerForm(initial={'name': manager.dataset.name, 'description':manager.dataset.description})
             context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
         elif o_type == "project":
-            template = "webclient/container_form.html"
+            template = "webclient/data/container_form.html"
             form = ContainerForm(initial={'name': manager.project.name, 'description':manager.project.description})
             context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
         elif o_type == "screen":
-            template = "webclient/container_form.html"
+            template = "webclient/data/container_form.html"
             form = ContainerForm(initial={'name': manager.screen.name, 'description':manager.screen.description})
             context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
         elif o_type == "plate":
-            template = "webclient/container_form.html"
+            template = "webclient/data/container_form.html"
             form = ContainerForm(initial={'name': manager.plate.name, 'description':manager.plate.description})
             context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
         elif o_type =="image" and o_id > 0:
-            template = "webclient/container_form.html"
+            template = "webclient/data/container_form.html"
             form = ContainerForm(initial={'name': manager.image.name, 'description':manager.image.description})
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
         elif o_type =="comment" and o_id > 0:
@@ -1155,7 +1155,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 manager.updateDataset(name, description)
                 return HttpResponseRedirect(url)
             else:
-                template = "webclient/container_form.html"
+                template = "webclient/data/container_form.html"
                 context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
         elif o_type == "project":
             form = ContainerForm(data=request.REQUEST.copy())
@@ -1165,7 +1165,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 manager.updateProject(name, description)
                 return HttpResponseRedirect(url)
             else:
-                template = "webclient/container_form.html"
+                template = "webclient/data/container_form.html"
                 context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
         elif o_type == "screen":
             form = ContainerForm(data=request.REQUEST.copy())
@@ -1175,7 +1175,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 manager.updateScreen(name, description)
                 return HttpResponseRedirect(url)
             else:
-                template = "webclient/container_form.html"
+                template = "webclient/data/container_form.html"
                 context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
         elif o_type == "plate":
             form = ContainerForm(data=request.REQUEST.copy())
@@ -1185,7 +1185,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 manager.updatePlate(name, description)
                 return HttpResponseRedirect(url)
             else:
-                template = "webclient/container_form.html"
+                template = "webclient/data/container_form.html"
                 context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
         elif o_type == 'image':
             form = ContainerForm(data=request.REQUEST.copy())
@@ -1195,7 +1195,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 manager.updateImage(name, description)
                 return HttpResponseRedirect(url)
             else:
-                template = "webclient/container_form.html"
+                template = "webclient/data/container_form.html"
                 context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
         elif o_type == 'comment':
             form = CommentAnnotationForm(data=request.REQUEST.copy())
@@ -1204,7 +1204,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 manager.saveCommentAnnotation(content)
                 return HttpResponseRedirect(url)
             else:
-                template = "webclient/container_form.html"
+                template = "webclient/data/container_form.html"
                 context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
         elif o_type == 'url':
             form = UriAnnotationForm(data=request.REQUEST.copy())
@@ -1213,7 +1213,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 manager.saveUrlAnnotation(content)
                 return HttpResponseRedirect(url)
             else:
-                template = "webclient/container_form.html"
+                template = "webclient/data/container_form.html"
                 context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
         elif o_type == 'tag':
             form = TagAnnotationForm(data=request.REQUEST.copy())
@@ -1223,7 +1223,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 manager.saveTagAnnotation(content, description)
                 return HttpResponseRedirect(url)
             else:
-                template = "webclient/container_form.html"
+                template = "webclient/data/container_form.html"
                 context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
     elif action == 'addnew':
         if not request.method == 'POST':
@@ -1236,7 +1236,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 manager.createDataset(name, description)
                 return HttpResponseRedirect(url)
             else:
-                template = "webclient/container_new.html"
+                template = "webclient/data/container_new.html"
                 context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
         else:
             if request.REQUEST.get('folder_type') == "dataset":
@@ -1247,7 +1247,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                     manager.createDataset(name, description)
                     return HttpResponseRedirect(url)
                 else:
-                    template = "webclient/container_new.html"
+                    template = "webclient/data/container_new.html"
                     context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
             elif request.REQUEST.get('folder_type') == "project":
                 form = ContainerForm(data=request.REQUEST.copy())
@@ -1257,7 +1257,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                     manager.createProject(name, description)
                     return HttpResponseRedirect(url)
                 else:
-                    template = "webclient/container_new.html"
+                    template = "webclient/data/container_new.html"
                     context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
             elif request.REQUEST.get('folder_type') == "screen":
                 form = ContainerForm(data=request.REQUEST.copy())
@@ -1267,7 +1267,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                     manager.createScreen(name, description)
                     return HttpResponseRedirect(url)
                 else:
-                    template = "webclient/container_new.html"
+                    template = "webclient/data/container_new.html"
                     context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
     elif action == 'addcomment':
         if not request.method == 'POST':
@@ -1902,9 +1902,6 @@ def update_clipboard(request, **kwargs):
 
 @isUserConnected
 def importer(request, **kwargs):
-    request.session['nav']['menu'] = 'import'
-    template = "webclient/import/import.html"
-    
     request.session.modified = True
 
     conn = None

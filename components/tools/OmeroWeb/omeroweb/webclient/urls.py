@@ -39,7 +39,7 @@ urlpatterns = patterns('',
     
     url( r'^$', views.index, name="webindex" ),
     # render main template
-    url( r'^(?P<menu>((?i)userdata|shares|history|search|importer|help))/$', views.load_template, name="load_template" ),
+    url( r'^(?P<menu>((?i)userdata|public|history|search|importer|help))/$', views.load_template, name="load_template" ),
 
     url( r'^context/$', views.index_context, name="index_context" ),
     url( r'^last_imports/$', views.index_last_imports, name="index_last_imports" ),
@@ -90,10 +90,10 @@ urlpatterns = patterns('',
     url( r'^render_thumbnail/(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.render_thumbnail, name="render_thumbnail" ),
     url( r'^render_thumbnail/size/(?P<size>[0-9]+)/(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.render_thumbnail_resize, name="render_thumbnail_resize" ),
     url( r'^render_thumbnail/big/(?P<iid>[0-9]+)/$', views.render_big_thumbnail, name="render_big_thumbnail" ),
-    url( r'^shares/$', views.manage_shares, name="manage_shares" ),
-    url( r'^share/(?P<action>[a-zA-Z]+)/(?:(?P<sid>[0-9]+)/)?$', views.manage_share, name="manage_share" ),
-    url( r'^share_content/(?P<share_id>[0-9]+)/$', views.load_share_content, name="load_share_content" ),
-    url( r'^share_owner_content/(?P<share_id>[0-9]+)/$', views.load_share_owner_content, name="load_share_owner_content" ),
+    url( r'^public/$', views.manage_shares, name="manage_shares" ),
+    url( r'^public/(?P<action>[a-zA-Z]+)/(?:(?P<sid>[0-9]+)/)?$', views.manage_share, name="manage_share" ),
+    url( r'^public_content/(?P<share_id>[0-9]+)/$', views.load_share_content, name="load_share_content" ),
+    url( r'^public_owner_content/(?P<share_id>[0-9]+)/$', views.load_share_owner_content, name="load_share_owner_content" ),
     
     url( r'^clipboard/$', views.update_clipboard, name="update_clipboard"),
     

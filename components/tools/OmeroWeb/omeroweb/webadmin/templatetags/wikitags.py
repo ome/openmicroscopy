@@ -42,10 +42,10 @@ def wikify(value):
         #value = imagier.sub(r'<a href="/%s/image/\2/" target="_blank"><img src="/%s/render_thumbnail/32/\2/" /></a>' % (reverse(viewname="webstatic", args=["images/emots/tinymce_smiley-wink18.gif"]), reverse(viewname="webstatic", args=["images/emots/tinymce_smiley-wink18.gif"])), value)
 
         #datasetier = re.compile(r'\[((?i)dataset):[\s]?( [0-9]+ )\]', re.VERBOSE)
-        #value = datasetier.sub(r'<a href="/%s/dataset/\2/" target="_blank"><img src="/%s/static/images/folder_image32.png" /></a>' % (reverse(viewname="webstatic", args=["images/emots/tinymce_smiley-wink18.gif"]), reverse(viewname="webstatic", args=["images/emots/tinymce_smiley-wink18.gif"])), value)
+        #value = datasetier.sub(r'<a href="/%s/dataset/\2/" target="_blank"><img src="/%s/appmedia/omeroweb/images/folder_image32.png" /></a>' % (reverse(viewname="webstatic", args=["images/emots/tinymce_smiley-wink18.gif"]), reverse(viewname="webstatic", args=["images/emots/tinymce_smiley-wink18.gif"])), value)
 
         #projectier = re.compile(r'\[((?i)project):[\s]?( [0-9]+ )\]', re.VERBOSE)
-        #value = projectier.sub(r'<a href="/%s/project/\2/" target="_blank"><img src="/%s/static/images/folder32.png" /></a>' % (reverse(viewname="webstatic", args=["images/emots/tinymce_smiley-wink18.gif"]), reverse(viewname="webstatic", args=["images/emots/tinymce_smiley-wink18.gif"])), value)
+        #value = projectier.sub(r'<a href="/%s/project/\2/" target="_blank"><img src="/%s/appmedia/omeroweb/images/folder32.png" /></a>' % (reverse(viewname="webstatic", args=["images/emots/tinymce_smiley-wink18.gif"]), reverse(viewname="webstatic", args=["images/emots/tinymce_smiley-wink18.gif"])), value)
         
         #protocolier = re.compile(r'\[((?i)protocol):[\s]?([0-9]+)\]', re.VERBOSE)
         #value = protocolier.sub(r'<a href="/%s/annotation/download/\2/" target="_blank">protocol file</a>' % (reverse(viewname="webstatic", args=["images/emots/tinymce_smiley-wink18.gif"])), value)

@@ -679,7 +679,7 @@ $.ui.plugin.add("resizable", "containment", {
 				ps = self.containerSize, co = self.containerOffset, cs = self.size, cp = self.position,
 				pRatio = self._aspectRatio || event.shiftKey, cop = { top:0, left:0 }, ce = self.containerElement;
 
-		if (ce[0] != document && (/static/).test(ce.css('position'))) cop = co;
+		if (ce[0] != document && (/appmedia/omeroweb/).test(ce.css('position'))) cop = co;
 
 		if (cp.left < (self._helper ? co.left : 0)) {
 			self.size.width = self.size.width + (self._helper ? (self.position.left - co.left) : (self.position.left - cop.left));
@@ -724,7 +724,7 @@ $.ui.plugin.add("resizable", "containment", {
 		if (self._helper && !o.animate && (/relative/).test(ce.css('position')))
 			$(this).css({ left: ho.left - cop.left - co.left, width: w, height: h });
 
-		if (self._helper && !o.animate && (/static/).test(ce.css('position')))
+		if (self._helper && !o.animate && (/appmedia/omeroweb/).test(ce.css('position')))
 			$(this).css({ left: ho.left - cop.left - co.left, width: w, height: h });
 
 	}

@@ -30,7 +30,7 @@ body {
     margin-bottom: 0px;
 }
 #banner {
-    background: url(/static/images/logo.jpg) no-repeat;
+    background: url(/appmedia/omeroweb/images/logo.jpg) no-repeat;
     height: 100px;
 }
 #addform {
@@ -257,7 +257,7 @@ ul.errorlist {
     width: 600px;
 }
 #piechart.loading {
-  background: url(/static/images/spinner.gif) no-repeat center center;
+  background: url(/appmedia/omeroweb/images/spinner.gif) no-repeat center center;
 }
 
 

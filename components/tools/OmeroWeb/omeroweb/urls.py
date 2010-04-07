@@ -48,11 +48,11 @@ urlpatterns = patterns('',
     (r'^admin/(.*)', admin.site.root),
     
     # Require link to admin media
-    url( r'^admin_static/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.dirname(os.path.realpath(admin.__file__)), 'media').replace('\\','/') }, name="admin_static" ),    
+    url( r'^admin_appmedia/omeroweb/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.dirname(os.path.realpath(admin.__file__)), 'media').replace('\\','/') }, name="admin_static" ),    
     
-    (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/webadmin/static/images/ome.ico'}),
+    (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/appmedia/omeroweb/images/ome.ico'}),
     (r'^appmedia/webgateway/(?P<path>.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), 'webgateway/media')}),
-    url( r'^static/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.join(os.path.dirname(__file__), 'media'), 'omeroweb').replace('\\','/') }, name="webstatic" ),
+    url( r'^appmedia/omeroweb/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.dirname(__file__), 'media', 'omeroweb').replace('\\','/') }, name="webstatic" ),
     
     (r'(?i)^webadmin/', include('omeroweb.webadmin.urls')),
     (r'(?i)^webclient/', include('omeroweb.webclient.urls')),

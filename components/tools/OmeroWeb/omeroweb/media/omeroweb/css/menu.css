@@ -1,5 +1,5 @@
 #navigation {
-    background:transparent url(/static/images/menu/menu.png) no-repeat scroll right top;
+    background:transparent url(/appmedia/omeroweb/images/menu/menu.png) no-repeat scroll right top;
     height:90px;
     left:0;
     list-style-image:none;
@@ -26,29 +26,29 @@
 	opacity: 0.8; 
 }
 #navigation .home a {
-	background: url(/static/images/menu/home.png) no-repeat bottom right;
+	background: url(/appmedia/omeroweb/images/menu/home.png) no-repeat bottom right;
 }
 #navigation .userdata a {
-	background: url(/static/images/menu/userdata.png) no-repeat bottom right;
+	background: url(/appmedia/omeroweb/images/menu/userdata.png) no-repeat bottom right;
 }
 #navigation .share a {
-	background: url(/static/images/menu/share.png) no-repeat bottom right;
+	background: url(/appmedia/omeroweb/images/menu/share.png) no-repeat bottom right;
 }
 #navigation .search a {
-	background: url(/static/images/menu/search.png) no-repeat bottom right;
+	background: url(/appmedia/omeroweb/images/menu/search.png) no-repeat bottom right;
 }
 #navigation .history a {
-	background: url(/static/images/menu/history.png) no-repeat bottom right;
+	background: url(/appmedia/omeroweb/images/menu/history.png) no-repeat bottom right;
 }
 #navigation .import a {
-	background: url(/static/images/menu/import.png) no-repeat bottom right;
+	background: url(/appmedia/omeroweb/images/menu/import.png) no-repeat bottom right;
 }
 #navigation .person a {
-	background: url(/static/images/menu/person.png) no-repeat bottom right;
+	background: url(/appmedia/omeroweb/images/menu/person.png) no-repeat bottom right;
 }
 #navigation .help a {
-	background: url(/static/images/menu/help.png) no-repeat bottom right;
+	background: url(/appmedia/omeroweb/images/menu/help.png) no-repeat bottom right;
 }
 #navigation .contact a {
-	background: url(/static/images/menu/contact.png) no-repeat bottom right;
+	background: url(/appmedia/omeroweb/images/menu/contact.png) no-repeat bottom right;
 }

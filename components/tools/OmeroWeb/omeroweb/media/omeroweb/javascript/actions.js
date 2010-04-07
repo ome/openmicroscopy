@@ -234,10 +234,10 @@ function cleanClipboard (productType, productId) {
 function changeView(view) { 
     var rel = $("div#content_details").attr('rel');
     if(rel=='orphaned') {
-        $("div#content_details").html('<p>Loading data... please wait <img src="/static/images/tree/spinner.gif"/></p>');
+        $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/tree/spinner.gif"/></p>');
         $("div#content_details").load('/webclient/load_data/orphaned/?view='+view);
     } else {
-        $("div#content_details").html('<p>Loading data... please wait <img src="/static/images/tree/spinner.gif"/></p>');
+        $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/tree/spinner.gif"/></p>');
         $("div#content_details").load('/webclient/load_data/dataset/'+rel+'/?view='+view);
     }
     return false;
@@ -254,7 +254,7 @@ function saveMetadata (image_id, metadata_type, metadata_value) {
     if (image_id == null) {
         alert("No image selected.")
     } else {
-        $($('#id_'+metadata_type).parent()).append('<img src="/static/images/tree/spinner.gif"/>');
+        $($('#id_'+metadata_type).parent()).append('<img src="/appmedia/omeroweb/images/tree/spinner.gif"/>');
         $.ajax({
             type: "POST",
             url: "/webclient/metadata/image/"+image_id+"/", //this.href,
