@@ -282,10 +282,9 @@ public class FSFileSystemView
     			String desc = file.getDescription();
     			if (desc != null && desc.length() > 0)
     				image.setDescription(omero.rtypes.rstring(desc));
-    			r = proxy.registerImage(image);
+    			r = proxy.registerObject(object);
     		} else if (object instanceof OriginalFile) {
-    			r = proxy.registerOriginalFile(
-            			(OriginalFile) object);
+    			r = proxy.registerObject(object);
     			file.setRegisteredFile((OriginalFile) r);
     		}
     		//if (r != null) file.setRegisteredFile(r);
