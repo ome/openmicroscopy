@@ -15,6 +15,7 @@
 #include <omero/api/IAdmin.h>
 #include <omero/api/ISession.h>
 #include <omero/model/IObject.h>
+#include <omero/model/SessionI.h>
 
 using namespace std;
 
@@ -450,6 +451,40 @@ namespace omero {
 
     }
 
+    int client::killSession() {
+
+        omero::api::ServiceFactoryPrx sf = getSession();
+        Ice::LoggerPtr __logger = getCommunicator()->getLogger();
+
+        omero::model::SessionPtr s = new omero::model::SessionI();
+        s->setUuid(omero::rtypes::rstring(sf->ice_getIdentity().name));
+
+        omero::api::ISessionPrx prx;
+        try {
+            prx = sf->getSessionService();
+        } catch (...) {
+            __logger->warning("Cannot get session service for killSession. Using closeSession");
+            closeSession();
+            return -1;
+        }
+
+        int count = 0;
+        try {
+            int r = 1;
+            while (r > 0) {
+                count++;
+                r = prx->closeSession(s);
+            }
+        } catch (omero::RemovedSessionException rse) {
+            // ignore
+        } catch (...) {
+            __logger->warning("Unknown exception while closing all references");
+        }
+
+        // Now the server-side session is dead, call closeSession()
+        closeSession();
+        return count;
+    }
 
     // File handling
     // ====================================================================

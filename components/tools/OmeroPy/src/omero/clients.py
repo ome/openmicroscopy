@@ -670,8 +670,10 @@ class BaseClient(object):
 
     def killSession(self):
         """
-        Calls closeSession(omero.model.Session) until
-        the returned reference count is greater than zero.
+        Calls ISession.closeSession(omero.model.Session) until
+        the returned reference count is greater than zero. The
+        number of invocations is returned. If ISession.closeSession()
+        cannot be called, -1 is returned.
         """
 
         sf = self.sf
@@ -685,7 +687,8 @@ class BaseClient(object):
         except:
             self.__logger.warning("Cannot get session service for killSession. Using closeSession")
             self.closeSession()
-            return
+            return -1;
+
         count = 0
         try:
             r = 1

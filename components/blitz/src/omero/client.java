@@ -637,7 +637,7 @@ public class client {
     /**
      * Closes the session and nulls out the communicator. This is required by an
      * Ice bug.
-     * 
+     *
      * @see <a
      *      href="http://www.zeroc.com/forums/help-center/2370-ice_ping-error-right-after-createsession-succeed.html">2370
      *      Ice Ping Error</a>
@@ -704,6 +704,46 @@ public class client {
         }
     }
 
+    /**
+     * Calls ISession.closeSession(omero.model.Session) until
+     * the returned reference count is greater than zero. The
+     * number of invocations is returned. If ISession.closeSession()
+     * cannot be called, -1 is returned.
+     */
+    public int killSession() {
+
+        ServiceFactoryPrx sf = getSession();
+        Ice.Logger __logger = getCommunicator().getLogger();
+
+        omero.model.Session s = new omero.model.SessionI();
+        s.setUuid(omero.rtypes.rstring(sf.ice_getIdentity().name));
+
+        omero.api.ISessionPrx prx = null;
+        try {
+            prx = sf.getSessionService();
+        } catch (Exception e) {
+            __logger.warning("Cannot get session service for killSession. Using closeSession: " + e);
+            closeSession();
+            return -1;
+        }
+
+        int count = 0;
+        try {
+            int r = 1;
+            while (r > 0) {
+                count++;
+                r = prx.closeSession(s);
+            }
+        } catch (omero.RemovedSessionException rse) {
+            // ignore
+        } catch (Exception e) {
+            __logger.warning("Unknown exception while closing all references:" + e);
+        }
+
+        // Now the server-side session is dead, call closeSession()
+        closeSession();
+        return count;
+    }
     // File handling
     // =========================================================================
 

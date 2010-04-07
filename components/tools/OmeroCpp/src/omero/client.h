@@ -241,6 +241,13 @@ namespace omero {
 	 */
 	void closeSession();
 
+	/*
+         * Calls ISession.closeSession(omero.model.Session) until
+         * the returned reference count is greater than zero. The
+         * number of invocations is returned. If ISession.closeSession()
+         * cannot be called, -1 is returned.
+	 */
+	int killSession();
 
 	// Environment methods. Allows to store and retrieve
 	// ==================================================================
