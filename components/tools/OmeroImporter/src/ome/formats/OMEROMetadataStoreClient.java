@@ -82,6 +82,7 @@ import omero.constants.METADATASTORE;
 import omero.grid.InteractiveProcessorPrx;
 import omero.metadatastore.IObjectContainer;
 import omero.model.AcquisitionMode;
+import omero.model.Annotation;
 import omero.model.Arc;
 import omero.model.ArcType;
 import omero.model.Binning;
@@ -224,6 +225,9 @@ public class OMEROMetadataStoreClient
 
     /** Current pixels ID we're writing planes for. */
     private Long currentPixId;
+    
+    /** Annotations from the user for use by model processors. */
+    private List<Annotation> userSpecifiedAnnotations;
     
     /** Image name the user specified for use by model processors. */
     private String userSpecifiedImageName;
@@ -493,6 +497,7 @@ public class OMEROMetadataStoreClient
             referenceCache = new HashMap<LSID, List<LSID>>();
             referenceStringCache = null;
             imageChannelGlobalMinMax = null;
+            userSpecifiedAnnotations = null;
             userSpecifiedImageName = null;
             userSpecifiedImageDescription = null;
             userSpecifiedTarget = null;
@@ -573,6 +578,22 @@ public class OMEROMetadataStoreClient
         this.reader = reader;
     }
 
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#getUserSpecifiedAnnotations()
+     */
+    public List<Annotation> getUserSpecifiedAnnotations()
+    {
+    	return userSpecifiedAnnotations;
+    }
+    
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#setUserSpecifiedAnnotations(java.util.List)
+     */
+    public void setUserSpecifiedAnnotations(List<Annotation> annotations)
+    {
+    	this.userSpecifiedAnnotations = annotations;
+    }
+    
     /* (non-Javadoc)
      * @see ome.formats.model.IObjectContainerStore#getUserSpecifiedImageName()
      */
