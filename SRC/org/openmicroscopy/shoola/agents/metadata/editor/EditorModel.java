@@ -715,6 +715,24 @@ class EditorModel
 	}
 	
 	/**
+	 * Returns the identifiers of the annotations that cannot be unlinked.
+	 * 
+	 * @return See above.
+	 */
+	List<Long> getImmutableAnnotationIds()
+	{
+		List<Long> ids = new ArrayList<Long>();
+		Collection l = getImmutableAnnotation();
+		Iterator i = l.iterator();
+		DataObject data;
+		while (i.hasNext()) {
+			data = (DataObject) i.next();
+			ids.add(data.getId());
+		}
+		return ids;
+	}
+	
+	/**
 	 * Returns <code>true</code> if the user currently logged in, is a leader
 	 * of the selected group, <code>false</code> otherwise.
 	 * 

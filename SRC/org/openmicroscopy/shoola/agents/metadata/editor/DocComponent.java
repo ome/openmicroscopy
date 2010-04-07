@@ -295,52 +295,6 @@ class DocComponent
 		} else if (data instanceof TagAnnotationData) {
 			
 			checkAnnotators(buf, annotation);
-			/*
-			String description = tag.getTagDescription();
-			List l;
-			Iterator j;
-			if (tag.getId() > 0) {
-				List descriptions = tag.getTagDescriptions();
-				if (descriptions != null && descriptions.size() > 0) {
-					Iterator i = descriptions.iterator();
-					TextualAnnotationData desc;
-					ExperimenterData owner;
-					while (i.hasNext()) {
-						desc = (TextualAnnotationData) i.next();
-						if (desc != null) {
-							owner = desc.getOwner();
-							buf.append("<b>Described by: ");
-							buf.append(EditorUtil.formatExperimenter(owner));
-							buf.append("</b><br>");
-							if (owner.getId() == exp.getId() && 
-									description != null)
-								l = UIUtilities.wrapStyleWord(description);
-							else l = UIUtilities.wrapStyleWord(desc.getText());
-							if (l != null) {
-								j = l.iterator();
-								while (j.hasNext()) {
-									buf.append((String) j.next());
-									buf.append("<br>");
-								}
-							}
-						}
-					}
-				}
-			} else { //new tag
-				buf.append("<b>Described by: ");
-				buf.append(EditorUtil.formatExperimenter(exp));
-				buf.append("</b><br>");
-				l = UIUtilities.wrapStyleWord(description);
-				if (l != null) {
-					j = l.iterator();
-					while (j.hasNext()) {
-						buf.append((String) j.next());
-						buf.append("<br>");
-					}
-				}
-				
-			}
-			*/
 		}
 		buf.append("</body></html>");
 		return buf.toString();

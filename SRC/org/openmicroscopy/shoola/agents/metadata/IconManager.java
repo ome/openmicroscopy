@@ -343,11 +343,14 @@ public class IconManager
     /** The <code>Reset</code> icon. */
     public static final int           RESET = 95;
     
+    /** The <code>Up down</code> icon. */
+    public static final int           UP_DOWN_9_12 = 96;
+    
     /** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static final int          MAX_ID = 95;
+	private static final int          MAX_ID = 96;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -424,10 +427,10 @@ public class IconManager
         relPaths[RGB] = "rgb16.png";
         relPaths[ANALYSE] = "nuvola_kchart16.png";
         relPaths[ANALYSE_48] = "nuvola_kchart48.png";
-        relPaths[EXPORT_AS_OMETIFF] = "export16.png";//download_image16.png";
-        relPaths[EXPORT_AS_OMETIFF_48] = "export48.png";//"download_image48.png";
-        relPaths[MOVIE_22] = "crystal_video22.png";//openOffice_stock_insert-video-plugin-22.png";
-        relPaths[EXPORT_22] = "export22.png";//"download_image22.png";
+        relPaths[EXPORT_AS_OMETIFF] = "export16.png";
+        relPaths[EXPORT_AS_OMETIFF_48] = "export48.png";
+        relPaths[MOVIE_22] = "crystal_video22.png";
+        relPaths[EXPORT_22] = "export22.png";
         relPaths[DOWNLOAD_22] = "nuvola_download_manager22.png";
         relPaths[DOWNLOAD_48] = "nuvola_download_manager48.png";
         relPaths[PUBLISHING] = "splitViewFigure16.png";
@@ -448,6 +451,7 @@ public class IconManager
         relPaths[CPP_48] = "crystal_source_cpp48.png";
         relPaths[ANALYSIS_48] = "nuvola_kcmsystem48.png";
         relPaths[RESET] = "nuvola_undo16.png";
+        relPaths[UP_DOWN_9_12] = "upDown.png";
 	}
    
 	/** The sole instance. */

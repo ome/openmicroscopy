@@ -428,7 +428,7 @@ public class IconManager
     /** The <code>Owner not active</code> icon. */
     public static final int           OWNER_NOT_ACTIVE = 124;
     
-    /** The <code>Owner</code> icon. */
+    /** The <code>Up down</code> icon. */
     public static final int           UP_DOWN_9_12 = 125;
     
     /** The <code>Image Directory</code> icon. */

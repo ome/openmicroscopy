@@ -34,6 +34,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -50,8 +51,10 @@ import java.util.Map.Entry;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -70,6 +73,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.SeparatorOneLineBorder;
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
+import pojos.DataObject;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.RatingAnnotationData;
@@ -91,9 +95,32 @@ import pojos.TagAnnotationData;
  */
 class AnnotationDataUI
 	extends AnnotationUI
-	implements PropertyChangeListener
+	implements ActionListener, PropertyChangeListener
 {
 
+	/** Indicates to display all the annotations linked to the object. */
+	private static final int				SHOW_ALL = 0;
+	
+	/** 
+	 * Indicates to display the annotations linked by current user to 
+	 * the object. 
+	 */
+	private static final int				ADDED_BY_ME = 1;
+	
+	/** Indicates to display the annotations linked by others to the object. */
+	private static final int				ADDED_BY_OTHERS = 2;
+	
+
+	/** The names associated to the above constants. */
+	private static final String[]			NAMES;
+	
+	static {
+		NAMES = new String[3];
+		NAMES[SHOW_ALL] = "All";
+		NAMES[ADDED_BY_ME] = "Added by Me";
+		NAMES[ADDED_BY_OTHERS] = "Added by Others";
+	}
+	
 	/** Component used to rate the object. */
 	private RatingComponent 				rating;
 	
@@ -117,10 +144,7 @@ class AnnotationDataUI
 	
 	/** The index of the tag row. */
 	private int								tagRow;
-	
-	/** The index of the published row. */
-	private int								publishedRow;
-	
+
 	/** The UI component hosting the various annotations. */
 	private JPanel							content;
 	
@@ -172,6 +196,68 @@ class AnnotationDataUI
 	/** Host the rating average by others. */
 	private JLabel							otherRating;
 	
+	/** The button to filter the annotations i.e. show all, mine, others. */
+	private JButton							filterButton;
+	
+	/** The selected index. */
+	private int								filter;
+	
+	/**
+	 * Creates and displays the menu 
+	 * @param src The invoker.
+	 * @param p   The location where to show the menu.
+	 */
+	private void displayMenu(Component src, Point p)
+	{
+		JPopupMenu menu = new JPopupMenu();
+		ButtonGroup group = new ButtonGroup();
+		JCheckBoxMenuItem item = createMenuItem(SHOW_ALL);
+		group.add(item);
+		menu.add(item);
+		item = createMenuItem(ADDED_BY_ME);
+		group.add(item);
+		menu.add(item);
+		item = createMenuItem(ADDED_BY_OTHERS);
+		group.add(item);
+		menu.add(item);
+		menu.show(src, p.x, p.y);
+	}
+	
+	/**
+	 * Creates a menu item.
+	 * 
+	 * @param index The index associated to the item.
+	 * @return See above.
+	 */
+	private JCheckBoxMenuItem createMenuItem(int index)
+	{
+		JCheckBoxMenuItem item = new JCheckBoxMenuItem(NAMES[index]);
+		Font f = item.getFont();
+		item.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
+		item.setSelected(filter == index);
+		item.addActionListener(this);
+		item.setActionCommand(""+index);
+		return item;
+	}
+	
+	/** Displays the annotations depending on the selected filter. */
+	private void filterAnnotations()
+	{
+		filterButton.setText(NAMES[filter]);
+		Iterator<DocComponent> i = tagsDocList.iterator();
+		List<Object> nodes = new ArrayList<Object>();
+		while (i.hasNext()) {
+			nodes.add(i.next().getData());
+		}
+		layoutTags(nodes);
+		i = filesDocList.iterator();
+		nodes = new ArrayList<Object>();
+		while (i.hasNext()) {
+			nodes.add(i.next().getData());
+		}
+		layoutAttachments(nodes);
+	}
+	
 	/**
 	 * Creates the selection menu.
 	 * 
@@ -205,9 +291,38 @@ class AnnotationDataUI
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
+		IconManager icons = IconManager.getInstance();
+		filter = SHOW_ALL;
+		filterButton = new JButton(NAMES[SHOW_ALL]);
+		filterButton.setToolTipText("Filter tags and attachments.");
+		UIUtilities.unifiedButtonLookAndFeel(filterButton);
+		Font font = filterButton.getFont();
+		filterButton.setFont(font.deriveFont(font.getStyle(), 
+				font.getSize()-2));
+		
+		filterButton.setIcon(icons.getIcon(IconManager.UP_DOWN_9_12));
+		
+		filterButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+		filterButton.addMouseListener(new MouseAdapter() {
+			
+			/** 
+			 * Brings up the menu. 
+			 * @see MouseListener#mouseReleased(MouseEvent)
+			 */
+			public void mouseReleased(MouseEvent me)
+			{
+				Object source = me.getSource();
+		        Point point = me.getPoint();
+		        if (source instanceof Component)
+		        	displayMenu((Component) source, me.getPoint());
+			}
+			
+		});
+		
+		
 		otherRating = new JLabel();
 		otherRating.setBackground(UIUtilities.BACKGROUND_COLOR);
-		Font font = otherRating.getFont();
+		font = otherRating.getFont();
 		otherRating.setFont(font.deriveFont(Font.ITALIC, font.getSize()-2));
 		content = new JPanel();
     	content.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -218,7 +333,7 @@ class AnnotationDataUI
 		tagsDocList = new ArrayList<DocComponent>();
 		filesDocList = new ArrayList<DocComponent>();
 		existingTags = new HashMap<String, TagAnnotationData>();
-		IconManager icons = IconManager.getInstance();
+		
 		addTagsButton = new JButton(icons.getIcon(IconManager.PLUS_12));
 		UIUtilities.unifiedButtonLookAndFeel(addTagsButton);
 		addTagsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -310,13 +425,12 @@ class AnnotationDataUI
     	content.setLayout(layout);
     	layout.setColumn(columns);
 		int i = 0;
-		JPanel p = UIUtilities.buildComponentPanel(publishedBox, 0, 0);
-		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		layout.insertRow(i, TableLayout.PREFERRED);
-		content.add(UIUtilities.setTextFont("published", Font.BOLD, size), 
-				"0, "+i);
-		content.add(p, "2, "+i);
-		publishedRow = i;
+		
+		JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		p.add(createBar(filterButton));
+		content.add(p, "0, "+i+", 4, "+i);
 		i++;
 		
 		layout.insertRow(i, TableLayout.PREFERRED);
@@ -325,7 +439,6 @@ class AnnotationDataUI
 		p.add(UIUtilities.setTextFont("rate", Font.BOLD, size));
 		p.add(createBar(unrateButton));
 		content.add(p, "0, "+i);
-		p = new JPanel();
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.add(rating);
@@ -458,15 +571,58 @@ class AnnotationDataUI
 			Map<FileAnnotationData, Object> 
 				loadThumbnails = 
 					new LinkedHashMap<FileAnnotationData, Object>();
-			while (i.hasNext()) {
-				doc = new DocComponent(i.next(), model);
-				doc.addPropertyChangeListener(controller);
-				if (doc.hasThumbnailToLoad()) {
-					loadThumbnails.put((FileAnnotationData) doc.getData(), doc);
-				}
-				filesDocList.add(doc);
-				docPane.add(doc);
+			DataObject data;
+			List<Long> immutable;
+			switch (filter) {
+				case SHOW_ALL:
+					while (i.hasNext()) {
+						data = (DataObject) i.next();
+						doc = new DocComponent(data, model);
+						doc.addPropertyChangeListener(controller);
+						if (doc.hasThumbnailToLoad()) {
+							loadThumbnails.put((FileAnnotationData) data, doc);
+						}
+						filesDocList.add(doc);
+						docPane.add(doc);
+					}
+					break;
+				case ADDED_BY_OTHERS:
+					immutable = model.getImmutableAnnotationIds();
+					while (i.hasNext()) {
+						data = (DataObject) i.next();
+						doc = new DocComponent(data, model);
+						doc.addPropertyChangeListener(controller);
+						filesDocList.add(doc);
+						if (immutable.contains(data.getId())) {
+							if (doc.hasThumbnailToLoad()) {
+								loadThumbnails.put((FileAnnotationData) data, 
+										doc);
+							}
+							docPane.add(doc);
+						}
+					}
+					break;
+				case ADDED_BY_ME:
+					immutable = model.getImmutableAnnotationIds();
+					while (i.hasNext()) {
+						data = (DataObject) i.next();
+						doc = new DocComponent(data, model);
+						doc.addPropertyChangeListener(controller);
+						filesDocList.add(doc);
+						if (!immutable.contains(data.getId())) {
+							if (doc.hasThumbnailToLoad()) {
+								loadThumbnails.put((FileAnnotationData) data, 
+										doc);
+							}
+							docPane.add(doc);
+						}
+					}
 			}
+			
+			
+			
+			
+			
 			//load the thumbnails 
 			if (loadThumbnails.size() > 0  
 					&& MetadataViewerAgent.isFastConnection()) {
@@ -496,19 +652,67 @@ class AnnotationDataUI
 			Iterator i = list.iterator();
 			int width = 0;
 			JPanel p = initRow();
-			while (i.hasNext()) {
-				doc = new DocComponent(i.next(), model);
-				doc.addPropertyChangeListener(controller);
-				tagsDocList.add(doc);
-			    if (width+doc.getPreferredSize().width >= COLUMN_WIDTH) {
-			    	tagsPane.add(p);
-			    	p = initRow();
-					width = 0;
-			    } else {
-			    	width += doc.getPreferredSize().width;
-			    }
-				p.add(doc);
+			List<Long> immutable;
+			DataObject data;
+			switch (filter) {
+				case SHOW_ALL:
+					while (i.hasNext()) {
+						doc = new DocComponent(i.next(), model);
+						doc.addPropertyChangeListener(controller);
+						tagsDocList.add(doc);
+					    if (width+doc.getPreferredSize().width >= COLUMN_WIDTH) {
+					    	tagsPane.add(p);
+					    	p = initRow();
+							width = 0;
+					    } else {
+					    	width += doc.getPreferredSize().width;
+					    }
+						p.add(doc);
+					}
+					break;
+				case ADDED_BY_ME:
+					immutable = model.getImmutableAnnotationIds();
+					while (i.hasNext()) {
+						data = (DataObject) i.next();
+						doc = new DocComponent(data, model);
+						doc.addPropertyChangeListener(controller);
+						tagsDocList.add(doc);
+						if (!immutable.contains(data.getId())) {
+							if (width+doc.getPreferredSize().width 
+									>= COLUMN_WIDTH) {
+								tagsPane.add(p);
+								p = initRow();
+								width = 0;
+							} else {
+								width += doc.getPreferredSize().width;
+							}
+							p.add(doc);
+						}
+
+					}
+					break;
+				case ADDED_BY_OTHERS:
+					immutable = model.getImmutableAnnotationIds();
+					while (i.hasNext()) {
+						data = (DataObject) i.next();
+						doc = new DocComponent(data, model);
+						doc.addPropertyChangeListener(controller);
+						tagsDocList.add(doc);
+						if (immutable.contains(data.getId())) {
+							if (width+doc.getPreferredSize().width 
+									>= COLUMN_WIDTH) {
+								tagsPane.add(p);
+								p = initRow();
+								width = 0;
+							} else {
+								width += doc.getPreferredSize().width;
+							}
+							p.add(doc);
+						}
+
+					}
 			}
+			
 			if (p.getComponentCount() > 0)
 				tagsPane.add(p);
 		}
@@ -588,8 +792,8 @@ class AnnotationDataUI
 		Object refObject = model.getRefObject();
 		TableLayout layout = (TableLayout) content.getLayout();
 		double h = 0;
-		double hTag = TableLayout.PREFERRED;//0;
-		double hPublished = 0;
+		double hTag = TableLayout.PREFERRED;
+		
 		if (!model.isMultiSelection()) {
 			if (refObject instanceof ImageData) {
 				if (layoutViewedBy()) h = TableLayout.PREFERRED;
@@ -603,7 +807,6 @@ class AnnotationDataUI
 		addDocsButton.setEnabled(enabled);
 		unrateButton.setEnabled(enabled);
 		
-		layout.setRow(publishedRow, hPublished);
 		layout.setRow(viewedByRow, h);
 		layout.setRow(tagRow, hTag);
 		content.revalidate();
@@ -1063,6 +1266,24 @@ class AnnotationDataUI
 				firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
 									Boolean.TRUE);
 			}
+		}
+	}
+
+	/**
+	 * Sets the filter.
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e)
+	{
+		int index = Integer.parseInt(e.getActionCommand());
+		switch (index) {
+			case SHOW_ALL:
+			case ADDED_BY_ME:
+			case ADDED_BY_OTHERS:
+				if (index != filter) {
+					filter = index;
+					filterAnnotations();
+				}
 		}
 	}
 
