@@ -364,6 +364,26 @@ class MetadataViewerComponent
 			root = "";
 			userID = -1;
 		}
+		//Previewed the image.
+		Renderer rnd = model.getEditor().getRenderer();
+		if (rnd != null && getRndIndex() == RND_GENERAL) {
+			//save settings 
+			try {
+				rnd.saveCurrentSettings();
+				Object obj = model.getRefObject();
+				if (obj instanceof WellSampleData) {
+					WellSampleData wsd = (WellSampleData) obj;
+					obj = wsd.getImage();
+				}
+				if (obj instanceof ImageData) {
+					long imageID = ((ImageData) obj).getId();
+					firePropertyChange(RENDER_THUMBNAIL_PROPERTY, -1, imageID);
+				}
+			} catch (Exception e) {
+				
+			}
+			
+		}
 		model.setRootObject(root);
 		view.setRootObject();
 		//reset the parent.
@@ -758,7 +778,7 @@ class MetadataViewerComponent
 		switch (getRndIndex()) {
 			case RND_GENERAL:
 				model.getEditor().getRenderer().renderPreview();
-				firePropertyChange(RENDER_THUMBNAIL_PROPERTY, -1, imageID);
+				//firePropertyChange(RENDER_THUMBNAIL_PROPERTY, -1, imageID);
 				break;
 			case RND_SPECIFIC:
 				firePropertyChange(RENDER_PLANE_PROPERTY, -1, imageID);

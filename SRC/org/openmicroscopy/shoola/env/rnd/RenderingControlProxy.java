@@ -1542,6 +1542,23 @@ class RenderingControlProxy
         return renderPlaneUncompressed(pDef);
     }
     
+	/** 
+	 * Implemented as specified by {@link RenderingControl}. 
+	 * @see RenderingControl#renderPlane(PlaneDef, int)
+	 */
+    public BufferedImage renderPlane(PlaneDef pDef, int value)
+    	throws RenderingServiceException, DSOutOfServiceException
+    {
+    	if (pDef == null) 
+             throw new IllegalArgumentException("Plane def cannot be null.");
+    	if (value != compression) setCompression(value);
+    	BufferedImage img;
+        if (isCompressed()) img = renderPlaneCompressedBI(pDef);
+        else img = renderPlaneUncompressed(pDef);
+        if (value != compression) setCompression(compression);
+        return img;
+    }
+    
     /** 
 	 * Implemented as specified by {@link RenderingControl}. 
 	 * @see RenderingControl#setCompression(int)

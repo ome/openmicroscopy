@@ -488,7 +488,7 @@ public interface Renderer
 		throws RenderingServiceException, DSOutOfServiceException;
 
 	/**
-	 * Sets the compressiong level.
+	 * Sets the compression level.
 	 * 
 	 * @param compressionLevel 	One of the compression level defined by 
 	 * 							{@link RenderingControl} I/F.

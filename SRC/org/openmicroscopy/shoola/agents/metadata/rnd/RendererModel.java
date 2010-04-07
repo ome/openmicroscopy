@@ -1311,7 +1311,8 @@ class RendererModel
     	plane.t = getDefaultT();
     	plane.z = getDefaultZ();
     	try {
-    		return renderPlane(plane);
+    		if (rndControl == null) return null;
+    		return rndControl.renderPlane(plane, RenderingControl.LOW);
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
@@ -1343,5 +1344,17 @@ class RendererModel
     {
     	rndControl.resetSettings(rndDef);
     }
+    
+	/**
+	 * Returns <code>true</code> if it is a large image, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isBigImage()
+	{
+		return (getMaxX() > RenderingControl.MAX_SIZE/2 ||
+				getMaxY() > RenderingControl.MAX_SIZE/2);
+	}
     
 }

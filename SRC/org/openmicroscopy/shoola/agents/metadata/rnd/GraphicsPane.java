@@ -81,7 +81,8 @@ class GraphicsPane
 	
 	/** The description of the preview check box. */
 	private static final String	PREVIEW_DESCRIPTION = "Update the " +
-			"rendering settings without releasing the mouse.";
+			"rendering settings immediately. Not available for large " +
+			"images";
     
     /** 
      * Action command ID to set the start and end values to the minimum and 
@@ -211,13 +212,15 @@ class GraphicsPane
         maxLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
         minLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
         preview = new JCheckBox(PREVIEW);
+        preview.setEnabled(!model.isBigImage());
         preview.setBackground(UIUtilities.BACKGROUND_COLOR);
         preview.setToolTipText(PREVIEW_DESCRIPTION);
         rangeButton = new JButton("Min/Max");
         rangeButton.setBackground(UIUtilities.BACKGROUND_COLOR);
         rangeButton.addActionListener(this);
         rangeButton.setActionCommand(""+RANGE);
-        rangeButton.setToolTipText("Apply maximum range to all channels.");
+        rangeButton.setToolTipText("Set min and max pixels intensity " +
+        		"as input for rall channels.");
         applyButton = new JButton("Apply to All");
         applyButton.setToolTipText("Apply settings to the displayed images.");
         applyButton.setBackground(UIUtilities.BACKGROUND_COLOR);

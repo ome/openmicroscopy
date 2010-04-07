@@ -55,7 +55,6 @@ import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
-import org.openmicroscopy.shoola.env.data.model.ParamData;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
@@ -79,12 +78,7 @@ import ome.system.UpgradeCheck;
 import omero.ApiUsageException;
 import omero.AuthenticationException;
 import omero.InternalException;
-import omero.RBool;
-import omero.RInt;
-import omero.RList;
 import omero.RLong;
-import omero.RMap;
-import omero.RString;
 import omero.RType;
 import omero.SecurityViolation;
 import omero.ServerError;
@@ -464,6 +458,7 @@ class OMEROGateway
 	{
 		getSystemGroups();
 		Iterator<ExperimenterGroup> i = systemGroups.iterator();
+		
 		ExperimenterGroup g = null;
 		while (i.hasNext()) {
 			g = (ExperimenterGroup) i.next();
