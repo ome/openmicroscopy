@@ -214,6 +214,9 @@ public class DomainPane
     /** The box hosting the channels. */
     private JComboBox					channelsBox;
     
+    /** Button to view the image. */
+    private JButton						viewButton;
+    
     /**
      * Attaches listener to the passed slider and sets the default values.
      * 
@@ -365,36 +368,49 @@ public class DomainPane
         UIUtilities.unifiedButtonLookAndFeel(colorModel);
         colorModel.setVisible(false);
         channelList = new ArrayList<ChannelButton>();
+        
+        if (model.isGeneralIndex()) {
+        	int maxZ = model.getMaxZ()-1;
+        	int maxT = model.getMaxT()-1;
+        	zSlider = new OneKnobSlider(OneKnobSlider.VERTICAL, 0, 1, 0);
+        	zSlider.setEnabled(false);
+        	tSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 0, 1, 0);
+        	tSlider.setEnabled(false);
+        	initSlider(tSlider, maxT, model.getDefaultT(), 
+        			T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
+
+        	initSlider(zSlider, maxZ, model.getDefaultZ(), 
+        			Z_SLIDER_DESCRIPTION, Z_SLIDER_TIPSTRING);
+        	canvas = new PreviewCanvas();
+        	canvas.addMouseListener(new MouseAdapter() {
+
+        		/**
+        		 * Posts an event to open the viewer when double-clicking 
+        		 * on the canvas.
+        		 */
+        		public void mouseReleased(MouseEvent e)
+        		{
+        			if (e.getClickCount() == 2) model.viewImage();
+        		}
+        	});
+        	IconManager icons = IconManager.getInstance();
+        	viewButton = new JButton(icons.getIcon(IconManager.VIEW));
+        	viewButton.setToolTipText("Open image in Viewer.");
+        	viewButton.addActionListener(new ActionListener() {
+				
+				public void actionPerformed(ActionEvent e) {
+					model.viewImage();
+				}
+			});
+        	viewButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+        	UIUtilities.unifiedButtonLookAndFeel(viewButton);
+        }
+        
         if (model.getMaxC() < Renderer.MAX_CHANNELS)
         	channelButtonPanel = createChannelButtons();
         else {
         	channelButtonPanel = new JPanel();
         	channelButtonPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
-        }
-        if (model.isGeneralIndex()) {
-        	 int maxZ = model.getMaxZ()-1;
-             int maxT = model.getMaxT()-1;
-             zSlider = new OneKnobSlider(OneKnobSlider.VERTICAL, 0, 1, 0);
-             zSlider.setEnabled(false);
-             tSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 0, 1, 0);
-             tSlider.setEnabled(false);
-             initSlider(tSlider, maxT, model.getDefaultT(), 
-             		T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
-             
-             initSlider(zSlider, maxZ, model.getDefaultZ(), 
-             			Z_SLIDER_DESCRIPTION, Z_SLIDER_TIPSTRING);
-             canvas = new PreviewCanvas();
-             canvas.addMouseListener(new MouseAdapter() {
-				
-            	 /**
-            	  * Posts an event to open the viewer when double-clicking 
-            	  * on the canvas.
-            	  */
-				public void mouseReleased(MouseEvent e)
-				{
-					if (e.getClickCount() == 2) model.viewImage();
-				}
-			});
         }
        
         selectedPlane = new JLabel();
@@ -403,30 +419,37 @@ public class DomainPane
         		font.getSize()-2));
         setSelectedPlaneLabel();
         
-        List<ChannelData> channels = model.getChannelData();
-        channelsBox = new JComboBox();
-        
-        
-        Object[][] channelCols = new Object[channels.size()][2];
-		Iterator<ChannelData> i = channels.iterator();
-		ChannelData data;
-		int index = 0;
-		int selected = 0;
-		while (i.hasNext()) {
-			data = i.next();
-			channelCols[index] = new Object[]{ 
-					model.getChannelColor(data.getIndex()), 
-					data.getChannelLabeling() };
-			if (data.getIndex() == model.getSelectedChannel())
-				selected = index;
-			index++;
-		}
-		channelsBox.setModel(new DefaultComboBoxModel(channelCols));	
-		channelsBox.setRenderer(new ColorListRenderer());
-		channelsBox.setSelectedIndex(selected);
-		
-		channelsBox.addActionListener(this);
-        channelsBox.setActionCommand(""+CHANNEL);
+        if (model.getChannelData().size() > 1) {
+        	channelsBox = new JComboBox();
+            populateChannels();
+    		channelsBox.setRenderer(new ColorListRenderer());
+            channelsBox.setActionCommand(""+CHANNEL);
+        }
+    }
+    
+    /** Populates the channels. */
+    private void populateChannels()
+    {
+    	if (channelsBox == null) return;
+    	List<ChannelData> channels = model.getChannelData();
+    	Object[][] channelCols = new Object[channels.size()][2];
+ 		Iterator<ChannelData> i = channels.iterator();
+ 		ChannelData data;
+ 		int index = 0;
+ 		int selected = 0;
+ 		while (i.hasNext()) {
+ 			data = i.next();
+ 			channelCols[index] = new Object[]{ 
+ 					model.getChannelColor(data.getIndex()), 
+ 					data.getChannelLabeling() };
+ 			if (data.getIndex() == model.getSelectedChannel())
+ 				selected = index;
+ 			index++;
+ 		}
+ 		channelsBox.setModel(new DefaultComboBoxModel(channelCols));	
+ 		channelsBox.removeActionListener(this);
+ 		channelsBox.setSelectedIndex(selected);
+ 		channelsBox.addActionListener(this);
     }
     
     /** Indicates the selected plane. */
@@ -503,6 +526,10 @@ public class DomainPane
         	bar.setFloatable(false);
         	bar.setRollover(true);
         	bar.setBorder(null);
+        	if (viewButton != null) {
+        		bar.add(viewButton);
+        		bar.add(Box.createVerticalStrut(2));
+        	}
         	bar.add(colorModel);
         	controls.add(bar, "0, "+k+", CENTER, CENTER");
         	k = k+2;
@@ -535,10 +562,6 @@ public class DomainPane
     	} else {
     		p.add(graphicsPane, BorderLayout.CENTER);
     	}
-    	
-    	//if (model.isGeneralIndex()) 
-    	//	p.add(buildPlaneSelectionPanel(), BorderLayout.SOUTH);
-    		
     	return p;
     }
     
@@ -639,10 +662,13 @@ public class DomainPane
 		c.anchor = GridBagConstraints.WEST;
 		c.insets = new Insets(0, 2, 2, 0);
 		c.gridy = 0;
-		JPanel comp = UIUtilities.buildComponentPanel(channelsBox);
-		comp.setBackground(UIUtilities.BACKGROUND_COLOR);
-		addComponent(c, "Channels", comp, p);
-		c.gridy++;
+		JPanel comp;
+		if (channelsBox != null) {
+			comp = UIUtilities.buildComponentPanel(channelsBox);
+			comp.setBackground(UIUtilities.BACKGROUND_COLOR);
+			addComponent(c, "Channels", comp, p);
+			c.gridy++;
+		}
 		comp = UIUtilities.buildComponentPanel(familyBox);
 		comp.setBackground(UIUtilities.BACKGROUND_COLOR);
 		addComponent(c, "Map", comp, p);
@@ -892,6 +918,7 @@ public class DomainPane
 			}
 		}
     	graphicsPane.setChannelColor(index);
+    	if (channelsBox != null) populateChannels();
     }
     
     /** Toggles between color model and Greyscale. */
