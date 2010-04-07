@@ -448,12 +448,16 @@ class BlitzObjectWrapper (object):
             # 'key|wrapper' -> key = omero.gateway.wrapper(_obj[key]).simpleMarshal
             for k in self._attrs:
                 if ';' in k:
-                    k, s, rk = k.partition(';')
+                    s = k.split(';')
+                    k = s[0]
+                    rk = ';'.join(s[1:])
                 else:
                     rk = k
                 rk = rk.replace('#', '')
                 if '|' in k:
-                    k2, s, w = rk.partition('|')
+                    s = k.split('|')
+                    k2 = s[0]
+                    w = '|'.join(s[1:])
                     if rk == k:
                         rk = k2
                     k = k2
@@ -515,8 +519,13 @@ class BlitzObjectWrapper (object):
         
         @return: String or None
         """
-        
-        return hasattr(self._obj, 'name') and self._obj.getName().val or None
+        if hasattr(self._obj, 'name'):
+            if hasattr(self._obj.name, 'val'):
+                return self._obj.getName().val
+            else:
+                return self._obj.getName()
+        else:
+            return None
 
     def getDescription (self):
         """
@@ -2301,7 +2310,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
         lc = self.getLogicalChannel()
         rv = lc.name
         if rv is None:
-            rv = emissionWave
+            rv = lc.emissionWave
         if rv is None:
             rv = self._idx
         return rv
@@ -2390,7 +2399,9 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     def getInstrument (self):
         i = self._obj.instrument
-        if i is not None and not i.loaded:
+        if i is None:
+            return None
+        if not i.loaded:
             self._obj.instrument = self._conn.getQueryService().find('Instrument', i.id.val)
             i = self._obj.instrument
             meta_serv = self._conn.getMetadataService()
@@ -2413,7 +2424,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                     pass
                 else:
                     print "Unknown instrument entry: %s" % str(e)
-        return InstrumentWrapper(self._conn, self._obj.instrument)
+        return InstrumentWrapper(self._conn, i)
 
     def _loadPixels (self):
         if not self._obj.pixelsLoaded:
@@ -3358,14 +3369,17 @@ class _InstrumentWrapper (BlitzObjectWrapper):
 
 
     def simpleMarshal (self):
-        rv = super(_InstrumentWrapper, self).simpleMarshal(parents=False)
-        rv['detectors'] = [x.simpleMarshal() for x in self.getDetectors()]
-        rv['objectives'] = [x.simpleMarshal() for x in self.getObjectives()]
-        rv['filters'] = [x.simpleMarshal() for x in self.getFilters()]
-        rv['dichroics'] = [x.simpleMarshal() for x in self.getDichroics()]
-        rv['filterSets'] = [x.simpleMarshal() for x in self.getFilterSets()]
-        rv['otfs'] = [x.simpleMarshal() for x in self.getOTFs()]
-        rv['lightsources'] = [x.simpleMarshal() for x in self.getLightSources()]
+        if self._obj:
+            rv = super(_InstrumentWrapper, self).simpleMarshal(parents=False)
+            rv['detectors'] = [x.simpleMarshal() for x in self.getDetectors()]
+            rv['objectives'] = [x.simpleMarshal() for x in self.getObjectives()]
+            rv['filters'] = [x.simpleMarshal() for x in self.getFilters()]
+            rv['dichroics'] = [x.simpleMarshal() for x in self.getDichroics()]
+            rv['filterSets'] = [x.simpleMarshal() for x in self.getFilterSets()]
+            rv['otfs'] = [x.simpleMarshal() for x in self.getOTFs()]
+            rv['lightsources'] = [x.simpleMarshal() for x in self.getLightSources()]
+        else:
+            rv = {}
         return rv
 
 InstrumentWrapper = _InstrumentWrapper
