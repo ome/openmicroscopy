@@ -407,7 +407,7 @@ class ImageStageLabelWrapper (omero.gateway.BlitzObjectWrapper):
 
 class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
     
-    def getThumbnail (self, size=(120,120)):
+    def getThumbnailOrDefault (self, size=(120,120)):
         rv = super(omero.gateway.ImageWrapper, self).getThumbnail(size=size)
         if rv is None:
             try:
