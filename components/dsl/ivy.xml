@@ -28,5 +28,17 @@
     <dependency org="checkstyle" name="checkstyle" rev="${versions.checkstyle}"/>
     <!-- spring -->
     <dependency org="org.springframework" name="org.springframework.core" rev="${versions.spring}" conf="build,runtime->default"/>
+    <!-- Moving all testing dependencies back to "build" for eclipse .classpath generation-->
+    <dependency org="org.springframework" name="org.springframework.test" rev="${versions.spring}" conf="build->*"/>
+    <dependency org="org.springframework" name="org.springframework.aop" rev="${versions.spring}" conf="build->default"/>
+    <dependency org="org.springframework" name="com.springsource.org.aopalliance" rev="1.0.0" conf="build->default"/>
+    <dependency org="antlr" name="antlr" rev="2.7.6" conf="build->default"/>
+    <dependency org="commons-beanutils" name="commons-beanutils" rev="${versions.commons-beanutils}" conf="build->default"/>
+    <dependency org="jmock" name="jmock" rev="1.0.1" conf="build->default"/>
+    <dependency org="junit" name="junit" rev="3.8.1" conf="build->default"/>
+    <dependency org="findbugs" name="findbugs-ant" rev="${versions.findbugs}" conf="build->default"/>
+    <dependency org="jakarta-oro" name="jakarta-oro" rev="2.0.8" conf="build->default"/>
+    <dependency org="jamon" name="jamon" rev="${versions.jamon}" conf="build->default"/>
+    <dependency org="testng" name="testng" rev="${versions.testng}" conf="build->default"/>
  </dependencies>
 </ivy-module>

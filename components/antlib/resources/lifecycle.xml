@@ -52,14 +52,26 @@
 		<property name="test.with.fail" value="true"/>
 	</target>
 
+	<target name="eclipse" depends="retrieve">
+		<ivy:resolve file="ivy.xml" type="jar" conf="build" settingsRef="ivy.${ant.project.name}" log="quiet"/>
+		<taskdef name="ivyeclipse" classname="IVY1016.EclipseClasspath" loaderref="ivy.loader"/>
+		<ivyeclipse conf="build"/>
+	</target>
+
+	<target name="eclipse-tests" depends="retrieve">
+		<ivy:resolve file="test.xml" type="jar" conf="test" settingsRef="ivy.${ant.project.name}" log="quiet"/>
+		<taskdef name="ivyeclipse" classname="IVY1016.EclipseClasspath" loaderref="ivy.loader"/>
+		<ivyeclipse conf="test"/>
+	</target>
+
 	<target name="retrieve" unless="retrieve.done">
-		<property name="retrieve.done" value="true"/>
 		<installIvy/>
-		<mkdir dir="${deps.lib.dir}"/>
+		<property name="retrieve.done" value="true"/>
 		<ivy:retrieve settingsRef="ivy.${ant.project.name}" pattern="${deps.lib.dir}/[artifact].[ext]" log="quiet" sync="false" symlink="true"/>
 	</target>
 
-	<target name="prepare" depends="retrieve">
+	<target name="prepare" depends="retrieve,eclipse">
+		<mkdir dir="${deps.lib.dir}"/>
 		<defineClasspath/>
                 <defineVariables/>
 		<makeDirectories/>
@@ -84,9 +96,6 @@ omero.version=${omero.version}
 				classpathref="omero.classpath">
 			</sql>
 		</presetdef>
-		<ivy:resolve file="ivy.xml" type="jar" conf="build" settingsRef="ivy.${ant.project.name}" log="quiet"/>
-		<taskdef name="ivyeclipse" classname="IVY1016.EclipseClasspath" loaderref="ivy.loader"/>
-		<ivyeclipse conf="build"/>
 	</target>
 
 	<target name="generate" depends="prepare">
