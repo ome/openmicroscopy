@@ -70,6 +70,9 @@ class UserProxy (object):
     def isAdmin (self):
         return self._blitzcon.isAdmin()
 
+    def canBeAdmin (self):
+        return self._blitzcon.canBeAdmin()
+
     def getId (self):
         return self._blitzcon._user.id
 
@@ -165,7 +168,7 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
     passwd = request.session.get('password', r.get('password', None))
     host = request.session.get('host', r.get('host', None))
     port = request.session.get('port', r.get('port', None))
-    logger.debug(':: %s %s ::' % (str(username), str(passwd)))
+    logger.debug(':: %s %s :: %s' % (str(username), str(passwd), str(browsersession_connection_key)))
 
 #    if r.has_key('logout'):
 #        logger.debug('logout required by HTTP GET or POST')
@@ -897,3 +900,28 @@ def test (request):
     t = template_loader.get_template('webgateway/omero_image.html')
     c = Context(request,context)
     return HttpResponse(t.render(c))
+
+@jsonp
+def su (request, user, server_id=None, _conn=None, **kwargs):
+    if not _conn.canBeAdmin():
+        return False
+    _conn.setGroupNameForSession('system')
+    e = _conn.lookupExperimenter(user)
+    if e is None:
+        return False
+    if server_id is None:
+        # If no server id is passed, the db entry will not be used and instead we'll depend on the
+        # request.session and request.REQUEST values
+        try:
+            server_id = request.session['server']
+        except KeyError:
+            return None
+    browsersession_connection_key = 'cuuid#%s'%server_id
+    c = _conn.suConn(user,
+                     group=e._obj._groupExperimenterMapSeq[0].parent.name.val,
+                     ttl=_conn.getSessionService().getSession(_conn._sessionUuid).getTimeToIdle().val)
+    _conn.revertGroupForSession()
+    _conn.seppuku()
+    logger.debug(browsersession_connection_key)
+    request.session[browsersession_connection_key] = c._sessionUuid
+    return True

@@ -39,6 +39,8 @@ urlpatterns = patterns('',
     (r'^compatImgRDef/(?P<iid>[^/]+)/$', 'webgateway.views.list_compatible_imgs_json'),
     (r'^copyImgRDef/$', 'webgateway.views.copy_image_rdef_json'),
 
+    url(r'^su/(?P<user>[^/]+)/$', 'webgateway.views.su', name="webgateway_su"),
+    
     # Debug stuff
     (r'^dbg_connectors/$', 'webgateway.views.dbg_connectors'),
 
