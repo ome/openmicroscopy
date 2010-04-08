@@ -10,6 +10,7 @@
 #define OMERO_BOOST_FIXTURE_H
 
 // domain
+#include <omero/all.h>
 #include <omero/client.h>
 #include <omero/RTypesI.h>
 #include <omero/ClientErrors.h>

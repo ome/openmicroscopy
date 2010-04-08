@@ -71,8 +71,8 @@ BOOST_AUTO_TEST_CASE( fileAnnotation )
 
 	// Create temp file
 	string unique_content = IceUtil::generateUUID();
-	char * pointer;
-	pointer = tmpnam(NULL);
+	char * pointer = "testXXXXXX";
+	mkstemp(pointer);
 
 	{
 	    ofstream out(pointer);
