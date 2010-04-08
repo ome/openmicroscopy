@@ -20,7 +20,7 @@
                     <srcfiles dir="${basedir}" includes="**/*.java,**/*.ice,**/*.vm"/>
                 </uptodate>
             <then>
-                <property name="skip.compile" value="uptodate"/>
+                <echo>Up to date</echo>
             </then>
             <else>
                 <antcall target="icegen" inheritRefs="true" inheritAll="true"/>
@@ -57,14 +57,6 @@
             </else>
             </if>
 	</target>
-
-        <target name="package" depends="compile">
-            <if><not><isset property="skip.compile"/></not>
-            <then>
-                <antcall target="lifecycle.package" inheritRefs="true" inheritAll="true"/>
-            </then>
-            </if>
-        </target>
 
     <!-- = = = = = = = = = = = = = = = = =
           generate model
