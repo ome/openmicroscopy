@@ -1,9 +1,7 @@
-#/bin/env python -i
-
 #
 # blitz_gateway - python bindings and wrappers to access an OMERO blitz server
 # 
-# Copyright (c) 2007, 2008 Glencoe Software, Inc. All rights reserved.
+# Copyright (c) 2007, 2010 Glencoe Software, Inc. All rights reserved.
 # 
 # This software is distributed under the terms described by the LICENCE file
 # you can find at the root of the distribution bundle, which states you are
@@ -11,37 +9,23 @@
 # If the file is missing please request a copy by contacting
 # jason@glencoesoftware.com.
 
-#WEBLITZ_ANN_NS = {}#'PART':    'com.glencoesoftware.journal_bridge:part'}
-
-#class STATIC_DEFS:
-#    MAXIMUM_INTENSITY = 1
-#    MEAN_INTENSITY    = 2
-#    SUM_INTENSITY     = 3
-
-    
-
 # Set up the python include paths
-import logging
 import os,sys
 THISPATH = os.path.dirname(os.path.abspath(__file__))
-#sys.path.append(os.path.join(p,'icepy'))
-#sys.path.append(os.path.join(p,'lib'))
 
-from types import IntType, LongType, ListType, TupleType, UnicodeType, StringType, StringTypes
+from types import IntType, LongType, UnicodeType, ListType, TupleType, StringType, StringTypes
 from datetime import datetime
 from cStringIO import StringIO
 import ConfigParser
 
 import omero
+import omero.clients
 import Ice
 import Glacier2
 
 import traceback
-#import threading
 import time
 import array
-
-logger = logging.getLogger('blitz_gateway')
 
 try:
     import Image, ImageDraw, ImageFont
@@ -49,28 +33,13 @@ except:
     logger.error('No PIL installed, line plots and split channel will fail!')
 from cStringIO import StringIO
 from math import sqrt
-from omero.rtypes import rstring, rint, rlong, rbool, rtime
 
 import omero_Constants_ice  
 import omero_ROMIO_ice
+from omero.rtypes import rstring, rint, rlong, rbool, rtime
 
-def timeit (func):
-    """
-    Measures the execution time of a function using time.time() 
-    and the a @ function decorator.
-
-    @param func:    function
-    @return:        wrapped
-    """
-    
-    def wrapped (*args, **kwargs):
-        logger.debug("timing %s" % (func.func_name))
-        now = time.time()
-        rv = func(*args, **kwargs)
-        logger.debug("timed %s: %f" % (func.func_name, time.time()-now))
-        return rv
-    return wrapped
-
+import logging
+logger = logging.getLogger('blitz_gateway')
 
 def omero_type(val):
     """
@@ -96,6 +65,558 @@ def omero_type(val):
     else:
         return val
 
+def timeit (func):
+    """
+    Measures the execution time of a function using time.time() 
+    and the a @ function decorator.
+
+    @param func:    function
+    @return:        wrapped
+    """
+    
+    def wrapped (*args, **kwargs):
+        logger.debug("timing %s" % (func.func_name))
+        now = time.time()
+        rv = func(*args, **kwargs)
+        logger.debug("timed %s: %f" % (func.func_name, time.time()-now))
+        return rv
+    return wrapped
+
+class BlitzObjectWrapper (object):
+    """
+    Object wrapper class.
+    """
+    
+    OMERO_CLASS = None
+    LINK_CLASS = None
+    CHILD_WRAPPER_CLASS = None
+    PARENT_WRAPPER_CLASS = None
+    
+    def __init__ (self, conn=None, obj=None, cache={}, **kwargs):
+        self.__bstrap__()
+        self._obj = obj
+        self._cache = cache
+        self._conn = conn
+        if conn is None:
+            return
+        if hasattr(obj, 'id') and obj.id is not None:
+            self._oid = obj.id.val
+            if not self._obj.loaded:
+                self._obj = self._conn.getQueryService().get(self._obj.__class__.__name__, self._oid)
+        self.__prepare__ (**kwargs)
+
+    def __eq__ (self, a):
+        return type(a) == type(self) and self._obj.id == a._obj.id and self.getName() == a.getName()
+
+    def __bstrap__ (self):
+        pass
+
+    def __prepare__ (self, **kwargs):
+        pass
+
+    def __repr__ (self):
+        if hasattr(self, '_oid'):
+            return '<%s id=%s>' % (self.__class__.__name__, str(self._oid))
+        return super(BlitzObjectWrapper, self).__repr__()
+
+    def _getChildWrapper (self):
+        if self.CHILD_WRAPPER_CLASS is None:
+            raise NotImplementedError
+        if type(self.CHILD_WRAPPER_CLASS) is type(''):
+            # resolve class
+            if hasattr(omero.gateway, self.CHILD_WRAPPER_CLASS):
+                self.__class__.CHILD_WRAPPER_CLASS = self.CHILD_WRAPPER_CLASS = getattr(omero.gateway, self.CHILD_WRAPPER_CLASS)
+            else: #pragma: no cover
+                raise NotImplementedError
+        return self.CHILD_WRAPPER_CLASS
+
+    def _getParentWrapper (self):
+        if self.PARENT_WRAPPER_CLASS is None:
+            raise NotImplementedError
+        if type(self.PARENT_WRAPPER_CLASS) is type(''):
+            # resolve class
+            g = globals()
+            if not g.has_key(self.PARENT_WRAPPER_CLASS): #pragma: no cover
+                raise NotImplementedError
+            self.__class__.PARENT_WRAPPER_CLASS = self.PARENT_WRAPPER_CLASS = g[self.PARENT_WRAPPER_CLASS]
+        return self.PARENT_WRAPPER_CLASS
+
+    def __loadedHotSwap__ (self):
+        self._obj = self._conn.getContainerService().loadContainerHierarchy(self.OMERO_CLASS, (self._oid,), None)[0]
+
+    def _moveLink (self, newParent):
+        """ moves this object from the current parent container to a new one """
+        p = self.listParents()
+        if type(p) == type(newParent):
+            link = self._conn.getQueryService().findAllByQuery("select l from %s as l where l.parent.id=%i and l.child.id=%i" % (p.LINK_CLASS, p.id, self.id), None)
+            if len(link):
+                link[0].parent = newParent._obj
+                self._conn.getUpdateService().saveObject(link[0])
+                return True
+        return False
+
+    def findChildByName (self, name, description=None):
+        for c in self.listChildren():
+            if c.getName() == name:
+                if description is None or omero_type(description) == omero_type(c.getDescription()):
+                    return c
+        return None
+
+    def getDetails (self):
+        return omero.gateway.DetailsWrapper (self._conn, self._obj.getDetails())
+    
+    def getDate(self):
+        try:
+            if self._obj.acquisitionDate.val is not None and self._obj.acquisitionDate.val > 0:
+                t = self._obj.acquisitionDate.val
+            else:
+                t = self._obj.details.creationEvent.time.val
+        except:
+            t = self._conn.getQueryService().get("Event", self._obj.details.creationEvent.id.val).time.val
+        return datetime.fromtimestamp(t/1000)
+    
+    def save (self):
+        self._obj = self._conn.getUpdateService().saveAndReturnObject(self._obj)
+
+    def saveAs (self, details):
+        """ Save this object, keeping the object owner the same as the one on provided details """
+        if self._conn.isAdmin():
+            d = self.getDetails()
+            if d.getOwner() and \
+                    d.getOwner().omeName == details.getOwner().omeName and \
+                    d.getGroup().name == details.getGroup().name:
+                return self.save()
+            else:
+                p = omero.sys.Principal()
+                p.name = details.getOwner().omeName
+                p.group = details.getGroup().name
+                p.eventType = "User"
+                newConnId = self._conn.getSessionService().createSessionWithTimeout(p, 60000)
+                newConn = self._conn.clone()
+                newConn.connect(sUuid=newConnId.getUuid().val)
+            clone = self.__class__(newConn, self._obj)
+            clone.save()
+            self._obj = clone._obj
+            return
+        else:
+            return self.save()
+
+    def canWrite (self):
+        return self._conn.canWrite(self._obj)
+
+    def canOwnerWrite (self):
+        return self._obj.details.permissions.isUserWrite()
+
+    #@timeit
+    #def getUID (self):
+    #    p = self.listParents()
+    #    return p and '%s:%s' % (p.getUID(), str(self.id)) or str(self.id)
+
+    #def getChild (self, oid):
+    #    q = self._conn.getQueryService()
+    #    ds = q.find(self.CHILD_WRAPPER_CLASS.OMERO_CLASS, long(oid))
+    #    if ds is not None:
+    #        ds = self.CHILD_WRAPPER_CLASS(self._conn, ds)
+    #    return ds
+    
+    def countChildren (self):
+        """
+        Counts available number of child objects.
+        
+        @return: Long. The number of child objects available
+        """
+        
+        childw = self._getChildWrapper()
+        klass = "%sLinks" % childw().OMERO_CLASS.lower()
+        #self._cached_countChildren = len(self._conn.getQueryService().findAllByQuery("from %s as c where c.parent.id=%i" % (self.LINK_CLASS, self._oid), None))
+        self._cached_countChildren = self._conn.getContainerService().getCollectionCount(self.OMERO_CLASS, klass, [self._oid], None)[self._oid]
+        return self._cached_countChildren
+
+    def countChildren_cached (self):
+        """
+        countChildren, but caching the first result, useful if you need to call this multiple times in
+        a single sequence, but have no way of storing the value between them.
+        It is actually a hack to support django template's lack of break in for loops
+        
+        @return: Long
+        """
+        
+        if not hasattr(self, '_cached_countChildren'):
+            return self.countChildren()
+        return self._cached_countChildren
+
+    def listChildren (self, ns=None, val=None, params=None):
+        """
+        Lists available child objects.
+
+        @return: Generator yielding child objects.
+        """
+
+        childw = self._getChildWrapper()
+        klass = childw().OMERO_CLASS
+#        if getattr(self, 'is%sLinksLoaded' % klass)():
+#            childns = getattr(self, 'copy%sLinks' % klass)()
+#            childnodes = [ x.child for x in childns]
+#            logger.debug('listChildren for %s %d: already loaded' % (self.OMERO_CLASS, self.getId()))
+#        else:
+        if not params:
+            params = omero.sys.Parameters()
+        if not params.map:
+            params.map = {}
+        params.map["dsid"] = omero_type(self._oid)
+        query = "select c from %s as c" % self.LINK_CLASS
+        if ns is not None:
+            params.map["ns"] = omero_type(ns)
+            #query += """ join c.child.annotationLinks ial
+            #             join ial.child as a """
+        query += """ join fetch c.child as ch
+                     left outer join fetch ch.annotationLinks as ial
+                     left outer join fetch ial.child as a """
+        query += " where c.parent.id=:dsid"
+        if ns is not None:
+            query += " and a.ns=:ns"
+            if val is not None:
+                if isinstance(val, StringTypes):
+                    params.map["val"] = omero_type(val)
+                    query +=" and a.textValue=:val"
+        query += " order by c.child.name"
+        childnodes = [ x.child for x in self._conn.getQueryService().findAllByQuery(query, params)]
+        for child in childnodes:
+            yield childw(self._conn, child, self._cache)
+
+    #def listChildren_cached (self):
+    #    """ This version caches all child nodes for all parents, so next parent does not need to search again.
+    #    Good for full depth traversal, but a waste of time otherwise """
+    #    if self.CHILD_WRAPPER_CLASS is None: #pragma: no cover
+    #        raise NotImplementedError
+    #    if not self._cache.has_key(self.LINK_CLASS):
+    #        pdl = {}
+    #        for link in self._conn.getQueryService().findAll(self.LINK_CLASS, None):
+    #            pid = link.parent.id.val
+    #            if pdl.has_key(pid):
+    #                pdl[pid].append(link.child)
+    #            else:
+    #                pdl[pid] = [link.child]
+    #        self._cache[self.LINK_CLASS] = pdl
+    #    for child in self._cache[self.LINK_CLASS].get(self._oid, ()):
+    #        yield self.CHILD_WRAPPER_CLASS(self._conn, child, self._cache)
+
+    @timeit
+    def listParents (self, single=True, withlinks=False):
+        """
+        Lists available parent objects.
+        
+        @return: Generator yielding parent objects
+        """
+        
+        if self.PARENT_WRAPPER_CLASS is None:
+            if single:
+                return withlinks and (None, None) or None
+            return ()
+        parentw = self._getParentWrapper()
+        param = omero.sys.Parameters() # TODO: What can I use this for?
+        if withlinks:
+            parentnodes = [ (parentw(self._conn, x.parent, self._cache), BlitzObjectWrapper(self._conn, x)) for x in self._conn.getQueryService().findAllByQuery("from %s as c where c.child.id=%i" % (parentw().LINK_CLASS, self._oid), param)]
+        else:
+            parentnodes = [ parentw(self._conn, x.parent, self._cache) for x in self._conn.getQueryService().findAllByQuery("from %s as c where c.child.id=%i" % (parentw().LINK_CLASS, self._oid), param)]
+        if single:
+            return len(parentnodes) and parentnodes[0] or None
+        return parentnodes
+
+
+    @timeit
+    def getAncestry (self):
+        rv = []
+        p = self.listParents()
+        while p:
+            rv.append(p)
+            p = p.listParents()
+        return rv
+
+
+    def _loadAnnotationLinks (self):
+        if not hasattr(self._obj, 'isAnnotationLinksLoaded'): #pragma: no cover
+            raise NotImplementedError
+        if not self._obj.isAnnotationLinksLoaded():
+            links = self._conn.getQueryService().findAllByQuery("select l from %sAnnotationLink as l join fetch l.child as a where l.parent.id=%i" % (self.OMERO_CLASS, self._oid), None)
+            self._obj._annotationLinksLoaded = True
+            self._obj._annotationLinksSeq = links
+
+
+    def _getAnnotationLinks (self, ns=None):
+        self._loadAnnotationLinks()
+        rv = self.copyAnnotationLinks()
+        if ns is not None:
+            rv = filter(lambda x: x.getChild().getNs() and x.getChild().getNs().val == ns, rv)
+        return rv
+
+
+    def removeAnnotations (self, ns):
+        for al in self._getAnnotationLinks(ns=ns):
+            a = al.child
+            update = self._conn.getUpdateService()
+            update.deleteObject(al)
+            update.deleteObject(a)
+        self._obj.unloadAnnotationLinks()
+    
+    def getAnnotation (self, ns=None):
+        """
+        ets the first annotation in the ns namespace, linked to this object
+        
+        @return: #AnnotationWrapper or None
+        """
+        rv = self._getAnnotationLinks(ns)
+        if len(rv):
+            return AnnotationWrapper._wrap(self._conn, rv[0].child)
+        return None
+
+    @timeit
+    def listAnnotations (self, ns=None):
+        """
+        List annotations in the ns namespace, linked to this object
+        
+        @return: Generator yielding AnnotationWrapper
+        """
+        
+        for ann in self._getAnnotationLinks(ns):
+            yield AnnotationWrapper._wrap(self._conn, ann.child)
+
+
+    def _linkAnnotation (self, ann):
+        if not ann.getId():
+            # Not yet in db, save it
+            ann.details.setPermissions(omero.model.PermissionsI())
+            ann.details.permissions.setWorldRead(True)
+            ann.details.permissions.setGroupWrite(True)
+            ann = ann.__class__(self._conn, self._conn.getUpdateService().saveAndReturnObject(ann._obj))
+        #else:
+        #    ann.save()
+        lnktype = "%sAnnotationLinkI" % self.OMERO_CLASS
+        lnk = getattr(omero.model, lnktype)()
+        lnk.details.setPermissions(omero.model.PermissionsI())
+        lnk.details.permissions.setWorldRead(True)
+        lnk.details.permissions.setGroupWrite(True)
+        lnk.details.permissions.setUserWrite(True)
+        lnk.setParent(self._obj.__class__(self._obj.id, False))
+        lnk.setChild(ann._obj.__class__(ann._obj.id, False))
+        self._conn.getUpdateService().saveObject(lnk)
+        return ann
+
+
+    def linkAnnotation (self, ann, sameOwner=True):
+        if sameOwner:
+            d = self.getDetails()
+            ad = ann.getDetails()
+            if self._conn.isAdmin() and self._conn._userid != d.getOwner().id:
+                # Keep the annotation owner the same as the linked of object's
+                if ad.getOwner() and d.getOwner().omeName == ad.getOwner().omeName and d.getGroup().name == ad.getGroup().name:
+                    newConn = ann._conn
+                else:
+                    p = omero.sys.Principal()
+                    p.name = d.getOwner().omeName
+                    if d.getGroup():
+                        p.group = d.getGroup().name
+                    p.eventType = "User"
+                    newConnId = self._conn.getSessionService().createSessionWithTimeout(p, 60000)
+                    newConn = self._conn.clone()
+                    newConn.connect(sUuid=newConnId.getUuid().val)
+                clone = self.__class__(newConn, self._obj)
+                ann = clone._linkAnnotation(ann)
+            elif d.getGroup():
+                # Try to match group
+                self._conn.setGroupForSession(d.getGroup().getId())
+                ann = self._linkAnnotation(ann)
+                self._conn.revertGroupForSession()
+            else:
+                ann = self._linkAnnotation(ann)
+        else:
+            ann = self._linkAnnotation(ann)
+        self.unloadAnnotationLinks()
+        return ann
+
+
+    def simpleMarshal (self, xtra=None, parents=False):
+        rv = {'type': self.OMERO_CLASS,
+              'id': self.getId(),
+              'name': self.getName(),
+              'description': self.getDescription(),
+              }
+        if hasattr(self, '_attrs'):
+            # 'key' -> key = _obj[key]
+            # '#key' -> key = _obj[key].value.val
+            # 'key;title' -> title = _obj[key]
+            # 'key|wrapper' -> key = omero.gateway.wrapper(_obj[key]).simpleMarshal
+            for k in self._attrs:
+                if ';' in k:
+                    s = k.split(';')
+                    k = s[0]
+                    rk = ';'.join(s[1:])
+                else:
+                    rk = k
+                rk = rk.replace('#', '')
+                if '|' in k:
+                    s = k.split('|')
+                    k2 = s[0]
+                    w = '|'.join(s[1:])
+                    if rk == k:
+                        rk = k2
+                    k = k2
+                    v = getattr(self, k)
+                    if v is not None:
+                        v = getattr(omero.gateway, w)(self._conn, v).simpleMarshal()
+                else:
+                    if k.startswith('#'):
+                        v = getattr(self, k[1:])
+                        if v is not None:
+                            v = v._value
+                    else:
+                        v = getattr(self, k)
+                    if hasattr(v, 'val'):
+                        v = v.val
+                rv[rk] = v
+        if xtra: # TODO check if this can be moved to a more specific place
+            if xtra.has_key('childCount'):
+                rv['child_count'] = self.countChildren()
+        if parents:
+            def marshalParents ():
+                return map(lambda x: x.simpleMarshal(), self.getAncestry())
+            p = timeit(marshalParents)()
+            rv['parents'] = p
+        return rv
+
+    #def __str__ (self):
+    #    if hasattr(self._obj, 'value'):
+    #        return str(self.value)
+    #    return str(self._obj)
+
+    def __getattr__ (self, attr):
+        if not hasattr(self._obj, attr) and hasattr(self._obj, '_'+attr):
+            attr = '_' + attr
+        if hasattr(self._obj, attr):
+            rv = getattr(self._obj, attr)
+            if hasattr(rv, 'val'):
+                return isinstance(rv.val, StringType) and rv.val.decode('utf8') or rv.val
+            return rv
+        raise AttributeError("'%s' object has no attribute '%s'" % (self._obj.__class__.__name__, attr))
+
+
+    # some methods are accessors in _obj and return and omero:: type. The obvious ones we wrap to return a python type
+    
+    def getId (self):
+        """
+        Gets this object ID
+        
+        @return: Long or None
+        """
+        oid = self._obj.getId()
+        if oid is not None:
+            return oid.val
+        return None
+
+    def getName (self):
+        """
+        Gets this object name
+        
+        @return: String or None
+        """
+        if hasattr(self._obj, 'name'):
+            if hasattr(self._obj.name, 'val'):
+                return self._obj.getName().val
+            else:
+                return self._obj.getName()
+        else:
+            return None
+
+    def getDescription (self):
+        """
+        Gets this object description
+        
+        @return: String
+        """
+        
+        rv = hasattr(self._obj, 'description') and self._obj.getDescription() or None
+        return rv and rv.val or ''
+
+    def getOwner (self):
+        """
+        Gets user who is the owner of this object.
+        
+        @return: _ExperimenterWrapper
+        """
+        
+        return self.getDetails().getOwner()
+
+    def getOwnerFullName (self):
+        """
+        Gets full name of the owner of this object.
+        
+        @return: String or None
+        """
+        
+        try:
+            lastName = self.getDetails().getOwner().lastName
+            firstName = self.getDetails().getOwner().firstName
+            middleName = self.getDetails().getOwner().middleName
+            
+            if middleName is not None and middleName != '':
+                name = "%s %s. %s" % (firstName, middleName, lastName)
+            else:
+                name = "%s %s" % (firstName, lastName)
+            return name
+        except:
+            logger.error(traceback.format_exc())
+            return None
+
+    def getOwnerOmeName (self):
+        """
+        Gets omeName of the owner of this object.
+        
+        @return: String
+        """
+        return self.getDetails().getOwner().omeName
+
+    def creationEventDate(self):
+        """
+        Gets event time in timestamp format (yyyy-mm-dd hh:mm:ss.fffffff) when object was created.
+        
+        @return: Long
+        """
+        
+        try:
+            if self._obj.details.creationEvent.time is not None:
+                t = self._obj.details.creationEvent.time.val
+            else:
+                t = self._conn.getQueryService().get("Event", self._obj.details.creationEvent.id.val).time.val
+        except:
+            t = self._conn.getQueryService().get("Event", self._obj.details.creationEvent.id.val).time.val
+        return datetime.fromtimestamp(t/1000)
+
+    def updateEventDate(self):
+        """
+        Gets event time in timestamp format (yyyy-mm-dd hh:mm:ss.fffffff) when object was updated.
+        
+        @return: Long
+        """
+        
+        try:
+            if self._obj.details.updateEvent.time is not None:
+                t = self._obj.details.updateEvent.time.val
+            else:
+                t = self._conn.getQueryService().get("Event", self._obj.details.updateEvent.id.val).time.val
+        except:
+            t = self._conn.getQueryService().get("Event", self._obj.details.updateEvent.id.val).time.val
+        return datetime.fromtimestamp(t/1000)
+
+
+    # setters are also provided
+    
+    def setName (self, value):
+        self._obj.setName(omero_type(value))
+
+    def setDescription (self, value):
+        self._obj.setDescription(omero_type(value))
+
+## BASIC ##
 
 class NoProxies (object):
     def __getitem__ (self, k):
@@ -142,8 +663,9 @@ class _BlitzGateway (object):
             passwd = self.c.ic.getProperties().getProperty('omero.gateway.anon_pass')
         #logger.debug('super: %s %s %s' % (try_super, str(group), self.c.ic.getProperties().getProperty('omero.gateway.admin_group')))
         if try_super:
-            group = 'system' #self.c.ic.getProperties().getProperty('omero.gateway.admin_group')
-        self.group = group and group or None
+            self.group = 'system' #self.c.ic.getProperties().getProperty('omero.gateway.admin_group')
+        else:
+            self.group = group and group or None
         self._sessionUuid = None
         self._session_cb = None
         self._session = None
@@ -1284,500 +1806,6 @@ class ProxyObjectWrapper (object):
         return rv
 
 
-class BlitzObjectWrapper (object):
-    """
-    Object wrapper class.
-    """
-    
-    OMERO_CLASS = None
-    LINK_CLASS = None
-    CHILD_WRAPPER_CLASS = None
-    PARENT_WRAPPER_CLASS = None
-    
-    def __init__ (self, conn=None, obj=None, cache={}, **kwargs):
-        self.__bstrap__()
-        self._obj = obj
-        self._cache = cache
-        self._conn = conn
-        if conn is None:
-            return
-        if hasattr(obj, 'id') and obj.id is not None:
-            self._oid = obj.id.val
-            if not self._obj.loaded:
-                self._obj = self._conn.getQueryService().get(self._obj.__class__.__name__, self._oid)
-        self.__prepare__ (**kwargs)
-
-    def __eq__ (self, a):
-        return type(a) == type(self) and self._obj.id == a._obj.id and self.getName() == a.getName()
-
-    def __bstrap__ (self):
-        pass
-
-    def __prepare__ (self, **kwargs):
-        pass
-
-    def __repr__ (self):
-        if hasattr(self, '_oid'):
-            return '<%s id=%s>' % (self.__class__.__name__, str(self._oid))
-        return super(BlitzObjectWrapper, self).__repr__()
-
-    def _getChildWrapper (self):
-        if self.CHILD_WRAPPER_CLASS is None:
-            raise NotImplementedError
-        if type(self.CHILD_WRAPPER_CLASS) is type(''):
-            # resolve class
-            g = globals()
-            logger.debug('C:' + str(g[self.CHILD_WRAPPER_CLASS]))
-            if not g.has_key(self.CHILD_WRAPPER_CLASS): #pragma: no cover
-                raise NotImplementedError
-            self.__class__.CHILD_WRAPPER_CLASS = self.CHILD_WRAPPER_CLASS = g[self.CHILD_WRAPPER_CLASS]
-        return self.CHILD_WRAPPER_CLASS
-
-    def _getParentWrapper (self):
-        if self.PARENT_WRAPPER_CLASS is None:
-            raise NotImplementedError
-        if type(self.PARENT_WRAPPER_CLASS) is type(''):
-            # resolve class
-            g = globals()
-            if not g.has_key(self.PARENT_WRAPPER_CLASS): #pragma: no cover
-                raise NotImplementedError
-            self.__class__.PARENT_WRAPPER_CLASS = self.PARENT_WRAPPER_CLASS = g[self.PARENT_WRAPPER_CLASS]
-        return self.PARENT_WRAPPER_CLASS
-
-    def __loadedHotSwap__ (self):
-        self._obj = self._conn.getContainerService().loadContainerHierarchy(self.OMERO_CLASS, (self._oid,), None)[0]
-
-    def _moveLink (self, newParent):
-        """ moves this object from the current parent container to a new one """
-        p = self.listParents()
-        if type(p) == type(newParent):
-            link = self._conn.getQueryService().findAllByQuery("select l from %s as l where l.parent.id=%i and l.child.id=%i" % (p.LINK_CLASS, p.id, self.id), None)
-            if len(link):
-                link[0].parent = newParent._obj
-                self._conn.getUpdateService().saveObject(link[0])
-                return True
-        return False
-
-    def findChildByName (self, name, description=None):
-        for c in self.listChildren():
-            if c.getName() == name:
-                if description is None or omero_type(description) == omero_type(c.getDescription()):
-                    return c
-        return None
-
-    def getDetails (self):
-        return DetailsWrapper (self._conn, self._obj.getDetails())
-    
-    def getDate(self):
-        try:
-            if self._obj.acquisitionDate.val is not None and self._obj.acquisitionDate.val > 0:
-                t = self._obj.acquisitionDate.val
-            else:
-                t = self._obj.details.creationEvent.time.val
-        except:
-            t = self._conn.getQueryService().get("Event", self._obj.details.creationEvent.id.val).time.val
-        return datetime.fromtimestamp(t/1000)
-    
-    def save (self):
-        self._obj = self._conn.getUpdateService().saveAndReturnObject(self._obj)
-
-    def saveAs (self, details):
-        """ Save this object, keeping the object owner the same as the one on provided details """
-        if self._conn.isAdmin():
-            d = self.getDetails()
-            if d.getOwner() and \
-                    d.getOwner().omeName == details.getOwner().omeName and \
-                    d.getGroup().name == details.getGroup().name:
-                return self.save()
-            else:
-                p = omero.sys.Principal()
-                p.name = details.getOwner().omeName
-                p.group = details.getGroup().name
-                p.eventType = "User"
-                newConnId = self._conn.getSessionService().createSessionWithTimeout(p, 60000)
-                newConn = self._conn.clone()
-                newConn.connect(sUuid=newConnId.getUuid().val)
-            clone = self.__class__(newConn, self._obj)
-            clone.save()
-            self._obj = clone._obj
-            return
-        else:
-            return self.save()
-
-    def canWrite (self):
-        return self._conn.canWrite(self._obj)
-
-    def canOwnerWrite (self):
-        return self._obj.details.permissions.isUserWrite()
-
-    #@timeit
-    #def getUID (self):
-    #    p = self.listParents()
-    #    return p and '%s:%s' % (p.getUID(), str(self.id)) or str(self.id)
-
-    #def getChild (self, oid):
-    #    q = self._conn.getQueryService()
-    #    ds = q.find(self.CHILD_WRAPPER_CLASS.OMERO_CLASS, long(oid))
-    #    if ds is not None:
-    #        ds = self.CHILD_WRAPPER_CLASS(self._conn, ds)
-    #    return ds
-    
-    def countChildren (self):
-        """
-        Counts available number of child objects.
-        
-        @return: Long. The number of child objects available
-        """
-        
-        childw = self._getChildWrapper()
-        klass = "%sLinks" % childw().OMERO_CLASS.lower()
-        #self._cached_countChildren = len(self._conn.getQueryService().findAllByQuery("from %s as c where c.parent.id=%i" % (self.LINK_CLASS, self._oid), None))
-        self._cached_countChildren = self._conn.getContainerService().getCollectionCount(self.OMERO_CLASS, klass, [self._oid], None)[self._oid]
-        return self._cached_countChildren
-
-    def countChildren_cached (self):
-        """
-        countChildren, but caching the first result, useful if you need to call this multiple times in
-        a single sequence, but have no way of storing the value between them.
-        It is actually a hack to support django template's lack of break in for loops
-        
-        @return: Long
-        """
-        
-        if not hasattr(self, '_cached_countChildren'):
-            return self.countChildren()
-        return self._cached_countChildren
-
-    def listChildren (self, ns=None, val=None, params=None):
-        """
-        Lists available child objects.
-
-        @return: Generator yielding child objects.
-        """
-
-        childw = self._getChildWrapper()
-        klass = childw().OMERO_CLASS
-#        if getattr(self, 'is%sLinksLoaded' % klass)():
-#            childns = getattr(self, 'copy%sLinks' % klass)()
-#            childnodes = [ x.child for x in childns]
-#            logger.debug('listChildren for %s %d: already loaded' % (self.OMERO_CLASS, self.getId()))
-#        else:
-        if not params:
-            params = omero.sys.Parameters()
-        if not params.map:
-            params.map = {}
-        params.map["dsid"] = omero_type(self._oid)
-        query = "select c from %s as c" % self.LINK_CLASS
-        if ns is not None:
-            params.map["ns"] = omero_type(ns)
-            #query += """ join c.child.annotationLinks ial
-            #             join ial.child as a """
-        query += """ join fetch c.child as ch
-                     left outer join fetch ch.annotationLinks as ial
-                     left outer join fetch ial.child as a """
-        query += " where c.parent.id=:dsid"
-        if ns is not None:
-            query += " and a.ns=:ns"
-            if val is not None:
-                if isinstance(val, StringTypes):
-                    params.map["val"] = omero_type(val)
-                    query +=" and a.textValue=:val"
-        query += " order by c.child.name"
-        childnodes = [ x.child for x in self._conn.getQueryService().findAllByQuery(query, params)]
-        for child in childnodes:
-            yield childw(self._conn, child, self._cache)
-
-    #def listChildren_cached (self):
-    #    """ This version caches all child nodes for all parents, so next parent does not need to search again.
-    #    Good for full depth traversal, but a waste of time otherwise """
-    #    if self.CHILD_WRAPPER_CLASS is None: #pragma: no cover
-    #        raise NotImplementedError
-    #    if not self._cache.has_key(self.LINK_CLASS):
-    #        pdl = {}
-    #        for link in self._conn.getQueryService().findAll(self.LINK_CLASS, None):
-    #            pid = link.parent.id.val
-    #            if pdl.has_key(pid):
-    #                pdl[pid].append(link.child)
-    #            else:
-    #                pdl[pid] = [link.child]
-    #        self._cache[self.LINK_CLASS] = pdl
-    #    for child in self._cache[self.LINK_CLASS].get(self._oid, ()):
-    #        yield self.CHILD_WRAPPER_CLASS(self._conn, child, self._cache)
-
-    @timeit
-    def listParents (self, single=True, withlinks=False):
-        """
-        Lists available parent objects.
-        
-        @return: Generator yielding parent objects
-        """
-        
-        if self.PARENT_WRAPPER_CLASS is None:
-            if single:
-                return withlinks and (None, None) or None
-            return ()
-        parentw = self._getParentWrapper()
-        param = omero.sys.Parameters() # TODO: What can I use this for?
-        if withlinks:
-            parentnodes = [ (parentw(self._conn, x.parent, self._cache), BlitzObjectWrapper(self._conn, x)) for x in self._conn.getQueryService().findAllByQuery("from %s as c where c.child.id=%i" % (parentw().LINK_CLASS, self._oid), param)]
-        else:
-            parentnodes = [ parentw(self._conn, x.parent, self._cache) for x in self._conn.getQueryService().findAllByQuery("from %s as c where c.child.id=%i" % (parentw().LINK_CLASS, self._oid), param)]
-        if single:
-            return len(parentnodes) and parentnodes[0] or None
-        return parentnodes
-
-
-    @timeit
-    def getAncestry (self):
-        rv = []
-        p = self.listParents()
-        while p:
-            rv.append(p)
-            p = p.listParents()
-        return rv
-
-
-    def _loadAnnotationLinks (self):
-        if not hasattr(self._obj, 'isAnnotationLinksLoaded'): #pragma: no cover
-            raise NotImplementedError
-        if not self._obj.isAnnotationLinksLoaded():
-            links = self._conn.getQueryService().findAllByQuery("select l from %sAnnotationLink as l join fetch l.child as a where l.parent.id=%i" % (self.OMERO_CLASS, self._oid), None)
-            self._obj._annotationLinksLoaded = True
-            self._obj._annotationLinksSeq = links
-
-
-    def _getAnnotationLinks (self, ns=None):
-        self._loadAnnotationLinks()
-        rv = self.copyAnnotationLinks()
-        if ns is not None:
-            rv = filter(lambda x: x.getChild().getNs() and x.getChild().getNs().val == ns, rv)
-        return rv
-
-
-    def removeAnnotations (self, ns):
-        for al in self._getAnnotationLinks(ns=ns):
-            a = al.child
-            update = self._conn.getUpdateService()
-            update.deleteObject(al)
-            update.deleteObject(a)
-        self._obj.unloadAnnotationLinks()
-    
-    def getAnnotation (self, ns=None):
-        """
-        ets the first annotation in the ns namespace, linked to this object
-        
-        @return: #AnnotationWrapper or None
-        """
-        rv = self._getAnnotationLinks(ns)
-        if len(rv):
-            return AnnotationWrapper._wrap(self._conn, rv[0].child)
-        return None
-
-    @timeit
-    def listAnnotations (self, ns=None):
-        """
-        List annotations in the ns namespace, linked to this object
-        
-        @return: Generator yielding AnnotationWrapper
-        """
-        
-        for ann in self._getAnnotationLinks(ns):
-            yield AnnotationWrapper._wrap(self._conn, ann.child)
-
-
-    def _linkAnnotation (self, ann):
-        if not ann.getId():
-            # Not yet in db, save it
-            ann.details.setPermissions(omero.model.PermissionsI())
-            ann.details.permissions.setWorldRead(True)
-            ann = ann.__class__(self._conn, self._conn.getUpdateService().saveAndReturnObject(ann._obj))
-        #else:
-        #    ann.save()
-        lnktype = "%sAnnotationLinkI" % self.OMERO_CLASS
-        lnk = getattr(omero.model, lnktype)()
-        lnk.details.setPermissions(omero.model.PermissionsI())
-        lnk.details.permissions.setWorldRead(True)
-        lnk.details.permissions.setUserWrite(True)
-        lnk.setParent(self._obj.__class__(self._obj.id, False))
-        lnk.setChild(ann._obj.__class__(ann._obj.id, False))
-        self._conn.getUpdateService().saveObject(lnk)
-        return ann
-
-
-    def linkAnnotation (self, ann, sameOwner=True):
-        if sameOwner:
-            d = self.getDetails()
-            ad = ann.getDetails()
-            if self._conn.isAdmin() and self._conn._userid != d.getOwner().id:
-                # Keep the annotation owner the same as the linked of object's
-                if ad.getOwner() and d.getOwner().omeName == ad.getOwner().omeName and d.getGroup().name == ad.getGroup().name:
-                    newConn = ann._conn
-                else:
-                    p = omero.sys.Principal()
-                    p.name = d.getOwner().omeName
-                    if d.getGroup():
-                        p.group = d.getGroup().name
-                    p.eventType = "User"
-                    newConnId = self._conn.getSessionService().createSessionWithTimeout(p, 60000)
-                    newConn = self._conn.clone()
-                    newConn.connect(sUuid=newConnId.getUuid().val)
-                clone = self.__class__(newConn, self._obj)
-                ann = clone._linkAnnotation(ann)
-            elif d.getGroup():
-                # Try to match group
-                self._conn.setGroupForSession(d.getGroup().getId())
-                ann = self._linkAnnotation(ann)
-                self._conn.revertGroupForSession()
-            else:
-                ann = self._linkAnnotation(ann)
-        else:
-            ann = self._linkAnnotation(ann)
-        self.unloadAnnotationLinks()
-        return ann
-
-
-    def simpleMarshal (self, xtra=None, parents=False):
-        rv = {'type': self.OMERO_CLASS,
-              'id': self.getId(),
-              #'uid': self.getUID(),
-              'name': self.getName(),
-              'description': self.getDescription(),
-              'xref': {},} # TODO remove xref?
-        if xtra: # TODO check if this can be moved to a more specific place
-            if xtra.has_key('childCount'):
-                rv['child_count'] = self.countChildren()
-        if parents:
-            def marshalParents ():
-                return map(lambda x: x.simpleMarshal(), self.getAncestry())
-            p = timeit(marshalParents)()
-            rv['parents'] = p
-        return rv
-
-    #def __str__ (self):
-    #    if hasattr(self._obj, 'value'):
-    #        return str(self.value)
-    #    return str(self._obj)
-
-    def __getattr__ (self, attr):
-        if hasattr(self._obj, attr):
-            rv = getattr(self._obj, attr)
-            if hasattr(rv, 'val'):
-                return isinstance(rv.val, StringType) and rv.val.decode('utf8') or rv.val
-            return rv
-        raise AttributeError("'%s' object has no attribute '%s'" % (self._obj.__class__.__name__, attr))
-
-
-    # some methods are accessors in _obj and return and omero:: type. The obvious ones we wrap to return a python type
-    
-    def getId (self):
-        """
-        Gets this object ID
-        
-        @return: Long or None
-        """
-        oid = self._obj.getId()
-        if oid is not None:
-            return oid.val
-        return None
-
-    def getName (self):
-        """
-        Gets this object name
-        
-        @return: String or None
-        """
-        
-        return self._obj.getName().val
-
-    def getDescription (self):
-        """
-        Gets this object description
-        
-        @return: String
-        """
-        
-        rv = self._obj.getDescription()
-        return rv and rv.val or ''
-
-    def getOwner (self):
-        """
-        Gets user who is the owner of this object.
-        
-        @return: _ExperimenterWrapper
-        """
-        
-        return self.getDetails().getOwner()
-
-    def getOwnerFullName (self):
-        """
-        Gets full name of the owner of this object.
-        
-        @return: String or None
-        """
-        
-        try:
-            lastName = self.getDetails().getOwner().lastName
-            firstName = self.getDetails().getOwner().firstName
-            middleName = self.getDetails().getOwner().middleName
-            
-            if middleName is not None and middleName != '':
-                name = "%s %s. %s" % (firstName, middleName, lastName)
-            else:
-                name = "%s %s" % (firstName, lastName)
-            return name
-        except:
-            logger.error(traceback.format_exc())
-            return None
-
-    def getOwnerOmeName (self):
-        """
-        Gets omeName of the owner of this object.
-        
-        @return: String
-        """
-        return self.getDetails().getOwner().omeName
-
-    def creationEventDate(self):
-        """
-        Gets event time in timestamp format (yyyy-mm-dd hh:mm:ss.fffffff) when object was created.
-        
-        @return: Long
-        """
-        
-        try:
-            if self._obj.details.creationEvent.time is not None:
-                t = self._obj.details.creationEvent.time.val
-            else:
-                t = self._conn.getQueryService().get("Event", self._obj.details.creationEvent.id.val).time.val
-        except:
-            t = self._conn.getQueryService().get("Event", self._obj.details.creationEvent.id.val).time.val
-        return datetime.fromtimestamp(t/1000)
-
-    def updateEventDate(self):
-        """
-        Gets event time in timestamp format (yyyy-mm-dd hh:mm:ss.fffffff) when object was updated.
-        
-        @return: Long
-        """
-        
-        try:
-            if self._obj.details.updateEvent.time is not None:
-                t = self._obj.details.updateEvent.time.val
-            else:
-                t = self._conn.getQueryService().get("Event", self._obj.details.updateEvent.id.val).time.val
-        except:
-            t = self._conn.getQueryService().get("Event", self._obj.details.updateEvent.id.val).time.val
-        return datetime.fromtimestamp(t/1000)
-
-
-    # setters are also provided
-    
-    def setName (self, value):
-        self._obj.setName(omero_type(value))
-
-    def setDescription (self, value):
-        self._obj.setDescription(omero_type(value))
-
 class AnnotationWrapper (BlitzObjectWrapper):
     """
     omero_model_AnnotationI class wrapper extends BlitzObjectWrapper.
@@ -2081,6 +2109,53 @@ class DetailsWrapper (BlitzObjectWrapper):
     def getGroup (self):
         return self._group
 
+class _DatasetWrapper (BlitzObjectWrapper):
+    """
+    omero_model_DatasetI class wrapper extends BlitzObjectWrapper.
+    """
+    
+    def __bstrap__ (self):
+        self.OMERO_CLASS = 'Dataset'
+        self.LINK_CLASS = "DatasetImageLink"
+        self.CHILD_WRAPPER_CLASS = 'ImageWrapper'
+        self.PARENT_WRAPPER_CLASS = 'ProjectWrapper'
+
+    def __loadedHotSwap__ (self):
+        super(_DatasetWrapper, self).__loadedHotSwap__()
+        if not self._obj.isImageLinksLoaded():
+            links = self._conn.getQueryService().findAllByQuery("select l from DatasetImageLink as l join fetch l.child as a where l.parent.id=%i" % (self._oid), None)
+            self._obj._imageLinksLoaded = True
+            self._obj._imageLinksSeq = links
+
+DatasetWrapper = _DatasetWrapper
+
+class _ProjectWrapper (BlitzObjectWrapper):
+    """
+    omero_model_ProjectI class wrapper extends BlitzObjectWrapper.
+    """
+    
+    def __bstrap__ (self):
+        self.OMERO_CLASS = 'Project'
+        self.LINK_CLASS = "ProjectDatasetLink"
+        self.CHILD_WRAPPER_CLASS = 'DatasetWrapper'
+        self.PARENT_WRAPPER_CLASS = None
+
+ProjectWrapper = _ProjectWrapper
+
+#class CategoryWrapper (BlitzObjectWrapper):
+#    def __bstrap__ (self):
+#        self.LINK_CLASS = "CategoryImageLink"
+#        self.CHILD_WRAPPER_CLASS = ImageWrapper
+#        self.PARENT_WRAPPER_CLASS= 'CategoryGroupWrapper'
+#
+#class CategoryGroupWrapper (BlitzObjectWrapper):
+#    def __bstrap__ (self):
+#        self.LINK_CLASS = "CategoryGroupCategoryLink"
+#        self.CHILD_WRAPPER_CLASS = CategoryWrapper
+#        self.PARENT_WRAPPER_CLASS = None
+
+## IMAGE ##
+
 class ColorHolder (object):
     """
     Stores color internally as (R,G,B,A) and allows setting and getting in multiple formats
@@ -2172,6 +2247,33 @@ class ColorHolder (object):
         
         return (self._color['red'], self._color['green'], self._color['blue'])
 
+class _LogicalChannelWrapper (BlitzObjectWrapper):
+    """
+    omero_model_LogicalChannelI class wrapper extends BlitzObjectWrapper.
+    """
+    _attrs = ('name',
+              'pinHoleSize',
+              '#illumination',
+              'contrastMethod',
+              'excitationWave',
+              'emissionWave',
+              'fluor',
+              'ndFilter',
+              'otf',
+              'detectorSettings|DetectorSettingsWrapper',
+              'lightSourceSettings|LightSettingsWrapper',
+              'filterSet|FilterSetWrapper',
+              'secondaryEmissionFilter|FilterWrapper',
+              'secondaryExcitationFilter',
+              'samplesPerPixel',
+              '#photometricInterpretation',
+              'mode',
+              'pockelCellSetting',
+              'shapes',
+              'version')
+
+LogicalChannelWrapper = _LogicalChannelWrapper    
+
 class _ChannelWrapper (BlitzObjectWrapper):
     """
     omero_model_ChannelI class wrapper extends BlitzObjectWrapper.
@@ -2203,16 +2305,18 @@ class _ChannelWrapper (BlitzObjectWrapper):
     def isActive (self):
         return self._re.isActive(self._idx)
 
+    def getLogicalChannel (self):
+        if self._obj.logicalChannel is not None:
+            return LogicalChannelWrapper(self._conn, self._obj.logicalChannel)
+    
     def getEmissionWave (self):
-        lc = self._obj.getLogicalChannel()
-        if lc is not None and lc.name is not None:
-            return lc.name.val
-        emWave = lc.getEmissionWave()
-        if emWave is None: #pragma: no cover
-            # This is probably deprecated, as even tinyTest now gets an emissionWave
-            return self._idx
-        else:
-            return emWave.val
+        lc = self.getLogicalChannel()
+        rv = lc.name
+        if rv is None:
+            rv = lc.emissionWave
+        if rv is None:
+            rv = self._idx
+        return rv
 
     def getColor (self):
         return ColorHolder.fromRGBA(*self._re.getRGBA(self._idx))
@@ -2253,6 +2357,7 @@ def assert_pixels (func):
             return None
         return func(self, *args, **kwargs)
     return wrapped
+
 
 class _ImageWrapper (BlitzObjectWrapper):
     """
@@ -2295,6 +2400,35 @@ class _ImageWrapper (BlitzObjectWrapper):
     def __loadedHotSwap__ (self):
         self._obj = self._conn.getContainerService().getImages(self.OMERO_CLASS, (self._oid,), None)[0]
 
+    def getInstrument (self):
+        i = self._obj.instrument
+        if i is None:
+            return None
+        if not i.loaded:
+            self._obj.instrument = self._conn.getQueryService().find('Instrument', i.id.val)
+            i = self._obj.instrument
+            meta_serv = self._conn.getMetadataService()
+            for e in meta_serv.loadInstrument(i.id.val):
+                if isinstance(e, omero.model.DetectorI):
+                    i._detectorSeq.append(e)
+                elif isinstance(e, omero.model.ObjectiveI):
+                    i._objectiveSeq.append(e)
+                elif isinstance(e, omero.model.LightSource):
+                    i._lightSourceSeq.append(e)
+                elif isinstance(e, omero.model.FilterI):
+                    i._filterSeq.append(e)
+                elif isinstance(e, omero.model.DichroicI):
+                    i._dichroicSeq.append(e)
+                elif isinstance(e, omero.model.FilterSetI):
+                    i._filterSetSeq.append(e)
+                elif isinstance(e, omero.model.OTFI):
+                    i._otfSeq.append(e)
+                elif isinstance(e, omero.model.InstrumentI):
+                    pass
+                else:
+                    print "Unknown instrument entry: %s" % str(e)
+        return InstrumentWrapper(self._conn, i)
+
     def _loadPixels (self):
         if not self._obj.pixelsLoaded:
             self.__loadedHotSwap__()
@@ -2335,11 +2469,12 @@ class _ImageWrapper (BlitzObjectWrapper):
         rv = super(_ImageWrapper, self).simpleMarshal(xtra=xtra, parents=parents)
         rv.update({'author': self.getAuthor(),
                    'date': time.mktime(self.getDate().timetuple()),})
-        if xtra and xtra.has_key('thumbUrlPrefix'):
-            if callable(xtra['thumbUrlPrefix']):
-                rv['thumb_url'] = xtra['thumbUrlPrefix'](str(self.id))
-            else:
-                rv['thumb_url'] = xtra['thumbUrlPrefix'] + str(self.id) + '/'
+        if xtra:
+            if xtra.has_key('thumbUrlPrefix'):
+                if callable(xtra['thumbUrlPrefix']):
+                    rv['thumb_url'] = xtra['thumbUrlPrefix'](str(self.id))
+                else:
+                    rv['thumb_url'] = xtra['thumbUrlPrefix'] + str(self.id) + '/'
         return rv
 
     def shortname(self, length=20, hist=5):
@@ -2395,6 +2530,22 @@ class _ImageWrapper (BlitzObjectWrapper):
             logger.debug(traceback.format_exc())
             #self._date = "Today"
             return datetime.fromtimestamp(event.time.val / 1000) #"Today"
+
+    def getObjectiveSettings (self):
+        rv = self.objectiveSettings
+        if self.objectiveSettings is not None:
+            rv = ObjectiveSettingsWrapper(self._conn, self.objectiveSettings)
+            if not self.objectiveSettings.loaded:
+                self.objectiveSettings = rv._obj
+        return rv
+
+    def getImagingEnvironment (self):
+        rv = self.imagingEnvironment
+        if self.imagingEnvironment is not None:
+            rv = ImagingEnvironmentWrapper(self._conn, self.imagingEnvironment)
+            if not self.imagingEnvironment.loaded:
+                self.imagingEnvironment = rv._obj
+        return rv
 
     @assert_pixels
     def getPrimaryPixels (self):
@@ -2899,47 +3050,339 @@ class _ImageWrapper (BlitzObjectWrapper):
 
 ImageWrapper = _ImageWrapper
 
-class _DatasetWrapper (BlitzObjectWrapper):
+## INSTRUMENT AND ACQUISITION ##
+
+class _ImagingEnviromentWrapper (BlitzObjectWrapper):
     """
-    omero_model_DatasetI class wrapper extends BlitzObjectWrapper.
+    omero_model_ImagingEnvironmentI class wrapper extends BlitzObjectWrapper.
     """
-    
+    _attrs = ('temperature',
+              'airPressure',
+              'humidity',
+              'co2percent',
+              'version')
+
     def __bstrap__ (self):
-        self.OMERO_CLASS = 'Dataset'
-        self.LINK_CLASS = "DatasetImageLink"
-        self.CHILD_WRAPPER_CLASS = 'ImageWrapper'
-        self.PARENT_WRAPPER_CLASS = 'ProjectWrapper'
-
-    def __loadedHotSwap__ (self):
-        super(_DatasetWrapper, self).__loadedHotSwap__()
-        if not self._obj.isImageLinksLoaded():
-            links = self._conn.getQueryService().findAllByQuery("select l from DatasetImageLink as l join fetch l.child as a where l.parent.id=%i" % (self._oid), None)
-            self._obj._imageLinksLoaded = True
-            self._obj._imageLinksSeq = links
-
-DatasetWrapper = _DatasetWrapper
-
-class _ProjectWrapper (BlitzObjectWrapper):
-    """
-    omero_model_ProjectI class wrapper extends BlitzObjectWrapper.
-    """
+        self.OMERO_CLASS = 'ImagingEnvironment'
     
+ImagingEnviromentWrapper = _ImagingEnviromentWrapper
+
+class _TransmittanceRangeWrapper (BlitzObjectWrapper):
+    """
+    omero_model_TransmittanceRangeI class wrapper extends BlitzObjectWrapper.
+    """
+    _attrs = ('cutIn',
+              'cutOut',
+              'cutInTolerance',
+              'cutOutTolerance',
+              'transmittance',
+              'version')
+
     def __bstrap__ (self):
-        self.OMERO_CLASS = 'Project'
-        self.LINK_CLASS = "ProjectDatasetLink"
-        self.CHILD_WRAPPER_CLASS = 'DatasetWrapper'
-        self.PARENT_WRAPPER_CLASS = None
+        self.OMERO_CLASS = 'TransmittanceRange'
 
-ProjectWrapper = _ProjectWrapper
+TransmittanceRangeWrapper = _TransmittanceRangeWrapper
 
-#class CategoryWrapper (BlitzObjectWrapper):
-#    def __bstrap__ (self):
-#        self.LINK_CLASS = "CategoryImageLink"
-#        self.CHILD_WRAPPER_CLASS = ImageWrapper
-#        self.PARENT_WRAPPER_CLASS= 'CategoryGroupWrapper'
-#
-#class CategoryGroupWrapper (BlitzObjectWrapper):
-#    def __bstrap__ (self):
-#        self.LINK_CLASS = "CategoryGroupCategoryLink"
-#        self.CHILD_WRAPPER_CLASS = CategoryWrapper
-#        self.PARENT_WRAPPER_CLASS = None
+class _DetectorSettingsWrapper (BlitzObjectWrapper):
+    """
+    omero_model_DetectorSettingsI class wrapper extends BlitzObjectWrapper.
+    """
+    _attrs = ('voltage',
+              'gain',
+              'offsetValue',
+              'readOutRate',
+              'binning',
+              'detector|DetectorWrapper',
+              'version')
+
+    def __bstrap__ (self):
+        self.OMERO_CLASS = 'DetectorSettings'
+
+DetectorSettingsWrapper = _DetectorSettingsWrapper
+
+class _DetectorWrapper (BlitzObjectWrapper):
+    """
+    omero_model_DetectorI class wrapper extends BlitzObjectWrapper.
+    """
+    _attrs = ('manufacturer',
+              'model',
+              'serialNumber',
+              'voltage',
+              'gain',
+              'offsetValue',
+              'zoom',
+              'amplificationGain',
+              '#type;detectorType',
+              'version')
+
+    def __bstrap__ (self):
+        self.OMERO_CLASS = 'Detector'
+
+DetectorWrapper = _DetectorWrapper
+
+class _ObjectiveWrapper (BlitzObjectWrapper):
+    """
+    omero_model_ObjectiveI class wrapper extends BlitzObjectWrapper.
+    """
+    _attrs = ('manufacturer',
+              'model',
+              'serialNumber',
+              'nominalMagnification',
+              'calibratedMagnification',
+              'lensNA',
+              '#immersion',
+              '#correction',
+              'workingDistance',
+              'iris',
+              'version')
+
+    def __bstrap__ (self):
+        self.OMERO_CLASS = 'Objective'
+
+ObjectiveWrapper = _ObjectiveWrapper
+
+class _ObjectiveSettingsWrapper (BlitzObjectWrapper):
+    """
+    omero_model_ObjectiveSettingsI class wrapper extends BlitzObjectWrapper.
+    """
+    _attrs = ('correctionCollar',
+              'medium',
+              'refractiveIndex',
+              'objective|ObjectiveWrapper',
+              'version')
+
+    def __bstrap__ (self):
+        self.OMERO_CLASS = 'ObjectiveSettings'
+
+    def getObjective (self):
+        rv = self.objective
+        if self.objective is not None:
+            rv = ObjectiveWrapper(self._conn, self.objective)
+            if not self.objective.loaded:
+                self.objective = rv._obj
+        return rv
+
+ObjectiveSettingsWrapper = _ObjectiveSettingsWrapper
+
+
+class _FilterWrapper (BlitzObjectWrapper):
+    """
+    omero_model_FilterI class wrapper extends BlitzObjectWrapper.
+    """
+    _attrs = ('manufacturer',
+              'model',
+              'lotNumber',
+              'filterWheel',
+              'type;filterType',
+              'transmittanceRange|TransmittanceRangeWrapper',
+              'version')
+
+    def __bstrap__ (self):
+        self.OMERO_CLASS = 'Filter'
+
+FilterWrapper = _FilterWrapper
+
+class _DichroicWrapper (BlitzObjectWrapper):
+    """
+    omero_model_DichroicI class wrapper extends BlitzObjectWrapper.
+    """
+    _attrs = ('manufacturer',
+              'model',
+              'lotNumber',
+              'version')
+
+    def __bstrap__ (self):
+        self.OMERO_CLASS = 'Dichroic'
+
+DichroicWrapper = _DichroicWrapper
+
+class _FilterSetWrapper (BlitzObjectWrapper):
+    """
+    omero_model_FilterSetI class wrapper extends BlitzObjectWrapper.
+    """
+    _attrs = ('manufacturer',
+              'model',
+              'lotNumber',
+              'exFilter|FilterWrapper',
+              'emFilter|FilterWrapper',
+              'dichroic|DichroicWrapper',
+              'version')
+
+    def __bstrap__ (self):
+        self.OMERO_CLASS = 'FilterSet'
+
+FilterSetWrapper = _FilterSetWrapper
+
+class _OTFWrapper (BlitzObjectWrapper):
+    """
+    omero_model_OTFI class wrapper extends BlitzObjectWrapper.
+    """
+    _attrs = ('sizeX',
+              'sizeY',
+              'opticalAxisAveraged'
+              'pixelsType',
+              'path',
+              'filterSet|FilterSetWrapper',
+              'objective|ObjectiveWrapper',
+              'version')
+
+    def __bstrap__ (self):
+        self.OMERO_CLASS = 'OTF'
+
+OTFWrapper = _OTFWrapper
+
+class _LightSettingsWrapper (BlitzObjectWrapper):
+    """
+    base Light Source class wrapper, extends BlitzObjectWrapper.
+    """
+    _attrs = ('attenuation',
+              'wavelength',
+              'lightSource|LightSourceWrapper'
+              'microbeamManipulation',
+              'version')
+
+    def __bstrap__ (self):
+        self.OMERO_CLASS = 'LightSettings'
+
+LightSettingsWrapper = _LightSettingsWrapper
+
+class _LightSourceWrapper (BlitzObjectWrapper):
+    """
+    base Light Source class wrapper, extends BlitzObjectWrapper.
+    """
+    _attrs = ('manufacturer',
+              'model',
+              'power',
+              'serialNumber',
+              '#type;lightsourceType',
+              'version')
+
+_LightSourceClasses = {}
+def LightSourceWrapper (conn, obj, **kwargs):
+    for k, v in _LightSourceClasses.items():
+        if isinstance(obj, k):
+            return getattr(omero.gateway, v)(conn, obj, **kwargs)
+    return None
+
+class _FilamentWrapper (_LightSourceWrapper):
+    """
+    omero_model_ArcI class wrapper extends LightSourceWrapper.
+    """
+
+    def __bstrap__ (self):
+        super(self.__class__, self).__bstrap__()
+        self.OMERO_CLASS = 'Filament'
+
+FilamentWrapper = _FilamentWrapper
+_LightSourceClasses[omero.model.FilamentI] = 'FilamentWrapper'
+
+class _ArcWrapper (FilamentWrapper):
+    """
+    omero_model_ArcI class wrapper extends FilamentWrapper.
+    """
+    def __bstrap__ (self):
+        super(self.__class__, self).__bstrap__()
+        self.OMERO_CLASS = 'Arc'
+
+ArcWrapper = _ArcWrapper
+_LightSourceClasses[omero.model.ArcI] = 'ArcWrapper'
+
+class _LaserWrapper (_LightSourceWrapper):
+    """
+    omero_model_LaserI class wrapper extends LightSourceWrapper.
+    """
+    def __bstrap__ (self):
+        super(self.__class__, self).__bstrap__()
+        self.OMERO_CLASS = 'Laser'
+        self._attrs += (
+            '#laserMedium',
+            'frequencyMultiplication',
+            'tuneable',
+            'pulse',
+            'wavelength',
+            'pockelCell',
+            'pump',
+            'repetitionRate')
+
+LaserWrapper = _LaserWrapper
+_LightSourceClasses[omero.model.LaserI] = 'LaserWrapper'
+
+class _LightEmittingDiodeWrapper (_LightSourceWrapper):
+    """
+    omero_model_LightEmittingDiodeI class wrapper extends LightSourceWrapper.
+    """
+    def __bstrap__ (self):
+        super(self.__class__, self).__bstrap__()
+        self.OMERO_CLASS = 'LightEmittingDiode'
+
+LightEmittingDiodeWrapper = _LightEmittingDiodeWrapper
+_LightSourceClasses[omero.model.LightEmittingDiodeI] = 'LightEmittingDiodeWrapper'
+
+class _MicroscopeWrapper (BlitzObjectWrapper):
+    """
+    omero_model_MicroscopeI class wrapper extends BlitzObjectWrapper.
+    """
+    _attrs = ('manufacturer',
+              'model',
+              'serialNumber',
+              '#type;microscopeType',
+              'version')
+
+    def __bstrap__ (self):
+        self.OMERO_CLASS = 'Microscope'
+
+MicroscopeWrapper = _MicroscopeWrapper
+
+class _InstrumentWrapper (BlitzObjectWrapper):
+    """
+    omero_model_InstrumentI class wrapper extends BlitzObjectWrapper.
+    """
+
+    # TODO: wrap version
+
+    _attrs = ('microscope|MicroscopeWrapper',)
+
+    def __bstrap__ (self):
+        self.OMERO_CLASS = 'Instrument'
+
+    def getMicroscope (self):
+        if self._obj.microscope:
+            return MicroscopeWrapper(self._conn, self._obj.microscope)
+
+    def getDetectors (self):
+        return [DetectorWrapper(self._conn, x) for x in self._detectorSeq]
+
+    def getObjectives (self):
+        return [ObjectiveWrapper(self._conn, x) for x in self._objectiveSeq]
+
+    def getFilters (self):
+        return [FilterWrapper(self._conn, x) for x in self._filterSeq]
+
+    def getDichroics (self):
+        return [DichroicWrapper(self._conn, x) for x in self._dichroicSeq]
+
+    def getFilterSets (self):
+        return [FilterSetWrapper(self._conn, x) for x in self._filterSetSeq]
+
+    def getOTFs (self):
+        return [OTFWrapper(self._conn, x) for x in self._otfSeq]
+
+    def getLightSources (self):
+        return [LightSourceWrapper(self._conn, x) for x in self._lightSourceSeq]
+
+
+    def simpleMarshal (self):
+        if self._obj:
+            rv = super(_InstrumentWrapper, self).simpleMarshal(parents=False)
+            rv['detectors'] = [x.simpleMarshal() for x in self.getDetectors()]
+            rv['objectives'] = [x.simpleMarshal() for x in self.getObjectives()]
+            rv['filters'] = [x.simpleMarshal() for x in self.getFilters()]
+            rv['dichroics'] = [x.simpleMarshal() for x in self.getDichroics()]
+            rv['filterSets'] = [x.simpleMarshal() for x in self.getFilterSets()]
+            rv['otfs'] = [x.simpleMarshal() for x in self.getOTFs()]
+            rv['lightsources'] = [x.simpleMarshal() for x in self.getLightSources()]
+        else:
+            rv = {}
+        return rv
+
+InstrumentWrapper = _InstrumentWrapper

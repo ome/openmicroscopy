@@ -53,6 +53,7 @@ urlpatterns = patterns('',
     (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/appmedia/omeroweb/images/ome.ico'}),
     (r'^appmedia/webgateway/(?P<path>.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), 'webgateway/media')}),
     url( r'^appmedia/omeroweb/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.dirname(__file__), 'media', 'omeroweb').replace('\\','/') }, name="webstatic" ),
+    url(r'^appmedia/(?P<path>.*)$', serve, {'document_root': os.path.join(os.path.dirname(__file__), 'media')}, name="static"),
     
     (r'(?i)^webadmin/', include('omeroweb.webadmin.urls')),
     (r'(?i)^webclient/', include('omeroweb.webclient.urls')),

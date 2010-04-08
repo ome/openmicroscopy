@@ -35,7 +35,7 @@ CONNECTOR_POOL_KEEP = 0.75 # keep only SIZE-SIZE*KEEP of the connectors if POOL_
 
 import logging, os, traceback, time
 
-omero.gateway.BlitzGateway.ICE_CONFIG = os.environ.get('ICE_CONFIG', 'etc/ice.config')
+#omero.gateway.BlitzGateway.ICE_CONFIG = os.environ.get('ICE_CONFIG', 'etc/ice.config')
 
 logger = logging.getLogger('webgateway')
 
@@ -51,6 +51,9 @@ def _session_logout (request, server_id, force_key=None):
         if request.session.has_key(browsersession_connection_key):
             logger.debug('logout: removing "%s"' % (request.session[browsersession_connection_key]))
             del request.session[browsersession_connection_key]
+    for k in ('username', 'password', 'server', 'host', 'port'):
+        if request.session.has_key(k):
+            del request.session[k]
     if connectors.has_key(session_key):
         logger.debug('logout: killing connection "%s"' % (session_key))
         connectors[session_key] and connectors[session_key].seppuku()
@@ -162,7 +165,7 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
     passwd = request.session.get('password', r.get('password', None))
     host = request.session.get('host', r.get('host', None))
     port = request.session.get('port', r.get('port', None))
-    #logger.debug(':: %s %s ::' % (str(username), str(passwd)))
+    logger.debug(':: %s %s ::' % (str(username), str(passwd)))
 
 #    if r.has_key('logout'):
 #        logger.debug('logout required by HTTP GET or POST')

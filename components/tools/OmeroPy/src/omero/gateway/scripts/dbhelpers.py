@@ -336,17 +336,21 @@ class ImageEntry (ObjectEntry):
         UserEntry.setGroupForSession(newconn, dataset.getDetails().getGroup().getName())
         session = newconn._sessionUuid
         #print session
-        exe += ' import -s %s -k %s -d %i -p %s -n %s %s' % (host, session, dataset.getId(), port, self.name, fpath)
-        #print exe
+        exe += ' import -s %s -k %s -d %i -p %s -n' % (host, session, dataset.getId(), port)
+        exe = exe.split() + [self.name, fpath]
         try:
-            p = subprocess.Popen(exe.split(),  shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            p = subprocess.Popen(exe,  shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         except OSError:
             print "!!Please make sure the 'omero' executable is in PATH"
             return None
-        #print exe
+        #print ' '.join(exe)
         pid = p.communicate()#[0].strip() #re.search('Saving pixels id: (\d*)', p.communicate()[0]).group(1)
         #print pid
-        img = omero.gateway.ImageWrapper(dataset._conn, dataset._conn.getQueryService().find('Pixels', long(pid[0].split('\n')[0].strip())).image)
+        try:
+            img = omero.gateway.ImageWrapper(dataset._conn, dataset._conn.getQueryService().find('Pixels', long(pid[0].split('\n')[0].strip())).image)
+        except ValueError:
+            print pid
+            raise
         #print "imgid = %i" % img.getId()
         img.setName(self.name)
         #img._obj.objectiveSettings = None
