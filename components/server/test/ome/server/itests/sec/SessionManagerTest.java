@@ -93,11 +93,24 @@ public class SessionManagerTest extends AbstractManagedContextTest {
         iAdmin.addGroups(new Experimenter(0L, false), new ExperimenterGroup(
                 gid, false));
 
-        String sid = iAdmin.getEventContext().getCurrentSessionUuid();
-        this.sessionManager.setSecurityContext(new Principal(sid), iAdmin.lookupGroup(uuid));
+        ExperimenterGroup g = iAdmin.lookupGroup(uuid);
+        setGroupContext(g);
 
         assertEquals(uuid, iAdmin.getEventContext().getCurrentGroupName());
 
+    }
+
+    private void setGroupContext(ExperimenterGroup g) {
+        String sid = iAdmin.getEventContext().getCurrentSessionUuid();
+        this.sessionManager.setSecurityContext(new Principal(sid), g);
+    }
+
+    @Test(groups = "ticket:2088", expectedExceptions = SecurityViolation.class)
+    public void testSetSecurityContextChecksGroup() {
+        loginNewUser();
+        long gid = iAdmin.getEventContext().getCurrentGroupId();
+        loginNewUser();
+        setGroupContext(new ExperimenterGroup(gid, false));
     }
 
     @Test

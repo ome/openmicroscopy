@@ -27,7 +27,6 @@ import ome.conditions.SessionException;
 import ome.conditions.SessionTimeoutException;
 import ome.model.enums.EventType;
 import ome.model.internal.Details;
-import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Node;
@@ -1094,7 +1093,9 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
      */
     private void setGroupSecurityContext(final Principal principal, final Long id) {
         final ome.system.EventContext ec = getEventContext(principal);
-        executor.execute(principal,
+        final ExperimenterGroup[] group = new ExperimenterGroup[1];
+
+        final Session s = (Session) executor.execute(principal,
                 new Executor.SimpleWork(this, "setGroupSecurityContext", id) {
                     @Transactional(readOnly = true)
                     public Object doWork(org.hibernate.Session session, ServiceFactory sf) {
@@ -1103,11 +1104,37 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                             sf.getShareService().deactivate();
                         }
 
-                        ome.model.meta.Session s = find(principal.getName());
+                        SessionContext sc =
+                            cache.getSessionContext(principal.getName(), false);
+                        Session s = sc.getSession();
+
+                        // Store old value for rollback
+                        group[0] = s.getDetails().getGroup();
                         s.getDetails().setGroup(sf.getAdminService().getGroup(id));
                         return s;
                     }
         });
+
+        // This could also be achieved by filtering out the "check group"
+        // logic from BasicSecuritySystem.
+        executor.execute(principal, new Executor.SimpleWork(this, "checkGroupSecurityContext", id) {
+            @Transactional(readOnly = true)
+            public Object doWork(org.hibernate.Session session,
+                    ServiceFactory sf) {
+                // ticket:2088 - pre-emptive check
+                try {
+                    sf.getAdminService().getEventContext();
+                } catch (RuntimeException re) {
+                    s.getDetails().setGroup(group[0]);
+                    throw re;
+                }
+                return null;
+            }
+
+        });
+
+
+
     }
 
     /**
@@ -1119,6 +1146,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                 new Executor.SimpleWork(this, "setShareSecurityContext", id) {
                     @Transactional(readOnly = true)
                     public Object doWork(org.hibernate.Session session, ServiceFactory sf) {
+                        // ticket:2088 - ShareBean does the pre-emptive check
                         sf.getShareService().activate(id);
                         return null;
                     }
