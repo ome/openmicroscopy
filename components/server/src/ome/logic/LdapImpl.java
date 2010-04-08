@@ -16,7 +16,6 @@ import java.util.Map;
 import javax.naming.AuthenticationException;
 import javax.naming.Context;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import javax.naming.ldap.InitialLdapContext;
 
 import ome.annotations.NotNull;
@@ -31,6 +30,7 @@ import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.SecuritySystem;
+import ome.security.auth.GroupAttributeMapper;
 import ome.security.auth.LdapConfig;
 import ome.security.auth.PersonContextMapper;
 import ome.security.auth.RoleProvider;
@@ -38,13 +38,13 @@ import ome.system.Roles;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
-import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapOperations;
 import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.ldap.filter.AndFilter;
 import org.springframework.ldap.filter.EqualsFilter;
+import org.springframework.ldap.filter.Filter;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -103,8 +103,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap {
     @SuppressWarnings("unchecked")
     @RolesAllowed("system")
     public List<Experimenter> searchAll() {
-        EqualsFilter filter = new EqualsFilter("objectClass", "person");
-        return ldap.search(DistinguishedName.EMPTY_PATH, filter
+        return ldap.search(DistinguishedName.EMPTY_PATH, config.getUserFilter()
                 .encode(), getContextMapper());
     }
 
@@ -122,7 +121,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap {
         if (attr != null && !attr.equals("") && value != null
                 && !value.equals("")) {
             AndFilter filter = new AndFilter();
-            filter.and(new EqualsFilter("objectClass", "person"));
+            filter.and(config.getUserFilter());
             filter.and(new EqualsFilter(attr, value));
 
             return ldap.search(dn, filter.encode(),
@@ -141,37 +140,36 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap {
     @RolesAllowed("system")
     @SuppressWarnings("unchecked")
     public String findDN(String username) {
-        DistinguishedName dn;
-        AndFilter filter = new AndFilter();
-        filter.and(new EqualsFilter("objectClass", "person"));
-        filter.and(new EqualsFilter("cn", username));
+
+        Filter filter = config.usernameFilter(username);
         List<Experimenter> p = ldap.search("", filter.encode(),
                 getContextMapper());
+
         if (p.size() == 1) {
             Experimenter exp = p.get(0);
-            dn = new DistinguishedName(exp.retrieve("LDAP_DN").toString());
-        } else {
-            throw new ApiUsageException(
-                    "Cannot find DistinguishedName or more then one 'cn' under the specified base");
-        }
-        return dn.toString();
-    }
-
-    @RolesAllowed("system")
-    public Experimenter findExperimenter(String username) {
-        AndFilter filter = new AndFilter();
-        filter.and(new EqualsFilter("objectClass", "person"));
-        filter.and(new EqualsFilter("cn", username));
-        List<Experimenter> p = ldap.search("", filter.encode(),
-                new PersonContextMapper(getBase()));
-        Experimenter exp = null;
-        if (p.size() == 1) {
-            exp = p.get(0);
+            return exp.retrieve("LDAP_DN").toString();
         } else {
             throw new ApiUsageException(
                     "Cannot find unique DistinguishedName: found=" + p.size());
         }
-        return exp;
+    }
+
+
+    @RolesAllowed("system")
+    @SuppressWarnings("unchecked")
+    public Experimenter findExperimenter(String username) {
+
+        Filter filter = config.usernameFilter(username);
+        List<Experimenter> p = ldap.search(
+                "", filter.encode(), getContextMapper());
+
+        if (p.size() == 1) {
+            return p.get(0);
+        } else {
+            throw new ApiUsageException(
+                    "Cannot find unique DistinguishedName: found=" + p.size());
+        }
+
     }
 
     @RolesAllowed("system")
@@ -180,10 +178,10 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap {
         if (attr != null && !attr.equals("") && value != null
                 && !value.equals("")) {
             AndFilter filter = new AndFilter();
-            filter.and(new EqualsFilter("objectClass", "groupOfNames"));
+            filter.and(config.getGroupFilter());
             filter.and(new EqualsFilter(attr, value));
             return ldap.search("", filter.encode(),
-                    new GroupAttributMapper());
+                    new GroupAttributeMapper(config));
         } else {
             return Collections.EMPTY_LIST;
         }
@@ -201,12 +199,6 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap {
         }
         return ldap.search(new DistinguishedName(dn),
                 filter.encode(), getContextMapper());
-    }
-
-    @RolesAllowed("system")
-    public List<ExperimenterGroup> searchGroups() {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     @RolesAllowed("system")
@@ -248,11 +240,6 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap {
         DistinguishedName dn = new DistinguishedName(exp.retrieve("LDAP_DN")
                 .toString());
 
-        // DistinguishedName converted toString includes spaces
-        if (!validateRequirements(dn.toString())) {
-            return false;
-        }
-
         // Valid user's password
         boolean access = validatePassword(dn.toString(), password);
 
@@ -278,13 +265,13 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap {
      *
      * @return boolean
      */
-    public boolean validatePassword(String base, String password) {
+    public boolean validatePassword(String dn, String password) {
         try {
-            isAuthContext(base, password);
+            isAuthContext(dn, password);
+            return true;
         } catch (SecurityViolation sv) {
             return false;
         }
-        return validateRequirements(base);
     }
 
     public List<Map<String, Object>> lookupLdapAuthExperimenters() {
@@ -308,67 +295,12 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap {
         return s;
     }
 
-
-
-
-
-
-
-    public ContextMapper getContextMapper() {
-        return new PersonContextMapper(getBase());
-    }
-
     // Helpers
     // =========================================================================
 
-    /**
-     * Valids specyfied requirements for base (groups, attributes)
-     *
-     * @return boolean
-     */
-    private boolean validateRequirements(String base) {
-        boolean result = false;
-
-        String[] groups = config.getGroups();
-        String[] attrs = config.getAttributes();
-        String[] vals = config.getValues();
-
-        if (attrs.length != vals.length) {
-            throw new ApiUsageException(
-                    "Configuration exception. Attributes should have value on the omero.properties.");
-        }
-
-        // if groups
-        if (groups.length > 0) {
-            List usergroups = searchDnInGroups("member", base);
-            result = isInGroups(groups, usergroups);
-        } else {
-            result = true;
-        }
-
-        // if attributes
-        if (result) {
-
-            if (attrs.length > 0) {
-                // cut DN
-                DistinguishedName dn = new DistinguishedName(base);
-                DistinguishedName baseDn = new DistinguishedName(getBase());
-                for (int i = 0; i < baseDn.size(); i++) {
-                    dn.removeFirst();
-                }
-
-                List<Experimenter> l = searchByAttributes(dn.toString(), attrs,
-                        vals);
-                if (l.size() <= 0) {
-                    result = false;
-                } else {
-                    result = true;
-                }
-            }
-        }
-        return result;
+    private ContextMapper getContextMapper() {
+        return new PersonContextMapper(config, getBase());
     }
-
 
     /**
      * Creates the initial context with no connection request controls in order
@@ -410,41 +342,6 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap {
                             + e.toString());
         }
         return base;
-
-    }
-
-    /**
-     * Checks that user's group list contains require groups. If one of user's
-     * groups is on require groups' list will return true.
-     *
-     * @return boolean
-     */
-    private boolean isInGroups(String[] groups, List<String> usergroups) {
-        // user is not in groups
-        if (usergroups.size() == 0) {
-            return false;
-        }
-        boolean flag = false;
-        // checks containing
-        for (int i = 0; i < usergroups.size(); i++) {
-            if (Arrays.asList(groups).contains(usergroups.get(i))) {
-                flag = true;
-            }
-        }
-        return flag;
-    }
-
-    private static class GroupAttributMapper implements AttributesMapper {
-
-        @RolesAllowed("system")
-        public Object mapFromAttributes(Attributes attributes)
-                throws NamingException {
-            String groupName = null;
-            if (attributes.get("cn") != null) {
-                groupName = (String) attributes.get("cn").get();
-            }
-            return groupName;
-        }
 
     }
 

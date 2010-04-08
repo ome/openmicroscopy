@@ -15,10 +15,11 @@
 
     <bean id="config" class="ome.security.auth.LdapConfig">
       <constructor-arg index="0" value="true"/>
-      <constructor-arg index="1" value="ldap"/>
-      <constructor-arg index="2" value=""/>
-      <constructor-arg index="3" value="objectClass"/>
-      <constructor-arg index="4" value="person"/>
+      <constructor-arg index="1" value="default_group"/>
+      <constructor-arg index="2" value="(objectClass=person)"/>
+      <constructor-arg index="3" value="(objectClass=groupOfUniqueNames)"/>
+      <constructor-arg index="4" value="omeName=cn,firstName=givenName,lastName=sn"/>
+      <constructor-arg index="5" value="name=cn"/>
     </bean>
 
     <util:map id="good">

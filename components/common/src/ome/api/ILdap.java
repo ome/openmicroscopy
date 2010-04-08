@@ -156,13 +156,6 @@ public interface ILdap extends ServiceInterface {
 
 	// ~ Getting Ldap paramiters for searching
 	// =========================================================================
-
-	/**
-	 * Searchs all Groups in LDAP 
-	 * 
-	 * @return an ExperimenterGroups.
-	 */
-	List<ExperimenterGroup> searchGroups();
 	
 	/**
 	 * Gets config value from properties.

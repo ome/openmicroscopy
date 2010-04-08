@@ -22,9 +22,12 @@ public class PersonContextMapper implements ContextMapper {
 
     private DistinguishedName dn = new DistinguishedName();
 
+    private final LdapConfig cfg;
+
     private final String base;
 
-    public PersonContextMapper(String base) {
+    public PersonContextMapper(LdapConfig cfg, String base) {
+        this.cfg = cfg;
         this.base = base;
     }
 
@@ -36,9 +39,17 @@ public class PersonContextMapper implements ContextMapper {
         this.dn = dn;
     }
 
-    public Object mapFromContext(Object ctx) {
-        DirContextAdapter context = (DirContextAdapter) ctx;
-        DistinguishedName dn = new DistinguishedName(context.getDn());
+    public String get(String attribute, DirContextAdapter context) {
+        String attributeName = cfg.getUserAttribute(attribute);
+        if (attributeName != null) {
+            return context.getStringAttribute(attributeName);
+        }
+        return null;
+    }
+
+    public Object mapFromContext(Object obj) {
+        DirContextAdapter ctx = (DirContextAdapter) obj;
+        DistinguishedName dn = new DistinguishedName(ctx.getDn());
         try {
             dn.addAll(0, new DistinguishedName(base));
         } catch (InvalidNameException e) {
@@ -47,20 +58,12 @@ public class PersonContextMapper implements ContextMapper {
         setDn(dn);
 
         Experimenter person = new Experimenter();
-        if (context.getStringAttribute("cn") != null) {
-            person.setOmeName(context.getStringAttribute("cn"));
-        }
-        person.setLastName("");
-        if (context.getStringAttribute("sn") != null) {
-            person.setLastName(context.getStringAttribute("sn"));
-        }
-        person.setFirstName("");
-        if (context.getStringAttribute("givenName") != null) {
-            person.setFirstName(context.getStringAttribute("givenName"));
-        }
-        if (context.getStringAttribute("mail") != null) {
-            person.setEmail(context.getStringAttribute("mail"));
-        }
+        person.setOmeName(get("omeName", ctx));
+        person.setFirstName(get("firstName", ctx));
+        person.setLastName(get("lastName", ctx));
+        person.setInstitution(get("institution", ctx));
+        person.setEmail(get("email", ctx));
+
         person.putAt("LDAP_DN", dn.toString());
         return person;
     }
