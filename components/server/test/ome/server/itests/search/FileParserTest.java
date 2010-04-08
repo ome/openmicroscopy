@@ -7,6 +7,7 @@
 package ome.server.itests.search;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.sql.Timestamp;
@@ -19,9 +20,14 @@ import ome.api.Search;
 import ome.model.annotations.FileAnnotation;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
+import ome.model.enums.Format;
 import ome.services.fulltext.FileParser;
+import ome.services.util.Executor;
+import ome.system.ServiceFactory;
 import ome.testing.FileUploader;
 
+import org.hibernate.Session;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ResourceUtils;
 import org.testng.annotations.Test;
 
@@ -35,16 +41,29 @@ public class FileParserTest extends AbstractTest {
                 "/dev/null");
         upload.run();
 
-        String path = getFileService().getFilesPath(upload.getId());
-        File file = new File(path);
-        FileParser fp = new FileParser();
+        final String path = getFileService().getFilesPath(upload.getId());
+        final File file = new File(path);
+        final FileParser fp = new FileParser();
         fp.setApplicationContext(this.applicationContext);
-        StringWriter sw = new StringWriter();
-        for (Reader test : fp.parse(file)) {
-            while (test.ready()) {
-                sw.write(test.read());
-            }
-        }
+        final StringWriter sw = new StringWriter();
+
+        // Has to be run in an executor in order to register the cleanup
+        // Though we could also pass in a mock.
+        executor.execute(loginAop.p, new Executor.SimpleWork(this, "parse") {
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+                for (Reader test : fp.parse(file)) {
+                    try {
+                        while (test.ready()) {
+                            sw.write(test.read());
+                        }
+                    } catch (IOException ioe) {
+                        throw new RuntimeException(ioe);
+                    }
+                }
+                return null;
+            }});
+
         assertEquals(str, sw.toString());
     }
 
@@ -116,6 +135,32 @@ public class FileParserTest extends AbstractTest {
         search.onlyIds(i.getId());
         search.byFullText("file.contents:ABC123");
         assertTrue(search.hasNext());
+    }
+
+    @Test(groups = "ticket:2098")
+    public void testParseMissingFile() {
+
+        String uuid = uuid();
+        OriginalFile f = new OriginalFile();
+        f.setName(uuid);
+        f.setSha1("");
+        f.setFormat(new Format("text/plain"));
+        f.setPath("/tmp/empty");
+        f.setSize(0L);
+
+        i = new_Image();
+        i.setName("annotated with file");
+        FileAnnotation fa = new FileAnnotation();
+        fa.setNs("");
+        fa.setFile(f);
+        i.linkAnnotation(fa);
+        i = iUpdate.saveAndReturnObject(i);
+        iUpdate.indexObject(i);
+
+        loginRootKeepGroup();
+        List<Image> imgs = iQuery.findAllByFullText(Image.class, uuid, null);
+        assertEquals(1, imgs.size());
+        assertTrue(imgs.get(0).getId().equals(i.getId()));
     }
 
     private Image new_Image() {

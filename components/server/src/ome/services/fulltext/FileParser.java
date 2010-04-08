@@ -91,6 +91,11 @@ public class FileParser implements ApplicationContextAware {
             return EMPTY;
         }
 
+        if (!file.exists() && !file.canRead()) {
+            log.debug("empty|unreadable file: " + file.getAbsoluteFile());
+            return EMPTY;
+        }
+
         try {
             Iterable<Reader> it = doParse(file);
             if (it == null) {
