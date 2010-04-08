@@ -45,13 +45,11 @@
         <bean class="ome.security.auth.LdapPasswordProvider">
           <constructor-arg ref="passwordUtil"/>
           <constructor-arg ref="internal-ome.api.LocalLdap"/>
-          <constructor-arg ref="simpleJdbcTemplate"/>
           <constructor-arg value="true"/>
         </bean>
         <bean class="ome.security.auth.JdbcPasswordProvider">
           <constructor-arg ref="passwordUtil"/>
-          <constructor-arg ref="simpleJdbcTemplate"/>
-        </bean>        
+        </bean>
       </list>
     </constructor-arg>
   </bean>
@@ -69,7 +67,7 @@
     <property name="proxyInterfaces">
       <list>
         <value>ome.api.IAdmin</value>
-        <value>ome.api.local.LocalAdmin</value>        
+        <value>ome.api.local.LocalAdmin</value>
       </list>
     </property>
     <property name="target" ref="internal-ome.api.IAdmin"/>
