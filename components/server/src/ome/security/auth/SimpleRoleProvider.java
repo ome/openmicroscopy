@@ -53,6 +53,13 @@ public class SimpleRoleProvider implements RoleProvider {
         this.sf = sf;
     }
 
+    public String nameById(long id) {
+        Session s = sf.getSession();
+        return (String) s.createQuery(
+                "select omeName from Experimenter where id = :id")
+                .setParameter("id", id).uniqueResult();
+    }
+
     public long createGroup(String name, Permissions perms, boolean strict) {
         Session s = sf.getSession();
         ExperimenterGroup g = groupByName(name, s);
@@ -262,4 +269,5 @@ public class SimpleRoleProvider implements RoleProvider {
     private ExperimenterGroup groupById(long id, Session s) {
         return (ExperimenterGroup) s.load(ExperimenterGroup.class, id);
     }
+
 }

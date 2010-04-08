@@ -84,6 +84,16 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
     }
 
     /**
+     * Throws by default.
+     */
+    public void changeDistinguishedName(String user, String dn)
+            throws PasswordChangeException {
+        throw new PasswordChangeException(
+                "Cannot change dn with this implementation: "
+                        + getClass().getName());
+    }
+
+    /**
      * Encodes the password as it would be encoded for a check by
      * {@link #comparePasswords(String, String)}
      */

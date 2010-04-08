@@ -60,4 +60,17 @@ public class PasswordProviders implements PasswordProvider {
         throw new PasswordChangeException("No provider found");
     }
 
+    public void changeDistinguisedName(String user, String dn)
+            throws PasswordChangeException {
+
+        for (PasswordProvider provider : providers) {
+            boolean hasPassword = provider.hasPassword(user);
+            if (hasPassword) {
+                provider.changePassword(user, dn);
+                return;
+            }
+        }
+        throw new PasswordChangeException("No provider found");
+    }
+
 }

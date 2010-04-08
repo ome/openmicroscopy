@@ -23,32 +23,31 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.InitialLdapContext;
 
-import ome.annotations.PermitAll;
+import ome.annotations.NotNull;
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.annotations.RolesAllowed;
-import ome.api.IAdmin;
 import ome.api.ILdap;
 import ome.api.ServiceInterface;
 import ome.api.local.LocalLdap;
 import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
+import ome.conditions.ValidationException;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.LdapUtil;
 import ome.security.SecuritySystem;
+import ome.security.auth.PasswordChangeException;
+import ome.security.auth.PasswordProvider;
 import ome.security.auth.RoleProvider;
 import ome.system.OmeroContext;
 
-import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapOperations;
-import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.ldap.filter.AndFilter;
 import org.springframework.ldap.filter.EqualsFilter;
@@ -76,8 +75,6 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 
     protected final LdapOperations ldapOperations;
 
-    protected final SimpleJdbcOperations jdbc;
-
     protected final String newUserGroup;
 
     protected final String groups;
@@ -90,12 +87,15 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 
     protected final RoleProvider roleProvider;
 
-    public LdapImpl(RoleProvider roleProvider, LdapOperations ldapOperations,
-            SimpleJdbcOperations jdbc, String newUserGroup, 
-            String groups, String attributes, String values, boolean config) {
+    protected final PasswordProvider passwordProvider;
+
+    public LdapImpl(RoleProvider roleProvider, PasswordProvider passwordProvider,
+            LdapOperations ldapOperations,
+            String newUserGroup, String groups, String attributes,
+            String values, boolean config) {
         this.roleProvider = roleProvider;
+        this.passwordProvider = passwordProvider;
         this.ldapOperations = ldapOperations;
-        this.jdbc = jdbc;
         this.newUserGroup = newUserGroup;
         this.groups = groups;
         this.attributes = attributes;
@@ -214,8 +214,13 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 
     @RolesAllowed("system")
     @Transactional(readOnly = false)
-    public void setDN(Long experimenterID, String dn) {
-        LdapUtil.setDNById(jdbc, experimenterID, dn);
+    public void setDN(@NotNull Long experimenterID, String dn) {
+        String name = roleProvider.nameById(experimenterID);
+        try {
+            passwordProvider.changeDistinguisedName(name, dn);
+        } catch (PasswordChangeException pce) {
+            throw new ValidationException("Cannot set DN for: " + name);
+        }
     }
 
     // Getters and Setters for requiroments

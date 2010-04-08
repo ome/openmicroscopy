@@ -25,6 +25,8 @@ import ome.security.SecuritySystem;
  */
 public interface RoleProvider {
 
+    String nameById(long id);
+
     long createGroup(ExperimenterGroup group);
 
     long createGroup(String name, Permissions perms, boolean strict);

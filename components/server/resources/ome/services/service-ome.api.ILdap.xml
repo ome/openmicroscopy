@@ -28,8 +28,8 @@
 			injected. This is not an example of what should be done.
 		</description>
         <constructor-arg index="0" ref="roleProvider"/>
-        <constructor-arg index="1" ref="ldapTemplate" />
-        <constructor-arg index="2" ref="simpleJdbcTemplate" />
+        <constructor-arg index="1" ref="passwordProvider"/>
+        <constructor-arg index="2" ref="ldapTemplate" />
         <constructor-arg index="3" value="${omero.ldap.new_user_group}" />
         <constructor-arg index="4" value="${omero.ldap.groups}" />
         <constructor-arg index="5" value="${omero.ldap.attributes}" />

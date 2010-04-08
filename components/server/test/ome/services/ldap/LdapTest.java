@@ -6,20 +6,24 @@
 package ome.services.ldap;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import junit.framework.TestCase;
+import ome.api.ILdap;
+import ome.logic.LdapImpl;
+import ome.security.SecureLdapContextSource;
+import ome.security.auth.PasswordProvider;
+import ome.security.auth.RoleProvider;
 
 import org.apache.commons.io.FileUtils;
+import org.jmock.Mock;
+import org.jmock.MockObjectTestCase;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.util.ResourceUtils;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -28,7 +32,7 @@ import org.testng.annotations.Test;
  * Uses LDIF text files along with property files of good and bad user names to
  * test that the LDAP plugin is properly functioning.
  */
-public class LdapTest extends TestCase {
+public class LdapTest extends MockObjectTestCase {
 
     /**
      * Data provider which returns all "*.ldif" files in the directory
@@ -66,10 +70,42 @@ public class LdapTest extends TestCase {
         Map<String, String[]> bad = parse(badProps);
     }
 
-    private ApplicationContext createContext(File ldifFile) throws Exception {
+    protected ApplicationContext createContext(File ldifFile) throws Exception {
         FileSystemXmlApplicationContext ctx =
             new FileSystemXmlApplicationContext("file:" + ldifFile.getAbsolutePath());
         return ctx;
+    }
+
+    /**
+     * etc/omero.properties:
+     * =====================
+     * omero.ldap.config=false
+     * omero.ldap.urls=ldap://localhost:389
+     * omero.ldap.username=
+     * omero.ldap.password=
+     * omero.ldap.base=ou=example,o=com
+     * omero.ldap.new_user_group=default
+     * omero.ldap.groups=
+     * omero.ldap.attributes=objectClass
+     * omero.ldap.values=person
+     * # for ssl connection on ldaps://localhost:636
+     * omero.ldap.protocol=
+     * omero.ldap.keyStore=
+     * omero.ldap.keyStorePassword=
+     * omero.ldap.trustStore=
+     * omero.ldap.trustStorePassword=
+     */
+    protected ILdap makeService(ApplicationContext context) throws Exception {
+        SecureLdapContextSource source = new  SecureLdapContextSource("url");
+        LdapTemplate template = new LdapTemplate(source);
+        Mock roleMock = mock(RoleProvider.class);
+        RoleProvider roleProvider = (RoleProvider) roleMock.proxy();
+        Mock passMock = mock(PasswordProvider.class);
+        PasswordProvider passwordProvider = (PasswordProvider) passMock.proxy();
+
+        LdapImpl ldap = new LdapImpl(roleProvider, passwordProvider, template,
+                "new_user_group", "groups", "attributes", "values", true);
+        return ldap;
     }
 
     protected void assertPasses(File file, Map<String, String[]> users) {
