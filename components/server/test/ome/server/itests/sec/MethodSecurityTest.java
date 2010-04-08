@@ -8,7 +8,7 @@ package ome.server.itests.sec;
 
 import java.util.List;
 
-import ome.security.PasswordUtil;
+import ome.security.auth.PasswordUtil;
 import ome.security.basic.BasicMethodSecurity;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.services.sessions.SessionManager;
@@ -33,7 +33,7 @@ public class MethodSecurityTest extends AbstractManagedContextTest {
 
         msec = new BasicMethodSecurity();
         msec.setSessionManager(mgr);
-        List<String> roles = PasswordUtil.userGroups(jdbc, "root");
+        List<String> roles = new PasswordUtil(jdbc).userGroups("root");
         assertTrue(roles.size() >= 2);
         boolean found = false;
         for (int i = 0; i < roles.size(); i++) {

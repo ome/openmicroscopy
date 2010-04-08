@@ -10,6 +10,7 @@ import java.io.File;
 
 import ome.api.ILdap;
 import ome.conditions.ApiUsageException;
+import ome.logic.LdapImpl;
 import ome.security.auth.ConfigurablePasswordProvider;
 import ome.security.auth.FilePasswordProvider;
 import ome.security.auth.JdbcPasswordProvider;
@@ -17,6 +18,7 @@ import ome.security.auth.LdapPasswordProvider;
 import ome.security.auth.PasswordChangeException;
 import ome.security.auth.PasswordProvider;
 import ome.security.auth.PasswordProviders;
+import ome.security.auth.PasswordUtil;
 import ome.security.auth.PasswordUtility;
 
 import org.jmock.Mock;
@@ -54,7 +56,7 @@ public class PasswordTest extends MockObjectTestCase {
 
     SimpleJdbcOperations jdbc;
 
-    ILdap ldap;
+    LdapImpl ldap;
 
     protected void initJdbc() {
         mockJdbc = mock(SimpleJdbcOperations.class);
@@ -64,7 +66,8 @@ public class PasswordTest extends MockObjectTestCase {
     protected void initLdap(boolean setting) {
         initJdbc();
         mockLdap = mock(ILdap.class);
-        ldap = (ILdap) mockLdap.proxy();
+        // ldap = (ILdap) mockLdap.proxy();
+        ldap = null; // FIXME
         mockLdap.expects(atLeastOnce()).method("getSetting").will(
                 returnValue(setting));
     }
@@ -93,21 +96,21 @@ public class PasswordTest extends MockObjectTestCase {
     // FILE
 
     public void testFileDefaults() throws Exception {
-        provider = new FilePasswordProvider(file);
+        provider = new FilePasswordProvider(null, file);
         assertTrue(provider.hasPassword("test"));
         assertTrue(provider.checkPassword("test", "test"));
         assertFalse(provider.checkPassword("unknown", "anything"));
     }
 
     public void testFilesDontIgnoreUnknownReturnsNull() throws Exception {
-        provider = new FilePasswordProvider(file, true);
+        provider = new FilePasswordProvider(null, file, true);
         assertFalse(provider.hasPassword("unknown"));
         assertNull(provider.checkPassword("unknown", "anything"));
     }
 
     @Test(expectedExceptions = PasswordChangeException.class)
     public void testFilesThrowsOnChange() throws Exception {
-        provider = new FilePasswordProvider(file, true);
+        provider = new FilePasswordProvider(null, file, true);
         provider.changePassword("test", "something new");
     }
 
@@ -115,7 +118,7 @@ public class PasswordTest extends MockObjectTestCase {
 
     public void tesJdbcDefaults() throws Exception {
         initJdbc();
-        provider = new JdbcPasswordProvider(jdbc);
+        provider = new JdbcPasswordProvider(new PasswordUtil(jdbc));
 
         userIdReturns1();
         provider.hasPassword("test");
@@ -136,14 +139,14 @@ public class PasswordTest extends MockObjectTestCase {
     public void tesJdbcIgnoreUnknownReturnsFalse() throws Exception {
         initJdbc();
         userIdReturnsNull();
-        provider = new JdbcPasswordProvider(jdbc);
+        provider = new JdbcPasswordProvider(new PasswordUtil(jdbc));
         assertFalse(provider.checkPassword("unknown", "anything"));
     }
 
     public void tesJdbcDontIgnoreUnknownReturnsNull() throws Exception {
         initJdbc();
         userIdReturnsNull();
-        provider = new JdbcPasswordProvider(jdbc, true);
+        provider = new JdbcPasswordProvider(new PasswordUtil(jdbc), true);
         assertNull(provider.checkPassword("unknown", "anything"));
     }
 
@@ -151,7 +154,7 @@ public class PasswordTest extends MockObjectTestCase {
         initJdbc();
         userIdReturns1();
         mockJdbc.expects(once()).method("update").will(returnValue(1));
-        provider = new JdbcPasswordProvider(jdbc);
+        provider = new JdbcPasswordProvider(new PasswordUtil(jdbc));
         provider.changePassword("a", "b");
     }
 
@@ -159,7 +162,7 @@ public class PasswordTest extends MockObjectTestCase {
     public void testJdbcThrowsOnBadUsername() throws Exception {
         initJdbc();
         userIdReturnsNull();
-        provider = new JdbcPasswordProvider(jdbc);
+        provider = new JdbcPasswordProvider(new PasswordUtil(jdbc));
         provider.changePassword("a", "b");
     }
 
@@ -167,7 +170,7 @@ public class PasswordTest extends MockObjectTestCase {
 
     public void tesLdapDefaults() throws Exception {
         initLdap(true);
-        provider = new LdapPasswordProvider(ldap, jdbc);
+        provider = new LdapPasswordProvider(new PasswordUtil(jdbc), ldap);
 
         String encoded = ((PasswordUtility) provider).encodePassword("test");
         queryForObjectReturns(encoded);
@@ -196,7 +199,7 @@ public class PasswordTest extends MockObjectTestCase {
         initLdap(true);
         userIdReturnsNull();
         ldapCreatesUser(false);
-        provider = new LdapPasswordProvider(ldap, jdbc, true);
+        provider = new LdapPasswordProvider(new PasswordUtil(jdbc), ldap, true);
         assertNull(provider.checkPassword("unknown", "anything"));
     }
 
@@ -205,7 +208,7 @@ public class PasswordTest extends MockObjectTestCase {
         initLdap(true);
         userIdReturnsNull();
         ldapCreatesUser(true);
-        provider = new LdapPasswordProvider(ldap, jdbc, true);
+        provider = new LdapPasswordProvider(new PasswordUtil(jdbc), ldap, true);
         assertTrue(provider.checkPassword("unknown", "anything"));
     }
 
@@ -213,7 +216,7 @@ public class PasswordTest extends MockObjectTestCase {
         initLdap(true);
         userIdReturnsNull();
         ldapCreatesUserAndThrows();
-        provider = new LdapPasswordProvider(ldap, jdbc, true);
+        provider = new LdapPasswordProvider(new PasswordUtil(jdbc), ldap, true);
         assertNull(provider.checkPassword("unknown", "anything"));
     }
 
@@ -222,7 +225,7 @@ public class PasswordTest extends MockObjectTestCase {
         initLdap(true);
         userIdReturnsNull();
         ldapCreatesUser(false);
-        provider = new LdapPasswordProvider(ldap, jdbc, false);
+        provider = new LdapPasswordProvider(new PasswordUtil(jdbc), ldap, false);
         assertFalse(provider.checkPassword("unknown", "anything"));
     }
 
@@ -231,7 +234,7 @@ public class PasswordTest extends MockObjectTestCase {
         initLdap(true);
         userIdReturnsNull();
         ldapCreatesUser(true);
-        provider = new LdapPasswordProvider(ldap, jdbc, false);
+        provider = new LdapPasswordProvider(new PasswordUtil(jdbc), ldap, false);
         assertTrue(provider.checkPassword("unknown", "anything"));
     }
 
@@ -239,14 +242,14 @@ public class PasswordTest extends MockObjectTestCase {
         initLdap(true);
         userIdReturnsNull();
         ldapCreatesUserAndThrows();
-        provider = new LdapPasswordProvider(ldap, jdbc, false);
+        provider = new LdapPasswordProvider(new PasswordUtil(jdbc), ldap, false);
         assertFalse(provider.checkPassword("unknown", "anything"));
     }
 
     @Test(expectedExceptions = PasswordChangeException.class)
     public void testLdapChangesPasswordThrows() throws Exception {
         initLdap(true);
-        provider = new LdapPasswordProvider(ldap, jdbc);
+        provider = new LdapPasswordProvider(new PasswordUtil(jdbc), ldap);
         provider.changePassword("a", "b");
     }
 

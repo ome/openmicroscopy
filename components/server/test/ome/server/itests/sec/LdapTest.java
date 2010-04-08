@@ -65,8 +65,8 @@ public class LdapTest extends AbstractManagedContextTest {
 	@Test
 	public void testSearchByAttributes() throws Exception {
 		if (iLdap.getSetting()) {
-			String[] attrs = iLdap.getReqAttributes();
-			String[] vals = iLdap.getReqValues();
+			String[] attrs = new String[0];
+			String[] vals = new String[0];
 
 			List<Experimenter> exps = iLdap.searchByAttributes("", attrs, vals);
 
@@ -120,22 +120,6 @@ public class LdapTest extends AbstractManagedContextTest {
         }
     }
 
-	@Test
-	public void testSearchAttributes() throws Exception {
-		if (iLdap.getSetting()) {
-			iLdap.getReqAttributes();
-		}
-
-	}
-
-	@Test
-	public void testValidatePassword() throws Exception {
-		if (iLdap.getSetting()) {
-			System.err.println(iLdap.validatePassword(
-					"cn=jsmith, ou=people, ou=example, o=com", "passwd"));
-		}
-	}
-
     @Test
     public void testCreateUserFromLdap() throws Exception {
         if(iLdap.getSetting()) {
@@ -143,7 +127,8 @@ public class LdapTest extends AbstractManagedContextTest {
             try {
                 exp = iAdmin.lookupExperimenter("jmoore");
             } catch (ApiUsageException e) {
-                iLdap.createUserFromLdap("jmoore", "XXX");
+                // iLdap.createUserFromLdap("jmoore", "XXX");
+                fail();
             }
             
             if(exp!=null) 
@@ -156,9 +141,6 @@ public class LdapTest extends AbstractManagedContextTest {
 	public void testGetReq() throws Exception {
 		if(iLdap.getSetting()) {
 			iLdap.getSetting();
-			iLdap.getReqAttributes();
-			iLdap.getReqGroups();
-			iLdap.getReqValues();
 		}
 	}
 

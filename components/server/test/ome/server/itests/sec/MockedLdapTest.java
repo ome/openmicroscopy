@@ -8,10 +8,11 @@ package ome.server.itests.sec;
 
 import java.util.List;
 
-import ome.api.local.LocalLdap;
+import ome.api.ILdap;
 import ome.logic.LdapImpl;
 import ome.model.meta.Experimenter;
 import ome.server.itests.AbstractManagedContextTest;
+import ome.system.Roles;
 
 import org.jmock.Mock;
 import org.springframework.ldap.core.LdapOperations;
@@ -26,7 +27,7 @@ import org.testng.annotations.Test;
 public class MockedLdapTest extends AbstractManagedContextTest {
 
     // Using local versions since we need to mock them.
-    LocalLdap ldap;
+    ILdap ldap;
     Mock mock;
     LdapOperations ops;
 
@@ -35,8 +36,8 @@ public class MockedLdapTest extends AbstractManagedContextTest {
         mock = new Mock(LdapOperations.class);
         ops = (LdapOperations) mock.proxy();
 
-        LdapImpl limpl = new LdapImpl(null, ops, jdbcTemplate, "default",
-                "groups", "attributes", "values", true);
+        LdapImpl limpl = new LdapImpl(null, null, new Roles(),
+                null, null, null);
         ldap = limpl;
 
     }
@@ -62,8 +63,8 @@ public class MockedLdapTest extends AbstractManagedContextTest {
 
     @Test
     public void testSearchByAttributes() throws Exception {
-        String[] attrs = ldap.getReqAttributes();
-        String[] vals = ldap.getReqValues();
+        String[] attrs = new String[0];
+        String[] vals = new String[0];
 
         List<Experimenter> exps = ldap.searchByAttributes("", attrs, vals);
 
@@ -102,30 +103,6 @@ public class MockedLdapTest extends AbstractManagedContextTest {
         } catch (Exception e) {
             fail("Subtree should not contains two the same CNs");
         }
-    }
-
-    @Test
-    public void testSearchAttributes() throws Exception {
-        ldap.getReqAttributes();
-    }
-
-    @Test
-    public void testValidatePassword() throws Exception {
-        ldap.validatePassword("cn=jsmith, ou=people, ou=example, o=com",
-                "passwd");
-    }
-
-    @Test
-    public void testCreateUserFromLdap() throws Exception {
-        ldap.createUserFromLdap("jmoore", "XXX");
-    }
-
-    @Test
-    public void testGetReq() throws Exception {
-        ldap.getSetting();
-        ldap.getReqAttributes();
-        ldap.getReqGroups();
-        ldap.getReqValues();
     }
 
 }
