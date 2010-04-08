@@ -143,6 +143,31 @@
 		</sequential>
 	</macrodef>
 
+        <macrodef name="tryEclipse">
+            <attribute name="settingsRef"/>
+            <sequential>
+                <trycatch>
+                    <try>
+                        <ivy:resolve file="test.xml" type="jar" conf="test" settingsRef="@{settingsRef}" log="quiet"/>
+                        <taskdef name="ivyeclipse" classname="IVY1016.EclipseClasspath" loaderref="ivy.loader"/>
+                        <ivyeclipse conf="test"/>
+                    </try>
+                    <catch>
+                        <echo>
+
+                        ***************************************************************************
+                        Tests are not compiled. Run "test-compile". Falling back to regular eclipse
+                        ***************************************************************************
+
+                        </echo>
+                        <ivy:resolve file="ivy.xml" type="jar" conf="build" settingsRef="@{settingsRef}" log="quiet"/>
+                        <taskdef name="ivyeclipse" classname="IVY1016.EclipseClasspath" loaderref="ivy.loader"/>
+                        <ivyeclipse conf="build"/>
+                    </catch>
+                </trycatch>
+            </sequential>
+        </macrodef>
+
         <!--
            These classpaths are used by all components, and amount to only the deps.lib.dir
            directory within each component. That directory is configured using deps-retrieve,

@@ -43,7 +43,10 @@ java component.
         <!-- Prevent future invocations and PermGen errors-->
         <property name="ivy.done" value="done"/>
         <!-- Touch the local configuration file which is no longer mandatory -->
-        <touch file="${basedir}/etc/local.properties"/>
+        <if><not><available file="${basedir}/etc/local.properties"/></not>
+        <then>
+            <touch file="${basedir}/etc/local.properties"/>
+        </then></if>
         <installIvy/>
         <ivy:buildlist reference="all.buildpath" settingsRef="ivy.toplevel">
             <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/policy/**,**/tools/**"/>
@@ -195,22 +198,14 @@ java component.
     </target>
 
     <target name="eclipse" depends="init">
-        <ivy:resolve file="ivy.xml" type="jar" conf="build" settingsRef="ivy.toplevel" log="quiet" haltonfailure="false"/>
-        <taskdef name="ivyeclipse" classname="IVY1016.EclipseClasspath" loaderref="ivy.loader"/>
-        <ivyeclipse conf="build"/>
-    </target>
-
-    <target name="eclipse-tests" depends="init">
-        <ivy:resolve file="ivy.xml" type="jar" conf="test" settingsRef="ivy.toplevel" log="quiet" haltonfailure="false"/>
-        <taskdef name="ivyeclipse" classname="IVY1016.EclipseClasspath" loaderref="ivy.loader"/>
-        <ivyeclipse conf="test"/>
+        <tryEclipse settingsRef="ivy.toplevel"/>
     </target>
 
     <target name="build-eclipse" description="Creates all source directories needed by eclipse in case default build is failing." depends="init">
-        <iterate buildpathref="all.buildpath" target="prepare"/>
-        <iterate buildpathref="OmeroJava.buildpath" target="prepare"/>
-        <iterate buildpathref="OmeroImporter.buildpath" target="prepare"/>
-        <iterate buildpathref="licenses.buildpath" target="prepare"/>
+        <iterate buildpathref="all.buildpath" target="eclipse"/>
+        <iterate buildpathref="OmeroJava.buildpath" target="eclipse"/>
+        <iterate buildpathref="OmeroImporter.buildpath" target="eclipse"/>
+        <iterate buildpathref="licenses.buildpath" target="eclipse"/>
         <antcall target="eclipse" inheritRefs="true" inheritAll="true"/>
     </target>
 
@@ -544,15 +539,12 @@ java component.
     <target name="_dist" depends="init"><prepareDist/></target>
     <macrodef name="prepareDist">
         <sequential>
-            <copy file="${omero.home}/LICENSE.txt" todir="${dist.dir}/" overwrite="true"/>
-            <copy todir="${dist.dir}/etc" overwrite="true">
+            <copy file="${omero.home}/LICENSE.txt" todir="${dist.dir}/"/>
+            <copy todir="${dist.dir}/etc">
                 <fileset dir="${omero.home}/etc">
                     <exclude name="local.properties"/>
                 </fileset>
             </copy>
-            <echo file="${dist.dir}/etc/omero.properties" append="true">
-omero.version=${omero.version}
-            </echo>
             <copy todir="${dist.dir}">
                 <fileset dir="${omero.home}">
                     <include name="sql/**"/>
@@ -567,16 +559,34 @@ omero.version=${omero.version}
             <ivy:resolve file="ivy.xml" type="jar,egg" conf="client" settingsRef="ivy.toplevel" log="quiet"/>
             <ivy:retrieve conf="client" pattern="${dist.dir}/lib/client/[module].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
 
-            <!-- Must update the jars with the modified omero.properties file in order for the version to be updated -->
-            <jar update="true" destfile="${dist.dir}/lib/server/blitz.jar">
-                <fileset dir="etc" includes="omero.properties"/>
-            </jar>
-            <jar update="true" destfile="${dist.dir}/lib/client/omero_client.jar">
-                <fileset dir="etc" includes="omero.properties"/>
-            </jar>
-            <jar update="true" destfile="${dist.dir}/lib/client/OmeroImporter.jar">
-                <fileset dir="etc" includes="omero.properties"/>
-            </jar>
+            <loadproperties srcFile="${dist.dir}/etc/omero.properties">
+                <filterchain>
+                    <headfilter skip="20" lines="-1"/>
+                    <prefixlines prefix="dist.check."/>
+                </filterchain>
+            </loadproperties>
+            <if><not><equals arg1="${dist.check.omero.version}" arg2="${omero.version}"/></not>
+            <then>
+                <!-- Setting version -->
+                <copy todir="${dist.dir}/etc" overwrite="true">
+                    <fileset dir="${omero.home}/etc" includes="omero.properties"/>
+                </copy>
+                <echo file="${dist.dir}/etc/omero.properties" append="true">
+omero.version=${omero.version}
+                </echo>
+
+                <!-- Must update the jars with the modified omero.properties file in order for the version to be updated -->
+                <jar update="true" destfile="${dist.dir}/lib/server/blitz.jar">
+                    <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
+                </jar>
+                <jar update="true" destfile="${dist.dir}/lib/client/omero_client.jar">
+                    <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
+                </jar>
+                <jar update="true" destfile="${dist.dir}/lib/client/OmeroImporter.jar">
+                    <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
+                </jar>
+            </then>
+            </if>
        </sequential>
     </macrodef>
 

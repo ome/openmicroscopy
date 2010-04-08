@@ -52,25 +52,18 @@
 		<property name="test.with.fail" value="true"/>
 	</target>
 
-	<target name="eclipse" depends="retrieve">
-		<ivy:resolve file="ivy.xml" type="jar" conf="build" settingsRef="ivy.${ant.project.name}" log="quiet"/>
-		<taskdef name="ivyeclipse" classname="IVY1016.EclipseClasspath" loaderref="ivy.loader"/>
-		<ivyeclipse conf="build"/>
+	<target name="eclipse" depends="prepare">
+                <tryEclipse settingsRef="ivy.${ant.project.name}"/>
 	</target>
 
-	<target name="eclipse-tests" depends="retrieve">
-		<ivy:resolve file="test.xml" type="jar" conf="test" settingsRef="ivy.${ant.project.name}" log="quiet"/>
-		<taskdef name="ivyeclipse" classname="IVY1016.EclipseClasspath" loaderref="ivy.loader"/>
-		<ivyeclipse conf="test"/>
-	</target>
-
-	<target name="retrieve" unless="retrieve.done">
+        <target name="retrieve" unless="retrieve.done">
+                <property name="retrieve.done" value="true"/>
+                <installIvy/>
 		<installIvy/>
-		<property name="retrieve.done" value="true"/>
 		<ivy:retrieve settingsRef="ivy.${ant.project.name}" pattern="${deps.lib.dir}/[artifact].[ext]" log="quiet" sync="false" symlink="true"/>
 	</target>
 
-	<target name="prepare" depends="retrieve,eclipse">
+	<target name="prepare" depends="retrieve">
 		<mkdir dir="${deps.lib.dir}"/>
 		<defineClasspath/>
                 <defineVariables/>
@@ -257,7 +250,7 @@ omero.version=${omero.version}
 			<flattenmapper/>
 		</pathconvert>
                 <property name="mf.classpath.and.jars" value="../../etc ${mf.classpath} services.jar extensions.jar"/>
-		<jar destfile="${target.dir}/${ivy.module}.jar">
+		<jar destfile="${target.dir}/${ivy.module}.jar" update="true">
 			<manifest>
 				<attribute name="Class-Path" value="${mf.classpath.and.jars}"/>
 				<attribute name="Main-Class" value="${main.class}"/>
