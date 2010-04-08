@@ -248,7 +248,7 @@ def login(request):
         url = request.REQUEST.get("url")
         request.session['server'] = request.REQUEST.get('server')
         
-        template = "webclient/base/login.html"
+        template = "webclient/login.html"
         if request.method == 'POST':
             form = LoginForm(data=request.REQUEST.copy())
         else:
