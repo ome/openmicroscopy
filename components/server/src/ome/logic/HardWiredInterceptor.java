@@ -10,16 +10,17 @@ package ome.logic;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
-import org.springframework.aop.framework.ReflectiveMethodInvocation;
+import java.util.Map;
 
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
+
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+import org.springframework.aop.framework.ReflectiveMethodInvocation;
 
 /**
  * Extension point for interceptors which should be compiled in from
@@ -41,6 +42,9 @@ public abstract class HardWiredInterceptor implements MethodInterceptor {
     /** Unique string for the current {@link Principal} instance */
     private final static String PR = "ome.hard-wired.principal";
     
+    /** Unique string for the current password-state */
+    private final static String HP = "ome.hard-wired.hasPassword";
+
     public static void configure(List<HardWiredInterceptor> hwi, OmeroContext ctx) {
         for (HardWiredInterceptor interceptor : hwi) {
             interceptor.selfConfigure(ctx);
@@ -93,10 +97,12 @@ public abstract class HardWiredInterceptor implements MethodInterceptor {
      * {@link java.util.Map} for lookup in subclasses
      */
     public static void initializeUserAttributes(MethodInvocation mi,
-            ServiceFactory sf, Principal pr) {
+            ServiceFactory sf, Principal pr, boolean hasPassword) {
         ReflectiveMethodInvocation rmi = (ReflectiveMethodInvocation) mi;
-        rmi.getUserAttributes().put(SF, sf);
-        rmi.getUserAttributes().put(PR, pr);
+        Map<String, Object> attrs = rmi.getUserAttributes();
+        attrs.put(SF, sf);
+        attrs.put(PR, pr);
+        attrs.put(HP, hasPassword);
     }
 
     protected ServiceFactory getServiceFactory(MethodInvocation mi) {
@@ -107,6 +113,12 @@ public abstract class HardWiredInterceptor implements MethodInterceptor {
     protected Principal getPrincipal(MethodInvocation mi) {
         ReflectiveMethodInvocation rmi = (ReflectiveMethodInvocation) mi;
         return (Principal) rmi.getUserAttribute(PR);
+    }
+
+    protected boolean hasPassword(MethodInvocation mi) {
+        ReflectiveMethodInvocation rmi = (ReflectiveMethodInvocation) mi;
+        Boolean hp = (Boolean) rmi.getUserAttribute(HP);
+        return hp == null ? false : hp.booleanValue();
     }
 
 }

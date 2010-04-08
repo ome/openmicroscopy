@@ -7,9 +7,7 @@
 
 package ome.services.blitz.fire;
 
-import ome.conditions.ApiUsageException;
 import ome.logic.HardWiredInterceptor;
-import ome.security.SecuritySystem;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 
@@ -24,14 +22,21 @@ public final class AopContextInitializer extends HardWiredInterceptor {
     final ServiceFactory sf;
     
     final Principal pr;
-    
-    public AopContextInitializer(ServiceFactory sf, Principal p) {
+
+    /**
+     * Whether or not the current session was created via password-based (or
+     * similar) login, or whether a session id was used to login.
+     */
+    final boolean hasPassword;
+
+    public AopContextInitializer(ServiceFactory sf, Principal p, boolean hasPassword) {
         this.sf = sf;
         this.pr = p;
+        this.hasPassword = hasPassword;
     }
     
     public Object invoke(MethodInvocation mi) throws Throwable {
-        HardWiredInterceptor.initializeUserAttributes(mi, sf, pr);
+        HardWiredInterceptor.initializeUserAttributes(mi, sf, pr, hasPassword);
         return mi.proceed();
     }
 

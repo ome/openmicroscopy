@@ -89,8 +89,8 @@ public abstract class AbstractServantTest extends TestCase {
 
         user = new ManagedContextFixture(ctx);
         user_sf = user.createServiceFactoryI();
-        user_initializer = new AopContextInitializer(new ServiceFactory(ctx),
-                user.login.p);
+        user_initializer = new AopContextInitializer(
+                new ServiceFactory(ctx), user.login.p, false);
 
         user_update = new UpdateI(sf.getUpdateService(), be);
         user_query = new QueryI(sf.getQueryService(), be);
@@ -104,8 +104,8 @@ public abstract class AbstractServantTest extends TestCase {
         root = new ManagedContextFixture(ctx);
         root.setCurrentUserAndGroup("root", "system");
         root_sf = root.createServiceFactoryI();
-        root_initializer = new AopContextInitializer(new ServiceFactory(ctx),
-                root.login.p);
+        root_initializer = new AopContextInitializer(
+                new ServiceFactory(ctx), root.login.p, false);
 
         root_update = new UpdateI(sf.getUpdateService(), be);
         root_query = new QueryI(sf.getQueryService(), be);

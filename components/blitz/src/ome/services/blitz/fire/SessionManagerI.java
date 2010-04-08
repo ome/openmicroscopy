@@ -172,9 +172,9 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             // Event raised to add to Ring
 
             // Create the ServiceFactory
-            ServiceFactoryI session = new ServiceFactoryI(current, control,
-                    context, sessionManager, executor, sp, CPTORS, topicManager,
-                    registry);
+            ServiceFactoryI session = new ServiceFactoryI(local /* ticket:911 */,
+                    current, control, context, sessionManager, executor,
+                    sp, CPTORS, topicManager, registry);
 
             Ice.Identity id = session.sessionId();
 

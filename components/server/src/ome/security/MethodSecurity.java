@@ -48,9 +48,11 @@ public interface MethodSecurity {
      * @param obj     {@link Object} on which this method will be called.
      * @param method  {@link Method} to be called.
      * @param principal {@link Principal} for which permissions will be checked.
+     * @param hasPassword flag if the user's session has been authenticated directly
+     *  and not via a one-time session id or similar.
      * @throws SecurityViolation if the given pr
      */
-    void checkMethod(Object obj, Method method, Principal principal)
+    void checkMethod(Object obj, Method method, Principal principal, boolean hasPassword)
             throws SecurityViolation;
 
 }

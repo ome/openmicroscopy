@@ -70,7 +70,7 @@ public class SessionBean implements ISession {
     // ~ Session lifecycle
     // =========================================================================
 
-    @RolesAllowed("user")
+    @RolesAllowed({"user", "HasPassword"})
     public Session createUserSession(final long timeToLiveMs, final long timeToIdleMs,
             String defaultGroup, Permissions umask) {
 

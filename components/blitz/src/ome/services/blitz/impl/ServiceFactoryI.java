@@ -169,6 +169,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     // These fields are special for this instance of SF alone. It represents
     // a single clients use of a session.
 
+    final boolean reusedSession;
+
     boolean doClose = true;
 
     public final String clientId;
@@ -215,6 +217,17 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
             SessionManager manager, Executor executor, Principal p,
             List<HardWiredInterceptor> interceptors, TopicManager topicManager,
             Registry registry) throws ApiUsageException {
+        this(false, current, control, context, manager, executor, p,
+                interceptors, topicManager, registry);
+    }
+
+    public ServiceFactoryI(boolean reusedSession,
+            Ice.Current current, Glacier2.SessionControlPrx control,
+            OmeroContext context,
+            SessionManager manager, Executor executor, Principal p,
+            List<HardWiredInterceptor> interceptors, TopicManager topicManager,
+            Registry registry) throws ApiUsageException {
+        this.reusedSession = reusedSession;
         this.adapter = current.adapter;
         this.control = control;
         this.clientId = clientId(current);
@@ -224,7 +237,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         this.principal = p;
         this.cptors = interceptors;
         this.initializer = new AopContextInitializer(new ServiceFactory(
-                this.context), this.principal);
+                this.context), this.principal, !reusedSession);
         this.topicManager = topicManager;
         this.registry = registry;
 
@@ -474,7 +487,9 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     public ServiceInterfacePrx getByName(String name, Current current)
             throws ServerError {
 
-        Ice.Identity id = getIdentity(name);
+        // ticket:911 - in order to use a different initializer
+        // for each stateless service, we need to attach modify the id.
+        Ice.Identity id = getIdentity(clientId + name);
 
         holder.acquireLock(name);
         try {

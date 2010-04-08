@@ -15,7 +15,6 @@ import ome.conditions.SecurityViolation;
 import ome.logic.AdminImpl;
 import ome.security.MethodSecurity;
 import ome.security.basic.BasicMethodSecurity;
-import ome.security.basic.BasicSecurityWiring;
 import ome.services.sessions.SessionManager;
 import ome.system.Principal;
 
@@ -23,8 +22,6 @@ import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor;
-import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.ExpectedExceptions;
 import org.testng.annotations.Test;
@@ -77,8 +74,8 @@ public class MethodSecurityTest extends MockObjectTestCase {
         mockMgr.expects(once()).method("getUserRoles").will(returnValue(roles));
 
         try {
-            msec.checkMethod(new AdminImpl(null, null, null, null, null, null, null, null, null),
-                    sync, p);
+            msec.checkMethod(adminImpl(),
+                    sync, p, true);
         } finally {
             check();
         }
@@ -94,8 +91,8 @@ public class MethodSecurityTest extends MockObjectTestCase {
         mockMgr.expects(once()).method("getUserRoles").will(returnValue(roles));
 
         try {
-            msec.checkMethod(new AdminImpl(null, null, null, null,null, null, null, null, null),
-                    ec, p);
+            msec.checkMethod(adminImpl(),
+                    ec, p, true);
         } finally {
             check();
         }
@@ -113,15 +110,48 @@ public class MethodSecurityTest extends MockObjectTestCase {
 
         ProxyFactory factory = new ProxyFactory();
         factory.setInterfaces(new Class[] { IAdmin.class });
-        factory.setTarget(new AdminImpl(null, null, null, null, null, null, null, null, null));
+        factory.setTarget(adminImpl());
         factory.addAdvice(new JamonPerformanceMonitorInterceptor());
         IAdmin proxy = (IAdmin) factory.getProxy();
         try {
-            msec.checkMethod(factory.getProxy(), ec, p);
+            msec.checkMethod(factory.getProxy(), ec, p, true);
         } finally {
             check();
         }
 
+    }
+
+    @Test(groups = "ticket:911")
+    public void testCheckMethodPreventsBadCredentials() throws Exception {
+
+        Method ec = AdminImpl.class.getMethod("changePassword", String.class);
+        Principal p = new Principal("foo", "bar", "baz");
+
+        List<String> roles = Arrays.asList("user", "demo");
+        mockMgr.expects(atLeastOnce())
+            .method("getUserRoles").will(returnValue(roles));
+
+        try {
+            msec.checkMethod(adminImpl(), ec, p, true);
+        } finally {
+            check();
+        }
+
+        try {
+            try {
+                msec.checkMethod(adminImpl(), ec, p, false);
+                fail("sec vio");
+            } catch (SecurityViolation sv) {
+                // good.
+            }
+        } finally {
+            check();
+        }
+
+    }
+
+    private AdminImpl adminImpl() {
+        return new AdminImpl(null, null, null, null,null, null, null, null, null);
     }
 
 }

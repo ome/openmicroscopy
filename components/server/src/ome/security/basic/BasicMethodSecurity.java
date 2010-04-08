@@ -69,7 +69,7 @@ public class BasicMethodSecurity implements MethodSecurity {
     /**
      * See {@link MethodSecurity#checkMethod(Object, Method, Principal)}
      */
-    public void checkMethod(Object o, Method m, Principal p) {
+    public void checkMethod(Object o, Method m, Principal p, boolean hasPassword) {
         String[] allowedRoles = null;
         Annotation[] anns;
         //
@@ -105,23 +105,38 @@ public class BasicMethodSecurity implements MethodSecurity {
                 return; // EARLY EXIT
             }
         }
+
         // TODO add exception subclass
         if (allowedRoles == null) {
             throw new SecurityViolation("This method allows no remote access.");
         }
 
-        // see ticket:665
+        boolean allow = false;
+        boolean block = false;
+
         List<String> actualRoles = sessionManager.getUserRoles(p.getName());
         for (String allowed : allowedRoles) {
+            //ticket:665
             if (actualRoles.contains(allowed)) {
-                // Only need to find one match.
-                return;
+                allow = true;
+            }
+            // ticket:911
+            if ("HasPassword".equals(allowed)) {
+                block = !hasPassword;
             }
         }
 
-        throw new SecurityViolation(String.format(
-                "No matching roles found in %s for session %s (allowed: %s)",
-                actualRoles, p, Arrays.asList(allowedRoles)));
+        if (block) {
+            throw new SecurityViolation(
+                    "Bad authentication credentials for this action");
+
+        }
+
+        if (!allow) {
+            throw new SecurityViolation(String.format(
+                    "No matching roles found in %s for session %s (allowed: %s)",
+                    actualRoles, p, Arrays.asList(allowedRoles)));
+        }
     }
 
 }

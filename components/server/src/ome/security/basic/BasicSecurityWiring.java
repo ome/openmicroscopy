@@ -69,22 +69,25 @@ public final class BasicSecurityWiring extends HardWiredInterceptor {
      */
     public Object invoke(MethodInvocation mi) throws Throwable {
 
+        Principal p = getPrincipal(mi);
+        boolean hp = hasPassword(mi);
+
         if (!"close".equals(mi.getMethod().getName())
                 && methodSecurity.isActive()) {
-            methodSecurity.checkMethod(mi.getThis(), mi.getMethod(),
-                    getPrincipal(mi));
+
+            methodSecurity.checkMethod(mi.getThis(), mi.getMethod(), p, hp);
         }
+
         try {
-            login(mi);
+            login(mi, p);
             return mi.proceed();
         } finally {
             logout();
         }
     }
 
-    private void login(MethodInvocation mi) {
+    private void login(MethodInvocation mi, Principal p) {
 
-        Principal p = getPrincipal(mi);
         if (p == null) {
             throw new ApiUsageException(
                     "ome.system.Principal instance must be provided on login.");
