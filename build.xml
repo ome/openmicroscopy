@@ -107,8 +107,10 @@ java component.
     </target>
 
     <target name="build-ice" depends="check-scons" description="Installs the Ice code generation executables" unless="slice2java.exe">
-        <mkdir dir="${target.dir}/Ice"/>
-        <untar compression="gzip" src="${lib.dir}/repository/ice-includes-3.3.0.tar.gz" dest="target/Ice"/>
+        <if><not><available file="${target.dir}/Ice"/></not><then>
+	    <mkdir dir="${target.dir}/Ice"/>
+	    <untar compression="gzip" src="${lib.dir}/repository/ice-includes-3.3.0.tar.gz" dest="target/Ice"/>
+        </then></if>
     </target>
 
     <target name="build-default" description="Default build calls build" depends="build"/>
