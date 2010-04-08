@@ -659,6 +659,25 @@ public class TextualTwoKnobsSlider
 	}
 
 	/**
+	 * Returns the number of the columns.
+	 * 
+	 * @return See above.
+	 */
+	public int getColumns() { return startField.getColumns(); }
+	
+	/**
+	 * Sets the number of columns of the {@link #startField} and 
+	 * {@link #startField}.
+	 * 
+	 * @param columns The value to set.
+	 */
+	public void setColumns(int columns) 
+	{
+		startField.setColumns(columns);
+		endField.setColumns(columns);
+	}
+	
+	/**
 	 * Returns the text field corresponding to the passed index.
 	 * 
 	 * @param index The index identifying the component.

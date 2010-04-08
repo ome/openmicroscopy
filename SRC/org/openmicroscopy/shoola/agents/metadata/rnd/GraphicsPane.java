@@ -32,6 +32,8 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -236,9 +238,16 @@ class GraphicsPane
         	sliders = new ArrayList<ChannelSlider>();
         	List<ChannelData> channels = model.getChannelData();
         	Iterator<ChannelData> i = channels.iterator();
+        	ChannelSlider slider;
+        	int columns = 0;
         	while (i.hasNext()) {
-        		sliders.add(new ChannelSlider(this, model, controller, 
-        				i.next()));
+        		slider = new ChannelSlider(this, model, controller, i.next());
+        		columns = Math.max(columns, slider.getColumns());
+        		sliders.add(slider);
+			}
+        	Iterator<ChannelSlider> j = sliders.iterator();
+        	while (j.hasNext()) {
+        		j.next().setColumns(columns);
 			}
         }
     }
@@ -271,6 +280,7 @@ class GraphicsPane
     private JPanel buildGeneralPane()
     {
     	JPanel content = new JPanel();
+    	content.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
     	content.add(new JSeparator());
    	 	content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
    	 	JPanel p = UIUtilities.buildComponentPanel(preview);

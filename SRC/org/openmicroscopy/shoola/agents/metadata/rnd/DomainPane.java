@@ -554,6 +554,7 @@ public class DomainPane
     	JPanel p = new JPanel();
     	p.setBackground(UIUtilities.BACKGROUND_COLOR);
     	p.setLayout(new BorderLayout());
+    	p.setBorder(BorderFactory.createEmptyBorder(10, 5, 5, 5));
     	if (channelButtonPanel != null && model.isGeneralIndex())
     		p.add(channelButtonPanel, BorderLayout.WEST);
     	if (model.isGeneralIndex()) {

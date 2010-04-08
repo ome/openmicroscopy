@@ -158,6 +158,20 @@ class ChannelSlider
 	}
 
 	/**
+	 * Returns the number of columns.
+	 * 
+	 * @return See above.
+	 */
+	int getColumns() { return slider.getColumns(); }
+	
+	/**
+	 * Sets the number of columns.
+	 * 
+	 * @param columns The value to set.
+	 */
+	void setColumns(int columns) { slider.setColumns(columns); }
+	
+	/**
 	 * Returns the index of the channel.
 	 * 
 	 * @return See above.
