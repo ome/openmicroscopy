@@ -49,7 +49,9 @@ import Glacier2.PermissionDeniedException;
  * setUp and tearDown must be called properly to make these work.
  * Copied from testing/src/ome/testing/CreatePojosFixture for ticket1106
  */
-public class CreatePojosFixture2 {
+public class CreatePojosFixture2 
+{
+	
     /**
      * creates a new fixture logged in as a newly created user. requires an
      * admin service factory in order to create user and should NOT be used from
@@ -58,7 +60,9 @@ public class CreatePojosFixture2 {
      * @throws PermissionDeniedException 
      * @throws CannotCreateSessionException 
      */
-    public static CreatePojosFixture2 withNewUser(omero.client root) throws ServerError, CannotCreateSessionException, PermissionDeniedException {
+    public static CreatePojosFixture2 withNewUser(omero.client root) 
+    throws ServerError, CannotCreateSessionException, PermissionDeniedException
+    {
         CreatePojosFixture2 fixture = new CreatePojosFixture2();
 
         ServiceFactoryPrx sf = root.getSession();
