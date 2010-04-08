@@ -34,9 +34,9 @@
         <import file="${import.dir}/directories.xml"/>
 
         <taskdef resource="net/sf/antcontrib/antcontrib.properties"
-                 classpath="${lib.dir}/repository/ant-contrib-1.0b1.jar"/>
+                 classpath="${lib.dir}/repository/ant-contrib-1.0b3.jar"/>
         <taskdef resource="net/sf/antcontrib/antlib.xml"
-                 classpath="${lib.dir}/repository/ant-contrib-1.0b1.jar"/>
+                 classpath="${lib.dir}/repository/ant-contrib-1.0b3.jar"/>
 
         <!-- Define properties :
                 The user's environment (env) overrides all other
@@ -124,11 +124,13 @@
 
         <macrodef name="installIvy">
             <sequential>
-            <path id="ivy.classpath">
-                <fileset dir="${omero.home}/lib/repository" includes="ivy*.jar"/>
-                <fileset dir="${omero.home}/lib/repository" includes="jakarta-oro*.jar"/>
-            </path>
-            <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.classpath"/>
+            <classloader name="ivy.loader">
+                <classpath id="ivy.classpath">
+                    <fileset dir="${omero.home}/lib/repository" includes="ivy*.jar"/>
+                    <fileset dir="${omero.home}/lib/repository" includes="jakarta-oro*.jar"/>
+                </classpath>
+            </classloader>
+            <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" loaderref="ivy.loader"/>
             <ivy:settings id="ivy.${ant.project.name}" file="${etc.dir}/ivysettings.xml"/>
             </sequential>
         </macrodef>

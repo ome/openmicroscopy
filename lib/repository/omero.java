@@ -192,10 +192,10 @@ public class omero
     {
         File[] jars = new File[6];
 	jars[0] = new File("lib/repository/junit-3.8.1.jar");
-	jars[1] = new File("lib/repository/ant-1.6.5.jar");
-	jars[2] = new File("lib/repository/ant-launcher-1.6.5.jar");
-	jars[3] = new File("lib/repository/ant-junit-1.6.5.jar");
-	jars[4] = new File("lib/repository/ant-nodeps-1.6.5.jar");
+	jars[1] = new File("lib/repository/ant-1.8.0.jar");
+	jars[2] = new File("lib/repository/ant-launcher-1.8.0.jar");
+	jars[3] = new File("lib/repository/ant-junit-1.8.0.jar");
+	jars[4] = new File("lib/repository/ant-nodeps-1.8.0.jar");
 	jars[5] = new File("lib/repository/bsh-2.0b4.jar");
 
         if (!isJDKToolsAvailable()) {  //Try and grab tools.jar.

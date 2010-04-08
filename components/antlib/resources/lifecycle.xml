@@ -84,6 +84,9 @@ omero.version=${omero.version}
 				classpathref="omero.classpath">
 			</sql>
 		</presetdef>
+		<ivy:resolve file="ivy.xml" type="jar" conf="build" settingsRef="ivy.${ant.project.name}" log="quiet"/>
+		<taskdef name="ivyeclipse" classname="IVY1016.EclipseClasspath" loaderref="ivy.loader"/>
+		<ivyeclipse conf="build"/>
 	</target>
 
 	<target name="generate" depends="prepare">

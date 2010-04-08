@@ -49,6 +49,10 @@ java component.
             <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/policy/**,**/tools/**"/>
         </ivy:buildlist>
         <!-- Single file paths defined in antlib/resources/directories.xml -->
+
+        <ivy:resolve file="ivy.xml" type="jar" conf="build" settingsRef="ivy.toplevel" log="quiet"/>
+        <taskdef name="ivyeclipse" classname="IVY1016.EclipseClasspath" loaderref="ivy.loader"/>
+        <ivyeclipse conf="build"/>
     </target>
 
     <target name="quick" description="Deprecated">
