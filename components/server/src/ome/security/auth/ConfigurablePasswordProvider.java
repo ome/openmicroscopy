@@ -9,7 +9,6 @@ package ome.security.auth;
 
 import java.security.Permissions;
 
-import ome.security.PasswordUtil;
 import ome.security.SecuritySystem;
 
 import org.apache.commons.logging.Log;
@@ -43,12 +42,14 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
      */
     protected final boolean ignoreUnknown;
 
-    public ConfigurablePasswordProvider() {
-        this.hash = "MD5";
-        this.ignoreUnknown = false;
+    protected final PasswordUtil util;
+
+    public ConfigurablePasswordProvider(PasswordUtil util) {
+        this(util, false);
     }
 
-    public ConfigurablePasswordProvider(boolean ignoreUnknown) {
+    public ConfigurablePasswordProvider(PasswordUtil util, boolean ignoreUnknown) {
+        this.util = util;
         this.hash = "MD5";
         this.ignoreUnknown = ignoreUnknown;
     }
@@ -84,21 +85,11 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
     }
 
     /**
-     * Throws by default.
-     */
-    public void changeDistinguishedName(String user, String dn)
-            throws PasswordChangeException {
-        throw new PasswordChangeException(
-                "Cannot change dn with this implementation: "
-                        + getClass().getName());
-    }
-
-    /**
      * Encodes the password as it would be encoded for a check by
      * {@link #comparePasswords(String, String)}
      */
     public String encodePassword(String newPassword) {
-        return PasswordUtil.preparePassword(newPassword);
+        return util.preparePassword(newPassword);
     }
 
     /**

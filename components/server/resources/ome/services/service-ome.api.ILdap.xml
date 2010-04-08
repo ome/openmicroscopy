@@ -30,11 +30,11 @@
         <constructor-arg index="0" ref="roleProvider"/>
         <constructor-arg index="1" ref="passwordProvider"/>
         <constructor-arg index="2" ref="ldapTemplate" />
-        <constructor-arg index="3" value="${omero.ldap.new_user_group}" />
-        <constructor-arg index="4" value="${omero.ldap.groups}" />
-        <constructor-arg index="5" value="${omero.ldap.attributes}" />
-        <constructor-arg index="6" value="${omero.ldap.values}" />
-        <constructor-arg index="7" value="${omero.ldap.config}" />
+        <constructor-arg index="3" ref="ldapUtil" />
+        <constructor-arg index="4" value="${omero.ldap.new_user_group}" />
+        <constructor-arg index="5" value="${omero.ldap.groups}" />
+        <constructor-arg index="6" value="${omero.ldap.attributes}" />
+        <constructor-arg index="7" value="${omero.ldap.values}" />
 	</bean>
 
 	<bean name="managed-ome.api.ILdap" parent="managedService">
@@ -46,6 +46,11 @@
 		</property>
 		<property name="target" ref="internal-ome.api.ILdap" />
 	</bean>
+
+    <bean id="ldapUtil" class="ome.security.auth.LdapUtil">
+      <constructor-arg ref="simpleJdbcTemplate"/>
+      <constructor-arg value="${omero.ldap.config}" />
+    </bean>
 
 	<bean id="ldapTemplate" class="org.springframework.ldap.core.LdapTemplate">
 		<constructor-arg ref="contextSource" />

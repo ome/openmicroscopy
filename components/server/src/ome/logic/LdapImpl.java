@@ -36,8 +36,7 @@ import ome.conditions.ValidationException;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import ome.security.LdapUtil;
-import ome.security.SecuritySystem;
+import ome.security.auth.LdapUtil;
 import ome.security.auth.PasswordChangeException;
 import ome.security.auth.PasswordProvider;
 import ome.security.auth.RoleProvider;
@@ -83,29 +82,33 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 
     protected final String values;
 
-    protected final boolean config;
-
     protected final RoleProvider roleProvider;
 
     protected final PasswordProvider passwordProvider;
 
-    public LdapImpl(RoleProvider roleProvider, PasswordProvider passwordProvider,
+    protected final LdapUtil util;
+
+    public LdapImpl(
+            RoleProvider roleProvider,
+            PasswordProvider passwordProvider,
             LdapOperations ldapOperations,
+            LdapUtil util,
             String newUserGroup, String groups, String attributes,
-            String values, boolean config) {
+            String values) {
         this.roleProvider = roleProvider;
         this.passwordProvider = passwordProvider;
         this.ldapOperations = ldapOperations;
+        this.util = util;
         this.newUserGroup = newUserGroup;
         this.groups = groups;
         this.attributes = attributes;
         this.values = values;
-        this.config = config;
     }
 
     // ~ System-only interface methods
     // =========================================================================
 
+    @SuppressWarnings("unchecked")
     @RolesAllowed("system")
     public List<Experimenter> searchAll() {
         EqualsFilter filter = new EqualsFilter("objectClass", "person");
@@ -113,6 +116,7 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
                 .encode(), new PersonContextMapper());
     }
 
+    @SuppressWarnings("unchecked")
     @RolesAllowed("system")
     public List<Experimenter> searchByAttribute(String dns, String attr,
             String value) {
@@ -215,12 +219,7 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
     @RolesAllowed("system")
     @Transactional(readOnly = false)
     public void setDN(@NotNull Long experimenterID, String dn) {
-        String name = roleProvider.nameById(experimenterID);
-        try {
-            passwordProvider.changeDistinguisedName(name, dn);
-        } catch (PasswordChangeException pce) {
-            throw new ValidationException("Cannot set DN for: " + name);
-        }
+        util.setDNById(experimenterID, dn);
     }
 
     // Getters and Setters for requiroments
@@ -228,7 +227,7 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 
     @RolesAllowed("system")
     public boolean getSetting() {
-        return this.config;
+        return util.getConfig();
     }
 
     @RolesAllowed("system")

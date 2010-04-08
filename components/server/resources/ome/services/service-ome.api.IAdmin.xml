@@ -33,6 +33,8 @@
     <constructor-arg ref="aclVoter"/>
     <constructor-arg ref="roleProvider"/>
     <constructor-arg ref="passwordProvider"/>
+    <constructor-arg ref="ldapUtil"/>
+    <constructor-arg ref="passwordUtil"/>
   </bean>
 
   <alias name="${omero.security.password_provider}" alias="passwordProvider"/>
@@ -55,6 +57,10 @@
   <bean id="roleProvider" class="ome.security.auth.SimpleRoleProvider">
     <constructor-arg ref="securitySystem"/>
     <constructor-arg ref="omeroSessionFactory"/>
+  </bean>
+
+  <bean id="passwordUtil" class="ome.security.auth.PasswordUtil">
+    <constructor-arg ref="simpleJdbcTemplate"/>
   </bean>
 
   <bean name="managed-ome.api.IAdmin" parent="managedService">

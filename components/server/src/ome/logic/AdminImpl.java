@@ -52,12 +52,12 @@ import ome.model.meta.GroupExperimenterMap;
 import ome.parameters.Parameters;
 import ome.security.ACLVoter;
 import ome.security.AdminAction;
-import ome.security.LdapUtil;
-import ome.security.PasswordUtil;
 import ome.security.SecureAction;
 import ome.security.SecuritySystem;
+import ome.security.auth.LdapUtil;
 import ome.security.auth.PasswordChangeException;
 import ome.security.auth.PasswordProvider;
+import ome.security.auth.PasswordUtil;
 import ome.security.auth.RoleProvider;
 import ome.security.basic.BasicSecuritySystem;
 import ome.services.query.Definitions;
@@ -125,6 +125,10 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     
     protected final RoleProvider roleProvider;
 
+    protected final PasswordUtil passwordUtil;
+
+    protected final LdapUtil ldapUtil;
+
     protected OmeroContext context;
 
     public void setApplicationContext(ApplicationContext ctx)
@@ -135,7 +139,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     public AdminImpl(SimpleJdbcOperations jdbc, SessionFactory sf,
             MailSender mailSender, SimpleMailMessage templateMessage,
             ACLVoter aclVoter, PasswordProvider passwordProvider,
-            RoleProvider roleProvider) {
+            RoleProvider roleProvider, LdapUtil ldapUtil, PasswordUtil passwordUtil) {
         this.jdbc = jdbc;
         this.sf = sf;
         this.mailSender = mailSender;
@@ -143,6 +147,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         this.aclVoter = aclVoter;
         this.passwordProvider = passwordProvider;
         this.roleProvider = roleProvider;
+        this.ldapUtil = ldapUtil;
+        this.passwordUtil = passwordUtil;
         this.osf = new ome.tools.hibernate.SessionFactory(sf);
     }
 
@@ -316,12 +322,12 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @Transactional(readOnly = true)
     @RolesAllowed("user")
     public List<Map<String, Object>> lookupLdapAuthExperimenters() {
-        return LdapUtil.lookupLdapAuthExperimenters(jdbc);
+        return ldapUtil.lookupLdapAuthExperimenters();
     }
 
     @RolesAllowed("user")
     public String lookupLdapAuthExperimenter(long id) {
-        return LdapUtil.lookupLdapAuthExperimenter(jdbc, id);
+        return ldapUtil.lookupLdapAuthExperimenter(id);
     }
 
     @RolesAllowed("user")
@@ -1035,7 +1041,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                     throw new AuthenticationException(
                             "User is authenticated by LDAP server you cannot reset this password.");
                 } else {
-                    String passwd = PasswordUtil.generateRandomPasswd();
+                    String passwd = passwordUtil.generateRandomPasswd();
                     sendEmail(e, passwd);
                     changeUserPassword(e.getOmeName(), passwd);
                 }
@@ -1044,7 +1050,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     private boolean isDnById(long id) {
-        String dn = PasswordUtil.getDnById(jdbc, id);
+        String dn = passwordUtil.getDnById(id);
         if (dn != null) {
             return true;
         } else {

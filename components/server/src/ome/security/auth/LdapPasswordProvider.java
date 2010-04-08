@@ -11,11 +11,8 @@ import java.security.Permissions;
 
 import ome.api.local.LocalLdap;
 import ome.conditions.ApiUsageException;
-import ome.security.LdapUtil;
-import ome.security.PasswordUtil;
 import ome.security.SecuritySystem;
 
-import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.util.Assert;
 
 /**
@@ -36,25 +33,20 @@ import org.springframework.util.Assert;
 
 public class LdapPasswordProvider extends ConfigurablePasswordProvider {
 
-    final protected LocalLdap ldap;
+    final protected LdapUtil ldapUtil;
 
-    final protected SimpleJdbcOperations jdbc;
-
-    public LdapPasswordProvider(LocalLdap ldap, SimpleJdbcOperations jdbc) {
-        super();
+    public LdapPasswordProvider(PasswordUtil util, LdapUtil ldap) {
+        super(util);
         Assert.notNull(ldap);
-        Assert.notNull(jdbc);
-        this.ldap = ldap;
-        this.jdbc = jdbc;
+        this.ldapUtil = ldap;
     }
 
-    public LdapPasswordProvider(LocalLdap ldap, SimpleJdbcOperations jdbc,
+    public LdapPasswordProvider(PasswordUtil util,
+            LdapUtil ldap,
             boolean ignoreUnknown) {
-        super(ignoreUnknown);
+        super(util, ignoreUnknown);
         Assert.notNull(ldap);
-        Assert.notNull(jdbc);
-        this.ldap = ldap;
-        this.jdbc = jdbc;
+        this.ldapUtil = ldap;
     }
 
     /**
@@ -66,10 +58,10 @@ public class LdapPasswordProvider extends ConfigurablePasswordProvider {
      */
     @Override
     public boolean hasPassword(String user) {
-        if (ldap.getSetting()) {
-            Long id = PasswordUtil.userId(jdbc, user);
+        if (ldapUtil.getConfig()) {
+            Long id = util.userId(user);
             if (id != null) {
-                String dn = LdapUtil.lookupLdapAuthExperimenter(jdbc, id);
+                String dn = ldapUtil.lookupLdapAuthExperimenter(id);
                 if (dn != null) {
                     return true;
                 }
@@ -81,16 +73,16 @@ public class LdapPasswordProvider extends ConfigurablePasswordProvider {
     @Override
     public Boolean checkPassword(String user, String password) {
 
-        if (!ldap.getSetting()) {
+        if (!ldapUtil.getConfig()) {
             return null; // EARLY EXIT!
         }
 
-        Long id = PasswordUtil.userId(jdbc, user);
+        Long id = util.userId(user);
 
         // Unknown user. First try to create.
         if (null == id) {
             try {
-                boolean login = ldap.createUserFromLdap(user, password);
+                boolean login = ldapUtil.createUserFromLdap(user, password);
                 // Use default logic if the user creation did not exist,
                 // because there may be another non-database login mechanism
                 // which should also be given a chance.
@@ -105,9 +97,9 @@ public class LdapPasswordProvider extends ConfigurablePasswordProvider {
         // Known user
         else {
             try {
-                String dn = LdapUtil.lookupLdapAuthExperimenter(jdbc, id);
+                String dn = ldapUtil.lookupLdapAuthExperimenter(id);
                 if (dn != null) {
-                    return ldap.validatePassword(dn, password);
+                    return ldapUtil.validatePassword(dn, password);
                 }
             } catch (ApiUsageException e) {
                 log.warn("Default choice on check ldap password: " + user, e);

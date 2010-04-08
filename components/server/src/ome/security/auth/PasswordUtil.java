@@ -1,11 +1,11 @@
 /*
- * ome.security.PasswordUtil
+ *   $Id$
  *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
-package ome.security;
+package ome.security.auth;
 
 import java.io.UnsupportedEncodingException;
 import java.sql.ResultSet;
@@ -16,6 +16,7 @@ import java.util.Random;
 
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
+import ome.security.SecuritySystem;
 import ome.util.Utils;
 
 import org.apache.commons.codec.binary.Base64;
@@ -28,15 +29,21 @@ import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 /**
  * Static methods for dealing with password hashes and the "password" table.
  * Used primarily by {@link ome.logic.AdminImpl}
- * 
+ *
  * @author Josh Moore, josh.moore at gmx.de
  * @see SecuritySystem
  * @see ome.logic.AdminImpl
  * @since 3.0-Beta1
  */
-public abstract class PasswordUtil {
+public class PasswordUtil {
 
     private final static Log log = LogFactory.getLog(PasswordUtil.class);
+
+    private final SimpleJdbcOperations jdbc;
+
+    public PasswordUtil(SimpleJdbcOperations jdbc) {
+        this.jdbc = jdbc;
+    }
 
     /**
      * Main method which takes exactly one argument, passes it to
@@ -48,10 +55,10 @@ public abstract class PasswordUtil {
         if (args == null || args.length != 1) {
             throw new IllegalArgumentException("PasswordUtil.main takes 1 arg.");
         }
-        System.out.println(preparePassword(args[0]));
+        System.out.println(new PasswordUtil(null).preparePassword(args[0]));
     }
 
-    public static String generateRandomPasswd() {
+    public String generateRandomPasswd() {
         StringBuffer buffer = new StringBuffer();
         Random random = new Random();
         char[] chars = new char[] { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
@@ -66,7 +73,7 @@ public abstract class PasswordUtil {
         return buffer.toString();
     }
 
-    public static String getDnById(SimpleJdbcOperations jdbc, Long id) {
+    public String getDnById(Long id) {
         String expire;
         try {
             expire = jdbc.queryForObject("select dn from password "
@@ -77,8 +84,7 @@ public abstract class PasswordUtil {
         return expire;
     }
 
-    public static void changeUserPasswordById(SimpleJdbcOperations jdbc,
-            Long id, String password) {
+    public void changeUserPasswordById(Long id, String password) {
         int results = jdbc.update("update password set hash = ? "
                 + "where experimenter_id = ? ", preparePassword(password), id);
         if (results < 1) {
@@ -90,7 +96,7 @@ public abstract class PasswordUtil {
         }
     }
 
-    public static String getUserPasswordHash(SimpleJdbcOperations jdbc, Long id) {
+    public String getUserPasswordHash(Long id) {
         String stored;
         try {
             stored = jdbc.queryForObject("select hash "
@@ -102,7 +108,7 @@ public abstract class PasswordUtil {
         return stored;
     }
 
-    public static Long userId(SimpleJdbcOperations jdbc, String name) {
+    public Long userId(String name) {
         Long id;
         try {
             id = jdbc.queryForObject(
@@ -114,7 +120,7 @@ public abstract class PasswordUtil {
         return id;
     }
 
-    public static List<String> userGroups(SimpleJdbcOperations jdbc, String name) {
+    public List<String> userGroups(String name) {
         List<String> roles;
         try {
             roles = jdbc.query("select g.name from experimentergroup g, "
@@ -132,7 +138,7 @@ public abstract class PasswordUtil {
         return roles == null ? new ArrayList<String>() : roles;
     }
 
-    public static String preparePassword(String newPassword) {
+    public String preparePassword(String newPassword) {
         // This allows setting passwords to "null" - locked account.
         return newPassword == null ? null
         // This allows empty passwords to be considered "open-access"
@@ -143,12 +149,12 @@ public abstract class PasswordUtil {
 
     /**
      * Creates an MD5 hash of the given clear text and base64 encodes it.
-     * 
+     *
      * @DEV.TODO This should almost certainly be configurable as to encoding,
      *           algorithm, character encoding, and possibly even the
      *           implementation in general.
      */
-    public static String passwordDigest(String clearText) {
+    public String passwordDigest(String clearText) {
 
         if (clearText == null) {
             throw new ApiUsageException("Value for digesting may not be null");

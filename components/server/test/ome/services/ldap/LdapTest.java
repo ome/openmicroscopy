@@ -15,6 +15,7 @@ import java.util.Set;
 import ome.api.ILdap;
 import ome.logic.LdapImpl;
 import ome.security.SecureLdapContextSource;
+import ome.security.auth.LdapPasswordProvider;
 import ome.security.auth.PasswordProvider;
 import ome.security.auth.RoleProvider;
 
@@ -64,10 +65,13 @@ public class LdapTest extends MockObjectTestCase {
     @Test(dataProvider = "ldif_files")
     public void testLdiffFile(File file) throws Exception {
         ApplicationContext ctx = createContext(file);
+        ILdap ldap = makeService(ctx);
         Properties goodProps = (Properties) ctx.getBean("good");
         Properties badProps = (Properties) ctx.getBean("bad");
         Map<String, String[]> good = parse(goodProps);
         Map<String, String[]> bad = parse(badProps);
+        assertPasses(ldap, good);
+        assertFails(ldap, bad);
     }
 
     protected ApplicationContext createContext(File ldifFile) throws Exception {
@@ -108,11 +112,14 @@ public class LdapTest extends MockObjectTestCase {
         return ldap;
     }
 
-    protected void assertPasses(File file, Map<String, String[]> users) {
-        fail();
+    protected void assertPasses(ILdap ldap, Map<String, String[]> users) {
+        LdapPasswordProvider provider =
+            new LdapPasswordProvider(ldap, jdbc);
+        for (String user : users.keySet()) {
+        }
     }
 
-    protected void assertFails(File file, Map<String, String[]> users) {
+    protected void assertFails(ILdap ldap, Map<String, String[]> users) {
         fail();
     }
 

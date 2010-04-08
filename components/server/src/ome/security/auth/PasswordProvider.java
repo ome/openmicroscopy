@@ -54,11 +54,4 @@ public interface PasswordProvider {
     void changePassword(String user, String password)
             throws PasswordChangeException;
 
-    /**
-     * Like, {@link #changePassword(String, String)}, attempts to change the dn
-     * for the given user. May throw a {@link PasswordChangeException},
-     * for example if the provider uses a read-only medium.
-     */
-    void changeDistinguisedName(String user, String dn)
-            throws PasswordChangeException;
 }
