@@ -7,11 +7,14 @@
 
 package ome.logic;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 import javax.naming.AuthenticationException;
 import javax.naming.Context;
@@ -26,6 +29,7 @@ import ome.api.ILdap;
 import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
+import ome.conditions.ValidationException;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
@@ -41,11 +45,14 @@ import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapOperations;
+import org.springframework.ldap.core.LdapRdn;
 import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.ldap.filter.AndFilter;
 import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.ldap.filter.Filter;
+import org.springframework.ldap.filter.HardcodedFilter;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.PropertyPlaceholderHelper;
 
 /**
  * Provides methods for administering user accounts, passwords, as well as
@@ -141,13 +148,13 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap {
     @SuppressWarnings("unchecked")
     public String findDN(String username) {
 
+        PersonContextMapper mapper = getContextMapper();
         Filter filter = config.usernameFilter(username);
-        List<Experimenter> p = ldap.search("", filter.encode(),
-                getContextMapper());
+        List<Experimenter> p = ldap.search("", filter.encode(), mapper);
 
         if (p.size() == 1) {
             Experimenter exp = p.get(0);
-            return exp.retrieve("LDAP_DN").toString();
+            return mapper.getDn(exp);
         } else {
             throw new ApiUsageException(
                     "Cannot find unique DistinguishedName: found=" + p.size());
@@ -188,6 +195,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap {
     }
 
     @RolesAllowed("system")
+    @SuppressWarnings("unchecked")
     public List<Experimenter> searchByAttributes(String dn,
             String[] attributes, String[] values) {
         if (attributes.length != values.length) {
@@ -235,24 +243,108 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap {
      */
     public boolean createUserFromLdap(String username, String password) {
 
-        // Find user by DN
         Experimenter exp = findExperimenter(username);
-        DistinguishedName dn = new DistinguishedName(exp.retrieve("LDAP_DN")
-                .toString());
+        String ldapDn = getContextMapper().getDn(exp);
+        DistinguishedName dn = new DistinguishedName(ldapDn);
 
-        // Valid user's password
         boolean access = validatePassword(dn.toString(), password);
 
         if (access) {
-            // If validation is successful create new user in DB
-            long gid = provider.createGroup(config.getNewUserGroup(), null, false);
-            long uid = provider.createExperimenter(exp,
-                    new ExperimenterGroup(gid, false),
-                    new ExperimenterGroup(roles.getUserGroupId(), false));
-            // Set user's DN in PASSWORD table (add suffix on the beginning)
+
+            String grpSpec = config.getNewUserGroup();
+            List<Long> groups = new ArrayList<Long>();
+
+            if (grpSpec.startsWith(":ou:")) {
+                handleGrpSpecOu(dn, groups);
+            } else if (grpSpec.startsWith(":attribute:")) {
+                handleGroupSpecAttr(dn, username, grpSpec, groups);
+            } else if (grpSpec.startsWith(":query:")) {
+                handleGroupSpecQuery(username, grpSpec, groups);
+            } else if (grpSpec.startsWith(":")) {
+                throw new ValidationException(grpSpec + " spec currently not supported.");
+            } else {
+                // The default case is the original logic: use the spec as name
+                groups.add(provider.createGroup(grpSpec, null, false));
+            }
+
+            if (groups.size() == 0) {
+                throw new ValidationException("No group found for: " + dn);
+            }
+
+            // Create the unloaded groups for creation
+            Long gid = groups.remove(0);
+            ExperimenterGroup grp1 = new ExperimenterGroup(gid, false);
+            Set<Long> otherGroupIds = new HashSet<Long>(groups);
+            ExperimenterGroup grpOther[] = new ExperimenterGroup[otherGroupIds.size()+1];
+
+            int count = 0;
+            for (Long id : otherGroupIds) {
+                grpOther[count++] = new ExperimenterGroup(id, false);
+            }
+            grpOther[count] = new ExperimenterGroup(roles.getUserGroupId(), false);
+
+            long uid = provider.createExperimenter(exp, grp1, grpOther);
             setDN(uid, dn.toString());
         }
         return access;
+    }
+
+    //
+    // Group specs
+    //
+
+    @SuppressWarnings("unchecked")
+    private void handleGroupSpecAttr(DistinguishedName dn,
+            String username, String grpSpec, List<Long> groups) {
+        Experimenter exp;
+        final String grpAttribute = grpSpec.substring(11);
+        final PersonContextMapper mapper = getContextMapper(grpAttribute);
+        exp = ((List<Experimenter>) ldap.search("",
+                config.usernameFilter(username).encode(), mapper)).get(0);
+        Set<String> groupNames = mapper.getAttribute(exp);
+        if (groupNames == null) {
+            throw new ValidationException(dn + " has no attributes " + grpAttribute);
+        }
+        for (String grpName : groupNames) {
+            groups.add(provider.createGroup(grpName, null, false));
+
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void handleGrpSpecOu(DistinguishedName dn, List<Long> groups) {
+        List<LdapRdn> names = dn.getNames();
+        for (int i = names.size(); i > 0; i--) {
+            LdapRdn name = names.get(i-1);
+            if ("ou".equals(name.getKey())) {
+                final String grpName = name.getValue("ou");
+                groups.add(provider.createGroup(grpName, null, false));
+                break;
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void handleGroupSpecQuery(String username, String grpSpec, List<Long> groups) {
+
+        PersonContextMapper mapper = getContextMapper();
+        Experimenter exp = ((List<Experimenter>)
+                ldap.search("", config.usernameFilter(username).encode(),
+                        mapper)).get(0);
+        String dn = mapper.getDn(exp);
+        Properties properties = mapper.getProperties(exp);
+        properties.put("dn", dn); // For queries
+
+        final String grpQuery = grpSpec.substring(7);
+        PropertyPlaceholderHelper helper = new PropertyPlaceholderHelper("${","}", null, false);
+        String query = helper.replacePlaceholders(grpQuery, properties);
+        AndFilter and = new AndFilter();
+        and.and(config.getGroupFilter());
+        and.and(new HardcodedFilter(query));
+        List<String> groupNames = (List<String>) ldap.search("", and.encode(), new GroupAttributeMapper(config));
+        for (String groupName : groupNames) {
+            groups.add(provider.createGroup(groupName, null, false));
+        }
     }
 
     //
@@ -298,8 +390,12 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap {
     // Helpers
     // =========================================================================
 
-    private ContextMapper getContextMapper() {
+    private PersonContextMapper getContextMapper() {
         return new PersonContextMapper(config, getBase());
+    }
+
+    private PersonContextMapper getContextMapper(String attr) {
+        return new PersonContextMapper(config, getBase(), attr);
     }
 
     /**

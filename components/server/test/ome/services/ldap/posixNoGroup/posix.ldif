@@ -1,9 +1,9 @@
-dn: ou=posix,o=eg
+dn: ou=posixNoGroup,o=eg
 objectclass: organizationalUnit
 objectClass: top
-ou: posix
+ou: posixNoGroup
 
-dn: uid=test_user,ou=posix,o=eg
+dn: uid=test_user,ou=posixNoGroup,o=eg
 uid: test_user
 sn: User
 cn: Test User
@@ -17,12 +17,4 @@ uidNumber: 1001
 gidNumber: 1001
 userPassword: password
 
-dn: cn=Group1,ou=posix,o=eg
-cn: Group1
-objectClass: top
-objectClass: groupOfNames
-objectClass: posixGroup
-member: uid=test_user,ou=posix,o=eg
-gidNumber: 100
-memberUid: test_user
 

@@ -1,0 +1,18 @@
+dn: ou=testAttrGroup,o=eg
+objectclass: organizationalUnit
+objectClass: top
+ou: testAttrGroup
+
+dn: cn=test1,ou=testAttrGroup,o=eg
+cn: test1
+sn: Tester
+objectClass: person
+memberOf: Attr1
+userPassword: password
+
+dn: cn=test2,ou=testAttrGroup,o=eg
+cn: test2
+sn: Tester
+objectClass: person
+memberOf: Attr2
+userPassword: password

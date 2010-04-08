@@ -7,36 +7,42 @@
 
 package ome.security.auth;
 
-import javax.naming.InvalidNameException;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+import javax.naming.NamingEnumeration;
 
 import ome.model.meta.Experimenter;
 
 import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.DirContextAdapter;
-import org.springframework.ldap.core.DistinguishedName;
 
 /**
  * Specialized OME Experimenter context mapper.
  */
 public class PersonContextMapper implements ContextMapper {
 
-    private DistinguishedName dn = new DistinguishedName();
+    private static final String LDAP_DN = "LDAP_DN";
+
+    private static final String LDAP_ATTR = "LDAP_ATTR";
+
+    private static final String LDAP_PROPS = "LDAP_PROPS";
 
     private final LdapConfig cfg;
 
     private final String base;
 
+    private final String attribute;
+
     public PersonContextMapper(LdapConfig cfg, String base) {
+        this(cfg, base, null);
+    }
+
+    public PersonContextMapper(LdapConfig cfg, String base, String attribute) {
         this.cfg = cfg;
         this.base = base;
-    }
-
-    public DistinguishedName getDn() {
-        return dn;
-    }
-
-    public void setDn(DistinguishedName dn) {
-        this.dn = dn;
+        this.attribute = attribute;
     }
 
     public String get(String attribute, DirContextAdapter context) {
@@ -49,13 +55,6 @@ public class PersonContextMapper implements ContextMapper {
 
     public Object mapFromContext(Object obj) {
         DirContextAdapter ctx = (DirContextAdapter) obj;
-        DistinguishedName dn = new DistinguishedName(ctx.getDn());
-        try {
-            dn.addAll(0, new DistinguishedName(base));
-        } catch (InvalidNameException e) {
-            return null;
-        }
-        setDn(dn);
 
         Experimenter person = new Experimenter();
         person.setOmeName(get("omeName", ctx));
@@ -64,8 +63,39 @@ public class PersonContextMapper implements ContextMapper {
         person.setInstitution(get("institution", ctx));
         person.setEmail(get("email", ctx));
 
-        person.putAt("LDAP_DN", dn.toString());
+        person.putAt(LDAP_DN, ctx.getNameInNamespace());
+
+        if (attribute != null) {
+            person.putAt(LDAP_ATTR, ctx.getAttributeSortedStringSet(attribute));
+        }
+
+        Properties properties = new Properties();
+        NamingEnumeration<String> ids = ctx.getAttributes().getIDs();
+        while (ids.hasMoreElements()) {
+            String id = ids.nextElement();
+            Object val = ctx.getObjectAttribute(id);
+            if (val != null) {
+                properties.put(id, val.toString());
+            }
+        }
+        person.putAt(LDAP_PROPS, properties);
+
         return person;
     }
+
+    public String getDn(Experimenter person) {
+        return (String) person.retrieve(LDAP_DN);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Set<String> getAttribute(Experimenter person) {
+        return (Set<String>) person.retrieve(LDAP_ATTR);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Properties getProperties(Experimenter person) {
+        return (Properties) person.retrieve(LDAP_PROPS);
+    }
+
 
 }

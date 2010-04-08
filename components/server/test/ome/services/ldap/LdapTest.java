@@ -18,9 +18,11 @@ import ome.system.Roles;
 import org.apache.commons.io.FileUtils;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
+import org.jmock.core.Constraint;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.util.ResourceUtils;
@@ -32,6 +34,40 @@ import org.testng.annotations.Test;
  * test that the LDAP plugin is properly functioning.
  */
 public class LdapTest extends MockObjectTestCase {
+
+    class Fixture {
+        ConfigurableApplicationContext ctx;
+        File file;
+        Mock role;
+        Mock jdbc;
+        LdapImpl ldap;
+
+        void createUserWithGroup(MockObjectTestCase t, final String dn, String group) {
+            role.expects(atLeastOnce()).method("createGroup")
+                .with(t.stringContains(group), t.NULL, t.eq(false))
+                .will(returnValue(101L));
+            role.expects(once()).method("createExperimenter")
+                .will(returnValue(101L));
+            jdbc.expects(once()).method("update")
+                .with(t.ANYTHING, new Constraint(){
+                    public boolean eval(Object arg0) {
+                        Object[] objs = (Object[]) arg0;
+                        if (objs[0].equals(dn)) {
+                            return true;
+                        }
+                        return false;
+                    }
+                    public StringBuffer describeTo(StringBuffer arg0) {
+                        arg0.append("updates " + dn);
+                        return arg0;
+                    }}).will(returnValue(1));
+        }
+
+        void close() {
+            ctx.close();
+        }
+
+    }
 
     /**
      * Data provider which returns all "*.ldif" files in the directory
@@ -63,22 +99,17 @@ public class LdapTest extends MockObjectTestCase {
     @Test(dataProvider = "ldif_files")
     @SuppressWarnings("unchecked")
     public void testLdiffFile(File file) throws Exception {
-        ConfigurableApplicationContext ctx = createContext(file);
-        try {
-            LdapImpl ldap = configureLdap(ctx);
-            Map<String, List<String>> good = ctx.getBean("good", Map.class);
-            Map<String, List<String>> bad = ctx.getBean("bad", Map.class);
-            assertPasses(ldap, good);
-            assertFails(ldap, bad);
-        } finally {
-            ctx.close();
-        }
-    }
 
-    protected ConfigurableApplicationContext createContext(File ctxFile) throws Exception {
-        FileSystemXmlApplicationContext ctx =
-            new FileSystemXmlApplicationContext("file:" + ctxFile.getAbsolutePath());
-        return ctx;
+        Fixture fixture = createFixture(file);
+        try {
+            Map<String, List<String>> good = fixture.ctx.getBean("good", Map.class);
+            Map<String, List<String>> bad = fixture.ctx.getBean("bad", Map.class);
+            assertPasses(fixture, good);
+            assertFails(fixture, bad);
+        } finally {
+            fixture.close();
+        }
+
     }
 
     /**
@@ -100,12 +131,14 @@ public class LdapTest extends MockObjectTestCase {
      * omero.ldap.trustStore=
      * omero.ldap.trustStorePassword=
      */
-    protected LdapImpl configureLdap(ApplicationContext context) throws Exception {
+    protected Fixture createFixture(File ctxFile) throws Exception {
 
-        LdapConfig config = (LdapConfig) context.getBean("config");
+        Fixture fixture = new Fixture();
+        fixture.ctx =new FileSystemXmlApplicationContext("file:" + ctxFile.getAbsolutePath());
+        LdapConfig config = (LdapConfig) fixture.ctx.getBean("config");
 
         Map<String, LdapContextSource> sources =
-            context.getBeansOfType(LdapContextSource.class);
+            fixture.ctx.getBeansOfType(LdapContextSource.class);
 
         LdapContextSource source = sources.values().iterator().next();
         String[] urls = source.getUrls();
@@ -129,25 +162,48 @@ public class LdapTest extends MockObjectTestCase {
 
         LdapTemplate template = new LdapTemplate(source);
 
-        Mock mock = mock(RoleProvider.class);
-        RoleProvider provider = (RoleProvider) mock.proxy();
+        fixture.role = mock(RoleProvider.class);
+        RoleProvider provider = (RoleProvider) fixture.role.proxy();
 
-        LdapImpl ldap = new LdapImpl(source, template,
-                new Roles(), config, provider, null);
-        return ldap;
+        fixture.jdbc = mock(SimpleJdbcOperations.class);
+        SimpleJdbcOperations jdbc = (SimpleJdbcOperations) fixture.jdbc.proxy();
+
+        fixture.ldap = new LdapImpl(source, template,
+                new Roles(), config, provider, jdbc);
+        return fixture;
     }
 
-    protected void assertPasses(LdapImpl ldap, Map<String, List<String>> users) {
+    protected void assertPasses(Fixture fixture, Map<String, List<String>> users) {
+
+        LdapImpl ldap = fixture.ldap;
+
         for (String user : users.keySet()) {
-            ldap.findExperimenter(user);
+            assertEquals(1, users.get(user).size());
+            String dn = ldap.findDN(user);
+            assertNotNull(dn);
+            assertEquals(user, ldap.findExperimenter(user).getOmeName());
+            fixture.createUserWithGroup(this, dn, users.get(user).get(0));
+            assertTrue(ldap.createUserFromLdap(user, "password"));
+
+            // Check that proper dn is passed to setDN
+            // Check password
+            // Get list of groups
+            // List all users and get back the target user
+            // List groups and find the good ones
+            //
         }
     }
 
-    protected void assertFails(LdapImpl ldap, Map<String, List<String>> users) {
+    protected void assertFails(Fixture fixture, Map<String, List<String>> users) {
+        LdapImpl ldap = fixture.ldap;
         for (String user : users.keySet()) {
+            assertEquals(1, users.get(user).size());
             try {
-                ldap.findExperimenter(user);
-                fail();
+                String dn = ldap.findDN(user);
+                assertNotNull(dn);
+                assertEquals(user, ldap.findExperimenter(user).getOmeName());
+                fixture.createUserWithGroup(this, dn, users.get(user).get(0));
+                assertTrue(ldap.createUserFromLdap(user, "password"));
             } catch (Exception e) {
                 // good
             }

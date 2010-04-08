@@ -3,8 +3,9 @@ objectclass: organizationalUnit
 objectClass: top
 ou: People
 
-dn: cn=test1,ou=People,dc=nonCn,dc=eg
+dn: uid=testuid,ou=People,dc=nonCn,dc=eg
 cn: test1
 sn: Tester
 uid: testuid
 objectClass: person
+userPassword: password

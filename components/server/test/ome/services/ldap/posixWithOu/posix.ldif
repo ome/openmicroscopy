@@ -1,9 +1,14 @@
-dn: ou=posix,o=eg
+dn: ou=posixWithOu,o=eg
 objectclass: organizationalUnit
 objectClass: top
-ou: posix
+ou: posixWithOu
 
-dn: uid=test_user,ou=posix,o=eg
+dn: ou=People,ou=posixWithOu,o=eg
+objectclass: organizationalUnit
+objectClass: top
+ou: People
+
+dn: uid=test_user,ou=People,ou=posixWithOu,o=eg
 uid: test_user
 sn: User
 cn: Test User
@@ -17,12 +22,11 @@ uidNumber: 1001
 gidNumber: 1001
 userPassword: password
 
-dn: cn=Group1,ou=posix,o=eg
+dn: cn=Group1,ou=People,ou=posixWithOu,o=eg
 cn: Group1
 objectClass: top
 objectClass: groupOfNames
 objectClass: posixGroup
-member: uid=test_user,ou=posix,o=eg
+member: uid=test_user,ou=People,dc=posixWithOu,dc=eg
 gidNumber: 100
 memberUid: test_user
-

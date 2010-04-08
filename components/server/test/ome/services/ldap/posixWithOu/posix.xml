@@ -10,8 +10,8 @@
           http://www.springframework.org/schema/util
           http://www.springframework.org/schema/util/spring-util-2.0.xsd">
 
-    <security:ldap-server root="ou=People,dc=nonCn,dc=eg"
-        ldif="classpath:ome/services/ldap/nonCn/*.ldif"/>
+    <security:ldap-server root="ou=People,ou=posixWithOu,o=eg"
+        ldif="classpath:ome/services/ldap/posixWithOu/*.ldif"/>
 
     <bean id="config" class="ome.security.auth.LdapConfig">
       <constructor-arg index="0" value="true"/>
@@ -23,7 +23,7 @@
     </bean>
 
     <util:map id="good">
-      <entry key="testuid">
+      <entry key="test_user">
         <util:list><value>ldap</value></util:list>
       </entry>
     </util:map>

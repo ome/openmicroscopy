@@ -23,7 +23,7 @@ public class GroupAttributeMapper implements AttributesMapper {
             throws NamingException {
 
         String attributeKey = cfg.getGroupAttribute("name");
-        return attributes.get(attributeKey);
+        return attributes.get(attributeKey).get();
 
     }
 

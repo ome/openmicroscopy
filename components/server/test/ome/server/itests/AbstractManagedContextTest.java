@@ -15,11 +15,11 @@ import javax.sql.DataSource;
 
 import ome.api.IConfig;
 import ome.api.IContainer;
+import ome.api.ILdap;
 import ome.api.IMetadata;
 import ome.api.IPixels;
 import ome.api.ISession;
 import ome.api.local.LocalAdmin;
-import ome.api.local.LocalLdap;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
 import ome.formats.MockedOMEROImportFixture;
@@ -87,7 +87,7 @@ public class AbstractManagedContextTest extends
 
     protected LocalAdmin iAdmin;
 
-    protected LocalLdap iLdap;
+    protected ILdap iLdap;
 
     protected IConfig iConfig;
 
@@ -152,7 +152,7 @@ public class AbstractManagedContextTest extends
         iQuery = (LocalQuery) factory.getQueryService();
         iUpdate = (LocalUpdate) factory.getUpdateService();
         iAdmin = (LocalAdmin) factory.getAdminService();
-        iLdap = (LocalLdap) factory.getLdapService();
+        iLdap = factory.getLdapService();
         iConfig = factory.getConfigService();
         iContainer = factory.getContainerService();
         iMetadata = factory.getMetadataService();

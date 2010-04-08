@@ -8,7 +8,7 @@ package ome.server.utests.sec;
 
 import java.io.File;
 
-import ome.api.local.LocalLdap;
+import ome.api.ILdap;
 import ome.conditions.ApiUsageException;
 import ome.security.auth.ConfigurablePasswordProvider;
 import ome.security.auth.FilePasswordProvider;
@@ -43,6 +43,9 @@ public class PasswordTest extends MockObjectTestCase {
      * actions.
      */
     static class PP extends ConfigurablePasswordProvider {
+        PP() {
+            super(null);
+        }
     }
 
     PasswordProvider provider;
@@ -51,7 +54,7 @@ public class PasswordTest extends MockObjectTestCase {
 
     SimpleJdbcOperations jdbc;
 
-    LocalLdap ldap;
+    ILdap ldap;
 
     protected void initJdbc() {
         mockJdbc = mock(SimpleJdbcOperations.class);
@@ -60,8 +63,8 @@ public class PasswordTest extends MockObjectTestCase {
 
     protected void initLdap(boolean setting) {
         initJdbc();
-        mockLdap = mock(LocalLdap.class);
-        ldap = (LocalLdap) mockLdap.proxy();
+        mockLdap = mock(ILdap.class);
+        ldap = (ILdap) mockLdap.proxy();
         mockLdap.expects(atLeastOnce()).method("getSetting").will(
                 returnValue(setting));
     }

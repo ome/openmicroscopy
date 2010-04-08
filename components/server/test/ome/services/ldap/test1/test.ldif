@@ -1,9 +1,10 @@
-dn: ou=People,dc=glencoesoftware,dc=com
+dn: ou=People,dc=test1,dc=eg
 objectclass: organizationalUnit
 objectClass: top
 ou: People
 
-dn: cn=test1,ou=People,dc=glencoesoftware,dc=com
+dn: cn=test1,ou=People,dc=test1,dc=eg
 cn: test1
 sn: Tester
 objectClass: person
+userPassword: password
