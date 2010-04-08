@@ -30,6 +30,11 @@ exe4j.home=/opt/exe4j
 # a properties file.
 #ice.home=/usr/share/Ice
 
+ivy.log.modules.in.use=false
+ivy.log.module.when.found=false
+ivy.log.conflict.resolution=false
+ivy.log.resolved.revision=false
+
 ############################################
 # Testing
 ############################################

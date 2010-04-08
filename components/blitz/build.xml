@@ -14,7 +14,16 @@
             <delete file="${basedir}/.sconsign.dblite"/>
         </target>
 
-	<target name="compile" depends="generate,icegen" unless="skip.compile">
+	<target name="compile" depends="generate" unless="skip.compile">
+            <if>
+                <uptodate targetfile="${target.dir}/blitz.jar">
+                    <srcfiles dir="${basedir}" includes="**/*.java,**/*.ice,**/*.vm"/>
+                </uptodate>
+            <then>
+                <property name="skip.compile" value="uptodate"/>
+            </then>
+            <else>
+                <antcall target="icegen" inheritRefs="true" inheritAll="true"/>
 		<hard-wire file="ome/services/blitz/fire/SessionManagerI.java"
 		    token="&quot;ome.security.basic.BasicSecurityWiring&quot;"/>
 
@@ -45,7 +54,17 @@
 		</myjavac>
                 <delete file="${file.real.sessionmanager}"/>
                 <delete file="${file.fake.sessionmanager}"/><!-- Just in case -->
+            </else>
+            </if>
 	</target>
+
+        <target name="package" depends="compile">
+            <if><not><isset property="skip.compile"/></not>
+            <then>
+                <antcall target="lifecycle.package" inheritRefs="true" inheritAll="true"/>
+            </then>
+            </if>
+        </target>
 
     <!-- = = = = = = = = = = = = = = = = =
           generate model
