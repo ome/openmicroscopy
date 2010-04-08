@@ -76,6 +76,8 @@ import omero.model.WellSample;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeTest;
@@ -118,6 +120,11 @@ public class MetadataValidatorTest
         log.info("METADATA VALIDATOR TARGET: " + target);
         ServiceFactoryPrx sf = new TestServiceFactory();
         ImportConfig config = new ImportConfig();
+        // Let the user know at what level we're logging
+        log.info(String.format(
+                "Log levels -- Bio-Formats: %s OMERO.importer: %s",
+                Logger.getLogger("loci").getLevel(),
+                Logger.getLogger("ome.formats").getLevel()));
         store = new OMEROMetadataStoreClient();
         store.initialize(sf);
         store.setEnumerationProvider(new TestEnumerationProvider());
