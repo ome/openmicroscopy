@@ -350,22 +350,18 @@ APPLICATION_HOST='%s'
         from glob import glob
         from omeroweb.settings import INSTALLED_APPS
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
-        media_dir = location / 'webgateway' / 'media'
-        if os.path.exists(media_dir):
-            os.symlink(os.path.abspath(media_dir), location / 'media' / 'webgateway')
         # Targets
-        #apps = map(lambda x: x.startswith('omeroweb.') and x[9:] or x, INSTALLED_APPS)
-        #apps = filter(lambda x: os.path.exists(location / x), apps)
+        apps = map(lambda x: x.startswith('omeroweb.') and x[9:] or x, INSTALLED_APPS)
+        apps = filter(lambda x: os.path.exists(location / x), apps)
         # Destination dir
-        #if os.path.exists(location / 'media'):
-        #    shutil.rmtree(location / 'media')
-        #os.mkdir(location / 'media')
+        if os.path.exists(location / 'media'):
+            shutil.rmtree(location / 'media')
+        os.mkdir(location / 'media')
         # Create app media links
-        #
-        #for app in apps:
-        #    media_dir = location / app / 'media'
-        #    if os.path.exists(media_dir):
-        #        os.symlink(os.path.abspath(media_dir), location / 'media' / app)
+        for app in apps:
+            media_dir = location / app / 'media'
+            if os.path.exists(media_dir):
+                os.symlink(os.path.abspath(media_dir), location / 'media' / app)
         
     def enableapp(self, *args):
         from omeroweb.settings import INSTALLED_APPS
