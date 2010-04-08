@@ -41,9 +41,8 @@ public class TableTest extends TestCase {
     @Override
     @BeforeMethod
     public void setUp() throws Exception {
-        File local = ResourceUtils.getFile("classpath:local.properties");
         
-        client = new omero.client(local);
+        client = new omero.client();
         sf = client.createSession("root", client.getProperty("omero.rootpass"));
         
         //client = new omero.client("mage.openmicroscopy.org.uk", 4064);
@@ -52,7 +51,7 @@ public class TableTest extends TestCase {
         iQuery = sf.getQueryService();
         iAdmin = sf.getAdminService();
         iUpdate = sf.getUpdateService();
-        
+
 		myColumns = createColumns(1);
 		myTable = initializeTable(dbName);
     }
