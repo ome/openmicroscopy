@@ -7,24 +7,22 @@ package ome.services.ldap;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
 
-import ome.api.ILdap;
-import ome.logic.LdapImpl;
-import ome.security.SecureLdapContextSource;
-import ome.security.auth.LdapPasswordProvider;
-import ome.security.auth.PasswordProvider;
+import ome.security.auth.LdapConfig;
+import ome.security.auth.LdapUtil;
 import ome.security.auth.RoleProvider;
+import ome.system.Roles;
 
 import org.apache.commons.io.FileUtils;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.util.ResourceUtils;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -47,7 +45,7 @@ public class LdapTest extends MockObjectTestCase {
         File file = ResourceUtils.getFile(name);
         File dir = file.getParentFile();
         Collection<?> coll = FileUtils.listFiles(dir, new String[] { "xml" },
-                false);
+                true);
         Object[][] files = new Object[coll.size()][];
         int count = 0;
         for (Object object : coll) {
@@ -63,20 +61,23 @@ public class LdapTest extends MockObjectTestCase {
      * names and the bad names.
      */
     @Test(dataProvider = "ldif_files")
+    @SuppressWarnings("unchecked")
     public void testLdiffFile(File file) throws Exception {
-        ApplicationContext ctx = createContext(file);
-        ILdap ldap = makeService(ctx);
-        Properties goodProps = (Properties) ctx.getBean("good");
-        Properties badProps = (Properties) ctx.getBean("bad");
-        Map<String, String[]> good = parse(goodProps);
-        Map<String, String[]> bad = parse(badProps);
-        assertPasses(ldap, good);
-        assertFails(ldap, bad);
+        ConfigurableApplicationContext ctx = createContext(file);
+        try {
+            LdapUtil ldap = configureLdap(ctx);
+            Map<String, List<String>> good = ctx.getBean("good", Map.class);
+            Map<String, List<String>> bad = ctx.getBean("bad", Map.class);
+            assertPasses(ldap, good);
+            assertFails(ldap, bad);
+        } finally {
+            ctx.close();
+        }
     }
 
-    protected ApplicationContext createContext(File ldifFile) throws Exception {
+    protected ConfigurableApplicationContext createContext(File ctxFile) throws Exception {
         FileSystemXmlApplicationContext ctx =
-            new FileSystemXmlApplicationContext("file:" + ldifFile.getAbsolutePath());
+            new FileSystemXmlApplicationContext("file:" + ctxFile.getAbsolutePath());
         return ctx;
     }
 
@@ -99,41 +100,58 @@ public class LdapTest extends MockObjectTestCase {
      * omero.ldap.trustStore=
      * omero.ldap.trustStorePassword=
      */
-    protected ILdap makeService(ApplicationContext context) throws Exception {
-        SecureLdapContextSource source = new  SecureLdapContextSource("url");
-        LdapTemplate template = new LdapTemplate(source);
-        Mock roleMock = mock(RoleProvider.class);
-        RoleProvider roleProvider = (RoleProvider) roleMock.proxy();
-        Mock passMock = mock(PasswordProvider.class);
-        PasswordProvider passwordProvider = (PasswordProvider) passMock.proxy();
+    protected LdapUtil configureLdap(ApplicationContext context) throws Exception {
 
-        LdapImpl ldap = new LdapImpl(roleProvider, passwordProvider, template,
-                "new_user_group", "groups", "attributes", "values", true);
+        LdapConfig config = (LdapConfig) context.getBean("config");
+
+        Map<String, LdapContextSource> sources =
+            context.getBeansOfType(LdapContextSource.class);
+
+        LdapContextSource source = sources.values().iterator().next();
+        String[] urls = source.getUrls();
+        assertEquals(1, urls.length);
+
+        /*
+        AuthenticationSource auth = source.getAuthenticationSource();
+        SecureLdapContextSource secureSource =
+            new SecureLdapContextSource(urls[0]);
+        secureSource.setDirObjectFactory(DefaultDirObjectFactory.class);
+        secureSource.setBase("ou=People,dc=openmicroscopy,dc=org");
+        secureSource.setUserDn(auth.getPrincipal());
+        secureSource.setPassword(auth.getCredentials());
+        secureSource.setProtocol("");
+        secureSource.afterPropertiesSet();
+        //secureSource.setKeyStore("");
+        //secureSource.setKeyStorePassword("");
+        //secureSource.setTrustPassword("");
+        //secureSource.setTrustPassword("");
+        */
+
+        LdapTemplate template = new LdapTemplate(source);
+
+        Mock mock = mock(RoleProvider.class);
+        RoleProvider provider = (RoleProvider) mock.proxy();
+
+        LdapUtil ldap = new LdapUtil(source, template,
+                new Roles(), config, provider, null);
         return ldap;
     }
 
-    protected void assertPasses(ILdap ldap, Map<String, String[]> users) {
-        LdapPasswordProvider provider =
-            new LdapPasswordProvider(ldap, jdbc);
+    protected void assertPasses(LdapUtil ldap, Map<String, List<String>> users) {
         for (String user : users.keySet()) {
+            ldap.findExperimenter(user);
         }
     }
 
-    protected void assertFails(ILdap ldap, Map<String, String[]> users) {
-        fail();
-    }
-
-    @SuppressWarnings("unchecked")
-    protected Map<String, String[]> parse(Properties properties) throws Exception {
-
-        Set<Object> names = properties.keySet();
-
-        Map<String, String[]> rv = new HashMap<String, String[]>();
-        for (Object key : names) {
-            Object value = properties.get(key);
-            rv.put(key.toString(), value.toString().split(","));
+    protected void assertFails(LdapUtil ldap, Map<String, List<String>> users) {
+        for (String user : users.keySet()) {
+            try {
+                ldap.findExperimenter(user);
+                fail();
+            } catch (Exception e) {
+                // good
+            }
         }
-        return rv;
     }
 
 }

@@ -33,14 +33,14 @@ public class FilePasswordProvider extends ConfigurablePasswordProvider {
      */
     final protected File file;
 
-    public FilePasswordProvider(File file) {
-        super();
+    public FilePasswordProvider(PasswordUtil util, File file) {
+        super(util);
         this.file = file;
         Assert.notNull(file);
     }
 
-    public FilePasswordProvider(File file, boolean ignoreUnknown) {
-        super(ignoreUnknown);
+    public FilePasswordProvider(PasswordUtil util, File file, boolean ignoreUnknown) {
+        super(util, ignoreUnknown);
         this.file = file;
         Assert.notNull(file);
     }

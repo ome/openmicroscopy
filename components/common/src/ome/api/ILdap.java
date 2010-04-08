@@ -163,51 +163,6 @@ public interface ILdap extends ServiceInterface {
 	 * @return an ExperimenterGroups.
 	 */
 	List<ExperimenterGroup> searchGroups();
-
-	//  ~ Getters and Setters Ldap rewuiroments from properties file
-	// =========================================================================
-
-	/**
-	 * Gets specyfied requirements from properties.
-	 * 
-	 * @return List<String>
-	 */
-	List<String> getReqGroups();
-	
-	/**
-	 * Gets specyfied attributes from properties.
-	 * 
-	 * @return String []
-	 */
-	String[] getReqAttributes();
-	
-	/**
-	 * Gets specified values for attributes from properties.
-	 * 
-	 * @return String []
-	 */
-	String[] getReqValues();
-	
-	/**
-	 * Sets specyfied requirements from properties.
-	 * 
-	 * @return List<String>
-	 */
-	void setReqGroups(List<String> groups);
-	
-	/**
-	 * Sets specyfied attributes from properties.
-	 * 
-	 * @return String []
-	 */
-	void setReqAttributes(String [] attrs);
-	
-	/**
-	 * Sets specified values for attributes from properties.
-	 * 
-	 * @return String []
-	 */
-	void setReqValues(String [] vals);
 	
 	/**
 	 * Gets config value from properties.
