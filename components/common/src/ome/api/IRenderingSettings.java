@@ -157,6 +157,26 @@ public interface IRenderingSettings extends ServiceInterface {
 			@NotNull @Validate(Long.class) Set<Long> nodeIds);
 	
 	/**
+	 * Resets the rendering settings of a given group of containers based on
+	 * the owner's (essentially a copy). Supported container types are:
+	 * <ul>
+	 *   <li>{@link Project}</li>
+	 *   <li>{@link Dataset}</li>
+	 *   <li>{@link Image}</li>
+	 *   <li>{@link Plate}</li>
+	 *   <li>{@link Pixels}</li>
+	 * </ul>
+	 * @param type The type of nodes to handle.
+	 * @param nodeIds Ids of the node type.
+	 * @return A {@link java.util.Set} of image IDs that have had their 
+	 * rendering settings reset. 
+	 * @throws ValidationException if an illegal <code>type</code> is
+	 * used.
+	 */
+	<T extends IObject> Set<Long> resetDefaultsByOwnerInSet(Class<T> type, 
+			@NotNull @Validate(Long.class) Set<Long> nodeIds);
+	
+	/**
 	 * Applies rendering settings to one or many containers. If a container such 
 	 * as <code>Dataset</code> is to be copied to, all images within that 
 	 * <code>Dataset</code> will have the rendering settings applied. Supported
@@ -170,8 +190,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 *   <li>{@link Pixels}</li>
 	 * </ul>
 	 * 
-	 * @param <T> The type of object to copy to. <code>Project</code>, 
-	 * <code>Dataset</code> and <code>Image</code> are currently supported.
+	 * @param <T> The type of object to copy to.
 	 * @param from The Id of the pixels set to copy the rendering settings from.
 	 * @param type The type of nodes to handle.
 	 * @param nodeIds Ids of the node type.

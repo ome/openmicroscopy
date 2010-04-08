@@ -26,6 +26,7 @@ import omero.api.AMD_IRenderingSettings_resetDefaultsInDataset;
 import omero.api.AMD_IRenderingSettings_resetDefaultsInImage;
 import omero.api.AMD_IRenderingSettings_resetDefaultsForPixels;
 import omero.api.AMD_IRenderingSettings_resetDefaultsInSet;
+import omero.api.AMD_IRenderingSettings_resetDefaultsByOwnerInSet;
 import omero.api.AMD_IRenderingSettings_resetDefaultsNoSave;
 import omero.api.AMD_IRenderingSettings_sanityCheckPixels;
 import omero.api.AMD_IRenderingSettings_setOriginalSettingsInDataset;
@@ -135,8 +136,15 @@ public class RenderingSettingsI extends AbstractAmdServant implements
 
     public void resetDefaultsInSet_async(
             AMD_IRenderingSettings_resetDefaultsInSet __cb, String type,
-            List<Long> noteIds, Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, type, noteIds);
+            List<Long> nodeIds, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, type, nodeIds);
+
+    }
+
+    public void resetDefaultsByOwnerInSet_async(
+            AMD_IRenderingSettings_resetDefaultsByOwnerInSet __cb, String type,
+            List<Long> nodeIds, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, type, nodeIds);
 
     }
 
@@ -184,8 +192,8 @@ public class RenderingSettingsI extends AbstractAmdServant implements
 
     public void setOriginalSettingsInSet_async(
             AMD_IRenderingSettings_setOriginalSettingsInSet __cb, String type,
-            List<Long> noteIds, Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, type, noteIds);
+            List<Long> nodeIds, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, type, nodeIds);
 
     }
 

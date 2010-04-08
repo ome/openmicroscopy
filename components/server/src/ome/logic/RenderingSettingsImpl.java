@@ -376,30 +376,74 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      */
     private Map<Long, RenderingDef> loadRenderingSettings(List<Pixels> pixels)
     {
-		StopWatch s1 = new CommonsLogStopWatch("omero.loadRenderingSettings");
-		Set<Long> pixelsIds = new HashSet<Long>();
-		for (Pixels p : pixels)
-		{
-			pixelsIds.add(p.getId());
-		}
-		Long userId = getCurrentUserId();
-		Parameters p = new Parameters();
-		p.addIds(pixelsIds);
-		p.addId(userId);
-		
-    	String sql = PixelsImpl.RENDERING_DEF_QUERY_PREFIX +
-    		"rdef.pixels.id in (:ids) and " +
-    		"rdef.details.owner.id = :id";
-    	Map<Long, RenderingDef> settingsMap = new HashMap<Long, RenderingDef>();
-		List<RenderingDef> settingsList = iQuery.findAllByQuery(sql, p);
-		for (RenderingDef settings : settingsList)
-		{
-			settingsMap.put(settings.getPixels().getId(), settings);
-		}
-		s1.stop();
-		return settingsMap;
+        return loadRenderingSettings(pixels, getCurrentUserId());
     }
-    
+
+    /**
+     * Retrieves all rendering settings associated with a given set of Pixels.
+     * @param pixels List of Pixels to retrieve settings for.
+     * @param userId User ID of the owner of the settings to query for.
+     * @return A map of &lt;Pixels.Id,RenderingDef&gt; for the list of Pixels
+     * given. 
+     */
+    private Map<Long, RenderingDef> loadRenderingSettings(List<Pixels> pixels,
+                                                          Long ownerId)
+    {
+        StopWatch s1 = new CommonsLogStopWatch(
+                "omero.loadRenderingSettingsByUser");
+        Set<Long> pixelsIds = new HashSet<Long>();
+        for (Pixels p : pixels)
+        {
+            pixelsIds.add(p.getId());
+        }
+        Parameters p = new Parameters();
+        p.addIds(pixelsIds);
+        p.addId(ownerId);
+        String sql = PixelsImpl.RENDERING_DEF_QUERY_PREFIX +
+            "rdef.pixels.id in (:ids) and " +
+            "rdef.details.owner.id = :id";
+        Map<Long, RenderingDef> settingsMap = new HashMap<Long, RenderingDef>();
+        List<RenderingDef> settingsList = iQuery.findAllByQuery(sql, p);
+        for (RenderingDef settings : settingsList)
+        {
+            settingsMap.put(settings.getPixels().getId(), settings);
+        }
+        s1.stop();
+        return settingsMap;
+    }
+
+    /**
+     * Retrieves all rendering settings associated with a given set of Pixels
+     * that belong to the owner of each Pixels set.
+     * @param pixels List of Pixels to retrieve settings for.
+     * @return A map of &lt;Pixels.Id,RenderingDef&gt; for the list of Pixels
+     * given. 
+     */
+    private Map<Long, RenderingDef> loadRenderingSettingsByOwner(
+            List<Pixels> pixels)
+    {
+        StopWatch s1 = new CommonsLogStopWatch(
+                "omero.loadRenderingSettingsByOwner");
+        Set<Long> pixelsIds = new HashSet<Long>();
+        for (Pixels p : pixels)
+        {
+            pixelsIds.add(p.getId());
+        }
+        Parameters p = new Parameters();
+        p.addIds(pixelsIds);
+        String sql = PixelsImpl.RENDERING_DEF_QUERY_PREFIX +
+            "rdef.pixels.id in (:ids) and " +
+            "rdef.details.owner.id = ref.pixels.details.owner.id";
+        Map<Long, RenderingDef> settingsMap = new HashMap<Long, RenderingDef>();
+        List<RenderingDef> settingsList = iQuery.findAllByQuery(sql, p);
+        for (RenderingDef settings : settingsList)
+        {
+            settingsMap.put(settings.getPixels().getId(), settings);
+        }
+        s1.stop();
+        return settingsMap;
+    }
+
     /**
      * Resets a specific set of rendering settings back to those that are 
      * specified by the rendering engine intelligent <i>pretty good image 
@@ -845,11 +889,13 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      * caller to save these settings.
      */
     private RenderingDef applySettings(Pixels pixelsFrom, Pixels pixelsTo,
-    		                           RenderingDef settingsFrom,
-    		                           RenderingDef settingsTo)
+                                       RenderingDef settingsFrom,
+                                       RenderingDef settingsTo)
     {
-    	// Sanity checks
-    	log.info("apply settings: " + pixelsFrom+" "+pixelsTo+" "+settingsFrom+" "+settingsTo);
+        // Sanity checks
+        log.debug(String.format(
+                "Applying settings. From %s to %s and from %s to %s",
+                pixelsFrom, pixelsTo, settingsFrom, settingsTo));
         boolean b = sanityCheckPixels(pixelsFrom, pixelsTo);
         if (!b)
         {
@@ -1259,7 +1305,45 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     {
     	return resetDefaultsInSet(klass, nodeIds, true);
     }
-    
+
+    /**
+     * Implemented as specified by the {@link IRenderingSettings} I/F. 
+     * @see IRenderingSettings#resetDefaultsInSet(Class, Set)
+     */
+    @RolesAllowed("user")
+    public <T extends IObject> Set<Long> resetDefaultsByOwnerInSet(
+            Class<T> klass, Set<Long> nodeIds)
+    {
+        // Pre-process our list of potential containers. This will resolve down
+        // to a list of Pixels objects for us to work on.
+        List<Pixels> pixelsList = new ArrayList<Pixels>();
+        updatePixelsForNodes(pixelsList, klass, nodeIds);
+        Map<Long, RenderingDef> ownerSettings =
+            loadRenderingSettingsByOwner(pixelsList);
+        Map<Long, RenderingDef> mySettings =
+            loadRenderingSettings(pixelsList);
+        Set<IObject> toSave = new HashSet<IObject>();
+        Set<Long> toReturn = new HashSet<Long>();
+        for (Pixels pixels : pixelsList)
+        {
+            RenderingDef from = ownerSettings.get(pixels.getId());
+            RenderingDef to = mySettings.get(pixels.getId());
+            try
+            {
+                toSave.add(applySettings(pixels, pixels, from, to));
+                toReturn.add(pixels.getImage().getId());
+            }
+            catch (Exception e)
+            {
+                log.warn(String.format(
+                        "Exception while applying settings from owner. " +
+                        "%s from %s to %s", pixels, from, to), e);
+            }
+        }
+        iUpdate.saveCollection(toSave);
+        return toReturn;
+    }
+
     /**
      * Implemented as specified by the {@link IRenderingSettings} I/F.
      * @see IRenderingSettings#setOriginalSettingsInImage(long)

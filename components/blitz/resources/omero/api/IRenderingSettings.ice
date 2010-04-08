@@ -31,7 +31,8 @@ module omero {
                 void resetDefaultsInImage(long imageId) throws ServerError;
                 void resetDefaultsForPixels(long pixelsId) throws ServerError;
                 omero::sys::LongList resetDefaultsInDataset(long dataSetId) throws ServerError;
-                omero::sys::LongList resetDefaultsInSet(string type, omero::sys::LongList noteIds) throws ServerError;
+                omero::sys::LongList resetDefaultsInSet(string type, omero::sys::LongList nodeIds) throws ServerError;
+                omero::sys::LongList resetDefaultsByOwnerInSet(string type, omero::sys::LongList nodeIds) throws ServerError;
                 BooleanIdListMap applySettingsToSet(long from, string toType, omero::sys::LongList to) throws ServerError;
                 BooleanIdListMap applySettingsToProject(long from, long to) throws ServerError;
                 BooleanIdListMap applySettingsToDataset(long from, long to) throws ServerError;
@@ -41,7 +42,7 @@ module omero {
                 void setOriginalSettingsInImage(long imageId) throws ServerError;
                 void setOriginalSettingsForPixels(long pixelsId) throws ServerError;
                 omero::sys::LongList setOriginalSettingsInDataset(long dataSetId) throws ServerError;
-                omero::sys::LongList setOriginalSettingsInSet(string type, omero::sys::LongList noteIds) throws ServerError;
+                omero::sys::LongList setOriginalSettingsInSet(string type, omero::sys::LongList nodeIds) throws ServerError;
             };
     };
 };
