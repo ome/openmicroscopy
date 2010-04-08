@@ -9,8 +9,8 @@ package ome.security.auth;
 
 import java.security.Permissions;
 
-import ome.api.local.LocalLdap;
 import ome.conditions.ApiUsageException;
+import ome.logic.LdapImpl;
 import ome.security.SecuritySystem;
 
 import org.springframework.util.Assert;
@@ -33,16 +33,16 @@ import org.springframework.util.Assert;
 
 public class LdapPasswordProvider extends ConfigurablePasswordProvider {
 
-    final protected LdapUtil ldapUtil;
+    final protected LdapImpl ldapUtil;
 
-    public LdapPasswordProvider(PasswordUtil util, LdapUtil ldap) {
+    public LdapPasswordProvider(PasswordUtil util, LdapImpl ldap) {
         super(util);
         Assert.notNull(ldap);
         this.ldapUtil = ldap;
     }
 
     public LdapPasswordProvider(PasswordUtil util,
-            LdapUtil ldap,
+            LdapImpl ldap,
             boolean ignoreUnknown) {
         super(util, ignoreUnknown);
         Assert.notNull(ldap);
@@ -58,7 +58,7 @@ public class LdapPasswordProvider extends ConfigurablePasswordProvider {
      */
     @Override
     public boolean hasPassword(String user) {
-        if (ldapUtil.getConfig()) {
+        if (ldapUtil.getSetting()) {
             Long id = util.userId(user);
             if (id != null) {
                 String dn = ldapUtil.lookupLdapAuthExperimenter(id);
@@ -73,7 +73,7 @@ public class LdapPasswordProvider extends ConfigurablePasswordProvider {
     @Override
     public Boolean checkPassword(String user, String password) {
 
-        if (!ldapUtil.getConfig()) {
+        if (!ldapUtil.getSetting()) {
             return null; // EARLY EXIT!
         }
 
@@ -109,4 +109,5 @@ public class LdapPasswordProvider extends ConfigurablePasswordProvider {
         // If anything goes wrong, use the default (configurable) logic.
         return super.checkPassword(user, password);
     }
+
 }

@@ -10,8 +10,8 @@
           http://www.springframework.org/schema/util
           http://www.springframework.org/schema/util/spring-util-2.0.xsd">
 
-    <security:ldap-server root="ou=People,dc=glencoesoftware,dc=com"
-        ldif="classpath:ome/services/ldap/test1/*.ldif"/>
+    <security:ldap-server root="ou=People,dc=posix,dc=eg"
+        ldif="classpath:ome/services/ldap/posix/*.ldif"/>
 
     <bean id="config" class="ome.security.auth.LdapConfig">
       <constructor-arg index="0" value="true"/>

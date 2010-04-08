@@ -1,0 +1,25 @@
+dn: uid=test_user,dc=posix,dc=eg
+uid: test_user
+sn: User
+cn: Test User
+objectClass: person
+objectClass: organizationalPerson
+objectClass: posixAccount
+objectClass: top
+loginShell: /bin/bash
+homeDirectory: /home/testuser
+uidNumber: 1001
+gidNumber: 1001
+
+dn: cn=Group1,dc=posix,dc=eg
+cn: Group1
+objectClass: top
+objectClass: groupOfNames
+objectClass: posixGroup
+member: uid=test_user,dc=posix,dc=eg
+gidNumber: 100
+memberUid: test_user
+
+
+
+

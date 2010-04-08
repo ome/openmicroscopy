@@ -10,8 +10,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import ome.logic.LdapImpl;
 import ome.security.auth.LdapConfig;
-import ome.security.auth.LdapUtil;
 import ome.security.auth.RoleProvider;
 import ome.system.Roles;
 
@@ -65,7 +65,7 @@ public class LdapTest extends MockObjectTestCase {
     public void testLdiffFile(File file) throws Exception {
         ConfigurableApplicationContext ctx = createContext(file);
         try {
-            LdapUtil ldap = configureLdap(ctx);
+            LdapImpl ldap = configureLdap(ctx);
             Map<String, List<String>> good = ctx.getBean("good", Map.class);
             Map<String, List<String>> bad = ctx.getBean("bad", Map.class);
             assertPasses(ldap, good);
@@ -100,7 +100,7 @@ public class LdapTest extends MockObjectTestCase {
      * omero.ldap.trustStore=
      * omero.ldap.trustStorePassword=
      */
-    protected LdapUtil configureLdap(ApplicationContext context) throws Exception {
+    protected LdapImpl configureLdap(ApplicationContext context) throws Exception {
 
         LdapConfig config = (LdapConfig) context.getBean("config");
 
@@ -132,18 +132,18 @@ public class LdapTest extends MockObjectTestCase {
         Mock mock = mock(RoleProvider.class);
         RoleProvider provider = (RoleProvider) mock.proxy();
 
-        LdapUtil ldap = new LdapUtil(source, template,
+        LdapImpl ldap = new LdapImpl(source, template,
                 new Roles(), config, provider, null);
         return ldap;
     }
 
-    protected void assertPasses(LdapUtil ldap, Map<String, List<String>> users) {
+    protected void assertPasses(LdapImpl ldap, Map<String, List<String>> users) {
         for (String user : users.keySet()) {
             ldap.findExperimenter(user);
         }
     }
 
-    protected void assertFails(LdapUtil ldap, Map<String, List<String>> users) {
+    protected void assertFails(LdapImpl ldap, Map<String, List<String>> users) {
         for (String user : users.keySet()) {
             try {
                 ldap.findExperimenter(user);

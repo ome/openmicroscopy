@@ -216,10 +216,10 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 
         running = false;
 
-        if (workingDir.exists()) {
-            logger.info("Deleting working directory " + workingDir.getAbsolutePath());
-            deleteDir(workingDir);
-        }
+//        if (workingDir.exists()) {
+//            logger.info("Deleting working directory " + workingDir.getAbsolutePath());
+//            deleteDir(workingDir);
+//        }
     }
 
     private void importLdifs() throws Exception {

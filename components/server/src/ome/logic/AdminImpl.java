@@ -54,7 +54,6 @@ import ome.security.ACLVoter;
 import ome.security.AdminAction;
 import ome.security.SecureAction;
 import ome.security.SecuritySystem;
-import ome.security.auth.LdapUtil;
 import ome.security.auth.PasswordChangeException;
 import ome.security.auth.PasswordProvider;
 import ome.security.auth.PasswordUtil;
@@ -127,7 +126,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
     protected final PasswordUtil passwordUtil;
 
-    protected final LdapUtil ldapUtil;
+    protected final LdapImpl ldapUtil;
 
     protected OmeroContext context;
 
@@ -139,7 +138,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     public AdminImpl(SimpleJdbcOperations jdbc, SessionFactory sf,
             MailSender mailSender, SimpleMailMessage templateMessage,
             ACLVoter aclVoter, PasswordProvider passwordProvider,
-            RoleProvider roleProvider, LdapUtil ldapUtil, PasswordUtil passwordUtil) {
+            RoleProvider roleProvider, LdapImpl ldapUtil, PasswordUtil passwordUtil) {
         this.jdbc = jdbc;
         this.sf = sf;
         this.mailSender = mailSender;

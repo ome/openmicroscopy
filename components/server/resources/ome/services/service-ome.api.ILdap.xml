@@ -27,8 +27,10 @@
 			Privileged bean which has several "private" references
 			injected. This is not an example of what should be done.
 		</description>
-        <constructor-arg index="0" ref="ldapTemplate" />
-        <constructor-arg index="1" ref="ldapUtil" />
+      <constructor-arg ref="simpleJdbcTemplate"/>
+      <constructor-arg ref="ldapTemplate"/>
+      <constructor-arg ref="roles"/>
+      <constructor-arg ref="ldapConfig" />
 	</bean>
 
 	<bean name="managed-ome.api.ILdap" parent="managedService">
@@ -47,13 +49,6 @@
       <constructor-arg index="2" value="${omero.ldap.groups}" />
       <constructor-arg index="3" value="${omero.ldap.attributes}" />
       <constructor-arg index="4" value="${omero.ldap.values}" />
-    </bean>
-
-    <bean id="ldapUtil" class="ome.security.auth.LdapUtil">
-      <constructor-arg ref="simpleJdbcTemplate"/>
-      <constructor-arg ref="ldapTemplate"/>
-      <constructor-arg ref="roles"/>
-      <constructor-arg ref="ldapConfig" />
     </bean>
 
 	<bean id="ldapTemplate" class="org.springframework.ldap.core.LdapTemplate">

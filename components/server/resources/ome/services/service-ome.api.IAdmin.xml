@@ -33,7 +33,7 @@
     <constructor-arg ref="aclVoter"/>
     <constructor-arg ref="roleProvider"/>
     <constructor-arg ref="passwordProvider"/>
-    <constructor-arg ref="ldapUtil"/>
+    <constructor-arg ref="internal-ome.api.ILdap"/>
     <constructor-arg ref="passwordUtil"/>
   </bean>
 
