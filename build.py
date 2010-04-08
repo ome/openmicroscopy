@@ -126,6 +126,11 @@ if __name__ == "__main__":
     try:
         if len(args) > 0 and args[0] == "-hudson":
             build_hudson()
+        elif len(args) > 0 and args[0] == "-perf":
+            A = list(args)
+            A.pop(0)
+            A = "-listener net.sf.antcontrib.perf.AntPerformanceListener".split() + A
+            java_omero(A)
         else:
             java_omero(args)
             notification(""" Finished: %s """ % " ".join(args), 0)
