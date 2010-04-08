@@ -34,7 +34,10 @@ java component.
     <property name="import.dir" value="${basedir}/components/antlib/resources"/>
     <import file="${import.dir}/global.xml"/>
 
-    <target name="init" depends="check-ivy,check-scons,check-ice"/>
+    <target name="init" depends="check-ivy,check-scons,check-ice">
+        <mkdir dir="${blitz.comp}/generated"/>
+        <mkdir dir="${blitz.comp}/target/generated/src"/>
+    </target>
 
     <target name="check-ivy" unless="ivy.done">
         <!-- Prevent future invocations and PermGen errors-->
@@ -50,7 +53,7 @@ java component.
         </ivy:buildlist>
         <!-- Single file paths defined in antlib/resources/directories.xml -->
 
-        <ivy:resolve file="ivy.xml" type="jar" conf="build" settingsRef="ivy.toplevel" log="quiet"/>
+        <ivy:resolve file="ivy.xml" type="jar" conf="build" settingsRef="ivy.toplevel" log="quiet" haltonfailure="false"/>
         <taskdef name="ivyeclipse" classname="IVY1016.EclipseClasspath" loaderref="ivy.loader"/>
         <ivyeclipse conf="build"/>
     </target>
