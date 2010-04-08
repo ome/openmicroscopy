@@ -946,7 +946,7 @@ public class client {
                 } catch (Exception e2) {
                     // This could be a null pointer exception or any number
                     // of things. But it's important for us to know that a
-                    // heartbeat could not be performed, for exampleì
+                    // heartbeat could not be performed, for example.
                     System.err.println("Error performing " + action + " :"
                             + e.getMessage());
                     System.err.println("(Stderr due to: " + e2.getMessage()
