@@ -490,6 +490,21 @@ class BlitzObjectWrapper (object):
     #    return str(self._obj)
 
     def __getattr__ (self, attr):
+        if attr != 'get' and attr.startswith('get') and hasattr(self, '_attrs'):
+            tattr = attr[3].lower() + attr[4:]
+            attrs = filter(lambda x: tattr in x, self._attrs)
+            for a in attrs:
+                if a.startswith('#') and a[1:] == tattr:
+                    v = getattr(self, tattr)
+                    if v is not None:
+                        v = v._value
+                    def wrap ():
+                        return v
+                    return wrap
+                if len(a) > len(tattr) and a[len(tattr)] == '|':
+                    def wrap ():
+                        return getattr(omero.gateway, a[len(tattr)+1:])(self._conn, getattr(self, tattr))
+                    return wrap
         if not hasattr(self._obj, attr) and hasattr(self._obj, '_'+attr):
             attr = '_' + attr
         if hasattr(self._obj, attr):
