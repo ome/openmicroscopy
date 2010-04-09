@@ -460,8 +460,6 @@ class EditorComponent
 				fileName = "new_protocol.cpe.xml";
 			
 			model.setFileAnnotationData(null);
-			String dirName = EditorAgent.getEditorHome();
-			fileName = dirName + File.separator + fileName;
 			model.fireFileSaving(fileName, asynch);
 			fireStateChange();
 		}
