@@ -38,6 +38,7 @@ import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.ResourceUtils;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -87,6 +88,11 @@ public class UpdateServiceTest
 	/** Reference to the log. */
     protected static Log log = LogFactory.getLog(UpdateServiceTest.class);
 
+	/** 
+	 * The client object, this is the entry point to the Server. 
+	 */
+    private omero.client client;
+    
     /** Helper reference to the <code>Service factory</code>. */
     private ServiceFactoryPrx factory;
     
@@ -109,16 +115,29 @@ public class UpdateServiceTest
     protected void setUp() 
     	throws Exception 
     {
-        omero.client client = new omero.client();
+        client = new omero.client();
         factory = client.createSession();
         iQuery = factory.getQueryService();
         iUpdate = factory.getUpdateService();
 
-        omero.client root = new omero.client();
-        root.createSession("root", client.getProperty("omero.rootpass"));
+        //omero.client root = new omero.client();
+        //root.createSession("root", client.getProperty("omero.rootpass"));
         //fixture = CreatePojosFixture2.withNewUser(root);
     }
 
+    /**
+     * Closes the session.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Override
+    @AfterMethod
+    public void tearDown() 
+    	throws Exception 
+    {
+        client.closeSession();
+        factory.destroy();
+    }
+    
     /**
      * Test to link datasets and images using the 
      * <code>saveAndReturnObject</code> method.

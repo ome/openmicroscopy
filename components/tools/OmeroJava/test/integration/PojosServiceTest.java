@@ -43,6 +43,7 @@ import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.ResourceUtils;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -107,8 +108,13 @@ public class PojosServiceTest
 	/** Reference to the log. */
     protected static Log log = LogFactory.getLog(PojosServiceTest.class);
 
+	/** 
+	 * The client object, this is the entry point to the Server. 
+	 */
+    private omero.client client;
+    
     /** Helper reference to the <code>Service factory</code>. */
-    ServiceFactoryPrx factory;
+    private ServiceFactoryPrx factory;
     
     /** Reference to class used to create data object. */
     CreatePojosFixture2 fixture;
@@ -322,7 +328,7 @@ public class PojosServiceTest
         data = (OMEData) test.getBean("data");
 	*/
         
-        omero.client client = new omero.client();
+        client = new omero.client();
         factory = client.createSession();
         iContainer = factory.getContainerService();
         iQuery = factory.getQueryService();
@@ -337,6 +343,19 @@ public class PojosServiceTest
         OWNER_FILTER = new ParametersI().exp(fixture.e.getId());
     }
 
+    /**
+     * Closes the session.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Override
+    @AfterMethod
+    public void tearDown() 
+    	throws Exception 
+    {
+        client.closeSession();
+        factory.destroy();
+    }
+    
     /**
      * Tests that the experimenter with login name <code>root</code> is
      * in the database, and makes sure it is converted into an 
