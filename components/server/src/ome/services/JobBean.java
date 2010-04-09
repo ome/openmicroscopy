@@ -52,7 +52,6 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
 
     private Long jobId, resetId;
     private transient ITypes iTypes;
-    private transient LocalUpdate iUpdate;
     private transient IProcessManager pm;
 
     /** default constructor */
@@ -207,17 +206,6 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
     public void setTypesService(ITypes typesService) {
         getBeanHelper().throwIfAlreadySet(this.iTypes, typesService);
         this.iTypes = typesService;
-    }
-
-    /**
-     * Update service Bean injector.
-     * 
-     * @param updateService
-     *            a <code>IUpdate</code>.
-     */
-    public void setUpdateService(LocalUpdate updateService) {
-        getBeanHelper().throwIfAlreadySet(this.iUpdate, updateService);
-        this.iUpdate = updateService;
     }
 
     /**

@@ -12,6 +12,7 @@ import java.io.Serializable;
 import ome.annotations.RolesAllowed;
 import ome.api.StatefulServiceInterface;
 import ome.api.local.LocalQuery;
+import ome.api.local.LocalUpdate;
 import ome.security.SecuritySystem;
 import ome.services.util.BeanHelper;
 import ome.system.EventContext;
@@ -32,7 +33,16 @@ public abstract class AbstractStatefulBean implements SelfConfigurableService,
 
     protected transient LocalQuery iQuery;
 
+    protected transient LocalUpdate iUpdate;
+
     protected transient SecuritySystem sec;
+
+    /**
+     * True if any write operation took place on this bean.
+     * Allows for updating the database representation if needed.
+     * @see ticket:#1961
+     */
+    protected transient boolean modified;
 
     /**
      * Query service Bean injector.
@@ -43,6 +53,11 @@ public abstract class AbstractStatefulBean implements SelfConfigurableService,
     public final void setQueryService(LocalQuery iQuery) {
         getBeanHelper().throwIfAlreadySet(this.iQuery, iQuery);
         this.iQuery = iQuery;
+    }
+
+    public final void setUpdateService(LocalUpdate update) {
+        getBeanHelper().throwIfAlreadySet(this.iUpdate, update);
+        this.iUpdate = update;
     }
 
     public final void setSecuritySystem(SecuritySystem secSys) {
@@ -59,6 +74,14 @@ public abstract class AbstractStatefulBean implements SelfConfigurableService,
             beanHelper = new BeanHelper(this.getClass());
         }
         return beanHelper;
+    }
+
+    protected boolean isModified() {
+        return modified;
+    }
+
+    protected void modified() {
+        modified = true;
     }
 
     @RolesAllowed("user")

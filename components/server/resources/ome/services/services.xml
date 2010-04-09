@@ -129,6 +129,7 @@
 
   <bean id="stateful" abstract="true" class="ome.services.AbstractStatefulBean">
     <property name="queryService" ref="internal-ome.api.IQuery"/>
+    <property name="updateService" ref="internal-ome.api.IUpdate"/>
     <property name="securitySystem" ref="securitySystem"/>
   </bean>
 

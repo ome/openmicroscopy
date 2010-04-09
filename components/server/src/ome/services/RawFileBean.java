@@ -9,13 +9,10 @@ package ome.services;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
+import java.util.zip.Checksum;
 
-import ome.annotations.PermitAll;
 import ome.annotations.RolesAllowed;
 import ome.api.IRepositoryInfo;
 import ome.api.RawFileStore;
@@ -25,6 +22,7 @@ import ome.conditions.ResourceError;
 import ome.io.nio.FileBuffer;
 import ome.io.nio.OriginalFilesService;
 import ome.model.core.OriginalFile;
+import ome.util.Utils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -131,12 +129,31 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
      * @see ome.api.StatefulServiceInterface#close()
      */
     @RolesAllowed("user")
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = false)
     public void close() {
-        ioService = null;
-        file = null;
-        closeFileBuffer();
-        buffer = null;
+        try {
+            if (isModified()) {
+                Long id = (file == null) ? null : file.getId();
+                if (id != null) {
+
+                    String path = ioService.getFilesPath(id);
+                    byte[] hash = Utils.pathToSha1(path);
+                    file.setSha1(Utils.bytesToHex(hash));
+
+                    long size = new File(path).length();
+                    file.setSize(size);
+
+                    iUpdate.flush();
+                }
+            }
+        } catch (RuntimeException re) {
+            log.error("Failed to update file: " + file.getId(), re);
+        } finally {
+            ioService = null;
+            file = null;
+            closeFileBuffer();
+            buffer = null;
+        }
     }
 
     /**
@@ -231,6 +248,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
         
         try {
             buffer.write(nioBuffer, position);
+            modified();
         } catch (IOException e) {
             if (log.isDebugEnabled()) {
                 log.debug("Buffer write did not occur.", e);

@@ -8,8 +8,12 @@
 package ome.util;
 
 // Java imports
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
+import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
@@ -168,12 +172,7 @@ public class Utils {
     public static String bufferToSha1(byte[] buffer) {
         MessageDigest md;
 
-        try {
-            md = MessageDigest.getInstance("SHA-1");
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(
-                    "Required SHA-1 message digest algorithm unavailable.");
-        }
+        md = newSha1MessageDigest();
 
         md.reset();
         md.update(buffer);
@@ -186,6 +185,22 @@ public class Utils {
         return buf.toString();
     }
 
+    /**
+     * Reads a file from disk and returns the SHA1 digest for it. An IOException
+     * is thrown if anything occurs during reading.
+     */
+    public static byte[] pathToSha1(String fileName) {
+        try {
+            MessageDigest sha1 = newSha1MessageDigest();
+            FileInputStream     fis = new FileInputStream(fileName);
+            BufferedInputStream bis = new BufferedInputStream(fis);
+            DigestInputStream   dis = new DigestInputStream(bis,sha1);
+            while (dis.read() != -1);
+            return sha1.digest();
+        } catch (IOException io) {
+            throw new RuntimeException(io);
+        }
+    }
     /**
      * Calculates a MD5 digest for the given {@link ByteBuffer}
      */
@@ -255,5 +270,16 @@ public class Utils {
 
         md.reset();
         return md;
+    }
+
+
+    private static MessageDigest newSha1MessageDigest() {
+        try {
+            return MessageDigest.getInstance("SHA-1");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(
+                    "Required SHA-1 message digest algorithm unavailable.");
+        }
+
     }
 }

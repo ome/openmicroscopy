@@ -681,7 +681,7 @@ class BaseClient(object):
             raise omero.ClientError("No session avaliable")
 
         s = omero.model.SessionI()
-        s.uuid = rstring(sf.ice_getIdentity().name)
+        s.uuid = omero.rtypes.rstring(sf.ice_getIdentity().name)
         try:
             svc = sf.getSessionService()
         except:
