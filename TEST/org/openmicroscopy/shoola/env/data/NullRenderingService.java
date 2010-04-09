@@ -191,9 +191,9 @@ public class NullRenderingService
 
 	/**
      * No-op implementation
-     * @see OmeroImageService#setOriginalRenderingSettings(Class, List)
+     * @see OmeroImageService#setMinMaxSettings(Class, List)
      */
-	public Map setOriginalRenderingSettings(Class rootNodeType, 
+	public Map setMinMaxSettings(Class rootNodeType, 
 											List<Long> nodeIDs) 
 		throws DSOutOfServiceException, DSAccessException
 	{

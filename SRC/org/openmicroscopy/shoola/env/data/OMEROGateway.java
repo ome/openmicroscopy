@@ -3785,7 +3785,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Map setOriginalRenderingSettings(Class rootNodeType, List nodes) 
+	Map setMinMaxSettings(Class rootNodeType, List nodes) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		List<Long> success = new ArrayList<Long>();
@@ -3799,7 +3799,7 @@ class OMEROGateway
 			if (klass.equals(Image.class.getName()) 
 				|| klass.equals(Dataset.class.getName()) || 
 						klass.equals(Plate.class.getName()))
-				success = service.resetDefaultsInSet(klass, nodes);
+				success = service.setOriginalSettingsInSet(klass, nodes);
 		} catch (Exception e) {
 			handleException(e, "Cannot reset the rendering settings.");
 		}
@@ -3844,7 +3844,7 @@ class OMEROGateway
 			if (klass.equals(Image.class.getName()) 
 				|| klass.equals(Dataset.class.getName()) || 
 						klass.equals(Plate.class.getName()))
-				success = service.resetDefaultsInSet(klass, nodes);
+				success = service.resetDefaultsByOwnerInSet(klass, nodes);
 		} catch (Exception e) {
 			handleException(e, "Cannot reset the rendering settings.");
 		}

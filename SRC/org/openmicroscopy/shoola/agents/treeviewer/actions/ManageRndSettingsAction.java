@@ -70,8 +70,8 @@ public class ManageRndSettingsAction
 	/** Identified the reset action. */
 	public static final int 	RESET = 2;
 	
-	/** Identified the reset action. */
-	public static final int 	SET_ORIGINAL = 3;
+	/** Identified the min/max action. */
+	public static final int 	SET_MIN_MAX = 3;
 	
 	/** Identified the set owner settings action. */
 	public static final int 	SET_OWNER_SETTING = 4;
@@ -91,17 +91,17 @@ public class ManageRndSettingsAction
     									"Paste the rendering settings.";
     
     /** The name of the action if the index is {@link #RESET}. */
-    private static final String NAME_RESET = "Reset Settings";
+    private static final String NAME_RESET = "Reset Default Settings";
     
     /** The description of the action if the index is {@link #RESET}. */
     private static final String DESCRIPTION_RESET = 
-    									"Reset the rendering settings.";
+    					"Reset the rendering settings created while importing.";
     
-    /** The name of the action if the index is {@link #SET_ORIGINAL}. */
-    private static final String NAME_SET_ORIGINAL = "Set Original Settings";
+    /** The name of the action if the index is {@link #SET_MIN_MAX}. */
+    private static final String NAME_SET_MIN_MAX = "Set Min/Max";
     
-    /** The description of the action if the index is {@link #SET_ORIGINAL}. */
-    private static final String DESCRIPTION_SET_ORIGINAL = 
+    /** The description of the action if the index is {@link #SET_MIN_MAX}. */
+    private static final String DESCRIPTION_SET_MIN_MAX = 
     									"Set the original rendering settings.";
     
     /** The name of the action if the index is {@link #SET_OWNER_SETTING}. */
@@ -174,10 +174,10 @@ public class ManageRndSettingsAction
 						UIUtilities.formatToolTipText(DESCRIPTION_RESET));
 				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.REDO));
 				break;
-			case SET_ORIGINAL:
-				name = NAME_SET_ORIGINAL;
+			case SET_MIN_MAX:
+				name = NAME_SET_MIN_MAX;
 				putValue(Action.SHORT_DESCRIPTION, 
-					UIUtilities.formatToolTipText(DESCRIPTION_SET_ORIGINAL));
+					UIUtilities.formatToolTipText(DESCRIPTION_SET_MIN_MAX));
 				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.REDO));
 				break;
 			case SET_OWNER_SETTING:
@@ -256,7 +256,7 @@ public class ManageRndSettingsAction
 				}
 				break;
 			case RESET:
-			case SET_ORIGINAL:
+			case SET_MIN_MAX:
 				if (selectedDisplay instanceof TreeImageTimeSet) {
 					handleTreeTimeNode(selected);
 					return;
@@ -325,8 +325,9 @@ public class ManageRndSettingsAction
 				cmd = new PasteRndSettingsCmd(model, PasteRndSettingsCmd.RESET);
 				cmd.execute();
 				break;
-			case SET_ORIGINAL:
-				cmd = new PasteRndSettingsCmd(model, PasteRndSettingsCmd.SET);
+			case SET_MIN_MAX:
+				cmd = new PasteRndSettingsCmd(model, 
+						PasteRndSettingsCmd.SET_MIN_MAX);
 				cmd.execute();
 				break;
 			case PASTE:

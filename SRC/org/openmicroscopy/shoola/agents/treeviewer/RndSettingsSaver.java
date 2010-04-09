@@ -66,8 +66,8 @@ public class RndSettingsSaver
 	/** Indicates to reset the rendering settings. */
 	public static final int RESET = 1;
 	
-	/** Indicates to set the rendering settings. */
-	public static final int SET = 2;
+	/** Indicates to set the min/max for each channel. */
+	public static final int SET_MIN_MAX = 2;
 	
 	/** Indicates to set the rendering settings used by the owner. */
 	public static final int SET_OWNER = 3;
@@ -105,7 +105,7 @@ public class RndSettingsSaver
     	switch (index) {
 			case PASTE:
 			case RESET:
-			case SET:
+			case SET_MIN_MAX:
 			case SET_OWNER:
 				break;
 			default:
@@ -253,11 +253,11 @@ public class RndSettingsSaver
 				else 
 					handle = dhView.resetRndSettings(ref, this);
 				break;
-			case SET:
+			case SET_MIN_MAX:
 				if (ref == null)
-					handle = dhView.setRndSettings(rootType, ids, this);
+					handle = dhView.setMinMaxSettings(rootType, ids, this);
 				else 
-					handle = dhView.setRndSettings(ref, this);
+					handle = dhView.setMinMaxSettings(ref, this);
 				break;
 			case SET_OWNER:
 				if (ref == null)

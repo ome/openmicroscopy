@@ -114,9 +114,9 @@ class DataBrowserControl
 	static final Integer    RESET_RND_SETTINGS = Integer.valueOf(7);
 	
 	/** 
-	 * Identifies the <code>Set the original rendering settings action</code>. 
+	 * Identifies the <code>Set the min/max for each channel</code>. 
 	 */
-	static final Integer    SET_ORIGINAL_RND_SETTINGS = Integer.valueOf(8);
+	static final Integer    SET_MIN_MAX_SETTINGS = Integer.valueOf(8);
 	
 	/** Identifies the <code>Refresh</code> action. */
 	static final Integer    REFRESH = Integer.valueOf(9);
@@ -172,9 +172,9 @@ class DataBrowserControl
     	actionsMap.put(RESET_RND_SETTINGS, new ManageRndSettingsAction(model, 
 								ManageRndSettingsAction.RESET));
     	actionsMap.put(REFRESH, new RefreshAction(model));
-    	actionsMap.put(SET_ORIGINAL_RND_SETTINGS, 
+    	actionsMap.put(SET_MIN_MAX_SETTINGS, 
     			new ManageRndSettingsAction(model, 
-    					ManageRndSettingsAction.SET_ORIGINAL));
+    					ManageRndSettingsAction.SET_MIN_MAX));
     	actionsMap.put(SET_OWNER_RND_SETTINGS, 
     			new ManageRndSettingsAction(model, 
     					ManageRndSettingsAction.SET_OWNER));

@@ -436,7 +436,7 @@ class TreeViewerControl
 				ManageRndSettingsAction.SET_OWNER_SETTING));
 		actionsMap.put(SEARCH, new SearchAction(model));
 		actionsMap.put(SET_RND_SETTINGS, new ManageRndSettingsAction(model, 
-				ManageRndSettingsAction.SET_ORIGINAL));
+				ManageRndSettingsAction.SET_MIN_MAX));
 		actionsMap.put(CREATE_TOP_SCREEN, 
 				new CreateTopContainerAction(model, 
 						CreateTopContainerAction.SCREEN));
@@ -853,9 +853,9 @@ class TreeViewerControl
 			Object data = pce.getNewValue();
 			PasteRndSettingsCmd cmd;
 			if (data instanceof Collection) 
-				cmd = new PasteRndSettingsCmd(model, PasteRndSettingsCmd.SET,
+				cmd = new PasteRndSettingsCmd(model, PasteRndSettingsCmd.SET_MIN_MAX,
 						(Collection) data);
-			else cmd = new PasteRndSettingsCmd(model, PasteRndSettingsCmd.SET);
+			else cmd = new PasteRndSettingsCmd(model, PasteRndSettingsCmd.SET_MIN_MAX);
 			cmd.execute();
 		} else if (DataBrowser.SET__ORIGINAL_RND_SETTINGS_PROPERTY.equals(
 				name)) {

@@ -143,7 +143,7 @@ public interface DataHandlerView
 	 * @param observer		Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle setRndSettings(Class rootNodeType, List<Long> ids, 
+	public CallHandle setMinMaxSettings(Class rootNodeType, List<Long> ids, 
 									AgentEventListener observer);
 
 	/**
@@ -154,7 +154,7 @@ public interface DataHandlerView
 	 * @param observer		Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle setRndSettings(TimeRefObject ref, 
+	public CallHandle setMinMaxSettings(TimeRefObject ref, 
 										AgentEventListener observer);
 	
 	/**

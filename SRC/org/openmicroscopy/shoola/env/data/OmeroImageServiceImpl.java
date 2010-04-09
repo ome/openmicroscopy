@@ -472,14 +472,14 @@ class OmeroImageServiceImpl
 
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#setOriginalRenderingSettings(Class, List)
+	 * @see OmeroImageService#setMinMaxSettings(Class, List)
 	 */
-	public Map setOriginalRenderingSettings(Class rootNodeType, List nodesID) 
+	public Map setMinMaxSettings(Class rootNodeType, List nodesID) 
 		throws DSOutOfServiceException, DSAccessException 
 	{
 		if (nodesID == null || nodesID.size() == 0)
 			throw new IllegalArgumentException("No nodes specified.");
-		return gateway.setOriginalRenderingSettings(rootNodeType, nodesID);
+		return gateway.setMinMaxSettings(rootNodeType, nodesID);
 	}
 	
 	/** 

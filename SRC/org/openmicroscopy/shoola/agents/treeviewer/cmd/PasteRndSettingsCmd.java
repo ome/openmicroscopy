@@ -65,8 +65,8 @@ public class PasteRndSettingsCmd
 	/** Indicates to reset the rendering settings. */
 	public static final int RESET = 1;
 	
-	/** Indicates to reset the rendering settings. */
-	public static final int SET = 2;
+	/** Indicates to set the min/max for each channel. */
+	public static final int SET_MIN_MAX = 2;
 	
 	/** Indicates to reset the rendering settings, used the owner's one. */
 	public static final int SET_OWNER = 3;
@@ -90,7 +90,7 @@ public class PasteRndSettingsCmd
     	switch (i) {
 			case PASTE:
 			case RESET:
-			case SET:
+			case SET_MIN_MAX:
 			case SET_OWNER:
 				break;
 			default:
@@ -155,8 +155,8 @@ public class PasteRndSettingsCmd
 				case RESET:
 					model.resetRndSettings(ids, klass);
 					break;
-				case SET:
-					model.setOriginalRndSettings(ids, klass);
+				case SET_MIN_MAX:
+					model.setMinMax(ids, klass);
 					break;
 				case SET_OWNER:
 					model.setOwnerRndSettings(ids, klass);
@@ -212,9 +212,9 @@ public class PasteRndSettingsCmd
 				if (ref != null) model.resetRndSettings(ref);
 				else model.resetRndSettings(ids, klass);
 				break;
-			case SET:
+			case SET_MIN_MAX:
 				if (ref != null) model.setOriginalRndSettings(ref);
-				else model.setOriginalRndSettings(ids, klass);
+				else model.setMinMax(ids, klass);
 			case SET_OWNER:
 				if (ref != null) model.setOwnerRndSettings(ref);
 				else model.setOwnerRndSettings(ids, klass);

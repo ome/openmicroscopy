@@ -72,7 +72,7 @@ public class RenderingSettingsSaver
 	public static final int RESET = 1;
 	
 	/** Indicates to reset the rendering settings. */
-	public static final int SET_ORIGINAL = 2;
+	public static final int SET_MIN_MAX = 2;
 	
 	/** Indicates to create rendering settings. */
 	public static final int CREATE = 3;
@@ -127,8 +127,8 @@ public class RenderingSettingsSaver
 					case RESET:
 						result = rds.resetRenderingSettings(rootType, ids);
 						break;
-					case SET_ORIGINAL:
-						result = rds.setOriginalRenderingSettings(rootType, ids);
+					case SET_MIN_MAX:
+						result = rds.setMinMaxSettings(rootType, ids);
 						break;
 					case SET_OWNER:
 						result = rds.setOwnerRenderingSettings(rootType, ids);
@@ -174,9 +174,9 @@ public class RenderingSettingsSaver
 							result = rds.resetRenderingSettings(ImageData.class, 
 																ids);
 							break;
-						case SET_ORIGINAL:
-							result = rds.setOriginalRenderingSettings(
-												ImageData.class, ids);
+						case SET_MIN_MAX:
+							result = rds.setMinMaxSettings(ImageData.class, 
+									ids);
 							break;
 						case SET_OWNER:
 							result = rds.setOwnerRenderingSettings(

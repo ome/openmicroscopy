@@ -124,25 +124,25 @@ public class DataHandlerViewImpl
 	
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#setRndSettings(Class, List, AgentEventListener)
+	 * @see DataHandlerView#setMinMaxSettings(Class, List, AgentEventListener)
 	 */
-	public CallHandle setRndSettings(Class rootNodeType, List<Long> ids, 
+	public CallHandle setMinMaxSettings(Class rootNodeType, List<Long> ids, 
 										AgentEventListener observer)
 	{
 		BatchCallTree cmd = new RenderingSettingsSaver(rootNodeType, ids, 
-									RenderingSettingsSaver.SET_ORIGINAL);
+									RenderingSettingsSaver.SET_MIN_MAX);
 		return cmd.exec(observer);
 	}
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#setRndSettings(TimeRefObject, AgentEventListener)
+	 * @see DataHandlerView#setMinMaxSettings(TimeRefObject, AgentEventListener)
 	 */
-	public CallHandle setRndSettings(TimeRefObject ref, 
+	public CallHandle setMinMaxSettings(TimeRefObject ref, 
 			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new RenderingSettingsSaver(ref, 
-								RenderingSettingsSaver.SET_ORIGINAL);
+								RenderingSettingsSaver.SET_MIN_MAX);
 		return cmd.exec(observer);
 	}
 	

@@ -714,11 +714,11 @@ class TreeViewerModel
 	 * @param ids 	Collection of nodes identifiers.
 	 * @param klass The type of nodes to handle.
 	 */
-	void fireSetOriginalRenderingSettings(List<Long> ids, Class klass)
+	void fireSetMinMax(List<Long> ids, Class klass)
 	{
 		state = TreeViewer.SETTINGS_RND;
 		currentLoader = new RndSettingsSaver(component, klass, ids, 
-										RndSettingsSaver.SET);
+										RndSettingsSaver.SET_MIN_MAX);
 		currentLoader.load();
 	}
 
@@ -745,7 +745,7 @@ class TreeViewerModel
 	{
 		state = TreeViewer.SETTINGS_RND;
 		currentLoader = new RndSettingsSaver(component, ref, 
-											RndSettingsSaver.SET);
+											RndSettingsSaver.SET_MIN_MAX);
 		currentLoader.load();
 	}
 	
@@ -759,7 +759,7 @@ class TreeViewerModel
 	{
 		state = TreeViewer.SETTINGS_RND;
 		currentLoader = new RndSettingsSaver(component, ref, 
-											RndSettingsSaver.SET);
+											RndSettingsSaver.SET_MIN_MAX);
 		currentLoader.load();
 	}
 	

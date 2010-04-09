@@ -82,8 +82,8 @@ class PopupMenu
 	/** Button to copy the rendering settings. */
 	private JMenuItem			copyRndSettings;
 	
-	/** Button to set the original rendering settings. */
-	private JMenuItem			setOriginalRndSettings;
+	/** Button to set the min/max for each channel. */
+	private JMenuItem			setMinMaxSettings;
 
 	/** Button to set the original rendering settings. */
 	private JMenuItem			setOwnerRndSettings;
@@ -126,9 +126,9 @@ class PopupMenu
 				controller.getAction(DataBrowserControl.RESET_RND_SETTINGS));
 		copyRndSettings = new JMenuItem(
 				controller.getAction(DataBrowserControl.COPY_RND_SETTINGS));
-		setOriginalRndSettings = new JMenuItem(
+		setMinMaxSettings = new JMenuItem(
 				controller.getAction(
-						DataBrowserControl.SET_ORIGINAL_RND_SETTINGS));
+						DataBrowserControl.SET_MIN_MAX_SETTINGS));
 		setOwnerRndSettings = new JMenuItem(
 				controller.getAction(
 						DataBrowserControl.SET_OWNER_RND_SETTINGS));
@@ -160,8 +160,8 @@ class PopupMenu
 		add(new JSeparator(JSeparator.HORIZONTAL));
 		add(copyRndSettings);
 		add(pasteRndSettings);
-		//add(resetRndSettings);
-		add(setOriginalRndSettings);
+		add(resetRndSettings);
+		add(setMinMaxSettings);
 		add(setOwnerRndSettings);
 	}
 	

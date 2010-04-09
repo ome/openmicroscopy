@@ -73,7 +73,7 @@ public class ManageRndSettingsAction
 	public static final int 	RESET = 2;
 	
 	/** Identified the reset action. */
-	public static final int 	SET_ORIGINAL = 3;
+	public static final int 	SET_MIN_MAX = 3;
 	
 	/** Identified the reset action. */
 	public static final int 	SET_OWNER = 4;
@@ -93,18 +93,19 @@ public class ManageRndSettingsAction
     									"Paste the rendering settings.";
     
     /** The default name of the action if the index is {@link #RESET}. */
-    private static final String NAME_RESET = "Reset Settings";
+    private static final String NAME_RESET = "Reset Default Settings";
     
     /** The description of the action if the index is {@link #RESET}. */
     private static final String DESCRIPTION_RESET = 
-    									"Reset the rendering settings.";
+    	"Reset the rendering settings created while importing.";
     
-    /** The default name of the action if the index is {@link #SET_ORIGINAL}. */
-    private static final String NAME_SET_ORIGINAL = "Set Original Settings";
+    /** The default name of the action if the index is {@link #SET_MIN_MAX}. */
+    private static final String NAME_SET_MIN_MAX = "Set Min/Max";
     
-    /** The description of the action if the index is {@link #SET_ORIGINAL}. */
-    private static final String DESCRIPTION_SET_ORIGINAL = 
-    									"Set the original rendering settings.";
+    /** The description of the action if the index is {@link #SET_MIN_MAX}. */
+    private static final String DESCRIPTION_SET_MIN_MAX = 
+    				"Set the Pixels Intensity interval to min/max <br>" +
+    				"for all channels.";
     
     /** The name of the action if the index is {@link #SET_OWNER}. */
     private static final String NAME_SET_OWNER= "Set Owner's Settings";
@@ -147,10 +148,10 @@ public class ManageRndSettingsAction
 						UIUtilities.formatToolTipText(DESCRIPTION_RESET));
 				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.UNDO));
 				break;
-			case SET_ORIGINAL:
-				putValue(Action.NAME, NAME_SET_ORIGINAL);
+			case SET_MIN_MAX:
+				putValue(Action.NAME, NAME_SET_MIN_MAX);
 				putValue(Action.SHORT_DESCRIPTION, 
-					UIUtilities.formatToolTipText(DESCRIPTION_SET_ORIGINAL));
+					UIUtilities.formatToolTipText(DESCRIPTION_SET_MIN_MAX));
 				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.UNDO));
 				break;
 			case SET_OWNER:
@@ -223,7 +224,7 @@ public class ManageRndSettingsAction
 				}
 				break;
 			case RESET:
-			case SET_ORIGINAL:
+			case SET_MIN_MAX:
 				if (!(ho instanceof ImageData || ho instanceof DatasetData ||
 						ho instanceof PlateData))
 					setEnabled(false);
@@ -285,7 +286,7 @@ public class ManageRndSettingsAction
 			case RESET:
 				model.resetRndSettings();
 				break;
-			case SET_ORIGINAL:
+			case SET_MIN_MAX:
 				model.setOriginalSettings();
 				break;
 			case SET_OWNER:

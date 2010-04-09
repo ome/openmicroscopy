@@ -1970,9 +1970,9 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#setOriginalRndSettings(List, Class)
+	 * @see TreeViewer#setMinMax(List, Class)
 	 */
-	public void setOriginalRndSettings(List<Long> ids, Class klass)
+	public void setMinMax(List<Long> ids, Class klass)
 	{
 		if (ids == null || ids.size() == 0) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
@@ -1980,7 +1980,7 @@ class TreeViewerComponent
 					"one element.");
 			return;
 		}
-		model.fireSetOriginalRenderingSettings(ids, klass);
+		model.fireSetMinMax(ids, klass);
 		fireStateChange();
 	}
 

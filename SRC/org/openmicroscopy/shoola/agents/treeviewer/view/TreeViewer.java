@@ -711,7 +711,7 @@ public interface TreeViewer
 	 * @param ids		The collection of objects id.
 	 * @param klass		The class identifying the object.
 	 */
-	public void setOriginalRndSettings(List<Long> ids, Class klass);
+	public void setMinMax(List<Long> ids, Class klass);
 	
 	/**
 	 * Sets the original rendering settings for images 
