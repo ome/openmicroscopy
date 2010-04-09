@@ -25,7 +25,7 @@ public class SessionBeanIntegrationTest extends AbstractManagedContextTest {
     public void testUserCreatesOwnSession() throws Exception {
         loginNewUser();
         String group = iAdmin.getEventContext().getCurrentGroupName();
-        factory.getSessionService().createUserSession(0, 1000, group, null);
+        factory.getSessionService().createUserSession(0, 1000, group);
     }
 
     @Test

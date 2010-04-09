@@ -71,8 +71,9 @@ public class SessionBean implements ISession {
     // =========================================================================
 
     @RolesAllowed({"user", "HasPassword"})
-    public Session createUserSession(final long timeToLiveMs, final long timeToIdleMs,
-            String defaultGroup, Permissions umask) {
+    public Session createUserSession(final long timeToLiveMs,
+            final long timeToIdleMs,
+            String defaultGroup) {
 
         final String user = currentUser();
         if (user == null) {

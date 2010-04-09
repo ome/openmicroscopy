@@ -22,18 +22,26 @@ module omero {
          **/
         ["ami", "amd"] interface ISession extends ServiceInterface
             {
-                omero::model::Session createSession(omero::sys::Principal p, string credentials) throws ServerError;
-                omero::model::Session createUserSession(long timeToLiveMilliseconds, long timeToIdleMilliseconds,
-                                                        string defaultGroup, omero::model::Permissions umask) throws ServerError;
+
+                omero::model::Session createSession(omero::sys::Principal p, string credentials)
+                throws ServerError, Glacier2::CannotCreateSessionException;
+
+                omero::model::Session createUserSession(long timeToLiveMilliseconds, long timeToIdleMilliseconds, string defaultGroup)
+                throws ServerError, Glacier2::CannotCreateSessionException;
+
+                //
+                // System users
+                //
+
+                omero::model::Session createSessionWithTimeout(omero::sys::Principal p, long timeToLiveMilliseconds)
+                throws ServerError, Glacier2::CannotCreateSessionException;
+
+                omero::model::Session createSessionWithTimeouts(omero::sys::Principal p, long timeToLiveMilliseconds, long timeToIdleMilliseconds)
+                throws ServerError, Glacier2::CannotCreateSessionException;
+
                 omero::model::Session getSession(string sessionUuid) throws ServerError;
                 int getReferenceCount(string sessionUuid) throws ServerError;
                 int closeSession(omero::model::Session sess) throws ServerError;
-                // System users
-                omero::model::Session createSessionWithTimeout(omero::sys::Principal p,
-                                                               long timeToLiveMilliseconds) throws ServerError;
-                omero::model::Session createSessionWithTimeouts(omero::sys::Principal p,
-                                                                long timeToLiveMilliseconds,
-                                                                long timeToIdleMilliseconds) throws ServerError;
 
                 // Listing
                 SessionList getMyOpenSessions() throws ServerError;

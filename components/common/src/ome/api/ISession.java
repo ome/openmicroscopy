@@ -50,7 +50,7 @@ public interface ISession extends ServiceInterface {
      * @DEV.TODO Review the security of this method.
      */
     Session createUserSession(long timeToLiveMilliseconds,
-            long timeToIdleMillisecond, String defaultGroup, Permissions umask);
+            long timeToIdleMillisecond, String defaultGroup);
 
     /**
      * Allows an admin to create a {@link Session} for the give

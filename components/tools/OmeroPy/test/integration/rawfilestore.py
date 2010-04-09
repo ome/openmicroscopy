@@ -43,7 +43,7 @@ class TestGateway(lib.ITest):
 
     def testTicket1961WithKillSession(self):
         ofile = self.file()
-        session = self.client.sf.getSessionService().createUserSession(1*1000, 10000, "user", None)
+        session = self.client.sf.getSessionService().createUserSession(1*1000, 10000, "user")
         properties = self.client.getPropertyMap()
 
         c = omero.client(properties)

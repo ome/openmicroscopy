@@ -60,28 +60,28 @@ public class SessionI extends AbstractAmdServant implements _ISessionOperations 
 
     public void createSessionWithTimeout_async(
             AMD_ISession_createSessionWithTimeout __cb, Principal p,
-            long ttlMs, Current __current) throws ServerError {
+            long ttlMs, Current __current) throws ServerError, Glacier2.CannotCreateSessionException {
         callInvokerOnRawArgs(__cb, __current, p, ttlMs);
 
     }
 
     public void createSessionWithTimeouts_async(
             AMD_ISession_createSessionWithTimeouts __cb, Principal p,
-            long ttlMs, long ttiMs, Current __current) throws ServerError {
+            long ttlMs, long ttiMs, Current __current) throws ServerError, Glacier2.CannotCreateSessionException {
         callInvokerOnRawArgs(__cb, __current, p, ttlMs, ttiMs);
 
     }
 
     public void createSession_async(AMD_ISession_createSession __cb,
             Principal p, String credentials, Current __current)
-            throws ServerError {
+            throws ServerError, Glacier2.CannotCreateSessionException {
         callInvokerOnRawArgs(__cb, __current, p, credentials);
     }
 
     public void createUserSession_async(AMD_ISession_createUserSession __cb, long arg0,
-            long arg1, String arg2,omero.model.Permissions arg3, Ice.Current __current)
-            throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, arg0, arg1, arg2, arg3);
+            long arg1, String arg2, Ice.Current __current)
+            throws ServerError, Glacier2.CannotCreateSessionException {
+        callInvokerOnRawArgs(__cb, __current, arg0, arg1, arg2);
     }
 
     public void getInputKeys_async(AMD_ISession_getInputKeys __cb, String sess,
