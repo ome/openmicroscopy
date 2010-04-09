@@ -129,6 +129,13 @@ public class ScreenLogin
 	/** The property name for the user who connects to <i>OMERO</i>. */
 	private static final String  	OMERO_USER_GROUP = "omeroUserGroup";
 	
+	/** 
+	 * The property name to indicated that the data transfer is
+	 * encrypted or not. 
+	 */
+	private static final String  	OMERO_TRANSFER_ENCRYPTED = 
+		"omeroTransferEncrypted";
+	
 	/** The size of the font for the version. */
 	private static final float		VERSION_FONT_SIZE = 14;
 
@@ -281,6 +288,7 @@ public class ScreenLogin
 					selectedPort, id, encrypted);
 		}
 		setUserName(usr);
+		setEncrypted();
 		setControlsEnabled(false);
 		firePropertyChange(LOGIN_PROPERTY, null, lc);
 	}
@@ -566,9 +574,8 @@ public class ScreenLogin
 		configButton.setPressedIcon(icons.getIcon(
 				IconManager.CONFIG_PRESSED_24));
 		
-		encrypted = false;
+		encrypted = !isEncrypted();
 		encryptedButton = new JButton();
-		encryptedButton.setIcon(icons.getIcon(IconManager.DECRYPTED_24));
 		List<String> tips = new ArrayList<String>();
 		tips.add("The connexion to the server is always encrypted.");
 		tips.add("If selected, the data transfer (e.g. annotations, images) " +
@@ -650,10 +657,9 @@ public class ScreenLogin
 		bar.setOpaque(false);
 		bar.setBorder(null);
 		bar.setFloatable(false);
-		bar.add(Box.createHorizontalStrut(5));
 		bar.add(encryptedButton);
 		bar.add(configButton);
-		mainPanel.add(bar, "5, 0, CENTER, TOP");
+		mainPanel.add(bar, "5, 0, LEFT, TOP");
 		
 		//second row
 		l = UIUtilities.buildTextPane(GROUP_TEXT, TEXT_COLOR);
@@ -877,6 +883,33 @@ public class ScreenLogin
 	}
 
 	/**
+	 * Returns <code>true</code> if the data transfer is encrypted,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	private boolean isEncrypted()
+	{
+		Preferences prefs = Preferences.userNodeForPackage(ScreenLogin.class);
+		String value = prefs.get(OMERO_TRANSFER_ENCRYPTED, null);
+		if (value == null || value.trim().length() == 0) return false;
+		if (value.equals("true")) return Boolean.valueOf(true);
+		return Boolean.valueOf(false); 
+	}
+	
+	/** 
+	 * Sets to <code>true</code> if the data transfer is encrypted, 
+	 * <code>false</code> otherwise. 
+	 */
+	private void setEncrypted()
+	{
+		String value = "false";
+		if (encrypted) value = "true";
+		Preferences prefs = Preferences.userNodeForPackage(ScreenLogin.class);
+		prefs.put(OMERO_TRANSFER_ENCRYPTED, value);
+	}
+	
+	/**
 	 * Returns the possible groups.
 	 * 
 	 * @return See above.
@@ -956,6 +989,7 @@ public class ScreenLogin
 		initializes(getUserName());
 		initListeners();
 		buildGUI(logo, version);
+		encrypt();
 		setProperties(frameIcon);
 		showConnectionSpeed(false);
 		addMouseListener(new MouseAdapter() {
@@ -1038,6 +1072,7 @@ public class ScreenLogin
 		enableControls();
 		login.requestFocus();
 		configButton.setEnabled(b);
+		encryptedButton.setEnabled(b);
 		if (groupsBox != null) groupsBox.setEnabled(b);
 		if (b) {
 			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
