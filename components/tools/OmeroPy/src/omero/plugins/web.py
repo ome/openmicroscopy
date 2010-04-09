@@ -398,6 +398,24 @@ APPLICATION_HOST='%s'
         os.environ['PATH'] = os.environ.get('PATH', '.') + ':' + self.ctx.dir / 'bin'
         rv = self.ctx.call(args, cwd = location)
 
+    def call (self, *args):
+        """ call appname "[executable] scriptname" args """
+        if len(args[0]) < 2:
+            self.ctx.die("not enough args")
+        location = self.ctx.dir / "lib" / "python" / "omeroweb"
+        cargs = []
+        appname = args[0][0]
+        scriptname = args[0][1].split(' ')
+        if len(scriptname) > 1:
+            cargs.append(scriptname[0])
+            scriptname = ' '.join(scriptname[1:])
+        cargs.extend([location / appname / "scripts" / scriptname] + args[0][2:])
+        print cargs
+        os.environ['ICE_CONFIG'] = self.ctx.dir / "etc" / "ice.config"
+        os.environ['PATH'] = os.environ.get('PATH', '.') + ':' + self.ctx.dir / 'bin'
+        rv = self.ctx.call(cargs, cwd = location)
+
+
 
 try:
     register("web", WebControl)
