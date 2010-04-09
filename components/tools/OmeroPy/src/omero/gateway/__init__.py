@@ -187,13 +187,14 @@ class BlitzObjectWrapper (object):
                     d.getGroup().name == details.getGroup().name:
                 return self.save()
             else:
-                p = omero.sys.Principal()
-                p.name = details.getOwner().omeName
-                p.group = details.getGroup().name
-                p.eventType = "User"
-                newConnId = self._conn.getSessionService().createSessionWithTimeout(p, 60000)
-                newConn = self._conn.clone()
-                newConn.connect(sUuid=newConnId.getUuid().val)
+                newConn = self._conn.suConn(details.getOwner().omeName, details.getGroup().name)
+                #p = omero.sys.Principal()
+                #p.name = details.getOwner().omeName
+                #p.group = details.getGroup().name
+                #p.eventType = "User"
+                #newConnId = self._conn.getSessionService().createSessionWithTimeout(p, 60000)
+                #newConn = self._conn.clone()
+                #newConn.connect(sUuid=newConnId.getUuid().val)
             clone = self.__class__(newConn, self._obj)
             clone.save()
             self._obj = clone._obj
@@ -412,14 +413,16 @@ class BlitzObjectWrapper (object):
                 if ad.getOwner() and d.getOwner().omeName == ad.getOwner().omeName and d.getGroup().name == ad.getGroup().name:
                     newConn = ann._conn
                 else:
-                    p = omero.sys.Principal()
-                    p.name = d.getOwner().omeName
+                    #p = omero.sys.Principal()
+                    #p.name = d.getOwner().omeName
+                    group = None
                     if d.getGroup():
-                        p.group = d.getGroup().name
-                    p.eventType = "User"
-                    newConnId = self._conn.getSessionService().createSessionWithTimeout(p, 60000)
-                    newConn = self._conn.clone()
-                    newConn.connect(sUuid=newConnId.getUuid().val)
+                        group = d.getGroup().name
+                    newConn = self._conn.suConn(d.getOwner().omeName, group)
+                    #p.eventType = "User"
+                    #newConnId = self._conn.getSessionService().createSessionWithTimeout(p, 60000)
+                    #newConn = self._conn.clone()
+                    #newConn.connect(sUuid=newConnId.getUuid().val)
                 clone = self.__class__(newConn, self._obj)
                 ann = clone._linkAnnotation(ann)
             elif d.getGroup():
@@ -720,6 +723,18 @@ class _BlitzGateway (object):
                           omero.constants.PASSWORD: passwd}
         self._anonymous = _internal
     
+    def suConn (self, username, group=None, ttl=60000):
+        """ If current user isAdmin, return new connection owned by 'username' """
+        if self.isAdmin():
+            p = omero.sys.Principal()
+            p.name = username
+            p.group = group
+            p.eventType = "User"
+            newConnId = self.getSessionService().createSessionWithTimeout(p, ttl)
+            newConn = self.clone()
+            newConn.connect(sUuid=newConnId.getUuid().val)
+            return newConn
+
     def keepAlive (self):
         """
         Keeps service alive. 
@@ -1071,6 +1086,14 @@ class _BlitzGateway (object):
         
         return self.getEventContext().isAdmin
     
+    def canBeAdmin (self):
+        """
+        Checks if a user is in system group, i.e. can have administration privileges.
+        
+        @return:    Boolean
+        """
+        return 0 in self.getEventContext().memberOfGroups
+
     def isOwner (self, gid=None):
         """
         Checks if a user has owner privileges.
