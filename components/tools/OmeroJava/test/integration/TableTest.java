@@ -39,11 +39,8 @@ public class TableTest extends TestCase {
     public void setUp() throws Exception {
         
         client = new omero.client();
-        sf = client.createSession("root", client.getProperty("omero.rootpass"));
-        
-        //client = new omero.client("server", 4064);
-        //sf = client.createSession("user", "pass");
-        
+        sf = client.createSession(); // Set ICE_CONFIG for configuration
+
         iQuery = sf.getQueryService();
         iAdmin = sf.getAdminService();
         iUpdate = sf.getUpdateService();
