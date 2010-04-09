@@ -170,7 +170,7 @@ public class DataServicesFactory
 		//Properties config = loadConfig(c.resolveConfigFile(ICE_CONFIG_FILE));
 		
 		//Check what to do if null.
-        omeroGateway = new OMEROGateway(omeroInfo.getPort(), this);
+        omeroGateway = new OMEROGateway(omeroInfo.getPortSSL(), this);
         
         //omeroGateway = new OMEROGateway(omeroInfo.getPort(), this);
 		//Create the adapters.
@@ -362,11 +362,9 @@ public class DataServicesFactory
             throw new NullPointerException("No user credentials.");
 		omeroGateway.setPort(uc.getPort());
         ExperimenterData exp = omeroGateway.login(uc.getUserName(), 
-                									uc.getPassword(),
-                                                    uc.getHostName(),
-                                                    determineCompression(
-                                                    	uc.getSpeedLevel()),
-                                                    uc.getGroup());
+                				uc.getPassword(), uc.getHostName(),
+                                 determineCompression(uc.getSpeedLevel()),
+                                uc.getGroup(), uc.isEncrypted());
         
         Object v = container.getRegistry().lookup(LookupNames.VERSION);
     	String clientVersion = "";

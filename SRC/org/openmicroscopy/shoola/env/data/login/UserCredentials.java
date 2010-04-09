@@ -82,6 +82,9 @@ public class UserCredentials
     /** The selected group or <code>-1</code>. */
     private long 	group;
     
+    /** Flag indicating to encrypt or not the data transfer. */
+    private boolean encrypted;
+    
 	/** Indicates that the experimenter to handle is an administrator. */
 	private Boolean administrator;
 	
@@ -180,6 +183,21 @@ public class UserCredentials
      * @param port The value to set.
      */
     public void setPort(int port) { this.port = port; }
+    
+    /**
+     * Sets the flag indicating if the data transfer is encrypted or not.
+     * 
+     * @param encrypted The value to set.
+     */
+    public void setEncrypted(boolean encrypted) { this.encrypted = encrypted; }
+    
+    /**
+     * Returns <code>true</code> if the data transfer is encrypted,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isEncrypted() { return encrypted; }
     
     /**
      * Resets the password.

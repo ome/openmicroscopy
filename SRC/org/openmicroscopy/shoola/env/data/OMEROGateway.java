@@ -1859,13 +1859,16 @@ class OMEROGateway
 	 * @param compressionLevel  The compression level used for images and 
 	 * 							thumbnails depending on the connection speed.
 	 * @param groupID			The id of the group or <code>-1</code>.
+	 * @param encrypted  		Pass <code>true</code> to encrypt data transfer,
+     * 					 		<code>false</code> otherwise.
 	 * @return The user's details.
 	 * @throws DSOutOfServiceException If the connection can't be established
 	 *                                  or the credentials are invalid.
 	 * @see #getUserDetails(String)
 	 */
 	ExperimenterData login(String userName, String password, String hostName,
-							float compressionLevel, long groupID)
+							float compressionLevel, long groupID, boolean
+							encrypted)
 		throws DSOutOfServiceException
 	{
 		try {

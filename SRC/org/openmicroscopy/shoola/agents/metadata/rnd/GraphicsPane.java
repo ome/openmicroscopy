@@ -222,7 +222,7 @@ class GraphicsPane
         rangeButton.addActionListener(this);
         rangeButton.setActionCommand(""+RANGE);
         rangeButton.setToolTipText("Set min and max pixels intensity " +
-        		"as input for rall channels.");
+        		"as input for all channels.");
         applyButton = new JButton("Apply to All");
         applyButton.setToolTipText("Apply settings to the displayed images.");
         applyButton.setBackground(UIUtilities.BACKGROUND_COLOR);

@@ -79,6 +79,9 @@ public class LoginCredentials
     /** The selected group. */
     private long	group;
     
+    /** Flag indicating to encrypt or not the data transfer. */
+    private boolean encrypted;
+    
     /** 
      * Controls if the passed speed index is supported.
      * 
@@ -108,13 +111,15 @@ public class LoginCredentials
      * @param hostName 	 The name of the selected server.
      * @param speedLevel The connection speed.
      * @param port		 The port used.
+     * @param encrypted  Pass <code>true</code> to encrypt data transfer,
+     * 					 <code>false</code> otherwise.
      * @throws IllegalArgumentException If the user name and/or the password is
      *                 <code>null</code> or has <code>0</code>-length.
      */
     public LoginCredentials(String userName, String password, String hostName,
-    						int speedLevel, int port)
+    						int speedLevel, int port, boolean encrypted)
     {
-    	this(userName, password, hostName, speedLevel, port, -1L);
+    	this(userName, password, hostName, speedLevel, port, -1L, false);
     }
     
     /**
@@ -130,11 +135,14 @@ public class LoginCredentials
      * @param speedLevel The connection speed.
      * @param port		 The port used.
      * @param group      The group the user is member of.
+     * @param encrypted  Pass <code>true</code> to encrypt data transfer,
+     * 					 <code>false</code> otherwise.
      * @throws IllegalArgumentException If the user name and/or the password is
      *                 <code>null</code> or has <code>0</code>-length.
      */
     public LoginCredentials(String userName, String password, String hostName,
-    						int speedLevel, int port, long group)
+    						int speedLevel, int port, long group, 
+    						boolean encrypted)
     {
     	checkSpeedLevel(speedLevel);
     	this.speedLevel = speedLevel;
@@ -143,6 +151,7 @@ public class LoginCredentials
         this.hostName = hostName;
         this.port = port;
         this.group = group;
+        this.encrypted = encrypted;
     }
     
     /** 
@@ -195,6 +204,14 @@ public class LoginCredentials
      */
     public int getPort() { return port; }
 
+    /**
+     * Returns <code>true</code> if the data transfer is encrypted,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isEncrypted() { return encrypted; }
+    
     /**
      * Formats user name and password.
      * Each character of the password is replaced by a star.

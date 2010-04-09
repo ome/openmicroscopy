@@ -117,6 +117,7 @@ class SplashScreenManager
 			UserCredentials uc = new UserCredentials(lc.getUserName(), 
 					lc.getPassword(), lc.getHostName(), lc.getSpeedLevel());
 			uc.setPort(lc.getPort());
+			uc.setEncrypted(lc.isEncrypted());
 			uc.setGroup(lc.getGroup());
 			userCredentials.set(uc);
 		} catch (Exception e) {
@@ -163,7 +164,7 @@ class SplashScreenManager
     	OMEROInfo omeroInfo = 
     		(OMEROInfo) container.getRegistry().lookup(LookupNames.OMERODS);
         
-    	String port = ""+omeroInfo.getPort();
+    	String port = ""+omeroInfo.getPortSSL();
     	view = new ScreenLogin(Container.TITLE, splashLogin, img, v, port);
 		view.showConnectionSpeed(true);
 		Dimension d = viewTop.getExtendedSize();

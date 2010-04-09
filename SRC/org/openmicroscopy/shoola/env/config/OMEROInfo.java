@@ -51,6 +51,9 @@ public class OMEROInfo
     /** The value of the <code>port</code> sub-tag. */ 
     private int        port;
     
+    /** The value of the <code>portSSL</code> sub-tag. */ 
+    private int        portSSL;
+    
     /**
      * Parses the specified string into an integer.
      * 
@@ -76,13 +79,15 @@ public class OMEROInfo
      * package. However, we made it public to ease testing.
      *     
      * @param port The value of the <code>port</code> sub-tag.
+     * @param portSLL The value of the <code>portSSL</code> sub-tag.
      * @throws ConfigException If <code>port</code> can't be parsed into an 
      *                          integer.
      */
-    public OMEROInfo(String port)
+    public OMEROInfo(String port, String portSSL)
         throws ConfigException
     {
         this.port = parseInt(port);
+        this.portSSL = parseInt(portSSL);
     }
     
     /**
@@ -91,5 +96,12 @@ public class OMEROInfo
      * @return See above.
      */
     public int getPort() { return port; }
+    
+    /**
+     * Returns the value of the <code>portSSL</code> sub-tag.
+     * 
+     * @return See above.
+     */
+    public int getPortSSL() { return portSSL; }
     
 }

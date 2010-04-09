@@ -543,6 +543,7 @@ public class TaskBarManager
     	UserCredentials uc = new UserCredentials(lc.getUserName(), 
 				lc.getPassword(), lc.getHostName(), lc.getSpeedLevel());
 		uc.setPort(lc.getPort());
+		uc.setEncrypted(lc.isEncrypted());
 		LoginService svc = (LoginService) 
 			container.getRegistry().lookup(LookupNames.LOGIN);
 		switch (svc.login(uc)) {
@@ -637,7 +638,7 @@ public class TaskBarManager
 		    		(OMEROInfo) container.getRegistry().lookup(
 		    				LookupNames.OMERODS);
 		        
-		    	String port = ""+omeroInfo.getPort();
+		    	String port = ""+omeroInfo.getPortSSL();
 		    	String f = container.resolveConfigFile(null);
 
 				String n = (String) container.getRegistry().lookup(

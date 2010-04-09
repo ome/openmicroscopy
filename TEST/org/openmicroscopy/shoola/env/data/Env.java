@@ -84,8 +84,10 @@ public class Env
     
     /** The property name for the port to connect to <i>OMERO</i>. */
     public static final String  OMERO_PORT = "omero.port";  
-    
-    
+
+    /** The property name for the port to connect to <i>OMERO</i>. */
+    public static final String  OMERO_PORT_SSL = "omero.portSSL";  
+
     /**
      * Public methods have to call this to retrieve the singleton.
      * The first call will create the singleton by reading in the 
@@ -93,7 +95,7 @@ public class Env
      * something goes awry.  Subsequent calls will just return the
      * singleton.
      * 
-     * @return The sigleton.
+     * @return The singleton.
      */
     private static Env getInstance()
     {
@@ -139,6 +141,16 @@ public class Env
     public static String getOmeroPort()
     {
         return getInstance().get(OMERO_PORT);
+    }
+    
+    /**
+     * Returns the port to connect to <i>OMERO</i>.
+     * 
+     * @return See above.
+     */
+    public static String getOmeroPortSSL()
+    {
+        return getInstance().get(OMERO_PORT_SSL);
     }
     
     /** Holds the the <i>OMEDS</i> tests configuration properties.  */

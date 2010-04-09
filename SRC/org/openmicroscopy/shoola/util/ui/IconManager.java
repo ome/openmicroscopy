@@ -141,10 +141,10 @@ public class IconManager
     public static final int REMOVE = 24;
     
     /** ID of the <code>Config</code> icon. */
-    public static final int CONFIG = 25;
+    public static final int CONFIG_24 = 25;
     
     /** ID of the <code>Config pressed</code> icon. */
-    public static final int CONFIG_PRESSED = 26;
+    public static final int CONFIG_PRESSED_24 = 26;
     
     /** ID of the <code>Config 48</code> icon. */
     public static final int CONFIG_48= 27;
@@ -479,11 +479,17 @@ public class IconManager
     /** ID of the <code>Group</code> icon. */
     public static final int GROUP = 137;
     
+    /** ID of the <code>encrypted</code> icon. */
+    public static final int ENCRYPTED_24 = 138;
+    
+    /** ID of the <code>decrypted</code> icon. */
+    public static final int DECRYPTED_24 = 139;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 137;
+    private static int      MAX_ID = 139;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -517,8 +523,8 @@ public class IconManager
     	relPaths[ERROR_ICON_64] = "nuvola_error64.png";
     	relPaths[COMMENT_ICON_64] = "nuvola_mail_send64.png";
     	relPaths[SERVER_22] = "nuvola_server22.png";
-    	relPaths[CONFIG] = "config.png";
-    	relPaths[CONFIG_PRESSED] = "config_pressed.png";
+    	relPaths[CONFIG_24] = "config24.png";
+    	relPaths[CONFIG_PRESSED_24] = "config_pressed22.png";
     	relPaths[CONFIG_48] = "nuvola_configure48.png";
     	relPaths[REMOVE] = "remove16.png";
     	relPaths[ADD] = "add16.png";
@@ -629,6 +635,8 @@ public class IconManager
         relPaths[ZOOM_OUT] = "nuvola_viewmag-16.png";
         relPaths[TAG_SET_OTHER_OWNER] = "nuvola_knotesRed_group16.png";
         relPaths[GROUP] = "nuvola_personal16.png";
+        relPaths[ENCRYPTED_24] = "nuvola_encrypted_grey24.png";
+        relPaths[DECRYPTED_24] = "nuvola_decrypted_grey24.png";
     }
 	
 	/**

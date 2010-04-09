@@ -38,7 +38,9 @@
     -->
     <structuredEntry name="/services/OMERODS" type="OMERODS">
       <port>4063</port>
+      <portSSL>4064</portSSL>
     </structuredEntry>
+    
     <entry name="/services/SERVER/available" type="boolean">true</entry>
     
     <!-- default fs directory -->

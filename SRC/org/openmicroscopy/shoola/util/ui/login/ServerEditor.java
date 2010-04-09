@@ -106,7 +106,7 @@ public class ServerEditor
     static final int			MAX_PORT = 64000;
     
     /** The old port value. */
-    private static final String	OLD_PORT = ""+1099;
+    private static final List<String>	OLD_PORTS;
     
     /** Example of a new server. */
     private static final String	EXAMPLE = "e.g. test.openmicroscopy.org " +
@@ -123,6 +123,12 @@ public class ServerEditor
     
 	/** Font for progress bar label. */
 	private static final Font	FONT = new Font("SansSerif", Font.ITALIC, 10);
+	
+	static {
+		OLD_PORTS = new ArrayList<String>();
+		OLD_PORTS.add(""+1099);
+		OLD_PORTS.add(""+4063);
+	}
 	
 	/** Button to remove server from the list. */
 	private JButton			removeButton;
@@ -660,7 +666,8 @@ public class ServerEditor
             	name = values[0];
             	if (values.length > 1) {
             		p = values[1];
-            		if (OLD_PORT.equals(p)) p = defaultPort;
+            		if (OLD_PORTS.contains(p))
+            			p = defaultPort;
             	}
             	else p = defaultPort;
             	if (!name.equals(activeServer))

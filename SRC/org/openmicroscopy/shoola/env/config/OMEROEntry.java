@@ -59,6 +59,12 @@ class OMEROEntry
      */
     private static final String     PORT_TAG = "port";
     
+    /** 
+     * The name of the tag, within this <i>structuredEntry</i>, that specifies
+     * the <i>portSSL</i> to connect to <i>OMERO</i>.
+     */
+    private static final String     PORT_SSL_TAG = "portSSL";
+    
     /** Holds the contents of the entry. */
     private OMEROInfo value;
     
@@ -74,6 +80,7 @@ class OMEROEntry
         throws DOMException, ConfigException
     {
         String port = null; 
+        String portSSL = null;
         NodeList children = tag.getChildNodes();
         int n = children.getLength();
         Node child;
@@ -84,16 +91,19 @@ class OMEROEntry
                 tagName = child.getNodeName();
                 tagValue = child.getFirstChild().getNodeValue();
                 if (PORT_TAG.equals(tagName)) port = tagValue;
+                else if (PORT_SSL_TAG.equals(tagName)) portSSL = tagValue;
                 else
                     throw new ConfigException(
-                            "Unrecognized tag within the ice-conf entry: "+
+                            "Unrecognized tag within the conf entry: "+
                             tagName+".");
             }
         }
-        if (port == null)
+        if (port == null || port.trim().length() == 0)
             throw new ConfigException("Missing "+PORT_TAG+
                                       " tag within omeds-conf entry.");
-        return new OMEROInfo(port);
+        if (portSSL == null || portSSL.trim().length() == 0)
+        	portSSL = port;
+        return new OMEROInfo(port, portSSL);
     }
     
     

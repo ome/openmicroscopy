@@ -155,8 +155,8 @@ public class ServerListEditor
 	}
 
     /**
- 	 * Required by {@link DocumentListener} interface but no-op implementation 
-     * in our case.
+ 	 * Required by {@link DocumentListener} interface but no-operation
+ 	 * implementation in our case.
      * @see DocumentListener#removeUpdate(DocumentEvent)
      */
 	public void removeUpdate(DocumentEvent e)
@@ -165,8 +165,8 @@ public class ServerListEditor
 	}
     
 	/** 
-     * Required by {@link DocumentListener} interface but no-op implementation 
-     * in our case. 
+     * Required by {@link DocumentListener} interface but no-operation
+ 	 * implementation in our case.
      * @see DocumentListener#changedUpdate(DocumentEvent)
      */
 	public void changedUpdate(DocumentEvent e) {}

@@ -25,10 +25,12 @@ package org.openmicroscopy.shoola.util.ui.login;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -60,6 +62,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.swing.JToolBar;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -198,6 +201,8 @@ public class ScreenLogin
 	/** The groups the user is a member of. */
 	private JComboBox			groupsBox;
 	
+	//private JButton				groupsBox;
+	
 	/** The component displaying the login text. */
 	private JTextPane 			pleaseLogIn;
 	
@@ -216,6 +221,18 @@ public class ScreenLogin
 	/** The component displaying the controls. */
 	private JPanel 				mainPanel;
 
+	/** The possible groups. */
+	private String[]			groupValues;
+
+	/** 
+	 * Button indicating that the transfer of data is secured or not
+	 * depending on the selected status. 
+	 */
+	private JButton				encryptedButton;
+	
+	/** Flag indicating that the transfer of data is secured or not. */
+	private boolean				encrypted;
+	
 	/** Quits the application. */
 	private void quit()
 	{
@@ -253,29 +270,75 @@ public class ScreenLogin
 		LoginCredentials lc;
 		if (groupsBox == null) {
 			lc = new LoginCredentials(usr, psw, s, speedIndex, 
-					selectedPort);
+					selectedPort, encrypted);
 		} else {
 			long id = -1L;
-			if (hasGroupOption() && groupsBox.isVisible()) {
-				String value = (String) groupsBox.getSelectedItem();
-				Entry entry;
-				Iterator i = groups.entrySet().iterator();
-				while (i.hasNext()) {
-					entry = (Entry) i.next();
-					if (entry.getValue().equals(value)) {
-						id = (Long) entry.getKey();
-						break;
-					}
-				}
-			}
+			if (hasGroupOption() && groupsBox.isVisible()) 
+				//id = getGroupId(groupsBox.getText());
+				id = getGroupId((String) groupsBox.getSelectedItem());
+			
 			lc = new LoginCredentials(usr, psw, s, speedIndex, 
-					selectedPort, id);
+					selectedPort, id, encrypted);
 		}
 		setUserName(usr);
 		setControlsEnabled(false);
 		firePropertyChange(LOGIN_PROPERTY, null, lc);
 	}
 
+	/**
+	 * Returns the identifier of the group corresponding to the passed value.
+	 * 
+	 * @param value The name of the
+	 * @return
+	 */
+	private Long getGroupId(String value)
+	{
+		Entry entry;
+		Iterator i = groups.entrySet().iterator();
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			if (entry.getValue().equals(value))
+				return (Long) entry.getKey();
+		}
+		return -1L;
+	}
+	
+	/**
+	 * Displays the menu with the available groups.
+	 * 
+	 * @param invoker The component invoking the menu.
+	 * @param p		  The location of the mouse pressed.
+	 */
+	private void groupSelection(Component invoker, Point p)
+	{
+		/*
+		JPopupMenu menu = new JPopupMenu();
+		String selected = groupsBox.getText();
+		String value;
+		JCheckBoxMenuItem item;
+		ButtonGroup group = new ButtonGroup();
+		for (int i = 0; i < groupValues.length; i++) {
+			value = groupValues[i];
+			item = new JCheckBoxMenuItem(value);
+			item.setSelected(value.equals(selected));
+			item.setActionCommand(""+getGroupId(value));
+			item.addActionListener(new ActionListener() {
+				
+				public void actionPerformed(ActionEvent e) {
+					Object src = e.getSource();
+					if (src instanceof JCheckBoxMenuItem) {
+						JCheckBoxMenuItem item = (JCheckBoxMenuItem) src;
+						groupsBox.setText(item.getText());
+					}
+				}
+			});
+			group.add(item);
+			menu.add(item);
+		}
+		menu.show(invoker, p.x, p.y);
+		*/
+	}
+	
 	/** 
 	 * Returns <code>true</code> if the group option can be displayed if
 	 * available, <code>false</code> otherwise.
@@ -306,6 +369,19 @@ public class ScreenLogin
 		UIUtilities.centerAndShow(d);
 	}
 
+	/**
+	 * Sets the {@link #encrypted} flag and modifies the icon of the 
+	 * {@link #encryptedButton} accordingly.
+	 */
+	private void encrypt()
+	{
+		encrypted = !encrypted;
+		IconManager icons = IconManager.getInstance();
+		if (encrypted) 
+			encryptedButton.setIcon(icons.getIcon(IconManager.ENCRYPTED_24));
+		else encryptedButton.setIcon(icons.getIcon(IconManager.DECRYPTED_24));
+	}
+	
 	/** Adds listeners to the UI components. */
 	private void initListeners()
 	{
@@ -319,6 +395,9 @@ public class ScreenLogin
 		});
 		configButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) { config(); }
+		});
+		encryptedButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) { encrypt(); }
 		});
 		addWindowListener(new WindowAdapter()
 		{
@@ -378,44 +457,13 @@ public class ScreenLogin
 		button.setRolloverEnabled(false);
 		button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 	}
-
-	/** Creates and initializes the login button and the cancel button. */
-	private void initButtons()
-	{
-		ref = new ArrayList<JComponent>();
-		login = new JButton("Login");
-		defaultForeground = login.getForeground();
-		login.setMnemonic('L');
-		login.setToolTipText("Login");
-		setButtonDefault(login);
-		UIUtilities.enterPressesWhenFocused(login);
-		UIUtilities.opacityCheck(login);
-		cancel = new JButton("Quit");
-		cancel.setMnemonic('Q');
-		cancel.setToolTipText("Quit the Application.");
-		setButtonDefault(cancel);
-		UIUtilities.opacityCheck(cancel);
-		configButton = new JButton();
-		configButton.setMnemonic('X');
-		configButton.setToolTipText("Enter the server's address.");
-		configButton.setBorderPainted(false);
-		configButton.setBorder(null);
-		//configButton.setMargin(new Insets(1, 1, 1, 1));
-		configButton.setFocusPainted(false);
-		configButton.setContentAreaFilled(false);
-		IconManager icons = IconManager.getInstance();
-		configButton.setIcon(icons.getIcon(IconManager.CONFIG));
-		configButton.setPressedIcon(icons.getIcon(IconManager.CONFIG_PRESSED));
-		getRootPane().setDefaultButton(login);
-		enableControls();
-	}
 	
 	/** 
-	 * Creates and initializes the login fields. 
+	 * Creates and initializes the components
 	 * 
 	 * @param userName The name of the user.
 	 */
-	private void initFields(String userName)
+	private void initializes(String userName)
 	{
 		originalName = userName;
 		user = new JTextField();
@@ -460,20 +508,80 @@ public class ScreenLogin
 		groups = getGroups();
 		if (groups == null || groups.size() <= 1) return;
 		
-		String[] values = new String[groups.size()];
+		groupValues = new String[groups.size()];
 		Entry entry;
 		Iterator i = groups.entrySet().iterator();
 		int index = 0;
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
-			values[index] = (String) entry.getValue();
+			groupValues[index] = (String) entry.getValue();
 			index++;
 		}
 
-		String selected = values[values.length-1];
-		Arrays.sort(values, new StringComparator());
-		groupsBox = new JComboBox(values);
-		groupsBox.setSelectedItem(selected);
+		String selectedGroup = groupValues[groupValues.length-1];
+		Arrays.sort(groupValues, new StringComparator());
+		
+		groupsBox = new JComboBox(groupValues);
+		groupsBox.setSelectedItem(selectedGroup);
+		
+		/*
+		IconManager icons = IconManager.getInstance();
+		groupsBox = new JButton(icons.getIcon(IconManager.UP_DOWN_9_12));
+		groupsBox.setText(selectedGroup);
+		groupsBox.addMouseListener(new MouseAdapter() {
+			
+
+			public void mouseReleased(MouseEvent e) {
+				Object src = e.getSource();
+				if (src instanceof Component)
+					groupSelection((Component) src, e.getPoint());
+			}
+		});
+		*/
+		
+		
+		ref = new ArrayList<JComponent>();
+		login = new JButton("Login");
+		defaultForeground = login.getForeground();
+		login.setMnemonic('L');
+		login.setToolTipText("Login");
+		setButtonDefault(login);
+		UIUtilities.enterPressesWhenFocused(login);
+		UIUtilities.opacityCheck(login);
+		cancel = new JButton("Quit");
+		cancel.setMnemonic('Q');
+		cancel.setToolTipText("Quit the Application.");
+		setButtonDefault(cancel);
+		UIUtilities.opacityCheck(cancel);
+		configButton = new JButton();
+		configButton.setMnemonic('X');
+		configButton.setToolTipText("Enter the server's address.");
+		configButton.setBorderPainted(false);
+		configButton.setBorder(null);
+		//configButton.setMargin(new Insets(1, 1, 1, 1));
+		configButton.setFocusPainted(false);
+		configButton.setContentAreaFilled(false);
+		IconManager icons = IconManager.getInstance();
+		configButton.setIcon(icons.getIcon(IconManager.CONFIG_24));
+		configButton.setPressedIcon(icons.getIcon(
+				IconManager.CONFIG_PRESSED_24));
+		
+		encrypted = false;
+		encryptedButton = new JButton();
+		encryptedButton.setIcon(icons.getIcon(IconManager.DECRYPTED_24));
+		List<String> tips = new ArrayList<String>();
+		tips.add("The connexion to the server is always encrypted.");
+		tips.add("If selected, the data transfer (e.g. annotations, images) " +
+				"will also be encrypted.");
+		tips.add("But the transfer will be much slower.");
+		
+		encryptedButton.setToolTipText(UIUtilities.formatToolTipText(tips));
+		encryptedButton.setBorderPainted(false);
+		encryptedButton.setBorder(null);
+		encryptedButton.setFocusPainted(false);
+		encryptedButton.setContentAreaFilled(false);
+		getRootPane().setDefaultButton(login);
+		enableControls();
 	}
 
 	/** 
@@ -538,7 +646,14 @@ public class ScreenLogin
 		p.add(connectionSpeedText);
 		mainPanel.add(UIUtilities.buildComponentPanelRight(p, 0, 0, false), 
 				"0, 0, 4, 0");
-		mainPanel.add(configButton, "5, 0, CENTER, TOP");
+		JToolBar bar = new JToolBar();
+		bar.setOpaque(false);
+		bar.setBorder(null);
+		bar.setFloatable(false);
+		bar.add(Box.createHorizontalStrut(5));
+		bar.add(encryptedButton);
+		bar.add(configButton);
+		mainPanel.add(bar, "5, 0, CENTER, TOP");
 		
 		//second row
 		l = UIUtilities.buildTextPane(GROUP_TEXT, TEXT_COLOR);
@@ -838,8 +953,7 @@ public class ScreenLogin
 		editor = new ServerEditor(defaultPort);
 		editor.addPropertyChangeListener(ServerEditor.REMOVE_PROPERTY, this);
 		speedIndex = retrieveConnectionSpeed();
-		initFields(getUserName());
-		initButtons();
+		initializes(getUserName());
 		initListeners();
 		buildGUI(logo, version);
 		setProperties(frameIcon);
