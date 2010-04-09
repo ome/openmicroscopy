@@ -707,7 +707,7 @@ public class ThumbnailCtx
                 "omero.bulkLoadRenderingSettings");
         List<RenderingDef> toReturn = queryService.findAllByQuery(
                 "select r from RenderingDef as r " +
-                "join fetch r.pixels as p" +
+                "join fetch r.pixels as p " +
                 "join fetch r.details.updateEvent " +
                 "join fetch p.details.updateEvent " +
                 "where r.details.owner.id = :id " +
