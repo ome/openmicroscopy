@@ -38,11 +38,11 @@ public class TableTest extends TestCase {
     @BeforeClass
     public void setUp() throws Exception {
         
-        //client = new omero.client();
-        //sf = client.createSession("root", client.getProperty("omero.rootpass"));
+        client = new omero.client();
+        sf = client.createSession("root", client.getProperty("omero.rootpass"));
         
-        client = new omero.client("mage.openmicroscopy.org.uk", 4064);
-        sf = client.createSession("root", "omero");
+        //client = new omero.client("server", 4064);
+        //sf = client.createSession("user", "pass");
         
         iQuery = sf.getQueryService();
         iAdmin = sf.getAdminService();
