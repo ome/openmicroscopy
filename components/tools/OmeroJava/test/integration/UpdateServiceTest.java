@@ -8,20 +8,13 @@ package integration;
 
 //Java imports
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
 
 
 //Third-party libraries
-import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.util.ResourceUtils;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -30,24 +23,18 @@ import org.testng.annotations.Test;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
-import omero.model.Annotation;
 import omero.model.CommentAnnotation;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
-import omero.model.DatasetImageLinkI;
 import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.IObject;
 import omero.model.Project;
-import omero.model.ProjectDatasetLink;
-import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
-import static omero.rtypes.rlong;
 import static omero.rtypes.rstring;
 import omero.sys.ParametersI;
-import pojos.DatasetData;
 import pojos.ProjectData;
 
 

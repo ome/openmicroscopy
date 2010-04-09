@@ -9,13 +9,11 @@
 package integration;
 
 //Java imports
-import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,24 +26,19 @@ import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.util.ResourceUtils;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 //Application-internal dependencies
-import ome.parameters.Parameters;
-import ome.system.OmeroContext;
 import ome.testing.OMEData;
 import omero.ApiUsageException;
 import omero.OptimisticLockException;
 import omero.RInt;
 import omero.ServerError;
 import omero.api.IContainerPrx;
-import omero.api.IPixelsPrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
-import omero.api.RenderingEnginePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Annotation;
 import omero.model.CommentAnnotation;
@@ -61,13 +54,12 @@ import omero.model.ExperimenterI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
-import omero.model.Pixels;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
-import static omero.rtypes.rlong;
 import static omero.rtypes.rstring;
+import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import pojos.AnnotationData;
 import pojos.DataObject;
@@ -75,7 +67,6 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.ProjectData;
-import pojos.RatingAnnotationData;
 import pojos.TextualAnnotationData;
 
 /**
@@ -107,8 +98,6 @@ public class PojosServiceTest
 
     OMEData data;
 
-    //List ids, results, mapped;
-
     /** Helper reference to the <code>IContainer</code> service. */
     private IContainerPrx iContainer;
 
@@ -119,10 +108,10 @@ public class PojosServiceTest
     private IUpdatePrx iUpdate;
     
     /** Used to filter by group. */
-    private ParametersI GROUP_FILTER;
+    private Parameters GROUP_FILTER;
 
     /** Used to filter by owner. */
-    private ParametersI OWNER_FILTER;
+    private Parameters OWNER_FILTER;
 
     // ~ Helpers
     // =========================================================================
@@ -728,14 +717,14 @@ public class PojosServiceTest
      */
     @Test(groups = "EJBExceptions")
     public void testFindContainerHierarchiesProjectAsRoot() 
-    	throws ServerError {
+    	throws ServerError 
+    {
 
-        ParametersI defaults = new ParametersI();
+        Parameters defaults = new ParametersI();
 
         List ids = data.getMax("Image.ids", 2);
         List results = iContainer.findContainerHierarchies(
-        		Project.class.getName(), 
-        		ids, defaults.map());
+        		Project.class.getName(), ids, defaults);
     }
     
     /**
@@ -747,12 +736,12 @@ public class PojosServiceTest
     	throws ServerError 
     {
 
-        ParametersI empty = new ParametersI(new HashMap());
+        Parameters empty = new ParametersI(new HashMap());
 
         List ids = data.getMax("Image.ids", 2);
         try {
         	List results = iContainer.findContainerHierarchies(
-            		Dataset.class.getName(), ids, empty.map());
+            		Dataset.class.getName(), ids, empty);
             fail("Should fail");
         } catch (ApiUsageException e) {
             // ok.
@@ -1082,8 +1071,8 @@ public class PojosServiceTest
         d = (Dataset) iContainer.createDataObject(d, null);
         List<Project> orig = d.linkedProjectList();
         Set orig_ids = new HashSet();
-        for (Project _p : orig) {
-            orig_ids.add(_p.getId().getValue());
+        for (Project pr : orig) {
+            orig_ids.add(pr.getId().getValue());
         }
 
         DatasetData dd = new DatasetData(d);
@@ -1093,8 +1082,8 @@ public class PojosServiceTest
 
         List<Project> updt = updated.linkedProjectList();
         Set updt_ids = new HashSet();
-        for (Project _p : updt) {
-            updt_ids.add(_p.getId().getValue());
+        for (Project pr : updt) {
+            updt_ids.add(pr.getId().getValue());
         }
 
         if (log.isDebugEnabled()) {
@@ -1105,10 +1094,6 @@ public class PojosServiceTest
         assertTrue(updt_ids.containsAll(orig_ids));
         assertTrue(orig_ids.containsAll(updt_ids));
     }
-    
-    
-    
-
    
     /**
      * Test to annotate a dataset with a comment.
@@ -1171,8 +1156,8 @@ public class PojosServiceTest
 
         //Create the comment
         CommentAnnotation annotation = new CommentAnnotationI();
-        annotation.setNs( rstring("") );
-        annotation.setTextValue( rstring(text) );
+        annotation.setNs(rstring(""));
+        annotation.setTextValue(rstring(text));
         original.linkAnnotation(annotation);
 
         original = (Dataset) iContainer.createDataObject(original, null);
@@ -1285,10 +1270,6 @@ public class PojosServiceTest
         */
     }
 
-    
-
-   
-
     /**
      * Tests the deletion of a comment annotation.
      * 
@@ -1319,7 +1300,6 @@ public class PojosServiceTest
         Object o = iQuery.find(CommentAnnotation.class.getName(),
         		a.getId().getValue());
         assertNull(o);
-
     }
     
     /**
@@ -1413,11 +1393,11 @@ public class PojosServiceTest
         // Image i2 = new Image(); i.
 
         // just filtering for the user should get us everything
-        List<Image> imgs = iContainer.getUserImages(OWNER_FILTER.map());
+        List<Image> imgs = iContainer.getUserImages(OWNER_FILTER);
         assertFilterWorked(imgs, 0, null, fixture.e, null);
 
         // now for groups
-        imgs = iContainer.getUserImages(GROUP_FILTER.map());
+        imgs = iContainer.getUserImages(GROUP_FILTER);
         assertFilterWorked(imgs, 0, null, null, fixture.g);
 
     }
@@ -1435,7 +1415,7 @@ public class PojosServiceTest
     	List ids = data.getMax("Project.ids", 100);
 
         List<Image> images = iContainer.getImages(Project.class.getName(), ids, 
-        		OWNER_FILTER.map());
+        		OWNER_FILTER);
         assertFilterWorked(images, null, 100, fixture.e, null);
     }
 
@@ -1451,7 +1431,7 @@ public class PojosServiceTest
         // there are about 6 projects in our fixture
     	List ids = data.getMax("Project.ids", 100);
         List<Image> images = iContainer.getImages(Project.class.getName(), ids, 
-        		GROUP_FILTER.map());
+        		GROUP_FILTER);
         assertFilterWorked(images, null, 100, null, fixture.g);
     }
     
@@ -1468,7 +1448,7 @@ public class PojosServiceTest
         try {
         	List results = iContainer.findContainerHierarchies(
             		Project.class.getName(), ids,
-                    OWNER_FILTER.map());
+                    OWNER_FILTER);
             assertFilterWorked(results, null, 100, fixture.e, null);
             //but this shouldn't.
             Iterator i = results.iterator();
@@ -1495,7 +1475,7 @@ public class PojosServiceTest
     	List ids = data.getMax("Image.ids", 100);
         try {
         	List results = iContainer.findContainerHierarchies(
-            		Project.class.getName(), ids, GROUP_FILTER.map());
+            		Project.class.getName(), ids, GROUP_FILTER);
             assertFilterWorked(results, null, 100, null, fixture.g);
             Iterator i = results.iterator();
             while (i.hasNext()) {
@@ -1520,7 +1500,7 @@ public class PojosServiceTest
     {
     	List ids = data.getMax("Project.ids", 2);
     	List results = iContainer.loadContainerHierarchy(Project.class.getName(), 
-        		ids,  OWNER_FILTER.map());
+        		ids,  OWNER_FILTER);
         assertFilterWorked(results, null, 100, fixture.e, null);
     }
     
@@ -1535,7 +1515,7 @@ public class PojosServiceTest
     {
         List ids = data.getMax("Project.ids", 2);
         List results = iContainer.loadContainerHierarchy(Project.class.getName(), 
-        		ids, GROUP_FILTER.map());
+        		ids, GROUP_FILTER);
         assertFilterWorked(results, null, 100, null, fixture.g);
     }
 
