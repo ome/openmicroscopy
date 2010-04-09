@@ -4,7 +4,7 @@
  *   Copyright 2006-2010 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-package test.integration;
+package integration;
 
 //Java imports
 import java.util.Arrays;

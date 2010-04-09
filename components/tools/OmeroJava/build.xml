@@ -36,7 +36,7 @@
         <!-- These first tasks are "pseudo-compiles" copying in
         resources from other builds and jars to be packaged into
         the super jar -->
-        <copy todir="${classes.dir}">
+        <copy todir="${target.dir}/generated-classes">
 	    <fileset dir="${resrc.dest}">
 	        <include name="omero.properties"/>
 	    </fileset>
@@ -54,11 +54,10 @@
             </fileset>
             <fileset dir="${common.comp}/target/classes">
                 <include name="ome/system/UpgradeCheck.class"/>
+                <include name="ome/system/OmeroContext.class"/>
             </fileset>
             <fileset dir="${model.comp}/target/classes">
-                <include name="ome/model/IObject.class"/>
-                <include name="ome/model/ModelBased.class"/>
-                <include name="ome/model/internal/*.class"/>
+                <include name="ome/model/**/*.class"/>
                 <!-- Possible only need the following, but adding util
                 classes for now
                  <include name="ome/util/Filterable.class"/>
@@ -71,18 +70,19 @@
                 <include name="ome/conditions/**/*.class"/>
             </fileset>
         </copy>
+        <unjar src="${target.dir}/libs/ice.jar" dest="${target.dir}/generated-classes"/>
     </target>
 
     <target name="compile" depends="pre-compile,lifecycle.compile"/>
 
     <target name="package" depends="compile"> <!-- depending on compile like lifecycle.package does -->
-        <copy file="${target.dir}/libs/ice.jar" tofile="${target.dir}/${ivy.module}.jar"/>
 	<jar update="true" destfile="${target.dir}/${ivy.module}.jar">
             <manifest>
                 <attribute name="Class-Path" value=""/>
                 <attribute name="Main-Class" value=""/>
             </manifest>
             <fileset dir="${classes.dir}" includes="**/*.class,omero.properties"/>
+            <fileset dir="${target.dir}/generated-classes"/>
         </jar>
     </target>
 

@@ -180,6 +180,7 @@
               <fileset dir="${deps.lib.dir}" />
             </path>
             <path id="omero.classpath">
+              <path location="${target.dir}/generated-classes" />
               <path location="${classes.dir}" />
               <path location="${resrc.dir}" />
               <path location="${resrc.dest}" />
