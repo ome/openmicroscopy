@@ -484,19 +484,20 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                 SHAREDRESOURCES.value, current));
     }
 
-    public ServiceInterfacePrx getByName(String name, Current current)
+    public ServiceInterfacePrx getByName(String blankname, Current current)
             throws ServerError {
 
         // ticket:911 - in order to use a different initializer
         // for each stateless service, we need to attach modify the id.
-        Ice.Identity id = getIdentity(clientId + name);
+        String idStr = clientId + blankname;
+        Ice.Identity id = getIdentity(idStr);
 
-        holder.acquireLock(name);
+        holder.acquireLock(idStr);
         try {
             Ice.ObjectPrx prx;
-            Ice.Object servant = holder.get(name);
+            Ice.Object servant = holder.get(idStr);
             if (servant == null) {
-                servant = createServantDelegate(name);
+                servant = createServantDelegate(blankname);
                 // Previously we checked for stateful services here,
                 // however the logic is the same so it shouldn't
                 // cause any issues.
@@ -506,7 +507,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
             }
             return ServiceInterfacePrxHelper.uncheckedCast(prx);
         } finally {
-            holder.releaseLock(name);
+            holder.releaseLock(idStr);
         }
     }
 
