@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 import ome.conditions.SecurityViolation;
+import ome.model.enums.Format;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
@@ -362,7 +363,7 @@ public class AdminPermsTest extends PermissionsTest {
         iAdmin.unsetGroupOwner(fixture.group(), fixture.user);
     }
 
-    @Test
+    @Test(groups = "ticket:1811")
     public void testTicket1811() throws Exception {
         setup(Permissions.PRIVATE);
         assertPi(false);
@@ -373,7 +374,7 @@ public class AdminPermsTest extends PermissionsTest {
         assertPi(true);
     }
 
-    @Test
+    @Test(groups = "ticket:1822")
     public void testTicket1822() throws Exception {
 
         loginRoot();
@@ -391,6 +392,40 @@ public class AdminPermsTest extends PermissionsTest {
 
         assertOwner(group1, user2);
 
+    }
+
+    /**
+     * Create a system type while logged into a non-system group.
+     */
+    @Test(groups = "ticket:1779")
+    public void testTicket1779() {
+
+        // Create a group with different permissions from root
+        loginRoot();
+        Permissions sysPerms = iAdmin.getEventContext().getCurrentGroupPermissions();
+        ExperimenterGroup g = newGroup(Permissions.COLLAB_READLINK);
+        assertFalse(sysPerms.identical(g.getDetails().getPermissions()));
+
+        // Now login to that group and check permissions
+        loginUser("root", g.getName());
+        Permissions grpPerms = iAdmin.getEventContext().getCurrentGroupPermissions();
+        assertFalse(sysPerms.identical(grpPerms));
+        assertTrue(Permissions.COLLAB_READLINK.identical(grpPerms));
+
+        // Now create a group via IUpdate and see what permissions it gets.
+        ExperimenterGroup g2 = new ExperimenterGroup();
+        g2.setName(uuid());
+        g2 = iUpdate.saveAndReturnObject(g2);
+        assertTrue(grpPerms.identical(g.getDetails().getPermissions()));
+        //
+        // assertTrue(sysPerms.identical(g.getDetails().getPermissions()));
+        //
+        // This is the question: should the group have sys or grp permissions?
+        // System types don't have a group, otherwise it would make sense for
+        // them to have "grp". However, system types are always readable, so
+        // the only critical object at the moment is group as shown here.
+        // If the current permissions of the group is not what you want for the
+        // system type, then manually set it as an admin!
     }
 
     private void assertNotOwner(ExperimenterGroup group, Experimenter user) {
@@ -454,9 +489,15 @@ public class AdminPermsTest extends PermissionsTest {
     }
 
     private ExperimenterGroup newGroup() {
+        return newGroup(null);
+    }
+
+    private ExperimenterGroup newGroup(Permissions p) {
         ExperimenterGroup g2 = new ExperimenterGroup();
         g2.setName(uuid());
+        g2.getDetails().setPermissions(p);
         g2 = iAdmin.getGroup(iAdmin.createGroup(g2));
         return g2;
     }
+
 }
