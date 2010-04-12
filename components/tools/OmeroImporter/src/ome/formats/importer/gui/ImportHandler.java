@@ -170,14 +170,7 @@ public class ImportHandler implements IObservable
         int importKey = 0;
         int importStatus = 0;
 
-        try {
-            if (db != null) {
-                db.addBaseTableRow(library.getExperimenterID(), "pending");
-                importKey = db.getLastBaseUid();
-            }
-        } catch (Exception e) {
-            log.error("SQL exception updating history DB.", e);
-        }
+        importKey = addHistoryPendingImport();
 
         for (int i = 0; i < importContainer.length; i++) {
             if (qTable.setProgressPending(i)) {
@@ -226,13 +219,8 @@ public class ImportHandler implements IObservable
                             // (TODO: Enable in container and UI)
                             container.getUserPixels(), container.getTarget());
                     this.library.clear();
-                    try {
-                        if (db != null)
-                            db.updateItemStatus(importKey, j, "done");
-                    } catch (Exception e) {
-                        log.error("SQL exception updating history DB.", e);
-                    }
-
+                    
+                    updateHistoryWithDoneImport(importKey, j);
                 } catch (FormatException fe) {
                     log.error("Format exception while importing image.", fe);
                     qTable.setProgressFailed(j);
@@ -264,14 +252,7 @@ public class ImportHandler implements IObservable
                          * );
                          */
                     } 
-                    try {
-                        if (db != null) {
-                            db.updateBaseStatus(importKey, "incomplete");
-                            db.updateItemStatus(importKey, j, "failed");
-                        }
-                    } catch (Exception e) {
-                        log.error("Exception updating history DB.", e);
-                    }
+                    updateHistoryWithFailedImport(importKey, j);
                 } catch (IOException ioe) {
                     log.error("I/O error while importing image.", ioe);
                     qTable.setProgressUnknown(j);
@@ -280,14 +261,7 @@ public class ImportHandler implements IObservable
                         importStatus = -3;
                     else
                         importStatus = -1;
-                    try {
-                        if (db != null) {
-                            db.updateBaseStatus(importKey, "incomplete");
-                            db.updateItemStatus(importKey, j, "failed");
-                        }
-                    } catch (Exception e) {
-                        log.error("SQL exception updating history DB.", e);
-                    }
+                    updateHistoryWithFailedImport(importKey, j);
                 } catch (ResourceError e) {
                     log.error("Resource error while importing image.", e);
                     JOptionPane
@@ -301,15 +275,7 @@ public class ImportHandler implements IObservable
                     qTable.cancel = true;
                     qTable.abort = true;
                     qTable.importing = false;
-                    try {
-                        if (db != null) {
-                            db.updateBaseStatus(importKey, "incomplete");
-                            db.updateItemStatus(importKey, j, "failed");
-                        }
-                    } catch (Exception sqle) {
-                        log.error("SQL exception updating history DB.", sqle);
-                    }
-
+                    updateHistoryWithFailedImport(importKey, j);
                 } catch (Throwable error) {
                     log.error("Generic error while importing image.", error);
                     viewer.appendToDebug(ome.formats.importer.util.ErrorHandler.getStackTrace(error));
@@ -320,15 +286,8 @@ public class ImportHandler implements IObservable
                         importStatus = -3;
                     else
                         importStatus = -2;
-
-                    try {
-                        if (db != null) {
-                            db.updateBaseStatus(importKey, "incomplete");
-                            db.updateItemStatus(importKey, j, "failed");
-                        }
-                    } catch (Exception sqle) {
-                        log.error("SQL exception updating history DB.", sqle);
-                    }
+                    
+                    updateHistoryWithFailedImport(importKey, j);
                 }
             }
         }
@@ -337,12 +296,7 @@ public class ImportHandler implements IObservable
         viewer.statusBar.setStatusIcon("gfx/import_done_16.png",
                 "Import complete.");
         if (importStatus >= 0)
-            try {
-                if (db != null)
-                    db.updateBaseStatus(importKey, "complete");
-            } catch (Exception e) {
-                log.error("Exception when updating import status.", e);
-            }
+        	updateHistoryWithCompleteImport(importKey);
 
         timestampOut = System.currentTimeMillis();
         timestampDiff = timestampOut - timestampIn;
@@ -362,6 +316,89 @@ public class ImportHandler implements IObservable
         notifyObservers(new ImportEvent.IMPORT_QUEUE_DONE());
     }
 
+    /**
+     * Add historyTable pending base status row
+     * 
+     * @return new baseUID
+     */
+    private int addHistoryPendingImport()
+    {
+    	int importKey = 0;
+        try {
+            if (db != null) {
+                db.addBaseTableRow(library.getExperimenterID(), "pending");
+                importKey = db.getLastBaseUid();
+                log.debug("New importKey for history db is: " + importKey);
+            }
+        } catch (Exception e) {
+        	log.error("addBaseTableRow exception: experimenterID '" 
+        			+ library.getExperimenterID() + "', 'pending'", e);
+        }
+        return importKey;
+    }
+    
+    /**
+     * Update the historyTable, noting a incomplete/failed import status
+     * 
+     * @param importKey - 'base' import key for this import session
+     * @param index - index of file in this session
+     */
+    private void updateHistoryWithFailedImport(int importKey, int index)
+    {
+        try {
+            if (db != null) {
+                db.updateBaseStatus(importKey, "incomplete");
+            }
+        } catch (Exception e) {
+            	log.error("updateBaseStatus exception: importKey '" 
+            			+ importKey + "', 'incomplete'", e);
+        }
+        
+        try {
+            if (db != null) {   
+                db.updateItemStatus(importKey, index, "failed");
+            }
+        } catch (Exception e) {
+            log.error("updateItemStatus exception: importKey '" 
+            			+ importKey + "', index '" + index + "', 'failed'", e);
+        }
+    }
+    
+    /**
+     * Update the historyTable, noting a 'complete' import status
+     * 
+     * @param importKey - 'base' import key for this import session
+     */
+    private void updateHistoryWithCompleteImport(int importKey)
+    {
+        try {
+            if (db != null)
+                db.updateBaseStatus(importKey, "complete");
+        } catch (Exception e) {
+        	log.error("updateBaseStatus exception: importKey '" 
+        			+ importKey + "', 'complete'", e);
+        	e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Update the historyTable, noting a 'done' import file status
+     * 
+     * @param importKey - 'base' import key for this import session
+     *  @param index - index of file in this session
+     */
+    private void updateHistoryWithDoneImport(int importKey, int index)
+    {
+        try {
+            if (db != null)
+                db.updateItemStatus(importKey, index, "done");
+        } catch (Exception e) {
+            log.error("updateItemStatus exception: importKey '" 
+        			+ importKey + "', index '" + index + "', 'done'", e);
+        	e.printStackTrace();
+        }
+    }
+    
     /* (non-Javadoc)
      * @see ome.formats.importer.IObservable#addObserver(ome.formats.importer.IObserver)
      */

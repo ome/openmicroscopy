@@ -65,43 +65,12 @@ public abstract class About
             //SplashWindow.splash(Splasher.class.getResource(Main.splash));
         } else
         {
-
-            if (title == null)
-            {
-                StringBuffer sb = new StringBuffer();
-                try
-                {
-                    InputStream is = About.class.getResourceAsStream("about.txt");
-                    if (is == null)
-                    {
-                        title = "About";
-                        msg = "OMERO.importer developer's edition.";
-                    } else
-                    {
-                        BufferedReader in = new BufferedReader(
-                                new InputStreamReader(is));
-                        while (true)
-                        {
-                            String line = in.readLine();
-                            if (line == null) break;
-                            if (title == null) title = "About " + line;
-                            else
-                                sb.append("\n");
-                            sb.append(line);
-                        }
-                        in.close();
-                        msg = sb.toString();
-                    }
-                } catch (IOException exc)
-                {
-                    if (title == null) title = "About";
-                    msg = "OMERO.importer developer's edition.";
-                    exc.printStackTrace();
-                }
-            }
             if (config.getAppTitle() != null)
                 title = "About " + config.getAppTitle();
-            msg = msg + "\n\n Version: " + config.getVersionNumber();
+            else
+            	title = "About";
+            
+            msg = "Version: " + config.getVersionNumber();
             msg = msg + "\n Bio-Formats " + FormatTools.VERSION + 
             " (SVN " + FormatTools.SVN_REVISION + ", " + FormatTools.DATE + ")";
             JOptionPane.showMessageDialog(parent, msg, title,

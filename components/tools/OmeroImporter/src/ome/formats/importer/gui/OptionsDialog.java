@@ -325,7 +325,7 @@ public class OptionsDialog extends JDialog implements ActionListener
             
             config.setDebugLevel(((DebugItem) dBox.getSelectedItem()).getLevel());
             
-            // Test code to see if this works
+            // Set logging level based on dialog
             Level level = org.apache.log4j.Level.toLevel(((DebugItem) dBox.getSelectedItem()).getLevel());
             LogAppender.setLoggingLevel(level);
             

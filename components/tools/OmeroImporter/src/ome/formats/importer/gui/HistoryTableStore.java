@@ -171,6 +171,22 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
             if (baseTable == null)
             	System.err.println("baseTable is null");
             baseTable.initialize(baseColumns);
+            
+            // Prime base table with 2 blank rows to address bug.
+        	Column[] newRow = createBaseColumns(2);
+
+        	LongColumn uids = (LongColumn) newRow[BASE_UID_COLUMN];
+        	LongColumn importTimes = (LongColumn) newRow[BASE_DATETIME_COLUMN];
+        	StringColumn statuses = (StringColumn) newRow[BASE_STATUS_COLUMN];
+
+        	uids.values[0] = 0;
+        	importTimes.values[0] = 0;
+        	statuses.values[0] = String.format("%1$-64s", " ");
+        	uids.values[1] = 0;
+        	importTimes.values[1] = 0;
+        	statuses.values[1] = String.format("%1$-64s", " ");
+
+        	baseTable.addData(newRow);
 
         } else {
             log.debug("Using existing " + baseDBNAME);
@@ -178,23 +194,6 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
             if (baseTable == null)
             	System.err.println("baseTable is null");      
         }
-        
-        
-        // Prime base table with 2 blank rows to address bug.
-    	Column[] newRow = createBaseColumns(2);
-
-    	LongColumn uids = (LongColumn) newRow[BASE_UID_COLUMN];
-    	LongColumn importTimes = (LongColumn) newRow[BASE_DATETIME_COLUMN];
-    	StringColumn statuses = (StringColumn) newRow[BASE_STATUS_COLUMN];
-
-    	uids.values[0] = 0;
-    	importTimes.values[0] = 0;
-    	statuses.values[0] = String.format("%1$-64s", " ");
-    	uids.values[1] = 0;
-    	importTimes.values[1] = 0;
-    	statuses.values[1] = String.format("%1$-64s", " ");
-
-    	baseTable.addData(newRow);
     }
     
     /**
@@ -213,45 +212,44 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
             if (itemTable == null)
             	System.err.println("itemTable is null");
             itemTable.initialize(itemColumns);
+            
+        	// Prime item table with 2 blank rows to address bug.
+    		Column[] newRow = createItemColumns(2);
+    		
+            LongColumn baseUids = (LongColumn) newRow[ITEM_BASE_UID_COLUMN];
+            StringColumn fileNames = (StringColumn) newRow[ITEM_FILENAME_COLUMN];
+            LongColumn projectIDs = (LongColumn) newRow[ITEM_PROJECTID_COLUMN];
+            LongColumn objectIDs = (LongColumn) newRow[ITEM_OBJECTID_COLUMN];
+            LongColumn importTimes = (LongColumn) newRow[ITEM_DATETIME_COLUMN];
+            StringColumn filePaths = (StringColumn) newRow[ITEM_FILEPATH_COLUMN];
+            StringColumn Statuses = (StringColumn) newRow[ITEM_STATUS_COLUMN];
+            LongColumn fileNumbers = (LongColumn) newRow[ITEM_FILENUMBER_COLUMN];
+
+            baseUids.values[0] = 0;
+    		fileNames.values[0] = String.format("%1$-256s", " ");
+    		projectIDs.values[0] = -1;
+    		objectIDs.values[0] = -1;
+    		importTimes.values[0] = 0;
+    		filePaths.values[0] = String.format("%1$-1024s", " ");
+    		Statuses.values[0] = String.format("%1$-32s", " ");
+    		fileNumbers.values[0] = -1;
+    		
+            baseUids.values[1] = 0;
+    		fileNames.values[1] = String.format("%1$-256s", " ");
+    		projectIDs.values[1] = -1;
+    		objectIDs.values[1] = -1;
+    		importTimes.values[1] = 0;
+    		filePaths.values[1] = String.format("%1$-1024s", " ");
+    		Statuses.values[1] = String.format("%1$-32s", " ");
+    		fileNumbers.values[1] = -1;
+
+    		itemTable.addData(newRow);
         } else {
             log.debug("Using existing " + itemDBNAME);
             itemTable = sf.sharedResources().openTable(itemFiles.get(0));
             if (itemTable == null)
             	System.err.println("itemTable is null");
-        }
-        
-        
-    	// Prime item table with 2 blank rows to address bug.
-		Column[] newRow = createItemColumns(2);
-		
-        LongColumn baseUids = (LongColumn) newRow[ITEM_BASE_UID_COLUMN];
-        StringColumn fileNames = (StringColumn) newRow[ITEM_FILENAME_COLUMN];
-        LongColumn projectIDs = (LongColumn) newRow[ITEM_PROJECTID_COLUMN];
-        LongColumn objectIDs = (LongColumn) newRow[ITEM_OBJECTID_COLUMN];
-        LongColumn importTimes = (LongColumn) newRow[ITEM_DATETIME_COLUMN];
-        StringColumn filePaths = (StringColumn) newRow[ITEM_FILEPATH_COLUMN];
-        StringColumn Statuses = (StringColumn) newRow[ITEM_STATUS_COLUMN];
-        LongColumn fileNumbers = (LongColumn) newRow[ITEM_FILENUMBER_COLUMN];
-
-        baseUids.values[0] = 0;
-		fileNames.values[0] = String.format("%1$-256s", " ");
-		projectIDs.values[0] = -1;
-		objectIDs.values[0] = -1;
-		importTimes.values[0] = 0;
-		filePaths.values[0] = String.format("%1$-1024s", " ");
-		Statuses.values[0] = String.format("%1$-32s", " ");
-		fileNumbers.values[0] = -1;
-		
-        baseUids.values[1] = 0;
-		fileNames.values[1] = String.format("%1$-256s", " ");
-		projectIDs.values[1] = -1;
-		objectIDs.values[1] = -1;
-		importTimes.values[1] = 0;
-		filePaths.values[1] = String.format("%1$-1024s", " ");
-		Statuses.values[1] = String.format("%1$-32s", " ");
-		fileNumbers.values[1] = -1;
-
-		itemTable.addData(newRow); 
+        } 
     }
     
     /* (non-Javadoc)
@@ -345,7 +343,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
      */
     public int getLastBaseUid() throws ServerError
     {
-    	return (int) getLastBaseTableUid();
+    	return (int) getHighestBaseTableUid();
     }
     
     /**
@@ -354,15 +352,20 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
      * @return the last base table uid in the uid column (or zero)
      * @throws ServerError
      */
-    private long getLastBaseTableUid() throws ServerError
+    private long getHighestBaseTableUid() throws ServerError
     {
+    	long highestUid = 0;
     	Data d = getBaseTableData();
     	LongColumn uids = (LongColumn) d.columns[BASE_UID_COLUMN];
     	int length = uids.values.length;
     	if (length == 0)
-    		return 0;
+    		return highestUid;
     	else
-    		return uids.values[uids.values.length-1];   	
+    		for (long id : uids.values)
+    		{
+    			if (id > highestUid) highestUid = id;
+    		}
+    		return highestUid; 	
     }
     
     
@@ -394,7 +397,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
     	LongColumn importTimes = (LongColumn) newRow[BASE_DATETIME_COLUMN];
     	StringColumn statuses = (StringColumn) newRow[BASE_STATUS_COLUMN];
 
-    	lastUid = getLastBaseTableUid();
+    	lastUid = getHighestBaseTableUid();
     	long newUid = lastUid + 1;
 
     	uids.values[0] = newUid;
@@ -482,7 +485,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
         	int i = (int) ids[h];
         	((StringColumn) baseData.columns[BASE_STATUS_COLUMN]).values[i] = String.format("%1$-32s", newStatus);
         }
-    	
+    	       
         baseTable.update(baseData);
         
     	return returnedRows;
@@ -506,7 +509,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
         {
         	int i = (int) ids[h];
         	if (h+1 == index)
-        		((StringColumn) itemData.columns[BASE_STATUS_COLUMN]).values[i] = String.format("%1$-32s", newStatus);
+        		((StringColumn) itemData.columns[ITEM_STATUS_COLUMN]).values[i] = String.format("%1$-32s", newStatus);
         }
     	
         
@@ -863,7 +866,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
                 hts.clearTable(itemDBNAME);
         	}
             hts.initializeDataSource();
-            lastUid = hts.getLastBaseTableUid();
+            lastUid = hts.getHighestBaseTableUid();
             log.debug("Last UID: " + lastUid);
             if (TEST)
             {
