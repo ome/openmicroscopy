@@ -21,6 +21,8 @@ import omero.model.Screen;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 /**
  * The base entry point for the CLI version of the OMERO importer.
@@ -184,7 +186,7 @@ public class CommandLineImporter {
                                         + "  -p\tOMERO server port [defaults to 4064]\n"
                                         + "  -h\tDisplay this help and exit\n"
                                         + "\n"
-                                        + "  --debug[=0|1|2]\tTurn debug logging on (optional level)\n"
+                                        + "  --debug[=ALL|DEBUG|ERROR|FATAL|INFO|TRACE|WARN]\tTurn debug logging on (optional level)\n"
                                         + "  --report\tReport errors to the OME team\n"
                                         + "  --upload\tUpload broken files with report\n"
                                         + "  --logs\tUpload log file with report\n"
@@ -240,14 +242,7 @@ public class CommandLineImporter {
         while ((a = g.getopt()) != -1) {
             switch (a) {
             case 1: {
-                String s = g.getOptarg();
-                Integer level = 0;
-                try {
-                    level = Integer.valueOf(s);
-                } catch (Exception e) {
-                    // ok
-                }
-                config.configureDebug(level);
+                config.configureDebug(Level.toLevel(g.getOptarg()));
                 break;
             }
             case 2: {
@@ -324,6 +319,12 @@ public class CommandLineImporter {
             }
             }
         }
+
+        // Let the user know at what level we're logging
+        log.info(String.format(
+                "Log levels -- Bio-Formats: %s OMERO.importer: %s",
+                Logger.getLogger("loci").getLevel(),
+                Logger.getLogger("ome.formats").getLevel()));
 
         // Start the importer and import the image we've been given
         String[] rest = new String[args.length - g.getOptind()];

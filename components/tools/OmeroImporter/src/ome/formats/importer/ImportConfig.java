@@ -271,30 +271,18 @@ public class ImportConfig {
         check.run();
         return check.isUpgradeNeeded();
     }
-    
+
     /**
-     * Modifes the Log4j logging level of everything under the ome.format
-     * package hierarchically. Also enables Loci debugging.
-     * 
+     * Modifies the Log4j logging level of everything under the
+     * <code>ome.format</code> and <code>loci</code> package hierarchically.
      * @param level if null, then {@link #ini#getDebugLevel()} will be used.
      */
-    public void configureDebug(Integer level) {
-        
+    public void configureDebug(Level level) {
         if (level == null) {
-            level = Integer.valueOf(ini.getDebugLevel()); 
+            level = Level.toLevel(ini.getDebugLevel());
         }
-        if (level.intValue() < 0) {
-            return;
-        }
-
-        log.info("Debugging at level " + level);
-        debug.set(true);        
-
-        Logger l = Logger.getLogger("ome.formats");
-        l.setLevel(Level.DEBUG);
-
-        l = Logger.getLogger("loci");
-        l.setLevel(Level.DEBUG);
+        Logger.getLogger("ome.formats").setLevel(level);
+        Logger.getLogger("loci").setLevel(level);
     }
 
     //
