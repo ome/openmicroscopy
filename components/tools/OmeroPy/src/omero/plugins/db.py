@@ -50,7 +50,7 @@ class DatabaseControl(BaseControl):
         root_pass = self._ask_for_password(" for OMERO root user", root_pass)
 
         server_jar = self.ctx.dir / "lib" / "server" / "server.jar"
-        p = omero.java.popen(["-cp",str(server_jar),"ome.security.PasswordUtil",root_pass])
+        p = omero.java.popen(["-cp",str(server_jar),"ome.security.auth.PasswordUtil",root_pass])
         rc = p.wait()
         if rc != 0:
             self.ctx.die(rc, "PasswordUtil failed: %s" % p.communicate() )
