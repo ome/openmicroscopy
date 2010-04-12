@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.measurement.util.model;
 //Java imports
 import java.util.List;
 
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -44,8 +46,9 @@ import java.util.List;
  */
 public class Workflow
 {
+	
 	/** The default workflow, i.e. nothing .*/
-	public static String DEFAULTWORKFLOW = "Default Workflow";
+	public static String DEFAULTWORKFLOW = AnnotationKeys.DEFAULTWORKFLOW;
 	
 	/** The namespace of the workflow. */
 	private String nameSpace;
@@ -55,6 +58,7 @@ public class Workflow
 	
 	/**
 	 * Instantiate the class. 
+	 * 
 	 * @param nameSpace The namespace of the workflow.
 	 * @param keywords The keywords of the workflow.
 	 */
@@ -65,7 +69,8 @@ public class Workflow
 	}
 	
 	/**
-	 * Return the namespace of this workflow.
+	 * Returns the namespace of this workflow.
+	 * 
 	 * @return See above.
 	 */
 	public String getNameSpace()
@@ -83,7 +88,8 @@ public class Workflow
 	}
 	
 	/**
-	 * Add a new keyword to the workflow. 
+	 * Adds a new keyword to the workflow. 
+	 * 
  	 * @param keyword See above.
 	 */
 	public void addKeyword(String keyword)
@@ -93,14 +99,15 @@ public class Workflow
 	
 	/**
 	 * Does the keyword exist in the workflow.
-	 * @param value keyword to test for existance.
+	 * 
+	 * @param value keyword to test for existence.
 	 * @return See above.
 	 */
 	public boolean contains(String value)
 	{
-		for(String keyword : this.keywords)
+		for (String keyword : this.keywords)
 		{
-			if(value.equals(keyword))
+			if (value.equals(keyword))
 				return true;
 		}
 		return false;
