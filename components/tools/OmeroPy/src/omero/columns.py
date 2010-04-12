@@ -123,11 +123,13 @@ class AbstractColumn(object):
         """
         self.values = rows[self.name]
         # WORKAROUND: http://www.zeroc.com/forums/bug-reports/4165-icepy-can-not-handle-buffers-longs-i64.html#post20468
-        d = self.recarrtypes[0][1]
-        if isinstance(d, str):
-            d = numpy.dtype(d)
-        if d.kind == "S" or (d.kind == "i" and d.itemsize == "8"):
-            self.values = self.values.tolist()
+        # see ticket:1951 and #2160
+        ## d = self.recarrtypes[0][1]
+        ## Disabled until Ice 3.4
+        ## if isinstance(d, str):
+        ##     d = numpy.dtype(d)
+        ## if d.kind == "S" or (d.kind == "i" and d.itemsize == "8"):
+        self.values = self.values.tolist()
 
 class FileColumnI(AbstractColumn, omero.grid.FileColumn):
 

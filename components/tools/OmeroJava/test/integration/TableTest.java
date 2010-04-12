@@ -3,6 +3,7 @@ package integration;
 import java.util.Date;
 import java.util.UUID;
 
+import omero.ApiUsageException;
 import omero.ServerError;
 import omero.grid.Column;
 import omero.grid.LongColumn;
@@ -214,15 +215,16 @@ public class TableTest {
     }
 
     /**
-     * Test readCoordinates() with zero rows in table
-     * 
+     * Test readCoordinates() with zero rows in table. This throws
+     * an exception because there's no need to try to read zero data.
+     *
      * @throws Exception
      */
-    @Test
+    @Test(expectedExceptions = ApiUsageException.class)
     public void getReadCoordinates0RowsTest() throws Exception {
-    	myTable.readCoordinates(null);
+        myTable.readCoordinates(null);
     }
-    
+
     /**
      * Test readCoordinates() with one row in table.
      * 

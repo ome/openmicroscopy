@@ -175,11 +175,17 @@ class HdfStorage(object):
         if not self.__initialized:
             raise omero.ApiUsageException(None, None, "Not yet initialized")
 
+    def __width(self):
+        return len(self.__types))
+
+    def __length(self)
+        return self.__mea.nrows
+
     def __sizecheck(self, colNumbers, rowNumbers):
         if colNumbers is not None:
             if len(colNumbers) > 0:
                 maxcol = max(colNumbers)
-                totcol = len(self.__types)
+                totcol = self.__width()
                 if maxcol >= totcol:
                     raise omero.ApiUsageException(None, None, "Column overflow: %s >= %s" % (maxcol, totcol))
             else:
@@ -189,7 +195,7 @@ class HdfStorage(object):
         if rowNumbers is not None:
             if len(rowNumbers) > 0:
                 maxrow = max(rowNumbers)
-                totrow = self.__mea.nrows
+                totrow = self.__length()
                 if maxrow >= totrow:
                     raise omero.ApiUsageException(None, None, "Row overflow: %s >= %s" % (maxrow, totrow))
             else:
@@ -384,6 +390,12 @@ class HdfStorage(object):
     @stamped
     def slice(self, stamp, colNumbers, rowNumbers, current):
         self.__initcheck()
+
+        if colNumbers is None:
+            colNumbers = range(self.__width())
+        if rowNumbers is None:
+            rowNumbers = range(self.__length())
+
         self.__sizecheck(colNumbers, rowNumbers)
         cols = self.cols(None, current)
         rv   = []
@@ -392,6 +404,7 @@ class HdfStorage(object):
             col.readCoordinates(self.__mea, rowNumbers)
             rv.append(col)
         return self._as_data(rv, rowNumbers)
+
     #
     # Lifecycle methods
     #

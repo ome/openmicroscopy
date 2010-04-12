@@ -140,6 +140,12 @@ module omero {
                 getWhereList(string condition, omero::RTypeDict variables, long start, long stop, long step)
                 throws omero::ServerError;
 
+            /**
+             * Read the given rows of data.
+             *
+             * [rowNumbers] must contain at least one element or an
+             * [omero::ApiUsageException] will be thrown.
+             **/
             Data
                 readCoordinates(omero::api::LongArray rowNumbers)
                 throws omero::ServerError;
