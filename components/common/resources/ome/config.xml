@@ -65,6 +65,11 @@
     <bean class="ome.system.Preference" id="omero.data.dir">
        <property name="mutable" value="true"/>
     </bean>
+    <bean class="ome.system.Preference" id="omero.router.insecure">
+       <property name="mutable" value="true"/>
+       <property name="visibility" value="all"/>
+       <property name="db" value="true"/>
+    </bean>
     <bean class="ome.system.Preference" id="omero.security.filter.bitand">
         <property name="db" value="false"/>
         <property name="mutable" value="true"/>
