@@ -66,7 +66,6 @@ import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
-import ome.model.meta.Session;
 import ome.model.screen.Screen;
 import ome.model.screen.Plate;
 import ome.model.stats.StatsInfo;
@@ -433,7 +432,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         p.addIds(pixelsIds);
         String sql = PixelsImpl.RENDERING_DEF_QUERY_PREFIX +
             "rdef.pixels.id in (:ids) and " +
-            "rdef.details.owner.id = ref.pixels.details.owner.id";
+            "rdef.details.owner.id = rdef.pixels.details.owner.id";
         Map<Long, RenderingDef> settingsMap = new HashMap<Long, RenderingDef>();
         List<RenderingDef> settingsList = iQuery.findAllByQuery(sql, p);
         for (RenderingDef settings : settingsList)
