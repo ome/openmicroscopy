@@ -39,8 +39,9 @@ loci.formats.in.BMPReader             # bmp
 loci.formats.in.IPLabReader           # ipl
 loci.formats.in.IvisionReader         # ipm
 loci.formats.in.DeltavisionReader     # dv, r3d
-loci.formats.in.MRCReader             # mrc
+loci.formats.in.MRCReader             # mrc, st, ali
 loci.formats.in.GatanReader           # dm3
+loci.formats.in.GatanDM2Reader        # dm2
 loci.formats.in.ImarisReader          # ims
 loci.formats.in.OpenlabRawReader      # raw
 loci.formats.in.OMEXMLReader          # ome
@@ -57,7 +58,7 @@ loci.formats.in.VisitechReader        # html, xys
 loci.formats.in.LIMReader             # lim
 loci.formats.in.PSDReader             # psd
 loci.formats.in.InCellReader          # xdce
-#loci.formats.in.L2DReader             # l2d
+loci.formats.in.L2DReader             # l2d
 loci.formats.in.FEIReader             # img
 loci.formats.in.NAFReader             # naf
 loci.formats.in.MINCReader            # mnc
@@ -67,9 +68,18 @@ loci.formats.in.TillVisionReader      # vws
 loci.formats.in.ARFReader             # arf
 loci.formats.in.CellomicsReader       # c01
 loci.formats.in.LiFlimReader          # fli
+loci.formats.in.TargaReader           # tga
+loci.formats.in.OxfordInstrumentsReader # top
+loci.formats.in.VGSAMReader           # dti
+loci.formats.in.HISReader             # his
+loci.formats.in.WATOPReader           # wat
+loci.formats.in.SeikoReader           # xqd, xqf
+loci.formats.in.TopometrixReader      # tfr, ffr, zfr, zfp, 2fl
+loci.formats.in.UBMReader             # pr3
 loci.formats.in.FakeReader            # fake
 
 # multi-extension messes
+loci.formats.in.JEOLReader            # dat, img, par
 loci.formats.in.NiftiReader           # hdr, img, nii
 loci.formats.in.AnalyzeReader         # hdr, img
 loci.formats.in.APLReader             # apl, mtb, tnb
@@ -78,6 +88,8 @@ loci.formats.in.ICSReader             # ics, ids
 loci.formats.in.PerkinElmerReader     # rec, ano, csv, htm, tim, zpo, 2, 3, ...
 loci.formats.in.AmiraReader           # am, amiramesh, grey, hx, labels, ...
 loci.formats.in.ScanrReader           # dat, xml, tif
+loci.formats.in.BDReader              # exp, tif
+loci.formats.in.UnisokuReader         # dat, hdr
 
 # standard PIC reader must go last (it accepts any PIC)
 loci.formats.in.BioRadReader          # pic
@@ -99,6 +111,8 @@ loci.formats.in.GelReader             # gel
 loci.formats.in.ImarisTiffReader      # ims
 loci.formats.in.FlexReader            # flex [LuraWave]
 loci.formats.in.SVSReader             # svs
+loci.formats.in.ImaconReader          # fff
+loci.formats.in.LEOReader             # sxm
 
 # TIFF-based readers with slow isThisType
 loci.formats.in.MIASReader            # tif
@@ -112,10 +126,12 @@ loci.formats.in.ImprovisionTiffReader # tif
 loci.formats.in.MetamorphTiffReader   # tif
 loci.formats.in.NikonTiffReader       # tif
 loci.formats.in.OMETiffReader         # tif
+loci.formats.in.PhotoshopTiffReader   # tif
 
 # standard TIFF reader must go last (it accepts any TIFF)
-loci.formats.in.TiffReader            # tif, tiff
+loci.formats.in.TiffDelegateReader    # tif, tiff
 
 # non-TIFF readers with slow isThisType
 loci.formats.in.OpenlabReader         # liff
 loci.formats.in.DicomReader           # dcm, dicom
+loci.formats.in.SMCameraReader        # (no extension)
