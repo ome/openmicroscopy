@@ -24,15 +24,24 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-
+import java.util.Map.Entry;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -57,10 +66,13 @@ public class CheckoutBox
 {
 
 	/** The elements to save. */
-	private Map<Agent, AgentSaveInfo> map;
+	private Map<Agent, AgentSaveInfo> 		map;
 	
 	/** Component to save all instances. */
-	private JCheckBox				  saveAll;
+	private JCheckBox				  		saveAll;
+	
+	/** The components to handle. */
+	private Map<Agent, List<CheckOutItem>> components;
 	
 	/** Initializes the display. */
 	private void initComponents()
@@ -69,11 +81,52 @@ public class CheckoutBox
 		if (map != null && map.size() > 0) saveAll.setSelected(true);
 	}
 	
+	/**
+	 * Builds and lays out the component displaying instances of a given agent
+	 * to save.
+	 * 
+	 * @param agent The agent the instances are related to.
+	 * @param info Hosts information about an instance of an agent to save.
+	 * @return See above.
+	 */
+	private JComponent buildAgentEntry(Agent agent, AgentSaveInfo info)
+	{
+		List<CheckOutItem> items = new ArrayList<CheckOutItem>();
+		JXTaskPane pane = UIUtilities.createTaskPane(info.getName(), null);
+		pane.setCollapsed(false);
+		List<Object> instances = info.getInstances();
+		Iterator<Object> i = instances.iterator();
+		CheckOutItem box;
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		while (i.hasNext()) {
+			box = new CheckOutItem(info.getName(), i.next());
+			items.add(box);
+			p.add(box);
+		}
+		components.put(agent, items);
+		pane.add(UIUtilities.buildComponentPanel(p));
+		return pane;
+	}
+	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
 		if (map == null || map.size() == 0) return;
-		addBodyComponent(UIUtilities.buildComponentPanel(saveAll));
+		components = new HashMap<Agent, List<CheckOutItem>>();
+		Entry entry;
+		Iterator i = map.entrySet().iterator();
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		p.add(UIUtilities.buildComponentPanel(saveAll));
+		p.add(Box.createVerticalStrut(5));
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			p.add(buildAgentEntry((Agent) entry.getKey(),
+					(AgentSaveInfo) entry.getValue()));
+		}
+		
+		addBodyComponent(p);
 	}
 	
 	/**
@@ -115,8 +168,74 @@ public class CheckoutBox
 	Map<Agent, AgentSaveInfo> getInstancesToSave()
 	{ 
 		if (!saveAll.isSelected()) return null;
-		//to be modified.
-		return map; 
+		Map<Agent, AgentSaveInfo> toSave = new HashMap<Agent, AgentSaveInfo>();
+		Entry entry;
+		Iterator i = components.entrySet().iterator();
+		Iterator j;
+		CheckOutItem item;
+		List list;
+		String name;
+		List<Object> instances;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			list = (List) entry.getValue();
+			j = list.iterator();
+			instances = new ArrayList<Object>();
+			name = "";
+			while (j.hasNext()) {
+				item = (CheckOutItem) j.next();
+				if (item.isSelected()) {
+					name = item.getRefName();
+					instances.add(item.getInstance());
+				}
+			}
+			if (instances.size() > 0) 
+				toSave.put((Agent) entry.getKey(), 
+						new AgentSaveInfo(name, instances));
+		}
+		return toSave; 
+	}
+	
+	/**
+	 * Inner class used to handle the instances to save.
+	 */
+	class CheckOutItem 
+		extends JCheckBox
+	{
+		
+		/** The instance to handle. */
+		private Object instance;
+		
+		/** The name of reference. */
+		private String refName;
+		
+		/**
+		 * Creates a new instance.
+		 * 
+		 * @param refName The name of reference.
+		 * @param instance The instance to handle.
+		 */
+		CheckOutItem(String refName, Object instance)
+		{
+			super(instance.toString());
+			this.refName = refName;
+			setSelected(true);
+		}
+		
+		/**
+		 * Returns the instance
+		 * 
+		 * @return See above.
+		 */
+		Object getInstance() { return instance; }
+		
+		/**
+		 * Returns the name of reference.
+		 * 
+		 * @return See above.
+		 */
+		String getRefName() { return refName; }
+		
 	}
 	
 }

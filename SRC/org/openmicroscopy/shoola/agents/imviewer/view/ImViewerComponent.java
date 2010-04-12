@@ -3095,4 +3095,10 @@ class ImViewerComponent
 		return true;
 	}
 	
+	/** 
+	 * Overridden to return the name of the instance to save. 
+	 * @see #toString()
+	 */
+	public String toString() { return getTitle(); }
+	
 }

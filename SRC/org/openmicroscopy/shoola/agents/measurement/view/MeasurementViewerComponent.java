@@ -935,4 +935,10 @@ class MeasurementViewerComponent
 		return false;
 	}
 	
+	/** 
+	 * Overridden to return the name of the instance to save. 
+	 * @see #toString()
+	 */
+	public String toString() { return view.getTitle(); }
+	
 }

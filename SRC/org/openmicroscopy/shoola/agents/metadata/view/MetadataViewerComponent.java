@@ -1037,4 +1037,9 @@ class MetadataViewerComponent
 	 */
 	public long getUserID() { return model.getUserID(); }
 	
+	/** 
+	 * Overridden to return the name of the instance to save. 
+	 * @see #toString()
+	 */
+	public String toString() { return view.getTitle(); }
 }
