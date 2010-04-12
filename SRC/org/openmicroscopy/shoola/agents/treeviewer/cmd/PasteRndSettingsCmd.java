@@ -215,6 +215,7 @@ public class PasteRndSettingsCmd
 			case SET_MIN_MAX:
 				if (ref != null) model.setOriginalRndSettings(ref);
 				else model.setMinMax(ids, klass);
+				break;
 			case SET_OWNER:
 				if (ref != null) model.setOwnerRndSettings(ref);
 				else model.setOwnerRndSettings(ids, klass);

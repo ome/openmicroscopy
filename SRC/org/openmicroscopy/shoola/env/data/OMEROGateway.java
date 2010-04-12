@@ -48,9 +48,9 @@ import java.util.Map.Entry;
 
 //Third-party libraries
 import Ice.ConnectionLostException;
+import loci.formats.FormatException;
 
 //Application-internal dependencies
-import loci.formats.FormatException;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
@@ -246,6 +246,9 @@ class OMEROGateway
 	/** The collection of escaping characters we allow in the search. */
 	private static final List<String>		WILD_CARDS;
 	
+	/** Identifies the client. */
+	private static final String				AGENT = "OMERO.insight";
+	
 	/** The collection of system groups. */
 	private static final List<String>		SYSTEM_GROUPS;
 
@@ -283,7 +286,13 @@ class OMEROGateway
 	 * The entry point provided by the connection library to access the various
 	 * <i>OMERO</i> services.
 	 */
-	private ServiceFactoryPrx 						entry;
+	private ServiceFactoryPrx 						entryEncrypted;
+	
+	/**
+	 * The entry point provided by the connection library to access the various
+	 * <i>OMERO</i> services.
+	 */
+	private ServiceFactoryPrx 						entryUnencrypted;
 
 	/** The thumbnail service. */
 	private ThumbnailStorePrx						thumbnailService;
@@ -362,10 +371,16 @@ class OMEROGateway
 	
 	/** 
 	 * The Blitz client object, this is the entry point to the 
-	 * OMERO.Blitz Server. 
+	 * OMERO Server using a secure connection. 
 	 */
-	private client 									blitzClient;
+	private client 									secureClient;
 
+	/** 
+	 * The Blitz client object, this is the entry point to the 
+	 * OMERO Server using non secure data transfer
+	 */
+	private client 									unsecureClient;
+	
 	/** Map hosting the enumeration required for metadata. */
 	private Map<String, List<EnumerationObject>>	enumerations;
 	
@@ -403,7 +418,7 @@ class OMEROGateway
 	         IScriptPrx svc = getScripService();
 	         //scriptID, parameters, timeout (5s if null)
 	         ScriptProcessPrx prx = svc.runScript(scriptID, parameters, null);
-	         cb = new ScriptCallback(scriptID, blitzClient, prx);
+	         cb = new ScriptCallback(scriptID, secureClient, prx);
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (cb != null) cb.close();
@@ -984,7 +999,7 @@ class OMEROGateway
 	{
 		try {
 			
-			return entry.getSessionService();
+			return entryEncrypted.getSessionService();
 		} catch (Throwable e) {
 			handleException(e, "Cannot access Session service.");
 		}
@@ -1006,7 +1021,7 @@ class OMEROGateway
 	
 		try {
 			if (sharedResources == null) {
-				sharedResources = entry.sharedResources();
+				sharedResources = entryEncrypted.sharedResources();
 			}
 			return sharedResources;
 		} catch (Exception e) {
@@ -1028,7 +1043,7 @@ class OMEROGateway
 	{
 		try {
 			if (rndSettingsService == null) {
-				rndSettingsService = entry.getRenderingSettingsService(); 
+				rndSettingsService = entryEncrypted.getRenderingSettingsService(); 
 				services.add(rndSettingsService);
 			}
 			return rndSettingsService;
@@ -1052,7 +1067,7 @@ class OMEROGateway
 		try {
 			if (importStore == null) {
 				importStore = new OMEROMetadataStoreClient();
-				importStore.initialize(entry);
+				importStore.initialize(entryEncrypted);
 			}
 			return importStore;
 		} catch (Throwable e) {
@@ -1074,7 +1089,7 @@ class OMEROGateway
 	{
 		try {
 			if (repInfoService == null) {
-				repInfoService = entry.getRepositoryInfoService();
+				repInfoService = entryEncrypted.getRepositoryInfoService();
 				services.add(repInfoService);
 			}
 			return repInfoService;
@@ -1097,7 +1112,7 @@ class OMEROGateway
 	{ 
 		try {
 			if (scriptService == null) {
-				scriptService = entry.getScriptService();
+				scriptService = entryEncrypted.getScriptService();
 				services.add(scriptService);
 			}
 			return scriptService; 
@@ -1120,7 +1135,7 @@ class OMEROGateway
 	{ 
 		try {
 			if (pojosService == null) {
-				pojosService = entry.getContainerService();
+				pojosService = entryEncrypted.getContainerService();
 				services.add(pojosService);
 			}
 			return pojosService; 
@@ -1143,7 +1158,7 @@ class OMEROGateway
 	{ 
 		try {
 			if (queryService == null) {
-				queryService = entry.getQueryService(); 
+				queryService = entryEncrypted.getQueryService(); 
 				services.add(queryService);
 			}
 			return queryService; 
@@ -1166,7 +1181,7 @@ class OMEROGateway
 	{ 
 		try {
 			if (updateService == null) {
-				updateService = entry.getUpdateService();
+				updateService = entryEncrypted.getUpdateService();
 				services.add(updateService);
 			}
 			return updateService; 
@@ -1189,7 +1204,7 @@ class OMEROGateway
 	{ 
 		try {
 			if (metadataService == null) {
-				metadataService = entry.getMetadataService();
+				metadataService = entryEncrypted.getMetadataService();
 				services.add(metadataService);
 			}
 			return metadataService; 
@@ -1212,7 +1227,7 @@ class OMEROGateway
 	{ 
 		try {
 			if (roiService == null) {
-				roiService = entry.getRoiService();
+				roiService = entryEncrypted.getRoiService();
 				services.add(roiService);
 			}
 			return roiService; 
@@ -1235,7 +1250,7 @@ class OMEROGateway
 	{ 
 		try {
 			if (adminService == null) {
-				adminService = entry.getAdminService(); 
+				adminService = entryEncrypted.getAdminService(); 
 				services.add(adminService);
 			}
 			return adminService; 
@@ -1258,7 +1273,10 @@ class OMEROGateway
 	{ 
 		try {
 			if (deleteService == null) {
-				deleteService = entry.getDeleteService(); 
+				if (entryUnencrypted != null)
+					deleteService = entryUnencrypted.getDeleteService(); 
+				else 
+					deleteService = entryEncrypted.getDeleteService();
 				services.add(deleteService);
 			}
 			return deleteService;
@@ -1281,7 +1299,10 @@ class OMEROGateway
 	{
 		try {
 			if (timeService == null) {
-				timeService = entry.getTimelineService(); 
+				if (entryUnencrypted != null)
+					timeService = entryUnencrypted.getTimelineService(); 
+				else 
+					timeService = entryEncrypted.getTimelineService(); 
 				services.add(timeService);
 			}
 			return timeService;
@@ -1311,7 +1332,10 @@ class OMEROGateway
 				thumbnailService = null;
 			}
 			if (thumbnailService == null) {
-				thumbnailService = entry.createThumbnailStore();
+				if (entryUnencrypted != null)
+					thumbnailService = entryUnencrypted.createThumbnailStore();
+				else 
+					thumbnailService = entryEncrypted.createThumbnailStore();
 				services.add(thumbnailService);
 			}
 			thumbRetrieval++;
@@ -1335,7 +1359,10 @@ class OMEROGateway
 	{ 
 		try {
 			if (exporterService == null) {
-				exporterService = entry.createExporter();
+				if (entryUnencrypted != null)
+					exporterService = entryUnencrypted.createExporter();
+				else 
+					exporterService = entryEncrypted.createExporter();
 				//services.add(exporterService);
 			}
 			return exporterService; 
@@ -1367,7 +1394,10 @@ class OMEROGateway
 			fileStore = entry.createRawFileStore();
 			services.add(fileStore);
 			*/
-			fileStore = entry.createRawFileStore();
+			if (entryUnencrypted != null)
+				fileStore = entryUnencrypted.createRawFileStore();
+			else 
+				fileStore = entryEncrypted.createRawFileStore();
 			return fileStore;
 		} catch (Throwable e) {
 			handleException(e, "Cannot access RawFileStore service.");
@@ -1387,7 +1417,10 @@ class OMEROGateway
 		throws DSAccessException, DSOutOfServiceException
 	{
 		try {
-			RenderingEnginePrx engine = entry.createRenderingEngine();
+			RenderingEnginePrx engine;
+			if (entryUnencrypted != null)
+				engine = entryUnencrypted.createRenderingEngine();
+			else engine = entryEncrypted.createRenderingEngine();
 			engine.setCompressionLevel(compression);
 			return engine;
 		} catch (Throwable e) {
@@ -1414,7 +1447,10 @@ class OMEROGateway
 					pixelsStore.close();
 				} catch (Exception e) {}
 			}
-			pixelsStore = entry.createRawPixelsStore();
+			if (entryUnencrypted != null)
+				pixelsStore = entryUnencrypted.createRawPixelsStore();
+			else 
+				pixelsStore = entryEncrypted.createRawPixelsStore();
 			services.add(pixelsStore);
 			return pixelsStore;
 		} catch (Throwable e) {
@@ -1436,7 +1472,10 @@ class OMEROGateway
 	{ 
 		try {
 			if (pixelsService == null) {
-				pixelsService = entry.getPixelsService(); 
+				if (entryUnencrypted != null)
+					pixelsService = entryUnencrypted.getPixelsService(); 
+				else 
+					pixelsService = entryEncrypted.getPixelsService(); 
 				services.add(pixelsService);
 			}
 			return pixelsService;
@@ -1462,7 +1501,9 @@ class OMEROGateway
 				//searchService = entry.createSearchService(); 
 				//services.add(searchService);
 			//}
-			return entry.createSearchService();
+			if (entryUnencrypted != null)
+				return entryUnencrypted.createSearchService();
+			return entryEncrypted.createSearchService();
 		} catch (Throwable e) {
 			handleException(e, "Cannot access Search service.");
 		}
@@ -1482,7 +1523,9 @@ class OMEROGateway
 	{
 		try {
 			if (projService == null) {
-				projService = entry.getProjectionService(); 
+				if (entryUnencrypted != null)
+					projService = entryEncrypted.getProjectionService(); 
+				else projService = entryUnencrypted.getProjectionService();
 				services.add(projService);
 			}
 			return projService;
@@ -1874,11 +1917,34 @@ class OMEROGateway
 		try {
 			compression = compressionLevel;
 			this.hostName = hostName;
-			if (port > 0) blitzClient = new client(hostName, port);
-			else blitzClient = new client(hostName);
-			entry = blitzClient.createSession(userName, password);
-			blitzClient.getProperties().setProperty("Ice.Override.Timeout", 
-					""+5000);
+			if (port > 0) secureClient = new client(hostName, port);
+			else secureClient = new client(hostName);
+			entryEncrypted = secureClient.createSession(userName, password);
+			secureClient.setAgent(AGENT);
+			
+			if (!encrypted) {
+				
+				unsecureClient = secureClient.createClient(false);
+				entryUnencrypted = unsecureClient.getSession();
+			}
+			
+			//if ()
+			//TODO request server string
+			// 1. if encrypted
+			// 2.
+			/*
+			entry.getConfigService().getConfigValue("omero.router.encrypted");
+			entry.getConfigService().getConfigValue("omero.router.unecrypted");
+			
+			Properties p = new Properties();
+			p.setProperty("Ice.Default.Router", encrypted);
+			
+			blitzClient = new omero.client();
+			blitzClient.createSession(hostName, "");
+			blitzClient.getSession();
+			blitzClient.getSecureSession();
+			new omero.client(p);
+			*/
 			connected = true;
 			
 			ExperimenterData exp = getUserDetails(userName);
@@ -1898,6 +1964,7 @@ class OMEROGateway
 			}
 			return exp;
 		} catch (Throwable e) {
+			e.printStackTrace();
 			connected = false;
 			String s = "Can't connect to OMERO. OMERO info not valid.\n\n";
 			s += printErrorText(e);
@@ -1978,7 +2045,7 @@ class OMEROGateway
 		try {
 			getAdminService().setDefaultGroup(exp.asExperimenter(), 
 					group.asGroup());
-			entry.setSecurityContext(new ExperimenterGroupI(groupID, false));
+			entryEncrypted.setSecurityContext(new ExperimenterGroupI(groupID, false));
 		} catch (Exception e) {
 			handleException(e, s);
 		}
@@ -1997,9 +2064,9 @@ class OMEROGateway
 	String getServerVersion()
 		throws DSOutOfServiceException
 	{
-		if (entry == null) return null;
+		if (entryEncrypted == null) return null;
 		try {
-			return entry.getConfigService().getVersion();
+			return entryEncrypted.getConfigService().getVersion();
 		} catch (Exception e) {
 			String s = "Can't retrieve the server version.\n\n";
 			s += printErrorText(e);
@@ -2062,9 +2129,9 @@ class OMEROGateway
 			thumbnailService = null;
 			thumbRetrieval = 0;
 			fileStore = null;
-			if (port > 0) blitzClient = new client(hostName, port);
-			else blitzClient = new client(hostName);
-			entry = blitzClient.createSession(userName, password);
+			if (port > 0) secureClient = new client(hostName, port);
+			else secureClient = new client(hostName);
+			entryEncrypted = secureClient.createSession(userName, password);
 			connected = true;
 		} catch (Throwable e) {
 			connected = false;
@@ -2080,12 +2147,26 @@ class OMEROGateway
 		connected = false;
 		try {
 			clear();
-			blitzClient.closeSession();
-			entry.destroy();
-			blitzClient = null;
-			entry = null;
+			secureClient.closeSession();
+			entryEncrypted.destroy();
+			secureClient = null;
+			entryEncrypted = null;
 		} catch (Exception e) {
 			//session already dead.
+		} finally {
+			secureClient = null;
+			entryEncrypted = null;
+		}
+		try {
+			if (unsecureClient != null) secureClient.closeSession();
+			if (entryUnencrypted != null) entryUnencrypted.destroy();
+			unsecureClient = null;
+			entryUnencrypted = null;
+		} catch (Exception e) {
+			// TODO: handle exception
+		} finally {
+			unsecureClient = null;
+			entryUnencrypted = null;
 		}
 	}
 
@@ -3799,7 +3880,7 @@ class OMEROGateway
 			if (klass.equals(Image.class.getName()) 
 				|| klass.equals(Dataset.class.getName()) || 
 						klass.equals(Plate.class.getName()))
-				success = service.setOriginalSettingsInSet(klass, nodes);
+				success = service.resetMinMaxInSet(klass, nodes);
 		} catch (Exception e) {
 			handleException(e, "Cannot reset the rendering settings.");
 		}
@@ -4602,7 +4683,7 @@ class OMEROGateway
 			index++;
 		}
 		try {
-			entry.keepAllAlive(entries);
+			entryEncrypted.keepAllAlive(entries);
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
