@@ -143,30 +143,37 @@ public class MetadataValidatorTest
         store.postProcess();
         containerCache = store.getContainerCache();
         referenceCache = store.getReferenceCache();
-        /*
-        log.debug("Starting container cache...");
+        log.trace("Starting container cache...");
         for (LSID key : containerCache.keySet())
         {
         	String s = String.format("%s == %s,%s", 
         			key, containerCache.get(key).sourceObject,
         			containerCache.get(key).LSID);
-        	log.debug(s);
+        	log.trace(s);
         }
-        log.debug("Starting reference cache...");
+        log.trace("Starting reference cache...");
         for (LSID key : referenceCache.keySet())
         {
         	for (LSID value : referenceCache.get(key))
         	{
         		String s = String.format("%s == %s", key, value);
-        		log.debug(s);
+        		log.trace(s);
         	}
         }
-        log.debug("containerCache contains " + containerCache.size()
+        log.trace("containerCache contains " + containerCache.size()
         		+ " entries.");
-        log.debug("referenceCache contains " 
+        log.trace("referenceCache contains " 
         		+ store.countCachedReferences(null, null)
         		+ " entries.");
-        */
+        List<IObjectContainer> imageContainers = 
+            store.getIObjectContainers(Image.class);
+        for (IObjectContainer imageContainer : imageContainers)
+        {
+            Image image = (Image) imageContainer.sourceObject;
+            log.debug(String.format(
+                    "Image indexes:%s name:%s", imageContainer.indexes,
+                    image.getName().getValue()));
+        }
     }
     
     @AfterClass
