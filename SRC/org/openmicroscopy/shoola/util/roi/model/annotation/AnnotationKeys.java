@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.util.roi.model.annotation;
 
 
 //Java imports
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;

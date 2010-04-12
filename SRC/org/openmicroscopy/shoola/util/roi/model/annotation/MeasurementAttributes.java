@@ -28,11 +28,10 @@ import java.awt.Color;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
-import org.openmicroscopy.shoola.agents.measurement.util.model.Workflow;
-import org.openmicroscopy.shoola.util.roi.io.IOConstants;
-import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.roi.io.IOConstants;
+import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 
 /** 
  * 
@@ -50,6 +49,7 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttribut
 public class MeasurementAttributes  
 	extends DrawingAttributes 
 {
+	
 	/**
 	 * Should the figure show the measurement text.
 	 */
