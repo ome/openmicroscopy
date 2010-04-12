@@ -473,6 +473,48 @@ public class ScreenLogin
 	 */
 	private void initializes(String userName)
 	{
+		ref = new ArrayList<JComponent>();
+		login = new JButton("Login");
+		defaultForeground = login.getForeground();
+		login.setMnemonic('L');
+		login.setToolTipText("Login");
+		setButtonDefault(login);
+		UIUtilities.enterPressesWhenFocused(login);
+		UIUtilities.opacityCheck(login);
+		cancel = new JButton("Quit");
+		cancel.setMnemonic('Q');
+		cancel.setToolTipText("Quit the Application.");
+		setButtonDefault(cancel);
+		UIUtilities.opacityCheck(cancel);
+		configButton = new JButton();
+		configButton.setMnemonic('X');
+		configButton.setToolTipText("Enter the server's address.");
+		configButton.setBorderPainted(false);
+		configButton.setBorder(null);
+		//configButton.setMargin(new Insets(1, 1, 1, 1));
+		configButton.setFocusPainted(false);
+		configButton.setContentAreaFilled(false);
+		IconManager icons = IconManager.getInstance();
+		configButton.setIcon(icons.getIcon(IconManager.CONFIG_24));
+		configButton.setPressedIcon(icons.getIcon(
+				IconManager.CONFIG_PRESSED_24));
+		
+		encrypted = !isEncrypted();
+		encryptedButton = new JButton();
+		List<String> tips = new ArrayList<String>();
+		tips.add("The connexion to the server is always encrypted.");
+		tips.add("If selected, the data transfer (e.g. annotations, images) " +
+				"will also be encrypted.");
+		tips.add("But the transfer will be much slower.");
+		
+		encryptedButton.setToolTipText(UIUtilities.formatToolTipText(tips));
+		encryptedButton.setBorderPainted(false);
+		encryptedButton.setBorder(null);
+		encryptedButton.setFocusPainted(false);
+		encryptedButton.setContentAreaFilled(false);
+		getRootPane().setDefaultButton(login);
+		enableControls();
+		
 		originalName = userName;
 		user = new JTextField();
 		user.setText(userName);
@@ -548,47 +590,7 @@ public class ScreenLogin
 		*/
 		
 		
-		ref = new ArrayList<JComponent>();
-		login = new JButton("Login");
-		defaultForeground = login.getForeground();
-		login.setMnemonic('L');
-		login.setToolTipText("Login");
-		setButtonDefault(login);
-		UIUtilities.enterPressesWhenFocused(login);
-		UIUtilities.opacityCheck(login);
-		cancel = new JButton("Quit");
-		cancel.setMnemonic('Q');
-		cancel.setToolTipText("Quit the Application.");
-		setButtonDefault(cancel);
-		UIUtilities.opacityCheck(cancel);
-		configButton = new JButton();
-		configButton.setMnemonic('X');
-		configButton.setToolTipText("Enter the server's address.");
-		configButton.setBorderPainted(false);
-		configButton.setBorder(null);
-		//configButton.setMargin(new Insets(1, 1, 1, 1));
-		configButton.setFocusPainted(false);
-		configButton.setContentAreaFilled(false);
-		IconManager icons = IconManager.getInstance();
-		configButton.setIcon(icons.getIcon(IconManager.CONFIG_24));
-		configButton.setPressedIcon(icons.getIcon(
-				IconManager.CONFIG_PRESSED_24));
 		
-		encrypted = !isEncrypted();
-		encryptedButton = new JButton();
-		List<String> tips = new ArrayList<String>();
-		tips.add("The connexion to the server is always encrypted.");
-		tips.add("If selected, the data transfer (e.g. annotations, images) " +
-				"will also be encrypted.");
-		tips.add("But the transfer will be much slower.");
-		
-		encryptedButton.setToolTipText(UIUtilities.formatToolTipText(tips));
-		encryptedButton.setBorderPainted(false);
-		encryptedButton.setBorder(null);
-		encryptedButton.setFocusPainted(false);
-		encryptedButton.setContentAreaFilled(false);
-		getRootPane().setDefaultButton(login);
-		enableControls();
 	}
 
 	/** 
