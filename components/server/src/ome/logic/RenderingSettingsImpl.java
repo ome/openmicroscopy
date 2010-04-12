@@ -1345,6 +1345,68 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     }
 
     /**
+     * Implemented as specified by the {@link IRenderingSettings} I/F. 
+     * @see IRenderingSettings#resetMinMaxInSet(Class, Set)
+     */
+    @RolesAllowed("user")
+    public <T extends IObject> Set<Long> resetMinMaxInSet(Class<T> klass,
+                                                          Set<Long> nodeIds)
+    {
+        StopWatch s1 = new CommonsLogStopWatch("omero.resetMinMaxInSet");
+        // Load our dependencies for rendering settings manipulation
+        List<Family> families = pixelsMetadata.getAllEnumerations(Family.class);
+        List<RenderingModel> renderingModels = 
+            pixelsMetadata.getAllEnumerations(RenderingModel.class);
+        // Pre-process our list of potential containers. This will resolve down
+        // to a list of Pixels objects for us to work on.
+        List<Pixels> pixelsList = new ArrayList<Pixels>();
+        updatePixelsForNodes(pixelsList, klass, nodeIds);
+        Map<Long, RenderingDef> mySettings =
+            loadRenderingSettings(pixelsList);
+        Set<IObject> toSave = new HashSet<IObject>();
+        Set<Long> toReturn = new HashSet<Long>();
+        for (Pixels pixels : pixelsList)
+        {
+            RenderingDef settings = mySettings.get(pixels.getId());
+            if (settings == null)
+            {
+                try
+                {
+                    resetDefaults(settings, pixels, false, false, families,
+                                  renderingModels);
+                    toReturn.add(pixels.getId());
+                    toSave.add(settings);
+                }
+                catch (Exception e)
+                {
+                    log.warn("Exception while resetting settings.", e);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < pixels.sizeOfChannels(); i++)
+                {
+                    ChannelBinding cb = settings.getChannelBinding(i);
+                    StatsInfo stats = pixels.getChannel(i).getStatsInfo();
+                    cb.setInputStart(stats.getGlobalMin());
+                    cb.setInputEnd(stats.getGlobalMax());
+                }
+                toReturn.add(pixels.getId());
+                toSave.add(settings);
+            }
+            // Increment the version of the rendering settings so that we 
+            // can have some notification that either the RenderingDef 
+            // object itself or one of its children in the object graph has 
+            // been updated. FIXME: This should be implemented using 
+            // IUpdate.touch() or similar once that functionality exists.
+            settings.setVersion(settings.getVersion() + 1);
+        }
+        iUpdate.saveCollection(toSave);
+        s1.stop();
+        return toReturn;
+    }
+
+    /**
      * Implemented as specified by the {@link IRenderingSettings} I/F.
      * @see IRenderingSettings#setOriginalSettingsInImage(long)
      */

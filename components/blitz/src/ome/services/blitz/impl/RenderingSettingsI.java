@@ -28,13 +28,13 @@ import omero.api.AMD_IRenderingSettings_resetDefaultsForPixels;
 import omero.api.AMD_IRenderingSettings_resetDefaultsInSet;
 import omero.api.AMD_IRenderingSettings_resetDefaultsByOwnerInSet;
 import omero.api.AMD_IRenderingSettings_resetDefaultsNoSave;
+import omero.api.AMD_IRenderingSettings_resetMinMaxInSet;
 import omero.api.AMD_IRenderingSettings_sanityCheckPixels;
 import omero.api.AMD_IRenderingSettings_setOriginalSettingsInDataset;
 import omero.api.AMD_IRenderingSettings_setOriginalSettingsInImage;
 import omero.api.AMD_IRenderingSettings_setOriginalSettingsForPixels;
 import omero.api.AMD_IRenderingSettings_setOriginalSettingsInSet;
 import omero.api._IRenderingSettingsOperations;
-import omero.model.IObject;
 import omero.model.Pixels;
 import omero.model.RenderingDef;
 import Ice.Current;
@@ -159,6 +159,13 @@ public class RenderingSettingsI extends AbstractAmdServant implements
             RenderingDef def, Pixels pixels, Current __current)
             throws ServerError {
         callInvokerOnRawArgs(__cb, __current, def, pixels);
+
+    }
+
+    public void resetMinMaxInSet_async(
+            AMD_IRenderingSettings_resetMinMaxInSet __cb, String type,
+            List<Long> nodeIds, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, type, nodeIds);
 
     }
 

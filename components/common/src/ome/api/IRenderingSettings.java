@@ -33,7 +33,7 @@ import ome.model.display.RenderingDef;
  * @since 3.0
  */
 public interface IRenderingSettings extends ServiceInterface {
-	
+
     /**
      * Checks if the specified sets of pixels are compatible. Returns
      * <code>true</code> if the pixels set is valid, <code>false</code>
@@ -46,7 +46,7 @@ public interface IRenderingSettings extends ServiceInterface {
      * @return See above.
      */
     boolean sanityCheckPixels(Pixels pFrom, Pixels pTo);
-    
+
 	/**
 	 * Returns the default rendering settings for a given pixels for the 
 	 * current user.
@@ -82,7 +82,7 @@ public interface IRenderingSettings extends ServiceInterface {
      * @param pixels The Pixels set for <code>def</code>.
      */
     void resetDefaults(@NotNull RenderingDef def, @NotNull Pixels pixels);
-    
+
     /**
      * Resets the given rendering settings to those that are specified by the 
      * rendering engine intelligent <i>pretty good image (PG)</i> logic for
@@ -100,7 +100,7 @@ public interface IRenderingSettings extends ServiceInterface {
      */
     RenderingDef resetDefaultsNoSave(@NotNull RenderingDef def,
                                      @NotNull Pixels pixels);
-    
+
 	/**
 	 * Resets an image's default rendering settings back to those that are 
 	 * specified by the rendering engine intelligent <i>pretty good image 
@@ -111,7 +111,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * <code>imageId</code> is unlocatable.
 	 */
 	void resetDefaultsInImage(@NotNull long imageId);
-	
+
 	/**
 	 * Resets a Pixels' default rendering settings back to those that are 
 	 * specified by the rendering engine intelligent <i>pretty good image 
@@ -134,7 +134,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * <code>dataSetId</code> is unlocatable.
 	 */
 	Set<Long> resetDefaultsInDataset(@NotNull long dataSetId);
-	
+
 	/**
 	 * Resets a rendering settings back to one or many containers that are 
 	 * specified by the rendering engine intelligent <i>pretty good image
@@ -155,7 +155,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 */
 	<T extends IObject> Set<Long> resetDefaultsInSet(Class<T> type, 
 			@NotNull @Validate(Long.class) Set<Long> nodeIds);
-	
+
 	/**
 	 * Resets the rendering settings of a given group of containers based on
 	 * the owner's (essentially a copy). Supported container types are:
@@ -175,7 +175,28 @@ public interface IRenderingSettings extends ServiceInterface {
 	 */
 	<T extends IObject> Set<Long> resetDefaultsByOwnerInSet(Class<T> type, 
 			@NotNull @Validate(Long.class) Set<Long> nodeIds);
-	
+
+	/**
+	 * Resets a the channel windows for one or many containers back to their
+	 * global minimum and global maximum for the channel. Supported container
+	 * types are:
+	 * <ul>
+	 *   <li>{@link Project}</li>
+	 *   <li>{@link Dataset}</li>
+	 *   <li>{@link Image}</li>
+	 *   <li>{@link Plate}</li>
+	 *   <li>{@link Pixels}</li>
+	 * </ul>
+	 * @param type The type of nodes to handle.
+	 * @param nodeIds Ids of the node type.
+	 * @return A {@link java.util.Set} of image IDs that have had their 
+	 * rendering settings reset. 
+	 * @throws ValidationException if an illegal <code>type</code> is
+	 * used.
+	 */
+	<T extends IObject> Set<Long> resetMinMaxInSet(Class<T> type, 
+			@NotNull @Validate(Long.class) Set<Long> nodeIds);
+
 	/**
 	 * Applies rendering settings to one or many containers. If a container such 
 	 * as <code>Dataset</code> is to be copied to, all images within that 
@@ -220,7 +241,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 */
 	Map<Boolean, List<Long>> applySettingsToProject(@NotNull long from,
 			                                        @NotNull long to);
-	
+
 	/**
 	 * Applies rendering settings to all images in a given <code>Dataset</code>. 
 	 * 
@@ -247,7 +268,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * is unlocatable or the image <code>to</code> is unlocatable.
 	 */
 	boolean applySettingsToImage(@NotNull long from, @NotNull long to);
-	
+
 	/**
 	 * Applies rendering settings to a given <code>Image</code>. 
 	 * 
@@ -260,7 +281,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 */
 	Map<Boolean, List<Long>> applySettingsToImages(@NotNull long from,
 			@NotNull  @Validate(Long.class) List<Long> to);
-	
+
 	/**
 	 * Applies rendering settings to a given <code>Pixels</code>. 
 	 * 
@@ -282,7 +303,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * <code>datasetId</code> is unlocatable.
 	 */
 	Set<Long> setOriginalSettingsInDataset(@NotNull long datasetId);
-	
+
 	/**
 	 * Resets a rendering settings back to channel global minimum and maximum
 	 * for the specified containers. Supported container types are:
@@ -303,7 +324,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 */
 	<T extends IObject> Set<Long> setOriginalSettingsInSet(Class<T> type, 
 							@NotNull @Validate(Long.class) Set<Long> nodeIds);
-	
+
 	/**
 	 * Resets an image's default rendering settings back to channel global
 	 * minimum and maximum.
@@ -313,7 +334,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * <code>imageId</code> is unlocatable.
 	 */
 	void setOriginalSettingsInImage(@NotNull long imageId);
-	
+
 	/**
 	 * Resets an Pixels' default rendering settings back to channel global
 	 * minimum and maximum.
@@ -323,5 +344,5 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * <code>pixelsId</code> is unlocatable.
 	 */
 	void setOriginalSettingsForPixels(@NotNull long pixelsId);
-	
+
 }
