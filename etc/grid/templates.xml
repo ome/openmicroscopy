@@ -17,6 +17,7 @@
 
     <properties id="Blitz">
       <property name="Ice.Default.CollocationOptimized" value="0"/>
+      <property name="omero.router.insecure" value="${INSECUREROUTER}"/>
     </properties>
 
     <properties id="Repository">

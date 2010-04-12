@@ -16,8 +16,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 
 import omero.api.ClientCallback;
 import omero.api.ClientCallbackPrxHelper;
@@ -36,7 +34,6 @@ import omero.util.Resources.Entry;
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
 import Ice.Current;
-import Ice.Identity;
 
 /**
  * Central client-side blitz entry point. This class uses solely Ice
@@ -136,6 +133,11 @@ public class client {
      */
     private volatile Resources __resources;
 
+    /**
+     * @see #isSecure()
+     */
+    private final boolean insecure;
+
     // Creation
     // =========================================================================
 
@@ -159,6 +161,7 @@ public class client {
      * instance. Cannot be null.
      */
     public client(Ice.InitializationData id) {
+        insecure = false;
         init(id);
     }
 
@@ -192,6 +195,7 @@ public class client {
      * Ice.Properties.parseCommandLineOptions("omero", args)
      */
     public client(String[] args, Ice.InitializationData id) {
+        insecure = false;
         if (id.properties == null) {
             id.properties = Ice.Util.createProperties(args);
         }
@@ -204,6 +208,7 @@ public class client {
      * Creates an {@link Ice.Communicator} from multiple files.
      */
     public client(File... files) {
+        insecure = false;
         Ice.InitializationData id = new Ice.InitializationData();
         id.properties = Ice.Util.createProperties(new String[] {});
         for (File file : files) {
@@ -219,6 +224,11 @@ public class client {
      * key.
      */
     public client(Map p) {
+        this(p, true);
+    }
+
+    private client(Map p, boolean secure) {
+        this.insecure = !secure;
         Ice.InitializationData id = new Ice.InitializationData();
         id.properties = Ice.Util.createProperties(new String[] {});
         if (p != null) {
@@ -299,13 +309,10 @@ public class client {
         // Dump properties
         String dump = id.properties.getProperty("omero.dump");
         if (dump != null && dump.length() > 0) {
-            for (String prefix : Arrays.asList("omero", "Ice")) {
-                Map<String, String> prefixed = id.properties
-                        .getPropertiesForPrefix(prefix);
-                for (String key : prefixed.keySet()) {
-                    System.out.println(String.format("%s=%s", key, prefixed
-                            .get(key)));
-                }
+            Map<String, String> propertyMap = getPropertyMap();
+            for (String key : propertyMap.keySet()) {
+                System.out.println(String.format("%s=%s", key,
+                        propertyMap.get(key)));
             }
         }
 
@@ -356,6 +363,39 @@ public class client {
      */
     public void setAgent(String agent) {
         __agent = agent;
+    }
+
+    /**
+     * Specifies whether or not this client was created via a call to
+     * {@link #createClient(boolean)} with a boolean of false. If insecure, then
+     * all remote calls will use the insecure connection defined by the server.
+     */
+    public boolean isSecure() {
+        return !insecure;
+    }
+
+    /**
+     * Creates a possibly insecure {@link omero.client} instance and calls
+     * {@link #joinSession(String)} using the current {@link #getSessionId()
+     * session id}. If secure is false, then first the "omero.router.insecure"
+     * configuration property is retrieved from the server and used as the value
+     * of "Ice.Default.Router" for the new client. Any exception thrown during
+     * exception is passed on to the caller.
+     */
+    public omero.client createClient(boolean secure) throws ServerError,
+            CannotCreateSessionException, PermissionDeniedException {
+
+        Map<String, String> props = getPropertyMap();
+        if (!secure) {
+            String insecure = getSession().getConfigService().getConfigValue(
+                    "omero.router.insecure");
+            props.put("Ice.Default.Router", insecure);
+        }
+
+        omero.client insecureClient = new omero.client(props, secure);
+        insecureClient.setAgent(__agent + ";secure=" + secure);
+        insecureClient.joinSession(getSessionId());
+        return insecureClient;
     }
 
     // Destruction
@@ -410,6 +450,15 @@ public class client {
     }
 
     /**
+     * Returns the UUID for the current session without making a remote call.
+     * Uses {@link #getSession()} internally and will throw an exception if
+     * no session is active.
+     */
+    public String getSessionId() {
+        return getSession().ice_getIdentity().name;
+    }
+
+    /**
      * @see #getSession()
      * @deprecated
      */
@@ -438,6 +487,16 @@ public class client {
      */
     public String getProperty(String key) {
         return getProperties().getProperty(key);
+    }
+
+    public Map<String, String> getPropertyMap() {
+        Map<String, String> rv = new HashMap<String, String>();
+        for (String prefix : Arrays.asList("omero", "Ice")) {
+            Map<String, String> prefixed = getProperties()
+                    .getPropertiesForPrefix(prefix);
+            rv.putAll(prefixed);
+        }
+        return rv;
     }
 
     // Session management
