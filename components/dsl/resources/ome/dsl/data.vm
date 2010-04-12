@@ -37,7 +37,7 @@ BEGIN
 END;' LANGUAGE plpgsql;
 
 alter table seq_table
-    alter column sequence_name set not null,
+    alter column sequence_name set not null
     add primary key (sequence_name);
 
 --
@@ -72,11 +72,11 @@ insert into node
         (id,permissions,uuid,conn,up,down)
         select 0,-35,'000000000000000000000000000000000000','unknown',now(),now();
 insert into session
-        (id,permissions,timetoidle,timetolive,started,closed,defaultpermissions,defaulteventtype,uuid,owner,node)
-        select 0,-35,0,0,now(),now(),'rw----','BOOTSTRAP',0000, 0,0;
+        (id,permissions,timetoidle,timetolive,started,closed,defaulteventtype,uuid,owner,node)
+        select 0,-35,0,0,now(),now(),'BOOTSTRAP',0000, 0,0;
 insert into session
-        (id,permissions,timetoidle,timetolive,started,closed,defaultpermissions,defaulteventtype,uuid,owner,node)
-        select ome_nextval('seq_session'),-35, 0,0,now(),now(),'rw----','PREVIOUSITEMS','1111',0,0;
+        (id,permissions,timetoidle,timetolive,started,closed,defaulteventtype,uuid,owner,node)
+        select ome_nextval('seq_session'),-35, 0,0,now(),now(),'PREVIOUSITEMS','1111',0,0;
 insert into event (id,permissions,time,status,experimenter,session) values (0,0,now(),'BOOTSTRAP',0,0);
 
 --
