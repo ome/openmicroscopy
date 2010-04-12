@@ -43,6 +43,9 @@ import omero.model.Roi;
 import omero.model.RoiI;
 import omero.model.Shape;
 import omero.model.Text;
+import omero.RString;
+
+import omero.rtypes;
 
 /**
  * Converts the ROI object.
@@ -279,5 +282,59 @@ public class ROIData
 	public void setClientSide(boolean clientSide)
 	{
 		this.clientSide = clientSide;
+	}
+	
+	/**
+	* Set the namespace of the ROI.
+    * @param namespace See above.
+	*/
+	public void setNamespace(String namespace)
+	{
+        Roi roi = (Roi) asIObject();
+		if (roi == null) 
+			throw new IllegalArgumentException("No Roi specified.");
+        roi.setNs(rtypes.rstring(namespace));
+	}
+	
+	/**
+	* Get the namespace of the ROI.
+    * @return See above.
+	*/
+	public String getNamespace()
+	{
+        Roi roi = (Roi) asIObject();
+		if (roi == null) 
+			throw new IllegalArgumentException("No Roi specified.");
+        RString ns = roi.getNs();
+        if(ns!=null)
+            return ns.getValue();
+        return "";
+	}
+	
+	/**
+	* Set the keywords of the ROI.
+    * @param keywords See above.
+	*/
+    public void setKeywords(String keywords)
+	{
+        Roi roi = (Roi) asIObject();
+		if (roi == null) 
+			throw new IllegalArgumentException("No Roi specified.");
+        roi.setKeywords(rtypes.rstring(keywords));
+	}
+	
+	/**
+	* Get the keywords of the ROI.
+    * @return See above.
+	*/
+	public String getKeywords()
+	{
+        Roi roi = (Roi) asIObject();
+		if (roi == null) 
+			throw new IllegalArgumentException("No Roi specified.");
+        RString keywords = roi.getKeywords();
+        if(keywords!=null)
+            return keywords.getValue();
+        return "";
 	}
 }
