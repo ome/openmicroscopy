@@ -249,7 +249,7 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
     /**
      * see {@link IConfig#setConfigValue(String, String)}
      */
-    @RolesAllowed("user")
+    @RolesAllowed("system")
     // see above
     public void setConfigValue(String key, String value) {
 
