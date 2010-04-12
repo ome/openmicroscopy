@@ -173,7 +173,7 @@ if __name__ == '__main__':
 
     xml_file = create_testng_xml_file(targets, revision, bioformats_revision,
                                       hudson, thread_count)
-    cmd = 'java -Dlog4j.configuration=resources/log4j-metadata-validator.properties ' \
+    cmd = 'java -Dlog4j.configuration=log4j-metadata-validator.properties ' \
           '%s -cp "%s" %s %s' % (JAVA_ARGS, classpath, START_CLASS, \
                                  xml_file.name)
     print cmd
