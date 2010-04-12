@@ -171,6 +171,11 @@ class ToolBar
     
     /** The button to bring up the assistant. */
     private JButton						assistantButton;
+    
+    /** The workflow panel controls what workflow elements will be added to the 
+     * created figure. 
+     */
+    private WorkflowPanel				workflowPanel;
    
     /**
      * Sets the property of the toggle button.
@@ -275,6 +280,7 @@ class ToolBar
 				setUpToggleButton(button);	
 			}
 		}
+		workflowPanel = new WorkflowPanel(view, model, controller);
 	}
 	
 	/**
@@ -307,13 +313,16 @@ class ToolBar
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
+		JPanel j = new JPanel();
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 		p.add(buildControlsBar());
 		p.add(Box.createHorizontalStrut(5));
 		p.add(toolBar);
 		setLayout(new FlowLayout(FlowLayout.LEFT));
-	    add(p);
+	    j.setLayout(new BoxLayout(j, BoxLayout.Y_AXIS));
+	    j.add(p);
+	    add(j);
 	}
 	
 	/**
@@ -432,5 +441,13 @@ class ToolBar
 	 * @see MouseListener#mouseReleased(MouseEvent)
 	 */
 	public void mouseReleased(MouseEvent e) {}
+
+	/**
+	 * Update the workflow in the toolbar UI.
+	 */
+	public void updateWorkflow()
+	{
+		workflowPanel.updateWorkflow();
+	}
 	
 }

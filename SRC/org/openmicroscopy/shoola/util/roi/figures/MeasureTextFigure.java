@@ -29,6 +29,7 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,6 +39,7 @@ import java.util.Map;
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.BoundsOutlineHandle;
 import org.jhotdraw.draw.Figure;
+import org.jhotdraw.draw.FigureListener;
 import org.jhotdraw.draw.Handle;
 import org.jhotdraw.draw.TextFigure;
 
@@ -327,6 +329,19 @@ public class MeasureTextFigure
 		this.setObjectDirty(true);
 	}
 
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#getFigureListeners()
+	 */
+	public List<FigureListener> getFigureListeners()
+	{
+		List<FigureListener> figListeners = new ArrayList<FigureListener>();
+		Object[] listeners = listenerList.getListenerList();
+		for(Object listener : listeners)
+			if(listener instanceof FigureListener)
+				figListeners.add((FigureListener)listener);
+		return figListeners;
+	}
 }
 
 

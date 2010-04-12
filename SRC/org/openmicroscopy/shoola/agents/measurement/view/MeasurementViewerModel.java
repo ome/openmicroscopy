@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -58,6 +59,7 @@ import org.openmicroscopy.shoola.agents.measurement.ROILoader;
 import org.openmicroscopy.shoola.agents.measurement.ROISaver;
 import org.openmicroscopy.shoola.agents.measurement.ServerSideROILoader;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
+import org.openmicroscopy.shoola.agents.measurement.util.model.Workflow;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
@@ -165,7 +167,7 @@ class MeasurementViewerModel
     private SaveRelatedData 		event;
     
     /** The rendered image either a buffered image or a texture data. */
-    private Object 			rndImage;
+    private Object 					rndImage;
 
     /** The roi file previously saved if any. */
     private String					fileSaved;
@@ -178,7 +180,16 @@ class MeasurementViewerModel
     
     /** The collection of ROIs and tables related to the measurements. */
     private Collection 				 measurementResults;
+
+    /** The current workflow namespace being used. */
+	private String 					workflowNamespace;
     
+	/** The map of workflow namespace, workflow. */
+	private Map<String, Workflow> 	workflows;
+	
+	/** The keyword of the current workflow. */
+	private List<String>			keyword;
+	
     /** 
 	 * Sorts the passed nodes by row.
 	 * 
@@ -226,6 +237,9 @@ class MeasurementViewerModel
 		roiComponent.setMicronsPixelX(getPixelSizeX());
 		roiComponent.setMicronsPixelY(getPixelSizeY());
 		roiComponent.setMicronsPixelZ(getPixelSizeZ());
+		workflows = new HashMap<String, Workflow>();
+		this.workflowNamespace = Workflow.DEFAULTWORKFLOW;
+		this.keyword = new ArrayList<String>();
 	}
 	
 	/**
@@ -741,7 +755,17 @@ class MeasurementViewerModel
 	ROI createROI(ROIFigure figure)
 		throws ROICreationException, NoSuchROIException
 	{
-		return roiComponent.addROI(figure, getCurrentView());
+		ROI roi = roiComponent.addROI(figure, getCurrentView());
+		roi.setAnnotation(AnnotationKeys.NAMESPACE, this.workflowNamespace);
+		String keywordString = "";
+		for(int i = 0 ; i < keyword.size() ; i++)
+		{
+			keywordString = keywordString + keyword.get(i);
+			if(i<keyword.size()-1)
+				keywordString = keywordString + ",";
+		}
+		roi.setAnnotation(AnnotationKeys.KEYWORDS, keywordString);		
+		return roi;
 	}
 
 	/**
@@ -757,7 +781,17 @@ class MeasurementViewerModel
 	ROI createROI(ROIFigure figure, boolean addAttribs)
 		throws ROICreationException, NoSuchROIException
 	{
-		return roiComponent.addROI(figure, getCurrentView(),addAttribs);
+		ROI roi = roiComponent.addROI(figure, getCurrentView(),addAttribs);
+		roi.setAnnotation(AnnotationKeys.NAMESPACE, this.workflowNamespace);
+		String keywordString = "";
+		for(int i = 0 ; i < keyword.size() ; i++)
+		{
+			keywordString = keywordString + keyword.get(i);
+			if(i<keyword.size()-1)
+				keywordString = keywordString + ",";
+		}
+		roi.setAnnotation(AnnotationKeys.KEYWORDS, keywordString);		
+		return roi;
 	}
 	
 	/**
@@ -1275,5 +1309,90 @@ class MeasurementViewerModel
 	 * @return See above.
 	 */
 	boolean isServerROI() { return serverROI; }
+
+	/** 
+	 * Returns <code>true</code> if the tool hosts server ROIs,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public void setWorkflow(String workflowNamespace)
+	{
+		if(workflowNamespace == Workflow.DEFAULTWORKFLOW)
+		{
+			this.workflowNamespace = workflowNamespace;
+			this.keyword = new ArrayList<String>();
+		}
+		else
+		{
+			if(!workflows.containsKey(workflowNamespace))
+				throw new IllegalArgumentException("Workflow " + workflowNamespace + " does not exist");
+			this.workflowNamespace = workflowNamespace;
+			this.keyword = new ArrayList<String>();
+		}
+	}
 	
+	/** 
+	 * Returns the current workflow; or null if default workflow selected.
+	 *  
+	 * @return See above.
+	 */
+	public Workflow getWorkflow()
+	{
+		if(workflowNamespace != Workflow.DEFAULTWORKFLOW)
+			return workflows.get(workflowNamespace);
+		return null;
+	}
+	
+	/** 
+	 * Add a new workflow to the workflow list;
+	 */
+	public void addWorkflow(Workflow workflow)
+	{
+		workflows.put(workflow.getNameSpace(), workflow);
+	}
+
+	/** 
+	 * Get all the workflow namespaces in the model, as an array list
+	 * @return See above.
+	 */
+	public List<String> getWorkflows()
+	{
+		List<String> workflowList = new ArrayList<String>();
+		Iterator<String> i = workflows.keySet().iterator();
+		workflowList.add(Workflow.DEFAULTWORKFLOW);
+		while(i.hasNext())
+		{
+			workflowList.add(i.next());
+		}
+		return workflowList;
+	}
+
+	/**
+	 * Set the keyword of the workflow to keyword, the keyword must exist in 
+	 * the workflow to be set.
+	 * @param keyword See above.
+	 */
+	public void setKeyword(List<String> keywords)
+	{
+		if(keywords.size()==0)
+			this.keyword = keywords;
+		else
+		{
+			Workflow workflow = getWorkflow();
+			for(String word : keywords)
+				if(!workflow.contains(word) && word != "")
+					throw new IllegalArgumentException("Workflow does not contain keyword '" + keyword +"'");
+			this.keyword = keywords;
+		}
+	}
+	
+	/**
+	 * Get the keywords associated with the namespace that have been selected.
+	 * @return See above.
+	 */
+	public List<String> getKeywords()
+	{
+		return keyword;
+	}
 }	

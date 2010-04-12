@@ -63,17 +63,20 @@ import org.jhotdraw.draw.FigureListener;
 import org.jhotdraw.draw.FigureSelectionEvent;
 import org.jhotdraw.draw.FigureSelectionListener;
 import org.openmicroscopy.shoola.agents.measurement.actions.CreateFigureAction;
+import org.openmicroscopy.shoola.agents.measurement.actions.KeywordSelectionAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.LoadROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.SaveROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.ShowROIAssistant;
 import org.openmicroscopy.shoola.agents.measurement.actions.UnitsAction;
+import org.openmicroscopy.shoola.agents.measurement.actions.WorkflowAction;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasurePointFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -131,6 +134,25 @@ class MeasurementViewerControl
      */
     static final Integer     CREATEMULTIPLEFIGURE =  Integer.valueOf(9);
     
+
+    /** 
+     * Identifies the <code>selectWorkFlow</code> action in 
+     * the menu.
+     */
+    static final Integer     SELECTWORKFLOW =  Integer.valueOf(9);
+   
+    /** 
+     * Identifies the <code>createWorkflow</code> action in 
+     * the menu.
+     */
+    static final Integer     CREATEWORKFLOW =  Integer.valueOf(10);
+    
+    /** 
+     * Identifies the <code>keywordSelection</code> action in 
+     * the keyword combobox.
+     */
+    static final Integer     KEYWORDSELECTION =  Integer.valueOf(11);
+    
     /** 
      * Reference to the {@link MeasurementViewer} component, which, 
      * in this context, is regarded as the Model.
@@ -154,6 +176,9 @@ class MeasurementViewerControl
     	actionsMap.put(CREATESINGLEFIGURE, new CreateFigureAction(model, true));
     	actionsMap.put(CREATEMULTIPLEFIGURE, new CreateFigureAction(model, 
     												false));
+    	actionsMap.put(SELECTWORKFLOW, new WorkflowAction(model, false));
+    	actionsMap.put(CREATEWORKFLOW, new WorkflowAction(model, true));
+    	actionsMap.put(KEYWORDSELECTION, new KeywordSelectionAction(model));
     }
 
     /**
@@ -186,7 +211,27 @@ class MeasurementViewerControl
      */
     private void handleFigureChange(ROIFigure figure)
 	{
-    	//TODO clean that code
+    	if(figure.getROI().hasAnnotation(AnnotationKeys.NAMESPACE))
+    	{
+    		String namespaceString = (String)figure.getROI().getAnnotation(AnnotationKeys.NAMESPACE);
+    		String keywordsString = (String)figure.getROI().getAnnotation(AnnotationKeys.KEYWORDS);
+    		if(keywordsString!=null)
+    		{
+    			List<String> stringList = new ArrayList<String>();
+        		if(keywordsString!="")
+    			{
+    				String[] splitStrings = keywordsString.split(",");
+    			    
+        			for(String word: splitStrings)
+        				stringList.add(word);				
+    			}
+    			model.setWorkflow(namespaceString);
+    			model.setKeyword(stringList);
+    			this.view.updateWorkflow();
+     		}
+    	}
+		
+		//TODO clean that code
     	if ((figure instanceof MeasureLineFigure) || 
 				(figure instanceof MeasurePointFigure)) {
     		figure.calculateMeasurements();
@@ -501,9 +546,11 @@ class MeasurementViewerControl
 	 * @see FigureSelectionListener#selectionChanged(FigureSelectionEvent)
 	 */
 	public void selectionChanged(FigureSelectionEvent evt)
-	{
+	{	
 		Collection<Figure> figures = evt.getView().getSelectedFigures();
 		if (figures == null) return;
+		
+	
 		if (view.inDataView() && figures.size() == 1) {
 			ROIFigure figure = (ROIFigure) figures.iterator().next();
 			if (figure == null) return;
@@ -648,5 +695,5 @@ class MeasurementViewerControl
 	 * @see KeyListener#keyReleased(KeyEvent)
 	 */
 	public void keyReleased(KeyEvent e) {}
-	
+
 }

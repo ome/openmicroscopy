@@ -28,6 +28,7 @@ import java.util.List;
 
 //Third-party libraries
 import org.jhotdraw.draw.Figure;
+import org.jhotdraw.draw.FigureListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.model.ROI;
@@ -170,5 +171,6 @@ public interface ROIFigure
 	 */
 	public boolean isDirty();
 	
+	public List<FigureListener> getFigureListeners();
 }
 

@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.util.roi.model.annotation;
 
 
 //Java imports
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,6 +32,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.jhotdraw.draw.AttributeKey;
+import org.openmicroscopy.shoola.agents.measurement.util.model.Workflow;
 
 //Third-party libraries
 
@@ -134,6 +138,17 @@ public class AnnotationKeys {
 //		new AnnotationKey<String>("figureType", null);
 	
 	
+	/**
+	 * The namespace associated with the ROI.
+	 */
+	public static final AnnotationKey<String> NAMESPACE = 
+		new AnnotationKey<String>("Namespace", Workflow.DEFAULTWORKFLOW);
+	
+	/**
+	 * The keywords associated with the ROI.
+	 */
+	public static final AnnotationKey<String> KEYWORDS = 
+		new AnnotationKey<String>("Keywords", "");
 	 /**
      * A set with all attributes defined by this class.
      */
@@ -163,7 +178,8 @@ public class AnnotationKeys {
         		ENDPOINTY, 
         		WIDTH,
         		HEIGHT, 
-        		
+        		NAMESPACE,
+        		KEYWORDS
         //		ROIID, 
         //		FIGURETYPE
         		

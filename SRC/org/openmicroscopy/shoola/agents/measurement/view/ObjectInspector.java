@@ -46,8 +46,10 @@ import org.openmicroscopy.shoola.agents.measurement.util.model.AttributeField;
 import org.openmicroscopy.shoola.agents.measurement.util.model.FigureTableModel;
 import org.openmicroscopy.shoola.agents.measurement.util.model.ValueType;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.FigureTable;
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 
 
@@ -102,26 +104,28 @@ class ObjectInspector
 	{
 		List<AttributeField> l = new ArrayList<AttributeField>();
 		l.add(new AttributeField(MeasurementAttributes.TEXT, "Text", true));
+		l.add(new AttributeField(MeasurementAttributes.WIDTH, "Width", true));
+		l.add(new AttributeField(MeasurementAttributes.HEIGHT, "Height", true));
+		l.add(new AttributeField(AnnotationKeys.NAMESPACE, "Namespace", true));
+		l.add(new AttributeField(AnnotationKeys.KEYWORDS, "Keywords", true));
 		l.add(new AttributeField(MeasurementAttributes.SHOWTEXT, "Show Text", 
 				false));
 		l.add(new AttributeField(MeasurementAttributes.SHOWMEASUREMENT, 
 			"Show Measurements", false)); 
 		l.add(new AttributeField(MeasurementAttributes.SHOWID, 
 			"Show ID", false)); 
-		l.add(new AttributeField(MeasurementAttributes.STROKE_WIDTH, 
-						"Line Width", true, strokeRange(), ValueType.ENUM));
-		l.add(new AttributeField(MeasurementAttributes.FONT_SIZE, "Font Size", 
-				true, fontRange(), ValueType.ENUM));
-		l.add(new AttributeField(MeasurementAttributes.TEXT_COLOR, "Font Colour", 
-				false));
+//		l.add(new AttributeField(MeasurementAttributes.STROKE_WIDTH, 
+//						"Line Width", true, strokeRange(), ValueType.ENUM));
+//		l.add(new AttributeField(MeasurementAttributes.FONT_SIZE, "Font Size", 
+//				true, fontRange(), ValueType.ENUM));
+//		l.add(new AttributeField(MeasurementAttributes.TEXT_COLOR, "Font Colour", 
+//				false));
 		l.add(new AttributeField(MeasurementAttributes.FILL_COLOR, "Fill Colour", 
 				false));
 		l.add(new AttributeField(MeasurementAttributes.STROKE_COLOR, "Line Colour", 
 				false));
-		l.add(new AttributeField(MeasurementAttributes.MEASUREMENTTEXT_COLOUR, 
-				"Measurement Colour", false));
-		l.add(new AttributeField(MeasurementAttributes.WIDTH, "Width", true));
-		l.add(new AttributeField(MeasurementAttributes.HEIGHT, "Height", true));
+//		l.add(new AttributeField(MeasurementAttributes.MEASUREMENTTEXT_COLOUR, 
+//				"Measurement Colour", false));
 		
 		//create the table
 		fieldTable = new FigureTable(new FigureTableModel(l, columnNames));
@@ -261,7 +265,7 @@ class ObjectInspector
 	 * 
 	 * @param figure The data to set.
 	 */
-	void setModelData(Figure figure)
+	void setModelData(ROIFigure figure)
 	{
 		FigureTableModel tableModel = (FigureTableModel) fieldTable.getModel();
 		tableModel.setData(figure);

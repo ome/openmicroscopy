@@ -33,6 +33,8 @@ import javax.swing.table.AbstractTableModel;
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.Figure;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
 
 //Application-internal dependencies
 
@@ -98,7 +100,7 @@ public 	class FigureTableModel
 	 * @param figure
 	 *            The figure data.
 	 */
-	public void setData(Figure figure)
+	public void setData(ROIFigure figure)
 	{
 		if (figure==null) throw new IllegalArgumentException("No figure.");
 		this.figure=figure;
@@ -124,8 +126,17 @@ public 	class FigureTableModel
 			}
 			if (!found)
 			{
-				keys.add(fieldName.getKey());
-				values.add(NA);
+				if(figure.getROI().hasAnnotation(fieldName.getKey().getKey()))
+				{
+					keys.add(fieldName.getKey());
+					values.add(figure.getROI().getAnnotation((AnnotationKey)fieldName.getKey()));
+					System.err.println(fieldName.getKey()+ " " + figure.getROI().getAnnotation((AnnotationKey)fieldName.getKey()));
+				}
+				else
+				{
+					keys.add(fieldName.getKey());
+					values.add(NA);
+				}
 			}
 		}
 		fireTableDataChanged();

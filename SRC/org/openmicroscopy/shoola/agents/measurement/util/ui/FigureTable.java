@@ -90,8 +90,9 @@ public class FigureTable
 		{
 			return new DefaultCellEditor((JTextField)renderer.
 				getTableCellRendererComponent(this,
-					getValueAt(row, col), false, false, row, col));}
-		else 
+					getValueAt(row, col), false, false, row, col));
+		}
+		else
 		{
 			return new DefaultCellEditor((JCheckBox)renderer.
 				getTableCellRendererComponent(this,

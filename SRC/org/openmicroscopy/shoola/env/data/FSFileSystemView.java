@@ -269,7 +269,8 @@ public class FSFileSystemView
     public FileData register(FileData file)
     	throws FSAccessException
     {
-    	if (file == null) return null;
+    	return null;
+    	/*if (file == null) return null;
     	RepositoryPrx proxy = getRepository(file);
     	if (proxy == null) return null;
     	try {
@@ -294,7 +295,7 @@ public class FSFileSystemView
 					""+file.getAbsolutePath(), e);
 		}
     	
-    	return file;
+    	return file;*/
     }
     
     /**

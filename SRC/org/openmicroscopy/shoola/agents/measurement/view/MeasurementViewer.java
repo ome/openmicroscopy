@@ -35,6 +35,7 @@ import javax.swing.JFrame;
 import org.jhotdraw.draw.AttributeKey;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.measurement.util.model.Workflow;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -319,6 +320,29 @@ public interface MeasurementViewer
 	 */
 	public void setUpdateROIComponent(Collection result);
 
+	/**
+	 * The list of possible workflows in the component.
+	 * 
+	 */
+	public void getWorkflows();
+
+	/**
+	 * Create a new workflow
+	 */
+	public void createWorkflow();
+
+	/**
+	 * Set the current workflow to workflowNamespace. 
+	 * @param workflowNamespace The general name of the workflow. 
+	 */
+	public void setWorkflow(String workflowNamespace);
+
+	/**
+	 * Set the current keyword of the workflow to keyword. 
+	 * @param keyword The keyword of the workflow. 
+	 */
+	public void setKeyword(List<String> keyword);
+	
 	/**
 	 * Returns <code>true</code> if the specified image is writable,
 	 * <code>false</code> otherwise, depending on the permission.

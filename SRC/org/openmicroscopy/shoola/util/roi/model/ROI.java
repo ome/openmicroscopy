@@ -83,7 +83,14 @@ public class ROI
      * They can only be changed by basicSetAnnotations().
      */
     private Set<AnnotationKey> forbiddenAnnotations;
-    
+	
+    /** The namespace of the roi. */
+	private String namespace;
+	
+	/** The keyword of the namespace. */
+	private String keyword;
+	
+
     /**
      * Construct the ROI with id.
      * @param id see above.
@@ -431,6 +438,19 @@ public class ROI
         }
     }
     
+    public boolean hasAnnotation(String key)
+    {
+    	Iterator<AnnotationKey> i = annotations.keySet().iterator();
+    	AnnotationKey annotationKey;
+    	while(i.hasNext())
+    	{
+    		annotationKey = i.next(); 
+    		if(annotationKey.getKey() == key)
+    			return true;
+    	}
+    	return false;
+    }
+    
     /**
      * Gets an annotation from the ROI.
      * @return annotation.
@@ -485,6 +505,42 @@ public class ROI
         return annotations.containsKey(key);
     }
 
+	
+	/**
+	 * Get the keyword for the current namespace.
+	 * @return See above.
+	 */
+	public String getKeyword()
+	{
+		return this.keyword;
+	}
+
+	/**
+	 * Get the namespace for the current ROI. 
+	 * @return See above.
+	 */
+	public String getNamespace()
+	{
+		return this.namespace;
+	}
+
+	/**
+	 * Set the keyword for the roi on the current namespace.
+	 * @param keyword
+	 */
+	public void setKeyword(String keyword)
+	{
+		this.keyword = keyword;
+	}
+
+	/**
+	 * Set the namespace for the roi.
+	 * @param keyword
+	 */
+	public void setNamespace(String namespace)
+	{
+		this.namespace = namespace;
+	}
 }
 
 

@@ -28,6 +28,7 @@ import java.awt.Color;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
+import org.openmicroscopy.shoola.agents.measurement.util.model.Workflow;
 import org.openmicroscopy.shoola.util.roi.io.IOConstants;
 import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 
@@ -54,6 +55,7 @@ public class MeasurementAttributes
 	 */
 	public static final AttributeKey<Boolean> SHOWMEASUREMENT = 
 		new AttributeKey<Boolean>("ShowMeasurement", false);
+	
 
 	/**
 	 * Should the figure show the measurement text.

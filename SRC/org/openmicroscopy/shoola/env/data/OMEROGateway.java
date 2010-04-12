@@ -5943,6 +5943,7 @@ class OMEROGateway
 			long id;
 			RoiResult tempResults;
 			int shapeIndex;
+	
 			for (ROIData roi : roiList)
 			{
 				/*

@@ -39,6 +39,7 @@ import java.util.List;
 
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
+import org.jhotdraw.draw.FigureListener;
 import org.jhotdraw.draw.Handle;
 
 //Application-internal dependencies
@@ -97,7 +98,7 @@ public class MeasurePointFigure
 	 * {@link ROIFigure#MOVING}. 
 	 */
 	private int 					status;
-	
+
 	/** 
 	 * Creates a new instance.
 	 * @param text text of the ellipse. 
@@ -532,6 +533,20 @@ public class MeasurePointFigure
 	{
 		super.setText(text);
 		this.setObjectDirty(true);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#getFigureListeners()
+	 */
+	public List<FigureListener> getFigureListeners()
+	{
+		List<FigureListener> figListeners = new ArrayList<FigureListener>();
+		Object[] listeners = listenerList.getListenerList();
+		for(Object listener : listeners)
+			if(listener instanceof FigureListener)
+				figListeners.add((FigureListener)listener);
+		return figListeners;
 	}
 }
 

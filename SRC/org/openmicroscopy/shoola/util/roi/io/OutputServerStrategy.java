@@ -146,6 +146,8 @@ public class OutputServerStrategy
 	{
 		
 		ROIData roiData = new ROIData();
+		roiData.setNamespace(roi.getNamespace());
+		roiData.setKeywords(roi.getKeyword());
 		roiData.setClientSide(roi.isClientSide());
 		if(!roi.isClientSide())
 			roiData.setId(roi.getID());

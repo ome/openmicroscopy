@@ -46,6 +46,7 @@ import org.jhotdraw.draw.Drawing;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
+import org.openmicroscopy.shoola.agents.measurement.util.model.Workflow;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -180,6 +181,7 @@ class MeasurementViewerComponent
         this.model = model;
         controller = new MeasurementViewerControl();
         view = new MeasurementViewerUI(model.getImageTitle());
+        getWorkflows();
 	}
 	
 	/** Links up the MVC triad. */
@@ -853,6 +855,61 @@ class MeasurementViewerComponent
 			e.printStackTrace();
 		}
 		model.fireLoadROIServerOrClient(false);
+	}
+
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#getWorkflows()
+     */
+	public void getWorkflows()
+	{
+		List<String> keywords = new ArrayList<String>();
+		keywords.add("1");
+		keywords.add("2");
+		keywords.add("3");
+		keywords.add("4");
+		
+		Workflow workflow = new Workflow("Classification",keywords);
+		
+		
+		model.addWorkflow(workflow);
+		keywords = new ArrayList<String>();
+		keywords.add("a");
+		keywords.add("b");
+		keywords.add("c");
+		keywords.add("d");
+		
+		workflow = new Workflow("State",keywords);
+		model.addWorkflow(workflow);
+		
+	}
+
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#createWorkflow()
+     */
+	public void createWorkflow()
+	{
+		
+	}
+
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#setWorkflow(String)
+     */
+	public void setWorkflow(String workflowNamespace)
+	{
+		model.setWorkflow(workflowNamespace);
+		view.updateWorkflow();
+	}
+
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#setWorkflow(List<String> )
+     */
+	public void setKeyword(List<String> keyword)
+	{
+		model.setKeyword(keyword);
 	}
 	
 	/** 

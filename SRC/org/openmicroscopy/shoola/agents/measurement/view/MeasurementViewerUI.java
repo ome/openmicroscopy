@@ -61,6 +61,7 @@ import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
+import org.openmicroscopy.shoola.agents.measurement.util.model.Workflow;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -217,6 +218,7 @@ class MeasurementViewerUI
     	JMenuBar menuBar = new JMenuBar(); 
     	menuBar.add(createControlsMenu());
     	menuBar.add(createOptionsMenu());
+    	menuBar.add(createWorkFlowMenu());
         return menuBar;
     }
     
@@ -291,6 +293,44 @@ class MeasurementViewerUI
         creationMenu.add(createMultipleFigure);
         createMultipleFigure.setSelected(true); //TODO: retrieve info
         menu.add(creationMenu);
+        return menu;
+    }
+    
+    /**
+     * Helper method to create the Workflow menu.
+     * 
+     * @return The options sub-menu.
+     */
+    private JMenu createWorkFlowMenu()
+    {
+        JMenu menu = new JMenu("Workflow");
+       	JMenu existingWorkflow = new JMenu("Existing Workflows");
+       	ButtonGroup workflows = new ButtonGroup();
+    	
+        menu.setMnemonic(KeyEvent.VK_W);
+        
+        List<String> workFlows = model.getWorkflows();
+        
+        for(String workFlow : workFlows)
+        {
+  
+        	MeasurementViewerAction a = controller.getAction(
+    			MeasurementViewerControl.SELECTWORKFLOW);
+        	JCheckBoxMenuItem workflowItem = new JCheckBoxMenuItem(a);
+        	if(workFlow == Workflow.DEFAULTWORKFLOW)
+        		workflowItem.setSelected(true);
+        	workflowItem.setText(workFlow);
+        	workflows.add(workflowItem);
+        	existingWorkflow.add(workflowItem);
+        }
+        menu.add(existingWorkflow);    
+       	MeasurementViewerAction a = controller.getAction(
+    			MeasurementViewerControl.CREATEWORKFLOW);
+       	
+       	JMenuItem createWorkflow = new JMenuItem();
+       	createWorkflow.setText(a.getName());
+    	createWorkflow.addActionListener(a);
+       	menu.add(createWorkflow);
         return menu;
     }
     
@@ -887,7 +927,7 @@ class MeasurementViewerUI
      * 
      * @param figure The figure to handle.
      */
-    void onAttributeChanged(Figure figure)
+    void onAttributeChanged(ROIFigure figure)
     {
     	if (model.getState() != MeasurementViewer.READY) return;
     	if (figure == null) return;
@@ -1202,5 +1242,13 @@ class MeasurementViewerUI
             UIUtilities.incrementRelativeToAndShow(null, this);
         }
     }
+
+    /**
+     * Update the workflow in the toolbar.
+     */
+	public void updateWorkflow()
+	{
+		toolBar.updateWorkflow();
+	}
     
 }
