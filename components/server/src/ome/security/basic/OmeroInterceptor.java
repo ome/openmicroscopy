@@ -22,6 +22,7 @@ import ome.annotations.RevisionNumber;
 import ome.conditions.ApiUsageException;
 import ome.conditions.GroupSecurityViolation;
 import ome.conditions.InternalException;
+import ome.conditions.OptimisticLockException;
 import ome.conditions.PermissionMismatchGroupSecurityViolation;
 import ome.conditions.ReadOnlyGroupSecurityViolation;
 import ome.conditions.SecurityViolation;
@@ -956,10 +957,12 @@ public class OmeroInterceptor implements Interceptor {
             // https://trac.openmicroscopy.org.uk/omero/ticket/346
             else {
 
-                // no one change them.
-                throw new SecurityViolation(String.format(
+                // no one change them, but this is less likely intentional
+                // and more likely an optimistic lock issue. ticket:2162
+                throw new OptimisticLockException(String.format(
                         "You are not authorized to change "
-                                + "the update event for %s from %s to %s", obj,
+                                + "the update event for %s from %s to %s\n"
+                                + "You may need to reload the object before continuing.", obj,
                         previousDetails.getUpdateEvent(), currentDetails
                                 .getUpdateEvent()));
             }
