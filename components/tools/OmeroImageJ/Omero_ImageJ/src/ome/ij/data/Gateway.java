@@ -378,8 +378,7 @@ class Gateway
 		try {
 		        entry.keepAllAlive(entries);
 		} catch (ServerError e) {
-			int index = SERVER_OUT_OF_SERVICE;
-			factory.sessionExpiredExit(index);
+			factory.sessionExpiredExit(SERVER_OUT_OF_SERVICE);
 		}
 	}
 	
