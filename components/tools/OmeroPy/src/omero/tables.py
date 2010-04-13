@@ -176,7 +176,7 @@ class HdfStorage(object):
             raise omero.ApiUsageException(None, None, "Not yet initialized")
 
     def __width(self):
-        return len(self.__types))
+        return len(self.__types)
 
     def __length(self)
         return self.__mea.nrows
