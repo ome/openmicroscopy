@@ -102,9 +102,9 @@ class UserProxy (object):
 #        self._log('close',c)
 #_session_cb = SessionCB()
 
-def _createConnection (server_id, sUuid=None, username=None, passwd=None, host=None, port=None, retry=True, group=None, try_super=False):
+def _createConnection (server_id, sUuid=None, username=None, passwd=None, host=None, port=None, retry=True, group=None, try_super=False, secure=False):
     try:
-        blitzcon = client_wrapper(username, passwd, host=host, port=port, group=None, try_super=try_super)
+        blitzcon = client_wrapper(username, passwd, host=host, port=port, group=None, try_super=try_super, secure=secure)
         blitzcon.connect(sUuid=sUuid)
         blitzcon.server_id = server_id
         blitzcon.user = UserProxy(blitzcon)
@@ -168,6 +168,7 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
     passwd = request.session.get('password', r.get('password', None))
     host = request.session.get('host', r.get('host', None))
     port = request.session.get('port', r.get('port', None))
+    secure = request.session.get('ssl', r.get('ssl', False))
     logger.debug(':: %s %s :: %s' % (str(username), str(passwd), str(browsersession_connection_key)))
 
 #    if r.has_key('logout'):
@@ -220,7 +221,7 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
             sUuid = request.session.get(browsersession_connection_key, None)
         blitzcon = _createConnection(server_id, sUuid=sUuid,
                                      username=username, passwd=passwd,
-                                     host=host, port=port, group=group, try_super=try_super)
+                                     host=host, port=port, group=group, try_super=try_super, secure=secure)
         if blitzcon is None:
             if not retry or username:
                 logger.debug('connection failed with provided login information, bail out')

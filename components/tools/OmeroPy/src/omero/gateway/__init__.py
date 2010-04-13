@@ -648,7 +648,7 @@ class _BlitzGateway (object):
     ICE_CONFIG = None#os.path.join(p,'etc/ice.config')
 #    def __init__ (self, username, passwd, server, port, client_obj=None, group=None, clone=False):
     
-    def __init__ (self, username=None, passwd=None, client_obj=None, group=None, clone=False, try_super=False, host=None, port=None, extra_config=[]):
+    def __init__ (self, username=None, passwd=None, client_obj=None, group=None, clone=False, try_super=False, host=None, port=None, extra_config=[], secure=False):
         """
         TODO: Constructor
         
@@ -661,6 +661,7 @@ class _BlitzGateway (object):
         @param host:        Omero server host. String
         @param port:        Omero server port. Integer
         @param extra_config:
+        @param secure:      Initial underlying omero.client connection type (True=SSL/False=insecure)
         """
         
         super(_BlitzGateway, self).__init__()
@@ -674,6 +675,7 @@ class _BlitzGateway (object):
 
         self.host = host
         self.port = port
+        self.secure = secure
 
         self._resetOmeroClient()
         if not username:
@@ -707,7 +709,8 @@ class _BlitzGateway (object):
                               host = self.host,
                               port = self.port,
                               extra_config=self.extra_config,
-                              clone=True)
+                              clone=True,
+                              secure=self.secure)
                               #self.server, self.port, clone=True)
 
     def setIdentity (self, username, passwd, _internal=False):
@@ -859,12 +862,23 @@ class _BlitzGateway (object):
                 self._session_cb.join(self)
             else:
                 self._session_cb.create(self)
+
+    def setSecure (self, secure=True):
+        """ Switches between SSL and insecure (faster) connections to Blitz.
+        The gateway must already be connected. """
+        if hasattr(self.c, 'createClient') and (secure ^ self.c.isSecure()):
+            self.c = self.c.createClient(secure=secure)
+            self._createProxies()
+            self.secure = secure
     
+    def isSecure (self):
+        """ Returns 'True' if the underlying omero.clients.BaseClient is connected using SSL """
+        return hasattr(self.c, 'isSecure') and self.c.isSecure() or False
+
     def _createSession (self, skipSUuid=False):
         """
         Creates a new session for the principal given in the constructor.
         """
-        
         s = self.c.createSession(self._ic_props[omero.constants.USERNAME],
                                  self._ic_props[omero.constants.PASSWORD])
         self._sessionUuid = self.c.sf.ice_getIdentity().name
@@ -876,6 +890,7 @@ class _BlitzGateway (object):
         if self.group is not None:
             # try something that fails if the user don't have permissions on the group
             self.c.sf.getAdminService().getEventContext()
+        self.setSecure(self.secure)
     
     def _closeSession (self):
         """
@@ -975,7 +990,6 @@ class _BlitzGateway (object):
                     self.c.ic.getImplicitContext().put(omero.constants.EVENT, 'Internal')
                 if self.group is not None:
                     self.c.ic.getImplicitContext().put(omero.constants.GROUP, self.group)
-                    self.c.ic.getImplicitContext().put(omero.constants.UMASK, 'rwrw--')
                 try:
                     logger.info("(1) calling createSession()")
                     self._createSession()
