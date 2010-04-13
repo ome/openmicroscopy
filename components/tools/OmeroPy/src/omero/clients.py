@@ -58,7 +58,7 @@ class BaseClient(object):
         Defines the state variables::
             __previous : InitializationData from any previous communicator, if any
                        Used to re-initialization the client post-closeSession()
-           
+
             __ic       : communicator. Nullness => init() needed on createSession()
 
             __sf       : current session. Nullness => createSession() needed.
@@ -78,6 +78,7 @@ class BaseClient(object):
 
         # Setting all protected values to prevent AttributeError
         self.__agent = "OMERO.py" #: See setAgent
+        self.__insecure = False
         self.__previous = None
         self.__ic = None
         self.__oa = None
@@ -246,11 +247,40 @@ class BaseClient(object):
             self.__lock.release()
 
     def setAgent(self, agent):
-        # Sets the omero.model.Session#getUserAgent() string for
-        # this client. Every session creation will be passed this argument. Finding
-        # open sesssions with the same agent can be done via
-        # omero.api.ISessionPrx#getMyOpenAgentSessions(String).
+        """
+        Sets the omero.model.Session#getUserAgent() string for
+        this client. Every session creation will be passed this argument. Finding
+        open sesssions with the same agent can be done via
+        omero.api.ISessionPrx#getMyOpenAgentSessions(String).
+        """
         self.__agent = agent
+
+    def isSecure(self):
+        """
+        Specifies whether or not this client was created via a call to
+        createClient with a boolean of False. If insecure, then all
+        remote calls will use the insecure connection defined by the server.
+        """
+        return not self.__insecure
+
+    def createClient(self, secure):
+        """
+        Creates a possibly insecure omero.client instance and calls joinSession
+        using the current getSessionId value. If secure is False, then first the
+        "omero.router.insecure" configuration property is retrieved from the server
+        and used as the value of "Ice.Default.Router" for the new client. Any exception
+        thrown during creation is passed on to the caller.
+        """
+        props = self.getPropertyMap()
+        if not secure:
+            insecure = self.getSession().getConfigService().getConfigValue("omero.router.insecure")
+            props["Ice.Default.Router"] = insecure
+
+        nClient = omero.client(props)
+        nClient.__insecure = not secure
+        nClient.setAgent("%s;secure=%s" % (self.__agent, secure))
+        nClient.joinSession(self.getSessionId())
+        return nClient
 
     def __del__(self):
         """
@@ -299,6 +329,14 @@ class BaseClient(object):
             return self.__sf
         finally:
             self.__lock.release()
+
+    def getSessionId(self):
+        """
+        Returns the UUID for the current session without making a remote call.
+        Uses getSession() internally and will throw an exception if no session
+        is active.
+        """
+        return self.getSession().ice_getIdentity().name
 
     def getImplicitContext(self):
         """

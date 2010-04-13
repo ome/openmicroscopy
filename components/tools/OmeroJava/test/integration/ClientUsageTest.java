@@ -22,7 +22,7 @@ public class ClientUsageTest extends TestCase {
         File f1 = ResourceUtils.getFile("classpath:local.properties");
         omero.client client = new omero.client(f1);
         client.createSession();
-        client.getServiceFactory().closeOnDestroy();
+        client.getSession().closeOnDestroy();
     }
 
     @Test
@@ -30,7 +30,7 @@ public class ClientUsageTest extends TestCase {
         File f1 = ResourceUtils.getFile("classpath:local.properties");
         omero.client client = new omero.client(f1);
         client.createSession();
-        client.getServiceFactory().closeOnDestroy();
+        client.getSession().closeOnDestroy();
         client.closeSession();
     }
 
@@ -47,6 +47,24 @@ public class ClientUsageTest extends TestCase {
         assertEquals("b", ((RString) client.getInput("a")).getValue());
 
         client.closeSession();
+    }
+
+    @Test
+    public void testCreateInsecureClientTicket2099() throws Exception {
+        omero.client secure = new omero.client();
+        assertTrue(secure.isSecure());
+        try {
+            secure.createSession().getAdminService().getEventContext();
+            omero.client insecure = secure.createClient(false);
+            try {
+                insecure.getSession().getAdminService().getEventContext();
+                assertFalse(insecure.isSecure());
+            } finally {
+                insecure.closeSession();
+            }
+        } finally {
+            secure.closeSession();
+        }
     }
 
 }

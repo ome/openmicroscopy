@@ -28,6 +28,7 @@ def additional_tests():
     suite.addTest(load("test.integration.simple"))
     suite.addTest(load("test.integration.api"))
     suite.addTest(load("test.integration.client_ctors"))
+    suite.addTest(load("test.integration.clientusage"))
     suite.addTest(load("test.integration.counts"))
     suite.addTest(load("test.integration.gateway"))
     suite.addTest(load("test.integration.icontainer"))

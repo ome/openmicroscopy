@@ -380,7 +380,7 @@ public class client {
      * session id}. If secure is false, then first the "omero.router.insecure"
      * configuration property is retrieved from the server and used as the value
      * of "Ice.Default.Router" for the new client. Any exception thrown during
-     * exception is passed on to the caller.
+     * creation is passed on to the caller.
      */
     public omero.client createClient(boolean secure) throws ServerError,
             CannotCreateSessionException, PermissionDeniedException {
@@ -392,10 +392,10 @@ public class client {
             props.put("Ice.Default.Router", insecure);
         }
 
-        omero.client insecureClient = new omero.client(props, secure);
-        insecureClient.setAgent(__agent + ";secure=" + secure);
-        insecureClient.joinSession(getSessionId());
-        return insecureClient;
+        omero.client nClient = new omero.client(props, secure);
+        nClient.setAgent(__agent + ";secure=" + secure);
+        nClient.joinSession(getSessionId());
+        return nClient;
     }
 
     // Destruction
