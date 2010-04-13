@@ -48,6 +48,7 @@ import loci.formats.in.MetadataLevel;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
+import ome.formats.importer.Plane2D;
 import ome.formats.model.BlitzInstanceProvider;
 import ome.util.LSID;
 import omero.api.ServiceFactoryPrx;
@@ -257,6 +258,42 @@ public class MetadataValidatorTest
                     fail(String.format(
                             "MISMATCH: Series:%d Image:%d PixelsOnly%s All:%s",
                             i, j, pixelsOnlySHA1, allSHA1));
+                }
+            }
+        }
+    }
+
+    @Test(dependsOnMethods={"testMetadataLevel"}, groups={"disabled"})
+    public void testEquivilentBlockRetrievalPlaneData()
+        throws FormatException, IOException
+    {
+        String fileName = wrapper.getCurrentFile();
+        int sizeX = wrapper.getSizeX();
+        int sizeY = wrapper.getSizeY();
+        int sizeZ = wrapper.getSizeZ();
+        int sizeC = wrapper.getSizeC();
+        int sizeT = wrapper.getSizeT();
+        int bytesPerPixel = wrapper.getBitsPerPixel() / 8;
+        int planeSize = sizeX * sizeY * bytesPerPixel;
+        byte[] planar = new byte[planeSize];
+        byte[] block = new byte[planeSize];
+        int planeNumber = 0;
+        String planarDigest;
+        String blockDigest;
+        for (int t = 0; t < sizeT; t++)
+        {
+            for (int c = 0; c < sizeC; c++)
+            {
+                for (int z = 0; z < sizeZ; z++)
+                {
+                    planeNumber = wrapper.getIndex(z, c, t);
+                    wrapper.openPlane2D(fileName, planeNumber,
+                                        planar);
+                    planarDigest = sha1(planar);
+                    wrapper.openPlane2D(fileName, planeNumber, block, 0, 0,
+                                        sizeX, sizeY);
+                    blockDigest = sha1(block);
+                    assertEquals(planarDigest, blockDigest);
                 }
             }
         }
