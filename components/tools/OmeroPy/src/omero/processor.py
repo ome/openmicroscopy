@@ -96,7 +96,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         omero.util.SimpleServant.__init__(self, ctx)
         self.interpreter = interpreter        #: Executable which will be used on the script
         self.properties = properties          #: Properties used to create an Ice.Config
-        self.params = params                  #: JobParams for this script. Possibly None
+        self.params = params                  #: JobParams for this script. Possibly None if a ParseJob
         self.iskill = iskill                  #: Whether or not, cleanup should kill the session
         self.Popen = Popen                    #: Function which should be used for creating processes
         self.callback_cast = callback_cast    #: Function used to cast all ProcessCallback proxies
@@ -399,7 +399,10 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
             ofile = client.upload(filename, name=name, type=format)
             jobid = long(client.getProperty("omero.job"))
             link = omero.model.JobOriginalFileLinkI()
-            link.parent = omero.model.ScriptJobI(rlong(jobid), False)
+            if self.params is None:
+                link.parent = omero.model.ParseJobI(rlong(jobid), False)
+            else:
+                link.parent = omero.model.ScriptJobI(rlong(jobid), False)
             link.child = ofile
             client.getSession().getUpdateService().saveObject(link)
             self.status("Uploaded %s bytes of %s to %s" % (sz, filename, ofile.id.val))

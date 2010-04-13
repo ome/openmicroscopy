@@ -12,6 +12,7 @@ import unittest
 import test.integration.library as lib
 import tempfile
 import omero
+import omero.all
 from omero_model_ScriptJobI import ScriptJobI
 from omero.rtypes import *
 
@@ -43,6 +44,13 @@ class TestScripts(lib.ITest):
             jp = p.params()
             self.assert_(jp, "Non-zero params")
 
+    def testParseErrorTicket2185(self):
+        svc = self.root.sf.getScriptService()
+        script_id = svc.uploadScript("THIS STINKS")
+        try:
+            svc.getParams(script_id)
+        except omero.ValidationException, ve:
+            self.assertTrue("THIS STINKS" in str(ve))
 
 
 if __name__ == '__main__':
