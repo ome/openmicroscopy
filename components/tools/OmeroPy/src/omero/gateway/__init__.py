@@ -3275,7 +3275,7 @@ class _LightSettingsWrapper (BlitzObjectWrapper):
     """
     _attrs = ('attenuation',
               'wavelength',
-              'lightSource|LightSourceWrapper'
+              'lightSource|LightSourceWrapper',
               'microbeamManipulation',
               'version')
 
