@@ -2433,6 +2433,17 @@ class EditorModel
 		}
 		return null;
 	}
+
+	/**
+	 * Resets the password of the user currently edited.
+	 * 
+	 * @param newPass The value to set.
+	 */
+	void resetPassword(String newPass)
+	{
+		// TODO Auto-generated method stub
+		
+	}
 	
 }
 	

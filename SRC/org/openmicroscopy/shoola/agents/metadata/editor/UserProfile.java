@@ -161,6 +161,20 @@ class UserProfile
     private void changePassword()
     {
     	UserNotifier un;
+    	if (!oldPassword.isVisible()) {
+    		StringBuffer buf = new StringBuffer();
+            buf.append(passwordNew.getPassword());
+            String newPass = buf.toString();
+            if (newPass == null || newPass.length() == 0) {
+            	un = MetadataViewerAgent.getRegistry().getUserNotifier();
+            	un.notifyInfo(PASSWORD_CHANGE_TITLE, 
+            			"Please enter the new password.");
+            	passwordNew.requestFocus();
+            	return;
+            }
+            model.resetPassword(newPass);
+    		return;
+    	}
     	StringBuffer buf = new StringBuffer();
         buf.append(passwordNew.getPassword());
         String newPass = buf.toString();
@@ -275,6 +289,7 @@ class UserProfile
 			groups.setSelectedIndex(selectedIndex);
 		
 		if (MetadataViewerAgent.isAdministrator()) {
+			oldPassword.setVisible(false);
 			owner = true;
 			adminBox.setVisible(true);
 			activeBox.setVisible(true);
@@ -359,8 +374,9 @@ class UserProfile
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1.0;
         area = new JTextField(user.getUserName());
-        area.setEnabled(false);
-        area.setEditable(false);
+        boolean a = MetadataViewerAgent.isAdministrator();
+        area.setEnabled(a);
+        area.setEditable(a);
         content.add(area, c);  
         while (i.hasNext()) {
             ++c.gridy;
@@ -497,37 +513,47 @@ class UserProfile
 		c.gridy = 0;
 		c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
 		c.fill = GridBagConstraints.NONE;      //reset to default
-		c.weightx = 0.0;  
-    	content.add(UIUtilities.setTextFont(PASSWORD_OLD), c);
-    	c.gridx++;
-    	c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-    	c.fill = GridBagConstraints.HORIZONTAL;
-    	c.weightx = 1.0;
-    	content.add(oldPassword, c);
-    	c.gridy++;
-    	c.gridx = 0;
-    	c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-		c.fill = GridBagConstraints.NONE;      //reset to default
-		c.weightx = 0.0;  
-    	content.add(UIUtilities.setTextFont(PASSWORD_NEW), c);
-    	c.gridx++;
-    	c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-    	c.fill = GridBagConstraints.HORIZONTAL;
-    	c.weightx = 1.0;
-    	content.add(passwordNew, c);
-    	c.gridy++;
-    	c.gridx = 0;
-    	c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-		c.fill = GridBagConstraints.NONE;      //reset to default
-		c.weightx = 0.0;  
-    	content.add(UIUtilities.setTextFont(PASSWORD_CONFIRMATION), c);
-    	c.gridx++;
-    	c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-    	c.fill = GridBagConstraints.HORIZONTAL;
-    	c.weightx = 1.0;
-    	content.add(passwordConfirm, c);
-    	c.gridy++;
-    	c.gridx = 0;
+		c.weightx = 0.0; 
+		if (MetadataViewerAgent.isAdministrator()) {
+	    	content.add(UIUtilities.setTextFont(PASSWORD_NEW), c);
+	    	c.gridx++;
+	    	c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+	    	c.fill = GridBagConstraints.HORIZONTAL;
+	    	c.weightx = 1.0;
+	    	content.add(passwordNew, c);
+		} else {
+			content.add(UIUtilities.setTextFont(PASSWORD_OLD), c);
+	    	c.gridx++;
+	    	c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+	    	c.fill = GridBagConstraints.HORIZONTAL;
+	    	c.weightx = 1.0;
+	    	content.add(oldPassword, c);
+	    	c.gridy++;
+	    	c.gridx = 0;
+	    	c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+			c.fill = GridBagConstraints.NONE;      //reset to default
+			c.weightx = 0.0;  
+	    	content.add(UIUtilities.setTextFont(PASSWORD_NEW), c);
+	    	c.gridx++;
+	    	c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+	    	c.fill = GridBagConstraints.HORIZONTAL;
+	    	c.weightx = 1.0;
+	    	content.add(passwordNew, c);
+	    	c.gridy++;
+	    	c.gridx = 0;
+	    	c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+			c.fill = GridBagConstraints.NONE;      //reset to default
+			c.weightx = 0.0;  
+	    	content.add(UIUtilities.setTextFont(PASSWORD_CONFIRMATION), c);
+	    	c.gridx++;
+	    	c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+	    	c.fill = GridBagConstraints.HORIZONTAL;
+	    	c.weightx = 1.0;
+	    	content.add(passwordConfirm, c);
+	    	c.gridy++;
+	    	c.gridx = 0;
+		}
+    	
     	JPanel p = new JPanel();
     	p.setBackground(UIUtilities.BACKGROUND_COLOR);
     	p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
@@ -576,12 +602,13 @@ class UserProfile
 		c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
 		c.weightx = 1.0;  
     	add(buildContentPanel(), c);
-    	if (model.isUserOwner(model.getRefObject())) {
+    	if (model.isUserOwner(model.getRefObject()) || 
+    			MetadataViewerAgent.isAdministrator()) {
     		c.gridy++;
     		add(Box.createVerticalStrut(5), c); 
     		c.gridy++;
     		add(buildPasswordPanel(), c);
-    	}
+    	} 
     }
     
 	/** Clears the password fields. */
