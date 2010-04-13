@@ -267,6 +267,7 @@ public class TreeViewerAgent
     	if (!env.isServerAvailable()) return;
     	ExperimenterData exp = (ExperimenterData) registry.lookup(
 			        				LookupNames.CURRENT_USER_DETAILS);
+    	//if (exp == null) return;
     	GroupData gp = exp.getDefaultGroup();
     	long id = -1;
     	if (gp != null) id = gp.getId();

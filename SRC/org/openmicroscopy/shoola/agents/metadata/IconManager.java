@@ -346,11 +346,17 @@ public class IconManager
     /** The <code>Up down</code> icon. */
     public static final int           UP_DOWN_9_12 = 96;
     
+    /** The <code>Upload Script</code> icon. */
+    public static final int           UPLOAD_SCRIPT = 97;
+    
+    /** The 48x48 <code>Upload Script</code> icon. */
+    public static final int           UPLOAD_SCRIPT_48 = 98;
+    
     /** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static final int          MAX_ID = 96;
+	private static final int          MAX_ID = 98;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -452,6 +458,8 @@ public class IconManager
         relPaths[ANALYSIS_48] = "nuvola_kcmsystem48.png";
         relPaths[RESET] = "nuvola_undo16.png";
         relPaths[UP_DOWN_9_12] = "upDown.png";
+        relPaths[UPLOAD_SCRIPT] = "nuvola_script_add16.png";
+        relPaths[UPLOAD_SCRIPT_48] = "nuvola_script_add48.png";
 	}
    
 	/** The sole instance. */

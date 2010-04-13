@@ -252,7 +252,7 @@ public class ScriptUploaderDialog
 	{
 		IconManager icons = IconManager.getInstance();
 		TitlePanel tp = new TitlePanel(TITLE, TEXT, 
-				icons.getIcon(IconManager.UPLOAD_48));
+				icons.getIcon(IconManager.UPLOAD_SCRIPT_48));
 		Container c = getContentPane();
 		c.setLayout(new BorderLayout(0, 0));
 		c.add(tp, BorderLayout.NORTH);

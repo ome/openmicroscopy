@@ -312,7 +312,6 @@ class AnnotationDataUI
 			public void mouseReleased(MouseEvent me)
 			{
 				Object source = me.getSource();
-		        Point point = me.getPoint();
 		        if (source instanceof Component)
 		        	displayMenu((Component) source, me.getPoint());
 			}
@@ -567,6 +566,7 @@ class AnnotationDataUI
 		filesDocList.clear();
 		DocComponent doc;
 		if (list != null && list.size() > 0) {
+			filterButton.setEnabled(true);
 			Iterator i = list.iterator();
 			Map<FileAnnotationData, Object> 
 				loadThumbnails = 
@@ -649,6 +649,7 @@ class AnnotationDataUI
 		tagsDocList.clear();
 		DocComponent doc;
 		if (list != null && list.size() > 0) {
+			filterButton.setEnabled(true);
 			Iterator i = list.iterator();
 			int width = 0;
 			JPanel p = initRow();
@@ -765,6 +766,7 @@ class AnnotationDataUI
 	protected void buildUI()
 	{
 		//rating
+		filterButton.setEnabled(false);
 		if (!init) {
 			buildGUI();
 			init = true;

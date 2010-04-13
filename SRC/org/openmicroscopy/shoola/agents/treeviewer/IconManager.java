@@ -437,11 +437,17 @@ public class IconManager
     /** The <code>Unregistered Image Directory</code> icon. */
     public static final int           IMAGE_DIRECTORY_UNREGISTERED = 127;
     
+    /** The <code>Upload Script</code> icon. */
+    public static final int           UPLOAD_SCRIPT = 128;
+    
+    /** The 48x48 <code>Upload Script</code> icon. */
+    public static final int           UPLOAD_SCRIPT_48 = 129;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 127;
+    private static final int          MAX_ID = 129;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -578,6 +584,8 @@ public class IconManager
         relPaths[UP_DOWN_9_12] = "upDown.png";
         relPaths[IMAGE_DIRECTORY] = "nuvola_folder_image16.png";
         relPaths[IMAGE_DIRECTORY_UNREGISTERED] = "nuvola_folder_image16.png";
+        relPaths[UPLOAD_SCRIPT] = "nuvola_script_add16.png";
+        relPaths[UPLOAD_SCRIPT_48] = "nuvola_script_add48.png";
     }
     
     /** The sole instance. */

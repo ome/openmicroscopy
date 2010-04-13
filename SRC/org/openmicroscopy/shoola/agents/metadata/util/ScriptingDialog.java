@@ -259,9 +259,8 @@ public class ScriptingDialog
 					name += " (List)";
 				}
 			}
-			
-			comp.setToolTipText(param.getDescription());
 			if (comp != null) {
+				comp.setToolTipText(param.getDescription());
 				c = new ScriptComponent(comp, name);
 				if (!(comp instanceof JComboBox))
 					c.setRequired(!param.isOptional());
