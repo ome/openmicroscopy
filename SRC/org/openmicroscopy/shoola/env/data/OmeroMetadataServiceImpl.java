@@ -1848,9 +1848,9 @@ class OmeroMetadataServiceImpl
 
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroMetadataService#countFileType(int)
+	 * @see OmeroMetadataService#countFileType(long, int)
 	 */
-	public long countFileType(int fileType) 
+	public long countFileType(long userID, int fileType) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		List<String> include = new ArrayList<String>();
@@ -1878,7 +1878,6 @@ class OmeroMetadataServiceImpl
 				exclude.add(FileAnnotationData.MEASUREMENT_NS);
 		}
 		ParametersI po = new ParametersI();
-		long userID = getUserDetails().getId();
 		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
 		return gateway.countSpecificAnnotation(FileAnnotationData.class, 
 				include, exclude, po);

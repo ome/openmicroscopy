@@ -121,6 +121,10 @@ class BrowserUI
      */
     private static final String     EMPTY_MSG = "Empty";
     
+    /** The <code>Attachments</code> smart folder. */
+    private static final int[] VALUES = {TreeFileSet.PROTOCOL, 
+    	TreeFileSet.EXPERIMENT, TreeFileSet.MOVIE, TreeFileSet.OTHER};
+    
     /** The tree hosting the display. */
     private JTree           		treeDisplay;
     
@@ -453,11 +457,9 @@ class BrowserUI
     private void createFileElements(TreeImageSet parent)
     {
     	DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
-    	int[] values = {TreeFileSet.PROTOCOL, TreeFileSet.EXPERIMENT, 
-    			TreeFileSet.MOVIE, TreeFileSet.OTHER};
     	TreeFileSet node;
-    	for (int i = 0; i < values.length; i++) {
-    		node = new TreeFileSet(values[i]);
+    	for (int i = 0; i < VALUES.length; i++) {
+    		node = new TreeFileSet(VALUES[i]);
     		buildEmptyNode(node);
     		node.setNumberItems(-1);
     		parent.addChildDisplay(node);

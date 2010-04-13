@@ -114,7 +114,7 @@ public class ExperimenterImagesCounter
 	{
 		try {
 			result = new HashMap<Integer, Object>();
-			result.put(index, ms.countFileType(type));
+			result.put(index, ms.countFileType(userID, type));
 		} catch (Exception e) {
 			LogMessage msg = new LogMessage();
 			msg.print("Cannot count the number of items imported during the " +
@@ -143,7 +143,7 @@ public class ExperimenterImagesCounter
 	
 	/**
 	 * Adds a {@link BatchCall} to the tree for each container.
-	 * The batch call simply invokes {@link #loadThumbail(int)}.
+	 * The batch call invokes {@link #countItems(Integer, TimeRefObject)}.
 	 * @see BatchCallTree#buildTree()
 	 */
 	protected void buildTree()
@@ -172,8 +172,7 @@ public class ExperimenterImagesCounter
 
 	/**
 	 * Returns <code>null</code> as there's no final result.
-	 * In fact, thumbnails are progressively delivered with 
-	 * feedback events. 
+	 * In fact, count are progressively delivered with feedback events. 
 	 * @see BatchCallTree#getResult()
 	 */
 	protected Object getResult() { return null; }

@@ -87,7 +87,7 @@ public class StatusLabel
 		if (event == null) return;
 		if (event instanceof ImportEvent.LOADING_IMAGE) {
 			setText("prepping");
-		} else if (event instanceof  ImportEvent.LOADED_IMAGE) {
+		} else if (event instanceof ImportEvent.LOADED_IMAGE) {
 			setText("analyzing");
 		} else if (event instanceof ImportEvent.IMPORT_DONE) {
 			if (numberOfFiles == 1) setText("one file");

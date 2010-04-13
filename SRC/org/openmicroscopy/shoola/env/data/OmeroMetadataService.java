@@ -579,6 +579,7 @@ public interface OmeroMetadataService
 	 * one of the following values: {@link #EDITOR_PROTOCOL}, 
 	 * {@link #EDITOR_EXPERIMENT} or {@link #OTHER}.
 	 * 
+	 * @param userUD The user's identifier.
 	 * @param fileType One of the constants above.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
@@ -586,7 +587,7 @@ public interface OmeroMetadataService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public long countFileType(int fileType)
+	public long countFileType(long userID, int fileType)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**

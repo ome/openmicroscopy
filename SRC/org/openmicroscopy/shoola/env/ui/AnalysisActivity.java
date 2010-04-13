@@ -155,4 +155,5 @@ public class AnalysisActivity
 	{
 		type.setText(DESCRIPTION_CANCEL);
 	}
+	
 }
