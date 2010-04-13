@@ -907,9 +907,6 @@ def su (request, user, server_id=None, _conn=None, **kwargs):
     if not _conn.canBeAdmin():
         return False
     _conn.setGroupNameForSession('system')
-    e = _conn.lookupExperimenter(user)
-    if e is None:
-        return False
     if server_id is None:
         # If no server id is passed, the db entry will not be used and instead we'll depend on the
         # request.session and request.REQUEST values
@@ -919,7 +916,6 @@ def su (request, user, server_id=None, _conn=None, **kwargs):
             return None
     browsersession_connection_key = 'cuuid#%s'%server_id
     c = _conn.suConn(user,
-                     group=e._obj._groupExperimenterMapSeq[0].parent.name.val,
                      ttl=_conn.getSessionService().getSession(_conn._sessionUuid).getTimeToIdle().val)
     _conn.revertGroupForSession()
     _conn.seppuku()

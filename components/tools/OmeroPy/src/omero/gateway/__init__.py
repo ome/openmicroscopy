@@ -729,6 +729,11 @@ class _BlitzGateway (object):
     def suConn (self, username, group=None, ttl=60000):
         """ If current user isAdmin, return new connection owned by 'username' """
         if self.isAdmin():
+            if group is None:
+                e = self.lookupExperimenter(username)
+                if e is None:
+                    return
+                group = e._obj._groupExperimenterMapSeq[0].parent.name.val
             p = omero.sys.Principal()
             p.name = username
             p.group = group
