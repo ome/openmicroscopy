@@ -2550,6 +2550,7 @@ class OMEROGateway
 			isSessionAlive();
 			return saveAndReturnObject(object, null);
 		} catch (Throwable t) {
+			t.printStackTrace();
 			handleException(t, "Cannot update the object.");
 		}
 		return null;

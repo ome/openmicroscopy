@@ -114,9 +114,6 @@ class OmeroMetadataServiceImpl
 	/** Reference to the entry point to access the <i>OMERO</i> services. */
 	private OMEROGateway            gateway;
 	
-	/** Reference to the dummy folder wrapping a file on the file system. */
-	//private FolderData				folder;
-	
 	/**
 	 * Creates or recycles the folder wrapping the passed file.
 	 * 
@@ -142,7 +139,7 @@ class OmeroMetadataServiceImpl
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	private DataObject removeAnnotation(AnnotationData annotation, 
@@ -936,7 +933,7 @@ class OmeroMetadataServiceImpl
 				OriginalFile of = gateway.uploadFile(ann.getAttachedFile(), 
 						ann.getServerFileFormat(), -1);
 				FileAnnotation fa = new FileAnnotationI();
-				fa.setFile(of);
+				fa.setFile((OriginalFile) of.proxy());
 				link = ModelMapper.linkAnnotation(ho, fa);
 			} else {
 				annObject = ann.asIObject();
@@ -1215,8 +1212,6 @@ class OmeroMetadataServiceImpl
 						}
 					}
 				}
-				
-				
 			} else if (object instanceof ImageData) {
 				service.updateDataObject(object);
 				if (annotations != null) {
@@ -1265,7 +1260,6 @@ class OmeroMetadataServiceImpl
 				j = annotations.iterator();
 				while (j.hasNext()) 
 					linkAnnotation(child, (AnnotationData) i.next());
-					//annotate(child, (AnnotationData) j.next());
 			}
 			if (toRemove != null) {
 				j = toRemove.iterator();
@@ -1309,16 +1303,18 @@ class OmeroMetadataServiceImpl
 				new Parameters());
 		Map<Long, Collection> results = new HashMap<Long, Collection>();
 		if (map == null) return results;
+		Entry entry;
 		
-		Iterator<Long> i = map.keySet().iterator();
+		Iterator i = map.entrySet().iterator();
 		Long id;
 		AnnotationData data;
 		Iterator j;
 		List<AnnotationData> result;
 		Collection l;
 		while (i.hasNext()) {
-			id = i.next();
-			l = (Collection) map.get(id);
+			entry = (Entry) i.next();
+			id = (Long) entry.getKey();
+			l = (Collection) entry.getValue();
 			result = new ArrayList<AnnotationData>();
 			j = l.iterator();
 			while (j.hasNext()) {
@@ -1358,13 +1354,15 @@ class OmeroMetadataServiceImpl
 		Collection l;
 		AnnotationData data;
 		Iterator i, j;
+		Entry entry;
 		if (terms != null && terms.size() > 0) {
 			Set annotations = gateway.filterBy(annotationType, terms,
 					                           null, null, exp);
-			i = map.keySet().iterator();
+			i = map.entrySet().iterator();
 			while (i.hasNext()) {
-				id = (Long) i.next();
-				l = (Collection) map.get(id);
+				entry = (Entry) i.next();
+				id = (Long) entry.getKey();
+				l = (Collection) entry.getValue();
 				j = l.iterator();
 				while (j.hasNext()) {
 					data = (AnnotationData) j.next();
@@ -1418,11 +1416,13 @@ class OmeroMetadataServiceImpl
 		Collection l;
 		AnnotationData data;
 		Iterator i, j;
-		i = map.keySet().iterator();
+		Entry entry;
+		i = map.entrySet().iterator();
 		if (annotated) {
 			while (i.hasNext()) {
-				id = (Long) i.next();
-				l = (Collection) map.get(id);
+				entry = (Entry) i.next();
+				id = (Long) entry.getKey();
+				l = (Collection) entry.getValue();
 				j = l.iterator();
 				while (j.hasNext()) {
 					data = (AnnotationData) j.next();
@@ -1446,8 +1446,9 @@ class OmeroMetadataServiceImpl
 			List<Long> toExclude = new ArrayList<Long>();
 			results.addAll(nodeIds);
 			while (i.hasNext()) {
-				id = (Long) i.next();
-				l = (Collection) map.get(id);
+				entry = (Entry) i.next();
+				id = (Long) entry.getKey();
+				l = (Collection) entry.getValue();
 				j = l.iterator();
 				
 				while (j.hasNext()) {
@@ -1772,7 +1773,7 @@ class OmeroMetadataServiceImpl
 		String desc = fileAnnotation.getDescription();
 		if (id < 0) {
 			fa = new FileAnnotationI();
-			fa.setFile(of);
+			fa.setFile((OriginalFile) of.proxy());
 			if (desc != null) fa.setDescription(omero.rtypes.rstring(desc));
 			if (ns != null)
 				fa.setNs(omero.rtypes.rstring(ns));
