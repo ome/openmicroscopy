@@ -45,12 +45,9 @@ public class TableTest {
     @BeforeClass
     public void setUp() throws Exception {
         
-        //client = new omero.client();
-        //sf = client.createSession(); // Set ICE_CONFIG for configuration
-
-        client = new omero.client("mage.openmicroscopy.org.uk", 4064);
-        sf = client.createSession("root", "omero");
-        
+        client = new omero.client();
+        sf = client.createSession(); // Set ICE_CONFIG for configuration
+       
         iQuery = sf.getQueryService();
         iAdmin = sf.getAdminService();
         iUpdate = sf.getUpdateService();
