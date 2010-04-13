@@ -26,6 +26,8 @@ import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
 import loci.formats.MissingLibraryException;
 import loci.formats.UnknownFormatException;
+import loci.formats.in.DefaultMetadataOptions;
+import loci.formats.in.MetadataLevel;
 import ome.formats.ImageNameMetadataStore;
 import ome.formats.importer.util.ErrorHandler;
 import omero.model.Pixels;
@@ -100,7 +102,7 @@ public class ImportCandidates extends DirectoryWalker
                     depth, numFiles, (totalFiles < 0 ? "n/a" : totalFiles), f);
         }
     }
-    
+
     /**
      * Marker exception raised if the {@link SCANNING#cancel()} method is
      * called by an {@link IObserver} instance.
@@ -109,9 +111,12 @@ public class ImportCandidates extends DirectoryWalker
     
     final private static Log log = LogFactory.getLog(ImportCandidates.class);
 
-    final public static int DEPTH = Integer.valueOf(System.getProperty("omero.import.depth","4"));
-    final public static boolean METADATA = Boolean.valueOf(System.getProperty("omero.import.metadata","false"));
-    
+    final public static int DEPTH = Integer.valueOf(
+            System.getProperty("omero.import.depth","4"));
+    final public static MetadataLevel METADATA_LEVEL =
+        MetadataLevel.valueOf(System.getProperty(
+                "omero.import.metadata.level","MINIMUM"));
+
     final private IObserver observer;
     final private OMEROWrapper reader;
     final private Set<String> allFiles = new HashSet<String>();
@@ -200,8 +205,8 @@ public class ImportCandidates extends DirectoryWalker
         super(TrueFileFilter.INSTANCE, depth);
         this.reader = reader;
         this.observer = observer;
-        log.debug(String.format("Depth: %s%s", depth,
-	                       (METADATA ? " - Metadata collected!" : "")));
+        log.info(String.format("Depth: %s Metadata Level: %s", depth,
+                METADATA_LEVEL));
 
         if (paths != null && paths.length == 2 && "".equals(paths[0])
                 && "".equals(paths[1])) 
@@ -399,7 +404,8 @@ public class ImportCandidates extends DirectoryWalker
                 setids++;
                 reader.close();
                 reader.setMetadataStore(new ImageNameMetadataStore());
-                reader.setMetadataCollected(METADATA);
+                reader.setMetadataOptions(
+                        new DefaultMetadataOptions(METADATA_LEVEL));
                 reader.setId(path);
                 format = reader.getFormat();
                 usedFiles = getOrderedFiles();
