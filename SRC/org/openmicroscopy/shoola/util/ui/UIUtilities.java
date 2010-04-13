@@ -887,6 +887,7 @@ public class UIUtilities
         //b.setMargin(new Insets(0, 2, 0, 3));
         //b.setBorderPainted(false);
         //b.setFocusPainted(false);
+    	b.setOpaque(false);
     	if (b != null)
     		b.setBorder(new EmptyBorder(2, 2, 2, 2));
     }

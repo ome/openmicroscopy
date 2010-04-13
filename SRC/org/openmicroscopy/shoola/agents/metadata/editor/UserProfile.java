@@ -207,8 +207,11 @@ class UserProfile
     {
     	adminBox = new JCheckBox();
     	adminBox.setVisible(false);
+    	adminBox.setBackground(UIUtilities.BACKGROUND_COLOR);
     	ownerBox = new JCheckBox();
+    	ownerBox.setBackground(UIUtilities.BACKGROUND_COLOR);
     	activeBox = new JCheckBox();
+    	activeBox.setBackground(UIUtilities.BACKGROUND_COLOR);
     	activeBox.setVisible(false);
     	passwordButton =  new JButton("Change password");
     	passwordButton.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -343,7 +346,8 @@ class UserProfile
 		//Add log in name but cannot edit.
 		c.gridx = 0;
         c.gridy++;
-        label = UIUtilities.setTextFont(EditorUtil.DISPLAY_NAME);
+        label = UIUtilities.setTextFont(EditorUtil.DISPLAY_NAME+
+        		EditorUtil.MANDATORY_SYMBOL);
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
         c.fill = GridBagConstraints.NONE;      //reset to default
         c.weightx = 0.0;  
