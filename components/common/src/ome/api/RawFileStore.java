@@ -7,6 +7,9 @@
 
 package ome.api;
 
+import ome.conditions.ResourceError;
+import ome.model.core.OriginalFile;
+
 /**
  * Raw file gateway which provides access to the OMERO file repository.
  * 
@@ -49,4 +52,17 @@ public interface RawFileStore extends StatefulServiceInterface {
      * @see ome.io.nio.FileBuffer#write(java.nio.ByteBuffer, long)
      */
     public void write(byte[] buf, long position, int length);
+
+    /**
+     * Saves the {@link OriginalFile} associated with the service if it has
+     * been modified. The returned valued should replace all instances of the
+     * {@link OriginalFile} in the client.
+     *
+     * If save has not been called, {@link RawFileStore} instances will save the
+     * {@link OriginalFile} object associated with it on {@link #close()}.
+     *
+     * @see <a href="http://trac.openmicroscopy.org.uk/omero/ticket/1651>1651</a>
+     * @see <a href="http://trac.openmicroscopy.org.uk/omero/ticket/2161>2161</a>
+     */
+    public OriginalFile save();
 }

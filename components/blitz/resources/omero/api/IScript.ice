@@ -165,6 +165,12 @@ module omero {
                  **/
                 omero::grid::ScriptProcess* runScript(long scriptID, omero::RTypeDict inputs, omero::RInt waitSecs) throws ServerError;
 
+                /**
+                 * Validates the script attached to the given job based on the group of the job object and the
+                 * accepted IObjects. This method is used by processor.py to approve or reject jobs.
+                 **/
+                idempotent omero::model::OriginalFile validateScript(omero::model::Job job, IObjectList acceptsList) throws ServerError;
+
                 // Planned methods
                 // ===============
                 // omero::grid::ScriptProcess* findProcess(long jobID) throws ServerError;

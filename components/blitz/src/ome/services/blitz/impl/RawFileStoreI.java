@@ -12,6 +12,7 @@ import ome.services.blitz.util.BlitzExecutor;
 import omero.ServerError;
 import omero.api.AMD_RawFileStore_exists;
 import omero.api.AMD_RawFileStore_read;
+import omero.api.AMD_RawFileStore_save;
 import omero.api.AMD_RawFileStore_setFileId;
 import omero.api.AMD_RawFileStore_write;
 import omero.api.AMD_StatefulServiceInterface_activate;
@@ -60,6 +61,11 @@ public class RawFileStoreI extends AbstractAmdServant implements
             long position, int length, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, buf, position, length);
 
+    }
+
+    public void save_async(AMD_RawFileStore_save __cb, Current __current)
+            throws ServerError {
+        callInvokerOnRawArgs(__cb, __current);
     }
 
 }

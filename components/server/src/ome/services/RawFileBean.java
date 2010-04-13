@@ -22,6 +22,7 @@ import ome.conditions.ResourceError;
 import ome.io.nio.FileBuffer;
 import ome.io.nio.OriginalFilesService;
 import ome.model.core.OriginalFile;
+import ome.util.ShallowCopy;
 import ome.util.Utils;
 
 import org.apache.commons.logging.Log;
@@ -123,6 +124,30 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
         }
     }
 
+    @RolesAllowed("user")
+    @Transactional(readOnly = false)
+    public synchronized OriginalFile save() {
+        errorIfNotLoaded();
+        if (isModified()) {
+            Long id = (file == null) ? null : file.getId();
+            if (id == null) {
+                return null;
+            }
+
+            String path = ioService.getFilesPath(id);
+            byte[] hash = Utils.pathToSha1(path);
+            file.setSha1(Utils.bytesToHex(hash));
+
+            long size = new File(path).length();
+            file.setSize(size);
+
+            iUpdate.flush();
+            modified = false;
+        }
+
+        return new ShallowCopy().copy(file);
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -130,22 +155,9 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
      */
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    public void close() {
+    public synchronized void close() {
         try {
-            if (isModified()) {
-                Long id = (file == null) ? null : file.getId();
-                if (id != null) {
-
-                    String path = ioService.getFilesPath(id);
-                    byte[] hash = Utils.pathToSha1(path);
-                    file.setSha1(Utils.bytesToHex(hash));
-
-                    long size = new File(path).length();
-                    file.setSize(size);
-
-                    iUpdate.flush();
-                }
-            }
+            save();
         } catch (RuntimeException re) {
             log.error("Failed to update file: " + file.getId(), re);
         } finally {
@@ -184,13 +196,14 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
      */
     @RolesAllowed("user")
     @Transactional(readOnly = true)
-    public void setFileId(long fileId) {
+    public synchronized void setFileId(long fileId) {
         if (id == null || id.longValue() != fileId) {
             id = new Long(fileId);
             file = null;
             closeFileBuffer();
             buffer = null;
 
+            modified = false;
             file = iQuery.get(OriginalFile.class, id);
             buffer = ioService.getFileBuffer(file);
         }

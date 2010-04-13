@@ -15,7 +15,7 @@ import test.integration.library as lib
 from omero.rtypes import rstring, rlong
 from omero.util.concurrency import get_event
 
-class TestGateway(lib.ITest):
+class TestRFS(lib.ITest):
 
     def file(self):
         ofile = omero.model.OriginalFileI()
@@ -43,7 +43,8 @@ class TestGateway(lib.ITest):
 
     def testTicket1961WithKillSession(self):
         ofile = self.file()
-        session = self.client.sf.getSessionService().createUserSession(1*1000, 10000, "user")
+        grp = self.client.sf.getAdminService().getEventContext().groupName
+        session = self.client.sf.getSessionService().createUserSession(1*1000, 10000, grp)
         properties = self.client.getPropertyMap()
 
         c = omero.client(properties)
@@ -55,6 +56,17 @@ class TestGateway(lib.ITest):
 
         c.killSession()
         self.check_file(ofile)
+
+    def testTicket2161Save(self):
+        ofile = self.file()
+        rfs = self.client.sf.createRawFileStore()
+        rfs.setFileId(ofile.id.val)
+        rfs.write([0,1,2,3], 0, 4)
+        ofile = rfs.save()
+        self.check_file(ofile)
+        rfs.close()
+        ofile2 = self.query.get("OriginalFile", ofile.id.val)
+        self.assertEquals(ofile.details.updateEvent.id.val, ofile2.details.updateEvent.id.val)
 
 if __name__ == '__main__':
     unittest.main()

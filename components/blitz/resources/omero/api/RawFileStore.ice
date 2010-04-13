@@ -26,6 +26,7 @@ module omero {
                 idempotent Ice::ByteSeq read(long position, int length) throws ServerError;
                 idempotent void write(Ice::ByteSeq buf, long position, int length) throws ServerError;
                 idempotent bool exists() throws ServerError;
+                idempotent omero::model::OriginalFile save() throws ServerError;
             };
     };
 };
