@@ -178,7 +178,7 @@ class HdfStorage(object):
     def __width(self):
         return len(self.__types)
 
-    def __length(self)
+    def __length(self):
         return self.__mea.nrows
 
     def __sizecheck(self, colNumbers, rowNumbers):
