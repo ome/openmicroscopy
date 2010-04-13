@@ -42,7 +42,6 @@ import java.util.Set;
 
 import loci.common.DataTools;
 import loci.formats.FormatException;
-import loci.formats.ImageReader;
 import loci.formats.in.DefaultMetadataOptions;
 import loci.formats.in.MetadataLevel;
 
@@ -76,12 +75,9 @@ import omero.model.WellSample;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.AfterTest;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -101,6 +97,9 @@ public class MetadataValidatorTest
     /** Our testing Metadata store client */
     private OMEROMetadataStoreClient store;
 
+    /** Our testing Metadata store client (minimum metadata). */
+    private OMEROMetadataStoreClient minimalStore;
+
     /** The OMERO basic wrapper for Bio-Formats readers */
     private OMEROWrapper wrapper;
 
@@ -113,19 +112,30 @@ public class MetadataValidatorTest
     /** Our current reference cache. */
     private Map<LSID, List<LSID>> referenceCache;
 
+    /** Our testing service factory. */
+    private ServiceFactoryPrx sf;
+
+    /** Our import configuration. */
+    private ImportConfig config;
+
     @Parameters({ "target" })
     @BeforeClass
     public void setUp(String target) throws Exception
     {
         log.info("METADATA VALIDATOR TARGET: " + target);
-        ServiceFactoryPrx sf = new TestServiceFactory();
-        ImportConfig config = new ImportConfig();
+        sf = new TestServiceFactory();
+        config = new ImportConfig();
         // Let the user know at what level we're logging
         log.info(String.format(
                 "Log levels -- Bio-Formats: %s OMERO.importer: %s",
                 Logger.getLogger("loci").getLevel(),
                 Logger.getLogger("ome.formats").getLevel()));
         store = new OMEROMetadataStoreClient();
+        store.initialize(sf);
+        store.setEnumerationProvider(new TestEnumerationProvider());
+        store.setInstanceProvider(
+                new BlitzInstanceProvider(store.getEnumerationProvider()));
+        minimalStore = new OMEROMetadataStoreClient();
         store.initialize(sf);
         store.setEnumerationProvider(new TestEnumerationProvider());
         store.setInstanceProvider(
@@ -138,53 +148,38 @@ public class MetadataValidatorTest
                 new DefaultMetadataOptions(MetadataLevel.MINIMUM));
         wrapper.setMetadataStore(store);
         store.setReader(wrapper);
-        wrapper.setId(target);
-        minimalWrapper.setId(target);
-        store.postProcess();
-        containerCache = store.getContainerCache();
-        referenceCache = store.getReferenceCache();
-        log.trace("Starting container cache...");
-        for (LSID key : containerCache.keySet())
-        {
-        	String s = String.format("%s == %s,%s", 
-        			key, containerCache.get(key).sourceObject,
-        			containerCache.get(key).LSID);
-        	log.trace(s);
-        }
-        log.trace("Starting reference cache...");
-        for (LSID key : referenceCache.keySet())
-        {
-        	for (LSID value : referenceCache.get(key))
-        	{
-        		String s = String.format("%s == %s", key, value);
-        		log.trace(s);
-        	}
-        }
-        log.trace("containerCache contains " + containerCache.size()
-        		+ " entries.");
-        log.trace("referenceCache contains " 
-        		+ store.countCachedReferences(null, null)
-        		+ " entries.");
-        List<IObjectContainer> imageContainers = 
-            store.getIObjectContainers(Image.class);
-        for (IObjectContainer imageContainer : imageContainers)
-        {
-            Image image = (Image) imageContainer.sourceObject;
-            log.debug(String.format(
-                    "Image indexes:%s name:%s", imageContainer.indexes,
-                    image.getName().getValue()));
-        }
+        minimalStore.setReader(minimalWrapper);
     }
-    
+
     @AfterClass
     public void tearDown() throws IOException
     {
         wrapper.close();
         minimalWrapper.close();
         store.logout();
+        minimalStore.logout();
     }
 
+    @Parameters({ "target" })
     @Test
+    public void testMetadataLevelAllSetId(String target) throws Exception
+    {
+        wrapper.setId(target);
+        store.postProcess();
+        traceMetadataStoreData(store);
+    }
+
+    @Parameters({ "target" })
+    @Test
+    public void testMetadataLevelMinimumSetId(String target) throws Exception
+    {
+        minimalWrapper.setId(target);
+        minimalStore.postProcess();
+        traceMetadataStoreData(minimalStore);
+    }
+
+    @Test(dependsOnMethods=
+            {"testMetadataLevelAllSetId", "testMetadataLevelMinimumSetId"})
     public void testMetadataLevel()
         throws FormatException, IOException
     {
@@ -268,6 +263,47 @@ public class MetadataValidatorTest
     }
 
     /**
+     * Dumps <code>TRACE</code> data for a given metadata store.
+     * @param store The store to dump <code>TRACE</code> data for.
+     */
+    private void traceMetadataStoreData(OMEROMetadataStoreClient store)
+    {
+        containerCache = store.getContainerCache();
+        referenceCache = store.getReferenceCache();
+        log.trace("Starting container cache...");
+        for (LSID key : containerCache.keySet())
+        {
+            String s = String.format("%s == %s,%s", 
+                    key, containerCache.get(key).sourceObject,
+                    containerCache.get(key).LSID);
+            log.trace(s);
+        }
+        log.trace("Starting reference cache...");
+        for (LSID key : referenceCache.keySet())
+        {
+            for (LSID value : referenceCache.get(key))
+            {
+                String s = String.format("%s == %s", key, value);
+                log.trace(s);
+            }
+        }
+        log.trace("containerCache contains " + containerCache.size()
+                + " entries.");
+        log.trace("referenceCache contains " 
+                + store.countCachedReferences(null, null)
+                + " entries.");
+        List<IObjectContainer> imageContainers = 
+            store.getIObjectContainers(Image.class);
+        for (IObjectContainer imageContainer : imageContainers)
+        {
+            Image image = (Image) imageContainer.sourceObject;
+            log.trace(String.format(
+                    "Image indexes:%s name:%s", imageContainer.indexes,
+                    image.getName().getValue()));
+        }
+    }
+
+    /**
      * Calculates a SHA-1 digest on a byte array.
      * @param buf Byte array to calculate a SHA-1 digest for.
      * @return Hex string of the SHA-1 digest for <code>buf</code>.
@@ -336,8 +372,8 @@ public class MetadataValidatorTest
 		}
 		return false;
 	}
-	
-	@Test
+
+	@Test(dependsOnMethods={"testMetadataLevel"})
 	public void testCreationDateIsReasonable()
 	{
 		List<IObjectContainer> containers = 
@@ -361,8 +397,8 @@ public class MetadataValidatorTest
 			}
 		}
 	}
-	
-	@Test
+
+	@Test(dependsOnMethods={"testMetadataLevel"})
 	public void testPlaneInfoZCT()
 	{
 		List<IObjectContainer> containers = 
@@ -375,8 +411,8 @@ public class MetadataValidatorTest
 			assertNotNull("theT is null", planeInfo.getTheT());
 		}
 	}
-	
-	@Test
+
+	@Test(dependsOnMethods={"testMetadataLevel"})
 	public void testChannelCount()
 	{
 		List<IObjectContainer> containers = 
@@ -402,8 +438,8 @@ public class MetadataValidatorTest
 			}
 		}
 	}
-	
-	@Test
+
+	@Test(dependsOnMethods={"testMetadataLevel"})
 	public void testLogicalChannelCount()
 	{
 		List<IObjectContainer> containers = 
@@ -431,8 +467,8 @@ public class MetadataValidatorTest
 			}
 		}
 	}
-	
-	@Test
+
+	@Test(dependsOnMethods={"testMetadataLevel"})
 	public void testPlatesExist()
 	{
 		List<IObjectContainer> containers = 
@@ -447,8 +483,8 @@ public class MetadataValidatorTest
 					store.countCachedContainers(Plate.class, plateIndex) > 0);
 		}
 	}
-	
-	@Test
+
+	@Test(dependsOnMethods={"testMetadataLevel"})
 	public void testWellsExist()
 	{
 		List<IObjectContainer> containers = 
@@ -465,8 +501,8 @@ public class MetadataValidatorTest
 			assertTrue(e, count == 1);
 		}
 	}
-	
-	@Test
+
+	@Test(dependsOnMethods={"testMetadataLevel"})
 	public void testAuthoritativeLSIDsAreUnique()
 	{
 		Set<String> authoritativeLSIDs = new HashSet<String>();
@@ -483,8 +519,8 @@ public class MetadataValidatorTest
 			}
 		}
 	}
-	
-	@Test
+
+	@Test(dependsOnMethods={"testMetadataLevel"})
 	public void testDetectorSettingsIndexes()
 	{
 		Class<? extends IObject> klass = DetectorSettings.class;
@@ -508,8 +544,8 @@ public class MetadataValidatorTest
 			assertFalse(e, logicalChannelIndex >= logicalChannelCount);
 		}
 	}
-	
-	@Test
+
+	@Test(dependsOnMethods={"testMetadataLevel"})
 	public void testDetectorSettingsDetectorRef()
 	{
 		Class<? extends IObject> klass = DetectorSettings.class;
@@ -536,8 +572,8 @@ public class MetadataValidatorTest
 			}
 		}
 	}
-	
-	@Test
+
+	@Test(dependsOnMethods={"testMetadataLevel"})
 	public void testObjectiveSettingsIndexes()
 	{
 		Class<? extends IObject> klass = ObjectiveSettings.class;
@@ -553,8 +589,8 @@ public class MetadataValidatorTest
 			assertFalse(e, imageIndex >= imageCount);
 		}
 	}
-	
-	@Test
+
+	@Test(dependsOnMethods={"testMetadataLevel"})
 	public void testObjectiveSettingsObjectiveRef()
 	{
 		Class<? extends IObject> klass = ObjectiveSettings.class;
@@ -580,8 +616,8 @@ public class MetadataValidatorTest
 			}
 		}
 	}
-	
-	@Test
+
+	@Test(dependsOnMethods={"testMetadataLevel"})
 	public void testLightSourceSettingsIndexes()
 	{
 		Class<? extends IObject> klass = LightSettings.class;
@@ -605,8 +641,8 @@ public class MetadataValidatorTest
 			assertFalse(e, logicalChannelIndex >= logicalChannelCount);
 		}
 	}
-	
-	@Test
+
+	@Test(dependsOnMethods={"testMetadataLevel"})
 	public void testLightSourceSettingsLightSourceRef()
 	{
 		Class<? extends IObject> klass = LightSettings.class;
@@ -632,8 +668,8 @@ public class MetadataValidatorTest
 			}
 		}
 	}
-	
-	@Test
+
+	@Test(dependsOnMethods={"testMetadataLevel"})
 	public void testLogicalChannelRefs()
 	{
 		Class<? extends IObject> klass = LogicalChannel.class;
@@ -669,8 +705,8 @@ public class MetadataValidatorTest
 			}
 		}
 	}
-	
-	@Test
+
+	@Test(dependsOnMethods={"testMetadataLevel"})
 	public void testInstrumentImageRef()
 	{
 		Class<? extends IObject> klass = Instrument.class;
@@ -694,8 +730,8 @@ public class MetadataValidatorTest
 					"%s %s not referenced by any image.", klass, lsid));
 		}
 	}
-	
-	@Test
+
+	@Test(dependsOnMethods={"testMetadataLevel"})
 	public void testFilterSetRefs()
 	{
 		Class<? extends IObject> klass = FilterSet.class;
@@ -724,8 +760,8 @@ public class MetadataValidatorTest
 			}
 		}
 	}
-	
-	@Test
+
+	@Test(dependsOnMethods={"testMetadataLevel"})
 	public void testOTFIsReferenced()
 	{
 		Class<? extends IObject> klass = OTF.class;
