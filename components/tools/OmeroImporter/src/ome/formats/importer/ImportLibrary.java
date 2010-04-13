@@ -626,57 +626,22 @@ public class ImportLibrary implements IObservable
         }
 
         int planeNo = 1;
-        int posY;
-        int bytesToRead;
-        int planeNumber;
-        int width = size.sizeX;
-        int height;
         int offset = 0;
-        int arrayBufSize;
         for (int t = 0; t < size.sizeT; t++)
         {
             for (int c = 0; c < size.sizeC; c++)
             {
                 for (int z = 0; z < size.sizeZ; z++)
                 {
-                    posY = 0;
-                    bytesToRead = size.sizeX * size.sizeY;
-                    while (bytesToRead > 0)
-                    {
-                        planeNumber = reader.getIndex(z, c, t);
-                        height = maximumRowCount;
-                        if ((posY + height) > size.sizeY)
-                        {
-                            height = size.sizeY - posY;
-                        }
-                        Plane2D data = reader.openPlane2D(
-                                fileName, planeNumber, arrayBuf, 0, posY,
-                                width, height);
-                        ByteBuffer buf = data.getData();
-                        arrayBuf = swapIfRequired(buf, fileName);
-                        arrayBufSize = bytesPerPixel * height * width;
-                        try
-                        {
-                            md.update(arrayBuf);
-                        }
-                        catch (Exception e)
-                        {
-                            // This better not happen. :)
-                            throw new RuntimeException(e);
-                        }
-                        store.setRegion(pixId, arrayBuf, arrayBufSize, offset);
-
-                        // Update offsets, etc.
-                        posY += height;
-                        bytesToRead -= height * width;
-                        offset += arrayBufSize;
-                        log.debug(String.format(
-                                "ToRead:%d Size:%d Offset: %d Width:%d Height: %d PosY:%d",
-                                bytesToRead, arrayBufSize, offset, width, height, posY));
-                    }
-                    planeNo++;
+                    // XXX: Disabling for now.
+                    //offset = writeDataBlockBased(
+                    //        pixId, size, z, c, t, offset, maximumRowCount,
+                    //        maximumPixelCount, bytesPerPixel, fileName, md);
+                    writeDataPlanarBased(pixId, size, z, c, t, bytesPerPixel,
+                                         fileName, md);
                     notifyObservers(new ImportEvent.IMPORT_STEP(
                             planeNo, series, reader.getSeriesCount()));
+                    planeNo++;
                 }
             }
         }
@@ -685,6 +650,125 @@ public class ImportLibrary implements IObservable
 
     // ~ Helpers
     // =========================================================================
+
+    /**
+     * Writes data to the server for a given plane in a block based manner.
+     * @param pixId Pixels ID to write to.
+     * @param size Sizes of the Pixels set.
+     * @param z The Z-section offset to write to.
+     * @param c The channel offset to write to.
+     * @param t The timepoint offset to write to.
+     * @param offset Offset within the Pixel buffer to write at.
+     * @param maximumRowCount Maximum number of rows for this Pixels set that
+     * can fit in the array buffer.
+     * @param maximumPixelCount Maximum number of total pixels that can fit in
+     * the array buffer.
+     * @param bytesPerPixel Number of bytes per pixel.
+     * @param fileName Name of the file.
+     * @param md Current Pixels set message digest.
+     * @return The new offset to use for the next plane.
+     * @throws FormatException If there is an error reading Pixel data via
+     * Bio-Formats.
+     * @throws IOException If there is an I/O error reading Pixel data via
+     * Bio-Formats.
+     * @throws ServerError If there is an error writing the data to the
+     * OMERO.server instance.
+     */
+    private int writeDataBlockBased(long pixId, ImportSize size,
+                                    int z, int c, int t, int offset,
+                                    int maximumRowCount, int maximumPixelCount,
+                                    int bytesPerPixel, String fileName,
+                                    MessageDigest md)
+        throws FormatException, IOException, ServerError
+    {
+        int posY;
+        int bytesToRead;
+        int planeNumber;
+        int width = size.sizeX;
+        int height;
+        int arrayBufSize;
+        posY = 0;
+        bytesToRead = size.sizeX * size.sizeY;
+        while (bytesToRead > 0)
+        {
+            planeNumber = reader.getIndex(z, c, t);
+            height = maximumRowCount;
+            if ((posY + height) > size.sizeY)
+            {
+                height = size.sizeY - posY;
+            }
+            arrayBufSize = bytesPerPixel * height * width;
+            log.debug(String.format(
+                    "ToRead:%d Size:%d Offset: %d Width:%d Height: %d PosY:%d",
+                    bytesToRead, arrayBufSize, offset, width, height, posY));
+            Plane2D data = reader.openPlane2D(
+                    fileName, planeNumber, arrayBuf, 0, posY,
+                    width, height);
+            ByteBuffer buf = data.getData();
+            arrayBuf = swapIfRequired(buf, fileName);
+            try
+            {
+                md.update(arrayBuf);
+            }
+            catch (Exception e)
+            {
+                // This better not happen. :)
+                throw new RuntimeException(e);
+            }
+            store.setRegion(pixId, arrayBuf, arrayBufSize, offset);
+
+            // Update offsets, etc.
+            posY += height;
+            bytesToRead -= height * width;
+            offset += arrayBufSize;
+        }
+        return offset;
+    }
+
+    /**
+     * Writes data to the server for a given plane in a <i>full plane</i>
+     * manner.
+     * @param pixId Pixels ID to write to.
+     * @param size Sizes of the Pixels set.
+     * @param z The Z-section offset to write to.
+     * @param c The channel offset to write to.
+     * @param t The timepoint offset to write to.
+     * @param bytesPerPixel Number of bytes per pixel.
+     * @param fileName Name of the file.
+     * @param md Current Pixels set message digest.
+     * @throws FormatException If there is an error reading Pixel data via
+     * Bio-Formats.
+     * @throws IOException If there is an I/O error reading Pixel data via
+     * Bio-Formats.
+     * @throws ServerError If there is an error writing the data to the
+     * OMERO.server instance.
+     */
+    private void writeDataPlanarBased(long pixId, ImportSize size,
+                                      int z, int c, int t,
+                                      int bytesPerPixel, String fileName,
+                                      MessageDigest md)
+        throws FormatException, IOException, ServerError
+    {
+        int bytesToRead = size.sizeX * size.sizeY * bytesPerPixel;
+        if (arrayBuf.length != bytesToRead)
+        {
+            arrayBuf = new byte[bytesToRead];
+        }
+        int planeNumber = reader.getIndex(z, c, t);
+        Plane2D data = reader.openPlane2D(fileName, planeNumber, arrayBuf);
+        ByteBuffer buf = data.getData();
+        arrayBuf = swapIfRequired(buf, fileName);
+        try
+        {
+            md.update(arrayBuf);
+        }
+        catch (Exception e)
+        {
+            // This better not happen. :)
+            throw new RuntimeException(e);
+        }
+        store.setPlane(pixId, arrayBuf, z, c, t);
+    }
 
     /**
      * Return true if the data is in little-endian format. 
