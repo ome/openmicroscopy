@@ -101,7 +101,7 @@ class FileSaverUI
 	/** Action id indicating to create a new folder. */
 	private static final int		NEW_FOLDER = 2;
 	
-	/** Reference to the {@link ImgSaver}. */
+	/** Reference to the {@link FileChooser}. */
 	private FileChooser                 model;
 
 	/** Reference to the file chooser. */

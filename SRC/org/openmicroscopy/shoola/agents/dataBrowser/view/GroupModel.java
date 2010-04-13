@@ -39,6 +39,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 
@@ -86,7 +87,53 @@ class GroupModel
 	protected DataBrowserLoader createDataLoader(boolean refresh, 
 			Collection ids)
 	{
-		return null;
+		if (refresh) imagesLoaded = 0;
+		if (imagesLoaded != 0 && ids != null)
+			imagesLoaded = imagesLoaded-ids.size();
+		if (imagesLoaded == numberOfImages) return null;
+		//only load thumbnails not loaded.
+		List<ImageNode> nodes = browser.getVisibleImageNodes();
+		if (nodes == null || nodes.size() == 0) return null;
+		Iterator<ImageNode> i = nodes.iterator();
+		ImageNode node;
+		List<DataObject> imgs = new ArrayList<DataObject>();
+		DataObject data;
+		List<Long> loaded = new ArrayList<Long>();
+		if (ids != null) {
+			while (i.hasNext()) {
+				node = i.next();
+				if (node.getThumbnail().getFullScaleThumb() == null) {
+					data = (DataObject) node.getHierarchyObject();
+					if (ids.contains(data.getId())) {
+						if (!loaded.contains(data.getId())) {
+							imgs.add(data);
+							loaded.add(data.getId());
+							imagesLoaded++;
+						}
+					}
+				}
+			}
+		} else {
+			long id;
+			List<ImageData> list;
+			while (i.hasNext()) {
+				node = i.next();
+				if (node.getThumbnail().getFullScaleThumb() == null) {
+					data = (DataObject) node.getHierarchyObject();
+					id = data.getId();
+					if (id > 0) {
+						if (!loaded.contains(id)) {
+							imgs.add(data);
+							loaded.add(id);
+							imagesLoaded++;
+						}
+					}
+				}
+			}
+		}
+		if (imgs.size() == 0) return null;
+		return new ThumbnailLoader(component, sorter.sort(imgs), 
+				ThumbnailLoader.EXPERIMENTER);
 	}
 	
 	/**

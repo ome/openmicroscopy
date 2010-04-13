@@ -712,4 +712,18 @@ public interface OmeroImageService
 			List<DataObject> files, int maxLength, long userID)
 		throws DSAccessException, DSOutOfServiceException, FSAccessException;
 	
+	/**
+	 * Retrieves the thumbnails corresponding to the passed collection of
+	 * experimenter.
+	 * 
+	 * @param experimenters	The experimenters to handle.
+	 * @param maxLength The maximum length of a thumbnail.
+	 * @param userID	The id of the user.
+	 * @return See above.
+	 * @throws RenderingServiceException  If the server is out of service.
+	 */
+	public Map<DataObject, BufferedImage> getExperimenterThumbnailSet(
+			List<DataObject> experimenters, int maxLength, long userID)
+		throws DSAccessException, DSOutOfServiceException, FSAccessException;
+	
 }

@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.util.ui.treetable.model;
 //Java imports
 import java.util.List;
 import java.util.Stack;
-
 import javax.swing.tree.TreePath;
 
 //Third-party libraries
@@ -36,7 +35,7 @@ import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 //Application-internal dependencies
 
 /** 
- * A node of an {@link OMETree}.
+ * A node of an {@link OMETreeTable}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -62,7 +61,7 @@ public class OMETreeNode
 	}
 	
 	/**
-	 * Creates a new instance with userobject.
+	 * Creates a new instance with user object.
 	 * 
 	 * @param object The user object.
 	 */
@@ -138,7 +137,7 @@ public class OMETreeNode
 	public List<MutableTreeTableNode> getChildList() { return children; }
 	
 	/**
-	 * Overridden so that the node is not editable.
+	 * Overridden so that the node cannot be edited.
 	 * @see DefaultMutableTreeTableNode#isEditable(int)
 	 */
 	public boolean isEditable(int column) { return false; }

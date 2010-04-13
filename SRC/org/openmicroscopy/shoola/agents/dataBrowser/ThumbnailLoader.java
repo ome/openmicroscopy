@@ -141,8 +141,6 @@ public class ThumbnailLoader
         super(viewer);
         if (objects == null)
             throw new IllegalArgumentException("Collection shouldn't be null.");
-        DataObject o;
-        Iterator<DataObject> i = objects.iterator();
         if (type < 0) this.type = IMAGE;
         else this.type = type;
         this.objects = objects;

@@ -101,7 +101,7 @@ class GeneralPaneUI
 	/** The component hosting the {@link #propertiesUI}. */
 	private JXTaskPane 					propertiesTaskPane;
 	
-	/** The component hosting the {@link #annotationUI}. */
+	/** The component hosting the annotation component. */
 	private JXTaskPane 					annotationTaskPane;
 	
 	/** Collection of annotations UI components. */
@@ -110,10 +110,10 @@ class GeneralPaneUI
 	/** Main component. */
 	private JPanel						content;
 	
-	/** The layout index of the {@link annotationUI}. */
+	/** The layout index of the annotation component. */
 	private int							annotationLayoutIndex;
 	
-	/** The layout index of the {@link browserTaskPane}. */
+	/** The layout index of the browser component. */
 	private int							browserIndex;
 	
 	/** The layout index of the protocols. */

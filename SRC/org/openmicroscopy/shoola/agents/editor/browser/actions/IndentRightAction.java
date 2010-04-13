@@ -23,9 +23,7 @@
 package org.openmicroscopy.shoola.agents.editor.browser.actions;
 
 //Java imports
-
 import java.awt.event.ActionEvent;
-
 import javax.swing.undo.UndoableEditSupport;
 
 //Third-party libraries
@@ -34,12 +32,11 @@ import javax.swing.undo.UndoableEditSupport;
 
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
-import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.DeleteFieldsEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.IndentRightEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.UndoableTreeEdit;
 
 /** 
- * This Action is used to right-indent fields from a {@link JTree}. 
+ * This Action is used to right-indent fields from a <code>JTree</code>. 
  * The setTree(JTree) method must be called before this Action can 
  * be used.
  * This class wraps an instance of the {@link UndoableEdit} subclass 
@@ -69,9 +66,9 @@ public class IndentRightAction
 	 * @param undoSupport	The UndoableSupport to post edits to undo/redo queue
 	 * @param model		Reference to the Model. Mustn't be <code>null</code>.
 	 */
-	public IndentRightAction(UndoableEditSupport undoSupport, Browser model) {
+	public IndentRightAction(UndoableEditSupport undoSupport, Browser model)
+	{
 		super(undoSupport, model);
-		
 		setName("Indent Steps to Right");
 		setDescription("Indent currently selected steps to the right");
 		setIcon(IconManager.INDENT_RIGHT);  
@@ -81,23 +78,21 @@ public class IndentRightAction
 	 * This creates a new instance of {@link IndentRightEdit}, 
 	 * calls it's {@link IndentRightEdit#doEdit()} method and 
 	 * posts it to the undo/redo queue. 
-	 * 
 	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
 	 */
-	public void actionPerformed(ActionEvent e) {
+	public void actionPerformed(ActionEvent e)
+	{
 		UndoableTreeEdit edit = new IndentRightEdit(treeUI);
-		
 		edit.doEdit();
-		
 		undoSupport.postEdit(edit);
 	}
 	
 	/**
 	 * Implemented as specified by the {@link AbstractTreeEditAction} class
-	 * 
 	 * @see AbstractTreeEditAction#canDo()
 	 */
-	protected boolean canDo() {
+	protected boolean canDo()
+	{
 		if (treeUI == null) return false; 
 		return IndentRightEdit.canDo(treeUI.getSelectionPaths());
 	}

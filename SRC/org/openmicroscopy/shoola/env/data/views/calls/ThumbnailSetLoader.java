@@ -139,7 +139,7 @@ public class ThumbnailSetLoader
         	pxd = data.getDefaultPixels();
 		} catch (Exception e) {} //something went wrong during import
         if (pxd == null)
-        	return Factory.createDefaultImageThumbnail(false);
+        	return Factory.createDefaultImageThumbnail(-1);
         Dimension d = Factory.computeThumbnailSize(maxLength, maxLength, 
         		pxd.getSizeX(), pxd.getSizeY());
         return Factory.createDefaultImageThumbnail(d.width, d.height);
@@ -191,9 +191,9 @@ public class ThumbnailSetLoader
     }
     
     /**
-     * Loads the thumbnail for passed collection of files.
+     * Loads the thumbnails for the passed collection of files.
      * 
-     * @param ids The collection of files to handle.
+     * @param files The collection of files to handle.
      */
     private void loadFSThumbnails(List files)
     {
@@ -215,7 +215,8 @@ public class ThumbnailSetLoader
 				obj = (DataObject) entry.getKey();
 				thumb = (BufferedImage) entry.getValue();
 				if (thumb == null) {
-					thumb = Factory.createDefaultImageThumbnail(true);
+					thumb = Factory.createDefaultImageThumbnail(
+							Factory.IMAGE_ICON);
 				}
 				if (obj.getId() > 0)
 					result.add(new ThumbnailData(obj.getId(), thumb, valid));
@@ -228,6 +229,46 @@ public class ThumbnailSetLoader
         			"Cannot retrieve thumbnail: "+e.getMessage());
 		}
     }
+    
+    /**
+     * Loads the thumbnails for the passed collection of experimenters.
+     * 
+     * @param experimenters The collection of experimenters to handle.
+     */
+    private void loadExperimenterThumbnails(List experimenters)
+    {
+    	try {
+    		ExperimenterData exp = (ExperimenterData) context.lookup(
+					LookupNames.CURRENT_USER_DETAILS);
+			long id = exp.getId();
+    		Map<DataObject, BufferedImage> m = 
+    			service.getExperimenterThumbnailSet(experimenters,  
+        			maxLength, id);
+    		Entry entry;
+    		List result = new ArrayList();
+        	Iterator i = m.entrySet().iterator();
+        	BufferedImage thumb;
+        	DataObject obj;
+        	boolean valid = true;
+        	while (i.hasNext()) {
+				entry = (Entry) i.next();
+				obj = (DataObject) entry.getKey();
+				thumb = (BufferedImage) entry.getValue();
+				if (thumb == null) 
+					thumb = Factory.createDefaultImageThumbnail(
+							Factory.EXPERIMENTER_ICON);
+				if (obj.getId() > 0)
+					result.add(new ThumbnailData(obj.getId(), thumb, valid));
+				else 
+					result.add(new ThumbnailData(obj, thumb, valid));
+			}
+        	currentThumbs = result;
+		} catch (Exception e) {
+			context.getLogger().error(this, 
+        			"Cannot retrieve thumbnail: "+e.getMessage());
+		}
+    }
+    
     
     /**
      * Loads the thumbnail for passed collection of pixels set.
@@ -287,6 +328,8 @@ public class ThumbnailSetLoader
         				loadThumbails(ids);
         			} else if (FileData.class.equals(type)) {
         				loadFSThumbnails(ids);
+        			} else if (ExperimenterData.class.equals(type)) {
+        				loadExperimenterThumbnails(ids);
         			}
         		}
         	});  
@@ -377,6 +420,19 @@ public class ThumbnailSetLoader
     		} else if (object instanceof FileData) {
     			input.put(object.getId(), object);
     			type = FileData.class;
+    			if (index == 0) l = new ArrayList<Object>();
+    			if (index < fetchSize) {
+    				l.add(object);
+    				index++;
+    				if (index == fetchSize) {
+    					toHandle.add(l);
+    					index = 0;
+    					l = null;
+    				}
+    			}
+    		} else if (object instanceof ExperimenterData) {
+    			input.put(object.getId(), object);
+    			type = ExperimenterData.class;
     			if (index == 0) l = new ArrayList<Object>();
     			if (index < fetchSize) {
     				l.add(object);

@@ -5157,7 +5157,7 @@ class OMEROGateway
 	}
 
 	/**
-	 * Deletes the passed object using the {@link IDelete} service.
+	 * Deletes the passed object using the {@link IDeletePrx} service.
 	 * Returns an empty list of nothing prevent the delete to happen,
 	 * otherwise returns a list of objects preventing the delete to happen.
 	 * 

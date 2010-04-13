@@ -130,7 +130,7 @@ abstract class ControlPane
     protected abstract void switchRndControl();
     
     /** 
-     * Reacts to {@link ImViewer} change events.
+     * Reacts to change events.
      * 
      * @param b Pass <code>true</code> to enable the UI components, 
      *          <code>false</code> otherwise.

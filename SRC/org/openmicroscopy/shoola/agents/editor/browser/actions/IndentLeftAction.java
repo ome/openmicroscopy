@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.agents.editor.browser.actions;
 
 //Java imports
-
 import java.awt.event.ActionEvent;
 
 import javax.swing.undo.UndoableEditSupport;
@@ -34,12 +33,11 @@ import javax.swing.undo.UndoableEditSupport;
 
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
-import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.DeleteFieldsEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.IndentLeftEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.UndoableTreeEdit;
 
 /** 
- * This Action is used to left-indent fields from a {@link JTree}. 
+ * This Action is used to left-indent fields from a <code>JTree</code>. 
  * The setTree(JTree) method must be called before this Action can 
  * be used.
  * This class wraps an instance of the {@link UndoableEdit} subclass 
@@ -69,7 +67,8 @@ public class IndentLeftAction
 	 * @param undoSupport	The UndoableSupport to post edits to undo/redo queue
 	 * @param model		Reference to the Model. Mustn't be <code>null</code>.
 	 */
-	public IndentLeftAction(UndoableEditSupport undoSupport, Browser model) {
+	public IndentLeftAction(UndoableEditSupport undoSupport, Browser model)
+	{
 		super(undoSupport, model);
 		
 		setName("Indent Steps to Left");
@@ -84,11 +83,10 @@ public class IndentLeftAction
 	 * 
 	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
 	 */
-	public void actionPerformed(ActionEvent e) {
+	public void actionPerformed(ActionEvent e)
+	{
 		UndoableTreeEdit edit = new IndentLeftEdit(treeUI);
-		
 		edit.doEdit();
-		
 		undoSupport.postEdit(edit);
 	}
 	
@@ -97,7 +95,8 @@ public class IndentLeftAction
 	 * 
 	 * @see AbstractTreeEditAction#canDo()
 	 */
-	protected boolean canDo() {
+	protected boolean canDo()
+	{
 		if (treeUI == null) return false; 
 		return IndentLeftEdit.canDo(treeUI.getSelectionPaths());
 	}

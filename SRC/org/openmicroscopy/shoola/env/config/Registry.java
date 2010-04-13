@@ -137,7 +137,7 @@ public interface Registry
     public OmeroDataService getDataService();
     
     /**
-     * Returns a reference to the {@link OmeroMetaDataService}.
+     * Returns a reference to the {@link OmeroMetadataService}.
      * 
      * @return See above.
      */

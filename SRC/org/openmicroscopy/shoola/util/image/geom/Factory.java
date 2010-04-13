@@ -84,6 +84,12 @@ import org.openmicroscopy.shoola.util.ui.IconManager;
 public class Factory
 {
     
+	/** Identifies the default icon for an image. */
+	public static final int		IMAGE_ICON = IconManager.BROKEN_FILE_96;
+	
+	/** Identifies the default icon for an experimenter. */
+	public static final int		EXPERIMENTER_ICON = IconManager.PERSONAL_96;
+	
 	/** The default width of the icon. */
 	public static final int		DEFAULT_ICON_WIDTH = 16;
 	
@@ -207,26 +213,37 @@ public class Factory
     /**
      * Creates a default thumbnail image.
      * 
-     * @param icon 	Pass <code>true</code> to use an image icon, 
-     * 				<code>false</code> otherwise.
+     * @param icon 	One of the following {@link #IMAGE_ICON}, 
+     * 				{@link #EXPERIMENTER_ICON} or <code>-1</code>;
      * @return See above.
      */
-    public static BufferedImage createDefaultImageThumbnail(boolean icon)
+    public static BufferedImage createDefaultImageThumbnail(int icon)
     {
     	IconManager icons = IconManager.getInstance();
     	ImageIcon img = null;
-    	if (icon) img = icons.getImageIcon(IconManager.BROKEN_FILE_96);
+    	Color background = Color.BLACK;
+    	switch (icon) {
+			case IMAGE_ICON:
+				background = null;
+				img = icons.getImageIcon(IconManager.BROKEN_FILE_96);
+				break;
+			case EXPERIMENTER_ICON:
+				background = null;
+				img = icons.getImageIcon(IconManager.PERSONAL_96);
+				break;
+		}
     	if (img == null) return createDefaultThumbnail(96, 96, null); 
     	int h = img.getIconHeight();
     	int w = img.getIconWidth();
         BufferedImage thumbPix = new BufferedImage(w, h, 
                                 BufferedImage.TYPE_INT_RGB);
         Graphics2D g = (Graphics2D) thumbPix.getGraphics();
-        g.setBackground(Color.black);
+        if (background != null) g.setBackground(background);
         g.drawImage(img.getImage(), 0, 0, null);
         g.dispose();
         return thumbPix;
     }
+    
     
     /**
      * Creates a default thumbnail image.

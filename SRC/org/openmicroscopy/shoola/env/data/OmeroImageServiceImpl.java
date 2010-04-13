@@ -1017,4 +1017,34 @@ class OmeroImageServiceImpl
 		return m;
 	}
 	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroImageService#getExperimenterThumbnailSet(List, int, long)
+	 */
+	public Map<DataObject, BufferedImage> getExperimenterThumbnailSet(
+			List<DataObject> experimenters, int maxLength, long userID)
+			throws DSAccessException, DSOutOfServiceException, FSAccessException
+	{
+		Map<DataObject, BufferedImage> 
+			m = new HashMap<DataObject, BufferedImage>();
+		if (experimenters == null || experimenters.size() == 0) return m;
+		//FSFileSystemView view = gateway.getFSRepositories(userID);
+		Iterator<DataObject> i = experimenters.iterator();
+		DataObject exp;
+		String path;
+		while (i.hasNext()) {
+			exp = i.next();
+			//path = view.getThumbnail(file);
+			try {
+				//if (path != null) m.put(file, createImage(path));
+				//else m.put(file, null);
+				m.put(exp, null);
+			} catch (Exception e) {
+				//m.put(file, null);
+				m.put(exp, null);
+			}
+		}
+		return m;
+	}
+	
 }

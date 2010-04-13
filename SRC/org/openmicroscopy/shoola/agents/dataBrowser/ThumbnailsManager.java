@@ -39,6 +39,8 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
+
+import pojos.ExperimenterData;
 import pojos.ImageData;
 
 /** 
@@ -117,7 +119,7 @@ public class ThumbnailsManager
             	}
             		
             	thumb = ((ImageNode) node).getThumbnail();
-            }
+            } 
             if (is != null) {
             	 id = is.getId();
                  providers = thumbProviders.get(id);
@@ -132,6 +134,14 @@ public class ThumbnailsManager
                     if (providers == null) {
                         providers = new HashSet<Thumbnail>();
                         thumbProviders.put(ho, providers);
+                    }
+                    providers.add(thumb);
+            	} else if (ho instanceof ExperimenterData) {
+            		ExperimenterData exp = (ExperimenterData) ho;
+            		providers = thumbProviders.get(exp.getId());
+                    if (providers == null) {
+                        providers = new HashSet<Thumbnail>();
+                        thumbProviders.put(exp.getId(), providers);
                     }
                     providers.add(thumb);
             	}

@@ -477,6 +477,17 @@ public class NullRenderingService
 
 	/**
      * No-op implementation
+     * @see OmeroImageService#getExperimenterThumbnailSet(List, int, long)
+     */
+	public Map<DataObject, BufferedImage> getExperimenterThumbnailSet(
+			List<DataObject> experimenters, int maxLength, long userID)
+		throws DSAccessException, DSOutOfServiceException, FSAccessException
+	{
+		return null;
+	}
+	
+	/**
+     * No-op implementation
      * @see OmeroImageService#loadScript(long)
      */
 	public ScriptObject loadScript(long scriptID)

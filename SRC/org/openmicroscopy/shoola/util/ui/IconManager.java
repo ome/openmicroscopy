@@ -485,11 +485,14 @@ public class IconManager
     /** ID of the <code>decrypted</code> icon. */
     public static final int DECRYPTED_24 = 139;
     
+    /** ID of the 96x96 <code>Personal</code> icon. */
+    public static final int PERSONAL_96 = 140;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 139;
+    private static int      MAX_ID = 140;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -637,6 +640,7 @@ public class IconManager
         relPaths[GROUP] = "nuvola_personal16.png";
         relPaths[ENCRYPTED_24] = "nuvola_encrypted_grey24.png";
         relPaths[DECRYPTED_24] = "nuvola_decrypted_grey24.png";
+        relPaths[PERSONAL_96] ="nuvola_personal96.png";
     }
 	
 	/**

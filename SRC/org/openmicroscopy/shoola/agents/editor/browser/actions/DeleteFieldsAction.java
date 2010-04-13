@@ -23,15 +23,12 @@
 package org.openmicroscopy.shoola.agents.editor.browser.actions;
 
 //Java imports
-
 import java.awt.event.ActionEvent;
-
 import javax.swing.undo.UndoableEditSupport;
 
 //Third-party libraries
 
 //Application-internal dependencies
-
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.DeleteFieldsEdit;
@@ -39,7 +36,7 @@ import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.UndoableTreeE
 
 
 /** 
- * This Action is used to delete fields from a {@link JTree}. 
+ * This Action is used to delete fields from a <code>JTree</code>.
  * The setTree(JTree) method must be called before this Action can 
  * be used.
  * This class wraps an instance of the {@link UndoableEdit} subclass 
@@ -85,11 +82,10 @@ public class DeleteFieldsAction
 	 * 
 	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
 	 */
-	public void actionPerformed(ActionEvent e) {
+	public void actionPerformed(ActionEvent e)
+	{
 		UndoableTreeEdit edit = new DeleteFieldsEdit(treeUI);
-		
 		edit.doEdit();
-		
 		undoSupport.postEdit(edit);
 	}
 
@@ -98,7 +94,8 @@ public class DeleteFieldsAction
 	 * 
 	 * @see AbstractTreeEditAction#canDo()
 	 */
-	protected boolean canDo() {
+	protected boolean canDo()
+	{
 		if (treeUI == null) return false; 
 		return DeleteFieldsEdit.canDo(treeUI.getSelectionPaths());
 	}
