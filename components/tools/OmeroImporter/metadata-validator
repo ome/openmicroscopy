@@ -74,7 +74,7 @@ def create_testng_xml_file(targets, revision, bioformats_revision, hudson,
     """Creates a temporary file with TestNG XML content for each target."""
     root = Element("suite")
     root.set("name", "metadata-validator")
-	# Disabling parallelization
+    # Disabling parallelization
     #root.set("parallel", "tests")
     #root.set("thread-count", str(thread_count))
     if revision is not None:
@@ -87,6 +87,7 @@ def create_testng_xml_file(targets, revision, bioformats_revision, hudson,
         parameter.set("name", "bioformats_revision")
         parameter.set("value", bioformats_revision)
         root.append(parameter)
+    # Add each target to the TestNG XML file
     for target in targets:
         target = target.strip().lstrip()
         test_name = escape(target.replace("/", "_"))
@@ -97,11 +98,19 @@ def create_testng_xml_file(targets, revision, bioformats_revision, hudson,
         parameter = Element("parameter")
         parameter.set("name", "target")
         parameter.set("value", target)
+        # Add our exclusion group to the test for this target
+        groups = Element("groups")
+        run = Element("run")
+        exclude = Element("exclude")
+        exclude.set("name", "disabled")
+        run.append(exclude)
+        groups.append(run)
         test = Element("test")
         test.set("verbose", "2")
         test.set("name", test_name)
         test.set("annotations", "JDK")
         test.append(parameter)
+        test.append(groups)
         test.append(klasses)
         root.append(test)
     if hudson:
@@ -147,8 +156,8 @@ if __name__ == '__main__':
         classpath = os.environ['CLASSPATH']
     except KeyError:
         pass
-    classpath = "%s:./test-classes:./OmeroImporter.jar" % classpath
-    for f in glob.glob("./libs/test/*.jar"):
+    classpath = "%s:./target/test-classes" % classpath
+    for f in glob.glob("./target/libs/test/*.jar"):
         classpath += ":%s" % f
 
     bioformats_revision = None
