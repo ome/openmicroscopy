@@ -182,6 +182,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                 	config.password.set(lc.getPassword());
                 	config.hostname.set(lc.getHostName());
                 	config.port.set(lc.getPort());
+                	config.encryptedConnection.set(lc.isEncrypted());
                 }
             
                 viewer.statusBar.setStatusIcon("gfx/server_trying16.png",
@@ -408,9 +409,9 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                             JOptionPane.showMessageDialog(null,
                                 "For some reason we are not able to connect to the remote\n" +
                                 "history service (this most likely means the server does\n" +
-                                "not have this feature installed). In the meantime, you\n" +
-                                "will still be able to use the importer, however the\n" +
-                                "history tab's functionality will not be enabled.",
+                                "not have this feature installed). In the meantime, you will\n" +
+                                "still be able to use the importer, however the history tab's\n" +
+                                "functionality will not be enabled.",
                                 "Warning",
                                 JOptionPane.ERROR_MESSAGE);
                             HistoryDB.alertOnce = true;

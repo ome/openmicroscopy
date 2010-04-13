@@ -226,6 +226,8 @@ public class OMEROMetadataStoreClient
     
     private List<Pixels> pixelsList;
     
+    private boolean encryptedConnection = false;
+    
     private client c;
     private ServiceFactoryPrx serviceFactory;
     private IUpdatePrx iUpdate;
@@ -356,7 +358,9 @@ public class OMEROMetadataStoreClient
     
     /**
      * Initializes the MetadataStore taking string parameters to feed to the 
-     * OMERO Blitz client object.
+     * OMERO Blitz client object. Using this method creates an unsecure
+     * session.
+     * 
      * @param username User's omename.
      * @param password User's password.
      * @param server Server hostname.
@@ -372,14 +376,55 @@ public class OMEROMetadataStoreClient
                            String server, int port)
         throws CannotCreateSessionException, PermissionDeniedException, ServerError
     {
-        c = new client(server, port);
-        c.setAgent("OMERO.importer");
-        serviceFactory = c.createSession(username, password);
+    	c = new client(server, port);
+    	c.setAgent("OMERO.importer");
+    	serviceFactory = c.createSession(username, password);
+    	
+    	// Always make this an unsecure session
+        c = c.createClient(false);
+        serviceFactory = c.getSession();
+        
         initializeServices();
     }
     
     /**
+     * Initializes the MetadataStore taking string parameters to feed to the 
+     * OMERO Blitz client object. Using this method to create either secure
+     * or unsecure sessions.
+     * 
+     * @param username User's omename.
+     * @param password User's password.
+     * @param server Server hostname.
+     * @param port Server port.
+     * @param isSecure is this session secure
+     * @throws CannotCreateSessionException If there is a session error when
+     * creating the OMERO Blitz client object.
+     * @throws PermissionDeniedException If there is a problem logging the user
+     * in.
+     * @throws ServerError If there is a critical error communicating with the
+     * server.
+     */
+	public void initialize(String username, String password,
+            String server, int port, boolean isSecure) 
+	throws CannotCreateSessionException, PermissionDeniedException, ServerError
+	{
+    	c = new client(server, port);
+    	c.setAgent("OMERO.importer");
+    	serviceFactory = c.createSession(username, password);
+    	
+    	if (!isSecure)
+    	{
+    		c = c.createClient(false);
+    		serviceFactory = c.getSession();
+    	}
+
+        initializeServices();
+	}
+    
+    /**
      * Initializes the MetadataStore by joining an existing session.
+     * Use this method only with unsecure sessions.
+     * 
      * @param server Server hostname.
      * @param port Server port.
      * @param sessionKey Bind session key.
@@ -387,8 +432,34 @@ public class OMEROMetadataStoreClient
     public void initialize(String server, int port, String sessionKey)
         throws CannotCreateSessionException, PermissionDeniedException, ServerError
     {
-        c = new client(server, port);
-        c.setAgent("OMERO.importer");
+    	c = new client(server, port);
+    	c.setAgent("OMERO.importer");
+   	
+    	// Always make this an 'unsecure' session
+        c = c.createClient(false);
+        serviceFactory = c.joinSession(sessionKey);
+        initializeServices();
+    }
+    
+    /**
+     * Initializes the MetadataStore by joining an existing session.
+     * Use this method only with unsecure sessions.
+     * 
+     * @param server Server hostname.
+     * @param port Server port.
+     * @param sessionKey Bind session key.
+     */
+    public void initialize(String server, int port, String sessionKey, boolean isSecure)
+        throws CannotCreateSessionException, PermissionDeniedException, ServerError
+    {
+    	c = new client(server, port);
+    	c.setAgent("OMERO.importer");
+   	
+    	if (!isSecure)
+    	{
+    		c = c.createClient(false);
+    	}
+    	
         serviceFactory = c.joinSession(sessionKey);
         initializeServices();
     }
@@ -6141,4 +6212,12 @@ public class OMEROMetadataStoreClient
 		// TODO Auto-generated method stub
 		
 	}
+
+		public void setEncryptedConnection(boolean encryptedConnection) {
+			this.encryptedConnection = encryptedConnection;
+		}
+
+		public boolean isEncryptedConnection() {
+			return encryptedConnection;
+		}
 }

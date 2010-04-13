@@ -372,7 +372,7 @@ public class ImportHandler implements IObservable
     private void updateHistoryWithCompleteImport(int importKey)
     {
         try {
-            if (db != null)
+            if (db != null && db.historyEnabled == true)
                 db.updateBaseStatus(importKey, "complete");
         } catch (Exception e) {
         	log.error("updateBaseStatus exception: importKey '" 
@@ -390,7 +390,7 @@ public class ImportHandler implements IObservable
     private void updateHistoryWithDoneImport(int importKey, int index)
     {
         try {
-            if (db != null)
+            if (db != null && db.historyEnabled == true)
                 db.updateItemStatus(importKey, index, "done");
         } catch (Exception e) {
             log.error("updateItemStatus exception: importKey '" 

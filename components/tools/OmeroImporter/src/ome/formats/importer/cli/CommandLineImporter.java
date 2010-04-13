@@ -227,6 +227,7 @@ public class CommandLineImporter {
         config.sendReport.set(false);
         config.contOnError.set(false);
         config.debug.set(false);
+        config.encryptedConnection.set(false);
 
         LongOpt debug = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 1);
         LongOpt report = new LongOpt("report", LongOpt.NO_ARGUMENT, null, 2);

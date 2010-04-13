@@ -123,6 +123,8 @@ public class ImportConfig {
     public final FileValue savedDirectory;
     public final StrValue readersPath;
     
+    public final BoolValue encryptedConnection;
+    
     public final AnnotationListValue annotations;
 
     /**
@@ -227,6 +229,8 @@ public class ImportConfig {
         numOfDirectories = new IntValue("numOfDirectories", this, 0);
         savedDirectory = new FileValue("savedDirectory", this);
         
+        encryptedConnection = new BoolValue("ecryptedConnection", this, true);
+        
         annotations = new AnnotationListValue(
         		"annotations", this, new ArrayList<Annotation>());
 
@@ -301,10 +305,10 @@ public class ImportConfig {
         OMEROMetadataStoreClient client = new OMEROMetadataStoreClient();
         if (sessionKey.empty()) {
             client.initialize(username.get(), password.get(), hostname.get(),
-                    port.get());
+                    port.get(), encryptedConnection.get());
 
         } else {
-            client.initialize(hostname.get(), port.get(), sessionKey.get());
+            client.initialize(hostname.get(), port.get(), sessionKey.get(), encryptedConnection.get());
         }
         return client;
     }
