@@ -83,7 +83,6 @@ public class AdminLoader
     	if (group != null) {
     		GroupData g = (GroupData) group.getUserObject();
     		id = g.getId();
-    		
     	}
     	handle = adminView.loadExperimenterGroups(id, this);
     }

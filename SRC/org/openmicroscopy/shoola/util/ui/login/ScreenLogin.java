@@ -1208,8 +1208,7 @@ public class ScreenLogin
 		if (list.length() != 0) {
 			prefs.put(OMERO_USER_GROUP, "");
 			prefs.put(OMERO_USER_GROUP, list);
-		}
-		
+		}	
 	}
 	
 	/**

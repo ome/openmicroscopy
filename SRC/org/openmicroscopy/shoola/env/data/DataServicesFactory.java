@@ -421,8 +421,10 @@ public class DataServicesFactory
         		if (!omeroGateway.isSystemGroup(g.asGroup())) {
         			available.add(g);
         		} else {
-        			if (GroupData.SYSTEM.equals(g.getName()))
+        			if (GroupData.SYSTEM.equals(g.getName())) {
+        				available.add(g);
         				uc.setAdministrator(true);
+        			}
         		}
         	}
         	registry.bind(LookupNames.USER_GROUP_DETAILS, available);
@@ -515,6 +517,7 @@ public class DataServicesFactory
 			}
 			if (!omeroGateway.isSystemGroup(group.asGroup()))
 				names.put(group.getId(), group.getName());
+			if (names.size() == 0) names = null;
 			ScreenLogin.registerGroup(names);
 		} else ScreenLogin.registerGroup(null);
 		CacheServiceFactory.shutdown(container);

@@ -1779,7 +1779,6 @@ class OMEROGateway
 	 */
 	boolean isSystemGroup(ExperimenterGroup group)
 	{
-	
 		String n = group.getName() == null ? null : group.getName().getValue();
 		return (SYSTEM_GROUPS.contains(n));
 	}
@@ -6538,7 +6537,6 @@ class OMEROGateway
 			long id;
 			Long count;
 			ExperimenterGroup group;
-			
 			while (i.hasNext()) {
 				g = (GroupExperimenterMap) i.next();
 				group = g.getParent();
@@ -6549,6 +6547,15 @@ class OMEROGateway
 					if (count == null) count = 0L;
 					count++;
 					r.put(id, count);
+				} else {
+					if (GroupData.SYSTEM.equals(group.getName().getValue())) {
+						id = group.getId().getValue();
+						groupIds.remove(id);
+						count = r.get(id);
+						if (count == null) count = 0L;
+						count++;
+						r.put(id, count);
+					}
 				}
 			}
 			if (groupIds.size() > 0) {
@@ -6625,7 +6632,7 @@ class OMEROGateway
 			IQueryPrx svc = getQueryService();
 			//IAdminPrx svc = getAdminService();
 			List<ExperimenterGroup> groups = null;
-			if (id <= 0) {
+			if (id < 0) {
 				groups = (List)
 				svc.findAllByQuery("select distinct g from ExperimenterGroup g "
 		               // + "left outer join fetch g.groupExperimenterMap m "
@@ -6642,12 +6649,17 @@ class OMEROGateway
 		                		" where g.id = :id", p);
 			}
 			ExperimenterGroup group;
-			//GroupData pojoGroup;
+			GroupData pojoGroup;
 			Iterator<ExperimenterGroup> i = groups.iterator();
 			while (i.hasNext()) {
 				group = i.next();
+				pojoGroup = (GroupData) PojoMapper.asDataObject(group);
 				if (!isSystemGroup(group)) 
-					pojos.add((GroupData) PojoMapper.asDataObject(group));	
+					pojos.add(pojoGroup);	
+				else {
+					if (GroupData.SYSTEM.equals(pojoGroup.getName()))
+						pojos.add(pojoGroup);	
+				}
 			}
 			return pojos;
 		} catch (Throwable t) {
