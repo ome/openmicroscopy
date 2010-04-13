@@ -36,7 +36,7 @@ import javax.swing.JTextField;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Chooser to select a folder
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -90,7 +90,7 @@ class FolderChooser
 	}
 	
 	 /**
-     * Overridden to close the {@link ImgSaver} when the selection is cancelled.
+     * Overridden to close the model when the selection is cancelled.
      * @see JFileChooser#cancelSelection()
      */
     public void cancelSelection()

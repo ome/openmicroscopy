@@ -67,16 +67,15 @@ class CodomainPane
     /** Button to bring up the plane slicing modal dialog. */
     private JButton         planeSlicingButton;
     
-    /** Box to select the {@link ReverseIntensityContext}. */
+    /** Box to select the  <code>ReverseIntensityContext</code>. */
     private JCheckBox       reverseIntensity;
     
-    /** Box to select the {@link ContrastStretchingContext}. */
+    /** Box to select the <code>ContrastStretchingContext</code>. */
     private JCheckBox       contrastStretching;
     
-    /** Box to select the {@link PlaneSlicingContext}. */
+    /** Box to select the <code>PlaneSlicingContext</code>. */
     private JCheckBox       planeSlicing;
-    
-    
+       
     /** Initializes the UI components. */
     private void initComponents()
     {

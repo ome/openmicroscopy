@@ -89,7 +89,10 @@ public class Position
 	 * @param p1 See above.
 	 * @return See above.
 	 */
-	public boolean contains(int p0, int p1) { return (start <= p0 && end >= p1); }
+	public boolean contains(int p0, int p1)
+	{ 
+		return (start <= p0 && end >= p1);
+	}
 
 	/**
 	 * Returns <code>true</code> if the position contains position
@@ -147,8 +150,8 @@ public class Position
 	int length() { return end-start+1; }
 
 	/**
-	 * Overridden to control if the passed object is <,> or = the current one.
-	 * @see java.lang.Comparable#compare(Object, Object)
+	 * Controls if the passed object is <,> or = the current one.
+	 * @see Comparator#compare(Object, Object)
 	 */
 	public int compare(Object o1, Object o2)
 	{
@@ -187,8 +190,8 @@ public class Position
 	public String toString() { return "["+start+","+end+"]"; }
 
 	/**
-	 * Control if the passed object is <,> or = the current one.
-	 * @see Comparable#compareTo(ObjectPosition)
+	 * Controls if the passed object is <,> or = the current one.
+	 * @see Comparable#compareTo(Object)
 	 */
 	public int compareTo(Position o)
 	{

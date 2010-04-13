@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.util.ui.omeeditpane;
 
 //Java imports
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -43,7 +42,7 @@ import javax.swing.text.StyledDocument;
 //Application-internal dependencies
 
 /** 
- * This is a {@link DocumentListener} that takes a set of Regex expressions
+ * This is a {@link DocumentListener} that takes a set of Regular expressions
  * and {@link SimpleAttributeSet} for each.
  * When the {@link Document} is edited, it is parsed and if it is a 
  * {@link StyledDocument} applies a Style to the matching Strings. 
@@ -57,7 +56,8 @@ import javax.swing.text.StyledDocument;
  * @since 3.0-Beta4
  */
 public class OMERegexFormatter 
-	implements DocumentListener {
+	implements DocumentListener
+{
 	
 	/** The Doc to parse  */
 	StyledDocument doc;
@@ -74,9 +74,10 @@ public class OMERegexFormatter
 	 * Called by the update edits. 
 	 * Delegates to {@link #parseRegex(StyledDocument)}
 	 * 
-	 * @param e		The DocumentEvent
+	 * @param e	The DocumentEvent
 	 */
-	private void parseRegex(DocumentEvent e, boolean refresh) {
+	private void parseRegex(DocumentEvent e, boolean refresh)
+	{
 		if (e.getDocument() instanceof StyledDocument) {
 			parseRegex((StyledDocument)e.getDocument(), refresh);
 		} else {
@@ -88,7 +89,8 @@ public class OMERegexFormatter
 	 * Creates an instance. 
 	 * Sets the plain text to Sans-Serif, size 14.
 	 */
-	public OMERegexFormatter() {
+	public OMERegexFormatter()
+	{
 		styles = new HashMap<String, SimpleAttributeSet>();
 		plainText = new SimpleAttributeSet();
 		StyleConstants.setFontFamily(plainText, "SansSerif");
@@ -98,9 +100,10 @@ public class OMERegexFormatter
 	/**
 	 * Creates an instance. 
 	 * 
-	 * @param plainText		The Style of text with no regex matches. 
+	 * @param plainText	The Style of text with no regex matches. 
 	 */
-	public OMERegexFormatter(SimpleAttributeSet plainText) {
+	public OMERegexFormatter(SimpleAttributeSet plainText)
+	{
 		this();
 		this.plainText = plainText;
 	}
@@ -111,7 +114,8 @@ public class OMERegexFormatter
 	 * @param regex		The Regex to find. 
 	 * @param style		The Style to apply to matching text. 
 	 */
-	public void addRegex(String regex, SimpleAttributeSet style) {
+	public void addRegex(String regex, SimpleAttributeSet style)
+	{
 		styles.put(regex, style);
 	}
 	
@@ -120,23 +124,26 @@ public class OMERegexFormatter
 	 * Null implementation here, since Regex matching should not be affected
 	 * by changes to fonts etc. 
 	 */
-	public void changedUpdate(DocumentEvent e) {
+	public void changedUpdate(DocumentEvent e)
+	{
 		// parseRegex(e);
 	}
 
 	/**
 	 * Implemented as specified by the {@link DocumentListener} interface.
-	 * Calls {@link #parseRegex(DocumentEvent)}
+	 * Calls {@link #parseRegex(DocumentEvent, boolean)}
 	 */
-	public void insertUpdate(DocumentEvent e) {
+	public void insertUpdate(DocumentEvent e)
+	{
 		parseRegex(e, true);
 	}
 
 	/**
 	 * Implemented as specified by the {@link DocumentListener} interface.
-	 * Calls {@link #parseRegex(DocumentEvent)}
+	 * Calls {@link #parseRegex(DocumentEvent, boolean)}
 	 */
-	public void removeUpdate(DocumentEvent e) {
+	public void removeUpdate(DocumentEvent e)
+	{
 		parseRegex(e, true);
 	}
 	
@@ -148,10 +155,11 @@ public class OMERegexFormatter
 	 * editing occurs. 
 	 * 
 	 * @param e		The Edit Event. 
-	 * @param refreshStyle	True if you want to make the whole document plain before
-	 * 					applying styles
+	 * @param refreshStyle	True if you want to make the whole document 
+	 * plain before applying styles
 	 */
-	public void parseRegex(StyledDocument document, boolean refreshStyle) {
+	public void parseRegex(StyledDocument document, boolean refreshStyle)
+	{
 		doc = document;
 		refresh = refreshStyle;
 		

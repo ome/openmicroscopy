@@ -997,7 +997,10 @@ class SearchPanel
 		buildGUI();
 	}
 
-	/** Enables the date fields if the selected index is {@link #RANGE}. */
+	/** 
+	 * Enables the date fields if the selected index is 
+	 * {@link SearchContext#RANGE}. 
+	 */
 	void setDateIndex()
 	{
 		int index = dates.getSelectedIndex();

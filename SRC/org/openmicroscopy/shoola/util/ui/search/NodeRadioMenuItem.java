@@ -22,17 +22,17 @@
  */
 package org.openmicroscopy.shoola.util.ui.search;
 
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JRadioButtonMenuItem;
+
 
 //Java imports
+import javax.swing.JRadioButtonMenuItem;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * 
+ * Radio menu item.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

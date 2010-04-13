@@ -444,7 +444,7 @@ public interface RenderingControl
     //	throws RenderingServiceException, DSOutOfServiceException;
     
     /**
-     * Returns a read-only list of {@link CodomainMapContext}s using during
+     * Returns a read-only list of <code>CodomainMapContext</code>s using during
      * the mapping process in the device space.
      * 
      * @return See above.

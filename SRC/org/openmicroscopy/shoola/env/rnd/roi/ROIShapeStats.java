@@ -23,8 +23,6 @@
 package org.openmicroscopy.shoola.env.rnd.roi;
 
 
-
-
 //Java imports
 import java.awt.Point;
 import java.util.LinkedHashMap;
@@ -147,42 +145,42 @@ public class ROIShapeStats
     /**
      * Returns the minimum value within the 2D-selection.
      * 
-     * @return  See above.
+     * @return See above.
      */
     public double getMin() { return min; }
     
     /**
      * Returns the maximum value within the 2D-selection.
      * 
-     * @return  See above.
+     * @return See above.
      */
     public double getMax() { return max; }
     
     /**
      * Returns the mean value within the 2D-selection.
      * 
-     * @return  See above.
+     * @return See above.
      */
     public double getMean() { return mean; }
 
     /**
      * Returns the standard deviation within the 2D-selection.
      * 
-     * @return  See above.
+     * @return See above.
      */
     public double getStandardDeviation() { return standardDeviation; }
     
     /**
      * Returns the sum of all values within the 2D-selection.
      * 
-     * @return  See above.
+     * @return See above.
      */
     public double getSum() { return sum; }
     
     /** 
      * Returns the number of points contained within the 2D-selection. 
      * 
-     * @return  See above.
+     * @return See above.
      */
     public int getPointsCount() { return pointsCount; }
     
@@ -236,14 +234,14 @@ public class ROIShapeStats
 	}
 	
 	/**
-     * Required by {@linkPointIteratorObserver} interface, but no-op
+     * Required by {@linkPointIteratorObserver} interface, but no-operation
      * implementation in our case.
      * @see PointIteratorObserver#iterationStarted()
      */
 	public void iterationStarted() {}
 	
 	/**
-     * Required by {@linkPointIteratorObserver} interface, but no-op
+     * Required by {@link PointIteratorObserver} interface, but no-operation
      * implementation in our case.
      * @see PointIteratorObserver#iterationFinished()
      */

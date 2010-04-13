@@ -368,7 +368,7 @@ class CustomizedFileChooser
 	}
 
 	/**
-	 * Overridden to close the {@link ImgSaver} when the selection is cancelled.
+	 * Overridden to close the model when the selection is cancelled.
 	 * @see JFileChooser#cancelSelection()
 	 */
 	public void cancelSelection()

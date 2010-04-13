@@ -35,7 +35,7 @@ import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 //Application-internal dependencies
 
 /** 
- * A node of an {@link OMETreeTable}.
+ * A node of an <code>OMETreeTable</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -51,7 +51,7 @@ public class OMETreeNode
 	extends DefaultMutableTreeTableNode
 {	
 	
-	 /** Flag used to control if the node is expanded in the view.*/
+	/** Flag used to control if the node is expanded in the view.*/
 	private boolean expanded;
 
     /** Creates a new instance. */

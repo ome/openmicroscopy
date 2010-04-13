@@ -376,8 +376,8 @@ public class TwoKnobsSlider
 
 	/**
 	 * Creates a default slider with two knobs.
-	 * The minimum and start values are {@link TwoKnobsSliderModel#DEFAULT_MIN}.
-	 * The maximum and end values are {@link TwoKnobsSliderModel#DEFAULT_MAX}.
+	 * The minimum and start values are {@link #DEFAULT_MIN}.
+	 * The maximum and end values are {@link #DEFAULT_MAX}.
 	 */
 	public TwoKnobsSlider()
 	{
@@ -385,7 +385,7 @@ public class TwoKnobsSlider
 	}
 
 	/**
-	 * Creates a slider with two knobs of passed mininum, maximum, start and
+	 * Creates a slider with two knobs of passed minimum, maximum, start and
 	 * end value.
 	 * 
 	 * @param min   The minimum value of the slider.
@@ -446,7 +446,7 @@ public class TwoKnobsSlider
 
 	/**
 	 * Returns the value of the start knob i.e. value between
-	 * {@link #getMinimum()} and {@link #getEndValue()}.
+	 * {@link TwoKnobsSliderModel#getMinimum()} and {@link #getEndValue()}.
 	 * 
 	 * @return See above.
 	 */
@@ -454,7 +454,7 @@ public class TwoKnobsSlider
 
 	/**
 	 * Returns the value of the end knob i.e. value between
-	 * {@link #getStartValue()} and {@link #getMaximum()}.
+	 * {@link #getStartValue()} and {@link TwoKnobsSliderModel#getMaximum()}.
 	 * 
 	 * @return See above.
 	 */
@@ -548,7 +548,7 @@ public class TwoKnobsSlider
 	/**
 	 * Paints the current values if the passed flag is <code>true</code>.
 	 * 
-	 * @param paintLabel Passed <code>true</code> to paint the labels.
+	 * @param paintCurrentValues Passed <code>true</code> to paint the values.
 	 */
 	public void setPaintCurrentValues(boolean paintCurrentValues)
 	{

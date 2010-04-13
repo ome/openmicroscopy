@@ -192,8 +192,7 @@ class SearchContextMenu
      * 
      * @param nodes 			The context nodes.
      * @param ratedNodes 		The rated nodes if any.
-     * @param width				The popup width.
-     * @param type				The type of item to create.
+     * @param width				The pop-up width.
      * @param selectedNode 		The default selected node.
      * @param singleSelection 	Pass <code>true</code> if only one context can 
      * 							be selected at a time to <code>false</code> 
@@ -212,7 +211,7 @@ class SearchContextMenu
      * 
      * @param nodes 			The context nodes.
      * @param ratedNodes 		The rated nodes if any.
-     * @param width				The popup width.
+     * @param width				The pop-up width.
      * @param type				The type of item to create.
      * @param selectedNode 		The default selected node.
      * @param singleSelection 	Pass <code>true</code> if only one context can 

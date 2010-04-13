@@ -53,7 +53,7 @@ class FileSaverDialog
                                 "extension already exists in this directory. " +
                                 "Do you really want to save the image?";
     
-    /** Reference to the {@link ImgSaver}. */
+    /** Reference to the model. */
     private FileChooser    model;
         
     /**

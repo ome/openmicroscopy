@@ -163,7 +163,7 @@ public class ViewerSorter
     }
     
     /**
-     * Compares two {@link long}s.
+     * Compares two <code>Long</code>.
      * 
      * @param d1 The first object to compare.
      * @param d2 The second object to compare.

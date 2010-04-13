@@ -186,7 +186,7 @@ public class OneKnobSliderUI
 	}	
 
 	/**
-	 * This method calculates the size and positon of the arrows used displayed
+	 * This method calculates the size and position of the arrows used displayed
 	 * in the trackRect.  
 	 */
 	private void calculateArrowRect()
@@ -216,7 +216,7 @@ public class OneKnobSliderUI
 	}
 
 	/**
-	 * This method calculates the size and positon of the endlabel displayed
+	 * This method calculates the size and position of the end label displayed
 	 * in the trackRect.  
 	 */
 	private void calculateEndLabelRect()
@@ -431,7 +431,7 @@ public class OneKnobSliderUI
 	}
 
 	/**
-	 * Overridden to calculate the size of the thumb rect. 
+	 * Overridden to calculate the size of the thumb rectangle. 
 	 * @see BasicSliderUI#calculateThumbSize()
 	 */
 	public void calculateThumbSize()
@@ -440,7 +440,7 @@ public class OneKnobSliderUI
 	}
 
 	/**
-	 * Overridden to calculate the size of the thumb rect. 
+	 * Overridden to calculate the size of the thumb rectangle. 
 	 * @see BasicSliderUI#paintFocus(Graphics g)
 	 */
 	public void paintFocus(Graphics g) {}
@@ -459,7 +459,7 @@ public class OneKnobSliderUI
 
 	/**
 	 * Overridden to paint thumb on slider. 
-	 * @see BasicSliderUI#paintThumb(java.awt.Graphics)
+	 * @see BasicSliderUI#paintThumb(Graphics)
 	 */
 	public void paintThumb(Graphics og)
 	{
@@ -538,7 +538,7 @@ public class OneKnobSliderUI
 
 		/**
 		 * Overridden to determine when a drag event ends. 
-		 * This method will also determine when the tooltip Dialog should 
+		 * This method will also determine when the tool tip Dialog should 
 		 * stop showing. 
 		 * @see TrackListener#mouseReleased(MouseEvent)
 		 */

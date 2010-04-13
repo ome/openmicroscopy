@@ -29,8 +29,6 @@ import java.awt.Point;
 import java.util.HashMap;
 import java.util.Map;
 
-
-
 //Third-party libraries
 
 //Application-internal dependencies
@@ -38,7 +36,7 @@ import omero.model.Pixels;
 
 
 /** 
- * 
+ * collects statistics for a given roi
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -55,25 +53,26 @@ public class ROIStats
 {
 
 	/** 
-	 * The dimensions of the pixels set over which the stats will be computed.
+	 * The dimensions of the pixels set over which the statistic will be 
+	 * computed.
 	 */
     private Pixels    					dims;
     
     /**
      * Maps a {@link #linearize(int, int, int) linearized} <code>(z, w, t)
-     * </code> tuple identifying a plane onto the stats calculated for the
+     * </code> tuple identifying a plane onto the statistics calculated for the
      * 2D-selection contained in that plane. 
      */
     private Map<Integer, ROIShapeStats>	arrayMap;
 
     /**
-     * Transforms 3D coords into linear coords.
+     * Transforms 3D coordinates into linear coordinates.
      * The returned value <code>L</code> is calculated as follows: 
-     * <nobr><code>L = sizeZ*sizeW*t + sizeZ*w + z</code></nobr>.
+     * <code>L = sizeZ*sizeW*t + sizeZ*w + z</code>.
      * 
-     * @param z The z coord.  Must be in the range <code>[0, sizeZ)</code>.
-     * @param w The w coord.  Must be in the range <code>[0, sizeW)</code>.
-     * @param t The t coord.  Must be in the range <code>[0, sizeT)</code>.
+     * @param z The z coordinate. Must be in the range <code>[0, sizeZ)</code>.
+     * @param w The w coordinate. Must be in the range <code>[0, sizeW)</code>.
+     * @param t The t coordinate. Must be in the range <code>[0, sizeT)</code>.
      * @return The linearized value corresponding to <code>(z, w, t)</code>.
      */
     private Integer linearize(int z, int w, int t)
@@ -93,11 +92,10 @@ public class ROIStats
     }
     
     /**
-     * Creates a new object to collect {@link ROIPlaneStats} for a given
-     * 5D ROI.
+     * Creates a new object to collect statistics for a given ROI.
      * 
-     * @param dims The dimensions of the pixels set over which the stats will
-     *              be computed. Mustn't be <code>null</code>.
+     * @param dims  The dimensions of the pixels set over which the statistics 
+     * 				will be computed. Mustn't be <code>null</code>.
      */
     public ROIStats(Pixels dims)
     {
@@ -106,13 +104,13 @@ public class ROIStats
     }
    
     /**
-     * Returns the stats, if any, that were calculated against the 2D-selection
-     * within the specified plane.
+     * Returns the statistics, if any, that were calculated against 
+     * the 2D-selection within the specified plane.
      * 
-     * @param z The z coord.  Must be in the range <code>[0, sizeZ)</code>.
-     * @param w The w coord.  Must be in the range <code>[0, sizeW)</code>.
-     * @param t The t coord.  Must be in the range <code>[0, sizeT)</code>.
-     * @return A {@link ROIPlaneStats} object holding the stats for the
+     * @param z The z coordinate. Must be in the range <code>[0, sizeZ)</code>.
+     * @param w The w coordinate. Must be in the range <code>[0, sizeW)</code>.
+     * @param t The t coordinate. Must be in the range <code>[0, sizeT)</code>.
+     * @return A {@link ROIPlaneStats} object holding the statistics for the
      *          2D-selection in the specified plane.  If no selection was
      *          made in that plane, then <code>null</code> is returned instead.
      */
@@ -123,7 +121,7 @@ public class ROIStats
     }
     
     /**
-     * Creates a new map to store the {@link ROIPlaneStats} entries that are
+     * Creates a new map to store the {@link ROIShapeStats} entries that are
      * about to be calculated.
      * @see PointIteratorObserver#iterationStarted()
      */
@@ -181,13 +179,12 @@ public class ROIStats
                  /(pointsCount-1);
                 if (sigmaSquare > 0)
                     ps.setStandardDeviation(Math.sqrt(sigmaSquare));
-            }
-                
+            }  
         }
     }
 
     /**
-     * Required by {@linkPointIteratorObserver}interface, but no-op
+     * Required by {@link PointIteratorObserver} interface, but no-operation
      * implementation in our case.
      * @see PointIteratorObserver#iterationFinished()
      */

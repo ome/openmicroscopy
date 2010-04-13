@@ -455,7 +455,7 @@ public class SearchComponent
 	
 	/**
 	 * Cancels or searches.
-	 * @see {@link ActionListener#actionPerformed(ActionEvent)}
+	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent e)
 	{

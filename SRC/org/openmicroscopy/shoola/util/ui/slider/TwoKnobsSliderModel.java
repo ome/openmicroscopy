@@ -303,7 +303,7 @@ class TwoKnobsSliderModel
 	/**
 	 * Paints the labels if the passed flag is <code>true</code>.
 	 * 
-	 * @param paintLabels Passed <code>true</code> to paint the labels.
+	 * @param paintCurrentValues Passed <code>true</code> to paint the values.
 	 */
 	void setPaintCurrentValues(boolean paintCurrentValues)
 	{ 
