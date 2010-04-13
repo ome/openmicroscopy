@@ -11,6 +11,9 @@
    'failureException', 'id', 'login_args', 'new_user', 'query', 'root', 'run', 'setUp', 'sf', 'shortDescription', 'tearDown', 'testfoo', 
    'tmpfile', 'tmpfiles', 'update'
    
+   PYTHONPATH=/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages/:/opt/Ice-3.3.1/python:.:test:build/lib ICE_CONFIG=/Users/will/Documents/workspace/Omero/etc/ice.config python test/integration/thumbnailPerms.py
+   
+   
 """
 import unittest, time
 import test.integration.library as lib
@@ -24,13 +27,35 @@ import omero.util.script_utils as scriptUtil
 
 from numpy import arange
 
+
 class TestIShare(lib.ITest):
     
-    def testfoo(self):
+    def testThumbs(self):
         
         # root session is root.sf
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         admin = self.root.sf.getAdminService()
+        
+        group1name = "private_%s" % uuid
+        group2name = "read-only_%s" % uuid
+        group3name = "collaborative_%s" % uuid
+        ownerName = "owner_%s" % uuid
+        user1name = "user1_%s" % uuid
+        user2name = "user2_%s" % uuid
+        
+        setup = False    # if we have a new DB and want to set-up groups & users for testing...
+        try:
+            admin.lookupGroup("JRS-private")    # if this fails, setup this and other groups.
+        except:
+            setup = True
+            
+        if (setup):
+            group1name = "JRS-private"
+            group2name = "JRS-read-only"
+            group3name = "JRS-collaborative"
+            ownerName = "jason"
+            user1name = "will"
+            user2name = "user"
         
         ### create three users in 3 groups
         listOfGroups = list()
@@ -38,7 +63,7 @@ class TestIShare(lib.ITest):
         
         #group1 - private
         new_gr1 = ExperimenterGroupI()
-        new_gr1.name = rstring("private_%s" % uuid)
+        new_gr1.name = rstring(group1name)
         p = PermissionsI()
         p.setUserRead(True)
         p.setUserWrite(True)
@@ -54,7 +79,7 @@ class TestIShare(lib.ITest):
         
         #group2 - read-only
         new_gr2 = ExperimenterGroupI()
-        new_gr2.name = rstring("read-only_%s" % uuid)
+        new_gr2.name = rstring(group2name)
         p2 = PermissionsI()
         p2.setUserRead(True)
         p2.setUserWrite(True)
@@ -70,7 +95,7 @@ class TestIShare(lib.ITest):
         
         #group3 - collaborative
         new_gr3 = ExperimenterGroupI()
-        new_gr3.name = rstring("collaborative_%s" % uuid)
+        new_gr3.name = rstring(group3name)
         p = PermissionsI()
         p.setUserRead(True)
         p.setUserWrite(True)
@@ -86,7 +111,7 @@ class TestIShare(lib.ITest):
         
         #new user (group owner)
         owner = ExperimenterI()
-        owner.omeName = rstring("owner_%s" % uuid)
+        owner.omeName = rstring(ownerName)
         owner.firstName = rstring("Group")
         owner.lastName = rstring("Owner")
         owner.email = rstring("owner@emaildomain.com")
@@ -99,17 +124,17 @@ class TestIShare(lib.ITest):
         
         #new user1
         new_exp = ExperimenterI()
-        new_exp.omeName = rstring("user1_%s" % uuid)
-        new_exp.firstName = rstring("New")
-        new_exp.lastName = rstring("Test")
+        new_exp.omeName = rstring(user1name)
+        new_exp.firstName = rstring("Will")
+        new_exp.lastName = rstring("Moore")
         new_exp.email = rstring("newtest@emaildomain.com")
         
         eid = admin.createExperimenterWithPassword(new_exp, rstring("ome"), privateGroup, listOfGroups)
         
         #new user2
         new_exp2 = ExperimenterI()
-        new_exp2.omeName = rstring("user2_%s" % uuid)
-        new_exp2.firstName = rstring("New2")
+        new_exp2.omeName = rstring(user2name)
+        new_exp2.firstName = rstring("User")
         new_exp2.lastName = rstring("Test2")
         new_exp2.email = rstring("newtest2@emaildomain.com")
         
@@ -125,7 +150,7 @@ class TestIShare(lib.ITest):
         
         # create image in private group
         privateImageId = createTestImage(client_share1.sf)
-        #self.getThumbnail(client_share1.sf, privateImageId)    # if we don't get thumbnail, test fails when another user does
+        self.getThumbnail(client_share1.sf, privateImageId)    # if we don't get thumbnail, test fails when another user does
         
         # change user into read-only group. Use object Ids for this, NOT objects from a different context
         a = client_share1.sf.getAdminService()
