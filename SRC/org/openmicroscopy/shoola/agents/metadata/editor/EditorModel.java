@@ -676,11 +676,16 @@ class EditorModel
 		DataObject o;
 		DataObject ann = (DataObject) annotation;
 		ExperimenterData exp;
+		List<Long> ids = new ArrayList<Long>();
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			o = (DataObject) entry.getKey();
 			if (o.getId() == ann.getId()) {
-				list.add((ExperimenterData) entry.getValue());
+				exp = (ExperimenterData) entry.getValue();
+				if (!ids.contains(exp.getId())) {
+					list.add(exp);
+					ids.add(exp.getId());
+				}
 			}
 		}
 		return list;

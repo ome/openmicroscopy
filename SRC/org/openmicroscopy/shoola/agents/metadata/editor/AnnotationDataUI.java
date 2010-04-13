@@ -246,14 +246,17 @@ class AnnotationDataUI
 		filterButton.setText(NAMES[filter]);
 		Iterator<DocComponent> i = tagsDocList.iterator();
 		List<Object> nodes = new ArrayList<Object>();
+		Object data;
 		while (i.hasNext()) {
-			nodes.add(i.next().getData());
+			data = i.next().getData();
+			if (data != null) nodes.add(data);
 		}
 		layoutTags(nodes);
 		i = filesDocList.iterator();
 		nodes = new ArrayList<Object>();
 		while (i.hasNext()) {
-			nodes.add(i.next().getData());
+			data = i.next().getData();
+			if (data != null) nodes.add(data);
 		}
 		layoutAttachments(nodes);
 	}
@@ -566,7 +569,6 @@ class AnnotationDataUI
 		filesDocList.clear();
 		DocComponent doc;
 		if (list != null && list.size() > 0) {
-			filterButton.setEnabled(true);
 			Iterator i = list.iterator();
 			Map<FileAnnotationData, Object> 
 				loadThumbnails = 
@@ -611,25 +613,20 @@ class AnnotationDataUI
 						filesDocList.add(doc);
 						if (!immutable.contains(data.getId())) {
 							if (doc.hasThumbnailToLoad()) {
-								loadThumbnails.put((FileAnnotationData) data, 
-										doc);
+								loadThumbnails.put(
+										(FileAnnotationData) data, doc);
 							}
 							docPane.add(doc);
 						}
 					}
 			}
-			
-			
-			
-			
-			
 			//load the thumbnails 
 			if (loadThumbnails.size() > 0  
 					&& MetadataViewerAgent.isFastConnection()) {
 				model.loadFiles(loadThumbnails);
 			}
 		}
-		if (filesDocList.size() == 0) {
+		if (filesDocList.size() == 0 || docPane.getComponentCount() == 0) {
 			doc = new DocComponent(null, model);
 			filesDocList.add(doc);
 			docPane.add(doc);
@@ -648,8 +645,8 @@ class AnnotationDataUI
 		tagsPane.removeAll();
 		tagsDocList.clear();
 		DocComponent doc;
+		
 		if (list != null && list.size() > 0) {
-			filterButton.setEnabled(true);
 			Iterator i = list.iterator();
 			int width = 0;
 			JPanel p = initRow();
@@ -667,6 +664,7 @@ class AnnotationDataUI
 							width = 0;
 					    } else {
 					    	width += doc.getPreferredSize().width;
+					    	width += 2;
 					    }
 						p.add(doc);
 					}
@@ -686,10 +684,10 @@ class AnnotationDataUI
 								width = 0;
 							} else {
 								width += doc.getPreferredSize().width;
+								width += 2;
 							}
 							p.add(doc);
 						}
-
 					}
 					break;
 				case ADDED_BY_OTHERS:
@@ -707,15 +705,21 @@ class AnnotationDataUI
 								width = 0;
 							} else {
 								width += doc.getPreferredSize().width;
+								width += 2;
 							}
 							p.add(doc);
 						}
-
 					}
 			}
-			
-			if (p.getComponentCount() > 0)
-				tagsPane.add(p);
+			if (p.getComponentCount() == 0) {
+				switch (filter) {
+					case ADDED_BY_OTHERS:
+					case ADDED_BY_ME:
+						doc = new DocComponent(null, model);
+						tagsDocList.add(doc);
+						tagsPane.add(doc);
+				}
+			} else tagsPane.add(p);
 		}
 		if (tagsDocList.size() == 0) {
 			doc = new DocComponent(null, model);
@@ -766,7 +770,6 @@ class AnnotationDataUI
 	protected void buildUI()
 	{
 		//rating
-		filterButton.setEnabled(false);
 		if (!init) {
 			buildGUI();
 			init = true;
@@ -788,7 +791,10 @@ class AnnotationDataUI
 		rating.setValue(selectedValue);
 		publishedBox.setSelected(model.hasBeenPublished());
 		//Add attachments
-		layoutAttachments(model.getAttachments());
+		Collection l = model.getAttachments();
+		int count = 0;
+		if (l != null) count += l.size();
+		layoutAttachments(l);
 		
 		//Viewed by
 		Object refObject = model.getRefObject();
@@ -800,8 +806,11 @@ class AnnotationDataUI
 			if (refObject instanceof ImageData) {
 				if (layoutViewedBy()) h = TableLayout.PREFERRED;
 			} 
-			layoutTags(model.getTags());
+			l = model.getTags();
+			if (l != null) count += l.size();
+			layoutTags(l);
 		}
+		filterButton.setEnabled(count > 0);
 		//Allow to handle annotation.
 		boolean enabled = model.isWritable();
 		rating.setEnabled(enabled);

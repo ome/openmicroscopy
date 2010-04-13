@@ -75,7 +75,6 @@ import pojos.AnnotationData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.TagAnnotationData;
-import pojos.TextualAnnotationData;
 
 /** 
  * Component displaying the annotation, either <code>FileAnnotationData</code>
@@ -293,7 +292,6 @@ class DocComponent
 			buf.append("<br>");
 			checkAnnotators(buf, annotation);
 		} else if (data instanceof TagAnnotationData) {
-			
 			checkAnnotators(buf, annotation);
 		}
 		buf.append("</body></html>");
