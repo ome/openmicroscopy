@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Vector;
 
 import javax.swing.DefaultListModel;
+import javax.swing.JOptionPane;
 
 import ome.formats.OMEROMetadataStoreClient;
 import omero.ServerError;
@@ -97,6 +98,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
     private Column[] baseColumns;
     private TablePrx itemTable;
     private Column[] itemColumns;
+	public boolean historyEnabled = false;
 	private static long lastUid;
 
     /**
@@ -162,6 +164,27 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
      */
     private void initializeBaseTable() throws ServerError 
     {
+    	/*
+    	 * TODO: need something eligant to check if tables service is installed
+    	 * (see ticket #2175)
+    	 * 
+    	TablePrx testTable = sf.sharedResources().newTable(1, "historyTestTable");
+        if (testTable == null)
+        {
+        	System.err.println("testTable is null");
+        	historyEnabled = false;
+        }
+        else
+        {
+        	System.err.println("deleting testTable");
+        	historyEnabled = true;
+        	IUpdatePrx update = sf.getUpdateService();
+        	update.deleteObject(testTable.getOriginalFile());        	
+        }
+    	
+        if (historyEnabled == false) return;
+        */
+        
         List<OriginalFile> baseFiles = getOriginalFiles(baseDBNAME);
         
         if (baseFiles.isEmpty() || baseFiles == null)     
@@ -169,30 +192,43 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
             log.debug("Creating new " + baseDBNAME);
             baseTable = sf.sharedResources().newTable(1, baseDBNAME);
             if (baseTable == null)
+            {
             	System.err.println("baseTable is null");
-            baseTable.initialize(baseColumns);
-            
-            // Prime base table with 2 blank rows to address bug.
-        	Column[] newRow = createBaseColumns(2);
+            	historyEnabled = false;
+            }
+            else
+            {
+            	historyEnabled = true;
 
-        	LongColumn uids = (LongColumn) newRow[BASE_UID_COLUMN];
-        	LongColumn importTimes = (LongColumn) newRow[BASE_DATETIME_COLUMN];
-        	StringColumn statuses = (StringColumn) newRow[BASE_STATUS_COLUMN];
+            	baseTable.initialize(baseColumns);
 
-        	uids.values[0] = 0;
-        	importTimes.values[0] = 0;
-        	statuses.values[0] = String.format("%1$-64s", " ");
-        	uids.values[1] = 0;
-        	importTimes.values[1] = 0;
-        	statuses.values[1] = String.format("%1$-64s", " ");
+            	// Prime base table with 2 blank rows to address bug.
+            	Column[] newRow = createBaseColumns(2);
 
-        	baseTable.addData(newRow);
+            	LongColumn uids = (LongColumn) newRow[BASE_UID_COLUMN];
+            	LongColumn importTimes = (LongColumn) newRow[BASE_DATETIME_COLUMN];
+            	StringColumn statuses = (StringColumn) newRow[BASE_STATUS_COLUMN];
+
+            	uids.values[0] = 0;
+            	importTimes.values[0] = 0;
+            	statuses.values[0] = String.format("%1$-64s", " ");
+            	uids.values[1] = 0;
+            	importTimes.values[1] = 0;
+            	statuses.values[1] = String.format("%1$-64s", " ");
+
+            	baseTable.addData(newRow);
+            }
 
         } else {
             log.debug("Using existing " + baseDBNAME);
             baseTable = sf.sharedResources().openTable(baseFiles.get(0));
             if (baseTable == null)
-            	System.err.println("baseTable is null");      
+            {
+            	System.err.println("baseTable is null"); 
+            	historyEnabled = false;
+            }
+            else
+            	historyEnabled = true;
         }
     }
     
@@ -203,6 +239,9 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
      */
     private void initializeItemTable() throws ServerError
     {
+    	// No point in doing this if historytable is disabled
+    	if (historyEnabled == false) return;
+    	
         List<OriginalFile> itemFiles = getOriginalFiles(itemDBNAME);
         
         if (itemFiles.isEmpty())     

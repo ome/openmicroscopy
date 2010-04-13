@@ -653,7 +653,7 @@ public class HistoryTable
         if (experimenterID != -1 && event instanceof ImportEvent.LOGGED_IN
                 || event instanceof ImportEvent.QUICKBAR_UPDATE)
             {
-                updateOutlookBar();
+        		if (db.historyEnabled) updateOutlookBar();
             }
     }
 

@@ -222,6 +222,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                             viewer.statusBar.setStatusIcon("gfx/server_connect16.png", "Connected to " + config.hostname.get() + ".");
                             return;
                         }
+                        
                     } else {   
                         if (NEW_LOGIN)
                             view.setAlwaysOnTop(false);
@@ -241,7 +242,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                         if (NEW_LOGIN)
                             refreshNewLogin();
                         return;
-                    }
+                    }  
                 }
                 catch (Exception e)
                 {                   
@@ -391,15 +392,37 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
             return false;
         }
         
-        try
+        new Thread()
         {
-    		viewer.historyTable.db.initialize(store);
-    		viewer.historyTable.db.initializeDataSource();
-        }
-        catch (Exception e)
-        {
-        	log.error("Error initializing historytablestore", e);
-        }
+        	public void run()
+        	{
+        		try
+        		{
+        			viewer.historyTable.db.initialize(store);
+        			viewer.historyTable.db.initializeDataSource();
+                	if (viewer.historyTable.db.historyEnabled == false)
+                	{
+                        log.error("Could not start history DB.");
+                        if (HistoryDB.alertOnce == false)
+                        {
+                            JOptionPane.showMessageDialog(null,
+                                "For some reason we are not able to connect to the remote\n" +
+                                "history service (this most likely means the server does\n" +
+                                "not have this feature installed). In the meantime, you\n" +
+                                "will still be able to use the importer, however the\n" +
+                                "history tab's functionality will not be enabled.",
+                                "Warning",
+                                JOptionPane.ERROR_MESSAGE);
+                            HistoryDB.alertOnce = true;
+                        }        		
+                	}
+        		}
+        		catch (Exception e)
+        		{
+        			log.error("Error initializing historytablestore", e);
+        		}
+        	}
+        }.start();
         
         return true;
     }
