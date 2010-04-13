@@ -933,7 +933,7 @@ class OmeroMetadataServiceImpl
 				OriginalFile of = gateway.uploadFile(ann.getAttachedFile(), 
 						ann.getServerFileFormat(), -1);
 				FileAnnotation fa = new FileAnnotationI();
-				fa.setFile((OriginalFile) of.proxy());
+				fa.setFile(of);
 				link = ModelMapper.linkAnnotation(ho, fa);
 			} else {
 				annObject = ann.asIObject();
@@ -1773,7 +1773,7 @@ class OmeroMetadataServiceImpl
 		String desc = fileAnnotation.getDescription();
 		if (id < 0) {
 			fa = new FileAnnotationI();
-			fa.setFile((OriginalFile) of.proxy());
+			fa.setFile(of);
 			if (desc != null) fa.setDescription(omero.rtypes.rstring(desc));
 			if (ns != null)
 				fa.setNs(omero.rtypes.rstring(ns));

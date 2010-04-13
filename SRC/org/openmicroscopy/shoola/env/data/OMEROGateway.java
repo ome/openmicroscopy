@@ -3485,7 +3485,6 @@ class OMEROGateway
 				//Need to be modified
 				oFile.setSha1(omero.rtypes.rstring("pending"));
 				oFile.setFormat(f);
-				
 				save = (OriginalFile) saveAndReturnObject(oFile, null);
 				store.setFileId(save.getId().getValue());
 				fileCreated = true;
@@ -3503,7 +3502,6 @@ class OMEROGateway
 				save = (OriginalFile) saveAndReturnObject(newFile, null);
 				store.setFileId(save.getId().getValue());
 			}
-			
 		} catch (Exception e) {
 			closeService(store);
 			handleException(e, "Cannot set the file's id.");
@@ -3522,6 +3520,7 @@ class OMEROGateway
 				bbuf.limit(rlen);
 			}
 			stream.close();
+			save = store.save();
 			closeService(store);
 		} catch (Exception e) {
 			try {
