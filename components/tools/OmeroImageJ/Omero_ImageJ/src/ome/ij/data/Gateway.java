@@ -39,6 +39,7 @@ import ome.conditions.ResourceError;
 import omero.AuthenticationException;
 import omero.SecurityViolation;
 import omero.SessionException;
+import omero.ServerError;
 import omero.client;
 import omero.api.GatewayPrx;
 import omero.api.IAdminPrx;
@@ -374,7 +375,12 @@ class Gateway
 			entries[index] = i.next();
 			index++;
 		}
-		entry.keepAllAlive(entries);
+		try {
+		        entry.keepAllAlive(entries);
+		} catch (ServerError e) {
+			int index = SERVER_OUT_OF_SERVICE;
+			factory.sessionExpiredExit(index);
+		}
 	}
 	
 	/**
