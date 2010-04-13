@@ -455,7 +455,7 @@ class MetadataMicroscopeForm(forms.Form):
         # Type
         try:
             if kwargs['initial']['microscope'].type is not None:
-                self.fields['type'] = MetadataModelChoiceField(queryset=kwargs['initial']['microscopeTypes'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['microscope'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['microscope'].getType().value, required=False) 
+                self.fields['type'] = MetadataModelChoiceField(queryset=kwargs['initial']['microscopeTypes'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['microscope'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['microscope'].type, required=False) 
             else:
                 self.fields['type'] = MetadataModelChoiceField(queryset=kwargs['initial']['microscopeTypes'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['microscope'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), required=False) 
             self.fields['type'].widget.attrs['disabled'] = True 
@@ -483,10 +483,10 @@ class MetadataObjectiveForm(forms.Form):
         
         # Correction Collar
         try:
-            if kwargs['initial']['image'].getObjectiveSettings().correctionCollar is not None:
-                self.fields['correctionCollar'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'correctionCollar\', this.value);'}), initial=kwargs['initial']['image'].getObjectiveSettings().correctionCollar, label="Correction collar", required=False)
+            if kwargs['initial']['objectiveSettings'].correctionCollar is not None:
+                self.fields['correctionCollar'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'correctionCollar\', this.value);'}), initial=kwargs['initial']['objectiveSettings'].correctionCollar, label="Correction collar", required=False)
             else:
-                self.fields['correctionCollar'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'correctionCollar\', this.value);'}), label="Correction collar", required=False)
+                self.fields['correctionCollar'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'correctionCollar\', this.value);'}), label="Correction collar", required=False)
             self.fields['correctionCollar'].widget.attrs['disabled'] = True 
             self.fields['correctionCollar'].widget.attrs['class'] = 'disable'
         except:
@@ -496,10 +496,10 @@ class MetadataObjectiveForm(forms.Form):
         
         # Medium
         try:
-            if kwargs['initial']['image'].getObjectiveSettings().medium is not None:
-                self.fields['medium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['image'].getMedium().value, required=False) 
+            if kwargs['initial']['objectiveSettings'].medium is not None:
+                self.fields['medium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['objectiveSettings'].getMedium().value, required=False) 
             else:
-                self.fields['medium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), required=False) 
+                self.fields['medium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), required=False) 
             self.fields['medium'].widget.attrs['disabled'] = True 
             self.fields['medium'].widget.attrs['class'] = 'disable'
         except:
@@ -509,10 +509,10 @@ class MetadataObjectiveForm(forms.Form):
         
         # Refractive Index
         try:
-            if kwargs['initial']['image'].getObjectiveSettings().refractiveIndex is not None:
-                self.fields['refractiveIndex'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'refractiveIndex\', this.value);'}), initial=kwargs['initial']['image'].getObjectiveSettings().refractiveIndex, label="Refractive index", required=False)
+            if kwargs['initial']['objectiveSettings'].refractiveIndex is not None:
+                self.fields['refractiveIndex'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'refractiveIndex\', this.value);'}), initial=kwargs['initial']['objectiveSettings'].refractiveIndex, label="Refractive index", required=False)
             else:
-                self.fields['refractiveIndex'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'refractiveIndex\', this.value);'}), label="Refractive index", required=False)
+                self.fields['refractiveIndex'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'refractiveIndex\', this.value);'}), label="Refractive index", required=False)
             self.fields['refractiveIndex'].widget.attrs['disabled'] = True 
             self.fields['refractiveIndex'].widget.attrs['class'] = 'disable'
         except:
@@ -524,10 +524,10 @@ class MetadataObjectiveForm(forms.Form):
         
         # Model
         try:
-            if kwargs['initial']['image'].getObjective().model is not None:
-                self.fields['model'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'model\', this.value);'}), initial=kwargs['initial']['image'].getObjective().model, required=False)
+            if kwargs['initial']['objectiveSettings'].getObjective().model is not None:
+                self.fields['model'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'model\', this.value);'}), initial=kwargs['initial']['objectiveSettings'].getObjective().model, required=False)
             else:
-                self.fields['model'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'model\', this.value);'}), required=False)
+                self.fields['model'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'model\', this.value);'}), required=False)
             self.fields['model'].widget.attrs['disabled'] = True 
             self.fields['model'].widget.attrs['class'] = 'disable'
         except:
@@ -537,10 +537,10 @@ class MetadataObjectiveForm(forms.Form):
         
         # Manufacturer
         try:
-            if kwargs['initial']['image'].getObjective().manufacturer is not None:
-                self.fields['manufacturer'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'manufacturer\', this.value);'}), initial=kwargs['initial']['image'].getObjective().manufacturer, required=False)
+            if kwargs['initial']['objectiveSettings'].getObjective().manufacturer is not None:
+                self.fields['manufacturer'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'manufacturer\', this.value);'}), initial=kwargs['initial']['objectiveSettings'].getObjective().manufacturer, required=False)
             else:
-                self.fields['manufacturer'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'manufacturer\', this.value);'}), required=False)
+                self.fields['manufacturer'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'manufacturer\', this.value);'}), required=False)
             self.fields['manufacturer'].widget.attrs['disabled'] = True 
             self.fields['manufacturer'].widget.attrs['class'] = 'disable'
         except:
@@ -550,10 +550,10 @@ class MetadataObjectiveForm(forms.Form):
         
         # Serial Number
         try:
-            if kwargs['initial']['image'].getObjective().serialNumber is not None:
-                self.fields['serialNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'serialNumber\', this.value);'}), initial=kwargs['initial']['image'].getObjective().serialNumber, label="Serial number", required=False)
+            if kwargs['initial']['objectiveSettings'].getObjective().serialNumber is not None:
+                self.fields['serialNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'serialNumber\', this.value);'}), initial=kwargs['initial']['objectiveSettings'].getObjective().serialNumber, label="Serial number", required=False)
             else:
-                self.fields['serialNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'serialNumber\', this.value);'}), label="Serial number", required=False)
+                self.fields['serialNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'serialNumber\', this.value);'}), label="Serial number", required=False)
             self.fields['serialNumber'].widget.attrs['disabled'] = True 
             self.fields['serialNumber'].widget.attrs['class'] = 'disable'
         except:
@@ -563,10 +563,10 @@ class MetadataObjectiveForm(forms.Form):
         
         # Nominal Magnification
         try:
-            if kwargs['initial']['image'].getObjective().nominalMagnification is not None:
-                self.fields['nominalMagnification'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'nominalMagnification\', this.value);'}), initial=kwargs['initial']['image'].getObjective().nominalMagnification, label="Nominal magnification", required=False)
+            if kwargs['initial']['objectiveSettings'].getObjective().nominalMagnification is not None:
+                self.fields['nominalMagnification'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'nominalMagnification\', this.value);'}), initial=kwargs['initial']['objectiveSettings'].getObjective().nominalMagnification, label="Nominal magnification", required=False)
             else:
-                self.fields['nominalMagnification'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'nominalMagnification\', this.value);'}), label="Nominal magnification", required=False)
+                self.fields['nominalMagnification'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'nominalMagnification\', this.value);'}), label="Nominal magnification", required=False)
             self.fields['nominalMagnification'].widget.attrs['disabled'] = True 
             self.fields['nominalMagnification'].widget.attrs['class'] = 'disable'
         except:
@@ -576,10 +576,10 @@ class MetadataObjectiveForm(forms.Form):
         
         # Calibrated Magnification
         try:
-            if kwargs['initial']['image'].getObjective().calibratedMagnification is not None:
-                self.fields['calibratedMagnification'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'calibratedMagnification\', this.value);'}), initial=kwargs['initial']['image'].getObjective().calibratedMagnification, label="Calibrated magnification", required=False)
+            if kwargs['initial']['objectiveSettings'].getObjective().calibratedMagnification is not None:
+                self.fields['calibratedMagnification'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'calibratedMagnification\', this.value);'}), initial=kwargs['initial']['objectiveSettings'].getObjective().calibratedMagnification, label="Calibrated magnification", required=False)
             else:
-                self.fields['calibratedMagnification'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'calibratedMagnification\', this.value);'}), label="Calibrated magnification", required=False)
+                self.fields['calibratedMagnification'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'calibratedMagnification\', this.value);'}), label="Calibrated magnification", required=False)
             self.fields['calibratedMagnification'].widget.attrs['disabled'] = True 
             self.fields['calibratedMagnification'].widget.attrs['class'] = 'disable'
         except:
@@ -589,10 +589,10 @@ class MetadataObjectiveForm(forms.Form):
         
         # Lens NA
         try:
-            if kwargs['initial']['image'].getObjective().lensNA is not None:
-                self.fields['lensNA'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'lensNA\', this.value);'}), initial=kwargs['initial']['image'].getObjective().lensNA, label="Lens NA", required=False)
+            if kwargs['initial']['objectiveSettings'].getObjective().lensNA is not None:
+                self.fields['lensNA'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'lensNA\', this.value);'}), initial=kwargs['initial']['objectiveSettings'].getObjective().lensNA, label="Lens NA", required=False)
             else:
-                self.fields['lensNA'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'lensNA\', this.value);'}), required=False)
+                self.fields['lensNA'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'lensNA\', this.value);'}), required=False)
             self.fields['lensNA'].widget.attrs['disabled'] = True 
             self.fields['lensNA'].widget.attrs['class'] = 'disable'
         except:
@@ -602,8 +602,8 @@ class MetadataObjectiveForm(forms.Form):
         
         # Immersion
         try:
-            if kwargs['initial']['image'].getObjective().immersion is not None:
-                self.fields['immersion'] = MetadataModelChoiceField(queryset=kwargs['initial']['immersions'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'immersion\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['image'].getImmersion().value, required=False) 
+            if kwargs['initial']['objectiveSettings'].getObjective().immersion is not None:
+                self.fields['immersion'] = MetadataModelChoiceField(queryset=kwargs['initial']['immersions'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'immersion\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['objectiveSettings'].getObjective().immersion, required=False) 
             else:
                 self.fields['immersion'] = MetadataModelChoiceField(queryset=kwargs['initial']['immersions'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'immersion\', this.options[this.selectedIndex].value);'}), required=False) 
             self.fields['immersion'].widget.attrs['disabled'] = True 
@@ -615,10 +615,10 @@ class MetadataObjectiveForm(forms.Form):
         
         # Correction
         try:
-            if kwargs['initial']['image'].getObjective().correction is not None:
-                self.fields['correction'] = MetadataModelChoiceField(queryset=kwargs['initial']['corrections'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'correction\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['image'].getCorrection().value, required=False) 
+            if kwargs['initial']['objectiveSettings'].getObjective().correction is not None:
+                self.fields['correction'] = MetadataModelChoiceField(queryset=kwargs['initial']['corrections'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'correction\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['objectiveSettings'].getObjective().correction, required=False) 
             else:
-                self.fields['correction'] = MetadataModelChoiceField(queryset=kwargs['initial']['corrections'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['image'].id)+', \'correction\', this.options[this.selectedIndex].value);'}), required=False) 
+                self.fields['correction'] = MetadataModelChoiceField(queryset=kwargs['initial']['corrections'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'correction\', this.options[this.selectedIndex].value);'}), required=False) 
             self.fields['correction'].widget.attrs['disabled'] = True 
             self.fields['correction'].widget.attrs['class'] = 'disable'
         except:
@@ -628,10 +628,10 @@ class MetadataObjectiveForm(forms.Form):
         
         # Working Distance
         try:
-            if kwargs['initial']['image'].getObjective().workingDistance is not None:
-                self.fields['workingDistance'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'workingDistance\', this.value);'}), initial=kwargs['initial']['image'].getObjective().workingDistance, label="Working distance", required=False)
+            if kwargs['initial']['objectiveSettings'].getObjective().workingDistance is not None:
+                self.fields['workingDistance'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'workingDistance\', this.value);'}), initial=kwargs['initial']['objectiveSettings'].getObjective().workingDistance, label="Working distance", required=False)
             else:
-                self.fields['workingDistance'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'workingDistance\', this.value);'}), label="Working distance", required=False)
+                self.fields['workingDistance'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'workingDistance\', this.value);'}), label="Working distance", required=False)
             self.fields['workingDistance'].widget.attrs['disabled'] = True 
             self.fields['workingDistance'].widget.attrs['class'] = 'disable'
         except:
@@ -641,10 +641,10 @@ class MetadataObjectiveForm(forms.Form):
         
         # Iris
         try:
-            if kwargs['initial']['image'].getObjective().iris is not None:
-                self.fields['iris'] = forms.ChoiceField(choices=self.BOOLEAN_CHOICES,  widget=forms.Select(attrs={'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'iris\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['image'].getObjective().iris, required=False)
+            if kwargs['initial']['objectiveSettings'].getObjective().iris is not None:
+                self.fields['iris'] = forms.ChoiceField(choices=self.BOOLEAN_CHOICES,  widget=forms.Select(attrs={'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'iris\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['objectiveSettings'].getObjective().iris, required=False)
             else:
-                self.fields['iris'] = forms.ChoiceField(choices=self.BOOLEAN_CHOICES,  widget=forms.Select(attrs={'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'iris\', this.options[this.selectedIndex].value);'}), required=False)
+                self.fields['iris'] = forms.ChoiceField(choices=self.BOOLEAN_CHOICES,  widget=forms.Select(attrs={'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'iris\', this.options[this.selectedIndex].value);'}), required=False)
             self.fields['iris'].widget.attrs['disabled'] = True 
             self.fields['iris'].widget.attrs['class'] = 'disable'
         except:
@@ -830,8 +830,8 @@ class MetadataDetectorForm(forms.Form):
         
         # Type
         try:
-            if kwargs['initial']['detector'].type is not None:
-                self.fields['type'] = MetadataModelChoiceField(queryset=kwargs['initial']['types'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['detector'].id)+', \'type\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['detector'].getDetectorType().value, required=False) 
+            if kwargs['initial']['detector'] is not None:
+                self.fields['type'] = MetadataModelChoiceField(queryset=kwargs['initial']['types'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['detector'].id)+', \'type\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['detector'].type, required=False) 
             else:
                 self.fields['type'] = MetadataModelChoiceField(queryset=kwargs['initial']['types'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['detector'].id)+', \'type\', this.options[this.selectedIndex].value);'}), required=False) 
             self.fields['type'].widget.attrs['disabled'] = True 
@@ -843,10 +843,12 @@ class MetadataDetectorForm(forms.Form):
         
         # Gain
         try:
-            if kwargs['initial']['detector'] is not None:
+            if kwargs['initial']['detectorSettings'] is not None:
+                self.fields['gain'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'gain\', this.value);'}), initial=kwargs['initial']['detectorSettings'].gain, required=False)
+            elif kwargs['initial']['detector'] is not None:
                 self.fields['gain'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'gain\', this.value);'}), initial=kwargs['initial']['detector'].gain, required=False)
             else:
-                self.fields['gain'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'gain\', this.value);'}), required=False)
+                self.fields['gain'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'gain\', this.value);'}), required=False)
             self.fields['gain'].widget.attrs['disabled'] = True 
             self.fields['gain'].widget.attrs['class'] = 'disable'
         except:
@@ -856,10 +858,12 @@ class MetadataDetectorForm(forms.Form):
         
         # Voltage
         try:
-            if kwargs['initial']['detector'] is not None:
+            if kwargs['initial']['detectorSettings'] is not None:
+                self.fields['voltage'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'voltage\', this.value);'}), initial=kwargs['initial']['detectorSettings'].voltage, required=False)
+            elif kwargs['initial']['detector'] is not None:
                 self.fields['voltage'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'voltage\', this.value);'}), initial=kwargs['initial']['detector'].voltage, required=False)
             else:
-                self.fields['voltage'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'voltage\', this.value);'}), required=False)
+                self.fields['voltage'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'voltage\', this.value);'}), required=False)
             self.fields['voltage'].widget.attrs['disabled'] = True 
             self.fields['voltage'].widget.attrs['class'] = 'disable'
         except:
@@ -869,10 +873,12 @@ class MetadataDetectorForm(forms.Form):
         
         # Offset
         try:
-            if kwargs['initial']['detector'] is not None:
+            if kwargs['initial']['detectorSettings'] is not None:
+                self.fields['offsetValue'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'offsetValue\', this.value);'}), initial=kwargs['initial']['detectorSettings'].offsetValue, label="Offset", required=False)
+            elif kwargs['initial']['detector'] is not None:
                 self.fields['offsetValue'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'offsetValue\', this.value);'}), initial=kwargs['initial']['detector'].offsetValue, label="Offset", required=False)
             else:
-                self.fields['offsetValue'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].id)+', \'offsetValue\', this.value);'}), label="Offset", required=False)
+                self.fields['offsetValue'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'offsetValue\', this.value);'}), label="Offset", required=False)
             self.fields['offsetValue'].widget.attrs['disabled'] = True 
             self.fields['offsetValue'].widget.attrs['class'] = 'disable'
         except:
@@ -924,8 +930,8 @@ class MetadataLightSourceForm(forms.Form):
         
         # Manufacturer
         try:
-            if kwargs['initial']['lightSource'] is not None:
-                self.fields['manufacturer'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'model\', this.value);'}), initial=kwargs['initial']['lightSource'].manufacturer, required=False)
+            if kwargs['initial']['lightSource'].getLightSource().manufacturer is not None:
+                self.fields['manufacturer'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'model\', this.value);'}), initial=kwargs['initial']['lightSource'].getLightSource().manufacturer, required=False)
             else:
                 self.fields['manufacturer'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'model\', this.value);'}), required=False)
             self.fields['manufacturer'].widget.attrs['disabled'] = True 
@@ -937,8 +943,8 @@ class MetadataLightSourceForm(forms.Form):
         
         # Model
         try:
-            if kwargs['initial']['lightSource'] is not None:
-                self.fields['model'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'model\', this.value);'}), initial=kwargs['initial']['lightSource'].model, required=False)
+            if kwargs['initial']['lightSource'].getLightSource().model is not None:
+                self.fields['model'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'model\', this.value);'}), initial=kwargs['initial']['lightSource'].getLightSource().model, required=False)
             else:
                 self.fields['model'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'model\', this.value);'}), required=False)
             self.fields['model'].widget.attrs['disabled'] = True 
@@ -950,8 +956,8 @@ class MetadataLightSourceForm(forms.Form):
         
         # Serial Number
         try:
-            if kwargs['initial']['lightSource'] is not None:
-                self.fields['serialNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'serialNumber\', this.value);'}), initial=kwargs['initial']['lightSource'].serialNumber, label="Serial number", required=False)
+            if kwargs['initial']['lightSource'].getLightSource().serialNumber is not None:
+                self.fields['serialNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'serialNumber\', this.value);'}), initial=kwargs['initial']['lightSource'].getLightSource().serialNumber, label="Serial number", required=False)
             else:
                 self.fields['serialNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'serialNumber\', this.value);'}), label="Serial number", required=False)
             self.fields['serialNumber'].widget.attrs['disabled'] = True 
@@ -963,8 +969,8 @@ class MetadataLightSourceForm(forms.Form):
         
         # Power
         try:
-            if kwargs['initial']['lightSource'] is not None:
-                self.fields['power'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'power\', this.value);'}), initial=kwargs['initial']['lightSource'].serialNumber, required=False)
+            if kwargs['initial']['lightSource'].getLightSource().power is not None:
+                self.fields['power'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'power\', this.value);'}), initial=kwargs['initial']['lightSource'].getLightSource().power, required=False)
             else:
                 self.fields['power'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'power\', this.value);'}), required=False)
             self.fields['power'].widget.attrs['disabled'] = True 
@@ -976,8 +982,8 @@ class MetadataLightSourceForm(forms.Form):
         
         # Type
         try:
-            if kwargs['initial']['lightSource'].type is not None:
-                self.fields['type'] = MetadataModelChoiceField(queryset=kwargs['initial']['types'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'type\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['lightSource'].getLightSourceType().value, required=False) 
+            if kwargs['initial']['lightSource'].getLightSource().type is not None:
+                self.fields['type'] = MetadataModelChoiceField(queryset=kwargs['initial']['types'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'type\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['lightSource'].getLightSource().type, required=False) 
             else:
                 self.fields['type'] = MetadataModelChoiceField(queryset=kwargs['initial']['types'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'type\', this.options[this.selectedIndex].value);'}), required=False) 
             self.fields['type'].widget.attrs['disabled'] = True 
@@ -989,8 +995,8 @@ class MetadataLightSourceForm(forms.Form):
         
         # Medium
         try:
-            if kwargs['initial']['lightSource'].laserMedium is not None:
-                self.fields['medium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['lightSource'].getLaserMedium().value, required=False) 
+            if kwargs['initial']['lightSource'].getLightSource().laserMedium is not None:
+                self.fields['medium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['lightSource'].getLightSource().laserMedium, required=False) 
             else:
                 self.fields['medium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), required=False) 
             self.fields['medium'].widget.attrs['disabled'] = True 
@@ -1002,7 +1008,7 @@ class MetadataLightSourceForm(forms.Form):
         
         # Wavelength
         try:
-            if kwargs['initial']['lightSource'] is not None:
+            if kwargs['initial']['lightSource'].wavelength is not None:
                 self.fields['wavelength'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'wavelength\', this.value);'}), initial=kwargs['initial']['lightSource'].wavelength, required=False)
             else:
                 self.fields['wavelength'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'wavelength\', this.value);'}), required=False)
@@ -1015,8 +1021,8 @@ class MetadataLightSourceForm(forms.Form):
         
         # FrequencyMultiplication
         try:
-            if kwargs['initial']['lightSource'] is not None:
-                self.fields['frequencyMultiplication'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'frequencyMultiplication\', this.value);'}), initial=kwargs['initial']['lightSource'].frequencyMultiplication, label="Frequency Multiplication", required=False)
+            if kwargs['initial']['lightSource'].getLightSource().frequencyMultiplication is not None:
+                self.fields['frequencyMultiplication'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'frequencyMultiplication\', this.value);'}), initial=kwargs['initial']['lightSource'].getLightSource().frequencyMultiplication, label="Frequency Multiplication", required=False)
             else:
                 self.fields['frequencyMultiplication'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'frequencyMultiplication\', this.value);'}), label="Frequency Multiplication", required=False)
             self.fields['frequencyMultiplication'].widget.attrs['disabled'] = True 
@@ -1028,8 +1034,8 @@ class MetadataLightSourceForm(forms.Form):
         
         # Tuneable
         try:
-            if kwargs['initial']['lightSource'] is not None:
-                self.fields['tuneable'] = forms.ChoiceField(choices=self.BOOLEAN_CHOICES,  widget=forms.Select(attrs={'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'tuneable\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['lightSource'].tuneable, required=False)
+            if kwargs['initial']['lightSource'].getLightSource().tuneable is not None:
+                self.fields['tuneable'] = forms.ChoiceField(choices=self.BOOLEAN_CHOICES,  widget=forms.Select(attrs={'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'tuneable\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['lightSource'].getLightSource().tuneable, required=False)
             else:
                 self.fields['tuneable'] = forms.ChoiceField(choices=self.BOOLEAN_CHOICES,  widget=forms.Select(attrs={'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'tuneable\', this.options[this.selectedIndex].value);'}), required=False)
             self.fields['tuneable'].widget.attrs['disabled'] = True 
@@ -1041,8 +1047,8 @@ class MetadataLightSourceForm(forms.Form):
         
         # Pulse
         try:
-            if kwargs['initial']['lightSource'].pulse is not None:
-                self.fields['pulse'] = MetadataModelChoiceField(queryset=kwargs['initial']['pulses'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'pulse\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['lightSource'].getPulse().value, required=False) 
+            if kwargs['initial']['lightSource'].getLightSource().pulse is not None:
+                self.fields['pulse'] = MetadataModelChoiceField(queryset=kwargs['initial']['pulses'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'pulse\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['lightSource'].getLightSource().pulse, required=False) 
             else:
                 self.fields['pulse'] = MetadataModelChoiceField(queryset=kwargs['initial']['pulses'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'pulse\', this.options[this.selectedIndex].value);'}), required=False) 
             self.fields['pulse'].widget.attrs['disabled'] = True 
@@ -1054,8 +1060,8 @@ class MetadataLightSourceForm(forms.Form):
         
         # Repetition Rate
         try:
-            if kwargs['initial']['lightSource'] is not None:
-                self.fields['repetitionRate'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'repetitionRate\', this.value);'}), initial=kwargs['initial']['lightSource'].repetitionRate, label="Repetition rate", required=False)
+            if kwargs['initial']['lightSource'].getLightSource().repetitionRate is not None:
+                self.fields['repetitionRate'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'repetitionRate\', this.value);'}), initial=kwargs['initial']['lightSource'].getLightSource().repetitionRate, label="Repetition rate", required=False)
             else:
                 self.fields['repetitionRate'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'repetitionRate\', this.value);'}), label="Repetition rate", required=False)
             self.fields['repetitionRate'].widget.attrs['disabled'] = True 
@@ -1067,8 +1073,8 @@ class MetadataLightSourceForm(forms.Form):
         
         # Pockel Cell
         try:
-            if kwargs['initial']['lightSource'] is not None:
-                self.fields['pockelCell'] = forms.ChoiceField(choices=self.BOOLEAN_CHOICES,  widget=forms.Select(attrs={'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'pockelCell\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['lightSource'].pockelCell, label="Pockel Cell", required=False)
+            if kwargs['initial']['lightSource'].getLightSource().pockelCell is not None:
+                self.fields['pockelCell'] = forms.ChoiceField(choices=self.BOOLEAN_CHOICES,  widget=forms.Select(attrs={'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'pockelCell\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['lightSource'].getLightSource().pockelCell, label="Pockel Cell", required=False)
             else:
                 self.fields['pockelCell'] = forms.ChoiceField(choices=self.BOOLEAN_CHOICES,  widget=forms.Select(attrs={'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'pockelCell\', this.options[this.selectedIndex].value);'}), label="Pockel Cell", required=False)
             self.fields['pockelCell'].widget.attrs['disabled'] = True 
@@ -1080,8 +1086,8 @@ class MetadataLightSourceForm(forms.Form):
         
         # Attenuation
         try:
-            if kwargs['initial']['lightSource'] is not None:
-                self.fields['attenuation'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'attenuation\', this.value);'}), initial=kwargs['initial']['attenuation'].attenuation, required=False)
+            if kwargs['initial']['lightSource'].attenuation is not None:
+                self.fields['attenuation'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'attenuation\', this.value);'}), initial=kwargs['initial']['lightSource'].attenuation, required=False)
             else:
                 self.fields['attenuation'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'attenuation\', this.value);'}), required=False)
             self.fields['attenuation'].widget.attrs['disabled'] = True 

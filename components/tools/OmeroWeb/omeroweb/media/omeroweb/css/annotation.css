@@ -203,12 +203,15 @@ table.metadata_details td{
     border-bottom: 1px dotted #bbb;
 }
 
-
-#metadata_tab table th.header{
+.can-collapse {
+    background:transparent url(/appmedia/omeroweb/images/table/desc-big.gif) no-repeat scroll bottom right;
     border: 1px solid #bbb;
     background-color: #fff;
+    cursor:pointer;
+    padding: 5px;
+    margin:5px 0;
 }
-
-#metadata_tab table th.header h1{
-    margin-left: 10px;
+.defclosed,.closed{
+    background:transparent url(/appmedia/omeroweb/images/table/asc-big.gif) no-repeat scroll top right;
+    background-color: #fff;
 }
