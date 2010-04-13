@@ -22,10 +22,13 @@ TESTIMG_URL = 'http://users.openmicroscopy.org.uk/~cneves-x/'
 def loginAsRoot ():
     return login(ROOT)
 
-def login (alias):
+def login (alias, pw=None):
     if isinstance(alias, UserEntry):
         return alias.login()
-    return USERS[alias].login()
+    elif pw is None:
+        return USERS[alias].login()
+    else:
+        return UserEntry(alias, pw).login()
 
 #def addGroupToUser (client, groupname):
 #    a = client.getAdminService()
