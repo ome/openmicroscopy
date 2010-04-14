@@ -13,10 +13,10 @@
    'failureException', 'id', 'login_args', 'new_user', 'query', 'root', 'run', 'setUp', 'sf', 'shortDescription', 'tearDown', 'testfoo', 
    'tmpfile', 'tmpfiles', 'update'
    
-   Run test from OmeroPy/
+   ** IMPORTANT: Run test from OmeroPy/  **
    
-    PYTHONPATH=/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages/:/opt/Ice-3.3.1/python:.:test:build/lib ICE_CONFIG=/Users/will/Documents/workspace/Omero/etc/ice.config python test/integration/emanScripts.py
-    
+   PYTHONPATH=/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages/:/opt/Ice-3.3.1/python:.:test:build/lib ICE_CONFIG=/Users/will/Documents/workspace/Omero/etc/ice.config python test/integration/emanScripts.py
+   Add E.g.  TestEmanScripts.testRunSpiderProcedure to command to run a single test. 
 """
 import unittest, time
 import test.integration.library as lib
@@ -39,10 +39,11 @@ import numpy
 boxerTestImage = "/Users/will/Documents/biology-data/testData/boxerTest.tiff"
 smallTestImage = "/Users/will/Documents/biology-data/testData/smallTest.tiff"
 
-saveImageAsScriptPath = "/Users/will/Documents/workspace/Omero/components/tools/OmeroPy/scripts/EMAN2/saveImageAs.py"
-export2emScriptPath = "/Users/will/Documents/workspace/Omero/components/tools/OmeroPy/scripts/EMAN2/export2em.py"
-boxerScriptPath = "/Users/will/Documents/workspace/Omero/components/tools/OmeroPy/scripts/EMAN2/boxer.py" 
-imagesFromRoisPath = "/Users/will/Documents/workspace/Omero/components/tools/OmeroPy/scripts/EMAN2/imagesFromRois.py"
+runSpiderScriptPath = "scripts/EMAN2/runSpiderProcedure.py"
+saveImageAsScriptPath = "scripts/EMAN2/saveImageAs.py"
+export2emScriptPath = "scripts/EMAN2/export2em.py"
+boxerScriptPath = "scripts/EMAN2/boxer.py" 
+imagesFromRoisPath = "scripts/EMAN2/imagesFromRois.py"
 
 class TestEmanScripts(lib.ITest):
     
@@ -52,6 +53,8 @@ class TestEmanScripts(lib.ITest):
         Uploads an image, adds rectangle ROIs, then runs the imagesFromRois.py script to generate
         new images in a dataset. Then we check that the dataset exists with the expected number of images.
         """
+        print "testImagesFromRois"
+        
         # root session is root.sf
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         admin = self.root.sf.getAdminService()
@@ -148,6 +151,7 @@ class TestEmanScripts(lib.ITest):
         user, to add auto-picked particles as ROIs to the image.  
         This test, including running of script takes > 2 mins! 
         """
+        print "testBoxer"
         
         # root session is root.sf
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
@@ -219,6 +223,7 @@ class TestEmanScripts(lib.ITest):
         running the export2em.py script from command line and checking that an image has been exported. 
         The saveImageAs.py script is first uploaded to the scripting service, since this is required by export2em.py
         """
+        print "testExport2Em"
         
         # root session is root.sf
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
@@ -273,7 +278,6 @@ class TestEmanScripts(lib.ITest):
         commandArgs.append("-e %s" % extension)
         
         commandString = " ".join(commandArgs)
-        #print commandString
         # run from command line
         os.system(commandString)
         
@@ -282,8 +286,78 @@ class TestEmanScripts(lib.ITest):
             imageName = "%s.%s" % (imageName, extension)
         #i = Image.open(imageName)
         #i.show()
-        assertTrue(os.path.exists(imageName))
+        self.assertTrue(os.path.exists(imageName))
         os.remove(imageName)
+        
+        
+    def testRunSpiderProcedure(self):
+        """
+        Tests the runSpiderProcedure.py script by uploading a simple Spider Procedure File (spf) to 
+        OMERO as an Original File, creating an image in OMERO, then
+        running the export2em.py script from command line and checking that an image has been exported. 
+        The saveImageAs.py script is first uploaded to the scripting service, since this is required by export2em.py
+        """
+        print "testRunSpiderProcedure"
+        
+        # root session is root.sf
+        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        admin = self.root.sf.getAdminService()
+        
+        # upload saveImageAs.py script as root
+        scriptService = self.root.sf.getScriptService()
+        scriptId = uploadScript(scriptService, runSpiderScriptPath)
+        
+        session = self.root.sf      # do everything as root for now 
+        
+        # create services
+        queryService = session.getQueryService()
+        updateService = session.getUpdateService()
+        rawFileStore = session.createRawFileStore()
+        
+        # create and upload a Spider Procedure File
+        # make a temp text file. Example from http://www.wadsworth.org/spider_doc/spider/docs/quickstart.html
+        f = open("spider.spf", 'w')
+        f.write("RT\n")
+        f.write("input\n")
+        f.write("rot001\n")
+        f.write("60\n")
+        f.write("\n")
+        f.write("IP\n")
+        f.write("rot001\n")
+        f.write("big001\n")
+        f.write("150,150\n")
+        f.write("\n")
+        f.write("WI\n")
+        f.write("big001\n")
+        f.write("output\n")
+        f.write("75,75\n")
+        f.write("1,75\n")
+        f.write("\n")
+        f.write("EN D")
+        f.close() 
+        
+        fileformat = scriptUtil.getFormat(queryService, "text/plain")
+        originalFile = scriptUtil.createFile(updateService, "spider.spf", fileformat, "spider.spf");
+        scriptUtil.uploadFile(rawFileStore, originalFile, "spider.spf")
+        origFileId = originalFile.getId().getValue()
+        os.remove("spider.spf")
+        
+        # import image
+        iId = importImage(session, smallTestImage)
+        
+        # reminder of script parameters...
+        #scripts.List("imageIds", optional=True).in(),    # List of image IDs. Use this OR datasetId
+        #scripts.Long("datasetId", optional=True).in(),    # Dataset Id. Use this OR imageIds
+        #scripts.Long("newDatasetName", optional=True).in(),     # Make a dataset to put results. Otherwise put in same as input images.
+        #scripts.String("imageExtension", optional=True).in(),   # The image extension. E.g. "dat" or "spi". Default is "dat"
+        #scripts.Long("spfOriginalFileId").in())
+        
+        # run script
+        ids = [omero.rtypes.rint(iId), ]
+        argMap = {"imageIds": omero.rtypes.rlist(ids),
+                "spfOriginalFileId": omero.rtypes.rlong(origFileId) }
+        runScript(session, scriptId, omero.rtypes.rmap(argMap))
+        
         
 def runScript(session, scriptId, argMap, returnKey=None): 
     # TODO: this will be refactored 
@@ -298,7 +372,7 @@ def runScript(session, scriptId, argMap, returnKey=None):
     if 'stderr' in results:
         origFile = results['stderr'].getValue()
         # But, we still get stderr from EMAN2 import (duplicate numpy etc.)
-        print "Script failed. StdErr in file:" , origFile.getId().getValue()
+        print "Script generated StdErr in file:" , origFile.getId().getValue()
     if returnKey and returnKey in results:
         return results[returnKey]
 
