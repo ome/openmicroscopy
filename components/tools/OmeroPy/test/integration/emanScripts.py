@@ -343,7 +343,7 @@ class TestEmanScripts(lib.ITest):
         # make a temp text file. Example from http://www.wadsworth.org/spider_doc/spider/docs/quickstart.html
         f = open("spider.spf", 'w')
         f.write("RT\n")
-        f.write("input\n")
+        f.write("test001\n")
         f.write("rot001\n")
         f.write("60\n")
         f.write("\n")
@@ -354,7 +354,7 @@ class TestEmanScripts(lib.ITest):
         f.write("\n")
         f.write("WI\n")
         f.write("big001\n")
-        f.write("output\n")
+        f.write("win001\n")
         f.write("75,75\n")
         f.write("1,75\n")
         f.write("\n")
@@ -363,20 +363,14 @@ class TestEmanScripts(lib.ITest):
         fileId = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, image, "spider.spf", "text/plain")
         os.remove("spider.spf")
         
-        
-        # reminder of script parameters...
-        #scripts.List("imageIds", optional=True).in(),    # List of image IDs. Use this OR datasetId
-        #scripts.Long("datasetId", optional=True).in(),    # Dataset Id. Use this OR imageIds
-        #scripts.Long("newDatasetName", optional=True).in(),     # Make a dataset to put results. Otherwise put in same as input images.
-        #scripts.String("imageExtension", optional=True).in(),   # The image extension. E.g. "dat" or "spi". Default is "dat"
-        #scripts.Long("spfOriginalFileId").in())
-        
         newDatasetName = "spider-results"
         # run script
         ids = [omero.rtypes.rint(iId), ]
         argMap = {"imageIds": omero.rtypes.rlist(ids),
                 "spfFileId": omero.rtypes.rlong(fileId),
-                "newDatasetName": omero.rtypes.rstring(newDatasetName) }
+                "newDatasetName": omero.rtypes.rstring(newDatasetName),
+                "inputName": omero.rtypes.rstring("test001"),
+                "outputName": omero.rtypes.rstring("win001")}
         runScript(session, scriptId, omero.rtypes.rmap(argMap))
         
         # check that image has been created. 

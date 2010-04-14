@@ -284,6 +284,13 @@ def runSpf(session, parameterMap):
     fileExt = "dat"
     if "imageExtension" in parameterMap:
         fileExt = parameterMap["imageExtension"]
+        
+    inputName = "input"
+    if "inputName" in parameterMap:
+        inputName = parameterMap["inputName"]
+    outputName = "output"
+    if "outputName" in parameterMap:
+        outputName = parameterMap["outputName"]
             
     # download the procdure file
     spfName = "procedure.spf"
@@ -296,8 +303,8 @@ def runSpf(session, parameterMap):
     spfCommand = "spider spf/%s @procedure" % fileExt
        
     # for each image, download it, run the spider command and upload result to OMERO
-    inputImage = "input.%s" % fileExt
-    outputImage = "output.%s" % fileExt
+    inputImage = "%s.%s" % (inputName, fileExt)
+    outputImage = "%s.%s" % (outputName, fileExt)
     pixelsType = None   # set by first image result - assume all the same
     for i, imageId in enumerate(imageIds):
         downloadImage(queryService, rawPixelStore, imageId, inputImage)
@@ -315,9 +322,11 @@ def runAsScript():
     client = scripts.client('runSpiderProcedure.py', 'Run a Spider Procedure File against Images on OMERO.', 
     scripts.List("imageIds", optional=True).inout(),    # List of image IDs. Use this OR datasetId
     scripts.Long("datasetId", optional=True).inout(),    # Dataset Id. Use this OR imageIds
+    scripts.Long("spfFileId").inout(),         # the FileAnnotation-ID of the Spider Procedure File
     scripts.String("newDatasetName", optional=True).inout(),     # Make a dataset to put results. Otherwise put in same as input images.
     scripts.String("imageExtension", optional=True).inout(),   # The image extension. E.g. "dat" or "spi". Default is "dat"
-    scripts.Long("spfFileId").inout())         # the FileAnnotation-ID of the Spider Procedure File
+    scripts.String("inputName", optional=True).inout(),     # The name of the input image at the start of the spf file. Default is "input"
+    scripts.String("outputName", optional=True).inout())    # The name of the output image at the end of the spf file. Default is "output"
     
     session = client.getSession()
     
