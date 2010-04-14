@@ -9,10 +9,8 @@ package pojos;
 
 //Java imports
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 //Third-party libraries
 
@@ -36,6 +34,10 @@ import omero.model.GroupExperimenterMap;
  */
 public class ExperimenterData extends DataObject {
 
+	/**  The name space used to identify the experimenter photo. */
+    public static final String EXPERIMENTER_PHOTO_NS = 
+    	"openmicroscopy.org/omero/experimenter/photo";;
+    
     /** Identifies the {@link Experimenter#FIRSTNAME} field. */
     public final static String FIRSTNAME = ExperimenterI.FIRSTNAME;
 

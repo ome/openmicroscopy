@@ -88,7 +88,7 @@ public class ImageData extends DataObject {
 
     /**
      * All the annotations related to this Image. The elements of the set are
-     * {@link AnnotationData} objetcs. If this Image hasn't been annotated, then
+     * {@link AnnotationData} objects. If this Image hasn't been annotated, then
      * this set will be empty &#151; but never <code>null</code>.
      */
     private Set<AnnotationData> annotations;
