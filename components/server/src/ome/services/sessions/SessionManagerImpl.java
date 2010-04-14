@@ -27,6 +27,7 @@ import ome.conditions.SessionException;
 import ome.conditions.SessionTimeoutException;
 import ome.model.enums.EventType;
 import ome.model.internal.Details;
+import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Node;
@@ -191,6 +192,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     protected void define(Session s, String uuid, String message, long started,
             long idle, long live, String eventType, String agent) {
 
+        s.getDetails().setPermissions(Permissions.PRIVATE);
         s.setUuid(uuid);
         s.setMessage(message);
         s.setStarted(new Timestamp(started));
