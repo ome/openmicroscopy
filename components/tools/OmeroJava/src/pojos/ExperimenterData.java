@@ -33,10 +33,6 @@ import omero.model.GroupExperimenterMap;
  * @since OME2.2
  */
 public class ExperimenterData extends DataObject {
-
-	/**  The name space used to identify the experimenter photo. */
-    public static final String EXPERIMENTER_PHOTO_NS = 
-    	"openmicroscopy.org/omero/experimenter/photo";;
     
     /** Identifies the {@link Experimenter#FIRSTNAME} field. */
     public final static String FIRSTNAME = ExperimenterI.FIRSTNAME;

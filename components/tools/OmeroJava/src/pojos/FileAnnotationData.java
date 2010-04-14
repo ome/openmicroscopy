@@ -48,6 +48,10 @@ import omero.model.OriginalFile;
  */
 public class FileAnnotationData extends AnnotationData {
 
+	/**  The name space used to identify the experimenter photo. */
+    public static final String EXPERIMENTER_PHOTO_NS = 
+    	"openmicroscopy.org/omero/experimenter/photo";
+    	
 	/** 
      * The name space used to indicate that the <code>FileAnnotation</code> 
      * is a companion file.
