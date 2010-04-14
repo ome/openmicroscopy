@@ -28,13 +28,18 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 import java.awt.event.ActionEvent;
 
 import javax.swing.Action;
+import javax.swing.Icon;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.GroupData;
 
 /** 
@@ -56,6 +61,44 @@ public class GroupSelectionAction
 
 	/** The group the logged in user is member of. */
 	private GroupData group;
+	
+	/** 
+	 * Sets the icon and tool tip text according to the permissions of the 
+	 * group.
+	 */
+	private void setPermissions()
+	{
+		IconManager im = IconManager.getInstance();
+		Icon icon = im.getIcon(IconManager.PERSONAL);
+        int level = 
+        	TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
+        			group);
+        String desc = "";
+        switch (level) {
+			case AdminObject.PERMISSIONS_PRIVATE:
+				desc = AdminObject.PERMISSIONS_PRIVATE_TEXT;
+				icon = im.getIcon(IconManager.PRIVATE_GROUP);
+				break;
+			case AdminObject.PERMISSIONS_GROUP_READ:
+				desc = AdminObject.PERMISSIONS_GROUP_READ_TEXT;
+				icon = im.getIcon(IconManager.READ_GROUP);
+				break;
+			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
+				desc = AdminObject.PERMISSIONS_GROUP_READ_LINK_TEXT;
+				icon = im.getIcon(IconManager.READ_LINK_GROUP);
+				break;
+			case AdminObject.PERMISSIONS_PUBLIC_READ:
+				desc = AdminObject.PERMISSIONS_PUBLIC_READ_TEXT;
+				icon = im.getIcon(IconManager.PUBLIC_GROUP);
+				break;
+			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+				desc = AdminObject.PERMISSIONS_PUBLIC_READ_WRITE_TEXT;
+				icon = im.getIcon(IconManager.PUBLIC_GROUP);
+		}
+        
+        putValue(Action.SMALL_ICON, icon);
+        putValue(Action.SHORT_DESCRIPTION, UIUtilities.formatToolTipText(desc));
+	}
 	
     /** 
      * Enables the action if the browser is not ready.
@@ -81,8 +124,7 @@ public class GroupSelectionAction
 		this.group = group;
 		name = group.getName();
 		putValue(Action.NAME, name);
-        IconManager im = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, im.getIcon(IconManager.PERSONAL));
+        setPermissions();
 	}
 	
 	/**

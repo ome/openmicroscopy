@@ -210,11 +210,9 @@ public class TreeCellRenderer
         	icon = icons.getIcon(IconManager.ROOT);
         else if (usrObject instanceof ExperimenterData) {
         	ExperimenterData exp = (ExperimenterData) usrObject;
-        	if (exp.isActive()) icon = icons.getIcon(IconManager.OWNER);
-        	else {
+        	icon = icons.getIcon(IconManager.OWNER);
+        	if (!exp.isActive())
         		icon = icons.getIcon(IconManager.OWNER_NOT_ACTIVE);
-        		setToolTipText("Experimenter not Active");
-        	}
         } setIcon(icon);
     }
 

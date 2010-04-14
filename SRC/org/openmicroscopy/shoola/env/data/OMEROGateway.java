@@ -2044,7 +2044,8 @@ class OMEROGateway
 		try {
 			getAdminService().setDefaultGroup(exp.asExperimenter(), 
 					group.asGroup());
-			entryEncrypted.setSecurityContext(new ExperimenterGroupI(groupID, false));
+			entryEncrypted.setSecurityContext(
+					new ExperimenterGroupI(groupID, false));
 		} catch (Exception e) {
 			handleException(e, s);
 		}

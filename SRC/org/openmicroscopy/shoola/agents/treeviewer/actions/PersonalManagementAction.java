@@ -32,6 +32,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import javax.swing.Action;
+import javax.swing.Icon;
 
 
 //Third-party libraries
@@ -41,6 +42,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.GroupData;
@@ -69,6 +71,9 @@ public class PersonalManagementAction
     /** The location of the mouse pressed. */
     private Point point;
 
+    /** Reference to the icons manager. */
+    private IconManager icons;
+    
     /** 
      * Enables the action if the browser is not ready.
      * @see TreeViewerAction#onDataImport()
@@ -78,11 +83,44 @@ public class PersonalManagementAction
     	onBrowserStateChange(model.getSelectedBrowser());
     }
     
-    /** Sets the name of the action. */
-    private void setActionName()
+    /** Sets the name, description and the icon depending on the permissions. */
+    private void setPermissions()
     {
     	GroupData group = model.getSelectedGroup();
-    	if (group != null) putValue(Action.NAME, group.getName());
+    	String name = "";
+    	String desc = DESCRIPTION;
+    	Icon icon = icons.getIcon(IconManager.UP_DOWN_9_12);
+    	if (group != null) {
+    		name = group.getName();
+    		int level = 
+            TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
+            			group);
+            switch (level) {
+    			case AdminObject.PERMISSIONS_PRIVATE:
+    				desc = AdminObject.PERMISSIONS_PRIVATE_TEXT;
+    				icon = icons.getIcon(IconManager.PRIVATE_GROUP_DD_12);
+    				break;
+    			case AdminObject.PERMISSIONS_GROUP_READ:
+    				desc = AdminObject.PERMISSIONS_GROUP_READ_TEXT;
+    				icon = icons.getIcon(IconManager.READ_GROUP_DD_12);
+    				break;
+    			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
+    				desc = AdminObject.PERMISSIONS_GROUP_READ_LINK_TEXT;
+    				icon = icons.getIcon(IconManager.READ_LINK_GROUP_DD_12);
+    				break;
+    			case AdminObject.PERMISSIONS_PUBLIC_READ:
+    				desc = AdminObject.PERMISSIONS_PUBLIC_READ_TEXT;
+    				icon = icons.getIcon(IconManager.PUBLIC_GROUP_DD_12);
+    				break;
+    			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+    				desc = AdminObject.PERMISSIONS_PUBLIC_READ_WRITE_TEXT;
+    				icon = icons.getIcon(IconManager.PUBLIC_GROUP_DD_12);
+    		}
+
+    	}
+    	putValue(Action.NAME, name);
+    	putValue(Action.SMALL_ICON, icon);
+    	putValue(Action.SHORT_DESCRIPTION, UIUtilities.formatToolTipText(desc));
     }
     
     /** 
@@ -121,17 +159,14 @@ public class PersonalManagementAction
     public PersonalManagementAction(TreeViewer model)
     {
         super(model);
-        putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.formatToolTipText(DESCRIPTION));
-        IconManager im = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, im.getIcon(IconManager.UP_DOWN_9_12));
-        setActionName();
+        icons = IconManager.getInstance();
+        setPermissions();
         model.addPropertyChangeListener(new PropertyChangeListener() {
 			
 			public void propertyChange(PropertyChangeEvent evt) {
 				String name = evt.getPropertyName();
 				if (TreeViewer.GROUP_CHANGED_PROPERTY.equals(name)) {
-					setActionName();
+					setPermissions();
 				} else if (TreeViewer.IMPORTED_PROPERTY.equals(name)) {
 					onDataImport();
 				}

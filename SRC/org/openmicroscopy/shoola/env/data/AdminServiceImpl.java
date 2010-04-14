@@ -308,14 +308,16 @@ class AdminServiceImpl
 
 	/**
 	 * Implemented as specified by {@link AdminService}.
-	 * @see AdminService#getPermissionLevel()
+	 * @see AdminService#getPermissionLevel(GroupData)
 	 */
-	public int getPermissionLevel()
+	public int getPermissionLevel(GroupData group)
 	{
 		ExperimenterData exp = (ExperimenterData) context.lookup(
 				LookupNames.CURRENT_USER_DETAILS);
-		GroupData g = exp.getDefaultGroup();
-		PermissionData perm = g.getPermissions();
+		if (group == null) {
+			group = exp.getDefaultGroup();
+		}
+		PermissionData perm = group.getPermissions();
 		if (perm.isGroupRead()) {
 			if (perm.isGroupWrite())  
 				return AdminObject.PERMISSIONS_GROUP_READ_LINK;
@@ -327,7 +329,7 @@ class AdminServiceImpl
 			return AdminObject.PERMISSIONS_PUBLIC_READ;
 		}
 		//Check if the user is owner of the group.
-		Set leaders = g.getLeaders();
+		Set leaders = group.getLeaders();
 		if (leaders == null || leaders.size() == 0) 
 			return AdminObject.PERMISSIONS_PRIVATE;
 		Iterator j = leaders.iterator();
@@ -338,6 +340,18 @@ class AdminServiceImpl
 				return AdminObject.PERMISSIONS_GROUP_READ;
 		}
 		return AdminObject.PERMISSIONS_PRIVATE;
+	}
+	
+	/**
+	 * Implemented as specified by {@link AdminService}.
+	 * @see AdminService#getPermissionLevel()
+	 */
+	public int getPermissionLevel()
+	{
+		ExperimenterData exp = (ExperimenterData) context.lookup(
+				LookupNames.CURRENT_USER_DETAILS);
+		GroupData g = exp.getDefaultGroup();
+		return getPermissionLevel(g);
 	}
 
 	/**
