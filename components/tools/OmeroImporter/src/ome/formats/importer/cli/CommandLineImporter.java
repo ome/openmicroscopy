@@ -9,6 +9,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import loci.formats.in.DefaultMetadataOptions;
+import loci.formats.in.MetadataLevel;
 import loci.formats.meta.MetadataStore;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
@@ -84,6 +86,8 @@ public class CommandLineImporter {
                 usage(); // EXITS TODO this should check for a "quiet" flag
             }
             store = config.createStore();
+            reader.setMetadataOptions(
+                    new DefaultMetadataOptions(MetadataLevel.ALL));
             library = new ImportLibrary(store, reader);
         }
 
