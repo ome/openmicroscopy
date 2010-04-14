@@ -119,7 +119,7 @@
     $.blockUI({
       timeout: 0,
       message: $('#channel-window-help'),
-{% if dataset.isEditable %}
+{% if image.isEditable %}
       css: {width: '60%', left: '20%', top: '20%'}
 {% else %}
       css: {width: '50%', left: '25%', top: '20%'}
@@ -532,7 +532,7 @@
     return false;
   }
 
-{% if dataset.isEditable %}
+{% if image.isEditable %}
   function resetImageDefaults (obj) {
     var msg = '<h2>Resetting rendering settings</h2><ul><li>This will reset the image rendering settings to their original state at time of import.</li></ul>';
     var url = '/webgateway/resetImgRDef/'+viewport.loadedImg.id+'/';
@@ -648,7 +648,7 @@
       <ul>
         <li class="buttonbar">
         {% block save_rdef %}
-        {% if dataset.isEditable %}
+        {% if image.isEditable %}
           <button id="rdef-reset-btn" class="editor" onclick="return resetImageDefaults(this)" title="Returns the image settings to their original state at time of import.">reset</button>
           <button id="rdef-setdef-btn" class="editor" onclick="return setImageDefaults(this)" title="Applies and saves the current settings as default.">save settings</button>
         {% endif %}

@@ -354,13 +354,15 @@ APPLICATION_HOST='%s'
         apps = map(lambda x: x.startswith('omeroweb.') and x[9:] or x, INSTALLED_APPS)
         apps = filter(lambda x: os.path.exists(location / x), apps)
         # Destination dir
-        if os.path.exists(location / 'media'):
-            shutil.rmtree(location / 'media')
-        os.mkdir(location / 'media')
+        if not os.path.exists(location / 'media'):
+            os.mkdir(location / 'media')
+        
         # Create app media links
         for app in apps:
             media_dir = location / app / 'media'
             if os.path.exists(media_dir):
+                if os.path.exists(location / 'media' / app):
+                    shutil.rmtree(location / 'media' / app)
                 os.symlink(os.path.abspath(media_dir), location / 'media' / app)
         
     def enableapp(self, *args):

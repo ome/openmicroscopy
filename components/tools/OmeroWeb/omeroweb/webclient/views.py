@@ -884,10 +884,7 @@ def load_metadata_details(request, c_type, c_id, index=None, **kwargs):
             image = manager.well.selectedWellSample().image()
         except:
             image = manager.image
-       
-        if image.getInstrument().getMicroscope() is not None:
-            form_microscope = MetadataMicroscopeForm(initial={'microscopeTypes':list(conn.getEnumerationEntries("MicroscopeTypeI")), 'microscope': image.getInstrument().getMicroscope()})
-        
+                
         if image.getObjectiveSettings() is not None:
             form_objective = MetadataObjectiveForm(initial={'objectiveSettings': image.getObjectiveSettings(), 
                                     'mediums': list(conn.getEnumerationEntries("MediumI")), 
@@ -898,23 +895,30 @@ def load_metadata_details(request, c_type, c_id, index=None, **kwargs):
         if image.getStageLabel() is not None:
             form_stageLabel = MetadataStageLabelForm(initial={'image': image })
 
-        filters = list(image.getInstrument().getFilters())    
-        for f in filters:
-            form_filter = MetadataFilterForm(initial={'filter': f, 'types':list(conn.getEnumerationEntries("FilterTypeI"))})
-            form_filters.append(form_filter)
+        if image.getInstrument() is not None:
+            if image.getInstrument().getMicroscope() is not None:
+                form_microscope = MetadataMicroscopeForm(initial={'microscopeTypes':list(conn.getEnumerationEntries("MicroscopeTypeI")), 'microscope': image.getInstrument().getMicroscope()})
+
+            if image.getInstrument().getFilters() is not None:
+                filters = list(image.getInstrument().getFilters())    
+                for f in filters:
+                    form_filter = MetadataFilterForm(initial={'filter': f, 'types':list(conn.getEnumerationEntries("FilterTypeI"))})
+                    form_filters.append(form_filter)
         
-        detectors = list(image.getInstrument().getDetectors())    
-        for d in detectors:
-            form_detector = MetadataDetectorForm(initial={'detectorSettings':None, 'detector': d, 'types':list(conn.getEnumerationEntries("DetectorTypeI"))})
-            form_detectors.append(form_detector)
+            if image.getInstrument().getDetectors() is not None:
+                detectors = list(image.getInstrument().getDetectors())    
+                for d in detectors:
+                    form_detector = MetadataDetectorForm(initial={'detectorSettings':None, 'detector': d, 'types':list(conn.getEnumerationEntries("DetectorTypeI"))})
+                    form_detectors.append(form_detector)
         
-        lasers = list(image.getInstrument().getLightSources())
-        for l in lasers:
-            form_laser = MetadataLightSourceForm(initial={'lightSource': l, 
+            if image.getInstrument().getLightSources() is not None:
+                lasers = list(image.getInstrument().getLightSources())
+                for l in lasers:
+                    form_laser = MetadataLightSourceForm(initial={'lightSource': l, 
                                     'types':list(conn.getEnumerationEntries("FilterTypeI")), 
                                     'mediums': list(conn.getEnumerationEntries("LaserMediumI")),
                                     'pulses': list(conn.getEnumerationEntries("PulseI"))})
-            form_lasers.append(form_laser)
+                    form_lasers.append(form_laser)
     
     manager.annotationList()
     
