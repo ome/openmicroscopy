@@ -406,7 +406,7 @@ public interface Search extends ome.api.StatefulServiceInterface,
     // =========================================================================
 
     /**
-     * Returns transient (without ID) {@link TexeAnnotation} instances which
+     * Returns transient (without ID) {@link TextAnnotation} instances which
      * represent terms which are similar to the give terms. For example, if
      * the argument is "cell", one return value might have as its textValue:
      * "cellular" while another has "cellularize".
@@ -511,7 +511,7 @@ public interface Search extends ome.api.StatefulServiceInterface,
      * <pre>
      * service.onlyType(Image.class);
      * service.byFullText(&quot;foo&quot;);
-     * service.union();
+     * service.or();
      * service.onlyType(Dataset.class);
      * service.byFullText(&quot;foo&quot;);
      * </pre>
