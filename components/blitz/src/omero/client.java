@@ -493,6 +493,9 @@ public class client {
         return getProperties().getProperty(key);
     }
 
+    /**
+     * Returns all properties which are prefixed with "omero." or "Ice."
+     */
     public Map<String, String> getPropertyMap() {
         Map<String, String> rv = new HashMap<String, String>();
         for (String prefix : Arrays.asList("omero", "Ice")) {

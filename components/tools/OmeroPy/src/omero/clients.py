@@ -365,7 +365,9 @@ class BaseClient(object):
         return self.getProperties().getProperty(key)
 
     def getPropertyMap(self, properties = None):
-
+        """
+        Returns all properties which are prefixed with "omero." or "Ice."
+        """
         if properties is None:
             properties = self.getProperties()
 

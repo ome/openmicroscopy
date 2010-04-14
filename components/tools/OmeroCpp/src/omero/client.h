@@ -45,10 +45,20 @@ namespace omero {
     };
 
     /*
-     * Forward definition for callbacks below.
+     * Forward definitions and handles
      */
+    class client;
     class CallbackI;
     typedef IceUtil::Handle<CallbackI> CallbackIPtr;
+
+    /*
+     * Typedef for using Ice's smart pointer reference counting
+     * infrastructure.
+     *
+     *  omero::client_ptr client1 = new omero::client("localhost");
+     *  omero::client_ptr client2 = new omero::client("localhost", port);
+     */
+    typedef IceUtil::Handle<client> client_ptr;
 
     /*
      * Central client-side blitz entry point and should be in sync with
@@ -75,6 +85,11 @@ namespace omero {
 
 	// These are the central instances provided by this class.
     protected:
+
+        /*
+         * See isSecure
+         */
+        bool __insecure;
 
 	/*
          * See setAgent(string)
@@ -127,6 +142,11 @@ namespace omero {
 	 */
 	void init(const Ice::InitializationData& id);
 
+        /*
+         * Protected constructor for use with createClient
+         */
+	client(const std::map<std::string, std::string>& props, bool secure);
+
     public:
 
 	/*
@@ -157,6 +177,23 @@ namespace omero {
          */
         void setAgent(const std::string& agent);
 
+        /*
+        * Specifies whether or not this client was created via a call to
+        * createClient(bool) with a boolean of false. If insecure, then
+        * all remote calls will use the insecure connection defined by the server.
+        */
+        bool isSecure();
+
+       /*
+        * Creates a possibly insecure omero::client instance and calls
+        * joinSession(string) using the current getSessionId()
+        * session id}. If secure is false, then first the "omero.router.insecure"
+        * configuration property is retrieved from the server and used as the value
+        * of "Ice.Default.Router" for the new client. Any exception thrown during
+        * creation is passed on to the caller.
+        */
+        client_ptr createClient(bool secure);
+
 	/*
 	 * Calls closeSession() and ignores all exceptions.
 	 */
@@ -179,6 +216,13 @@ namespace omero {
 	 */
 	omero::api::ServiceFactoryPrx getSession() const;
 
+        /*
+         * Returns the UUID for the current session without making a remote call.
+         * Uses getSession() internally and will throw an exception if
+         * no session is active.
+         */
+         std::string getSessionId() const;
+
 	/*
 	 * Returns the Ice::ImplicitContext which defiens what properties
 	 * will be sent on every method invocation.
@@ -195,6 +239,11 @@ namespace omero {
 	 */
 	std::string getProperty(const std::string& key) const;
 
+
+        /*
+         * Returns all properties which are prefixed with "omero." or "Ice."
+         */
+        std::map<std::string, std::string> getPropertyMap() const;
 
 	// Session management
 	// ================================================================
@@ -302,15 +351,6 @@ namespace omero {
 	void onSessionClosed(Callable callable);
 	void onShutdown(Callable callable);
     };
-
-    /*
-     * Typedef for using Ice's smart pointer reference counting
-     * infrastructure.
-     *
-     *  omero::client_ptr client1 = new omero::client("localhost");
-     *  omero::client_ptr client2 = new omero::client("localhost", port);
-     */
-    typedef IceUtil::Handle<client> client_ptr;
 
     /*
      * Default implementation of the omero::api::ClientCallback servant.
