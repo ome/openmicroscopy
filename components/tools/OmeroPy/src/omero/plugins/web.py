@@ -362,7 +362,7 @@ APPLICATION_HOST='%s'
             media_dir = location / app / 'media'
             if os.path.exists(media_dir):
                 if os.path.exists(location / 'media' / app):
-                    shutil.rmtree(location / 'media' / app)
+                    os.remove(os.path.abspath(location / 'media' / app))
                 os.symlink(os.path.abspath(media_dir), location / 'media' / app)
         
     def enableapp(self, *args):
