@@ -166,6 +166,12 @@ public class ThumbnailCtx
     private void loadAndPrepareRenderingSettings(Class<? extends IObject> klass,
                                                  Set<Long> ids)
     {
+        // Sanity check our ID set
+        if (ids == null || ids.size() == 0)
+        {
+            log.warn("Preparation of null or zero length ID set requested.");
+            return;
+        }
         // First we need to load our rendering settings either by Image ID or
         // by Pixels ID.
         List<RenderingDef> settingsList = null;
@@ -332,6 +338,12 @@ public class ThumbnailCtx
             log.info(count + " pixels without settings");
             Set<Long> imageIds = settingsService.resetDefaultsInSet(
                     Pixels.class, pixelsIdsWithoutSettings);
+            if (count != imageIds.size())
+            {
+                log.warn(String.format(
+                        "Return value ID count %d does not match pixels " +
+                        "without settings count %d", imageIds.size(), count));
+            }
             loadAndPrepareRenderingSettings(Image.class, imageIds);
         }
         s1.stop();
