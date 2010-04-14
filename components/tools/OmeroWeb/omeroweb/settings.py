@@ -32,12 +32,27 @@ import logging
 import omero
 import omero.clients
 
+# CUSTOM CONFIG
+try:
+    import custom_settings
+except ImportError:
+    sys.stderr.write("Error: Can't find the file 'custom_settings.py' in the directory containing %r." \
+        "It appears you've customized things.\nYou'll have to run 'bin/omero web [settings|superuser|syncdb]', " \
+        "passing it your settings module.\n(If the file custom_settings.py does indeed exist, " \
+        "it's causing an ImportError somehow.)\n" % __file__)
+    sys.exit(1)
+    
 # LOGS
 # NEVER DEPLOY a site into production with DEBUG turned on.
 
 # Debuging mode. 
 # A boolean that turns on/off debug mode.
-DEBUG = False # handler404 and handler500 works only when False
+# handler404 and handler500 works only when False
+try:
+    DEBUG = custom_settings.DEBUG
+except:
+    DEBUG = False
+
 TEMPLATE_DEBUG = DEBUG
 
 # Configure logging and set place to store logs.
@@ -50,7 +65,7 @@ LOGDIR = os.path.join(os.path.join(os.path.join(os.path.join(os.path.join(os.pat
 
 if DEBUG:  
     LOGDIR = os.path.join(os.path.dirname(__file__), 'log').replace('\\','/')  
-    LOGFILE = ('OMEROweb-dev.log')
+    LOGFILE = ('OMEROweb-DEBUG.log')
     LOGLEVEL = logging.DEBUG
 else:
     LOGFILE = ('OMEROweb.log')
@@ -77,10 +92,11 @@ DATABASE_PORT = ''             # Set to empty string for default. Not used with 
 # Test database name
 TEST_DATABASE_NAME = 'test-db.sqlite3'
 
-ADMINS = (
-    # ('Your Name', 'your_email@domain.com'),
-)
-
+try:
+    ADMINS = custom_settings.ADMINS
+except:
+    ADMINS = ()
+    
 MANAGERS = ADMINS
 
 # Local time zone for this installation. Choices can be found here:
@@ -178,14 +194,6 @@ DEFAULT_IMG = os.path.join(os.path.dirname(__file__), 'media', 'omeroweb', "imag
 DEFAULT_USER = os.path.join(os.path.dirname(__file__), 'media', 'omeroweb', "images", 'personal32.png').replace('\\','/')
 
 # CUSTOM CONFIG
-try:
-    import custom_settings
-except ImportError:
-    sys.stderr.write("Error: Can't find the file 'custom_settings.py' in the directory containing %r." \
-        "It appears you've customized things.\nYou'll have to run 'bin/omero web [settings|superuser|syncdb]', " \
-        "passing it your settings module.\n(If the file custom_settings.py does indeed exist, " \
-        "it's causing an ImportError somehow.)\n" % __file__)
-    sys.exit(1)
 
 try:
     ADMINS = custom_settings.ADMINS
