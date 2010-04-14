@@ -274,7 +274,10 @@ class BaseClient(object):
         props = self.getPropertyMap()
         if not secure:
             insecure = self.getSession().getConfigService().getConfigValue("omero.router.insecure")
-            props["Ice.Default.Router"] = insecure
+            if not insecure:
+                props["Ice.Default.Router"] = insecure
+            else:
+                self.__logger.warn("Could not retrieve \"omero.router.insecure\"")
 
         nClient = omero.client(props)
         nClient.__insecure = not secure

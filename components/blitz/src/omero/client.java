@@ -389,7 +389,11 @@ public class client {
         if (!secure) {
             String insecure = getSession().getConfigService().getConfigValue(
                     "omero.router.insecure");
-            props.put("Ice.Default.Router", insecure);
+            if (insecure != null && insecure.length() != 0) {
+                props.put("Ice.Default.Router", insecure);
+            } else {
+                getCommunicator().getLogger().warning("Could not retrieve \"omero.router.insecure\"");
+            }
         }
 
         omero.client nClient = new omero.client(props, secure);
