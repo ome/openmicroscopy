@@ -584,6 +584,13 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
             // no processor running. This doesn't signal a bad script
             // like null params do, but rather just that we'll have to
             // generate the params later.
+        } catch (ValidationException ve) {
+            // ticket:2184 - No longer catching ValidationException
+            // so that if a processor is available that users get
+            // feedback as quickly as possible. If there is something
+            // else throwing a ValidationException in this call path
+            // then we will have to add a new exception subclass.
+            throw ve;
         } catch (Exception e) {
             // ticket:2044. Ignoring  other exceptions as well since these
             // may be caused by processor misbehavior. Note: the same
