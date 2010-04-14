@@ -1044,8 +1044,9 @@ class TreeViewerControl
 			model.administrate(object);
 		} else if (MetadataViewer.REGISTER_PROPERTY.equals(name)) {
 			model.register((FileDataRegistration) pce.getNewValue());
+		} else if (MetadataViewer.RESET_PASSWORD_PROPERTY.equals(name)) {
+			model.resetPassword((String) pce.getNewValue());
 		}
-			
 	}
 	
 	/**

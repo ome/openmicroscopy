@@ -2441,8 +2441,10 @@ class EditorModel
 	 */
 	void resetPassword(String newPass)
 	{
-		// TODO Auto-generated method stub
-		
+		if (refObject instanceof ExperimenterData 
+				&& MetadataViewerAgent.isAdministrator()) {
+			parent.resetPassword(newPass);
+		}
 	}
 	
 }

@@ -499,6 +499,10 @@ class AdminServiceImpl
 					else toDeactivate.add(exp);
 				}
 				//Check owner
+				//reset login name
+				if (!exp.getUserName().equals(uc.getUserName())) {
+					gateway.resetUserName(uc.getUserName(), exp);
+				}
 			} catch (Exception e) {
 				l.add(exp);
 			}

@@ -3568,7 +3568,6 @@ class OMEROGateway
 		try {
 			//if currently logged in, use update self
 			getAdminService().updateExperimenter(exp);
-			//getAdminService().updateSelf(exp);
 		} catch (Throwable t) {
 			handleException(t, "Cannot update the user. ");
 		}
@@ -4683,6 +4682,12 @@ class OMEROGateway
 		}
 		try {
 			entryEncrypted.keepAllAlive(entries);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		try {
+			if (entryUnencrypted != null)
+				entryUnencrypted.keepAllAlive(entries);
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
@@ -6092,7 +6097,7 @@ class OMEROGateway
 				 * if so replace the server roiShape with the client one.
 				 */
 				serverIterator = clientCoordMap.keySet().iterator();
-				while(serverIterator.hasNext())
+				while (serverIterator.hasNext())
 				{
 					coord = serverIterator.next();
 					shape = clientCoordMap.get(coord);
@@ -6818,6 +6823,36 @@ class OMEROGateway
 			svc.changeUserPassword(userName, omero.rtypes.rstring(password));
 		} catch (Throwable t) {
 			handleException(t, "Cannot modify the password for:"+userName);
+		}
+	}
+	
+	/**
+	 * Resets the login name of the specified user.
+	 * 
+	 * @param userName 		The login name.
+	 * @param experimenter 	The experimenter to handle.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	void resetUserName(String userName, ExperimenterData experimenter)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		IAdminPrx svc = getAdminService();
+		try {
+			//First check that no user with the name already exists
+
+			Experimenter value = lookupExperimenter(userName);
+			if (value == null) {
+				Experimenter exp = experimenter.asExperimenter();
+				exp.setOmeName(omero.rtypes.rstring(userName));
+				getAdminService().updateExperimenter(exp);
+			}
+		} catch (Throwable t) {
+			handleException(t, "Cannot modify the loginName for:"+
+					experimenter.getId());
 		}
 	}
 	

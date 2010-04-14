@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
 import pojos.DataObject;
+import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 
 /** 
@@ -153,6 +154,9 @@ public interface MetadataViewer
 	
 	/** Bound property indicating to register a file. */
 	public static final String	REGISTER_PROPERTY = "register";
+	
+	/** Bound property indicating to reset password. */
+	public static final String	RESET_PASSWORD_PROPERTY = "resetPassword";
 	
 	/** Flag to denote the <i>New</i> state. */
 	public static final int     NEW = 1;
@@ -561,5 +565,12 @@ public interface MetadataViewer
 	 * @return See above.
 	 */
 	long getUserID();
+
+	/**
+	 * Resets the password of the edited experimenter.
+	 * 
+	 * @param newPass The new password.
+	 */
+	void resetPassword(String newPass);
 	
 }

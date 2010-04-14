@@ -1037,9 +1037,20 @@ class MetadataViewerComponent
 	 */
 	public long getUserID() { return model.getUserID(); }
 	
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#resetPassword(String)
+	 */
+	public void resetPassword(String newPass)
+	{
+		firePropertyChange(RESET_PASSWORD_PROPERTY, null, newPass);
+	}
+	
 	/** 
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()
 	 */
 	public String toString() { return view.getTitle(); }
+
+
 }

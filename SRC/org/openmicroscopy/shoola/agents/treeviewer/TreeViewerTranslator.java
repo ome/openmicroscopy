@@ -860,10 +860,16 @@ public class TreeViewerTranslator
 		Collection l;
 		Iterator j = list.iterator();
 		Object ho;
+		ExperimenterData exp;
+		TreeImageNode node;
 		while (j.hasNext()) {
 			ho = j.next();
-			if (ho instanceof ExperimenterData)
-				nodes.add(new TreeImageNode(ho));
+			if (ho instanceof ExperimenterData) {
+				exp = (ExperimenterData) ho;
+				node = new TreeImageNode(exp);
+				node.setToolTip("Login Name: "+exp.getUserName());
+				nodes.add(node);
+			}
 		}
 		return nodes;
 	}

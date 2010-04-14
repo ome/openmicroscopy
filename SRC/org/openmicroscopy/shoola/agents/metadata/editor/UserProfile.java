@@ -157,6 +157,9 @@ class UserProfile
     /** Component displaying the permissions status. */
     private PermissionsPane			permissionsPane;
     
+    /** The field hosting the login name. */
+    private JTextField				loginArea;
+    
     /** Modifies the existing password. */
     private void changePassword()
     {
@@ -219,6 +222,10 @@ class UserProfile
     /** Initializes the components composing this display. */
     private void initComponents()
     {
+    	loginArea = new JTextField();
+    	boolean a = MetadataViewerAgent.isAdministrator();
+    	loginArea.setEnabled(a);
+    	loginArea.setEditable(a);
     	adminBox = new JCheckBox();
     	adminBox.setVisible(false);
     	adminBox.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -373,11 +380,9 @@ class UserProfile
         c.gridwidth = GridBagConstraints.REMAINDER;     //end row
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1.0;
-        area = new JTextField(user.getUserName());
-        boolean a = MetadataViewerAgent.isAdministrator();
-        area.setEnabled(a);
-        area.setEditable(a);
-        content.add(area, c);  
+        loginArea.setText(user.getUserName());
+        loginArea.getDocument().addDocumentListener(this);
+        content.add(loginArea, c);  
         while (i.hasNext()) {
             ++c.gridy;
             c.gridx = 0;
@@ -627,6 +632,11 @@ class UserProfile
 	 */
 	boolean hasDataToSave()
 	{
+		String text = loginArea.getText();
+		if (text == null || text.trim().length() == 0) return false;
+		text = text.trim();
+		ExperimenterData original = (ExperimenterData) model.getRefObject();
+		if (!text.equals(original.getUserName())) return true;
 		if (selectedIndex != originalIndex) return true;
 		if (details == null) return false;
 		Entry entry;
@@ -712,7 +722,8 @@ class UserProfile
     		//Need to see what to do b/c no ExperimenterGroupMap
     		original.setGroups(newGroups);
     	}
-    	UserCredentials uc = new UserCredentials(original.getUserName(), "");
+    	String value = loginArea.getText().trim();
+    	UserCredentials uc = new UserCredentials(value, "");
     	Boolean b = ownerBox.isSelected();
     	if (g == null) g = original.getDefaultGroup();
     	boolean a = false;
@@ -734,6 +745,7 @@ class UserProfile
     			uc.setActive(b);
     		}
     	}
+    	if (!original.getUserName().equals(value)) a = true;
     	if (a) {
     		Map<ExperimenterData, UserCredentials> m = 
     			new HashMap<ExperimenterData, UserCredentials>();
@@ -742,8 +754,6 @@ class UserProfile
     				AdminObject.UPDATE_EXPERIMENTER);
     		return object;
     	}
-    	
-    	
 		return original;//newOne;
 	}
 	
