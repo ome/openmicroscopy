@@ -261,7 +261,7 @@ def runSpf(session, parameterMap):
     if image:
         for link in image.iterateDatasetLinks():
             dataset = link.parent
-            print "Dataset", ds.name.val
+            print "Dataset", dataset.name.val
             for dpLink in dataset.iterateProjectLinks():
                 project = dpLink.parent
                 print "Project", project.name.val
@@ -287,8 +287,10 @@ def runSpf(session, parameterMap):
             
     # download the procdure file
     spfName = "procedure.spf"
-    spfFileId = parameterMap["spfOriginalFileId"]
-    originalFile = queryService.findByQuery("from OriginalFile as o where o.id = %s" % spfFileId, None)
+    spfFileId = parameterMap["spfFileId"]
+    annotation = queryService.get('FileAnnotation', spfFileId)
+    origFileId = annotation.file.id.val
+    originalFile = queryService.findByQuery("from OriginalFile as o where o.id = %s" % origFileId, None)
     scriptUtil.downloadFile(rawFileStore, originalFile, filePath=spfName)
     # run command. E.g. spider spf/dat @bat01
     spfCommand = "spider spf/%s @procedure" % fileExt
@@ -313,9 +315,9 @@ def runAsScript():
     client = scripts.client('runSpiderProcedure.py', 'Run a Spider Procedure File against Images on OMERO.', 
     scripts.List("imageIds", optional=True).inout(),    # List of image IDs. Use this OR datasetId
     scripts.Long("datasetId", optional=True).inout(),    # Dataset Id. Use this OR imageIds
-    scripts.Long("newDatasetName", optional=True).inout(),     # Make a dataset to put results. Otherwise put in same as input images.
+    scripts.String("newDatasetName", optional=True).inout(),     # Make a dataset to put results. Otherwise put in same as input images.
     scripts.String("imageExtension", optional=True).inout(),   # The image extension. E.g. "dat" or "spi". Default is "dat"
-    scripts.Long("spfOriginalFileId").inout())         # the OriginalFileID of the Spider Procedure File
+    scripts.Long("spfFileId").inout())         # the FileAnnotation-ID of the Spider Procedure File
     
     session = client.getSession()
     

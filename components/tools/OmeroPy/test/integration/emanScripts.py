@@ -313,6 +313,31 @@ class TestEmanScripts(lib.ITest):
         queryService = session.getQueryService()
         updateService = session.getUpdateService()
         rawFileStore = session.createRawFileStore()
+        gateway = session.createGateway()
+        
+        # import image
+        iId = importImage(session, smallTestImage)
+        image = gateway.getImage(iId)
+        
+        # put image in dataset and project
+        # create dataset
+        dataset = omero.model.DatasetI()
+        dataset.name = rstring("spider-test")
+        dataset = gateway.saveAndReturnObject(dataset)
+        # create project
+        project = omero.model.ProjectI()
+        project.name = rstring("spider-test")
+        project = gateway.saveAndReturnObject(project)
+        # put dataset in project 
+        link = omero.model.ProjectDatasetLinkI()
+        link.parent = omero.model.ProjectI(project.id.val, False)
+        link.child = omero.model.DatasetI(dataset.id.val, False)
+        gateway.saveAndReturnObject(link)
+        # put image in dataset
+        dlink = omero.model.DatasetImageLinkI()
+        dlink.parent = omero.model.DatasetI(dataset.id.val, False)
+        dlink.child = omero.model.ImageI(image.id.val, False)
+        gateway.saveAndReturnObject(dlink)
         
         # create and upload a Spider Procedure File
         # make a temp text file. Example from http://www.wadsworth.org/spider_doc/spider/docs/quickstart.html
@@ -335,15 +360,9 @@ class TestEmanScripts(lib.ITest):
         f.write("\n")
         f.write("EN D")
         f.close() 
-        
-        fileformat = scriptUtil.getFormat(queryService, "text/plain")
-        originalFile = scriptUtil.createFile(updateService, "spider.spf", fileformat, "spider.spf");
-        scriptUtil.uploadFile(rawFileStore, originalFile, "spider.spf")
-        origFileId = originalFile.getId().getValue()
+        fileId = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, image, "spider.spf", "text/plain")
         os.remove("spider.spf")
         
-        # import image
-        iId = importImage(session, smallTestImage)
         
         # reminder of script parameters...
         #scripts.List("imageIds", optional=True).in(),    # List of image IDs. Use this OR datasetId
@@ -352,11 +371,26 @@ class TestEmanScripts(lib.ITest):
         #scripts.String("imageExtension", optional=True).in(),   # The image extension. E.g. "dat" or "spi". Default is "dat"
         #scripts.Long("spfOriginalFileId").in())
         
+        newDatasetName = "spider-results"
         # run script
         ids = [omero.rtypes.rint(iId), ]
         argMap = {"imageIds": omero.rtypes.rlist(ids),
-                "spfOriginalFileId": omero.rtypes.rlong(origFileId) }
+                "spfFileId": omero.rtypes.rlong(fileId),
+                "newDatasetName": omero.rtypes.rstring(newDatasetName) }
         runScript(session, scriptId, omero.rtypes.rmap(argMap))
+        
+        # check that image has been created. 
+        # now we should have a dataset with 1 image, in project
+        pros = gateway.getProjects([project.id.val], True)
+        datasetFound = False
+        for p in pros:
+            for ds in p.linkedDatasetList():
+                if ds.name.val == newDatasetName:
+                    datasetFound = True
+                    dsId = ds.id.val
+                    iList = gateway.getImages(omero.api.ContainerClass.Dataset, [dsId])
+                    self.assertEquals(1, len(iList))
+        self.assertTrue(datasetFound, "No dataset found with images from ROIs")
         
         
 def runScript(session, scriptId, argMap, returnKey=None): 
