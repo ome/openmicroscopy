@@ -393,14 +393,14 @@ WindowStateListener, WindowFocusListener
     protected void shutdown()
     {
         log.debug("Shutdown called");
-
+                
         importEx.shutdown();
         scanEx.shutdown();
 
         // How do I know an import is running here and how do I cancel it?
         waitOnExecutor("Import", importEx, 60);
         waitOnExecutor("Scanning", scanEx, 60);
-
+  
         try {
             loginHandler.getMetadataStore().logout();
         } catch (Exception e) {
@@ -557,6 +557,8 @@ WindowStateListener, WindowFocusListener
         } else if ("quit".equals(cmd)) {
             if (GuiCommonElements.quitConfirmed(this, null) == true)
             {
+            	if (loggedIn)
+            		loginHandler.logout();
                 System.exit(0);
             }
         } else if ("options".equals(cmd)) {

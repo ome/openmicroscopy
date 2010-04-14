@@ -195,6 +195,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                     {
                         if (NEW_LOGIN)
                         {
+                        	store.setCurrentGroup(lc.getGroup());
                             view.close();
                             viewTop.close();
                             viewer.setVisible(true);
@@ -208,19 +209,22 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                         viewer.loggedIn = true;
                         notifyObservers(new ImportEvent.LOGGED_IN());
                                                 
+                        String group = store.getDefaultGroupName();
+                        
                         // if this fails, using the old server without repositorySpace
                         try {
                             long freeSpace = store.getRepositorySpace();
                             NumberFormat formatter = NumberFormat.getInstance(Locale.US);
                             String freeMB = formatter.format(freeSpace/1000);                
                             viewer.statusBar.setStatusIcon("gfx/server_connect16.png",
-                                    "Connected to " + config.hostname.get() + ". Free space: " + 
-                                    freeMB + " MB.");
+                                    "Connected to " + config.hostname.get() + " (" + 
+                                    group + "). Free space: " + freeMB + " MB.");
                             return;
                         } catch (Exception e) 
                         {
                         	log.error("Exception retrieving repository free space.", e);
-                            viewer.statusBar.setStatusIcon("gfx/server_connect16.png", "Connected to " + config.hostname.get() + ".");
+                            viewer.statusBar.setStatusIcon("gfx/server_connect16.png", "Connected to " + 
+                            		config.hostname.get() + " (" + group + ").");
                             return;
                         }
                         

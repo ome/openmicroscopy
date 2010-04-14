@@ -176,7 +176,7 @@ public class ImportHandler implements IObservable
             if (qTable.setProgressPending(i)) {
                 numOfPendings++;
                 try {
-                    if (db != null) {
+                    if (db != null && db.historyEnabled == true) {
                         // FIXME: This is now "broken" with targets now able to
                         // be of type Screen or Dataset.                    	
                         db.addItemTableRow(library.getExperimenterID(), 
@@ -325,7 +325,7 @@ public class ImportHandler implements IObservable
     {
     	int importKey = 0;
         try {
-            if (db != null) {
+            if (db != null && db.historyEnabled == true) {
                 db.addBaseTableRow(library.getExperimenterID(), "pending");
                 importKey = db.getLastBaseUid();
                 log.debug("New importKey for history db is: " + importKey);
@@ -346,7 +346,7 @@ public class ImportHandler implements IObservable
     private void updateHistoryWithFailedImport(int importKey, int index)
     {
         try {
-            if (db != null) {
+            if (db != null && db.historyEnabled == true) {
                 db.updateBaseStatus(importKey, "incomplete");
             }
         } catch (Exception e) {
@@ -355,7 +355,7 @@ public class ImportHandler implements IObservable
         }
         
         try {
-            if (db != null) {   
+            if (db != null && db.historyEnabled == true) {   
                 db.updateItemStatus(importKey, index, "failed");
             }
         } catch (Exception e) {

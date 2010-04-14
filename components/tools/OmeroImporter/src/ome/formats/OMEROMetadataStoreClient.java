@@ -47,6 +47,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -120,6 +121,9 @@ import omero.model.DimensionOrder;
 import omero.model.Ellipse;
 import omero.model.Experiment;
 import omero.model.ExperimentType;
+import omero.model.Experimenter;
+import omero.model.ExperimenterGroup;
+import omero.model.ExperimenterGroupI;
 import omero.model.Filament;
 import omero.model.FilamentType;
 import omero.model.FileAnnotation;
@@ -178,6 +182,7 @@ import omero.util.TempFileManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
 
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
@@ -580,6 +585,13 @@ public class OMEROMetadataStoreClient
         }
         if (c != null)
         {
+            try {
+                // Save login screen groups
+                ScreenLogin.registerGroup(mapUserGroups());
+            } catch (Exception e) {
+                log.warn("Exception on ScreenLogin.registerGroup()", e);
+            }
+            
             log.debug("closing client session.");
             c.closeSession();
             c = null;
@@ -3456,6 +3468,136 @@ public class OMEROMetadataStoreClient
         }
     }
     
+	/**
+	 * Changes the default group of the currently logged in user.
+	 * 
+	 * @param groupID The id of the group.
+	 * @throws Exception If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	public void setCurrentGroup(long groupID)
+		throws ServerError
+	{
+		ExperimenterGroup currentDefaultGroup = iAdmin.getDefaultGroup(iAdmin.getEventContext().userId);
+		if (currentDefaultGroup.getId().getValue() == groupID)
+			return; // Already set so return
+		
+		Experimenter exp = iAdmin.getExperimenter(iAdmin.getEventContext().userId);
+		List<ExperimenterGroup> groups = getUserGroups();
+		Iterator<ExperimenterGroup> i = groups.iterator();
+		ExperimenterGroup group = null;
+		boolean in = false;
+		while (i.hasNext()) {
+			group = i.next();
+			if (group.getId().getValue() == groupID) {
+				in = true;
+				break;
+			}
+		}
+		if (!in) {
+			log.error("Can't modify the current group.\n\n");  
+		} else
+		{
+			iAdmin.setDefaultGroup(exp, iAdmin.getGroup(groupID));
+			serviceFactory.setSecurityContext(new ExperimenterGroupI(groupID, false));
+		}
+	}
+
+	/**
+	 * Retrieves the groups visible by the current experimenter.
+	 * 
+	 * @return List of ExperimenterGroups the user is in
+	 * @throws Exception If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	List<ExperimenterGroup> getUserGroups()
+		throws ServerError
+	{
+		List<ExperimenterGroup> myGroups = new ArrayList<ExperimenterGroup>();
+			//Need method server side.
+			ParametersI p = new ParametersI();
+			p.addId(iAdmin.getEventContext().userId);
+			List<IObject> groups = iQuery.findAllByQuery(
+                    "select distinct g from ExperimenterGroup as g "
+                    + "join fetch g.groupExperimenterMap as map "
+                    + "join fetch map.parent e "
+                    + "left outer join fetch map.child u "
+                    + "left outer join fetch u.groupExperimenterMap m2 "
+                    + "left outer join fetch m2.parent p "
+                    + "where g.id in "
+                    + "  (select m.parent from GroupExperimenterMap m "
+                    + "  where m.child.id = :id )", p);
+			
+			ExperimenterGroup group;
+			Iterator<IObject> i = groups.iterator();
+			while (i.hasNext()) {
+				group = (ExperimenterGroup) i.next();
+				myGroups.add(group);
+			}
+		return myGroups;
+	}
+
+	/**
+	 * Maps the user's groups for use by ScreenLogin.registerGroup()
+	 * Also strips system groups from this map
+	 * 
+	 * @return map of group id & name
+	 * @throws ServerError 
+	 */
+	public Map<Long, String> mapUserGroups() throws ServerError
+	{
+		List<String> systemGroups = new ArrayList<String>();
+		systemGroups.add("system");
+		systemGroups.add("user");
+		systemGroups.add("guest");		
+		
+		Map<Long, String> names = new LinkedHashMap<Long, String>();
+		
+		List<ExperimenterGroup> groups = getUserGroups();
+		
+		if (groups == null || groups.size() == 0)
+			return null;
+		
+		ExperimenterGroup currentDefaultGroup = 
+			iAdmin.getDefaultGroup(iAdmin.getEventContext().userId);
+		
+		Iterator<ExperimenterGroup> i = groups.iterator();
+		ExperimenterGroup group = null;
+		
+		// Add all groups excluding the default group
+		while (i.hasNext()) {
+			group = i.next();
+			
+			String n = group.getName() == null ? null : group.getName().getValue();
+			
+			if (!systemGroups.contains(n) && group.getId().getValue() != currentDefaultGroup.getId().getValue()) {
+				names.put(group.getId().getValue(), group.getName().getValue());
+			}
+		}
+		
+		String dn = currentDefaultGroup.getName() == null ? null 
+				: currentDefaultGroup.getName().getValue();
+		
+		// Add the default group last (unless its a system group)
+		if (!systemGroups.contains(dn))
+			names.put(currentDefaultGroup.getId().getValue(), 
+					currentDefaultGroup.getName().getValue());
+			
+		if (names.size() == 0) names = null;
+		return names;
+	}
+    
+	public String getDefaultGroupName() throws ServerError
+	{
+		ExperimenterGroup currentDefaultGroup = 
+			iAdmin.getDefaultGroup(iAdmin.getEventContext().userId);
+		
+		String dn = currentDefaultGroup.getName() == null ? "" 
+				: currentDefaultGroup.getName().getValue();
+		
+		return dn;
+	}
+	
     /**
      * @return repository space as a long
      */

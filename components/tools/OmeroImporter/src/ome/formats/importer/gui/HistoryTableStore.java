@@ -99,7 +99,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
     private TablePrx itemTable;
     private Column[] itemColumns;
 	public boolean historyEnabled = false;
-	private static long lastUid;
+	private static long lastUid = 0;
 
     /**
      * Initialize the needed store services
@@ -217,6 +217,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
             	statuses.values[1] = String.format("%1$-64s", " ");
 
             	baseTable.addData(newRow);
+                lastUid = getHighestBaseTableUid();
             }
 
         } else {
@@ -228,7 +229,10 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
             	historyEnabled = false;
             }
             else
+            {
             	historyEnabled = true;
+                lastUid = getHighestBaseTableUid();
+            }
         }
     }
     
@@ -382,7 +386,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
      */
     public int getLastBaseUid() throws ServerError
     {
-    	return (int) getHighestBaseTableUid();
+    	return (int) lastUid;
     }
     
     /**
@@ -436,7 +440,6 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
     	LongColumn importTimes = (LongColumn) newRow[BASE_DATETIME_COLUMN];
     	StringColumn statuses = (StringColumn) newRow[BASE_STATUS_COLUMN];
 
-    	lastUid = getHighestBaseTableUid();
     	long newUid = lastUid + 1;
 
     	uids.values[0] = newUid;
