@@ -23,6 +23,15 @@
 This script allows users to run a SPIDER procedure file (spf) 
 on the OMERO server against a collection of images, and upload the results back to the server.
 
+************************************************************************
+    WARNING
+Allowing users (non admin) to upload Spider scripts of their choice and 
+run them with this script is a potential security risk, particularly if
+this script has been installed by an admin and is run with admin permissions. 
+For example, they may be able to delete files on the OMERO server
+ (although only those with "dat" extension)
+************************************************************************
+
 The spf should already have been uploaded to the server as an Original File and the ID is
 passed to this script. 
 
