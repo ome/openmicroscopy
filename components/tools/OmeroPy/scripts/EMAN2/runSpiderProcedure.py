@@ -117,10 +117,12 @@ def log(text):
 def uploadImageToDataset(services, pixelsType, imageName, dataset=None):
     
     """
- 
-    @param datasetName        name for new Dataset to put images in
-    @param project            if specified, put the dataset into this project (omero.model.ProjectI)
+    Uploads a local Spider image to an OMERO dataset. Same function exists in spider2omero.py.
     
+    @param services     Map of OMERO services
+    @param pixelsType   The OMERO PixelsType object for new image.
+    @param imageName    The local image path/name. Also used for new image name. 
+    @param dataset      Dataset to put images in, if specified. omero.model.Dataset
     """
     
     gateway = services["gateway"]
@@ -282,8 +284,6 @@ def runSpf(session, parameterMap):
     
     
     fileExt = "dat"
-    if "imageExtension" in parameterMap:
-        fileExt = parameterMap["imageExtension"]
         
     inputName = "input"
     if "inputName" in parameterMap:
@@ -324,7 +324,6 @@ def runAsScript():
     scripts.Long("datasetId", optional=True).inout(),    # Dataset Id. Use this OR imageIds
     scripts.Long("spfFileId").inout(),         # the FileAnnotation-ID of the Spider Procedure File
     scripts.String("newDatasetName", optional=True).inout(),     # Make a dataset to put results. Otherwise put in same as input images.
-    scripts.String("imageExtension", optional=True).inout(),   # The image extension. E.g. "dat" or "spi". Default is "dat"
     scripts.String("inputName", optional=True).inout(),     # The name of the input image at the start of the spf file. Default is "input"
     scripts.String("outputName", optional=True).inout())    # The name of the output image at the end of the spf file. Default is "output"
     
