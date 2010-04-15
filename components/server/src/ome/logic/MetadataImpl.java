@@ -488,24 +488,8 @@ public class MetadataImpl
                          .addSet("annotatorIds", annotatorIds));
 
          List<IAnnotated> l = iQuery.execute(q);
+         iQuery.clear();
          // no count collection
-
-         //
-         // Destructive changes below this point.
-         //
-         for (IAnnotated annotated : l) {
-             iQuery.evict(annotated);
-             annotated.collectAnnotationLinks(new CBlock<ILink>() {
-
-                 public ILink call(IObject object) {
-                     ILink link = (ILink) object;
-                     iQuery.evict(link);
-                     iQuery.evict(link.getChild());
-                     return null;
-                 }
-
-             });
-         }
 
          // SORT
          Iterator<IAnnotated> i = new HashSet<IAnnotated>(l).iterator();
@@ -517,7 +501,7 @@ public class MetadataImpl
          Iterator<A> j;
          A object;
          Iterator<A> ann;
-         IObject of;
+         OriginalFile of;
          FileAnnotation fa;
          while (i.hasNext()) {
              annotated = i.next();
@@ -553,6 +537,7 @@ public class MetadataImpl
             		 if (fa.getFile() != null) {
             			 of = iQuery.findByQuery(LOAD_ORIGINAL_FILE, 
                 				 new Parameters().addId(fa.getFile().getId()));
+				 fa.setFile(of);
             		 }
             	 }
              }

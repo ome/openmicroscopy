@@ -25,7 +25,6 @@ package ome.server.itests;
 
 //Java imports
 import java.sql.Timestamp;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -43,6 +42,7 @@ import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
+import ome.model.meta.Experimenter;
 import ome.parameters.Parameters;
 import ome.testing.FileUploader;
 
@@ -110,7 +110,7 @@ public class MetadataServiceTest
         //user id
        
         Map result = iMetadata.loadAnnotations(Project.class, ids,
-                null, // Method is "NoTypesSet"!
+                new HashSet(), // Method is "NoTypesSet"!
                 //new HashSet(Arrays.asList(CommentAnnotation.class.getName())),
         		annotators, options);
         assertEquals(1, result.size());
@@ -434,4 +434,12 @@ public class MetadataServiceTest
         assertEquals(2, anns.size());
     }
     
+    @Test(groups = "ticket:2232")
+    public void testExperimentPhotos() throws Exception {
+        loginNewUser();
+        iAdmin.uploadMyUserPhoto("foo", "image/png", new byte[]{0,1,2,3});
+        iMetadata.loadAnnotations(Experimenter.class,
+                Collections.singleton(iAdmin.getEventContext().getCurrentUserId()),
+                new HashSet(), null, null);
+    }
 }
