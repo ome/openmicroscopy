@@ -1838,6 +1838,8 @@ class OMEROGateway
 			return OriginalFile.class;
 		else if (GroupData.class.equals(nodeType))
 			return ExperimenterGroup.class;
+		else if (ExperimenterData.class.equals(nodeType))
+			return Experimenter.class;
 		throw new IllegalArgumentException("NodeType not supported");
 	}
 
@@ -2377,6 +2379,7 @@ class OMEROGateway
 					service.loadAnnotations(convertPojos(nodeType).getName(), 
 							nodeIDs, types, annotatorIDs, options));
 		} catch (Throwable t) {
+			t.printStackTrace();
 			handleException(t, "Cannot find annotations for "+nodeType+".");
 		}
 		return new HashMap();
@@ -6945,9 +6948,79 @@ class OMEROGateway
 		} catch (Exception e) {
 			if (e instanceof ApiUsageException) 
 				return null;
-			handleException(e, "Cannot loade the required group.");
+			handleException(e, "Cannot load the required group.");
 		}
 		return null;
 	}
+	
+	/**
+	 * Reads the file hosting the user photo.
+	 * 
+	 * @param fileID The id of the file.
+	 * @param size   The size of the file.
+	 * @return See above
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	synchronized byte[] getUserPhoto(long fileID, long size)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		
+		RawFileStorePrx store = getRawFileService();
+		try {
+			store.setFileId(fileID);
+		} catch (Throwable e) {
+			closeService(store);
+			handleException(e, "Cannot set the file's id.");
+		}
+		try {
+			return store.read(0, (int) size);
+		} catch (Exception e) {
+			closeService(store);
+			throw new DSAccessException("Cannot read the file" +fileID, e);
+		}
+	}
+	
+	/**
+	 * Uploads the photo hosting the user photo.
+	 * 
+	 * @param fileID The id of the file.
+	 * @param size   The size of the file.
+	 * @return See above
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 *
+	 */
+	long uploadExperimenterPhoto(File file, String format, long experimenterID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		IAdminPrx svc = getAdminService();
+		
+		try {
+			FileInputStream stream = new FileInputStream(file); 
+			long length = file.length(); 
+			//Make sure the file is not too big.
+			byte[] bytes = new byte[(int) length]; 
+			int offset = 0; int r = 0; 
+			while (offset < bytes.length && 
+					(r = stream.read(bytes, offset, bytes.length-offset)) >= 0)
+				offset += r; 
+			if (offset < bytes.length)
+				throw new IOException("Could not completely read file "+
+						file.getName()); 
+		    stream.close();
+			return svc.uploadMyUserPhoto(file.getName(), format, bytes);
+		} catch (Exception e) {
+			handleException(e, "Cannot upload the photo.");
+		}
+		return -1;
+	}
+	
 	
 }

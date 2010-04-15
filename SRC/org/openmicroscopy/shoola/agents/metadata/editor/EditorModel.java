@@ -66,6 +66,8 @@ import org.openmicroscopy.shoola.agents.metadata.ScriptLoader;
 import org.openmicroscopy.shoola.agents.metadata.ScriptsLoader;
 import org.openmicroscopy.shoola.agents.metadata.TagsLoader;
 import org.openmicroscopy.shoola.agents.metadata.ThumbnailLoader;
+import org.openmicroscopy.shoola.agents.metadata.UserPhotoLoader;
+import org.openmicroscopy.shoola.agents.metadata.UserPhotoUploader;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.rnd.RendererFactory;
@@ -1265,6 +1267,8 @@ class EditorModel
 	    if (refObject instanceof ImageData) {
 	    	fireChannelEnumerationsLoading();
 	    	fireImageEnumerationsLoading();
+	    } else if (refObject instanceof ExperimenterData) {
+	    	fireExperimenterPhotoLoading();
 	    }
 	    if (renderer != null) {
 	    	renderer.discard();
@@ -2447,5 +2451,29 @@ class EditorModel
 		}
 	}
 	
+    /** Uploads the user's photo. 
+     * 
+     * @param photo  The photo to upload.
+     * @param format The format of the photo.
+     */
+    void uploadPicture(File photo, String format)
+    { 
+    	if (refObject instanceof ExperimenterData) {
+    		ExperimenterData exp = (ExperimenterData) refObject;
+    		UserPhotoUploader loader = new UserPhotoUploader(component, exp,
+    				photo, format);
+    		loader.load();
+    	}
+    }
+    
+    void fireExperimenterPhotoLoading()
+    {
+    	if (refObject instanceof ExperimenterData) {
+    		ExperimenterData exp = (ExperimenterData) refObject;
+    		UserPhotoLoader loader = new UserPhotoLoader(component, exp);
+    		loader.load();
+    	}
+    }
+    
 }
 	

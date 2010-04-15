@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,9 +34,12 @@ import java.util.Map;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.AdminService;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+
+import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -63,6 +68,12 @@ public class AdminLoader
 	
 	/** Identifies to load the experimenters within a group. */
 	public static final int EXPERIMENTERS = 2;
+	
+	/** Identifies to load the photo of the experimenter. */
+	public static final int EXPERIMENTER_PHOTO = 3;
+	
+	/** Identifies to update the experimenter. */
+	public static final int EXPERIMENTER_UPDATE = 4;
 	
     /** The result of the call. */
     private Object		result;
@@ -200,7 +211,49 @@ public class AdminLoader
         };
     }
     
-	 /**
+    /**
+     * Creates a {@link BatchCall} to load the photo.
+     * 
+	 * @param experimenter The experimenter to handle. 
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall loadExperimenterPhoto(final ExperimenterData experimenter)
+    {
+        return new BatchCall("Load photo") {
+            public void doCall() throws Exception
+            {
+            	OmeroImageService os = context.getImageService();
+            	List<DataObject> exps = new ArrayList<DataObject>();
+            	exps.add(experimenter);
+            	Map<DataObject, BufferedImage> map = 
+            		os.getExperimenterThumbnailSet(exps, 96);
+               result = map.get(experimenter);
+           }
+        };
+    }
+    
+    /**
+     * Creates a {@link BatchCall} to load the photo.
+     * 
+	 * @param experimenter The experimenter to handle.
+	 * @param photo The photo to upload.
+	 * @param format The format of the file.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall uploadExperimenterPhoto(
+    		final ExperimenterData experimenter, final File photo,
+    		final String format)
+    {
+        return new BatchCall("Update experimenters") {
+            public void doCall() throws Exception
+            {
+            	AdminService svc = context.getAdminService();
+            	result = svc.uploadUserPhoto(photo, format, experimenter);
+           }
+        };
+    }
+    
+    /**
      * Adds the {@link #loadCall} to the computation tree.
      * @see BatchCallTree#buildTree()
      */
@@ -252,11 +305,33 @@ public class AdminLoader
      * 
      * @param exp The experimenter to update. Mustn't be <code>null</code>.
      */
-    public AdminLoader(ExperimenterData exp)
+    public AdminLoader(ExperimenterData exp, int index)
     {
     	if (exp == null)
     		throw new IllegalArgumentException("Experimenter not valid.");
-    	loadCall = updateExperimenter(exp);
+    	switch (index) {
+    		case EXPERIMENTER_UPDATE:
+				loadCall = updateExperimenter(exp);
+				break;
+			case EXPERIMENTER_PHOTO:
+				loadCall = loadExperimenterPhoto(exp);
+		}
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param exp 	The experimenter to update. Mustn't be <code>null</code>.
+     * @param photo The photo to upload. Mustn't be <code>null</code>.
+     * @param format The format of the photo to upload.
+     */
+    public AdminLoader(ExperimenterData exp, File photo, String format)
+    {
+    	if (exp == null)
+    		throw new IllegalArgumentException("Experimenter not valid.");
+    	if (photo == null)
+    		throw new IllegalArgumentException("Photo not valid.");
+    	loadCall = uploadExperimenterPhoto(exp, photo, format);
     }
     
     /**

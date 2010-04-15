@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -147,6 +148,16 @@ class UserUI
 	 */
 	List isDiskSpaceLoaded() { return space; }
 
+	/** 
+	 * Sets the photo of the user.
+	 * 
+	 * @param photo The photo to set.
+	 */
+	void setUserPhoto(BufferedImage photo)
+	{
+		profile.setUserPhoto(photo);
+	}
+	
 	/**
 	 * Overridden to lay out the UI.
 	 * @see AnnotationUI#buildUI()

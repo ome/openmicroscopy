@@ -63,7 +63,7 @@ public class PNGFilter
 		extensions = new String[1];
 		extensions[0] = PNG;
 		
-		String s = "Animated PNG (";
+		String s = "PNG (";
 		for (int i = 0; i < extensions.length; i++) {
 			s += "*."+extensions[i];
 			if (i < extensions.length-1)
@@ -72,6 +72,12 @@ public class PNGFilter
 		s += ")";
 		description = s;
 	}
+	
+	/**
+	 * 	Overridden to return the MIME type.
+	 * 	@see CustomizedFileFilter#getMimeType()
+	 */
+	public String getMimeType() { return "image/png"; }
 	
 	/**
 	 * Overridden to return the extension of the filter.

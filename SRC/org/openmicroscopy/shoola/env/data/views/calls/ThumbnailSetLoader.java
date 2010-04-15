@@ -243,7 +243,7 @@ public class ThumbnailSetLoader
 			long id = exp.getId();
     		Map<DataObject, BufferedImage> m = 
     			service.getExperimenterThumbnailSet(experimenters,  
-        			maxLength, id);
+        			maxLength);
     		Entry entry;
     		List result = new ArrayList();
         	Iterator i = m.entrySet().iterator();

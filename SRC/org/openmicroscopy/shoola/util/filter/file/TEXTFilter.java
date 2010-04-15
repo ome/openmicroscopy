@@ -73,6 +73,12 @@ public class TEXTFilter
 		description = s;
 	}
 	
+	/**
+	 * 	Overridden to return the MIME type.
+	 * 	@see CustomizedFileFilter#getMimeType()
+	 */
+	public String getMimeType() { return "text/plain"; }
+	
     /**
 	 * Overridden to return the extension of the filter.
 	 * @see CustomizedFileFilter#getExtension()

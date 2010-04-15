@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,6 +48,7 @@ import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 
+import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.PermissionData;
@@ -666,6 +669,29 @@ class AdminServiceImpl
 		if (value != null) 
 			return (GroupData) PojoMapper.asDataObject(value);
 		return null;
+	}
+
+	/**
+	 * Implemented as specified by {@link AdminService}.
+	 * @see AdminService#uploadUserPhoto(File, String, experimenter)
+	 */
+	public BufferedImage uploadUserPhoto(File f, String format, 
+			ExperimenterData experimenter)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		if (experimenter == null)
+			throw new IllegalArgumentException("No experimenter specified.");
+		if (f == null)
+			throw new IllegalArgumentException("No photo specified.");
+		
+		long id = gateway.uploadExperimenterPhoto(f, format,
+				experimenter.getId());
+		if (id < 0) return null;
+		List<DataObject> exp = new ArrayList<DataObject>();
+		exp.add(experimenter);
+		Map<DataObject, BufferedImage> map = 
+			context.getImageService().getExperimenterThumbnailSet(exp, 0);
+		return map.get(experimenter);
 	}
 	
 }

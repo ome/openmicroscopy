@@ -45,7 +45,6 @@ import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
 import pojos.DataObject;
-import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 
 /** 
@@ -572,5 +571,8 @@ public interface MetadataViewer
 	 * @param newPass The new password.
 	 */
 	void resetPassword(String newPass);
+	
+	/** Brings up dialog to upload the picture. */
+	void uploadPicture();
 	
 }

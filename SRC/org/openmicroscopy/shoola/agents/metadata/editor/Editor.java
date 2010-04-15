@@ -432,5 +432,13 @@ public interface Editor
 	 * @param scriptID The id of the script to load.
 	 */
 	void loadScript(long scriptID);
+
+	/**
+	 * Sets the photo of the user.
+	 * 
+	 * @param photo The user's photo.
+	 * @param experimenterID The id of the experimenter the photo is for.
+	 */
+	void setUserPhoto(BufferedImage photo, long experimenterID);
 	
 }

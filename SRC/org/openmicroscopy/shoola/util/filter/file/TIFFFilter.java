@@ -90,6 +90,12 @@ public class TIFFFilter
 	}
 	
 	/**
+	 * 	Overridden to return the MIME type.
+	 * 	@see CustomizedFileFilter#getMimeType()
+	 */
+	public String getMimeType() { return "image/tiff"; }
+	
+	/**
 	 * Overridden to return the extension of the filter.
 	 * @see CustomizedFileFilter#getExtension()
 	 */

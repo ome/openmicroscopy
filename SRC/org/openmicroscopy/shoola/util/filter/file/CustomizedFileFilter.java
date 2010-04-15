@@ -81,5 +81,12 @@ public abstract class CustomizedFileFilter
 	 * @return See above.
 	 */
 	public abstract String getExtension();
-
+	
+	/**
+	 * Returns the default extension of the file format.
+	 * 
+	 * @return See above.
+	 */
+	public abstract String getMimeType();
+	
 }

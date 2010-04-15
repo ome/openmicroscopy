@@ -74,6 +74,12 @@ public class HTMLFilter
 		description = s;
 	}
 	
+	/**
+	 * 	Overridden to return the MIME type.
+	 * 	@see CustomizedFileFilter#getMimeType()
+	 */
+	public String getMimeType() { return "text/html"; }
+	
     /**
 	 * 	Overridden to return the extension of the filter.
 	 * 	@see CustomizedFileFilter#getExtension()

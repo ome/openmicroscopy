@@ -36,7 +36,6 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 //import javax.activation.MimetypesFileTypeMap;
-import javax.activation.MimetypesFileTypeMap;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries

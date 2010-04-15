@@ -32,6 +32,12 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -58,7 +64,9 @@ import javax.swing.event.DocumentListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.util.UploadPictureDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.GroupsRenderer;
 import org.openmicroscopy.shoola.agents.util.ui.PermissionsPane;
@@ -67,6 +75,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ExperimenterData;
 import pojos.GroupData;
@@ -86,7 +95,8 @@ import pojos.GroupData;
  */
 class UserProfile 	
 	extends JPanel
-	implements ActionListener, ChangeListener, DocumentListener
+	implements ActionListener, ChangeListener, DocumentListener, 
+	PropertyChangeListener
 {
     
 	/** Text of the label in front of the new password area. */
@@ -160,6 +170,9 @@ class UserProfile
     /** The field hosting the login name. */
     private JTextField				loginArea;
     
+    /** Component displaying the photo of the user. */
+    private UserProfileCanvas		userPicture;
+    
     /** Modifies the existing password. */
     private void changePassword()
     {
@@ -218,10 +231,16 @@ class UserProfile
         }
         model.changePassword(old, confirm);
     }
-
+    
     /** Initializes the components composing this display. */
     private void initComponents()
     {
+    	userPicture = new UserProfileCanvas();
+    	userPicture.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	userPicture.setToolTipText("Click to upload your picture.");
+    	IconManager icons = IconManager.getInstance();
+    	userPicture.setImage(
+    			icons.getImageIcon(IconManager.USER_PHOTO_22).getImage());
     	loginArea = new JTextField();
     	boolean a = MetadataViewerAgent.isAdministrator();
     	loginArea.setEnabled(a);
@@ -309,6 +328,28 @@ class UserProfile
 		
 		ownerBox.setEnabled(owner);
 		ownerBox.addChangeListener(this);
+		ExperimenterData logUser = MetadataViewerAgent.getUserDetails();
+		if (user.getId() == logUser.getId()) {
+			userPicture.addMouseListener(new MouseAdapter() {
+				
+	    		/** Brings up a chooser to load the user image. */
+				public void mouseReleased(MouseEvent e)
+				{
+					uploadPicture();
+				}
+				
+			});
+		}
+    }
+    
+    /** Brings up the dialog to choose the photo to upload. */
+    private void uploadPicture()
+    {
+    	UploadPictureDialog d = new UploadPictureDialog(
+    			MetadataViewerAgent.getRegistry().getTaskBar().getFrame());
+    	d.addPropertyChangeListener(this);
+    	d.pack();
+    	UIUtilities.centerAndShow(d);
     }
     
     /**
@@ -367,7 +408,15 @@ class UserProfile
 		c.insets = new Insets(0, 2, 2, 0);
 		//Add log in name but cannot edit.
 		c.gridx = 0;
+		c.gridy = 0;
+		c.gridwidth = 3;
+		 c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+	        c.fill = GridBagConstraints.HORIZONTAL;
+		//JPanel p = UIUtilities.buildComponentPanelRight(userPicture);
+		//p.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	content.add(userPicture, c);
         c.gridy++;
+        c.gridx = 0;
         label = UIUtilities.setTextFont(EditorUtil.DISPLAY_NAME+
         		EditorUtil.MANDATORY_SYMBOL);
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
@@ -606,6 +655,7 @@ class UserProfile
 		c.gridy = 0;
 		c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
 		c.weightx = 1.0;  
+		c.gridx = 0;
     	add(buildContentPanel(), c);
     	if (model.isUserOwner(model.getRefObject()) || 
     			MetadataViewerAgent.isAdministrator()) {
@@ -757,6 +807,20 @@ class UserProfile
 		return original;//newOne;
 	}
 	
+	/**
+	 * Sets the photo of the user.
+	 * 
+	 * @param image The image to set.
+	 */
+	void setUserPhoto(BufferedImage image)
+	{
+		// Scale it 22x22
+		if (image == null) return;
+		BufferedImage img = Factory.scaleBufferedImage(image, 
+				UserProfileCanvas.WIDTH, UserProfileCanvas.HEIGHT);
+		userPicture.setImage(img);
+	}
+	
 	/** 
 	 * Fires a property change event when a index is selected.
 	 * @see ActionListener#actionPerformed(ActionEvent)
@@ -800,10 +864,28 @@ class UserProfile
 	}
 	
 	/**
-	 * Required by the {@link DocumentListener} I/F but no-op implementation
-	 * in our case.
+	 * Uploads the photo.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (UploadPictureDialog.UPLOAD_PHOTO_PROPERTY.equals(name)) {
+			List l = (List) evt.getNewValue();
+			if (l == null || l.size() != 2) return;
+			File f = (File) l.get(0);
+			if (f == null) return;
+			model.uploadPicture(f, (String) l.get(1));
+		}
+	}
+	
+	/**
+	 * Required by the {@link DocumentListener} I/F but no-operation
+	 * implementation in our case.
 	 * @see DocumentListener#changedUpdate(DocumentEvent)
 	 */
 	public void changedUpdate(DocumentEvent e) {}
+
+
 	
 }

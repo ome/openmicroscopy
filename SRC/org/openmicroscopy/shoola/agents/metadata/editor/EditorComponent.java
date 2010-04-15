@@ -63,6 +63,7 @@ import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.AnnotationData;
 import pojos.ChannelAcquisitionData;
 import pojos.ChannelData;
+import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
@@ -892,4 +893,19 @@ class EditorComponent
 		UIUtilities.centerAndShow(dialog);
 	}
 
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#setUserPhoto(BufferedImage, long)
+	 */
+	public void setUserPhoto(BufferedImage photo, long experimenterID)
+	{
+		if (photo == null) return;
+		Object o = model.getRefObject();
+		if (o instanceof ExperimenterData) {
+			ExperimenterData exp = (ExperimenterData) o;
+			if (exp.getId() == experimenterID)
+				view.setUserPhoto(photo);
+		}
+	}
+	
 }

@@ -24,13 +24,13 @@ package org.openmicroscopy.shoola.env.data.views;
 
 
 //Java imports
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.metadata.AdminEditor;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
@@ -172,5 +172,27 @@ public interface AdminView
 	public CallHandle resetExperimentersPassword(AdminObject object, 
 			AgentEventListener observer);
 
+	
+	/**
+	 * Resets the password of the experimenters.
+	 * 
+	 * @param experimenter The experimenter to handle.
+	 * @param observer	Call-back handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadExperimenterPhoto(ExperimenterData experimenter, 
+			AgentEventListener observer);
+	
+	/**
+	 * Resets the password of the experimenters.
+	 * 
+	 * @param experimenter  The experimenter to handle.
+	 * @param photo			The photo to upload.
+	 * @param format The format of the file.
+	 * @param observer	Call-back handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle uploadExperimenterPhoto(ExperimenterData experimenter, 
+			File photo, String format, AgentEventListener observer);
 	
 }

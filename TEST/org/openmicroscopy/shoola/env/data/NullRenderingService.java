@@ -38,10 +38,10 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
 
 //Third-party libraries
+import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
-
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
@@ -50,12 +50,7 @@ import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-
-import com.sun.opengl.util.texture.TextureData;
-
 import pojos.DataObject;
-import pojos.FileAnnotationData;
-import pojos.FileData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.ROIData;
@@ -477,11 +472,11 @@ public class NullRenderingService
 
 	/**
      * No-op implementation
-     * @see OmeroImageService#getExperimenterThumbnailSet(List, int, long)
+     * @see OmeroImageService#getExperimenterThumbnailSet(List, int)
      */
 	public Map<DataObject, BufferedImage> getExperimenterThumbnailSet(
-			List<DataObject> experimenters, int maxLength, long userID)
-		throws DSAccessException, DSOutOfServiceException, FSAccessException
+			List<DataObject> experimenters, int maxLength)
+		throws DSAccessException, DSOutOfServiceException
 	{
 		return null;
 	}

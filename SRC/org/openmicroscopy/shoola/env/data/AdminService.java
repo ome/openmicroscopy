@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -323,7 +325,7 @@ public interface AdminService
 	/**
 	 * Reloads the groups and experimenters for a group owners.
 	 * 
-	 * @param exp The onwer of a group.
+	 * @param exp The owner of a group.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
@@ -338,8 +340,9 @@ public interface AdminService
 	 * 
 	 * @param name The name of the group.
 	 * @return See above.
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
 	 */
 	public GroupData lookupGroup(String name)
 		throws DSOutOfServiceException, DSAccessException;
@@ -350,10 +353,27 @@ public interface AdminService
 	 * 
 	 * @param name The name of the experimenter.
 	 * @return See above.
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
 	 */
 	public ExperimenterData lookupExperimenter(String name)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Uploads the specified photo for the passed user. Returns the uploaded
+	 * photo.
+	 * 
+	 * @param f The file to upload.
+	 * @param format The format of the file.
+	 * @param experimenter The experimenter to handle.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
+	 */
+	public Object uploadUserPhoto(File f, String format, 
+			ExperimenterData experimenter)
 		throws DSOutOfServiceException, DSAccessException;
 	
 }

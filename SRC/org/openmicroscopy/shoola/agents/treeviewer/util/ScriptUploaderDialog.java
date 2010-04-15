@@ -366,7 +366,7 @@ public class ScriptUploaderDialog
 		close();
 	}
 	
-	 /** Sets the properties of the dialog. */
+	/** Sets the properties of the dialog. */
     private void setProperties()
     {
     	setTitle(TITLE);
@@ -449,8 +449,8 @@ public class ScriptUploaderDialog
 	public void removeUpdate(DocumentEvent e) { handleTextUpdate(); }
     
 	/**
-	 * Required by the {@link DocumentListener} I/F but no-op implementation
-	 * in our case.
+	 * Required by the {@link DocumentListener} I/F but no-operation
+	 * implementation in our case.
 	 * @see DocumentListener#changedUpdate(DocumentEvent)
 	 */
 	public void changedUpdate(DocumentEvent e) {}

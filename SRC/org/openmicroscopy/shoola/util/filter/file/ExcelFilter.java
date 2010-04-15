@@ -70,6 +70,12 @@ public class ExcelFilter
 		description = s;
 	}
 	
+	/**
+	 * 	Overridden to return the MIME type.
+	 * 	@see CustomizedFileFilter#getMimeType()
+	 */
+	public String getMimeType() { return "application/vnd.ms-excel"; }
+	
     /**
 	 * 	Overridden to return the extension of the filter.
 	 * 	@see CustomizedFileFilter#getExtension()

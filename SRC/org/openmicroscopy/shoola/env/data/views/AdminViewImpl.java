@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.env.data.views;
 
 
 //Java imports
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -64,7 +65,8 @@ class AdminViewImpl
 	public CallHandle updateExperimenter(ExperimenterData exp, 
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new AdminLoader(exp);
+		BatchCallTree cmd = new AdminLoader(exp, 
+				AdminLoader.EXPERIMENTER_UPDATE);
 		return cmd.exec(observer);
 	}
 
@@ -177,6 +179,31 @@ class AdminViewImpl
 			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new AdminSaver(object);
+		return cmd.exec(observer);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link AdminView} interface.
+	 * @see AdminView#loadExperimenterPhoto(ExperimenterData, 
+	 * AgentEventListener)
+	 */
+	public CallHandle loadExperimenterPhoto(ExperimenterData experimenter, 
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new AdminLoader(experimenter, 
+				AdminLoader.EXPERIMENTER_PHOTO);
+		return cmd.exec(observer);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link AdminView} interface.
+	 * @see AdminView#uploadExperimenterPhoto(ExperimenterData, File, String
+	 * AgentEventListener)
+	 */
+	public CallHandle uploadExperimenterPhoto(ExperimenterData experimenter, 
+			File photo, String format, AgentEventListener observer)
+	{
+		BatchCallTree cmd = new AdminLoader(experimenter, photo, format);
 		return cmd.exec(observer);
 	}
 

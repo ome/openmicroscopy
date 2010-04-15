@@ -35,6 +35,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileFilter;
 
@@ -1019,29 +1021,77 @@ class OmeroImageServiceImpl
 	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroImageService#getExperimenterThumbnailSet(List, int, long)
+	 * @see OmeroImageService#getExperimenterThumbnailSet(List, int)
 	 */
 	public Map<DataObject, BufferedImage> getExperimenterThumbnailSet(
-			List<DataObject> experimenters, int maxLength, long userID)
-			throws DSAccessException, DSOutOfServiceException, FSAccessException
+			List<DataObject> experimenters, int maxLength)
+			throws DSAccessException, DSOutOfServiceException
 	{
 		Map<DataObject, BufferedImage> 
 			m = new HashMap<DataObject, BufferedImage>();
 		if (experimenters == null || experimenters.size() == 0) return m;
+		List<Long> ids = new ArrayList<Long>();
 		//FSFileSystemView view = gateway.getFSRepositories(userID);
 		Iterator<DataObject> i = experimenters.iterator();
 		DataObject exp;
 		String path;
+		List<Class> types = new ArrayList<Class>();
+		types.add(FileAnnotationData.class);
+		Map<Long, DataObject> exps = new HashMap<Long, DataObject>();
 		while (i.hasNext()) {
 			exp = i.next();
-			//path = view.getThumbnail(file);
-			try {
-				//if (path != null) m.put(file, createImage(path));
-				//else m.put(file, null);
-				m.put(exp, null);
-			} catch (Exception e) {
-				//m.put(file, null);
-				m.put(exp, null);
+			ids.add(exp.getId());
+			m.put(exp, null);
+			exps.put(exp.getId(), exp);
+		}
+		Map annotations;
+		try {
+			annotations = gateway.loadAnnotations(ExperimenterData.class, ids, 
+					types, new ArrayList(), new Parameters());
+		} catch (Exception e) {
+			return m;
+		}
+		
+		if (annotations == null || annotations.size() == 0)
+			return m;
+		//Make
+		Entry entry;
+		Iterator j = annotations.entrySet().iterator();
+		Long id;
+		Collection values;
+		Iterator k;
+		Object object;
+		String ns;
+		FileAnnotationData fa, ann;
+		while (j.hasNext()) {
+			entry = (Entry) j.next();
+			id = (Long) entry.getKey();
+			values = (Collection) entry.getValue();
+			k = values.iterator();
+			ann = null;
+			while (k.hasNext()) {
+				object = k.next();
+				if (object instanceof FileAnnotationData) {
+					fa = (FileAnnotationData) object;
+					if (FileAnnotationData.EXPERIMENTER_PHOTO_NS.equals(
+							fa.getNameSpace())) {
+						if (ann == null) ann = fa;
+						else {
+							if (fa.getId() > ann.getId()) ann = fa;
+						}
+					}
+				}
+			}
+			if (ann != null) {
+				exp = exps.get(id);
+				try {
+					m.put(exps.get(id), 
+							createImage(gateway.getUserPhoto(ann.getFileID(),
+							ann.getFileSize())));
+				} catch (Exception e) {
+					//nothing to do.
+				}
+				
 			}
 		}
 		return m;

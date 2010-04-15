@@ -213,7 +213,8 @@ public class TreeCellRenderer
         	icon = icons.getIcon(IconManager.OWNER);
         	if (!exp.isActive())
         		icon = icons.getIcon(IconManager.OWNER_NOT_ACTIVE);
-        } setIcon(icon);
+        } 
+        setIcon(icon);
     }
 
     /**
@@ -278,7 +279,7 @@ public class TreeCellRenderer
             if (!sel) setBorderSelectionColor(getBackground());
             else setTextColor(getBackgroundSelectionColor());
             return this;
-        }
+        } 
         setIcon(node);
     	
         if (numberChildrenVisible) setText(node.getNodeText());
@@ -300,10 +301,6 @@ public class TreeCellRenderer
         else w += fm.stringWidth(getText());
         setPreferredSize(new Dimension(w, fm.getHeight()+4));//4 b/c GTK L&F
         setEnabled(node.isSelectable());
-        if (ho instanceof ExperimenterData) {
-        	ExperimenterData exp = (ExperimenterData) ho;
-        	setEnabled(exp.isActive());
-        }
         return this;
     }
   

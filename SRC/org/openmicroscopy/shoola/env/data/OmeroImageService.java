@@ -718,12 +718,11 @@ public interface OmeroImageService
 	 * 
 	 * @param experimenters	The experimenters to handle.
 	 * @param maxLength The maximum length of a thumbnail.
-	 * @param userID	The id of the user.
 	 * @return See above.
 	 * @throws RenderingServiceException  If the server is out of service.
 	 */
 	public Map<DataObject, BufferedImage> getExperimenterThumbnailSet(
-			List<DataObject> experimenters, int maxLength, long userID)
-		throws DSAccessException, DSOutOfServiceException, FSAccessException;
+			List<DataObject> experimenters, int maxLength)
+		throws DSAccessException, DSOutOfServiceException;
 	
 }

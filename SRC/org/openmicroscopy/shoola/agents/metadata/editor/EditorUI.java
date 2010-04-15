@@ -30,6 +30,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Point;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
@@ -741,5 +742,15 @@ public class EditorUI
 	
 	/** Displays the scripts. */
 	void setScripts() { toolBar.setScripts(); }
+
+	/** 
+	 * Sets the photo of the user.
+	 * 
+	 * @param photo The photo to set.
+	 */
+	void setUserPhoto(BufferedImage photo)
+	{
+		if (userUI != null) userUI.setUserPhoto(photo);
+	}
 	
 }

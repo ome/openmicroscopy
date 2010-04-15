@@ -54,6 +54,9 @@ public class WordFilter
     /** Possible file extension. */
     public static final String  WORD_X = "docx";
     
+    /** Possible file extension. */
+    public static final String  WORD_T = "doct";
+    
 	/** The possible extensions. */
     public static final String[]	extensions;
 	
@@ -61,9 +64,10 @@ public class WordFilter
 	private static final String		description;
 		
 	static {
-		extensions = new String[2];
+		extensions = new String[3];
 		extensions[0] = WORD;
 		extensions[1] = WORD_X;
+		extensions[2] = WORD_T;
 		
 		String s = "Microsoft Word (";
 		for (int i = 0; i < extensions.length; i++) {
@@ -74,6 +78,12 @@ public class WordFilter
 		s += ")";
 		description = s;
 	}
+	
+	/**
+	 * 	Overridden to return the MIME type.
+	 * 	@see CustomizedFileFilter#getMimeType()
+	 */
+	public String getMimeType() { return "application/msword"; }
 	
     /**
 	 * Overridden to return the extension of the filter.

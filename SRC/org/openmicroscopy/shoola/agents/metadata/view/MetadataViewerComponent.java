@@ -1046,6 +1046,16 @@ class MetadataViewerComponent
 		firePropertyChange(RESET_PASSWORD_PROPERTY, null, newPass);
 	}
 	
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#uploadPicture()
+	 */
+	public void uploadPicture()
+	{
+		
+		
+	}
+	
 	/** 
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()

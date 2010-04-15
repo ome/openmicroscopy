@@ -75,6 +75,12 @@ public class PowerPointFilter
 	}
 	
 	/**
+	 * 	Overridden to return the MIME type.
+	 * 	@see CustomizedFileFilter#getMimeType()
+	 */
+	public String getMimeType() { return "application/vnd.ms-powerpoint"; }
+	
+	/**
 	 * Overridden to return the extension of the filter.
 	 * @see CustomizedFileFilter#getExtension()
 	 */
