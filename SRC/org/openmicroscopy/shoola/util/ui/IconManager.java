@@ -488,11 +488,35 @@ public class IconManager
     /** ID of the 96x96 <code>Personal</code> icon. */
     public static final int PERSONAL_96 = 140;
     
+    /** The <code>Private Group</code> icon. */
+    public static final int PRIVATE_GROUP = 141;
+    
+    /** The <code>Read Group</code> icon. */
+    public static final int READ_GROUP = 142;
+    
+    /** The <code>Read Link Group</code> icon. */
+    public static final int READ_LINK_GROUP = 143;
+    
+    /** The <code>Public Group</code> icon. */
+    public static final int PUBLIC_GROUP = 144;
+    
+    /** The 12x12 <code>Private Group Drop Down</code> icon. */
+    public static final int PRIVATE_GROUP_DD_12 = 145;
+    
+    /** The 12x12 <code>Read Group Drop Down</code> icon. */
+    public static final int  READ_GROUP_DD_12 = 146;
+    
+    /** The 12x12 <code>Read Link Group Drop Down</code> icon. */
+    public static final int READ_LINK_GROUP_DD_12 = 147;
+    
+    /** The 12x12 <code>Public Group Drop Down</code> icon. */
+    public static final int PUBLIC_GROUP_DD_12 = 148;
+
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 140;
+    private static int      MAX_ID = 148;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -641,6 +665,15 @@ public class IconManager
         relPaths[ENCRYPTED_24] = "nuvola_encrypted_grey24.png";
         relPaths[DECRYPTED_24] = "nuvola_decrypted_grey24.png";
         relPaths[PERSONAL_96] ="nuvola_personal96.png";
+        relPaths[PRIVATE_GROUP] = "nuvola_ledred16.png";
+        relPaths[READ_GROUP] = "nuvola_ledorange16.png";
+        relPaths[READ_LINK_GROUP] = "nuvola_ledorange_readLink16.png";
+        relPaths[PUBLIC_GROUP] = "nuvola_ledgreen16.png";
+        
+        relPaths[PRIVATE_GROUP_DD_12] = "nuvola_permission_private_dd12.png";
+        relPaths[READ_GROUP_DD_12] = "nuvola_permission_read_dd12.png";
+        relPaths[READ_LINK_GROUP_DD_12] = "nuvola_permission_readLink_dd12.png";
+        relPaths[PUBLIC_GROUP_DD_12] = "nuvola_permission_public_dd12.png";
     }
 	
 	/**
