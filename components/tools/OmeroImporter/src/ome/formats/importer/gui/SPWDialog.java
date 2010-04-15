@@ -178,7 +178,7 @@ public class SPWDialog extends JDialog implements ActionListener
 
         
             archiveImage = GuiCommonElements.addCheckBox(importPanel, 
-                    "Archive the original imported file(s) to the server.", "0,4,4,t", debug);
+                    "Archive the original imported file(s) to the server.", "0,4,4,4", debug);
             archiveImage.setSelected(false);
             if (ARCHIVE_ENABLED)
             {
