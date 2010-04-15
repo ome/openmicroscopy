@@ -227,8 +227,12 @@ def downloadFile(rawFileStore, originalFile, filePath=None):
     cnt = 0
     if filePath == None:
         filePath = originalFile.getName().getValue()
-    if os.path.exists(filePath):	# don't overwrite
-        filePath = "%s_%s" % (filePath, fileId)
+    # don't overwrite. Add number before extension
+    i = 1
+    path, ext = filePath.rsplit(".", 1)
+    while os.path.exists(filePath):
+        filePath = "%s_%s.%s" % (path,i,ext)
+        i +=1
     fileHandle = open(filePath, 'w')
     data = '';
     cnt = 0;
@@ -267,7 +271,7 @@ def attachFileToParent(updateService, parent, originalFile, description=None, na
         l = omero.model.ImageAnnotationLinkI()
     else:
         return
-    parent = parent.__class__(parent.id.val, False)
+    parent = parent.__class__(parent.id.val, False)     # use unloaded object to avoid update conflicts
     l.setParent(parent);
     l.setChild(fa);
     return updateService.saveAndReturnObject(l);
