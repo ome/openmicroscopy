@@ -928,7 +928,7 @@ def load_metadata_details(request, c_type, c_id, index=None, **kwargs):
 
 @isUserConnected
 def load_metadata_details_multi(request, **kwargs):   
-    template = "webclient/annotations/annotation_form_multi.html"
+    template = "webclient/annotations/annotation_new_form_multi.html"
      
     conn = None
     try:
