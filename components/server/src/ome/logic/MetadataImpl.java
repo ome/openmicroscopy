@@ -553,7 +553,6 @@ public class MetadataImpl
             		 if (fa.getFile() != null) {
             			 of = iQuery.findByQuery(LOAD_ORIGINAL_FILE, 
                 				 new Parameters().addId(fa.getFile().getId()));
-                		 fa.setFile((OriginalFile) of);
             		 }
             	 }
              }
