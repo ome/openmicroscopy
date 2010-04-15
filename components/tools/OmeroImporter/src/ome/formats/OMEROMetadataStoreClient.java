@@ -63,6 +63,7 @@ import loci.formats.meta.IMinMaxStore;
 import loci.formats.meta.MetadataStore;
 import ome.formats.enums.EnumerationProvider;
 import ome.formats.enums.IQueryEnumProvider;
+import ome.formats.importer.ImportEvent;
 import ome.formats.importer.util.ClientKeepAlive;
 import ome.formats.model.BlitzInstanceProvider;
 import ome.formats.model.ChannelProcessor;
@@ -156,6 +157,7 @@ import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.OriginalFile;
 import omero.model.Path;
+import omero.model.Permissions;
 import omero.model.PhotometricInterpretation;
 import omero.model.Pixels;
 import omero.model.PixelsType;
@@ -3596,6 +3598,43 @@ public class OMEROMetadataStoreClient
 				: currentDefaultGroup.getName().getValue();
 		
 		return dn;
+	}
+	
+	public int getDefaultGroupLevel() throws ServerError {
+		
+		int groupLevel = 0;
+		
+		ExperimenterGroup currentDefaultGroup = 
+			iAdmin.getDefaultGroup(iAdmin.getEventContext().userId);
+		
+		Permissions perm = currentDefaultGroup.getDetails().getPermissions();
+		
+		if (perm.isGroupRead()) {
+			if (perm.isGroupWrite())  groupLevel = ImportEvent.GROUP_COLLAB_READ_LINK;
+			else groupLevel = ImportEvent.GROUP_COLLAB_READ;
+		}
+		else if (perm.isWorldRead()) {
+			if (perm.isWorldWrite())  groupLevel = ImportEvent.GROUP_PUBLIC;
+			else groupLevel = ImportEvent.GROUP_PUBLIC;
+		} else {
+			groupLevel = ImportEvent.GROUP_PRIVATE;
+		}
+		
+		/* TODO: add private icon
+		//Check if the user is owner of the group.
+		Set leaders = group.getLeaders();
+		if (leaders == null || leaders.size() == 0) 
+			return AdminObject.PERMISSIONS_PRIVATE;
+		Iterator j = leaders.iterator();
+		long id = exp.getId();
+		while (j.hasNext()) {
+			exp = (ExperimenterData) j.next();
+			if (exp.getId() == id) 
+				return AdminObject.PERMISSIONS_GROUP_READ;
+		}
+		return AdminObject.PERMISSIONS_PRIVATE;
+		*/	
+		return groupLevel;
 	}
 	
     /**

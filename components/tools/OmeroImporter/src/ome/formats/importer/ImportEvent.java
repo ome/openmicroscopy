@@ -20,6 +20,13 @@ import omero.model.Pixels;
  */
 public class ImportEvent {
 
+    // enums for GROUP_SET types
+    public static final int GROUP_PUBLIC = 0;
+    public static final int GROUP_COLLAB_READ = 1;
+    public static final int GROUP_COLLAB_READ_LINK = 2;
+    public static final int GROUP_PRIVATE = 3;
+    public static final int GROUP_SYSTEM = 4;
+	
     public String toLog() {
         return getClass().getSimpleName();
     }
@@ -343,5 +350,15 @@ public class ImportEvent {
     public static class QUICKBAR_UPDATE extends ImportEvent {
 
     }
-
+    
+    public static class GROUP_SET extends ImportEvent {
+    	public final String groupName;
+    	public final int groupType;
+    	
+    	public GROUP_SET(String groupName, int groupType) {
+    		this.groupName = groupName;
+    		this.groupType = groupType;
+    	}
+    }
+    
 }

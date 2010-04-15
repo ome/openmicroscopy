@@ -133,6 +133,9 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         if (historyTable != null)
             addObserver(historyTable);
         
+        if (viewer.fileQueueHandler.getTable() != null)
+        	addObserver(viewer.fileQueueHandler.getTable());
+        
         viewer.enableMenus(false);
         
         displayLogin(displayTop);
@@ -210,6 +213,9 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                         notifyObservers(new ImportEvent.LOGGED_IN());
                                                 
                         String group = store.getDefaultGroupName();
+                        int groupLevel = store.getDefaultGroupLevel();
+                        
+                        notifyObservers(new ImportEvent.GROUP_SET(group, groupLevel));
                         
                         // if this fails, using the old server without repositorySpace
                         try {

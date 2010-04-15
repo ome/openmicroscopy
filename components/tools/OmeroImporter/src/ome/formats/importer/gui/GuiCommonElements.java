@@ -459,7 +459,7 @@ public class GuiCommonElements
             java.net.URL imgURL = GuiImporter.class.getResource(image);
             if (imgURL != null)
             {
-                button = new JButton(null, new ImageIcon(imgURL));
+                button = new JButton(name, new ImageIcon(imgURL));
             } else {
                 button = new JButton(name);
                 log.warn("Couldn't find icon: " + image);

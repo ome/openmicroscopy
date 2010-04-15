@@ -93,7 +93,8 @@ public class FileQueueHandler extends JPanel
     
     private final FileQueueChooser fileChooser;
     private final FileQueueTable qTable;
-    private final HistoryTable historyTable;
+    
+	private final HistoryTable historyTable;
     
     private final AtomicInteger count = new AtomicInteger(0);
     private final ScheduledExecutorService scanEx;
@@ -148,6 +149,13 @@ public class FileQueueHandler extends JPanel
         
         add(splitPane, BorderLayout.CENTER);
     }
+    
+    /**
+     * @return qTable;
+     */
+    public FileQueueTable getTable() {
+		return qTable;
+	}
     
     /**
      * @return OMEROMetadataStoreClient

@@ -36,6 +36,8 @@ import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultButtonModel;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -60,6 +62,7 @@ import ome.formats.importer.util.ETable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmicroscopy.shoola.util.ui.IconManager;
 
 /**
  * @author Brian Loranger brain at lifesci.dundee.ac.uk
@@ -82,6 +85,8 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
     JButton         importBtn;
     JButton         clearDoneBtn;
     JButton         clearFailedBtn;
+
+	JButton			groupBtn;
     
     private int row;
     private int maxPlanes;
@@ -95,7 +100,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
     private LeftDotRenderer fileCellRenderer;
     private CenterTextRenderer dpCellRenderer;
     private CenterTextRenderer statusCellRenderer;
-    
+
     /**
      * Set up and display the file queue table
      */
@@ -168,12 +173,15 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
         if (debugBorders == true)
             queuePanel.setBorder(BorderFactory.createLineBorder(Color.red, 1));
         queuePanel.setLayout(new BoxLayout(queuePanel, BoxLayout.PAGE_AXIS));
-        queuePanel.add(Box.createRigidArea(new Dimension(0,10)));
+        //queuePanel.add(Box.createRigidArea(new Dimension(0,10)));
         JPanel labelPanel = new JPanel();
         labelPanel.setLayout(new BoxLayout(labelPanel, BoxLayout.LINE_AXIS)); 
         JLabel label = new JLabel("Import Queue:");
         labelPanel.add(label);
         labelPanel.add(Box.createHorizontalGlue());
+		groupBtn = GuiCommonElements.addBasicButton("Group: ", null, "Current Group");
+		//groupBtn.setEnabled(false);
+        labelPanel.add(groupBtn);
         queuePanel.add(labelPanel);
         queuePanel.add(Box.createRigidArea(new Dimension(0,5)));
         
@@ -543,10 +551,43 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
             cancel = false;
             abort = false;
         }
+        else if (event instanceof ImportEvent.GROUP_SET)
+        {
+        	ImportEvent.GROUP_SET ev = (ImportEvent.GROUP_SET) event;
+        	updateGroupBtn(ev.groupName, ev.groupType);
+        }
         
     }
-    
-    /**
+	private void updateGroupBtn(String groupName, int groupLevel) {
+    	groupBtn.setText(groupName);
+    	IconManager icons = IconManager.getInstance();
+    	Icon groupIcon = null;
+    	
+    	if (groupLevel == ImportEvent.GROUP_PUBLIC)
+    		groupIcon = icons.getIcon(IconManager.PRIVATE_GROUP);
+    	if (groupLevel == ImportEvent.GROUP_COLLAB_READ)
+    		groupIcon = icons.getIcon(IconManager.READ_GROUP);
+    	if (groupLevel == ImportEvent.GROUP_COLLAB_READ_LINK)
+    		groupIcon = icons.getIcon(IconManager.READ_LINK_GROUP);
+    	if (groupLevel == ImportEvent.GROUP_PRIVATE)
+    		groupIcon = icons.getIcon(IconManager.PRIVATE_GROUP);
+    	
+    	groupBtn.setIcon(groupIcon);
+    	groupBtn.setPreferredSize(new Dimension(160, 20));
+    	
+    	// TODO: For now disable the button
+    	DefaultButtonModel model = new DefaultButtonModel()
+    	{
+			private static final long serialVersionUID = 1L;
+			public void setArmed(boolean armed) {}
+    		public void setPressed(boolean pressed) {}
+    		public void setRollover(boolean rollover) {}
+    	};
+    	groupBtn.setModel(model);
+    	groupBtn.invalidate();
+	}
+
+	/**
      * Get the renderer used for rendering header cells
      * @return
      */

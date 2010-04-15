@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.Vector;
 
 import javax.swing.DefaultListModel;
-import javax.swing.JOptionPane;
 
 import ome.formats.OMEROMetadataStoreClient;
 import omero.ServerError;
@@ -100,6 +99,12 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
     private Column[] itemColumns;
 	public boolean historyEnabled = false;
 	private static long lastUid = 0;
+	
+	private Data baseData = null;
+	private boolean baseDataDirty = true;
+	
+	private Data itemData = null;
+	private boolean itemDataDirty = true;
 
     /**
      * Initialize the needed store services
@@ -217,6 +222,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
             	statuses.values[1] = String.format("%1$-64s", " ");
 
             	baseTable.addData(newRow);
+            	baseDataDirty = true;
                 lastUid = getHighestBaseTableUid();
             }
 
@@ -287,6 +293,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
     		fileNumbers.values[1] = -1;
 
     		itemTable.addData(newRow);
+    		itemDataDirty = true;
         } else {
             log.debug("Using existing " + itemDBNAME);
             itemTable = sf.sharedResources().openTable(itemFiles.get(0));
@@ -446,9 +453,10 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
     	importTimes.values[0] = new Date().getTime();
     	statuses.values[0] = String.format("%1$-64s", import_status);
 
-    	log.debug("Adding base row UID[" + uids.values[0] + "], " + importTimes.values[0] + ", " + statuses.values[0]);
+    	//log.debug("Adding base row UID[" + uids.values[0] + "], " + importTimes.values[0] + ", " + statuses.values[0]);
     	baseTable.addData(newRow);
-
+    	baseDataDirty = true;
+    	
     	return lastUid = newUid;
 
     }
@@ -501,8 +509,9 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
     	filePaths.values[0] = String.format("%1$-1024s", filePath);
     	Statuses.values[0] = String.format("%1$-32s", status);
     	fileNumbers.values[0] = 0;
-
+    	    	
     	itemTable.addData(newRow); 
+		itemDataDirty = true;
 
     	displayTableData();
     }
@@ -518,7 +527,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
     	long[] ids = baseTable.getWhereList(searchString, null, 0, baseTable.getNumberOfRows(), 1);
     	
         int returnedRows = ids.length;
-        log.debug("Returned rows: " + returnedRows);
+        //log.debug("Returned rows: " + returnedRows);
         
     	Data baseData = getBaseTableData();	
     	
@@ -529,6 +538,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
         }
     	       
         baseTable.update(baseData);
+    	baseDataDirty = true;
         
     	return returnedRows;
     }
@@ -543,7 +553,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
     	long[] ids = itemTable.getWhereList(searchString, null, 0, itemTable.getNumberOfRows(), 1);
     	
         int returnedRows = ids.length;
-        log.debug("Returned rows: " + returnedRows);
+        //log.debug("Returned rows: " + returnedRows);
         
     	Data itemData = getItemTableData();	
     	
@@ -556,6 +566,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
     	
         
         itemTable.update(itemData);
+		itemDataDirty = true;
         
     	return returnedRows;
     }
@@ -577,7 +588,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
         	long[] ids = baseTable.getWhereList(searchString, null, 0, baseTable.getNumberOfRows(), 1);
 	           
             int returnedRows = ids.length;
-            log.debug("Returned rows: " + returnedRows);
+            //log.debug("Returned rows: " + returnedRows);
         	
         	Data d = getBaseTableData();
         	
@@ -731,7 +742,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
         	StringColumn baseStatuses = (StringColumn) baseData.columns[BASE_STATUS_COLUMN];
         	
         	// item table data
-			log.debug("Rows in base table: " + baseTable.getNumberOfRows());
+			//log.debug("Rows in base table: " + baseTable.getNumberOfRows());
         	for (int i = 0; i < uids.values.length; i++)
         	{
         		log.debug("UID[" + uids.values[i] + "]: "
@@ -741,7 +752,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
         	}
         	
         	// item table data
-			log.debug("Rows in item table: " + itemTable.getNumberOfRows());
+			//log.debug("Rows in item table: " + itemTable.getNumberOfRows());
 			
 			Data itemData = getItemTableData();
 			
@@ -779,11 +790,15 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
      */
     public Data getBaseTableData() throws ServerError
     {
+    	if (baseDataDirty)
+    	{
         	long rows = baseTable.getNumberOfRows();
-        	log.debug("Getting " + rows + " rows in " + baseDBNAME);
         	long[] ColNumbers = {BASE_UID_COLUMN, BASE_DATETIME_COLUMN, BASE_STATUS_COLUMN};
-            Data d = baseTable.read(ColNumbers, 0L, rows);
-            return d;
+            baseData = baseTable.read(ColNumbers, 0L, rows);
+            baseDataDirty = false;
+        	//log.debug("Getting " + rows + " rows in " + baseDBNAME);
+    	}	
+        return baseData;
     }
     
     /**
@@ -804,17 +819,16 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
      * Return all the base table data
      * @return
      */
-    public Data getItemTableData()
+    public Data getItemTableData() throws ServerError
     {
-        try
-        {
+    	if (itemDataDirty)
+    	{
         	long rows = itemTable.getNumberOfRows();
             long[] colNumbers = {0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L};
-            return itemTable.read(colNumbers, 0L, rows);
-        } catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
+            itemData = itemTable.read(colNumbers, 0L, rows);
+            itemDataDirty = false;
+    	}
+    	return itemData;
     }
     
     /**
@@ -823,7 +837,12 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
      */
     public Data getItemTableDataByQuery(Long uid, String queryString, Date from, Date to)
     {
-    	return getItemTableData();
+    	try {
+    		return getItemTableData();
+    	} 
+    	catch (ServerError e) {
+    		throw new RuntimeException(e);
+    	}
     }
     
     /**
@@ -863,8 +882,8 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
         	}
     		long[] ids = itemTable.getWhereList(searchString, null, 0, itemTable.getNumberOfRows(), 1);
     		
-            int returnedRows = ids.length;
-            log.debug("Returned item rows: " + returnedRows);
+            //int returnedRows = ids.length;
+            //log.debug("Returned item rows: " + returnedRows);
         	
         	return ids;           
         } 
