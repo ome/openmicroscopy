@@ -799,6 +799,31 @@ public class Factory
     }
     
     /**
+     * Scales the passed buffered image.
+     * 
+     * @param image  	 The image to scale.
+     * @param maxLength  The maxLength of the new image.
+     * @return See above.
+     */
+    public static BufferedImage scaleBufferedImage(BufferedImage image, int
+    		maxLength)
+    {
+    	if (image == null) return null;
+    	int w = image.getWidth();
+    	int h = image.getHeight();
+    	Dimension d = computeThumbnailSize(maxLength, maxLength, w, h); 
+        ColorModel cm = image.getColorModel();
+        WritableRaster r = cm.createCompatibleWritableRaster(d.width, d.height);
+        BufferedImage thumbImage = new BufferedImage(cm, r, false, null);
+
+        // Do the actual scaling and return the result
+        Graphics2D graphics2D = thumbImage.createGraphics();
+        graphics2D.drawImage(image, 0, 0, d.width, d.height, null);
+        return thumbImage;
+    }
+    
+    
+    /**
      * Creates a buffered image.
      * 
      * @param buf		The buffer hosting the data.

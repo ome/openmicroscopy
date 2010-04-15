@@ -54,10 +54,10 @@ class UserProfileCanvas
 {
 
 	/** The width of the picture. */
-	static final int WIDTH = 22;
+	static final int WIDTH = 36;
 	
 	/** The width of the picture. */
-	static final int HEIGHT = 22;
+	static final int HEIGHT = 36;
 	
 	/** The image to paint. */
 	private Image image;
@@ -67,6 +67,10 @@ class UserProfileCanvas
 	{
 		setDoubleBuffered(true);
 		setBackground(UIUtilities.BACKGROUND_COLOR);
+		Dimension d = new Dimension(WIDTH, HEIGHT);
+		setPreferredSize(d);
+		setSize(d);
+		
 	}
 	
 	/**
@@ -77,12 +81,6 @@ class UserProfileCanvas
 	void setImage(Image image)
 	{
 		this.image = image;
-		if (image != null) {
-			Dimension d = new Dimension(image.getWidth(null), 
-					image.getHeight(null));
-			setPreferredSize(d);
-			setSize(d);
-		}
 		repaint();
 	}
 	

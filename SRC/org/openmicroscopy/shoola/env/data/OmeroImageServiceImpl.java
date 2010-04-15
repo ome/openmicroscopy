@@ -1063,6 +1063,7 @@ class OmeroImageServiceImpl
 		Object object;
 		String ns;
 		FileAnnotationData fa, ann;
+		BufferedImage img;
 		while (j.hasNext()) {
 			entry = (Entry) j.next();
 			id = (Long) entry.getKey();
@@ -1085,9 +1086,10 @@ class OmeroImageServiceImpl
 			if (ann != null) {
 				exp = exps.get(id);
 				try {
-					m.put(exps.get(id), 
-							createImage(gateway.getUserPhoto(ann.getFileID(),
-							ann.getFileSize())));
+					img = createImage(gateway.getUserPhoto(ann.getFileID(),
+							ann.getFileSize()));
+					m.put(exps.get(id), Factory.scaleBufferedImage(img, 
+							maxLength));
 				} catch (Exception e) {
 					//nothing to do.
 				}

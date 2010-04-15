@@ -817,7 +817,7 @@ class UserProfile
 		// Scale it 22x22
 		if (image == null) return;
 		BufferedImage img = Factory.scaleBufferedImage(image, 
-				UserProfileCanvas.WIDTH, UserProfileCanvas.HEIGHT);
+				UserProfileCanvas.WIDTH);
 		userPicture.setImage(img);
 	}
 	

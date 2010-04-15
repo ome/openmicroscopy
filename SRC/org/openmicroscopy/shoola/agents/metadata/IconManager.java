@@ -466,8 +466,8 @@ public class IconManager
         relPaths[UP_DOWN_9_12] = "upDown.png";
         relPaths[UPLOAD_SCRIPT] = "nuvola_script_add16.png";
         relPaths[UPLOAD_SCRIPT_48] = "nuvola_script_add48.png";
-        relPaths[USER_PHOTO_22] = "nuvola_licq22.png";
-        relPaths[USER_PHOTO_48] = "nuvola_licq48.png";
+        relPaths[USER_PHOTO_22] = "nuvola_personal22.png"; //"nuvola_licq22.png";
+        relPaths[USER_PHOTO_48] = "nuvola_personal48.png";//"nuvola_licq48.png";
 	}
    
 	/** The sole instance. */
