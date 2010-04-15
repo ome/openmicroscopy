@@ -206,6 +206,8 @@ def calculateAquisitionTime(session, pixelsId, cRange, tzList):
 
 	map = {}
 	for info in infoList:
+		if(info.deltaT==None):
+			return None;
 		key = "z:"+str(info.theZ.getValue())+"t:"+str(info.theT.getValue());
 		if(map.has_key(key)):
 			value = map.get(key);
