@@ -125,20 +125,6 @@ class BaseContainer(BaseController):
         elif o1_type == "orphaned":
             self.orphaned = True
     
-    def isObjectEditable(self):
-        if self.project is not None and self.project.isEditable():
-            return True
-        if self.dataset is not None and self.dataset.isEditable():
-            return True
-        if self.image is not None and self.image.isEditable():
-            return True
-        if self.screen is not None and self.screen.isEditable():
-            return True        
-        if self.plate is not None and self.plate.isEditable():
-            return True
-        if self.well is not None and self.well.isEditable():
-            return True
-    
     def formatMetadataLine(self, l):
         if len(l) < 1:
             return None
@@ -150,7 +136,7 @@ class BaseContainer(BaseController):
         self.series_metadata = list()
         if self.image is not None:
             for a in self.image.listAnnotations():
-                if a.ns == omero.constants.namespaces.NSCOMPANIONFILE and a.getFileName().startswith("original_metadata"):
+                if isinstance(a._obj, FileAnnotationI) and a.isOriginalMetadata():
                     self.original_metadata = a
                     temp_file = a.getFile().split('\n')
                     flag = None
@@ -168,9 +154,9 @@ class BaseContainer(BaseController):
                                     self.series_metadata.append(l)
         elif self.well is not None:
             for a in self.well.selectedWellSample().image().listAnnotations():
-                if a.ns == omero.constants.namespaces.NSCOMPANIONFILE and a.getFileName().startswith("original_metadata"):
+                if isinstance(a._obj, FileAnnotationI) and a.isOriginalMetadata():
                     self.original_metadata = a
-                    temp_file = self.conn.getFile(a.file.id.val, a.file.size.val).split('\n')
+                    temp_file = a.getFile(a.file.id.val, a.file.size.val).split('\n')
                     flag = None
                     for l in temp_file:
                         if l.startswith("[GlobalMetadata]"):
@@ -589,16 +575,16 @@ class BaseContainer(BaseController):
         
         aList = list()
         if self.image is not None:
-            aList = self.image.listAnnotations()
+            aList = list(self.image.listAnnotations())
         elif self.dataset is not None:
-            aList = self.dataset.listAnnotations()
+            aList = list(self.dataset.listAnnotations())
         elif self.project is not None:
-            aList = self.project.listAnnotations()
+            aList = list(self.project.listAnnotations())
         elif self.screen is not None:
-            aList = self.screen.listAnnotations()
+            aList = list(self.screen.listAnnotations())
         elif self.plate is not None:
-            aList = self.plate.listAnnotations()
-            
+            aList = list(self.plate.listAnnotations())
+        
         for ann in aList:
             if isinstance(ann._obj, CommentAnnotationI):
                 self.text_annotations.append(ann)

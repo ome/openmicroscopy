@@ -928,7 +928,7 @@ def load_metadata_details(request, c_type, c_id, index=None, **kwargs):
 
 @isUserConnected
 def load_metadata_details_multi(request, **kwargs):   
-    template = "webclient/annotations/annotations_form_multi.html"
+    template = "webclient/annotations/annotation_form_multi.html"
      
     conn = None
     try:
@@ -1316,7 +1316,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     elif action == 'addfile':
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["newfile", o_type, oid]))
-        form_file = UploadFileForm(request.REQUEST.copy(), request.FILES.copy())
+        form_file = UploadFileForm(request.REQUEST.copy(), request.FILES)
         if form_file.is_valid():
             f = request.FILES['annotation_file']
             if o_type == 'project' and o_id > 0:

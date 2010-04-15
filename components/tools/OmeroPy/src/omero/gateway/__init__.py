@@ -347,9 +347,6 @@ class BlitzObjectWrapper (object):
     def _getAnnotationLinks (self, ns=None):
         self._loadAnnotationLinks()
         rv = self.copyAnnotationLinks()
-        if rv is None:
-            meta = self._conn.getMetadataService()
-            rv = meta.loadAnnotations(self._obj.__class__.__name__, [self._oid], None, None, None).get(self._oid, [])
         if ns is not None:
             rv = filter(lambda x: x.getChild().getNs() and x.getChild().getNs().val == ns, rv)
         return rv
@@ -1996,6 +1993,7 @@ class FileAnnotationWrapper (AnnotationWrapper):
         pass
 
     def isOriginalMetadata(self):
+        self.__loadedHotSwap__()
         try:
             if self._obj.ns is not None and self._obj.ns.val == omero.constants.namespaces.NSCOMPANIONFILE and self._obj.file.name.val.startswith("original_metadata"):
                 return True
@@ -2731,7 +2729,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         series_metadata = list()
         if self is not None:
             for a in self.listAnnotations():
-                if a.isOriginalMetadata():
+                if isinstance(a._obj, FileAnnotationI) and a.isOriginalMetadata():
                     temp_file = a.getFile().split('\n')
                     flag = None
                     for l in temp_file:

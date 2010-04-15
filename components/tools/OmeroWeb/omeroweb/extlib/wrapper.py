@@ -54,7 +54,7 @@ from omero.rtypes import *
 from omero.model import FileAnnotationI, TagAnnotationI, DatasetI, ProjectI, ImageI, \
                         DetectorI, FilterI, ObjectiveI, InstrumentI, LaserI
 from omero.sys import ParametersI
-
+from omero.gateway import AnnotationWrapper, DatasetWrapper, ProjectWrapper
 
 class OmeroWebObjectWrapper (object):
 
@@ -294,74 +294,10 @@ omero.gateway.ExperimenterGroupWrapper = ExperimenterGroupWrapper
 class ScriptWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
     pass
 
-class ProjectWrapper (OmeroWebObjectWrapper, omero.gateway.ProjectWrapper):
-    pass
-
-omero.gateway.ProjectWrapper = ProjectWrapper
-
-class DatasetWrapper (OmeroWebObjectWrapper, omero.gateway.DatasetWrapper):
-    pass
-
-omero.gateway.DatasetWrapper = DatasetWrapper
-
 class AnnotationLinkWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
 
     def getAnnotation(self):
-        return omero.gateway.AnnotationWrapper(self, self.child)
-
-#class ImageImagingEnvironmentWrapper (omero.gateway.BlitzObjectWrapper):
-#    pass
-#
-#class ImageObjectiveSettingsWrapper (omero.gateway.BlitzObjectWrapper):
-#    pass
-#
-#class ImageObjectiveWrapper (omero.gateway.BlitzObjectWrapper):
-#    pass
-#
-#class ImageImmersionWrapper (omero.gateway.BlitzObjectWrapper):
-#    pass
-#
-#class ImageCorrectionWrapper (omero.gateway.BlitzObjectWrapper):
-#    pass
-#
-#class ImageInstrumentWrapper (omero.gateway.BlitzObjectWrapper):
-#    pass
-#
-#class ImageFilterWrapper (omero.gateway.BlitzObjectWrapper):
-#    
-#    def getTransmittanceRange(self):
-#        if self._obj.transmittanceRange is None:
-#            return None
-#        else:
-#            return FilterTransmittanceRangeWrapper(self._conn, self._obj.transmittanceRange)
-#
-#    def getFilterType(self):
-#        if self._obj.type is None:
-#            return None
-#        else:
-#            return TypeWrapper(self._conn, self._obj.type)
-#
-#class FilterTransmittanceRangeWrapper (omero.gateway.BlitzObjectWrapper):
-#    pass
-#
-#class MicroscopeWrapper (omero.gateway.BlitzObjectWrapper):
-#
-#    def getMicroscopeType(self):
-#        if self._obj.type is None:
-#            return None
-#        else:
-#            return TypeWrapper(self._conn, self._obj.type)
-#
-#class ImageDetectorWrapper (omero.gateway.BlitzObjectWrapper):
-#    
-#    def getDetectorType(self):
-#        if self._obj.type is None:
-#            return None
-#        else:
-#            return TypeWrapper(self._conn, self._obj.type)
-#   
-#class TypeWrapper (omero.gateway.BlitzObjectWrapper):
-#    pass
+        return AnnotationWrapper(self, self.child)
 
 class ImageStageLabelWrapper (omero.gateway.BlitzObjectWrapper):
     pass
@@ -388,90 +324,6 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
         img.save(f, "PNG")
         f.seek(0)
         return f.read()
-    
-    # metadata getters
-    # from metadata service
-#    def getMicroscopInstruments(self):
-#        meta_serv = self._conn.getMetadataService()
-#        if self._obj.instrument is None:
-#            yield None
-#        else:
-#            for inst in meta_serv.loadInstrument(self._obj.instrument.id.val):
-#                if isinstance(inst, InstrumentI):
-#                    yield ImageInstrumentWrapper(self._conn, inst)
-#    
-#    def getMicroscopDetectors(self):
-#        meta_serv = self._conn.getMetadataService()
-#        if self._obj.instrument is None:
-#            yield None
-#        else:
-#            for inst in meta_serv.loadInstrument(self._obj.instrument.id.val):
-#                if isinstance(inst, DetectorI):
-#                    yield ImageDetectorWrapper(self._conn, inst)
-#    
-#    def getMicroscopFilters(self):
-#        meta_serv = self._conn.getMetadataService()
-#        if self._obj.instrument is None:
-#            yield None
-#        else:
-#            for inst in meta_serv.loadInstrument(self._obj.instrument.id.val):
-#                if isinstance(inst, FilterI):
-#                    yield ImageFilterWrapper(self._conn, inst)
-#    
-#    def getMicroscopLasers(self):
-#        meta_serv = self._conn.getMetadataService()
-#        if self._obj.instrument is None:
-#            yield None
-#        else:
-#            for inst in meta_serv.loadInstrument(self._obj.instrument.id.val):
-#                if isinstance(inst, LaserI):
-#                    yield LightSourceWrapper(self._conn, inst)
-#    
-#    def getMicroscope(self):
-#        meta_serv = self._conn.getMetadataService()
-#        if self._obj.instrument is None:
-#            return None
-#        else:
-#            for inst in meta_serv.loadInstrument(self._obj.instrument.id.val):
-#                if isinstance(inst, InstrumentI):
-#                    return MicroscopeWrapper(self._conn, inst.microscope)
-    
-    # from model
-#    def getImagingEnvironment(self):
-#        if self._obj.imagingEnvironment is None:
-#            return None
-#        else:
-#            return ImageImagingEnvironmentWrapper(self._conn, self._obj.imagingEnvironment)
-#    
-#    def getObjectiveSettings(self):
-#        if self._obj.objectiveSettings is None:
-#            return None
-#        else:
-#            return ImageObjectiveSettingsWrapper(self._conn, self._obj.objectiveSettings)
-#    
-#    def getMedium(self):
-#        if self._obj.objectiveSettings.medium is None:
-#            return None
-#        else:
-#            return EnumerationWrapper(self._conn, self._obj.objectiveSettings.medium)
-#
-#    def getObjective(self):
-#        if self._obj.objectiveSettings.objective is None:
-#            return None
-#        else:
-#            return ImageObjectiveWrapper(self._conn, self._obj.objectiveSettings.objective)
-#    
-#    def getImmersion(self):
-#        if self._obj.objectiveSettings.objective.immersion is None:
-#            return None
-#        else:
-#            return ImageImmersionWrapper(self._conn, self._obj.objectiveSettings.objective.immersion)
-#    
-#    def getCorrection(self):
-#        if self._obj.objectiveSettings.objective.correction is None:
-#            return None
-#        else:
-#            return ImageCorrectionWrapper(self._conn, self._obj.objectiveSettings.objective.correction)
 
     def getStageLabel (self):
         if self._obj.stageLabel is None:
@@ -480,95 +332,6 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
             return ImageStageLabelWrapper(self._conn, self._obj.stageLabel)
 
 omero.gateway.ImageWrapper = ImageWrapper
-    
-#class ChannelWrapper (omero.gateway.ChannelWrapper):
-#            
-#    def getLogicalChannel(self):
-#        meta_serv = self._conn.getMetadataService()
-#        if self._obj is None:
-#            return None
-#        elif self._obj.logicalChannel is None:
-#            return None
-#        else:
-#            lc = meta_serv.loadChannelAcquisitionData([long(self._obj.logicalChannel.id.val)])
-#            if lc is not None and len(lc) > 0:
-#                return LogicalChannelWrapper(self._conn, lc[0])
-#            return None
-#            
-#omero.gateway.ChannelWrapper = ChannelWrapper
-
-#class LogicalChannelWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
-#    
-#    def getIllumination(self):
-#        if self._obj.illumination is None:
-#            return None
-#        else:
-#            return EnumerationWrapper(self._conn, self._obj.illumination)
-#    
-#    def getContrastMethod(self):
-#        if self._obj.contrastMethod is None:
-#            return None
-#        else:
-#            return EnumerationWrapper(self._conn, self._obj.contrastMethod)
-#    
-#    def getMode(self):
-#        if self._obj.mode is None:
-#            return None
-#        else:
-#            return EnumerationWrapper(self._conn, self._obj.mode)
-#    
-#    def getEmissionFilter(self):
-#        if self._obj.secondaryEmissionFilter is None:
-#            return None
-#        else:
-#            return ImageFilterWrapper(self._conn, self._obj.secondaryEmissionFilter)
-#    
-#    def getDichroic(self):
-#        if self._obj.filterSet is None:
-#            return None
-#        elif self._obj.filterSet.dichroic is None:
-#            return None
-#        else:
-#            return DichroicWrapper(self._conn, self._obj.filterSet.dichroic)
-#    
-#    def getDetectorSettings(self):
-#        if self._obj.detectorSettings is None:
-#            return None
-#        elif self._obj.detectorSettings.detector is None:
-#            return None
-#        else:
-#            return ImageDetectorWrapper(self._conn, self._obj.detectorSettings.detector)
-#    
-#    def getLightSource(self):
-#        if self._obj.lightSourceSettings is None:
-#            return None
-#        elif self._obj.lightSourceSettings.lightSource is None:
-#            return None
-#        else:
-#            return LightSourceWrapper(self._conn, self._obj.lightSourceSettings.lightSource)
-
-#class LightSourceWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
-#    
-#    def getLightSourceType(self):
-#        if self._obj.type is None:
-#            return None
-#        else:
-#            return TypeWrapper(self._conn, self._obj.type)
-#    
-#    def getLaserMedium(self):
-#        if self._obj.laserMedium is None:
-#            return None
-#        else:
-#            return EnumerationWrapper(self._conn, self._obj.laserMedium)
-#    
-#    def getPulse(self):
-#        if self._obj.pulse is None:
-#            return None
-#        else:
-#            return EnumerationWrapper(self._conn, self._obj.pulse)
-    
-#class DichroicWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
-#    pass
 
 class DatasetImageLinkWrapper (omero.gateway.BlitzObjectWrapper):
     pass
@@ -750,7 +513,3 @@ class SessionAnnotationLinkWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzOb
 class EventLogWrapper (omero.gateway.BlitzObjectWrapper):
     LINK_CLASS = "EventLog"
 
-class EnumerationWrapper (omero.gateway.BlitzObjectWrapper):
-    
-    def getType(self):
-        return self._obj.__class__

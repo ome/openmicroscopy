@@ -55,6 +55,7 @@ from omero.model import FileAnnotationI, TagAnnotationI, \
                         DetectorI, FilterI, ObjectiveI, InstrumentI
 from omero.sys import ParametersI
 from omeroweb.extlib.wrapper import *
+from omero.gateway import AnnotationWrapper, FileAnnotationWrapper
 
 TIMEOUT = 580 #sec
 SLEEPTIME = 60
