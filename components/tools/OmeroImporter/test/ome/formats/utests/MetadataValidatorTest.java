@@ -137,10 +137,10 @@ public class MetadataValidatorTest
         store.setInstanceProvider(
                 new BlitzInstanceProvider(store.getEnumerationProvider()));
         minimalStore = new OMEROMetadataStoreClient();
-        store.initialize(sf);
-        store.setEnumerationProvider(new TestEnumerationProvider());
-        store.setInstanceProvider(
-                new BlitzInstanceProvider(store.getEnumerationProvider()));
+        minimalStore.initialize(sf);
+        minimalStore.setEnumerationProvider(new TestEnumerationProvider());
+        minimalStore.setInstanceProvider(
+                new BlitzInstanceProvider(minimalStore.getEnumerationProvider()));
         wrapper = new OMEROWrapper(config);
         wrapper.setMetadataOptions(
                 new DefaultMetadataOptions(MetadataLevel.ALL));
