@@ -64,17 +64,37 @@ Report bugs to ome-devel@lists.openmicroscopy.org.uk""" % (cmd, cmd, cmd)
 
 # OME Hudson last successful metadata validator run test report URL
 URLs = {
-    '4.1': "http://hudson.openmicroscopy.org.uk/job/omero-metadata-validator-Beta4.1/lastCompletedBuild/testReport/api/xml",
-    'TRUNK': "http://hudson.openmicroscopy.org.uk/job/omero-metadata-validator/lastCompletedBuild/testReport/api/xml",
+    '4.1': "http://hudson.openmicroscopy.org.uk/job/omero-metadata-validator-Beta4.1/lastSuccessfulBuild/",
+    'TRUNK': "http://hudson.openmicroscopy.org.uk/job/omero-metadata-validator/lastSuccessfulBuild/",
 }
 
+# OME Hudson test report URL suffix
+TEST_SUFFIX = "testReport/"
+
+# Hudson XML API suffix
+API_SUFFIX = "api/xml"
+
 def download(config):
-    url = urllib.urlopen(URLs[config])
+    url = urllib.urlopen("%s%s" % (URLs[config], API_SUFFIX))
     hudson_xml = url.read()
     url.close()
-    return XML(hudson_xml)
+    root = XML(hudson_xml)
+    build_no = root.findtext("./number")
+    bioformats_rev = 'Unknown'
+    for artifact in root.findall("./artifact"):
+        file_name = artifact.findtext("./fileName")
+        match = re.match(r'bio-formats-r(\d+).jar', file_name)
+        if match:
+            bioformats_rev = match.group(1)
+            break
+    omero_rev = root.findtext("./changeSet/revision/revision")
+    url = urllib.urlopen("%s%s%s" % (URLs[config], TEST_SUFFIX, API_SUFFIX))
+    hudson_xml = url.read()
+    url.close()
+    return { 'root': XML(hudson_xml), 'build_no': build_no,
+             'bioformats_rev': bioformats_rev, 'omero_rev': omero_rev }
 
-def report(root):
+def report(root, build_no, bioformats_rev, omero_rev):
     suites = root.findall("./suite")
     print "filename\ttestMetadataLevelMinimumSetId\ttestMetadataLevelAllSetId"
     for suite in suites:
@@ -92,7 +112,7 @@ def report(root):
         if minimum_set_id is not None and all_set_id is not None:
             print "\t".join([suite_name, minimum_set_id, all_set_id])
 
-def summary(root):
+def summary(root, build_no, bioformats_rev, omero_rev):
     suites = root.findall("./suite")
 
     minimum_set_id_min = { 'filename': None, 'min': float('inf') }
@@ -129,6 +149,9 @@ def summary(root):
                 # Only needs to happen once :)
                 suite_count += 1
     # Print our report
+    print "Metadata validator build: %s" % build_no
+    print "Bio-Formats revision: %s" % bioformats_rev
+    print "OMERO.server revision: %s" % omero_rev
     print "Suite count: %d" % suite_count
     x = minimum_set_id_min
     if x['filename'] is not None:
@@ -164,5 +187,6 @@ if __name__ == "__main__":
             to_do = report
         if '--config' == option:
             config = argument
-    root = download(config)
-    to_do(root)
+    metadata = download(config)
+    to_do(metadata['root'], metadata['build_no'],
+          metadata['bioformats_rev'], metadata['omero_rev'])
