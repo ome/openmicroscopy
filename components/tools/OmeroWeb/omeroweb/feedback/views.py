@@ -42,7 +42,7 @@ from django.views.defaults import page_not_found, server_error
 from django.views import debug
 
 from omeroweb.feedback.sendfeedback import SendFeedback 
-from omeroweb.feedback.models import ErrorForm
+from omeroweb.feedback.forms import ErrorForm
 
 logger = logging.getLogger('views-feedback')
 

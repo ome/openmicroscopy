@@ -85,12 +85,12 @@ class OmeroWebObjectWrapper (object):
                 
             return a
     
-    def listAnnotations (self):
+    '''def listAnnotations (self):
         #container = self._conn.getContainerService()
         meta = self._conn.getMetadataService()
         self.annotations = meta.loadAnnotations(self._obj.__class__.__name__, [self._oid], None, None, None).get(self._oid, [])
         for ann in self.annotations:
-            yield AnnotationWrapper(self._conn, ann)
+            yield AnnotationWrapper(self._conn, ann)'''
     
     def countAnnotations (self):
         if self.annotation_counter is not None:
@@ -308,45 +308,6 @@ class AnnotationLinkWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWra
 
     def getAnnotation(self):
         return omero.gateway.AnnotationWrapper(self, self.child)
-
-class AnnotationWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
-    
-    def isOriginalMetadat(self):
-        if isinstance(self._obj, FileAnnotationI):
-            try:
-                if self._obj.ns is not None and self._obj.ns.val == omero.constants.namespaces.NSCOMPANIONFILE and self._obj.file.name.val.startswith("original_metadata"):
-                    return True
-            except:
-                logger.info(traceback.format_exc())
-        return False
-     
-    def getFileSize(self):
-        if isinstance(self._obj, FileAnnotationI):
-            return self._obj.file.size.val
-
-    def getFileName(self):
-        if isinstance(self._obj, FileAnnotationI):
-            try:
-                name = self._obj.file.name.val
-                l = len(name)
-                if l < 35:
-                    return name
-                return name[:16] + "..." + name[l - 16:] 
-            except:
-                logger.info(traceback.format_exc())
-                return self._obj.file.name.val
-    
-    def shortTag(self):
-        if isinstance(self._obj, TagAnnotationI):
-            try:
-                name = self._obj.textValue.val
-                l = len(name)
-                if l < 25:
-                    return name
-                return name[:10] + "..." + name[l - 10:] 
-            except:
-                logger.info(traceback.format_exc())
-                return self._obj.textValue.val
 
 #class ImageImagingEnvironmentWrapper (omero.gateway.BlitzObjectWrapper):
 #    pass

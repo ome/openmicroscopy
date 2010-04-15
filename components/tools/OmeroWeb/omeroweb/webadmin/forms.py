@@ -25,15 +25,14 @@
 import re
 
 from django.conf import settings
-from django.db import models
 from django import forms
 from django.forms import ModelForm
 from django.forms.widgets import Textarea
 from django.forms.widgets import HiddenInput
 
-from custom_forms import GroupModelChoiceField, GroupModelMultipleChoiceField, ExperimenterModelChoiceField, ExperimenterModelMultipleChoiceField
-
-from omeroweb.webadmin.models import Gateway
+from custom_forms import ServerModelChoiceField, \
+        GroupModelChoiceField, GroupModelMultipleChoiceField, \
+        ExperimenterModelChoiceField, ExperimenterModelMultipleChoiceField
 
 ##################################################################
 # Fields
@@ -59,25 +58,24 @@ class LoginForm(forms.Form):
     
     def __init__(self, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
-        g = Gateway.objects.all()
+        g = settings.SERVER_LIST.all()
         try:
             if len(g) > 1:
-                self.fields['server'] = forms.ModelChoiceField(g, empty_label=u"---------")
+                self.fields['server'] = ServerModelChoiceField(g, empty_label=u"---------")
             else:
-                self.fields['server'] = forms.ModelChoiceField(g, empty_label=None)
+                self.fields['server'] = ServerModelChoiceField(g, empty_label=None)
         except:
-            self.fields['server'] = forms.ModelChoiceField(g, empty_label=u"---------")
+            self.fields['server'] = ServerModelChoiceField(g, empty_label=u"---------")
         
         self.fields.keyOrder = ['server', 'username', 'password']
             
-    #server = forms.ModelChoiceField(Gateway.objects.all(), empty_label=u"---------")
     username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':22}))
     password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':22}))
 
 
 class ForgottonPasswordForm(forms.Form):
     
-    server = forms.ModelChoiceField(Gateway.objects.all(), empty_label=u"---------")
+    server = forms.ModelChoiceField(settings.SERVER_LIST, empty_label=u"---------")
     username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':28}))
     email = forms.EmailField(widget=forms.TextInput(attrs={'size':28}))
 

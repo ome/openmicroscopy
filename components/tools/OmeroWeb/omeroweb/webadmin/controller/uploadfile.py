@@ -38,5 +38,5 @@ class BaseUploadFile(BaseController):
             format = f[1].upper()
         else:
             format = newFile.content_type
-
+        
         self.conn.uploadMyUserPhoto(newFile.name, format, newFile.read())

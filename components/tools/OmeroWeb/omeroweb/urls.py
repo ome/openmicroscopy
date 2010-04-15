@@ -25,30 +25,14 @@
 import os.path
 
 from django.conf.urls.defaults import *
-from django.contrib import admin
 from django.views.static import serve
-
-from omeroweb.webadmin.models import Gateway
-from omeroweb.feedback.models import EmailTemplate
-
-# make admin enable
-admin.autodiscover()
-admin.site.register(Gateway)
-admin.site.register(EmailTemplate)
 
 # error handler
 handler404 = "omeroweb.feedback.views.handler404"
 handler500 = "omeroweb.feedback.views.handler500"
 
-
 # url patterns
 urlpatterns = patterns('',
-
-    # admin panel support
-    (r'^admin/(.*)', admin.site.root),
-    
-    # Require link to admin media
-    url( r'^admin_appmedia/omeroweb/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.dirname(os.path.realpath(admin.__file__)), 'media').replace('\\','/') }, name="admin_static" ),    
     
     (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/appmedia/omeroweb/images/ome.ico'}),
     (r'^appmedia/webgateway/(?P<path>.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), 'webgateway/media')}),

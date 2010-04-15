@@ -152,7 +152,7 @@ class BaseContainer(BaseController):
             for a in self.image.listAnnotations():
                 if a.ns == omero.constants.namespaces.NSCOMPANIONFILE and a.getFileName().startswith("original_metadata"):
                     self.original_metadata = a
-                    temp_file = self.conn.getFile(a.file.id.val, a.file.size.val).split('\n')
+                    temp_file = a.getFile().split('\n')
                     flag = None
                     for l in temp_file:
                         if l.startswith("[GlobalMetadata]"):

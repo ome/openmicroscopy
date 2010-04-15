@@ -44,8 +44,7 @@ from thread import start_new_thread
 from omero_version import omero_version
 
 from django.conf import settings
-from django.contrib.sessions.backends.db import SessionStore
-from django.contrib.sessions.models import Session
+from django.contrib.sessions.backends.cache import SessionStore
 from django.core import template_loader
 from django.core.cache import cache
 from django.http import HttpResponse, HttpResponseRedirect
@@ -71,7 +70,6 @@ from omeroweb.feedback.views import handlerInternalError
 from omeroweb.webadmin.controller.experimenter import BaseExperimenter 
 from omeroweb.webadmin.controller.uploadfile import BaseUploadFile
 
-from webadmin.models import Gateway
 from forms import ShareForm, ShareCommentForm, ContainerForm, CommentAnnotationForm, TagAnnotationForm, \
                     UriAnnotationForm, UploadFileForm, UsersForm, ActiveGroupForm, HistoryTypeForm, \
                     MetadataFilterForm, MetadataDetectorForm, MetadataChannelForm, \
@@ -182,9 +180,9 @@ def sessionHelper(request):
     #    request.session['datasetInBasket'] = set()
     if request.session.get('nav') is None:
         if request.session.get('server') is not None:
-            blitz = Gateway.objects.get(pk=request.session.get('server'))
+            blitz = settings.SERVER_LIST.get(pk=request.session.get('server'))
         elif request.session.get('host') is not None:
-            blitz = Gateway.objects.get(host=request.session.get('host'))
+            blitz = settings.SERVER_LIST.get(host=request.session.get('host'))
         blitz = "%s:%s" % (blitz.host, blitz.port)
         request.session['nav']={"blitz": blitz, "menu": "mydata", "view": "tree", "basket": 0}
 
@@ -214,8 +212,8 @@ def login(request):
                 logger.error("Upgrade is available. Please visit http://trac.openmicroscopy.org.uk/omero/wiki/MilestoneDownloads.\n")
         except Exception, x:
             logger.error("Upgrade check error: %s" % x)
-         
-        blitz = Gateway.objects.get(pk=request.REQUEST.get('server'))
+        
+        blitz = settings.SERVER_LIST.get(pk=request.REQUEST.get('server')) 
         request.session['server'] = blitz.id
         request.session['host'] = blitz.host
         request.session['port'] = blitz.port
@@ -253,19 +251,19 @@ def login(request):
             form = LoginForm(data=request.REQUEST.copy())
         else:
             try:
-                blitz = Gateway.objects.filter(id=request.session.get('server'))
+                blitz = settings.SERVER_LIST.get(pk=request.session.get('server')) 
                 try:
                     if request.session.get('username'):
-                        data = {'server': unicode(blitz[0].id), 'username':unicode(request.session.get('username')) }
+                        data = {'server': unicode(blitz.id), 'username':unicode(request.session.get('username')) }
                         form = LoginForm(data=data)
                     else:
-                        initial = {'server': unicode(blitz[0].id)}
+                        initial = {'server': unicode(blitz.id)}
                         form = LoginForm(initial=initial)
                 except:
-                    initial = {'server': unicode(blitz[0].id)}
+                    initial = {'server': unicode(blitz.id)}
                     form = LoginForm(initial=initial)
                 if blitz:
-                    initial = {'server': unicode(blitz[0].id)}
+                    initial = {'server': unicode(blitz.id)}
                     form = LoginForm(initial=initial)
                 else:
                     form = LoginForm()
@@ -610,7 +608,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     
     template = None
     if o1_type =='plate' or o2_type == 'plate':
-        template = "webclient/plate_details.html"
+        template = "webclient/data/plate_details.html"
     elif o1_type=='ajaxdataset' and o1_id > 0:
         template = "webclient/data/container_subtree.html"        
     elif o1_type=='ajaxorphaned':

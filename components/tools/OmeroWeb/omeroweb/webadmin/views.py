@@ -40,8 +40,7 @@ from time import time
 from omero_version import omero_version
 
 from django.conf import settings
-from django.contrib.sessions.backends.db import SessionStore
-from django.contrib.sessions.models import Session
+from django.contrib.sessions.backends.cache import SessionStore
 from django.core import template_loader
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
@@ -62,7 +61,6 @@ from controller.drivespace import BaseDriveSpace
 from controller.uploadfile import BaseUploadFile
 from controller.enums import BaseEnums
 
-from models import Gateway
 from forms import LoginForm, ForgottonPasswordForm, ExperimenterForm, \
                    ExperimenterLdapForm, GroupForm, GroupOwnerForm, MyAccountForm, \
                    MyAccountLdapForm, ContainedExperimentersForm, UploadPhotoForm, \
@@ -205,7 +203,7 @@ def forgotten_password(request, **kwargs):
     error = None
     
     if request.method == 'POST' and request.REQUEST.get('server') is not None and request.REQUEST.get('username') is not None and request.REQUEST.get('email') is not None:
-        blitz = Gateway.objects.get(pk=request.REQUEST.get('server'))
+        blitz = settings.SERVER_LIST.get(pk=request.session.get('server'))
         try:
             conn = getGuestConnection(blitz.host, blitz.port)
             if not conn.isForgottenPasswordSet():
@@ -229,8 +227,8 @@ def forgotten_password(request, **kwargs):
             form = ForgottonPasswordForm(data=request.REQUEST.copy())
         else:
             try:
-                blitz = Gateway.objects.filter(id=request.REQUEST.get('server'))
-                data = {'server': unicode(blitz[0].id), 'username':unicode(request.REQUEST.get('username')), 'password':unicode(request.REQUEST.get('password')) }
+                blitz = settings.SERVER_LIST.get(pk=request.session.get('server'))
+                data = {'server': unicode(blitz.id), 'username':unicode(request.REQUEST.get('username')), 'password':unicode(request.REQUEST.get('password')) }
                 form = ForgottonPasswordForm(data=data)
             except:
                 form = ForgottonPasswordForm()
@@ -242,7 +240,9 @@ def forgotten_password(request, **kwargs):
     return HttpResponse(rsp)
 
 def login(request):
-    if request.method == 'POST' and request.REQUEST.get('server'):
+    request.session.modified = True
+    
+    if request.method == 'POST' and request.REQUEST.get('server'):        
         # upgrade check:
         # -------------
         # On each startup OMERO.web checks for possible server upgrades
@@ -262,14 +262,13 @@ def login(request):
                 logger.error("Upgrade is available. Please visit http://trac.openmicroscopy.org.uk/omero/wiki/MilestoneDownloads.\n")
         except Exception, x:
             logger.error("Upgrade check error: %s" % x)
-
-        blitz = Gateway.objects.get(pk=request.REQUEST.get('server'))
-        _session_logout(request, blitz.id) 
+        
+        blitz = settings.SERVER_LIST.get(pk=request.REQUEST.get('server')) 
         request.session['server'] = blitz.id
         request.session['host'] = blitz.host
         request.session['port'] = blitz.port
-        request.session['username'] = request.REQUEST.get('username').encode('utf-8')
-        request.session['password'] = request.REQUEST.get('password').encode('utf-8')
+        request.session['username'] = request.REQUEST.get('username').encode('utf-8').strip()
+        request.session['password'] = request.REQUEST.get('password').encode('utf-8').strip()
     
     error = request.REQUEST.get('error')
     
@@ -291,8 +290,8 @@ def login(request):
             form = LoginForm(data=request.REQUEST.copy())
         else:
             try:
-                blitz = Gateway.objects.filter(id=request.session.get('server'))
-                data = {'server': unicode(blitz[0].id), 'username':unicode(request.session.get('username')), 'password':unicode(request.session.get('password')) }
+                blitz = settings.SERVER_LIST.get(pk=request.session.get('server'))
+                data = {'server': unicode(blitz.id), 'username':unicode(request.session.get('username')), 'password':unicode(request.session.get('password')) }
                 form = LoginForm(data=data)
             except:
                 logger.debug(traceback.format_exc())

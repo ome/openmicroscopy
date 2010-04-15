@@ -34,7 +34,7 @@ import omero.clients
 
 # CUSTOM CONFIG
 try:
-    import custom_settings
+    from custom_settings import *
 except ImportError:
     sys.stderr.write("Error: Can't find the file 'custom_settings.py' in the directory containing %r." \
         "It appears you've customized things.\nYou'll have to run 'bin/omero web [settings|superuser|syncdb]', " \
@@ -48,11 +48,12 @@ except ImportError:
 # Debuging mode. 
 # A boolean that turns on/off debug mode.
 # handler404 and handler500 works only when False
-try:
-    DEBUG = custom_settings.DEBUG
-except:
-    DEBUG = False
 
+try:
+    DEBUG
+except:
+    DEBUG=False
+        
 TEMPLATE_DEBUG = DEBUG
 
 # Configure logging and set place to store logs.
@@ -81,19 +82,8 @@ if not os.path.isdir(LOGDIR):
 import logconfig
 logger = logconfig.get_logger(os.path.join(LOGDIR, LOGFILE), LOGLEVEL)
 
-# Database settings
-DATABASE_ENGINE = 'sqlite3'    # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = 'db.sqlite3'   # Or path to database file if using sqlite3.
-DATABASE_USER = ''             # Not used with sqlite3.
-DATABASE_PASSWORD = ''         # Not used with sqlite3.
-DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
-DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
-
-# Test database name
-TEST_DATABASE_NAME = 'test-db.sqlite3'
-
 try:
-    ADMINS = custom_settings.ADMINS
+    ADMINS
 except:
     ADMINS = ()
     
@@ -182,6 +172,9 @@ IGNORABLE_404_ENDS = ('*.ico')
 CACHE_BACKEND = 'file:///var/tmp/django_cache'
 CACHE_TIMEOUT = 86400
 
+SESSION_ENGINE = "django.contrib.sessions.backends.cache" # Other option: "django.contrib.sessions.backends.cache_db"; "django.contrib.sessions.backends.cache"; "django.contrib.sessions.backends.file"
+#SESSION_FILE_PATH = tempfile.gettempdir()
+
 # Cookies config
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True # False
 SESSION_COOKIE_AGE = 86400 # 1 day in sec (86400)
@@ -194,37 +187,41 @@ DEFAULT_IMG = os.path.join(os.path.dirname(__file__), 'media', 'omeroweb', "imag
 DEFAULT_USER = os.path.join(os.path.dirname(__file__), 'media', 'omeroweb', "images", 'personal32.png').replace('\\','/')
 
 # CUSTOM CONFIG
+try:
+    from webadmin.custom_models import ServerObjects
+    SERVER_LIST = ServerObjects(SERVER_LIST)
+except Exception, x:
+    logger.error("custom_settings.py has not been configured. SERVER_LIST is not set.\n" ) 
+    sys.stderr.write("custom_settings.py has not been configured. SERVER_LIST is not set.\n")
+    exctype, value = sys.exc_info()[:2]
+    raise exctype, value
 
 try:
-    ADMINS = custom_settings.ADMINS
+    EMAIL_HOST
 except:
     pass
 try:
-    EMAIL_HOST = custom_settings.EMAIL_HOST
+    EMAIL_HOST_PASSWORD
 except:
     pass
 try:
-    EMAIL_HOST_PASSWORD = custom_settings.EMAIL_HOST_PASSWORD
+    EMAIL_HOST_USER
 except:
     pass
 try:
-    EMAIL_HOST_USER = custom_settings.EMAIL_HOST_USER
+    EMAIL_PORT
 except:
     pass
 try:
-    EMAIL_PORT = custom_settings.EMAIL_PORT
+    EMAIL_SUBJECT_PREFIX
 except:
     pass
 try:
-    EMAIL_SUBJECT_PREFIX = custom_settings.EMAIL_SUBJECT_PREFIX
+    EMAIL_USE_TLS
 except:
     pass
 try:
-    EMAIL_USE_TLS = custom_settings.EMAIL_USE_TLS
-except:
-    pass
-try:
-    SERVER_EMAIL = custom_settings.SERVER_EMAIL
+    SERVER_EMAIL
 except:
     pass
 
@@ -233,11 +230,31 @@ EMAIL_SUBJECT_PREFIX = '[OMERO.web] '
 
 # APPLICATIONS CONFIG
 try:
-    if custom_settings.APPLICATION_HOST.endswith("/"):
-        APPLICATION_HOST=custom_settings.APPLICATION_HOST
+    if APPLICATION_HOST.endswith("/"):
+        APPLICATION_HOST=APPLICATION_HOST
     else:
-        APPLICATION_HOST=custom_settings.APPLICATION_HOST+"/"
+        APPLICATION_HOST=APPLICATION_HOST+"/"
 except:
     logger.error("custom_settings.py has not been configured. APPLICATION_HOST is not set.\n" ) 
     sys.stderr.write("custom_settings.py has not been configured. APPLICATION_HOST is not set.\n")
     sys.exit(1)
+
+
+EMAIL_TEMPLATES = {
+    'create_share': {
+        'html_content':'<p>Hi,</p><p>I would like to share some of my data with you.<br/>Please find it on the <a href=""%%swebclient/share/view/%%i/?server=%%i"">%%swebclient/share/view/%%i/?server=%%i</a>.</p><p>%%s</p>', 
+        'text_content':'Hi, I would like to share some of my data with you. Please find it on the %%swebclient/share/view/%%i/?server=%%i. /n %%s'
+    },
+    'add_member_to_share': {
+        'html_content':'<p>Hi,</p><p>I would like to share some of my data with you.<br/>Please find it on the <a href=""%%swebclient/share/view/%%i/?server=%%i"">%%swebclient/share/view/%%i/?server=%%i</a>.</p><p>%%s</p>', 
+        'text_content':'Hi, I would like to share some of my data with you. Please find it on the %%swebclient/share/view/%%i/?server=%%i. /n %%s'
+    },
+    'remove_member_from_share': {
+        'html_content':'<p>You were removed from the share <a href=""%%swebclient/share/view/%%i/?server=%%i"">%%swebclient/share/view/%%i/?server=%%i</a>. This share is no longer available for you.</p>',
+        'text_content':'You were removed from the share %%swebclient/share/view/%%i/?server=%%i. This share is no longer available for you.'
+    },
+    'add_comment_to_share': {
+        'html_content':'<p>New comment is available on share <a href=""%%swebclient/share/view/%%i/?server=%%i"">%%swebclient/share/view/%%i/?server=%%i</a>.</p>',
+        'text_content':'New comment is available on share %%swebclient/share/view/%%i/?server=%%i.'
+    }
+}

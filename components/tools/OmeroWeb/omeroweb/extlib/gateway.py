@@ -865,7 +865,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 "where not exists ( select wal from WellAnnotationLink as wal where wal.child=a.id and wal.parent.id=:oid ) " \
                 "and a.details.owner.id=:eid and (a.ns not in (:nss) or a.ns is null) "
         for e in q.findAllByQuery(sql,p):
-            yield AnnotationWrapper(self, e)
+            yield FileAnnotationWrapper(self, e)
     
     def listSpecifiedTags(self, ids):
         """ Retrieves list of for the given Tag ids."""
@@ -898,7 +898,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map["ids"] = rlist([rlong(a) for a in set(ids)])
         sql = "select a from FileAnnotation a where a.id in (:ids) "
         for e in q.findAllByQuery(sql,p):
-            yield AnnotationWrapper(self, e)
+            yield FileAnnotationWrapper(self, e)
     
     def listSpecifiedUrls(self, ids):
         """ Retrieves list of for the given Url ids."""
@@ -1499,7 +1499,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         of = query_serv.findByQuery(sql, p)
         if not of.file.format.loaded:
             of.file.format = query_serv.find("Format", of.file.format.id.val)
-        return AnnotationWrapper(self, of)
+        return FileAnnotationWrapper(self, of)
     
     def getFile(self, f_id, size):
         store = self.createRawFileStore()
@@ -1539,7 +1539,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             else:
                 ann = meta.loadAnnotations("Experimenter", [long(oid)], None, None, None).get(long(oid), [])[0]
             if ann is not None:
-                return AnnotationWrapper(self, ann)
+                return FileAnnotationWrapper(self, ann)
             else:
                 return None
         except:
@@ -1864,12 +1864,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 logger.error(x)
                 logger.error(traceback.format_exc())
             else:
-                from omeroweb.webadmin.models import Gateway
-                blitz = Gateway.objects.get(id=blitz_id)
-                from omeroweb.feedback.models import EmailTemplate
-                t = EmailTemplate.objects.get(template="add_comment_to_share")
-                message = t.content_txt % (settings.APPLICATION_HOST, share_id, blitz_id)
-                message_html = t.content_html % (settings.APPLICATION_HOST, share_id, blitz_id, settings.APPLICATION_HOST, share_id, blitz_id)
+                blitz = settings.SERVER_LIST.get(pk=blitz_id)
+                t = settings.EMAIL_TEMPLATES["add_comment_to_share"]
+                message = t['content_txt'] % (settings.APPLICATION_HOST, share_id, blitz_id)
+                message_html = t['content_html'] % (settings.APPLICATION_HOST, share_id, blitz_id, settings.APPLICATION_HOST, share_id, blitz_id)
                 
                 try:
                     title = 'OMERO.web - new comment'
@@ -1928,10 +1926,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 logger.error(x)
                 logger.error(traceback.format_exc())
             else:
-                from omeroweb.feedback.models import EmailTemplate
-                t = EmailTemplate.objects.get(template="create_share")
-                message = t.content_txt % (settings.APPLICATION_HOST, sid, blitz_id, self.getUser().getFullName())
-                message_html = t.content_html % (settings.APPLICATION_HOST, sid, blitz_id, settings.APPLICATION_HOST, sid, blitz_id, self.getUser().getFullName())
+                t = settings.EMAIL_TEMPLATES["create_share"]
+                message = t['content_txt'] % (settings.APPLICATION_HOST, sid, blitz_id, self.getUser().getFullName())
+                message_html = t['content_html'] % (settings.APPLICATION_HOST, sid, blitz_id, settings.APPLICATION_HOST, sid, blitz_id, self.getUser().getFullName())
                 
                 try:
                     title = 'OMERO.web - new share'
@@ -1961,12 +1958,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 logger.error(x)
                 logger.error(traceback.format_exc())
             else:
-                from omeroweb.webadmin.models import Gateway
-                blitz = Gateway.objects.get(id=blitz_id)
-                from omeroweb.feedback.models import EmailTemplate
-                t = EmailTemplate.objects.get(template="add_member_to_share")
-                message = t.content_txt % (settings.APPLICATION_HOST, share_id, blitz_id, self.getUser().getFullName())
-                message_html = t.content_html % (settings.APPLICATION_HOST, share_id, blitz_id, settings.APPLICATION_HOST, share_id, blitz_id, self.getUser().getFullName())
+                blitz = settings.SERVER_LIST.get(pk=blitz_id)
+                t = settings.EMAIL_TEMPLATES["add_member_to_share"]
+                message = t['content_txt'] % (settings.APPLICATION_HOST, share_id, blitz_id, self.getUser().getFullName())
+                message_html = t['content_html'] % (settings.APPLICATION_HOST, share_id, blitz_id, settings.APPLICATION_HOST, share_id, blitz_id, self.getUser().getFullName())
                 try:
                     title = 'OMERO.web - update share'
                     text_content = message
@@ -1984,12 +1979,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 logger.error(x)
                 logger.error(traceback.format_exc())
             else:
-                from omeroweb.webadmin.models import Gateway
-                blitz = Gateway.objects.get(id=blitz_id)
-                from omeroweb.feedback.models import EmailTemplate
-                t = EmailTemplate.objects.get(template="remove_member_from_share")
-                message = t.content_txt % (settings.APPLICATION_HOST, share_id, blitz_id)
-                message_html = t.content_html % (settings.APPLICATION_HOST, share_id, blitz_id, settings.APPLICATION_HOST, share_id, blitz_id)
+                blitz = settings.SERVER_LIST.get(pk=blitz_id)
+                t = settings.EMAIL_TEMPLATES["remove_member_from_share"]
+                message = t['content_txt'] % (settings.APPLICATION_HOST, share_id, blitz_id)
+                message_html = t['content_html'] % (settings.APPLICATION_HOST, share_id, blitz_id, settings.APPLICATION_HOST, share_id, blitz_id)
                 
                 try:
                     title = 'OMERO.web - update share'

@@ -39,7 +39,6 @@ from django.test.client import Client
 from django.test import TestCase
 from django import forms
 
-from webadmin import models
 from webadmin.forms import LoginForm
 
 # If omero is not imported here then later omero imports appear to fail.

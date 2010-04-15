@@ -347,6 +347,9 @@ class BlitzObjectWrapper (object):
     def _getAnnotationLinks (self, ns=None):
         self._loadAnnotationLinks()
         rv = self.copyAnnotationLinks()
+        if rv is None:
+            meta = self._conn.getMetadataService()
+            rv = meta.loadAnnotations(self._obj.__class__.__name__, [self._oid], None, None, None).get(self._oid, [])
         if ns is not None:
             rv = filter(lambda x: x.getChild().getNs() and x.getChild().getNs().val == ns, rv)
         return rv
@@ -1584,7 +1587,71 @@ class _BlitzGateway (object):
         for i in self.getQueryService().findAllByQuery(query, params):
             yield ImageWrapper(self, i)
 
-
+    
+    ################
+    # Enumerations #
+    
+    def getEnumerationEntries(self, klass):
+        types = self.getTypesService()
+        for e in types.allEnumerations(str(klass)):
+            yield EnumerationWrapper(self, e)
+    
+    def getEnumeration(self, klass, string):
+        types = self.getTypesService()
+        obj = types.getEnumeration(str(klass), str(string))
+        if obj is not None:
+            return EnumerationWrapper(self, obj)
+        else:
+            return None
+    
+    def getEnumerationById(self, klass, eid):
+        query_serv = self.getQueryService()
+        obj =  query_serv.find(klass, long(eid))
+        if obj is not None:
+            return EnumerationWrapper(self, obj)
+        else:
+            return None
+            
+    def getOriginalEnumerations(self):
+        types = self.getTypesService()
+        rv = dict()
+        for e in types.getOriginalEnumerations():
+            if rv.get(e.__class__.__name__) is None:
+                rv[e.__class__.__name__] = list()
+            rv[e.__class__.__name__].append(EnumerationWrapper(self, e))
+        return rv
+        
+    def getEnumerations(self):
+        types = self.getTypesService()
+        return types.getEnumerationTypes() 
+    
+    def getEnumerationsWithEntries(self):
+        types = self.getTypesService()
+        rv = dict()
+        for key, value in types.getEnumerationsWithEntries().items():
+            r = list()
+            for e in value:
+                r.append(EnumerationWrapper(self, e))
+            rv[key+"I"] = r
+        return rv
+    
+    def deleteEnumeration(self, obj):
+        types = self.getTypesService()
+        types.deleteEnumeration(obj)
+        
+    def createEnumeration(self, obj):
+        types = self.getTypesService()
+        types.createEnumeration(obj)
+    
+    def resetEnumerations(self, klass):
+        types = self.getTypesService()
+        types.resetEnumerations(klass)
+    
+    def updateEnumerations(self, new_entries):
+        types = self.getTypesService()
+        types.updateEnumerations(new_entries)
+    
+    
     ###################
     # Searching stuff #
 
@@ -1947,6 +2014,31 @@ class FileAnnotationWrapper (AnnotationWrapper):
             return name
         return name[:16] + "..." + name[l - 16:] 
     
+    def getFile(self):
+        self.__loadedHotSwap__()
+        store = self._conn.createRawFileStore()
+        store.setFileId(self._obj.file.id.val)
+        size = self.getFileSize()
+        buf = 1048576
+        if size <= buf:
+            return store.read(0,long(size))
+        else:
+            temp = "%s/%i-%s.download" % (settings.FILE_UPLOAD_TEMP_DIR, size, self._sessionUuid)
+            outfile = open (temp, "wb")
+            for pos in range(0,long(size),buf):
+                data = None
+                if size-pos < buf:
+                    data = store.read(pos+1, size-pos)
+                else:
+                    if pos == 0:
+                        data = store.read(pos, buf)
+                    else:
+                        data = store.read(pos+1, buf)
+                outfile.write(data)
+            outfile.close()
+            return temp
+        return None
+    
 #    def shortTag(self):
 #        if isinstance(self._obj, TagAnnotationI):
 #            try:
@@ -2032,6 +2124,13 @@ class LongAnnotationWrapper (AnnotationWrapper):
         self._obj.longValue = rlong(val)
 
 AnnotationWrapper._register(LongAnnotationWrapper)
+
+class _EnumerationWrapper (BlitzObjectWrapper):
+    
+    def getType(self):
+        return self._obj.__class__
+
+EnumerationWrapper = _EnumerationWrapper
 
 class _ExperimenterWrapper (BlitzObjectWrapper):
     """
@@ -2626,6 +2725,31 @@ class _ImageWrapper (BlitzObjectWrapper):
             tb.close()
             tb.setPixelsId(pixels_id)
         return tb
+    
+    def loadOriginalMetadata(self):
+        global_metadata = list()
+        series_metadata = list()
+        if self is not None:
+            for a in self.listAnnotations():
+                if a.isOriginalMetadata():
+                    temp_file = a.getFile().split('\n')
+                    flag = None
+                    for l in temp_file:
+                        if l.startswith("[GlobalMetadata]"):
+                            flag = 1
+                        elif l.startswith("[SeriesMetadata]"):
+                            flag = 2
+                        else:
+                            if len(l) < 1:
+                                l = None
+                            else:
+                                l = l.split("=")                            
+                            if l is not None:
+                                if flag == 1:
+                                    global_metadata.append(l)
+                                elif flag == 2:
+                                    series_metadata.append(l)
+        return (global_metadata.sort(), series_metadata.sort())
     
     def getThumbnail (self, size=(64,64), z=None, t=None):
         try:

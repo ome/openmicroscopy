@@ -26,12 +26,9 @@ import datetime
 import time
 
 from django import forms
-from django.db import models
 from django.forms.widgets import Textarea
 from django.forms.widgets import HiddenInput
 from django.core.urlresolvers import reverse
-
-from omeroweb.webadmin.models import Gateway
 
 from custom_forms import UrlField, MetadataModelChoiceField, \
                          AnnotationModelMultipleChoiceField
