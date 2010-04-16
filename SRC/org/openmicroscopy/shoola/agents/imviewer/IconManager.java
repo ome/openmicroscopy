@@ -245,11 +245,23 @@ public class IconManager
     /** The <code>Detach</code> icon. */
     public static final int           DETACH = 63;
     
+    /** The <code>Rendering Settings redo</code> icon. */
+    public static final int          RND_REDO = 64;
+    
+    /** The <code>Rendering Settings Min-Max</code> icon. */
+    public static final int          RND_MIN_MAX = 65;
+    
+    /** The <code>Rendering Settings Owner</code> icon. */
+    public static final int          RND_OWNER = 66;
+    
+    /** The <code>Rendering Settings Undo</code> icon. */
+    public static final int          RND_UNDO = 67;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 63;
+    private static final int          MAX_ID = 67;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -318,6 +330,10 @@ public class IconManager
         relPaths[PUBLISHING] = "splitViewFigure16.png";//"nuvola_kcmsystem16.png";
         relPaths[CLOSE] = "nuvola_cancel16.png";
         relPaths[DETACH] = "nuvola_cancel16.png";
+        relPaths[RND_REDO] = "rendering_default16.png";
+        relPaths[RND_MIN_MAX] = "rendering_min_max16.png";
+        relPaths[RND_OWNER] = "rendering_owner16.png";
+        relPaths[RND_UNDO] = "rendering_undo16.png";
     }
     
     /** The sole instance. */

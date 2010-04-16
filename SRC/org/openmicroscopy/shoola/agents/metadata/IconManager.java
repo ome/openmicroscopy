@@ -361,11 +361,23 @@ public class IconManager
     /** The 32x32 <code>User photo</code> icon. */
     public static final int           USER_PHOTO_32 = 101;
     
+    /** The <code>Rendering Settings redo</code> icon. */
+    public static final int          RND_REDO = 102;
+    
+    /** The <code>Rendering Settings Min-Max</code> icon. */
+    public static final int          RND_MIN_MAX = 103;
+    
+    /** The <code>Rendering Settings Owner</code> icon. */
+    public static final int          RND_OWNER = 104;
+    
+    /** The <code>Rendering Settings Undo</code> icon. */
+    public static final int          RND_UNDO = 105;
+    
     /** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static final int          MAX_ID = 101;
+	private static final int          MAX_ID = 105;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -472,6 +484,10 @@ public class IconManager
         relPaths[USER_PHOTO_22] = "nuvola_personal22.png"; //"nuvola_licq22.png";
         relPaths[USER_PHOTO_48] = "nuvola_personal48.png";//"nuvola_licq48.png";
         relPaths[USER_PHOTO_32] = "nuvola_personal32.png";
+        relPaths[RND_REDO] = "rendering_default16.png";
+        relPaths[RND_MIN_MAX] = "rendering_min_max16.png";
+        relPaths[RND_OWNER] = "rendering_owner16.png";
+        relPaths[RND_UNDO] = "rendering_default16.png";
 	}
    
 	/** The sole instance. */

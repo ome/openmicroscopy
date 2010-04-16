@@ -75,9 +75,9 @@ import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.saver.SaveObject;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -94,9 +94,7 @@ import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
-import pojos.GroupData;
 import pojos.ImageData;
-import pojos.PermissionData;
 
 /** 
  * Implements the {@link ImViewer} interface to provide the functionality
@@ -2259,7 +2257,7 @@ class ImViewerComponent
 			un.notifyInfo("Save settings", "Cannot save rendering settings. ");
 		}
     	
-		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
 		List<Long> l = new ArrayList<Long>();
 		l.add(model.getImageID());
 		bus.post(new RndSettingsCopied(l, getPixelsID()));
@@ -3084,15 +3082,25 @@ class ImViewerComponent
 	 */
 	public boolean isReadOnly()
 	{
-		ExperimenterData exp = ImViewerAgent.getUserDetails();
-		if (model.isUserOwner()) return false;
-		GroupData g = exp.getDefaultGroup();
-		PermissionData perm = g.getPermissions();
-		if (perm.isGroupRead()) {
-			if (perm.isGroupWrite()) return false;
-			return true;
-		} else if (perm.isWorldRead() || perm.isWorldWrite()) return false;
+		if (isUserOwner()) return false;
+		int level = 
+			ImViewerAgent.getRegistry().getAdminService().getPermissionLevel();
+		switch (level) {
+			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
+			case AdminObject.PERMISSIONS_PUBLIC_READ:
+			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+				return false;
+		}
 		return true;
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#isUserOwner()
+	 */
+	public boolean isUserOwner()
+	{
+		return model.isUserOwner();
 	}
 	
 	/** 

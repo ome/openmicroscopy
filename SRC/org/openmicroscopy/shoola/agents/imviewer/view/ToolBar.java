@@ -203,11 +203,20 @@ class ToolBar
         bar.add(b);  
         bar.add(pasteButton);    
         b = new JButton(
+    			controller.getAction(ImViewerControl.UNDO_RND_SETTINGS));
+        UIUtilities.unifiedButtonLookAndFeel(b);
+        bar.add(b);
+        
+        b = new JButton(
     			controller.getAction(ImViewerControl.RESET_RND_SETTINGS));
         UIUtilities.unifiedButtonLookAndFeel(b);
-        //bar.add(button);
+        bar.add(b);
         b = new JButton(controller.getAction(
-        					ImViewerControl.SET_ORIGINAL_RND_SETTINGS));
+        					ImViewerControl.SET_RND_SETTINGS_MIN_MAX));
+        UIUtilities.unifiedButtonLookAndFeel(b);
+        bar.add(b);
+        b = new JButton(controller.getAction(
+        		ImViewerControl.SET_OWNER_RND_SETTINGS));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
         b = new JButton(

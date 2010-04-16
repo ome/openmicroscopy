@@ -467,11 +467,20 @@ public class IconManager
     /** The 12x12 <code>Public Group Drop Down</code> icon. */
     public static final int           PUBLIC_GROUP_DD_12 = 137;
     
+    /** The <code>Rendering Settings redo</code> icon. */
+    public static final int           RND_REDO = 138;
+    
+    /** The <code>Rendering Settings Min-Max</code> icon. */
+    public static final int           RND_MIN_MAX = 139;
+    
+    /** The <code>Rendering Settings Owner</code> icon. */
+    public static final int           RND_OWNER = 140;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 137;
+    private static final int          MAX_ID = 140;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -619,6 +628,9 @@ public class IconManager
         relPaths[READ_GROUP_DD_12] = "nuvola_permission_readOnly_dd12.png";
         relPaths[READ_LINK_GROUP_DD_12] = "nuvola_permission_read_dd12.png";//"nuvola_permission_readLink_dd12.png";
         relPaths[PUBLIC_GROUP_DD_12] = "nuvola_permission_public_dd12.png";
+        relPaths[RND_REDO] = "rendering_default16.png";
+        relPaths[RND_MIN_MAX] = "rendering_min_max16.png";
+        relPaths[RND_OWNER] = "rendering_owner16.png";
     }
     
     /** The sole instance. */

@@ -64,23 +64,20 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.CloseAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.CompressionAction;
-import org.openmicroscopy.shoola.agents.imviewer.actions.CopyRndSettingsAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.DetachAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.HistoryAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.LensAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ManageRndSettingsAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.MetadataAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.MovieAction;
-import org.openmicroscopy.shoola.agents.imviewer.actions.PasteRndSettingsAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PlayMovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PreferencesAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ProjectionPreviewAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ProjectionProjectAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ROIToolAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.RendererAction;
-import org.openmicroscopy.shoola.agents.imviewer.actions.ResetRndSettingsAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.SaveAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.SaveRndSettingsAction;
-import org.openmicroscopy.shoola.agents.imviewer.actions.SetOriginalRndSettingsAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ShowViewAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.TextVisibleAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarAction;
@@ -296,39 +293,48 @@ class ImViewerControl
 	static final Integer     RESET_RND_SETTINGS = Integer.valueOf(61);
 	
 	/** 
-	 * Identifies the <code>Set the original rendering settings</code> action. 
+	 * Identifies the <code>Set the rendering settings to min max</code> action.
 	 */
-	static final Integer     SET_ORIGINAL_RND_SETTINGS = Integer.valueOf(62);
+	static final Integer     SET_RND_SETTINGS_MIN_MAX = Integer.valueOf(62);
+	
+	/** 
+	 * Identifies the <code>Set the rendering settings to owner's 
+	 * settings</code> action.
+	 */
+	static final Integer     SET_OWNER_RND_SETTINGS= Integer.valueOf(63);
+	
+	/** Identifies the <code>Undo rendering settings</code> action. */
+	static final Integer     UNDO_RND_SETTINGS = Integer.valueOf(64);
 	
 	/** Identifies the <code>Projection preview</code> action. */
-	static final Integer     PROJECTION_PREVIEW = Integer.valueOf(63);
+	static final Integer     PROJECTION_PREVIEW = Integer.valueOf(65);
 	
 	/** Identifies the <code>Projection project</code> action. */
-	static final Integer     PROJECTION_PROJECT = Integer.valueOf(64);
+	static final Integer     PROJECTION_PROJECT = Integer.valueOf(66);
 	
 	/** Identifies the <code>Compression</code> action. */
-	static final Integer     COMPRESSION = Integer.valueOf(65);
+	static final Integer     COMPRESSION = Integer.valueOf(67);
 	
 	/** Identifies the <code>Clear history</code> action. */
-	static final Integer     CLEAR_HISTORY = Integer.valueOf(66);
+	static final Integer     CLEAR_HISTORY = Integer.valueOf(68);
 
 	/** Identifies the <code>Metadata</code> action in the menu. */
-	static final Integer     METADATA = Integer.valueOf(67);    
+	static final Integer     METADATA = Integer.valueOf(69);    
 
 	/** Identifies the <code>Play movie across life time bin</code> action. */
-	static final Integer     PLAY_LIFETIME_MOVIE = Integer.valueOf(68);
+	static final Integer     PLAY_LIFETIME_MOVIE = Integer.valueOf(70);
 	
 	/** Identifies the <code>Channels On</code> action. */
-	static final Integer     CHANNELS_ON = Integer.valueOf(69);
+	static final Integer     CHANNELS_ON = Integer.valueOf(71);
 	
 	/** Identifies the <code>Channels Off</code> action. */
-	static final Integer     CHANNELS_OFF = Integer.valueOf(70);
+	static final Integer     CHANNELS_OFF = Integer.valueOf(72);
 	
 	/** Identifies the <code>Activity</code> action. */
-	static final Integer     ACTIVITY = Integer.valueOf(71);
+	static final Integer     ACTIVITY = Integer.valueOf(73);
 
 	/** Identifies the <code>Detach</code> action. */
-	static final Integer     DETACH = Integer.valueOf(72);
+	static final Integer     DETACH = Integer.valueOf(74);
 
 	/** 
 	 * Reference to the {@link ImViewer} component, which, in this context,
@@ -419,12 +425,21 @@ class ImViewerControl
 		actionsMap.put(TAB_GRID, new ShowViewAction(model, 
 									ShowViewAction.SPLIT));
 		actionsMap.put(HISTORY, new HistoryAction(model));
-		actionsMap.put(PASTE_RND_SETTINGS, new PasteRndSettingsAction(model));
-		actionsMap.put(COPY_RND_SETTINGS, new CopyRndSettingsAction(model));
+		actionsMap.put(PASTE_RND_SETTINGS, 
+				new ManageRndSettingsAction(model, 
+						ManageRndSettingsAction.PASTE));
+		actionsMap.put(COPY_RND_SETTINGS, new ManageRndSettingsAction(model, 
+				ManageRndSettingsAction.COPY));
 		actionsMap.put(SAVE_RND_SETTINGS, new SaveRndSettingsAction(model));
-		actionsMap.put(RESET_RND_SETTINGS, new ResetRndSettingsAction(model));
-		actionsMap.put(SET_ORIGINAL_RND_SETTINGS, 
-						new SetOriginalRndSettingsAction(model));
+		actionsMap.put(RESET_RND_SETTINGS, new ManageRndSettingsAction(model, 
+				ManageRndSettingsAction.RESET));
+		actionsMap.put(SET_OWNER_RND_SETTINGS, new ManageRndSettingsAction(model, 
+				ManageRndSettingsAction.SET_OWNER));
+		actionsMap.put(SET_RND_SETTINGS_MIN_MAX, 
+				new ManageRndSettingsAction(model, 
+				ManageRndSettingsAction.SET_MIN_MAX));
+		actionsMap.put(UNDO_RND_SETTINGS, new ManageRndSettingsAction(model, 
+				ManageRndSettingsAction.UNDO));
 		actionsMap.put(PROJECTION_PREVIEW, new ProjectionPreviewAction(model));
 		actionsMap.put(PROJECTION_PROJECT, new ProjectionProjectAction(model));
 		actionsMap.put(COMPRESSION, new CompressionAction(model));

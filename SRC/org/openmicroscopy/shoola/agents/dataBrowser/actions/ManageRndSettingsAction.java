@@ -72,10 +72,10 @@ public class ManageRndSettingsAction
 	/** Identified the reset action. */
 	public static final int 	RESET = 2;
 	
-	/** Identified the reset action. */
+	/** Identified the <code>Set Min max</code> action. */
 	public static final int 	SET_MIN_MAX = 3;
 	
-	/** Identified the reset action. */
+	/** Identified the <code>Set Owner</code> action. */
 	public static final int 	SET_OWNER = 4;
 	
 	/** The default name of the action if the index is {@link #COPY}. */
@@ -146,20 +146,23 @@ public class ManageRndSettingsAction
 				putValue(Action.NAME, NAME_RESET);
 				putValue(Action.SHORT_DESCRIPTION, 
 						UIUtilities.formatToolTipText(DESCRIPTION_RESET));
-				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.UNDO));
+				putValue(Action.SMALL_ICON, 
+						icons.getIcon(IconManager.RND_REDO));
 				break;
 			case SET_MIN_MAX:
 				putValue(Action.NAME, NAME_SET_MIN_MAX);
 				putValue(Action.SHORT_DESCRIPTION, 
 					UIUtilities.formatToolTipText(DESCRIPTION_SET_MIN_MAX));
-				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.UNDO));
+				putValue(Action.SMALL_ICON, 
+						icons.getIcon(IconManager.RND_MIN_MAX));
 				break;
 			case SET_OWNER:
 				putValue(Action.NAME, NAME_SET_OWNER);
 				putValue(Action.SHORT_DESCRIPTION, 
 						UIUtilities.formatToolTipText(
 							DESCRIPTION_SET_OWNER));
-				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.UNDO));
+				putValue(Action.SMALL_ICON, 
+						icons.getIcon(IconManager.RND_OWNER));
 				break;
 			default:
 				throw new IllegalArgumentException("Index not supported.");

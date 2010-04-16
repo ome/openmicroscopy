@@ -172,20 +172,23 @@ public class ManageRndSettingsAction
 				name = NAME_RESET;
 				putValue(Action.SHORT_DESCRIPTION, 
 						UIUtilities.formatToolTipText(DESCRIPTION_RESET));
-				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.REDO));
+				putValue(Action.SMALL_ICON, 
+						icons.getIcon(IconManager.RND_REDO));
 				break;
 			case SET_MIN_MAX:
 				name = NAME_SET_MIN_MAX;
 				putValue(Action.SHORT_DESCRIPTION, 
 					UIUtilities.formatToolTipText(DESCRIPTION_SET_MIN_MAX));
-				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.REDO));
+				putValue(Action.SMALL_ICON, 
+						icons.getIcon(IconManager.RND_MIN_MAX));
 				break;
 			case SET_OWNER_SETTING:
 				name = NAME_SET_OWNER_SETTING;
 				putValue(Action.SHORT_DESCRIPTION, 
 						UIUtilities.formatToolTipText(
 							DESCRIPTION_SET_OWNER_SETTING));
-				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.REDO));
+				putValue(Action.SMALL_ICON, 
+						icons.getIcon(IconManager.RND_OWNER));
 				break;
 			default:
 				throw new IllegalArgumentException("Index not supported.");

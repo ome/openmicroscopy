@@ -1142,4 +1142,11 @@ public interface ImViewer
 	 */
 	public boolean isReadOnly();
 	
+	/**
+	 * Returns <code>true</code> if the user currently logged in is the
+	 * owner of the image, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isUserOwner();
 }
