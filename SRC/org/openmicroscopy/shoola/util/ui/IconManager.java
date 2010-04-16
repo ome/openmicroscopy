@@ -666,13 +666,13 @@ public class IconManager
         relPaths[DECRYPTED_24] = "nuvola_decrypted_grey24.png";
         relPaths[PERSONAL_96] ="nuvola_personal96.png";
         relPaths[PRIVATE_GROUP] = "nuvola_ledred16.png";
-        relPaths[READ_GROUP] = "nuvola_ledorange16.png";
-        relPaths[READ_LINK_GROUP] = "nuvola_ledorange_readLink16.png";
+        relPaths[READ_GROUP] = "nuvola_ledorange_readOnly16.png";
+        relPaths[READ_LINK_GROUP] = "nuvola_ledorange16.png";//"nuvola_ledorange_readLink16.png";
         relPaths[PUBLIC_GROUP] = "nuvola_ledgreen16.png";
         
         relPaths[PRIVATE_GROUP_DD_12] = "nuvola_permission_private_dd12.png";
-        relPaths[READ_GROUP_DD_12] = "nuvola_permission_read_dd12.png";
-        relPaths[READ_LINK_GROUP_DD_12] = "nuvola_permission_readLink_dd12.png";
+        relPaths[READ_GROUP_DD_12] = "nuvola_permission_readOnly_dd12.png";
+        relPaths[READ_LINK_GROUP_DD_12] = "nuvola_permission_read_dd12.png";
         relPaths[PUBLIC_GROUP_DD_12] = "nuvola_permission_public_dd12.png";
     }
 	

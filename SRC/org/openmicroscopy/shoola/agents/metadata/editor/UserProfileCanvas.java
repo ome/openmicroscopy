@@ -54,10 +54,10 @@ class UserProfileCanvas
 {
 
 	/** The width of the picture. */
-	static final int WIDTH = 36;
+	static final int WIDTH = 32;
 	
 	/** The width of the picture. */
-	static final int HEIGHT = 36;
+	static final int HEIGHT = 32;
 	
 	/** The image to paint. */
 	private Image image;
@@ -93,6 +93,8 @@ class UserProfileCanvas
         if (image == null) return;
         Graphics2D g2D = (Graphics2D) g;
         ImagePaintingFactory.setGraphicRenderingSettings(g2D);
+        g2D.setBackground(getBackground());
+        g2D.clearRect(0, 0, WIDTH, HEIGHT);
         g2D.drawImage(image, 0, 0, null); 
         g2D.dispose();
     }

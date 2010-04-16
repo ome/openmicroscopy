@@ -811,6 +811,7 @@ public class Factory
     	if (image == null) return null;
     	int w = image.getWidth();
     	int h = image.getHeight();
+    	if (w == maxLength && h == maxLength) return image;
     	Dimension d = computeThumbnailSize(maxLength, maxLength, w, h); 
         ColorModel cm = image.getColorModel();
         WritableRaster r = cm.createCompatibleWritableRaster(d.width, d.height);

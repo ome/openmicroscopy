@@ -1010,7 +1010,9 @@ class OmeroImageServiceImpl
 			file = i.next();
 			path = view.getThumbnail(file);
 			try {
-				if (path != null) m.put(file, createImage(path));
+				if (path != null) m.put(file, 
+						Factory.scaleBufferedImage(createImage(path), 
+								maxLength));
 				else m.put(file, null);
 			} catch (Exception e) {
 				m.put(file, null);

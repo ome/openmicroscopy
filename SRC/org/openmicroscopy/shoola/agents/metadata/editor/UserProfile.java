@@ -240,7 +240,7 @@ class UserProfile
     	userPicture.setToolTipText("Click to upload your picture.");
     	IconManager icons = IconManager.getInstance();
     	userPicture.setImage(
-    			icons.getImageIcon(IconManager.USER_PHOTO_22).getImage());
+    			icons.getImageIcon(IconManager.USER_PHOTO_32).getImage());
     	loginArea = new JTextField();
     	boolean a = MetadataViewerAgent.isAdministrator();
     	loginArea.setEnabled(a);
@@ -412,8 +412,6 @@ class UserProfile
 		c.gridwidth = 3;
 		 c.gridwidth = GridBagConstraints.REMAINDER;     //end row
 	        c.fill = GridBagConstraints.HORIZONTAL;
-		//JPanel p = UIUtilities.buildComponentPanelRight(userPicture);
-		//p.setBackground(UIUtilities.BACKGROUND_COLOR);
     	content.add(userPicture, c);
         c.gridy++;
         c.gridx = 0;
@@ -814,8 +812,9 @@ class UserProfile
 	 */
 	void setUserPhoto(BufferedImage image)
 	{
-		// Scale it 22x22
-		if (image == null) return;
+		if (image == null) {
+			return;
+		}
 		BufferedImage img = Factory.scaleBufferedImage(image, 
 				UserProfileCanvas.WIDTH);
 		userPicture.setImage(img);
@@ -886,6 +885,4 @@ class UserProfile
 	 */
 	public void changedUpdate(DocumentEvent e) {}
 
-
-	
 }
