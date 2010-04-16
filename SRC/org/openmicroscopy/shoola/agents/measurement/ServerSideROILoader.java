@@ -80,7 +80,7 @@ public class ServerSideROILoader
 		this.imageID = imageID;
 		this.userID = userID;
 	}
-	
+    
 	/**
      * Loads the ROI.
      * @see MeasurementViewerLoader#load()

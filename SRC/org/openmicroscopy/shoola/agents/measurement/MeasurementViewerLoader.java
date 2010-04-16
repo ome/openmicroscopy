@@ -29,7 +29,6 @@ package org.openmicroscopy.shoola.agents.measurement;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
@@ -43,7 +42,7 @@ import org.openmicroscopy.shoola.env.log.LogMessage;
  * which this class makes available through a <code>protected</code> field.
  * Also, this class extends {@link DSCallAdapter} so that subclasses
  * automatically become observers to an asynchronous call. This class provides
- * default implementations of some of the callbacks to notify the 
+ * default implementations of some of the call-backs to notify the 
  * {@link MeasurementViewer} of the progress and the user in the case of errors. 
  * Subclasses should at least implement the <code>handleResult</code> method 
  * to feed the {@link MeasurementViewer} back with the results.
@@ -96,7 +95,7 @@ public abstract class MeasurementViewerLoader
      */
     public void handleNullResult() 
     {
-        handleException(new Exception("No data available."));
+    	handleException(new Exception("No data available."));
     }
     
     /** Notifies the user that the data retrieval has been cancelled. */

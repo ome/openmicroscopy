@@ -31,6 +31,7 @@ import java.util.Map;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 import pojos.PixelsData;
 
@@ -109,11 +110,21 @@ public class Analyser
 			case SHAPE:
 				handle = idView.analyseShapes(pixels, channels, shapes, this);
 				break;
-	
 			case ROI:
 				handle = idView.analyseShapes(pixels, channels, shapes, this);
 				break;
 		}
+    }
+    
+    /**
+     * Indicates that an error occurred while analysing the data.
+     * @see MeasurementViewerLoader#handleNullResult()
+     */
+    public void handleNullResult() 
+    {
+    	UserNotifier un = registry.getUserNotifier();
+    	un.notifyInfo("Analysing data", "An error occurred while analysing " +
+    			"the data.");
     }
     
     /**
