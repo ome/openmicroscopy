@@ -234,6 +234,10 @@ public class UploadPictureDialog
 					"can be uploaded.");
 			return;
 		}
+		if (f.length() > MAX_SIZE) {
+			un.notifyInfo(TITLE, "The file is too big, maximum size 200Kb");
+			return;
+		}
 		List<Object> l = new ArrayList<Object>();
 		l.add(f);
 		l.add(format);
