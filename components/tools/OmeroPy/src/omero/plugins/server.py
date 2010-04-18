@@ -14,7 +14,6 @@
 import subprocess, optparse, os, sys, signal, time
 from omero.cli import Arguments, BaseControl, VERSION
 import omero.java
-import omeroweb
 
 class ServerControl(BaseControl):
 

@@ -506,6 +506,14 @@ OMERO Diagnostics %s
             except exceptions.Exception, e:
                 self.ctx.err("error:%s" % e)
 
+        import logging
+        logging.basicConfig()
+        from omero.util.upgrade_check import UpgradeCheck
+        check = UpgradeCheck("diagnostics")
+        check.run()
+        if check.isUpgradeNeeded():
+            self.ctx.out("")
+
         version(["java",         "-version"])
         version(["python",       "-V"])
         version(["icegridnode",  "--version"])
