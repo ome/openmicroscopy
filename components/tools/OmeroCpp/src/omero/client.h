@@ -239,11 +239,11 @@ namespace omero {
 	 */
 	std::string getProperty(const std::string& key) const;
 
-
         /*
          * Returns all properties which are prefixed with "omero." or "Ice."
+         * If no properties is passed, uses the Properties from {@link #getProperties()}.
          */
-        std::map<std::string, std::string> getPropertyMap() const;
+        std::map<std::string, std::string> getPropertyMap(const Ice::PropertiesPtr& props = Ice::PropertiesPtr()) const;
 
 	// Session management
 	// ================================================================

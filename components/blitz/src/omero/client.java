@@ -309,7 +309,7 @@ public class client {
         // Dump properties
         String dump = id.properties.getProperty("omero.dump");
         if (dump != null && dump.length() > 0) {
-            Map<String, String> propertyMap = getPropertyMap();
+            Map<String, String> propertyMap = getPropertyMap(id.properties);
             for (String key : propertyMap.keySet()) {
                 System.out.println(String.format("%s=%s", key,
                         propertyMap.get(key)));
@@ -495,11 +495,19 @@ public class client {
 
     /**
      * Returns all properties which are prefixed with "omero." or "Ice."
+     * using the Properties from {@link #getProperties()}.
      */
     public Map<String, String> getPropertyMap() {
+        return getPropertyMap(getProperties());
+    }
+
+    /**
+     * Returns all properties which are prefixed with "omero." or "Ice."
+     */
+    public Map<String, String> getPropertyMap(Ice.Properties properties) {
         Map<String, String> rv = new HashMap<String, String>();
         for (String prefix : Arrays.asList("omero", "Ice")) {
-            Map<String, String> prefixed = getProperties()
+            Map<String, String> prefixed = properties
                     .getPropertiesForPrefix(prefix);
             rv.putAll(prefixed);
         }

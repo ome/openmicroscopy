@@ -112,7 +112,7 @@ namespace omero {
 	// Dump properties
 	std::string dump = id.properties->getProperty("omero.dump");
 	if ( dump.length() != 0 ) {
-            std::map<string, string> pm = getPropertyMap();
+            std::map<string, string> pm = getPropertyMap(id.properties);
             std::map<string, string>::const_iterator beg = pm.begin();
             std::map<string, string>::const_iterator end = pm.end();
             while (beg != end) {
@@ -309,16 +309,24 @@ namespace omero {
 
     // --------------------------------------------------------------------
 
-    std::map<string, string> client::getPropertyMap() const {
+    std::map<string, string> client::getPropertyMap(const Ice::PropertiesPtr& properties) const {
+
+        Ice::PropertiesPtr props;
+        if (!properties) {
+            props = getProperties();
+        } else {
+            props = properties;
+        }
+
         std::map<string, string> pm;
-        Ice::PropertyDict omeroProperties = getProperties()->getPropertiesForPrefix("omero");
+        Ice::PropertyDict omeroProperties = props->getPropertiesForPrefix("omero");
         Ice::PropertyDict::const_iterator beg = omeroProperties.begin();
         Ice::PropertyDict::const_iterator end = omeroProperties.end();
         while (beg != end) {
             pm[(*beg).first] = (*beg).second;
             beg++;
         }
-        Ice::PropertyDict iceProperties = getProperties()->getPropertiesForPrefix("Ice");
+        Ice::PropertyDict iceProperties = props->getPropertiesForPrefix("Ice");
         beg = iceProperties.begin();
         end = iceProperties.end();
         while (beg != end) {
