@@ -23,10 +23,10 @@ class UserControl(BaseControl):
         self.ctx.out("Password changed")
 
     def add(self, *args):
-        args = Arguments(args, shortopts="e:i:g:p:", longopts=["email=","institute=","group=","password="])
+        args = Arguments(args, shortopts="e:i:g:P:", longopts=["email=","institute=","group=", "userpassword="])
         email = args.get_arg("email", "e")
         inst = args.get_arg("institute", "i")
-        pasw = args.get_arg("password", "p")
+        pasw = args.get_arg("userpassword", "P")
         group = args.get_arg("group", "g")
         if not group:
             group = "CHANGE_ME"
