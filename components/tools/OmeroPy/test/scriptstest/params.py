@@ -87,23 +87,23 @@ finally:
 
 class TestParams(lib.ITest):
 
-    def run(self, text):
+    def doTest(self, text):
         svc = self.client.sf.getScriptService()
         id = svc.uploadScript(text)
         processor = svc.runScript(id, OR.wrap({"a":0, "b":0}), None)
         processor.poll()
 
     def test1(self):
-        self.run(FILE1)
+        self.doTest(FILE1)
 
     def test2(self):
-        self.run(FILE2)
+        self.doTest(FILE2)
 
     def test3(self):
-        self.run(FILE3)
+        self.doTest(FILE3)
 
     def test4(self):
-        self.run(FILE4)
+        self.doTest(FILE4)
 
 if __name__ == '__main__':
     unittest.main()

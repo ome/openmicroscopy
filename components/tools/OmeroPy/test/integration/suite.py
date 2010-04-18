@@ -42,13 +42,12 @@ def additional_tests():
     suite.addTest(load("integration.files"))
     suite.addTest(load("integration.tickets1000"))
     suite.addTest(load("integration.tickets2000"))
-    suite.addTest(load("scripts.suite._additional_tests"))
-    suite.addTest(load("gateway.suite._additional_tests"))
-    suite.addTest(load("cli.integration_suite._additional_tests"))
-    suite.addTest(load("scripts.suite._additional_tests"))
-    suite.addTest(load("scripts.integration_suite._additional_tests"))
+    suite.addTest(load("clitest.integration_suite._additional_tests"))
+    suite.addTest(load("gatewaytest.suite._additional_tests"))
+    suite.addTest(load("scriptstest.suite._additional_tests"))
+    suite.addTest(load("scriptstest.integration_suite._additional_tests"))
     suite.addTest(load("tablestest.suite._additional_tests"))
-    suite.addTest(load("tablesintegration_suite._additional_tests"))
+    suite.addTest(load("tablestest.integration_suite._additional_tests"))
     return suite
 
 if __name__ == "__main__":

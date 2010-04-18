@@ -17,6 +17,7 @@ class TopLevel(unittest.TestCase):
 def _additional_tests():
     load = unittest.defaultTestLoader.loadTestsFromName
     suite = unittest.TestSuite()
-    suite.addTest(load("scripts.parse"))
-    suite.addTest(load("scripts.prototypes"))
+    suite.addTest(load("scriptstest.parse"))
+    suite.addTest(load("scriptstest.processor"))
+    suite.addTest(load("scriptstest.prototypes"))
     return suite

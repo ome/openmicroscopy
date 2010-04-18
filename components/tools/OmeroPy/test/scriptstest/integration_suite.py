@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-   cli integration test suite. Please add a reference to your subpackage,
+   scripts test suite. Please add a reference to your subpackage,
    module, or specific class here.
 
    Copyright 2010 Glencoe Software, Inc. All rights reserved.
@@ -17,5 +17,9 @@ class TopLevel(unittest.TestCase):
 def _additional_tests():
     load = unittest.defaultTestLoader.loadTestsFromName
     suite = unittest.TestSuite()
-    suite.addTest(load("test.cli.script"))
+    suite.addTest(load("scriptstest.coverage"))
+    suite.addTest(load("scriptstest.ping"))
+    suite.addTest(load("scriptstest.proj"))
+    suite.addTest(load("scriptstest.rand"))
+    suite.addTest(load("scriptstest.params"))
     return suite

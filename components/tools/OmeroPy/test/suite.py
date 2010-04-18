@@ -10,6 +10,7 @@
 """
 
 import unittest
+import xmlrunner
 
 class TopLevel(unittest.TestCase):
     pass
@@ -17,12 +18,15 @@ class TopLevel(unittest.TestCase):
 def additional_tests():
     load = unittest.defaultTestLoader.loadTestsFromName
     suite = unittest.TestSuite()
-    suite.addTest(load("cli.suite"))
-    suite.addTest(load("tablestest.suite"))
     suite.addTest(load("t_bin"))
     suite.addTest(load("t_model"))
     suite.addTest(load("t_parameters"))
     suite.addTest(load("t_permissions"))
-    suite.addTest(load("scripts.harness"))
-    suite.addTest(load("processor"))
+    suite.addTest(load("clitest.suite"))
+    #suite.addTest(load("scriptstest.harness"))
+    suite.addTest(load("scriptstest.suite"))
+    suite.addTest(load("tablestest.suite"))
     return suite
+
+if __name__ == "__main__":
+    xmlrunner.XMLTestRunner(output='target/test-reports').run(additional_tests())

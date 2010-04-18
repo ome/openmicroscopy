@@ -12,7 +12,7 @@ import unittest
 from types import StringTypes
 import omero
 
-import gateway.library as lib
+import gatewaytest.library as lib
 
 from django.utils import simplejson
 from django.http import QueryDict

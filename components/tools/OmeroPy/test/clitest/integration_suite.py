@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
 """
-   tables test suite. Please add a reference to your subpackage,
+   cli integration test suite. Please add a reference to your subpackage,
    module, or specific class here.
 
-   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+   Copyright 2010 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -17,5 +17,5 @@ class TopLevel(unittest.TestCase):
 def _additional_tests():
     load = unittest.defaultTestLoader.loadTestsFromName
     suite = unittest.TestSuite()
-    suite.addTest(load("tablestest.service"))
+    suite.addTest(load("clitest.script"))
     return suite

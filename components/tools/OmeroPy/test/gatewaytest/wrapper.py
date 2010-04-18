@@ -11,7 +11,7 @@
 import unittest
 import omero
 
-import gateway.library as lib
+import gatewaytest.library as lib
 
 class WrapperTest (lib.GTest):
     def testProjectWrapper (self):

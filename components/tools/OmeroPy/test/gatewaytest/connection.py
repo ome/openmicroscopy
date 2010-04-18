@@ -11,7 +11,7 @@
 import unittest
 import omero
 import Ice
-import gateway.library as lib
+import gatewaytest.library as lib
 
 class ConnectionMethodsTest (lib.GTest):
     def testMultiProcessSession (self):

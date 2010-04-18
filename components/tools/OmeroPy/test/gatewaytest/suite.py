@@ -18,14 +18,14 @@ class TopLevel(unittest.TestCase):
 def _additional_tests():
     load = unittest.defaultTestLoader.loadTestsFromName
     suite = unittest.TestSuite()
-    suite.addTest(load("gateway.helpers"))
-    suite.addTest(load("gateway.user"))
-    suite.addTest(load("gateway.rdefs"))
-    suite.addTest(load("gateway.image"))
-    suite.addTest(load("gateway.annotation"))
-    suite.addTest(load("gateway.connection"))
-    suite.addTest(load("gateway.wrapper"))
-    suite.addTest(load("gateway.z_db_cleanup"))
+    suite.addTest(load("gatewaytest.helpers"))
+    suite.addTest(load("gatewaytest.user"))
+    suite.addTest(load("gatewaytest.rdefs"))
+    suite.addTest(load("gatewaytest.image"))
+    suite.addTest(load("gatewaytest.annotation"))
+    suite.addTest(load("gatewaytest.connection"))
+    suite.addTest(load("gatewaytest.wrapper"))
+    suite.addTest(load("gatewaytest.z_db_cleanup"))
     return suite
 
 if __name__ == '__main__':
