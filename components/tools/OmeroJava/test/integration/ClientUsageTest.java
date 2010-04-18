@@ -15,20 +15,23 @@ import omero.RString;
 import org.springframework.util.ResourceUtils;
 import org.testng.annotations.Test;
 
+/**
+ * Various uses of the {@link omero.client} object.
+ * All configuration comes from the ICE_CONFIG
+ * environment variable.
+ */
 public class ClientUsageTest extends TestCase {
 
     @Test
     public void testClientClosedAutomatically() throws Exception {
-        File f1 = ResourceUtils.getFile("classpath:local.properties");
-        omero.client client = new omero.client(f1);
+        omero.client client = new omero.client();
         client.createSession();
         client.getSession().closeOnDestroy();
     }
 
     @Test
     public void testClientClosedManually() throws Exception {
-        File f1 = ResourceUtils.getFile("classpath:local.properties");
-        omero.client client = new omero.client(f1);
+        omero.client client = new omero.client();
         client.createSession();
         client.getSession().closeOnDestroy();
         client.closeSession();
@@ -36,8 +39,7 @@ public class ClientUsageTest extends TestCase {
 
     @Test
     public void testUseSharedMemory() throws Exception {
-        File f1 = ResourceUtils.getFile("classpath:local.properties");
-        omero.client client = new omero.client(f1);
+        omero.client client = new omero.client();
         client.createSession();
 
         assertEquals(0, client.getInputKeys().size());
