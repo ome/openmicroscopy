@@ -15,7 +15,7 @@ from omero.plugins.script import ScriptControl
 from omero.plugins.sessions import SessionsControl
 from omero.plugins.upload import UploadControl
 from omero.util.temp_files import create_path
-from test.integration.library import ITest
+from integration.library import ITest
 
 omeroDir = path(os.getcwd()) / "build"
 

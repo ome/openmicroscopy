@@ -10,7 +10,7 @@
 
 import omero
 import unittest
-import test.integration.library as lib
+import integration.library as lib
 
 from omero.rtypes import rstring, rlong
 from omero.util.concurrency import get_event

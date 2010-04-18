@@ -19,8 +19,8 @@ class TopLevel(unittest.TestCase):
 def _additional_tests():
     load = unittest.defaultTestLoader.loadTestsFromName
     suite = unittest.TestSuite()
-    suite.addTest(load("test.tablestest.hdfstorage"))
-    suite.addTest(load("test.tablestest.servants"))
+    suite.addTest(load("tablestest.hdfstorage"))
+    suite.addTest(load("tablestest.servants"))
     return suite
 
 if __name__ == "__main__":

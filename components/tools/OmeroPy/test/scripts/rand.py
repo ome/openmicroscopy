@@ -9,7 +9,7 @@
 
 """
 
-import test.integration.library as lib
+import integration.library as lib
 import omero, tempfile, unittest
 from omero.rtypes import *
 

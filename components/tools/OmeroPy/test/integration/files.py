@@ -11,7 +11,7 @@
 import tempfile
 import unittest
 import omero
-import test.integration.library as lib
+import integration.library as lib
 
 def tmpfile():
     file = tempfile.NamedTemporaryFile()

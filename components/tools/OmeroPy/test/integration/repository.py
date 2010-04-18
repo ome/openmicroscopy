@@ -8,7 +8,7 @@
 
 """
 import unittest, time
-import test.integration.library as lib
+import integration.library as lib
 import omero
 from omero.rtypes import *
 import omero_api_Repository_ice

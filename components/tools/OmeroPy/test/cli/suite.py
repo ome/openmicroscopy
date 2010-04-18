@@ -17,15 +17,15 @@ class TopLevel(unittest.TestCase):
 def additional_tests():
     load = unittest.defaultTestLoader.loadTestsFromName
     suite = unittest.TestSuite()
-    suite.addTest(load("test.cli.admin"))
-    suite.addTest(load("test.cli.args"))
-    suite.addTest(load("test.cli.cli"))
-    suite.addTest(load("test.cli.db"))
-    suite.addTest(load("test.cli.java"))
-    suite.addTest(load("test.cli.node"))
-    suite.addTest(load("test.cli.base"))
-    suite.addTest(load("test.cli.rcode"))
-    suite.addTest(load("test.cli.sess"))
+    suite.addTest(load("cli.admin"))
+    suite.addTest(load("cli.args"))
+    suite.addTest(load("cli.cli"))
+    suite.addTest(load("cli.db"))
+    suite.addTest(load("cli.java"))
+    suite.addTest(load("cli.node"))
+    suite.addTest(load("cli.base"))
+    suite.addTest(load("cli.rcode"))
+    suite.addTest(load("cli.sess"))
     return suite
 
 if __name__ == "__main__":

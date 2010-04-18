@@ -17,11 +17,12 @@ class TopLevel(unittest.TestCase):
 def additional_tests():
     load = unittest.defaultTestLoader.loadTestsFromName
     suite = unittest.TestSuite()
-    suite.addTest(load("test.cli.suite"))
-    suite.addTest(load("test.tablestest.suite"))
-    suite.addTest(load("test.t_model"))
-    suite.addTest(load("test.t_parameters"))
-    suite.addTest(load("test.t_permissions"))
-    suite.addTest(load("test.scripts.harness"))
-    suite.addTest(load("test.processor"))
+    suite.addTest(load("cli.suite"))
+    suite.addTest(load("tablestest.suite"))
+    suite.addTest(load("t_bin"))
+    suite.addTest(load("t_model"))
+    suite.addTest(load("t_parameters"))
+    suite.addTest(load("t_permissions"))
+    suite.addTest(load("scripts.harness"))
+    suite.addTest(load("processor"))
     return suite

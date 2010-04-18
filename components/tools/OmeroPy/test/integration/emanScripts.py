@@ -15,11 +15,11 @@
    
    ** IMPORTANT: Run test from OmeroPy/  **
    
-   PYTHONPATH=/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages/:/opt/Ice-3.3.1/python:.:test:build/lib ICE_CONFIG=/Users/will/Documents/workspace/Omero/etc/ice.config python test/integration/emanScripts.py
+   PYTHONPATH=/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages/:/opt/Ice-3.3.1/python:.:test:build/lib ICE_CONFIG=/Users/will/Documents/workspace/Omero/etc/ice.config python integration/emanScripts.py
    Add E.g.  TestEmanScripts.testRunSpiderProcedure to command to run a single test. 
 """
 import unittest, time
-import test.integration.library as lib
+import integration.library as lib
 import omero
 from omero.rtypes import *
 from omero_model_ExperimenterI import ExperimenterI

@@ -9,7 +9,7 @@
 """
 
 import unittest, os
-import test.integration.library as lib
+import integration.library as lib
 import omero, Ice
 
 here = os.path.abspath( os.path.dirname(__file__) )

@@ -11,7 +11,7 @@
 import time
 import datetime
 import unittest
-import test.integration.library as lib
+import integration.library as lib
 import omero, uuid
 import omero_Constants_ice
 from omero.rtypes import *

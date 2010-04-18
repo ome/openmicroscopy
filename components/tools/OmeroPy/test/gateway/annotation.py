@@ -12,7 +12,7 @@ import unittest
 import time, datetime
 import omero
 
-import test.gateway.library as lib
+import gateway.library as lib
 
 class AnnotationsTest (lib.GTest):
     TESTANN_NS = 'omero.gateway.test_annotation'

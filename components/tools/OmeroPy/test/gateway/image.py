@@ -16,7 +16,7 @@ try:
 except ImportError:
     print "PIL not installed"
 
-import test.gateway.library as lib
+import gateway.library as lib
 
 
 class ImageTest (lib.GTest):

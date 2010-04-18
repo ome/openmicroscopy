@@ -11,7 +11,7 @@
 import unittest
 import omero
 
-import test.gateway.library as lib
+import gateway.library as lib
 
 class UserTest (lib.GTest):
     def testUsers (self):

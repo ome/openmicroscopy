@@ -9,7 +9,7 @@
 
 """
 import unittest, time
-import test.integration.library as lib
+import integration.library as lib
 import omero
 import omero_Constants_ice
 from omero_model_PixelsI import PixelsI

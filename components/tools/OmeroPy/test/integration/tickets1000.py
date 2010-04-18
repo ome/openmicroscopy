@@ -8,7 +8,7 @@
 
 """
 
-import test.integration.library as lib
+import integration.library as lib
 import omero, tempfile, unittest
 from omero_sys_ParametersI import ParametersI
 from omero.rtypes import *

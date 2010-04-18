@@ -8,7 +8,7 @@
 
 """
 
-import test.integration.library as lib
+import integration.library as lib
 from uuid import uuid4 as uuid
 from path import path
 

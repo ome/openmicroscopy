@@ -8,7 +8,7 @@
 
 """
 import unittest
-import test.integration.library as lib
+import integration.library as lib
 import omero
 import omero_api_IRoi_ice
 from omero.rtypes import *

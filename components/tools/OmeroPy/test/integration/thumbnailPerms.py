@@ -11,12 +11,12 @@
    'failureException', 'id', 'login_args', 'new_user', 'query', 'root', 'run', 'setUp', 'sf', 'shortDescription', 'tearDown', 'testfoo', 
    'tmpfile', 'tmpfiles', 'update'
    
-   PYTHONPATH=/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages/:/opt/Ice-3.3.1/python:.:test:build/lib ICE_CONFIG=/Users/will/Documents/workspace/Omero/etc/ice.config python test/integration/thumbnailPerms.py
+   PYTHONPATH=/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages/:/opt/Ice-3.3.1/python:.:test:build/lib ICE_CONFIG=/Users/will/Documents/workspace/Omero/etc/ice.config python integration/thumbnailPerms.py
    
    
 """
 import unittest, time
-import test.integration.library as lib
+import integration.library as lib
 import omero
 from omero.rtypes import rtime, rlong, rstring, rlist, rint
 from omero_model_ExperimenterI import ExperimenterI
