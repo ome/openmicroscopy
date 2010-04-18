@@ -97,13 +97,13 @@ class TestParams(lib.ITest):
         self.run(FILE1)
 
     def test2(self):
-        self.run(FILE1)
+        self.run(FILE2)
 
     def test3(self):
-        self.run(FILE1)
+        self.run(FILE3)
 
     def test4(self):
-        self.run(FILE1)
+        self.run(FILE4)
 
 if __name__ == '__main__':
     unittest.main()

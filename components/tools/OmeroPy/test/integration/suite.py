@@ -40,7 +40,6 @@ def additional_tests():
     suite.addTest(load("integration.rawfilestore"))
     suite.addTest(load("integration.scripts"))
     suite.addTest(load("integration.files"))
-    suite.addTest(load("integration.proj"))
     suite.addTest(load("integration.tickets1000"))
     suite.addTest(load("integration.tickets2000"))
     suite.addTest(load("scripts.suite._additional_tests"))
