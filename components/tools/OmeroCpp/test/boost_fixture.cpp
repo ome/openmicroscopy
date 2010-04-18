@@ -94,13 +94,7 @@ b_ut::unit_test_log_t& Fixture::log() {
 
 omero::client_ptr Fixture::login(const std::string& username, const std::string& password) {
     try {
-	// Here we are passing a reference to the top-level
-	// ice.config since boost seems (Oct.2008) to be unable
-	// to pass that information, whether from the command-line
-	// or the environment.
-	int argc = 1;
-	char* argv[] = {"--Ice.Config=../../../etc/ice.config"};
-        omero::client_ptr client = new omero::client(argc, argv);
+        omero::client_ptr client = new omero::client();
         client->createSession(username, password);
         client->getSession()->closeOnDestroy();
         return client;
