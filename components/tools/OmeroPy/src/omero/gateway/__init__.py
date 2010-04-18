@@ -27,6 +27,9 @@ import traceback
 import time
 import array
 
+import logging
+logger = logging.getLogger('blitz_gateway')
+
 try:
     import Image, ImageDraw, ImageFont
 except:
@@ -37,9 +40,6 @@ from math import sqrt
 import omero_Constants_ice  
 import omero_ROMIO_ice
 from omero.rtypes import rstring, rint, rlong, rbool, rtime
-
-import logging
-logger = logging.getLogger('blitz_gateway')
 
 def omero_type(val):
     """
