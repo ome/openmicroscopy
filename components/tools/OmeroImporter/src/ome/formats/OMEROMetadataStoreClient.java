@@ -273,11 +273,8 @@ public class OMEROMetadataStoreClient
     
     /** Image channel minimums and maximums. */
     private double[][][] imageChannelGlobalMinMax;
-    
-    /** Keep alive runnable, pings all services. */
-    private ClientKeepAlive keepAlive = new ClientKeepAlive();
-    
-    /** Executor that will run our keep alive task. */
+
+	/** Executor that will run our keep alive task. */
     private ScheduledThreadPoolExecutor executor;
     
     /** Emission filter LSID suffix. */
@@ -295,6 +292,18 @@ public class OMEROMetadataStoreClient
     /** The default longest side of a thumbnail in OMERO.insight. */
     private static final int DEFAULT_INSIGHT_THUMBNAIL_LONGEST_SIDE = 96;
 
+    /** Keep alive runnable, pings all services. */
+    private ClientKeepAlive keepAlive = new ClientKeepAlive();
+    
+    /**
+     * Returns clientKeepAlive created in store
+     * 
+     * @return current ClientKeepAlive
+     */
+    public ClientKeepAlive getKeepAlive() {
+		return keepAlive;
+	}
+    
     /**
      * Initialize all services needed
      * 
@@ -3589,6 +3598,12 @@ public class OMEROMetadataStoreClient
 		return names;
 	}
     
+	/**
+	 * Retrieve the default group's name
+	 * 
+	 * @return name
+	 * @throws ServerError
+	 */
 	public String getDefaultGroupName() throws ServerError
 	{
 		ExperimenterGroup currentDefaultGroup = 
@@ -3600,6 +3615,12 @@ public class OMEROMetadataStoreClient
 		return dn;
 	}
 	
+	/**
+	 * Retrieve teh default groups permission 'level'.
+	 * 
+	 * @return ImportEvent's group level
+	 * @throws ServerError
+	 */
 	public int getDefaultGroupLevel() throws ServerError {
 		
 		int groupLevel = 0;

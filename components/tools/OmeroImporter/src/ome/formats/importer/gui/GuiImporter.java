@@ -455,7 +455,7 @@ WindowStateListener, WindowFocusListener
      * 
      * @param s - text to append
      */
-    public void appendToOutput(String s)
+    public synchronized void appendToOutput(String s)
     {
         try
         {
@@ -492,7 +492,7 @@ WindowStateListener, WindowFocusListener
      * 
      * @param s - string to append
      */
-    public void appendToDebug(String s)
+    public synchronized void appendToDebug(String s)
     {
         log.debug(s);
         try
@@ -539,12 +539,7 @@ WindowStateListener, WindowFocusListener
         {
             if (loggedIn == true)
             {
-                setImportEnabled(false);
-                loggedIn = false;
-                appendToOutputLn("> Logged out.");
-                statusBar.setStatusIcon("gfx/server_disconn16.png", "Logged out.");
-                loginHandler.logout();
-                loginHandler = null;
+                logout();
             } else 
             {
                 HistoryTable table = null;
@@ -656,6 +651,17 @@ WindowStateListener, WindowFocusListener
         helpMenu.setEnabled(toggle);
     }
 
+    private void logout()
+    {
+    	setImportEnabled(false);
+        loggedIn = false;
+        appendToOutputLn("> Logged out.");
+        statusBar.setStatusIcon("gfx/server_disconn16.png", "Logged out.");
+        
+        loginHandler.logout();
+        loginHandler = null;
+    }
+    
     /**
      * @return
      */
@@ -670,6 +676,12 @@ WindowStateListener, WindowFocusListener
      */
     public void update(IObservable importLibrary, ImportEvent event)
     {
+    	// Keep alive has failed, call logout
+    	if (event instanceof ImportEvent.LOGGED_OUT)
+    	{
+    		logout();
+    	}
+    	
         if (event instanceof ImportEvent.LOADING_IMAGE)
         {
             ImportEvent.LOADING_IMAGE ev = (ImportEvent.LOADING_IMAGE) event;

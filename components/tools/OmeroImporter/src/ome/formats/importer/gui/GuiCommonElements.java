@@ -197,7 +197,7 @@ public class GuiCommonElements
      * @param debug - turn on/off red debug borders
      * @return new JTextPane
      */
-    public static JTextPane addTextPane(Container container, String text, 
+    public static synchronized JTextPane addTextPane(Container container, String text, 
             String placement, boolean debug)
     {
         StyleContext context = new StyleContext();
@@ -208,7 +208,7 @@ public class GuiCommonElements
 
         try
         {
-            document.insertString(document.getLength(), text, style);
+            document.insertString(document.getLength(), text, null);
         } catch (BadLocationException e)
         {
         	log.error("BadLocationException inserting text to document.");
@@ -239,7 +239,7 @@ public class GuiCommonElements
      * @param debug - turn on/off red debug borders
      * @return new JTextPane
      */
-    public static JTextPane addTextPane(Container container, String text, 
+    public static synchronized JTextPane addTextPane(Container container, String text, 
             String placement, StyleContext context, Style style, boolean debug)
     {
         StyledDocument document = new DefaultStyledDocument(context);

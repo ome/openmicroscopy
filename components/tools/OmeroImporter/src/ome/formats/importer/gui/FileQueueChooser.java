@@ -197,8 +197,10 @@ public class FileQueueChooser extends JFileChooser implements ActionListener
         } 
         catch (ArrayIndexOutOfBoundsException e) {}
         
+        File dir = null;
+        if (config != null)
+        	dir = config.savedDirectory.get();
         
-        File dir = config.savedDirectory.get();
         if (dir != null) {
             this.setCurrentDirectory(dir);
         } else {
@@ -212,9 +214,13 @@ public class FileQueueChooser extends JFileChooser implements ActionListener
         
         setAcceptAllFileFilterUsed(false);
 
-        
-        FileFilter[] originalFF = loci.formats.gui.GUITools.buildFileFilters(scanReader.getImageReader());
-        int readerFFSize = originalFF.length;
+        FileFilter[] originalFF = null;
+        int readerFFSize = 0;
+        if (scanReader != null)
+        {
+	        originalFF = loci.formats.gui.GUITools.buildFileFilters(scanReader.getImageReader());
+	        readerFFSize = originalFF.length;
+        }
 
         FileFilter[] ff = new FileFilter[readerFFSize + 6];
         ff[readerFFSize] = new DashFileFilter();
@@ -224,7 +230,8 @@ public class FileQueueChooser extends JFileChooser implements ActionListener
         ff[readerFFSize + 4] = new D3DOldFileFilter();
         ff[readerFFSize + 5] = new D3DNPrjFileFilter();
 
-        System.arraycopy(originalFF, 0, ff, 0, originalFF.length);
+        if (originalFF != null)
+        	System.arraycopy(originalFF, 0, ff, 0, originalFF.length);
 
         //FileFilter combo = null;
         for (int i = 0; i < ff.length; i++)

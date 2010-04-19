@@ -203,7 +203,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                             viewTop.close();
                             viewer.setVisible(true);
                         }
-
+                        
                         viewer.statusBar.setProgress(false, 0, "");
                         viewer.appendToOutput("> Login Successful.\n");
                         log.info("Login successful!");
@@ -396,6 +396,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         try
         {
             store = config.createStore();
+            (store.getKeepAlive()).addObserver(viewer);
         }
         catch (Exception e)
         {

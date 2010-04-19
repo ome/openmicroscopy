@@ -28,7 +28,12 @@
  */
 package ome.formats.importer.util;
 
+import java.util.ArrayList;
+
 import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.IObservable;
+import ome.formats.importer.IObserver;
+import ome.formats.importer.ImportEvent;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,13 +46,15 @@ import org.apache.commons.logging.LogFactory;
  * @author Chris Allan <callan@glencoesoftware.com>
  *
  */
-public class ClientKeepAlive implements Runnable
+public class ClientKeepAlive implements Runnable, IObservable
 {
     /** Logger for this class. */
     private static Log log = LogFactory.getLog(ClientKeepAlive.class);
     
     /** The connector we're trying to keep alive. */
     private OMEROMetadataStoreClient client;
+    
+    private final ArrayList<IObserver> observers = new ArrayList<IObserver>();
     
     /* (non-Javadoc)
      * @see java.lang.Runnable#run()
@@ -69,6 +76,7 @@ public class ClientKeepAlive implements Runnable
                 "Exception while executing ping(), logging Connector out: ", t);
             try {
                 client.logout();
+                notifyObservers(new ImportEvent.LOGGED_OUT());
             } catch (Exception e) {
                 log.error("Nested error on client.logout() " +
                 		"while handling exception from ping()", e);
@@ -95,6 +103,41 @@ public class ClientKeepAlive implements Runnable
     {
         synchronized (client) {
             this.client = client;
+        }
+    }
+
+    // Observable methods
+    
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObservable#addObserver(ome.formats.importer.IObserver)
+     */
+    public boolean addObserver(IObserver object)
+    {
+        return observers.add(object);
+    }
+    
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObservable#deleteObserver(ome.formats.importer.IObserver)
+     */
+    public boolean deleteObserver(IObserver object)
+    {
+        return observers.remove(object);
+        
+    }
+
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObservable#notifyObservers(ome.formats.importer.ImportEvent)
+     */
+    public void notifyObservers(ImportEvent event)
+    {
+        for (IObserver observer:observers)
+        {
+            try {
+                observer.update(this, event);
+            } catch (Exception e) 
+            {
+                log.error(e);
+            }
         }
     }
 }

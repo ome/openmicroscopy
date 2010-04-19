@@ -142,7 +142,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
 //        refreshBtn.setActionCommand(Actions.REFRESH);
 //        refreshBtn.addActionListener(this);
         
-        addBtn = GuiCommonElements.addBasicButton(">>", addIcon, null);
+        addBtn = GuiCommonElements.addBasicButton(null, addIcon, null);
         addBtn.setMaximumSize(new Dimension(buttonSize, buttonSize));
         addBtn.setPreferredSize(new Dimension(buttonSize, buttonSize));
         addBtn.setMinimumSize(new Dimension(buttonSize, buttonSize));
@@ -150,7 +150,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
         addBtn.setActionCommand(FileQueueHandler.ADD);
         addBtn.addActionListener(this);
         
-        removeBtn = GuiCommonElements.addBasicButton("<<", removeIcon, null);
+        removeBtn = GuiCommonElements.addBasicButton(null, removeIcon, null);
         removeBtn.setMaximumSize(new Dimension(buttonSize, buttonSize));
         removeBtn.setPreferredSize(new Dimension(buttonSize, buttonSize));
         removeBtn.setMinimumSize(new Dimension(buttonSize, buttonSize));
@@ -564,7 +564,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
     	Icon groupIcon = null;
     	
     	if (groupLevel == ImportEvent.GROUP_PUBLIC)
-    		groupIcon = icons.getIcon(IconManager.PRIVATE_GROUP);
+    		groupIcon = icons.getIcon(IconManager.PUBLIC_GROUP);
     	if (groupLevel == ImportEvent.GROUP_COLLAB_READ)
     		groupIcon = icons.getIcon(IconManager.READ_GROUP);
     	if (groupLevel == ImportEvent.GROUP_COLLAB_READ_LINK)
