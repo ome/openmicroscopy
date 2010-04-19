@@ -233,18 +233,18 @@ function gs_text_trim (text, length, hyst, nobreakline, snl) {
  * Grabs details for a specific image and prepares a bunch of links.
  */
 function gs_getResultLineLinks (data, baseurl, renderurl) {
-  if (data === null || data.dataset_id === null || data.project_id === null) {
+  if (data === null || data.datasetId === null || data.projectId === null) {
     return null;
   }
   if (renderurl == null) {
     renderurl = baseurl;
   }
   return {
-    figure: baseurl+'browse/'+data.project_id+'/'+data.dataset_id+'/',
-    img: baseurl+'browse/'+data.project_id+'/'+data.dataset_id+'/'+data.image_id+'/',
-    thumb: renderurl+'render_thumbnail/'+data.image_id+'/',
-    viewer: baseurl+'img_detail/'+data.image_id+'/'+data.dataset_id+'/',
-    paper: baseurl+'browse/'+data.project_id+'/',
+    figure: baseurl+'browse/'+data.projectId+'/'+data.datasetId+'/',
+    img: baseurl+'browse/'+data.projectId+'/'+data.datasetId+'/'+data.imageId+'/',
+    thumb: renderurl+'render_thumbnail/'+data.imageId+'/',
+    viewer: baseurl+'img_detail/'+data.imageId+'/'+data.datasetId+'/',
+    paper: baseurl+'browse/'+data.projectId+'/',
     fv_click: function (did, iid) {
       return function () {
         gs_popViewer(did, iid, baseurl);
@@ -258,14 +258,14 @@ function gs_getResultLineLinks (data, baseurl, renderurl) {
  * Grabs details for a specific image and prepares add a DOM node and descendants for search results like l&f.
  */
 function gs_showResultLine (container, data, baseurl, renderurl) {
-  if (data === null || data.dataset_id === null || data.project_id === null) {
+  if (data === null || data.datasetId === null || data.projectId === null) {
     return null;
   }
   var result = jQuery('<div class="search-result">').appendTo(container);
   var head = jQuery('<div class="search-result-header">').appendTo(result);
   data['links'] = gs_getResultLineLinks(data, baseurl, renderurl);
   head.append('<a href="'+data.links.paper+'">- '+data.project+' -</a>');
-  head.append('<div class="detail">'+gs_text_trim(data.project_description,100)+'</div>');
+  head.append('<div class="detail">'+gs_text_trim(data.projectDescription,100)+'</div>');
   head.append('<a href="'+data.links.img+'"><img src="'+data.links.thumb+'" /></a>');
   var detail = jQuery('<div class="search-result-detail">').appendTo(result);
   detail.append('<a href="'+data.links.img+'" alt="Open complete figure">'+data.dataset+' : '+data.name+'</a>');
@@ -273,7 +273,7 @@ function gs_showResultLine (container, data, baseurl, renderurl) {
   var foot = jQuery('<div class="search-result-footnotes"><span> [ </span></div>').appendTo(result);
   var fv = jQuery('<a href="'+data.links.viewer+'" alt="Open Full Viewer">Full Viewer</a>').appendTo(foot);
   foot.append('&nbsp;<a href="'+data.links.paper+'" alt="Paper">Paper</a>&nbsp;');
-  fv.click(data.links.fv_click(data.dataset_id, data.image_id));
+  fv.click(data.links.fv_click(data.datasetId, data.imageId));
   foot.append('<a href="'+data.links.figure+'" alt="Figure">Figure</a>&nbsp;');
   foot.append('<span>] by <i>'+data.author+'</i> - <i>'+data.timestamp+'</i></span>');
   return result;
