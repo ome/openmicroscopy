@@ -207,7 +207,44 @@ class BlitzObjectWrapper (object):
 
     def canOwnerWrite (self):
         return self._obj.details.permissions.isUserWrite()
-
+    
+    def isOwned(self):
+        return (self._obj.details.owner.id.val == self._conn.getEventContext().userId)
+    
+    def isLeaded(self):
+        if self._obj.details.group.id.val in self._conn.getEventContext().leaderOfGroups:
+            return True
+        return False
+    
+    def isEditable(self):
+        if self.isOwned() or not self.isReadOnly():
+            return True
+        return False
+    
+    def isPublic(self):
+        if self._obj.details.permissions.isWorldRead():
+            return True
+        return False
+    
+    def isShared(self):
+        if self._obj.details.permissions.isGroupRead():
+            return True
+        return False
+    
+    def isPrivate(self):
+        if self._obj.details.permissions.isUserRead():
+            return True
+        return False
+    
+    def isReadOnly(self):
+        if self.isPublic() and not self._obj.details.permissions.isWorldWrite():
+            return True
+        elif self.isShared() and not self._obj.details.permissions.isGroupWrite():
+            return True
+        elif self.isPrivate() and not self._obj.details.permissions.isUserWrite():
+            return True
+        return False
+    
     #@timeit
     #def getUID (self):
     #    p = self.listParents()
@@ -2090,6 +2127,23 @@ class BooleanAnnotationWrapper (AnnotationWrapper):
 
 AnnotationWrapper._register(BooleanAnnotationWrapper)
 
+from omero_model_TagAnnotationI import TagAnnotationI
+
+class TagAnnotationWrapper (AnnotationWrapper):
+    """
+    omero_model_BooleanAnnotationI class wrapper extends AnnotationWrapper.
+    """
+    
+    OMERO_TYPE = TagAnnotationI
+
+    def getValue (self):
+        return self._obj.textValue.val
+
+    def setValue (self, val):
+        self._obj.tectValue = rbool(not not val)
+
+AnnotationWrapper._register(TagAnnotationWrapper)
+
 from omero_model_CommentAnnotationI import CommentAnnotationI
 
 class CommentAnnotationWrapper (AnnotationWrapper):
@@ -2137,6 +2191,9 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
 
     def __bstrap__ (self):
         self.OMERO_CLASS = 'Experimenter'
+        self.LINK_CLASS = "copyGroupExperimenterMap"
+        self.CHILD_WRAPPER_CLASS = None
+        self.PARENT_WRAPPER_CLASS = 'ExperimenterGroupWrapper'
 
     def simpleMarshal (self, xtra=None, parents=False):
         rv = super(_ExperimenterWrapper, self).simpleMarshal(xtra=xtra, parents=parents)
@@ -2233,7 +2290,36 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         except:
             logger.error(traceback.format_exc())
             return None
-
+    
+    def getNameWithInitial(self):
+        try:
+            if self.firstName is not None and self.lastName is not None:
+                name = "%s. %s" % (self.firstName[:1], self.lastName)
+            else:
+                name = self.omeName
+            return name
+        except:
+            logger.error(traceback.format_exc())
+            return _("Unknown name")
+    
+    def isAdmin(self):
+        for ob in self._obj.copyGroupExperimenterMap():
+            if ob.parent.name.val == "system":
+                return True
+        return False
+    
+    def isActive(self):
+        for ob in self._obj.copyGroupExperimenterMap():
+            if ob.parent.name.val == "user":
+                return True
+        return False
+    
+    def isGuest(self):
+        for ob in self._obj.copyGroupExperimenterMap():
+            if ob.parent.name.val == "guest":
+                return True
+        return False
+    
 ExperimenterWrapper = _ExperimenterWrapper
 
 class _ExperimenterGroupWrapper (BlitzObjectWrapper):
@@ -2241,7 +2327,11 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
     omero_model_ExperimenterGroupI class wrapper extends BlitzObjectWrapper.
     """
     
-    pass
+    def __bstrap__ (self):
+        self.OMERO_CLASS = 'ExperimenterGroup'
+        self.LINK_CLASS = "copyGroupExperimenterMap"
+        self.CHILD_WRAPPER_CLASS = 'ExperimenterWrapper'
+        self.PARENT_WRAPPER_CLASS = None
 
 ExperimenterGroupWrapper = _ExperimenterGroupWrapper
 
@@ -2631,6 +2721,12 @@ class _ImageWrapper (BlitzObjectWrapper):
                     rv['thumb_url'] = xtra['thumbUrlPrefix'] + str(self.id) + '/'
         return rv
 
+    def getStageLabel (self):
+        if self._obj.stageLabel is None:
+            return None
+        else:
+            return ImageStageLabelWrapper(self._conn, self._obj.stageLabel)
+    
     def shortname(self, length=20, hist=5):
         name = self.name
         if not name:
@@ -2741,13 +2837,13 @@ class _ImageWrapper (BlitzObjectWrapper):
                             if len(l) < 1:
                                 l = None
                             else:
-                                l = l.split("=")                            
+                                l = tuple(l.split("="))
                             if l is not None:
                                 if flag == 1:
                                     global_metadata.append(l)
                                 elif flag == 2:
                                     series_metadata.append(l)
-        return (global_metadata.sort(), series_metadata.sort())
+        return (a, (global_metadata), (series_metadata))
     
     def getThumbnail (self, size=(64,64), z=None, t=None):
         try:
@@ -3230,6 +3326,11 @@ class _ImageWrapper (BlitzObjectWrapper):
 ImageWrapper = _ImageWrapper
 
 ## INSTRUMENT AND ACQUISITION ##
+
+class _ImageStageLabelWrapper (BlitzObjectWrapper):
+    pass
+
+ImageStageLabelWrapper = _ImageStageLabelWrapper
 
 class _ImagingEnviromentWrapper (BlitzObjectWrapper):
     """

@@ -136,7 +136,7 @@
                             <ul style="overflow: visible; display: block;">
                                 <li class="line"> </li>
                                 <li id='img-{{ manager.image.id }}' class="doc-last">
-                                    <span>{{ manager.image.shortName }}</span>
+                                    <span>{{ manager.image.truncateNameForTree }}</span>
                                     {% if not manager.image.isOwned %}<img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>{% endif %}
                                 </li>
                                 <li class="line-last"/>
@@ -158,7 +158,7 @@
                     <ul style="overflow: visible; display: block;">
                         <li class="line"> </li>
                         <li id='img-{{ manager.image.id }}' class="doc-last">
-                            <span>{{ manager.image.shortName }}</span> 
+                            <span>{{ manager.image.truncateNameForTree }}</span> 
                             {% if not manager.image.isOwned %}<img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>{% endif %}
                         </li>
                         <li class="line-last"/>
@@ -169,7 +169,7 @@
             {% else %}
                 <li class="line"> </li>
                 <li id='img-{{ manager.image.id }}' class="doc-last">
-                    <span>{{ manager.image.shortName }}</span> 
+                    <span>{{ manager.image.truncateNameForTree }}</span> 
                     {% if not manager.image.isOwned %}<img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>{% endif %}
                 </li>
             {% endif %}

@@ -206,17 +206,10 @@ class BaseCalendar(BaseController):
             if len(obj_logs[cal_type]) > 0 :
                 
                 obj_ids = [ob.id for ob in obj_logs[cal_type]]
-                obj_child_counter = None
-                if cal_type == 'project':
-                    obj_child_counter = self.conn.getCollectionCount(cal_type.title(), "datasetLinks", obj_ids)
-                elif cal_type == 'dataset':
-                    obj_child_counter = self.conn.getCollectionCount(cal_type.title(), "imageLinks", obj_ids)
                 obj_annotation_counter = self.conn.getCollectionCount(cal_type.title(), "annotationLinks", obj_ids)
                 
                 obj_list_with_counters = list()
                 for obj in obj_logs[cal_type]:
-                    if obj_child_counter is not None:
-                        obj.child_counter = obj_child_counter.get(obj.id)
                     obj.annotation_counter = obj_annotation_counter.get(obj.id)
                     obj_list_with_counters.append(obj)
                     
@@ -235,21 +228,17 @@ class BaseCalendar(BaseController):
                 
                 pr_ids = [pr.id for pr in obj_logs['project']]
                 if len(pr_ids) > 0:
-                    pr_child_counter = self.conn.getCollectionCount("Project", "datasetLinks", pr_ids)
                     pr_annotation_counter = self.conn.getCollectionCount("Project", "annotationLinks", pr_ids)
                     
                     for pr in obj_logs['project']:
-                        pr.child_counter = pr_child_counter.get(pr.id)
                         pr.annotation_counter = pr_annotation_counter.get(pr.id)
                         pr_list_with_counters.append(pr)
                     
                 ds_ids = [ds.id for ds in obj_logs['dataset']]
                 if len(ds_ids) > 0:
-                    ds_child_counter = self.conn.getCollectionCount("Dataset", "imageLinks", ds_ids)
                     ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
 
                     for ds in obj_logs['dataset']:
-                        ds.child_counter = ds_child_counter.get(ds.id)
                         ds.annotation_counter = ds_annotation_counter.get(ds.id)
                         ds_list_with_counters.append(ds)
                 

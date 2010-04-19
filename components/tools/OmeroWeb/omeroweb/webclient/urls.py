@@ -81,8 +81,6 @@ urlpatterns = patterns('',
     url( r'^action/(?P<action>[a-zA-Z]+)/(?:(?P<o_type>[a-zA-Z]+)/)?(?:(?P<o_id>[0-9]+)/)?$', views.manage_action_containers, name="manage_action_containers" ),
     url( r'^annotation/(?P<action>[a-zA-Z]+)/(?P<iid>[0-9]+)/$', views.download_annotation, name="download_annotation" ),
     
-    url( r'^metadata/(?P<o_type>[a-zA-Z]+)/(?P<o_id>[0-9]+)/$', views.manage_metadata, name="manage_metadata" ),
-    
     url( r'^tag/(?:(?P<tid>[0-9]+)/)?(?:(?P<tid2>[0-9]+)/)?(?:(?P<tid3>[0-9]+)/)?(?:(?P<tid4>[0-9]+)/)?(?:(?P<tid5>[0-9]+)/)?$', views.manage_data_by_tag, name="manage_data_by_tag" ),
     url( r'^autocompletetags/$', views.autocomplete_tags, name="autocomplete_tags" ),
     

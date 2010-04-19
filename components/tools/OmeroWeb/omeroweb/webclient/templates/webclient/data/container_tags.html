@@ -135,7 +135,8 @@
             <tr>
                 {% for t in manager.tags %}
                 <td>{% if t %}
-                    <span id="tagdesc{{ t.id }}" title="{{ t.textValue }} - <small>{{ t.description|default_if_none:"no description"|safe|linebreaks  }}</small>"><a>{{ t.shortTag }}</a></span>{% if not t.isOwned %}<img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %} {% if t.isEditable %}<a href="{% url manage_action_containers "edit" "tag" t.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}
+                    <span id="tagdesc{{ t.id }}" title="{{ t.textValue }} - <small>{{ t.description|default_if_none:"no description"|safe|linebreaks  }}</small>"><a>{{ t.shortTag }}</a></span>{% if not t.isOwned %}<img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %} {% if t.isOwned
+ %}<a href="{% url manage_action_containers "edit" "tag" t.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}
                 {% else %}
                     <ul class="errorlist"><li>{% trans "This tag does not exist." %}</li></ul>
                 {% endif %}</td><td> </td>

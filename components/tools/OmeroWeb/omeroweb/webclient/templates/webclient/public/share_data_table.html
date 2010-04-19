@@ -33,7 +33,7 @@
                     {% endif %}
                 {% endifequal %}
             </a></td> 
-            <td><a href="{% url manage_share "view" c.id %}">{{ c.shortMessage }}</a> {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.annotation_counter }}]{% endif %} {% if c.child_counter %}<img src="{% url webstatic "images/kuser16.png" %}" alt="ms" title="members"/>[{{ c.child_counter }}]{% endif %} <a href="{% url manage_share "view" c.id %}" target="metadata_details"><img src="{% url webstatic "images/info16.png" %}" alt="i" title="click to get metadata"/></a></td> 
+            <td><a href="{% url manage_share "view" c.id %}">{{ c.shortMessage }}</a> {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.annotation_counter }}]{% endif %} <a href="{% url manage_share "view" c.id %}" target="metadata_details"><img src="{% url webstatic "images/info16.png" %}" alt="i" title="click to get metadata"/></a></td> 
         </tr> 
         {% endfor %}
     </tbody> 
@@ -70,7 +70,7 @@
                     {% endif %}
                 {% endifequal %}
             </a></td> 
-            <td><a href="{% url manage_share "view" c.id %}">{{ c.shortMessage }}</a> {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.annotation_counter }}]{% endif %} {% if c.child_counter %}<img src="{% url webstatic "images/kuser16.png" %}" alt="ms" title="members"/>[{{ c.child_counter }}]{% endif %} <a href="{% url manage_share "view" c.id %}" target="metadata_details"><img src="{% url webstatic "images/info16.png" %}" alt="i" title="click to get metadata"/></a></td> 
+            <td><a href="{% url manage_share "view" c.id %}">{{ c.shortMessage }}</a> {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.annotation_counter }}]{% endif %} <a href="{% url manage_share "view" c.id %}" target="metadata_details"><img src="{% url webstatic "images/info16.png" %}" alt="i" title="click to get metadata"/></a></td> 
         </tr> 
         {% endfor %}
     </tbody> 

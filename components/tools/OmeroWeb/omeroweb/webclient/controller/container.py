@@ -99,20 +99,11 @@ class BaseContainer(BaseController):
             if self.dataset._obj is None:
                 raise AttributeError("We are sorry, but that dataset does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
         elif o1_type == "image":
-            if metadata:
-                self.image = self.conn.getImageWithMetadata(o1_id)
-                if self.image is None:
-                    raise AttributeError("We are sorry, but that image does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
-                if self.image._obj is None:
-                    raise AttributeError("We are sorry, but that image does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
-                else:
-                    self.image._loadPixels()
-            else:
-                self.image = self.conn.getImage(o1_id)
-                if self.image is None:
-                    raise AttributeError("We are sorry, but that image does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
-                if self.image._obj is None:
-                    raise AttributeError("We are sorry, but that image does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
+            self.image = self.conn.getImage(o1_id)
+            if self.image is None:
+                raise AttributeError("We are sorry, but that image does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
+            if self.image._obj is None:
+                raise AttributeError("We are sorry, but that image does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")                
         elif o1_type == "tag":
             self.tag = self.conn.getTagAnnotation(o1_id)
         elif o1_type == "url":
@@ -134,44 +125,11 @@ class BaseContainer(BaseController):
         # TODO: hardcoded values.
         self.global_metadata = list()
         self.series_metadata = list()
-        if self.image is not None:
-            for a in self.image.listAnnotations():
-                if isinstance(a._obj, FileAnnotationI) and a.isOriginalMetadata():
-                    self.original_metadata = a
-                    temp_file = a.getFile().split('\n')
-                    flag = None
-                    for l in temp_file:
-                        if l.startswith("[GlobalMetadata]"):
-                            flag = 1
-                        elif l.startswith("[SeriesMetadata]"):
-                            flag = 2
-                        else:
-                            l = self.formatMetadataLine(l)
-                            if l is not None:
-                                if flag == 1:
-                                    self.global_metadata.append(l)
-                                elif flag == 2:
-                                    self.series_metadata.append(l)
-        elif self.well is not None:
-            for a in self.well.selectedWellSample().image().listAnnotations():
-                if isinstance(a._obj, FileAnnotationI) and a.isOriginalMetadata():
-                    self.original_metadata = a
-                    temp_file = a.getFile(a.file.id.val, a.file.size.val).split('\n')
-                    flag = None
-                    for l in temp_file:
-                        if l.startswith("[GlobalMetadata]"):
-                            flag = 1
-                        elif l.startswith("[SeriesMetadata]"):
-                            flag = 2
-                        else:
-                            l = self.formatMetadataLine(l)
-                            if l is not None:
-                                if flag == 1:
-                                    self.global_metadata.append(l)
-                                elif flag == 2:
-                                    self.series_metadata.append(l)
-        self.global_metadata.sort()
-        self.series_metadata.sort()
+        if self.image is not None or self.well.selectedWellSample().image is not None:
+            om = self.image.loadOriginalMetadata()
+            self.original_metadata = om[0]
+            self.global_metadata = sorted(om[1])
+            self.series_metadata = sorted(om[2])
 
     def channelMetadata(self):
         try:
@@ -181,82 +139,6 @@ class BaseContainer(BaseController):
                 self.channel_metadata = self.well.selectedWellSample().image().getChannels()
         except:
             self.channel_metadata = list()
-    
-    def saveMetadata(self, matadataType, metadataValue):
-        metadata_rtype = {
-            # ObjectiveSettings
-            'correctionCollar':('double', 'ObjectiveSettings'), 'medium':('int', 'ObjectiveSettings', 'MediumI'), 
-            'refractiveIndex':('double', 'ObjectiveSettings'),
-            
-            # Objective
-            'correction':('int', 'Objective', 'CorrectionI'), 'calibratedMagnification':('double', 'Objective'), 'immersion':('int', 'Objective', 'ImmersionI'), 
-            'iris':['bool', 'Objective'], 'lensNA':('double', 'Objective'), 'manufacturer':('string', 'Objective'), 'model':('string', 'Objective'), 
-            'nominalMagnification':('int', 'Objective'), 'serialNumber':('string', 'Objective'), 'workingDistance':('double', 'Objective'),
-            
-            # ImagingEnvironment
-            'airPressure':('int', 'ImagingEnvironment'), 'co2percent':('double', 'ImagingEnvironment'), 'humidity':('double', 'ImagingEnvironment'), 
-            'temperature':('double', 'ImagingEnvironment'),
-            
-            # StageLabel
-            'positionx':('double', 'StageLabel'), 'positiony':('double', 'StageLabel'), 'positionz':('double', 'StageLabel')
-        }
-        
-        metadataFamily = metadata_rtype.get(matadataType)[1]
-        m_rtype = metadata_rtype.get(matadataType)[0]
-        enum = None
-        try:
-            m_class = metadata_rtype.get(matadataType)[2]
-            m_name = matadataType[0].upper()+matadataType[1:]
-            if m_class is not None:
-                enum = self.conn.getEnumeration(m_class, metadataValue)
-        except:
-            pass
-        
-        meta = getattr(self.image, "get"+metadataFamily)()
-        if meta is not None and meta._obj.__dict__.has_key("_"+matadataType):
-            if enum is not None:
-                setattr(meta._obj, matadataType, enum)
-                self.conn.saveObject(meta._obj)
-            else:
-                if metadataValue == "":
-                    setattr(meta._obj, matadataType, None)
-                    self.conn.saveObject(meta._obj)
-                else:
-                    try:
-                        if m_rtype == 'int':
-                            setattr(meta._obj, matadataType, rint(int(metadataValue)))
-                        elif m_rtype == 'float':
-                            setattr(meta._obj, matadataType, rfloat(float(metadataValue)))
-                        elif m_rtype == 'double':
-                            setattr(meta._obj, matadataType, rdouble(float(metadataValue)))
-                        elif m_rtype == 'string':
-                            setattr(meta._obj, matadataType, rstring(str(metadataValue)))
-                        elif m_rtype == 'bool':
-                            setattr(meta._obj, matadataType, rbool(bool(metadataValue.lower())))
-                        else:
-                            raise "Cannot save the metadata"
-                        self.conn.saveObject(meta._obj)
-                    except:
-                        raise
-        else:
-            pass
-    
-    def buildBreadcrumb(self, menu):
-        if menu == 'new' or menu == 'addnew':
-            self.eContext['breadcrumb'] = ['New container']
-        elif menu == 'edit' or menu == 'save':
-            if self.project is not None:
-                self.eContext['breadcrumb'] = ['Edit project: %s' % (self.project.breadcrumbName())]
-            elif self.dataset is not None:
-                self.eContext['breadcrumb'] = ['Edit dataset: %s' % (self.dataset.breadcrumbName())]
-            elif self.screen is not None:
-                self.eContext['breadcrumb'] = ['Edit screen: %s' % (self.screen.breadcrumbName())]
-            elif self.plate is not None:
-                self.eContext['breadcrumb'] = ['Edit plate: %s' % (self.plate.breadcrumbName())]
-            elif self.image is not None:
-                self.eContext['breadcrumb'] = ['Edit image: %s' % (self.image.breadcrumbName())]
-            elif self.tag is not None:
-                self.eContext['breadcrumb'] = ['Edit tag: %s' % (self.tag.breadcrumbName())] 
     
     def loadDataByTag(self):
         tagids = list()
@@ -274,21 +156,17 @@ class BaseContainer(BaseController):
         
         pr_ids = [pr.id for pr in pr_list]
         if len(pr_ids) > 0:
-            pr_child_counter = self.conn.getCollectionCount("Project", "datasetLinks", pr_ids)
             pr_annotation_counter = self.conn.getCollectionCount("Project", "annotationLinks", pr_ids)
             
             for pr in pr_list:
-                pr.child_counter = pr_child_counter.get(pr.id)
                 pr.annotation_counter = pr_annotation_counter.get(pr.id)
                 pr_list_with_counters.append(pr)
         
         ds_ids = [ds.id for ds in ds_list]
         if len(ds_ids) > 0:
-            ds_child_counter = self.conn.getCollectionCount("Dataset", "imageLinks", ds_ids)
             ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
             
             for ds in ds_list:
-                ds.child_counter = ds_child_counter.get(ds.id)
                 ds.annotation_counter = ds_annotation_counter.get(ds.id)
                 ds_list_with_counters.append(ds)
         
@@ -335,11 +213,9 @@ class BaseContainer(BaseController):
         
         ds_ids = [ds.id for ds in ds_list]
         if len(ds_ids) > 0:
-            ds_child_counter = self.conn.getCollectionCount("Dataset", "imageLinks", ds_ids)
             ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
         
             for ds in ds_list:
-                ds.child_counter = ds_child_counter.get(ds.id)
                 ds.annotation_counter = ds_annotation_counter.get(ds.id)
                 ds_list_with_counters.append(ds)
         
@@ -487,37 +363,30 @@ class BaseContainer(BaseController):
             pr_annotation_counter = self.conn.getCollectionCount("Project", "annotationLinks", pr_ids)
             
             for pr in pr_list:
-                pr.child_counter = len(pr.copyDatasetLinks())
                 pr.annotation_counter = pr_annotation_counter.get(pr.id)
                 pr_list_with_counters.append(pr)
                 
         ds_ids = [ds.id for ds in ds_list]
         if len(ds_ids) > 0:
-            ds_child_counter = self.conn.getCollectionCount("Dataset", "imageLinks", ds_ids)
             ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
             
             for ds in ds_list:
-                ds.child_counter = ds_child_counter.get(ds.id)
                 ds.annotation_counter = ds_annotation_counter.get(ds.id)
                 ds_list_with_counters.append(ds)
         
         sc_ids = [sc.id for sc in sc_list]
         if len(sc_ids) > 0:
-            sc_child_counter = self.conn.getCollectionCount("Screen", "plateLinks", sc_ids)
             sc_annotation_counter = self.conn.getCollectionCount("Screen", "annotationLinks", sc_ids)
 
             for sc in sc_list:
-                sc.child_counter = sc_child_counter.get(sc.id)
                 sc.annotation_counter = sc_annotation_counter.get(sc.id)
                 sc_list_with_counters.append(sc)
 
         pl_ids = [pl.id for pl in pl_list]
         if len(pl_ids) > 0:
-            pl_child_counter = {}#self.conn.getCollectionCount("Plate", "wellLinks", ds_ids)
             pl_annotation_counter = self.conn.getCollectionCount("Plate", "annotationLinks", ds_ids)
 
             for pl in pl_list:
-                pl.child_counter = pl_child_counter.get(pl.id)
                 pl.annotation_counter = pl_annotation_counter.get(pl.id)
                 pl_list_with_counters.append(pl)
                 

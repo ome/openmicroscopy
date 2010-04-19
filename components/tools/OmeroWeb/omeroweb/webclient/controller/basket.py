@@ -38,12 +38,6 @@ class BaseBasket(BaseController):
     def __init__(self, conn, **kw):
         BaseController.__init__(self, conn)
 
-    def buildBreadcrumb(self, menu=None):
-        if menu is not None:
-            self.eContext['breadcrumb'] = ['<a href="%s">Basket</a>' % (reverse("basket_action")), menu[2:len(menu)].title()]
-        else:
-            self.eContext['breadcrumb'] = ['Basket']
-    
     def load_basket(self, request):
         imInBasket = list()
         dsInBasket = list()

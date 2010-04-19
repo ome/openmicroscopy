@@ -75,24 +75,20 @@ class BaseSearch(BaseController):
                 ds_list = list(self.conn.searchDatasets(query, created))
                 
                 ds_ids = [ds.id for ds in ds_list]
-                ds_child_counter = self.conn.getCollectionCount("Dataset", "imageLinks", ds_ids)
                 ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
 
                 ds_list_with_counters = list()
                 for ds in ds_list:
-                    ds.child_counter = ds_child_counter.get(ds.id)
                     ds.annotation_counter = ds_annotation_counter.get(ds.id)
                     ds_list_with_counters.append(ds)
             elif ot == 'projects':
                 pr_list = list(self.conn.searchProjects(query, created))
                 
                 pr_ids = [pr.id for pr in pr_list]
-                pr_child_counter = self.conn.getCollectionCount("Project", "datasetLinks", pr_ids)
                 pr_annotation_counter = self.conn.getCollectionCount("Project", "annotationLinks", pr_ids)
 
                 pr_list_with_counters = list()
                 for pr in pr_list:
-                    pr.child_counter = pr_child_counter.get(pr.id)
                     pr.annotation_counter = pr_annotation_counter.get(pr.id)
                     pr_list_with_counters.append(pr)
             elif ot == 'plates':
@@ -108,12 +104,10 @@ class BaseSearch(BaseController):
                 sc_list = list(self.conn.searchScreens(query, created))
                 
                 sc_ids = [sc.id for sc in sc_list]
-                sc_child_counter = self.conn.getCollectionCount("Screen", "plateLinks", sc_ids)
                 sc_annotation_counter = self.conn.getCollectionCount("Screen", "annotationLinks", sc_ids)
 
                 sc_list_with_counters = list()
                 for sc in sc_list:
-                    sc.child_counter = sc_child_counter.get(sc.id)
                     sc.annotation_counter = sc_annotation_counter.get(sc.id)
                     sc_list_with_counters.append(sc)
             

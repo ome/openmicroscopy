@@ -56,7 +56,7 @@
           </td>
           <td class="link">{{ dict.experimenter.getFullName }}</td>
           <td class="link">{{ dict.experimenter.omeName }}</td>
-          <td class="desc">{{ dict.experimenter.shortInstitution|default_if_none:"-" }}</td>
+          <td class="desc">{{ dict.experimenter.truncateInstitution|default_if_none:"-" }}</td>
           <td class="roles">
               {% if dict.admin %}<img src="{% url webstatic "images/admin.png" %}" alt="admin" title="admin"> {% endif %}
               {% if dict.guest %}<img src="{% url webstatic "images/guest.png" %}" alt="guest" title="guest"> {% endif %}

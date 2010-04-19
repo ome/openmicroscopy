@@ -142,11 +142,9 @@ class BaseShare(BaseController):
         
         own_ids = [sh.id for sh in own_list]
         if len(own_ids) > 0:
-            osh_child_counter = self.conn.getMemberCount(own_ids)
             osh_annotation_counter = self.conn.getCommentCount(own_ids)
             
             for sh in own_list:
-                sh.child_counter = osh_child_counter.get(sh.id)-1
                 sh.annotation_counter = osh_annotation_counter.get(sh.id)
                 os_list_with_counters.append(sh)
             
@@ -155,11 +153,9 @@ class BaseShare(BaseController):
             
         mem_ids = [sh.id for sh in mem_list]
         if len(mem_ids) > 0:
-            msh_child_counter = self.conn.getMemberCount(mem_ids)
             msh_annotation_counter = self.conn.getCommentCount(mem_ids)
             
             for sh in mem_list:
-                sh.child_counter = msh_child_counter.get(sh.id)-1
                 sh.annotation_counter = msh_annotation_counter.get(sh.id)
                 ms_list_with_counters.append(sh)
             

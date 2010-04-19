@@ -217,7 +217,7 @@
                 {% for tann in text_annotations %}
                 <div id="ann_comment_wrapper">
                     <div class="avatar"><img src="{% url load_photo tann.details.owner.id.val %}" alt="{{ tann.getOwnerFullName }}" title="{{ tann.getOwnerFullName }}" width="40" height="40" /></div>
-                    <div class="ann_comment"><span class="ann_comment_header">{{ tann.getOwnerFullName }} posted comment at {{ tann.creationEventDate|date:"Y-m-d H:i:s" }}</span> {% if tann.isEditable %}<a href="{% url manage_action_containers "edit" "comment" tann.id %}?url={{ url }}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}<br/>
+                    <div class="ann_comment"><span class="ann_comment_header">{{ tann.getOwnerFullName }} posted comment at {{ tann.creationEventDate|date:"Y-m-d H:i:s" }}</span><br/>
                         {{ tann.textValue|safe|linebreaks }}
                     </div>
                 </div>
@@ -247,7 +247,7 @@
             {% if fileannSize %}
             <div class="lnfiles">
                 {% for fileann in file_annotations %}
-                <p>{{ fileann.getFileName }} ({{ fileann.getFileSize|default_if_none:0|filesizeformat }}) by {{ fileann.getDetails.getOwner.getInitialName }} at {{ fileann.creationEventDate|date:"Y-m-d H:i:s" }}</p>
+                <p>{{ fileann.getFileName }} ({{ fileann.getFileSize|default_if_none:0|filesizeformat }}) by {{ fileann.getDetails.getOwner.getNameWithInitial }} at {{ fileann.creationEventDate|date:"Y-m-d H:i:s" }}</p>
                 {% endfor %}
             </ol>
             </div>

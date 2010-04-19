@@ -51,14 +51,6 @@ class BaseAnnotation(BaseController):
                 if self.tag is None:
                     raise AttributeError("We are sorry, but that tag does not exist, or if it does, you have no permission to see it.")
     
-    def buildBreadcrumb(self, action):
-        if self.comment is not None:
-            self.eContext['breadcrumb'] = ['Edit: comment']
-        elif self.url is not None:
-            self.eContext['breadcrumb'] = ['Edit: URL']
-        elif self.tag is not None:
-            self.eContext['breadcrumb'] = ['Edit: %s' % self.tag.breadcrumbName()]
-    
     def saveCommentAnnotation(self, content):
         ann = self.comment._obj
         ann.textValue = rstring(str(content))

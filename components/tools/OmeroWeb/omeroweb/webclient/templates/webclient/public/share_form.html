@@ -101,7 +101,8 @@
                 {% if cm.isOwned %}
                     <div id="comment_wrapper">
                     <div id="comment">
-                        <div class="head">{{ cm.getOwnerFullName }} {% trans "posted comment at" %} {{ cm.creationEventDate|date:"Y-m-d H:i:s" }} {% if cm.isEditable %}<a href="{% url manage_action_containers "edit" "comment" cm.id %}?url={{ url }}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}</div>
+                        <div class="head">{{ cm.getOwnerFullName }} {% trans "posted comment at" %} {{ cm.creationEventDate|date:"Y-m-d H:i:s" }} {% if cm.isOwned
+ %}<a href="{% url manage_action_containers "edit" "comment" cm.id %}?url={{ url }}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}</div>
                         <div class="body">{{ cm.textValue|sharewikify|safe|linebreaks }}</div>
                         <div class="footer"></div>
                     </div>
@@ -112,7 +113,8 @@
                 {% else %}
                     <div id="comment_wrapper_rev">
                     <div id="comment_rev">
-                        <div class="head">{{ cm.getOwnerFullName }} {% trans "posted comment at" %} {{ cm.creationEventDate|date:"Y-m-d H:i:s" }} {% if cm.isEditable %}<a href="{% url manage_action_containers "edit" "comment" cm.id %}?url={{ url }}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}</div>
+                        <div class="head">{{ cm.getOwnerFullName }} {% trans "posted comment at" %} {{ cm.creationEventDate|date:"Y-m-d H:i:s" }} {% if cm.isOwned
+ %}<a href="{% url manage_action_containers "edit" "comment" cm.id %}?url={{ url }}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}</div>
                         <div class="body">{{ cm.textValue|sharewikify|safe|linebreaks }}</div>
                         <div class="footer"></div>
                     </div>

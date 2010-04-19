@@ -787,8 +787,6 @@ def manage_data_by_tag(request, tid=None, tid2=None, tid3=None, tid4=None, tid5=
                 viewargs.append(t.id)
 
         return HttpResponseRedirect(reverse(viewname="manage_data_by_tag", args=viewargs))
-    else:
-        manager.buildBreadcrumb(whos)
     
     form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['allGroups']})
     
@@ -814,7 +812,7 @@ def autocomplete_tags(request, **kwargs):
     return HttpResponse(json_data, mimetype='application/javascript')
 
 @isUserConnected
-def load_metadata_details(request, c_type, c_id, index=None, **kwargs):   
+def load_metadata_details(request, c_type, c_id, index=None, **kwargs): 
     template = "webclient/annotations/annotations.html"
      
     conn = None
@@ -986,27 +984,6 @@ def load_hierarchies(request, o_type=None, o_id=None, **kwargs):
 # ACTIONS
 
 @isUserConnected
-def manage_metadata(request, o_type, o_id, **kwargs):
-    conn = None
-    try:
-        conn = kwargs["conn"]
-        
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    matadataType = request.REQUEST['matadataType']
-    metadataValue = request.REQUEST['metadataValue']
-    
-    try:
-        manager = BaseContainer(conn, o_type, o_id, metadata=True)
-    except AttributeError, x:
-        return handlerInternalError(x)
-    manager.saveMetadata(matadataType, metadataValue)
-    
-    return HttpResponse()
-
-@isUserConnected
 def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     template = None
     
@@ -1029,13 +1006,10 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             manager = BaseContainer(conn, o_type, o_id)
         except AttributeError, x:
             return handlerInternalError(x)
-        manager.buildBreadcrumb(action)
     elif o_type == "comment" or o_type == "url" or o_type == "tag":
         manager = BaseAnnotation(conn, o_type, o_id)
-        manager.buildBreadcrumb(action)
     else:
         manager = BaseContainer(conn)
-        manager.buildBreadcrumb(action)
         
     form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['allGroups']})
     
@@ -1656,7 +1630,6 @@ def basket_action (request, action=None, **kwargs):
         template = "webclient/basket/basket_share_action.html"
         
         basket = BaseBasket(conn)
-        basket.buildBreadcrumb(action)
         basket.load_basket(request)
         experimenters = sortByAttr(list(conn.getExperimenters()), 'lastName')
         
@@ -1668,7 +1641,6 @@ def basket_action (request, action=None, **kwargs):
         template = "webclient/basket/basket_discuss_action.html"
         
         basket = BaseBasket(conn)
-        basket.buildBreadcrumb(action)
         experimenters = sortByAttr(list(conn.getExperimenters()), 'lastName')
         
         form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['allGroups']})
@@ -1680,7 +1652,6 @@ def basket_action (request, action=None, **kwargs):
         template = "webclient/basket/basket_share_action.html"
         
         basket = BaseBasket(conn)
-        basket.buildBreadcrumb(action)
         basket.load_basket(request)
         experimenters = conn.getExperimenters()
         
@@ -1693,7 +1664,6 @@ def basket_action (request, action=None, **kwargs):
         template = "webclient/basket/basket_share_action.html"
         
         basket = BaseBasket(conn)
-        basket.buildBreadcrumb(action)
         basket.load_basket(request)
         experimenters = conn.getExperimenters()
         
@@ -1705,7 +1675,6 @@ def basket_action (request, action=None, **kwargs):
         template = "webclient/basket/basket.html"
         
         basket = BaseBasket(conn)
-        basket.buildBreadcrumb()
         basket.load_basket(request)
         
         form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['allGroups']})

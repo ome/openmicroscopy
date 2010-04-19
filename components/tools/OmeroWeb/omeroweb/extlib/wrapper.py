@@ -54,108 +54,25 @@ from omero.rtypes import *
 from omero.model import FileAnnotationI, TagAnnotationI, DatasetI, ProjectI, ImageI, \
                         DetectorI, FilterI, ObjectiveI, InstrumentI, LaserI
 from omero.sys import ParametersI
-from omero.gateway import AnnotationWrapper, DatasetWrapper, ProjectWrapper
+from omero.gateway import AnnotationWrapper
 
 class OmeroWebObjectWrapper (object):
-
-    child_counter = None
-    annotation_counter = None
-    
-    def __prepare__ (self, **kwargs):
-        try:
-            self.child_counter = kwargs['child_counter']
-        except:
-            pass
-        try:
-            self.annotation_counter = kwargs['annotation_counter']
-        except:
-            pass
-    
-    def countChildren2 (self):
-        #return len(list(self.listChildren()))
-        logger.debug(str(self)+'.countChildren2')
-        if self.child_counter is not None:
-            return self.child_counter
-        else:
-            try:
-                a = self.countChildren()
-            except:
-                logger.error(traceback.format_exc())
-                a = None
-                
-            return a
-    
-    '''def listAnnotations (self):
-        #container = self._conn.getContainerService()
-        meta = self._conn.getMetadataService()
-        self.annotations = meta.loadAnnotations(self._obj.__class__.__name__, [self._oid], None, None, None).get(self._oid, [])
-        for ann in self.annotations:
-            yield AnnotationWrapper(self._conn, ann)'''
-    
-    def countAnnotations (self):
-        if self.annotation_counter is not None:
-            return self.annotation_counter
-        else:
-            container = self._conn.getContainerService()
-            m = container.getCollectionCount(self._obj.__class__.__name__, type(self._obj).ANNOTATIONLINKS, [self._oid], None)
-            if m[self._oid] > 0:
-                self.annotation_counter = m[self._oid]
-                return self.annotation_counter
-            else:
-                return None
-    
-    def isOwned(self):
-        return (self._obj.details.owner.id.val == self._conn.getEventContext().userId)
-    
-    def isLeaded(self):
-        if self._obj.details.group.id.val in self._conn.getEventContext().leaderOfGroups:
-            return True
-        return False
-    
-    def isEditable(self):
-        if self.isOwned() or not self.isReadOnly():
-            return True
-        return False
-    
-    def isPublic(self):
-        if self._obj.details.permissions.isWorldRead():
-            return True
-        return False
-    
-    def isShared(self):
-        if self._obj.details.permissions.isGroupRead():
-            return True
-        return False
-    
-    def isPrivate(self):
-        if self._obj.details.permissions.isUserRead():
-            return True
-        return False
-    
-    def isReadOnly(self):
-        if self.isPublic() and not self._obj.details.permissions.isWorldWrite():
-            return True
-        elif self.isShared() and not self._obj.details.permissions.isGroupWrite():
-            return True
-        elif self.isPrivate() and not self._obj.details.permissions.isUserWrite():
-            return True
-        return False
     
     def warpName(self):
         try: 
             l = len(self.name) 
-            if l < 27: 
+            if l < 30: 
                 return self.name 
-            elif l >= 27: 
+            elif l >= 30: 
                 splited = [] 
-                for v in range(0,len(self.name),27): 
-                    splited.append(self.name[v:v+27]+"\n") 
+                for v in range(0,len(self.name),30): 
+                    splited.append(self.name[v:v+30]+"\n") 
                 return "".join(splited) 
         except: 
             logger.info(traceback.format_exc()) 
             return self.name
         
-    def shortName(self):
+    def truncateNameForTree(self):
         try:
             name = self._obj.name.val
             l = len(name)
@@ -166,7 +83,7 @@ class OmeroWebObjectWrapper (object):
             logger.info(traceback.format_exc())
             return self._obj.name.val
     
-    def shortName2(self):
+    def truncateNameForTable(self):
         try:
             name = self._obj.name.val
             l = len(name)
@@ -177,31 +94,7 @@ class OmeroWebObjectWrapper (object):
             logger.info(traceback.format_exc())
             return self._obj.name.val
     
-    def breadcrumbName(self):
-        name = None
-        try:
-            name = self._obj.name.val
-            l = len(name)
-            if l <= 20:
-                return name
-            elif l > 20 and l < 30:
-                splited = []
-                for v in range(0,len(name),20):
-                    splited.append(name[v:v+20])
-                return "".join(splited)
-            elif l >= 30:
-                nname = "..." + name[l - 30:]
-                return nname
-        except:
-            name = self._obj.textValue.val
-            l = len(name)
-            if l <= 100:
-                return name
-            elif l > 100:
-                return name[:45] + "..." + name[l - 45:]
-        return None
-    
-    def shortDescription(self):
+    def truncateDescription(self):
         try:
             desc = self._obj.description
             if desc == None or desc.val == "":
@@ -214,95 +107,80 @@ class OmeroWebObjectWrapper (object):
             logger.info(traceback.format_exc())
             return self._obj.description.val
 
-class ExperimenterWrapper (OmeroWebObjectWrapper, omero.gateway.ExperimenterWrapper):
-
-    def __bstrap__ (self):
-        self.OMERO_CLASS = 'Experimenter'
-        self.LINK_CLASS = "copyGroupExperimenterMap"
-        self.CHILD_WRAPPER_CLASS = None
-        self.PARENT_WRAPPER_CLASS = 'ExperimenterGroupWrapper'
-    
-    def isAdmin(self):
-        for ob in self._obj.copyGroupExperimenterMap():
-            if ob.parent.name.val == "system":
-                return True
-        return False
-    
-    def isActive(self):
-        for ob in self._obj.copyGroupExperimenterMap():
-            if ob.parent.name.val == "user":
-                return True
-        return False
-    
-    def isGuest(self):
-        for ob in self._obj.copyGroupExperimenterMap():
-            if ob.parent.name.val == "guest":
-                return True
-        return False
-    
-    def shortInstitution(self):
-        try:
-            inst = self._obj.institution
-            if inst == None or inst.val == "":
-                return "-"
-            l = len(inst.val)
-            if l < 30:
-                return inst.val
-            return inst.val[:30] + "..."
-        except:
-            logger.error(traceback.format_exc())
-            return None
-
-    def getFullName(self):
-        try:
-            if self.middleName is not None and self.middleName != '':
-                name = "%s %s. %s" % (self.firstName, self.middleName[:1], self.lastName)
-            else:
-                name = "%s %s" % (self.firstName, self.lastName)
-            
-            l = len(name)
-            if l < 40:
-                return name
-            return name[:40] + "..."
-        except:
-            logger.error(traceback.format_exc())
-            return _("Unknown name")
-    
-    def getInitialName(self):
-        try:
-            if self.firstName is not None and self.lastName is not None:
-                name = "%s. %s" % (self.firstName[:1], self.lastName)
-            else:
-                name = self.omeName
-            return name
-        except:
-            logger.error(traceback.format_exc())
-            return _("Unknown name")
-
-omero.gateway.ExperimenterWrapper = ExperimenterWrapper
-
-class ExperimenterGroupWrapper (OmeroWebObjectWrapper, omero.gateway.ExperimenterGroupWrapper):
-
-    def __bstrap__ (self):
-        self.OMERO_CLASS = 'ExperimenterGroup'
-        self.LINK_CLASS = "copyGroupExperimenterMap"
-        self.CHILD_WRAPPER_CLASS = 'ExperimenterWrapper'
-        self.PARENT_WRAPPER_CLASS = None
-
-omero.gateway.ExperimenterGroupWrapper = ExperimenterGroupWrapper
-
-class ScriptWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
-    pass
-
-class AnnotationLinkWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
+class AnnotationLinkWrapper (omero.gateway.BlitzObjectWrapper):
 
     def getAnnotation(self):
         return AnnotationWrapper(self, self.child)
 
-class ImageStageLabelWrapper (omero.gateway.BlitzObjectWrapper):
-    pass
+class ProjectWrapper (OmeroWebObjectWrapper, omero.gateway.ProjectWrapper): 
+
+    annotation_counter = None
+    
+    def __prepare__ (self, **kwargs):
+        try:
+            self.annotation_counter = kwargs['annotation_counter']
+        except:
+            pass
+    
+    def countAnnotations (self):
+        if self.annotation_counter is not None:
+            return self.annotation_counter
+        else:
+            container = self._conn.getContainerService()
+            m = container.getCollectionCount(self._obj.__class__.__name__, type(self._obj).ANNOTATIONLINKS, [self._oid], None)
+            if m[self._oid] > 0:
+                self.annotation_counter = m[self._oid]
+                return self.annotation_counter
+            else:
+                return None
+ 	 
+omero.gateway.ProjectWrapper = ProjectWrapper 
+ 	 
+class DatasetWrapper (OmeroWebObjectWrapper, omero.gateway.DatasetWrapper): 
+    
+    annotation_counter = None
+    
+    def __prepare__ (self, **kwargs):
+        try:
+            self.annotation_counter = kwargs['annotation_counter']
+        except:
+            pass
+    
+    def countAnnotations (self):
+        if self.annotation_counter is not None:
+            return self.annotation_counter
+        else:
+            container = self._conn.getContainerService()
+            m = container.getCollectionCount(self._obj.__class__.__name__, type(self._obj).ANNOTATIONLINKS, [self._oid], None)
+            if m[self._oid] > 0:
+                self.annotation_counter = m[self._oid]
+                return self.annotation_counter
+            else:
+                return None
+	 
+omero.gateway.DatasetWrapper = DatasetWrapper
 
 class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
+    
+    annotation_counter = None
+    
+    def __prepare__ (self, **kwargs):
+        try:
+            self.annotation_counter = kwargs['annotation_counter']
+        except:
+            pass
+    
+    def countAnnotations (self):
+        if self.annotation_counter is not None:
+            return self.annotation_counter
+        else:
+            container = self._conn.getContainerService()
+            m = container.getCollectionCount(self._obj.__class__.__name__, type(self._obj).ANNOTATIONLINKS, [self._oid], None)
+            if m[self._oid] > 0:
+                self.annotation_counter = m[self._oid]
+                return self.annotation_counter
+            else:
+                return None
     
     def getThumbnailOrDefault (self, size=(120,120)):
         rv = super(omero.gateway.ImageWrapper, self).getThumbnail(size=size)
@@ -325,12 +203,6 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
         f.seek(0)
         return f.read()
 
-    def getStageLabel (self):
-        if self._obj.stageLabel is None:
-            return None
-        else:
-            return ImageStageLabelWrapper(self._conn, self._obj.stageLabel)
-
 omero.gateway.ImageWrapper = ImageWrapper
 
 class DatasetImageLinkWrapper (omero.gateway.BlitzObjectWrapper):
@@ -346,8 +218,6 @@ class PlateWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
         self.LINK_CLASS = None
         self.CHILD_WRAPPER_CLASS = None
         self.PARENT_WRAPPER_CLASS = 'ScreenWrapper'
-
-omero.gateway.PlateWrapper = PlateWrapper
     
 class ScreenWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
     
@@ -356,8 +226,6 @@ class ScreenWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
         self.LINK_CLASS = "ScreenPlateLink"
         self.CHILD_WRAPPER_CLASS = 'PlateWrapper'
         self.PARENT_WRAPPER_CLASS = None
-        
-omero.gateway.ScreenWrapper = ScreenWrapper
 
 class WellWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
     
@@ -411,15 +279,11 @@ class WellWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
     
     def plate(self):
         return PlateWrapper(self._conn, self._obj.plate)
-    
-WellWrapper = WellWrapper
 
 class WellSampleWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
     
     def image(self):
         return ImageWrapper(self._conn, self._obj.image)
-
-WellSampleWrapper = WellSampleWrapper
 
 class ShareWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
     
@@ -497,13 +361,13 @@ class ShareWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
             logger.info(traceback.format_exc())
             return None
     
-class ShareContentWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
+class ShareContentWrapper (omero.gateway.BlitzObjectWrapper):
     pass
 
-class ShareCommentWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
+class ShareCommentWrapper (omero.gateway.AnnotationWrapper):
     pass
     
-class SessionAnnotationLinkWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
+class SessionAnnotationLinkWrapper (omero.gateway.BlitzObjectWrapper):
     def getComment(self):
         return ShareCommentWrapper(self._conn, self.child)
     

@@ -55,7 +55,9 @@ from omero.model import FileAnnotationI, TagAnnotationI, \
                         DetectorI, FilterI, ObjectiveI, InstrumentI
 from omero.sys import ParametersI
 from omeroweb.extlib.wrapper import *
-from omero.gateway import AnnotationWrapper, FileAnnotationWrapper
+from omero.gateway import AnnotationWrapper, FileAnnotationWrapper, \
+                        ExperimenterGroupWrapper, ExperimenterWrapper, \
+                        EnumerationWrapper
 
 TIMEOUT = 580 #sec
 SLEEPTIME = 60
@@ -735,30 +737,31 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map = {}
         p.map["oid"] = rlong(long(oid))
         p.map["eid"] = rlong(self.getEventContext().userId)
+        p.map["gid"] = rlong(self.getEventContext().groupId)
         if o_type == "image":
             sql = "select a from TagAnnotation as a " \
                 "where not exists ( select ial from ImageAnnotationLink as ial where ial.child=a.id and ial.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid "
+                "and a.details.owner.id=:eid and a.details.group.id=:gid"
         elif o_type == "dataset":
             sql = "select a from TagAnnotation as a " \
                 "where not exists ( select dal from DatasetAnnotationLink as dal where dal.child=a.id and dal.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid "
+                "and a.details.owner.id=:eid and a.details.group.id=:gid"
         elif o_type == "project":
             sql = "select a from TagAnnotation as a " \
                 "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid )" \
-                "and a.details.owner.id=:eid "
+                "and a.details.owner.id=:eid and a.details.group.id=:gid"
         elif o_type == "screen":
             sql = "select a from TagAnnotation as a " \
                 "where not exists ( select sal from ScreenAnnotationLink as sal where sal.child=a.id and sal.parent.id=:oid )" \
-                "and a.details.owner.id=:eid "
+                "and a.details.owner.id=:eid and a.details.group.id=:gid"
         elif o_type == "plate":
             sql = "select a from TagAnnotation as a " \
                 "where not exists ( select pal from PlateAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid )" \
-                "and a.details.owner.id=:eid "
+                "and a.details.owner.id=:eid and a.details.group.id=:gid"
         elif o_type == "well":
             sql = "select a from TagAnnotation as a " \
                 "where not exists ( select wal from WellAnnotationLink as wal where wal.child=a.id and wal.parent.id=:oid )" \
-                "and a.details.owner.id=:eid "
+                "and a.details.owner.id=:eid and a.details.group.id=:gid"
         for e in q.findAllByQuery(sql,p):
             yield AnnotationWrapper(self, e)
     
@@ -924,7 +927,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         tags = list()
         for e in q.findAllByQuery(sql,p):
             t = AnnotationWrapper(self, e)
-            tags.append({'tag': t.textValue,'id':t.id, 'desc':(t.shortDescription())} )
+            tags.append({'tag': t.textValue,'id':t.id, 'desc':t.description} )
         return tags
     
     ##############################################
@@ -1195,54 +1198,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
               "where im.id=:oid "
         img = query_serv.findByQuery(sql,p)
         
-        if img is not None:
-            return ImageWrapper(self, img)
-        else:
-            return None
-    
-    def getImageWithMetadata (self, oid):
-        query_serv = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["oid"] = rlong(long(oid))
-        sql = "select im from Image im " \
-              "join fetch im.details.owner join fetch im.details.group " \
-              "left outer join fetch im.pixels as p " \
-              "left outer join fetch p.pixelsType as pt " \
-              "left outer join fetch p.channels as c " \
-              "left outer join fetch c.logicalChannel as lc " \
-              "left outer join fetch lc.detectorSettings as ds " \
-              "left outer join fetch lc.lightSourceSettings as lss " \
-              "left outer join fetch lc.mode as mode " \
-              "left outer join fetch lc.filterSet as filter " \
-              "left outer join fetch filter.dichroic as dichroic " \
-              "left outer join fetch filter.emFilter as ef " \
-              "left outer join fetch filter.exFilter as exf " \
-              "left outer join fetch lc.secondaryEmissionFilter as emfilter " \
-              "left outer join fetch lc.secondaryExcitationFilter as exfilter " \
-              "left outer join fetch exfilter.transmittanceRange as exfilterTrans " \
-              "left outer join fetch emfilter.transmittanceRange as emfilterTrans " \
-              "left outer join fetch emfilter.type as emt " \
-              "left outer join fetch exfilter.type as ext " \
-              "left outer join fetch ef.type as et1 " \
-              "left outer join fetch exf.type as ext1 " \
-              "left outer join fetch exf.transmittanceRange as exfTrans " \
-              "left outer join fetch ef.transmittanceRange as efTrans " \
-              "left outer join fetch ds.detector as detector " \
-              "left outer join fetch detector.type as dt " \
-              "left outer join fetch ds.binning as binning " \
-              "left outer join fetch lss.lightSource as light " \
-              "left outer join fetch light.type as lt " \
-              "left outer join fetch im.stageLabel as stageLabel  " \
-              "left outer join fetch im.imagingEnvironment as imagingEnvironment " \
-              "left outer join fetch im.objectiveSettings as os " \
-              "left outer join fetch os.medium as medium " \
-              "left outer join fetch os.objective as objective " \
-              "left outer join fetch objective.immersion as immersion " \
-              "left outer join fetch objective.correction as co " \
-              "where im.id=:oid "
-                      
-        img = query_serv.findByQuery(sql,p)
         if img is not None:
             return ImageWrapper(self, img)
         else:
