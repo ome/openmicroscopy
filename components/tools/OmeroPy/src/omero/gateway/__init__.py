@@ -3334,7 +3334,7 @@ class _ImageStageLabelWrapper (BlitzObjectWrapper):
 ImageStageLabelWrapper = _ImageStageLabelWrapper
 
 class _ImagingEnvironmentWrapper(BlitzObjectWrapper):
-   pass
+    pass
 
 ImagingEnvironmentWrapper = _ImagingEnvironmentWrapper
 
