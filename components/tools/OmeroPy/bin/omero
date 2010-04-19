@@ -11,32 +11,24 @@ See LICENSE for details.
 """
 import sys, os, stat
 
-def not_root(omero):
+def not_root():
     """
     Check that the effective current user is not 0
     on systems supporting os.geteuid()
     """
     try:
-        if os.geteuid() == 0:
-            owner = os.stat(omero)[stat.ST_UID]
-            if owner == 0:
-                print "OMERO directories belong to root"
-                print "Please use \"chown -R NEWUSER %s\" and run as the new user" % omero
-                print "Exiting"
-            else:
-                try:
-                   import pwd
-                   owner = "%s" % pwd.getpwuid(owner)[0]
-                except:
-                   pass
-                print "Running %s as root can corrupt your directory permissions." % sys.argv[0]
-                print "Login as the user (%s) who owns the OMERO directories: %s" % (owner, omero)
-                print "Exiting..."
+        euid = os.geteuid()
+        if euid == 0:
+            print "FATAL: Running %s as root can corrupt your directory permissions." % sys.argv[0]
             sys.exit(1)
+        else:
+            return euid
     except AttributeError, ae:
         # This platform doesn't support effective uid
         # So nothing to worry about.
-        pass
+        return None
+
+euid = not_root()
 
 def readlink(file=sys.argv[0]):
     """
@@ -73,13 +65,47 @@ top = os.path.normpath(top)
 lib = os.path.join(top, "lib")
 lpy = os.path.join(top, "lib","python")
 ipy = os.path.join(top, "lib","fallback")
+var = os.path.join(top, "var")
 sys.path.insert(0,lpy);
 sys.path.append(ipy)
 
-not_root(top)
+def can_access(path):
+    """
+    Check that the given path belongs to
+    or is accessible by the current user
+    """
+    owner = os.stat(path)[stat.ST_UID]
+    if owner == 0:
+        print "FATAL: OMERO directory which needs to be writeable belongs to root: %s" % path
+        print "Please use \"chown -R NEWUSER %s\" and run as then run %s as NEWUSER" % (path, sys.argv[0])
+        sys.exit(1)
+    else:
+        if not os.access(path, os.R_OK|os.W_OK):
+            print "FATAL: Cannot access %s, a required directory for OMERO" % path
+            sys.exit(1)
 
+if not os.path.exists(lib):
+    print "WARN: %s does not exist. It is unlikely that OMERO will run properly" % lib
+
+if not os.path.exists(var):
+    print "Creating directory %s" % var
+    os.makedirs(var, 0700)
+else:
+    can_access(var)
+    for p in os.listdir(var):
+        can_access(os.path.join(var, p))
+
+#
+# Testing shortcut. If the first argument is an
+# empty string, exit sucessfully.
+#
+if len(sys.argv) == 2 and sys.argv[1] == "": sys.exit(0)
+
+#
+# Primary activity: import omero.cli and launch
+# catching any Ctrl-Cs from the user
+#
 try:
-
     try:
         import omero.cli
     except ImportError, ie:
