@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.ChannelData;
+import pojos.ImageData;
 import pojos.PixelsData;
 
 /** 
@@ -75,7 +76,7 @@ class RendererComponent
 {
 
     /** The default error message. */
-    private static final String ERROR = " An error occured while modifying  " +
+    private static final String ERROR = " An error occurred while modifying  " +
     		"the rendering settings.";
     
     /** The Model sub-component. */
@@ -574,7 +575,7 @@ class RendererComponent
 	{ 
 		if (rndControl == null) return;
 		model.setRenderingControl(rndControl);
-		view.onSettingsApplied();
+		//TODO: changes state.
 	}
 
     /** 
@@ -974,6 +975,24 @@ class RendererComponent
 	{
 		if (!model.isGeneralIndex()) return;
 		view.renderPreview();
+	}
+
+	/** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#getRefImage()
+     */
+	public ImageData getRefImage()
+	{
+		return model.getRefImage();
+	}
+	
+	/** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#getInitialRndSettings()
+     */
+	public RndProxyDef getInitialRndSettings()
+	{
+		return model.getInitialRndSettings();
 	}
 	
 }

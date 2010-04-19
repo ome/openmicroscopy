@@ -43,10 +43,12 @@ import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.ContrastStretchingAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.HistogramAction;
+import org.openmicroscopy.shoola.agents.metadata.actions.ManageRndSettingsAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.NoiseReductionAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.PlaneSlicingAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.ReverseIntensityAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.RndAction;
+import org.openmicroscopy.shoola.agents.metadata.actions.ViewAction;
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -100,6 +102,24 @@ class RendererControl
     /** Identifies the action to modify the color model. */
     static final Integer    COLOR_MODEL = Integer.valueOf(8);
     
+    /** Identifies the action to set the intensity values to min, max. */
+    static final Integer    RND_MIN_MAX = Integer.valueOf(9);
+    
+    /** Identifies the action to rest the settings. */
+    static final Integer    RND_RESET = Integer.valueOf(10);
+    
+    /** Identifies the action to undo the changes. */
+    static final Integer    RND_UNDO = Integer.valueOf(11);
+    
+    /** Identifies the action to undo the changes. */
+    static final Integer    RND_OWNER = Integer.valueOf(12);
+    
+    /** Identifies the action to view the image. */
+    static final Integer    VIEW = Integer.valueOf(13);
+    
+    /** Identifies the action to apply settings to all. */
+    static final Integer    APPLY_TO_ALL = Integer.valueOf(14);
+    
     /**
      * Reference to the {@link Renderer} component, which, in this context,
      * is regarded as the Model.
@@ -125,6 +145,17 @@ class RendererControl
         actionsMap.put(NOISE_REDUCTION, new NoiseReductionAction(model));
         actionsMap.put(HISTOGRAM, new HistogramAction(model));
         actionsMap.put(COLOR_MODEL, new ColorModelAction(model));
+        actionsMap.put(VIEW, new ViewAction(model));
+        actionsMap.put(RND_MIN_MAX, new ManageRndSettingsAction(model, 
+        		ManageRndSettingsAction.MIN_MAX));
+        actionsMap.put(RND_UNDO, new ManageRndSettingsAction(model, 
+        		ManageRndSettingsAction.UNDO));
+        actionsMap.put(RND_RESET, new ManageRndSettingsAction(model, 
+        		ManageRndSettingsAction.RESET));
+        actionsMap.put(RND_OWNER, new ManageRndSettingsAction(model, 
+        		ManageRndSettingsAction.SET_OWNER_SETTING));
+        actionsMap.put(APPLY_TO_ALL, new ManageRndSettingsAction(model, 
+        		ManageRndSettingsAction.APPLY_TO_ALL));
     }
     
     /** 
@@ -240,22 +271,6 @@ class RendererControl
 	void setSelectedXYPlane(int z, int t)
 	{
 		model.setSelectedXYPlane(z, t);
-	}
-	
-	/** Applies the rendering settings to the selected or displayed images. */
-	void applyToAll() { model.applyToAll(); }
-
-	/** Sets the maximum range for channels. */
-	void setRangeAllChannels() { model.setRangeAllChannels(); }
-
-	/**
-	 * Resets the initial rendering settings.
-	 * 
-	 * @param rndDef The settings to set.
-	 */
-	void resetInitialSettings(RndProxyDef rndDef)
-	{
-		model.resetSettings(rndDef, true);
 	}
 	
 	/**

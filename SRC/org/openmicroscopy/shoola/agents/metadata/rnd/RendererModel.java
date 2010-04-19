@@ -203,13 +203,12 @@ class RendererModel
 		if (rndControl != null) rndDef = rndControl.getRndSettingsCopy();
 	}
 	
-	/** Posts an event to view the image. */
-	void viewImage()
-	{
-		if (image == null) return;
-		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-		bus.post(new ViewImage(image, null));
-	}
+	/**
+	 * Returns the image the renderer is for.
+	 * 
+	 * @return See above.
+	 */
+	ImageData getRefImage() { return image; }
 	
 	/**
 	 * Returns <code>true</code> if one channel is selected, 

@@ -44,6 +44,7 @@ import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import com.sun.opengl.util.texture.TextureData;
 
 import pojos.ChannelData;
+import pojos.ImageData;
 import pojos.PixelsData;
 
 /** 
@@ -599,4 +600,17 @@ public interface Renderer
      */
     public void renderPreview();
     
+    /**
+     * Returns the image or <code>null</code>.
+     * 
+     * @return See above.
+     */
+    ImageData getRefImage();
+    
+    /**
+     * Returns the initial rendering settings.
+     * 
+     * @return See above.
+     */
+	RndProxyDef getInitialRndSettings();
 }

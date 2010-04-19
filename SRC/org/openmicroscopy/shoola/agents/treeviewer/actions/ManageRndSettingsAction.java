@@ -102,7 +102,8 @@ public class ManageRndSettingsAction
     
     /** The description of the action if the index is {@link #SET_MIN_MAX}. */
     private static final String DESCRIPTION_SET_MIN_MAX = 
-    									"Set the original rendering settings.";
+    	"Set the Pixels Intensity interval to min/max" +
+		"for all channels.";
     
     /** The name of the action if the index is {@link #SET_OWNER_SETTING}. */
     private static final String NAME_SET_OWNER_SETTING = "Set Owner's Settings";

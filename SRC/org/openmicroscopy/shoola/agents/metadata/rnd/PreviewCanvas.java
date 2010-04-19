@@ -33,7 +33,6 @@ import javax.swing.JPanel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Component displaying the preview image. 

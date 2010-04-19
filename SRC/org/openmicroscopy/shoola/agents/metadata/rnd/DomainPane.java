@@ -55,6 +55,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
@@ -204,18 +205,15 @@ public class DomainPane
     
     /** Selects the time-point. */
     private OneKnobSlider				tSlider;
-    
-    /** The label displaying the selected plane. */
-    private JLabel						selectedPlane;
-    
+
     /** The component displaying the preview image. */
     private PreviewCanvas				canvas;
     
     /** The box hosting the channels. */
     private JComboBox					channelsBox;
-    
-    /** Button to view the image. */
-    private JButton						viewButton;
+   
+    /** The preview tool bar. */
+    private PreviewToolBar				previewToolBar;
     
     /**
      * Attaches listener to the passed slider and sets the default values.
@@ -270,7 +268,7 @@ public class DomainPane
         } else {
      
         }
-        setSelectedPlaneLabel();
+        if (previewToolBar != null) previewToolBar.setSelectedPlane();
     }
     
     /**
@@ -295,7 +293,7 @@ public class DomainPane
         } else {
             
         }
-        setSelectedPlaneLabel();
+        if (previewToolBar != null) previewToolBar.setSelectedPlane();
     }
     
     /** Initializes the components composing the display. */
@@ -390,20 +388,15 @@ public class DomainPane
         		 */
         		public void mouseReleased(MouseEvent e)
         		{
-        			if (e.getClickCount() == 2) model.viewImage();
+        			if (e.getClickCount() == 2) {
+        				ActionEvent event = new ActionEvent(
+        						e.getSource(), e.getID(), "");
+        				controller.getAction(
+        						RendererControl.VIEW).actionPerformed(event);
+        			}
         		}
         	});
-        	IconManager icons = IconManager.getInstance();
-        	viewButton = new JButton(icons.getIcon(IconManager.VIEW));
-        	viewButton.setToolTipText("Open image in Viewer.");
-        	viewButton.addActionListener(new ActionListener() {
-				
-				public void actionPerformed(ActionEvent e) {
-					model.viewImage();
-				}
-			});
-        	viewButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-        	UIUtilities.unifiedButtonLookAndFeel(viewButton);
+        	previewToolBar = new PreviewToolBar(controller, model);
         }
         
         if (model.getMaxC() < Renderer.MAX_CHANNELS)
@@ -413,12 +406,8 @@ public class DomainPane
         	channelButtonPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
         }
        
-        selectedPlane = new JLabel();
-        Font font = selectedPlane.getFont();
-        selectedPlane.setFont(font.deriveFont(font.getStyle(), 
-        		font.getSize()-2));
-        setSelectedPlaneLabel();
-        
+        if (previewToolBar != null) previewToolBar.setSelectedPlane();
+   
         if (model.getChannelData().size() > 1) {
         	channelsBox = new JComboBox();
             populateChannels();
@@ -450,14 +439,6 @@ public class DomainPane
  		channelsBox.removeActionListener(this);
  		channelsBox.setSelectedIndex(selected);
  		channelsBox.addActionListener(this);
-    }
-    
-    /** Indicates the selected plane. */
-    private void setSelectedPlaneLabel()
-    {
-    	String s = "Z="+(model.getDefaultZ()+1)+"/"+model.getMaxZ();
-    	s += " T="+(model.getDefaultT()+1)+"/"+model.getMaxT();
-    	selectedPlane.setText(s);
     }
     
     /** Resets the value of the bit resolution. */
@@ -526,10 +507,6 @@ public class DomainPane
         	bar.setFloatable(false);
         	bar.setRollover(true);
         	bar.setBorder(null);
-        	if (viewButton != null) {
-        		bar.add(viewButton);
-        		bar.add(Box.createVerticalStrut(2));
-        	}
         	bar.add(colorModel);
         	controls.add(bar, "0, "+k+", CENTER, CENTER");
         	k = k+2;
@@ -554,15 +531,25 @@ public class DomainPane
     	JPanel p = new JPanel();
     	p.setBackground(UIUtilities.BACKGROUND_COLOR);
     	p.setLayout(new BorderLayout());
-    	p.setBorder(BorderFactory.createEmptyBorder(10, 5, 5, 5));
     	if (channelButtonPanel != null && model.isGeneralIndex())
     		p.add(channelButtonPanel, BorderLayout.WEST);
     	if (model.isGeneralIndex()) {
     		p.add(buildViewerPane(), BorderLayout.CENTER);
     		p.add(graphicsPane, BorderLayout.SOUTH);
-    	} else {
-    		p.add(graphicsPane, BorderLayout.CENTER);
-    	}
+    		
+    		JPanel bar = new JPanel();
+    		bar.setBackground(UIUtilities.BACKGROUND_COLOR);
+    		bar.setLayout(new BoxLayout(bar, BoxLayout.Y_AXIS));
+    		bar.add(previewToolBar);
+    		bar.add(new JSeparator());
+    		JPanel content = new JPanel();
+    		content.setLayout(new BorderLayout());
+    		content.setBackground(UIUtilities.BACKGROUND_COLOR);
+    		content.add(bar, BorderLayout.NORTH);
+    		content.add(p, BorderLayout.CENTER);
+    		return content;
+    	} 
+    	p.add(graphicsPane, BorderLayout.CENTER);
     	return p;
     }
     
@@ -583,9 +570,11 @@ public class DomainPane
 		p.add(canvas, "1, 0");
 		p.add(tSlider, "1, 1");
 		
+		/*
 		JPanel l = UIUtilities.buildComponentPanel(selectedPlane);
     	l.setBackground(UIUtilities.BACKGROUND_COLOR);
     	p.add(l, "0, 2, 1, 2");
+    	*/
     	return p;
     }
     
@@ -601,7 +590,7 @@ public class DomainPane
         slider.removeChangeListener(this);
         slider.setValue(v);
         slider.addChangeListener(this);
-        setSelectedPlaneLabel();
+        if (previewToolBar != null) previewToolBar.setSelectedPlane();
     }
     
     /**
@@ -664,6 +653,22 @@ public class DomainPane
 		c.insets = new Insets(0, 2, 2, 0);
 		c.gridy = 0;
 		JPanel comp;
+		comp = buildSliderPane(bitDepthSlider, bitDepthLabel);
+		comp.setBackground(UIUtilities.BACKGROUND_COLOR);
+		addComponent(c, "Brightness", graphicsPane.getCodomainSlider(), p);
+		c.gridy++;
+		comp = buildSliderPane(bitDepthSlider, bitDepthLabel);
+		comp.setBackground(UIUtilities.BACKGROUND_COLOR);
+		addComponent(c, "Bit Depth", comp, p);
+		c.gridy++;
+		addComponent(c, "", noiseReduction, p);
+		c.gridx = 0;
+		c.gridy++;
+		comp = new SeparatorPane();
+		comp.setBackground(UIUtilities.BACKGROUND_COLOR);
+		p.add(comp, c);
+		c.gridy++;
+		
 		if (channelsBox != null) {
 			comp = UIUtilities.buildComponentPanel(channelsBox);
 			comp.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -677,18 +682,6 @@ public class DomainPane
 		comp = buildSliderPane(gammaSlider, gammaLabel);
 		comp.setBackground(UIUtilities.BACKGROUND_COLOR);
 		addComponent(c, "Gamma", comp, p);
-		c.gridy++;
-		comp = buildSliderPane(bitDepthSlider, bitDepthLabel);
-		comp.setBackground(UIUtilities.BACKGROUND_COLOR);
-		addComponent(c, "Bit Depth", comp, p);
-		c.gridy++;
-		c.gridx = 0;
-		comp = new SeparatorPane();
-		comp.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.add(comp, c);
-		c.gridy++;
-		addComponent(c, "", noiseReduction, p);
-		c.gridy++;
         return p;
     }
     
@@ -976,10 +969,7 @@ public class DomainPane
     { 
     	if (zSlider != null) updateSlider(zSlider, z);
     }
-    
-    /** Updates the display when the settings have been updated. */
-	void onSettingsApplied() { graphicsPane.onSettingsApplied(); }
-	
+
 	/**
 	 * Returns <code>true</code> if the passed object is one of the
 	 * channel buttons, <code>false</code> otherwise.

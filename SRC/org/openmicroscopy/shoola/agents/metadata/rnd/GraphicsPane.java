@@ -25,17 +25,13 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 //Java imports
 import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -69,7 +65,7 @@ import pojos.ChannelData;
  */
 class GraphicsPane  
 	extends JPanel
-    implements ActionListener, PropertyChangeListener
+    implements PropertyChangeListener
 {
 
 	/** 
@@ -86,21 +82,6 @@ class GraphicsPane
 			"rendering settings immediately. Not available for large " +
 			"images";
     
-    /** 
-     * Action command ID to set the start and end values to the minimum and 
-     * maximum.
-     */
-    private static final int	RANGE = 0;
-    
-    /** 
-     * Action command ID to apply the settings to all selected or displayed
-     * images.
-     */
-    private static final int	APPLY = 1;
-    
-    /** Action command ID to reset the rendering settings. */
-    private static final int	RESET = 2;
-    
     /** Slider to select a sub-interval of [0, 255]. */
     private TwoKnobsSlider      	codomainSlider;
     
@@ -112,10 +93,7 @@ class GraphicsPane
     
     /** The label displaying the global minimum. */
     private JLabel              	minLabel;
-    
-    /** Button to set the start and end value to the minimum and maximum. */
-    private JButton					rangeButton;
-    
+
     /** The component displaying the plane histogram. */
     private GraphicsPaneUI      	uiDelegate;
     
@@ -142,12 +120,6 @@ class GraphicsPane
     
     /** The equation of the vertical line. */
     private int						verticalLine = -1;
-
-    /** Button to apply the settings to all selected or displayed image. */
-    private JButton					applyButton;
-    
-    /** Button to reset the rendering settings. */
-    private JButton					resetButton;
     
     /** Hosts the sliders controlling the pixels intensity values. */
     private List<ChannelSlider> 	sliders;
@@ -217,22 +189,6 @@ class GraphicsPane
         preview.setEnabled(!model.isBigImage());
         preview.setBackground(UIUtilities.BACKGROUND_COLOR);
         preview.setToolTipText(PREVIEW_DESCRIPTION);
-        rangeButton = new JButton("Min/Max");
-        rangeButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-        rangeButton.addActionListener(this);
-        rangeButton.setActionCommand(""+RANGE);
-        rangeButton.setToolTipText("Set min and max pixels intensity " +
-        		"as input for all channels.");
-        applyButton = new JButton("Apply to All");
-        applyButton.setToolTipText("Apply settings to the displayed images.");
-        applyButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-        applyButton.addActionListener(this);
-        applyButton.setActionCommand(""+APPLY);
-        resetButton = new JButton("Reset");
-        resetButton.setToolTipText("Undo the changes.");
-        resetButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-        resetButton.addActionListener(this);
-        resetButton.setActionCommand(""+RESET);
         if (model.getMaxC() < Renderer.MAX_CHANNELS) {
         //if (model.isGeneralIndex() && model.getMaxC() < Renderer.MAX_CHANNELS) {
         	sliders = new ArrayList<ChannelSlider>();
@@ -261,7 +217,6 @@ class GraphicsPane
     	    	setLayout(new TableLayout(size));
     	if (model.isGeneralIndex()) {
     		add(buildGeneralPane(), "0, 0");
-    		add(buildChannelsControls(), "0, 2");
     	} else {
     		add(buildPane(), "0, 0");
     		add(buildGeneralPane(), "0, 2");
@@ -333,31 +288,7 @@ class GraphicsPane
     	 p.add(codomainSlider);
     	 return p;
     }
-    
-    /**
-     * Builds and lays out the controls.
-     * 
-     * @return See above.
-     */
-    private JPanel buildChannelsControls()
-    {
-   	 	JPanel controls = new JPanel();
-   	 	controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
-   	 	JPanel comp;
-   	 	if (model.getMaxC() < Renderer.MAX_CHANNELS) {
-	   	 	comp = UIUtilities.buildComponentPanel(rangeButton);
-	   	 	comp.setBackground(UIUtilities.BACKGROUND_COLOR);
-	   	 	controls.add(comp);
-   	 	}
-   	 	comp = UIUtilities.buildComponentPanel(resetButton);
-	 	comp.setBackground(UIUtilities.BACKGROUND_COLOR);
-	 	controls.add(comp);
-   	 	comp = UIUtilities.buildComponentPanel(applyButton);
-   	 	comp.setBackground(UIUtilities.BACKGROUND_COLOR);
-   	 	controls.add(comp);
-    	return controls;
-    }
-    
+
     /**
      * Builds and lays out the UI component hosting the text fields.
      * 
@@ -382,15 +313,6 @@ class GraphicsPane
    	 	content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
    	 	content.setBackground(UIUtilities.BACKGROUND_COLOR);
    	 	content.add(p);
-   	 	JPanel controls = new JPanel();
-   	 	controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
-   	 	JPanel comp;
-   	 	if (model.getMaxC() < Renderer.MAX_CHANNELS) {
-	   	 	comp = UIUtilities.buildComponentPanel(rangeButton);
-	   	 	comp.setBackground(UIUtilities.BACKGROUND_COLOR);
-	   	 	controls.add(comp);
-   	 	}
-   	 	content.add(controls);
         return content;
     }
     
@@ -576,14 +498,6 @@ class GraphicsPane
 	{
 		if (codomainSlider != null) codomainSlider.setEnabled(b);
 		if (domainSlider != null) domainSlider.setEnabled(b);
-		if (rangeButton != null) rangeButton.setEnabled(b);
-		if (applyButton != null) applyButton.setEnabled(b);
-	}
-	
-	/** Updates the UI when the rendering settings have been applied. */
-	void onSettingsApplied()
-	{
-		if (applyButton != null) applyButton.setEnabled(true);
 	}
 	
 	/** Toggles between color model and Greyscale. */
@@ -616,6 +530,8 @@ class GraphicsPane
     	}
     	repaint();
     }
+    
+    JComponent getCodomainSlider() { return codomainSlider; }
     
     /**
      * Reacts to property changes fired by the {@link TwoKnobsSlider}s.
@@ -707,29 +623,6 @@ class GraphicsPane
 					onCurveChange();
 				}
 			}
-		}
-	}
-
-    /**
-     * Sets the range.
-     * @see ActionListener#actionPerformed(ActionEvent)
-     */
-	public void actionPerformed(ActionEvent e)
-	{
-		int index = Integer.parseInt(e.getActionCommand());
-		switch (index) {
-			case RANGE:
-				//Sets the range for all channels
-				controller.setRangeAllChannels();
-            	//controller.setInputInterval(model.getGlobalMin(), 
-            	//						model.getGlobalMax());
-            	break;
-			case APPLY:
-				applyButton.setEnabled(false);
-				controller.applyToAll();
-				break;
-			case RESET:
-				controller.resetInitialSettings(model.getInitialRndSettings());
 		}
 	}
 

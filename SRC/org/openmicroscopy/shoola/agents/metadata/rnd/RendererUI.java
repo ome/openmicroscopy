@@ -259,13 +259,6 @@ class RendererUI
 		pane.setTimepoint(t); 
 	}
 
-	/** Updates the UI when the rendering settings have been applied. */
-	void onSettingsApplied()
-	{
-		DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
-		pane.onSettingsApplied(); 
-	}
-
 	/**
 	 * Returns <code>true</code> if the passed object is one of the
 	 * channel buttons, <code>false</code> otherwise.

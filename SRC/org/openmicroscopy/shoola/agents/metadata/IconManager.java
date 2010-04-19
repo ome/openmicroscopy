@@ -373,11 +373,14 @@ public class IconManager
     /** The <code>Rendering Settings Undo</code> icon. */
     public static final int          RND_UNDO = 105;
     
+    /** The <code>Rendering Settings Apply to all</code> icon. */
+    public static final int          RND_APPLY_TO_ALL = 106;
+    
     /** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static final int          MAX_ID = 105;
+	private static final int          MAX_ID = 106;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -488,6 +491,7 @@ public class IconManager
         relPaths[RND_MIN_MAX] = "rendering_min_max16.png";
         relPaths[RND_OWNER] = "rendering_owner16.png";
         relPaths[RND_UNDO] = "rendering_default16.png";
+        relPaths[RND_APPLY_TO_ALL] = "rendering_default16.png";
 	}
    
 	/** The sole instance. */
