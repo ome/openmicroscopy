@@ -27,13 +27,16 @@ import static omero.rtypes.*;
 
 import java.io.File;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import loci.formats.IFormatReader;
 
 import ome.util.LSID;
 import omero.metadatastore.IObjectContainer;
+import omero.model.Annotation;
 import omero.model.Image;
 import omero.model.Pixels;
 
@@ -80,6 +83,24 @@ public class PixelsProcessor implements ModelProcessor
             Pixels pixels = (Pixels) container.sourceObject;
             Double[] physicalPixelSizes = 
             	store.getUserSpecifiedPhysicalPixelSizes();
+            List<Annotation> annotations = store.getUserSpecifiedAnnotations();
+            if (annotations == null)
+            {
+                annotations = new ArrayList<Annotation>();
+            }
+            
+            // If we have user specified annotations
+            Map<LSID, IObjectContainer> containerCache = 
+            	store.getContainerCache();
+            for (int i = 0; i < annotations.size(); i++)
+            {
+            	LSID annotationLSID = new LSID("UserSpecifiedAnnotation:" + i);
+            	IObjectContainer annotationContainer = new IObjectContainer();
+            	annotationContainer.LSID = annotationLSID.toString();
+            	annotationContainer.sourceObject = annotations.get(i);
+            	containerCache.put(annotationLSID, annotationContainer);
+            	store.addReference(imageLSID, annotationLSID);
+            }
             
             // If we have user specified physical pixel sizes
             if (physicalPixelSizes != null)

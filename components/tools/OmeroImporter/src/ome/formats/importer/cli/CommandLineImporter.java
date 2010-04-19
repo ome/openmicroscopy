@@ -16,6 +16,8 @@ import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
+import omero.model.Annotation;
+import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.Screen;
 
@@ -188,13 +190,42 @@ public class CommandLineImporter {
                                         + "  --debug[=0|1|2]\tTurn debug logging on (optional level)\n"
                                         + "  --report\tReport errors to the OME team\n"
                                         + "  --upload\tUpload broken files with report\n"
-                                        + "  --email=...\tEmail for reported errors\n "
+                                        + "  --email=...\tEmail for reported errors\n"
+                                        + "  --annotation_ns=...\tNamespace to use for subsequent annotation\n"
+                                        + "  --annotation_text=...\tContent for a text annotation (requires namespace)\n"
                                         + "\n"
                                         + "ex. %s -s localhost -u bart -w simpson -d 50 foo.tiff\n"
                                         + "\n"
                                         + "Report bugs to <ome-users@openmicroscopy.org.uk>",
                                 APP_NAME, APP_NAME, APP_NAME));
         System.exit(1);
+    }
+    
+    /**
+     * Takes pairs of namespaces and string and creates comment annotations
+     * from each pair.
+     * @param namespaces Namespaces to use.
+     * @param strings Strings to use.
+     * @return List of comment annotations.
+     */
+    private static List<Annotation> toTextAnnotations(
+    		List<String> namespaces, List<String> strings)
+    {
+    	if (namespaces.size() != strings.size())
+    	{
+    		throw new IllegalArgumentException(String.format(
+    				"#Namespaces:%d != #Text:%d", namespaces.size(),
+    				strings.size()));
+    	}
+    	List<Annotation> annotations = new ArrayList<Annotation>();
+    	for(int i = 0; i < namespaces.size(); i++)
+    	{
+    		CommentAnnotationI annotation = new CommentAnnotationI();
+    		annotation.setNs(omero.rtypes.rstring(namespaces.get(i)));
+    		annotation.setTextValue(omero.rtypes.rstring(strings.get(i)));
+    		annotations.add(annotation);
+    	}
+    	return annotations;
     }
 
     /**
@@ -225,16 +256,26 @@ public class CommandLineImporter {
         config.contOnError.set(false);
         config.debug.set(false);
 
-        LongOpt debug = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 1);
+        LongOpt debug = 
+        	new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 1);
         LongOpt report = new LongOpt("report", LongOpt.NO_ARGUMENT, null, 2);
         LongOpt upload = new LongOpt("upload", LongOpt.NO_ARGUMENT, null, 3);
-        LongOpt email = new LongOpt("email", LongOpt.REQUIRED_ARGUMENT, null, 4);
+        LongOpt email = 
+        	new LongOpt("email", LongOpt.REQUIRED_ARGUMENT, null, 5);
+        LongOpt annotationNamespace = 
+        	new LongOpt("annotation_ns", LongOpt.REQUIRED_ARGUMENT, null, 6);
+        LongOpt annotationText = 
+        	new LongOpt("annotation_text", LongOpt.REQUIRED_ARGUMENT,
+        			    null, 7);
         Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:h",
-                new LongOpt[] { debug, report, upload, email });
+                new LongOpt[] { debug, report, upload, email,
+        		                annotationNamespace, annotationText});
         int a;
 
         boolean getUsedFiles = false;
 
+        List<String> annotationNamespaces = new ArrayList<String>();
+        List<String> textAnnotations = new ArrayList<String>();
         while ((a = g.getopt()) != -1) {
             switch (a) {
             case 1: {
@@ -259,6 +300,14 @@ public class CommandLineImporter {
             case 4: {
                 config.cliEmail.set(g.getOptarg());
                 break;
+            }
+            case 6: {
+            	annotationNamespaces.add(g.getOptarg());
+            	break;
+            }
+            case 7: {
+            	textAnnotations.add(g.getOptarg());
+            	break;
             }
             case 's': {
                 config.hostname.set(g.getOptarg());
@@ -318,6 +367,10 @@ public class CommandLineImporter {
             }
             }
         }
+        
+        List<Annotation> annotations = 
+        	toTextAnnotations(annotationNamespaces, textAnnotations);
+        config.annotations.set(annotations);
 
         // Start the importer and import the image we've been given
         String[] rest = new String[args.length - g.getOptind()];

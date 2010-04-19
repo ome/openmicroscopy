@@ -173,6 +173,7 @@ public class ImportLibrary implements IObservable, StatusListener
             int numDone = 0;
             for (int index = 0; index < containers.size(); index++) {
                 ImportContainer ic = containers.get(index);
+                ic.setUserSpecifiedFileName(config.name.get());
                 
                 if (config.targetClass.get() == "omero.model.Dataset")
                 {
@@ -192,7 +193,8 @@ public class ImportLibrary implements IObservable, StatusListener
                             ic.getArchive(),
                             true,
                             ic.getUserPixels(),
-                            ic.getTarget());
+                            ic.getTarget(),
+                            config.annotations.get());
                     numDone++;
                 } catch (Throwable t) {                    
                     if (!config.contOnError.get()) {
@@ -225,6 +227,8 @@ public class ImportLibrary implements IObservable, StatusListener
      * @param index Index of the file being imported.
      * @param userSpecifiedImageName A user specified image name.
      * @param userSpecifiedImageDescription A user specified description.
+     * @param userSpecifiedAnnotations The annotations to link to each image
+     * in the import.
      * @return the newly created {@link Pixels} id.
 	 * @throws FormatException if there is an error parsing metadata.
 	 * @throws IOException if there is an error reading the file.
@@ -234,8 +238,8 @@ public class ImportLibrary implements IObservable, StatusListener
 	                                    IObject userSpecifiedTarget,
 	                                    String userSpecifiedImageName,
 			                            String userSpecifiedImageDescription,
-			                            Double[] userPixels
-			                            )
+			                            Double[] userPixels,
+			                            List<Annotation> userSpecifiedAnnotations)
     	throws FormatException, IOException
     {
     	// 1st we post-process the metadata that we've been given.
@@ -245,6 +249,7 @@ public class ImportLibrary implements IObservable, StatusListener
     	if (userPixels != null)
     	    store.setUserSpecifiedPhysicalPixelSizes(userPixels[0], userPixels[1], userPixels[2]);
     	store.setUserSpecifiedTarget(userSpecifiedTarget);
+    	store.setUserSpecifiedAnnotations(userSpecifiedAnnotations);
         store.postProcess();
         notifyObservers(new ImportEvent.END_POST_PROCESS(index, null, userSpecifiedTarget, null, 0, null));
         
@@ -324,13 +329,58 @@ public class ImportLibrary implements IObservable, StatusListener
      * server we're importing into.
      */
     public List<Pixels> importImage(File file, int index, int numDone,
+            int total, String userSpecifiedImageName, 
+            String userSpecifiedImageDescription,
+            boolean archive, boolean useMetadataFile,
+            Double[] userPixels, IObject userSpecifiedTarget)
+        throws FormatException, IOException, Throwable
+    {   
+    	return importImage(file, index, numDone, total, userSpecifiedImageName,
+    			userSpecifiedImageDescription, archive, useMetadataFile,
+    			userPixels, userSpecifiedTarget, new ArrayList<Annotation>());
+    }
+	
+    /**
+     * Perform an image import.  <em>Note: this method both notifes {@link #observers}
+     * of error states AND throws the exception to cancel processing.</em>
+     * {@link #importCandidates(ImportConfig, ImportCandidates)}
+     * uses {@link ImportConfig#contOnError} to act on these exceptions.
+     * 
+     * @param file Target file to import.
+     * @param index Index of the import in a set. <code>0</code> is safe if 
+     * this is a singular import.
+     * @param numDone Number of imports completed in a set. <code>0</code> is 
+     * safe if this is a singular import.
+     * @param total Total number of imports in a set. <code>1</code> is safe
+     * if this is a singular import.
+     * @param userSpecifiedImageName Name to use for all images that are imported from the
+     * target file <code>file</code>.
+     * @param userSpecifiedImageDescription Description to use for all images that are
+     * imported from target file <code>file</code>
+     * @param archive Whether or not to archive target file <code>file</code>
+     * and all sub files.
+     * @param useMetadataFile Whether or not to dump all metadata to a flat
+     * file annotation on the server.
+     * @param userSpecifiedTarget the IObject instances which will be used by
+     * the {@link #importMetadata(String, String, boolean, boolean, Double[])}
+     * method.
+     * @param userSpecifiedAnnotations The annotations to link to each image
+     * in the import.
+     * @return List of Pixels that have been imported.
+     * @throws FormatException If there is a Bio-Formats image file format
+     * error during import.
+     * @throws IOException If there is an I/O error.
+     * @throws ServerError If there is an error communicating with the OMERO
+     * server we're importing into.
+     */
+    public List<Pixels> importImage(File file, int index, int numDone,
     		                        int total, String userSpecifiedImageName, 
     		                        String userSpecifiedImageDescription,
     		                        boolean archive, boolean useMetadataFile,
-    		                        Double[] userPixels, IObject userSpecifiedTarget)
+    		                        Double[] userPixels, IObject userSpecifiedTarget,
+    		                        List<Annotation> userSpecifiedAnnotations)
     	throws FormatException, IOException, Throwable
     {   
-
         String fileName = file.getAbsolutePath();
         String shortName = file.getName();
         String format = null;
@@ -383,7 +433,8 @@ public class ImportLibrary implements IObservable, StatusListener
             			       userSpecifiedTarget,
             	               userSpecifiedImageName,
             			       userSpecifiedImageDescription,
-            			       userPixels);
+            			       userPixels,
+            			       userSpecifiedAnnotations);
         	List<Long> plateIds = new ArrayList<Long>();
         	Image image = pixList.get(0).getImage();
         	if (image.sizeOfWellSamples() > 0)

@@ -88,6 +88,10 @@ public class FileSystem extends File {
 
 		if (isDirectory()) {
 			String[] entries = list();
+			if (entries == null) {
+			    log.error("I/O error or not a directory: " + getAbsolutePath());
+			    entries = new String[0];
+			}
 			int len = entries.length;
 
 			for (int i = 0; i < len; i++) {
@@ -174,20 +178,22 @@ public class FileSystem extends File {
 	public int hashCode() {
 		return (getName() != null ? getName().hashCode() : 0);
 	}
-	
-	public static void main(String[] args) throws IOException {
-		FileSystem file = new FileSystem("/OMERO");
-		long free = file.free("/");
 
-		if (log.isDebugEnabled()) {
-		    log.debug("Free kilobytes: " + free);
-            log.debug("Time prior to check: " + System.currentTimeMillis());
-        }
-		
-		long kb = file.free("/");
-        if (log.isDebugEnabled()) {
-            log.debug("Time after check: " + System.currentTimeMillis());
-            log.debug("kb free was " + kb);
-        }
+	public static void main(String[] args) throws IOException {
+	    FileSystem file = new FileSystem(args[0]);
+	    long free = file.free(args[0]);
+	    long used = file.used();
+
+	    System.err.println("Free kilobytes: " + free);
+	    System.err.println("Used kilobytes: " + used);
+	    System.err.println(
+	            "Time prior to check: " + System.currentTimeMillis());
+
+	    free = file.free(args[0]);
+	    used = file.used();
+	    System.err.println("Free kilobytes: " + free);
+	    System.err.println("Used kilobytes: " + used);
+	    System.err.println(
+	            "Time after check: " + System.currentTimeMillis());
 	}
 }
