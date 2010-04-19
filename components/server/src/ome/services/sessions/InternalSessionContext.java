@@ -34,7 +34,7 @@ class InternalSessionContext extends SessionContextImpl {
 
     @Override
     public String getCurrentEventType() {
-        return "system";
+        return "Internal"; // TODO This should be in Roles
     }
 
     @Override
