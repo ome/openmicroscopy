@@ -8,6 +8,7 @@ package ome.services.sharing;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,9 +16,19 @@ import java.util.Set;
 import ome.api.IShare;
 import ome.conditions.OptimisticLockException;
 import ome.model.IObject;
+import ome.model.core.Channel;
+import ome.model.core.Image;
+import ome.model.core.LogicalChannel;
+import ome.model.core.Pixels;
+import ome.model.core.PlaneInfo;
+import ome.model.display.ChannelBinding;
+import ome.model.display.QuantumDef;
+import ome.model.display.RenderingDef;
+import ome.model.display.Thumbnail;
 import ome.model.meta.Experimenter;
 import ome.model.meta.Share;
 import ome.model.meta.ShareMember;
+import ome.model.stats.StatsInfo;
 import ome.services.sharing.data.ShareData;
 import ome.services.sharing.data.ShareItem;
 import ome.system.OmeroContext;
@@ -158,6 +169,24 @@ public class BlobShareStore extends ShareStore implements
         }
     }
 
+    boolean imagesContainsPixels(Session s, List<Long> images, Pixels pix, Map<Long, Long> cache) {
+        Long pixID = pix.getId();;
+        return imagesContainsPixels(s, images, pixID, cache);
+    }
+
+    boolean imagesContainsPixels(Session s, List<Long> images, long pixID, Map<Long, Long> cache) {
+        Long imgID;
+        if (cache.containsKey(pixID)) {
+            imgID = cache.get(pixID);
+        } else {
+            imgID = (Long) s.createQuery(
+                "select image.id from Pixels where id = ?")
+                .setParameter(0, pixID).uniqueResult();
+            cache.put(pixID, imgID);
+        }
+        return images.contains(imgID);
+    }
+
     @Override
     public <T extends IObject> boolean doContains(long sessionId, Class<T> kls,
             long objId) {
@@ -167,11 +196,67 @@ public class BlobShareStore extends ShareStore implements
             return false;
         } else {
             List<Long> ids = data.objectMap.get(kls.getName());
-            if (ids == null) {
-                return false;
+            if (ids != null && ids.contains(objId)) {
+                return true;
             }
-            return ids.contains(objId);
         }
+
+        // ticket:2249 - Implementing logic similar to the query
+        // in DeleteBean in order to allow all objects which link
+        // back to an Image to also be loaded.
+        /*
+            + "left outer join fetch i.pixels as p "
+            + "left outer join fetch p.channels as c "
+            + "left outer join fetch c.logicalChannel as lc "
+            + "left outer join fetch lc.channels as c2 "
+            + "left outer join fetch c.statsInfo as sinfo "
+            + "left outer join fetch p.planeInfo as pinfo "
+            + "left outer join fetch p.thumbnails as thumb "
+            + "left outer join fetch p.pixelsFileMaps as map "
+            + "left outer join fetch map.parent as ofile "
+            + "left outer join fetch p.settings as setting "
+            // rdef
+            + "left outer join fetch r.waveRendering "
+            + "left outer join fetch r.quantization "
+        */
+
+        List<Long> images = data.objectMap.get(Image.class.getName());
+        Map<Long, Long> pixToImageCache = new HashMap<Long, Long>();
+        Session s = session();
+        if (Pixels.class.isAssignableFrom(kls)) {
+            return imagesContainsPixels(s, images, objId, pixToImageCache);
+        } else if (RenderingDef.class.isAssignableFrom(kls)) {
+            RenderingDef obj = (RenderingDef) s.get(RenderingDef.class, objId);
+            return imagesContainsPixels(s, images, obj.getPixels(), pixToImageCache);
+        } else if (ChannelBinding.class.isAssignableFrom(kls)) {
+            ChannelBinding obj = (ChannelBinding) s.get(ChannelBinding.class, objId);
+            return imagesContainsPixels(s, images, obj.getRenderingDef().getPixels(), pixToImageCache);
+        } else if (Thumbnail.class.isAssignableFrom(kls)) {
+            Thumbnail obj = (Thumbnail) s.get(Thumbnail.class, objId);
+            return imagesContainsPixels(s, images, obj.getPixels(), pixToImageCache);
+        } else if (Channel.class.isAssignableFrom(kls)) {
+            Channel obj = (Channel) s.get(Channel.class, objId);
+            return imagesContainsPixels(s, images, obj.getPixels(), pixToImageCache);
+        } else if (LogicalChannel.class.isAssignableFrom(kls)) {
+            LogicalChannel obj = (LogicalChannel) s.get(LogicalChannel.class,
+                    objId);
+            Iterator<Channel> it = obj.iterateChannels();
+            while (it.hasNext()) {
+                Channel ch = it.next();
+                if (images.contains(ch.getPixels().getImage().getId())) {
+                    return true;
+                }
+            }
+        } else if (PlaneInfo.class.isAssignableFrom(kls)) {
+            PlaneInfo obj = (PlaneInfo) s.get(PlaneInfo.class, objId);
+            return imagesContainsPixels(s, images, obj.getPixels(), pixToImageCache);
+        } else if (StatsInfo.class.isAssignableFrom(kls)
+                || QuantumDef.class.isAssignableFrom(kls)) {
+            // Objects we just don't care about so let the
+            // user load them if they really want to.
+            return true;
+        }
+        return false;
     }
 
     @Override

@@ -76,16 +76,4 @@ public class MockedOMEROImportFixture extends OMEROImportFixture {
         return store;
     }
 
-    @Override
-    public void tearDown() {
-        super.tearDown();
-        try {
-            if (this.store != null) {
-                this.store.logout();
-                this.store = null;
-            }
-        } catch (Exception e) {
-            log.error("Error on tearDown in store.logout()", e);
-        }
-    }
 }

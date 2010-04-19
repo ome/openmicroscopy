@@ -303,11 +303,6 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
             _users.add(e.getId());
         }
 
-        // The clear is necessary because of exceptions due to an unloaded
-        // Event around the time of ticket:1052. This may not be altogether
-        // necessary, but may reflect some other issue.
-        iQuery.clear();
-
         final long shareId = executor.get(future).getId();
         final Share share = iQuery.find(Share.class, shareId); // Reload!
         this.sec.doAction(new SecureShare() {

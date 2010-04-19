@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ome.api.IShare;
+import ome.api.ThumbnailStore;
 import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
 import ome.model.IObject;
@@ -681,6 +682,18 @@ public class SharingTest extends AbstractManagedContextTest {
         assertEquals(0, share.getContentSize(id));
     }
     
+    @Test(groups = "ticket:2249")
+    public void testJustAddImages() throws Exception {
+        Experimenter e = loginNewUser();
+        Image i = makeImage(false);
+        long sid = share.createShare("ticket:2249", null, Arrays.asList(i),
+                Arrays.asList(e), null, true);
+        share.activate(sid);
+        ThumbnailStore tb = factory.createThumbnailService();
+        tb.getThumbnailSet(64, 64, Collections.singleton(i.getPrimaryPixels()
+                .getId()));
+    }
+
     // Assertions
     // =========================================================================
 

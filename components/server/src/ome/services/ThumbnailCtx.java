@@ -41,6 +41,7 @@ import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.parameters.Parameters;
 import ome.security.SecuritySystem;
+import ome.system.EventContext;
 
 /**
  *
@@ -570,10 +571,14 @@ public class ThumbnailCtx
      */
     private boolean isExtendedGraphCritical(Set<Long> pixelsIds)
     {
-        Permissions currentGroupPermissions = 
-            securitySystem.getEventContext().getCurrentGroupPermissions();
+        EventContext ec = securitySystem.getEventContext();
+        Permissions currentGroupPermissions = ec.getCurrentGroupPermissions();
         Permissions readOnly = Permissions.parseString("rwr---");
 
+        if (ec.getCurrentShareId() != null)
+        {
+            return true;
+        }
         if (securitySystem.isGraphCritical()
             || currentGroupPermissions.identical(readOnly))
         {
