@@ -40,6 +40,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext as Context
 from django.views.defaults import page_not_found, server_error
 from django.views import debug
+from django.core.urlresolvers import reverse
 
 from omeroweb.feedback.sendfeedback import SendFeedback 
 from omeroweb.feedback.forms import ErrorForm

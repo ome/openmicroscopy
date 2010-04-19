@@ -20,7 +20,11 @@
             		    this.checked = true;
             		});
             		if (l == 1) {
+            		    {% if not nav.experimenter %}
             		    $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" onclick="manyCopyToClipboard();"> <input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" onclick="manyUnlink(\'ds-{{ manager.dataset.id }}\');"> | <input class="button" type="image" src="{% url webstatic "images/basket16.png" %}" onclick="manyAddToBasket();"> <input onclick="changeView(\'icon\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table">');
+            		    {% else %}
+            		    $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" onclick="manyCopyToClipboard();"> <input onclick="changeView(\'icon\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table">');
+            		    {% endif %}
             		    
             		    $("#right_panel").show();
                         $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
@@ -34,7 +38,11 @@
                         if(rel=='orphaned') {
                             $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" onclick="manyCopyToClipboard();"> <input class="button" type="image" src="{% url webstatic "images/basket16.png" %}" onclick="manyAddToBasket();"> | <a href="{% url load_metadata_details_multi %}" target="metadata_details"><img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/></a> <input onclick="changeView(\'icon\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table">');
                         } else {
+                            {% if not nav.experimenter %}
                             $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" onclick="manyCopyToClipboard();"> <input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" onclick="manyUnlink(\'ds-{{ manager.dataset.id }}\');"> | <input class="button" type="image" src="{% url webstatic "images/basket16.png" %}" onclick="manyAddToBasket();"> | <a href="{% url load_metadata_details_multi %}" target="metadata_details"><img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/></a> <input onclick="changeView(\'icon\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table">');
+                            {% else %}
+                            $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" onclick="manyCopyToClipboard();"> | <a href="{% url load_metadata_details_multi %}" target="metadata_details"><img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/></a> <input onclick="changeView(\'icon\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table">');
+                            {% endif %}
                         }
 
             		    $("#right_panel").show();

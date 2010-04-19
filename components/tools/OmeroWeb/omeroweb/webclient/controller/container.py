@@ -103,7 +103,13 @@ class BaseContainer(BaseController):
             if self.image is None:
                 raise AttributeError("We are sorry, but that image does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
             if self.image._obj is None:
-                raise AttributeError("We are sorry, but that image does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")                
+                raise AttributeError("We are sorry, but that image does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
+        elif o1_type == "well":
+            self.well = self.conn.lookupWell(o1_id)
+            if self.well is None:
+                raise AttributeError("We are sorry, but that well does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
+            if self.well._obj is None:
+                raise AttributeError("We are sorry, but that well does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")          
         elif o1_type == "tag":
             self.tag = self.conn.getTagAnnotation(o1_id)
         elif o1_type == "url":
@@ -125,8 +131,11 @@ class BaseContainer(BaseController):
         # TODO: hardcoded values.
         self.global_metadata = list()
         self.series_metadata = list()
-        if self.image is not None or self.well.selectedWellSample().image is not None:
+        if self.image is not None:
             om = self.image.loadOriginalMetadata()
+        elif self.well.selectedWellSample().image is not None:
+            om = self.well.selectedWellSample().image().loadOriginalMetadata()
+        if om is not None:
             self.original_metadata = om[0]
             self.global_metadata = sorted(om[1])
             self.series_metadata = sorted(om[2])

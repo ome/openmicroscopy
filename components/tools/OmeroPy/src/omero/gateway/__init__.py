@@ -2837,13 +2837,14 @@ class _ImageWrapper (BlitzObjectWrapper):
                             if len(l) < 1:
                                 l = None
                             else:
-                                l = tuple(l.split("="))
+                                l = tuple(l.split("="))                            
                             if l is not None:
                                 if flag == 1:
                                     global_metadata.append(l)
                                 elif flag == 2:
                                     series_metadata.append(l)
-        return (a, (global_metadata), (series_metadata))
+                    return (a, (global_metadata), (series_metadata))
+        return None
     
     def getThumbnail (self, size=(64,64), z=None, t=None):
         try:
@@ -3331,6 +3332,11 @@ class _ImageStageLabelWrapper (BlitzObjectWrapper):
     pass
 
 ImageStageLabelWrapper = _ImageStageLabelWrapper
+
+class _ImagingEnvironmentWrapper(BlitzObjectWrapper):
+   pass
+
+ImagingEnvironmentWrapper = _ImagingEnvironmentWrapper
 
 class _ImagingEnviromentWrapper (BlitzObjectWrapper):
     """

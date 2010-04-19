@@ -219,12 +219,11 @@ def login(request):
         request.session['port'] = blitz.port
         request.session['username'] = request.REQUEST.get('username').encode('utf-8').strip()
         request.session['password'] = request.REQUEST.get('password').encode('utf-8').strip()
-        request.session['experimenter'] = None
         request.session['clipboard'] = {'images': None, 'datasets': None, 'plates': None}
         request.session['shares'] = dict()
         request.session['imageInBasket'] = set()
         blitz_host = "%s:%s" % (blitz.host, blitz.port)
-        request.session['nav']={"blitz": blitz_host, "menu": "start", "view": "icon", "basket": 0}
+        request.session['nav']={"blitz": blitz_host, "menu": "start", "view": "icon", "basket": 0, "experimenter":None}
         
     error = request.REQUEST.get('error')
     
@@ -439,11 +438,6 @@ def logout(request, **kwargs):
     except KeyError:
         logger.error(traceback.format_exc())
     try:
-        del request.session['experimenter']
-    except KeyError:
-        logger.error(traceback.format_exc())
-        pass
-    try:
         del request.session['imageInBasket']
     except KeyError:
         logger.error(traceback.format_exc())
@@ -493,16 +487,16 @@ def load_template(request, menu, **kwargs):
     empty_label = "*%s" % conn.getUser().getFullName()
     if len(users) > 0:
         if request.REQUEST.get('experimenter') == "":
-            request.session['experimenter'] = None
+            request.session['nav']['experimenter'] = None
             form_users = UsersForm(initial={'users': users, 'empty_label':empty_label})
         elif request.REQUEST.get('experimenter') is not None: 
             form_users = UsersForm(initial={'users': users, 'empty_label':empty_label}, data=request.REQUEST.copy())
             if form_users.is_valid():
                 filter_user_id = request.REQUEST.get('experimenter', None)
-                request.session['experimenter'] = filter_user_id
+                request.session['nav']['experimenter'] = filter_user_id
                 form_users = UsersForm(initial={'user':filter_user_id, 'users': users, 'empty_label':empty_label})
         else:
-            filter_user_id = request.session.get('experimenter', None)
+            filter_user_id = request.session.get('nav')['experimenter']
             if filter_user_id is not None:
                 form_users = UsersForm(initial={'user':filter_user_id, 'users': users, 'empty_label':empty_label})
             else:
@@ -576,7 +570,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
         return handlerInternalError(x)
 
     # prepare forms
-    filter_user_id = request.session.get('experimenter')
+    filter_user_id = request.session.get('nav')['experimenter']
         
     # load data  
     form_well_index = None    

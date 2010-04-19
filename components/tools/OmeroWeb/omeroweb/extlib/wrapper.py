@@ -218,7 +218,9 @@ class PlateWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
         self.LINK_CLASS = None
         self.CHILD_WRAPPER_CLASS = None
         self.PARENT_WRAPPER_CLASS = 'ScreenWrapper'
-    
+
+omero.gateway.PlateWrapper = PlateWrapper
+
 class ScreenWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
     
     def __bstrap__ (self):
@@ -226,6 +228,8 @@ class ScreenWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
         self.LINK_CLASS = "ScreenPlateLink"
         self.CHILD_WRAPPER_CLASS = 'PlateWrapper'
         self.PARENT_WRAPPER_CLASS = None
+
+omero.gateway.ScreenWrapper = ScreenWrapper
 
 class WellWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
     
@@ -280,10 +284,14 @@ class WellWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
     def plate(self):
         return PlateWrapper(self._conn, self._obj.plate)
 
+omero.gateway.WellWrapper = WellWrapper
+
 class WellSampleWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
     
     def image(self):
         return ImageWrapper(self._conn, self._obj.image)
+
+omero.gateway.WellSampleWrapper = WellSampleWrapper
 
 class ShareWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
     

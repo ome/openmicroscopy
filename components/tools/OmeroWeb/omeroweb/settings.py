@@ -62,10 +62,12 @@ LOGGING_LOG_SQL = False
 
 # LOG path
 # Logging levels: logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR logging.CRITICAL
-LOGDIR = os.path.join(os.path.join(os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), '../'), '../'), '../'), 'var'), 'log').replace('\\','/')
+try:
+    LOGDIR
+except:
+    LOGDIR = os.path.join(os.path.join(os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), '../'), '../'), '../'), 'var'), 'log').replace('\\','/')
 
 if DEBUG:  
-    LOGDIR = os.path.join(os.path.dirname(__file__), 'log').replace('\\','/')  
     LOGFILE = ('OMEROweb-DEBUG.log')
     LOGLEVEL = logging.DEBUG
 else:
