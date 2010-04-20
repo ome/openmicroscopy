@@ -44,7 +44,9 @@ import omero
 import omero_Constants_ice
 from omero.rtypes import *
 import omero.util.pixelstypetopython as pixelstypetopython
-
+import omero.util.OmeroPopo.EllipseData as EllipseData
+import omero.util.OmeroPopo.RectData as RectData
+import omero.util.OmeroPopo.MaskData as MaskData
 
 try: 
     import hashlib 
@@ -687,6 +689,87 @@ def parseInputs(client, session, processFn=IdentityFn):
         commandArgs[key]=client.getInput(key).getValue();
     return processFn(commandArgs);  
 
+
+def getROIFromImage(iROIService, imageId, namespace=None):
+    """
+    Get the ROI from the server for the image with the namespace 
+    @param iROIService The iROIService object
+    @param imageId The imageId to retreive ROI from.
+    @param namespace The namespace of the ROI.
+    @return See above.
+    """    
+    roiOpts = ROIOptions(); 
+    if(namespace!=None):
+        roiOpts.namespace = namespace;
+    return iROIService.findByImage(imageId, roiOpts);
+
+def roiWrapper(serverSideROI):
+    """
+    Wrap the serverSide ROI as the appropriate OmeroPopos
+    @param serverSideROI The roi object to wrap.
+    @return See above.
+    """    
+    if serverSideROI.__class__.__name__=='EllipseI':
+        return EllipseData(serverSideROI);
+    if serverSideROI.__class__.__name__=='RectI':
+        return RectData(serverSideROI);
+    if serverSideROI.__class__.__name__=='MaskI':
+        return MaskData(serverSideROI);
+    raise Exception("ROI of type " + serverSideROI.__class__.__name__+ " Not supported by OmeroPopos");
+  
+def toCSV(list):
+    """
+    Convert a list to a Comma Separated Value string.
+    @param list The list to convert.
+    @return See above.
+    """
+    lenList = len(list);
+    cnt = 0;
+    str = "";
+    for item in list:
+        str = str + item;
+        if(cnt < lenList-1):
+              str = str + ",";
+        cnt = cnt +1;
+    return str;
+  
+def toList(csvString):
+    """
+    Convert a csv string to a list of strings
+    @param csvString The CSV string to convert.
+    @return See above.
+    """
+    list = a.split(',');
+    for index in range(len(list)):
+        list[index] = list[index].strip();
+    return list;
+  
+def registerNamespace(iQuery, iUpdate, namespace, keywords):
+    """
+    Register a workflow with the server, if the workflow does not exist create it and returns it,
+    otherwise it returns the already created workflow.
+    @param iQuery The query service.
+    @param iUpdate The update service.
+    @param namespace The namespace of the workflow.
+    @param keywords The keywords associated with the workflow.
+    @return see above.
+    """
+    workflow = iQuery.findByQuery('from workflow as w where w.namespace = ' + namespace, None);
+    if(workflow!=None):
+        keywordList = toList(workflow.getKeywords.getValue());
+        toAppend = [];
+        for keyword in keywords:
+            if keyword not in keywordList:
+                toAppend.append(keyword);
+        if(len(toAppend)!=None):
+            for keyword in toAppend:
+                keywordList.append(keyword);
+            workflow.setKeywords(rstring(keywordList));
+            workflow = iUpdate.saveAndReturnObject(workflow);
+        return workflow;
+    
+    workflow = WorkflowI(rstring(namespace), rstring(toCSV(keywords)));
+    return iUpdate.saveAndReturnObject(workflow);
 
 class sessionWrapper():
     """
