@@ -89,6 +89,7 @@ class UsersPopupMenu
 			if (ownerID == exp.getId()) {
 				item = new UserItem(exp, icon);
 				item.setFont(item.getFont().deriveFont(Font.BOLD));
+				item.setToolTipText("Image's owner");
 				item.setSelected(id == exp.getId());
 				group.add(item);
 				item.addActionListener(this);

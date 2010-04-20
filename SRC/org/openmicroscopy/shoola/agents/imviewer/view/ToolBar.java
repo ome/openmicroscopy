@@ -215,10 +215,18 @@ class ToolBar
         					ImViewerControl.SET_RND_SETTINGS_MIN_MAX));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
+        /*
         b = new JButton(controller.getAction(
         		ImViewerControl.SET_OWNER_RND_SETTINGS));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
+        */
+        Action a = controller.getAction(ImViewerControl.USER);
+        b = new JButton(a);
+        b.addMouseListener((UserAction) a);
+        UIUtilities.unifiedButtonLookAndFeel(b);
+        bar.add(b);
+        
         b = new JButton(
     			controller.getAction(ImViewerControl.SAVE_RND_SETTINGS));
         UIUtilities.unifiedButtonLookAndFeel(b);
@@ -232,7 +240,7 @@ class ToolBar
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b); 
         bar.add(new JSeparator(JSeparator.VERTICAL));
-        Action a = controller.getAction(ImViewerControl.MEASUREMENT_TOOL);
+        a = controller.getAction(ImViewerControl.MEASUREMENT_TOOL);
         measurementButton = new JButton(a);
         measurementButton.addMouseListener((ROIToolAction) a);
         UIUtilities.unifiedButtonLookAndFeel(measurementButton);
@@ -254,13 +262,6 @@ class ToolBar
         b.addMouseListener((ActivityImageAction) a);
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);        
-        
-        a = controller.getAction(ImViewerControl.USER);
-        b = new JButton(a);
-        b.addMouseListener((UserAction) a);
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        //bar.add(button);
-        
         Dimension d = new Dimension(w, h);
         busyLabel = new JXBusyLabel(d);
     	busyLabel.setEnabled(true);

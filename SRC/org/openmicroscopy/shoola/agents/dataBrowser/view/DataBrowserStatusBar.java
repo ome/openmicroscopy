@@ -67,7 +67,10 @@ class DataBrowserStatusBar
 	/** Reference to the view. */
 	private DataBrowserUI		view;
 	
-	/** Slider to zoom the nodes. */
+	/** Slider to zoom the fields . */
+	private OneKnobSlider		fieldsZoomSlider;
+	
+	/** Slider to zoom the fields . */
 	private OneKnobSlider		zoomSlider;
 	
     /** The bar notifying the user for the data retrieval progress. */
@@ -79,6 +82,9 @@ class DataBrowserStatusBar
     /** The component displaying the magnification factor. */
     private MagnificationComponent mag;
     
+    /** The displayed slider. */
+    private OneKnobSlider		 refSlider;
+    
 	/** Initializes the components. */
 	private void initComponents()
 	{
@@ -86,28 +92,22 @@ class DataBrowserStatusBar
 				Thumbnail.MAX_SCALING_FACTOR, Thumbnail.SCALING_FACTOR);
 		mag.addPropertyChangeListener(
 				MagnificationComponent.MAGNIFICATION_PROPERTY, this);
-		zoomSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 
+		fieldsZoomSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 
 				WellFieldsView.MAGNIFICATION_UNSCALED_MIN*FACTOR, 
 				WellFieldsView.MAGNIFICATION_UNSCALED_MAX*FACTOR, 
 				WellFieldsView.MAGNIFICATION_UNSCALED_MIN*FACTOR);
-		zoomSlider.setEnabled(false);
-		zoomSlider.setToolTipText("Magnifies the thumbnails.");
-		/*
-		zoomSlider.setShowArrows(true);
+		//fieldsZoomSlider.setEnabled(false);
+		fieldsZoomSlider.setToolTipText("Magnifies the thumbnails.");
+		
 		zoomSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 
 				(int) (Thumbnail.MIN_SCALING_FACTOR*FACTOR), 
 				(int) (Thumbnail.MAX_SCALING_FACTOR*FACTOR), 
-				(int) (Thumbnail.MIN_SCALING_FACTOR*FACTOR));
-		zoomSlider.setEnabled(false);
-		zoomSlider.setShowArrows(true);
-		zoomSlider.setToolTipText("Magnifies the thumbnails.");
-		IconManager icons = IconManager.getInstance();
-		zoomSlider.setArrowsImageIcon(
-				icons.getImageIcon(IconManager.ZOOM_IN), 
-				icons.getImageIcon(IconManager.ZOOM_OUT));
-				*/
-		zoomSlider.setVisible(false);
+				(int) (Thumbnail.SCALING_FACTOR*FACTOR));
+		//zoomSlider.setEnabled(false);
 		zoomSlider.addChangeListener(this);
+		zoomSlider.setToolTipText("Magnifies the thumbnails.");
+		fieldsZoomSlider.addChangeListener(this);
+		refSlider = zoomSlider;
 		progressBar = new JProgressBar();
         status = new JLabel();
 		progressBar.setVisible(false);
@@ -122,10 +122,9 @@ class DataBrowserStatusBar
         right.add(progressBar);
         JPanel left = new JPanel();
         left.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        //left.add(zoomSlider);
         left.add(mag);
         left.add(Box.createHorizontalStrut(5));
-        left.add(zoomSlider);
+        left.add(refSlider);
         add(left);
 		add(right);
 	}
@@ -152,27 +151,13 @@ class DataBrowserStatusBar
 	 */
 	void setSelectedViewIndex(int index, double magnification)
 	{
-		zoomSlider.setEnabled(false);
-		zoomSlider.setVisible(false);
+		refSlider = zoomSlider;
 		mag.setOriginal(magnification);
 		if (index == DataBrowserUI.FIELDS_VIEW) {
-			zoomSlider.setEnabled(true);
-			zoomSlider.setVisible(true);
+			refSlider = fieldsZoomSlider;
 		}
-		/*
-		switch (index) {
-			case DataBrowserUI.THUMB_VIEW:
-			case DataBrowserUI.FIELDS_VIEW:
-				zoomSlider.removeChangeListener(this);
-				zoomSlider.setValue((int) (magnification*FACTOR));
-				zoomSlider.setEnabled(true);
-				zoomSlider.addChangeListener(this);
-				break;
-			default:
-				zoomSlider.setEnabled(false);
-				break;
-		}
-		*/
+		removeAll();
+		buildGUI();
 	}
 	
 	/** 
@@ -214,10 +199,14 @@ class DataBrowserStatusBar
 	public void stateChanged(ChangeEvent e)
 	{
 		Object src = e.getSource();
-		if (src == zoomSlider) {
-			int v = zoomSlider.getValue();
+		if (src == fieldsZoomSlider) {
+			int v = fieldsZoomSlider.getValue();
 	    	double f = (double) v/FACTOR;
 			view.setMagnificationUnscaled(f);
+		} else if (src == zoomSlider) {
+			int v = zoomSlider.getValue();
+	    	double f = (double) v/FACTOR;
+			view.setMagnificationFactor(f);
 		}
 	}
 
@@ -231,6 +220,10 @@ class DataBrowserStatusBar
 		if (MagnificationComponent.MAGNIFICATION_PROPERTY.equals(name)) {
 			double v = (Double) evt.getNewValue();
 			view.setMagnificationFactor(v);
+			int value = (int) (v*FACTOR);
+			zoomSlider.removeChangeListener(this);
+			zoomSlider.setValue(value);
+			zoomSlider.addChangeListener(this);
 		}
 	}
 	

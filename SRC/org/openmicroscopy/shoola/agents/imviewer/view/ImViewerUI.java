@@ -540,7 +540,7 @@ class ImViewerUI
 		menu.add(createScaleBarColorSubMenu(pref));
 		menu.add(new JSeparator(JSeparator.HORIZONTAL));
 		menu.add(createBackgroundColorSubMenu(pref));
-		menu.add(new JSeparator(JSeparator.HORIZONTAL));
+		//menu.add(new JSeparator(JSeparator.HORIZONTAL));
 		return menu;
 	}
 
@@ -591,16 +591,6 @@ class ImViewerUI
 		item = new JMenuItem(action);
 		item.setText(action.getName());
 		menu.add(item);
-		
-		//movie and export
-		/*
-		menu.add(new JSeparator(JSeparator.HORIZONTAL));
-		action = controller.getAction(ImViewerControl.ACTIVITY);
-		item = new JMenuItem(action);
-		item.setText(action.getName());
-		menu.add(item);
-		 */
-		
 		menu.add(new JSeparator(JSeparator.HORIZONTAL));
 		//Color model
 		colorModelGroup = new ButtonGroup();

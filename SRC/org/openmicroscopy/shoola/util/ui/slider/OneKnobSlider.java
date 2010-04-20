@@ -61,7 +61,7 @@ public class OneKnobSlider
 	/** This is set to <code>true</code> if the slider has tooltipString. */
 	private boolean 		hasLabel;
 	
-	/** Tooltip string which is shown when slider is dragged, changed value. */
+	/** Tool-tip text which is shown when slider is dragged, changed value. */
 	private String 			endLabel;
 	
 	/** This value is set to true if the tip label will be displayed. */
