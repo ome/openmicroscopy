@@ -1,0 +1,20 @@
+ Category
+ CreationDate
+ Description
+ Experimenter
+ FormalInput CLI
+ FormalOutput CLI
+ Group
+ Index CLI
+ Path CLI
+ PixelType CLI
+ Pixels
+ Repository CLI
+ SizeC CLI
+ SizeT CLI
+ SizeX CLI
+ SizeZ CLI
+
+Additions
+---------
+Well
