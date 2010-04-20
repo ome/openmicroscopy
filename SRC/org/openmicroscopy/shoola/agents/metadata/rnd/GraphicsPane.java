@@ -32,7 +32,6 @@ import java.util.Iterator;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -73,14 +72,6 @@ class GraphicsPane
 	 * (resp. removed) to (resp. from) the maximum (resp. the minimum).
 	 */
 	static final double RATIO = 0.2;
-	
-	/** Text of the preview check box. */
-	private static final String	PREVIEW = "Immediate Update";
-	
-	/** The description of the preview check box. */
-	private static final String	PREVIEW_DESCRIPTION = "Update the " +
-			"rendering settings immediately. Not available for large " +
-			"images";
     
     /** Slider to select a sub-interval of [0, 255]. */
     private TwoKnobsSlider      	codomainSlider;
@@ -102,12 +93,6 @@ class GraphicsPane
     
     /** Reference to the Control.*/
     protected RendererControl   	controller;
-
-    /** Preview option for render settings */
-    private JCheckBox				preview;
-
-    /** Flag indicating to paint a line when moving the sliders' knobs. */
-    //private boolean 				paintLine;
     
     /** Flag indicating to paint a vertical line. */
     private boolean 				paintVertical;
@@ -123,6 +108,9 @@ class GraphicsPane
     
     /** Hosts the sliders controlling the pixels intensity values. */
     private List<ChannelSlider> 	sliders;
+    
+    /** The component displaying the controls. */
+    private PreviewControlBar		controlsBar;
     
     /**
 	 * Formats the specified value.
@@ -161,6 +149,7 @@ class GraphicsPane
     /** Initializes the components. */
     private void initComponents()
     {
+        controlsBar = new PreviewControlBar(controller, model);
         uiDelegate = new GraphicsPaneUI(this, model);
         codomainSlider = new TwoKnobsSlider(RendererModel.CD_START, 
                                         RendererModel.CD_END, 
@@ -185,10 +174,6 @@ class GraphicsPane
         minLabel = new JLabel(formatValue(model.getGlobalMin()));
         maxLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
         minLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
-        preview = new JCheckBox(PREVIEW);
-        preview.setEnabled(!model.isBigImage());
-        preview.setBackground(UIUtilities.BACKGROUND_COLOR);
-        preview.setToolTipText(PREVIEW_DESCRIPTION);
         if (model.getMaxC() < Renderer.MAX_CHANNELS) {
         //if (model.isGeneralIndex() && model.getMaxC() < Renderer.MAX_CHANNELS) {
         	sliders = new ArrayList<ChannelSlider>();
@@ -236,11 +221,9 @@ class GraphicsPane
     {
     	JPanel content = new JPanel();
     	content.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-    	content.add(new JSeparator());
+    	if (model.isGeneralIndex()) content.add(new JSeparator());
    	 	content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
-   	 	JPanel p = UIUtilities.buildComponentPanel(preview);
-   	 	p.setBackground(UIUtilities.BACKGROUND_COLOR);
-   	 	content.add(p);
+   	 	content.add(controlsBar);
    	 	content.setBackground(UIUtilities.BACKGROUND_COLOR);
     	Iterator<ChannelSlider> i = sliders.iterator();
     	while (i.hasNext()) {
@@ -271,7 +254,7 @@ class GraphicsPane
     	 p.add(uiDelegate, "2, 1");
     	 p.add(domainSlider.getSlider(), "1, 3, 3, 3");
     	 //if (!model.isGeneralIndex())
-    	 p.add(preview, "0, 4, 3, 4");
+    	 p.add(controlsBar, "0, 4, 3, 4");
          return p;
     }
  
@@ -430,12 +413,12 @@ class GraphicsPane
     boolean isPaintLine() { return paintVertical() || paintHorizontal(); }
     
     /**
-     * Returns <code>true</code> if the preview is selected, 
+     * Returns <code>true</code> if the life update is selected, 
      * <code>false</code> otherwise.
      * 
      * @return See above.
      */
-    boolean isPreviewSelected() { return preview.isSelected(); }
+    boolean isLiveUpdate() { return controlsBar.isLiveUpdate(); }
     
     /**
      * Returns <code>true</code> if a vertical line has 
@@ -541,7 +524,7 @@ class GraphicsPane
     {
 		String name = evt.getPropertyName();
 		Object source = evt.getSource();
-		if (!preview.isSelected()) {
+		if (!controlsBar.isLiveUpdate()) {
 			if (TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name)) {
 				//paintLine = false;
 				//horizontalLine = -1;

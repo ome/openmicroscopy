@@ -67,6 +67,15 @@ public class ManageRndSettingsAction
 	/** Indicates to the settings of the owner. */
 	public static final int SET_OWNER_SETTING = 4;
 	
+	/** The description of the action if {@link #APPLY_TO_ALL}. */
+	private static final String NAME_APPLY_TO_ALL = "Apply to All";
+	
+	/** The description of the action if {@link #MIN_MAX}. */
+	private static final String NAME_MIN_MAX = "Min/Max";
+	
+	/** The description of the action if {@link #UNDO}. */
+	private static final String NAME_UNDO = "Undo";
+
 	/** The description of the action if {@link #MIN_MAX}. */
 	private static final String DESCRIPTION_MIN_MAX = 
 		"Set the Pixels Intensity interval to min/max for all channels.";
@@ -101,6 +110,7 @@ public class ManageRndSettingsAction
 		IconManager icons = IconManager.getInstance();
 		switch (value) {
 			case MIN_MAX:
+				putValue(Action.NAME, NAME_MIN_MAX);
 				setEnabled(model.getPixelsDimensionsC() < 
 						Renderer.MAX_CHANNELS);
 				putValue(Action.SHORT_DESCRIPTION, 
@@ -115,12 +125,14 @@ public class ManageRndSettingsAction
 						icons.getIcon(IconManager.RND_REDO));
 				break;
 			case UNDO:
+				putValue(Action.NAME, NAME_UNDO);
 				putValue(Action.SHORT_DESCRIPTION, 
 						UIUtilities.formatToolTipText(DESCRIPTION_UNDO));
 				putValue(Action.SMALL_ICON, 
 						icons.getIcon(IconManager.RND_UNDO));
 				break;
 			case APPLY_TO_ALL:
+				putValue(Action.NAME, NAME_APPLY_TO_ALL);
 				putValue(Action.SHORT_DESCRIPTION, 
 						UIUtilities.formatToolTipText(
 								DESCRIPTION_APPLY_TO_ALL));

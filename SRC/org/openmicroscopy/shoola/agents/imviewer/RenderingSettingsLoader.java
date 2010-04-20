@@ -70,6 +70,9 @@ public class RenderingSettingsLoader
      */
     private boolean 	single;
     
+    /** Indicates to apply the setting of the rendering settings. */
+    private long		ownerID;
+    
     /**
      * Creates a new instance
      * 
@@ -99,7 +102,15 @@ public class RenderingSettingsLoader
         	throw new IllegalArgumentException("Pixels ID not valid.");
         this.pixelsID = pixelsID;
         this.single = single;
+        ownerID = -1;
     }
+    
+    /**
+     * Sets the identifier of the owner.
+     * 
+     * @param ownerID The value to set.
+     */
+    public void setOwner(long ownerID) { this.ownerID = ownerID; }
     
     /**
      * Retrieves the rendering settings for the selected pixels set.
@@ -137,11 +148,13 @@ public class RenderingSettingsLoader
         		entry = (Entry) i.next();
 				exp = (ExperimenterData) entry.getKey();
 				if (userID == exp.getId())
-					viewer.setSettingsToPaste((RndProxyDef) entry.getValue());
+					viewer.setSettingsToPaste(
+							(RndProxyDef) entry.getValue());
 			}
         } else {
-        	viewer.setRenderingSettings(map);
+        	viewer.setRenderingSettings(map, ownerID);
         }
+
     }
     
 }

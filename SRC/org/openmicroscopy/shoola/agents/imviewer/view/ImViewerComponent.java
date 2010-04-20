@@ -2309,13 +2309,29 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#setRenderingSettings(Map)
+	 * @see ImViewer#setRenderingSettings(Map, long)
 	 */
-	public void setRenderingSettings(Map map)
+	public void setRenderingSettings(Map map, long userID)
 	{
 		if (model.getState() == DISCARDED) return;
 		model.setRenderingSettings(map);
-		view.showUsersList();
+		if (userID >= 0) {
+			if (map != null) {
+				Entry entry;
+				Iterator i = map.entrySet().iterator();
+				ExperimenterData exp;
+				while (i.hasNext()) {
+					entry = (Entry) i.next();
+					exp = (ExperimenterData) entry.getKey();
+					if (exp.getId() == userID) {
+						model.setUserSettings(exp);
+						break;
+					} 
+				}
+			}
+		} else {
+			view.showUsersList();
+		}
 	}
 
 	/** 
@@ -3104,9 +3120,29 @@ class ImViewerComponent
 	}
 	
 	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#setRangeAllChannels()
+	 */
+	public void setRangeAllChannels()
+	{
+		model.setRangeAllChannels();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#setOwnerSettings()
+	 */
+	public void setOwnerSettings()
+	{
+		Map m = model.getRenderingSettings();
+		if (m == null) model.fireOwnerSettingsRetrieval();
+		else setRenderingSettings(m, model.getOwnerID());
+	}
+	
+	/** 
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()
 	 */
 	public String toString() { return getTitle(); }
-	
+
 }

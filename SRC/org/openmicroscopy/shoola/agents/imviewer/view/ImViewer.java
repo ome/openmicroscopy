@@ -832,13 +832,14 @@ public interface ImViewer
 	 * Sets the rendering settings set by other users.
 	 * 
 	 * @param map The map with the value to set.
+	 * @param userID The identifier of the user or <code>-1</code>.
 	 */
-	public void setRenderingSettings(Map map);
+	public void setRenderingSettings(Map map, long userID);
 
 	/** 
 	 * Retrieves the rendering settings set by other users. 
 	 * 
-	 * @param source	The component that requested the popup menu.
+	 * @param source	The component that requested the pop-up menu.
 	 * @param location	The point at which to display the menu, relative to the
 	 *                  <code>component</code>'s coordinates.
 	 */
@@ -1149,4 +1150,11 @@ public interface ImViewer
 	 * @return See above.
 	 */
 	boolean isUserOwner();
+	
+	/** Sets the maximum range for channels. */
+	void setRangeAllChannels();
+	
+	/** Uses the rendering settings of the owner. */
+	void setOwnerSettings();
+
 }

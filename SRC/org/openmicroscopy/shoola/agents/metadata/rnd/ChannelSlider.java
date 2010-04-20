@@ -211,7 +211,7 @@ class ChannelSlider
 	public void propertyChange(PropertyChangeEvent evt)
 	{
 		String name = evt.getPropertyName();
-		if (uiParent.isPreviewSelected()) {
+		if (uiParent.isLiveUpdate()) {
 			if (TwoKnobsSlider.LEFT_MOVED_PROPERTY.equals(name)
 					|| TwoKnobsSlider.RIGHT_MOVED_PROPERTY.equals(name)) {
 				controller.setInputInterval(slider.getStartValue(),

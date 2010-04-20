@@ -1595,6 +1595,21 @@ class ImViewerModel
 	}
 	
 	/**
+	 * Fires an asynchronous retrieval of the rendering settings 
+	 * linked to the currently viewed set of pixels.
+	 */
+	void fireOwnerSettingsRetrieval()
+	{
+		RenderingSettingsLoader loader = new RenderingSettingsLoader(component, 
+				getImage().getDefaultPixels().getId());
+		loader.setOwner(getOwnerID());
+		loader.load();
+		if (loaders.get(SETTINGS) != null)
+			loaders.get(SETTINGS).cancel();
+		loaders.put(SETTINGS, loader);
+	}
+	
+	/**
 	 * Returns the rendering settings linked to the currently viewed set
 	 * of pixels.
 	 * 
@@ -2277,6 +2292,12 @@ class ImViewerModel
 	{
 		long userID = ImViewerAgent.getUserDetails().getId();
 		return EditorUtil.isUserOwner(getImage(), userID);
+	}
+	
+	/** Sets the maximum range for channels. */
+	void setRangeAllChannels()
+	{
+		metadataViewer.getRenderer().setRangeAllChannels();
 	}
 	
 }

@@ -29,7 +29,6 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -562,19 +561,12 @@ public class DomainPane
     {
     	JPanel p = new JPanel();
     	double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, 
-				{TableLayout.FILL, TableLayout.PREFERRED, 
-    			TableLayout.PREFERRED}};
+				{TableLayout.FILL, TableLayout.PREFERRED}};
     	p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.setLayout(new TableLayout(tl));
 		p.add(zSlider, "0, 0");
 		p.add(canvas, "1, 0");
-		p.add(tSlider, "1, 1");
-		
-		/*
-		JPanel l = UIUtilities.buildComponentPanel(selectedPlane);
-    	l.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	p.add(l, "0, 2, 1, 2");
-    	*/
+		if (tSlider.isVisible()) p.add(tSlider, "1, 1");
     	return p;
     }
     

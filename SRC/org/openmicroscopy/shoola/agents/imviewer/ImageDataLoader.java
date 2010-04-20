@@ -58,7 +58,7 @@ public class ImageDataLoader
     /** The ID of the image. */
     private long        imageID;
     
-    /** Handle to the async call so that we can cancel it. */
+    /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
     
     /**

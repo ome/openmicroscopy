@@ -249,9 +249,11 @@ public class ManageRndSettingsAction
 			case RESET:
 				model.resetDefaultRndSettings();
 				break;
-	
-			default:
+			case SET_MIN_MAX:
+				model.setRangeAllChannels();
 				break;
+			case SET_OWNER:
+				model.setOwnerSettings();
 		}
     }
 
