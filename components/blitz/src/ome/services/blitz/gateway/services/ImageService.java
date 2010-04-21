@@ -109,13 +109,13 @@ public interface ImageService
 	 * @param t number of timepoints.
 	 * @param z number of zsections.
 	 * @param channelList the list of channels to copy.
-	 * @param methodology what created the pixels.
+	 * @param imageName The name of the image.
 	 * @return new id.
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
 	public Long copyImage(long imageId, int x, int y, int t, int z, 
-			List<Integer> channelList, String methodology) 
+			List<Integer> channelList, String imageName) 
 	throws ServerError;
 	
 	/**

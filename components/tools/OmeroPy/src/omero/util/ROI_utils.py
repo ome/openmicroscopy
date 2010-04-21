@@ -36,7 +36,7 @@
 # </small>
 # @since 3.0-Beta4
 #/
-
+import omero.clients
 from omero.model import RoiI
 from omero.model import EllipseI
 from omero.model import LineI

@@ -385,7 +385,7 @@ public class OmeroGateway
 			List<Integer> channelList, String imageName, Current __current)
 			throws ServerError
 	{
-		return imageService.copyImage(imageId, x, y, t, z, channelList,"");
+		return imageService.copyImage(imageId, x, y, t, z, channelList,imageName);
 	}
 	 
 	/**

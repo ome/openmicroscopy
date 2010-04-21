@@ -1,5 +1,6 @@
 import math;
 import numpy;
+import omero.clients
 from omero.model import RoiI
 from omero.model import EllipseI
 from omero.model import LineI

@@ -29,7 +29,7 @@
 #	FLOAT = "float";
 #	DOUBLE = "double";
 # we can convert these to the appropriate types in python.	
-import omero
+import omero.clients
 
 def toPython(pixelType):
 	INT_8 = "int8"

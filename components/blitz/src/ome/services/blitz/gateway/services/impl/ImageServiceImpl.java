@@ -102,14 +102,14 @@ public class ImageServiceImpl
 	 * @see blitzgateway.service.ImageService#copyPixels(long, java.lang.String)
 	 */
 	public Long copyPixels(long pixelsID, List<Integer> channelList,
-			String methodology) throws omero.ServerError
+			String imageName) throws omero.ServerError
 	{
 		IPixelsPrx iPixels = gatewayFactory.getIPixels();
 		Pixels pixels = getPixels(pixelsID);
 		Long newID = iPixels.copyAndResizePixels
 						(pixelsID, pixels.getSizeX(), pixels.getSizeY(), 
 						 pixels.getSizeZ(),pixels.getSizeT(),
-						 channelList, methodology, true).getValue();
+						 channelList, imageName, true).getValue();
 		return newID;
 	}
 
@@ -117,11 +117,11 @@ public class ImageServiceImpl
 	 * @see blitzgateway.service.ImageService#copyImage(long, int, int, int, int, java.lang.String)
 	 */
 	public Long copyImage(long imageId, int x, int y, int t, int z, List<Integer> channelList,
-			String methodology) throws omero.ServerError
+			String imageName) throws omero.ServerError
 	{
 		IPixelsPrx iPixels = gatewayFactory.getIPixels();
 		Long newID = iPixels.copyAndResizeImage
-						(imageId, rint(x), rint(y), rint(z), rint(t), channelList, methodology, true).getValue();
+						(imageId, rint(x), rint(y), rint(z), rint(t), channelList, imageName, true).getValue();
 		return newID;
 	}
 	

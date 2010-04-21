@@ -40,13 +40,13 @@ from struct import *
 #from PIL import Image
 #import ImageDraw
 
-import omero
+import omero.clients
 import omero_Constants_ice
 from omero.rtypes import *
 import omero.util.pixelstypetopython as pixelstypetopython
-import omero.util.OmeroPopo.EllipseData as EllipseData
-import omero.util.OmeroPopo.RectData as RectData
-import omero.util.OmeroPopo.MaskData as MaskData
+from omero.util.OmeroPopo import EllipseData as EllipseData
+from omero.util.OmeroPopo import RectData as RectData
+from omero.util.OmeroPopo import MaskData as MaskData
 
 try: 
     import hashlib 

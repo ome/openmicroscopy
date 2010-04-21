@@ -203,7 +203,7 @@ module omero {
              * @param t The number of time-points
              * @param z The number of zSections.
              * @param channelList the list of channels to copy, [0-(sizeC-1)].
-             * @param imageName The new imageName.
+             * @param imageName The image name.
              * @return new id.
              * @throws omero::ServerError
              **/
