@@ -393,7 +393,7 @@ def downloadPlane(rawPixelsStore, pixels, z, c, t):
     convertedPlane = unpack(convertType, rawPlane);
     numpyType = pixelstypetopython.toNumpy(pixelType)
     remappedPlane = numpy.array(convertedPlane, numpyType);
-    remappedPlane.resize(sizeX, sizeY);
+    remappedPlane.resize(sizeY, sizeX);
     return remappedPlane;
 
 def createFileFromData(updateService, queryService, filename, data):
