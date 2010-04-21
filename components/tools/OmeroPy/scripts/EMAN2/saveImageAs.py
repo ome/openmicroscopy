@@ -187,7 +187,8 @@ def saveImageAs(session, parameterMap):
         # export an EM image for every channel
         for theC in cIndexes:
             if theC > 0:
-                imageName = imageName.replace(extension, "%s.%s" % (theC, extension))
+                saveName = imageName.replace(extension, "%s.%s" % (theC, extension))
+            else: saveName = imageName
             for z in range(zSize):
                 # get each plane and add to EMData 
                 #print "Downloading plane: %d" % z
@@ -196,7 +197,7 @@ def saveImageAs(session, parameterMap):
                 EMNumPy.numpy2em(plane2D, e)
                 em.insert_clip(e,(0,0,z))
             
-            em.write_image(imageName)
+            em.write_image(saveName)
         
             if format == None:
                 format = ""        # upload method will pick generic format. 

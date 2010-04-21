@@ -45,7 +45,7 @@ colourOptions = {"blue": (0,0,255,255), "green":(0,255,0,255), "red":(255,0,0,25
 
 def getPlane(rawPixelStore, pixels, theZ, theC, theT):
 	"""
-	This method downloads the first (only?) plane of the OMERO image and saves it as a local image.
+	This method downloads the specified plane of the OMERO image and returns it as a numpy array. 
 	
 	@param session		The OMERO session
 	@param imageId		The ID of the image to download

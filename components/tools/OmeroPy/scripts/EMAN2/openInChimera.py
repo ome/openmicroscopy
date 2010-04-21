@@ -113,7 +113,8 @@ def run(commandArgs):
 	path = None
 	if "path" in commandArgs:
 		path = commandArgs["path"]
-		
+	
+	print "Downloading..."
 	fileNames = []	# need names for passing to chimera
 	if "originalFileIds" in results:
 		for r in results["originalFileIds"].getValue():
@@ -123,8 +124,8 @@ def run(commandArgs):
 			name = originalFile.getName().getValue()
 			if path:
 				name = os.path.join(path, name)
-			print "Downloading to:", name
 			filePath = scriptUtil.downloadFile(rawFileStore, originalFile, name)
+			print "   file save to:", filePath
 			fileNames.append(filePath)		# if 'name' file already exists, filePath will be different 
 			# This only deletes the DB row, not the data on disk! utils.cleanse.py removes files that are not in db. 
 			gateway.deleteObject(originalFile)

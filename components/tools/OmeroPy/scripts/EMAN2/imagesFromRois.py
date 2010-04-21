@@ -267,6 +267,6 @@ def runAsScript():
     
     makeImagesFromRois(session, parameterMap)
     
-    
+
 if __name__ == "__main__":
     runAsScript()

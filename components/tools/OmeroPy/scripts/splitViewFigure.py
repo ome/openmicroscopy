@@ -638,7 +638,7 @@ def splitViewFigure(session, commandArgs):
 	
 	format = JPEG
 	if "format" in commandArgs:
-		if commandArgs["format"] == PNG:
+		if commandArgs["format"] in [PNG, "PNG", 'png']:
 			format = PNG
 			
 	output = "splitViewFigure"

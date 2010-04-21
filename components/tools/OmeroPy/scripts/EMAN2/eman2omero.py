@@ -127,7 +127,7 @@ def uploadBdbAsDataset(infile, datasetName, project = None):
     fileName = "original_metadata.txt"
     
     # loop through all the images. 
-    for i in range(2):
+    for i in range(nimg):
         description = "Imported from EMAN2 bdb: %s" % infile
         newImageName = ""
         if imageList:
@@ -139,9 +139,9 @@ def uploadBdbAsDataset(infile, datasetName, project = None):
             print "Reading image: %s / %s" % (newImageName, nimg)
             d.read_image(infile, i)
         plane2D = EMNumPy.em2numpy(d)
-        plane2D *= 100     # temporary hack to avoid rendering problem with small numbers. 
-        planeMin = int(plane2D.min())
-        plane2D -= planeMin     # make min = 0
+        #plane2D *= 100     # temporary hack to avoid rendering problem with small numbers. 
+        #planeMin = int(plane2D.min())
+        #plane2D -= planeMin     # make min = 0
         #print plane2D
         plane2Dlist = [plane2D]        # single plane image
         
