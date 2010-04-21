@@ -222,19 +222,13 @@ class BlitzObjectWrapper (object):
         return False
     
     def isPublic(self):
-        if self._obj.details.permissions.isWorldRead():
-            return True
-        return False
+        return self._obj.details.permissions.isWorldRead()
     
     def isShared(self):
-        if self._obj.details.permissions.isGroupRead():
-            return True
-        return False
+        return self._obj.details.permissions.isGroupRead()
     
     def isPrivate(self):
-        if self._obj.details.permissions.isUserRead():
-            return True
-        return False
+        return self._obj.details.permissions.isUserRead()
     
     def isReadOnly(self):
         if self.isPublic() and not self._obj.details.permissions.isWorldWrite():
@@ -417,7 +411,7 @@ class BlitzObjectWrapper (object):
         """
         
         for ann in self._getAnnotationLinks(ns):
-            yield AnnotationWrapper._wrap(self._conn, ann.child)
+            yield AnnotationWrapper._wrap(self._conn, ann.child, link=ann)
 
 
     def _linkAnnotation (self, ann):
@@ -1973,6 +1967,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
 
     def __init__ (self, *args, **kwargs):
         super(AnnotationWrapper, self).__init__(*args, **kwargs)
+        self.link = kwargs.has_key('link') and kwargs['link'] or None
         if self._obj is None and self.OMERO_TYPE is not None:
             self._obj = self.OMERO_TYPE()
 
@@ -1984,9 +1979,12 @@ class AnnotationWrapper (BlitzObjectWrapper):
         klass.registry[regklass.OMERO_TYPE] = regklass
 
     @classmethod
-    def _wrap (klass, conn, obj):
+    def _wrap (klass, conn, obj, link=None):
         if obj.__class__ in klass.registry:
-            return klass.registry[obj.__class__](conn, obj)
+            kwargs = dict()
+            if link is not None:
+                kwargs['link'] = BlitzObjectWrapper(conn, link)
+            return klass.registry[obj.__class__](conn, obj, **kwargs)
         else: #pragma: no cover
             return None
 
@@ -2141,7 +2139,7 @@ class TagAnnotationWrapper (AnnotationWrapper):
 
     def setValue (self, val):
         self._obj.tectValue = rbool(not not val)
-
+    
 AnnotationWrapper._register(TagAnnotationWrapper)
 
 from omero_model_CommentAnnotationI import CommentAnnotationI

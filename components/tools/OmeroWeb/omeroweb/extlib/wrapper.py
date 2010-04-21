@@ -347,13 +347,6 @@ class ShareWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
         except:
             return True
         
-    # Owner methods had to be updated because share.details.owner does not exist. Share.owner.
-    def isOwned(self):
-        if self.owner.id.val == self._conn.getEventContext().userId:
-            return True
-        else:
-            return False
-    
     def getShareOwnerFullName(self):
         try:
             lastName = self.owner.lastName and self.owner.lastName.val or ''

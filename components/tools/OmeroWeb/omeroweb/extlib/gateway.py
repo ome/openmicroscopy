@@ -576,10 +576,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
-        if eid is not None:
-            p.map["eid"] = rlong(long(eid))
-        else:
-            p.map["eid"] = rlong(self.getEventContext().userId)
+        #if eid is not None:
+        #    p.map["eid"] = rlong(long(eid))
+        #else:
+        #    p.map["eid"] = rlong(self.getEventContext().userId)
         p.map["oid"] = rlong(long(oid))
         if page is not None:
             f = omero.sys.Filter()
@@ -591,7 +591,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 "join fetch im.details.owner join fetch im.details.group " \
                 "left outer join fetch im.datasetLinks dil "\
                 "left outer join fetch dil.parent d " \
-                "where d.id = :oid and im.details.owner.id=:eid "\
+                "where d.id = :oid " \
                 "order by im.id asc"
         for e in q.findAllByQuery(sql, p):
             yield ImageWrapper(self, e)
@@ -732,36 +732,38 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     def listTags(self, o_type, oid):
         """ Retrieves list of Tags not linked to the for the given Project/Dataset/Image id."""
         
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["oid"] = rlong(long(oid))
-        p.map["eid"] = rlong(self.getEventContext().userId)
-        p.map["gid"] = rlong(self.getEventContext().groupId)
+        q = self.getQueryService()        
         if o_type == "image":
             sql = "select a from TagAnnotation as a " \
                 "where not exists ( select ial from ImageAnnotationLink as ial where ial.child=a.id and ial.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid and a.details.group.id=:gid"
+                "and a.details.group.id=:gid"
         elif o_type == "dataset":
             sql = "select a from TagAnnotation as a " \
                 "where not exists ( select dal from DatasetAnnotationLink as dal where dal.child=a.id and dal.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid and a.details.group.id=:gid"
+                "and a.details.group.id=:gid"
         elif o_type == "project":
             sql = "select a from TagAnnotation as a " \
                 "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid )" \
-                "and a.details.owner.id=:eid and a.details.group.id=:gid"
+                "and a.details.group.id=:gid"
         elif o_type == "screen":
             sql = "select a from TagAnnotation as a " \
                 "where not exists ( select sal from ScreenAnnotationLink as sal where sal.child=a.id and sal.parent.id=:oid )" \
-                "and a.details.owner.id=:eid and a.details.group.id=:gid"
+                "and a.details.group.id=:gid"
         elif o_type == "plate":
             sql = "select a from TagAnnotation as a " \
                 "where not exists ( select pal from PlateAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid )" \
-                "and a.details.owner.id=:eid and a.details.group.id=:gid"
+                "and a.details.group.id=:gid"
         elif o_type == "well":
             sql = "select a from TagAnnotation as a " \
                 "where not exists ( select wal from WellAnnotationLink as wal where wal.child=a.id and wal.parent.id=:oid )" \
-                "and a.details.owner.id=:eid and a.details.group.id=:gid"
+                "and a.details.group.id=:gid"
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["oid"] = rlong(long(oid))
+        p.map["gid"] = rlong(self.getEventContext().groupId)
+        if self.getEventContext().isReadOnly:
+            p.map["eid"] = rlong(self.getEventContext().userId)
+            sql += " and a.details.owner.id=:eid"
         for e in q.findAllByQuery(sql,p):
             yield AnnotationWrapper(self, e)
     

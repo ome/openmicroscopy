@@ -20,8 +20,6 @@ OMERO.web tools:
      
 For advance use:
      custom_settings    - Creates only custom_settings.py
-     initial            - Creates initial_data.json
-     syncdb             - Synchronise local database
      server             - Set to 'default' for django internal webserver
                           or 'fastcgi'
      config             - output a config template for server (only 'nginx'

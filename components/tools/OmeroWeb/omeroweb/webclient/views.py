@@ -396,6 +396,8 @@ def change_active_group(request, **kwargs):
     
     active_group = request.REQUEST['active_group']
     conn.changeActiveGroup(active_group)
+    if request.session.get('nav')['experimenter'] is not None:
+        return HttpResponseRedirect(reverse("webindex")+(("?experimenter=%s") % (request.session.get('nav')['experimenter'])))
     return HttpResponseRedirect(reverse("webindex"))
 
 @isUserConnected
