@@ -45,6 +45,14 @@ class TestFigureExportScripts(lib.ITest):
         admin = self.root.sf.getAdminService()
         
         session = self.root.sf
+        services = {}
+        gateway = session.createGateway()
+        
+        services["gateway"] = gateway
+        services["renderingEngine"] = session.createRenderingEngine()
+        services["queryService"] = session.getQueryService()
+        services["pixelsService"] = session.getPixelsService()
+        services["rawPixelStore"] = session.createRawPixelsStore()
         
         # upload script 
         scriptService = session.getScriptService()
@@ -67,7 +75,7 @@ class TestFigureExportScripts(lib.ITest):
         # put some images in dataset
         imageIds = []
         for i in range(5):
-            imageId = createTestImage(session)
+            imageId = createTestImage(services, 100, 100, 1, 1, 1)  # x,y,z,c,t
             imageIds.append(omero.rtypes.rlong(imageId))
             dlink = omero.model.DatasetImageLinkI()
             dlink.parent = omero.model.DatasetI(dataset.id.val, False)
@@ -83,8 +91,8 @@ class TestFigureExportScripts(lib.ITest):
             "maxColumns": omero.rtypes.rlong(2),
             "format": omero.rtypes.rstring("PNG"),
             "figureName": omero.rtypes.rstring("thumbnail-test"),
-            "tagIds": omero.rtypes.rlist([omero.rtypes.rint(1)]),   # this is fake. TODO: add tags above
-            "showUntaggedImages": omero.rtypes.rbool(True),
+            #"tagIds": omero.rtypes.rlist([omero.rtypes.rint(1)]),   # this is fake. TODO: add tags above
+            #"showUntaggedImages": omero.rtypes.rbool(True),
             }
         fileId1 = runScript(session, scriptId, omero.rtypes.rmap(argMap), "fileAnnotation")
         
