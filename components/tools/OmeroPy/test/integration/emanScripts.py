@@ -19,6 +19,7 @@
    Add E.g.  TestEmanScripts.testRunSpiderProcedure to command to run a single test. 
 """
 import unittest, time
+#import test.integration.library as lib
 import integration.library as lib
 import omero
 from omero.rtypes import *
