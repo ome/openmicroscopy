@@ -148,10 +148,12 @@ public class FileUploader implements IObservable
                     format = "unknown";
                     
                 
+                final ErrorFilePart errorFilePart = new ErrorFilePart("Filedata", file);
+                
                 Part[] parts ={ 
                         new StringPart("token", upload.getToken()), 
                         new StringPart("file_format", format), 
-                        new ErrorFilePart("Filedata", file) 
+                        errorFilePart 
                         };
                 
                 final long fileLength = file.length();
@@ -161,19 +163,23 @@ public class FileUploader implements IObservable
 
                 ProgressListener listener = new ProgressListener(){
 
-                    private long parts = -1;
+                    private long partsTotal = -1;
 
                     /* (non-Javadoc)
                      * @see ome.formats.importer.util.FileUploadCounter.ProgressListener#update(long)
                      */
                     public void update(long bytesRead)
-                    {                       
+                    {   
+                    	
+                    	if (cancelUpload) errorFilePart.cancel = true;
+                    	
                         long partsDone = 0;
                         if (fileLength != 0) partsDone = bytesRead / (fileLength/10);
-                        if (parts == partsDone) {
+                                                
+                        if (partsTotal == partsDone) {
                             return;
                         }
-                        parts = partsDone;
+                        partsTotal = partsDone;
 
                         notifyObservers(new ImportEvent.FILE_UPLOAD_STARTED(
                                 file.getName(), count, files.length, null, null, null));
@@ -259,7 +265,7 @@ public class FileUploader implements IObservable
      */
     public void cancel()
     {
-        //this.cancelUpload = true;
+        this.cancelUpload = true;
     }
 
     /**

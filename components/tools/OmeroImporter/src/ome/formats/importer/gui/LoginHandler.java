@@ -199,6 +199,12 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                         if (NEW_LOGIN)
                         {
                         	store.setCurrentGroup(lc.getGroup());
+                            try {
+                                // Save login screen groups
+                                ScreenLogin.registerGroup(store.mapUserGroups());
+                            } catch (Exception e) {
+                                log.warn("Exception on ScreenLogin.registerGroup()", e);
+                            }
                             view.close();
                             viewTop.close();
                             viewer.setVisible(true);

@@ -40,6 +40,8 @@ import org.apache.commons.httpclient.methods.multipart.PartSource;
 public class ErrorFilePart extends FilePart
 {
 
+	public boolean cancel = false;
+	
     /**
      * Calls parent 'FilePart' class
      * 
@@ -66,8 +68,12 @@ public class ErrorFilePart extends FilePart
         try {
             int rlen;
             while ((rlen = instream.read(tmp)) >= 0) {
+            	if (cancel) {
+            		//System.err.println("cancelled");
+            		break;
+            	}
                 out.write(tmp, 0, rlen);
-                System.err.println("ding");
+                //System.err.println("ding");
             }
         } finally {
             // we're done with the stream, close it

@@ -373,7 +373,7 @@ public class ErrorTable
         table.addRow(rowData);
         sendBtn.setEnabled(true);
     }
-    
+        
     /**
      * Change the progress to sending for the row
      * 
@@ -398,6 +398,16 @@ public class ErrorTable
     {
         table.setValueAt(20, row, 3);
         setFailedFiles(false);
+    }
+    
+    /**
+     * Reset the progress bars
+     * 
+     */
+    public void resetProgress()
+    {
+    	filesProgressBar.setValue(0);
+    	bytesProgressBar.setValue(0);
     }
     
     /**
