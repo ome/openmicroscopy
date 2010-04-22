@@ -123,7 +123,7 @@ def log(text):
     logStrings.append(text)
     
 
-def uploadImageToDataset(services, pixelsType, imageName, dataset=None):
+def uploadImageToDataset(services, pixelsType, imageName, dataset=None, description=""):
     
     """
     Uploads a local Spider image to an OMERO dataset. Same function exists in spider2omero.py.
@@ -147,7 +147,6 @@ def uploadImageToDataset(services, pixelsType, imageName, dataset=None):
     fileName = "original_metadata.txt"
     
     print "Importing image: %s" % imageName
-    description = ""
     plane2D = spider2array(imageName)
     plane2Dlist = [plane2D]        # single plane image
     
@@ -179,6 +178,7 @@ def uploadImageToDataset(services, pixelsType, imageName, dataset=None):
     scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, image, fileName, "text/plain", None, namespace)
     # delete temp file
     os.remove(fileName)
+    return image
 
         
 def downloadImage(queryService, rawPixelStore, imageId, imageName):
@@ -310,7 +310,8 @@ def runSpf(session, parameterMap):
     scriptUtil.downloadFile(rawFileStore, originalFile, filePath=spfName)
     # run command. E.g. spider spf/dat @bat01
     spfCommand = "spider spf/%s @procedure" % fileExt
-       
+    
+    spfText = open(spfName, 'r').read()
     # for each image, download it, run the spider command and upload result to OMERO
     inputImage = "%s.%s" % (inputName, fileExt)
     outputImage = "%s.%s" % (outputName, fileExt)
@@ -319,8 +320,10 @@ def runSpf(session, parameterMap):
         downloadImage(queryService, rawPixelStore, imageId, inputImage)
         os.system(spfCommand)
         if pixelsType == None:      pixelsType = getPixelsType(queryService, outputImage)
-        uploadImageToDataset(services, pixelsType, outputImage, dataset)
-
+        description = "Created from Image ID: %s with the Spider Procedure\n%s" % (imageId, spfText)
+        image = uploadImageToDataset(services, pixelsType, outputImage, dataset, description)
+        # attach Spf to new image
+        scriptUtil.attachFileToParent(services["updateService"], image, originalFile)
 
 def runAsScript():
     """

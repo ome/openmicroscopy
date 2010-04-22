@@ -172,9 +172,12 @@ class TestEmanScripts(lib.ITest):
         eid = admin.createExperimenterWithPassword(new_exp, rstring("ome"), group, listOfGroups)
         
         # log in as user
-        user_client = omero.client()
-        user_client.createSession(new_exp.omeName.val,"ome")
-        session = user_client.sf
+        #user_client = omero.client()
+        #user_client.createSession(new_exp.omeName.val,"ome")
+        #session = user_client.sf
+        
+        # run as root
+        session = self.root.sf
         
         # create user services 
         gateway = session.createGateway()    
@@ -193,11 +196,11 @@ class TestEmanScripts(lib.ITest):
         # put image in dataset and project
         # create dataset
         dataset = omero.model.DatasetI()
-        dataset.name = rstring("roi-dataset")
+        dataset.name = rstring("imagesFromRoi-test")
         dataset = gateway.saveAndReturnObject(dataset)
         # create project
         project = omero.model.ProjectI()
-        project.name = rstring("roi-project")
+        project.name = rstring("imagesFromRoi-test")
         project = gateway.saveAndReturnObject(project)
         # put dataset in project 
         link = omero.model.ProjectDatasetLinkI()
@@ -267,9 +270,12 @@ class TestEmanScripts(lib.ITest):
         eid = admin.createExperimenterWithPassword(new_exp, rstring("ome"), group, listOfGroups)
         
         # log in as user
-        user_client = omero.client()
-        user_client.createSession(new_exp.omeName.val,"ome")
-        session = user_client.sf
+        #user_client = omero.client()
+        #user_client.createSession(new_exp.omeName.val,"ome")
+        #session = user_client.sf
+        
+        # run as root
+        session = self.root.sf
         
         # create user services 
         gateway = session.createGateway()    
@@ -283,6 +289,26 @@ class TestEmanScripts(lib.ITest):
         addRectangleRoi(gateway, x, y, width, height, image)
         x, y, width, height = (890, 200, 310, 330)
         addRectangleRoi(gateway, x, y, width, height, image)
+        
+        # put image in dataset and project
+        # create dataset
+        dataset = omero.model.DatasetI()
+        dataset.name = rstring("boxer-test")
+        dataset = gateway.saveAndReturnObject(dataset)
+        # create project
+        project = omero.model.ProjectI()
+        project.name = rstring("boxer-test")
+        project = gateway.saveAndReturnObject(project)
+        # put dataset in project 
+        link = omero.model.ProjectDatasetLinkI()
+        link.parent = omero.model.ProjectI(project.id.val, False)
+        link.child = omero.model.DatasetI(dataset.id.val, False)
+        gateway.saveAndReturnObject(link)
+        # put image in dataset
+        dlink = omero.model.DatasetImageLinkI()
+        dlink.parent = omero.model.DatasetI(dataset.id.val, False)
+        dlink.child = omero.model.ImageI(image.id.val, False)
+        gateway.saveAndReturnObject(dlink)
         
         # upload (as root) and run the boxer.py script as user 
         scriptService = self.root.sf.getScriptService()
@@ -351,10 +377,30 @@ class TestEmanScripts(lib.ITest):
         # export2em.py because it uses the scripting service to look up the 'saveImageAs.py'
         # script we just uploaded as root. 
         session = self.root.sf
+        gateway = session.createGateway()
         
-        # import image
+        # import image into dataset and project
         iId = importImage(session, smallTestImage)
         imageName = os.path.basename(smallTestImage)
+        # create dataset
+        dataset = omero.model.DatasetI()
+        dataset.name = rstring("export2em-test")
+        dataset = gateway.saveAndReturnObject(dataset)
+        # create project
+        project = omero.model.ProjectI()
+        project.name = rstring("export2em-test")
+        project = gateway.saveAndReturnObject(project)
+        # put dataset in project 
+        link = omero.model.ProjectDatasetLinkI()
+        link.parent = omero.model.ProjectI(project.id.val, False)
+        link.child = omero.model.DatasetI(dataset.id.val, False)
+        gateway.saveAndReturnObject(link)
+        # put image in dataset
+        dlink = omero.model.DatasetImageLinkI()
+        dlink.parent = omero.model.DatasetI(dataset.id.val, False)
+        dlink.child = omero.model.ImageI(iId, False)
+        gateway.saveAndReturnObject(dlink)
+        
         
         extension = "png"
         commandArgs = []
@@ -367,15 +413,32 @@ class TestEmanScripts(lib.ITest):
         commandArgs.append("-e %s" % extension)
         
         commandString = " ".join(commandArgs)
+        
+        if not imageName.endswith(".%s" % extension):
+            imageName = "%s.%s" % (imageName, extension)
+        self.assertFalse(os.path.exists(imageName))     # make sure we start with no file
+        
         # run from command line
         os.system(commandString)
         
         # the downloaded file should be local. Try to find and open it. 
-        if not imageName.endswith(".%s" % extension):
-            imageName = "%s.%s" % (imageName, extension)
-        #i = Image.open(imageName)
-        #i.show()
         self.assertTrue(os.path.exists(imageName))
+        
+        # import again to test
+        try:
+            a=EMData()
+            a.read_image(imageName)
+            planeData = EMNumPy.em2numpy(a)
+        except:
+            print "Couldn't create EMAN2 test image. EMAN2 import failed?"
+            return
+        reImportId = importImage(session, None, imageName, planeData)
+        #reImportId = importImage(session, imageName)
+        dlink = omero.model.DatasetImageLinkI()
+        dlink.parent = omero.model.DatasetI(dataset.id.val, False)
+        dlink.child = omero.model.ImageI(reImportId, False)
+        gateway.saveAndReturnObject(dlink)
+        
         os.remove(imageName)
         
         
@@ -548,7 +611,10 @@ def importImage(session, imagePath, imageName=None, planeData=None):
     rawPixelStore = session.createRawPixelsStore()
     
     if imagePath != None:
-        plane2D = getPlaneFromImage(imagePath)
+        data = getPlaneFromImage(imagePath)
+        if len(data.shape) == 3:
+            plane2D = data[0]   # this actually slices the wrong way. E.g. Gives a row with 3 channels. 
+        else: plane2D = data
     else:
         plane2D = planeData
     pType = plane2D.dtype.name
