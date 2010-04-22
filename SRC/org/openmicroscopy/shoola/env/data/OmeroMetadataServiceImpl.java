@@ -72,8 +72,6 @@ import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
-import org.openmicroscopy.shoola.env.data.util.ViewedByDef;
-import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.ChannelAcquisitionData;
@@ -340,7 +338,7 @@ class OmeroMetadataServiceImpl
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	private TagAnnotationData loadTagDescription(TagAnnotationData tag, 
@@ -372,7 +370,7 @@ class OmeroMetadataServiceImpl
 	 * @param toAdd The collection of annotation to prepare.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMEDS service.
 	 */
 	private List<AnnotationData> prepareAnnotationToAdd(
@@ -1800,31 +1798,6 @@ class OmeroMetadataServiceImpl
 			}
 		}
 		return data;
-	}
-
-	/** 
-	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroMetadataService#loadViewedBy(long, long)
-	 */
-	public Collection loadViewedBy(long imageID, long pixelsID) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		OmeroImageService rds = context.getImageService();
-		Map settings = rds.getRenderingSettings(pixelsID, -1);
-		List<ViewedByDef> list = new ArrayList<ViewedByDef>();
-		if (settings != null) {
-			 Iterator i = settings.keySet().iterator();
-			 ExperimenterData exp;
-			 ViewedByDef def;
-			 while (i.hasNext()) {
-				 exp = (ExperimenterData) i.next();
-				 def = new ViewedByDef(exp, (RndProxyDef) settings.get(exp), 
-						 null);
-				 def.setIds(imageID, pixelsID);
-				 list.add(def);
-			}
-		}
-		return list;
 	}
 
 	/** 

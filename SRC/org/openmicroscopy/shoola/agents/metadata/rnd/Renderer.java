@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
@@ -124,6 +126,9 @@ public interface Renderer
 	
 	/** Bound property indicating to reload the rendering engine. */
 	public static final String	RELOAD_PROPERTY = "Reload";
+	
+	/** Bound property indicating to load the rendering settings. */
+	public static final String	VIEWED_BY_PROPERTY = "ViewedBy";
 	
     /** 
      * Sets the pixels intensity interval for the
@@ -613,4 +618,24 @@ public interface Renderer
      * @return See above.
      */
 	RndProxyDef getInitialRndSettings();
+	
+	/** 
+	 * Retrieves the rendering settings set by other users. 
+	 * 
+	 * @param source	The component that requested the pop-up menu.
+	 * @param location	The point at which to display the menu, relative to the
+	 *                  <code>component</code>'s coordinates.
+	 */
+	void retrieveRelatedSettings(Component source, Point location);
+	
+	/** 
+	 * Indicates that the rendering settings are being loaded if 
+	 * the passed value is <code>true</code>, loaded if <code>false</code>.
+	 * 
+	 * @param loading Pass <code>true</code> to indicate that the settings are 
+	 * 				  being loaded, <code>false</code> when loaded.
+	 */
+	void loadRndSettings(boolean loading);
+	
+	
 }

@@ -34,6 +34,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
@@ -55,7 +56,7 @@ import pojos.ImageData;
  * @since OME3.0
  */
 public class ThumbnailLoader 
-	extends EditorLoader
+	extends MetadataLoader
 {
 
 	/** The standard width of the thumbnail. */
@@ -82,9 +83,6 @@ public class ThumbnailLoader
     /** The collection of thumbnails. */
     private Map<Long, BufferedImage>	thumbnails;
     
-    /** Flag indicating to retrieve on thumbnail only. */
-    private boolean						single;
-    
     /**	
      * Creates a new instance.
      * 
@@ -93,43 +91,22 @@ public class ThumbnailLoader
      * @param image		The image.
      * @param userIDs	The node of reference. Mustn't be <code>null</code>.
      */
-    public ThumbnailLoader(Editor viewer, ImageData image, 
+    public ThumbnailLoader(MetadataViewer viewer, ImageData image, 
     						Set<Long> userIDs)
-    {
-    	 this(viewer, image, userIDs, false);
-    }
-
-    /**	
-     * Creates a new instance.
-     * 
-     * @param viewer 	The viewer this data loader is for.
-     *               	Mustn't be <code>null</code>.
-     * @param image		The image.
-     * @param userIDs	The node of reference. Mustn't be <code>null</code>.
-     * @param single	Pass <code>true</code> to indicate that we retrieve 
-     * 					a single thumbnail, <code>false</code> otherwise.
-     */
-    public ThumbnailLoader(Editor viewer, ImageData image, 
-    						Set<Long> userIDs, boolean single)
     {
     	 super(viewer);
          this.image = image;
          this.userIDs = userIDs;
          thumbnails = new HashMap<Long, BufferedImage>();
-         this.single = single;
     }
     
     /**
-     * Retrieves the thumbnails.
+     * Retrieves the thumbnails associated to the image for the given users.
      * @see EditorLoader#load()
      */
     public void load()
     {
-    	if (single) 
-    		handle = mhView.loadThumbnails(image, userIDs, THUMB_MAX_WIDTH,
-                	THUMB_MAX_HEIGHT, this);
-    	else
-    		handle = mhView.loadThumbnails(image, userIDs, STANDARD_WIDTH,
+    	handle = mhView.loadThumbnails(image, userIDs, STANDARD_WIDTH,
                 	STANDARD_HEIGHT, this);	
     }
     
@@ -146,15 +123,12 @@ public class ThumbnailLoader
     public void update(DSCallFeedbackEvent fe) 
     {
         ThumbnailData td = (ThumbnailData) fe.getPartialResult();
-        if (single) {
-        } else {
-        	if (td != null)  {
-            	//Last fe has null object.
-            	thumbnails.put(td.getUserID(), td.getThumbnail());
-            } 
-            if (thumbnails.size() == userIDs.size())
-            	viewer.setThumbnails(thumbnails, image.getId());
-        }
+        if (td != null)  {
+        	//Last fe has null object.
+        	thumbnails.put(td.getUserID(), td.getThumbnail());
+        } 
+        if (thumbnails.size() == userIDs.size())
+        	viewer.setThumbnails(thumbnails, image.getId());
     }
     
     /**

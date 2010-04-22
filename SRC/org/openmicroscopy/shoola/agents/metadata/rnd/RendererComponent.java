@@ -25,11 +25,15 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
@@ -38,6 +42,8 @@ import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
+
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -993,6 +999,28 @@ class RendererComponent
 	public RndProxyDef getInitialRndSettings()
 	{
 		return model.getInitialRndSettings();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see Renderer#retrieveRelatedSettings(Component, Point)
+	 */
+	public void retrieveRelatedSettings(Component source, Point location)
+	{
+		List<Object> l = new ArrayList<Object>();
+		l.add(source);
+		l.add(location);
+		firePropertyChange(VIEWED_BY_PROPERTY, null, l);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see Renderer#loadRndSettings(boolean)
+	 */
+	public void loadRndSettings(boolean loading)
+	{
+		Action a = controller.getAction(RendererControl.RND_OWNER);
+		a.setEnabled(loading);
 	}
 	
 }

@@ -29,6 +29,7 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -1045,14 +1046,51 @@ class MetadataViewerComponent
 	{
 		firePropertyChange(RESET_PASSWORD_PROPERTY, null, newPass);
 	}
+
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#loadViewedBy()
+	 */
+	public void loadViewedBy()
+	{
+		Object ref = model.getRefObject();
+		if (ref instanceof ImageData || ref instanceof WellSampleData) {
+			if (model.getViewedBy() != null) setViewedBy(model.getViewedBy());
+			else model.fireViewedByLoading();
+		}
+	}
 	
 	/**
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#uploadPicture()
+	 * @see MetadataViewer#setViewedBy(map)
 	 */
-	public void uploadPicture()
+	public void setViewedBy(Map result)
 	{
+		model.setViewedBy(result);
+		view.viewedBy();
+		model.fireThumbnailsLoading();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#setThumbnails(Map, long)
+	 */
+	public void setThumbnails(Map<Long, BufferedImage> thumbnails, 
+							long imageID)
+	{
+		Object ref = model.getRefObject();
+		ImageData image = null;
+		if (ref instanceof ImageData) image = (ImageData) ref;
+		else if (ref instanceof WellSampleData) 
+			image = ((WellSampleData) ref).getImage();
 		
+		if (image == null) return;
+		if (image.getId() == imageID) {
+			
+		}
+		if (((ImageData) ref).getId() == imageID) {
+			view.setThumbnails(thumbnails);
+		}
 		
 	}
 	
@@ -1061,6 +1099,5 @@ class MetadataViewerComponent
 	 * @see #toString()
 	 */
 	public String toString() { return view.getTitle(); }
-
 
 }

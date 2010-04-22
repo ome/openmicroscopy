@@ -67,7 +67,6 @@ import info.clearthought.layout.TableLayout;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
-import org.openmicroscopy.shoola.env.data.util.ViewedByDef;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.SeparatorOneLineBorder;
@@ -147,9 +146,6 @@ class AnnotationDataUI
 
 	/** The UI component hosting the various annotations. */
 	private JPanel							content;
-	
-	/** Collection of components. */
-	private Map<Long, ViewedByComponent>	viewedBy;
 	
 	/** Button to add tags. */
 	private JButton							addTagsButton;
@@ -356,7 +352,6 @@ class AnnotationDataUI
 		//addDocsButton.addActionListener(controller);
 		//addDocsButton.setActionCommand(""+EditorControl.ADD_DOCS);
 		UIUtilities.unifiedButtonLookAndFeel(addDocsButton);
-		viewedBy = new HashMap<Long, ViewedByComponent>();
 		selectedValue = 0;
 		initialValue = selectedValue;
 		rating = new RatingComponent(selectedValue, 
@@ -530,6 +525,7 @@ class AnnotationDataUI
 	private boolean layoutViewedBy()
 	{
 		//value order by user name.
+		/*
 		Collection views = model.getViewedBy();
 		viewedByPane.removeAll();
 		viewedBy.clear();
@@ -554,7 +550,7 @@ class AnnotationDataUI
 		}
 		if (p.getComponentCount() > 0)
 			viewedByPane.add(layoutRow(p));
-			
+			*/
 		return true;
 	}
   
@@ -749,6 +745,7 @@ class AnnotationDataUI
 	/** Sets the thumbnails. */
 	void setThumbnails()
 	{
+		/*
 		Map<Long, BufferedImage> thumbnails = model.getThumbnails();
 		if (thumbnails == null) return;
 		Set set = thumbnails.entrySet();
@@ -761,6 +758,7 @@ class AnnotationDataUI
 			if (comp != null)
 				comp.setThumbnail((BufferedImage) entry.getValue());
 		}
+		*/
 	}
 	
 	/**

@@ -28,6 +28,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
@@ -572,7 +573,19 @@ public interface MetadataViewer
 	 */
 	void resetPassword(String newPass);
 	
-	/** Brings up dialog to upload the picture. */
-	void uploadPicture();
+	/** Loads the settings associated to a given image. */
+	void loadViewedBy();
 	
+	/** Sets the settings linked to a given image. */
+	void setViewedBy(Map result);
+	
+	/**
+	 * Sets the thumbnails of the image currently selected.
+	 * 
+	 * @param thumbnails 	The thumbnails to set, one per user.
+	 * @param imageID		The id of the image the thumbnails are for.
+	 */
+	public void setThumbnails(Map<Long, BufferedImage> thumbnails, 
+							long imageID);
+
 }

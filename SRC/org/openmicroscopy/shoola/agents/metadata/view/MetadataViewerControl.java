@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 
 
 //Java imports
+import java.awt.Component;
+import java.awt.Point;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -216,8 +218,7 @@ class MetadataViewerControl
 			model.reloadRenderingControl((Boolean) evt.getNewValue());
 		} else if 
 		(ChannelSelectionDialog.CHANNEL_ANALYSIS_SELECTION_PROPERTY.equals(
-				name))
-		{
+				name)) {
 			List l = (List) evt.getNewValue();
 			ChannelData data = (ChannelData) l.get(0);
 			int index = (Integer) l.get(1);
@@ -226,6 +227,10 @@ class MetadataViewerControl
 					analyseFRAP(data.getIndex());
 					break;
 			}
+		} else if (Renderer.VIEWED_BY_PROPERTY.equals(name)) {
+			List l = (List) evt.getNewValue();
+			view.setLocationAndSource((Component) l.get(0), (Point) l.get(1));
+			model.loadViewedBy();
 		}
 	}
 	

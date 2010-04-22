@@ -47,12 +47,6 @@ import pojos.DataObject;
  */
 public class StructuredDataResults
 {
-
-	/** 
-	 * The collection of objects hosting info about the experimenters
-	 * who viewed a given image.
-	 */
-	private Collection<ViewedByDef>		viewedBy;
 	
 	/** The tags related to the object. */
 	private Collection					tags;
@@ -198,29 +192,12 @@ public class StructuredDataResults
 	/**
 	 * Sets the collection of objects.
 	 * 
-	 * @param viewedBy The value to set.
-	 */
-	public void setViewedBy(Collection<ViewedByDef> viewedBy)
-	{ 
-		this.viewedBy = viewedBy;
-	}
-	
-	/**
-	 * Sets the collection of objects.
-	 * 
 	 * @param published The value to set.
 	 */
 	public void setPublished(Collection published)
 	{ 
 		this.published = published;
 	}
-	
-	/**
-	 * Returns the collection of {@link ViewedByDef} objects.
-	 * 
-	 * @return See above.
-	 */
-	public Collection getViewedBy() { return viewedBy; }
 	
 	/**
 	 * Returns the collection of published annotations.

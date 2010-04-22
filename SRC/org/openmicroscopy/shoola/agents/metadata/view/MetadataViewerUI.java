@@ -26,15 +26,24 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
+import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JSplitPane;
 
 
@@ -42,10 +51,15 @@ import javax.swing.JSplitPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.util.ViewedByItem;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.border.FrameBorder;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.ProjectData;
 
@@ -93,6 +107,21 @@ class MetadataViewerUI
 	
 	/** The header of the component. */
 	private TitlePanel 					titlePanel;
+	
+	/** 
+	 * The source invoking the menu displaying the list of users
+	 * who viewed the image. 
+	 */
+	private Component					source;
+	
+	/** 
+	 * The location where to pop up the  menu displaying the list of users
+	 * who viewed the image. 
+	 */
+	private Point						location;
+	
+	/** The menu displaying the user who viewed the image. */
+	private JPopupMenu					viewedByMenu;
 	
 	/** 
      * Returns the message corresponding to the <code>DataObject</code>.
@@ -218,6 +247,74 @@ class MetadataViewerUI
 	void onChannelColorChanged(int index)
 	{
 		model.getEditor().onChannelColorChanged(index);
+	}
+	
+	/**
+	 * Sets the location and the source where to pop up the menu.
+	 * 
+	 * @param source	The source to set.
+	 * @param location	The location to set.
+	 */
+	void setLocationAndSource(Component source, Point location)
+	{
+		this.source = source;
+		this.location = location;
+	}
+	
+	/** Displays the menu displaying the list of users who viewed the image. */
+	void viewedBy()
+	{
+		if (viewedByMenu == null) {
+			Map m = model.getViewedBy();
+			viewedByMenu = new JPopupMenu();
+			ViewerSorter sorter = new ViewerSorter();
+			List list = sorter.sort(m.keySet());
+			Iterator i = list.iterator();
+			ViewedByItem item ;
+			ExperimenterData exp;
+			long id = MetadataViewerAgent.getUserDetails().getId();
+			while (i.hasNext()) {
+				exp = (ExperimenterData) i.next();
+				if (id != exp.getId()) {
+					item = new ViewedByItem(exp, (RndProxyDef) m.get(exp));
+					item.addPropertyChangeListener(new PropertyChangeListener() {
+						
+						public void propertyChange(PropertyChangeEvent evt) {
+							if (ViewedByItem.VIEWED_BY_PROPERTY.equals(
+									evt.getPropertyName()))
+									model.applyRenderingSettings(
+											(RndProxyDef) evt.getNewValue());
+							
+						}
+					});
+					viewedByMenu.add(item);
+				}
+			}
+			//Check if we load thumbnails.
+		}
+		viewedByMenu.show(source, location.x, location.y);
+	}
+	
+	/** 
+	 * Sets the thumbnails.
+	 * 
+	 * @param thumbnails The value to set.
+	 */
+	void setThumbnails(Map<Long, BufferedImage> thumbnails)
+	{
+		if (viewedByMenu == null) return;
+		Component[] components = viewedByMenu.getComponents();
+		Component comp;
+		ViewedByItem item;
+		BufferedImage img;
+		for (int i = 0; i < components.length; i++) {
+			comp = components[i];
+			if (comp instanceof ViewedByItem) {
+				item = (ViewedByItem) comp;
+				img = thumbnails.get(item.getExperimenterID());
+				if (img != null) item.setImage(img);
+			}
+		}
 	}
 	
 	/** Overrides the {@link #setOnScreen() setOnScreen} method. */

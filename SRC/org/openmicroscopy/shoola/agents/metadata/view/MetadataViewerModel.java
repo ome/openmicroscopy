@@ -26,9 +26,11 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 //Java imports
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -42,7 +44,9 @@ import org.openmicroscopy.shoola.agents.metadata.GroupEditor;
 import org.openmicroscopy.shoola.agents.metadata.MetadataLoader;
 import org.openmicroscopy.shoola.agents.metadata.ContainersLoader;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.RenderingSettingsLoader;
 import org.openmicroscopy.shoola.agents.metadata.StructuredDataLoader;
+import org.openmicroscopy.shoola.agents.metadata.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
@@ -56,6 +60,7 @@ import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 
 import pojos.AnnotationData;
 import pojos.DataObject;
@@ -136,6 +141,9 @@ class MetadataViewerModel
 	 * to handle unregistered objects.
 	 */
 	private long									userID;
+	
+	/** The collection of rendering settings related to the image. */
+	private Map										viewedBy;
 	
 	/**
 	 * Creates a new object and sets its state to {@link MetadataViewer#NEW}.
@@ -721,4 +729,67 @@ class MetadataViewerModel
 	 */
 	void setUserID(long userID) { this.userID = userID; }
 
+	/**
+	 * Returns the rendering settings associated to the image.
+	 * 
+	 * @return See above.
+	 */
+	Map getViewedBy() { return viewedBy; }
+	
+	/** 
+	 * Sets the rendering settings associated to the image.
+	 * 
+	 * @param viewedBy The value to set.
+	 */
+	void setViewedBy(Map viewedBy)
+	{ 
+		this.viewedBy = viewedBy; 
+		getEditor().getRenderer().loadRndSettings(true);
+	}
+	
+	/**
+	 * Starts an asynchronous call to load the rendering settings
+	 * associated to the image.
+	 */
+	void fireViewedByLoading()
+	{
+		ImageData img = null;
+		if (refObject instanceof ImageData) img = (ImageData) refObject;
+		else if (refObject instanceof WellSampleData) 
+			img = ((WellSampleData) refObject).getImage();
+		if (img == null) return;
+		getEditor().getRenderer().loadRndSettings(true);
+		RenderingSettingsLoader loader = new RenderingSettingsLoader(component, 
+				img.getDefaultPixels().getId());
+		loader.load();
+	}
+	
+	/** Starts an asynchronous retrieval of the thumbnails. */
+	void fireThumbnailsLoading()
+	{
+		ImageData image = null;
+		if (refObject instanceof ImageData) image = (ImageData) refObject;
+		else if (refObject instanceof WellSampleData)
+			image = ((WellSampleData) refObject).getImage();
+		Set experimenters = viewedBy.keySet();
+		Set<Long> ids = new HashSet<Long>();
+		Iterator i = experimenters.iterator();
+		while (i.hasNext()) {
+			ids.add(((ExperimenterData) i.next()).getId());
+		}
+		ThumbnailLoader loader = new ThumbnailLoader(component, image, ids);
+		loader.load();
+	}
+	
+	/**
+	 * Applies the specified rendering settings.
+	 * 
+	 * @param rndDef The rendering settings to apply.
+	 */
+	void applyRenderingSettings(RndProxyDef rndDef)
+	{
+		Renderer rnd = getEditor().getRenderer();
+		if (rnd != null) rnd.resetSettings(rndDef, true);
+	}
+	
 }

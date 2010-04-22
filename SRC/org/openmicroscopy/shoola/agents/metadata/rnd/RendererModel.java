@@ -163,7 +163,7 @@ class RendererModel
     
     /** Reference to the image. */
     private ImageData			image;
-    
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -1355,5 +1355,5 @@ class RendererModel
 		return (getMaxX() > RenderingControl.MAX_SIZE/2 ||
 				getMaxY() > RenderingControl.MAX_SIZE/2);
 	}
-    
+	
 }

@@ -483,7 +483,7 @@ class EditorControl
 			view.discardRenderer(evt.getNewValue());
 		} else if (ScriptingDialog.RUN_SCRIPT_PROPERTY.equals(name)) {
 			view.runScript((ScriptObject) evt.getNewValue());
-		}
+		} 
 	}
 
 	/**

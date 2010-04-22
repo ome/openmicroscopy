@@ -187,6 +187,7 @@ public class ManageRndSettingsAction
 				model.setRangeAllChannels();
 				break;
 			case RESET:
+				model.resetSettings();
 				break;
 			case UNDO:
 				model.resetSettings(model.getInitialRndSettings(), true);
@@ -198,14 +199,15 @@ public class ManageRndSettingsAction
 	}
 
 	/** 
-	 * Brings up the menu displaying categories.
-	 * @see MouseListener#mousePressed(MouseEvent)
+	 * Brings up the menu displaying the user who viewed the selected image.
+	 * @see MouseListener#mouseReleased(MouseEvent)
 	 */
-	public void mousePressed(MouseEvent me)
+	public void mouseReleased(MouseEvent me)
 	{
+		if (index != SET_OWNER_SETTING) return;
 		Object source = me.getSource();
-		//if (source instanceof Component) 
-		//	model.retrieveRelatedSettings((Component) source, me.getPoint());
+		if (source instanceof Component) 
+			model.retrieveRelatedSettings((Component) source, me.getPoint());
 	}
 	
 	/**
@@ -232,8 +234,8 @@ public class ManageRndSettingsAction
 	/**
 	 * Required by the {@link MouseListener} I/F but no-operation implementation 
 	 * in our case.
-	 * @see MouseListener#mouseReleased(MouseEvent)
+	 * @see MouseListener#mousePressed(MouseEvent)
 	 */
-	public void mouseReleased(MouseEvent me) {}
+	public void mousePressed(MouseEvent me) {}
 
 }

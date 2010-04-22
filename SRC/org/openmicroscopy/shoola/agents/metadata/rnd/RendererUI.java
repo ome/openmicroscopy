@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Point;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -278,5 +280,5 @@ class RendererUI
 		DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
 		pane.renderPreview();
 	}
-	
+
 }

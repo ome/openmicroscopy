@@ -535,20 +535,6 @@ public interface OmeroMetadataService
 	public Object archivedFile(FileAnnotationData fileAnnotation, File file, int
 			index, DataObject linkTo)
 		throws DSOutOfServiceException, DSAccessException;
-	
-	/**
-	 * Loads all rendering settings linked to the passed image.
-	 * 
-	 * @param imageID	The id of the image.
-	 * @param pixelsID	The id of the pixels set.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	public Collection loadViewedBy(long imageID, long pixelsID) 
-		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Loads the <code>Tag Set</code> object(s) or <code>Tag</code> object(s)

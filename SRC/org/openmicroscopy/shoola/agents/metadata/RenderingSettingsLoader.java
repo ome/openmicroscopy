@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.editor.UserProfileCanvas 
+ * org.openmicroscopy.shoola.agents.metadata.RenderingSettingsLoader 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
@@ -20,24 +20,21 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.metadata.editor;
+package org.openmicroscopy.shoola.agents.metadata;
 
 
 //Java imports
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import javax.swing.JPanel;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import java.util.Map;
+
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
- * Paints the photo of the user.
+ * Loads all rendering settings associated to an image.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -49,54 +46,52 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since 3.0-Beta4
  */
-class UserProfileCanvas 
-	extends JPanel
+public class RenderingSettingsLoader 
+	extends MetadataLoader
 {
 
-	/** The width of the picture. */
-	static final int WIDTH = 32;
-	
-	/** The width of the picture. */
-	static final int HEIGHT = 32;
-	
-	/** The image to paint. */
-	private Image image;
-	
-	/** Creates a new instance. */
-	UserProfileCanvas()
-	{
-		setDoubleBuffered(true);
-		setBackground(UIUtilities.BACKGROUND_COLOR);
-		Dimension d = new Dimension(WIDTH, HEIGHT);
-		setPreferredSize(d);
-		setSize(d);
-	}
-	
-	/**
-	 * Sets the image to paint.
-	 * 
-	 * @param image The value to set.
-	 */
-	void setImage(Image image)
-	{
-		this.image = image;
-		repaint();
-	}
-	
-    /**
-     * Overridden to paint the image.
-     * @see javax.swing.JComponent#paintComponent(Graphics)
-     */
-    public void paintComponent(Graphics g)
-    {
-        if (image == null) return;
-        Graphics2D g2D = (Graphics2D) g;
-        ImagePaintingFactory.setGraphicRenderingSettings(g2D);
-        g2D.setBackground(getBackground());
-        g2D.clearRect(0, 0, WIDTH, HEIGHT);
-        g2D.drawImage(image, 0, 0, null); 
-        g2D.dispose();
-    }
+    /** The ID of the pixels set. */
+    private long        pixelsID;
     
+    /** Handle to the asynchronous call so that we can cancel it. */
+    private CallHandle  handle;
+    
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param viewer   The viewer this data loader is for.
+     *                 Mustn't be <code>null</code>.
+	 * @param pixelsID The identifier of the pixels set.
+	 */
+	public RenderingSettingsLoader(MetadataViewer viewer, long pixelsID)
+	{
+		super(viewer);
+		this.pixelsID = pixelsID;
+	}
+	
+	/** 
+	 * Loads the folders containing the object. 
+	 * @see MetadataLoader#cancel()
+	 */
+	public void load()
+	{
+		handle = ivView.getRenderingSettings(pixelsID, this);
+	}
+	
+	/** 
+	 * Cancels the data loading. 
+	 * @see MetadataLoader#cancel()
+	 */
+	public void cancel() { handle.cancel(); }
+
+	/**
+     * Feeds the result back to the viewer.
+     * @see MetadataLoader#handleResult(Object)
+     */
+    public void handleResult(Object result) 
+    {
+    	if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
+    	viewer.setViewedBy((Map) result);
+    }
 	
 }

@@ -342,7 +342,7 @@ class RendererControl
 			view.setZSection(((Integer) evt.getNewValue()).intValue());
 		} else if (Renderer.T_SELECTED_PROPERTY.equals(name)) {
 			view.setTimepoint(((Integer) evt.getNewValue()).intValue());
-		}
+		}     
     }
 
 }

@@ -152,14 +152,6 @@ public interface Editor
 	 */
 	public void setRootObject(Object refObject);
 	
-	/**
-	 * Sets the thumbnails of the image currently selected.
-	 * 
-	 * @param thumbnails 	The thumbnails to set, one per user.
-	 * @param imageID		The id of the image the thumbnails are for.
-	 */
-	public void setThumbnails(Map<Long, BufferedImage> thumbnails, 
-							long imageID);
 
 	/**
 	 * Sets the collection of existing tags.

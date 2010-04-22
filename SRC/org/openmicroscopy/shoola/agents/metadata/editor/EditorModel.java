@@ -80,7 +80,6 @@ import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
-import org.openmicroscopy.shoola.env.data.util.ViewedByDef;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -926,6 +925,7 @@ class EditorModel
 	 */
 	Collection getViewedBy()
 	{ 
+		/*
 		StructuredDataResults data = parent.getStructuredData();
 		if (data == null) return null;
 		Collection l = data.getViewedBy(); 
@@ -956,6 +956,8 @@ class EditorModel
 			results.add(m.get(value));
 		}
 		return results; 
+		*/
+		return null;
 	}
 	
 	/**
@@ -1322,6 +1324,7 @@ class EditorModel
 	 */
 	void setThumbnails(Map<Long, BufferedImage> thumbnails)
 	{
+		/*
 		this.thumbnails = thumbnails;
 		Iterator i = loaders.iterator();
 		EditorLoader loader = null;
@@ -1331,6 +1334,7 @@ class EditorModel
 				break;
 		}
 		if (loader != null) loaders.remove(loader);
+		*/
 	}
 	
 	/** 
@@ -1343,6 +1347,7 @@ class EditorModel
 	/** Fires an asynchronous retrieval of thumbnails. */
 	void loadThumbnails()
 	{
+		/*
 		Set<Long> ids = new HashSet<Long>();
 		Collection l = getViewedBy();
 		if (l == null) return;
@@ -1356,11 +1361,13 @@ class EditorModel
 								(ImageData) getRefObject(), ids);
 		loader.load();
 		loaders.add(loader);
+		*/
 	}
 
 	/** Cancels any ongoing thumbnails retrieval. */
 	void cancelThumbnailsLoading()
 	{
+		/*
 		Iterator i = loaders.iterator();
 		EditorLoader loader;
 		List<EditorLoader> toKeep = new ArrayList<EditorLoader>();
@@ -1372,26 +1379,7 @@ class EditorModel
 		}
 		loaders.clear();
 		loaders.addAll(toKeep);
-	}
-	
-	/**
-	 * Returns the object hosting rendering settings set 
-	 * by the passed user, or <code>null</code> if any
-	 * 
-	 * @param userID	The id of the user who set the rendering settings.
-	 * @return See above.
-	 */
-	ViewedByDef getViewedDef(long userID)
-	{
-		Collection l = getViewedBy();
-		Iterator i = l.iterator();
-		ViewedByDef def = null;
-		while (i.hasNext()) {
-			def = (ViewedByDef) i.next();
-			if (def.getExperimenter().getId() == userID)
-				return def;
-		}
-		return null;
+		*/
 	}
 
 	/** Fires an asynchronous retrieval of existing tags. */
@@ -1747,24 +1735,6 @@ class EditorModel
 	{
 		if (!(getRefObject() instanceof ImageData)) return false;
 		return getViewedByCount() != 0;
-	}
-
-	/**
-	 * Views the image and sets the rendering settings.
-	 * 
-	 * @param def 	The object hosting rendering settings. 
-	 */
-	void viewImage(ViewedByDef def)
-	{
-		ViewImage evt;
-		ImageData img = (ImageData) getRefObject();
-		evt = new ViewImage(img, null);
-		if (def != null)
-			evt.setSettings(def.getRndSettings(), 
-					def.getExperimenter().getId());
-		
-		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-		bus.post(evt);
 	}
 	
 	/** Loads the image metadata enumerations. */
