@@ -72,15 +72,28 @@ class TestFigureExportScripts(lib.ITest):
         link.parent = omero.model.ProjectI(project.id.val, False)
         link.child = omero.model.DatasetI(dataset.id.val, False)
         gateway.saveAndReturnObject(link)
+        # make some tags
+        tagIds = []
+        for t in range(5):
+            tag = omero.model.TagAnnotationI()
+            tag.setTextValue(omero.rtypes.rstring("TestTag_%s"%t))
+            tag = gateway.saveAndReturnObject(tag)
+            tagIds.append(tag.id)
         # put some images in dataset
         imageIds = []
-        for i in range(5):
+        for i in range(50):
             imageId = createTestImage(services, 100, 100, 1, 1, 1)  # x,y,z,c,t
             imageIds.append(omero.rtypes.rlong(imageId))
             dlink = omero.model.DatasetImageLinkI()
             dlink.parent = omero.model.DatasetI(dataset.id.val, False)
             dlink.child = omero.model.ImageI(imageId, False)
             gateway.saveAndReturnObject(dlink)
+            # add tag
+            tIndex = i%5
+            tlink = omero.model.ImageAnnotationLinkI()
+            tlink.child = omero.model.TagAnnotationI(tagIds[tIndex].val, False)
+            tlink.parent = omero.model.ImageI(imageId, False)
+            gateway.saveObject(tlink)
             
         # run the script twice. First with all args...
         datasetIds = [omero.rtypes.rint(dataset.id.val), ]
@@ -88,10 +101,10 @@ class TestFigureExportScripts(lib.ITest):
             "datasetIds": omero.rtypes.rlist(datasetIds),
             "parentId": omero.rtypes.rlong(project.id.val),
             "thumbSize": omero.rtypes.rlong(16),
-            "maxColumns": omero.rtypes.rlong(2),
+            "maxColumns": omero.rtypes.rlong(6),
             "format": omero.rtypes.rstring("PNG"),
             "figureName": omero.rtypes.rstring("thumbnail-test"),
-            #"tagIds": omero.rtypes.rlist([omero.rtypes.rint(1)]),   # this is fake. TODO: add tags above
+            "tagIds": omero.rtypes.rlist(tagIds),
             #"showUntaggedImages": omero.rtypes.rbool(True),
             }
         fileId1 = runScript(session, scriptId, omero.rtypes.rmap(argMap), "fileAnnotation")
