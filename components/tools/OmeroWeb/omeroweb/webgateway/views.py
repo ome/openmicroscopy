@@ -459,16 +459,18 @@ def debug (f):
     return wrap
 
 def jsonp (f):
-    def wrap (request, server_id=None, *args, **kwargs):
+    def wrap (request, *args, **kwargs):
         logger.debug('jsonp')
         try:
+            server_id = kwargs.get('server_id', None)
+            kwargs['server_id'] = server_id
             _conn = kwargs.get('_conn', None)
             if _conn is None:
                 blitzcon = getBlitzConnection(request, server_id)
                 kwargs['_conn'] = blitzcon
             if kwargs['_conn'] is None or not kwargs['_conn'].isConnected():
                 return HttpResponseServerError('"failed connection"', mimetype='application/javascript')
-            rv = f(request, server_id=server_id, **kwargs)
+            rv = f(request, *args, **kwargs)
             if _conn is not None and kwargs.get('_internal', False):
                 return rv
             rv = simplejson.dumps(rv)

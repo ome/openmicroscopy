@@ -45,6 +45,13 @@ def fakeRequest ():
         if 'django.contrib.sessions' in settings.INSTALLED_APPS:
             engine = __import__(settings.SESSION_ENGINE, {}, {}, [''])
         r.session = engine.SessionStore()
+        qlen = len(r.REQUEST.dicts)
+        def setQuery (**query):
+            r.REQUEST.dicts = r.REQUEST.dicts[:qlen]
+            q = QueryDict('', mutable=True)
+            q.update(query)
+            r.REQUEST.dicts += (q,)
+        r.setQuery = setQuery
         return r
     Client.bogus_request = bogus_request
     c = Client()
