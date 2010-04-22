@@ -571,7 +571,6 @@ public class FileQueueChooser extends JFileChooser implements ActionListener
 		 */
 		public String getDescription() { return desc; }
 
-		@Override
 		public int compareTo(Object o) {
 			return desc.compareTo(((FileFilter) o).getDescription());
 		}
