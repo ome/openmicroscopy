@@ -163,6 +163,14 @@ class BlitzObjectWrapper (object):
     def __loadedHotSwap__ (self):
         self._obj = self._conn.getContainerService().loadContainerHierarchy(self.OMERO_CLASS, (self._oid,), None)[0]
 
+
+    def _getParentLink (self):
+        p = self.listParents()
+        link = self._conn.getQueryService().findAllByQuery("select l from %s as l where l.parent.id=%i and l.child.id=%i" % (p.LINK_CLASS, p.id, self.id), None)
+        if len(link):
+            return link[0]
+        return None
+
     def _moveLink (self, newParent):
         """ moves this object from the current parent container to a new one """
         p = self.listParents()
