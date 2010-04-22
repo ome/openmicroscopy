@@ -37,6 +37,8 @@ import os
 from PIL import Image
 import numpy
 
+from EMAN2 import *
+
 boxerTestImage = "/Users/will/Documents/biology-data/testData/boxerTest.tiff"
 smallTestImage = "/Users/will/Documents/biology-data/testData/smallTest.tiff"
 
@@ -45,9 +47,95 @@ saveImageAsScriptPath = "scripts/EMAN2/saveImageAs.py"
 export2emScriptPath = "scripts/EMAN2/export2em.py"
 boxerScriptPath = "scripts/EMAN2/boxer.py" 
 imagesFromRoisPath = "scripts/EMAN2/imagesFromRois.py"
+emanFiltersScript = "scripts/EMAN2/emanFilters.py"
 
 class TestEmanScripts(lib.ITest):
     
+    def testFilterScript(self):
+        
+        print "testFilterScript"
+        
+        # root session is root.sf
+        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        admin = self.root.sf.getAdminService()
+        # run as root
+        session = self.root.sf
+        gateway = session.createGateway()
+        
+        # upload script
+        scriptService = session.getScriptService()
+        scriptId = uploadScript(scriptService, emanFiltersScript)
+        
+        try:
+            a=test_image()
+            planeData = EMNumPy.em2numpy(a)
+        except:
+            print "Couldn't create EMAN2 test image. EMAN2 import failed?"
+            return
+        imageId = importImage(session, None, "filterTestImage", planeData)
+        
+        # put image in dataset and project
+        # create dataset
+        dataset = omero.model.DatasetI()
+        dsName = "emanFilters-test"
+        dataset.name = rstring(dsName)
+        dataset = gateway.saveAndReturnObject(dataset)
+        # create project
+        project = omero.model.ProjectI()
+        project.name = rstring("emanFilters-test")
+        project = gateway.saveAndReturnObject(project)
+        # put dataset in project 
+        link = omero.model.ProjectDatasetLinkI()
+        link.parent = omero.model.ProjectI(project.id.val, False)
+        link.child = omero.model.DatasetI(dataset.id.val, False)
+        gateway.saveAndReturnObject(link)
+        # put image in dataset
+        dlink = omero.model.DatasetImageLinkI()
+        dlink.parent = omero.model.DatasetI(dataset.id.val, False)
+        dlink.child = omero.model.ImageI(imageId, False)
+        gateway.saveAndReturnObject(dlink)
+        
+        # run script with all parameters. See http://blake.bcm.edu/emanwiki/Eman2ProgQuickstart
+        newDatasetName = "filter-results"
+        filterParams = {"sigma": omero.rtypes.rfloat(0.125)}
+        argMap = {"datasetId":omero.rtypes.rlong(dataset.id.val),       # process these images
+            "filterName":omero.rtypes.rstring("filter.lowpass.gauss"),        # using this filter
+            "filterParams":omero.rtypes.rmap(filterParams),             # additional params
+            "newDatasetName": omero.rtypes.rstring(newDatasetName),   # optional: put results in new dataset
+        }
+        runScript(session, scriptId, omero.rtypes.rmap(argMap))
+        
+        # try with minimal parameters - put results into same dataset. 
+        imageIds = [omero.rtypes.rlong(imageId)]
+        aMap = {"imageIds":omero.rtypes.rlist(imageIds),       # process these images
+            "filterName":omero.rtypes.rstring("normalize"),        # using this filter - no params
+        }
+        runScript(session, scriptId, omero.rtypes.rmap(aMap))
+        
+        rMap = {"imageIds":omero.rtypes.rlist(imageIds),       # process these images
+            "filterName":omero.rtypes.rstring("normalize.edgemean"),    # using this filter - no params
+        }
+        runScript(session, scriptId, omero.rtypes.rmap(rMap))
+        
+        # should now have 2 datasets in the project above...
+        pros = gateway.getProjects([project.id.val], True)
+        datasetFound = False
+        for p in pros:
+            self.assertEquals(2, len(p.linkedDatasetList()))   # 2 datasets
+            for ds in p.linkedDatasetList():
+                # new dataset should have 1 image
+                if ds.name.val == newDatasetName:   
+                    datasetFound = True
+                    iList = gateway.getImages(omero.api.ContainerClass.Dataset, [ds.id.val])
+                    self.assertEquals(1, len(iList))
+                else:
+                    # existing dataset should have 3 images. 
+                    self.assertEquals(ds.name.val, dsName)
+                    iList = gateway.getImages(omero.api.ContainerClass.Dataset, [ds.id.val])
+                    self.assertEquals(3, len(iList))
+                    
+        self.assertTrue(datasetFound, "No dataset found with EMAN-filtered images")
+        
     
     def testImagesFromRois(self):
         """
@@ -451,7 +539,7 @@ def getPlaneFromImage(imagePath):
     return a
 
 
-def importImage(session, imagePath, imageName=None):
+def importImage(session, imagePath, imageName=None, planeData=None):
     
     gateway = session.createGateway()
     renderingEngine = session.createRenderingEngine()
@@ -459,9 +547,14 @@ def importImage(session, imagePath, imageName=None):
     pixelsService = session.getPixelsService()
     rawPixelStore = session.createRawPixelsStore()
     
-    plane2D = getPlaneFromImage(imagePath)
+    if imagePath != None:
+        plane2D = getPlaneFromImage(imagePath)
+    else:
+        plane2D = planeData
     pType = plane2D.dtype.name
     pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
+    if pixelsType == None:
+        pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % 'float', None) # omero::model::PixelsType
     
     if imageName == None:
         imageName = imagePath
