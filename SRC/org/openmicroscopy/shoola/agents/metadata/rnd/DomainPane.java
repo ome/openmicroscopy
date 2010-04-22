@@ -846,6 +846,7 @@ public class DomainPane
     void setSelectedChannel()
     {
         graphicsPane.setSelectedChannel();
+        /*
         String f = model.getFamily();
         familyBox.removeActionListener(this);
         familyBox.setSelectedItem(f);
@@ -862,7 +863,7 @@ public class DomainPane
         noiseReduction.addActionListener(
                 controller.getAction(RendererControl.NOISE_REDUCTION));
         noiseReduction.setText(NoiseReductionAction.NAME);
-        
+        */
         Iterator<ChannelButton> i = channelList.iterator();
         ChannelButton btn;
         List<Integer> active = model.getActiveChannels();

@@ -330,10 +330,10 @@ public class IconManager
         relPaths[PUBLISHING] = "splitViewFigure16.png";//"nuvola_kcmsystem16.png";
         relPaths[CLOSE] = "nuvola_cancel16.png";
         relPaths[DETACH] = "nuvola_cancel16.png";
-        relPaths[RND_REDO] = "rendering_default16.png";
-        relPaths[RND_MIN_MAX] = "rendering_min_max16.png";
+        relPaths[RND_REDO] = "nuvola_undo16.png";
+        relPaths[RND_MIN_MAX] = "nuvola_rendering_minmax16.png";
         relPaths[RND_OWNER] = "rendering_owner16.png";
-        relPaths[RND_UNDO] = "rendering_undo16.png";
+        relPaths[RND_UNDO] = "nuvola_undo16.png";
     }
     
     /** The sole instance. */

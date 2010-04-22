@@ -38,7 +38,7 @@ import javax.swing.JToolBar;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.metadata.actions.ManageRndSettingsAction;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -81,9 +81,7 @@ public class PreviewControlBar
     /** Initializes the components. */
     private void initComponents()
     {
-    	//IconManager icons = IconManager.getInstance();
     	preview = new JCheckBox(PREVIEW);
-    	//preview.setIcon(icons.getIcon(IconManager.LIVE_UPDATE));
         preview.setEnabled(!model.isBigImage());
         preview.setToolTipText(PREVIEW_DESCRIPTION);
         formatButton(preview);
@@ -98,6 +96,7 @@ public class PreviewControlBar
     {
     	 b.setVerticalTextPosition(AbstractButton.BOTTOM);
     	 b.setHorizontalTextPosition(AbstractButton.CENTER);
+    	 b.setIconTextGap(0);
          UIUtilities.unifiedButtonLookAndFeel(b);
          b.setBackground(UIUtilities.BACKGROUND_COLOR);
     }
@@ -120,13 +119,26 @@ public class PreviewControlBar
         formatButton(b);
         bar.add(b);
         bar.add(Box.createHorizontalStrut(SPACE));
+        b = new JButton(control.getAction(RendererControl.RND_RESET));
+        formatButton(b);
+        bar.add(b);
+        bar.add(Box.createHorizontalStrut(SPACE));
         b = new JButton(control.getAction(RendererControl.RND_UNDO));
         formatButton(b);
         bar.add(b);
         bar.add(Box.createHorizontalStrut(SPACE));
-        b = new JButton(control.getAction(RendererControl.APPLY_TO_ALL));
+        ManageRndSettingsAction a = (ManageRndSettingsAction) 
+        	control.getAction(RendererControl.RND_OWNER);
+        b = new JButton(a);
         formatButton(b);
+        b.addMouseListener(a);
         bar.add(b);
+        if (model.isGeneralIndex()) {
+        	bar.add(Box.createHorizontalStrut(SPACE));
+            b = new JButton(control.getAction(RendererControl.APPLY_TO_ALL));
+            formatButton(b);
+            bar.add(b);
+        }
         return bar;
     }
     
@@ -137,7 +149,7 @@ public class PreviewControlBar
         setBackground(UIUtilities.BACKGROUND_COLOR);
         add(preview);
         add(new JSeparator(JSeparator.VERTICAL));
-        if (model.isGeneralIndex()) add(buildToolBar());
+        add(buildToolBar());
     }
     
     /**

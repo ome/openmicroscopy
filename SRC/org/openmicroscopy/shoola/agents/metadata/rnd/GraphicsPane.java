@@ -352,6 +352,13 @@ class GraphicsPane
     /** Updates the controls when a new channel is selected. */
     void setSelectedChannel()
     {
+    	Iterator<ChannelSlider> i = sliders.iterator();
+		ChannelSlider slider;
+		while (i.hasNext()) {
+			slider = i.next();
+			slider.setSelectedChannel();
+		}
+    	/*
     	if (!model.hasSelectedChannel()) return;
         minLabel.setText(formatValue(model.getGlobalMin()));
         maxLabel.setText(formatValue(model.getGlobalMax()));
@@ -361,12 +368,23 @@ class GraphicsPane
         int e = (int) (model.getWindowEnd()*f);
         domainSlider.setInterval(s, e);
         onCurveChange();
+        */
     }
     
     /** Sets the pixels intensity interval. */
     void setInputInterval()
     {
     	int f, s, e;
+    	Iterator<ChannelSlider> i = sliders.iterator();
+		ChannelSlider slider;
+		while (i.hasNext()) {
+			slider = i.next();
+			f = model.getRoundFactor(slider.getIndex());
+            s = (int) (model.getWindowStart(slider.getIndex())*f);
+            e = (int) (model.getWindowEnd(slider.getIndex())*f);
+            slider.setInterval(s, e);
+		}
+    	/*
     	if (model.isGeneralIndex()) {
     		Iterator<ChannelSlider> i = sliders.iterator();
     		ChannelSlider slider;
@@ -384,6 +402,7 @@ class GraphicsPane
             domainSlider.setInterval(s, e);
             onCurveChange();
     	}
+    	*/
     }
     
     /** Sets the value of the codomain interval. */

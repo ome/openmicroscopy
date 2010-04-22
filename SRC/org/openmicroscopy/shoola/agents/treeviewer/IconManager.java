@@ -468,7 +468,7 @@ public class IconManager
     public static final int           PUBLIC_GROUP_DD_12 = 137;
     
     /** The <code>Rendering Settings redo</code> icon. */
-    public static final int           RND_REDO = 138;
+    public static final int           RND_UNDO = 138;
     
     /** The <code>Rendering Settings Min-Max</code> icon. */
     public static final int           RND_MIN_MAX = 139;
@@ -628,8 +628,8 @@ public class IconManager
         relPaths[READ_GROUP_DD_12] = "nuvola_permission_readOnly_dd12.png";
         relPaths[READ_LINK_GROUP_DD_12] = "nuvola_permission_read_dd12.png";//"nuvola_permission_readLink_dd12.png";
         relPaths[PUBLIC_GROUP_DD_12] = "nuvola_permission_public_dd12.png";
-        relPaths[RND_REDO] = "rendering_default16.png";
-        relPaths[RND_MIN_MAX] = "rendering_min_max16.png";
+        relPaths[RND_UNDO] = "nuvola_undo16.png";
+        relPaths[RND_MIN_MAX] = "nuvola_rendering_minmax16.png";
         relPaths[RND_OWNER] = "rendering_owner16.png";
     }
     

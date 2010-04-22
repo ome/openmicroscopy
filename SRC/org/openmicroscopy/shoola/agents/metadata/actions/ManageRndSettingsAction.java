@@ -24,8 +24,10 @@ package org.openmicroscopy.shoola.agents.metadata.actions;
 
 
 //Java imports
+import java.awt.Component;
 import java.awt.event.ActionEvent;
-
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import javax.swing.Action;
 
 //Third-party libraries
@@ -50,6 +52,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 public class ManageRndSettingsAction 
 	extends RndAction
+	implements MouseListener
 {
 
 	/** Indicates to set the minimum and maximum for all channels. */
@@ -75,6 +78,12 @@ public class ManageRndSettingsAction
 	
 	/** The description of the action if {@link #UNDO}. */
 	private static final String NAME_UNDO = "Undo";
+	
+	/** The description of the action if {@link #RESET}. */
+	private static final String NAME_RESET = "Reset";
+	
+	/** The description of the action if {@link #SET_OWNER_SETTING}. */
+	private static final String NAME_OWNER = "View by";
 
 	/** The description of the action if {@link #MIN_MAX}. */
 	private static final String DESCRIPTION_MIN_MAX = 
@@ -119,6 +128,7 @@ public class ManageRndSettingsAction
 						icons.getIcon(IconManager.RND_MIN_MAX));
 				break;
 			case RESET:
+				putValue(Action.NAME, NAME_RESET);
 				putValue(Action.SHORT_DESCRIPTION, 
 						UIUtilities.formatToolTipText(DESCRIPTION_RESET));
 				putValue(Action.SMALL_ICON, 
@@ -140,6 +150,7 @@ public class ManageRndSettingsAction
 						icons.getIcon(IconManager.RND_APPLY_TO_ALL));
 				break;
 			case SET_OWNER_SETTING:
+				putValue(Action.NAME, NAME_OWNER);
 				putValue(Action.SHORT_DESCRIPTION, 
 						UIUtilities.formatToolTipText(
 								DESCRIPTION_SET_OWNER_SETTING));
@@ -176,7 +187,6 @@ public class ManageRndSettingsAction
 				model.setRangeAllChannels();
 				break;
 			case RESET:
-				
 				break;
 			case UNDO:
 				model.resetSettings(model.getInitialRndSettings(), true);
@@ -184,9 +194,46 @@ public class ManageRndSettingsAction
 			case APPLY_TO_ALL:
 				model.applyToAll();
 				break;
-			case SET_OWNER_SETTING:
-				break;
 		}
 	}
+
+	/** 
+	 * Brings up the menu displaying categories.
+	 * @see MouseListener#mousePressed(MouseEvent)
+	 */
+	public void mousePressed(MouseEvent me)
+	{
+		Object source = me.getSource();
+		//if (source instanceof Component) 
+		//	model.retrieveRelatedSettings((Component) source, me.getPoint());
+	}
 	
+	/**
+	 * Required by the {@link MouseListener} I/F but no-operation implementation 
+	 * in our case.
+	 * @see MouseListener#mouseClicked(MouseEvent)
+	 */
+	public void mouseClicked(MouseEvent me) {}
+
+	/**
+	 * Required by the {@link MouseListener} I/F but no-operation implementation 
+	 * in our case.
+	 * @see MouseListener#mouseEntered(MouseEvent)
+	 */
+	public void mouseEntered(MouseEvent me) {}
+
+	/**
+	 * Required by the {@link MouseListener} I/F but no-operation implementation 
+	 * in our case.
+	 * @see MouseListener#mouseExited(MouseEvent)
+	 */
+	public void mouseExited(MouseEvent me) {}
+
+	/**
+	 * Required by the {@link MouseListener} I/F but no-operation implementation 
+	 * in our case.
+	 * @see MouseListener#mouseReleased(MouseEvent)
+	 */
+	public void mouseReleased(MouseEvent me) {}
+
 }

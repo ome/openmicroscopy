@@ -202,6 +202,7 @@ class ToolBar
 
         bar.add(b);  
         bar.add(pasteButton);    
+        /*
         b = new JButton(
     			controller.getAction(ImViewerControl.UNDO_RND_SETTINGS));
         UIUtilities.unifiedButtonLookAndFeel(b);
@@ -215,18 +216,19 @@ class ToolBar
         					ImViewerControl.SET_RND_SETTINGS_MIN_MAX));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
-        /*
+        
         b = new JButton(controller.getAction(
         		ImViewerControl.SET_OWNER_RND_SETTINGS));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
         */
+        /*
         Action a = controller.getAction(ImViewerControl.USER);
         b = new JButton(a);
         b.addMouseListener((UserAction) a);
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
-        
+        */
         b = new JButton(
     			controller.getAction(ImViewerControl.SAVE_RND_SETTINGS));
         UIUtilities.unifiedButtonLookAndFeel(b);
@@ -240,7 +242,7 @@ class ToolBar
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b); 
         bar.add(new JSeparator(JSeparator.VERTICAL));
-        a = controller.getAction(ImViewerControl.MEASUREMENT_TOOL);
+        Action a = controller.getAction(ImViewerControl.MEASUREMENT_TOOL);
         measurementButton = new JButton(a);
         measurementButton.addMouseListener((ROIToolAction) a);
         UIUtilities.unifiedButtonLookAndFeel(measurementButton);

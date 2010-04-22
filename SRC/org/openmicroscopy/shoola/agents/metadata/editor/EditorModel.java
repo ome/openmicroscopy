@@ -640,7 +640,7 @@ class EditorModel
 		StructuredDataResults data = parent.getStructuredData();
 		if (!(annotation instanceof DataObject)) return false;
 		if (data == null) return false;
-		Map m = data.getOtherOwnerLinks();
+		Map m = data.getLinks();
 		if (m == null) return false;
 		long id = MetadataViewerAgent.getUserDetails().getId();
 		Entry entry;
@@ -670,7 +670,7 @@ class EditorModel
 		List<ExperimenterData> list = new ArrayList<ExperimenterData>();
 		StructuredDataResults data = parent.getStructuredData();
 		if (data == null) return list;
-		Map m = data.getOtherOwnerLinks();
+		Map m = data.getLinks();
 		if (m == null) return list;
 		long id = MetadataViewerAgent.getUserDetails().getId();
 		Entry entry;
@@ -704,7 +704,7 @@ class EditorModel
 		List<DataObject> list = new ArrayList<DataObject>();
 		StructuredDataResults data = parent.getStructuredData();
 		if (data == null) return list;
-		Map m = data.getOtherOwnerLinks();
+		Map m = data.getLinks();
 		if (m == null) return list;
 		long id = MetadataViewerAgent.getUserDetails().getId();
 		Entry entry;

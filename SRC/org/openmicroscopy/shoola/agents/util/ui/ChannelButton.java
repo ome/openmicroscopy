@@ -199,6 +199,7 @@ public class ChannelButton
      */
     private String parseText(String text)
     {
+    	if (text == null || text.length() == 0) return "";
     	String[] values = text.split("\\(");
     	if (values == null || values.length == 0) return text;
     	return values[0].trim();
@@ -229,7 +230,7 @@ public class ChannelButton
             public void mouseReleased(MouseEvent e) { onReleased(e); }
         });
         List<String> l = new ArrayList<String>(2);
-        l.add(text);
+        if (text != null && text.length() > 0) l.add(text);
         l.add(DESCRIPTION);
         setToolTipText(UIUtilities.formatToolTipText(l));
         setPreferredSize(setComponentSize(0));

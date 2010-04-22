@@ -1236,6 +1236,7 @@ class AnnotationDataUI
 		tagsDocList.add(doc);
 		tagsPane.add(doc);
 		docPane.removeAll();
+		filesDocList.clear();
 		doc = new DocComponent(null, model);
 		filesDocList.add(doc);
 		docPane.add(doc);

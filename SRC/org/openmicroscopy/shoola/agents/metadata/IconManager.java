@@ -376,14 +376,11 @@ public class IconManager
     /** The <code>Rendering Settings Apply to all</code> icon. */
     public static final int          RND_APPLY_TO_ALL = 106;
     
-    /** The <code>Live update</code> icon. */
-    public static final int          LIVE_UPDATE = 107;
-
     /** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static final int          MAX_ID = 107;
+	private static final int          MAX_ID = 106;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -490,12 +487,11 @@ public class IconManager
         relPaths[USER_PHOTO_22] = "nuvola_personal22.png"; //"nuvola_licq22.png";
         relPaths[USER_PHOTO_48] = "nuvola_personal48.png";//"nuvola_licq48.png";
         relPaths[USER_PHOTO_32] = "nuvola_personal32.png";
-        relPaths[RND_REDO] = "rendering_default16.png";
-        relPaths[RND_MIN_MAX] = "rendering_min_max16.png";
-        relPaths[RND_OWNER] = "rendering_owner16.png";
-        relPaths[RND_UNDO] = "rendering_default16.png";
-        relPaths[RND_APPLY_TO_ALL] = "rendering_default16.png";
-        relPaths[LIVE_UPDATE] = "rendering_default16.png";
+        relPaths[RND_REDO] = "nuvola_reset16.png";
+        relPaths[RND_MIN_MAX] = "nuvola_rendering_minmax16.png";
+        relPaths[RND_OWNER] = "nuvola_rendering_owner16.png";
+        relPaths[RND_UNDO] = "nuvola_undo16.png";
+        relPaths[RND_APPLY_TO_ALL] = "rendering_applyAll16.png";
 	}
    
 	/** The sole instance. */

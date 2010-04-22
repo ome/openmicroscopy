@@ -803,7 +803,7 @@ class OmeroMetadataServiceImpl
 							m.put(d, (ExperimenterData) PojoMapper.asDataObject(
 									link.getDetails().getOwner()));
 					}
-					results.setOtherOwnerLinks(m);
+					results.setLinks(m);
 				}
 				
 			}

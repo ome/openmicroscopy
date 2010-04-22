@@ -174,7 +174,7 @@ public class ManageRndSettingsAction
 				putValue(Action.SHORT_DESCRIPTION, 
 						UIUtilities.formatToolTipText(DESCRIPTION_RESET));
 				putValue(Action.SMALL_ICON, 
-						icons.getIcon(IconManager.RND_REDO));
+						icons.getIcon(IconManager.RND_UNDO));
 				break;
 			case SET_MIN_MAX:
 				name = NAME_SET_MIN_MAX;

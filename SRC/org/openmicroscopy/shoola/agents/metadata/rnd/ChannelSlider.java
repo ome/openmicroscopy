@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.beans.PropertyChangeEvent;
@@ -37,6 +38,7 @@ import javax.swing.JPanel;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
@@ -62,23 +64,29 @@ class ChannelSlider
 {
 
 	/** The default color. */
-	static final Color	GRADIENT_COLOR = Color.BLACK;
+	static final Color		GRADIENT_COLOR = Color.BLACK;
+	
+	/** The default size of the button. */
+	static final Dimension	DEFAULT_SIZE = new Dimension(16, 16);
 	
 	/** Reference to the model. */
-	private RendererModel 		model;
+	private RendererModel 			model;
 	
 	/** Reference to the control. */
-	private RendererControl 	controller;
+	private RendererControl 		controller;
 	
 	/** The reference to the parent hosting the component. */
-	private GraphicsPane 		uiParent;
+	private GraphicsPane 			uiParent;
 	
 	/** Reference to the channel. */
-	private ChannelData 		channel;
+	private ChannelData 			channel;
 	
 	/** Selection slider. */
 	private TextualTwoKnobsSlider 	slider;
 
+	/** Turn on/off the channel, when used in the viewer. */
+	private ChannelButton			channelSelection;
+	
 	/** Initializes the component composing the display. */
 	private void initComponents()
 	{
@@ -108,10 +116,9 @@ class ChannelSlider
         slider.getSlider().setPaintEndLabels(false);
         slider.getSlider().setPaintTicks(false);
         slider.addPropertyChangeListener(this);
-        slider.setColourGradients(GRADIENT_COLOR, model.getChannelColor(index));
-        
-        
-        
+        Color c = model.getChannelColor(index);
+        slider.setColourGradients(GRADIENT_COLOR, c);
+ 
         Font font = slider.getFont();
         slider.setFont(font.deriveFont(font.getStyle(), font.getSize()-2));
         List<String> list = new ArrayList<String>();
@@ -119,6 +126,13 @@ class ChannelSlider
         list.add("min: "+min);
         list.add("max: "+max);
         slider.getSlider().setToolTipText(UIUtilities.formatToolTipText(list));
+        
+        if (!model.isGeneralIndex()) {
+        	channelSelection = new ChannelButton("", c, index);
+        	channelSelection.setPreferredSize(DEFAULT_SIZE);
+        	channelSelection.setSelected(model.isChannelActive(index));
+        	channelSelection.addPropertyChangeListener(controller);
+        }
 	}
 	
 	/** Builds and lays out the UI. */
@@ -126,6 +140,8 @@ class ChannelSlider
 	{
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		if (!model.isGeneralIndex())
+			add(channelSelection);
 		add(slider);
 	}
 	
@@ -194,13 +210,25 @@ class ChannelSlider
     {
     	 slider.setColourGradients(GRADIENT_COLOR, 
     			 model.getChannelColor(getIndex()));
+    	 setSelectedChannel();
     }
     
     /** Modifies the color of the channel. */
     void setChannelColor()
     {
-    	slider.setColourGradients(GRADIENT_COLOR, 
-   			 model.getChannelColor(getIndex()));
+    	Color c = model.getChannelColor(getIndex());
+    	slider.setColourGradients(GRADIENT_COLOR, c);
+    	if (channelSelection != null) channelSelection.setColor(c);
+    }
+    
+    /** Indicates that the channel is selected. */
+    void setSelectedChannel()
+    {
+    	if (channelSelection == null) return;
+    	channelSelection.setSelected(model.isChannelActive(getIndex()));
+    	channelSelection.setColor(model.getChannelColor(getIndex()));
+    	channelSelection.setGrayedOut(
+				 Renderer.GREY_SCALE_MODEL.equals(model.getColorModel()));
     }
     
 	/**

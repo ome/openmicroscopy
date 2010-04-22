@@ -191,6 +191,7 @@ class DocComponent
 			unlinkButton.setEnabled(link);
 			unlinkButton.setVisible(link);
 		} 
+		
 		if (editButton != null) {
 			editButton.setEnabled(b);
 			editButton.setVisible(b);

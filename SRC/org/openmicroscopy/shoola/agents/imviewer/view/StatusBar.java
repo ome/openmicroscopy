@@ -147,17 +147,6 @@ class StatusBar
     { 
     	centerStatus.removeAll();
     	if (comp != null) {
-    		/*
-    		Component[] comps = getComponents();
-    		int index = -1;
-    		for (int i = 0; i < comps.length; i++) {
-				if (comps[i] == centerStatus) 
-					index = i;
-			}
-    		add(comp);
-    		remove(centerStatus);
-    		if (index >= 0) add(centerStatus, index);
-    		*/
     		centerStatus.add(comp);
     		revalidate();
     		repaint();

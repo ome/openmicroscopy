@@ -50,7 +50,6 @@ import org.openmicroscopy.shoola.agents.metadata.actions.ReverseIntensityAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.RndAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.ViewAction;
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
-import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
 
@@ -330,7 +329,7 @@ class RendererControl
 						(Boolean) entry.getValue());
 			}
         } else if (ChannelButton.CHANNEL_COLOR_PROPERTY.equals(name)) {
-        	if (view.isSourceDisplayed(evt.getSource()))
+        	//if (view.isSourceDisplayed(evt.getSource()))
         		showColorPicker(((Integer) evt.getNewValue()).intValue());
         } else if (Renderer.INPUT_INTERVAL_PROPERTY.equals(name)) {
             view.setInputInterval();

@@ -83,7 +83,7 @@ public class StructuredDataResults
 	private Collection					published;
 	
 	/** The tags and documents links. */
-	private Map							otherOwnerLinks;
+	private Map							links;
 	
 	/**
 	 * Creates a new instance.
@@ -234,16 +234,16 @@ public class StructuredDataResults
 	 * 
 	 * @return See above.
 	 */
-	public Map getOtherOwnerLinks() { return otherOwnerLinks; }
+	public Map getLinks() { return links; }
 	
 	/**
 	 * Sets the collection.
 	 * 
-	 * @param otherOwnerLinks The collection to set.
+	 * @param links The collection to set.
 	 */
-	public void setOtherOwnerLinks(Map otherOwnerLinks)
+	public void setLinks(Map links)
 	{
-		this.otherOwnerLinks = otherOwnerLinks;
+		this.links = links;
 	}
 	
 }
