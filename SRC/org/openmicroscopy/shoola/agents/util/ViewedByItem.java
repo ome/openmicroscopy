@@ -25,11 +25,14 @@ package org.openmicroscopy.shoola.agents.util;
 
 
 //Java imports
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+
+import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 
@@ -40,6 +43,8 @@ import javax.swing.JMenuItem;
 import org.openmicroscopy.shoola.agents.util.ui.RollOverThumbnailManager;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.ExperimenterData;
 
 /** 
@@ -61,6 +66,9 @@ public class ViewedByItem
 	implements ActionListener
 {
 
+	/** The maximum width or height of the icon. */
+	public static final int		MAX_ICON_SIZE = 32;
+	
 	/** Bound property indicating to apply the rendering settings. */
 	public static final String VIEWED_BY_PROPERTY = "viewedBy";
 	
@@ -73,12 +81,15 @@ public class ViewedByItem
 	/** The image with the rendering settings. */
 	private BufferedImage	image;
 
+	/** Flag indicating how to use the component. */
+	private boolean			asMenuItem;
+	
 	/** Displays the image. */
 	private void rollOver()
 	{
 		if (image == null) return;
 		RollOverThumbnailManager.rollOverDisplay(image, 
-				getBounds(), getLocationOnScreen(), "");
+				getBounds(), getLocationOnScreen(), getToolTipText());
 	}
 	
 	/**
@@ -86,13 +97,37 @@ public class ViewedByItem
 	 * 
 	 * @param experimenter The experimenter who viewed the image.
 	 * @param rndDef 	   The rendering settings.
-	 * @param model		   Reference to the model.	
 	 */
 	public ViewedByItem(ExperimenterData experimenter, RndProxyDef rndDef)
 	{
+		this(experimenter, rndDef, true);
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param experimenter The experimenter who viewed the image.
+	 * @param rndDef 	   The rendering settings.
+	 * @param asMenuItem   Pass <code>true</code> true to indicate that 
+	 * 					   the component will be used as a menu item, 
+	 * 					   <code>false</code> otherwise.	
+	 */
+	public ViewedByItem(ExperimenterData experimenter, RndProxyDef rndDef, 
+			boolean asMenuItem)
+	{
 		this.experimenter = experimenter;
 		this.rndDef = rndDef;
-		setText(EditorUtil.formatExperimenter(experimenter));
+		this.asMenuItem = asMenuItem;
+		if (!asMenuItem) {
+			Font f = getFont();
+			setFont(f.deriveFont(f.getStyle(), f.getSize()-3));
+			setVerticalTextPosition(AbstractButton.BOTTOM);
+	    	setHorizontalTextPosition(AbstractButton.CENTER);
+	    	setIconTextGap(0);
+	    	setText(experimenter.getLastName());
+		} else setText(EditorUtil.formatExperimenter(experimenter));
+		
+		setToolTipText("Set by: "+getText());
 		addActionListener(this);
 	}
 	
@@ -112,27 +147,30 @@ public class ViewedByItem
 	{
 		this.image = image;
 		if (image == null) return;
-		setIcon(new ImageIcon(Factory.scaleBufferedImage(image, 24)));
-		addMouseListener(new MouseAdapter() {
+		setIcon(new ImageIcon(
+				Factory.scaleBufferedImage(image, MAX_ICON_SIZE)));
+		if (!asMenuItem) {
+			addMouseListener(new MouseAdapter() {
+				
+				/**
+				 * Removes the zooming window from the display.
+				 * @see MouseAdapter#mouseExited(MouseEvent)
+				 */
+				public void mouseExited(MouseEvent e)
+				{
+					RollOverThumbnailManager.stopOverDisplay();
+				}
 			
-			/**
-			 * Removes the zooming window from the display.
-			 * @see MouseAdapter#mouseExited(MouseEvent)
-			 */
-			public void mouseExited(MouseEvent e)
-			{
-				//RollOverThumbnailManager.stopOverDisplay();
-			}
-		
-			/**
-			 * Zooms the image.
-			 * @see MouseAdapter#mouseExited(MouseEvent)
-			 */
-			public void mouseEntered(MouseEvent e) { 
-				//rollOver(); 
-			}
-		
-		});
+				/**
+				 * Zooms the image.
+				 * @see MouseAdapter#mouseExited(MouseEvent)
+				 */
+				public void mouseEntered(MouseEvent e) { 
+					rollOver(); 
+				}
+			
+			});
+		}
 		repaint();
 	}
 
