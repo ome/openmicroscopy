@@ -54,9 +54,41 @@ from omero.rtypes import *
 from omero.model import FileAnnotationI, TagAnnotationI, DatasetI, ProjectI, ImageI, \
                         DetectorI, FilterI, ObjectiveI, InstrumentI, LaserI
 from omero.sys import ParametersI
-from omero.gateway import AnnotationWrapper
+from omero.gateway import AnnotationWrapper, BlitzObjectWrapper
 
 class OmeroWebObjectWrapper (object):
+    
+    def listChildrenWithLinks (self):
+        """
+        Lists available child objects.
+
+        @return: Generator yielding child objects and link to parent.
+        """
+
+        childw = self._getChildWrapper()
+        klass = childw().OMERO_CLASS
+        params = omero.sys.Parameters()
+        params.map = {}
+        params.map["dsid"] = rlong(self._oid)
+        query = "select c from %s as c " \
+                "join fetch c.child as ch " \
+                "where c.parent.id=:dsid " \
+                "order by c.child.name" % self.LINK_CLASS
+        for link in self._conn.getQueryService().findAllByQuery(query, params):
+            kwargs = {'link': BlitzObjectWrapper(self._conn, link)}
+            yield childw(self._conn, link.child, None, **kwargs)
+    
+    def countAnnotations (self):
+        if self.annotation_counter is not None:
+            return self.annotation_counter
+        else:
+            container = self._conn.getContainerService()
+            m = container.getCollectionCount(self._obj.__class__.__name__, type(self._obj).ANNOTATIONLINKS, [self._oid], None)
+            if m[self._oid] > 0:
+                self.annotation_counter = m[self._oid]
+                return self.annotation_counter
+            else:
+                return None
     
     def warpName(self):
         try: 
@@ -117,22 +149,8 @@ class ProjectWrapper (OmeroWebObjectWrapper, omero.gateway.ProjectWrapper):
     annotation_counter = None
     
     def __prepare__ (self, **kwargs):
-        try:
+        if kwargs.has_key('annotation_counter'):
             self.annotation_counter = kwargs['annotation_counter']
-        except:
-            pass
-    
-    def countAnnotations (self):
-        if self.annotation_counter is not None:
-            return self.annotation_counter
-        else:
-            container = self._conn.getContainerService()
-            m = container.getCollectionCount(self._obj.__class__.__name__, type(self._obj).ANNOTATIONLINKS, [self._oid], None)
-            if m[self._oid] > 0:
-                self.annotation_counter = m[self._oid]
-                return self.annotation_counter
-            else:
-                return None
  	 
 omero.gateway.ProjectWrapper = ProjectWrapper 
  	 
@@ -141,22 +159,10 @@ class DatasetWrapper (OmeroWebObjectWrapper, omero.gateway.DatasetWrapper):
     annotation_counter = None
     
     def __prepare__ (self, **kwargs):
-        try:
+        if kwargs.has_key('annotation_counter'):
             self.annotation_counter = kwargs['annotation_counter']
-        except:
-            pass
-    
-    def countAnnotations (self):
-        if self.annotation_counter is not None:
-            return self.annotation_counter
-        else:
-            container = self._conn.getContainerService()
-            m = container.getCollectionCount(self._obj.__class__.__name__, type(self._obj).ANNOTATIONLINKS, [self._oid], None)
-            if m[self._oid] > 0:
-                self.annotation_counter = m[self._oid]
-                return self.annotation_counter
-            else:
-                return None
+        if kwargs.has_key('link'):
+            self.link = kwargs.has_key('link') and kwargs['link'] or None    
 	 
 omero.gateway.DatasetWrapper = DatasetWrapper
 
@@ -165,22 +171,10 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
     annotation_counter = None
     
     def __prepare__ (self, **kwargs):
-        try:
+        if kwargs.has_key('annotation_counter'):
             self.annotation_counter = kwargs['annotation_counter']
-        except:
-            pass
-    
-    def countAnnotations (self):
-        if self.annotation_counter is not None:
-            return self.annotation_counter
-        else:
-            container = self._conn.getContainerService()
-            m = container.getCollectionCount(self._obj.__class__.__name__, type(self._obj).ANNOTATIONLINKS, [self._oid], None)
-            if m[self._oid] > 0:
-                self.annotation_counter = m[self._oid]
-                return self.annotation_counter
-            else:
-                return None
+        if kwargs.has_key('link'):
+            self.link = kwargs.has_key('link') and kwargs['link'] or None
     
     def getThumbnailOrDefault (self, size=(120,120)):
         rv = super(omero.gateway.ImageWrapper, self).getThumbnail(size=size)
@@ -205,13 +199,9 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
 
 omero.gateway.ImageWrapper = ImageWrapper
 
-class DatasetImageLinkWrapper (omero.gateway.BlitzObjectWrapper):
-    pass
-
-class ProjectDatasetLinkWrapper (omero.gateway.BlitzObjectWrapper):
-    pass
-
 class PlateWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
+    
+    annotation_counter = None
     
     def __bstrap__ (self):
         self.OMERO_CLASS = 'Plate'
@@ -219,15 +209,27 @@ class PlateWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
         self.CHILD_WRAPPER_CLASS = None
         self.PARENT_WRAPPER_CLASS = 'ScreenWrapper'
 
+    def __prepare__ (self, **kwargs):
+        if kwargs.has_key('annotation_counter'):
+            self.annotation_counter = kwargs['annotation_counter']
+        if kwargs.has_key('link'):
+            self.link = kwargs.has_key('link') and kwargs['link'] or None
+
 omero.gateway.PlateWrapper = PlateWrapper
 
 class ScreenWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
+    
+    annotation_counter = None
     
     def __bstrap__ (self):
         self.OMERO_CLASS = 'Screen'
         self.LINK_CLASS = "ScreenPlateLink"
         self.CHILD_WRAPPER_CLASS = 'PlateWrapper'
         self.PARENT_WRAPPER_CLASS = None
+
+    def __prepare__ (self, **kwargs):
+        if kwargs.has_key('annotation_counter'):
+            self.annotation_counter = kwargs['annotation_counter']
 
 omero.gateway.ScreenWrapper = ScreenWrapper
 

@@ -1,9 +1,6 @@
 /* table */
 
 /* icons */
-#dataIcons .ui-selecting img{ border: 1px dashed #444; padding: 2px; }
-#dataIcons .ui-selected img{ border: 1px dashed #444; padding: 2px; color: white; }
-
 #dataIcons {
     list-style-type: none;
     margin: 0; 
@@ -11,10 +8,6 @@
     top: 0; 
     left: 0;
     position: relative;
-}
-#dataIcons img {
-    border: 1px solid #fff;
-    padding: 2px; 
 }
 
 #dataIcons li {
@@ -25,6 +18,14 @@
     width: 100px;
     padding: 5px; 
 }
+
+#dataIcons img, #dataIcons .readonly img, #dataIcons .linkonly img {
+    border: 1px solid #fff;
+    padding: 2px; 
+}
+
+#dataIcons .ui-selecting img{ border: 1px dashed #555; padding: 2px; }
+#dataIcons .ui-selected img{ border: 1px dashed #555; padding: 2px; color: white; }
 
 em {
     background-color: #fff;

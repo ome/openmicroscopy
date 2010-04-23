@@ -59,9 +59,9 @@ urlpatterns = patterns('',
     url( r'^basket/(?:(?P<action>[a-zA-Z]+)/)?$', views.basket_action, name="basket_action"),
     
     # loading data
-    url( r'^load_data/(?P<o1_type>((?i)orphaned|ajaxorphaned))/$', views.load_data, name="load_data_ajax" ),
+    url( r'^load_data/(?P<o1_type>((?i)orphaned))/$', views.load_data, name="load_data_ajax" ),
     
-    url( r'^load_data/(?:(?P<o1_type>((?i)project|dataset|ajaxdataset|image|screen|plate|well))/)?(?:(?P<o1_id>[0-9]+)/)?(?:(?P<o2_type>((?i)dataset|image|plate|well))/)?(?:(?P<o2_id>[0-9]+)/)?(?:(?P<o3_type>((?i)image|well))/)?(?:(?P<o3_id>[0-9]+)/)?$', views.load_data, name="load_data" ),    
+    url( r'^load_data/(?:(?P<o1_type>((?i)project|dataset|image|screen|plate|well))/)?(?:(?P<o1_id>[0-9]+)/)?(?:(?P<o2_type>((?i)dataset|image|plate|well))/)?(?:(?P<o2_id>[0-9]+)/)?(?:(?P<o3_type>((?i)image|well))/)?(?:(?P<o3_id>[0-9]+)/)?$', views.load_data, name="load_data" ),    
     
     url( r'^load_data/(?P<o1_type>((?i)project|dataset|image|screen|plate|well))/(?P<o1_id>[0-9]+)/$', views.load_data, name="load_data_t_id" ),
     url( r'^load_data/(?P<o1_type>((?i)project|dataset|screen|plate))/(?P<o1_id>[0-9]+)/(?P<o2_type>((?i)dataset|image|plate|well))/(?P<o2_id>[0-9]+)/$', views.load_data, name="load_data_t_id_t_id" ),

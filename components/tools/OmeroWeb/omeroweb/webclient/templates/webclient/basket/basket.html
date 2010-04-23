@@ -44,7 +44,7 @@
                         $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
             		    $('tr.ui-selected', this).each(function(){  
             		        var h = $(window).height()-169;
-            		        $("div#metadata_details").html('<iframe width="100%" height="'+h+'" src="/webclient/metadata_details/image/'+this.id+'/" id="metadata_details" name="metadata_details"></iframe>');
+            		        $("div#metadata_details").html('<iframe width="370" height="'+h+'" src="/webclient/metadata_details/image/'+this.id+'/" id="metadata_details" name="metadata_details"></iframe>');
                             $('iframe#metadata_details').load();
                         });
             		} else {

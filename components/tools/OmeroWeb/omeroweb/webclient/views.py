@@ -55,6 +55,8 @@ from django.views.defaults import page_not_found, server_error
 from django.views import debug
 from django.core.urlresolvers import reverse
 
+from omeroweb.extlib.http import HttpJavascriptRedirect, HttpJavascriptResponse
+
 from controller import sortByAttr
 from controller.index import BaseIndex
 from controller.annotation import BaseAnnotation
@@ -557,7 +559,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     try:
         page = int(request.REQUEST['page'])
     except:
-        page = 1
+        page = None
     
     # get index of the plate
     try:
@@ -577,38 +579,39 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     # load data  
     form_well_index = None    
     
-    if o2_type and o2_id:
-        if o2_type == 'dataset':
-            manager.listImagesInDataset(o2_id, page, filter_user_id)
-        elif o2_type == 'plate':
+    if o1_type is not None and o1_id > 0:
+        if o1_type == 'dataset':
+            manager.listImagesInDataset(o1_id, filter_user_id)
+        elif o1_type == 'project' and o2_type == 'dataset':
+            manager.listImagesInDataset(o2_id, filter_user_id)
+        elif o1_type == 'plate':
+            manager.listPlate(o1_id, index, page)
+            form_well_index = WellIndexForm(initial={'index':index, 'range':manager.fields})
+        elif o1_type == 'screen' and o2_type == 'plate':
             manager.listPlate(o2_id, index, page)
             form_well_index = WellIndexForm(initial={'index':index, 'range':manager.fields})
-    elif o1_type and o1_id:
-        if o1_type == 'ajaxdataset':
-            manager.loadImages(o1_id, filter_user_id)
-        elif o1_type == 'project':
-            manager.listDatasetsInProject(o1_id, page, filter_user_id)
-        elif o1_type == 'screen':
-            manager.listPlatesInScreen(o1_id, page, filter_user_id)
-        elif o1_type == 'plate':
-            manager.listPlate(o1_id, page, filter_user_id)
-            form_well_index = WellIndexForm(initial={'index':index, 'range':manager.fields})
-        elif o1_type == 'dataset':
-            manager.listImagesInDataset(o1_id, page, filter_user_id)
     elif o1_type == 'orphaned':
-        manager.loadOrphanedImages(filter_user_id)
-    elif o1_type == 'ajaxorphaned':
-        manager.loadOrphanedImages(filter_user_id)
+        manager.listOrphanedImages(filter_user_id)
     else:
-        manager.loadContainerHierarchy(filter_user_id)
+        manager.listContainerHierarchy(filter_user_id)
     
     template = None
     if o1_type =='plate' or o2_type == 'plate':
         template = "webclient/data/plate_details.html"
-    elif o1_type=='ajaxdataset' and o1_id > 0:
-        template = "webclient/data/container_subtree.html"        
-    elif o1_type=='ajaxorphaned':
-        template = "webclient/data/container_subtree.html"
+    elif o1_type=='dataset' and o1_id > 0:
+        if view =='icon':
+            template = "webclient/data/containers_icon.html"
+        elif view =='table':
+            template = "webclient/data/containers_table.html"
+        else:
+            template = "webclient/data/container_subtree.html"      
+    elif o1_type=='orphaned':
+        if view =='icon':
+            template = "webclient/data/containers_icon.html"
+        elif view =='table':
+            template = "webclient/data/containers_table.html"
+        else:
+            template = "webclient/data/container_subtree.html"
     elif view =='tree':
         template = "webclient/data/containers_tree.html"
     elif view =='icon':
@@ -990,6 +993,13 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
+    # check menu
+    menu = request.REQUEST.get("menu")
+    if menu is not None:
+        request.session['nav']['menu'] = menu
+    else:
+        menu = request.session['nav']['menu']
+    
     url = None
     try:
         url = kwargs["url"]
@@ -1186,7 +1196,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 name = request.REQUEST.get('name').encode('utf-8')
                 description = request.REQUEST.get('description').encode('utf-8')
                 manager.createDataset(name, description)
-                return HttpResponseRedirect(url)
+                return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse(viewname="load_template", args=[menu])) 
             else:
                 template = "webclient/data/container_new.html"
                 context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
@@ -1197,7 +1207,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                     name = request.REQUEST['name'].encode('utf-8')
                     description = request.REQUEST['description'].encode('utf-8')
                     manager.createDataset(name, description)
-                    return HttpResponseRedirect(url)
+                    return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse(viewname="load_template", args=[menu])) 
                 else:
                     template = "webclient/data/container_new.html"
                     context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
@@ -1207,7 +1217,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                     name = request.REQUEST['name'].encode('utf-8')
                     description = request.REQUEST['description'].encode('utf-8')
                     manager.createProject(name, description)
-                    return HttpResponseRedirect(url)
+                    return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse(viewname="load_template", args=[menu])) 
                 else:
                     template = "webclient/data/container_new.html"
                     context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
@@ -1217,7 +1227,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                     name = request.REQUEST['name'].encode('utf-8')
                     description = request.REQUEST['description'].encode('utf-8')
                     manager.createScreen(name, description)
-                    return HttpResponseRedirect(url)
+                    return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse(viewname="load_template", args=[menu])) 
                 else:
                     template = "webclient/data/container_new.html"
                     context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
@@ -1325,7 +1335,21 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             template = "webclient/annotations/annotation_new_form.html"
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_files':form_files}
     elif action == 'delete':
-        pass
+        allitems = request.REQUEST.get('all')
+        try:
+            manager.deleteItem(allitems)
+        except Exception, x:
+            logger.error(traceback.format_exc())
+            raise x
+        return HttpResponse()
+    elif action == 'deletemany':
+        ids = request.REQUEST.getlist('image')
+        try:
+            manager.deleteImages(ids)
+        except Exception, x:
+            logger.error(traceback.format_exc())
+            raise x
+        return HttpResponse()
     
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -1446,7 +1470,7 @@ def manage_share(request, action, sid=None, **kwargs):
             except:
                 host = '%s://%s:%s%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], reverse("webindex"))
             share.createShare(host, request.session['server'], request.session['imageInBasket'], message, members, enable, expiration)
-            return HttpResponse('<script type="text/javascript">window.parent.location.href="%s"</script>' % reverse("manage_shares"))
+            return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse("manage_shares")) 
         else:
             basket = BaseBasket(conn)
             basket.load_basket(request)
@@ -1475,7 +1499,7 @@ def manage_share(request, action, sid=None, **kwargs):
             except:
                 host = '%s://%s:%s%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], reverse("webindex"))
             share.createDiscussion(host, request.session['server'], message, members, enable, expiration)
-            return HttpResponse('<script type="text/javascript">window.parent.location.href="%s"</script>' % reverse("manage_shares"))
+            return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse("manage_shares")) 
         else:
             basket = BaseBasket(conn)
             basket.load_basket(request)
@@ -2349,7 +2373,7 @@ def spellchecker(request):
         response = con.getresponse()
         r_text = response.read()
         con.close()
-        return HttpResponse(r_text, mimetype='text/javascript')
+        return HttpJavascriptResponse(r_text)
 
 
 @isUserConnected

@@ -217,7 +217,7 @@ class BlitzObjectWrapper (object):
         return False
     
     def isEditable(self):
-        if self.isOwned() or not self.isReadOnly():
+        if self.isOwned() and not self.isReadOnly():
             return True
         return False
     
@@ -2668,7 +2668,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                 elif isinstance(e, omero.model.InstrumentI):
                     pass
                 else:
-                    print "Unknown instrument entry: %s" % str(e)
+                    logger.info("Unknown instrument entry: %s" % str(e))
         return InstrumentWrapper(self._conn, i)
 
     def _loadPixels (self):

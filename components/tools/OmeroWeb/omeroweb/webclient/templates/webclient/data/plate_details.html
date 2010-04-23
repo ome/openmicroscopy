@@ -9,14 +9,15 @@
        
     <script>
         $(document).ready(function(){
-            
+            $("div#www").css('width', $(window).width()-770);
         });
         
         function changeIndex(index) {
-            if(index>0) {
+            if(index>=0) {
                 var rel = $("div#content_details").attr('rel');
                 $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/tree/spinner.gif"/></p>');
-                $("div#content_details").load('{{ url }}?view={{ nav.view }}&index='+index);
+                var url = ('{{ url }}').split("?");                
+                $("div#content_details").load(url[0]+'?view={{ nav.view }}&index='+index);
                 return false;
             } else {
                 alert('Attribute error: index out of range');
@@ -26,6 +27,7 @@
         
 
 <!--content-->
+<div id="www" style="overflow:auto;">
 <div id="index">
     <form action="" method="POST">
     <table>
@@ -58,4 +60,5 @@
     </tr>
     {% endfor %}
 </table>
+</div>
 </div>

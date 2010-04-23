@@ -25,7 +25,7 @@
             		    $('tr.ui-selected', this).each(function(){  
             		        var h = $(window).height()-169;
             		        var obj = this.id.split("-");
-            		        $("div#metadata_details").html('<iframe width="100%" height="'+h+'" src="/webclient/metadata_details/'+obj[0]+'/'+obj[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
+            		        $("div#metadata_details").html('<iframe width="370" height="'+h+'" src="/webclient/metadata_details/'+obj[0]+'/'+obj[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
                             $('iframe#metadata_details').load();
                         });
             		} else {

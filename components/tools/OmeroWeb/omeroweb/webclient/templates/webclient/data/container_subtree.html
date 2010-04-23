@@ -1,7 +1,16 @@
 {% load i18n %}
 {% load custom_tags %}
 
-{% for d in manager.subcontainers %}
-    <li id='img-{{ d.id }}'><span>{{ d.truncateNameForTree }}</span> {% if d.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %}{% if not d.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}
-    </li>
-{% endfor %}
+{% if manager.containers.orphaned %}
+    {% for d in manager.containers.images %}
+        <li id='img-{{ d.id }}' title="{{ d.name }}"><span>{{ d.truncateNameForTree }}</span> 
+            {% if d.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %} 
+            {% if not d.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="owned by {{ d.getOwner.getNameWithInitial }}"/>{% endif %}</li>
+    {% endfor %}
+{% else %}
+    {% for d in manager.containers.images %}
+        <li id='img-{{ d.id }}' title="{{ d.name }}"><span {% if not d.link.isOwned %}id="readonly"{% else %}{% if not d.isOwned %}id="linkonly"{% endif %}{% endif %}>{{ d.truncateNameForTree }}</span> 
+            {% if d.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %} 
+            {% if not d.link.isOwned %}{% if not d.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="owned by {{ d.getOwner.getNameWithInitial }}, linked by {{ d.link.getOwner.getNameWithInitial }}"/>{% else %}<img src="{% url webstatic "images/kgpg_key16.png" %}" alt="l" title="linked by {{ d.link.getOwner.getNameWithInitial }}"/>{% endif %}{% else %}{% if not d.isOwned %} <img src="{% url webstatic "images/personal12.png" %}" alt="l" title="owned by {{ d.getOwner.getNameWithInitial }}"/>{% endif %}{% endif %}</li>
+    {% endfor %}    
+{% endif %}

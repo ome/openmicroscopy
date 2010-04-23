@@ -172,7 +172,7 @@ $.fn.simpleTree = function(opt){
 				return false;
 			}).mousedown(function(event){
 			    //if elemnt is static don't drag it
-			    if($(this).parent().get(0).id=='orphan') {
+			    if($(this).parent().get(0).id=='orphaned' || $(this).attr('id')=='readonly') {
 			        return false;
 				} else {
 				    mousePressed = true;
@@ -204,7 +204,7 @@ $.fn.simpleTree = function(opt){
 				var childNode = $('>ul',this);
 				if(childNode.size()>0){
 				    var unknown = 0;
-				    if(this.id.match(/(orphan)/)) {
+				    if(this.id.match(/(orphaned)/)) {
 				        var setClassName = 'orfolder-'; //new
 					} else if(this.id.match(/(pr)+-[0-9]+/)) {
     					var setClassName = 'folder-'; //new

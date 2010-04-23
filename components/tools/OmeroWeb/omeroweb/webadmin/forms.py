@@ -75,7 +75,7 @@ class LoginForm(forms.Form):
 
 class ForgottonPasswordForm(forms.Form):
     
-    server = forms.ModelChoiceField(settings.SERVER_LIST, empty_label=u"---------")
+    server = ServerModelChoiceField(settings.SERVER_LIST.all(), empty_label=u"---------")
     username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':28}))
     email = forms.EmailField(widget=forms.TextInput(attrs={'size':28}))
 

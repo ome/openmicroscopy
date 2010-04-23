@@ -8,13 +8,15 @@
     <li class="root" id='0'><span>{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.getFullName }}{% endif %}</span>
         <ul>
             {% for c in manager.containers.projects %}
-            <li id='pr-{{ c.id }}'><span>{{ c.truncateNameForTree }}</span> {% if c.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}
+            <li id='pr-{{ c.id }}' title="{{ c.name }}"><span {% if nav.experimenter %}id="readonly"{% endif %}>{{ c.truncateNameForTree }}</span> {% if c.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}
                 <ul>
-                    {% if c.copyDatasetLinks %}
-                    {% for d in c.listChildren %}
-                        <li id='ds-{{ d.id }}' ><span>{{ d.truncateNameForTree }}</span> {% if d.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %}{% if not d.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}
+                    {% if c.countChildren %}
+                    {% for d in c.listChildrenWithLinks %}
+                        <li id='ds-{{ d.id }}' title="{{ d.name }}"><span {% if not d.link.isOwned %}id="readonly"{% else %}{% if not d.isOwned %}id="linkonly"{% endif %}{% endif %}>{{ d.truncateNameForTree }}</span> 
+                            {% if d.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %} 
+                            {% if not d.link.isOwned %}{% if not d.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="owned by {{ d.getOwner.getNameWithInitial }}, linked by {{ d.link.getOwner.getNameWithInitial }}"/>{% else %}<img src="{% url webstatic "images/kgpg_key16.png" %}" alt="l" title="linked by {{ d.link.getOwner.getNameWithInitial }}"/>{% endif %}{% else %}{% if not d.isOwned %} <img src="{% url webstatic "images/personal12.png" %}" alt="l" title="owned by {{ d.getOwner.getNameWithInitial }}"/>{% endif %}{% endif %}
                             <ul class="ajax">
-                                <li id='{{ d.id.val }}'>{url:{% url load_data "ajaxdataset" d.id %}?view=tree}</li>
+                                <li id='{{ d.id.val }}'>{url:{% url load_data "dataset" d.id %}?view=tree}</li>
                             </ul>
                         </li>
                     {% endfor %}
@@ -26,11 +28,14 @@
             {% endfor %}
             
             {% for c in manager.containers.screens %}
-            <li id='sc-{{ c.id }}'><span>{{ c.truncateNameForTree }}</span> {% if c.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}
+            <li id='sc-{{ c.id }}' title="{{ c.name }}"><span {% if nav.experimenter %}id="readonly"{% endif %}>{{ c.truncateNameForTree }}</span> {% if c.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}
                 <ul>
-                    {% if c.copyPlateLinks %}
-                    {% for d in c.listChildren %}
-                        <li id='pl-{{ d.id }}' ><span>{{ d.truncateNameForTree }}</span> {% if d.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %}{% if not d.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</li>
+                    {% if c.countChildren %}
+                    {% for d in c.listChildrenWithLinks %}
+                        <li id='pl-{{ d.id }}' title="{{ d.name }}"><span {% if not d.link.isOwned %}id="readonly"{% else %}{% if not d.isOwned %}id="linkonly"{% endif %}{% endif %}>{{ d.truncateNameForTree }}</span> 
+                            {% if d.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %}
+                            {% if not d.link.isOwned %}{% if not d.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="owned by {{ d.getOwner.getNameWithInitial }}, linked by {{ d.link.getOwner.getNameWithInitial }}"/>{% else %}<img src="{% url webstatic "images/kgpg_key16.png" %}" alt="l" title="linked by {{ d.link.getOwner.getNameWithInitial }}"/>{% endif %}{% else %}{% if not d.isOwned %} <img src="{% url webstatic "images/personal12.png" %}" alt="l" title="owned by {{ d.getOwner.getNameWithInitial }}"/>{% endif %}{% endif %}
+                        </li>
                     {% endfor %}
                     {% else %}
                         <li class="line-last"/>
@@ -40,26 +45,26 @@
             {% endfor %}
             
             {% for c in manager.containers.datasets %}
-                <li id='ds-{{ c.id }}'><span>{{ c.truncateNameForTree }}</span> {% if c.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}
+                <li id='ds-{{ c.id }}' title="{{ c.name }}"><span {% if nav.experimenter %}id="readonly"{% else %}{% if not c.isOwned %}id="linkonly"{% endif %}{% endif %}>{{ c.truncateNameForTree }}</span> {% if c.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}
                     <ul class="ajax">
-                        <li id='{{ d.id.val }}'>{url:{% url load_data "ajaxdataset" c.id %}?view=tree}</li>
+                        <li id='{{ d.id.val }}'>{url:{% url load_data "dataset" c.id %}?view=tree}</li>
                     </ul>
                 </li>
             {% endfor %}
             
             {% for c in manager.containers.plates %}
-                <li id='pl-{{ c.id }}'><span>{{ c.truncateNameForTree }}</span> {% if c.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</li>
+                <li id='pl-{{ c.id }}' title="{{ c.name }}"><span {% if nav.experimenter %}id="readonly"{% else %}{% if not c.isOwned %}id="linkonly"{% endif %}{% endif %}>{{ c.truncateNameForTree }}</span> {% if c.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</li>
             {% endfor %}
             
             {% for d in manager.containers.images %}
-                <li id='img-{{ d.id }}'><span>{{ d.truncateNameForTree }}</span> {% if d.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</li>
+                <li id='img-{{ d.id }}' title="{{ d.name }}"><span {% if nav.experimenter %}id="readonly"{% else %}{% if not d.isOwned %}id="linkonly"{% endif %}{% endif %}>{{ d.truncateNameForTree }}</span> {% if d.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</li>
             {% endfor %}
 
             {% if not manager.project and not manager.dataset %}
             {% if not manager.orphaned %}
-                <li id='orphan' ><span>{% trans "Orphaned images" %}</span>
+                <li id='orphaned' title="{% trans "Orphaned images" %}"><span>{% trans "Orphaned images" %}</span>
                     <ul class="ajax">
-                        <li id='{{ d.id.val }}'>{url:{% url load_data_ajax "ajaxorphaned" %}?view=tree}</li>
+                        <li id='{{ d.id.val }}'>{url:{% url load_data_ajax "orphaned" %}?view=tree}</li>
                     </ul>
                 </li>
             {% endif %}

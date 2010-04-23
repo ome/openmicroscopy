@@ -138,6 +138,68 @@ function unlink (productArray, parent) {
     });
 };
 
+function manyDelete() { 
+    if (!isCheckedById("image") && !isCheckedById("plate")) {
+        alert ("Please select at least one object"); 
+    } else { 
+        deleteItems($("input[type='checkbox']:checked"), parent);
+    }
+};
+
+function deleteItems (productArray, parent) { 
+    var productListQuery = "parent="+parent;
+    productArray.each(function() {
+        if(this.checked) {
+            productListQuery += "&"+this.name+"="+this.id;
+        }
+    });
+    $.ajax({
+        type: "POST",
+        url: "/webclient/action/deletemany/", //this.href,
+        data: productListQuery,
+        contentType:'html',
+        success: function(responce){
+            if(responce.match(/(Error: ([a-z][A-Z]+))/gi)) {
+                alert(responce)
+            } else {
+                window.location.replace("");
+            }
+        },
+        error: function(responce) {
+            alert("Internal server error. Cannot add to basket.");
+        }
+    });
+};
+
+function deleteItem(productType, productId) {
+    if ((productType == 'project' || productType == 'dataset' || productType == 'image' || productType == 'screen' || productType == 'plate') && productId > 0){
+        if (confirm('Delete '+productType+'?')) {
+            if ((productType == 'project' || productType == 'dataset' || productType == 'screen') && confirm('Also delete content?')) {
+                all = 'all=on';
+            } else {
+                all = null;
+            }
+            $.ajax({
+                type: "POST",
+                url: "/webclient/action/delete/"+productType+"/"+productId+"/", //this.href,
+                data: all,
+                contentType:'html',
+                success: function(responce){
+                    if(responce.match(/(Error: ([a-z][A-Z]+))/gi)) {
+                        alert(responce)
+                    } else {
+                        window.location.replace("");
+                    }
+                },
+                error: function(responce) {
+                    alert("Internal server error. Cannot add to basket.");
+                }
+            });
+            
+        }
+    } 
+}
+
 function manyCopyToClipboard() { 
     if (isCheckedById("project") || isCheckedById("screen")) {
         alert ("You can only copy datasets, images or plates. Please uncheck projects and screens."); 

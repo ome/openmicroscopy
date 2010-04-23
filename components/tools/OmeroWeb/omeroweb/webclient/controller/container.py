@@ -190,70 +190,27 @@ class BaseContainer(BaseController):
         self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters, 'images': im_list_with_counters}
         self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)+len(im_list_with_counters)
         
-    def loadHierarchies(self):
-        if self.image is not None:
-            obj_list = self.conn.findContainerHierarchies(self.image.id)
-            pr_list = list()
-            ds_list = list()
-            for o in obj_list:
-                if isinstance(o._obj, ProjectI):
-                    pr_list.append(o)
-                if isinstance(o._obj, DatasetI):
-                    ds_list.append(o)
-                    
-            self.hierarchy={'projects': self.sortByAttr(pr_list, 'name'), 'datasets': self.sortByAttr(ds_list, 'name')}
-        #1015    
-        #elif self.dataset is not None:
-        #    obj_list = self.conn.findContainerHierarchies(self.dataset.id)
-        #    pr_list = list()
-        #    for o in obj_list:
-        #        if isinstance(o._obj, ProjectI):
-        #            pr_list.append(o)
-        #    self.hierarchy={'projects': self.sortByAttr(pr_list, 'name')}
-        else:
-            self.hierarchy = None
-
-    def listDatasetsInProject(self, pid, page, eid=None):
+    def listImagesInDataset(self, did, eid=None, page=None):
         if eid is not None:
-            self.experimenter = self.conn.getExperimenter(eid)
+            self.experimenter = self.conn.getExperimenter(eid)  
         
-        ds_list = self.sortByAttr(list(self.conn.lookupDatasetsInProject(oid=project_id, eid=eid, page=page)), 'name')        
-        ds_list_with_counters = list()
+        im_list = self.sortByAttr(list(self.conn.lookupImagesInDataset(oid=did, eid=eid, page=page)), 'name')
+        im_list_with_counters = list()
         
-        ds_ids = [ds.id for ds in ds_list]
-        if len(ds_ids) > 0:
-            ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
+        im_ids = [im.id for im in im_list]
+        if len(im_ids) > 0:
+            im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
+            
+            for im in im_list:
+                im.annotation_counter = im_annotation_counter.get(im.id)
+                im_list_with_counters.append(im)
         
-            for ds in ds_list:
-                ds.annotation_counter = ds_annotation_counter.get(ds.id)
-                ds_list_with_counters.append(ds)
+        im_list_with_counters = self.sortByAttr(im_list_with_counters, 'name')
+        self.containers = {'images': im_list_with_counters}
+        self.c_size = self.conn.getCollectionCount("Dataset", "imageLinks", [long(did)])[long(did)]
         
-        ds_list_with_counters = self.sortByAttr(ds_list_with_counters, "name")
-        self.containers = {'datasets': ds_list_with_counters}
-        self.c_size = self.conn.getCollectionCount("Project", "datasetLinks", [long(pid)])[long(pid)]
-        
-        self.paging = self.doPaging(page, len(ds_list_with_counters), self.c_size)
-    
-    def listPlatesInScreen(self, sid, page, eid=None):
-        if eid is not None:
-            self.experimenter = self.conn.getExperimenter(eid)
-        
-        pl_list = self.sortByAttr(list(self.conn.lookupPlatesInScreens(oid=sid, eid=eid, page=page)), 'name')        
-        pl_list_with_counters = list()
-        
-        pl_ids = [pl.id for pl in pl_list]
-        if len(pl_ids) > 0:
-            pl_annotation_counter = self.conn.getCollectionCount("Plate", "annotationLinks", pl_ids)
-        
-            for pl in pl_list:
-                pl.annotation_counter = pl_annotation_counter.get(pl.id)
-                pl_list_with_counters.append(pl)
-        
-        pl_list_with_counters = self.sortByAttr(pl_list_with_counters, "name")
-        self.containers = {'plates': pl_list_with_counters}
-        self.c_size = self.conn.getCollectionCount("Screen", "plateLinks", [long(sid)])[long(sid)]
-        
-        self.paging = self.doPaging(page, len(pl_list_with_counters), self.c_size)
+        if page is not None:
+            self.paging = self.doPaging(page, len(im_list_with_counters), self.c_size)
     
     def listPlate(self, plid, index, page):
         wl_list = list(self.conn.lookupWellsInPlate(oid=plid, index=index))
@@ -318,49 +275,41 @@ class BaseContainer(BaseController):
         self.names = {'row_names':row_names, 'column_names':column_names}
         self.c_size = len(wl_list) #self.conn.getCollectionCount("Plate", "wellLinks", [long(plid)])[long(plid)]
         # self.paging = self.doPaging(page, len(pl_list_with_counters), self.c_size)
+    
+    def loadHierarchies(self):
+        if self.image is not None:
+            obj_list = self.conn.findContainerHierarchies(self.image.id)
+            pr_list = list()
+            ds_list = list()
+            for o in obj_list:
+                if isinstance(o._obj, ProjectI):
+                    pr_list.append(o)
+                if isinstance(o._obj, DatasetI):
+                    ds_list.append(o)
+                    
+            self.hierarchy={'projects': self.sortByAttr(pr_list, 'name'), 'datasets': self.sortByAttr(ds_list, 'name')}
+        #1015    
+        #elif self.dataset is not None:
+        #    obj_list = self.conn.findContainerHierarchies(self.dataset.id)
+        #    pr_list = list()
+        #    for o in obj_list:
+        #        if isinstance(o._obj, ProjectI):
+        #            pr_list.append(o)
+        #    self.hierarchy={'projects': self.sortByAttr(pr_list, 'name')}
+        else:
+            self.hierarchy = None
         
-    def listImagesInDataset(self, did, page, eid=None):
+    def listContainerHierarchy(self, eid=None):
         if eid is not None:
             self.experimenter = self.conn.getExperimenter(eid)
         
-        im_list = self.sortByAttr(list(self.conn.lookupImagesInDataset(oid=did, eid=eid, page=page)), 'name')
-        im_list_with_counters = list()
-        
-        im_ids = [im.id for im in im_list]
-        if len(im_ids) > 0:
-            im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
+        #obj_list = list(self.conn.listContainerHierarchy('Project', eid=eid))
+        #obj_list.extend(list(self.conn.listContainerHierarchy('Screen', eid=eid)))
             
-            for im in im_list:
-                im.annotation_counter = im_annotation_counter.get(im.id)
-                im_list_with_counters.append(im)
-        
-        im_list_with_counters = self.sortByAttr(im_list_with_counters, 'name')
-        self.containers = {'images': im_list_with_counters}
-        self.c_size = self.conn.getCollectionCount("Dataset", "imageLinks", [long(did)])[long(did)]
-        
-        self.paging = self.doPaging(page, len(im_list_with_counters), self.c_size)
-
-    def loadContainerHierarchy(self, eid=None):
-        if eid is not None:
-            self.experimenter = self.conn.getExperimenter(eid)
-        
-        obj_list = list(self.conn.loadContainerHierarchy('Project', eid=eid))
-        obj_list.extend(list(self.conn.loadContainerHierarchy('Screen', eid=eid)))
-        
-        pr_list = list()
-        ds_list = list()
-        sc_list = list()
-        pl_list = list()
-        
-        for o in obj_list:
-            if isinstance(o._obj, ProjectI):
-                pr_list.append(o)
-            elif isinstance(o._obj, DatasetI):
-                ds_list.append(o)
-            elif isinstance(o._obj, ScreenI):
-                sc_list.append(o)
-            elif isinstance(o._obj, PlateI):
-                pl_list.append(o)
+        pr_list = list(self.conn.lookupProjects(eid))
+        ds_list = list(self.conn.lookupOrphanedDatasets(eid))
+        sc_list = list(self.conn.lookupScreens(eid))
+        pl_list = list(self.conn.lookupOrphanedPlates(eid))
 
         pr_list_with_counters = list()
         ds_list_with_counters = list()
@@ -406,25 +355,8 @@ class BaseContainer(BaseController):
         
         self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters, 'screens': sc_list_with_counters, 'plates': pl_list_with_counters}
         self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)+len(sc_list_with_counters)+len(pl_list_with_counters)
-
-    def loadImages(self, did, eid=None):
-        if eid is not None:
-            self.experimenter = self.conn.getExperimenter(eid)
-        
-        im_list = self.sortByAttr(list(self.conn.lookupImagesInDataset(oid=did, eid=eid)), 'name')
-        im_list_with_counters = list()
-        
-        im_ids = [im.id for im in im_list]
-        if len(im_ids) > 0:
-            im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
-            
-            for im in im_list:
-                im.annotation_counter = im_annotation_counter.get(im.id)
-                im_list_with_counters.append(im)
-        
-        self.subcontainers = im_list_with_counters
-
-    def loadOrphanedImages(self, eid=None):
+    
+    def listOrphanedImages(self, eid=None):
         if eid is not None:
             self.experimenter = self.conn.getExperimenter(eid)
         
@@ -439,8 +371,7 @@ class BaseContainer(BaseController):
                 im.annotation_counter = im_annotation_counter.get(im.id)
                 im_list_with_counters.append(im)
         
-        self.containers = {'images': im_list_with_counters}
-        self.subcontainers = im_list_with_counters
+        self.containers = {'orphaned': True, 'images': im_list_with_counters}
         self.c_size = len(im_list_with_counters)
 
     # Annotation list
@@ -1082,15 +1013,22 @@ class BaseContainer(BaseController):
                         up_spl.setParent(new_sc._obj)
                         self.conn.saveObject(up_spl._obj)
                     else:
-                        pl = self.conn.getDataset(source[1])
+                        pl = self.conn.getPlate(source[1])
                         up_spl = ScreenPlateLinkI()
                         up_spl.setChild(pl._obj)
                         up_spl.setParent(new_sc._obj)
                         self.conn.saveObject(up_spl)
-            elif destination[0] == '0':
-                return 'Cannot move plate to unknown place.'
-            elif destination[0] == 'orphan':
-                return 'Cannot move plate to orphaned images.'
+            elif destination[0] == '0' or destination[0] == 'orphan':
+                if parent[0] != destination[0]:
+                    up_spl = None
+                    spls = list(self.conn.getScreenPlateLinks(source[1])) #gets every links for child
+                    if len(spls) == 1:
+                        # gets old parent to delete
+                        if spls[0].parent.id.val == long(parent[1]):
+                            up_spl = spls[0]
+                            self.conn.deleteObject(up_spl._obj)
+                    else:
+                        return 'This plate is linked in multiple places. Please unlink the plate first.'
             else:
                 return 'Destination not supported.'
         else:
@@ -1106,7 +1044,7 @@ class BaseContainer(BaseController):
         elif source[0] == 'pl':
             if parent[0] == 'sc':
                 spl = self.conn.getScreenPlateLink(parent[1], source[1])
-                if sdl is not None:
+                if spl is not None:
                     self.conn.deleteObject(spl._obj)
         elif source[0] == 'img':
             if parent[0] == 'ds':
@@ -1281,3 +1219,22 @@ class BaseContainer(BaseController):
             self.conn.saveArray(link_array)
             return True
 
+
+    ##########################################################
+    # Delete
+    
+    def deleteItem(self, allitems=None):
+        if self.image:
+            self.conn.deleteImage(self.image.id)
+        elif self.dataset:
+            self.conn.deleteDataset(self.dataset, allitems)
+        elif self.project:
+            self.conn.deleteProject(self.project, allitems)
+        elif self.screen:
+            self.conn.deleteScreen(self.screen, allitems)
+        elif self.plate:
+            self.conn.deletePlate(self.plate.id)
+    
+    def deleteImages(self, ids):
+        self.conn.deleteImages(ids)
+        
