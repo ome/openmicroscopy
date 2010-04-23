@@ -72,7 +72,7 @@ public class ThumbnailCtx
     /** OMERO security system for this session. */
     private SecuritySystem securitySystem;
 
-    /** Current user ID. */
+    /** User ID to use in queries. */
     private long userId;
 
     /** Pixels ID vs. Pixels object map. */
@@ -144,6 +144,24 @@ public class ThumbnailCtx
         this.settingsService = settingsService;
         this.thumbnailService = thumbnailService;
         this.securitySystem = securitySystem;
+        this.userId = userId;
+    }
+
+    /**
+     * Retrieves the current user ID to use for queries.
+     * @return See above.
+     */
+    public long getUserId()
+    {
+        return userId;
+    }
+
+    /**
+     * Sets the user ID to use for queries.
+     * @param userId The user ID to use for queries.
+     */
+    public void setUserId(long userId)
+    {
         this.userId = userId;
     }
 
@@ -304,6 +322,7 @@ public class ThumbnailCtx
     {
         Parameters params = new Parameters();
         params.addId(pixelsId);
+        params.addLong("o_id", userId);
         StopWatch s1 = new CommonsLogStopWatch("omero.loadAllMetadata");
         List<Thumbnail> toReturn = queryService.findAllByQuery(
                 "select t from Thumbnail as t " +

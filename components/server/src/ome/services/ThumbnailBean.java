@@ -323,6 +323,10 @@ public class ThumbnailBean extends AbstractLevel2Service
         errorIfNullPixels();
         ctx.loadAndPrepareRenderingSettings(pixelsId, id);
         settings = ctx.getSettings(pixelsId);
+        // Handle cases where this new settings is not owned by us so that
+        // retrieval of thumbnail metadata is done based on the owner of the
+        // settings not the owner of the session. (#2274 Part I) 
+        ctx.setUserId(settings.getDetails().getOwner().getId());
     }
 
     /**
@@ -545,6 +549,13 @@ public class ThumbnailBean extends AbstractLevel2Service
         dirty = true;
         dirtyMetadata = false;
         thumbnailMetadata = null;
+        // Be as explicit as possible when closing the renderer to try and
+        // avoid re-use where we don't want it. (#2075 and #2274 Part II)
+        if (renderer != null)
+        {
+            renderer.close();
+        }
+        renderer = null;
     }
 
     protected void errorIfInvalidState()
