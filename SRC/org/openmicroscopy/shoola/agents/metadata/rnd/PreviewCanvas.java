@@ -58,7 +58,7 @@ class PreviewCanvas
 	PreviewCanvas()
 	{
 		setDoubleBuffered(true);
-		//setBackground(UIUtilities.BACKGROUND_COLOR);
+		setToolTipText("Double-click to launch the Viewer.");
 	}
 	
 	/**

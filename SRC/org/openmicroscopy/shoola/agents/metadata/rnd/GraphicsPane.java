@@ -25,6 +25,11 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 //Java imports
 import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -41,6 +46,11 @@ import javax.swing.JSeparator;
 import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
+import org.jdesktop.swingx.JXTaskPane;
+import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.metadata.actions.ManageRndSettingsAction;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
@@ -112,6 +122,9 @@ class GraphicsPane
     /** The component displaying the controls. */
     private PreviewControlBar		controlsBar;
     
+    /** The Tasks pane, only visible if already viewed by others. */
+    private JXTaskPane				viewedBy;
+    
     /**
 	 * Formats the specified value.
 	 * 
@@ -149,6 +162,16 @@ class GraphicsPane
     /** Initializes the components. */
     private void initComponents()
     {
+    	IconManager icons = IconManager.getInstance();
+    	//viewedBy = EditorUtil.createTaskPane(
+    		//	ManageRndSettingsAction.NAME_OWNER);
+    	viewedBy = new JXTaskPane();
+    	viewedBy.setCollapsed(true);
+		Font font = viewedBy.getFont();
+		viewedBy.setFont(font.deriveFont(font.getSize2D()-2));
+    	viewedBy.setTitle(ManageRndSettingsAction.NAME_OWNER);
+    	viewedBy.setIcon(icons.getIcon(IconManager.RND_OWNER));
+    	viewedBy.setVisible(false);
         controlsBar = new PreviewControlBar(controller, model);
         uiDelegate = new GraphicsPaneUI(this, model);
         codomainSlider = new TwoKnobsSlider(RendererModel.CD_START, 
@@ -220,14 +243,32 @@ class GraphicsPane
     private JPanel buildGeneralPane()
     {
     	JPanel content = new JPanel();
+    	content.setLayout(new GridBagLayout());
     	content.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-    	if (model.isGeneralIndex()) content.add(new JSeparator());
-   	 	content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
-   	 	content.add(controlsBar);
+    	GridBagConstraints c = new GridBagConstraints();
+ 		c.anchor = GridBagConstraints.WEST;
+ 		c.insets = new Insets(0, 2, 2, 0);
+ 		c.gridy = 0;
+ 		c.gridx = 0;
+    	if (model.isGeneralIndex()) {
+    		content.add(new JSeparator(), c);
+    		c.gridy++;
+    	}
+   	 	//content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+   	 	content.add(controlsBar, c);
+   	 	c.gridy++;
+   	 	c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+   	 	c.fill = GridBagConstraints.HORIZONTAL;
+   	 	c.weightx = 1.0;
+   	 	content.add(viewedBy, c);
+   	 	c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+   	 	c.fill = GridBagConstraints.NONE;      //reset to default
+   	 	c.weightx = 0.0;  
    	 	content.setBackground(UIUtilities.BACKGROUND_COLOR);
     	Iterator<ChannelSlider> i = sliders.iterator();
-    	while (i.hasNext()) {
-    		content.add(i.next());
+    	while (i.hasNext())  {
+    		c.gridy++;
+    		content.add(i.next(), c);
     	}
     	return content;
     	
@@ -533,6 +574,52 @@ class GraphicsPane
     	repaint();
     }
     
+    /** 
+     * Builds and lays out the images as seen by other experimenters.
+     *  
+     * @param results The thumbnails to lay out.
+     */
+    void displayViewedBy(List results)
+    {
+    	if (results == null) return;
+    	JPanel p = new JPanel();
+    	p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+    	p.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	Iterator i = results.iterator();
+    	JPanel row = null;
+    	int index = 0;
+    	ViewedByItem item;
+    	int maxPerRow = 2;
+    	while (i.hasNext()) {
+			item = (ViewedByItem) i.next();
+			if (index == 0) {
+				row = new JPanel();
+				row.setBackground(UIUtilities.BACKGROUND_COLOR);
+				row.setLayout(new FlowLayout(FlowLayout.LEFT));
+				row.add(item);
+				index++;
+			} else if (index == maxPerRow) {
+				row.add(item);
+				p.add(row);
+				index = 0;
+			} else {
+				row.add(item);
+				index++;
+			}
+		}
+    	if (index > 0) p.add(row);
+    	viewedBy.removeAll();
+    	JPanel content = UIUtilities.buildComponentPanel(p);
+    	content.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	viewedBy.add(content);
+    	viewedBy.setVisible(true);
+    }
+    
+    /**
+     * Returns the slider used to set the codomain interval.
+     * 
+     * @return See above.
+     */
     JComponent getCodomainSlider() { return codomainSlider; }
     
     /**

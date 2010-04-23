@@ -634,8 +634,9 @@ public interface Renderer
 	 * 
 	 * @param loading Pass <code>true</code> to indicate that the settings are 
 	 * 				  being loaded, <code>false</code> when loaded.
+	 * @param list    The list of objects displaying the rendering settings 
+	 * 				  and the associated images.
 	 */
-	void loadRndSettings(boolean loading);
-	
-	
+	void loadRndSettings(boolean loading, List results);
+
 }

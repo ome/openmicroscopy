@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
@@ -234,6 +235,7 @@ class MetadataViewerModel
 		editor.setRootObject(refObject);
 		data = null;
 		parentRefObject = null;
+		viewedBy = null;
 	}
 	
 	/**
@@ -743,8 +745,22 @@ class MetadataViewerModel
 	 */
 	void setViewedBy(Map viewedBy)
 	{ 
-		this.viewedBy = viewedBy; 
-		getEditor().getRenderer().loadRndSettings(true);
+		Map m = new HashMap();
+		if (viewedBy != null) {
+			long id = MetadataViewerAgent.getUserDetails().getId();
+			Entry entry;
+			Iterator i = viewedBy.entrySet().iterator();
+			ExperimenterData exp;
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				exp = (ExperimenterData) entry.getKey();
+				if (exp.getId() != id) {
+					m.put(exp, entry.getValue());
+				}
+			}
+		}
+		this.viewedBy = m; 
+		getEditor().getRenderer().loadRndSettings(m.size() > 0, null);
 	}
 	
 	/**
@@ -758,7 +774,7 @@ class MetadataViewerModel
 		else if (refObject instanceof WellSampleData) 
 			img = ((WellSampleData) refObject).getImage();
 		if (img == null) return;
-		getEditor().getRenderer().loadRndSettings(true);
+		getEditor().getRenderer().loadRndSettings(true, null);
 		RenderingSettingsLoader loader = new RenderingSettingsLoader(component, 
 				img.getDefaultPixels().getId());
 		loader.load();
@@ -777,6 +793,7 @@ class MetadataViewerModel
 		while (i.hasNext()) {
 			ids.add(((ExperimenterData) i.next()).getId());
 		}
+		if (ids.size() == 0) return;
 		ThumbnailLoader loader = new ThumbnailLoader(component, image, ids);
 		loader.load();
 	}

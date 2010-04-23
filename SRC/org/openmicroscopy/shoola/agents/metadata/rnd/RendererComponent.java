@@ -741,6 +741,8 @@ class RendererComponent
 		try {
 			model.resetDefaults();
 			view.resetDefaultRndSettings();
+			firePropertyChange(RENDER_PLANE_PROPERTY, 
+					Boolean.valueOf(false), Boolean.valueOf(true));
 		} catch (Throwable e) {
 			handleException(e);
 		}
@@ -1015,12 +1017,13 @@ class RendererComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see Renderer#loadRndSettings(boolean)
+	 * @see Renderer#loadRndSettings(boolean, List)
 	 */
-	public void loadRndSettings(boolean loading)
+	public void loadRndSettings(boolean loading, List results)
 	{
 		Action a = controller.getAction(RendererControl.RND_OWNER);
 		a.setEnabled(loading);
+		view.displayViewedBy(results);
 	}
 	
 }

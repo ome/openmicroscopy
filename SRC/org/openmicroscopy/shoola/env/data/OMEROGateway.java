@@ -2503,8 +2503,7 @@ class OMEROGateway
 	 * the number of items contained in this object and
 	 * maps the result calling {@link PojoMapper#asDataObjects(Map)}.
 	 * 
-	 * @param rootNodeType 	The type of container. Can either be Dataset 
-	 * 						and Category.
+	 * @param rootNodeType 	The type of container. Can either be Dataset.
 	 * @param property		One of the properties defined by this class.
 	 * @param ids           The ids of the objects.
 	 * @param options		Options to retrieve the data.		
@@ -2783,7 +2782,6 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			ThumbnailStorePrx service = getThumbService();
-			
 			needDefault(pixelsID, null);
 			//getRendering Def for a given pixels set.
 			if (userID >= 0) {

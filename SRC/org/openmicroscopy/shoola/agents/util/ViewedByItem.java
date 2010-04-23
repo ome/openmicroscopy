@@ -25,14 +25,19 @@ package org.openmicroscopy.shoola.agents.util;
 
 
 //Java imports
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.AbstractButton;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 
@@ -126,10 +131,18 @@ public class ViewedByItem
 	    	setIconTextGap(0);
 	    	setText(experimenter.getLastName());
 		} else setText(EditorUtil.formatExperimenter(experimenter));
-		
-		setToolTipText("Set by: "+getText());
+		List<String> l = new ArrayList<String>();
+		l.add("Viewed by: "+getText());
+		Timestamp time = rndDef.getLastModified();
+		if (time != null) 
+			l.add("Last modified: "+UIUtilities.formatShortDateTime(time));
+		setToolTipText(UIUtilities.formatToolTipText(l));
 		addActionListener(this);
 	}
+	
+	public ExperimenterData getExperimenter() { return experimenter; }
+	
+	public RndProxyDef getRndDef() { return rndDef; }
 	
 	/**
 	 * Returns the identifier of the experimenter.
@@ -149,6 +162,14 @@ public class ViewedByItem
 		if (image == null) return;
 		setIcon(new ImageIcon(
 				Factory.scaleBufferedImage(image, MAX_ICON_SIZE)));
+		/*
+		Icon icon = getIcon();
+		Dimension d = getPreferredSize();
+		Dimension d2 = new Dimension(d.width, icon.getIconHeight());
+		setPreferredSize(d2);
+		setSize(d2);
+		*/
+		revalidate();
 		if (!asMenuItem) {
 			addMouseListener(new MouseAdapter() {
 				

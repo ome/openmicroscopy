@@ -29,6 +29,7 @@ import java.awt.image.BufferedImage;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
 import java.nio.IntBuffer;
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -122,6 +123,13 @@ public class PixelsServicesFactory
 		if (rndDef == null) return null;
 		
 		RndProxyDef proxy = new RndProxyDef();
+		try {
+			long v = rndDef.getDetails().getUpdateEvent().getTime().getValue();
+			proxy.setLastModified(new Timestamp(v));
+		} catch (Exception e) {
+			//ignore;
+		}
+		
 		proxy.setDefaultZ(rndDef.getDefaultZ().getValue());
 		proxy.setDefaultT(rndDef.getDefaultT().getValue());
 		proxy.setColorModel(rndDef.getModel().getValue().getValue());

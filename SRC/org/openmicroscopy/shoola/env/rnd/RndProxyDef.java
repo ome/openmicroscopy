@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.env.rnd;
 
 //Java imports
 import java.awt.Color;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -85,11 +86,24 @@ public class RndProxyDef
 	/** The compression value. */
 	private double								compression;
 	
+	/** Indicates when the settings was last modified. */
+	private Timestamp							lastModified;
+	
 	/** Creates a new instance. */
 	RndProxyDef()
 	{
 		compression = 1.0;
 		channels = new HashMap<Integer, ChannelBindingsProxy>();
+	}
+
+	/**
+	 * Sets when the settings were last modified.
+	 * 
+	 * @param lastModified The value to set.
+	 */
+	void setLastModified(Timestamp lastModified)
+	{ 
+		this.lastModified = lastModified;
 	}
 
 	/**
@@ -235,6 +249,7 @@ public class RndProxyDef
 	RndProxyDef copy()
 	{
 		RndProxyDef copy = new RndProxyDef();
+		copy.setLastModified(this.getLastModified());
 		copy.setCompression(this.getCompression());
 		copy.setTypeSigned(this.isTypeSigned());
 		copy.setDefaultZ(this.getDefaultZ());
@@ -278,5 +293,13 @@ public class RndProxyDef
 		int[] rgba = channel.getRGBA();
 		return new Color(rgba[0], rgba[1], rgba[2], rgba[3]);
 	}
+
+	/**
+	 * Returns when the settings were last modified.
+	 * 
+	 * @return See above.
+	 */
+	public Timestamp getLastModified() { return lastModified; }
+	
   
 }

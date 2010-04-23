@@ -29,6 +29,7 @@ import java.awt.Component;
 import java.awt.Point;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.swing.JPanel;
@@ -281,4 +282,16 @@ class RendererUI
 		pane.renderPreview();
 	}
 
+    /** 
+     * Builds and lays out the images as seen by other experimenters.
+     *  
+     * @param results The thumbnails to lay out.
+     */
+    void displayViewedBy(List results)
+    {
+    	if (results == null || results.size() == 0) return;
+    	DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
+		pane.displayViewedBy(results);
+    	
+    }
 }

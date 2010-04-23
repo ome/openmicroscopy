@@ -276,7 +276,7 @@ class OmeroImageServiceImpl
 		} catch (Exception e) {
 			if (e instanceof DSOutOfServiceException) {
 				context.getLogger().error(this, e.getMessage());
-				return getThumbnail(pixID, sizeX, sizeY, userID);
+				return null;//getThumbnail(pixID, sizeX, sizeY, userID);
 			}
 			throw new RenderingServiceException("Get Thumbnail", e);
 		}

@@ -34,6 +34,7 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +52,6 @@ import javax.swing.JSplitPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -78,6 +78,7 @@ import pojos.ProjectData;
  */
 class MetadataViewerUI 
 	extends TopWindow
+	implements PropertyChangeListener
 {
 
     /** The text corresponding to the creation of a <code>Project</code>. */
@@ -205,6 +206,7 @@ class MetadataViewerUI
 				model.getRefObjectName());
 		uiDelegate.revalidate();
 		uiDelegate.repaint();
+		viewedByMenu = null;
 	}
 	
 	/**
@@ -272,25 +274,13 @@ class MetadataViewerUI
 			Iterator i = list.iterator();
 			ViewedByItem item ;
 			ExperimenterData exp;
-			long id = MetadataViewerAgent.getUserDetails().getId();
 			while (i.hasNext()) {
 				exp = (ExperimenterData) i.next();
-				if (id != exp.getId()) {
-					item = new ViewedByItem(exp, (RndProxyDef) m.get(exp));
-					item.addPropertyChangeListener(new PropertyChangeListener() {
-						
-						public void propertyChange(PropertyChangeEvent evt) {
-							if (ViewedByItem.VIEWED_BY_PROPERTY.equals(
-									evt.getPropertyName()))
-									model.applyRenderingSettings(
-											(RndProxyDef) evt.getNewValue());
-							
-						}
-					});
-					viewedByMenu.add(item);
-				}
+				item = new ViewedByItem(exp, (RndProxyDef) m.get(exp));
+				item.addPropertyChangeListener(
+						ViewedByItem.VIEWED_BY_PROPERTY, this);
+				viewedByMenu.add(item);
 			}
-			//Check if we load thumbnails.
 		}
 		viewedByMenu.show(source, location.x, location.y);
 	}
@@ -305,16 +295,40 @@ class MetadataViewerUI
 		if (viewedByMenu == null) return;
 		Component[] components = viewedByMenu.getComponents();
 		Component comp;
-		ViewedByItem item;
+		ViewedByItem item, itemNew;
 		BufferedImage img;
+		List<ViewedByItem> items = new ArrayList<ViewedByItem>();
 		for (int i = 0; i < components.length; i++) {
 			comp = components[i];
 			if (comp instanceof ViewedByItem) {
 				item = (ViewedByItem) comp;
 				img = thumbnails.get(item.getExperimenterID());
-				if (img != null) item.setImage(img);
+				if (img != null) {
+					item.setImage(img);
+					itemNew = new ViewedByItem(item.getExperimenter(), 
+							item.getRndDef(), false);
+					itemNew.setImage(img);
+					itemNew.addPropertyChangeListener(
+							ViewedByItem.VIEWED_BY_PROPERTY, this);
+					items.add(itemNew);
+				}
 			}
 		}
+		model.getEditor().getRenderer().loadRndSettings(items.size() > 0, 
+				items);
+	}
+	
+	/**
+	 * Sets the rendering settings.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		if (ViewedByItem.VIEWED_BY_PROPERTY.equals(
+				evt.getPropertyName()))
+			model.applyRenderingSettings(
+					(RndProxyDef) evt.getNewValue());
+
 	}
 	
 	/** Overrides the {@link #setOnScreen() setOnScreen} method. */
@@ -326,5 +340,6 @@ class MetadataViewerUI
         UIUtilities.centerAndShow(this);
         */
     }
+
 
 }
