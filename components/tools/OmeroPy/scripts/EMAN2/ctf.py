@@ -255,16 +255,22 @@ def runCtf(session, parameterMap):
     
     filenames = []
     
-    fileExt = ".tiff"
+    fileExt = "tiff"
     
     for imageId in imageIds:
         
         tempName = "%d%s" % (imageId, fileExt)
         downloadImage(sessionWrapper, imageId, tempName)
         filenames.append(tempName)
+    
+    # if we want to do ctf correction on all particles at once, can put them in a single stack
+    singleStack = True
+    if singleStack:
+        os.system("for i in *%s; do e2proc2d.py $i stack1.hdf; done" % fileExt)
+        fileExt = "hdf"
         
     ctfCommandArgs = ["e2ctf.py"]
-    ctfCommandArgs.append("*%s" % fileExt)
+    ctfCommandArgs.append("*.%s" % fileExt)
     ctfCommandArgs.append("--voltage=%s" % parameterMap["voltage"])
     ctfCommandArgs.append("--cs=%s" % parameterMap["cs"])
     ctfCommandArgs.append("--apix=%s" % parameterMap["apix"])
@@ -278,7 +284,7 @@ def runCtf(session, parameterMap):
     
     # use command line to run the ctf...
     ctf_command = " ".join(ctfCommandArgs)
-    write_command = "e2ctf.py *%s --phaseflip --wiener" % fileExt
+    write_command = "e2ctf.py *.%s --phaseflip --wiener" % fileExt
     
     print ctf_command
     os.system(ctf_command)

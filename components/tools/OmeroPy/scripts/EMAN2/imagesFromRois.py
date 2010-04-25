@@ -40,6 +40,7 @@ import omero_api_IRoi_ice
 from omero.rtypes import *
 import omero.util.script_utils as scriptUtil
 
+import os
 import numpy
 
 
@@ -150,39 +151,22 @@ def makeImagesFromRois(session, parameterMap):
             iId = long(imageId.getValue())
             imageIds.append(iId)
     
-    imageId = imageIds[0]
-    
+    if len(imageIds) == 0:
+        print "No image-IDs in list."
+        return
+        
     queryService = session.getQueryService()
     pixelsService = session.getPixelsService()
     rawPixelStore = session.createRawPixelsStore()
     gateway = session.createGateway()
-    imageName = gateway.getImage(imageId).getName().getValue()
     re = session.createRenderingEngine()
     
-    imageName = gateway.getImage(imageId).getName().getValue()
-    
-    pixels = gateway.getPixelsFromImage(imageId)[0]
-    physicalSizeX = pixels.getPhysicalSizeX().getValue()
-    physicalSizeY = pixels.getPhysicalSizeY().getValue()
-    
-    # get plane of image
-    plane2D = getImagePlane(session, imageId)
-    
-    # get ROI Rectangles, as (x, y, width, height)
-    rects = getRectangles(session, imageId)
-    
-    pType = plane2D.dtype.name
-    pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
-    
-    project = None
-    dataset = None
-    
-    #imageIds = [imageId]
-    
-    #ids = ",".join([str(i) for i in imageIds])
+    # get the project and dataset from the first image...
+    imageId = imageIds[0]
     query_string = "select i from Image i join fetch i.datasetLinks idl join fetch idl.parent d join fetch d.projectLinks pl join fetch pl.parent where i.id in (%s)" % imageId
     image = queryService.findByQuery(query_string, None)
-    
+    project = None
+    dataset = None
     if image:
         for link in image.iterateDatasetLinks():
             ds = link.parent
@@ -194,36 +178,55 @@ def makeImagesFromRois(session, parameterMap):
                 break # only use 1st Project
             break    # only use 1st
     
-    # if making a single particle-stack image...
-    if ("makeParticleStack" in parameterMap) and (parameterMap["makeParticleStack"]):
-        
-        plane2Dlist = []
-        # use width and height from first rectangle to make sure that all are the same. 
-        x,y,width,height = rects[0]    
-        for r in rects:
-            x,y,w,h = r
-            x2 = x+width
-            y2 = y+height
-            plane2Dlist.append(plane2D[y:y2, x:x2])
-            
-        if "containerName" in parameterMap:
-            newImageName = "%s_%s" % (imageName, parameterMap["containerName"])
-        else:
-            newImageName = "%s_particles" % imageName
-        
-        description = "Particles from image:\n Image Name: %s\n Image ID: %d" % (imageName, imageId)
-        image = scriptUtil.createNewImage(pixelsService, rawPixelStore, re, pixelsType, gateway, plane2Dlist, newImageName, description, dataset)
-        
-        pixels = image.getPrimaryPixels()
-        pixels.setPhysicalSizeX(rdouble(physicalSizeX))
-        pixels.setPhysicalSizeY(rdouble(physicalSizeY))
+    containerName = 'particles'
+    if "containerName" in parameterMap:
+        containerName = parameterMap["containerName"]
     
-    # ..else, make an image for each ROI (maybe all in one dataset?)
-    else:
-        # create a new dataset for new images
-        if "containerName" in parameterMap:        # if set, create a new dataset for images 
-            datasetName = parameterMap["containerName"]
-            datasetName = "%s_%s" % (imageName, datasetName)    # e.g. myImage.mrc_particles
+    
+    for imageId in imageIds:
+    
+        imageName = gateway.getImage(imageId).getName().getValue()
+    
+        pixels = gateway.getPixelsFromImage(imageId)[0]
+        physicalSizeX = pixels.getPhysicalSizeX().getValue()
+        physicalSizeY = pixels.getPhysicalSizeY().getValue()
+    
+        # get plane of image
+        plane2D = getImagePlane(session, imageId)
+    
+        # get ROI Rectangles, as (x, y, width, height)
+        rects = getRectangles(session, imageId)
+    
+        pType = plane2D.dtype.name
+        pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
+        
+        
+        # if making a single particle-stack image...
+        if ("makeParticleStack" in parameterMap) and (parameterMap["makeParticleStack"]):
+        
+            plane2Dlist = []
+            # use width and height from first rectangle to make sure that all are the same. 
+            x,y,width,height = rects[0]    
+            for r in rects:
+                x,y,w,h = r
+                x2 = x+width
+                y2 = y+height
+                plane2Dlist.append(plane2D[y:y2, x:x2])
+            
+            newImageName = "%s_%s" % (os.path.basename(imageName), containerName)
+        
+            description = "Particles from image:\n Image Name: %s\n Image ID: %d" % (imageName, imageId)
+            image = scriptUtil.createNewImage(pixelsService, rawPixelStore, re, pixelsType, gateway, plane2Dlist, newImageName, description, dataset)
+        
+            pixels = image.getPrimaryPixels()
+            pixels.setPhysicalSizeX(rdouble(physicalSizeX))
+            pixels.setPhysicalSizeY(rdouble(physicalSizeY))
+            gateway.saveObject(pixels)
+    
+        # ..else, make an image for each ROI (all in one dataset?)
+        else:
+            # create a new dataset for new images
+            datasetName = "%s_%s" % (os.path.basename(imageName), containerName)    # e.g. myImage.mrc_particles
             dataset = omero.model.DatasetI()
             dataset.name = rstring(datasetName)
             dataset = gateway.saveAndReturnObject(dataset)
@@ -233,20 +236,19 @@ def makeImagesFromRois(session, parameterMap):
                 link.child = omero.model.DatasetI(dataset.id.val, False)
                 gateway.saveAndReturnObject(link)
     
-        for r in rects:
-            x,y,w,h = r
-            x2 = x+w
-            y2 = y+h
-            array = plane2D[y:y2, x:x2]        # slice the ROI rectangle data out of the whole image-plane 2D array
-            #import Image
-            #p = Image.fromarray(array)
-            #p.show() 
-            description = "Created from image:\n Image Name: %s\n Image ID: %d \n x: %d y: %d" % (imageName, imageId, x, y)
-            image = scriptUtil.createNewImage(pixelsService, rawPixelStore, re, pixelsType, gateway, [array], "particle", description, dataset)
+            for r in rects:
+                x,y,w,h = r
+                x2 = x+w
+                y2 = y+h
+                array = plane2D[y:y2, x:x2]     # slice the ROI rectangle data out of the whole image-plane 2D array
             
-            pixels = image.getPrimaryPixels()
-            pixels.setPhysicalSizeX(rdouble(physicalSizeX))
-            pixels.setPhysicalSizeY(rdouble(physicalSizeY))
+                description = "Created from image:\n Image Name: %s\n Image ID: %d \n x: %d y: %d" % (imageName, imageId, x, y)
+                image = scriptUtil.createNewImage(pixelsService, rawPixelStore, re, pixelsType, gateway, [array], "particle", description, dataset)
+            
+                pixels = image.getPrimaryPixels()
+                pixels.setPhysicalSizeX(rdouble(physicalSizeX))
+                pixels.setPhysicalSizeY(rdouble(physicalSizeY))
+                gateway.saveObject(pixels)
 
 def runAsScript():
     """
