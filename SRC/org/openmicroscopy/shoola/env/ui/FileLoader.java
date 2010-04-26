@@ -64,10 +64,7 @@ class FileLoader
 	
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle	handle;
-    
-    /** Reference to the activity. */
-    private ActivityComponent 		activity;
-    
+
     /** Notifies the user that an error occurred. */
     protected void onException() { handleNullResult(); }
     
@@ -139,7 +136,9 @@ class FileLoader
     public void handleResult(Object result)
     { 
     	if (result == null) handleNullResult();
-    	else activity.endActivity(result); 
+    	else {
+    		if (activity != null) activity.endActivity(result); 
+    	}
     }
     
 }

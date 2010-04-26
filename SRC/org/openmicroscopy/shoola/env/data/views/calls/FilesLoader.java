@@ -88,7 +88,8 @@ public class FilesLoader
             public void doCall() throws Exception
             {
                 OmeroMetadataService service = context.getMetadataService();
-                result = service.downloadFile(file, fileID, size);
+                File f = service.downloadFile(file, fileID, size);
+                result = f;
             }
         };
     }
@@ -149,6 +150,12 @@ public class FilesLoader
         };
     }
     
+    /** 
+     * Loads the specified file.
+     * 
+     * @param fa The file annotation to handle.
+     * @param f  The file to load.
+     */
     private void loadFile(final FileAnnotationData fa, final File f)
     {
     	OmeroMetadataService service = context.getMetadataService();
@@ -193,7 +200,7 @@ public class FilesLoader
      */
     protected void buildTree()
     { 
-    	if (files == null) add(loadCall);
+    	if (files == null && loadCall != null) add(loadCall);
     	else {
     		Iterator i = files.entrySet().iterator();
     		Entry entry;
