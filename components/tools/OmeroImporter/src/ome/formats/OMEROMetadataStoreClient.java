@@ -392,15 +392,8 @@ public class OMEROMetadataStoreClient
                            String server, int port)
         throws CannotCreateSessionException, PermissionDeniedException, ServerError
     {
-    	c = new client(server, port);
-    	c.setAgent("OMERO.importer");
-    	serviceFactory = c.createSession(username, password);
-    	
     	// Always make this an unsecure session
-        c = c.createClient(false);
-        serviceFactory = c.getSession();
-        
-        initializeServices();
+        initialize(username, password, server, port, false);
     }
     
     /**
@@ -424,12 +417,16 @@ public class OMEROMetadataStoreClient
             String server, int port, boolean isSecure) 
 	throws CannotCreateSessionException, PermissionDeniedException, ServerError
 	{
+        log.info(String.format(
+                    "Attempting initial SSL connection to %s:%d",
+                    server, port));
     	c = new client(server, port);
     	c.setAgent("OMERO.importer");
     	serviceFactory = c.createSession(username, password);
     	
     	if (!isSecure)
     	{
+                log.info("Insecure connection requested, falling back");
     		c = c.createClient(false);
     		serviceFactory = c.getSession();
     	}
@@ -447,14 +444,9 @@ public class OMEROMetadataStoreClient
      */
     public void initialize(String server, int port, String sessionKey)
         throws CannotCreateSessionException, PermissionDeniedException, ServerError
-    {
-    	c = new client(server, port);
-    	c.setAgent("OMERO.importer");
-   	
+    { 
     	// Always make this an 'unsecure' session
-        c = c.createClient(false);
-        serviceFactory = c.joinSession(sessionKey);
-        initializeServices();
+        initialize(server, port, sessionKey, false);
     }
     
     /**
@@ -468,11 +460,15 @@ public class OMEROMetadataStoreClient
     public void initialize(String server, int port, String sessionKey, boolean isSecure)
         throws CannotCreateSessionException, PermissionDeniedException, ServerError
     {
+        log.info(String.format(
+                    "Attempting initial SSL connection to %s:%d",
+                    server, port));
     	c = new client(server, port);
     	c.setAgent("OMERO.importer");
    	
     	if (!isSecure)
     	{
+                log.info("Insecure connection requested, falling back");
     		c = c.createClient(false);
     	}
     	
