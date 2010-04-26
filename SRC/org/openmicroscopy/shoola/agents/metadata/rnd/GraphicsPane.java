@@ -49,7 +49,6 @@ import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.actions.ManageRndSettingsAction;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
@@ -197,9 +196,10 @@ class GraphicsPane
         minLabel = new JLabel(formatValue(model.getGlobalMin()));
         maxLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
         minLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
+        sliders = new ArrayList<ChannelSlider>();
         if (model.getMaxC() < Renderer.MAX_CHANNELS) {
         //if (model.isGeneralIndex() && model.getMaxC() < Renderer.MAX_CHANNELS) {
-        	sliders = new ArrayList<ChannelSlider>();
+        	
         	List<ChannelData> channels = model.getChannelData();
         	Iterator<ChannelData> i = channels.iterator();
         	ChannelSlider slider;
