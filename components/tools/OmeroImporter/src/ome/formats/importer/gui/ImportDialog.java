@@ -101,7 +101,7 @@ public class ImportDialog extends JDialog implements ActionListener
     private DecimalNumberField xPixelSize, yPixelSize, zPixelSize;
     private WholeNumberField rChannel, gChannel, bChannel;
 
-    public JCheckBox archiveImage, fileCheckBox;
+    public JCheckBox archiveImage, useCustomNamingChkBox;
 
     private JButton             addProjectBtn;
     private JButton             addDatasetBtn;
@@ -218,8 +218,8 @@ public class ImportDialog extends JDialog implements ActionListener
 
         namedPanel = GuiCommonElements.addBorderedPanel(importPanel, namedTable, "File Naming", debug);
 
-        fileCheckBox = GuiCommonElements.addCheckBox(namedPanel, "Override default file naming. Instead use:", "0,0,1,0", debug);
-       	fileCheckBox.setSelected(!config.overrideImageName.get());
+        useCustomNamingChkBox = GuiCommonElements.addCheckBox(namedPanel, "Override default file naming. Instead use:", "0,0,1,0", debug);
+       	useCustomNamingChkBox.setSelected(!config.useCustomImageNaming.get());
         
 
         String fullPathTooltip = "The full file+path name for " +
@@ -358,7 +358,7 @@ public class ImportDialog extends JDialog implements ActionListener
         cancelBtn.addActionListener(this);
         importBtn.addActionListener(this);
         pbox.addActionListener(this);
-        fileCheckBox.addActionListener(this);
+        useCustomNamingChkBox.addActionListener(this);
         buildProjectsAndDatasets();
         setVisible(true);
     }
@@ -501,7 +501,7 @@ public class ImportDialog extends JDialog implements ActionListener
     public void actionPerformed(ActionEvent event)
     {
        
-        if (event.getSource() == fileCheckBox && !fileCheckBox.isSelected())
+        if (event.getSource() == useCustomNamingChkBox && !useCustomNamingChkBox.isSelected())
         {
             sendingNamingWarning(this);   
         } 
@@ -534,14 +534,15 @@ public class ImportDialog extends JDialog implements ActionListener
         {
             cancelled = false;
             importBtn.requestFocus();
+            
+            config.useCustomImageNaming.set(!useCustomNamingChkBox.isSelected());
             config.numOfDirectories.set(numOfDirectoriesField.getValue());
+            
             dataset = ((DatasetItem) dbox.getSelectedItem()).getDataset();
             project = ((ProjectItem) pbox.getSelectedItem()).getProject();
             config.savedProject.set(
                     ((ProjectItem) pbox.getSelectedItem()).getProject().getId().getValue());
             config.savedDataset.set(dataset.getId().getValue());
-            config.overrideImageName.set(!fileCheckBox.isSelected());
-            config.savedFileNaming.set(fullPathButton.isSelected());
             
             pixelSizeX = xPixelSize.getValue();
             pixelSizeY = yPixelSize.getValue();

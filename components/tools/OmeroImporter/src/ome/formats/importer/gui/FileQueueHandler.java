@@ -231,7 +231,7 @@ public class FileQueueHandler extends JPanel
                     break;
                 }
 
-                ImportContainer container = new ImportContainer(file, null, null, null, false, null, null, null, isSPW);
+                ImportContainer container = new ImportContainer(file, null, null, false, null, null, null, isSPW);
                 containers.add(container);
             }
             
@@ -287,7 +287,7 @@ public class FileQueueHandler extends JPanel
     			break;
     		}
         	String a = selectedReader.getFormat();
-        	String b = ic.reader;
+        	String b = ic.getReader();
         	if (a.equals(b) || b == null)
         	{
         		containers.add(ic);
@@ -295,7 +295,7 @@ public class FileQueueHandler extends JPanel
         	else
         	{
         		log.debug(String.format("Skipping %s (%s != %s)",
-        				ic.file.getAbsoluteFile(), a, b));        		
+        				ic.getFile().getAbsoluteFile(), a, b));        		
         	}
     	}
 
@@ -323,7 +323,6 @@ public class FileQueueHandler extends JPanel
             for (ImportContainer ic : containers)
             {
                 ic.setTarget(dialog.screen);
-                ic.setImageName(ic.file.getAbsolutePath());
                 String title = dialog.screen.getName().getValue(); 
                 addFileToQueue(ic, title, false, 0);
             }
@@ -342,7 +341,7 @@ public class FileQueueHandler extends JPanel
 
             Double[] pixelSizes = new Double[] {dialog.pixelSizeX, dialog.pixelSizeY, dialog.pixelSizeZ};
             Boolean useFullPath = config.useFullPath.get();
-            if (dialog.fileCheckBox.isSelected() == false)
+            if (dialog.useCustomNamingChkBox.isSelected() == false)
                 useFullPath = null; //use the default bio-formats naming
                 
             for (ImportContainer ic : containers)
@@ -351,7 +350,6 @@ public class FileQueueHandler extends JPanel
                 ic.setUserPixels(pixelSizes);
                 ic.setArchive(dialog.archiveImage.isSelected());
                 ic.setProjectID(dialog.project.getId().getValue());
-                ic.setImageName(ic.file.getAbsolutePath());
                 
                 String title =
                 dialog.project.getName().getValue() + " / " +
@@ -531,17 +529,17 @@ public class FileQueueHandler extends JPanel
                 return false;
                 */
 
-            if (isSPW != null && importContainer.isSPW != isSPW.booleanValue()) {
+            if (isSPW != null && importContainer.getIsSPW() != isSPW.booleanValue()) {
                 JOptionPane.showMessageDialog(viewer, 
                         "You have chosen some Screen-based images and some \n "+
                         "non-screen-based images. Please import only one type at a time.");
                 log.debug("Directory import found SPW and non-SPW data:");
                 for (ImportContainer ic2 : containers) {
-                    log.debug(String.format("  Spw? %5s\t%s",ic2.isSPW,ic2.file));
+                    log.debug(String.format("  Spw? %5s\t%s",ic2.getIsSPW(),ic2.getFile()));
                 }
                 return null;
             }
-            isSPW = importContainer.isSPW;
+            isSPW = importContainer.getIsSPW();
         }
         return isSPW;
     }
@@ -814,8 +812,9 @@ public class FileQueueHandler extends JPanel
                         continue;
                     }
                 }
-                
-                ImportContainer container = new ImportContainer(file, projectID, object, fileName, cancelScan, null, fileName, null, cancelScan);
+                                
+                // TODO: The 6th parameter should be 'format', not 'fileName'!
+                ImportContainer container = new ImportContainer(file, projectID, object, cancelScan, null, fileName, null, cancelScan);
                 
                 finalCount = finalCount + 1;
                 
@@ -878,10 +877,10 @@ public class FileQueueHandler extends JPanel
         String imageName;
         
         if (useFullPath != null) {
-            imageName = getImageName(container.file, useFullPath, numOfDirectories);
-            container.setUserSpecifiedFileName(imageName);
+            imageName = getImageName(container.getFile(), useFullPath, numOfDirectories);
+            container.setCustomImageName(imageName);
         } else {
-            imageName = container.file.getAbsolutePath();
+            imageName = container.getFile().getAbsolutePath();
         }
 
         row.add(imageName);

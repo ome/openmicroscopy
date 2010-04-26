@@ -297,11 +297,11 @@ public class CommandLineImporter {
                 break;
             }
             case 'n': {
-                config.name.set(g.getOptarg());
+                config.imageName.set(g.getOptarg());
                 break;
             }
             case 'x': {
-                config.description.set(g.getOptarg());
+                config.imageDescription.set(g.getOptarg());
                 break;
             }
             case 'f': {

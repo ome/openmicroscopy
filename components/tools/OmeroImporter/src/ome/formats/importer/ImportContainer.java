@@ -32,20 +32,19 @@ import omero.model.Pixels;
 
 public class ImportContainer
 {
-	public File file;
-	public Long projectID;
-	public String imageName;
-    public String reader;
-    public String[] usedFiles;
-    public Boolean isSPW;
+	private Long projectID;
+	private String reader;
+    private String[] usedFiles;
+    private Boolean isSPW;
+	private File file;
 
     /**
      * The number of Images (also referred to as <i>Series</i>) that
      * Bio-Formats has detected.
      */
-    public Integer bfImageCount;
+    private Integer bfImageCount;
 
-    /**
+	/**
      * Image dimensions populated OMERO Pixels objects for each of the Images
      * (also referred to as <i>Series</i>) that Bio-Formats has detected.
      * The length of this collection is equivilent to the <i>Series</i> count
@@ -54,7 +53,7 @@ public class ImportContainer
      * whose value has been extracted from Bio-Formats. It <b>must not</b> be
      * saved into OMERO.
      */
-    public List<Pixels> bfPixels;
+    private List<Pixels> bfPixels;
 
     /**
      * Image names populated for each of the Images (also referred to as
@@ -64,28 +63,103 @@ public class ImportContainer
      * contain <code>null</code> values or empty length strings. Caution should
      * be exercised when working directly with this metadata.
      */
-    public List<String> bfImageNames;
-
+    private List<String> bfImageNames;
+    
     private Boolean archive;
     private Double[] userPixels;
-    private String userSpecifiedImageName;
+    private String customImageName;
     private IObject target;
     private FileInfo[] fileInfo;
     
 	public ImportContainer(File file, Long projectID,
 			IObject target, 
-			String imageName, Boolean archive, 
+			Boolean archive, 
 			Double[] userPixels, String reader, String[] usedFiles, Boolean isSPW)
 	{
 		this.file = file;
 		this.projectID = projectID;
 		this.target = target;
-		this.imageName = imageName;
 		this.archive = archive;
 		this.userPixels = userPixels;
 		this.reader = reader;
 		this.usedFiles = usedFiles;
 		this.isSPW = isSPW;
+	}
+	
+	// Various Getters and Setters //
+	
+    public Integer getBfImageCount() {
+		return bfImageCount;
+	}
+
+	public void setBfImageCount(Integer bfImageCount) {
+		this.bfImageCount = bfImageCount;
+	}
+
+	public List<Pixels> getBfPixels() {
+		return bfPixels;
+	}
+
+	public void setBfPixels(List<Pixels> bfPixels) {
+		this.bfPixels = bfPixels;
+	}
+
+	public List<String> getBfImageNames() {
+		return bfImageNames;
+	}
+
+	public void setBfImageNames(List<String> bfImageNames) {
+		this.bfImageNames = bfImageNames;
+	}
+    
+    /**
+     * @return custom image name string
+     */
+    public String getCustomImageName()
+    {
+        return customImageName;
+    }   
+
+	/**
+	 * Sets the custom image name for import. If this value is left
+	 * null, the image name supplied by bio-formats will be used.
+	 * 
+	 * @param name - a custom image name to set for this image
+	 */
+	public void setCustomImageName(String name)
+	{
+	    this.customImageName = name;
+	}
+	
+    public String getReader() {
+		return reader;
+	}
+
+	public void setReader(String reader) {
+		this.reader = reader;
+	}
+
+	public String[] getUsedFiles() {
+		return usedFiles;
+	}
+
+	public void setUsedFiles(String[] usedFiles) {
+		this.usedFiles = usedFiles;
+	}
+
+	public Boolean getIsSPW() {
+		return isSPW;
+	}
+
+	public void setIsSPW(Boolean isSPW) {
+		this.isSPW = isSPW;
+	}
+	
+	/**
+	 * @return the File
+	 */
+	public File getFile() {
+		return file;
 	}
 	
 	/**
@@ -131,33 +205,7 @@ public class ImportContainer
     {
         this.projectID = projectID;
     }
-    
-    /**
-     * @return Returns the imageName.
-     */
-    public String getImageName()
-    {
-        return imageName;
-    }
-
-    /**
-     * @return Returns the imageName.
-     */
-    public void setImageName(String imageName)
-    {
-        this.imageName = imageName;
-    }
-    
-    public String getUserSpecifiedName()
-    {
-        return userSpecifiedImageName;
-    }   
-
-	public void setUserSpecifiedFileName(String name)
-	{
-	    this.userSpecifiedImageName = name;
-	}
-	
+    	
 	public IObject getTarget()
 	{
 	    return target;

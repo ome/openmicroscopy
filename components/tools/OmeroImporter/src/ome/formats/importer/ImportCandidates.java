@@ -107,7 +107,9 @@ public class ImportCandidates extends DirectoryWalker
      * Marker exception raised if the {@link SCANNING#cancel()} method is
      * called by an {@link IObserver} instance.
      */
-    public static class CANCEL extends RuntimeException {};
+    public static class CANCEL extends RuntimeException {
+
+	private static final long serialVersionUID = 1L;};
     
     final private static Log log = LogFactory.getLog(ImportCandidates.class);
 
@@ -270,9 +272,9 @@ public class ImportCandidates extends DirectoryWalker
         {
             System.out.println("#======================================");
             System.out.println(String.format(
-                    "# Group: %s SPW: %s Reader: %s", container.file,
-                    container.isSPW, container.reader));
-            for (String file : container.usedFiles) 
+                    "# Group: %s SPW: %s Reader: %s", container.getFile(),
+                    container.getIsSPW(), container.getReader()));
+            for (String file : container.getUsedFiles()) 
             {
                 System.out.println(file);
             }
@@ -303,7 +305,7 @@ public class ImportCandidates extends DirectoryWalker
         List<String> paths = new ArrayList<String>();
         for (ImportContainer i : containers) 
         {
-            paths.add(i.file.getAbsolutePath());
+            paths.add(i.getFile().getAbsolutePath());
         }
         return paths;
     }
@@ -317,8 +319,8 @@ public class ImportCandidates extends DirectoryWalker
     public String getReaderType(String path) 
     {
         for (ImportContainer i : containers) {
-            if (i.file.getAbsolutePath().equals(path)) {
-                return i.reader;
+            if (i.getFile().getAbsolutePath().equals(path)) {
+                return i.getReader();
             }
         }
         throw new RuntimeException("Unfound reader for: " + path);
@@ -334,9 +336,9 @@ public class ImportCandidates extends DirectoryWalker
     {
         for (ImportContainer i : containers) 
         {
-            if (i.file.getAbsolutePath().equals(path)) 
+            if (i.getFile().getAbsolutePath().equals(path)) 
             {
-                return i.usedFiles;
+                return i.getUsedFiles();
             }
         }
         throw new RuntimeException("Unfound reader for: " + path);
@@ -412,11 +414,11 @@ public class ImportCandidates extends DirectoryWalker
                 String[] domains = reader.getReader().getDomains();
                 boolean isSPW = Arrays.asList(domains).contains(FormatTools.HCS_DOMAIN);
 
-                ImportContainer ic = new ImportContainer(file, null, null,
+                ImportContainer ic = new ImportContainer(file, null,
                         null, false, null, format, usedFiles, isSPW);
-                ic.bfImageCount = reader.getSeriesCount();
-                ic.bfPixels = getPixelsWithDimensions();
-                ic.bfImageNames = getImageNames();
+                ic.setBfImageCount(reader.getSeriesCount());
+                ic.setBfPixels(getPixelsWithDimensions());
+                ic.setBfImageNames(getImageNames());
                 return ic;
             } finally 
             {
@@ -540,7 +542,8 @@ public class ImportCandidates extends DirectoryWalker
      * @param depth - depth of scan
      * @param collection
      */
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     public void handleFile(File file, int depth, Collection collection) {
 
         count++;
@@ -571,8 +574,8 @@ public class ImportCandidates extends DirectoryWalker
         }
 
         containers.add(info);
-        allFiles.addAll(Arrays.asList(info.usedFiles));
-        for (String string : info.usedFiles) {
+        allFiles.addAll(Arrays.asList(info.getUsedFiles()));
+        for (String string : info.getUsedFiles()) {
             List<String> users = usedBy.get(string);
             if (users == null) {
                 users = new ArrayList<String>();
@@ -666,7 +669,8 @@ public class ImportCandidates extends DirectoryWalker
             return ordering.size();
         }
 
-        public List<String> getPaths() {
+        @SuppressWarnings("unused")
+		public List<String> getPaths() {
             size(); // Check.
             return ordering;
         }
@@ -685,7 +689,7 @@ public class ImportCandidates extends DirectoryWalker
             containers.clear();
             for (String key : ordering) {
                 for (ImportContainer importContainer : copy) {
-                    if (importContainer.file.getAbsolutePath().equals(key)) {
+                    if (importContainer.getFile().getAbsolutePath().equals(key)) {
                         containers.add(importContainer);
                     }
                 }
@@ -693,12 +697,13 @@ public class ImportCandidates extends DirectoryWalker
             // Now rewrite the filename chosen based on the first file in the
             // getUsedFiles.
             for (ImportContainer c : containers) {
-                c.setFile(new File(c.usedFiles[0]));
+                c.setFile(new File(c.getUsedFiles()[0]));
             }
             return this;
         }
 
-        void print() {
+        @SuppressWarnings("unused")
+		void print() {
             Collection<Group> values = groups.values();
             if (values.size() == 1) {
                 System.out.println(values.iterator().next().toShortString());
@@ -736,7 +741,8 @@ public class ImportCandidates extends DirectoryWalker
 
         }
 
-        static Groups test() {
+        @SuppressWarnings("unused")
+		static Groups test() {
             System.out.println("\n");
             line("NOTICE");
             System.out

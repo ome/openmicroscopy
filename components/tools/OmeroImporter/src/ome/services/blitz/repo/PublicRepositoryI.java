@@ -350,13 +350,13 @@ public class PublicRepositoryI extends _RepositoryDisp {
             List<OriginalFile> ofList;
             
             set.importableImage = true;
-            set.fileName = ic.file.getAbsolutePath();
+            set.fileName = ic.getFile().getAbsolutePath();
             set.imageName = set.fileName; //ic.imageName seems to be empty
-            set.reader = ic.reader;
-            set.imageCount = ic.bfImageCount;
+            set.reader = ic.getReader();
+            set.imageCount = ic.getBfImageCount();
                         
             set.usedFiles = new ArrayList<IObject>();
-            List<String> iFileList = Arrays.asList(ic.usedFiles);
+            List<String> iFileList = Arrays.asList(ic.getUsedFiles());
             for (String iFile : iFileList)  {
                 removeNameFromFileList(iFile, names);
                 ofList = getOriginalFiles(iFile);
@@ -369,8 +369,8 @@ public class PublicRepositoryI extends _RepositoryDisp {
             
             int i = 0;
             set.imageList = new ArrayList<Image>();
-            List<String> iNames = ic.bfImageNames;
-            for (Pixels pix : ic.bfPixels)  {
+            List<String> iNames = ic.getBfImageNames();
+            for (Pixels pix : ic.getBfPixels())  {
                 Image image;
                 String imageName;
                 pix.setDimensionOrder(dimOrder);

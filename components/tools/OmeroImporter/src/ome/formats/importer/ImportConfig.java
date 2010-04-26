@@ -103,8 +103,8 @@ public class ImportConfig {
     public final StrValue email;
     public final StrValue cliEmail;
     public final StrValue serverList;
-    public final StrValue name;
-    public final StrValue description;
+    public final StrValue imageName;
+    public final StrValue imageDescription;
     public final StrValue targetClass;
     public final LongValue targetId;
 
@@ -115,9 +115,8 @@ public class ImportConfig {
     public final BoolValue sendLogFile;
     public final BoolValue companionFile;
 
+    public final BoolValue useCustomImageNaming;
     public final BoolValue useFullPath;
-    public final BoolValue savedFileNaming;
-    public final BoolValue overrideImageName;
     public final IntValue numOfDirectories;
 
     public final FileValue savedDirectory;
@@ -207,8 +206,8 @@ public class ImportConfig {
         email        = new StrValue("email", this);
         cliEmail     = new StrValue("cliEmail", this);
         serverList   = new StrValue("serverList", this);
-        name         = new StrValue("imageName", this);
-        description  = new StrValue("imageDescription", this);
+        imageName    = new StrValue("imageName", this);
+        imageDescription  = new StrValue("imageDescription", this);
         targetClass  = new StrValue("targetClass", this);
         targetId     = new LongValue("targetId", this, 0);
 
@@ -224,8 +223,7 @@ public class ImportConfig {
         sendLogFile  = new BoolValue("sendFiles", this, false);
 
         useFullPath  = new BoolValue("useFullPath", this, true);
-        savedFileNaming = new BoolValue("savedFileNaming", this, true);
-        overrideImageName = new BoolValue("overrideImageName", this, true);
+        useCustomImageNaming = new BoolValue("overrideImageName", this, true);
         numOfDirectories = new IntValue("numOfDirectories", this, 0);
         savedDirectory = new FileValue("savedDirectory", this);
         
@@ -619,9 +617,8 @@ public class ImportConfig {
         savedDataset.load();
         savedScreen.load();
 
+        useCustomImageNaming.load();
         useFullPath.load();
-        savedFileNaming.load();
-        overrideImageName.load();
         numOfDirectories.load();
         savedDirectory.load();
         companionFile.load();
@@ -644,9 +641,8 @@ public class ImportConfig {
         savedDataset.store();
         savedScreen.store();
 
+        useCustomImageNaming.store();
         useFullPath.store();
-        savedFileNaming.store();
-        overrideImageName.store();
         numOfDirectories.store();
         savedDirectory.store();
         companionFile.store();

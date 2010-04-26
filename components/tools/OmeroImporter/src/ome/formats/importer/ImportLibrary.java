@@ -167,7 +167,7 @@ public class ImportLibrary implements IObservable
             int numDone = 0;
             for (int index = 0; index < containers.size(); index++) {
                 ImportContainer ic = containers.get(index);
-                ic.setUserSpecifiedFileName(config.name.get());
+                ic.setCustomImageName(config.imageName.get());
                 if (config.targetClass.get() == "omero.model.Dataset")
                 {
                     ic.setTarget(store.getTarget(
@@ -181,9 +181,9 @@ public class ImportLibrary implements IObservable
 
                 try {
                     importImage(
-                            ic.file,
+                            ic.getFile(),
                             index, numDone, containers.size(),
-                            ic.getUserSpecifiedName(),
+                            ic.getCustomImageName(),
                             "",
                             ic.getArchive(),
                             config.companionFile.get(),

@@ -182,11 +182,11 @@ public class ImportHandler implements IObservable
                         db.addItemTableRow(library.getExperimenterID(), 
                         		importKey,
                         		i, 
-                                importContainer[i].imageName,
-                                importContainer[i].projectID, 
+                                importContainer[i].getFile().getAbsolutePath(),
+                                importContainer[i].getProjectID(), 
                                 importContainer[i].getTarget().getId().getValue(),
                                 "pending", 
-                                importContainer[i].file);
+                                importContainer[i].getFile());
                     }
                 } catch (Exception e) {
                     log.error("Generic error while inserting history.", e);
@@ -205,16 +205,16 @@ public class ImportHandler implements IObservable
             if (qTable.table.getValueAt(j, 2).equals("pending")
                     && qTable.cancel == false) {
                 numOfDone++;
-                String filename = container.file.getAbsolutePath();
+                String filename = container.getFile().getAbsolutePath();
 
                 viewer.appendToOutputLn("> [" + j + "] Importing \"" + filename
                         + "\"");
 
 
                 try {
-                    library.importImage(importContainer[j].file, j, numOfDone,
+                    library.importImage(importContainer[j].getFile(), j, numOfDone,
                             numOfPendings, importContainer[j]
-                                    .getUserSpecifiedName(), null, // Description
+                                    .getCustomImageName(), null, // Description
                             container.getArchive(), config.companionFile.get(), // Metadata file creation
                             // (TODO: Enable in container and UI)
                             container.getUserPixels(), container.getTarget());
@@ -240,7 +240,7 @@ public class ImportHandler implements IObservable
                          */
                         JOptionPane.showMessageDialog(viewer,
                                 "\nThe importer cannot import the lossless JPEG images used by the file"
-                                        + "\n" + importContainer[j].imageName
+                                        + "\n" + importContainer[j].getFile().getAbsolutePath()
                                         + "");
                         /*
                          * "
