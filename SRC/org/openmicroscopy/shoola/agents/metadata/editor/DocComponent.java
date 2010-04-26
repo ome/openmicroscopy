@@ -235,6 +235,11 @@ class DocComponent
 			annotator =  i.next();
 			buf.append(EditorUtil.formatExperimenter(annotator)+"<br>");
 		}
+		if (annotators.size() > 1) {
+			String text = label.getText();
+			text += " ["+annotators.size()+"]";
+			label.setText(text);
+		}
 	}
 	
 	/**
@@ -398,11 +403,10 @@ class DocComponent
 			if (data instanceof FileAnnotationData) {
 				FileAnnotationData f = (FileAnnotationData) data;
 				String fileName = f.getFileName();
-				label.setToolTipText(formatTootTip(f));
 				if (FileAnnotationData.MEASUREMENT_NS.equals(fileName))
 					label.setText(f.getDescription());
 				else label.setText(EditorUtil.getPartialName(fileName));
-					
+				label.setToolTipText(formatTootTip(f));
 				Iterator<CustomizedFileFilter> i = FILTERS.iterator();
 				CustomizedFileFilter filter;
 				long id = f.getId();
@@ -436,8 +440,8 @@ class DocComponent
 				label.setForeground(Color.BLUE);
 			} else if (data instanceof TagAnnotationData) {
 				TagAnnotationData tag = (TagAnnotationData) data;
-				label.setToolTipText(formatTootTip(tag));
 				label.setText(tag.getTagValue());
+				label.setToolTipText(formatTootTip(tag));
 				initButtons();
 				if (tag.getId() < 0)
 					label.setForeground(
@@ -638,8 +642,8 @@ class DocComponent
 		if (EditorDialog.CREATE_NO_PARENT_PROPERTY.equals(name)) {
 			//reset text and tooltip
 			TagAnnotationData tag = (TagAnnotationData) data;
-			label.setToolTipText(formatTootTip(tag));
 			label.setText(tag.getTagValue());
+			label.setToolTipText(formatTootTip(tag));
 			firePropertyChange(AnnotationUI.EDIT_TAG_PROPERTY, null, this);
 		} else if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
 			File folder = (File) evt.getNewValue();
