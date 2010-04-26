@@ -83,7 +83,7 @@ def getGuestConnection(host, port):
     conn = None
     guest = ["guest", "guest"]
     try:
-        conn = _createConnection('', host=host, port=port, username=guest[0], passwd=guest[1], skip_stored=True)
+        conn = _createConnection('', host=host, port=port, username=guest[0], passwd=guest[1])
         #conn.connectAsGuest()
     except:
         logger.error(traceback.format_exc())
@@ -197,13 +197,14 @@ def isAnythingCreated(f):
 # views controll
 
 def forgotten_password(request, **kwargs):
+    request.session.modified = True
     template = "webadmin/forgotten_password.html"
     
     conn = None
     error = None
     
     if request.method == 'POST' and request.REQUEST.get('server') is not None and request.REQUEST.get('username') is not None and request.REQUEST.get('email') is not None:
-        blitz = settings.SERVER_LIST.get(pk=request.session.get('server'))
+        blitz = settings.SERVER_LIST.get(pk=request.REQUEST.get('server'))
         try:
             conn = getGuestConnection(blitz.host, blitz.port)
             if not conn.isForgottenPasswordSet():

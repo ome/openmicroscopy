@@ -132,17 +132,27 @@ class ExperimenterLdapForm(forms.Form):
     def __init__(self, name_check=False, email_check=False, *args, **kwargs):
         super(ExperimenterLdapForm, self).__init__(*args, **kwargs)
         self.name_check=name_check
-        self.email_check=email_check
-        self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active']
-
+        self.email_check=email_check 
+        
+        try:
+            self.fields['default_group'] = forms.ChoiceField(choices=kwargs['initial']['default'], widget=forms.RadioSelect(), required=True, label="Groups")
+            self.fields['other_groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['others'], initial=kwargs['initial']['others'], required=False, widget=forms.SelectMultiple(attrs={'size':10}))
+        except:
+            self.fields['default_group'] = forms.ChoiceField(choices=list(), widget=forms.RadioSelect(), required=True, label="Groups")
+            self.fields['other_groups'] = GroupModelMultipleChoiceField(queryset=list(), required=False, widget=forms.SelectMultiple(attrs={'size':10}))
+        
+        self.fields['available_groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['available'], required=False, widget=forms.SelectMultiple(attrs={'size':10}))
+        
+        self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'default_group', 'other_groups', 'available_groups']
+    
     omename = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
     first_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
     middle_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), required=False)
     last_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
     email = forms.EmailField(widget=forms.TextInput(attrs={'size':30}), required=False)
     institution = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), required=False)
-    administrator = forms.BooleanField(widget=forms.CheckboxInput(), required=False)
-    active = forms.BooleanField(widget=forms.CheckboxInput(), required=False)
+    administrator = forms.CharField(widget=forms.CheckboxInput(), required=False)
+    active = forms.CharField(widget=forms.CheckboxInput(), required=False)
     
     def clean_omename(self):
         if self.name_check:
