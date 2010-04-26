@@ -558,7 +558,7 @@ public class HistoryTable
     /**
      * Update the outlook bar with base data for appropriate dates
      */
-    private void updateOutlookBar()
+    public void updateOutlookBar()
     {
         GregorianCalendar newCal = new GregorianCalendar( );
         int dayOfWeek = newCal.get( Calendar.DAY_OF_WEEK );

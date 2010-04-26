@@ -534,7 +534,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
         for (int h = 0; h < returnedRows; h++)
         {
         	int i = (int) ids[h];
-        	((StringColumn) baseData.columns[BASE_STATUS_COLUMN]).values[i] = String.format("%1$-32s", newStatus);
+        	((StringColumn) baseData.columns[BASE_STATUS_COLUMN]).values[i] = newStatus;
         }
     	       
         baseTable.update(baseData);
@@ -560,8 +560,8 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
         for (int h = 0; h < returnedRows; h++)
         {
         	int i = (int) ids[h];
-        	if (h+1 == index)
-        		((StringColumn) itemData.columns[ITEM_STATUS_COLUMN]).values[i] = String.format("%1$-32s", newStatus);
+        	if (h == index)
+        		((StringColumn) itemData.columns[ITEM_STATUS_COLUMN]).values[i] = newStatus;
         }
     	
         

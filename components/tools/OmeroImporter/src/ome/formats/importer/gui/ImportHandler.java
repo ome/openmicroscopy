@@ -348,6 +348,7 @@ public class ImportHandler implements IObservable
         try {
             if (db != null && db.historyEnabled == true) {
                 db.updateBaseStatus(importKey, "incomplete");
+                viewer.historyTable.updateOutlookBar();
             }
         } catch (Exception e) {
             	log.error("updateBaseStatus exception: importKey '" 
@@ -373,7 +374,10 @@ public class ImportHandler implements IObservable
     {
         try {
             if (db != null && db.historyEnabled == true)
+            {
                 db.updateBaseStatus(importKey, "complete");
+                viewer.historyTable.updateOutlookBar();
+            }
         } catch (Exception e) {
         	log.error("updateBaseStatus exception: importKey '" 
         			+ importKey + "', 'complete'", e);
