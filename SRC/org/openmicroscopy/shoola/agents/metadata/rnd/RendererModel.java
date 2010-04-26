@@ -1356,4 +1356,58 @@ class RendererModel
 				getMaxY() > RenderingControl.MAX_SIZE/2);
 	}
 	
+	/**
+	 * Returns the number of bins per time interval
+	 * 
+	 * @return See above
+	 */
+	int getMaxLifetimeBin()
+	{
+		if (isNumerousChannel()) return getMaxC();
+		return 0;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the image is a lifetime image,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isNumerousChannel()
+	{ 
+		if (getMaxC() >= Renderer.MAX_CHANNELS) return true;
+		return image.isLifetime(); 
+	}
+	
+	/**
+	 * Returns the selected bin.
+	 * 
+	 * @return See above.
+	 */
+	int getSelectedBin()
+	{
+		List<Integer> active = getActiveChannels();
+		if (active == null || active.size() != 1) return 0;
+		return active.get(0);
+	}
+	
+	/**
+	 * Sets the selected lifetime bin.
+	 * 
+	 * @param bin The selected bin.
+	 */
+	void setSelectedBin(int bin)
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		List<ChannelData> channels = getChannelData();
+		ChannelData channel;
+		Iterator<ChannelData> i = channels.iterator();
+		int index;
+		while (i.hasNext()) {
+			channel = i.next();
+			index = channel.getIndex();
+			setActive(index, index == bin);
+		}
+	}
+	
 }

@@ -91,20 +91,6 @@ class PreviewToolBar
         UIUtilities.unifiedButtonLookAndFeel(b);
         b.setBackground(UIUtilities.BACKGROUND_COLOR);
         bar.add(b);
-        /*
-        b = new JButton(control.getAction(RendererControl.RND_MIN_MAX));
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        b.setBackground(UIUtilities.BACKGROUND_COLOR);
-        bar.add(b);
-        b = new JButton(control.getAction(RendererControl.RND_UNDO));
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        b.setBackground(UIUtilities.BACKGROUND_COLOR);
-        bar.add(b);
-        b = new JButton(control.getAction(RendererControl.APPLY_TO_ALL));
-        b.setBackground(UIUtilities.BACKGROUND_COLOR);
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        bar.add(b);
-        */
         setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
         add(bar);
         add(Box.createHorizontalStrut(5));
@@ -132,6 +118,11 @@ class PreviewToolBar
     {
     	String s = "Z="+(model.getDefaultZ()+1)+"/"+model.getMaxZ();
     	s += " T="+(model.getDefaultT()+1)+"/"+model.getMaxT();
+    	if (model.isNumerousChannel()) {
+			s += " L="+(model.getSelectedBin()+1);
+			s += "/"+(model.getMaxLifetimeBin());
+		}
+    	
     	selectedPlane.setText(s);
     }
     

@@ -197,9 +197,7 @@ class GraphicsPane
         maxLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
         minLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
         sliders = new ArrayList<ChannelSlider>();
-        if (model.getMaxC() < Renderer.MAX_CHANNELS) {
-        //if (model.isGeneralIndex() && model.getMaxC() < Renderer.MAX_CHANNELS) {
-        	
+        if (!model.isNumerousChannel()) {
         	List<ChannelData> channels = model.getChannelData();
         	Iterator<ChannelData> i = channels.iterator();
         	ChannelSlider slider;
@@ -228,10 +226,6 @@ class GraphicsPane
     	} else {
     		add(buildPane(), "0, 0");
     		add(buildGeneralPane(), "0, 2");
-    		/*
-    		add(buildGraphicsPane(), "0, 0");
-            add(buildFieldsControls(), "0, 2");
-            */
     	}
     }
     

@@ -915,7 +915,7 @@ class ImViewerModel
 	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
-		rnd.setSelectedXYPlane(z, t);
+		rnd.setSelectedXYPlane(z, t, -1);
 	}
 
 	/**

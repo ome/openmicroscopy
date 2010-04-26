@@ -269,7 +269,19 @@ class RendererControl
      */
 	void setSelectedXYPlane(int z, int t)
 	{
-		model.setSelectedXYPlane(z, t);
+		setSelectedXYPlane(z, t, -1);
+	}
+	
+	/**
+	 * Renders the specified XY-Plane.
+	 * 
+	 * @param z   The selected z-section.
+	 * @param t   The selected timepoint.
+	 * @param bin The selected bin, only used for lifetime.
+	 */
+	void setSelectedXYPlane(int z, int t, int bin)
+	{
+		model.setSelectedXYPlane(z, t, bin);
 	}
 	
 	/**

@@ -244,16 +244,7 @@ class ImViewerComponent
 	private boolean saveOnClose(boolean notifyUser)
 	{
 		if (isReadOnly()) return true;
-		if (saveBeforeCopy) {
-			try {
-				model.saveRndSettings(false);
-			} catch (Exception e) {
-				LogMessage logMsg = new LogMessage();
-				logMsg.println("Cannot save rendering settings. ");
-				logMsg.print(e);
-				ImViewerAgent.getRegistry().getLogger().error(this, logMsg);
-			}
-		}
+		
 		if (!notifyUser) {
 			//savePlane();
 			try {
@@ -302,16 +293,36 @@ class ImViewerComponent
 			}
 		}
 		if (!showBox) {
+			if (saveBeforeCopy) {
+				try {
+					model.saveRndSettings(false);
+				} catch (Exception e) {
+					LogMessage logMsg = new LogMessage();
+					logMsg.println("Cannot save rendering settings. ");
+					logMsg.print(e);
+					ImViewerAgent.getRegistry().getLogger().error(this, logMsg);
+				}
+			}
 			savePlane();
 			return true;
 		}
 		MessageBox msg = new MessageBox(view, "Save Data", 
 		"Before closing the viewer, do you want to save: ");
-		//msg.addCancelButton();
+		msg.addCancelButton();
 		msg.addBodyComponent(p);
 		
 		int option = msg.centerMsgBox();
 		if (option == MessageBox.YES_OPTION) {
+			if (saveBeforeCopy) {
+				try {
+					model.saveRndSettings(false);
+				} catch (Exception e) {
+					LogMessage logMsg = new LogMessage();
+					logMsg.println("Cannot save rendering settings. ");
+					logMsg.print(e);
+					ImViewerAgent.getRegistry().getLogger().error(this, logMsg);
+				}
+			}
 			if (rndBox != null && rndBox.isSelected()) {
 				try {
 					saveRndSettings();
@@ -345,6 +356,16 @@ class ImViewerComponent
 		} else if (option == MessageBox.CANCEL) {
 			return false;
 		} else if (option == MessageBox.NO_OPTION) {
+			if (saveBeforeCopy) {
+				try {
+					model.saveRndSettings(false);
+				} catch (Exception e) {
+					LogMessage logMsg = new LogMessage();
+					logMsg.println("Cannot save rendering settings. ");
+					logMsg.print(e);
+					ImViewerAgent.getRegistry().getLogger().error(this, logMsg);
+				}
+			}
 			model.resetMappingSettings(model.getOriginalDef());
 		}
 		return true;

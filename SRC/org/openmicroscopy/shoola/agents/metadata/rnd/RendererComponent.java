@@ -531,27 +531,29 @@ class RendererComponent
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#setSelectedXYPlane(int, int)
+     * @see Renderer#setSelectedXYPlane(int, int, int)
      */
-	public void setSelectedXYPlane(int z, int t)
+	public void setSelectedXYPlane(int z, int t, int bin)
 	{
 		int defaultZ = model.getDefaultZ();
 		int defaultT = model.getDefaultT();
-		if (defaultZ == z && defaultT == t) return;
 		try {
-			model.setSelectedXYPlane(z, t);
-			if (defaultZ != z) {
-				firePropertyChange(Z_SELECTED_PROPERTY, 
-						Integer.valueOf(defaultZ), Integer.valueOf(z));
+			if (bin > 0) {
+				model.setSelectedBin(bin);
+			} else {
+				if (defaultZ == z && defaultT == t) return;
+				model.setSelectedXYPlane(z, t);
+				if (defaultZ != z) {
+					firePropertyChange(Z_SELECTED_PROPERTY, 
+							Integer.valueOf(defaultZ), Integer.valueOf(z));
+				}
+				if (defaultT != t) {
+					firePropertyChange(T_SELECTED_PROPERTY, 
+							Integer.valueOf(defaultT), Integer.valueOf(t));
+				}
 			}
-			if (defaultT != t) {
-				firePropertyChange(T_SELECTED_PROPERTY, 
-						Integer.valueOf(defaultT), Integer.valueOf(t));
-			}
-			//if (model.isGeneralIndex()) 
-			//	model.saveRndSettings();
-			 firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.valueOf(false), 
-    		 			Boolean.valueOf(true));
+			firePropertyChange(RENDER_PLANE_PROPERTY, 
+					Boolean.valueOf(false), Boolean.valueOf(true));
 		} catch (Exception ex) {
 			handleException(ex);
 		}

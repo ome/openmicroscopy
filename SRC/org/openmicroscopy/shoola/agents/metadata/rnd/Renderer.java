@@ -308,8 +308,9 @@ public interface Renderer
 	 * 
 	 * @param z The selected z-section.
 	 * @param t The selected timepoint.
+	 * @param bin The selected bin, only used for lifetime.
 	 */
-	void setSelectedXYPlane(int z, int t);
+	void setSelectedXYPlane(int z, int t, int bin);
 
 	/** Applies the rendering settings to the selected or displayed images. */
 	void applyToAll();

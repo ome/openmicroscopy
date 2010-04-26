@@ -108,7 +108,7 @@ class ControlPane
     private static final String 	T_SLIDER_DESCRIPTION = 
     								"Select a timepoint.";
     
-    /** The description of a timepoint selection slider. */
+    /** The description of a bin selection slider. */
     private static final String 	LITEIME_SLIDER_DESCRIPTION = 
     								"Select .";
     
@@ -326,8 +326,8 @@ class ControlPane
     }
     
     /**
-     * Handles the event when the wheel is moved over the {@link #tSlider}
-     * or {@link #tSliderGrid}.
+     * Handles the event when the wheel is moved over the 
+     * {@link #lifetimeSlider}.
      * 
      * @param e The event to handle.
      */

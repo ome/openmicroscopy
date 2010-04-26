@@ -153,11 +153,18 @@ public class DomainPane
     private static final String 	T_SLIDER_DESCRIPTION = 
     								"Select a timepoint.";
     
+    /** The description of a bin selection slider. */
+    private static final String 	LITEIME_SLIDER_DESCRIPTION = 
+    								"Select a bin.";
+    
     /** The tipString of the {@link #zSlider}. */
     private static final String 	Z_SLIDER_TIPSTRING = "Z";
 
     /** The tipString of the {@link #tSlider}. */
     private static final String 	T_SLIDER_TIPSTRING = "T";
+    
+    /** The tipString of the {@link #lifetimeSlider}. */
+    private static final String 	LIFETIME_SLIDER_TIPSTRING = "L";
     
     /** Box to select the family used in the mapping process. */
     private JComboBox       			familyBox;
@@ -197,6 +204,9 @@ public class DomainPane
     
     /** Button to modify the color model. */
     private JButton						colorModel;
+    
+    /** Select the lifetime bin. */
+    private OneKnobSlider				lifetimeSlider;
     
     /** Selects the z-section. */
     private OneKnobSlider				zSlider;
@@ -397,9 +407,16 @@ public class DomainPane
         	previewToolBar = new PreviewToolBar(controller, model);
         }
         
-        if (model.getMaxC() < Renderer.MAX_CHANNELS)
+        if (!model.isNumerousChannel())
         	channelButtonPanel = createChannelButtons();
         else {
+        	lifetimeSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 
+        			0, 1, 0);
+        	lifetimeSlider.setEnabled(false);
+        	int maxBin = model.getMaxLifetimeBin()-1;
+    		initSlider(lifetimeSlider, maxBin, model.getSelectedBin(), 
+         			LITEIME_SLIDER_DESCRIPTION, LIFETIME_SLIDER_TIPSTRING);
+    		lifetimeSlider.setPaintTicks(false);
         	channelButtonPanel = new JPanel();
         	channelButtonPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
         }
@@ -560,12 +577,15 @@ public class DomainPane
     {
     	JPanel p = new JPanel();
     	double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, 
-				{TableLayout.FILL, TableLayout.PREFERRED}};
+				{TableLayout.FILL, TableLayout.PREFERRED, 
+    		TableLayout.PREFERRED}};
     	p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.setLayout(new TableLayout(tl));
 		p.add(zSlider, "0, 0");
 		p.add(canvas, "1, 0");
 		if (tSlider.isVisible()) p.add(tSlider, "1, 1");
+		if (lifetimeSlider != null && lifetimeSlider.isVisible())
+			p.add(lifetimeSlider, "1, 1");
     	return p;
     }
     
@@ -745,6 +765,34 @@ public class DomainPane
         gammaSlider.setValue((int) (k*FACTOR));
         gammaSlider.addChangeListener(this);
         gammaLabel.setText(""+k);
+    }
+    
+    /**
+     * Handles the event when the wheel is moved over the 
+     * {@link #lifetimeSlider}.
+     * 
+     * @param e The event to handle.
+     */
+    private void mouseWheelMovedLifetime(MouseWheelEvent e)
+    {
+        boolean up = true;
+        if (e.getWheelRotation() > 0) up = false;
+        if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
+            int v = model.getDefaultT()-e.getWheelRotation();
+            int bin = lifetimeSlider.getValue();
+            if (up) {
+                if (v <= model.getMaxLifetimeBin()) {
+                	controller.setSelectedXYPlane(model.getDefaultZ(), 
+                			model.getDefaultT(), bin);
+                }
+            } else { //moving down
+                if (v >= 0)
+                	controller.setSelectedXYPlane(model.getDefaultZ(), 
+                			model.getDefaultT(), bin);
+            }
+        } else {
+            
+        }
     }
     
     /** 
@@ -1017,6 +1065,9 @@ public class DomainPane
         } else if (source.equals(tSlider) || source.equals(zSlider)) {
         	controller.setSelectedXYPlane(zSlider.getValue(), 
                     tSlider.getValue());
+        } else if (source.equals(lifetimeSlider)) {
+        	controller.setSelectedXYPlane(model.getDefaultZ(), 
+                    model.getDefaultT(), lifetimeSlider.getValue());
         }
     }
     
@@ -1059,6 +1110,8 @@ public class DomainPane
         if (source == zSlider && zSlider.isEnabled()) mouseWheelMovedZ(e);
         else if (source == tSlider && tSlider.isEnabled())
             mouseWheelMovedT(e);
+        else if (source == lifetimeSlider && lifetimeSlider.isEnabled())
+            mouseWheelMovedLifetime(e);
 	}
 	
 }
