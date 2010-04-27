@@ -2,7 +2,7 @@ import unittest, time, os, datetime
 import tempfile
 
 #from models import StoredConnection
-from webgateway_cache import FileCache, WebGatewayCache
+from webgateway.webgateway_cache import FileCache, WebGatewayCache
 from webgateway import views
 import omero
 from omero.gateway.scripts.testdb_create import *
