@@ -72,9 +72,9 @@ public class PDFFilter
 	
 	/**
 	 * 	Overridden to return the MIME type.
-	 * 	@see CustomizedFileFilter#getMimeType()
+	 * 	@see CustomizedFileFilter#getMIMEType()
 	 */
-	public String getMimeType() { return "application/pdf"; }
+	public String getMIMEType() { return "application/pdf"; }
 	
     /**
 	 * 	Overridden to return the extension of the filter.

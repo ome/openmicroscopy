@@ -81,9 +81,9 @@ public class WordFilter
 	
 	/**
 	 * 	Overridden to return the MIME type.
-	 * 	@see CustomizedFileFilter#getMimeType()
+	 * 	@see CustomizedFileFilter#getMIMEType()
 	 */
-	public String getMimeType() { return "application/msword"; }
+	public String getMIMEType() { return "application/msword"; }
 	
     /**
 	 * Overridden to return the extension of the filter.

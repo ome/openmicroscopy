@@ -75,9 +75,9 @@ public class PNGFilter
 	
 	/**
 	 * 	Overridden to return the MIME type.
-	 * 	@see CustomizedFileFilter#getMimeType()
+	 * 	@see CustomizedFileFilter#getMIMEType()
 	 */
-	public String getMimeType() { return "image/png"; }
+	public String getMIMEType() { return "image/png"; }
 	
 	/**
 	 * Overridden to return the extension of the filter.

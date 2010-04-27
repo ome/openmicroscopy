@@ -80,9 +80,9 @@ public class GIFFilter
 	
 	/**
 	 * 	Overridden to return the MIME type.
-	 * 	@see CustomizedFileFilter#getMimeType()
+	 * 	@see CustomizedFileFilter#getMIMEType()
 	 */
-	public String getMimeType() { return "image/gif"; }
+	public String getMIMEType() { return "image/gif"; }
 	
     /**
      * Overridden to return the description of the filter.

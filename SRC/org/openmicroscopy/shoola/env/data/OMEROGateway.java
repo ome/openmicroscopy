@@ -3492,7 +3492,6 @@ class OMEROGateway
 			} else {
 				oFile = (OriginalFile) findIObject(OriginalFile.class.getName(), 
 					originalFileID);
-				
 				OriginalFile newFile = new OriginalFileI();
 				newFile.setId(omero.rtypes.rlong(originalFileID));
 				newFile.setName(omero.rtypes.rstring(file.getName()));

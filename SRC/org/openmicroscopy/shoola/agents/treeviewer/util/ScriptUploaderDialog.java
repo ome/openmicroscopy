@@ -302,10 +302,12 @@ public class ScriptUploaderDialog
 		Iterator<CustomizedFileFilter> i = FILTERS.iterator();
 		boolean supported = false;
 		CustomizedFileFilter filter;
+		String mimeType = null;
 		while (i.hasNext()) {
 			filter = i.next();
 			if (filter.accept(f)) {
 				supported = true;
+				mimeType = filter.getMIMEType();
 				break;
 			}
 		}
@@ -341,7 +343,7 @@ public class ScriptUploaderDialog
 			}
 		}
 		ScriptObject script = new ScriptObject(-1, f.getAbsolutePath());
-		
+		script.setMIMEType(mimeType);
 		//Set info about the script.
 		String value = journalRef.getText();
 		if (value != null) script.setJournalRef(value.trim());

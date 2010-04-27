@@ -97,6 +97,9 @@ public class ScriptObject
 	/** Hold the parameters related to the script. */
 	private JobParams  parameters;
 	
+	/** The MIME type of the script if set. */ 
+	private String	   mimeType;
+	
 	/** Converts the parameters. */
 	private void convertJobParameters()
 	{
@@ -149,6 +152,7 @@ public class ScriptObject
 		this.name = name;
 		description = "";
 		journalRef = "";
+		mimeType = null;
 		authors = new ArrayList<ExperimenterData>();
 	}
 	
@@ -168,32 +172,6 @@ public class ScriptObject
 	{
 		this.parameters = parameters;
 		convertJobParameters();
-	}
-	
-	/**
-	 * Returns the format of the script.
-	 * 
-	 * @return See above.
-	 */
-	public String getFormatAsString()
-	{
-		return null;
-		
-		/*
-		MimetypesFileTypeMap map = new MimetypesFileTypeMap();
-		File f = new File(name);
-		String type = map.getContentType(f);
-		f.delete();
-		return type;
-		/*
-		switch (index) {
-			case PYTHON:
-				return "text/x-python";
-			default:
-				break;
-		}
-		return "test";
-		*/
 	}
 	
 	/**
@@ -359,5 +337,19 @@ public class ScriptObject
 	 * @return See above.
 	 */
 	public boolean isParametersLoaded() { return parameters != null; }
+	
+	/**
+	 * Returns the MIME type.
+	 * 
+	 * @return See above.
+	 */
+	public String getMIMEType() { return mimeType; }
+	
+	/**
+	 * Sets the MIME type.
+	 * 
+	 * @param mimeType The value to set.
+	 */
+	public void setMIMEType(String mimeType) { this.mimeType = mimeType; }
 	
 }

@@ -84,9 +84,9 @@ public class JPEGFilter
 	
 	/**
 	 * 	Overridden to return the MIME type.
-	 * 	@see CustomizedFileFilter#getMimeType()
+	 * 	@see CustomizedFileFilter#getMIMEType()
 	 */
-	public String getMimeType() { return "image/jpeg"; }
+	public String getMIMEType() { return "image/jpeg"; }
 	
 	/**
 	 * 	Overridden to return the extension of the filter.

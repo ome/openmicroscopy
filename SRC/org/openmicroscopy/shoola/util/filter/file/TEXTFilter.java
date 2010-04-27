@@ -75,9 +75,9 @@ public class TEXTFilter
 	
 	/**
 	 * 	Overridden to return the MIME type.
-	 * 	@see CustomizedFileFilter#getMimeType()
+	 * 	@see CustomizedFileFilter#getMIMEType()
 	 */
-	public String getMimeType() { return "text/plain"; }
+	public String getMIMEType() { return "text/plain"; }
 	
     /**
 	 * Overridden to return the extension of the filter.

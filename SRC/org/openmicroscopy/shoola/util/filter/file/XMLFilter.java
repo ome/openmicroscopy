@@ -75,9 +75,9 @@ public class XMLFilter
 	
 	/**
 	 * 	Overridden to return the MIME type.
-	 * 	@see CustomizedFileFilter#getMimeType()
+	 * 	@see CustomizedFileFilter#getMIMEType()
 	 */
-	public String getMimeType() { return "application/octet-stream"; }
+	public String getMIMEType() { return "application/octet-stream"; }
 	
     /**
 	 * Overridden to return the extension of the filter.

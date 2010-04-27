@@ -171,9 +171,9 @@ public class RegExFileFilter
 	
 	/**
 	 * 	Overridden to return the MIME type.
-	 * 	@see CustomizedFileFilter#getMimeType()
+	 * 	@see CustomizedFileFilter#getMIMEType()
 	 */
-	public String getMimeType() { return ""; }
+	public String getMIMEType() { return ""; }
 	
     /**
 	 * Overridden to return the extension of the filter.

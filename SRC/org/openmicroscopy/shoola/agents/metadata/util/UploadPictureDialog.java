@@ -224,7 +224,7 @@ public class UploadPictureDialog
 		while (i.hasNext()) {
 			filter = i.next();
 			if (filter.accept(f)) {
-				format = filter.getMimeType();
+				format = filter.getMIMEType();
 				supported = true;
 				break;
 			}

@@ -87,6 +87,6 @@ public abstract class CustomizedFileFilter
 	 * 
 	 * @return See above.
 	 */
-	public abstract String getMimeType();
+	public abstract String getMIMEType();
 	
 }

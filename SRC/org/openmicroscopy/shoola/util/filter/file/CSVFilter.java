@@ -75,9 +75,9 @@ public class CSVFilter
 	
 	/**
 	 * 	Overridden to return the MIME type.
-	 * 	@see CustomizedFileFilter#getMimeType()
+	 * 	@see CustomizedFileFilter#getMIMEType()
 	 */
-	public String getMimeType() { return "text/css"; }
+	public String getMIMEType() { return "text/css"; }
 	
 	/**
 	 * 	Overridden to return the extension of the filter.
