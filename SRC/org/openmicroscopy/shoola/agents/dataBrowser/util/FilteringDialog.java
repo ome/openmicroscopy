@@ -199,17 +199,18 @@ public class FilteringDialog
     private void handleTagInsert()
     {
     	if (existingTags == null) {
-    		firePropertyChange(LOAD_TAG_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+    		firePropertyChange(LOAD_TAG_PROPERTY, Boolean.valueOf(false), 
+    				Boolean.valueOf(true));
     		return;
     	}
 		codeCompletion();
 		
 		if (tagsDialog == null) return;
 		String name = tagsArea.getText();
-		String[] names = name.split(SearchUtil.COMMA_SEPARATOR);
-        int length = names.length;
-        if (length > 0) {
-        	if (tagsDialog.setSelectedTextValue(names[length-1].trim())) {
+        List<String> l = SearchUtil.splitTerms(name, 
+				SearchUtil.COMMA_SEPARATOR);
+        if (l.size() > 0) {
+        	if (tagsDialog.setSelectedTextValue(l.get(l.size()-1).trim())) {
         		Rectangle r = tagsArea.getBounds();
         		tagsDialog.show(tagsArea, 0, r.height);
         		tagsArea.requestFocus();

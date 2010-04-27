@@ -607,7 +607,17 @@ public class QuickSearch
 	public JComponent getSelectionArea() { return searchPanel; }
 	
 	/** Sets the focus on the {@link #searchArea}. */
-	public void setFocusOnArea() { searchArea.requestFocus(); }
+	public void setFocusOnArea()
+	{ 
+		searchArea.requestFocusInWindow();
+		int n = searchArea.getCaretPosition();
+		searchArea.select(0, 0);
+		
+		searchArea.setSelectionStart(0);
+		searchArea.setSelectionEnd(1);
+		searchArea.setHighlighter(null);
+		searchArea.setCaretPosition(n);
+	}
 	
 	/**
 	 * Returns the text of the {@link #searchArea}.
@@ -652,20 +662,25 @@ public class QuickSearch
     	List<String> l = SearchUtil.splitTerms(getSearchValue(), 
 				SearchUtil.COMMA_SEPARATOR);
     	Iterator<String> i = text.iterator();
+    	String value;
+    	List<String> values = new ArrayList<String>();
+    	while (i.hasNext()) {
+    		value = i.next();
+			if (value != null) {
+				value = value.trim();
+				if (!l.contains(value)) values.add(value);
+			}
+		}
+    	i = values.iterator();
     	String term = "";
     	int index = 0;
     	int n = text.size()-1;
     	while (i.hasNext()) {
     		term += i.next();
 			if (index < n)
-				term += SearchUtil.COMMA_SEPARATOR;
+				term += SearchUtil.COMMA_SEPARATOR+SearchUtil.SPACE_SEPARATOR;
 			index++;
 		}
-    	
-    	String result = SearchUtil.formatString(term, l);
-    	searchArea.getDocument().removeDocumentListener(this);
-    	searchArea.setText(result);
-    	searchArea.getDocument().addDocumentListener(this);
 	}
 	
 	/**
@@ -738,7 +753,7 @@ public class QuickSearch
 	}
 	
 	/** 
-	 * Class extended this class should override that method for 
+	 * Class extending this class should override that method for 
 	 * code completion.
 	 */
 	protected void handleTextInsert() {}
@@ -749,8 +764,16 @@ public class QuickSearch
      */
 	public void insertUpdate(DocumentEvent e)
 	{
+		try {
+			String s = e.getDocument().getText(e.getOffset(), e.getLength());
+			if (SearchUtil.COMMA_SEPARATOR.equals(s) ||
+				SearchUtil.SPACE_SEPARATOR.equals(s))
+				return;
+		} catch (Exception ex) {
+			//ignore
+		}
+		
 		handleTextInsert();
-		//layoutManager.setColumn(3, TableLayout.PREFERRED);
 		cleanBar.setVisible(true);
 		searchPanel.validate();
 		searchPanel.repaint();
@@ -806,7 +829,7 @@ public class QuickSearch
 	}
 	
 	/** 
-     * Required by I/F but no-op implementation in our case. 
+     * Required by I/F but no-operation implementation in our case. 
      * @see DocumentListener#changedUpdate(DocumentEvent)
      */
 	public void changedUpdate(DocumentEvent e) {}

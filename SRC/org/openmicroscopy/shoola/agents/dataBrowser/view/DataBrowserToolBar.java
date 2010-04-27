@@ -193,6 +193,7 @@ class DataBrowserToolBar
 	/** Button to create an image Tags report. */
 	private JButton				reportButton;
 	
+	/** The menu displaying options to create objects. */
 	private JPopupMenu			createMenu;
 	
 	/**
@@ -213,7 +214,7 @@ class DataBrowserToolBar
 		menuItem.setEnabled(model.isParentWritable());
 		createMenu.add(menuItem);
 		menuItem = new JMenuItem("Existing Dataset");
-		menuItem.setToolTipText("Select a dataset to the images to.");
+		menuItem.setToolTipText("Select a dataset to add the images to.");
 		menuItem.setIcon(icons.getIcon(IconManager.DATASET));
 		menuItem.addActionListener(this);
 		menuItem.setActionCommand(""+EXISTING_OBJECT);

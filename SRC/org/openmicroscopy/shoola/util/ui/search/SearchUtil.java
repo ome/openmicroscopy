@@ -148,7 +148,7 @@ public class SearchUtil
     			value = i.next();
     			result += value;
 				if (index != n) 
-					result += COMMA_SEPARATOR+" ";
+					result += COMMA_SEPARATOR+SPACE_SEPARATOR;
 				index++;
 			}
 			return result;
@@ -157,7 +157,7 @@ public class SearchUtil
 		i = terms.iterator();
 		while (i.hasNext()) {
 			result += i.next();
-			result += COMMA_SEPARATOR+" ";
+			result += COMMA_SEPARATOR+SPACE_SEPARATOR;
 		}
 		result += termToAdd;
 		return result;

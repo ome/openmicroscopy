@@ -91,15 +91,15 @@ public class QuickFiltering
 		
 		if (tagsDialog == null) return;
 		String name = getSearchValue();
-		String[] names = name.split(SearchUtil.COMMA_SEPARATOR);
-        int length = names.length;
-        if (length > 0) {
-        	if (tagsDialog.setSelectedTextValue(names[length-1].trim())) {
+		List<String> l = SearchUtil.splitTerms(name, 
+				SearchUtil.COMMA_SEPARATOR);
+		if (l.size() > 0) {
+			if (tagsDialog.setSelectedTextValue(l.get(l.size()-1).trim())) {
         		Rectangle r = getSelectionArea().getBounds();
         		tagsDialog.show(getSelectionArea(), 0, r.height);
         		setFocusOnArea();
         	} else tagsDialog.setVisible(false);
-        }	
+		}
 	}
 	
 	 /** Initializes the {@link HistoryDialog} used for code completion. */
