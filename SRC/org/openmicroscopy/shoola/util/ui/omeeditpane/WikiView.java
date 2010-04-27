@@ -180,6 +180,43 @@ public class WikiView
 	}
 	
 	/**
+	 * Public method to access regex functionality.
+	 * Parses the <code>text</code> with the <code>regex</code>, adding 
+	 * any matches (defined by start and end {@link Position}) to the
+	 * <code>positionList</code>
+	 * 
+	 * @param text				The text to parse
+	 * @param regex				Regex expressions to look for
+	 * @param positionList		A list of the matches found. 
+	 */
+	public static void findGroups(String text, String regex, 
+			Map<Position,String> positionMap) 
+	{
+		positionMap.clear();
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(text);
+		int s, e;
+		Position p;
+		
+		String match = null;
+		while (matcher.find()) {
+			//for (int i=0; i<= matcher.groupCount(); i++) {
+			//	String groupStr = matcher.group(i); 
+			//	System.out.println(i + " " + groupStr);
+			//}
+			if (matcher.groupCount() > 0) {
+				match = matcher.group(1);
+			} else {
+				match = matcher.group(0);
+			}
+			s = matcher.start();
+			e = matcher.end();
+			p = new Position(s, e);
+			positionMap.put(p, match);
+		}
+	}
+	
+	/**
 	 * Returns <code>true</code> if the text in position p been already 
 	 * matched by the another regex and been places in tokenLocations,
 	 * <code>false</code> otherwise.

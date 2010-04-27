@@ -59,6 +59,9 @@ public class WikiDataObject
 	/** Indentifies a <code>Protocol</code>. */
 	public static final int PROTOCOL = 4;
 	
+	/** Indentifies an unrecognized data type */
+	public static final int OTHER = 5;
+	
 	/** One of the constants defined by this class. */
 	private int 	index;
 
@@ -67,6 +70,16 @@ public class WikiDataObject
 	
 	/** The name of the object. */
 	private String 	name;
+	
+	/** The first regex group captured by the regex */
+	private String group;
+	
+	/** The regex that was recognized */
+	private String regex;
+	
+	/** The text that was recognized by the regex. i.e. regex group 0 */
+	private String matchedText;
+	
 	
 	/**
 	 * Controls if the index is supported.
@@ -85,6 +98,20 @@ public class WikiDataObject
 			default:
 				throw new IllegalArgumentException("Index not supported.");
 		}
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param regex 	The regex that was recognized.
+	 * @param group		The text captured by the first group of the regex
+	 */
+	WikiDataObject(String regex, String group, String matchedText)
+	{
+		this.regex = regex;
+		this.group = group;
+		this.matchedText = matchedText;
+		this.index = OTHER;
 	}
 	
 	/**
@@ -119,14 +146,44 @@ public class WikiDataObject
 	 * 
 	 * @return See above.
 	 */
-	public int getIndex() { return index; }
+	public int getIndex() { 
+		
+		// if we have a recognized index, return it.
+		if (index != OTHER)  return index;
+		
+		// otherwise, try to match the regex to a type
+		if (regex != null) {
+			if (regex.startsWith("Image")) {
+				index = IMAGE;
+			} else if (regex.startsWith("Project")) {
+				index = PROJECT;
+			} else if (regex.startsWith("Dataset")) {
+				index = DATASET;
+			}
+		}
+		
+		return index;
+		}
 	
 	/**
 	 * Returns the id of the object.
 	 * 
 	 * @return See above.
 	 */
-	public long getId() { return id; }
+	public long getId() { 
+		if (id != 0) return id; 
+		
+		// often the 'group' attribute will hold an ID
+		else {
+			try {
+				id = new Long(group);
+			}
+			catch (Exception e) {
+				id = 0;
+			}
+		}
+		return id;
+	}
 	
 	/**
 	 * Returns the name of the object.
@@ -134,5 +191,26 @@ public class WikiDataObject
 	 * @return See above.
 	 */
 	public String getName() { return name; }
+	
+	/**
+	 * Returns the group of the object.
+	 * 
+	 * @return See above.
+	 */
+	public String getGroup() { return group; }
+	
+	/**
+	 * Returns the regex of the object.
+	 * 
+	 * @return See above.
+	 */
+	public String getRegex() { return regex; }
+	
+	/**
+	 * Returns the matched Text of the object.
+	 * 
+	 * @return See above.
+	 */
+	public String getMatchedText() { return matchedText; }
 	
 }
