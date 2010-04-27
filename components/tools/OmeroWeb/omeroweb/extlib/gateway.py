@@ -556,12 +556,11 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["eid"] = rlong(self.getEventContext().userId)
         p.map["tids"] = rlist([rlong(a) for a in set(tids)])
         sql = "select pr from Project pr join fetch pr.details.creationEvent join fetch pr.details.owner join fetch pr.details.group " \
               "left outer join fetch pr.annotationLinks pal " \
               "left outer join fetch pal.child tag " \
-              "where tag.id in (:tids) and pr.details.owner.id=:eid"
+              "where tag.id in (:tids)"
         for e in q.findAllByQuery(sql,p):
             yield ProjectWrapper(self, e)
     
@@ -571,12 +570,11 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["eid"] = rlong(self.getEventContext().userId)
         p.map["tids"] = rlist([rlong(a) for a in set(tids)])
         sql = "select ds from Dataset ds join fetch ds.details.creationEvent join fetch ds.details.owner join fetch ds.details.group " \
               "left outer join fetch ds.annotationLinks dal " \
               "left outer join fetch dal.child tag " \
-              "where tag.id in (:tids) and ds.details.owner.id=:eid "
+              "where tag.id in (:tids) "
         for e in q.findAllByQuery(sql,p):
             yield DatasetWrapper(self, e)
     
@@ -586,14 +584,41 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["eid"] = rlong(self.getEventContext().userId)
         p.map["tids"] = rlist([rlong(a) for a in set(tids)])
         sql = "select im from Image im join fetch im.details.creationEvent join fetch im.details.owner join fetch im.details.group " \
               "left outer join fetch im.annotationLinks ial " \
               "left outer join fetch ial.child tag " \
-              "where tag.id in (:tids) and im.details.owner.id=:eid "
+              "where tag.id in (:tids)"
         for e in q.findAllByQuery(sql,p):
             yield ImageWrapper(self, e)
+    
+    def listScreensByTag(self, tids):
+        """ Retrieves Datasets linked to the for the given tag ids."""
+        
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["tids"] = rlist([rlong(a) for a in set(tids)])
+        sql = "select sc from Screen sc join fetch sc.details.creationEvent join fetch sc.details.owner join fetch sc.details.group " \
+              "left outer join fetch sc.annotationLinks sal " \
+              "left outer join fetch sal.child tag " \
+              "where tag.id in (:tids)"
+        for e in q.findAllByQuery(sql,p):
+            yield ScreenWrapper(self, e)
+    
+    def listPlatesByTag(self, tids):
+        """ Retrieves Datasets linked to the for the given tag ids."""
+        
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["tids"] = rlist([rlong(a) for a in set(tids)])
+        sql = "select pl from Plate pl join fetch pl.details.creationEvent join fetch pl.details.owner join fetch pl.details.group " \
+              "left outer join fetch pl.annotationLinks pal " \
+              "left outer join fetch pal.child tag " \
+              "where tag.id in (:tids) "
+        for e in q.findAllByQuery(sql,p):
+            yield PlateWrapper(self, e)
     
     def listTags(self, o_type, oid):
         """ Retrieves list of Tags not linked to the for the given Project/Dataset/Image id."""
@@ -783,20 +808,21 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in q.findAllByQuery(sql,p):
             yield AnnotationWrapper(self, e)
     
-    def lookupTags(self):
-        """ Retrieves list of Tags owned by current user and return them as a dictionary list with selected field.
+    def lookupTags(self, eid=None):
+        """ Retrieves list of Tags owned by current user.
             This method is used by autocomplite."""
-        
+
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["eid"] = rlong(self.getEventContext().userId)
-        sql = "select tg from TagAnnotation tg where tg.details.owner.id = :eid and tg.ns is null"
+        if eid is not None:
+            p.map["eid"] = rlong(long(eid))
+        else:
+            p.map["eid"] = rlong(self.getEventContext().userId)
+        sql = "select tg from TagAnnotation tg where tg.details.owner.id=:eid and tg.ns is null"
         tags = list()
         for e in q.findAllByQuery(sql,p):
-            t = AnnotationWrapper(self, e)
-            tags.append({'tag': t.textValue,'id':t.id, 'desc':t.description} )
-        return tags
+            yield AnnotationWrapper(self, e)
     
     ##############################################
     ##   Share methods
@@ -1286,25 +1312,19 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         tg = query_serv.findByQuery(sql, p)
         return AnnotationWrapper(self, tg)
     
-    def lookupTagsAnnotation (self, names):
+    def lookupTagAnnotation (self, name):
         query_serv = self.getQueryService()
-        res = list()
-        for n in names:
-            p = omero.sys.Parameters()
-            p.map = {} 
-            p.map["text"] = rstring(str(n))
-            p.map["eid"] = rlong(self.getEventContext().userId)
-            f = omero.sys.Filter()
-            f.limit = rint(1)
-            p.theFilter = f
-            sql = "select tg from TagAnnotation tg " \
-                  "where tg.textValue=:text and tg.details.owner.id=:eid and tg.ns is null order by tg.textValue"
-            res.append(query_serv.findByQuery(sql, p))
-        for e in res:
-            if e is None:
-                yield None
-            else:
-                yield AnnotationWrapper(self, e)
+        p = omero.sys.Parameters()
+        p.map = {} 
+        p.map["text"] = rstring(str(name))
+        p.map["eid"] = rlong(self.getEventContext().userId)
+        f = omero.sys.Filter()
+        f.limit = rint(1)
+        p.theFilter = f
+        sql = "select tg from TagAnnotation tg " \
+              "where tg.textValue=:text and tg.details.owner.id=:eid and tg.ns is null order by tg.textValue"
+        tg = query_serv.findByQuery(sql, p)
+        return AnnotationWrapper(self, tg)
     
     def findTag (self, name, desc):
         query_serv = self.getQueryService()
@@ -1918,7 +1938,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in tm.getMostRecentShareCommentLinks(p):
             yield BlitzObjectWrapper(self, e)
     
-    def getMostRecentSharesComments (self):
+    def getMostRecentSharesCommentLinks (self):
         tm = self.getTimelineService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -1941,17 +1961,17 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in tm.getMostRecentAnnotationLinks(None, ['CommentAnnotation'], None, p):
             yield BlitzObjectWrapper(self, e)
     
-    def getMostRecentTagLinks (self):
+    def getMostRecentTags (self):
         tm = self.getTimelineService()
         p = omero.sys.Parameters()
         p.map = {}
         f = omero.sys.Filter()
-        f.ownerId = rlong(self.getEventContext().userId)
+        #f.ownerId = rlong(self.getEventContext().userId)
         f.groupId = rlong(self.getEventContext().groupId)
         f.limit = rint(200)
         p.theFilter = f
         for e in tm.getMostRecentAnnotationLinks(None, ['TagAnnotation'], None, p):
-            yield BlitzObjectWrapper(self, e)
+            yield BlitzObjectWrapper(self, e.child)
     
     def getDataByPeriod (self, start, end, date_type=None, page=None):
         tm = self.getTimelineService()

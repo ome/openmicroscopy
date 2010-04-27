@@ -100,41 +100,10 @@ class UriAnnotationForm(forms.Form):
 
 class TagFilterForm(forms.Form):
     
-    def __init__(self, *args, **kwargs):
-        super(TagFilterForm, self).__init__(*args, **kwargs)
-        try:
-            if kwargs['initial']['tag']: pass
-            self.fields['tag'] = forms.CharField(widget=forms.TextInput(attrs={'size':23}), initial=kwargs['initial']['tag'], required=False)
-        except:
-            self.fields['tag'] = forms.CharField(widget=forms.TextInput(attrs={'size':23}), required=False)
-        
-        try:
-            if kwargs['initial']['tag2']: pass
-            self.fields['tag2'] = forms.CharField(widget=forms.TextInput(attrs={'size':23}), initial=kwargs['initial']['tag2'], required=False)
-        except:
-            self.fields['tag2'] = forms.CharField(widget=forms.TextInput(attrs={'size':23}), required=False)
-        
-        try:
-            if kwargs['initial']['tag3']: pass
-            self.fields['tag3'] = forms.CharField(widget=forms.TextInput(attrs={'size':23}), initial=kwargs['initial']['tag3'], required=False)
-        except:
-            self.fields['tag3'] = forms.CharField(widget=forms.TextInput(attrs={'size':23}), required=False)
-        
-        try:
-            if kwargs['initial']['tag4']: pass
-            self.fields['tag4'] = forms.CharField(widget=forms.TextInput(attrs={'size':23}), initial=kwargs['initial']['tag4'], required=False)
-        except:
-            self.fields['tag4'] = forms.CharField(widget=forms.TextInput(attrs={'size':23}), required=False)
-        
-        try:
-            if kwargs['initial']['tag5']: pass
-            self.fields['tag5'] = forms.CharField(widget=forms.TextInput(attrs={'size':23}), initial=kwargs['initial']['tag5'], required=False)
-        except:
-            self.fields['tag5'] = forms.CharField(widget=forms.TextInput(attrs={'size':23}), required=False)
-        
-        self.fields.keyOrder = ['tag', 'tag2', 'tag3', 'tag4', 'tag5']
+    tag = forms.CharField(widget=forms.TextInput(attrs={'size':36}), required=False)
 
 class TagAnnotationForm(forms.Form):
+    
     tag = forms.CharField(widget=forms.TextInput(attrs={'size':36}))
     description = forms.CharField(widget=forms.Textarea(attrs={'rows': 3, 'cols': 31}), required=False, label="Desc")
 
@@ -182,10 +151,14 @@ class UsersForm(forms.Form):
         except:
             empty_label='*Mydata'
         try:
-            if kwargs['initial']['user']: pass
-            self.fields['experimenter'] = ExperimenterModelChoiceField(queryset=kwargs['initial']['users'], initial=kwargs['initial']['user'], widget=forms.Select(attrs={'onchange':'window.location.href=\''+reverse(viewname="load_template", args=["userdata"])+'?experimenter=\'+this.options[this.selectedIndex].value'}), required=False, empty_label=empty_label)
+            menu = kwargs['initial']['menu']
         except:
-            self.fields['experimenter'] = ExperimenterModelChoiceField(queryset=kwargs['initial']['users'], widget=forms.Select(attrs={'onchange':'window.location.href=\''+reverse(viewname="load_template", args=["userdata"])+'?experimenter=\'+this.options[this.selectedIndex].value'}), required=False, empty_label=empty_label)
+            menu = 'userdata'
+        try:
+            if kwargs['initial']['user']: pass
+            self.fields['experimenter'] = ExperimenterModelChoiceField(queryset=kwargs['initial']['users'], initial=kwargs['initial']['user'], widget=forms.Select(attrs={'onchange':'window.location.href=\''+reverse(viewname="load_template", args=[menu])+'?experimenter=\'+this.options[this.selectedIndex].value'}), required=False, empty_label=empty_label)
+        except:
+            self.fields['experimenter'] = ExperimenterModelChoiceField(queryset=kwargs['initial']['users'], widget=forms.Select(attrs={'onchange':'window.location.href=\''+reverse(viewname="load_template", args=[menu])+'?experimenter=\'+this.options[this.selectedIndex].value'}), required=False, empty_label=empty_label)
         self.fields.keyOrder = ['experimenter']
 
 class ActiveGroupForm(forms.Form):

@@ -101,7 +101,7 @@
             {% if manager.tgannSize %}
             <div class="lntags"> <h1>                  
             {% for tag in manager.tag_annotations %}
-                <span id="tagdesc{{ tag.id }}" title="{{ tag.textValue }} - <small>{{ tag.description|default_if_none:"no description"|safe|linebreaks  }}</small>"><a href="{% url manage_data_by_tag tag.id %}"> {{ tag.textValue }}</a></span> {% if tag.isOwned
+                <span id="tagdesc{{ tag.id }}" title="{{ tag.textValue }} - <small>{{ tag.description|default_if_none:"no description"|safe|linebreaks  }}</small>"><a href="{% url load_template "usertags" %}{% if not tag.isOwned %}?experimenter={{ tag.getOwner.id }}{% endif %}"> {{ tag.textValue }}</a></span> {% if tag.isOwned
  %}<a href="{% url manage_action_containers "remove" %}?parent={% if manager.image %}img-{{ manager.image.id}}{% else %}{% if manager.dataset %}ds-{{ manager.dataset.id}}{% else %}{% if manager.project %}pr-{{ manager.project.id}}{% endif %}{% endif %}{% endif %}&source=tann-{{ tag.id }}&url={{ url }}#tags_tab" onClick="return confirm('Unlink tag?');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>{% endif %}, 
             {% endfor %}
             </h1></div>

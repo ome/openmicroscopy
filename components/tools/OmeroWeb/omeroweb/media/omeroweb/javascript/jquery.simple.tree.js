@@ -206,7 +206,9 @@ $.fn.simpleTree = function(opt){
 				    var unknown = 0;
 				    if(this.id.match(/(orphaned)/)) {
 				        var setClassName = 'orfolder-'; //new
-					} else if(this.id.match(/(pr)+-[0-9]+/)) {
+					} else if(this.id.match(/(tag)+-[0-9]+/)) {
+    					var setClassName = 'tag-'; //new
+                    } else if(this.id.match(/(pr)+-[0-9]+/)) {
     					var setClassName = 'folder-'; //new
 					} else if(this.id.match(/(sc)+-[0-9]+/)) {
     					var setClassName = 'folder2-'; //new

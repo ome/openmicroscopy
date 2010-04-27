@@ -172,6 +172,7 @@ def isUserConnected (f):
     return wrapped
 
 def sessionHelper(request):
+    request.session.modified = True
     if request.session.get('clipboard') is None:
         request.session['clipboard'] = []
     if request.session.get('shares') is None:
@@ -186,7 +187,7 @@ def sessionHelper(request):
         elif request.session.get('host') is not None:
             blitz = settings.SERVER_LIST.get(host=request.session.get('host'))
         blitz = "%s:%s" % (blitz.host, blitz.port)
-        request.session['nav']={"blitz": blitz, "menu": "mydata", "view": "tree", "basket": 0}
+        request.session['nav']={"blitz": blitz, "menu": "mydata", "view": "tree", "basket": 0, "experimenter":None}
 
 ################################################################################
 # views controll
@@ -292,14 +293,11 @@ def index(request, **kwargs):
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     sessionHelper(request)
-    
     try:
         if request.session['nav']['menu'] != 'start':
             request.session['nav']['menu'] = 'home'
-            request.session.modified = True
     except:
         request.session['nav']['menu'] = 'start'
-        request.session.modified = True
     
     controller = BaseIndex(conn)
     #controller.loadData()
@@ -459,12 +457,14 @@ def logout(request, **kwargs):
 def load_template(request, menu, **kwargs):
     request.session.modified = True
     
-    if menu in ('mydata', 'userdata', 'groupdata'):
+    if menu == 'userdata':
         template = "webclient/data/containers.html"
+    elif menu == 'usertags':
+        template = "webclient/data/container_tags.html"
     else:
         template = "webclient/%s/%s.html" % (menu,menu)
     request.session['nav']['menu'] = menu
-    
+        
     conn = None
     try:
         conn = kwargs["conn"]
@@ -486,25 +486,26 @@ def load_template(request, menu, **kwargs):
         return handlerInternalError(x)
     
     form_users = None
-    filter_user_id = None    
+    filter_user_id = None
+    
     users = sortByAttr(list(conn.getColleagues()), "lastName")
     empty_label = "*%s" % conn.getUser().getFullName()
     if len(users) > 0:
         if request.REQUEST.get('experimenter') == "":
-            request.session['nav']['experimenter'] = None
-            form_users = UsersForm(initial={'users': users, 'empty_label':empty_label})
+            request.session.get('nav')['experimenter'] = None
+            form_users = UsersForm(initial={'users': users, 'empty_label':empty_label, 'menu':menu})
         elif request.REQUEST.get('experimenter') is not None: 
-            form_users = UsersForm(initial={'users': users, 'empty_label':empty_label}, data=request.REQUEST.copy())
+            form_users = UsersForm(initial={'users': users, 'empty_label':empty_label, 'menu':menu}, data=request.REQUEST.copy())
             if form_users.is_valid():
                 filter_user_id = request.REQUEST.get('experimenter', None)
-                request.session['nav']['experimenter'] = filter_user_id
-                form_users = UsersForm(initial={'user':filter_user_id, 'users': users, 'empty_label':empty_label})
+                request.session.get('nav')['experimenter'] = filter_user_id
+                form_users = UsersForm(initial={'user':filter_user_id, 'users': users, 'empty_label':empty_label, 'menu':menu})
         else:
             filter_user_id = request.session.get('nav')['experimenter']
             if filter_user_id is not None:
-                form_users = UsersForm(initial={'user':filter_user_id, 'users': users, 'empty_label':empty_label})
+                form_users = UsersForm(initial={'user':filter_user_id, 'users': users, 'empty_label':empty_label, 'menu':menu})
             else:
-                form_users = UsersForm(initial={'users': users, 'empty_label':empty_label})
+                form_users = UsersForm(initial={'users': users, 'empty_label':empty_label, 'menu':menu})
             
     form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['allGroups']})
     
@@ -700,101 +701,82 @@ def load_searching(request, form=None, **kwargs):
     return HttpResponse(t.render(c))
 
 @isUserConnected
-def manage_data_by_tag(request, tid=None, tid2=None, tid3=None, tid4=None, tid5=None, **kwargs):
-    request.session['nav']['menu'] = 'mydata'
-    request.session['nav']['whos'] = 'mydata'
-    
+def load_data_by_tag(request, o_type=None, o_id=None, **kwargs):
     request.session.modified = True
-
-    template = "webclient/data/container_tags.html"
     
+    # check menu
+    menu = request.REQUEST.get("menu")
+    if menu is not None:
+        request.session['nav']['menu'] = menu
+    else:
+        menu = request.session['nav']['menu']
+    
+    # check view
+    view = request.REQUEST.get("view")
+    if view is not None:
+        request.session['nav']['view'] = view
+    else:
+        view = request.session['nav']['view']
+    
+    # get connection
     conn = None
     try:
-        conn = kwargs["conn"]
-        
+        conn = kwargs["conn"]        
     except:
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
+    # get url to redirect
     url = None
     try:
         url = kwargs["url"]
     except:
         logger.error(traceback.format_exc())
+    if url is None:
+        url = reverse(viewname="load_data_by_tag")
     
-    view = request.session['nav']['view']
-    menu = request.session['nav']['menu']
-    whos = request.session['nav']['whos']
-    
-    form_filter = None
-    tags = list()
-    tag_list = list()
-    
-    if request.method == 'POST':
-        form_filter = TagFilterForm(data=request.REQUEST.copy())
-        if form_filter.is_valid():
-            if request.REQUEST['tag'] != "":
-                tags.append(str(request.REQUEST['tag']))
-            if request.REQUEST['tag2'] != "":
-                tags.append(str(request.REQUEST['tag2']))
-            if request.REQUEST['tag3'] != "":
-                tags.append(str(request.REQUEST['tag3']))
-            if request.REQUEST['tag4'] != "":
-                tags.append(str(request.REQUEST['tag4']))
-            if request.REQUEST['tag5'] != "":
-                tags.append(str(request.REQUEST['tag5']))
-    else:
-        tag_ids = list()
-        
-        if tid is not None:
-            tag_ids.append(long(tid))
-        if tid2 is not None:
-            tag_ids.append(long(tid2))
-        if tid3 is not None:
-            tag_ids.append(long(tid3))
-        if tid4 is not None:
-            tag_ids.append(long(tid4))
-        if tid5 is not None:
-            tag_ids.append(long(tid5))
-        
-        tag_list = list()
-        if len(tag_ids) > 0:
-            tag_list = list(conn.listSpecifiedTags(tag_ids))
-        initail = {}
-        for i in range(1,len(tag_list)+1):
-            val = tag_list[i-1].textValue
-            if i == 1:
-                initail['tag'] = val
-            else:
-                initail['tag%i' % i] = val
-            tags.append(val)
-        form_filter = TagFilterForm(initial=initail)
-    
+    # get page    
     try:
-        manager = BaseContainer(conn, tags=tag_list, rtags=tags)
+        page = int(request.REQUEST['page'])
+    except:
+        page = None
+    
+    # get index of the plate
+    try:
+        index = int(request.REQUEST['index'])
+    except:
+        index = 0
+    
+    # prepare forms
+    filter_user_id = request.session.get('nav')['experimenter']
+    
+    # prepare data
+    try:
+        manager= BaseContainer(conn, o_type, o_id)
     except AttributeError, x:
         return handlerInternalError(x)
-    if len(tags) > 0:
-        manager.loadDataByTag()
-    else:
-        pass
-    
-    if request.method == 'POST':
-        viewargs = []
-        for t in manager.tags:
-            if t is not None:
-                viewargs.append(t.id)
 
-        return HttpResponseRedirect(reverse(viewname="manage_data_by_tag", args=viewargs))
+    if o_id is not None:
+        if o_type == "tag":
+            manager.loadDataByTag()
+            template = "webclient/data/container_tags_containers.html"
+        elif o_type == "dataset":
+            manager.listImagesInDataset(o_id, filter_user_id)
+            template = "webclient/data/container_tags_subtree.html"
+    else:
+        manager.loadTags(filter_user_id)
+        template = "webclient/data/container_tags_tree.html"
+        
+        
+    # load data  
+    form_well_index = None    
     
-    form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['allGroups']})
     
-    if form_filter is None:
-        form_filter = TagFilterForm()
+    context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_well_index':form_well_index}
     
-    context = {'url':url, 'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form_active_group':form_active_group, 'form_filter':form_filter}
     t = template_loader.get_template(template)
     c = Context(request,context)
+    logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
 
 @isUserConnected
@@ -807,7 +789,8 @@ def autocomplete_tags(request, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
-    json_data = simplejson.dumps(list(conn.lookupTags()))
+    tags = [{'tag': t.textValue,'id':t.id, 'desc':t.description} for t in conn.lookupTags()]  
+    json_data = simplejson.dumps(tags)
     return HttpResponse(json_data, mimetype='application/javascript')
 
 @isUserConnected
@@ -1183,7 +1166,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 content = request.REQUEST['tag'].encode('utf-8')
                 description = request.REQUEST['description'].encode('utf-8')
                 manager.saveTagAnnotation(content, description)
-                return HttpResponseRedirect(url)
+                return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse(viewname="load_template", args=['usertags']))
             else:
                 template = "webclient/data/container_form.html"
                 context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}

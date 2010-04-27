@@ -31,6 +31,9 @@
 #navigation .userdata a {
 	background: url(/appmedia/omeroweb/images/menu/userdata.png) no-repeat bottom right;
 }
+#navigation .usertags a {
+	background: url(/appmedia/omeroweb/images/menu/userdata.png) no-repeat bottom right;
+}
 #navigation .share a {
 	background: url(/appmedia/omeroweb/images/menu/share.png) no-repeat bottom right;
 }

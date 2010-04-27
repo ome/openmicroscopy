@@ -60,7 +60,7 @@ class BaseContainer(BaseController):
     
     orphaned = False
     
-    def __init__(self, conn, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, metadata=False, tags=None, rtags=None, index=None, **kw):
+    def __init__(self, conn, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, tag=None, metadata=False, index=None, **kw):
         BaseController.__init__(self, conn)
         if o1_type == "project":
             self.project = self.conn.getProject(o1_id)
@@ -109,16 +109,11 @@ class BaseContainer(BaseController):
             if self.well is None:
                 raise AttributeError("We are sorry, but that well does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
             if self.well._obj is None:
-                raise AttributeError("We are sorry, but that well does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")          
-        elif o1_type == "tag":
+                raise AttributeError("We are sorry, but that well does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
+        elif o1_type == "tag" and o1_id is not None:
             self.tag = self.conn.getTagAnnotation(o1_id)
-        elif o1_type == "url":
+        elif o1_type == "url" and o1_id is not None:
             self.uri = self.conn.getUriAnnotation(o1_id)
-        elif tags is not None:
-            if len(tags) > 0:
-                self.tags = tags
-            elif len(rtags) > 0:
-                self.tags = list(self.conn.lookupTagsAnnotation(rtags))
         elif o1_type == "orphaned":
             self.orphaned = True
     
@@ -149,19 +144,24 @@ class BaseContainer(BaseController):
         except:
             self.channel_metadata = list()
     
+    def loadTags(self, eid=None):
+        if eid is not None:
+            self.experimenter = self.conn.getExperimenter(eid)
+        self.tags = list(self.conn.lookupTags(eid))
+        self.t_size = len(self.tags)
+    
     def loadDataByTag(self):
-        tagids = list()
-        for t in self.tags:
-            if t is not None:
-                tagids.append(t.id)
-        
-        pr_list = list(self.conn.listProjectsByTag(tagids))
-        ds_list = list(self.conn.listDatasetsByTag(tagids))
-        im_list = list(self.conn.listImagesByTag(tagids))
+        pr_list = list(self.conn.listProjectsByTag([self.tag.id]))
+        ds_list = list(self.conn.listDatasetsByTag([self.tag.id]))
+        im_list = list(self.conn.listImagesByTag([self.tag.id]))
+        sc_list = list(self.conn.listScreensByTag([self.tag.id]))
+        pl_list = list(self.conn.listPlatesByTag([self.tag.id]))
         
         pr_list_with_counters = list()
         ds_list_with_counters = list()
         im_list_with_counters = list()
+        sc_list_with_counters = list()
+        pl_list_with_counters = list()
         
         pr_ids = [pr.id for pr in pr_list]
         if len(pr_ids) > 0:
@@ -187,8 +187,24 @@ class BaseContainer(BaseController):
                 im.annotation_counter = im_annotation_counter.get(im.id)
                 im_list_with_counters.append(im)
         
-        self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters, 'images': im_list_with_counters}
-        self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)+len(im_list_with_counters)
+        sc_ids = [sc.id for sc in sc_list]
+        if len(sc_ids) > 0:
+            sc_annotation_counter = self.conn.getCollectionCount("Screen", "annotationLinks", sc_ids)
+            
+            for sc in sc_list:
+                sc.annotation_counter = sc_annotation_counter.get(sc.id)
+                sc_list_with_counters.append(sc)
+        
+        pl_ids = [pl.id for pl in pl_list]
+        if len(pl_ids) > 0:
+            pl_annotation_counter = self.conn.getCollectionCount("Plate", "annotationLinks", pl_ids)
+            
+            for pl in pl_list:
+                pl.annotation_counter = pl_annotation_counter.get(pl.id)
+                pl_list_with_counters.append(pl)
+        
+        self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters, 'images': im_list_with_counters, 'screens':sc_list_with_counters, 'plates':pl_list_with_counters}
+        self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)+len(im_list_with_counters)+len(sc_list_with_counters)+len(pl_list_with_counters)
         
     def listImagesInDataset(self, did, eid=None, page=None):
         if eid is not None:

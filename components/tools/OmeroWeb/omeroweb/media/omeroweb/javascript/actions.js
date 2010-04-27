@@ -333,3 +333,12 @@ function saveMetadata (image_id, metadata_type, metadata_value) {
         });
     }
 }
+
+function editItem(type, item_id) {
+    var h = $(window).height()-169;
+    $("#right_panel").show();
+    $("#swapMeta").html('<img tabindex="0" src="/appmedia/omeroweb/images/tree/spacer.gif" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+    $("div#metadata_details").html('<iframe width="370" height="'+h+'" src="/webclient/action/edit/'+type+'/'+item_id+'/" id="metadata_details" name="metadata_details"></iframe>');
+    $('iframe#metadata_details').load();
+    return false;
+}

@@ -1,0 +1,24 @@
+{% load i18n %}
+{% load markup %}
+{% load custom_tags %}
+    
+
+{% if manager.t_size %}
+<ul class="simpleTree">
+    <li class="root" id='0'><span>{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.getFullName }}{% endif %}</span>
+        <ul>
+            {% for t in manager.tags %}
+            <li id="tag-{{ t.id }}"><span id="readonly">{{ t.textValue }}</span>
+                <ul class="ajax">
+                    <li id='{{ t.id }}'>{url:{% url load_data_by_tag "tag" t.id %}?view=tree}</li>
+                </ul>
+            </li>
+            {% endfor %}
+        </ul>
+    </li>
+</ul>
+{% else %}
+    {% trans "No data." %}
+{% endif %}
+
+

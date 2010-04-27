@@ -23,15 +23,13 @@
 
 {% block script %}
 
-    
     <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
-    
     
     <script type="text/javascript">
         $(document).ready(function() 
             {
                 var h = $(window).height()-200;
-                $("div#searching").css('height', h+31);
+                $("div#searching").css('height', h+11);
                 $("div#content_details").css('height', h+31);
                 $("div#metadata_details").css('height', h+31);
                 
@@ -120,7 +118,7 @@
 
 {% block center %}
 
-<div id="content_details" style="overflow: auto;"> </div>
+<div id="content_details"> </div>
 
 {% endblock %}
 

@@ -32,7 +32,7 @@
                 $("div#tree_details").css('height', h);
                 $("div#metadata_details").css('height', h+31);
                 $("div#metadata_details iframe").attr('height', h+31);
-                $("div#content_details").css('height', h+21);
+                $("div#content_details").css('height', h+31);
                 
                 $("div#tree_details").html('<p>Loading imported images... please wait <img src="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
                 $("div#tree_details").load("{% url load_data %}?view=tree", function() {
@@ -216,7 +216,7 @@
 </div>
 <div class="clear"> </div>
 
-<div id="tree_details" style="overflow: auto;"> </div>
+<div id="tree_details"> </div>
 
 {% endblock %}
 
@@ -225,14 +225,14 @@
 <!--<div id="content_action"></div>
 <div class="clear"> </div>-->
 
-<div id="content_details" style="overflow: auto;"> </div>
+<div id="content_details"> </div>
 
 {% endblock %}
 
 
 {% block right %}
 
-<div id="metadata_details" style="overflow: auto;">
+<div id="metadata_details">
     <iframe width="370" name="metadata_details"></iframe>
 </div>
 

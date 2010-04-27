@@ -25,7 +25,7 @@
         $(document).ready(function(){
 
             var h = $(window).height()-200;
-            $("div#basket_details").css('height', h);
+            $("div#content_details").css('height', h+31);
             $("#right_panel").show();
             $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
             
@@ -43,8 +43,7 @@
             		    $("#right_panel").show();
                         $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
             		    $('tr.ui-selected', this).each(function(){  
-            		        var h = $(window).height()-169;
-            		        $("div#metadata_details").html('<iframe width="370" height="'+h+'" src="/webclient/metadata_details/image/'+this.id+'/" id="metadata_details" name="metadata_details"></iframe>');
+            		        $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="/webclient/metadata_details/image/'+this.id+'/" id="metadata_details" name="metadata_details"></iframe>');
                             $('iframe#metadata_details').load();
                         });
             		} else {
@@ -76,7 +75,7 @@
 
 {% block center %}
 
-<div id="basket_details" class="content_details">
+<div id="content_details">
     <h1>Basket</h1>
     {% if basket.sizeOfBasket %}
 
@@ -120,7 +119,7 @@
 
 {% block right %}
     
-    <div id="metadata_details" style="overflow: auto;">
+    <div id="metadata_details">
         <h1>{% trans "Basket" %}</h1>
         <p>{% trans "This page shows the current contents of your basket." %}
             {% if not basket.sizeOfBasket %}

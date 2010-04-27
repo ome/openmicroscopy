@@ -39,7 +39,7 @@ urlpatterns = patterns('',
     
     url( r'^$', views.index, name="webindex" ),
     # render main template
-    url( r'^(?P<menu>((?i)userdata|public|history|search|importer|help))/$', views.load_template, name="load_template" ),
+    url( r'^(?P<menu>((?i)userdata|public|history|search|importer|help|usertags))/$', views.load_template, name="load_template" ),
 
     url( r'^context/$', views.index_context, name="index_context" ),
     url( r'^last_imports/$', views.index_last_imports, name="index_last_imports" ),
@@ -74,14 +74,14 @@ urlpatterns = patterns('',
     
     
     # others
-    url( r'^hierarchy/(?:(?P<o_type>[a-zA-Z]+)/(?P<o_id>[0-9]+)/)$', views.load_hierarchies, name="load_hierarchies" ),
+    url( r'^hierarchy/(?:(?P<o_type>[a-zA-Z]+)/(?P<o_id>[0-9]+)/)?$', views.load_hierarchies, name="load_hierarchies" ),
     url( r'^metadata_details/(?P<c_type>[a-zA-Z]+)/(?P<c_id>[0-9]+)/(?:(?P<index>[0-9]+)/)?$', views.load_metadata_details, name="load_metadata_details" ),
     url( r'^metadata_details/multiaction/$', views.load_metadata_details_multi, name="load_metadata_details_multi" ),
     
     url( r'^action/(?P<action>[a-zA-Z]+)/(?:(?P<o_type>[a-zA-Z]+)/)?(?:(?P<o_id>[0-9]+)/)?$', views.manage_action_containers, name="manage_action_containers" ),
     url( r'^annotation/(?P<action>[a-zA-Z]+)/(?P<iid>[0-9]+)/$', views.download_annotation, name="download_annotation" ),
     
-    url( r'^tag/(?:(?P<tid>[0-9]+)/)?(?:(?P<tid2>[0-9]+)/)?(?:(?P<tid3>[0-9]+)/)?(?:(?P<tid4>[0-9]+)/)?(?:(?P<tid5>[0-9]+)/)?$', views.manage_data_by_tag, name="manage_data_by_tag" ),
+    url( r'^load_tags/(?:(?P<o_type>((?i)tag|dataset))/(?P<o_id>[0-9]+)/)?$', views.load_data_by_tag, name="load_data_by_tag" ),
     url( r'^autocompletetags/$', views.autocomplete_tags, name="autocomplete_tags" ),
     
     # render thumbnails
