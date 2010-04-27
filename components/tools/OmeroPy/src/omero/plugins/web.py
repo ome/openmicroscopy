@@ -30,6 +30,7 @@ For advance use:
      enableapp          - TODO: document
      gateway
      test
+     seleniumtest
      call
 
 """
@@ -403,6 +404,16 @@ APPLICATION_HOST='%s'
         os.environ['PATH'] = os.environ.get('PATH', '.') + ':' + self.ctx.dir / 'bin'
         rv = self.ctx.call(cargs, cwd = location)
 
+    def seleniumtest (self, *args):
+        location = self.ctx.dir / "lib" / "python" / "omeroweb"
+        cargs = ["python", "seleniumtests.py"]
+        if len(args[0]) != 1:
+            self.ctx.die(121, "usage: seleniumtest {djangoapp}")
+        location = location / args[0][0] / "tests"
+        print location 
+        rv = self.ctx.call(cargs, cwd = location )
+        
+
     def call (self, *args):
         """ call appname "[executable] scriptname" args """
         try:
@@ -419,6 +430,7 @@ APPLICATION_HOST='%s'
                 scriptname = scriptname[0]
             cargs.extend([location / appname / "scripts" / scriptname] + args[0][2:])
             print cargs
+            os.environ['DJANGO_SETTINGS_MODULE'] = 'omeroweb.settings'
             os.environ['ICE_CONFIG'] = self.ctx.dir / "etc" / "ice.config"
             os.environ['PATH'] = os.environ.get('PATH', '.') + ':' + self.ctx.dir / 'bin'
             rv = self.ctx.call(cargs, cwd = location)
