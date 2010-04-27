@@ -176,16 +176,16 @@ def saveImageAs(session, parameterMap):
         pixelsId = pixels.getId().getValue()
         bypassOriginalFile = True
         rawPixelStore.setPixelsId(pixelsId, bypassOriginalFile)
-
-        e = EMData()
-        em = EMData(xSize,ySize,zSize)
-        # if the physical size was in microns (in OMERO) now it's in Angstroms! 
-        em.set_attr('apix_x', physicalSizeX)
-        em.set_attr('apix_y', physicalSizeY)
-        em.set_attr('apix_z', physicalSizeZ)
         
         # export an EM image for every channel
         for theC in cIndexes:
+            e = EMData()
+            em = EMData(xSize,ySize,zSize)
+            # if the physical size was in microns (in OMERO) now it's in Angstroms! 
+            em.set_attr('apix_x', physicalSizeX)
+            em.set_attr('apix_y', physicalSizeY)
+            em.set_attr('apix_z', physicalSizeZ)
+            
             if theC > 0:
                 saveName = imageName.replace(extension, "%s.%s" % (theC, extension))
             else: saveName = imageName
@@ -193,7 +193,6 @@ def saveImageAs(session, parameterMap):
                 # get each plane and add to EMData 
                 #print "Downloading plane: %d" % z
                 plane2D = scriptUtil.downloadPlane(rawPixelStore, pixels, z, theC, theT)
-                plane2D.resize((ySize, xSize))        # not sure why we have to resize (y, x)
                 EMNumPy.numpy2em(plane2D, e)
                 em.insert_clip(e,(0,0,z))
             
@@ -201,7 +200,7 @@ def saveImageAs(session, parameterMap):
         
             if format == None:
                 format = ""        # upload method will pick generic format. 
-            print "Uploading image: %s to server with file type: %s" % (imageName, format)
+            print "Uploading image: %s to server with file type: %s" % (saveName, format)
         
             # attach to image
             #fileId = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, image, imageName, format, figLegend)     
@@ -212,9 +211,10 @@ def saveImageAs(session, parameterMap):
             fileformat = scriptUtil.getFormat(queryService, format)
             if fileformat == None:        # if we didn't find a matching format in the DB, use a generic format. 
                 fileformat = scriptUtil.getFormat(queryService, "text/plain")
-            originalFile = scriptUtil.createFile(updateService, imageName, fileformat, imageName)
-            scriptUtil.uploadFile(rawFileStore, originalFile, imageName)
+            originalFile = scriptUtil.createFile(updateService, saveName, fileformat, saveName)
+            scriptUtil.uploadFile(rawFileStore, originalFile, saveName)
         
+            print "File uploaded with ID:", originalFile.getId().getValue()
             originalFileIds.append(originalFile.getId())
     
     return originalFileIds

@@ -139,6 +139,7 @@ def uploadBdbAsDataset(infile, datasetName, project = None):
             print "Reading image: %s / %s" % (newImageName, nimg)
             d.read_image(infile, i)
         plane2D = EMNumPy.em2numpy(d)
+        #display(d)
         #plane2D *= 100     # temporary hack to avoid rendering problem with small numbers. 
         #planeMin = int(plane2D.min())
         #plane2D -= planeMin     # make min = 0
@@ -202,11 +203,6 @@ def emanToOmero(commandArgs):
     #print commandArgs
     client = omero.client(commandArgs["host"])
     session = client.createSession(commandArgs["username"], commandArgs["password"])
-    
-    #global blitzcon
-    #blitzcon = client_wrapper(commandArgs["username"], commandArgs["password"], host=commandArgs["host"], port=4063)
-    #blitzcon.connect()
-    #queryService = blitzcon.getQueryService()
     
     global gateway
     global re

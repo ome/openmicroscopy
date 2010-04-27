@@ -114,18 +114,19 @@ def run(commandArgs):
 	if "path" in commandArgs:
 		path = commandArgs["path"]
 	
-	print "Downloading..."
+	
 	fileNames = []	# need names for passing to chimera
 	if "originalFileIds" in results:
 		for r in results["originalFileIds"].getValue():
 			# download the file from OMERO 
 			fileId = r.getValue()
+			print "Downloading Original File ID:", fileId
 			originalFile = queryService.findByQuery("from OriginalFile as o where o.id = %s" % fileId, None)
 			name = originalFile.getName().getValue()
 			if path:
 				name = os.path.join(path, name)
 			filePath = scriptUtil.downloadFile(rawFileStore, originalFile, name)
-			print "   file save to:", filePath
+			print "   file saved to:", filePath
 			fileNames.append(filePath)		# if 'name' file already exists, filePath will be different 
 			# This only deletes the DB row, not the data on disk! utils.cleanse.py removes files that are not in db. 
 			gateway.deleteObject(originalFile)
