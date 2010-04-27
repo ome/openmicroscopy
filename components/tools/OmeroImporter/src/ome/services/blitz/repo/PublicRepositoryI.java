@@ -343,7 +343,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         }
         List<File> files = filteredFiles(file, conf);
         List<String> names = filesToPaths(files);
-        List<ImportContainer> containers = importableImageFiles(files, conf.depth);
+        List<ImportContainer> containers = importableImageFiles(path, conf.depth);
 
         for (ImportContainer ic : containers) {
             FileSet set = new FileSetI();
@@ -759,9 +759,8 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
 
     
-    private  List<ImportContainer> importableImageFiles(Collection<File> files, int depth) {
-        List<String> pathList = filesToPaths(files);
-        String paths [] = (String []) pathList.toArray (new String [pathList.size()]);        
+    private  List<ImportContainer> importableImageFiles(String path, int depth) {
+        String paths [] = {path};
         ImportableFiles imp = new ImportableFiles(paths, depth);
         List<ImportContainer> containers = imp.getContainers();
         return containers;

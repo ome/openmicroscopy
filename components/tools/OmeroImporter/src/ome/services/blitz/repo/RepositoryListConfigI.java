@@ -34,7 +34,7 @@ import omero.grid.RepositoryListConfig;
 public class RepositoryListConfigI extends RepositoryListConfig {
     
     RepositoryListConfigI() {
-        depth = 0;
+        depth = 1;
         files = true;
         dirs = true;
         system = false;
