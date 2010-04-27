@@ -44,6 +44,7 @@
         <untar compression="gzip" src="${lib.dir}/repository/django-lib-1.1.1.tar.gz" dest="${basedir}/../target/lib/python"/>
         <untar compression="gzip" src="${lib.dir}/repository/flup-lib-1.0.2.tar.gz" dest="${basedir}/../target/lib/python"/>
         <untar compression="gzip" src="${lib.dir}/repository/django-logging.tar.gz" dest="${basedir}/../target/lib/python"/>
+        <untar compression="gzip" src="${lib.dir}/repository/selenium-python-client-driver-1.0.1.tar.gz" dest="${basedir}/../target/lib/python"/>
     </target>
 
     <target name="tools-build" depends="tools-init"/>
