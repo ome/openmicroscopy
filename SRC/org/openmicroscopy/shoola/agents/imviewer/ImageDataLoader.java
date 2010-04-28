@@ -103,7 +103,7 @@ public class ImageDataLoader
         registry.getLogger().error(this, msg);
         
         registry.getUserNotifier().notifyInfo("Data Retrieval Failure", 
-                "The image with ID:"+imageID+" does not exist.");
+                "The image with ID:"+imageID+" cannot be viewed.");
         viewer.discard();
     }
     
