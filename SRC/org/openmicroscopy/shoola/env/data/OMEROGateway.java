@@ -6379,8 +6379,26 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			IScriptPrx svc = getScripService();
-			return svc.uploadScript(script.getName());
+			IScriptPrx svc = getScripService(); 
+			FileInputStream stream = null;
+			StringBuffer buf = new StringBuffer("");
+			try {
+				File file = new File(script.getName());
+				stream = new FileInputStream(file);
+				int c;
+				while ((c = stream.read()) != -1)
+					buf.append((char) c);
+			} catch (Exception e) {
+				try {
+					stream.close();
+				} catch (Exception ex) {
+					//n
+				}
+				handleException(e, 
+						"Cannot upload the script: "+script.getName()+".");
+				return -1;
+			}
+			return svc.uploadScript(buf.toString());
 		} catch (Exception e) {
 			handleException(e, 
 					"Cannot upload the script: "+script.getName()+".");
