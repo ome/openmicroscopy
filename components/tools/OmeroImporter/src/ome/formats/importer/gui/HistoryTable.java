@@ -58,7 +58,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -86,7 +89,7 @@ import org.jdesktop.swingx.JXDatePicker;
  */
 public class HistoryTable
     extends JPanel
-    implements ActionListener, PropertyChangeListener, IObserver, IObservable
+    implements ActionListener, PropertyChangeListener, IObserver, IObservable, ListSelectionListener
 {
 	/** Logger for this class */
 	private static Log log = LogFactory.getLog(HistoryTable.class);
@@ -344,11 +347,16 @@ public class HistoryTable
         // Add the table to the scollpane
         JScrollPane scrollPane = new JScrollPane(eTable);
 
-        reimportBtn = GuiCommonElements.addButton(filterPanel, "Reimport", 'R', "Click here to reimport these images", "5,0,r,c", debug);
+        reimportBtn = GuiCommonElements.addButton(filterPanel, "Reimport", 'R', "Click here to reimport selected images", "5,0,r,c", debug);
         reimportBtn.setEnabled(false);
         
         reimportBtn.setActionCommand(HistoryHandler.HISTORYREIMPORT);
         reimportBtn.addActionListener(this);
+             
+     // Handle the listener
+		ListSelectionModel selectionModel = this.eTable.getSelectionModel();
+		selectionModel.addListSelectionListener( this );
+
         
         mainPanel.add(scrollPane, "2,3,3,5");
         mainPanel.add(bottomSidePanel, "0,4,0,0"); 
@@ -522,11 +530,6 @@ public class HistoryTable
                 unknownProjectDatasetFlag = false;
             }
             
-            if (returnedRows > 0)
-                reimportBtn.setEnabled(true);
-            else
-                reimportBtn.setEnabled(false);
-
         } catch (NullPointerException npe) {
         	log.error("Null pointer exception.", npe);
         } // results are null
@@ -625,6 +628,17 @@ public class HistoryTable
             
     }
 
+	/* (non-Javadoc)
+	 * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
+	 */
+	@Override
+	public void valueChanged(ListSelectionEvent e) {
+		if (this.eTable.getSelectedRowCount() > 0)
+			reimportBtn.setEnabled(true);
+		else
+			reimportBtn.setEnabled(false);
+	}
+    
     // TODO: get rid of this
     /**
      * Return the OMERO Metadata Store
@@ -867,6 +881,5 @@ public class HistoryTable
             // Since the renderer is a component, return itself
             return this;
         }
-    }   
-    
+    }    
 }

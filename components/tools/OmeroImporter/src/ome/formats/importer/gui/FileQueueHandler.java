@@ -47,6 +47,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JSplitPane;
+import javax.swing.JTable;
 import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileFilter;
 
@@ -763,12 +764,12 @@ public class FileQueueHandler extends JPanel
             Integer finalCount = 0;
             IObject object;
             
-            int count = 0;
+            int[] selectedRows = null;
             
             if (historyTable != null)
-                count = historyTable.table.getRowCount();
-
-            for (int r = 0; r < count; r++)
+            	selectedRows = historyTable.eTable.getSelectedRows();
+            
+            for (int r : selectedRows)
             {
                 Vector row = new Vector();
                 

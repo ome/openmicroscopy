@@ -60,6 +60,8 @@ import Glacier2.PermissionDeniedException;
  */
 public class HistoryTableStore extends HistoryTableAbstractDataSource
 {
+	private static boolean DEBUG = false;
+	
 	private static String SERVER = "server";
 	private static String USER = "user";
 	private static String PASS = "pass";
@@ -106,6 +108,10 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
 	private Data itemData = null;
 	private boolean itemDataDirty = true;
 
+	
+	
+	// General Methods ----------------------------------------------- //
+	
     /**
      * Initialize the needed store services
      * 
@@ -129,6 +135,148 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
     	initializeItemTable();
     }
      
+    /* (non-Javadoc)
+     * @see ome.formats.importer.gui.IHistoryTable#wipeUserHistory(java.lang.Long)
+     */
+    public boolean wipeDataSource(Long experimenterId) throws ServerError
+    {
+			clearTable(itemDBNAME);
+	    	clearTable(baseDBNAME);
+	    	initializeDataSource();	  
+	    	return true;
+    }
+    
+    /**
+     * Clear the table specified with 'dbName'
+     * (Currently this deletes and rebuilds the original file used for 'dbName' table)
+     * 
+     * @param dbName - db to clear
+     * @throws ServerError
+     */
+	private void clearTable(String dbName) throws ServerError
+    {   
+        List<OriginalFile> dbFiles = getOriginalFiles(dbName);
+        
+        if (dbFiles == null || dbFiles.isEmpty())
+        {
+        	if (DEBUG) log.debug("No " + dbName + " found.");
+        	return;
+        }
+        
+        for (OriginalFile file : dbFiles)
+        {
+        	if (DEBUG) log.debug("Deleting " + file.getName().getValue());
+        	deleteOriginalFile(file);
+        }
+    }
+    
+	/* (non-Javadoc)
+	 * @see ome.formats.importer.gui.IHistoryTableDataSource#shutdownDataSource()
+	 */
+	public void shutdownDataSource() throws Exception
+	{
+		// Not required. Does nothing.
+	}
+
+    /**
+     * Retrieve the original file specified, or null
+     * 
+     * @param fileName
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+	public List<OriginalFile> getOriginalFiles(String fileName)
+    {
+        try
+        {
+            final String queryString = "from OriginalFile as o where o.details.owner.id = '" + 
+            	store.getExperimenterID() + "' and o.name = '" + fileName + "'";
+            
+        	List l = iQuery.findAllByQuery(queryString, null);
+        	return (List<OriginalFile>) l;
+        }
+        catch (NullPointerException npe)
+        {
+        	return null;
+        }
+        catch (ServerError e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    /**
+     * Delete the original file specified. This does not handle any links.
+     * 
+     * @param file
+     * @throws ServerError
+     */
+    private void deleteOriginalFile(final OriginalFile file) throws ServerError {
+    	IUpdatePrx update = sf.getUpdateService();
+    	try {
+    		update.deleteObject(file);
+    	} catch (ome.conditions.ValidationException e) {
+    		throw new RuntimeException(e);
+    	}
+    }
+    
+    /**
+     * Simple class to display table data from both tables. Used for testing.
+     */
+    public void displayTableData()
+    {
+    	try {
+    		Data baseData = getBaseTableData();
+			
+        	LongColumn uids = (LongColumn) baseData.columns[BASE_UID_COLUMN];
+        	LongColumn baseImportTimes = (LongColumn) baseData.columns[BASE_DATETIME_COLUMN];
+        	StringColumn baseStatuses = (StringColumn) baseData.columns[BASE_STATUS_COLUMN];
+        	
+        	// item table data
+			//log.debug("Rows in base table: " + baseTable.getNumberOfRows());
+        	for (int i = 0; i < uids.values.length; i++)
+        	{
+        		log.debug("UID[" + uids.values[i] + "]: "
+        				+ baseImportTimes.values[i] + ", '" 
+        				+ baseStatuses.values[i].trim() + "'" 
+        				);
+        	}
+        	
+        	// item table data
+			if (DEBUG) log.debug("Rows in item table: " + itemTable.getNumberOfRows());
+			
+			Data itemData = getItemTableData();
+			
+			LongColumn baseUids = (LongColumn) itemData.columns[ITEM_BASE_UID_COLUMN];
+            StringColumn fileNames = (StringColumn) itemData.columns[ITEM_FILENAME_COLUMN];
+            LongColumn projectIDs = (LongColumn) itemData.columns[ITEM_PROJECTID_COLUMN];
+            LongColumn objectIDs = (LongColumn) itemData.columns[ITEM_OBJECTID_COLUMN];
+        	LongColumn importTimes = (LongColumn) itemData.columns[ITEM_DATETIME_COLUMN];
+            StringColumn filePaths = (StringColumn) itemData.columns[ITEM_FILEPATH_COLUMN];
+            StringColumn statuses = (StringColumn) itemData.columns[ITEM_STATUS_COLUMN];
+            LongColumn fileNumbers = (LongColumn) itemData.columns[ITEM_FILENUMBER_COLUMN];
+        	
+        	for (int i = 0; i < baseUids.values.length; i++)
+        	{
+        		log.debug("UID[" + baseUids.values[i] + "]: '"
+        				+ fileNames.values[i].trim() + "', " 
+        				+ projectIDs.values[i] + ", " 
+        				+ objectIDs.values[i] + ", " 
+        				+ importTimes.values[i] + ", '" 
+        				+ filePaths.values[i].trim() + "', '" 
+        				+ statuses.values[i].trim() + "'"
+        				+ fileNumbers.values[i]
+        				);
+        	}
+			
+		} catch (ServerError e) {
+			throw new RuntimeException(e);
+		}
+    }
+
+	
+	// Base Table Methods ----------------------------------------------- //
+	
     /**
      * Creates a number of empty rows of [rows] size for the base history table
      * 
@@ -140,25 +288,6 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
         newColumns[BASE_UID_COLUMN] = new LongColumn("Uid", "", new long[rows]);
         newColumns[BASE_DATETIME_COLUMN] = new LongColumn("DateTime", "", new long[rows]);
         newColumns[BASE_STATUS_COLUMN] = new StringColumn("Status", "", 64, new String[rows]);
-        return newColumns;
-    }
-    
-    /**
-     * Creates a number of empty rows of [rows] size for the item history table
-     * 
-     * @param rows to add to column array (int)
-     * @return new item column array
-     */
-    private Column[] createItemColumns(int rows) {
-        Column[] newColumns = new Column[8];
-        newColumns[ITEM_BASE_UID_COLUMN] = new LongColumn("BaseUid", "", new long[rows]);
-        newColumns[ITEM_FILENAME_COLUMN] = new StringColumn("Filename", "", 256, new String[rows]);
-        newColumns[ITEM_PROJECTID_COLUMN] = new LongColumn("ProjectId", "", new long[rows]);
-        newColumns[ITEM_OBJECTID_COLUMN] = new LongColumn("ObjectId", "", new long[rows]);
-        newColumns[ITEM_DATETIME_COLUMN] = new LongColumn("DateTime", "", new long[rows]);
-        newColumns[ITEM_FILEPATH_COLUMN] = new StringColumn("Filepath", "", 1024, new String[rows]);
-        newColumns[ITEM_STATUS_COLUMN] = new StringColumn("Status", "", 32, new String[rows]);
-        newColumns[ITEM_FILENUMBER_COLUMN] = new LongColumn("FileNumber", "", new long[rows]);
         return newColumns;
     }
     
@@ -198,7 +327,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
             baseTable = sf.sharedResources().newTable(1, baseDBNAME);
             if (baseTable == null)
             {
-            	System.err.println("baseTable is null");
+            	if (DEBUG) System.err.println("baseTable is null");
             	historyEnabled = false;
             }
             else
@@ -231,7 +360,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
             baseTable = sf.sharedResources().openTable(baseFiles.get(0));
             if (baseTable == null)
             {
-            	System.err.println("baseTable is null"); 
+            	if (DEBUG) System.err.println("baseTable is null"); 
             	historyEnabled = false;
             }
             else
@@ -240,152 +369,6 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
                 lastUid = getHighestBaseTableUid();
             }
         }
-    }
-    
-    /**
-     * Initialize the item table (or connect to existing one)
-     * 
-     * @throws ServerError
-     */
-    private void initializeItemTable() throws ServerError
-    {
-    	// No point in doing this if historytable is disabled
-    	if (historyEnabled == false) return;
-    	
-        List<OriginalFile> itemFiles = getOriginalFiles(itemDBNAME);
-        
-        if (itemFiles.isEmpty())     
-        {
-            log.debug("Creating new " + itemDBNAME);
-            itemTable = sf.sharedResources().newTable(1, itemDBNAME);
-            if (itemTable == null)
-            	System.err.println("itemTable is null");
-            itemTable.initialize(itemColumns);
-            
-        	// Prime item table with 2 blank rows to address bug.
-    		Column[] newRow = createItemColumns(2);
-    		
-            LongColumn baseUids = (LongColumn) newRow[ITEM_BASE_UID_COLUMN];
-            StringColumn fileNames = (StringColumn) newRow[ITEM_FILENAME_COLUMN];
-            LongColumn projectIDs = (LongColumn) newRow[ITEM_PROJECTID_COLUMN];
-            LongColumn objectIDs = (LongColumn) newRow[ITEM_OBJECTID_COLUMN];
-            LongColumn importTimes = (LongColumn) newRow[ITEM_DATETIME_COLUMN];
-            StringColumn filePaths = (StringColumn) newRow[ITEM_FILEPATH_COLUMN];
-            StringColumn Statuses = (StringColumn) newRow[ITEM_STATUS_COLUMN];
-            LongColumn fileNumbers = (LongColumn) newRow[ITEM_FILENUMBER_COLUMN];
-
-            baseUids.values[0] = 0;
-    		fileNames.values[0] = String.format("%1$-256s", " ");
-    		projectIDs.values[0] = -1;
-    		objectIDs.values[0] = -1;
-    		importTimes.values[0] = 0;
-    		filePaths.values[0] = String.format("%1$-1024s", " ");
-    		Statuses.values[0] = String.format("%1$-32s", " ");
-    		fileNumbers.values[0] = -1;
-    		
-            baseUids.values[1] = 0;
-    		fileNames.values[1] = String.format("%1$-256s", " ");
-    		projectIDs.values[1] = -1;
-    		objectIDs.values[1] = -1;
-    		importTimes.values[1] = 0;
-    		filePaths.values[1] = String.format("%1$-1024s", " ");
-    		Statuses.values[1] = String.format("%1$-32s", " ");
-    		fileNumbers.values[1] = -1;
-
-    		itemTable.addData(newRow);
-    		itemDataDirty = true;
-        } else {
-            log.debug("Using existing " + itemDBNAME);
-            itemTable = sf.sharedResources().openTable(itemFiles.get(0));
-            if (itemTable == null)
-            	System.err.println("itemTable is null");
-        } 
-    }
-    
-    /* (non-Javadoc)
-     * @see ome.formats.importer.gui.IHistoryTable#wipeUserHistory(java.lang.Long)
-     */
-    public boolean wipeDataSource(Long experimenterId) throws ServerError
-    {
-			clearTable(itemDBNAME);
-	    	clearTable(baseDBNAME);
-	    	initializeDataSource();	  
-	    	return true;
-    }
-    
-    /**
-     * Clear the table specified with 'dbName'
-     * (Currently this deletes and rebuilds the original file used for 'dbName' table)
-     * 
-     * @param dbName - db to clear
-     * @throws ServerError
-     */
-	private void clearTable(String dbName) throws ServerError
-    {   
-        List<OriginalFile> dbFiles = getOriginalFiles(dbName);
-        
-        if (dbFiles == null || dbFiles.isEmpty())
-        {
-        	log.debug("No " + dbName + " found.");
-        	return;
-        }
-        
-        for (OriginalFile file : dbFiles)
-        {
-        	log.debug("Deleting " + file.getName().getValue());
-        	deleteOriginalFile(file);
-        }
-    }
-    
-	/* (non-Javadoc)
-	 * @see ome.formats.importer.gui.IHistoryTableDataSource#shutdownDataSource()
-	 */
-	public void shutdownDataSource() throws Exception
-	{
-		// Not required. Does nothing.
-	}
-	
-    /**
-     * Retrieve the original file specified, or null
-     * 
-     * @param fileName
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-	public List<OriginalFile> getOriginalFiles(String fileName)
-    {
-        try
-        {
-            final String queryString = "from OriginalFile as o where o.details.owner.id = '" + 
-            	store.getExperimenterID() + "' and o.name = '" + fileName + "'";
-            
-        	List l = iQuery.findAllByQuery(queryString, null);
-        	return (List<OriginalFile>) l;
-        }
-        catch (NullPointerException npe)
-        {
-        	return null;
-        }
-        catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-    
-    
-    /**
-     * Delete the original file specified. This does not handle any links.
-     * 
-     * @param file
-     * @throws ServerError
-     */
-    private void deleteOriginalFile(final OriginalFile file) throws ServerError {
-    	IUpdatePrx update = sf.getUpdateService();
-    	try {
-    		update.deleteObject(file);
-    	} catch (ome.conditions.ValidationException e) {
-    		throw new RuntimeException(e);
-    	}
     }
     
     /* (non-Javadoc)
@@ -417,7 +400,6 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
     		}
     		return highestUid; 	
     }
-    
     
     /**
      * Wrapper class for addBaseTableRow
@@ -453,12 +435,256 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
     	importTimes.values[0] = new Date().getTime();
     	statuses.values[0] = String.format("%1$-64s", import_status);
 
-    	//log.debug("Adding base row UID[" + uids.values[0] + "], " + importTimes.values[0] + ", " + statuses.values[0]);
+    	if (DEBUG) log.debug("Adding base row UID[" + uids.values[0] + "], " + importTimes.values[0] + ", " + statuses.values[0]);
     	baseTable.addData(newRow);
     	baseDataDirty = true;
     	
     	return lastUid = newUid;
 
+    }
+    
+    /* (non-Javadoc)
+     * @see ome.formats.importer.gui.IHistoryTableDataSource#updateBaseStatus(int, java.lang.String)
+     */
+    public Integer updateBaseStatus(int baseUid, String newStatus) throws ServerError
+    {
+    	long uid = new Long(baseUid);
+    	String searchString = "(Uid==" + uid + ")";
+    	long[] ids = baseTable.getWhereList(searchString, null, 0, baseTable.getNumberOfRows(), 1);
+    	
+        int returnedRows = ids.length;
+        if (DEBUG) log.debug("updateBaseStatus returned rows: " + returnedRows);
+        
+    	Data baseData = getBaseTableData();	
+    	
+        for (int h = 0; h < returnedRows; h++)
+        {
+        	int i = (int) ids[h];
+        	((StringColumn) baseData.columns[BASE_STATUS_COLUMN]).values[i] = newStatus;
+        }
+    	       
+        baseTable.update(baseData);
+    	baseDataDirty = true;
+        
+    	return returnedRows;
+    }
+    
+    /* (non-Javadoc)
+     * @see ome.formats.importer.gui.IHistoryTableDataSource#getBaseQuery(java.lang.Long)
+     */
+    public Vector<Object> getBaseQuery(Long ExperimenterID)
+    {   
+
+        Vector<Object> rows = new Vector<Object>();
+    	
+        try {
+            Data d = getBaseTableData();
+            int returnedRows = (int) getBaseTableNumberOfRows();
+            
+            LongColumn importTimes = (LongColumn) d.columns[BASE_DATETIME_COLUMN];
+            StringColumn statuses = (StringColumn) d.columns[BASE_STATUS_COLUMN];
+           
+            for (int i = 0; i < returnedRows; i++)
+            {
+            	Vector<Object> row = new Vector<Object>();
+            	row.add(new Date(importTimes.values[i]));
+            	row.add(statuses.values[i].trim());
+            	rows.add(row);
+            }
+            
+        } catch (NullPointerException npe) {
+        	
+        } // results are null
+        catch (Exception e) {
+        	log.error("exception.", e);
+        }
+        return rows;
+    }
+   
+    
+    /* (non-Javadoc)
+     * @see ome.formats.importer.gui.IHistoryTableDataSource#getBaseTableDataByDate(java.util.Date, java.util.Date)
+     */
+    public DefaultListModel getBaseTableDataByDate(Date start, Date end)
+    {
+        try
+        {
+            // Format the current time.
+            String dayString, hourString, status;
+            long uid = 0L, importTime = 0L;
+            String icon;
+            DefaultListModel list = new DefaultListModel();
+            
+        	String searchString = "(DateTime>=" + start.getTime() + ") & (DateTime<=" + end.getTime() + ")";
+        	long[] ids = baseTable.getWhereList(searchString, null, 0, baseTable.getNumberOfRows(), 1);
+	           
+            int returnedRows = ids.length;
+            if (DEBUG) log.debug("getBaseTableDataByDate returned rows: " + returnedRows);
+        	
+        	Data d = getBaseTableData();
+        	
+            LongColumn uids = (LongColumn) d.columns[BASE_UID_COLUMN];
+        	LongColumn importTimes = (LongColumn) d.columns[BASE_DATETIME_COLUMN];
+        	StringColumn statuses = (StringColumn) d.columns[BASE_STATUS_COLUMN];
+            
+            for (int h = 0; h < returnedRows; h++)
+            {
+            	int i = (int) ids[h];
+            	
+            	try {
+            		uid = uids.values[i];
+            		importTime = importTimes.values[i];
+            		status = statuses.values[i].trim();
+            	} catch (ArrayIndexOutOfBoundsException e)
+            	{
+            		System.err.println("ids["+h+"] not found in dataset.");
+            		continue;
+            	}
+
+                if (status.equals("complete"))
+                    icon = "gfx/import_done_16.png";
+                else
+                    icon = "gfx/warning_msg16.png";
+                dayString = day.format(new Date(importTime));
+                hourString = hour.format(new Date(importTime));
+
+                if (day.format(new Date()).equals(dayString))
+                    dayString = "Today";
+
+                if (day.format(getYesterday()).equals(dayString))
+                {
+                    dayString = "Yesterday";
+                }
+
+                ImportEntry entry = new ImportEntry(dayString + " " + hourString, icon, (int) uid);
+                list.addElement(entry);
+            }
+            return list;
+        } 
+        catch (Exception e)
+        {
+        	String s = String.format(
+        			"Error retrieving base list from %s to %s.",
+        			start.toString(), end.toString());
+        	log.error(s, e);
+        }
+        return new DefaultListModel(); // return empty defaultlist
+    }
+    
+    /**
+     * Return all the base table data
+     * @return
+     * @throws ServerError 
+     */
+    public Data getBaseTableData() throws ServerError
+    {
+    	if (baseDataDirty)
+    	{
+        	long rows = baseTable.getNumberOfRows();
+        	long[] ColNumbers = {BASE_UID_COLUMN, BASE_DATETIME_COLUMN, BASE_STATUS_COLUMN};
+            baseData = baseTable.read(ColNumbers, 0L, rows);
+            baseDataDirty = false;
+        	if (DEBUG) log.debug("Getting " + rows + " rows in " + baseDBNAME);
+    	}	
+        return baseData;
+    }
+    
+    /**
+     * Returns the number of rows in the base table
+     * @return
+     */
+    public long getBaseTableNumberOfRows()
+    {
+    	try {
+			return baseTable.getNumberOfRows();
+		} catch (ServerError e) {
+			log.error("Error in getBaseTableNumberOfRows: ", e);
+			e.printStackTrace();
+			return 0L;
+		}
+    }
+    
+    
+    
+    // Item Table Methods ----------------------------------------------- //
+    
+    /**
+     * Creates a number of empty rows of [rows] size for the item history table
+     * 
+     * @param rows to add to column array (int)
+     * @return new item column array
+     */
+    private Column[] createItemColumns(int rows) {
+        Column[] newColumns = new Column[8];
+        newColumns[ITEM_BASE_UID_COLUMN] = new LongColumn("BaseUid", "", new long[rows]);
+        newColumns[ITEM_FILENAME_COLUMN] = new StringColumn("Filename", "", 256, new String[rows]);
+        newColumns[ITEM_PROJECTID_COLUMN] = new LongColumn("ProjectId", "", new long[rows]);
+        newColumns[ITEM_OBJECTID_COLUMN] = new LongColumn("ObjectId", "", new long[rows]);
+        newColumns[ITEM_DATETIME_COLUMN] = new LongColumn("DateTime", "", new long[rows]);
+        newColumns[ITEM_FILEPATH_COLUMN] = new StringColumn("Filepath", "", 1024, new String[rows]);
+        newColumns[ITEM_STATUS_COLUMN] = new StringColumn("Status", "", 32, new String[rows]);
+        newColumns[ITEM_FILENUMBER_COLUMN] = new LongColumn("FileNumber", "", new long[rows]);
+        return newColumns;
+    }
+    
+    /**
+     * Initialize the item table (or connect to existing one)
+     * 
+     * @throws ServerError
+     */
+    private void initializeItemTable() throws ServerError
+    {
+    	// No point in doing this if historytable is disabled
+    	if (historyEnabled == false) return;
+    	
+        List<OriginalFile> itemFiles = getOriginalFiles(itemDBNAME);
+        
+        if (itemFiles.isEmpty())     
+        {
+            if (DEBUG) log.debug("Creating new " + itemDBNAME);
+            itemTable = sf.sharedResources().newTable(1, itemDBNAME);
+            if (itemTable == null)
+            	if (DEBUG) System.err.println("itemTable is null");
+            itemTable.initialize(itemColumns);
+            
+        	// Prime item table with 2 blank rows to address bug.
+    		Column[] newRow = createItemColumns(2);
+    		
+            LongColumn baseUids = (LongColumn) newRow[ITEM_BASE_UID_COLUMN];
+            StringColumn fileNames = (StringColumn) newRow[ITEM_FILENAME_COLUMN];
+            LongColumn projectIDs = (LongColumn) newRow[ITEM_PROJECTID_COLUMN];
+            LongColumn objectIDs = (LongColumn) newRow[ITEM_OBJECTID_COLUMN];
+            LongColumn importTimes = (LongColumn) newRow[ITEM_DATETIME_COLUMN];
+            StringColumn filePaths = (StringColumn) newRow[ITEM_FILEPATH_COLUMN];
+            StringColumn Statuses = (StringColumn) newRow[ITEM_STATUS_COLUMN];
+            LongColumn fileNumbers = (LongColumn) newRow[ITEM_FILENUMBER_COLUMN];
+
+            baseUids.values[0] = 0;
+    		fileNames.values[0] = String.format("%1$-256s", " ");
+    		projectIDs.values[0] = -1;
+    		objectIDs.values[0] = -1;
+    		importTimes.values[0] = 0;
+    		filePaths.values[0] = String.format("%1$-1024s", " ");
+    		Statuses.values[0] = String.format("%1$-32s", " ");
+    		fileNumbers.values[0] = -1;
+    		
+            baseUids.values[1] = 0;
+    		fileNames.values[1] = String.format("%1$-256s", " ");
+    		projectIDs.values[1] = -1;
+    		objectIDs.values[1] = -1;
+    		importTimes.values[1] = 0;
+    		filePaths.values[1] = String.format("%1$-1024s", " ");
+    		Statuses.values[1] = String.format("%1$-32s", " ");
+    		fileNumbers.values[1] = -1;
+
+    		itemTable.addData(newRow);
+    		itemDataDirty = true;
+        } else {
+            if (DEBUG) log.debug("Using existing " + itemDBNAME);
+            itemTable = sf.sharedResources().openTable(itemFiles.get(0));
+            if (itemTable == null)
+            	if (DEBUG) System.err.println("itemTable is null");
+        } 
     }
 
     /* (non-Javadoc)
@@ -513,36 +739,9 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
     	itemTable.addData(newRow); 
 		itemDataDirty = true;
 
-    	displayTableData();
+    	if (DEBUG) displayTableData();
     }
-    
-    
-    /* (non-Javadoc)
-     * @see ome.formats.importer.gui.IHistoryTableDataSource#updateBaseStatus(int, java.lang.String)
-     */
-    public Integer updateBaseStatus(int baseUid, String newStatus) throws ServerError
-    {
-    	long uid = new Long(baseUid);
-    	String searchString = "(Uid==" + uid + ")";
-    	long[] ids = baseTable.getWhereList(searchString, null, 0, baseTable.getNumberOfRows(), 1);
-    	
-        int returnedRows = ids.length;
-        //log.debug("Returned rows: " + returnedRows);
-        
-    	Data baseData = getBaseTableData();	
-    	
-        for (int h = 0; h < returnedRows; h++)
-        {
-        	int i = (int) ids[h];
-        	((StringColumn) baseData.columns[BASE_STATUS_COLUMN]).values[i] = newStatus;
-        }
-    	       
-        baseTable.update(baseData);
-    	baseDataDirty = true;
-        
-    	return returnedRows;
-    }
-    
+
     /* (non-Javadoc)
      * @see ome.formats.importer.gui.IHistoryTableDataSource#updateItemStatus(int, int, java.lang.String)
      */
@@ -553,7 +752,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
     	long[] ids = itemTable.getWhereList(searchString, null, 0, itemTable.getNumberOfRows(), 1);
     	
         int returnedRows = ids.length;
-        //log.debug("Returned rows: " + returnedRows);
+        if (DEBUG) log.debug("updateItemStatus returned rows: " + returnedRows);
         
     	Data itemData = getItemTableData();	
     	
@@ -570,110 +769,49 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
         
     	return returnedRows;
     }
-    
-    /* (non-Javadoc)
-     * @see ome.formats.importer.gui.IHistoryTableDataSource#getBaseTableDataByDate(java.util.Date, java.util.Date)
+
+    /**
+     * Return an array of ids based on query and date
+     * @param uid
+     * @param queryString
+     * @param from
+     * @param to
+     * @return
      */
-    public DefaultListModel getBaseTableDataByDate(Date start, Date end)
+    public long[] getItemTableIDsByQuery(Long baseId, String queryString, Date start, Date end)
     {
         try
-        {
-            // Format the current time.
-            String dayString, hourString, status;
-            long uid = 0L, importTime = 0L;
-            String icon;
-            DefaultListModel list = new DefaultListModel();
-            
-        	String searchString = "(DateTime>=" + start.getTime() + ") & (DateTime<=" + end.getTime() + ")";
-        	long[] ids = baseTable.getWhereList(searchString, null, 0, baseTable.getNumberOfRows(), 1);
-	           
-            int returnedRows = ids.length;
-            //log.debug("Returned rows: " + returnedRows);
+        {   
+        	String searchString = "";
+        	if (start == null || end == null)
+        	{
+        		if (queryString.trim().length() > 0)
+        		{
+        			searchString = "(BaseUid=="+baseId+")"; // & (" + queryString + "in Filename)";
+        		}
+        		else
+        		{
+        			// Search by id
+        			searchString = "(BaseUid=="+baseId+")";
+        		}
+        		
+        	} else {
+        		// Search by date
+        		searchString = "(DateTime>=" + start.getTime() + ") & (DateTime<=" + end.getTime() + ")";
+        	}
+    		long[] ids = itemTable.getWhereList(searchString, null, 0, itemTable.getNumberOfRows(), 1);
         	
-        	Data d = getBaseTableData();
-        	
-            LongColumn uids = (LongColumn) d.columns[BASE_UID_COLUMN];
-        	LongColumn importTimes = (LongColumn) d.columns[BASE_DATETIME_COLUMN];
-        	StringColumn statuses = (StringColumn) d.columns[BASE_STATUS_COLUMN];
-            
-            for (int h = 0; h < returnedRows; h++)
-            {
-            	int i = (int) ids[h];
-            	
-            	try {
-            		uid = uids.values[i];
-            		importTime = importTimes.values[i];
-            		status = statuses.values[i].trim();
-            	} catch (ArrayIndexOutOfBoundsException e)
-            	{
-            		System.err.println("ids["+h+"] not found in dataset.");
-            		continue;
-            	}
-
-                if (status.equals("complete"))
-                    icon = "gfx/import_done_16.png";
-                else
-                    icon = "gfx/warning_msg16.png";
-                dayString = day.format(new Date(importTime));
-                hourString = hour.format(new Date(importTime));
-
-                if (day.format(new Date()).equals(dayString))
-                    dayString = "Today";
-
-                if (day.format(getYesterday()).equals(dayString))
-                {
-                    dayString = "Yesterday";
-                }
-
-                ImportEntry entry = new ImportEntry(dayString + " " + hourString, icon, (int) uid);
-                list.addElement(entry);
-            }
-            return list;
+        	return ids;           
         } 
         catch (Exception e)
         {
         	String s = String.format(
-        			"Error retrieving base list from %s to %s.",
+        			"Error retrieving import list from %s to %s.",
         			start.toString(), end.toString());
         	log.error(s, e);
-        	System.err.println(s);
-        	e.printStackTrace();
         }
-        return new DefaultListModel(); // return empty defaultlist
+        return null;
     }
-    
-    /* (non-Javadoc)
-     * @see ome.formats.importer.gui.IHistoryTableDataSource#getBaseQuery(java.lang.Long)
-     */
-    public Vector<Object> getBaseQuery(Long ExperimenterID)
-    {   
-
-        Vector<Object> rows = new Vector<Object>();
-    	
-        try {
-            Data d = getBaseTableData();
-            int returnedRows = (int) getBaseTableNumberOfRows();
-            
-            LongColumn importTimes = (LongColumn) d.columns[BASE_DATETIME_COLUMN];
-            StringColumn statuses = (StringColumn) d.columns[BASE_STATUS_COLUMN];
-           
-            for (int i = 0; i < returnedRows; i++)
-            {
-            	Vector<Object> row = new Vector<Object>();
-            	row.add(new Date(importTimes.values[i]));
-            	row.add(statuses.values[i].trim());
-            	rows.add(row);
-            }
-            
-        } catch (NullPointerException npe) {
-        	
-        } // results are null
-        catch (Exception e) {
-        	log.error("exception.", e);
-        }
-        return rows;
-    }
-    
     
     /* (non-Javadoc)
      * @see ome.formats.importer.gui.IHistoryTableDataSource#getItemQuery(java.lang.Long, java.lang.Long, java.lang.String, java.util.Date, java.util.Date)
@@ -683,8 +821,8 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
         Vector<Object> rows = new Vector<Object>();
         
         try {
-        	Data d = getItemTableDataByQuery(importID, queryString, from, to);
-        	long[] ids = getItemTableIDsByDate(importID, from, to);
+        	Data d = getItemTableData();
+        	long[] ids = getItemTableIDsByQuery(importID, "", from, to);
         	
             StringColumn fileNames = (StringColumn) d.columns[ITEM_FILENAME_COLUMN];
             LongColumn projectIDs = (LongColumn) d.columns[ITEM_PROJECTID_COLUMN];
@@ -728,93 +866,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
         }
         return rows;
     }
-    
-    /**
-     * Simple class to display table data from both tables. Used for testing.
-     */
-    public void displayTableData()
-    {
-    	try {
-    		Data baseData = getBaseTableData();
-			
-        	LongColumn uids = (LongColumn) baseData.columns[BASE_UID_COLUMN];
-        	LongColumn baseImportTimes = (LongColumn) baseData.columns[BASE_DATETIME_COLUMN];
-        	StringColumn baseStatuses = (StringColumn) baseData.columns[BASE_STATUS_COLUMN];
-        	
-        	// item table data
-			//log.debug("Rows in base table: " + baseTable.getNumberOfRows());
-        	for (int i = 0; i < uids.values.length; i++)
-        	{
-        		log.debug("UID[" + uids.values[i] + "]: "
-        				+ baseImportTimes.values[i] + ", '" 
-        				+ baseStatuses.values[i].trim() + "'" 
-        				);
-        	}
-        	
-        	// item table data
-			//log.debug("Rows in item table: " + itemTable.getNumberOfRows());
-			
-			Data itemData = getItemTableData();
-			
-			LongColumn baseUids = (LongColumn) itemData.columns[ITEM_BASE_UID_COLUMN];
-            StringColumn fileNames = (StringColumn) itemData.columns[ITEM_FILENAME_COLUMN];
-            LongColumn projectIDs = (LongColumn) itemData.columns[ITEM_PROJECTID_COLUMN];
-            LongColumn objectIDs = (LongColumn) itemData.columns[ITEM_OBJECTID_COLUMN];
-        	LongColumn importTimes = (LongColumn) itemData.columns[ITEM_DATETIME_COLUMN];
-            StringColumn filePaths = (StringColumn) itemData.columns[ITEM_FILEPATH_COLUMN];
-            StringColumn statuses = (StringColumn) itemData.columns[ITEM_STATUS_COLUMN];
-            LongColumn fileNumbers = (LongColumn) itemData.columns[ITEM_FILENUMBER_COLUMN];
-        	
-        	for (int i = 0; i < baseUids.values.length; i++)
-        	{
-        		log.debug("UID[" + baseUids.values[i] + "]: '"
-        				+ fileNames.values[i].trim() + "', " 
-        				+ projectIDs.values[i] + ", " 
-        				+ objectIDs.values[i] + ", " 
-        				+ importTimes.values[i] + ", '" 
-        				+ filePaths.values[i].trim() + "', '" 
-        				+ statuses.values[i].trim() + "'"
-        				+ fileNumbers.values[i]
-        				);
-        	}
-			
-		} catch (ServerError e) {
-			throw new RuntimeException(e);
-		}
-    }
-    
-    /**
-     * Return all the base table data
-     * @return
-     * @throws ServerError 
-     */
-    public Data getBaseTableData() throws ServerError
-    {
-    	if (baseDataDirty)
-    	{
-        	long rows = baseTable.getNumberOfRows();
-        	long[] ColNumbers = {BASE_UID_COLUMN, BASE_DATETIME_COLUMN, BASE_STATUS_COLUMN};
-            baseData = baseTable.read(ColNumbers, 0L, rows);
-            baseDataDirty = false;
-        	//log.debug("Getting " + rows + " rows in " + baseDBNAME);
-    	}	
-        return baseData;
-    }
-    
-    /**
-     * Returns the number of rows in the base table
-     * @return
-     */
-    public long getBaseTableNumberOfRows()
-    {
-    	try {
-			return baseTable.getNumberOfRows();
-		} catch (ServerError e) {
-			e.printStackTrace();
-			return 0L;
-		}
-    }
-   
+
     /**
      * Return all the base table data
      * @return
@@ -830,21 +882,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
     	}
     	return itemData;
     }
-    
-    /**
-     * Return all the base table data
-     * @return
-     */
-    public Data getItemTableDataByQuery(Long uid, String queryString, Date from, Date to)
-    {
-    	try {
-    		return getItemTableData();
-    	} 
-    	catch (ServerError e) {
-    		throw new RuntimeException(e);
-    	}
-    }
-    
+        
     /**
      * Returns the number of rows in the base table
      * @return
@@ -858,47 +896,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
 			return 0L;
 		}
     }
- 
-    /**
-     * Return the table IDs between a certain date range.
-     * @param baseId
-     * @param start
-     * @param end
-     * @return
-     */
-    public long[] getItemTableIDsByDate(long baseId, Date start, Date end)
-    {
-        try
-        {   
-        	String searchString = "";
-        	if (start == null || end == null)
-        	{
-        		// Search by id
-        		searchString = "(BaseUid=="+baseId+")";
-        		
-        	} else {
-        		// Search by date
-        		searchString = "(DateTime>=" + start.getTime() + ") & (DateTime<=" + end.getTime() + ")";
-        	}
-    		long[] ids = itemTable.getWhereList(searchString, null, 0, itemTable.getNumberOfRows(), 1);
-    		
-            //int returnedRows = ids.length;
-            //log.debug("Returned item rows: " + returnedRows);
-        	
-        	return ids;           
-        } 
-        catch (Exception e)
-        {
-        	String s = String.format(
-        			"Error retrieving import list from %s to %s.",
-        			start.toString(), end.toString());
-        	log.error(s, e);
-        	System.err.println(s);
-        	e.printStackTrace();
-        }
-        return null;
-    }    
-    
+
     /**
      * Test code for this class.
      * 
@@ -909,6 +907,8 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
      */
     public static void main (String[] args) throws CannotCreateSessionException, PermissionDeniedException, ServerError 
     {
+    	DEBUG = true;
+    	
         OMEROMetadataStoreClient store = new OMEROMetadataStoreClient();
 
         store.initialize(USER, PASS, SERVER, 4064);
@@ -928,11 +928,11 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
         	}
             hts.initializeDataSource();
             lastUid = hts.getHighestBaseTableUid();
-            log.debug("Last UID: " + lastUid);
+            if (DEBUG) log.debug("Last UID: " + lastUid);
             if (TEST)
             {
                 long testid = hts.addBaseTableRow("test");
-                log.debug("Last UID: " + lastUid);
+                if (DEBUG) log.debug("Last UID: " + lastUid);
                     	
                 hts.addItemTableRow(testid, "nofile", 0, 0, 0, 0, "test", "nopath");
             }
