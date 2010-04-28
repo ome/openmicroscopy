@@ -211,11 +211,13 @@ public class RegexTextPane
 	public void installDefaultRegEx()
 	{
 		addRegex(OMEWikiConstants.IMAGEREGEX, 
-				AttributeSetFactory.createDefaultAttibuteSet());
+				AttributeSetFactory.createURLAttributeSet());
+		/*
 		addRegex(OMEWikiConstants.PROJECTREGEX, 
 				AttributeSetFactory.createDefaultAttibuteSet());
 		addRegex(OMEWikiConstants.DATASETREGEX, 
 				AttributeSetFactory.createDefaultAttibuteSet());
+				*/
 		addRegex(OMEWikiConstants.URLREGEX, 
 				AttributeSetFactory.createURLAttributeSet());
 	}
