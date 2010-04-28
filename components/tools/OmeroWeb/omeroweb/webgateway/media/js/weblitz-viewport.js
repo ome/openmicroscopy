@@ -226,7 +226,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
     showLoading();
     linePlot = null;
     _this.refreshPlot();
-    _this.loadedImg.current.dataset_id = dsid;
+    _this.loadedImg.current.datasetId = dsid;
     _this.loadedImg.current.query = parseQuery(query);
     //viewportimg.hide();
     ajaxTimeout = setTimeout(loadError, 10000);
@@ -829,8 +829,8 @@ jQuery._WeblitzViewport = function (container, server, options) {
    */
   this.getCurrentImgUrlPath = function () {
     rv = this.loadedImg.id + '/';
-    if (this.loadedImg.current.dataset_id) {
-      rv += this.loadedImg.current.dataset_id + '/';
+    if (this.loadedImg.current.datasetId) {
+      rv += this.loadedImg.current.datasetId + '/';
     }
     return rv;
   }

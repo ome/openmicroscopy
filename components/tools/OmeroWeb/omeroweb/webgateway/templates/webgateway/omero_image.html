@@ -182,15 +182,15 @@
     $('#wblitz-t-count').html(viewport.getTCount());
     $('#wblitz-z-count').html(viewport.getZCount());
     var tmp = getMetadata();
-    $('#wblitz-image-name').html(tmp.name);
-    $('#wblitz-image-description-content').html(tmp.description.replace(/\n/g, '<br />'));
-    $('#wblitz-image-author').html(tmp.author);
-    $('#wblitz-image-pub').html(tmp.project);
-    $('#wblitz-image-pubid').html(tmp.project_id);
-    $('#wblitz-image-timestamp').html(tmp.timestamp);
+    $('#wblitz-image-name').html(tmp.imageName);
+    $('#wblitz-image-description-content').html(tmp.imageDescription.replace(/\n/g, '<br />'));
+    $('#wblitz-image-author').html(tmp.imageAuthor);
+    $('#wblitz-image-pub').html(tmp.projectName);
+    $('#wblitz-image-pubid').html(tmp.projectId);
+    $('#wblitz-image-timestamp').html(tmp.imageTimestamp);
     {% block xtra_metadata %}{% endblock %}
 
-    $('#wblitz-shortname').attr('title', tmp.name).html(gs_text_trim(tmp.name, 15, true));
+    $('#wblitz-shortname').attr('title', tmp.imageName).html(gs_text_trim(tmp.imageName, 15, true));
 
     tmp = viewport.getSizes();
     $('#wblitz-image-width').html(tmp.width);
