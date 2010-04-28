@@ -1,5 +1,5 @@
 """
- components/tools/OmeroPy/scripts/EMAN2/omero2em.py 
+ components/tools/OmeroPy/scripts/EMAN2/omero2spider.py 
 
 -----------------------------------------------------------------------------
   Copyright (C) 2006-2010 University of Dundee. All rights reserved.
@@ -20,15 +20,14 @@
 
 ------------------------------------------------------------------------------
 
-This script gets images from an OMERO server and uses EMAN2 to write the images to disk 
-in a variety of EM formats (see filetypes below)
+This script gets images from an OMERO server and uses Spider to write the images locally to disk.
 
 It should be run as a client-side script (not scripting service) since it needs access to 
 the file-system to write the result files. 
-This means that you need EMAN2 installed on the client. 
+This means that you need Spider installed on the client. 
 
-Example usage (downloading images from dataset ID 901 as tiffs to the specified folder)
-wjm:EMAN2 will$ python omero2em.py -h localhost -u root -p omero -d 901 -e tif -o /Users/will/Desktop/EMAN-export/ctf/
+Example usage (downloading images from dataset ID 901 as .dat files to the specified folder)
+wjm:EMAN2 will$ python omero2spider.py -h localhost -u root -p omero -d 901 -o /Users/will/Desktop/Spider-export/
     
 @author  Will Moore &nbsp;&nbsp;&nbsp;&nbsp;
 <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -40,9 +39,9 @@ wjm:EMAN2 will$ python omero2em.py -h localhost -u root -p omero -d 901 -e tif -
  
 """
 
-from EMAN2 import *
+from Spider.Spiderarray import array2spider
 
-import numpy
+from numpy import zeros
 import getopt, sys, os
 
 import omero
@@ -50,35 +49,10 @@ import omero.constants
 from omero.rtypes import *
 import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
 import omero.util.script_utils as scriptUtil
+import omero.util.pixelstypetopython as pixelstypetopython
 
-
-# map of EMAN2-supported extensins, with the corresponding OMERO file-types (or None if no match)
-filetypes = {"hdf": None, 
-    "mrc": "MRC", 
-    "spi": None, # To read the overall image header in a stacked spider file, use image_index = -1.
-    "img": None, # Imagic. seperate header and data file, cannot store multiple 3D images in one file. Regional I/O is only available for 2D.
-    "dm3": "Gatan", 
-    "tiff": "image/tiff",
-    "tif": "image/tiff",     # 8bit or 16bit per pixel
-    "pgm": "PGM",  #8 bits per pixel
-    "pif": None,    # images in PIF stack are homogenous. PIF doesn't currently work.
-    "vtk": None,
-    "png": "image/png",    # lossless data compression, 8 bit or 16 bit per pixel
-    "img": None,    # seperate header and data file
-    "icos": None,
-    "emim": None, # images in stack are homogenous
-    "dm2": "Gatan",     # Gatan
-    "am": "Amira",    # Amira
-    "xplor": None,    # XPLOR 8 bytes integer, 12.5E float format
-    "em": None,
-    "v4l": None,    # Acquires images from the V4L2 interface in real-time(video4linux).
-    "jpg": "image/jpeg",
-    "jpeg": "image/jpeg", # lossy data compression
-    "fts": None,  # common file format in astronomy
-    "lst": None,  # ASCII file contains a list of image file names and numbers. Used in EMAN1 to avoid large files. Not commonly used in EMAN2
-    "lsx": None,    # Optomized version of LST
-    }
-
+# supported file types
+filetypes = ["dat", "spi"]
 
 def omeroToEm(commandArgs):
     
@@ -114,36 +88,22 @@ def omeroToEm(commandArgs):
             print "Given path: %s not found. Saving images in current directory." % path
             path = None
         
-    extension = None
+    extension = "dat"   # default
     format = None
     if "extension" in commandArgs:
-        extension = commandArgs["extension"]
-        if extension in filetypes:
-            format = filetypes[extension]
-            print "Saving all images as .%s files. Format: %s" % (extension, filetypes[extension])
+        ext = commandArgs["extension"]
+        if ext in filetypes:
+            extension = ext
+            print "Saving all images as .%s files." % extension
         else:
-            print "Invalid extension: %s (not supported by EMAN2). Will attempt to get extensions from image names." % extension
-            extension = None
-    else:
-        print "No extension specified. Will attempt get extensions from image names."
+            print "Invalid extension: %s (not supported by Spider). Using %s" % (ext, extension)
+            
     
     for image in images:
         iName = image.getName().getValue()
         imageName = os.path.basename(iName) # make sure no dir separators in name. 
         imageId = image.getId().getValue()
-        if (extension == None) or (extension not in filetypes):
-            # try to get extension from image name
-            lastDotIndex = imageName.rfind(".")        # .rpartition(sep)
-            if lastDotIndex >= 0:
-                extension = imageName[lastDotIndex+1:]
-                if extension in filetypes:
-                    format = filetypes[extension]
         
-        if (extension == None) or (extension not in filetypes):
-            print "File extension from image invalid. Could not export image ID: %d  Name: %s  Extension: %s" % (imageId, imageName, extension)
-            continue
-            
-            
         if not imageName.endswith(".%s" % extension):
             imageName = "%s.%s" % (imageName, extension)
             
@@ -162,29 +122,30 @@ def omeroToEm(commandArgs):
         # get pixels, with pixelsType
         query_string = "select p from Pixels p join fetch p.image i join fetch p.pixelsType pt where i.id='%d'" % imageId
         pixels = queryService.findByQuery(query_string, None)
+        ptype = pixels.pixelsType.getValue().getValue()
         
-        xSize = pixels.getSizeX().getValue()
-        ySize = pixels.getSizeY().getValue()
-        zSize = pixels.getSizeZ().getValue()
+        sizeX = pixels.getSizeX().getValue()
+        sizeY = pixels.getSizeY().getValue()
+        sizeZ = pixels.getSizeZ().getValue()
 
         # prepare rawPixelStore
         theC, theT = (0, 0)
         pixelsId = pixels.getId().getValue()
         bypassOriginalFile = True
         rawPixelStore.setPixelsId(pixelsId, bypassOriginalFile)
-
-        e = EMData()
-        em = EMData(xSize,ySize,zSize)
         
-        for z in range(zSize):
-            # get each plane and add to EMData 
-            #print "Downloading plane: %d" % z
-            plane2D = scriptUtil.downloadPlane(rawPixelStore, pixels, z, theC, theT)
-            EMNumPy.numpy2em(plane2D, e)
-            em.insert_clip(e,(0,0,z))
+        if sizeZ == 1:
+            plane2D = scriptUtil.downloadPlane(rawPixelStore, pixels, 0, theC, theT)
+            array2spider(plane2D, imageName)
+        else:   
+            numpyType = pixelstypetopython.toNumpy(ptype)
+            array3D = zeros( (sizeZ, sizeY, sizeX), dtype=numpyType )  
+            for z in range(sizeZ):
+                # get each plane and add to 3D array
+                plane2D = scriptUtil.downloadPlane(rawPixelStore, pixels, z, theC, theT)
+                array3D[z] = plane2D
+            array2spider(array3D, imageName)
             
-        em.write_image(imageName)
-        
 
 def readCommandArgs():
     host = ""
@@ -223,5 +184,3 @@ def readCommandArgs():
 if __name__ == "__main__":        
     commandArgs = readCommandArgs()
     omeroToEm(commandArgs)
-    
-    

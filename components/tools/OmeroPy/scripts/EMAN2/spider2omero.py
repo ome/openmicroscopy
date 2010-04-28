@@ -208,9 +208,8 @@ def spiderToOmero(commandArgs):
     
     # get a name for the project 
     path = commandArgs["dir"]
-    projectName = os.path.basename(path)
-    if projectName == "":
-        projectName = os.path.dirname(path[:-1])
+    projectName = path
+    print "Importing into Project:", projectName
     
     # create project
     project = omero.model.ProjectI()
