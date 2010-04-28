@@ -343,54 +343,24 @@ def runAsScript():
     def __init__(self, name, optional = False, out = False, description = None, type = None, min = None, max = None, values = None)
     """
     
-    #parentId = scripts.Long(optional=True)
-    #parentId.description = "Attach figure to this Project-ID (if datasetIds parameter is used) "
-    #    + "or Dataset-ID (if imageIds parameter is used)")
-
-    
-    #inputs = {
-    #    "datasetIds": scripts.List(optional=True, description="List of dataset IDs. Mutually exclusive to 'imageIds'"),
-    #    "imageIds": scripts.List(optional=True, description="List of image IDs. Mutually exclusive to 'datasetIds'"),
-    #    "tagIds": scripts.List(optional=True, description="Arrange thumbnails by these tags"),         
-    #    "showUntaggedImages": scripts.Bool(optional=True, description="If true (and you're sorting by tag) show untagged too"), 
-    #    "parentId" : parentId,
-    #    "thumbSize": scripts.Long(optional=True, description="The max dimension of each thumbnail. Default is 100"),
-    #    "maxColumns": scripts.Long(optional=True, description="Max number of columns in the figure. Default is 10"), 
-    #    "format": scripts.String(optional=True, description="Format to save image. E.g. 'PNG'/ 'png'. JPEG by default"),
-    #    "figureName": scripts.String(optional=True, description="Name of the file to create. Default named by first image")
-    #}
-    
-    # script returns a file annotation
-    #outputs = {
-    #    "fileAnnotation": scripts.Long(description="Script returns a File Annotation ID-object")
-    #    }
-    #    
-    #client = scripts.client('thumbnailFigure.py', 'Export a figure of thumbnails, optionally sorted by tag.', 
-    #    inputs, outputs)
-    
-    #figNameParam = scripts.String("figureName", optional=True)
-    #figNameParam.description="Name of figure"
-    
     def makeParam(paramClass, name, optional=False, description=None, min=None, max=None):
         param = paramClass(name, optional)
         if description: param._param.description = description
-        try:    # should only be using max and min for scripts.Long
-            if max: param._param.max = rlong(max)
-            if min: param._param.min = rlong(min)
-        except:     pass
+        if max: param._param.max = rlong(max) # should only be using max and min for scripts.Long
+        if min: param._param.min = rlong(min)
         return param
         
     client = scripts.client('thumbnailFigure.py', 'Export a figure of thumbnails, optionally sorted by tag.',
-    makeParam(scripts.List, "datasetIds", True, "List of dataset IDs. Use this OR imageIds to specify images").inout(),
-    makeParam(scripts.List, "imageIds", True, "List of image IDs. Use this OR datasetIds").inout(),             
-    makeParam(scripts.List, "tagIds", True, "Group thumbnails by these tags.").inout(),             
-    makeParam(scripts.Bool, "showUntaggedImages", True, "If true (and you're sorting by tagIds) also show images without the specified tags").inout(),
-    makeParam(scripts.Long, "parentId", True, "Attach figure to this Project (if datasetIds above) or Dataset if imageIds. If not specifed, attach figure to first dataset or image.").inout(),
-    makeParam(scripts.Long, "thumbSize", True, "The dimension of each thumbnail. Default is 100", 10, 250).inout(),
-    makeParam(scripts.Long, "maxColumns", True, "The max number of thumbnail columns. Default is 10").inout(),      
-    makeParam(scripts.String, "format", True, "Format to save image. E.g 'PNG'. Default is JPEG").inout(),
-    makeParam(scripts.String, "figureName", True, "Name of figure to create").inout(),    # name of the file to save.
-    makeParam(scripts.Long, "fileAnnotation").out());  # script returns a file annotation
+    makeParam(scripts.List, "datasetIds", True, "List of dataset IDs. Use this OR imageIds to specify images"),
+    makeParam(scripts.List, "imageIds", True, "List of image IDs. Use this OR datasetIds"),             
+    makeParam(scripts.List, "tagIds", True, "Group thumbnails by these tags."),             
+    makeParam(scripts.Bool, "showUntaggedImages", True, "If true (and you're sorting by tagIds) also show images without the specified tags"),
+    makeParam(scripts.Long, "parentId", True, "Attach figure to this Project (if datasetIds above) or Dataset if imageIds. If not specifed, attach figure to first dataset or image."),
+    makeParam(scripts.Long, "thumbSize", True, "The dimension of each thumbnail. Default is 100", 10, 250),
+    makeParam(scripts.Long, "maxColumns", True, "The max number of thumbnail columns. Default is 10", 1),      
+    makeParam(scripts.String, "format", True, "Format to save image. E.g 'PNG'. Default is JPEG"),
+    makeParam(scripts.String, "figureName", True, "File name of figure to create"),
+    makeParam(scripts.Long, "fileAnnotation", False, "Script returns a file annotation").out()) 
         
     session = client.getSession()
     commandArgs = {}
