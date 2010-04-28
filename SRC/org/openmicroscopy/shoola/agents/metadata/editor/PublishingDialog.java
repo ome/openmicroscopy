@@ -62,7 +62,7 @@ import pojos.WellSampleData;
  * @since 3.0-Beta4
  */
 class PublishingDialog
-	extends JDialog
+	extends JPopupMenu//JDialog
 {
 
 	/** Horizontal gap between components. */
@@ -185,7 +185,7 @@ class PublishingDialog
 		b.addActionListener(controller);
 		b.setActionCommand(""+id);
 		b.setEnabled(false);
-		UIUtilities.unifiedButtonLookAndFeel(b);
+		//UIUtilities.unifiedButtonLookAndFeel(b);
 		return b;
 	}
 	
@@ -262,6 +262,13 @@ class PublishingDialog
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
+		add(movieItem);
+		add(exportAsOmeTiffItem);
+		add(splitViewFigureItem);
+		add(splitViewROIFigureItem);
+		add(thumbnailsFigureItem);
+		add(movieFigureItem);
+		/*
 		setLayout(new BorderLayout(0, 0));
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 		JPanel p = new JPanel();
@@ -274,6 +281,7 @@ class PublishingDialog
 		layout.insertRow(index, TableLayout.PREFERRED);
 		p.add(createPublishingControls(), "0, "+index);
 		getContentPane().add(p, BorderLayout.NORTH);
+		*/
 	}
 	
 	/**
@@ -283,14 +291,14 @@ class PublishingDialog
 	 */
 	PublishingDialog(EditorControl controller, EditorModel model)
 	{
-		super(MetadataViewerAgent.getRegistry().getTaskBar().getFrame());
+		//super(MetadataViewerAgent.getRegistry().getTaskBar().getFrame());
 		this.controller = controller;
 		this.model = model;
 		setProperties();
 		initComponents();
 		setRootObject();
 		buildGUI();
-		pack();
+		//pack();
 	}
 
 	/**

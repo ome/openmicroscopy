@@ -210,7 +210,7 @@ public class FSFileSystemView
 			throw new IllegalArgumentException("No repositories specified.");
 		this.userID = userID;
 		this.repositories = repositories;
-		config = new RepositoryListConfig(0, true, true, false, true);
+		config = new RepositoryListConfig(1, true, true, false, true);
 	}
 
 	/**
@@ -361,15 +361,6 @@ public class FSFileSystemView
     	try {
     		String s = dir.getAbsolutePath();
     		populate(files, proxy.listObjects(s, config), useFileHiding);
-    		//Map<String, List<IObject>> list = proxy.listObjects(s);
-    		
-    		/*
-    		populate(files, proxy.listKnownNonImages(s), proxy.listNonImages(s), 
-    				useFileHiding);
-    		populate(files, proxy.listKnownImportableImages(s),
-    				proxy.listImportableImages(s), useFileHiding);
-    			*/
-    		//populate(files, proxy.listObjects(s), proxy.listObjects(s), useFileHiding)
 		} catch (Exception e) { 
 			new FSAccessException("Cannot retrives the files contained in: " +
 					dir.getAbsolutePath(), e);

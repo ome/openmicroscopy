@@ -44,22 +44,22 @@ package org.openmicroscopy.shoola.util.ui.omeeditpane;
 public class WikiDataObject 
 {
 
-	/** Indentifies a <code>Project</code>. */
+	/** Identifies a <code>Project</code>. */
 	public static final int PROJECT = 0;
 	
-	/** Indentifies a <code>Dataset</code>. */
+	/** Identifies a <code>Dataset</code>. */
 	public static final int DATASET = 1;
 	
-	/** Indentifies a <code>Image</code>. */
+	/** Identifies a <code>Image</code>. */
 	public static final int IMAGE = 2;
 	
-	/** Indentifies a <code>Thumbnail</code>. */
+	/** Identifies a <code>Thumbnail</code>. */
 	public static final int THUMBNAIL = 3;
 	
-	/** Indentifies a <code>Protocol</code>. */
+	/** Identifies a <code>Protocol</code>. */
 	public static final int PROTOCOL = 4;
 	
-	/** Indentifies an unrecognized data type */
+	/** Identifies an unrecognized data type */
 	public static final int OTHER = 5;
 	
 	/** One of the constants defined by this class. */
@@ -79,8 +79,7 @@ public class WikiDataObject
 	
 	/** The text that was recognized by the regex. i.e. regex group 0 */
 	private String matchedText;
-	
-	
+
 	/**
 	 * Controls if the index is supported.
 	 * 
@@ -103,8 +102,10 @@ public class WikiDataObject
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param regex 	The regex that was recognized.
-	 * @param group		The text captured by the first group of the regex
+	 * @param regex 	The regular that was recognized.
+	 * @param group		The text captured by the first group of the regular 
+	 * 					expression.
+	 * @param matchedText The text found.
 	 */
 	WikiDataObject(String regex, String group, String matchedText)
 	{
@@ -146,40 +147,38 @@ public class WikiDataObject
 	 * 
 	 * @return See above.
 	 */
-	public int getIndex() { 
-		
+	public int getIndex()
+	{ 
 		// if we have a recognized index, return it.
 		if (index != OTHER)  return index;
-		
 		// otherwise, try to match the regex to a type
 		if (regex != null) {
-			if (regex.startsWith("Image")) {
+			if (regex.contains("Image")) {
 				index = IMAGE;
-			} else if (regex.startsWith("Project")) {
+			} else if (regex.contains("Project")) {
 				index = PROJECT;
-			} else if (regex.startsWith("Dataset")) {
+			} else if (regex.contains("Dataset")) {
 				index = DATASET;
 			}
 		}
 		
 		return index;
-		}
+	}
 	
 	/**
 	 * Returns the id of the object.
 	 * 
 	 * @return See above.
 	 */
-	public long getId() { 
-		if (id != 0) return id; 
-		
-		// often the 'group' attribute will hold an ID
-		else {
+	public long getId()
+	{ 
+		if (id > 0) return id; 
+		else { 	// often the 'group' attribute will hold an ID
 			try {
 				id = new Long(group);
 			}
 			catch (Exception e) {
-				id = 0;
+				id = -1;
 			}
 		}
 		return id;

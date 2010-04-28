@@ -1727,7 +1727,7 @@ class ImViewerModel
 		StringBuffer buf = new StringBuffer();
 		buf.append("Original Image: "+getImageName());
 		buf.append("\n");
-		buf.append("Original Image's ID: "+getImageID());
+		buf.append("Original Image ID: "+getImageID());
 		buf.append("\n");
 		buf.append("Projection type: "+typeName);
 		buf.append("\n");

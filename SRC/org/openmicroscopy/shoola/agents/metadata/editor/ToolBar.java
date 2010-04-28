@@ -433,7 +433,7 @@ class ToolBar
 			case MetadataViewer.PUBLISHING_OPTION:
 				if (publishingDialog == null)
 					publishingDialog = new PublishingDialog(controller, model);
-				publishingDialog.displayAsMenu().show(source, p.x, p.y);
+				publishingDialog.show(source, p.x, p.y);
 				break;
 
 			case MetadataViewer.ANALYSIS_OPTION:

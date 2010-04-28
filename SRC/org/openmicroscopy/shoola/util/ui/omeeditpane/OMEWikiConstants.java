@@ -69,13 +69,19 @@ public class OMEWikiConstants
 	static final String THUMBNAILREGEX = "\\[(Thumbnail|thumbnail):[ ]*"+NUMBERREGEX+"[ ]*\\]";
 
 	/** Regex expression defining Dataset [Dataset: 30]. */
-	static final String DATASETREGEX = "\\[(Dataset|dataset):[ ]*"+NUMBERREGEX+"[ ]*\\]";
+	//static final String DATASETREGEX = "\\[(Dataset|dataset):[ ]*"+NUMBERREGEX+"[ ]*\\]";
 
+	static final String DATASETREGEX =  "(Dataset|dataset) (ID|id): ("+NUMBERREGEX+")";
+	
 	/** Regex expression defining Project [Project: 30]. */
-	static final String PROJECTREGEX = "\\[(Project|project):[ ]*"+NUMBERREGEX+"[ ]*\\]";
+	//static final String PROJECTREGEX = "\\[(Project|project):[ ]*"+NUMBERREGEX+"[ ]*\\]";
+	
+	static final String PROJECTREGEX =  "(Project|project) (ID|id): ("+NUMBERREGEX+")";
 	
 	/** Regex expression defining Image [Image: 30]. */
-	static final String IMAGEREGEX = "\\[(Image|image):[ ]*"+NUMBERREGEX+"[ ]*\\]";
+	//static final String IMAGEREGEX = "\\[(Image|image):[ ]*"+NUMBERREGEX+"[ ]*\\]";
+	
+	static final String IMAGEREGEX =  "(Image|image|Image's) (ID|id): ("+NUMBERREGEX+")";
 	
 	/** Regex expression defining Protocol [Protocol: id 30]. */
 	static final String PROTOCOLREGEX = "\\[(Protocol|Protocol):[ ]*"+NUMBERREGEX+"[ ]*\\]";

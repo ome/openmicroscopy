@@ -80,6 +80,7 @@ import org.openmicroscopy.shoola.util.filter.file.XMLFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
+import org.openmicroscopy.shoola.util.ui.omeeditpane.RegexTextPane;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.WikiDataObject;
 import pojos.ChannelData;
 import pojos.FileAnnotationData;
@@ -452,6 +453,18 @@ class EditorControl
 					viewProtocol(object.getId());
 					break;
 			}
+		} else if (RegexTextPane.REGEX_DBL_CLICKED_PROPERTY.equals(name)) {
+			WikiDataObject object = (WikiDataObject) evt.getNewValue();
+			long id = object.getId();
+			switch (object.getIndex()) {
+				case WikiDataObject.IMAGE:
+					if (id > 0) viewImage(id);
+					break;
+				case WikiDataObject.PROTOCOL:
+					viewProtocol(id);
+					break;
+			}
+			
 		} else if (SelectionWizard.SELECTED_ITEMS_PROPERTY.equals(name)) {
 			Map m = (Map) evt.getNewValue();
 			if (m == null || m.size() != 1) return;

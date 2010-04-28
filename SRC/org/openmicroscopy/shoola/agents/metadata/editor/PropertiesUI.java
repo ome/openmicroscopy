@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.omeeditpane.RegexTextPane;
 import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.DatasetData;
@@ -142,7 +143,9 @@ class PropertiesUI
     private JTextArea			typePane;
     
     /** The component hosting the description of the <code>DataObject</code>. */
-    private JTextArea			descriptionPane;
+    //private JTextArea			descriptionPane;
+    
+    private RegexTextPane		descriptionPane;
     
     /** The component hosting the {@link #namePane}. */
     private JPanel				namePanel;
@@ -206,7 +209,13 @@ class PropertiesUI
     	typePane.setEditable(false);
     	namePane.setEditable(false);
     	namePane.addFocusListener(this);
-    	descriptionPane = createTextPane();
+    	f = namePane.getFont(); 
+    	descriptionPane = new RegexTextPane(f.getFamily(), f.getSize()-2);
+    	descriptionPane.installDefaultRegEx();
+    	descriptionPane.addPropertyChangeListener(controller);
+    	descriptionPane.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+    	
+    	descriptionPane.setBackground(UIUtilities.BACKGROUND_COLOR);
     	//descriptionPane.setLineWrap(true);
     	//descriptionPane.setColumns(20);
     	/*
@@ -223,13 +232,8 @@ class PropertiesUI
     	descriptionPane.addFocusListener(this);
     	defaultBorder = namePane.getBorder();
     	
-    	f = namePane.getFont();
+    	
     	namePane.setFont(f.deriveFont(Font.BOLD));
-    	
-    	f = descriptionPane.getFont();
-    	descriptionPane.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
-    	descriptionPane.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
-    	
     	typePane.setFont(f.deriveFont(Font.BOLD));
     	typePane.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
     	
@@ -1083,8 +1087,8 @@ class PropertiesUI
 				editField(namePanel, namePane, editName, true);
 				break;
 			case EDIT_DESC:
-				editField(descriptionPanel, descriptionPane, editDescription,
-						true);
+				//editField(descriptionPanel, descriptionPane, editDescription,
+				//		true);
 		}
 	}
 	

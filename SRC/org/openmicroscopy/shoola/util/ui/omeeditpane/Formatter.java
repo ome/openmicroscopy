@@ -51,16 +51,16 @@ public interface Formatter
 {	
 	
 	/** The default color. */
-	public static final Color DEFAULT_COLOR = Color.BLACK;
+	public static final Color DEFAULT_COLOR = AttributeSetFactory.DEFAULT_COLOR;
 	
 	/** The default color for url. */
-	public static final Color DEFAULT_URL = Color.BLUE;
+	public static final Color DEFAULT_URL =  AttributeSetFactory.DEFAULT_URL;
 	
 	/** The default color for image, dataset etc linkages. */
-	public static final Color DEFAULT_LINK = Color.RED;
+	public static final Color DEFAULT_LINK =  AttributeSetFactory.DEFAULT_LINK;
 	
 	/** The default color for image, dataset etc linkages. */
-	public static final Color PROTOCOL_LINK = Color.GREEN;
+	public static final Color PROTOCOL_LINK = AttributeSetFactory.PROTOCOL_LINK;
 	
 	/**
 	 * Formats the text for the editor on segment s starting at position 

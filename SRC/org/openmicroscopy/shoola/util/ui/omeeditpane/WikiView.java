@@ -180,13 +180,13 @@ public class WikiView
 	}
 	
 	/**
-	 * Public method to access regex functionality.
-	 * Parses the <code>text</code> with the <code>regex</code>, adding 
-	 * any matches (defined by start and end {@link Position}) to the
+	 * Public method to access regular expressions functionality.
+	 * Parses the <code>text</code> with the <code>regular expression</code>, 
+	 * adding any matches (defined by start and end {@link Position}) to the
 	 * <code>positionList</code>
 	 * 
-	 * @param text				The text to parse
-	 * @param regex				Regex expressions to look for
+	 * @param text				The text to parse.
+	 * @param regex				Regular expressions to look for.
 	 * @param positionList		A list of the matches found. 
 	 */
 	public static void findGroups(String text, String regex, 
@@ -196,23 +196,19 @@ public class WikiView
 		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(text);
 		int s, e;
-		Position p;
-		
 		String match = null;
 		while (matcher.find()) {
-			//for (int i=0; i<= matcher.groupCount(); i++) {
-			//	String groupStr = matcher.group(i); 
-			//	System.out.println(i + " " + groupStr);
-			//}
+			/*
 			if (matcher.groupCount() > 0) {
-				match = matcher.group(1);
+				match = matcher.group(matcher.groupCount());
 			} else {
 				match = matcher.group(0);
 			}
+			*/
+			match = matcher.group(matcher.groupCount());
 			s = matcher.start();
 			e = matcher.end();
-			p = new Position(s, e);
-			positionMap.put(p, match);
+			positionMap.put(new Position(s, e), match);
 		}
 	}
 	
