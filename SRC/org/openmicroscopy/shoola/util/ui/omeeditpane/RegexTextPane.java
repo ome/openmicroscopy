@@ -23,12 +23,9 @@
 package org.openmicroscopy.shoola.util.ui.omeeditpane;
 
 //Java imports
-import java.awt.Color;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -36,7 +33,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 import javax.swing.JEditorPane;
-import javax.swing.JFrame;
 import javax.swing.JTextPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -268,7 +264,7 @@ public class RegexTextPane
 
 	/**
 	 * Implemented as specified by the {@link DocumentListener} interface.
-	 * Causes the edited document to be parsed for regex matches.
+	 * Causes the edited document to be parsed for regular expression matches.
 	 */
 	public void removeUpdate(DocumentEvent e) { parseRegex(e.getOffset()); }
 	
@@ -280,67 +276,4 @@ public class RegexTextPane
 	 */
 	public void changedUpdate(DocumentEvent e) {}
 	
-	
-
-	public static void main(String[] args) {
-		
-		JFrame frame = new JFrame("RegexTextPane test");
-		
-		RegexTextPane editor = new RegexTextPane();
-		
-		SimpleAttributeSet urlSet = new SimpleAttributeSet();
-        StyleConstants.setForeground(urlSet, Color.blue);
-        StyleConstants.setUnderline(urlSet, true);		// urls underlined
-        String urlRegex =
-    		"((https?|ftp|file)://|www.)[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
-        editor.addRegex(urlRegex, urlSet);
-        
-        SimpleAttributeSet imageSet = new SimpleAttributeSet();
-        StyleConstants.setForeground(imageSet, Color.red);
-        String imageRegex = "(Image|image|Image's) (ID|id): ([0-9]+)";
-        editor.addRegex(imageRegex, imageSet);
-        
-        SimpleAttributeSet pSet = new SimpleAttributeSet();
-        StyleConstants.setForeground(pSet, Color.green);
-        String pRegex = "Project ID: ([0-9]+)";
-        editor.addRegex(pRegex, pSet);
-        
-        SimpleAttributeSet dSet = new SimpleAttributeSet();
-        StyleConstants.setForeground(dSet, Color.cyan);
-        String dRegex = "Dataset ID: ([0-9]+)";
-        editor.addRegex(dRegex, dSet);
-        
-        editor.addPropertyChangeListener(new PropertyChangeListener() {
-			
-			public void propertyChange(PropertyChangeEvent evt) {
-				String propName = evt.getPropertyName();
-				
-				if (REGEX_DBL_CLICKED_PROPERTY.equals(propName)) {
-					Object newVal = evt.getNewValue();
-					if (newVal instanceof WikiDataObject) {
-						WikiDataObject data = (WikiDataObject)newVal;
-						//String regex = data.getRegex();
-						long id = data.getId();
-						int index = data.getIndex();
-						
-						if (index == WikiDataObject.IMAGE) {
-							System.out.println("Clicked Image ID: " + id);
-						} else if (index == WikiDataObject.DATASET) {
-							System.out.println("Clicked Dataset ID: " + id);
-						} else if (index == WikiDataObject.PROJECT) {
-							System.out.println("Clicked Project ID: " + id);
-						} else {
-							// E.g. url. 
-							System.out.println("Clicked " + data.getMatchedText());
-						}
-						
-					}
-				}
-			}
-		});
-        
-        frame.getContentPane().add(editor);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);
-	}
 }
