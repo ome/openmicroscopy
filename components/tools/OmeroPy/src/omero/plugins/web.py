@@ -26,6 +26,10 @@ For advance use:
                           for the moment)
      syncmedia          - creates needed symlinks for static media files
      enableapp          - TODO: document
+     gateway
+     test
+     seleniumtest
+     call
 
 """
 class WebControl(BaseControl):
@@ -285,11 +289,45 @@ APPLICATION_HOST='%s'
 
     def test(self, *args):
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
-        args = ["coverage","-x", "manage.py", "test"]
+        cargs = ["coverage","-x", "manage.py", "test"]
+        if len(args[0]) > 0:
+            cargs.append(args[0][0])
         os.environ['ICE_CONFIG'] = self.ctx.dir / "etc" / "ice.config"
         os.environ['PATH'] = os.environ.get('PATH', '.') + ':' + self.ctx.dir / 'bin'
-        rv = self.ctx.call(args, cwd = location)
+        rv = self.ctx.call(cargs, cwd = location)
 
+    def seleniumtest (self, *args):
+        location = self.ctx.dir / "lib" / "python" / "omeroweb"
+        cargs = ["python", "seleniumtests.py"]
+        if len(args[0]) != 1:
+            self.ctx.die(121, "usage: seleniumtest {djangoapp}")
+        location = location / args[0][0] / "tests"
+        print location 
+        rv = self.ctx.call(cargs, cwd = location )
+        
+    def call (self, *args):
+        """ call appname "[executable] scriptname" args """
+        try:
+            if len(args[0]) < 2:
+                self.ctx.die(121, "not enough args")
+            location = self.ctx.dir / "lib" / "python" / "omeroweb"
+            cargs = []
+            appname = args[0][0]
+            scriptname = args[0][1].split(' ')
+            if len(scriptname) > 1:
+                cargs.append(scriptname[0])
+                scriptname = ' '.join(scriptname[1:])
+            else:
+                scriptname = scriptname[0]
+            cargs.extend([location / appname / "scripts" / scriptname] + args[0][2:])
+            print cargs
+            os.environ['DJANGO_SETTINGS_MODULE'] = 'omeroweb.settings'
+            os.environ['ICE_CONFIG'] = self.ctx.dir / "etc" / "ice.config"
+            os.environ['PATH'] = os.environ.get('PATH', '.') + ':' + self.ctx.dir / 'bin'
+            rv = self.ctx.call(cargs, cwd = location)
+        except:
+            import traceback
+            print traceback.print_exc()
 
 try:
     register("web", WebControl)

@@ -65,22 +65,41 @@ def omero_type(val):
     else:
         return val
 
+class TimeIt (object):
+    """
+    Decorator to measure the execution time of a function.
+
+    @param level: the level to use for logging
+    """
+    def __init__ (self, level=logging.DEBUG):
+        self._level = level
+
+    def __call__ (self, func):
+        def wrapped (*args, **kwargs):
+            logger.log(self._level, "timing %s" % (func.func_name))
+            now = time.time()
+            rv = func(*args, **kwargs)
+            logger.log(self._level, "timed %s: %f" % (func.func_name, time.time()-now))
+            return rv
+        return wrapped
+
 def timeit (func):
     """
     Measures the execution time of a function using time.time() 
     and the a @ function decorator.
 
-    @param func:    function
-    @return:        wrapped
+    Logs at logging.DEBUG level.
     """
-    
     def wrapped (*args, **kwargs):
-        logger.debug("timing %s" % (func.func_name))
+        logger.log(self._level, "timing %s" % (func.func_name))
         now = time.time()
         rv = func(*args, **kwargs)
-        logger.debug("timed %s: %f" % (func.func_name, time.time()-now))
+        logger.log(self._level, "timed %s: %f" % (func.func_name, time.time()-now))
         return rv
-    return wrapped
+    return TimeIt()(func)
+
+
+
 
 class BlitzObjectWrapper (object):
     """
@@ -143,6 +162,14 @@ class BlitzObjectWrapper (object):
 
     def __loadedHotSwap__ (self):
         self._obj = self._conn.getContainerService().loadContainerHierarchy(self.OMERO_CLASS, (self._oid,), None)[0]
+
+
+    def _getParentLink (self):
+        p = self.listParents()
+        link = self._conn.getQueryService().findAllByQuery("select l from %s as l where l.parent.id=%i and l.child.id=%i" % (p.LINK_CLASS, p.id, self.id), None)
+        if len(link):
+            return link[0]
+        return None
 
     def _moveLink (self, newParent):
         """ moves this object from the current parent container to a new one """
@@ -333,7 +360,6 @@ class BlitzObjectWrapper (object):
     #    for child in self._cache[self.LINK_CLASS].get(self._oid, ()):
     #        yield self.CHILD_WRAPPER_CLASS(self._conn, child, self._cache)
 
-    @timeit
     def listParents (self, single=True, withlinks=False):
         """
         Lists available parent objects.
@@ -356,7 +382,6 @@ class BlitzObjectWrapper (object):
         return parentnodes
 
 
-    @timeit
     def getAncestry (self):
         rv = []
         p = self.listParents()
@@ -402,7 +427,6 @@ class BlitzObjectWrapper (object):
             return AnnotationWrapper._wrap(self._conn, rv[0].child)
         return None
 
-    @timeit
     def listAnnotations (self, ns=None):
         """
         List annotations in the ns namespace, linked to this object
@@ -512,10 +536,7 @@ class BlitzObjectWrapper (object):
             if xtra.has_key('childCount'):
                 rv['child_count'] = self.countChildren()
         if parents:
-            def marshalParents ():
-                return map(lambda x: x.simpleMarshal(), self.getAncestry())
-            p = timeit(marshalParents)()
-            rv['parents'] = p
+            rv['parents'] = map(lambda x: x.simpleMarshal(), self.getAncestry())
         return rv
 
     #def __str__ (self):
@@ -783,8 +804,6 @@ class _BlitzGateway (object):
         """
         
         try:
-            logger.debug('connected? %s' % str(self._connected))
-            logger.debug('... sending keepalive to %s' % self._proxies['admin']._obj)
             if self.c.sf is None: #pragma: no cover
                 logger.debug('... c.sf is None, reconnecting')
                 return self.connect()
@@ -960,10 +979,8 @@ class _BlitzGateway (object):
         """
         
         if self.host is not None:
-            logger.info('host: %s, port: %i' % (str(self.host), int(self.port)))
             self.c = omero.client(host=str(self.host), port=int(self.port))#, pmap=['--Ice.Config='+','.join(self.ice_config)])
         else:
-            logger.info('--Ice.Config='+','.join(self.ice_config))
             self.c = omero.client(pmap=['--Ice.Config='+','.join(self.ice_config)])
 
         if hasattr(self.c, "setAgent"):
@@ -993,9 +1010,7 @@ class _BlitzGateway (object):
                         self._connected = False
                         logger.debug("was connected, creating new omero.client")
                         self._resetOmeroClient()
-                    logger.debug('joining session %s' % self._sessionUuid)
                     s = self.c.joinSession(self._sessionUuid)
-                    logger.debug('setting detachOnDestroy for %s' % str(s))
                     s.detachOnDestroy()
                     logger.debug('joinSession(%s)' % self._sessionUuid)
                     self._was_join = True
@@ -1015,7 +1030,6 @@ class _BlitzGateway (object):
                         #args = self.c._ic_args
                         #logger.debug(str(args))
                         self._closeSession()
-                        logger.info("called closeSession()")
                         self._resetOmeroClient()
                         #self.c = omero.client(*args)
                     except Glacier2.SessionNotExistException: #pragma: no cover
@@ -1027,12 +1041,11 @@ class _BlitzGateway (object):
                 if self.group is not None:
                     self.c.ic.getImplicitContext().put(omero.constants.GROUP, self.group)
                 try:
-                    logger.info("(1) calling createSession()")
                     self._createSession()
                 except omero.SecurityViolation:
                     if self.group is not None:
                         # User don't have access to group
-                        logger.info("## User not in '%s' group" % self.group)
+                        logger.debug("## User not in '%s' group" % self.group)
                         self.group = None
                         self._closeSession()
                         self._sessionUuid = None
@@ -1043,12 +1056,11 @@ class _BlitzGateway (object):
                         logger.info('first create session threw SecurityViolation, hold off 10 secs and retry (but only once)')
                         #time.sleep(10)
                         try:
-                            logger.info("(2) calling createSession()")
                             self._createSession()
                         except omero.SecurityViolation:
                             if self.group is not None:
                                 # User don't have access to group
-                                logger.info("## User not in '%s' group" % self.group)
+                                logger.debug("## User not in '%s' group" % self.group)
                                 self.group = None
                                 self._connected=True
                                 return self.connect()
@@ -1059,9 +1071,7 @@ class _BlitzGateway (object):
                 except:
                     logger.info("BlitzGateway.connect().createSession(): " + traceback.format_exc())
                     logger.debug(str(self._ic_props))
-                    logger.info('first create session had errors, hold off 10 secs and retry (but only once)')
                     #time.sleep(10)
-                    logger.info("(3) calling createSession()")
                     self._createSession()
 
             self._last_error = None

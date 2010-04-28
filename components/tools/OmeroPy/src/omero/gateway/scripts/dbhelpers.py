@@ -239,6 +239,8 @@ class DatasetEntry (ObjectEntry):
         if forceproj is None:
             if isinstance(self.project, StringTypes):
                 project = PROJECTS[self.project].get(client)
+            elif isinstance(self.project, ProjectEntry):
+                project = self.project.get(client)
             else:
                 project = self.project
         else:
