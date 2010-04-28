@@ -944,9 +944,7 @@ class OmeroImageServiceImpl
 	{
 		if (script == null)
 			throw new IllegalArgumentException("No script to upload.");
-		File f = new File(script.getName());
-		OriginalFile of = gateway.uploadFile(f, script.getMIMEType(), -1);
-		return of;
+		return gateway.uploadScript(script);
 	}
 	
 	/**

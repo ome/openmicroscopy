@@ -112,13 +112,29 @@ public class ScriptHandler
      */
     public void handleNullResult()
     { 
-    	activity.notifyError("Unable to run the script");
+    	switch (index) {
+			case UPLOAD:
+				activity.notifyError("Unable to upload the script.");
+				break;
+			case RUN:
+				activity.notifyError("Unable to run the script.");
+		}
     }
  
     /** 
      * Feeds the result back to the viewer. 
      * @see UserNotifierLoader#handleResult(Object)
      */
-    public void handleResult(Object result) { activity.endActivity(result); }
+    public void handleResult(Object result)
+    { 
+    	if (index == UPLOAD) {
+    		if (result instanceof Long) {
+    			Long value = (Long) result;
+    			if (value < 0) handleNullResult();
+    			else activity.endActivity(result); 
+    		}
+    	} else activity.endActivity(result); 
+    	
+    }
 	
 }

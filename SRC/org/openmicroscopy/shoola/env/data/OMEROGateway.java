@@ -6364,6 +6364,29 @@ class OMEROGateway
 		return Boolean.valueOf(true);
 	}
 	
+	/**
+	 * Runs the script.
+	 * 
+	 * @param script The script to run.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	Object uploadScript(ScriptObject script)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			IScriptPrx svc = getScripService();
+			return svc.uploadScript(script.getName());
+		} catch (Exception e) {
+			handleException(e, 
+					"Cannot upload the script: "+script.getName()+".");
+		}
+		return -1;
+	}
 	
 	//Admin 
 	
