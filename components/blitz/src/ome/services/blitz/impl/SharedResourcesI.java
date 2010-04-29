@@ -103,11 +103,19 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
     private final ScriptRepoHelper helper;
 
+    private final long waitMillis;
+
     private ServiceFactoryI sf;
 
     public SharedResourcesI(BlitzExecutor be, TopicManager topicManager,
             Registry registry, ScriptRepoHelper helper) {
+        this(be, topicManager, registry, helper, 5000);
+    }
+
+    public SharedResourcesI(BlitzExecutor be, TopicManager topicManager,
+                Registry registry, ScriptRepoHelper helper, long waitMillis) {
         super(null, be);
+        this.waitMillis = waitMillis;
         this.topicManager = topicManager;
         this.registry = registry;
         this.helper = helper;
@@ -161,7 +169,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
      * @see {@link ProcessorCheck}
      */
     private interface RepeatTask<U extends Ice.ObjectPrx> {
-        void requestService(Ice.ObjectPrx server, ResultHolder holder)
+        void requestService(Ice.ObjectPrx server, ResultHolder<U> holder)
                 throws ServerError;
     }
     
@@ -171,12 +179,12 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
         private final CountDownLatch c = new CountDownLatch(1);
 
-        private final int timeout;
+        private final long timeout;
 
         private volatile U rv = null;
 
-        ResultHolder(int timeoutSeconds) {
-            timeout = timeoutSeconds;
+        ResultHolder(long timeoutMillis) {
+            timeout = timeoutMillis;
         }
 
         void set(U obj) {
@@ -188,7 +196,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
         U get() {
             try {
-                c.await(timeout, TimeUnit.SECONDS);
+                c.await(timeout, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
                 // ignore
             }
@@ -200,10 +208,10 @@ public class SharedResourcesI extends AbstractAmdServant implements
     }
 
     @SuppressWarnings("unchecked")
-    private <U extends Ice.ObjectPrx> U lookup(List<Ice.ObjectPrx> objectPrxs,
-            int seconds, RepeatTask<U> task) throws ServerError {
+    private <U extends Ice.ObjectPrx> U lookup(long millis, List<Ice.ObjectPrx> objectPrxs,
+            RepeatTask<U> task) throws ServerError {
 
-        ResultHolder<U> holder = new ResultHolder<U>(seconds);
+        ResultHolder<U> holder = new ResultHolder<U>(millis);
         for (Ice.ObjectPrx prx : objectPrxs) {
             if (prx != null) {
                 task.requestService(prx, holder);
@@ -291,6 +299,19 @@ public class SharedResourcesI extends AbstractAmdServant implements
         return map;
     }
 
+    public boolean areTablesEnabled(Current __current) throws ServerError {
+        TablesPrx[] tables = registry.lookupTables();
+        return null != lookup(waitMillis, Arrays.<Ice.ObjectPrx> asList(tables),
+                new RepeatTask<TablesPrx>() {
+                    public void requestService(Ice.ObjectPrx prx,
+                            final ResultHolder<TablesPrx> holder) {
+                        final TablesPrx server = TablesPrxHelper
+                                .checkedCast(prx);
+                        holder.set(server);
+                    }
+                });
+    }
+
     public TablePrx newTable(final long repo, String path, Current __current)
             throws ServerError {
 
@@ -336,8 +357,8 @@ public class SharedResourcesI extends AbstractAmdServant implements
         // Okay. All's valid.
         InternalRepositoryPrx[] repos = registry.lookupRepositories();
 
-        RepositoryPrx repoPrx = (RepositoryPrx) lookup(Arrays
-                .<Ice.ObjectPrx> asList(repos), 60,
+        RepositoryPrx repoPrx = (RepositoryPrx) lookup(waitMillis,
+                Arrays.<Ice.ObjectPrx> asList(repos),
                 new RepeatTask<RepositoryPrx>() {
                     public void requestService(Ice.ObjectPrx prx,
                             final SharedResourcesI.ResultHolder holder) {
@@ -439,8 +460,8 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
         // Okay. All's valid.
         TablesPrx[] tables = registry.lookupTables();
-        TablePrx tablePrx = (TablePrx) lookup(Arrays
-                .<Ice.ObjectPrx> asList(tables), 60,
+        TablePrx tablePrx = (TablePrx) lookup(waitMillis,
+                Arrays.<Ice.ObjectPrx> asList(tables),
                 new RepeatTask<TablePrx>() {
                     public void requestService(Ice.ObjectPrx prx,
                             final ResultHolder holder) {

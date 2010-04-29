@@ -111,6 +111,7 @@
             <constructor-arg ref="TopicManager"/>
             <constructor-arg ref="Registry"/>
             <constructor-arg ref="scriptRepoHelper"/>
+            <constructor-arg value="${omero.grid.registry_timeout}"/>
         </bean>
     </constructor-arg>
   </bean>

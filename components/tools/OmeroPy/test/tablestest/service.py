@@ -45,6 +45,9 @@ class TestTables(lib.ITest):
         self.assert_( prev != next )
         self.assert_( next == 100 )
 
+    def testTicket2175(self):
+        self.assert_(self.client.sf.sharedResources().areTablesEnabled())
+
 def test_suite():
     return 1
 

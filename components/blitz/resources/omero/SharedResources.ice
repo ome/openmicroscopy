@@ -70,6 +70,16 @@ module omero {
                 throws ServerError;
 
             /**
+             * Returns true if a [Tables] service is active in the grid.
+             * If this value is false, then all calls to [newTable]
+             * or [openTable] will either fail or return null (possibly
+             * blocking while waiting for a service to startup)
+             **/
+             bool
+                areTablesEnabled()
+                throws ServerError;
+
+            /**
              * Creates a new Format("OMERO.tables") file at the given path
              * on the given repository. The returned Table proxy follows
              * the same semantics as the openTable method.
