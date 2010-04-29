@@ -50,16 +50,16 @@ public class QueryConstraints implements AdminAction {
     public void runAsAdmin() {
 
         String dsQuery;
-        if (force) {
-            dsQuery = dsNotOwnQuery;
-            p.addLong("owner", iAdmin.getEventContext().getCurrentUserId());
-        } else {
-            dsQuery = dsAllQuery;
+        if (!this.iAdmin.getEventContext().isCurrentUserAdmin()) {
+            if (force) {
+                dsQuery = dsNotOwnQuery;
+                p.addLong("owner", iAdmin.getEventContext().getCurrentUserId());
+            } else {
+                dsQuery = dsAllQuery;
+            }
+            rv.addAll(iQuery.findAllByQuery(dsQuery, p));
         }
-        rv.addAll(iQuery.findAllByQuery(dsQuery, p));
-
         // TODO What about categories of other users?
-
     }
 
     public List<IObject> getResults() {
