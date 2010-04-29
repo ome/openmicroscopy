@@ -45,9 +45,9 @@ import pojos.ExperimenterData;
 import pojos.FileData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
-import pojos.ScreenAcquisitionData;
 import pojos.TagAnnotationData;
 import pojos.WellData;
 
@@ -383,7 +383,7 @@ public class DataBrowserFactory
 	{
 		Object p = parent;
 		Object go = null;
-		if (parent instanceof ScreenAcquisitionData) {
+		if (parent instanceof PlateAcquisitionData) {
 			p = ancestors.get(PlateData.class);
 			if (p == null) return null;
 			ancestors.remove(PlateData.class);

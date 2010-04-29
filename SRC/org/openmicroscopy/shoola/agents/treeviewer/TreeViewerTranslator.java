@@ -57,8 +57,8 @@ import pojos.GroupData;
 import pojos.ImageData;
 import pojos.MultiImageData;
 import pojos.PlateData;
+import pojos.PlateAcquisitionData;
 import pojos.ProjectData;
-import pojos.ScreenAcquisitionData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.WellData;
@@ -211,21 +211,23 @@ public class TreeViewerTranslator
             throw new IllegalArgumentException("Cannot be null");
         TreeImageSet plate =  new TreeImageSet(data);
         if (screen != null) {
-        	Set<ScreenAcquisitionData> set = screen.getScreenAcquisitions();
+        	/*
+        	Set<PlateAcquisitionData> set = screen.getScreenAcquisitions();
         	if (set != null) {
-        		Iterator<ScreenAcquisitionData> i = set.iterator();
-        		ScreenAcquisitionData sa;
+        		Iterator<PlateAcquisitionData> i = set.iterator();
+        		PlateAcquisitionData sa;
         		long id = data.getId();
         		while (i.hasNext()) {
-        			sa = (ScreenAcquisitionData) i.next();
+        			sa = (PlateAcquisitionData) i.next();
         			if (sa.getRefPlateId() == id)
         				plate.addChildDisplay(new TreeImageSet(sa));	
 				}
-        	}
+				*/
+        	//}
         	plate.setChildrenLoaded(Boolean.valueOf(true));
         }
-        formatToolTipFor(plate);
-        return plate;
+        //formatToolTipFor(plate);
+        return null;//plate;
     }
     
     /**

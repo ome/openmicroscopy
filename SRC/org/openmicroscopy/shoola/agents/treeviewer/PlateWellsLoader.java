@@ -41,7 +41,7 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.PlateData;
-import pojos.ScreenAcquisitionData;
+import pojos.PlateAcquisitionData;
 
 
 /** 
@@ -100,12 +100,12 @@ public class PlateWellsLoader
 		TreeImageSet p;
 		TreeImageDisplay parent;
 		DataObject data, parentData;
-		ScreenAcquisitionData sa;
+		PlateAcquisitionData sa;
 		while (i.hasNext()) {
 			p = i.next();
 			data = (DataObject) p.getUserObject();
-			if (data instanceof ScreenAcquisitionData) {
-				sa = (ScreenAcquisitionData) data;
+			if (data instanceof PlateAcquisitionData) {
+				sa = (PlateAcquisitionData) data;
 				parent = p.getParentDisplay();
 				parentData = (DataObject) parent.getUserObject();
 				if (parentData instanceof PlateData) {

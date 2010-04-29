@@ -49,8 +49,8 @@ import pojos.GroupData;
 import pojos.ImageData;
 import pojos.MultiImageData;
 import pojos.PlateData;
+import pojos.PlateAcquisitionData;
 import pojos.ProjectData;
-import pojos.ScreenAcquisitionData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
@@ -453,8 +453,8 @@ public abstract class TreeImageDisplay
         	return ((File) obj).getName();
         else if (obj instanceof FileData)
         	return ((FileData) obj).getName();
-        else if (obj instanceof ScreenAcquisitionData)
-        	return ((ScreenAcquisitionData) obj).getLabel();
+        else if (obj instanceof PlateAcquisitionData)
+        	return null;//((PlateAcquisitionData) obj).getLabel();
         else if (obj instanceof MultiImageData) 
         	return ((MultiImageData) obj).getName();
         else if (obj instanceof String) return (String) obj;
@@ -480,7 +480,7 @@ public abstract class TreeImageDisplay
         else if (uo instanceof MultiImageData) 
         	return (name+SPACE+"["+numberItems+"]");
         else if (uo instanceof FileData) return name;
-        else if (uo instanceof ScreenAcquisitionData) return name;
+        else if (uo instanceof PlateAcquisitionData) return name;
         else if (uo instanceof String && numberItems < 0) 
         	return name;
         else if ((uo instanceof PlateData) && !hasChildrenDisplay())

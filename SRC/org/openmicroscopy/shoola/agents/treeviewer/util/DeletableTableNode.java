@@ -38,7 +38,7 @@ import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
-import pojos.ScreenAcquisitionData;
+import pojos.PlateAcquisitionData;
 import pojos.ScreenData;
 
 /** 
@@ -109,7 +109,7 @@ class DeletableTableNode
 		if (object instanceof ScreenData) return SCREEN_TYPE;
 		if (object instanceof PlateData) return PLATE_TYPE;
 		if (object instanceof FileAnnotationData) return FILE_TYPE;
-		if (object instanceof ScreenAcquisitionData) 
+		if (object instanceof PlateAcquisitionData) 
 			return PLATE_ACQUISITION_TYPE;
 		return "";
 	}
@@ -143,8 +143,8 @@ class DeletableTableNode
 					return ((ScreenData) object).getName();
 				if (object instanceof PlateData)
 					return ((PlateData) object).getName();
-				if (object instanceof ScreenAcquisitionData)
-					return ((ScreenAcquisitionData) object).getLabel();
+				if (object instanceof PlateAcquisitionData)
+					return "";//((PlateAcquisitionData) object).getLabel();
 				if (object instanceof FileAnnotationData)
 		        	return ((FileAnnotationData) object).getFileName();
 				if (object instanceof ImageData)

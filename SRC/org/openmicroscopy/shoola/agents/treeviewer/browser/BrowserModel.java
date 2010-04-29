@@ -63,7 +63,6 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.FSAccessException;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
-
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -72,8 +71,8 @@ import pojos.FileData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
+import pojos.PlateAcquisitionData;
 import pojos.ProjectData;
-import pojos.ScreenAcquisitionData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
@@ -729,7 +728,7 @@ class BrowserModel
 		if (object instanceof ImageData) parent.browse(node, true);
 		else if (object instanceof PlateData) {
 			if (!node.hasChildrenDisplay()) parent.browse(node, true);
-		} else if (object instanceof ScreenAcquisitionData)
+		} else if (object instanceof PlateAcquisitionData)
 			parent.browse(node, true);
 	}
 	

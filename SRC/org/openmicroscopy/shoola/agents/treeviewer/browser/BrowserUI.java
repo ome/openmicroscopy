@@ -92,8 +92,8 @@ import pojos.GroupData;
 import pojos.ImageData;
 import pojos.MultiImageData;
 import pojos.PlateData;
+import pojos.PlateAcquisitionData;
 import pojos.ProjectData;
-import pojos.ScreenAcquisitionData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
@@ -374,7 +374,7 @@ class BrowserUI
                 	model.openFile(d);
                 } else if (o instanceof PlateData) {
                 	if (!d.hasChildrenDisplay()) model.browser(d);
-                } else if (o instanceof ScreenAcquisitionData) {
+                } else if (o instanceof PlateAcquisitionData) {
                 	model.browser(d);
                 }
             }

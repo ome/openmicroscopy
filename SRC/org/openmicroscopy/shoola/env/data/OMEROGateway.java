@@ -152,15 +152,15 @@ import omero.model.Pixels;
 import omero.model.PixelsI;
 import omero.model.PixelsType;
 import omero.model.Plate;
+import omero.model.PlateAcquisition;
+import omero.model.PlateAcquisitionI;
+import omero.model.PlateAcquisitionWellSampleLink;
 import omero.model.PlateI;
 import omero.model.Project;
 import omero.model.ProjectI;
 import omero.model.RenderingDef;
 import omero.model.Roi;
 import omero.model.Screen;
-import omero.model.ScreenAcquisition;
-import omero.model.ScreenAcquisitionI;
-import omero.model.ScreenAcquisitionWellSampleLink;
 import omero.model.ScreenI;
 import omero.model.Shape;
 import omero.model.TagAnnotation;
@@ -187,12 +187,12 @@ import pojos.InstrumentData;
 import pojos.LongAnnotationData;
 import pojos.MultiImageData;
 import pojos.PixelsData;
+import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ROICoordinate;
 import pojos.ROIData;
 import pojos.RatingAnnotationData;
-import pojos.ScreenAcquisitionData;
 import pojos.ScreenData;
 import pojos.ShapeData;
 import pojos.TagAnnotationData;
@@ -811,10 +811,10 @@ class OMEROGateway
 		else if (ProjectI.class.equals(klass)) table = "ProjectDatasetLink";
 		else if (Screen.class.equals(klass)) table = "ScreenPlateLink";
 		else if (ScreenI.class.equals(klass)) table = "ScreenPlateLink";
-		else if (ScreenAcquisitionData.class.equals(klass))
-			table = "ScreenAcquisitionWellSampleLink";
-		else if (ScreenAcquisitionI.class.equals(klass))
-			table = "ScreenAcquisitionWellSampleLink";
+		else if (PlateAcquisitionData.class.equals(klass))
+			table = "PlateAcquisitionWellSampleLink";
+		else if (PlateAcquisitionI.class.equals(klass))
+			table = "PlateAcquisitionWellSampleLink";
 		else if (TagAnnotation.class.equals(klass)) 
 			table = "AnnotationAnnotationLink";
 		else if (TagAnnotationI.class.equals(klass)) 
@@ -1831,8 +1831,8 @@ class OMEROGateway
 			return Well.class;
 		else if (WellSampleData.class.equals(nodeType)) 
 			return WellSample.class;
-		else if (ScreenAcquisitionData.class.equals(nodeType))
-			return ScreenAcquisition.class;
+		else if (PlateAcquisitionData.class.equals(nodeType))
+			return PlateAcquisition.class;
 		else if (FileData.class.equals(nodeType) || 
 				MultiImageData.class.equals(nodeType))
 			return OriginalFile.class;
@@ -2175,20 +2175,20 @@ class OMEROGateway
 	/**
 	 * Links the plate to the screen acquisition if any.
 	 * 
-	 * @param set The collection of screen acquisition linked to the screen.
+	 * @param set The collection of plate acquisition linked to the screen.
 	 * @param plate The plate to link the screen acquisition to.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in.
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	private void linkScreenAcquisitionPlate(Set<ScreenAcquisitionData> set, 
+	private void linkScreenAcquisitionPlate(Set<PlateAcquisitionData> set, 
 			PlateData plate)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (set == null || set.size() == 0) return;
-		ScreenAcquisitionData sa;
-		Iterator<ScreenAcquisitionData> i = set.iterator();
-		List<ScreenAcquisitionData> l = new ArrayList<ScreenAcquisitionData>();
+		PlateAcquisitionData sa;
+		Iterator<PlateAcquisitionData> i = set.iterator();
+		List<PlateAcquisitionData> l = new ArrayList<PlateAcquisitionData>();
 		StringBuffer sb;
 		ParametersI param = new ParametersI();
 		param.addLong("pid", plate.getId());
@@ -2197,7 +2197,7 @@ class OMEROGateway
 			List<IObject> r;
 			sb = new StringBuffer();
 			sb.append("select distinct l.parent " +
-					"from ScreenAcquisitionWellSampleLink as l");
+					"from PlateAcquisitionWellSampleLink as l");
 			sb.append(" where l.child.well.plate.id = :pid");
 			r = svc.findAllByQuery(sb.toString(), param);
 			List<Long> ids = new ArrayList<Long>();
@@ -2254,18 +2254,19 @@ class OMEROGateway
 					convertPojos(rootType).getName(), rootIDs, options));
 			if (ScreenData.class.equals(rootType)) {
 				Iterator i = values.iterator();
-				ScreenAcquisitionData sa;
+				PlateAcquisitionData sa;
 				ScreenData screen;
 				Object object;
-				Set<ScreenAcquisitionData> list;
+				Set<PlateAcquisitionData> list;
 				Set<PlateData> plates;
 				Iterator<PlateData> j;
-				Set<ScreenAcquisitionData> acquisitions;
+				Set<PlateAcquisitionData> acquisitions;
 				while (i.hasNext()) {
 					object = i.next();
 					if (object instanceof ScreenData) {
 						screen = (ScreenData) object;
-						list = new HashSet<ScreenAcquisitionData>();
+						list = new HashSet<PlateAcquisitionData>();
+						/*
 						acquisitions = screen.getScreenAcquisitions();
 						if (acquisitions != null) 
 							list.addAll(acquisitions);
@@ -2279,6 +2280,7 @@ class OMEROGateway
 								}
 							}
 						}
+						*/
 					}
 				}
 			}
@@ -2299,11 +2301,10 @@ class OMEROGateway
 	 * and maps the result calling {@link PojoMapper#asDataObjects(Set)}.
 	 * 
 	 * @param rootNodeType  top-most type which will be searched for 
-	 *                      Can be <code>Project</code> or
-	 *                      <code>CategoryGroup</code>. 
+	 *                      Can be <code>Project</code>
 	 *                      Mustn't be <code>null</code>.
-	 * @param leavesIDs     Set of ids of the Images that sit at the bottom of
-	 *                      the trees. Mustn't be <code>null</code>.
+	 * @param leavesIDs     Set of identifiers of the Images that sit at the 
+	 * 						bottom of the trees. Mustn't be <code>null</code>.
 	 * @param options Options to retrieve the data.
 	 * @return A <code>Set</code> with all root nodes that were found.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
@@ -2346,9 +2347,9 @@ class OMEROGateway
 	 * @param annotationTypes The collection of annotations to retrieve or 
 	 * 						  passed an empty list if we retrieve all the 
 	 * 						  annotations. 
-	 * @param annotatorIDs  The Ids of the users for whom annotations should be 
-	 *                      retrieved. If <code>null</code>, all annotations 
-	 *                      are returned.
+	 * @param annotatorIDs  The identifiers of the users for whom annotations 
+	 * 						should be retrieved. If <code>null</code>, 
+	 * 						all annotations are returned.
 	 * @param options       Options to retrieve the data.
 	 * @return A map whose key is rootNodeID and value the <code>Set</code> of
 	 *         all annotations for that node or <code>null</code>.
@@ -2402,8 +2403,11 @@ class OMEROGateway
 			return new HashSet<DataObject>();
 		try {
 			IMetadataPrx service = getMetadataService();
+			return new HashSet<DataObject>();
+			/*
 			return PojoMapper.asDataObjects(
 					service.loadAnnotation(annotationIds));
+					*/
 		} catch (Throwable t) {
 			handleException(t, "Cannot find the annotations.");
 		}
@@ -4116,6 +4120,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IMetadataPrx service = getMetadataService();
+			/*
 			List<Annotation> l = service.loadSpecifiedAnnotations(
 					convertPojos(type).getName(), toInclude, 
 					toExclude, options);
@@ -4123,6 +4128,8 @@ class OMEROGateway
 					service.loadSpecifiedAnnotations(
 							convertPojos(type).getName(), toInclude, 
 							toExclude, options));
+							*/
+			return new HashSet(); 
 		} catch (Exception e) {
 			handleException(e, "Cannot retrieve the annotations");
 		}
@@ -4832,18 +4839,18 @@ class OMEROGateway
 				//Get the id of the well samples.
 				List<Long> ids = new ArrayList<Long>();
 				//i = results.iterator();
-				ScreenAcquisitionWellSampleLink link;
+				PlateAcquisitionWellSampleLink link;
 				IObject child;
 				StringBuilder sb2 = new StringBuilder();
 				sb2.append("select distinct l " +
-				"from ScreenAcquisitionWellSampleLink as l");
+				"from PlateAcquisitionWellSampleLink as l");
 				sb2.append(" where l.parent.id = :said");
 				ParametersI p = new ParametersI();
 				p.addLong("said", acquisitionID);
 				results = service.findAllByQuery(sb2.toString(), p);
 				i = results.iterator();
 				while (i.hasNext()) {
-					link = (ScreenAcquisitionWellSampleLink) i.next();
+					link = (PlateAcquisitionWellSampleLink) i.next();
 					child = link.getChild();
 					if (child != null) ids.add(child.getId().getValue());
 				}
@@ -5266,7 +5273,7 @@ class OMEROGateway
 			Iterator<Integer> i = channels.iterator();
 			while (i.hasNext()) 
 				set.add(omero.rtypes.rlong(i.next()));
-			Map<Long, String> scripts = svc.getScripts();
+			Map<Long, String> scripts = null;//svc.getScripts();
 			
 			if (scripts == null) return null;
 			long id = -1;
@@ -5350,7 +5357,7 @@ class OMEROGateway
 		List<ScriptObject> scripts = new ArrayList<ScriptObject>();
 		try {
 			IScriptPrx svc = getScripService();
-			Map<Long, String> map = svc.getScripts();
+			Map<Long, String> map = null;//svc.getScripts();
 			if (map == null || map.size() == 0) return scripts;
 			Entry en;
 			Iterator j = map.entrySet().iterator();
@@ -5399,7 +5406,7 @@ class OMEROGateway
 		ScriptObject script = null;
 		try {
 			IScriptPrx svc = getScripService();
-			String name = svc.getScript(scriptID);
+			String name = null;//svc.getScript(scriptID);
 			//Map<Long, String> map = svc.getScripts();
 			if (name == null || name.length() == 0) return null;
 			script = new ScriptObject(scriptID, name);
@@ -5426,7 +5433,7 @@ class OMEROGateway
 		try {
 
 			IScriptPrx svc = getScripService();
-			return svc.getScripts();
+			return new HashMap<Long, String>();// svc.getScripts();
 		} catch (Exception e) {
 			handleException(e, "Cannot load the scripts. ");
 		}
@@ -5496,7 +5503,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IScriptPrx svc = getScripService();
-			Map<Long, String> scripts = svc.getScripts();
+			Map<Long, String> scripts = null;//svc.getSsvc.getScripts();
 			if (scripts == null) return -1;
 			long id = -1;
 			Entry en;
@@ -6287,6 +6294,7 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
+			/*
 			IScriptPrx svc = getScripService();
 			
 			Map<Long, String> scripts = svc.getScripts();
@@ -6308,9 +6316,7 @@ class OMEROGateway
 			map.put("imageId", omero.rtypes.rlong(ids.get(0)));
 			
 			runScript(id, map);
-			//RLong type = (RLong) result.get("fileAnnotation");
-			//if (type == null) return -1;
-			//return type.getValue();
+			 */
 		} catch (Exception e) {
 			handleException(e, "Cannot analyze the data.");
 		}
@@ -6398,7 +6404,9 @@ class OMEROGateway
 						"Cannot upload the script: "+script.getName()+".");
 				return -1;
 			}
-			return svc.uploadScript(buf.toString());
+			
+			//return svc.uploadScript(buf.toString());
+			return -1;
 		} catch (Exception e) {
 			handleException(e, 
 					"Cannot upload the script: "+script.getName()+".");

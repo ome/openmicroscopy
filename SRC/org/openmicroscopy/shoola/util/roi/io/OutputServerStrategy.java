@@ -1,32 +1,29 @@
 /*
-* org.openmicroscopy.shoola.util.roi.io.OutputServerStrategy
-*
-*------------------------------------------------------------------------------
-*  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
-*
-*
-* 	This program is free software; you can redistribute it and/or modify
-*  it under the terms of the GNU General Public License as published by
-*  the Free Software Foundation; either version 2 of the License, or
-*  (at your option) any later version.
-*  This program is distributed in the hope that it will be useful,
-*  but WITHOUT ANY WARRANTY; without even the implied warranty of
-*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*  GNU General Public License for more details.
-*
-*  You should have received a copy of the GNU General Public License along
-*  with this program; if not, write to the Free Software Foundation, Inc.,
-*  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*
-*------------------------------------------------------------------------------
-*/
+ * org.openmicroscopy.shoola.util.roi.io.OutputServerStrategy
+ *
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *
+ *
+ * 	This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
 package org.openmicroscopy.shoola.util.roi.io;
 
 //Java imports
-import static org.jhotdraw.draw.AttributeKeys.TRANSFORM;
-
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -36,13 +33,11 @@ import java.util.List;
 import java.util.TreeMap;
 
 //Third-party libraries
-
-//Application-internal dependencies
-import omero.rtypes;
-import omero.model.Image;
-
+import static org.jhotdraw.draw.AttributeKeys.TRANSFORM;
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.geom.BezierPath;
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
@@ -57,15 +52,12 @@ import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
-
 import pojos.EllipseData;
 import pojos.ImageData;
-import pojos.LineData;
 import pojos.MaskData;
 import pojos.PointData;
 import pojos.PolygonData;
 import pojos.PolylineData;
-import pojos.ROICoordinate;
 import pojos.ROIData;
 import pojos.ShapeData;
 import pojos.ShapeSettingsData;
@@ -73,7 +65,7 @@ import pojos.TextData;
 import pojos.RectangleData;
 
 /**
- *
+ * Handles ROI from server.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -88,37 +80,14 @@ import pojos.RectangleData;
 public class OutputServerStrategy 
 {
 	
-	/** The ROIComponent to serialise. */
+	/** The ROIComponent to serialize. */
 	private ROIComponent component;
 	
 	/** The list of ROI to be supplied to the server. */
 	private List<ROIData>  ROIList;
 	
 	/**
-	 * Instantiate the class.
-	 */
-	OutputServerStrategy()
-	{
-		
-	}
-	
-	
-	/**
-	 * Write the ROI from the ROI component to the server. 
-	 * @param component See above.
-	 * @param image The image the ROI is on.
-	 * @throws Exception 
-	 */
-	public List<ROIData> writeROI(ROIComponent component, ImageData image) throws Exception
-	{
-		this.component = component;
-		this.ROIList = new ArrayList<ROIData>();
-		parseROI(image);
-		return ROIList;
-	}
-	
-	/**
-	 * Parse the ROI in the ROIComponent to create the appropriate ROIDAta 
+	 * Parses the ROI in the ROIComponent to create the appropriate ROIDAta 
 	 * object to supply to the server.
 	 * @param image The image the ROI is on.
 	 * @throws Exception 
@@ -127,65 +96,40 @@ public class OutputServerStrategy
 	{
 		TreeMap<Long, ROI> map = component.getROIMap();
 		Iterator<ROI> roiIterator = map.values().iterator();
+		ROI roi;
+		ROIData serverROI;
 		while(roiIterator.hasNext())
 		{
-			ROI roi = roiIterator.next();
-			ROIData serverROI = createServerROI(roi, image);
+			roi = roiIterator.next();
+			serverROI = createServerROI(roi, image);
 			ROIList.add(serverROI);
 		}
 	}
 	
-	/**
-	 * Creates an ROIData object from an ROI. 
-	 * @param roi See above.
-	 * @param image The image the ROI is on.
-	 * @return See above.
-	 * @throws Exception 
-	 */
-	private ROIData createServerROI(ROI roi, ImageData image) throws Exception
-	{
-		
-		ROIData roiData = new ROIData();
-		roiData.setNamespace(roi.getNamespace());
-		roiData.setKeywords(roi.getKeyword());
-		roiData.setClientSide(roi.isClientSide());
-		if(!roi.isClientSide())
-			roiData.setId(roi.getID());
-		roiData.setImage(image.asImage());
-		TreeMap<Coord3D, ROIShape> shapes =  roi.getShapes();
-		Iterator<ROIShape> shapeIterator = shapes.values().iterator();
-		while(shapeIterator.hasNext())
-		{
-			ROIShape roiShape = shapeIterator.next();
-			ShapeData shape = createShapeData(roiShape);
-			addShapeAttributes(roiShape.getFigure(), shape);
-			roiData.addShapeData(shape);
-		}
-		return roiData;
-	}
 	
 	/**
-	 * Create the shapedata object for the ROIShape figure object.
+	 * Creates the Shape object for the ROIShape figure object.
 	 * @param clientShape See above.
 	 * @return See above.
-	 * @throws Exception
+	 * @throws Exception If an error occurred while creating the shape.
 	 */
-	private ShapeData createShapeData(ROIShape clientShape) throws Exception
+	private ShapeData createShapeData(ROIShape clientShape) 
+		throws Exception
 	{
 		ROIFigure fig = clientShape.getFigure();
-		if(fig instanceof MeasureBezierFigure)
+		if (fig instanceof MeasureBezierFigure)
 			return createBezierFigure(clientShape);
-		else if(fig instanceof MeasureEllipseFigure)
+		else if (fig instanceof MeasureEllipseFigure)
 			return createEllipseFigure(clientShape);
-		else if(fig instanceof MeasureLineFigure)
+		else if (fig instanceof MeasureLineFigure)
 			return createLineFigure(clientShape);
-		else if(fig instanceof MeasureMaskFigure)
+		else if (fig instanceof MeasureMaskFigure)
 			return createMaskFigure(clientShape);
-		else if(fig instanceof MeasurePointFigure)
+		else if (fig instanceof MeasurePointFigure)
 			return createPointFigure(clientShape);
-		else if(fig instanceof MeasureRectangleFigure)
+		else if (fig instanceof MeasureRectangleFigure)
 			return createRectangleFigure(clientShape);
-		else if(fig instanceof MeasureTextFigure)
+		else if (fig instanceof MeasureTextFigure)
 			return createTextFigure(clientShape);
 		else
 			throw new Exception("ROIShape not supported : " + 
@@ -193,29 +137,70 @@ public class OutputServerStrategy
 	}
 	
 	/**
-	 * Create a bezier figure server side object from a MeasureBezierFigure 
+	 * Creates an ROIData object from an ROI. 
+	 * 
+	 * @param roi See above.
+	 * @param image The image the ROI is on.
+	 * @return See above.
+	 * @throws Exception If an error occurred while parsing the ROI.
+	 */
+	private ROIData createServerROI(ROI roi, ImageData image) 
+		throws Exception
+	{
+		
+		ROIData roiData = new ROIData();
+		String[] values = new String[1];
+		values[0] = roi.getNamespace();
+		roiData.setNamespaces(values);
+		//TODO Fix Name
+		//roiData.setKeywords(roi.getKeyword());
+		
+		roiData.setClientSide(roi.isClientSide());
+		if (!roi.isClientSide())
+			roiData.setId(roi.getID());
+		roiData.setImage(image.asImage());
+		TreeMap<Coord3D, ROIShape> shapes =  roi.getShapes();
+		Iterator<ROIShape> shapeIterator = shapes.values().iterator();
+		ROIShape roiShape;
+		ShapeData shape;
+		while (shapeIterator.hasNext())
+		{
+			roiShape = shapeIterator.next();
+			shape = createShapeData(roiShape);
+			addShapeAttributes(roiShape.getFigure(), shape);
+			roiData.addShapeData(shape);
+		}
+		return roiData;
+	}
+	
+	/**
+	 * Creates a Bezier figure server side object from a MeasureBezierFigure 
 	 * client side object.
+	 * 
 	 * @param shape See above.
 	 * @return See above.
-	 * @throws ParsingException 
+	 * @throws ParsingException If an error occurred while parsing.
 	 */
-	private ShapeData createBezierFigure(ROIShape shape) throws ParsingException
+	private ShapeData createBezierFigure(ROIShape shape) 
+		throws ParsingException
 	{
 		MeasureBezierFigure fig = (MeasureBezierFigure)shape.getFigure();
-		if(fig.isClosed())
+		if (fig.isClosed())
 			return createPolygonFigure(shape);
 		else
 			return createPolylineFigure(shape);
 	}
 	
 	/**
-	 * Create a ellipse figure server side object from a MeasureEllipseFigure 
+	 * Creates a ellipse figure server side object from a MeasureEllipseFigure 
 	 * client side object.
+	 * 
 	 * @param shape See above.
 	 * @return See above.
-	 * @throws ParsingException 
+	 * @throws ParsingException If an error occurred while parsing.
 	 */
-	private EllipseData createEllipseFigure(ROIShape shape) throws ParsingException
+	private EllipseData createEllipseFigure(ROIShape shape) 
+		throws ParsingException
 	{
 		MeasureEllipseFigure fig = (MeasureEllipseFigure)shape.getFigure();
 		double rx=fig.getEllipse().getWidth()/2d;
@@ -224,22 +209,22 @@ public class OutputServerStrategy
 		double cy=fig.getEllipse().getCenterY();
 		
 		EllipseData ellipse = new EllipseData(cx, cy, rx, ry); 
-		if(!fig.isClientObject())
+		if (!fig.isClientObject())
 			ellipse.setId(shape.getROIShapeID());
 		ellipse.setDirty(fig.isDirty());
 		ellipse.setT(shape.getT());
 		ellipse.setZ(shape.getZ());
 		ellipse.setText(fig.getText());
-		AffineTransform t=TRANSFORM.get(fig);
-		if(t!=null)
+		AffineTransform t = TRANSFORM.get(fig);
+		if (t != null)
 			ellipse.setTransform(toTransform(t));
 		return ellipse;
 	}
-	
-	
+
 	/**
-	 * Create a mask figure server side object from a MeasureMaskFigure 
+	 * Creates a mask figure server side object from a MeasureMaskFigure 
 	 * client side object.
+	 * 
 	 * @param shape See above.
 	 * @return See above.
 	 */
@@ -249,64 +234,67 @@ public class OutputServerStrategy
 	}
 	
 	/**
-	 * Create a bezier figure server side object from a MeasurePointFigure 
+	 * Creates a Bezier figure server side object from a MeasurePointFigure 
 	 * client side object.
+	 * 
 	 * @param shape See above.
 	 * @return See above.
-	 * @throws ParsingException 
+	 * @throws ParsingException If an error occurred while parsing.
 	 */
 	private PointData createPointFigure(ROIShape shape) 
 		throws ParsingException
 	{
 		MeasurePointFigure fig = (MeasurePointFigure)shape.getFigure();
-		double cx=fig.getCentre().getX();
-		double cy=fig.getCentre().getY();
+		double cx = fig.getCentre().getX();
+		double cy = fig.getCentre().getY();
 		
 		PointData point = new PointData(cx, cy); 
 		point.setDirty(fig.isDirty());
 		point.setT(shape.getT());
 		point.setZ(shape.getZ());
 		point.setText(fig.getText());
-		AffineTransform t=TRANSFORM.get(fig);
-		if(t!=null)
+		AffineTransform t = TRANSFORM.get(fig);
+		if (t != null)
 			point.setTransform(toTransform(t));
-		if(!fig.isClientObject())
+		if (!fig.isClientObject())
 			point.setId(shape.getROIShapeID());
 		return point;
 	}
 	
 	/**
-	 * Create a text figure server side object from a MeasureTextFigure 
+	 * Creates a text figure server side object from a MeasureTextFigure 
 	 * client side object.
+	 * 
 	 * @param shape See above.
 	 * @return See above.
-	 * @throws ParsingException 
+	 * @throws ParsingException If an error occurred while parsing.
 	 */
 	private TextData createTextFigure(ROIShape shape) 
 		throws ParsingException
 	{
 		MeasureTextFigure fig = (MeasureTextFigure)shape.getFigure();
-		double x=fig.getBounds().getX();
-		double y=fig.getBounds().getY();
+		double x = fig.getBounds().getX();
+		double y = fig.getBounds().getY();
 		
 		TextData text = new TextData(fig.getText(),x, y); 
 		text.setDirty(fig.isDirty());
 		text.setT(shape.getT());
 		text.setZ(shape.getZ());
-		AffineTransform t=TRANSFORM.get(fig);
-		if(t!=null)
+		AffineTransform t = TRANSFORM.get(fig);
+		if (t != null)
 			text.setTransform(toTransform(t));
-		if(!fig.isClientObject())
+		if (!fig.isClientObject())
 			text.setId(shape.getROIShapeID());
 		return text;
 	}
 	
 	/**
-	 * Create a rectangle figure server side object from a MeasureRectangleFigure 
-	 * client side object.
+	 * Creates a rectangle figure server side object from a 
+	 * MeasureRectangleFigure client side object.
+	 * 
 	 * @param shape See above.
 	 * @return See above.
-	 * @throws ParsingException 
+	 * @throws ParsingException If an error occurred while parsing.
 	 */
 	private RectangleData createRectangleFigure(ROIShape shape) 
 		throws ParsingException
@@ -323,33 +311,34 @@ public class OutputServerStrategy
 		rectangle.setZ(shape.getZ());
 		rectangle.setText(fig.getText());
 		
-		AffineTransform t=TRANSFORM.get(fig);
-		if(t!=null)
+		AffineTransform t = TRANSFORM.get(fig);
+		if (t != null)
 			rectangle.setTransform(toTransform(t));
 		
-		if(!fig.isClientObject())
+		if (!fig.isClientObject())
 			rectangle.setId(shape.getROIShapeID());
 		return rectangle;
 	}
 	
 	/**
-	 * Create a polygon figure server side object from a MeasureBezierFigure 
+	 * Creates a polygon figure server side object from a MeasureBezierFigure 
 	 * client side object.
+	 * 
 	 * @param shape See above.
 	 * @return See above.
-	 * @throws ParsingException 
+	 * @throws ParsingException If an error occurred while parsing.
 	 */
 	private PolygonData createPolygonFigure(ROIShape shape) 
 		throws ParsingException
 	{
 		MeasureBezierFigure fig = (MeasureBezierFigure)shape.getFigure();
-		AffineTransform t=TRANSFORM.get(fig);
-		List<Point2D.Double> points=new LinkedList<Point2D.Double>();
-		List<Point2D.Double> points1=new LinkedList<Point2D.Double>();
-		List<Point2D.Double> points2=new LinkedList<Point2D.Double>();
-		List<Integer> maskList=new LinkedList<Integer>();
+		AffineTransform t = TRANSFORM.get(fig);
+		List<Point2D.Double> points = new LinkedList<Point2D.Double>();
+		List<Point2D.Double> points1 = new LinkedList<Point2D.Double>();
+		List<Point2D.Double> points2 = new LinkedList<Point2D.Double>();
+		List<Integer> maskList = new LinkedList<Integer>();
 		
-		BezierPath bezier=fig.getBezierPath();
+		BezierPath bezier = fig.getBezierPath();
 		for (BezierPath.Node node : bezier)
 		{
 			points.add(new Point2D.Double(node.x[0], node.y[0]));
@@ -361,32 +350,33 @@ public class OutputServerStrategy
 		poly.setT(shape.getT());
 		poly.setZ(shape.getZ());
 		poly.setPoints(points, points1, points2, maskList);
-		if(t!=null)
+		if (t != null)
 			poly.setTransform(toTransform(t));
 		poly.setText(fig.getText());
-		if(!fig.isClientObject())
+		if (!fig.isClientObject())
 			poly.setId(shape.getROIShapeID());
 		return poly;	
 	}
 	
 	/**
-	 * Create a line figure server side object from a MeasureLineFigure 
+	 * Creates a line figure server side object from a MeasureLineFigure 
 	 * client side object.
+	 * 
 	 * @param shape See above.
 	 * @return See above.
-	 * @throws ParsingException 
+	 * @throws ParsingException If an error occurred while parsing.
 	 */
 	private PolylineData createLineFigure(ROIShape shape) 
 				throws ParsingException
 	{
 		MeasureLineFigure fig = (MeasureLineFigure)shape.getFigure();
-		AffineTransform t=TRANSFORM.get(fig);
-		List<Point2D.Double> points=new LinkedList<Point2D.Double>();
-		List<Point2D.Double> points1=new LinkedList<Point2D.Double>();
-		List<Point2D.Double> points2=new LinkedList<Point2D.Double>();
-		List<Integer> maskList=new LinkedList<Integer>();
+		AffineTransform t = TRANSFORM.get(fig);
+		List<Point2D.Double> points = new LinkedList<Point2D.Double>();
+		List<Point2D.Double> points1 = new LinkedList<Point2D.Double>();
+		List<Point2D.Double> points2 = new LinkedList<Point2D.Double>();
+		List<Integer> maskList =  new LinkedList<Integer>();
 		
-		BezierPath bezier=fig.getBezierPath();
+		BezierPath bezier = fig.getBezierPath();
 		for (BezierPath.Node node : bezier)
 		{
 			points.add(new Point2D.Double(node.x[0], node.y[0]));
@@ -398,32 +388,33 @@ public class OutputServerStrategy
 		line.setT(shape.getT());
 		line.setZ(shape.getZ());
 		line.setPoints(points, points1, points2, maskList);
-		if(t!=null)
+		if (t != null)
 			line.setTransform(toTransform(t));
 		line.setText(fig.getText());
-		if(!fig.isClientObject())
+		if (!fig.isClientObject())
 			line.setId(shape.getROIShapeID());
 		return line;
 	}
 	
 	/**
-	 * Create a polyline figure server side object from a MeasureBezierFigure 
+	 * Creates a PolyLine figure server side object from a MeasureBezierFigure 
 	 * client side object.
+	 * 
 	 * @param shape See above.
 	 * @return See above.
-	 * @throws ParsingException 
+	 * @throws ParsingException If an error occurred while parsing.
 	 */
 	private PolylineData createPolylineFigure(ROIShape shape) 
 		throws ParsingException
 	{
 		MeasureBezierFigure fig = (MeasureBezierFigure)shape.getFigure();
-		AffineTransform t=TRANSFORM.get(fig);
-		List<Point2D.Double> points=new LinkedList<Point2D.Double>();
-		List<Point2D.Double> points1=new LinkedList<Point2D.Double>();
-		List<Point2D.Double> points2=new LinkedList<Point2D.Double>();
+		AffineTransform t = TRANSFORM.get(fig);
+		List<Point2D.Double> points = new LinkedList<Point2D.Double>();
+		List<Point2D.Double> points1 = new LinkedList<Point2D.Double>();
+		List<Point2D.Double> points2 = new LinkedList<Point2D.Double>();
 		List<Integer> maskList=new LinkedList<Integer>();
 		
-		BezierPath bezier=fig.getBezierPath();
+		BezierPath bezier = fig.getBezierPath();
 		for (BezierPath.Node node : bezier)
 		{
 			points.add(new Point2D.Double(node.x[0], node.y[0]));
@@ -435,17 +426,18 @@ public class OutputServerStrategy
 		poly.setT(shape.getT());
 		poly.setZ(shape.getZ());
 		poly.setPoints(points, points1, points2, maskList);
-		if(t!=null)
+		if (t != null)
 			poly.setTransform(toTransform(t));
 		poly.setText(fig.getText());
 		poly.setText(fig.getText());
-		if(!fig.isClientObject())
+		if (!fig.isClientObject())
 			poly.setId(shape.getROIShapeID());
 		return poly;	
 	}
 	
 	/**
-	 * Add the ShapeSettings attributes to the shape.
+	 * Adds the ShapeSettings attributes to the shape.
+	 * 
 	 * @param fig The figure in the measurement tool.
 	 * @param shape The shape to add setting to.
 	 */
@@ -453,34 +445,38 @@ public class OutputServerStrategy
 	{
 		ShapeSettingsData settings = shape.getShapeSettings();
 		
-		if(AttributeKeys.FILL_COLOR.get(fig)!=null)
+		if (AttributeKeys.FILL_COLOR.get(fig)!=null)
 		{
 			Color c = AttributeKeys.FILL_COLOR.get(fig);
 			settings.setFillColor(c);
 		}
-		if(MeasurementAttributes.STROKE_COLOR.get(fig)!=null)
-			settings.setStrokeColor(MeasurementAttributes.STROKE_COLOR.get(fig));
-		if(MeasurementAttributes.STROKE_WIDTH.get(fig)!=null)
-			settings.setStrokeWidth(MeasurementAttributes.STROKE_WIDTH.get(fig));
-		if(MeasurementAttributes.FONT_FACE.get(fig)!=null)
-			settings.setFontFamily(MeasurementAttributes.FONT_FACE.get(fig).getName());
+		if (MeasurementAttributes.STROKE_COLOR.get(fig)!=null)
+			settings.setStrokeColor(
+					MeasurementAttributes.STROKE_COLOR.get(fig));
+		if (MeasurementAttributes.STROKE_WIDTH.get(fig)!=null)
+			settings.setStrokeWidth(
+					MeasurementAttributes.STROKE_WIDTH.get(fig));
+		if (MeasurementAttributes.FONT_FACE.get(fig)!=null)
+			settings.setFontFamily(
+					MeasurementAttributes.FONT_FACE.get(fig).getName());
 		else
 			settings.setFontFamily(ShapeSettingsData.DEFAULT_FONT_FAMILY);
-		if(MeasurementAttributes.FONT_SIZE.get(fig)!=null)
-			settings.setFontSize(MeasurementAttributes.FONT_SIZE.get(fig).intValue());
+		if (MeasurementAttributes.FONT_SIZE.get(fig)!=null)
+			settings.setFontSize(
+					MeasurementAttributes.FONT_SIZE.get(fig).intValue());
 		else
 			settings.setFontSize(ShapeSettingsData.DEFAULT_FONT_SIZE);
-		if(MeasurementAttributes.FONT_BOLD.get(fig)!=null)
+		if (MeasurementAttributes.FONT_BOLD.get(fig)!=null)
 			settings.setFontWeight(ShapeSettingsData.FONT_BOLD);
 		else
 			settings.setFontWeight(ShapeSettingsData.DEFAULT_FONT_WEIGHT);
-		if(MeasurementAttributes.FONT_ITALIC.get(fig)!=null)
+		if (MeasurementAttributes.FONT_ITALIC.get(fig)!=null)
 			settings.setFontStyle(ShapeSettingsData.FONT_ITALIC);
 		else
 			settings.setFontStyle(ShapeSettingsData.DEFAULT_FONT_STYLE);
 	}
 	
-	/*
+	/**
 	 * Converts an AffineTransform into an SVG transform attribute value as
 	 * specified in
 	 * http://www.w3.org/TR/SVGMobile12/coords.html#TransformAttribute
@@ -562,22 +558,41 @@ public class OutputServerStrategy
 		
 		return buf.toString();
 	}
-	
-	
+
 	/**
 	 * Returns a double array as a number attribute value.
+	 * 
 	 * @param number the number to convert.
 	 * @return See above.
 	 */
 	private static String toNumber(double number)
 	{
-		String str=Double.toString(number);
+		String str = Double.toString(number);
 		if (str.endsWith(".0"))
 		{
-			str=str.substring(0, str.length()-2);
+			str = str.substring(0, str.length()-2);
 		}
 		return str;
 	}
 	
+	/** Creates a new instance. */
+	OutputServerStrategy() {}
+
+	/**
+	 * Writes the ROI from the ROI component to the server. 
+	 * 
+	 * @param component See above.
+	 * @param image The image the ROI is on.
+	 * @throws Exception If an error occurred while parsing the ROI.
+	 */
+	public List<ROIData> writeROI(ROIComponent component, ImageData image) 
+		throws Exception
+	{
+		this.component = component;
+		ROIList = new ArrayList<ROIData>();
+		parseROI(image);
+		return ROIList;
+	}
+
 }
 

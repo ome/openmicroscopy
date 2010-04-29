@@ -71,9 +71,9 @@ import pojos.FileData;
 import pojos.ImageData;
 import pojos.MultiImageData;
 import pojos.PixelsData;
+import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
-import pojos.ScreenAcquisitionData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.WellData;
@@ -801,7 +801,7 @@ class PropertiesUI
         else if (refObject instanceof ProjectData) text = "Project";
         else if (refObject instanceof ScreenData) text = "Screen";
         else if (refObject instanceof PlateData) text = "Plate";
-        else if (refObject instanceof ScreenAcquisitionData)
+        else if (refObject instanceof PlateAcquisitionData)
         	text = "Plate Run";
         else if (refObject instanceof FileAnnotationData) {
         	FileAnnotationData fa = (FileAnnotationData) refObject;
@@ -847,7 +847,7 @@ class PropertiesUI
 		descriptionPane.setText(originalDescription);
         
         if ((refObject instanceof WellSampleData) ||
-        		(refObject instanceof ScreenAcquisitionData)) b = false;
+        		(refObject instanceof PlateAcquisitionData)) b = false;
         
         namePane.setEnabled(b);
         descriptionPane.setEnabled(b);

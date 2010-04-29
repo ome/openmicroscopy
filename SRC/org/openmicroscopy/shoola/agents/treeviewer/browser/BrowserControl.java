@@ -63,8 +63,8 @@ import pojos.FileData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
+import pojos.PlateAcquisitionData;
 import pojos.ProjectData;
-import pojos.ScreenAcquisitionData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
@@ -336,7 +336,7 @@ class BrowserControl
         	else if (DatasetData.class.equals(ref)) text = "Datasets.";
         	else if (ScreenData.class.equals(ref)) text = "Screens.";
         	else if (PlateData.class.equals(ref)) text = "Plates.";
-        	else if (ScreenAcquisitionData.class.equals(ref)) 
+        	else if (PlateAcquisitionData.class.equals(ref)) 
         		text = "Acquisitions.";
         	else if (TagAnnotationData.class.equals(ref)) {
         		tag = (TagAnnotationData) ho;

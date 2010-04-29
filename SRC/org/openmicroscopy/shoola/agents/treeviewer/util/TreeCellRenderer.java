@@ -53,7 +53,7 @@ import pojos.ImageData;
 import pojos.MultiImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
-import pojos.ScreenAcquisitionData;
+import pojos.PlateAcquisitionData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
@@ -131,7 +131,7 @@ public class TreeCellRenderer
         	if (EditorUtil.isAnnotated(usrObject))
         		icon = icons.getIcon(IconManager.PLATE_ANNOTATED);
         	else icon = icons.getIcon(IconManager.PLATE);
-        } else if (usrObject instanceof ScreenAcquisitionData) {
+        } else if (usrObject instanceof PlateAcquisitionData) {
             icon = icons.getIcon(IconManager.PLATE_ACQUISITION);
         } else if (usrObject instanceof GroupData) {
         	icon = icons.getIcon(IconManager.PERSONAL);

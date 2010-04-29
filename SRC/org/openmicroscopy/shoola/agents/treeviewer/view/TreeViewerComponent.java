@@ -114,8 +114,8 @@ import pojos.ImageData;
 import pojos.MultiImageData;
 import pojos.PermissionData;
 import pojos.PlateData;
+import pojos.PlateAcquisitionData;
 import pojos.ProjectData;
-import pojos.ScreenAcquisitionData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.WellSampleData;
@@ -2290,7 +2290,7 @@ class TreeViewerComponent
 			List<TreeImageDisplay> plates = new ArrayList<TreeImageDisplay>();
 			plates.add(node);
 			model.browsePlates(plates, withThumbnails);
-		} else if (uo instanceof ScreenAcquisitionData) {
+		} else if (uo instanceof PlateAcquisitionData) {
 			List<TreeImageDisplay> plates = new ArrayList<TreeImageDisplay>();
 			plates.add(node);
 			model.browsePlates(plates, withThumbnails);

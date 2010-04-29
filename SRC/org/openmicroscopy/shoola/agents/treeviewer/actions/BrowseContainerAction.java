@@ -49,8 +49,8 @@ import pojos.FileData;
 import pojos.ImageData;
 import pojos.MultiImageData;
 import pojos.PlateData;
+import pojos.PlateAcquisitionData;
 import pojos.ProjectData;
-import pojos.ScreenAcquisitionData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
@@ -186,7 +186,7 @@ public class BrowseContainerAction
                         UIUtilities.formatToolTipText(DESCRIPTION_FOLDER));
             	setEnabled(true);
         	}
-        } else if (ho instanceof ScreenAcquisitionData) {
+        } else if (ho instanceof PlateAcquisitionData) {
         	setEnabled(true);
         	putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_PLATE));
@@ -222,7 +222,7 @@ public class BrowseContainerAction
                 	List l = selectedDisplay.getChildrenDisplay();
                 	description = DESCRIPTION_PLATE;
                 	setEnabled((l == null || l.size() == 0));
-                } else if (ho instanceof ScreenAcquisitionData) {
+                } else if (ho instanceof PlateAcquisitionData) {
                 	description = DESCRIPTION_PLATE;
                 	setEnabled(true);
                 } else if (ho instanceof ProjectData) {
