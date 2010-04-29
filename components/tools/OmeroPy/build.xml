@@ -63,7 +63,7 @@
             <fileset dir="${basedir}/bin"/>
         </copy>
         <copy todir="../target/lib/scripts/">
-            <fileset dir="scripts" includes="**/*.py"/>
+            <fileset dir="scripts" includes="omero/**/*" excludes="**/*.pyc"/>
         </copy>
     </target>
 
