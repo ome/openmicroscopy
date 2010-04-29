@@ -33,6 +33,7 @@ import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.util.IceMapper;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
@@ -252,7 +253,8 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
                     r = new ome.model.core.OriginalFile();
                     r.setSha1(repoUuid);
                     r.setName(fileMaker.getDir());
-                    r.setPath("/");
+                    r.setPath(FilenameUtils.normalize(
+                            new File(fileMaker.getDir()).getAbsolutePath()));
                     Timestamp t = new Timestamp(System.currentTimeMillis());
                     r.setAtime(t);
                     r.setMtime(t);
