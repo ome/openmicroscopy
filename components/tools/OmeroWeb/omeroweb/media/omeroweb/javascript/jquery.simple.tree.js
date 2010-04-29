@@ -172,7 +172,7 @@ $.fn.simpleTree = function(opt){
 				return false;
 			}).mousedown(function(event){
 			    //if elemnt is static don't drag it
-			    if($(this).parent().get(0).id=='orphaned' || $(this).attr('id')=='readonly') {
+			    if($(this).parent().get(0).id.indexOf('pr')>=0 || $(this).parent().get(0).id.indexOf('sc')>=0 || $(this).parent().get(0).id=='orphaned' || $(this).attr('id')=='readonly') {
 			        return false;
 				} else {
 				    mousePressed = true;
@@ -234,7 +234,7 @@ $.fn.simpleTree = function(opt){
 
 					TREE.setTrigger(this);
 				} else {
-				    if (this.id.indexOf('pl') !== -1) {
+				    if (this.id.indexOf('pl') >= 0) {
 					    var setClassName = 'doc2';
 				    } else {
 				        var setClassName = 'doc';

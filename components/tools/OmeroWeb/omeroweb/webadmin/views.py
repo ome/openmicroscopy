@@ -83,7 +83,7 @@ def getGuestConnection(host, port):
     conn = None
     guest = ["guest", "guest"]
     try:
-        conn = _createConnection('', host=host, port=port, username=guest[0], passwd=guest[1])
+        conn = _createConnection('', host=host, port=port, username=guest[0], passwd=guest[1], secure=True)
         #conn.connectAsGuest()
     except:
         logger.error(traceback.format_exc())
@@ -270,7 +270,8 @@ def login(request):
         request.session['port'] = blitz.port
         request.session['username'] = request.REQUEST.get('username').encode('utf-8').strip()
         request.session['password'] = request.REQUEST.get('password').encode('utf-8').strip()
-    
+        request.session['ssl'] = request.REQUEST.get('ssl') is None and True or False
+        
     error = request.REQUEST.get('error')
     
     conn = None

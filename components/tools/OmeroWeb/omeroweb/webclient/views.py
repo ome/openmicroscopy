@@ -222,6 +222,7 @@ def login(request):
         request.session['port'] = blitz.port
         request.session['username'] = request.REQUEST.get('username').encode('utf-8').strip()
         request.session['password'] = request.REQUEST.get('password').encode('utf-8').strip()
+        request.session['ssl'] = request.REQUEST.get('ssl') is None and True or False
         request.session['clipboard'] = {'images': None, 'datasets': None, 'plates': None}
         request.session['shares'] = dict()
         request.session['imageInBasket'] = set()

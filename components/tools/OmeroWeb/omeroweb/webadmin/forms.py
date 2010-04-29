@@ -67,11 +67,11 @@ class LoginForm(forms.Form):
         except:
             self.fields['server'] = ServerModelChoiceField(g, empty_label=u"---------")
         
-        self.fields.keyOrder = ['server', 'username', 'password']
+        self.fields.keyOrder = ['server', 'username', 'password', 'ssl']
             
     username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':22}))
     password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':22}))
-
+    ssl = forms.BooleanField(required=False, label="SSL")  
 
 class ForgottonPasswordForm(forms.Form):
     
