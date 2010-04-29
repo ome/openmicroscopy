@@ -24,12 +24,11 @@
 			<zeromany name="screenAcquisition" type="ome.model.screen.ScreenAcquisition" inverse="screen"/>
 		</properties>
 	</type>
-	<type id="ome.model.screen.ScreenAcquisition" annotated="true">
+	<type id="ome.model.screen.PlateAcquisition" named="true" described="true" annotated="true">
 		<properties>
-			<optional name="startTime" type="timestamp"/>
-			<optional name="endTime" type="timestamp"/>
-			<manyone name="screen" type="ome.model.screen.Screen" inverse="screenAcquisition"/>
-			<child name="wellSampleLinks" type="ome.model.screen.ScreenAcquisitionWellSampleLink" target="ome.model.screen.WellSample"/>
+			<optional name="maximumFieldCount" type="int"/>
+			<manyone name="screen" type="ome.model.screen.Screen" inverse="plateAcquisition"/>
+			<child name="wellSampleLinks" type="ome.model.screen.PlateAcquisitionWellSampleLink" target="ome.model.screen.WellSample"/>
 		</properties>
 	</type>
 	<type id="ome.model.screen.Plate" named="true" described="true" annotated="true">
@@ -41,6 +40,8 @@
                         <optional name="rowNamingConvention" type="string"/><!-- first row name to indicate naming convention-->
                         <optional name="wellOriginX" type="double"/><!-- percent width offset from top left-->
                         <optional name="wellOriginY" type="double"/><!-- percent height offset from top left-->
+			<optional name="rows" type="int"/>
+			<optional name="cols" type="int"/>
                         <!-- end not in model -->
 			<optional name="status" type="string"/>
 			<optional name="externalIdentifier" type="string"/>
@@ -77,7 +78,7 @@
 			<optional name="timepoint" type="int"/>
 			<manyone name="well" type="ome.model.screen.Well" inverse="wellSamples" ordered="true"/>
 			<manyone name="image" type="ome.model.core.Image" inverse="wellSamples"/>
-			<parent name="screenAcquisitionLinks" type="ome.model.screen.ScreenAcquisitionWellSampleLink" target="ome.model.screen.ScreenAcquisition"/>
+			<parent name="plateAcquisitionLinks" type="ome.model.screen.PlateAcquisitionWellSampleLink" target="ome.model.screen.PlateAcquisition"/>
 		</properties>
 	</type>
 	<type id="ome.model.screen.Reagent" annotated="true" named="true" described="true">
@@ -95,9 +96,9 @@
 			<to_child type="ome.model.screen.Plate"/>
 		</properties>
 	</link>
-	<link id="ome.model.screen.ScreenAcquisitionWellSampleLink">
+	<link id="ome.model.screen.PlateAcquisitionWellSampleLink">
 		<properties>
-			<from_parent type="ome.model.screen.ScreenAcquisition"/>
+			<from_parent type="ome.model.screen.PlateAcquisition"/>
 			<to_child type="ome.model.screen.WellSample"/>
 		</properties>
 	</link>

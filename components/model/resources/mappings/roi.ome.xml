@@ -16,8 +16,8 @@
                         <onemany name="shapes" type="ome.model.roi.Shape" inverse="roi" ordered="true"/>
                         <manyone name="image" type="ome.model.core.Image" inverse="rois"/>
                         <optional name="source" type="ome.model.core.OriginalFile"/>
-                        <optional name="ns" type="string"/>
-                        <optional name="keywords" type="string"/>
+                        <optional name="namespaces" type="string[]"/>
+                        <optional name="keywords" type="string[][]"/>
                 </properties>
         </type>
         <abstract id="ome.model.roi.Shape" discriminator="">
@@ -25,7 +25,7 @@
                         <!-- ====== OME SPECIFIC ====== -->
                         <optional name="theZ" type="int"/>
                         <optional name="theT" type="int"/>
-                        <zeromany name="channels" type="ome.model.core.LogicalChannel" inverse="shapes"/>
+                        <optional name="theC" type="int"/>
                         <manyone name="roi" type="ome.model.roi.Roi" inverse="shapes" ordered="true"/>
                        <!-- Though ROI modification may be implemented via
                             copy-on-write, conceptually a "locked" Shape should
@@ -81,7 +81,7 @@
                         -->
                 </properties>
         </abstract>
-        <type id="ome.model.roi.Text" discriminator="text" superclass="ome.model.roi.Shape">
+        <type id="ome.model.roi.Label" discriminator="text" superclass="ome.model.roi.Shape">
                 <properties>
                         <!-- Offset of the text: specifies the coordinates of the top-left
                              corner of the text box -->

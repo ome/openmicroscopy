@@ -21,7 +21,7 @@
 			<required name="acquisitionDate" type="timestamp"/>
 			<optional name="archived" type="boolean"/>
 			<optional name="partial" type="boolean"/>
-			<optional name="mimetype" type="string"/>
+			<optional name="format" type="ome.mode.enums.Format"/>
 			<!-- Note: in the model acquisitionDate is called creationDate but the DB already has a creation date for the object -->
 			<!-- Note: in the model acquisitionDate(creationDate) is optional so if not available should be set to current time on import-->
 			<optional name="imagingEnvironment" type="ome.model.acquisition.ImagingEnvironment"/>
@@ -199,14 +199,15 @@
 			<!-- Note: lightSourceSettings is called LightSourceRef (ID and values) in model-->
 			<optional name="filterSet" type="ome.model.acquisition.FilterSet"/>
 			<!-- Note: filterSet is called FilterSetRef (ID only Ref) in model-->
-			<optional name="secondaryEmissionFilter" type="ome.model.acquisition.Filter"/>
-			<optional name="secondaryExcitationFilter" type="ome.model.acquisition.Filter"/>
 			<optional name="samplesPerPixel" type="int"/>
 			<optional name="photometricInterpretation" type="ome.model.enums.PhotometricInterpretation"/>
 			<optional name="mode" type="ome.model.enums.AcquisitionMode"/>
 			<optional name="pockelCellSetting" type="int"/>
 			<onemany name="channels" type="ome.model.core.Channel" inverse="logicalChannel"/>
                         <manyzero name="shapes" type="ome.model.roi.Shape" inverse="channels"/>
+			<child name="excitationFilterLinks" type="ome.model.acquisition.LogicalChannelFilterLink" target="ome.model.acquisition.Filter"/>
+                        <optional name="dichroic" type="ome.model.acquisition.Dichroic"/>
+			<child name="excitationFilterLinks" type="ome.model.acquisition.LogicalChannelFilterLink" target="ome.model.acquisition.Filter"/>
 		</properties>
 	</type>
 	<type id="ome.model.stats.StatsInfo">
@@ -370,13 +371,10 @@
 			<optional name="manufacturer" type="string"/>
 			<optional name="model" type="string"/>
 			<optional name="lotNumber" type="string"/>
-			<optional name="exFilter" type="ome.model.acquisition.Filter"/>
-			<!-- Note: exFilter is called ExFilterRef (ID only Ref) in model-->
-			<optional name="emFilter" type="ome.model.acquisition.Filter"/>
-			<!-- Note: emFilter is called ExFilterRef (ID only Ref) in model-->
-			<optional name="dichroic" type="ome.model.acquisition.Dichroic"/>
-			<!-- Note: dichroic is called DichroicRef (ID only Ref) in model-->
-			<manyone name="instrument" type="ome.model.acquisition.Instrument"/>
+                        <manyone name="instrument" type="ome.model.acquisition.Instrument"/>
+			<child name="excitationFilterLinks" type="ome.model.acquisition.ChannelFilterLink" target="ome.model.acquisition.Filter" ordered="true"/>
+                        <optional name="dichroic" type="ome.model.acquisition.Dichroic"/>
+			<child name="excitationFilterLinks" type="ome.model.acquisition.ChannelFilterLink" target="ome.model.acquisition.Filter"/>
 		</properties>
 	</type>
 	<type id="ome.model.acquisition.Dichroic">
@@ -396,6 +394,18 @@
 			<optional name="transmittance" type="double"/>
 		</properties>
 	</type>
+	<link id="ome.model.acquisition.LogicalChannelFilterLink">
+		<properties>
+			<from_parent type="ome.model.core.LogicalChannel" ordered="true"/>
+			<to_child type="ome.model.acquisition.Filter"/>
+		</properties>
+	</link>
+	<link id="ome.model.acquisition.FilterSetFilterLink">
+		<properties>
+			<from_parent type="ome.model.core.FilterSet
+			<to_child type="ome.model.acquisition.Filter"/>
+		</properties>
+	</link>
 <!-- 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			Acquisition Context 1 Enumerations 

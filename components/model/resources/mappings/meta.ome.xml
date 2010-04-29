@@ -148,4 +148,20 @@
 			<to_child type="ome.model.meta.Experimenter"/>
 		</properties>
 	</link>
+	<type id="ome.model.meta.Namespace" global="true" annotated="true" named="true" described="true">
+		<!-- Note: Namespace is not in model-->
+		<properties>
+
+                        <!-- Depending on the use of the name space,
+                        keywords are the valid string values -->
+			<optional name="keywords" type="string[]"/>
+
+                        <!-- Whether or not objects using this
+                        namespace are intended for display. Null
+                        values or false will lead to many clients
+                        hiding the objects -->
+			<optional name="display" type="boolean"/>
+
+		</properties>
+	</type>
 </types>
