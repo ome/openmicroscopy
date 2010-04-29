@@ -42,6 +42,26 @@
     <property name="repeatInterval" value="60000" /><!-- millis -->
   </bean>
 
+  <bean id="scriptRepository" class="ome.services.blitz.repo.ScriptRepositoryI" destroy-method="close">
+      <description>
+        Script repository which makes the contents of lib/scripts available
+        for processing.
+      </description>
+      <constructor-arg index="0" ref="BlitzAdapter"/>
+      <constructor-arg index="1" ref="Registry"/>
+      <constructor-arg index="2" ref="executor"/>
+      <constructor-arg index="3" ref="uuid"/>
+  </bean>
+  <bean id="scriptTakeoverRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+    <property name="targetObject" ref="scriptRepository" />
+    <property name="targetMethod" value="takeover" />
+    <property name="concurrent"   value="false"/>
+  </bean>
+  <bean id="scriptTakeoverTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+    <property name="jobDetail" ref="scriptTakeoverRun" />
+    <property name="repeatInterval" value="60000" /><!-- millis -->
+  </bean>
+
   <bean id="temporaryRepository" class="ome.services.blitz.repo.TemporaryRepositoryI" destroy-method="close">
       <description>
         Test repository which will make the ${java.io.tmpdir} available for testing.

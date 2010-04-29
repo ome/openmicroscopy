@@ -676,33 +676,13 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
             return self.ctx.getSession()
 
     def lookup(self, job):
-        gid = job.details.group.id.val
         sf = self.internal_session()
-        query = WithGroup(sf.getQueryService(), gid)
-        handle = WithGroup(sf.createJobHandle(), gid)
         handle.attach(job.id.val)
         if handle.jobFinished():
             raise omero.ApiUsageException("Job already finished.")
 
-        if not self.accepts_list:
-             accepts = "                and o.details.owner.id = 0"
-        else:
-            accepts = ""
-            for a in self.accepts_list:
-                if isinstance(a, omero.model.Experimenter):
-                    accepts += ("            and o.details.owner.id = %s" % a.id.val)
-
-        file = query.findByQuery(\
-            """select o from Job j
-             join j.originalFileLinks links
-             join links.child o
-             join o.format
-             where
-                 j.id = %d
-             %s
-             and o.format.value = 'text/x-python'
-             """ % (job.id.val, accepts), None)
-
+        prx = WithGroup(client.sf.getScriptService(), gid)
+        file = prx.validateScript(job, self.accepts_list)
         return file, handle
 
     @remoted

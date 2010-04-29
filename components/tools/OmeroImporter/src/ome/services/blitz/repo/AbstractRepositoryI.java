@@ -93,6 +93,14 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
     }
 
     /**
+     * Called when this repository is creating a new {@link OriginalFile}
+     * repository object.
+     */
+    public String generateRepoUuid() {
+        return UUID.randomUUID().toString();
+    }
+
+    /**
      * Method called in a background thread which may end up waiting
      * indefinitely on the repository lock file
      * ("${omero.data.dir}/.omero/repository/${omero.db.uuid}/repo_uuid").
@@ -226,7 +234,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
                 String line = fileMaker.getLine();
 
                 if (line == null) {
-                    repoUuid = UUID.randomUUID().toString();
+                    repoUuid = repo.generateRepoUuid();
                     r = new ome.model.core.OriginalFile();
                     r.setSha1(repoUuid);
                     r.setName(fileMaker.getDir());

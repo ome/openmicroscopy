@@ -165,6 +165,18 @@ module omero {
                  **/
                 omero::grid::ScriptProcess* runScript(long scriptID, omero::RTypeDict inputs, omero::RInt waitSecs) throws ServerError;
 
+                /**
+                 * Used internally by processor.py to check if the script attached to the [omero::model::Job]
+                 * has a valid script attached, based on the [acceptLists] and the current security context.
+                 *
+                 * An example of an acceptLists might be <pre>Experimenter(myUserId, False)</pre>, meaning that
+                 * only scripts belonging to me should be trusted. An empty list implies that the server should
+                 * return what it would by default trust.
+                 *
+                 * A valid script will be returned if it exists; otherwise null.
+                 **/
+                omero::model::OriginalFile validateScript(omero::model::Job j, omero::api::IObjectList acceptLists) throws ServerError;
+
                 // Planned methods
                 // ===============
                 // omero::grid::ScriptProcess* findProcess(long jobID) throws ServerError;
