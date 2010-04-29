@@ -33,7 +33,7 @@ class TestScripts(lib.ITest):
         if True:
             name = pingfile.name
             pingfile = open(name, "w")
-            pingfile.write(PINGFILE)
+            pingfile.write("PINGFILE")
             pingfile.flush()
             pingfile.close()
             file = self.root.upload(name, type="text/x-python", permissions = PUBLIC)
@@ -46,7 +46,7 @@ class TestScripts(lib.ITest):
 
     def testParseErrorTicket2185(self):
         svc = self.root.sf.getScriptService()
-        script_id = svc.uploadScript("THIS STINKS")
+        script_id = svc.uploadScript('testpath', "THIS STINKS")
         try:
             svc.getParams(script_id)
         except omero.ValidationException, ve:
