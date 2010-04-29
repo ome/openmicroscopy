@@ -33,6 +33,7 @@ import java.util.Set;
 //Application-internal dependencies
 import static omero.rtypes.*;
 import omero.model.Plate;
+import omero.model.PlateAcquisition;
 import omero.model.PlateI;
 import omero.model.ScreenPlateLink;
 
@@ -76,21 +77,22 @@ public class PlateData extends DataObject {
 
     /** Identifies the {@link Plate#ANNOTATIONLINKS} field. */
     public final static String ANNOTATIONS = PlateI.ANNOTATIONLINKS;
-    
-    /**
-     * All the Wells contained in this plate. The elements of this set are
-     * {@link WellData} objects. If this Plate contains no Images, then this set
-     * will be empty &#151; but never <code>null</code>.
-     */
-    private Set<ImageData> wells;
 
     /**
      * All the Screens that contain this Plate. The elements of this set are
-     * {@link ProjectData} objects. If this Plate is not contained in any
+     * {@link ScreenData} objects. If this Plate is not contained in any
      * Screen, then this set will be empty &#151; but never <code>null</code>.
      */
     private Set<ScreenData> screens;
 
+    /**
+     * All the Plate Acquisition related to this Plate. The elements of this
+     * set are {@link PlateAcquisitionData} objects.
+     * If this Plate does contained in any PlateAcquisition, 
+     * then this set will be empty &#151; but never <code>null</code>.
+     */
+    private Set<PlateAcquisitionData> plateAcquisitions;
+    
     /**
      * The number of annotations attached to this Plate. This field may be
      * <code>null</code> meaning no count retrieved, and it may be less than
@@ -358,6 +360,29 @@ public class PlateData extends DataObject {
     	omero.RDouble value = asPlate().getWellOriginY();
     	if (value == null) return 0;
     	return value.getValue();
+    }
+    
+    
+    /**
+     * Returns the plate acquisition related to this plate.
+     * 
+     * @return See above.
+     */
+    public Set<PlateAcquisitionData> getPlateAcquisitions()
+    {
+    	/*
+        if (plateAcquisitions == null &&
+        		asPlate().sizeOfPlateAcquisition() >= 0) {
+		plateAcquisitions = new HashSet<PlateAcquisitionData>();
+            List<PlateAcquisition> links = asScreen().copyPlateAcquisition();
+            for (PlateAcquisition link : links) {
+            	plateAcquisitions.add(new PlateAcquisitionData(link));
+            }
+        }
+        return plateAcquisitions == null ? null :
+		new HashSet<PlateAcquisitionData>(plateAcquisitions);
+		*/
+    	return null;
     }
     
 }

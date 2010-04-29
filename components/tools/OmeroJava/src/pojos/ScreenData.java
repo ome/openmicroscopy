@@ -65,15 +65,7 @@ public class ScreenData extends DataObject {
      * set are {@link PlateData} objects. If this Screen does contained in any
      * Plate, then this set will be empty &#151; but never <code>null</code>.
      */
-    private Set plates;
-
-    /**
-     * All the Screen Acquisition related to this Screen. The elements of this
-     * set are {@link ScreenAcquisition} objects.
-     * If this Screen does contained in any ScreenAcquisition, 
-     * then this set will be empty &#151; but never <code>null</code>.
-     */
-    private Set plateAcquisitions;
+    private Set<PlateData> plates;
     
     /** Creates a new instance. */
     public ScreenData() {
@@ -234,7 +226,7 @@ public class ScreenData extends DataObject {
     }
 
     /**
-     * Returns the identifier of the reagent set.
+     * Returns the identifier of the Reagent set.
      * 
      * @return See above.
      */
@@ -242,25 +234,6 @@ public class ScreenData extends DataObject {
     {
     	omero.RString d = asScreen().getReagentSetIdentifier();
         return d == null ? "" : d.getValue();
-    }
-    
-    /**
-     * Returns the screen acquisition related to this screen.
-     * 
-     * @return See above.
-     */
-    public Set<PlateAcquisitionData> getPlateAcquisitions()
-    {
-        if (plateAcquisitions == null &&
-        		asScreen().sizeOfScreenAcquisition() >= 0) {
-		plateAcquisitions = new HashSet<PlateAcquisitionData>();
-            List<PlateAcquisition> links = asScreen().copyScreenAcquisition();
-            for (PlateAcquisition link : links) {
-		plateAcquisitions.add(new PlateAcquisitionData(link));
-            }
-        }
-        return plateAcquisitions == null ? null :
-		new HashSet<PlateAcquisitionData>(plateAcquisitions);
     }
     
 }
