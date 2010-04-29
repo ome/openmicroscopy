@@ -131,7 +131,7 @@ public class SqlArray<T> implements Array {
         throw new UnsupportedOperationException();
     }
 
-    @Override
+    // @Override Not allowed in Java 5
     public void free() {
         // do nothing. Required by Java 6
     }
