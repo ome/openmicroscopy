@@ -64,11 +64,15 @@ public class GlobalMulticaster implements ApplicationEventMulticaster, BeanFacto
     }
 
     public void addApplicationListenerBean(String arg0) {
-        _em.addApplicationListenerBean(arg0);
+        // Disabling since our use of the context causes
+        // duplicate entries now with 3.0
+        //_em.addApplicationListenerBean(arg0);
     }
 
     public void removeApplicationListenerBean(String arg0) {
-        _em.removeApplicationListenerBean(arg0);
+        // Disabling since our use of the context causes
+        // duplicate entries now with 3.0
+        //_em.removeApplicationListenerBean(arg0);
     }
 
 }

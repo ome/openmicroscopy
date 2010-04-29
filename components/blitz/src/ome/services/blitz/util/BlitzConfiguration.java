@@ -24,8 +24,6 @@ import omero.util.ObjectFactoryRegistrar;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.FatalBeanException;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
 import org.springframework.util.ResourceUtils;
 
 import Glacier2.PermissionsVerifier;
@@ -39,7 +37,7 @@ import Ice.Util;
  * @author Josh Moore
  * @since 3.0-Beta3.1
  */
-public class BlitzConfiguration implements ApplicationListener {
+public class BlitzConfiguration {
 
     private final static String CONFIG_KEY = "--Ice.Config=";
 
@@ -434,14 +432,6 @@ public class BlitzConfiguration implements ApplicationListener {
     private Ice.Identity managerId() {
         Ice.Identity id = Ice.Util.stringToIdentity("BlitzManager");
         return id;
-    }
-
-    // Listener
-    // Because the objects created here with "new" are not registered as
-    // listeners, we will delegate
-
-    public void onApplicationEvent(ApplicationEvent event) {
-        blitzManager.onApplicationEvent(event);
     }
 
 }
