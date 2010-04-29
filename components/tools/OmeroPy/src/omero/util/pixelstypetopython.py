@@ -29,8 +29,6 @@
 #	FLOAT = "float";
 #	DOUBLE = "double";
 # we can convert these to the appropriate types in python.	
-import omero
-import numpy
 
 INT_8 = "int8"
 UINT_8 = "uint8"
@@ -60,6 +58,7 @@ def toPython(pixelType):
 		return 'd'
 
 def toNumpy(pixelType):
+	import numpy
 	if(pixelType==INT_8):
 		return numpy.int8
 	if(pixelType==UINT_8):
