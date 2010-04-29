@@ -27,6 +27,7 @@ package pojos;
 //Third-party libraries
 
 //Application-internal dependencies
+import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionI;
@@ -87,42 +88,103 @@ public class PlateAcquisitionData
 	 */
 	public void setRefPlateId(long refPlateId) { this.refPlateId = refPlateId; }
 
-	/* ticket:1750 will be corrected by Jean-Marie
 	/**
-	 * Returns the starting time.
+	 * Returns the name of the plate acquisition.
+	 * 
+	 * @return See above.
+	 */
+	public String getName()
+	{
+		PlateAcquisition acq = (PlateAcquisition) asIObject();
+		if (acq == null) return "";
+		omero.RString n = acq.getName();
+		if (n == null) return "";
+		return n.getValue();
+	}
+	
+	/**
+	 * Returns the description of the plate acquisition.
+	 * 
+	 * @return See above.
+	 */
+	public String getDescription()
+	{
+		PlateAcquisition acq = (PlateAcquisition) asIObject();
+		if (acq == null) return "";
+		omero.RString n = acq.getDescription();
+		if (n == null) return "";
+		return n.getValue();
+	}
+	
+	/**
+	 * Sets the name of the acquisition.
+	 * 
+	 * @param name The value to set.
+	 */
+	public void setName(String name)
+	{
+		if (name == null || name.length() == 0) return;
+		setDirty(true);
+		PlateAcquisition acq = (PlateAcquisition) asIObject();
+		acq.setName(rstring(name));
+	}
+	
+	/**
+	 * Sets the name of the acquisition.
+	 * 
+	 * @param description The value to set.
+	 */
+	public void setDescription(String description)
+	{
+		if (description == null || description.length() == 0) return;
+		setDirty(true);
+		PlateAcquisition acq = (PlateAcquisition) asIObject();
+		acq.setDescription(rstring(description));
+	}
+	
+	/**
+	 * Returns the time when the first image was collected.
 	 *
 	 * @return See above.
-	 *
+	 */
 	public long getStartTime()
 	{
 		PlateAcquisition sa = (PlateAcquisition) asIObject();
 		if (sa == null) return -1;
+		return -1;
+		/*
 		omero.RTime time = sa.getStartTime();
 		if (time == null) return -1;
 		return time.getValue();
+		*/
 	}
 
 	/**
-	 * Returns the ending time.
+	 * Returns the time when the last image was collected.
 	 *
 	 * @return See above.
-	 *
+	 */
 	public long getEndTime()
 	{
 		PlateAcquisition sa = (PlateAcquisition) asIObject();
 		if (sa == null) return -1;
+		/*
 		omero.RTime time = sa.getEndTime();
 		if (time == null) return -1;
 		return time.getValue();
+		*/
+		return -1;
 	}
 
 	/**
-	 * Returns the label associated to the screen acquisition.
+	 * Returns the label associated to the plate acquisition.
 	 *
 	 * @return See above.
-	 *
+	 */
 	public String getLabel()
 	{
+		String name = getName();
+		if (name != null && name.length() > 0) return name;
 		long v = getEndTime();
 		String s = "";
 		if (v >= 0) s += v;
@@ -133,7 +195,20 @@ public class PlateAcquisitionData
 		if (s.length() == 0) return ""+getId();
 		return s;
 	}
-	*/
 
+	/**
+	 * Returns the maximum number of fields in any well.
+	 * 
+	 * @return See above.
+	 */
+	public int getMaximumFieldCount()
+	{
+		PlateAcquisition acq = (PlateAcquisition) asIObject();
+		if (acq == null) return -1;
+		omero.RInt n = acq.getMaximumFieldCount();
+		if (n == null) return -1;
+		return n.getValue();
+	}
+	
 }
 

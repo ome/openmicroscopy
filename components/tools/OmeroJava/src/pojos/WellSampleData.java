@@ -30,6 +30,7 @@ package pojos;
 
 // Application-internal dependencies
 import omero.RDouble;
+import omero.RInt;
 import omero.model.WellSample;
 import omero.model.WellSampleI;
 
@@ -124,6 +125,18 @@ public class WellSampleData extends DataObject {
     public double getPositionY()
     {
     	RDouble value = asWellSample().getPosY();
+    	if (value == null) return 0;
+    	return value.getValue();
+    }
+    
+    /**
+     * Returns the time at which the field was acquired.
+     * 
+     * @return See above.
+     */
+    public long getStartTime()
+    {
+    	RInt value = asWellSample().getTimepoint();
     	if (value == null) return 0;
     	return value.getValue();
     }

@@ -324,7 +324,40 @@ public class PlateData extends DataObject {
      */
     public String getPlateType()
     {
-    	return "";
+    	Plate plate = asPlate();
+    	int c = 0;
+    	int r = 0;
+    	omero.RInt v = plate.getCols();
+    	if (v != null) c = v.getValue();
+    	v = plate.getRows();
+    	if (v != null) r = v.getValue();
+    	int value = c*r;
+    	if (value <= 0) return "";
+    	return value+"-Well Plate";
+    }
+    
+    /**
+     * Returns the x-coordinate in 2D-space of the well.
+     * 
+     * @return See above
+     */
+    public double getWellOriginX()
+    {
+    	omero.RDouble value = asPlate().getWellOriginX();
+    	if (value == null) return 0;
+    	return value.getValue();
+    }
+    
+    /**
+     * Returns the y-coordinate in 2D-space of the well.
+     * 
+     * @return See above
+     */
+    public double getWellOriginY()
+    {
+    	omero.RDouble value = asPlate().getWellOriginY();
+    	if (value == null) return 0;
+    	return value.getValue();
     }
     
 }
