@@ -63,7 +63,7 @@ public class ScriptProcessI extends _ScriptProcessDisp {
         this.cb = new ProcessCallbackI(sf.getAdapter(), process);
         this.id = new Ice.Identity(UUID.randomUUID().toString(), PROCESSCALLBACK.value);
         this.self = ScriptProcessPrxHelper.uncheckedCast(
-                sf.registerServant(current, this.id, this));
+                sf.registerServant(this.id, this));
         sf.allow(this.self);
     }
 

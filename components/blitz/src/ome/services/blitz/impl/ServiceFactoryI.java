@@ -35,7 +35,6 @@ import omero.ApiUsageException;
 import omero.InternalException;
 import omero.ServerError;
 import omero.ShutdownInProgress;
-import omero.api.AMD_StatefulServiceInterface_close;
 import omero.api.ClientCallbackPrx;
 import omero.api.ClientCallbackPrxHelper;
 import omero.api.ExporterPrx;
@@ -93,7 +92,6 @@ import omero.api.StatefulServiceInterfacePrxHelper;
 import omero.api.ThumbnailStorePrx;
 import omero.api.ThumbnailStorePrxHelper;
 import omero.api._ServiceFactoryDisp;
-import omero.api._ServiceInterfaceOperations;
 import omero.api._StatefulServiceInterfaceOperations;
 import omero.constants.ADMINSERVICE;
 import omero.constants.CLIENTUUID;
@@ -484,34 +482,35 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                 SHAREDRESOURCES.value, current));
     }
 
-    public Ice.Object getServant(Ice.Identity id) {
-        return holder.get(Ice.Util.identityToString(id));
+    public Object getServant(Ice.Identity id) {
+        return holder.getUntied(id);
     }
 
-    public ServiceInterfacePrx getByName(String blankname, Current current)
+    public ServiceInterfacePrx getByName(String blankname, Current dontUse)
             throws ServerError {
 
         // ticket:911 - in order to use a different initializer
         // for each stateless service, we need to attach modify the id.
-        String idStr = clientId + blankname;
-        Ice.Identity id = getIdentity(idStr);
+        // idName is just the value id.name not Ice.Util.identityToString(id)
+        String idName = clientId + blankname;
+        Ice.Identity id = getIdentity(idName);
 
-        holder.acquireLock(idStr);
+        holder.acquireLock(idName);
         try {
             Ice.ObjectPrx prx;
-            Ice.Object servant = holder.get(idStr);
+            Ice.Object servant = holder.get(id);
             if (servant == null) {
                 servant = createServantDelegate(blankname);
                 // Previously we checked for stateful services here,
                 // however the logic is the same so it shouldn't
                 // cause any issues.
-                prx = registerServant(current, id, servant);
+                prx = registerServant(id, servant);
             } else {
                 prx = adapter.createDirectProxy(id);
             }
             return ServiceInterfacePrxHelper.uncheckedCast(prx);
         } finally {
-            holder.releaseLock(idStr);
+            holder.releaseLock(idName);
         }
     }
 
@@ -525,7 +524,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         }
 
         Ice.Object servant = createServantDelegate(name);
-        Ice.ObjectPrx prx = registerServant(current, id, servant);
+        Ice.ObjectPrx prx = registerServant(id, servant);
         return StatefulServiceInterfacePrxHelper.uncheckedCast(prx);
     }
 
@@ -662,16 +661,11 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     public int getStatefulServiceCount() {
         int count = 0;
         final List<String> servants = holder.getServantList();
-        for (final String key : servants) {
-            final Ice.Object servantOrTie = holder.get(key);
-            if (servantOrTie != null) {
+        for (final String idName : servants) {
+            final Ice.Identity id = getIdentity(idName);
+            final Object servant = holder.getUntied(id);
+            if (servant != null) {
                 try {
-                    Object servant;
-                    if (servantOrTie instanceof Ice.TieBase) {
-                        servant = ((Ice.TieBase) servantOrTie).ice_delegate();
-                    } else {
-                        servant = servantOrTie;
-                    }
                     if (servant instanceof _StatefulServiceInterfaceOperations) {
                         count++;
                     }
@@ -704,12 +698,12 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         holder.acquireLock("*"); // Protects all the servants on destruction
         try {
             List<String> servants = holder.getServantList();
-            for (final String key : servants) {
-                final Ice.Object servantOrTie = holder.get(key);
-                final Ice.Identity id = getIdentity(key);
+            for (final String idName : servants) {
+                final Ice.Identity id = getIdentity(idName);
+                final Object servant = holder.getUntied(id);
 
-                if (servantOrTie == null) {
-                    log.warn("Servant already removed: " + key);
+                if (servant == null) {
+                    log.warn("Servant already removed: " + idName);
                     // But calling unregister just in case
                     unregisterServant(id);
                     continue; // LOOP.
@@ -717,12 +711,6 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
                 // All errors are ignored within the loop.
                 try {
-                    Object servant;
-                    if (servantOrTie instanceof Ice.TieBase) {
-                        servant = ((Ice.TieBase) servantOrTie).ice_delegate();
-                    } else {
-                        servant = servantOrTie;
-                    }
 
                     // Now that we have the servant instance, we do what we can
                     // to clean it up. Our AmdServants must use a message
@@ -752,14 +740,14 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                         log.error("Unknown servant type: " + servant);
                     }
                 } catch (Exception e) {
-                    log.error("Error destroying servant: " + key + "="
-                            + servantOrTie, e);
+                    log.error("Error destroying servant: " + idName + "="
+                            + servant, e);
                 } finally {
                     // Now we will again try to remove the servant, which may
                     // have already been done, after the method call, though, it
                     // is guaranteed to no longer be active.
                     unregisterServant(id);
-                    log.info("Removed servant from adapter: " + key);
+                    log.info("Removed servant from adapter: " + idName);
                 }
             }
         } finally {
@@ -829,10 +817,10 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
      * stateless services are defined by the instance fields {@link #adminKey},
      * {@link #configKey}, etc. and for stateful services are UUIDs.
      */
-    public Ice.Identity getIdentity(String key) {
+    public Ice.Identity getIdentity(String idName) {
         Ice.Identity id = new Ice.Identity();
         id.category = this.principal.getName();
-        id.name = key;
+        id.name = idName;
         return id;
     }
 
@@ -870,8 +858,10 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
             }
             return servant;
         } catch (ClassCastException cce) {
-            throw new InternalException(null, null,
-                    "Could not cast to Ice.Object:[" + name + "]");
+            InternalException ie = new InternalException();
+            IceMapper.fillServerError(ie, cce);
+            ie.message = "Could not cast to Ice.Object:[" + name + "]";
+            throw ie;
         } catch (NoSuchBeanDefinitionException nosuch) {
             ApiUsageException aue = new ApiUsageException();
             aue.message = name
@@ -889,7 +879,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
      * already registered) as well as configures the servant in any post-Spring
      * way necessary, based on the type of the servant.
      */
-    public Ice.ObjectPrx registerServant(Current current, Ice.Identity id,
+    public Ice.ObjectPrx registerServant(Ice.Identity id,
             Ice.Object servant) throws ServerError {
 
         Ice.ObjectPrx prx = null;
@@ -926,7 +916,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         // Alright to register this servant now.
         // Using just the name because the category essentially == this
         // holder
-        holder.put(id.name, servant);
+        holder.put(id, servant);
 
         return prx;
 

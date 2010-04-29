@@ -533,7 +533,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
                 sf.sessionManager, sf.executor, server, job, timeout,
                 sf.control, new ParamsHelper(this, sf.getExecutor(), sf.getPrincipal()));
         Ice.Identity procId = sessionedID("InteractiveProcessor");
-        Ice.ObjectPrx rv = sf.registerServant(current, procId, ip);
+        Ice.ObjectPrx rv = sf.registerServant(procId, ip);
         sf.allow(rv);
         return InteractiveProcessorPrxHelper.uncheckedCast(rv);
     }
@@ -639,7 +639,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
         public ProcessorPrx activateAndWait(Ice.Current current, Ice.Identity acceptId) throws ServerError {
 
-            Ice.ObjectPrx prx = sf.registerServant(current, acceptId, this);
+            Ice.ObjectPrx prx = sf.registerServant(acceptId, this);
 
             try {
                 prx = sf.adapter.createDirectProxy(acceptId);

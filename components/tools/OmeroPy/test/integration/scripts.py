@@ -46,8 +46,8 @@ class TestScripts(lib.ITest):
 
     def testParseErrorTicket2185(self):
         svc = self.root.sf.getScriptService()
-        script_id = svc.uploadScript('testpath', "THIS STINKS")
         try:
+            script_id = svc.uploadScript('testpath', "THIS STINKS")
             svc.getParams(script_id)
         except omero.ValidationException, ve:
             self.assertTrue("THIS STINKS" in str(ve))

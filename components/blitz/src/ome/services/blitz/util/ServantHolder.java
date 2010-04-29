@@ -68,22 +68,21 @@ public class ServantHolder {
         lock.unlock();
     }
 
-    public Ice.Object get(String key) {
-        return servants.get(key);
-    }
-
-    /**
-     */
     public Ice.Object get(Ice.Identity id) {
         return get(id.name);
     }
 
-    public void put(String key, Ice.Object servant) {
-        servants.put(key, servant);
+    public Object getUntied(Ice.Identity id) {
+        Ice.Object servantOrTie = get(id.name);
+         if (servantOrTie instanceof Ice.TieBase) {
+             return ((Ice.TieBase) servantOrTie).ice_delegate();
+         } else {
+             return servantOrTie;
+         }
     }
 
-    public Ice.Object remove(String key) {
-        return servants.remove(key);
+    public void put(Ice.Identity id, Ice.Object servant) {
+        put(id.name, servant);
     }
 
     public Ice.Object remove(Ice.Identity id) {
@@ -93,5 +92,22 @@ public class ServantHolder {
     public List<String> getServantList() {
         return new ArrayList<String>(servants.keySet());
     }
+
+    //
+    // Implementation
+    //
+
+    private void put(String key, Ice.Object servant) {
+        servants.put(key, servant);
+    }
+
+    private Ice.Object remove(String key) {
+        return servants.remove(key);
+    }
+
+    private Ice.Object get(String key) {
+        return servants.get(key);
+    }
+
 
 }
