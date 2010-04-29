@@ -29,6 +29,10 @@ class TestMetdataStore(lib.ITest):
 
         ms.createRoot()
         # Needs work
+        
+    def testMetadataService(self):
+        
+        metadataService = self.client.sf.getMetadataService()
 
 if __name__ == '__main__':
     unittest.main()
