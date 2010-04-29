@@ -985,9 +985,6 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                     @Transactional(readOnly = false)
                     public Object doWork(SimpleJdbcOperations jdbcOps) {
 
-                        log.warn("WORAROUND UNTIL DB UPGRADE");
-                        jdbcOps.update("alter table session alter defaultPermissions drop not null;");
-
                         // Create a basic session
                         final Session s = new Session();
                         define(s, internal_uuid, "Session Manager internal",
@@ -1008,7 +1005,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                         final Session s2 = copy(s);
 
                         // SQL defined in data.vm for creating original session
-                        // (id,permissions,timetoidle,timetolive,started,closed,defaultpermissions,defaulteventtype,uuid,owner,node)
+                        // (id,permissions,timetoidle,timetolive,started,closed,defaulteventtype,uuid,owner,node)
                         // select nextval('seq_session'),-35,
                         // 0,0,now(),now(),'rw----','PREVIOUSITEMS','1111',0,0;
                         Map<String, Object> params = new HashMap<String, Object>();
@@ -1023,12 +1020,11 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                         params.put("agent", s.getUserAgent());
                         int count = jdbcOps
                                 .update(
-                                        // remember to remove the non-null alter
                                         "insert into session "
                                                 + "(id,permissions,timetoidle,timetolive,started,closed,"
-                                                + "defaulteventtype,uuid,owner,node,defaultPermissions)"
+                                                + "defaulteventtype,uuid,owner,node)"
                                                 + "values (:sid,-35,:ttl,:tti,:start,null,"
-                                                + ":type,:uuid,:owner,:node,'unused')",
+                                                + ":type,:uuid,:owner,:node)",
                                         params);
                         if (count == 0) {
                             throw new InternalException(

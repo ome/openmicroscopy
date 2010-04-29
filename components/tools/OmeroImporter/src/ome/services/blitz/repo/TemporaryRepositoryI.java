@@ -13,6 +13,7 @@ import omero.model.OriginalFile;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 
 import Ice.Current;
 
@@ -30,8 +31,8 @@ public class TemporaryRepositoryI extends AbstractRepositoryI {
             .getLog(TemporaryRepositoryI.class);
 
     public TemporaryRepositoryI(Ice.ObjectAdapter oa, Registry reg,
-            Executor ex, String sessionUuid) {
-        super(oa, reg, ex, sessionUuid, System.getProperty("java.io.tmpdir"));
+            Executor ex, SimpleJdbcOperations jdbc, String sessionUuid) {
+        super(oa, reg, ex, jdbc, sessionUuid, System.getProperty("java.io.tmpdir"));
     }
 
     /**
@@ -40,12 +41,12 @@ public class TemporaryRepositoryI extends AbstractRepositoryI {
     public String getFilePath(final OriginalFile file, Current __current)
             throws ServerError {
 
-        String url = getFileUrl(file);
+        String repo = getFileRepo(file);
 
-        if (url == null || !url.equals(getRepoUuid())) {
+        if (repo == null || !repo.equals(getRepoUuid())) {
             String msg = String.format("%s (in %s) "
                     + "does not belong to this repository: %s", file.getId()
-                    .getValue(), url, getRepoUuid());
+                    .getValue(), repo, getRepoUuid());
 
             throw new omero.ValidationException(null, null, msg);
         }

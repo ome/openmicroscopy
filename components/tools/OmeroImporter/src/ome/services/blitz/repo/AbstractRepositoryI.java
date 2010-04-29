@@ -18,6 +18,7 @@ import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
 import ome.services.blitz.fire.Registry;
+import ome.services.db.PgArrayHelper;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
@@ -63,6 +64,8 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
 
     private final Principal p;
 
+    private final SimpleJdbcOperations jdbc;
+
     private final FileMaker fileMaker;
 
     private OriginalFile description;
@@ -78,17 +81,18 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
     }
 
     public AbstractRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
-            String sessionUuid, String repoDir) {
-        this(oa, reg, ex, sessionUuid, new FileMaker(repoDir));
+            SimpleJdbcOperations jdbc, String sessionUuid, String repoDir) {
+        this(oa, reg, ex, jdbc, sessionUuid, new FileMaker(repoDir));
     }
 
     public AbstractRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
-            String sessionUuid, FileMaker fileMaker) {
+            SimpleJdbcOperations jdbc, String sessionUuid, FileMaker fileMaker) {
         this.state.set(State.EAGER);
         this.p = new Principal(sessionUuid, "system", "Internal");
         this.oa = oa;
         this.ex = ex;
         this.reg = reg;
+        this.jdbc = jdbc;
         this.fileMaker = fileMaker;
         log.info("Initializing repository in " + fileMaker.getDir());
     }
@@ -282,7 +286,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
                 //
 
                 PublicRepositoryI pr = new PublicRepositoryI(new File(fileMaker
-                        .getDir()), r.getId(), ex, p);
+                        .getDir()), r.getId(), ex, p, new PgArrayHelper(jdbc));
 
                 Ice.ObjectPrx internalObj = addOrReplace("InternalRepository-", repo);
                 Ice.ObjectPrx externalObj = addOrReplace("PublicRepository-", pr);
@@ -339,7 +343,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
     }
 
     @SuppressWarnings("unchecked")
-    protected String getFileUrl(final OriginalFile file) throws ServerError {
+    protected String getFileRepo(final OriginalFile file) throws ServerError {
 
         if (file == null || file.getId() == null) {
             throw new omero.ValidationException(null, null, "Unmanaged file");
@@ -347,11 +351,11 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
 
         Map<String, Object> map = (Map<String, Object>) ex
                 .executeStateless(new Executor.SimpleStatelessWork(this,
-                        "getFileUrl") {
+                        "getFileRepo") {
                     @Transactional(readOnly = true)
                     public Object doWork(SimpleJdbcOperations jdbc) {
                         return jdbc.queryForMap(
-                                "select path, url from originalfile "
+                                "select path, repo from originalfile "
                                         + "where id = ?",
                                         file.getId().getValue());
                     }
@@ -362,7 +366,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
                     + file.getId().getValue());
         }
         
-        return (String) map.get("url");
+        return (String) map.get("repo");
         
     }
 

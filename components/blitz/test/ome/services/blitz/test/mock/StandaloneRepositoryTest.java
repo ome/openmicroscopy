@@ -46,7 +46,7 @@ public class StandaloneRepositoryTest extends MockObjectTestCase {
     @Test
     public void testSimple() throws Exception {
         InternalRepositoryI repo = new InternalRepositoryI(oa, reg, ex,
-                "mock-uuid", dir.getAbsolutePath());
+                null, "mock-uuid", dir.getAbsolutePath());
     }
 
 }

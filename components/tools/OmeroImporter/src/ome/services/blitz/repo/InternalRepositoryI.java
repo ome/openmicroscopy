@@ -13,6 +13,7 @@ import omero.model.OriginalFile;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 
 import Ice.Current;
 import Ice.ObjectAdapter;
@@ -28,8 +29,8 @@ public class InternalRepositoryI extends AbstractRepositoryI {
     private final static Log log = LogFactory.getLog(InternalRepositoryI.class);
 
     public InternalRepositoryI(ObjectAdapter oa, Registry reg, Executor ex,
-            String sessionUuid, String repoDir) {
-        super(oa, reg, ex, sessionUuid, repoDir);
+            SimpleJdbcOperations jdbc, String sessionUuid, String repoDir) {
+        super(oa, reg, ex, jdbc, sessionUuid, repoDir);
     }
 
     /**
@@ -38,11 +39,11 @@ public class InternalRepositoryI extends AbstractRepositoryI {
     public String getFilePath(final OriginalFile file, Current __current)
             throws ServerError {
 
-        String url = getFileUrl(file);
+        String repo = getFileRepo(file);
         String uuid = getRepoUuid();
 
-        if (url == null || !url.equals(uuid)) {
-            throw new omero.ValidationException(null, null, url
+        if (repo == null || !repo.equals(uuid)) {
+            throw new omero.ValidationException(null, null, repo
                     + " does not belong to this repository: " + uuid);
         }
 

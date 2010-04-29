@@ -64,7 +64,7 @@ public class TemporaryRepositoryTest extends MockObjectTestCase {
                 returnValue(repo));
 
         TemporaryRepositoryI tr = new TemporaryRepositoryI(oa, reg, fixture.ex,
-                "mock-session");
+                null, "mock-session");
         fixture.mock("executorMock").expects(atLeastOnce()).method("execute")
                 .will(new Stub() {
 

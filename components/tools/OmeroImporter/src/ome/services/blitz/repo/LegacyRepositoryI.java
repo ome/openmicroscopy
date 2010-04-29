@@ -14,6 +14,7 @@ import omero.model.OriginalFile;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 
 import Ice.Current;
 
@@ -31,13 +32,13 @@ public class LegacyRepositoryI extends AbstractRepositoryI {
     private final OriginalFilesService fs;
 
     public LegacyRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
-            String sessionUuid, String repoDir) {
-        this(oa, reg, ex, sessionUuid, new FileMaker(repoDir));
+            SimpleJdbcOperations jdbc, String sessionUuid, String repoDir) {
+        this(oa, reg, ex, jdbc, sessionUuid, new FileMaker(repoDir));
     }
 
     public LegacyRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
-            String sessionUuid, FileMaker fileMaker) {
-        super(oa, reg, ex, sessionUuid, fileMaker);
+            SimpleJdbcOperations jdbc, String sessionUuid, FileMaker fileMaker) {
+        super(oa, reg, ex, jdbc, sessionUuid, fileMaker);
         this.fs = new OriginalFilesService(fileMaker.getDir());
     }
 
@@ -47,9 +48,9 @@ public class LegacyRepositoryI extends AbstractRepositoryI {
     public String getFilePath(final OriginalFile file, Current __current)
             throws ServerError {
 
-        String url = getFileUrl(file);
+        String repo = getFileRepo(file);
 
-        if (url != null) {
+        if (repo != null) {
             throw new omero.ValidationException(null, null,
                     "Does not belong to this repository");
         }

@@ -150,9 +150,22 @@ language sql;
 create table configuration ( name varchar(255) primary key, value text );
 insert into configuration values ('omero.db.uuid',uuid());
 
-alter table pixels add column url varchar(2048);
-alter table originalfile add column url varchar(2048);
-alter table thumbnail add column url varchar(2048);
+--
+-- ticket:2201 - creating repository data structures
+--
+alter  table pixels add column path text;
+alter  table pixels add column repo varchar(36);
+alter  table pixels add column params text[2][];
+create index pixels_repo_index on pixels (repo);
+-- No unique index on (path, repo) since it depends on params
+
+alter  table originalfile add column repo varchar(36);
+alter  table originalfile add column params text[2][];
+create index originalfile_repo_index on originalfile (repo);
+create unique index originalfile_repo_path_index on originalfile (path, repo) where repo is not null;
+--
+-- end ticket:2201
+--
 
 create table password ( experimenter_id bigint primary key REFERENCES experimenter (id), hash char(24), dn text );
 insert into password values (0,'@ROOTPASS@');

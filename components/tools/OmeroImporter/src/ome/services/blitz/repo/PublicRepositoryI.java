@@ -36,23 +36,22 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.activation.MimetypesFileTypeMap;
 
+import loci.common.services.DependencyException;
+import loci.common.services.ServiceException;
 import loci.formats.FormatException;
 import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
 import loci.formats.IFormatWriter;
 import loci.formats.ImageReader;
 import loci.formats.ImageWriter;
-import loci.formats.MetadataTools;
 import loci.formats.meta.IMetadata;
+import loci.formats.services.OMEXMLService;
 import ome.formats.importer.ImportContainer;
+import ome.services.db.PgArrayHelper;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
@@ -62,37 +61,24 @@ import omero.api.RawFileStorePrx;
 import omero.api.RawPixelsStorePrx;
 import omero.api.RenderingEnginePrx;
 import omero.api.ThumbnailStorePrx;
+import omero.grid.FileSet;
+import omero.grid.RepositoryListConfig;
 import omero.grid.RepositoryPrx;
 import omero.grid._RepositoryDisp;
-import omero.model.Format;
 import omero.model.DimensionOrder;
-import omero.model.PixelsType;
+import omero.model.Format;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.Pixels;
-import omero.model.PixelsI;
+import omero.model.PixelsType;
 import omero.util.IceMapper;
 
-import omero.grid.FileSet;
-import omero.grid.RepositoryListConfig;
-import ome.services.blitz.repo.FileSetI;
-import ome.services.blitz.repo.RepositoryListConfigI;
-
-import ome.formats.importer.ImportContainer;
-import ome.services.blitz.repo.ImportableFiles;
-
-import loci.common.services.DependencyException;
-import loci.common.services.ServiceException;
-import loci.formats.*; // need to close this down once the r/w are sorted.
-import loci.formats.meta.IMetadata;
-import loci.formats.services.OMEXMLService;
-
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
@@ -113,6 +99,8 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
     private final File root;
 
+    private final PgArrayHelper helper;
+
     private final Executor executor;
 
     private final Principal principal;
@@ -121,10 +109,11 @@ public class PublicRepositoryI extends _RepositoryDisp {
     private final static String THUMB_PATH = "thumbnails";
 
     public PublicRepositoryI(File root, long repoObjectId, Executor executor,
-            Principal principal) throws Exception {
+            Principal principal, PgArrayHelper helper) throws Exception {
         this.id = repoObjectId;
         this.executor = executor;
         this.principal = principal;
+        this.helper = helper;
 
         if (root == null || !root.isDirectory()) {
             throw new ValidationException(null, null,
@@ -992,4 +981,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         }
         if (index < sList.size()) sList.remove(index);
     }
+
+
+
 }
