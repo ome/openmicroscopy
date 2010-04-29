@@ -90,6 +90,8 @@ import Ice.UserException;
 public class SharedResourcesI extends AbstractAmdServant implements
         _SharedResourcesOperations, BlitzOnly, ServiceFactoryAware {
 
+    public final static String SCRIPT_REPO = "ScriptRepo";
+
     private final static Log log = LogFactory.getLog(SharedResourcesI.class);
 
     private final Set<String> tableIds = new HashSet<String>();
@@ -213,13 +215,31 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
     static String QUERY = "select o from OriginalFile o where o.format.value = 'Repository'";
 
+    public RepositoryPrx getScriptRepository(Current __current)
+            throws ServerError {
+        InternalRepositoryPrx[] repos = registry.lookupRepositories();
+        InternalRepositoryPrx prx = null;
+        if (repos != null) {
+            for (int i = 0; i < repos.length; i++) {
+                if (repos[i] != null) {
+                    if (repos[i].toString().contains(SCRIPT_REPO)) {
+                        prx = repos[i];
+                    }
+                }
+            }
+        }
+        return prx == null ? null : prx.getProxy();
+    }
+
     @SuppressWarnings("unchecked")
     public RepositoryMap repositories(Current current) throws ServerError {
 
+        // TODO
         // Possibly need to throttle the numbers of acquisitions per time.
         // Need to keep up with closing
         // might need to cache the found repositories.
 
+        final String query = QUERY;
         IceMapper mapper = new IceMapper();
         List<OriginalFile> objs = (List<OriginalFile>) mapper
                 .map((List<Filterable>) sf.executor.execute(sf.principal,

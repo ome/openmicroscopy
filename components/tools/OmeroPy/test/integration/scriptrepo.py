@@ -10,7 +10,11 @@
 """
 
 import unittest
+<<<<<<< HEAD
 import integration.library as lib
+=======
+import test.integration.library as lib
+>>>>>>> d5e9630... see #2073 - Working ScriptRepository, but no registration
 import tempfile
 import omero
 import omero.all

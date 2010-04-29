@@ -41,7 +41,7 @@
         </bean>
     </constructor-arg>
   </bean>
-  <bean id="populateRoiJob" class="ome.services.roi.PopulateRoiJob" lazy-init="false">
+  <bean id="populateRoiJob" class="ome.services.roi.PopulateRoiJob">
       <constructor-arg ref="roles"/>
       <constructor-arg ref="uuid"/>
       <constructor-arg ref="executor"/>

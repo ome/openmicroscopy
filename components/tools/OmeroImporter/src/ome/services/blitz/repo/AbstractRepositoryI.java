@@ -231,10 +231,24 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
                     fileMaker.init(sf.getConfigService().getDatabaseUuid());
                 }
 
-                String line = fileMaker.getLine();
+                final String line = fileMaker.getLine();
 
                 if (line == null) {
                     repoUuid = repo.generateRepoUuid();
+                } else {
+                    repoUuid = line;
+                }
+
+                r = sf.getQueryService()
+                .findByString(ome.model.core.OriginalFile.class,
+                        "sha1", repoUuid);
+
+                if (r == null) {
+
+                    if (line != null) {
+                        log.warn("Couldn't find repository object: " + line);
+                    }
+
                     r = new ome.model.core.OriginalFile();
                     r.setSha1(repoUuid);
                     r.setName(fileMaker.getDir());
@@ -252,21 +266,14 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
                     log.info(String.format(
                             "Registered new repository %s (uuid=%s)", r
                                     .getName(), repoUuid));
-                } else {
-                    repoUuid = line;
-                    r = sf.getQueryService()
-                            .findByString(ome.model.core.OriginalFile.class,
-                                    "sha1", repoUuid);
-                    if (r == null) {
-                        throw new InternalException(
-                                "Can't find repository object: " + line);
-                    } else {
-                        // ticket:1794 - only adds if necessary
-                        sf.getAdminService().moveToCommonSpace(r);
-                    }
-                    log.info(String.format("Opened repository %s (uuid=%s)", r
-                            .getName(), repoUuid));
                 }
+
+                // ticket:1794 - only adds if necessary
+                sf.getAdminService().moveToCommonSpace(r);
+
+
+                log.info(String.format("Opened repository %s (uuid=%s)", r
+                        .getName(), repoUuid));
 
                 //
                 // Servants

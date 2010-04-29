@@ -38,12 +38,15 @@ import omero.api.AMD_IScript_getScriptWithDetails;
 import omero.api.AMD_IScript_getScripts;
 import omero.api.AMD_IScript_runScript;
 import omero.api.AMD_IScript_uploadScript;
+import omero.api.AMD_IScript_validateScript;
 import omero.api._IScriptOperations;
 import omero.grid.InteractiveProcessorPrx;
 import omero.grid.JobParams;
 import omero.grid.ParamsHelper;
 import omero.grid.ProcessPrx;
 import omero.grid.ScriptProcessPrx;
+import omero.model.IObject;
+import omero.model.Job;
 import omero.model.OriginalFileI;
 import omero.model.ScriptJob;
 import omero.model.ScriptJobI;
@@ -360,6 +363,11 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                 return scriptMap;
             }
         });
+    }
+
+    public void validateScript_async(AMD_IScript_validateScript __cb, Job j,
+            List<IObject> acceptLists, Current __current) throws ServerError {
+        __cb.ice_exception(new RuntimeException("NYI"));
     }
 
     /**

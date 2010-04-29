@@ -9,7 +9,7 @@ package ome.services.roi;
 
 import java.io.File;
 
-import ome.services.scripts.ScriptUploader;
+import ome.services.scripts.ScriptFinder;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.Roles;
@@ -21,7 +21,7 @@ import ome.system.Roles;
 
  * @since Beta4.1
  */
-public class PopulateRoiJob extends ScriptUploader {
+public class PopulateRoiJob extends ScriptFinder {
 
     private static File production() {
         File cwd = new File(".");

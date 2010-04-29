@@ -62,6 +62,14 @@ module omero {
                 throws ServerError;
 
             /**
+             * Returns the single (possibly mirrored) script repository which makes
+             * all official scripts available.
+             **/
+            omero::grid::Repository*
+                getScriptRepository()
+                throws ServerError;
+
+            /**
              * Creates a new Format("OMERO.tables") file at the given path
              * on the given repository. The returned Table proxy follows
              * the same semantics as the openTable method.
