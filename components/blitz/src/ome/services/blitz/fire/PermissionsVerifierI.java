@@ -9,6 +9,8 @@ package ome.services.blitz.fire;
 
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
+import ome.conditions.RemovedSessionException;
+import ome.model.meta.Session;
 import ome.services.sessions.SessionManager;
 
 import org.apache.commons.logging.Log;
@@ -40,9 +42,29 @@ public class PermissionsVerifierI extends _PermissionsVerifierDisp {
 
     public boolean checkPermissions(String userId, String password,
             StringHolder reason, Current __current) {
-        
+
         boolean value = false;
         try {
+            // ticket:2212 - At the very first, check if the password is
+            // actually a session id, if so we enforce that the userId
+            // and the password are identical, becauser we have no other
+            // method of signalling to the SessionManagerI instance that
+            // the user has not provided a real password
+            Session session;
+            try {
+                session = manager.find(password);
+            } catch (RemovedSessionException e) {
+                session = null;
+            }
+            if (session != null) {
+                if (userId.equals(password)) {
+                    return true;
+                } else {
+                    reason.value = "username and password must be equal; use joinSession";
+                    return false;
+                }
+            }
+
             // First check locally. Since we typically use redirects in the
             // cluster, it's most likely that our password will be in memory
             // in this instance.
@@ -50,8 +72,12 @@ public class PermissionsVerifierI extends _PermissionsVerifierDisp {
             
             // If that doesn't work, make sure that the cluster doesn't know
             // something this instance doesn't.
-            if ( ! value) {
+            if (!value) {
                 value = ring.checkPassword(userId);
+            }
+
+            if (!value) {
+                reason.value = "Password check failed";
             }
 
         } catch (Throwable t) {
