@@ -38,6 +38,7 @@ namespace omero {
         id.properties->setProperty("Ice.ACM.Client", "0");
         id.properties->setProperty("Ice.RetryIntervals", "-1");
         id.properties->setProperty("Ice.Default.EndpointSelection", "Ordered");
+        id.properties->setProperty("Ice.Default.PreferSecure", "1");
         id.properties->setProperty("Ice.Plugin.IceSSL" , "IceSSL:createIceSSL");
         id.properties->setProperty("IceSSL.Ciphers" , "ADH");
         id.properties->setProperty("IceSSL.VerifyPeer" , "0");

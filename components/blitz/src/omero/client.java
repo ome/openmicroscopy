@@ -261,6 +261,7 @@ public class client {
         id.properties.setProperty("Ice.ACM.Client", "0");
         id.properties.setProperty("Ice.RetryIntervals", "-1");
         id.properties.setProperty("Ice.Default.EndpointSelection", "Ordered");
+        id.properties.setProperty("Ice.Default.PreferSecure", "1");
         id.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
         id.properties.setProperty("IceSSL.Ciphers", "NONE (DH_anon)");
         id.properties.setProperty("IceSSL.VerifyPeer", "0");
