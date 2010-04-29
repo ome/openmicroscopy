@@ -42,7 +42,6 @@
             <fileset dir="src" includes="**/*.py"/>
             <fileset dir="src" includes="omero/gateway/pilfonts/*"/>
             <fileset dir="src" includes="omero/gateway/scripts/imgs/*"/>
-            <fileset dir="scripts" includes="**/*.py"/>
         </copy>
         <if><not><available file="${basedir}/../lib/fallback/IPython"/></not>
         <then>
@@ -62,6 +61,9 @@
         <!-- And copying once for top-level build -->
         <copy todir="../target/bin/">
             <fileset dir="${basedir}/bin"/>
+        </copy>
+        <copy todir="../target/lib/scripts/">
+            <fileset dir="scripts" includes="**/*.py"/>
         </copy>
     </target>
 
