@@ -25,7 +25,7 @@ module omero {
                 idempotent IObjectListMap loadAnnotations(string rootType, omero::sys::LongList rootIds,
                                                          omero::api::StringSet annotationTypes, omero::sys::LongList annotatorIds,
                                                          omero::sys::Parameters options) throws ServerError;
-                idempotent IObjectListMap loadSpecifiedAnnotations(string annotationType,
+                idempotent AnnotationList loadSpecifiedAnnotations(string annotationType,
                                                                    omero::api::StringSet include,
                                                                    omero::api::StringSet exclude,
                                                                    omero::sys::Parameters options) throws ServerError;
@@ -38,7 +38,7 @@ module omero {
                                                        omero::api::StringSet include,
                                                        omero::api::StringSet exclude,
                                                        omero::sys::Parameters options) throws ServerError;
-                idempotent IObjectListMap loadAnnotation(omero::sys::LongList annotationIds) throws ServerError;
+                idempotent AnnotationList loadAnnotation(omero::sys::LongList annotationIds) throws ServerError;
                 idempotent IObjectList loadInstrument(long id) throws ServerError;
             };
 
