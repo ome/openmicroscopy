@@ -198,9 +198,9 @@
   CREATE OR REPLACE VIEW count_LightPath_excitationFilterLink_by_owner (LightPath_id, owner_id, count) AS select parent, owner_id, count(*)
     FROM LightPathExcitationFilterLink GROUP BY parent, owner_id ORDER BY parent;
 
-  DROP TABLE count_LightPath_emissionsFilterLink_by_owner;
+  DROP TABLE count_LightPath_emissionFilterLink_by_owner;
 
-  CREATE OR REPLACE VIEW count_LightPath_emissionsFilterLink_by_owner (LightPath_id, owner_id, count) AS select parent, owner_id, count(*)
+  CREATE OR REPLACE VIEW count_LightPath_emissionFilterLink_by_owner (LightPath_id, owner_id, count) AS select parent, owner_id, count(*)
     FROM LightPathEmissionFilterLink GROUP BY parent, owner_id ORDER BY parent;
 
   CREATE OR REPLACE FUNCTION wellsample_well_index_move() RETURNS "trigger" AS '

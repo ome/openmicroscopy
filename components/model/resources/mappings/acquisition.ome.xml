@@ -398,7 +398,7 @@
 		<properties>
 			<child name="excitationFilterLink" type="ome.model.acquisition.LightPathExcitationFilterLink" target="ome.model.acquisition.Filter" ordered="true"/>
                         <optional name="dichroic" type="ome.model.acquisition.Dichroic"/>
-			<child name="emissionsFilterLink" type="ome.model.acquisition.LightPathEmissionFilterLink" target="ome.model.acquisition.Filter"/>
+			<child name="emissionFilterLink" type="ome.model.acquisition.LightPathEmissionFilterLink" target="ome.model.acquisition.Filter"/>
 		</properties>
 	</type>
 	<link id="ome.model.acquisition.LightPathExcitationFilterLink">

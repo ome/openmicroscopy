@@ -237,7 +237,7 @@
         primary key (Job_id, owner_id)
     );;
 
-    create table count_LightPath_emissionsFilterLink_by_owner (
+    create table count_LightPath_emissionFilterLink_by_owner (
         LightPath_id int8 not null,
         "count" int8 not null,
         owner_id int8 not null,
@@ -2248,8 +2248,8 @@
         foreign key (Job_id)
         references job;;
 
-    alter table count_LightPath_emissionsFilterLink_by_owner
-        add constraint FK_count_to_LightPath_emissionsFilterLink
+    alter table count_LightPath_emissionFilterLink_by_owner
+        add constraint FK_count_to_LightPath_emissionFilterLink
         foreign key (LightPath_id)
         references lightpath;;
 

@@ -92,8 +92,8 @@ public class Model42Test extends AbstractUpdateTest {
 
         lightPath.linkExcitationFilterLink(filter1); // These are ordered
         lightPath.linkExcitationFilterLink(filter2);
-        lightPath.linkEmissionsFilterLink(filter3); // These aren't
-        lightPath.linkEmissionsFilterLink(filter4);
+        lightPath.linkEmissionFilterLink(filter3); // These aren't
+        lightPath.linkEmissionFilterLink(filter4);
 
         iUpdate.saveAndReturnArray(new IObject[] { instrument, lightPath });
 
