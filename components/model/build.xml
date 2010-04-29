@@ -68,8 +68,10 @@
 		</copy>
 	</target>
 
-	<target name="generate-schema" depends="generate" description="Generates SQL based on Hibernate mappings">
+	<target name="generate-schema" depends="generate,_generate-schema" description="Generates SQL based on Hibernate mappings">
+        </target>
 
+	<target name="_generate-schema" depends="generate" description="Internal developer target which doesn't run codegen">
 		<taskdef name="hibernatetool" classname="org.hibernate.tool.ant.HibernateToolTask" classpathref="omero.classpath" />
 		<hibernatetool destdir="${target.dir}/generated/ant">
 			<annotationconfiguration configurationfile="${resrc.dest}/hibernate.cfg.xml" propertyfile="${resrc.dest}/local.properties">

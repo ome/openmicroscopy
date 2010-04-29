@@ -14,7 +14,8 @@
             <delete file="${basedir}/.sconsign.dblite"/>
         </target>
 
-	<target name="compile" depends="generate" unless="skip.compile">
+	<target name="compile" depends="generate,_compile" unless="skip.compile"/>
+	<target name="_compile" description="Internal develop target which doesn't run codegen">
             <if>
                 <uptodate targetfile="${target.dir}/blitz.jar">
                     <srcfiles dir="${basedir}" includes="**/*.java,**/*.ice,**/*.vm"/>

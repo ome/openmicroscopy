@@ -131,7 +131,7 @@ java component.
         <iterate buildpathref="OmeroWeb.buildpath" target="tools-dist"/>
         <iterate buildpathref="licenses.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
-        <prepareDist/>
+        <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
     </target>
 
     <!-- includes C++ -->
@@ -139,7 +139,7 @@ java component.
         <iterate buildpathref="all.buildpath" target="dist"/>
         <iterate buildpathref="tools.buildpath" target="build"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
-        <prepareDist/>
+        <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
     </target>
 
     <target name="build-blitz" description="Build blitz and copy to dist/blitz" depends="init">
@@ -148,7 +148,7 @@ java component.
         <iterate buildpathref="OmeroPy.buildpath" target="tools-dist"/>
         <iterate buildpathref="OmeroFs.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
-        <prepareDist/>
+        <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
     </target>
 
     <target name="build-importer" description="Build importer and copy to dist/lib and dist/bin" depends="init">
@@ -536,9 +536,7 @@ java component.
     Top-level helpers (shared helpers are in components/antlib/resources)
     =====================================================================
     -->
-    <target name="_dist" depends="init"><prepareDist/></target>
-    <macrodef name="prepareDist">
-        <sequential>
+    <target name="build-dist" depends="init" description="Copy all components to dist/; called at the end of build-* targets">
             <copy file="${omero.home}/LICENSE.txt" todir="${dist.dir}/"/>
             <copy todir="${dist.dir}/etc">
                 <fileset dir="${omero.home}/etc">
@@ -587,8 +585,7 @@ omero.version=${omero.version}
                 </jar>
             </then>
             </if>
-       </sequential>
-    </macrodef>
+    </target>
 
     <target name="version">
       <echo>${omero.version}</echo>

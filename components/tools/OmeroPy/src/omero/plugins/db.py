@@ -91,7 +91,7 @@ class DatabaseControl(BaseControl):
             location = path().getcwd() / script
 
         output = open(location, 'w')
-        print "Saving to " + location
+        self.ctx.out("Saving to " + location)
 
         try:
             output.write("""
@@ -151,11 +151,11 @@ BEGIN;
                 if len(db_patch) == 0:
                     db_patch = data2.properties.getProperty("omero.db.patch")
             data.properties.setProperty("omero.db.version", db_vers)
-            self.ctx.out("Using %s for version" % db_vers)
+            self.ctx.err("Using %s for version" % db_vers)
             data.properties.setProperty("omero.db.patch", db_patch)
-            self.ctx.out("Using %s for patch" % db_patch)
+            self.ctx.err("Using %s for patch" % db_patch)
             root_pass = args.args[2]
-            self.ctx.out("Using password from commandline")
+            self.ctx.err("Using password from commandline")
         except Exception, e:
             self.ctx.dbg("While getting arguments:"+str(e))
         self._lookup(data, data2, "version", map)
