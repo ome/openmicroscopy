@@ -234,59 +234,6 @@ public interface DataService
 	 */
 	public Pixels updatePixels(Pixels object) 
 	throws ServerError;
-
-	/**
-     * Get the scripts from the iScript Service.
-     * @return All the available scripts in a map by id and name.
-     * @throws omero::ServerError
-     */
-    Map<Long, String> getScripts()
-        throws omero.ServerError;
-
-    /**
-     * Get the id of the script with name
-     * @param name name of the script.
-     * @return the id of the script.
-     * @throws omero::ServerError
-     */
-    long getScriptID(String name)
-        throws omero.ServerError;
-
-    /**
-     * Upload the script to the server.
-     * @param script script to upload
-     * @return id of the new script.
-     * @throws omero::ServerError
-     */
-    long uploadScript(String script)
-        throws omero.ServerError;
-
-    /**
-     * Get the script with id, this returns the actual script as a string.
-     * @param id id of the script to retrieve.
-     * @return see above.
-     * @throws omero::ServerError
-     */
-    String getScript(long id)
-        throws omero.ServerError;
-
-    /**
-     * Get the parameters the script takes.
-     * @param id id of the script.
-     * @return see above.
-     * @throws omero::ServerError
-     */
-    JobParams getParams(long id)
-        throws omero.ServerError;
-
-    /**
-     * Delete the script with id from the server.
-     * @param id id of the script to delete.
-     * @throws omero::ServerError
-     */
-    void deleteScript(long id)
-       throws omero.ServerError;
-
 	
 }
 

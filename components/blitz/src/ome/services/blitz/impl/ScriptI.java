@@ -7,6 +7,7 @@
 
 package ome.services.blitz.impl;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,12 +17,13 @@ import java.util.concurrent.Callable;
 import ome.api.IUpdate;
 import ome.api.RawFileStore;
 import ome.model.core.OriginalFile;
-import ome.parameters.Parameters;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
+import ome.services.scripts.ScriptRepoHelper;
 import ome.services.util.Executor;
 import ome.system.ServiceFactory;
+import ome.tools.hibernate.QueryBuilder;
 import ome.util.Utils;
 import omero.ApiUsageException;
 import omero.RInt;
@@ -32,11 +34,13 @@ import omero.ValidationException;
 import omero.api.AMD_IScript_deleteScript;
 import omero.api.AMD_IScript_editScript;
 import omero.api.AMD_IScript_getParams;
-import omero.api.AMD_IScript_getScript;
 import omero.api.AMD_IScript_getScriptID;
+import omero.api.AMD_IScript_getScriptText;
 import omero.api.AMD_IScript_getScriptWithDetails;
 import omero.api.AMD_IScript_getScripts;
+import omero.api.AMD_IScript_getUserScripts;
 import omero.api.AMD_IScript_runScript;
+import omero.api.AMD_IScript_uploadOfficialScript;
 import omero.api.AMD_IScript_uploadScript;
 import omero.api.AMD_IScript_validateScript;
 import omero.api._IScriptOperations;
@@ -45,6 +49,8 @@ import omero.grid.JobParams;
 import omero.grid.ParamsHelper;
 import omero.grid.ProcessPrx;
 import omero.grid.ScriptProcessPrx;
+import omero.model.Experimenter;
+import omero.model.ExperimenterGroup;
 import omero.model.IObject;
 import omero.model.Job;
 import omero.model.OriginalFileI;
@@ -76,8 +82,11 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
     protected ParamsHelper helper;
 
-    public ScriptI(BlitzExecutor be) {
+    protected final ScriptRepoHelper scripts;
+
+    public ScriptI(BlitzExecutor be, ScriptRepoHelper scripts) {
         super(null, be);
+        this.scripts = scripts;
     }
 
     public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
@@ -117,25 +126,25 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     // =========================================================================
 
     /**
-     * Get the id of the script with name scriptName.
+     * Get the id of the official script with given path.
      * 
-     * @param scriptName
-     *            Name of the script to find id for.
+     * @param scriptPath
+     *            {@link OriginalFile#getPath()} of the script to find id for.
      * @param __current
      *            ice context.
      * @return The id of the script, -1 if no script found, or more than one
      *         script with that name.
      */
     public void getScriptID_async(final AMD_IScript_getScriptID __cb,
-            final String scriptName, final Current __current)
+            final String scriptPath, final Current __current)
             throws ServerError {
         safeRunnableCall(__current, __cb, false, new Callable<Long>(){
             public Long call() {
-                final OriginalFile file = getOriginalFileOrNull(scriptName);
-                if (file == null) {
+                Long id = scripts.findInDb(scriptPath, true);
+                if (id == null) {
                     return -1L;
                 } else {
-                    return file.getId();
+                    return id;
                 }
             }
 
@@ -151,21 +160,31 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      * @return id of the script.
      */
     public void uploadScript_async(final AMD_IScript_uploadScript __cb,
-            final String scriptText, final Current __current) throws ServerError {
+            final String path, final String scriptText, final Current __current) throws ServerError {
         safeRunnableCall(__current, __cb, false, new Callable<Long>() {
             public Long call() throws Exception {
-
-                if (!validateScript(scriptText)) {
-                    throw new ApiUsageException(null, null, "Invalid script");
-                }
-
-                OriginalFile file = makeFile(scriptText); // FIXME PATH & PERMS
+                OriginalFile file = makeFile(path, scriptText);
                 writeContent(file, scriptText);
                 updateFileWithParams(__current, file);
                 return file.getId();
-
             }
+        });
+    }
 
+    public void uploadOfficialScript_async(
+            AMD_IScript_uploadOfficialScript __cb, final String path,
+            final String scriptText, final Current __current) throws ServerError {
+        safeRunnableCall(__current, __cb, false, new Callable<Long>() {
+            public Long call() throws Exception {
+                try {
+                    ScriptRepoHelper.RepoFile f = scripts.write(path, scriptText, true, false);
+                    return scripts.load(f.fs, false).getId();
+                } catch (IOException e) {
+                    omero.ServerError se = new omero.InternalException(null, null, "Cannot write " + path);
+                    IceMapper.fillServerError(se, e);
+                    throw se;
+                }
+            }
         });
     }
 
@@ -175,14 +194,18 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
         safeRunnableCall(__current, __cb, true, new Callable<Object>() {
             public Object call() throws Exception {
-
-                if (!validateScript(scriptText)) {
-                    throw new ApiUsageException(null, null, "Invalid script");
-                }
-
                 IceMapper mapper = new IceMapper();
                 OriginalFile file = (OriginalFile) mapper.reverse(fileObject);
-                writeContent(file, scriptText);
+                // Removing update event
+                // to prevent optimistic locking
+                file.getDetails().setUpdateEvent(null);
+
+                OriginalFile official = scripts.load(file.getId());
+                if (official != null) {
+                    scripts.write(official.getPath(), scriptText, true, true);
+                } else {
+                    writeContent(file, scriptText);
+                }
                 updateFileWithParams(__current, file);
                 return null; // void
             }
@@ -215,38 +238,50 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                     return null;
                 }
 
-                final Long size = file.getSize();
-                if (size == null || size.longValue() > Integer.MAX_VALUE
-                        || size.longValue() < 0) {
-                    throw new ValidationException(null, null,
-                            "Script size : " + size
-                                    + " invalid on Blitz.OMERO server.");
-                }
-
                 Map<String, RType> scr = new HashMap<String, RType>();
-                scr.put((String) factory.executor.execute(
-                        factory.principal, new Executor.SimpleWork(this,
-                                "getScriptWithDetails") {
-                            @Transactional(readOnly = true)
-                            public Object doWork(Session session,
-                                    ServiceFactory sf) {
-                                RawFileStore rawFileStore = sf
-                                        .createRawFileStore();
-                                try {
-                                    rawFileStore.setFileId(file.getId());
-                                    String script = new String(rawFileStore
-                                            .read(0L, (int) size
-                                                    .longValue()));
-
-                                    return script;
-                                } finally {
-                                    rawFileStore.close();
-                                }
-                            }
-                        }), new omero.util.IceMapper().toRType(file));
+                scr.put(loadText(file), new omero.util.IceMapper().toRType(file));
                 return scr;
             }
+
         });
+    }
+
+        private String loadText(final OriginalFile file) throws ServerError {
+
+        if (scripts.isInRepo(file.getId())) {
+            try {
+                return scripts.read(file.getPath(), true);
+            } catch (IOException e) {
+                omero.ResourceError re = new omero.ResourceError(null, null, "Failed to load " + file);
+                IceMapper.fillServerError(re, e);
+                throw re;
+            }
+        }
+
+        final Long size = file.getSize();
+        if (size == null || size.longValue() > Integer.MAX_VALUE
+                || size.longValue() < 0) {
+            throw new ValidationException(null, null,
+                    "Script size : " + size
+                            + " invalid on Blitz.OMERO server.");
+        }
+
+        return (String) factory.executor.execute(factory.principal,
+                new Executor.SimpleWork(this, "getScriptWithDetails") {
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        RawFileStore rawFileStore = sf.createRawFileStore();
+                        try {
+                            rawFileStore.setFileId(file.getId());
+                            String script = new String(rawFileStore.read(0L,
+                                    (int) file.getSize().longValue()));
+
+                            return script;
+                        } finally {
+                            rawFileStore.close();
+                        }
+                    }
+                });
     }
 
     /**
@@ -260,7 +295,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      * @throws ServerError
      *             validation, api usage.
      */
-    public void getScript_async(final AMD_IScript_getScript __cb, final long id,
+    public void getScriptText_async(final AMD_IScript_getScriptText __cb, final long id,
             Current __current) throws ServerError {
 
         safeRunnableCall(__current, __cb, false, new Callable<Object>() {
@@ -271,36 +306,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                     return null;
                 }
 
-                final Long size = file.getSize();
-                if (size == null || size.longValue() > Integer.MAX_VALUE
-                        || size.longValue() < 0) {
-                    throw new ValidationException(null, null,
-                            "Script size : " + size
-                                    + " invalid on Blitz.OMERO server.");
-                }
-
-                return (String) factory.executor.execute(
-                        factory.principal, new Executor.SimpleWork(this,
-                                "getScript") {
-
-                            @Transactional(readOnly = true)
-                            public Object doWork(Session session,
-                                    ServiceFactory sf) {
-                                RawFileStore rawFileStore = sf
-                                        .createRawFileStore();
-                                try {
-                                    rawFileStore.setFileId(file.getId());
-                                    String script = new String(rawFileStore
-                                            .read(0L, (int) size
-                                                    .longValue()));
-
-                                    return script;
-                                } finally {
-                                    rawFileStore.close();
-                                }
-                            }
-                        });
-
+                return loadText(file);
             }
         });
     }
@@ -337,37 +343,90 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      */
     public void getScripts_async(final AMD_IScript_getScripts __cb,
             Current __current) throws ServerError {
-
         safeRunnableCall(__current, __cb, false, new Callable<Object>() {
             public Object call() throws Exception {
-                final Map<Long, String> scriptMap = new HashMap<Long, String>();
-                final long fmt = helper.pythonFormat.getId();
-                final String queryString = "from OriginalFile as o where o.format.id = "
-                        + fmt;
-                factory.executor.execute(factory.principal,
-                        new Executor.SimpleWork(this, "getScripts") {
-
-                            @Transactional(readOnly = true)
-                            public Object doWork(Session session,
-                                    ServiceFactory sf) {
-                                List<OriginalFile> fileList = sf
-                                        .getQueryService().findAllByQuery(
-                                                queryString, null);
-                                for (OriginalFile file : fileList) {
-                                    scriptMap.put(file.getId(), file
-                                            .getName());
-                                }
-                                return null;
-                            }
-                        });
-                return scriptMap;
+                List<OriginalFile> files = scripts.loadAll(true); // FIXME
+                IceMapper mapper = new IceMapper();
+                return mapper.map(files);
             }
         });
     }
 
-    public void validateScript_async(AMD_IScript_validateScript __cb, Job j,
-            List<IObject> acceptLists, Current __current) throws ServerError {
-        __cb.ice_exception(new RuntimeException("NYI"));
+    @SuppressWarnings("unchecked")
+    public void getUserScripts_async(AMD_IScript_getUserScripts __cb,
+            final List<IObject> acceptsList, Current __current) throws ServerError {
+        safeRunnableCall(__current, __cb, false, new Callable<Object>() {
+            public Object call() throws Exception {
+
+                final QueryBuilder qb = new QueryBuilder();
+                qb.select("o").from("OriginalFile", "o");
+
+                parseAcceptsList(qb, acceptsList);
+
+                List<Long> officialIds = scripts.idsInDb();
+                if (officialIds != null && officialIds.size() > 0) {
+                    qb.and("o.id not in (:ids) ");
+                    qb.paramList("ids", officialIds);
+                }
+
+                List<OriginalFile> files = (List<OriginalFile>)
+                factory.executor.execute(factory.principal,
+                        new Executor.SimpleWork(this, "getUserScripts") {
+                            @Transactional(readOnly = true)
+                            public Object doWork(Session session,
+                                    ServiceFactory sf) {
+                                return qb.query(session).list();
+                            }
+                        });
+                IceMapper mapper = new IceMapper();
+                return mapper.map(files);
+            }
+        });
+    }
+
+    @SuppressWarnings("unchecked")
+    public void validateScript_async(AMD_IScript_validateScript __cb, final Job j,
+            final List<IObject> acceptsList, Current __current) throws ServerError {
+        safeRunnableCall(__current, __cb, false, new Callable<Object>() {
+            public Object call() throws Exception {
+
+                final boolean official =
+                    acceptsList != null && acceptsList.size() == 0;
+
+                final QueryBuilder qb = new QueryBuilder();
+                qb.select("o").from("Job", "j");
+                qb.join("j.originalFileLinks", "links", false, false);
+                qb.join("links.child", "o", false, false);
+                qb.param("id", j.getId().getValue());
+
+                parseAcceptsList(qb, acceptsList);
+
+                qb.and("j = :id");
+
+
+                return factory.executor.execute(factory.principal,
+                        new Executor.SimpleWork(this, "validateScript", j.getId().getValue(), acceptsList) {
+                    @Transactional(readOnly = false)
+                    public Object doWork(Session session, ServiceFactory sf) {
+
+                        List<OriginalFile> files = (List<OriginalFile>) qb.query(session).list();
+                        if (files.size() != 1) {
+                            throw new ome.conditions.ValidationException("Found wrong number of files: " + files);
+                        }
+                        Long id = files.get(0).getId();
+
+                        IceMapper mapper = new IceMapper();
+                        if (official) {
+                            return mapper.map(scripts.load(id));
+                        } else {
+                            return mapper.map(
+                                    sf.getQueryService()
+                                    .get(OriginalFile.class, id));
+                        }
+                    }
+                });
+            }
+        });
     }
 
     /**
@@ -398,6 +457,28 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     // Non-public-methods
     // =========================================================================
 
+    private void parseAcceptsList(final QueryBuilder qb,
+            final List<IObject> acceptsList) {
+        qb.join("o.format", "fmt", false, false);
+        qb.where();
+        qb.and("fmt.id = " + helper.pythonFormat.getId());
+
+        if (acceptsList != null && acceptsList.size() == 0) {
+            for (IObject object : acceptsList) {
+                if (object instanceof Experimenter) {
+                    qb.and("o.details.owner.id = :oid");
+                    qb.param("oid", object.getId().getValue());
+                } else if (object instanceof ExperimenterGroup) {
+                        qb.and("o.details.group.id = :gid");
+                        qb.param("gid", object.getId().getValue());
+                } else {
+                    throw new ome.conditions.ValidationException(
+                            "Unsupported accept-type: " + object);
+                }
+            }
+        }
+    }
+
     /**
      * Make the file, this is a temporary file which will be changed when the
      * script is validated.
@@ -407,11 +488,11 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      * @return OriginalFile tempfile..
      * @throws ServerError
      */
-    private OriginalFile makeFile(final String script) throws ServerError {
+    private OriginalFile makeFile(final String path, final String script) throws ServerError {
         String fName = "ScriptName" + UUID.randomUUID();
         OriginalFile file = new OriginalFile();
         file.setName(fName);
-        file.setPath(fName);
+        file.setPath(path);
         file.setFormat(helper.pythonFormat.proxy());
         file.setSize((long) script.getBytes().length);
         file.setSha1(Utils.bufferToSha1(script.getBytes()));
@@ -478,6 +559,15 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      * 
      */
     private void deleteOriginalFile(final OriginalFile file) throws ServerError {
+
+        if (file == null) {
+            return;
+        }
+
+        if (scripts.delete(file.getId())) {
+            return;
+        }
+
         Boolean success = (Boolean) factory.executor.execute(factory.principal,
                 new Executor.SimpleWork(this, "deleteOriginalFile") {
 
@@ -498,39 +588,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
             throw new omero.ApiUsageException(null, null, "Cannot delete "
                     + file + "\nIs in use by other objects");
         }
-    }
 
-    /**
-     * Method to get the original file of the script with name. This method will
-     * not throw an exception, but instead will return null.
-     * 
-     * @param name
-     *            See above.
-     * @return original file or null if script does not exist or more than one
-     *         script with name exists.
-     */
-    @SuppressWarnings("unchecked")
-    private OriginalFile getOriginalFileOrNull(String name) {
-
-        try {
-            final Parameters p = new Parameters().addString("name", name);
-            final String queryString = "from OriginalFile as o where o.format.id = "
-                    + helper.pythonFormat.getId()
-                    + " and o.name = :name";
-            OriginalFile file = (OriginalFile) factory.executor.execute(
-                    factory.principal, new Executor.SimpleWork(this,
-                            "getOriginalFileOrNull") {
-
-                        @Transactional(readOnly = true)
-                        public Object doWork(Session session, ServiceFactory sf) {
-                            return sf.getQueryService().findByQuery(
-                                    queryString, p);
-                        }
-                    });
-            return file;
-        } catch (RuntimeException re) {
-            return null;
-        }
     }
 
     /**
@@ -562,17 +620,6 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         } catch (RuntimeException re) {
             return null;
         }
-    }
-
-    /**
-     * Validate the script, checking that the params are specified correctly and
-     * that the script does not contain any invalid commands.
-     * 
-     * @param script
-     * @return true if script valid.
-     */
-    private boolean validateScript(String script) {
-        return true;
     }
 
     private void updateFileWithParams(final Current __current,

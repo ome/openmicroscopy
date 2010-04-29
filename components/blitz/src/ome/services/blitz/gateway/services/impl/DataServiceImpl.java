@@ -281,60 +281,6 @@ public class DataServiceImpl
 		return (Pixels)iUpdate.saveAndReturnObject(object);
 	}
 
-	/* (non-Javadoc)
-	 * @see ome.services.blitz.omerogateway.services.DataService#deleteScript(long)
-	 */
-	public void deleteScript(long id) throws ServerError 
-	{
-		IScriptPrx iScript = gatewayFactory.getIScript();
-		iScript.deleteScript(id);
-	}
-
-	/* (non-Javadoc)
-	 * @see ome.services.blitz.omerogateway.services.DataService#getParams(long)
-	 */
-	public JobParams getParams(long id) throws ServerError
-	{
-		IScriptPrx iScript = gatewayFactory.getIScript();
-		return iScript.getParams(id);
-	}
-
-	/* (non-Javadoc)
-	 * @see ome.services.blitz.omerogateway.services.DataService#getScript(long)
-	 */
-	public String getScript(long id) throws ServerError 
-	{
-		IScriptPrx iScript = gatewayFactory.getIScript();
-		return iScript.getScript(id);
-	}
-
-	/* (non-Javadoc)
-	 * @see ome.services.blitz.omerogateway.services.DataService#getScriptID(String)
-	 */
-	public long getScriptID(String name) throws ServerError 
-	{
-		IScriptPrx iScript = gatewayFactory.getIScript();
-		return iScript.getScriptID(name);
-	}
-
-	/* (non-Javadoc)
-	 * @see ome.services.blitz.omerogateway.services.DataService#getScripts()
-	 */
-	public Map<Long, String> getScripts() throws ServerError 
-	{
-		IScriptPrx iScript = gatewayFactory.getIScript();
-		return iScript.getScripts();
-	}
-
-	/* (non-Javadoc)
-	 * @see ome.services.blitz.omerogateway.services.DataService#uploadScript(String)
-	 */
-	public long uploadScript(String script) throws ServerError 
-	{
-		IScriptPrx iScript = gatewayFactory.getIScript();
-		return iScript.uploadScript(script);
-	}
-	
 }
 
 

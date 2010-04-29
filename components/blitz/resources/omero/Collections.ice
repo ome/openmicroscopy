@@ -171,11 +171,6 @@ module omero {
         dictionary<long,   ShapeList>                  LongShapeListMap;
         dictionary<int,    ShapeList>                  IntShapeListMap;
 
-        // Redundant or too specifically named definitions. Should possibly be deprecated.
-
-        dictionary<long, string>                       ScriptIDNameMap;
-        dictionary<long, IObjectList>                  AnnotationMap;
-
     };
 
 };

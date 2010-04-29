@@ -25,6 +25,7 @@ import ome.services.blitz.fire.TopicManager;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
+import ome.services.scripts.ScriptRepoHelper;
 import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;
@@ -90,8 +91,6 @@ import Ice.UserException;
 public class SharedResourcesI extends AbstractAmdServant implements
         _SharedResourcesOperations, BlitzOnly, ServiceFactoryAware {
 
-    public final static String SCRIPT_REPO = "ScriptRepo";
-
     private final static Log log = LogFactory.getLog(SharedResourcesI.class);
 
     private final Set<String> tableIds = new HashSet<String>();
@@ -102,13 +101,16 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
     private final Registry registry;
 
+    private final ScriptRepoHelper helper;
+
     private ServiceFactoryI sf;
 
     public SharedResourcesI(BlitzExecutor be, TopicManager topicManager,
-            Registry registry) {
+            Registry registry, ScriptRepoHelper helper) {
         super(null, be);
         this.topicManager = topicManager;
         this.registry = registry;
+        this.helper = helper;
     }
 
     public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
@@ -222,7 +224,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
         if (repos != null) {
             for (int i = 0; i < repos.length; i++) {
                 if (repos[i] != null) {
-                    if (repos[i].toString().contains(SCRIPT_REPO)) {
+                    if (repos[i].toString().contains(helper.getUuid())) {
                         prx = repos[i];
                     }
                 }
