@@ -27,6 +27,9 @@ import traceback
 import time
 import array
 
+import logging
+logger = logging.getLogger('blitz_gateway')
+
 try:
     import Image, ImageDraw, ImageFont
 except:
@@ -37,9 +40,6 @@ from math import sqrt
 import omero_Constants_ice  
 import omero_ROMIO_ice
 from omero.rtypes import rstring, rint, rlong, rbool, rtime
-
-import logging
-logger = logging.getLogger('blitz_gateway')
 
 def omero_type(val):
     """
@@ -234,7 +234,38 @@ class BlitzObjectWrapper (object):
 
     def canOwnerWrite (self):
         return self._obj.details.permissions.isUserWrite()
-
+    
+    def isOwned(self):
+        return (self._obj.details.owner.id.val == self._conn.getEventContext().userId)
+    
+    def isLeaded(self):
+        if self._obj.details.group.id.val in self._conn.getEventContext().leaderOfGroups:
+            return True
+        return False
+    
+    def isEditable(self):
+        if self.isOwned() and not self.isReadOnly():
+            return True
+        return False
+    
+    def isPublic(self):
+        return self._obj.details.permissions.isWorldRead()
+    
+    def isShared(self):
+        return self._obj.details.permissions.isGroupRead()
+    
+    def isPrivate(self):
+        return self._obj.details.permissions.isUserRead()
+    
+    def isReadOnly(self):
+        if self.isPublic() and not self._obj.details.permissions.isWorldWrite():
+            return True
+        elif self.isShared() and not self._obj.details.permissions.isGroupWrite():
+            return True
+        elif self.isPrivate() and not self._obj.details.permissions.isUserWrite():
+            return True
+        return False
+    
     #@timeit
     #def getUID (self):
     #    p = self.listParents()
@@ -404,7 +435,7 @@ class BlitzObjectWrapper (object):
         """
         
         for ann in self._getAnnotationLinks(ns):
-            yield AnnotationWrapper._wrap(self._conn, ann.child)
+            yield AnnotationWrapper._wrap(self._conn, ann.child, link=ann)
 
 
     def _linkAnnotation (self, ann):
@@ -951,7 +982,10 @@ class _BlitzGateway (object):
             self.c = omero.client(host=str(self.host), port=int(self.port))#, pmap=['--Ice.Config='+','.join(self.ice_config)])
         else:
             self.c = omero.client(pmap=['--Ice.Config='+','.join(self.ice_config)])
-    
+
+        if hasattr(self.c, "setAgent"):
+            self.c.setAgent("OMERO.py.gateway")
+
     def connect (self, sUuid=None):
         """
         Creates or retrieves connection for the given sessionUuid.
@@ -1591,7 +1625,71 @@ class _BlitzGateway (object):
         for i in self.getQueryService().findAllByQuery(query, params):
             yield ImageWrapper(self, i)
 
-
+    
+    ################
+    # Enumerations #
+    
+    def getEnumerationEntries(self, klass):
+        types = self.getTypesService()
+        for e in types.allEnumerations(str(klass)):
+            yield EnumerationWrapper(self, e)
+    
+    def getEnumeration(self, klass, string):
+        types = self.getTypesService()
+        obj = types.getEnumeration(str(klass), str(string))
+        if obj is not None:
+            return EnumerationWrapper(self, obj)
+        else:
+            return None
+    
+    def getEnumerationById(self, klass, eid):
+        query_serv = self.getQueryService()
+        obj =  query_serv.find(klass, long(eid))
+        if obj is not None:
+            return EnumerationWrapper(self, obj)
+        else:
+            return None
+            
+    def getOriginalEnumerations(self):
+        types = self.getTypesService()
+        rv = dict()
+        for e in types.getOriginalEnumerations():
+            if rv.get(e.__class__.__name__) is None:
+                rv[e.__class__.__name__] = list()
+            rv[e.__class__.__name__].append(EnumerationWrapper(self, e))
+        return rv
+        
+    def getEnumerations(self):
+        types = self.getTypesService()
+        return types.getEnumerationTypes() 
+    
+    def getEnumerationsWithEntries(self):
+        types = self.getTypesService()
+        rv = dict()
+        for key, value in types.getEnumerationsWithEntries().items():
+            r = list()
+            for e in value:
+                r.append(EnumerationWrapper(self, e))
+            rv[key+"I"] = r
+        return rv
+    
+    def deleteEnumeration(self, obj):
+        types = self.getTypesService()
+        types.deleteEnumeration(obj)
+        
+    def createEnumeration(self, obj):
+        types = self.getTypesService()
+        types.createEnumeration(obj)
+    
+    def resetEnumerations(self, klass):
+        types = self.getTypesService()
+        types.resetEnumerations(klass)
+    
+    def updateEnumerations(self, new_entries):
+        types = self.getTypesService()
+        types.updateEnumerations(new_entries)
+    
+    
     ###################
     # Searching stuff #
 
@@ -1879,6 +1977,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
 
     def __init__ (self, *args, **kwargs):
         super(AnnotationWrapper, self).__init__(*args, **kwargs)
+        self.link = kwargs.has_key('link') and kwargs['link'] or None
         if self._obj is None and self.OMERO_TYPE is not None:
             self._obj = self.OMERO_TYPE()
 
@@ -1890,9 +1989,12 @@ class AnnotationWrapper (BlitzObjectWrapper):
         klass.registry[regklass.OMERO_TYPE] = regklass
 
     @classmethod
-    def _wrap (klass, conn, obj):
+    def _wrap (klass, conn, obj, link=None):
         if obj.__class__ in klass.registry:
-            return klass.registry[obj.__class__](conn, obj)
+            kwargs = dict()
+            if link is not None:
+                kwargs['link'] = BlitzObjectWrapper(conn, link)
+            return klass.registry[obj.__class__](conn, obj, **kwargs)
         else: #pragma: no cover
             return None
 
@@ -1936,6 +2038,7 @@ class FileAnnotationWrapper (AnnotationWrapper):
         pass
 
     def isOriginalMetadata(self):
+        self.__loadedHotSwap__()
         try:
             if self._obj.ns is not None and self._obj.ns.val == omero.constants.namespaces.NSCOMPANIONFILE and self._obj.file.name.val.startswith("original_metadata"):
                 return True
@@ -1953,6 +2056,31 @@ class FileAnnotationWrapper (AnnotationWrapper):
         if l < 35:
             return name
         return name[:16] + "..." + name[l - 16:] 
+    
+    def getFile(self):
+        self.__loadedHotSwap__()
+        store = self._conn.createRawFileStore()
+        store.setFileId(self._obj.file.id.val)
+        size = self.getFileSize()
+        buf = 1048576
+        if size <= buf:
+            return store.read(0,long(size))
+        else:
+            temp = "%s/%i-%s.download" % (settings.FILE_UPLOAD_TEMP_DIR, size, self._sessionUuid)
+            outfile = open (temp, "wb")
+            for pos in range(0,long(size),buf):
+                data = None
+                if size-pos < buf:
+                    data = store.read(pos+1, size-pos)
+                else:
+                    if pos == 0:
+                        data = store.read(pos, buf)
+                    else:
+                        data = store.read(pos+1, buf)
+                outfile.write(data)
+            outfile.close()
+            return temp
+        return None
     
 #    def shortTag(self):
 #        if isinstance(self._obj, TagAnnotationI):
@@ -2007,6 +2135,23 @@ class BooleanAnnotationWrapper (AnnotationWrapper):
 
 AnnotationWrapper._register(BooleanAnnotationWrapper)
 
+from omero_model_TagAnnotationI import TagAnnotationI
+
+class TagAnnotationWrapper (AnnotationWrapper):
+    """
+    omero_model_BooleanAnnotationI class wrapper extends AnnotationWrapper.
+    """
+    
+    OMERO_TYPE = TagAnnotationI
+
+    def getValue (self):
+        return self._obj.textValue.val
+
+    def setValue (self, val):
+        self._obj.tectValue = rbool(not not val)
+    
+AnnotationWrapper._register(TagAnnotationWrapper)
+
 from omero_model_CommentAnnotationI import CommentAnnotationI
 
 class CommentAnnotationWrapper (AnnotationWrapper):
@@ -2040,6 +2185,13 @@ class LongAnnotationWrapper (AnnotationWrapper):
 
 AnnotationWrapper._register(LongAnnotationWrapper)
 
+class _EnumerationWrapper (BlitzObjectWrapper):
+    
+    def getType(self):
+        return self._obj.__class__
+
+EnumerationWrapper = _EnumerationWrapper
+
 class _ExperimenterWrapper (BlitzObjectWrapper):
     """
     omero_model_ExperimenterI class wrapper extends BlitzObjectWrapper.
@@ -2047,6 +2199,9 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
 
     def __bstrap__ (self):
         self.OMERO_CLASS = 'Experimenter'
+        self.LINK_CLASS = "copyGroupExperimenterMap"
+        self.CHILD_WRAPPER_CLASS = None
+        self.PARENT_WRAPPER_CLASS = 'ExperimenterGroupWrapper'
 
     def simpleMarshal (self, xtra=None, parents=False):
         rv = super(_ExperimenterWrapper, self).simpleMarshal(xtra=xtra, parents=parents)
@@ -2143,7 +2298,36 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         except:
             logger.error(traceback.format_exc())
             return None
-
+    
+    def getNameWithInitial(self):
+        try:
+            if self.firstName is not None and self.lastName is not None:
+                name = "%s. %s" % (self.firstName[:1], self.lastName)
+            else:
+                name = self.omeName
+            return name
+        except:
+            logger.error(traceback.format_exc())
+            return _("Unknown name")
+    
+    def isAdmin(self):
+        for ob in self._obj.copyGroupExperimenterMap():
+            if ob.parent.name.val == "system":
+                return True
+        return False
+    
+    def isActive(self):
+        for ob in self._obj.copyGroupExperimenterMap():
+            if ob.parent.name.val == "user":
+                return True
+        return False
+    
+    def isGuest(self):
+        for ob in self._obj.copyGroupExperimenterMap():
+            if ob.parent.name.val == "guest":
+                return True
+        return False
+    
 ExperimenterWrapper = _ExperimenterWrapper
 
 class _ExperimenterGroupWrapper (BlitzObjectWrapper):
@@ -2151,7 +2335,11 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
     omero_model_ExperimenterGroupI class wrapper extends BlitzObjectWrapper.
     """
     
-    pass
+    def __bstrap__ (self):
+        self.OMERO_CLASS = 'ExperimenterGroup'
+        self.LINK_CLASS = "copyGroupExperimenterMap"
+        self.CHILD_WRAPPER_CLASS = 'ExperimenterWrapper'
+        self.PARENT_WRAPPER_CLASS = None
 
 ExperimenterGroupWrapper = _ExperimenterGroupWrapper
 
@@ -2490,7 +2678,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                 elif isinstance(e, omero.model.InstrumentI):
                     pass
                 else:
-                    print "Unknown instrument entry: %s" % str(e)
+                    logger.info("Unknown instrument entry: %s" % str(e))
         return InstrumentWrapper(self._conn, i)
 
     def _loadPixels (self):
@@ -2541,6 +2729,12 @@ class _ImageWrapper (BlitzObjectWrapper):
                     rv['thumb_url'] = xtra['thumbUrlPrefix'] + str(self.id) + '/'
         return rv
 
+    def getStageLabel (self):
+        if self._obj.stageLabel is None:
+            return None
+        else:
+            return ImageStageLabelWrapper(self._conn, self._obj.stageLabel)
+    
     def shortname(self, length=20, hist=5):
         name = self.name
         if not name:
@@ -2633,6 +2827,32 @@ class _ImageWrapper (BlitzObjectWrapper):
             tb.close()
             tb.setPixelsId(pixels_id)
         return tb
+    
+    def loadOriginalMetadata(self):
+        global_metadata = list()
+        series_metadata = list()
+        if self is not None:
+            for a in self.listAnnotations():
+                if isinstance(a._obj, FileAnnotationI) and a.isOriginalMetadata():
+                    temp_file = a.getFile().split('\n')
+                    flag = None
+                    for l in temp_file:
+                        if l.startswith("[GlobalMetadata]"):
+                            flag = 1
+                        elif l.startswith("[SeriesMetadata]"):
+                            flag = 2
+                        else:
+                            if len(l) < 1:
+                                l = None
+                            else:
+                                l = tuple(l.split("="))                            
+                            if l is not None:
+                                if flag == 1:
+                                    global_metadata.append(l)
+                                elif flag == 2:
+                                    series_metadata.append(l)
+                    return (a, (global_metadata), (series_metadata))
+        return None
     
     def getThumbnail (self, size=(64,64), z=None, t=None):
         try:
@@ -3115,6 +3335,16 @@ class _ImageWrapper (BlitzObjectWrapper):
 ImageWrapper = _ImageWrapper
 
 ## INSTRUMENT AND ACQUISITION ##
+
+class _ImageStageLabelWrapper (BlitzObjectWrapper):
+    pass
+
+ImageStageLabelWrapper = _ImageStageLabelWrapper
+
+class _ImagingEnvironmentWrapper(BlitzObjectWrapper):
+    pass
+
+ImagingEnvironmentWrapper = _ImagingEnvironmentWrapper
 
 class _ImagingEnviromentWrapper (BlitzObjectWrapper):
     """
