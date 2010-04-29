@@ -665,3 +665,9 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   Project:      NumPy
   Web Site:     http://numpy.scipy.org/
   License:      Lesser General Public License
+
+  //
+  // Public domain files copied from the web
+  //
+  components/server/src/ome/tools/hibernate/ListAsSQLArrayUserType.java
+  components/server/src/ome/tools/hibernate/SqlArray.java
