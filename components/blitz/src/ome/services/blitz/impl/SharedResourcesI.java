@@ -89,7 +89,8 @@ import Ice.UserException;
  * @see ome.grid.SharedResources
  */
 public class SharedResourcesI extends AbstractAmdServant implements
-        _SharedResourcesOperations, BlitzOnly, ServiceFactoryAware {
+        _SharedResourcesOperations, BlitzOnly, ServiceFactoryAware,
+        ParamsHelper.Acquirer { // FIXME
 
     private final static Log log = LogFactory.getLog(SharedResourcesI.class);
 

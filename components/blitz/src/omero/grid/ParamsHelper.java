@@ -11,12 +11,12 @@ import ome.model.enums.Format;
 import ome.parameters.Parameters;
 import ome.security.AdminAction;
 import ome.security.SecuritySystem;
-import ome.services.blitz.impl.SharedResourcesI;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 import omero.InternalException;
 import omero.ServerError;
+import omero.model.Job;
 import omero.model.OriginalFileI;
 import omero.model.ParseJob;
 import omero.model.ParseJobI;
@@ -44,7 +44,7 @@ public class ParamsHelper {
 
     public final static String OCTETSTREAM = "application/octet-stream";
 
-    private final SharedResourcesI sr;
+    private final Acquirer acq;
 
     private final Executor ex;
 
@@ -56,8 +56,8 @@ public class ParamsHelper {
 
     public final Format octetFormat;
 
-    public ParamsHelper(SharedResourcesI sr, Executor ex, Principal p) {
-        this.sr = sr;
+    public ParamsHelper(Acquirer acq, Executor ex, Principal p) {
+        this.acq = acq;
         this.ex = ex;
         this.p = p;
         this.secSys = // FIXME REFACTOR
@@ -141,7 +141,7 @@ public class ParamsHelper {
             throws ServerError {
 
         ParseJob job = buildParseJob(id);
-        InteractiveProcessorPrx proc = sr.acquireProcessor(job, 10, __current);
+        InteractiveProcessorPrx proc = acq.acquireProcessor(job, 10, __current);
         if (proc == null) {
             throw new InternalException(null, null, "No processor acquired.");
         }
@@ -233,6 +233,17 @@ public class ParamsHelper {
                         "from Format as f where f.value='" + fmt + "'", null);
             }
         });
+    }
+    
+    /**
+     * Interface added in order to allow ParamHelper instances to use methods
+     * from SharedResourcesI. The build does not allow for a dependency between
+     * the two.
+     * @DEV.TODO refactor
+     */
+    public interface Acquirer {
+        public InteractiveProcessorPrx acquireProcessor(final Job submittedJob,
+                int seconds, final Current current) throws ServerError;
     }
 
 }
