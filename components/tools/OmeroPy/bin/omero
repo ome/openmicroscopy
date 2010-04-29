@@ -66,6 +66,8 @@ lib = os.path.join(top, "lib")
 lpy = os.path.join(top, "lib","python")
 ipy = os.path.join(top, "lib","fallback")
 var = os.path.join(top, "var")
+vlb = os.path.join(var, "var", "lib")
+sys.path.insert(0,vlb);
 sys.path.insert(0,lpy);
 sys.path.append(ipy)
 
