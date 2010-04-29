@@ -643,7 +643,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	Integer value = lc.getEmissionWave();
     	if (value != null) return ""+value.intValue();
     	if (lc.getFilterSet() != null) {
-	    Iterator<Filter> it = lc.getFilterSet().iterateEmissionFilter();
+	    Iterator<Filter> it = lc.getFilterSet().linkedEmissionFilterIterator();
 	    while (name == null && it.hasNext()) {
 	        name = getValueFromFilter(it.next());
 	    }
@@ -661,7 +661,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	value = lc.getExcitationWave();
     	if (value != null) return ""+value.intValue();
     	if (lc.getFilterSet() != null) {
-	    Iterator<Filter> it = lc.getFilterSet().iterateExcitationFilter();
+	    Iterator<Filter> it = lc.getFilterSet().linkedExcitationFilterIterator();
 	    while (name == null && it.hasNext()) {
 	        name  = getValueFromFilter(it.next());
 	    }

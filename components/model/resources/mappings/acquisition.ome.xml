@@ -371,10 +371,9 @@
 			<optional name="model" type="string"/>
 			<optional name="lotNumber" type="string"/>
                         <manyone name="instrument" type="ome.model.acquisition.Instrument"/>
-                        <!-- Should this just be a link back to Filter -->
-                        <zeromany name="excitationFilter" type="ome.model.acquisition.Filter" inverse="filterSet"/>
+                        <child name="excitationFilterLink" type="ome.model.acquisition.FilterSetExcitationFilterLink" target="ome.model.acquisition.Filter"/>
                         <optional name="dichroic" type="ome.model.acquisition.Dichroic"/>
-                        <zeromany name="emissionFilter" type="ome.model.acquisition.Filter" inverse="filterSet"/>
+                        <child name="emissionFilterLink" type="ome.model.acquisition.FilterSetEmissionFilterLink" target="ome.model.acquisition.Filter"/>
 		</properties>
 	</type>
 	<type id="ome.model.acquisition.Dichroic">
@@ -410,6 +409,18 @@
 	<link id="ome.model.acquisition.LightPathEmissionFilterLink">
 		<properties>
 			<from_parent type="ome.model.acquisition.LightPath"/>
+			<to_child type="ome.model.acquisition.Filter"/>
+		</properties>
+	</link>
+	<link id="ome.model.acquisition.FilterSetExcitationFilterLink">
+		<properties>
+			<from_parent type="ome.model.acquisition.FilterSet"/>
+			<to_child type="ome.model.acquisition.Filter"/>
+		</properties>
+	</link>
+	<link id="ome.model.acquisition.FilterSetEmissionFilterLink">
+		<properties>
+			<from_parent type="ome.model.acquisition.FilterSet"/>
 			<to_child type="ome.model.acquisition.Filter"/>
 		</properties>
 	</link>

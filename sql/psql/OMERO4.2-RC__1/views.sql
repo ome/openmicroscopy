@@ -124,6 +124,16 @@
         BEFORE UPDATE ON groupexperimentermap
         FOR EACH ROW EXECUTE PROCEDURE groupexperimentermap_child_index_move ();
 
+  DROP TABLE count_FilterSet_excitationFilterLink_by_owner;
+
+  CREATE OR REPLACE VIEW count_FilterSet_excitationFilterLink_by_owner (FilterSet_id, owner_id, count) AS select parent, owner_id, count(*)
+    FROM FilterSetExcitationFilterLink GROUP BY parent, owner_id ORDER BY parent;
+
+  DROP TABLE count_FilterSet_emissionFilterLink_by_owner;
+
+  CREATE OR REPLACE VIEW count_FilterSet_emissionFilterLink_by_owner (FilterSet_id, owner_id, count) AS select parent, owner_id, count(*)
+    FROM FilterSetEmissionFilterLink GROUP BY parent, owner_id ORDER BY parent;
+
   DROP TABLE count_Screen_plateLinks_by_owner;
 
   CREATE OR REPLACE VIEW count_Screen_plateLinks_by_owner (Screen_id, owner_id, count) AS select parent, owner_id, count(*)

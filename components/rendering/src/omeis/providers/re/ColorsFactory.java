@@ -137,7 +137,7 @@ public class ColorsFactory {
     	if (lc == null) return false;
     	if (lc.getEmissionWave() != null) return true;
     	if (lc.getFilterSet() != null) {
-		Iterator<Filter> it = lc.getFilterSet().iterateEmissionFilter();
+		Iterator<Filter> it = lc.getFilterSet().linkedEmissionFilterIterator();
 		while (it.hasNext()) {
 		    Filter f = it.next();
 		    if (isFilterHasEmissionData(f)) return true;
@@ -156,7 +156,7 @@ public class ColorsFactory {
     	}
     	if (lc.getExcitationWave() != null) return true;
     	if (lc.getFilterSet() != null) {
-	    Iterator<Filter> it = lc.getFilterSet().iterateExcitationFilter();
+	    Iterator<Filter> it = lc.getFilterSet().linkedExcitationFilterIterator();
 	    while (it.hasNext()) {
 	        Filter f = it.next();
 	        if (isFilterHasEmissionData(f)) return true;
@@ -199,7 +199,7 @@ public class ColorsFactory {
     	//First check if filter
        
 	if (lc.getFilterSet() != null) {
-	    Iterator<Filter> it = lc.getFilterSet().iterateEmissionFilter();
+	    Iterator<Filter> it = lc.getFilterSet().linkedEmissionFilterIterator();
 	    while (value == null && it.hasNext()) {
 	            value = getValueFromFilter(it.next());
 	    }
@@ -217,7 +217,7 @@ public class ColorsFactory {
     	if (value != null) return determineColor(value);
 
 	if (value == null && lc.getFilterSet() != null) {
-	    Iterator<Filter> it = lc.getFilterSet().iterateExcitationFilter();
+	    Iterator<Filter> it = lc.getFilterSet().linkedExcitationFilterIterator();
 	    while (value == null && it.hasNext()) {
 	        value = getValueFromFilter(it.next());
 	    }

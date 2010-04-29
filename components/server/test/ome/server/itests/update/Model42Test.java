@@ -85,15 +85,15 @@ public class Model42Test extends AbstractUpdateTest {
         Filter filter3 = new_Filter(instrument);
         Filter filter4 = new_Filter(instrument);
 
-        filterSet.addExcitationFilter(filter1);
-        filterSet.addExcitationFilter(filter2);
-        filterSet.addEmissionFilter(filter3);
-        filterSet.addEmissionFilter(filter4);
+        filterSet.linkExcitationFilter(filter1);
+        filterSet.linkExcitationFilter(filter2);
+        filterSet.linkEmissionFilter(filter3);
+        filterSet.linkEmissionFilter(filter4);
 
-        lightPath.linkExcitationFilterLink(filter1); // These are ordered
-        lightPath.linkExcitationFilterLink(filter2);
-        lightPath.linkEmissionFilterLink(filter3); // These aren't
-        lightPath.linkEmissionFilterLink(filter4);
+        lightPath.linkExcitationFilter(filter1); // These are ordered
+        lightPath.linkExcitationFilter(filter2);
+        lightPath.linkEmissionFilter(filter3); // These aren't
+        lightPath.linkEmissionFilter(filter4);
 
         iUpdate.saveAndReturnArray(new IObject[] { instrument, lightPath });
 

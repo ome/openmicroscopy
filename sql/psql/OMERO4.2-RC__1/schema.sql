@@ -216,6 +216,20 @@
         primary key (Experimenter_id, owner_id)
     );;
 
+    create table count_FilterSet_emissionFilterLink_by_owner (
+        FilterSet_id int8 not null,
+        "count" int8 not null,
+        owner_id int8 not null,
+        primary key (FilterSet_id, owner_id)
+    );;
+
+    create table count_FilterSet_excitationFilterLink_by_owner (
+        FilterSet_id int8 not null,
+        "count" int8 not null,
+        owner_id int8 not null,
+        primary key (FilterSet_id, owner_id)
+    );;
+
     create table count_Image_annotationLinks_by_owner (
         Image_id int8 not null,
         "count" int8 not null,
@@ -721,6 +735,36 @@
         dichroic int8,
         instrument int8 not null,
         primary key (id)
+    );;
+
+    create table filtersetemissionfilterlink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child)
+    );;
+
+    create table filtersetexcitationfilterlink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child)
     );;
 
     create table filtertype (
@@ -2233,6 +2277,16 @@
         foreign key (Experimenter_id)
         references experimenter;;
 
+    alter table count_FilterSet_emissionFilterLink_by_owner
+        add constraint FK_count_to_FilterSet_emissionFilterLink
+        foreign key (FilterSet_id)
+        references filterset;;
+
+    alter table count_FilterSet_excitationFilterLink_by_owner
+        add constraint FK_count_to_FilterSet_excitationFilterLink
+        foreign key (FilterSet_id)
+        references filterset;;
+
     alter table count_Image_annotationLinks_by_owner
         add constraint FK_count_to_Image_annotationLinks
         foreign key (Image_id)
@@ -2862,6 +2916,76 @@
         add constraint FKfilterset_dichroic_dichroic
         foreign key (dichroic)
         references dichroic;;
+
+    alter table filtersetemissionfilterlink
+        add constraint FKfiltersetemissionfilterlink_child_filter
+        foreign key (child)
+        references filter;;
+
+    alter table filtersetemissionfilterlink
+        add constraint FKfiltersetemissionfilterlink_update_id_event
+        foreign key (update_id)
+        references event;;
+
+    alter table filtersetemissionfilterlink
+        add constraint FKfiltersetemissionfilterlink_owner_id_experimenter
+        foreign key (owner_id)
+        references experimenter;;
+
+    alter table filtersetemissionfilterlink
+        add constraint FKfiltersetemissionfilterlink_creation_id_event
+        foreign key (creation_id)
+        references event;;
+
+    alter table filtersetemissionfilterlink
+        add constraint FKfiltersetemissionfilterlink_parent_filterset
+        foreign key (parent)
+        references filterset;;
+
+    alter table filtersetemissionfilterlink
+        add constraint FKfiltersetemissionfilterlink_group_id_experimentergroup
+        foreign key (group_id)
+        references experimentergroup;;
+
+    alter table filtersetemissionfilterlink
+        add constraint FKfiltersetemissionfilterlink_external_id_externalinfo
+        foreign key (external_id)
+        references externalinfo;;
+
+    alter table filtersetexcitationfilterlink
+        add constraint FKfiltersetexcitationfilterlink_child_filter
+        foreign key (child)
+        references filter;;
+
+    alter table filtersetexcitationfilterlink
+        add constraint FKfiltersetexcitationfilterlink_update_id_event
+        foreign key (update_id)
+        references event;;
+
+    alter table filtersetexcitationfilterlink
+        add constraint FKfiltersetexcitationfilterlink_owner_id_experimenter
+        foreign key (owner_id)
+        references experimenter;;
+
+    alter table filtersetexcitationfilterlink
+        add constraint FKfiltersetexcitationfilterlink_creation_id_event
+        foreign key (creation_id)
+        references event;;
+
+    alter table filtersetexcitationfilterlink
+        add constraint FKfiltersetexcitationfilterlink_parent_filterset
+        foreign key (parent)
+        references filterset;;
+
+    alter table filtersetexcitationfilterlink
+        add constraint FKfiltersetexcitationfilterlink_group_id_experimentergroup
+        foreign key (group_id)
+        references experimentergroup;;
+
+    alter table filtersetexcitationfilterlink
+        add constraint FKfiltersetexcitationfilterlink_external_id_externalinfo
+        foreign key (external_id)
+        references externalinfo;;
 
     alter table filtertype
         add constraint FKfiltertype_external_id_externalinfo

@@ -393,7 +393,11 @@ public abstract class Property { // TODO need to define equality so that two
         for (Property p : st.getPropertyClosure()) { // Get everything
             if (p != this) {                         // but skip ourselves
                 if (p.getTarget() != null && unqualify(p.getTarget()).equals(unqualify(target))) {
-                    return firstCap(getName());
+                    String n = firstCap(getName()); // HACK ticket:2287
+                    if (n.endsWith("Link")) {
+                        n = n.substring(0, n.length() - 4);
+                    }
+                    return n;
                 }
             }
         }
