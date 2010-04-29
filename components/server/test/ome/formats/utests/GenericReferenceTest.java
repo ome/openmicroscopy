@@ -15,6 +15,7 @@ import ome.model.acquisition.Filter;
 import ome.model.acquisition.FilterSet;
 import ome.model.acquisition.Instrument;
 import ome.model.acquisition.Laser;
+import ome.model.acquisition.LightPath;
 import ome.model.acquisition.LightSettings;
 import ome.model.core.Channel;
 import ome.model.core.Image;
@@ -313,9 +314,10 @@ public class GenericReferenceTest extends TestCase
 		referenceCache.put("LogicalChannel:0:0", 
 				new String[] { "Filter:0:0:OMERO_EMISSION_FILTER" });
 		store.updateReferences(referenceCache);
-		fail("ticket:1750 - to be fixed by Chris");
-		//assertNull(logicalChannel.getSecondaryExcitationFilter());
-		//assertEquals(logicalChannel.getSecondaryEmissionFilter(), filter);
+		LightPath lightPath = logicalChannel.getLightPath();
+		assertEquals(0, lightPath.sizeOfExcitationFilterLink());
+		assertEquals(1, lightPath.sizeOfEmissionFilterLink());
+		assertEquals(lightPath.linkedEmissionFilterIterator().next(), filter);
 	}
 	
 	public void testLogicalChannelSecondaryExcitationFilterReference()
@@ -325,9 +327,10 @@ public class GenericReferenceTest extends TestCase
 		referenceCache.put("LogicalChannel:0:0", 
 				new String[] { "Filter:0:0:OMERO_EXCITATION_FILTER" });
 		store.updateReferences(referenceCache);
-		fail("ticket:1750 - to be fixed by Chris");
-		//assertNull(logicalChannel.getSecondaryEmissionFilter());
-		//assertEquals(logicalChannel.getSecondaryExcitationFilter(), filter);
+        LightPath lightPath = logicalChannel.getLightPath();
+        assertEquals(1, lightPath.sizeOfExcitationFilterLink());
+        assertEquals(0, lightPath.sizeOfEmissionFilterLink());
+        assertEquals(lightPath.linkedExcitationFilterIterator().next(), filter);
 	}
 	
 	public void testFilterSetDichroicReference()
@@ -336,7 +339,6 @@ public class GenericReferenceTest extends TestCase
 	    referenceCache.put("FilterSet:0:0", 
 	    		           new String[] { "Dichroic:0:0" });
 	    store.updateReferences(referenceCache);
-	    fail("ticket:1750 - to be fixed by Chris");
-	    // assertEquals(filterSet.getDichroic(), dichroic);
+	    assertEquals(filterSet.getDichroic(), dichroic);
 	}
 }
