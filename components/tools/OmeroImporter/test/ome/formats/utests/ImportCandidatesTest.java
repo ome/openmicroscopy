@@ -89,7 +89,7 @@ public class ImportCandidatesTest extends TestCase {
         Boolean archive = false;
         Boolean isSPW = false;
         omero.model.IObject target = null;
-        return new ImportContainer(file, projectID, target, imageName, archive,
+        return new ImportContainer(file, projectID, target, archive,
                 null, reader, usedFiles, isSPW);
 
     }
