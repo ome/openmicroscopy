@@ -38,6 +38,7 @@ import ome.parameters.Parameters;
 import ome.security.basic.PrincipalHolder;
 import ome.services.messages.CreateSessionMessage;
 import ome.services.messages.DestroySessionMessage;
+import ome.services.sessions.events.ChangeSecurityContextEvent;
 import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.state.SessionCache.StaleCacheListener;
@@ -1077,6 +1078,23 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         } else {
             prevCtx = new ExperimenterGroup(groupId, false);
         }
+
+        ChangeSecurityContextEvent csce = new ChangeSecurityContextEvent(this, prevCtx, obj);
+
+        try {
+            this.context.publishMessage(csce);
+            csce.throwIfCancelled();
+        } catch (Throwable e) {
+            if (e instanceof RuntimeException) {
+                throw (RuntimeException) e;
+            } else {
+                InternalException ie =
+                    new InternalException("Failed to set call publishMessage");
+                ie.initCause(e);
+                throw ie;
+            }
+        }
+
 
         if (obj instanceof ExperimenterGroup) {
             setGroupSecurityContext(principal, id);
