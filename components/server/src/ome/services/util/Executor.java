@@ -177,14 +177,11 @@ public interface Executor extends ApplicationContextAware {
         Object doWork(SimpleJdbcOperations jdbc);
     }
 
-    /**
-     * Simple adapter which takes a String for {@link #description}
-     */
-    public abstract class SimpleWork implements Work {
+    public abstract class Descriptive {
 
-        final private String description;
+        final protected String description;
 
-        public SimpleWork(Object o, String method, Object...params) {
+        public Descriptive(Object o, String method, Object...params) {
             StringBuilder sb = new StringBuilder();
             sb.append(o.getClass().getName());
             sb.append(".");
@@ -208,22 +205,24 @@ public interface Executor extends ApplicationContextAware {
         public String description() {
             return description;
         }
-
     }
 
     /**
      * Simple adapter which takes a String for {@link #description}
      */
-    public abstract class SimpleStatelessWork implements StatelessWork {
-
-        final private String description;
-
-        public SimpleStatelessWork(Object o, String method) {
-            this.description = o.getClass().getName() + "." + method;
+    public abstract class SimpleWork extends Descriptive implements Work {
+        public SimpleWork(Object o, String method, Object...params) {
+            super(o, method, params);
         }
+    }
 
-        public String description() {
-            return description;
+    /**
+     * Simple adapter which takes a String for {@link #description}
+     */
+    public abstract class SimpleStatelessWork extends Descriptive implements StatelessWork {
+
+        public SimpleStatelessWork(Object o, String method, Object...params) {
+            super(o, method, params);
         }
 
     }
