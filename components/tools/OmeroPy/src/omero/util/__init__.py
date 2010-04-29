@@ -288,7 +288,7 @@ class ServerContext(object):
         if self.session is None and recreate:
             try:
                 self.newSession()
-                self.logger.info("Established connection: %s" % e)
+                self.logger.info("Established connection: %s" % self.session)
             except exceptions.Exception, e:
                 self.logger.warn("Failed to establish connection: %s" % e)
 

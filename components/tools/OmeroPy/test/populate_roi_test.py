@@ -26,7 +26,7 @@
 import unittest
 import os
 
-from populate_roi import *
+from omero.util.populate_roi import *
 
 import omero.clients
 from omero.rtypes import rdouble, rstring, rint

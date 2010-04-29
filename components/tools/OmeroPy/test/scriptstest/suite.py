@@ -21,3 +21,7 @@ def _additional_tests():
     suite.addTest(load("scriptstest.processor"))
     suite.addTest(load("scriptstest.prototypes"))
     return suite
+
+if __name__ == "__main__":
+    unittest.TextTestRunner().run(_additional_tests())
+

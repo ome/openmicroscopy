@@ -60,8 +60,8 @@ class TestPing(lib.ITest):
 
     def testPingViaISCript(self):
         scripts = self.root.getSession().getScriptService()
-        id = scripts.uploadScript(SENDFILE)
-        input = rmap({"x":rlong(3), "y":rlong(3)})
+        id = scripts.uploadScript("/tests/rand_py/%s.py" % self.uuid(), SENDFILE)
+        input = {"x":rlong(3), "y":rlong(3)}
         p = scripts.runScript(id, input, None)
 
         process = p.execute(input)

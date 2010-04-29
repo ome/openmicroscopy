@@ -480,8 +480,12 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     // =========================================================================
 
     public SharedResourcesPrx sharedResources(Current current) throws ServerError {
-        return SharedResourcesPrxHelper.uncheckedCast(createByName(
+        return SharedResourcesPrxHelper.uncheckedCast(getByName(
                 SHAREDRESOURCES.value, current));
+    }
+
+    public Ice.Object getServant(Ice.Identity id) {
+        return holder.get(Ice.Util.identityToString(id));
     }
 
     public ServiceInterfacePrx getByName(String blankname, Current current)

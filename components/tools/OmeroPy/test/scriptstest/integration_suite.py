@@ -23,3 +23,6 @@ def _additional_tests():
     suite.addTest(load("scriptstest.rand"))
     suite.addTest(load("scriptstest.params"))
     return suite
+
+if __name__ == "__main__":
+    unittest.TextTestRunner().run(_additional_tests())

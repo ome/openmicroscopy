@@ -9,7 +9,6 @@
 """
 
 import integration.library as lib
-from uuid import uuid4 as uuid
 from path import path
 
 import sys
@@ -31,7 +30,7 @@ class TestParse(lib.ITest):
             f.write("omero.scripts.parse=true\n")
             f.close()
             c = omero.client(["--Ice.Config=%s" % cfg])
-            script_client = client(str(uuid()), "simple ping script", Long("a").inout(), String("b").inout(), client = c)
+            script_client = client(self.uuid(), "simple ping script", Long("a").inout(), String("b").inout(), client = c)
             print "IN CLIENT: " + script_client.getProperty("omero.scripts.parse")
             self.fail("Should have raised ParseExit")
         except ParseExit, pe:

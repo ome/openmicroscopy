@@ -127,7 +127,7 @@ class TestPing(lib.ITest):
 
     def _getProcessor(self):
         scripts = self.root.getSession().getScriptService()
-        id = scripts.uploadScript(PINGFILE)
+        id = scripts.uploadScript("/tests/ping_py/%s.py" % self.uuid(), PINGFILE)
         j = omero.model.ScriptJobI()
         j.linkOriginalFile(omero.model.OriginalFileI(rlong(id),False))
         p = self.client.sf.sharedResources().acquireProcessor(j, 100)

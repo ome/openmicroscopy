@@ -11,10 +11,10 @@ import ome.model.enums.Format;
 import ome.parameters.Parameters;
 import ome.security.AdminAction;
 import ome.security.SecuritySystem;
+import ome.services.blitz.impl.SharedResourcesI;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
-import ome.tools.hibernate.SecureMerge;
 import omero.InternalException;
 import omero.ServerError;
 import omero.model.OriginalFileI;
@@ -44,7 +44,7 @@ public class ParamsHelper {
 
     public final static String OCTETSTREAM = "application/octet-stream";
 
-    private final SharedResourcesPrx sr;
+    private final SharedResourcesI sr;
 
     private final Executor ex;
 
@@ -56,7 +56,7 @@ public class ParamsHelper {
 
     public final Format octetFormat;
 
-    public ParamsHelper(SharedResourcesPrx sr, Executor ex, Principal p) {
+    public ParamsHelper(SharedResourcesI sr, Executor ex, Principal p) {
         this.sr = sr;
         this.ex = ex;
         this.p = p;
@@ -141,7 +141,7 @@ public class ParamsHelper {
             throws ServerError {
 
         ParseJob job = buildParseJob(id);
-        InteractiveProcessorPrx proc = sr.acquireProcessor(job, 10);
+        InteractiveProcessorPrx proc = sr.acquireProcessor(job, 10, __current);
         if (proc == null) {
             throw new InternalException(null, null, "No processor acquired.");
         }

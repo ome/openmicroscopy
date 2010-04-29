@@ -88,9 +88,10 @@ finally:
 class TestParams(lib.ITest):
 
     def doTest(self, text):
+        root_svc = self.root.sf.getScriptService()
         svc = self.client.sf.getScriptService()
-        id = svc.uploadScript(text)
-        processor = svc.runScript(id, OR.wrap({"a":0, "b":0}), None)
+        id = root_svc.uploadOfficialScript("/tests/scripttest/%s.py" % self.uuid(), text)
+        processor = svc.runScript(id, OR.wrap({"a":0, "b":0}).val, None)
         processor.poll()
 
     def test1(self):
@@ -101,9 +102,6 @@ class TestParams(lib.ITest):
 
     def test3(self):
         self.doTest(FILE3)
-
-    def test4(self):
-        self.doTest(FILE4)
 
 if __name__ == '__main__':
     unittest.main()

@@ -91,8 +91,8 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
     public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
         this.factory = sf;
-        helper = new ParamsHelper(
-            sf.sharedResources(), sf.getExecutor(), sf.getPrincipal());
+        SharedResourcesI resources = (SharedResourcesI) sf.getServant(sf.sharedResources().ice_getIdentity());
+        helper = new ParamsHelper(resources, sf.getExecutor(), sf.getPrincipal());
     }
 
     // ~ Process Service methods
@@ -397,11 +397,11 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                 qb.select("o").from("Job", "j");
                 qb.join("j.originalFileLinks", "links", false, false);
                 qb.join("links.child", "o", false, false);
-                qb.param("id", j.getId().getValue());
 
                 parseAcceptsList(qb, acceptsList);
 
-                qb.and("j = :id");
+                qb.and("j.id = :id");
+                qb.param("id", j.getId().getValue());
 
 
                 return factory.executor.execute(factory.principal,
@@ -417,7 +417,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
                         IceMapper mapper = new IceMapper();
                         if (official) {
-                            return mapper.map(scripts.load(id));
+                            return mapper.map(scripts.load(id, sf));
                         } else {
                             return mapper.map(
                                     sf.getQueryService()

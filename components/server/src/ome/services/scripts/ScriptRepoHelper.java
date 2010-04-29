@@ -363,9 +363,13 @@ public class ScriptRepoHelper {
                 "load", id) {
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
-                return sf.getQueryService().get(OriginalFile.class, id);
+                return load(id, sf);
             }
         });
+    }
+
+    public OriginalFile load(final long id, ServiceFactory sf) {
+        return sf.getQueryService().get(OriginalFile.class, id);
     }
 
     /**

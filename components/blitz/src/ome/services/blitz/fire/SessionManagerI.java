@@ -275,7 +275,11 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
                 id = ServiceFactoryI.sessionId(clientId, curr.id.category);
             } catch (ApiUsageException e) {
                 throw new RuntimeException(
-                        "Could not unregister servant: could not create session id");
+                        "Could not unregister servant: could not create session id"
+                        + String.format("\nInfo:\n\tId:%s\n\tOp:%s\n\tCtx:%s",
+                                Ice.Util.identityToString(curr.id),
+                                curr.operation, curr.ctx),
+                                e);
             }
             Ice.Object obj = curr.adapter.find(id);
             if (obj == null) {

@@ -222,7 +222,7 @@ print "Finished script"
         import omero_api_IScript_ice
         client = self.ctx.conn()
         try:
-            self.ctx.out(client.sf.getScriptService().getScript(ofile))
+            self.ctx.out(client.sf.getScriptService().getScriptText(ofile))
         except exceptions.Exception, e:
             self.ctx.err("Failed to delete script: %s (%s)" % (ofile, e))
 

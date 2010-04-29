@@ -677,11 +677,14 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
 
     def lookup(self, job):
         sf = self.internal_session()
+        gid = job.details.group.id.val
+        handle = WithGroup(sf.createJobHandle(), gid)
         handle.attach(job.id.val)
         if handle.jobFinished():
+            handle.close()
             raise omero.ApiUsageException("Job already finished.")
 
-        prx = WithGroup(client.sf.getScriptService(), gid)
+        prx = WithGroup(sf.getScriptService(), gid)
         file = prx.validateScript(job, self.accepts_list)
         return file, handle
 
@@ -693,8 +696,11 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
             handle.close()
             valid = (file is not None)
         except:
-            self.logger.error("File lookup failed: %s, %s, %s",\
-                userContext, groupContext, scriptContext, exc_info=1)
+            self.logger.error("File lookup failed: user=%s, group=%s, script=%s",\
+                userContext and userContext.id.val or None,
+                groupContext and groupContext.id.val or None,
+                scriptContext and scriptContext.id.val or None,
+                exc_info=1)
             return # EARlY EXIT !
 
         self.logger.debug("Accepts called on: user:%s group:%s scriptjob:%s - Valid: %s",

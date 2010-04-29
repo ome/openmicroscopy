@@ -516,19 +516,13 @@ public class SharedResourcesI extends AbstractAmdServant implements
         Ice.Identity acceptId = new Ice.Identity();
         acceptId.name = UUID.randomUUID().toString();
         acceptId.category = PROCESSORCALLBACK.value;
-        ResultHolder<String> holder = new ResultHolder<String>(seconds);
+        ResultHolder<String> holder = new ResultHolder<String>(seconds*1000);
         Callback callback = new Callback(sf, holder, job);
         ProcessorPrx server = callback.activateAndWait(current, acceptId);
 
         // Nothing left to try
         if (server == null) {
-            JobHandlePrx jh = sf.createJobHandle();
-            try {
-                jh.attach(job.getId().getValue());
-                jh.setStatusAndMessage("Error", rstring("No processor available"));
-            } finally {
-                jh.close();
-            }
+            updateJob(job.getId().getValue(), "Error", "No processor available");
             throw new omero.ResourceError(null, null, "No processor available.");
         }
 
@@ -536,8 +530,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
         InteractiveProcessorI ip = new InteractiveProcessorI(sf.principal,
                 sf.sessionManager, sf.executor, server, job, timeout,
-                sf.control, new ParamsHelper(
-                        sf.sharedResources(), sf.getExecutor(), sf.getPrincipal()));
+                sf.control, new ParamsHelper(this, sf.getExecutor(), sf.getPrincipal()));
         Ice.Identity procId = sessionedID("InteractiveProcessor");
         Ice.ObjectPrx rv = sf.registerServant(current, procId, ip);
         sf.allow(rv);
@@ -604,6 +597,24 @@ public class SharedResourcesI extends AbstractAmdServant implements
                     }
                 });
         return savedJob;
+    }
+
+    private void updateJob(final long id, final String status, final String message) {
+        sf.executor.execute(sf.principal, new Executor.SimpleWork(this, "updateJob") {
+            @Transactional(readOnly = false)
+            public Object doWork(Session session,
+                    ServiceFactory sf) {
+
+                final JobHandle handle = sf.createJobHandle();
+                try {
+                    handle.attach(id);
+                    handle.setStatusAndMessage(status, message);
+                    return null;
+                } finally {
+                    handle.close();
+                }
+            }
+        });
     }
 
     private static class Callback extends _ProcessorCallbackDisp {
