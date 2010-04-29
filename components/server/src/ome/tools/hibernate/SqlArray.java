@@ -132,6 +132,11 @@ public class SqlArray<T> implements Array {
     }
 
     @Override
+    public void free() {
+        // do nothing. Required by Java 6
+    }
+
+    @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
         result.append('{');
