@@ -60,7 +60,7 @@ module omero {
              */
 
             // A list of all files and/or directories, registered or not depending on cnfig.
-            omero::api::OriginalFileList list(string path, RepositoryListConfig config) 
+            omero::api::OriginalFileList listFiles(string path, RepositoryListConfig config) 
                     throws ServerError;
             
             // A list of importable and non-importable file sets in a directory depending on config.
@@ -97,12 +97,9 @@ module omero {
              * TODO should this final exception just return and not throw?
              *
              **/
-            omero::model::IObject registerObject(omero::model::IObject obj) 
+            omero::model::IObject registerObject(omero::model::IObject obj, omero::api::StringStringMap params) 
                     throws ServerError;
             
-            omero::model::IObject registerObjectWithName(omero::model::IObject obj, string omeName)
-                    throws ServerError;
-                       
             /**
              * Load the OriginalFile at the given path with annotations and
              * associated Pixels (if present). If the path does not point to

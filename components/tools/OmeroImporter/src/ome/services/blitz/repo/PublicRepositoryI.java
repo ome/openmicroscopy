@@ -36,6 +36,8 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.activation.MimetypesFileTypeMap;
@@ -83,6 +85,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 
 import Ice.Current;
 
@@ -103,15 +106,20 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
     private final Executor executor;
 
+    private final SimpleJdbcOperations jdbc;
+
     private final Principal principal;
     
     private final static String OMERO_PATH = ".omero";
     private final static String THUMB_PATH = "thumbnails";
 
+    private String repoUuid;
+
     public PublicRepositoryI(File root, long repoObjectId, Executor executor,
-            Principal principal, PgArrayHelper helper) throws Exception {
+            SimpleJdbcOperations jdbc, Principal principal, PgArrayHelper helper) throws Exception {
         this.id = repoObjectId;
         this.executor = executor;
+        this.jdbc = jdbc;
         this.principal = principal;
         this.helper = helper;
 
@@ -120,13 +128,13 @@ public class PublicRepositoryI extends _RepositoryDisp {
                     "Root directory must be a existing, readable directory.");
         }
         this.root = root.getAbsoluteFile();
+        this.repoUuid = null;
 
     }
 
     public OriginalFile root(Current __current) throws ServerError {
         return new OriginalFileI(this.id, false); // SHOULD BE LOADED.
     }
-
 
     /**
      * Register an OriginalFile using its path
@@ -169,76 +177,54 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
     }
     
-    
     /**
      * Register an IObject object
      * 
      * @param obj
      *            IObject object.
+     * @param params
+     *            Map<String, String>
      * @param __current
      *            ice context.
      * @return The IObject with id set (unloaded)
      *
      */
-    public IObject registerObjectWithName(IObject obj, String omeName, Current __current)
+    public IObject registerObject(IObject obj, Map<String, String> params, Current __current)
             throws ServerError {
 
         if (obj == null) {
             throw new ValidationException(null, null,
                     "obj is required argument");
         }
-        if (omeName == "" || omeName == null) {
+        if (!(obj instanceof OriginalFile || obj instanceof Image)) {
             throw new ValidationException(null, null,
-                    "omeName is required argument");
-        }
-        
-        IceMapper mapper = new IceMapper();
-        final ome.model.IObject omeObj = (ome.model.IObject) mapper
-                .reverse(obj);
-        
-        Long id = (Long) executor.execute(principal, new Executor.SimpleWork(
-                this, "register") {
-            @Transactional(readOnly = false)
-            public Object doWork(Session session, ServiceFactory sf) {
-                return sf.getUpdateService().saveAndReturnObject(omeObj).getId();
-            }
-        });
-        
-        obj.setId(rlong(id));
-        obj.unload();
-        
-        registerUserId(obj, omeName);
-
-        return obj;
-    }
-
-    /**
-     * Register an IObject object
-     * 
-     * @param obj
-     *            IObject object.
-     * @param __current
-     *            ice context.
-     * @return The IObject with id set (unloaded)
-     *
-     */
-    public IObject registerObject(IObject obj, Current __current)
-            throws ServerError {
-
-        if (obj == null) {
-            throw new ValidationException(null, null,
-                    "obj is required argument");
+                    "obj must be OriginalFile or Image");
         }
 
         IceMapper mapper = new IceMapper();
         final ome.model.IObject omeObj = (ome.model.IObject) mapper
                 .reverse(obj);
-        
+                
+        final String repoId = getRepoUuid();
+        final Map<String, String> paramMap = params;
+
         Long id = (Long) executor.execute(principal, new Executor.SimpleWork(
-                this, "register") {
+                this, "registerObject") {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
-                return sf.getUpdateService().saveAndReturnObject(omeObj).getId();
+                long id = sf.getUpdateService().saveAndReturnObject(omeObj).getId();
+                if (omeObj instanceof ome.model.core.OriginalFile) {
+                    jdbc.update("update originalfile set repo = ? where id = ?", repoId, id);
+                    helper.setFileParams(id, paramMap);
+                } else { // must be an Image object here.
+                    //List<ome.model.IObject> results = sf.getQueryService().findAllByQuery("select p from Pixels p where p.image = " + id, null);
+                    //long pixId = results.get(0).getId();                  
+                    ome.model.IObject result = sf.getQueryService().findByQuery("select p from Pixels p where p.image = " + id, null);
+                    long pixId = result.getId();                  
+                    jdbc.update("update pixels set repo = ? where id = ?", repoId, pixId);
+                    helper.setPixelsParams(pixId, paramMap);
+                }
+                return id;
             }
         });
         
@@ -248,22 +234,6 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return obj;
     }
 
-    private void registerUserId(IObject obj, String omeName) throws ServerError {
-        
-        IceMapper mapper = new IceMapper();
-        final ome.model.IObject omeObj = (ome.model.IObject) mapper
-                .reverse(obj);
-        final String oName = omeName;
-        Long id = (Long) executor.execute(principal, new Executor.SimpleWork(
-                this, "registerUserId") {
-            @Transactional(readOnly = false)
-            public Object doWork(Session session, ServiceFactory sf) {
-                sf.getAdminService().changeOwner(omeObj, oName);
-                return omeObj.getId();
-            }
-        });
-        
-    }
 
     public void delete(String path, Current __current) throws ServerError {
         File file = checkPath(path);
@@ -282,14 +252,14 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * @return List of OriginalFile objects at path
      *
      */
-    public List<OriginalFile> list(String path, RepositoryListConfig config, Current __current) throws ServerError {
+    public List<OriginalFile> listFiles(String path, RepositoryListConfig config, Current __current) throws ServerError {
         File file = checkPath(path);
         List<File> files;
         List<OriginalFile> oFiles;
         RepositoryListConfig conf;
         
         if(config == null) {
-            conf = new RepositoryListConfigI();
+            conf = new RepositoryListConfig(1, true, true, false, true);
         } else {
             conf = config;
         }
@@ -326,7 +296,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         RepositoryListConfig conf;
         
         if(config == null) {
-            conf = new RepositoryListConfigI();
+            conf = new RepositoryListConfig(1, true, true, false, true);
         } else {
             conf = config;
         }
@@ -335,7 +305,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         List<ImportContainer> containers = importableImageFiles(path, conf.depth);
 
         for (ImportContainer ic : containers) {
-            FileSet set = new FileSetI();
+            FileSet set = new FileSet();
             List<OriginalFile> ofList;
             
             set.importableImage = true;
@@ -393,7 +363,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         // Add the left over files in the directory as OrignalFile objects
         if (names.size() > 0) {
             for (String iFile : names) {
-                FileSet set = new FileSetI();
+                FileSet set = new FileSet();
                 List<OriginalFile> ofList;
             
                 set.importableImage = false;
@@ -966,6 +936,23 @@ public class PublicRepositoryI extends _RepositoryDisp {
         
         return tnFile.getAbsolutePath();
 	}
+	
+	
+	private String getRepoUuid() {
+	    if (this.repoUuid == null) {
+            final String queryString = "from OriginalFile as o where o.id = " + this.id;
+            ome.model.core.OriginalFile oFile = (ome.model.core.OriginalFile)  executor
+                .execute(principal, new Executor.SimpleWork(this, "getRepoUuid") {
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        return sf.getQueryService().findByQuery(queryString, null);
+                    }
+                });
+            OriginalFileI file = (OriginalFileI) new IceMapper().map(oFile);
+            this.repoUuid = file.getSha1().getValue(); 
+        }
+        return this.repoUuid; 
+    }
 
     // Utility function for passing stack traces back in exceptions.
     private String stackTraceAsString(Exception exception) {
@@ -982,6 +969,6 @@ public class PublicRepositoryI extends _RepositoryDisp {
         if (index < sList.size()) sList.remove(index);
     }
 
-
-
+    
+    
 }

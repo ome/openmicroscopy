@@ -36,6 +36,9 @@ public class PgArrayHelper {
      */
     public int setFileParam(final long id, final String key, final String value) {
         Map<String, String> params = getFileParams(id);
+        if (params == null) {
+            params = new HashMap<String, String>();
+        }
         params.put(key, value);
         // Alternative would be to do an either-or with a concat
         // "set params = params || array[array[?,?]] where id = ?"
@@ -107,6 +110,104 @@ public class PgArrayHelper {
             return jdbc.queryForObject(
                     "select params[1:array_upper(params,1)][1:1] "
                             + "from originalfile where id = ?",
+                    new RowMapper<List<String>>() {
+                        public List<String> mapRow(ResultSet arg0, int arg1)
+                                throws SQLException {
+                            final List<String> keys = new ArrayList<String>();
+                            String[][] arr = (String[][]) arg0.getArray(1)
+                                    .getArray();
+                            for (int i = 0; i < arr.length; i++) {
+                                keys.add(arr[i][0]);
+                            }
+                            return keys;
+                        }
+                    }, id);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+
+    /**
+     * Appends "{key, value}" onto the original file "params" field or replaces
+     * the value if already present.
+     */
+    public int setPixelsParam(final long id, final String key, final String value) {
+        Map<String, String> params = getPixelsParams(id);
+        if (params == null) {
+            params = new HashMap<String, String>();
+        }
+        params.put(key, value);
+        // Alternative would be to do an either-or with a concat
+        // "set params = params || array[array[?,?]] where id = ?"
+        return setPixelsParams(id, params);
+    }
+
+    /**
+     * Resets the entire original file "params" field.
+     */
+    public int setPixelsParams(final long id, Map<String, String> params) {
+        if (params == null || params.size() == 0) {
+            return jdbc.update(
+                    "update pixels set params = null where id = ?", id);
+        } else {
+            boolean first = true;
+            StringBuilder sb = new StringBuilder();
+            List<Object> list = new ArrayList<Object>();
+            sb.append("update pixels set params = array[");
+            for (String key : params.keySet()) {
+                if (first) {
+                    first = false;
+                } else {
+                    sb.append(",");
+                }
+                sb.append("array[?,?]");
+                list.add(key);
+                list.add(params.get(key));
+            }
+            sb.append("] where id = ?");
+            list.add(id);
+            return jdbc.update(sb.toString(), (Object[]) list
+                    .toArray(new Object[list.size()]));
+        }
+    }
+
+    /**
+     * Loads all the (possibly empty) params for the given original file. If the
+     * id is not found, null is returned.
+     */
+    @SuppressWarnings("unchecked")
+    public Map<String, String> getPixelsParams(final long id) {
+        try {
+            return jdbc.queryForObject(
+                    "select params from pixels where id = ?",
+                    new RowMapper<Map<String, String>>() {
+                        public Map<String, String> mapRow(ResultSet arg0, int arg1)
+                                throws SQLException {
+                            Map<String, String> params = new HashMap<String, String>();
+                            String[][] arr = (String[][]) arg0.getArray(1)
+                                    .getArray();
+                            for (int i = 0; i < arr.length; i++) {
+                                params.put(arr[i][0], arr[i][1]);
+                            }
+                            return params;
+                        }
+                    }, id);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Returns only the (possibly empty) keys which are set on the given
+     * original file. If the given original file cannot be found, null is
+     * returned.
+     */
+    public List<String> getPixelsParamKeys(long id) {
+        try {
+            return jdbc.queryForObject(
+                    "select params[1:array_upper(params,1)][1:1] "
+                            + "from pixels where id = ?",
                     new RowMapper<List<String>>() {
                         public List<String> mapRow(ResultSet arg0, int arg1)
                                 throws SQLException {
