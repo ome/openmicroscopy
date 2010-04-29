@@ -631,7 +631,6 @@ public class HistoryTable
 	/* (non-Javadoc)
 	 * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
 	 */
-	@Override
 	public void valueChanged(ListSelectionEvent e) {
 		if (this.eTable.getSelectedRowCount() > 0)
 			reimportBtn.setEnabled(true);
