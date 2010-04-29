@@ -45,16 +45,24 @@ class TestScriptRepo(lib.ITest):
         myUserScripts = prx.getUserScripts([])
         self.assert_(sid in [x.id.val for x in myUserScripts])
 
+        admin = self.client.sf.getAdminService()
+        oid = admin.getEventContext().userId
+        myUserScripts = prx.getUserScripts([omero.model.ExperimenterI(oid, False)])
+        self.assert_(sid in [x.id.val for x in myUserScripts])
+
     def testGetGroupScripts(self):
         prx = self.scriptPrx()
         admin = self.client.sf.getAdminService()
         gid = admin.getEventContext().groupId
         gname = admin.getEventContext().groupName
+        grp = omero.model.ExperimenterGroupI(gid, False)
         client = self.new_client(gname)
+
         sid = client.sf.getScriptService().uploadScript("/test/otheruser.py", """if True:
         import omero, omero.scripts as OS
         OS.client("testGetGroupScripts")""")
-        myGroupScripts = getUserScripts([omero.model.ExperimenterGroupI(gid, False)])
+
+        myGroupScripts = prx.getUserScripts([grp])
         self.assert_(sid in [x.id.val for x in myGroupScripts])
 
     def testCantUndulyLoadScriptRepoFromUuid(self):

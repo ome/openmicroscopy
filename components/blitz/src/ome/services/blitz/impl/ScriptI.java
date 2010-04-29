@@ -536,7 +536,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
             throws ServerError {
         factory.executor.execute(factory.principal, new Executor.SimpleWork(
                 this, "writeContent") {
-            @Transactional(readOnly = true)
+            @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
                 RawFileStore rawFileStore = sf.createRawFileStore();
                 try {
@@ -545,7 +545,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                             script.getBytes().length);
                     return file.getId();
                 } finally {
-                    rawFileStore.close();
+                    rawFileStore.close(); // updates file
                 }
             }
         });

@@ -15,6 +15,7 @@ import omero.model.OriginalFile;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 
 import Ice.Current;
 import Ice.ObjectAdapter;
@@ -30,9 +31,9 @@ public class ScriptRepositoryI extends AbstractRepositoryI {
 
     private final ScriptRepoHelper helper;
 
-    public ScriptRepositoryI(ObjectAdapter oa, Registry reg, Executor ex,
+    public ScriptRepositoryI(ObjectAdapter oa, Registry reg, Executor ex, SimpleJdbcOperations jdbc,
             String sessionUuid, ScriptRepoHelper helper) {
-        super(oa, reg, ex, sessionUuid, helper.getScriptDir());
+        super(oa, reg, ex, jdbc, sessionUuid, helper.getScriptDir());
         this.helper = helper;
     }
 
@@ -46,11 +47,11 @@ public class ScriptRepositoryI extends AbstractRepositoryI {
     public String getFilePath(final OriginalFile file, Current __current)
             throws ServerError {
 
-        String url = getFileUrl(file);
+        String repo = getFileRepo(file);
         String uuid = getRepoUuid();
 
-        if (url == null || !url.equals(uuid)) {
-            throw new omero.ValidationException(null, null, url
+        if (repo == null || !repo.equals(uuid)) {
+            throw new omero.ValidationException(null, null,repo
                     + " does not belong to this repository: " + uuid);
         }
 

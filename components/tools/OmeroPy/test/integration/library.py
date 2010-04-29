@@ -78,7 +78,7 @@ class ITest(unittest.TestCase):
         img.acquisitionDate = rtime(0)
         return img
 
-    def new_user(self, group = None):
+    def new_user(self, group = None, perms = "rwr---"):
 
         if not self.root:
             raise exceptions.Exception("No root client. Cannot create user")
@@ -91,6 +91,7 @@ class ITest(unittest.TestCase):
             group = name
             g = omero.model.ExperimenterGroupI()
             g.name = rstring(group)
+            g.details.permissions = omero.model.PermissionsI(perms)
             gid = admin.createGroup(g)
             g = omero.model.ExperimenterGroupI(gid, False)
 
@@ -103,6 +104,9 @@ class ITest(unittest.TestCase):
         return admin.getExperimenter(uid)
 
     def new_client(self, group = None):
+        """
+        Like new_user() but returns an active client.
+        """
         user = self.new_user(group)
         props = self.root.getPropertyMap()
         props["omero.user"] = user.omeName.val

@@ -51,8 +51,9 @@
       <constructor-arg index="0" ref="BlitzAdapter"/>
       <constructor-arg index="1" ref="Registry"/>
       <constructor-arg index="2" ref="executor"/>
-      <constructor-arg index="3" ref="uuid"/>
-      <constructor-arg index="4" ref="scriptRepoHelper"/>
+      <constructor-arg index="3" ref="simpleJdbcTemplate"/>
+      <constructor-arg index="4" ref="uuid"/>
+      <constructor-arg index="5" ref="scriptRepoHelper"/>
   </bean>
   <bean id="scriptTakeoverRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
     <property name="targetObject" ref="scriptRepository" />

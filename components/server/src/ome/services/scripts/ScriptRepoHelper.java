@@ -185,7 +185,7 @@ public class ScriptRepoHelper {
 
     public int countInDb(SimpleJdbcOperations jdbc) {
         return jdbc.queryForInt("select count(id) from originalfile "
-                + "where url = ?", uuid);
+                + "where repo = ?", uuid);
     }
 
     @SuppressWarnings("unchecked")
@@ -203,7 +203,7 @@ public class ScriptRepoHelper {
     public List<Long> idsInDb(SimpleJdbcOperations jdbc) {
         try {
             return (List<Long>) jdbc.query("select id from originalfile "
-                    + "where url = ?", new RowMapper<Long>() {
+                    + "where repo = ?", new RowMapper<Long>() {
                 public Long mapRow(ResultSet arg0, int arg1)
                         throws SQLException {
                     return arg0.getLong(1);
@@ -227,7 +227,7 @@ public class ScriptRepoHelper {
     public boolean isInRepo(SimpleJdbcOperations jdbc, final long id) {
         try {
             int count = jdbc.queryForInt("select count(id) from originalfile "
-                    + "where url = ? and id = ?", uuid, id);
+                    + "where repo = ? and id = ?", uuid, id);
             return count > 0;
         } catch (EmptyResultDataAccessException e) {
             return false;
@@ -253,7 +253,7 @@ public class ScriptRepoHelper {
         RepoFile repoFile = build(path, relative);
         try {
             return jdbc.queryForLong("select id from originalfile "
-                    + "where url = ? and path = ?", uuid, repoFile.rel);
+                    + "where repo = ? and path = ?", uuid, repoFile.rel);
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
@@ -309,7 +309,7 @@ public class ScriptRepoHelper {
             public Object doWork(Session session, ServiceFactory sf) {
                 if (old != null) {
                     session.createSQLQuery(
-                            "update originalfile set url = ? where id = ?")
+                            "update originalfile set repo = ? where id = ?")
                             .setParameter(0, null, new StringType())
                             .setParameter(1, old).executeUpdate();
                 }
@@ -328,7 +328,7 @@ public class ScriptRepoHelper {
                 ofile = sf.getUpdateService().saveAndReturnObject(ofile);
 
                 session.createSQLQuery(
-                        "update originalfile set url = ? where id = ?")
+                        "update originalfile set repo = ? where id = ?")
                         .setParameter(0, uuid).setParameter(1, ofile.getId())
                         .executeUpdate();
                 return ofile;
