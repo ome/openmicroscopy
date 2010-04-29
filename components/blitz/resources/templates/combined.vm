@@ -254,9 +254,7 @@ since all collections are lists in ice.
 #set($Ice = "NOT" )
 #end
 
-#if(      $fulltype.contains("byte[]"))
-[$Ice]     sequence<byte> ${seqName};
-#elseif(  $property.one2Many )
+#if(  $property.one2Many )
 [$Ice]     ["java:type:java.util.ArrayList"] sequence<$genericTypeC> ${seqName};
 #if( $property.isLink )
 [$Ice]     ["java:type:java.util.ArrayList"] sequence<omero::model::${property.shortTarget}> ${Pojo}Linked${property.shortTarget}Seq;
@@ -283,7 +281,7 @@ since all collections are lists in ice.
 [$pyc]               self._${property.name}Seq = []
 [$pyc]               self._${property.name}Loaded = False;
 [$pyc]
-#end##byte[]
+#end##
 #end##FOREACH
 [$jav]      }
 [$cpp]      }
@@ -822,6 +820,33 @@ Properties used throughout the accessor generation
 #set( $cppType = "Ice::ByteSeq")
 #set( $copyMethod = "this.${fieldName} = source.get${PropertyName}();")
 [$Ice]       Ice::ByteSeq ${property.name};
+
+#elseif( $javaType.equals("String[]"))
+#set( $javaType = "String[]")
+#set( $getter = "this.$property.name" )
+#set( $setter = "${property.name}")
+#set( $iceType = "Ice::StringSeq")
+#set( $cppType = "Ice::StringSeq")
+#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}();")
+[$Ice]       Ice::StringSeq ${property.name};
+
+#elseif( $javaType.equals("double[]"))
+#set( $javaType = "double[]")
+#set( $getter = "this.$property.name" )
+#set( $setter = "${property.name}")
+#set( $iceType = "Ice::DoubleSeq")
+#set( $cppType = "Ice::DoubleSeq")
+#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}();")
+[$Ice]       Ice::DoubleSeq ${property.name};
+
+#elseif( $javaType.equals("int[]"))
+#set( $javaType = "int[]")
+#set( $getter = "this.$property.name" )
+#set( $setter = "${property.name}")
+#set( $iceType = "Ice::IntSeq")
+#set( $cppType = "Ice::IntSeq")
+#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}();")
+[$Ice]       Ice::IntSeq ${property.name};
 
 #elseif( $javaType.startsWith("long")) ## for Permissions
 #set( $javaType = "Long" )

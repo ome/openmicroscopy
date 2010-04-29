@@ -104,6 +104,12 @@ public abstract class Property { // TODO need to define equality so that two
 
     public final static String BYTES = "byte[]";
 
+    public final static String DOUBLES = "double[]";
+
+    public final static String CHARS = "char[]";
+
+    public final static String INTEGERS = "int[]";
+
     public final static Map<String, String> JAVATYPES = new HashMap<String, String>();
     static {
         JAVATYPES.put(STRING, String.class.getName());
@@ -115,6 +121,9 @@ public abstract class Property { // TODO need to define equality so that two
         JAVATYPES.put(TIMESTAMP, Timestamp.class.getName());
         JAVATYPES.put(TEXT, String.class.getName());
         JAVATYPES.put(BYTES, BYTES);
+        JAVATYPES.put(DOUBLES, DOUBLES);
+        JAVATYPES.put(CHARS, CHARS);
+        JAVATYPES.put(INTEGERS, INTEGERS);
     }
 
     public final static Map<String, String> DBTYPES = new HashMap<String, String>();
