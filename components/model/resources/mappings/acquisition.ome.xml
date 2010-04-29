@@ -455,6 +455,8 @@
 		<entry name="Photoactivation"/>
 		<entry name="Uncaging"/>
 		<entry name="OpticalTrapping"/>
+		<entry name="FLIP"/>
+		<entry name="InverseFRAP"/>
 		<entry name="Other"/>
 		<entry name="Unknown"/>
 	</enum>
@@ -697,11 +699,10 @@
 		<entry name="ColorMap"/>
 		<!-- Note: Other and Unknown are not available -->
 	</enum>
-<!-- LogicalChannel Entity -->
+<!-- Channel Entity -->
 	<enum id="ome.model.enums.AcquisitionMode">
 		<entry name="WideField"/>
-		<entry name="LaserScanningMicroscopy"/>
-		<entry name="LaserScanningConfocal"/>
+		<entry name="LaserScanningConfocalMicroscopy"/>
 		<entry name="SpinningDiskConfocal"/>
 		<entry name="SlitScanConfocal"/>
 		<entry name="MultiPhotonMicroscopy"/>
@@ -713,6 +714,12 @@
 		<entry name="FluorescenceCorrelationSpectroscopy"/>
 		<entry name="NearFieldScanningOpticalMicroscopy"/>
 		<entry name="SecondHarmonicGenerationImaging"/>
+		<entry name="PALM"/>
+		<entry name="STORM"/>
+		<entry name="STED"/>
+		<entry name="TIRF"/>
+		<entry name="FSM"/>
+		<entry name="LCM"/>
 		<entry name="Other"/>
 		<entry name="Unknown"/>
 	</enum>
@@ -738,6 +745,7 @@
 		<entry name="EM-CCD"/>
 		<entry name="APD"/>
 		<entry name="CMOS"/>
+		<entry name="EBCCD"/>
 		<entry name="Other"/>
 		<entry name="Unknown"/>
 	</enum>
@@ -860,6 +868,8 @@
 		<entry name="ShortPass"/>
 		<entry name="BandPass"/>
 		<entry name="MultiPass"/>
+		<entry name="Dichroic"/>
+		<entry name="NeutralDensity"/>
 		<entry name="Other"/>
 		<entry name="Unknown"/>
 	</enum>
