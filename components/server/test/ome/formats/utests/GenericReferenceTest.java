@@ -313,8 +313,9 @@ public class GenericReferenceTest extends TestCase
 		referenceCache.put("LogicalChannel:0:0", 
 				new String[] { "Filter:0:0:OMERO_EMISSION_FILTER" });
 		store.updateReferences(referenceCache);
-		assertNull(logicalChannel.getSecondaryExcitationFilter());
-		assertEquals(logicalChannel.getSecondaryEmissionFilter(), filter);
+		fail("ticket:1750 - to be fixed by Chris");
+		//assertNull(logicalChannel.getSecondaryExcitationFilter());
+		//assertEquals(logicalChannel.getSecondaryEmissionFilter(), filter);
 	}
 	
 	public void testLogicalChannelSecondaryExcitationFilterReference()
@@ -324,8 +325,9 @@ public class GenericReferenceTest extends TestCase
 		referenceCache.put("LogicalChannel:0:0", 
 				new String[] { "Filter:0:0:OMERO_EXCITATION_FILTER" });
 		store.updateReferences(referenceCache);
-		assertNull(logicalChannel.getSecondaryEmissionFilter());
-		assertEquals(logicalChannel.getSecondaryExcitationFilter(), filter);
+		fail("ticket:1750 - to be fixed by Chris");
+		//assertNull(logicalChannel.getSecondaryEmissionFilter());
+		//assertEquals(logicalChannel.getSecondaryExcitationFilter(), filter);
 	}
 	
 	public void testFilterSetDichroicReference()
@@ -334,6 +336,7 @@ public class GenericReferenceTest extends TestCase
 	    referenceCache.put("FilterSet:0:0", 
 	    		           new String[] { "Dichroic:0:0" });
 	    store.updateReferences(referenceCache);
-	    assertEquals(filterSet.getDichroic(), dichroic);
+	    fail("ticket:1750 - to be fixed by Chris");
+	    // assertEquals(filterSet.getDichroic(), dichroic);
 	}
 }

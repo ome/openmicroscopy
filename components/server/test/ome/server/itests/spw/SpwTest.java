@@ -37,7 +37,8 @@ public class SpwTest extends AbstractManagedContextTest {
         Image i = new Image(testTimestamp, "i");
         Reagent r = new Reagent();
         r.setName("r");
-        PlateAcquisition sa = new PlateAcquisition(s);
+        PlateAcquisition sa = new PlateAcquisition();
+        sa.setScreen(s);
         WellSample ws = new WellSample();
         ws.linkPlateAcquisition(sa);
 
@@ -77,7 +78,8 @@ public class SpwTest extends AbstractManagedContextTest {
                 + "left outer join fetch w.wellSamples " + "where w.id = :id",
                 new Parameters().addId(w.getId()));
 
-        sa = new PlateAcquisition(s);
+        sa = new PlateAcquisition();
+        sa.setScreen(s);
         sa = iUpdate.saveAndReturnObject(sa);
 
         java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System.currentTimeMillis());

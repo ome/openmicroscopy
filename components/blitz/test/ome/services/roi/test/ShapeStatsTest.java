@@ -7,6 +7,7 @@
 
 package ome.services.roi.test;
 
+import static omero.rtypes.rint;
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 
