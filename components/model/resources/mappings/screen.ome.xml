@@ -26,6 +26,8 @@
 	</type>
 	<type id="ome.model.screen.PlateAcquisition" named="true" described="true" annotated="true">
 		<properties>
+			<optional name="startTime" type="timestamp"/>
+			<optional name="endTime" type="timestamp"/>
 			<optional name="maximumFieldCount" type="int"/>
 			<manyone name="screen" type="ome.model.screen.Screen" inverse="plateAcquisition"/>
 			<child name="wellSampleLinks" type="ome.model.screen.PlateAcquisitionWellSampleLink" target="ome.model.screen.WellSample"/>
