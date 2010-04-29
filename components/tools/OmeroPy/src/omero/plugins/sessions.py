@@ -205,7 +205,7 @@ class SessionsControl(BaseControl):
                 if not rv:
                     return defserver, None # Prevents loop
                 else:
-                    return self._server(store, rv)
+                    return self._server(store, rv, quiet)
         else:
             try:
                 idx = server.rindex("@")
