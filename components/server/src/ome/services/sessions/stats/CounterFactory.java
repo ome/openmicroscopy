@@ -26,6 +26,8 @@ public class CounterFactory implements ApplicationEventPublisherAware {
 
     protected int objectsWrittenHardLimit = Integer.MAX_VALUE;
 
+    protected int methodHardLimit = Integer.MAX_VALUE;
+
     public void setApplicationEventPublisher(
             ApplicationEventPublisher applicationEventPublisher) {
         this.publisher = applicationEventPublisher;
@@ -39,13 +41,19 @@ public class CounterFactory implements ApplicationEventPublisherAware {
         this.objectsWrittenHardLimit = objectsWrittenHardLimit;
     }
 
+    public void setMethodHardLimit(int methodHardLimit) {
+        this.methodHardLimit = methodHardLimit;
+    }
+
     public SessionStats createStats() {
         ObjectsReadCounter read = new ObjectsReadCounter(objectsReadHardLimit);
         read.setApplicationEventPublisher(publisher);
         ObjectsWrittenCounter written = new ObjectsWrittenCounter(
                 objectsWrittenHardLimit);
         written.setApplicationEventPublisher(publisher);
-        return new SimpleSessionStats(read, written);
+        MethodCounter methods = new MethodCounter(methodHardLimit);
+        methods.setApplicationEventPublisher(publisher);
+        return new SimpleSessionStats(read, written, methods);
     }
 
 }

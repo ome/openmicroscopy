@@ -32,7 +32,8 @@ import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.security.SecuritySystem;
 import ome.services.messages.RegisterServiceCleanupMessage;
-import ome.services.sessions.stats.CounterFactory;
+import ome.services.sessions.SessionContext;
+import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.stats.SessionStats;
 import ome.services.util.ServiceHandler;
 import ome.system.EventContext;
@@ -62,21 +63,22 @@ public class CurrentDetails implements PrincipalHolder {
 
     private static Log log = LogFactory.getLog(CurrentDetails.class);
 
-    private final CounterFactory factory;
+    private final SessionCache cache;
 
     private final ThreadLocal<LinkedList<BasicEventContext>> contexts = new ThreadLocal<LinkedList<BasicEventContext>>();
 
     private final ThreadLocal<Map<String, String>> callContext = new ThreadLocal<Map<String, String>>();
 
+    /**
+     * Default constructor. Should only be used for testing, since the stats
+     * used will not be correct.
+     */
     public CurrentDetails() {
-        // Has very high limits set, and will not be able
-        // to publish an event with out the publisher.
-        // Message logged at error level.
-        this.factory = new CounterFactory();
+        this.cache = null;
     }
     
-    public CurrentDetails(CounterFactory factory) {
-        this.factory = factory;
+    public CurrentDetails(SessionCache cache) {
+        this.cache = cache;
     }
     
     private LinkedList<BasicEventContext> list() {
@@ -121,8 +123,12 @@ public class CurrentDetails implements PrincipalHolder {
     }
 
     public void login(Principal principal) {
-        BasicEventContext c = new BasicEventContext(principal, factory
-                .createStats());
+        // Can't use the method in SessionManager since that leads to a
+        // circular reference in Spring.
+        final String uuid = principal.getName();
+        final SessionContext ctx = cache.getSessionContext(uuid, false);
+        final SessionStats stats = ctx.stats();
+        final BasicEventContext c = new BasicEventContext(principal, stats);
         login(c);
     }
 
@@ -135,11 +141,13 @@ public class CurrentDetails implements PrincipalHolder {
             log.debug("Logging in :" + bec);
         }
         list().add(bec);
+        bec.getStats().methodIn();
     }
 
     public int logout() {
         LinkedList<BasicEventContext> list = list();
         BasicEventContext bec = list.removeLast();
+        bec.getStats().methodOut();
         if (log.isDebugEnabled()) {
             log.debug("Logged out: " + bec);
         }

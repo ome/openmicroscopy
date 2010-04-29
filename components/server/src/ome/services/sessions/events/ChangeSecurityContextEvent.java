@@ -26,12 +26,25 @@ public class ChangeSecurityContextEvent extends InternalMessage {
 
     final List<String> cancellations = new ArrayList<String>();
 
-    public ChangeSecurityContextEvent(Object source, IObject previous,
-            IObject next) {
+    final private String sessionUuid;
+
+    final private IObject previous;
+
+    final private IObject next;
+
+    public ChangeSecurityContextEvent(Object source, String sessionUuid,
+            IObject previous, IObject next) {
         super(source);
+        this.sessionUuid = sessionUuid;
+        this.previous = previous;
+        this.next = next;
     }
 
     private static final long serialVersionUID = 1L;
+
+    public synchronized String getUuid() {
+        return sessionUuid;
+    }
 
     public synchronized void cancel(String message) {
         cancellations.add(message);

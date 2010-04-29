@@ -25,7 +25,7 @@
   </description>
 
   <bean id="currentDetails" class="ome.security.basic.CurrentDetails">
-    <constructor-arg ref="threadCounterFactory"/>
+    <constructor-arg ref="sessionCache"/>
   </bean>
   
   <alias name="currentDetails" alias="principalHolder"/>

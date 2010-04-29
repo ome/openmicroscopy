@@ -57,6 +57,18 @@ class ITest(unittest.TestCase):
         self.tmpfiles.append(tmpfile)
         return tmpfile
 
+    def new_group(self, experimenters = None):
+        admin = self.root.sf.getAdminService()
+        gname = str(uuid())
+        group = omero.model.ExperimenterGroupI()
+        group.name = rstring(gname)
+        gid = admin.createGroup(group)
+        group = admin.getGroup(gid)
+        if experimenters:
+            for exp in experimenters:
+                admin.addGroups(exp, [group])
+        return group
+
     def new_user(self, group = None):
 
         if not self.root:

@@ -652,6 +652,34 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     }
 
     /**
+     * NB: Much of the logic here is similar to {@link #doClose} and should
+     * be pushed down.
+     */
+    public int getStatefulServiceCount() {
+        int count = 0;
+        final List<String> servants = holder.getServantList();
+        for (final String key : servants) {
+            final Ice.Object servantOrTie = holder.get(key);
+            if (servantOrTie != null) {
+                try {
+                    Object servant;
+                    if (servantOrTie instanceof Ice.TieBase) {
+                        servant = ((Ice.TieBase) servantOrTie).ice_delegate();
+                    } else {
+                        servant = servantOrTie;
+                    }
+                    if (servant instanceof _StatefulServiceInterfaceOperations) {
+                        count++;
+                    }
+                } catch (Exception e) {
+                    // oh well
+                }
+            }
+        }
+        return count;
+    }
+
+    /**
      * Performs the actual cleanup operation on all the resources shared between
      * this and other {@link ServiceFactoryI} instances in the same
      * {@link Session}. Since {@link #destroy()} is called regardless by the

@@ -39,6 +39,26 @@ public class DelegatingStats implements SessionStats {
         return stats;
     }
 
+    public void methodIn() {
+        for (SessionStats stats : stats()) {
+            stats.methodIn();
+        }
+    }
+
+    public long methodCount() {
+        long count = 0;
+        for (SessionStats stats : stats()) {
+            count = Math.max(count, stats.methodCount());
+        }
+        return count;
+    }
+
+    public void methodOut() {
+        for (SessionStats stats : stats()) {
+            stats.methodOut();
+        }
+    }
+
     public final void loadedObjects(int objects) {
         for (SessionStats stats : stats()) {
             stats.loadedObjects(objects);

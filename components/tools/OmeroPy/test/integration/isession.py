@@ -28,21 +28,9 @@ class TestISession(lib.ITest):
         admin = self.client.sf.getAdminService()
         sid   = admin.getEventContext().sessionUuid
 
-    def testGettingACopyOfSessionForUpdate(self):
-        isess = self.client.sf.getSessionService()
-        admin = self.client.sf.getAdminService()
-        sid   = admin.getEventContext().sessionUuid
-
-        p = omero.sys.Principal() # dummy
-        session = isess.createSession(p, sid)
-        return session
-
     def testManuallyClosingOwnSession(self):
-        session = self.testGettingACopyOfSessionForUpdate()
-
-        isess = self.client.sf.getSessionService()
-        s = isess.updateSession(session)
-        isess.closeSession(s)
+        client = self.new_client()
+        client.killSession()
 
     def testCreateSessionForUser(self):
         p = omero.sys.Parameters()
@@ -114,6 +102,27 @@ class TestISession(lib.ITest):
         svc.getMyOpenSessions()
         svc.getMyOpenAgentSessions("OMERO.web")
         svc.getMyOpenClientSessions()
+
+    def testTicket2196SetSecurityContext(self):
+        ec = self.client.sf.getAdminService().getEventContext()
+        exp0 = omero.model.ExperimenterI(ec.userId, False)
+        grp0 = omero.model.ExperimenterGroupI(ec.groupId, False)
+        grp1 = self.new_group([exp0])
+
+        # Change: should pass
+        self.client.sf.setSecurityContext(grp1)
+
+        # Make a stateful service, and change again
+        rfs = self.client.sf.createRawFileStore()
+        try:
+            self.client.sf.setSecurityContext(grp0)
+            self.fail("sec vio")
+        except omero.SecurityViolation, sv:
+            pass # Good
+        rfs.close()
+
+        # Service is now closed, should be ok
+        self.client.sf.setSecurityContext(grp1)
 
 if __name__ == '__main__':
     unittest.main()

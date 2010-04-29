@@ -1068,9 +1068,15 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             throw new ApiUsageException("Security context must be managed!");
         }
 
-        SessionContext sc = cache.getSessionContext(principal.getName(), false);
-        Long shareId = sc.getCurrentShareId();
-        Long groupId = sc.getCurrentGroupId();
+        final SessionContext sc = cache.getSessionContext(principal.getName(), false);
+        final long activeMethods = sc.stats().methodCount();
+
+        if (activeMethods != 0) {
+            throw new SecurityViolation(activeMethods + " methods active. Aborting!");
+        }
+
+        final Long shareId = sc.getCurrentShareId();
+        final Long groupId = sc.getCurrentGroupId();
         ome.model.IObject prevCtx = null;
 
         if (shareId != null) {
@@ -1079,7 +1085,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             prevCtx = new ExperimenterGroup(groupId, false);
         }
 
-        ChangeSecurityContextEvent csce = new ChangeSecurityContextEvent(this, prevCtx, obj);
+        ChangeSecurityContextEvent csce = new ChangeSecurityContextEvent(
+                    this, principal.getName(), prevCtx, obj);
 
         try {
             this.context.publishMessage(csce);

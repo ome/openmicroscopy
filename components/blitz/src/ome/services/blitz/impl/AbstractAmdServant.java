@@ -32,6 +32,8 @@ import omero.api.AMD_StatefulServiceInterface_passivate;
 import omero.api._ServiceInterfaceOperations;
 import omero.util.IceMapper;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.FatalBeanException;
@@ -49,6 +51,8 @@ import Ice.Current;
  * @since 3.0-Beta4
  */
 public abstract class AbstractAmdServant implements ApplicationContextAware {
+
+    final protected Log log = LogFactory.getLog(getClass());
 
     final protected BlitzExecutor be;
 
@@ -209,21 +213,41 @@ public abstract class AbstractAmdServant implements ApplicationContextAware {
         // Special call logic:
         // callInvokerOnRawArgs(__cb, __current);
 
+        Throwable t = null;
+
+        // First we call close on the object
         try {
             preClose();
             if (service instanceof StatefulServiceInterface) {
                 StatefulServiceInterface ss = (StatefulServiceInterface) service;
                 ss.close();
             }
-            __cb.ice_response();
-        } catch (Exception ex) {
-            __cb.ice_exception(ex);
-        } finally {
-            InternalMessage msg = new UnregisterServantMessage(this,
-                    __current.id.category, __current);
-            ctx.publishEvent(msg);
+        } catch (Throwable t1) {
+            log.error("Error on close, stage1", t1);
+            t = t1;
         }
 
+        // Then we publish the close event
+        try {
+            InternalMessage msg = new UnregisterServantMessage(this, __current);
+            ctx.publishEvent(msg);
+        } catch (Throwable t2) {
+            log.error("Error on close, stage2", t2);
+            t = t2;
+        }
+
+        // Now we've finished that, let's return control to the user.
+        if (t == null) {
+            __cb.ice_response();
+        } else {
+            if (t instanceof Exception) {
+                __cb.ice_exception((Exception)t);
+            } else {
+                omero.InternalException ie = new omero.InternalException();
+                IceMapper.fillServerError(ie, t);
+                __cb.ice_exception(ie);
+            }
+        }
 
     }
 

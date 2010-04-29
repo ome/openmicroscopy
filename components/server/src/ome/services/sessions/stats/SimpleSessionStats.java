@@ -6,6 +6,8 @@
  */
 package ome.services.sessions.stats;
 
+import ome.util.messages.InternalMessage;
+
 
 
 /**
@@ -18,10 +20,24 @@ public class SimpleSessionStats implements SessionStats {
 
     private final ObjectsReadCounter read;
     private final ObjectsWrittenCounter written;
+    private final MethodCounter methods;
     
-    public SimpleSessionStats(ObjectsReadCounter read, ObjectsWrittenCounter written) {
+    public SimpleSessionStats(ObjectsReadCounter read, ObjectsWrittenCounter written, MethodCounter methods) {
         this.read = read;
         this.written = written;
+        this.methods = methods;
+    }
+
+    public void methodIn() {
+        this.methods.increment(1);
+    }
+
+    public long methodCount() {
+        return this.methods.count;
+    }
+
+    public void methodOut() {
+        this.methods.increment(-1);
     }
 
     public void loadedObjects(int objects) {

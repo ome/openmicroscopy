@@ -21,6 +21,7 @@ import ome.services.blitz.util.ConvertToBlitzExceptionMessage;
 import ome.services.blitz.util.UnregisterServantMessage;
 import ome.services.messages.DestroySessionMessage;
 import ome.services.sessions.SessionManager;
+import ome.services.sessions.events.ChangeSecurityContextEvent;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
 import ome.system.Principal;
@@ -265,7 +266,6 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof UnregisterServantMessage) {
             UnregisterServantMessage msg = (UnregisterServantMessage) event;
-            String key = msg.getServiceKey();
             Ice.Current curr = msg.getCurrent();
 
             // And unregister the service if possible
@@ -282,13 +282,37 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
                 log.info("ServiceFactory null: "+id.name);
             } else if (obj instanceof ServiceFactoryI) {
                 ServiceFactoryI sf = (ServiceFactoryI) obj;
-                sf.unregisterServant(Ice.Util.stringToIdentity(key));
+                sf.unregisterServant(curr.id);
             } else {
                 log.warn("Not a ServiceFactory: " + obj);
             }
         } else if (event instanceof DestroySessionMessage) {
             DestroySessionMessage msg = (DestroySessionMessage) event;
             reapSession(msg.getSessionId());
+        } else if (event instanceof ChangeSecurityContextEvent) {
+            ChangeSecurityContextEvent csce = (ChangeSecurityContextEvent) event;
+            checkStatefulServices(csce);
+        }
+    }
+
+    /**
+     * Checks that there are no stateful services active for the session.
+     */
+    void checkStatefulServices(ChangeSecurityContextEvent csce) {
+        String uuid = csce.getUuid();
+        Set<String> clientIds = sessionToClientIds.get(uuid);
+        clientIds = new HashSet<String>(clientIds);
+        for (String clientId : clientIds) {
+            try {
+                ServiceFactoryI sf = getServiceFactory(clientId, uuid);
+                int count = sf.getStatefulServiceCount();
+                if (count > 0) {
+                    csce.cancel("Client " + clientId +
+                            " has active stateful services: count=" + count);
+                }
+            } catch (Exception e) {
+                // ignore
+            }
         }
     }
 
@@ -316,18 +340,12 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
         if (clientIds != null) {
             for (String clientId : clientIds) {
                 try {
-                    Ice.Identity iid = ServiceFactoryI.sessionId(clientId,
-                            sessionId);
-                    Ice.Object obj = adapter.find(iid);
-                    if (obj == null) {
-                        log.debug(Ice.Util.identityToString(iid)
-                                + " already removed.");
-                    } else {
-                        ServiceFactoryI sf = (ServiceFactoryI) obj;
+                    ServiceFactoryI sf = getServiceFactory(clientId, sessionId);
+                    if (sf != null) {
                         sf.doDestroy();
                         Ice.Identity id = sf.sessionId();
                         log.info("Removing " + id.name);
-                        adapter.remove(id); // OK ADAPTER USAGE
+                            adapter.remove(id); // OK ADAPTER USAGE
                     }
                 } catch (Ice.ObjectAdapterDeactivatedException oade) {
                     log.warn("Cannot reap session " + sessionId
@@ -344,6 +362,20 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
 
     // Helpers
     // =========================================================================
+
+    protected ServiceFactoryI getServiceFactory(String clientId, String sessionId) {
+        Ice.Identity iid = ServiceFactoryI.sessionId(clientId,
+                sessionId);
+        Ice.Object obj = adapter.find(iid);
+        if (obj == null) {
+            log.debug(Ice.Util.identityToString(iid)
+                    + " already removed.");
+            return null;
+        } else {
+            ServiceFactoryI sf = (ServiceFactoryI) obj;
+            return sf;
+        }
+    }
 
     protected String getGroup(Ice.Current current) {
         if (current.ctx == null) {

@@ -10,6 +10,7 @@ import ome.security.basic.CurrentDetails;
 import ome.services.messages.GlobalMulticaster;
 import ome.services.messages.stats.ObjectsReadStatsMessage;
 import ome.services.sessions.SessionManager;
+import ome.services.sessions.stats.CounterFactory;
 import ome.services.sessions.stats.CurrentSessionStats;
 import ome.services.sessions.stats.ObjectsReadCounter;
 import ome.services.sessions.stats.SessionStats;
@@ -51,7 +52,7 @@ public class SessionStatsTest extends MockObjectTestCase {
     public void testStatsReadObjectsResets( ) {
         boolean called[] = readCalled();
         ObjectsReadCounter read = read(2);
-        SessionStats stats = new SimpleSessionStats(read, null);
+        SessionStats stats = new SimpleSessionStats(read, null, null);
         stats.loadedObjects(1);
         assertFalse(called[0]);
         stats.loadedObjects(1);
@@ -67,7 +68,7 @@ public class SessionStatsTest extends MockObjectTestCase {
     public void testSimpleStatsReadObjects( ) {
         boolean called[] = readCalled();
         ObjectsReadCounter read = read(1);
-        SessionStats stats = new SimpleSessionStats(read, null);
+        SessionStats stats = new SimpleSessionStats(read, null, null);
         stats.loadedObjects(1);
         assertTrue(called[0]);
     }
@@ -76,7 +77,7 @@ public class SessionStatsTest extends MockObjectTestCase {
     public void testCurrentStats( ) {
         boolean[] called = readCalled();
         ObjectsReadCounter read = read(1);
-        SessionStats internal = new SimpleSessionStats(read, null);
+        SessionStats internal = new SimpleSessionStats(read, null, null);
         
         Mock mock = new Mock(SessionManager.class);
         mock.expects(once()).method("getSessionStats").will(returnValue(internal));
@@ -91,7 +92,7 @@ public class SessionStatsTest extends MockObjectTestCase {
     public void testThreadLocalStats( ) {
         boolean[] called = readCalled();
         ObjectsReadCounter read = read(1);
-        SessionStats internal = new SimpleSessionStats(read, null);
+        SessionStats internal = new SimpleSessionStats(read, null, null);
         
         Mock mock = new Mock(SessionManager.class);
         mock.expects(once()).method("getSessionStats").will(returnValue(internal));
@@ -100,6 +101,13 @@ public class SessionStatsTest extends MockObjectTestCase {
         
         stats.loadedObjects(1);
         assertTrue(called[0]);
+    }
+
+    @Test(groups = "ticket:2196")
+    public void testThreadAndSessionCanShareStats() {
+        CounterFactory cf = new CounterFactory();
+        SessionStats stats = cf.createStats();
+        stats.methodIn();
     }
 
     // Helpers

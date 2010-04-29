@@ -6,20 +6,25 @@
  */
 package ome.services.sessions.stats;
 
-
 /**
- * Thread-safe counter for all 
+ * Thread-safe counter for all
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4
  */
 public interface SessionStats {
 
+    void methodIn();
+
+    long methodCount();
+
+    void methodOut();
+
     void readBytes(int bytes);
-    
+
     void writtenBytes(int bytes);
-    
+
     void loadedObjects(int objects);
-    
+
     void updatedObjects(int objects);
 }

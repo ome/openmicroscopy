@@ -16,6 +16,7 @@ import ome.server.itests.AbstractManagedContextTest;
 import ome.services.sessions.SessionManagerImpl;
 import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.services.sessions.state.SessionCache;
+import ome.services.sessions.stats.SessionStats;
 import ome.services.util.Executor;
 import ome.system.Principal;
 
@@ -179,4 +180,12 @@ public class SessionManagerTest extends AbstractManagedContextTest {
         }
     }
     
+    @Test(groups = {"ticket:2196"}, expectedExceptions = SecurityViolation.class)
+    public void testNoSetSecurityContextOnActiveMethod() {
+        loginRoot();
+        SessionStats stats = sm.getSessionStats(loginAop.p.getName());
+        stats.methodIn();
+        sm.setSecurityContext(loginAop.p, new ExperimenterGroup(0L, false));
+    }
+
 }

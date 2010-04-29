@@ -50,7 +50,7 @@ public abstract class LongCounter implements ApplicationEventPublisherAware {
 
     public void increment(int incr) {
         synchronized (mutex) {
-            count++;
+            count = count + incr;
             if (count >= (last+interval)) {
                 last = count;
                 InternalMessage message = message();

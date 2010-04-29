@@ -17,6 +17,18 @@ package ome.services.sessions.stats;
  */
 public class NullSessionStats implements SessionStats {
 
+    public void methodIn() {
+        // nothing
+    }
+
+    public long methodCount() {
+        return 0;
+    }
+
+    public void methodOut() {
+        // nothing
+    }
+
     public void loadedObjects(int objects) {
         // nothing
     }
