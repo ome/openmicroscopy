@@ -28,10 +28,10 @@ import omero.util.script_utils as scriptUtil
 
 from numpy import *
 
-thumbnailFigurePath = "scripts/thumbnailFigure.py"
-splitViewFigurePath = "scripts/splitViewFigure.py"
-roiFigurePath = "scripts/roiFigure.py"
-movieFigurePath = "scripts/movieFigure.py"
+thumbnailFigurePath = "scripts/omero/figure_scripts/thumbnailFigure.py"
+splitViewFigurePath = "scripts/omero/figure_scripts/splitViewFigure.py"
+roiFigurePath = "scripts/omero/figure_scripts/roiFigure.py"
+movieFigurePath = "scripts/omero/figure_scripts/movieFigure.py"
 
 
 class TestFigureExportScripts(lib.ITest):
@@ -409,7 +409,7 @@ def uploadScript(scriptService, scriptPath):
     file = open(scriptPath)
     script = file.read()
     file.close()
-    scriptId = scriptService.uploadScript(script)
+    scriptId = scriptService.uploadScript(scriptPath, script)
     return scriptId
 
 
@@ -483,7 +483,7 @@ def createTestImage(services, sizeX = 256, sizeY = 256, sizeZ = 5, sizeC = 3, si
         rgba = None
         if theC in colourMap:
             rgba = colourMap[theC]
-        scriptUtil.resetRenderingSettings(renderingEngine, pixelsId, theC, minValue, maxValue, rgba)
+        #scriptUtil.resetRenderingSettings(renderingEngine, pixelsId, theC, minValue, maxValue, rgba)
     
     return image.getId().getValue()
 
