@@ -127,7 +127,6 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public synchronized OriginalFile save() {
-        errorIfNotLoaded();
         if (isModified()) {
             Long id = (file == null) ? null : file.getId();
             if (id == null) {
@@ -143,9 +142,10 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
 
             iUpdate.flush();
             modified = false;
-        }
 
-        return new ShallowCopy().copy(file);
+            return new ShallowCopy().copy(file);
+        }
+        return null;
     }
 
     /*
@@ -159,7 +159,8 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
         try {
             save();
         } catch (RuntimeException re) {
-            log.error("Failed to update file: " + file.getId(), re);
+            Long id = (file == null ? null : file.getId());
+            log.error("Failed to update file: " + id, re);
         } finally {
             ioService = null;
             file = null;
