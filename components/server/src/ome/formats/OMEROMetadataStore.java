@@ -45,6 +45,7 @@ import ome.model.acquisition.FilterSet;
 import ome.model.acquisition.ImagingEnvironment;
 import ome.model.acquisition.Instrument;
 import ome.model.acquisition.Laser;
+import ome.model.acquisition.LightPath;
 import ome.model.acquisition.LightSettings;
 import ome.model.acquisition.LightSource;
 import ome.model.acquisition.OTF;
@@ -1109,16 +1110,20 @@ public class OMEROMetadataStore
     private void handleReference(LogicalChannel target, Filter reference,
     		                     LSID referenceLSID)
     {
-        /* ticket:1750 - to be handled by Chris
+        LightPath lightPath = target.getLightPath();
+        if (lightPath == null)
+        {
+            lightPath = new LightPath();
+        }
+        target.setLightPath(lightPath);
     	if (referenceLSID.toString().endsWith("OMERO_EMISSION_FILTER"))
     	{
-    		target.setSecondaryEmissionFilter(reference);
+    		lightPath.linkEmissionFilter(reference);
     	}
     	else if (referenceLSID.toString().endsWith("OMERO_EXCITATION_FILTER"))
     	{
-    		target.setSecondaryExcitationFilter(reference);
+    		lightPath.linkExcitationFilter(reference);
     	}
-         */if(false){}
     	else
     	{
     		throw new ApiUsageException(String.format(
@@ -1191,16 +1196,14 @@ public class OMEROMetadataStore
     private void handleReference(FilterSet target, Filter reference,
     		                     LSID referenceLSID)
     {
-        /* ticket:1750 - to be handled by chris
     	if (referenceLSID.toString().endsWith("OMERO_EMISSION_FILTER"))
     	{
-    		target.setEmFilter(reference);
+    		target.linkEmissionFilter(reference);
     	}
     	else if (referenceLSID.toString().endsWith("OMERO_EXCITATION_FILTER"))
     	{
-    		target.setExFilter(reference);
+    		target.linkExcitationFilter(reference);
     	}
-	*/if(false) {}
     	else
     	{
     		throw new ApiUsageException(String.format(
@@ -1646,8 +1649,6 @@ public class OMEROMetadataStore
     		return null;
     	}
 
-	else throw new RuntimeException("TBD");
-	/* ticket:1750 - to be fixed by chris
     	for (LogicalChannel lc2 : uniqueChannels)
     	{
     		if (compare(lc.getMode(), lc2.getMode())
@@ -1667,17 +1668,13 @@ public class OMEROMetadataStore
     			&& compare(lc.getPinHoleSize(), lc2.getPinHoleSize())
     			&& compare(lc.getPockelCellSetting(), lc2.getPockelCellSetting())
     			&& compare(lc.getSamplesPerPixel(), lc2.getSamplesPerPixel())
-    			&& lc.getSecondaryEmissionFilter()
-    			   == lc2.getSecondaryEmissionFilter()
-    			&& lc.getSecondaryExcitationFilter()
-    			   == lc2.getSecondaryExcitationFilter())
+    			&& lc.getLightPath() == lc2.getLightPath())
     		{
     			return lc2;
     		}
     	}
     	uniqueChannels.add(lc);
     	return lc;
-	*/
     }
 
     /**
