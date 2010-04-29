@@ -29,5 +29,59 @@ class TestModel42(lib.ITest):
         roi.image = img
         roi = self.update.saveAndReturnObject(roi)
 
+
+class TestTicket2290(lib.ITest):
+
+    def testEmptyArrays2290(self):
+        img = self.new_image("testRoi")
+        roi = omero.model.RoiI()
+        roi.image = img
+        roi.keywords = []
+        roi.namespaces = []
+        roi = self.update.saveAndReturnObject(roi)
+        # Then resave
+        roi = self.update.saveAndReturnObject(roi)
+
+    def testNoArrays2290(self):
+        img = self.new_image("testRoi")
+        roi = omero.model.RoiI()
+        roi.image = img
+        roi = self.update.saveAndReturnObject(roi)
+        # Then resave
+        roi = self.update.saveAndReturnObject(roi)
+
+    def testRect2290(self):
+        img = self.new_image("testRoi")
+        roi = omero.model.RoiI()
+        roi.namespaces = [self.uuid(), self.uuid()]
+        roi.keywords = [["a", "b"], ["c", "d"]]
+        roi.image = img
+        rect = omero.model.RectI()
+        roi.addShape(rect)
+        roi = self.update.saveAndReturnObject(roi)
+
+    def testRectB2290(self):
+        img = self.new_image("testRoi")
+        roi = omero.model.RoiI()
+        roi.namespaces = [self.uuid(), self.uuid()]
+        roi.keywords = [["a", "b"], ["c", "d"]]
+        roi.image = img
+        roi = self.update.saveAndReturnObject(roi)
+        rect = omero.model.RectI()
+        roi.addShape(rect)
+        rect.roi = roi
+        rect = self.update.saveAndReturnObject(rect)
+
+    def testResave2290(self):
+        img = self.new_image("testRoi")
+        roi = omero.model.RoiI()
+        roi.namespaces = [self.uuid(), self.uuid()]
+        roi.keywords = [["a", "b"], ["c", "d"]]
+        roi.image = img
+        roi = self.update.saveAndReturnObject(roi)
+        rect = omero.model.RectI()
+        roi.addShape(rect)
+        roi = self.update.saveAndReturnObject(roi)
+
 if __name__ == '__main__':
     unittest.main()

@@ -160,12 +160,24 @@ public abstract class ListAsSQLArrayUserType<T> implements UserType {
 
         @Override
         protected List<String[]> getDataFromArray(Object array) {
-            String[][] strings = (String[][]) array;
-            ArrayList<String[]> result = new ArrayList<String[]>(strings.length);
-            for (String[] s : strings)
-                result.add(s);
+            if (String[][].class.isAssignableFrom(array.getClass())) {
+                String[][] strings = (String[][]) array;
+                ArrayList<String[]> result = new ArrayList<String[]>(strings.length);
+                for (String[] s : strings)
+                    result.add(s);
+                return result;
+            } else {
+                // ticket:2290
+                if (String[].class.isAssignableFrom(array.getClass())) {
+                    String[] strings = (String[]) array;
+                    if (strings.length == 0) {
+                        // ok. String[0][] got changed to String[0]
+                        return new ArrayList<String[]>(0);
+                    }
+                }
+                throw new RuntimeException("ticket:2290 - bad array type: " + array);
+            }
 
-            return result;
         }
     }
 
