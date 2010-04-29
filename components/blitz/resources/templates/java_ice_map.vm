@@ -76,7 +76,7 @@ public class IceMap {
         _ome2omero.put(ome.model.roi.Polygon.class, omero.model.SmartPolygonI.class);
         _ome2omero.put(ome.model.roi.Polyline.class, omero.model.SmartPolylineI.class);
         _ome2omero.put(ome.model.roi.Rect.class, omero.model.SmartRectI.class);
-        _ome2omero.put(ome.model.roi.Text.class, omero.model.SmartTextI.class);
+        _ome2omero.put(ome.model.roi.Label.class, omero.model.SmartTextI.class);
 
         // Sealing
         OMEtoOMERO = Collections.unmodifiableMap(_ome2omero);

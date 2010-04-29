@@ -113,6 +113,7 @@ public class ChannelAcquisitionData
         detectorSettings = channel.getDetectorSettings();
         lightSettings = channel.getLightSourceSettings();
         filterSet = channel.getFilterSet();
+        /* ticket:1750 - will be fixed by Jean-Marie
         Filter f = channel.getSecondaryEmissionFilter();
         if (f != null) secondaryEmFilter = new FilterData(f);
         f = channel.getSecondaryExcitationFilter();
@@ -125,6 +126,7 @@ public class ChannelAcquisitionData
         	Dichroic d = filterSet.getDichroic();
         	if (d != null) dichroic = new DichroicData(d);
         }
+        */
 	}
 	
 	/**

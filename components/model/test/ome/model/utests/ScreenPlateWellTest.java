@@ -11,7 +11,7 @@ import ome.model.core.Image;
 import ome.model.screen.Plate;
 import ome.model.screen.Reagent;
 import ome.model.screen.Screen;
-import ome.model.screen.ScreenAcquisition;
+import ome.model.screen.PlateAcquisition;
 import ome.model.screen.Well;
 import ome.model.screen.WellSample;
 
@@ -33,9 +33,9 @@ public class ScreenPlateWellTest extends TestCase {
             ws2_1a = new WellSample(), ws2_1b = new WellSample(),
             ws2_2a = new WellSample(), ws2_2b = new WellSample();
 
-    public ScreenAcquisition acq1 = new ScreenAcquisition(),
-            acq2 = new ScreenAcquisition(), acq3 = new ScreenAcquisition(),
-            acq4 = new ScreenAcquisition();
+    public PlateAcquisition acq1 = new PlateAcquisition(),
+            acq2 = new PlateAcquisition(), acq3 = new PlateAcquisition(),
+            acq4 = new PlateAcquisition();
 
     public Reagent reagentA = new Reagent(), reagentB = new Reagent(),
             reagentC = new Reagent();
@@ -91,10 +91,10 @@ public class ScreenPlateWellTest extends TestCase {
         i2_2a.addWellSample(ws2_2a);
         i2_2b.addWellSample(ws2_2b);
 
-        screen.addScreenAcquisition(acq1);
-        screen.addScreenAcquisition(acq2);
-        screen.addScreenAcquisition(acq3);
-        screen.addScreenAcquisition(acq4);
+        screen.addPlateAcquisition(acq1);
+        screen.addPlateAcquisition(acq2);
+        screen.addPlateAcquisition(acq3);
+        screen.addPlateAcquisition(acq4);
 
         acq1.linkWellSample(ws1_1a);
         acq1.linkWellSample(ws1_1b);

@@ -33,7 +33,6 @@ import omero.rtypes;
 import omero.model.Ellipse;
 import omero.model.EllipseI;
 import omero.model.Shape;
-import omero.model.Text;
 
 /**
  * Represents an ellipse in the Euclidean space <b>R</b><sup>2</sup>.

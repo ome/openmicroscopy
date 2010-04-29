@@ -639,16 +639,16 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      */
     private String getChannelName(LogicalChannel lc)
     {
-    	String name;
+	String name = null;
     	Integer value = lc.getEmissionWave();
     	if (value != null) return ""+value.intValue();
     	if (lc.getFilterSet() != null) {
-    		Filter f = lc.getFilterSet().getEmFilter();
-    		name  = getValueFromFilter(f);
+	    Iterator<Filter> it = lc.getFilterSet().iterateEmissionFilter();
+	    while (name == null && it.hasNext()) {
+	        name = getValueFromFilter(it.next());
+	    }
     		if (name != null) return name;
     	}
-    	name = getValueFromFilter(lc.getSecondaryEmissionFilter());
-    	if (name != null) return name;
     	//Laser
     	if (lc.getLightSourceSettings() != null) {
     		LightSource src = lc.getLightSourceSettings().getLightSource();
@@ -661,11 +661,13 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	value = lc.getExcitationWave();
     	if (value != null) return ""+value.intValue();
     	if (lc.getFilterSet() != null) {
-    		Filter f = lc.getFilterSet().getExFilter();
-    		name  = getValueFromFilter(f);
+	    Iterator<Filter> it = lc.getFilterSet().iterateExcitationFilter();
+	    while (name == null && it.hasNext()) {
+	        name  = getValueFromFilter(it.next());
+	    }
     		if (name != null) return name;
     	}
-    	return getValueFromFilter(lc.getSecondaryExcitationFilter());
+	return name;
     }
     
     /**

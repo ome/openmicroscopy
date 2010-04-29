@@ -2935,9 +2935,12 @@ public class OmeroMetadata implements MetadataRetrieve {
         Exception e = null;
         String rv = null;
         try {
+            /* ticket:1750 - to be fixed by Chris
             rv = handleLsid(imageList.get(idxImage).getPrimaryPixels()
                     .copyChannels().get(idxLogicalChannel).getLogicalChannel()
                     .getSecondaryEmissionFilter());
+            */
+            throw new RuntimeException("TBD");
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -3037,9 +3040,12 @@ public class OmeroMetadata implements MetadataRetrieve {
         Exception e = null;
         String rv = null;
         try {
+            /* ticket:1750 - to be fixed by chris
             rv = handleLsid(imageList.get(idxImage).getPrimaryPixels()
                     .copyChannels().get(idxLogicalChannel).getLogicalChannel()
                     .getSecondaryExcitationFilter());
+            */
+            throw new RuntimeException("TBD");
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -4872,8 +4878,11 @@ public class OmeroMetadata implements MetadataRetrieve {
         Exception e = null;
         String rv = null;
         try {
+            /* ticket:1750 - to be handled by chris
             rv = millis2time(screenList.get(idxScreen).copyScreenAcquisition()
                     .get(idxScreenAcquisition).getEndTime().getValue());
+             */
+            throw new RuntimeException("TBD");
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -4937,8 +4946,11 @@ public class OmeroMetadata implements MetadataRetrieve {
         Exception e = null;
         String rv = null;
         try {
+            /* ticket:1750 - to be fixed by chris
             rv = millis2time(screenList.get(idxScreen).copyScreenAcquisition()
                     .get(idxScreenAcquisition).getStartTime().getValue());
+            */
+            throw new RuntimeException("TBD");
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -10217,8 +10229,11 @@ public class OmeroMetadata implements MetadataRetrieve {
         Exception e = null;
         String rv = null;
         try {
+            /* ticket:1750 - to be fixed by chris
             rv = handleLsid(instrumentList.get(idxInstrument).copyFilterSet()
                     .get(idxFilterSet).getExFilter());
+            */
+            throw new RuntimeException("TBD");
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -10281,8 +10296,11 @@ public class OmeroMetadata implements MetadataRetrieve {
         Exception e = null;
         String rv = null;
         try {
+            /* ticket:1750 - to be handled by chris
             rv = handleLsid(instrumentList.get(idxInstrument).copyFilterSet()
                     .get(idxFilterSet).getEmFilter());
+            */
+            throw new RuntimeException("TBD");
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;

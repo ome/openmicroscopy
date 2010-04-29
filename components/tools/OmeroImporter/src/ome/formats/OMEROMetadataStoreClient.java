@@ -174,7 +174,7 @@ import omero.model.Screen;
 import omero.model.ScreenI;
 import omero.model.Shape;
 import omero.model.StageLabel;
-import omero.model.Text;
+import omero.model.Label;
 import omero.model.TransmittanceRange;
 import omero.model.TransmittanceRangeI;
 import omero.model.Well;
@@ -1067,7 +1067,7 @@ public class OMEROMetadataStoreClient
         // Because of the Shape abstract type, here we need to handle
         // the upcast to the "real" concrete type and the correct LSID
         // mapping.
-        if ((klass.equals(Text.class) || klass.equals(Rect.class)
+        if ((klass.equals(Label.class) || klass.equals(Rect.class)
             || klass.equals(Mask.class) || klass.equals(Ellipse.class)
             || klass.equals(Point.class) || klass.equals(Path.class)
             || klass.equals(Polygon.class) || klass.equals(Line.class))
@@ -1104,7 +1104,7 @@ public class OMEROMetadataStoreClient
             && !containerCache.containsKey(lsid))
         {
             Class[] concreteClasses = 
-                new Class[] { Text.class, Rect.class, Mask.class, Ellipse.class,
+                new Class[] { Label.class, Rect.class, Mask.class, Ellipse.class,
             		          Point.class, Path.class, Polygon.class,
             		          Line.class };
             for (Class concreteClass : concreteClasses)

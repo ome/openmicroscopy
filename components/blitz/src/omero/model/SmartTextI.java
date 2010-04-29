@@ -21,10 +21,14 @@ import java.util.Random;
  * blindly sets the offset to (0,0) so that all text will be in the upper-right
  * corner.
  */
-public class SmartTextI extends omero.model.TextI implements SmartShape {
+public class SmartTextI extends omero.model.LabelI implements SmartShape {
 
     public void areaPoints(PointCallback cb) {
-        cb.handle(0, 0);
+        try {
+            cb.handle((int) x.getValue(), (int) y.getValue());
+        } catch (NullPointerException npe) {
+            return;
+        }
     }
 
     public Shape asAwtShape() {
@@ -37,9 +41,12 @@ public class SmartTextI extends omero.model.TextI implements SmartShape {
     }
 
     public List<Point> asPoints() {
+        if (x == null || y == null) {
+            return null; // As in SmartPoint
+        }
         Point pt = new PointI();
-        pt.cx = rdouble(0);
-        pt.cy = rdouble(0);
+        pt.cx = x;
+        pt.cy = y;
         List<Point> points = Arrays.<Point> asList(pt);
         assert Util.checkNonNull(points) : "Null points in " + this;
         return points;

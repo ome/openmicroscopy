@@ -295,14 +295,6 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
 #if( $prop.isLink )
 #set( $LinkType = ${prop.type} )
 #set( $Link = ${prop.shortType} )
-### Preventing velocity warnings during build with if/ends
-#if( $prop.target )
-#set( $ElementType = ${prop.target})
-#end
-#if( $prop.shortTarget )
-#set( $Element = ${prop.shortTarget})
-#end
-##
 #if($prop.class.name == "ome.dsl.ChildLink" )
 #set( $order = "this, addition" )
 #set( $next = "parent" )
@@ -504,7 +496,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
      * use instead of set${prop.nameCapped} . Makes the necessary
      * call on ${prop.type} as well.
      */
-    public void add${prop.shortType}(${prop.type} target) {
+    public void add${prop.fieldName}(${prop.type} target) {
         $errorIfUnloaded
         if (get${prop.nameCapped}() == null) {
             throwNullCollectionException("${prop.nameCapped}");
@@ -524,7 +516,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
     /**
      * use like add${prop.shortType}.
      */
-    public void add${prop.shortType}Set(java.util.Collection<${prop.type}> targets) {
+    public void add${prop.fieldName}Set(java.util.Collection<${prop.type}> targets) {
         $errorIfUnloaded
         if (get${prop.nameCapped}() == null) {
            throwNullCollectionException("${prop.nameCapped}");
@@ -548,7 +540,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
     /**
      * removes a single element from this set and makes the inverse call on ${prop.type}
      */
-    public void remove${prop.shortType}(${prop.type} target) {
+    public void remove${prop.fieldName}(${prop.type} target) {
         $errorIfUnloaded
         if (get${prop.nameCapped}() == null) {
             throwNullCollectionException("${prop.nameCapped}");
@@ -566,7 +558,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
     /**
      * use like remove${prop.shortType}
      */
-    public void remove${prop.shortType}Set(java.util.Collection<${prop.type}> targets ) {
+    public void remove${prop.fieldName}Set(java.util.Collection<${prop.type}> targets ) {
         $errorIfUnloaded
         if (get${prop.nameCapped}() == null) {
             throwNullCollectionException("${prop.nameCapped}");
@@ -698,9 +690,9 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
 
     /**
      * Adds a ${LinkType} to ${prop.name} . This entails changing our ${prop.name} Set,
-     * creating a new ${LinkType} and calling link${Element} on the ${ElementType}.
+     * creating a new ${LinkType} and calling link${prop.targetName} on the ${prop.target}.
      */
-    public ${LinkType} link${Element} (${ElementType} addition) {
+    public ${LinkType} link${prop.targetName} (${prop.target} addition) {
         $errorIfUnloaded
 
         // Setup link
@@ -734,22 +726,22 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
      * provides an iterator over the ${next} values of the ${prop.name}. Like
      * with most Collection iterators, modificiations to the underlying collection
      * while iterating will result in an {@link ConcurrentModificationException}.
-     * Use {@link #linked${Element}List()} instead.
+     * Use {@link #linked${prop.targetName}List()} instead.
      */
-     public java.util.Iterator<${ElementType}> linked${Element}Iterator() {
+     public java.util.Iterator<${prop.target}> linked${prop.targetName}Iterator() {
         $errorIfUnloaded
         if ( get${prop.nameCapped}() == null ) {
-            return new ome.util.EmptyIterator<${ElementType}>();
+            return new ome.util.EmptyIterator<${prop.target}>();
         }
 
         final java.util.Iterator<${LinkType}> it = get${prop.nameCapped}().iterator();
-        return new java.util.Iterator<${ElementType}>() {
+        return new java.util.Iterator<${prop.target}>() {
 
             public boolean hasNext() {
                 return it == null ? false : it.hasNext();
             }
 
-            public ${ElementType} next() {
+            public ${prop.target} next() {
                 if ( it == null ) {
                     throw new java.util.NoSuchElementException( "${prop.name} is null; no elements." );
                 }
@@ -767,7 +759,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
     /**
      * find all ${LinkType} which have the argument as their ${other}.
      */
-    public java.util.Set<${LinkType}> find${Link}( ${ElementType} target ) {
+    public java.util.Set<${LinkType}> find${Link}( ${prop.target} target ) {
         $errorIfUnloaded
 
         final java.util.Iterator<${LinkType}> it = iterate${prop.nameCapped}();
@@ -783,15 +775,15 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
 
     /** 
      * produces a {@link List}-copy of the underlying collection. Unlike,
-     * {@link #linked${Element}Iterator()}, while using the returned {@link List},
+     * {@link #linked${prop.targetName}Iterator()}, while using the returned {@link List},
      * modifications can be made to the underlying collection without throwing
      * {@link ConcurrentModificationExceptions}
      */
-    public java.util.List<${ElementType}> linked${Element}List() {
+    public java.util.List<${prop.target}> linked${prop.targetName}List() {
         $errorIfUnloaded
 
-        java.util.Iterator<${ElementType}> it = linked${Element}Iterator();
-        java.util.List<${ElementType}> list = new java.util.ArrayList<${ElementType}>();
+        java.util.Iterator<${prop.target}> it = linked${prop.targetName}Iterator();
+        java.util.List<${prop.target}> list = new java.util.ArrayList<${prop.target}>();
 
         while ( it.hasNext() ) {
             list.add( it.next() );
@@ -800,18 +792,18 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
     }
 
     /**
-     * takes a CBlock and calls the block once for each ${ElementType} while
+     * takes a CBlock and calls the block once for each ${prop.target} while
      * collecting the results. If <code>block == null</code>, then the
      * iterator values themselves are collected.
      */
     @SuppressWarnings("unchecked")
-    public <E> java.util.List<E> eachLinked${Element}(ome.util.CBlock<E> block) {
+    public <E> java.util.List<E> eachLinked${prop.targetName}(ome.util.CBlock<E> block) {
         $errorIfUnloaded
 
         java.util.List<E> result = new java.util.ArrayList<E>();
-        java.util.Iterator<${ElementType}> it = linked${Element}Iterator();
+        java.util.Iterator<${prop.target}> it = linked${prop.targetName}Iterator();
         while ( it.hasNext() ) {
-            ${ElementType} obj = it.next();
+            ${prop.target} obj = it.next();
             if ( block != null ) {
                 result.add( block.call( obj ) );
             } else {
@@ -822,9 +814,9 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
     }
 
     /**
-     * unlinks all ${ElementType} instances from this instance.
+     * unlinks all ${prop.target} instances from this instance.
      */
-    public void unlink${Element} (${ElementType} removal) {
+    public void unlink${prop.targetName} (${prop.target} removal) {
         $errorIfUnloaded
 
         java.util.Set<${LinkType}> toRemove = find${Link}( removal );
@@ -857,7 +849,7 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
     /**
      * clears the set.
      */
-    public void clear${Element}Links() {
+    public void clear${prop.targetName}Links() {
         $errorIfUnloaded
 
         java.util.List<${LinkType}> list = new java.util.ArrayList<${LinkType}>( get${prop.nameCapped}() );

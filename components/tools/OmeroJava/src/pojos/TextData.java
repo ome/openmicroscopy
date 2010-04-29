@@ -35,8 +35,8 @@ import omero.rtypes;
 import omero.model.Ellipse;
 import omero.model.EllipseI;
 import omero.model.Shape;
-import omero.model.Text;
-import omero.model.TextI;
+import omero.model.Label;
+import omero.model.LabelI;
 
 /**
  * Represents a Text in the Euclidean space <b>R</b><sup>2</sup>.
@@ -81,7 +81,7 @@ public class TextData
 	 */
 	public TextData(String text, double x, double y)
 	{
-		super(new TextI(), true);
+		super(new LabelI(), true);
 		setX(x);
 		setY(y);
 		setText(text);
@@ -94,7 +94,7 @@ public class TextData
 	 */
 	public String getText()
 	{
-		Text shape = (Text) asIObject();
+		Label shape = (Label) asIObject();
 		RString value = shape.getTextValue();
 		if (value == null) return "";
 		return value.getValue();
@@ -109,7 +109,7 @@ public class TextData
 	{
 		if (isReadOnly())
 			throw new IllegalArgumentException("Shape ReadOnly");
-		Text shape = (Text) asIObject();
+		Label shape = (Label) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		shape.setTextValue(rtypes.rstring(text));
@@ -123,7 +123,7 @@ public class TextData
 	 */
 	public double getX()
 	{
-		Text shape = (Text) asIObject();
+		Label shape = (Label) asIObject();
 		RDouble value = shape.getX();
 		if (value == null) return 0;
 		return value.getValue();
@@ -138,7 +138,7 @@ public class TextData
 	{
 		if(isReadOnly())
 			throw new IllegalArgumentException("Shape ReadOnly");
-		Text shape = (Text) asIObject();
+		Label shape = (Label) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		shape.setX(rtypes.rdouble(x));
@@ -152,7 +152,7 @@ public class TextData
 	 */
 	public double getY()
 	{
-		Text shape = (Text) asIObject();
+		Label shape = (Label) asIObject();
 		RDouble value = shape.getY();
 		if (value == null) return 0;
 		return value.getValue();
@@ -167,7 +167,7 @@ public class TextData
 	{
 		if(isReadOnly())
 			throw new IllegalArgumentException("Shape ReadOnly");
-		Text shape = (Text) asIObject();
+		Label shape = (Label) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		shape.setY(rtypes.rdouble(y));

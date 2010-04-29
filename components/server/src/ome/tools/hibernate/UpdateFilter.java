@@ -89,7 +89,8 @@ public class UpdateFilter extends ContextFilter {
             result = filter(fieldId, (Map) o);
         } else if (o instanceof Number || o instanceof String
                 || o instanceof Date || o instanceof Boolean
-                || o instanceof Permissions || o instanceof byte[]) {
+                || o instanceof Permissions || o instanceof byte[]
+                || o instanceof String[] || o instanceof String[][]) {
             result = o;
         } else {
             throw new RuntimeException(

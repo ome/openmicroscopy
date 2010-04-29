@@ -106,7 +106,9 @@ public abstract class Property { // TODO need to define equality so that two
 
     public final static String DOUBLES = "double[]";
 
-    public final static String CHARS = "char[]";
+    public final static String STRINGS = "string[]";
+
+    public final static String STRINGS2 = "string[][]";
 
     public final static String INTEGERS = "int[]";
 
@@ -122,7 +124,8 @@ public abstract class Property { // TODO need to define equality so that two
         JAVATYPES.put(TEXT, String.class.getName());
         JAVATYPES.put(BYTES, BYTES);
         JAVATYPES.put(DOUBLES, DOUBLES);
-        JAVATYPES.put(CHARS, CHARS);
+        JAVATYPES.put(STRINGS, "java.util.List<String>");
+        JAVATYPES.put(STRINGS2, "java.util.List<String[]>");
         JAVATYPES.put(INTEGERS, INTEGERS);
     }
 
@@ -241,8 +244,7 @@ public abstract class Property { // TODO need to define equality so that two
      * Read-only property
      */
     public String getNameCapped() {
-        return name.substring(0, 1).toUpperCase()
-                + name.substring(1, name.length());
+        return firstCap(name);
     }
 
     /**
@@ -295,8 +297,13 @@ public abstract class Property { // TODO need to define equality so that two
      * Read-only variable
      */
     public String getTypeAnnotation() {
+        String T = "@org.hibernate.annotations.Type";
         if (type.equals("text")) {
-            return "@org.hibernate.annotations.Type(type=\"org.hibernate.type.TextType\")";
+            return T + "(type=\"org.hibernate.type.TextType\")";
+        } else if (type.equals("string[]")) {
+            return T + "(type=\"ome.tools.hibernate.ListAsSQLArrayUserType$STRING\")";
+        } else if (type.equals("string[][]")) {
+            return T + "(type=\"ome.tools.hibernate.ListAsSQLArrayUserType$STRING2\")";
         } else {
             return "// No @Type annotation";
         }
@@ -306,6 +313,32 @@ public abstract class Property { // TODO need to define equality so that two
      * Read-only variable
      */
     public String getShortType() {
+        return unqualify(type);
+    }
+
+    /**
+     * Read-only variable
+     *
+     * 4.2: multiple links to the same object
+     * forces us to not use "shortType" (the unqualified
+     * type of the link) and instead to use the
+     * name of the link relationship.
+     *
+     * @DEV.TODO In later versions, we could always use this value in order to
+     * have everything more consistent and simple.
+     */
+    public String getFieldName() {
+        SemanticType st = getActualType();
+        if (st != null) {
+            for (Property p : st.getPropertyClosure()) { // Get everything
+                if (p != this && p != null) {            // but skip ourselves
+                    if (unqualify(p.getType()).equals(unqualify(type))) {
+                        return firstCap(getName());
+                    }
+                }
+            }
+        }
+
         return unqualify(type);
     }
 
@@ -342,8 +375,28 @@ public abstract class Property { // TODO need to define equality so that two
 
     /**
      * Read-only property
+
      */
     public String getShortTarget() {
+        return unqualify(target);
+    }
+    /**
+     * Read-only property
+     *
+     * 4.2: multiple links to the same object
+     * forces generate a name different from "shortTarget"
+     *
+     * @see #getShortType()
+     */
+    public String getTargetName() {
+        SemanticType st = getActualType();
+        for (Property p : st.getPropertyClosure()) { // Get everything
+            if (p != this) {                         // but skip ourselves
+                if (p.getTarget() != null && unqualify(p.getTarget()).equals(unqualify(target))) {
+                    return firstCap(getName());
+                }
+            }
+        }
         return unqualify(target);
     }
 
@@ -460,6 +513,12 @@ public abstract class Property { // TODO need to define equality so that two
                 sb.append(" unique");
             }
             return sb.toString();
+        } else if (type.equals("byte[]")) {
+            return "bytea";
+        } else if (type.equals("string[]")) {
+            return "text[]";
+        } else if (type.equals("string[][]")) {
+            return "text[][]";
         } else {
             return "";
         }
@@ -519,6 +578,10 @@ public abstract class Property { // TODO need to define equality so that two
         return str.substring(idx + 1, str.length());
     }
 
+    private static String firstCap(String str) {
+        return str.substring(0, 1).toUpperCase()
+        + str.substring(1, str.length());
+    }
 }
 
 // NOTE: For all the following be sure to check the defaults set on Property!

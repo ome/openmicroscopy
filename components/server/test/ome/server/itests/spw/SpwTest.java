@@ -10,7 +10,7 @@ import ome.model.core.Image;
 import ome.model.screen.Plate;
 import ome.model.screen.Reagent;
 import ome.model.screen.Screen;
-import ome.model.screen.ScreenAcquisition;
+import ome.model.screen.PlateAcquisition;
 import ome.model.screen.Well;
 import ome.model.screen.WellSample;
 import ome.parameters.Parameters;
@@ -25,7 +25,7 @@ public class SpwTest extends AbstractManagedContextTest {
     Well w;
     Image i;
 
-    ScreenAcquisition sa;
+    PlateAcquisition sa;
 
     @Test
     public void testMinimalSave() {
@@ -37,9 +37,9 @@ public class SpwTest extends AbstractManagedContextTest {
         Image i = new Image(testTimestamp, "i");
         Reagent r = new Reagent();
         r.setName("r");
-        ScreenAcquisition sa = new ScreenAcquisition(s);
+        PlateAcquisition sa = new PlateAcquisition(s);
         WellSample ws = new WellSample();
-        ws.linkScreenAcquisition(sa);
+        ws.linkPlateAcquisition(sa);
 
         s.linkPlate(p);
         p.addWell(w);
@@ -77,7 +77,7 @@ public class SpwTest extends AbstractManagedContextTest {
                 + "left outer join fetch w.wellSamples " + "where w.id = :id",
                 new Parameters().addId(w.getId()));
 
-        sa = new ScreenAcquisition(s);
+        sa = new PlateAcquisition(s);
         sa = iUpdate.saveAndReturnObject(sa);
 
         java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
@@ -85,7 +85,7 @@ public class SpwTest extends AbstractManagedContextTest {
         i = new Image(testTimestamp, "i");
 
         WellSample ws = new WellSample();
-        ws.linkScreenAcquisition(sa);
+        ws.linkPlateAcquisition(sa);
         i.addWellSample(ws);
         w.addWellSample(ws);
         ws = iUpdate.saveAndReturnObject(ws);

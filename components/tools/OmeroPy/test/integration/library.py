@@ -15,7 +15,7 @@ import omero
 import tempfile
 import traceback
 import exceptions
-from omero.rtypes import rstring
+from omero.rtypes import rstring, rtime
 from uuid import uuid4 as uuid
 
 
@@ -46,6 +46,9 @@ class ITest(unittest.TestCase):
         self.update = self.sf.getUpdateService()
         self.query = self.sf.getQueryService()
 
+    def uuid(self):
+        return str(uuid())
+
     def login_args(self):
         p = self.client.ic.getProperties()
         host = p.getProperty("omero.host")
@@ -69,13 +72,19 @@ class ITest(unittest.TestCase):
                 admin.addGroups(exp, [group])
         return group
 
+    def new_image(self, name = ""):
+        img = omero.model.ImageI()
+        img.name = rstring(name)
+        img.acquisitionDate = rtime(0)
+        return img
+
     def new_user(self, group = None):
 
         if not self.root:
             raise exceptions.Exception("No root client. Cannot create user")
 
         admin = self.root.getSession().getAdminService()
-        name = str(uuid())
+        name = self.uuid()
 
         # Create group if necessary
         if not group:

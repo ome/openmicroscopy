@@ -44,26 +44,11 @@ public class MetaShape extends Shape
 		shape.setStrokeOpacity(strokeOpacity);
 		shape.setStrokeWidth(strokeWidth);
 		shape.setTheT(theT);
+		shape.setTheC(theC);
 		shape.setTheZ(theZ);
 		shape.setTransform(transform);
 		shape.setVectorEffect(vectorEffect);
 		shape.setVisibility(visibility);
-	}
-
-	public void addAllLogicalChannelSet(List<LogicalChannel> arg0, Current arg1) {
-		throw new RuntimeException("Not implemented yet.");
-	}
-
-	public void addLogicalChannel(LogicalChannel arg0, Current arg1) {
-		throw new RuntimeException("Not implemented yet.");
-	}
-
-	public void clearChannels(Current arg0) {
-		throw new RuntimeException("Not implemented yet.");
-	}
-
-	public List<LogicalChannel> copyChannels(Current arg0) {
-		throw new RuntimeException("Not implemented yet.");
 	}
 
 	public RString getFillColor(Current arg0) {
@@ -122,11 +107,15 @@ public class MetaShape extends Shape
 		return strokeWidth;
 	}
 
-	public RInt getTheT(Current arg0) {
-		return theT;
-	}
+    public RInt getTheT(Current arg0) {
+        return theT;
+    }
 
-	public RInt getTheZ(Current arg0) {
+    public RInt getTheC(Current arg0) {
+        return theC;
+    }
+
+    public RInt getTheZ(Current arg0) {
 		return theZ;
 	}
 
@@ -215,9 +204,13 @@ public class MetaShape extends Shape
 		strokeWidth = arg0;
 	}
 
-	public void setTheT(RInt arg0, Current arg1) {
-		theT = arg0;
-	}
+    public void setTheT(RInt arg0, Current arg1) {
+        theT = arg0;
+    }
+
+    public void setTheC(RInt arg0, Current arg1) {
+        theC = arg0;
+    }
 
 	public void setTheZ(RInt arg0, Current arg1) {
 		theZ = arg0;

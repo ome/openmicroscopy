@@ -1109,6 +1109,7 @@ public class OMEROMetadataStore
     private void handleReference(LogicalChannel target, Filter reference,
     		                     LSID referenceLSID)
     {
+        /* ticket:1750 - to be handled by Chris
     	if (referenceLSID.toString().endsWith("OMERO_EMISSION_FILTER"))
     	{
     		target.setSecondaryEmissionFilter(reference);
@@ -1117,6 +1118,7 @@ public class OMEROMetadataStore
     	{
     		target.setSecondaryExcitationFilter(reference);
     	}
+         */if(false){}
     	else
     	{
     		throw new ApiUsageException(String.format(
@@ -1189,6 +1191,7 @@ public class OMEROMetadataStore
     private void handleReference(FilterSet target, Filter reference,
     		                     LSID referenceLSID)
     {
+        /* ticket:1750 - to be handled by chris
     	if (referenceLSID.toString().endsWith("OMERO_EMISSION_FILTER"))
     	{
     		target.setEmFilter(reference);
@@ -1197,6 +1200,7 @@ public class OMEROMetadataStore
     	{
     		target.setExFilter(reference);
     	}
+	*/if(false) {}
     	else
     	{
     		throw new ApiUsageException(String.format(
@@ -1641,6 +1645,9 @@ public class OMEROMetadataStore
     	{
     		return null;
     	}
+
+	else throw new RuntimeException("TBD");
+	/* ticket:1750 - to be fixed by chris
     	for (LogicalChannel lc2 : uniqueChannels)
     	{
     		if (compare(lc.getMode(), lc2.getMode())
@@ -1670,6 +1677,7 @@ public class OMEROMetadataStore
     	}
     	uniqueChannels.add(lc);
     	return lc;
+	*/
     }
 
     /**

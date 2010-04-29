@@ -38,7 +38,7 @@ import omero.model.Polygon;
 import omero.model.Polyline;
 import omero.model.Rect;
 import omero.model.Roi;
-import omero.model.Text;
+import omero.model.Label;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -61,7 +61,7 @@ public class ShapeProcessor implements ModelProcessor
     
     static 
     {
-    	roiClasses.add(Text.class);
+	roiClasses.add(Label.class);
     	roiClasses.add(Rect.class);
     	roiClasses.add(Ellipse.class);
     	roiClasses.add(Mask.class);

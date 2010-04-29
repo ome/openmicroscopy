@@ -42,7 +42,7 @@ import omero.model.Rect;
 import omero.model.Roi;
 import omero.model.RoiI;
 import omero.model.Shape;
-import omero.model.Text;
+import omero.model.Label;
 import omero.RString;
 
 import omero.rtypes;
@@ -96,9 +96,7 @@ public class ROIData
 				s = new PolylineData(shape);
 			else if (shape instanceof Polygon)
 				s = new PolygonData(shape);
-			else if (shape instanceof Text)
-				s = new TextData(shape);
-			else if (shape instanceof Text)
+			else if (shape instanceof Label)
 				s = new TextData(shape);
 			else if (shape instanceof Line)
 				s = new LineData(shape);
@@ -288,53 +286,47 @@ public class ROIData
 	* Set the namespace of the ROI.
     * @param namespace See above.
 	*/
-	public void setNamespace(String namespace)
+	public void setNamespaces(String[] namespaces)
 	{
         Roi roi = (Roi) asIObject();
 		if (roi == null) 
 			throw new IllegalArgumentException("No Roi specified.");
-        roi.setNs(rtypes.rstring(namespace));
+        roi.setNamespaces(namespaces);
 	}
 	
 	/**
 	* Get the namespace of the ROI.
     * @return See above.
 	*/
-	public String getNamespace()
+	public String[] getNamespaces()
 	{
         Roi roi = (Roi) asIObject();
 		if (roi == null) 
 			throw new IllegalArgumentException("No Roi specified.");
-        RString ns = roi.getNs();
-        if(ns!=null)
-            return ns.getValue();
-        return "";
+        return roi.getNamespaces();
 	}
 	
 	/**
 	* Set the keywords of the ROI.
     * @param keywords See above.
 	*/
-    public void setKeywords(String keywords)
+    public void setKeywords(String[][] keywords)
 	{
         Roi roi = (Roi) asIObject();
 		if (roi == null) 
 			throw new IllegalArgumentException("No Roi specified.");
-        roi.setKeywords(rtypes.rstring(keywords));
+        roi.setKeywords(keywords);
 	}
 	
 	/**
 	* Get the keywords of the ROI.
     * @return See above.
 	*/
-	public String getKeywords()
+	public String[][] getKeywords()
 	{
         Roi roi = (Roi) asIObject();
 		if (roi == null) 
 			throw new IllegalArgumentException("No Roi specified.");
-        RString keywords = roi.getKeywords();
-        if(keywords!=null)
-            return keywords.getValue();
-        return "";
+        return roi.getKeywords();
 	}
 }

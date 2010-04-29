@@ -637,18 +637,18 @@ public class GeomTool implements ApplicationListener {
         // If the shape does not explicitly list any channels, then we will
         // need to take all the available channels from the pixels.
 
-        boolean shapeChannels = true;
-        int ch = shape.sizeOfChannels();
-        if (ch == 0) {
-            shapeChannels = false;
-            ch = pix.sizeOfChannels();
+        Integer theC = shape.getTheC();
+        int sizeC = pix.sizeOfChannels();
+        if (theC != null) {
+            sizeC = 1;
         }
 
-        ShapeStats stats = makeStats(ch);
+        ShapeStats stats = makeStats(sizeC);
 
-        for (int w = 0; w < ch; w++) {
-            if (shapeChannels) {
-                stats.channelIds[w] = -1; // FIXME
+        for (int w = 0; w < sizeC; w++) {
+            if (theC != null) {
+                stats.channelIds[w] = pix.getChannel(theC).getLogicalChannel()
+                        .getId();
             } else {
                 stats.channelIds[w] = pix.getChannel(w).getLogicalChannel()
                         .getId();

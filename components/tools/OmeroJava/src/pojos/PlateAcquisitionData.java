@@ -1,5 +1,5 @@
 /*
- * pojos.ScreenAcquisitionData 
+ * pojos.PlateAcquisitionData
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -13,7 +13,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -28,11 +28,11 @@ package pojos;
 
 //Application-internal dependencies
 import static omero.rtypes.rtime;
-import omero.model.ScreenAcquisition;
-import omero.model.ScreenAcquisitionI;
+import omero.model.PlateAcquisition;
+import omero.model.PlateAcquisitionI;
 
-/** 
- * The data that makes up an <i>OME</i> ScreenAcquisition.
+/**
+ * The data that makes up an <i>OME</i> PlateAcquisition.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -44,82 +44,83 @@ import omero.model.ScreenAcquisitionI;
  * </small>
  * @since 3.0-Beta4
  */
-public class ScreenAcquisitionData 
+public class PlateAcquisitionData
 	extends DataObject
 {
 
 	/** The Id of the plate this screen acquisition is for. */
 	private long refPlateId;
-	
+
 	/** Creates a new instance. */
-	public ScreenAcquisitionData()
+	public PlateAcquisitionData()
 	{
 		setDirty(true);
-        setValue(new ScreenAcquisitionI());
+        setValue(new PlateAcquisitionI());
         refPlateId = -1L;
 	}
-	
-	/** 
-	 * Creates a new instance. 
-	 * 
+
+	/**
+	 * Creates a new instance.
+	 *
 	 * @param value Back pointer to the {@link Plate} model object. Mustn't be
      *            <code>null</code>.
      */
-	public ScreenAcquisitionData(ScreenAcquisition value)
+	public PlateAcquisitionData(PlateAcquisition value)
 	{
 		if (value == null)
 			throw new IllegalArgumentException("Object cannot null.");
 		setValue(value);
 		refPlateId = -1L;
 	}
-	
+
 	/**
 	 * Returns the id of the plate of reference.
-	 * 
+	 *
 	 * @return See above.
 	 */
 	public long getRefPlateId() { return refPlateId; }
-	
+
 	/**
 	 * Sets the id of the plate this screen acquisition is for.
-	 * 
+	 *
 	 * @param refPlateId The value to set.
 	 */
 	public void setRefPlateId(long refPlateId) { this.refPlateId = refPlateId; }
-	
+
+	/* ticket:1750 will be corrected by Jean-Marie
 	/**
 	 * Returns the starting time.
-	 * 
+	 *
 	 * @return See above.
-	 */
+	 *
 	public long getStartTime()
 	{
-		ScreenAcquisition sa = (ScreenAcquisition) asIObject();
+		PlateAcquisition sa = (PlateAcquisition) asIObject();
 		if (sa == null) return -1;
 		omero.RTime time = sa.getStartTime();
 		if (time == null) return -1;
 		return time.getValue();
 	}
-	
+
 	/**
 	 * Returns the ending time.
-	 * 
+	 *
 	 * @return See above.
-	 */
+	 *
 	public long getEndTime()
 	{
-		ScreenAcquisition sa = (ScreenAcquisition) asIObject();
+		PlateAcquisition sa = (PlateAcquisition) asIObject();
 		if (sa == null) return -1;
 		omero.RTime time = sa.getEndTime();
 		if (time == null) return -1;
 		return time.getValue();
 	}
-	
+
 	/**
 	 * Returns the label associated to the screen acquisition.
-	 * 
+	 *
 	 * @return See above.
-	 */
+	 *
 	public String getLabel()
 	{
 		long v = getEndTime();
@@ -132,6 +133,7 @@ public class ScreenAcquisitionData
 		if (s.length() == 0) return ""+getId();
 		return s;
 	}
-	
+	*/
+
 }
 

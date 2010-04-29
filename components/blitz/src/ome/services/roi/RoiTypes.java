@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import omero.model.Ellipse;
+import omero.model.Label;
 import omero.model.Line;
 import omero.model.Mask;
 import omero.model.Path;
@@ -30,7 +31,6 @@ import omero.model.SmartPolygonI;
 import omero.model.SmartPolylineI;
 import omero.model.SmartRectI;
 import omero.model.SmartTextI;
-import omero.model.Text;
 
 /**
  * Intelligent server-side representations of the {@link Roi} and {@link Shape}
@@ -144,10 +144,10 @@ public abstract class RoiTypes {
 
         });
         
-        factories.put(SmartTextI.class, new ObjectFactory(Text.ice_staticId()) {
+        factories.put(SmartTextI.class, new ObjectFactory(Label.ice_staticId()) {
 
             @Override
-            public Text shape() {
+            public Label shape() {
                 return new SmartTextI();
             }
 

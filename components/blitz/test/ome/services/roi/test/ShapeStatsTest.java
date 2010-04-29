@@ -78,7 +78,7 @@ public class ShapeStatsTest extends AbstractRoiITest {
         LogicalChannel lc = (LogicalChannel) assertFindByQuery(
                 "select lc from LogicalChannel lc where id = :id",
                 new ParametersI().addId(lcs[0].getId().getValue())).get(0);
-        r.addLogicalChannel(lc);
+        r.setTheC(rint(0)); // Link the same channel
 
         Roi roi = createRoi(i, "statsOfRect", r);
 

@@ -156,6 +156,12 @@
                         keywords are the valid string values -->
 			<optional name="keywords" type="string[]"/>
 
+                        <!-- Whether multiple keywords are supported.
+                        If a user adds multiple keywords to a type
+                        which does not support multiple, then the
+                        first value MAY be taken by clients -->
+			<optional name="multivalued" type="boolean"/>
+
                         <!-- Whether or not objects using this
                         namespace are intended for display. Null
                         values or false will lead to many clients

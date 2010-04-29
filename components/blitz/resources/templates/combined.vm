@@ -257,7 +257,8 @@ since all collections are lists in ice.
 #if(  $property.one2Many )
 [$Ice]     ["java:type:java.util.ArrayList"] sequence<$genericTypeC> ${seqName};
 #if( $property.isLink )
-[$Ice]     ["java:type:java.util.ArrayList"] sequence<omero::model::${property.shortTarget}> ${Pojo}Linked${property.shortTarget}Seq;
+## TODO: this could be defined just once if done carefully.
+[$Ice]     ["java:type:java.util.ArrayList"] sequence<omero::model::${property.shortTarget}> ${Pojo}Linked${property.targetName}Seq;
 #end
 
 [$jav]           if (load) {
@@ -830,6 +831,24 @@ Properties used throughout the accessor generation
 #set( $copyMethod = "this.${fieldName} = source.get${PropertyName}();")
 [$Ice]       Ice::StringSeq ${property.name};
 
+#elseif( $javaType.equals("java.util.List<String>"))
+#set( $javaType = "String[]")
+#set( $getter = "this.$property.name" )
+#set( $setter = "${property.name}")
+#set( $iceType = "omero::api::StringArray")
+#set( $cppType = "omero::api::StringArray")
+#set( $copyMethod = "this.${fieldName} = (source.get${PropertyName}() == null ? null : source.get${PropertyName}().toArray(new String[]{}));" )
+[$Ice]       omero::api::StringArray ${property.name};
+
+#elseif( $javaType.equals("java.util.List<String[]>"))
+#set( $javaType = "String[][]")
+#set( $getter = "this.$property.name" )
+#set( $setter = "${property.name}")
+#set( $iceType = "omero::api::StringArrayArray")
+#set( $cppType = "omero::api::StringArrayArray")
+#set( $copyMethod = "this.${fieldName} = (source.get${PropertyName}() == null ? null : source.get${PropertyName}().toArray(new String[][]{}));" )
+[$Ice]       omero::api::StringArrayArray ${property.name};
+
 #elseif( $javaType.equals("double[]"))
 #set( $javaType = "double[]")
 #set( $getter = "this.$property.name" )
@@ -996,6 +1015,8 @@ ticket:684 This is necessary to map back and forth from sets.
 
 #elseif( $javaType.startsWith("long"))
  ----------------> ERROR
+#elseif( $javaType.startsWith("String[]"))
+[$jav]             target.set${PropertyName}( this.get${PropertyName}() == null ? null : java.util.Arrays.asList(this.get${PropertyName}() ));
 #else
 [$jav]             target.set${PropertyName}( this.get${PropertyName}() );
 #end
@@ -1172,21 +1193,21 @@ Set modifications:
 
 add single
 
-[$Ice]       void add${property.shortType}(${property.shortType} target);
-[$jav]       public void add${property.shortType}(${property.shortType} target, $JAV_CURRENT) throws omero.UnloadedEntityException {
+[$Ice]       void add${property.fieldName}(${property.shortType} target);
+[$jav]       public void add${property.fieldName}(${property.shortType} target, $JAV_CURRENT) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
 [$jav]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$jav]           ${fieldName}.add( target );
 [$jav]           target.set$Inverse( this );
 [$jav]       }
-[$pyc]       def add${property.shortType}(self, target, $PYC_CURRENT):
+[$pyc]       def add${property.fieldName}(self, target, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           if not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
 [$pyc]           self._${fieldName}.append( target );
 [$pyc]           target.set$Inverse( self )
 [$pyc]
-[$hdr]       virtual void add${property.shortType}(const ${property.shortType}Ptr& target, $HDR_CURRENT);
-[$cpp]       void ${PojoI}::add${property.shortType}(const ${property.shortType}Ptr& target, $CPP_CURRENT) {
+[$hdr]       virtual void add${property.fieldName}(const ${property.shortType}Ptr& target, $HDR_CURRENT);
+[$cpp]       void ${PojoI}::add${property.fieldName}(const ${property.shortType}Ptr& target, $CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           ${fieldName}.push_back( target );
@@ -1199,8 +1220,8 @@ addAll set
 [$Ice]        * Adds all the members of the ${iceType} sequence to
 [$Ice]        * the ${fieldName} field.
 [$Ice]        */
-[$Ice]       void addAll${property.shortType}Set(${iceType} targets);
-[$jav]       public void addAll${property.shortType}Set($javaType<${property.shortType}> targets, $JAV_CURRENT) throws omero.UnloadedEntityException {
+[$Ice]       void addAll${property.fieldName}Set(${iceType} targets);
+[$jav]       public void addAll${property.fieldName}Set($javaType<${property.shortType}> targets, $JAV_CURRENT) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
 [$jav]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$jav]           ${fieldName}.addAll( targets );
@@ -1208,15 +1229,15 @@ addAll set
 [$jav]               target.set$Inverse( this );
 [$jav]           }
 [$jav]       }
-[$pyc]       def addAll${property.shortType}Set(self, targets, $PYC_CURRENT):
+[$pyc]       def addAll${property.fieldName}Set(self, targets, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           if  not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
 [$pyc]           self._${fieldName}.extend( targets )
 [$pyc]           for target in targets:
 [$pyc]               target.set$Inverse( self )
 [$pyc]
-[$hdr]       virtual void addAll${property.shortType}Set(const ${cppType}& targets, $HDR_CURRENT);
-[$cpp]       void ${PojoI}::addAll${property.shortType}Set(const ${cppType}& targets, $CPP_CURRENT) {
+[$hdr]       virtual void addAll${property.fieldName}Set(const ${cppType}& targets, $HDR_CURRENT);
+[$cpp]       void ${PojoI}::addAll${property.fieldName}Set(const ${cppType}& targets, $CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           $cppType::iterator loc = ${fieldName}.end();
@@ -1231,21 +1252,21 @@ addAll set
 
 remove single
 
-[$Ice]       void remove${property.shortType}(${property.shortType} theTarget);
-[$jav]       public void remove${property.shortType}(${property.shortType} target, $JAV_CURRENT) throws omero.UnloadedEntityException {
+[$Ice]       void remove${property.fieldName}(${property.shortType} theTarget);
+[$jav]       public void remove${property.fieldName}(${property.shortType} target, $JAV_CURRENT) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
 [$jav]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$jav]           ${fieldName}.remove( target );
 [$jav]           target.set$Inverse( null );
 [$jav]       }
-[$pyc]       def remove${property.shortType}(self, target, $PYC_CURRENT):
+[$pyc]       def remove${property.fieldName}(self, target, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           if not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
 [$pyc]           self._${fieldName}.remove( target )
 [$pyc]           target.set$Inverse( None )
 [$pyc]
-[$hdr]       virtual void remove${property.shortType}(const ${property.shortType}Ptr& target, $HDR_CURRENT);
-[$cpp]       void ${PojoI}::remove${property.shortType}(const ${property.shortType}Ptr& target, $CPP_CURRENT) {
+[$hdr]       virtual void remove${property.fieldName}(const ${property.shortType}Ptr& target, $HDR_CURRENT);
+[$cpp]       void ${PojoI}::remove${property.fieldName}(const ${property.shortType}Ptr& target, $CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           $cppType::iterator it = std::remove_if(
@@ -1262,8 +1283,8 @@ removeAll multiple
 [$Ice]        * Removes all the members of the ${iceType} sequence from
 [$Ice]        * the ${fieldName} field.
 [$Ice]        */
-[$Ice]       void removeAll${property.shortType}Set(${iceType} targets);
-[$jav]       public void removeAll${property.shortType}Set($javaType<${property.shortType}> targets, $JAV_CURRENT) throws omero.UnloadedEntityException {
+[$Ice]       void removeAll${property.fieldName}Set(${iceType} targets);
+[$jav]       public void removeAll${property.fieldName}Set($javaType<${property.shortType}> targets, $JAV_CURRENT) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
 [$jav]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$jav]           for( ${property.shortType} elt : targets) {
@@ -1271,15 +1292,15 @@ removeAll multiple
 [$jav]               ${fieldName}.remove( elt );
 [$jav]           }
 [$jav]       }
-[$pyc]       def removeAll${property.shortType}Set(self, targets, $PYC_CURRENT):
+[$pyc]       def removeAll${property.fieldName}Set(self, targets, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           if not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
 [$pyc]           for elt in targets:
 [$pyc]               elt.set$Inverse( None )
 [$pyc]               self._${fieldName}.remove( elt )
 [$pyc]
-[$hdr]       virtual void removeAll${property.shortType}Set(const ${cppType}& targets, $HDR_CURRENT);
-[$cpp]       void ${PojoI}::removeAll${property.shortType}Set(const ${cppType}& targets, $CPP_CURRENT) {
+[$hdr]       virtual void removeAll${property.fieldName}Set(const ${cppType}& targets, $HDR_CURRENT);
+[$cpp]       void ${PojoI}::removeAll${property.fieldName}Set(const ${cppType}& targets, $CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           ${cppType}::iterator end = ${fieldName}.end();
@@ -1553,8 +1574,8 @@ ADD ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #set( $ADD2METHOD = "add${property.shortType}ToBoth")
 
-[$Ice]       ${property.shortType} link${property.shortTarget}(${property.shortTarget} addition);
-[$jav]       public ${property.shortType} link${property.shortTarget}(${property.shortTarget} addition, $JAV_CURRENT) throws omero.UnloadedEntityException {
+[$Ice]       ${property.shortType} link${property.targetName}(${property.shortTarget} addition);
+[$jav]       public ${property.shortType} link${property.targetName}(${property.shortTarget} addition, $JAV_CURRENT) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
 [$jav]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$jav]           ${property.shortType}I link = new ${property.shortType}I();
@@ -1562,7 +1583,7 @@ ADD ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 [$jav]           $ADD2METHOD( link, true );
 [$jav]           return link;
 [$jav]       }
-[$pyc]       def link${property.shortTarget}(self, addition, $PYC_CURRENT):
+[$pyc]       def link${property.targetName}(self, addition, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           if not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
 [$pyc]           link = _omero_model.${property.shortType}I()
@@ -1570,8 +1591,8 @@ ADD ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 [$pyc]           self.$ADD2METHOD( link, True )
 [$pyc]           return link
 [$pyc]
-[$hdr]       virtual ${property.shortType}Ptr link${property.shortTarget}(const ${property.shortTarget}Ptr& addition, $HDR_CURRENT);
-[$cpp]       ${property.shortType}Ptr ${PojoI}::link${property.shortTarget}(const ${property.shortTarget}Ptr& addition, $CPP_CURRENT) {
+[$hdr]       virtual ${property.shortType}Ptr link${property.targetName}(const ${property.shortTarget}Ptr& addition, $HDR_CURRENT);
+[$cpp]       ${property.shortType}Ptr ${PojoI}::link${property.targetName}(const ${property.shortTarget}Ptr& addition, $CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           ${property.shortType}Ptr link = new ${property.shortType}I();
@@ -1660,7 +1681,7 @@ REMOVE
 =======================================
 #set( $REMOVE2METHOD = "remove${property.shortType}FromBoth")
 
-#set( $removeLinkPredicate = "testRemove${property.shortTarget}From${PojoI}" )
+#set( $removeLinkPredicate = "testRemove${property.targetName}From${PojoI}" )
 [$cpp]
 [$cpp]       struct $removeLinkPredicate {
 [$cpp]
@@ -1681,8 +1702,8 @@ REMOVE
 [$cpp]       };
 [$cpp]
 
-[$Ice]       void unlink${property.shortTarget}(${property.shortTarget} removal);
-[$jav]       public void unlink${property.shortTarget}(${property.shortTarget} removal, $JAV_CURRENT) throws omero.UnloadedEntityException {
+[$Ice]       void unlink${property.targetName}(${property.shortTarget} removal);
+[$jav]       public void unlink${property.targetName}(${property.shortTarget} removal, $JAV_CURRENT) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
 [$jav]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$jav]           List<$property.shortType> toRemove = find${property.shortType}(removal);
@@ -1709,7 +1730,7 @@ REMOVE
 [$jav]           }
 #end
 [$jav]       }
-[$pyc]       def unlink${property.shortTarget}(self, removal, $PYC_CURRENT):
+[$pyc]       def unlink${property.targetName}(self, removal, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           if not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
 [$pyc]           toRemove = self.find${property.shortType}(removal)
@@ -1725,8 +1746,8 @@ REMOVE
 [$pyc]               link.${other}.$REMOVE2METHOD(link, False)
 #end
 [$pyc]
-[$hdr]       virtual void unlink${property.shortTarget}(const ${property.shortTarget}Ptr& removal, $HDR_CURRENT);
-[$cpp]       void ${PojoI}::unlink${property.shortTarget}(const ${property.shortTarget}Ptr& removal, $CPP_CURRENT) {
+[$hdr]       virtual void unlink${property.targetName}(const ${property.shortTarget}Ptr& removal, $HDR_CURRENT);
+[$cpp]       void ${PojoI}::unlink${property.targetName}(const ${property.shortTarget}Ptr& removal, $CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           std::vector<${property.shortType}Ptr> toRemove = find${property.shortType}(removal);
@@ -1752,8 +1773,8 @@ REMOVE
 Linked Lists
 ==============================
 
-[$Ice]       ${ActualPojo}Linked${property.shortTarget}Seq linked${property.shortTarget}List();
-[$jav]        public List<${property.shortTarget}> linked${property.shortTarget}List($JAV_CURRENT) throws omero.UnloadedEntityException {
+[$Ice]       ${ActualPojo}Linked${property.targetName}Seq linked${property.targetName}List();
+[$jav]        public List<${property.shortTarget}> linked${property.targetName}List($JAV_CURRENT) throws omero.UnloadedEntityException {
 [$jav]            errorIfUnloaded();
 [$jav]            if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
 [$jav]            List<${property.shortTarget}> linked = new ArrayList<${property.shortTarget}>();
@@ -1763,11 +1784,11 @@ Linked Lists
 [$jav]            return linked;
 [$jav]        }
 
-[$hdr]        virtual ${ActualPojo}Linked${property.shortTarget}Seq linked${property.shortTarget}List($HDR_CURRENT);
-[$cpp]        ${ActualPojo}Linked${property.shortTarget}Seq ${PojoI}::linked${property.shortTarget}List($CPP_CURRENT) {
+[$hdr]        virtual ${ActualPojo}Linked${property.targetName}Seq linked${property.targetName}List($HDR_CURRENT);
+[$cpp]        ${ActualPojo}Linked${property.targetName}Seq ${PojoI}::linked${property.targetName}List($CPP_CURRENT) {
 [$cpp]            errorIfUnloaded();
 [$cpp]            if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
-[$cpp]            ${ActualPojo}Linked${property.shortTarget}Seq linked;
+[$cpp]            ${ActualPojo}Linked${property.targetName}Seq linked;
 [$cpp]            ${seqName}::iterator beg = ${fieldName}.begin();
 [$cpp]            while (beg != ${fieldName}.end()) {
 [$cpp]                ${property.shortType}Ptr link = *beg;
@@ -1777,7 +1798,7 @@ Linked Lists
 [$cpp]            return linked;
 [$cpp]        }
 
-[$pyc]       def linked${property.shortTarget}List(self, $PYC_CURRENT):
+[$pyc]       def linked${property.targetName}List(self, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${PropertyName}")
 [$pyc]           linked = []
@@ -1801,9 +1822,9 @@ CLASS-LEVEL EXTRA METHODS BLOCK:
 #if($type.class.name.equals("ome.dsl.LinkType"))
 #foreach( $prop in $type.classProperties)
 #if($prop.class.name == "ome.dsl.LinkParent")
-#set( $parent = ${prop.shortType} )
+#set( $parent = $type.unqualify($prop.type) )
 #elseif($prop.class.name == "ome.dsl.LinkChild")
-#set( $child = ${prop.shortType} )
+#set( $child = $type.unqualify($prop.type) )
 #end
 #end##FOREACH
 

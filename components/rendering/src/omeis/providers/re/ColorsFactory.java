@@ -12,7 +12,10 @@ package omeis.providers.re;
 // Third-party libraries
 
 // Application-internal dependencies
+import java.util.Iterator;
+
 import ome.model.acquisition.Filter;
+import ome.model.acquisition.FilterSet;
 import ome.model.acquisition.Laser;
 import ome.model.acquisition.LightSource;
 import ome.model.acquisition.TransmittanceRange;
@@ -134,11 +137,12 @@ public class ColorsFactory {
     	if (lc == null) return false;
     	if (lc.getEmissionWave() != null) return true;
     	if (lc.getFilterSet() != null) {
-    		Filter f = lc.getFilterSet().getEmFilter();
-        	if (isFilterHasEmissionData(f)) return true;
+		Iterator<Filter> it = lc.getFilterSet().iterateEmissionFilter();
+		while (it.hasNext()) {
+		    Filter f = it.next();
+		    if (isFilterHasEmissionData(f)) return true;
+		}
     	}
-    	if (isFilterHasEmissionData(lc.getSecondaryEmissionFilter()))
-    		return true;
     	
     	if (!full) return false;
     	//Excitation
@@ -152,10 +156,14 @@ public class ColorsFactory {
     	}
     	if (lc.getExcitationWave() != null) return true;
     	if (lc.getFilterSet() != null) {
-    		Filter f = lc.getFilterSet().getExFilter();
-        	if (isFilterHasEmissionData(f)) return true;
+	    Iterator<Filter> it = lc.getFilterSet().iterateExcitationFilter();
+	    while (it.hasNext()) {
+	        Filter f = it.next();
+	        if (isFilterHasEmissionData(f)) return true;
+	    }
     	}
-    	return isFilterHasEmissionData(lc.getSecondaryExcitationFilter());
+
+	return false;
     }
     
     /**
@@ -190,11 +198,12 @@ public class ColorsFactory {
         //First check the emission filter.
     	//First check if filter
        
-    	if (lc.getFilterSet() != null)
-    		value = getValueFromFilter(lc.getFilterSet().getEmFilter());
-    	//nothing so we check the secondary filter
-    	if (value == null) 
-    		value = getValueFromFilter(lc.getSecondaryEmissionFilter());
+	if (lc.getFilterSet() != null) {
+	    Iterator<Filter> it = lc.getFilterSet().iterateEmissionFilter();
+	    while (value == null && it.hasNext()) {
+	            value = getValueFromFilter(it.next());
+	    }
+	}
     
     	//Laser
     	if (value == null && lc.getLightSourceSettings() != null) {
@@ -206,14 +215,15 @@ public class ColorsFactory {
     	//Excitation
     	value = lc.getExcitationWave();
     	if (value != null) return determineColor(value);
-    	
-    	if (value == null && lc.getFilterSet() != null)
-    		value = getValueFromFilter(lc.getFilterSet().getExFilter());
 
-    	if (value == null) 
-    		value = getValueFromFilter(lc.getSecondaryExcitationFilter());
-    	
-    	return determineColor(value);
+	if (value == null && lc.getFilterSet() != null) {
+	    Iterator<Filter> it = lc.getFilterSet().iterateExcitationFilter();
+	    while (value == null && it.hasNext()) {
+	        value = getValueFromFilter(it.next());
+	    }
+        }
+
+        return determineColor(value);
     }
  
     /**

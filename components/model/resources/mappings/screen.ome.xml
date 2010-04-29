@@ -21,7 +21,7 @@
 			<optional name="reagentSetDescription" type="string"/>
 			<child name="plateLinks" type="ome.model.screen.ScreenPlateLink" target="ome.model.screen.Plate"/>
 			<zeromany name="reagent" type="ome.model.screen.Reagent" inverse="screen"/>
-			<zeromany name="screenAcquisition" type="ome.model.screen.ScreenAcquisition" inverse="screen"/>
+			<zeromany name="screenAcquisition" type="ome.model.screen.PlateAcquisition" inverse="screen"/>
 		</properties>
 	</type>
 	<type id="ome.model.screen.PlateAcquisition" named="true" described="true" annotated="true">
