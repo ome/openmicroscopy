@@ -454,7 +454,7 @@ public abstract class TreeImageDisplay
         else if (obj instanceof FileData)
         	return ((FileData) obj).getName();
         else if (obj instanceof PlateAcquisitionData)
-        	return null;//((PlateAcquisitionData) obj).getLabel();
+        	return ((PlateAcquisitionData) obj).getLabel();
         else if (obj instanceof MultiImageData) 
         	return ((MultiImageData) obj).getName();
         else if (obj instanceof String) return (String) obj;

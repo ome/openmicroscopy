@@ -144,7 +144,7 @@ class DeletableTableNode
 				if (object instanceof PlateData)
 					return ((PlateData) object).getName();
 				if (object instanceof PlateAcquisitionData)
-					return "";//((PlateAcquisitionData) object).getLabel();
+					return ((PlateAcquisitionData) object).getLabel();
 				if (object instanceof FileAnnotationData)
 		        	return ((FileAnnotationData) object).getFileName();
 				if (object instanceof ImageData)

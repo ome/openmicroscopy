@@ -46,7 +46,6 @@ import java.util.Map.Entry;
 //Application-internal dependencies
 import omero.model.OriginalFile;
 import omero.model.PlaneInfo;
-import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.metadata.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.AttachmentsLoader;
 import org.openmicroscopy.shoola.agents.metadata.ChannelDataLoader;
@@ -482,7 +481,7 @@ class EditorModel
 		else if (ref instanceof PlateData)
 			name = ((PlateData) ref).getName();
 		else if (ref instanceof PlateAcquisitionData)
-			name = "";//((PlateAcquisitionData) ref).get
+			name = ((PlateAcquisitionData) ref).getLabel();
 		else if (ref instanceof FileAnnotationData)
 			name = ((FileAnnotationData) ref).getFileName();
 		else if (ref instanceof WellSampleData) {
