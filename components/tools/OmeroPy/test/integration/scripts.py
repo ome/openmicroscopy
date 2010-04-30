@@ -63,6 +63,33 @@ class TestScripts(lib.ITest):
         # force the server to parse the file enough to get params (checks syntax etc)
         params = scriptService.getParams(id)
         
+        
+    def testRunScript(self):
+        # Trying to run script as described: 
+        #http://trac.openmicroscopy.org.uk/omero/browser/trunk/components/blitz/resources/omero/api/IScript.ice#L40
+        scriptService = self.root.sf.getScriptService()
+        
+        scriptLines = [
+        "import omero",
+        "import omero.scripts as scripts",
+        "if __name__ == '__main__':"
+        "    client = scripts.client('HelloWorld.py', 'Hello World example script',",
+        "    scripts.String('message', optional=True))"]
+        script = "\n".join(scriptLines)
+        
+        scriptId = scriptService.uploadScript("path", script)
+        map = {"message": omero.rtypes.rstring("Sending this message to the server!"), }  
+        argMap = omero.rtypes.rmap(map)
+
+        proc = scriptService.runScript(scriptId, map, None)
+        try:
+            cb = omero.scripts.ProcessCallbackI(client, proc)
+            while not cb.block(1000): # ms.
+                pass
+            cb.close()
+            results = proc.getResults(0)    # ms
+        finally:
+            proc.close(False)
 
 if __name__ == '__main__':
     unittest.main()
