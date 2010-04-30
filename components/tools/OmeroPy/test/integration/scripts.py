@@ -16,6 +16,8 @@ import omero.all
 from omero_model_ScriptJobI import ScriptJobI
 from omero.rtypes import *
 
+thumbnailFigurePath = "scripts/omero/figure_scripts/thumbnailFigure.py"
+
 class TestScripts(lib.ITest):
 
     def testBasicUsage(self):
@@ -52,6 +54,15 @@ class TestScripts(lib.ITest):
         except omero.ValidationException, ve:
             self.assertTrue("THIS STINKS" in str(ve))
 
+    def testUploadOfficalScript(self):
+        scriptService = self.root.sf.getScriptService()
+        file = open(thumbnailFigurePath)
+        script = file.read()
+        file.close()
+        id = scriptService.uploadOfficialScript(thumbnailFigurePath, script)
+        # force the server to parse the file enough to get params (checks syntax etc)
+        params = scriptService.getParams(id)
+        
 
 if __name__ == '__main__':
     unittest.main()
