@@ -731,26 +731,38 @@ def runAsScript():
     """
     The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
     """
+    def makeParam(paramClass, name, description=None, optional=True, min=None, max=None, values=None):
+        param = paramClass(name, optional)
+        if description: param._param.description = description
+        if max: param._param.max = rlong(max) # should only be using max and min for scripts.Long
+        if min: param._param.min = rlong(min)
+        if values: param._param.values = rlist(values)
+        return param
+        
+    labels = [rstring('IMAGENAME'), rstring('DATASETS'), rstring('TAGS')]
+    algorithums = [rstring('MAXIMUMINTENSITY'),rstring('MEANINTENSITY')]
+    roiLabel = """Specify an ROI to pick by specifying it's shape label. 'FigureROI' by default,
+              (not case sensitive). If matching ROI not found, use any ROI."""
+    
     client = scripts.client('roiFigure.py', 'Create a figure of an ROI region as separate zoomed split-channel panels.', 
-    scripts.List("imageIds").inout(),        # List of image IDs. Resulting figure will be attached to first image 
-    scripts.Map("channelNames", optional=True).inout(),        # map of index: channel name for All channels
-    scripts.Bool("mergedNames", optional=True).inout(),     # if true, label the merged panel with channel names. Otherwise label with "Merged"
-    scripts.List("splitIndexes", optional=True).inout(),    # a list of the channels in the split view
-    scripts.Bool("splitPanelsGrey", optional=True).inout(),     # if true, all split panels are greyscale
-    scripts.Map("mergedColours", optional=True).inout(),        # a map of index:int colours for each merged channel. Default: Blue, Green, Red
-    scripts.Long("width", optional=True).inout(),        # the max width of each image panel 
-    scripts.Long("height", optional=True).inout(),        # the max height of each image panel
-    scripts.String("imageLabels", optional=True).inout(),                # label with IMAGENAME or DATASETS or TAGS
-    scripts.String("algorithm", optional=True).inout(),    # algorithum for projection. MAXIMUMINTENSITY or MEANINTENSITY
-    scripts.Long("stepping", optional=True).inout(),    # the plane increment from projection (default = 1)
-    scripts.Long("scalebar", optional=True).inout(),    # scale bar (same as makemovie script)
-    scripts.String("format", optional=True).inout(),        # format to save image. Currently JPEG or PNG. Default is JPEG
-    scripts.String("figureName", optional=True).inout(),    # name of the file to save. Default is "roiFigure"
-    scripts.Long("overlayColour", optional=True).inout(),    # the colour of the scalebar 
-    scripts.Long("roiZoom", optional=True).inout(),            # how much to zoom the ROI. If <= 0 then zoom is chosen to fit 
-    scripts.String("roiLabel", optional=True).inout(),    # Specify an ROI to pick by specifying it's shape label. "FigureROI" by default.
-                                                        # roiLabel is not case sensitive. If matching ROI not found, use any ROI. 
-    scripts.Long("fileAnnotation").out());  # script returns a file annotation
+    makeParam(scripts.List,"imageIds", "List of image IDs. Resulting figure will be attached to first image.", False),
+    makeParam(scripts.Map,"channelNames", "Map of index: channel name for All channels"),
+    makeParam(scripts.Bool,"mergedNames", "If true, label the merged panel with channel names. Otherwise label with 'Merged'"),
+    makeParam(scripts.List,"splitIndexes", "List of the channels in the split view panels"),
+    makeParam(scripts.Bool,"splitPanelsGrey", "If true, all split panels are greyscale"),
+    makeParam(scripts.Map,"mergedColours", "Map of index:int colours for each merged channel. Default: Blue, Green, Red"),
+    makeParam(scripts.Long,"width","Max width of each image panel", min=1),   
+    makeParam(scripts.Long,"height","The max height of each image panel", min=1),
+    makeParam(scripts.String,"imageLabels","Label images with the IMAGENAME or DATASETS or TAGS", values=labels),               
+    makeParam(scripts.String,"algorithm", "Algorithum for projection.", values=algorithums),
+    makeParam(scripts.Long,"stepping","The Z-plane increment for projection. Default is 1", min=1),
+    makeParam(scripts.Long,"scalebar", "Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
+    makeParam(scripts.String,"format", "Format to save image. E.g 'PNG'. Default is JPEG"),
+    makeParam(scripts.String,"figureName", "File name of the figure to save."),
+    makeParam(scripts.Long,"overlayColour", "The colour of the scalebar. Default is white"),
+    makeParam(scripts.Long,"roiZoom", "How much to zoom the ROI. E.g. x 2. If 0 then zoom roi panel to fit"),
+    makeParam(scripts.String,"roiLabel", roiLabel),
+    makeParam(scripts.Long,"fileAnnotation", "Script returns a File Annotation ID of attached Figure").out())
     
     session = client.getSession();
     gateway = session.createGateway();
