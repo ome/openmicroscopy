@@ -210,24 +210,20 @@ public class TreeViewerTranslator
         if (data == null)
             throw new IllegalArgumentException("Cannot be null");
         TreeImageSet plate =  new TreeImageSet(data);
-        if (screen != null) {
-        	/*
-        	Set<PlateAcquisitionData> set = screen.getScreenAcquisitions();
-        	if (set != null) {
-        		Iterator<PlateAcquisitionData> i = set.iterator();
-        		PlateAcquisitionData sa;
-        		long id = data.getId();
-        		while (i.hasNext()) {
-        			sa = (PlateAcquisitionData) i.next();
-        			if (sa.getRefPlateId() == id)
-        				plate.addChildDisplay(new TreeImageSet(sa));	
-				}
-				*/
-        	//}
+        Set<PlateAcquisitionData> acquisitions = data.getPlateAcquisitions();
+        if (acquisitions != null) {
+        	Iterator<PlateAcquisitionData> i = acquisitions.iterator();
+        	PlateAcquisitionData pa;
+        	long id = data.getId();
+        	while (i.hasNext()) {
+				pa = i.next();
+				pa.setRefPlateId(id);
+				plate.addChildDisplay(new TreeImageSet(pa));
+			}
         	plate.setChildrenLoaded(Boolean.valueOf(true));
         }
-        //formatToolTipFor(plate);
-        return null;//plate;
+        formatToolTipFor(plate);
+        return plate;
     }
     
     /**

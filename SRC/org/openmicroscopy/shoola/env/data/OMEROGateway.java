@@ -203,19 +203,19 @@ import pojos.WellData;
 import pojos.WellSampleData;
 
 /** 
-* Unified access point to the various <i>OMERO</i> services.
-*
-* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
-* 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
-* @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
-*              <a href="mailto:a.falconi@dundee.ac.uk">
-*                  a.falconi@dundee.ac.uk</a>
-* @version 2.2
-* <small>
-* (<b>Internal version:</b> $Revision$ $Date$)
-* </small>
-* @since OME2.2
-*/
+ * Unified access point to the various <i>OMERO</i> services.
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ *              <a href="mailto:a.falconi@dundee.ac.uk">
+ *                  a.falconi@dundee.ac.uk</a>
+ * @version 2.2
+ * <small>
+ * (<b>Internal version:</b> $Revision$ $Date$)
+ * </small>
+ * @since OME2.2
+ */
 class OMEROGateway
 {
 	
@@ -225,6 +225,9 @@ class OMEROGateway
 	/** Indicates that the server is out of service.. */
 	static final int SERVER_OUT_OF_SERVICE = 1;
 	
+	/** The default MIME type. */
+	private static final String				DEFAULT_MIMETYPE = 
+		"application/octet-stream";
 	/** String used to identify the overlays. */
 	private static final String				OVERLAYS = "Overlays";
 	
@@ -3458,21 +3461,21 @@ class OMEROGateway
 	 * original file i.e. the server object.
 	 * 
 	 * @param file		     The file to upload.
-	 * @param format		 The format of the file.
+	 * @param mimeType		 The mimeType of the file.
 	 * @param originalFileID The id of the file or <code>-1</code>.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.  
 	 */
-	synchronized OriginalFile uploadFile(File file, String format, 
+	synchronized OriginalFile uploadFile(File file, String mimeType, 
 			long originalFileID)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		if (file == null)
 			throw new IllegalArgumentException("No file to upload");
-		if (format == null)
-			format = "application/octet-stream"; //to be modified
+		if (mimeType == null || mimeType.length() == 0)
+			mimeType =  DEFAULT_MIMETYPE;
 		isSessionAlive();
 		RawFileStorePrx store = null;
 		OriginalFile save = null;
@@ -3481,15 +3484,13 @@ class OMEROGateway
 			store = getRawFileService();
 			OriginalFile oFile;
 			if (originalFileID <= 0) {
-				Format f = (Format) getQueryService().findByString(
-						Format.class.getName(), "value", format);
 				oFile = new OriginalFileI();
 				oFile.setName(omero.rtypes.rstring(file.getName()));
 				oFile.setPath(omero.rtypes.rstring(file.getAbsolutePath()));
 				oFile.setSize(omero.rtypes.rlong(file.length()));
 				//Need to be modified
 				oFile.setSha1(omero.rtypes.rstring("pending"));
-				oFile.setFormat(f);
+				oFile.setMimetype(omero.rtypes.rstring(mimeType));
 				save = (OriginalFile) saveAndReturnObject(oFile, null);
 				store.setFileId(save.getId().getValue());
 				fileCreated = true;
@@ -3502,7 +3503,7 @@ class OMEROGateway
 				newFile.setPath(omero.rtypes.rstring(file.getAbsolutePath()));
 				newFile.setSize(omero.rtypes.rlong(file.length()));
 				newFile.setSha1(omero.rtypes.rstring("pending"));
-				newFile.setFormat(oFile.getFormat());
+				oFile.setMimetype(oFile.getMimetype());
 				save = (OriginalFile) saveAndReturnObject(newFile, null);
 				store.setFileId(save.getId().getValue());
 			}
@@ -4834,7 +4835,7 @@ class OMEROGateway
 			sb.append("left outer join fetch img.pixels as pix ");
             sb.append("left outer join fetch pix.pixelsType as pt ");
             sb.append("where well.plate.id = :plateID");
-            
+            //TODO: to be modified
 			if (acquisitionID > 0) {
 				//Get the id of the well samples.
 				List<Long> ids = new ArrayList<Long>();
