@@ -167,6 +167,7 @@ module omero {
         dictionary<string, Ice::LongSeq>               IdListMap;
         dictionary<bool,   omero::sys::LongList>       BooleanIdListMap;
         dictionary<string, IObjectList>                IObjectListMap;
+        dictionary<long,   IObjectList>                LongIObjectListMap;
         dictionary<string, ShapeList>                  StringShapeListMap;
         dictionary<long,   ShapeList>                  LongShapeListMap;
         dictionary<int,    ShapeList>                  IntShapeListMap;

@@ -22,7 +22,7 @@ module omero {
         ["ami", "amd"] interface IMetadata extends ServiceInterface
             {
                 idempotent LogicalChannelList loadChannelAcquisitionData(omero::sys::LongList ids) throws ServerError;
-                idempotent IObjectListMap loadAnnotations(string rootType, omero::sys::LongList rootIds,
+                idempotent LongIObjectListMap loadAnnotations(string rootType, omero::sys::LongList rootIds,
                                                          omero::api::StringSet annotationTypes, omero::sys::LongList annotatorIds,
                                                          omero::sys::Parameters options) throws ServerError;
                 idempotent AnnotationList loadSpecifiedAnnotations(string annotationType,
@@ -31,7 +31,7 @@ module omero {
                                                                    omero::sys::Parameters options) throws ServerError;
                 //idempotent omero::metadata::TagSetContainerList loadTagSets(long id, bool withObjects, omero::sys::Parameters options) throws ServerError;
                 //idempotent omero::metadata::TagContainerList loadTags(long id, bool withObjects, omero::sys::Parameters options) throws ServerError;
-                idempotent IObjectListMap loadTagContent(omero::sys::LongList ids, omero::sys::Parameters options) throws ServerError;
+                idempotent LongIObjectListMap loadTagContent(omero::sys::LongList ids, omero::sys::Parameters options) throws ServerError;
                 idempotent IObjectList loadTagSets(omero::sys::Parameters options) throws ServerError;
                 idempotent omero::sys::CountMap getTaggedObjectsCount(omero::sys::LongList ids, omero::sys::Parameters options) throws ServerError;
                 omero::RLong countSpecifiedAnnotations(string annotationType,
