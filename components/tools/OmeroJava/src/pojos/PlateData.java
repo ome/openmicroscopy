@@ -364,25 +364,22 @@ public class PlateData extends DataObject {
     
     
     /**
-     * Returns the plate acquisition related to this plate.
+     * Returns the plate acquisitions related to this plate.
      * 
      * @return See above.
      */
     public Set<PlateAcquisitionData> getPlateAcquisitions()
     {
-    	/*
         if (plateAcquisitions == null &&
         		asPlate().sizeOfPlateAcquisition() >= 0) {
 		plateAcquisitions = new HashSet<PlateAcquisitionData>();
-            List<PlateAcquisition> links = asScreen().copyPlateAcquisition();
+            List<PlateAcquisition> links = asPlate().copyPlateAcquisition();
             for (PlateAcquisition link : links) {
             	plateAcquisitions.add(new PlateAcquisitionData(link));
             }
         }
         return plateAcquisitions == null ? null :
 		new HashSet<PlateAcquisitionData>(plateAcquisitions);
-		*/
-    	return null;
     }
     
 }

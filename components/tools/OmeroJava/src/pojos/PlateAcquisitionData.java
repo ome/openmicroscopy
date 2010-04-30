@@ -82,7 +82,7 @@ public class PlateAcquisitionData
 	public long getRefPlateId() { return refPlateId; }
 
 	/**
-	 * Sets the id of the plate this screen acquisition is for.
+	 * Sets the id of the plate this plate acquisition is for.
 	 *
 	 * @param refPlateId The value to set.
 	 */
