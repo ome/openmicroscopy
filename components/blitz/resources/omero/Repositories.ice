@@ -34,7 +34,6 @@ module omero {
         {
             bool importableImage;
             string fileName;
-	        string imageName;
             string reader;
 	        int imageCount;
             omero::api::IObjectList usedFiles;

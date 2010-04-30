@@ -241,6 +241,8 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * 
      * @param path
      *            A path on a repository.
+     * @param config
+     *            A RepositoryListConfig defining the listing config.
      * @param __current
      *            ice context.
      * @return List of OriginalFile objects at path
@@ -269,17 +271,18 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * Get a list of those files as importable and non-importable list.
      * 
      * @param path
-     *            A path on a repository.
+     *            A path on a repositor     * @param config
+     *            A RepositoryListConfig defining the listing config.
+y.
+     * @param config
+     *            A RepositoryListConfig defining the listing config.
      * @param __current
      *            ice context.
-     * @return A Map of IObjects keyed by filename
+     * @return A List of FileSet objects.
      * 
      * The map uses the object name as key. This is the file name but should be something
      * guaranteed to be unique. 
      *
-     * The crude test for an image file in a list of importable objects is the extension.
-     * If it is the same as the key's extension then it is treated as an image. A more
-     * certain/elegant method should probably be used especially considee
      */
      public List<FileSet> listObjects(String path, RepositoryListConfig config, Current __current)
             throws ServerError {
@@ -304,7 +307,6 @@ public class PublicRepositoryI extends _RepositoryDisp {
             
             set.importableImage = true;
             set.fileName = ic.getFile().getAbsolutePath();
-            set.imageName = set.fileName; //ic.imageName seems to be empty
             set.reader = ic.getReader();
             set.imageCount = ic.getBfImageCount();
                         
@@ -329,15 +331,11 @@ public class PublicRepositoryI extends _RepositoryDisp {
                 pix.setDimensionOrder(dimOrder);
                 pix.setSha1(rstring("UNKNOWN"));
                 pix.setPixelsType(getPixelsType(pix.getPixelsType().getValue().getValue()));
-                if (set.imageCount == 1) {
-                    imageName = set.imageName;
-                } else {
-                    imageName = iNames.get(i);
-                    if (imageName == null) {
-                        imageName = "";
-                    }
+                imageName = iNames.get(i);
+                if (imageName == null) {
+                    imageName = "";
                 }
-                
+
                 if (imageName != "") {
                     List<Image> iList = getImages(imageName);
                     if (iList != null && iList.size() != 0) {
