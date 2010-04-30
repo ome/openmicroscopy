@@ -3029,8 +3029,10 @@ public class OMEROMetadataStoreClient
     public void setWellSampleTimepoint(Integer timepoint, int plateIndex,
             int wellIndex, int wellSampleIndex)
     {
+        /* ticket:1750 - for Chris
         WellSample o = getWellSample(plateIndex, wellIndex, wellSampleIndex);
         o.setTimepoint(toRType(timepoint));
+        */
     }
 
     /* (non-Javadoc)
