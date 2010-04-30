@@ -31,6 +31,7 @@ package pojos;
 // Application-internal dependencies
 import omero.RDouble;
 import omero.RInt;
+import omero.RTime;
 import omero.model.WellSample;
 import omero.model.WellSampleI;
 
@@ -136,7 +137,7 @@ public class WellSampleData extends DataObject {
      */
     public long getStartTime()
     {
-    	RInt value = asWellSample().getTimepoint();
+    	RTime value = asWellSample().getTimepoint();
     	if (value == null) return 0;
     	return value.getValue();
     }
