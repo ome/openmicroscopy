@@ -2160,9 +2160,11 @@ public class OmeroMetadata implements MetadataRetrieve {
         Exception e = null;
         Integer rv = null;
         try {
+            /* ticket:1750 for Chris
             rv = plateList.get(idxPlate).copyWells().get(idxWell)
                     .copyWellSamples().get(idxWellSample).getTimepoint()
                     .getValue();
+            */
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
