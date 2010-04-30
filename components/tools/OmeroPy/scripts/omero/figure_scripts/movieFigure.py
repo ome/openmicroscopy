@@ -159,6 +159,11 @@ def getImageFrames(session, pixelIds, tIndexes, zStart, zEnd, width, height, spa
         log("  Image dimensions (pixels): x: %d  y: %d" % (sizeX, sizeY))
         maxImageWidth = max(maxImageWidth, sizeX)
         
+        # set up rendering engine with the pixels
+        re.lookupPixels(pixelsId)
+        re.lookupRenderingDef(pixelsId)
+        re.load()
+        
         proStart = zStart
         proEnd = zEnd
         # make sure we're within Z range for projection. 
@@ -166,14 +171,15 @@ def getImageFrames(session, pixelIds, tIndexes, zStart, zEnd, width, height, spa
             proEnd = sizeZ - 1
             if proStart > sizeZ:
                 proStart = 0
-            log(" WARNING: Current image has fewer Z-sections than the primary image projection.")
-        if proStart < 0:
-            proStart = 0
-        log("  Projecting z range: %d - %d   (max Z is %d)" % (proStart+1, proEnd+1, sizeZ))
-        # set up rendering engine with the pixels
-        re.lookupPixels(pixelsId)
-        re.lookupRenderingDef(pixelsId)
-        re.load()
+            log(" WARNING: Current image has fewer Z-sections than the primary image.")
+            
+        # if we have an invalid z-range (start or end less than 0), show default Z only
+        if proStart < 0 or proEnd < 0:
+            proStart = re.getDefaultZ()
+            proEnd = proStart
+            log("  Display Z-section: %d" % (proEnd+1))
+        else:
+            log("  Projecting z range: %d - %d   (max Z is %d)" % (proStart+1, proEnd+1, sizeZ))
         
         # now get each channel in greyscale (or colour)
         # a list of renderedImages (data as Strings) for the split-view row
@@ -423,11 +429,10 @@ def movieFigure(session, commandArgs):
         for t in commandArgs["tIndexes"]:
             tIndexes.append(t.getValue())
             
-    zStart = 0
+    zStart = -1
+    zEnd = -1
     if "zStart" in commandArgs:
         zStart = commandArgs["zStart"]
-        
-    zEnd = sizeZ - 1
     if "zEnd" in commandArgs:
         zEnd = commandArgs["zEnd"]
     
@@ -505,21 +510,33 @@ def runAsScript():
     The main entry point of the script. Gets the parameters from the scripting service, makes the figure and 
     returns the output to the client. 
     """
+    def makeParam(paramClass, name, description=None, optional=True, min=None, max=None, values=None):
+        param = paramClass(name, optional)
+        if description: param._param.description = description
+        if max: param._param.max = rlong(max) # should only be using max and min for scripts.Long
+        if min: param._param.min = rlong(min)
+        if values: param._param.values = rlist(values)
+        return param
+        
+    labels = [rstring('IMAGENAME'), rstring('DATASETS'), rstring('TAGS')]
+    algorithums = [rstring('MAXIMUMINTENSITY'),rstring('MEANINTENSITY')]
+    tunits =  [rstring("SECS"), rstring("MINS"), rstring("HOURS"), rstring("MINS_SECS"), rstring("HOURS_MINS")]
+    
     client = scripts.client('movieFigure.py', 'Export a figure of a movie.', 
-    scripts.List("imageIds").inout(),        # List of image IDs. Each movie on a single row of figure
-    scripts.List("tIndexes").inout(),        # The frames to display in the figure
-    scripts.Long("zStart", optional=True).inout(),        # projection range
-    scripts.Long("zEnd", optional=True).inout(),        # projection range
-    scripts.Long("width", optional=True).inout(),        # the max width of each image panel 
-    scripts.Long("height", optional=True).inout(),        # the max height of each image panel
-    scripts.String("algorithm", optional=True).inout(),    # algorithum for projection. MAXIMUMINTENSITY or MEANINTENSITY
-    scripts.String("imageLabels", optional=True).inout(),    # label with IMAGENAME or DATASETS or TAGS
-    scripts.Long("stepping", optional=True).inout(),    # the plane increment from projection (default = 1)
-    scripts.Long("scalebar", optional=True).inout(),    # scale bar (same as makemovie script)
-    scripts.String("timeUnits", optional=True).inout(),     # Either "SECS", "MINS", "HOURS", "MINS_SECS", "HOURS_MINS"
-    scripts.Long("overlayColour", optional=True).inout(),    # the colour of the scalebar 
-    scripts.String("format", optional=True).inout(),        # format to save image. Currently JPEG or PNG
-    scripts.String("figureName", optional=True).inout(),    # name of the file to save.
+    makeParam(scripts.List,"imageIds", "List of image IDs. Resulting figure will be attached to first image.", False),
+    makeParam(scripts.List,"tIndexes", "The time frames to display in the figure for each image"),
+    makeParam(scripts.Long,"zStart", "Projection range (if not specified or -1, use defaultZ only - no projection)", min=-1),
+    makeParam(scripts.Long,"zEnd", "Projection range (if not specified or -1, use defaultZ only - no projection)", min=-1),
+    makeParam(scripts.Long,"width", "The max width of each image panel. Default is first image width", min=1),
+    makeParam(scripts.Long,"height", "The max height of each image panel. Default is first image height", min=1),
+    makeParam(scripts.String,"algorithm", "Algorithum for projection.", values=algorithums),
+    makeParam(scripts.String,"imageLabels", "Label images with Image name (default) or datasets or tags", values=labels),
+    makeParam(scripts.Long,"stepping", "The Z increment for projection. Default is 1", min=1),
+    makeParam(scripts.Long,"scalebar", "Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
+    makeParam(scripts.String,"format", "Format to save image. E.g 'PNG'. Default is JPEG"),
+    makeParam(scripts.String,"figureName", "File name of the figure to save."),
+    makeParam(scripts.Long,"overlayColour", "The colour of the scalebar. Default is white"),
+    makeParam(scripts.String,"timeUnits", "The units to use for time display", values=tunits),
     scripts.Long("fileAnnotation").out())  # script returns a file annotation
     
     session = client.getSession();

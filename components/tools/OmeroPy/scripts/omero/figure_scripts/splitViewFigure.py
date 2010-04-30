@@ -185,7 +185,7 @@ def getSplitView(session, pixelIds, zStart, zEnd, splitIndexes, channelNames, co
             proEnd = sizeZ - 1
             if proStart > sizeZ:
                 proStart = 0
-            log(" WARNING: Current image has fewer Z-sections than the primary image projection.")
+            log(" WARNING: Current image has fewer Z-sections than the primary image.")
             
         # if we have an invalid z-range (start or end less than 0), show default Z only
         if proStart < 0 or proEnd < 0:
@@ -521,15 +521,12 @@ def splitViewFigure(session, commandArgs):
         
     
     # set image dimensions
-    if("zStart" not in commandArgs):
-        commandArgs["zStart"] = -1
-    if("zEnd" not in commandArgs):
-        commandArgs["zEnd"] = -1
-    if("splitPanelsGrey" not in commandArgs):
-        commandArgs["splitPanelsGrey"] = False
-    
-    zStart = int(commandArgs["zStart"])
-    zEnd = int(commandArgs["zEnd"])
+    zStart = -1
+    zEnd = -1
+    if "zStart" in commandArgs:
+        zStart = commandArgs["zStart"]
+    if "zEnd" in commandArgs:
+        zEnd = commandArgs["zEnd"]
     
     width = sizeX
     if "width" in commandArgs:
@@ -591,7 +588,7 @@ def splitViewFigure(session, commandArgs):
                 mergedColours[c] = (255,0,0,255)    # red
     
     colourChannels = True
-    if commandArgs["splitPanelsGrey"]:
+    if "splitPanelsGrey" in commandArgs and commandArgs["splitPanelsGrey"]:
         colourChannels = False
     
     algorithm = omero.constants.projection.ProjectionType.MAXIMUMINTENSITY
@@ -677,8 +674,8 @@ def runAsScript():
      
     client = scripts.client('splitViewFigure.py', 'Create a figure of split-view images.', 
     makeParam(scripts.List,"imageIds", "List of image IDs. Resulting figure will be attached to first image.", False),
-    makeParam(scripts.Long,"zStart", "Projection range (if not specified, use defaultZ only - no projection)", 0),
-    makeParam(scripts.Long,"zEnd", "Projection range (if not specified, use defaultZ only - no projection)", 0),
+    makeParam(scripts.Long,"zStart", "Projection range (if not specified or -1, use defaultZ only - no projection)", min=-1),
+    makeParam(scripts.Long,"zEnd", "Projection range (if not specified or -1, use defaultZ only - no projection)", min=-1),
     makeParam(scripts.Map,"channelNames", "Map of index: channel name for all channels"),
     makeParam(scripts.List,"splitIndexes", "List of the channels in the split view"),
     makeParam(scripts.Bool,"splitPanelsGrey", "If true, all split panels are greyscale"),
