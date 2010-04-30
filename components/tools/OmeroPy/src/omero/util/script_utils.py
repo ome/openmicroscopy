@@ -162,14 +162,14 @@ def getFormat(queryService, format):
     return queryService.findByQuery("from Format as f where f.value='"+format+"'", None)
 
 
-def createFile(updateService, filename, format, ofilename=None):
+def createFile(updateService, filename, mimetype=None, ofilename=None):
     """
     Creates an original file, saves it to the server and returns the result
     
     @param queryService:    The query service  E.g. session.getQueryService()
     @param updateService:   The update service E.g. session.getUpdateService()
     @param filename:        The file path and name (or name if in same folder). String
-    @param format:          The Format object representing the file format
+    @param mimetype:        The mimetype (string) or Format object representing the file format
     @param ofileName:       Optional name for the original file
     @return:                The saved OriginalFileI, as returned from the server
     """
@@ -179,7 +179,15 @@ def createFile(updateService, filename, format, ofilename=None):
         ofilename = filename;
     originalFile.setName(omero.rtypes.rstring(ofilename));
     originalFile.setPath(omero.rtypes.rstring(ofilename));
-    originalFile.setFormat(format);
+    # just in case we are passed a FormatI object
+    try:
+        v = mimetype.getValue()
+        mt = v.getValue()
+    except:
+        # handle the string we expect 
+        mt = mimetype
+    if mt:
+        originalFile.mimetype = omero.rtypes.rstring(mt)
     originalFile.setSize(omero.rtypes.rlong(os.path.getsize(filename)));
     originalFile.setSha1(omero.rtypes.rstring(calcSha1(filename)));
     return updateService.saveAndReturnObject(originalFile); 
@@ -279,7 +287,7 @@ def attachFileToParent(updateService, parent, originalFile, description=None, na
     return updateService.saveAndReturnObject(l);
 
 
-def uploadAndAttachFile(queryService, updateService, rawFileStore, parent, output, format, description=None, namespace=None):
+def uploadAndAttachFile(queryService, updateService, rawFileStore, parent, output, mimetype, description=None, namespace=None):
     """
     Uploads a local file to the server, as an Original File and attaches it to the 
     parent (Project, Dataset or Image)
@@ -289,17 +297,14 @@ def uploadAndAttachFile(queryService, updateService, rawFileStore, parent, outpu
     @param rawFileStore:    The rawFileStore
     @param parent:          The ProjectI or DatasetI or ImageI to attach file to
     @param output:          Full Name (and path) of the file to upload. String
-    @param format:          The format. E.g. "image/png". String
+    @param mimetype:        The original file mimetype. E.g. "PNG". String
     @param description:     Optional description for the file annotation. String
     @return:            The id of the originalFileLink child. (ID object, not value)
     """
     
     filename = output
     originalFilename = output
-    fileformat = getFormat(queryService, format)
-    if fileformat == None:		# if we didn't find a matching format in the DB, use a generic format. 
-        fileformat = getFormat(queryService, "text/plain")
-    originalFile = createFile(updateService, filename, fileformat, originalFilename);
+    originalFile = createFile(updateService, filename, mimetype, originalFilename);
     uploadFile(rawFileStore, originalFile, originalFilename)
     fileLink = attachFileToParent(updateService, parent, originalFile, description, namespace)
     return fileLink.getChild().getId()
