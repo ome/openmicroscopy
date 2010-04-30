@@ -154,7 +154,6 @@ import omero.model.PixelsType;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionI;
-import omero.model.PlateAcquisitionWellSampleLink;
 import omero.model.PlateI;
 import omero.model.Project;
 import omero.model.ProjectI;
@@ -2383,7 +2382,6 @@ class OMEROGateway
 					service.loadAnnotations(convertPojos(nodeType).getName(), 
 							nodeIDs, types, annotatorIDs, options));
 		} catch (Throwable t) {
-			t.printStackTrace();
 			handleException(t, "Cannot find annotations for "+nodeType+".");
 		}
 		return new HashMap();
@@ -2406,11 +2404,9 @@ class OMEROGateway
 			return new HashSet<DataObject>();
 		try {
 			IMetadataPrx service = getMetadataService();
-			return new HashSet<DataObject>();
-			/*
 			return PojoMapper.asDataObjects(
 					service.loadAnnotation(annotationIds));
-					*/
+					
 		} catch (Throwable t) {
 			handleException(t, "Cannot find the annotations.");
 		}
@@ -4121,7 +4117,6 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IMetadataPrx service = getMetadataService();
-			/*
 			List<Annotation> l = service.loadSpecifiedAnnotations(
 					convertPojos(type).getName(), toInclude, 
 					toExclude, options);
@@ -4129,8 +4124,6 @@ class OMEROGateway
 					service.loadSpecifiedAnnotations(
 							convertPojos(type).getName(), toInclude, 
 							toExclude, options));
-							*/
-			return new HashSet(); 
 		} catch (Exception e) {
 			handleException(e, "Cannot retrieve the annotations");
 		}

@@ -331,29 +331,6 @@ class OmeroMetadataServiceImpl
 	}
 	
 	/**
-	 * Loads the description of the passed tag for the specified user.
-	 * 
-	 * @param tag	 The tag to handle.
-	 * @param userID The id of the user.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	private TagAnnotationData loadTagDescription(TagAnnotationData tag, 
-			                                    long userID)
-	    throws DSOutOfServiceException, DSAccessException 
-	{
-		Collection descriptions;
-		descriptions = loadTextualAnnotations(TagAnnotationData.class, 
-				                              tag.getId(), userID);
-		if (descriptions != null && descriptions.size() > 0)
-		tag.setTagDescriptions((List) descriptions);
-		return tag;
-	}
-	
-	/**
 	 * Returns the current user's details.
 	 * 
 	 * @return See above.
@@ -635,49 +612,6 @@ class OmeroMetadataServiceImpl
 	}
 	
 	/**
-	 * Loads the descriptions of the tags.
-	 * 
-	 * @param type
-	 * @param id
-	 * @param userID
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	private Collection loadTextualAnnotations(Class type, long id, long userID) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		List<Long> ids = new ArrayList<Long>(1);
-		ids.add(id);
-		List<Class> annotationTypes = new ArrayList<Class>(1);
-		annotationTypes.add(TextualAnnotationData.class);
-		List<Long> annotators = new ArrayList<Long>(1);
-		annotators.add(userID);
-		Map annotations = gateway.loadAnnotations(type, ids, 
-				annotationTypes, annotators, new Parameters());
-		List<AnnotationData> result = new ArrayList<AnnotationData>();
-		if (annotations == null || annotations.size() == 0)
-			return result;
-		Collection l = (Collection) annotations.get(id);
-		/*
-		Collection annotations = loadStructuredAnnotations(type, id, userID);
-		if (annotations == null || annotations.size() == 0)
-			return annotations;
-			*/
-		Iterator i = l.iterator();
-		
-		AnnotationData data;
-		while (i.hasNext()) {
-			data = (AnnotationData) i.next();
-			if (data instanceof TextualAnnotationData)
-				result.add(data);
-		}
-		return result;
-	}
-	
-	/**
 	 * Creates a new instance.
 	 * 
 	 * @param gateway   Reference to the OMERO entry point.
@@ -817,18 +751,6 @@ class OmeroMetadataServiceImpl
 				//loadLmap.keySet()
 			}
 		}
-	
-		/*
-		if ((object instanceof ImageData) && viewed) {
-			ImageData img = (ImageData) object;
-			long pixelsID = -1;
-			try {
-				pixelsID = img.getDefaultPixels().getId();
-			} catch (Exception e) {}
-			if (pixelsID >= 0)
-				results.setViewedBy(loadViewedBy(img.getId(), pixelsID));
-		}
-		*/
 		return results;
 	}
 	
@@ -983,10 +905,9 @@ class OmeroMetadataServiceImpl
 			l = gateway.findAnnotationLinks(klass, id, ids);
 		if (l != null) {
 			i = l.iterator();
-			while (i.hasNext()) {
+			while (i.hasNext()) 
 				gateway.deleteObject((IObject) i.next());
-			}
-			
+
 			//Need to check if the object is not linked to other object.
 			
 			i = toRemove.iterator();
@@ -1033,8 +954,6 @@ class OmeroMetadataServiceImpl
 			                                    long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		//if (id < 0)
-		//	throw new IllegalArgumentException("Object id not valid.");
 		if (id < 0) new ArrayList<Long>();
 		if (type == null) 
 			throw new IllegalArgumentException("No type specified.");
@@ -1469,7 +1388,6 @@ class OmeroMetadataServiceImpl
 			}
 			results.removeAll(toExclude);
 		}
-		
 		return results;
 	}
 	
