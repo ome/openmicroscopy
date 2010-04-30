@@ -382,4 +382,28 @@ public class PlateData extends DataObject {
 		new HashSet<PlateAcquisitionData>(plateAcquisitions);
     }
     
+    /**
+     * Sets the plate acquisition linked to the plate.
+     * 
+     * @param value The set of plate acquisitions.
+     */
+    public void setPlateAcquisition(Set<PlateAcquisitionData> value) {
+        Set<PlateAcquisitionData> currentValue = getPlateAcquisitions();
+        SetMutator<PlateAcquisitionData> 
+        	m = new SetMutator<PlateAcquisitionData>(currentValue, value);
+
+        while (m.moreDeletions()) {
+            setDirty(true);
+            asPlate().removePlateAcquisition(
+            		(PlateAcquisition) m.nextDeletion().asIObject());
+        }
+
+        while (m.moreAdditions()) {
+            setDirty(true);
+            asPlate().addPlateAcquisition(
+            		(PlateAcquisition) m.nextAddition().asIObject());
+        }
+        plateAcquisitions = new HashSet<PlateAcquisitionData>(m.result());
+    }
+    
 }
