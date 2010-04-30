@@ -378,7 +378,7 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
 
     private final static String stdfile_query = "select file from Job job "
             + "join job.originalFileLinks links join links.child file "
-            + "join fetch file.format where file.name = :name and job.id = :id";
+            + "where file.name = :name and job.id = :id";
 
     private OriginalFile loadFileOrNull(final String name) {
         return (OriginalFile) this.ex.execute(this.principal, new Executor.SimpleWork(this, "optionallyLoadFile") {
@@ -456,7 +456,7 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
     private String getScriptIdQuery = "select f from Job s "
             + "join s.originalFileLinks links "
             + "join links.child f "
-            + "where s.id = :id and f.format.value = :fmt";
+            + "where s.id = :id and f.mimetype = :fmt";
 
     private long getScriptId(final Job job) throws omero.ValidationException {
         final Parameters p = new Parameters();
