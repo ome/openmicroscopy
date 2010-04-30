@@ -293,23 +293,9 @@ public class FileAnnotationData extends AnnotationData {
     {
     	OriginalFile f = ((FileAnnotation) asAnnotation()).getFile();
         String unknown = UNKNOWN;
-        String format = f == null ? unknown : (f.getFormat() == null ? unknown
-                : (f.getFormat().getValue() == null ? unknown : f.getFormat()
-                        .getValue().getValue()));
+        String format = f == null ? unknown : (f.getMimetype() == null ? unknown
+                : (f.getMimetype().getValue()));
         return format;
-    }
-    
-    /**
-     * Returns the id of the file format.
-     * 
-     * @return See above.
-     */
-    public long getFormatID()
-    {
-    	OriginalFile f = ((FileAnnotation) asAnnotation()).getFile();
-    	if (f == null) return -1;
-    	if (f.getFormat() == null) return -1;
-    	return f.getFormat().getId().getValue();
     }
     
     /**

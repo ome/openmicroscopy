@@ -60,14 +60,14 @@ public class FileUploaderTest extends TestCase {
     @Test
     public void testRandomFormatWillBeCreated() throws Exception {
         f = new FileUploader(sf, "test-string", "test-name", "test-path");
-        f.setFormat("random");
+        f.setMimetype("random");
         f.run();
     }
 
     @Test(expectedExceptions = ApiUsageException.class)
     public void testAfterUploadNoMutators() throws Exception {
         f = new FileUploader(sf, "test-string", "test-name", "test-path");
-        f.setFormat("random");
+        f.setMimetype("random");
         f.run();
         f.setName("boom");
     }
@@ -89,7 +89,7 @@ public class FileUploaderTest extends TestCase {
     @Test
     public void testCanAccessViaId() throws Exception {
         f = new FileUploader(sf, "test-string", "test-name", "test-path");
-        f.setFormat("random");
+        f.setMimetype("random");
         f.run();
         Long id = f.getId();
         assertTrue(id != null);
@@ -99,7 +99,7 @@ public class FileUploaderTest extends TestCase {
     @Test
     public void testCheckProperties() throws Exception {
         f = new FileUploader(sf, "test-string", "test-name", "test-path");
-        f.setFormat("random");
+        f.setMimetype("random");
         f.setName("boo");
         f.setPath("/dev/hi");
         f.setCtime(new Timestamp(System.currentTimeMillis()));
@@ -120,7 +120,7 @@ public class FileUploaderTest extends TestCase {
     public void testDefaultFormatIsTextPlain() throws Exception {
         f = new FileUploader(sf, new File("/dev/null"));
         f.init();
-        assertTrue(f.getFormat().equals("text/plain"));
+        assertTrue(f.getMimetype().equals("text/plain"));
     }
 
     @Test(groups = "broken")

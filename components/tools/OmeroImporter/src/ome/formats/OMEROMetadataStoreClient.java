@@ -3073,10 +3073,9 @@ public class OMEROMetadataStoreClient
     {
 		OriginalFile o = (OriginalFile) 
 			getSourceObject(OriginalFile.class, indexes);
-		Format format = (Format) getEnumeration(Format.class, formatString);
 		o.setName(toRType(file.getName()));
 		o.setSize(toRType(file.length()));
-		o.setFormat(format);
+		o.setMimetype(toRType(formatString));
 		o.setPath(toRType(file.getAbsolutePath()));
 		o.setSha1(toRType("Pending"));
 		return o;

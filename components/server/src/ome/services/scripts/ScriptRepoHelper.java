@@ -20,7 +20,6 @@ import java.util.List;
 
 import ome.conditions.InternalException;
 import ome.model.core.OriginalFile;
-import ome.model.enums.Format;
 import ome.model.meta.ExperimenterGroup;
 import ome.services.util.Executor;
 import ome.system.Principal;
@@ -41,7 +40,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.hibernate.type.StringType;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
@@ -313,16 +311,13 @@ public class ScriptRepoHelper {
                             .setParameter(0, null, new StringType())
                             .setParameter(1, old).executeUpdate();
                 }
-                Long fmt = (Long) session.createQuery(
-                        "select id from Format where value = 'text/x-python'")
-                        .uniqueResult();
 
                 OriginalFile ofile = new OriginalFile();
                 ofile.setName(fsFile.name);
                 ofile.setSha1(fsFile.sha1());
                 ofile.setSize(fsFile.length());
                 ofile.setPath(repoFile.rel);
-                ofile.setFormat(new Format(fmt, false));
+                ofile.setMimetype("text/x-python");
                 ofile.getDetails().setGroup(
                         new ExperimenterGroup(roles.getUserGroupId(), false));
                 ofile = sf.getUpdateService().saveAndReturnObject(ofile);

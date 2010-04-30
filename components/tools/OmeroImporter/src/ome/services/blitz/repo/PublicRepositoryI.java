@@ -146,19 +146,13 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * @return The OriginalFile with id set (unloaded)
      *
      */
-    public OriginalFile register(String path, Format fmt, Current __current)
+    public OriginalFile register(String path, omero.RString mimetype, Current __current)
             throws ServerError {
-
-        if (path == null || fmt == null
-                || (fmt.getId() == null && fmt.getValue() == null)) {
-            throw new ValidationException(null, null,
-                    "path and fmt are required arguments");
-        }
 
         File file = new File(path).getAbsoluteFile();
         OriginalFile omeroFile = new OriginalFileI();
         omeroFile = createOriginalFile(file);
-        omeroFile.setFormat(fmt);
+        omeroFile.setMimetype(mimetype);
 
         IceMapper mapper = new IceMapper();
         final ome.model.core.OriginalFile omeFile = (ome.model.core.OriginalFile) mapper
@@ -398,7 +392,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      */
     public Format format(String path, Current __current) throws ServerError {
         File file = checkPath(path);
-        return getFileFormat(file);
+        throw new omero.InternalException(null, null, "ticket:2211 - For Colin");
     }
 
     /**
@@ -589,23 +583,10 @@ public class PublicRepositoryI extends _RepositoryDisp {
      *
      * TODO Return the correct Format object in place of a dummy one
      */
-    private Format getFileFormat(File file) {
+    private String getFileFormat(File file) {
 
         final String contentType = new MimetypesFileTypeMap().getContentType(file);
-
-        ome.model.enums.Format format = (ome.model.enums.Format) executor
-                .execute(principal, new Executor.SimpleWork(this, "getFileFormat") {
-
-                    @Transactional(readOnly = true)
-                    public Object doWork(Session session, ServiceFactory sf) {
-                        return sf.getQueryService().findByQuery(
-                                "from Format as f where f.value='"
-                                        + contentType + "'", null);
-                    }
-                });
-                
-        IceMapper mapper = new IceMapper();
-        return (Format) mapper.map(format);
+        return contentType;
 
     }
 
@@ -745,7 +726,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         // This needs to be unique - see ticket #1753
         file.setName(rstring(f.getAbsolutePath()));
         
-        file.setFormat(getFileFormat(f));
+        file.setMimetype(rstring(getFileFormat(f)));
         
         return file;
     }

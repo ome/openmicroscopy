@@ -459,9 +459,8 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
     private void parseAcceptsList(final QueryBuilder qb,
             final List<IObject> acceptsList) {
-        qb.join("o.format", "fmt", false, false);
         qb.where();
-        qb.and("fmt.id = " + helper.pythonFormat.getId());
+        qb.and("o.mimetype = '" + ParamsHelper.PYTHONSCRIPT + "'");
 
         if (acceptsList != null && acceptsList.size() == 0) {
             for (IObject object : acceptsList) {
@@ -493,7 +492,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         OriginalFile file = new OriginalFile();
         file.setName(fName);
         file.setPath(path);
-        file.setFormat(helper.pythonFormat.proxy());
+        file.setMimetype(ParamsHelper.PYTHONSCRIPT);
         file.setSize((long) script.getBytes().length);
         file.setSha1(Utils.bufferToSha1(script.getBytes()));
         return updateFile(file);
@@ -604,8 +603,8 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     private OriginalFile getOriginalFileOrNull(long id) {
 
         try {
-            final String queryString = "from OriginalFile as o where o.format.id = "
-                    + helper.pythonFormat.getId() + " and o.id = " + id;
+            final String queryString = "from OriginalFile as o where o.mimetype = '"
+                    + ParamsHelper.PYTHONSCRIPT + "' and o.id = " + id;
             OriginalFile file = (OriginalFile) factory.executor.execute(
                     factory.principal, new Executor.SimpleWork(this,
                             "getOriginalFileOrNull", id) {

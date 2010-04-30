@@ -104,9 +104,7 @@ public class RoiPerformanceTest extends AbstractRoiITest {
         file.setCtime(rtime(0));
         file.setMtime(rtime(0));
         file.setSize(rlong(0));
-        Format fmt = new FormatI();
-        fmt.setValue(rstring("OMERO.tables"));
-        file.setFormat(fmt);
+        file.setMimetype(rstring("OMERO.tables"));
         fa.setFile(file);
         fa = assertSaveAndReturn(fa);
 

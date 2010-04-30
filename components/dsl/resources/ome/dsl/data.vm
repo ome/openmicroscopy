@@ -147,15 +147,19 @@ insert into configuration values ('omero.db.uuid',uuid());
 -- ticket:2201 - creating repository data structures
 --
 alter  table pixels add column path text;
+alter  table pixels add column name text;
 alter  table pixels add column repo varchar(36);
 alter  table pixels add column params text[2][];
 create index pixels_repo_index on pixels (repo);
--- No unique index on (path, repo) since it depends on params
+-- No unique index on (path, repo, name) since it depends on params
 
+alter  table originalfile alter column mimetype set default 'application/octet-stream';
 alter  table originalfile add column repo varchar(36);
 alter  table originalfile add column params text[2][];
+create index originalfile_mime_index on originalfile (mimetype);
 create index originalfile_repo_index on originalfile (repo);
-create unique index originalfile_repo_path_index on originalfile (path, repo) where repo is not null;
+create unique index originalfile_repo_path_index on originalfile (repo, path, name) where repo is not null;
+
 --
 -- end ticket:2201
 --

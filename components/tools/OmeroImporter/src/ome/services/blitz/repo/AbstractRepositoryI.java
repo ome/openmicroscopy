@@ -263,7 +263,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
                     r.setAtime(t);
                     r.setMtime(t);
                     r.setCtime(t);
-                    r.setFormat(new Format("Repository"));
+                    r.setMimetype("Repository"); // ticket:2211
                     r.setSize(0L);
                     r = sf.getUpdateService().saveAndReturnObject(r);
                     // ticket:1794
@@ -333,7 +333,6 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
                                     ServiceFactory sf) {
                                 return sf.getQueryService().findByQuery(
                                         "select o from OriginalFile o "
-                                                + "join fetch o.format "
                                                 + "where o.id = " + id, null);
                             }
                         });

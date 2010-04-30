@@ -117,8 +117,8 @@ public class FileUploader implements Runnable {
         assert ofile.getName() != null;
         assert ofile.getPath() != null;
 
-        if (ofile.getFormat() == null) {
-            ofile.setFormat(new Format("text/plain"));
+        if (ofile.getMimetype() == null) {
+            ofile.setMimetype("text/plain"); // ticket:2211 - FIXME should this be octet-stream
         }
 
     }
@@ -138,8 +138,8 @@ public class FileUploader implements Runnable {
             ofile.setPath(file.getAbsolutePath());
         }
 
-        if (ofile.getFormat() == null) {
-            ofile.setFormat(new Format("text/plain"));
+        if (ofile.getMimetype() == null) {
+            ofile.setMimetype("text/plain"); // ticket:2211 - FIXME should this be octet-stream
         }
 
     }
@@ -183,13 +183,13 @@ public class FileUploader implements Runnable {
         ofile.setPath(path);
     }
 
-    public synchronized String getFormat() {
-        return ofile.getFormat() == null ? null : ofile.getFormat().getValue();
+    public synchronized String getMimetype() {
+        return ofile.getMimetype() == null ? null : ofile.getMimetype();
     }
 
-    public synchronized void setFormat(String format) {
+    public synchronized void setMimetype(String mimetype) {
         checkLocked();
-        ofile.setFormat(new Format(format));
+        ofile.setMimetype(mimetype);
     }
 
     public synchronized Timestamp getAtime() {

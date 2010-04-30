@@ -238,9 +238,9 @@ public abstract class BridgeHelper implements FieldBridge,
             final OriginalFilesService files,
             final Map<String, FileParser> parsers) {
         if (files != null && parsers != null) {
-            if (file != null && file.getFormat() != null) {
+            if (file != null && file.getMimetype() != null) {
                 String path = files.getFilesPath(file.getId());
-                String format = file.getFormat().getValue();
+                String format = file.getMimetype();
                 FileParser parser = parsers.get(format);
                 if (parser != null) {
                     return parser.parse(new File(path));

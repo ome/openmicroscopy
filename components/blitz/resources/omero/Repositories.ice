@@ -83,7 +83,7 @@ module omero {
              * TODO should this just return and not throw?
              *
              **/
-            omero::model::OriginalFile register(string path, omero::model::Format fmt) 
+            omero::model::OriginalFile register(string path, omero::RString mimetype)
                     throws ServerError;
 
            /**

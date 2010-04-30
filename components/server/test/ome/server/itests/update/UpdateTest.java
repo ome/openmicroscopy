@@ -330,7 +330,6 @@ public class UpdateTest extends AbstractUpdateTest {
         file.setSha1("");
         file.setName("");
         file.setSize(0L);
-        file.setFormat(t.allEnumerations(Format.class).get(0));
         job.linkOriginalFile(file);
         job.setImageDescription("test");
         job.setImageName("image name");

@@ -27,7 +27,7 @@ public class RawFileStoreTest extends AbstractManagedContextTest {
         file.setPath("/tmp/path");
         file.setSha1("");
         file.setSize(-1L);
-        file.setFormat(new Format("application/octet-stream"));
+        file.setMimetype("application/octet-stream");
         file = iUpdate.saveAndReturnObject(file);
         RawFileStore rfs = factory.createRawFileStore();
         rfs.setFileId(file.getId());

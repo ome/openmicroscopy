@@ -44,7 +44,7 @@ public class ObjectFactory {
         ofile.setPath("/dev/null");
         ofile.setSha1("abc");
         ofile.setSize(1L);
-        ofile.setFormat(new Format("text/plain"));
+        ofile.setMimetype("text/plain");
 
         return ofile;
     }

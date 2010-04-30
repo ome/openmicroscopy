@@ -398,7 +398,7 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
         Image i1 = makeImage(true);
         ImageAnnotationLink link = new ImageAnnotationLink();
         FileAnnotation fa = new FileAnnotation();
-        OriginalFile of = new OriginalFile("",0L,"",new Format("text/plain"),"");
+        OriginalFile of = new OriginalFile("",0L,"","");
         fa.setFile(of);
         link.link(i1, fa);
         iUpdate.saveObject(fa);

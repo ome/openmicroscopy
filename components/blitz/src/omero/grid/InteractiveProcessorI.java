@@ -405,7 +405,7 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
     }
 
     private void appendIfText(final OriginalFile file, final StringBuilder sb) {
-        if (file.getFormat().getValue().contains("text")) {
+        if (file.getMimetype() != null && file.getMimetype().contains("text")) {
             this.ex.execute(this.principal, new Executor.SimpleWork(this, "appendIfText", file) {
                 @Transactional(readOnly=true)
                 public Object doWork(org.hibernate.Session session,

@@ -52,19 +52,12 @@ public class ParamsHelper {
 
     private final SecuritySystem secSys;
 
-    public final Format pythonFormat;
-
-    public final Format octetFormat;
-
     public ParamsHelper(Acquirer acq, Executor ex, Principal p) {
         this.acq = acq;
         this.ex = ex;
         this.p = p;
         this.secSys = // FIXME REFACTOR
             (SecuritySystem) ex.getContext().getBean("securitySystem");
-
-        pythonFormat = loadFormat(PYTHONSCRIPT);
-        octetFormat = loadFormat(OCTETSTREAM);
     }
 
     /**

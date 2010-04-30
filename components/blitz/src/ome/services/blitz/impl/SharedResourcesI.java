@@ -224,7 +224,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
     // Public interface
     // =========================================================================
 
-    static String QUERY = "select o from OriginalFile o where o.format.value = 'Repository'";
+    static String QUERY = "select o from OriginalFile o where o.mimetype = 'Repository'";
 
     public RepositoryPrx getScriptRepository(Current __current)
             throws ServerError {
@@ -320,15 +320,13 @@ public class SharedResourcesI extends AbstractAmdServant implements
             // Overriding repository logic for creation. As long as the
             // security system is still in charge, we need to have the files
             // being created for the proper user.
-            Format omero_tables = new FormatI();
-            omero_tables.setValue(rstring("OMERO.tables"));
             final OriginalFile file = new OriginalFileI();
             RTime time = omero.rtypes.rtime(System.currentTimeMillis());
             file.setAtime(time);
             file.setMtime(time);
             file.setCtime(time);
             file.setSha1(omero.rtypes.rstring("UNKNOWN"));
-            file.setFormat(omero_tables);
+            file.setMimetype(omero.rtypes.rstring("OMERO.tables"));
             file.setSize(omero.rtypes.rlong(0));
             file.setPath(omero.rtypes.rstring(path));
             file.setName(omero.rtypes.rstring(path));
@@ -429,8 +427,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
         }
 
         Format omero_tables = new FormatI();
-        omero_tables.setValue(rstring("OMERO.tables"));
-        OriginalFile file = repoPrx.register(path, omero_tables);
+        OriginalFile file = repoPrx.register(path, rstring("OMERO.tables"));
         return openTable(file, __current);
 
     }

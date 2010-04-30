@@ -113,7 +113,7 @@ public class FileParserTest extends AbstractTest {
         File file = ResourceUtils
                 .getFile("classpath:ome/server/utests/fileparsers/ABC123.pdf");
         FileUploader upload = new FileUploader(this.factory, file);
-        upload.setFormat("application/pdf");
+        upload.setMimetype("application/pdf");
         try {
             upload.run();
         } catch (Exception e) {
@@ -144,7 +144,7 @@ public class FileParserTest extends AbstractTest {
         OriginalFile f = new OriginalFile();
         f.setName(uuid);
         f.setSha1("");
-        f.setFormat(new Format("text/plain"));
+        f.setMimetype("text/plain");
         f.setPath("/tmp/empty");
         f.setSize(0L);
 

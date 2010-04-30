@@ -70,7 +70,6 @@ public class PgArrayHelperTest extends AbstractManagedContextTest {
         f.setName("name");
         f.setPath("path");
         f.setSha1("");
-        f.setFormat(new Format("text/plain"));
         f.setSize(0L);
         f = iUpdate.saveAndReturnObject(f);
         return f;

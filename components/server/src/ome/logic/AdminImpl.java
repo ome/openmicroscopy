@@ -432,9 +432,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     @RolesAllowed("user")
-    public long uploadMyUserPhoto(String filename, String format, byte[] data) {
-
-        Format fmt = iQuery.findByString(Format.class, "value", format);
+    public long uploadMyUserPhoto(String filename, String mimetype, byte[] data) {
 
         Long uid = getEventContext().getCurrentUserId();
         List<OriginalFile> photos = getMyUserPhotos();
@@ -449,7 +447,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             file.setPath(filename); // FIXME this should be something like /users/<name>/photo
             file.setSize((long) data.length);
             file.setSha1(Utils.bufferToSha1(data));
-            file.setFormat(fmt);
+            file.setMimetype(mimetype);
             FileAnnotation fa = new FileAnnotation();
             fa.setNs(NSEXPERIMENTERPHOTO);
             fa.setFile(file);
@@ -465,7 +463,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             file.setName(filename);
             file.setPath(filename);
             file.setSize((long) data.length);
-            file.setFormat(fmt);
+            file.setMimetype(mimetype);
             file.setSha1(Utils.bufferToSha1(data));
             file = iUpdate.saveAndReturnObject(file);
         }
