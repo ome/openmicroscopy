@@ -332,7 +332,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 		s1.stop();
 		return pixels;
     }
-    
+
     /**
      * Loads the logical channel to determine the color correctly.
      * 
@@ -341,32 +341,27 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      */
     private LogicalChannel loadLogicalChannel(Long id)
     {
-    	StopWatch s1 = new CommonsLogStopWatch("omero.loadLogicalChannel");
-		Parameters p = new Parameters();
-		p.addId(id);
-    	StringBuilder sb = new StringBuilder();
-    	sb.append("select channel from LogicalChannel as channel ");
-    	
-        sb.append("left outer join fetch channel.filterSet as filter ");
-        sb.append("left outer join fetch filter.emFilter as ef ");
-        sb.append("left outer join fetch filter.exFilter as exf ");
-        sb.append("left outer join fetch ef.transmittanceRange as efTrans ");
-        sb.append("left outer join fetch exf.transmittanceRange as exfTrans ");
-        sb.append("left outer join fetch channel.secondaryEmissionFilter as " +
-        		"emfilter ");
-        sb.append("left outer join fetch emfilter.transmittanceRange as " +
-        		"emTrans ");
-        sb.append("left outer join fetch channel.secondaryExcitationFilter as " +
-		"exfilter ");
-        sb.append("left outer join fetch exfilter.transmittanceRange as " +
-        		"exTrans ");
-        sb.append("left outer join fetch channel.lightSourceSettings as lss ");
-        sb.append("left outer join fetch lss.lightSource as ls ");
-        //
-        sb.append("where channel.id = :id");
-        return (LogicalChannel) iQuery.findByQuery(sb.toString(), p);
+        StopWatch s1 = new CommonsLogStopWatch("omero.loadLogicalChannel");
+        Parameters p = new Parameters();
+        p.addId(id);
+        String sql = 
+            "select channel from LogicalChannel as channel " +
+            "left outer join fetch channel.filterSet as filter " +
+            "left outer join fetch channel.lightPath as lp " +
+            "left outer join fetch lp.emissionFilterLink as em_link " +
+            "left outer join fetch em_link.child as emFilter " +
+            "left outer join fetch emFilter.transmittanceRange " +
+            "left outer join fetch lp.excitationFilterLink as ex_link " +
+            "left outer join fetch ex_link.child as exFilter " +
+            "left outer join fetch exFilter.transmittanceRange " +
+            "left outer join fetch channel.lightSourceSettings as lss " +
+            "left outer join fetch lss.lightSource as ls " +
+            "where channel.id = :id";
+        LogicalChannel lc = iQuery.findByQuery(sql, p);
+        s1.stop();
+        return lc;
     }
-    
+
     /**
      * Retrieves all rendering settings associated with a given set of Pixels.
      * @param pixels List of Pixels to retrieve settings for.
