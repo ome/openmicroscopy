@@ -4835,7 +4835,12 @@ class OMEROGateway
 			sb.append("left outer join fetch img.pixels as pix ");
             sb.append("left outer join fetch pix.pixelsType as pt ");
             sb.append("where well.plate.id = :plateID");
+            if (acquisitionID > 0) {
+            	 sb.append(" and ws.plateAcquisition.id = :acquisitionID");
+            	 param.addLong("acquisitionID", plateID);
+            }
             //TODO: to be modified
+            /*
 			if (acquisitionID > 0) {
 				//Get the id of the well samples.
 				List<Long> ids = new ArrayList<Long>();
@@ -4859,6 +4864,7 @@ class OMEROGateway
 				param.addLongs("wsids", ids);
 				sb.append(" and ws.id in (:wsids)");
 			}
+			*/
             results = service.findAllByQuery(sb.toString(), param);
 
 			i = results.iterator();
@@ -4867,7 +4873,7 @@ class OMEROGateway
 				map = new HashMap<Long, List<WellSampleData>>();
 			Iterator<WellSample> j;
 			WellSample ws;
-			List<WellSampleData> list;
+			//List<WellSampleData> list;
 			Well well;
 			while (i.hasNext()) {
 				well = (Well) i.next();
