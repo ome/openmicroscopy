@@ -107,11 +107,18 @@ DECLARATION BLOCK:
 [$ice]   module model {
 
 ## CONSTANTS
+#if($type.class.name == "ome.dsl.EnumType")
+[$ice]
+[$ice]     module enums {
 #foreach($prop in $type.properties)
 #if($prop.class.name == "ome.dsl.EntryField")
-[$ice]       const string ${Pojo}${prop.name.replaceAll("-","").replaceAll("/","")} = "${prop.name}";
+[$ice]         const string ${Pojo}${prop.name.replaceAll("[^a-zA-Z0-9]","")} = "${prop.name}";
 #end
 #end
+[$ice]     };
+[$ice]
+#end
+
 #foreach( $property in $type.propertyClosure )
 #if($property.type.startsWith("ome"))
 #if($property.isLink)
