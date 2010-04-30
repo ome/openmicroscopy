@@ -588,14 +588,10 @@ class BaseClient(object):
             if not ofile.path:
                 ofile.path = omero.rtypes.rstring(os.path.abspath(file.name))
 
-            if not ofile.format:
-                if not type:
-                    # ofile.format = FormatI("unknown")
-                    # Or determine type from file ending
-                    raise ClientError("no format given")
-                else:
-                    ofile.format = omero.model.FormatI()
-                    ofile.format.value = omero.rtypes.rstring(type)
+            if not ofile.mimetype:
+                if type:
+                    # ofile.mimetype = 'application/octet-stream' by default
+                    ofile.mimetype = omero.rtypes.rstring(type)
 
             if permissions:
                 ofile.details.permissions = permissions
