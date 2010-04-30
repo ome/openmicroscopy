@@ -106,6 +106,12 @@ DECLARATION BLOCK:
 [$ice] module omero {
 [$ice]   module model {
 
+## CONSTANTS
+#foreach($prop in $type.properties)
+#if($prop.class.name == "ome.dsl.EntryField")
+[$ice]       const string ${Pojo}${prop.name.replaceAll("-","").replaceAll("/","")} = "${prop.name}";
+#end
+#end
 #foreach( $property in $type.propertyClosure )
 #if($property.type.startsWith("ome"))
 #if($property.isLink)
