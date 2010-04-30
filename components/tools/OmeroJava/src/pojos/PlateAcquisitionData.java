@@ -151,12 +151,9 @@ public class PlateAcquisitionData
 	{
 		PlateAcquisition sa = (PlateAcquisition) asIObject();
 		if (sa == null) return -1;
-		return -1;
-		/*
 		omero.RTime time = sa.getStartTime();
 		if (time == null) return -1;
 		return time.getValue();
-		*/
 	}
 
 	/**
@@ -168,12 +165,9 @@ public class PlateAcquisitionData
 	{
 		PlateAcquisition sa = (PlateAcquisition) asIObject();
 		if (sa == null) return -1;
-		/*
 		omero.RTime time = sa.getEndTime();
 		if (time == null) return -1;
 		return time.getValue();
-		*/
-		return -1;
 	}
 
 	/**
