@@ -478,8 +478,10 @@ public class OmeroMetadata implements MetadataRetrieve {
     public int getWellSampleRefCount(int idxScreen, int idxScreenAcquisition) {
         int count = Integer.MIN_VALUE;
         try {
+            /* ticket:1750 - for Chris
             count = screenList.get(idxScreen).copyScreenAcquisition().get(
                     idxScreenAcquisition).sizeOfWellSampleLinks();
+            */
         } catch (NullPointerException npe) {
             count = -1;
         } catch (omero.ClientError ce) {
@@ -688,7 +690,9 @@ public class OmeroMetadata implements MetadataRetrieve {
     public int getScreenAcquisitionCount(int idxScreen) {
         int count = Integer.MIN_VALUE;
         try {
+            /* ticket:1750 - for Chris
             count = screenList.get(idxScreen).sizeOfScreenAcquisition();
+            */
         } catch (NullPointerException npe) {
             count = -1;
         } catch (omero.ClientError ce) {
@@ -2582,9 +2586,11 @@ public class OmeroMetadata implements MetadataRetrieve {
         Exception e = null;
         String rv = null;
         try {
+            /* ticket:1750 - for Chris
             rv = handleLsid(screenList.get(idxScreen).copyScreenAcquisition()
                     .get(idxScreenAcquisition).copyWellSampleLinks().get(
                             idxWellSampleRef));
+            */
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -4913,8 +4919,10 @@ public class OmeroMetadata implements MetadataRetrieve {
         Exception e = null;
         String rv = null;
         try {
+            /* ticket:1750 - to be fixed by chris
             rv = handleLsid(screenList.get(idxScreen).copyScreenAcquisition()
                     .get(idxScreenAcquisition));
+            */
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
