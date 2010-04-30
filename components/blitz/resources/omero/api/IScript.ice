@@ -29,7 +29,7 @@ module omero {
          * if len(scripts) >= 1:
          *   script_id = svc.keys()[0]
          * else:
-         *   script_id = svc.uploadScript(SCRIPT_TEXT)
+         *   script_id = svc.uploadScript('/test/my_script.py', SCRIPT_TEXT)
          *
          * params = svc.getParams(script_id)
          *
