@@ -407,10 +407,11 @@ APPLICATION_HOST='%s'
     def seleniumtest (self, *args):
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
         cargs = ["python", "seleniumtests.py"]
-        if len(args[0]) != 1:
-            self.ctx.die(121, "usage: seleniumtest {djangoapp}")
+        if len(args[0]) < 1:
+            self.ctx.die(121, "usage: seleniumtest {djangoapp} [seleniumserver] [hostname] [browser]")
         location = location / args[0][0] / "tests"
-        print location 
+        cargs += args[0][1:]
+        print cargs
         rv = self.ctx.call(cargs, cwd = location )
         
 
