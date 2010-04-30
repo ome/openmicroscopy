@@ -25,7 +25,7 @@ public class SpwTest extends AbstractManagedContextTest {
     Well w;
     Image i;
 
-    PlateAcquisition sa;
+    PlateAcquisition pa;
 
     @Test
     public void testMinimalSave() {
@@ -37,10 +37,10 @@ public class SpwTest extends AbstractManagedContextTest {
         Image i = new Image(testTimestamp, "i");
         Reagent r = new Reagent();
         r.setName("r");
-        PlateAcquisition sa = new PlateAcquisition();
-        sa.setScreen(s);
+        PlateAcquisition pa = new PlateAcquisition();
+        p.addPlateAcquisition(pa);
         WellSample ws = new WellSample();
-        ws.linkPlateAcquisition(sa);
+        ws.linkPlateAcquisition(pa);
 
         s.linkPlate(p);
         p.addWell(w);
@@ -50,7 +50,7 @@ public class SpwTest extends AbstractManagedContextTest {
 
         w.addWellSample(ws);
         i.addWellSample(ws);
-        sa.linkWellSample(ws);
+        pa.linkWellSample(ws);
 
         s = iUpdate.saveAndReturnObject(s);
     }
@@ -78,16 +78,16 @@ public class SpwTest extends AbstractManagedContextTest {
                 + "left outer join fetch w.wellSamples " + "where w.id = :id",
                 new Parameters().addId(w.getId()));
 
-        sa = new PlateAcquisition();
-        sa.setScreen(s);
-        sa = iUpdate.saveAndReturnObject(sa);
+        pa = new PlateAcquisition();
+        p.addPlateAcquisition(pa);
+        pa = iUpdate.saveAndReturnObject(pa);
 
         java.sql.Timestamp testTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
 
         i = new Image(testTimestamp, "i");
 
         WellSample ws = new WellSample();
-        ws.linkPlateAcquisition(sa);
+        ws.linkPlateAcquisition(pa);
         i.addWellSample(ws);
         w.addWellSample(ws);
         ws = iUpdate.saveAndReturnObject(ws);
