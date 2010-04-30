@@ -40,7 +40,7 @@ public class SpwTest extends AbstractManagedContextTest {
         PlateAcquisition pa = new PlateAcquisition();
         p.addPlateAcquisition(pa);
         WellSample ws = new WellSample();
-        ws.linkPlateAcquisition(pa);
+        pa.addWellSample(ws);
 
         s.linkPlate(p);
         p.addWell(w);
@@ -50,7 +50,7 @@ public class SpwTest extends AbstractManagedContextTest {
 
         w.addWellSample(ws);
         i.addWellSample(ws);
-        pa.linkWellSample(ws);
+        pa.addWellSample(ws);
 
         s = iUpdate.saveAndReturnObject(s);
     }
@@ -87,7 +87,7 @@ public class SpwTest extends AbstractManagedContextTest {
         i = new Image(testTimestamp, "i");
 
         WellSample ws = new WellSample();
-        ws.linkPlateAcquisition(pa);
+        pa.addWellSample(ws);
         i.addWellSample(ws);
         w.addWellSample(ws);
         ws = iUpdate.saveAndReturnObject(ws);

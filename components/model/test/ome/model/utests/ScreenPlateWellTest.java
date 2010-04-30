@@ -96,14 +96,14 @@ public class ScreenPlateWellTest extends TestCase {
         plate2.addPlateAcquisition(acq3);
         plate2.addPlateAcquisition(acq4);
 
-        acq1.linkWellSample(ws1_1a);
-        acq1.linkWellSample(ws1_1b);
-        acq1.linkWellSample(ws1_2a);
-        acq1.linkWellSample(ws1_2b);
-        acq2.linkWellSample(ws2_1a);
-        acq2.linkWellSample(ws2_1b);
-        acq3.linkWellSample(ws2_2a);
-        acq4.linkWellSample(ws2_2b);
+        acq1.addWellSample(ws1_1a);
+        acq1.addWellSample(ws1_1b);
+        acq1.addWellSample(ws1_2a);
+        acq1.addWellSample(ws1_2b);
+        acq2.addWellSample(ws2_1a);
+        acq2.addWellSample(ws2_1b);
+        acq3.addWellSample(ws2_2a);
+        acq4.addWellSample(ws2_2b);
 
         reagentA.setScreen(screen);
         reagentB.setScreen(screen);

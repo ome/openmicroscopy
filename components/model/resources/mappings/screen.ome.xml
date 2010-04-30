@@ -29,7 +29,7 @@
 			<optional name="endTime" type="timestamp"/>
 			<optional name="maximumFieldCount" type="int"/>
 			<manyone name="plate" type="ome.model.screen.Plate" inverse="plateAcquisition"/>
-			<child name="wellSampleLinks" type="ome.model.screen.PlateAcquisitionWellSampleLink" target="ome.model.screen.WellSample"/>
+			<zeromany name="wellSample" type="ome.model.screen.WellSample" inverse="plateAcquisition"/>
 		</properties>
 	</type>
 	<type id="ome.model.screen.Plate" named="true" described="true" annotated="true">
@@ -80,7 +80,7 @@
 			<optional name="timepoint" type="int"/>
 			<manyone name="well" type="ome.model.screen.Well" inverse="wellSamples" ordered="true"/>
 			<manyone name="image" type="ome.model.core.Image" inverse="wellSamples"/>
-			<parent name="plateAcquisitionLinks" type="ome.model.screen.PlateAcquisitionWellSampleLink" target="ome.model.screen.PlateAcquisition"/>
+			<manyone name="plateAcquisition" type="ome.model.screen.PlateAcquisition"/>
 		</properties>
 	</type>
 	<type id="ome.model.screen.Reagent" annotated="true" named="true" described="true">
@@ -96,12 +96,6 @@
 		<properties>
 			<from_parent type="ome.model.screen.Screen"/>
 			<to_child type="ome.model.screen.Plate"/>
-		</properties>
-	</link>
-	<link id="ome.model.screen.PlateAcquisitionWellSampleLink">
-		<properties>
-			<from_parent type="ome.model.screen.PlateAcquisition"/>
-			<to_child type="ome.model.screen.WellSample"/>
 		</properties>
 	</link>
 	<link id="ome.model.screen.WellReagentLink">
