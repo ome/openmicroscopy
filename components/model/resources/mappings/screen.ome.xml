@@ -77,7 +77,7 @@
 		<properties>
 			<optional name="posX" type="double"/>
 			<optional name="posY" type="double"/>
-			<optional name="timepoint" type="int"/>
+			<optional name="timepoint" type="timestamp"/>
 			<manyone name="well" type="ome.model.screen.Well" inverse="wellSamples" ordered="true"/>
 			<manyone name="image" type="ome.model.core.Image" inverse="wellSamples"/>
 			<manyone name="plateAcquisition" type="ome.model.screen.PlateAcquisition"/>
