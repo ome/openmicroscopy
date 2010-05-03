@@ -8,6 +8,7 @@
 
 package omero.util;
 
+import static omero.rtypes.rbool;
 import static omero.rtypes.rdouble;
 import static omero.rtypes.rfloat;
 import static omero.rtypes.rint;
@@ -429,6 +430,10 @@ public class IceMapper extends ome.util.ModelMapper implements
             return null;
         } else if (o instanceof RType) {
             return (RType) o;
+        } else if (o instanceof Boolean) {
+            Boolean b = (Boolean) o;
+            omero.RBool bool = rbool(b.booleanValue());
+            return bool;
         } else if (o instanceof Date) {
             Date date = (Date) o;
             omero.RTime time = rtime(date.getTime());
@@ -479,7 +484,7 @@ public class IceMapper extends ome.util.ModelMapper implements
             return rinternal((omero.Internal) o);
         } else {
             throw new ApiUsageException(null, null,
-                    "Unsupported conversion to rtype from:" + o);
+                    "Unsupported conversion to rtype from " + o.getClass().getName() + ":" + o);
         }
     }
 
