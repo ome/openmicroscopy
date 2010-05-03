@@ -54,15 +54,12 @@ public class Main {
         image.setName(rstring("roi-example"));
         image.setAcquisitionDate(rtime(0L));
 
-        Format f = new FormatI();
-        f.setValue(rstring("text/xml"));
-
         OriginalFile ofile = new OriginalFileI();
         ofile.setName(rstring("roi-source.xml"));
         ofile.setPath(rstring("roi-source.xml"));
         ofile.setSha1(rstring("0"));
         ofile.setSize(rlong(0));
-        ofile.setFormat(f);
+        ofile.setMimetype(rstring("text/xml"));
 
         Roi roi = new RoiI();
         roi.setDescription(rstring("An example ROI with lots of shapes"));
