@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE( fileAnnotation )
 
 	// Create file object
 	OriginalFileIPtr file = new OriginalFileI();
-	file->setMimetype(rstring("text/xml");
+	file->setMimetype(rstring("text/xml"));
 	file->setName(rstring("my-file.xml"));
 	file->setPath(rstring("/tmp"));
 	file->setSha1(rstring("foo"));
