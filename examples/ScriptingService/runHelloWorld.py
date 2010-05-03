@@ -22,7 +22,7 @@
 
 This script demonstrates how to use the scripting service to call a script on
 an OMERO server. 
-	
+    
 @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
 <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
 @author  Will Moore &nbsp;&nbsp;&nbsp;&nbsp;
@@ -36,6 +36,7 @@ an OMERO server.
 """
 
 import omero
+import omero.scripts
 import getopt, sys, os, subprocess
 import omero_api_IScript_ice
 import omero_SharedResources_ice
@@ -43,58 +44,86 @@ from omero.rtypes import *
 
 def run(commandArgs):
 
-	# log on to the server with values from the command arguments, creating a client and session
-	client = omero.client(commandArgs["host"])
-	session = client.createSession(commandArgs["username"], commandArgs["password"]);
-	scriptService = session.getScriptService();
+    # log on to the server with values from the command arguments, creating a client and session
+    client = omero.client(commandArgs["host"])
+    session = client.createSession(commandArgs["username"], commandArgs["password"]);
 
-	# make a map of all the parameters we want to pass to the script
-	# keys are strings. Values must be omero.rtypes such as rlong, rbool, rlist. 
-	map = {
-		"message": omero.rtypes.rstring("Sending this message to the server!"),
-	}  
-	
-	# make the parameter map into an rmap
-	scriptId = commandArgs["scriptId"]
-	argMap = omero.rtypes.rmap(map)
+    scriptPath = commandArgs["script"]
+    scriptService = session.getScriptService()
+    
+    # Identify the script we want to run: Get all 'my' scripts and filter by path.  
+    acceptsList = [] # An empty list implies that the server should return what it would by default trust.
+    scripts = scriptService.getUserScripts(acceptsList)     # returns list of OriginalFiles     
+    namedScripts = [s.id.val for s in scripts if s.path.val == scriptPath]
+    
+    if len(namedScripts) == 0:
+        print "Didn't find any scripts with specified path"
+    
+    # use the most recent script (highest ID)
+    scriptId = max(namedScripts)
+    print "Running script: %s with ID: %s" % (scriptPath, scriptId)
+    
+    # make a map of all the parameters we want to pass to the script
+    # keys are strings. Values must be omero.rtypes such as rlong, rbool, rlist. 
+    map = {
+        "message": omero.rtypes.rstring("Sending this message to the server!"),
+    }  
+            
+    # The last parameter is how long to wait as an RInt
+    proc = scriptService.runScript(scriptId, map, None)
+    try:
+        cb = omero.scripts.ProcessCallbackI(client, proc)
+        while not cb.block(1000): # ms.
+            pass
+        cb.close()
+        results = proc.getResults(0)    # ms
+    finally:
+        proc.close(False)
+    
+    # handle any results from the script 
+    #print results.keys()
+    if 'returnMessage' in results:
+        print results['returnMessage'].getValue()
+    if 'stdout' in results:
+        origFile = results['stdout'].getValue()
+        print "Script generated StdOut in file:" , origFile.getId().getValue()
+    if 'stderr' in results:
+        origFile = results['stderr'].getValue()
+        print "Script generated StdErr in file:" , origFile.getId().getValue()
 
-	# runs the script
-        try:
-            proc = scriptService.runScript(long(scriptId), None, None)
-            proc.close(True) # Continue running
-        except omero.ResourceError, re:
-            print "Could not launch", re
 
 def readCommandArgs():
-	"""
-	Read the arguments from the command line and put them in a map
-	
-	@return 	A map of the command args, with keys: "host", "username", "password", "scriptId"
-	"""
-	host = ""
-	username = ""
-	password = ""
-	script = ""
-	
-	def usage():
-		print "Usage: runscript --host host --username username --password password --script script"
-	try:
-		opts, args = getopt.getopt(sys.argv[1:] ,"h:u:p:s:", ["host=", "username=", "password=","script="])
-	except getopt.GetoptError, err:          
-		usage()                         
-		sys.exit(2)                     
-	for opt, arg in opts: 
-		if opt in ("-h","--host"):
-			host = arg;
-		elif opt in ("-u","--username"): 
-			username = arg;	
-		elif opt in ("-p","--password"): 
-			password = arg;	
-		elif opt in ("-s","--script"): 
-			script = arg;	
-	returnMap = {"host":host, "username":username, "password":password, "scriptId":long(script)}				
-	return returnMap
+    """
+    Read the arguments from the command line and put them in a map
+    
+    @return     A map of the command args, with keys: "host", "username", "password", "scriptId"
+    """
+    host = ""
+    username = ""
+    password = ""
+    script = ""
+    
+    def usage():
+        print "Usage: runscript --host host --username username --password password --script script"
+    try:
+        opts, args = getopt.getopt(sys.argv[1:] ,"h:u:p:s:", ["host=", "username=", "password=","script="])
+    except getopt.GetoptError, err:          
+        usage()                         
+        sys.exit(2)                     
+    returnMap = {}                  
+    for opt, arg in opts: 
+        if opt in ("-h","--host"):
+            returnMap["host"] = arg
+        elif opt in ("-u","--username"): 
+            returnMap["username"] = arg    
+        elif opt in ("-p","--password"): 
+            returnMap["password"] = arg  
+        elif opt in ("-s","--script"): 
+            returnMap["script"] = arg  
+        
+    return returnMap             
+    return returnMap
 
-if __name__ == "__main__":	    
-	commandArgs = readCommandArgs();
-	run(commandArgs);
+if __name__ == "__main__":        
+    commandArgs = readCommandArgs();
+    run(commandArgs);
