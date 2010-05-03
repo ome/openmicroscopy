@@ -23,24 +23,8 @@ from omero.util.temp_files import create_path, remove_path
 PINGFILE = """
 #!/usr/bin/env python
 
-import sys
-from pprint import pprint
-print "PATH:"
-pprint(sys.path)
-
-print "CONFIG"
-f = open("config","r")
-print "".join(f.readlines())
-f.close()
-
 import os, uuid
 import omero, omero.scripts as s
-from omero.rtypes import *
-
-import Ice
-ic = Ice.initialize()
-print ic.getProperties().getPropertiesForPrefix("Ice")
-print ic.getProperties().getPropertiesForPrefix("omero")
 
 #
 # Unique name so that IScript does not reject us
@@ -52,8 +36,28 @@ print "I am the script named %s" % uuid
 #
 # Creation
 #
-client = s.client(uuid, "simple ping script", s.Long("a").inout(), s.String("b").inout())
+client = s.client(uuid, "simple ping script", s.Long("a", optional=True).inout(), s.String("b", optional=True).inout())
 print "Session", client.getSession()
+
+#
+# Various diagnostics
+#
+import sys
+from pprint import pprint
+print "PATH:"
+pprint(sys.path)
+
+print "CONFIG"
+f = open("config","r")
+print "".join(f.readlines())
+f.close()
+
+from omero.rtypes import *
+
+import Ice
+ic = Ice.initialize()
+print ic.getProperties().getPropertiesForPrefix("Ice")
+print ic.getProperties().getPropertiesForPrefix("omero")
 
 #
 # Echo'ing input to output

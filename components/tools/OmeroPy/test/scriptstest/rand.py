@@ -57,15 +57,14 @@ print val
 
 """
 
-class TestPing(lib.ITest):
+class TestRand(lib.ITest):
 
-    def testPingViaISCript(self):
+    def testRand(self):
         scripts = self.root.getSession().getScriptService()
         id = scripts.uploadScript("/tests/rand_py/%s.py" % self.uuid(), SENDFILE)
         input = {"x":rlong(3), "y":rlong(3)}
-        p = scripts.runScript(id, input, None)
+        process = scripts.runScript(id, input, None)
 
-        process = p.execute(input)
         cb = omero.grid.ProcessCallbackI(self.root, process)
         cb.block(2000) # ms
         cb.close()

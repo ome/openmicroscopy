@@ -26,7 +26,7 @@ class TestCoverage(lib.ITest):
         self.us = self.client.sf.getScriptService()
         self.assert_( len(self.rs.getScripts()) > 0 )
         self.assert_( len(self.us.getScripts()) > 0 )
-        self.assert_( len(self.us.getUserScripts([])) == 0) # New user. No scripts
+        self.assertEquals(0, len(self.us.getUserScripts([]))) # New user. No scripts
 
     def testGetScriptWithDetails(self):
         scriptList = self.us.getScripts()
