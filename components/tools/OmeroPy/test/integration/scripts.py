@@ -80,16 +80,13 @@ class TestScripts(lib.ITest):
         "    scripts.String('message', optional=True))",
         "    client.setOutput('returnMessage', rstring('Script ran OK!'))"]
         script = "\n".join(scriptLines)
-        
-        print script
-        
-        scriptId = scriptService.uploadScript("path", script)
         map = {"message": omero.rtypes.rstring("Sending this message to the server!"), }  
-        argMap = omero.rtypes.rmap(map)
 
+        # should fail if we try to upload as 'user' script and run (no user processor)
+        userScriptId = scriptService.uploadScript("user/test/script.py", script)
         results = {}
         try:
-            proc = scriptService.runScript(scriptId, map, None)
+            proc = scriptService.runScript(userScriptId, map, None)
             try:
                 cb = omero.scripts.ProcessCallbackI(client, proc)
                 while not cb.block(1000): # ms.
@@ -102,6 +99,22 @@ class TestScripts(lib.ITest):
             pass
             
         self.assertFalse("returnMessage" in results, "Script should not have run. No user processor!")
+        
+        
+        # should be OK for root to upload as official script and run
+        officialScriptId = scriptService.uploadOfficialScript("offical/test/script.py", script)
+        proc = scriptService.runScript(officialScriptId, map, None)
+        try:
+            cb = omero.scripts.ProcessCallbackI(client, proc)
+            while not cb.block(1000): # ms.
+                pass
+            cb.close()
+            results = proc.getResults(0)    # ms
+        finally:
+            proc.close(False)
+            
+        self.assertTrue("returnMessage" in results, "Script should have run as Official script")
+        
 
 if __name__ == '__main__':
     unittest.main()
