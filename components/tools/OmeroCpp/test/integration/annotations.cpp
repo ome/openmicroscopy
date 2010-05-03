@@ -100,10 +100,8 @@ BOOST_AUTO_TEST_CASE( fileAnnotation )
 	}
 
 	// Create file object
-	FormatIPtr format = new FormatI();
-	format->setValue(rstring("text/xml"));
 	OriginalFileIPtr file = new OriginalFileI();
-	file->setFormat(format);
+	file->setMimetype(rstring("text/xml");
 	file->setName(rstring("my-file.xml"));
 	file->setPath(rstring("/tmp"));
 	file->setSha1(rstring("foo"));
