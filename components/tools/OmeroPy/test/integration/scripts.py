@@ -87,15 +87,19 @@ class TestScripts(lib.ITest):
         map = {"message": omero.rtypes.rstring("Sending this message to the server!"), }  
         argMap = omero.rtypes.rmap(map)
 
-        proc = scriptService.runScript(scriptId, map, None)
+        results = {}
         try:
-            cb = omero.scripts.ProcessCallbackI(client, proc)
-            while not cb.block(1000): # ms.
-                pass
-            cb.close()
-            results = proc.getResults(0)    # ms
-        finally:
-            proc.close(False)
+            proc = scriptService.runScript(scriptId, map, None)
+            try:
+                cb = omero.scripts.ProcessCallbackI(client, proc)
+                while not cb.block(1000): # ms.
+                    pass
+                cb.close()
+                results = proc.getResults(0)    # ms
+            finally:
+                proc.close(False)
+        except:
+            pass
             
         self.assertFalse("returnMessage" in results, "Script should not have run. No user processor!")
 
