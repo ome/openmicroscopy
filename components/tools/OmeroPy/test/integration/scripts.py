@@ -14,6 +14,7 @@ import tempfile
 import omero
 import omero.all
 from omero_model_ScriptJobI import ScriptJobI
+import omero.scripts
 from omero.rtypes import *
 
 thumbnailFigurePath = "scripts/omero/figure_scripts/thumbnailFigure.py"
@@ -68,14 +69,19 @@ class TestScripts(lib.ITest):
         # Trying to run script as described: 
         #http://trac.openmicroscopy.org.uk/omero/browser/trunk/components/blitz/resources/omero/api/IScript.ice#L40
         scriptService = self.root.sf.getScriptService()
+        client = self.root
         
         scriptLines = [
         "import omero",
+        "from omero.rtypes import rstring",
         "import omero.scripts as scripts",
-        "if __name__ == '__main__':"
+        "if __name__ == '__main__':",
         "    client = scripts.client('HelloWorld.py', 'Hello World example script',",
-        "    scripts.String('message', optional=True))"]
+        "    scripts.String('message', optional=True))",
+        "    client.setOutput('returnMessage', rstring('Script ran OK!'))"]
         script = "\n".join(scriptLines)
+        
+        print script
         
         scriptId = scriptService.uploadScript("path", script)
         map = {"message": omero.rtypes.rstring("Sending this message to the server!"), }  
@@ -90,6 +96,8 @@ class TestScripts(lib.ITest):
             results = proc.getResults(0)    # ms
         finally:
             proc.close(False)
+            
+        self.assertFalse("returnMessage" in results, "Script should not have run. No user processor!")
 
 if __name__ == '__main__':
     unittest.main()
