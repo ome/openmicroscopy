@@ -248,10 +248,12 @@ public class ScriptRepoHelper {
     public Long findInDb(SimpleJdbcOperations jdbc, String path,
             boolean relative) {
 
-        RepoFile repoFile = build(path, relative);
+        final RepoFile repoFile = build(path, relative);
+
         try {
             return jdbc.queryForLong("select id from originalfile "
-                    + "where repo = ? and path = ?", uuid, repoFile.rel);
+                    + "where repo = ? and path = ? and name = ?",
+                    uuid, repoFile.dirname(), repoFile.basename());
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
@@ -313,10 +315,10 @@ public class ScriptRepoHelper {
                 }
 
                 OriginalFile ofile = new OriginalFile();
-                ofile.setName(fsFile.name);
+                ofile.setPath(repoFile.dirname());
+                ofile.setName(repoFile.basename());
                 ofile.setSha1(fsFile.sha1());
                 ofile.setSize(fsFile.length());
-                ofile.setPath(repoFile.rel);
                 ofile.setMimetype("text/x-python");
                 ofile.getDetails().setGroup(
                         new ExperimenterGroup(roles.getUserGroupId(), false));
@@ -435,6 +437,13 @@ public class ScriptRepoHelper {
             return new File(fs.path);
         }
 
+        public String basename() {
+            return FilenameUtils.getName(rel);
+        }
+
+        public String dirname() {
+            return FilenameUtils.getFullPath(rel);
+        }
         @Override
         public String toString() {
             return super.toString() + ":" + this.rel;
