@@ -17,7 +17,6 @@ from exceptions import Exception
 from omero.cli import BaseControl
 from omero_ext.strings import shlex
 from omero.util import edit_path
-from omero.util.temp_files import create_path, remove_path
 import omero.java
 
 def getprefs(args, dir):
@@ -38,6 +37,7 @@ Syntax: %(program_name)s prefs
         args = Arguments(args)
         first, other = args.firstOther()
         if first == 'edit':
+            from omero.util.temp_files import create_path, remove_path
             start_text = "# Edit your preferences below. Comments are ignored\n"
             start_text += getprefs(["get"], str(self.ctx.dir / "lib"))
             temp_file = create_path()
@@ -48,20 +48,6 @@ Syntax: %(program_name)s prefs
         else:
             dir = self.ctx.dir / "lib"
             self.ctx.out(getprefs(args.args, str(dir)))
-
-    def __edit(self, start_text):
-        editor = os.getenv("VISUAL") or os.getenv("EDITOR")
-        if not editor:
-            if sys.platform == "windows":
-                editor = "Notepad.exe"
-            else:
-                editor = "vi"
-        temp_file = create_path()
-        temp_file.write_text(start_text)
-        pid = os.spawnlp(os.P_WAIT, editor, editor, temp_file)
-        if pid:
-            raise RuntimeError("Couldn't spawn editor: %s" % editor)
-        return temp_file
 
 try:
     register("config", PrefsControl)

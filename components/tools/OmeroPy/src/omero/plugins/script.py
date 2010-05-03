@@ -19,7 +19,6 @@
 
 import exceptions, subprocess, os, sys, signal, time, atexit
 from omero.cli import BaseControl, Arguments
-from omero.util.temp_files import create_path
 from omero_ext.strings import shlex
 from omero_ext.functional import wraps
 
