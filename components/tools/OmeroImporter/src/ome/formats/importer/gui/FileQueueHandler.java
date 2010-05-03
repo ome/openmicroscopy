@@ -27,9 +27,12 @@ import info.clearthought.layout.TableLayout;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -43,13 +46,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JSplitPane;
-import javax.swing.JTable;
 import javax.swing.WindowConstants;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.plaf.basic.BasicDirectoryModel;
+import javax.swing.plaf.basic.BasicFileChooserUI;
 
 import loci.formats.IFormatReader;
 import loci.formats.gui.FormatFileFilter;
@@ -130,6 +137,10 @@ public class FileQueueHandler extends JPanel
         fileChooser = new FileQueueChooser(config, scanReader);
         fileChooser.addActionListener(this);
         fileChooser.addPropertyChangeListener(this);
+        
+        //TODO: Finish TypeSelectorCode
+        //new TypeSelector(fileChooser);
+        
         
         //fc.setAccessory(new FindAccessory(fc));
         
@@ -910,5 +921,89 @@ public class FileQueueHandler extends JPanel
                 directoryProgressBar.setString("Scanned " + numFiles + " of " + totalFiles);   
             }
         });
-    }   
+    } 
+     
+    
+    
+    /**
+     * Filter the JFileChooser list based on typed input
+     * 
+     * @author Brian W. Loranger
+     *
+     */
+    public class TypingFilter extends KeyAdapter implements PropertyChangeListener {
+        private JFileChooser chooser;
+        private Vector files;
+        private StringBuffer searchString = new StringBuffer();
+        private Boolean resetSearchString = true;
+
+        
+        /**
+         * Find the JList containing the file view
+         * and add a key listener to it
+         * 
+         * @param chooser
+         */
+        public TypingFilter(JFileChooser chooser) {
+            this.chooser = chooser;
+            Component comp = findChooserList(chooser);
+            if (comp == null) return;
+            comp.addKeyListener(this);
+            setChooserListListener();
+            chooser.addPropertyChangeListener(this);
+        }
+        
+        private Component findChooserList(Component comp) {
+            if (comp.getClass() == JList.class) return comp;
+            if (comp instanceof Container) {
+                Component[] components = ((Container)comp).getComponents();
+                for(int i = 0; i < components.length; i++) {
+                    Component child = findChooserList(components[i]);
+                    if (child != null) return child;
+                }
+            }
+            return null;
+        }
+        
+        public void propertyChange(PropertyChangeEvent e) {
+            String prop = e.getPropertyName();
+            if (prop.equals(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY)) {
+                if (resetSearchString) searchString.setLength(0);
+                resetSearchString = true;
+            }
+        }
+
+        public void keyTyped(KeyEvent ke) {
+            if (ke.getKeyChar() == KeyEvent.VK_ENTER) {
+                if (chooser.getSelectedFile().isFile()) chooser.approveSelection();
+            }
+            searchString.append(ke.getKeyChar());
+            String lcSearchString = searchString.toString().toLowerCase();
+            for(int i = 0; i < files.size(); i++) {
+                File item = (File)files.get(i);
+                String name = item.getName().toLowerCase();
+                if (name.contains(lcSearchString)) {
+                    resetSearchString = false;
+                    chooser.setSelectedFile(item);
+                    return;
+                }
+            }
+        }
+    
+        private void setChooserListListener() {
+            final BasicDirectoryModel model = 
+                ((BasicFileChooserUI)chooser.getUI()).getModel();
+            model.addListDataListener(new ListDataListener() {
+                public void contentsChanged(ListDataEvent lde) {
+                    Vector buffer = model.getFiles();
+                    if (buffer.size() > 0) {
+                        files = buffer;
+                    }
+                }
+                public void intervalAdded(ListDataEvent lde) {}
+                public void intervalRemoved(ListDataEvent lde) {}
+            });
+        }
+    }
+    
 }

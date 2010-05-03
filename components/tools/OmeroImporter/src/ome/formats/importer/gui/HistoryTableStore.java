@@ -122,6 +122,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
     	this.store = store;
         this.sf = store.getServiceFactory();
         this.iQuery = sf.getQueryService();
+        if (!sf.sharedResources().areTablesEnabled()) historyEnabled = false;
     }
     
 	/* (non-Javadoc)
@@ -297,27 +298,8 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
      * @throws ServerError
      */
     private void initializeBaseTable() throws ServerError 
-    {
-    	/*
-    	 * TODO: need something eligant to check if tables service is installed
-    	 * (see ticket #2175)
-    	 * 
-    	TablePrx testTable = sf.sharedResources().newTable(1, "historyTestTable");
-        if (testTable == null)
-        {
-        	System.err.println("testTable is null");
-        	historyEnabled = false;
-        }
-        else
-        {
-        	System.err.println("deleting testTable");
-        	historyEnabled = true;
-        	IUpdatePrx update = sf.getUpdateService();
-        	update.deleteObject(testTable.getOriginalFile());        	
-        }
-    	
+    {   	
         if (historyEnabled == false) return;
-        */
         
         List<OriginalFile> baseFiles = getOriginalFiles(baseDBNAME);
         
