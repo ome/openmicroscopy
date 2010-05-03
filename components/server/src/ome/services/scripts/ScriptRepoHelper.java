@@ -290,7 +290,7 @@ public class ScriptRepoHelper {
         if (id == null) {
             obj = addOrReplace(file, null);
         } else {
-            obj = load(id);
+            obj = load(id, false);
             if (modificationCheck) {
                 sha1 = file.sha1();
                 if (!sha1.equals(obj.getSha1())) {
@@ -355,18 +355,27 @@ public class ScriptRepoHelper {
         return repo;
     }
 
-    public OriginalFile load(final long id) {
+    public OriginalFile load(final long id, final boolean check) {
         return (OriginalFile) ex.execute(p, new Executor.SimpleWork(this,
                 "load", id) {
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
-                return load(id, sf);
+                return load(id, session, check);
             }
         });
     }
 
-    public OriginalFile load(final long id, ServiceFactory sf) {
-        return sf.getQueryService().get(OriginalFile.class, id);
+    public OriginalFile load(final long id, Session s, boolean check) {
+        if (check) {
+            String repo = (String) s.createSQLQuery(
+                    "select repo from OriginalFile where id = ?")
+                    .setParameter(0, id)
+                    .uniqueResult();
+            if (!uuid.equals(repo)) {
+                return null;
+            }
+        }
+        return (OriginalFile) s.get(OriginalFile.class, id);
     }
 
     /**
@@ -378,7 +387,7 @@ public class ScriptRepoHelper {
 
     public boolean delete(long id) {
 
-        final OriginalFile file = load(id);
+        final OriginalFile file = load(id, true);
         if (file == null) {
             return false;
         }

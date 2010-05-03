@@ -18,14 +18,12 @@ import omero.rtypes as OR
 class TestCoverage(lib.ITest):
 
     def setUp(self):
-        lib.ITest.setUp(self)
-        self.rs = self.root.sf.getScriptService()
-        self.us = self.client.sf.getScriptService()
-
-    def testGetScripts(self):
         """
         getScripts returns official scripts, several of which are shipped with OMERO.
         """
+        lib.ITest.setUp(self)
+        self.rs = self.root.sf.getScriptService()
+        self.us = self.client.sf.getScriptService()
         self.assert_( len(self.rs.getScripts()) > 0 )
         self.assert_( len(self.us.getScripts()) > 0 )
         self.assert_( len(self.us.getUserScripts([])) == 0) # New user. No scripts

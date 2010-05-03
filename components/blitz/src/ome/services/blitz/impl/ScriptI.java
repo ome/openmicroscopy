@@ -206,7 +206,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                 // to prevent optimistic locking
                 file.getDetails().setUpdateEvent(null);
 
-                OriginalFile official = scripts.load(file.getId());
+                OriginalFile official = scripts.load(file.getId(), true);
                 if (official != null) {
                     scripts.write(official.getPath(), scriptText, true, true);
                 } else {
@@ -367,7 +367,12 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                 final QueryBuilder qb = new QueryBuilder();
                 qb.select("o").from("OriginalFile", "o");
 
-                parseAcceptsList(qb, acceptsList);
+                if (!parseAcceptsList(qb, acceptsList)) {
+                    long uid = factory.sessionManager
+                        .getEventContext(factory.principal)
+                        .getCurrentUserId();
+                    qb.and("o.details.owner.id = " + uid);
+                }
 
                 List<Long> officialIds = scripts.idsInDb();
                 if (officialIds != null && officialIds.size() > 0) {
@@ -423,7 +428,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
                         IceMapper mapper = new IceMapper();
                         if (official) {
-                            return mapper.map(scripts.load(id, sf));
+                            return mapper.map(scripts.load(id, session, true));
                         } else {
                             return mapper.map(
                                     sf.getQueryService()
@@ -463,12 +468,12 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     // Non-public-methods
     // =========================================================================
 
-    private void parseAcceptsList(final QueryBuilder qb,
+    private boolean parseAcceptsList(final QueryBuilder qb,
             final List<IObject> acceptsList) {
         qb.where();
         qb.and("o.mimetype = '" + ParamsHelper.PYTHONSCRIPT + "'");
 
-        if (acceptsList != null && acceptsList.size() == 0) {
+        if (acceptsList != null && acceptsList.size() > 0) {
             for (IObject object : acceptsList) {
                 if (object instanceof Experimenter) {
                     qb.and("o.details.owner.id = :oid");
@@ -481,7 +486,9 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                             "Unsupported accept-type: " + object);
                 }
             }
+            return true;
         }
+        return false;
     }
 
     /**
