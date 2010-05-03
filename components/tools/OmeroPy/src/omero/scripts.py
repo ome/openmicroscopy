@@ -311,7 +311,7 @@ def validate_inputs(params, inputs, svc = None, session = None):
     errors = ""
     for key, param in params.inputs.items():
         if key not in inputs:
-            if param.optional
+            if param.optional:
                 if param.useDefault and svc is not None:
                     ignore = set_input(svc, session, key, param.prototype)
             else: # Not optional
