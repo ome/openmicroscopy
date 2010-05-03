@@ -87,6 +87,19 @@ finally:
     c.closeSession()
 """
 
+FILE4 = IMPORTS + """#Using Params subtypes, advanced
+
+in1 =  OS.Long("a", min=1, max=10)
+in2 =  OS.Long("b", min=10, max=100)
+out1 = OS.String("result", values=["a","b","c"]).out()
+
+c = OS.client("my script", in1, in2, out1, namespaces = ["file4"])
+
+try:
+    c.setOutput(OR.rstring("my simple result"))
+finally:
+    c.closeSession()
+"""
 class TestParams(lib.ITest):
 
     def doTest(self, text):

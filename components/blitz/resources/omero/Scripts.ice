@@ -122,6 +122,13 @@ module omero {
             bool optional;
 
             /**
+             * Whether or not the prototype should be used as a default.
+             * If true, then if the value is missing from the input OR
+             * output values, the prototype will be substituted.
+             **/
+            bool useDefault;
+
+            /**
              * [omero::RType] which represents what the input or output value
              * should look like. If this is a collection type (i.e. [omero::RCollection]
              * or [omero::RMap] or their subclasses), then the first contents of

@@ -792,7 +792,7 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
                 sf = self.internal_session()
                 svc = sf.getSessionService()
                 inputs = svc.getInputs(session)
-                errors = omero.scripts.validate_inputs(params, inputs)
+                errors = omero.scripts.validate_inputs(params, inputs, svc, session)
                 if errors:
                     errors = "Invalid parameters:\n%s" % errors
                     raise omero.ValidationException(None, None, errors)

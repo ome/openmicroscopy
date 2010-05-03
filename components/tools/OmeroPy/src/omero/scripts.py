@@ -24,78 +24,106 @@ import exceptions
 import omero
 import omero_Scripts_ice
 import omero.util.concurrency
+
 from omero.rtypes import *
 
 
-class Type:
-    def __init__(self, name, optional = False, out = False, description = None, type = None, min = None, max = None, values = None):
+class Type(omero.grid.Param):
+    """
+    omero.grid.Param subclass which provides convenience methods for input/output specification.
+    Further subclasses are responsible for creating proper prototypes.
+    """
+
+    def __init__(self, name, optional = False, out = False, description = None, min = None, max = None, values = None, **kwargs):
+
+        # Non-Param attributes
         self._name = name
-        self._param = omero.grid.Param()
-        self._param.description = description
-        self._param.optional = optional
-        self._param.min = min
-        self._param.max = max
-        self._param.values = values
         self._in = True
         self._out = out
+
+        # Other values will be filled in by the kwargs
+        # Mostly leaving these for backwards compatibility
+        self.description = description
+        self.optional = optional
+
+        # The following use wrap to guarantee that an rtype is present
+        self.min = wrap(min)
+        self.max = wrap(max)
+        self.values = wrap(values)
+
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
     def out(self):
         self._in = False
         self._out = True
         return self
+
     def inout(self):
         self._in = True
         self._out = True
         return self
-    def optional(self):
-        self._param.optional = True
-        return self
-    def values(self, *args):
-        self._param.values = rlist([rtype(x) for x in args])
-        return self
-    def min(self, arg):
-        self._param.min = rtype(arg)
-        return self
-    def max(self, arg):
-        self._param.max = rtype(arg)
-        return self
+
     def type(self, arg):
-        self._param.prototype = rtype(arg)
+        self.prototype = rtype(arg)
         return self
-    def param(self):
-        return self._param
+
 
 class Long(Type):
-    def __init__(self, name, optional = False, out = False):
-        Type.__init__(self, name, optional, out)
+
+    def __init__(self, name, optional = False, out = False, description = None, min = None, max = None, values = None, **kwargs):
+        Type.__init__(self, name, optional, out, description, min, max, values, **kwargs)
         self.type(rlong(0))
+
+
 class String(Type):
-    def __init__(self, name, optional = False, out = False):
-        Type.__init__(self, name, optional, out)
+
+    def __init__(self, name, optional = False, out = False, description = None, min = None, max = None, values = None, **kwargs):
+        Type.__init__(self, name, optional, out, description, min, max, values, **kwargs)
         self.type(rstring(""))
+
+
 class Bool(Type):
-    def __init__(self, name, optional = False, out = False):
-        Type.__init__(self, name, optional, out)
+
+    def __init__(self, name, optional = False, out = False, description = None, min = None, max = None, values = None, **kwargs):
+        Type.__init__(self, name, optional, out, description, min, max, values, **kwargs)
         self.type(rbool(False))
+
+
 class Point(Type):
-    def __init__(self, name, optional = False, out = False):
-        Type.__init__(self, name, optional, out)
+
+    def __init__(self, name, optional = False, out = False, description = None, min = None, max = None, values = None, **kwargs):
+        Type.__init__(self, name, optional, out, description, min, max, values, **kwargs)
         self.type(rinternal(omero.Point()))
+
+
 class Plane(Type):
-    def __init__(self, name, optional = False, out = False):
-        Type.__init__(self, name, optional, out)
+
+    def __init__(self, name, optional = False, out = False, description = None, min = None, max = None, values = None, **kwargs):
+        Type.__init__(self, name, optional, out, description, min, max, values, **kwargs)
         self.type(rinternal(omero.Plane()))
+
+
 class Set(Type):
-    def __init__(self, name, optional = False, out = False, *contents):
-        Type.__init__(self, name, optional, out)
-        self.type(rset(contents))
+
+    def __init__(self, name, optional = False, out = False, description = None, min = None, max = None, values = None, **kwargs):
+        Type.__init__(self, name, optional, out, description, min, max, values, **kwargs)
+        self.type(rset())
+
+
 class List(Type):
-    def __init__(self, name, optional = False, out = False, *contents):
-        Type.__init__(self, name, optional, out)
-        self.type(rlist(contents))
+
+    def __init__(self, name, optional = False, out = False, description = None, min = None, max = None, values = None, **kwargs):
+        Type.__init__(self, name, optional, out, description, min, max, values, **kwargs)
+        self.type(rlist())
+
+
 class Map(Type):
-    def __init__(self, name, optional = False, out = False, **contents):
-        Type.__init__(self, name, optional, out)
-        self.type(rmap(contents))
+
+    def __init__(self, name, optional = False, out = False, description = None, min = None, max = None, values = None, **kwargs):
+        Type.__init__(self, name, optional, out, description, min, max, values, **kwargs)
+        self.type(rmap())
+
 
 class ParseExit(exceptions.Exception):
     """
@@ -105,6 +133,7 @@ class ParseExit(exceptions.Exception):
     def __init__(self, params):
         exceptions.Exception.__init__(self)
         self.params = params
+
 
 def client(*args, **kwargs):
     """
@@ -174,11 +203,10 @@ def client(*args, **kwargs):
 
     for p in args:
         if isinstance(p, Type):
-            param = p.param()
             if p._in:
-                c.params.inputs[p._name] = param
+                c.params.inputs[p._name] = p
             if p._out:
-                c.params.outputs[p._name] = param
+                c.params.outputs[p._name] = p
         else:
             raise ValueError("Not Type: %s" % type(p))
 
@@ -269,12 +297,28 @@ def check_values(values, input):
 
     return errors
 
-def validate_inputs(params, inputs):
+def validate_inputs(params, inputs, svc = None, session = None):
+    """
+    Method used by processor.py to check the input values
+    provided by the user launching the script. If a non-empty
+    errors string is returned, then the inputs fail validation.
+
+    A service instance can be provided in order to add default
+    values to the session. If no service instance is provided,
+    values with a default which are missing will be counted as
+    errors.
+    """
     errors = ""
     for key, param in params.inputs.items():
         if key not in inputs:
-            if not param.optional:
-                errors += error_msg("Missing input", "%s", key)
+            if param.optional
+                if param.useDefault and svc is not None:
+                    ignore = set_input(svc, session, key, param.prototype)
+            else: # Not optional
+                if param.useDefault:
+                    errors += set_input(svc, session, key, param.prototype)
+                else:
+                    errors += error_msg("Missing input", "%s", key)
         else:
             input = inputs[key]
             errors += compare_proto(param.prototype, input)
@@ -282,6 +326,11 @@ def validate_inputs(params, inputs):
             errors += check_values(param.values, input)
     return errors
 
+def set_input(svc, session, key, value):
+    try:
+        svc.setInput(session, key, value)
+    except exceptions.Exception, e:
+        return error_msg("Failed to set intput", "%s=%s. Error: %s", key, value, e)
 
 class ProcessCallbackI(omero.grid.ProcessCallback):
     """
