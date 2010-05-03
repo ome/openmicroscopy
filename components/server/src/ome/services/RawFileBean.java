@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
+import java.sql.SQLException;
 import java.util.zip.Checksum;
 
 import ome.annotations.RolesAllowed;
@@ -27,6 +28,9 @@ import ome.util.Utils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -197,7 +201,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
      */
     @RolesAllowed("user")
     @Transactional(readOnly = true)
-    public synchronized void setFileId(long fileId) {
+    public synchronized void setFileId(final long fileId) {
         if (id == null || id.longValue() != fileId) {
             id = new Long(fileId);
             file = null;
@@ -205,7 +209,18 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
             buffer = null;
 
             modified = false;
-            file = iQuery.get(OriginalFile.class, id);
+            file = iQuery.get(OriginalFile.class, fileId);
+            String repo = (String) iQuery.execute(new HibernateCallback<String>(){
+                public String doInHibernate(Session arg0)
+                        throws HibernateException, SQLException {
+                    return (String) arg0.createSQLQuery(
+                            "select repo from originalfile where id = ?")
+                            .setParameter(0, fileId)
+                            .uniqueResult();
+                }});
+            if (repo != null) {
+                throw new RuntimeException(repo);
+            }
             buffer = ioService.getFileBuffer(file);
         }
     }

@@ -125,6 +125,7 @@ module omero {
              * value.
              **/
             omero::api::RawFileStore*    write(string path) throws ServerError;
+            omero::api::RawFileStore*    file(long id) throws ServerError;
             omero::api::RawPixelsStore*  pixels(string path) throws ServerError;
             omero::api::RenderingEngine* render(string path) throws ServerError;
             omero::api::ThumbnailStore*  thumbs(string path) throws ServerError;

@@ -103,5 +103,27 @@ class TestParams(lib.ITest):
     def test3(self):
         self.doTest(FILE3)
 
+    def testOfficial(self):
+        svc = self.client.sf.getScriptService()
+        scripts = svc.getScripts()
+        s = zip([(x.id.val, "%s/%s" % (x.path.val, x.name.val)) for x in scripts if "omero" in x.path.val])
+        print s
+
+        script = scripts[0]
+        params = svc.getParams(script.id.val)
+        print params
+
+    def testRedirectTicket2253(self):
+        svc = self.client.sf.getScriptService()
+        scripts = svc.getScripts()
+        script_id = [x.id.val for x in scripts if "omero" in x.path.val][0]
+
+        from omero.util.temp_files import create_path
+        p = create_path("TestParams")
+        self.client.download(omero.model.OriginalFileI(script_id, False), str(p))
+        downloaded_sha1 = self.client.sha1(str(p))
+        database_sha1 = self.client.sf.getQueryService().get("OriginalFile", script_id).sha1.val
+        self.assertEquals(database_sha1, downloaded_sha1)
+
 if __name__ == '__main__':
     unittest.main()

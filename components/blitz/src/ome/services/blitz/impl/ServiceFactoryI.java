@@ -24,6 +24,7 @@ import ome.services.blitz.fire.Registry;
 import ome.services.blitz.fire.TopicManager;
 import ome.services.blitz.util.ServantHolder;
 import ome.services.blitz.util.ServiceFactoryAware;
+import ome.services.blitz.util.TieAware;
 import ome.services.blitz.util.UnregisterServantMessage;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
@@ -482,6 +483,10 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                 SHAREDRESOURCES.value, current));
     }
 
+    public Ice.TieBase getTie(Ice.Identity id) {
+        return (Ice.TieBase) holder.get(id);
+    }
+
     public Object getServant(Ice.Identity id) {
         return holder.getUntied(id);
     }
@@ -854,6 +859,9 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                 }
                 if (obj instanceof ServiceFactoryAware) {
                     ((ServiceFactoryAware) obj).setServiceFactory(this);
+                }
+                if (obj instanceof TieAware) {
+                    ((TieAware) obj).setTie(tie);
                 }
             }
             return servant;

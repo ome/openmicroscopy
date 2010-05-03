@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -18,6 +19,7 @@ import ome.logic.HardWiredInterceptor;
 import ome.security.SecuritySystem;
 import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.blitz.util.ConvertToBlitzExceptionMessage;
+import ome.services.blitz.util.RegisterServantMessage;
 import ome.services.blitz.util.UnregisterServantMessage;
 import ome.services.messages.DestroySessionMessage;
 import ome.services.sessions.SessionManager;
@@ -26,6 +28,7 @@ import ome.services.util.Executor;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.Roles;
+import ome.util.messages.MessageException;
 import omero.ApiUsageException;
 import omero.WrappedCreateSessionException;
 import omero.api.ClientCallbackPrxHelper;
@@ -42,7 +45,6 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
 import Glacier2.CannotCreateSessionException;
-import Glacier2.IdentitySetPrx;
 import Glacier2.StringSetPrx;
 
 /**
@@ -264,38 +266,31 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
     // =========================================================================
 
     public void onApplicationEvent(ApplicationEvent event) {
-        if (event instanceof UnregisterServantMessage) {
-            UnregisterServantMessage msg = (UnregisterServantMessage) event;
-            Ice.Current curr = msg.getCurrent();
+        try {
+            if (event instanceof UnregisterServantMessage) {
+                UnregisterServantMessage msg = (UnregisterServantMessage) event;
+                Ice.Current curr = msg.getCurrent();
 
-            // And unregister the service if possible
-            Ice.Identity id;
-            try {
-                String clientId = ServiceFactoryI.clientId(curr);
-                id = ServiceFactoryI.sessionId(clientId, curr.id.category);
-            } catch (ApiUsageException e) {
-                throw new RuntimeException(
-                        "Could not unregister servant: could not create session id"
-                        + String.format("\nInfo:\n\tId:%s\n\tOp:%s\n\tCtx:%s",
-                                Ice.Util.identityToString(curr.id),
-                                curr.operation, curr.ctx),
-                                e);
-            }
-            Ice.Object obj = curr.adapter.find(id);
-            if (obj == null) {
-                log.info("ServiceFactory null: "+id.name);
-            } else if (obj instanceof ServiceFactoryI) {
-                ServiceFactoryI sf = (ServiceFactoryI) obj;
+                // And unregister the service if possible
+                Ice.Identity id = getServiceFactoryIdentity(curr);
+                ServiceFactoryI sf = getServiceFactory(id);
                 sf.unregisterServant(curr.id);
-            } else {
-                log.warn("Not a ServiceFactory: " + obj);
+            } else if (event instanceof RegisterServantMessage) {
+                RegisterServantMessage msg = (RegisterServantMessage) event;
+                Ice.Current curr = msg.getCurrent();
+                Ice.Identity id = getServiceFactoryIdentity(curr);
+                ServiceFactoryI sf = getServiceFactory(id);
+                Ice.Identity newId = new Ice.Identity(UUID.randomUUID().toString(), id.name);
+                msg.setProxy(sf.registerServant(newId, msg.getServant()));
+            } else if (event instanceof DestroySessionMessage) {
+                DestroySessionMessage msg = (DestroySessionMessage) event;
+                reapSession(msg.getSessionId());
+            } else if (event instanceof ChangeSecurityContextEvent) {
+                ChangeSecurityContextEvent csce = (ChangeSecurityContextEvent) event;
+                checkStatefulServices(csce);
             }
-        } else if (event instanceof DestroySessionMessage) {
-            DestroySessionMessage msg = (DestroySessionMessage) event;
-            reapSession(msg.getSessionId());
-        } else if (event instanceof ChangeSecurityContextEvent) {
-            ChangeSecurityContextEvent csce = (ChangeSecurityContextEvent) event;
-            checkStatefulServices(csce);
+        } catch (Throwable t) {
+            throw new MessageException("SessionManagerI.onApplicationEvent", t);
         }
     }
 
@@ -370,15 +365,41 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
     protected ServiceFactoryI getServiceFactory(String clientId, String sessionId) {
         Ice.Identity iid = ServiceFactoryI.sessionId(clientId,
                 sessionId);
+        return getServiceFactory(iid);
+    }
+
+    protected ServiceFactoryI getServiceFactory(Ice.Identity iid) {
         Ice.Object obj = adapter.find(iid);
         if (obj == null) {
             log.debug(Ice.Util.identityToString(iid)
                     + " already removed.");
             return null;
-        } else {
+        }
+
+        if (obj instanceof ServiceFactoryI) {
             ServiceFactoryI sf = (ServiceFactoryI) obj;
             return sf;
+        } else {
+            log.warn("Not a ServiceFactory: " + obj);
+            return null;
         }
+
+    }
+
+    protected Ice.Identity getServiceFactoryIdentity(Ice.Current curr) {
+        Ice.Identity id;
+        try {
+            String clientId = ServiceFactoryI.clientId(curr);
+            id = ServiceFactoryI.sessionId(clientId, curr.id.category);
+        } catch (ApiUsageException e) {
+            throw new RuntimeException(
+                    "Cannot create session id for servant:"
+                    + String.format("\nInfo:\n\tId:%s\n\tOp:%s\n\tCtx:%s",
+                            Ice.Util.identityToString(curr.id),
+                            curr.operation, curr.ctx),
+                            e);
+        }
+        return id;
     }
 
     protected String getGroup(Ice.Current current) {

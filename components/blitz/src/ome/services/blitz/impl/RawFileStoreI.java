@@ -7,20 +7,34 @@
 
 package ome.services.blitz.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Callable;
+
 import ome.api.RawFileStore;
 import ome.services.blitz.util.BlitzExecutor;
+import ome.services.blitz.util.ServiceFactoryAware;
+import ome.services.blitz.util.TieAware;
+import ome.services.util.Executor;
 import omero.ServerError;
 import omero.api.AMD_RawFileStore_exists;
 import omero.api.AMD_RawFileStore_read;
 import omero.api.AMD_RawFileStore_save;
 import omero.api.AMD_RawFileStore_setFileId;
 import omero.api.AMD_RawFileStore_write;
-import omero.api.AMD_StatefulServiceInterface_activate;
-import omero.api.AMD_StatefulServiceInterface_close;
-import omero.api.AMD_StatefulServiceInterface_passivate;
-import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
+import omero.api.RawFileStorePrx;
 import omero.api._RawFileStoreOperations;
+import omero.api._RawFileStoreTie;
+import omero.grid.RepositoryPrx;
+import omero.grid.RepositoryPrxHelper;
+import omero.model.OriginalFile;
+import omero.util.IceMapper;
+
+import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
+import org.springframework.transaction.annotation.Transactional;
+
 import Ice.Current;
+import Ice.TieBase;
 
 /**
  * Implementation of the RawFileStore service.
@@ -30,10 +44,25 @@ import Ice.Current;
  * @see ome.api.RawFileStore
  */
 public class RawFileStoreI extends AbstractAmdServant implements
-        _RawFileStoreOperations {
+        _RawFileStoreOperations, ServiceFactoryAware, TieAware {
+
+    private ServiceFactoryI sf;
+
+    private _RawFileStoreTie tie;
 
     public RawFileStoreI(RawFileStore service, BlitzExecutor be) {
         super(service, be);
+    }
+
+    public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
+        this.sf = sf;
+    }
+
+    public void setTie(TieBase tie) throws ServerError {
+        if (!(tie instanceof _RawFileStoreTie)) {
+            throw new RuntimeException("Bad tie: " + tie);
+        }
+        this.tie = (_RawFileStoreTie) tie;
     }
 
     // Interface methods
@@ -42,7 +71,6 @@ public class RawFileStoreI extends AbstractAmdServant implements
     public void exists_async(AMD_RawFileStore_exists __cb, Current __current)
             throws ServerError {
         callInvokerOnRawArgs(__cb, __current);
-
     }
 
     public void read_async(AMD_RawFileStore_read __cb, long position,
@@ -53,8 +81,22 @@ public class RawFileStoreI extends AbstractAmdServant implements
 
     public void setFileId_async(AMD_RawFileStore_setFileId __cb, long fileId,
             Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, fileId);
 
+        try {
+            if (__redirect(fileId, tie, __current)) {
+                __cb.ice_response();
+            } else {
+                callInvokerOnRawArgs(__cb, __current, fileId);
+            }
+        } catch (Throwable e) {
+            if (e instanceof Exception) {
+                __cb.ice_exception((Exception) e);
+            } else {
+                omero.InternalException ie = new omero.InternalException();
+                IceMapper.fillServerError(ie, e);
+                __cb.ice_exception(ie);
+            }
+        }
     }
 
     public void write_async(AMD_RawFileStore_write __cb, byte[] buf,
@@ -68,4 +110,108 @@ public class RawFileStoreI extends AbstractAmdServant implements
         callInvokerOnRawArgs(__cb, __current);
     }
 
+    public boolean __redirect(final long fileId, final _RawFileStoreTie rfsTie,
+            final Ice.Current current) throws ServerError {
+
+        final String repo = (String) sf.executor
+                .executeStateless(new Executor.SimpleStatelessWork(this,
+                        "__redirect", fileId) {
+                    @Transactional(readOnly = true)
+                    public Object doWork(SimpleJdbcOperations jdbc) {
+                        return jdbc.queryForObject(
+                                "select repo from OriginalFile where id = ?",
+                                String.class, fileId);
+                    }
+                });
+
+        // This implementation is intended only for local use (i.e.
+        // ${omero.data.dir})
+        if (repo == null) {
+            return false;
+        }
+
+        // WORKAROUND: store the current session in the context.
+        // If this isn't available, it won't be possible for this instance
+        // to be registered with
+        Map<String, String> adjustedCtx = new HashMap<String, String>(current.ctx);
+        adjustedCtx.put("omero.session", current.id.category);
+
+        final Ice.ObjectPrx prx = sf.getAdapter().createProxy(
+                Ice.Util.stringToIdentity("PublicRepository-" + repo));
+        final RepositoryPrx repoPrx = RepositoryPrxHelper.checkedCast(prx);
+        final RawFileStorePrx rfsPrx = repoPrx.file(fileId, adjustedCtx);
+        OpsDelegate ops = new OpsDelegate(be, rfsTie, this, rfsPrx);
+        ops.setApplicationContext(ctx);
+        tie.ice_delegate(ops);
+        return true;
+    }
+
+    private static class OpsDelegate extends AbstractAmdServant implements
+            _RawFileStoreOperations {
+
+        final private _RawFileStoreTie tie;
+
+        final private RawFileStoreI impl;
+
+        final private RawFileStorePrx prx;
+
+        OpsDelegate(BlitzExecutor be, _RawFileStoreTie tie, RawFileStoreI impl, RawFileStorePrx prx) {
+            super(null, be);
+            this.tie = tie;
+            this.impl = impl;
+            this.prx = prx;
+        }
+
+        public void exists_async(AMD_RawFileStore_exists __cb, Current __current)
+                throws ServerError {
+            safeRunnableCall(__current, __cb, false, new Callable<Boolean>() {
+                public Boolean call() throws Exception {
+                    return prx.exists();
+                }
+            });
+        }
+
+        public void read_async(AMD_RawFileStore_read __cb, final long position,
+                final int length, Current __current) throws ServerError {
+            safeRunnableCall(__current, __cb, false, new Callable<byte[]>() {
+                public byte[] call() throws Exception {
+                    return prx.read(position, length);
+                }
+            });
+        }
+
+        public void save_async(AMD_RawFileStore_save __cb, Current __current)
+                throws ServerError {
+            safeRunnableCall(__current, __cb, false,
+                    new Callable<OriginalFile>() {
+                        public OriginalFile call() throws Exception {
+                            return prx.save();
+                        }
+                    });
+        }
+
+        /**
+         * Resets the original implementation, allowing for the creation
+         * of another delegate.
+         */
+        public void setFileId_async(AMD_RawFileStore_setFileId __cb,
+                long fileId, Current __current) throws ServerError {
+
+            tie.ice_delegate(impl); // Remove self. Frees for GC.
+            tie.setFileId_async(__cb, fileId, __current);
+
+        }
+
+        public void write_async(AMD_RawFileStore_write __cb, final byte[] buf,
+                final long position, final int length, Current __current)
+                throws ServerError {
+            safeRunnableCall(__current, __cb, true, new Callable<Object>() {
+                public Object call() throws Exception {
+                    prx.write(buf, position, length);
+                    return null;
+                }
+            });
+        }
+
+    }
 }

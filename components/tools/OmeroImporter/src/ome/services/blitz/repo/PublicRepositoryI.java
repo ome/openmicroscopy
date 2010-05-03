@@ -53,6 +53,7 @@ import loci.formats.ImageWriter;
 import loci.formats.meta.IMetadata;
 import loci.formats.services.OMEXMLService;
 import ome.formats.importer.ImportContainer;
+import ome.services.blitz.util.RegisterServantMessage;
 import ome.services.db.PgArrayHelper;
 import ome.services.util.Executor;
 import ome.system.Principal;
@@ -60,6 +61,7 @@ import ome.system.ServiceFactory;
 import omero.ServerError;
 import omero.ValidationException;
 import omero.api.RawFileStorePrx;
+import omero.api.RawFileStorePrxHelper;
 import omero.api.RawPixelsStorePrx;
 import omero.api.RenderingEnginePrx;
 import omero.api.ThumbnailStorePrx;
@@ -98,6 +100,10 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
     private final static Log log = LogFactory.getLog(PublicRepositoryI.class);
 
+    private final static String OMERO_PATH = ".omero";
+
+    private final static String THUMB_PATH = "thumbnails";
+
     private final long id;
 
     private final File root;
@@ -110,9 +116,6 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
     private final Principal principal;
     
-    private final static String OMERO_PATH = ".omero";
-    private final static String THUMB_PATH = "thumbnails";
-
     private String repoUuid;
 
     public PublicRepositoryI(File root, long repoObjectId, Executor executor,
@@ -456,6 +459,45 @@ y.
         return null;
     }
 
+    public RawFileStorePrx file(long fileId, Current __current) throws ServerError {
+        File file = getFile(fileId);
+        if (file == null) {
+            return null;
+        }
+
+        // WORKAROUND: See the comment in RawFileStoreI.
+        // The most likely correction of this
+        // is to have PublicRepositories not be global objects, but be created
+        // on demand for each session via SharedResourcesI
+        Ice.Current adjustedCurr = new Ice.Current();
+        adjustedCurr.ctx = __current.ctx;
+        adjustedCurr.operation = __current.operation;
+        String sessionUuid = __current.ctx.get("omero.session");
+        adjustedCurr.id = new Ice.Identity(__current.id.name, sessionUuid);
+
+        // TODO: Refactor all this into a single helper method.
+        // If there is no listener available who will take responsibility
+        // for this servant, then we bail.
+        RepoRawFileStoreI rfs = new RepoRawFileStoreI(fileId, file);
+        RegisterServantMessage msg = new RegisterServantMessage(this, rfs, adjustedCurr);
+        try {
+            this.executor.getContext().publishMessage(msg);
+        } catch (Throwable t) {
+            if (t instanceof ServerError) {
+                throw (ServerError) t;
+            } else {
+                omero.InternalException ie = new omero.InternalException();
+                IceMapper.fillServerError(ie, t);
+                throw ie;
+            }
+        }
+        Ice.ObjectPrx prx = msg.getProxy();
+        if (prx == null) {
+            throw new omero.InternalException(null, null, "No ServantHolder for proxy.");
+        }
+        return RawFileStorePrxHelper.uncheckedCast(prx);
+    }
+
     public RawFileStorePrx read(String path, Current __current)
             throws ServerError {
         // TODO Auto-generated method stub
@@ -778,6 +820,31 @@ y.
         rv = (List<OriginalFile>) mapper.map(fileList);
 
         return rv;
+    }
+
+    /**
+     * Get an {@link OriginalFile} object based on its id. Returns null if
+     * the file does not exist or does not belong to this repo.
+     */
+    private File getFile(final long id) {
+        final String uuid = getRepoUuid();
+        return (File) executor.execute(principal, new Executor.SimpleWork(this, "getFile", id) {
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                            String path = (String) session.createSQLQuery(
+                                    "select path || name from OriginalFile " +
+                                    "where id = ? and repo = ?")
+                                    .setParameter(0, id)
+                                    .setParameter(1, uuid)
+                                    .uniqueResult();
+
+                            if (path == null) {
+                                return null;
+                            }
+
+                            return new File(root, path);
+                    }
+                });
     }
 
     /**
