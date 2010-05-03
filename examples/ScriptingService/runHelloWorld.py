@@ -42,14 +42,19 @@ import omero_api_IScript_ice
 import omero_SharedResources_ice
 from omero.rtypes import *
 
-def run(commandArgs):
 
-    # log on to the server with values from the command arguments, creating a client and session
-    client = omero.client(commandArgs["host"])
-    session = client.createSession(commandArgs["username"], commandArgs["password"]);
+def uploadScript(scriptService, scriptPath):
+    
+    file = open(scriptPath)
+    script = file.read()
+    file.close()
+    print script
+    # prints the script ID to the command line. This can be used to run the script. E.g. see runHelloWorld.py
+    scriptId = scriptService.uploadScript(scriptPath, script)
+    print "Script uploaded with ID:", scriptId
 
-    scriptPath = commandArgs["script"]
-    scriptService = session.getScriptService()
+
+def runScript(scriptService, scriptPath):
     
     # Identify the script we want to run: Get all 'my' scripts and filter by path.  
     acceptsList = [] # An empty list implies that the server should return what it would by default trust.
@@ -120,10 +125,21 @@ def readCommandArgs():
             returnMap["password"] = arg  
         elif opt in ("-s","--script"): 
             returnMap["script"] = arg  
-        
-    return returnMap             
+                   
     return returnMap
+
 
 if __name__ == "__main__":        
     commandArgs = readCommandArgs();
-    run(commandArgs);
+    
+    # log on to the server, create client and session and scripting service
+    client = omero.client(commandArgs["host"])
+    session = client.createSession(commandArgs["username"], commandArgs["password"]);
+    scriptPath = commandArgs["script"]
+    scriptService = session.getScriptService()
+    
+    # upload script. Could comment this out if you just want to run. 
+    uploadScript(scriptService, scriptPath)
+    
+    # run script
+    runScript(scriptService, scriptPath)
