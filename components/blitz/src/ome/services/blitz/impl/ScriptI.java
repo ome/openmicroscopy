@@ -7,6 +7,7 @@
 
 package ome.services.blitz.impl;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -255,7 +256,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
         if (scripts.isInRepo(file.getId())) {
             try {
-                return scripts.read(file.getPath(), true);
+                return scripts.read(file.getPath() + "/" + file.getName(), true);
             } catch (IOException e) {
                 omero.ResourceError re = new omero.ResourceError(null, null, "Failed to load " + file);
                 IceMapper.fillServerError(re, e);

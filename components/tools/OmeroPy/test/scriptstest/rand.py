@@ -38,7 +38,8 @@ SENDFILE = """
 #!/usr/bin/env python
 
 import omero, omero.scripts as s
-from mlabwrap import mlab;
+import random
+
 client = s.client("rand.py", "get Random", s.Long("x").inout(), s.Long("y").inout())
 client.createSession()
 print "Session"
@@ -51,7 +52,7 @@ for key in keys:
 
 x = client.getInput("x").val
 y  = client.getInput("y").val
-val = mlab.rand(x,y);
+val = random.randint(x,y);
 print val
 
 """

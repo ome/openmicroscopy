@@ -12,15 +12,15 @@
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
-#  
+#
 #  You should have received a copy of the GNU General Public License along
 #  with this program; if not, write to the Free Software Foundation, Inc.,
 #  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 #------------------------------------------------------------------------------
 #
-# Projection.py will project an image(OME::Pixels) using either maximum 
-# intensity, average intensity projections.  
+# Projection.py will project an image(OME::Pixels) using either maximum
+# intensity, average intensity projections.
 # @param pixelId the id of the pixels to project.
 # @param channelSet the set of the channels of the pixels object to use.
 # @param timeSet the set of the timePoints of the pixels object to use.
@@ -41,7 +41,7 @@ def zeros(w,h):
     return [0]
 
 def Projection():
- 		AVERAGE="average"
+		AVERAGE="average"
 		MAX="max"
 		SUM="sum"
 
@@ -69,50 +69,50 @@ def Projection():
 		method = client.getInput("method")
 
 		# method to create a new pixels from an pixels. This method will create
-		# a new pixels object, with width, height, channelSet channels and 
-		# one timepoint and one zsection from the original image. 
+		# a new pixels object, with width, height, channelSet channels and
+		# one timepoint and one zsection from the original image.
 		# It will use the original image to set the bitdepth, channel info, meta-
-		# data. 
-		# TODO : Need a method to complete this, either in the client object, or 
+		# data.
+		# TODO : Need a method to complete this, either in the client object, or
 		# via another service.
 		#newPixelsID = client.copyPixels(pixelsID, [width, height, channelSet, timeSet, 1])
-		
-		# Iterate original image, over the channelSet, timeSet, zSectionSet and create 
-		# the new plane based on the method 
+
+		# Iterate original image, over the channelSet, timeSet, zSectionSet and create
+		# the new plane based on the method
 		for channel in channelSet:
 			for time in timeSet:
 				newPlaneData = zeros(areaWidth, areaHeight)
 				for zSection in zSectionSet:
-					
-					# I think that a mechanism for getting planes from the system, and writing 
+
+					# I think that a mechanism for getting planes from the system, and writing
 					# values to it may be necessary. This method should return an array so it
 					# is simple to manipulate in python, (scripting should not really involve
 					# too much bit twiddling :)
 					planeData = getRawPlane.getRawPlane(rawPixelsStore, queryService, pixelsID, zSection, channel, time)
-					
+
 					# loop through the selection of the original image.
 					for x in range(point1.x, point2.x):
 						for y in range(point1.y, point2.y):
-						
+
 							# The new image coords are just offset by point1 values.
 							newImageX = x-point1.x
 							newImageY = y-point1.y
-						
+
 							# Apply projection method.
 							if method == AVERAGE or method == SUM:
 								newPlaneData[newImageX][newImageY] += planeData[x][y];
 							if method == MAX:
-								newPlaneData[newImageX][newImageY] = max(newPlaneData[newImageX][newImageY], planeData[x][y])		
+								newPlaneData[newImageX][newImageY] = max(newPlaneData[newImageX][newImageY], planeData[x][y])
 				# calculate mean for AVERAGE method.
 				if method == AVERAGE:
 					for x in range(0, areaWidth):
 						for y in range(0, areaHeight):
 							newPlaneData[x][y] /= len(zSectionSet)
-				
+
 				# A method to set the plane of the newImage to the newPlaneData
-				# TODO : 
+				# TODO :
 				#client.setPlane(newPixelsID, newPlaneData, 1, time, channel, time);
-					
+
 		# save the image?
 		client.setOutput("newPixelsID", rlong(-1))
 

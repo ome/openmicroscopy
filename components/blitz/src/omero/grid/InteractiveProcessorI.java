@@ -432,7 +432,10 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
                 JobHandle jh = sf.createJobHandle();
                 try {
                     jh.attach(job.getId().getValue());
-                    jh.setStatusAndMessage("Error", ve.message);
+                    jh.setStatusAndMessage("Error", // Just make it SQL "text"?
+                            (ve.message == null ? null :
+                                ve.message.substring(0,
+                                        Math.min(255, ve.message.length()))));
                 } finally {
                     jh.close();
                 }

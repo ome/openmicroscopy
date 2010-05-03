@@ -230,7 +230,7 @@ public abstract class AbstractAmdServant implements ApplicationContextAware {
         // Then we publish the close event
         try {
             InternalMessage msg = new UnregisterServantMessage(this, __current);
-            ctx.publishEvent(msg);
+            ctx.publishMessage(msg);
         } catch (Throwable t2) {
             log.error("Error on close, stage2", t2);
             t = t2;

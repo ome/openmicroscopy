@@ -274,14 +274,18 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
                 // And unregister the service if possible
                 Ice.Identity id = getServiceFactoryIdentity(curr);
                 ServiceFactoryI sf = getServiceFactory(id);
-                sf.unregisterServant(curr.id);
+                if (sf != null) {
+                    sf.unregisterServant(curr.id);
+                }
             } else if (event instanceof RegisterServantMessage) {
                 RegisterServantMessage msg = (RegisterServantMessage) event;
                 Ice.Current curr = msg.getCurrent();
                 Ice.Identity id = getServiceFactoryIdentity(curr);
                 ServiceFactoryI sf = getServiceFactory(id);
-                Ice.Identity newId = new Ice.Identity(UUID.randomUUID().toString(), id.name);
-                msg.setProxy(sf.registerServant(newId, msg.getServant()));
+                if (sf != null) {
+                    Ice.Identity newId = new Ice.Identity(UUID.randomUUID().toString(), id.name);
+                    msg.setProxy(sf.registerServant(newId, msg.getServant()));
+                }
             } else if (event instanceof DestroySessionMessage) {
                 DestroySessionMessage msg = (DestroySessionMessage) event;
                 reapSession(msg.getSessionId());
@@ -304,10 +308,12 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
         for (String clientId : clientIds) {
             try {
                 ServiceFactoryI sf = getServiceFactory(clientId, uuid);
-                int count = sf.getStatefulServiceCount();
-                if (count > 0) {
-                    csce.cancel("Client " + clientId +
-                            " has active stateful services: count=" + count);
+                if (sf != null) {
+                    int count = sf.getStatefulServiceCount();
+                    if (count > 0) {
+                        csce.cancel("Client " + clientId +
+                                " has active stateful services: count=" + count);
+                    }
                 }
             } catch (Exception e) {
                 // ignore

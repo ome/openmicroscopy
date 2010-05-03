@@ -30,7 +30,7 @@ public class MessageException extends RuntimeException {
      * @param throwable
      */
     public MessageException(String msg, Throwable throwable) {
-        super(msg);
+        super(msg, throwable);
         t = throwable;
     }
 
