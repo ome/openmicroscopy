@@ -70,10 +70,16 @@ BOOST_AUTO_TEST_CASE( fileAnnotation )
 	IUpdatePrx u = sf->getUpdateService();
 
 	// Create temp file
-	string unique_content = IceUtil::generateUUID();
 	char * pointer = "testXXXXXX";
+#ifdef _WIN32
+        int err;
+        err = _mktemp_s(pointer, 11); // Length plus one for null
+        BOOST_CHECK( ! err );
+#else
 	mkstemp(pointer);
+#endif
 
+	string unique_content = IceUtil::generateUUID();
 	{
 	    ofstream out(pointer);
 	    out << "<xml>" << endl;
