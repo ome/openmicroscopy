@@ -44,11 +44,13 @@ import omero.api.AMD_IScript_uploadOfficialScript;
 import omero.api.AMD_IScript_uploadScript;
 import omero.api.AMD_IScript_validateScript;
 import omero.api._IScriptOperations;
+import omero.grid.InteractiveProcessorI;
 import omero.grid.InteractiveProcessorPrx;
 import omero.grid.JobParams;
 import omero.grid.ParamsHelper;
 import omero.grid.ProcessPrx;
 import omero.grid.ScriptProcessPrx;
+import omero.grid.SharedResourcesPrx;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.IObject;
@@ -110,11 +112,14 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                 if (waitSecs != null) {
                     timeout = waitSecs.getValue();
                 }
-                InteractiveProcessorPrx prx =
-                    factory.sharedResources().acquireProcessor(job, timeout);
-                ProcessPrx proc = prx.execute(omero.rtypes.rmap(inputs));
 
-                ScriptProcessI process = new ScriptProcessI(factory, __current, prx, proc);
+                SharedResourcesPrx srPrx = factory.sharedResources(__current);
+                SharedResourcesI sr = (SharedResourcesI) factory.getServant(srPrx.ice_getIdentity());
+                InteractiveProcessorPrx ipPrx = sr.acquireProcessor(job, timeout, __current);
+                InteractiveProcessorI ip = (InteractiveProcessorI) factory.getServant(ipPrx.ice_getIdentity());
+                ProcessPrx proc = ip.execute(omero.rtypes.rmap(inputs), __current);
+
+                ScriptProcessI process = new ScriptProcessI(factory, __current, ipPrx, ip, proc);
                 return process.getProxy();
             }
 

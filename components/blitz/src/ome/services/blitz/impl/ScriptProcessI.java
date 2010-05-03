@@ -16,6 +16,7 @@ import omero.RType;
 import omero.ServerError;
 import omero.api.JobHandlePrx;
 import omero.constants.categories.PROCESSCALLBACK;
+import omero.grid.InteractiveProcessorI;
 import omero.grid.InteractiveProcessorPrx;
 import omero.grid.ProcessCallbackI;
 import omero.grid.ProcessCallbackPrx;
@@ -39,7 +40,9 @@ public class ScriptProcessI extends _ScriptProcessDisp {
 
     private static Log log = LogFactory.getLog(ScriptProcess.class);
 
-    private final InteractiveProcessorPrx processor;
+    private final InteractiveProcessorPrx processorPrx;
+
+    private final InteractiveProcessorI processor;
 
     private final ProcessPrx process;
 
@@ -54,9 +57,10 @@ public class ScriptProcessI extends _ScriptProcessDisp {
     private final long jobId;
 
     public ScriptProcessI(ServiceFactoryI sf, Ice.Current current,
-            InteractiveProcessorPrx processor, ProcessPrx process)
+            InteractiveProcessorPrx processorPrx, InteractiveProcessorI processor, ProcessPrx process)
             throws ServerError {
         this.jobId = processor.getJob().getId().getValue();
+        this.processorPrx = processorPrx;
         this.processor = processor;
         this.process = process;
         this.sf = sf;
@@ -75,15 +79,15 @@ public class ScriptProcessI extends _ScriptProcessDisp {
     // =========================================================================
 
     public void close(boolean detach, Current __current) throws ServerError {
-        processor.setDetach(detach);
-        processor.stop();
-        sf.unregisterServant(processor.ice_getIdentity());
+        processor.setDetach(detach, __current);
+        processor.stop(__current);
+        sf.unregisterServant(processorPrx.ice_getIdentity());
         sf.unregisterServant(self.ice_getIdentity());
         this.cb.close();
     }
 
     public ScriptJob getJob(Current __current) throws ServerError {
-        return (ScriptJob) processor.getJob();
+        return (ScriptJob) processor.getJob(__current);
     }
 
     public Map<String, RType> getResults(int waitSecs, Current __current)
@@ -99,7 +103,7 @@ public class ScriptProcessI extends _ScriptProcessDisp {
         } catch (InterruptedException e) {
             // ok
         }
-        return processor.getResults(process).getValue();
+        return processor.getResults(process, __current).getValue();
     }
 
     public String setMessage(String message, Current __current)
