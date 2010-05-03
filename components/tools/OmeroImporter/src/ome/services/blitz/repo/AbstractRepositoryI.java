@@ -254,11 +254,11 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
                         log.warn("Couldn't find repository object: " + line);
                     }
 
+                    String path = FilenameUtils.normalize(new File(fileMaker.getDir()).getAbsolutePath());
                     r = new ome.model.core.OriginalFile();
                     r.setSha1(repoUuid);
-                    r.setName(fileMaker.getDir());
-                    r.setPath(FilenameUtils.normalize(
-                            new File(fileMaker.getDir()).getAbsolutePath()));
+                    r.setName(FilenameUtils.getName(path));
+                    r.setPath(FilenameUtils.getFullPath(path));
                     Timestamp t = new Timestamp(System.currentTimeMillis());
                     r.setAtime(t);
                     r.setMtime(t);
