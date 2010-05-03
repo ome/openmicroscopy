@@ -177,7 +177,7 @@ public class Main {
 
         // Display fields which could quickly
         // be parsed from known formats
-        Text text = new TextI();
+        Label text = new LabelI();
         text.setTextValue(rstring("This is a polyline"));
         text.setFontFamily(rstring("Verdana"));
         text.setFontSize(rint(40));
