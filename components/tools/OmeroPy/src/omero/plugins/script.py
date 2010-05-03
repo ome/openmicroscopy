@@ -312,7 +312,7 @@ print "Finished script"
         if user:
             id = sf.getAdminService().getEventContext().userId
             q = sf.getQueryService()
-            objs = q.findAllByQuery("select s from OriginalFile s where s.format.value = 'text/x-python' and s.details.owner.id = %s" % id, None)
+            objs = q.findAllByQuery("select s from OriginalFile s where s.mimetype = 'text/x-python' and s.details.owner.id = %s" % id, None)
             scripts = {}
             for obj in objs:
                 scripts[obj.id.val] = obj.name.val
