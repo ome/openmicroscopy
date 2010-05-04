@@ -55,6 +55,27 @@ import pojos.ExperimenterData;
 public class ScriptObject 
 {
 	
+	/** Path to the <code>Figure</code> script. */
+	public static final String FIGURE_PATH = "/omero/figure_scripts/";
+	
+	/** Path to the <code>Export</code> script. */
+	public static final String EXPORT_PATH = "/omero/export_scripts/";
+	
+	/** Path to the <code>Region</code> script. */
+	public static final String REGION_PATH = "/omero/region_scripts/";
+	
+	/** Indicates that the script is a <code>Export</code> script. */
+	public static final int EXPORT = 0;
+	
+	/** Indicates that the script is a <code>Figure</code> script. */
+	public static final int FIGURE = 1;
+	
+	/** Indicates that the script is a <code>Region</code> script. */
+	public static final int REGION = 2;
+	
+	/** Indicates that the script is a <code>Region</code> script. */
+	public static final int OTHER = 3;
+	
 	/** The id of the script. */
 	private long scriptID;
 	
@@ -103,8 +124,8 @@ public class ScriptObject
 	/** The MIME type of the script if set. */ 
 	private String	   mimeType;
 	
-	/** Flag indicating that the script is provided by OMERO. */
-	private boolean   systemScript;
+	/** The category of the script. */
+	private int 	  category;
 	
 	/** Converts the parameters. */
 	private void convertJobParameters()
@@ -146,22 +167,42 @@ public class ScriptObject
 		}
 	}
 	
+	/** Sets the category of the scripts. */
+	private void setCategory()
+	{
+		if (FIGURE_PATH.equals(path))
+			category = FIGURE;
+		else if (EXPORT_PATH.equals(path))
+			category = EXPORT;
+		else if (REGION_PATH.equals(path))
+			category = REGION;
+		else category = OTHER;
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param scriptID The id of the script if uploaded.
 	 * @param path The path of the script when stored in server
 	 */
-	public ScriptObject(long scriptID, String path)
+	public ScriptObject(long scriptID, String path, String name)
 	{
 		this.scriptID = scriptID;
 		this.path = path;
+		this.name = name;
+		setCategory();
 		description = "";
 		journalRef = "";
 		mimeType = null;
-		systemScript = true;
 		authors = new ArrayList<ExperimenterData>();
 	}
+	
+	/** 
+	 * Returns the label associated to the script.
+	 * 
+	 * @return See above.
+	 */
+	public String getScriptLabel() { return path+name; }
 	
 	/**
 	 * Returns the absolute path to the script.
@@ -169,13 +210,6 @@ public class ScriptObject
 	 * @return See above.
 	 */
 	public String getPath() { return path; }
-	
-	/**
-	 * Sets the name of the script.
-	 * 
-	 * @param name The value to set.
-	 */
-	public void setName(String name) { this.name = name; }
 	
 	/**
 	 * Returns the parameters.
@@ -367,23 +401,12 @@ public class ScriptObject
 	public void setMIMEType(String mimeType) { this.mimeType = mimeType; }
 	
 	/**
-	 * Returns <code>true</code> if the script is provided by OMERO,
-	 * <code>false</code> otherwise.
+	 * Returns the category of the script.
 	 * 
 	 * @return See above.
 	 */
-	public boolean isSystemScript() { return systemScript; }
+	public int getCategory() { return category; }
 	
-	/**
-	 * Sets the flag indicating that the script is provided by OMERO or not.
-	 * 
-	 * @param systemScript  Pass <code>true</code> if the script is provided 
-	 * 						by OMERO, <code>false</code> otherwise.
-	 */
-	public void setSystemScript(boolean systemScript)
-	{ 
-		this.systemScript = systemScript; 
-	}
 	
 	/**
 	 * Returns the parameters.
@@ -396,10 +419,6 @@ public class ScriptObject
 	 * Overridden to return the name of the script.
 	 * @see java.lang.Object#toString()
 	 */
-	public String toString()
-	{
-		if (name != null) return name;
-		return path;
-	}
+	public String toString() { return getScriptLabel(); }
 	
 }

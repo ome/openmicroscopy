@@ -52,16 +52,20 @@ public class FigureParam
 {
 
 	/** Identifies the <code>ROI Figure</code> script. */
-	public static final String ROI_SCRIPT = "roiFigure.py";
+	public static final String ROI_SCRIPT = 
+		ScriptObject.FIGURE_PATH+"roiFigure.py";
 	
 	/** Identifies the <code>Thumbnail Figure</code> script. */
-	public static final String THUMBNAIL_SCRIPT = "thumbnailFigure.py";
+	public static final String THUMBNAIL_SCRIPT = 
+		ScriptObject.FIGURE_PATH+"thumbnailFigure.py";
 	
 	/** Identifies the <code>Movie Figure</code> script. */
-	public static final String MOVIE_SCRIPT = "movieFigure.py";
+	public static final String MOVIE_SCRIPT = 
+		ScriptObject.FIGURE_PATH+"movieFigure.py";
 	
 	/** Identifies the <code>Split View Figure</code> script. */
-	public static final String SPLIT_VIEW_SCRIPT = "splitViewFigure.py";
+	public static final String SPLIT_VIEW_SCRIPT = 
+		ScriptObject.FIGURE_PATH+"splitViewFigure.py";
 	
 	/** The default text for the merged image. */
 	public static final String	MERGED_TEXT = "Merged";

@@ -342,7 +342,8 @@ public class ScriptUploaderDialog
 					return;
 			}
 		}
-		ScriptObject script = new ScriptObject(-1, f.getAbsolutePath());
+		ScriptObject script = new ScriptObject(-1, f.getAbsolutePath(), 
+				f.getName());
 		script.setMIMEType(mimeType);
 		//Set info about the script.
 		String value = journalRef.getText();

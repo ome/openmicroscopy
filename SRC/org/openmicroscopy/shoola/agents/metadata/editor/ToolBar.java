@@ -29,14 +29,18 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -316,17 +320,58 @@ class ToolBar
     {
     	JPopupMenu menu = new JPopupMenu();
     	Collection<ScriptObject> scripts = model.getScripts();
+    	//Scripts are sorted.
     	if (scripts == null) return menu;
     	Iterator<ScriptObject> i = scripts.iterator();
     	ScriptObject so;
     	JMenuItem item;
+    	List<JMenuItem> exports = new ArrayList<JMenuItem>();
+    	List<JMenuItem> figures = new ArrayList<JMenuItem>();
+    	List<JMenuItem> regions = new ArrayList<JMenuItem>();
+    	List<JMenuItem> others = new ArrayList<JMenuItem>();
     	while (i.hasNext()) {
     		so = i.next();
     		setScriptIcon(so);
     		item = new ScriptMenuItem(so);
     		item.addActionListener(controller);
-			menu.add(item);
+    		switch (so.getCategory()) {
+				case ScriptObject.EXPORT:
+					exports.add(item);
+					break;
+				case ScriptObject.FIGURE:
+					figures.add(item);
+					break;
+				case ScriptObject.REGION:
+					regions.add(item);
+					break;
+				default:
+					others.add(item);
+			}
 		}
+    	if (exports.size() > 0)
+    		menu.add(createSubMenu("Export Scripts", exports));
+    	if (figures.size() > 0)
+    		menu.add(createSubMenu("Figure Scripts", figures));
+    	if (regions.size() > 0)
+    		menu.add(createSubMenu("Region Scripts", regions));
+    	if (others.size() > 0)
+    		menu.add(createSubMenu("Uploaded Scripts", others));
+    	return menu;
+    }
+    
+    /**
+     * Creates a sub-menu.
+     * 
+     * @param name The name of the menu.
+     * @param list The list of items to add to the menu.
+     * @return See above.
+     */
+    private JMenu createSubMenu(String name, List<JMenuItem> list)
+    {
+    	Iterator<JMenuItem> j = list.iterator();
+    	JMenu menu = new JMenu(name);
+    	while (j.hasNext()) 
+    		menu.add(j.next());
     	return menu;
     }
     

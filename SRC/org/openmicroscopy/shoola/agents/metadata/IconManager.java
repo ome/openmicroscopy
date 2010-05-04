@@ -474,13 +474,13 @@ public class IconManager
         relPaths[ANALYSE_FRAP_22] = "FRAP22.png";
         relPaths[ANALYSE_FRAP] = "FRAP16.png";
         relPaths[ANALYSE_FRAP_48] = "FRAP48.png";
-        relPaths[PYTHON] = "crystal_source_cpp16.png";
+        relPaths[PYTHON] = "tango_text-x-python16.png";
         relPaths[MATLAB] = "crystal_source_cpp16.png";
-        relPaths[JAVA] = "crystal_source_java16.png";
+        relPaths[JAVA] = "tango_text-x-java-source16.png";
         relPaths[CPP] = "crystal_source_cpp16.png";
-        relPaths[PYTHON_48] = "crystal_source_java48.png";
+        relPaths[PYTHON_48] = "tango_text-x-python48.png";
         relPaths[MATLAB_48] = "crystal_source_java48.png";
-        relPaths[JAVA_48] = "crystal_source_java48.png";
+        relPaths[JAVA_48] = "tango_text-x-java-source48.png";
         relPaths[CPP_48] = "crystal_source_cpp48.png";
         relPaths[ANALYSIS_48] = "nuvola_kcmsystem48.png";
         relPaths[RESET] = "nuvola_undo16.png";

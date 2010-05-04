@@ -292,7 +292,8 @@ class OMEROGateway
 		SCRIPTS_UI_AVAILABLE.add(MovieExportParam.MOVIE_SCRIPT);
 		
 		SCRIPTS_NOT_AVAILABLE_TO_USER = new ArrayList<String>();
-		SCRIPTS_NOT_AVAILABLE_TO_USER.add("populateplateroi.py");
+		SCRIPTS_NOT_AVAILABLE_TO_USER.add(
+				ScriptObject.REGION_PATH+"populateplateroi.py");
 	}
 	
 	/**
@@ -5372,13 +5373,11 @@ class OMEROGateway
 			while (j.hasNext()) {
 				of = j.next();
 				value = of.getName();
-				if (value != null) v = value.getValue();
+				v = of.getPath().getValue()+ value.getValue();
 				if (!SCRIPTS_NOT_AVAILABLE_TO_USER.contains(v) &&
 					!SCRIPTS_UI_AVAILABLE.contains(v)) {
 					script = new ScriptObject(of.getId().getValue(), 
-							of.getPath().getValue());
-					
-					if (value != null) script.setName(v);
+							of.getPath().getValue(), of.getName().getValue());
 					value = of.getMimetype();
 					if (value != null) script.setMIMEType(value.getValue());
 					scripts.add(script);
@@ -5408,7 +5407,7 @@ class OMEROGateway
 		ScriptObject script = null;
 		try {
 			IScriptPrx svc = getScripService();
-			script = new ScriptObject(scriptID, "");
+			script = new ScriptObject(scriptID, "", "");
 			script.setJobParams(svc.getParams(scriptID));
 		} catch (Exception e) {
 			e.printStackTrace();
