@@ -1,5 +1,5 @@
 """
- components/tools/OmeroPy/scripts/makemovie.py 
+ components/tools/OmeroPy/scripts/makemovie.py
 
 -----------------------------------------------------------------------------
   Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -13,16 +13,16 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License along
   with this program; if not, write to the Free Software Foundation, Inc.,
   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 ------------------------------------------------------------------------------
 
-Make movie takes a number of parameters and creates an movie from the 
+Make movie takes a number of parameters and creates an movie from the
 image with imageId supplied. This movie is uploaded back to the server and
-attached to the original Image. 
+attached to the original Image.
 
 params:
 	imageId: this id of the image to create the movie from
@@ -40,7 +40,7 @@ params:
 	format:	The format of the movie to be created currently supports 'video/mpeg', 'video/quicktime'
 	overlayColour: The colour of the overlays, scalebar, time, as int(RGB)
 	fileAnnotation: The fileAnnotation id of the uploaded movie.
-	
+
 @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
 <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
 @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
@@ -50,7 +50,7 @@ params:
 (<b>Internal version:</b> $Revision: $Date: $)
 </small>
 @since 3.0-Beta4.1
- 
+
 """
 
 import omero.scripts as scripts
@@ -67,12 +67,12 @@ from PIL import Image
 from PIL import ImageDraw
 import omero_Constants_ice
 
-try: 
-	import hashlib 
- 	hash_sha1 = hashlib.sha1 
-except: 
-	import sha 
-	hash_sha1 = sha.new 
+try:
+	import hashlib
+	hash_sha1 = hashlib.sha1
+except:
+	import sha
+	hash_sha1 = sha.new
 
 MPEG = 'video/mpeg'
 QT = 'video/quicktime'
@@ -98,9 +98,9 @@ def calcSha1(filename):
 	return hash;
 
 def createFile(session, filename, format, ofilename=None):
- 	tempFile = omero.model.OriginalFileI();
- 	if(ofilename == None):
- 		ofilename = filename;
+	tempFile = omero.model.OriginalFileI();
+	if(ofilename == None):
+		ofilename = filename;
 	tempFile.setName(omero.rtypes.rstring(ofilename));
 	tempFile.setPath(omero.rtypes.rstring(ofilename));
 	if(format==WMV):
@@ -120,10 +120,10 @@ def attachMovieToImage(client, session, image, file, format):
 	l.setParent(image);
 	l.setChild(fa);
 	l = updateService.saveAndReturnObject(l);
-	client.setOutput("fileAnnotation",l.getChild().getId());	
+	client.setOutput("fileAnnotation",l.getChild().getId());
 
 def uploadMovie(client,session, image, output, format):
-	filename = 'movie.'+formatExtensionMap[format];	
+	filename = 'movie.'+formatExtensionMap[format];
 	originalFilename = output+'.'+formatExtensionMap[format];
 	file = createFile(session, filename, format, originalFilename);
 	rawFileStore = session.createRawFileStore();
@@ -143,7 +143,7 @@ def uploadMovie(client,session, image, output, format):
 		block = fileHandle.read(blockSize);
 		rawFileStore.write(block, cnt, blockSize);
 		cnt = cnt+blockSize;
-	attachMovieToImage(client, session, image, file, format)	
+	attachMovieToImage(client, session, image, file, format)
 
 
 def downloadPlane(gateway, pixels, pixelsId, x, y, z, c, t):
@@ -171,12 +171,12 @@ def buildAVI(sizeX, sizeY, filelist, fps, output, format):
 	formatExtension = formatExtensionMap[format];
 	if(format==WMV):
 		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=jpg -ovc lavc -lavcopts vcodec=wmv2 -o movie.'+formatExtension;
-	elif(format==QT):	
+	elif(format==QT):
 		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=png -ovc lavc -lavcopts vcodec=mjpeg:vbitrate=800  -o movie.'+formatExtension;
 	else:
 		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=jpg -ovc lavc -lavcopts vcodec=mpeg4 -o movie.'+formatExtension;
 	os.system(program+ args);
-	
+
 def rangeToStr(range):
 	first = 1;
 	string = "";
@@ -195,7 +195,7 @@ def rangeFromList(list, index):
 		minValue = min(minValue, i[index]);
 		maxValue = max(maxValue, i[index]);
 	return range(minValue, maxValue+1);
-	
+
 def calculateAquisitionTime(session, pixelsId, cRange, tzList):
 	queryService = session.getQueryService()
 	print tzList
@@ -217,8 +217,8 @@ def calculateAquisitionTime(session, pixelsId, cRange, tzList):
 			map[key] = info.deltaT.getValue()
 	for key in map:
 		map[key] = map[key]/len(cRange);
-	return map;	
-		
+	return map;
+
 def addScalebar(scalebar, image, pixels, commandArgs):
 	draw = ImageDraw.Draw(image)
 	if(pixels.getPhysicalSizeX()==None):
@@ -235,7 +235,7 @@ def addScalebar(scalebar, image, pixels, commandArgs):
 	draw.line([(scaleBarX,scaleBarY), (scaleBarX2,scaleBarY)], fill=commandArgs["overlayColour"])
 	draw.text(((scaleBarX+scaleBarX2)/2, scaleBarTextY), str(scalebar), fill=commandArgs["overlayColour"])
 	return image;
-	
+
 def addPlaneInfo(z, t, pixels, image, commandArgs):
 	draw = ImageDraw.Draw(image)
 	planeInfoTextY = pixels.getSizeY().getValue()-60;
@@ -243,7 +243,7 @@ def addPlaneInfo(z, t, pixels, image, commandArgs):
 	if(planeInfoTextY<=0 or textX > pixels.getSizeX().getValue() or planeInfoTextY>pixels.getSizeY().getValue()):
 		return image;
 	planeCoord = "z:"+str(z+1)+" t:"+str(t+1);
-	draw.text((textX, planeInfoTextY), planeCoord, fill=commandArgs["overlayColour"])		
+	draw.text((textX, planeInfoTextY), planeCoord, fill=commandArgs["overlayColour"])
 	return image;
 
 def addTimePoints(time, pixels, image, commandArgs):
@@ -254,8 +254,8 @@ def addTimePoints(time, pixels, image, commandArgs):
 		return image;
 	draw.text((textX, textY), str(time), fill=commandArgs["overlayColour"])
 	return image;
-	
-def getRenderingEngine(session, pixelsId, sizeC, cRange):	
+
+def getRenderingEngine(session, pixelsId, sizeC, cRange):
 	renderingEngine = session.createRenderingEngine();
 	renderingEngine.lookupPixels(pixelsId);
 	if(renderingEngine.lookupRenderingDef(pixelsId)==0):
@@ -270,8 +270,8 @@ def getRenderingEngine(session, pixelsId, sizeC, cRange):
 			renderingEngine.setActive(channel, 0)
 		for channel in cRange:
 			renderingEngine.setActive(channel, 1);
-	return renderingEngine;	
-		
+	return renderingEngine;
+
 def getPlane(renderingEngine, z, t):
 	planeDef = omero.romio.PlaneDef()
 	planeDef.t = t;
@@ -280,7 +280,7 @@ def getPlane(renderingEngine, z, t):
 	planeDef.y = 0;
 	planeDef.slice = 0;
 	return renderingEngine.renderAsPackedInt(planeDef);
-		
+
 def inRange(low, high, max):
 	if(low < 0 or low > high):
 		return 0;
@@ -344,7 +344,7 @@ def calculateRanges(sizeZ, sizeT, commandArgs):
 				commandArgs["tEnd"] = 0;
 			else:
 				commandArgs["tEnd"] = sizeT-1;
-		
+
 		zRange = range(commandArgs["zStart"], commandArgs["zEnd"]+1);
 		tRange = range(commandArgs["tStart"], commandArgs["tEnd"]+1);
 		planeMap = buildPlaneMapFromRanges(zRange, tRange);
@@ -368,7 +368,7 @@ def writeMovie(commandArgs, session):
 	sizeT = pixels.getSizeT().getValue();
 
 	if(sizeX==None or sizeY==None or sizeZ==None or sizeT==None or sizeC==None):
-		return; 
+		return;
 
 	if(pixels.getPhysicalSizeX()==None):
 		commandArgs["scalebar"]=0;
@@ -387,7 +387,7 @@ def writeMovie(commandArgs, session):
 	if(timeMap != None):
 		if(len(timeMap)==0):
 			commandArgs["showTime"]=0;
-	
+
 	pixelTypeString = pixels.getPixelsType().getValue().getValue();
 	frameNo = 1;
 	filelist='';
