@@ -34,7 +34,8 @@ class Type(omero.grid.Param):
     Further subclasses are responsible for creating proper prototypes.
     """
 
-    def __init__(self, name, optional = False, out = False, description = None, min = None, max = None, values = None, **kwargs):
+    def __init__(self, name, optional = False, out = False, description = None, useDefault = False,\
+                             min = None, max = None, values = None, **kwargs):
 
         # Non-Param attributes
         self._name = name
@@ -45,6 +46,7 @@ class Type(omero.grid.Param):
         # Mostly leaving these for backwards compatibility
         self.description = description
         self.optional = optional
+        self.useDefault = useDefault
 
         # The following use wrap to guarantee that an rtype is present
         self.min = wrap(min)
