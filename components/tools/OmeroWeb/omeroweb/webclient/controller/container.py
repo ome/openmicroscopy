@@ -664,7 +664,7 @@ class BaseContainer(BaseController):
             pass
         
         if format is None:
-            format = self.conn.getFileFormat("application/octet-stream")
+            format = "application/octet-stream"
         return format
     
     def createProjectFileAnnotation(self, newFile):
@@ -674,7 +674,7 @@ class BaseContainer(BaseController):
         oFile.setPath(rstring(str(newFile.name)));
         oFile.setSize(rlong(long(newFile.size)));
         oFile.setSha1(rstring("pending"));
-        oFile.setFormat(format);
+        oFile.setMimetype(format);
         
         of = self.conn.saveAndReturnObject(oFile);
         self.conn.saveFile(newFile, of.id)
@@ -693,7 +693,7 @@ class BaseContainer(BaseController):
         oFile.setPath(rstring(str(newFile.name)));
         oFile.setSize(rlong(long(newFile.size)));
         oFile.setSha1(rstring("pending"));
-        oFile.setFormat(format);
+        oFile.setMimetype(format);
         
         of = self.conn.saveAndReturnObject(oFile);
         self.conn.saveFile(newFile, of.id)
@@ -712,7 +712,7 @@ class BaseContainer(BaseController):
         oFile.setPath(rstring(str(newFile.name)));
         oFile.setSize(rlong(long(newFile.size)));
         oFile.setSha1(rstring("pending"));
-        oFile.setFormat(format);
+        oFile.setMimetype(format);
         
         of = self.conn.saveAndReturnObject(oFile);
         self.conn.saveFile(newFile, of.id)
@@ -731,7 +731,7 @@ class BaseContainer(BaseController):
         oFile.setPath(rstring(str(newFile.name)));
         oFile.setSize(rlong(long(newFile.size)));
         oFile.setSha1(rstring("pending"));
-        oFile.setFormat(format);
+        oFile.setMimetype(format);
         
         of = self.conn.saveAndReturnObject(oFile);
         self.conn.saveFile(newFile, of.id)
@@ -750,7 +750,7 @@ class BaseContainer(BaseController):
         oFile.setPath(rstring(str(newFile.name)));
         oFile.setSize(rlong(long(newFile.size)));
         oFile.setSha1(rstring("pending"));
-        oFile.setFormat(format);
+        oFile.setMimetype(format);
         
         of = self.conn.saveAndReturnObject(oFile);
         self.conn.saveFile(newFile, of.id)

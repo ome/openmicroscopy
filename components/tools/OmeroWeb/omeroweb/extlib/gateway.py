@@ -1312,8 +1312,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map["oid"] = rlong(long(oid))
         sql = "select f from FileAnnotation f join fetch f.file where f.id = :oid"
         of = query_serv.findByQuery(sql, p)
-        if not of.file.format.loaded:
-            of.file.format = query_serv.find("Format", of.file.format.id.val)
         return FileAnnotationWrapper(self, of)
     
     def getFile(self, f_id, size):
@@ -1368,6 +1366,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 ann = meta.loadAnnotations("Experimenter", [self.getEventContext().userId], None, None, None).get(self.getEventContext().userId, [])[0]
             else:
                 ann = meta.loadAnnotations("Experimenter", [long(oid)], None, None, None).get(long(oid), [])[0]
+            print ann
             store = self.createRawFileStore()
             store.setFileId(ann.file.id.val)
             photo = store.read(0,long(ann.file.size.val))
@@ -1422,7 +1421,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         else:
             imdata=StringIO()
             region.save(imdata, format=im.format)
-            self.uploadMyUserPhoto(ann.file.name.val, ann.file.format.value.val, imdata.getvalue())
+            self.uploadMyUserPhoto(ann.file.name.val, ann.file.mimetype.val, imdata.getvalue())
             
     def getExperimenterDefaultPhoto(self):
         img = Image.open(settings.DEFAULT_USER)
@@ -1435,7 +1434,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     
     def getFileFormat(self, format):
         query_serv = self.getQueryService()
-        return query_serv.findByString("Format", "value", format);
+        return query_serv.findByString("Format", "value", format).getValue().val;
     
     def saveFile(self, binary, oFile_id):
         store = self.createRawFileStore()
