@@ -160,7 +160,7 @@ public class ImportLibrary implements IObservable
     /**
      * Primary user method for importing a number 
      */
-    public void importCandidates(ImportConfig config, ImportCandidates candidates)
+    public boolean importCandidates(ImportConfig config, ImportCandidates candidates)
     {
         List<ImportContainer> containers = candidates.getContainers();
         if (containers != null) {
@@ -194,13 +194,14 @@ public class ImportLibrary implements IObservable
                 } catch (Throwable t) {                    
                     if (!config.contOnError.get()) {
                         log.info("Exiting on error");
-                        return;
+                        return false;
                     } else {
                         log.info("Continuing after error");
                     }
                 }
             }
         }
+        return true;
     }
 
     /** opens the file using the {@link FormatReader} instance */
