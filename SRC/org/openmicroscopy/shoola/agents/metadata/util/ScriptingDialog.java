@@ -34,6 +34,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -55,9 +56,11 @@ import org.jdesktop.swingx.JXTaskPane;
 
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.model.ParamData;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
+import org.openmicroscopy.shoola.util.ui.NumericalTextFieldLabelled;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ExperimenterData;
@@ -139,6 +142,9 @@ public class ScriptingDialog
 	/** The components to display. */
 	private Map<String, ScriptComponent> components;
 	
+	/** Used to sort collections. */
+	private ViewerSorter sorter;
+	
 	/** Closes the dialog. */
 	private void close()
 	{
@@ -164,11 +170,16 @@ public class ScriptingDialog
 		close();
 	}
 	
+	/** 
+	 * Creates a component displaying the various options.
+	 * 
+	 * @param values The values to display.
+	 * @return See above.
+	 */
 	private JComboBox createValuesBox(List<Object> values)
 	{
 		if (values == null) return null;
 		Object[] v = new Object[values.size()];
-		
 		JComboBox box = new JComboBox(v);
 		
 		return box;
@@ -177,6 +188,7 @@ public class ScriptingDialog
 	/** Initializes the components. */
 	private void initComponents()
 	{
+		sorter = new ViewerSorter();
 		List<ExperimenterData> experimenters = script.getAuthors();
 		Iterator<ExperimenterData> j;
 		author = new JTextField();
@@ -213,15 +225,18 @@ public class ScriptingDialog
 		applyButton.setToolTipText("Run the script.");
 		applyButton.setActionCommand(""+APPLY);
 		applyButton.addActionListener(this);
-		components = new LinkedHashMap<String, ScriptComponent>();
+		components = new LinkedHashMap<String, ScriptComponent>(); 
 		Map<String, ParamData> types = script.getInputs();
 		if (types == null) return;
+		Map <String, ScriptComponent> 
+			results = new HashMap<String, ScriptComponent>();
 		Entry entry;
 		ParamData param;
 		JComponent comp;
 		ScriptComponent c;
 		String name;
 		Class type;
+		Object defValue ;
 		Iterator i = types.entrySet().iterator();
 		List<Object> values;
 		Number n;
@@ -233,24 +248,33 @@ public class ScriptingDialog
 			name = (String) entry.getKey();
 			type = param.getPrototype();
 			values = param.getValues();
+			defValue = param.getDefaultValue();
 			if (values != null && values.size() > 0) {
 				comp = createValuesBox(values);
 			} else {
 				if (Long.class.equals(type) || Integer.class.equals(type)) {
-					//if (param)
-					comp = new NumericalTextField();
-					n = param.getMaxValue();
-					if (n != null) 
-						((NumericalTextField) comp).setMaximum(n.doubleValue());
-					n = param.getMinValue();
-					if (n != null) 
-						((NumericalTextField) comp).setMinimum(n.doubleValue());
-					((NumericalTextField) comp).setNumberType(type);
+					type = Double.class;
+					if (param.hasRangeSpecified()) {
+						comp = new NumericalTextFieldLabelled(type, 
+								param.getMinValue(), param.getMaxValue());
+						if (defValue != null)
+							((NumericalTextFieldLabelled) comp).setValue(
+									""+((Number) defValue).doubleValue());
+					} else {
+						comp = new NumericalTextField();
+						((NumericalTextField) comp).setNumberType(type);
+						if (defValue != null)
+							((NumericalTextField) comp).setText(
+									""+defValue);
+					}
 				} else if (String.class.equals(type)) {
 					comp = new JTextField();
+					if (defValue != null)
+						((JTextField) comp).setText(""+defValue);
 				} else if (Boolean.class.equals(type)) {
 					comp = new JCheckBox();
-					((JCheckBox) comp).setSelected(true);
+					if (defValue != null)
+						((JCheckBox) comp).setSelected((Boolean) defValue);
 				} else if (Map.class.equals(type)) {
 					comp = new JTextField();
 					name += " (Map)";
@@ -266,8 +290,15 @@ public class ScriptingDialog
 					c.setRequired(!param.isOptional());
 				if (details != null && details.trim().length() > 0)
 					c.setInfo(details);
-				components.put((String) entry.getKey(), c);
+				results.put((String) entry.getKey(), c);
 			}
+		}
+		List<String> sortedKeys = sorter.sort(results.keySet());
+		Iterator<String> k = sortedKeys.iterator();
+		String key;
+		while (k.hasNext()) {
+			key = k.next();
+			components.put(key, results.get(key));
 		}
 	}
 	

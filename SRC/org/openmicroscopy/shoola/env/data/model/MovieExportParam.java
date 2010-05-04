@@ -51,7 +51,7 @@ public class MovieExportParam
 
 	/** Identifies the <code>Movie</code> script. */
 	public static final String MOVIE_SCRIPT = 
-		ScriptObject.EXPORT_PATH+"makemovie.py";
+		ScriptObject.EXPORT_PATH+"makeMovie.py";
 	
 	/** Movie across z-section. */
 	public static final int		Z_MOVIE = 0;

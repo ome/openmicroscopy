@@ -380,6 +380,7 @@ public class NumericalTextField
 		public void insertString(int offset, String str, AttributeSet a)
 		{
 			try {
+
 				if (str == null) return;
 				for (int i = 0; i < str.length(); i++) {
 		            if (accepted.indexOf(String.valueOf(str.charAt(i))) == -1) {
@@ -400,7 +401,6 @@ public class NumericalTextField
 						return;
 					}
 				}
-				
 				if (str.equals(".") && accepted.equals(FLOAT)) {
 					super.insertString(offset, str, a);
 				} else if (str.equals("-") && negativeAccepted) {

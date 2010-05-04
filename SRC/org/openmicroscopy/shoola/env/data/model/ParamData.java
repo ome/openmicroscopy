@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import Freeze.Map;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -62,6 +64,18 @@ public class ParamData
 	/** The list of possible values. */
 	private List<Object> values;
 	
+	/** The default value. */
+	private Object defaultValue;
+	
+	/** The default value. */
+	private Object minValue;
+	
+	/** The default value. */
+	private Object maxValue;
+	
+	/** The type of object to handle. */
+	private Class type;
+	
 	/**
 	 * Converts the passed value.
 	 * 
@@ -79,6 +93,48 @@ public class ParamData
 		return null;
 	}
 	
+	/** Initializes the value. */
+	private void initialize()
+	{
+		type = null;
+		minValue = null;
+		maxValue = null;
+		RType t = param.prototype;
+		Object o = convertRType(t);
+		defaultValue = o;
+		if (o instanceof Long) {
+			type = Long.class;
+		} else if (o instanceof Integer) {
+			type = Integer.class;
+		} else if (o instanceof String) {
+			type = String.class;
+		} else if (o instanceof Boolean) {
+			type = Boolean.class;
+		} else if (o instanceof Float) {
+			type = Float.class;
+		} else if (o instanceof List) {
+			type = List.class;
+		} else if (o instanceof Map) {
+			type = Map.class;
+		}
+		Number n;
+		Object value = convertRType(param.min);
+		if (value instanceof Long || value instanceof Integer) {
+			minValue = value;
+			n = (Number) defaultValue;
+			if (n.doubleValue() < ((Number) minValue).doubleValue())
+				defaultValue = minValue;
+		}
+		value = convertRType(param.max);
+		if (value instanceof Long || value instanceof Integer) {
+			maxValue = value;
+			n = (Number) defaultValue;
+			if (n.doubleValue() > ((Number) maxValue).doubleValue())
+				defaultValue = maxValue;
+		}
+			
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -87,6 +143,7 @@ public class ParamData
 	public ParamData(Param param)
 	{
 		this.param = param;
+		initialize();
 	}
 	
 	/**
@@ -109,18 +166,7 @@ public class ParamData
 	 * 
 	 * @return See above.
 	 */
-	public Class getPrototype()
-	{
-		RType type = param.prototype;
-		Object o = convertRType(type);
-		if (o instanceof Long) return Long.class;
-		if (o instanceof Integer) return Integer.class;
-		if (o instanceof String) return String.class;
-		if (o instanceof Boolean) return Boolean.class;
-		if (o instanceof Float) return Float.class;
-		if (o instanceof List) return List.class;
-		return null;
-	}
+	public Class getPrototype() { return type; }
 	
 	/**
 	 * Returns the list of possible values or <code>null</code> if none set.
@@ -150,11 +196,9 @@ public class ParamData
 	 * @return See above.
 	 */
 	public Number getMaxValue()
-	{ 
-		Object value = convertRType(param.max);
-		if (value instanceof Long || value instanceof Integer)
-			return (Number) value;
-		return null; 
+	{  
+		if (maxValue == null) return null;
+		return (Number) maxValue; 
 	}
 	
 	/**
@@ -163,11 +207,20 @@ public class ParamData
 	 * @return See above.
 	 */
 	public Number getMinValue()
-	{ 
-		Object value = convertRType(param.min);
-		if (value instanceof Long || value instanceof Integer)
-			return (Number) value;
-		return null; 
+	{  
+		if (minValue == null) return null;
+		return (Number) minValue; 
+	}
+	
+	/**
+	 * Returns <code>true</code> if the minimum or maximum value is
+	 * set.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasRangeSpecified()
+	{
+		return (minValue != null || maxValue != null);
 	}
 	
 	/**
@@ -175,9 +228,10 @@ public class ParamData
 	 * 
 	 * @return See above.
 	 */
-	public Object getDefault()
+	public Object getDefaultValue()
 	{
-		return null;
+		return defaultValue;
+		//return null;
 	}
 	
 	

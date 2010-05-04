@@ -32,6 +32,7 @@ import java.util.Map;
 
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -42,7 +43,10 @@ import javax.swing.JTextField;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
+import org.openmicroscopy.shoola.util.ui.NumericalTextFieldLabelled;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import sun.rmi.runtime.GetThreadPoolAction;
 
 /** 
  * Hosts information related to a parameter for the script.
@@ -146,7 +150,7 @@ public class ScriptComponent
 			throw new IllegalArgumentException("No component specified.");
 		this.component = component;
 		label = UIUtilities.setTextFont(parameter);
-		
+		label.setToolTipText(component.getToolTipText());
 		required = false;
 	}
 	
@@ -223,6 +227,8 @@ public class ScriptComponent
 			return box.isSelected();
 		} else if (component instanceof NumericalTextField) {
 			return ((NumericalTextField) component).getValueAsNumber();
+		} else if (component instanceof NumericalTextFieldLabelled) {
+			return ((NumericalTextFieldLabelled) component).getValueAsNumber();
 		} else if (component instanceof JTextField) {
 			JTextField field = (JTextField) component;
 			String value = field.getText();
@@ -236,7 +242,11 @@ public class ScriptComponent
 				case LIST:
 					return convertStringToList(value);
 			}
+		} else if (component instanceof JComboBox) {
+			JComboBox box = (JComboBox) component;
+			return box.getSelectedItem();
 		}
+			
 		return null;
 	}
 	
