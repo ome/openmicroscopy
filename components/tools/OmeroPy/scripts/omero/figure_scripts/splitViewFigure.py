@@ -663,10 +663,10 @@ def runAsScript():
     
     def makeParam(paramClass, name, description=None, optional=True, min=None, max=None, values=None):
         param = paramClass(name, optional)
-        if description: param._param.description = description
-        if max: param._param.max = rlong(max) # should only be using max and min for scripts.Long
-        if min: param._param.min = rlong(min)
-        if values: param._param.values = rlist(values)
+        if description: param.description = description
+        if max: param.max = rlong(max) # should only be using max and min for scripts.Long
+        if min: param.min = rlong(min)
+        if values: param.values = rlist(values)
         return param
        
     labels = [rstring('IMAGENAME'), rstring('DATASETS'), rstring('TAGS')]
