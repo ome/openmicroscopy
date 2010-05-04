@@ -103,6 +103,7 @@ public class CommandLineImporter {
 
     public int start() {
 
+        boolean successful = true;
         if (getUsedFiles) {
             try {
                 candidates.print();
@@ -127,11 +128,11 @@ public class CommandLineImporter {
         else {       	
             library.addObserver(new LoggingImportMonitor());
             library.addObserver(new ErrorHandler(config));
-            library.importCandidates(config, candidates);
+            successful = library.importCandidates(config, candidates);
             report();
         }
 
-        return 0;
+        return successful? 0 : 2;
 
     }
     
