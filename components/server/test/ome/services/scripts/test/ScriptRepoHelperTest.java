@@ -42,7 +42,7 @@ public class ScriptRepoHelperTest extends AbstractManagedContextTest {
     public void setup() throws Exception {
         mkdir();
         loginRoot();
-        helper = new ScriptRepoHelper(uuid(), dir, this.executor,
+        helper = new ScriptRepoHelper(uuid(""), dir, this.executor,
                 this.loginAop.p, new Roles());
         assertEmptyRepo();
     }
@@ -126,7 +126,19 @@ public class ScriptRepoHelperTest extends AbstractManagedContextTest {
         helper.write(path.rel, "updated", true, false);
         helper.modificationCheck();
         assertFalse(helper.isInRepo(oldID));
+    }
 
+    public void testFileModificationsUpdateTheSha1() throws Exception {
+        path = generateFile();
+        files = helper.loadAll(false);
+        Long oldID = files.get(0).getId();
+        helper.write(path.rel, "updated", true, true);
+        files = helper.loadAll(false);
+        Long newID = files.get(0).getId();
+        assertFalse(oldID.equals(newID));
+        String fsSha1 = path.fs.sha1();
+        String dbSha1 = files.get(0).getSha1();
+        assertEquals(dbSha1, fsSha1);
     }
 
     public void testFilesCanBeDeletedByRelativeValue() throws Exception {

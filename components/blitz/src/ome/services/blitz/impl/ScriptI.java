@@ -185,7 +185,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
             public Long call() throws Exception {
                 try {
                     ScriptRepoHelper.RepoFile f = scripts.write(path, scriptText, true, false);
-                    return scripts.load(f.fs, false).getId();
+                    return scripts.load(f.fs, true).getId();
                 } catch (IOException e) {
                     omero.ServerError se = new omero.InternalException(null, null, "Cannot write " + path);
                     IceMapper.fillServerError(se, e);

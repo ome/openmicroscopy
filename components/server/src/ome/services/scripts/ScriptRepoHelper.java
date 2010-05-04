@@ -477,11 +477,11 @@ public class ScriptRepoHelper {
             this(file.getAbsolutePath());
         }
 
-        long length() {
+        public long length() {
             return new File(path).length();
         }
 
-        String sha1() {
+        public String sha1() {
             return Utils.bytesToHex(Utils.pathToSha1(path));
         }
 

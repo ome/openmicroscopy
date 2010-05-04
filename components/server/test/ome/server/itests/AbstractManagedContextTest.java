@@ -274,7 +274,11 @@ public class AbstractManagedContextTest extends
     }
 
     protected String uuid() {
-        return UUID.randomUUID().toString().replaceAll("-", "DASH");
+        return uuid("DASH");
+    }
+
+    protected String uuid(String dashes) {
+        return UUID.randomUUID().toString().replaceAll("-", dashes);
     }
 
     protected String getOmeroDataDir() {
