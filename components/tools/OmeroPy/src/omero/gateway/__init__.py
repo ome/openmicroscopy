@@ -2855,6 +2855,22 @@ class _ImageWrapper (BlitzObjectWrapper):
         return None
     
     def getThumbnail (self, size=(64,64), z=None, t=None):
+        """
+        Returns a string holding a rendered JPEG of the thumbnail.
+
+        @type size: tuple or number
+        @param size: A tuple with one or two ints, or an integer. If a tuple holding a single int,
+                     or a single int is passed as param, then that will be used as the longest size
+                     on the rendered thumb, and image aspect ratio is kept.
+                     If two ints are passed in a tuple, they set the width and height of the
+                     rendered thumb.
+        @type z: number
+        @param z: the Z position to use for rendering the thumbnail. Only used if T is also provided.
+        @type t: number
+        @param t: the T position to use for rendering the thumbnail. Only used if Z is also provided.
+        @rtype: string or None
+        @return: the rendered JPEG, or None if there was an error.
+        """
         try:
             tb = self._prepareTB()
             if tb is None:
