@@ -534,7 +534,6 @@ public class IceMapper extends ome.util.ModelMapper implements
         ec.isAdmin = ctx.isCurrentUserAdmin();
         // ticket:2265 Removing from public interface
         // ec.isReadOnly = ctx.isReadOnly();
-        ec.umask = convert(ctx.getCurrentUmask());
         ec.groupPermissions = convert(ctx.getCurrentGroupPermissions());
         return ec;
     }

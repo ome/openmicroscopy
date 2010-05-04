@@ -55,8 +55,6 @@ public interface EventContext {
 
     List<Long> getLeaderOfGroupsList();
 
-    Permissions getCurrentUmask();
-
     Permissions getCurrentGroupPermissions();
 
 }

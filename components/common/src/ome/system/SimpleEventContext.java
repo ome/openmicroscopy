@@ -94,7 +94,6 @@ public class SimpleEventContext implements EventContext, Serializable {
         try {
             this.isAdmin = ec.isCurrentUserAdmin();
             this.isReadOnly = ec.isReadOnly();
-            this.umask = ec.getCurrentUmask();
             this.ceId = ec.getCurrentEventId();
         } catch (UnsupportedOperationException e) {
             // ok

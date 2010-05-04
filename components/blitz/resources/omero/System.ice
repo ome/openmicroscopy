@@ -38,7 +38,6 @@ module omero {
       string eventType;
       LongList memberOfGroups;
       LongList leaderOfGroups;
-      omero::model::Permissions umask;
       omero::model::Permissions groupPermissions;
     };
 
