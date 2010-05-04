@@ -159,5 +159,50 @@ class TestScripts(lib.ITest):
         
         scriptService.editScript(scriptFile, script)
         
+        
+    def testScriptValidation(self):
+        scriptService = self.root.sf.getScriptService()
+        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        
+        scriptService = self.root.sf.getScriptService()
+        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+
+        invalidScript = "This text is not valid as a script"
+        
+        invalidPath = "/test/validation/invalid%s.py" % uuid
+        
+        invalidUpload = False
+        try:
+            # this should throw, since the script is invalid
+            invalidId = scriptService.uploadOfficialScript(invalidPath, invalidScript)
+            invalidUpload = True
+        except: pass
+        self.assertFalse(invalidUpload, "uploadOfficialScript() uploaded invalid script")
+        
+        # upload a valid script - then edit
+        scriptLines = [
+        "import omero",
+        "from omero.rtypes import rstring",
+        "import omero.scripts as scripts",
+        "if __name__ == '__main__':",
+        "    client = scripts.client('HelloWorld.py', 'Hello World example script',",
+        "    scripts.String('message', optional=True))",
+        "    client.setOutput('returnMessage', rstring('Script ran OK!'))"]
+        validScript = "\n".join(scriptLines)
+        validPath = "/test/validation/valid%s.py" % uuid
+        validId = scriptService.uploadOfficialScript(validPath, validScript)
+        
+        scripts = scriptService.getScripts()
+        namedScripts = [s for s in scripts if s.path.val + s.name.val == validPath]
+        scriptFile = namedScripts[0]
+        
+        invalidEdit = False
+        try:
+            # this should throw, since the script is invalid
+            scriptService.editScript(scriptFile, invalidScript)
+            invalidEdit = True
+        except: pass
+        self.assertFalse(invalidEdit, "editScript() failed to throw with invalid script")
+        
 if __name__ == '__main__':
     unittest.main()
