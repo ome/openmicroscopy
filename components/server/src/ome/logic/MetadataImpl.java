@@ -82,8 +82,7 @@ public class MetadataImpl
 
 	/** Query to load the original file related to a file annotation. */
 	private final String LOAD_ORIGINAL_FILE = 
-		"select p from OriginalFile as p left outer join fetch p.format " +
-					"where p.id = :id";
+		"select p from OriginalFile as p where p.id = :id";
 	
 	/** Identifies the file annotation class. */
 	private final String FILE_TYPE = "ome.model.annotations.FileAnnotation";
