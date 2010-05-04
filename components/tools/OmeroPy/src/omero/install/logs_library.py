@@ -1,3 +1,17 @@
+#!/usr/bin/env python
+
+"""
+
+   Function for parsing OMERO log files.
+   The format expected is defined for Python in
+   omero.util.configure_logging.
+
+   Copyright 2010 Glencoe Software, Inc. All rights reserved.
+   Use is subject to license terms supplied in LICENSE.txt
+
+   :author: Josh Moore <josh@glencoesoftware.com>
+
+"""
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -183,3 +197,7 @@ def plot_threads(watcher, all_colors = ["blue","red","yellow","green","pink","pu
     ax.set_ylim(-2,25)
     ax.set_xlim(0, (last-first))
     plt.show()
+
+if __name__ == "__main__":
+    for g in allthreads_watcher(sys.argv).gen():
+        print "Date:%s\nLevel:%s\nThread:%s\nMethod:%s\nStatus:%s\n\n" % (g.date, g.level, g.thread, g.message, g.status)
