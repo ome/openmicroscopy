@@ -365,7 +365,7 @@ def render_thumbnail (request, iid, server_id=None, w=None, h=None, **kwargs):
         jpeg_data = img.getThumbnail(size=size)
         if jpeg_data is None:
             logger.debug("(c)Image %s not found..." % (str(iid)))
-            raise Http404
+            return HttpResponseServerError('Failed to render thumbnail')
         webgateway_cache.setThumb(request, server_id, iid, jpeg_data, size)
     else:
         pass
@@ -617,8 +617,9 @@ def listImages_json (request, did, server_id=None, _conn=None, **kwargs):
     dataset = blitzcon.getDataset(did)
     if dataset is None:
         return HttpResponseServerError('""', mimetype='application/javascript')
+    prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
     def urlprefix(iid):
-        return reverse('webgateway.views.render_thumbnail', args=(iid,))
+        return reverse(prefix, args=(iid,))
     xtra = {'thumbUrlPrefix': urlprefix}
     return map(lambda x: x.simpleMarshal(xtra=xtra), dataset.listChildren())
 
