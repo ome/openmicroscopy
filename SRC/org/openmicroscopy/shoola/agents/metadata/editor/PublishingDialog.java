@@ -23,26 +23,20 @@
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
-import java.awt.BorderLayout;
 import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
 
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.PixelsData;
@@ -62,7 +56,7 @@ import pojos.WellSampleData;
  * @since 3.0-Beta4
  */
 class PublishingDialog
-	extends JPopupMenu//JDialog
+	extends JPopupMenu
 {
 
 	/** Horizontal gap between components. */
@@ -185,7 +179,6 @@ class PublishingDialog
 		b.addActionListener(controller);
 		b.setActionCommand(""+id);
 		b.setEnabled(false);
-		//UIUtilities.unifiedButtonLookAndFeel(b);
 		return b;
 	}
 	
@@ -233,32 +226,6 @@ class PublishingDialog
 		
 	}
 	
-	/** Sets the properties of the dialog. */
-	private void setProperties()
-	{
-		//setResizable(false);
-	}
-	
-	/** 
-	 * Creates the component displaying the publishing controls.
-	 * 
-	 * @return See above.
-	 */
-	private JComponent createPublishingControls()
-	{
-		JToolBar bar = new JToolBar();
-		bar.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	bar.setFloatable(false);
-    	bar.setRollover(true);
-    	bar.setBorder(null);
-    	bar.add(movieButton);
-    	bar.add(Box.createHorizontalStrut(HORIZONTAL_STRUT));
-        bar.add(exportAsOmeTiffButton);
-        bar.add(Box.createHorizontalStrut(HORIZONTAL_STRUT));
-        bar.add(splitViewFigureButton);
-        return bar;
-	}
-	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
@@ -268,20 +235,6 @@ class PublishingDialog
 		add(splitViewROIFigureItem);
 		add(thumbnailsFigureItem);
 		add(movieFigureItem);
-		/*
-		setLayout(new BorderLayout(0, 0));
-		setBackground(UIUtilities.BACKGROUND_COLOR);
-		JPanel p = new JPanel();
-		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		double[] columns = {TableLayout.FILL};
-		TableLayout layout = new TableLayout();
-		layout.setColumn(columns);
-		p.setLayout(layout);
-		int index = 0;
-		layout.insertRow(index, TableLayout.PREFERRED);
-		p.add(createPublishingControls(), "0, "+index);
-		getContentPane().add(p, BorderLayout.NORTH);
-		*/
 	}
 	
 	/**
@@ -291,33 +244,12 @@ class PublishingDialog
 	 */
 	PublishingDialog(EditorControl controller, EditorModel model)
 	{
-		//super(MetadataViewerAgent.getRegistry().getTaskBar().getFrame());
 		this.controller = controller;
 		this.model = model;
-		setProperties();
 		initComponents();
 		setRootObject();
 		buildGUI();
-		//pack();
 	}
-
-	/**
-	 * Creates and returns the menu.
-	 * 
-	 * @return See above.
-	 */
-	JPopupMenu displayAsMenu()
-	{
-		if (menu != null) return menu;
-		menu = new JPopupMenu();
-		menu.add(movieItem);
-		menu.add(exportAsOmeTiffItem);
-		menu.add(splitViewFigureItem);
-		menu.add(splitViewROIFigureItem);
-		menu.add(thumbnailsFigureItem);
-		menu.add(movieFigureItem);
-		return menu;
- 	}
 	
 	/** Sets the root object. */
 	void setRootObject()

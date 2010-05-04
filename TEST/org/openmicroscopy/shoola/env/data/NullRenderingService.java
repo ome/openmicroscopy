@@ -440,9 +440,9 @@ public class NullRenderingService
 
 	/**
      * No-op implementation
-     * @see OmeroImageService#loadScripts(long, boolean)
+     * @see OmeroImageService#loadAvailableScripts(long)
      */
-	public List<ScriptObject> loadScripts(long userID, boolean all)
+	public List<ScriptObject> loadAvailableScripts(long userID)
 			throws DSOutOfServiceException, DSAccessException
 	{
 		return null;

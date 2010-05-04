@@ -51,8 +51,20 @@ import java.util.Map;
 public class FigureParam
 {
 
+	/** Identifies the <code>ROI Figure</code> script. */
+	public static final String ROI_SCRIPT = "roiFigure.py";
+	
+	/** Identifies the <code>Thumbnail Figure</code> script. */
+	public static final String THUMBNAIL_SCRIPT = "thumbnailFigure.py";
+	
+	/** Identifies the <code>Movie Figure</code> script. */
+	public static final String MOVIE_SCRIPT = "movieFigure.py";
+	
+	/** Identifies the <code>Split View Figure</code> script. */
+	public static final String SPLIT_VIEW_SCRIPT = "splitViewFigure.py";
+	
 	/** The default text for the merged image. */
-	public static final String		MERGED_TEXT = "Merged";
+	public static final String	MERGED_TEXT = "Merged";
 	
 	/** Indicates to create a split view figure. */
 	public static final int		SPLIT_VIEW = 0;
@@ -749,5 +761,26 @@ public class FigureParam
 	 * @return See above.
 	 */
 	public pojos.DataObject getAnchor() { return anchor; }
+	
+	/**
+	 * Returns the name of the script associated to the index or 
+	 * <code>null</code> if index not set.
+	 * 
+	 * @return See above.
+	 */
+	public String getScriptName()
+	{
+		switch (getIndex()) {
+			case FigureParam.SPLIT_VIEW_ROI:
+				return ROI_SCRIPT;
+			case FigureParam.THUMBNAILS:
+				return THUMBNAIL_SCRIPT;
+			case FigureParam.MOVIE:
+				return MOVIE_SCRIPT;
+			default:
+				return SPLIT_VIEW_SCRIPT;
+		}
+	}
+	
 	
 }

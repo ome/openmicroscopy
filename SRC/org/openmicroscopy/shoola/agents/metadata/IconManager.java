@@ -376,11 +376,14 @@ public class IconManager
     /** The <code>Rendering Settings Apply to all</code> icon. */
     public static final int          RND_APPLY_TO_ALL = 106;
     
+    /** The <code>Analysis</code> icon. */
+    public static final int           ANALYSIS_RUN = 107;
+    
     /** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static final int          MAX_ID = 106;
+	private static final int          MAX_ID = 107;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -492,6 +495,7 @@ public class IconManager
         relPaths[RND_OWNER] = "nuvola_rendering_owner16.png";
         relPaths[RND_UNDO] = "nuvola_undo16.png";
         relPaths[RND_APPLY_TO_ALL] = "rendering_applyAll16.png";
+        relPaths[ANALYSIS_RUN] = "nuvola_script_run16.png";
 	}
    
 	/** The sole instance. */

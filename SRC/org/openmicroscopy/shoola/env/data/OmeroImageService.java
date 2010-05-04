@@ -636,15 +636,13 @@ public interface OmeroImageService
 	 * user.
 	 * 
 	 * @param userID The id of the experimenter or <code>-1</code>.
-	 * @param all 	Pass <code>true</code> to retrieve all the scripts uploaded
-	 * 				ones and the default ones, <code>false</code>
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public List<ScriptObject> loadScripts(long userID, boolean all)
+	public List<ScriptObject> loadAvailableScripts(long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**

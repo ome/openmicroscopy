@@ -61,6 +61,9 @@ public class ScriptObject
 	/** The name of the script. */
 	private String name;
 	
+	/** The full path to the script when stored in server. */
+	private String path;
+	
 	/** The description of the script. */
 	private String description;
 	
@@ -99,6 +102,9 @@ public class ScriptObject
 	
 	/** The MIME type of the script if set. */ 
 	private String	   mimeType;
+	
+	/** Flag indicating that the script is provided by OMERO. */
+	private boolean   systemScript;
 	
 	/** Converts the parameters. */
 	private void convertJobParameters()
@@ -144,17 +150,25 @@ public class ScriptObject
 	 * Creates a new instance.
 	 * 
 	 * @param scriptID The id of the script if uploaded.
-	 * @param name The name of the script.
+	 * @param path The path of the script when stored in server
 	 */
-	public ScriptObject(long scriptID, String name)
+	public ScriptObject(long scriptID, String path)
 	{
 		this.scriptID = scriptID;
-		this.name = name;
+		this.path = path;
 		description = "";
 		journalRef = "";
 		mimeType = null;
+		systemScript = true;
 		authors = new ArrayList<ExperimenterData>();
 	}
+	
+	/**
+	 * Returns the absolute path to the script.
+	 * 
+	 * @return See above.
+	 */
+	public String getPath() { return path; }
 	
 	/**
 	 * Sets the name of the script.
@@ -328,7 +342,7 @@ public class ScriptObject
 	 * 
 	 * @return See above.
 	 */
-	public Map<String, ParamData> getOutpus() { return inputs; }
+	public Map<String, ParamData> getOutputs() { return inputs; }
 	
 	/**
 	 * Returns <code>true</code> if the parameters have been loaded,
@@ -351,5 +365,41 @@ public class ScriptObject
 	 * @param mimeType The value to set.
 	 */
 	public void setMIMEType(String mimeType) { this.mimeType = mimeType; }
+	
+	/**
+	 * Returns <code>true</code> if the script is provided by OMERO,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isSystemScript() { return systemScript; }
+	
+	/**
+	 * Sets the flag indicating that the script is provided by OMERO or not.
+	 * 
+	 * @param systemScript  Pass <code>true</code> if the script is provided 
+	 * 						by OMERO, <code>false</code> otherwise.
+	 */
+	public void setSystemScript(boolean systemScript)
+	{ 
+		this.systemScript = systemScript; 
+	}
+	
+	/**
+	 * Returns the parameters.
+	 * 
+	 * @return See above.
+	 */
+	public JobParams getParameters() { return parameters; }
+	
+	/**
+	 * Overridden to return the name of the script.
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString()
+	{
+		if (name != null) return name;
+		return path;
+	}
 	
 }

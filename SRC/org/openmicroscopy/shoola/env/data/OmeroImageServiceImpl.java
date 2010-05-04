@@ -36,7 +36,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileFilter;
 
@@ -50,12 +49,10 @@ import omero.api.RenderingEnginePrx;
 import omero.model.Channel;
 import omero.model.IObject;
 import omero.model.Image;
-import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.RenderingDef;
 import omero.romio.PlaneDef;
 import omero.sys.Parameters;
-
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
@@ -907,12 +904,12 @@ class OmeroImageServiceImpl
 	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroImageService#loadScripts(long, boolean)
+	 * @see OmeroImageService#loadAvailableScripts(long)
 	 */
-	public List<ScriptObject> loadScripts(long userID, boolean all)
+	public List<ScriptObject> loadAvailableScripts(long userID)
 			throws DSOutOfServiceException, DSAccessException
 	{
-		return gateway.loadScripts(userID, all);
+		return gateway.loadScripts(userID);
 	}
 	
 	/**

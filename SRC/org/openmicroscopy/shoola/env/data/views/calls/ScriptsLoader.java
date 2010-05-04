@@ -69,17 +69,15 @@ public class ScriptsLoader
 	 * Creates a {@link BatchCall} to load the scripts.
 	 * 
 	 * @param userID The id of the experimenter or <code>-1</code>.
-	 * @param all 	Pass <code>true</code> to retrieve all the scripts uploaded
-	 * 				ones and the default ones, <code>false</code>.
 	 * @return The {@link BatchCall}.
 	 */
-	private BatchCall makeBatchCall(final long userID, final boolean all)
+	private BatchCall makeBatchCall(final long userID)
 	{
 		return new BatchCall("Load scripts ") {
 			public void doCall() throws Exception
 			{
 				OmeroImageService svc = context.getImageService();
-				result = svc.loadScripts(userID, all);
+				result = svc.loadAvailableScripts(userID);
 			}
 		};
 	}
@@ -92,7 +90,7 @@ public class ScriptsLoader
 	 */
 	private BatchCall makeLoadScriptBatchCall(final long scriptID)
 	{
-		return new BatchCall("Load scripts ") {
+		return new BatchCall("Load script. ") {
 			public void doCall() throws Exception
 			{
 				OmeroImageService svc = context.getImageService();
@@ -128,10 +126,8 @@ public class ScriptsLoader
 	{
 		switch (index) {
 			case ALL_SCRIPTS:
-				loadCall = makeBatchCall(id, true);
-				break;
 			case DEFAULT_SCRIPTS:
-				loadCall = makeBatchCall(id, false);
+				loadCall = makeBatchCall(id);
 				break;
 			case SINGLE_SCRIPT:
 				loadCall = makeLoadScriptBatchCall(id);

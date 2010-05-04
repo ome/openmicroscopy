@@ -49,6 +49,9 @@ import java.util.Map;
 public class MovieExportParam
 {
 
+	/** Identifies the <code>Movie</code> script. */
+	public static final String MOVIE_SCRIPT = "makemovie.py";
+	
 	/** Movie across z-section. */
 	public static final int		Z_MOVIE = 0;
 	
@@ -380,4 +383,11 @@ public class MovieExportParam
 	 */
 	public int getColor() { return color; }
 	
+	/**
+	 * Returns the name of the script used to make a movie.
+	 * 
+	 * @return See above.
+	 */
+	public String getScriptName() { return MOVIE_SCRIPT; }
+
 }

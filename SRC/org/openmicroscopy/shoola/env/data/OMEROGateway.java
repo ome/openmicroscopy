@@ -79,6 +79,7 @@ import omero.ApiUsageException;
 import omero.AuthenticationException;
 import omero.InternalException;
 import omero.RLong;
+import omero.RString;
 import omero.RType;
 import omero.SecurityViolation;
 import omero.ServerError;
@@ -138,7 +139,6 @@ import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
-import omero.model.Format;
 import omero.model.GroupExperimenterMap;
 import omero.model.IObject;
 import omero.model.Image;
@@ -254,6 +254,12 @@ class OMEROGateway
 	/** The collection of system groups. */
 	private static final List<String>		SYSTEM_GROUPS;
 
+	/** The collection of scripts that have a UI available. */
+	private static final List<String>		SCRIPTS_UI_AVAILABLE;
+	
+	/** The collection of scripts that have a UI available. */
+	private static final List<String>		SCRIPTS_NOT_AVAILABLE_TO_USER;
+	
 	static {
 		SUPPORTED_SPECIAL_CHAR = new ArrayList<Character>();
 		SUPPORTED_SPECIAL_CHAR.add(new Character('-'));
@@ -276,6 +282,17 @@ class OMEROGateway
 		SYSTEM_GROUPS.add(GroupData.SYSTEM);
 		SYSTEM_GROUPS.add(GroupData.USER);
 		SYSTEM_GROUPS.add(GroupData.GUEST);
+		
+		//script w/ a UI.
+		SCRIPTS_UI_AVAILABLE = new ArrayList<String>();
+		SCRIPTS_UI_AVAILABLE.add(FigureParam.ROI_SCRIPT);
+		SCRIPTS_UI_AVAILABLE.add(FigureParam.THUMBNAIL_SCRIPT);
+		SCRIPTS_UI_AVAILABLE.add(FigureParam.MOVIE_SCRIPT);
+		SCRIPTS_UI_AVAILABLE.add(FigureParam.SPLIT_VIEW_SCRIPT);
+		SCRIPTS_UI_AVAILABLE.add(MovieExportParam.MOVIE_SCRIPT);
+		
+		SCRIPTS_NOT_AVAILABLE_TO_USER = new ArrayList<String>();
+		SCRIPTS_NOT_AVAILABLE_TO_USER.add("populateplateroi.py");
 	}
 	
 	/**
@@ -5273,20 +5290,7 @@ class OMEROGateway
 			Iterator<Integer> i = channels.iterator();
 			while (i.hasNext()) 
 				set.add(omero.rtypes.rlong(i.next()));
-			Map<Long, String> scripts = null;//svc.getScripts();
-			
-			if (scripts == null) return null;
-			long id = -1;
-			Entry en;
-			Iterator j = scripts.entrySet().iterator();
-			long value;
-			while (j.hasNext()) {
-				en = (Entry) j.next();
-				if (en.getValue().equals("makemovie.py")) {
-					value = (Long) en.getKey();
-					if (value > id) id = value;
-				}
-			}
+			long id = svc.getScriptID(param.getScriptName());
 			if (id <= 0) return null;
 			RenderingDef def = null;
 			int startZ = param.getStartZ();
@@ -5342,46 +5346,43 @@ class OMEROGateway
 	 * user.
 	 * 
 	 * @param userID The id of the experimenter or <code>-1</code>.
-	 * @param all 	Pass <code>true</code> to retrieve all the scripts uploaded
-	 * 				ones and the default ones, <code>false</code>.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	List<ScriptObject> loadScripts(long userID, boolean all)
+	List<ScriptObject> loadScripts(long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		List<ScriptObject> scripts = new ArrayList<ScriptObject>();
 		try {
 			IScriptPrx svc = getScripService();
-			Map<Long, String> map = null;//svc.getScripts();
-			if (map == null || map.size() == 0) return scripts;
+			List<OriginalFile> storedScripts = svc.getScripts();
+		
+			if (storedScripts == null || storedScripts.size() == 0) 
+				return scripts;
 			Entry en;
-			Iterator j = map.entrySet().iterator();
+			Iterator<OriginalFile> j = storedScripts.iterator();
 			ScriptObject script;
-			long id = 0;
-			long o = 0;
-			String value;
-			Map<String, Long> ids = new HashMap<String, Long>();
+			OriginalFile of;
+			RString value;
+			String v = null;
 			while (j.hasNext()) {
-				en = (Entry) j.next();
-				id = (Long) en.getKey();
-				value = (String) en.getValue();
-				if (ids.containsKey(value)) {
-					o = ids.get(value);
-					if (o < id) ids.put(value, id);
-				} else ids.put(value, id);
-				//script = new ScriptObject(id, value);
-				//scripts.add(script);
-			}
-			j = ids.entrySet().iterator();
-			while (j.hasNext()) {
-				en = (Entry) j.next();
-				scripts.add(new ScriptObject((Long) en.getValue(), 
-						(String) en.getKey()));
+				of = j.next();
+				value = of.getName();
+				if (value != null) v = value.getValue();
+				if (!SCRIPTS_NOT_AVAILABLE_TO_USER.contains(v) &&
+					!SCRIPTS_UI_AVAILABLE.contains(v)) {
+					script = new ScriptObject(of.getId().getValue(), 
+							of.getPath().getValue());
+					
+					if (value != null) script.setName(v);
+					value = of.getMimetype();
+					if (value != null) script.setMIMEType(value.getValue());
+					scripts.add(script);
+				}
 			}
 		} catch (Exception e) {
 			handleException(e, "Cannot load the scripts. ");
@@ -5390,7 +5391,8 @@ class OMEROGateway
 	}
 	
 	/**
-	 * Loads and returns the 
+	 * Loads and returns the script w/ parameters corresponding to the passed
+	 * identifier.
 	 * 
 	 * @param scriptID The id of the script.
 	 * @return See above.
@@ -5406,12 +5408,10 @@ class OMEROGateway
 		ScriptObject script = null;
 		try {
 			IScriptPrx svc = getScripService();
-			String name = null;//svc.getScript(scriptID);
-			//Map<Long, String> map = svc.getScripts();
-			if (name == null || name.length() == 0) return null;
-			script = new ScriptObject(scriptID, name);
+			script = new ScriptObject(scriptID, "");
 			script.setJobParams(svc.getParams(scriptID));
 		} catch (Exception e) {
+			e.printStackTrace();
 			handleException(e, "Cannot load the script: "+scriptID);
 		}
 		return script;
@@ -5433,7 +5433,23 @@ class OMEROGateway
 		try {
 
 			IScriptPrx svc = getScripService();
-			return new HashMap<Long, String>();// svc.getScripts();
+			List<OriginalFile> scripts = svc.getScripts();
+			Map<Long, String> m = new HashMap<Long, String>();
+			if (scripts != null) {
+				Iterator<OriginalFile> i = scripts.iterator();
+				OriginalFile of;
+				String name = null;
+				RString v;
+				while (i.hasNext()) {
+					of = i.next();
+					v = of.getName();
+					if (v != null)
+						name = v.getValue();
+					if (name != null)
+						m.put(of.getId().getValue(), name);
+				}
+			}
+			return m;
 		} catch (Exception e) {
 			handleException(e, "Cannot load the scripts. ");
 		}
@@ -5503,34 +5519,9 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IScriptPrx svc = getScripService();
-			Map<Long, String> scripts = null;//svc.getSsvc.getScripts();
-			if (scripts == null) return -1;
-			long id = -1;
-			Entry en;
-			Iterator j = scripts.entrySet().iterator();
-			long value;
-			String scriptName = null;
+			String scriptName = param.getScriptName();
 			int scriptIndex = param.getIndex();
-			switch (scriptIndex) {
-				case FigureParam.SPLIT_VIEW_ROI:
-					scriptName = "roiFigure.py";
-					break;
-				case FigureParam.THUMBNAILS:
-					scriptName = "thumbnailFigure.py";
-					break;
-				case FigureParam.MOVIE:
-					scriptName = "movieFigure.py";
-					break;
-				default:
-					scriptName = "splitViewFigure.py";
-			}
-			while (j.hasNext()) {
-				en = (Entry) j.next();
-				if (en.getValue().equals(scriptName)) {
-					value = (Long) en.getKey();
-					if (value > id) id = value;
-				}
-			}
+			long id = svc.getScriptID(scriptName);
 			if (id <= 0) return -1;
 			List<RType> ids = new ArrayList<RType>(objectIDs.size());
 			Iterator<Long> i = objectIDs.iterator();
@@ -5577,6 +5568,7 @@ class OMEROGateway
 				
 			} 
 			//merge channels
+			Iterator j;
 			Map<String, RType> merge = new LinkedHashMap<String, RType>();
 			Entry entry;
 			Map<Integer, Integer> mergeChannels = param.getMergeChannels();

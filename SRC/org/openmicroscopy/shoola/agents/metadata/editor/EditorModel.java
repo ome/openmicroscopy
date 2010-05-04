@@ -2319,10 +2319,11 @@ class EditorModel
 	 */
 	void setScripts(List scripts)
 	{ 
-		
-		Map<Long, ScriptObject> map = new HashMap<Long, ScriptObject>();
+		//sort the scripts.
+		Map<Long, ScriptObject> map = new LinkedHashMap<Long, ScriptObject>();
 		if (scripts == null) return;
-		Iterator i = scripts.iterator();
+		List l = sorter.sort(scripts);
+		Iterator i = l.iterator();
 		ScriptObject s;
 		while (i.hasNext()) {
 			s = (ScriptObject) i.next();
@@ -2363,8 +2364,18 @@ class EditorModel
 	{
 		if (scripts == null || scripts.size() == 0) return;
 		ScriptObject sc = scripts.get(script.getScriptID());
-		if (sc != null) script.setName(sc.getName());
-		scripts.put(script.getScriptID(), script);
+		if (sc != null) sc.setJobParams(script.getParameters());
+	}
+	
+	/**
+	 * Returns the script corresponding to the passed identifier.
+	 * 
+	 * @param scriptID The identifier of the script.
+	 * @return See above.
+	 */
+	ScriptObject getScript(long scriptID)
+	{
+		return scripts.get(scriptID);
 	}
 	
 	/** Loads the scripts. */

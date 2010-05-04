@@ -182,7 +182,7 @@ class ToolBar
 						MetadataViewer.ANALYSIS_OPTION);
 			}
 		});
-		scriptsButton = new JButton(icons.getIcon(IconManager.ANALYSIS));
+		scriptsButton = new JButton(icons.getIcon(IconManager.ANALYSIS_RUN));
 		scriptsButton.setToolTipText("Display the available scripts.");
 		scriptsButton.setEnabled(false);
 		scriptsButton.addMouseListener(new MouseAdapter() {
@@ -439,7 +439,7 @@ class ToolBar
 			case MetadataViewer.ANALYSIS_OPTION:
 				if (analysisDialog == null)
 					analysisDialog = new AnalysisDialog(controller, model);
-				analysisDialog.displayAsMenu().show(source, p.x, p.y);
+				analysisDialog.show(source, p.x, p.y);
 				break;
 			case MetadataViewer.SCRIPTS_OPTION:
 				getScriptsMenu().show(source, p.x, p.y);

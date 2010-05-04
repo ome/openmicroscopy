@@ -25,23 +25,14 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
-import java.awt.BorderLayout;
 import javax.swing.Icon;
-import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JToolBar;
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout;
-import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ImageData;
 import pojos.WellSampleData;
@@ -60,7 +51,7 @@ import pojos.WellSampleData;
  * @since 3.0-Beta4
  */
 public class AnalysisDialog 
-	extends JDialog
+	extends JPopupMenu
 {
 	
 	/** The text associated to the FLIM action. */
@@ -86,29 +77,6 @@ public class AnalysisDialog
 	
 	/** Component to do a FLIM analysis. */
 	private JMenuItem 		FLIMItem;
-	
-	/** The menu hosting the various options. */
-	private JPopupMenu	menu;
-	
-	/**
-	 * Creates a button.
-	 * 
-	 * @param icon The icon associated to the button.
-	 * @param text The text displayed in the tool tip.
-	 * @param id   The id of the action.
-	 * @return See above.
-	 */
-	private JButton createButton(Icon icon, String text, int id)
-	{
-		JButton b = new JButton(icon);
-		b.setToolTipText(text);
-		b.addActionListener(controller);
-		b.setActionCommand(""+id);
-		b.setEnabled(false);
-		UIUtilities.unifiedButtonLookAndFeel(b);
-		return b;
-	}
-	
 	/**
 	 * Creates a menu item.
 	 * 
@@ -141,46 +109,10 @@ public class AnalysisDialog
 				FLIM_TOOLTIP, FLIM_TEXT, EditorControl.ANALYSE_FLIM);
 	}
 	
-	/** Sets the properties of the dialog. */
-	private void setProperties()
-	{
-		//setResizable(false);
-	}
-	
-	
-	/** 
-	 * Creates the component displaying the first level of routines.
-	 * 
-	 * @return See above.
-	 */
-	private JXTaskPane createAnalysingControls()
-	{
-		JToolBar bar = new JToolBar();
-		bar.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	bar.setFloatable(false);
-    	bar.setRollover(true);
-    	bar.setBorder(null);
-    	JXTaskPane pane = EditorUtil.createTaskPane("Analyse");
- 		pane.setCollapsed(false);
- 		pane.add(bar);
-        return pane;
-	}
-	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		setLayout(new BorderLayout(0, 0));
-		setBackground(UIUtilities.BACKGROUND_COLOR);
-		JPanel p = new JPanel();
-		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		double[] columns = {TableLayout.FILL};
-		TableLayout layout = new TableLayout();
-		layout.setColumn(columns);
-		p.setLayout(layout);
-		int index = 0;
-		layout.insertRow(index, TableLayout.PREFERRED);
-		p.add(createAnalysingControls(), "0, "+index);
-		getContentPane().add(p, BorderLayout.NORTH);
+		add(FRAPItem);
 	}
 	
 	/**
@@ -190,29 +122,12 @@ public class AnalysisDialog
 	 */
 	AnalysisDialog(EditorControl controller, EditorModel model)
 	{
-		super(MetadataViewerAgent.getRegistry().getTaskBar().getFrame());
 		this.controller = controller;
 		this.model = model;
-		setProperties();
 		initComponents();
 		setRootObject();
 		buildGUI();
-		pack();
 	}
-
-	/**
-	 * Creates and returns the menu.
-	 * 
-	 * @return See above.
-	 */
-	JPopupMenu displayAsMenu()
-	{
-		if (menu != null) return menu;
-		menu = new JPopupMenu();
-		menu.add(FRAPItem);
-		//menu.add(FLIMItem);
-		return menu;
- 	}
 	
 	/** Sets the root object. */
 	void setRootObject()
