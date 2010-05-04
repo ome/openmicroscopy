@@ -43,4 +43,5 @@ if omero.__import_style__ is None:
     import omero_api_ThumbnailStore_ice
     import omero_Constants_ice
     import omero_sys_ParametersI
+    import omero_model_PermissionsI
     import omero.rtypes

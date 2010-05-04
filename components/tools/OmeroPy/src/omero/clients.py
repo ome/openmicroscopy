@@ -551,8 +551,7 @@ class BaseClient(object):
         return digest.hexdigest()
 
     def upload(self, filename, name = None, path = None,
-               type = None, ofile = None, block_size = 1024,
-               permissions = None):
+               type = None, ofile = None, block_size = 1024):
         """
         Utility method to upload a file to the server.
         """
@@ -593,8 +592,9 @@ class BaseClient(object):
                     # ofile.mimetype = 'application/octet-stream' by default
                     ofile.mimetype = omero.rtypes.rstring(type)
 
-            if permissions:
-                ofile.details.permissions = permissions
+            # Disabled with group permissions #1434
+            # if permissions:
+            #    ofile.details.permissions = permissions
 
             up = self.__sf.getUpdateService()
             ofile = up.saveAndReturnObject(ofile)

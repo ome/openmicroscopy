@@ -79,10 +79,6 @@ sys.stderr.write("Oh, and this is stderr.");
 
 """
 
-PUBLIC = omero.model.PermissionsI()
-PUBLIC.setGroupRead(True)
-PUBLIC.setWorldRead(True)
-
 class CallbackI(omero.grid.ProcessCallback):
 
     def __init__(self):
@@ -109,7 +105,7 @@ class TestPing(lib.ITest):
             pingfile.write(PINGFILE)
             pingfile.flush()
             pingfile.close()
-            file = self.root.upload(name, type="text/x-python", permissions = PUBLIC)
+            file = self.root.upload(name, type="text/x-python")
             j = omero.model.ScriptJobI()
             j.linkOriginalFile(file)
 
