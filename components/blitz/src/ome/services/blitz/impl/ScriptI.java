@@ -209,7 +209,8 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
                 OriginalFile official = scripts.load(file.getId(), true);
                 if (official != null) {
-                    scripts.write(official.getPath(), scriptText, true, true);
+                    scripts.write(official.getPath() + official.getName(),
+                            scriptText, true, true);
                 } else {
                     writeContent(file, scriptText);
                 }
@@ -257,7 +258,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
         if (scripts.isInRepo(file.getId())) {
             try {
-                return scripts.read(file.getPath() + "/" + file.getName(), true);
+                return scripts.read(file.getPath() + file.getName(), true);
             } catch (IOException e) {
                 omero.ResourceError re = new omero.ResourceError(null, null, "Failed to load " + file);
                 IceMapper.fillServerError(re, e);

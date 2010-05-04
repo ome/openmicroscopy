@@ -65,7 +65,8 @@ public class ScriptRepoHelperTest extends AbstractManagedContextTest {
         assertContains(helper.iterate(), path);
         assertEquals(1, files.size());
         assertEquals(1, helper.countInDb());
-        assertEquals(path.rel, files.get(0).getPath());
+        assertEquals(path.rel,
+                files.get(0).getPath() + files.get(0).getName());
     }
 
     public void testFindInDb() throws Exception {
