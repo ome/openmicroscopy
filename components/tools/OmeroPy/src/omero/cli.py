@@ -26,7 +26,6 @@ import cmd, string, re, os, subprocess, socket, exceptions, traceback, glob, pla
 import shlex as pyshlex
 from exceptions import Exception as Exc
 from threading import Thread, Lock
-from omero_version import omero_version
 from omero_ext.argparse import ArgumentError, ArgumentParser, SUPPRESS
 from omero.util.sessions import SessionsStore
 from path import path
@@ -35,7 +34,12 @@ from path import path
 # Static setup
 #
 
-VERSION=omero_version
+try:
+    from omero_version import omero_version
+    VERSION=omero_version
+except ImportError:
+    VERSION="Unknown" # Usually during testing
+
 DEBUG = False
 if os.environ.has_key("DEBUG"):
     print "Deprecated warning: use the 'bin/omero debug [args]' to debug"
