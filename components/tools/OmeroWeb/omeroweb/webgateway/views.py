@@ -56,7 +56,9 @@ def _session_logout (request, server_id, force_key=None):
             del request.session[k]
     if connectors.has_key(session_key):
         logger.debug('logout: killing connection "%s"' % (session_key))
-        connectors[session_key] and connectors[session_key].seppuku()
+        if connectors[session_key]:
+            logger.info('logout request for "%s"' % connectors[session_key].getUser().omeName)
+            connectors[session_key] and connectors[session_key].seppuku()
         del connectors[session_key]
 
 class UserProxy (object):
@@ -228,6 +230,7 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
             return getBlitzConnection(request, server_id, with_session, retry=False, group=group, try_super=try_super)
         else:
             logger.debug('created new connection %s' % str(blitzcon))
+            
             if not blitzcon.isConnected():
                 ####
                 # Have a blitzcon, but it doesn't connect.
