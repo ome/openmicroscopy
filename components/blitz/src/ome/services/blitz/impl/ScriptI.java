@@ -61,6 +61,7 @@ import omero.model.ScriptJob;
 import omero.model.ScriptJobI;
 import omero.util.IceMapper;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
@@ -501,10 +502,9 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      * @throws ServerError
      */
     private OriginalFile makeFile(final String path, final String script) throws ServerError {
-        String fName = "ScriptName" + UUID.randomUUID();
         OriginalFile file = new OriginalFile();
-        file.setName(fName);
-        file.setPath(path);
+        file.setName(FilenameUtils.getName(path));
+        file.setPath(FilenameUtils.getFullPath(path));
         file.setMimetype(ParamsHelper.PYTHONSCRIPT);
         file.setSize((long) script.getBytes().length);
         file.setSha1(Utils.bufferToSha1(script.getBytes()));

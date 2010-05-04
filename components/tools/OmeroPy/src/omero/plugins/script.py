@@ -315,7 +315,7 @@ print "Finished script"
             objs = q.findAllByQuery("select s from OriginalFile s where s.mimetype = 'text/x-python' and s.details.owner.id = %s" % id, None)
             scripts = {}
             for obj in objs:
-                scripts[obj.id.val] = obj.name.val
+                scripts[obj.id.val] = obj.path.val + "/" + obj.name.val
             self._parse(scripts, "Scripts for user=%s" % id)
         else:
             import omero_api_IScript_ice
