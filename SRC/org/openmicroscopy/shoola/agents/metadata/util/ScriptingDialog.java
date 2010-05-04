@@ -56,9 +56,11 @@ import org.jdesktop.swingx.JXTaskPane;
 
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.model.ParamData;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.NumericalTextFieldLabelled;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
@@ -158,14 +160,29 @@ public class ScriptingDialog
 		Entry entry;
 		ScriptComponent c;
 		Iterator i = components.entrySet().iterator();
-		Map<String, Object> values = new HashMap<String, Object>();
-		
+		Object value;
+		Map<String, ParamData> inputs = script.getInputs();
+		boolean run = true;
+		ParamData param;
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			c = (ScriptComponent) entry.getValue();
-			values.put((String) entry.getKey(), c.getValue());
+			value = c.getValue();
+			if (c.isRequired()) {
+				if (value == null) {
+					run = false;
+					break;
+				}
+			}
+			param = inputs.get(entry.getKey());
+			param.setValueToPass(value);
 		}
-		//script.setParameterValues(values);
+		if (!run) {
+			UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
+			
+			return;
+		}
+		//script.set(values);
 		firePropertyChange(RUN_SCRIPT_PROPERTY, null, script);
 		close();
 	}

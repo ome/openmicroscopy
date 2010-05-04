@@ -33,8 +33,6 @@ import javax.swing.table.AbstractTableModel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
-
 /** 
  * 
  *

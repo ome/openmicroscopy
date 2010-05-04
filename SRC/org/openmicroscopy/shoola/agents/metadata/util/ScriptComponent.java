@@ -46,8 +46,6 @@ import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.NumericalTextFieldLabelled;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import sun.rmi.runtime.GetThreadPoolAction;
-
 /** 
  * Hosts information related to a parameter for the script.
  *
@@ -151,7 +149,7 @@ public class ScriptComponent
 		this.component = component;
 		label = UIUtilities.setTextFont(parameter);
 		label.setToolTipText(component.getToolTipText());
-		required = false;
+		required = (component instanceof JComboBox);
 	}
 	
 	/**

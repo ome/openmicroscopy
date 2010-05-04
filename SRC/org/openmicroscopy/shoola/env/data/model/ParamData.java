@@ -76,6 +76,9 @@ public class ParamData
 	/** The type of object to handle. */
 	private Class type;
 	
+	/** The value to pass in order to run the script. */
+	private Object valueToPass;
+	
 	/**
 	 * Converts the passed value.
 	 * 
@@ -231,8 +234,23 @@ public class ParamData
 	public Object getDefaultValue()
 	{
 		return defaultValue;
-		//return null;
 	}
 	
+	/**
+	 * Sets the value to pass while running the script.
+	 * 
+	 * @param valueToPass The value to pass.
+	 */
+	public void setValueToPass(Object valueToPass)
+	{ 
+		this.valueToPass = valueToPass;
+	}
+	
+	/**
+	 * Returns the value to pass while running the script.
+	 * 
+	 * @return See above.
+	 */
+	public Object getValueToPass() { return valueToPass; }
 	
 }
