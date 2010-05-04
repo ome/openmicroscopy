@@ -8,23 +8,32 @@
 
 """
 
+import os
 import unittest
 import integration.library as lib
 import tempfile
 import omero
 import omero.all
-from omero_model_ScriptJobI import ScriptJobI
+
+import omero.util.concurrency
+import omero.processor
 import omero.scripts
+import omero.cli
+
 from omero.rtypes import *
 
+PUBLIC = omero.model.PermissionsI("rwrwrw")
+
 thumbnailFigurePath = "scripts/omero/figure_scripts/thumbnailFigure.py"
+
+if "DEBUG" in os.environ:
+    omero.util.configure_logging(loglevel=10)
 
 class TestScripts(lib.ITest):
 
     def testBasicUsage(self):
-        job = ScriptJobI()
-        proc = self.client.sf.acquireProcessor(job, 20)
-        #proc.
+        svc = self.client.sf.getScriptService()
+        return svc
 
     def testTicket1036(self):
         self.client.setInput("a", rstring("a"));
@@ -33,29 +42,39 @@ class TestScripts(lib.ITest):
     def testUploadAndPing(self):
         pingfile = tempfile.NamedTemporaryFile(mode='w+t')
         pingfile.close();
-        if True:
-            name = pingfile.name
-            pingfile = open(name, "w")
-            pingfile.write("PINGFILE")
-            pingfile.flush()
-            pingfile.close()
-            file = self.root.upload(name, type="text/x-python", permissions = PUBLIC)
-            j = omero.model.ScriptJobI()
-            j.linkOriginalFile(file)
+        name = pingfile.name
+        pingfile = open(name, "w")
+        pingfile.write("""if True:
+        import omero
+        import omero.scripts as OS
+        import omero.grid as OG
+        OS.client("ping")
+        """)
+        pingfile.flush()
+        pingfile.close()
+        file = self.client.upload(name, type="text/x-python")
 
-            p = self.client.sf.sharedResources().acquireProcessor(j, 100)
-            jp = p.params()
+        impl = omero.processor.usermode_processor(self.client)
+        try:
+            svc = self.client.sf.getScriptService()
+            jp = svc.getParams(file.id.val)
             self.assert_(jp, "Non-zero params")
+        finally:
+            impl.cleanup()
 
     def testParseErrorTicket2185(self):
         svc = self.root.sf.getScriptService()
+        impl = omero.processor.usermode_processor(self.root)
         try:
-            script_id = svc.uploadScript('testpath', "THIS STINKS")
-            svc.getParams(script_id)
-        except omero.ValidationException, ve:
-            self.assertTrue("THIS STINKS" in str(ve))
+            try:
+                script_id = svc.uploadScript('testpath', "THIS STINKS")
+                svc.getParams(script_id)
+            except omero.ValidationException, ve:
+                self.assertTrue("THIS STINKS" in str(ve))
+        finally:
+            impl.cleanup()
 
-    def testUploadOfficalScript(self):
+    def testUploadOfficialScript(self):
         scriptService = self.root.sf.getScriptService()
         file = open(thumbnailFigurePath)
         script = file.read()
@@ -63,15 +82,14 @@ class TestScripts(lib.ITest):
         id = scriptService.uploadOfficialScript(thumbnailFigurePath, script)
         # force the server to parse the file enough to get params (checks syntax etc)
         params = scriptService.getParams(id)
-        
-        
+
     def testRunScript(self):
-        # Trying to run script as described: 
+        # Trying to run script as described:
         #http://trac.openmicroscopy.org.uk/omero/browser/trunk/components/blitz/resources/omero/api/IScript.ice#L40
         scriptService = self.root.sf.getScriptService()
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         client = self.root
-        
+
         scriptLines = [
         "import omero",
         "from omero.rtypes import rstring",
@@ -81,7 +99,7 @@ class TestScripts(lib.ITest):
         "    scripts.String('message', optional=True))",
         "    client.setOutput('returnMessage', rstring('Script ran OK!'))"]
         script = "\n".join(scriptLines)
-        map = {"message": omero.rtypes.rstring("Sending this message to the server!"), }  
+        map = {"message": omero.rtypes.rstring("Sending this message to the server!"), }
 
         # should fail if we try to upload as 'user' script and run (no user processor)
         userScriptId = scriptService.uploadScript("user/test/script.py", script)
@@ -96,9 +114,10 @@ class TestScripts(lib.ITest):
                 results = proc.getResults(0)    # ms
             finally:
                 proc.close(False)
+            self.fail("ticket:2309 - should not run without processor")
         except:
             pass
-            
+
         self.assertFalse("returnMessage" in results, "Script should not have run. No user processor!")
         
         
@@ -113,9 +132,8 @@ class TestScripts(lib.ITest):
             results = proc.getResults(0)    # ms
         finally:
             proc.close(False)
-            
+
         self.assertTrue("returnMessage" in results, "Script should have run as Official script")
-        
         
     def testEditScript(self):
         scriptService = self.root.sf.getScriptService()

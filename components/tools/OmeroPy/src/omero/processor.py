@@ -626,14 +626,17 @@ class UseSessionHolder(object):
 class ProcessorI(omero.grid.Processor, omero.util.Servant):
 
     def __init__(self, ctx, needs_session = True,
-                 use_session = None, accepts_list = []):
+                 use_session = None, accepts_list = [], cfg = None):
 
         if use_session:
             needs_session = False # See discussion below
 
         omero.util.Servant.__init__(self, ctx, needs_session = needs_session)
-        self.cfg = os.path.join(os.curdir, "etc", "ice.config")
-        self.cfg = os.path.abspath(self.cfg)
+        if cfg is None:
+            self.cfg = os.path.join(os.curdir, "etc", "ice.config")
+            self.cfg = os.path.abspath(self.cfg)
+        else:
+            self.cfg = cfg
 
         # Extensions for user-mode processors (ticket:1672)
 
@@ -679,13 +682,18 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
         sf = self.internal_session()
         gid = job.details.group.id.val
         handle = WithGroup(sf.createJobHandle(), gid)
-        handle.attach(job.id.val)
-        if handle.jobFinished():
-            handle.close()
-            raise omero.ApiUsageException("Job already finished.")
+        try:
+            handle.attach(job.id.val)
+            if handle.jobFinished():
+                handle.close()
+                raise omero.ApiUsageException("Job already finished.")
 
-        prx = WithGroup(sf.getScriptService(), gid)
-        file = prx.validateScript(job, self.accepts_list)
+            prx = WithGroup(sf.getScriptService(), gid)
+            file = prx.validateScript(job, self.accepts_list)
+        except omero.SecurityViolation, sv:
+            self.logger.debug("SecurityViolation on validate job %s from group %s", job.id.val, gid)
+            file = None
+
         return file, handle
 
     @remoted
@@ -821,3 +829,37 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
 
         finally:
             handle.close()
+
+def usermode_processor(client, serverid = "UsermodeProcessor",\
+                       cfg = None, accepts_list = None, stop_event = None):
+    """
+    Creates an activates a usermode processor for the given client.
+    It is the responsibility of the client to call "cleanup()" on
+    the ProcessorI implementation which is returned.
+
+    cfg is the path to an --Ice.Config-valid file or files. If none
+    is given, the value of ICE_CONFIG will be taken from the environment.
+
+    accepts_list is the list of IObject instances which will be passed to
+    omero.api.IScripts.validateScript. If none is given, only the current
+    Experimenter's own object will be passed.
+
+    stop_event is an threading.Event. One will be acquired from
+    omero.util.concurrency.get_event if none is provided.
+    """
+
+    if cfg is None:
+        cfg = os.environ["ICE_CONFIG"]
+
+    if accepts_list is None:
+        uid = client.sf.getAdminService().getEventContext().userId
+        accepts_list = [omero.model.ExperimenterI(uid, False)]
+
+    if stop_event is None:
+        stop_event = omero.util.concurrency.get_event()
+
+    ctx = omero.util.ServerContext(serverid, client.ic, stop_event)
+    impl = omero.processor.ProcessorI(ctx,
+        use_session=client.sf, accepts_list=accepts_list, cfg=cfg)
+    impl.setProxy(client.adapter.addWithUUID(impl))
+    return impl

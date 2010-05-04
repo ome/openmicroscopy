@@ -387,18 +387,14 @@ print "Finished script"
         logging._handlerList = []
         logging.getLogger().handlers = []
 
-        from omero.util import ServerContext, configure_logging
-        from omero.processor import ProcessorI
+        from omero.util import configure_logging
+        from omero.processor import usermode_processor
         lvl = debug and 10 or 20
         configure_logging(loglevel=lvl)
 
         try:
             try:
-                stop_event = omero.util.concurrency.get_event()
-                serverid = "omero.scripts.serve"
-                ctx = ServerContext(serverid, client.ic, stop_event)
-                impl = ProcessorI(ctx, use_session=client.sf, accepts_list=accepts_list)
-                impl.setProxy( client.adapter.addWithUUID(impl) )
+                impl = usermode_processor(client, serverid = "omer.scripts.serve", accepts_list = accepts_list)
             except exceptions.Exception, e:
                 self.ctx.die(100, "Failed initialization: %s" % e)
 
