@@ -1,11 +1,13 @@
 {% load i18n %}
 {% load custom_tags %}
 
-{% if manager.paging %} 
-
 <div class="clear"> </div>
+
+{% if manager.paging %}
 <div class="paging"> 
-    {% if manager.paging.prev %}<a href="{% if manager.project %}{% if manager.dataset.id %}{% url load_data "project" manager.project.id "dataset" manager.dataset.id %}{% else %}{% url load_data "project" manager.project.id %}{% endif %}{% else %}{% if manager.dataset.id %}{% url load_data "dataset" manager.dataset.id %}{% endif %}{% endif %}?view={{nav.view}}&page={{manager.paging.prev}}">{% trans "preview" %}</a>{% endif %} {% trans "Page" %} 
+    {% if manager.paging.prev %}
+        <input onclick="doPagination('{{ nav.view }}',{{ manager.paging.prev }});" class="button_pagination" type="button" value="Preview" alt="Preview"/>
+    {% endif %} {% trans "Page" %}:
     
     {% for p in manager.paging.total %}
         {% ifequal manager.paging.page p %}
@@ -14,11 +16,14 @@
             {% ifequal p -1 %}
                 ...
             {% else %}
-                <a href="{% if manager.project %}{% if manager.dataset.id %}{% url load_data "project" manager.project.id "dataset" manager.dataset.id %}{% else %}{% url load_data "project" manager.project.id %}{% endif %}{% else %}{% if manager.dataset.id %}{% url load_data "dataset" manager.dataset.id %}{% endif %}{% endif %}?view={{nav.view}}&page={{ p }}">{{ p }}</a>
+                <input onclick="doPagination('{{ nav.view }}',{{ p }});" class="button_pagination" type="button" value="{{ p }}" alt="Change view to table"/>
             {% endifequal %}
         {% endifequal %}
     {% endfor %}
-    {% if manager.paging.next %}<a href="{% if manager.project %}{% if manager.dataset.id %}{% url load_data "project" manager.project.id "dataset" manager.dataset.id %}{% else %}{% url load_data "project" manager.project.id %}{% endif %}{% else %}{% if manager.dataset.id %}{% url load_data "dataset" manager.dataset.id %}{% endif %}{% endif %}?view={{nav.view}}&page={{manager.paging.next}}">{% trans "next" %}</a>{% endif %}
+    {% if manager.paging.next %}
+        <input onclick="doPagination('{{ nav.view }}',{{ manager.paging.next }});" class="button_pagination" type="button" value="Next" alt="Next"/>
+    {% endif %}
 
 </div>
+<div class="clear"> </div>
 {% endif %}

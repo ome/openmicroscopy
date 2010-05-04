@@ -62,6 +62,9 @@ def getAttribute(o,a):
             else:
                 return rv
 
+from django.conf import settings
+PAGE = settings.PAGE
+
 class BaseController(object):
     
     conn = None
@@ -162,8 +165,8 @@ class BaseController(object):
         return permissions
     ###########################################################
     # Paging
-    
-    def doPaging(self, page, page_size, total_size, limit=24):
+        
+    def doPaging(self, page, page_size, total_size, limit=PAGE):
         total = list()
         t = total_size/limit
         if total_size > (limit*10):

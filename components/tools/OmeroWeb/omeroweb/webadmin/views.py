@@ -113,7 +113,7 @@ def isAdminConnected (f):
             return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))
         except Exception, x:
             logger.error(traceback.format_exc())
-            return HttpResponseRedirect(reverse("walogin")+(("?error=%s&url=%s") % (x.__class__.__name__,url)))
+            return HttpResponseRedirect(reverse("walogin")+(("?error=%s&url=%s") % (str(x),url)))
         if conn is None:
             return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))
         
@@ -141,7 +141,7 @@ def isOwnerConnected (f):
             return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))
         except Exception, x:
             logger.error(traceback.format_exc())
-            return HttpResponseRedirect(reverse("walogin")+(("?error=%s&url=%s") % (x.__class__.__name__,url)))
+            return HttpResponseRedirect(reverse("walogin")+(("?error=%s&url=%s") % (str(x),url)))
         if conn is None:
             return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))
         
@@ -173,7 +173,7 @@ def isUserConnected (f):
             return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))
         except Exception, x:
             logger.error(traceback.format_exc())
-            return HttpResponseRedirect(reverse("walogin")+(("?error=%s&url=%s") % (x.__class__.__name__,url)))
+            return HttpResponseRedirect(reverse("walogin")+(("?error=%s&url=%s") % (str(x),url)))
         if conn is None:
             return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))   
         
@@ -212,7 +212,7 @@ def forgotten_password(request, **kwargs):
                 conn = None
         except Exception, x:
             logger.error(traceback.format_exc())
-            error = x.__class__.__name__
+            error = str(x)
 
     if conn is not None:
         controller = None
@@ -220,7 +220,7 @@ def forgotten_password(request, **kwargs):
             controller = conn.reportForgottenPassword(request.REQUEST.get('username').encode('utf-8'), request.REQUEST.get('email').encode('utf-8'))
         except Exception, x:
             logger.error(traceback.format_exc())
-            error = x.__class__.__name__
+            error = str(x)
         form = ForgottonPasswordForm(data=request.REQUEST.copy())
         context = {'error':error, 'controller':controller, 'form':form}
     else:
@@ -279,24 +279,31 @@ def login(request):
         conn = getBlitzConnection(request)
     except Exception, x:
         logger.debug(traceback.format_exc())
-        error = x.__class__.__name__
+        error = str(x)
     
     if conn is not None:
         return HttpResponseRedirect(reverse("waindex"))
     else:
         if request.method == 'POST' and request.REQUEST.get('server'):
             error = "Connection not available, please check your user name and password."
+        request.session['server'] = request.REQUEST.get('server')
         
         template = "webadmin/login.html"
         if request.method == 'POST':
             form = LoginForm(data=request.REQUEST.copy())
         else:
-            try:
-                blitz = settings.SERVER_LIST.get(pk=request.session.get('server'))
-                data = {'server': unicode(blitz.id), 'username':unicode(request.session.get('username')), 'password':unicode(request.session.get('password')) }
-                form = LoginForm(data=data)
-            except:
-                logger.debug(traceback.format_exc())
+            blitz = settings.SERVER_LIST.get(pk=request.session.get('server')) 
+            if blitz is not None:
+                initial = {'server': unicode(blitz.id)}
+                try:
+                    if request.session.get('username'):
+                        initial['username'] = unicode(request.session.get('username'))
+                        form = LoginForm(data=initial)
+                    else:                        
+                        form = LoginForm(initial=initial)
+                except:
+                    form = LoginForm(initial=initial)
+            else:
                 form = LoginForm()
         context = {'version': omero_version, 'error':error, 'form':form}
         t = template_loader.get_template(template)

@@ -59,8 +59,7 @@ from omero.gateway import AnnotationWrapper, FileAnnotationWrapper, \
                         ExperimenterGroupWrapper, ExperimenterWrapper, \
                         EnumerationWrapper, BlitzObjectWrapper
 
-TIMEOUT = 580 #sec
-SLEEPTIME = 60
+PAGE = settings.PAGE
 
 class OmeroWebGateway (omero.gateway.BlitzGateway):
     def __init__ (self, *args, **kwargs):
@@ -116,10 +115,14 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             who would like to look at these data, is a member of.
             Public data can be only visible by the member of group and owners."""
         
-        admin_serv = self.getAdminService()
-        admin_serv.setDefaultGroup(self.getUser()._obj, omero.model.ExperimenterGroupI(gid, False))
-        self.c.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid, False))
-        self._ctx = self._proxies['admin'].getEventContext()
+        try:
+            self.c.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid, False))
+            admin_serv = self.getAdminService()
+            admin_serv.setDefaultGroup(self.getUser()._obj, omero.model.ExperimenterGroupI(gid, False))
+            self._ctx = self._proxies['admin'].getEventContext()
+            return True
+        except omero.SecurityViolation:
+            return False
     
     ##############################################
     ##   Forgotten password                     ##
@@ -345,8 +348,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map["oid"] = rlong(long(oid))
         if page is not None:
             f = omero.sys.Filter()
-            f.limit = rint(32)
-            f.offset = rint((int(page)-1)*32)
+            f.limit = rint(PAGE)
+            f.offset = rint((int(page)-1)*PAGE)
             p.theFilter = f
         sql = "select im from Image im "\
                 "join fetch im.details.creationEvent "\
@@ -1029,18 +1032,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         else:
             return None
     
-    def getProject (self, oid):
-        query_serv = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["oid"] = rlong(long(oid))
-        sql = "select pr from Project pr join fetch pr.details.owner join fetch pr.details.group where pr.id=:oid "
-        pr = query_serv.findByQuery(sql,p)
-        if pr is not None:
-            return ProjectWrapper(self, pr)
-        else:
-            return None
-    
     def getScreen (self, oid):
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
@@ -1050,20 +1041,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         sc = query_serv.findByQuery(sql,p)
         if sc is not None:
             return ScreenWrapper(self, sc)
-        else:
-            return None
-
-    def getDataset (self, oid):
-        query_serv = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["oid"] = rlong(long(oid))
-        sql = "select ds from Dataset ds join fetch ds.details.owner join fetch ds.details.group " \
-              "left outer join fetch ds.projectLinks pdl " \
-              "left outer join fetch pdl.parent p where ds.id=:oid "
-        ds = query_serv.findByQuery(sql,p)
-        if ds is not None:
-            return DatasetWrapper(self, ds)
         else:
             return None
     
@@ -1078,22 +1055,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         pl = query_serv.findByQuery(sql,p)
         if pl is not None:
             return PlateWrapper(self, pl)
-        else:
-            return None
-
-    def getImage (self, oid):
-        query_serv = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["oid"] = rlong(long(oid))
-        sql = "select im from Image im " \
-              "left outer join fetch im.pixels as p " \
-              "join fetch im.details.owner join fetch im.details.group " \
-              "where im.id=:oid "
-        img = query_serv.findByQuery(sql,p)
-        
-        if img is not None:
-            return ImageWrapper(self, img)
         else:
             return None
     
@@ -1981,8 +1942,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.ownerId = rlong(self.getEventContext().userId)
         f.groupId = rlong(self.getEventContext().groupId)
         if page is not None:
-            f.limit = rint(32)
-            f.offset = rint((int(page)-1)*32)
+            f.limit = rint(PAGE)
+            f.offset = rint((int(page)-1)*PAGE)
         else:
             f.limit = rint(100)
         p.theFilter = f

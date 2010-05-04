@@ -84,8 +84,14 @@ div.cloud {
 }
 
 div.paging {
-    font-size: 15px;
+    font-size: 12px;
     text-align: center;
     margin: 0;
     padding: 10px 0px 30px 0px;
+}
+div.paging input.button_pagination {
+    border: 0;
+    background-color: transparent;
+    color: #1b7bc7;
+    padding: 0;
 }

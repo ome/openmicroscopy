@@ -69,7 +69,7 @@
 
 <p><img src="{% url webstatic "images/admin.png" %}" alt="admin" title="admin"> - Admin; <img src="{% url webstatic "images/guest.png" %}" alt="guest" title="guest"> - Guest; <img src="{% url webstatic "images/ldap.png" %}" alt="ldap" title="ldap"> - ldap; <img src="{% url webstatic "images/active.png" %}" alt="active" title="active"> - active; <img src="{% url webstatic "images/notactive.png" %}" alt="notactive" title="notactive"> - not active;<p>
 
-<h1>Summary</h1>
+<h1>{% trans "Summary" %}</h1>
 <p>Currently there are {{ controller.experimentersCount.experimenters }} accounts: {{ controller.experimentersCount.active }} active; {{ controller.experimentersCount.admin }} admin; {{ controller.experimentersCount.guest }} guest; {{ controller.experimentersCount.ldap }} ldap.</p>
 
 {% else %}

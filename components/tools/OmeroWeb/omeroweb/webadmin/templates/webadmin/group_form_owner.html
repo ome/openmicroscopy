@@ -19,20 +19,18 @@
             {
                 var ch = $('#checkbox');
                 {% if gid %}
-                    {% ifequal access_controll 0 %}
-                        ch.remove();
-                    {% else %}
+                    {% if access_controll %}
                         $('#id_access_controll_{{ access_controll }}').parent().append(ch);
-                    {% endifequal %}
-                    
-                    {% ifequal access_controll 1 %}
-                        $('#id_access_controll_0').attr('disabled', true);
-                    {% else %}
+                        {% ifequal access_controll 1 %}
+                            $('#id_access_controll_0').attr('disabled', true);
+                        {% endifequal %}
                         {% ifequal access_controll 2 %}
                             $('#id_access_controll_0').attr('disabled', true);
                             $('#id_access_controll_1').attr('disabled', true);
-                        {% endifequal %}
-                    {% endifequal %}
+                        {% endifequal %}                
+                    {% else %}
+                        ch.remove();
+                    {% endif %}
                 {% else %}
                     ch.remove();
                 {% endif %}

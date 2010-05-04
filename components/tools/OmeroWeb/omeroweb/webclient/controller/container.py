@@ -228,7 +228,7 @@ class BaseContainer(BaseController):
         if page is not None:
             self.paging = self.doPaging(page, len(im_list_with_counters), self.c_size)
     
-    def listPlate(self, plid, index, page):
+    def listPlate(self, plid, index):
         wl_list = list(self.conn.lookupWellsInPlate(oid=plid, index=index))
         wl_list_with_counters = dict()
         wl_ids = list()
@@ -290,7 +290,6 @@ class BaseContainer(BaseController):
         self.containers = {'wells': wl_list_with_counters_final}
         self.names = {'row_names':row_names, 'column_names':column_names}
         self.c_size = len(wl_list) #self.conn.getCollectionCount("Plate", "wellLinks", [long(plid)])[long(plid)]
-        # self.paging = self.doPaging(page, len(pl_list_with_counters), self.c_size)
     
     def loadHierarchies(self):
         if self.image is not None:

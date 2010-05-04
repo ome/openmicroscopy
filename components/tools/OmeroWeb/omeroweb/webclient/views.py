@@ -54,6 +54,7 @@ from django.utils import simplejson
 from django.views.defaults import page_not_found, server_error
 from django.views import debug
 from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext_lazy as _
 
 from omeroweb.extlib.http import HttpJavascriptRedirect, HttpJavascriptResponse
 
@@ -160,11 +161,12 @@ def isUserConnected (f):
             return HttpResponseRedirect(reverse("weblogin")+(("?url=%s") % (url)))
         except Exception, x:
             logger.error(traceback.format_exc())
-            return HttpResponseRedirect(reverse("weblogin")+(("?error=%s&url=%s") % (x.__class__.__name__,url)))
+            return HttpResponseRedirect(reverse("weblogin")+(("?error=%s&url=%s") % (str(x),url)))
         if conn is None:
             return HttpResponseRedirect(reverse("weblogin")+(("?url=%s") % (url)))
         
         sessionHelper(request)
+        kwargs["error"] = request.REQUEST.get('error')
         kwargs["conn"] = conn
         kwargs["conn_share"] = conn_share
         kwargs["url"] = url
@@ -253,24 +255,18 @@ def login(request):
         if request.method == 'POST':
             form = LoginForm(data=request.REQUEST.copy())
         else:
-            try:
-                blitz = settings.SERVER_LIST.get(pk=request.session.get('server')) 
+            blitz = settings.SERVER_LIST.get(pk=request.session.get('server')) 
+            if blitz is not None:
+                initial = {'server': unicode(blitz.id)}
                 try:
                     if request.session.get('username'):
-                        data = {'server': unicode(blitz.id), 'username':unicode(request.session.get('username')) }
-                        form = LoginForm(data=data)
-                    else:
-                        initial = {'server': unicode(blitz.id)}
+                        initial['username'] = unicode(request.session.get('username'))
+                        form = LoginForm(data=initial)
+                    else:                        
                         form = LoginForm(initial=initial)
                 except:
-                    initial = {'server': unicode(blitz.id)}
                     form = LoginForm(initial=initial)
-                if blitz:
-                    initial = {'server': unicode(blitz.id)}
-                    form = LoginForm(initial=initial)
-                else:
-                    form = LoginForm()
-            except:
+            else:
                 form = LoginForm()
         if url is not None:
             context = {"version": omero_version, 'url':url, 'error':error, 'form':form}
@@ -396,11 +392,16 @@ def change_active_group(request, **kwargs):
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     active_group = request.REQUEST['active_group']
-    conn.changeActiveGroup(active_group)
-    if request.session.get('nav')['experimenter'] is not None:
-        return HttpResponseRedirect(reverse("webindex")+(("?experimenter=%s") % (request.session.get('nav')['experimenter'])))
-    return HttpResponseRedirect(reverse("webindex"))
-
+    if conn.changeActiveGroup(active_group):
+        if request.session.get('nav')['experimenter'] is not None:
+            return HttpResponseRedirect(reverse("webindex")+(("?experimenter=%s") % (request.session.get('nav')['experimenter'])))
+        return HttpResponseRedirect(reverse("webindex"))
+    else:
+        error = _(u'You cannot change your group becuase other session is on.')
+        if request.session.get('nav')['experimenter'] is not None:            
+            return HttpResponseRedirect(reverse("webindex")+(("?experimenter=%s&error=%s") % (request.session.get('nav')['experimenter'], error)))
+        return HttpResponseRedirect(reverse("webindex")+(("?error=%s") % (error)))
+    
 @isUserConnected
 def logout(request, **kwargs):
     _session_logout(request, request.session['server'])
@@ -561,7 +562,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     try:
         page = int(request.REQUEST['page'])
     except:
-        page = None
+        page = 1
     
     # get index of the plate
     try:
@@ -583,14 +584,14 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     
     if o1_type is not None and o1_id > 0:
         if o1_type == 'dataset':
-            manager.listImagesInDataset(o1_id, filter_user_id)
+            manager.listImagesInDataset(o1_id, filter_user_id, page)
         elif o1_type == 'project' and o2_type == 'dataset':
-            manager.listImagesInDataset(o2_id, filter_user_id)
+            manager.listImagesInDataset(o2_id, filter_user_id, page)
         elif o1_type == 'plate':
-            manager.listPlate(o1_id, index, page)
+            manager.listPlate(o1_id, index)
             form_well_index = WellIndexForm(initial={'index':index, 'range':manager.fields})
         elif o1_type == 'screen' and o2_type == 'plate':
-            manager.listPlate(o2_id, index, page)
+            manager.listPlate(o2_id, index)
             form_well_index = WellIndexForm(initial={'index':index, 'range':manager.fields})
     elif o1_type == 'orphaned':
         manager.listOrphanedImages(filter_user_id)
@@ -841,10 +842,12 @@ def load_metadata_details(request, c_type, c_id, index=None, **kwargs):
                                         'illuminations': list(conn.getEnumerationEntries("IlluminationI")), 
                                         'contrastMethods': list(conn.getEnumerationEntries("ContrastMethodI")), 
                                         'modes': list(conn.getEnumerationEntries("AcquisitionModeI"))})
-                cmarshalled = ch.getLogicalChannel().simpleMarshal()
-                if ch.getLogicalChannel().getSecondaryEmissionFilter()._obj is not None:
-                    channel['form_emission_filter'] = MetadataFilterForm(initial={'filter': ch.getLogicalChannel().getSecondaryEmissionFilter(),
+                #print ch.getLogicalChannel().simpleMarshal()
+                if ch.getLogicalChannel().getLightPath() is not None:
+                    if ch.getLogicalChannel().getLightPath().getSecondaryEmissionFilter() is not None:
+                        channel['form_emission_filter'] = MetadataFilterForm(initial={'filter': ch.getLogicalChannel().getLightPath().getSecondaryEmissionFilter(),
                                         'types':list(conn.getEnumerationEntries("FilterTypeI"))})
+
                 if ch.getLogicalChannel().getDetectorSettings()._obj is not None:
                     channel['form_detector_settings'] = MetadataDetectorForm(initial={'detectorSettings':ch.getLogicalChannel().getDetectorSettings(), 'detector': ch.getLogicalChannel().getDetectorSettings().getDetector(),
                                         'types':list(conn.getEnumerationEntries("DetectorTypeI"))})
@@ -883,7 +886,7 @@ def load_metadata_details(request, c_type, c_id, index=None, **kwargs):
                 for f in filters:
                     form_filter = MetadataFilterForm(initial={'filter': f, 'types':list(conn.getEnumerationEntries("FilterTypeI"))})
                     form_filters.append(form_filter)
-        
+            
             if image.getInstrument().getDetectors() is not None:
                 detectors = list(image.getInstrument().getDetectors())    
                 for d in detectors:

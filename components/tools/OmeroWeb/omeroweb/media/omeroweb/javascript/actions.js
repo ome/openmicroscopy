@@ -342,3 +342,10 @@ function editItem(type, item_id) {
     $('iframe#metadata_details').load();
     return false;
 }
+
+function doPagination(view, page) {
+    var rel = $("div#content_details").attr('rel');
+    $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/tree/spinner.gif"/></p>');
+    $("div#content_details").load('/webclient/load_data/dataset/'+rel+'/?view='+view+'&page='+page);
+    return false;
+}

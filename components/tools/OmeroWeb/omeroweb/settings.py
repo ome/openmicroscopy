@@ -188,6 +188,11 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 2621440 #default 2621440
 DEFAULT_IMG = os.path.join(os.path.dirname(__file__), 'media', 'omeroweb', "images", 'image128.png').replace('\\','/')
 DEFAULT_USER = os.path.join(os.path.dirname(__file__), 'media', 'omeroweb', "images", 'personal32.png').replace('\\','/')
 
+try:
+    PAGE
+except:
+    PAGE = 24
+
 # CUSTOM CONFIG
 try:
     from webadmin.custom_models import ServerObjects

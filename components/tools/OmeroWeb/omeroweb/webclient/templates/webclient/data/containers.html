@@ -65,7 +65,7 @@
                                     $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
                                     $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="/webclient/metadata_details/project/'+obj[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
                                     $('iframe#metadata_details').load();
-                                    $("div#content_details").children().remove();
+                                    $("div#content_details").removeAttr('rel').children().remove();
                                 } else if (obj[0] == 'ds') {                                     
                                     var ro = $(node).children().filter('span').attr('id');
                                     if (ro=='readonly') {
@@ -74,7 +74,7 @@
                                         $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" onclick="treeCopyToClipboard(\'dataset\', \''+obj[1]+'\');" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" /> <input id="pasteFromClipboard"  class="button" type="image" src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="Paste from clipboard" onclick="pasteFromClipboard(\'dataset\', \''+obj[1]+'\', \'{{ url }}\');"> <a href="{% url manage_action_containers "remove" %}?parent='+par+'&source='+obj[0]+'-'+obj[1]+'&url={{ url }}" onClick="return confirm(\'Unlink dataset?\');"> <img src="{% url webstatic "images/cut16.png" %}" alt="u" title="Unlink"/></a>');
                                     } else {
                                         $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" onclick="treeCopyToClipboard(\'dataset\', \''+obj[1]+'\');" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" /> <input id="pasteFromClipboard"  class="button" type="image" src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="Paste from clipboard" onclick="pasteFromClipboard(\'dataset\', \''+obj[1]+'\', \'{{ url }}\');"> <a href="{% url manage_action_containers "remove" %}?parent='+par+'&source='+obj[0]+'-'+obj[1]+'&url={{ url }}" onClick="return confirm(\'Unlink dataset?\');"> <img src="{% url webstatic "images/cut16.png" %}" alt="u" title="Unlink"/></a> <input class="button" type="image" src="{% url webstatic "images/block.png" %}" onclick="deleteItem(\'dataset\', \''+obj[1]+'\');" title="Delete"/>');
-                                    }                                    
+                                    }
                                     
                                     $("#right_panel").show();
                                     $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
@@ -135,7 +135,7 @@
                                     $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
                                     $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="/webclient/metadata_details/screen/'+obj[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
                                     $('iframe#metadata_details').load();
-                                    $("div#content_details").children().remove();
+                                    $("div#content_details").removeAttr('rel').children().remove();
                                 } else if (obj[0] == 'pl') {
                                     var ro = $(node).children().filter('span').attr('id');
                                     var parobj = par.split("-");

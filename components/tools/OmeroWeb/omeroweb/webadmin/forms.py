@@ -110,6 +110,10 @@ class ExperimenterForm(forms.Form):
     password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30}), required=False)
     confirmation = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30}), required=False)
     
+    def clean_default_group(self):
+        if not self.cleaned_data.get('default_group'):
+            raise forms.ValidationError('Default groups was not chosen.')
+    
     def clean_omename(self):
         if self.name_check:
             raise forms.ValidationError('This omename already exist.')
@@ -168,7 +172,7 @@ class GroupForm(forms.Form):
     PERMISSION_CHOICES = (
         ('0', 'Private'),
         ('1', 'Collaborative '),
-        ('2', 'Public ')
+        #('2', 'Public ')
     )
     
     def __init__(self, name_check=False, *args, **kwargs):
@@ -195,7 +199,7 @@ class GroupOwnerForm(forms.Form):
     PERMISSION_CHOICES = (
         ('0', 'Private'),
         ('1', 'Collaborative '),
-        ('2', 'Public ')
+        #('2', 'Public ')
     )
 
     access_controll = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True)
