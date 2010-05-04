@@ -75,57 +75,57 @@ class Type(omero.grid.Param):
 
 class Long(Type):
 
-    def __init__(self, name, optional = False, out = False, description = None, min = None, max = None, values = None, **kwargs):
-        Type.__init__(self, name, optional, out, description, min, max, values, **kwargs)
+    def __init__(self, name, optional = False, out = False, description = None, useDefault = None, min = None, max = None, values = None, **kwargs):
+        Type.__init__(self, name, optional, out, description, useDefault, min, max, values, **kwargs)
         self.type(rlong(0))
 
 
 class String(Type):
 
-    def __init__(self, name, optional = False, out = False, description = None, min = None, max = None, values = None, **kwargs):
-        Type.__init__(self, name, optional, out, description, min, max, values, **kwargs)
+    def __init__(self, name, optional = False, out = False, description = None, useDefault = None, min = None, max = None, values = None, **kwargs):
+        Type.__init__(self, name, optional, out, description, useDefault, min, max, values, **kwargs)
         self.type(rstring(""))
 
 
 class Bool(Type):
 
-    def __init__(self, name, optional = False, out = False, description = None, min = None, max = None, values = None, **kwargs):
-        Type.__init__(self, name, optional, out, description, min, max, values, **kwargs)
+    def __init__(self, name, optional = False, out = False, description = None, useDefault = None, min = None, max = None, values = None, **kwargs):
+        Type.__init__(self, name, optional, out, description, useDefault, min, max, values, **kwargs)
         self.type(rbool(False))
 
 
 class Point(Type):
 
-    def __init__(self, name, optional = False, out = False, description = None, min = None, max = None, values = None, **kwargs):
-        Type.__init__(self, name, optional, out, description, min, max, values, **kwargs)
+    def __init__(self, name, optional = False, out = False, description = None, useDefault = None, min = None, max = None, values = None, **kwargs):
+        Type.__init__(self, name, optional, out, description, useDefault, min, max, values, **kwargs)
         self.type(rinternal(omero.Point()))
 
 
 class Plane(Type):
 
-    def __init__(self, name, optional = False, out = False, description = None, min = None, max = None, values = None, **kwargs):
-        Type.__init__(self, name, optional, out, description, min, max, values, **kwargs)
+    def __init__(self, name, optional = False, out = False, description = None, useDefault = None, min = None, max = None, values = None, **kwargs):
+        Type.__init__(self, name, optional, out, description, useDefault, min, max, values, **kwargs)
         self.type(rinternal(omero.Plane()))
 
 
 class Set(Type):
 
-    def __init__(self, name, optional = False, out = False, description = None, min = None, max = None, values = None, **kwargs):
-        Type.__init__(self, name, optional, out, description, min, max, values, **kwargs)
+    def __init__(self, name, optional = False, out = False, description = None, useDefault = None, min = None, max = None, values = None, **kwargs):
+        Type.__init__(self, name, optional, out, description, useDefault, min, max, values, **kwargs)
         self.type(rset())
 
 
 class List(Type):
 
-    def __init__(self, name, optional = False, out = False, description = None, min = None, max = None, values = None, **kwargs):
-        Type.__init__(self, name, optional, out, description, min, max, values, **kwargs)
+    def __init__(self, name, optional = False, out = False, description = None, useDefault = None, min = None, max = None, values = None, **kwargs):
+        Type.__init__(self, name, optional, out, description, useDefault, min, max, values, **kwargs)
         self.type(rlist())
 
 
 class Map(Type):
 
-    def __init__(self, name, optional = False, out = False, description = None, min = None, max = None, values = None, **kwargs):
-        Type.__init__(self, name, optional, out, description, min, max, values, **kwargs)
+    def __init__(self, name, optional = False, out = False, description = None, useDefault = None, min = None, max = None, values = None, **kwargs):
+        Type.__init__(self, name, optional, out, description, useDefault, min, max, values, **kwargs)
         self.type(rmap())
 
 

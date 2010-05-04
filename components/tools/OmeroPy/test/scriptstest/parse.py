@@ -8,33 +8,43 @@
 
 """
 
-import integration.library as lib
-from path import path
-
 import sys
+import uuid
 import unittest
 
 import omero
 from omero.scripts import *
+from omero.util.temp_files import create_path
 
-class TestParse(lib.ITest):
+class TestParse(unittest.TestCase):
+
     def testParse(self):
         try:
-            cfg = self.tmpfile().name
-            cfg = "/tmp/t"
-            f = open(cfg, "w")
-            for prefix in ["Ice","omero"]:
-                m = self.client.ic.getProperties().getPropertiesForPrefix(prefix)
-                for k, v in m.items():
-                    f.write("%s=%s\n" % (k,v))
-            f.write("omero.scripts.parse=true\n")
-            f.close()
-            c = omero.client(["--Ice.Config=%s" % cfg])
-            script_client = client(self.uuid(), "simple ping script", Long("a").inout(), String("b").inout(), client = c)
+            class mock(object):
+                def setAgent(self, *args):
+                    pass
+                def createSession(self, *args):
+                    return self
+                def detachOnDestroy(self, *args):
+                    pass
+                def getProperty(self, *args):
+                    return "true"
+                def setOutput(self, *args):
+                    pass
+            script_client = client("testParse", "simple ping script", Long("a").inout(), String("b").inout(), client = mock())
             print "IN CLIENT: " + script_client.getProperty("omero.scripts.parse")
             self.fail("Should have raised ParseExit")
         except ParseExit, pe:
             pass
+
+    def testMinMaxTicket2318(self):
+        # Duplicating from some of the scripts to reproduce problem
+        def makeParam(paramClass, name, description=None, optional=True, min=None, max=None, values=None):
+             param = paramClass(name, optional, description=description, min=min, max=max, values=values)
+             return param
+        p = makeParam(Long, "thumbSize", "The dimension of each thumbnail. Default is 100", True, 10, 250)
+        self.assertEquals(10, p.min.val)
+        self.assertEquals(250, p.max.val)
 
 if __name__ == '__main__':
     unittest.main()
