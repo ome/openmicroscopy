@@ -419,7 +419,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
                 return factory.executor.execute(factory.principal,
                         new Executor.SimpleWork(this, "validateScript", j.getId().getValue(), acceptsList) {
-                    @Transactional(readOnly = false)
+                    @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
 
                         List<OriginalFile> files = (List<OriginalFile>) qb.query(session).list();
