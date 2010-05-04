@@ -37,6 +37,8 @@ class Type(omero.grid.Param):
     def __init__(self, name, optional = False, out = False, description = None, useDefault = False,\
                              min = None, max = None, values = None, **kwargs):
 
+	omero.grid.Param.__init__(self)
+
         # Non-Param attributes
         self._name = name
         self._in = True
