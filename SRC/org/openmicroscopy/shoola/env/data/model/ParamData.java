@@ -79,23 +79,6 @@ public class ParamData
 	/** The value to pass in order to run the script. */
 	private Object valueToPass;
 	
-	/**
-	 * Converts the passed value.
-	 * 
-	 * @param value The value to handle.
-	 * @return The converted value.
-	 */
-	private Object convertRType(RType value)
-	{
-		if (value instanceof RBool) return ((RBool) value).getValue();
-		if (value instanceof RString) return ((RString) value).getValue();
-		if (value instanceof RLong)  return ((RLong) value).getValue();
-		if (value instanceof RInt)  return ((RInt) value).getValue();
-		if (value instanceof RFloat)  return ((RFloat) value).getValue();
-		if (value instanceof RList)  return ((RList) value).getValue();
-		return null;
-	}
-	
 	/** Initializes the value. */
 	private void initialize()
 	{
@@ -251,6 +234,36 @@ public class ParamData
 	 * 
 	 * @return See above.
 	 */
-	public Object getValueToPass() { return valueToPass; }
+	public RType getValueToPassAsRType()
+	{ 
+		if (valueToPass instanceof Boolean)
+			return omero.rtypes.rbool((Boolean) valueToPass);
+		if (valueToPass instanceof String)
+			return omero.rtypes.rstring((String) valueToPass);
+		if (valueToPass instanceof Long)
+			return omero.rtypes.rlong((Long) valueToPass);
+		if (valueToPass instanceof Integer)
+			return omero.rtypes.rint((Integer) valueToPass);
+		if (valueToPass instanceof Float)
+			return omero.rtypes.rfloat((Float) valueToPass);
+		return null; 
+	}
+	
+	/**
+	 * Converts the passed value.
+	 * 
+	 * @param value The value to handle.
+	 * @return The converted value.
+	 */
+	public static Object convertRType(RType value)
+	{
+		if (value instanceof RBool) return ((RBool) value).getValue();
+		if (value instanceof RString) return ((RString) value).getValue();
+		if (value instanceof RLong)  return ((RLong) value).getValue();
+		if (value instanceof RInt)  return ((RInt) value).getValue();
+		if (value instanceof RFloat)  return ((RFloat) value).getValue();
+		if (value instanceof RList)  return ((RList) value).getValue();
+		return null;
+	}
 	
 }

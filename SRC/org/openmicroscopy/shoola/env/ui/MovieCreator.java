@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.env.ui;
 //Java imports
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -36,7 +37,6 @@ import org.openmicroscopy.shoola.env.data.ScriptCallback;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.FileAnnotationData;
 import pojos.ImageData;
 
 /**
@@ -67,15 +67,15 @@ public class MovieCreator
     
     /** The select channels. */
     private List<Integer>			channels;
-    
-    /** The result. */
-    private FileAnnotationData		data;
 
     /** The call-back returned by the server. */
     private ScriptCallback 			callBack;
     
     /** Notifies the user that an error occurred. */
-    protected void onException() { handleNullResult(); }
+    protected void onException()
+    { 
+    	activity.notifyError("Unable to create movie for "); 
+    }
     
     /**
      * Creates a new instance.
@@ -138,25 +138,33 @@ public class MovieCreator
      */
     public void update(DSCallFeedbackEvent fe) 
     {
-        //if (viewer.getState() == DataBrowser.DISCARDED) return;  //Async cancel.
-        String status = fe.getStatus();
-        int percDone = fe.getPercentDone();
         Object o = fe.getPartialResult();
         if (o != null) {
         	callBack = (ScriptCallback) o;
+        	callBack.setAdapter(this);
         	activity.onCallBackSet();
         }
     }
     
-    /**
-     * Notifies the user that it wasn't possible to create the movie.
-     * @see UserNotifierLoader#handleNullResult()
+    /** 
+     * Feeds the result back to the viewer. 
+     * @see UserNotifierLoader#handleResult(Object)
      */
-    /*
-    public void handleNullResult()
+    public void handleResult(Object result)
     { 
-    	activity.notifyError("Unable to create movie for ");
+    	if (result == null) activity.endActivity(result); 
+    	else if (!(result instanceof Boolean)) {
+        	Map<String, Object> r = (Map) result;
+        	Object o = r.get("fileAnnotation");
+        	if (o != null) {
+        		try {
+        			Object annotation = 
+        				registry.getMetadataService().loadAnnotation((Long) o);
+        			activity.endActivity(annotation);
+    			} catch (Exception e) {
+    			}
+        	}
+    	}
     }
-    */
 	
 }

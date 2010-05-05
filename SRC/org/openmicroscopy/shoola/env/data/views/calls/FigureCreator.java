@@ -31,6 +31,7 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.ScriptCallback;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -51,12 +52,12 @@ public class FigureCreator
 	extends BatchCallTree
 {
 
-	/** The results of the call. */
-    private Object        results;
-    
     /** Loads the specified tree. */
     private BatchCall   loadCall;
 
+    /** The server call-handle to the computation. */
+    private ScriptCallback	scriptCallBack;
+    
     /**
      * Creates a {@link BatchCall} to create a movie.
      * 
@@ -72,10 +73,17 @@ public class FigureCreator
             public void doCall() throws Exception
             {
                 OmeroImageService os = context.getImageService();
-                results = os.createFigure(ids, type, param);
+                scriptCallBack = os.createFigure(ids, type, param);
             }
         };
     }
+    
+    /**
+     * Returns the server call-handle to the computation.
+     * 
+     * @return See above.
+     */
+    protected Object getPartialResult() { return scriptCallBack; }
     
     /**
      * Adds the {@link #loadCall} to the computation tree.
@@ -89,7 +97,7 @@ public class FigureCreator
      * 
      * @see BatchCallTree#getResult()
      */
-    protected Object getResult() { return results; }
+    protected Object getResult() { return Boolean.valueOf(true); }
     
     /**
      * Creates a new instance.

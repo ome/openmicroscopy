@@ -431,7 +431,8 @@ class OMEROGateway
 	 * @return See above.
 	 * @throws ScriptingException If an error occurred while running the script.
 	 */
-	private ScriptCallback runScript(long scriptID, Map<String, RType> parameters)
+	private ScriptCallback runScript(long scriptID, 
+			Map<String, RType> parameters)
 		throws ScriptingException
 	{
 		ScriptCallback cb = null;
@@ -5328,13 +5329,6 @@ class OMEROGateway
 			map.put("format", omero.rtypes.rstring(param.getFormatAsString()));
 			map.put("overlayColour", omero.rtypes.rlong(param.getColor()));
 			return runScript(id, map);
-			
-			//RLong type = (RLong) result.get("fileAnnotation");
-
-			//if (type == null) return -1;
-			//return type.getValue();
-			//return -1;
-
 		} catch (Exception e) {
 			handleException(e, "Cannot create a movie for image: "+imageID);
 		}
@@ -5512,7 +5506,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	long createFigure(List<Long> objectIDs, Class type,
+	ScriptCallback createFigure(List<Long> objectIDs, Class type,
 			FigureParam param, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -5522,7 +5516,7 @@ class OMEROGateway
 			String scriptName = param.getScriptName();
 			int scriptIndex = param.getIndex();
 			long id = svc.getScriptID(scriptName);
-			if (id <= 0) return -1;
+			if (id <= 0) return null;
 			List<RType> ids = new ArrayList<RType>(objectIDs.size());
 			Iterator<Long> i = objectIDs.iterator();
 			while (i.hasNext())
@@ -5559,13 +5553,7 @@ class OMEROGateway
 						omero.rtypes.rstring(param.getFormatAsString()));
 				map.put("figureName", 
 						omero.rtypes.rstring(param.getName()));
-				runScript(id, map);
-				//RLong r = (RLong) result.get("fileAnnotation");
-				//RLong type = null;
-				//if (r == null) return -1;
-				//return r.getValue();
-				return -1;
-				
+				return runScript(id, map);	
 			} 
 			//merge channels
 			Iterator j;
@@ -5623,8 +5611,8 @@ class OMEROGateway
 			} else 
 				map.put("splitPanelsGrey", 
 					omero.rtypes.rbool(param.isSplitGrey()));
-			
-			map.put("scalebar", omero.rtypes.rlong(param.getScaleBar()));
+			if (param.getScaleBar() > 0)
+				map.put("scalebar", omero.rtypes.rlong(param.getScaleBar()));
 			map.put("overlayColour", omero.rtypes.rlong(
 					param.getColor()));
 			map.put("width", omero.rtypes.rlong(param.getWidth()));
@@ -5641,7 +5629,7 @@ class OMEROGateway
 				map.put("roiZoom", omero.rtypes.rlong((long) 
 								param.getMagnificationFactor()));
 			}
-			runScript(id, map);
+			return runScript(id, map);
 			//RLong r = (RLong) result.get("fileAnnotation");
 			//RLong type = null;
 			//if (r == null) return -1;
@@ -5649,9 +5637,9 @@ class OMEROGateway
 
 		} catch (Exception e) {
 			handleException(e, "Cannot create a figure " +
-					"for specified images.");
+					"for the specified images.");
 		}
-		return -1;
+		return null;
 	}
 
 	/**
@@ -6325,41 +6313,18 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Object runScript(ScriptObject script)
+	ScriptCallback runScript(ScriptObject script)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		try {
-			/*
 			long id = script.getScriptID();
-			if (id < 0) return Boolean.valueOf(false);
-			IScriptPrx svc = getScripService();
-			Map<String, RType> map = new HashMap<String, RType>();
-			Map<String, Object> values = script.getParameterValues();
-			
-			if (values != null) {
-				Entry entry;
-				Iterator i = values.entrySet().iterator();
-				String p;
-				Object v;
-				RType type;
-				while (i.hasNext()) {
-					entry = (Entry) i.next();
-					v = entry.getValue();
-					type = convertValue((String) v);
-					if (type != null)
-					map.put((String) entry.getKey(), type);
-				}
-			}
-			runScript(id, map);
-			*/
-			//Figure out what is returned by the script.
-
-			return Boolean.valueOf(true);
+			if (id < 0) return null;
+			return runScript(id, script.getValueToPass());
 		} catch (Exception e) {
 			handleException(e, "Cannot run the script.");
 		}
-		return Boolean.valueOf(true);
+		return null;
 	}
 	
 	/**

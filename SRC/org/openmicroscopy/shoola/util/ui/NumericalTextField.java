@@ -32,7 +32,6 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.AttributeSet;
-import javax.swing.text.Document;
 import javax.swing.text.PlainDocument;
 
 //Third-party libraries
@@ -188,9 +187,8 @@ public class NumericalTextField
 		if (numberType == null)
 			numberType = Integer.class;
 		this.numberType = numberType;
-		if (numberType.equals(Integer.class)) {
-			accepted = NUMERIC;
-		} else accepted = FLOAT;
+		if (numberType.equals(Integer.class)) accepted = NUMERIC;
+		else accepted = FLOAT;
 		setNegativeAccepted(negativeAccepted);	
 	}
 	

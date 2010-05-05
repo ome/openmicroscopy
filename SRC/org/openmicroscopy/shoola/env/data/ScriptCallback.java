@@ -28,8 +28,18 @@ package org.openmicroscopy.shoola.env.data;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
+import org.openmicroscopy.shoola.env.data.model.ParamData;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+
 import Ice.Current;
 import omero.RString;
+import omero.RType;
 import omero.ServerError;
 import omero.client;
 import omero.grid.ProcessCallbackI;
@@ -53,19 +63,21 @@ public class ScriptCallback
 {
 
 	/** The identifier of the script. */
-	private long scriptID;
+	private long              scriptID;
 	
 	/** Helper reference to the process. */
-	private ScriptProcessPrx process;
+	private ScriptProcessPrx  process;
 	
-	private Object result;
+	private DSCallAdapter adapter;
 	
 	/**
+	 * Creates a new instance.
 	 * 
-	 * @param scriptID
-	 * @param client
-	 * @param process
-	 * @throws ServerError
+	 * @param scriptID The identifier of the script to run.
+	 * @param client   Reference to the client.
+	 * @param process  The process to handle.
+	 * @throws ServerError Thrown if an error occurred while initializing the
+	 * 					   call-back.
 	 */
 	ScriptCallback(long scriptID, client client, ScriptProcessPrx process) 
 		throws ServerError
@@ -73,6 +85,16 @@ public class ScriptCallback
 		super(client, process);
 		this.scriptID = scriptID;
 		this.process = process;
+	}
+	
+	/**
+	 * Sets the adapter. 
+	 * 
+	 * @param adapter The value to set.
+	 */
+	public void setAdapter(DSCallAdapter adapter)
+	{
+		this.adapter = adapter;
 	}
 	
 	/**
@@ -95,7 +117,6 @@ public class ScriptCallback
 	public void cancel()
 		throws ScriptingException
 	{
-		System.err.println("cancel");
 		try {
 			process.cancel();
 			close();
@@ -112,14 +133,36 @@ public class ScriptCallback
 	public void processFinished(int value, Current current)
 	{
 		super.processFinished(value, current);
-		
-		System.err.println("Done");
+		//convert the result.
+		//adapter.handleResult(process.g)
+		if (adapter == null) return;
 		try {
-			System.err.println(process.getResults(0));
+			if (adapter != null) {
+				Map<String, RType> results = process.getResults(0);
+				if (results == null)
+					adapter.handleResult(null);
+				else {
+					Map<String, Object> r = new HashMap<String, Object>();
+					Iterator i = results.entrySet().iterator();
+					RType type;
+					Entry entry;
+					while (i.hasNext()) {
+						entry = (Entry) i.next();
+						r.put((String) entry.getKey(), 
+							ParamData.convertRType((RType) entry.getValue()));
+					}
+					adapter.handleResult(r);
+				}
+			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			if (adapter != null) adapter.handleResult(null);
 		}
 		
+		try {
+			close();
+		} catch (Exception e) {
+			//ignore the exception.
+		}
 	}
 	
 	/**
@@ -129,7 +172,6 @@ public class ScriptCallback
 	public void processCancelled(boolean value, Current current)
 	{
 		super.processCancelled(value, current);
-		System.err.println("Cancel");
 	}
 	
 

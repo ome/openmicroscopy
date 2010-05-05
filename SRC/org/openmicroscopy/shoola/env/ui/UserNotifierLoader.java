@@ -98,10 +98,12 @@ abstract class UserNotifierLoader
      * Notifies the user that it wasn't possible to retrieve the data and
      * and discards the {@link #viewer}.
      */
+    /*
     public void handleNullResult() 
     {
         handleException(new Exception("No data available."));
     }
+    */
     
     /** Notifies the user that the data retrieval has been canceled. */
     public void handleCancellation() 

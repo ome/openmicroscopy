@@ -24,11 +24,14 @@ package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.ScriptCallback;
+import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.FileAnnotationData;
 
@@ -64,8 +67,14 @@ public class FigureCreator
     /** The result. */
     private FileAnnotationData		data;
     
+    /** The call-back returned by the server. */
+    private ScriptCallback 			callBack;
+   
     /** Notifies the user that an error occurred. */
-    protected void onException() { handleNullResult(); }
+    protected void onException()
+    { 
+    	activity.notifyError("Unable to create figure");
+    }
     
     /**
      * Creates a new instance.
@@ -105,21 +114,49 @@ public class FigureCreator
      * Cancels the ongoing data retrieval.
      * @see UserNotifierLoader#cancel()
      */
-    public void cancel() { handle.cancel(); }
-    
-    /**
-     * Notifies the user that it wasn't possible to create the figure.
-     * @see UserNotifierLoader#handleNullResult()
-     */
-    public void handleNullResult()
+    public void cancel()
     { 
-    	activity.notifyError("Unable to create figure");
+    	try {
+    		if (callBack != null) {
+    			callBack.cancel();
+        		activity.onActivityCancelled();
+    		}
+		} catch (Exception e) {
+			handleException(e);
+		}
+    	handle.cancel();
+    }
+    
+    public void update(DSCallFeedbackEvent fe) 
+    {
+        //if (viewer.getState() == DataBrowser.DISCARDED) return;  //Async cancel.
+        Object o = fe.getPartialResult();
+        if (o != null) {
+        	callBack = (ScriptCallback) o;
+        	callBack.setAdapter(this);
+        	activity.onCallBackSet();
+        }
     }
  
     /** 
      * Feeds the result back to the viewer. 
      * @see UserNotifierLoader#handleResult(Object)
      */
-    public void handleResult(Object result) { activity.endActivity(result); }
+    public void handleResult(Object result)
+    { 
+    	if (result == null) activity.endActivity(result); 
+    	else if (!(result instanceof Boolean)) {
+        	Map<String, Object> r = (Map) result;
+        	Object o = r.get("fileAnnotation");
+        	if (o != null) {
+        		try {
+        			Object annotation = 
+        				registry.getMetadataService().loadAnnotation((Long) o);
+        			activity.endActivity(annotation);
+    			} catch (Exception e) {
+    			}
+        	}
+    	}
+    }
 	
 }

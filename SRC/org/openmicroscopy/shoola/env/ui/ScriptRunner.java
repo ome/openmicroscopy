@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.ui.ScriptHandler
+ * org.openmicroscopy.shoola.env.ui.ScriptRunner 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
@@ -22,17 +22,20 @@
  */
 package org.openmicroscopy.shoola.env.ui;
 
-
-//Java imports
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.ScriptCallback;
+import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
+//Java imports
+
+//Third-party libraries
+
+//Application-internal dependencies
+
 /** 
- * Runs the specified script.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -44,16 +47,9 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
  * </small>
  * @since 3.0-Beta4
  */
-public class ScriptHandler 
+public class ScriptRunner 	
 	extends UserNotifierLoader
 {
-
-	/** Indicates to run the script. */
-	public static final int	RUN = ScriptActivity.RUN;
-	
-	/** Indicates to upload the script. */
-	public static final int	UPLOAD = ScriptActivity.UPLOAD;
-	
 	
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  			handle;
@@ -61,11 +57,14 @@ public class ScriptHandler
     /** Reference to the script to run. */
     private ScriptObject 			script;
 
-    /** One of constants defined by this class. */
-    private int 					index;
+    /** The call-back returned by the server. */
+    private ScriptCallback 			callBack;
     
     /** Notifies the user that an error occurred. */
-    protected void onException() { handleNullResult(); }
+    protected void onException()
+    {
+    	activity.notifyError("Unable to run the script.");
+    }
     
     /**
      * Creates a new instance.
@@ -73,16 +72,16 @@ public class ScriptHandler
      * @param viewer	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
      * @param registry	Convenience reference for subclasses.
-     * @param script  	The script to run
+     * @param script  	The script to run.
+     * @param activity  The activity associated to this loader.
      */
-	public ScriptHandler(UserNotifier viewer,  Registry registry,
-			ScriptObject script, int index, ActivityComponent activity)
+	public ScriptRunner(UserNotifier viewer,  Registry registry,
+			ScriptObject script, ActivityComponent activity)
 	{
 		super(viewer, registry, activity);
 		if (script == null)
 			throw new IllegalArgumentException("No script to run.");
 		this.script = script;
-		this.index = index;
 	}
 	
 	/**
@@ -91,34 +90,38 @@ public class ScriptHandler
      */
     public void load()
     {
-    	switch (index) {
-			case UPLOAD:
-				handle = ivView.uploadScript(script, this);
-				break;
-			case RUN:
-				handle = ivView.runScript(script, this);
-		}
+    	handle = ivView.runScript(script, this);
     }
     
     /**
      * Cancels the on-going data retrieval.
      * @see UserNotifierLoader#cancel()
      */
-    public void cancel() { handle.cancel(); }
-    
-    /**
-     * Notifies the user that it wasn't possible to create the figure.
-     * @see UserNotifierLoader#handleNullResult()
-     */
-    public void handleNullResult()
+    public void cancel()
     { 
-    	switch (index) {
-			case UPLOAD:
-				activity.notifyError("Unable to upload the script.");
-				break;
-			case RUN:
-				activity.notifyError("Unable to run the script.");
+    	try {
+    		if (callBack != null) {
+    			callBack.cancel();
+        		activity.onActivityCancelled();
+    		}
+		} catch (Exception e) {
+			handleException(e);
 		}
+    	handle.cancel();
+	}
+    
+    /** 
+     * Stores the call-back.
+     * @see UserNotifierLoader#update(DSCallFeedbackEvent)
+     */
+    public void update(DSCallFeedbackEvent fe) 
+    {
+        Object o = fe.getPartialResult();
+        if (o != null) {
+        	callBack = (ScriptCallback) o;
+        	callBack.setAdapter(this);
+        	activity.onCallBackSet();
+        }
     }
  
     /** 
@@ -127,7 +130,11 @@ public class ScriptHandler
      */
     public void handleResult(Object result)
     { 
-    	if (index == UPLOAD) {
+    	if (result == null) {
+    		activity.endActivity(result); 
+    		return;
+    	}
+    	if (!(result instanceof Boolean)) {
     		if (result instanceof Long) {
     			Long value = (Long) result;
     			if (value < 0) handleNullResult();

@@ -830,7 +830,8 @@ class OmeroImageServiceImpl
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#createFigure(List, Class, Object)
 	 */
-	public Object createFigure(List<Long> ids, Class type, Object parameters)
+	public ScriptCallback createFigure(List<Long> ids, Class type, 
+			Object parameters)
 			throws DSOutOfServiceException, DSAccessException
 	{
 		if (parameters == null)
@@ -839,9 +840,9 @@ class OmeroImageServiceImpl
 				LookupNames.CURRENT_USER_DETAILS);
 		if (parameters instanceof FigureParam) {
 			FigureParam p = (FigureParam) parameters;
-			long id = gateway.createFigure(ids, type, p, exp.getId());
-			if (id < 0) return null;
-			return context.getMetadataService().loadAnnotation(id);
+			return gateway.createFigure(ids, type, p, exp.getId());
+			//if (id < 0) return null;
+			//return context.getMetadataService().loadAnnotation(id);
 		}
 		return null;
 	}
@@ -894,7 +895,7 @@ class OmeroImageServiceImpl
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#runScript(ScriptObject)
 	 */
-	public Object runScript(ScriptObject script)
+	public ScriptCallback runScript(ScriptObject script)
 			throws DSOutOfServiceException, DSAccessException
 	{
 		if (script == null) 

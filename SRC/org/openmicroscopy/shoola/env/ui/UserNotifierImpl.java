@@ -28,12 +28,10 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.Icon;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 
 //Third-party libraries

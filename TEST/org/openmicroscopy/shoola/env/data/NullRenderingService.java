@@ -361,7 +361,7 @@ public class NullRenderingService
      * No-op implementation
      * @see OmeroImageService#createFigure(List, Class, Object)
      */
-	public Object createFigure(List<Long> ids, Class type, Object parameters)
+	public ScriptCallback createFigure(List<Long> ids, Class type, Object parameters)
 			throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
@@ -412,7 +412,7 @@ public class NullRenderingService
      * No-op implementation
      * @see OmeroImageService#runScript(ScriptObject)
      */
-	public Object runScript(ScriptObject script)
+	public ScriptCallback runScript(ScriptObject script)
 			throws DSOutOfServiceException, DSAccessException
 	{
 		return null;

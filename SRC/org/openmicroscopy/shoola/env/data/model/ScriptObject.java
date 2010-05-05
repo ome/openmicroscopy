@@ -35,6 +35,7 @@ import javax.swing.Icon;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.RType;
 import omero.grid.JobParams;
 import omero.grid.Param;
 import pojos.ExperimenterData;
@@ -372,6 +373,26 @@ public class ScriptObject
 	public Map<String, ParamData> getInputs() { return inputs; }
 	
 	/**
+	 * Returns the parameters to pass when running the script.
+	 * 
+	 * @return See above.
+	 */
+	public Map<String, RType> getValueToPass()
+	{
+		Map<String, RType> map = new HashMap<String, RType>();
+		if (inputs == null) return map;
+		Iterator i = inputs.entrySet().iterator();
+		ParamData p;
+		Entry entry;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			p = (ParamData) entry.getValue();
+			map.put((String) entry.getKey(), p.getValueToPassAsRType()); 
+		}
+		return map;
+	}
+	
+	/**
 	 * Returns the outputs.
 	 * 
 	 * @return See above.
@@ -406,8 +427,7 @@ public class ScriptObject
 	 * @return See above.
 	 */
 	public int getCategory() { return category; }
-	
-	
+
 	/**
 	 * Returns the parameters.
 	 * 

@@ -577,7 +577,8 @@ public interface OmeroImageService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Object createFigure(List<Long> ids, Class type, Object parameters)
+	public ScriptCallback createFigure(List<Long> ids, Class type, 
+			Object parameters)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
@@ -680,7 +681,7 @@ public interface OmeroImageService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Object runScript(ScriptObject script)
+	public ScriptCallback runScript(ScriptObject script)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**

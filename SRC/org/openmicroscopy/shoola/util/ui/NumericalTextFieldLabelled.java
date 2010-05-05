@@ -22,14 +22,12 @@
  */
 package org.openmicroscopy.shoola.util.ui;
 
-import java.awt.FlowLayout;
 
+//Java imports
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.event.DocumentListener;
-
-//Java imports
 
 //Third-party libraries
 

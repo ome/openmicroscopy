@@ -25,13 +25,10 @@ package org.openmicroscopy.shoola.agents.metadata.util;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -60,11 +57,9 @@ import org.jdesktop.swingx.JXTaskPane;
 
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.model.ParamData;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.NumericalTextFieldLabelled;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
@@ -119,10 +114,7 @@ public class ScriptingDialog
 	
 	/** Indicates to run the script. */
 	private static final int APPLY = 1;
-	
-	/** Color used to indicate that a required field is not set. */
-	private static final Color WARNING_COLOR = Color.RED;
-	
+
 	/** Close the dialog. */
 	private JButton cancelButton;
 	
@@ -163,7 +155,7 @@ public class ScriptingDialog
 	
 	/**
 	 * Returns <code>true</code> if the script can run i.e. all required fields
-	 * set, <code>false</code> otherwise.
+	 * are filled, <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */

@@ -126,7 +126,14 @@ public class ScriptActivity
 	 */
 	protected UserNotifierLoader createLoader()
 	{
-		loader = new ScriptHandler(viewer,  registry, script, index, this);
+		switch (index) {
+			case UPLOAD:
+				loader = new ScriptUploader(viewer,  registry, script, this);
+				break;
+			case RUN:
+				loader = new ScriptRunner(viewer,  registry, script, this);
+		}
+
 		return loader;
 	}
 

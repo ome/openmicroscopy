@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.calls.MovieCreator 
+ * org.openmicroscopy.shoola.env.data.views.calls.ScriptRunner 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -22,21 +22,20 @@
  */
 package org.openmicroscopy.shoola.env.data.views.calls;
 
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.ScriptCallback;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.views.BatchCall;
+import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
 //Java imports
-import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.OmeroImageService;
-import org.openmicroscopy.shoola.env.data.ScriptCallback;
-import org.openmicroscopy.shoola.env.data.model.MovieExportParam;  
-import org.openmicroscopy.shoola.env.data.views.BatchCall;
-import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
 /** 
- * Command to create a movie.
+ * Creates a batch call to run a script.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -48,40 +47,30 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
  * </small>
  * @since 3.0-Beta4
  */
-public class MovieCreator 
+public class ScriptRunner 
 	extends BatchCallTree
 {
-
-	/** The result of the call. */
-    private Object       	result;
     
-    /** Loads the specified tree. */
-    private BatchCall   	loadCall;
-
     /** The server call-handle to the computation. */
-    private ScriptCallback	scriptCallBack;
+    private ScriptCallback		scriptCallBack;
+    
+    /** Loads the specified experimenter groups. */
+    private BatchCall   		loadCall;
     
     /**
-     * Creates a {@link BatchCall} to create a movie.
+     * Creates a {@link BatchCall} to run the script.
      * 
-     * @param imageID 	The id of the image.	
-     * @param pixelsID 	The id of the pixels set.
-     * @param channels 	The channels to map.
-     * @param param 	The parameters to create the movie.
+     * @param script The script to run. 
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeBatchCall(final long imageID, final long pixelsID, 
-    		final List<Integer> channels, final MovieExportParam param)
+    private BatchCall makeCall(final ScriptObject script)
     {
-        return new BatchCall("Creating movie: ") {
-            public void doCall() throws Exception
-            {
-                OmeroImageService os = context.getImageService();
-                scriptCallBack = os.createMovie(imageID, pixelsID, channels, 
-                		param);
-                System.err.println("callback: "+scriptCallBack);
-                result = Boolean.TRUE;
-            }
+    	return new BatchCall("Run the script") {
+    		public void doCall() throws Exception
+    		{
+    			OmeroImageService os = context.getImageService();
+    			scriptCallBack = os.runScript(script);
+    		}
         };
     }
     
@@ -94,13 +83,12 @@ public class MovieCreator
     
     /**
      * Adds the {@link #loadCall} to the computation tree.
-     * 
      * @see BatchCallTree#buildTree()
      */
     protected void buildTree() { add(loadCall); }
 
     /**
-     * Returns the root node of the requested tree.
+     * Returns, in a <code>Map</code>.
      * 
      * @see BatchCallTree#getResult()
      */
@@ -109,15 +97,11 @@ public class MovieCreator
     /**
      * Creates a new instance.
      * 
-     * @param imageID 	The id of the image.	
-     * @param pixelsID 	The id of the pixels set.
-     * @param channels 	The channels to map.
-     * @param param 	The parameters to create the movie.
+     * @param script The script to run.
      */
-	public MovieCreator(long imageID, long pixelsID, List<Integer> channels, 
-			MovieExportParam param)
-	{
-		loadCall = makeBatchCall(imageID, pixelsID, channels, param);
-	}
-	
+    public ScriptRunner(ScriptObject script)
+    {
+		loadCall = makeCall(script);
+    }
+    
 }
