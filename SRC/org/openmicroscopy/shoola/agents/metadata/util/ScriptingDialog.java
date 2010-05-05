@@ -25,16 +25,18 @@ package org.openmicroscopy.shoola.agents.metadata.util;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -49,6 +51,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
@@ -82,7 +86,7 @@ import pojos.ExperimenterData;
  */
 public class ScriptingDialog 
 	extends JDialog
-	implements ActionListener
+	implements ActionListener, DocumentListener
 {
 	
 	/** Bound property indicating to run the script. */
@@ -115,6 +119,9 @@ public class ScriptingDialog
 	
 	/** Indicates to run the script. */
 	private static final int APPLY = 1;
+	
+	/** Color used to indicate that a required field is not set. */
+	private static final Color WARNING_COLOR = Color.RED;
 	
 	/** Close the dialog. */
 	private JButton cancelButton;
@@ -154,35 +161,51 @@ public class ScriptingDialog
 		dispose();
 	}
 	
+	/**
+	 * Returns <code>true</code> if the script can run i.e. all required fields
+	 * set, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	private boolean canRunScript()
+	{
+		Iterator i = components.entrySet().iterator();
+		Entry entry;
+		ScriptComponent c;
+		int required = 0;
+		int valueSet = 0;
+		Object value;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			c = (ScriptComponent) entry.getValue();
+			if (c.isRequired()) {
+				required++;
+				value = c.getValue();
+				if (value != null) {
+					if (value instanceof String) {
+						if (((String) value).length() != 0)
+							valueSet++;
+					} else valueSet++;
+				}
+			}
+		}
+		return required == valueSet;
+	}
+	
 	/** Collects the data and fires a property.*/
 	private void runScript()
 	{
 		Entry entry;
 		ScriptComponent c;
 		Iterator i = components.entrySet().iterator();
-		Object value;
 		Map<String, ParamData> inputs = script.getInputs();
-		boolean run = true;
 		ParamData param;
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			c = (ScriptComponent) entry.getValue();
-			value = c.getValue();
-			if (c.isRequired()) {
-				if (value == null) {
-					run = false;
-					break;
-				}
-			}
 			param = inputs.get(entry.getKey());
-			param.setValueToPass(value);
+			param.setValueToPass(c.getValue());
 		}
-		if (!run) {
-			UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
-			
-			return;
-		}
-		//script.set(values);
 		firePropertyChange(RUN_SCRIPT_PROPERTY, null, script);
 		close();
 	}
@@ -198,7 +221,6 @@ public class ScriptingDialog
 		if (values == null) return null;
 		Object[] v = new Object[values.size()];
 		JComboBox box = new JComboBox(v);
-		
 		return box;
 	}
 	
@@ -277,6 +299,8 @@ public class ScriptingDialog
 						if (defValue != null)
 							((NumericalTextFieldLabelled) comp).setValue(
 									""+((Number) defValue).doubleValue());
+						((NumericalTextFieldLabelled) comp).addDocumentListener(
+								this);
 					} else {
 						comp = new NumericalTextField();
 						((NumericalTextField) comp).setNumberType(type);
@@ -298,12 +322,16 @@ public class ScriptingDialog
 				} else if (List.class.equals(type)) {
 					comp = new JTextField();
 					name += " (List)";
+					((JTextField) comp).getDocument().addDocumentListener(this);
 				}
 			}
 			if (comp != null) {
+				if (comp instanceof JTextField) {
+					((JTextField) comp).getDocument().addDocumentListener(this);
+				}
 				comp.setToolTipText(param.getDescription());
 				c = new ScriptComponent(comp, name);
-				if (!(comp instanceof JComboBox))
+				if (!(comp instanceof JComboBox || comp instanceof JCheckBox))
 					c.setRequired(!param.isOptional());
 				if (details != null && details.trim().length() > 0)
 					c.setInfo(details);
@@ -317,6 +345,7 @@ public class ScriptingDialog
 			key = k.next();
 			components.put(key, results.get(key));
 		}
+		applyButton.setEnabled(canRunScript());
 	}
 	
 	/**
@@ -463,5 +492,30 @@ public class ScriptingDialog
 				runScript();
 		}
 	}
+
+	/**
+	 * Allows the user to run or not the script.
+	 * @see DocumentListener#insertUpdate(DocumentEvent)
+	 */
+	public void insertUpdate(DocumentEvent e)
+	{
+		applyButton.setEnabled(canRunScript());
+	}
+
+	/**
+	 * Allows the user to run or not the script.
+	 * @see DocumentListener#removeUpdate(DocumentEvent)
+	 */
+	public void removeUpdate(DocumentEvent e)
+	{
+		applyButton.setEnabled(canRunScript());
+	}
+	
+	/**
+	 * Required by the {@link DocumentListener} I/F but no-operation 
+	 * implementation in our case.
+	 * @see DocumentListener#changedUpdate(DocumentEvent)
+	 */
+	public void changedUpdate(DocumentEvent e) {}
 
 }

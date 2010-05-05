@@ -32,6 +32,7 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.AttributeSet;
+import javax.swing.text.Document;
 import javax.swing.text.PlainDocument;
 
 //Third-party libraries
@@ -146,6 +147,7 @@ public class NumericalTextField
 		accepted = NUMERIC;
 		setNegativeAccepted(min < 0);
 	}
+
 	
 	/**
 	 * Sets to <code>true</code> if negative values are accepted,
@@ -279,8 +281,8 @@ public class NumericalTextField
 	}
 
     /**
-     * Required by the {@link DocumentListener} I/F but no-op implementation
-     * in our case.
+     * Required by the {@link DocumentListener} I/F but no-operation 
+     * implementation in our case.
      * @see DocumentListener#changedUpdate(DocumentEvent)
      */
 	public void changedUpdate(DocumentEvent e) {}

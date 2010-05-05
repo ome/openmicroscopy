@@ -27,6 +27,7 @@ import java.awt.FlowLayout;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.event.DocumentListener;
 
 //Java imports
 
@@ -113,6 +114,16 @@ public class NumericalTextFieldLabelled
 	public Number getValueAsNumber()
 	{
 		return field.getValueAsNumber();
+	}
+	
+	/**
+	 * Adds the specified listener to the numerical text field.
+	 * 
+	 * @param listener The listener to add.
+	 */
+	public void addDocumentListener(DocumentListener listener)
+	{
+		field.getDocument().addDocumentListener(listener);
 	}
 	
 }

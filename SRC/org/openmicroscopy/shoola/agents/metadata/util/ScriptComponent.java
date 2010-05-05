@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata.util;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -149,7 +150,7 @@ public class ScriptComponent
 		this.component = component;
 		label = UIUtilities.setTextFont(parameter);
 		label.setToolTipText(component.getToolTipText());
-		required = (component instanceof JComboBox);
+		required = false;
 	}
 	
 	/**
@@ -211,6 +212,12 @@ public class ScriptComponent
 		p.add(label);
 		if (info != null) p.add(info);
 		return UIUtilities.buildComponentPanel(p, 0, 0); 
+	}
+	
+	public void setForeground(Color c)
+	{
+		label.setForeground(c);
+		if (info != null) info.setForeground(c);
 	}
 	
 	/** 
