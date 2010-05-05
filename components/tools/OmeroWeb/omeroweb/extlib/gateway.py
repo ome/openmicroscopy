@@ -75,13 +75,13 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         super(OmeroWebGateway, self).__init__(*args, **kwargs)
         self._shareId = None
 
-    def connect (self, *args, **kwargs):
-        rv = super(OmeroWebGateway, self).connect(*args,**kwargs)
-        try:
-            self.removeGroupFromContext()
-        except omero.SecurityViolation:
-            pass
-        return rv
+#    def connect (self, *args, **kwargs):
+#        rv = super(OmeroWebGateway, self).connect(*args,**kwargs)
+#        try:
+#            self.removeGroupFromContext()
+#        except omero.SecurityViolation:
+#            pass
+#        return rv
 
     def attachToShare (self, share_id):
         sh = self._proxies['share'].getShare(long(share_id))
