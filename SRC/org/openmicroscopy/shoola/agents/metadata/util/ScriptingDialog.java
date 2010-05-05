@@ -220,8 +220,13 @@ public class ScriptingDialog
 	{
 		if (values == null) return null;
 		Object[] v = new Object[values.size()];
-		JComboBox box = new JComboBox(v);
-		return box;
+		Iterator<Object> i = values.iterator();
+		int j = 0;
+		while (i.hasNext()) {
+			v[j] = i.next();
+			j++;
+		}
+		return new JComboBox(v);
 	}
 	
 	/** Initializes the components. */
