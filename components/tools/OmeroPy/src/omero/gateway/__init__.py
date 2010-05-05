@@ -2515,8 +2515,9 @@ class _LogicalChannelWrapper (BlitzObjectWrapper):
               'detectorSettings|DetectorSettingsWrapper',
               'lightSourceSettings|LightSettingsWrapper',
               'filterSet|FilterSetWrapper',
-              'secondaryEmissionFilter|FilterWrapper',
-              'secondaryExcitationFilter',
+              'lightPath|LightPathWrapper',
+              #'secondaryEmissionFilter|FilterWrapper',
+              #'secondaryExcitationFilter',
               'samplesPerPixel',
               '#photometricInterpretation',
               'mode',
@@ -2525,6 +2526,18 @@ class _LogicalChannelWrapper (BlitzObjectWrapper):
               'version')
 
 LogicalChannelWrapper = _LogicalChannelWrapper    
+
+class _LightPathWrapper (BlitzObjectWrapper):
+    """
+    base Light Source class wrapper, extends BlitzObjectWrapper.
+    """
+    _attrs = ('secondaryEmissionFilter|FilterWrapper'
+                )
+
+    def __bstrap__ (self):
+        self.OMERO_CLASS = 'LightPath'
+
+LightPathWrapper = _LightPathWrapper
 
 class _ChannelWrapper (BlitzObjectWrapper):
     """
@@ -3640,8 +3653,7 @@ class _InstrumentWrapper (BlitzObjectWrapper):
         self.OMERO_CLASS = 'Instrument'
 
     def getMicroscope (self):
-        if self._obj.microscope:
-            return MicroscopeWrapper(self._conn, self._obj.microscope)
+        return MicroscopeWrapper(self._conn, self._obj.microscope)
 
     def getDetectors (self):
         return [DetectorWrapper(self._conn, x) for x in self._detectorSeq]

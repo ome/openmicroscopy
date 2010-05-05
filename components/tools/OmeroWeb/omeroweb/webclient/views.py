@@ -843,8 +843,8 @@ def load_metadata_details(request, c_type, c_id, index=None, **kwargs):
                                         'contrastMethods': list(conn.getEnumerationEntries("ContrastMethodI")), 
                                         'modes': list(conn.getEnumerationEntries("AcquisitionModeI"))})
                 #print ch.getLogicalChannel().simpleMarshal()
-                if ch.getLogicalChannel().getLightPath() is not None:
-                    if ch.getLogicalChannel().getLightPath().getSecondaryEmissionFilter() is not None:
+                if ch.getLogicalChannel().getLightPath()._obj is not None:
+                    if ch.getLogicalChannel().getLightPath().getSecondaryEmissionFilter()._obj is not None:
                         channel['form_emission_filter'] = MetadataFilterForm(initial={'filter': ch.getLogicalChannel().getLightPath().getSecondaryEmissionFilter(),
                                         'types':list(conn.getEnumerationEntries("FilterTypeI"))})
 
@@ -878,22 +878,22 @@ def load_metadata_details(request, c_type, c_id, index=None, **kwargs):
             form_stageLabel = MetadataStageLabelForm(initial={'image': image })
 
         if image.getInstrument() is not None:
-            if image.getInstrument().getMicroscope() is not None:
+            if image.getInstrument().getMicroscope()._obj is not None:
                 form_microscope = MetadataMicroscopeForm(initial={'microscopeTypes':list(conn.getEnumerationEntries("MicroscopeTypeI")), 'microscope': image.getInstrument().getMicroscope()})
 
-            if image.getInstrument().getFilters() is not None:
+            if len(image.getInstrument().getFilters()) > 0:
                 filters = list(image.getInstrument().getFilters())    
                 for f in filters:
                     form_filter = MetadataFilterForm(initial={'filter': f, 'types':list(conn.getEnumerationEntries("FilterTypeI"))})
                     form_filters.append(form_filter)
             
-            if image.getInstrument().getDetectors() is not None:
+            if len(image.getInstrument().getDetectors()) > 0:
                 detectors = list(image.getInstrument().getDetectors())    
                 for d in detectors:
                     form_detector = MetadataDetectorForm(initial={'detectorSettings':None, 'detector': d, 'types':list(conn.getEnumerationEntries("DetectorTypeI"))})
                     form_detectors.append(form_detector)
         
-            if image.getInstrument().getLightSources() is not None:
+            if len(image.getInstrument().getLightSources()) > 0:
                 lasers = list(image.getInstrument().getLightSources())
                 for l in lasers:
                     form_laser = MetadataLightSourceForm(initial={'lightSource': l, 
