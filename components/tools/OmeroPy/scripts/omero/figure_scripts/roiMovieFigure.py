@@ -515,11 +515,11 @@ def roiFigure(session, commandArgs):
         
     # default function for getting labels is getName (or use datasets / tags)
     if "Image_Labels" in commandArgs:
-        if commandArgs["Image_Labels"] == "DATASETS":
+        if commandArgs["Image_Labels"] == "Datasets":
             def getDatasets(name, tagsList, pdList):
                 return [dataset for project, dataset in pdList]
             getLabels = getDatasets
-        elif commandArgs["Image_Labels"] == "TAGS":
+        elif commandArgs["Image_Labels"] == "Tags":
             def getTags(name, tagsList, pdList):
                 return tagsList
             getLabels = getTags
@@ -602,7 +602,7 @@ def roiFigure(session, commandArgs):
     algorithm = omero.constants.projection.ProjectionType.MAXIMUMINTENSITY
     if "Algorithm" in commandArgs:
         a = commandArgs["Algorithm"]
-        if (a == "MEANINTENSITY"):
+        if (a == "Mean_Intensity"):
             algorithm = omero.constants.projection.ProjectionType.MEANINTENSITY
     
     stepping = 1
@@ -698,8 +698,8 @@ def runAsScript():
             param.useDefault = True
         return param
     
-    labels = [rstring('IMAGENAME'), rstring('DATASETS'), rstring('TAGS')]
-    algorithums = [rstring('MAXIMUMINTENSITY'),rstring('MEANINTENSITY')]
+    labels = [rstring('Image_Name'), rstring('Datasets'), rstring('Tags')]
+    algorithums = [rstring('Maximum_Intensity'),rstring('Mean_Intensity')]
     roiLabel = """Specify an ROI to pick by specifying it's shape label. 'FigureROI' by default,
                  (not case sensitive). If matching ROI not found, use any ROI."""
     formats = [rstring('JPEG'),rstring('PNG')]
