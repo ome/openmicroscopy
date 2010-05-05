@@ -65,7 +65,7 @@ def log(text):
     """
     Adds the text to a list of logs. Compiled into figure legend at the end.
     """
-    print text
+    #print text
     logStrings.append(text)    
 
 
@@ -197,7 +197,6 @@ def getROImovieView    (re, queryService, pixels, timeShapeMap, mergedIndexes, m
         fullMergedImage = Image.open(StringIO.StringIO(merged))
         if fullFirstFrame == None:
             fullFirstFrame = fullMergedImage
-        print box
         roiMergedImage = fullMergedImage.crop(box)
         roiMergedImage.load()    # make sure this is not just a lazy copy of the full image
         if roiZoom is not 1:
@@ -338,7 +337,7 @@ def getVerticalLabels(labels, font, textGap):
     return textCanvas.rotate(90)
     
     
-def getSplitView(session, imageIds, pixelIds, channelNames, mergedNames, colourChannels, mergedIndexes, 
+def getSplitView(session, imageIds, pixelIds, mergedIndexes, 
         mergedColours, width, height, imageLabels, spacer, algorithm, stepping, scalebar, 
         overlayColour, roiZoom, maxColumns, showRoiDuration, roiLabel):
     """ This method makes a figure of a number of images, arranged in rows with each row being the split-view
@@ -350,8 +349,6 @@ def getSplitView(session, imageIds, pixelIds, channelNames, mergedNames, colourC
     
     @ session            session for server access
     @ pixelIds            a list of the Ids for the pixels we want to display
-    @ channelNames         the Map of index:names for all channels
-    @ colourChannels     the colour to make each column/ channel
     @ mergedIndexes      list or set of channels in the merged image 
     @ mergedColours     index: colour dictionary of channels in the merged image
     @ width            the size in pixels to show each panel
@@ -517,20 +514,20 @@ def roiFigure(session, commandArgs):
         return [name]
         
     # default function for getting labels is getName (or use datasets / tags)
-    if "imageLabels" in commandArgs:
-        if commandArgs["imageLabels"] == "DATASETS":
+    if "Image_Labels" in commandArgs:
+        if commandArgs["Image_Labels"] == "DATASETS":
             def getDatasets(name, tagsList, pdList):
                 return [dataset for project, dataset in pdList]
             getLabels = getDatasets
-        elif commandArgs["imageLabels"] == "TAGS":
+        elif commandArgs["Image_Labels"] == "TAGS":
             def getTags(name, tagsList, pdList):
                 return tagsList
             getLabels = getTags
             
     # process the list of images. If imageIds is not set, script can't run. 
     log("Image details:")
-    if "imageIds" in commandArgs:
-        for idCount, imageId in enumerate(commandArgs["imageIds"]):
+    if "Image_IDs" in commandArgs:
+        for idCount, imageId in enumerate(commandArgs["Image_IDs"]):
             iId = long(imageId.getValue())
             imageIds.append(iId)
             image = gateway.getImage(iId)
@@ -566,23 +563,18 @@ def roiFigure(session, commandArgs):
     sizeY = pixels.getSizeY().getValue();
     sizeZ = pixels.getSizeZ().getValue();
     sizeC = pixels.getSizeC().getValue();
-        
-
-    if("splitPanelsGrey" not in commandArgs):
-        commandArgs["splitPanelsGrey"] = False
-    
     
     width = sizeX
-    if "width" in commandArgs:
-        w = commandArgs["width"]
+    if "Width" in commandArgs:
+        w = commandArgs["Width"]
         try:
             width = int(w)
         except:
             log("Invalid width: %s Using default value: %d" % (str(w), sizeX))
     
     height = sizeY
-    if "height" in commandArgs:
-        h = commandArgs["height"]
+    if "Height" in commandArgs:
+        h = commandArgs["Height"]
         try:
             height = int(h)
         except:
@@ -591,56 +583,37 @@ def roiFigure(session, commandArgs):
     log("Image dimensions for all panels (pixels): width: %d  height: %d" % (width, height))
         
                         
-    if "merged_channels" in commandArgs:
+    if "Merged_Channels" in commandArgs:
         mergedIndexes = []    # the channels in the combined image, 
-        for i in commandArgs["merged_channels"]:
+        for i in commandArgs["Merged_Channels"]:
             mergedIndexes.append(i.getValue())
     else:
         mergedIndexes = range(sizeC) # show all
     mergedIndexes.reverse()
         
     mergedColours = {}    # if no colours added, use existing rendering settings.
-    if "merged_colours" in commandArgs:
-        for i, c in enumerate(commandArgs["merged_colours"]):
+    if "Merged_Colours" in commandArgs:
+        for i, c in enumerate(commandArgs["Merged_Colours"]):
             if c in colours: 
                 mergedColours[i] = colours[c]
             else:
                 mergedColours[i] = colours['red']
     
-    mergedNames = False
-    if "mergedNames" in commandArgs:
-        mergedNames = commandArgs["mergedNames"]
-        
-    # Make channel-names map. If argument wasn't specified, name by index
-    channelNames = {}
-    if "channelNames" in commandArgs:
-        cNameMap = commandArgs["channelNames"]
-        for c in cNameMap:
-            index = int(c)
-            channelNames[index] = cNameMap[c].getValue()
-    else:
-        for c in range(sizeC):
-            channelNames[c] = str(c)
-            
-    colourChannels = True
-    if commandArgs["splitPanelsGrey"]:
-        colourChannels = False
-    
     algorithm = omero.constants.projection.ProjectionType.MAXIMUMINTENSITY
-    if "algorithm" in commandArgs:
-        a = commandArgs["algorithm"]
+    if "Algorithm" in commandArgs:
+        a = commandArgs["Algorithm"]
         if (a == "MEANINTENSITY"):
             algorithm = omero.constants.projection.ProjectionType.MEANINTENSITY
     
     stepping = 1
-    if "stepping" in commandArgs:
-        s = commandArgs["stepping"]
+    if "Stepping" in commandArgs:
+        s = commandArgs["Stepping"]
         if (0 < s < sizeZ):
             stepping = s
     
     scalebar = None
-    if "scalebar" in commandArgs:
-        sb = commandArgs["scalebar"]
+    if "Scalebar" in commandArgs:
+        sb = commandArgs["Scalebar"]
         try:
             scalebar = int(sb)
             if scalebar <= 0:
@@ -652,34 +625,32 @@ def roiFigure(session, commandArgs):
             scalebar = None
     
     overlayColour = (255,255,255)
-    if "scalebar_colour" in commandArgs:
-        if commandArgs["scalebar_colour"] in colours: 
-            r,g,b,a = colours[commandArgs["scalebar_colour"]]
+    if "Scalebar_Colour" in commandArgs:
+        if commandArgs["Scalebar_Colour"] in colours: 
+            r,g,b,a = colours[commandArgs["Scalebar_Colour"]]
             overlayColour = (r,g,b)
     
     roiZoom = None
-    if "roi_zoom" in commandArgs:
-        roiZoom = float(commandArgs["roiZoom"])
+    if "Roi_Zoom" in commandArgs:
+        roiZoom = float(commandArgs["Roi_Zoom"])
         if roiZoom == 0:
             roiZoom = None
             
     maxColumns = None
-    if "max_columns" in commandArgs:
-        maxColumns = commandArgs["maxColumns"]
+    if "Max_Columns" in commandArgs:
+        maxColumns = commandArgs["Max_Columns"]
         
     showRoiDuration = False
-    if "show_roi_duration" in commandArgs:
-        showRoiDuration = commandArgs["showRoiDuration"]
+    if "Show_Roi_Duration" in commandArgs:
+        showRoiDuration = commandArgs["Show_Roi_Duration"]
     
     roiLabel = "FigureROI"
-    if "roiLabel" in commandArgs:
-        roiLabel = commandArgs["roiLabel"]
+    if "Roi_Selection_Label" in commandArgs:
+        roiLabel = commandArgs["Roi_Selection_Label"]
                 
     spacer = (width/50) + 2
     
-    print "mergedIndexes", mergedIndexes
-    print "mergedColours", mergedColours
-    fig = getSplitView(session, imageIds, pixelIds, channelNames, mergedNames, colourChannels, mergedIndexes, 
+    fig = getSplitView(session, imageIds, pixelIds, mergedIndexes, 
             mergedColours, width, height, imageLabels, spacer, algorithm, stepping, scalebar, overlayColour, roiZoom, 
             maxColumns, showRoiDuration, roiLabel)
                                                     
@@ -691,13 +662,13 @@ def roiFigure(session, commandArgs):
     #print figLegend    # bug fixing only
     
     format = JPEG
-    if "format" in commandArgs:
-        if commandArgs["format"] == PNG:
+    if "Format" in commandArgs:
+        if commandArgs["Format"] == PNG:
             format = PNG
             
     output = "roiFigure"
-    if "figureName" in commandArgs:
-        output = str(commandArgs["figureName"])
+    if "Figure_Name" in commandArgs:
+        output = str(commandArgs["Figure_Name"])
         
     if format == PNG:
         output = output + ".png"
@@ -735,34 +706,33 @@ def runAsScript():
     cOptions = [rstring('red'),rstring('green'),rstring('blue'),rstring('yellow'),rstring('white')]
     
     client = scripts.client('roiMovieFigure.py', 'Create a figure of movie frames from ROI region of image.', 
-    makeParam(scripts.List,"image_ids", "List of image IDs. Resulting figure will be attached to first image"), 
-    makeParam(scripts.List,"merged_colours", "A list of colours to apply to merged channels. E.g. 'red' 'green' 'blue'", values=cOptions), 
-    makeParam(scripts.List,"merged_channels", "A list of channel indexes to display"),                   
-    makeParam(scripts.Long,"width","Max width of each image panel", min=1),   
-    makeParam(scripts.Long,"height","The max height of each image panel", min=1),
-    makeParam(scripts.String,"image_labels","Label images with the IMAGENAME or DATASETS or TAGS", values=labels),               
-    makeParam(scripts.String,"algorithm", "Algorithum for projection.", values=algorithums),
-    makeParam(scripts.Long,"scalebar", "Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
-    makeParam(scripts.String,"format", "Format to save image. E.g 'PNG'.", values=formats, default='JPEG'),
-    makeParam(scripts.String,"figure_name", "File name of the figure to save."),
-    makeParam(scripts.String,"scalebar_colour", "The colour of the scalebar. Default is white",default='white',values=cOptions),
-    makeParam(scripts.Long,"roi_zoom", "How much to zoom the ROI. E.g. x 2. If 0 then zoom roi panel to fit"),
-    makeParam(scripts.Long,"max_columns", "The maximum number of columns in the figure, for ROI-movie frames."),
-    makeParam(scripts.Bool,"show_roi_duration", "If true, times shown are from the start of the ROI frames, otherwise use movie timestamp."),
-    makeParam(scripts.String,"roi_label", roiLabel),
-    makeParam(scripts.Long,"fileAnnotation", "Script returns a File Annotation ID of attached Figure").out()
+    makeParam(scripts.List,"Image_IDs", "List of image IDs. Resulting figure will be attached to first image"), 
+    makeParam(scripts.List,"Merged_Colours", "A list of colours to apply to merged channels. E.g. 'red' 'green' 'blue'", values=cOptions), 
+    makeParam(scripts.List,"Merged_Channels", "A list of channel indexes to display"),                   
+    makeParam(scripts.Long,"Width","Max width of each image panel", min=1),   
+    makeParam(scripts.Long,"Height","The max height of each image panel", min=1),
+    makeParam(scripts.String,"Image_Labels","Label images with the IMAGENAME or DATASETS or TAGS", values=labels),               
+    makeParam(scripts.String,"Algorithm", "Algorithum for projection.", values=algorithums),
+    makeParam(scripts.Long,"Scalebar", "Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
+    makeParam(scripts.String,"Format", "Format to save image. E.g 'PNG'.", values=formats, default='JPEG'),
+    makeParam(scripts.String,"Figure_Name", "File name of the figure to save."),
+    makeParam(scripts.String,"Scalebar_Colour", "The colour of the scalebar. Default is white",default='white',values=cOptions),
+    makeParam(scripts.Long,"Roi_Zoom", "How much to zoom the ROI. E.g. x 2. If 0 then zoom roi panel to fit"),
+    makeParam(scripts.Long,"Max_Columns", "The maximum number of columns in the figure, for ROI-movie frames."),
+    makeParam(scripts.Bool,"Show_Roi_Duration", "If true, times shown are from the start of the ROI frames, otherwise use movie timestamp."),
+    makeParam(scripts.String,"Roi_Selection_Label", roiLabel),
+    makeParam(scripts.Long,"File_Annotation", "Script returns a File Annotation ID of attached Figure").out()
     )
     
     session = client.getSession();
     gateway = session.createGateway();
-    commandArgs = {"imageIds":client.getInput("imageIds").getValue()}
+    commandArgs = {"Image_IDs":client.getInput("Image_IDs").getValue()}
     
     # process the list of args above. 
     for key in client.getInputKeys():
         if client.getInput(key):
             commandArgs[key] = client.getInput(key).getValue()
     
-    print commandArgs
     # call the main script, attaching resulting figure to Image. Returns the id of the originalFileLink child. (ID object, not value)
     fileId = roiFigure(session, commandArgs)
     # return this fileAnnotation to the client. 
