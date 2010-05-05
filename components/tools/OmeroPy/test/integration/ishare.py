@@ -50,13 +50,6 @@ class TestIShare(lib.ITest):
         
         d = omero.model.DatasetI()
         d.setName(rstring("d"))
-        # set permissions RW----
-        d.details.permissions.setUserRead(True)
-        d.details.permissions.setUserWrite(True)
-        d.details.permissions.setGroupRead(False)
-        d.details.permissions.setGroupWrite(False)
-        d.details.permissions.setWorldRead(False)
-        d.details.permissions.setWorldWrite(False)
         d = update.saveAndReturnObject(d)
         share.addObjects(self.share_id, [d])
 
@@ -170,14 +163,6 @@ class TestIShare(lib.ITest):
         img = ImageI()
         img.setName(rstring('test1154-img-%s' % (uuid)))
         img.setAcquisitionDate(rtime(0))
-        
-        # permission 'rw----':
-        img.details.permissions.setUserRead(True)
-        img.details.permissions.setUserWrite(True)
-        img.details.permissions.setGroupRead(False)
-        img.details.permissions.setGroupWrite(False)
-        img.details.permissions.setWorldRead(False)
-        img.details.permissions.setWorldWrite(False)
         img = update1.saveAndReturnObject(img)
         img.unload()
         
@@ -267,14 +252,6 @@ class TestIShare(lib.ITest):
         img = ImageI()
         img.setName(rstring('test1154-img-%s' % (uuid)))
         img.setAcquisitionDate(rtime(0))
-        
-        # permission 'rw----':
-        img.details.permissions.setUserRead(True)
-        img.details.permissions.setUserWrite(True)
-        img.details.permissions.setGroupRead(False)
-        img.details.permissions.setGroupWrite(False)
-        img.details.permissions.setWorldRead(False)
-        img.details.permissions.setWorldWrite(False)
         img = update1.saveAndReturnObject(img)
         img.unload()
         
@@ -347,13 +324,6 @@ class TestIShare(lib.ITest):
         #dataset with image
         ds = omero.model.DatasetI()
         ds.setName(rstring("dataset-%s" % (uuid)))
-        # set permissions RW----
-        ds.details.permissions.setUserRead(True)
-        ds.details.permissions.setUserWrite(True)
-        ds.details.permissions.setGroupRead(False)
-        ds.details.permissions.setGroupWrite(False)
-        ds.details.permissions.setWorldRead(False)
-        ds.details.permissions.setWorldWrite(False)
         ds = update.saveAndReturnObject(ds)
         ds.unload()
         
@@ -361,13 +331,6 @@ class TestIShare(lib.ITest):
         img = ImageI()
         img.setName(rstring('test-img in dataset-%s' % (uuid)))
         img.setAcquisitionDate(rtime(0))
-        # permission 'rw----':
-        img.details.permissions.setUserRead(True)
-        img.details.permissions.setUserWrite(True)
-        img.details.permissions.setGroupRead(False)
-        img.details.permissions.setGroupWrite(False)
-        img.details.permissions.setWorldRead(False)
-        img.details.permissions.setWorldWrite(False)
         img = update.saveAndReturnObject(img)
         img.unload()
         
@@ -656,5 +619,99 @@ class TestIShare(lib.ITest):
         
         self.client.sf.closeOnDestroy()
     
+    def test1847(self):
+        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        share = self.root.sf.getShareService()
+        query = self.root.sf.getQueryService()
+        update = self.root.sf.getUpdateService()
+        admin = self.root.sf.getAdminService()
+        
+        ### create two users in two groups
+        #group1
+        new_gr1 = ExperimenterGroupI()
+        new_gr1.name = rstring("group1_%s" % uuid)
+        gid1 = admin.createGroup(new_gr1)
+        #group2
+        new_gr2 = ExperimenterGroupI()
+        new_gr2.name = rstring("group2_%s" % uuid)
+        gid2 = admin.createGroup(new_gr2)
+        
+        #new user1
+        new_exp = ExperimenterI()
+        new_exp.omeName = rstring("user1_%s" % uuid)
+        new_exp.firstName = rstring("New")
+        new_exp.lastName = rstring("Test")
+        new_exp.email = rstring("newtest@emaildomain.com")        
+        defaultGroup1 = admin.getGroup(gid1)
+        listOfGroups1 = list()
+        listOfGroups1.append(admin.lookupGroup("user"))
+        eid = admin.createExperimenterWithPassword(new_exp, rstring("ome"), defaultGroup1, listOfGroups1)
+        
+        #new user2
+        new_exp2 = ExperimenterI()
+        new_exp2.omeName = rstring("user2_%s" % uuid)
+        new_exp2.firstName = rstring("New2")
+        new_exp2.lastName = rstring("Test2")
+        new_exp2.email = rstring("newtest2@emaildomain.com")
+        defaultGroup2 = admin.getGroup(gid2)
+        listOfGroups2 = list()
+        listOfGroups2.append(admin.lookupGroup("user"))        
+        eid2 = admin.createExperimenterWithPassword(new_exp2, rstring("ome"), defaultGroup2, listOfGroups2)
+        
+        ## get users
+        user1 = admin.getExperimenter(eid)
+        user2 = admin.getExperimenter(eid2)
+        
+        ## login as user1 
+        client_share1 = omero.client()
+        client_share1.createSession(user1.omeName.val,"ome")
+        share1 = client_share1.sf.getShareService()
+        update1 = client_share1.sf.getUpdateService()
+        
+        # create image
+        img = ImageI()
+        img.setName(rstring('test1154-img-%s' % (uuid)))
+        img.setAcquisitionDate(rtime(0))
+        img = update1.saveAndReturnObject(img)
+        img.unload()
+        
+        # create share
+        description = "my description"
+        timeout = None
+        objects = [img]
+        experimenters = [user2]
+        guests = []
+        enabled = True
+        sid = share1.createShare(description, timeout, objects,experimenters, guests, enabled)
+        self.assert_(len(share1.getContents(sid)) == 1)
+        # add comment by the owner
+        share.addComment(sid, 'test comment by the owner %s' % (uuid))
+        
+        ## login as user2
+        client_share2 = omero.client()
+        client_share2.createSession(user2.omeName.val,"ome")
+        share2 = client_share2.sf.getShareService()
+        query2 = client_share2.sf.getQueryService()
+        
+        l = share2.getMemberShares(False)
+        self.assertEquals(1,len(l))
+        
+        sh = share2.getShare(sid)
+        # add comment by the member
+        share2.addComment(sid, 'test comment by the member %s' % (uuid))
+
+        # Don't have to activate share2
+
+        #get comments
+        # by user1
+        c1 = len(share.getComments(sid))
+        self.assertEquals(2,c1)
+        # by user2
+        c2 = len(share2.getComments(sid))
+        self.assertEquals(2,c2)
+        
+        client_share1.sf.closeOnDestroy()
+        client_share2.sf.closeOnDestroy()
+        
 if __name__ == '__main__':
     unittest.main()
