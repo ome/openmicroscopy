@@ -619,7 +619,7 @@ class TestIShare(lib.ITest):
         
         self.client.sf.closeOnDestroy()
     
-    def test1847(self):
+    def test2327(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         share = self.root.sf.getShareService()
         query = self.root.sf.getQueryService()
