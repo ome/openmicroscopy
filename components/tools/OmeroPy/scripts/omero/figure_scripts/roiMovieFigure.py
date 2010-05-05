@@ -706,7 +706,7 @@ def runAsScript():
     cOptions = [rstring('red'),rstring('green'),rstring('blue'),rstring('yellow'),rstring('white')]
     
     client = scripts.client('roiMovieFigure.py', 'Create a figure of movie frames from ROI region of image.', 
-    makeParam(scripts.List,"Image_IDs", "List of image IDs. Resulting figure will be attached to first image"), 
+    makeParam(scripts.List,"Image_IDs", "List of image IDs. Resulting figure will be attached to first image", False), 
     makeParam(scripts.List,"Merged_Colours", "A list of colours to apply to merged channels. E.g. 'red' 'green' 'blue'", values=cOptions), 
     makeParam(scripts.List,"Merged_Channels", "A list of channel indexes to display"),                   
     makeParam(scripts.Long,"Width","Max width of each image panel", min=1),   
