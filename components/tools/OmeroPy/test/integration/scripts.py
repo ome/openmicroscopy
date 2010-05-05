@@ -74,14 +74,29 @@ class TestScripts(lib.ITest):
         finally:
             impl.cleanup()
 
+
     def testUploadOfficialScript(self):
         scriptService = self.root.sf.getScriptService()
-        file = open(thumbnailFigurePath)
-        script = file.read()
-        file.close()
+        
+        scriptLines = [
+        "import omero",
+        "from omero.rtypes import rstring, rlong",
+        "import omero.scripts as scripts",
+        "if __name__ == '__main__':",
+        "    client = scripts.client('HelloWorld.py', 'Hello World example script',",
+        "    scripts.Long('longParam', True, description='theDesc', min='1', max='10', values=[rlong(5)]) )",
+        "    client.setOutput('returnMessage', rstring('Script ran OK!'))"]
+        script = "\n".join(scriptLines)
+        
         id = scriptService.uploadOfficialScript(thumbnailFigurePath, script)
         # force the server to parse the file enough to get params (checks syntax etc)
         params = scriptService.getParams(id)
+        for key, param in params.inputs.items():
+            self.assertEquals("longParam", key)
+            self.assertEquals(1, param.min.getValue(), "Min value not correct")
+            self.assertEquals(10, param.max.getValue(), "Max value not correct")
+            self.assertEquals(5, param.values.getValue()[0].getValue(), "First option value not correct")
+            
 
     def testRunScript(self):
         # Trying to run script as described:
