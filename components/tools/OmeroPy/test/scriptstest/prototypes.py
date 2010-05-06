@@ -99,5 +99,24 @@ class TestPrototypes(unittest.TestCase):
         inputs = {"a":input}
         self.assertFalse("" == validate_inputs(params, inputs))
 
+    # Bugs
+
+    def testTicket2323Min(self):
+        params = omero.grid.JobParams()
+        # Copied from integration/scripts.py:testUploadOfficialScripts
+        param = Long('longParam', True, description='theDesc', min=long(1), max=long(10), values=[rlong(5)])
+        self.assertEquals(1, param.min.getValue(), "Min value not correct:" + str(param.min))
+        self.assertEquals(10, param.max.getValue(), "Max value not correct:" + str(param.max))
+        self.assertEquals(5, param.values.getValue()[0].getValue(), "First option value not correct:" + str(param.values))
+
+        params.inputs = {"a": param}
+        inputs = {"a": rlong(5)}
+        errors = validate_inputs(params, inputs)
+        self.assertTrue("" == errors, errors)
+
+    def testTicket2323List(self):
+        param = List('listParam', True, description='theDesc', values=[rlong(5)])
+        self.assertEquals([5], unwrap(param.values), str(param.values))
+
 if __name__ == '__main__':
     unittest.main()

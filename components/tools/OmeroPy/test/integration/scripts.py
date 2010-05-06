@@ -87,7 +87,7 @@ class TestScripts(lib.ITest):
         "    scripts.Long('longParam', True, description='theDesc', min=rlong(1), max=rlong(10), values=[rlong(5)]) )",
         "    client.setOutput('returnMessage', rstring('Script ran OK!'))"]
         script = "\n".join(scriptLines)
-        
+
         id = scriptService.uploadOfficialScript(thumbnailFigurePath, script)
         # force the server to parse the file enough to get params (checks syntax etc)
         params = scriptService.getParams(id)

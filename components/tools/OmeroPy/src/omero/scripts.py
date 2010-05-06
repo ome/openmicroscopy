@@ -17,6 +17,7 @@
 
 """
 
+import os
 import Ice
 import uuid
 import exceptions
@@ -24,6 +25,7 @@ import exceptions
 import omero
 import omero_Scripts_ice
 import omero.util.concurrency
+import omero.util.temp_files
 
 from omero.rtypes import *
 
@@ -214,21 +216,63 @@ def client(*args, **kwargs):
         else:
             raise ValueError("Not Type: %s" % type(p))
 
-    c.createSession().detachOnDestroy()
     handleParse(c) # May throw
+
+    c.createSession().detachOnDestroy()
     return c
 
 def handleParse(c):
-    if len(c.getProperty("omero.scripts.parse")) > 0: # TODO Add to omero/Constants.ice
-        c.setOutput("omero.scripts.parse", rinternal(c.params))
+    """
+    Raises ParseExit if the client has the configuration property
+    "omero.scripts.parse". If the value is anything other than "only",
+    then the parameters will also be sent to the server.
+    """
+    parse = c.getProperty("omero.scripts.parse")
+    if len(parse) > 0: # TODO Add to omero/Constants.ice
+        if parse != "only":
+            c.createSession().detachOnDestroy()
+            c.setOutput("omero.scripts.parse", rinternal(c.params))
         raise ParseExit(c.params)
 
-def error_msg(category, value, *args):
-    c = "%-15.15s" % (category.upper())
-    s = "\t%s ---   %s\n" % (c, value)
+def parse_text(scriptText):
+    """
+    Parses the given script text with "omero.scripts.parse" set
+    and catches the exception. The parameters are returned.
+
+    WARNING: This method calls "exec" on the given text.
+    Do NOT use this on data you don't trust.
+    """
+    try:
+        cfg = omero.util.temp_files.create_path()
+        cfg.write_lines(["omero.scripts.parse=only", "omero.host=localhost"])
+        old = os.environ.get("ICE_CONFIG")
+        try:
+            os.environ["ICE_CONFIG"] = cfg.abspath()
+            exec(scriptText)
+        finally:
+            if old:
+                os.environ["ICE_CONFIG"] = old
+        self.fail("Did not throw ParseExit")
+    except ParseExit, exit:
+        return exit.params
+
+def parse_file(filename):
+    """
+    Parses the given script file with "omero.scripts.parse" set
+    and catches the exception. The parameters are returned.
+
+    WARNING: This method calls "exec" on the given file's contents.
+    Do NOT use this on data you don't trust.
+    """
+    scriptText = path(filename).text()
+    return parse_text(scriptText)
+
+def error_msg(category, key, format_string, *args):
+    c = "%s" % (category.upper())
+    s = """%s for "%s": %s\n""" % (c, key, format_string)
     return s % args
 
-def compare_proto(proto, input, cache=None):
+def compare_proto(key, proto, input, cache=None):
 
     if cache is None:
         cache = {}
@@ -243,16 +287,16 @@ def compare_proto(proto, input, cache=None):
     ptype = proto is None and None or proto.__class__
 
     if not isinstance(input, ptype):
-        return error_msg("Wrong type", "%s != %s", itype, ptype)
+        return error_msg("Wrong type", key, "%s != %s", itype, ptype)
 
     # Now recurse if a collection type
     errors = ""
     if isinstance(proto, omero.RMap) and len(proto.val) > 0:
         for x in input.val.values():
-            errors += compare_proto(proto.val.values()[0], x, cache)
+            errors += compare_proto(key, proto.val.values()[0], x, cache)
     elif isinstance(proto, omero.RCollection) and len(proto.val) > 0:
         for x in input.val:
-            errors += compare_proto(proto.val[0], x, cache)
+            errors += compare_proto(key, proto.val[0], x, cache)
     return errors
 
 def expand(input):
@@ -266,7 +310,7 @@ def expand(input):
         items = [input]
     return items
 
-def check_boundaries(min, max, input):
+def check_boundaries(key, min, max, input):
     errors = ""
 
     # Unwrap
@@ -278,12 +322,12 @@ def check_boundaries(min, max, input):
     # Check
     for x in items:
         if min is not None and min > x:
-            errors += error_msg("Out of bounds", "%s is below min %s", x, min)
+            errors += error_msg("Out of bounds", key, "%s is below min %s", x, min)
         if max is not None and max < x:
-            errors += error_msg("Out of bounds", "%s is above max %s", x, max)
+            errors += error_msg("Out of bounds", key, "%s is above max %s", x, max)
     return errors
 
-def check_values(values, input):
+def check_values(key, values, input):
     errors = ""
 
     # Unwrap
@@ -297,7 +341,7 @@ def check_values(values, input):
 
     for x in items:
         if x not in values:
-            errors += error_msg("Value list", "%s not in %s", x, values)
+            errors += error_msg("Value list", key, "%s not in %s", x, values)
 
     return errors
 
@@ -322,19 +366,19 @@ def validate_inputs(params, inputs, svc = None, session = None):
                 if param.useDefault:
                     errors += set_input(svc, session, key, param.prototype)
                 else:
-                    errors += error_msg("Missing input", "%s", key)
+                    errors += error_msg("Missing input", key, "")
         else:
             input = inputs[key]
-            errors += compare_proto(param.prototype, input)
-            errors += check_boundaries(param.min, param.max, input)
-            errors += check_values(param.values, input)
+            errors += compare_proto(key, param.prototype, input)
+            errors += check_boundaries(key, param.min, param.max, input)
+            errors += check_values(key, param.values, input)
     return errors
 
 def set_input(svc, session, key, value):
     try:
         svc.setInput(session, key, value)
     except exceptions.Exception, e:
-        return error_msg("Failed to set intput", "%s=%s. Error: %s", key, value, e)
+        return error_msg("Failed to set intput", key, "%s=%s. Error: %s", key, value, e)
 
 class ProcessCallbackI(omero.grid.ProcessCallback):
     """

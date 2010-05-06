@@ -8,6 +8,7 @@
 
 """
 
+import os
 import sys
 import uuid
 import unittest
@@ -45,6 +46,20 @@ class TestParse(unittest.TestCase):
         p = makeParam(Long, "thumbSize", "The dimension of each thumbnail. Default is 100", True, 10, 250)
         self.assertEquals(10, p.min.val)
         self.assertEquals(250, p.max.val)
+
+    def testTicket2323(self):
+        SCRIPT = """if True:
+            import omero
+            from omero.rtypes import rstring, rlong
+            import omero.scripts as scripts
+            client = scripts.client('HelloWorld.py', 'Hello World example script',
+            scripts.Long('longParam', True, description='theDesc', min=long(1), max=long(10), values=[rlong(5)]) )
+            client.setOutput('returnMessage', rstring('Script ran OK!'))"""
+        params = parse_text(SCRIPT)
+        longParam = params.inputs["longParam"]
+        self.assertEquals(1, unwrap(longParam.min), str(longParam.min))
+        self.assertEquals(10, unwrap(longParam.max), str(longParam.max))
+        self.assertEquals([5], unwrap(longParam.values), str(longParam.values))
 
 if __name__ == '__main__':
     unittest.main()
