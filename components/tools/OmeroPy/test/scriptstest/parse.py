@@ -11,6 +11,7 @@
 import os
 import sys
 import uuid
+import logging
 import unittest
 
 import omero
@@ -61,5 +62,35 @@ class TestParse(unittest.TestCase):
         self.assertEquals(10, unwrap(longParam.max), str(longParam.max))
         self.assertEquals([5], unwrap(longParam.values), str(longParam.values))
 
+    def testGrouping(self):
+        SCRIPT = """if True:
+            from omero.scripts import *
+            c = client('testGrouping',
+                Long('these', grouping="A.1"),
+                Long('belong', grouping="A.2"),
+                Long('together', grouping="A.3"))"""
+        params = parse_text(SCRIPT)
+
+        groupings = dict()
+        for k, v in params.inputs.items():
+            parts = v.grouping.split(".")
+            g = groupings
+            while parts:
+                p = parts.pop(0)
+                try:
+                    g = g[p]
+                except KeyError:
+                    if parts:
+                        g[p] = dict()
+                        g = g[p]
+                    else:
+                        g[p] = k
+
+        self.assertEquals("these", groupings["A"]["1"], str(groupings))
+        self.assertEquals("belong", groupings["A"]["2"], str(groupings))
+        self.assertEquals("together", groupings["A"]["3"], str(groupings))
+
+
 if __name__ == '__main__':
+    logging.basicConfig()
     unittest.main()

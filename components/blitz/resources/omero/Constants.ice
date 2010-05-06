@@ -124,6 +124,13 @@ module omero {
         const string NSMEASUREMENT = "openmicroscopy.org/omero/measurement";
         const string NSCOMPANIONFILE = "openmicroscopy.org/omero/import/companionFile";
         const string NSEXPERIMENTERPHOTO = "openmicroscopy.org/omero/experimenter/photo";
+
+        //
+        // omero.grid.Param.namespaces in Scripts.ice
+        //
+        const string NSCREATED = "openmicroscopy.org/omero/scripts/results/created";
+        const string NSDOWNLOAD = "openmicroscopy.org/omero/scripts/results/download";
+        const string NSVIEW = "openmicroscopy.org/omero/scripts/results/view";
     };
 
     module jobs {

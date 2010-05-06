@@ -20,6 +20,7 @@
 import os
 import Ice
 import uuid
+import logging
 import exceptions
 
 import omero
@@ -30,14 +31,19 @@ import omero.util.temp_files
 from omero.rtypes import *
 
 
+TYPE_LOG = logging.getLogger("omero.scripts.Type")
+
+
 class Type(omero.grid.Param):
     """
     omero.grid.Param subclass which provides convenience methods for input/output specification.
     Further subclasses are responsible for creating proper prototypes.
-    """
 
-    def __init__(self, name, optional = False, out = False, description = None, useDefault = False,\
-                             min = None, max = None, values = None, **kwargs):
+    kwargs
+    """
+    PROTOTYPE_FUNCTION = None
+
+    def __init__(self, name, optional = False, out = False, description = None, **kwargs):
 
 	omero.grid.Param.__init__(self)
 
@@ -50,15 +56,22 @@ class Type(omero.grid.Param):
         # Mostly leaving these for backwards compatibility
         self.description = description
         self.optional = optional
-        self.useDefault = useDefault
+
+        # First assign all the kwargs
+        for k, v in kwargs.items():
+            if not hasattr(self, k):
+                TYPE_LOG.warn("Unknown property: %s", k)
+            setattr(self, k, v)
 
         # The following use wrap to guarantee that an rtype is present
-        self.min = wrap(min)
-        self.max = wrap(max)
-        self.values = wrap(values)
+        self.min = wrap(self.min)
+        self.max = wrap(self.max)
+        self.values = wrap(self.values)
 
-        for k, v in kwargs.items():
-            setattr(self, k, v)
+        if not callable(self.__class__.PROTOTYPE_FUNCTION):
+            raise ValueError("Bad prototype function: %s" % self.__class__.PROTOTYPE_FUNCTION)
+
+        self.prototype = self.__class__.PROTOTYPE_FUNCTION(self)
 
     def out(self):
         self._in = False
@@ -70,65 +83,91 @@ class Type(omero.grid.Param):
         self._out = True
         return self
 
-    def type(self, arg):
-        self.prototype = rtype(arg)
+    def type(self, *arg):
+        self.prototype = wrap(arg)
         return self
 
 
 class Long(Type):
-
-    def __init__(self, name, optional = False, out = False, description = None, useDefault = None, min = None, max = None, values = None, **kwargs):
-        Type.__init__(self, name, optional, out, description, useDefault, min, max, values, **kwargs)
-        self.type(rlong(0))
+    """
+    Wraps an rlong
+    """
+    PROTOTYPE_FUNCTION = lambda self: rlong(0)
 
 
 class String(Type):
-
-    def __init__(self, name, optional = False, out = False, description = None, useDefault = None, min = None, max = None, values = None, **kwargs):
-        Type.__init__(self, name, optional, out, description, useDefault, min, max, values, **kwargs)
-        self.type(rstring(""))
+    """
+    Wraps an rstring
+    """
+    PROTOTYPE_FUNCTION = lambda self: rstring("")
 
 
 class Bool(Type):
+    """
+    Wraps an rbool
+    """
+    PROTOTYPE_FUNCTION = lambda self: rbool(False)
 
-    def __init__(self, name, optional = False, out = False, description = None, useDefault = None, min = None, max = None, values = None, **kwargs):
-        Type.__init__(self, name, optional, out, description, useDefault, min, max, values, **kwargs)
-        self.type(rbool(False))
+
+class Color(Type):
+    """
+    Wraps an rinternal(Color)
+    """
+    PROTOTYPE_FUNCTION = lambda self: rinternal(omero.Color())
 
 
 class Point(Type):
-
-    def __init__(self, name, optional = False, out = False, description = None, useDefault = None, min = None, max = None, values = None, **kwargs):
-        Type.__init__(self, name, optional, out, description, useDefault, min, max, values, **kwargs)
-        self.type(rinternal(omero.Point()))
+    """
+    Wraps an rinternal(Point)
+    """
+    PROTOTYPE_FUNCTION = lambda self: rinternal(omero.Point())
 
 
 class Plane(Type):
-
-    def __init__(self, name, optional = False, out = False, description = None, useDefault = None, min = None, max = None, values = None, **kwargs):
-        Type.__init__(self, name, optional, out, description, useDefault, min, max, values, **kwargs)
-        self.type(rinternal(omero.Plane()))
-
-
-class Set(Type):
-
-    def __init__(self, name, optional = False, out = False, description = None, useDefault = None, min = None, max = None, values = None, **kwargs):
-        Type.__init__(self, name, optional, out, description, useDefault, min, max, values, **kwargs)
-        self.type(rset())
+    """
+    Wraps an rinternal(Plane)
+    """
+    PROTOTYPE_FUNCTION = lambda self: rinternal(omero.Plane())
 
 
-class List(Type):
+class __Coll(Type):
+    """
+    Base type providing the append and extend functionality.
+    Not for user use.
+    """
 
-    def __init__(self, name, optional = False, out = False, description = None, useDefault = None, min = None, max = None, values = None, **kwargs):
-        Type.__init__(self, name, optional, out, description, useDefault, min, max, values, **kwargs)
-        self.type(rlist())
+    def append(self, *arg):
+        self.prototype.val.append(*arg)
+
+    def extend(self, *arg):
+        self.prototype.val.extend(*arg)
+
+
+class Set(__Coll):
+    """
+    Wraps an rset. To add values to the contents of the set,
+    use "append" or "extend" since set.val is of type list.
+    """
+    PROTOTYPE_FUNCTION = lambda self: rset()
+
+
+class List(__Coll):
+    """
+    Wraps an rlist. To add values to the contents of the list,
+    use "append" or "extend" since set.val is of type list.
+    """
+    PROTOTYPE_FUNCTION = lambda self: rlist()
 
 
 class Map(Type):
+    """
+    Wraps an rmap. To add values to the contents of the map,
+    use "update" since map.val is of type dict.
+    """
+    PROTOTYPE_FUNCTION = lambda self: rmap()
 
-    def __init__(self, name, optional = False, out = False, description = None, useDefault = None, min = None, max = None, values = None, **kwargs):
-        Type.__init__(self, name, optional, out, description, useDefault, min, max, values, **kwargs)
-        self.type(rmap())
+    def update(self, *args, **kwargs):
+        self.prototype.val.update(*args, **kwargs)
 
 
 class ParseExit(exceptions.Exception):

@@ -125,6 +125,15 @@ module omero {
              * Whether or not the prototype should be used as a default.
              * If true, then if the value is missing from the input OR
              * output values, the prototype will be substituted.
+             *
+             * <pre>
+             * param = ...;
+             * inputs = ...;
+             * if name in inputs:
+             *     value = inputs[name]
+             * elif param.inputs[name].useDefault:
+             *     value = param.inputs[name].prototype
+             * </pre>
              **/
             bool useDefault;
 
@@ -186,6 +195,92 @@ module omero {
              * a collection or map instance.
              **/
             omero::RList values;
+
+            /**
+             * Defines the grouping strategy for this [Param].
+             *
+             * <p>
+             * A set of [Param] objects in a single [JobParams] can
+             * use dot notation to specify that they belong together,
+             * and in which order they should be presented to the user.
+             * </p>
+             *
+             * <pre>
+             * inputs = {"a" : Param(..., grouping = "1.1"),
+             *           "b" : Param(..., grouping = "1.2"),
+             *           "c" : Param(..., grouping = "2.2"),
+             *           "d" : Param(..., grouping = "2.1")}
+             * </pre>
+             * defines two groups of parameters which might be
+             * display to the user so:
+             *
+             * <pre>
+             *  Group 1:                  Group 2:
+             * +-----------------------+ +-----------------------+
+             * | a:                    | | d:                    |
+             * +-----------------------+ +-----------------------+
+             * | b:                    | | c:                    |
+             * +-----------------------+ +-----------------------+
+             * </pre>
+             *
+             * <p>
+             * Further dots (e.g. "1.2.3.5") can be used to specify
+             * deeper trees of parameters.
+             * </p>
+             *
+             * <p>
+             * By most clients, Params missing grouping values (e.g. "") will
+             * be ordered <em>after</em> params with grouping values.
+             * </p>
+             *
+             * <p>
+             * A group which has a boolean as the top-level object
+             * can be thought of as a checkbox which turns on or off
+             * all of the other group members. For example,
+             * </p>
+             *
+             * <pre>
+             * inputs = {"Image_Ids" : Param(prototype=rlist(), grouping = "1"),
+             *           "Scale_Bar" : Param(prototype=rbool(), grouping = "2"),
+             *           "Color"     : Param(prototype=rinternal(Color()), grouping = "2.1"),
+             *           "Size"      : Param(prototype=rlong(), grouping = "2.2")}
+             * </pre>
+             *
+             * <p>
+             * might be displayed as:
+             * </p>
+             *
+             * <pre>
+             *
+             *  Scale Bar: [ on/off ]
+             *  ======================
+             *    Color:  [rgb]
+             *    Size:   [ 10]
+             *
+             * </pre>
+             *
+             **/
+            string grouping;
+
+            /**
+             * Defines machine readable interpretations for this parameter.
+             *
+             * <p>
+             * Where the description field should provide information for
+             * users, the assigned namespaces can define how clients may
+             * interpret the param.
+             * </p>
+             *
+             * <p>
+             * [omero::constants::namespaces::NSDOWNLOAD], for example,
+             * indicates that users may want to download the resulting
+             * file. The [prototype] of the [Param] should be one of:
+             * [omero::model::OriginalFile], [omero::model::FileAnnotation],
+             * or an annotation link (like [omero::model::ImageAnnotationLink])
+             * which points to a file annotation.
+             * </p>
+             **/
+            omero::api::StringSet namespaces;
         };
 
         dictionary<string, Param> ParamMap;
@@ -313,11 +408,17 @@ module omero {
             string stderrFormat;
 
             /**
-             * CURRENTLY UNDER INVESTIGATION!
+             * Defines machine readable interpretations for this [JobParams].
              *
-             * Possible way to lookup scripts of interest.
+             * <p>
+             * Where the description field should provide information for
+             * users, the assigned namespaces can define how clients may
+             * interpret the script, including which categories or algorithm
+             * types the script belongs to.
+             * </p>
+             *
              **/
-            omero::api::StringSet namespaces; // FIXME OR USE DIRECTORY NAME
+            omero::api::StringSet namespaces;
         };
 
         /**
