@@ -258,6 +258,7 @@ public class ManageObjectAction
 		    		setEnabled(count == selected.length);
 				} else if (ho instanceof ExperimenterData) {
 					if (browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
+						/*
 		        		setEnabled(true);
 		        		selected = browser.getSelectedDisplays();
 		        		if (selected != null) {
@@ -275,6 +276,8 @@ public class ManageObjectAction
 		        			}
 		        			setEnabled(b);
 		        		}
+		        		*/
+						setEnabled(false);
 		        	} else setEnabled(false);
 				} else if (ho instanceof GroupData) {
 					setEnabled(true); //TODO

@@ -228,7 +228,7 @@ public class ManageObjectAction
 				break;
 			case REMOVE:
 				if (ho instanceof ExperimenterData) {
-					setEnabled(true);
+					setEnabled(false);
 				} else if (ho instanceof ProjectData 
 						|| ho instanceof DatasetData
 					|| ho instanceof ImageData || ho instanceof ScreenData
