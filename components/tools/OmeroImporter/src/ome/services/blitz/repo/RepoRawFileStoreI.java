@@ -33,7 +33,7 @@ import org.apache.commons.logging.LogFactory;
 import Ice.Current;
 
 /**
- * An implementation of he PublicRepository interface
+ * An implementation of the RepoRawFileStore interface
  *
  * @author Josh Moore, josh at glencoesoftware.com
  */
