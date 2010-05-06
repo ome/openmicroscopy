@@ -214,8 +214,14 @@ public class ScriptingDialog
 		Object[] v = new Object[values.size()];
 		Iterator<Object> i = values.iterator();
 		int j = 0;
+		Object value;
 		while (i.hasNext()) {
-			v[j] = i.next();
+			value = i.next();
+			if (value instanceof String)
+				v[j] = ((String) value).replace(
+						ScriptComponent.PARAMETER_SEPARATOR, 
+						ScriptComponent.PARAMETER_UI_SEPARATOR);
+			else v[j] = value;
 			j++;
 		}
 		return new JComboBox(v);
@@ -287,6 +293,9 @@ public class ScriptingDialog
 			defValue = param.getDefaultValue();
 			if (values != null && values.size() > 0) {
 				comp = createValuesBox(values);
+				if (defValue != null) {
+					((JComboBox) comp).setSelectedItem(defValue);
+				}
 			} else {
 				if (Long.class.equals(type) || Integer.class.equals(type)) {
 					type = Double.class;

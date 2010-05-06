@@ -63,6 +63,18 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class ScriptComponent 
 {
 
+	/** 
+	 * The character used to separate parameter composed of more than
+	 * one word at the scripting level.
+	 */
+	static final String PARAMETER_SEPARATOR = "_";
+	
+	/** 
+	 * The character used to separate parameter composed of more than
+	 * one word at the UI level.
+	 */
+	static final String PARAMETER_UI_SEPARATOR = " ";
+	
 	/** Indicates how to separate (key, value) pairs for a map. */
 	public static final String MAP_SEPARATOR = ":";
 	
@@ -148,7 +160,9 @@ public class ScriptComponent
 		if (component == null)
 			throw new IllegalArgumentException("No component specified.");
 		this.component = component;
-		label = UIUtilities.setTextFont(parameter);
+		//format
+		label = UIUtilities.setTextFont(parameter.replace(PARAMETER_SEPARATOR, 
+				PARAMETER_UI_SEPARATOR));
 		label.setToolTipText(component.getToolTipText());
 		required = false;
 	}
@@ -249,7 +263,11 @@ public class ScriptComponent
 			}
 		} else if (component instanceof JComboBox) {
 			JComboBox box = (JComboBox) component;
-			return box.getSelectedItem();
+			Object o = box.getSelectedItem();
+			if (o instanceof String)
+				return ((String) o).replace(PARAMETER_UI_SEPARATOR, 
+						PARAMETER_SEPARATOR);
+			return o;
 		}
 			
 		return null;
