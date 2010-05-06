@@ -84,7 +84,7 @@ class TestScripts(lib.ITest):
         "import omero.scripts as scripts",
         "if __name__ == '__main__':",
         "    client = scripts.client('HelloWorld.py', 'Hello World example script',",
-        "    scripts.Long('longParam', True, description='theDesc', min='1', max='10', values=[rlong(5)]) )",
+        "    scripts.Long('longParam', True, description='theDesc', min=rlong(1), max=rlong(10), values=[rlong(5)]) )",
         "    client.setOutput('returnMessage', rstring('Script ran OK!'))"]
         script = "\n".join(scriptLines)
         
@@ -92,6 +92,9 @@ class TestScripts(lib.ITest):
         # force the server to parse the file enough to get params (checks syntax etc)
         params = scriptService.getParams(id)
         for key, param in params.inputs.items():
+            print "min", param.min.getValue()
+            print "max", param.max.getValue()
+            print "values", param.values.getValue()
             self.assertEquals("longParam", key)
             self.assertEquals(1, param.min.getValue(), "Min value not correct")
             self.assertEquals(10, param.max.getValue(), "Max value not correct")
