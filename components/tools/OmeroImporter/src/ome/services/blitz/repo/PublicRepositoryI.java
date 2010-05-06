@@ -120,6 +120,8 @@ public class PublicRepositoryI extends _RepositoryDisp {
     
     private Map<String,PixelsType> pixelsTypeMap;
     
+    private Map<String,DimensionOrder> dimensionOrderMap;
+    
     private String repoUuid;
 
     public PublicRepositoryI(File root, long repoObjectId, Executor executor,
@@ -277,9 +279,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * Get a list of those files as importable and non-importable list.
      * 
      * @param path
-     *            A path on a repositor     * @param config
-     *            A RepositoryListConfig defining the listing config.
-y.
+     *            A path on a repositor     
      * @param config
      *            A RepositoryListConfig defining the listing config.
      * @param __current
@@ -642,23 +642,14 @@ y.
      *            A string representing the dimension order
      * @return A DimensionOrder object
      *
+     * The HashMap is built on the first call.
+     * TODO: Move that build to constructor?
      */
     private DimensionOrder getDimensionOrder(String dimensionOrder) {
-        final String dim = dimensionOrder;
-        ome.model.enums.DimensionOrder dimOrder = (ome.model.enums.DimensionOrder) executor
-                .execute(principal, new Executor.SimpleWork(this, "getDimensionOrder", dim) {
-
-                    @Transactional(readOnly = true)
-                    public Object doWork(Session session, ServiceFactory sf) {
-                        return sf.getQueryService().findByQuery(
-                                "from DimensionOrder as d where d.value='"
-                                        + dim + "'", null);
-                    }
-                });
-                
-        IceMapper mapper = new IceMapper();
-        return (DimensionOrder) mapper.map(dimOrder);
-
+        if (dimensionOrderMap == null) {
+            dimensionOrderMap = buildDimensionOrderMap();
+        }
+        return dimensionOrderMap.get(dimensionOrder);
     }
 
     /**
@@ -668,29 +659,14 @@ y.
      *            A string representing the pixels type
      * @return A PixelsType object
      *
-     * TODO: This db look-up per Pixels object needs 
-     * to be a local look-up from a HashMap built in
-     * the constructor.
+     * The HashMap is built on the first call.
+     * TODO: Move that build to constructor?
      */
     private PixelsType getPixelsType(String pixelsType) {
         if (pixelsTypeMap == null) {
             pixelsTypeMap = buildPixelsTypeMap();
         }
-        final String pType = pixelsType;
-        ome.model.enums.PixelsType pixType = (ome.model.enums.PixelsType) executor
-                .execute(principal, new Executor.SimpleWork(this, "getPixelsType", pType) {
-
-                    @Transactional(readOnly = true)
-                    public Object doWork(Session session, ServiceFactory sf) {
-                        return sf.getQueryService().findByQuery(
-                                "from PixelsType as p where p.value='"
-                                        + pType + "'", null);
-                    }
-                });
-                
-        IceMapper mapper = new IceMapper();
-        return (PixelsType) mapper.map(pixType);
-
+        return pixelsTypeMap.get(pixelsType);
     }
 
     /**
@@ -1018,8 +994,12 @@ y.
         return tnFile.getAbsolutePath();
 	}
 
-    /* A getter for the repoUuid. On its first call it gets the value from
-     * the original file object and stores it in the instance variable.
+    /**
+     * A getter for the repoUuid. 
+     * This is run once by getRepoUuid() when first needed, 
+     * thereafter lookups are local.
+     *
+     * TODO: this should probably be done in the constructor?
      */
 	private String getRepoUuid() {
 	    if (this.repoUuid == null) {
@@ -1037,10 +1017,44 @@ y.
         return this.repoUuid; 
     }
 
+    /**
+     * Utility to a build map of DimensionOrder objects keyed by value.
+     * This is run once by getDimensionOrder() when first needed, 
+     * thereafter lookups are local.
+     *
+     * TODO: this should probably be done in the constructor?
+     */
+    private Map<String, DimensionOrder> buildDimensionOrderMap() {
+        List <DimensionOrder> dimensionOrderList;
+        List<ome.model.enums.DimensionOrder> dimOrderList = (List<ome.model.enums.DimensionOrder>) executor
+                .execute(principal, new Executor.SimpleWork(this, "buildDimensionOrderMap") {
+
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        return sf.getQueryService().findAllByQuery("from DimensionOrder as d",
+                                null);
+                    }
+                });
+            
+        IceMapper mapper = new IceMapper();
+        dimensionOrderList = (List<DimensionOrder>) mapper.map(dimOrderList);
+
+        Map<String, DimensionOrder> dimensionOrderMap = new HashMap<String, DimensionOrder>();
+        for (DimensionOrder dimensionOrder : dimensionOrderList) {
+            dimensionOrderMap.put(dimensionOrder.getValue().getValue(), dimensionOrder);
+        }
+        return dimensionOrderMap;
+    }
+    
+    /**
+     * Utility to build a map of PixelsType objects keyed by value.
+     * This is run once by getPixelsType() when first needed, 
+     * thereafter lookups are local.
+     *
+     * TODO: this should probably be done in the constructor?
+     */
     private Map<String, PixelsType> buildPixelsTypeMap() {
-        Map<String, PixelsType> pixTypeMap = new HashMap<String, PixelsType>();
         List <PixelsType> pixelsTypeList;
-       
         List<ome.model.enums.PixelsType> pixTypeList = (List<ome.model.enums.PixelsType>) executor
                 .execute(principal, new Executor.SimpleWork(this, "buildPixelsTypeMap") {
 
@@ -1053,8 +1067,23 @@ y.
             
         IceMapper mapper = new IceMapper();
         pixelsTypeList = (List<PixelsType>) mapper.map(pixTypeList);
-
-        return pixTypeMap;
+        Map<String, PixelsType> pixelsTypeMap = new HashMap<String, PixelsType>();
+        for (PixelsType pixelsType : pixelsTypeList) {
+            pixelsTypeMap.put(pixelsType.getValue().getValue(), pixelsType);
+        }
+        return pixelsTypeMap;
+    }
+    
+    /** 
+     * Utility to remove a string from a list of strings if it exists.
+     * 
+     */
+    private void removeNameFromFileList(String sText, List<String> sList) {
+        int index;
+        for(index = 0; index < sList.size(); index ++) {
+            if (sText.equals(sList.get(index))) break;
+        }
+        if (index < sList.size()) sList.remove(index);
     }
     
     // Utility function for passing stack traces back in exceptions.
@@ -1063,16 +1092,5 @@ y.
         exception.printStackTrace(new PrintWriter(sw));
         return sw.toString();
     }
-    
-    // Utility to remove a string from a list of strings if it exists.
-    private void removeNameFromFileList(String sText, List<String> sList) {
-        int index;
-        for(index = 0; index < sList.size(); index ++) {
-            if (sText.equals(sList.get(index))) break;
-        }
-        if (index < sList.size()) sList.remove(index);
-    }
-
-    
-    
+   
 }
