@@ -245,11 +245,13 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     }
 
     public Share createShare(Principal principal, boolean enabled,
-            long timeToLive, String eventType, String description) {
+            long timeToLive, String eventType, String description,
+            long groupId) {
         Share share = new Share();
         define(share, UUID.randomUUID().toString(), description, System
                 .currentTimeMillis(), defaultTimeToIdle, timeToLive, eventType,
                 "Share");
+        share.setGroup(new ExperimenterGroup(groupId, false));
         share.setActive(enabled);
         share.setData(new byte[] {});
         share.setItemCount(0L);

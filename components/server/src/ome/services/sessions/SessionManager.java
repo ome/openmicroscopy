@@ -63,7 +63,7 @@ public interface SessionManager extends ApplicationListener {
      * @return
      */
     Share createShare(Principal principal, boolean enabled, long timeToLive,
-            String eventType, String description);
+            String eventType, String description, long groupId);
 
     /**
      * Sets the context for the current session to the given value. If it is an

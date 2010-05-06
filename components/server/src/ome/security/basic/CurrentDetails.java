@@ -11,6 +11,7 @@ package ome.security.basic;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -109,6 +110,34 @@ public class CurrentDetails implements PrincipalHolder {
             }
         }
         return null;
+    }
+
+    public void setCallGroup(Long id) {
+        Map<String, String> ctx = callContext.get();
+        if (ctx == null) {
+            ctx = new HashMap<String, String>();
+            callContext.set(ctx);
+        }
+
+        String old = ctx.get("omero.group.old");
+        String curr = ctx.get("omero.group");
+        if (old != null) {
+            throw new RuntimeException("Recursive call! " +
+                    String.format("Old: %s Current: %s New: %s",
+                            old, curr, id));
+        }
+
+        ctx.put("omero.group.old", curr);
+        ctx.put("omero.group", "" + id);
+    }
+
+    public void resetCallGroup() {
+        Map<String, String> ctx = callContext.get();
+        if (ctx != null) {
+            String old = ctx.get("omero.group.old");
+            ctx.remove("omero.group.old");
+            ctx.put("omero.group", old);
+        }
     }
 
     // PrincipalHolder methods

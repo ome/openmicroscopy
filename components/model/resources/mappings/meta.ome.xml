@@ -136,12 +136,13 @@
 	<type id="ome.model.meta.Share" global="true" superclass="ome.model.meta.Session">
 		<!-- Note: Share is not in model-->
 		<properties>
+			<required name="group" type="ome.model.meta.ExperimenterGroup"/>
 			<required name="itemCount" type="long"/>
 			<required name="active" type="boolean"/>
 			<required name="data" type="byte[]"/>
 		</properties>
 	</type>
-	<link id="ome.model.meta.ShareMember">
+	<link id="ome.model.meta.ShareMember" global="true">
 		<!-- Note: ShareMember is not in model-->
 		<properties>
 			<from_parent type="ome.model.meta.Share"/>

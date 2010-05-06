@@ -43,7 +43,7 @@ public class CompositeACLVoter implements ACLVoter {
 
     public ACLVoter choose() {
         Long shareId = cd.getCurrentEventContext().getCurrentShareId();
-        if (shareId == null) {
+        if (shareId == null || shareId.longValue() < 0) { // ticket:2219
             return basic;
         } else {
             return sharing;

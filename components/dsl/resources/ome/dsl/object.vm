@@ -897,7 +897,12 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
     */
     @javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.${fetchType}, cascade = {${cascadeEjb}}, targetEntity = ${prop.type}.class)
     @org.hibernate.annotations.Cascade({${cascadeHib}})
-    @javax.persistence.JoinColumn(name="${prop.name}", nullable=${prop.nullable},
+## Required by addition of Share.group #2327
+#set($PossGroupPropName = "${prop.name}")
+#if($PossGroupPropName == "group")
+#set($PossGroupPropName = "\"group\"")
+#end
+    @javax.persistence.JoinColumn(name="${PossGroupPropName}", nullable=${prop.nullable},
         unique=${prop.unique}, insertable=${prop.insert}, updatable=${prop.update})
     @org.hibernate.annotations.ForeignKey(name="FK${type.shortname.toLowerCase()}_${prop.name}_${prop.shortType.toLowerCase()}")
 #if($type.isLink)## Need to convert from IObject to an implementation class

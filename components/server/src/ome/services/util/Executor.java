@@ -69,6 +69,22 @@ public interface Executor extends ApplicationContextAware {
     public Principal principal();
 
     /**
+     * Delegates to {@link CurrentDetails#setCallGroup(Long)} to permit thread-specific
+     * setting of the group.
+     * @param gid
+     * @see ticket:1434
+     */
+    public void setCallGroup(long gid);
+
+    /**
+     * Delegates to {@link CurrentDetails#resetCallGroup()}.
+     *
+     * @see #setCallGroup(long)
+     * @see ticket:1434
+     */
+    public void resetCallGroup();
+
+    /**
      * Executes a {@link Work} instance wrapped in two layers of AOP. The first
      * is intended to acquire the proper arguments for
      * {@link Work#doWork(Session, ServiceFactory)} from the
@@ -392,6 +408,14 @@ public interface Executor extends ApplicationContextAware {
                 args[0] = SessionFactoryUtils.getSession(factory, false);
                 return mi.proceed();
             }
+        }
+
+        public void resetCallGroup() {
+            principalHolder.resetCallGroup();
+        }
+
+        public void setCallGroup(long gid) {
+            principalHolder.setCallGroup(gid);
         }
 
     }

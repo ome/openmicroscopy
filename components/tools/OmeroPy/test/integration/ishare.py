@@ -618,63 +618,24 @@ class TestIShare(lib.ITest):
         self.assertEquals(1,share.getCommentCount([self.share_id, self.share_id2])[self.share_id2])
         
         self.client.sf.closeOnDestroy()
-    
+
     def test2327(self):
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
-        share = self.root.sf.getShareService()
-        query = self.root.sf.getQueryService()
-        update = self.root.sf.getUpdateService()
-        admin = self.root.sf.getAdminService()
-        
+
         ### create two users in two groups
-        #group1
-        new_gr1 = ExperimenterGroupI()
-        new_gr1.name = rstring("group1_%s" % uuid)
-        gid1 = admin.createGroup(new_gr1)
-        #group2
-        new_gr2 = ExperimenterGroupI()
-        new_gr2.name = rstring("group2_%s" % uuid)
-        gid2 = admin.createGroup(new_gr2)
-        
-        #new user1
-        new_exp = ExperimenterI()
-        new_exp.omeName = rstring("user1_%s" % uuid)
-        new_exp.firstName = rstring("New")
-        new_exp.lastName = rstring("Test")
-        new_exp.email = rstring("newtest@emaildomain.com")        
-        defaultGroup1 = admin.getGroup(gid1)
-        listOfGroups1 = list()
-        listOfGroups1.append(admin.lookupGroup("user"))
-        eid = admin.createExperimenterWithPassword(new_exp, rstring("ome"), defaultGroup1, listOfGroups1)
-        
-        #new user2
-        new_exp2 = ExperimenterI()
-        new_exp2.omeName = rstring("user2_%s" % uuid)
-        new_exp2.firstName = rstring("New2")
-        new_exp2.lastName = rstring("Test2")
-        new_exp2.email = rstring("newtest2@emaildomain.com")
-        defaultGroup2 = admin.getGroup(gid2)
-        listOfGroups2 = list()
-        listOfGroups2.append(admin.lookupGroup("user"))        
-        eid2 = admin.createExperimenterWithPassword(new_exp2, rstring("ome"), defaultGroup2, listOfGroups2)
-        
-        ## get users
-        user1 = admin.getExperimenter(eid)
-        user2 = admin.getExperimenter(eid2)
-        
-        ## login as user1 
-        client_share1 = omero.client()
-        client_share1.createSession(user1.omeName.val,"ome")
+        client_share1, user1 = self.new_client_and_user()
+        client_share2, user2 = self.new_client_and_user()
+
+        ## login as user1
         share1 = client_share1.sf.getShareService()
         update1 = client_share1.sf.getUpdateService()
-        
+
         # create image
         img = ImageI()
-        img.setName(rstring('test1154-img-%s' % (uuid)))
+        img.setName(rstring('test2327'))
         img.setAcquisitionDate(rtime(0))
         img = update1.saveAndReturnObject(img)
         img.unload()
-        
+
         # create share
         description = "my description"
         timeout = None
@@ -682,36 +643,34 @@ class TestIShare(lib.ITest):
         experimenters = [user2]
         guests = []
         enabled = True
-        sid = share1.createShare(description, timeout, objects,experimenters, guests, enabled)
+        sid = share1.createShare(description, timeout, objects, experimenters, guests, enabled)
         self.assert_(len(share1.getContents(sid)) == 1)
         # add comment by the owner
-        share.addComment(sid, 'test comment by the owner %s' % (uuid))
-        
+        share1.addComment(sid, 'test comment by the owner %s' % user1.id.val)
+
         ## login as user2
-        client_share2 = omero.client()
-        client_share2.createSession(user2.omeName.val,"ome")
         share2 = client_share2.sf.getShareService()
         query2 = client_share2.sf.getQueryService()
-        
+
         l = share2.getMemberShares(False)
-        self.assertEquals(1,len(l))
-        
+        self.assertEquals(1, len(l))
+
         sh = share2.getShare(sid)
         # add comment by the member
-        share2.addComment(sid, 'test comment by the member %s' % (uuid))
+        share2.addComment(sid, 'test comment by the member %s' % (user2.id.val))
 
         # Don't have to activate share2
 
         #get comments
         # by user1
-        c1 = len(share.getComments(sid))
-        self.assertEquals(2,c1)
+        c1 = len(share1.getComments(sid))
+        self.assertEquals(2, c1)
         # by user2
         c2 = len(share2.getComments(sid))
-        self.assertEquals(2,c2)
-        
+        self.assertEquals(2, c2)
+
         client_share1.sf.closeOnDestroy()
         client_share2.sf.closeOnDestroy()
-        
+
 if __name__ == '__main__':
     unittest.main()

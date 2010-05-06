@@ -215,7 +215,9 @@ public class BasicSecuritySystem implements SecuritySystem,
         Session sess = (Session) session;
         Filter filter = sess.enableFilter(SecurityFilter.filterName);
 
-        filter.setParameter(SecurityFilter.is_share, ec.getCurrentShareId() != null);
+        Long shareId = ec.getCurrentShareId();
+        filter.setParameter(SecurityFilter.is_share,
+                    shareId != null); // ticket:2219, not checking -1 here.
         filter.setParameter(SecurityFilter.is_adminorpi, ec.isCurrentUserAdmin()
                 || ec.getLeaderOfGroupsList().contains(ec.getCurrentGroupId()));
         filter.setParameter(SecurityFilter.is_nonprivate,
@@ -223,6 +225,11 @@ public class BasicSecuritySystem implements SecuritySystem,
                 || ec.getCurrentGroupPermissions().isGranted(Role.WORLD, Right.READ));
         filter.setParameter(SecurityFilter.current_group, ec.getCurrentGroupId());
         filter.setParameter(SecurityFilter.current_user, ec.getCurrentUserId());
+    }
+
+    public void  updateReadFilter(Session session) {
+        session.disableFilter(SecurityFilter.filterName);
+        enableReadFilter(session);
     }
 
     /**

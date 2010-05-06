@@ -103,11 +103,12 @@ class ITest(unittest.TestCase):
         uid = admin.createUser(e, group)
         return admin.getExperimenter(uid)
 
-    def new_client(self, group = None):
+    def new_client(self, group = None, user = None):
         """
         Like new_user() but returns an active client.
         """
-        user = self.new_user(group)
+        if user is None:
+            user = self.new_user(group)
         props = self.root.getPropertyMap()
         props["omero.user"] = user.omeName.val
         props["omero.pass"] = user.omeName.val
@@ -115,6 +116,11 @@ class ITest(unittest.TestCase):
         client.setAgent("OMERO.py.new_client_test")
         client.createSession()
         return client
+
+    def new_client_and_user(self, group = None):
+        user = self.new_user(group)
+        client = self.new_client(group, user)
+        return client, user
 
     def tearDown(self):
         failure = False
