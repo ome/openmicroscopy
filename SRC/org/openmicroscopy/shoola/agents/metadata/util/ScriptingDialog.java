@@ -102,12 +102,7 @@ public class ScriptingDialog
 	
 	/** The text displayed in the header. */
 	private static final String		TEXT_END = ".\n"+ScriptComponent.REQUIRED +
-			" indicates the required parameter."+
-			"\nIf (List) is indicated next to a parameter, use spaces " +
-			"to separate values.\n"+
-			"If (Map) is indicated next to a parameter, use "+
-			ScriptComponent.MAP_SEPARATOR+
-			"to separate (key, value) pair and spaces to separate pairs.\n";
+			" indicates the required parameter.";
 	
 	/** Indicates to close the dialog. */
 	private static final int CANCEL = 0;
@@ -296,8 +291,9 @@ public class ScriptingDialog
 				if (defValue != null) {
 					((JComboBox) comp).setSelectedItem(defValue);
 				}
-			} else {
-				if (Long.class.equals(type) || Integer.class.equals(type)) {
+			}
+			if (Long.class.equals(type) || Integer.class.equals(type)) {
+				if (comp == null) {
 					type = Double.class;
 					if (param.hasRangeSpecified()) {
 						comp = new NumericalTextFieldLabelled(type, 
@@ -314,22 +310,31 @@ public class ScriptingDialog
 							((NumericalTextField) comp).setText(
 									""+defValue);
 					}
-				} else if (String.class.equals(type)) {
+				}
+			} else if (String.class.equals(type)) {
+				if (comp == null) {
 					comp = new JTextField();
 					if (defValue != null)
 						((JTextField) comp).setText(""+defValue);
-				} else if (Boolean.class.equals(type)) {
+				}
+			} else if (Boolean.class.equals(type)) {
+				if (comp == null) {
 					comp = new JCheckBox();
 					if (defValue != null)
 						((JCheckBox) comp).setSelected((Boolean) defValue);
-				} else if (Map.class.equals(type)) {
-					comp = new JTextField();
-					name += " (Map)";
-				} else if (List.class.equals(type)) {
-					comp = new JTextField();
-					name += " (List)";
-					((JTextField) comp).getDocument().addDocumentListener(this);
 				}
+			} else if (Map.class.equals(type)) {
+				if (comp == null)
+					comp = new ComplexParamPane(param.getKeyType(), 
+							param.getValueType());
+				else 
+					comp = new ComplexParamPane(param.getKeyType(), 
+							(JComboBox) comp);
+			} else if (List.class.equals(type)) {
+				if (comp == null)
+					comp = new ComplexParamPane(param.getKeyType());
+				else 
+					comp = new ComplexParamPane((JComboBox) comp);
 			}
 			if (comp != null) {
 				if (comp instanceof JTextField) {

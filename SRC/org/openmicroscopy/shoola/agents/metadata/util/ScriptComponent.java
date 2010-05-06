@@ -75,23 +75,8 @@ public class ScriptComponent
 	 */
 	static final String PARAMETER_UI_SEPARATOR = " ";
 	
-	/** Indicates how to separate (key, value) pairs for a map. */
-	public static final String MAP_SEPARATOR = ":";
-	
-	/** Indicates how to separate value for a list. */
-	public static final String LIST_SEPARATOR = " ";
-	
-	/** Indicates the required parameter. */
-	public static final String REQUIRED = "*";
-	
-	/** Identifies the map. */
-	public static final int		MAP = 1;
-	
-	/** Identifies the list. */
-	public static final int		LIST = 2;
-	
-	/** Identifies the default index. */
-	private static final int	DEFAULT = 0;
+	/** Indicates the required field. */
+	static final String REQUIRED = "*";
 	
 	/** The component to host. */
 	private JComponent component;
@@ -107,47 +92,6 @@ public class ScriptComponent
 	
 	/** Indicates if a value is required. */
 	private boolean required;
-	
-	/** Indicate that the component supports map, list etc. */
-	private int index;
-	
-	/**
-	 * Converts the value into corresponding map.
-	 * 
-	 * @param value The value to convert.
-	 * @return See above.
-	 */
-	private Map convertStringToMap(String value)
-	{
-		Map map = new HashMap();
-		String[] values = value.split(LIST_SEPARATOR);
-		if (values == null || values.length == 0) return map;
-		String[] pair;
-		for (int i = 0; i < values.length; i++) {
-			pair = values[i].split(MAP_SEPARATOR);
-			if (pair != null && pair.length == 2) {
-				map.put(pair[0], pair[1]);
-			}
-		}
-		return map;
-	}
-	
-	/**
-	 * Converts the value into corresponding list.
-	 * 
-	 * @param value The value to convert.
-	 * @return See above.
-	 */
-	private List convertStringToList(String value)
-	{
-		List l = new ArrayList();
-		String[] values = value.split(LIST_SEPARATOR);
-		if (values == null || values.length == 0) return l;
-		for (int i = 0; i < values.length; i++) {
-			l.add(values[i].trim());
-		}
-		return l;
-	}
 	
 	/**
 	 * Creates a new instance.
@@ -182,13 +126,6 @@ public class ScriptComponent
 	}
 	
 	/**
-	 * Sets the index.
-	 * 
-	 * @param index One of the constants defined by this class.
-	 */
-	public void setIndex(int index) { this.index = index; }
-	
-	/**
 	 * Sets to <code>true</code> if a value is required for the field,
 	 * <code>false</code> otherwise.
 	 * 
@@ -198,6 +135,9 @@ public class ScriptComponent
 	{ 
 		this.required = required; 
 		if (required) label = UIUtilities.setTextFont(label.getText()+" *");
+		if (component instanceof ComplexParamPane) {
+			((ComplexParamPane) component).initialize(required);
+		}
 	}
 	
 	/**
@@ -228,50 +168,48 @@ public class ScriptComponent
 		return UIUtilities.buildComponentPanel(p, 0, 0); 
 	}
 	
-	public void setForeground(Color c)
-	{
-		label.setForeground(c);
-		if (info != null) info.setForeground(c);
-	}
-	
 	/** 
 	 * Returns the value associated to a script.
 	 * 
 	 * @return See above.
 	 */
-	public Object getValue()
+	Object getValue()
 	{
-		if (component instanceof JCheckBox) {
-			JCheckBox box = (JCheckBox) component;
+		return ScriptComponent.getComponentValue(component);
+	}
+	
+	/** 
+	 * Helper method. Returns the value associated to a script.
+	 * 
+	 * @param c The component to handle.
+	 * @return See above.
+	 */
+	static Object getComponentValue(JComponent c)
+	{
+		if (c == null) return null;
+		if (c instanceof JCheckBox) {
+			JCheckBox box = (JCheckBox) c;
 			return box.isSelected();
-		} else if (component instanceof NumericalTextField) {
-			return ((NumericalTextField) component).getValueAsNumber();
-		} else if (component instanceof NumericalTextFieldLabelled) {
-			return ((NumericalTextFieldLabelled) component).getValueAsNumber();
-		} else if (component instanceof JTextField) {
-			JTextField field = (JTextField) component;
+		} else if (c instanceof NumericalTextField) {
+			return ((NumericalTextField) c).getValueAsNumber();
+		} else if (c instanceof NumericalTextFieldLabelled) {
+			return ((NumericalTextFieldLabelled) c).getValueAsNumber();
+		} else if (c instanceof JTextField) {
+			JTextField field = (JTextField) c;
 			String value = field.getText();
 			if (value == null) return null;
-			value = value.trim();
-			switch (index) {
-				case DEFAULT:
-					return value;
-				case MAP:
-					return convertStringToMap(value);
-				case LIST:
-					return convertStringToList(value);
-			}
-		} else if (component instanceof JComboBox) {
-			JComboBox box = (JComboBox) component;
+			return value.trim();
+		} else if (c instanceof JComboBox) {
+			JComboBox box = (JComboBox) c;
 			Object o = box.getSelectedItem();
 			if (o instanceof String)
 				return ((String) o).replace(PARAMETER_UI_SEPARATOR, 
 						PARAMETER_SEPARATOR);
 			return o;
-		}
+		} else if (c instanceof ComplexParamPane)
+			return ((ComplexParamPane) c).getValue();
 			
 		return null;
 	}
-	
 	
 }

@@ -25,10 +25,11 @@ package org.openmicroscopy.shoola.env.data.model;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-
-import Freeze.Map;
+import java.util.Map;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
@@ -38,6 +39,7 @@ import omero.RFloat;
 import omero.RInt;
 import omero.RList;
 import omero.RLong;
+import omero.RMap;
 import omero.RString;
 import omero.RType;
 import omero.grid.Param;
@@ -118,7 +120,43 @@ public class ParamData
 			if (n.doubleValue() > ((Number) maxValue).doubleValue())
 				defaultValue = maxValue;
 		}
-			
+	}
+	
+	/**
+	 * Converts the passed value into the corresponding RType.
+	 * 
+	 * @param value The value to convert.
+	 * @return See above.
+	 */
+	private static RType convertBasicValue(Object value)
+	{
+		if (value instanceof Boolean)
+			return omero.rtypes.rbool((Boolean) value);
+		if (value instanceof String)
+			return omero.rtypes.rstring((String) value);
+		if (value instanceof Long)
+			return omero.rtypes.rlong((Long) value);
+		if (value instanceof Integer)
+			return omero.rtypes.rint((Integer) value);
+		if (value instanceof Float)
+			return omero.rtypes.rfloat((Float) value);
+		return null;
+	}
+	
+	/**
+	 * Converts the basic RType.
+	 * 
+	 * @param value The value to convert.
+	 * @return See above.
+	 */
+	private static Object convertBasicRType(RType value)
+	{
+		if (value instanceof RBool) return ((RBool) value).getValue();
+		if (value instanceof RString) return ((RString) value).getValue();
+		if (value instanceof RLong)  return ((RLong) value).getValue();
+		if (value instanceof RInt)  return ((RInt) value).getValue();
+		if (value instanceof RFloat)  return ((RFloat) value).getValue();
+		return null;
 	}
 	
 	/**
@@ -153,6 +191,30 @@ public class ParamData
 	 * @return See above.
 	 */
 	public Class getPrototype() { return type; }
+	
+	/** 
+	 * Returns the type of a key element if the prototype is a List or a Map.
+	 * 
+	 * @return See above.
+	 */
+	public Class getKeyType()
+	{
+		if (List.class.equals(type)) return String.class; //TODO;
+		else if (Map.class.equals(type)) return String.class; //TODO
+		return null;
+	}
+	
+	/** 
+	 * Returns the type of a value element if the prototype is a List or a Map.
+	 * 
+	 * @return See above.
+	 */
+	public Class getValueType()
+	{
+		if (List.class.equals(type)) return String.class; //TODO;
+		else if (Map.class.equals(type)) return String.class; //TODO
+		return null;
+	}
 	
 	/**
 	 * Returns the list of possible values or <code>null</code> if none set.
@@ -236,16 +298,36 @@ public class ParamData
 	 */
 	public RType getValueToPassAsRType()
 	{ 
-		if (valueToPass instanceof Boolean)
-			return omero.rtypes.rbool((Boolean) valueToPass);
-		if (valueToPass instanceof String)
-			return omero.rtypes.rstring((String) valueToPass);
-		if (valueToPass instanceof Long)
-			return omero.rtypes.rlong((Long) valueToPass);
-		if (valueToPass instanceof Integer)
-			return omero.rtypes.rint((Integer) valueToPass);
-		if (valueToPass instanceof Float)
-			return omero.rtypes.rfloat((Float) valueToPass);
+		if (valueToPass instanceof Boolean || valueToPass instanceof String ||
+			valueToPass instanceof Long ||	valueToPass instanceof Integer ||
+			valueToPass instanceof Float)
+			return convertBasicValue(valueToPass);
+		if (valueToPass instanceof List) {
+			List<RType> l = new ArrayList<RType>();
+			List list = (List) valueToPass;
+			Iterator i = list.iterator();
+			RType key;
+			while (i.hasNext()) {
+				key = convertBasicValue(i.next());
+				if (key != null)
+					l.add(key);
+			}
+			return omero.rtypes.rlist(l);
+		}
+		if (valueToPass instanceof Map) {
+			Map<String, RType> m = new HashMap<String, RType>();
+			Map map = (Map) valueToPass;
+			Entry entry;
+			RType type;
+			Iterator i = map.entrySet().iterator();
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				type = convertBasicValue(entry.getValue());
+				if (type != null) 
+					m.put((String) entry.getKey(), type);
+			}
+			return omero.rtypes.rmap(m);
+		}
 		return null; 
 	}
 	
@@ -257,12 +339,36 @@ public class ParamData
 	 */
 	public static Object convertRType(RType value)
 	{
-		if (value instanceof RBool) return ((RBool) value).getValue();
-		if (value instanceof RString) return ((RString) value).getValue();
-		if (value instanceof RLong)  return ((RLong) value).getValue();
-		if (value instanceof RInt)  return ((RInt) value).getValue();
-		if (value instanceof RFloat)  return ((RFloat) value).getValue();
-		if (value instanceof RList)  return ((RList) value).getValue();
+		if (value instanceof RBool || value instanceof RString ||
+			value instanceof RLong || value instanceof RInt ||
+			value instanceof RFloat) return convertBasicRType(value);
+		if (value instanceof RList)  {
+			List<RType> list = ((RList) value).getValue();
+			List<Object> l = new ArrayList<Object>();
+			Iterator<RType> i = list.iterator();
+			Object o;
+			while (i.hasNext()) {
+				o = convertRType(i.next());
+				if (o != null) l.add(o);
+			}
+			return l;
+		}
+		if (value instanceof RMap) {
+			Map<String, RType> map = ((RMap) value).getValue();
+			Map<String, Object> r = new HashMap<String, Object>();
+			Entry entry;
+			Object v;
+			Iterator i = map.entrySet().iterator();
+
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				v = convertRType((RType) entry.getValue());
+				if (v != null) {
+					r.put((String) entry.getKey(), v);
+				}
+			}
+			return r; 
+		}
 		return null;
 	}
 	
