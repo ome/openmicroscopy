@@ -68,7 +68,7 @@ import org.openmicroscopy.shoola.util.ui.OMETextArea;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ChannelAcquisitionData;
 import pojos.ChannelData;
-import pojos.FilterData;
+import pojos.DataObject;
 import pojos.LightSourceData;
 
 /** 
@@ -116,14 +116,11 @@ class ChannelAcquisitionComponent
 	/** The UI component hosting the detector metadata. */
 	private DetectorComponent					detectorPane;
 	
-	/** The UI component hosting the emission filters. */
-	private List<FilterComponent>				emissionFilterPanes;
+	/** The UI component hosting the filter set or <code>null</code>. */
+	private FilterGroupComponent				filterSetPane;
 	
-	/** The UI component hosting the excitation filter. */
-	private List<FilterComponent>				excitationFilterPanes;
-	
-	/** The component hosting the dichroic. */
-	private DichroicComponent					dichroicPane;
+	/** The UI component hosting the light path or <code>null</code>. */
+	private FilterGroupComponent				lightPathPane;
 	
 	/** Button to show or hides the unset fields of the detector. */
 	private JLabelButton						unsetGeneral;
@@ -146,27 +143,6 @@ class ChannelAcquisitionComponent
 	/** The icon displaying the color associated to the channel. */
 	private ColourIcon							icon;
 
-	/**
-	 * Transforms the passed filter if not <code>null</code>.
-	 * 
-	 * @param filter The filter to transform.
-	 * @param l The list the UI object will be added to.
-	 */
-	private void populateFilter(FilterData filter, List<FilterComponent> l)
-	{
-		if (filter == null) return;
-		Map<String, Object>  details = EditorUtil.transformFilter(filter);
-		List notSet = (List) details.get(EditorUtil.NOT_SET);
-		if (notSet.size() != EditorUtil.MAX_FIELDS_FILTER) {
-			String title = FilterComponent.EMISSION_FILTER;
-			if (l == excitationFilterPanes) 
-				title = FilterComponent.EXCITATION_FILTER;
-			FilterComponent comp = new FilterComponent(parent, model, title);
-			comp.displayFilter(details);
-			l.add(comp);
-		}
-	}
-	
 	/** Resets the various boxes with enumerations. */
 	private void resetBoxes()
 	{
@@ -220,10 +196,6 @@ class ChannelAcquisitionComponent
 	{
 		resetBoxes();
 		fieldsGeneral = new LinkedHashMap<String, DataComponent>();
-		emissionFilterPanes = new ArrayList<FilterComponent>();
-		excitationFilterPanes = new ArrayList<FilterComponent>();
-		dichroicPane = new DichroicComponent(parent, model);
-		dichroicPane.setVisible(false);
 		detectorPane = new DetectorComponent(parent, model);
 		lightPane = new LightSourceComponent(parent, model);
 		unsetGeneral = null;
@@ -233,7 +205,6 @@ class ChannelAcquisitionComponent
 		generalPane.setBackground(UIUtilities.BACKGROUND_COLOR);
 		generalPane.setLayout(new GridBagLayout());
 		exposureTask = EditorUtil.createTaskPane("Exposure Time");
-		
 		exposureTask.addPropertyChangeListener(this);
 	}
 	
@@ -369,28 +340,20 @@ class ChannelAcquisitionComponent
 			add(generalPane, constraints);
 			++constraints.gridy;
 		}
-		Iterator<FilterComponent> i = emissionFilterPanes.iterator();
-		while (i.hasNext()) {
-			add(i.next(), constraints);	
-			++constraints.gridy;
-		}
-		
-		if (dichroicPane.isVisible()) {
-			add(dichroicPane, constraints);
-			++constraints.gridy;
-		}
-		i = excitationFilterPanes.iterator();
-		while (i.hasNext()) {
-			add(i.next(), constraints);	
-			++constraints.gridy;
-		}
-		
 		if (detectorPane.isVisible()) {
 			add(detectorPane, constraints);
 	    	++constraints.gridy;
 		}
 		if (lightPane.isVisible()) {
 			add(lightPane, constraints);
+	    	++constraints.gridy;
+		}
+		if (lightPathPane != null) {
+			add(lightPathPane, constraints);
+	    	++constraints.gridy;
+		}
+		if (filterSetPane != null) {
+			add(filterSetPane, constraints);
 	    	++constraints.gridy;
 		}
     	constraints.fill = GridBagConstraints.HORIZONTAL;
@@ -492,23 +455,12 @@ class ChannelAcquisitionComponent
 				lightPane.displayLightSource(kind, details);
 				lightPane.setVisible(true);
 			}
-			/*
-			details = EditorUtil.transformDichroic(data.getDichroic());
-			notSet = (List) details.get(EditorUtil.NOT_SET);
-			if (notSet.size() != EditorUtil.MAX_FIELDS_DICHROIC) {
-				dichroicPane.displayDichroic(details);
-				dichroicPane.setVisible(true);
-			}
-			
-			//emission filter
-			populateFilter(data.getEmissionFilter(), emissionFilterPanes);
-			populateFilter(data.getSecondaryEmissionFilter(), 
-					emissionFilterPanes);
-			populateFilter(data.getExcitationFilter(), excitationFilterPanes);
-			populateFilter(data.getSecondaryExcitationFilter(), 
-					excitationFilterPanes);
-			*/
-			//data.get
+			DataObject set = data.getFilterSet();
+			if (set != null)
+				filterSetPane = new FilterGroupComponent(parent, model, set);
+			set = data.getLightPath();
+			if (set != null)
+				lightPathPane = new FilterGroupComponent(parent, model, set);
 			buildGUI();
 		}
 	}
@@ -561,6 +513,14 @@ class ChannelAcquisitionComponent
 		if (b) return true;
 		b = lightPane.hasDataToSave();
 		if (b) return true;
+		if (lightPathPane != null) {
+			b = lightPathPane.hasDataToSave();
+			if (b) return true;
+		}
+		if (filterSetPane != null) {
+			b = filterSetPane.hasDataToSave();
+			if (b) return true;
+		}
 		return false;
 	}
 
@@ -635,47 +595,6 @@ class ChannelAcquisitionComponent
 			}
 			data.add(channel);
 		}
-		
-		/*
-		 ChannelAcquisitionData metadata = model.getChannelAcquisitionData(
-    			channel.getIndex());
-		i = fieldsDetector.entrySet().iterator();
-		
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			key = (String) entry.getKey();
-			comp = (DataComponent) entry.getValue();
-			if (comp.isDirty()) {
-				value = comp.getAreaValue();
-				if (EditorUtil.MODEL.equals(key)) {
-					metadata.setDetectorModel((String) value);
-				} else if (EditorUtil.MANUFACTURER.equals(key)) {
-					metadata.setDetectorManufacturer((String) value);
-				} else if (EditorUtil.SERIAL_NUMBER.equals(key)) {
-					metadata.setDetectorSerialNumber((String) value);
-				} else if (EditorUtil.GAIN.equals(key)) {
-					//metadata.setPockelCell((Integer) value);
-				} else if (EditorUtil.VOLTAGE.equals(key)) {
-					//metadata.setEmissionWavelength((Integer) value);
-				} else if (EditorUtil.OFFSET.equals(key)) {
-					//channel.setExcitationWavelength((Integer) value);
-				} else if (EditorUtil.READ_OUT_RATE.equals(key)) {
-					//	channel.setExcitationWavelength((Integer) value);
-				} else if (EditorUtil.ZOOM.equals(key)) {
-					number = UIUtilities.extractNumber((String) value, 
-							Float.class);
-					if (number != null)
-						metadata.setDetectorZoom((Float) number);
-				} else if (EditorUtil.AMPLIFICATION.equals(key)) {
-					number = UIUtilities.extractNumber((String) value, 
-							Float.class);
-					if (number != null)
-						metadata.setDetectorAmplificationGain((Float) number);
-				}
-			}
-			data.add(metadata);
-		}
-		*/
 		return data;
 	}
 

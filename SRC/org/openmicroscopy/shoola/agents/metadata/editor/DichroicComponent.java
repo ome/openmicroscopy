@@ -22,6 +22,8 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
+
+//Java imports
 import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.beans.PropertyChangeEvent;
@@ -32,41 +34,33 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.openmicroscopy.shoola.agents.util.DataComponent;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
-import org.openmicroscopy.shoola.util.ui.JLabelButton;
-import org.openmicroscopy.shoola.util.ui.NumericalTextField;
-import org.openmicroscopy.shoola.util.ui.OMEComboBox;
-import org.openmicroscopy.shoola.util.ui.OMETextArea;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-//Java imports
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.DataComponent;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.util.ui.JLabelButton;
+import org.openmicroscopy.shoola.util.ui.OMETextArea;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /**
-*
-*
-* @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
-*     <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
-* @author   Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
-*     <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
-* @version 3.0
-* <small>
-* (<b>Internal version:</b> $Revision: $Date: $)
-* </small>
-* @since 3.0-Beta4
-*/
-
+ * Displays a dichroic
+ *
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ *     <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author   Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ *     <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
+ * <small>
+ * (<b>Internal version:</b> $Revision: $Date: $)
+ * </small>
+ * @since 3.0-Beta4
+ */
 class DichroicComponent 
 	extends JPanel
 	implements PropertyChangeListener
@@ -87,7 +81,6 @@ class DichroicComponent
 	/** Reference to the Model. */
 	private EditorModel			model;
 
-	
 	/** Initializes the components. */
 	private void initComponents()
 	{

@@ -114,13 +114,11 @@ class FilterComponent
 		filterBox = EditorUtil.createComboBox(array);
 	}
 	
-	
 	/** Initializes the components. */
 	private void initComponents()
 	{
 		resetBoxes();
 		fieldsFilter = new LinkedHashMap<String, DataComponent>();
-		
 		unsetFilter = null;
 		unsetFilterShown = false;
 	}
