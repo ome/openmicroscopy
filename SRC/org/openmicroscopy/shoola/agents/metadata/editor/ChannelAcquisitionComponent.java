@@ -492,6 +492,7 @@ class ChannelAcquisitionComponent
 				lightPane.displayLightSource(kind, details);
 				lightPane.setVisible(true);
 			}
+			/*
 			details = EditorUtil.transformDichroic(data.getDichroic());
 			notSet = (List) details.get(EditorUtil.NOT_SET);
 			if (notSet.size() != EditorUtil.MAX_FIELDS_DICHROIC) {
@@ -506,7 +507,7 @@ class ChannelAcquisitionComponent
 			populateFilter(data.getExcitationFilter(), excitationFilterPanes);
 			populateFilter(data.getSecondaryExcitationFilter(), 
 					excitationFilterPanes);
-			
+			*/
 			//data.get
 			buildGUI();
 		}
