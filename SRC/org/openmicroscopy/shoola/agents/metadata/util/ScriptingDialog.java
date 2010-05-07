@@ -25,8 +25,10 @@ package org.openmicroscopy.shoola.agents.metadata.util;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
@@ -47,6 +49,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -63,6 +66,7 @@ import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
 import pojos.ExperimenterData;
 
 /** 
@@ -92,15 +96,18 @@ public class ScriptingDialog
 	 */
 	private static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
 	
+	/** The background of the description. */
+	private static final Color		BG_COLOR = Color.LIGHT_GRAY;
+	
 	/** Title of the dialog. */
 	private static final String		TITLE = "Run Script";
 	
 	/** The text displayed in the header. */
 	private static final String		TEXT = "Set the parameters for the " +
-			"script ";
+			"selected script: ";
 	
 	/** The text displayed in the header. */
-	private static final String		TEXT_END = ".\n"+ScriptComponent.REQUIRED +
+	private static final String		TEXT_END = ScriptComponent.REQUIRED +
 			" indicates the required parameter.";
 	
 	/** Indicates to close the dialog. */
@@ -419,6 +426,24 @@ public class ScriptingDialog
 		return p;
 	}
 	
+	/**
+	 * Returns the component displaying the description of the script.
+	 * 
+	 * @return See above.
+	 */
+	private JComponent buildDescriptionPane()
+	{
+		String description = script.getDescription();
+		if (description == null || description.trim().length() == 0) 
+			return  null;
+		OMEWikiComponent area = new OMEWikiComponent(false);
+		area.setEnabled(false);
+		area.setText(description);
+		JPanel p = UIUtilities.buildComponentPanel(area);
+		p.setBackground(BG_COLOR);
+		area.setBackground(BG_COLOR);
+		return p;
+	}
 	/** 
 	 * Builds the component displaying the parameters.
 	 * 
@@ -433,10 +458,19 @@ public class ScriptingDialog
 		layout.setColumn(columns);
 		p.setLayout(layout);
 		int row = 0;
+		JComponent area = buildDescriptionPane();
+		if (area != null) {
+			layout.insertRow(row, TableLayout.PREFERRED);
+			p.add(area, "0,"+row+", 2, "+row);
+			row++;
+			layout.insertRow(row, TableLayout.PREFERRED);
+			p.add(new JSeparator(), "0,"+row+", 2, "+row);
+			row++;
+		}
+		
 		Entry entry;
 		Iterator i = components.entrySet().iterator();
 		ScriptComponent comp;
-		JLabel label;
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			comp = (ScriptComponent) entry.getValue();
@@ -446,6 +480,12 @@ public class ScriptingDialog
 			row++;
 		}
 		
+		JLabel label = new JLabel(TEXT_END);
+		Font font = label.getFont();
+		label.setFont(font.deriveFont(font.getStyle(), font.getSize()-2));
+		label.setForeground(Color.RED);
+		layout.insertRow(row, TableLayout.PREFERRED);
+		p.add(UIUtilities.buildComponentPanel(label), "0,"+row+",2, "+row);
 		JXTaskPane pane = null;
 		if (script.hasDetails()) {
 			pane = new JXTaskPane();
@@ -465,7 +505,7 @@ public class ScriptingDialog
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		String text = TEXT+script.getName()+TEXT_END;
+		String text = TEXT+script.getName();
 		TitlePanel tp = new TitlePanel(TITLE, text, script.getIconLarge());
 		Container c = getContentPane();
 		c.setLayout(new BorderLayout(0, 0));

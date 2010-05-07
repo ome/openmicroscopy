@@ -104,8 +104,9 @@ public class OMEWikiConstants
 	/** Indent regex. */
 	static final String INDENTREGEX = "^[:]+"+SENTENCEREGEX+"$";
 		
-	/** Regex expression defining url. */
-	static final String URLREGEX = "(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
+	/** Regex expression defining URL. */
+	static final String URLREGEX = 
+		"(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
 	
 	/** Regex for names linked regex. */
 	static final String NAMEDLINKREGEX = "\\["+URLREGEX+"[ ]+"+SENTENCEREGEX+"\\]";

@@ -1729,7 +1729,6 @@ class OMEROGateway
 		reServices.clear();
 	}
 	
-	
 	/**
 	 * Converts the specified type to its corresponding type for search.
 	 * 
@@ -4952,6 +4951,7 @@ class OMEROGateway
 				LogicalChannel lc = (LogicalChannel) l.get(0);
 				return new ChannelAcquisitionData(lc);
 			}
+			
 			return null;
 		} catch (Exception e) {
 			handleException(e, "Cannot load channel acquisition data.");

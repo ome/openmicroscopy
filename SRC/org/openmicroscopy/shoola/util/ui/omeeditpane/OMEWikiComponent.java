@@ -295,8 +295,11 @@ public class OMEWikiComponent
 	void onSelection(SelectionAction action, String text, int count)
 	{
 		if (action == null) return;
+		int ref = 2;
+		System.err.println(isEnabled());
+		if (!isEnabled()) ref = 1;
 		//depending on the type of action.
-		if ((action instanceof ElementSelectionAction) && count == 2) {
+		if ((action instanceof ElementSelectionAction) && count == ref) {
 			action.onSelection(text);
 			ElementSelectionAction a = (ElementSelectionAction) action;
 			int index = a.getWikiDataObjectIndex();
@@ -305,7 +308,7 @@ public class OMEWikiComponent
 				WikiDataObject object = new WikiDataObject(index, id);
 				firePropertyChange(WIKI_DATA_OBJECT_PROPERTY, null, object);
 			}
-		} else if ((action instanceof URLLaunchAction) && count == 2) {
+		} else if ((action instanceof URLLaunchAction) && count == ref) {
 			action.onSelection(text);
 		}
 	}

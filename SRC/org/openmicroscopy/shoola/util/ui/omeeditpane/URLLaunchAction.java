@@ -31,7 +31,7 @@ package org.openmicroscopy.shoola.util.ui.omeeditpane;
 import org.openmicroscopy.shoola.util.ui.BrowserLauncher;
 
 /** 
- * Action to launch an url.
+ * Action to launch a URL.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

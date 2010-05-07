@@ -59,8 +59,11 @@ public class WikiDataObject
 	/** Identifies a <code>Protocol</code>. */
 	public static final int PROTOCOL = 4;
 	
+	/** Identifies a <code>URL</code>. */
+	public static final int URL = 5;
+	
 	/** Identifies an unrecognized data type */
-	public static final int OTHER = 5;
+	public static final int OTHER = 6;
 	
 	/** One of the constants defined by this class. */
 	private int 	index;
@@ -159,7 +162,8 @@ public class WikiDataObject
 				index = PROJECT;
 			} else if (regex.contains("Dataset")) {
 				index = DATASET;
-			}
+			} else if (regex.contains("http") || regex.contains("www"))
+				index = URL;
 		}
 		
 		return index;

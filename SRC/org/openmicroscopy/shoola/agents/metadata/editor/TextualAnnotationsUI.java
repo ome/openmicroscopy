@@ -193,15 +193,6 @@ class TextualAnnotationsUI
 	 */
 	private boolean hasPreviousTextualAnnotations()
 	{
-		/*
-		Map<Long, List> m = model.getTextualAnnotationByOwner();
-		long userID = MetadataViewerAgent.getUserDetails().getId();
-		int n = m.size();
-		if (n == 0) return false;
-		if (n == 1 && m.containsKey(userID)) return false;
-		if (n >= 1) return true;
-		return false;
-		*/
 		List l = model.getTextualAnnotationsByDate();
 		if (l == null || l.size() == 0) return false;
 		return true;
