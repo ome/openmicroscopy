@@ -14,9 +14,13 @@ import uuid
 import logging
 import unittest
 
+from path import path
+
 import omero
 from omero.scripts import *
 from omero.util.temp_files import create_path
+
+SCRIPTS = path(".") / "scripts" / "omero"
 
 class TestParse(unittest.TestCase):
 
@@ -110,6 +114,13 @@ class TestParse(unittest.TestCase):
         self.assertEquals("these", groupings["A"]["1"], str(groupings))
         self.assertEquals("belong", groupings["A"]["2"], str(groupings))
         self.assertEquals("together", groupings["A"]["3"], str(groupings))
+
+    def testParseAllOfficialScripts(self):
+        for script in SCRIPTS.walk("*.py"):
+            try:
+                params = parse_file(str(script))
+            except exceptions.Exception, e:
+                self.fail("%s\n%s" % (script, e))
 
 if __name__ == '__main__':
     logging.basicConfig()

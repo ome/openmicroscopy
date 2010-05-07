@@ -42,8 +42,12 @@ class Type(omero.grid.Param):
     kwargs
     """
     PROTOTYPE_FUNCTION = None
+    PROTOTYPE_DEFAULT = None
+    PROTOTYPE_MIN = None
+    PROTOTYPE_MAX = None
+    PROTOTYPE_VALUES = None
 
-    def __init__(self, name, optional = False, out = False, description = None, **kwargs):
+    def __init__(self, name, optional = True, out = False, description = None, default = None, **kwargs):
 
 	omero.grid.Param.__init__(self)
 
@@ -57,21 +61,44 @@ class Type(omero.grid.Param):
         self.description = description
         self.optional = optional
 
-        # First assign all the kwargs
+        # Assign all the kwargs
         for k, v in kwargs.items():
             if not hasattr(self, k):
                 TYPE_LOG.warn("Unknown property: %s", k)
             setattr(self, k, v)
 
+        _DEF = self.PROTOTYPE_DEFAULT is not None and self.PROTOTYPE_DEFAULT or None
+        _FUN = self.PROTOTYPE_FUNCTION is not None and self.PROTOTYPE_FUNCTION.im_func or None
+        _MAX = self.PROTOTYPE_MAX is not None and self.PROTOTYPE_MAX.im_func or None
+        _MIN = self.PROTOTYPE_MIN is not None and self.PROTOTYPE_MIN.im_func or None
+        _VAL = self.PROTOTYPE_VALUES is not None and self.PROTOTYPE_VALUES.im_func or None
+
+        if default is not None:
+            # Someone specifically set the prototype, then
+            # we assume that useDefault should be True
+            self.useDefault = True
+            self.prototype = _FUN(default)
+        else:
+            if not callable(_FUN):
+                raise ValueError("Bad prototype function: %s" % _FUN)
+
+            # To prevent weirdness, if the class default is
+            # callable, we'll assume its a constructor and
+            # create a new one to prevent modification.
+            try:
+                _def = _DEF()
+            except TypeError:
+                _def = _DEF
+            self.prototype = _FUN(_def)
+
         # The following use wrap to guarantee that an rtype is present
-        self.min = wrap(self.min)
-        self.max = wrap(self.max)
-        self.values = wrap(self.values)
-
-        if not callable(self.__class__.PROTOTYPE_FUNCTION):
-            raise ValueError("Bad prototype function: %s" % self.__class__.PROTOTYPE_FUNCTION)
-
-        self.prototype = self.__class__.PROTOTYPE_FUNCTION(self)
+        if self.min is not None: self.min = _MIN is None and _FUN(self.min) or _MIN(self.min)
+        if self.max is not None: self.max = _MAX is None and _FUN(self.max) or _MAX(self.max)
+        if self.values is not None:
+            if _VAL is None:
+                _VAL = _FUN
+            self.values = rlist(self.values)
+            self.values = rlist([_VAL(x) for x in self.values.val])
 
     def out(self):
         self._in = False
@@ -92,42 +119,72 @@ class Long(Type):
     """
     Wraps an rlong
     """
-    PROTOTYPE_FUNCTION = lambda self: rlong(0)
+    PROTOTYPE_FUNCTION = rlong
+    PROTOTYPE_DEFAULT = 0
+
+
+class Int(Type):
+    """
+    Wraps an rint
+    """
+    PROTOTYPE_FUNCTION = rint
+    PROTOTYPE_DEFAULT = 0
+
+
+class Double(Type):
+    """
+    Wraps an rdouble
+    """
+    PROTOTYPE_FUNCTION = rdouble
+    PROTOTYPE_DEFAULT = 0.0
+
+
+class Float(Type):
+    """
+    Wraps an rfloat
+    """
+    PROTOTYPE_FUNCTION = rfloat
+    PROTOTYPE_DEFAULT = 0.0
 
 
 class String(Type):
     """
     Wraps an rstring
     """
-    PROTOTYPE_FUNCTION = lambda self: rstring("")
+    PROTOTYPE_FUNCTION = rstring
+    PROTOTYPE_DEFAULT = ""
 
 
 class Bool(Type):
     """
     Wraps an rbool
     """
-    PROTOTYPE_FUNCTION = lambda self: rbool(False)
+    PROTOTYPE_FUNCTION = rbool
+    PROTOTYPE_DEFAULT = False
 
 
 class Color(Type):
     """
     Wraps an rinternal(Color)
     """
-    PROTOTYPE_FUNCTION = lambda self: rinternal(omero.Color())
+    PROTOTYPE_FUNCTION = rinternal
+    PROTOTYPE_DEFAULT = omero.Color
 
 
 class Point(Type):
     """
     Wraps an rinternal(Point)
     """
-    PROTOTYPE_FUNCTION = lambda self: rinternal(omero.Point())
+    PROTOTYPE_FUNCTION = rinternal
+    PROTOTYPE_FUNCTION = omero.Point
 
 
 class Plane(Type):
     """
     Wraps an rinternal(Plane)
     """
-    PROTOTYPE_FUNCTION = lambda self: rinternal(omero.Plane())
+    PROTOTYPE_FUNCTION = rinternal
+    PROTOTYPE_DEFAULT = omero.Plane
 
 
 class __Coll(Type):
@@ -135,6 +192,7 @@ class __Coll(Type):
     Base type providing the append and extend functionality.
     Not for user use.
     """
+    PROTOTYPE_DEFAULT = list
 
     def append(self, *arg):
         self.prototype.val.append(*arg)
@@ -148,7 +206,7 @@ class Set(__Coll):
     Wraps an rset. To add values to the contents of the set,
     use "append" or "extend" since set.val is of type list.
     """
-    PROTOTYPE_FUNCTION = lambda self: rset()
+    PROTOTYPE_FUNCTION = rset
 
 
 class List(__Coll):
@@ -156,7 +214,7 @@ class List(__Coll):
     Wraps an rlist. To add values to the contents of the list,
     use "append" or "extend" since set.val is of type list.
     """
-    PROTOTYPE_FUNCTION = lambda self: rlist()
+    PROTOTYPE_FUNCTION = rlist
 
 
 class Map(Type):
@@ -164,7 +222,8 @@ class Map(Type):
     Wraps an rmap. To add values to the contents of the map,
     use "update" since map.val is of type dict.
     """
-    PROTOTYPE_FUNCTION = lambda self: rmap()
+    PROTOTYPE_FUNCTION = rmap
+    PROTOTYPE_DEFAULT = dict
 
     def update(self, *args, **kwargs):
         self.prototype.val.update(*args, **kwargs)
@@ -287,11 +346,11 @@ def parse_text(scriptText):
         old = os.environ.get("ICE_CONFIG")
         try:
             os.environ["ICE_CONFIG"] = cfg.abspath()
-            exec(scriptText)
+            exec(scriptText, {"__name__":"__main__"})
+            raise exceptions.Exception("Did not throw ParseExit: %s" % scriptText)
         finally:
             if old:
                 os.environ["ICE_CONFIG"] = old
-        self.fail("Did not throw ParseExit")
     except ParseExit, exit:
         return exit.params
 
@@ -303,6 +362,7 @@ def parse_file(filename):
     WARNING: This method calls "exec" on the given file's contents.
     Do NOT use this on data you don't trust.
     """
+    from path import path
     scriptText = path(filename).text()
     return parse_text(scriptText)
 
