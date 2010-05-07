@@ -47,6 +47,18 @@ public interface RawFileStore extends StatefulServiceInterface {
     public byte[] read(long position, int length);
 
     /**
+     * Returns the size of the file on disk (not as stored in the database since
+     * that value will only be updated on {@link #save()}.
+     */
+    public long size();
+
+    /**
+     * Limits the size of a file to the given length. If the file is already
+     * shorter than length, no action is taken in which case false is returned.
+     */
+    public boolean truncate(long length);
+
+    /**
      * Delegates to {@link ome.io.nio.FileBuffer}
      * 
      * @see ome.io.nio.FileBuffer#write(java.nio.ByteBuffer, long)

@@ -266,13 +266,47 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     }
 
     @RolesAllowed("user")
+    public boolean truncate(long length) {
+        errorIfNotLoaded();
+
+        try {
+            if (length < buffer.size()) {
+                buffer.truncate(length);
+                modified();
+                return true;
+            }
+            return false;
+        } catch (IOException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Buffer write did not occur.", e);
+            }
+            throw new ResourceError(e.getMessage());
+        }
+    }
+
+
+    @RolesAllowed("user")
+    public long size() {
+        errorIfNotLoaded();
+
+        try {
+            return buffer.size();
+        } catch (IOException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Buffer write did not occur.", e);
+            }
+            throw new ResourceError(e.getMessage());
+        }
+    }
+
+    @RolesAllowed("user")
     public void write(byte[] buf, long position, int length) {
         errorIfNotLoaded();
         ByteBuffer nioBuffer = MappedByteBuffer.wrap(buf);
         nioBuffer.limit(length);
 
         if (diskSpaceChecking) {
-        	iRepositoryInfo.sanityCheckRepository();
+            iRepositoryInfo.sanityCheckRepository();
         }
         
         try {

@@ -128,4 +128,12 @@ public class FileBuffer extends AbstractBuffer {
     String getName() {
         return file.getName();
     }
+
+    public long size() throws IOException {
+        return getFileChannel().size();
+    }
+
+    public void truncate(long size) throws IOException {
+        getFileChannel().truncate(size);
+    }
 }

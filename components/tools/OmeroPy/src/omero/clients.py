@@ -601,6 +601,7 @@ class BaseClient(object):
 
             prx = self.__sf.createRawFileStore()
             prx.setFileId(ofile.id.val)
+            prx.truncate(size) # ticket:2337
             offset = 0
             while True:
                 block = file.read(block_size)
