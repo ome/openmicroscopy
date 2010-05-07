@@ -71,25 +71,45 @@ class TestParse(unittest.TestCase):
                 Long('together', grouping="A.3"))"""
         params = parse_text(SCRIPT)
 
-        groupings = dict()
-        for k, v in params.inputs.items():
-            parts = v.grouping.split(".")
-            g = groupings
-            while parts:
-                p = parts.pop(0)
-                try:
-                    g = g[p]
-                except KeyError:
-                    if parts:
-                        g[p] = dict()
-                        g = g[p]
-                    else:
-                        g[p] = k
-
+        groupings = group_params(params)
         self.assertEquals("these", groupings["A"]["1"], str(groupings))
         self.assertEquals("belong", groupings["A"]["2"], str(groupings))
         self.assertEquals("together", groupings["A"]["3"], str(groupings))
 
+    def testGroupingWithMain(self):
+        SCRIPT = """if True:
+            from omero.scripts import *
+            c = client('testGrouping',
+                Bool('checkbox', grouping="A"),
+                Long('these', grouping="A.1"),
+                Long('belong', grouping="A.2"),
+                Long('together', grouping="A.3"))"""
+        params = parse_text(SCRIPT)
+
+        groupings = group_params(params)
+        try:
+            self.assertEquals("checkbox", groupings["A"][""], str(groupings))
+            self.assertEquals("these", groupings["A"]["1"], str(groupings))
+            self.assertEquals("belong", groupings["A"]["2"], str(groupings))
+            self.assertEquals("together", groupings["A"]["3"], str(groupings))
+        except KeyError:
+            self.fail(str(groupings))
+
+    def testGroupingWithMainExtraDot(self):
+        SCRIPT = """if True:
+            from omero.scripts import *
+            c = client('testGrouping',
+                Bool('checkbox', grouping="A."),
+                Long('these', grouping="A.1"),
+                Long('belong', grouping="A.2"),
+                Long('together', grouping="A.3"))"""
+        params = parse_text(SCRIPT)
+
+        groupings = group_params(params)
+        self.assertEquals("checkbox", groupings["A"][""], str(groupings))
+        self.assertEquals("these", groupings["A"]["1"], str(groupings))
+        self.assertEquals("belong", groupings["A"]["2"], str(groupings))
+        self.assertEquals("together", groupings["A"]["3"], str(groupings))
 
 if __name__ == '__main__':
     logging.basicConfig()

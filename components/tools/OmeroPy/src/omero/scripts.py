@@ -306,6 +306,68 @@ def parse_file(filename):
     scriptText = path(filename).text()
     return parse_text(scriptText)
 
+
+def group_params(params):
+    """
+    Walks through the inputs of the given JobParams
+    and returns a map-of-maps with Param names as
+    the leaf nodes.
+
+    For example, for the following:
+
+        Params("1", grouping = "A") # "A." is equivalent
+        Params("2", grouping = "A.B")
+        Params("3", grouping = "A.C")
+
+    this function returns:
+
+        {"A" {"": "1" : "B" : "2", "C" : "3"} }
+
+    while:
+
+        Params("1", grouping = "A")
+
+    returns:
+
+        {"A" : "1"}
+
+    """
+    groupings = dict()
+    for k, v in params.inputs.items():
+
+        val = v.grouping
+        if not val.endswith("."):
+            val = val + "."
+
+        parts = val.split(".")
+
+        g = groupings
+        while parts:
+            p = parts.pop(0)
+            try:
+                g = g[p]
+            except KeyError:
+                if parts:
+                    g[p] = dict()
+                    g = g[p]
+                else:
+                    g[p] = k
+
+        # Now find all subtrees of the form {"": "key"} and
+        # replace them by themselves
+        tuples = [(groupings, k, v) for k, v in groupings.items()]
+        while tuples:
+            new_tuples = []
+            for g, k, v in tuples:
+                if isinstance(v, dict):
+                    if len(v) == 1 and "" in v:
+                        g[k] = v[""]
+                    else:
+                        new_tuples.extend([(v, k2, v2) for k2, v2 in v.items()])
+            tuples = new_tuples
+
+    return groupings
+
 def error_msg(category, key, format_string, *args):
     c = "%s" % (category.upper())
     s = """%s for "%s": %s\n""" % (c, key, format_string)
