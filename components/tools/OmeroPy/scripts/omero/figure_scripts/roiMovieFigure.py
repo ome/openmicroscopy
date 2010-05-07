@@ -689,10 +689,9 @@ def runAsScript():
     """
     
     def makeParam(paramClass, name, description=None, optional=True, min=None, max=None, values=None, default=None):
-        #print "name:", name, "min:", min, "max", max, "values", values, "default", default
-        param = paramClass(name, optional, description=description)
-        # commented out till #2323 is fixed! 
-        #param = paramClass(name, optional, description=description, min=min, max=max, values=values)
+        param = paramClass(name, optional, description=description, min=min, max=max, values=values)
+        #if max: param.max = rlong(max) # should only be using max and min for scripts.Long
+        #if min: param.min = rlong(min)
         if default:
             param.type(default)
             param.useDefault = True
@@ -706,22 +705,24 @@ def runAsScript():
     cOptions = [rstring('red'),rstring('green'),rstring('blue'),rstring('yellow'),rstring('white')]
     
     client = scripts.client('roiMovieFigure.py', 'Create a figure of movie frames from ROI region of image.', 
-    makeParam(scripts.List,"Image_IDs", "List of image IDs. Resulting figure will be attached to first image", False), 
-    makeParam(scripts.List,"Merged_Colours", "A list of colours to apply to merged channels. E.g. 'red' 'green' 'blue'", values=cOptions), 
-    makeParam(scripts.List,"Merged_Channels", "A list of channel indexes to display"),                   
-    makeParam(scripts.Long,"Width","Max width of each image panel", min=1),   
-    makeParam(scripts.Long,"Height","The max height of each image panel", min=1),
-    makeParam(scripts.String,"Image_Labels","Label images with the IMAGENAME or DATASETS or TAGS", values=labels),               
-    makeParam(scripts.String,"Algorithm", "Algorithum for projection.", values=algorithums),
-    makeParam(scripts.Long,"Scalebar", "Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
-    makeParam(scripts.String,"Format", "Format to save image. E.g 'PNG'.", values=formats, default='JPEG'),
-    makeParam(scripts.String,"Figure_Name", "File name of the figure to save."),
-    makeParam(scripts.String,"Scalebar_Colour", "The colour of the scalebar. Default is white",default='white',values=cOptions),
-    makeParam(scripts.Long,"Roi_Zoom", "How much to zoom the ROI. E.g. x 2. If 0 then zoom roi panel to fit"),
-    makeParam(scripts.Long,"Max_Columns", "The maximum number of columns in the figure, for ROI-movie frames."),
-    makeParam(scripts.Bool,"Show_Roi_Duration", "If true, times shown are from the start of the ROI frames, otherwise use movie timestamp."),
-    makeParam(scripts.String,"Roi_Selection_Label", roiLabel),
-    makeParam(scripts.Long,"File_Annotation", "Script returns a File Annotation ID of attached Figure").out()
+    #makeParam(scripts.List,"Image_IDs", "List of image IDs. Resulting figure will be attached to first image", False), 
+    #scripts.List("Image_IDs", description="List of Images. Figure will be attached to first image").append(robject(omero.model.ImageI())),
+    scripts.List("Image_IDs", description="List of Images. Figure will be attached to first image"),
+    scripts.List("Merged_Colours", description="A list of colours to apply to merged channels. E.g. 'red' 'green' 'blue'", values=cOptions), 
+    scripts.List("Merged_Channels", description="A list of channel indexes to display"),                   
+    scripts.Int("Width",description="Max width of each image panel", min=1),   
+    scripts.Int("Height",description="The max height of each image panel", min=1),
+    scripts.String("Image_Labels",description="Label images with the Image Name or Datasets or Tags", values=labels),               
+    scripts.String("Algorithm", description="Algorithum for projection.", values=algorithums),
+    scripts.Int("Scalebar", description="Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
+    scripts.String("Format", description="Format to save image. E.g 'PNG'.", values=formats, default='JPEG'),
+    scripts.String("Figure_Name", description="File name of the figure to save."),
+    scripts.String("Scalebar_Colour", description="The colour of the scalebar. Default is white",default='white',values=cOptions),
+    scripts.Int("Roi_Zoom", description="How much to zoom the ROI. E.g. x 2. If 0 then zoom roi panel to fit"),
+    scripts.Int("Max_Columns", description="The maximum number of columns in the figure, for ROI-movie frames.", min=1),
+    scripts.Bool("Show_Roi_Duration", description="If true, times shown are from the start of the ROI frames, otherwise use movie timestamp."),
+    scripts.String("Roi_Selection_Label", description=roiLabel),
+    scripts.Long("File_Annotation", description="Script returns a File Annotation ID of attached Figure").out()
     )
     
     session = client.getSession();
@@ -733,6 +734,8 @@ def runAsScript():
         if client.getInput(key):
             commandArgs[key] = client.getInput(key).getValue()
     
+    print commandArgs
+    return
     # call the main script, attaching resulting figure to Image. Returns the id of the originalFileLink child. (ID object, not value)
     fileId = roiFigure(session, commandArgs)
     # return this fileAnnotation to the client. 
