@@ -13,12 +13,15 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 
 import omero.ServerError;
 import omero.api.AMD_RawFileStore_exists;
 import omero.api.AMD_RawFileStore_read;
 import omero.api.AMD_RawFileStore_save;
 import omero.api.AMD_RawFileStore_setFileId;
+import omero.api.AMD_RawFileStore_size;
+import omero.api.AMD_RawFileStore_truncate;
 import omero.api.AMD_RawFileStore_write;
 import omero.api.AMD_StatefulServiceInterface_activate;
 import omero.api.AMD_StatefulServiceInterface_close;
@@ -84,6 +87,32 @@ public class RepoRawFileStoreI extends _RawFileStoreDisp {
             __cb.ice_exception(convert(t));
         }
 
+    }
+
+
+    public void size_async(AMD_RawFileStore_size __cb, Current __current)
+            throws ServerError {
+        try {
+            long size = this.rafile.getChannel().size();
+            __cb.ice_response(size);
+        } catch (Throwable t) {
+            __cb.ice_exception(convert(t));
+        }
+    }
+
+    public void truncate_async(AMD_RawFileStore_truncate __cb, long length,
+            Current __current) throws ServerError {
+        try {
+            FileChannel fc = this.rafile.getChannel();
+            if (fc.size() < length) {
+                __cb.ice_response(false);
+            } else {
+                this.rafile.getChannel().truncate(length);
+                __cb.ice_response(true);
+            }
+        } catch (Throwable t) {
+            __cb.ice_exception(convert(t));
+        }
     }
 
     public void write_async(AMD_RawFileStore_write __cb, byte[] buf,
@@ -171,4 +200,5 @@ public class RepoRawFileStoreI extends _RawFileStoreDisp {
         return se;
 
     }
+
 }
