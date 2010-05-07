@@ -359,6 +359,14 @@ public class MetadataImpl
     	list = iQuery.findAllByQuery(sb.toString(), params);
     	if (list != null) results.addAll(list);
     	
+    	//filter set
+    	sb = new StringBuilder();
+    	sb.append("select f from FilterSet as f ");
+    	sb.append("left outer join fetch f.dichroic as dichroic ");
+    	sb.append("where f.instrument.id = :instrumentId");
+    	list = iQuery.findAllByQuery(sb.toString(), params);
+    	if (list != null) results.addAll(list);
+    	
     	//dichroics
     	sb = new StringBuilder();
     	sb.append("select d from Dichroic as d ");
@@ -415,6 +423,34 @@ public class MetadataImpl
         sb.append("left outer join fetch channel.mode as mode ");
         sb.append("left outer join fetch channel.filterSet as filter ");
         sb.append("left outer join fetch filter.dichroic as dichroic ");
+        //emission filters
+        sb.append("left outer join fetch filter.emissionFilterLink as efl ");
+        sb.append("left outer join fetch efl.child as ef ");
+        sb.append("left outer join fetch ef.transmittanceRange as efTrans ");
+        sb.append("left outer join fetch ef.type as type1 ");
+        
+        //excitation filters
+        sb.append("left outer join fetch filter.excitationFilterLink as exfl ");
+        sb.append("left outer join fetch exfl.child as exf ");
+        sb.append("left outer join fetch exf.transmittanceRange as exfTrans ");
+        sb.append("left outer join fetch exf.type as type2 ");
+        
+        sb.append("left outer join fetch channel.lightPath as lp ");
+        sb.append("left outer join fetch lp.dichroic as dichroic ");
+        
+      //emission filters
+        sb.append("left outer join fetch lp.emissionFilterLink as efLpl ");
+        sb.append("left outer join fetch efLpl.child as efLp ");
+        sb.append("left outer join fetch efLp.transmittanceRange as efLpTrans ");
+        sb.append("left outer join fetch efLp.type as type3 ");
+        
+        //excitation filters
+        sb.append("left outer join fetch lp.excitationFilterLink as exfLpl ");
+        sb.append("left outer join fetch exfLpl.child as exfLp ");
+        sb.append("left outer join fetch exfLp.transmittanceRange as exfLpTrans ");
+        sb.append("left outer join fetch exfLp.type as type4 ");
+        
+        /*
         sb.append("left outer join fetch filter.emFilter as ef ");
         sb.append("left outer join fetch filter.exFilter as exf ");
         sb.append("left outer join fetch channel.secondaryEmissionFilter as emfilter ");
@@ -429,7 +465,7 @@ public class MetadataImpl
         
         sb.append("left outer join fetch exf.transmittanceRange as exfTrans ");
         sb.append("left outer join fetch ef.transmittanceRange as efTrans ");
-        
+        */
         sb.append("left outer join fetch ds.detector as detector ");
         sb.append("left outer join fetch detector.type as dt ");
         sb.append("left outer join fetch ds.binning as binning ");
