@@ -68,8 +68,7 @@ Syntax: %(program_name)s upload pytable <filename> [1..n]
             ofile.name = rstring(name)
             ofile.path = rstring(os.path.abspath(file.name));
             fmt = omero.util.originalfileutils.getFormat(filename);
-            ofile.format =  omero.model.FormatI();
-            ofile.format.value = rstring(fmt[1]);
+            ofile.mimetype = fmt[1]
             up = self.client.getSession().getUpdateService()
             ofile = up.saveAndReturnObject(ofile)
         finally:
@@ -77,12 +76,12 @@ Syntax: %(program_name)s upload pytable <filename> [1..n]
         return ofile;
 
     def uploadFile(self, filename, originalFile = None):
-        format = omero.util.originalfileutils.getFormat(filename);
-        omeroFormat = format[1];    
+        format = omero.util.originalfileutils.getFormat(filename)
+        omeroFormat = format[1]
         if(format[0]==omero.util.originalfileutils.IMPORTER):
-            self.ctx.out("This file should be imported using omero import");
-        return self.client.upload(filename, filename, filename, omeroFormat, originalFile)
-    
+            self.ctx.out("This file should be imported using omero import")
+        return self.client.upload(filename, type=omeroFormat, ofile=originalFile)
+
     def uploadFromString(self, string, originalFile):
         prx = self.client.getSession().createRawFileStore()
         prx.setFileId(originalFile.id.val)

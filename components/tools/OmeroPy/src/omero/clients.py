@@ -565,6 +565,8 @@ class BaseClient(object):
         if not os.path.exists(filename):
             raise ClientError("File does not exist: " + filename)
 
+        from path import path as __path__
+        filepath = __path__(filename)
         file = open(filename, 'rb')
         try:
 
@@ -578,14 +580,15 @@ class BaseClient(object):
             ofile.size = omero.rtypes.rlong(size)
             ofile.sha1 = omero.rtypes.rstring(self.sha1(file.name))
 
+            abspath = filepath.normpath().abspath()
             if not ofile.name:
                 if name:
                     ofile.name = omero.rtypes.rstring(name)
                 else:
-                    ofile.name = omero.rtypes.rstring(file.name)
+                    ofile.name = omero.rtypes.rstring(str(abspath.basename()))
 
             if not ofile.path:
-                ofile.path = omero.rtypes.rstring(os.path.abspath(file.name))
+                ofile.path = omero.rtypes.rstring(str(abspath.dirname())+os.path.sep)
 
             if not ofile.mimetype:
                 if type:
