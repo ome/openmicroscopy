@@ -78,7 +78,7 @@ import pojos.WellSampleData;
  * </small>
  * @since OME3.0
  */
-public class EditorUI 
+class EditorUI 
 	extends JPanel
 {
 	
@@ -752,5 +752,11 @@ public class EditorUI
 	{
 		if (userUI != null) userUI.setUserPhoto(photo);
 	}
+	
+	/** Notifies the parent to upload the script. */
+    void uploadScript()
+    {
+    	model.uploadScript();
+    }
 	
 }

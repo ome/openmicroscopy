@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 //Java imports
 import java.awt.Component;
+import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
@@ -1046,6 +1047,9 @@ class TreeViewerControl
 			model.register((FileDataRegistration) pce.getNewValue());
 		} else if (MetadataViewer.RESET_PASSWORD_PROPERTY.equals(name)) {
 			model.resetPassword((String) pce.getNewValue());
+		} else if (MetadataViewer.UPLOAD_SCRIPT_PROPERTY.equals(name)) {
+			TreeViewerAction action = getAction(UPLOAD_SCRIPT);
+			action.actionPerformed(new ActionEvent(this, 1, ""));
 		}
 	}
 	

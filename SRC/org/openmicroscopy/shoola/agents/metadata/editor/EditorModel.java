@@ -64,7 +64,6 @@ import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
 import org.openmicroscopy.shoola.agents.metadata.ScriptLoader;
 import org.openmicroscopy.shoola.agents.metadata.ScriptsLoader;
 import org.openmicroscopy.shoola.agents.metadata.TagsLoader;
-import org.openmicroscopy.shoola.agents.metadata.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.metadata.UserPhotoLoader;
 import org.openmicroscopy.shoola.agents.metadata.UserPhotoUploader;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
@@ -79,7 +78,6 @@ import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
-import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -2446,6 +2444,10 @@ class EditorModel
     	}
     }
     
+    /**
+     * Starts an asynchronous call to load the photo of the currently 
+     * selected user.
+     */
     void fireExperimenterPhotoLoading()
     {
     	if (refObject instanceof ExperimenterData) {
@@ -2453,6 +2455,12 @@ class EditorModel
     		UserPhotoLoader loader = new UserPhotoLoader(component, exp);
     		loader.load();
     	}
+    }
+    
+    /** Notifies the parent to upload the script. */
+    void uploadScript()
+    {
+    	parent.uploadScript();
     }
     
 }

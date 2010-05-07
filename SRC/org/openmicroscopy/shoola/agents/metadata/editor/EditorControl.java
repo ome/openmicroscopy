@@ -161,6 +161,9 @@ class EditorControl
 	/** Action ID to create a movie figure with the collection of images. */
 	static final int	MOVIE_FIGURE = 16;
 	
+	/** Action ID to upload a script to the server. */
+	static final int	UPLOAD_SCRIPT = 17;
+	
     /** Reference to the Model. */
     private Editor		model;
     
@@ -563,6 +566,9 @@ class EditorControl
 				break;
 			case MOVIE_FIGURE:
 				model.createFigure(FigureDialog.MOVIE);
+				break;
+			case UPLOAD_SCRIPT:
+				view.uploadScript();
 		}
 	}
 	

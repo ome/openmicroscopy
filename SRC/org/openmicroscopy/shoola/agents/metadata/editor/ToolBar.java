@@ -107,6 +107,9 @@ class ToolBar
 	/** Button to bring up the list of scripts. */
 	private JButton			scriptsButton;
 	
+	/** Button to upload the . */
+	private JButton			uploadScriptButton;
+	
 	/** Indicates the loading progress. */
 	private JXBusyLabel		busyLabel;
 
@@ -208,8 +211,14 @@ class ToolBar
 				}
 			}
 		});
-		refreshButton.addActionListener(controller);
-		refreshButton.setActionCommand(""+EditorControl.REFRESH);
+		uploadScriptButton = new JButton(icons.getIcon(
+				IconManager.UPLOAD_SCRIPT));
+		uploadScriptButton.setToolTipText("Upload a script to the server.");
+		uploadScriptButton.addActionListener(controller);
+		uploadScriptButton.setActionCommand(""+EditorControl.UPLOAD_SCRIPT);
+		
+		UIUtilities.unifiedButtonLookAndFeel(uploadScriptButton);
+		
 		UIUtilities.unifiedButtonLookAndFeel(saveButton);
 		UIUtilities.unifiedButtonLookAndFeel(downloadButton);
 		UIUtilities.unifiedButtonLookAndFeel(rndButton);
@@ -245,7 +254,7 @@ class ToolBar
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(publishingButton);
     	bar.add(Box.createHorizontalStrut(5));
-    	bar.add(analysisButton);
+    	bar.add(uploadScriptButton);
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(scriptsButton);
     	return bar;

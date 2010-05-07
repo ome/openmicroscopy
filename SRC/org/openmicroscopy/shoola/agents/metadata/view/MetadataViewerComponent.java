@@ -1073,7 +1073,7 @@ class MetadataViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#setThumbnails(Map, long)
+	 * @see MetadataViewer#setThumbnails(Map, long)
 	 */
 	public void setThumbnails(Map<Long, BufferedImage> thumbnails, 
 							long imageID)
@@ -1091,6 +1091,16 @@ class MetadataViewerComponent
 		if (((ImageData) ref).getId() == imageID) {
 			view.setThumbnails(thumbnails);
 		}
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see MetadataViewer#uploadScript()
+	 */
+	public void uploadScript()
+	{
+		firePropertyChange(UPLOAD_SCRIPT_PROPERTY, Boolean.valueOf(false), 
+				Boolean.valueOf(true));
 	}
 	
 	/** 

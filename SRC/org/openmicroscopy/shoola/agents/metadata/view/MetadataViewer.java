@@ -152,6 +152,9 @@ public interface MetadataViewer
 	/** Bound property indicating to run a script. */
 	public static final String	RUN_SCRIPT_PROPERTY = "runScript";
 	
+	/** Bound property indicating to upload a script. */
+	public static final String	UPLOAD_SCRIPT_PROPERTY = "uploadScript";
+	
 	/** Bound property indicating to register a file. */
 	public static final String	REGISTER_PROPERTY = "register";
 	
@@ -588,4 +591,7 @@ public interface MetadataViewer
 	public void setThumbnails(Map<Long, BufferedImage> thumbnails, 
 							long imageID);
 
+	 /** Notifies to upload the script. */
+    void uploadScript();
+    
 }
