@@ -15,12 +15,12 @@ import tempfile
 import omero
 import omero.all
 
-import omero.util.concurrency
 import omero.processor
 import omero.scripts
 import omero.cli
 
 from omero.rtypes import *
+from omero.util.temp_files import create_path
 
 PUBLIC = omero.model.PermissionsI("rwrwrw")
 
@@ -221,6 +221,37 @@ class TestScripts(lib.ITest):
             invalidEdit = True
         except: pass
         self.assertFalse(invalidEdit, "editScript() failed to throw with invalid script")
-        
+
+    def testAutoFillTicket2326(self):
+        SCRIPT = """if True:
+        import omero.scripts
+        import omero.rtypes
+        client = omero.scripts.client("ticket2326", omero.scripts.Long("width", optional=True))
+        width = client.getInput("width")
+        print width
+        client.setOutput("noWidthKey", omero.rtypes.rbool("width" not in client.getInputKeys()))
+        client.setOutput("widthIsNull", omero.rtypes.rbool(width is None))
+        """
+        impl = omero.processor.usermode_processor(self.client)
+        svc = self.client.sf.getScriptService()
+        try:
+            scriptID = svc.uploadScript("/test/testAutoFillTicket2326", SCRIPT)
+            process = svc.runScript(scriptID, {}, None)
+            cb = omero.scripts.ProcessCallbackI(self.client, process)
+            while cb.block(500) is None:
+                pass
+            results = process.getResults(0)
+            stdout = results["stdout"].val
+            downloaded = create_path()
+            self.client.download(ofile=stdout, filename=str(downloaded))
+            text = downloaded.text().strip()
+            self.assertEquals("None", text)
+            self.assertTrue(results["widthIsNull"].val)
+            self.assertTrue(results["noWidthKey"].val)
+            self.assertTrue("stderr" not in results)
+        finally:
+            impl.cleanup()
+
+
 if __name__ == '__main__':
     unittest.main()
