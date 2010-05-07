@@ -36,14 +36,11 @@ class UploadControl(BaseControl):
 Syntax: %(program_name)s upload <filename> [1..n]
         Upload the given files to omero.
 
-Syntax: %(program_name)s upload script
-        Upload default scripts defined in default scripts to the server.
-
 Syntax: %(program_name)s upload pytable <filename> [1..n]
         Upload the given files to pytables in omero.
-        
+
     """
-    SCRIPT_ARG='scripts';
+
     PYTABLE_ARG='pytable';
     FILE_ARG='files';
 
@@ -85,47 +82,25 @@ Syntax: %(program_name)s upload pytable <filename> [1..n]
     def uploadFromString(self, string, originalFile):
         prx = self.client.getSession().createRawFileStore()
         prx.setFileId(originalFile.id.val)
-        strlen = len(string);
+        strlen = len(string)
         prx.write(string, 0, strlen)
         prx.close()
-        
+
     def readCommandArgs(self, commandline):
         script = False;
         pytable = False;
         files = list();
-        for arg in commandline: 
-            if arg in (self.SCRIPT_ARG):
-                script = True;
-            elif arg in (self.PYTABLE_ARG): 
-                pytable = True;	
+        for arg in commandline:
+            if arg in (self.PYTABLE_ARG):
+                pytable = True
             else:
                 files.append(arg);
-        return {self.SCRIPT_ARG:script, self.PYTABLE_ARG:pytable, self.FILE_ARG:files}	         
+        return {self.PYTABLE_ARG:pytable, self.FILE_ARG:files}
 
     def returnSource(self, filename):
         if(filename[len(filename)-3:] == 'pyc'):
             return filename[:len(filename)-1]
         return filename;
-    
-    def uploadDefaultScripts(self, args):
-        import defaultscripts;
-        scripts = defaultscripts.defaultscripts; 
-        for id in scripts:
-            script = scripts[id];
-            filename = "";
-            try:
-                importedScript = __import__(script);
-                filename = self.returnSource(importedScript.__file__);
-            except:
-                raise Exception("Script: " + script + " does not exist");
-            if not filename:
-                raise Exception("Non-null filename must be provided")
-
-            if not os.path.exists(filename):
-                raise Exception("File does not exist: " + filename)
-            
-            originalFile = self.createOriginalFile(None, script, filename);
-            self.uploadFile(filename, originalFile);
 
     def uploadFromCommandline(self, commandline):
         fileList = commandline[self.FILE_ARG];
@@ -138,14 +113,8 @@ Syntax: %(program_name)s upload pytable <filename> [1..n]
         args = Arguments(args)
         self.client = self.ctx.conn(args)
         argMap = self.readCommandArgs(args);
-        # if(argMap[self.SCRIPT_ARG]==True): # and argMap[self.PYTABLE_ARG] == True):
-        #   raise ClientError("upload can only be used with %s or %s arguments" % (self.SCRIPT_ARG, self.PYTABLE_ARG));
+        self.uploadFromCommandline(argMap);
 
-        if(argMap[self.SCRIPT_ARG]):
-            self.uploadDefaultScripts(argMap);
-        else:
-            self.uploadFromCommandline(argMap);
-       
 try:
     register("upload", UploadControl)
 except NameError:
