@@ -122,6 +122,16 @@ class TestParse(unittest.TestCase):
             except exceptions.Exception, e:
                 self.fail("%s\n%s" % (script, e))
 
+    def testValidateRoiMovieCall(self):
+        script = SCRIPTS / "figure_scripts" / "roiMovieFigure.py"
+        params = parse_file(str(script))
+        inputs = {
+            "Merged_Colours": wrap(['red', 'green']),
+            "Image_Labels": wrap("Datasets")
+        }
+        errors = validate_inputs(params, inputs)
+        self.assertEquals("", errors, errors)
+
 if __name__ == '__main__':
     logging.basicConfig()
     unittest.main()

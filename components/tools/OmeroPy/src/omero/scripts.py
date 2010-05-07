@@ -96,9 +96,9 @@ class Type(omero.grid.Param):
         if self.max is not None: self.max = _MAX is None and _FUN(self.max) or _MAX(self.max)
         if self.values is not None:
             if _VAL is None:
-                _VAL = _FUN
-            self.values = rlist(self.values)
-            self.values = rlist([_VAL(x) for x in self.values.val])
+                self.values = wrap(self.values)
+            else:
+                self.values = _VAL(self.values)
 
     def out(self):
         self._in = False
