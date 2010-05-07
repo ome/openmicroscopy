@@ -64,9 +64,6 @@ class RowPane
 	/** Bound property indicating to remove the row. */
 	static final String REMOVE_ROW_PROPERTY = "removeRow";
 	
-	/** The number of columns. */
-	private static int COLUMNS = 10;
-	
 	/** Button used to remove the row. */
 	private JButton removeButton;
 	
@@ -113,11 +110,11 @@ class RowPane
 		if (Double.class.equals(keyType)) {
 			NumericalTextField field = new NumericalTextField();
 			field.setNumberType(Double.class);
-			field.setColumns(COLUMNS);
+			field.setColumns(ScriptComponent.COLUMNS);
 			return field;
 		}
 		JTextField f = new JTextField();
-		f.setColumns(COLUMNS);
+		f.setColumns(ScriptComponent.COLUMNS);
 		return f;
 	}
 	

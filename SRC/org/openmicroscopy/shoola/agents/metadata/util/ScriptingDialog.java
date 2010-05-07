@@ -61,7 +61,6 @@ import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.model.ParamData;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
-import org.openmicroscopy.shoola.util.ui.NumericalTextFieldLabelled;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ExperimenterData;
@@ -278,7 +277,9 @@ public class ScriptingDialog
 		List<Object> values;
 		Number n;
 		String details = "";
+		String text = "";
 		while (i.hasNext()) {
+			text = "";
 			comp = null;
 			entry = (Entry) i.next();
 			param = (ParamData) entry.getValue();
@@ -292,24 +293,24 @@ public class ScriptingDialog
 					((JComboBox) comp).setSelectedItem(defValue);
 				}
 			}
-			if (Long.class.equals(type) || Integer.class.equals(type)) {
+			if (Long.class.equals(type) || Integer.class.equals(type) ||
+					Float.class.equals(type) || Double.class.equals(type)) {
 				if (comp == null) {
-					type = Double.class;
-					if (param.hasRangeSpecified()) {
-						comp = new NumericalTextFieldLabelled(type, 
-								param.getMinValue(), param.getMaxValue());
-						if (defValue != null)
-							((NumericalTextFieldLabelled) comp).setValue(
-									""+((Number) defValue).doubleValue());
-						((NumericalTextFieldLabelled) comp).addDocumentListener(
-								this);
-					} else {
-						comp = new NumericalTextField();
-						((NumericalTextField) comp).setNumberType(type);
-						if (defValue != null)
-							((NumericalTextField) comp).setText(
-									""+defValue);
+					if (Long.class.equals(type)) type = Integer.class;
+					comp = new NumericalTextField();
+					n = param.getMinValue();
+					if (n != null) {
+						text += "Min: "+n.doubleValue()+" ";
+						((NumericalTextField) comp).setMinimum(n.doubleValue());
 					}
+					n = param.getMaxValue();
+					if (n != null) {
+						text += "Max: "+n.doubleValue();
+						((NumericalTextField) comp).setMaximum(n.doubleValue());
+					}
+					if (defValue != null)
+						((NumericalTextField) comp).setText(
+								""+defValue);
 				}
 			} else if (String.class.equals(type)) {
 				if (comp == null) {
@@ -338,10 +339,12 @@ public class ScriptingDialog
 			}
 			if (comp != null) {
 				if (comp instanceof JTextField) {
+					((JTextField) comp).setColumns(ScriptComponent.COLUMNS);
 					((JTextField) comp).getDocument().addDocumentListener(this);
 				}
 				comp.setToolTipText(param.getDescription());
 				c = new ScriptComponent(comp, name);
+				if (text.trim().length() > 0) c.setUnit(text);
 				if (!(comp instanceof JComboBox || comp instanceof JCheckBox))
 					c.setRequired(!param.isOptional());
 				if (details != null && details.trim().length() > 0)

@@ -261,17 +261,6 @@ public class ParamData
 	}
 	
 	/**
-	 * Returns <code>true</code> if the minimum or maximum value is
-	 * set.
-	 * 
-	 * @return See above.
-	 */
-	public boolean hasRangeSpecified()
-	{
-		return (minValue != null || maxValue != null);
-	}
-	
-	/**
 	 * Returns the default value or <code>null</code> if none set.
 	 * 
 	 * @return See above.

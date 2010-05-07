@@ -24,13 +24,8 @@ package org.openmicroscopy.shoola.agents.metadata.util;
 
 
 //Java imports
-import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.Font;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -44,7 +39,6 @@ import javax.swing.JTextField;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
-import org.openmicroscopy.shoola.util.ui.NumericalTextFieldLabelled;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -60,7 +54,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since 3.0-Beta4
  */
-public class ScriptComponent 
+class ScriptComponent 
 {
 
 	/** 
@@ -77,12 +71,18 @@ public class ScriptComponent
 	
 	/** Indicates the required field. */
 	static final String REQUIRED = "*";
+
+	/** The number of columns. */
+	static int COLUMNS = 10;
 	
 	/** The component to host. */
 	private JComponent component;
 	
 	/** The text associated to the component. */
 	private JLabel label;
+	
+	/** Component indicating the units or other text. */
+	private JLabel unitLabel;
 	
 	/** 
 	 * The text explaining the component. It should only be set for
@@ -99,7 +99,7 @@ public class ScriptComponent
 	 * @param component The component to host.
 	 * @param parameter The 
 	 */
-	public ScriptComponent(JComponent component, String parameter)
+	ScriptComponent(JComponent component, String parameter)
 	{
 		if (component == null)
 			throw new IllegalArgumentException("No component specified.");
@@ -117,7 +117,7 @@ public class ScriptComponent
 	 * 
 	 * @param text The value to set.
 	 */
-	public void setInfo(String text)
+	void setInfo(String text)
 	{
 		if (text == null || text.trim().length() == 0) return;
 		info = new JLabel();
@@ -131,7 +131,7 @@ public class ScriptComponent
 	 * 
 	 * @param required The value to set.
 	 */
-	public void setRequired(boolean required)
+	void setRequired(boolean required)
 	{ 
 		this.required = required; 
 		if (required) label = UIUtilities.setTextFont(label.getText()+" *");
@@ -141,25 +141,44 @@ public class ScriptComponent
 	}
 	
 	/**
+	 * Sets the text of the unit label.
+	 * 
+	 * @param text The value to set.
+	 */
+	void setUnit(String text)
+	{
+		if (text == null || text.trim().length() == 0) return;
+		if (unitLabel == null) unitLabel = new JLabel();
+		unitLabel.setText(text);
+	}
+	
+	/**
 	 * Returns <code>true</code> if a value is required for that component.
 	 * 
 	 * @return See above.
 	 */
-	public boolean isRequired() { return required; }
+	boolean isRequired() { return required; }
 	
 	/**
 	 * Returns the component hosted.
 	 * 
 	 * @return See above.
 	 */
-	public JComponent getComponent() { return component; }
+	JComponent getComponent()
+	{ 
+		JPanel p = new JPanel();
+		p.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		p.add(component);
+		if (unitLabel != null) p.add(unitLabel);
+		return p; 
+	}
 	
 	/**
 	 * Returns the label associated to the component.
 	 * 
 	 * @return See above.
 	 */
-	public JComponent getLabel()
+	JComponent getLabel()
 	{ 
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
@@ -192,8 +211,6 @@ public class ScriptComponent
 			return box.isSelected();
 		} else if (c instanceof NumericalTextField) {
 			return ((NumericalTextField) c).getValueAsNumber();
-		} else if (c instanceof NumericalTextFieldLabelled) {
-			return ((NumericalTextFieldLabelled) c).getValueAsNumber();
 		} else if (c instanceof JTextField) {
 			JTextField field = (JTextField) c;
 			String value = field.getText();
