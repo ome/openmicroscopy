@@ -34,6 +34,7 @@ import omero.RString;
 import omero.model.Detector;
 import omero.model.Dichroic;
 import omero.model.Filter;
+import omero.model.FilterSet;
 import omero.model.Instrument;
 import omero.model.IObject;
 import omero.model.LightSource;
@@ -67,6 +68,9 @@ public class InstrumentData
 	/** The collection of filters. */
 	private List<FilterData> filters;
 	
+	/** The collection of filter Sets. */
+	private List<FilterSetData> filterSets;
+	
 	/** The collection of dichroics. */
 	private List<DichroicData> dichroics;
 	
@@ -81,6 +85,7 @@ public class InstrumentData
 		filters = new ArrayList<FilterData>(); 
 		dichroics = new ArrayList<DichroicData>(); 
 		detectors = new ArrayList<DetectorData>(); 
+		filterSets = new ArrayList<FilterSetData>(); 
 	}
 	
 	/**
@@ -124,6 +129,8 @@ public class InstrumentData
 				lightSources.add(new LightSourceData((LightSource) obj));
 			else if (obj instanceof Dichroic)
 				dichroics.add(new DichroicData((Dichroic) obj));
+			else if (obj instanceof FilterSet)
+				filterSets.add(new FilterSetData((FilterSet) obj));
 		}
 		if (!instrument)
 			throw new IllegalArgumentException("No instrument specified.");
@@ -212,6 +219,13 @@ public class InstrumentData
 	 * @return See above.
 	 */
 	public List<FilterData> getFilters() { return filters; }
+	
+	/**
+	 * Returns the collection of filter sets.
+	 * 
+	 * @return See above.
+	 */
+	public List<FilterSetData> getFilterSets() { return filterSets; }
 	
 	/**
 	 * Returns the collection of light sources.

@@ -31,13 +31,11 @@ package pojos;
 //Application-internal dependencies
 import omero.RDouble;
 import omero.RInt;
-import omero.RString;
 import omero.model.Binning;
 import omero.model.DetectorSettings;
 import omero.model.DetectorSettingsI;
-import omero.model.Dichroic;
-import omero.model.Filter;
 import omero.model.FilterSet;
+import omero.model.LightPath;
 import omero.model.LightSettings;
 import omero.model.LightSettingsI;
 import omero.model.LightSource;
@@ -66,23 +64,11 @@ public class ChannelAcquisitionData
 	/** The settings of the light source. */
 	private LightSettings 		lightSettings;
 	
-	/** The filter used. */
-	private FilterSet			filterSet;
+	/** The filterSet used. */
+	private FilterSetData		filterSet;
 	
-	/** The filter used for the emission wavelength. */
-	private FilterData			secondaryEmFilter;
-	
-	/** The filter used for the excitation wavelength. */
-	private FilterData			secondaryExFilter;
-	
-	/** The filter used for the emission wavelength. */
-	private FilterData			emFilter;
-	
-	/** The filter used for the excitation wavelength. */
-	private FilterData			exFilter;
-	
-	/** The dichroic. */
-	private DichroicData		dichroic;
+	/** The light path described. */
+	private LightPathData		lightPath;
 	
 	/** The light source. */
 	private LightSourceData		ligthSource;
@@ -96,7 +82,7 @@ public class ChannelAcquisitionData
 	/** The detector used. */
 	private DetectorData		detector;
 	
-	/** The binning. */
+	/** The binning factor. */
 	private Binning 			binning;
 	
 	/**
@@ -112,43 +98,11 @@ public class ChannelAcquisitionData
         setValue(channel);
         detectorSettings = channel.getDetectorSettings();
         lightSettings = channel.getLightSourceSettings();
-        filterSet = channel.getFilterSet();
-        /* ticket:1750 - will be fixed by Jean-Marie
-        Filter f = channel.getSecondaryEmissionFilter();
-        if (f != null) secondaryEmFilter = new FilterData(f);
-        f = channel.getSecondaryExcitationFilter();
-        if (f != null) secondaryExFilter = new FilterData(f);
-        if (filterSet != null) {
-        	f = filterSet.getEmFilter();
-        	if (f != null) emFilter = new FilterData(f);
-        	f = filterSet.getExFilter();
-        	if (f != null) exFilter = new FilterData(f);
-        	Dichroic d = filterSet.getDichroic();
-        	if (d != null) dichroic = new DichroicData(d);
-        }
-        */
+        FilterSet set = channel.getFilterSet();
+        if (set != null) filterSet = new FilterSetData(set);
+        LightPath path = channel.getLightPath();
+        if (path != null) lightPath = new LightPathData(path);
 	}
-	
-	/**
-	 * Returns the emission filter.
-	 * 
-	 * @return See above.
-	 */
-	public FilterData getEmissionFilter() { return emFilter; }
-	
-	/**
-	 * Returns the excitation filter.
-	 * 
-	 * @return See above.
-	 */
-	public FilterData getExcitationFilter() { return exFilter; }
-	
-	/**
-	 * Returns the dichroic.
-	 * 
-	 * @return See above.
-	 */
-	public DichroicData getDichroic() { return dichroic; }
 	
 	/**
 	 * Returns the detector used for that channel.
@@ -216,7 +170,7 @@ public class ChannelAcquisitionData
 	}
 	
 	/**
-	 * Returns the binning.
+	 * Returns the Binning factor.
 	 * 
 	 * @return See above.
 	 */
@@ -227,7 +181,6 @@ public class ChannelAcquisitionData
 		if (value == null) return "";
 		return value.getValue().getValue();
 	}
-	
 
 	/**
 	 * Returns the attenuation of the light source, percent value 
@@ -257,35 +210,20 @@ public class ChannelAcquisitionData
 	}
 
 	/**
-	 * Returns the secondary emission filter.
-	 * 
-	 * @return See above.
-	 */
-	public FilterData getSecondaryEmissionFilter() { return secondaryEmFilter; }
-	
-	/**
-	 * Returns the secondary excitation filter.
-	 * 
-	 * @return See above.
-	 */
-	public FilterData getSecondaryExcitationFilter()
-	{
-		return secondaryExFilter;
-	}
-	
-	
-	
-	
-	/**
-	 * Returns <code>true</code> if there is an filter for that channel, 
+	 * Returns <code>true</code> if there is a filter set linked to the channel
 	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
-	public boolean hasFilter()
-	{
-		return filterSet != null;
-	}
+	public boolean hasFilter() { return filterSet != null; }
+	
+	/**
+	 * Returns <code>true</code> if there is a light path described
+	 * for that channel, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasLightPath() { return lightPath != null; }
 	
 	/**
 	 * Returns <code>true</code> if there is a detector for that channel,
@@ -421,5 +359,19 @@ public class ChannelAcquisitionData
 		if (src != null) ligthSource = new LightSourceData(src);
 		return ligthSource;
 	}
+	
+	/**
+	 * Returns the light path or <code>null</code>.
+	 * 
+	 * @return See above.
+	 */
+	public LightPathData getLightPath() { return lightPath; }
+	
+	/**
+	 * Returns the filter set or <code>null</code>.
+	 * 
+	 * @return See above.
+	 */
+	public FilterSetData getFilterSet() { return filterSet; }
 	
 }

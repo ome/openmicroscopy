@@ -182,7 +182,7 @@ public class ChannelData
     }
     
     /**
-     * Returns the epin hole size of the channel.
+     * Returns the pin hole size of the channel.
      * 
      * @return See above
      */
@@ -210,7 +210,7 @@ public class ChannelData
     }
     
     /**
-     * Returns the fluor used.
+     * Returns the Fluorophore used.
      * 
      * @return See above.
      */
@@ -224,7 +224,7 @@ public class ChannelData
     }
     
     /**
-     * Returns the pockel cell settings.
+     * Returns the Pockels cell settings.
      * 
      * @return See above.
      */
@@ -388,7 +388,7 @@ public class ChannelData
     }
     
     /**
-     * Sets the illumiation value.
+     * Sets the illumination value.
      * 
      * @param illumination The value to set.
      */

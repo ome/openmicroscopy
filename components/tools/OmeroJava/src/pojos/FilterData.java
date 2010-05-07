@@ -36,7 +36,7 @@ import omero.model.FilterType;
 import omero.model.TransmittanceRange;
 
 /** 
- * Object hosting the a filter.
+ * Object hosting a filter.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
