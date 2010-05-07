@@ -106,19 +106,29 @@ public class ParamData
 			type = Map.class;
 		}
 		Number n;
+		boolean set = false;
 		Object value = convertRType(param.min);
 		if (value instanceof Long || value instanceof Integer) {
 			minValue = value;
-			n = (Number) defaultValue;
-			if (n.doubleValue() < ((Number) minValue).doubleValue())
+			set = true;
+			if (defaultValue == null) {
 				defaultValue = minValue;
+			} else {
+				n = (Number) defaultValue;
+				if (n.doubleValue() < ((Number) minValue).doubleValue())
+					defaultValue = minValue;
+			}
 		}
 		value = convertRType(param.max);
 		if (value instanceof Long || value instanceof Integer) {
 			maxValue = value;
-			n = (Number) defaultValue;
-			if (n.doubleValue() > ((Number) maxValue).doubleValue())
-				defaultValue = maxValue;
+			if (!set) {
+				if (defaultValue != null) {
+					n = (Number) defaultValue;
+					if (n.doubleValue() > ((Number) maxValue).doubleValue())
+						defaultValue = maxValue;
+				} else defaultValue = maxValue;
+			}
 		}
 	}
 	

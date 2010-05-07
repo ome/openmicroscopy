@@ -337,6 +337,7 @@ class ToolBar
     	List<JMenuItem> exports = new ArrayList<JMenuItem>();
     	List<JMenuItem> figures = new ArrayList<JMenuItem>();
     	List<JMenuItem> regions = new ArrayList<JMenuItem>();
+    	List<JMenuItem> utils = new ArrayList<JMenuItem>();
     	List<JMenuItem> others = new ArrayList<JMenuItem>();
     	while (i.hasNext()) {
     		so = i.next();
@@ -353,6 +354,9 @@ class ToolBar
 				case ScriptObject.REGION:
 					regions.add(item);
 					break;
+				case ScriptObject.UTIL:
+					utils.add(item);
+					break;
 				default:
 					others.add(item);
 			}
@@ -363,6 +367,8 @@ class ToolBar
     		menu.add(createSubMenu("Figure Scripts", figures));
     	if (regions.size() > 0)
     		menu.add(createSubMenu("Region Scripts", regions));
+    	if (utils.size() > 0)
+    		menu.add(createSubMenu("Utility Scripts", utils));
     	if (others.size() > 0)
     		menu.add(createSubMenu("Uploaded Scripts", others));
     	return menu;

@@ -65,6 +65,9 @@ public class ScriptObject
 	/** Path to the <code>Region</code> script. */
 	public static final String REGION_PATH = "/omero/region_scripts/";
 	
+	/** Path to the <code>Util</code> script. */
+	public static final String UTIL_PATH = "/omero/util_scripts/";
+	
 	/** Indicates that the script is a <code>Export</code> script. */
 	public static final int EXPORT = 0;
 	
@@ -74,8 +77,11 @@ public class ScriptObject
 	/** Indicates that the script is a <code>Region</code> script. */
 	public static final int REGION = 2;
 	
+	/** Indicates that the script is a <code>Util</code> script. */
+	public static final int UTIL = 3;
+	
 	/** Indicates that the script is a <code>Region</code> script. */
-	public static final int OTHER = 3;
+	public static final int OTHER = 4;
 	
 	/** The id of the script. */
 	private long scriptID;
@@ -177,6 +183,8 @@ public class ScriptObject
 			category = EXPORT;
 		else if (REGION_PATH.equals(path))
 			category = REGION;
+		else if (UTIL_PATH.equals(path))
+			category = UTIL;
 		else category = OTHER;
 	}
 	
