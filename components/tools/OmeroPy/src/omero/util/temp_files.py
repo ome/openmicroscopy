@@ -294,13 +294,15 @@ class TempFileManager(object):
                 self.logger.debug("Skipping self: %s", dir)
                 continue
             lock = dir / ".lock"
-            f = open(str(lock),"r")
-            try:
-                portalocker.lock(f, portalocker.LOCK_EX|portalocker.LOCK_NB)
-            except:
-                print "Locked: %s" % dir
-                continue
-            dir.rmtree(self.on_rmtree)
+            if lock.exists(): #1962, on Windows this fails if lock is missing
+                f = open(str(lock),"r")
+                try:
+                    portalocker.lock(f, portalocker.LOCK_EX|portalocker.LOCK_NB)
+                    f.close() # Must close for Windows, otherwise "...other process"
+                except:
+                    print "Locked: %s" % dir
+                    continue
+            dir.rmtree(onerror=self.on_rmtree)
             print "Deleted: %s" % dir
 
     def on_rmtree(self, func, name, exc):
