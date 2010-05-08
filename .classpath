@@ -56,5 +56,6 @@
 	<classpathentry kind="lib" path="build/tools/xalan-2.6.0.jar"/>
 	<classpathentry kind="lib" path="build/tools/xerces-2.6.2.jar"/>
 	<classpathentry kind="lib" path="build/tools/xerces-xml-apis-2.6.2.jar"/>
+	<classpathentry kind="lib" path="LIB/commons-lang-2.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

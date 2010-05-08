@@ -30,6 +30,7 @@ import javax.swing.JMenu;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.apache.commons.lang.WordUtils;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -75,7 +76,7 @@ public class ScriptSubMenu
 		if (value == null || value.trim().length() == 0) return NAME;
 		value = value.replace(ScriptComponent.PARAMETER_SEPARATOR, 
 				ScriptComponent.PARAMETER_UI_SEPARATOR);
-		return value;
+		return WordUtils.capitalize(value);
 	}
 	
 	/**
