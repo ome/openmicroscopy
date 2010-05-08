@@ -31,8 +31,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -54,6 +56,7 @@ import org.jdesktop.swingx.JXBusyLabel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.util.ScriptMenuItem;
+import org.openmicroscopy.shoola.agents.metadata.util.ScriptSubMenu;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
@@ -334,6 +337,22 @@ class ToolBar
     	Iterator<ScriptObject> i = scripts.iterator();
     	ScriptObject so;
     	JMenuItem item;
+    	Map<String, ScriptSubMenu> menus = new HashMap<String, ScriptSubMenu>();
+    	String path;
+    	ScriptSubMenu subMenu;
+    	while (i.hasNext()) {
+    		so = i.next();
+    		setScriptIcon(so);
+    		path = so.getPath();
+    		subMenu = menus.get(path);
+    		if (subMenu == null) {
+    			subMenu = new ScriptSubMenu(path);
+    			menus.put(path, subMenu);
+    			menu.add(subMenu);
+    		}
+    		subMenu.addScript(so).addActionListener(controller);
+    	}
+    	/*
     	List<JMenuItem> exports = new ArrayList<JMenuItem>();
     	List<JMenuItem> figures = new ArrayList<JMenuItem>();
     	List<JMenuItem> regions = new ArrayList<JMenuItem>();
@@ -371,6 +390,7 @@ class ToolBar
     		menu.add(createSubMenu("Utility Scripts", utils));
     	if (others.size() > 0)
     		menu.add(createSubMenu("Uploaded Scripts", others));
+    		*/
     	return menu;
     }
     
