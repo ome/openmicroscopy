@@ -196,9 +196,17 @@ class __Coll(Type):
 
     def append(self, *arg):
         self.prototype.val.append(*arg)
+        return self
 
     def extend(self, *arg):
         self.prototype.val.extend(*arg)
+        return self
+
+    def ofType(self, obj):
+        if callable(obj):
+            obj = obj() # Ctors, etc.
+        self.prototype.val.append(wrap(obj))
+        return self
 
 
 class Set(__Coll):
@@ -227,6 +235,7 @@ class Map(Type):
 
     def update(self, *args, **kwargs):
         self.prototype.val.update(*args, **kwargs)
+        return self
 
 
 class ParseExit(exceptions.Exception):

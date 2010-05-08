@@ -66,6 +66,19 @@ class TestParse(unittest.TestCase):
         self.assertEquals(10, unwrap(longParam.max), str(longParam.max))
         self.assertEquals([5], unwrap(longParam.values), str(longParam.values))
 
+    def testListOfType(self):
+        SCRIPT = """if True:
+            import omero
+            import omero.all
+            from omero.rtypes import rstring, rlong
+            import omero.scripts as scripts
+            client = scripts.client('HelloWorld.py', 'Hello World example script',
+                scripts.List('Image_List').ofType(omero.model.ImageI))
+            client.setOutput('returnMessage', rstring('Script ran OK!'))"""
+        params = parse_text(SCRIPT)
+        listParam = params.inputs["Image_List"]
+        self.assertTrue(isinstance(listParam.prototype.val[0].val, omero.model.Image))
+
     def testGrouping(self):
         SCRIPT = """if True:
             from omero.scripts import *
