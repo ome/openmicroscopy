@@ -7,11 +7,7 @@
 
 package ome.security.auth;
 
-import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
-
-import javax.naming.NamingEnumeration;
 
 import ome.model.meta.Experimenter;
 
@@ -69,17 +65,7 @@ public class PersonContextMapper implements ContextMapper {
             person.putAt(LDAP_ATTR, ctx.getAttributeSortedStringSet(attribute));
         }
 
-        Properties properties = new Properties();
-        NamingEnumeration<String> ids = ctx.getAttributes().getIDs();
-        while (ids.hasMoreElements()) {
-            String id = ids.nextElement();
-            Object val = ctx.getObjectAttribute(id);
-            if (val != null) {
-                properties.put(id, val.toString());
-            }
-        }
-        person.putAt(LDAP_PROPS, properties);
-
+        person.putAt(LDAP_PROPS, new AttributeSet(ctx));
         return person;
     }
 
@@ -93,8 +79,8 @@ public class PersonContextMapper implements ContextMapper {
     }
 
     @SuppressWarnings("unchecked")
-    public Properties getProperties(Experimenter person) {
-        return (Properties) person.retrieve(LDAP_PROPS);
+    public AttributeSet getAttributeSet(Experimenter person) {
+        return (AttributeSet) person.retrieve(LDAP_PROPS);
     }
 
 

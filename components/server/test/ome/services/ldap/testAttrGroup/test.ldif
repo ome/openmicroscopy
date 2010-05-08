@@ -1,18 +1,25 @@
-dn: ou=testAttrGroup,o=eg
-objectclass: organizationalUnit
+version: 1
+
+dn: ou=attrGroup
+objectClass: organizationalUnit
+objectClass: top
+ou: attrGroup
+
+dn: ou=testAttrGroup,ou=attrGroup
+objectClass: organizationalUnit
 objectClass: top
 ou: testAttrGroup
 
-dn: cn=test1,ou=testAttrGroup,o=eg
-cn: test1
+dn: cn=test1attr,ou=testAttrGroup,ou=attrGroup
+cn: test1attr
 sn: Tester
 objectClass: person
-memberOf: Attr1
+roleOccupant: Group1
 userPassword: password
 
-dn: cn=test2,ou=testAttrGroup,o=eg
-cn: test2
+dn: cn=test2attr,ou=testAttrGroup,ou=attrGroup
+cn: test2attr
 sn: Tester
 objectClass: person
-memberOf: Attr2
+roleOccupant: Group2
 userPassword: password

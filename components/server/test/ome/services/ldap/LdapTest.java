@@ -10,6 +10,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import javax.naming.NamingException;
+
 import ome.logic.LdapImpl;
 import ome.security.auth.LdapConfig;
 import ome.security.auth.RoleProvider;
@@ -19,10 +21,13 @@ import org.apache.commons.io.FileUtils;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.jmock.core.Constraint;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
+import org.springframework.ldap.core.ContextMapper;
+import org.springframework.ldap.core.DirContextAdapter;
+import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.util.ResourceUtils;
@@ -41,10 +46,12 @@ public class LdapTest extends MockObjectTestCase {
         Mock role;
         Mock jdbc;
         LdapImpl ldap;
+        LdapConfig config;
+        LdapTemplate template;
 
         void createUserWithGroup(MockObjectTestCase t, final String dn, String group) {
             role.expects(atLeastOnce()).method("createGroup")
-                .with(t.stringContains(group), t.NULL, t.eq(false))
+                .with(t.eq(group), t.NULL, t.eq(false))
                 .will(returnValue(101L));
             role.expects(once()).method("createExperimenter")
                 .will(returnValue(101L));
@@ -113,7 +120,7 @@ public class LdapTest extends MockObjectTestCase {
     }
 
     /**
-     * etc/omero.properties:
+     * old etc/omero.properties:
      * =====================
      * omero.ldap.config=false
      * omero.ldap.urls=ldap://localhost:389
@@ -135,7 +142,7 @@ public class LdapTest extends MockObjectTestCase {
 
         Fixture fixture = new Fixture();
         fixture.ctx =new FileSystemXmlApplicationContext("file:" + ctxFile.getAbsolutePath());
-        LdapConfig config = (LdapConfig) fixture.ctx.getBean("config");
+        fixture.config = (LdapConfig) fixture.ctx.getBean("config");
 
         Map<String, LdapContextSource> sources =
             fixture.ctx.getBeansOfType(LdapContextSource.class);
@@ -160,7 +167,7 @@ public class LdapTest extends MockObjectTestCase {
         //secureSource.setTrustPassword("");
         */
 
-        LdapTemplate template = new LdapTemplate(source);
+        fixture.template = new LdapTemplate(source);
 
         fixture.role = mock(RoleProvider.class);
         RoleProvider provider = (RoleProvider) fixture.role.proxy();
@@ -168,16 +175,20 @@ public class LdapTest extends MockObjectTestCase {
         fixture.jdbc = mock(SimpleJdbcOperations.class);
         SimpleJdbcOperations jdbc = (SimpleJdbcOperations) fixture.jdbc.proxy();
 
-        fixture.ldap = new LdapImpl(source, template,
-                new Roles(), config, provider, jdbc);
+        fixture.ldap = new LdapImpl(source, fixture.template,
+                new Roles(), fixture.config, provider, jdbc);
         return fixture;
     }
 
-    protected void assertPasses(Fixture fixture, Map<String, List<String>> users) {
+    protected void assertPasses(Fixture fixture, Map<String, List<String>> users) throws Exception {
 
         LdapImpl ldap = fixture.ldap;
+        LdapTemplate template = fixture.template;
 
         for (String user : users.keySet()) {
+
+            // addMemberOf(fixture, template, user);
+
             assertEquals(1, users.get(user).size());
             String dn = ldap.findDN(user);
             assertNotNull(dn);
@@ -210,4 +221,32 @@ public class LdapTest extends MockObjectTestCase {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    protected void addMemberOf(Fixture fixture, LdapTemplate template, String user)
+            throws NamingException {
+        List<String> dns =
+            template.search("", fixture.config.usernameFilter(user).encode(),
+                new ContextMapper(){
+                    public Object mapFromContext(Object arg0) {
+                        DirContextAdapter ctx = (DirContextAdapter) arg0;
+                        return ctx.getNameInNamespace();
+                    }});
+        assertEquals(dns.toString(), 1, dns.size());
+
+
+        DistinguishedName name = new DistinguishedName(dns.get(0));
+        DistinguishedName root = new DistinguishedName(template
+                .getContextSource()
+                .getReadOnlyContext()
+                .getNameInNamespace());
+
+        // Build a relative name
+        for (int i = 0; i < root.size(); i++) {
+            name.removeFirst();
+        }
+
+        DirContextOperations context = template.lookupContext(name);
+        context.setAttributeValues("memberOf", new Object[]{"foo"});
+        template.modifyAttributes(context);
+    }
 }

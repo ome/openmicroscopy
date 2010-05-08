@@ -49,7 +49,7 @@ import org.springframework.util.Assert;
  *
  * @author Luke Taylor
  */
-public class ApacheDSContainer implements InitializingBean, DisposableBean, Lifecycle, ApplicationContextAware {
+class ApacheDSContainer implements InitializingBean, DisposableBean, Lifecycle, ApplicationContextAware {
     private Log logger = LogFactory.getLog(getClass());
 
     DirectoryServiceFactory factory;
@@ -67,6 +67,8 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 
     public ApacheDSContainer(String root, String ldifs) throws Exception {
         this.ldifResources = ldifs;
+
+        System.setProperty("workingDirectory", "server-work"); // HACK
 
         factory = DefaultDirectoryServiceFactory.DEFAULT;
         service = (DefaultDirectoryService) factory.getDirectoryService();

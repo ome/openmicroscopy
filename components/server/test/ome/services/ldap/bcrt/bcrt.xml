@@ -10,34 +10,40 @@
           http://www.springframework.org/schema/util
           http://www.springframework.org/schema/util/spring-util-2.0.xsd">
 
-    <security:ldap-server root="ou=testAttrGroup,ou=attrGroup"
-        ldif="classpath:ome/services/ldap/testAttrGroup/*.ldif"/>
+
+    <security:ldap-server root="dc=charite"
+        ldif="classpath:ome/services/ldap/bcrt/bcrt.ldif"/>
 
     <bean id="config" class="ome.security.auth.LdapConfig">
       <constructor-arg index="0" value="true"/>
-      <constructor-arg index="1" value=":attribute:roleOccupant"/>
-      <!-- using roleOccupant since Apache DS doesn't support memberOf -->
+      <constructor-arg index="1" value=":query:(member=${dn})"/><!-- new_user_group -->
       <constructor-arg index="2" value="(objectClass=person)"/>
       <constructor-arg index="3" value="(objectClass=groupOfNames)"/>
-      <constructor-arg index="4" value="omeName=cn,firstName=givenName,lastName=sn"/>
+      <constructor-arg index="4" value="omeName=uid,firstName=givenName,lastName=sn"/>
       <constructor-arg index="5" value="name=cn"/>
     </bean>
 
     <util:map id="good">
-      <entry key="test1attr">
-        <util:list><value>Group1</value></util:list>
+      <entry key="damaschuna">
+        <util:list><value>omero</value></util:list>
       </entry>
-      <entry key="test2attr">
-        <util:list><value>Group2</value></util:list>
+      <entry key="kurtza">
+        <util:list><value>omero</value></util:list>
+      </entry>
+      <entry key="lekschasf">
+        <util:list><value>omero</value></util:list>
+      </entry>
+      <entry key="stachelscheidh">
+        <util:list><value>omero</value></util:list>
       </entry>
     </util:map>
 
     <util:map id="bad">
-      <entry key="test3attr">
-        <util:list><value>Group3</value></util:list>
+      <entry key="BADGROUP">
+        <util:list><value>ldap</value></util:list>
       </entry>
-      <entry key="test1attr">
-        <util:list><value>Group2</value></util:list>
+      <entry key="BADUSER">
+        <util:list><value>omero</value></util:list>
       </entry>
     </util:map>
 

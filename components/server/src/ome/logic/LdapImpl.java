@@ -13,7 +13,6 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 import javax.naming.AuthenticationException;
@@ -34,15 +33,22 @@ import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.SecuritySystem;
+import ome.security.auth.AttributeNewUserGroupBean;
+import ome.security.auth.AttributeSet;
 import ome.security.auth.GroupAttributeMapper;
 import ome.security.auth.LdapConfig;
+import ome.security.auth.NewUserGroupBean;
 import ome.security.auth.PersonContextMapper;
+import ome.security.auth.QueryNewUserGroupBean;
 import ome.security.auth.RoleProvider;
+import ome.system.OmeroContext;
 import ome.system.Roles;
 
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
-import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapOperations;
 import org.springframework.ldap.core.LdapRdn;
@@ -53,6 +59,7 @@ import org.springframework.ldap.filter.Filter;
 import org.springframework.ldap.filter.HardcodedFilter;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.PropertyPlaceholderHelper;
+import org.springframework.util.PropertyPlaceholderHelper.PlaceholderResolver;
 
 /**
  * Provides methods for administering user accounts, passwords, as well as
@@ -72,7 +79,8 @@ import org.springframework.util.PropertyPlaceholderHelper;
 @Transactional(readOnly = true)
 @RevisionDate("$Date: 2007-05-23 09:43:33 +0100 (Wed, 23 May 2007) $")
 @RevisionNumber("$Revision: 1552 $")
-public class LdapImpl extends AbstractLevel2Service implements ILdap {
+public class LdapImpl extends AbstractLevel2Service implements ILdap,
+    ApplicationContextAware {
 
     private final SimpleJdbcOperations jdbc;
 
@@ -86,6 +94,8 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap {
 
     private final Roles roles;
 
+    private OmeroContext appContext;
+
     public LdapImpl(
             LdapContextSource ctx,
             LdapOperations ldap, Roles roles,
@@ -98,6 +108,11 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap {
         this.roles = roles;
         this.config = config;
         this.provider = roleProvider;
+    }
+
+    public void setApplicationContext(ApplicationContext arg0)
+            throws BeansException {
+        appContext = (OmeroContext) arg0;
     }
 
     public Class<? extends ServiceInterface> getServiceInterface() {
@@ -147,7 +162,6 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap {
     @RolesAllowed("system")
     @SuppressWarnings("unchecked")
     public String findDN(String username) {
-
         PersonContextMapper mapper = getContextMapper();
         Filter filter = config.usernameFilter(username);
         List<Experimenter> p = ldap.search("", filter.encode(), mapper);
@@ -157,7 +171,8 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap {
             return mapper.getDn(exp);
         } else {
             throw new ApiUsageException(
-                    "Cannot find unique DistinguishedName: found=" + p.size());
+                    "Cannot find unique DistinguishedName: " + filter.encode()
+                    + " (found=" + p.size() + ")");
         }
     }
 
@@ -260,6 +275,8 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap {
                 handleGroupSpecAttr(dn, username, grpSpec, groups);
             } else if (grpSpec.startsWith(":query:")) {
                 handleGroupSpecQuery(username, grpSpec, groups);
+            } else if (grpSpec.startsWith(":bean:")) {
+                handleGroupSpecBean(username, grpSpec, groups);
             } else if (grpSpec.startsWith(":")) {
                 throw new ValidationException(grpSpec + " spec currently not supported.");
             } else {
@@ -296,19 +313,12 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap {
     @SuppressWarnings("unchecked")
     private void handleGroupSpecAttr(DistinguishedName dn,
             String username, String grpSpec, List<Long> groups) {
-        Experimenter exp;
-        final String grpAttribute = grpSpec.substring(11);
-        final PersonContextMapper mapper = getContextMapper(grpAttribute);
-        exp = ((List<Experimenter>) ldap.search("",
-                config.usernameFilter(username).encode(), mapper)).get(0);
-        Set<String> groupNames = mapper.getAttribute(exp);
-        if (groupNames == null) {
-            throw new ValidationException(dn + " has no attributes " + grpAttribute);
-        }
-        for (String grpName : groupNames) {
-            groups.add(provider.createGroup(grpName, null, false));
 
-        }
+        final AttributeSet attrSet = getAttributeSet(username);
+        AttributeNewUserGroupBean nugb
+            = new AttributeNewUserGroupBean(grpSpec);
+        groups.addAll(nugb.groups(username, config, ldap, provider, attrSet));
+
     }
 
     @SuppressWarnings("unchecked")
@@ -324,27 +334,30 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void handleGroupSpecQuery(String username, String grpSpec, List<Long> groups) {
 
+        final AttributeSet attrSet = getAttributeSet(username);
+        final QueryNewUserGroupBean nugb =
+            new QueryNewUserGroupBean(grpSpec);
+        groups.addAll(nugb.groups(username, config, ldap, provider, attrSet));
+    }
+
+    private void handleGroupSpecBean(String username, String grpSpec, List<Long> groups) {
+        AttributeSet attrSet = getAttributeSet(username);
+        NewUserGroupBean bean = appContext.getBean(grpSpec, NewUserGroupBean.class);
+        bean.groups(username, config, ldap, provider, attrSet);
+    }
+
+    @SuppressWarnings("unchecked")
+    private AttributeSet getAttributeSet(String username) {
         PersonContextMapper mapper = getContextMapper();
         Experimenter exp = ((List<Experimenter>)
                 ldap.search("", config.usernameFilter(username).encode(),
                         mapper)).get(0);
         String dn = mapper.getDn(exp);
-        Properties properties = mapper.getProperties(exp);
-        properties.put("dn", dn); // For queries
-
-        final String grpQuery = grpSpec.substring(7);
-        PropertyPlaceholderHelper helper = new PropertyPlaceholderHelper("${","}", null, false);
-        String query = helper.replacePlaceholders(grpQuery, properties);
-        AndFilter and = new AndFilter();
-        and.and(config.getGroupFilter());
-        and.and(new HardcodedFilter(query));
-        List<String> groupNames = (List<String>) ldap.search("", and.encode(), new GroupAttributeMapper(config));
-        for (String groupName : groupNames) {
-            groups.add(provider.createGroup(groupName, null, false));
-        }
+        AttributeSet attrSet = mapper.getAttributeSet(exp);
+        attrSet.put("dn", dn); // For queries
+        return attrSet;
     }
 
     //

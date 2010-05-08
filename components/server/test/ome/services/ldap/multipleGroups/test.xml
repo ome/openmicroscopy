@@ -10,33 +10,30 @@
           http://www.springframework.org/schema/util
           http://www.springframework.org/schema/util/spring-util-2.0.xsd">
 
-    <security:ldap-server root="ou=People,dc=testAttrGroupPeople,dc=eg"
-        ldif="classpath:ome/services/ldap/testAttrGroupPeople/*.ldif"/>
+    <security:ldap-server root="ou=multipleGroups,o=eg"
+        ldif="classpath:ome/services/ldap/multipleGroups/*.ldif"/>
 
     <bean id="config" class="ome.security.auth.LdapConfig">
       <constructor-arg index="0" value="true"/>
-      <constructor-arg index="1" value=":attribute:memberOf"/>
+      <constructor-arg index="1" value=":query:(&amp;(objectClass=groupOfNames)(member=${cn}))"/>
       <constructor-arg index="2" value="(objectClass=person)"/>
-      <constructor-arg index="3" value="(objectClass=groupOfUniqueNames)"/>
+      <constructor-arg index="3" value="(objectClass=groupOfNames)"/>
       <constructor-arg index="4" value="omeName=cn,firstName=givenName,lastName=sn"/>
       <constructor-arg index="5" value="name=cn"/>
     </bean>
 
     <util:map id="good">
       <entry key="test1">
-        <util:list><value>Attr1</value></util:list>
-      </entry>
-      <entry key="test2">
-        <util:list><value>Attr2</value></util:list>
+        <util:list><value>omedev</value></util:list>
       </entry>
     </util:map>
 
     <util:map id="bad">
-      <entry key="test3">
-        <util:list><value>Attr3</value></util:list>
-      </entry>
       <entry key="test1">
-        <util:list><value>Attr2</value></util:list>
+        <util:list><value>BADGROUP</value></util:list>
+      </entry>
+      <entry key="BADUSER">
+        <util:list><value>omedev</value></util:list>
       </entry>
     </util:map>
 
