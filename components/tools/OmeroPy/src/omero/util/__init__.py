@@ -228,13 +228,14 @@ class ServerContext(object):
     server shutdown, so should be infrequent)
     """
 
-    def __init__(self, server_id, communicator, stop_event):
+    def __init__(self, server_id, communicator, stop_event, on_newsession = None):
         self._lock = threading.RLock()
         self.logger = logging.getLogger("omero.util.ServerContext")
         self.server_id = server_id
         self.communicator = communicator
         self.stop_event = stop_event
         self.servant_map = dict()
+        self.on_newsession = None
 
     @locked
     def add_servant(self, adapter_or_current, servant, ice_identity = None):
@@ -250,9 +251,10 @@ class ServerContext(object):
         self.servant_map[prx] = servant
         return prx
 
-
     def newSession(self):
         self.session = internal_service_factory(self.communicator, stop_event = self.stop_event)
+        if callable(self.on_newsession):
+            self.on_newsession(self.session)
 
     def hasSession(self):
         return hasattr(self, "session")
@@ -382,8 +384,8 @@ class Server(Ice.Application):
             try:
                 self.adapter = self.communicator().createObjectAdapter(self.adapter_name)
                 self.adapter.activate()
-                self.impl.setProxy( self.adapter.add(self.impl, self.identity) )
-                add_grid_object(self.communicator(), self.impl.prx) # This must happen _after_ activation
+                ctx.add_servant(self.adapter, self.impl, self.identity) # calls setProxy
+                add_grid_object(self.communicator(), self.impl.prx)     # This must happen _after_ activation
             except:
                 self.logger.error("Failed activation", exc_info=1)
                 sys.exit(200)

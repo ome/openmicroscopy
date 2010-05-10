@@ -628,16 +628,6 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
     def __init__(self, ctx, needs_session = True,
                  use_session = None, accepts_list = [], cfg = None):
 
-        if use_session:
-            needs_session = False # See discussion below
-
-        omero.util.Servant.__init__(self, ctx, needs_session = needs_session)
-        if cfg is None:
-            self.cfg = os.path.join(os.curdir, "etc", "ice.config")
-            self.cfg = os.path.abspath(self.cfg)
-        else:
-            self.cfg = cfg
-
         # Extensions for user-mode processors (ticket:1672)
 
         self.use_session = use_session
@@ -646,11 +636,21 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
         the "needs_session" setting ignored.
         """
 
+        if self.use_session:
+            needs_session = False
+
         self.accepts_list = accepts_list
         """
         A list of contexts which will be accepted by this user-mode
         processor.
         """
+
+        omero.util.Servant.__init__(self, ctx, needs_session = needs_session)
+        if cfg is None:
+            self.cfg = os.path.join(os.curdir, "etc", "ice.config")
+            self.cfg = os.path.abspath(self.cfg)
+        else:
+            self.cfg = cfg
 
         # Keep this session alive until the processor is finished
         self.resources.add( UseSessionHolder(use_session) )
@@ -659,12 +659,16 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
         """
         Overrides the default action in order to register this proxy
         with the session's sharedResources to register for callbacks.
+        The on_newsession handler will also keep new sessions informed.
+
+        See ticket:2304
         """
-        prx = omero.grid.ProcessorPrx.uncheckedCast(prx)
         omero.util.Servant.setProxy(self, prx)
-        import omero_SharedResources_ice
-        self.logger.info("Registering processor %s", self.prx)
-        self.internal_session().sharedResources().addProcessor(self.prx)
+        session = self.internal_session()
+        self.register_session(session)
+
+        # Keep other session informed
+        self.ctx.on_newsession = self.register_session
 
     def internal_session(self):
         """
@@ -678,6 +682,11 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
         else:
             return self.ctx.getSession()
 
+    def register_session(self, session):
+        self.logger.info("Registering processor %s", self.prx)
+        prx = omero.grid.ProcessorPrx.uncheckedCast(self.prx)
+        session.sharedResources().addProcessor(prx)
+
     def lookup(self, job):
         sf = self.internal_session()
         gid = job.details.group.id.val
@@ -690,6 +699,7 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
 
             prx = WithGroup(sf.getScriptService(), gid)
             file = prx.validateScript(job, self.accepts_list)
+
         except omero.SecurityViolation, sv:
             self.logger.debug("SecurityViolation on validate job %s from group %s", job.id.val, gid)
             file = None
@@ -721,6 +731,8 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
             cb.isAccepted(valid, id, str(self.prx))
         except exceptions.Exception, e:
             self.logger.warn("callback failed on willAccept: %s Exception:%s", cb, e)
+
+        return valid
 
     @remoted
     def requestRunning(self, cb, current = None):
@@ -861,5 +873,5 @@ def usermode_processor(client, serverid = "UsermodeProcessor",\
     ctx = omero.util.ServerContext(serverid, client.ic, stop_event)
     impl = omero.processor.ProcessorI(ctx,
         use_session=client.sf, accepts_list=accepts_list, cfg=cfg)
-    impl.setProxy(client.adapter.addWithUUID(impl))
+    ctx.add_servant(client.adapter, impl)
     return impl
