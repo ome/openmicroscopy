@@ -121,6 +121,7 @@ class TestScripts(lib.ITest):
         # Also ticket:2304
         # should be OK for root to upload as official script (unique path) and run
         officialScriptId = scriptService.uploadOfficialScript("offical/test/script%s.py" % uuid, script)
+        self.assertTrue(scriptService.canRunScript(officialScriptId)) # ticket:2341
         proc = scriptService.runScript(officialScriptId, map, None)
         try:
             cb = omero.scripts.ProcessCallbackI(client, proc)
@@ -135,6 +136,7 @@ class TestScripts(lib.ITest):
 
         # should fail if we try to upload as 'user' script and run (no user processor)
         userScriptId = scriptService.uploadScript("user/test/script.py", script)
+        self.assertFalse(scriptService.canRunScript(userScriptId)) # ticket:2341
         results = {}
         try:
             proc = scriptService.runScript(userScriptId, map, None)
@@ -151,6 +153,12 @@ class TestScripts(lib.ITest):
             pass
 
         self.assertFalse("returnMessage" in results, "Script should not have run. No user processor!")
+
+        impl = omero.processor.usermode_processor(self.root)
+        try:
+            self.assertTrue(scriptService.canRunScript(userScriptId)) # ticket:2341
+        finally:
+            impl.cleanup()
 
     def testEditScript(self):
         scriptService = self.root.sf.getScriptService()
@@ -248,7 +256,6 @@ class TestScripts(lib.ITest):
             self.assertTrue("stderr" not in results)
         finally:
             impl.cleanup()
-
 
 if __name__ == '__main__':
     unittest.main()

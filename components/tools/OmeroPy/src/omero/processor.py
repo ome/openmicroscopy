@@ -709,20 +709,37 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
     @remoted
     def willAccept(self, userContext, groupContext, scriptContext, cb, current = None):
 
-        try:
-            file, handle = self.lookup(scriptContext)
-            handle.close()
-            valid = (file is not None)
-        except:
-            self.logger.error("File lookup failed: user=%s, group=%s, script=%s",\
-                userContext and userContext.id.val or None,
-                groupContext and groupContext.id.val or None,
-                scriptContext and scriptContext.id.val or None,
-                exc_info=1)
-            return # EARlY EXIT !
+        userID = None
+        if userContext != None:
+            userID = userContext.id.val
+
+        groupID = None
+        if groupContext != None:
+            groupID = groupContext.id.val
+
+        scriptID = None
+        if scriptContext != None:
+            scriptID = scriptContext.id.val
+
+        if scriptID:
+            try:
+                file, handle = self.lookup(scriptContext)
+                handle.close()
+                valid = (file is not None)
+            except:
+                self.logger.error("File lookup failed: user=%s, group=%s, script=%s",\
+                    userID, groupID, scriptID, exc_info=1)
+                return # EARlY EXIT !
+        else:
+            valid = False
+            for x in self.accepts_list:
+                if isinstance(x, omero.model.Experimenter) and x.id.val == userID:
+                    valid = True
+                elif isinstance(x, omero.model.ExperimenterGroup) and x.id.val == groupID:
+                    valid = True
 
         self.logger.debug("Accepts called on: user:%s group:%s scriptjob:%s - Valid: %s",
-            userContext.id.val, groupContext.id.val, scriptContext.id.val, valid)
+            userID, groupID, scriptID, valid)
 
         try:
             id = self.internal_session().ice_getIdentity().name
@@ -741,7 +758,10 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
             cb = cb.ice_oneway()
             cb = omero.grid.ProcessorCallbackPrx.uncheckedCast(cb)
             servants = list(self.ctx.servant_map.values())
-            rv = [long(x.properties["omero.job"]) for x in servants]
+            rv = []
+            for x in servants:
+                if hasattr(x, "properties"):
+                    rv.append(long(x))
             cb.responseRunning(rv)
         except exceptions.Exception, e:
             self.logger.warn("callback failed on requestRunning: %s Exception:%s", cb, e)

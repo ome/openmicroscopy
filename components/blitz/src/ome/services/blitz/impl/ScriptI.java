@@ -7,7 +7,6 @@
 
 package ome.services.blitz.impl;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +19,7 @@ import ome.api.RawFileStore;
 import ome.model.core.OriginalFile;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
+import ome.services.blitz.util.ResultHolder;
 import ome.services.blitz.util.ServiceFactoryAware;
 import ome.services.scripts.ScriptRepoHelper;
 import ome.services.util.Executor;
@@ -32,6 +32,7 @@ import omero.RType;
 import omero.ResourceError;
 import omero.ServerError;
 import omero.ValidationException;
+import omero.api.AMD_IScript_canRunScript;
 import omero.api.AMD_IScript_deleteScript;
 import omero.api.AMD_IScript_editScript;
 import omero.api.AMD_IScript_getParams;
@@ -45,11 +46,13 @@ import omero.api.AMD_IScript_uploadOfficialScript;
 import omero.api.AMD_IScript_uploadScript;
 import omero.api.AMD_IScript_validateScript;
 import omero.api._IScriptOperations;
+import omero.constants.categories.PROCESSORCALLBACK;
 import omero.grid.InteractiveProcessorI;
 import omero.grid.InteractiveProcessorPrx;
 import omero.grid.JobParams;
 import omero.grid.ParamsHelper;
 import omero.grid.ProcessPrx;
+import omero.grid.ProcessorPrx;
 import omero.grid.ScriptProcessPrx;
 import omero.grid.SharedResourcesPrx;
 import omero.model.Experimenter;
@@ -123,6 +126,34 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
                 ScriptProcessI process = new ScriptProcessI(factory, __current, ipPrx, ip, proc);
                 return process.getProxy();
+            }
+
+        });
+
+    }
+
+    public void canRunScript_async(AMD_IScript_canRunScript __cb, final long scriptID,
+            final Current __current) throws ServerError {
+        safeRunnableCall(__current, __cb, false, new Callable<Boolean>(){
+            public Boolean call() throws ServerError {
+
+                if (scripts.isInRepo(scriptID)) {
+                    return true;
+                }
+
+                // currently assuming that if we have the scriptID then
+                // it will have to be visible to the user/group and
+                // therefore those are the values we should ask the
+                // processor about.
+
+                Ice.Identity acceptId = new Ice.Identity();
+                acceptId.name = UUID.randomUUID().toString();
+                acceptId.category = PROCESSORCALLBACK.value;
+                ResultHolder<String> holder = new ResultHolder<String>(5*1000); // ms.
+                ProcessorCallbackI callback = new ProcessorCallbackI(factory, holder, null);
+                ProcessorPrx server = callback.activateAndWait(__current, acceptId);
+
+                return server != null;
             }
 
         });
@@ -370,10 +401,10 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                 qb.select("o").from("OriginalFile", "o");
 
                 if (!parseAcceptsList(qb, acceptsList)) {
-                    long uid = factory.sessionManager
+                    long gid = factory.sessionManager
                         .getEventContext(factory.principal)
-                        .getCurrentUserId();
-                    qb.and("o.details.owner.id = " + uid);
+                        .getCurrentGroupId();
+                    qb.and("o.details.group.id = " + gid);
                 }
 
                 List<Long> officialIds = scripts.idsInDb();

@@ -203,6 +203,19 @@ module omero {
                 omero::grid::ScriptProcess* runScript(long scriptID, omero::RTypeDict inputs, omero::RInt waitSecs) throws ServerError;
 
                 /**
+                 * Returns true if there is a processor which will run the given script.
+                 *
+                 * <p>
+                 * Either the script is an official script and this method will return true
+                 * (though an individual invocation may fail with an [omero::ResourceError]
+                 * for some reason) <em>or</em> this is a user script, and a usermode processor
+                 * must be active which takes the scripts user or group.
+                 * </p>
+                 *
+                 **/
+                bool canRunScript(long scriptID) throws ServerError;
+
+                /**
                  * Used internally by processor.py to check if the script attached to the [omero::model::Job]
                  * has a valid script attached, based on the [acceptsList] and the current security context.
                  *

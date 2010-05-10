@@ -15,8 +15,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import ome.api.JobHandle;
 import ome.model.IObject;
@@ -24,11 +22,10 @@ import ome.services.blitz.fire.Registry;
 import ome.services.blitz.fire.TopicManager;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
+import ome.services.blitz.util.ResultHolder;
 import ome.services.blitz.util.ServiceFactoryAware;
 import ome.services.scripts.ScriptRepoHelper;
 import ome.services.util.Executor;
-import ome.system.EventContext;
-import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.util.Filterable;
 import omero.ApiUsageException;
@@ -36,7 +33,6 @@ import omero.InternalException;
 import omero.RTime;
 import omero.ServerError;
 import omero.ValidationException;
-import omero.api.JobHandlePrx;
 import omero.constants.categories.PROCESSCALLBACK;
 import omero.constants.categories.PROCESSORCALLBACK;
 import omero.constants.topics.PROCESSORACCEPTS;
@@ -49,10 +45,7 @@ import omero.grid.InteractiveProcessorPrxHelper;
 import omero.grid.InternalRepositoryPrx;
 import omero.grid.InternalRepositoryPrxHelper;
 import omero.grid.ParamsHelper;
-import omero.grid.ProcessorCallbackPrx;
-import omero.grid.ProcessorCallbackPrxHelper;
 import omero.grid.ProcessorPrx;
-import omero.grid.ProcessorPrxHelper;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.grid.RepositoryPrxHelper;
@@ -60,7 +53,6 @@ import omero.grid.TablePrx;
 import omero.grid.TablePrxHelper;
 import omero.grid.TablesPrx;
 import omero.grid.TablesPrxHelper;
-import omero.grid._ProcessorCallbackDisp;
 import omero.grid._SharedResourcesOperations;
 import omero.model.Format;
 import omero.model.FormatI;
@@ -172,40 +164,6 @@ public class SharedResourcesI extends AbstractAmdServant implements
     private interface RepeatTask<U extends Ice.ObjectPrx> {
         void requestService(Ice.ObjectPrx server, ResultHolder<U> holder)
                 throws ServerError;
-    }
-    
-    private static class ResultHolder<U> {
-
-        private final static Log log = LogFactory.getLog(ResultHolder.class);
-
-        private final CountDownLatch c = new CountDownLatch(1);
-
-        private final long timeout;
-
-        private volatile U rv = null;
-
-        ResultHolder(long timeoutMillis) {
-            timeout = timeoutMillis;
-        }
-
-        void set(U obj) {
-            if (obj != null) {
-                rv = obj;
-                c.countDown();
-            }
-        }
-
-        U get() {
-            try {
-                c.await(timeout, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException e) {
-                // ignore
-            }
-            if (rv == null) {
-                log.debug("Nothing found.");
-            }
-            return rv;
-        }
     }
 
     @SuppressWarnings("unchecked")
@@ -360,7 +318,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
                 Arrays.<Ice.ObjectPrx> asList(repos),
                 new RepeatTask<RepositoryPrx>() {
                     public void requestService(Ice.ObjectPrx prx,
-                            final SharedResourcesI.ResultHolder holder) {
+                            final ResultHolder holder) {
 
                         final InternalRepositoryPrx server = InternalRepositoryPrxHelper
                                 .uncheckedCast(prx);
@@ -515,7 +473,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
         acceptId.name = UUID.randomUUID().toString();
         acceptId.category = PROCESSORCALLBACK.value;
         ResultHolder<String> holder = new ResultHolder<String>(seconds*1000);
-        Callback callback = new Callback(sf, holder, job);
+        ProcessorCallbackI callback = new ProcessorCallbackI(sf, holder, job);
         ProcessorPrx server = callback.activateAndWait(current, acceptId);
 
         // Nothing left to try
@@ -615,82 +573,4 @@ public class SharedResourcesI extends AbstractAmdServant implements
         });
     }
 
-    private static class Callback extends _ProcessorCallbackDisp {
-
-        private final static Log log = LogFactory.getLog(Callback.class);
-
-        private final Job job;
-
-        private final ServiceFactoryI sf;
-
-        private final ResultHolder<String> holder;
-
-        private final EventContext ec;
-
-        public Callback(ServiceFactoryI sf, ResultHolder<String> holder, Job job) {
-            this.sf = sf;
-            this.job = job;
-            this.holder = holder;
-            this.ec = sf.sessionManager.getEventContext(sf.principal);
-        }
-
-        public ProcessorPrx activateAndWait(Ice.Current current, Ice.Identity acceptId) throws ServerError {
-
-            Ice.ObjectPrx prx = sf.registerServant(acceptId, this);
-
-            try {
-                prx = sf.adapter.createDirectProxy(acceptId);
-                ProcessorCallbackPrx cbPrx =
-                        ProcessorCallbackPrxHelper.uncheckedCast(prx);
-
-                TopicManager.TopicMessage msg = new TopicManager.TopicMessage(this,
-                        PROCESSORACCEPTS.value,
-                        new ProcessorPrxHelper(),
-                        "willAccept",
-                        new omero.model.ExperimenterI(ec.getCurrentUserId(), false),
-                        new omero.model.ExperimenterGroupI(ec.getCurrentGroupId(), false),
-                        this.job,
-                        cbPrx);
-                sf.topicManager.onApplicationEvent(msg);
-                String server = holder.get();
-                Ice.ObjectPrx p = sf.adapter.getCommunicator().stringToProxy(server);
-                return ProcessorPrxHelper.uncheckedCast(p);
-            } finally {
-                sf.unregisterServant(acceptId);
-            }
-        }
-
-        public void isAccepted(boolean accepted, String sessionUuid, String procConn, Current __current) {
-
-            String reason = "because false returned";
-
-            if (accepted) {
-                log.debug(String.format(
-                        "Processor with session %s returned %s accepted",
-                        sessionUuid, procConn, accepted));
-                try {
-                    EventContext procEc = sf.sessionManager.getEventContext(new Principal(sessionUuid));
-                    if (procEc.isCurrentUserAdmin() ||
-                            procEc.getCurrentUserId().equals(ec.getCurrentUserId())) {
-                        this.holder.set(procConn);
-                    } else {
-                        reason = "since disallowed";
-                    }
-                } catch (Exception e) {
-                    reason = "due to exception: " + e.getMessage();
-                }
-            }
-
-            log.debug(String.format(
-                    "Processor with session %s rejected %s",
-                    sessionUuid, reason));
-            this.holder.set(null);
-
-        }
-
-        public void responseRunning(List<Long> jobIds, Current __current) {
-            log.error("responseRunning should not have been called");
-        }
-
-    }
 }
