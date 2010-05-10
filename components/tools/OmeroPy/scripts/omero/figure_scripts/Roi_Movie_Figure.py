@@ -41,6 +41,7 @@ import omero.scripts as scripts
 import omero.util.imageUtil as imgUtil
 import omero.util.figureUtil as figUtil
 import omero.util.script_utils as scriptUtil
+from omero.model import ImageI
 from omero.rtypes import *
 import omero.gateway
 import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
@@ -528,7 +529,7 @@ def roiFigure(session, commandArgs):
     log("Image details:")
     if "Image_IDs" in commandArgs:
         for idCount, imageId in enumerate(commandArgs["Image_IDs"]):
-            iId = long(imageId.getValue())
+            iId = imageId.getValue()
             imageIds.append(iId)
             image = gateway.getImage(iId)
             if idCount == 0:
@@ -695,20 +696,19 @@ def runAsScript():
     formats = [rstring('JPEG'),rstring('PNG')]
     cOptions = [rstring('red'),rstring('green'),rstring('blue'),rstring('yellow'),rstring('white')]
     
-    client = scripts.client('roiMovieFigure.py', 'Create a figure of movie frames from ROI region of image.', 
-    #scripts.List("Image_IDs", description="List of Images. Figure will be attached to first image").append(robject(omero.model.ImageI())),
-    scripts.List("Image_IDs", description="List of Images. Figure will be attached to first image"),
-    scripts.List("Merged_Colours", description="A list of colours to apply to merged channels. E.g. 'red' 'green' 'blue'", values=cOptions), 
-    scripts.List("Merged_Channels", description="A list of channel indexes to display"),                   
+    client = scripts.client('roiMovieFigure.py', 'Create a figure of movie frames from ROI region of image.',
+    scripts.List("Image_IDs", False, description="List of Images. Figure will be attached to first image").ofType(rlong(0)),
+    scripts.List("Merged_Colours", description="A list of colours to apply to merged channels.", values=cOptions), 
+    scripts.List("Merged_Channels", description="A list of channel indexes to display").ofType(rint(0)),                   
     scripts.Int("Width",description="Max width of each image panel", min=1),   
     scripts.Int("Height",description="The max height of each image panel", min=1),
     scripts.String("Image_Labels",description="Label images with the Image Name or Datasets or Tags", values=labels),               
     scripts.String("Algorithm", description="Algorithum for projection.", values=algorithums),
     scripts.Int("Scalebar", description="Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
-    scripts.String("Format", description="Format to save image. E.g 'PNG'.", values=formats, default='JPEG'),
+    scripts.String("Format", description="Format to save image.", values=formats, default='JPEG'),
     scripts.String("Figure_Name", description="File name of the figure to save."),
     scripts.String("Scalebar_Colour", description="The colour of the scalebar. Default is white",default='white',values=cOptions),
-    scripts.Int("Roi_Zoom", description="How much to zoom the ROI. E.g. x 2. If 0 then zoom roi panel to fit"),
+    scripts.Float("Roi_Zoom", description="How much to zoom the ROI. E.g. x 2. If 0 then zoom roi panel to fit"),
     scripts.Int("Max_Columns", description="The maximum number of columns in the figure, for ROI-movie frames.", min=1),
     scripts.Bool("Show_Roi_Duration", description="If true, times shown are from the start of the ROI frames, otherwise use movie timestamp."),
     scripts.String("Roi_Selection_Label", description=roiLabel)
