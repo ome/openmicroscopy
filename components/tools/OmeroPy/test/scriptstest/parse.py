@@ -145,6 +145,29 @@ class TestParse(unittest.TestCase):
         errors = validate_inputs(params, inputs)
         self.assertEquals("", errors, errors)
 
+    def test2340(self):
+        SCRIPT = """if True:
+            from omero.scripts import *
+            c = client('2340',
+                Long('l', default=10))"""
+        params = parse_text(SCRIPT)
+        l = params.inputs["l"]
+        self.assertNotEqual(None, l.prototype, str(l))
+
+        # Copied from testUploadOfficialScript
+        scriptLines = [
+        "import omero",
+        "from omero.rtypes import rstring, rlong",
+        "import omero.scripts as scripts",
+        "if __name__ == '__main__':",
+        "    client = scripts.client('HelloWorld.py', 'Hello World example script',",
+        "    scripts.Long('longParam', True, description='theDesc', min=rlong(1), max=rlong(10), values=[rlong(5)]) )",
+        "    client.setOutput('returnMessage', rstring('Script ran OK!'))"]
+        params = parse_text("\n".join(scriptLines))
+        l = params.inputs["longParam"]
+        self.assertNotEqual(None, l.prototype, str(l))
+
+
 if __name__ == '__main__':
     logging.basicConfig()
     unittest.main()

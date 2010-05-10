@@ -67,11 +67,11 @@ class Type(omero.grid.Param):
                 TYPE_LOG.warn("Unknown property: %s", k)
             setattr(self, k, v)
 
-        _DEF = self.PROTOTYPE_DEFAULT is not None and self.PROTOTYPE_DEFAULT or None
-        _FUN = self.PROTOTYPE_FUNCTION is not None and self.PROTOTYPE_FUNCTION.im_func or None
-        _MAX = self.PROTOTYPE_MAX is not None and self.PROTOTYPE_MAX.im_func or None
-        _MIN = self.PROTOTYPE_MIN is not None and self.PROTOTYPE_MIN.im_func or None
-        _VAL = self.PROTOTYPE_VALUES is not None and self.PROTOTYPE_VALUES.im_func or None
+        _DEF = self.__get(self.PROTOTYPE_DEFAULT, False)
+        _FUN = self.__get(self.PROTOTYPE_FUNCTION)
+        _MAX = self.__get(self.PROTOTYPE_MAX)
+        _MIN = self.__get(self.PROTOTYPE_MIN)
+        _VAL = self.__get(self.PROTOTYPE_VALUES)
 
         if default is not None:
             # Someone specifically set the prototype, then
@@ -92,8 +92,18 @@ class Type(omero.grid.Param):
             self.prototype = _FUN(_def)
 
         # The following use wrap to guarantee that an rtype is present
-        if self.min is not None: self.min = _MIN is None and _FUN(self.min) or _MIN(self.min)
-        if self.max is not None: self.max = _MAX is None and _FUN(self.max) or _MAX(self.max)
+        if self.min is not None:
+            if _MIN is None:
+                self.min = _FUN(self.min)
+            else:
+                _MIN(self.min)
+
+        if self.max is not None:
+            if _MAX is None:
+                self.max = _FUN(self.max)
+            else:
+                _MAX(self.max)
+
         if self.values is not None:
             if _VAL is None:
                 self.values = wrap(self.values)
@@ -114,6 +124,12 @@ class Type(omero.grid.Param):
         self.prototype = wrap(arg)
         return self
 
+    def __get(self, val, func = True):
+        if val is not None:
+            if func:
+                return val.im_func
+            else:
+                return val
 
 class Long(Type):
     """
