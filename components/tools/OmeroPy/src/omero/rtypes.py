@@ -417,7 +417,7 @@ class RDoubleI(omero.RDouble):
 class RFloatI(omero.RFloat):
 
     def __init__(self, value):
-        omero.RFloat.__init__(self, value)
+        omero.RFloat.__init__(self, float(value))
 
     def getValue(self, current = None):
         return self._val
@@ -472,7 +472,7 @@ class RFloatI(omero.RFloat):
 class RIntI(omero.RInt):
 
     def __init__(self, value):
-        omero.RInt.__init__(self, value)
+        omero.RInt.__init__(self, int(value))
 
     def getValue(self, current = None):
         return self._val
@@ -527,7 +527,7 @@ class RIntI(omero.RInt):
 class RLongI(omero.RLong):
 
     def __init__(self, value):
-        omero.RLong.__init__(self, value)
+        omero.RLong.__init__(self, long(value))
 
     def getValue(self, current = None):
         return self._val
