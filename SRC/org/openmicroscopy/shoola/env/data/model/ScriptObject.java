@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.env.data.model;
 
 
 //Java imports
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -55,6 +56,18 @@ import pojos.ExperimenterData;
  */
 public class ScriptObject 
 {
+	
+	/** 
+	 * The character used to separate parameter composed of more than
+	 * one word at the scripting level.
+	 */
+	public static final String PARAMETER_SEPARATOR = "_";
+	
+	/** 
+	 * The character used to separate parameter composed of more than
+	 * one word at the UI level.
+	 */
+	public static final String PARAMETER_UI_SEPARATOR = " ";
 	
 	/** Path to the <code>Figure</code> script. */
 	public static final String FIGURE_PATH = "/omero/figure_scripts/";
@@ -316,6 +329,18 @@ public class ScriptObject
 	 */
 	public String getName() { return name; }
 
+	/**
+	 * Returns the UI name of the script.
+	 * 
+	 * @return See above.
+	 */
+	public String getDisplayedName()
+	{
+		//parse the Name
+		String value = name.substring(0, name.lastIndexOf('.'));
+		return value.replace(PARAMETER_SEPARATOR, PARAMETER_UI_SEPARATOR);
+	}
+	
 	/**
 	 * Sets the icon.
 	 * 

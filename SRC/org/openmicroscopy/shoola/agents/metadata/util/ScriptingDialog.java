@@ -88,7 +88,8 @@ public class ScriptingDialog
 {
 	
 	/** Bound property indicating to run the script. */
-	public static final String RUN_SCRIPT_PROPERTY = "runScript";
+	public static final String RUN_SELECTED_SCRIPT_PROPERTY = 
+		"runSelectedScript";
 	
 	/** 
 	 * The size of the invisible components used to separate buttons
@@ -199,7 +200,7 @@ public class ScriptingDialog
 			param = inputs.get(entry.getKey());
 			param.setValueToPass(c.getValue());
 		}
-		firePropertyChange(RUN_SCRIPT_PROPERTY, null, script);
+		firePropertyChange(RUN_SELECTED_SCRIPT_PROPERTY, null, script);
 		close();
 	}
 	
@@ -220,8 +221,8 @@ public class ScriptingDialog
 			value = i.next();
 			if (value instanceof String)
 				v[j] = ((String) value).replace(
-						ScriptComponent.PARAMETER_SEPARATOR, 
-						ScriptComponent.PARAMETER_UI_SEPARATOR);
+						ScriptObject.PARAMETER_SEPARATOR, 
+						ScriptObject.PARAMETER_UI_SEPARATOR);
 			else v[j] = value;
 			j++;
 		}

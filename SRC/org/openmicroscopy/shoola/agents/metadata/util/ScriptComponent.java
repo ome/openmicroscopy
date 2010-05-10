@@ -38,6 +38,7 @@ import javax.swing.JTextField;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -56,18 +57,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 class ScriptComponent 
 {
-
-	/** 
-	 * The character used to separate parameter composed of more than
-	 * one word at the scripting level.
-	 */
-	static final String PARAMETER_SEPARATOR = "_";
-	
-	/** 
-	 * The character used to separate parameter composed of more than
-	 * one word at the UI level.
-	 */
-	static final String PARAMETER_UI_SEPARATOR = " ";
 	
 	/** Indicates the required field. */
 	static final String REQUIRED = "*";
@@ -105,8 +94,9 @@ class ScriptComponent
 			throw new IllegalArgumentException("No component specified.");
 		this.component = component;
 		//format
-		label = UIUtilities.setTextFont(parameter.replace(PARAMETER_SEPARATOR, 
-				PARAMETER_UI_SEPARATOR));
+		label = UIUtilities.setTextFont(parameter.replace(
+				ScriptObject.PARAMETER_SEPARATOR, 
+				ScriptObject.PARAMETER_UI_SEPARATOR));
 		label.setToolTipText(component.getToolTipText());
 		required = false;
 	}
@@ -220,8 +210,8 @@ class ScriptComponent
 			JComboBox box = (JComboBox) c;
 			Object o = box.getSelectedItem();
 			if (o instanceof String)
-				return ((String) o).replace(PARAMETER_UI_SEPARATOR, 
-						PARAMETER_SEPARATOR);
+				return ((String) o).replace(ScriptObject.PARAMETER_UI_SEPARATOR, 
+						ScriptObject.PARAMETER_SEPARATOR);
 			return o;
 		} else if (c instanceof ComplexParamPane)
 			return ((ComplexParamPane) c).getValue();

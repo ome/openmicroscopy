@@ -497,7 +497,7 @@ class EditorControl
 			figureDialog = null;
 		} else if (MetadataViewer.CLOSE_RENDERER_PROPERTY.equals(name)) {
 			view.discardRenderer(evt.getNewValue());
-		} else if (ScriptingDialog.RUN_SCRIPT_PROPERTY.equals(name)) {
+		} else if (ScriptingDialog.RUN_SELECTED_SCRIPT_PROPERTY.equals(name)) {
 			view.runScript((ScriptObject) evt.getNewValue());
 		} 
 	}

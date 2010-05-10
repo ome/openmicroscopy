@@ -28,14 +28,14 @@ import javax.swing.JMenu;
 
 
 //Third-party libraries
+import org.apache.commons.lang.WordUtils;
 
 //Application-internal dependencies
-import org.apache.commons.lang.WordUtils;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Displays the available scripts within a given directory.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -74,8 +74,8 @@ public class ScriptSubMenu
 			}
 		}
 		if (value == null || value.trim().length() == 0) return NAME;
-		value = value.replace(ScriptComponent.PARAMETER_SEPARATOR, 
-				ScriptComponent.PARAMETER_UI_SEPARATOR);
+		value = value.replace(ScriptObject.PARAMETER_SEPARATOR, 
+				ScriptObject.PARAMETER_UI_SEPARATOR);
 		return WordUtils.capitalize(value);
 	}
 	
