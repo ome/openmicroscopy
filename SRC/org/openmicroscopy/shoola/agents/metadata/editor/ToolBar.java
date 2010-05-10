@@ -35,7 +35,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -55,7 +54,7 @@ import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
-import org.openmicroscopy.shoola.agents.metadata.util.ScriptMenuItem;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.util.ScriptSubMenu;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -256,8 +255,10 @@ class ToolBar
     	bar.add(downloadButton);
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(publishingButton);
-    	bar.add(Box.createHorizontalStrut(5));
-    	bar.add(uploadScriptButton);
+    	if (MetadataViewerAgent.isAdministrator()) {
+    		bar.add(Box.createHorizontalStrut(5));
+        	bar.add(uploadScriptButton);
+    	}
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(scriptsButton);
     	return bar;
