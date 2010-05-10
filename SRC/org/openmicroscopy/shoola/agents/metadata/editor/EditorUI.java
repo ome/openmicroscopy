@@ -759,4 +759,11 @@ class EditorUI
     	model.uploadScript();
     }
 	
+    void reloadScript()
+    {
+    	model.setScripts(null);
+    	model.loadScripts();
+    	toolBar.setStatus(true);
+    }
+    
 }

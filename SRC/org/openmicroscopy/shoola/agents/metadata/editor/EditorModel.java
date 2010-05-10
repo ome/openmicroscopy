@@ -2317,6 +2317,10 @@ class EditorModel
 	 */
 	void setScripts(List scripts)
 	{ 
+		if (scripts == null) {
+			this.scripts = null;
+			return;
+		}
 		//sort the scripts.
 		Map<Long, ScriptObject> map = new LinkedHashMap<Long, ScriptObject>();
 		if (scripts == null) return;

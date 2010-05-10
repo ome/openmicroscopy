@@ -164,6 +164,9 @@ class EditorControl
 	/** Action ID to upload a script to the server. */
 	static final int	UPLOAD_SCRIPT = 17;
 	
+	/** Action ID to upload a script to the server. */
+	static final int	RELOAD_SCRIPT = 18;
+	
     /** Reference to the Model. */
     private Editor		model;
     
@@ -569,6 +572,9 @@ class EditorControl
 				break;
 			case UPLOAD_SCRIPT:
 				view.uploadScript();
+				break;
+			case RELOAD_SCRIPT:
+				view.reloadScript();
 		}
 	}
 	

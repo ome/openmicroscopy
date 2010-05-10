@@ -332,12 +332,22 @@ class ToolBar
     private JPopupMenu getScriptsMenu()
     {
     	JPopupMenu menu = new JPopupMenu();
+    	
     	Collection<ScriptObject> scripts = model.getScripts();
     	//Scripts are sorted.
-    	if (scripts == null) return menu;
+    	if (scripts == null || scripts.size() == 0) return menu;
+    	IconManager icons = IconManager.getInstance();
+    	JMenuItem refresh = new JMenuItem(icons.getIcon(
+				IconManager.REFRESH));
+    	refresh.setText("Reload Scripts");
+    	refresh.setToolTipText("Reloads the existing scripts.");
+    	refresh.addActionListener(controller);
+    	refresh.setActionCommand(""+EditorControl.RELOAD_SCRIPT);
+    	menu.add(refresh);
+    	menu.add(new JSeparator());
+    	
     	Iterator<ScriptObject> i = scripts.iterator();
     	ScriptObject so;
-    	JMenuItem item;
     	Map<String, ScriptSubMenu> menus = new HashMap<String, ScriptSubMenu>();
     	String path;
     	ScriptSubMenu subMenu;
