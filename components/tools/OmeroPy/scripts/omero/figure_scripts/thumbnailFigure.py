@@ -55,7 +55,7 @@ formatExtensionMap = {JPEG:"jpg", PNG:"png"};
 logLines = []    # make a log / legend of the figure
 def log(text):
     """ Adds lines of text to the logLines list, so they can be collected into a figure legend. """
-    # print text
+    print text
     logLines.append(text)
     
     
@@ -331,9 +331,9 @@ def makeThumbnailFigure(client, session, commandArgs):
     
     # uploads the file to the server, attaching it to the 'parent' Project/Dataset as an OriginalFile annotation,
     # with the figLegend as the description. Returns the id of the originalFileLink child. (ID object, not value)
-    fileId = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, parent, output, format, figLegend)
+    fileAnnotation = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, parent, output, format, figLegend)
     
-    return fileId
+    return fileAnnotation
         
 
 def runAsScript():
@@ -342,14 +342,9 @@ def runAsScript():
     returns the output to the client. 
     def __init__(self, name, optional = False, out = False, description = None, type = None, min = None, max = None, values = None)
     """
-
-    def makeParam(paramClass, name, description=None, optional=True, min=None, max=None, values=None, default=None):
-        param = paramClass(name, optional, description=description, min=min, max=max, values=values)
-        if default:
-            param.type(default)
-            param.useDefault = True
-        return param
-
+        
+    formats = [rstring('JPEG'),rstring('PNG')]
+    
     client = scripts.client('thumbnailFigure.py', 'Export a figure of thumbnails, optionally sorted by tag.',
 
         scripts.List("datasetIds",
@@ -379,8 +374,9 @@ def runAsScript():
         scripts.String("figureName",
             description="File name of figure to create"),
 
-        scripts.Long("fileAnnotation",
-            description="Script returns a file annotation").out())
+       # scripts.Long("fileAnnotation",
+        #    description="Script returns a file annotation").out()
+            )
 
     session = client.getSession()
     commandArgs = {}
@@ -390,8 +386,8 @@ def runAsScript():
             commandArgs[key] = client.getInput(key).getValue()
     print commandArgs
     # Makes the figure and attaches it to Project/Dataset. Returns the id of the originalFileLink child. (ID object, not value)
-    fileId = makeThumbnailFigure(client, session, commandArgs)
-    client.setOutput("fileAnnotation",fileId)
+    fileAnnotation = makeThumbnailFigure(client, session, commandArgs)
+    client.setOutput("File_Annotation", robject(fileAnnotation))
 
 if __name__ == "__main__":
     runAsScript()

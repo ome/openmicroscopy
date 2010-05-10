@@ -26,7 +26,7 @@ to export OMERO images as mrc images, which are then opened in Chimera on the cl
 Example usage, for exporting all the images in dataset ID: 901 as tif files to the given directory.
 python openInChimera.py -h localhost -u root -p omero -i 151 -o /Users/will/Desktop/EMAN-export/tif/
 
-	
+    
 @author  Will Moore &nbsp;&nbsp;&nbsp;&nbsp;
 <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
 @version 3.0
@@ -39,160 +39,161 @@ python openInChimera.py -h localhost -u root -p omero -i 151 -o /Users/will/Desk
 
 import omero
 import getopt, sys, os, subprocess
-import omero_api_Gateway_ice	# see http://tinyurl.com/icebuserror
+import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
 import omero_api_IScript_ice
 import omero_SharedResources_ice
 from omero.rtypes import *
 import omero.util.script_utils as scriptUtil
 
-	
+    
 def getColours(re, sizeC, pixelsId):
-	colours = []
-	re.lookupPixels(pixelsId)
-	re.lookupRenderingDef(pixelsId)
-	re.load()
-	for c in range(sizeC):
-		colours.append(re.getRGBA(c))
-	return colours
-		
-		
+    colours = []
+    re.lookupPixels(pixelsId)
+    re.lookupRenderingDef(pixelsId)
+    re.load()
+    for c in range(sizeC):
+        colours.append(re.getRGBA(c))
+    return colours
+        
+        
 def run(commandArgs):
-	
-	# login details
-	host = commandArgs["host"]
-	user = commandArgs["username"]
-	password = commandArgs["password"]
-	
-	client = omero.client(host)
-	session = client.createSession(user, password)
-	
-	# create the services we need
-	scriptService = session.getScriptService()
-	rawFileStore = session.createRawFileStore()
-	queryService = session.getQueryService()
-	gateway = session.createGateway()
-	re = session.createRenderingEngine()
-	
-	imageId = None
-	
-	if "image" in commandArgs:
-		imageId = long(commandArgs["image"])
-	else:
-		print "No image ID given"
-		return
-	
-	# get the most recent (highest ID) script with the correct name
-	scriptName = "saveImageAs.py"
-	scripts = scriptService.getScripts()	# map of ID: Name for all scripts
-	scriptId = max([i for i, s in scripts.items() if s == scriptName])
-	
-	print "Running saveImageAs.py with script ID: " , scriptId
-	imageIds = omero.rtypes.rlist([omero.rtypes.rint(imageId)])
-	
-	map = {
-		"imageIds": imageIds,
-		"extension": omero.rtypes.rstring("mrc")	# export as mrc file
-	}  
-	
-	argMap = omero.rtypes.rmap(map)
-	
-	results = None
-	try: 
-		# TODO: this will be refactored 
-		job = omero.model.ScriptJobI() 
-		job.linkOriginalFile(omero.model.OriginalFileI(scriptId, False)) 
-		processor = session.sharedResources().acquireProcessor(job, 10) 
-		proc = processor.execute(argMap) 
-		processor.setDetach(True)
-		proc.wait()
-		results = processor.getResults(proc).getValue()
-	except omero.ResourceError, re: 
-		print "Could not launch", re
-		
-	
-	path = None
-	if "path" in commandArgs:
-		path = commandArgs["path"]
-	
-	
-	fileNames = []	# need names for passing to chimera
-	if "originalFileIds" in results:
-		for r in results["originalFileIds"].getValue():
-			# download the file from OMERO 
-			fileId = r.getValue()
-			print "Downloading Original File ID:", fileId
-			originalFile = queryService.findByQuery("from OriginalFile as o where o.id = %s" % fileId, None)
-			name = originalFile.getName().getValue()
-			if path:
-				name = os.path.join(path, name)
-			filePath = scriptUtil.downloadFile(rawFileStore, originalFile, name)
-			print "   file saved to:", filePath
-			fileNames.append(filePath)		# if 'name' file already exists, filePath will be different 
-			# This only deletes the DB row, not the data on disk! utils.cleanse.py removes files that are not in db. 
-			gateway.deleteObject(originalFile)
-	else:
-		print "No OriginalFileIds returned by script"
-		return
-		
+    
+    # login details
+    host = commandArgs["host"]
+    user = commandArgs["username"]
+    password = commandArgs["password"]
+    
+    client = omero.client(host)
+    session = client.createSession(user, password)
+    
+    # create the services we need
+    scriptService = session.getScriptService()
+    rawFileStore = session.createRawFileStore()
+    queryService = session.getQueryService()
+    gateway = session.createGateway()
+    re = session.createRenderingEngine()
+    
+    imageId = None
+    
+    if "image" in commandArgs:
+        imageId = long(commandArgs["image"])
+    else:
+        print "No image ID given"
+        return
+    
+    # get the most recent (highest ID) script with the correct name
+    scriptName = "saveImageAs.py"
+    scripts = scriptService.getUserScripts([])
+    namedScripts = [s.id.val for s in scripts if s.name.val == scriptName]
+    
+    if len(namedScripts) == 0:
+        print "Didn't find 'saveImageAs.py' script on server. Need to upload it!"
+    scriptId = max(namedScripts)
+    
+    print "Running saveImageAs.py with script ID: " , scriptId
+    imageIds = omero.rtypes.rlist([omero.rtypes.rint(imageId)])
+    
+    map = {
+        "imageIds": imageIds,
+        "extension": omero.rtypes.rstring("mrc")    # export as mrc file
+    }  
+    
+    results = None
+    
+    proc = scriptService.runScript(scriptId, map, None)
+    try:
+        cb = omero.scripts.ProcessCallbackI(client, proc)
+        while not cb.block(1000): # ms.
+            pass
+        cb.close()
+        results = proc.getResults(0)    # ms
+    finally:
+        proc.close(False)
+        
+    
+    path = None
+    if "path" in commandArgs:
+        path = commandArgs["path"]
+    
+    
+    fileNames = []    # need names for passing to chimera
+    if "originalFileIds" in results:
+        for r in results["originalFileIds"].getValue():
+            # download the file from OMERO 
+            fileId = r.getValue()
+            print "Downloading Original File ID:", fileId
+            originalFile = queryService.findByQuery("from OriginalFile as o where o.id = %s" % fileId, None)
+            name = originalFile.getName().getValue()
+            if path:
+                name = os.path.join(path, name)
+            filePath = scriptUtil.downloadFile(rawFileStore, originalFile, name)
+            print "   file saved to:", filePath
+            fileNames.append(filePath)        # if 'name' file already exists, filePath will be different 
+            # This only deletes the DB row, not the data on disk! utils.cleanse.py removes files that are not in db. 
+            gateway.deleteObject(originalFile)
+    else:
+        print "No OriginalFileIds returned by script"
+        return
+        
 
-	# need to get colours for each channel, to pass to chimera. Chimera uses [(0.0, 0.0, 1.0, 1.0),(0.0, 1.0, 0.0, 1.0)]
-	# This returns e.g. [[0, 0, 255, 255], [0, 255, 0, 255], [255, 0, 0, 255], [255, 0, 0, 255]] but seems to work OK. 
-	pixels = gateway.getImage(imageId).getPrimaryPixels()
-	pixelsId = pixels.getId().getValue()
-	sizeC = pixels.getSizeC().getValue()
-	colours = getColours(re, sizeC, pixelsId)
-	
-	# now we need to make a Chimera script to open the images (channels) and colour them! 
-	scriptLines = []
-	scriptLines.append("from chimera import openModels")
-	scriptLines.append("from VolumeViewer import Volume")
-	for fn in fileNames:
-		scriptLines.append("openModels.open('%s')" % fn)
-	scriptLines.append("colors = %s" % colours)		# the colours list is rendered suitably as a string 
-	scriptLines.append("for c, v in enumerate(openModels.list(modelTypes=[Volume])):")
-	scriptLines.append("    v.set_parameters(surface_colors = [colors[c]])")
-	scriptLines.append("    v.show()")
-	
-	print "\n".join(scriptLines)
-	
-	scriptName = "colourMaps.py"
-	f = open(scriptName, 'w')		# will overwrite each time. 
-	for line in scriptLines:
-		f.write(line)
-		f.write("\n")
-	f.close()
-	
-	command = "chimera --script %s" % scriptName
-	print command
-	os.system(command)
-	
+    # need to get colours for each channel, to pass to chimera. Chimera uses [(0.0, 0.0, 1.0, 1.0),(0.0, 1.0, 0.0, 1.0)]
+    # This returns e.g. [[0, 0, 255, 255], [0, 255, 0, 255], [255, 0, 0, 255], [255, 0, 0, 255]] but seems to work OK. 
+    pixels = gateway.getImage(imageId).getPrimaryPixels()
+    pixelsId = pixels.getId().getValue()
+    sizeC = pixels.getSizeC().getValue()
+    colours = getColours(re, sizeC, pixelsId)
+    
+    # now we need to make a Chimera script to open the images (channels) and colour them! 
+    scriptLines = []
+    scriptLines.append("from chimera import openModels")
+    scriptLines.append("from VolumeViewer import Volume")
+    for fn in fileNames:
+        scriptLines.append("openModels.open('%s')" % fn)
+    scriptLines.append("colors = %s" % colours)        # the colours list is rendered suitably as a string 
+    scriptLines.append("for c, v in enumerate(openModels.list(modelTypes=[Volume])):")
+    scriptLines.append("    v.set_parameters(surface_colors = [colors[c]])")
+    scriptLines.append("    v.show()")
+    
+    print "\n".join(scriptLines)
+    
+    scriptName = "colourMaps.py"
+    f = open(scriptName, 'w')        # will overwrite each time. 
+    for line in scriptLines:
+        f.write(line)
+        f.write("\n")
+    f.close()
+    
+    command = "chimera --script %s" % scriptName
+    print command
+    os.system(command)
+    
 
 def readCommandArgs():
 
-	def usage():
-		print "Usage: openInChimera.py --host host --username username --password password --image image --output output-path"
-	try:
-		opts, args = getopt.getopt(sys.argv[1:] ,"h:u:p:i:o:", 
-			["host=", "username=", "password=", "image=", "output="])
-	except getopt.GetoptError, err:          
-		usage()                         
-		sys.exit(2) 
-	returnMap = {}                    
-	for opt, arg in opts: 
-		if opt in ("-h","--host"):
-			returnMap["host"] = arg
-		elif opt in ("-u","--username"): 
-			returnMap["username"] = arg	
-		elif opt in ("-p","--password"): 
-			returnMap["password"] = arg	
-		elif opt in ("-i","--image"): 
-			returnMap["image"] = arg
-		elif opt in ("-o","--output"):
-			returnMap["path"] = arg
-			
-	#print returnMap	
-	return returnMap
+    def usage():
+        print "Usage: openInChimera.py --host host --username username --password password --image image --output output-path"
+    try:
+        opts, args = getopt.getopt(sys.argv[1:] ,"h:u:p:i:o:", 
+            ["host=", "username=", "password=", "image=", "output="])
+    except getopt.GetoptError, err:          
+        usage()                         
+        sys.exit(2) 
+    returnMap = {}                    
+    for opt, arg in opts: 
+        if opt in ("-h","--host"):
+            returnMap["host"] = arg
+        elif opt in ("-u","--username"): 
+            returnMap["username"] = arg    
+        elif opt in ("-p","--password"): 
+            returnMap["password"] = arg    
+        elif opt in ("-i","--image"): 
+            returnMap["image"] = arg
+        elif opt in ("-o","--output"):
+            returnMap["path"] = arg
+            
+    #print returnMap    
+    return returnMap
 
-if __name__ == "__main__":	    
-	commandArgs = readCommandArgs()
-	run(commandArgs)
+if __name__ == "__main__":        
+    commandArgs = readCommandArgs()
+    run(commandArgs)

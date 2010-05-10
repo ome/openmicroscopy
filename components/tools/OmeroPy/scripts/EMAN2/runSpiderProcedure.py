@@ -165,7 +165,7 @@ def uploadImageToDataset(services, pixelsType, imageName, dataset=None, descript
         gateway.saveObject(pixels)
     
     # make a temp text file. 
-    f = open(fileName, 'r')
+    f = open(fileName, 'w')
     f.write("[GlobalMetadata]\n")
 
     # now add image attributes as "Original Metadata", sorted by key. 

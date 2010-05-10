@@ -1,5 +1,5 @@
 """
- components/tools/OmeroPy/scripts/combineImages.py 
+ components/tools/OmeroPy/scripts/omero/util_scripts/combineImages.py 
 
 -----------------------------------------------------------------------------
   Copyright (C) 2006-2010 University of Dundee. All rights reserved.

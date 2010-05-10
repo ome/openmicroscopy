@@ -64,7 +64,7 @@ def log(text):
     """
     Adds the text to a list of logs. Compiled into figure legend at the end.
     """
-    #print text
+    print text
     logStrings.append(text)    
 
 
@@ -724,45 +724,40 @@ def roiFigure(session, commandArgs):
     # Use util method to upload the figure 'output' to the server, attaching it to the omeroImage, adding the 
     # figLegend as the fileAnnotation description. 
     # Returns the id of the originalFileLink child. (ID object, not value)
-    fileId = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, omeroImage, output, format, figLegend)
-    return fileId
+    fileAnnotation = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, omeroImage, output, format, figLegend)
+    return fileAnnotation
 
 def runAsScript():
     """
     The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
     """
-    def makeParam(paramClass, name, description=None, optional=True, min=None, max=None, values=None):
-        param = paramClass(name, optional)
-        if description: param.description = description
-        if max: param.max = rlong(max) # should only be using max and min for scripts.Long
-        if min: param.min = rlong(min)
-        if values: param.values = rlist(values)
-        return param
-        
-    labels = [rstring('IMAGENAME'), rstring('DATASETS'), rstring('TAGS')]
-    algorithums = [rstring('MAXIMUMINTENSITY'),rstring('MEANINTENSITY')]
+     
+    labels = [rstring('Image_Name'), rstring('Datasets'), rstring('Tags')]
+    algorithums = [rstring('Maximum_Intensity'),rstring('Mean_Intensity')]
     roiLabel = """Specify an ROI to pick by specifying it's shape label. 'FigureROI' by default,
               (not case sensitive). If matching ROI not found, use any ROI."""
+    formats = [rstring('JPEG'),rstring('PNG')]
     
     client = scripts.client('roiFigure.py', 'Create a figure of an ROI region as separate zoomed split-channel panels.', 
-    makeParam(scripts.List,"imageIds", "List of image IDs. Resulting figure will be attached to first image.", False),
-    makeParam(scripts.Map,"channelNames", "Map of index: channel name for All channels"),
-    makeParam(scripts.Bool,"mergedNames", "If true, label the merged panel with channel names. Otherwise label with 'Merged'"),
-    makeParam(scripts.List,"splitIndexes", "List of the channels in the split view panels"),
-    makeParam(scripts.Bool,"splitPanelsGrey", "If true, all split panels are greyscale"),
-    makeParam(scripts.Map,"mergedColours", "Map of index:int colours for each merged channel. Default: Blue, Green, Red"),
-    makeParam(scripts.Long,"width","Max width of each image panel", min=1),   
-    makeParam(scripts.Long,"height","The max height of each image panel", min=1),
-    makeParam(scripts.String,"imageLabels","Label images with the IMAGENAME or DATASETS or TAGS", values=labels),               
-    makeParam(scripts.String,"algorithm", "Algorithum for projection.", values=algorithums),
-    makeParam(scripts.Long,"stepping","The Z-plane increment for projection. Default is 1", min=1),
-    makeParam(scripts.Long,"scalebar", "Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
-    makeParam(scripts.String,"format", "Format to save image. E.g 'PNG'. Default is JPEG"),
-    makeParam(scripts.String,"figureName", "File name of the figure to save."),
-    makeParam(scripts.Long,"overlayColour", "The colour of the scalebar. Default is white"),
-    makeParam(scripts.Long,"roiZoom", "How much to zoom the ROI. E.g. x 2. If 0 then zoom roi panel to fit"),
-    makeParam(scripts.String,"roiLabel", roiLabel),
-    makeParam(scripts.Long,"fileAnnotation", "Script returns a File Annotation ID of attached Figure").out())
+    scripts.List("imageIds", "List of image IDs. Resulting figure will be attached to first image.", False),
+    scripts.Map("channelNames", "Map of index: channel name for All channels"),
+    scripts.Bool("mergedNames", "If true, label the merged panel with channel names. Otherwise label with 'Merged'"),
+    scripts.List("splitIndexes", "List of the channels in the split view panels"),
+    scripts.Bool("splitPanelsGrey", "If true, all split panels are greyscale"),
+    scripts.Map("mergedColours", "Map of index:int colours for each merged channel. Default: Blue, Green, Red"),
+    scripts.Int("width","Max width of each image panel", min=1),   
+    scripts.Int("height","The max height of each image panel", min=1),
+    scripts.String("imageLabels","Label images with the IMAGENAME or DATASETS or TAGS", values=labels),               
+    scripts.String("algorithm", "Algorithum for projection.", values=algorithums),
+    scripts.Int("stepping","The Z-plane increment for projection. Default is 1", min=1),
+    scripts.Int("scalebar", "Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
+    scripts.String("format", "Format to save image. E.g 'PNG'.", values=formats, default='JPEG'),
+    scripts.String("figureName", "File name of the figure to save."),
+    scripts.Int("overlayColour", "The colour of the scalebar. Default is white"),
+    scripts.Int("roiZoom", "How much to zoom the ROI. E.g. x 2. If 0 then zoom roi panel to fit", min=0),
+    scripts.String("roiLabel", roiLabel),
+    scripts.Long("fileAnnotation", "Script returns a File Annotation ID of attached Figure").out()
+    )
     
     session = client.getSession();
     gateway = session.createGateway();
@@ -774,9 +769,9 @@ def runAsScript():
             commandArgs[key] = client.getInput(key).getValue()
     
     # call the main script, attaching resulting figure to Image. Returns the id of the originalFileLink child. (ID object, not value)
-    fileId = roiFigure(session, commandArgs)
+    fileAnnotation = roiFigure(session, commandArgs)
     # return this fileAnnotation to the client. 
-    client.setOutput("fileAnnotation",fileId)
+    client.setOutput("File_Annotation", robject(fileAnnotation))
     
 if __name__ == "__main__":
     runAsScript()

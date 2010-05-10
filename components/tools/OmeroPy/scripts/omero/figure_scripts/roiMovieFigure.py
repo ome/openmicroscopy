@@ -65,7 +65,7 @@ def log(text):
     """
     Adds the text to a list of logs. Compiled into figure legend at the end.
     """
-    #print text
+    print text
     logStrings.append(text)    
 
 
@@ -586,7 +586,7 @@ def roiFigure(session, commandArgs):
     if "Merged_Channels" in commandArgs:
         mergedIndexes = []    # the channels in the combined image, 
         for i in commandArgs["Merged_Channels"]:
-            mergedIndexes.append(i.getValue())
+            mergedIndexes.append(int(i.getValue())) # value may be a string - no type checking
     else:
         mergedIndexes = range(sizeC) # show all
     mergedIndexes.reverse()
@@ -680,22 +680,13 @@ def roiFigure(session, commandArgs):
     # Use util method to upload the figure 'output' to the server, attaching it to the omeroImage, adding the 
     # figLegend as the fileAnnotation description. 
     # Returns the id of the originalFileLink child. (ID object, not value)
-    fileId = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, omeroImage, output, format, figLegend)
-    return fileId
+    fileAnnotation = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, omeroImage, output, format, figLegend)
+    return fileAnnotation
 
 def runAsScript():
     """
     The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
     """
-    
-    def makeParam(paramClass, name, description=None, optional=True, min=None, max=None, values=None, default=None):
-        param = paramClass(name, optional, description=description, min=min, max=max, values=values)
-        #if max: param.max = rlong(max) # should only be using max and min for scripts.Long
-        #if min: param.min = rlong(min)
-        if default:
-            param.type(default)
-            param.useDefault = True
-        return param
     
     labels = [rstring('Image_Name'), rstring('Datasets'), rstring('Tags')]
     algorithums = [rstring('Maximum_Intensity'),rstring('Mean_Intensity')]
@@ -705,7 +696,6 @@ def runAsScript():
     cOptions = [rstring('red'),rstring('green'),rstring('blue'),rstring('yellow'),rstring('white')]
     
     client = scripts.client('roiMovieFigure.py', 'Create a figure of movie frames from ROI region of image.', 
-    #makeParam(scripts.List,"Image_IDs", "List of image IDs. Resulting figure will be attached to first image", False), 
     #scripts.List("Image_IDs", description="List of Images. Figure will be attached to first image").append(robject(omero.model.ImageI())),
     scripts.List("Image_IDs", description="List of Images. Figure will be attached to first image"),
     scripts.List("Merged_Colours", description="A list of colours to apply to merged channels. E.g. 'red' 'green' 'blue'", values=cOptions), 
@@ -722,7 +712,7 @@ def runAsScript():
     scripts.Int("Max_Columns", description="The maximum number of columns in the figure, for ROI-movie frames.", min=1),
     scripts.Bool("Show_Roi_Duration", description="If true, times shown are from the start of the ROI frames, otherwise use movie timestamp."),
     scripts.String("Roi_Selection_Label", description=roiLabel),
-    scripts.Long("File_Annotation", description="Script returns a File Annotation ID of attached Figure").out()
+    #scripts.R("File_Annotation", description="Script returns a File Annotation ID of attached Figure").out()
     )
     
     session = client.getSession();
@@ -734,12 +724,12 @@ def runAsScript():
         if client.getInput(key):
             commandArgs[key] = client.getInput(key).getValue()
     
-    print commandArgs
-    return
+    #print commandArgs
     # call the main script, attaching resulting figure to Image. Returns the id of the originalFileLink child. (ID object, not value)
-    fileId = roiFigure(session, commandArgs)
+    fileAnnotation = roiFigure(session, commandArgs)
     # return this fileAnnotation to the client. 
-    client.setOutput("fileAnnotation",fileId)
+    client.setOutput("Message", rstring("Script Ran OK. ID %s" % fileAnnotation.id.val))
+    client.setOutput("File_Annotation",robject(fileAnnotation))
     
 if __name__ == "__main__":
     runAsScript()

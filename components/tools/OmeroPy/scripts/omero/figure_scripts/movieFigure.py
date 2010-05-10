@@ -61,7 +61,7 @@ formatExtensionMap = {JPEG:"jpg", PNG:"png"};
 
 logLines = []    # make a log / legend of the figure
 def log(text):
-    #print text
+    print text
     logLines.append(text)
     
 
@@ -502,42 +502,36 @@ def movieFigure(session, commandArgs):
         figure.save(output)
     
 
-    fileId = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, omeroImage, output, format, figLegend)
-    return fileId    
+    fileAnnotation = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, omeroImage, output, format, figLegend)
+    return fileAnnotation    
 
 def runAsScript():
     """
     The main entry point of the script. Gets the parameters from the scripting service, makes the figure and 
     returns the output to the client. 
     """
-    def makeParam(paramClass, name, description=None, optional=True, min=None, max=None, values=None):
-        param = paramClass(name, optional)
-        if description: param.description = description
-        if max: param.max = rlong(max) # should only be using max and min for scripts.Long
-        if min: param.min = rlong(min)
-        if values: param.values = rlist(values)
-        return param
         
-    labels = [rstring('IMAGENAME'), rstring('DATASETS'), rstring('TAGS')]
+    labels = [rstring('Image_Name'), rstring('Datasets'), rstring('Tags')]
     algorithums = [rstring('MAXIMUMINTENSITY'),rstring('MEANINTENSITY')]
     tunits =  [rstring("SECS"), rstring("MINS"), rstring("HOURS"), rstring("MINS_SECS"), rstring("HOURS_MINS")]
     
     client = scripts.client('movieFigure.py', 'Export a figure of a movie.', 
-    makeParam(scripts.List,"imageIds", "List of image IDs. Resulting figure will be attached to first image.", False),
-    makeParam(scripts.List,"tIndexes", "The time frames to display in the figure for each image"),
-    makeParam(scripts.Long,"zStart", "Projection range (if not specified or -1, use defaultZ only - no projection)", min=-1),
-    makeParam(scripts.Long,"zEnd", "Projection range (if not specified or -1, use defaultZ only - no projection)", min=-1),
-    makeParam(scripts.Long,"width", "The max width of each image panel. Default is first image width", min=1),
-    makeParam(scripts.Long,"height", "The max height of each image panel. Default is first image height", min=1),
-    makeParam(scripts.String,"algorithm", "Algorithum for projection.", values=algorithums),
-    makeParam(scripts.String,"imageLabels", "Label images with Image name (default) or datasets or tags", values=labels),
-    makeParam(scripts.Long,"stepping", "The Z increment for projection. Default is 1", min=1),
-    makeParam(scripts.Long,"scalebar", "Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
-    makeParam(scripts.String,"format", "Format to save image. E.g 'PNG'. Default is JPEG"),
-    makeParam(scripts.String,"figureName", "File name of the figure to save."),
-    makeParam(scripts.Long,"overlayColour", "The colour of the scalebar. Default is white"),
-    makeParam(scripts.String,"timeUnits", "The units to use for time display", values=tunits),
-    scripts.Long("fileAnnotation").out())  # script returns a file annotation
+    scripts.List("imageIds", "List of image IDs. Resulting figure will be attached to first image.", False),
+    scripts.List("tIndexes", "The time frames to display in the figure for each image"),
+    scripts.Int("zStart", "Projection range (if not specified or -1, use defaultZ only - no projection)", min=-1),
+    scripts.Int("zEnd", "Projection range (if not specified or -1, use defaultZ only - no projection)", min=-1),
+    scripts.Int("width", "The max width of each image panel. Default is first image width", min=1),
+    scripts.Int("height", "The max height of each image panel. Default is first image height", min=1),
+    scripts.String("algorithm", "Algorithum for projection.", values=algorithums),
+    scripts.String("imageLabels", "Label images with Image name (default) or datasets or tags", values=labels),
+    scripts.Int("stepping", "The Z increment for projection. Default is 1", min=1),
+    scripts.Int("scalebar", "Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
+    scripts.String("format", "Format to save image. E.g 'PNG'. Default is JPEG"),
+    scripts.String("figureName", "File name of the figure to save."),
+    scripts.Int("overlayColour", "The colour of the scalebar. Default is white"),
+    scripts.String("timeUnits", "The units to use for time display", values=tunits),
+    scripts.Long("fileAnnotation").out()
+    )  # script returns a file annotation
     
     session = client.getSession();
     gateway = session.createGateway();
@@ -547,8 +541,8 @@ def runAsScript():
         if client.getInput(key):
             commandArgs[key] = client.getInput(key).getValue()
     # Makes the figure and attaches it to Image. Returns the id of the originalFileLink child. (ID object, not value)
-    fileId = movieFigure(session, commandArgs)
-    client.setOutput("fileAnnotation",fileId)
+    fileAnnotation = movieFigure(session, commandArgs)
+    client.setOutput("File_Annotation", robject(fileAnnotation))
     
 if __name__ == "__main__":
     runAsScript()

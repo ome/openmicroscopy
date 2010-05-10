@@ -1,5 +1,5 @@
 """
- components/tools/OmeroPy/scripts/EMAN2/ctf.py 
+ components/tools/OmeroPy/scripts/EMAN2/emanFilters.py 
 
 -----------------------------------------------------------------------------
   Copyright (C) 2006-2010 University of Dundee. All rights reserved.

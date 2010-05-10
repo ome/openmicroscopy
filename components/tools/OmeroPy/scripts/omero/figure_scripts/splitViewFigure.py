@@ -62,7 +62,7 @@ def log(text):
     """
     Adds the text to a list of logs. Compiled into figure legend at the end.
     """
-    #print text
+    print text
     logStrings.append(text)
     
 
@@ -652,44 +652,37 @@ def splitViewFigure(session, commandArgs):
     # Use util method to upload the figure 'output' to the server, attaching it to the omeroImage, adding the 
     # figLegend as the fileAnnotation description. 
     # Returns the id of the originalFileLink child. (ID object, not value)
-    fileId = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, omeroImage, output, format, figLegend)    
-    return fileId
+    fileAnnotation = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, omeroImage, output, format, figLegend)    
+    return fileAnnotation
     
     
 def runAsScript():
     """
     The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
     """
-    
-    def makeParam(paramClass, name, description=None, optional=True, min=None, max=None, values=None):
-        param = paramClass(name, optional)
-        if description: param.description = description
-        if max: param.max = rlong(max) # should only be using max and min for scripts.Long
-        if min: param.min = rlong(min)
-        if values: param.values = rlist(values)
-        return param
        
-    labels = [rstring('IMAGENAME'), rstring('DATASETS'), rstring('TAGS')]
-    algorithums = [rstring('MAXIMUMINTENSITY'),rstring('MEANINTENSITY')]
+    labels = [rstring('Image_Name'), rstring('Datasets'), rstring('Tags')]
+    algorithums = [rstring('Maximum_Intensity'),rstring('Mean_Intensity')]
+    formats = [rstring('JPEG'),rstring('PNG')]
      
     client = scripts.client('splitViewFigure.py', 'Create a figure of split-view images.', 
-    makeParam(scripts.List,"imageIds", "List of image IDs. Resulting figure will be attached to first image.", False),
-    makeParam(scripts.Long,"zStart", "Projection range (if not specified or -1, use defaultZ only - no projection)", min=-1),
-    makeParam(scripts.Long,"zEnd", "Projection range (if not specified or -1, use defaultZ only - no projection)", min=-1),
-    makeParam(scripts.Map,"channelNames", "Map of index: channel name for all channels"),
-    makeParam(scripts.List,"splitIndexes", "List of the channels in the split view"),
-    makeParam(scripts.Bool,"splitPanelsGrey", "If true, all split panels are greyscale"),
-    makeParam(scripts.Map,"mergedColours", "Map of index:int colours for each merged channel"),
-    makeParam(scripts.Bool,"mergedNames", "If true, label the merged panel with channel names. Otherwise label with 'Merged'"),
-    makeParam(scripts.Long,"width", "The max width of each image panel. Default is first image width", min=1),
-    makeParam(scripts.Long,"height", "The max height of each image panel. Default is first image height", min=1),
-    makeParam(scripts.String,"imageLabels", "Label images with Image name (default) or datasets or tags", values=labels),
-    makeParam(scripts.String,"algorithm", "Algorithum for projection.", values=algorithums),
-    makeParam(scripts.Long,"stepping", "The Z increment for projection. Default is 1", min=1),
-    makeParam(scripts.Long,"scalebar", "Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
-    makeParam(scripts.String,"format", "Format to save image. E.g 'PNG'. Default is JPEG"),
-    makeParam(scripts.String,"figureName", "File name of the figure to save."),
-    makeParam(scripts.Long,"overlayColour", "The colour of the scalebar. Default is white"),
+    scripts.List("imageIds", "List of image IDs. Resulting figure will be attached to first image.", False),
+    scripts.Int("zStart", "Projection range (if not specified or -1, use defaultZ only - no projection)", min=-1),
+    scripts.Int("zEnd", "Projection range (if not specified or -1, use defaultZ only - no projection)", min=-1),
+    scripts.Map("channelNames", "Map of index: channel name for all channels"),
+    scripts.List("splitIndexes", "List of the channels in the split view"),
+    scripts.Bool("splitPanelsGrey", "If true, all split panels are greyscale"),
+    scripts.Map("mergedColours", "Map of index:int colours for each merged channel"),
+    scripts.Bool("mergedNames", "If true, label the merged panel with channel names. Otherwise label with 'Merged'"),
+    scripts.Int("width", "The max width of each image panel. Default is first image width", min=1),
+    scripts.Int("height", "The max height of each image panel. Default is first image height", min=1),
+    scripts.String("imageLabels", "Label images with Image name (default) or datasets or tags", values=labels),
+    scripts.String("algorithm", "Algorithum for projection.", values=algorithums),
+    scripts.Int("stepping", "The Z increment for projection. Default is 1", min=1),
+    scripts.Int("scalebar", "Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
+    scripts.String("format", "Format to save image. E.g 'PNG'.", values=formats, default='JPEG'),
+    scripts.String("figureName", "File name of the figure to save."),
+    scripts.Int("overlayColour", "The colour of the scalebar. Default is white"),
     #scripts.Long("fileAnnotation").out()
     )  # script returns a file annotation
     
@@ -703,9 +696,9 @@ def runAsScript():
             commandArgs[key] = client.getInput(key).getValue()
     print commandArgs
     # call the main script, attaching resulting figure to Image. Returns the id of the originalFileLink child. (ID object, not value)
-    fileId = splitViewFigure(session, commandArgs)
+    fileAnnotation = splitViewFigure(session, commandArgs)
     # return this fileAnnotation to the client. 
-    client.setOutput("fileAnnotation",fileId)
+    client.setOutput("File_Annotation", robject(fileAnnotation))
     
 if __name__ == "__main__":
     runAsScript()
