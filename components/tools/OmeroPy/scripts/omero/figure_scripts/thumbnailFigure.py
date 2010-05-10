@@ -359,13 +359,13 @@ def runAsScript():
         scripts.Bool("showUntaggedImages",
             description="If true (and you're sorting by tagIds) also show images without the specified tags"),
 
-        scripts.Long("parentId",
+        scripts.Int("parentId",
             description="Attach figure to this Project (if datasetIds above) or Dataset if imageIds. If not specifed, attach figure to first dataset or image."),
 
-        scripts.Long("thumbSize", min=10, max=250, default=100,
+        scripts.Int("thumbSize", min=10, max=250, default=100,
             description="The dimension of each thumbnail. Default is 100"),
 
-        scripts.Long("maxColumns", min=1,
+        scripts.Int("maxColumns", min=1,
             description="The max number of thumbnail columns. Default is 10"),
 
         scripts.String("format",

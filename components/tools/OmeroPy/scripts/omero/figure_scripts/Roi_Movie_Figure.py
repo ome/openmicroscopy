@@ -711,7 +711,7 @@ def runAsScript():
     scripts.Int("Roi_Zoom", description="How much to zoom the ROI. E.g. x 2. If 0 then zoom roi panel to fit"),
     scripts.Int("Max_Columns", description="The maximum number of columns in the figure, for ROI-movie frames.", min=1),
     scripts.Bool("Show_Roi_Duration", description="If true, times shown are from the start of the ROI frames, otherwise use movie timestamp."),
-    scripts.String("Roi_Selection_Label", description=roiLabel),
+    scripts.String("Roi_Selection_Label", description=roiLabel)
     #scripts.R("File_Annotation", description="Script returns a File Annotation ID of attached Figure").out()
     )
     
