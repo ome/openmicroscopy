@@ -510,7 +510,7 @@ public class ScriptingDialog
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		String text = TEXT+script.getName();
+		String text = TEXT+script.getDisplayedName();
 		TitlePanel tp = new TitlePanel(TITLE, text, script.getIconLarge());
 		Container c = getContentPane();
 		c.setLayout(new BorderLayout(0, 0));

@@ -68,9 +68,14 @@ class ComplexParamPane
 	implements PropertyChangeListener
 {
 
+	/** Identifies a map. */
 	static final int MAP = 0;
 	
+	/** Identifies a list. */
 	static final int LIST = 1;
+	
+	/** The default value. */
+	private Object			defaultValue;
 	
 	/** The values to use or <code>null</code>. */
 	private Object[] 		values;
@@ -127,7 +132,6 @@ class ComplexParamPane
 			case MAP:
 			case LIST:
 				break;
-	
 			default:
 				throw new IllegalArgumentException("Index not supported.");
 		}
@@ -155,6 +159,8 @@ class ComplexParamPane
 					row = new RowPane(keyType, values);
 		}
 		if (row != null) {
+			if (defaultValue != null)
+				row.setDefaultValue(defaultValue);
 			rows.add(row);
 			row.addPropertyChangeListener(RowPane.REMOVE_ROW_PROPERTY, this);
 		}
@@ -270,10 +276,10 @@ class ComplexParamPane
 					"Map Type.");
 		this.index = index;
 		if (values != null) {
+			defaultValue = values.getSelectedItem();
 			Object[] v = new Object[values.getItemCount()];
-			for (int i = 0; i < v.length; i++) {
+			for (int i = 0; i < v.length; i++) 
 				v[i] = values.getItemAt(i);
-			}
 			this.values = v;
 		}
 		this.keyType = keyType;

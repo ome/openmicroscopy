@@ -127,7 +127,9 @@ public class ParamData
 					n = (Number) defaultValue;
 					if (n.doubleValue() > ((Number) maxValue).doubleValue())
 						defaultValue = maxValue;
-				} else defaultValue = maxValue;
+				} else {
+					defaultValue = maxValue;
+				}
 			}
 		}
 	}
@@ -209,8 +211,17 @@ public class ParamData
 	 */
 	public Class getKeyType()
 	{
-		if (List.class.equals(type)) return String.class; //TODO;
-		else if (Map.class.equals(type)) return String.class; //TODO
+		Object o;
+		if (List.class.equals(type)) {
+			List<RType> l = ((RList) param.prototype).getValue();
+			if (l.size() > 0) {
+				o = convertBasicRType(l.get(0));
+				if (o instanceof Long || o instanceof Integer ||
+					o instanceof Double || o instanceof Float)
+					return o.getClass();
+			}
+			return String.class;
+		} else if (Map.class.equals(type)) return String.class;
 		return null;
 	}
 	
@@ -221,8 +232,28 @@ public class ParamData
 	 */
 	public Class getValueType()
 	{
-		if (List.class.equals(type)) return String.class; //TODO;
-		else if (Map.class.equals(type)) return String.class; //TODO
+		if (List.class.equals(type)) return getKeyType();
+		else if (Map.class.equals(type)) {
+			Map<String, RType> l = ((RMap) param.prototype).getValue();
+			if (l.size() > 0) {
+				Object o;
+				Entry entry;
+				Iterator i = l.entrySet().iterator();
+				o = null;
+				while (i.hasNext()) {
+					entry = (Entry) i.next();
+					o = convertBasicRType((RType) entry.getValue());
+					if (o != null) {
+						break;
+					}
+				}
+				if (o instanceof Long || o instanceof Integer ||
+					o instanceof Double || o instanceof Float)
+					return o.getClass();
+			}
+			
+			return String.class; //TODO
+		}
 		return null;
 	}
 	
@@ -277,7 +308,8 @@ public class ParamData
 	 */
 	public Object getDefaultValue()
 	{
-		return defaultValue;
+		if (param.useDefault) return defaultValue;
+		return null;
 	}
 	
 	/**

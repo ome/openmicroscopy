@@ -107,9 +107,11 @@ class RowPane
 	 */
 	private JComponent createKeyField(Class keyType)
 	{
-		if (Double.class.equals(keyType)) {
+		if (Double.class.equals(keyType) || Integer.class.equals(keyType) ||
+				Long.class.equals(keyType) || Float.class.equals(keyType)) {
+			if (Long.class.equals(keyType)) keyType = Integer.class;
 			NumericalTextField field = new NumericalTextField();
-			field.setNumberType(Double.class);
+			field.setNumberType(keyType);
 			field.setColumns(ScriptComponent.COLUMNS);
 			return field;
 		}
@@ -170,6 +172,19 @@ class RowPane
 		buildGUI();
 	}
 
+	/**
+	 * Sets the default value.
+	 * 
+	 * @param value The value to set.
+	 */
+	void setDefaultValue(Object value)
+	{
+		if (valueComponent instanceof JComboBox) {
+			JComboBox box = (JComboBox) valueComponent;
+			box.setSelectedItem(value);
+		}
+	}
+	
 	/**
 	 * Returns the value filled as a key.
 	 * 

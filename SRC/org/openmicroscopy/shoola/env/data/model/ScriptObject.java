@@ -296,7 +296,7 @@ public class ScriptObject
 	 */
 	public boolean hasDetails()
 	{
-		if (authors.size() > 0) return true;
+		if (authors != null && authors.size() > 0) return true;
 		if (description != null && description.length() > 0) return true;
 		if (journalRef != null && journalRef.length() > 0) return true;
 		return false;
