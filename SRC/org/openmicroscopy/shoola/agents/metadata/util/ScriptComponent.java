@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.agents.metadata.util;
 
 
 //Java imports
+import info.clearthought.layout.TableLayout;
+
 import java.awt.FlowLayout;
 import java.awt.Font;
 import javax.swing.BoxLayout;
@@ -56,6 +58,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since 3.0-Beta4
  */
 class ScriptComponent 
+	extends JPanel
 {
 	
 	/** Indicates the required field. */
@@ -161,6 +164,16 @@ class ScriptComponent
 		p.add(component);
 		if (unitLabel != null) p.add(unitLabel);
 		return p; 
+	}
+	
+	/** Builds and lays out the UI. */
+	void buildUI()
+	{
+		double[][] size = {{TableLayout.PREFERRED, 5, TableLayout.FILL}, 
+				{TableLayout.PREFERRED}};
+		setLayout(new TableLayout(size));
+		add(getLabel(), "0, 0");
+		add(getComponent(), "2, 0");
 	}
 	
 	/**

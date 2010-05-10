@@ -340,6 +340,7 @@ class ToolBar
     	Map<String, ScriptSubMenu> menus = new HashMap<String, ScriptSubMenu>();
     	String path;
     	ScriptSubMenu subMenu;
+    	List<ScriptSubMenu> others = new ArrayList<ScriptSubMenu>();
     	while (i.hasNext()) {
     		so = i.next();
     		setScriptIcon(so);
@@ -348,65 +349,19 @@ class ToolBar
     		if (subMenu == null) {
     			subMenu = new ScriptSubMenu(path);
     			menus.put(path, subMenu);
-    			menu.add(subMenu);
+    			if (so.isOfficialScript()) menu.add(subMenu);
+    			else others.add(subMenu);
     		}
     		subMenu.addScript(so).addActionListener(controller);
     	}
-    	/*
-    	List<JMenuItem> exports = new ArrayList<JMenuItem>();
-    	List<JMenuItem> figures = new ArrayList<JMenuItem>();
-    	List<JMenuItem> regions = new ArrayList<JMenuItem>();
-    	List<JMenuItem> utils = new ArrayList<JMenuItem>();
-    	List<JMenuItem> others = new ArrayList<JMenuItem>();
-    	while (i.hasNext()) {
-    		so = i.next();
-    		setScriptIcon(so);
-    		item = new ScriptMenuItem(so);
-    		item.addActionListener(controller);
-    		switch (so.getCategory()) {
-				case ScriptObject.EXPORT:
-					exports.add(item);
-					break;
-				case ScriptObject.FIGURE:
-					figures.add(item);
-					break;
-				case ScriptObject.REGION:
-					regions.add(item);
-					break;
-				case ScriptObject.UTIL:
-					utils.add(item);
-					break;
-				default:
-					others.add(item);
-			}
-		}
-    	if (exports.size() > 0)
-    		menu.add(createSubMenu("Export Scripts", exports));
-    	if (figures.size() > 0)
-    		menu.add(createSubMenu("Figure Scripts", figures));
-    	if (regions.size() > 0)
-    		menu.add(createSubMenu("Region Scripts", regions));
-    	if (utils.size() > 0)
-    		menu.add(createSubMenu("Utility Scripts", utils));
-    	if (others.size() > 0)
-    		menu.add(createSubMenu("Uploaded Scripts", others));
-    		*/
-    	return menu;
-    }
-    
-    /**
-     * Creates a sub-menu.
-     * 
-     * @param name The name of the menu.
-     * @param list The list of items to add to the menu.
-     * @return See above.
-     */
-    private JMenu createSubMenu(String name, List<JMenuItem> list)
-    {
-    	Iterator<JMenuItem> j = list.iterator();
-    	JMenu menu = new JMenu(name);
-    	while (j.hasNext()) 
-    		menu.add(j.next());
+    	if (others.size() > 0) {
+    		menu.add(new JSeparator());
+    		JMenu uploadedMenu = new JMenu("Uploaded Scripts");
+    		menu.add(uploadedMenu);
+    		Iterator<ScriptSubMenu> j = others.iterator();
+        	while (j.hasNext()) 
+        		uploadedMenu.add(j.next());
+    	}
     	return menu;
     }
     

@@ -28,6 +28,8 @@ package org.openmicroscopy.shoola.env.ui;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+
+import javax.swing.Icon;
 import javax.swing.JFrame;
 
 
@@ -113,11 +115,12 @@ public class ScriptActivity
 				setIndex(ActivityComponent.GENERAL);
 				break;
 		}
-		
 		if (script == null)
 			throw new IllegalArgumentException("Parameters not valid.");
 		this.script = script;
 		this.index = index;
+		Icon icon = script.getIcon();
+		if (icon != null) iconLabel.setIcon(icon);
 	}
 
 	/**

@@ -98,7 +98,7 @@ public abstract class ActivityComponent
 	private JButton						cancelButton;
 
 	/** The label hosting the icon. */
-	private JLabel						iconLabel;
+	protected JLabel					iconLabel;
 	
 	/** The component displaying the status. */
 	private JComponent					 statusPane;

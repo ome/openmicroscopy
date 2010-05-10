@@ -60,7 +60,7 @@ public class JavaFilter
 	static {
 		extensions = new String[1];
 		extensions[0] = JAVA;
-		String s = "Matlab (";
+		String s = "Java (";
 		for (int i = 0; i < extensions.length; i++) {
 			s += "*."+extensions[i];
 			if (i < extensions.length-1)

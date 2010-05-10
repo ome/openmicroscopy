@@ -27,22 +27,27 @@ package org.openmicroscopy.shoola.agents.treeviewer.util;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JRootPane;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
@@ -66,7 +71,6 @@ import org.openmicroscopy.shoola.util.filter.file.PythonFilter;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.ExperimenterData;
 
 
@@ -157,12 +161,40 @@ public class ScriptUploaderDialog
     /** The text area where to enter the name of the file to save. */
     private JTextField	scriptArea;
    
+    /** The location of the script. */
+    private JTextField location;
+    
+    /** Display the available location. */
+    private JButton		locationFinder;
+    
     /** The available scripts. */
     private Map<Long, String> scripts;
+    
+    /** The available folders. */
+    private List<String> folders;
+    
+    /** The menu displaying the list of available folders. */
+    private JPopupMenu	menu;
     
 	/** Initializes the components. */
 	private void initComponents()
 	{
+		folders = new ArrayList<String>();
+		if (scripts != null) {
+			Entry entry;
+			Iterator i = scripts.entrySet().iterator();
+			String[] values;
+			String value;
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				values = UIUtilities.splitString((String) entry.getValue());
+				if (values != null && values.length > 1) {
+					value = values[values.length-2];
+					if (!folders.contains(value))
+						folders.add(value);
+				}
+			}
+		}
 		chooser = new JFileChooser();
 		chooser.setAcceptAllFileFilterUsed(false);
 		chooser.setDialogType(JFileChooser.SAVE_DIALOG);
@@ -189,6 +221,18 @@ public class ScriptUploaderDialog
         journalRef = new JTextField(); 
         description = new JTextField();
         
+        location = new JTextField();
+        locationFinder = new JButton("Find Folder");
+        locationFinder.setToolTipText("List the existing folders.");
+        locationFinder.setEnabled(folders.size() > 0);
+        locationFinder.addMouseListener(new MouseAdapter() {
+			
+			public void mouseReleased(MouseEvent e)
+			{
+				showFolderList(e.getPoint());
+			}
+
+		});
         scriptArea = (JTextField) UIUtilities.findComponent(chooser, 
 				JTextField.class);
 		if (scriptArea != null) {
@@ -209,8 +253,10 @@ public class ScriptUploaderDialog
 				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
 			TableLayout.PREFERRED, TableLayout.PREFERRED, 50}};
 		JPanel details = new JPanel();
+		details.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 		details.setLayout(new TableLayout(size));
 		int row = 0;
+		/*
 		JLabel l = UIUtilities.setTextFont("Author (First, Last):");
 		details.add(l, "0, "+row+", LEFT, CENTER");
 		details.add(author, "2, "+row);
@@ -230,14 +276,20 @@ public class ScriptUploaderDialog
 		l = UIUtilities.setTextFont("Script's Description:");
 		details.add(l, "0, "+row+", LEFT, TOP");
 		details.add(description, "2, "+row);
-		
+		*/
+		JLabel l = UIUtilities.setTextFont("Folder:");
+		details.add(l, "0, "+row+", LEFT, CENTER");
+		details.add(location, "2, "+row);
+		row++;
+		details.add(locationFinder, "0, "+row+", LEFT, CENTER");
 		JXTaskPane pane = new JXTaskPane();
 		pane.setCollapsed(true);
 		pane.setTitle("Script details");
 		pane.add(details);
 		JPanel controls = new JPanel();
     	controls.setLayout(new BorderLayout(0, 0));
-    	controls.add(pane, BorderLayout.NORTH);
+    	//controls.add(pane, BorderLayout.NORTH);
+    	controls.add(details, BorderLayout.NORTH);
     	controls.add(buildToolbar(), BorderLayout.CENTER);
     	
     	JPanel p = new JPanel();
@@ -345,6 +397,7 @@ public class ScriptUploaderDialog
 		ScriptObject script = new ScriptObject(-1, f.getAbsolutePath(), 
 				f.getName());
 		script.setMIMEType(mimeType);
+		
 		//Set info about the script.
 		String value = journalRef.getText();
 		if (value != null) script.setJournalRef(value.trim());
@@ -365,6 +418,11 @@ public class ScriptUploaderDialog
 		if (value != null) exp.setEmail(value.trim());
 		value = institution.getText();
 		if (value != null) exp.setInstitution(value.trim());
+		
+		value = location.getText();
+		if (value != null) script.setFolder(value.trim());
+		IconManager icons = IconManager.getInstance();
+		script.setIcon(icons.getIcon(IconManager.UPLOAD_SCRIPT));
 		firePropertyChange(UPLOAD_SCRIPT_PROPERTY, null, script);
 		close();
 	}
@@ -385,6 +443,7 @@ public class ScriptUploaderDialog
     	if (scriptArea == null) return; //should happen
     	String text = scriptArea.getText();
     	boolean b = false;
+    	String value = "";
     	if (text != null && text.trim().length() > 0) {
     		b = true;
     		Iterator<CustomizedFileFilter> i = FILTERS.iterator();
@@ -398,11 +457,37 @@ public class ScriptUploaderDialog
     			}
     		}
     		if (!supported) {
+    			location.setText(value);
     			saveButton.setEnabled(false);
     			return;
     		}
-    	}
+    		File f = chooser.getCurrentDirectory();
+    		if (f != null) value = f.getName();
+     	}
+    	location.setText(value);
     	saveButton.setEnabled(b);
+    }
+    
+    /** 
+     * Displays the existing folders. 
+     * 
+     * @param p The location of the mouse click.
+     */
+    private void showFolderList(Point p)
+    {
+    	if (menu == null) {
+    		menu = new JPopupMenu();
+    		int index = CANCEL+1;
+    		Iterator<String> i = folders.iterator();
+    		JMenuItem item;
+    		while (i.hasNext()) {
+				item = new JMenuItem(i.next());
+				item.setActionCommand(""+index);
+				item.addActionListener(this);
+				index++;
+			}
+    	}
+    	menu.show(locationFinder, p.x, p.y);
     }
     
 	/**
@@ -434,6 +519,12 @@ public class ScriptUploaderDialog
 				break;
 			case SAVE:
 				upload();
+				break;
+				default:
+					if (e.getSource() instanceof JMenuItem) {
+						JMenuItem item = (JMenuItem) e.getSource();
+						location.setText(item.getText());
+					}
 		}
 	}
 	

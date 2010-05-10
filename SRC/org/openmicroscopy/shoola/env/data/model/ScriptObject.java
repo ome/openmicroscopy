@@ -147,6 +147,15 @@ public class ScriptObject
 	/** The category of the script. */
 	private int 	  category;
 	
+	/** The folder. */
+	private String 	  folder;
+	
+	/** 
+	 * Flag indicating if the script is an official script i.e.
+	 * release by the team or not.
+	 */
+	private boolean   official;
+	
 	/** Converts the parameters. */
 	private void convertJobParameters()
 	{
@@ -216,8 +225,25 @@ public class ScriptObject
 		description = "";
 		journalRef = "";
 		mimeType = null;
-		authors = new ArrayList<ExperimenterData>();
+		official = true;
 	}
+	
+	/**
+	 * Sets to <code>true</code> if the script is an official script i.e.
+	 * release by the team, <code>false</code> otherwise.
+	 * 
+	 * @param official Pass <code>true</code> if it is an official script,
+	 * 				   <code>false</code> otherwise.
+	 */
+	public void setOfficial(boolean official) { this.official = official; }
+	
+	/**
+	 * Returns <code>true</code> if it is an official script,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return
+	 */
+	public boolean isOfficialScript() { return official; }
 	
 	/** 
 	 * Returns the label associated to the script.
@@ -232,6 +258,24 @@ public class ScriptObject
 	 * @return See above.
 	 */
 	public String getPath() { return path; }
+	
+	/** 
+	 * Returns the folder.
+	 * 
+	 * @return See above.
+	 */
+	public String getFolder()
+	{ 
+		if (folder == null || folder.length() == 0) return getPath();
+		return File.separator+folder+File.separator+name;
+	}
+	
+	/**
+	 * Sets the folder.
+	 * 
+	 * @param folder The value to set.
+	 */
+	public void setFolder(String folder) { this.folder = folder; }
 	
 	/**
 	 * Returns the parameters.
@@ -265,6 +309,7 @@ public class ScriptObject
 	 */
 	public void setAuthor(ExperimenterData author)
 	{ 
+		if (authors == null) authors = new ArrayList<ExperimenterData>();
 		if (author != null) authors.add(author);
 	}
 	
@@ -336,7 +381,6 @@ public class ScriptObject
 	 */
 	public String getDisplayedName()
 	{
-		//parse the Name
 		String value = name.substring(0, name.lastIndexOf('.'));
 		return value.replace(PARAMETER_SEPARATOR, PARAMETER_UI_SEPARATOR);
 	}

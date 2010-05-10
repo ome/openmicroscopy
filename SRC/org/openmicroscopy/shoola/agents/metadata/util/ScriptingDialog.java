@@ -360,6 +360,9 @@ public class ScriptingDialog
 				results.put((String) entry.getKey(), c);
 			}
 		}
+		
+		
+		
 		List<String> sortedKeys = sorter.sort(results.keySet());
 		Iterator<String> k = sortedKeys.iterator();
 		String key;
@@ -476,8 +479,9 @@ public class ScriptingDialog
 			entry = (Entry) i.next();
 			comp = (ScriptComponent) entry.getValue();
 			layout.insertRow(row, TableLayout.PREFERRED);
-			p.add(comp.getLabel(), "0,"+row);
-			p.add(comp.getComponent(), "2, "+row);
+			//p.add(comp.getLabel(), "0,"+row);
+			comp.buildUI();
+			p.add(comp, "0,"+row+", 2, "+row);
 			row++;
 		}
 		

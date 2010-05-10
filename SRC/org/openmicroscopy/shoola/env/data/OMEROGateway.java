@@ -67,7 +67,6 @@ import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-//import Ice.Communicator;
 import ome.conditions.ResourceError;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
@@ -5336,19 +5335,16 @@ class OMEROGateway
 	}
 	
 	/**
-	 * Returns all the scripts the default one and the 
-	 * uploaded ones depending on the specified flag. 
-	 * If a user is specified, returns the scripts owned by the specified 
-	 * user.
+	 * Returns all the scripts that the user can run.
 	 * 
-	 * @param userID The id of the experimenter or <code>-1</code>.
+	 * @param experimenter The experimenter or <code>null</code>.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	List<ScriptObject> loadScripts(long userID)
+	List<ScriptObject> loadRunnableScripts()
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
@@ -5377,6 +5373,18 @@ class OMEROGateway
 					if (value != null) script.setMIMEType(value.getValue());
 					scripts.add(script);
 				}
+			}
+			storedScripts = svc.getUserScripts(new ArrayList());
+			j = storedScripts.iterator();
+			while (j.hasNext()) {
+				of = j.next();
+				value = of.getName();
+				script = new ScriptObject(of.getId().getValue(), 
+						of.getPath().getValue(), of.getName().getValue());
+				value = of.getMimetype();
+				if (value != null) script.setMIMEType(value.getValue());
+				script.setOfficial(false);
+				scripts.add(script);
 			}
 		} catch (Exception e) {
 			handleException(e, "Cannot load the scripts. ");
@@ -6331,13 +6339,15 @@ class OMEROGateway
 	 * Runs the script.
 	 * 
 	 * @param script The script to run.
+	 * @param official Pass <code>true</code> to indicate that the script will
+	 * 				   be uploaded as an official script, <code>false</code>
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Object uploadScript(ScriptObject script)
+	Object uploadScript(ScriptObject script, boolean official)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
@@ -6346,7 +6356,7 @@ class OMEROGateway
 			FileInputStream stream = null;
 			StringBuffer buf = new StringBuffer("");
 			try {
-				File file = new File(script.getName());
+				File file = new File(script.getPath());
 				stream = new FileInputStream(file);
 				int c;
 				while ((c = stream.read()) != -1)
@@ -6361,9 +6371,10 @@ class OMEROGateway
 						"Cannot upload the script: "+script.getName()+".");
 				return -1;
 			}
-			
-			//return svc.uploadScript(buf.toString());
-			return -1;
+			if (official)
+				return svc.uploadOfficialScript(script.getFolder(), 
+						buf.toString());
+			return svc.uploadScript(script.getFolder(), buf.toString());
 		} catch (Exception e) {
 			handleException(e, 
 					"Cannot upload the script: "+script.getName()+".");

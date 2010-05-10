@@ -910,7 +910,7 @@ class OmeroImageServiceImpl
 	public List<ScriptObject> loadAvailableScripts(long userID)
 			throws DSOutOfServiceException, DSAccessException
 	{
-		return gateway.loadScripts(userID);
+		return gateway.loadRunnableScripts();
 	}
 	
 	/**
@@ -942,7 +942,11 @@ class OmeroImageServiceImpl
 	{
 		if (script == null)
 			throw new IllegalArgumentException("No script to upload.");
-		return gateway.uploadScript(script);
+		Boolean b = (Boolean) context.lookup(
+				LookupNames.USER_ADMINISTRATOR);
+		boolean value = false;
+		if (b != null) value = b.booleanValue();
+		return gateway.uploadScript(script, value);
 	}
 	
 	/**
