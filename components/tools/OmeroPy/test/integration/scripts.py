@@ -77,6 +77,7 @@ class TestScripts(lib.ITest):
 
     def testUploadOfficialScript(self):
         scriptService = self.root.sf.getScriptService()
+        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         
         scriptLines = [
         "import omero",
@@ -84,18 +85,22 @@ class TestScripts(lib.ITest):
         "import omero.scripts as scripts",
         "if __name__ == '__main__':",
         "    client = scripts.client('HelloWorld.py', 'Hello World example script',",
-        "    scripts.Long('longParam', True, description='theDesc', min=rlong(1), max=rlong(10), values=[rlong(5)]) )",
+        "    scripts.Int('longParam', True, description='theDesc', min=rlong(1), max=rlong(10), values=[rlong(5)]) )",
         "    client.setOutput('returnMessage', rstring('Script ran OK!'))"]
         script = "\n".join(scriptLines)
 
-        id = scriptService.uploadOfficialScript(thumbnailFigurePath, script)
+        id = scriptService.uploadOfficialScript("/testUploadOfficialScript%s.py" % uuid, script)
         # force the server to parse the file enough to get params (checks syntax etc)
         params = scriptService.getParams(id)
         for key, param in params.inputs.items():
-            print "min", param.min.getValue()
-            print "max", param.max.getValue()
-            print "values", param.values.getValue()
+            #print "description", param.description
+            #print "prototype", param.prototype
+            #print "min", param.min.getValue()
+            #print "max", param.max.getValue()
+            #print "values", param.values.getValue()
             self.assertEquals("longParam", key)
+            self.assertNotEqual(param.prototype, None, "Parameter prototype is 'None'")
+            self.assertEquals("theDesc", param.description)
             self.assertEquals(1, param.min.getValue(), "Min value not correct")
             self.assertEquals(10, param.max.getValue(), "Max value not correct")
             self.assertEquals(5, param.values.getValue()[0].getValue(), "First option value not correct")
