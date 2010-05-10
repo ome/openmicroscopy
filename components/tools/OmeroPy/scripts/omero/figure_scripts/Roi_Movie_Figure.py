@@ -692,11 +692,11 @@ def runAsScript():
     labels = [rstring('Image_Name'), rstring('Datasets'), rstring('Tags')]
     algorithums = [rstring('Maximum_Intensity'),rstring('Mean_Intensity')]
     roiLabel = """Specify an ROI to pick by specifying it's shape label. 'FigureROI' by default,
-                 (not case sensitive). If matching ROI not found, use any ROI."""
+(not case sensitive). If matching ROI not found, use any ROI."""
     formats = [rstring('JPEG'),rstring('PNG')]
     cOptions = [rstring('red'),rstring('green'),rstring('blue'),rstring('yellow'),rstring('white')]
     
-    client = scripts.client('roiMovieFigure.py', 'Create a figure of movie frames from ROI region of image.',
+    client = scripts.client('Roi_Movie_Figure.py', 'Create a figure of movie frames from ROI region of image.',
     scripts.List("Image_IDs", False, description="List of Images. Figure will be attached to first image").ofType(rlong(0)),
     scripts.List("Merged_Colours", description="A list of colours to apply to merged channels.", values=cOptions), 
     scripts.List("Merged_Channels", description="A list of channel indexes to display").ofType(rint(0)),                   

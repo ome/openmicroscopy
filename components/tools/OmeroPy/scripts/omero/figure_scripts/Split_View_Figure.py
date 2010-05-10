@@ -1,5 +1,5 @@
 """
- components/tools/OmeroPy/scripts/splitViewFigure.py 
+ components/tools/OmeroPy/scripts/omero/figure_scripts/Split_View_Figure.py 
 
 -----------------------------------------------------------------------------
   Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -665,7 +665,7 @@ def runAsScript():
     algorithums = [rstring('Maximum_Intensity'),rstring('Mean_Intensity')]
     formats = [rstring('JPEG'),rstring('PNG')]
      
-    client = scripts.client('splitViewFigure.py', 'Create a figure of split-view images.', 
+    client = scripts.client('Split_View_Figure.py', 'Create a figure of split-view images.', 
     scripts.List("imageIds", "List of image IDs. Resulting figure will be attached to first image.", False),
     scripts.Int("zStart", "Projection range (if not specified or -1, use defaultZ only - no projection)", min=-1),
     scripts.Int("zEnd", "Projection range (if not specified or -1, use defaultZ only - no projection)", min=-1),

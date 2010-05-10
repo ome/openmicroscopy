@@ -1,5 +1,5 @@
 """
- components/tools/OmeroPy/scripts/roiFigure.py
+ components/tools/OmeroPy/scripts/omero/figure_scripts/Roi_Figure.py
 
 -----------------------------------------------------------------------------
   Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -738,7 +738,7 @@ def runAsScript():
               (not case sensitive). If matching ROI not found, use any ROI."""
     formats = [rstring('JPEG'),rstring('PNG')]
     
-    client = scripts.client('roiFigure.py', 'Create a figure of an ROI region as separate zoomed split-channel panels.', 
+    client = scripts.client('Roi_Figure.py', 'Create a figure of an ROI region as separate zoomed split-channel panels.', 
     scripts.List("imageIds", "List of image IDs. Resulting figure will be attached to first image.", False),
     scripts.Map("channelNames", "Map of index: channel name for All channels"),
     scripts.Bool("mergedNames", "If true, label the merged panel with channel names. Otherwise label with 'Merged'"),

@@ -1,5 +1,5 @@
 """
- components/tools/OmeroPy/scripts/movieFigure.py
+ components/tools/OmeroPy/scripts/omero/figure_scripts/Movie_Figure.py
 
 -----------------------------------------------------------------------------
   Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -515,7 +515,7 @@ def runAsScript():
     algorithums = [rstring('MAXIMUMINTENSITY'),rstring('MEANINTENSITY')]
     tunits =  [rstring("SECS"), rstring("MINS"), rstring("HOURS"), rstring("MINS_SECS"), rstring("HOURS_MINS")]
     
-    client = scripts.client('movieFigure.py', 'Export a figure of a movie.', 
+    client = scripts.client('Movie_Figure.py', 'Export a figure of a movie.', 
     scripts.List("imageIds", "List of image IDs. Resulting figure will be attached to first image.", False),
     scripts.List("tIndexes", "The time frames to display in the figure for each image"),
     scripts.Int("zStart", "Projection range (if not specified or -1, use defaultZ only - no projection)", min=-1),

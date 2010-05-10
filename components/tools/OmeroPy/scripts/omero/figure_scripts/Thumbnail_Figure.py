@@ -1,5 +1,5 @@
 """
- components/tools/OmeroPy/scripts/thumbnailFigure.py
+ components/tools/OmeroPy/scripts/omero/figure_scripts/Thumbnail_Figure.py
 
 -----------------------------------------------------------------------------
   Copyright (C) 2006-2009 University of Dundee. All rights reserved.
