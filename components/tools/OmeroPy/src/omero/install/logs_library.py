@@ -200,4 +200,4 @@ def plot_threads(watcher, all_colors = ["blue","red","yellow","green","pink","pu
 
 if __name__ == "__main__":
     for g in allthreads_watcher(sys.argv).gen():
-        print "Date:%s\nLevel:%s\nThread:%s\nMethod:%s\nStatus:%s\n\n" % (g.date, g.level, g.thread, g.message, g.status)
+        print "Date:%s\nElapsed:%s\nLevel:%s\nThread:%s\nMethod:%s\nStatus:%s\n\n" % (g.date, g.took, g.level, g.thread, g.message, g.status)

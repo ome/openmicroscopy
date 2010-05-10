@@ -417,7 +417,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                 qb.param("id", j.getId().getValue());
 
 
-                return factory.executor.execute(factory.principal,
+                OriginalFile file = (OriginalFile) factory.executor.execute(factory.principal,
                         new Executor.SimpleWork(this, "validateScript", j.getId().getValue(), acceptsList) {
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
@@ -428,16 +428,17 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                         }
                         Long id = files.get(0).getId();
 
-                        IceMapper mapper = new IceMapper();
                         if (official) {
-                            return mapper.map(scripts.load(id, session, true));
+                            return scripts.load(id, session, true);
                         } else {
-                            return mapper.map(
-                                    sf.getQueryService()
-                                    .get(OriginalFile.class, id));
+                            return sf.getQueryService()
+                                    .get(OriginalFile.class, id);
                         }
                     }
                 });
+
+                return new IceMapper().map(file);
+
             }
         });
     }
