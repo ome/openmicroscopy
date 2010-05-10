@@ -22,13 +22,12 @@ import xmlrunner
 class TopLevel(unittest.TestCase):
     pass
 
-def additional_tests():
+def _additional_tests():
     load = unittest.defaultTestLoader.loadTestsFromName
     suite = unittest.TestSuite()
-    suite.addTest(load("test.suite.additional_tests"))
-    suite.addTest(load("test.integration.example"))
-    suite.addTest(load("test.integration.dbclient"))
+    suite.addTest(load("integration.example"))
+    suite.addTest(load("integration.dbclient"))
     return suite
 
 if __name__ == "__main__":
-    xmlrunner.XMLTestRunner(output='target/test-reports').run(additional_tests())
+    xmlrunner.XMLTestRunner(output='target/test-reports').run(_additional_tests())

@@ -16,7 +16,7 @@ import omero_ServerErrors_ice
 
 import omero.grid.monitors as monitors
 from fsDropBoxMonitorClient import *
-from test.drivers import *
+from drivers import *
 
 from path import path
 from uuid import uuid4

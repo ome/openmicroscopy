@@ -22,7 +22,7 @@ import IceGrid
 import Glacier2
 
 from omero.grid import monitors
-from test.drivers import MockMonitor
+from drivers import MockMonitor
 
 import fsConfig as config
 

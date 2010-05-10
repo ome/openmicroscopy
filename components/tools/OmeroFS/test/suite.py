@@ -17,11 +17,11 @@ class TopLevel(unittest.TestCase):
 def additional_tests():
     load = unittest.defaultTestLoader.loadTestsFromName
     suite = unittest.TestSuite()
-    suite.addTest(load("test.example"))
-    suite.addTest(load("test.monitor"))
-    suite.addTest(load("test.drivers"))
-    suite.addTest(load("test.replay"))
-    suite.addTest(load("test.state"))
+    suite.addTest(load("example"))
+    suite.addTest(load("monitor"))
+    suite.addTest(load("drivers"))
+    suite.addTest(load("replay"))
+    suite.addTest(load("state"))
     return suite
 
 if __name__ == "__main__":

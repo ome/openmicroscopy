@@ -22,7 +22,7 @@ from uuid import uuid4
 from path import path
 from omero.util.temp_files import create_path
 from omero_ext.functional import wraps
-from test.drivers import *
+from drivers import *
 
 class TestDrivers(unittest.TestCase):
     """
