@@ -66,6 +66,7 @@ public class ScriptSubMenu
 	{
 		if (path == null) return NAME;
 		String[] values = UIUtilities.splitString(path);
+		if (values == null) return path;
 		int n = values.length-1;
 		String value = values[n];
 		if (value.length() == 0) {
