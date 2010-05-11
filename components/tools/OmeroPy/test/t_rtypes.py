@@ -431,6 +431,14 @@ class TestModel(unittest.TestCase):
 
         self.assertRaises(ValueError, wrap, {1:2})
 
+    def testResuingClass(self):
+        myLong = rlong(5)
+        myLongFromString = rlong("5")
+        self.assertEquals(myLong.val, myLongFromString.val)
+
+        ctor1 = myLong.__class__(5)
+        ctor2 = myLongFromString.__class__("5")
+        self.assertEquals(ctor1.val, ctor2.val)
 
 if __name__ == '__main__':
     unittest.main()

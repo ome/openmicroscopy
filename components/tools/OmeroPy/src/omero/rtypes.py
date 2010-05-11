@@ -171,7 +171,7 @@ def rdouble(val):
     """
     if val == None or isinstance(val, omero.RDouble):
         return val
-    return RDoubleI(float(val))
+    return RDoubleI(val)
 
 def rfloat(val):
     """
@@ -180,7 +180,7 @@ def rfloat(val):
     """
     if val == None or isinstance(val, omero.RFloat):
         return val
-    return RFloatI(float(val))
+    return RFloatI(val)
 
 def rint(val):
     """
@@ -192,7 +192,7 @@ def rint(val):
         return val
     elif val == 0:
         return rint0
-    return RIntI(int(val))
+    return RIntI(val)
 
 def rlong(val):
     """
@@ -204,7 +204,7 @@ def rlong(val):
         return val
     elif val == 0:
         return rlong0
-    return RLongI(long(val))
+    return RLongI(val)
 
 def rtime(val):
     """
@@ -213,7 +213,7 @@ def rtime(val):
     """
     if val == None or isinstance(val, omero.RTime):
         return val
-    return RTimeI(long(val))
+    return RTimeI(val)
 
 # Static factory methods (objects)
 # =========================================================================
@@ -362,7 +362,7 @@ class RBoolI(omero.RBool):
 class RDoubleI(omero.RDouble):
 
     def __init__(self, value):
-        omero.RDouble.__init__(self, value)
+        omero.RDouble.__init__(self, float(value))
 
     def getValue(self, current = None):
         return self._val
@@ -582,7 +582,7 @@ class RLongI(omero.RLong):
 class RTimeI(omero.RTime):
 
     def __init__(self, value):
-        omero.RTime.__init__(self, value)
+        omero.RTime.__init__(self, long(value))
 
     def getValue(self, current = None):
         return self._val
