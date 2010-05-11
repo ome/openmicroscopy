@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import ome.api.IUpdate;
@@ -19,8 +18,8 @@ import ome.api.RawFileStore;
 import ome.model.core.OriginalFile;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
-import ome.services.blitz.util.ResultHolder;
 import ome.services.blitz.util.ServiceFactoryAware;
+import ome.services.scripts.RepoFile;
 import ome.services.scripts.ScriptRepoHelper;
 import ome.services.util.Executor;
 import ome.system.ServiceFactory;
@@ -46,7 +45,6 @@ import omero.api.AMD_IScript_uploadOfficialScript;
 import omero.api.AMD_IScript_uploadScript;
 import omero.api.AMD_IScript_validateScript;
 import omero.api._IScriptOperations;
-import omero.constants.categories.PROCESSORCALLBACK;
 import omero.grid.InteractiveProcessorI;
 import omero.grid.InteractiveProcessorPrx;
 import omero.grid.JobParams;
@@ -174,7 +172,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
             throws ServerError {
         safeRunnableCall(__current, __cb, false, new Callable<Long>(){
             public Long call() {
-                Long id = scripts.findInDb(scriptPath, true);
+                Long id = scripts.findInDb(scriptPath);
                 if (id == null) {
                     return -1L;
                 } else {
@@ -198,7 +196,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         safeRunnableCall(__current, __cb, false, new Callable<Long>() {
             public Long call() throws Exception {
                 OriginalFile file = makeFile(path, scriptText);
-                writeContent(file, scriptText);
+                file = writeContent(file, scriptText);
                 validateParams(__current, file);
                 return file.getId();
             }
@@ -211,8 +209,13 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         safeRunnableCall(__current, __cb, false, new Callable<Long>() {
             public Long call() throws Exception {
                 try {
-                    ScriptRepoHelper.RepoFile f = scripts.write(path, scriptText, true, false);
-                    OriginalFile file = scripts.load(f.fs, true);
+                    if (scripts.findInDb(path) != null) {
+                        throw new ApiUsageException(null, null,
+                                "Path already exists: " + path + "\n" +
+                                "Use editScript to modify existing official scripts.");
+                    }
+                    RepoFile f = scripts.write(path, scriptText);
+                    OriginalFile file = scripts.addOrReplace(f, null);
                     validateParams(__current, file);
                     return file.getId();
                 } catch (IOException e) {
@@ -251,14 +254,15 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                 // Removing update event
                 // to prevent optimistic locking
                 file.setMimetype("text/x-python");
-                file.getDetails().setUpdateEvent(null);
+                file = updateFile(file);
 
                 OriginalFile official = scripts.load(file.getId(), true);
                 if (official != null) {
-                    scripts.write(official.getPath() + official.getName(),
-                            scriptText, true, true);
+                    String fullname = official.getPath() + official.getName();
+                    RepoFile f = scripts.write(fullname, scriptText);
+                    file = scripts.update(f, file.getId());
                 } else {
-                    writeContent(file, scriptText);
+                    file = writeContent(file, scriptText);
                 }
                 validateParams(__current, file);
                 return null; // void
@@ -304,7 +308,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
         if (scripts.isInRepo(file.getId())) {
             try {
-                return scripts.read(file.getPath() + file.getName(), true);
+                return scripts.read(file.getPath() + file.getName());
             } catch (IOException e) {
                 omero.ResourceError re = new omero.ResourceError(null, null, "Failed to load " + file);
                 IceMapper.fillServerError(re, e);
@@ -592,9 +596,9 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      *            script
      * @throws ServerError
      */
-    private void writeContent(final OriginalFile file, final String script)
+    private OriginalFile writeContent(final OriginalFile file, final String script)
             throws ServerError {
-        factory.executor.execute(factory.principal, new Executor.SimpleWork(
+        return (OriginalFile) factory.executor.execute(factory.principal, new Executor.SimpleWork(
                 this, "writeContent") {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
@@ -604,9 +608,9 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                     rawFileStore.setFileId(file.getId());
                     rawFileStore.truncate(buf.length); // ticket:2337
                     rawFileStore.write(buf, 0, buf.length);
-                    return file.getId();
+                    return rawFileStore.save();
                 } finally {
-                    rawFileStore.close(); // updates file
+                    rawFileStore.close();
                 }
             }
         });
@@ -704,7 +708,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
             // Disable file - ticket:2282
             file.setMimetype("text/plain");
-            updateFile(file);
+            file = updateFile(file);
 
             // ticket:2184 - No longer catching ValidationException
             // so that if a processor is available that users get

@@ -19,16 +19,15 @@ import java.util.Iterator;
 import java.util.List;
 
 import ome.conditions.InternalException;
+import ome.conditions.OptimisticLockException;
 import ome.model.core.OriginalFile;
 import ome.model.meta.ExperimenterGroup;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
-import ome.util.Utils;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.AndFileFilter;
 import org.apache.commons.io.filefilter.CanReadFileFilter;
 import org.apache.commons.io.filefilter.EmptyFileFilter;
@@ -232,12 +231,17 @@ public class ScriptRepoHelper {
         }
     }
 
-    public Long findInDb(final String path, final boolean relative) {
+    public Long findInDb(final String path) {
+        RepoFile repoFile = new RepoFile(dir, path);
+        return findInDb(repoFile);
+    }
+
+    public Long findInDb(final RepoFile file) {
         return (Long) ex.executeStateless(new Executor.SimpleStatelessWork(
-                this, "findInDb", path) {
+                this, "findInDb", file) {
             @Transactional(readOnly = true)
             public Object doWork(SimpleJdbcOperations jdbc) {
-                return findInDb(jdbc, path, relative);
+                return findInDb(jdbc, file);
             }
         });
     }
@@ -245,11 +249,7 @@ public class ScriptRepoHelper {
     /**
      * Looks to see if a path is contained in the repository.
      */
-    public Long findInDb(SimpleJdbcOperations jdbc, String path,
-            boolean relative) {
-
-        final RepoFile repoFile = build(path, relative);
-
+    public Long findInDb(SimpleJdbcOperations jdbc, RepoFile repoFile) {
         try {
             return jdbc.queryForLong("select id from originalfile "
                     + "where repo = ? and path = ? and name = ?",
@@ -265,6 +265,12 @@ public class ScriptRepoHelper {
     }
 
     /**
+     * Walks all files in the repository (via {@link #iterate()} and adds them
+     * if not found in the database.
+     *
+     * If modificationCheck is true, then a change in the sha1 for a file in
+     * the repository will cause the old file to be removed from the repository
+     * <pre>(uuid == null)</pre> and a new file created in its place.
      *
      * @param modificationCheck
      * @return
@@ -273,38 +279,38 @@ public class ScriptRepoHelper {
         final Iterator<File> it = iterate();
         final List<OriginalFile> rv = new ArrayList<OriginalFile>();
         File f = null;
-        FsFile file = null;
+        RepoFile file = null;
         while (it.hasNext()) {
             f = it.next();
-            file = new FsFile(f);
-            rv.add(load(file, modificationCheck));
+            file = new RepoFile(dir, f);
+            Long id = findInDb(file);
+            String sha1 = null;
+            OriginalFile ofile = null;
+            if (id == null) {
+                ofile = addOrReplace(file, null);
+            } else {
+
+                ofile = load(id, false); // false since duplicates check above
+
+                if (ofile == null) {
+                    throw new OptimisticLockException("File disappeared while loading: " + id);
+                }
+
+                if (modificationCheck) {
+                    sha1 = file.sha1();
+                    if (!sha1.equals(ofile.getSha1())) {
+                        ofile = addOrReplace(file, id);
+                    }
+                }
+            }
+            rv.add(ofile);
         }
         return rv;
     }
 
-    public OriginalFile load(FsFile file, boolean modificationCheck) {
-        Long id;
-        String sha1;
-        OriginalFile obj;
-        id = findInDb(file.path, false);
-        if (id == null) {
-            obj = addOrReplace(file, null);
-        } else {
-            obj = load(id, false);
-            if (modificationCheck) {
-                sha1 = file.sha1();
-                if (!sha1.equals(obj.getSha1())) {
-                    obj = addOrReplace(file, id);
-                }
-            }
-        }
-        return obj;
-    }
-
-    protected OriginalFile addOrReplace(final FsFile fsFile, final Long old) {
-        final RepoFile repoFile = new RepoFile(dir, fsFile);
+    public OriginalFile addOrReplace(final RepoFile repoFile, final Long old) {
         return (OriginalFile) ex.execute(p, new Executor.SimpleWork(this,
-                "addOrReplace", fsFile.path, old) {
+                "addOrReplace", repoFile, old) {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
                 if (old != null) {
@@ -315,43 +321,52 @@ public class ScriptRepoHelper {
                 }
 
                 OriginalFile ofile = new OriginalFile();
-                ofile.setPath(repoFile.dirname());
-                ofile.setName(repoFile.basename());
-                ofile.setSha1(fsFile.sha1());
-                ofile.setSize(fsFile.length());
-                ofile.setMimetype("text/x-python");
-                ofile.getDetails().setGroup(
-                        new ExperimenterGroup(roles.getUserGroupId(), false));
-                ofile = sf.getUpdateService().saveAndReturnObject(ofile);
-
-                session.createSQLQuery(
-                        "update originalfile set repo = ? where id = ?")
-                        .setParameter(0, uuid).setParameter(1, ofile.getId())
-                        .executeUpdate();
-                return ofile;
+                return update(repoFile, session, sf, ofile);
             }
         });
     }
 
-    public String read(String path, boolean relative) throws IOException {
-        final RepoFile repo = build(path, relative);
+    public OriginalFile update(final RepoFile repoFile, final Long id) {
+        return (OriginalFile) ex.execute(p, new Executor.SimpleWork(this,
+                "update", repoFile, id) {
+            @Transactional(readOnly = false)
+            public Object doWork(Session session, ServiceFactory sf) {
+                OriginalFile ofile = load(id, session, true);
+                return update(repoFile, session, sf, ofile);
+            }
+        });
+    }
+
+    private OriginalFile update(final RepoFile repoFile, Session session,
+            ServiceFactory sf, OriginalFile ofile) {
+        ofile.setPath(repoFile.dirname());
+        ofile.setName(repoFile.basename());
+        ofile.setSha1(repoFile.sha1());
+        ofile.setSize(repoFile.length());
+        ofile.setMimetype("text/x-python");
+        ofile.getDetails().setGroup(
+                new ExperimenterGroup(roles.getUserGroupId(), false));
+        ofile = sf.getUpdateService().saveAndReturnObject(ofile);
+
+        session.createSQLQuery(
+                "update originalfile set repo = ? where id = ?")
+                .setParameter(0, uuid).setParameter(1, ofile.getId())
+                .executeUpdate();
+        return ofile;
+    }
+
+    public String read(String path) throws IOException {
+        final RepoFile repo = new RepoFile(dir, path);
         return FileUtils.readFileToString(repo.file());
     }
 
-    public RepoFile write(String path, String text, boolean relative,
-            boolean load) throws IOException {
-        File f = null;
-        if (relative) {
-            f = new File(dir, path);
-        } else {
-            f = new File(path);
-        }
-        FileUtils.writeStringToFile(f, text); // truncates itself. ticket:2337
-        FsFile fs = new FsFile(f.getAbsolutePath());
-        RepoFile repo = new RepoFile(dir, fs);
-        if (load) {
-            load(fs, true);
-        }
+    public RepoFile write(String path, String text) throws IOException {
+        RepoFile repo = new RepoFile(dir, path);
+        return write(repo, text);
+    }
+
+    public RepoFile write(RepoFile repo, String text) throws IOException {
+        FileUtils.writeStringToFile(repo.file(), text); // truncates itself. ticket:2337
         return repo;
     }
 
@@ -408,88 +423,6 @@ public class ScriptRepoHelper {
     // Filetype classes
     // =========================================================================
 
-    public RepoFile build(String path, boolean relative) {
-        File f = null;
-        if (relative) {
-            f = new File(dir, path);
-        } else {
-            f = new File(path);
-        }
-        final FsFile fsFile = new FsFile(f.getAbsolutePath());
-        final RepoFile repoFile = new RepoFile(dir, fsFile);
-        return repoFile;
-    }
 
-    /**
-     * File type wrapper for paths which are intended for being stored in the
-     * database as a part of this repository.
-     */
-    public static class RepoFile {
 
-        final public FsFile fs;
-        final public String rel;
-        final public String root;
-        final private String absPath;
-
-        public RepoFile(File root, FsFile file) {
-            this.fs = file;
-            this.root = FilenameUtils.normalize(root.getAbsolutePath());
-            this.rel = fs.path.substring((int) this.root.length());
-            this.absPath = new File(root, rel).getAbsolutePath();
-        }
-
-        public boolean matches(File file) {
-            return FilenameUtils.equalsNormalizedOnSystem(absPath, file
-                    .getAbsolutePath());
-        }
-
-        public File file() {
-            return new File(fs.path);
-        }
-
-        public String basename() {
-            return FilenameUtils.getName(rel);
-        }
-
-        public String dirname() {
-            return FilenameUtils.getFullPath(rel);
-        }
-        @Override
-        public String toString() {
-            return super.toString() + ":" + this.rel;
-        }
-
-    }
-
-    /**
-     * File type wrapper for actual OS files.
-     */
-    public static class FsFile {
-
-        final public String path;
-        final public String name;
-
-        public FsFile(String path) {
-            this.path = FilenameUtils.normalize(path);
-            this.name = FilenameUtils.getName(this.path);
-        }
-
-        FsFile(File file) {
-            this(file.getAbsolutePath());
-        }
-
-        public long length() {
-            return new File(path).length();
-        }
-
-        public String sha1() {
-            return Utils.bytesToHex(Utils.pathToSha1(path));
-        }
-
-        @Override
-        public String toString() {
-            return super.toString() + ":" + this.path;
-        }
-
-    }
 }

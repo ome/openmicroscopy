@@ -12,6 +12,7 @@ import java.util.List;
 
 import ome.model.core.OriginalFile;
 import ome.server.itests.AbstractManagedContextTest;
+import ome.services.scripts.RepoFile;
 import ome.services.scripts.ScriptRepoHelper;
 import ome.system.Roles;
 
@@ -33,7 +34,7 @@ import org.testng.annotations.Test;
 @Test(groups = "integration")
 public class ScriptRepoHelperTest extends AbstractManagedContextTest {
 
-    ScriptRepoHelper.RepoFile path;
+    RepoFile path;
     List<OriginalFile> files;
     ScriptRepoHelper helper;
     File dir;
@@ -65,20 +66,21 @@ public class ScriptRepoHelperTest extends AbstractManagedContextTest {
         assertContains(helper.iterate(), path);
         assertEquals(1, files.size());
         assertEquals(1, helper.countInDb());
-        assertEquals(path.rel,
+        assertEquals(path.fullname(),
+                path.dirname() + path.basename());
+        assertEquals(path.fullname(),
                 files.get(0).getPath() + files.get(0).getName());
     }
 
     public void testFindInDb() throws Exception {
         testLoadAddsObjects();
-        assertEquals(files.get(0).getId(), helper.findInDb(path.rel, true));
-        assertEquals(files.get(0).getId(), helper.findInDb(path.fs.path, false));
+        assertEquals(files.get(0).getId(), helper.findInDb(path));
     }
 
     public void testFileModificationsAreFoundManually() throws Exception {
         testLoadAddsObjects();
         Long fileID = files.get(0).getId();
-        helper.write(path.rel, "changed", true, false);
+        RepoFile file = helper.write(path, "changed");
         files = helper.loadAll(false);
         assertEquals(fileID, files.get(0).getId());
         helper.modificationCheck();
@@ -89,7 +91,7 @@ public class ScriptRepoHelperTest extends AbstractManagedContextTest {
     public void testFileModificationsCanBeFoundOnLoad() throws Exception {
         testLoadAddsObjects();
         Long fileID = files.get(0).getId();
-        helper.write(path.rel, "changed", true, false);
+        helper.write(path, "changed");
         files = helper.loadAll(true);
         assertFalse(fileID.equals(files.get(0).getId()));
     }
@@ -123,7 +125,7 @@ public class ScriptRepoHelperTest extends AbstractManagedContextTest {
         path = generateFile();
         files = helper.loadAll(false);
         Long oldID = files.get(0).getId();
-        helper.write(path.rel, "updated", true, false);
+        helper.write(path, "updated");
         helper.modificationCheck();
         assertFalse(helper.isInRepo(oldID));
     }
@@ -132,11 +134,12 @@ public class ScriptRepoHelperTest extends AbstractManagedContextTest {
         path = generateFile();
         files = helper.loadAll(false);
         Long oldID = files.get(0).getId();
-        helper.write(path.rel, "updated", true, true);
+        helper.write(path, "updated");
+        helper.load(path, true);
         files = helper.loadAll(false);
         Long newID = files.get(0).getId();
         assertFalse(oldID.equals(newID));
-        String fsSha1 = path.fs.sha1();
+        String fsSha1 = path.sha1();
         String dbSha1 = files.get(0).getSha1();
         assertEquals(dbSha1, fsSha1);
     }
@@ -145,10 +148,10 @@ public class ScriptRepoHelperTest extends AbstractManagedContextTest {
         path = generateFile();
         files = helper.loadAll(false);
         Long id = files.get(0).getId();
-        assertTrue(new File(path.fs.path).exists());
+        assertTrue(path.file().exists());
         helper.delete(id);
         assertFalse(helper.isInRepo(id));
-        assertFalse(new File(path.fs.path).exists());
+        assertFalse(path.file().exists());
     }
 
     // Helpers
@@ -161,18 +164,19 @@ public class ScriptRepoHelperTest extends AbstractManagedContextTest {
         assertEquals(0, files.size());
     }
 
-    protected ScriptRepoHelper.RepoFile generateFile() throws Exception {
+    protected RepoFile generateFile() throws Exception {
         return generateFile("test", ".py", "import omero");
     }
 
-    protected ScriptRepoHelper.RepoFile generateFile(String prefix, String suffix, String contents)
+    protected RepoFile generateFile(String prefix, String suffix, String contents)
             throws Exception {
-        File f = File.createTempFile(prefix, suffix, new File(helper
-                .getScriptDir()));
-        return helper.write(f.getAbsolutePath(), contents, false, false);
+        File dir = new File(helper.getScriptDir());
+        File f = File.createTempFile(prefix, suffix, dir);
+        RepoFile repoFile = new RepoFile(dir, f);
+        return helper.write(repoFile, contents);
     }
 
-    protected void assertContains(Iterator<File> it, ScriptRepoHelper.RepoFile repo) {
+    protected void assertContains(Iterator<File> it, RepoFile repo) {
         boolean found = false;
         while (it.hasNext()) {
             File f = it.next();

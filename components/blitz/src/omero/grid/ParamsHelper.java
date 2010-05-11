@@ -7,7 +7,6 @@
 
 package omero.grid;
 
-import ome.model.enums.Format;
 import ome.parameters.Parameters;
 import ome.security.AdminAction;
 import ome.security.SecuritySystem;
@@ -109,7 +108,7 @@ public class ParamsHelper {
     ome.model.jobs.ParseJob getParseJobForScript(final long scriptId) {
         ome.model.jobs.ParseJob job = (ome.model.jobs.ParseJob) ex.execute(p,
                 new Executor.SimpleWork(this, "getParseJobForScript", scriptId) {
-                    @Transactional(readOnly = false)
+                    @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
                         Parameters p = new Parameters();
                         p.page(0, 1);
@@ -122,6 +121,7 @@ public class ParamsHelper {
                                                 + "join scriptlinks.child script "
                                                 + "where job.params is not null "
                                                 + "and script.id = :id "
+                                                + "and script.details.updateEvent.id <= job.details.updateEvent.id "
                                                 + "order by job.details.updateEvent.id desc",
                                         p);
                     }
@@ -207,25 +207,6 @@ public class ParamsHelper {
             is.destroy();
         }
         return params[0];
-    }
-
-    /**
-     * Get the Format object.
-     *
-     * @param fmt
-     *            the format to retrieve.
-     * @return see above.
-     */
-    Format loadFormat(final String fmt) {
-        return (Format) ex.execute(p, new Executor.SimpleWork(this,
-                "loadFormat") {
-
-            @Transactional(readOnly = true)
-            public Object doWork(Session session, ServiceFactory sf) {
-                return sf.getQueryService().findByQuery(
-                        "from Format as f where f.value='" + fmt + "'", null);
-            }
-        });
     }
     
     /**

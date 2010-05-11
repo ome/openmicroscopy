@@ -85,7 +85,7 @@ class TestScripts(lib.ITest):
         "import omero.scripts as scripts",
         "if __name__ == '__main__':",
         "    client = scripts.client('HelloWorld.py', 'Hello World example script',",
-        "    scripts.Int('longParam', True, description='theDesc', min=rlong(1), max=rlong(10), values=[rlong(5)]) )",
+        "    scripts.Int('longParam', True, description='theDesc', min=1, max=10, values=[5]) )",
         "    client.setOutput('returnMessage', rstring('Script ran OK!'))"]
         script = "\n".join(scriptLines)
 
