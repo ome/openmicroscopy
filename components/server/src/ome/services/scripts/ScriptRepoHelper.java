@@ -346,7 +346,7 @@ public class ScriptRepoHelper {
         } else {
             f = new File(path);
         }
-        FileUtils.writeStringToFile(f, text);
+        FileUtils.writeStringToFile(f, text); // truncates itself. ticket:2337
         FsFile fs = new FsFile(f.getAbsolutePath());
         RepoFile repo = new RepoFile(dir, fs);
         if (load) {

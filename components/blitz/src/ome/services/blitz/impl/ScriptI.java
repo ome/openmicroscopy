@@ -598,11 +598,12 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                 this, "writeContent") {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
-                RawFileStore rawFileStore = sf.createRawFileStore();
+                final byte[] buf = script.getBytes();
+                final RawFileStore rawFileStore = sf.createRawFileStore();
                 try {
                     rawFileStore.setFileId(file.getId());
-                    rawFileStore.write(script.getBytes(), 0,
-                            script.getBytes().length);
+                    rawFileStore.truncate(buf.length); // ticket:2337
+                    rawFileStore.write(buf, 0, buf.length);
                     return file.getId();
                 } finally {
                     rawFileStore.close(); // updates file
