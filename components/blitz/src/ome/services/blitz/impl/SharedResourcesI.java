@@ -469,12 +469,9 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
         // Okay. All's valid.
         final Job job = (Job) mapper.map(savedJob);
-        Ice.Identity acceptId = new Ice.Identity();
-        acceptId.name = UUID.randomUUID().toString();
-        acceptId.category = PROCESSORCALLBACK.value;
         ResultHolder<String> holder = new ResultHolder<String>(seconds*1000);
         ProcessorCallbackI callback = new ProcessorCallbackI(sf, holder, job);
-        ProcessorPrx server = callback.activateAndWait(current, acceptId);
+        ProcessorPrx server = callback.activateAndWait(current);
 
         // Nothing left to try
         if (server == null) {

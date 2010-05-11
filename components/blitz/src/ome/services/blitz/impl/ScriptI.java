@@ -146,12 +146,8 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                 // therefore those are the values we should ask the
                 // processor about.
 
-                Ice.Identity acceptId = new Ice.Identity();
-                acceptId.name = UUID.randomUUID().toString();
-                acceptId.category = PROCESSORCALLBACK.value;
-                ResultHolder<String> holder = new ResultHolder<String>(5*1000); // ms.
-                ProcessorCallbackI callback = new ProcessorCallbackI(factory, holder, null);
-                ProcessorPrx server = callback.activateAndWait(__current, acceptId);
+                ProcessorCallbackI callback = new ProcessorCallbackI(factory);
+                ProcessorPrx server = callback.activateAndWait(__current);
 
                 return server != null;
             }
