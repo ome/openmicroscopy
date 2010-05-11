@@ -221,7 +221,8 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
                 self.upload_output(client) # Important!
                 self.cleanup_tmpdir()
             finally:
-                client.__del__() # Safe closeSession
+                if client:
+                    client.__del__() # Safe closeSession
 
         except exceptions.Exception:
             self.logger.error("FAILED TO CLEANUP pid=%s (%s)", self.pid, self.uuid, exc_info = True)
