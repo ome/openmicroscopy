@@ -401,6 +401,7 @@ public class ScriptRepoHelper {
         });
 
         FileUtils.deleteQuietly(new File(dir, file.getPath()));
+
         return true;
     }
 

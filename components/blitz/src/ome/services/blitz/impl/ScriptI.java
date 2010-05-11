@@ -203,7 +203,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
             public Long call() throws Exception {
                 OriginalFile file = makeFile(path, scriptText);
                 writeContent(file, scriptText);
-                updateFileWithParams(__current, file);
+                validateParams(__current, file);
                 return file.getId();
             }
         });
@@ -216,7 +216,9 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
             public Long call() throws Exception {
                 try {
                     ScriptRepoHelper.RepoFile f = scripts.write(path, scriptText, true, false);
-                    return scripts.load(f.fs, true).getId();
+                    OriginalFile file = scripts.load(f.fs, true);
+                    validateParams(__current, file);
+                    return file.getId();
                 } catch (IOException e) {
                     omero.ServerError se = new omero.InternalException(null, null, "Cannot write " + path);
                     IceMapper.fillServerError(se, e);
@@ -232,10 +234,27 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
         safeRunnableCall(__current, __cb, true, new Callable<Object>() {
             public Object call() throws Exception {
-                IceMapper mapper = new IceMapper();
-                OriginalFile file = (OriginalFile) mapper.reverse(fileObject);
+
+                if (fileObject == null) {
+                    throw new ApiUsageException(null, null, "file object cannot be null");
+                }
+
+                OriginalFile file = null;
+                if (fileObject.isLoaded()) {
+                    IceMapper mapper = new IceMapper();
+                    file = (OriginalFile) mapper.reverse(fileObject);
+                } else {
+                    file = getOriginalFileOrNull(fileObject.getId().getValue());
+                }
+
+                if (file == null) {
+                    throw new ApiUsageException(null, null, "could not find file: "
+                            + fileObject.getId().getValue());
+                }
+
                 // Removing update event
                 // to prevent optimistic locking
+                file.setMimetype("text/x-python");
                 file.getDetails().setUpdateEvent(null);
 
                 OriginalFile official = scripts.load(file.getId(), true);
@@ -245,7 +264,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                 } else {
                     writeContent(file, scriptText);
                 }
-                updateFileWithParams(__current, file);
+                validateParams(__current, file);
                 return null; // void
             }
 
@@ -667,17 +686,17 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         }
     }
 
-    private void updateFileWithParams(final Current __current,
+    private void validateParams(final Current __current,
             OriginalFile file) throws ServerError, ApiUsageException {
+
+
         try {
+
             JobParams params = helper.getOrCreateParams(file.getId(), __current);
 
             if (params == null) {
                 throw new ApiUsageException(null, null, "Script error: no params found.");
             }
-
-            file.setName(params.name);
-            updateFile(file);
 
         } catch (ResourceError re) {
             // Probably a user script for which there's currently
@@ -685,6 +704,11 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
             // like null params do, but rather just that we'll have to
             // generate the params later.
         } catch (ValidationException ve) {
+
+            // Disable file - ticket:2282
+            file.setMimetype("text/plain");
+            updateFile(file);
+
             // ticket:2184 - No longer catching ValidationException
             // so that if a processor is available that users get
             // feedback as quickly as possible. If there is something
@@ -695,7 +719,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
             // ticket:2044. Ignoring  other exceptions as well since these
             // may be caused by processor misbehavior. Note: the same
             // exception may be thrown again during execution
-            log.warn("Unexpected exception on updateFileWithParams", e);
+            log.warn("Unexpected exception on validateParams", e);
         }
     }
 }

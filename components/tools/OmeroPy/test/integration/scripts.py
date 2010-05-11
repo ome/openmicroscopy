@@ -70,7 +70,7 @@ class TestScripts(lib.ITest):
                 script_id = svc.uploadScript('testpath', "THIS STINKS")
                 svc.getParams(script_id)
             except omero.ValidationException, ve:
-                self.assertTrue("THIS STINKS" in str(ve))
+                self.assertTrue("THIS STINKS" in str(ve), str(ve))
         finally:
             impl.cleanup()
 
@@ -215,17 +215,12 @@ class TestScripts(lib.ITest):
         validPath = "/test/validation/valid%s.py" % uuid
         validId = scriptService.uploadOfficialScript(validPath, validScript)
 
-        scripts = scriptService.getScripts()
-        namedScripts = [s for s in scripts if s.path.val + s.name.val == validPath]
-        scriptFile = namedScripts[0]
-
-        invalidEdit = False
         try:
             # this should throw, since the script is invalid
-            scriptService.editScript(scriptFile, invalidScript)
-            invalidEdit = True
-        except: pass
-        self.assertFalse(invalidEdit, "editScript() failed to throw with invalid script")
+            scriptService.editScript(omero.model.OriginalFileI(validId, False), invalidScript)
+            self.fail("editScript() failed to throw with invalid script")
+        except omero.ValidationException, ve:
+            pass
 
     def testAutoFillTicket2326(self):
         SCRIPT = """if True:
