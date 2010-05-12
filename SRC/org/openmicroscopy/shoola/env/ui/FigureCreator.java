@@ -29,6 +29,8 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.RString;
+
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.ScriptCallback;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
@@ -144,19 +146,10 @@ public class FigureCreator
      */
     public void handleResult(Object result)
     { 
-    	if (result == null) activity.endActivity(result); 
+    	if (result == null) onException(); 
     	else if (!(result instanceof Boolean)) {
-        	Map<String, Object> r = (Map) result;
-        	Object o = r.get("fileAnnotation");
-        	if (o != null) {
-        		try {
-        			Object annotation = 
-        				registry.getMetadataService().loadAnnotation((Long) o);
-        			activity.endActivity(annotation);
-    			} catch (Exception e) {
-    			}
-        	}
-    	}
+    		activity.endActivity(result);
+    	} 
     }
 	
 }

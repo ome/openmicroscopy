@@ -418,7 +418,7 @@ public class FileChooser
     public void setSelectedFileFull(String name) 
     { 
     	if (name == null || name.trim().length() == 0)
-    		throw new IllegalArgumentException("File name not valid.");
+    		return;
     	uiDelegate.setSelectedFile(new File(name));
     }
     
@@ -430,7 +430,7 @@ public class FileChooser
     public void setSelectedFile(File name) 
     { 
     	if (name == null)
-    		throw new IllegalArgumentException("File cannot be null.");
+    		return;
     	uiDelegate.setSelectedFile(name);
     }
     

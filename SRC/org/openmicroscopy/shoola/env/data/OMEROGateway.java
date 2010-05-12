@@ -3366,6 +3366,10 @@ class OMEROGateway
 		throws DSAccessException, DSOutOfServiceException
 	{
 		isSessionAlive();
+		if (size <= 0) {
+			OriginalFile of = getOriginalFile(fileID);
+			if (of != null) size = of.getSize().getValue();
+		}
 		RawFileStorePrx store = getRawFileService();
 		try {
 			store.setFileId(fileID);
@@ -3434,7 +3438,6 @@ class OMEROGateway
 			param.map.put("id", omero.rtypes.rlong(id));
 			of = (OriginalFile) getQueryService().findByQuery(
 					"select p from OriginalFile as p " +
-					"left outer join fetch p.format " +
 					"where p.id = :id", param);
 		} catch (Exception e) {
 			handleException(e, "Cannot retrieve original file");

@@ -50,6 +50,9 @@ public class PNGFilter
 	extends CustomizedFileFilter
 {
 	
+	/** The MIMEType associated to this type of file. */
+	public static final String   MIMETYPE =  "image/png";
+	
 	/** Possible file extension. */
 	public static final String 	PNG = "png";
 	
@@ -77,7 +80,7 @@ public class PNGFilter
 	 * 	Overridden to return the MIME type.
 	 * 	@see CustomizedFileFilter#getMIMEType()
 	 */
-	public String getMIMEType() { return "image/png"; }
+	public String getMIMEType() { return MIMETYPE; }
 	
 	/**
 	 * Overridden to return the extension of the filter.

@@ -133,8 +133,6 @@ public class ScriptCallback
 	public void processFinished(int value, Current current)
 	{
 		super.processFinished(value, current);
-		//convert the result.
-		//adapter.handleResult(process.g)
 		if (adapter == null) return;
 		try {
 			if (adapter != null) {

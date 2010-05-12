@@ -180,6 +180,11 @@ public class IconManager
      */  
     private static final String		UPGRADE = "graphx/omeabout-bk.png";
     
+    /** 
+     * The pathname, relative to this class, of the upgrade icon.
+     */  
+    private static final String		RESULTS = "graphx/nuvola_kig48.png";
+    
 	/** ID of the <code>help</code> icon. */
 	static final int		HELP = 0;
 	
@@ -392,6 +397,16 @@ public class IconManager
 		return createIcon(DEFAULT_INFO_ICON_PATH);
 	}
 
+	/**
+	 * Returns the image of the options button within the server dialog.
+	 * 
+	 * @return See above.
+	 */
+	static Icon getResults()
+	{
+		return createIcon(RESULTS);
+	}
+	
 	/**
 	 * Returns the default error icon to use for notification dialogs.
 	 * 

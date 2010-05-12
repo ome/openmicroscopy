@@ -30,12 +30,20 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
@@ -46,8 +54,24 @@ import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
+import org.openmicroscopy.shoola.env.data.model.ParamData;
+import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
+import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
+
+import omero.RString;
+import omero.RType;
+import omero.model.IObject;
+import omero.model.OriginalFile;
+import pojos.DataObject;
+import pojos.DatasetData;
+import pojos.FileAnnotationData;
+import pojos.ImageData;
+import pojos.ProjectData;
 
 /**
  * Top class that each action should extend.
@@ -88,6 +112,24 @@ public abstract class ActivityComponent
 	/** ID to cancel the activity. */
 	private static final int 	CANCEL = 2;
 	
+	/** ID to view the object e.g. the image. */
+	private static final int	VIEW = 3;
+	
+	/** ID to display the error. */
+	private static final int	INFO_ERROR = 4;
+	
+	/** ID to show the result. */
+	private static final int	RESULT = 5;
+	
+	/** The key to look for to display the output message. */
+	private static final String MESSAGE = "Message";
+	
+	/** The key to look for to display the error message if any. */
+	private static final String STD_ERR = "stderr";
+	
+	/** The key to look for to display the output message if any. */
+	private static final String STD_OUT = "stdout";
+	
 	/** Indicate the status of the activity. */
 	private JXBusyLabel 				status;
 	
@@ -112,8 +154,17 @@ public abstract class ActivityComponent
 	/** The tool bar displaying controls. *. */
 	private JToolBar					toolBar;
 	
-	/** Button to download the activity depending on the type of activity. */
+	/** Button to download the result depending on the type of activity. */
 	protected JButton					downloadButton;
+	
+	/** Button to view the result depending on the type of activity. */
+	protected JButton					viewButton;
+	
+	/** Button to show the exception of the general result. */
+	protected JButton					infoButton;
+	
+	/** Button to show the exception of the general result. */
+	protected JButton					resultButton;
 	
 	/** The label displaying the type of activity. */
 	protected JLabel					type;
@@ -138,14 +189,15 @@ public abstract class ActivityComponent
      * 
      * @param text The text of the button.
      * @param actionID The action command id.
+     * @param l The action listener.
      * @return See above.
      */
-    private JButton createButton(String text, int actionID)
+    JButton createButton(String text, int actionID, ActionListener l)
     {
     	JButton b = new JButton(text);
-		b.setEnabled(false);
+		//b.setEnabled(false);
 		b.setActionCommand(""+actionID);
-		b.addActionListener(this);
+		b.addActionListener(l);
 		b.setOpaque(false);
 		b.setForeground(UIUtilities.HYPERLINK_COLOR);
 		UIUtilities.unifiedButtonLookAndFeel(b);
@@ -160,10 +212,17 @@ public abstract class ActivityComponent
 	 */
 	private void initComponents(String text, Icon icon)
 	{
-		removeButton = createButton("Remove", REMOVE);
-		cancelButton = createButton("Cancel", CANCEL);
-		if (index == ADVANCED)
-			downloadButton = createButton("Download", DOWNLOAD);
+		removeButton = createButton("Remove", REMOVE, this);
+		cancelButton = createButton("Cancel", CANCEL, this);
+		//if (index == ADVANCED)
+		downloadButton = createButton("Download", DOWNLOAD, this);
+		downloadButton.setVisible(false);
+		viewButton = createButton("View", VIEW, this);
+		viewButton.setVisible(false);
+		infoButton = createButton("Info", INFO_ERROR, this);
+		infoButton.setVisible(false);
+		resultButton = createButton("Show Result", RESULT, this);
+		resultButton.setVisible(false);
 		status = new JXBusyLabel(SIZE);
 		type = UIUtilities.setTextFont(text);
 		messageLabel = UIUtilities.setTextFont("", Font.ITALIC, 10);
@@ -208,11 +267,17 @@ public abstract class ActivityComponent
 		toolBar.setFloatable(false);
 		toolBar.setBorder(null);
 		buttonIndex = 0;
-		if (index == ADVANCED) {
+		//if (index == ADVANCED) {
 			toolBar.add(downloadButton);
 			toolBar.add(Box.createHorizontalStrut(5));
-			buttonIndex = 2;
-		}
+			toolBar.add(viewButton);
+			toolBar.add(Box.createHorizontalStrut(5));
+			toolBar.add(resultButton);
+			toolBar.add(Box.createHorizontalStrut(5));
+			toolBar.add(infoButton);
+			toolBar.add(Box.createHorizontalStrut(5));
+			buttonIndex = 8;
+		//}
 		toolBar.add(cancelButton);
 		JLabel l = new JLabel();
 		Font f = l.getFont();
@@ -237,7 +302,11 @@ public abstract class ActivityComponent
 		toolBar.remove(buttonIndex);
 		toolBar.add(removeButton, buttonIndex);
 		removeButton.setEnabled(true);
-		if (index == ADVANCED) downloadButton.setEnabled(true);
+		downloadButton.setVisible(false);
+		viewButton.setVisible(false);
+		infoButton.setVisible(false);
+		resultButton.setVisible(false);
+		//if (index == ADVANCED) downloadButton.setEnabled(true);
 		status.setBusy(false);
 		status.setVisible(false);
 		statusPane = iconLabel;
@@ -355,6 +424,82 @@ public abstract class ActivityComponent
 		//cancelButton.setEnabled(true);
 	}
 	
+	private Map<String, Object> convertResult(Map<String, Object> m)
+	{
+		Map<String, Object> objects = new HashMap<String, Object>();
+		if (m == null) return objects;
+		Entry entry;
+		Iterator i = m.entrySet().iterator();
+		String key;
+		Object v;
+		Object data;
+		type.setText("");
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			key = (String) entry.getKey();
+			v = entry.getValue();
+			if (MESSAGE.equals(key)) {
+				if (v instanceof String)
+					type.setText((String) v);
+			} 
+			/*
+			else if (STD_ERR.equals(key)) {
+				
+			} else if (STD_OUT.equals(key)) {
+			*/	
+			//} 
+			else {
+				objects.put(key, v);
+			}
+		}
+		return objects;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the object can be viewed, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param object The object to handle.
+	 * @return See above.
+	 */
+	boolean isViewable(Object object)
+	{
+		String mimetype = null;
+		if (object instanceof ImageData) return true;
+		if (object instanceof DatasetData) return true;
+		if (object instanceof ProjectData) return true;
+		if (object instanceof FileAnnotationData) {
+			FileAnnotationData fa = (FileAnnotationData) object;
+			if (fa.isLoaded()) {
+				OriginalFile of = (OriginalFile) fa.getContent();
+				if (of.isLoaded() && of.getMimetype() != null)
+					mimetype = of.getMimetype().getValue();
+			}
+		} else if (object instanceof OriginalFile) {
+			OriginalFile of = (OriginalFile) object;
+			if (of.isLoaded() && of.getMimetype() != null)
+				mimetype = of.getMimetype().getValue();
+		}
+		if (mimetype != null) {
+			return (JPEGFilter.MIMETYPE.equals(mimetype) || 
+					PNGFilter.MIMETYPE.equals(mimetype));
+		}
+		return false;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the object can be downloaded, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param object The object to handle.
+	 * @return See above.
+	 */
+	boolean isDownloadable(Object object)
+	{
+		return (object instanceof FileAnnotationData || 
+				object instanceof OriginalFile);
+	}
+	
 	/** 
 	 * Invokes when the activity end. 
 	 * 
@@ -365,6 +510,25 @@ public abstract class ActivityComponent
 		this.result = result;
 		boolean busy = status.isBusy();
 		reset();
+		if (result instanceof Map) {
+			Map<String, Object> m = convertResult((Map<String, Object>) result);
+			int size = m.size();
+			if (size == 1) {
+				Entry entry;
+				Iterator i = m.entrySet().iterator();
+				while (i.hasNext()) {
+					entry = (Entry) i.next();
+					this.result = entry.getValue();
+				}
+			} else this.result = m;
+		}
+		downloadButton.setVisible(isDownloadable(this.result));
+		viewButton.setVisible(isViewable(this.result));
+		if (!viewButton.isVisible() && !downloadButton.isVisible()) {
+			resultButton.setVisible(this.result instanceof Collection ||
+					this.result instanceof Map);
+		}
+			
 		notifyActivityEnd();
 		//Post an event to 
 		if (busy) {
@@ -415,6 +579,105 @@ public abstract class ActivityComponent
 	/** Subclasses should override the method. */
 	protected void notifyDownload() {}
 	
+	private void showResult()
+	{
+		JFrame f = registry.getTaskBar().getFrame();
+		ActivityResultDialog d = new ActivityResultDialog(f, this, result);
+		UIUtilities.centerAndShow(d);
+	}
+	
+	/** 
+	 * Downloads the passed object is supported.
+	 * 
+	 * @param text   The text used if the object is not loaded.
+	 * @param object The object to handle.
+	 */
+	void download(String text, Object object)
+	{
+		if (!(object instanceof FileAnnotationData || 
+				object instanceof OriginalFile)) return;
+		int index = -1;
+		if (text == null) text = "";
+		String name = "";
+		String description = "";
+		long dataID = -1;
+		OriginalFile of = null;
+		if (object instanceof FileAnnotationData) {
+			FileAnnotationData data = (FileAnnotationData) object;
+			if (data.isLoaded()) {
+				name = data.getFileName();
+				description = data.getDescription();
+				of = (OriginalFile) data.getContent();
+			} else {
+				of = null;
+				dataID = data.getId();
+				index = DownloadActivityParam.FILE_ANNOTATION;
+				if (text.length() == 0) text = "Annotation";
+				name = text+"_"+dataID;
+			
+			}
+		} else {
+			of = (OriginalFile) object;
+			if (!of.isLoaded()) {
+				dataID = of.getId().getValue();
+				index = DownloadActivityParam.ORIGINAL_FILE;
+				if (text.length() == 0) text = "File";
+				name = text+"_"+dataID;
+				of = null;
+			}
+		}
+		final OriginalFile original = of;
+		final int type = index;
+		final String desc = description;
+		final long id = dataID;
+		JFrame f = registry.getTaskBar().getFrame();
+		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
+				"Download", "Select where to download the file.", null, 
+				true);
+		IconManager icons = IconManager.getInstance(registry);
+		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
+		chooser.setSelectedFileFull(name);
+		chooser.setApproveButtonText("Download");
+		chooser.addPropertyChangeListener(new PropertyChangeListener() {
+		
+			public void propertyChange(PropertyChangeEvent evt) {
+				String name = evt.getPropertyName();
+				if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
+					File folder = (File) evt.getNewValue();
+					if (original == null && type == -1) return;
+					IconManager icons = IconManager.getInstance(registry);
+					DownloadActivityParam activity;
+					if (original != null) {
+						activity = new DownloadActivityParam(original,
+								folder, icons.getIcon(IconManager.DOWNLOAD_22));
+						
+					} else {
+						activity = new DownloadActivityParam(id, type,
+								folder, icons.getIcon(IconManager.DOWNLOAD_22));
+					}
+					activity.setLegend(desc);
+					/*
+					activity.setLegendExtension(
+							DownloadActivity.LEGEND_TEXT_CSV);
+							*/
+					viewer.notifyActivity(activity);
+				}
+			}
+		});
+		chooser.centerDialog();
+	}
+	
+	/**
+	 * Views the passed object if supported.
+	 * 
+	 * @param object The object to view.
+	 */
+	void view(Object object)
+	{
+		EventBus bus = registry.getEventBus();
+		bus.post(new ViewObjectEvent(object));
+	}
+	
 	/**
 	 * Removes the activity from the display
 	 * @see ActionListener#actionPerformed(ActionEvent)
@@ -427,10 +690,19 @@ public abstract class ActivityComponent
 				firePropertyChange(REMOVE_ACTIVITY_PROPERTY, null, this);
 				break;
 			case DOWNLOAD:
-				notifyDownload();
+				download("", result);
 				break;
 			case CANCEL:
 				if (loader != null) loader.cancel();
+				break;
+			case VIEW:
+				view(result);
+				break;
+			case RESULT:
+				showResult();
+				break;
+			case INFO_ERROR:
+				break;
 		}
 	}
 	

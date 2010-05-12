@@ -51,6 +51,9 @@ public class JPEGFilter
 	extends CustomizedFileFilter
 {
 	
+	/** The MIMEType associated to this type of file. */
+	public static final String   MIMETYPE =  "image/jpeg";
+	
 	/** Possible file extension. */
 	public static final String 	JPEG = "jpeg";
     
@@ -86,7 +89,7 @@ public class JPEGFilter
 	 * 	Overridden to return the MIME type.
 	 * 	@see CustomizedFileFilter#getMIMEType()
 	 */
-	public String getMIMEType() { return "image/jpeg"; }
+	public String getMIMEType() { return MIMETYPE; }
 	
 	/**
 	 * 	Overridden to return the extension of the filter.

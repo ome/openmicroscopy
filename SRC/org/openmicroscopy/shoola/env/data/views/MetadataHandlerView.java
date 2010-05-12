@@ -36,6 +36,7 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
+import org.openmicroscopy.shoola.env.data.views.calls.FilesLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.util.ui.MessengerDetails;
 
@@ -61,6 +62,12 @@ public interface MetadataHandlerView
 	extends DataServicesView
 {
 
+	/** Indicates to load the original file if original file is not set. */
+	public static final int ORIGINAL_FILE = FilesLoader.ORIGINAL_FILE;
+	
+	/** Indicates to load the file annotation if original file is not set. */
+	public static final int FILE_ANNOTATION = FilesLoader.FILE_ANNOTATION;
+	
 	/** Identifies that the file is of type protocol. */
 	public static final int		EDITOR_PROTOCOL = 
 			OmeroMetadataService.EDITOR_PROTOCOL;
@@ -226,6 +233,19 @@ public interface MetadataHandlerView
 	 */
 	public CallHandle loadFile(File file, long fileID, long size, 
 							AgentEventListener observer);
+	
+	/**
+	 * Downloads a file previously uploaded to the server.
+	 * 
+	 * @param file		The file to copy the date into.
+	 * @param fileID	The id of the original file.
+	 * @param size		The size of the file.
+	 * @param observer	Call-back handler.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadFile(File file, long fileID, int index, 
+							AgentEventListener observer);
+	
 	
 	/**
 	 * Loads the annotation corresponding to the passed id.

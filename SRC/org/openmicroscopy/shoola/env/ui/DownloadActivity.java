@@ -111,7 +111,6 @@ public class DownloadActivity
      */
     private String getFileName()
     {
-    	OriginalFile file = parameters.getFile();
     	File folder = parameters.getFolder();
     	File directory = folder;
     	if (parameters.getApplicationData() == null)
@@ -120,7 +119,7 @@ public class DownloadActivity
     	String dirPath = directory.getAbsolutePath()+File.separator;
     	String value = folder.getName();
     	if (parameters.getApplicationData() != null) {
-    		value = file.getName().getValue();
+    		value = parameters.getOriginalFileName();
     		return value;
     	}
     		
@@ -131,7 +130,7 @@ public class DownloadActivity
     		int lastDot = value.lastIndexOf(".");
     		if (lastDot == -1) { //no extension specified.
     			//get the extension from the file.
-    			String s = file.getName().getValue();
+    			String s = parameters.getOriginalFileName();
         		if (s.endsWith(OMETIFFFilter.OME_TIF) ||
         				s.endsWith(OMETIFFFilter.OME_TIFF))
         			extension = OMETIFFFilter.OME_TIFF;
@@ -145,8 +144,8 @@ public class DownloadActivity
     		}
     		return getFileName(files, value, value, dirPath, 1, extension);
     	}
-    	value = file.getName().getValue();
-    	
+    	value = parameters.getOriginalFileName();;
+    	if (value == null || value.length() == 0) return "";
     	return getFileName(files, value, value, dirPath, 1, null);
     }
     
@@ -209,8 +208,17 @@ public class DownloadActivity
     	if (!b) file.deleteOnExit();
     	boolean load = true;
     	if (!b && file.exists()) load = false;
-		loader = new FileLoader(viewer, registry, file, f.getId().getValue(),
-				f.getSize().getValue(), load, this);
+    	switch (parameters.getIndex()) {
+			case DownloadActivityParam.FILE_ANNOTATION:
+			case DownloadActivityParam.ORIGINAL_FILE:
+				loader = new FileLoader(viewer, registry, file, 
+						parameters.getId(),
+	    				parameters.getIndex(), load, this);
+				break;
+			default:
+				loader = new FileLoader(viewer, registry, file, 
+						f.getId().getValue(), f.getSize().getValue(), load, this);
+		}
 		return loader;
 	}
 

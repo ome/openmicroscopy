@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.ui.FileDownloader 
+ * org.openmicroscopy.shoola.env.ui.FileLoader 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -31,6 +31,7 @@ import java.io.File;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 
 
 /** 
@@ -46,10 +47,17 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
  * </small>
  * @since OME3.0
  */
-class FileLoader 
+public class FileLoader 
 	extends UserNotifierLoader
 {
 
+	/** Indicates to load the original file if original file is not set. */
+	public static final int ORIGINAL_FILE = MetadataHandlerView.ORIGINAL_FILE;
+	
+	/** Indicates to load the file annotation if original file is not set. */
+	public static final int FILE_ANNOTATION = 
+		MetadataHandlerView.FILE_ANNOTATION;
+	
 	/** The id of the file to download. */
 	private long 		fileID;
 	
@@ -61,6 +69,9 @@ class FileLoader
 	
 	/** Pass <code>true</code> to load, <code>false</code> otherwise. */
 	private boolean		toLoad;
+	
+	/** One of the constants defined by this class. */
+	private int 		index;
 	
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle	handle;
@@ -87,6 +98,28 @@ class FileLoader
 		this.fileID = fileID;
 		this.size = size;
 		this.toLoad = toLoad;
+		index = -1;
+	}
+	
+    /**
+     * Creates a new instance.
+     * 
+     * @param viewer 	Reference to the parent.
+     * @param reg    	Reference to the registry.
+     * @param path	 	The absolute path to the file.
+     * @param fileID 	The file ID.
+     * @param index   	One of the constants defined by this class.
+     * @param toLoad 	Indicates to download the file.
+     * @param activity 	The activity associated to this loader.
+     */
+	FileLoader(UserNotifier viewer, Registry reg, File file, long fileID, 
+			int index, boolean toLoad, ActivityComponent activity)
+	{
+		super(viewer, reg, activity);
+		this.file = file;
+		this.fileID = fileID;
+		this.toLoad = toLoad;
+		this.index = index;
 	}
 	
 	/** 
@@ -95,7 +128,16 @@ class FileLoader
 	 */
 	public void load()
 	{
-		if (toLoad) handle = mhView.loadFile(file, fileID, size, this);
+		if (toLoad) {
+			switch (index) {
+				case ORIGINAL_FILE:
+				case FILE_ANNOTATION:
+					handle = mhView.loadFile(file, fileID, index, this);
+					break;
+				default:
+					handle = mhView.loadFile(file, fileID, size, this);
+			}
+		}
 		else handleResult(file);
 	}
     

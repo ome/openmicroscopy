@@ -105,7 +105,7 @@ class DownloadsDialog
 	private JButton							cleanupButton;
 	
 	/** Collection of the entries. */
-	private List<JComponent>		components;
+	private List<JComponent>				components;
 	
 	/** The index of the dialog. */
 	private int								dialogIndex;

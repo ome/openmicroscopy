@@ -23,8 +23,6 @@
 
 package org.openmicroscopy.shoola.agents.imviewer;
 
-
-
 //Java imports
 import java.awt.Rectangle;
 import java.util.List;
@@ -51,8 +49,10 @@ import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.ui.ViewObjectEvent;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.ImageData;
 import pojos.PixelsData;
 
 /** 
@@ -261,6 +261,24 @@ public class ImViewerAgent
     	ImViewerFactory.onGroupSwitched(evt.isSuccessful());
     }
     
+    /**
+     * Views the passed object if the object is an image.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleViewObjectEvent(ViewObjectEvent evt)
+    {
+    	if (evt == null) return;
+    	Object o = evt.getObject();
+    	if (o instanceof ImageData) {
+    		ImViewer view = ImViewerFactory.getImageViewer(
+    				((ImageData) o).getId(), null, true);
+    		if (view != null) {
+    			view.activate(null, getUserDetails().getId());
+    		}
+    	}
+    }
+    
     /** Creates a new instance. */
     public ImViewerAgent() {}
     
@@ -293,6 +311,7 @@ public class ImViewerAgent
         bus.register(this, RndSettingsCopied.class);
         bus.register(this, ImageViewport.class);
         bus.register(this, UserGroupSwitched.class);
+        bus.register(this, ViewObjectEvent.class);
     }
 
     /**
@@ -344,6 +363,8 @@ public class ImViewerAgent
 			handleImageViewportEvent((ImageViewport) e);
         else if (e instanceof UserGroupSwitched)
 			handleUserGroupSwitched((UserGroupSwitched) e);
+        else if (e instanceof ViewObjectEvent)
+        	handleViewObjectEvent((ViewObjectEvent) e);
     }
 
 }

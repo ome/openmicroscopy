@@ -68,19 +68,19 @@ public class ScriptActivity
 	
 	/** The description of the activity. */
 	private static final String		DESCRIPTION_RUN_CREATION = 
-								"Running Script";
+								"Running ";
 	
 	/** The description of the activity when it is finished. */
 	private static final String		DESCRIPTION_RUN_CREATED = 
-		"Script Run terminated";
+		" Run finished";
 	
 	/** The description of the activity. */
 	private static final String		DESCRIPTION_UPLOAD_CREATION = 
-									"Uploading Script";
+									"Uploading ";
 	
 	/** The description of the activity when finished. */
 	private static final String		DESCRIPTION_UPLOAD_CREATED = 
-		"Script uploaded";
+		" uploaded";
 	
 	/** The description of the activity when cancelled. */
 	private static final String		DESCRIPTION_UPLOAD_CANCEL = 
@@ -107,11 +107,13 @@ public class ScriptActivity
 	public ScriptActivity(UserNotifier viewer, Registry registry,
 			ScriptObject script, int index)
 	{
-		super(viewer, registry, DESCRIPTION_RUN_CREATION, script.getIcon(), 
+		super(viewer, registry, 
+				DESCRIPTION_RUN_CREATION+script.getDisplayedName(), 
+				script.getIcon(), 
 				ActivityComponent.ADVANCED);
 		switch (index) {
 			case UPLOAD:
-				type.setText(DESCRIPTION_UPLOAD_CREATION);
+				type.setText(DESCRIPTION_UPLOAD_CREATION+script.getName());
 				setIndex(ActivityComponent.GENERAL);
 				break;
 		}
@@ -136,7 +138,6 @@ public class ScriptActivity
 			case RUN:
 				loader = new ScriptRunner(viewer,  registry, script, this);
 		}
-
 		return loader;
 	}
 
@@ -146,12 +147,16 @@ public class ScriptActivity
 	 */
 	protected void notifyActivityEnd()
 	{
-		switch (index) {
-			case UPLOAD:
-				type.setText(DESCRIPTION_UPLOAD_CREATED);
-				break;
-			case RUN:
-				type.setText(DESCRIPTION_RUN_CREATED);
+		String text = type.getText();
+		if (text.trim().length() == 0) {
+			switch (index) {
+				case UPLOAD:
+					type.setText(script.getName()+DESCRIPTION_UPLOAD_CREATED);
+					break;
+				case RUN:
+					type.setText(script.getDisplayedName()+
+							DESCRIPTION_RUN_CREATED);
+			}
 		}
 	}
 	

@@ -154,16 +154,7 @@ public class MovieCreator
     { 
     	if (result == null) activity.endActivity(result); 
     	else if (!(result instanceof Boolean)) {
-        	Map<String, Object> r = (Map) result;
-        	Object o = r.get("fileAnnotation");
-        	if (o != null) {
-        		try {
-        			Object annotation = 
-        				registry.getMetadataService().loadAnnotation((Long) o);
-        			activity.endActivity(annotation);
-    			} catch (Exception e) {
-    			}
-        	}
+    		activity.endActivity(result);
     	}
     }
 	

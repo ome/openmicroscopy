@@ -31,18 +31,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import omero.RBool;
 import omero.RFloat;
 import omero.RInt;
 import omero.RList;
 import omero.RLong;
 import omero.RMap;
+import omero.RObject;
 import omero.RString;
 import omero.RType;
 import omero.grid.Param;
+import omero.model.IObject;
 
 /** 
  * Wraps up a parameter object.
@@ -104,7 +108,8 @@ public class ParamData
 			type = List.class;
 		} else if (o instanceof Map) {
 			type = Map.class;
-		}
+		} else if (o instanceof pojos.DataObject)
+			type = pojos.DataObject.class;
 		Number n;
 		boolean set = false;
 		Object value = convertRType(param.min);
@@ -152,6 +157,10 @@ public class ParamData
 			return omero.rtypes.rint((Integer) value);
 		if (value instanceof Float)
 			return omero.rtypes.rfloat((Float) value);
+		if (value instanceof pojos.DataObject) {
+			IObject o = ((pojos.DataObject) value).asIObject();
+			return omero.rtypes.robject(o);
+		}
 		return null;
 	}
 	
@@ -168,6 +177,12 @@ public class ParamData
 		if (value instanceof RLong)  return ((RLong) value).getValue();
 		if (value instanceof RInt)  return ((RInt) value).getValue();
 		if (value instanceof RFloat)  return ((RFloat) value).getValue();
+		if (value instanceof RObject) {
+			IObject o = ((RObject) value).getValue();
+			Object r = PojoMapper.asDataObject(o);
+			if (r != null) return r;
+			return o;
+		}
 		return null;
 	}
 	
@@ -371,7 +386,8 @@ public class ParamData
 	{
 		if (value instanceof RBool || value instanceof RString ||
 			value instanceof RLong || value instanceof RInt ||
-			value instanceof RFloat) return convertBasicRType(value);
+			value instanceof RFloat || value instanceof RObject) 
+			return convertBasicRType(value);
 		if (value instanceof RList)  {
 			List<RType> list = ((RList) value).getValue();
 			List<Object> l = new ArrayList<Object>();

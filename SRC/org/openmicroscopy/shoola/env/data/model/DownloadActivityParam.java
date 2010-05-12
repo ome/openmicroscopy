@@ -31,6 +31,8 @@ import javax.swing.Icon;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.ui.FileLoader;
+import omero.RString;
 import omero.model.OriginalFile;
 
 /** 
@@ -49,6 +51,12 @@ import omero.model.OriginalFile;
 public class DownloadActivityParam
 {
 
+	/** Indicates to load the original file if original file is not set. */
+	public static final int ORIGINAL_FILE = FileLoader.ORIGINAL_FILE;
+	
+	/** Indicates to load the file annotation if original file is not set. */
+	public static final int FILE_ANNOTATION = FileLoader.FILE_ANNOTATION;
+	
     /** The icon associated to the parameters. */
     private Icon			icon;
     
@@ -67,8 +75,25 @@ public class DownloadActivityParam
     /** The extension for the legend. Default is <code>null</code>.*/
     private String			legendExtension;
     
+    /** One of the constants defined by this class. */
+    private int 			index;
+    
+    /** The id of the original file or of the annotation. */
+    private long			id;
+    
     /** The third party application. */
     private ApplicationData data;
+    
+    private void checkIndex(int index)
+    {
+    	switch (index) {
+			case ORIGINAL_FILE:
+			case FILE_ANNOTATION:
+				return;
+			default:
+				throw new IllegalArgumentException("Index not supported.");
+		}
+    }
     
     /**
      * Downloads the passed file.
@@ -76,7 +101,6 @@ public class DownloadActivityParam
      * @param file 	 	The file to download.
      * @param folder 	The folder where to download the file.
      * @param icon	 	The associated icon.
-     * @param fileName 	The file name to set.
      */
     public DownloadActivityParam(OriginalFile file, File folder, Icon icon)
     {
@@ -88,8 +112,27 @@ public class DownloadActivityParam
     	legend = null;
     	fileName = null;
     	legendExtension = null;
+    	index = -1;
+    	id = -1;
     }
 
+    /**
+     * Downloads the file.
+     * 
+     * @param id The id of the object to download.
+     * @param index One of the constants defined by this class.
+     * @param folder 	The folder where to download the file.
+     * @param icon	 	The associated icon.
+     */
+    public DownloadActivityParam(long id, int index, File folder, Icon icon)
+    {
+    	checkIndex(index);
+    	this.index = index;
+    	this.folder = folder;
+    	this.icon = icon;
+    	this.id = id;
+    }
+    
     /**
      * Sets the application data.
      * 
@@ -169,5 +212,34 @@ public class DownloadActivityParam
 	 * @return See above.
 	 */
 	public OriginalFile getFile() { return file; }
+	
+	/**
+	 * Returns the name of the original file if not <code>null</code>,
+	 * otherwise returns an empty string.
+	 * 
+	 * @return See above.
+	 */
+	public String getOriginalFileName()
+	{
+		if (file == null) return "";
+		if (!file.isLoaded()) return "";
+		RString name = file.getName();
+		if (name == null) return "";
+		return name.getValue();
+	}
+	
+	/**
+	 * Returns the identifier.
+	 * 
+	 * @return See above.
+	 */
+	public long getId() { return id; }
+	
+	/**
+	 * Returns the index.
+	 * 
+	 * @return See above.
+	 */
+	public int getIndex() { return index; }
 	
 }

@@ -61,6 +61,12 @@ public class FilesLoader
 	extends BatchCallTree
 {
 
+	/** Indicates to load the original file if original file is not set. */
+	public static final int ORIGINAL_FILE = 0;
+	
+	/** Indicates to load the file annotation if original file is not set. */
+	public static final int FILE_ANNOTATION = 1;
+	
 	/** Loads the specified annotations. */
     private BatchCall   loadCall;
     
@@ -89,6 +95,30 @@ public class FilesLoader
             {
                 OmeroMetadataService service = context.getMetadataService();
                 File f = service.downloadFile(file, fileID, size);
+                result = f;
+            }
+        };
+    }
+    
+    /**
+     * Creates a {@link BatchCall} to download a file previously loaded.
+     * 
+	 * @param id	The id of the file annotation to download.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall makeFileBatchCall(final long id)
+    {
+        return new BatchCall("Downloading files.") {
+            public void doCall() throws Exception
+            {
+                OmeroMetadataService service = context.getMetadataService();
+                FileAnnotationData fa = (FileAnnotationData) 
+                	service.loadAnnotation(id);
+                Map<FileAnnotationData, File> m = 
+                	new HashMap<FileAnnotationData, File>();
+                File f = service.downloadFile(new File(fa.getFileName()), 
+                		fa.getFileID(), fa.getFileSize());
+ 
                 result = f;
             }
         };
@@ -243,6 +273,20 @@ public class FilesLoader
     {
     	if (file == null) loadCall = makeBatchCall(fileID);
     	else loadCall = makeBatchCall(file, fileID, size);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+	 * @param file	 	The file where to write the data.
+	 * @param fileID	The id of the file to download.
+	 * @param size		The size of the file.
+     */
+    public FilesLoader(File file, long fileID, int index)
+    {
+    	if (file == null || index == FILE_ANNOTATION) 
+    		loadCall = makeFileBatchCall(fileID);
+    	else loadCall = makeBatchCall(file, fileID, -1);
     }
     
     /**

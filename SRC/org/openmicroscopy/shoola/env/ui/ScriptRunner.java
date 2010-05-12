@@ -22,20 +22,20 @@
  */
 package org.openmicroscopy.shoola.env.ui;
 
-import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.ScriptCallback;
-import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
-import org.openmicroscopy.shoola.env.data.model.ScriptObject;
-import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.ScriptCallback;
+import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
- * 
+ * Runs a script.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -63,7 +63,7 @@ public class ScriptRunner
     /** Notifies the user that an error occurred. */
     protected void onException()
     {
-    	activity.notifyError("Unable to run the script.");
+    	activity.notifyError("Unable to run the script");
     }
     
     /**
@@ -130,18 +130,10 @@ public class ScriptRunner
      */
     public void handleResult(Object result)
     { 
-    	if (result == null) {
-    		activity.endActivity(result); 
-    		return;
-    	}
-    	if (!(result instanceof Boolean)) {
-    		if (result instanceof Long) {
-    			Long value = (Long) result;
-    			if (value < 0) handleNullResult();
-    			else activity.endActivity(result); 
-    		}
-    	} else activity.endActivity(result); 
-    	
+    	if (result == null) onException(); 
+    	else if (!(result instanceof Boolean)) {
+    		activity.endActivity(result);
+    	} 
     }
 	
 }
