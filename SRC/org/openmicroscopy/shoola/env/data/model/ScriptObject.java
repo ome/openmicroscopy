@@ -381,7 +381,9 @@ public class ScriptObject
 	 */
 	public String getDisplayedName()
 	{
-		String value = name.substring(0, name.lastIndexOf('.'));
+		int lastDotIndex = name.lastIndexOf('.');
+		if (lastDotIndex < 0) return name;
+		String value = name.substring(0, lastDotIndex);
 		return value.replace(PARAMETER_SEPARATOR, PARAMETER_UI_SEPARATOR);
 	}
 	
