@@ -214,13 +214,13 @@ def makeThumbnailFigure(client, session, commandArgs):
     parent = None        # figure will be attached to this object 
 
     datasetIds = []
-    if "datasetIds" in commandArgs:
-        for datasetId in commandArgs["datasetIds"]:
+    if "Dataset_IDs" in commandArgs:
+        for datasetId in commandArgs["Dataset_IDs"]:
             dId = long(datasetId.getValue())
             datasetIds.append(dId)
             
-        if "parentId" in commandArgs:
-            pId = commandArgs["parentId"]
+        if "Parent_ID" in commandArgs:
+            pId = commandArgs["Parent_ID"]
             if pId >0:
                 parent = gateway.getProjects([pId], False)[0]
                 if parent:
@@ -233,12 +233,12 @@ def makeThumbnailFigure(client, session, commandArgs):
     imageIds = []
     # if no datasets are given, use image Ids instead...
     if len(datasetIds) == 0:
-        if "imageIds" in commandArgs:
-            for imageId in commandArgs["imageIds"]:
+        if "Image_IDs" in commandArgs:
+            for imageId in commandArgs["Image_IDs"]:
                 iId = long(imageId.getValue())
                 imageIds.append(iId)
-        if "parentId" in commandArgs:
-            pId = commandArgs["parentId"]
+        if "Parent_ID" in commandArgs:
+            pId = commandArgs["Parent_ID"]
             if pId >0:
                 parent = gateway.getDataset(pId, False)
                 if parent:
@@ -249,25 +249,25 @@ def makeThumbnailFigure(client, session, commandArgs):
                 log("Figure will be linked to Image: %s" % parent.getName().getValue())
 
     tagIds = []
-    if "tagIds" in commandArgs:
-        for tagId in commandArgs["tagIds"]:
+    if "Tag_IDs" in commandArgs:
+        for tagId in commandArgs["Tag_IDs"]:
             tagIds.append(tagId.getValue())
     if len(tagIds) == 0:
         tagIds = None
         
     showUntagged = False
     if (tagIds):
-        if "showUntaggedImages" in commandArgs:
-            if commandArgs["showUntaggedImages"]:
+        if "Show_Untagged_Images" in commandArgs:
+            if commandArgs["Show_Untagged_Images"]:
                 showUntagged = True
         
     thumbSize = 100
-    if "thumbSize" in commandArgs:
-        thumbSize = commandArgs["thumbSize"]
+    if "Thumbnail_Size" in commandArgs:
+        thumbSize = commandArgs["Thumbnail_Size"]
     
     maxColumns = 10
-    if "maxColumns" in commandArgs:
-        maxColumns = commandArgs["maxColumns"]
+    if "Max_Columns" in commandArgs:
+        maxColumns = commandArgs["Max_Columns"]
         
 
     figHeight = 0
@@ -310,12 +310,12 @@ def makeThumbnailFigure(client, session, commandArgs):
     #print figLegend    # bug fixing only
     
     format = JPEG
-    if "format" in commandArgs:
+    if "Format" in commandArgs:
         if commandArgs["format"] in [PNG, "PNG", "png"]:
             format = PNG
             
     output = "thumbnailFigure"
-    if "figureName" in commandArgs:
+    if "Figure_Name" in commandArgs:
         output = str(commandArgs["figureName"])
         
     if format == PNG:
@@ -347,34 +347,34 @@ def runAsScript():
     
     client = scripts.client('thumbnailFigure.py', 'Export a figure of thumbnails, optionally sorted by tag.',
 
-        scripts.List("datasetIds",
-            description="List of dataset IDs. Use this OR imageIds to specify images"),
+        scripts.List("Dataset_IDs",
+            description="List of dataset IDs. Use this OR imageIds to specify images").ofType(rint(0)),
 
-        scripts.List("imageIds",
-            description="List of image IDs. Use this OR datasetIds"),
+        scripts.List("Image_IDs",
+            description="List of image IDs. Use this OR datasetIds").ofType(rint(0)),
 
-        scripts.List("tagIds",
+        scripts.List("Tag_IDs",
             description="Group thumbnails by these tags."),
 
-        scripts.Bool("showUntaggedImages",
+        scripts.Bool("Show_Untagged_Images",
             description="If true (and you're sorting by tagIds) also show images without the specified tags"),
 
-        scripts.Int("parentId",
+        scripts.Int("Parent_ID",
             description="Attach figure to this Project (if datasetIds above) or Dataset if imageIds. If not specifed, attach figure to first dataset or image."),
 
-        scripts.Int("thumbSize", min=10, max=250, default=100,
+        scripts.Int("Thumbnail_Size", min=10, max=250, default=100,
             description="The dimension of each thumbnail. Default is 100"),
 
-        scripts.Int("maxColumns", min=1,
+        scripts.Int("Max_Columns", min=1,
             description="The max number of thumbnail columns. Default is 10"),
 
-        scripts.String("format",
+        scripts.String("Format",
             description="Format to save image. E.g 'PNG'. Default is JPEG"),
 
-        scripts.String("figureName",
+        scripts.String("Figure_Name",
             description="File name of figure to create"),
 
-       # scripts.Long("fileAnnotation",
+        #scripts.Long("File_Annotation",
         #    description="Script returns a file annotation").out()
             )
 
