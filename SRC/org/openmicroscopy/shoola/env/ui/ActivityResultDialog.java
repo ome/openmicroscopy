@@ -183,8 +183,17 @@ class ActivityResultDialog
 	private void buildGUI()
 	{
 		Container c = getContentPane();
-		TitlePanel tp = new TitlePanel("Results", "Follow the results " +
-				"returned by the script.", IconManager.getResults());
+		String title = "Results";
+		String text = "Follow the results returned by the script.";
+		
+		if (result instanceof Map) {
+			Map m = (Map) result;
+			if (m.containsKey(ActivityComponent.STD_ERR)) {
+				title = "Errors";
+				text = "Follow the errors returned by the script.";
+			}
+		}
+		TitlePanel tp = new TitlePanel(title, text, IconManager.getResults());
 		c.setBackground(UIUtilities.BACKGROUND_COLOR);
 		JScrollPane pane = new JScrollPane(layoutResult());
 		pane.getViewport().setBackground(UIUtilities.BACKGROUND_COLOR);

@@ -55,19 +55,12 @@ import org.jdesktop.swingx.JXBusyLabel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
-import org.openmicroscopy.shoola.env.data.model.ParamData;
-import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
 import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
-
-import omero.RString;
-import omero.RType;
-import omero.model.IObject;
 import omero.model.OriginalFile;
-import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
@@ -121,14 +114,20 @@ public abstract class ActivityComponent
 	/** ID to show the result. */
 	private static final int	RESULT = 5;
 	
+	/** Text associated to the {@link #resultButton}. */
+	private static final String RESULT_TEXT = "Show Result";
+	
+	/** Text associated to the {@link #resultButton}. */
+	private static final String ERROR_TEXT = "Show Error";
+	
 	/** The key to look for to display the output message. */
 	private static final String MESSAGE = "Message";
 	
 	/** The key to look for to display the error message if any. */
-	private static final String STD_ERR = "stderr";
+	static final String STD_ERR = "stderr";
 	
 	/** The key to look for to display the output message if any. */
-	private static final String STD_OUT = "stdout";
+	static final String STD_OUT = "stdout";
 	
 	/** Indicate the status of the activity. */
 	private JXBusyLabel 				status;
@@ -221,7 +220,7 @@ public abstract class ActivityComponent
 		viewButton.setVisible(false);
 		infoButton = createButton("Info", INFO_ERROR, this);
 		infoButton.setVisible(false);
-		resultButton = createButton("Show Result", RESULT, this);
+		resultButton = createButton(RESULT_TEXT, RESULT, this);
 		resultButton.setVisible(false);
 		status = new JXBusyLabel(SIZE);
 		type = UIUtilities.setTextFont(text);
@@ -274,9 +273,9 @@ public abstract class ActivityComponent
 			toolBar.add(Box.createHorizontalStrut(5));
 			toolBar.add(resultButton);
 			toolBar.add(Box.createHorizontalStrut(5));
-			toolBar.add(infoButton);
-			toolBar.add(Box.createHorizontalStrut(5));
-			buttonIndex = 8;
+			//toolBar.add(infoButton);
+			//toolBar.add(Box.createHorizontalStrut(5));
+			buttonIndex = 6;
 		//}
 		toolBar.add(cancelButton);
 		JLabel l = new JLabel();
@@ -306,6 +305,7 @@ public abstract class ActivityComponent
 		viewButton.setVisible(false);
 		infoButton.setVisible(false);
 		resultButton.setVisible(false);
+		resultButton.setText(RESULT_TEXT);
 		//if (index == ADVANCED) downloadButton.setEnabled(true);
 		status.setBusy(false);
 		status.setVisible(false);
@@ -424,35 +424,25 @@ public abstract class ActivityComponent
 		//cancelButton.setEnabled(true);
 	}
 	
+	/**
+	 * Converts the passed mapped.
+	 * 
+	 * @param m The map to handle.
+	 * @return See above.
+	 */
 	private Map<String, Object> convertResult(Map<String, Object> m)
 	{
 		Map<String, Object> objects = new HashMap<String, Object>();
 		if (m == null) return objects;
-		Entry entry;
-		Iterator i = m.entrySet().iterator();
-		String key;
-		Object v;
-		Object data;
 		type.setText("");
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			key = (String) entry.getKey();
-			v = entry.getValue();
-			if (MESSAGE.equals(key)) {
-				if (v instanceof String)
-					type.setText((String) v);
-			} 
-			/*
-			else if (STD_ERR.equals(key)) {
-				
-			} else if (STD_OUT.equals(key)) {
-			*/	
-			//} 
-			else {
-				objects.put(key, v);
-			}
+		Object v = m.get(MESSAGE);
+		if (v != null) {
+			if (v instanceof String)
+				type.setText((String) v);
 		}
-		return objects;
+		m.remove(MESSAGE);
+		if (m.containsKey(STD_ERR)) resultButton.setText(ERROR_TEXT);
+		return m;
 	}
 	
 	/**
