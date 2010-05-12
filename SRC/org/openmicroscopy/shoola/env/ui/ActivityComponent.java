@@ -26,10 +26,14 @@ package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -111,17 +115,14 @@ public abstract class ActivityComponent
 	/** ID to view the object e.g. the image. */
 	private static final int	VIEW = 3;
 	
-	/** ID to display the error. */
-	private static final int	INFO_ERROR = 4;
+	/** ID to display the standard output. */
+	private static final int	INFO = 4;
 	
 	/** ID to show the result. */
 	private static final int	RESULT = 5;
 	
-	/** Text associated to the {@link #resultButton}. */
-	private static final String RESULT_TEXT = "Show Result";
-	
-	/** Text associated to the {@link #resultButton}. */
-	private static final String ERROR_TEXT = "Show Error";
+	/** ID to display the standard error. */
+	private static final int	ERROR = 6;
 	
 	/** The key to look for to display the output message. */
 	private static final String MESSAGE = "Message";
@@ -156,17 +157,26 @@ public abstract class ActivityComponent
 	/** The tool bar displaying controls. *. */
 	private JToolBar					toolBar;
 	
+	/** Menu displaying the option to view the standard error. */
+	private ActivityResultMenu			errorMenu;
+	
+	/** Menu displaying the option to view the standard output. */
+	private ActivityResultMenu			infoMenu;
+	
 	/** Button to download the result depending on the type of activity. */
 	protected JButton					downloadButton;
 	
 	/** Button to view the result depending on the type of activity. */
 	protected JButton					viewButton;
 	
-	/** Button to show the exception of the general result. */
+	/** Button to show the standard output menu. */
 	protected JButton					infoButton;
 	
-	/** Button to show the exception of the general result. */
+	/** Button to show the general result. */
 	protected JButton					resultButton;
+	
+	/** Button to show the error. */
+	protected JButton					errorButton;
 	
 	/** The label displaying the type of activity. */
 	protected JLabel					type;
@@ -197,7 +207,8 @@ public abstract class ActivityComponent
     JButton createButton(String text, int actionID, ActionListener l)
     {
     	JButton b = new JButton(text);
-		//b.setEnabled(false);
+    	Font f = b.getFont();
+    	b.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
 		b.setActionCommand(""+actionID);
 		b.addActionListener(l);
 		b.setOpaque(false);
@@ -221,10 +232,36 @@ public abstract class ActivityComponent
 		downloadButton.setVisible(false);
 		viewButton = createButton("View", VIEW, this);
 		viewButton.setVisible(false);
-		infoButton = createButton("Info", INFO_ERROR, this);
+		infoButton = createButton("Info", INFO, this);
 		infoButton.setVisible(false);
-		resultButton = createButton(RESULT_TEXT, RESULT, this);
+		resultButton = createButton("Show result", RESULT, this);
 		resultButton.setVisible(false);
+		errorButton = createButton("Error", ERROR, this);
+		errorButton.setVisible(false);
+		errorButton.addMouseListener(new MouseAdapter() {
+			
+			/** 
+			 * Displays the menu.
+			 * @see MouseAdapter#mouseReleased(MouseEvent) 
+			 */
+			public void mouseReleased(MouseEvent e) {
+				Point p = e.getPoint();
+				errorMenu.show((Component) e.getSource(), p.x, p.y);
+			}
+			
+		});
+		infoButton.addMouseListener(new MouseAdapter() {
+			
+			/** 
+			 * Displays the menu.
+			 * @see MouseAdapter#mouseReleased(MouseEvent) 
+			 */
+			public void mouseReleased(MouseEvent e) {
+				Point p = e.getPoint();
+				infoMenu.show((Component) e.getSource(), p.x, p.y);
+			}
+			
+		});
 		status = new JXBusyLabel(SIZE);
 		type = UIUtilities.setTextFont(text);
 		messageLabel = UIUtilities.setTextFont("", Font.ITALIC, 10);
@@ -276,9 +313,13 @@ public abstract class ActivityComponent
 			toolBar.add(Box.createHorizontalStrut(5));
 			toolBar.add(resultButton);
 			toolBar.add(Box.createHorizontalStrut(5));
+			toolBar.add(errorButton);
+			toolBar.add(Box.createHorizontalStrut(5));
+			toolBar.add(infoButton);
+			toolBar.add(Box.createHorizontalStrut(5));
 			//toolBar.add(infoButton);
 			//toolBar.add(Box.createHorizontalStrut(5));
-			buttonIndex = 6;
+			buttonIndex = 10;
 		//}
 		toolBar.add(cancelButton);
 		JLabel l = new JLabel();
@@ -308,7 +349,7 @@ public abstract class ActivityComponent
 		viewButton.setVisible(false);
 		infoButton.setVisible(false);
 		resultButton.setVisible(false);
-		resultButton.setText(RESULT_TEXT);
+		errorButton.setVisible(false);
 		//if (index == ADVANCED) downloadButton.setEnabled(true);
 		status.setBusy(false);
 		status.setVisible(false);
@@ -444,7 +485,16 @@ public abstract class ActivityComponent
 				type.setText((String) v);
 		}
 		m.remove(MESSAGE);
-		if (m.containsKey(STD_ERR)) resultButton.setText(ERROR_TEXT);
+		if (m.containsKey(STD_ERR)) {
+			errorButton.setVisible(true);
+			errorMenu = new ActivityResultMenu(m.get(STD_ERR), this);
+			m.remove(STD_ERR);
+		}
+		if (m.containsKey(STD_OUT)) {
+			infoButton.setVisible(true);
+			infoMenu = new ActivityResultMenu(m.get(STD_OUT), this);
+			m.remove(STD_OUT);
+		}
 		return m;
 	}
 	
@@ -518,8 +568,13 @@ public abstract class ActivityComponent
 		downloadButton.setVisible(isDownloadable(this.result));
 		viewButton.setVisible(isViewable(this.result));
 		if (!viewButton.isVisible() && !downloadButton.isVisible()) {
-			resultButton.setVisible(this.result instanceof Collection ||
-					this.result instanceof Map);
+			if (this.result instanceof Collection) {
+				Collection l = (Collection) this.result;
+				resultButton.setVisible(l.size() > 0);
+			} else if (this.result instanceof Map) {
+				Map l = (Map) this.result;
+				resultButton.setVisible(l.size() > 0);
+			}
 		}
 			
 		notifyActivityEnd();
@@ -702,8 +757,13 @@ public abstract class ActivityComponent
 	 */
 	void view(Object object)
 	{
-		EventBus bus = registry.getEventBus();
-		bus.post(new ViewObjectEvent(object));
+		if (object instanceof FileAnnotationData || 
+				object instanceof OriginalFile) {
+			open(object);
+		} else {
+			EventBus bus = registry.getEventBus();
+			bus.post(new ViewObjectEvent(object));
+		}
 	}
 	
 	/**
@@ -728,8 +788,6 @@ public abstract class ActivityComponent
 				break;
 			case RESULT:
 				showResult();
-				break;
-			case INFO_ERROR:
 				break;
 		}
 	}

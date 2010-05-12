@@ -23,13 +23,10 @@
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
-import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import javax.swing.JToolBar;
 
 
 //Third-party libraries

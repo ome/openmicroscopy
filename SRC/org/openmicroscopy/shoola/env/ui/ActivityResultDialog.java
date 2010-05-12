@@ -38,10 +38,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -151,10 +149,6 @@ class ActivityResultDialog
 				
 				c = new ActivityResultRow(key, entry.getValue(), activity);
 				c.addPropertyChangeListener(this);
-				if (ActivityComponent.STD_ERR.equals(key) || 
-						ActivityComponent.STD_OUT.equals(key)) {
-					c.allowDownloadAndView();
-				}
 				empty = new JPanel();
 				pp = UIUtilities.buildComponentPanel(
 						UIUtilities.setTextFont(key+": "), 0, 0);
