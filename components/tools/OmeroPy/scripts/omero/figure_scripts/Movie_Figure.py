@@ -374,20 +374,20 @@ def movieFigure(session, commandArgs):
         return [name]
         
     # default function for getting labels is getName (or use datasets / tags)
-    if "imageLabels" in commandArgs:
-        if commandArgs["imageLabels"] == "DATASETS":
+    if "Image_Labels" in commandArgs:
+        if commandArgs["Image_Labels"] == "Datasets":
             def getDatasets(name, tagsList, pdList):
                 return [dataset for project, dataset in pdList]
             getLabels = getDatasets
-        elif commandArgs["imageLabels"] == "TAGS":
+        elif commandArgs["Image_Labels"] == "Tags":
             def getTags(name, tagsList, pdList):
                 return tagsList
             getLabels = getTags
             
     # process the list of images. If imageIds is not set, script can't run. 
     log("Image details:")
-    if "imageIds" in commandArgs:
-        for idCount, imageId in enumerate(commandArgs["imageIds"]):
+    if "Image_IDs" in commandArgs:
+        for idCount, imageId in enumerate(commandArgs["Image_IDs"]):
             iId = long(imageId.getValue())
             imageIds.append(iId)
             image = gateway.getImage(iId)
@@ -425,42 +425,42 @@ def movieFigure(session, commandArgs):
     sizeC = pixels.getSizeC().getValue()
 
     tIndexes = []
-    if "tIndexes" in commandArgs:
-        for t in commandArgs["tIndexes"]:
+    if "T_Indexes" in commandArgs:
+        for t in commandArgs["T_Indexes"]:
             tIndexes.append(t.getValue())
             
     zStart = -1
     zEnd = -1
-    if "zStart" in commandArgs:
-        zStart = commandArgs["zStart"]
-    if "zEnd" in commandArgs:
-        zEnd = commandArgs["zEnd"]
+    if "Z_Start" in commandArgs:
+        zStart = commandArgs["Z_Start"]
+    if "Z_End" in commandArgs:
+        zEnd = commandArgs["Z_End"]
     
     width = sizeX
-    if "width" in commandArgs:
-        width = commandArgs["width"]
+    if "Width" in commandArgs:
+        width = commandArgs["Width"]
     
     height = sizeY
-    if "height" in commandArgs:
-        height = commandArgs["height"]
+    if "Height" in commandArgs:
+        height = commandArgs["Height"]
     
     spacer = (width/25) + 2
     
     algorithm = omero.constants.projection.ProjectionType.MAXIMUMINTENSITY
-    if "algorithm" in commandArgs:
-        a = commandArgs["algorithm"]
-        if (a == "MEANINTENSITY"):
+    if "Algorithm" in commandArgs:
+        a = commandArgs["Algorithm"]
+        if (a == "Mean_Intensity"):
             algorithm = omero.constants.projection.ProjectionType.MEANINTENSITY
     
     stepping = 1
-    if "stepping" in commandArgs:
-        s = commandArgs["stepping"]
+    if "Stepping" in commandArgs:
+        s = commandArgs["Stepping"]
         if (0 < s < sizeZ):
             stepping = s
     
     scalebar = None
-    if "scalebar" in commandArgs:
-        sb = commandArgs["scalebar"]
+    if "Scalebar" in commandArgs:
+        sb = commandArgs["Scalebar"]
         try:
             scalebar = int(sb)
             if scalebar <= 0:
@@ -472,8 +472,8 @@ def movieFigure(session, commandArgs):
             scalebar = None
     
     overlayColour = (255,255,255)
-    if "overlayColour" in commandArgs:
-        overlayColour = imgUtil.RGBIntToRGB(commandArgs["overlayColour"])
+    if "Overlay_Colour" in commandArgs:
+        overlayColour = imgUtil.RGBIntToRGB(commandArgs["Overlay_Colour"])
                 
     figure = createMovieFigure(session, pixelIds, tIndexes, zStart, zEnd, width, height, spacer, 
                             algorithm, stepping, scalebar, overlayColour, timeUnits, imageLabels)
@@ -486,13 +486,13 @@ def movieFigure(session, commandArgs):
     #print figLegend    # bug fixing only
     
     format = JPEG
-    if "format" in commandArgs:
-        if commandArgs["format"] == PNG:
+    if "Format" in commandArgs:
+        if commandArgs["Format"] == PNG:
             format = PNG
             
     output = "movieFigure"
-    if "figureName" in commandArgs:
-        output = str(commandArgs["figureName"])
+    if "Figure_Name" in commandArgs:
+        output = str(commandArgs["Figure_Name"])
         
     if format == PNG:
         output = output + ".png"
@@ -512,30 +512,30 @@ def runAsScript():
     """
         
     labels = [rstring('Image_Name'), rstring('Datasets'), rstring('Tags')]
-    algorithums = [rstring('MAXIMUMINTENSITY'),rstring('MEANINTENSITY')]
+    algorithums = [rstring('Maximum_Intensity'),rstring('Mean_Intensity')]
     tunits =  [rstring("SECS"), rstring("MINS"), rstring("HOURS"), rstring("MINS_SECS"), rstring("HOURS_MINS")]
     
     client = scripts.client('Movie_Figure.py', 'Export a figure of a movie.', 
-    scripts.List("imageIds", "List of image IDs. Resulting figure will be attached to first image.", False),
-    scripts.List("tIndexes", "The time frames to display in the figure for each image"),
-    scripts.Int("zStart", "Projection range (if not specified or -1, use defaultZ only - no projection)", min=-1),
-    scripts.Int("zEnd", "Projection range (if not specified or -1, use defaultZ only - no projection)", min=-1),
-    scripts.Int("width", "The max width of each image panel. Default is first image width", min=1),
-    scripts.Int("height", "The max height of each image panel. Default is first image height", min=1),
-    scripts.String("algorithm", "Algorithum for projection.", values=algorithums),
-    scripts.String("imageLabels", "Label images with Image name (default) or datasets or tags", values=labels),
-    scripts.Int("stepping", "The Z increment for projection. Default is 1", min=1),
-    scripts.Int("scalebar", "Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
-    scripts.String("format", "Format to save image. E.g 'PNG'. Default is JPEG"),
-    scripts.String("figureName", "File name of the figure to save."),
-    scripts.Int("overlayColour", "The colour of the scalebar. Default is white"),
-    scripts.String("timeUnits", "The units to use for time display", values=tunits),
-    scripts.Long("fileAnnotation").out()
+    scripts.List("Image_IDs", "List of image IDs. Resulting figure will be attached to first image.", False).ofType(rlong(0)),
+    scripts.List("T_Indexes", "The time frames to display in the figure for each image").ofType(rint(0)),
+    scripts.Int("Z_Start", "Projection range (if not specified, use defaultZ only - no projection)", min=0),
+    scripts.Int("Z_End", "Projection range (if not specified or, use defaultZ only - no projection)", min=0),
+    scripts.Int("Width", "The max width of each image panel. Default is first image width", min=1),
+    scripts.Int("Height", "The max height of each image panel. Default is first image height", min=1),
+    scripts.String("Algorithm", "Algorithum for projection.", values=algorithums),
+    scripts.String("Image_Labels", "Label images with Image name (default) or datasets or tags", values=labels),
+    scripts.Int("Stepping", "The Z increment for projection. Default is 1", min=1),
+    scripts.Int("Scalebar", "Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
+    scripts.String("Format", "Format to save image. E.g 'PNG'. Default is JPEG"),
+    scripts.String("Figure_Name", "File name of the figure to save."),
+    scripts.Int("Overlay_Colour", "The colour of the scalebar. Default is white"),
+    scripts.String("Time_Units", "The units to use for time display", values=tunits),
+    #scripts.Long("File_Annotation").out()
     )  # script returns a file annotation
     
     session = client.getSession();
     gateway = session.createGateway();
-    commandArgs = {"imageIds":client.getInput("imageIds").getValue()}
+    commandArgs = {}
     
     for key in client.getInputKeys():
         if client.getInput(key):

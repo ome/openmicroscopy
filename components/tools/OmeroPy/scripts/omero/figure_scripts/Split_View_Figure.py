@@ -469,20 +469,20 @@ def splitViewFigure(session, commandArgs):
         return [name]
         
     # default function for getting labels is getName (or use datasets / tags)
-    if "imageLabels" in commandArgs:
-        if commandArgs["imageLabels"] == "DATASETS":
+    if "Image_Labels" in commandArgs:
+        if commandArgs["Image_Labels"] == "Datasets":
             def getDatasets(name, tagsList, pdList):
                 return [dataset for project, dataset in pdList]
             getLabels = getDatasets
-        elif commandArgs["imageLabels"] == "TAGS":
+        elif commandArgs["Image_Labels"] == "Tags":
             def getTags(name, tagsList, pdList):
                 return tagsList
             getLabels = getTags
             
     # process the list of images. If imageIds is not set, script can't run. 
     log("Image details:")
-    if "imageIds" in commandArgs:
-        for idCount, imageId in enumerate(commandArgs["imageIds"]):
+    if "Image_IDs" in commandArgs:
+        for idCount, imageId in enumerate(commandArgs["Image_IDs"]):
             iId = long(imageId.getValue())
             imageIds.append(iId)
             image = gateway.getImage(iId)
@@ -523,22 +523,22 @@ def splitViewFigure(session, commandArgs):
     # set image dimensions
     zStart = -1
     zEnd = -1
-    if "zStart" in commandArgs:
-        zStart = commandArgs["zStart"]
-    if "zEnd" in commandArgs:
-        zEnd = commandArgs["zEnd"]
+    if "Z_Start" in commandArgs:
+        zStart = commandArgs["Z_Start"]
+    if "Z_End" in commandArgs:
+        zEnd = commandArgs["Z_End"]
     
     width = sizeX
-    if "width" in commandArgs:
-        w = commandArgs["width"]
+    if "Width" in commandArgs:
+        w = commandArgs["Width"]
         try:
             width = int(w)
         except:
             log("Invalid width: %s Using default value: %d" % (str(w), sizeX))
     
     height = sizeY
-    if "height" in commandArgs:
-        h = commandArgs["height"]
+    if "Height" in commandArgs:
+        h = commandArgs["Height"]
         try:
             height = int(h)
         except:
@@ -548,8 +548,8 @@ def splitViewFigure(session, commandArgs):
     
     # Make split-indexes list. If argument wasn't specified, include them all. 
     splitIndexes = []
-    if "splitIndexes" in commandArgs:
-        for index in commandArgs["splitIndexes"]:
+    if "Split_Indexes" in commandArgs:
+        for index in commandArgs["Split_Indexes"]:
             splitIndexes.append(index.getValue())
     else:
         for c in range(sizeC):
@@ -557,8 +557,8 @@ def splitViewFigure(session, commandArgs):
     
     # Make channel-names map. If argument wasn't specified, name by index
     channelNames = {}
-    if "channelNames" in commandArgs:
-        cNameMap = commandArgs["channelNames"]
+    if "Channel_Names" in commandArgs:
+        cNameMap = commandArgs["Channel_Names"]
         for c in cNameMap:
             index = int(c)
             channelNames[index] = cNameMap[c].getValue()
@@ -568,8 +568,8 @@ def splitViewFigure(session, commandArgs):
                         
     mergedIndexes = []    # the channels in the combined image, 
     mergedColours = {}    
-    if "mergedColours" in commandArgs:
-        cColourMap = commandArgs["mergedColours"]
+    if "Merged_Colours" in commandArgs:
+        cColourMap = commandArgs["Merged_Colours"]
         for c in cColourMap:
             rgb = cColourMap[c].getValue()
             rgba = imgUtil.RGBIntToRGBA(rgb)
@@ -588,24 +588,24 @@ def splitViewFigure(session, commandArgs):
                 mergedColours[c] = (255,0,0,255)    # red
     
     colourChannels = True
-    if "splitPanelsGrey" in commandArgs and commandArgs["splitPanelsGrey"]:
+    if "Split_Panels_Grey" in commandArgs and commandArgs["Split_Panels_Grey"]:
         colourChannels = False
     
     algorithm = omero.constants.projection.ProjectionType.MAXIMUMINTENSITY
-    if "algorithm" in commandArgs:
-        a = commandArgs["algorithm"]
-        if (a == "MEANINTENSITY"):
+    if "Algorithm" in commandArgs:
+        a = commandArgs["Algorithm"]
+        if (a == "Mean_Intensity"):
             algorithm = omero.constants.projection.ProjectionType.MEANINTENSITY
     
     stepping = 1
-    if "stepping" in commandArgs:
-        s = commandArgs["stepping"]
+    if "Stepping" in commandArgs:
+        s = commandArgs["Stepping"]
         if (0 < s < sizeZ):
             stepping = s
     
     scalebar = None
-    if "scalebar" in commandArgs:
-        sb = commandArgs["scalebar"]
+    if "Scalebar" in commandArgs:
+        sb = commandArgs["Scalebar"]
         try:
             scalebar = int(sb)
             if scalebar <= 0:
@@ -617,12 +617,12 @@ def splitViewFigure(session, commandArgs):
             scalebar = None
     
     overlayColour = (255,255,255)
-    if "overlayColour" in commandArgs:
-        overlayColour = imgUtil.RGBIntToRGB(commandArgs["overlayColour"])
+    if "Overlay_Colour" in commandArgs:
+        overlayColour = imgUtil.RGBIntToRGB(commandArgs["Overlay_Colour"])
         
     mergedNames = False
-    if "mergedNames" in commandArgs:
-        mergedNames = commandArgs["mergedNames"]
+    if "Merged_Names" in commandArgs:
+        mergedNames = commandArgs["Merged_Names"]
         
     fig = makeSplitViewFigure(session, pixelIds, zStart, zEnd, splitIndexes, channelNames, colourChannels, 
                         mergedIndexes, mergedColours, mergedNames, width, height, imageLabels, algorithm, stepping, scalebar, overlayColour)
@@ -634,13 +634,13 @@ def splitViewFigure(session, commandArgs):
     #print figLegend    # bug fixing only
     
     format = JPEG
-    if "format" in commandArgs:
-        if commandArgs["format"] in [PNG, "PNG", 'png']:
+    if "Format" in commandArgs:
+        if commandArgs["Format"] in [PNG, "PNG", 'png']:
             format = PNG
             
     output = "splitViewFigure"
-    if "figureName" in commandArgs:
-        output = str(commandArgs["figureName"])
+    if "Figure_Name" in commandArgs:
+        output = str(commandArgs["Figure_Name"])
         
     if format == PNG:
         output = output + ".png"
@@ -666,29 +666,29 @@ def runAsScript():
     formats = [rstring('JPEG'),rstring('PNG')]
      
     client = scripts.client('Split_View_Figure.py', 'Create a figure of split-view images.', 
-    scripts.List("imageIds", "List of image IDs. Resulting figure will be attached to first image.", False),
-    scripts.Int("zStart", "Projection range (if not specified or -1, use defaultZ only - no projection)", min=-1),
-    scripts.Int("zEnd", "Projection range (if not specified or -1, use defaultZ only - no projection)", min=-1),
-    scripts.Map("channelNames", "Map of index: channel name for all channels"),
-    scripts.List("splitIndexes", "List of the channels in the split view"),
-    scripts.Bool("splitPanelsGrey", "If true, all split panels are greyscale"),
-    scripts.Map("mergedColours", "Map of index:int colours for each merged channel"),
-    scripts.Bool("mergedNames", "If true, label the merged panel with channel names. Otherwise label with 'Merged'"),
-    scripts.Int("width", "The max width of each image panel. Default is first image width", min=1),
-    scripts.Int("height", "The max height of each image panel. Default is first image height", min=1),
-    scripts.String("imageLabels", "Label images with Image name (default) or datasets or tags", values=labels),
-    scripts.String("algorithm", "Algorithum for projection.", values=algorithums),
-    scripts.Int("stepping", "The Z increment for projection. Default is 1", min=1),
-    scripts.Int("scalebar", "Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
-    scripts.String("format", "Format to save image. E.g 'PNG'.", values=formats, default='JPEG'),
-    scripts.String("figureName", "File name of the figure to save."),
-    scripts.Int("overlayColour", "The colour of the scalebar. Default is white"),
+    scripts.List("Image_IDs", "List of image IDs. Resulting figure will be attached to first image.", False).ofType(rlong(0)),
+    scripts.Int("Z_Start", "Projection range (if not specified, use defaultZ only - no projection)", min=0),
+    scripts.Int("Z_End", "Projection range (if not specified, use defaultZ only - no projection)", min=0),
+    scripts.Map("Channel_Names", "Map of index: channel name for all channels"),
+    scripts.List("Split_Indexes", "List of the channels in the split view").ofType(rint(0)),
+    scripts.Bool("Split_Panels_Grey", "If true, all split panels are greyscale"),
+    scripts.Map("Merged_Colours", "Map of index:int colours for each merged channel"),
+    scripts.Bool("Merged_Names", "If true, label the merged panel with channel names. Otherwise label with 'Merged'"),
+    scripts.Int("Width", "The max width of each image panel. Default is first image width", min=1),
+    scripts.Int("Height", "The max height of each image panel. Default is first image height", min=1),
+    scripts.String("Image_Labels", "Label images with Image name (default) or datasets or tags", values=labels),
+    scripts.String("Algorithm", "Algorithum for projection.", values=algorithums),
+    scripts.Int("Stepping", "The Z increment for projection. Default is 1", min=1),
+    scripts.Int("Scalebar", "Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
+    scripts.String("Format", "Format to save image. E.g 'PNG'.", values=formats, default='JPEG'),
+    scripts.String("Figure_Name", "File name of the figure to save."),
+    scripts.Int("Overlay_Colour", "The colour of the scalebar. Default is white"),
     #scripts.Long("fileAnnotation").out()
     )  # script returns a file annotation
     
     session = client.getSession();
     gateway = session.createGateway();
-    commandArgs = {"imageIds":client.getInput("imageIds").getValue()}
+    commandArgs = {}
     
     # process the list of args above. 
     for key in client.getInputKeys():

@@ -216,14 +216,17 @@ def makeThumbnailFigure(client, session, commandArgs):
     datasetIds = []
     if "Dataset_IDs" in commandArgs:
         for datasetId in commandArgs["Dataset_IDs"]:
-            dId = long(datasetId.getValue())
-            datasetIds.append(dId)
+            try:
+                dId = long(datasetId.getValue())
+                datasetIds.append(dId)
+            except: pass
             
         if "Parent_ID" in commandArgs:
             pId = commandArgs["Parent_ID"]
             if pId >0:
-                parent = gateway.getProjects([pId], False)[0]
-                if parent:
+                pros = gateway.getProjects([pId], False)
+                if len(pros) > 0:
+                    project = pros[0]
                     log("Figure will be linked to Project: %s" % parent.getName().getValue())
         if parent == None:
             parent = gateway.getDataset(datasetIds[0], False)
@@ -311,12 +314,12 @@ def makeThumbnailFigure(client, session, commandArgs):
     
     format = JPEG
     if "Format" in commandArgs:
-        if commandArgs["format"] in [PNG, "PNG", "png"]:
+        if commandArgs["Format"] in [PNG, "PNG", "png"]:
             format = PNG
             
     output = "thumbnailFigure"
     if "Figure_Name" in commandArgs:
-        output = str(commandArgs["figureName"])
+        output = str(commandArgs["Figure_Name"])
         
     if format == PNG:
         output = output + ".png"
@@ -348,10 +351,10 @@ def runAsScript():
     client = scripts.client('thumbnailFigure.py', 'Export a figure of thumbnails, optionally sorted by tag.',
 
         scripts.List("Dataset_IDs",
-            description="List of dataset IDs. Use this OR imageIds to specify images").ofType(rint(0)),
+            description="List of dataset IDs. Use this OR imageIds to specify images").ofType(rlong(0)),
 
         scripts.List("Image_IDs",
-            description="List of image IDs. Use this OR datasetIds").ofType(rint(0)),
+            description="List of image IDs. Use this OR datasetIds").ofType(rlong(0)),
 
         scripts.List("Tag_IDs",
             description="Group thumbnails by these tags."),
