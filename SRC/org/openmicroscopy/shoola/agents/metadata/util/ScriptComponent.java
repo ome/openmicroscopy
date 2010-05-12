@@ -218,13 +218,16 @@ class ScriptComponent
 			JTextField field = (JTextField) c;
 			String value = field.getText();
 			if (value == null) return null;
-			return value.trim();
+			value = value.trim();
+			if (value.length() == 0) return null;
+			return value;
 		} else if (c instanceof JComboBox) {
 			JComboBox box = (JComboBox) c;
 			Object o = box.getSelectedItem();
-			if (o instanceof String)
+			if (o instanceof String) {
 				return ((String) o).replace(ScriptObject.PARAMETER_UI_SEPARATOR, 
 						ScriptObject.PARAMETER_SEPARATOR);
+			}
 			return o;
 		} else if (c instanceof ComplexParamPane)
 			return ((ComplexParamPane) c).getValue();

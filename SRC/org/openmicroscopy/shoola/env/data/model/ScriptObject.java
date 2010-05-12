@@ -461,21 +461,17 @@ public class ScriptObject
 		Iterator i = inputs.entrySet().iterator();
 		ParamData p;
 		Entry entry;
+		RType type;
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			p = (ParamData) entry.getValue();
-			map.put((String) entry.getKey(), p.getValueToPassAsRType()); 
+			type = p.getValueToPassAsRType();
+			if (type != null)
+				map.put((String) entry.getKey(), type); 
 		}
 		return map;
 	}
-	
-	/**
-	 * Returns the outputs.
-	 * 
-	 * @return See above.
-	 */
-	public Map<String, ParamData> getOutputs() { return inputs; }
-	
+
 	/**
 	 * Returns <code>true</code> if the parameters have been loaded,
 	 * <code>false</code> otherwise.

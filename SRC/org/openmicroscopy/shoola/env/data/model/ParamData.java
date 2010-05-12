@@ -147,10 +147,14 @@ public class ParamData
 	 */
 	private static RType convertBasicValue(Object value)
 	{
+		if (value == null) return null;
 		if (value instanceof Boolean)
 			return omero.rtypes.rbool((Boolean) value);
-		if (value instanceof String)
-			return omero.rtypes.rstring((String) value);
+		if (value instanceof String) {
+			String v = (String) value;
+			if (v.length() == 0) return null;
+			return omero.rtypes.rstring(v);
+		}
 		if (value instanceof Long)
 			return omero.rtypes.rlong((Long) value);
 		if (value instanceof Integer)
@@ -357,6 +361,7 @@ public class ParamData
 				if (key != null)
 					l.add(key);
 			}
+			if (l.size() == 0) return null;
 			return omero.rtypes.rlist(l);
 		}
 		if (valueToPass instanceof Map) {
@@ -371,6 +376,7 @@ public class ParamData
 				if (type != null) 
 					m.put((String) entry.getKey(), type);
 			}
+			if (m.size() == 0) return null;
 			return omero.rtypes.rmap(m);
 		}
 		return null; 

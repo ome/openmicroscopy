@@ -360,9 +360,6 @@ public class ScriptingDialog
 				results.put((String) entry.getKey(), c);
 			}
 		}
-		
-		
-		
 		List<String> sortedKeys = sorter.sort(results.keySet());
 		Iterator<String> k = sortedKeys.iterator();
 		String key;

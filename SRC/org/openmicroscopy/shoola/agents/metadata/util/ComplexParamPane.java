@@ -318,6 +318,7 @@ class ComplexParamPane
 					key = row.getKeyResult();
 					if (key != null) r.add(key);
 				}
+				if (r.size() == 0) return null;
 				return r;
 			case MAP:
 				Map<Object, Object> m = new HashMap<Object, Object>();
@@ -329,6 +330,7 @@ class ComplexParamPane
 					if (value != null && key != null)
 						m.put(key, value);
 				}
+				if (m.size() == 0) return m;
 				return m;
 		}
 		return null;
