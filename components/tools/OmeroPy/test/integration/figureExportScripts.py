@@ -18,6 +18,7 @@
 import unittest, time
 import integration.library as lib
 import omero
+import omero.scripts
 from omero.rtypes import *
 from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
@@ -28,10 +29,10 @@ import omero.util.script_utils as scriptUtil
 
 from numpy import *
 
-thumbnailFigurePath = "scripts/omero/figure_scripts/thumbnailFigure.py"
-splitViewFigurePath = "scripts/omero/figure_scripts/splitViewFigure.py"
-roiFigurePath = "scripts/omero/figure_scripts/roiFigure.py"
-movieFigurePath = "scripts/omero/figure_scripts/movieFigure.py"
+thumbnailFigurePath = "scripts/omero/figure_scripts/Thumbnail_Figure.py"
+splitViewFigurePath = "scripts/omero/figure_scripts/Split_View_Figure.py"
+roiFigurePath = "scripts/omero/figure_scripts/Roi_Figure.py"
+movieFigurePath = "scripts/omero/figure_scripts/Movie_Figure.py"
 
 
 class TestFigureExportScripts(lib.ITest):
@@ -45,6 +46,7 @@ class TestFigureExportScripts(lib.ITest):
         admin = self.root.sf.getAdminService()
         
         session = self.root.sf
+        client = self.root
         services = {}
         gateway = session.createGateway()
         
@@ -96,26 +98,26 @@ class TestFigureExportScripts(lib.ITest):
             gateway.saveObject(tlink)
             
         # run the script twice. First with all args...
-        datasetIds = [omero.rtypes.rint(dataset.id.val), ]
+        datasetIds = [omero.rtypes.rlong(dataset.id.val), ]
         argMap = {
-            "datasetIds": omero.rtypes.rlist(datasetIds),
-            "parentId": omero.rtypes.rlong(project.id.val),
-            "thumbSize": omero.rtypes.rlong(16),
-            "maxColumns": omero.rtypes.rlong(6),
-            "format": omero.rtypes.rstring("PNG"),
-            "figureName": omero.rtypes.rstring("thumbnail-test"),
-            "tagIds": omero.rtypes.rlist(tagIds),
+            "Dataset_IDs": omero.rtypes.rlist(datasetIds),
+            "Parent_ID": omero.rtypes.rint(project.id.val),
+            "Thumbnail_Size": omero.rtypes.rint(16),
+            "Max_Columns": omero.rtypes.rint(6),
+            "Format": omero.rtypes.rstring("PNG"),
+            "Figure_Name": omero.rtypes.rstring("thumbnail-test"),
+            "Tag_IDs": omero.rtypes.rlist(tagIds),
             #"showUntaggedImages": omero.rtypes.rbool(True),
             }
-        fileId1 = runScript(session, scriptId, omero.rtypes.rmap(argMap), "fileAnnotation")
+        fileAnnot1 = runScript(client, session, scriptId, argMap, "File_Annotation")
         
         # ...then with bare minimum args
-        args = {"imageIds": omero.rtypes.rlist(imageIds)}
-        fileId2 = runScript(session, scriptId, omero.rtypes.rmap(args), "fileAnnotation")
+        args = {"Image_IDs": omero.rtypes.rlist(imageIds)}
+        fileAnnot2 = runScript(client, session, scriptId, args, "File_Annotation")
         
         # should have figures attached to project and first image. 
-        self.assertNotEqual(fileId1, None)
-        self.assertNotEqual(fileId2, None)
+        self.assertNotEqual(fileAnnot1, None)
+        self.assertNotEqual(fileAnnot2, None)
         
     
     def testSplitViewFigure(self):
@@ -127,6 +129,7 @@ class TestFigureExportScripts(lib.ITest):
         admin = self.root.sf.getAdminService()
 
         session = self.root.sf
+        client = self.root
         services = {}
         gateway = session.createGateway()
         renderingEngine = session.createRenderingEngine()
@@ -177,32 +180,32 @@ class TestFigureExportScripts(lib.ITest):
         red = omero.rtypes.rlong(16711680)
         mrgdColoursMap = omero.rtypes.rmap({'0':blue, '1':blue, '3':red})
         argMap = {
-           "imageIds": omero.rtypes.rlist(imageIds),
-           "zStart": omero.rtypes.rlong(0),
-           "zEnd": omero.rtypes.rlong(3),   
-           "channelNames": cNamesMap,
-           "splitIndexes": omero.rtypes.rlist([omero.rtypes.rlong(1),omero.rtypes.rlong(2)]),
-           "splitPanelsGrey": omero.rtypes.rbool(True),
-           "mergedColours": mrgdColoursMap,
-           "mergedNames": omero.rtypes.rbool(True),
-           "width": omero.rtypes.rlong(200),
-           "height": omero.rtypes.rlong(200),
-           "imageLabels": omero.rtypes.rstring("DATASETS"),
-           "algorithm": omero.rtypes.rstring("MEANINTENSITY"),
-           "stepping": omero.rtypes.rlong(1),
-           "scalebar": omero.rtypes.rlong(10), # will be ignored since no pixelsize set
-           "format": omero.rtypes.rstring("PNG"),
-           "figureName": omero.rtypes.rstring("splitViewTest"),
+           "Image_IDs": omero.rtypes.rlist(imageIds),
+           "Z_Start": omero.rtypes.rint(0),
+           "Z_End": omero.rtypes.rint(3),   
+           "Channel_Names": cNamesMap,
+           "Split_Indexes": omero.rtypes.rlist([omero.rtypes.rint(1),omero.rtypes.rint(2)]),
+           "Split_Panels_Grey": omero.rtypes.rbool(True),
+           "Merged_Colours": mrgdColoursMap,
+           "Merged_Names": omero.rtypes.rbool(True),
+           "Width": omero.rtypes.rint(200),
+           "Height": omero.rtypes.rint(200),
+           "Image_Labels": omero.rtypes.rstring("Datasets"),
+           "Algorithm": omero.rtypes.rstring("Mean_Intensity"),
+           "Stepping": omero.rtypes.rint(1),
+           "Scalebar": omero.rtypes.rint(10), # will be ignored since no pixelsize set
+           "Format": omero.rtypes.rstring("PNG"),
+           "Figure_Name": omero.rtypes.rstring("splitViewTest"),
            #"overlayColour": red,
            }
-        fileId1 = runScript(session, scriptId, omero.rtypes.rmap(argMap), "fileAnnotation")
+        fileId1 = runScript(client, session, scriptId, argMap, "File_Annotation")
 
         # ...then with bare minimum args
-        args = {"imageIds": omero.rtypes.rlist(imageIds),
-            "mergedColours": mrgdColoursMap,
-            "format": omero.rtypes.rstring("PNG"),
-            "figureName": omero.rtypes.rstring("splitViewTest")}
-        fileId2 = runScript(session, scriptId, omero.rtypes.rmap(args), "fileAnnotation")
+        args = {"Image_IDs": omero.rtypes.rlist(imageIds),
+            "Merged_Colours": mrgdColoursMap,
+            "Format": omero.rtypes.rstring("PNG"),
+            "Figure_Name": omero.rtypes.rstring("splitViewTest")}
+        fileId2 = runScript(client, session, scriptId, args, "File_Annotation")
 
         # should have figures attached to project and first image. 
         self.assertNotEqual(fileId1, None)
@@ -218,6 +221,7 @@ class TestFigureExportScripts(lib.ITest):
         admin = self.root.sf.getAdminService()
 
         session = self.root.sf
+        client = self.root
         services = {}
         gateway = session.createGateway()
         renderingEngine = session.createRenderingEngine()
@@ -266,33 +270,33 @@ class TestFigureExportScripts(lib.ITest):
             '1':omero.rtypes.rstring("GFP"), 
             '2':omero.rtypes.rstring("Red"), 
             '3':omero.rtypes.rstring("ACA")})
-        blue = omero.rtypes.rlong(255)
-        red = omero.rtypes.rlong(16711680)
+        blue = omero.rtypes.rint(255)
+        red = omero.rtypes.rint(16711680)
         mrgdColoursMap = omero.rtypes.rmap({'0':blue, '1':blue, '3':red})
         argMap = {
-           "imageIds": omero.rtypes.rlist(imageIds),   
-           "channelNames": cNamesMap,
-           "splitIndexes": omero.rtypes.rlist([omero.rtypes.rlong(1),omero.rtypes.rlong(2)]),
-           #"splitPanelsGrey": omero.rtypes.rbool(True),
-           "mergedColours": mrgdColoursMap,
-           #"mergedNames": omero.rtypes.rbool(True),
-           "width": omero.rtypes.rlong(200),
-           "height": omero.rtypes.rlong(200),
-           "imageLabels": omero.rtypes.rstring("DATASETS"),
-           "algorithm": omero.rtypes.rstring("MEANINTENSITY"),
-           "stepping": omero.rtypes.rlong(1),
-           "scalebar": omero.rtypes.rlong(10), # will be ignored since no pixelsize set
-           "format": omero.rtypes.rstring("PNG"),
-           "figureName": omero.rtypes.rstring("splitViewTest"),
-           "overlayColour": red,
-           "roiZoom":omero.rtypes.rlong(3),
-           "roiLabel":omero.rtypes.rstring("fakeTest"), # won't be found - but should still work
+           "Image_IDs": omero.rtypes.rlist(imageIds),   
+           "Channel_Names": cNamesMap,
+           "Split_Indexes": omero.rtypes.rlist([omero.rtypes.rlong(1),omero.rtypes.rlong(2)]),
+           "Split_Panels_Grey": omero.rtypes.rbool(True),
+           "Merged_Colours": mrgdColoursMap,
+           "Merged_Names": omero.rtypes.rbool(True),
+           "Width": omero.rtypes.rint(200),
+           "Height": omero.rtypes.rint(200),
+           "Image_Labels": omero.rtypes.rstring("Datasets"),
+           "Algorithm": omero.rtypes.rstring("Mean_Intensity"),
+           "Stepping": omero.rtypes.rint(1),
+           "Scalebar": omero.rtypes.rint(10), # will be ignored since no pixelsize set
+           "Format": omero.rtypes.rstring("PNG"),
+           "Figure_Name": omero.rtypes.rstring("splitViewTest"),
+           "Overlay_Colour": red,
+           "ROI_Zoom":omero.rtypes.rint(3),
+           "ROI_Label":omero.rtypes.rstring("fakeTest"), # won't be found - but should still work
            }
-        fileId1 = runScript(session, scriptId, omero.rtypes.rmap(argMap), "fileAnnotation")
+        fileId1 = runScript(client, session, scriptId, argMap, "File_Annotation")
 
         # ...then with bare minimum args
-        args = {"imageIds": omero.rtypes.rlist(imageIds)}
-        fileId2 = runScript(session, scriptId, omero.rtypes.rmap(args), "fileAnnotation")
+        args = {"Image_IDs": omero.rtypes.rlist(imageIds)}
+        fileId2 = runScript(client, session, scriptId, args, "File_Annotation")
 
         # should have figures attached to project and first image. 
         self.assertNotEqual(fileId1, None)
@@ -308,6 +312,7 @@ class TestFigureExportScripts(lib.ITest):
         admin = self.root.sf.getAdminService()
 
         session = self.root.sf
+        client = self.root
         services = {}
         gateway = session.createGateway()
         renderingEngine = session.createRenderingEngine()
@@ -354,49 +359,55 @@ class TestFigureExportScripts(lib.ITest):
             '1':omero.rtypes.rstring("GFP"), 
             '2':omero.rtypes.rstring("Red"), 
             '3':omero.rtypes.rstring("ACA")})
-        blue = omero.rtypes.rlong(255)
-        red = omero.rtypes.rlong(16711680)
+        blue = omero.rtypes.rint(255)
+        red = omero.rtypes.rint(16711680)
         mrgdColoursMap = omero.rtypes.rmap({'0':blue, '1':blue, '3':red})
         tIndexes = [omero.rtypes.rint(0),omero.rtypes.rint(1),omero.rtypes.rint(5),omero.rtypes.rint(10),
             omero.rtypes.rint(15)]
         argMap = {
-           "imageIds": omero.rtypes.rlist(imageIds),   
-           "tIndexes": omero.rtypes.rlist(tIndexes),
-           "zStart": omero.rtypes.rlong(1),
-           "zEnd": omero.rtypes.rlong(3),
-           "width": omero.rtypes.rlong(150),
-           "height": omero.rtypes.rlong(150),
-           "imageLabels": omero.rtypes.rstring("DATASETS"),
-           "algorithm": omero.rtypes.rstring("MEANINTENSITY"),
-           "stepping": omero.rtypes.rlong(1),
-           "scalebar": omero.rtypes.rlong(10), 
-           "format": omero.rtypes.rstring("PNG"),
-           "figureName": omero.rtypes.rstring("movieFigureTest"),
-           "timeUnits": omero.rtypes.rstring("MINS"),
-           "overlayColour": red,
+           "Image_IDs": omero.rtypes.rlist(imageIds),   
+           "T_Indexes": omero.rtypes.rlist(tIndexes),
+           "Z_Start": omero.rtypes.rint(1),
+           "Z_End": omero.rtypes.rint(3),
+           "Width": omero.rtypes.rint(150),
+           "Height": omero.rtypes.rint(150),
+           "Image_Labels": omero.rtypes.rstring("Datasets"),
+           "Algorithm": omero.rtypes.rstring("Mean_Intensity"),
+           "Stepping": omero.rtypes.rint(1),
+           "Scalebar": omero.rtypes.rint(10), 
+           "Format": omero.rtypes.rstring("PNG"),
+           "Figure_Name": omero.rtypes.rstring("movieFigureTest"),
+           "TimeUnits": omero.rtypes.rstring("MINS"),
+           "Overlay_Colour": red,
            }
-        fileId1 = runScript(session, scriptId, omero.rtypes.rmap(argMap), "fileAnnotation")
+        fileId1 = runScript(client, session, scriptId, argMap, "File_Annotation")
 
         # ...then with bare minimum args
-        args = {"imageIds": omero.rtypes.rlist(imageIds),
-            "tIndexes": omero.rtypes.rlist(tIndexes),}
-        fileId2 = runScript(session, scriptId, omero.rtypes.rmap(args), "fileAnnotation")
+        args = {"Image_IDs": omero.rtypes.rlist(imageIds),
+            "T_Indexes": omero.rtypes.rlist(tIndexes),}
+        fileId2 = runScript(client, session, scriptId, args, "File_Annotation")
 
         # should have figures attached to project and first image. 
         self.assertNotEqual(fileId1, None)
         self.assertNotEqual(fileId2, None)
         
 
-def runScript(session, scriptId, argMap, returnKey=None): 
-    # TODO: this will be refactored 
-    job = omero.model.ScriptJobI() 
-    job.linkOriginalFile(omero.model.OriginalFileI(scriptId, False)) 
-    processor = session.sharedResources().acquireProcessor(job, 10) 
-    proc = processor.execute(argMap) 
-    processor.setDetach(True)
-    proc.wait()
-    results = processor.getResults(proc).getValue()
-        
+def runScript(client, session, scriptId, argMap, returnKey=None): 
+    
+    scriptService = session.getScriptService()
+    proc = scriptService.runScript(scriptId, argMap, None)
+    try:
+        cb = omero.scripts.ProcessCallbackI(client, proc)
+        while not cb.block(1000): # ms.
+            pass
+        cb.close()
+        results = proc.getResults(0)    # ms
+    finally:
+        proc.close(False)
+    
+    if 'stdout' in results:
+        origFile = results['stdout'].getValue()
+        print "Script generated StdOut in file:" , origFile.getId().getValue()       
     if 'stderr' in results:
         origFile = results['stderr'].getValue()
         # But, we still get stderr from EMAN2 import (duplicate numpy etc.)
@@ -407,11 +418,44 @@ def runScript(session, scriptId, argMap, returnKey=None):
 
 def uploadScript(scriptService, scriptPath):
     file = open(scriptPath)
-    script = file.read()
+    scriptText = file.read()
     file.close()
-    scriptId = scriptService.uploadScript(scriptPath, script)
+    # first check if the script has already been uploaded
+    existingScript = getScript(scriptService, scriptPath)
+    if existingScript == None:
+        # if not, upload new script
+        scriptId = scriptService.uploadOfficialScript(scriptPath, scriptText)
+        print "Script uploaded with ID:", scriptId
+    else:
+        # if it has, edit the existing script
+        scriptService.editScript(existingScript, scriptText)
+        print "Script ID: %s was edited" % existingScript.id.val
+        scriptId = existingScript.id.val
     return scriptId
+    
 
+def getScript(scriptService, scriptPath):
+    
+    scripts = scriptService.getScripts()     # returns list of OriginalFiles     
+        
+    for s in scripts:
+        print s.id.val, s.path.val + s.name.val
+        
+    # make sure path starts with a slash. 
+    # ** If you are a Windows client - will need to convert all path separators to "/" since server stores /path/to/script.py **
+    if not scriptPath.startswith("/"):
+        scriptPath =  "/" + scriptPath
+        
+    namedScripts = [s for s in scripts if s.path.val + s.name.val == scriptPath]
+    
+    if len(namedScripts) == 0:
+        print "Didn't find any scripts with specified path: %s" % scriptPath
+        return
+    
+    if len(namedScripts) > 1:
+        print "Found more than one script with specified path: %s" % scriptPath
+        
+    return namedScripts[0]
 
 def addRectangleRoi(gateway, x, y, width, height, imageId):
     """

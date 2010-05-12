@@ -15,7 +15,7 @@
    
    ** IMPORTANT: Run test from OmeroPy/  **
    
-   PYTHONPATH=/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages/:/opt/Ice-3.3.1/python:.:test:build/lib ICE_CONFIG=/Users/will/Documents/workspace/Omero/etc/ice.config python integration/emanScripts.py
+   PYTHONPATH=$PYTHONPATH:.:test:build/lib ICE_CONFIG=/Users/will/Documents/workspace/Omero/etc/ice.config python integration/emanScripts.py
    Add E.g.  TestEmanScripts.testRunSpiderProcedure to command to run a single test. 
 """
 import unittest, time
@@ -560,7 +560,7 @@ def uploadScript(scriptService, scriptPath):
     file = open(scriptPath)
     script = file.read()
     file.close()
-    scriptId = scriptService.uploadScript(script)
+    scriptId = scriptService.uploadScript(scriptPath, script)
     return scriptId
 
 def addRectangleRoi(gateway, x, y, width, height, image):
