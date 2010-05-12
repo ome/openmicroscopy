@@ -304,17 +304,47 @@ public class ScriptingDialog
 			if (Long.class.equals(type) || Integer.class.equals(type) ||
 					Float.class.equals(type) || Double.class.equals(type)) {
 				if (comp == null) {
-					if (Long.class.equals(type)) type = Integer.class;
 					comp = new NumericalTextField();
 					n = param.getMinValue();
 					if (n != null) {
-						text += "Min: "+n.doubleValue()+" ";
-						((NumericalTextField) comp).setMinimum(n.doubleValue());
+						if (Long.class.equals(type)) {
+							text += "Min: "+n.longValue()+" ";
+							((NumericalTextField) comp).setMinimum(
+									n.longValue());
+						} else if (Integer.class.equals(type)) {
+							text += "Min: "+n.intValue()+" ";
+							((NumericalTextField) comp).setMinimum(
+									n.intValue());
+						} else if (Double.class.equals(type)) {
+							text += "Min: "+n.doubleValue()+" ";
+							((NumericalTextField) comp).setMinimum(
+									n.doubleValue());
+						} else if (Float.class.equals(type)) {
+							text += "Min: "+n.floatValue()+" ";
+							((NumericalTextField) comp).setMinimum(
+									n.floatValue());
+						} 
+						
 					}
 					n = param.getMaxValue();
 					if (n != null) {
-						text += "Max: "+n.doubleValue();
-						((NumericalTextField) comp).setMaximum(n.doubleValue());
+						if (Long.class.equals(type)) {
+							text += "Max: "+n.longValue()+" ";
+							((NumericalTextField) comp).setMaximum(
+									n.longValue());
+						} else if (Integer.class.equals(type)) {
+							text += "Max: "+n.intValue()+" ";
+							((NumericalTextField) comp).setMaximum(
+									n.intValue());
+						} else if (Double.class.equals(type)) {
+							text += "Max: "+n.doubleValue()+" ";
+							((NumericalTextField) comp).setMaximum(
+									n.doubleValue());
+						} else if (Float.class.equals(type)) {
+							text += "Max: "+n.floatValue()+" ";
+							((NumericalTextField) comp).setMaximum(
+									n.floatValue());
+						} 
 					}
 					if (defValue != null)
 						((NumericalTextField) comp).setText(

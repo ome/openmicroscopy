@@ -112,7 +112,7 @@ public class NumericalTextField
 	 */
 	public NumericalTextField()
 	{
-		this(0.0, Double.MAX_VALUE);	
+		this(0.0, Integer.MAX_VALUE);	
 	}
 	
 	/**
@@ -163,6 +163,10 @@ public class NumericalTextField
 			if (min >= 0) {
 				if (numberType == null || Integer.class.equals(numberType))
 					min = Integer.MIN_VALUE;
+				else if (Long.class.equals(numberType))
+					min = Long.MIN_VALUE;
+				else if (Float.class.equals(numberType))
+					min = Float.MIN_VALUE;
 				else min = Double.MIN_VALUE;
 				document.setMinimum(min);
 			}
@@ -187,7 +191,8 @@ public class NumericalTextField
 		if (numberType == null)
 			numberType = Integer.class;
 		this.numberType = numberType;
-		if (numberType.equals(Integer.class)) accepted = NUMERIC;
+		if (numberType.equals(Integer.class) ||
+				numberType.equals(Long.class)) accepted = NUMERIC;
 		else accepted = FLOAT;
 		setNegativeAccepted(negativeAccepted);	
 	}
@@ -249,6 +254,8 @@ public class NumericalTextField
 			return Double.parseDouble(str);
 		else if (Float.class.equals(numberType)) 
 			return Float.parseFloat(str);
+		else if (Long.class.equals(numberType))
+			return Long.parseLong(str);
 		return null;
 	}
 	
@@ -324,6 +331,11 @@ public class NumericalTextField
 				} else if (Double.class.equals(numberType)) {
 					double val = Double.parseDouble(str);
 		            if (min <= val && val <= max) return true;
+				} else if (Long.class.equals(numberType)) {
+					long val = Long.parseLong(str);
+					long m = (long) min;
+					long mx = (long) max;
+		            if (m <= val && val <= mx) return true;
 				} else if (Float.class.equals(numberType)) {
 					float val = Float.parseFloat(str);
 		            if (min <= val && val <= max) return true;

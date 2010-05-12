@@ -24,11 +24,6 @@ package org.openmicroscopy.shoola.agents.metadata.util;
 
 
 //Java imports
-import info.clearthought.layout.TableLayout;
-
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -38,13 +33,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
 
 //Third-party libraries
+import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;

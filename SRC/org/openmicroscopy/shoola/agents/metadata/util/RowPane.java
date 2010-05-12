@@ -23,8 +23,6 @@
 package org.openmicroscopy.shoola.agents.metadata.util;
 
 //Java imports
-import info.clearthought.layout.TableLayout;
-
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -109,7 +107,6 @@ class RowPane
 	{
 		if (Double.class.equals(keyType) || Integer.class.equals(keyType) ||
 				Long.class.equals(keyType) || Float.class.equals(keyType)) {
-			if (Long.class.equals(keyType)) keyType = Integer.class;
 			NumericalTextField field = new NumericalTextField();
 			field.setNumberType(keyType);
 			field.setColumns(ScriptComponent.COLUMNS);
