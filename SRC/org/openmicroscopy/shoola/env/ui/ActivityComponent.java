@@ -53,7 +53,10 @@ import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.Environment;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
@@ -569,6 +572,7 @@ public abstract class ActivityComponent
 	/** Subclasses should override the method. */
 	protected void notifyDownload() {}
 	
+	/** Displays the result. */
 	private void showResult()
 	{
 		JFrame f = registry.getTaskBar().getFrame();
@@ -576,11 +580,45 @@ public abstract class ActivityComponent
 		UIUtilities.centerAndShow(d);
 	}
 	
+	/**
+	 * Opens the passed object. Downloads it first.
+	 * 
+	 * @param object The object to open.
+	 */
+	void open(Object object)
+	{
+		if (!(object instanceof FileAnnotationData || 
+				object instanceof OriginalFile)) return;
+		Environment env = (Environment) registry.lookup(LookupNames.ENV);
+		int index = -1;
+		long id;
+		String name = "";
+		if (object instanceof FileAnnotationData) {
+			FileAnnotationData data = (FileAnnotationData) object;
+			id = data.getId();
+			index = DownloadActivityParam.FILE_ANNOTATION;
+			name = "Annotation_"+id+".txt";
+		} else {
+			OriginalFile of = (OriginalFile) object;
+			id = of.getId().getValue();
+			index = DownloadActivityParam.ORIGINAL_FILE;
+			name = "File_"+id+".txt";
+		}
+		String path = env.getOmeroFilesHome()+File.separator+name;
+		File f = new File(path);
+		f.deleteOnExit();
+		DownloadActivityParam activity = new DownloadActivityParam(id, index,
+				f, null);
+		activity.setApplicationData(new ApplicationData(""));
+		viewer.notifyActivity(activity);
+	}
+	
 	/** 
 	 * Downloads the passed object is supported.
 	 * 
 	 * @param text   The text used if the object is not loaded.
 	 * @param object The object to handle.
+	 * 
 	 */
 	void download(String text, Object object)
 	{

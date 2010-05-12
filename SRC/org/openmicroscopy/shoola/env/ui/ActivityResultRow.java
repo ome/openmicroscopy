@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.env.ui;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -66,8 +67,14 @@ class ActivityResultRow
 	/** Indicates to view the object. */
 	private static final int VIEW = 1;
 	
+	/** Indicates to download and view the object. */
+	private static final int DOWNLOAD_AND_VIEW = 2;
+	
 	/** Reference to the activity. */
 	private ActivityComponent activity;
+	
+	/** Button used to view the file. */
+	private JButton	viewButton;
 	
 	/** The result to handle. */
 	private Object row;
@@ -113,7 +120,8 @@ class ActivityResultRow
 			add(activity.createButton("Download", DOWNLOAD, this));
 		}
 		if (activity.isViewable(row)) {
-			add(activity.createButton("View", VIEW, this));
+			viewButton = activity.createButton("View", VIEW, this);
+			add(viewButton);
 		}
 	}
 	
@@ -143,6 +151,15 @@ class ActivityResultRow
 		buildGUI();
 	}
 
+	/** Allows to download and views the result. */
+	void allowDownloadAndView()
+	{
+		if (viewButton == null)
+			viewButton = activity.createButton("View", DOWNLOAD_AND_VIEW, this);
+		else viewButton.setActionCommand(""+DOWNLOAD_AND_VIEW);
+		add(viewButton);
+	}
+	
 	/**
 	 * Either views or downloads the results.
 	 * @see ActionListener#actionPerformed(ActionEvent)
@@ -160,6 +177,12 @@ class ActivityResultRow
 				firePropertyChange(ACTION_PROPERTY, Boolean.valueOf(false), 
 						Boolean.valueOf(true));
 				activity.view(row);
+				break;
+			case DOWNLOAD_AND_VIEW:
+				firePropertyChange(ACTION_PROPERTY, Boolean.valueOf(false), 
+						Boolean.valueOf(true));
+				activity.open(row);
+				break;
 		}
 	}
 	

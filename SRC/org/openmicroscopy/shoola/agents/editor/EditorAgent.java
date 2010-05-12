@@ -31,8 +31,6 @@ import java.util.List;
 
 //Application-internal dependencies
 import omero.model.OriginalFile;
-
-import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory;
 import org.openmicroscopy.shoola.agents.editor.view.AutosaveRecovery;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.agents.editor.view.EditorFactory;

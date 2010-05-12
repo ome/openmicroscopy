@@ -119,7 +119,7 @@ class ActivityResultDialog
 		p.setLayout(layout);
 		int index = 0;
 		Object r;
-		JComponent c;
+		ActivityResultRow c;
 		if (result instanceof Collection) {
 			double[] size = {TableLayout.FILL};
 			layout.setColumn(size);
@@ -148,9 +148,13 @@ class ActivityResultDialog
 				entry = (Entry) i.next();
 				key = (String) entry.getKey();
 				layout.insertRow(index, TableLayout.PREFERRED);
+				
 				c = new ActivityResultRow(key, entry.getValue(), activity);
 				c.addPropertyChangeListener(this);
-				
+				if (ActivityComponent.STD_ERR.equals(key) || 
+						ActivityComponent.STD_OUT.equals(key)) {
+					c.allowDownloadAndView();
+				}
 				empty = new JPanel();
 				pp = UIUtilities.buildComponentPanel(
 						UIUtilities.setTextFont(key+": "), 0, 0);

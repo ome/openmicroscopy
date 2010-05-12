@@ -294,6 +294,7 @@ public final class Container
 		
 		//Agents linking phase.
 		Environment env = new Environment(this);
+		singleton.registry.bind(LookupNames.ENV, env);
 		while (i.hasNext()) {
 			agentInfo = (AgentInfo) i.next();
 			if (agentInfo.isActive()) {

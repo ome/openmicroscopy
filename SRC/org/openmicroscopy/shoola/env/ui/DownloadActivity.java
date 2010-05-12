@@ -217,7 +217,8 @@ public class DownloadActivity
 				break;
 			default:
 				loader = new FileLoader(viewer, registry, file, 
-						f.getId().getValue(), f.getSize().getValue(), load, this);
+						f.getId().getValue(), f.getSize().getValue(), load, 
+						this);
 		}
 		return loader;
 	}
