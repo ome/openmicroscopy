@@ -720,7 +720,7 @@ class OmeroMetadataServiceImpl
 			//load the links tags and attachments
 			if (annotationIds.size() > 0) {
 				List links = gateway.findAnnotationLinks(object.getClass(), 
-						annotationIds, -1);
+						r.getId(), annotationIds, -1);
 				if (links != null) {
 					Map<DataObject, ExperimenterData> 
 						m = new HashMap<DataObject, ExperimenterData>();

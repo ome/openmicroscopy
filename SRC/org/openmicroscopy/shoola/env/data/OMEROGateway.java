@@ -3122,7 +3122,20 @@ class OMEROGateway
 		return new ArrayList();
 	}
 
-	List findAnnotationLinks(Class node, List children, long userID)
+	/**
+	 * Finds all the links.
+	 * 
+	 * @param node The type of node to handle.
+	 * @param nodeID The id of the node if any.
+	 * @param children The collection of annotations' identifiers 
+	 * @param userID The user's identifier or <code>-1</code>.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	List findAnnotationLinks(Class node, long nodeID, List children, 
+			long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
@@ -3135,9 +3148,13 @@ class OMEROGateway
 			sb.append("left outer join fetch child.details.owner ");
 			sb.append("left outer join fetch link.details.owner ");
 			sb.append("where link.child.id in (:childIDs)");
+
 			ParametersI param = new ParametersI();
 			param.addLongs("childIDs", children);
-
+			if (nodeID > 0) {
+				sb.append(" and link.parent.id = :parentID");
+				param.map.put("parentID", omero.rtypes.rlong(nodeID));
+			}
 			if (userID >= 0) {
 				sb.append(" and link.details.owner.id = :userID");
 				param.map.put("userID", omero.rtypes.rlong(userID));
