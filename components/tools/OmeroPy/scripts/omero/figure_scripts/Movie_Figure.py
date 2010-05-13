@@ -516,7 +516,7 @@ def runAsScript():
     tunits =  [rstring("SECS"), rstring("MINS"), rstring("HOURS"), rstring("MINS_SECS"), rstring("HOURS_MINS")]
     formats = [rstring('JPEG'),rstring('PNG')]
     
-    client = scripts.client('Movie_Figure.py', 'Export a figure of a movie.', 
+    client = scripts.client('Movie_Figure.py', 'Export a figure of a movie. See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport', 
     scripts.List("Image_IDs", description="List of image IDs. Resulting figure will be attached to first image.", optional=False).ofType(rlong(0)),
     scripts.List("T_Indexes", description="The time frames to display in the figure for each image").ofType(rint(0)),
     scripts.Int("Z_Start", description="Projection range (if not specified, use defaultZ only - no projection)", min=0),
@@ -544,7 +544,7 @@ def runAsScript():
     # Makes the figure and attaches it to Image. Returns the id of the originalFileLink child. (ID object, not value)
     fileAnnotation = movieFigure(session, commandArgs)
     if fileAnnotation:
-        client.setOutput("Message", rstring("Figure Created"))
+        client.setOutput("Message", rstring("Movie Figure Created"))
         client.setOutput("File_Annotation", robject(fileAnnotation))
     
 if __name__ == "__main__":

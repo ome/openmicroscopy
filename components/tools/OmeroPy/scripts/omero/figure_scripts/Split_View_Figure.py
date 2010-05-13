@@ -665,8 +665,9 @@ def runAsScript():
     algorithums = [rstring('Maximum_Intensity'),rstring('Mean_Intensity')]
     formats = [rstring('JPEG'),rstring('PNG')]
      
-    client = scripts.client('Split_View_Figure.py', 'Create a figure of split-view images.', 
-    scripts.List("Image_IDs", description="List of image IDs. Resulting figure will be attached to first image.", optional=False).ofType(rlong(0)),
+    client = scripts.client('Split_View_Figure.py', """Create a figure of split-view images.
+See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#Split-viewFigure""", 
+    scripts.List("Image_IDs", description="List of image IDs. Resulting figure will be attached to first image.").ofType(rlong(0)),
     scripts.Int("Z_Start", description="Projection range (if not specified, use defaultZ only - no projection)", min=0),
     scripts.Int("Z_End", description="Projection range (if not specified, use defaultZ only - no projection)", min=0),
     scripts.Map("Channel_Names", description="Map of index: channel name for all channels"),
@@ -699,7 +700,7 @@ def runAsScript():
     fileAnnotation = splitViewFigure(session, commandArgs)
     # return this fileAnnotation to the client. 
     if fileAnnotation:
-        client.setOutput("Message", rstring("Figure Created"))
+        client.setOutput("Message", rstring("Split-View Figure Created"))
         client.setOutput("File_Annotation", robject(fileAnnotation))
     
 if __name__ == "__main__":

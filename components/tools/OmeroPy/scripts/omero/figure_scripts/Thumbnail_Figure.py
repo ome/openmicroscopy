@@ -348,33 +348,34 @@ def runAsScript():
         
     formats = [rstring('JPEG'),rstring('PNG')]
     
-    client = scripts.client('thumbnailFigure.py', 'Export a figure of thumbnails, optionally sorted by tag.',
+    client = scripts.client('thumbnailFigure.py', """Export a figure of thumbnails, optionally sorted by tag.
+See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ThumbnailFigure""",
 
-        scripts.List("Dataset_IDs",
+        scripts.List("Dataset_IDs", grouping="1"
             description="List of dataset IDs. Use this OR imageIds to specify images").ofType(rlong(0)),
 
-        scripts.List("Image_IDs",
+        scripts.List("Image_IDs",grouping="2"
             description="List of image IDs. Use this OR datasetIds").ofType(rlong(0)),
 
-        scripts.List("Tag_IDs",
+        scripts.List("Tag_IDs", grouping="3"
             description="Group thumbnails by these tags."),
 
-        scripts.Bool("Show_Untagged_Images",
+        scripts.Bool("Show_Untagged_Images", grouping="3.1"
             description="If true (and you're sorting by tagIds) also show images without the specified tags"),
 
-        scripts.Int("Parent_ID",
+        scripts.Int("Parent_ID", grouping="4"
             description="Attach figure to this Project (if datasetIds above) or Dataset if imageIds. If not specifed, attach figure to first dataset or image."),
 
-        scripts.Int("Thumbnail_Size", min=10, max=250, default=100,
+        scripts.Int("Thumbnail_Size", grouping="5.1" min=10, max=250, default=100,
             description="The dimension of each thumbnail. Default is 100"),
 
-        scripts.Int("Max_Columns", min=1,
+        scripts.Int("Max_Columns", grouping="5.2" min=1,
             description="The max number of thumbnail columns. Default is 10"),
 
-        scripts.String("Format",
-            description="Format to save image. E.g 'PNG'. Default is JPEG"),
+        scripts.String("Format", grouping="6.1"
+            description="Format to save image."),
 
-        scripts.String("Figure_Name",
+        scripts.String("Figure_Name", grouping="6.2"
             description="File name of figure to create"),
 
         #scripts.Long("File_Annotation",
@@ -391,7 +392,7 @@ def runAsScript():
     # Makes the figure and attaches it to Project/Dataset. Returns the id of the originalFileLink child. (ID object, not value)
     fileAnnotation = makeThumbnailFigure(client, session, commandArgs)
     if fileAnnotation:
-        client.setOutput("Message", rstring("Figure Created"))
+        client.setOutput("Message", rstring("Thumbnail-Figure Created"))
         client.setOutput("File_Annotation", robject(fileAnnotation))
         
 
