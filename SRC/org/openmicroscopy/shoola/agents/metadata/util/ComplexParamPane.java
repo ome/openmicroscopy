@@ -84,9 +84,6 @@ class ComplexParamPane
 	/** One of the constants defined by this class. */
 	private int 			index;
 	
-	/** Flag indicating that values are required. */
-	private boolean 		required;
-	
 	/** The collection of rows. */
 	private List<RowPane> 	rows;
 	
@@ -97,7 +94,7 @@ class ComplexParamPane
 	private JButton			addButton;
 	
 	/** Initializes the components. */
-	private void initialize()
+	private void initializeComponents()
 	{
 		IconManager icons = IconManager.getInstance();
 		addButton = new JButton(icons.getIcon(IconManager.PLUS_12));
@@ -201,6 +198,7 @@ class ComplexParamPane
 		layout.setColumn(columns);
 		rowsPane.setLayout(layout);
 		RowPane row = createRow();
+		row.addPropertyChangeListener(this);
 		row.disableRemove();
 		layoutRows();
 		double[][] size = {{TableLayout.PREFERRED, 2, TableLayout.FILL}, 
@@ -280,18 +278,7 @@ class ComplexParamPane
 		this.keyType = keyType;
 		this.valueType = valueType;
 		rows = new ArrayList<RowPane>();
-		initialize();
-	}
-	
-	/** 
-	 * This method should be invoked immediately after creation.
-	 * 
-	 * @param required Pass <code>true</code> to indicate that the field
-	 * 				   is required, <false> otherwise.
-	 */
-	void initialize(boolean required)
-	{
-		this.required = required;
+		initializeComponents();
 		buildGUI();
 	}
 	
@@ -340,6 +327,9 @@ class ComplexParamPane
 		String name = evt.getPropertyName();
 		if (RowPane.REMOVE_ROW_PROPERTY.equals(name)) 
 			removeRow((RowPane) evt.getNewValue());
+		else if (RowPane.MODIFIED_CONTENT_PROPERTY.equals(name)) {
+			firePropertyChange(name, evt.getOldValue(), evt.getNewValue());
+		}
 	}
 	
 }

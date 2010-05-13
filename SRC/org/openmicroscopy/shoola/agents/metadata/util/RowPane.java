@@ -33,6 +33,8 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 //Third-party libraries
 
@@ -56,11 +58,14 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 class RowPane 
 	extends JPanel
-	implements ActionListener
+	implements ActionListener, DocumentListener
 {
 
 	/** Bound property indicating to remove the row. */
 	static final String REMOVE_ROW_PROPERTY = "removeRow";
+	
+	/** Bound property indicating that the content has been modified. */
+	static final String MODIFIED_CONTENT_PROPERTY = "modifiedContent";
 	
 	/** Button used to remove the row. */
 	private JButton removeButton;
@@ -105,16 +110,16 @@ class RowPane
 	 */
 	private JComponent createKeyField(Class keyType)
 	{
+		JTextField field;
 		if (Double.class.equals(keyType) || Integer.class.equals(keyType) ||
 				Long.class.equals(keyType) || Float.class.equals(keyType)) {
-			NumericalTextField field = new NumericalTextField();
-			field.setNumberType(keyType);
+			field = new NumericalTextField();
+			((NumericalTextField) field).setNumberType(keyType);
 			field.setColumns(ScriptComponent.COLUMNS);
-			return field;
-		}
-		JTextField f = new JTextField();
-		f.setColumns(ScriptComponent.COLUMNS);
-		return f;
+		} else field = new JTextField();
+		field.getDocument().addDocumentListener(this);
+		field.setColumns(ScriptComponent.COLUMNS);
+		return field;
 	}
 	
 	/**
@@ -213,5 +218,30 @@ class RowPane
 	{
 		firePropertyChange(REMOVE_ROW_PROPERTY, null, this);
 	}
+	
+	/**
+	 * Allows the user to run or not the script.
+	 * @see DocumentListener#insertUpdate(DocumentEvent)
+	 */
+	public void insertUpdate(DocumentEvent e)
+	{ 
+		firePropertyChange(MODIFIED_CONTENT_PROPERTY, null, this); 
+	}
+
+	/**
+	 * Allows the user to run or not the script.
+	 * @see DocumentListener#removeUpdate(DocumentEvent)
+	 */
+	public void removeUpdate(DocumentEvent e)
+	{ 
+		firePropertyChange(MODIFIED_CONTENT_PROPERTY, null, this); 
+	}
+	
+	/**
+	 * Required by the {@link DocumentListener} I/F but no-operation 
+	 * implementation in our case.
+	 * @see DocumentListener#changedUpdate(DocumentEvent)
+	 */
+	public void changedUpdate(DocumentEvent e) {}
 	
 }

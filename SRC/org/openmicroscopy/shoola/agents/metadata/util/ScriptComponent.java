@@ -128,9 +128,6 @@ class ScriptComponent
 	{ 
 		this.required = required; 
 		if (required) label = UIUtilities.setTextFont(label.getText()+" *");
-		if (component instanceof ComplexParamPane) {
-			((ComplexParamPane) component).initialize(required);
-		}
 	}
 	
 	/**

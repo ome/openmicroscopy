@@ -31,6 +31,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -84,7 +86,7 @@ import pojos.ExperimenterData;
  */
 public class ScriptingDialog 
 	extends JDialog
-	implements ActionListener, DocumentListener
+	implements ActionListener, DocumentListener, PropertyChangeListener
 {
 	
 	/** Bound property indicating to run the script. */
@@ -156,12 +158,11 @@ public class ScriptingDialog
 	}
 	
 	/**
-	 * Returns <code>true</code> if the script can run i.e. all required fields
-	 * are filled, <code>false</code> otherwise.
-	 * 
-	 * @return See above.
+	 * Sets the enabled flag of the {@link #applyButton} to <code>true</code>
+	 * if the script can run i.e. all required fields are filled, to 
+	 * <code>false</code> otherwise.
 	 */
-	private boolean canRunScript()
+	private void canRunScript()
 	{
 		Iterator i = components.entrySet().iterator();
 		Entry entry;
@@ -183,7 +184,7 @@ public class ScriptingDialog
 				}
 			}
 		}
-		return required == valueSet;
+		applyButton.setEnabled(required == valueSet);
 	}
 	
 	/** Collects the data and fires a property.*/
@@ -380,6 +381,8 @@ public class ScriptingDialog
 					((JTextField) comp).setColumns(ScriptComponent.COLUMNS);
 					((JTextField) comp).getDocument().addDocumentListener(this);
 				}
+				if (comp instanceof ComplexParamPane)
+					comp.addPropertyChangeListener(this);
 				comp.setToolTipText(param.getDescription());
 				c = new ScriptComponent(comp, name);
 				if (text.trim().length() > 0) c.setUnit(text);
@@ -397,7 +400,7 @@ public class ScriptingDialog
 			key = k.next();
 			components.put(key, results.get(key));
 		}
-		applyButton.setEnabled(canRunScript());
+		canRunScript();
 	}
 	
 	/**
@@ -580,22 +583,27 @@ public class ScriptingDialog
 	}
 
 	/**
+	 * Checks if the user can run the script.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (RowPane.MODIFIED_CONTENT_PROPERTY.equals(name))
+			canRunScript();
+	}
+	
+	/**
 	 * Allows the user to run or not the script.
 	 * @see DocumentListener#insertUpdate(DocumentEvent)
 	 */
-	public void insertUpdate(DocumentEvent e)
-	{
-		applyButton.setEnabled(canRunScript());
-	}
+	public void insertUpdate(DocumentEvent e) { canRunScript(); }
 
 	/**
 	 * Allows the user to run or not the script.
 	 * @see DocumentListener#removeUpdate(DocumentEvent)
 	 */
-	public void removeUpdate(DocumentEvent e)
-	{
-		applyButton.setEnabled(canRunScript());
-	}
+	public void removeUpdate(DocumentEvent e) { canRunScript(); }
 	
 	/**
 	 * Required by the {@link DocumentListener} I/F but no-operation 
