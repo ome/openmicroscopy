@@ -5308,7 +5308,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IScriptPrx svc = getScripService();
-			Set<RType> set = new HashSet<RType>(channels.size());
+			List<RType> set = new ArrayList<RType>(channels.size());
 			Iterator<Integer> i = channels.iterator();
 			while (i.hasNext()) 
 				set.add(omero.rtypes.rlong(i.next()));
@@ -5331,22 +5331,22 @@ class OMEROGateway
 			}
 			
 			Map<String, RType> map = new HashMap<String, RType>();
-			map.put("imageId", omero.rtypes.rlong(imageID));
-			map.put("output", omero.rtypes.rstring(param.getName()));
-			map.put("zStart", omero.rtypes.rlong(startZ));
-			map.put("zEnd", omero.rtypes.rlong(endZ));
-			map.put("tStart", omero.rtypes.rlong(startT));
-			map.put("tEnd", omero.rtypes.rlong(endT));
-			map.put("channels", omero.rtypes.rset(set));
-			map.put("fps", omero.rtypes.rlong(param.getFps()));
-			map.put("showPlaneInfo", 
+			map.put("Image_ID", omero.rtypes.rlong(imageID));
+			map.put("Movie_Name", omero.rtypes.rstring(param.getName()));
+			map.put("Z_Start", omero.rtypes.rint(startZ));
+			map.put("Z_End", omero.rtypes.rint(endZ));
+			map.put("T_Start", omero.rtypes.rint(startT));
+			map.put("T_End", omero.rtypes.rint(endT));
+			map.put("Channels", omero.rtypes.rlist(set));
+			map.put("FPS", omero.rtypes.rint(param.getFps()));
+			map.put("Show_Plane_Info", 
 					omero.rtypes.rbool(param.isLabelVisible()));
-			map.put("showTime", 
+			map.put("Show_Time", 
 					omero.rtypes.rbool(param.isLabelVisible()));
-			map.put("splitView", omero.rtypes.rbool(false));
-			map.put("scalebar", omero.rtypes.rlong(param.getScaleBar()));
-			map.put("format", omero.rtypes.rstring(param.getFormatAsString()));
-			map.put("overlayColour", omero.rtypes.rlong(param.getColor()));
+			map.put("Split_View", omero.rtypes.rbool(false));
+			map.put("Scalebar", omero.rtypes.rint(param.getScaleBar()));
+			map.put("Format", omero.rtypes.rstring(param.getFormatAsString()));
+			map.put("Overlay_Colour", omero.rtypes.rint(param.getColor()));
 			return runScript(id, map);
 		} catch (Exception e) {
 			handleException(e, "Cannot create a movie for image: "+imageID);
@@ -5557,9 +5557,11 @@ class OMEROGateway
 				if (d instanceof DatasetData ||
 						d instanceof ProjectData) parentID = d.getId();
 				if (ImageData.class.equals(type)) {
-					map.put("imageIds", omero.rtypes.rlist(ids));	
+					map.put("Data_Type", omero.rtypes.rstring("Image"));
+					map.put("IDs", omero.rtypes.rlist(ids));	
 				} else if (DatasetData.class.equals(type)) {
-					map.put("datasetIds", omero.rtypes.rlist(ids));	
+					map.put("Data_Type", omero.rtypes.rstring("Dataset"));
+					map.put("IDs", omero.rtypes.rlist(ids));
 				}
 				List<Long> tags = param.getTags();
 				if (tags != null && tags.size() > 0) {
@@ -5567,19 +5569,19 @@ class OMEROGateway
 					i = tags.iterator();
 					while (i.hasNext()) 
 						ids.add(omero.rtypes.rlong(i.next()));
-					map.put("tagIds", omero.rtypes.rlist(ids));
+					map.put("Tag_IDs", omero.rtypes.rlist(ids));
 				}
 					
 				if (parentID > 0)
-					map.put("parentId", omero.rtypes.rlong(parentID));
-				map.put("showUntaggedImages", 
+					map.put("Parent_ID", omero.rtypes.rlong(parentID));
+				map.put("Show_Untagged_Images", 
 						omero.rtypes.rbool(param.isIncludeUntagged()));
 				
-				map.put("thumbSize", omero.rtypes.rlong(param.getWidth()));
-				map.put("maxColumns", omero.rtypes.rlong(param.getHeight()));
-				map.put("format", 
+				map.put("Thumbnail_Size", omero.rtypes.rint(param.getWidth()));
+				map.put("Max_Columns", omero.rtypes.rint(param.getHeight()));
+				map.put("Format", 
 						omero.rtypes.rstring(param.getFormatAsString()));
-				map.put("figureName", 
+				map.put("Figure_Name", 
 						omero.rtypes.rstring(param.getName()));
 				return runScript(id, map);	
 			} 
@@ -5616,53 +5618,47 @@ class OMEROGateway
 				while (k.hasNext()) {
 					sa.add(omero.rtypes.rint(k.next()));
 				}
-				map.put("splitIndexes", omero.rtypes.rlist(sa));
+				map.put("Split_Indexes", omero.rtypes.rlist(sa));
 			}
-			map.put("mergedNames", omero.rtypes.rbool(
+			map.put("Merged_Names", omero.rtypes.rbool(
 					param.getMergedLabel()));
-			map.put("imageIds", omero.rtypes.rlist(ids));
-			map.put("zStart", omero.rtypes.rlong(param.getStartZ()));
-			map.put("zEnd", omero.rtypes.rlong(param.getEndZ()));
+			map.put("Image_IDs", omero.rtypes.rlist(ids));
+			map.put("Z_Start", omero.rtypes.rint(param.getStartZ()));
+			map.put("Z_End", omero.rtypes.rint(param.getEndZ()));
 			if (split.size() > 0) 
-				map.put("channelNames", omero.rtypes.rmap(split));
+				map.put("Channel_Names", omero.rtypes.rmap(split));
 			if (merge.size() > 0)
-				map.put("mergedColours", omero.rtypes.rmap(merge));
+				map.put("Merged_Colours", omero.rtypes.rmap(merge));
 			if (scriptIndex == FigureParam.MOVIE) {
 				List<Integer> times = param.getTimepoints();
 				List<RType> ts = new ArrayList<RType>(objectIDs.size());
 				Iterator<Integer> k = times.iterator();
 				while (k.hasNext()) 
 					ts.add(omero.rtypes.rint(k.next()));
-				map.put("tIndexes", omero.rtypes.rlist(ts));
-				map.put("timeUnits", 
+				map.put("T_Indexes", omero.rtypes.rlist(ts));
+				map.put("Time_Units", 
 						omero.rtypes.rstring(param.getTimAsString()));
 			} else 
-				map.put("splitPanelsGrey", 
+				map.put("Split_Panels_Grey", 
 					omero.rtypes.rbool(param.isSplitGrey()));
 			if (param.getScaleBar() > 0)
-				map.put("scalebar", omero.rtypes.rlong(param.getScaleBar()));
-			map.put("overlayColour", omero.rtypes.rlong(
-					param.getColor()));
-			map.put("width", omero.rtypes.rlong(param.getWidth()));
-			map.put("height", omero.rtypes.rlong(param.getHeight()));
-			map.put("stepping", omero.rtypes.rlong(param.getStepping()));
-			map.put("format", omero.rtypes.rstring(param.getFormatAsString()));
-			map.put("algorithm", 
+				map.put("Scalebar", omero.rtypes.rint(param.getScaleBar()));
+			map.put("Overlay_Colour", omero.rtypes.rint(param.getColor()));
+			map.put("Width", omero.rtypes.rint(param.getWidth()));
+			map.put("Height", omero.rtypes.rint(param.getHeight()));
+			map.put("Stepping", omero.rtypes.rint(param.getStepping()));
+			map.put("Format", omero.rtypes.rstring(param.getFormatAsString()));
+			map.put("Algorithm", 
 					omero.rtypes.rstring(param.getProjectionTypeAsString()));
-			map.put("figureName", 
+			map.put("Figure_Name", 
 					omero.rtypes.rstring(param.getName()));
-			map.put("imageLabels", 
+			map.put("Image_Labels", 
 					omero.rtypes.rstring(param.getLabelAsString()));
 			if (scriptIndex == FigureParam.SPLIT_VIEW_ROI) {
-				map.put("roiZoom", omero.rtypes.rlong((long) 
+				map.put("ROI_Zoom", omero.rtypes.rint((int) 
 								param.getMagnificationFactor()));
 			}
 			return runScript(id, map);
-			//RLong r = (RLong) result.get("fileAnnotation");
-			//RLong type = null;
-			//if (r == null) return -1;
-			//return r.getValue();
-
 		} catch (Exception e) {
 			handleException(e, "Cannot create a figure " +
 					"for the specified images.");

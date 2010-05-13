@@ -158,7 +158,6 @@ public class FileLoader
     {
         String info = "The data retrieval has been cancelled.";
         registry.getLogger().info(this, info);
-        //viewer.setLoadingStatus(-1, fileID, file.getAbsolutePath());
     }
     
     /**

@@ -840,9 +840,8 @@ class OmeroImageServiceImpl
 				LookupNames.CURRENT_USER_DETAILS);
 		if (parameters instanceof FigureParam) {
 			FigureParam p = (FigureParam) parameters;
-			return gateway.createFigure(ids, type, p, exp.getId());
-			//if (id < 0) return null;
-			//return context.getMetadataService().loadAnnotation(id);
+			ScriptCallback callBack = gateway.createFigure(ids, type, p, exp.getId());
+			return callBack;
 		}
 		return null;
 	}

@@ -53,19 +53,19 @@ public class FigureParam
 
 	/** Identifies the <code>ROI Figure</code> script. */
 	public static final String ROI_SCRIPT = 
-		ScriptObject.FIGURE_PATH+"roiFigure.py";
+		ScriptObject.FIGURE_PATH+"ROI_Figure.py";
 	
 	/** Identifies the <code>Thumbnail Figure</code> script. */
 	public static final String THUMBNAIL_SCRIPT = 
-		ScriptObject.FIGURE_PATH+"thumbnailFigure.py";
+		ScriptObject.FIGURE_PATH+"Thumbnail_Figure.py";
 	
 	/** Identifies the <code>Movie Figure</code> script. */
 	public static final String MOVIE_SCRIPT = 
-		ScriptObject.FIGURE_PATH+"movieFigure.py";
+		ScriptObject.FIGURE_PATH+"Movie_Figure.py";
 	
 	/** Identifies the <code>Split View Figure</code> script. */
 	public static final String SPLIT_VIEW_SCRIPT = 
-		ScriptObject.FIGURE_PATH+"splitViewFigure.py";
+		ScriptObject.FIGURE_PATH+"Split_View_Figure.py";
 	
 	/** The default text for the merged image. */
 	public static final String	MERGED_TEXT = "Merged";
@@ -623,8 +623,8 @@ public class FigureParam
 	{
 		switch (label) {
 			default:
-			case IMAGE_NAME: return "IMAGENAME";
-			case DATASET_NAME: return "DATASETS";
+			case IMAGE_NAME: return "Image_Name";
+			case DATASET_NAME: return "Tags";
 			case TAG_NAME: return "TAGS";
 		}
 	}
@@ -638,8 +638,8 @@ public class FigureParam
 	{
 		switch (format) {
 			default:
-			case JPEG: return "image/jpeg";
-			case PNG: return "image/png";
+			case JPEG: return "JPEG";//"image/jpeg";
+			case PNG: return "PNG";//"image/png";
 		}
 	}
 	
@@ -651,9 +651,9 @@ public class FigureParam
 	public String getProjectionTypeAsString()
 	{
 		if (projectionType == ProjectionParam.MAXIMUM_INTENSITY)
-			return "MAXIMUMINTENSITY";
+			return "Maximum_Intensity";
 		else if (projectionType == ProjectionParam.MEAN_INTENSITY)
-			return "MEANINTENSITY";
+			return "Mean_Intensity";
 		return "";
 	}
 	

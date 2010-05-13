@@ -125,8 +125,6 @@ abstract class UserNotifierLoader
         msg.print(s);
         msg.print(exc);
         registry.getLogger().error(this, msg);
-        //registry.getUserNotifier().notifyError("Data Loading Failure", 
-        //                                      s, exc);
         onException();
     }
     

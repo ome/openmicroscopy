@@ -24,13 +24,10 @@ package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
 import java.util.List;
-import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.RString;
-
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.ScriptCallback;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
@@ -129,14 +126,22 @@ public class FigureCreator
     	handle.cancel();
     }
     
+    /** 
+     * Sets the call-back. 
+     * @see UserNotifierLoader#update(DSCallFeedbackEvent)
+     */
     public void update(DSCallFeedbackEvent fe) 
     {
         //if (viewer.getState() == DataBrowser.DISCARDED) return;  //Async cancel.
         Object o = fe.getPartialResult();
         if (o != null) {
-        	callBack = (ScriptCallback) o;
-        	callBack.setAdapter(this);
-        	activity.onCallBackSet();
+        	if (o instanceof Boolean) {
+        		onException(); 
+        	} else {
+        		callBack = (ScriptCallback) o;
+            	callBack.setAdapter(this);
+            	activity.onCallBackSet();
+        	}
         }
     }
  

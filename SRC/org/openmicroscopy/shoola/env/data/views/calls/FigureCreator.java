@@ -56,7 +56,7 @@ public class FigureCreator
     private BatchCall   loadCall;
 
     /** The server call-handle to the computation. */
-    private ScriptCallback	scriptCallBack;
+    private Object	scriptCallBack;
     
     /**
      * Creates a {@link BatchCall} to create a movie.
@@ -74,6 +74,8 @@ public class FigureCreator
             {
                 OmeroImageService os = context.getImageService();
                 scriptCallBack = os.createFigure(ids, type, param);
+                if (scriptCallBack == null) 
+                	scriptCallBack = Boolean.valueOf(false);
             }
         };
     }

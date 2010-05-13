@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.env.ui;
 //Java imports
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 //Third-party libraries
 
@@ -140,9 +139,13 @@ public class MovieCreator
     {
         Object o = fe.getPartialResult();
         if (o != null) {
-        	callBack = (ScriptCallback) o;
-        	callBack.setAdapter(this);
-        	activity.onCallBackSet();
+        	if (o instanceof Boolean) {
+        		onException();
+        	} else {
+        		callBack = (ScriptCallback) o;
+            	callBack.setAdapter(this);
+            	activity.onCallBackSet();
+        	}
         }
     }
     
@@ -152,7 +155,7 @@ public class MovieCreator
      */
     public void handleResult(Object result)
     { 
-    	if (result == null) activity.endActivity(result); 
+    	if (result == null) onException();
     	else if (!(result instanceof Boolean)) {
     		activity.endActivity(result);
     	}
