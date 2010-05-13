@@ -85,8 +85,7 @@ public class FigureActivity
 	public FigureActivity(UserNotifier viewer, Registry registry,
 			FigureActivityParam	parameters)
 	{
-		super(viewer, registry, DESCRIPTION_CREATION, parameters.getIcon(), 
-				ActivityComponent.ADVANCED);
+		super(viewer, registry, DESCRIPTION_CREATION, parameters.getIcon());
 		if (parameters == null)
 			throw new IllegalArgumentException("Parameters not valid.");
 		this.parameters = parameters;
@@ -122,7 +121,7 @@ public class FigureActivity
 			} else if (data instanceof ProjectData) {
 				name = "project: "+((ProjectData) data).getName();
 			}
-			if (name != null)
+			if (name != null && messageLabel.getText().trim().length() == 0)
 				messageLabel.setText("Attached to "+name);
 		}
 	}
@@ -134,43 +133,6 @@ public class FigureActivity
 	protected void notifyActivityCancelled()
 	{
 		type.setText(DESCRIPTION_CANCEL);
-	}
-	
-	/** Notifies to downnload the file. */
-	protected void notifyDownload()
-	{
-		//Check name space.
-		if (!(result instanceof FileAnnotationData)) {
-			downloadButton.setEnabled(false);
-			return;
-		}
-		final FileAnnotationData data = (FileAnnotationData) result;
-		JFrame f = registry.getTaskBar().getFrame();
-		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
-				"Download", "Select where to download the file.", null, 
-				true);
-		IconManager icons = IconManager.getInstance(registry);
-		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
-		chooser.setSelectedFileFull(data.getFileName());
-		chooser.setApproveButtonText("Download");
-		chooser.addPropertyChangeListener(new PropertyChangeListener() {
-		
-			public void propertyChange(PropertyChangeEvent evt) {
-				String name = evt.getPropertyName();
-				if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-					File folder = (File) evt.getNewValue();
-					if (data == null) return;
-					OriginalFile f = (OriginalFile) data.getContent();
-					IconManager icons = IconManager.getInstance(registry);
-					DownloadActivityParam activity = 
-						new DownloadActivityParam(f,
-							folder, icons.getIcon(IconManager.DOWNLOAD_22));
-					activity.setLegend(data.getDescription());
-					viewer.notifyActivity(activity);
-				}
-			}
-		});
-		chooser.centerDialog();
 	}
 	
 }

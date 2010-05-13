@@ -113,22 +113,6 @@ class OmeroMetadataServiceImpl
 	private OMEROGateway            gateway;
 	
 	/**
-	 * Creates or recycles the folder wrapping the passed file.
-	 * 
-	 * @param file The file to wrap.
-	 * @return See above.
-	 */
-	private DataObject createFolder(File file)
-	{
-		/*
-		if (folder == null) folder = new FolderData();
-		folder.setFile(file);
-		return folder;
-		*/
-		return null;
-	}
-	
-	/**
 	 * Removes the specified annotation from the object.
 	 * Returns the updated object.
 	 * @param annotation	The annotation to create. 
@@ -665,8 +649,6 @@ class OmeroMetadataServiceImpl
 		if (object instanceof File) {
 			File f = (File) object;
 			DataObject fd = gateway.loadFolder(f.getAbsolutePath());
-			if (fd == null)
-				fd = createFolder(f);
 			//load the data object if any.
 			results = new StructuredDataResults(fd);
 			return results;

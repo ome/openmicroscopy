@@ -137,8 +137,7 @@ public class FileLoader
 				default:
 					handle = mhView.loadFile(file, fileID, size, this);
 			}
-		}
-		else handleResult(file);
+		} else handleResult(file);
 	}
     
 	/** 

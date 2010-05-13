@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -36,9 +35,7 @@ import java.util.Map.Entry;
 //Application-internal dependencies
 import omero.model.FileAnnotation;
 import omero.model.OriginalFile;
-
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
-import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -260,7 +257,7 @@ public class FilesLoader
      * 
      * @return A Map containing the file and file annotation.
      */
-    protected Object getPartialResult() { return currentFile; }
+    //protected Object getPartialResult() { return currentFile; }
     
     /**
      * Creates a new instance.

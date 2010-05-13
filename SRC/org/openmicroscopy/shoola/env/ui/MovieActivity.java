@@ -82,8 +82,7 @@ public class MovieActivity
 	public MovieActivity(UserNotifier viewer,  Registry registry,
 			MovieActivityParam	parameters)
 	{
-		super(viewer, registry, DESCRIPTION_CREATION, parameters.getIcon(), 
-				ActivityComponent.ADVANCED);
+		super(viewer, registry, DESCRIPTION_CREATION, parameters.getIcon());
 		if (parameters == null)
 			throw new IllegalArgumentException("Parameters not valid.");
 		this.parameters = parameters;
@@ -119,41 +118,6 @@ public class MovieActivity
 	protected void notifyActivityCancelled()
 	{
 		type.setText(DESCRIPTION_CANCEL);
-	}
-	
-	/** Notifies to download the file. */
-	protected void notifyDownload()
-	{
-		if (!(result instanceof FileAnnotationData)) {
-			downloadButton.setEnabled(false);
-			return;
-		}
-		final FileAnnotationData data = (FileAnnotationData) result;
-		JFrame f = registry.getTaskBar().getFrame();
-		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
-				"Download", "Select where to download the file.", null, 
-				true);
-		IconManager icons = IconManager.getInstance(registry);
-		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
-		chooser.setSelectedFileFull(data.getFileName());
-		chooser.setApproveButtonText("Download");
-		chooser.addPropertyChangeListener(new PropertyChangeListener() {
-		
-			public void propertyChange(PropertyChangeEvent evt) {
-				String name = evt.getPropertyName();
-				if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-					File folder = (File) evt.getNewValue();
-					if (data == null) return;
-					OriginalFile f = (OriginalFile) data.getContent();
-					IconManager icons = IconManager.getInstance(registry);
-					DownloadActivityParam activity = 
-						new DownloadActivityParam(f,
-							folder, icons.getIcon(IconManager.DOWNLOAD_22));
-					viewer.notifyActivity(activity);
-				}
-			}
-		});
-		chooser.centerDialog();
 	}
 	
 }

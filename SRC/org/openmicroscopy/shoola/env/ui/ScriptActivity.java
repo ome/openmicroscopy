@@ -25,23 +25,13 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.File;
-
 import javax.swing.Icon;
-import javax.swing.JFrame;
-
 
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.model.OriginalFile;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
-import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
-import pojos.FileAnnotationData;
 
 /** 
  * Activity to run the specified scripts.
@@ -71,16 +61,14 @@ public class ScriptActivity
 								"Running ";
 	
 	/** The description of the activity when it is finished. */
-	private static final String		DESCRIPTION_RUN_CREATED = 
-		" Run finished";
+	private static final String		DESCRIPTION_RUN_CREATED = " finished";
 	
 	/** The description of the activity. */
 	private static final String		DESCRIPTION_UPLOAD_CREATION = 
 									"Uploading ";
 	
 	/** The description of the activity when finished. */
-	private static final String		DESCRIPTION_UPLOAD_CREATED = 
-		" uploaded";
+	private static final String		DESCRIPTION_UPLOAD_CREATED = " uploaded";
 	
 	/** The description of the activity when cancelled. */
 	private static final String		DESCRIPTION_UPLOAD_CANCEL = 
@@ -109,12 +97,10 @@ public class ScriptActivity
 	{
 		super(viewer, registry, 
 				DESCRIPTION_RUN_CREATION+script.getDisplayedName(), 
-				script.getIcon(), 
-				ActivityComponent.ADVANCED);
+				script.getIcon());
 		switch (index) {
 			case UPLOAD:
 				type.setText(DESCRIPTION_UPLOAD_CREATION+script.getName());
-				setIndex(ActivityComponent.GENERAL);
 				break;
 		}
 		if (script == null)
@@ -147,16 +133,13 @@ public class ScriptActivity
 	 */
 	protected void notifyActivityEnd()
 	{
-		String text = type.getText();
-		if (text.trim().length() == 0) {
-			switch (index) {
-				case UPLOAD:
-					type.setText(script.getName()+DESCRIPTION_UPLOAD_CREATED);
-					break;
-				case RUN:
-					type.setText(script.getDisplayedName()+
-							DESCRIPTION_RUN_CREATED);
-			}
+		switch (index) {
+			case UPLOAD:
+				type.setText(script.getName()+DESCRIPTION_UPLOAD_CREATED);
+				break;
+			case RUN:
+				type.setText(script.getDisplayedName()+
+						DESCRIPTION_RUN_CREATED);
 		}
 	}
 	
@@ -173,45 +156,6 @@ public class ScriptActivity
 			case RUN:
 				type.setText(DESCRIPTION_RUN_CANCEL);
 		}
-	}
-	
-	/** Notifies to download the file. */
-	protected void notifyDownload()
-	{
-		//Check name space.
-		if (!(result instanceof FileAnnotationData)) {
-			downloadButton.setEnabled(false);
-			return;
-		}
-		final FileAnnotationData data = (FileAnnotationData) result;
-		JFrame f = registry.getTaskBar().getFrame();
-		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
-				"Download", "Select where to download the results.", null, 
-				true);
-		IconManager icons = IconManager.getInstance(registry);
-		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
-		chooser.setSelectedFileFull(data.getFileName());
-		chooser.setApproveButtonText("Download");
-		chooser.addPropertyChangeListener(new PropertyChangeListener() {
-		
-			public void propertyChange(PropertyChangeEvent evt) {
-				String name = evt.getPropertyName();
-				if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-					File folder = (File) evt.getNewValue();
-					if (data == null) return;
-					OriginalFile f = (OriginalFile) data.getContent();
-					IconManager icons = IconManager.getInstance(registry);
-					DownloadActivityParam activity = 
-						new DownloadActivityParam(f,
-							folder, icons.getIcon(IconManager.DOWNLOAD_22));
-					activity.setLegend(data.getDescription());
-					activity.setLegendExtension(
-							DownloadActivity.LEGEND_TEXT_CSV);
-					viewer.notifyActivity(activity);
-				}
-			}
-		});
-		chooser.centerDialog();
 	}
 	
 }

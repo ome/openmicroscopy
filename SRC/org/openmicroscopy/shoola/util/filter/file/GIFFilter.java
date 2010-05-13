@@ -48,10 +48,12 @@ public class GIFFilter
 	extends CustomizedFileFilter
 {
 	
+	/** The MIMEType associated to this type of file. */
+	public static final String   MIMETYPE =  "image/gif";
+	
 	/** Possible file extension. */
 	public static final String 	GIF = "gif";
-    
-		
+
 	/** The possible extensions. */
 	public static final String[] 	extensions;
 	
@@ -82,7 +84,7 @@ public class GIFFilter
 	 * 	Overridden to return the MIME type.
 	 * 	@see CustomizedFileFilter#getMIMEType()
 	 */
-	public String getMIMEType() { return "image/gif"; }
+	public String getMIMEType() { return MIMETYPE; }
 	
     /**
      * Overridden to return the description of the filter.

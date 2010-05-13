@@ -50,6 +50,9 @@ public class TIFFFilter
 	extends CustomizedFileFilter
 {
 	
+	/** The MIMEType associated to this type of file. */
+	public static final String   MIMETYPE =  "image/tiff";
+	
 	/** Possible file extension. */
 	public static final String 	TIFF = "tiff";
     
@@ -93,7 +96,7 @@ public class TIFFFilter
 	 * 	Overridden to return the MIME type.
 	 * 	@see CustomizedFileFilter#getMIMEType()
 	 */
-	public String getMIMEType() { return "image/tiff"; }
+	public String getMIMEType() { return MIMETYPE; }
 	
 	/**
 	 * Overridden to return the extension of the filter.

@@ -63,8 +63,10 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.util.filter.file.GIFFilter;
 import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
 import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
+import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import omero.model.OriginalFile;
@@ -91,12 +93,6 @@ public abstract class ActivityComponent
 	implements ActionListener
 {
 
-	/** Indicates to create a general component. */
-	static final int 	GENERAL = 0;
-	
-	/** Indicates to create an advanced component. */
-	static final int 	ADVANCED = 1;
-	
 	/** Bound property indicating to remove the entry from the display. */
 	public static final String 	REMOVE_ACTIVITY_PROPERTY = "removeActivity";
 	
@@ -350,7 +346,6 @@ public abstract class ActivityComponent
 		infoButton.setVisible(false);
 		resultButton.setVisible(false);
 		errorButton.setVisible(false);
-		//if (index == ADVANCED) downloadButton.setEnabled(true);
 		status.setBusy(false);
 		status.setVisible(false);
 		statusPane = iconLabel;
@@ -360,34 +355,44 @@ public abstract class ActivityComponent
 	}
 	
 	/**
-     * Creates a new instance.
-     * 
-     * @param viewer	The viewer this data loader is for.
-     *               	Mustn't be <code>null</code>.
-     * @param registry	Convenience reference for subclasses.
-     * @param text		The text of the activity.
-     * @param icon		The icon to display then done.
-     */
-	public ActivityComponent(UserNotifier viewer, Registry registry, String 
-			text, Icon icon, int index)
+	 * Converts the passed mapped.
+	 * 
+	 * @param m The map to handle.
+	 * @return See above.
+	 */
+	private Map<String, Object> convertResult(Map<String, Object> m)
 	{
-		if (viewer == null) throw new NullPointerException("No viewer.");
-    	if (registry == null) throw new NullPointerException("No registry.");
-    	this.viewer = viewer;
-    	this.registry = registry;
-    	this.index = index;
-		initComponents(text, icon);
-		buildGUI();
+		Map<String, Object> objects = new HashMap<String, Object>();
+		if (m == null) return objects;
+		messageLabel.setText("");
+		Object v = m.get(MESSAGE);
+		if (v != null) {
+			if (v instanceof String)
+				messageLabel.setText((String) v);
+		}
+		m.remove(MESSAGE);
+		if (m.containsKey(STD_ERR)) {
+			errorButton.setVisible(true);
+			errorMenu = new ActivityResultMenu(m.get(STD_ERR), this);
+			m.remove(STD_ERR);
+		}
+		if (m.containsKey(STD_OUT)) {
+			infoButton.setVisible(true);
+			infoMenu = new ActivityResultMenu(m.get(STD_OUT), this);
+			m.remove(STD_OUT);
+		}
+		return m;
+	}
+	
+	/** Displays the result. */
+	private void showResult()
+	{
+		JFrame f = registry.getTaskBar().getFrame();
+		ActivityResultDialog d = new ActivityResultDialog(f, this, result);
+		UIUtilities.centerAndShow(d);
 	}
 	
 	/**
-	 * Sets the index associated to this activity.
-	 * 
-	 * @param index The value to set.
-	 */
-	void setIndex(int index) { this.index = index; }
-	
-    /**
      * Creates a new instance.
      * 
      * @param viewer	The viewer this data loader is for.
@@ -399,9 +404,21 @@ public abstract class ActivityComponent
 	public ActivityComponent(UserNotifier viewer, Registry registry, String 
 			text, Icon icon)
 	{
-		this(viewer, registry, text, icon, GENERAL);
+		if (viewer == null) throw new NullPointerException("No viewer.");
+    	if (registry == null) throw new NullPointerException("No registry.");
+    	this.viewer = viewer;
+    	this.registry = registry;
+		initComponents(text, icon);
+		buildGUI();
 	}
-	
+
+	/**
+	 * Sets the index associated to this activity.
+	 * 
+	 * @param index The value to set.
+	 */
+	void setIndex(int index) { this.index = index; }
+
     /**
 	 * Returns the name to give to the file.
 	 * 
@@ -469,36 +486,6 @@ public abstract class ActivityComponent
 	}
 	
 	/**
-	 * Converts the passed mapped.
-	 * 
-	 * @param m The map to handle.
-	 * @return See above.
-	 */
-	private Map<String, Object> convertResult(Map<String, Object> m)
-	{
-		Map<String, Object> objects = new HashMap<String, Object>();
-		if (m == null) return objects;
-		type.setText("");
-		Object v = m.get(MESSAGE);
-		if (v != null) {
-			if (v instanceof String)
-				type.setText((String) v);
-		}
-		m.remove(MESSAGE);
-		if (m.containsKey(STD_ERR)) {
-			errorButton.setVisible(true);
-			errorMenu = new ActivityResultMenu(m.get(STD_ERR), this);
-			m.remove(STD_ERR);
-		}
-		if (m.containsKey(STD_OUT)) {
-			infoButton.setVisible(true);
-			infoMenu = new ActivityResultMenu(m.get(STD_OUT), this);
-			m.remove(STD_OUT);
-		}
-		return m;
-	}
-	
-	/**
 	 * Returns <code>true</code> if the object can be viewed, 
 	 * <code>false</code> otherwise.
 	 * 
@@ -525,7 +512,9 @@ public abstract class ActivityComponent
 		}
 		if (mimetype != null) {
 			return (JPEGFilter.MIMETYPE.equals(mimetype) || 
-					PNGFilter.MIMETYPE.equals(mimetype));
+					PNGFilter.MIMETYPE.equals(mimetype) ||
+					TIFFFilter.MIMETYPE.equals(mimetype) ||
+					GIFFilter.MIMETYPE.equals(mimetype));
 		}
 		return false;
 	}
@@ -585,55 +574,8 @@ public abstract class ActivityComponent
 		}
 	}
 	
-	/**
-	 * Returns <code>true</code> if the activity is still on-going,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean isOngoingActivity() { return status.isBusy(); }
 	
-	/**
-	 * Notifies that it was not possible to complete the activity.
-	 * 
-	 * @param text The text to set.
-	 */
-	public void notifyError(String text)
-	{
-		reset();
-		if (text != null) type.setText(text);
-		if (index == ADVANCED) downloadButton.setEnabled(false);
-	}
-	
-	/**
-	 * Returns the type of activity.
-	 * 
-	 * @return See above.
-	 */
-	public JComponent getActivityType()
-	{
-		return new JLabel(type.getText());
-	}
-	
-	/** Subclasses should override the method. */
-	protected abstract void notifyActivityCancelled();
-	
-	/** Subclasses should override the method. */
-	protected abstract void notifyActivityEnd();
-	
-	/** Creates a loader. */
-	protected abstract UserNotifierLoader createLoader();
-	
-	/** Subclasses should override the method. */
-	protected void notifyDownload() {}
-	
-	/** Displays the result. */
-	private void showResult()
-	{
-		JFrame f = registry.getTaskBar().getFrame();
-		ActivityResultDialog d = new ActivityResultDialog(f, this, result);
-		UIUtilities.centerAndShow(d);
-	}
+
 	
 	/**
 	 * Opens the passed object. Downloads it first.
@@ -646,24 +588,40 @@ public abstract class ActivityComponent
 				object instanceof OriginalFile)) return;
 		Environment env = (Environment) registry.lookup(LookupNames.ENV);
 		int index = -1;
-		long id;
+		long id = -1;
 		String name = "";
+		OriginalFile of = null;
 		if (object instanceof FileAnnotationData) {
 			FileAnnotationData data = (FileAnnotationData) object;
-			id = data.getId();
-			index = DownloadActivityParam.FILE_ANNOTATION;
-			name = "Annotation_"+id+".txt";
+			if (data.isLoaded()) {
+				of = (OriginalFile) data.getContent();
+				name = data.getFileName();
+			} else {
+				id = data.getId();
+				index = DownloadActivityParam.FILE_ANNOTATION;
+				name = "Annotation_"+id;
+			}
 		} else {
-			OriginalFile of = (OriginalFile) object;
+			of = (OriginalFile) object;
 			id = of.getId().getValue();
-			index = DownloadActivityParam.ORIGINAL_FILE;
-			name = "File_"+id+".txt";
+			if (!of.isLoaded()) {
+				index = DownloadActivityParam.ORIGINAL_FILE;
+				name = "File_"+id;
+			} else {
+				if (of.getName() != null)
+					name = of.getName().getValue();
+				else name = "File_"+id;
+			}
 		}
-		String path = env.getOmeroFilesHome()+File.separator+name;
+		String path = env.getOmeroFilesHome();
+		if (index != -1) path += File.separator+name;
 		File f = new File(path);
-		f.deleteOnExit();
-		DownloadActivityParam activity = new DownloadActivityParam(id, index,
-				f, null);
+		//f.deleteOnExit();
+		DownloadActivityParam activity;
+		if (index != -1) 
+			activity = new DownloadActivityParam(id, index, f, null);
+		else 
+			activity = new DownloadActivityParam(of, f, null);
 		activity.setApplicationData(new ApplicationData(""));
 		viewer.notifyActivity(activity);
 	}
@@ -767,6 +725,44 @@ public abstract class ActivityComponent
 	}
 	
 	/**
+	 * Returns <code>true</code> if the activity is still on-going,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isOngoingActivity() { return status.isBusy(); }
+	
+	/**
+	 * Notifies that it was not possible to complete the activity.
+	 * 
+	 * @param text The text to set.
+	 */
+	public void notifyError(String text)
+	{
+		reset();
+		if (text != null) type.setText(text);
+	}
+	
+	/**
+	 * Returns the type of activity.
+	 * 
+	 * @return See above.
+	 */
+	public JComponent getActivityType()
+	{
+		return new JLabel(type.getText());
+	}
+	
+	/** Subclasses should override the method. */
+	protected abstract void notifyActivityCancelled();
+	
+	/** Subclasses should override the method. */
+	protected abstract void notifyActivityEnd();
+	
+	/** Creates a loader. */
+	protected abstract UserNotifierLoader createLoader();
+	
+	/**
 	 * Removes the activity from the display
 	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */
@@ -788,7 +784,6 @@ public abstract class ActivityComponent
 				break;
 			case RESULT:
 				showResult();
-				break;
 		}
 	}
 	
@@ -802,6 +797,10 @@ public abstract class ActivityComponent
 		super.setBackground(color);
 		if (removeButton != null) removeButton.setBackground(color);
 		if (cancelButton != null) cancelButton.setBackground(color);
+		if (downloadButton != null) downloadButton.setBackground(color);
+		if (viewButton != null) viewButton.setBackground(color);
+		if (infoButton != null) infoButton.setBackground(color);
+		if (errorButton != null) errorButton.setBackground(color);
 	}
 	
 }
