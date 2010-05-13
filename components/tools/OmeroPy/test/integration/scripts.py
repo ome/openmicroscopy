@@ -203,7 +203,7 @@ class TestScripts(lib.ITest):
             pass
             
         getId = scriptService.getScriptID(invalidPath)  
-        self.assertEqual(None, getId, "getScriptID() didn't return 'None' for invalid script")
+        self.assertEqual(-1, getId, "getScriptID() didn't return '-1' for invalid script")
         scripts = scriptService.getScripts()   
         for s in scripts:
             self.assertEquals(s.mimetype.val, "text/x-python")
@@ -230,7 +230,7 @@ class TestScripts(lib.ITest):
             pass
         
         getId = scriptService.getScriptID(validPath) 
-        self.assertEqual(None, getId, "getScriptID() didn't return 'None' for invalid script")
+        self.assertEqual(-1, getId, "getScriptID() didn't return 'None' for invalid script")
         scripts = scriptService.getScripts()   
         for s in scripts:
             self.assertEquals(s.mimetype.val, "text/x-python")

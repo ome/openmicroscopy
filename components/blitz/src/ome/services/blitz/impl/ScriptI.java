@@ -172,7 +172,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
             throws ServerError {
         safeRunnableCall(__current, __cb, false, new Callable<Long>(){
             public Long call() {
-                Long id = scripts.findInDb(scriptPath);
+                Long id = scripts.findInDb(scriptPath, true);
                 if (id == null) {
                     return -1L;
                 } else {
@@ -209,7 +209,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         safeRunnableCall(__current, __cb, false, new Callable<Long>() {
             public Long call() throws Exception {
                 try {
-                    if (scripts.findInDb(path) != null) {
+                    if (scripts.findInDb(path, false) != null) {
                         throw new ApiUsageException(null, null,
                                 "Path already exists: " + path + "\n" +
                                 "Use editScript to modify existing official scripts.");

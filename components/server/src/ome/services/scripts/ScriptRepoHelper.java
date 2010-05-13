@@ -182,7 +182,7 @@ public class ScriptRepoHelper {
 
     public int countInDb(SimpleJdbcOperations jdbc) {
         return jdbc.queryForInt("select count(id) from originalfile "
-                + "where repo = ?", uuid);
+                + "where repo = ? and mimetype = 'text/x-python", uuid);
     }
 
     @SuppressWarnings("unchecked")
@@ -200,7 +200,7 @@ public class ScriptRepoHelper {
     public List<Long> idsInDb(SimpleJdbcOperations jdbc) {
         try {
             return (List<Long>) jdbc.query("select id from originalfile "
-                    + "where repo = ?", new RowMapper<Long>() {
+                    + "where repo = ? and mimetype = 'text/x-python'", new RowMapper<Long>() {
                 public Long mapRow(ResultSet arg0, int arg1)
                         throws SQLException {
                     return arg0.getLong(1);
@@ -224,24 +224,25 @@ public class ScriptRepoHelper {
     public boolean isInRepo(SimpleJdbcOperations jdbc, final long id) {
         try {
             int count = jdbc.queryForInt("select count(id) from originalfile "
-                    + "where repo = ? and id = ?", uuid, id);
+                    + "where repo = ? and id = ? and mimetype = 'text/x-python'",
+                    uuid, id);
             return count > 0;
         } catch (EmptyResultDataAccessException e) {
             return false;
         }
     }
 
-    public Long findInDb(final String path) {
+    public Long findInDb(final String path, final boolean scriptsOnly) {
         RepoFile repoFile = new RepoFile(dir, path);
-        return findInDb(repoFile);
+        return findInDb(repoFile, scriptsOnly);
     }
 
-    public Long findInDb(final RepoFile file) {
+    public Long findInDb(final RepoFile file, final boolean scriptsOnly) {
         return (Long) ex.executeStateless(new Executor.SimpleStatelessWork(
-                this, "findInDb", file) {
+                this, "findInDb", file, scriptsOnly) {
             @Transactional(readOnly = true)
             public Object doWork(SimpleJdbcOperations jdbc) {
-                return findInDb(jdbc, file);
+                return findInDb(jdbc, file, scriptsOnly);
             }
         });
     }
@@ -249,10 +250,10 @@ public class ScriptRepoHelper {
     /**
      * Looks to see if a path is contained in the repository.
      */
-    public Long findInDb(SimpleJdbcOperations jdbc, RepoFile repoFile) {
+    public Long findInDb(SimpleJdbcOperations jdbc, RepoFile repoFile, boolean scriptsOnly) {
         try {
             return jdbc.queryForLong("select id from originalfile "
-                    + "where repo = ? and path = ? and name = ?",
+                    + "where repo = ? and path = ? and name = ? " + scriptsOnly(scriptsOnly),
                     uuid, repoFile.dirname(), repoFile.basename());
         } catch (EmptyResultDataAccessException e) {
             return null;
@@ -283,17 +284,16 @@ public class ScriptRepoHelper {
         while (it.hasNext()) {
             f = it.next();
             file = new RepoFile(dir, f);
-            Long id = findInDb(file);
+            Long id = findInDb(file, false); // non-scripts count
             String sha1 = null;
             OriginalFile ofile = null;
             if (id == null) {
                 ofile = addOrReplace(file, null);
             } else {
 
-                ofile = load(id, false); // false since duplicates check above
-
+                ofile = load(id, true); // checks for type & repo
                 if (ofile == null) {
-                    throw new OptimisticLockException("File disappeared while loading: " + id);
+                    continue; // wrong type or similar
                 }
 
                 if (modificationCheck) {
@@ -383,7 +383,8 @@ public class ScriptRepoHelper {
     public OriginalFile load(final long id, Session s, boolean check) {
         if (check) {
             String repo = (String) s.createSQLQuery(
-                    "select repo from OriginalFile where id = ?")
+                    "select repo from OriginalFile where id = ? " +
+                    "and mimetype = 'text/x-python'")
                     .setParameter(0, id)
                     .uniqueResult();
             if (!uuid.equals(repo)) {
@@ -420,9 +421,14 @@ public class ScriptRepoHelper {
         return true;
     }
 
-    // Filetype classes
+    // Helpers
     // =========================================================================
 
-
+    private String scriptsOnly(boolean scriptsOnly) {
+        if (scriptsOnly) {
+            return "and mimetype = 'text/x-python'";
+        }
+        return "";
+    }
 
 }
