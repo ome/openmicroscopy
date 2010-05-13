@@ -2079,6 +2079,7 @@ class FileAnnotationWrapper (AnnotationWrapper):
                         data = store.read(pos+1, buf)
                 outfile.write(data)
             outfile.close()
+            store.close()
             return temp
         return None
     
@@ -2515,9 +2516,7 @@ class _LogicalChannelWrapper (BlitzObjectWrapper):
               'detectorSettings|DetectorSettingsWrapper',
               'lightSourceSettings|LightSettingsWrapper',
               'filterSet|FilterSetWrapper',
-              'lightPath|LightPathWrapper',
-              #'secondaryEmissionFilter|FilterWrapper',
-              #'secondaryExcitationFilter',
+              'lightPath|LightPathWrapper',              
               'samplesPerPixel',
               '#photometricInterpretation',
               'mode',
@@ -2531,8 +2530,9 @@ class _LightPathWrapper (BlitzObjectWrapper):
     """
     base Light Source class wrapper, extends BlitzObjectWrapper.
     """
-    _attrs = ('secondaryEmissionFilter|FilterWrapper'
-                )
+    _attrs = ('secondaryEmissionFilter|FilterWrapper',
+              'secondaryExcitationFilter',
+              'dichroic|DichroicWrapper')
 
     def __bstrap__ (self):
         self.OMERO_CLASS = 'LightPath'
@@ -2834,6 +2834,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         try:
             rv = tb.setPixelsId(pixels_id)
         except omero.InternalException:
+            logger.error(traceback.print_exc())
             rv = False
         if not rv: #pragma: no cover
             tb.resetDefaults()
@@ -2868,6 +2869,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         return None
     
     def getThumbnail (self, size=(64,64), z=None, t=None):
+        tb = None
         try:
             tb = self._prepareTB()
             if tb is None:
@@ -2892,9 +2894,12 @@ class _ImageWrapper (BlitzObjectWrapper):
             if pos is not None:
                 args = list(pos) + args
             rv = thumb(*args)
+            tb.close()
             return rv
         except Exception: #pragma: no cover
             logger.error(traceback.print_exc())
+            if tb is not None:
+                tb.close()
             return None
 
     @assert_pixels
