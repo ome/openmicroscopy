@@ -306,7 +306,6 @@ class ComplexParamPane
 				Map<Object, Object> m = new HashMap<Object, Object>();
 				while (i.hasNext()) {
 					row = i.next();
-					row = i.next();
 					key = row.getKeyResult();
 					value = row.getValueResult();
 					if (value != null && key != null)
