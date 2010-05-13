@@ -299,7 +299,7 @@ def uploadAndAttachFile(queryService, updateService, rawFileStore, parent, outpu
     @param output:          Full Name (and path) of the file to upload. String
     @param mimetype:        The original file mimetype. E.g. "PNG". String
     @param description:     Optional description for the file annotation. String
-    @return:            The id of the originalFileLink child. (ID object, not value)
+    @return:                The originalFileLink child. (FileAnnotationI)
     """
     
     filename = output
@@ -307,7 +307,7 @@ def uploadAndAttachFile(queryService, updateService, rawFileStore, parent, outpu
     originalFile = createFile(updateService, filename, mimetype, originalFilename);
     uploadFile(rawFileStore, originalFile, originalFilename)
     fileLink = attachFileToParent(updateService, parent, originalFile, description, namespace)
-    return fileLink.getChild().getId()
+    return fileLink.getChild()
     
     
 def addAnnotationToImage(updateService, image, annotation):
@@ -611,7 +611,8 @@ def resetRenderingSettings(renderingEngine, pixelsId, cIndex, minValue, maxValue
     
     renderingEngine.lookupPixels(pixelsId)
     if not renderingEngine.lookupRenderingDef(pixelsId):
-        renderingEngine.resetDefaults()    
+        renderingEngine.resetDefaults()  
+        rgba=(255,255,255,255)  # probably don't want E.g. single channel image to be blue!   
     
     if not renderingEngine.lookupRenderingDef(pixelsId):
         raise "Still No Rendering Def"
@@ -622,7 +623,6 @@ def resetRenderingSettings(renderingEngine, pixelsId, cIndex, minValue, maxValue
         red, green, blue, alpha = rgba
         renderingEngine.setRGBA(cIndex, red, green, blue, alpha)
     renderingEngine.saveCurrentSettings()
-
 
 
 def createNewImage(pixelsService, rawPixelStore, renderingEngine, pixelsType, gateway, plane2Dlist, imageName, description, dataset=None):
