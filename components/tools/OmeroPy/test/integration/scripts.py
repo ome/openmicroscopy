@@ -194,13 +194,20 @@ class TestScripts(lib.ITest):
         invalidScript = "This text is not valid as a script"
 
         invalidPath = "/test/validation/invalid%s.py" % uuid
-
+        
         try:
             # this should throw, since the script is invalid
             invalidId = scriptService.uploadOfficialScript(invalidPath, invalidScript)
             self.fail("uploadOfficialScript() uploaded invalid script")
         except omero.ValidationException, ve:
             pass
+            
+        getId = scriptService.getScriptID(invalidPath)  
+        self.assertEqual(None, getId, "getScriptID() didn't return 'None' for invalid script")
+        scripts = scriptService.getScripts()   
+        for s in scripts:
+            self.assertEquals(s.mimetype.val, "text/x-python")
+            self.assertNotEqual(s.path.val + s.name.val, invalidPath, "getScripts() returns invalid script")
 
         # upload a valid script - then edit
         scriptLines = [
@@ -214,13 +221,21 @@ class TestScripts(lib.ITest):
         validScript = "\n".join(scriptLines)
         validPath = "/test/validation/valid%s.py" % uuid
         validId = scriptService.uploadOfficialScript(validPath, validScript)
-
+        
         try:
             # this should throw, since the script is invalid
             scriptService.editScript(omero.model.OriginalFileI(validId, False), invalidScript)
             self.fail("editScript() failed to throw with invalid script")
         except omero.ValidationException, ve:
             pass
+        
+        getId = scriptService.getScriptID(validPath) 
+        self.assertEqual(None, getId, "getScriptID() didn't return 'None' for invalid script")
+        scripts = scriptService.getScripts()   
+        for s in scripts:
+            self.assertEquals(s.mimetype.val, "text/x-python")
+            self.assertNotEqual(s.path.val + s.name.val, validPath, "getScripts() returns invalid script")
+
 
     def testAutoFillTicket2326(self):
         SCRIPT = """if True:
