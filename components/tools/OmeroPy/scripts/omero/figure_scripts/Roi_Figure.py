@@ -115,6 +115,10 @@ def getROIsplitView    (re, pixels, zStart, zEnd, splitIndexes, channelNames, me
     sizeZ = pixels.getSizeZ().getValue()
     sizeC = pixels.getSizeC().getValue()
     
+    # make sure we have some merged channels
+    if len(mergedIndexes) == 0:
+        mergedIndexes = range(sizeC)
+    
     if pixels.getPhysicalSizeX():
         physicalX = pixels.getPhysicalSizeX().getValue()
     else:
@@ -160,37 +164,35 @@ def getROIsplitView    (re, pixels, zStart, zEnd, splitIndexes, channelNames, me
         else:
             re.setActive(index, True)                # turn channel on
             if colourChannels:                            # if split channels are coloured...
-                if index in mergedIndexes:            # and this channel is in the combined image
+                if index in mergedColours:            # and this channel is in the combined image
                     rgba = tuple(mergedColours[index])
                     re.setRGBA(index, *rgba)        # set coloured 
-                else:
-                    re.setRGBA(index,255,255,255,255)    # otherwise set white (max alpha)
             else:
                 re.setRGBA(index,255,255,255,255)    # if not colourChannels - channels are white
             info = (channelNames[index], re.getChannelWindowStart(index), re.getChannelWindowEnd(index))
             log("  Render channel: %s  start: %d  end: %d" % info)
-        projection = re.renderProjectedCompressed(algorithm, tIndex, stepping, proStart, proEnd)
-        fullImage = Image.open(StringIO.StringIO(projection))
-        box = (roiX, roiY, roiX+roiWidth, roiY+roiHeight)
-        roiImage = fullImage.crop(box)
-        roiImage.load()        # hoping that when we zoom, don't zoom fullImage 
-        if roiZoom is not 1:
-            newSize = (int(roiWidth*roiZoom), int(roiHeight*roiZoom))
-            roiImage = roiImage.resize(newSize)
-        renderedImages.append(roiImage)
-        panelWidth = roiImage.size[0]
-        if index < sizeC:
+            projection = re.renderProjectedCompressed(algorithm, tIndex, stepping, proStart, proEnd)
+            fullImage = Image.open(StringIO.StringIO(projection))
+            box = (roiX, roiY, roiX+roiWidth, roiY+roiHeight)
+            roiImage = fullImage.crop(box)
+            roiImage.load()        # hoping that when we zoom, don't zoom fullImage 
+            if roiZoom is not 1:
+                newSize = (int(roiWidth*roiZoom), int(roiHeight*roiZoom))
+                roiImage = roiImage.resize(newSize)
+            renderedImages.append(roiImage)
+            panelWidth = roiImage.size[0]
             re.setActive(index, False)                # turn the channel off again!
             
             
-    # turn on channels in mergedIndexes. 
+    # turn on channels in mergedIndexes.
     for i in mergedIndexes: 
         if i >= sizeC:
             channelMismatch = True
         else:
-            rgba = mergedColours[i]
             re.setActive(i, True)
-            re.setRGBA(i, *rgba)
+            if i in mergedColours:
+                rgba = mergedColours[i]
+                re.setRGBA(i, *rgba)
                 
     # get the combined image, using the existing rendering settings 
     channelsString = ", ".join([str(i) for i in mergedIndexes])
@@ -237,7 +239,8 @@ def getROIsplitView    (re, pixels, zStart, zEnd, splitIndexes, channelNames, me
                 if rgb == (255,255,255,255):    # if white (unreadable), needs to be black! 
                     rgb = (0,0,0)
         if showTopLabels: draw.text((px+indent, textY), label, font=font, fill=(0,0,0))
-        imgUtil.pasteImage(renderedImages[i], canvas, px, panelY)
+        if i < len(renderedImages):
+            imgUtil.pasteImage(renderedImages[i], canvas, px, panelY)
         px = px + panelWidth + spacer
     # and the merged image
     if showTopLabels:
@@ -614,12 +617,6 @@ def roiFigure(session, commandArgs):
             mergedIndexes.append(int(c))
         mergedIndexes.sort()
         mergedIndexes.reverse()
-    else:
-        # show first 3 channels only
-        mergedColours[0] = (0,0,255,255)    # blue
-        if sizeC > 1:   mergedColours[1] = (0,255,0,255)    # green
-        if sizeC > 2:   mergedColours[2] = (255,0,0,255)    # red
-    
     
     mergedNames = False
     if "Merged_Names" in commandArgs:
@@ -739,7 +736,7 @@ def runAsScript():
     
     client = scripts.client('Roi_Figure.py', """Create a figure of an ROI region as separate zoomed split-channel panels.
 See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIFigure""", 
-    scripts.List("Image_IDs", description="List of image IDs. Resulting figure will be attached to first image.", optional=False).ofType(rlong(0)),
+    scripts.List("Image_IDs", description="List of image IDs. Resulting figure will be attached to first image.").ofType(rlong(0)),
     scripts.Map("Channel_Names", description="Map of index: channel name for All channels"),
     scripts.Bool("Merged_Names", description="If true, label the merged panel with channel names. Otherwise label with 'Merged'"),
     scripts.List("Split_Indexes", description="List of the channels in the split view panels"),
@@ -768,6 +765,7 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIFigure""",
         if client.getInput(key):
             commandArgs[key] = client.getInput(key).getValue()
     
+    print commandArgs
     # call the main script, attaching resulting figure to Image. Returns the id of the originalFileLink child. (ID object, not value)
     fileAnnotation = roiFigure(session, commandArgs)
     # return this fileAnnotation to the client. 
