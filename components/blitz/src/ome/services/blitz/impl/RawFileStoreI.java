@@ -21,8 +21,6 @@ import omero.api.AMD_RawFileStore_exists;
 import omero.api.AMD_RawFileStore_read;
 import omero.api.AMD_RawFileStore_save;
 import omero.api.AMD_RawFileStore_setFileId;
-import omero.api.AMD_RawFileStore_size;
-import omero.api.AMD_RawFileStore_truncate;
 import omero.api.AMD_RawFileStore_write;
 import omero.api.RawFileStorePrx;
 import omero.api._RawFileStoreOperations;
@@ -99,16 +97,6 @@ public class RawFileStoreI extends AbstractAmdServant implements
                 __cb.ice_exception(ie);
             }
         }
-    }
-
-    public void size_async(AMD_RawFileStore_size __cb, Current __current)
-    throws ServerError {
-        callInvokerOnRawArgs(__cb, __current);
-    }
-
-    public void truncate_async(AMD_RawFileStore_truncate __cb, long length,
-        Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, length);
     }
 
     public void write_async(AMD_RawFileStore_write __cb, byte[] buf,
@@ -188,25 +176,6 @@ public class RawFileStoreI extends AbstractAmdServant implements
             safeRunnableCall(__current, __cb, false, new Callable<byte[]>() {
                 public byte[] call() throws Exception {
                     return prx.read(position, length);
-                }
-            });
-        }
-
-
-        public void size_async(AMD_RawFileStore_size __cb, Current __current)
-                throws ServerError {
-            safeRunnableCall(__current, __cb, false, new Callable<Long>() {
-                public Long call() throws Exception {
-                    return prx.size();
-                }
-            });
-        }
-
-        public void truncate_async(AMD_RawFileStore_truncate __cb, final long length,
-                Current __current) throws ServerError {
-            safeRunnableCall(__current, __cb, false, new Callable<Boolean>() {
-                public Boolean call() throws Exception {
-                    return prx.truncate(length);
                 }
             });
         }

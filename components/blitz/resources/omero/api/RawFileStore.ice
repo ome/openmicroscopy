@@ -24,8 +24,6 @@ module omero {
             {
                 void setFileId(long fileId) throws ServerError;
                 idempotent Ice::ByteSeq read(long position, int length) throws ServerError;
-                idempotent long size() throws ServerError;
-                idempotent bool truncate(long length) throws ServerError;
                 idempotent void write(Ice::ByteSeq buf, long position, int length) throws ServerError;
                 idempotent bool exists() throws ServerError;
                 idempotent omero::model::OriginalFile save() throws ServerError;
