@@ -697,7 +697,7 @@ def runAsScript():
     cOptions = [rstring('red'),rstring('green'),rstring('blue'),rstring('yellow'),rstring('white')]
     
     client = scripts.client('Roi_Movie_Figure.py', 'Create a figure of movie frames from ROI region of image.',
-    scripts.List("Image_IDs", False, description="List of Images. Figure will be attached to first image").ofType(rlong(0)),
+    scripts.List("Image_IDs", optional=False, description="List of Images. Figure will be attached to first image").ofType(rlong(0)),
     scripts.List("Merged_Colours", description="A list of colours to apply to merged channels.", values=cOptions), 
     scripts.List("Merged_Channels", description="A list of channel indexes to display").ofType(rint(0)),                   
     scripts.Int("Width",description="Max width of each image panel", min=1),   
@@ -728,8 +728,9 @@ def runAsScript():
     # call the main script, attaching resulting figure to Image. Returns the id of the originalFileLink child. (ID object, not value)
     fileAnnotation = roiFigure(session, commandArgs)
     # return this fileAnnotation to the client. 
-    client.setOutput("Message", rstring("Script Ran OK. ID %s" % fileAnnotation.id.val))
-    client.setOutput("File_Annotation",robject(fileAnnotation))
+    if fileAnnotation:
+        client.setOutput("Message", rstring("Figure Created"))
+        client.setOutput("File_Annotation", robject(fileAnnotation))
     
 if __name__ == "__main__":
     runAsScript()

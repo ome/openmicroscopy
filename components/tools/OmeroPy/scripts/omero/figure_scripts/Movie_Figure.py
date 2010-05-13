@@ -514,22 +514,23 @@ def runAsScript():
     labels = [rstring('Image_Name'), rstring('Datasets'), rstring('Tags')]
     algorithums = [rstring('Maximum_Intensity'),rstring('Mean_Intensity')]
     tunits =  [rstring("SECS"), rstring("MINS"), rstring("HOURS"), rstring("MINS_SECS"), rstring("HOURS_MINS")]
+    formats = [rstring('JPEG'),rstring('PNG')]
     
     client = scripts.client('Movie_Figure.py', 'Export a figure of a movie.', 
-    scripts.List("Image_IDs", "List of image IDs. Resulting figure will be attached to first image.", False).ofType(rlong(0)),
-    scripts.List("T_Indexes", "The time frames to display in the figure for each image").ofType(rint(0)),
-    scripts.Int("Z_Start", "Projection range (if not specified, use defaultZ only - no projection)", min=0),
-    scripts.Int("Z_End", "Projection range (if not specified or, use defaultZ only - no projection)", min=0),
-    scripts.Int("Width", "The max width of each image panel. Default is first image width", min=1),
-    scripts.Int("Height", "The max height of each image panel. Default is first image height", min=1),
-    scripts.String("Algorithm", "Algorithum for projection.", values=algorithums),
-    scripts.String("Image_Labels", "Label images with Image name (default) or datasets or tags", values=labels),
-    scripts.Int("Stepping", "The Z increment for projection. Default is 1", min=1),
-    scripts.Int("Scalebar", "Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
-    scripts.String("Format", "Format to save image. E.g 'PNG'. Default is JPEG"),
-    scripts.String("Figure_Name", "File name of the figure to save."),
-    scripts.Int("Overlay_Colour", "The colour of the scalebar. Default is white"),
-    scripts.String("Time_Units", "The units to use for time display", values=tunits),
+    scripts.List("Image_IDs", description="List of image IDs. Resulting figure will be attached to first image.", optional=False).ofType(rlong(0)),
+    scripts.List("T_Indexes", description="The time frames to display in the figure for each image").ofType(rint(0)),
+    scripts.Int("Z_Start", description="Projection range (if not specified, use defaultZ only - no projection)", min=0),
+    scripts.Int("Z_End", description="Projection range (if not specified or, use defaultZ only - no projection)", min=0),
+    scripts.Int("Width", description="The max width of each image panel. Default is first image width", min=1),
+    scripts.Int("Height", description="The max height of each image panel. Default is first image height", min=1),
+    scripts.String("Algorithm", description="Algorithum for projection.", values=algorithums),
+    scripts.String("Image_Labels", description="Label images with Image name (default) or datasets or tags", values=labels),
+    scripts.Int("Stepping", description="The Z increment for projection. Default is 1", min=1),
+    scripts.Int("Scalebar", description="Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
+    scripts.String("Format", description="Format to save image.", values=formats),
+    scripts.String("Figure_Name", description="File name of the figure to save."),
+    scripts.Int("Overlay_Colour", description="The colour of the scalebar. Default is white"),
+    scripts.String("Time_Units", description="The units to use for time display", values=tunits),
     #scripts.Long("File_Annotation").out()
     )  # script returns a file annotation
     
@@ -542,7 +543,9 @@ def runAsScript():
             commandArgs[key] = client.getInput(key).getValue()
     # Makes the figure and attaches it to Image. Returns the id of the originalFileLink child. (ID object, not value)
     fileAnnotation = movieFigure(session, commandArgs)
-    client.setOutput("File_Annotation", robject(fileAnnotation))
+    if fileAnnotation:
+        client.setOutput("Message", rstring("Figure Created"))
+        client.setOutput("File_Annotation", robject(fileAnnotation))
     
 if __name__ == "__main__":
     runAsScript()

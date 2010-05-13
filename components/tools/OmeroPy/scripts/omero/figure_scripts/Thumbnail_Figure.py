@@ -390,7 +390,10 @@ def runAsScript():
     print commandArgs
     # Makes the figure and attaches it to Project/Dataset. Returns the id of the originalFileLink child. (ID object, not value)
     fileAnnotation = makeThumbnailFigure(client, session, commandArgs)
-    client.setOutput("File_Annotation", robject(fileAnnotation))
+    if fileAnnotation:
+        client.setOutput("Message", rstring("Figure Created"))
+        client.setOutput("File_Annotation", robject(fileAnnotation))
+        
 
 if __name__ == "__main__":
     runAsScript()

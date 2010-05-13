@@ -738,23 +738,23 @@ def runAsScript():
     formats = [rstring('JPEG'),rstring('PNG')]
     
     client = scripts.client('Roi_Figure.py', 'Create a figure of an ROI region as separate zoomed split-channel panels.', 
-    scripts.List("Image_IDs", "List of image IDs. Resulting figure will be attached to first image.", False).ofType(rlong(0)),
-    scripts.Map("Channel_Names", "Map of index: channel name for All channels"),
-    scripts.Bool("Merged_Names", "If true, label the merged panel with channel names. Otherwise label with 'Merged'"),
-    scripts.List("Split_Indexes", "List of the channels in the split view panels"),
-    scripts.Bool("Split_Panels_Grey", "If true, all split panels are greyscale"),
-    scripts.Map("Merged_Colours", "Map of index:int colours for each merged channel. Default: Blue, Green, Red"),
-    scripts.Int("Width","Max width of each image panel", min=1),   
-    scripts.Int("Height","The max height of each image panel", min=1),
-    scripts.String("Image_Labels","Label images with the IMAGENAME or DATASETS or TAGS", values=labels),               
-    scripts.String("Algorithm", "Algorithum for projection.", values=algorithums),
-    scripts.Int("Stepping","The Z-plane increment for projection. Default is 1", min=1),
-    scripts.Int("Scalebar", "Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
-    scripts.String("Format", "Format to save image. E.g 'PNG'.", values=formats, default='JPEG'),
-    scripts.String("Figure_Name", "File name of the figure to save."),
-    scripts.Int("Overlay_Colour", "The colour of the scalebar. Default is white"),
-    scripts.Int("ROI_Zoom", "How much to zoom the ROI. E.g. x 2. If 0 then zoom roi panel to fit", min=0),
-    scripts.String("ROI_Label", roiLabel),
+    scripts.List("Image_IDs", description="List of image IDs. Resulting figure will be attached to first image.", optional=False).ofType(rlong(0)),
+    scripts.Map("Channel_Names", description="Map of index: channel name for All channels"),
+    scripts.Bool("Merged_Names", description="If true, label the merged panel with channel names. Otherwise label with 'Merged'"),
+    scripts.List("Split_Indexes", description="List of the channels in the split view panels"),
+    scripts.Bool("Split_Panels_Grey", description="If true, all split panels are greyscale"),
+    scripts.Map("Merged_Colours", description="Map of index:int colours for each merged channel. Default: Blue, Green, Red"),
+    scripts.Int("Width",description="Max width of each image panel", min=1),   
+    scripts.Int("Height",description="The max height of each image panel", min=1),
+    scripts.String("Image_Labels",description="Label images with the IMAGENAME or DATASETS or TAGS", values=labels),               
+    scripts.String("Algorithm", description="Algorithum for projection.", values=algorithums),
+    scripts.Int("Stepping",description="The Z-plane increment for projection. Default is 1", min=1),
+    scripts.Int("Scalebar", description="Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
+    scripts.String("Format",description="Format to save image. E.g 'PNG'.", values=formats, default='JPEG'),
+    scripts.String("Figure_Name", description="File name of the figure to save."),
+    scripts.Int("Overlay_Colour", description="The colour of the scalebar. Default is white"),
+    scripts.Int("ROI_Zoom", description="How much to zoom the ROI. E.g. x 2. If 0 then zoom roi panel to fit", min=0),
+    scripts.String("ROI_Label", description=roiLabel),
     #scripts.Long("fileAnnotation", "Script returns a File Annotation ID of attached Figure").out()
     )
     
@@ -770,7 +770,9 @@ def runAsScript():
     # call the main script, attaching resulting figure to Image. Returns the id of the originalFileLink child. (ID object, not value)
     fileAnnotation = roiFigure(session, commandArgs)
     # return this fileAnnotation to the client. 
-    client.setOutput("File_Annotation", robject(fileAnnotation))
+    if fileAnnotation:
+        client.setOutput("Message", rstring("Figure Created"))
+        client.setOutput("File_Annotation", robject(fileAnnotation))
     
 if __name__ == "__main__":
     runAsScript()
