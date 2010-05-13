@@ -48,10 +48,10 @@ class BaseShare(BaseController):
     comments = None
     cmSize = None
 
-    def __init__(self, menu, conn, conn_share=None, share_id=None, action=None, **kw):
+    def __init__(self, conn, conn_share=None, share_id=None, **kw):
         BaseController.__init__(self, conn)
         if conn_share is None:
-            if share_id: 
+            if share_id is not None: 
                 self.share = self.conn.getShare(share_id)
                 if self.share is None:
                     raise AttributeError("We are sorry, but that share either does not exist, or if it does, you have not been invited to see it. Contact the user you think might own this share for more information.")
@@ -59,11 +59,6 @@ class BaseShare(BaseController):
                     raise AttributeError("We are sorry, but that share either does not exist, or if it does, you have not been invited to see it. Contact the user you think might own this share for more information.")
                 if self.share is not None and not self.share.active and not self.share.isOwned():
                     raise AttributeError("%s is not active and cannot be visible. Please contact the user you think might own this share for more information." % self.share.getShareType())
-                self.eContext['breadcrumb'] = [ menu.title(), "Share", action ]
-            elif action:
-                self.eContext['breadcrumb'] = ["Basket", action ]
-            else:
-                self.eContext['breadcrumb'] = [ menu.title() ]
         else:
             self.conn_share = conn_share
             self.share = self.conn.getShare(share_id)
@@ -74,7 +69,7 @@ class BaseShare(BaseController):
             if self.share._obj is None:
                 raise AttributeError("We are sorry, but that share either does not exist, or if it does, you have not been invited to see it. Contact the user you think might own this share for more information.")
 
-    def createShare(self, host, blitz_id, imageInBasket, message, members, enable, expiration=None):
+    def createShare(self, host, blitz_id, image, message, members, enable, expiration=None):
         # only for python 2.5
         # d1 = datetime.strptime(expiration+" 23:59:59", "%Y-%m-%d %H:%M:%S")
         expiration_date = None
@@ -83,7 +78,7 @@ class BaseShare(BaseController):
             expiration_date = rtime(long(time.mktime(d1.timetuple())+1e-6*d1.microsecond)*1000)
         ms = [str(m) for m in members]
         
-        self.conn.createShare(host, int(blitz_id), imageInBasket, message, ms, enable, expiration_date)
+        self.conn.createShare(host, int(blitz_id), image, message, ms, enable, expiration_date)
 
     def createDiscussion(self, host, blitz_id, message, members, enable, expiration=None):
         # only for python 2.5
@@ -189,8 +184,8 @@ class BaseShare(BaseController):
 
         self.imgSize = len(self.imageInShare)
     
-    def loadShareOwnerContent(self, share_id):
-        content = self.conn.getContents(long(share_id))
+    def loadShareOwnerContent(self):
+        content = self.conn.getContents(self.share.id)
         
         self.imageInShare = list()
 

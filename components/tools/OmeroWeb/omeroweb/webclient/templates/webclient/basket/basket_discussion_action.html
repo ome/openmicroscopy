@@ -43,10 +43,10 @@
 
 {% block content %}
 
-    <h1>{% trans "Create new share" %}:</h1>
+    <h1>{% trans "Create new discussion" %}:</h1>
     
     <div>
-        <form action="{% url basket_action "createshare" %}" method="post">
+        <form action="{% url basket_action "createdisc" %}" method="post">
             <table>
             {% for field in form %}
                 {% ifequal field.label_tag form.image.label_tag %}

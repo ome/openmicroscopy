@@ -83,7 +83,7 @@
         <!-- VIEWER -->
         <div id="preview_tab">
             <h1>{{ manager.image.name }}</h1>
-            <p>{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url image_viewer manager.image.id %}')"><img id="{{ manager.image.id }}" src="{% url webstatic "images/kview16.png" %}" alt="image" title="image"/></a></p>
+            <p>{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url web_image_viewer manager.image.id %}')"><img id="{{ manager.image.id }}" src="{% url webstatic "images/kview16.png" %}" alt="image" title="image"/></a></p>
             <div class="miniview" id="viewport"></div>
         </div>
         {% endif %}
@@ -91,7 +91,7 @@
         <!-- VIEWER -->
         <div id="preview_tab">
             <h1>{{ manager.well.selectedWellSample.image.name }}</h1>
-            <p>{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url image_viewer manager.well.selectedWellSample.image.id %}')"><img id="{{ manager.image.id }}" src="{% url webstatic "images/kview16.png" %}" alt="image" title="image"/></a></p>
+            <p>{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url web_image_viewer manager.well.selectedWellSample.image.id %}')"><img id="{{ manager.image.id }}" src="{% url webstatic "images/kview16.png" %}" alt="image" title="image"/></a></p>
             <div class="miniview" id="viewport"></div>
         </div>
         {% endif %}
@@ -100,7 +100,7 @@
         <div id="metadata_tab">
             {% if manager.image %}
             <table>
-                <tr><td rowspan="2"><a href="#" onclick="return openPopup('{% url image_viewer manager.image.id %}')"><img id="{{ manager.image.id }}" src="{% url render_thumbnail_resize 64 manager.image.id %}" alt="image" title="image" class="thumbnail"/></a></td>
+                <tr><td rowspan="2"><a href="#" onclick="return openPopup('{% url web_image_viewer manager.image.id %}')"><img id="{{ manager.image.id }}" src="{% url render_thumbnail_resize 64 manager.image.id %}" alt="image" title="image" class="thumbnail"/></a></td>
                     <td><label>{{ manager.image.warpName }}</label>{% if manager.image.isOwned
  %} <a href="{% url manage_action_containers "edit" "image" manager.image.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}</td></tr>
                 <tr><td>Created on: {{ manager.image.getDate|date:"Y-m-d H:i:s" }}</td></tr>                
@@ -150,7 +150,7 @@
             
             {% if manager.well %}
             <table>
-                <tr><td rowspan="2"><a href="#" onclick="return openPopup('{% url image_viewer manager.well.selectedWellSample.image.id %}')"><img id="{{ manager.well.selectedWellSample.image.id }}" src="{% url render_thumbnail_resize 64 manager.well.selectedWellSample.image.id %}" alt="image" title="image" class="thumbnail"/></a></td>
+                <tr><td rowspan="2"><a href="#" onclick="return openPopup('{% url web_image_viewer manager.well.selectedWellSample.image.id %}')"><img id="{{ manager.well.selectedWellSample.image.id }}" src="{% url render_thumbnail_resize 64 manager.well.selectedWellSample.image.id %}" alt="image" title="image" class="thumbnail"/></a></td>
                     <td><label>{{ manager.well.selectedWellSample.image.warpName }}</label>{% if manager.well.selectedWellSample.image.isOwned
  %} <a href="{% url manage_action_containers "edit" "image" manager.well.selectedWellSample.image.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}</td></tr>
                 <tr><td>Created on:{{ manager.well.selectedWellSample.image.getDate|date:"Y-m-d H:i:s" }}</td></tr>

@@ -296,39 +296,29 @@ class WellSampleWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper
 omero.gateway.WellSampleWrapper = WellSampleWrapper
 
 class ShareWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
-    
-    def shortMessage(self):
+                
+    def truncateMessageForTree(self):
         try:
             msg = self.getMessage().val
             l = len(msg)
-            if l < 50:
+            if l < 38:
                 return msg
-            return msg[:50] + "..."
+            return "..." + msg[l - 35:]
         except:
             logger.info(traceback.format_exc())
-            return None
-    
-    def tinyMessage(self):
-        try:
-            msg = self.getMessage().val
-            l = len(msg)
-            if l < 20:
-                return msg
-            elif l >= 20:
-                return "%s..." % (msg[:20])
-        except:
-            logger.info(traceback.format_exc())
-            return None
+            return self.getMessage().val
     
     def getShareType(self):
         if self.itemCount == 0:
-            return "Discuss"
+            return "Discussion"
         else:
             return "Share"
     
-    def getMembersCount(self):
-        return "None"
-        
+    def isEmpty(self):
+        if self.itemCount == 0:
+            return True
+        return False
+    
     def getStartDate(self):
         return datetime.fromtimestamp(self.getStarted().val/1000)
         
@@ -336,9 +326,8 @@ class ShareWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
         try:
             return datetime.fromtimestamp((self.getStarted().val+self.getTimeToLive().val)/1000)
         except ValueError:
-            return None
-        except:
-            return None
+            pass
+        return None
     
     def isExpired(self):
         try:
@@ -348,7 +337,16 @@ class ShareWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
                 return False
         except:
             return True
-        
+    
+    def isOwned(self):
+        if self.owner.id.val == self._conn.getEventContext().userId:
+            return True
+        else:
+            return False
+    
+    def getOwnerAsExperimetner(self):
+        return omero.gateway.ExperimenterWrapper(self, self.owner)
+         
     def getShareOwnerFullName(self):
         try:
             lastName = self.owner.lastName and self.owner.lastName.val or ''
@@ -364,10 +362,10 @@ class ShareWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
             logger.info(traceback.format_exc())
             return None
     
-class ShareContentWrapper (omero.gateway.BlitzObjectWrapper):
+class ShareContentWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
     pass
 
-class ShareCommentWrapper (omero.gateway.AnnotationWrapper):
+class ShareCommentWrapper (OmeroWebObjectWrapper, omero.gateway.AnnotationWrapper):
     pass
     
 class SessionAnnotationLinkWrapper (omero.gateway.BlitzObjectWrapper):

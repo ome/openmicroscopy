@@ -60,7 +60,7 @@ class BaseContainer(BaseController):
     
     orphaned = False
     
-    def __init__(self, conn, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, tag=None, metadata=False, index=None, **kw):
+    def __init__(self, conn, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, tag=None, metadata=False, **kw):
         BaseController.__init__(self, conn)
         if o1_type == "project":
             self.project = self.conn.getProject(o1_id)
@@ -668,13 +668,17 @@ class BaseContainer(BaseController):
         return format
     
     def createProjectFileAnnotation(self, newFile):
-        format = self.getFileFormat(newFile)
+        if newFile.content_type.startswith("image"):
+            f = newFile.content_type.split("/") 
+            format = f[1].upper()
+        else:
+            format = newFile.content_type
         oFile = OriginalFileI()
         oFile.setName(rstring(str(newFile.name)));
         oFile.setPath(rstring(str(newFile.name)));
         oFile.setSize(rlong(long(newFile.size)));
         oFile.setSha1(rstring("pending"));
-        oFile.setMimetype(format);
+        oFile.setMimetype(rstring(str(format)));
         
         of = self.conn.saveAndReturnObject(oFile);
         self.conn.saveFile(newFile, of.id)
@@ -687,13 +691,17 @@ class BaseContainer(BaseController):
         self.conn.saveObject(l_ia)
     
     def createScreenFileAnnotation(self, newFile):
-        format = self.getFileFormat(newFile)
+        if newFile.content_type.startswith("image"):
+            f = newFile.content_type.split("/") 
+            format = f[1].upper()
+        else:
+            format = newFile.content_type
         oFile = OriginalFileI()
         oFile.setName(rstring(str(newFile.name)));
         oFile.setPath(rstring(str(newFile.name)));
         oFile.setSize(rlong(long(newFile.size)));
         oFile.setSha1(rstring("pending"));
-        oFile.setMimetype(format);
+        oFile.setMimetype(rstring(str(format)));
         
         of = self.conn.saveAndReturnObject(oFile);
         self.conn.saveFile(newFile, of.id)
@@ -706,13 +714,17 @@ class BaseContainer(BaseController):
         self.conn.saveObject(l_ia)
     
     def createDatasetFileAnnotation(self, newFile):
-        format = self.getFileFormat(newFile)
+        if newFile.content_type.startswith("image"):
+            f = newFile.content_type.split("/") 
+            format = f[1].upper()
+        else:
+            format = newFile.content_type
         oFile = OriginalFileI()
         oFile.setName(rstring(str(newFile.name)));
         oFile.setPath(rstring(str(newFile.name)));
         oFile.setSize(rlong(long(newFile.size)));
         oFile.setSha1(rstring("pending"));
-        oFile.setMimetype(format);
+        oFile.setMimetype(rstring(str(format)));
         
         of = self.conn.saveAndReturnObject(oFile);
         self.conn.saveFile(newFile, of.id)
@@ -725,13 +737,17 @@ class BaseContainer(BaseController):
         self.conn.saveObject(l_ia)
     
     def createPlateFileAnnotation(self, newFile):
-        format = self.getFileFormat(newFile)
+        if newFile.content_type.startswith("image"):
+            f = newFile.content_type.split("/") 
+            format = f[1].upper()
+        else:
+            format = newFile.content_type
         oFile = OriginalFileI()
         oFile.setName(rstring(str(newFile.name)));
         oFile.setPath(rstring(str(newFile.name)));
         oFile.setSize(rlong(long(newFile.size)));
         oFile.setSha1(rstring("pending"));
-        oFile.setMimetype(format);
+        oFile.setMimetype(rstring(str(format)));
         
         of = self.conn.saveAndReturnObject(oFile);
         self.conn.saveFile(newFile, of.id)
@@ -744,13 +760,17 @@ class BaseContainer(BaseController):
         self.conn.saveObject(l_ia)
     
     def createImageFileAnnotation(self, newFile):
-        format = self.getFileFormat(newFile)
+        if newFile.content_type.startswith("image"):
+            f = newFile.content_type.split("/") 
+            format = f[1].upper()
+        else:
+            format = newFile.content_type
         oFile = OriginalFileI()
         oFile.setName(rstring(str(newFile.name)));
         oFile.setPath(rstring(str(newFile.name)));
         oFile.setSize(rlong(long(newFile.size)));
         oFile.setSha1(rstring("pending"));
-        oFile.setMimetype(format);
+        oFile.setMimetype(rstring(str(format)));
         
         of = self.conn.saveAndReturnObject(oFile);
         self.conn.saveFile(newFile, of.id)

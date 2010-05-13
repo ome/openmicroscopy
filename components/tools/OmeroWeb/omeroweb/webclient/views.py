@@ -73,7 +73,8 @@ from omeroweb.feedback.views import handlerInternalError
 from omeroweb.webadmin.controller.experimenter import BaseExperimenter 
 from omeroweb.webadmin.controller.uploadfile import BaseUploadFile
 
-from forms import ShareForm, ShareCommentForm, ContainerForm, CommentAnnotationForm, TagAnnotationForm, \
+from forms import ShareForm, BasketShareForm, ShareCommentForm, \
+                    ContainerForm, CommentAnnotationForm, TagAnnotationForm, \
                     UriAnnotationForm, UploadFileForm, UsersForm, ActiveGroupForm, HistoryTypeForm, \
                     MetadataFilterForm, MetadataDetectorForm, MetadataChannelForm, \
                     MetadataEnvironmentForm, MetadataObjectiveForm, MetadataStageLabelForm, \
@@ -147,13 +148,6 @@ def isUserConnected (f):
             else:
                 url = '%s' % (request.META.get('PATH_INFO'))
         
-        conn_share = None
-        if kwargs.get('share_id', None) is not None:
-            try:
-                conn_share = getShareConnection(request, kwargs.get('share_id', None))
-            except Exception, x:
-                logger.error(traceback.format_exc())
-        
         conn = None
         try:
             conn = getBlitzConnection(request)
@@ -164,6 +158,16 @@ def isUserConnected (f):
             return HttpResponseRedirect(reverse("weblogin")+(("?error=%s&url=%s") % (str(x),url)))
         if conn is None:
             return HttpResponseRedirect(reverse("weblogin")+(("?url=%s") % (url)))
+        
+        conn_share = None       
+        share_id = kwargs.get('share_id', None)
+        if share_id is not None:
+            sh = conn.getShare(share_id)
+            if sh is not None:
+                try:
+                    conn_share = getShareConnection(request, share_id)
+                except Exception, x:
+                    logger.error(traceback.format_exc())
         
         sessionHelper(request)
         kwargs["error"] = request.REQUEST.get('error')
@@ -289,6 +293,12 @@ def index(request, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
+    url = None
+    try:
+        url = kwargs["url"]
+    except:
+        logger.error(traceback.format_exc())
+    
     sessionHelper(request)
     try:
         if request.session['nav']['menu'] != 'start':
@@ -298,7 +308,7 @@ def index(request, **kwargs):
     
     controller = BaseIndex(conn)
     #controller.loadData()
-    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups']})
+    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups'], 'url':url})
     
     context = {'nav':request.session['nav'], 'controller':controller, 'eContext': controller.eContext, 'form_active_group':form_active_group}
 
@@ -391,16 +401,21 @@ def change_active_group(request, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
+    url = None
+    try:
+        url = kwargs["url"]
+    except:
+        logger.error(traceback.format_exc())
+    
     active_group = request.REQUEST['active_group']
     if conn.changeActiveGroup(active_group):
-        if request.session.get('nav')['experimenter'] is not None:
-            return HttpResponseRedirect(reverse("webindex")+(("?experimenter=%s") % (request.session.get('nav')['experimenter'])))
-        return HttpResponseRedirect(reverse("webindex"))
+        return HttpResponseRedirect(url)
     else:
-        error = _(u'You cannot change your group becuase other session is on.')
-        if request.session.get('nav')['experimenter'] is not None:            
-            return HttpResponseRedirect(reverse("webindex")+(("?experimenter=%s&error=%s") % (request.session.get('nav')['experimenter'], error)))
-        return HttpResponseRedirect(reverse("webindex")+(("?error=%s") % (error)))
+        error = 'You cannot change your group becuase other session is on.'
+        url = reverse("webindex")+ ("?error=%s" % error)
+        if request.session.get('nav')['experimenter'] is not None:
+            url += "&experimenter=%s" % request.session.get('nav')['experimenter']
+        return HttpResponseRedirect(url)
     
 @isUserConnected
 def logout(request, **kwargs):
@@ -466,7 +481,7 @@ def load_template(request, menu, **kwargs):
     else:
         template = "webclient/%s/%s.html" % (menu,menu)
     request.session['nav']['menu'] = menu
-        
+    
     conn = None
     try:
         conn = kwargs["conn"]
@@ -481,10 +496,11 @@ def load_template(request, menu, **kwargs):
         logger.error(traceback.format_exc())
     if url is None:
         url = reverse(viewname="load_template", args=[menu])
-        
+    
     try:
         manager = BaseContainer(conn)
     except AttributeError, x:
+        logger.error(traceback.format_exc())
         return handlerInternalError(x)
     
     form_users = None
@@ -509,7 +525,7 @@ def load_template(request, menu, **kwargs):
             else:
                 form_users = UsersForm(initial={'users': users, 'empty_label':empty_label, 'menu':menu})
             
-    form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['allGroups']})
+    form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['allGroups'], 'url':url})
     
     context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'form_active_group':form_active_group, 'form_users':form_users}
     
@@ -574,6 +590,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     try:
         manager= BaseContainer(conn, o1_type, o1_id, o2_type, o2_id, o3_type, o3_id)
     except AttributeError, x:
+        logger.error(traceback.format_exc())
         return handlerInternalError(x)
 
     # prepare forms
@@ -695,8 +712,7 @@ def load_searching(request, form=None, **kwargs):
     else:
         template = "webclient/search/search.html"
     
-    form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['allGroups']})
-    context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_active_group':form_active_group}
+    context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager}
         
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -756,6 +772,7 @@ def load_data_by_tag(request, o_type=None, o_id=None, **kwargs):
     try:
         manager= BaseContainer(conn, o_type, o_id)
     except AttributeError, x:
+        logger.error(traceback.format_exc())
         return handlerInternalError(x)
 
     if o_id is not None:
@@ -796,13 +813,18 @@ def autocomplete_tags(request, **kwargs):
     return HttpResponse(json_data, mimetype='application/javascript')
 
 @isUserConnected
-def load_metadata_details(request, c_type, c_id, index=None, **kwargs): 
-    template = "webclient/annotations/annotations.html"
-     
+def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):  
     conn = None
     try:
         conn = kwargs["conn"]
         
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+    
+    conn_share = None
+    try:
+        conn_share = kwargs["conn_share"]
     except:
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
@@ -814,8 +836,22 @@ def load_metadata_details(request, c_type, c_id, index=None, **kwargs):
         logger.error(traceback.format_exc())
     
     try:
-        manager = BaseContainer(conn, c_type, c_id, metadata=True, index=index)
+        if c_type in ("share", "discussion"):
+            print c_type
+            template = "webclient/annotations/annotations_share.html"
+            manager = BaseShare(conn, conn_share, c_id)
+            manager.getAllUsers(c_id)
+            manager.getComments(c_id)
+        else:
+            if conn_share is not None:
+                template = "webclient/annotations/annotations_share.html"                
+                manager = BaseContainer(conn_share, c_type, c_id, metadata=True)
+            else:
+                template = "webclient/annotations/annotations.html"                
+                manager = BaseContainer(conn, c_type, c_id, metadata=True)
+                manager.annotationList()
     except AttributeError, x:
+        logger.error(traceback.format_exc())
         return handlerInternalError(x)
     
     form_environment = None
@@ -827,13 +863,9 @@ def load_metadata_details(request, c_type, c_id, index=None, **kwargs):
     form_channels = list()
     form_lasers = list()
     
-    form_tags = None
-    form_urls = None
-    form_files = None
-    
     if c_type == 'well' or c_type == 'image':
-
-        manager.originalMetadata()
+        if conn_share is None:
+            manager.originalMetadata()
         manager.channelMetadata()
         for ch in manager.channel_metadata:
             if ch.getLogicalChannel() is not None:
@@ -902,9 +934,10 @@ def load_metadata_details(request, c_type, c_id, index=None, **kwargs):
                                     'pulses': list(conn.getEnumerationEntries("PulseI"))})
                     form_lasers.append(form_laser)
     
-    manager.annotationList()
-    
-    context = {'url':url, 'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form_channels':form_channels, 'form_environment':form_environment, 'form_objective':form_objective, 'form_microscope':form_microscope, 'form_filters':form_filters, 'form_detectors':form_detectors, 'form_lasers':form_lasers, 'form_stageLabel':form_stageLabel}
+    if c_type in ("share", "discussion"):
+        context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager}
+    else:
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_channels':form_channels, 'form_environment':form_environment, 'form_objective':form_objective, 'form_microscope':form_microscope, 'form_filters':form_filters, 'form_detectors':form_detectors, 'form_lasers':form_lasers, 'form_stageLabel':form_stageLabel}
             
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -932,6 +965,7 @@ def load_metadata_details_multi(request, **kwargs):
     try:
         manager = BaseContainer(conn, c_type, c_id)
     except AttributeError, x:
+        logger.error(traceback.format_exc())
         return handlerInternalError(x)
     
     context = {'url':url, 'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager}
@@ -956,6 +990,7 @@ def load_hierarchies(request, o_type=None, o_id=None, **kwargs):
     try:
         manager = BaseContainer(conn, o_type, o_id)
     except AttributeError, x:
+        logger.error(traceback.format_exc())
         return handlerInternalError(x)
     manager.loadHierarchies()
     
@@ -998,66 +1033,88 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         try:
             manager = BaseContainer(conn, o_type, o_id)
         except AttributeError, x:
+            logger.error(traceback.format_exc())
             return handlerInternalError(x)
     elif o_type == "comment" or o_type == "url" or o_type == "tag":
         manager = BaseAnnotation(conn, o_type, o_id)
+    elif o_type == "share" or o_type == "sharecomment":
+        manager = BaseShare(conn, None, o_id)
     else:
         manager = BaseContainer(conn)
         
-    form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['allGroups']})
-    
     form = None
     if action == 'new':
         template = "webclient/data/container_new.html"
         form = ContainerForm()
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form}
     elif action == 'newcomment':
         template = "webclient/annotations/annotation_new_form.html"
         form_comment = CommentAnnotationForm()
-        context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_comment':form_comment, 'form_active_group':form_active_group}     
+        context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_comment':form_comment}     
     elif action == 'newtag':
         template = "webclient/annotations/annotation_new_form.html"
         form_tag = TagAnnotationForm()
         form_tags = TagListForm(initial={'tags':manager.listTags()})
-        context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag, 'form_tags':form_tags, 'form_active_group':form_active_group}
+        context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag, 'form_tags':form_tags}
     elif action == 'newfile':
         template = "webclient/annotations/annotation_new_form.html"
         form_file = UploadFileForm()
         form_files = FileListForm(initial={'files':manager.listFiles()})
-        context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_file':form_file, 'form_files':form_files,  'form_active_group':form_active_group}       
+        context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_file':form_file, 'form_files':form_files}
+    elif action == 'newsharecomment':
+        template = "webclient/annotations/annotation_new_form.html"
+        if manager.share.isExpired():
+            form_sharecomments = None
+        else:
+            form_sharecomments = ShareCommentForm()
+        context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager, 'form_sharecomments':form_sharecomments}  
     elif action == 'edit':
         if o_type == "dataset":
             template = "webclient/data/container_form.html"
             form = ContainerForm(initial={'name': manager.dataset.name, 'description':manager.dataset.description})
-            context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
+            context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form}
         elif o_type == "project":
             template = "webclient/data/container_form.html"
             form = ContainerForm(initial={'name': manager.project.name, 'description':manager.project.description})
-            context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
+            context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form}
         elif o_type == "screen":
             template = "webclient/data/container_form.html"
             form = ContainerForm(initial={'name': manager.screen.name, 'description':manager.screen.description})
-            context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
+            context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form}
         elif o_type == "plate":
             template = "webclient/data/container_form.html"
             form = ContainerForm(initial={'name': manager.plate.name, 'description':manager.plate.description})
-            context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
+            context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form}
         elif o_type =="image" and o_id > 0:
             template = "webclient/data/container_form.html"
             form = ContainerForm(initial={'name': manager.image.name, 'description':manager.image.description})
-            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
+            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
         elif o_type =="comment" and o_id > 0:
             template = "webclient/annotations/annotation_form.html"
             form = CommentAnnotationForm(initial={'content':manager.comment.textValue})
-            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
+            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
         elif o_type =="url" and o_id > 0:
             template = "webclient/annotations/annotation_form.html"
             form = UriAnnotationForm(initial={'link':manager.url.textValue})
-            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
+            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
         elif o_type =="tag" and o_id > 0:
             template = "webclient/annotations/annotation_form.html"
             form = TagAnnotationForm(initial={'tag':manager.tag.textValue, 'description':manager.tag.description})
-            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
+            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
+        elif o_type == "share" and o_id > 0:
+            template = "webclient/public/share_form.html"
+            manager.getMembers(o_id)
+            manager.getComments(o_id)
+            experimenters = list(conn.getExperimenters())
+            if manager.share.getExpirationDate() is not None:
+                form = ShareForm(initial={'message': manager.share.message, 'expiration': manager.share.getExpirationDate().strftime("%Y-%m-%d"), \
+                                        'shareMembers': manager.membersInShare, 'enable': manager.share.active, \
+                                        'experimenters': experimenters}) #'guests': share.guestsInShare,
+            else:
+                form = ShareForm(initial={'message': manager.share.message, 'expiration': "", \
+                                        'shareMembers': manager.membersInShare, 'enable': manager.share.active, \
+                                        'experimenters': experimenters}) #'guests': share.guestsInShare,
+            context = {'url':url, 'nav':request.session['nav'], 'eContext': manager.eContext, 'share':manager, 'form':form}
     elif action == 'move':
         parent = request.REQUEST['parent'].split('-')
         source = request.REQUEST['source'].split('-')
@@ -1095,7 +1152,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             raise AttributeError('Operation not supported.')
     elif action == 'save':
         if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, oid]))
+            return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, o_id]))
         if o_type == "dataset":
             form = ContainerForm(data=request.REQUEST.copy())
             if form.is_valid():
@@ -1105,7 +1162,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 return HttpResponseRedirect(url)
             else:
                 template = "webclient/data/container_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
+                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
         elif o_type == "project":
             form = ContainerForm(data=request.REQUEST.copy())
             if form.is_valid():
@@ -1115,7 +1172,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 return HttpResponseRedirect(url)
             else:
                 template = "webclient/data/container_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
+                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
         elif o_type == "screen":
             form = ContainerForm(data=request.REQUEST.copy())
             if form.is_valid():
@@ -1125,7 +1182,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 return HttpResponseRedirect(url)
             else:
                 template = "webclient/data/container_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
+                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
         elif o_type == "plate":
             form = ContainerForm(data=request.REQUEST.copy())
             if form.is_valid():
@@ -1135,7 +1192,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 return HttpResponseRedirect(url)
             else:
                 template = "webclient/data/container_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
+                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
         elif o_type == 'image':
             form = ContainerForm(data=request.REQUEST.copy())
             if form.is_valid():
@@ -1145,7 +1202,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 return HttpResponseRedirect(url)
             else:
                 template = "webclient/data/container_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
+                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
         elif o_type == 'comment':
             form = CommentAnnotationForm(data=request.REQUEST.copy())
             if form.is_valid():
@@ -1154,7 +1211,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 return HttpResponseRedirect(url)
             else:
                 template = "webclient/data/container_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
+                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
         elif o_type == 'url':
             form = UriAnnotationForm(data=request.REQUEST.copy())
             if form.is_valid():
@@ -1163,17 +1220,58 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 return HttpResponseRedirect(url)
             else:
                 template = "webclient/data/container_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
+                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
         elif o_type == 'tag':
             form = TagAnnotationForm(data=request.REQUEST.copy())
             if form.is_valid():
                 content = request.REQUEST['tag'].encode('utf-8')
                 description = request.REQUEST['description'].encode('utf-8')
                 manager.saveTagAnnotation(content, description)
-                return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse(viewname="load_template", args=['usertags']))
+                return HttpResponseRedirect(url)
             else:
                 template = "webclient/data/container_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
+                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
+        elif o_type == "share":
+            experimenters = list(conn.getExperimenters())            
+            form = ShareForm(initial={'experimenters':experimenters}, data=request.REQUEST.copy())
+            if form.is_valid():
+                message = request.REQUEST['message'].encode('utf-8')
+                expiration = None
+                try:
+                    if request.REQUEST['expiration'].encode('utf-8') is not None and request.REQUEST['expiration'].encode('utf-8') != "":
+                        expiration = str(request.REQUEST['expiration'].encode('utf-8'))
+                except:
+                    pass
+                members = request.REQUEST.getlist('members')
+                #guests = request.REQUEST['guests']
+                enable = False
+                try:
+                    if request.REQUEST['enable']: enable = True
+                except:
+                    pass
+
+                try:
+                    host = '%s%s' % (settings.APPLICATION_HOST, reverse("webindex"))
+                except:
+                    host = '%s://%s:%s%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], reverse("webindex"))
+                manager.updateShareOrDiscussion(host, request.session['server'], message, members, enable, expiration)
+                return HttpResponseRedirect(url)
+            else:
+                template = "webclient/public/share_form.html"
+                context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'share':manager, 'form':form}
+        elif o_type == "sharecomment":
+            form_sharecomments = ShareCommentForm(data=request.REQUEST.copy())
+            if form_sharecomments.is_valid():
+                comment = request.REQUEST['comment'].encode('utf-8')
+                try:
+                    host = '%s%s' % (settings.APPLICATION_HOST, reverse("webindex"))
+                except:
+                    host = '%s://%s:%s%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], reverse("webindex"))
+                manager.addComment(host, request.session['server'], comment)
+                return HttpResponseRedirect(url)
+            else:
+                template = "webclient/annotations/annotation_new_form.html"
+                context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager, 'form_sharecomments':form_sharecomments}      
     elif action == 'addnew':
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["action", "new"]))
@@ -1186,7 +1284,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse(viewname="load_template", args=[menu])) 
             else:
                 template = "webclient/data/container_new.html"
-                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
+                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form}
         else:
             if request.REQUEST.get('folder_type') == "dataset":
                 form = ContainerForm(data=request.REQUEST.copy())
@@ -1197,7 +1295,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                     return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse(viewname="load_template", args=[menu])) 
                 else:
                     template = "webclient/data/container_new.html"
-                    context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
+                    context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form}
             elif request.REQUEST.get('folder_type') == "project":
                 form = ContainerForm(data=request.REQUEST.copy())
                 if form.is_valid():
@@ -1207,7 +1305,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                     return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse(viewname="load_template", args=[menu])) 
                 else:
                     template = "webclient/data/container_new.html"
-                    context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
+                    context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form}
             elif request.REQUEST.get('folder_type') == "screen":
                 form = ContainerForm(data=request.REQUEST.copy())
                 if form.is_valid():
@@ -1217,7 +1315,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                     return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse(viewname="load_template", args=[menu])) 
                 else:
                     template = "webclient/data/container_new.html"
-                    context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
+                    context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form}
     elif action == 'addcomment':
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["newcomment", o_type, oid]))
@@ -1370,46 +1468,80 @@ def download_annotation(request, action, iid, **kwargs):
     return rsp
 
 @isUserConnected
-def manage_shares(request, **kwargs):
-    request.session['nav']['menu'] = 'share'
-    request.session['nav']['whos'] = 'share'
-    
+def load_public(request, share_id=None, **kwargs):
+    request.session.modified = True
+    # check menu
+    menu = request.REQUEST.get("menu")
+    if menu is not None:
+        request.session['nav']['menu'] = menu
+    else:
+        menu = request.session['nav']['menu']
+    # check view
+    view = request.REQUEST.get("view")
+    if view is not None:
+        request.session['nav']['view'] = view
+    else:
+        view = request.session['nav']['view']
+
+    # get connection
     conn = None
     try:
-        conn = kwargs["conn"]
+        conn = kwargs["conn"]        
     except:
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
+    conn_share = None
     try:
-        request.session['nav']['view'] = request.REQUEST['view'] # table, icon, tree 
+        conn_share = kwargs["conn_share"]
     except:
-        pass
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Share connection is not available. Please contact your administrator.")
     
-    request.session.modified = True
+    # get url to redirect
+    url = None
+    try:
+        url = kwargs["url"]
+    except:
+        logger.error(traceback.format_exc())
+    if url is None:
+        url = reverse(viewname="load_template", args=[menu])
 
-    view = request.session['nav']['view']
+    # get page    
+    try:
+        page = int(request.REQUEST['page'])
+    except:
+        page = 1    
+    
+    if share_id is not None:
+        if view == 'tree':
+            template = "webclient/public/share_subtree.html"
+        elif view == 'icon':
+            template = "webclient/public/share_content_icon.html"
+        elif view == 'table':
+            template = "webclient/public/share_content_table.html"
+        controller = BaseShare(conn, conn_share, share_id)
+        if conn_share is None:
+            controller.loadShareOwnerContent()
+        else:
+            controller.loadShareContent()
+    else:
+        template = "webclient/public/share_tree.html"
+        controller = BaseShare(conn)
+        controller.getShares()
 
-    if view == 'icon':
-        template = "webclient/share/shares_icon.html"
-    else: # view == 'table':
-        template = "webclient/share/shares_table.html"
-    
-    controller = BaseShare(conn=conn, menu=request.session['nav']['menu'])
-    controller.getShares()
-    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups']})
-    
-    context = {'nav':request.session['nav'], 'eContext':controller.eContext, 'share':controller, 'form_active_group':form_active_group}
+    context = {'nav':request.session['nav'], 'eContext':controller.eContext, 'share':controller}
     t = template_loader.get_template(template)
     c = Context(request,context)
     return HttpResponse(t.render(c))
 
+##################################################################
+# Basket
+
 @isUserConnected
-def manage_share(request, action, sid=None, **kwargs):
-    request.session['nav']['menu'] = 'share'
-    request.session['nav']['whos'] = 'share'
-    
+def basket_action (request, action=None, **kwargs):
     request.session.modified = True
+    request.session['nav']['menu'] = 'basket'
     
     conn = None
     try:
@@ -1424,236 +1556,88 @@ def manage_share(request, action, sid=None, **kwargs):
     except:
         logger.error(traceback.format_exc())
     
-    try:
-        share = BaseShare(request.session['nav']['menu'], conn, None, sid, action)
-    except AttributeError, x:
-        return handlerInternalError(x)
-    form_active_group = ActiveGroupForm(initial={'activeGroup':share.eContext['context'].groupId, 'mygroups': share.eContext['allGroups']})
-    
-    experimenters = list(conn.getExperimenters())
-    context = None
-    form = None
-    if action == "create":
-        template = "webclient/basket/basket_share_action.html"
-        form = ShareForm(initial={'experimenters':experimenters}, data=request.REQUEST.copy())
-        if form.is_valid():
-            message = request.REQUEST['message'].encode('utf-8')
-            expiration = None
-            try:
-                if request.REQUEST['expiration'].encode('utf-8') is not None and request.REQUEST['expiration'].encode('utf-8') != "":
-                    expiration = str(request.REQUEST['expiration'].encode('utf-8'))
-            except:
-                pass
-            members = request.REQUEST.getlist('members')
-            #guests = request.REQUEST['guests']
-            enable = False
-            try:
-                if request.REQUEST['enable']: enable = True
-            except:
-                pass
-            
-            try:
-                host = '%s%s' % (settings.APPLICATION_HOST, reverse("webindex"))
-            except:
-                host = '%s://%s:%s%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], reverse("webindex"))
-            share.createShare(host, request.session['server'], request.session['imageInBasket'], message, members, enable, expiration)
-            return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse("manage_shares")) 
-        else:
-            basket = BaseBasket(conn)
-            basket.load_basket(request)
-            form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['allGroups']})
-            context = {'nav':request.session['nav'], 'eContext': share.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
-    elif action == "createdisc":
-        template = "webclient/basket/basket_discuss_action.html"
-        form = ShareForm(initial={'experimenters':experimenters}, data=request.REQUEST.copy())
-        if form.is_valid():
-            message = request.REQUEST['message'].encode('utf-8')
-            expiration = None
-            try:
-                if request.REQUEST['expiration'].encode('utf-8') is not None and request.REQUEST['expiration'].encode('utf-8') != "":
-                    expiration = str(request.REQUEST['expiration'].encode('utf-8'))
-            except:
-                pass
-            members = request.REQUEST.getlist('members')
-            #guests = request.REQUEST['guests']
-            enable = False
-            try:
-                if request.REQUEST['enable']: enable = True
-            except:
-                pass
-            try:
-                host = '%s%s' % (settings.APPLICATION_HOST, reverse("webindex"))
-            except:
-                host = '%s://%s:%s%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], reverse("webindex"))
-            share.createDiscussion(host, request.session['server'], message, members, enable, expiration)
-            return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse("manage_shares")) 
-        else:
-            basket = BaseBasket(conn)
-            basket.load_basket(request)
-            form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['allGroups']})
-            context = {'nav':request.session['nav'], 'eContext': share.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
-    elif action == 'edit':
-        template = "webclient/share/share_form.html"
-        share.getMembers(sid)
-        share.getComments(sid)
-        
-        if share.share.getExpirationDate() is not None:
-            form = ShareForm(initial={'message': share.share.message, 'expiration': share.share.getExpirationDate().strftime("%Y-%m-%d"), \
-                                    'shareMembers': share.membersInShare, 'enable': share.share.active, \
-                                    'experimenters': experimenters}) #'guests': share.guestsInShare,
-        else:
-            form = ShareForm(initial={'message': share.share.message, 'expiration': "", \
-                                    'shareMembers': share.membersInShare, 'enable': share.share.active, \
-                                    'experimenters': experimenters}) #'guests': share.guestsInShare,
-        context = {'url':url, 'nav':request.session['nav'], 'eContext': share.eContext, 'share':share, 'form':form, 'form_active_group':form_active_group}
-    elif action == 'save':
-        form = ShareForm(initial={'experimenters':experimenters}, data=request.REQUEST.copy())
-        if form.is_valid():
-            message = request.REQUEST['message'].encode('utf-8')
-            expiration = None
-            try:
-                if request.REQUEST['expiration'].encode('utf-8') is not None and request.REQUEST['expiration'].encode('utf-8') != "":
-                    expiration = str(request.REQUEST['expiration'].encode('utf-8'))
-            except:
-                pass
-            members = request.REQUEST.getlist('members')
-            #guests = request.REQUEST['guests']
-            enable = False
-            try:
-                if request.REQUEST['enable']: enable = True
-            except:
-                pass
-            
-            try:
-                host = '%s%s' % (settings.APPLICATION_HOST, reverse("webindex"))
-            except:
-                host = '%s://%s:%s%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], reverse("webindex"))
-            share.updateShareOrDiscussion(host, request.session['server'], message, members, enable, expiration)
-            return HttpResponseRedirect(reverse(viewname="manage_share", args=["view", sid]))
-        else:
-            template = "webclient/share/share_form.html"
-            share.getComments(sid)
-            context = {'url':url, 'nav':request.session['nav'], 'eContext': share.eContext, 'share':share, 'form':form, 'form_active_group':form_active_group}
-    elif action == 'delete':
-        return HttpResponseRedirect(reverse("manage_shares"))
-    elif action == 'view':
-        template = "webclient/share/share_details.html"
-        share.getAllUsers(sid)
-        share.getComments(sid)
-        if share.share.isExpired():
-            form = None
-        else:
-            form = ShareCommentForm()
-        context = {'nav':request.session['nav'], 'eContext': share.eContext, 'share':share, 'form':form, 'form_active_group':form_active_group}
-    elif action == 'comment':
-        f = ShareCommentForm(data=request.REQUEST.copy())
-        if f.is_valid():
-            comment = request.REQUEST['comment'].encode('utf-8')
-            try:
-                host = '%s%s' % (settings.APPLICATION_HOST, reverse("webindex"))
-            except:
-                host = '%s://%s:%s%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], reverse("webindex"))
-            share.addComment(host, request.session['server'], comment)
-            return HttpResponseRedirect(reverse(viewname="manage_share", args=["view", sid]))
-        else:
-            template = "webclient/share/share_details.html"
-            share.getComments(sid)
-            form = ShareCommentForm(data=request.REQUEST.copy())
-            context = {'nav':request.session['nav'], 'eContext': share.eContext, 'share':share, 'form':form, 'form_active_group':form_active_group}
-
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    return HttpResponse(t.render(c))
-
-@isUserConnected
-def load_share_content(request, share_id, **kwargs):
-    template = "webclient/share/share_content.html"
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    conn_share = None
-    try:
-        conn_share = kwargs["conn_share"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    try:
-        share = BaseShare(request.session['nav']['menu'], conn, conn_share, share_id)
-    except AttributeError, x:
-        return handlerInternalError(x)
-    share.loadShareContent()
-    
-    context = {'share':share, 'eContext':share.eContext}
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    return HttpResponse(t.render(c))
-
-@isUserConnected
-def load_share_owner_content(request, share_id, **kwargs):
-    template = "webclient/share/share_content.html"
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    try:
-        share = BaseShare(request.session['nav']['menu'], conn, None, share_id)
-    except AttributeError, x:
-        return handlerInternalError(x)
-    share.loadShareOwnerContent(share_id)
-    
-    context = {'share':share, 'eContext':share.eContext}
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    return HttpResponse(t.render(c))
-
-##################################################################
-# Basket
-
-@isUserConnected
-def basket_action (request, action=None, **kwargs):
-    request.session['nav']['menu'] = ''
-    request.session['nav']['whos'] = ''
-
-    request.session.modified = True
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
     if action == "toshare":
         template = "webclient/basket/basket_share_action.html"
+        basket = BaseBasket(conn)
+        basket.load_basket(request)
+        experimenters = sortByAttr(list(conn.getExperimenters()), 'lastName')
+        selected = [long(i) for i in request.REQUEST.getlist('image')]        
+        form = BasketShareForm(initial={'experimenters':experimenters, 'images':basket.imageInBasket, 'enable':True, 'selected':selected})            
+        context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'form':form}
+    elif action == "createshare":
+        if not request.method == 'POST':
+            return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, oid]))
         
         basket = BaseBasket(conn)
         basket.load_basket(request)
         experimenters = sortByAttr(list(conn.getExperimenters()), 'lastName')
-        
-        form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['allGroups']})
-        
-        form = ShareForm(initial={'experimenters': experimenters, 'enable':True})
-        context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
+        form = BasketShareForm(initial={'experimenters':experimenters, 'images':basket.imageInBasket}, data=request.REQUEST.copy())
+        if form.is_valid():
+            images = [long(i) for i in request.REQUEST.getlist('image')]
+            message = request.REQUEST['message'].encode('utf-8')
+            expiration = None
+            try:
+                if request.REQUEST['expiration'].encode('utf-8') is not None and request.REQUEST['expiration'].encode('utf-8') != "":
+                    expiration = str(request.REQUEST['expiration'].encode('utf-8'))
+            except:
+                pass
+            members = request.REQUEST.getlist('members')
+            #guests = request.REQUEST['guests']
+            enable = False
+            try:
+                if request.REQUEST['enable']: enable = True
+            except:
+                pass
+            
+            try:
+                host = '%s%s' % (settings.APPLICATION_HOST, reverse("webindex"))
+            except:
+                host = '%s://%s:%s%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], reverse("webindex"))
+            share = BaseShare(conn)
+            share.createShare(host, request.session['server'], images, message, members, enable, expiration)
+            return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse("load_public")) 
+        else:
+            template = "webclient/basket/basket_share_action.html"
+            context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'form':form}
     elif action == "todiscuss":
-        template = "webclient/basket/basket_discuss_action.html"
+        template = "webclient/basket/basket_discussion_action.html"
+        basket = BaseBasket(conn)
+        experimenters = sortByAttr(list(conn.getExperimenters()), 'lastName')
+        form = ShareForm(initial={'experimenters':experimenters, 'enable':True})            
+        context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'form':form}
+    elif action == "createdisc":
+        if not request.method == 'POST':
+            return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, oid]))
         
         basket = BaseBasket(conn)
         experimenters = sortByAttr(list(conn.getExperimenters()), 'lastName')
-        
-        form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['allGroups']})
-        
-        form = ShareForm(initial={'experimenters': experimenters, 'enable':True})
-        context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
+        form = ShareForm(initial={'experimenters':experimenters}, data=request.REQUEST.copy())
+        if form.is_valid():
+            message = request.REQUEST['message'].encode('utf-8')
+            expiration = None
+            try:
+                if request.REQUEST['expiration'].encode('utf-8') is not None and request.REQUEST['expiration'].encode('utf-8') != "":
+                    expiration = str(request.REQUEST['expiration'].encode('utf-8'))
+            except:
+                pass
+            members = request.REQUEST.getlist('members')
+            #guests = request.REQUEST['guests']
+            enable = False
+            try:
+                if request.REQUEST['enable']: enable = True
+            except:
+                pass
+            
+            try:
+                host = '%s%s' % (settings.APPLICATION_HOST, reverse("webindex"))
+            except:
+                host = '%s://%s:%s%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], reverse("webindex"))
+            share = BaseShare(conn)
+            share.createDiscussion(host, request.session['server'], message, members, enable, expiration)
+            return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse("load_public")) 
+        else:
+            template = "webclient/basket/basket_discussion_action.html"
+            context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'form':form}
     elif action == "toannotate":
         # TODO
         template = "webclient/basket/basket_share_action.html"
@@ -1662,9 +1646,8 @@ def basket_action (request, action=None, **kwargs):
         basket.load_basket(request)
         experimenters = conn.getExperimenters()
         
-        form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['allGroups']})
-        
         form = ShareForm(initial={'experimenters': experimenters})
+        form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['allGroups'], 'url':url})
         context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
     elif action == "totag":
         # TODO
@@ -1674,9 +1657,8 @@ def basket_action (request, action=None, **kwargs):
         basket.load_basket(request)
         experimenters = conn.getExperimenters()
         
-        form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['allGroups']})
-        
         form = ShareForm(initial={'experimenters': experimenters})
+        form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['allGroups'], 'url':url})
         context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'basket':basket, 'form':form, 'form_active_group':form_active_group}
     else:
         template = "webclient/basket/basket.html"
@@ -1684,7 +1666,7 @@ def basket_action (request, action=None, **kwargs):
         basket = BaseBasket(conn)
         basket.load_basket(request)
         
-        form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['allGroups']})
+        form_active_group = ActiveGroupForm(initial={'activeGroup':basket.eContext['context'].groupId, 'mygroups': basket.eContext['allGroups'], 'url':url})
         
         context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'basket':basket, 'form_active_group':form_active_group }
 
@@ -1869,9 +1851,15 @@ def importer(request, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
+    url = None
+    try:
+        url = kwargs["url"]
+    except:
+        logger.error(traceback.format_exc())
+        
     controller = BaseImpexp(conn)
-
-    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups']})
+    
+    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups'], 'url':url})
     
     context = {'sid':request.session['server'], 'uuid':conn._sessionUuid, 'nav':request.session['nav'], 'eContext': controller.eContext, 'controller':controller, 'form_active_group':form_active_group}
     t = template_loader.get_template(template)
@@ -1913,6 +1901,12 @@ def manage_myaccount(request, action=None, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
+    url = None
+    try:
+        url = kwargs["url"]
+    except:
+        logger.error(traceback.format_exc())
+        
     controller = BaseExperimenter(conn)
     controller.getMyDetails()
     controller.getOwnedGroups()
@@ -1954,7 +1948,8 @@ def manage_myaccount(request, action=None, **kwargs):
             controller.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution, password)
             return HttpResponseRedirect(reverse("myaccount"))
 
-    form_active_group = ActiveGroupForm(initial={'activeGroup':eContext['context'].groupId, 'mygroups': eContext['allGroups']})
+    form_active_group = ActiveGroupForm(initial={'activeGroup':eContext['context'].groupId, 'mygroups': eContext['allGroups'], 'url':url})
+    
     context = {'nav':request.session['nav'], 'eContext': eContext, 'controller':controller, 'form':form, 'ldapAuth': controller.ldapAuth, 'form_active_group':form_active_group}
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -2003,6 +1998,7 @@ def upload_myphoto(request, action=None, **kwargs):
 def help(request, **kwargs):
     template = "webclient/help.html"
     request.session.modified = True
+    
     conn = None
     try:
         conn = kwargs["conn"]
@@ -2010,9 +2006,15 @@ def help(request, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
+    url = None
+    try:
+        url = kwargs["url"]
+    except:
+        logger.error(traceback.format_exc())
+    
     controller = BaseHelp(conn)
     
-    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups']})
+    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups'], 'url':url})
     
     context = {'nav':request.session['nav'], 'eContext': controller.eContext, 'controller':controller, 'form_active_group':form_active_group}
     t = template_loader.get_template(template)
@@ -2234,12 +2236,14 @@ def image_viewer (request, iid, share_id=None, **kwargs):
     
     conn = None
     if share_id is not None:
+        kwargs['viewport_server'] = '/webclient/%s' % share_id
         try:
             conn = kwargs["conn_share"]
         except:
             logger.error(traceback.format_exc())
             return handlerInternalError("Connection is not available. Please contact your administrator.")
     else:
+        kwargs['viewport_server'] = '/webclient'
         try:
             conn = kwargs["conn"]
         except:
@@ -2248,10 +2252,6 @@ def image_viewer (request, iid, share_id=None, **kwargs):
          
     if conn is None:
         raise Exception("Share connection not available")
-    
-    kwargs['viewport_server'] = '/webclient'
-    if share_id:
-        kwargs['viewport_server'] += '/%s' % share_id
 
     return webgateway_views.full_viewer(request, iid, _conn=conn, **kwargs)
 
@@ -2362,93 +2362,3 @@ def spellchecker(request):
         con.close()
         return HttpJavascriptResponse(r_text)
 
-
-@isUserConnected
-def test(request, **kwargs):
-    template = "webclient/testROIs/test.html"
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    r = request.REQUEST
-    rv = {}
-    for k in ('x1', 'x2', 'y1', 'y2', 'w', 'h', 'shape'):
-        if r.has_key(k):
-           rv[k] = r[k]
-    
-    photo_size = conn.getExperimenterPhotoSize()
-    
-    context = {'photo_size':photo_size, 'params':rv}
-    t = template_loader.get_template(template)
-    c = Context(request, context)
-    rsp = t.render(c)
-    return HttpResponse(rsp)
-
-
-@isUserConnected
-def histogram(request, oid, **kwargs):
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-        
-    import matplotlib
-    matplotlib.use('Agg')
-    from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-    from matplotlib.figure import Figure
-    from cStringIO import StringIO
-
-    import Image
-    
-    from PIL import Image, ImageOps, ImageDraw
-    
-    valsR = conn.downloadPlane(oid, 5,0,1)
-    valsG = conn.downloadPlane(oid, 5,1,1)
-    valsB = conn.downloadPlane(oid, 5,2,1)
-    import numpy as np
-    import matplotlib.pyplot as plt
-    import matplotlib.mlab as mlab
-    
-    import pylab
-
-    # plt.figure creates a matplotlib.figure.Figure instance
-    #fig = plt.figure()
-    #canvas = FigureCanvas(fig)
-    #ax = fig.add_subplot(111)
-    #ax.set_title("title")
-    #ax.set_xlabel("Score")
-    #ax.set_ylabel("Frequency")
-    fig = pylab.figure()
-    binsR = valsR[0]
-    binsG = valsG[0]
-    binsB = valsB[0]
-
-    # the histogram of the data with histtype='step'
-    #nR, binsR, patchesR = ax.hist(binsR, bins=max(binsR), facecolor='red', edgecolor='red')
-    #nG, binsG, patchesG = ax.hist(binsG, bins=max(binsG), facecolor='green', edgecolor='green')
-    #nB, binsB, patchesB = ax.hist(binsB, bins=max(binsB), facecolor='blue', edgecolor='blue')
-
-    nR, binsR, patchesR = pylab.hist(binsR, max(binsR), normed=1, histtype='bar', edgecolor='red')
-    pylab.setp(patchesR, 'facecolor', 'r', 'alpha', 0.75)
-    nG, binsG, patchesG = pylab.hist(binsG, bins=max(binsG), normed=1, histtype='bar', edgecolor='green')
-    pylab.setp(patchesG, 'facecolor', 'g', 'alpha', 0.75)
-    nB, binsB, patchesB = pylab.hist(binsB, bins=max(binsB), normed=1, histtype='bar', edgecolor='blue')
-    pylab.setp(patchesB, 'facecolor', 'b', 'alpha', 0.75)
-    
-    #for label in ax.xaxis.get_ticklabels():
-    #    label.set_color('red')
-    #    label.set_rotation(90)
-    
-    canvas = FigureCanvas(fig)
-    
-    imdata = StringIO()
-    canvas.print_figure(imdata)
-    return HttpResponse(imdata.getvalue(), mimetype='image/png')
-    

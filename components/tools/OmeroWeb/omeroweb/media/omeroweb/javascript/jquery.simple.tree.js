@@ -205,17 +205,19 @@ $.fn.simpleTree = function(opt){
 				if(childNode.size()>0){
 				    var unknown = 0;
 				    if(this.id.match(/(orphaned)/)) {
-				        var setClassName = 'orfolder-'; //new
+				        var setClassName = 'orfolder-'; 
 					} else if(this.id.match(/(tag)+-[0-9]+/)) {
-    					var setClassName = 'tag-'; //new
+    					var setClassName = 'tag-';
+                    } else if(this.id.match(/(sh)+-[0-9]+/)) {
+    					var setClassName = 'share-';
                     } else if(this.id.match(/(pr)+-[0-9]+/)) {
-    					var setClassName = 'folder-'; //new
+    					var setClassName = 'folder-';
 					} else if(this.id.match(/(sc)+-[0-9]+/)) {
-    					var setClassName = 'folder2-'; //new
+    					var setClassName = 'folder2-';
 					} else if(this.id.match(/(ds)+-[0-9]+/)) {
 					    var setClassName = 'subfolder-';
 					} else {
-					    var setClassName = 'doc'; //new
+					    var setClassName = 'doc';
 					    unknown = 1;
 					}
 					
@@ -234,7 +236,9 @@ $.fn.simpleTree = function(opt){
 
 					TREE.setTrigger(this);
 				} else {
-				    if (this.id.indexOf('pl') >= 0) {
+				    if(this.id.match(/(disc)+-[0-9]+/)) {
+    					var setClassName = 'doc3'; 
+                    } else if (this.id.match(/(pl)+-[0-9]+/)) {
 					    var setClassName = 'doc2';
 				    } else {
 				        var setClassName = 'doc';

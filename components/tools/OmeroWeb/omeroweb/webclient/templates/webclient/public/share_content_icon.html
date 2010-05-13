@@ -1,0 +1,33 @@
+{% load i18n %}
+{% load markup %}
+{% load custom_tags %}
+{% load wikitags %}
+	
+    <script type="text/javascript">
+        $(document).ready(function(){
+            
+        });
+    </script>
+
+{% if share.imgSize %}
+
+    <div id="toolbar" class="toolbar_noborder">
+        <input onclick="changeView('table');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table">
+    </div>
+    <div class="clear"> </div>
+        
+    <ul id="dataIcons">
+        
+        {% for c in share.imageInShare %}
+        <li id="{{ c.id }}" title="{{ c.name }}"><em>{{ c.name }}</em>
+            <img id="{{ c.id }}" src="{% url render_thumbnail c.id share.share.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
+        </li>
+        {% endfor %}    
+        
+    </ul>
+
+{% else %}
+    <p>{% trans "No data." %}</p>
+{% endif %}
+
+

@@ -1,4 +1,4 @@
-{% extends "webclient/base/base_share.html" %}
+{% extends "webclient/base/base_frame.html" %}
 {% load i18n %}
 {% load markup %}
 {% load custom_tags %}
@@ -6,7 +6,7 @@
 
 {% block link %}
     <link rel="stylesheet" href="{% url webstatic "css/share.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/datepicker.css" %}" type="text/css" />
+    <link rel="stylesheet" href="{% url webstatic "css/ui-1.7.2.css" %}" type="text/css" />
     <link rel="stylesheet" href="{% url webstatic "css/googiespell.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
 {% endblock %}
@@ -15,10 +15,7 @@
     
     
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.dimensions.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.bgiframe.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.delegate.js" %}"></script>
-    
+
     <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.core.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.datepicker.js" %}"></script>
     
@@ -27,32 +24,14 @@
     <script type="text/javascript" src="{% url webstatic "javascript/googiespell/cookiesupport.js" %}"></script>
 {% endblock %}
 
-{% block script %}
-    <script type="text/javascript" src="{% url webstatic "javascript/menu.js" %}"></script>
-    
+{% block script %}    
     <script>
       $(document).ready(function(){
           $('#id_expiration').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd'});
           
       });
     </script>
-    
-    {% ifequal share.share.getShareType "Share" %}
-    <script>
-      $(document).ready(function(){
-          
-          $("div#share_content").html('<p>Loading content... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-          {% if share.share.isOwned %}
-              $("div#share_content").load("{% url load_share_owner_content share.share.id %}");
-          {% else %}
-              $("div#share_content").load("{% url load_share_content share.share.id %}");
-          {% endif %}
-          
-          $('#id_expiration').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd'});
-      });
-    </script>
-    {% endifequal %}
-    
+        
     <script type="text/javascript">
         $(function() {
             $("#markup_c, #enable, #expire").tooltip({ 
@@ -78,14 +57,18 @@
 <div class="clear"> </div>
 
     <div>
-        <form action="{% url manage_share "save" share.share.id %}" method="post">
+        <form action="{% url manage_action_containers "save" "share" share.share.id %}?url={{ url }}" method="post">
             <table>
             {% for field in form %}
-                <tr><th>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</th>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
-                </tr>
+                {% ifequal field.label_tag form.enable.label_tag %}
+                <tr><th>{{ field.label_tag }}{% if field.field.required %}*{% endif %} {{ field }} {{ field.help_text|safe }} {% if field.errors %}{{ field.errors }}{% endif %}</th></tr>
+                {% else %}                
+                <tr><th>{{ field.label_tag }}{% if field.field.required %}*{% endif %} {{ field.help_text|safe }}</th></tr>
+                <tr><td>{% if field.errors %}{{ field.errors }}{% endif %}</th></tr>
+                <tr><td>{{ field }}</td></tr>
+                {% endifequal %}
             {% endfor %}
-                <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
+                <tr><td><input type="submit" value="{% trans 'Save' %}" /> <input type="button" onclick='document.location.href="{{ url }}";' value="{% trans 'Cancel' %}" /></td></tr>
             </table>
         </form>
         <script type="text/javascript">
@@ -94,39 +77,4 @@
         </script>
     </div>
 
-    <div>
-        <h1>{% trans "Manage comments" %}:</h1>
-        {% if share.cmSize %}
-            {% for cm in share.comments %}
-                {% if cm.isOwned %}
-                    <div id="comment_wrapper">
-                    <div id="comment">
-                        <div class="head">{{ cm.getOwnerFullName }} {% trans "posted comment at" %} {{ cm.creationEventDate|date:"Y-m-d H:i:s" }} {% if cm.isOwned
- %}<a href="{% url manage_action_containers "edit" "comment" cm.id %}?url={{ url }}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}</div>
-                        <div class="body">{{ cm.textValue|sharewikify|safe|linebreaks }}</div>
-                        <div class="footer"></div>
-                    </div>
-                    <div class="photo"><img src="{% url load_photo cm.details.owner.id.val %}" alt="{{ cm.getOwnerFullName }}" title="{{ cm.getOwnerFullName }}" width="40" height="40" /></div>
-                    </div>
-                    <div class="clear"></div>
-                    <br/>
-                {% else %}
-                    <div id="comment_wrapper_rev">
-                    <div id="comment_rev">
-                        <div class="head">{{ cm.getOwnerFullName }} {% trans "posted comment at" %} {{ cm.creationEventDate|date:"Y-m-d H:i:s" }} {% if cm.isOwned
- %}<a href="{% url manage_action_containers "edit" "comment" cm.id %}?url={{ url }}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}</div>
-                        <div class="body">{{ cm.textValue|sharewikify|safe|linebreaks }}</div>
-                        <div class="footer"></div>
-                    </div>
-                    <div class="photo"><img src="{% url load_photo cm.details.owner.id.val %}" alt="{{ cm.getOwnerFullName }}" title="{{ cm.getOwnerFullName }}" width="40" height="40" /></div>
-                    </div>
-                    <div class="clear"></div>
-                    <br/>
-                {% endif %}
-            {% endfor %}
-            <div class="comment_bottom"> </div>
-        {% else %}
-            No comments.
-        {% endif %}
-    </div>
 {% endblock %}

@@ -1,0 +1,12 @@
+{% load i18n %}
+{% load markup %}
+{% load custom_tags %}
+{% load wikitags %}
+
+{% if share.imgSize %}
+    {% for d in share.imageInShare %}
+        <li id='img-{{ d.id }}' title="{{ d.name }}"><span id="readonly">{{ d.truncateNameForTree }}</span> </li>
+    {% endfor %}
+{% endif %}
+
+

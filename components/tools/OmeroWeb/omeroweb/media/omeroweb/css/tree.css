@@ -94,6 +94,37 @@
 	margin-left:-16px;
 	background: url(/appmedia/omeroweb/images/tree/expandable3-last-static.png) 0 -2px no-repeat;
 }
+/*shares*/
+.simpleTree .share-open
+{
+	margin-left:-16px;
+	background: url(/appmedia/omeroweb/images/tree/collapsable4.png) 0 -2px no-repeat;
+}
+.simpleTree .share-open-last
+{
+	margin-left:-16px;
+	background: url(/appmedia/omeroweb/images/tree/collapsable4-last.png) 0 -2px no-repeat;
+}
+.simpleTree .share-open-last-static
+{
+	margin-left:-16px;
+	background: url(/appmedia/omeroweb/images/tree/collapsable4-last-static.png) 0 -2px no-repeat;
+}
+.simpleTree .share-close
+{
+	margin-left:-16px;
+	background: url(/appmedia/omeroweb/images/tree/expandable4.png) 0 -2px no-repeat;
+}
+.simpleTree .share-close-last
+{
+	margin-left:-16px;
+	background: url(/appmedia/omeroweb/images/tree/expandable4-last.png) 0 -2px no-repeat;
+}
+.simpleTree .share-close-last-static
+{
+	margin-left:-16px;
+	background: url(/appmedia/omeroweb/images/tree/expandable4-last-static.png) 0 -2px no-repeat;
+}
 /*folder*/
 .simpleTree .folder-open
 {
@@ -241,6 +272,17 @@
 {
 	margin-left:-16px;
 	background: url(/appmedia/omeroweb/images/tree/leaf2-last.png) 0 -1px no-repeat;
+}
+.simpleTree .doc3
+{
+	cursor: pointer;
+	margin-left:-16px;
+	background: url(/appmedia/omeroweb/images/tree/leaf3.png) 0 -1px no-repeat;
+}
+.simpleTree .doc3-last
+{
+	margin-left:-16px;
+	background: url(/appmedia/omeroweb/images/tree/leaf3-last.png) 0 -1px no-repeat;
 }
 .simpleTree .ajax
 {

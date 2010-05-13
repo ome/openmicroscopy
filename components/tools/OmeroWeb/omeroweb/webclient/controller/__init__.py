@@ -84,6 +84,9 @@ class BaseController(object):
     def sortByAttr(self, seq, attr, reverse=False):
         return sortByAttr(seq, attr, reverse)
     
+    def getShareId(self):
+        return self.conn._shareId
+    
     #####################################################################
     # Permissions
     

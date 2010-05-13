@@ -79,7 +79,13 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if self._shareId is None:
             self._proxies['share'].activate(sh.id.val)
         self._shareId = sh.id.val
-
+    
+    def getShareId(self):
+        if self.getEventContext().shareId is not None:
+            if self.getEventContext().shareId != self._shareId and self._shareId > 0:
+                self._shareId = self.getEventContext().shareId
+        return self._shareId
+    
     def isForgottenPasswordSet(self):
         """ Retrieves a configuration value "omero.resetpassword.config" for
             Forgotten password form from the backend store. """
@@ -113,8 +119,12 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             and is loaded with the security for the current user and thread.
             Public data has to be created in the context of the group where user,
             who would like to look at these data, is a member of.
-            Public data can be only visible by the member of group and owners."""
+            Public data can be only visible by the member of group and owners."""        
         
+        for s in self.c.sf.activeServices():
+            print s
+        
+
         try:
             self.c.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid, False))
             admin_serv = self.getAdminService()
@@ -122,6 +132,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             self._ctx = self._proxies['admin'].getEventContext()
             return True
         except omero.SecurityViolation:
+            logger.error(traceback.format_exc())
+            return False
+        except:
+            logger.error(traceback.format_exc())
             return False
     
     ##############################################
@@ -1366,7 +1380,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 ann = meta.loadAnnotations("Experimenter", [self.getEventContext().userId], None, None, None).get(self.getEventContext().userId, [])[0]
             else:
                 ann = meta.loadAnnotations("Experimenter", [long(oid)], None, None, None).get(long(oid), [])[0]
-            print ann
             store = self.createRawFileStore()
             store.setFileId(ann.file.id.val)
             photo = store.read(0,long(ann.file.size.val))
@@ -1727,8 +1740,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             else:
                 blitz = settings.SERVER_LIST.get(pk=blitz_id)
                 t = settings.EMAIL_TEMPLATES["add_comment_to_share"]
-                message = t['content_txt'] % (settings.APPLICATION_HOST, share_id, blitz_id)
-                message_html = t['content_html'] % (settings.APPLICATION_HOST, share_id, blitz_id, settings.APPLICATION_HOST, share_id, blitz_id)
+                message = t['text_content'] % (settings.APPLICATION_HOST, share_id, blitz_id)
+                message_html = t['html_content'] % (settings.APPLICATION_HOST, share_id, blitz_id, settings.APPLICATION_HOST, share_id, blitz_id)
                 
                 try:
                     title = 'OMERO.web - new comment'
@@ -1741,7 +1754,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                     logger.error(traceback.format_exc())
                 
     
-    def createShare(self, host, blitz_id, imageInBasket, message, members, enable, expiration=None):
+    def createShare(self, host, blitz_id, image, message, members, enable, expiration=None):
         sh = self.getShareService()
         q = self.getQueryService()
         
@@ -1750,8 +1763,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p = omero.sys.Parameters()
         p.map = {} 
         #images
-        if len(imageInBasket) > 0:
-            p.map["ids"] = rlist([rlong(long(a)) for a in imageInBasket])
+        if len(image) > 0:
+            p.map["ids"] = rlist([rlong(long(a)) for a in image])
             sql = "select i from Image as i " \
                   "left outer join fetch i.pixels as p " \
                   "left outer join fetch p.pixelsType as pt " \
@@ -1788,8 +1801,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 logger.error(traceback.format_exc())
             else:
                 t = settings.EMAIL_TEMPLATES["create_share"]
-                message = t['content_txt'] % (settings.APPLICATION_HOST, sid, blitz_id, self.getUser().getFullName())
-                message_html = t['content_html'] % (settings.APPLICATION_HOST, sid, blitz_id, settings.APPLICATION_HOST, sid, blitz_id, self.getUser().getFullName())
+                message = t['text_content'] % (settings.APPLICATION_HOST, sid, blitz_id, self.getUser().getFullName())
+                message_html = t['html_content'] % (settings.APPLICATION_HOST, sid, blitz_id, settings.APPLICATION_HOST, sid, blitz_id, self.getUser().getFullName())
                 
                 try:
                     title = 'OMERO.web - new share'
@@ -1821,8 +1834,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             else:
                 blitz = settings.SERVER_LIST.get(pk=blitz_id)
                 t = settings.EMAIL_TEMPLATES["add_member_to_share"]
-                message = t['content_txt'] % (settings.APPLICATION_HOST, share_id, blitz_id, self.getUser().getFullName())
-                message_html = t['content_html'] % (settings.APPLICATION_HOST, share_id, blitz_id, settings.APPLICATION_HOST, share_id, blitz_id, self.getUser().getFullName())
+                message = t['text_content'] % (settings.APPLICATION_HOST, share_id, blitz_id, self.getUser().getFullName())
+                message_html = t['html_content'] % (settings.APPLICATION_HOST, share_id, blitz_id, settings.APPLICATION_HOST, share_id, blitz_id, self.getUser().getFullName())
                 try:
                     title = 'OMERO.web - update share'
                     text_content = message
@@ -1842,8 +1855,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             else:
                 blitz = settings.SERVER_LIST.get(pk=blitz_id)
                 t = settings.EMAIL_TEMPLATES["remove_member_from_share"]
-                message = t['content_txt'] % (settings.APPLICATION_HOST, share_id, blitz_id)
-                message_html = t['content_html'] % (settings.APPLICATION_HOST, share_id, blitz_id, settings.APPLICATION_HOST, share_id, blitz_id)
+                message = t['text_content'] % (settings.APPLICATION_HOST, share_id, blitz_id)
+                message_html = t['html_content'] % (settings.APPLICATION_HOST, share_id, blitz_id, settings.APPLICATION_HOST, share_id, blitz_id)
                 
                 try:
                     title = 'OMERO.web - update share'
@@ -2029,7 +2042,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
            search.setAllowLeadingWildcard(True)
            search.byFullText(str(query))
         if search.hasNext():
-            for e in search.results():
+            rv = search.results()
+            search.close()
+            for e in rv:
                 yield ImageWrapper(self, e)
 
     def searchDatasets (self, query=None, created=None):
@@ -2040,7 +2055,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             search.setAllowLeadingWildcard(True)
             search.byFullText(str(query))
         if search.hasNext():
-            for e in search.results():
+            rv = search.results()
+            search.close()
+            for e in rv:
                 yield DatasetWrapper(self, e)
 
     def searchProjects (self, query=None, created=None):
@@ -2051,7 +2068,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
            search.setAllowLeadingWildcard(True)
            search.byFullText(str(query))
         if search.hasNext():
-            for e in search.results():
+            rv = search.results()
+            search.close()
+            for e in rv:
                 yield ProjectWrapper(self, e)
     
     def searchScreens (self, query=None, created=None):
@@ -2062,7 +2081,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
            search.setAllowLeadingWildcard(True)
            search.byFullText(str(query))
         if search.hasNext():
-            for e in search.results():
+            rv = search.results()
+            search.close()
+            for e in rv:
                 yield ScreenWrapper(self, e)
     
     def searchPlates (self, query=None, created=None):
@@ -2073,17 +2094,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
            search.setAllowLeadingWildcard(True)
            search.byFullText(str(query))
         if search.hasNext():
-            for e in search.results():
+            rv = search.results()
+            search.close()
+            for e in rv:
                 yield PlateWrapper(self, e)
-    
-    def downloadPlane(self, oid, z, c, t):
-        p = ParametersI().leaves()        
-        image = self.getContainerService().getImages('Image', [long(oid)], p)[0]
-        pixels = image.getPrimaryPixels()
-        rp = self.createRawPixelsStore()
-        rp.setPixelsId(pixels.getId().val, True)
-        from omero.util.script_utils import downloadPlane
-    	return downloadPlane(rp, pixels, z,c,t-1);
     
     ##############################################
     ##  helpers                                 ##

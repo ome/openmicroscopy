@@ -31,9 +31,10 @@ from django.forms.widgets import HiddenInput
 from django.core.urlresolvers import reverse
 
 from custom_forms import UrlField, MetadataModelChoiceField, \
-                         AnnotationModelMultipleChoiceField
+                        AnnotationModelMultipleChoiceField
 from omeroweb.webadmin.custom_forms import ExperimenterModelChoiceField, \
-                        GroupModelChoiceField, ExperimenterModelMultipleChoiceField
+                        ExperimenterModelMultipleChoiceField, \
+                        GroupModelMultipleChoiceField, GroupModelChoiceField
                         
 ##################################################################
 # Static values
@@ -56,14 +57,15 @@ class ShareForm(forms.Form):
     
     def __init__(self, *args, **kwargs):
         super(ShareForm, self).__init__(*args, **kwargs)
+        
         try:
             if kwargs['initial']['shareMembers']: pass
-            self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['shareMembers'], widget=forms.SelectMultiple(attrs={'size':10}))
+            self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['shareMembers'], widget=forms.SelectMultiple(attrs={'size':5}))
         except:
-            self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], widget=forms.SelectMultiple(attrs={'size':10}))
+            self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], widget=forms.SelectMultiple(attrs={'size':5}))
         self.fields.keyOrder = ['message', 'expiration', 'enable', 'members']#, 'guests']
     
-    message = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 40}), help_text=help_wiki_c) 
+    message = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 39}), help_text=help_wiki_c) 
     expiration = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':20}), label="Expire date", help_text=help_expire, required=False)
     enable = forms.CharField(widget=forms.CheckboxInput(attrs={'size':1}), required=False, help_text=help_enable)
     #guests = MultiEmailField(required=False, widget=forms.TextInput(attrs={'size':75}))
@@ -81,9 +83,20 @@ class ShareForm(forms.Form):
             if time.mktime(date.timetuple()) <= time.time():
                 raise forms.ValidationError('Expire date must be in the future.')
 
+class BasketShareForm(ShareForm):
+    
+    def __init__(self, *args, **kwargs):
+        super(BasketShareForm, self).__init__(*args, **kwargs)
+        
+        try:
+            self.fields['image'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['images'], initial=kwargs['initial']['selected'], widget=forms.SelectMultiple(attrs={'size':10}))
+        except:
+            self.fields['image'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['images'], widget=forms.SelectMultiple(attrs={'size':10}))
+
+
 class ShareCommentForm(forms.Form):
 
-    comment = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 60}), help_text=help_wiki_c)
+    comment = forms.CharField(widget=forms.Textarea(attrs={'rows': 8, 'cols': 39}), help_text=help_wiki_c)
     
 class ContainerForm(forms.Form):
     
@@ -165,7 +178,10 @@ class ActiveGroupForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(ActiveGroupForm, self).__init__(*args, **kwargs)
-        self.fields['active_group'] = GroupModelChoiceField(queryset=kwargs['initial']['mygroups'], initial=kwargs['initial']['activeGroup'], empty_label=None, widget=forms.Select(attrs={'onchange':'window.location.href=\''+reverse(viewname="change_active_group")+'?active_group=\'+this.options[this.selectedIndex].value'})) 
+        try:
+            self.fields['active_group'] = GroupModelChoiceField(queryset=kwargs['initial']['mygroups'], initial=kwargs['initial']['activeGroup'], empty_label=None, widget=forms.Select(attrs={'onchange':'window.location.href=\''+reverse(viewname="change_active_group")+'?url='+kwargs['initial']['url']+'&active_group=\'+this.options[this.selectedIndex].value'})) 
+        except:
+            self.fields['active_group'] = GroupModelChoiceField(queryset=kwargs['initial']['mygroups'], initial=kwargs['initial']['activeGroup'], empty_label=None, widget=forms.Select(attrs={'onchange':'window.location.href=\''+reverse(viewname="change_active_group")+'?active_group=\'+this.options[this.selectedIndex].value'})) 
         self.fields.keyOrder = ['active_group']
 
 class HistoryTypeForm(forms.Form):

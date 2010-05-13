@@ -730,7 +730,7 @@
           </div>
           <h1>Rendering Details</h1>
           <div class="odd row">
-            <label for="wblitz-channels-box">Channels</label> - <a href="#" onclick="$('#rdef-postit').toggle(); return false;">Edit</a><br />
+            <label for="wblitz-channels-box">Channels</label>{{image.isReadOnly}} {{blitzcon.getShareId}}{% if not image.isReadOnly and not blitzcon.getShareId %} - <a href="#" onclick="$('#rdef-postit').toggle(); return false;">Edit</a>{% endif %}<br />
             <span id="wblitz-channels-box"></span>
           </div>
           <div class="even row">
@@ -776,7 +776,7 @@
 {% block content_script %}
   $(document).ready(function () {
     /* Prepare the viewport */
-    viewport = $.WeblitzViewport($('#weblitz-viewport'), '/webgateway',{% block viewport_opts %}null{% endblock %});
+    viewport = $.WeblitzViewport($('#weblitz-viewport'), '{{ viewport_server }}',{% block viewport_opts %}null{% endblock %});
     viewport.bind('imageLoad', _refresh_cb);
 
     /* Prepare the Zoom spin button */

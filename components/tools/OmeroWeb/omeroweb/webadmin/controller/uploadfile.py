@@ -23,7 +23,7 @@
 #
 
 from omero.rtypes import *
-from omero.model import ExperimenterAnnotationLinkI, FileAnnotationI, OriginalFileI
+from omero.model import ExperimenterAnnotationLinkI
 
 from webadmin.controller import BaseController
 

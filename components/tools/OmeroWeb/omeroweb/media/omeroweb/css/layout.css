@@ -368,3 +368,7 @@ label {
 #tree_details, #metadata_details {
     overflow: auto;
 }
+
+.hiddenField {
+    display: none;
+}

@@ -349,3 +349,37 @@ function doPagination(view, page) {
     $("div#content_details").load('/webclient/load_data/dataset/'+rel+'/?view='+view+'&page='+page);
     return false;
 }
+
+function makeShare() {
+    if (!isCheckedById("image")) {//&& !isCheckedById("dataset") && !isCheckedById("plate")) {
+        alert ("Please select at least one image. Currently you cannot add other objects to basket."); 
+    } else { 
+        var productArray = $("input[type='checkbox']:checked");
+        var productListQuery = "";
+        if (productArray.length > 0 ) {
+            productArray.each(function() {
+                if(this.checked) {
+                    productListQuery += "&"+this.name+"="+this.id;
+                }
+            });
+        } else {
+            productListQuery += "&"+productArray.name+"="+productArray.id;
+        }
+    }
+    
+    var h = $(window).height()-169;
+    $("#right_panel").show();
+    $("#swapMeta").html('<img tabindex="0" src="/appmedia/omeroweb/images/tree/spacer.gif" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+    $("div#metadata_details").html('<iframe width="370" height="'+h+'" src="/webclient/basket/toshare/?'+productListQuery+'" id="metadata_details" name="metadata_details"></iframe>');
+    $('iframe#metadata_details').load();
+    return false;
+}
+
+function makeDiscussion() {
+    var h = $(window).height()-169;
+    $("#right_panel").show();
+    $("#swapMeta").html('<img tabindex="0" src="/appmedia/omeroweb/images/tree/spacer.gif" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+    $("div#metadata_details").html('<iframe width="370" height="'+h+'" src="/webclient/basket/todiscuss/" id="metadata_details" name="metadata_details"></iframe>');
+    $('iframe#metadata_details').load();
+    return false;
+}

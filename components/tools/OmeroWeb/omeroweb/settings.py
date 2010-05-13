@@ -249,19 +249,19 @@ except:
 
 EMAIL_TEMPLATES = {
     'create_share': {
-        'html_content':'<p>Hi,</p><p>I would like to share some of my data with you.<br/>Please find it on the <a href=""%%swebclient/share/view/%%i/?server=%%i"">%%swebclient/share/view/%%i/?server=%%i</a>.</p><p>%%s</p>', 
-        'text_content':'Hi, I would like to share some of my data with you. Please find it on the %%swebclient/share/view/%%i/?server=%%i. /n %%s'
+        'html_content':'<p>Hi,</p><p>I would like to share some of my data with you.<br/>Please find it on the <a href=""%swebclient/share/view/%i/?server=%i"">%swebclient/share/view/%i/?server=%i</a>.</p><p>%s</p>', 
+        'text_content':'Hi, I would like to share some of my data with you. Please find it on the %swebclient/share/view/%i/?server=%i. /n %s'
     },
     'add_member_to_share': {
-        'html_content':'<p>Hi,</p><p>I would like to share some of my data with you.<br/>Please find it on the <a href=""%%swebclient/share/view/%%i/?server=%%i"">%%swebclient/share/view/%%i/?server=%%i</a>.</p><p>%%s</p>', 
-        'text_content':'Hi, I would like to share some of my data with you. Please find it on the %%swebclient/share/view/%%i/?server=%%i. /n %%s'
+        'html_content':'<p>Hi,</p><p>I would like to share some of my data with you.<br/>Please find it on the <a href=""%swebclient/share/view/%i/?server=%i"">%swebclient/share/view/%i/?server=%i</a>.</p><p>%s</p>', 
+        'text_content':'Hi, I would like to share some of my data with you. Please find it on the %swebclient/share/view/%i/?server=%i. /n %s'
     },
     'remove_member_from_share': {
-        'html_content':'<p>You were removed from the share <a href=""%%swebclient/share/view/%%i/?server=%%i"">%%swebclient/share/view/%%i/?server=%%i</a>. This share is no longer available for you.</p>',
-        'text_content':'You were removed from the share %%swebclient/share/view/%%i/?server=%%i. This share is no longer available for you.'
+        'html_content':'<p>You were removed from the share <a href=""%swebclient/share/view/%i/?server=%i"">%swebclient/share/view/%i/?server=%i</a>. This share is no longer available for you.</p>',
+        'text_content':'You were removed from the share %swebclient/share/view/%i/?server=%i. This share is no longer available for you.'
     },
     'add_comment_to_share': {
-        'html_content':'<p>New comment is available on share <a href=""%%swebclient/share/view/%%i/?server=%%i"">%%swebclient/share/view/%%i/?server=%%i</a>.</p>',
-        'text_content':'New comment is available on share %%swebclient/share/view/%%i/?server=%%i.'
+        'html_content':'<p>New comment is available on share <a href=""%swebclient/share/view/%i/?server=%i"">%swebclient/share/view/%i/?server=%i</a>.</p>',
+        'text_content':'New comment is available on share %swebclient/share/view/%i/?server=%i.'
     }
 }

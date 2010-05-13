@@ -1,0 +1,41 @@
+{% load i18n %}
+{% load markup %}
+{% load custom_tags %}
+
+{% if share.sharesSize %}
+<ul class="simpleTree">
+    <li class="root" id='0'><span>{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.getFullName }}{% endif %}</span>
+        {% if share.oshSize %}
+        <ul>
+            {% for s in share.ownShares %}
+            {% if s.isEmpty %}
+            <li id="disc-{{ s.id }}"><span id="readonly">share {{ s.id }}</span></li>
+            {% else %}
+            <li id="sh-{{ s.id }}"><span id="readonly">share {{ s.id }}</span>
+                <ul class="ajax">
+                    <li id='{{ s.id }}'>{url:{% url load_public s.id %}?view=tree}</li>
+                </ul>
+            </li>
+            {% endif %}
+            {% endfor %}
+        </ul>
+        {% endif %}   
+    
+        {% if share.mshSize %}
+        <ul>
+            {% for s in share.memberShares %}
+            <li id="sh-{{ s.id }}"><span id="readonly">{{ s.truncateMessageForTree }}</span>
+                <ul class="ajax">
+                    <li id='{{ s.id }}'>{url:{% url load_public s.id %}?view=tree}</li>
+                </ul>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </li>
+</ul>
+{% else %}
+    {% trans "No data." %}
+{% endif %}
+
+

@@ -37,7 +37,7 @@ class BaseBasket(BaseController):
 
     def __init__(self, conn, **kw):
         BaseController.__init__(self, conn)
-
+    
     def load_basket(self, request):
         imInBasket = list()
         dsInBasket = list()
