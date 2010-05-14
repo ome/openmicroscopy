@@ -65,7 +65,11 @@ public class FileData
 		if (!(object instanceof OriginalFile))
 			throw new IllegalArgumentException("File not supported.");
 		setValue(object);
-		String path = object.getName().getValue();
+		
+		String path = "";
+		if (object.getPath() != null)
+			path = object.getPath().getValue();
+		path += object.getName().getValue();
 		file = new File(path);
 	}
 	
