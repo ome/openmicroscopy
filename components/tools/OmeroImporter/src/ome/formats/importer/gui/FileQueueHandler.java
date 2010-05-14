@@ -190,6 +190,17 @@ public class FileQueueHandler extends JPanel
         }
     }
 
+    private void addEnabled(boolean enabled)
+    {
+    	if (enabled)
+    		viewer.setCursor(Cursor.getDefaultCursor());
+    	else
+    		viewer.setCursor(java.awt.Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+    	
+    	qTable.addBtn.setEnabled(enabled);
+    	qTable.removeBtn.setEnabled(enabled);
+    }
+    
     /**
      * Add all files that are selected in the JFileChooser
      */
@@ -197,7 +208,7 @@ public class FileQueueHandler extends JPanel
     {
         boolean filesOnly = true;
         
-        setCursor(java.awt.Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        addEnabled(false);
         final File[] _files = fileChooser.getSelectedFiles();                    
 
         if (_files == null)
@@ -320,14 +331,14 @@ public class FileQueueHandler extends JPanel
         }
                 
         if (spw == null) {
-            setCursor(Cursor.getDefaultCursor());
+        	addEnabled(true);
             containers.clear();
             return; // Invalid containers.
         }
         
         if (getOMEROMetadataStoreClient() != null && spw.booleanValue())
         {
-            setCursor(Cursor.getDefaultCursor());
+        	addEnabled(true);
             SPWDialog dialog =
                 new SPWDialog(config, viewer, "Screen Import", true, getOMEROMetadataStoreClient());
             if (dialog.cancelled == true || dialog.screen == null) 
@@ -345,7 +356,7 @@ public class FileQueueHandler extends JPanel
         }
         else if (getOMEROMetadataStoreClient() != null)
         {
-            setCursor(Cursor.getDefaultCursor());
+        	addEnabled(true);
             ImportDialog dialog = 
                 new ImportDialog(config, viewer, "Image Import", true, getOMEROMetadataStoreClient());
             if (dialog.cancelled == true || dialog.dataset == null) 
@@ -373,7 +384,7 @@ public class FileQueueHandler extends JPanel
             qTable.centerOnRow(qTable.queue.getRowCount()-1);
             qTable.importBtn.requestFocus();
         } else {
-            setCursor(Cursor.getDefaultCursor());
+        	addEnabled(true);
             JOptionPane.showMessageDialog(viewer, 
                     "Due to an error the application is unable to \n" +
                     "retrieve an OMEROMetadataStore and cannot continue." +
@@ -698,6 +709,8 @@ public class FileQueueHandler extends JPanel
         
         else if (event instanceof ImportCandidates.SCANNING)
         {
+        	addEnabled(false);
+        	
             ImportCandidates.SCANNING ev = (ImportCandidates.SCANNING) event;
             if (scanEx.isShutdown() || cancelScan) {
                 log.info("Cancelling scan");
@@ -736,7 +749,7 @@ public class FileQueueHandler extends JPanel
                             cancelScan  = true;
                             progressDialog.dispose();
                             progressDialog = null;
-                            setCursor(Cursor.getDefaultCursor());
+                            addEnabled(true);
                         }
                     });      
 
@@ -756,7 +769,7 @@ public class FileQueueHandler extends JPanel
                   {
                       progressDialog.dispose();
                       progressDialog = null;
-                      setCursor(Cursor.getDefaultCursor());
+                      addEnabled(true);
                   }
             }
             

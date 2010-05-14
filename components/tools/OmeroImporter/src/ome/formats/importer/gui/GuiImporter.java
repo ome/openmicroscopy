@@ -66,6 +66,8 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+import loci.formats.ImageWriter;
+
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportConfig;
@@ -173,7 +175,7 @@ WindowStateListener, WindowFocusListener
     public GuiImporter(ImportConfig config)
     {
         //super(TITLE);
-
+    	
         javax.swing.ToolTipManager.sharedInstance().setDismissDelay(0);
 
         this.config = config;

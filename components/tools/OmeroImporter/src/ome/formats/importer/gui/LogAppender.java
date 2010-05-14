@@ -77,6 +77,8 @@ public class LogAppender
      */
     public void append(String string)
     {
+    	if (string.contains("loci."))
+    		return;
         if (t == null)
         {
         	return;

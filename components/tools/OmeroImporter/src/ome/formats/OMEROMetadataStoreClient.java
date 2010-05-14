@@ -5201,6 +5201,13 @@ public class OMEROMetadataStoreClient
             int experimentIndex, int microbeamManipulationIndex,
             int lightSourceSettingsIndex)
     {
+    	
+        LSID key = new LSID(LightSettings.class, experimentIndex, 
+        		microbeamManipulationIndex, lightSourceSettingsIndex);
+        addReference(key, new LSID(id));
+        
+        
+    	/*
         checkDuplicateLSID(LightSettings.class, id);
         LinkedHashMap<Index, Integer> indexes =
             new LinkedHashMap<Index, Integer>();
@@ -5210,6 +5217,7 @@ public class OMEROMetadataStoreClient
         IObjectContainer o = getIObjectContainer(LightSettings.class, indexes);
         o.LSID = id;
         addAuthoritativeContainer(LightSettings.class, id, o);
+        */
     }
     
     /* (non-Javadoc)
