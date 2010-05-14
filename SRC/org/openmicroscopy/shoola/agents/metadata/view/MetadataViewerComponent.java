@@ -57,7 +57,7 @@ import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.util.ChannelSelectionDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.agents.util.FileDataRegistration;
+import org.openmicroscopy.shoola.agents.util.DataObjectRegistration;
 import org.openmicroscopy.shoola.agents.util.ui.MovieExportDialog;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
@@ -459,7 +459,7 @@ class MetadataViewerComponent
 						asynch);
 				fireStateChange();
 			} else {
-				FileDataRegistration r = new FileDataRegistration(toAdd, 
+				DataObjectRegistration r = new DataObjectRegistration(toAdd, 
 						toRemove, toDelete, metadata, data);
 				firePropertyChange(REGISTER_PROPERTY, null, r);
 				return;
@@ -490,8 +490,16 @@ class MetadataViewerComponent
 			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave, 
 					asynch);
 		} else if (refObject instanceof ImageData) {
-			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave,
-					asynch);
+			ImageData img = (ImageData) refObject;
+			if (img.getId() < 0) {
+				DataObjectRegistration r = new DataObjectRegistration(toAdd, 
+						toRemove, toDelete, metadata, data);
+				firePropertyChange(REGISTER_PROPERTY, null, r);
+				return;
+			} else {
+				model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave,
+						asynch);
+			}
 		} else if (refObject instanceof WellSampleData) {
 			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave,
 					asynch);

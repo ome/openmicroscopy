@@ -197,6 +197,7 @@ public class ThumbnailSetLoader
      */
     private void loadFSThumbnails(List files)
     {
+    	List result = new ArrayList();
     	try {
     		ExperimenterData exp = (ExperimenterData) context.lookup(
 					LookupNames.CURRENT_USER_DETAILS);
@@ -204,7 +205,6 @@ public class ThumbnailSetLoader
     		Map<DataObject, BufferedImage> m = service.getFSThumbnailSet(files, 
         			maxLength, id);
     		Entry entry;
-    		List result = new ArrayList();
         	Iterator i = m.entrySet().iterator();
         	BufferedImage thumb;
         	DataObject obj;
@@ -225,6 +225,7 @@ public class ThumbnailSetLoader
 			}
         	currentThumbs = result;
 		} catch (Exception e) {
+			currentThumbs = result;
 			context.getLogger().error(this, 
         			"Cannot retrieve thumbnail: "+e.getMessage());
 		}

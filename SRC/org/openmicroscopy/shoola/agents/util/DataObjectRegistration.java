@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.util.FileDataRegistration 
+ * org.openmicroscopy.shoola.agents.util.DataObjectRegistration 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
@@ -46,7 +46,7 @@ import pojos.DataObject;
  * </small>
  * @since 3.0-Beta4
  */
-public class FileDataRegistration 
+public class DataObjectRegistration 
 {
 	
 	/** The collection of annotations to add to the element when registered. */
@@ -79,7 +79,7 @@ public class FileDataRegistration
 	 * @param metadata  The metadata to save.
 	 * @param data		The object to register or un-register.
 	 */
-	public FileDataRegistration(List<AnnotationData> toAdd, 
+	public DataObjectRegistration(List<AnnotationData> toAdd, 
 				List<AnnotationData> toRemove, List<AnnotationData> toDelete,
 				List<Object> metadata,
 				DataObject data)

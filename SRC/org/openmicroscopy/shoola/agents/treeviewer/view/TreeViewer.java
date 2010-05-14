@@ -42,7 +42,7 @@ import javax.swing.filechooser.FileFilter;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.util.ImportableObject;
-import org.openmicroscopy.shoola.agents.util.FileDataRegistration;
+import org.openmicroscopy.shoola.agents.util.DataObjectRegistration;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
@@ -986,7 +986,7 @@ public interface TreeViewer
 	 * 
 	 * @param file The file to register..
 	 */
-	void register(FileDataRegistration file);
+	void register(DataObjectRegistration file);
 	
 	/**
 	 * Returns the permission level of the selected group. One of the constants

@@ -707,12 +707,12 @@ public interface Browser
 	void setGroups(Collection groups, List expanded);
 
 	/** 
-	 * Registers the specified the file. Returns <code>true</code>
+	 * Registers the specified object. Returns <code>true</code>
 	 * if the file has been registered, <code>false</code> otherwise.
 	 * 
 	 * @param file The file to register.
 	 */
-	boolean register(FileData file);
+	boolean register(DataObject file);
 
 	/**
 	 * Sets the experimenters counted in the specified group.

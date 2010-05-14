@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data;
 //Java imports
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -113,7 +114,6 @@ public class FSFileSystemView
     				return entry;
     		}
     	}
-    	
     	return null;
     }
     
@@ -122,12 +122,9 @@ public class FSFileSystemView
      * 
      * @param files 	The files to handle.
      * @param elements  The elements from the <code>FileSystem</code>
-     * @param useFileHiding  Pass <code>true</code> to display the hidden files,
-     * 						<code>false</code> otherwise.
      */
     private void populate(FileData root, 
-    		Vector<DataObject> files, List<FileSet> elements,
-    		boolean useFileHiding)
+    		Vector<DataObject> files, List<FileSet> elements)
     {
     	if (elements == null) return;
 		Iterator<FileSet> i = elements.iterator();
@@ -145,58 +142,55 @@ public class FSFileSystemView
 		ImageData image;
 		String parentName;
 		int index;
-		String absolute = root.getAbsolutePath();
-		if (useFileHiding) {
-		} else {
-			while (i.hasNext()) {
-				fs = i.next();
-				name = fs.fileName;
-				System.err.println(name);
-				f = new File(name);
-				if (!f.isHidden()) {
-					count = fs.imageCount;
-					usedFiles = fs.usedFiles;
-					if (usedFiles.size() > 0) 
-						file = (OriginalFile) usedFiles.get(0);
-					if (count == 0) {
-						if (file == null) {
-							of = new OriginalFileI();
-							of.setName(omero.rtypes.rstring(name));
-							file = of;
-						} else {
-							file.setPath(omero.rtypes.rstring(
-									absolute+file.getPath().getValue()));
+		boolean dir;
+		FileData data;
+		while (i.hasNext()) {
+			fs = i.next();
+			dir = true;
+			name = fs.fileName;
+			count = fs.imageCount;
+			usedFiles = fs.usedFiles;
+			if (usedFiles.size() > 0) 
+				file = (OriginalFile) usedFiles.get(0);
+			if (count == 0) {
+				if (file == null) {
+					of = new OriginalFileI();
+					of.setName(omero.rtypes.rstring(name));
+					file = of;
+				} 
+				data = new FileData(file, dir);
+				data.setRepositoryPath(root.getAbsolutePath());
+				files.addElement(data);
+			} else {
+				images = fs.imageList;
+				count = images.size();
+				if (count == 1) {
+					image = new ImageData(images.get(0));
+					data = new FileData(file);
+					data.setRepositoryPath(root.getAbsolutePath());
+					image.setName(data.getName());
+					image.setPathToFile(data.getAbsolutePath());
+					files.addElement(image);
+				} else if (count > 1) {
+					//To be tested.
+					img = new MultiImageData(file);
+					parentName = img.getName();
+					j = images.iterator();
+					components = new ArrayList<ImageData>();
+					index = 0;
+					while (j.hasNext()) {
+						image = new ImageData((Image) j.next()); 
+						image.setParentFilePath(img.getAbsolutePath(), 
+								index);
+						name = image.getName();
+						if (name == null || name.length() == 0) {
+							image.setName(parentName+"_"+index);
 						}
-						files.addElement(new FileData(file));
-					} else {
-						images = fs.imageList;
-						count = images.size();
-						if (count == 1) {
-							image = new ImageData(images.get(0));
-							image.setName(f.getName());
-							image.setPathToFile(f.getAbsolutePath());
-							files.addElement(image);
-						} else if (count > 1) {
-							img = new MultiImageData(file);
-							parentName = img.getName();
-							j = images.iterator();
-							components = new ArrayList<ImageData>();
-							index = 0;
-							while (j.hasNext()) {
-								image = new ImageData((Image) j.next()); 
-								image.setParentFilePath(img.getAbsolutePath(), 
-										index);
-								name = image.getName();
-								if (name == null || name.length() == 0) {
-									image.setName(parentName+"_"+index);
-								}
-								components.add(image);
-								index++;
-							}
-							img.setComponents(components);
-							files.addElement(img);
-						}
+						components.add(image);
+						index++;
 					}
+					img.setComponents(components);
+					files.addElement(img);
 				}
 			}
 		}
@@ -264,42 +258,51 @@ public class FSFileSystemView
     }
     
     /**
-     * Registers the passed file. Returns the updated file object.
+     * Registers the passed file. Returns the updated data object.
      * 
      * @param file The file to register.
      * @param userID The id of the owner of the directory to register.
      * @return See above.
      */
-    public FileData register(FileData file)
+    public DataObject register(DataObject file)
     	throws FSAccessException
     {
-    	return null;
-    	/*if (file == null) return null;
-    	RepositoryPrx proxy = getRepository(file);
-    	if (proxy == null) return null;
-    	try {
-    		//TODO: merge method in I/F
-    		IObject object = file.asIObject();
-    		IObject r = null;
-    		if (object instanceof Image) {
-    			Image image = (Image) object;
-    			//image.setName(omero.rtypes.rstring(file.getName()));
-    			String desc = file.getDescription();
-    			if (desc != null && desc.length() > 0)
-    				image.setDescription(omero.rtypes.rstring(desc));
-    			r = proxy.registerObject(object);
-    		} else if (object instanceof OriginalFile) {
-    			r = proxy.registerObject(object);
-    			file.setRegisteredFile((OriginalFile) r);
-    		}
-    		//if (r != null) file.setRegisteredFile(r);
+    	if (file == null) return null;
+    	if (!(file instanceof FileData || file instanceof ImageData || 
+				file instanceof MultiImageData)) return null;
+    	if (file.getId() > 0) return file;
+    	Entry entry = getRepository(file);
+    	if (entry == null) return null;
+    	RepositoryPrx proxy = (RepositoryPrx) entry.getValue();
+    	String value;
+    	String name;
+    	IObject r;
+    	Map<String, String> map = new HashMap<String, String>();
+    	if (file instanceof FileData) {
+    		FileData f = (FileData) file;
+    		OriginalFile of = (OriginalFile) file.asIObject();
+    		try {
+    			r = proxy.registerObject(of, map);
+    			f.setRegisteredFile((OriginalFile) r);
+    			return f;
+			} catch (Exception e) {
+				e.printStackTrace();
+				new FSAccessException("Cannot register the file: " +
+						""+f.getAbsolutePath(), e);
+			}
+    	} else if (file instanceof ImageData) {
+    		ImageData img = (ImageData) file;
+    		try {
+    			r = proxy.registerObject(img.asIObject(), map);
+    			img.setRegisteredFile((Image) r);
+    			return img;
+			} catch (Exception e) {
+				new FSAccessException("Cannot register the image: " +
+						""+img.getName(), e);
+			}
     		
-		} catch (Exception e) {
-			new FSAccessException("Cannot register the file: " +
-					""+file.getAbsolutePath(), e);
-		}
-    	
-    	return file;*/
+    	}
+    	return null;
     }
     
     /**
@@ -316,36 +319,19 @@ public class FSFileSystemView
     	Entry entry;
     	RepositoryPrx proxy;
     	FileData root;
-    	if (object instanceof FileData) {
-    		FileData f = (FileData) object;
-    		if (f.isDirectory() || f.isHidden())
-        		return null;
-        	if (!f.getAbsolutePath().contains(".")) return null;
-        	entry = getRepository(f);
-        	if (entry == null) return null;
-        	proxy = (RepositoryPrx) entry.getValue();
-        	if (proxy == null) return null;
-        	try {
-        		return proxy.getThumbnail(f.getAbsolutePath());
-    		} catch (Exception e) {
-    			new FSAccessException("Cannot retrieve the thumbnail for: " +
-    					""+f.getAbsolutePath(), e);
-    		}
-    	} else if (object instanceof ImageData) {
+    	if (object instanceof ImageData) {
     		ImageData img = (ImageData) object;
     		String name = img.getPathToFile();
     		int index = img.getIndex();
     		if (index >= 0) name = img.getParentFilePath();
-    		entry = getRepository(object);
+        	entry = getRepository(object);
         	if (entry == null) return null;
         	proxy = (RepositoryPrx) entry.getValue();
-        	if (proxy == null) return null;
         	try {
         		if (index >= 0) 
         			return proxy.getThumbnailByIndex(name, index);
         		return proxy.getThumbnail(name);
     		} catch (Exception e) {
-    			e.printStackTrace();
     			new FSAccessException("Cannot retrieve the thumbnail for: " +
     					""+name, e);
     		}
@@ -367,13 +353,14 @@ public class FSFileSystemView
     	if (dir == null) return null;
     	if (!dir.isDirectory()) return null;
     	Entry entry = getRepository(dir);
-    	RepositoryPrx proxy = (RepositoryPrx) entry.getValue();
-    	FileData root = (FileData) entry.getKey();
-    	if (proxy == null) return null;
+    	if (entry == null) return null;
     	Vector<DataObject> files = new Vector<DataObject>();
     	try {
+    		//reset the config, if needed
     		String s = dir.getAbsolutePath();
-    		populate(root, files, proxy.listFileSets(s, config), useFileHiding);
+    		FileData root = (FileData) entry.getKey();
+    		RepositoryPrx proxy = (RepositoryPrx) entry.getValue();
+    		populate(root, files, proxy.listFileSets(s, config));
 		} catch (Exception e) { 
 			new FSAccessException("Cannot retrives the files contained in: " +
 					dir.getAbsolutePath(), e);

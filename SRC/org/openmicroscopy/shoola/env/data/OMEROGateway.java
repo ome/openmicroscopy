@@ -2020,7 +2020,7 @@ class OMEROGateway
 			Map<FileData, RepositoryPrx> 
 				repositories = new HashMap<FileData, RepositoryPrx>();
 			while (i.hasNext()) {
-				f = new FileData((OriginalFile) i.next());
+				f = new FileData((OriginalFile) i.next(), true);
 				if (!f.getName().contains("Tmp")) {
 					proxy = (RepositoryPrx) proxys.get(index);
 					repositories.put(f, proxy);

@@ -81,7 +81,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.agents.util.FileDataRegistration;
+import org.openmicroscopy.shoola.agents.util.DataObjectRegistration;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -2935,9 +2935,9 @@ class TreeViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#register(FileDataRegistration)
+	 * @see TreeViewer#register(DataObjectRegistration)
 	 */
-	public void register(FileDataRegistration file)
+	public void register(DataObjectRegistration file)
 	{
 		if (model.getState() == DISCARDED) return;
 		if (file == null)
@@ -2945,11 +2945,10 @@ class TreeViewerComponent
 		Browser browser = model.getSelectedBrowser();
 		if (browser == null || browser.getBrowserType() != 
 			Browser.FILE_SYSTEM_EXPLORER) return;
-		FileData data = (FileData) file.getData();
-		if (browser.register(data)) 
+		if (browser.register(file.getData())) 
 			model.getMetadataViewer().saveData(file.getToAdd(), 
 					file.getToRemove(), file.getToDelete(), 
-					file.getMetadata(), data, true);
+					file.getMetadata(), file.getData(), true);
 	}
 
 	/** 

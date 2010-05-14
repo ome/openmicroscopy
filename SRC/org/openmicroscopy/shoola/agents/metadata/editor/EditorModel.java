@@ -2411,9 +2411,10 @@ class EditorModel
 			DataObject data = (DataObject) o;
 			long id = MetadataViewerAgent.getUserDetails().getId();
 			if (data.getId() < 0) return null;
-			ExperimenterData owner = data.getOwner();
-			if (owner.getId() == id) return null;
+			if (!((DataObject) o).isLoaded()) return null;
 			try {
+				ExperimenterData owner = data.getOwner();
+				if (owner.getId() == id) return null;
 				return owner.getFirstName()+" "+owner.getLastName();
 			} catch (Exception e) {}
 		}

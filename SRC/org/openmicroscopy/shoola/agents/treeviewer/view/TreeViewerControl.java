@@ -111,7 +111,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.util.ImportDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.ImportableObject;
 import org.openmicroscopy.shoola.agents.treeviewer.util.OpenWithDialog;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
-import org.openmicroscopy.shoola.agents.util.FileDataRegistration;
+import org.openmicroscopy.shoola.agents.util.DataObjectRegistration;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.finder.Finder;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
@@ -1044,7 +1044,7 @@ class TreeViewerControl
 			AdminObject object = (AdminObject) pce.getNewValue();
 			model.administrate(object);
 		} else if (MetadataViewer.REGISTER_PROPERTY.equals(name)) {
-			model.register((FileDataRegistration) pce.getNewValue());
+			model.register((DataObjectRegistration) pce.getNewValue());
 		} else if (MetadataViewer.RESET_PASSWORD_PROPERTY.equals(name)) {
 			model.resetPassword((String) pce.getNewValue());
 		} else if (MetadataViewer.UPLOAD_SCRIPT_PROPERTY.equals(name)) {

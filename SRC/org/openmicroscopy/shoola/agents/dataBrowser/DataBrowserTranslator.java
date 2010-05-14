@@ -668,10 +668,6 @@ public class DataBrowserTranslator
             ho = (DataObject) i.next();
             if (ho instanceof MultiImageData) {
             	results.add(transformMultiImage((MultiImageData) ho));
-            } else if (ho instanceof FileData) {
-            	f = (FileData) ho;
-            	if (f.isFile() && !f.isHidden())
-            		results.add(linkFileTo(f, null));
             } else if (ho instanceof ImageData) {
             	 results.add(linkImageTo((ImageData) ho, null));
             }

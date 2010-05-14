@@ -1576,13 +1576,17 @@ class BrowserComponent
 
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#register(FileData)
+	 * @see Browser#register(DataObject)
 	 */
-	public boolean register(FileData file)
+	public boolean register(DataObject file)
 	{
 		if (file == null)
 			throw new IllegalArgumentException("No file to register.");
 		if (model.getBrowserType() != FILE_SYSTEM_EXPLORER) return false;
+		if (!(file instanceof FileData || file instanceof ImageData || 
+				file instanceof MultiImageData))
+			return false;
+		if (file.getId() > 0) return false;
 		try {
 			TreeImageDisplay exp = BrowserFactory.getDataOwner(
 					model.getLastSelectedDisplay());
@@ -1591,7 +1595,8 @@ class BrowserComponent
 			if (!(ho instanceof ExperimenterData)) return false;
 			long id = ((ExperimenterData) ho).getId();
 			
-			model.getRepositories(id).register(file);
+			DataObject o = model.getRepositories(id).register(file);
+			if (o == null) return false;
 		} catch (FSAccessException e) {
 			LogMessage msg = new LogMessage();
 			msg.print("Cannot register the object.");
