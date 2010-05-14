@@ -19,12 +19,37 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *------------------------------------------------------------------------------
+ *
  */
 
 package ome.formats;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import ome.xml.r201004.enums.AcquisitionMode;
+import ome.xml.r201004.enums.ArcType;
+import ome.xml.r201004.enums.Binning;
+import ome.xml.r201004.enums.ContrastMethod;
+import ome.xml.r201004.enums.Correction;
+import ome.xml.r201004.enums.DetectorType;
+import ome.xml.r201004.enums.DimensionOrder;
+import ome.xml.r201004.enums.ExperimentType;
+import ome.xml.r201004.enums.FilamentType;
+import ome.xml.r201004.enums.FilterType;
+import ome.xml.r201004.enums.IlluminationType;
+import ome.xml.r201004.enums.Immersion;
+import ome.xml.r201004.enums.LaserMedium;
+import ome.xml.r201004.enums.LaserType;
+import ome.xml.r201004.enums.Medium;
+import ome.xml.r201004.enums.MicrobeamManipulationType;
+import ome.xml.r201004.enums.MicroscopeType;
+import ome.xml.r201004.enums.NamingConvention;
+import ome.xml.r201004.enums.PixelType;
+import ome.xml.r201004.enums.Pulse;
+import ome.xml.r201004.primitives.NonNegativeInteger;
+import ome.xml.r201004.primitives.PercentFraction;
+import ome.xml.r201004.primitives.PositiveInteger;
 
 import loci.formats.meta.MetadataStore;
 
@@ -58,16 +83,12 @@ public class ImageNameMetadataStore implements MetadataStore
         return imageNames;
     }
 
-    //
-    // MetadataStore stubs follow
-    //
-
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#createRoot()
      */
     public void createRoot()
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
@@ -76,3154 +97,4147 @@ public class ImageNameMetadataStore implements MetadataStore
      */
     public Object getRoot()
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         return null;
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setArcType(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setArcID(java.lang.String, int, int)
      */
-    public void setArcType(String arg0, int arg1, int arg2)
+    public void setArcID(String id, int instrumentIndex, int lightSourceIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setChannelComponentColorDomain(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setArcLotNumber(java.lang.String, int, int)
      */
-    public void setChannelComponentColorDomain(String arg0, int arg1, int arg2,
-            int arg3)
+    public void setArcLotNumber(String lotNumber, int instrumentIndex,
+            int lightSourceIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setChannelComponentIndex(java.lang.Integer, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setArcManufacturer(java.lang.String, int, int)
      */
-    public void setChannelComponentIndex(Integer arg0, int arg1, int arg2,
-            int arg3)
+    public void setArcManufacturer(String manufacturer, int instrumentIndex,
+            int lightSourceIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setChannelComponentPixels(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setArcModel(java.lang.String, int, int)
      */
-    public void setChannelComponentPixels(String arg0, int arg1, int arg2,
-            int arg3)
+    public void setArcModel(String model, int instrumentIndex,
+            int lightSourceIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setCircleCx(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setArcPower(java.lang.Double, int, int)
      */
-    public void setCircleCx(String arg0, int arg1, int arg2, int arg3)
+    public void setArcPower(Double power, int instrumentIndex,
+            int lightSourceIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setCircleCy(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setArcSerialNumber(java.lang.String, int, int)
      */
-    public void setCircleCy(String arg0, int arg1, int arg2, int arg3)
+    public void setArcSerialNumber(String serialNumber, int instrumentIndex,
+            int lightSourceIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setCircleID(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setArcType(ome.xml.r201004.enums.ArcType, int, int)
      */
-    public void setCircleID(String arg0, int arg1, int arg2, int arg3)
+    public void setArcType(ArcType type, int instrumentIndex,
+            int lightSourceIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setCircleR(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setBooleanAnnotationID(java.lang.String, int)
      */
-    public void setCircleR(String arg0, int arg1, int arg2, int arg3)
+    public void setBooleanAnnotationID(String id, int booleanAnnotationIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setCircleTransform(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setBooleanAnnotationNamespace(java.lang.String, int)
      */
-    public void setCircleTransform(String arg0, int arg1, int arg2, int arg3)
+    public void setBooleanAnnotationNamespace(String namespace,
+            int booleanAnnotationIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setContactExperimenter(java.lang.String, int)
+     * @see loci.formats.meta.MetadataStore#setBooleanAnnotationValue(java.lang.Boolean, int)
      */
-    public void setContactExperimenter(String arg0, int arg1)
+    public void setBooleanAnnotationValue(Boolean value,
+            int booleanAnnotationIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelAcquisitionMode(ome.xml.r201004.enums.AcquisitionMode, int, int)
+     */
+    public void setChannelAcquisitionMode(AcquisitionMode acquisitionMode,
+            int imageIndex, int channelIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelAnnotationRef(java.lang.String, int, int, int)
+     */
+    public void setChannelAnnotationRef(String annotation, int imageIndex,
+            int channelIndex, int annotationRefIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelColor(java.lang.Integer, int, int)
+     */
+    public void setChannelColor(Integer color, int imageIndex, int channelIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelContrastMethod(ome.xml.r201004.enums.ContrastMethod, int, int)
+     */
+    public void setChannelContrastMethod(ContrastMethod contrastMethod,
+            int imageIndex, int channelIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelEmissionWavelength(ome.xml.r201004.primitives.PositiveInteger, int, int)
+     */
+    public void setChannelEmissionWavelength(
+            PositiveInteger emissionWavelength, int imageIndex, int channelIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelExcitationWavelength(ome.xml.r201004.primitives.PositiveInteger, int, int)
+     */
+    public void setChannelExcitationWavelength(
+            PositiveInteger excitationWavelength, int imageIndex,
+            int channelIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelFilterSetRef(java.lang.String, int, int)
+     */
+    public void setChannelFilterSetRef(String filterSet, int imageIndex,
+            int channelIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelFluor(java.lang.String, int, int)
+     */
+    public void setChannelFluor(String fluor, int imageIndex, int channelIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelID(java.lang.String, int, int)
+     */
+    public void setChannelID(String id, int imageIndex, int channelIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelIlluminationType(ome.xml.r201004.enums.IlluminationType, int, int)
+     */
+    public void setChannelIlluminationType(IlluminationType illuminationType,
+            int imageIndex, int channelIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelLightSourceSettingsAttenuation(ome.xml.r201004.primitives.PercentFraction, int, int)
+     */
+    public void setChannelLightSourceSettingsAttenuation(
+            PercentFraction attenuation, int imageIndex, int channelIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelLightSourceSettingsID(java.lang.String, int, int)
+     */
+    public void setChannelLightSourceSettingsID(String id, int imageIndex,
+            int channelIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelLightSourceSettingsWavelength(ome.xml.r201004.primitives.PositiveInteger, int, int)
+     */
+    public void setChannelLightSourceSettingsWavelength(
+            PositiveInteger wavelength, int imageIndex, int channelIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelNDFilter(java.lang.Double, int, int)
+     */
+    public void setChannelNDFilter(Double ndfilter, int imageIndex,
+            int channelIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelName(java.lang.String, int, int)
+     */
+    public void setChannelName(String name, int imageIndex, int channelIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelOTFRef(java.lang.String, int, int)
+     */
+    public void setChannelOTFRef(String otf, int imageIndex, int channelIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelPinholeSize(java.lang.Double, int, int)
+     */
+    public void setChannelPinholeSize(Double pinholeSize, int imageIndex,
+            int channelIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelPockelCellSetting(java.lang.Integer, int, int)
+     */
+    public void setChannelPockelCellSetting(Integer pockelCellSetting,
+            int imageIndex, int channelIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelSamplesPerPixel(java.lang.Integer, int, int)
+     */
+    public void setChannelSamplesPerPixel(Integer samplesPerPixel,
+            int imageIndex, int channelIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDatasetAnnotationRef(java.lang.String, int, int)
+     */
+    public void setDatasetAnnotationRef(String annotation, int datasetIndex,
+            int annotationRefIndex)
+    {
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDatasetDescription(java.lang.String, int)
      */
-    public void setDatasetDescription(String arg0, int arg1)
+    public void setDatasetDescription(String description, int datasetIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDatasetExperimenterRef(java.lang.String, int)
      */
-    public void setDatasetExperimenterRef(String arg0, int arg1)
+    public void setDatasetExperimenterRef(String experimenter, int datasetIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDatasetGroupRef(java.lang.String, int)
      */
-    public void setDatasetGroupRef(String arg0, int arg1)
+    public void setDatasetGroupRef(String group, int datasetIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDatasetID(java.lang.String, int)
      */
-    public void setDatasetID(String arg0, int arg1)
+    public void setDatasetID(String id, int datasetIndex)
     {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDatasetLocked(java.lang.Boolean, int)
-     */
-    public void setDatasetLocked(Boolean arg0, int arg1)
-    {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDatasetName(java.lang.String, int)
      */
-    public void setDatasetName(String arg0, int arg1)
+    public void setDatasetName(String name, int datasetIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDatasetRefID(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setDatasetProjectRef(java.lang.String, int, int)
      */
-    public void setDatasetRefID(String arg0, int arg1, int arg2)
+    public void setDatasetProjectRef(String project, int datasetIndex,
+            int projectRefIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDetectorAmplificationGain(java.lang.Double, int, int)
      */
-    public void setDetectorAmplificationGain(Double arg0, int arg1, int arg2)
+    public void setDetectorAmplificationGain(Double amplificationGain,
+            int instrumentIndex, int detectorIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDetectorGain(java.lang.Double, int, int)
      */
-    public void setDetectorGain(Double arg0, int arg1, int arg2)
+    public void setDetectorGain(Double gain, int instrumentIndex,
+            int detectorIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDetectorID(java.lang.String, int, int)
      */
-    public void setDetectorID(String arg0, int arg1, int arg2)
+    public void setDetectorID(String id, int instrumentIndex, int detectorIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorLotNumber(java.lang.String, int, int)
+     */
+    public void setDetectorLotNumber(String lotNumber, int instrumentIndex,
+            int detectorIndex)
+    {
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDetectorManufacturer(java.lang.String, int, int)
      */
-    public void setDetectorManufacturer(String arg0, int arg1, int arg2)
+    public void setDetectorManufacturer(String manufacturer,
+            int instrumentIndex, int detectorIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDetectorModel(java.lang.String, int, int)
      */
-    public void setDetectorModel(String arg0, int arg1, int arg2)
+    public void setDetectorModel(String model, int instrumentIndex,
+            int detectorIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDetectorOffset(java.lang.Double, int, int)
      */
-    public void setDetectorOffset(Double arg0, int arg1, int arg2)
+    public void setDetectorOffset(Double offset, int instrumentIndex,
+            int detectorIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDetectorSerialNumber(java.lang.String, int, int)
      */
-    public void setDetectorSerialNumber(String arg0, int arg1, int arg2)
+    public void setDetectorSerialNumber(String serialNumber,
+            int instrumentIndex, int detectorIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDetectorSettingsBinning(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setDetectorSettingsBinning(ome.xml.r201004.enums.Binning, int, int)
      */
-    public void setDetectorSettingsBinning(String arg0, int arg1, int arg2)
+    public void setDetectorSettingsBinning(Binning binning, int imageIndex,
+            int channelIndex)
     {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDetectorSettingsDetector(java.lang.String, int, int)
-     */
-    public void setDetectorSettingsDetector(String arg0, int arg1, int arg2)
-    {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDetectorSettingsGain(java.lang.Double, int, int)
      */
-    public void setDetectorSettingsGain(Double arg0, int arg1, int arg2)
+    public void setDetectorSettingsGain(Double gain, int imageIndex,
+            int channelIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorSettingsID(java.lang.String, int, int)
+     */
+    public void setDetectorSettingsID(String id, int imageIndex,
+            int channelIndex)
+    {
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDetectorSettingsOffset(java.lang.Double, int, int)
      */
-    public void setDetectorSettingsOffset(Double arg0, int arg1, int arg2)
+    public void setDetectorSettingsOffset(Double offset, int imageIndex,
+            int channelIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDetectorSettingsReadOutRate(java.lang.Double, int, int)
      */
-    public void setDetectorSettingsReadOutRate(Double arg0, int arg1, int arg2)
+    public void setDetectorSettingsReadOutRate(Double readOutRate,
+            int imageIndex, int channelIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDetectorSettingsVoltage(java.lang.Double, int, int)
      */
-    public void setDetectorSettingsVoltage(Double arg0, int arg1, int arg2)
+    public void setDetectorSettingsVoltage(Double voltage, int imageIndex,
+            int channelIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDetectorType(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setDetectorType(ome.xml.r201004.enums.DetectorType, int, int)
      */
-    public void setDetectorType(String arg0, int arg1, int arg2)
+    public void setDetectorType(DetectorType type, int instrumentIndex,
+            int detectorIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDetectorVoltage(java.lang.Double, int, int)
      */
-    public void setDetectorVoltage(Double arg0, int arg1, int arg2)
+    public void setDetectorVoltage(Double voltage, int instrumentIndex,
+            int detectorIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDetectorZoom(java.lang.Double, int, int)
      */
-    public void setDetectorZoom(Double arg0, int arg1, int arg2)
+    public void setDetectorZoom(Double zoom, int instrumentIndex,
+            int detectorIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDichroicID(java.lang.String, int, int)
      */
-    public void setDichroicID(String arg0, int arg1, int arg2)
+    public void setDichroicID(String id, int instrumentIndex, int dichroicIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDichroicLotNumber(java.lang.String, int, int)
      */
-    public void setDichroicLotNumber(String arg0, int arg1, int arg2)
+    public void setDichroicLotNumber(String lotNumber, int instrumentIndex,
+            int dichroicIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDichroicManufacturer(java.lang.String, int, int)
      */
-    public void setDichroicManufacturer(String arg0, int arg1, int arg2)
+    public void setDichroicManufacturer(String manufacturer,
+            int instrumentIndex, int dichroicIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDichroicModel(java.lang.String, int, int)
      */
-    public void setDichroicModel(String arg0, int arg1, int arg2)
+    public void setDichroicModel(String model, int instrumentIndex,
+            int dichroicIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDimensionsPhysicalSizeX(java.lang.Double, int, int)
+     * @see loci.formats.meta.MetadataStore#setDichroicSerialNumber(java.lang.String, int, int)
      */
-    public void setDimensionsPhysicalSizeX(Double arg0, int arg1, int arg2)
+    public void setDichroicSerialNumber(String serialNumber,
+            int instrumentIndex, int dichroicIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDimensionsPhysicalSizeY(java.lang.Double, int, int)
+     * @see loci.formats.meta.MetadataStore#setDoubleAnnotationID(java.lang.String, int)
      */
-    public void setDimensionsPhysicalSizeY(Double arg0, int arg1, int arg2)
+    public void setDoubleAnnotationID(String id, int doubleAnnotationIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDimensionsPhysicalSizeZ(java.lang.Double, int, int)
+     * @see loci.formats.meta.MetadataStore#setDoubleAnnotationNamespace(java.lang.String, int)
      */
-    public void setDimensionsPhysicalSizeZ(Double arg0, int arg1, int arg2)
+    public void setDoubleAnnotationNamespace(String namespace,
+            int doubleAnnotationIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDimensionsTimeIncrement(java.lang.Double, int, int)
+     * @see loci.formats.meta.MetadataStore#setDoubleAnnotationValue(java.lang.Double, int)
      */
-    public void setDimensionsTimeIncrement(Double arg0, int arg1, int arg2)
+    public void setDoubleAnnotationValue(Double value, int doubleAnnotationIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDimensionsWaveIncrement(java.lang.Integer, int, int)
+     * @see loci.formats.meta.MetadataStore#setEllipseDescription(java.lang.String, int, int)
      */
-    public void setDimensionsWaveIncrement(Integer arg0, int arg1, int arg2)
+    public void setEllipseDescription(String description, int ROIIndex,
+            int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDimensionsWaveStart(java.lang.Integer, int, int)
+     * @see loci.formats.meta.MetadataStore#setEllipseFill(java.lang.Integer, int, int)
      */
-    public void setDimensionsWaveStart(Integer arg0, int arg1, int arg2)
+    public void setEllipseFill(Integer fill, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDisplayOptionsDisplay(java.lang.String, int)
+     * @see loci.formats.meta.MetadataStore#setEllipseFontSize(java.lang.Integer, int, int)
      */
-    public void setDisplayOptionsDisplay(String arg0, int arg1)
+    public void setEllipseFontSize(Integer fontSize, int ROIIndex,
+            int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDisplayOptionsID(java.lang.String, int)
+     * @see loci.formats.meta.MetadataStore#setEllipseID(java.lang.String, int, int)
      */
-    public void setDisplayOptionsID(String arg0, int arg1)
+    public void setEllipseID(String id, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDisplayOptionsZoom(java.lang.Double, int)
+     * @see loci.formats.meta.MetadataStore#setEllipseLabel(java.lang.String, int, int)
      */
-    public void setDisplayOptionsZoom(Double arg0, int arg1)
+    public void setEllipseLabel(String label, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setEllipseCx(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setEllipseName(java.lang.String, int, int)
      */
-    public void setEllipseCx(String arg0, int arg1, int arg2, int arg3)
+    public void setEllipseName(String name, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setEllipseCy(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setEllipseRadiusX(java.lang.Double, int, int)
      */
-    public void setEllipseCy(String arg0, int arg1, int arg2, int arg3)
+    public void setEllipseRadiusX(Double radiusX, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setEllipseID(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setEllipseRadiusY(java.lang.Double, int, int)
      */
-    public void setEllipseID(String arg0, int arg1, int arg2, int arg3)
+    public void setEllipseRadiusY(Double radiusY, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setEllipseRx(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setEllipseStroke(java.lang.Integer, int, int)
      */
-    public void setEllipseRx(String arg0, int arg1, int arg2, int arg3)
+    public void setEllipseStroke(Integer stroke, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setEllipseRy(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setEllipseStrokeDashArray(java.lang.String, int, int)
      */
-    public void setEllipseRy(String arg0, int arg1, int arg2, int arg3)
+    public void setEllipseStrokeDashArray(String strokeDashArray, int ROIIndex,
+            int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setEllipseTransform(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setEllipseStrokeWidth(java.lang.Double, int, int)
      */
-    public void setEllipseTransform(String arg0, int arg1, int arg2, int arg3)
+    public void setEllipseStrokeWidth(Double strokeWidth, int ROIIndex,
+            int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setEmFilterLotNumber(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setEllipseTheC(java.lang.Integer, int, int)
      */
-    public void setEmFilterLotNumber(String arg0, int arg1, int arg2)
+    public void setEllipseTheC(Integer theC, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setEmFilterManufacturer(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setEllipseTheT(java.lang.Integer, int, int)
      */
-    public void setEmFilterManufacturer(String arg0, int arg1, int arg2)
+    public void setEllipseTheT(Integer theT, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setEmFilterModel(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setEllipseTheZ(java.lang.Integer, int, int)
      */
-    public void setEmFilterModel(String arg0, int arg1, int arg2)
+    public void setEllipseTheZ(Integer theZ, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setEmFilterType(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setEllipseTransform(java.lang.String, int, int)
      */
-    public void setEmFilterType(String arg0, int arg1, int arg2)
+    public void setEllipseTransform(String transform, int ROIIndex,
+            int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setExFilterLotNumber(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setEllipseX(java.lang.Double, int, int)
      */
-    public void setExFilterLotNumber(String arg0, int arg1, int arg2)
+    public void setEllipseX(Double x, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setExFilterManufacturer(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setEllipseY(java.lang.Double, int, int)
      */
-    public void setExFilterManufacturer(String arg0, int arg1, int arg2)
+    public void setEllipseY(Double y, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setExFilterModel(java.lang.String, int, int)
-     */
-    public void setExFilterModel(String arg0, int arg1, int arg2)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setExFilterType(java.lang.String, int, int)
-     */
-    public void setExFilterType(String arg0, int arg1, int arg2)
-    {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setExperimentDescription(java.lang.String, int)
      */
-    public void setExperimentDescription(String arg0, int arg1)
+    public void setExperimentDescription(String description, int experimentIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setExperimentExperimenterRef(java.lang.String, int)
      */
-    public void setExperimentExperimenterRef(String arg0, int arg1)
+    public void setExperimentExperimenterRef(String experimenter,
+            int experimentIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setExperimentID(java.lang.String, int)
      */
-    public void setExperimentID(String arg0, int arg1)
+    public void setExperimentID(String id, int experimentIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setExperimentType(java.lang.String, int)
+     * @see loci.formats.meta.MetadataStore#setExperimentType(ome.xml.r201004.enums.ExperimentType, int)
      */
-    public void setExperimentType(String arg0, int arg1)
+    public void setExperimentType(ExperimentType type, int experimentIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExperimenterAnnotationRef(java.lang.String, int, int)
+     */
+    public void setExperimenterAnnotationRef(String annotation,
+            int experimenterIndex, int annotationRefIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExperimenterDisplayName(java.lang.String, int)
+     */
+    public void setExperimenterDisplayName(String displayName,
+            int experimenterIndex)
+    {
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setExperimenterEmail(java.lang.String, int)
      */
-    public void setExperimenterEmail(String arg0, int arg1)
+    public void setExperimenterEmail(String email, int experimenterIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setExperimenterFirstName(java.lang.String, int)
      */
-    public void setExperimenterFirstName(String arg0, int arg1)
+    public void setExperimenterFirstName(String firstName, int experimenterIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExperimenterGroupRef(java.lang.String, int, int)
+     */
+    public void setExperimenterGroupRef(String group, int experimenterIndex,
+            int groupRefIndex)
+    {
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setExperimenterID(java.lang.String, int)
      */
-    public void setExperimenterID(String arg0, int arg1)
+    public void setExperimenterID(String id, int experimenterIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setExperimenterInstitution(java.lang.String, int)
      */
-    public void setExperimenterInstitution(String arg0, int arg1)
+    public void setExperimenterInstitution(String institution,
+            int experimenterIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setExperimenterLastName(java.lang.String, int)
      */
-    public void setExperimenterLastName(String arg0, int arg1)
+    public void setExperimenterLastName(String lastName, int experimenterIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setExperimenterMembershipGroup(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setExperimenterMiddleName(java.lang.String, int)
      */
-    public void setExperimenterMembershipGroup(String arg0, int arg1, int arg2)
+    public void setExperimenterMiddleName(String middleName,
+            int experimenterIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setExperimenterOMEName(java.lang.String, int)
+     * @see loci.formats.meta.MetadataStore#setExperimenterUserName(java.lang.String, int)
      */
-    public void setExperimenterOMEName(String arg0, int arg1)
+    public void setExperimenterUserName(String userName, int experimenterIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setFilamentType(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setFilamentID(java.lang.String, int, int)
      */
-    public void setFilamentType(String arg0, int arg1, int arg2)
+    public void setFilamentID(String id, int instrumentIndex,
+            int lightSourceIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilamentLotNumber(java.lang.String, int, int)
+     */
+    public void setFilamentLotNumber(String lotNumber, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilamentManufacturer(java.lang.String, int, int)
+     */
+    public void setFilamentManufacturer(String manufacturer,
+            int instrumentIndex, int lightSourceIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilamentModel(java.lang.String, int, int)
+     */
+    public void setFilamentModel(String model, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilamentPower(java.lang.Double, int, int)
+     */
+    public void setFilamentPower(Double power, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilamentSerialNumber(java.lang.String, int, int)
+     */
+    public void setFilamentSerialNumber(String serialNumber,
+            int instrumentIndex, int lightSourceIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilamentType(ome.xml.r201004.enums.FilamentType, int, int)
+     */
+    public void setFilamentType(FilamentType type, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFileAnnotationBinaryFileFileName(java.lang.String, int)
+     */
+    public void setFileAnnotationBinaryFileFileName(String fileName,
+            int fileAnnotationIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFileAnnotationBinaryFileMIMEType(java.lang.String, int)
+     */
+    public void setFileAnnotationBinaryFileMIMEType(String mimetype,
+            int fileAnnotationIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFileAnnotationBinaryFileSize(java.lang.Integer, int)
+     */
+    public void setFileAnnotationBinaryFileSize(Integer size,
+            int fileAnnotationIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFileAnnotationID(java.lang.String, int)
+     */
+    public void setFileAnnotationID(String id, int fileAnnotationIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFileAnnotationNamespace(java.lang.String, int)
+     */
+    public void setFileAnnotationNamespace(String namespace,
+            int fileAnnotationIndex)
+    {
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setFilterFilterWheel(java.lang.String, int, int)
      */
-    public void setFilterFilterWheel(String arg0, int arg1, int arg2)
+    public void setFilterFilterWheel(String filterWheel, int instrumentIndex,
+            int filterIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setFilterID(java.lang.String, int, int)
      */
-    public void setFilterID(String arg0, int arg1, int arg2)
+    public void setFilterID(String id, int instrumentIndex, int filterIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setFilterLotNumber(java.lang.String, int, int)
      */
-    public void setFilterLotNumber(String arg0, int arg1, int arg2)
+    public void setFilterLotNumber(String lotNumber, int instrumentIndex,
+            int filterIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setFilterManufacturer(java.lang.String, int, int)
      */
-    public void setFilterManufacturer(String arg0, int arg1, int arg2)
+    public void setFilterManufacturer(String manufacturer, int instrumentIndex,
+            int filterIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setFilterModel(java.lang.String, int, int)
      */
-    public void setFilterModel(String arg0, int arg1, int arg2)
+    public void setFilterModel(String model, int instrumentIndex,
+            int filterIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setFilterSetDichroic(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setFilterSerialNumber(java.lang.String, int, int)
      */
-    public void setFilterSetDichroic(String arg0, int arg1, int arg2)
+    public void setFilterSerialNumber(String serialNumber, int instrumentIndex,
+            int filterIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setFilterSetEmFilter(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setFilterSetDichroicRef(java.lang.String, int, int)
      */
-    public void setFilterSetEmFilter(String arg0, int arg1, int arg2)
+    public void setFilterSetDichroicRef(String dichroic, int instrumentIndex,
+            int filterSetIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setFilterSetExFilter(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setFilterSetEmissionFilterRef(java.lang.String, int, int, int)
      */
-    public void setFilterSetExFilter(String arg0, int arg1, int arg2)
+    public void setFilterSetEmissionFilterRef(String emissionFilter,
+            int instrumentIndex, int filterSetIndex, int emissionFilterRefIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilterSetExcitationFilterRef(java.lang.String, int, int, int)
+     */
+    public void setFilterSetExcitationFilterRef(String excitationFilter,
+            int instrumentIndex, int filterSetIndex,
+            int excitationFilterRefIndex)
+    {
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setFilterSetID(java.lang.String, int, int)
      */
-    public void setFilterSetID(String arg0, int arg1, int arg2)
+    public void setFilterSetID(String id, int instrumentIndex,
+            int filterSetIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setFilterSetLotNumber(java.lang.String, int, int)
      */
-    public void setFilterSetLotNumber(String arg0, int arg1, int arg2)
+    public void setFilterSetLotNumber(String lotNumber, int instrumentIndex,
+            int filterSetIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setFilterSetManufacturer(java.lang.String, int, int)
      */
-    public void setFilterSetManufacturer(String arg0, int arg1, int arg2)
+    public void setFilterSetManufacturer(String manufacturer,
+            int instrumentIndex, int filterSetIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setFilterSetModel(java.lang.String, int, int)
      */
-    public void setFilterSetModel(String arg0, int arg1, int arg2)
+    public void setFilterSetModel(String model, int instrumentIndex,
+            int filterSetIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setFilterType(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setFilterSetSerialNumber(java.lang.String, int, int)
      */
-    public void setFilterType(String arg0, int arg1, int arg2)
+    public void setFilterSetSerialNumber(String serialNumber,
+            int instrumentIndex, int filterSetIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilterType(ome.xml.r201004.enums.FilterType, int, int)
+     */
+    public void setFilterType(FilterType type, int instrumentIndex,
+            int filterIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setGroupContact(java.lang.String, int)
+     */
+    public void setGroupContact(String contact, int groupIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setGroupDescription(java.lang.String, int)
+     */
+    public void setGroupDescription(String description, int groupIndex)
+    {
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setGroupID(java.lang.String, int)
      */
-    public void setGroupID(String arg0, int arg1)
+    public void setGroupID(String id, int groupIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setGroupLeader(java.lang.String, int)
+     */
+    public void setGroupLeader(String leader, int groupIndex)
+    {
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setGroupName(java.lang.String, int)
      */
-    public void setGroupName(String arg0, int arg1)
+    public void setGroupName(String name, int groupIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setImageAcquiredPixels(java.lang.String, int)
+     * @see loci.formats.meta.MetadataStore#setImageAcquiredDate(java.lang.String, int)
      */
-    public void setImageAcquiredPixels(String arg0, int arg1)
+    public void setImageAcquiredDate(String acquiredDate, int imageIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setImageCreationDate(java.lang.String, int)
+     * @see loci.formats.meta.MetadataStore#setImageAnnotationRef(java.lang.String, int, int)
      */
-    public void setImageCreationDate(String arg0, int arg1)
+    public void setImageAnnotationRef(String annotation, int imageIndex,
+            int annotationRefIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setImageDefaultPixels(java.lang.String, int)
+     * @see loci.formats.meta.MetadataStore#setImageDatasetRef(java.lang.String, int, int)
      */
-    public void setImageDefaultPixels(String arg0, int arg1)
+    public void setImageDatasetRef(String dataset, int imageIndex,
+            int datasetRefIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setImageDescription(java.lang.String, int)
      */
-    public void setImageDescription(String arg0, int arg1)
+    public void setImageDescription(String description, int imageIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setImageExperimentRef(java.lang.String, int)
      */
-    public void setImageExperimentRef(String arg0, int arg1)
+    public void setImageExperimentRef(String experiment, int imageIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setImageExperimenterRef(java.lang.String, int)
      */
-    public void setImageExperimenterRef(String arg0, int arg1)
+    public void setImageExperimenterRef(String experimenter, int imageIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setImageGroupRef(java.lang.String, int)
      */
-    public void setImageGroupRef(String arg0, int arg1)
+    public void setImageGroupRef(String group, int imageIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setImageID(java.lang.String, int)
      */
-    public void setImageID(String arg0, int arg1)
+    public void setImageID(String id, int imageIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setImageInstrumentRef(java.lang.String, int)
      */
-    public void setImageInstrumentRef(String arg0, int arg1)
+    public void setImageInstrumentRef(String instrument, int imageIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageMicrobeamManipulationRef(java.lang.String, int, int)
+     */
+    public void setImageMicrobeamManipulationRef(String microbeamManipulation,
+            int imageIndex, int microbeamManipulationRefIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageObjectiveSettingsCorrectionCollar(java.lang.Double, int)
+     */
+    public void setImageObjectiveSettingsCorrectionCollar(
+            Double correctionCollar, int imageIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageObjectiveSettingsID(java.lang.String, int)
+     */
+    public void setImageObjectiveSettingsID(String id, int imageIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageObjectiveSettingsMedium(ome.xml.r201004.enums.Medium, int)
+     */
+    public void setImageObjectiveSettingsMedium(Medium medium, int imageIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageObjectiveSettingsRefractiveIndex(java.lang.Double, int)
+     */
+    public void setImageObjectiveSettingsRefractiveIndex(
+            Double refractiveIndex, int imageIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageROIRef(java.lang.String, int, int)
+     */
+    public void setImageROIRef(String roi, int imageIndex, int ROIRefIndex)
+    {
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setImagingEnvironmentAirPressure(java.lang.Double, int)
      */
-    public void setImagingEnvironmentAirPressure(Double arg0, int arg1)
+    public void setImagingEnvironmentAirPressure(Double airPressure,
+            int imageIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setImagingEnvironmentCO2Percent(java.lang.Double, int)
+     * @see loci.formats.meta.MetadataStore#setImagingEnvironmentCO2Percent(ome.xml.r201004.primitives.PercentFraction, int)
      */
-    public void setImagingEnvironmentCO2Percent(Double arg0, int arg1)
+    public void setImagingEnvironmentCO2Percent(PercentFraction co2percent,
+            int imageIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setImagingEnvironmentHumidity(java.lang.Double, int)
+     * @see loci.formats.meta.MetadataStore#setImagingEnvironmentHumidity(ome.xml.r201004.primitives.PercentFraction, int)
      */
-    public void setImagingEnvironmentHumidity(Double arg0, int arg1)
+    public void setImagingEnvironmentHumidity(PercentFraction humidity,
+            int imageIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setImagingEnvironmentTemperature(java.lang.Double, int)
      */
-    public void setImagingEnvironmentTemperature(Double arg0, int arg1)
+    public void setImagingEnvironmentTemperature(Double temperature,
+            int imageIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setInstrumentID(java.lang.String, int)
      */
-    public void setInstrumentID(String arg0, int arg1)
+    public void setInstrumentID(String id, int instrumentIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLaserFrequencyMultiplication(java.lang.Integer, int, int)
+     * @see loci.formats.meta.MetadataStore#setLaserFrequencyMultiplication(ome.xml.r201004.primitives.PositiveInteger, int, int)
      */
-    public void setLaserFrequencyMultiplication(Integer arg0, int arg1, int arg2)
+    public void setLaserFrequencyMultiplication(
+            PositiveInteger frequencyMultiplication, int instrumentIndex,
+            int lightSourceIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLaserLaserMedium(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setLaserID(java.lang.String, int, int)
      */
-    public void setLaserLaserMedium(String arg0, int arg1, int arg2)
+    public void setLaserID(String id, int instrumentIndex, int lightSourceIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLaserLaserMedium(ome.xml.r201004.enums.LaserMedium, int, int)
+     */
+    public void setLaserLaserMedium(LaserMedium laserMedium,
+            int instrumentIndex, int lightSourceIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLaserLotNumber(java.lang.String, int, int)
+     */
+    public void setLaserLotNumber(String lotNumber, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLaserManufacturer(java.lang.String, int, int)
+     */
+    public void setLaserManufacturer(String manufacturer, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLaserModel(java.lang.String, int, int)
+     */
+    public void setLaserModel(String model, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setLaserPockelCell(java.lang.Boolean, int, int)
      */
-    public void setLaserPockelCell(Boolean arg0, int arg1, int arg2)
+    public void setLaserPockelCell(Boolean pockelCell, int instrumentIndex,
+            int lightSourceIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLaserPulse(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setLaserPower(java.lang.Double, int, int)
      */
-    public void setLaserPulse(String arg0, int arg1, int arg2)
+    public void setLaserPower(Double power, int instrumentIndex,
+            int lightSourceIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLaserPulse(ome.xml.r201004.enums.Pulse, int, int)
+     */
+    public void setLaserPulse(Pulse pulse, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLaserPump(java.lang.String, int, int)
+     */
+    public void setLaserPump(String pump, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setLaserRepetitionRate(java.lang.Double, int, int)
      */
-    public void setLaserRepetitionRate(Double arg0, int arg1, int arg2)
+    public void setLaserRepetitionRate(Double repetitionRate,
+            int instrumentIndex, int lightSourceIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLaserSerialNumber(java.lang.String, int, int)
+     */
+    public void setLaserSerialNumber(String serialNumber, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setLaserTuneable(java.lang.Boolean, int, int)
      */
-    public void setLaserTuneable(Boolean arg0, int arg1, int arg2)
+    public void setLaserTuneable(Boolean tuneable, int instrumentIndex,
+            int lightSourceIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLaserType(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setLaserType(ome.xml.r201004.enums.LaserType, int, int)
      */
-    public void setLaserType(String arg0, int arg1, int arg2)
+    public void setLaserType(LaserType type, int instrumentIndex,
+            int lightSourceIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLaserWavelength(java.lang.Integer, int, int)
+     * @see loci.formats.meta.MetadataStore#setLaserWavelength(ome.xml.r201004.primitives.PositiveInteger, int, int)
      */
-    public void setLaserWavelength(Integer arg0, int arg1, int arg2)
+    public void setLaserWavelength(PositiveInteger wavelength,
+            int instrumentIndex, int lightSourceIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLightSourceID(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setLightEmittingDiodeID(java.lang.String, int, int)
      */
-    public void setLightSourceID(String arg0, int arg1, int arg2)
+    public void setLightEmittingDiodeID(String id, int instrumentIndex,
+            int lightSourceIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLightSourceManufacturer(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setLightEmittingDiodeLotNumber(java.lang.String, int, int)
      */
-    public void setLightSourceManufacturer(String arg0, int arg1, int arg2)
+    public void setLightEmittingDiodeLotNumber(String lotNumber,
+            int instrumentIndex, int lightSourceIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLightSourceModel(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setLightEmittingDiodeManufacturer(java.lang.String, int, int)
      */
-    public void setLightSourceModel(String arg0, int arg1, int arg2)
+    public void setLightEmittingDiodeManufacturer(String manufacturer,
+            int instrumentIndex, int lightSourceIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLightSourcePower(java.lang.Double, int, int)
+     * @see loci.formats.meta.MetadataStore#setLightEmittingDiodeModel(java.lang.String, int, int)
      */
-    public void setLightSourcePower(Double arg0, int arg1, int arg2)
+    public void setLightEmittingDiodeModel(String model, int instrumentIndex,
+            int lightSourceIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLightSourceRefAttenuation(java.lang.Double, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setLightEmittingDiodePower(java.lang.Double, int, int)
      */
-    public void setLightSourceRefAttenuation(Double arg0, int arg1, int arg2,
-            int arg3)
+    public void setLightEmittingDiodePower(Double power, int instrumentIndex,
+            int lightSourceIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLightSourceRefLightSource(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setLightEmittingDiodeSerialNumber(java.lang.String, int, int)
      */
-    public void setLightSourceRefLightSource(String arg0, int arg1, int arg2,
-            int arg3)
+    public void setLightEmittingDiodeSerialNumber(String serialNumber,
+            int instrumentIndex, int lightSourceIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLightSourceRefWavelength(java.lang.Integer, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setLightPathDichroicRef(java.lang.String, int, int)
      */
-    public void setLightSourceRefWavelength(Integer arg0, int arg1, int arg2,
-            int arg3)
+    public void setLightPathDichroicRef(String dichroic, int imageIndex,
+            int channelIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLightSourceSerialNumber(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setLightPathEmissionFilterRef(java.lang.String, int, int, int)
      */
-    public void setLightSourceSerialNumber(String arg0, int arg1, int arg2)
+    public void setLightPathEmissionFilterRef(String emissionFilter,
+            int imageIndex, int channelIndex, int emissionFilterRefIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLightSourceSettingsAttenuation(java.lang.Double, int, int)
+     * @see loci.formats.meta.MetadataStore#setLightPathExcitationFilterRef(java.lang.String, int, int, int)
      */
-    public void setLightSourceSettingsAttenuation(Double arg0, int arg1,
-            int arg2)
+    public void setLightPathExcitationFilterRef(String excitationFilter,
+            int imageIndex, int channelIndex, int excitationFilterRefIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLightSourceSettingsLightSource(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setLineDescription(java.lang.String, int, int)
      */
-    public void setLightSourceSettingsLightSource(String arg0, int arg1,
-            int arg2)
+    public void setLineDescription(String description, int ROIIndex,
+            int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLightSourceSettingsWavelength(java.lang.Integer, int, int)
+     * @see loci.formats.meta.MetadataStore#setLineFill(java.lang.Integer, int, int)
      */
-    public void setLightSourceSettingsWavelength(Integer arg0, int arg1,
-            int arg2)
+    public void setLineFill(Integer fill, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLineID(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setLineFontSize(java.lang.Integer, int, int)
      */
-    public void setLineID(String arg0, int arg1, int arg2, int arg3)
+    public void setLineFontSize(Integer fontSize, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLineTransform(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setLineID(java.lang.String, int, int)
      */
-    public void setLineTransform(String arg0, int arg1, int arg2, int arg3)
+    public void setLineID(String id, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLineX1(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setLineLabel(java.lang.String, int, int)
      */
-    public void setLineX1(String arg0, int arg1, int arg2, int arg3)
+    public void setLineLabel(String label, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLineX2(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setLineName(java.lang.String, int, int)
      */
-    public void setLineX2(String arg0, int arg1, int arg2, int arg3)
+    public void setLineName(String name, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLineY1(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setLineStroke(java.lang.Integer, int, int)
      */
-    public void setLineY1(String arg0, int arg1, int arg2, int arg3)
+    public void setLineStroke(Integer stroke, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLineY2(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setLineStrokeDashArray(java.lang.String, int, int)
      */
-    public void setLineY2(String arg0, int arg1, int arg2, int arg3)
+    public void setLineStrokeDashArray(String strokeDashArray, int ROIIndex,
+            int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelContrastMethod(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setLineStrokeWidth(java.lang.Double, int, int)
      */
-    public void setLogicalChannelContrastMethod(String arg0, int arg1, int arg2)
+    public void setLineStrokeWidth(Double strokeWidth, int ROIIndex,
+            int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelDetector(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setLineTheC(java.lang.Integer, int, int)
      */
-    public void setLogicalChannelDetector(String arg0, int arg1, int arg2)
+    public void setLineTheC(Integer theC, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelEmWave(java.lang.Integer, int, int)
+     * @see loci.formats.meta.MetadataStore#setLineTheT(java.lang.Integer, int, int)
      */
-    public void setLogicalChannelEmWave(Integer arg0, int arg1, int arg2)
+    public void setLineTheT(Integer theT, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelExWave(java.lang.Integer, int, int)
+     * @see loci.formats.meta.MetadataStore#setLineTheZ(java.lang.Integer, int, int)
      */
-    public void setLogicalChannelExWave(Integer arg0, int arg1, int arg2)
+    public void setLineTheZ(Integer theZ, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelFilterSet(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setLineTransform(java.lang.String, int, int)
      */
-    public void setLogicalChannelFilterSet(String arg0, int arg1, int arg2)
+    public void setLineTransform(String transform, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelFluor(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setLineX1(java.lang.Double, int, int)
      */
-    public void setLogicalChannelFluor(String arg0, int arg1, int arg2)
+    public void setLineX1(Double x1, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelID(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setLineX2(java.lang.Double, int, int)
      */
-    public void setLogicalChannelID(String arg0, int arg1, int arg2)
+    public void setLineX2(Double x2, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelIlluminationType(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setLineY1(java.lang.Double, int, int)
      */
-    public void setLogicalChannelIlluminationType(String arg0, int arg1,
-            int arg2)
+    public void setLineY1(Double y1, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelLightSource(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setLineY2(java.lang.Double, int, int)
      */
-    public void setLogicalChannelLightSource(String arg0, int arg1, int arg2)
+    public void setLineY2(Double y2, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelMode(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setListAnnotationAnnotationRef(java.lang.String, int, int)
      */
-    public void setLogicalChannelMode(String arg0, int arg1, int arg2)
+    public void setListAnnotationAnnotationRef(String annotation,
+            int listAnnotationIndex, int annotationRefIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelName(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setListAnnotationID(java.lang.String, int)
      */
-    public void setLogicalChannelName(String arg0, int arg1, int arg2)
+    public void setListAnnotationID(String id, int listAnnotationIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelNdFilter(java.lang.Double, int, int)
+     * @see loci.formats.meta.MetadataStore#setListAnnotationNamespace(java.lang.String, int)
      */
-    public void setLogicalChannelNdFilter(Double arg0, int arg1, int arg2)
+    public void setListAnnotationNamespace(String namespace,
+            int listAnnotationIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelOTF(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setLongAnnotationID(java.lang.String, int)
      */
-    public void setLogicalChannelOTF(String arg0, int arg1, int arg2)
+    public void setLongAnnotationID(String id, int longAnnotationIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelPhotometricInterpretation(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setLongAnnotationNamespace(java.lang.String, int)
      */
-    public void setLogicalChannelPhotometricInterpretation(String arg0,
-            int arg1, int arg2)
+    public void setLongAnnotationNamespace(String namespace,
+            int longAnnotationIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelPinholeSize(java.lang.Double, int, int)
+     * @see loci.formats.meta.MetadataStore#setLongAnnotationValue(java.lang.Long, int)
      */
-    public void setLogicalChannelPinholeSize(Double arg0, int arg1, int arg2)
+    public void setLongAnnotationValue(Long value, int longAnnotationIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelPockelCellSetting(java.lang.Integer, int, int)
+     * @see loci.formats.meta.MetadataStore#setMaskDescription(java.lang.String, int, int)
      */
-    public void setLogicalChannelPockelCellSetting(Integer arg0, int arg1,
-            int arg2)
+    public void setMaskDescription(String description, int ROIIndex,
+            int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelSamplesPerPixel(java.lang.Integer, int, int)
+     * @see loci.formats.meta.MetadataStore#setMaskFill(java.lang.Integer, int, int)
      */
-    public void setLogicalChannelSamplesPerPixel(Integer arg0, int arg1,
-            int arg2)
+    public void setMaskFill(Integer fill, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelSecondaryEmissionFilter(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setMaskFontSize(java.lang.Integer, int, int)
      */
-    public void setLogicalChannelSecondaryEmissionFilter(String arg0, int arg1,
-            int arg2)
+    public void setMaskFontSize(Integer fontSize, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelSecondaryExcitationFilter(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setMaskID(java.lang.String, int, int)
      */
-    public void setLogicalChannelSecondaryExcitationFilter(String arg0,
-            int arg1, int arg2)
+    public void setMaskID(String id, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMaskHeight(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setMaskLabel(java.lang.String, int, int)
      */
-    public void setMaskHeight(String arg0, int arg1, int arg2, int arg3)
+    public void setMaskLabel(String label, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMaskID(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setMaskName(java.lang.String, int, int)
      */
-    public void setMaskID(String arg0, int arg1, int arg2, int arg3)
+    public void setMaskName(String name, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMaskPixelsBigEndian(java.lang.Boolean, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setMaskStroke(java.lang.Integer, int, int)
      */
-    public void setMaskPixelsBigEndian(Boolean arg0, int arg1, int arg2,
-            int arg3)
+    public void setMaskStroke(Integer stroke, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMaskPixelsBinData(byte[], int, int, int)
+     * @see loci.formats.meta.MetadataStore#setMaskStrokeDashArray(java.lang.String, int, int)
      */
-    public void setMaskPixelsBinData(byte[] arg0, int arg1, int arg2, int arg3)
+    public void setMaskStrokeDashArray(String strokeDashArray, int ROIIndex,
+            int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMaskPixelsExtendedPixelType(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setMaskStrokeWidth(java.lang.Double, int, int)
      */
-    public void setMaskPixelsExtendedPixelType(String arg0, int arg1, int arg2,
-            int arg3)
+    public void setMaskStrokeWidth(Double strokeWidth, int ROIIndex,
+            int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMaskPixelsID(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setMaskTheC(java.lang.Integer, int, int)
      */
-    public void setMaskPixelsID(String arg0, int arg1, int arg2, int arg3)
+    public void setMaskTheC(Integer theC, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMaskPixelsSizeX(java.lang.Integer, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setMaskTheT(java.lang.Integer, int, int)
      */
-    public void setMaskPixelsSizeX(Integer arg0, int arg1, int arg2, int arg3)
+    public void setMaskTheT(Integer theT, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMaskPixelsSizeY(java.lang.Integer, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setMaskTheZ(java.lang.Integer, int, int)
      */
-    public void setMaskPixelsSizeY(Integer arg0, int arg1, int arg2, int arg3)
+    public void setMaskTheZ(Integer theZ, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMaskTransform(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setMaskTransform(java.lang.String, int, int)
      */
-    public void setMaskTransform(String arg0, int arg1, int arg2, int arg3)
+    public void setMaskTransform(String transform, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMaskWidth(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setMaskX(java.lang.Double, int, int)
      */
-    public void setMaskWidth(String arg0, int arg1, int arg2, int arg3)
+    public void setMaskX(Double x, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMaskX(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setMaskY(java.lang.Double, int, int)
      */
-    public void setMaskX(String arg0, int arg1, int arg2, int arg3)
+    public void setMaskY(Double y, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMaskY(java.lang.String, int, int, int)
-     */
-    public void setMaskY(String arg0, int arg1, int arg2, int arg3)
-    {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationExperimenterRef(java.lang.String, int, int)
      */
-    public void setMicrobeamManipulationExperimenterRef(String arg0, int arg1,
-            int arg2)
+    public void setMicrobeamManipulationExperimenterRef(String experimenter,
+            int experimentIndex, int microbeamManipulationIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationID(java.lang.String, int, int)
      */
-    public void setMicrobeamManipulationID(String arg0, int arg1, int arg2)
+    public void setMicrobeamManipulationID(String id, int experimentIndex,
+            int microbeamManipulationIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationRefID(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationLightSourceSettingsAttenuation(ome.xml.r201004.primitives.PercentFraction, int, int, int)
      */
-    public void setMicrobeamManipulationRefID(String arg0, int arg1, int arg2)
+    public void setMicrobeamManipulationLightSourceSettingsAttenuation(
+            PercentFraction attenuation, int experimentIndex,
+            int microbeamManipulationIndex, int lightSourceSettingsIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationType(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationLightSourceSettingsID(java.lang.String, int, int, int)
      */
-    public void setMicrobeamManipulationType(String arg0, int arg1, int arg2)
+    public void setMicrobeamManipulationLightSourceSettingsID(String id,
+            int experimentIndex, int microbeamManipulationIndex,
+            int lightSourceSettingsIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMicroscopeID(java.lang.String, int)
+     * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationLightSourceSettingsWavelength(ome.xml.r201004.primitives.PositiveInteger, int, int, int)
      */
-    public void setMicroscopeID(String arg0, int arg1)
+    public void setMicrobeamManipulationLightSourceSettingsWavelength(
+            PositiveInteger wavelength, int experimentIndex,
+            int microbeamManipulationIndex, int lightSourceSettingsIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationROIRef(java.lang.String, int, int, int)
+     */
+    public void setMicrobeamManipulationROIRef(String roi, int experimentIndex,
+            int microbeamManipulationIndex, int ROIRefIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationType(ome.xml.r201004.enums.MicrobeamManipulationType, int, int)
+     */
+    public void setMicrobeamManipulationType(MicrobeamManipulationType type,
+            int experimentIndex, int microbeamManipulationIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMicroscopeLotNumber(java.lang.String, int)
+     */
+    public void setMicroscopeLotNumber(String lotNumber, int instrumentIndex)
+    {
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setMicroscopeManufacturer(java.lang.String, int)
      */
-    public void setMicroscopeManufacturer(String arg0, int arg1)
+    public void setMicroscopeManufacturer(String manufacturer,
+            int instrumentIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setMicroscopeModel(java.lang.String, int)
      */
-    public void setMicroscopeModel(String arg0, int arg1)
+    public void setMicroscopeModel(String model, int instrumentIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setMicroscopeSerialNumber(java.lang.String, int)
      */
-    public void setMicroscopeSerialNumber(String arg0, int arg1)
+    public void setMicroscopeSerialNumber(String serialNumber,
+            int instrumentIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMicroscopeType(java.lang.String, int)
+     * @see loci.formats.meta.MetadataStore#setMicroscopeType(ome.xml.r201004.enums.MicroscopeType, int)
      */
-    public void setMicroscopeType(String arg0, int arg1)
+    public void setMicroscopeType(MicroscopeType type, int instrumentIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setOTFBinaryFile(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setOTFBinaryFileFileName(java.lang.String, int, int)
      */
-    public void setOTFBinaryFile(String arg0, int arg1, int arg2)
+    public void setOTFBinaryFileFileName(String fileName, int instrumentIndex,
+            int OTFIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setOTFBinaryFileMIMEType(java.lang.String, int, int)
+     */
+    public void setOTFBinaryFileMIMEType(String mimetype, int instrumentIndex,
+            int OTFIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setOTFBinaryFileSize(java.lang.Integer, int, int)
+     */
+    public void setOTFBinaryFileSize(Integer size, int instrumentIndex,
+            int OTFIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setOTFFilterSetRef(java.lang.String, int, int)
+     */
+    public void setOTFFilterSetRef(String filterSet, int instrumentIndex,
+            int OTFIndex)
+    {
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setOTFID(java.lang.String, int, int)
      */
-    public void setOTFID(String arg0, int arg1, int arg2)
+    public void setOTFID(String id, int instrumentIndex, int OTFIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setOTFObjective(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setOTFObjectiveSettingsCorrectionCollar(java.lang.Double, int, int)
      */
-    public void setOTFObjective(String arg0, int arg1, int arg2)
+    public void setOTFObjectiveSettingsCorrectionCollar(
+            Double correctionCollar, int instrumentIndex, int OTFIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setOTFObjectiveSettingsID(java.lang.String, int, int)
+     */
+    public void setOTFObjectiveSettingsID(String id, int instrumentIndex,
+            int OTFIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setOTFObjectiveSettingsMedium(ome.xml.r201004.enums.Medium, int, int)
+     */
+    public void setOTFObjectiveSettingsMedium(Medium medium,
+            int instrumentIndex, int OTFIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setOTFObjectiveSettingsRefractiveIndex(java.lang.Double, int, int)
+     */
+    public void setOTFObjectiveSettingsRefractiveIndex(Double refractiveIndex,
+            int instrumentIndex, int OTFIndex)
+    {
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setOTFOpticalAxisAveraged(java.lang.Boolean, int, int)
      */
-    public void setOTFOpticalAxisAveraged(Boolean arg0, int arg1, int arg2)
+    public void setOTFOpticalAxisAveraged(Boolean opticalAxisAveraged,
+            int instrumentIndex, int OTFIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setOTFPixelType(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setOTFSizeX(ome.xml.r201004.primitives.PositiveInteger, int, int)
      */
-    public void setOTFPixelType(String arg0, int arg1, int arg2)
+    public void setOTFSizeX(PositiveInteger sizeX, int instrumentIndex,
+            int OTFIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setOTFSizeX(java.lang.Integer, int, int)
+     * @see loci.formats.meta.MetadataStore#setOTFSizeY(ome.xml.r201004.primitives.PositiveInteger, int, int)
      */
-    public void setOTFSizeX(Integer arg0, int arg1, int arg2)
+    public void setOTFSizeY(PositiveInteger sizeY, int instrumentIndex,
+            int OTFIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setOTFSizeY(java.lang.Integer, int, int)
+     * @see loci.formats.meta.MetadataStore#setOTFType(ome.xml.r201004.enums.PixelType, int, int)
      */
-    public void setOTFSizeY(Integer arg0, int arg1, int arg2)
+    public void setOTFType(PixelType type, int instrumentIndex, int OTFIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setObjectiveCalibratedMagnification(java.lang.Double, int, int)
      */
-    public void setObjectiveCalibratedMagnification(Double arg0, int arg1,
-            int arg2)
+    public void setObjectiveCalibratedMagnification(
+            Double calibratedMagnification, int instrumentIndex,
+            int objectiveIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setObjectiveCorrection(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setObjectiveCorrection(ome.xml.r201004.enums.Correction, int, int)
      */
-    public void setObjectiveCorrection(String arg0, int arg1, int arg2)
+    public void setObjectiveCorrection(Correction correction,
+            int instrumentIndex, int objectiveIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setObjectiveID(java.lang.String, int, int)
      */
-    public void setObjectiveID(String arg0, int arg1, int arg2)
+    public void setObjectiveID(String id, int instrumentIndex,
+            int objectiveIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setObjectiveImmersion(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setObjectiveImmersion(ome.xml.r201004.enums.Immersion, int, int)
      */
-    public void setObjectiveImmersion(String arg0, int arg1, int arg2)
+    public void setObjectiveImmersion(Immersion immersion, int instrumentIndex,
+            int objectiveIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setObjectiveIris(java.lang.Boolean, int, int)
      */
-    public void setObjectiveIris(Boolean arg0, int arg1, int arg2)
+    public void setObjectiveIris(Boolean iris, int instrumentIndex,
+            int objectiveIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setObjectiveLensNA(java.lang.Double, int, int)
      */
-    public void setObjectiveLensNA(Double arg0, int arg1, int arg2)
+    public void setObjectiveLensNA(Double lensNA, int instrumentIndex,
+            int objectiveIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setObjectiveLotNumber(java.lang.String, int, int)
+     */
+    public void setObjectiveLotNumber(String lotNumber, int instrumentIndex,
+            int objectiveIndex)
+    {
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setObjectiveManufacturer(java.lang.String, int, int)
      */
-    public void setObjectiveManufacturer(String arg0, int arg1, int arg2)
+    public void setObjectiveManufacturer(String manufacturer,
+            int instrumentIndex, int objectiveIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setObjectiveModel(java.lang.String, int, int)
      */
-    public void setObjectiveModel(String arg0, int arg1, int arg2)
+    public void setObjectiveModel(String model, int instrumentIndex,
+            int objectiveIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setObjectiveNominalMagnification(java.lang.Integer, int, int)
      */
-    public void setObjectiveNominalMagnification(Integer arg0, int arg1,
-            int arg2)
+    public void setObjectiveNominalMagnification(Integer nominalMagnification,
+            int instrumentIndex, int objectiveIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setObjectiveSerialNumber(java.lang.String, int, int)
      */
-    public void setObjectiveSerialNumber(String arg0, int arg1, int arg2)
+    public void setObjectiveSerialNumber(String serialNumber,
+            int instrumentIndex, int objectiveIndex)
     {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setObjectiveSettingsCorrectionCollar(java.lang.Double, int)
-     */
-    public void setObjectiveSettingsCorrectionCollar(Double arg0, int arg1)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setObjectiveSettingsMedium(java.lang.String, int)
-     */
-    public void setObjectiveSettingsMedium(String arg0, int arg1)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setObjectiveSettingsObjective(java.lang.String, int)
-     */
-    public void setObjectiveSettingsObjective(String arg0, int arg1)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setObjectiveSettingsRefractiveIndex(java.lang.Double, int)
-     */
-    public void setObjectiveSettingsRefractiveIndex(Double arg0, int arg1)
-    {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setObjectiveWorkingDistance(java.lang.Double, int, int)
      */
-    public void setObjectiveWorkingDistance(Double arg0, int arg1, int arg2)
+    public void setObjectiveWorkingDistance(Double workingDistance,
+            int instrumentIndex, int objectiveIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPathD(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setPathDefinition(java.lang.String, int, int)
      */
-    public void setPathD(String arg0, int arg1, int arg2, int arg3)
+    public void setPathDefinition(String definition, int ROIIndex,
+            int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPathID(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setPathDescription(java.lang.String, int, int)
      */
-    public void setPathID(String arg0, int arg1, int arg2, int arg3)
+    public void setPathDescription(String description, int ROIIndex,
+            int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsBigEndian(java.lang.Boolean, int, int)
+     * @see loci.formats.meta.MetadataStore#setPathFill(java.lang.Integer, int, int)
      */
-    public void setPixelsBigEndian(Boolean arg0, int arg1, int arg2)
+    public void setPathFill(Integer fill, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsDimensionOrder(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setPathFontSize(java.lang.Integer, int, int)
      */
-    public void setPixelsDimensionOrder(String arg0, int arg1, int arg2)
+    public void setPathFontSize(Integer fontSize, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsID(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setPathID(java.lang.String, int, int)
      */
-    public void setPixelsID(String arg0, int arg1, int arg2)
+    public void setPathID(String id, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsPixelType(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setPathLabel(java.lang.String, int, int)
      */
-    public void setPixelsPixelType(String arg0, int arg1, int arg2)
+    public void setPathLabel(String label, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsSizeC(java.lang.Integer, int, int)
+     * @see loci.formats.meta.MetadataStore#setPathName(java.lang.String, int, int)
      */
-    public void setPixelsSizeC(Integer arg0, int arg1, int arg2)
+    public void setPathName(String name, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsSizeT(java.lang.Integer, int, int)
+     * @see loci.formats.meta.MetadataStore#setPathStroke(java.lang.Integer, int, int)
      */
-    public void setPixelsSizeT(Integer arg0, int arg1, int arg2)
+    public void setPathStroke(Integer stroke, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsSizeX(java.lang.Integer, int, int)
+     * @see loci.formats.meta.MetadataStore#setPathStrokeDashArray(java.lang.String, int, int)
      */
-    public void setPixelsSizeX(Integer arg0, int arg1, int arg2)
+    public void setPathStrokeDashArray(String strokeDashArray, int ROIIndex,
+            int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsSizeY(java.lang.Integer, int, int)
+     * @see loci.formats.meta.MetadataStore#setPathStrokeWidth(java.lang.Double, int, int)
      */
-    public void setPixelsSizeY(Integer arg0, int arg1, int arg2)
+    public void setPathStrokeWidth(Double strokeWidth, int ROIIndex,
+            int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsSizeZ(java.lang.Integer, int, int)
+     * @see loci.formats.meta.MetadataStore#setPathTheC(java.lang.Integer, int, int)
      */
-    public void setPixelsSizeZ(Integer arg0, int arg1, int arg2)
+    public void setPathTheC(Integer theC, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlaneHashSHA1(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setPathTheT(java.lang.Integer, int, int)
      */
-    public void setPlaneHashSHA1(String arg0, int arg1, int arg2, int arg3)
+    public void setPathTheT(Integer theT, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlaneID(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setPathTheZ(java.lang.Integer, int, int)
      */
-    public void setPlaneID(String arg0, int arg1, int arg2, int arg3)
+    public void setPathTheZ(Integer theZ, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlaneTheC(java.lang.Integer, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setPathTransform(java.lang.String, int, int)
      */
-    public void setPlaneTheC(Integer arg0, int arg1, int arg2, int arg3)
+    public void setPathTransform(String transform, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlaneTheT(java.lang.Integer, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setPixelsAnnotationRef(java.lang.String, int, int)
      */
-    public void setPlaneTheT(Integer arg0, int arg1, int arg2, int arg3)
+    public void setPixelsAnnotationRef(String annotation, int imageIndex,
+            int annotationRefIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlaneTheZ(java.lang.Integer, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setPixelsBinDataBigEndian(java.lang.Boolean, int, int)
      */
-    public void setPlaneTheZ(Integer arg0, int arg1, int arg2, int arg3)
+    public void setPixelsBinDataBigEndian(Boolean bigEndian, int imageIndex,
+            int binDataIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlaneTimingDeltaT(java.lang.Double, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setPixelsDimensionOrder(ome.xml.r201004.enums.DimensionOrder, int)
      */
-    public void setPlaneTimingDeltaT(Double arg0, int arg1, int arg2, int arg3)
+    public void setPixelsDimensionOrder(DimensionOrder dimensionOrder,
+            int imageIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlaneTimingExposureTime(java.lang.Double, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setPixelsID(java.lang.String, int)
      */
-    public void setPlaneTimingExposureTime(Double arg0, int arg1, int arg2,
-            int arg3)
+    public void setPixelsID(String id, int imageIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlateColumnNamingConvention(java.lang.String, int)
+     * @see loci.formats.meta.MetadataStore#setPixelsPhysicalSizeX(java.lang.Double, int)
      */
-    public void setPlateColumnNamingConvention(String arg0, int arg1)
+    public void setPixelsPhysicalSizeX(Double physicalSizeX, int imageIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsPhysicalSizeY(java.lang.Double, int)
+     */
+    public void setPixelsPhysicalSizeY(Double physicalSizeY, int imageIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsPhysicalSizeZ(java.lang.Double, int)
+     */
+    public void setPixelsPhysicalSizeZ(Double physicalSizeZ, int imageIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsSizeC(ome.xml.r201004.primitives.PositiveInteger, int)
+     */
+    public void setPixelsSizeC(PositiveInteger sizeC, int imageIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsSizeT(ome.xml.r201004.primitives.PositiveInteger, int)
+     */
+    public void setPixelsSizeT(PositiveInteger sizeT, int imageIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsSizeX(ome.xml.r201004.primitives.PositiveInteger, int)
+     */
+    public void setPixelsSizeX(PositiveInteger sizeX, int imageIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsSizeY(ome.xml.r201004.primitives.PositiveInteger, int)
+     */
+    public void setPixelsSizeY(PositiveInteger sizeY, int imageIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsSizeZ(ome.xml.r201004.primitives.PositiveInteger, int)
+     */
+    public void setPixelsSizeZ(PositiveInteger sizeZ, int imageIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsTimeIncrement(java.lang.Double, int)
+     */
+    public void setPixelsTimeIncrement(Double timeIncrement, int imageIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsType(ome.xml.r201004.enums.PixelType, int)
+     */
+    public void setPixelsType(PixelType type, int imageIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlaneAnnotationRef(java.lang.String, int, int, int)
+     */
+    public void setPlaneAnnotationRef(String annotation, int imageIndex,
+            int planeIndex, int annotationRefIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlaneDeltaT(java.lang.Double, int, int)
+     */
+    public void setPlaneDeltaT(Double deltaT, int imageIndex, int planeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlaneExposureTime(java.lang.Double, int, int)
+     */
+    public void setPlaneExposureTime(Double exposureTime, int imageIndex,
+            int planeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlaneHashSHA1(java.lang.String, int, int)
+     */
+    public void setPlaneHashSHA1(String hashSHA1, int imageIndex, int planeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlanePositionX(java.lang.Double, int, int)
+     */
+    public void setPlanePositionX(Double positionX, int imageIndex,
+            int planeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlanePositionY(java.lang.Double, int, int)
+     */
+    public void setPlanePositionY(Double positionY, int imageIndex,
+            int planeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlanePositionZ(java.lang.Double, int, int)
+     */
+    public void setPlanePositionZ(Double positionZ, int imageIndex,
+            int planeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlaneTheC(java.lang.Integer, int, int)
+     */
+    public void setPlaneTheC(Integer theC, int imageIndex, int planeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlaneTheT(java.lang.Integer, int, int)
+     */
+    public void setPlaneTheT(Integer theT, int imageIndex, int planeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlaneTheZ(java.lang.Integer, int, int)
+     */
+    public void setPlaneTheZ(Integer theZ, int imageIndex, int planeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateAcquisitionAnnotationRef(java.lang.String, int, int, int)
+     */
+    public void setPlateAcquisitionAnnotationRef(String annotation,
+            int plateIndex, int plateAcquisitionIndex, int annotationRefIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateAcquisitionDescription(java.lang.String, int, int)
+     */
+    public void setPlateAcquisitionDescription(String description,
+            int plateIndex, int plateAcquisitionIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateAcquisitionEndTime(java.lang.String, int, int)
+     */
+    public void setPlateAcquisitionEndTime(String endTime, int plateIndex,
+            int plateAcquisitionIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateAcquisitionID(java.lang.String, int, int)
+     */
+    public void setPlateAcquisitionID(String id, int plateIndex,
+            int plateAcquisitionIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateAcquisitionMaximumFieldCount(java.lang.Integer, int, int)
+     */
+    public void setPlateAcquisitionMaximumFieldCount(Integer maximumFieldCount,
+            int plateIndex, int plateAcquisitionIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateAcquisitionName(java.lang.String, int, int)
+     */
+    public void setPlateAcquisitionName(String name, int plateIndex,
+            int plateAcquisitionIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateAcquisitionStartTime(java.lang.String, int, int)
+     */
+    public void setPlateAcquisitionStartTime(String startTime, int plateIndex,
+            int plateAcquisitionIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateAcquisitionWellSampleRef(java.lang.String, int, int, int)
+     */
+    public void setPlateAcquisitionWellSampleRef(String wellSample,
+            int plateIndex, int plateAcquisitionIndex, int wellSampleRefIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateAnnotationRef(java.lang.String, int, int)
+     */
+    public void setPlateAnnotationRef(String annotation, int plateIndex,
+            int annotationRefIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateColumnNamingConvention(ome.xml.r201004.enums.NamingConvention, int)
+     */
+    public void setPlateColumnNamingConvention(
+            NamingConvention columnNamingConvention, int plateIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateColumns(java.lang.Integer, int)
+     */
+    public void setPlateColumns(Integer columns, int plateIndex)
+    {
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPlateDescription(java.lang.String, int)
      */
-    public void setPlateDescription(String arg0, int arg1)
+    public void setPlateDescription(String description, int plateIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPlateExternalIdentifier(java.lang.String, int)
      */
-    public void setPlateExternalIdentifier(String arg0, int arg1)
+    public void setPlateExternalIdentifier(String externalIdentifier,
+            int plateIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPlateID(java.lang.String, int)
      */
-    public void setPlateID(String arg0, int arg1)
+    public void setPlateID(String id, int plateIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPlateName(java.lang.String, int)
      */
-    public void setPlateName(String arg0, int arg1)
+    public void setPlateName(String name, int plateIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlateRefID(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setPlateRowNamingConvention(ome.xml.r201004.enums.NamingConvention, int)
      */
-    public void setPlateRefID(String arg0, int arg1, int arg2)
+    public void setPlateRowNamingConvention(
+            NamingConvention rowNamingConvention, int plateIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlateRefSample(java.lang.Integer, int, int)
+     * @see loci.formats.meta.MetadataStore#setPlateRows(java.lang.Integer, int)
      */
-    public void setPlateRefSample(Integer arg0, int arg1, int arg2)
+    public void setPlateRows(Integer rows, int plateIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlateRefWell(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setPlateScreenRef(java.lang.String, int, int)
      */
-    public void setPlateRefWell(String arg0, int arg1, int arg2)
+    public void setPlateScreenRef(String screen, int plateIndex,
+            int screenRefIndex)
     {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlateRowNamingConvention(java.lang.String, int)
-     */
-    public void setPlateRowNamingConvention(String arg0, int arg1)
-    {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPlateStatus(java.lang.String, int)
      */
-    public void setPlateStatus(String arg0, int arg1)
+    public void setPlateStatus(String status, int plateIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPlateWellOriginX(java.lang.Double, int)
      */
-    public void setPlateWellOriginX(Double arg0, int arg1)
+    public void setPlateWellOriginX(Double wellOriginX, int plateIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPlateWellOriginY(java.lang.Double, int)
      */
-    public void setPlateWellOriginY(Double arg0, int arg1)
+    public void setPlateWellOriginY(Double wellOriginY, int plateIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPointCx(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setPointDescription(java.lang.String, int, int)
      */
-    public void setPointCx(String arg0, int arg1, int arg2, int arg3)
+    public void setPointDescription(String description, int ROIIndex,
+            int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPointCy(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setPointFill(java.lang.Integer, int, int)
      */
-    public void setPointCy(String arg0, int arg1, int arg2, int arg3)
+    public void setPointFill(Integer fill, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPointID(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setPointFontSize(java.lang.Integer, int, int)
      */
-    public void setPointID(String arg0, int arg1, int arg2, int arg3)
+    public void setPointFontSize(Integer fontSize, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPointR(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setPointID(java.lang.String, int, int)
      */
-    public void setPointR(String arg0, int arg1, int arg2, int arg3)
+    public void setPointID(String id, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPointTransform(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setPointLabel(java.lang.String, int, int)
      */
-    public void setPointTransform(String arg0, int arg1, int arg2, int arg3)
+    public void setPointLabel(String label, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPolygonID(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setPointName(java.lang.String, int, int)
      */
-    public void setPolygonID(String arg0, int arg1, int arg2, int arg3)
+    public void setPointName(String name, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPolygonPoints(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setPointStroke(java.lang.Integer, int, int)
      */
-    public void setPolygonPoints(String arg0, int arg1, int arg2, int arg3)
+    public void setPointStroke(Integer stroke, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPolygonTransform(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setPointStrokeDashArray(java.lang.String, int, int)
      */
-    public void setPolygonTransform(String arg0, int arg1, int arg2, int arg3)
+    public void setPointStrokeDashArray(String strokeDashArray, int ROIIndex,
+            int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPolylineID(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setPointStrokeWidth(java.lang.Double, int, int)
      */
-    public void setPolylineID(String arg0, int arg1, int arg2, int arg3)
+    public void setPointStrokeWidth(Double strokeWidth, int ROIIndex,
+            int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPolylinePoints(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setPointTheC(java.lang.Integer, int, int)
      */
-    public void setPolylinePoints(String arg0, int arg1, int arg2, int arg3)
+    public void setPointTheC(Integer theC, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPolylineTransform(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setPointTheT(java.lang.Integer, int, int)
      */
-    public void setPolylineTransform(String arg0, int arg1, int arg2, int arg3)
+    public void setPointTheT(Integer theT, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPointTheZ(java.lang.Integer, int, int)
+     */
+    public void setPointTheZ(Integer theZ, int ROIIndex, int shapeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPointTransform(java.lang.String, int, int)
+     */
+    public void setPointTransform(String transform, int ROIIndex, int shapeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPointX(java.lang.Double, int, int)
+     */
+    public void setPointX(Double x, int ROIIndex, int shapeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPointY(java.lang.Double, int, int)
+     */
+    public void setPointY(Double y, int ROIIndex, int shapeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylineClosed(java.lang.Boolean, int, int)
+     */
+    public void setPolylineClosed(Boolean closed, int ROIIndex, int shapeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylineDescription(java.lang.String, int, int)
+     */
+    public void setPolylineDescription(String description, int ROIIndex,
+            int shapeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylineFill(java.lang.Integer, int, int)
+     */
+    public void setPolylineFill(Integer fill, int ROIIndex, int shapeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylineFontSize(java.lang.Integer, int, int)
+     */
+    public void setPolylineFontSize(Integer fontSize, int ROIIndex,
+            int shapeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylineID(java.lang.String, int, int)
+     */
+    public void setPolylineID(String id, int ROIIndex, int shapeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylineLabel(java.lang.String, int, int)
+     */
+    public void setPolylineLabel(String label, int ROIIndex, int shapeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylineName(java.lang.String, int, int)
+     */
+    public void setPolylineName(String name, int ROIIndex, int shapeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylinePoints(java.lang.String, int, int)
+     */
+    public void setPolylinePoints(String points, int ROIIndex, int shapeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylineStroke(java.lang.Integer, int, int)
+     */
+    public void setPolylineStroke(Integer stroke, int ROIIndex, int shapeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylineStrokeDashArray(java.lang.String, int, int)
+     */
+    public void setPolylineStrokeDashArray(String strokeDashArray,
+            int ROIIndex, int shapeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylineStrokeWidth(java.lang.Double, int, int)
+     */
+    public void setPolylineStrokeWidth(Double strokeWidth, int ROIIndex,
+            int shapeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylineTheC(java.lang.Integer, int, int)
+     */
+    public void setPolylineTheC(Integer theC, int ROIIndex, int shapeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylineTheT(java.lang.Integer, int, int)
+     */
+    public void setPolylineTheT(Integer theT, int ROIIndex, int shapeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylineTheZ(java.lang.Integer, int, int)
+     */
+    public void setPolylineTheZ(Integer theZ, int ROIIndex, int shapeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylineTransform(java.lang.String, int, int)
+     */
+    public void setPolylineTransform(String transform, int ROIIndex,
+            int shapeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setProjectAnnotationRef(java.lang.String, int, int)
+     */
+    public void setProjectAnnotationRef(String annotation, int projectIndex,
+            int annotationRefIndex)
+    {
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setProjectDescription(java.lang.String, int)
      */
-    public void setProjectDescription(String arg0, int arg1)
+    public void setProjectDescription(String description, int projectIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setProjectExperimenterRef(java.lang.String, int)
      */
-    public void setProjectExperimenterRef(String arg0, int arg1)
+    public void setProjectExperimenterRef(String experimenter, int projectIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setProjectGroupRef(java.lang.String, int)
      */
-    public void setProjectGroupRef(String arg0, int arg1)
+    public void setProjectGroupRef(String group, int projectIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setProjectID(java.lang.String, int)
      */
-    public void setProjectID(String arg0, int arg1)
+    public void setProjectID(String id, int projectIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setProjectName(java.lang.String, int)
      */
-    public void setProjectName(String arg0, int arg1)
+    public void setProjectName(String name, int projectIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setProjectRefID(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setROIAnnotationRef(java.lang.String, int, int)
      */
-    public void setProjectRefID(String arg0, int arg1, int arg2)
+    public void setROIAnnotationRef(String annotation, int ROIIndex,
+            int annotationRefIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPumpLightSource(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setROIDescription(java.lang.String, int)
      */
-    public void setPumpLightSource(String arg0, int arg1, int arg2)
+    public void setROIDescription(String description, int ROIIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setROIID(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setROIID(java.lang.String, int)
      */
-    public void setROIID(String arg0, int arg1, int arg2)
+    public void setROIID(String id, int ROIIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setROIRefID(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setROIName(java.lang.String, int)
      */
-    public void setROIRefID(String arg0, int arg1, int arg2, int arg3)
+    public void setROIName(String name, int ROIIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setROIT0(java.lang.Integer, int, int)
+     * @see loci.formats.meta.MetadataStore#setROINamespace(java.lang.String, int)
      */
-    public void setROIT0(Integer arg0, int arg1, int arg2)
+    public void setROINamespace(String namespace, int ROIIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setROIT1(java.lang.Integer, int, int)
+     * @see loci.formats.meta.MetadataStore#setReagentAnnotationRef(java.lang.String, int, int, int)
      */
-    public void setROIT1(Integer arg0, int arg1, int arg2)
+    public void setReagentAnnotationRef(String annotation, int screenIndex,
+            int reagentIndex, int annotationRefIndex)
     {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setROIX0(java.lang.Integer, int, int)
-     */
-    public void setROIX0(Integer arg0, int arg1, int arg2)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setROIX1(java.lang.Integer, int, int)
-     */
-    public void setROIX1(Integer arg0, int arg1, int arg2)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setROIY0(java.lang.Integer, int, int)
-     */
-    public void setROIY0(Integer arg0, int arg1, int arg2)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setROIY1(java.lang.Integer, int, int)
-     */
-    public void setROIY1(Integer arg0, int arg1, int arg2)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setROIZ0(java.lang.Integer, int, int)
-     */
-    public void setROIZ0(Integer arg0, int arg1, int arg2)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setROIZ1(java.lang.Integer, int, int)
-     */
-    public void setROIZ1(Integer arg0, int arg1, int arg2)
-    {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setReagentDescription(java.lang.String, int, int)
      */
-    public void setReagentDescription(String arg0, int arg1, int arg2)
+    public void setReagentDescription(String description, int screenIndex,
+            int reagentIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setReagentID(java.lang.String, int, int)
      */
-    public void setReagentID(String arg0, int arg1, int arg2)
+    public void setReagentID(String id, int screenIndex, int reagentIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setReagentName(java.lang.String, int, int)
      */
-    public void setReagentName(String arg0, int arg1, int arg2)
+    public void setReagentName(String name, int screenIndex, int reagentIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setReagentReagentIdentifier(java.lang.String, int, int)
      */
-    public void setReagentReagentIdentifier(String arg0, int arg1, int arg2)
+    public void setReagentReagentIdentifier(String reagentIdentifier,
+            int screenIndex, int reagentIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setRectHeight(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setRectangleDescription(java.lang.String, int, int)
      */
-    public void setRectHeight(String arg0, int arg1, int arg2, int arg3)
+    public void setRectangleDescription(String description, int ROIIndex,
+            int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setRectID(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setRectangleFill(java.lang.Integer, int, int)
      */
-    public void setRectID(String arg0, int arg1, int arg2, int arg3)
+    public void setRectangleFill(Integer fill, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setRectTransform(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setRectangleFontSize(java.lang.Integer, int, int)
      */
-    public void setRectTransform(String arg0, int arg1, int arg2, int arg3)
+    public void setRectangleFontSize(Integer fontSize, int ROIIndex,
+            int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setRectWidth(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setRectangleHeight(java.lang.Double, int, int)
      */
-    public void setRectWidth(String arg0, int arg1, int arg2, int arg3)
+    public void setRectangleHeight(Double height, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setRectX(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setRectangleID(java.lang.String, int, int)
      */
-    public void setRectX(String arg0, int arg1, int arg2, int arg3)
+    public void setRectangleID(String id, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setRectY(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setRectangleLabel(java.lang.String, int, int)
      */
-    public void setRectY(String arg0, int arg1, int arg2, int arg3)
+    public void setRectangleLabel(String label, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setRegionID(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setRectangleName(java.lang.String, int, int)
      */
-    public void setRegionID(String arg0, int arg1, int arg2)
+    public void setRectangleName(String name, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setRegionName(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setRectangleStroke(java.lang.Integer, int, int)
      */
-    public void setRegionName(String arg0, int arg1, int arg2)
+    public void setRectangleStroke(Integer stroke, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setRegionTag(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setRectangleStrokeDashArray(java.lang.String, int, int)
      */
-    public void setRegionTag(String arg0, int arg1, int arg2)
+    public void setRectangleStrokeDashArray(String strokeDashArray,
+            int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setRoiLinkDirection(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setRectangleStrokeWidth(java.lang.Double, int, int)
      */
-    public void setRoiLinkDirection(String arg0, int arg1, int arg2, int arg3)
+    public void setRectangleStrokeWidth(Double strokeWidth, int ROIIndex,
+            int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setRoiLinkName(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setRectangleTheC(java.lang.Integer, int, int)
      */
-    public void setRoiLinkName(String arg0, int arg1, int arg2, int arg3)
+    public void setRectangleTheC(Integer theC, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setRoiLinkRef(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setRectangleTheT(java.lang.Integer, int, int)
      */
-    public void setRoiLinkRef(String arg0, int arg1, int arg2, int arg3)
+    public void setRectangleTheT(Integer theT, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRectangleTheZ(java.lang.Integer, int, int)
+     */
+    public void setRectangleTheZ(Integer theZ, int ROIIndex, int shapeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRectangleTransform(java.lang.String, int, int)
+     */
+    public void setRectangleTransform(String transform, int ROIIndex,
+            int shapeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRectangleWidth(java.lang.Double, int, int)
+     */
+    public void setRectangleWidth(Double width, int ROIIndex, int shapeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRectangleX(java.lang.Double, int, int)
+     */
+    public void setRectangleX(Double x, int ROIIndex, int shapeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRectangleY(java.lang.Double, int, int)
+     */
+    public void setRectangleY(Double y, int ROIIndex, int shapeIndex)
+    {
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setRoot(java.lang.Object)
      */
-    public void setRoot(Object arg0)
+    public void setRoot(Object root)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setScreenAcquisitionEndTime(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setScreenAnnotationRef(java.lang.String, int, int)
      */
-    public void setScreenAcquisitionEndTime(String arg0, int arg1, int arg2)
+    public void setScreenAnnotationRef(String annotation, int screenIndex,
+            int annotationRefIndex)
     {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setScreenAcquisitionID(java.lang.String, int, int)
-     */
-    public void setScreenAcquisitionID(String arg0, int arg1, int arg2)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setScreenAcquisitionStartTime(java.lang.String, int, int)
-     */
-    public void setScreenAcquisitionStartTime(String arg0, int arg1, int arg2)
-    {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setScreenDescription(java.lang.String, int)
      */
-    public void setScreenDescription(String arg0, int arg1)
+    public void setScreenDescription(String description, int screenIndex)
     {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setScreenExtern(java.lang.String, int)
-     */
-    public void setScreenExtern(String arg0, int arg1)
-    {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setScreenID(java.lang.String, int)
      */
-    public void setScreenID(String arg0, int arg1)
+    public void setScreenID(String id, int screenIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setScreenName(java.lang.String, int)
      */
-    public void setScreenName(String arg0, int arg1)
+    public void setScreenName(String name, int screenIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setScreenPlateRef(java.lang.String, int, int)
+     */
+    public void setScreenPlateRef(String plate, int screenIndex,
+            int plateRefIndex)
+    {
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setScreenProtocolDescription(java.lang.String, int)
      */
-    public void setScreenProtocolDescription(String arg0, int arg1)
+    public void setScreenProtocolDescription(String protocolDescription,
+            int screenIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setScreenProtocolIdentifier(java.lang.String, int)
      */
-    public void setScreenProtocolIdentifier(String arg0, int arg1)
+    public void setScreenProtocolIdentifier(String protocolIdentifier,
+            int screenIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setScreenReagentSetDescription(java.lang.String, int)
      */
-    public void setScreenReagentSetDescription(String arg0, int arg1)
+    public void setScreenReagentSetDescription(String reagentSetDescription,
+            int screenIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setScreenReagentSetIdentifier(java.lang.String, int)
      */
-    public void setScreenReagentSetIdentifier(String arg0, int arg1)
+    public void setScreenReagentSetIdentifier(String reagentSetIdentifier,
+            int screenIndex)
     {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setScreenRefID(java.lang.String, int, int)
-     */
-    public void setScreenRefID(String arg0, int arg1, int arg2)
-    {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setScreenType(java.lang.String, int)
      */
-    public void setScreenType(String arg0, int arg1)
+    public void setScreenType(String type, int screenIndex)
     {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeBaselineShift(java.lang.String, int, int, int)
-     */
-    public void setShapeBaselineShift(String arg0, int arg1, int arg2, int arg3)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeDirection(java.lang.String, int, int, int)
-     */
-    public void setShapeDirection(String arg0, int arg1, int arg2, int arg3)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeFillColor(java.lang.String, int, int, int)
-     */
-    public void setShapeFillColor(String arg0, int arg1, int arg2, int arg3)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeFillOpacity(java.lang.String, int, int, int)
-     */
-    public void setShapeFillOpacity(String arg0, int arg1, int arg2, int arg3)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeFillRule(java.lang.String, int, int, int)
-     */
-    public void setShapeFillRule(String arg0, int arg1, int arg2, int arg3)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeFontFamily(java.lang.String, int, int, int)
-     */
-    public void setShapeFontFamily(String arg0, int arg1, int arg2, int arg3)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeFontSize(java.lang.Integer, int, int, int)
-     */
-    public void setShapeFontSize(Integer arg0, int arg1, int arg2, int arg3)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeFontStretch(java.lang.String, int, int, int)
-     */
-    public void setShapeFontStretch(String arg0, int arg1, int arg2, int arg3)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeFontStyle(java.lang.String, int, int, int)
-     */
-    public void setShapeFontStyle(String arg0, int arg1, int arg2, int arg3)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeFontVariant(java.lang.String, int, int, int)
-     */
-    public void setShapeFontVariant(String arg0, int arg1, int arg2, int arg3)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeFontWeight(java.lang.String, int, int, int)
-     */
-    public void setShapeFontWeight(String arg0, int arg1, int arg2, int arg3)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeG(java.lang.String, int, int, int)
-     */
-    public void setShapeG(String arg0, int arg1, int arg2, int arg3)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeGlyphOrientationVertical(java.lang.Integer, int, int, int)
-     */
-    public void setShapeGlyphOrientationVertical(Integer arg0, int arg1,
-            int arg2, int arg3)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeID(java.lang.String, int, int, int)
-     */
-    public void setShapeID(String arg0, int arg1, int arg2, int arg3)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeLocked(java.lang.Boolean, int, int, int)
-     */
-    public void setShapeLocked(Boolean arg0, int arg1, int arg2, int arg3)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeStrokeAttribute(java.lang.String, int, int, int)
-     */
-    public void setShapeStrokeAttribute(String arg0, int arg1, int arg2,
-            int arg3)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeStrokeColor(java.lang.String, int, int, int)
-     */
-    public void setShapeStrokeColor(String arg0, int arg1, int arg2, int arg3)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeStrokeDashArray(java.lang.String, int, int, int)
-     */
-    public void setShapeStrokeDashArray(String arg0, int arg1, int arg2,
-            int arg3)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeStrokeLineCap(java.lang.String, int, int, int)
-     */
-    public void setShapeStrokeLineCap(String arg0, int arg1, int arg2, int arg3)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeStrokeLineJoin(java.lang.String, int, int, int)
-     */
-    public void setShapeStrokeLineJoin(String arg0, int arg1, int arg2, int arg3)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeStrokeMiterLimit(java.lang.Integer, int, int, int)
-     */
-    public void setShapeStrokeMiterLimit(Integer arg0, int arg1, int arg2,
-            int arg3)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeStrokeOpacity(java.lang.Double, int, int, int)
-     */
-    public void setShapeStrokeOpacity(Double arg0, int arg1, int arg2, int arg3)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeStrokeWidth(java.lang.Integer, int, int, int)
-     */
-    public void setShapeStrokeWidth(Integer arg0, int arg1, int arg2, int arg3)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeText(java.lang.String, int, int, int)
-     */
-    public void setShapeText(String arg0, int arg1, int arg2, int arg3)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeTextAnchor(java.lang.String, int, int, int)
-     */
-    public void setShapeTextAnchor(String arg0, int arg1, int arg2, int arg3)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeTextDecoration(java.lang.String, int, int, int)
-     */
-    public void setShapeTextDecoration(String arg0, int arg1, int arg2, int arg3)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeTextFill(java.lang.String, int, int, int)
-     */
-    public void setShapeTextFill(String arg0, int arg1, int arg2, int arg3)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeTextStroke(java.lang.String, int, int, int)
-     */
-    public void setShapeTextStroke(String arg0, int arg1, int arg2, int arg3)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeTheT(java.lang.Integer, int, int, int)
-     */
-    public void setShapeTheT(Integer arg0, int arg1, int arg2, int arg3)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeTheZ(java.lang.Integer, int, int, int)
-     */
-    public void setShapeTheZ(Integer arg0, int arg1, int arg2, int arg3)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeVectorEffect(java.lang.String, int, int, int)
-     */
-    public void setShapeVectorEffect(String arg0, int arg1, int arg2, int arg3)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeVisibility(java.lang.Boolean, int, int, int)
-     */
-    public void setShapeVisibility(Boolean arg0, int arg1, int arg2, int arg3)
-    {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeWritingMode(java.lang.String, int, int, int)
-     */
-    public void setShapeWritingMode(String arg0, int arg1, int arg2, int arg3)
-    {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setStageLabelName(java.lang.String, int)
      */
-    public void setStageLabelName(String arg0, int arg1)
+    public void setStageLabelName(String name, int imageIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setStageLabelX(java.lang.Double, int)
      */
-    public void setStageLabelX(Double arg0, int arg1)
+    public void setStageLabelX(Double x, int imageIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setStageLabelY(java.lang.Double, int)
      */
-    public void setStageLabelY(Double arg0, int arg1)
+    public void setStageLabelY(Double y, int imageIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setStageLabelZ(java.lang.Double, int)
      */
-    public void setStageLabelZ(Double arg0, int arg1)
+    public void setStageLabelZ(Double z, int imageIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setStagePositionPositionX(java.lang.Double, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setStringAnnotationID(java.lang.String, int)
      */
-    public void setStagePositionPositionX(Double arg0, int arg1, int arg2,
-            int arg3)
+    public void setStringAnnotationID(String id, int stringAnnotationIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setStagePositionPositionY(java.lang.Double, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setStringAnnotationNamespace(java.lang.String, int)
      */
-    public void setStagePositionPositionY(Double arg0, int arg1, int arg2,
-            int arg3)
+    public void setStringAnnotationNamespace(String namespace,
+            int stringAnnotationIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setStagePositionPositionZ(java.lang.Double, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setStringAnnotationValue(java.lang.String, int)
      */
-    public void setStagePositionPositionZ(Double arg0, int arg1, int arg2,
-            int arg3)
+    public void setStringAnnotationValue(String value, int stringAnnotationIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setThumbnailHref(java.lang.String, int)
+     * @see loci.formats.meta.MetadataStore#setTextDescription(java.lang.String, int, int)
      */
-    public void setThumbnailHref(String arg0, int arg1)
+    public void setTextDescription(String description, int ROIIndex,
+            int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setThumbnailID(java.lang.String, int)
+     * @see loci.formats.meta.MetadataStore#setTextFill(java.lang.Integer, int, int)
      */
-    public void setThumbnailID(String arg0, int arg1)
+    public void setTextFill(Integer fill, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setThumbnailMIMEtype(java.lang.String, int)
+     * @see loci.formats.meta.MetadataStore#setTextFontSize(java.lang.Integer, int, int)
      */
-    public void setThumbnailMIMEtype(String arg0, int arg1)
+    public void setTextFontSize(Integer fontSize, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setTiffDataFileName(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setTextID(java.lang.String, int, int)
      */
-    public void setTiffDataFileName(String arg0, int arg1, int arg2, int arg3)
+    public void setTextID(String id, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setTiffDataFirstC(java.lang.Integer, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setTextLabel(java.lang.String, int, int)
      */
-    public void setTiffDataFirstC(Integer arg0, int arg1, int arg2, int arg3)
+    public void setTextLabel(String label, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setTiffDataFirstT(java.lang.Integer, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setTextName(java.lang.String, int, int)
      */
-    public void setTiffDataFirstT(Integer arg0, int arg1, int arg2, int arg3)
+    public void setTextName(String name, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setTiffDataFirstZ(java.lang.Integer, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setTextStroke(java.lang.Integer, int, int)
      */
-    public void setTiffDataFirstZ(Integer arg0, int arg1, int arg2, int arg3)
+    public void setTextStroke(Integer stroke, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setTiffDataIFD(java.lang.Integer, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setTextStrokeDashArray(java.lang.String, int, int)
      */
-    public void setTiffDataIFD(Integer arg0, int arg1, int arg2, int arg3)
+    public void setTextStrokeDashArray(String strokeDashArray, int ROIIndex,
+            int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setTiffDataNumPlanes(java.lang.Integer, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setTextStrokeWidth(java.lang.Double, int, int)
      */
-    public void setTiffDataNumPlanes(Integer arg0, int arg1, int arg2, int arg3)
+    public void setTextStrokeWidth(Double strokeWidth, int ROIIndex,
+            int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setTiffDataUUID(java.lang.String, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setTextTheC(java.lang.Integer, int, int)
      */
-    public void setTiffDataUUID(String arg0, int arg1, int arg2, int arg3)
+    public void setTextTheC(Integer theC, int ROIIndex, int shapeIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTextTheT(java.lang.Integer, int, int)
+     */
+    public void setTextTheT(Integer theT, int ROIIndex, int shapeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTextTheZ(java.lang.Integer, int, int)
+     */
+    public void setTextTheZ(Integer theZ, int ROIIndex, int shapeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTextTransform(java.lang.String, int, int)
+     */
+    public void setTextTransform(String transform, int ROIIndex, int shapeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTextValue(java.lang.String, int, int)
+     */
+    public void setTextValue(String value, int ROIIndex, int shapeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTextX(java.lang.Double, int, int)
+     */
+    public void setTextX(Double x, int ROIIndex, int shapeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTextY(java.lang.Double, int, int)
+     */
+    public void setTextY(Double y, int ROIIndex, int shapeIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTiffDataFirstC(java.lang.Integer, int, int)
+     */
+    public void setTiffDataFirstC(Integer firstC, int imageIndex,
+            int tiffDataIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTiffDataFirstT(java.lang.Integer, int, int)
+     */
+    public void setTiffDataFirstT(Integer firstT, int imageIndex,
+            int tiffDataIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTiffDataFirstZ(java.lang.Integer, int, int)
+     */
+    public void setTiffDataFirstZ(Integer firstZ, int imageIndex,
+            int tiffDataIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTiffDataIFD(java.lang.Integer, int, int)
+     */
+    public void setTiffDataIFD(Integer ifd, int imageIndex, int tiffDataIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTiffDataPlaneCount(java.lang.Integer, int, int)
+     */
+    public void setTiffDataPlaneCount(Integer planeCount, int imageIndex,
+            int tiffDataIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTimestampAnnotationID(java.lang.String, int)
+     */
+    public void setTimestampAnnotationID(String id, int timestampAnnotationIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTimestampAnnotationNamespace(java.lang.String, int)
+     */
+    public void setTimestampAnnotationNamespace(String namespace,
+            int timestampAnnotationIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTimestampAnnotationValue(java.lang.String, int)
+     */
+    public void setTimestampAnnotationValue(String value,
+            int timestampAnnotationIndex)
+    {
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTransmittanceRangeCutIn(java.lang.Integer, int, int)
      */
-    public void setTransmittanceRangeCutIn(Integer arg0, int arg1, int arg2)
+    public void setTransmittanceRangeCutIn(Integer cutIn, int instrumentIndex,
+            int filterIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTransmittanceRangeCutInTolerance(java.lang.Integer, int, int)
      */
-    public void setTransmittanceRangeCutInTolerance(Integer arg0, int arg1,
-            int arg2)
+    public void setTransmittanceRangeCutInTolerance(Integer cutInTolerance,
+            int instrumentIndex, int filterIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTransmittanceRangeCutOut(java.lang.Integer, int, int)
      */
-    public void setTransmittanceRangeCutOut(Integer arg0, int arg1, int arg2)
+    public void setTransmittanceRangeCutOut(Integer cutOut,
+            int instrumentIndex, int filterIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTransmittanceRangeCutOutTolerance(java.lang.Integer, int, int)
      */
-    public void setTransmittanceRangeCutOutTolerance(Integer arg0, int arg1,
-            int arg2)
+    public void setTransmittanceRangeCutOutTolerance(Integer cutOutTolerance,
+            int instrumentIndex, int filterIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setTransmittanceRangeTransmittance(java.lang.Integer, int, int)
+     * @see loci.formats.meta.MetadataStore#setTransmittanceRangeTransmittance(ome.xml.r201004.primitives.PercentFraction, int, int)
      */
-    public void setTransmittanceRangeTransmittance(Integer arg0, int arg1,
-            int arg2)
+    public void setTransmittanceRangeTransmittance(
+            PercentFraction transmittance, int instrumentIndex, int filterIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setUUID(java.lang.String)
      */
-    public void setUUID(String arg0)
+    public void setUUID(String uuid)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setWellColumn(java.lang.Integer, int, int)
+     * @see loci.formats.meta.MetadataStore#setUUIDFileName(java.lang.String, int, int)
      */
-    public void setWellColumn(Integer arg0, int arg1, int arg2)
+    public void setUUIDFileName(String fileName, int imageIndex,
+            int tiffDataIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellAnnotationRef(java.lang.String, int, int, int)
+     */
+    public void setWellAnnotationRef(String annotation, int plateIndex,
+            int wellIndex, int annotationRefIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellColor(java.lang.Integer, int, int)
+     */
+    public void setWellColor(Integer color, int plateIndex, int wellIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellColumn(ome.xml.r201004.primitives.NonNegativeInteger, int, int)
+     */
+    public void setWellColumn(NonNegativeInteger column, int plateIndex,
+            int wellIndex)
+    {
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setWellExternalDescription(java.lang.String, int, int)
      */
-    public void setWellExternalDescription(String arg0, int arg1, int arg2)
+    public void setWellExternalDescription(String externalDescription,
+            int plateIndex, int wellIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setWellExternalIdentifier(java.lang.String, int, int)
      */
-    public void setWellExternalIdentifier(String arg0, int arg1, int arg2)
+    public void setWellExternalIdentifier(String externalIdentifier,
+            int plateIndex, int wellIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setWellID(java.lang.String, int, int)
      */
-    public void setWellID(String arg0, int arg1, int arg2)
+    public void setWellID(String id, int plateIndex, int wellIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setWellReagent(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setWellReagentRef(java.lang.String, int, int)
      */
-    public void setWellReagent(String arg0, int arg1, int arg2)
+    public void setWellReagentRef(String reagent, int plateIndex, int wellIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setWellRow(java.lang.Integer, int, int)
+     * @see loci.formats.meta.MetadataStore#setWellRow(ome.xml.r201004.primitives.NonNegativeInteger, int, int)
      */
-    public void setWellRow(Integer arg0, int arg1, int arg2)
+    public void setWellRow(NonNegativeInteger row, int plateIndex, int wellIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellSampleAnnotationRef(java.lang.String, int, int, int, int)
+     */
+    public void setWellSampleAnnotationRef(String annotation, int plateIndex,
+            int wellIndex, int wellSampleIndex, int annotationRefIndex)
+    {
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setWellSampleID(java.lang.String, int, int, int)
      */
-    public void setWellSampleID(String arg0, int arg1, int arg2, int arg3)
+    public void setWellSampleID(String id, int plateIndex, int wellIndex,
+            int wellSampleIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setWellSampleImageRef(java.lang.String, int, int, int)
      */
-    public void setWellSampleImageRef(String arg0, int arg1, int arg2, int arg3)
+    public void setWellSampleImageRef(String image, int plateIndex,
+            int wellIndex, int wellSampleIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setWellSampleIndex(java.lang.Integer, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setWellSampleIndex(ome.xml.r201004.primitives.NonNegativeInteger, int, int, int)
      */
-    public void setWellSampleIndex(Integer arg0, int arg1, int arg2, int arg3)
+    public void setWellSampleIndex(NonNegativeInteger index, int plateIndex,
+            int wellIndex, int wellSampleIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setWellSamplePosX(java.lang.Double, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setWellSamplePositionX(java.lang.Double, int, int, int)
      */
-    public void setWellSamplePosX(Double arg0, int arg1, int arg2, int arg3)
+    public void setWellSamplePositionX(Double positionX, int plateIndex,
+            int wellIndex, int wellSampleIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setWellSamplePosY(java.lang.Double, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setWellSamplePositionY(java.lang.Double, int, int, int)
      */
-    public void setWellSamplePosY(Double arg0, int arg1, int arg2, int arg3)
+    public void setWellSamplePositionY(Double positionY, int plateIndex,
+            int wellIndex, int wellSampleIndex)
     {
-        // Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setWellSampleRefID(java.lang.String, int, int, int)
-     */
-    public void setWellSampleRefID(String arg0, int arg1, int arg2, int arg3)
-    {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setWellSampleTimepoint(java.lang.Integer, int, int, int)
      */
-    public void setWellSampleTimepoint(Integer arg0, int arg1, int arg2,
-            int arg3)
+    public void setWellSampleTimepoint(Integer timepoint, int plateIndex,
+            int wellIndex, int wellSampleIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setWellType(java.lang.String, int, int)
+     * @see loci.formats.meta.MetadataStore#setWellStatus(java.lang.String, int, int)
      */
-    public void setWellType(String arg0, int arg1, int arg2)
+    public void setWellStatus(String status, int plateIndex, int wellIndex)
     {
-        // Auto-generated method stub
+        // TODO Auto-generated method stub
         
     }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setXMLAnnotationID(java.lang.String, int)
+     */
+    public void setXMLAnnotationID(String id, int XMLAnnotationIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setXMLAnnotationNamespace(java.lang.String, int)
+     */
+    public void setXMLAnnotationNamespace(String namespace,
+            int XMLAnnotationIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setXMLAnnotationValue(java.lang.String, int)
+     */
+    public void setXMLAnnotationValue(String value, int XMLAnnotationIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    //
+    // MetadataStore stubs follow
+    //
 
 }

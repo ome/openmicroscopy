@@ -74,7 +74,7 @@ public class OMEROWrapper extends MinMaxCalculator {
     /**
      * Wrapper for bio-formats
      * 
-     * @param config - ImportConfig¶
+     * @param config - ImportConfit
      */
     public OMEROWrapper(ImportConfig config)
     {

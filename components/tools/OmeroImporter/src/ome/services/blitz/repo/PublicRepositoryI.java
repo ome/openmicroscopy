@@ -20,7 +20,6 @@
  *
  *------------------------------------------------------------------------------
  *
- * 
  */
 package ome.services.blitz.repo;
 
@@ -39,7 +38,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
-import java.math.BigInteger;
 
 import javax.activation.MimetypesFileTypeMap;
 
@@ -59,6 +57,7 @@ import ome.services.db.PgArrayHelper;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
+import ome.xml.r201004.primitives.PositiveInteger;
 import omero.ServerError;
 import omero.ValidationException;
 import omero.api.RawFileStorePrx;
@@ -96,7 +95,6 @@ import Ice.Current;
  * An implementation of he PublicRepository interface
  * 
  * @author Colin Blackburn <cblackburn at dundee dot ac dot uk>
- * @author Josh Moore, josh at glencoesoftware.com
  */
 public class PublicRepositoryI extends _RepositoryDisp {
 
@@ -118,10 +116,6 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
     private final Principal principal;
     
-    private Map<String,PixelsType> pixelsTypeMap;
-    
-    private Map<String,DimensionOrder> dimensionOrderMap;
-    
     private String repoUuid;
 
     public PublicRepositoryI(File root, long repoObjectId, Executor executor,
@@ -138,8 +132,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         }
         this.root = root.getAbsoluteFile();
         this.repoUuid = null;
-        this.pixelsTypeMap = null;
-        
+
     }
 
     public OriginalFile root(Current __current) throws ServerError {
@@ -151,8 +144,6 @@ public class PublicRepositoryI extends _RepositoryDisp {
      *
      * @param path
      *            Absolute path of the file to be registered.
-     * @param mimetype
-     *            Mimetype as an RString
      * @param __current
      *            ice context.
      * @return The OriginalFile with id set (unloaded)
@@ -163,13 +154,14 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
         File file = new File(path).getAbsoluteFile();
         OriginalFile omeroFile = new OriginalFileI();
-        omeroFile = createOriginalFile(file, mimetype);
+        omeroFile = createOriginalFile(file);
+        omeroFile.setMimetype(mimetype);
 
         IceMapper mapper = new IceMapper();
         final ome.model.core.OriginalFile omeFile = (ome.model.core.OriginalFile) mapper
                 .reverse(omeroFile);
         Long id = (Long) executor.execute(principal, new Executor.SimpleWork(
-                this, "register", path) {
+                this, "register") {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
                 return sf.getUpdateService().saveAndReturnObject(omeFile).getId();
@@ -214,7 +206,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         final Map<String, String> paramMap = params;
 
         Long id = (Long) executor.execute(principal, new Executor.SimpleWork(
-                this, "registerObject", repoId) {
+                this, "registerObject") {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
                 long id = sf.getUpdateService().saveAndReturnObject(omeObj).getId();
@@ -222,6 +214,8 @@ public class PublicRepositoryI extends _RepositoryDisp {
                     jdbc.update("update originalfile set repo = ? where id = ?", repoId, id);
                     helper.setFileParams(id, paramMap);
                 } else { // must be an Image object here.
+                    //List<ome.model.IObject> results = sf.getQueryService().findAllByQuery("select p from Pixels p where p.image = " + id, null);
+                    //long pixId = results.get(0).getId();                  
                     ome.model.IObject result = sf.getQueryService().findByQuery("select p from Pixels p where p.image = " + id, null);
                     long pixId = result.getId();                  
                     jdbc.update("update pixels set repo = ? where id = ?", repoId, pixId);
@@ -233,6 +227,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         
         obj.setId(rlong(id));
         obj.unload();
+        
         return obj;
     }
 
@@ -279,7 +274,9 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * Get a list of those files as importable and non-importable list.
      * 
      * @param path
-     *            A path on a repositor     
+     *            A path on a repositor     * @param config
+     *            A RepositoryListConfig defining the listing config.
+y.
      * @param config
      *            A RepositoryListConfig defining the listing config.
      * @param __current
@@ -309,7 +306,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
         for (ImportContainer ic : containers) {
             FileSet set = new FileSet();
-            OriginalFile oFile;
+            List<OriginalFile> ofList;
             
             set.importableImage = true;
             set.fileName = ic.getFile().getAbsolutePath();
@@ -319,13 +316,12 @@ public class PublicRepositoryI extends _RepositoryDisp {
             set.usedFiles = new ArrayList<IObject>();
             List<String> iFileList = Arrays.asList(ic.getUsedFiles());
             for (String iFile : iFileList)  {
-                File f = new File(iFile);
                 removeNameFromFileList(iFile, names);
-                oFile = getOriginalFile(f.getParent(),f.getName());
-                if (oFile != null) {
-                    set.usedFiles.add(oFile);
+                ofList = getOriginalFiles(iFile);
+                if (ofList != null && ofList.size() != 0) {
+                    set.usedFiles.add(ofList.get(0));
                 } else {
-                    set.usedFiles.add(createOriginalFile(f));   
+                    set.usedFiles.add(createOriginalFile(new File(iFile)));   
                 }
             }
             
@@ -362,20 +358,19 @@ public class PublicRepositoryI extends _RepositoryDisp {
         // Add the left over files in the directory as OrignalFile objects
         if (names.size() > 0) {
             for (String iFile : names) {
-                File f = new File(iFile);
                 FileSet set = new FileSet();
-                OriginalFile oFile;
+                List<OriginalFile> ofList;
             
                 set.importableImage = false;
                 set.fileName = iFile;
                 set.imageCount = 0;
                         
                 set.usedFiles = new ArrayList<IObject>();
-                oFile = getOriginalFile(f.getParent(),f.getName());
-                if (oFile != null) {
-                    set.usedFiles.add(oFile);
+                ofList = getOriginalFiles(iFile);
+                if (ofList != null && ofList.size() != 0) {
+                    set.usedFiles.add(ofList.get(0));
                 } else {
-                    set.usedFiles.add(createOriginalFile(f));   
+                    set.usedFiles.add(createOriginalFile(new File(iFile)));   
                 }
                 rv.add(set);
             }
@@ -595,7 +590,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         List<File> files;
         IOFileFilter filter;
         
-        // If system is true list all files othersise only those files not starting with "."
+        // If system is true list all files otherwise only those files not starting with "."
         if (config.system) {
             filter = FileFilterUtils.trueFileFilter();
         } else {
@@ -620,15 +615,15 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
     
     /**
-     * Get the mimetype for a file.
+     * Get the Format for a file using its MIME content type
      * 
      * @param file
      *            A File in a repository.
-     * @return A String representing the mimetype.
+     * @return A Format object
      *
      * TODO Return the correct Format object in place of a dummy one
      */
-    private String getMimetype(File file) {
+    private String getFileFormat(File file) {
 
         final String contentType = new MimetypesFileTypeMap().getContentType(file);
         return contentType;
@@ -642,14 +637,23 @@ public class PublicRepositoryI extends _RepositoryDisp {
      *            A string representing the dimension order
      * @return A DimensionOrder object
      *
-     * The HashMap is built on the first call.
-     * TODO: Move that build to constructor?
      */
     private DimensionOrder getDimensionOrder(String dimensionOrder) {
-        if (dimensionOrderMap == null) {
-            dimensionOrderMap = buildDimensionOrderMap();
-        }
-        return dimensionOrderMap.get(dimensionOrder);
+        final String dim = dimensionOrder;
+        ome.model.enums.DimensionOrder dimOrder = (ome.model.enums.DimensionOrder) executor
+                .execute(principal, new Executor.SimpleWork(this, "getDimensionOrder") {
+
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        return sf.getQueryService().findByQuery(
+                                "from DimensionOrder as d where d.value='"
+                                        + dim + "'", null);
+                    }
+                });
+                
+        IceMapper mapper = new IceMapper();
+        return (DimensionOrder) mapper.map(dimOrder);
+
     }
 
     /**
@@ -659,14 +663,26 @@ public class PublicRepositoryI extends _RepositoryDisp {
      *            A string representing the pixels type
      * @return A PixelsType object
      *
-     * The HashMap is built on the first call.
-     * TODO: Move that build to constructor?
+     * TODO: This db look-up per Pixels object needs 
+     * to be a local look-up from a HashMap built in
+     * the constructor.
      */
     private PixelsType getPixelsType(String pixelsType) {
-        if (pixelsTypeMap == null) {
-            pixelsTypeMap = buildPixelsTypeMap();
-        }
-        return pixelsTypeMap.get(pixelsType);
+        final String pType = pixelsType;
+        ome.model.enums.PixelsType pixType = (ome.model.enums.PixelsType) executor
+                .execute(principal, new Executor.SimpleWork(this, "getPixelsType") {
+
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        return sf.getQueryService().findByQuery(
+                                "from PixelsType as p where p.value='"
+                                        + pType + "'", null);
+                    }
+                });
+                
+        IceMapper mapper = new IceMapper();
+        return (PixelsType) mapper.map(pixType);
+
     }
 
     /**
@@ -712,9 +728,9 @@ public class PublicRepositoryI extends _RepositoryDisp {
     private List<OriginalFile> knownOriginalFiles(Collection<OriginalFile> files)  {
         List<OriginalFile> rv = new ArrayList<OriginalFile>();
         for (OriginalFile f : files) {
-            OriginalFile oFile = getOriginalFile(f.getPath().getValue(), f.getName().getValue());
-            if (oFile != null) {
-                rv.add(oFile);
+            List<OriginalFile> fileList = getOriginalFiles(f.getPath().getValue());
+            if (fileList.size() > 0) {
+                rv.add(fileList.get(0));
             } else {
                 rv.add(f);
             }
@@ -731,44 +747,26 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
 
     /**
-     * Create an OriginalFile object corresponding to a File object 
+     * Create an OriginalFile object corresponding to a File object.
      * 
      * @param f
      *            A File object.
      * @return An OriginalFile object
      *
+     * TODO populate more attribute fields than the few set here.
      */
     private OriginalFile createOriginalFile(File f) {
-        String mimetype = getMimetype(f);
-        return createOriginalFile(f, rstring(mimetype));
-    }
-    
-    /**
-     * Create an OriginalFile object corresponding to a File object 
-     * using the user supplied mimetype string
-     * 
-     * @param f
-     *            A File object.
-     * @param mimetype
-     *            Mimetype as an RString
-     * @return An OriginalFile object
-     *
-     * TODO populate more attribute fields than the few set here?
-     */
-    private OriginalFile createOriginalFile(File f, omero.RString mimetype) {
         OriginalFile file = new OriginalFileI();
-        file.setName(rstring(f.getName()));
-        // Path should be relative to root?
-        if (f.getAbsolutePath().equals(root.getAbsolutePath())) {
-            file.setPath(rstring(f.getParent()));
-        } else {
-            file.setPath(rstring(f.getParent().substring(root.getAbsolutePath().length(),f.getParent().length())));
-        }
-        file.setSha1(rstring("UNKNOWN"));
-        file.setMimetype(mimetype);
+        file.setPath(rstring(f.getAbsolutePath()));
         file.setMtime(rtime(f.lastModified()));
         file.setSize(rlong(f.length()));
-        // Any other fields?
+        file.setSha1(rstring("UNKNOWN"));
+        // What more do I need to set here, more times, details?
+        
+        // This needs to be unique - see ticket #1753
+        file.setName(rstring(f.getAbsolutePath()));
+        
+        file.setMimetype(rstring(getFileFormat(f)));
         
         return file;
     }
@@ -800,33 +798,27 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * TODO Weak at present, returns all matched files based on path.
      *      There should be further checking for uniqueness
      */
-    private OriginalFile getOriginalFile(final String path, final String name)  {
-        OriginalFile rv;
-        final String uuid = getRepoUuid();
-        ome.model.core.OriginalFile oFile = (ome.model.core.OriginalFile) executor
-                .execute(principal, new Executor.SimpleWork(this, "getOriginalFile", uuid, path, name) {
+    private List<OriginalFile> getOriginalFiles(String path)  {
+        
+        List rv = new ArrayList<OriginalFile>();
+        final String queryString = "from OriginalFile as o where o.path = '"
+                    + path + "'";
+        List<ome.model.core.OriginalFile> fileList = (List<ome.model.core.OriginalFile>) executor
+                .execute(principal, new Executor.SimpleWork(this, "getOriginalFiles") {
+
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
-                        BigInteger id = (BigInteger) session.createSQLQuery(
-                                "select id from OriginalFile " +
-                                "where path = ? and name = ? and repo = ?")
-                                .setParameter(0, path)
-                                .setParameter(1, name)
-                                .setParameter(2, uuid)
-                                .uniqueResult();
-                        if (id == null) {
-                            return null;
-                        } 
-                        return sf.getQueryService().find(ome.model.core.OriginalFile.class, id.longValue());
+                        return sf.getQueryService().findAllByQuery(queryString,
+                                null);
                     }
                 });
-        if (oFile == null)
-        {
-            return null;
+            
+        if (fileList == null || fileList.size() == 0) {
+            return rv;
         }
         IceMapper mapper = new IceMapper();
-        rv = (OriginalFile) mapper.map(oFile);
-        rv.unload();
+        rv = (List<OriginalFile>) mapper.map(fileList);
+
         return rv;
     }
 
@@ -856,20 +848,18 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
 
     /**
-     * Get a list of Images with path corresponding to the paramater path.
+     * Get a list of Images with path corresponding to the parameter path.
      * 
      * @param path
      *            A path to a file.
      * @return List of Image objects, empty if the query returned no values.
      *
-     * TODO Weak at present, returns all matched files based on path
-     *      but only the first element is used.
-     *      There should be further checking for uniqueness.
-     *      This should be done through the associated Pixels object.
+     * TODO Weak at present, returns all matched files based on path.
+     *      There should be further checking for uniqueness
      */
     private List<Image> getImages(String path)  {
         
-        List<Image> rv = new ArrayList<Image>();
+        List rv = new ArrayList<Image>();
         final String queryString = "from Image as i where i.name = '"
                     + path + "'";
         List<ome.model.core.Image> fileList = (List<ome.model.core.Image>) executor
@@ -887,8 +877,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         }
         IceMapper mapper = new IceMapper();
         rv = (List<Image>) mapper.map(fileList);
-        rv.get(0).unload();
-        
+
         return rv;
     }
 
@@ -964,17 +953,16 @@ public class PublicRepositoryI extends _RepositoryDisp {
         }
         int thumbSizeX = reader.getThumbSizeX();
         int thumbSizeY = reader.getThumbSizeY();  
-        int pixelType = FormatTools.UINT8;            
         meta.createRoot();
-        meta.setPixelsBigEndian(Boolean.TRUE, 0, 0);
-        meta.setPixelsDimensionOrder("XYZCT", 0, 0);
-        meta.setPixelsPixelType(FormatTools.getPixelTypeString(pixelType), 0, 0);
-        meta.setPixelsSizeX(thumbSizeX, 0, 0);
-        meta.setPixelsSizeY(thumbSizeY, 0, 0);
-        meta.setPixelsSizeZ(1, 0, 0);
-        meta.setPixelsSizeC(1, 0, 0);
-        meta.setPixelsSizeT(1, 0, 0);
-        meta.setLogicalChannelSamplesPerPixel(1, 0, 0);
+        meta.setPixelsBinDataBigEndian(Boolean.TRUE, 0, 0);
+        meta.setPixelsDimensionOrder(ome.xml.r201004.enums.DimensionOrder.XYZCT, 0);
+        meta.setPixelsType(ome.xml.r201004.enums.PixelType.UINT8, 0);
+        meta.setPixelsSizeX(new PositiveInteger(thumbSizeX), 0);
+        meta.setPixelsSizeY(new PositiveInteger(thumbSizeY), 0);
+        meta.setPixelsSizeZ(new PositiveInteger(1), 0);
+        meta.setPixelsSizeC(new PositiveInteger(1), 0);
+        meta.setPixelsSizeT(new PositiveInteger(1), 0);
+        meta.setChannelSamplesPerPixel(1, 0, 0);
         
         // Finally try to create the jpeg file abd return the path.  
         IFormatWriter writer = new ImageWriter();
@@ -993,22 +981,16 @@ public class PublicRepositoryI extends _RepositoryDisp {
         
         return tnFile.getAbsolutePath();
 	}
-
-    /**
-     * A getter for the repoUuid. 
-     * This is run once by getRepoUuid() when first needed, 
-     * thereafter lookups are local.
-     *
-     * TODO: this should probably be done in the constructor?
-     */
+	
+	
 	private String getRepoUuid() {
 	    if (this.repoUuid == null) {
-            final long repoId = this.id;
+            final String queryString = "from OriginalFile as o where o.id = " + this.id;
             ome.model.core.OriginalFile oFile = (ome.model.core.OriginalFile)  executor
                 .execute(principal, new Executor.SimpleWork(this, "getRepoUuid") {
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
-                        return sf.getQueryService().find(ome.model.core.OriginalFile.class, repoId);
+                        return sf.getQueryService().findByQuery(queryString, null);
                     }
                 });
             OriginalFileI file = (OriginalFileI) new IceMapper().map(oFile);
@@ -1017,67 +999,13 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return this.repoUuid; 
     }
 
-    /**
-     * Utility to a build map of DimensionOrder objects keyed by value.
-     * This is run once by getDimensionOrder() when first needed, 
-     * thereafter lookups are local.
-     *
-     * TODO: this should probably be done in the constructor?
-     */
-    private Map<String, DimensionOrder> buildDimensionOrderMap() {
-        List <DimensionOrder> dimensionOrderList;
-        List<ome.model.enums.DimensionOrder> dimOrderList = (List<ome.model.enums.DimensionOrder>) executor
-                .execute(principal, new Executor.SimpleWork(this, "buildDimensionOrderMap") {
-
-                    @Transactional(readOnly = true)
-                    public Object doWork(Session session, ServiceFactory sf) {
-                        return sf.getQueryService().findAllByQuery("from DimensionOrder as d",
-                                null);
-                    }
-                });
-            
-        IceMapper mapper = new IceMapper();
-        dimensionOrderList = (List<DimensionOrder>) mapper.map(dimOrderList);
-
-        Map<String, DimensionOrder> dimensionOrderMap = new HashMap<String, DimensionOrder>();
-        for (DimensionOrder dimensionOrder : dimensionOrderList) {
-            dimensionOrderMap.put(dimensionOrder.getValue().getValue(), dimensionOrder);
-        }
-        return dimensionOrderMap;
+    // Utility function for passing stack traces back in exceptions.
+    private String stackTraceAsString(Exception exception) {
+        StringWriter sw = new StringWriter();
+        exception.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
     }
     
-    /**
-     * Utility to build a map of PixelsType objects keyed by value.
-     * This is run once by getPixelsType() when first needed, 
-     * thereafter lookups are local.
-     *
-     * TODO: this should probably be done in the constructor?
-     */
-    private Map<String, PixelsType> buildPixelsTypeMap() {
-        List <PixelsType> pixelsTypeList;
-        List<ome.model.enums.PixelsType> pixTypeList = (List<ome.model.enums.PixelsType>) executor
-                .execute(principal, new Executor.SimpleWork(this, "buildPixelsTypeMap") {
-
-                    @Transactional(readOnly = true)
-                    public Object doWork(Session session, ServiceFactory sf) {
-                        return sf.getQueryService().findAllByQuery("from PixelsType as p",
-                                null);
-                    }
-                });
-            
-        IceMapper mapper = new IceMapper();
-        pixelsTypeList = (List<PixelsType>) mapper.map(pixTypeList);
-        Map<String, PixelsType> pixelsTypeMap = new HashMap<String, PixelsType>();
-        for (PixelsType pixelsType : pixelsTypeList) {
-            pixelsTypeMap.put(pixelsType.getValue().getValue(), pixelsType);
-        }
-        return pixelsTypeMap;
-    }
-    
-    /** 
-     * Utility to remove a string from a list of strings if it exists.
-     * 
-     */
     private void removeNameFromFileList(String sText, List<String> sList) {
         int index;
         for(index = 0; index < sList.size(); index ++) {
@@ -1085,12 +1013,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         }
         if (index < sList.size()) sList.remove(index);
     }
+
     
-    // Utility function for passing stack traces back in exceptions.
-    private String stackTraceAsString(Exception exception) {
-        StringWriter sw = new StringWriter();
-        exception.printStackTrace(new PrintWriter(sw));
-        return sw.toString();
-    }
-   
+    
 }

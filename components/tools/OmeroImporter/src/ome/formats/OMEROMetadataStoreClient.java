@@ -19,6 +19,7 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *------------------------------------------------------------------------------
+ *
  */
 package ome.formats;
 
@@ -29,31 +30,29 @@ import static omero.rtypes.rlong;
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.sql.Timestamp;
-import java.text.Collator;
 import java.text.ParseException;
-import java.text.RuleBasedCollator;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -80,6 +79,12 @@ import ome.formats.model.ShapeProcessor;
 import ome.formats.model.TargetProcessor;
 import ome.formats.model.WellProcessor;
 import ome.util.LSID;
+import ome.xml.r201004.enums.IlluminationType;
+import ome.xml.r201004.enums.NamingConvention;
+import ome.xml.r201004.enums.PixelType;
+import ome.xml.r201004.primitives.NonNegativeInteger;
+import ome.xml.r201004.primitives.PercentFraction;
+import ome.xml.r201004.primitives.PositiveInteger;
 import omero.RBool;
 import omero.RDouble;
 import omero.RInt;
@@ -110,6 +115,9 @@ import omero.model.Annotation;
 import omero.model.Arc;
 import omero.model.ArcType;
 import omero.model.Binning;
+import omero.model.BooleanAnnotation;
+import omero.model.Channel;
+import omero.model.CommentAnnotation;
 import omero.model.ContrastMethod;
 import omero.model.Correction;
 import omero.model.Dataset;
@@ -119,6 +127,7 @@ import omero.model.DetectorSettings;
 import omero.model.DetectorType;
 import omero.model.Dichroic;
 import omero.model.DimensionOrder;
+import omero.model.DoubleAnnotation;
 import omero.model.Ellipse;
 import omero.model.Experiment;
 import omero.model.ExperimentType;
@@ -131,7 +140,6 @@ import omero.model.FileAnnotation;
 import omero.model.Filter;
 import omero.model.FilterSet;
 import omero.model.FilterType;
-import omero.model.Format;
 import omero.model.IObject;
 import omero.model.Illumination;
 import omero.model.Image;
@@ -140,15 +148,22 @@ import omero.model.ImagingEnvironment;
 import omero.model.Immersion;
 import omero.model.ImmersionI;
 import omero.model.Instrument;
+import omero.model.Label;
 import omero.model.Laser;
 import omero.model.LaserMedium;
 import omero.model.LaserType;
+import omero.model.LightEmittingDiode;
+import omero.model.LightPath;
 import omero.model.LightSettings;
 import omero.model.LightSource;
 import omero.model.Line;
+import omero.model.ListAnnotation;
 import omero.model.LogicalChannel;
+import omero.model.LongAnnotation;
 import omero.model.Mask;
 import omero.model.Medium;
+import omero.model.MicrobeamManipulation;
+import omero.model.MicrobeamManipulationType;
 import omero.model.Microscope;
 import omero.model.MicroscopeI;
 import omero.model.MicroscopeType;
@@ -158,27 +173,29 @@ import omero.model.ObjectiveSettings;
 import omero.model.OriginalFile;
 import omero.model.Path;
 import omero.model.Permissions;
-import omero.model.PhotometricInterpretation;
 import omero.model.Pixels;
 import omero.model.PixelsType;
 import omero.model.PlaneInfo;
 import omero.model.Plate;
+import omero.model.PlateAcquisition;
 import omero.model.Point;
 import omero.model.Polygon;
+import omero.model.Polyline;
 import omero.model.Project;
 import omero.model.ProjectI;
 import omero.model.Pulse;
 import omero.model.Reagent;
 import omero.model.Rect;
+import omero.model.Roi;
 import omero.model.Screen;
 import omero.model.ScreenI;
 import omero.model.Shape;
 import omero.model.StageLabel;
-import omero.model.Label;
+import omero.model.TimestampAnnotation;
 import omero.model.TransmittanceRange;
-import omero.model.TransmittanceRangeI;
 import omero.model.Well;
 import omero.model.WellSample;
+import omero.model.XmlAnnotation;
 import omero.sys.ParametersI;
 import omero.util.TempFileManager;
 
@@ -358,6 +375,15 @@ public class OMEROMetadataStoreClient
         return iQuery;
     }
     
+
+	public void setEncryptedConnection(boolean encryptedConnection) {
+		this.encryptedConnection = encryptedConnection;
+	}
+
+	public boolean isEncryptedConnection() {
+		return encryptedConnection;
+	}
+    
     /**
      * Initializes the MetadataStore with an already logged in, ready to go
      * service factory.
@@ -478,6 +504,7 @@ public class OMEROMetadataStoreClient
     
     /**
      * Returns the currently active service factory.
+     * 
      * @return See above.
      */
     public ServiceFactoryPrx getServiceFactory()
@@ -501,8 +528,50 @@ public class OMEROMetadataStoreClient
         }
     }
     
+    
+    /**
+     * Sets the active enumeration provider.
+     * 
+     * @param enumProvider Enumeration provider to use.
+     */
+    public void setEnumerationProvider(EnumerationProvider enumProvider)
+    {
+        this.enumProvider = enumProvider;
+    }
+    
+    /**
+     * Retrieves the active enumeration provider.
+     * 
+     * @return See above.
+     */
+    public EnumerationProvider getEnumerationProvider()
+    {
+        return enumProvider;
+    }
+    
+    /**
+     * Sets the active instance provider.
+     * 
+     * @param enumProvider Enumeration provider to use.
+     */
+    public void setInstanceProvider(InstanceProvider instanceProvider)
+    {
+        this.instanceProvider = instanceProvider;
+    }
+    
+    /**
+     * Retrieves the active enumeration provider.
+     * 
+     * @return See above.
+     */
+    public InstanceProvider getInstanceProvider()
+    {
+        return instanceProvider;
+    }
+    
     /**
      * Transforms a Java type into the corresponding OMERO RType.
+     * 
      * @param value Java concrete type value.
      * @return RType or <code>null</code> if <code>value</code> is 
      * <code>null</code>.
@@ -511,9 +580,34 @@ public class OMEROMetadataStoreClient
     {
         return value == null? null : rint(value);
     }
+
+    /**
+     * Transforms a Java type into the corresponding OMERO RType.
+     * 
+     * @param value Java concrete type value.
+     * @return RType or <code>null</code> if <code>value</code> is 
+     * <code>null</code>.
+     */
+    public RInt toRType(NonNegativeInteger value)
+    {
+        return value == null? null : rint(value.getValue());
+    }
     
     /**
      * Transforms a Java type into the corresponding OMERO RType.
+     * 
+     * @param value Java concrete type value.
+     * @return RType or <code>null</code> if <code>value</code> is 
+     * <code>null</code>.
+     */
+    public RDouble toRType(PercentFraction value)
+    {
+        return value == null? null : rdouble(value.getValue());
+    }
+    
+    /**
+     * Transforms a Java type into the corresponding OMERO RType.
+     * 
      * @param value Java concrete type value.
      * @return RType or <code>null</code> if <code>value</code> is 
      * <code>null</code>.
@@ -533,7 +627,7 @@ public class OMEROMetadataStoreClient
     {
         return value == null? null : rstring(value);
     }
-    
+        
     /**
      * Transforms a Java type into the corresponding OMERO RType.
      * @param value Java concrete type value.
@@ -577,7 +671,18 @@ public class OMEROMetadataStoreClient
     {
         return value == null? null : rtime(value);
     }
-    
+   
+    /**
+     * Transforms a Java type into the corresponding OMERO RType.
+     * @param value Java concrete type value.
+     * @return RType or <code>null</code> if <code>value</code> is
+     * <code>null</code>.
+     */
+    public RString toRType(NamingConvention value)
+    {
+        return value == null ? null : rstring(value.getValue());
+    }
+
     /**
      * Destroys the sessionFactory and closes the client.
      */
@@ -912,7 +1017,7 @@ public class OMEROMetadataStoreClient
      * @param indexes Indexes into the OME-XML data model.
      * @return See above.
      */
-    private <T extends IObject> T getSourceObject(Class<T> klass, LinkedHashMap<String, Integer> indexes)
+    private <T extends IObject> T getSourceObject(Class<T> klass, LinkedHashMap<Index, Integer> indexes)
     {
         return (T) getIObjectContainer(klass, indexes).sourceObject;
     }
@@ -933,6 +1038,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see ome.formats.model.IObjectContainerStore#getSourceObjects(java.lang.Class)
      */
+    @SuppressWarnings("unchecked")
     public <T extends IObject> List<T> getSourceObjects(Class<T> klass)
     {
         List<IObjectContainer> containers = getIObjectContainers(klass);
@@ -968,11 +1074,11 @@ public class OMEROMetadataStoreClient
      */
     private IObjectContainer handleAbstractLightSource(
     		Class<? extends IObject> klass,
-    		LinkedHashMap<String, Integer> indexes, LSID lsid)
+    		LinkedHashMap<Index, Integer> indexes, LSID lsid)
     {
         LSID lsLSID = new LSID(LightSource.class,
-                               indexes.get("instrumentIndex"),
-                               indexes.get("lightSourceIndex"));
+                               indexes.get(Index.INSTRUMENT_INDEX.getValue()),
+                               indexes.get(Index.LIGHT_SOURCE_INDEX.getValue()));
         if (containerCache.containsKey(lsLSID))
         {
             IObjectContainer container = containerCache.get(lsLSID);
@@ -1004,12 +1110,12 @@ public class OMEROMetadataStoreClient
      */
     private IObjectContainer handleAbstractShape(
     		Class<? extends IObject> klass,
-    		LinkedHashMap<String, Integer> indexes, LSID lsid)
+    		LinkedHashMap<Index, Integer> indexes, LSID lsid)
     {
         LSID shapeLSID = new LSID(Shape.class,
-                                  indexes.get("imageIndex"),
-                                  indexes.get("roiIndex"),
-                                  indexes.get("shapeIndex"));
+                                  indexes.get(Index.IMAGE_INDEX.getValue()),
+                                  indexes.get(Index.ROI_INDEX.getValue()),
+                                  indexes.get(Index.SHAPE_INDEX.getValue()));
         if (containerCache.containsKey(shapeLSID))
         {
             IObjectContainer container = containerCache.get(shapeLSID);
@@ -1030,2058 +1136,9 @@ public class OMEROMetadataStoreClient
         return null;
     }
     
-    /* (non-Javadoc)
-     * @see ome.formats.model.IObjectContainerStore#getIObjectContainer(java.lang.Class, java.util.LinkedHashMap)
-     */
-    public IObjectContainer getIObjectContainer(Class<? extends IObject> klass,
-                                                LinkedHashMap<String, Integer> indexes)
-    {
-        // Transform an integer collection into an integer array without using
-        // wrapper objects.
-        Collection<Integer> indexValues = indexes.values();
-        int[] indexesArray = new int[indexValues.size()];
-        int i = 0;
-        for (Integer index : indexValues)
-        {
-            indexesArray[i] = index;
-            i++;
-        }
-        
-        // Create a new LSID.
-        LSID lsid = new LSID(klass, indexesArray);
-        
-        // Because of the LightSource abstract type, here we need to handle
-        // the upcast to the "real" concrete type and the correct LSID
-        // mapping.
-        if ((klass.equals(Arc.class) || klass.equals(Laser.class)
-            || klass.equals(Filament.class))
-            && !containerCache.containsKey(lsid))
-        {
-        	IObjectContainer toReturn = 
-        		handleAbstractLightSource(klass, indexes, lsid);
-        	if (toReturn != null)
-        	{
-        		return toReturn;
-        	}
-        }
-        // Because of the Shape abstract type, here we need to handle
-        // the upcast to the "real" concrete type and the correct LSID
-        // mapping.
-        if ((klass.equals(Label.class) || klass.equals(Rect.class)
-            || klass.equals(Mask.class) || klass.equals(Ellipse.class)
-            || klass.equals(Point.class) || klass.equals(Path.class)
-            || klass.equals(Polygon.class) || klass.equals(Line.class))
-            && !containerCache.containsKey(lsid))
-        {
-        	IObjectContainer toReturn = 
-        		handleAbstractShape(klass, indexes, lsid);
-        	if (toReturn != null)
-        	{
-        		return toReturn;
-        	}
-        }
-        // We may have first had a concrete method call request, put the object
-        // in a container and in the cache. Now we have a request with only the
-        // abstract type's class to give us LSID resolution and must handle 
-        // that as well.
-        if (klass.equals(LightSource.class)
-            && !containerCache.containsKey(lsid))
-        {
-            Class[] concreteClasses = 
-                new Class[] { Arc.class, Laser.class, Filament.class };
-            for (Class concreteClass : concreteClasses)
-            {
-                LSID lsLSID = new LSID(concreteClass,
-                                       indexes.get("instrumentIndex"),
-                                       indexes.get("lightSourceIndex"));
-                if (containerCache.containsKey(lsLSID))
-                {
-                    return containerCache.get(lsLSID);
-                }
-            }
-        }
-        if (klass.equals(Shape.class)
-            && !containerCache.containsKey(lsid))
-        {
-            Class[] concreteClasses = 
-                new Class[] { Label.class, Rect.class, Mask.class, Ellipse.class,
-            		          Point.class, Path.class, Polygon.class,
-            		          Line.class };
-            for (Class concreteClass : concreteClasses)
-            {
-                LSID shapeLSID = new LSID(concreteClass,
-                                          indexes.get("imageIndex"),
-                                          indexes.get("roiIndex"),
-                                          indexes.get("shapeIndex"));
-                if (containerCache.containsKey(shapeLSID))
-                {
-                    return containerCache.get(shapeLSID);
-                }
-            }
-        }
-        
-        if (!containerCache.containsKey(lsid))
-        {
-            IObjectContainer c = new IObjectContainer();
-            c.indexes = indexes;
-            c.LSID = lsid.toString();
-            c.sourceObject = getSourceObjectInstance(klass);
-            containerCache.put(lsid, c);
-        }
-        
-        return containerCache.get(lsid);
-    }
+   /*-----------*/
     
-    /* (non-Javadoc)
-     * @see ome.formats.model.IObjectContainerStore#removeIObjectContainer(ome.util.LSID)
-     */
-    public void removeIObjectContainer(LSID lsid)
-    {
-    	containerCache.remove(lsid);
-    }
     
-    /* (non-Javadoc)
-     * @see ome.formats.model.IObjectContainerStore#getIObjectContainers(java.lang.Class)
-     */
-    public List<IObjectContainer> getIObjectContainers(Class<? extends IObject> klass)
-    {
-        Set<LSID> keys = containerCache.keySet();
-        List<IObjectContainer> toReturn = new ArrayList<IObjectContainer>();
-        for (LSID key : keys)
-        {
-            Class<? extends IObject> keyClass = key.getJavaClass();
-            if (keyClass != null && keyClass.equals(klass))
-            {
-                toReturn.add(containerCache.get(key));
-            }
-        }
-        return toReturn;
-    }
-    
-    /**
-     * Performs the task of actual source object instantiation using
-     * reflection.
-     * @param klass Class to instantiate a source object for.
-     * @return An OMERO Blitz model object.
-     */
-    private <T extends IObject> T getSourceObjectInstance(Class<T> klass)
-    {
-        return instanceProvider.getInstance(klass);
-    }
-        
-    /* (non-Javadoc)
-     * @see ome.formats.model.IObjectContainerStore#countCachedContainers(java.lang.Class, int[])
-     */
-    public int countCachedContainers(Class<? extends IObject> klass,
-                                     int... indexes)
-    {
-        if (klass == null)
-        {
-            return new HashSet<IObjectContainer>(containerCache.values()).size();
-        }
-        
-        int count = 0;
-        for (LSID lsid : containerCache.keySet())
-        {
-            Class<? extends IObject> lsidClass = lsid.getJavaClass();
-            if (lsidClass != null && lsidClass.equals(klass))
-            {
-                if (indexes == null)
-                {
-                	// We're just doing a class match, increment the count
-                	count++;
-                }
-                else
-                {
-                	// We're doing a class and index match, loop over and
-                	// check the indexes based on the shortest array.
-                    int[] lsidIndexes = lsid.getIndexes();
-                    int n = Math.min(indexes.length, lsidIndexes.length);
-                    boolean match = true;
-                    for (int i = 0; i < n; i++)
-                    {
-                        if (lsidIndexes[i] != indexes[i])
-                        {
-                            match = false;
-                            break;
-                        }
-                    }
-                    if (match)
-                    {
-                    	count++;
-                    }
-                }
-            }
-        }
-        return count;
-    }
-    
-    /* (non-Javadoc)
-     * @see ome.formats.model.IObjectContainerStore#countCachedReferences(java.lang.Class, java.lang.Class)
-     */
-    public int countCachedReferences(Class<? extends IObject> source,
-                                     Class<? extends IObject> target)
-    {
-        if (source == null && target == null)
-        {
-        	int count = 0;
-        	for (LSID key : referenceCache.keySet())
-        	{
-        		count += referenceCache.get(key).size();
-        	}
-        	return count;
-        }
-        
-        int count = 0;
-        if (target == null)
-        {
-            for (LSID lsid : referenceCache.keySet())
-            {
-                Class containerClass = lsid.getJavaClass();
-                if (containerClass.equals(source))
-                {
-                    count++;
-                }
-            }
-            return count;
-        }
-        
-        if (source == null)
-        {
-        	for (LSID sourceLSID : referenceCache.keySet())
-        	{
-        		for (LSID targetLSID : referenceCache.get(sourceLSID))
-        		{
-        			Class containerClass = targetLSID.getJavaClass();
-        			if (containerClass.equals(target))
-        			{
-        				count++;
-        			}
-        		}
-        	}
-            return count;
-        }
-        
-        for (LSID sourceLSID : referenceCache.keySet())
-        {
-            Class sourceClass = sourceLSID.getJavaClass();
-            if (sourceClass.equals(source))
-            {
-            	for (LSID targetLSID : referenceCache.get(sourceLSID))
-            	{
-            		Class targetClass = targetLSID.getJavaClass();
-            		if (targetClass.equals(target))
-            		{
-            			count++;
-            		}
-            	}
-            }
-        }
-        return count;
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setArcType(java.lang.String, int, int)
-     */
-    public void setArcType(String type, int instrumentIndex,
-            int lightSourceIndex)
-    {
-        Arc o = getArc(instrumentIndex, lightSourceIndex);
-        
-        o.setType((ArcType) getEnumeration(ArcType.class, type));
-    }
-
-    /**
-     * @param instrumentIndex
-     * @param lightSourceIndex
-     * @return Arc
-     */
-    private Arc getArc(int instrumentIndex, int lightSourceIndex)
-    {
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        
-        indexes.put("instrumentIndex", instrumentIndex);
-        indexes.put("lightSourceIndex", lightSourceIndex);
-        
-        return(Arc) getSourceObject(Arc.class, indexes);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setChannelComponentColorDomain(java.lang.String, int, int, int)
-     */
-    public void setChannelComponentColorDomain(String colorDomain,
-            int imageIndex, int logicalChannelIndex, int channelComponentIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setChannelComponentIndex(java.lang.Integer, int, int, int)
-     */
-    public void setChannelComponentIndex(Integer index, int imageIndex,
-            int logicalChannelIndex, int channelComponentIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDetectorGain(java.lang.Double, int, int)
-     */
-    public void setDetectorGain(Double gain, int instrumentIndex,
-            int detectorIndex)
-    {
-        Detector o = getDetector(instrumentIndex, detectorIndex);
-        o.setGain(toRType(gain));
-    }
-
-    /**
-     * @param instrumentIndex
-     * @param detectorIndex
-     * @return
-     */
-    public Detector getDetector(int instrumentIndex, int detectorIndex)
-    {
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("instrumentIndex", instrumentIndex);
-        indexes.put("detectorIndex", detectorIndex);
-        return getSourceObject(Detector.class, indexes);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDetectorID(java.lang.String, int, int)
-     */
-    public void setDetectorID(String id, int instrumentIndex, int detectorIndex)
-    {
-    	checkDuplicateLSID(Detector.class, id);
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("instrumentIndex", instrumentIndex);
-        indexes.put("detectorIndex", detectorIndex);
-        IObjectContainer o = getIObjectContainer(Detector.class, indexes);
-        o.LSID = id;
-        addAuthoritativeContainer(Detector.class, id, o);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDetectorManufacturer(java.lang.String, int, int)
-     */
-    public void setDetectorManufacturer(String manufacturer,
-            int instrumentIndex, int detectorIndex)
-    {        
-        Detector o = getDetector(instrumentIndex, detectorIndex);
-        o.setManufacturer(toRType(manufacturer));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDetectorModel(java.lang.String, int, int)
-     */
-    public void setDetectorModel(String model, int instrumentIndex,
-            int detectorIndex)
-    {
-        Detector o = getDetector(instrumentIndex, detectorIndex);
-        o.setModel(toRType(model));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDetectorOffset(java.lang.Double, int, int)
-     */
-    public void setDetectorOffset(Double offset, int instrumentIndex,
-            int detectorIndex)
-    {
-        Detector o = getDetector(instrumentIndex, detectorIndex);
-        o.setOffsetValue(toRType(offset));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDetectorSerialNumber(java.lang.String, int, int)
-     */
-    public void setDetectorSerialNumber(String serialNumber,
-            int instrumentIndex, int detectorIndex)
-    {
-        Detector o = getDetector(instrumentIndex, detectorIndex);
-        o.setSerialNumber(toRType(serialNumber));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDetectorSettingsDetector(java.lang.String, int, int)
-     */
-    public void setDetectorSettingsDetector(String detector, int imageIndex,
-            int logicalChannelIndex)
-    {
-        LSID key = new LSID(DetectorSettings.class, imageIndex, logicalChannelIndex);
-        addReference(key, new LSID(detector));
-    }
-
-    /**
-     * @param imageIndex
-     * @param logicalChannelIndex
-     * @return
-     */
-    private DetectorSettings getDetectorSettings(int imageIndex,
-            int logicalChannelIndex)
-    {
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("imageIndex", imageIndex);
-        indexes.put("logicalChannelIndex", logicalChannelIndex);
-        return getSourceObject(DetectorSettings.class, indexes);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDetectorSettingsBinning(java.lang.String, int, int)
-     */
-    public void setDetectorSettingsBinning(String binning, int imageIndex,
-            int logicalChannelIndex)
-    {
-        DetectorSettings o = getDetectorSettings(imageIndex, logicalChannelIndex);
-        o.setBinning((Binning) getEnumeration(Binning.class, binning));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDetectorSettingsReadOutRate(java.lang.Double, int, int)
-     */
-    public void setDetectorSettingsReadOutRate(Double readOutRate,
-            int imageIndex, int logicalChannelIndex)
-    {
-        DetectorSettings o = getDetectorSettings(imageIndex, logicalChannelIndex);
-        o.setReadOutRate(toRType(readOutRate));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDetectorSettingsVoltage(java.lang.Double, int, int)
-     */
-    public void setDetectorSettingsVoltage(Double voltage, int imageIndex,
-            int logicalChannelIndex)
-    {
-        DetectorSettings o = getDetectorSettings(imageIndex, logicalChannelIndex);
-        o.setVoltage(toRType(voltage));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDetectorSettingsGain(java.lang.Double, int, int)
-     */
-    public void setDetectorSettingsGain(Double gain, int imageIndex,
-            int logicalChannelIndex)
-    {
-        DetectorSettings o = getDetectorSettings(imageIndex, logicalChannelIndex);
-        o.setGain(toRType(gain));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDetectorSettingsOffset(java.lang.Double, int, int)
-     */
-    public void setDetectorSettingsOffset(Double offset, int imageIndex,
-            int logicalChannelIndex)
-    {
-        DetectorSettings o = getDetectorSettings(imageIndex, logicalChannelIndex);
-        o.setOffsetValue(toRType(offset));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDetectorType(java.lang.String, int, int)
-     */
-    public void setDetectorType(String type, int instrumentIndex,
-            int detectorIndex)
-    {
-        Detector o = getDetector(instrumentIndex, detectorIndex);
-        o.setType((DetectorType) getEnumeration(DetectorType.class, type));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDetectorVoltage(java.lang.Double, int, int)
-     */
-    public void setDetectorVoltage(Double voltage, int instrumentIndex,
-            int detectorIndex)
-    {
-        Detector o = getDetector(instrumentIndex, detectorIndex);
-        o.setVoltage(toRType(voltage));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDimensionsPhysicalSizeX(java.lang.Double, int, int)
-     */
-    public void setDimensionsPhysicalSizeX(Double physicalSizeX, int imageIndex,
-            int pixelsIndex)
-    {
-        Pixels o = getPixels(imageIndex, pixelsIndex);
-        o.setPhysicalSizeX(toRType(physicalSizeX));
-    }
-
-    /**
-     * @param imageIndex
-     * @param pixelsIndex
-     * @return
-     */
-    private Pixels getPixels(int imageIndex, int pixelsIndex)
-    {
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("imageIndex", imageIndex);
-        indexes.put("pixelsIndex", pixelsIndex);
-        Pixels p = getSourceObject(Pixels.class, indexes);
-        p.setSha1(rstring("Foo"));
-        return p;
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDimensionsPhysicalSizeY(java.lang.Double, int, int)
-     */
-    public void setDimensionsPhysicalSizeY(Double physicalSizeY, int imageIndex,
-            int pixelsIndex)
-    {
-        Pixels o = getPixels(imageIndex, pixelsIndex);
-        o.setPhysicalSizeY(toRType(physicalSizeY));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDimensionsPhysicalSizeZ(java.lang.Double, int, int)
-     */
-    public void setDimensionsPhysicalSizeZ(Double physicalSizeZ, int imageIndex,
-            int pixelsIndex)
-    {
-        Pixels o = getPixels(imageIndex, pixelsIndex);
-        o.setPhysicalSizeZ(toRType(physicalSizeZ));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDimensionsTimeIncrement(java.lang.Double, int, int)
-     */
-    public void setDimensionsTimeIncrement(Double timeIncrement, int imageIndex,
-            int pixelsIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDimensionsWaveIncrement(java.lang.Integer, int, int)
-     */
-    public void setDimensionsWaveIncrement(Integer waveIncrement,
-            int imageIndex, int pixelsIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDimensionsWaveStart(java.lang.Integer, int, int)
-     */
-    public void setDimensionsWaveStart(Integer waveStart, int imageIndex,
-            int pixelsIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDisplayOptionsID(java.lang.String, int)
-     */
-    public void setDisplayOptionsID(String id, int imageIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDisplayOptionsZoom(java.lang.Double, int)
-     */
-    public void setDisplayOptionsZoom(Double zoom, int imageIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setExperimenterEmail(java.lang.String, int)
-     */
-    public void setExperimenterEmail(String email, int experimenterIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setExperimenterFirstName(java.lang.String, int)
-     */
-    public void setExperimenterFirstName(String firstName, int experimenterIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setExperimenterID(java.lang.String, int)
-     */
-    public void setExperimenterID(String id, int experimenterIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setExperimenterInstitution(java.lang.String, int)
-     */
-    public void setExperimenterInstitution(String institution,
-            int experimenterIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setExperimenterLastName(java.lang.String, int)
-     */
-    public void setExperimenterLastName(String lastName, int experimenterIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setFilamentType(java.lang.String, int, int)
-     */
-    public void setFilamentType(String type, int instrumentIndex,
-            int lightSourceIndex)
-    {
-        Filament o = getFilament(instrumentIndex, lightSourceIndex);
-        o.setType((FilamentType) getEnumeration(FilamentType.class, type));
-    }
-
-    /**
-     * @param instrumentIndex
-     * @param lightSourceIndex
-     * @return
-     */
-    private Filament getFilament(int instrumentIndex, int lightSourceIndex)
-    {
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("instrumentIndex", instrumentIndex);
-        indexes.put("lightSourceIndex", lightSourceIndex);
-        return getSourceObject(Filament.class, indexes);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setImageCreationDate(java.lang.String, int)
-     */
-    public void setImageCreationDate(String creationDate, int imageIndex)
-    {
-        if (creationDate != null)
-        {
-            try
-            {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
-                java.util.Date date = sdf.parse(creationDate);
-                Timestamp creationTimestamp = new Timestamp(date.getTime());
-                Image i = getImage(imageIndex);
-                i.setAcquisitionDate(toRType(creationTimestamp));
-            }
-            catch (ParseException e)
-            {
-                log.error(String.format("Parsing start time failed!"), e);
-            }
-        }
-    }
-
-    /**
-     * @param imageIndex
-     * @return
-     */
-    private Image getImage(int imageIndex)
-    {
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("imageIndex", imageIndex);
-        return getSourceObject(Image.class, indexes);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setImageDescription(java.lang.String, int)
-     */
-    public void setImageDescription(String description, int imageIndex)
-    {
-        Image o = getImage(imageIndex);
-        o.setDescription(toRType(description));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setImageID(java.lang.String, int)
-     */
-    public void setImageID(String id, int imageIndex)
-    {
-    	checkDuplicateLSID(Image.class, id);
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("imageIndex", imageIndex);
-        IObjectContainer o = getIObjectContainer(Image.class, indexes);
-        o.LSID = id;
-        addAuthoritativeContainer(Image.class, id, o);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setImageInstrumentRef(java.lang.String, int)
-     */
-    public void setImageInstrumentRef(String instrumentRef, int imageIndex)
-    {
-        LSID key = new LSID(Image.class, imageIndex);
-        addReference(key, new LSID(instrumentRef));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setImageName(java.lang.String, int)
-     */
-    public void setImageName(String name, int imageIndex)
-    {
-        // We don't want empty string image names
-        // Thu Oct  8 11:05:37 BST 2009
-        // Chris Allan <callan at lifesci dot dundee dot ac dot uk>
-        // http://trac.openmicroscopy.org.uk/omero/ticket/1523
-        if (name != null && name.length() == 0)
-        {
-            return;
-        }
-        Image o = getImage(imageIndex);
-        o.setName(toRType(name));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setImagingEnvironmentAirPressure(java.lang.Double, int)
-     */
-    public void setImagingEnvironmentAirPressure(Double airPressure,
-            int imageIndex)
-    {
-        ImagingEnvironment o = getImagingEnvironment(imageIndex);
-        o.setAirPressure(toRType(airPressure));
-    }
-
-    /**
-     * @param imageIndex
-     * @return
-     */
-    private ImagingEnvironment getImagingEnvironment(int imageIndex)
-    {
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("imageIndex", imageIndex);
-        return getSourceObject(ImagingEnvironment.class, indexes);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setImagingEnvironmentCO2Percent(java.lang.Double, int)
-     */
-    public void setImagingEnvironmentCO2Percent(Double percent, int imageIndex)
-    {
-        ImagingEnvironment o = getImagingEnvironment(imageIndex);
-        o.setCo2percent(toRType(percent));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setImagingEnvironmentHumidity(java.lang.Double, int)
-     */
-    public void setImagingEnvironmentHumidity(Double humidity, int imageIndex)
-    {
-        ImagingEnvironment o = getImagingEnvironment(imageIndex);
-        o.setHumidity(toRType(humidity));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setImagingEnvironmentTemperature(java.lang.Double, int)
-     */
-    public void setImagingEnvironmentTemperature(Double temperature,
-            int imageIndex)
-    {
-        ImagingEnvironment o = getImagingEnvironment(imageIndex);
-        o.setTemperature(toRType(temperature));
-    }
-    
-    /**
-     * @param instrumentIndex
-     * @return
-     */
-    private Instrument getInstrument(int instrumentIndex)
-    {
-        LinkedHashMap<String, Integer> indexes = 
-        	new LinkedHashMap<String, Integer>();
-        indexes.put("instrumentIndex", instrumentIndex);
-        return getSourceObject(Instrument.class, indexes);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setInstrumentID(java.lang.String, int)
-     */
-    public void setInstrumentID(String id, int instrumentIndex)
-    {
-    	checkDuplicateLSID(Instrument.class, id);
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("instrumentIndex", instrumentIndex);
-        IObjectContainer o = getIObjectContainer(Instrument.class, indexes);
-        o.LSID = id;
-        addAuthoritativeContainer(Instrument.class, id, o);
-    }
-    
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLaserRepetitionRate(java.lang.Double, int, int)
-     */
-    public void setLaserRepetitionRate(Double repetitionRate,
-    		int instrumentIndex, int lightSourceIndex)
-    {
-    	Laser o = getLaser(instrumentIndex, lightSourceIndex);
-        o.setRepetitionRate(toRType(repetitionRate));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLaserFrequencyMultiplication(java.lang.Integer, int, int)
-     */
-    public void setLaserFrequencyMultiplication(
-            Integer frequencyMultiplication, int instrumentIndex,
-            int lightSourceIndex)
-    {
-        Laser o = getLaser(instrumentIndex, lightSourceIndex);
-        o.setFrequencyMultiplication(toRType(frequencyMultiplication));
-    }
-
-    /**
-     * @param instrumentIndex
-     * @param lightSourceIndex
-     * @return
-     */
-    private Laser getLaser(int instrumentIndex, int lightSourceIndex)
-    {
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("instrumentIndex", instrumentIndex);
-        indexes.put("lightSourceIndex", lightSourceIndex);
-        return getSourceObject(Laser.class, indexes);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLaserLaserMedium(java.lang.String, int, int)
-     */
-    public void setLaserLaserMedium(String laserMedium, int instrumentIndex,
-            int lightSourceIndex)
-    {
-        Laser o = getLaser(instrumentIndex, lightSourceIndex);
-        o.setLaserMedium((LaserMedium) getEnumeration(LaserMedium.class, laserMedium));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLaserPulse(java.lang.String, int, int)
-     */
-    public void setLaserPulse(String pulse, int instrumentIndex,
-            int lightSourceIndex)
-    {
-        Laser o = getLaser(instrumentIndex, lightSourceIndex);
-        o.setPulse((Pulse) getEnumeration(Pulse.class, pulse));  
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLaserTuneable(java.lang.Boolean, int, int)
-     */
-    public void setLaserTuneable(Boolean tuneable, int instrumentIndex,
-            int lightSourceIndex)
-    {
-        Laser o = getLaser(instrumentIndex, lightSourceIndex);
-        o.setTuneable(toRType(tuneable));  
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLaserType(java.lang.String, int, int)
-     */
-    public void setLaserType(String type, int instrumentIndex,
-            int lightSourceIndex)
-    {
-        Laser o = getLaser(instrumentIndex, lightSourceIndex);
-        o.setType((LaserType) getEnumeration(LaserType.class, type)); 
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLaserWavelength(java.lang.Integer, int, int)
-     */
-    public void setLaserWavelength(Integer wavelength, int instrumentIndex,
-            int lightSourceIndex)
-    {
-        Laser o = getLaser(instrumentIndex, lightSourceIndex);
-        o.setWavelength(toRType(wavelength));  
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLightSourceID(java.lang.String, int, int)
-     */
-    public void setLightSourceID(String id, int instrumentIndex,
-            int lightSourceIndex)
-    {
-    	checkDuplicateLSID(LightSource.class, id);
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("instrumentIndex", instrumentIndex);
-        indexes.put("lightSourceIndex", lightSourceIndex);  
-        IObjectContainer o = getIObjectContainer(LightSource.class, indexes);
-        o.LSID = id;
-        addAuthoritativeContainer(LightSource.class, id, o);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLightSourceManufacturer(java.lang.String, int, int)
-     */
-    public void setLightSourceManufacturer(String manufacturer,
-            int instrumentIndex, int lightSourceIndex)
-    {
-        LightSource o = getLightSource(instrumentIndex, lightSourceIndex);
-        o.setManufacturer(toRType(manufacturer)); 
-    }
-
-    /**
-     * @param instrumentIndex
-     * @param lightSourceIndex
-     * @return
-     */
-    public LightSource getLightSource(int instrumentIndex, int lightSourceIndex)
-    {
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("instrumentIndex", instrumentIndex);
-        indexes.put("lightSourceIndex", lightSourceIndex);
-        return getSourceObject(LightSource.class, indexes);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLightSourceModel(java.lang.String, int, int)
-     */
-    public void setLightSourceModel(String model, int instrumentIndex,
-            int lightSourceIndex)
-    {
-        LightSource o = getLightSource(instrumentIndex, lightSourceIndex);
-        o.setModel(toRType(model)); 
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLightSourcePower(java.lang.Double, int, int)
-     */
-    public void setLightSourcePower(Double power, int instrumentIndex,
-            int lightSourceIndex)
-    {
-        LightSource o = getLightSource(instrumentIndex, lightSourceIndex);
-        o.setPower(toRType(power)); 
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLightSourceSerialNumber(java.lang.String, int, int)
-     */
-    public void setLightSourceSerialNumber(String serialNumber,
-            int instrumentIndex, int lightSourceIndex)
-    {
-        LightSource o = getLightSource(instrumentIndex, lightSourceIndex);
-        o.setSerialNumber(toRType(serialNumber)); 
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLightSourceSettingsAttenuation(java.lang.Double, int, int)
-     */
-    public void setLightSourceSettingsAttenuation(Double attenuation,
-            int imageIndex, int logicalChannelIndex)
-    {
-        LightSettings o = getLightSettings(imageIndex, logicalChannelIndex);
-        o.setAttenuation(toRType(attenuation)); 
-    }
-
-    /**
-     * @param imageIndex
-     * @param logicalChannelIndex
-     * @return
-     */
-    private LightSettings getLightSettings(int imageIndex,
-            int logicalChannelIndex)
-    {
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("imageIndex", imageIndex);
-        indexes.put("logicalChannelIndex", logicalChannelIndex);
-        return getSourceObject(LightSettings.class, indexes);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLightSourceSettingsLightSource(java.lang.String, int, int)
-     */
-    public void setLightSourceSettingsLightSource(String lightSource,
-            int imageIndex, int logicalChannelIndex)
-    {
-        LSID key = new LSID(LightSettings.class, imageIndex, logicalChannelIndex);
-        addReference(key, new LSID(lightSource));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLightSourceSettingsWavelength(java.lang.Integer, int, int)
-     */
-    public void setLightSourceSettingsWavelength(Integer wavelength,
-            int imageIndex, int logicalChannelIndex)
-    {
-         LightSettings o = getLightSettings(imageIndex, logicalChannelIndex);
-        o.setWavelength(toRType(wavelength)); 
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelContrastMethod(java.lang.String, int, int)
-     */
-    public void setLogicalChannelContrastMethod(String contrastMethod,
-            int imageIndex, int logicalChannelIndex)
-    {
-        LogicalChannel o = getLogicalChannel(imageIndex, logicalChannelIndex);
-        o.setContrastMethod((ContrastMethod) 
-            getEnumeration(ContrastMethod.class, contrastMethod));
-    }
-
-    /**
-     * @param imageIndex
-     * @param logicalChannelIndex
-     * @return
-     */
-    public LogicalChannel getLogicalChannel(int imageIndex,
-            int logicalChannelIndex)
-    {
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("imageIndex", imageIndex);
-        indexes.put("logicalChannelIndex", logicalChannelIndex);
-        return getSourceObject(LogicalChannel.class, indexes);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelEmWave(java.lang.Integer, int, int)
-     */
-    public void setLogicalChannelEmWave(Integer emWave, int imageIndex,
-            int logicalChannelIndex)
-    {
-        LogicalChannel o = getLogicalChannel(imageIndex, logicalChannelIndex);
-        o.setEmissionWave(toRType(emWave));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelExWave(java.lang.Integer, int, int)
-     */
-    public void setLogicalChannelExWave(Integer exWave, int imageIndex,
-            int logicalChannelIndex)
-    {
-        LogicalChannel o = getLogicalChannel(imageIndex, logicalChannelIndex);
-        o.setExcitationWave(toRType(exWave));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelFluor(java.lang.String, int, int)
-     */
-    public void setLogicalChannelFluor(String fluor, int imageIndex,
-            int logicalChannelIndex)
-    {
-        LogicalChannel o = getLogicalChannel(imageIndex, logicalChannelIndex);
-        o.setFluor(toRType(fluor));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelID(java.lang.String, int, int)
-     */
-    public void setLogicalChannelID(String id, int imageIndex,
-            int logicalChannelIndex)
-    {
-    	checkDuplicateLSID(LogicalChannel.class, id);
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("imageIndex", imageIndex);
-        indexes.put("logicalChannelIndex", logicalChannelIndex);  
-        IObjectContainer o = getIObjectContainer(LogicalChannel.class, indexes);
-        o.LSID = id;
-        addAuthoritativeContainer(LogicalChannel.class, id, o);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelIlluminationType(java.lang.String, int, int)
-     */
-    public void setLogicalChannelIlluminationType(String illuminationType,
-            int imageIndex, int logicalChannelIndex)
-    {
-        LogicalChannel o = getLogicalChannel(imageIndex, logicalChannelIndex);
-        o.setIllumination((Illumination) 
-            getEnumeration(Illumination.class, illuminationType));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelMode(java.lang.String, int, int)
-     */
-    public void setLogicalChannelMode(String mode, int imageIndex,
-            int logicalChannelIndex)
-    {
-        LogicalChannel o = getLogicalChannel(imageIndex, logicalChannelIndex);
-        o.setMode((AcquisitionMode) 
-            getEnumeration(AcquisitionMode.class, mode));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelName(java.lang.String, int, int)
-     */
-    public void setLogicalChannelName(String name, int imageIndex,
-            int logicalChannelIndex)
-    {
-        LogicalChannel o = getLogicalChannel(imageIndex, logicalChannelIndex);
-        o.setName(toRType(name));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelNdFilter(java.lang.Double, int, int)
-     */
-    public void setLogicalChannelNdFilter(Double ndFilter, int imageIndex,
-            int logicalChannelIndex)
-    {
-        LogicalChannel o = getLogicalChannel(imageIndex, logicalChannelIndex);
-        o.setNdFilter(toRType(ndFilter));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelPhotometricInterpretation(java.lang.String, int, int)
-     */
-    public void setLogicalChannelPhotometricInterpretation(
-            String photometricInterpretation, int imageIndex,
-            int logicalChannelIndex)
-    {
-        LogicalChannel o = getLogicalChannel(imageIndex, logicalChannelIndex);
-        o.setPhotometricInterpretation((PhotometricInterpretation) getEnumeration(
-                    PhotometricInterpretation.class, photometricInterpretation));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelPinholeSize(java.lang.Double, int, int)
-     */
-    public void setLogicalChannelPinholeSize(Double pinholeSize,
-            int imageIndex, int logicalChannelIndex)
-    {
-        LogicalChannel o = getLogicalChannel(imageIndex, logicalChannelIndex);
-        o.setPinHoleSize(toRType(pinholeSize));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelPockelCellSetting(java.lang.Integer, int, int)
-     */
-    public void setLogicalChannelPockelCellSetting(Integer pockelCellSetting,
-            int imageIndex, int logicalChannelIndex)
-    {
-        LogicalChannel o = getLogicalChannel(imageIndex, logicalChannelIndex);
-        o.setPockelCellSetting(toRType(pockelCellSetting));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelSamplesPerPixel(java.lang.Integer, int, int)
-     */
-    public void setLogicalChannelSamplesPerPixel(Integer samplesPerPixel,
-            int imageIndex, int logicalChannelIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setOTFID(java.lang.String, int, int)
-     */
-    public void setOTFID(String id, int instrumentIndex, int otfIndex)
-    {
-    	checkDuplicateLSID(OTF.class, id);
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("instrumentIndex", instrumentIndex);
-        indexes.put("otfIndex", otfIndex);  
-        IObjectContainer o = getIObjectContainer(OTF.class, indexes);
-        o.LSID = id;
-        addAuthoritativeContainer(OTF.class, id, o);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setOTFOpticalAxisAveraged(java.lang.Boolean, int, int)
-     */
-    public void setOTFOpticalAxisAveraged(Boolean opticalAxisAveraged,
-            int instrumentIndex, int otfIndex)
-    {
-        OTF o = getOTF(instrumentIndex, otfIndex);
-        o.setOpticalAxisAveraged(toRType(opticalAxisAveraged));
-    }
-
-    /**
-     * @param instrumentIndex
-     * @param otfIndex
-     * @return
-     */
-    private OTF getOTF(int instrumentIndex, int otfIndex)
-    {
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("instrumentIndex", instrumentIndex);
-        indexes.put("otfIndex", otfIndex);
-        return getSourceObject(OTF.class, indexes);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setOTFPixelType(java.lang.String, int, int)
-     */
-    public void setOTFPixelType(String pixelType, int instrumentIndex,
-            int otfIndex)
-    {
-        OTF o = getOTF(instrumentIndex, otfIndex);
-        o.setPixelsType((PixelsType) getEnumeration(PixelsType.class, pixelType));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setOTFSizeX(java.lang.Integer, int, int)
-     */
-    public void setOTFSizeX(Integer sizeX, int instrumentIndex, int otfIndex)
-    {
-        OTF o = getOTF(instrumentIndex, otfIndex);
-        o.setSizeX(toRType(sizeX));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setOTFSizeY(java.lang.Integer, int, int)
-     */
-    public void setOTFSizeY(Integer sizeY, int instrumentIndex, int otfIndex)
-    {
-        OTF o = getOTF(instrumentIndex, otfIndex);
-        o.setSizeY(toRType(sizeY));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setObjectiveIris(java.lang.Boolean, int, int)
-     */
-    public void setObjectiveIris(Boolean iris, int instrumentIndex,
-            int objectiveIndex)
-    {
-        Objective o = getObjective(instrumentIndex, objectiveIndex);
-        o.setIris(toRType(iris));
-    }
-    
-    /**
-     * @param instrumentIndex
-     * @param objectiveIndex
-     * @return
-     */
-    public Objective getObjective(int instrumentIndex, int objectiveIndex)
-    {
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("instrumentIndex", instrumentIndex);
-        indexes.put("objectiveIndex", objectiveIndex);
-        return getSourceObject(Objective.class, indexes);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setObjectiveCalibratedMagnification(java.lang.Double, int, int)
-     */
-    public void setObjectiveCalibratedMagnification(
-            Double calibratedMagnification, int instrumentIndex,
-            int objectiveIndex)
-    {
-        Objective o = getObjective(instrumentIndex, objectiveIndex);
-        o.setCalibratedMagnification(toRType(calibratedMagnification));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setObjectiveCorrection(java.lang.String, int, int)
-     */
-    public void setObjectiveCorrection(String correction, int instrumentIndex,
-            int objectiveIndex)
-    {
-        Objective o = getObjective(instrumentIndex, objectiveIndex);
-        o.setCorrection((Correction) getEnumeration(Correction.class, correction));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setObjectiveID(java.lang.String, int, int)
-     */
-    public void setObjectiveID(String id, int instrumentIndex,
-            int objectiveIndex)
-    {
-    	checkDuplicateLSID(Objective.class, id);
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("instrumentIndex", instrumentIndex);
-        indexes.put("objectiveIndex", objectiveIndex);  
-        IObjectContainer o = getIObjectContainer(Objective.class, indexes);
-        o.LSID = id;
-        addAuthoritativeContainer(Objective.class, id, o);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setObjectiveImmersion(java.lang.String, int, int)
-     */
-    public void setObjectiveImmersion(String immersion, int instrumentIndex,
-            int objectiveIndex)
-    {
-        Objective o = getObjective(instrumentIndex, objectiveIndex);
-        o.setImmersion((Immersion) getEnumeration(Immersion.class, immersion));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setObjectiveLensNA(java.lang.Double, int, int)
-     */
-    public void setObjectiveLensNA(Double lensNA, int instrumentIndex,
-            int objectiveIndex)
-    {
-        Objective o = getObjective(instrumentIndex, objectiveIndex);
-        o.setLensNA(toRType(lensNA));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setObjectiveManufacturer(java.lang.String, int, int)
-     */
-    public void setObjectiveManufacturer(String manufacturer,
-            int instrumentIndex, int objectiveIndex)
-    {
-        Objective o = getObjective(instrumentIndex, objectiveIndex);
-        o.setManufacturer(toRType(manufacturer));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setObjectiveModel(java.lang.String, int, int)
-     */
-    public void setObjectiveModel(String model, int instrumentIndex,
-            int objectiveIndex)
-    {
-        Objective o = getObjective(instrumentIndex, objectiveIndex);
-        o.setModel(toRType(model));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setObjectiveNominalMagnification(java.lang.Integer, int, int)
-     */
-    public void setObjectiveNominalMagnification(Integer nominalMagnification,
-            int instrumentIndex, int objectiveIndex)
-    {
-        Objective o = getObjective(instrumentIndex, objectiveIndex);
-        o.setNominalMagnification(toRType(nominalMagnification));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setObjectiveSerialNumber(java.lang.String, int, int)
-     */
-    public void setObjectiveSerialNumber(String serialNumber,
-            int instrumentIndex, int objectiveIndex)
-    {
-        Objective o = getObjective(instrumentIndex, objectiveIndex);
-        o.setSerialNumber(toRType(serialNumber));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setObjectiveWorkingDistance(java.lang.Double, int, int)
-     */
-    public void setObjectiveWorkingDistance(Double workingDistance,
-            int instrumentIndex, int objectiveIndex)
-    {
-        Objective o = getObjective(instrumentIndex, objectiveIndex);
-        o.setWorkingDistance(toRType(workingDistance));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsBigEndian(java.lang.Boolean, int, int)
-     */
-    public void setPixelsBigEndian(Boolean bigEndian, int imageIndex,
-            int pixelsIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsDimensionOrder(java.lang.String, int, int)
-     */
-    public void setPixelsDimensionOrder(String dimensionOrder, int imageIndex,
-            int pixelsIndex)
-    {
-        Pixels o = getPixels(imageIndex, pixelsIndex);
-        o.setDimensionOrder((DimensionOrder) getEnumeration(DimensionOrder.class, dimensionOrder));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsID(java.lang.String, int, int)
-     */
-    public void setPixelsID(String id, int imageIndex, int pixelsIndex)
-    {
-    	checkDuplicateLSID(Pixels.class, id);
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("imageIndex", imageIndex);
-        indexes.put("pixelsIndex", pixelsIndex);  
-        IObjectContainer o = getIObjectContainer(Pixels.class, indexes);
-        o.LSID = id;
-        addAuthoritativeContainer(Pixels.class, id, o);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsPixelType(java.lang.String, int, int)
-     */
-    public void setPixelsPixelType(String pixelType, int imageIndex,
-            int pixelsIndex)
-    {
-        Pixels o = getPixels(imageIndex, pixelsIndex);
-        o.setPixelsType((PixelsType) getEnumeration(PixelsType.class, pixelType));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsSizeC(java.lang.Integer, int, int)
-     */
-    public void setPixelsSizeC(Integer sizeC, int imageIndex, int pixelsIndex)
-    {
-        Pixels o = getPixels(imageIndex, pixelsIndex);
-        o.setSizeC(toRType(sizeC));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsSizeT(java.lang.Integer, int, int)
-     */
-    public void setPixelsSizeT(Integer sizeT, int imageIndex, int pixelsIndex)
-    {
-        Pixels o = getPixels(imageIndex, pixelsIndex);
-        o.setSizeT(toRType(sizeT));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsSizeZ(java.lang.Integer, int, int)
-     */
-    public void setPixelsSizeZ(Integer sizeZ, int imageIndex, int pixelsIndex)
-    {
-        Pixels o = getPixels(imageIndex, pixelsIndex);
-        o.setSizeZ(toRType(sizeZ));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsSizeX(java.lang.Integer, int, int)
-     */
-    public void setPixelsSizeX(Integer sizeX, int imageIndex, int pixelsIndex)
-    {       
-        Pixels o = getPixels(imageIndex, pixelsIndex);
-        o.setSizeX(toRType(sizeX));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsSizeY(java.lang.Integer, int, int)
-     */
-    public void setPixelsSizeY(Integer sizeY, int imageIndex, int pixelsIndex)
-    {
-        Pixels o = getPixels(imageIndex, pixelsIndex);
-        o.setSizeY(toRType(sizeY));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlaneTheC(java.lang.Integer, int, int, int)
-     */
-    public void setPlaneTheC(Integer theC, int imageIndex, int pixelsIndex,
-            int planeIndex)
-    {    
-        PlaneInfo o = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
-        o.setTheC(toRType(theC));
-    }
-
-    /**
-     * @param imageIndex
-     * @param pixelsIndex
-     * @param planeIndex
-     * @return
-     */
-    private PlaneInfo getPlaneInfo(int imageIndex, int pixelsIndex,
-            int planeIndex)
-    {
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("imageIndex", imageIndex);
-        indexes.put("pixelsIndex", pixelsIndex);
-        indexes.put("planeIndex", planeIndex);
-        return getSourceObject(PlaneInfo.class, indexes);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlaneTheT(java.lang.Integer, int, int, int)
-     */
-    public void setPlaneTheT(Integer theT, int imageIndex, int pixelsIndex,
-            int planeIndex)
-    {
-        PlaneInfo o = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
-        o.setTheT(toRType(theT));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlaneTheZ(java.lang.Integer, int, int, int)
-     */
-    public void setPlaneTheZ(Integer theZ, int imageIndex, int pixelsIndex,
-            int planeIndex)
-    {
-        PlaneInfo o = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
-        o.setTheZ(toRType(theZ));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlaneTimingDeltaT(java.lang.Double, int, int, int)
-     */
-    public void setPlaneTimingDeltaT(Double deltaT, int imageIndex,
-            int pixelsIndex, int planeIndex)
-    {
-        PlaneInfo o = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
-        o.setDeltaT(toRType(deltaT));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlaneTimingExposureTime(java.lang.Double, int, int, int)
-     */
-    public void setPlaneTimingExposureTime(Double exposureTime, int imageIndex,
-            int pixelsIndex, int planeIndex)
-    {
-        PlaneInfo o = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
-        o.setExposureTime(toRType(exposureTime));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlateDescription(java.lang.String, int)
-     */
-    public void setPlateDescription(String description, int plateIndex)
-    {
-        Plate o = getPlate(plateIndex);
-        o.setDescription(toRType(description));
-    }
-
-    /**
-     * @param plateIndex
-     * @return
-     */
-    private Plate getPlate(int plateIndex)
-    {
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("plateIndex", plateIndex);
-        return getSourceObject(Plate.class, indexes);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlateExternalIdentifier(java.lang.String, int)
-     */
-    public void setPlateExternalIdentifier(String externalIdentifier,
-            int plateIndex)
-    {
-        Plate o = getPlate(plateIndex);
-        o.setExternalIdentifier(toRType(externalIdentifier));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlateID(java.lang.String, int)
-     */
-    public void setPlateID(String id, int plateIndex)
-    {
-    	checkDuplicateLSID(Plate.class, id);
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("plateIndex", plateIndex); 
-        IObjectContainer o = getIObjectContainer(Plate.class, indexes);
-        o.LSID = id;
-        addAuthoritativeContainer(Plate.class, id, o);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlateName(java.lang.String, int)
-     */
-    public void setPlateName(String name, int plateIndex)
-    {
-        Plate o = getPlate(plateIndex);
-        o.setName(toRType(name));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlateRefID(java.lang.String, int, int)
-     */
-    public void setPlateRefID(String id, int screenIndex, int plateRefIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlateStatus(java.lang.String, int)
-     */
-    public void setPlateStatus(String status, int plateIndex)
-    {
-        Plate o = getPlate(plateIndex);
-        o.setStatus(toRType(status));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setROIID(java.lang.String, int, int)
-     */
-    public void setROIID(String id, int imageIndex, int roiIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setROIT0(java.lang.Integer, int, int)
-     */
-    public void setROIT0(Integer t0, int imageIndex, int roiIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setROIT1(java.lang.Integer, int, int)
-     */
-    public void setROIT1(Integer t1, int imageIndex, int roiIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setROIX0(java.lang.Integer, int, int)
-     */
-    public void setROIX0(Integer x0, int imageIndex, int roiIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setROIX1(java.lang.Integer, int, int)
-     */
-    public void setROIX1(Integer x1, int imageIndex, int roiIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setROIY0(java.lang.Integer, int, int)
-     */
-    public void setROIY0(Integer y0, int imageIndex, int roiIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setROIY1(java.lang.Integer, int, int)
-     */
-    public void setROIY1(Integer y1, int imageIndex, int roiIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setROIZ0(java.lang.Integer, int, int)
-     */
-    public void setROIZ0(Integer z0, int imageIndex, int roiIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setROIZ1(java.lang.Integer, int, int)
-     */
-    public void setROIZ1(Integer z1, int imageIndex, int roiIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setReagentDescription(java.lang.String, int, int)
-     */
-    public void setReagentDescription(String description, int screenIndex,
-            int reagentIndex)
-    {
-        Reagent o = getReagent(screenIndex, reagentIndex);
-        o.setDescription(toRType(description));
-    }
-
-    /**
-     * @param screenIndex
-     * @param reagentIndex
-     * @return
-     */
-    private Reagent getReagent(int screenIndex, int reagentIndex)
-    {
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("screenIndex", screenIndex);
-        indexes.put("reagentIndex", reagentIndex);
-        return getSourceObject(Reagent.class, indexes);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setReagentID(java.lang.String, int, int)
-     */
-    public void setReagentID(String id, int screenIndex, int reagentIndex)
-    {
-    	checkDuplicateLSID(Reagent.class, id);
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("screenIndex", screenIndex);
-        indexes.put("reagentIndex", reagentIndex);  
-        IObjectContainer o = getIObjectContainer(Reagent.class, indexes);
-        o.LSID = id;
-        addAuthoritativeContainer(Reagent.class, id, o);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setReagentName(java.lang.String, int, int)
-     */
-    public void setReagentName(String name, int screenIndex, int reagentIndex)
-    {
-        Reagent o = getReagent(screenIndex, reagentIndex);
-        o.setName(toRType(name));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setReagentReagentIdentifier(java.lang.String, int, int)
-     */
-    public void setReagentReagentIdentifier(String reagentIdentifier,
-            int screenIndex, int reagentIndex)
-    {
-        Reagent o = getReagent(screenIndex, reagentIndex);
-        o.setReagentIdentifier(toRType(reagentIdentifier));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setRoot(java.lang.Object)
-     */
-    public void setRoot(Object root)
-    {
-        log.debug(String.format("IGNORING: setRoot[%s]", root));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setScreenAcquisitionEndTime(java.lang.String, int, int)
-     */
-    public void setScreenAcquisitionEndTime(String endTime, int screenIndex,
-            int screenAcquisitionIndex)
-    {
-        // Disabled
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setScreenAcquisitionID(java.lang.String, int, int)
-     */
-    public void setScreenAcquisitionID(String id, int screenIndex,
-            int screenAcquisitionIndex)
-    {
-        // Disabled
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setScreenAcquisitionStartTime(java.lang.String, int, int)
-     */
-    public void setScreenAcquisitionStartTime(String startTime,
-            int screenIndex, int screenAcquisitionIndex)
-    {
-        // Disabled
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setScreenID(java.lang.String, int)
-     */
-    public void setScreenID(String id, int screenIndex)
-    {
-        // Disabled
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setScreenName(java.lang.String, int)
-     */
-    public void setScreenName(String name, int screenIndex)
-    {
-        // Disabled
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setScreenProtocolDescription(java.lang.String, int)
-     */
-    public void setScreenProtocolDescription(String protocolDescription,
-            int screenIndex)
-    {
-        // Disabled
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setScreenProtocolIdentifier(java.lang.String, int)
-     */
-    public void setScreenProtocolIdentifier(String protocolIdentifier,
-            int screenIndex)
-    {
-        // Disabled
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setScreenReagentSetDescription(java.lang.String, int)
-     */
-    public void setScreenReagentSetDescription(String reagentSetDescription,
-            int screenIndex)
-    {
-        // Disabled
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setScreenType(java.lang.String, int)
-     */
-    public void setScreenType(String type, int screenIndex)
-    {
-        // Disabled
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setStageLabelName(java.lang.String, int)
-     */
-    public void setStageLabelName(String name, int imageIndex)
-    {
-        StageLabel o = getStageLabel(imageIndex);
-        o.setName(toRType(name));
-    }
-
-    /**
-     * @param imageIndex
-     * @return
-     */
-    private StageLabel getStageLabel(int imageIndex)
-    {
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("imageIndex", imageIndex);
-        return getSourceObject(StageLabel.class, indexes);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setStageLabelX(java.lang.Double, int)
-     */
-    public void setStageLabelX(Double x, int imageIndex)
-    {
-        StageLabel o = getStageLabel(imageIndex);
-        o.setPositionX(toRType(x));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setStageLabelY(java.lang.Double, int)
-     */
-    public void setStageLabelY(Double y, int imageIndex)
-    {
-        StageLabel o = getStageLabel(imageIndex);
-        o.setPositionY(toRType(y));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setStageLabelZ(java.lang.Double, int)
-     */
-    public void setStageLabelZ(Double z, int imageIndex)
-    {
-        StageLabel o = getStageLabel(imageIndex);
-        o.setPositionZ(toRType(z));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setStagePositionPositionX(java.lang.Double, int, int, int)
-     */
-    public void setStagePositionPositionX(Double positionX, int imageIndex,
-            int pixelsIndex, int planeIndex)
-    {    
-        PlaneInfo o = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
-        o.setPositionX(toRType(positionX));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setStagePositionPositionY(java.lang.Double, int, int, int)
-     */
-    public void setStagePositionPositionY(Double positionY, int imageIndex,
-            int pixelsIndex, int planeIndex)
-    {
-        PlaneInfo o = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
-        o.setPositionY(toRType(positionY));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setStagePositionPositionZ(java.lang.Double, int, int, int)
-     */
-    public void setStagePositionPositionZ(Double positionZ, int imageIndex,
-            int pixelsIndex, int planeIndex)
-    {
-        PlaneInfo o = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
-        o.setPositionZ(toRType(positionZ));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setTiffDataFileName(java.lang.String, int, int, int)
-     */
-    public void setTiffDataFileName(String fileName, int imageIndex,
-            int pixelsIndex, int tiffDataIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setTiffDataFirstC(java.lang.Integer, int, int, int)
-     */
-    public void setTiffDataFirstC(Integer firstC, int imageIndex,
-            int pixelsIndex, int tiffDataIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setTiffDataFirstT(java.lang.Integer, int, int, int)
-     */
-    public void setTiffDataFirstT(Integer firstT, int imageIndex,
-            int pixelsIndex, int tiffDataIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setTiffDataFirstZ(java.lang.Integer, int, int, int)
-     */
-    public void setTiffDataFirstZ(Integer firstZ, int imageIndex,
-            int pixelsIndex, int tiffDataIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setTiffDataIFD(java.lang.Integer, int, int, int)
-     */
-    public void setTiffDataIFD(Integer ifd, int imageIndex, int pixelsIndex,
-            int tiffDataIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setTiffDataNumPlanes(java.lang.Integer, int, int, int)
-     */
-    public void setTiffDataNumPlanes(Integer numPlanes, int imageIndex,
-            int pixelsIndex, int tiffDataIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setTiffDataUUID(java.lang.String, int, int, int)
-     */
-    public void setTiffDataUUID(String uuid, int imageIndex, int pixelsIndex,
-            int tiffDataIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setUUID(java.lang.String)
-     */
-    public void setUUID(String uuid)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setWellColumn(java.lang.Integer, int, int)
-     */
-    public void setWellColumn(Integer column, int plateIndex, int wellIndex)
-    {
-        Well o = getWell(plateIndex, wellIndex);
-        o.setColumn(toRType(column));
-    }
-
-    /**
-     * @param plateIndex
-     * @param wellIndex
-     * @return
-     */
-    private Well getWell(int plateIndex, int wellIndex)
-    {
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("plateIndex", plateIndex);
-        indexes.put("wellIndex", wellIndex);
-        return getSourceObject(Well.class, indexes);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setWellExternalDescription(java.lang.String, int, int)
-     */
-    public void setWellExternalDescription(String externalDescription,
-            int plateIndex, int wellIndex)
-    {
-        Well o = getWell(plateIndex, wellIndex);
-        o.setExternalDescription(toRType(externalDescription));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setWellExternalIdentifier(java.lang.String, int, int)
-     */
-    public void setWellExternalIdentifier(String externalIdentifier,
-            int plateIndex, int wellIndex)
-    {
-        Well o = getWell(plateIndex, wellIndex);
-        o.setExternalIdentifier(toRType(externalIdentifier));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setWellID(java.lang.String, int, int)
-     */
-    public void setWellID(String id, int plateIndex, int wellIndex)
-    {
-    	checkDuplicateLSID(Well.class, id);
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("plateIndex", plateIndex);
-        indexes.put("wellIndex", wellIndex);  
-        IObjectContainer o = getIObjectContainer(Well.class, indexes);
-        o.LSID = id;
-        addAuthoritativeContainer(Well.class, id, o);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setWellRow(java.lang.Integer, int, int)
-     */
-    public void setWellRow(Integer row, int plateIndex, int wellIndex)
-    {
-        Well o = getWell(plateIndex, wellIndex);
-        o.setRow(toRType(row));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setWellSampleID(java.lang.String, int, int, int)
-     */
-    public void setWellSampleID(String id, int plateIndex, int wellIndex,
-            int wellSampleIndex)
-    {
-    	checkDuplicateLSID(WellSample.class, id);
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("plateIndex", plateIndex);
-        indexes.put("wellIndex", wellIndex); 
-        indexes.put("wellSampleIndex", wellSampleIndex);
-        IObjectContainer o = getIObjectContainer(WellSample.class, indexes);
-        o.LSID = id;
-        addAuthoritativeContainer(WellSample.class, id, o);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setWellSampleIndex(java.lang.Integer, int, int, int)
-     */
-    public void setWellSampleIndex(Integer index, int plateIndex,
-            int wellIndex, int wellSampleIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setWellSamplePosX(java.lang.Double, int, int, int)
-     */
-    public void setWellSamplePosX(Double posX, int plateIndex, int wellIndex,
-            int wellSampleIndex)
-    {
-        WellSample o = getWellSample(plateIndex, wellIndex, wellSampleIndex);
-        o.setPosX(toRType(posX));
-    }
-
-    /**
-     * @param plateIndex
-     * @param wellIndex
-     * @param wellSampleIndex
-     * @return
-     */
-    private WellSample getWellSample(int plateIndex, int wellIndex,
-            int wellSampleIndex)
-    {
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("plateIndex", plateIndex);
-        indexes.put("wellIndex", wellIndex);
-        indexes.put("wellSampleIndex", wellSampleIndex);
-        return getSourceObject(WellSample.class, indexes);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setWellSamplePosY(java.lang.Double, int, int, int)
-     */
-    public void setWellSamplePosY(Double posY, int plateIndex, int wellIndex,
-            int wellSampleIndex)
-    {
-        WellSample o = getWellSample(plateIndex, wellIndex, wellSampleIndex);
-        o.setPosY(toRType(posY));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setWellSampleTimepoint(java.lang.Integer, int, int, int)
-     */
-    public void setWellSampleTimepoint(Integer timepoint, int plateIndex,
-            int wellIndex, int wellSampleIndex)
-    {
-        /* ticket:1750 - for Chris
-        WellSample o = getWellSample(plateIndex, wellIndex, wellSampleIndex);
-        o.setTimepoint(toRType(timepoint));
-        */
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setWellType(java.lang.String, int, int)
-     */
-    public void setWellType(String type, int plateIndex, int wellIndex)
-    {
-        Well o = getWell(plateIndex, wellIndex);
-        o.setType(toRType(type));
-    }
-    
-    /**
-     * @return - experimenter id
-     */
-    public long getExperimenterID()
-    {
-        try
-        {
-            return iAdmin.getEventContext().userId;
-        }
-        catch (ServerError e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-    
-    /**
-     * Creates an original file object from a Java file object along with some
-     * metadata specific to OMERO in the container cache or returns the
-     * original file as already created in the supplied map.
-     * @param file Java file object to pull metadata from.
-     * @param indexes Container cache indexes to use.
-     * @param formatString Original file format as a string.
-     * @param existing Existing original files keyed by absolute path.
-     * @return Created original file source object.
-     */
-    private OriginalFile createOriginalFileFromFile(
-    		File file, LinkedHashMap<String, Integer> indexes,
-    		String formatString)
-    {
-		OriginalFile o = (OriginalFile) 
-			getSourceObject(OriginalFile.class, indexes);
-		o.setName(toRType(file.getName()));
-		o.setSize(toRType(file.length()));
-		o.setMimetype(toRType(formatString));
-		o.setPath(toRType(file.getAbsolutePath()));
-		o.setSha1(toRType("Pending"));
-		return o;
-    }
     
     /**
      * Creates a temporary file on disk containing all metadata in the
@@ -3090,8 +1147,8 @@ public class OMEROMetadataStoreClient
      */
     private File createSeriesMetadataFile()
     {
-    	Hashtable globalMetadata = reader.getGlobalMetadata();
-    	Hashtable seriesMetadata = reader.getSeriesMetadata();
+    	Hashtable<?,?> globalMetadata = reader.getGlobalMetadata();
+    	Hashtable<?,?> seriesMetadata = reader.getSeriesMetadata();
     	FileOutputStream stream = null;
     	OutputStreamWriter writer= null;
     	try
@@ -3166,9 +1223,9 @@ public class OMEROMetadataStoreClient
 		// exists.
     	for (int series = 0; series < reader.getSeriesCount(); series++)
     	{
-        	LinkedHashMap<String, Integer> imageIndexes =
-        		new LinkedHashMap<String, Integer>();
-        	imageIndexes.put("imageIndex", series);
+        	LinkedHashMap<Index, Integer> imageIndexes =
+        		new LinkedHashMap<Index, Integer>();
+        	imageIndexes.put(Index.IMAGE_INDEX, series);
     		Image image = getSourceObject(Image.class, imageIndexes);
     		image.setArchived(toRType(archive));
     	}
@@ -3184,9 +1241,9 @@ public class OMEROMetadataStoreClient
     			companionFiles.contains(usedFilename);
     		if (archive || isCompanionFile)
     		{
-    			LinkedHashMap<String, Integer> indexes = 
-    				new LinkedHashMap<String, Integer>();
-    			indexes.put("originalFileIndex", originalFileIndex);
+    			LinkedHashMap<Index, Integer> indexes = 
+    				new LinkedHashMap<Index, Integer>();
+    			indexes.put(Index.ORIGINAL_FILE_INDEX, originalFileIndex);
     			if (isCompanionFile)
     			{
     				// PATH 1: The file is a companion file, create it,
@@ -3217,7 +1274,7 @@ public class OMEROMetadataStoreClient
     /**
      * Populates archive flags on all images currently processed links
      * relevant original metadata files as requested and performs graph logic
-     * to have the scafolding in place for later original file upload.
+     * to have the scaffolding in place for later original file upload.
      * @param archive Whether or not the user requested the original files to
      * be archived.
      * @param useMetadataFile Whether or not to dump all metadata to a flat
@@ -3243,9 +1300,9 @@ public class OMEROMetadataStoreClient
     		formatString = formatString.replace("Reader", "");
     		LSID pixelsKey = new LSID(Pixels.class, series, 0);
     		LSID imageKey = new LSID(Image.class, series);
-    		LinkedHashMap<String, Integer> imageIndexes =
-    			new LinkedHashMap<String, Integer>();
-    		imageIndexes.put("imageIndex", series);
+    		LinkedHashMap<Index, Integer> imageIndexes =
+    			new LinkedHashMap<Index, Integer>();
+    		imageIndexes.put(Index.IMAGE_INDEX, series);
 
     		// Populate the archived flag on the image. This inadvertently
     		// ensures that an Image object (and corresponding container)
@@ -3262,16 +1319,16 @@ public class OMEROMetadataStoreClient
     		{
     			File metadataFile = createSeriesMetadataFile();
     			metadataFiles.add(metadataFile);
-				LinkedHashMap<String, Integer> indexes = 
-					new LinkedHashMap<String, Integer>();
-				indexes.put("originalFileIndex", originalFileIndex);
+				LinkedHashMap<Index, Integer> indexes = 
+					new LinkedHashMap<Index, Integer>();
+				indexes.put(Index.ORIGINAL_FILE_INDEX, originalFileIndex);
 				String format = "text/plain";
 				OriginalFile originalFile = 
 					createOriginalFileFromFile(metadataFile, indexes, format);
 				originalFile.setName(toRType("original_metadata.txt"));
-                indexes = new LinkedHashMap<String, Integer>();
-                indexes.put("imageIndex", series);
-                indexes.put("originalFileIndex", originalFileIndex);
+                indexes = new LinkedHashMap<Index, Integer>();
+                indexes.put(Index.IMAGE_INDEX, series);
+                indexes.put(Index.ORIGINAL_FILE_INDEX, originalFileIndex);
                 addCompanionFileAnnotationTo(imageKey, indexes,
                 		                     originalFileIndex);
 				originalFileIndex++;
@@ -3290,9 +1347,9 @@ public class OMEROMetadataStoreClient
     				                      companionFiles.contains(usedFilename);
     			if (archive || isCompanionFile)
     			{
-    				LinkedHashMap<String, Integer> indexes = 
-    					new LinkedHashMap<String, Integer>();
-    				indexes.put("originalFileIndex", originalFileIndex);
+    				LinkedHashMap<Index, Integer> indexes = 
+    					new LinkedHashMap<Index, Integer>();
+    				indexes.put(Index.ORIGINAL_FILE_INDEX, originalFileIndex);
     				int usedFileIndex = originalFileIndex;
     				if (pathIndexMap.containsKey(absolutePath))
     				{
@@ -3324,9 +1381,9 @@ public class OMEROMetadataStoreClient
     				
     				if (isCompanionFile)
     				{
-                        indexes = new LinkedHashMap<String, Integer>();
-                        indexes.put("imageIndex", series);
-                        indexes.put("originalFileIndex", usedFileIndex);
+                        indexes = new LinkedHashMap<Index, Integer>();
+                        indexes.put(Index.IMAGE_INDEX, series);
+                        indexes.put(Index.ORIGINAL_FILE_INDEX, usedFileIndex);
                         addCompanionFileAnnotationTo(imageKey, indexes,
                         		                     usedFileIndex);
     				}
@@ -3395,7 +1452,7 @@ public class OMEROMetadataStoreClient
      * @param originalFileIndex Index of the original file.
      */
     private void addCompanionFileAnnotationTo(
-    		LSID target, LinkedHashMap<String, Integer> indexes,
+    		LSID target, LinkedHashMap<Index, Integer> indexes,
     		int originalFileIndex)
     {
     	FileAnnotation a = (FileAnnotation) 
@@ -3820,7 +1877,48 @@ public class OMEROMetadataStoreClient
             throw new RuntimeException(e);
         }
     }
+    
+    /**
+     * @return - experimenter id
+     */
+    public long getExperimenterID()
+    {
+        try
+        {
+            return iAdmin.getEventContext().userId;
+        }
+        catch (ServerError e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    /**
+     * Creates an original file object from a Java file object along with some
+     * metadata specific to OMERO in the container cache or returns the
+     * original file as already created in the supplied map.
+     * @param file Java file object to pull metadata from.
+     * @param indexes Container cache indexes to use.
+     * @param formatString Original file format as a string.
+     * @param existing Existing original files keyed by absolute path.
+     * @return Created original file source object.
+     */
+    private OriginalFile createOriginalFileFromFile(
+    		File file, LinkedHashMap<Index, Integer> indexes,
+    		String formatString)
+    {
+		OriginalFile o = (OriginalFile) 
+			getSourceObject(OriginalFile.class, indexes);
+		o.setName(toRType(file.getName()));
+		o.setSize(toRType(file.length()));
+		o.setMimetype(toRType(formatString));
+		o.setPath(toRType(file.getAbsolutePath()));
+		o.setSha1(toRType("Pending"));
+		return o;
+    }
 
+
+    
     /**
      * @return
      */
@@ -4129,2154 +2227,11 @@ public class OMEROMetadataStoreClient
     		throw new RuntimeException(e);
     	}
     }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setExperimentDescription(java.lang.String, int)
-     */
-    public void setExperimentDescription(String description, int experimentIndex)
-    {
-        Experiment o = getExperiment(experimentIndex);
-        o.setDescription(toRType(description));
-    }
-
-    /**
-     * @param experimentIndex
-     * @return
-     */
-    private Experiment getExperiment(int experimentIndex)
-    {
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("experimentIndex", experimentIndex);
-        return getSourceObject(Experiment.class, indexes);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setExperimentID(java.lang.String, int)
-     */
-    public void setExperimentID(String id, int experimentIndex)
-    {
-    	checkDuplicateLSID(Experiment.class, id);
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("experimentIndex", experimentIndex);
-        IObjectContainer o = getIObjectContainer(Experiment.class, indexes);
-        o.LSID = id;
-        addAuthoritativeContainer(Experiment.class, id, o);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setExperimentType(java.lang.String, int)
-     */
-    public void setExperimentType(String type, int experimentIndex)
-    {
-        Experiment o = getExperiment(experimentIndex);
-        o.setType((ExperimentType) getEnumeration(ExperimentType.class, type));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setExperimenterMembershipGroup(java.lang.String, int, int)
-     */
-    public void setExperimenterMembershipGroup(String group,
-            int experimenterIndex, int groupRefIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setImageDefaultPixels(java.lang.String, int)
-     */
-    public void setImageDefaultPixels(String defaultPixels, int imageIndex)
-    {
-        //FIXME: make this work!
-        //LSID key = new LSID(Image.class, imageIndex);
-        //referenceCache.put(key, new LSID(defaultPixels));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelOTF(java.lang.String, int, int)
-     */
-    public void setLogicalChannelOTF(String otf, int imageIndex,
-            int logicalChannelIndex)
-    {
-        LSID key = new LSID(LogicalChannel.class, imageIndex, logicalChannelIndex);
-        addReference(key, new LSID(otf));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setOTFObjective(java.lang.String, int, int)
-     */
-    public void setOTFObjective(String objective, int instrumentIndex,
-            int otfIndex)
-    {
-        LSID key = new LSID(OTF.class, instrumentIndex, otfIndex);
-        addReference(key, new LSID(objective));
-    }
-
-    /* ---- Objective Settings ---- */
     
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setObjectiveSettingsCorrectionCollar(java.lang.Double, int)
-     */
-    public void setObjectiveSettingsCorrectionCollar(Double correctionCollar,
-            int imageIndex)
-    {
-        ObjectiveSettings o = getObjectiveSettings(imageIndex);
-        o.setCorrectionCollar(toRType(correctionCollar));
-    }
-
-    /**
-     * @param imageIndex
-     * @return
-     */
-    private ObjectiveSettings getObjectiveSettings(int imageIndex)
-    {
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("imageIndex", imageIndex);
-        return getSourceObject(ObjectiveSettings.class, indexes);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setObjectiveSettingsMedium(java.lang.String, int)
-     */
-    public void setObjectiveSettingsMedium(String medium, int imageIndex)
-    {
-        ObjectiveSettings o = getObjectiveSettings(imageIndex);
-        o.setMedium((Medium) getEnumeration(Medium.class, medium));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setObjectiveSettingsObjective(java.lang.String, int)
-     */
-    public void setObjectiveSettingsObjective(String objective, int imageIndex)
-    {
-        LSID key = new LSID(ObjectiveSettings.class, imageIndex);
-        addReference(key, new LSID(objective));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setObjectiveSettingsRefractiveIndex(java.lang.Double, int)
-     */
-    public void setObjectiveSettingsRefractiveIndex(Double refractiveIndex,
-            int imageIndex)
-    {
-        ObjectiveSettings o = getObjectiveSettings(imageIndex);
-        o.setRefractiveIndex(toRType(refractiveIndex));
-    }
     
-    /**
-     * Sets the active enumeration provider.
-     * @param enumProvider Enumeration provider to use.
-     */
-    public void setEnumerationProvider(EnumerationProvider enumProvider)
-    {
-        this.enumProvider = enumProvider;
-    }
-    
-    /**
-     * Retriives the active enumeration provider.
-     * @return See above.
-     */
-    public EnumerationProvider getEnumerationProvider()
-    {
-        return enumProvider;
-    }
-    
-    /**
-     * Sets the active instance provider.
-     * @param enumProvider Enumeration provider to use.
-     */
-    public void setInstanceProvider(InstanceProvider instanceProvider)
-    {
-        this.instanceProvider = instanceProvider;
-    }
-    
-    /**
-     * Retrieves the active enumeration provider.
-     * @return See above.
-     */
-    public InstanceProvider getInstanceProvider()
-    {
-        return instanceProvider;
-    }
-    
-    /**
-     * This comparator takes into account the OME-XML data model hierarchy
-     * and uses that to define equivalence.
-     * 
-     * @author Chris Allan <callan at blackcat dot ca>
-     *
-     */
-    public class OMEXMLModelComparator implements Comparator<LSID>
-    {
-        /** 
-         * The collator that we use to alphabetically sort by class name
-         * within a given level of the OME-XML hierarchy.
-         */
-        private RuleBasedCollator stringComparator = 
-            (RuleBasedCollator) Collator.getInstance(Locale.ENGLISH);
-        
-        public int compare(LSID x, LSID y)
-        {
-            // Handle identical LSIDs
-            if (x.equals(y))
-            {
-                return 0;
-            }
-            
-            // Parse the LSID for hierarchical equivalence tests.
-            Class<? extends IObject> xClass = x.getJavaClass();
-            Class<? extends IObject> yClass = y.getJavaClass();
-            int[] xIndexes = x.getIndexes();
-            int[] yIndexes = y.getIndexes();
-            
-            // Handle the null class (one or more unparsable internal 
-            // references) case.
-            if (xClass == null || yClass == null)
-            {
-                return stringComparator.compare(x.toString(), y.toString()); 
-            }
-
-            // Assign values to the classes
-            int xVal = getValue(xClass, xIndexes.length);
-            int yVal = getValue(yClass, yIndexes.length);
-            
-            int retval = xVal - yVal;
-            if (retval == 0)
-            {
-                // Handle different classes at the same level in the hierarchy
-                // by string difference. They need to still be different.
-                if (!xClass.equals(yClass))
-                {
-                    return stringComparator.compare(x.toString(), y.toString());
-                }
-                for (int i = 0; i < xIndexes.length; i++)
-                {
-                    int difference = xIndexes[i] - yIndexes[i];
-                    if (difference != 0)
-                    {
-                        return difference;
-                    }
-                }
-                return 0;
-            }
-            return retval;
-        }
-        
-        /**
-         * Assigns a value to a particular class based on its location in the
-         * OME-XML hierarchy.
-         * @param klass Class to assign a value to.
-         * @param indexed Number of class indexes that were present in its LSID.
-         * @return The value.
-         */
-        public int getValue(Class<? extends IObject> klass, int indexes)
-        {
-            // Top-level (Pixels is a special case due to Channel and
-            // LogicalChannel containership weirdness).
-            if (klass.equals(Pixels.class))
-            {
-                return 1;
-            }
-            
-            if (klass.equals(DetectorSettings.class) 
-                || klass.equals(LightSettings.class))
-            {
-                return 3;
-            }
-            
-            return indexes;
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setChannelComponentPixels(java.lang.String, int, int, int)
-     */
-    public void setChannelComponentPixels(String arg0, int arg1, int arg2,
-            int arg3)
-    {
-
-        //
-
-    }
-
-    /**
-     * @param imageIndex
-     * @param roiIndex
-     * @param shapeIndex
-     * @return
-     */
-    private Ellipse getCircle(int imageIndex, int roiIndex, int shapeIndex)
-    {
-        LinkedHashMap<String, Integer> indexes =
-        	new LinkedHashMap<String, Integer>();
-        indexes.put("imageIndex", imageIndex);
-        indexes.put("roiIndex", roiIndex);
-        indexes.put("shapeIndex", shapeIndex);
-        return getSourceObject(Ellipse.class, indexes);
-    }
-    
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setCircleCx(java.lang.String, int, int, int)
-     */
-    public void setCircleCx(String cx, int imageIndex, int roiIndex,
-			int shapeIndex)
-    {
-    	// XXX: Disabled for now
-    	//Ellipse o = getCircle(imageIndex, roiIndex, shapeIndex);
-    	//o.setCx(toRType(Double.parseDouble(cx)));
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setCircleCy(java.lang.String, int, int, int)
-	 */
-	public void setCircleCy(String cy, int imageIndex, int roiIndex,
-			int shapeIndex)
-	{
-		// XXX: Disabled for now
-    	//Ellipse o = getCircle(imageIndex, roiIndex, shapeIndex);
-    	//o.setCy(toRType(Double.parseDouble(cy)));
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setCircleID(java.lang.String, int, int, int)
-	 */
-	public void setCircleID(String id, int imageIndex, int roiIndex,
-			int shapeIndex)
-	{
-		// XXX: Disabled for now
-    	//checkDuplicateLSID(Ellipse.class, id);
-        //LinkedHashMap<String, Integer> indexes =
-        //	new LinkedHashMap<String, Integer>();
-        //indexes.put("imageIndex", imageIndex);
-        //indexes.put("roiIndex", roiIndex);
-        //indexes.put("shapeIndex", shapeIndex);
-        //IObjectContainer o = getIObjectContainer(Ellipse.class, indexes);
-        //o.LSID = id;
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setCircleR(java.lang.String, int, int, int)
-	 */
-	public void setCircleR(String r, int imageIndex, int roiIndex,
-			int shapeIndex)
-	{
-		// XXX: Disabled for now
-    	//Ellipse o = getCircle(imageIndex, roiIndex, shapeIndex);
-    	//Double radius = Double.parseDouble(r);
-    	//o.setRx(toRType(radius));
-    	//o.setRy(toRType(radius));
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setCircleTransform(java.lang.String, int, int, int)
-	 */
-	public void setCircleTransform(String transform, int imageIndex,
-			int roiIndex, int shapeIndex)
-	{
-		// XXX: Disabled for now
-    	//Ellipse o = getCircle(imageIndex, roiIndex, shapeIndex);
-    	//o.setTransform(toRType(transform));
-	}
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setContactExperimenter(java.lang.String, int)
-     */
-    public void setContactExperimenter(String arg0, int arg1)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDatasetDescription(java.lang.String, int)
-     */
-    public void setDatasetDescription(String arg0, int arg1)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDatasetExperimenterRef(java.lang.String, int)
-     */
-    public void setDatasetExperimenterRef(String arg0, int arg1)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDatasetGroupRef(java.lang.String, int)
-     */
-    public void setDatasetGroupRef(String arg0, int arg1)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDatasetID(java.lang.String, int)
-     */
-    public void setDatasetID(String arg0, int arg1)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDatasetLocked(java.lang.Boolean, int)
-     */
-    public void setDatasetLocked(Boolean arg0, int arg1)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDatasetName(java.lang.String, int)
-     */
-    public void setDatasetName(String arg0, int arg1)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDatasetRefID(java.lang.String, int, int)
-     */
-    public void setDatasetRefID(String arg0, int arg1, int arg2)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDetectorAmplificationGain(java.lang.Double, int, int)
-     */
-    public void setDetectorAmplificationGain(Double amplificationGain,
-    		                                 int instrumentIndex,
-                                             int detectorIndex)
-    {
-    	Detector o = getDetector(instrumentIndex, detectorIndex);
-    	o.setAmplificationGain(toRType(amplificationGain));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDetectorZoom(java.lang.Double, int, int)
-     */
-    public void setDetectorZoom(Double zoom, int instrumentIndex,
-    		                    int detectorIndex)
-    {
-    	Detector o = getDetector(instrumentIndex, detectorIndex);
-    	o.setZoom(toRType(zoom));
-    }
-
-    /**
-     * @param instrumentIndex
-     * @param dichroicIndex
-     * @return
-     */
-    private Dichroic getDichroic(int instrumentIndex, int dichroicIndex)
-	{
-	    LinkedHashMap<String, Integer> indexes = 
-	    	new LinkedHashMap<String, Integer>();
-	    indexes.put("instrumentIndex", instrumentIndex);
-	    indexes.put("dichroicIndex", dichroicIndex);
-	    return getSourceObject(Dichroic.class, indexes);
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setDichroicLotNumber(java.lang.String, int, int)
-	 */
-	public void setDichroicLotNumber(String lotNumber,
-                                     int instrumentIndex,
-                                     int dichroicIndex)
-    {
-    	Dichroic o = getDichroic(instrumentIndex, dichroicIndex);
-    	o.setLotNumber(toRType(lotNumber));
-    }
-    
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDichroicManufacturer(java.lang.String, int, int)
-     */
-    public void setDichroicManufacturer(String manufacturer,
-    		                            int instrumentIndex,
-    		                            int dichroicIndex)
-    {
-    	Dichroic o = getDichroic(instrumentIndex, dichroicIndex);
-    	o.setManufacturer(toRType(manufacturer));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDichroicModel(java.lang.String, int, int)
-     */
-    public void setDichroicModel(String model,
-                                 int instrumentIndex,
-                                 int dichroicIndex)
-    {
-    	Dichroic o = getDichroic(instrumentIndex, dichroicIndex);
-    	o.setModel(toRType(model));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDisplayOptionsDisplay(java.lang.String, int)
-     */
-    public void setDisplayOptionsDisplay(String arg0, int arg1)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setEllipseID(java.lang.String, int, int, int)
-     */
-    public void setEllipseID(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setEllipseCx(java.lang.String, int, int, int)
-     */
-    public void setEllipseCx(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setEllipseCy(java.lang.String, int, int, int)
-     */
-    public void setEllipseCy(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setEllipseRx(java.lang.String, int, int, int)
-     */
-    public void setEllipseRx(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setEllipseRy(java.lang.String, int, int, int)
-     */
-    public void setEllipseRy(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setEllipseTransform(java.lang.String, int, int, int)
-     */
-    public void setEllipseTransform(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-    
-    /**
-     * @param instrumentIndex
-     * @param filterIndex
-     * @return
-     */
-    private Filter getFilter(int instrumentIndex, int filterIndex)
-    {
-        LinkedHashMap<String, Integer> indexes = 
-        	new LinkedHashMap<String, Integer>();
-        indexes.put("instrumentIndex", instrumentIndex);
-        indexes.put("filterIndex", filterIndex);
-        return getSourceObject(Filter.class, indexes);
-    }
-    
-    /**
-     * @param instrumentIndex
-     * @param filterIndex
-     * @return
-     */
-    private TransmittanceRange getTransmittanceRange(int instrumentIndex,
-    		                                         int filterIndex)
-    {
-    	Filter filter = getFilter(instrumentIndex, filterIndex);
-        TransmittanceRange range = filter.getTransmittanceRange();
-        if (range == null)
-        {
-        	range = new TransmittanceRangeI();
-        	filter.setTransmittanceRange(range);
-        }
-        return range;
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setEmFilterLotNumber(java.lang.String, int, int)
-     */
-    public void setEmFilterLotNumber(String arg0, int arg1, int arg2)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setEmFilterManufacturer(java.lang.String, int, int)
-     */
-    public void setEmFilterManufacturer(String arg0, int arg1, int arg2)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setEmFilterModel(java.lang.String, int, int)
-     */
-    public void setEmFilterModel(String arg0, int arg1, int arg2)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setEmFilterType(java.lang.String, int, int)
-     */
-    public void setEmFilterType(String arg0, int arg1, int arg2)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setExFilterLotNumber(java.lang.String, int, int)
-     */
-    public void setExFilterLotNumber(String arg0, int arg1, int arg2)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setExFilterManufacturer(java.lang.String, int, int)
-     */
-    public void setExFilterManufacturer(String arg0, int arg1, int arg2)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setExFilterModel(java.lang.String, int, int)
-     */
-    public void setExFilterModel(String arg0, int arg1, int arg2)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setExFilterType(java.lang.String, int, int)
-     */
-    public void setExFilterType(String arg0, int arg1, int arg2)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setExperimentExperimenterRef(java.lang.String, int)
-     */
-    public void setExperimentExperimenterRef(String arg0, int arg1)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setExperimenterOMEName(java.lang.String, int)
-     */
-    public void setExperimenterOMEName(String arg0, int arg1)
-    {
-
-        //
-
-    }
-    
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setFilterFilterWheel(java.lang.String, int, int)
-     */
-    public void setFilterFilterWheel(String filterWheel, int instrumentIndex,
-    		                         int filterIndex)
-    {
-    	Filter o = getFilter(instrumentIndex, filterIndex);
-    	o.setFilterWheel(toRType(filterWheel));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setFilterLotNumber(java.lang.String, int, int)
-     */
-    public void setFilterLotNumber(String lotNumber, int instrumentIndex,
-                                   int filterIndex)
-    {
-    	Filter o = getFilter(instrumentIndex, filterIndex);
-    	o.setLotNumber(toRType(lotNumber));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setFilterManufacturer(java.lang.String, int, int)
-     */
-    public void setFilterManufacturer(String lotNumber, int instrumentIndex,
-                                      int filterIndex)
-    {
-    	Filter o = getFilter(instrumentIndex, filterIndex);
-    	o.setLotNumber(toRType(lotNumber));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setFilterModel(java.lang.String, int, int)
-     */
-    public void setFilterModel(String model, int instrumentIndex,
-                               int filterIndex)
-    {
-    	Filter o = getFilter(instrumentIndex, filterIndex);
-    	o.setModel(toRType(model));
-    }
-    
-    /**
-     * @param instrumentIndex
-     * @param filterSetIndex
-     * @return
-     */
-    private FilterSet getFilterSet(int instrumentIndex,
-    		                       int filterSetIndex)
-    {
-    	LinkedHashMap<String, Integer> indexes = 
-    		new LinkedHashMap<String, Integer>();
-    	indexes.put("instrumentIndex", instrumentIndex);
-    	indexes.put("filterSetIndex", filterSetIndex);
-    	return getSourceObject(FilterSet.class, indexes);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setFilterSetDichroic(java.lang.String, int, int)
-     */
-    public void setFilterSetDichroic(String dichroic, int instrumentIndex,
-    		                         int filterSetIndex)
-    {
-        LSID key = new LSID(FilterSet.class, instrumentIndex, filterSetIndex);
-        addReference(key, new LSID(dichroic));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setFilterSetEmFilter(java.lang.String, int, int)
-     */
-    public void setFilterSetEmFilter(String emFilter, int instrumentIndex,
-    		                         int filterSetIndex)
-    {
-    	// XXX: Using this suffix is kind of a gross hack but the reference
-    	// processing logic does not easily handle multiple A --> B or B --> A 
-    	// linkages of the same type so we'll compromise.
-    	// Thu Jul 16 13:34:37 BST 2009 -- Chris Allan <callan@blackcat.ca>
-    	emFilter += OMERO_EMISSION_FILTER_SUFFIX;
-        LSID key = new LSID(FilterSet.class, instrumentIndex, filterSetIndex);
-        addReference(key, new LSID(emFilter));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setFilterSetExFilter(java.lang.String, int, int)
-     */
-    public void setFilterSetExFilter(String exFilter, int instrumentIndex,
-    		                         int filterSetIndex)
-    {
-    	// XXX: Using this suffix is kind of a gross hack but the reference
-    	// processing logic does not easily handle multiple A --> B or B --> A 
-    	// linkages of the same type so we'll compromise.
-    	// Thu Jul 16 13:34:37 BST 2009 -- Chris Allan <callan@blackcat.ca>
-    	exFilter += OMERO_EXCITATION_FILTER_SUFFIX;
-        LSID key = new LSID(FilterSet.class, instrumentIndex, filterSetIndex);
-        addReference(key, new LSID(exFilter));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setFilterSetLotNumber(java.lang.String, int, int)
-     */
-    public void setFilterSetLotNumber(String lotNumber, int instrumentIndex,
-    		                          int filterSetIndex)
-    {
-    	FilterSet o = getFilterSet(instrumentIndex, filterSetIndex);
-    	o.setLotNumber(toRType(lotNumber));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setFilterSetManufacturer(java.lang.String, int, int)
-     */
-    public void setFilterSetManufacturer(String manufacturer,
-    		                             int instrumentIndex,
-    		                             int filterSetIndex)
-    {
-    	FilterSet o = getFilterSet(instrumentIndex, filterSetIndex);
-    	o.setManufacturer(toRType(manufacturer));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setFilterSetModel(java.lang.String, int, int)
-     */
-    public void setFilterSetModel(String model, int instrumentIndex,
-    		                      int filterIndex)
-    {
-    	Filter o = getFilter(instrumentIndex, filterIndex);
-    	o.setModel(toRType(model));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setFilterType(java.lang.String, int, int)
-     */
-    public void setFilterType(String type, int instrumentIndex, int filterIndex)
-    {
-    	Filter o = getFilter(instrumentIndex, filterIndex);
-    	o.setType((FilterType) getEnumeration(FilterType.class, type));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setGroupName(java.lang.String, int)
-     */
-    public void setGroupName(String arg0, int arg1)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setImageAcquiredPixels(java.lang.String, int)
-     */
-    public void setImageAcquiredPixels(String arg0, int arg1)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setImageExperimentRef(java.lang.String, int)
-     */
-    public void setImageExperimentRef(String arg0, int arg1)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setImageExperimenterRef(java.lang.String, int)
-     */
-    public void setImageExperimenterRef(String arg0, int arg1)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setImageGroupRef(java.lang.String, int)
-     */
-    public void setImageGroupRef(String arg0, int arg1)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLaserPockelCell(java.lang.Boolean, int, int)
-     */
-    public void setLaserPockelCell(Boolean pockelCell, int instrumentIndex,
-    		                       int lightSourceIndex)
-    {
-    	Laser o = getLaser(instrumentIndex, lightSourceIndex);
-    	o.setPockelCell(toRType(pockelCell));
-    }
-
-    /**
-     * @param repetitionRate
-     * @param instrumentIndex
-     * @param lightSourceIndex
-     */
-    public void setLaserRepetitionRate(Boolean repetitionRate, 
-    		                           int instrumentIndex,
-    		                           int lightSourceIndex)
-    {
-    	Laser o = getLaser(instrumentIndex, lightSourceIndex);
-    	//o.setRepetitionRate(toRType(repetitionRate));
-    }
-    
-    /**
-     * @param imageIndex
-     * @param microbeamManipulationIndex
-     * @param lightSourceRefIndex
-     * @return
-     */
-    private LightSettings getLightSettings(int imageIndex,
-    		                               int microbeamManipulationIndex,
-    		                               int lightSourceRefIndex)
-    {
-        LinkedHashMap<String, Integer> indexes = 
-        	new LinkedHashMap<String, Integer>();
-        indexes.put("imageIndex", imageIndex);
-        indexes.put("microbeamManipulationIndex", microbeamManipulationIndex);
-        indexes.put("lightSourceRefIndex", lightSourceRefIndex);
-        return getSourceObject(LightSettings.class, indexes);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLightSourceRefAttenuation(java.lang.Double, int, int, int)
-     */
-    public void setLightSourceRefAttenuation(Double attenuation, int imageIndex,
-    		                                 int microbeamManipulationIndex,
-    		                                 int lightSourceRefIndex)
-    {
-    	LightSettings o = getLightSettings(imageIndex,
-    			                           microbeamManipulationIndex,
-    			                           lightSourceRefIndex);
-    	o.setAttenuation(toRType(attenuation));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLightSourceRefLightSource(java.lang.String, int, int, int)
-     */
-    public void setLightSourceRefLightSource(String lightSource, int imageIndex,
-                                             int microbeamManipulationIndex,
-                                             int lightSourceRefIndex)
-    {
-        LSID key = new LSID(LightSettings.class, imageIndex,
-                            microbeamManipulationIndex,
-                            lightSourceRefIndex);
-        addReference(key, new LSID(lightSource));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLightSourceRefWavelength(java.lang.Integer, int, int, int)
-     */
-    public void setLightSourceRefWavelength(Integer wavelength, int imageIndex,
-                                            int microbeamManipulationIndex,
-                                            int lightSourceRefIndex)
-    {
-    	LightSettings o = getLightSettings(imageIndex,
-                                           microbeamManipulationIndex,
-                                           lightSourceRefIndex);
-    	o.setWavelength(toRType(wavelength));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLineID(java.lang.String, int, int, int)
-     */
-    public void setLineID(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLineTransform(java.lang.String, int, int, int)
-     */
-    public void setLineTransform(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLineX1(java.lang.String, int, int, int)
-     */
-    public void setLineX1(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLineX2(java.lang.String, int, int, int)
-     */
-    public void setLineX2(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLineY1(java.lang.String, int, int, int)
-     */
-    public void setLineY1(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLineY2(java.lang.String, int, int, int)
-     */
-    public void setLineY2(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelDetector(java.lang.String, int, int)
-     */
-    public void setLogicalChannelDetector(
-    		String detector, int imageIndex, int logicalChannelIndex)
-    {
-    	log.warn("Handling legacy LogicalChannel --> Detector reference.");
-    	// Create the non-existant DetectorSettings object; it's unlikely
-    	// we'll ever see method calls associated with it because the Reader
-    	// that called us is likely the OMEXMLReader with a 2003FC OME-XML 
-    	// instance document or OME-TIFF.
-    	getDetectorSettings(imageIndex, logicalChannelIndex);
-    	setDetectorSettingsDetector(detector, imageIndex, logicalChannelIndex);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelFilterSet(java.lang.String, int, int)
-     */
-    public void setLogicalChannelFilterSet(
-    		String filterSet, int imageIndex, int logicalChannelIndex)
-    {
-        LSID key = new LSID(LogicalChannel.class, imageIndex,
-                            logicalChannelIndex);
-        addReference(key, new LSID(filterSet));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelLightSource(java.lang.String, int, int)
-     */
-    public void setLogicalChannelLightSource(
-    		String lightSource, int imageIndex, int logicalChannelIndex)
-    {
-    	log.warn("Handling legacy LogicalChannel --> LightSource reference.");
-    	// Create the non-existant LightSettings object; it's unlikely
-    	// we'll ever see method calls associated with it because the Reader
-    	// that called us is likely the OMEXMLReader with a 2003FC OME-XML 
-    	// instance document or OME-TIFF.
-    	getLightSettings(imageIndex, logicalChannelIndex);
-    	setLightSourceSettingsLightSource(lightSource, imageIndex,
-    			                          logicalChannelIndex);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelSecondaryEmissionFilter(java.lang.String, int, int)
-     */
-    public void setLogicalChannelSecondaryEmissionFilter(
-    		String secondaryEmissionFilter, int imageIndex,
-    		int logicalChannelIndex)
-    {
-    	// XXX: Using this suffix is kind of a gross hack but the reference
-    	// processing logic does not easily handle multiple A --> B or B --> A 
-    	// linkages of the same type so we'll compromise.
-    	// Thu Jul  2 12:08:19 BST 2009 -- Chris Allan <callan@blackcat.ca>
-    	secondaryEmissionFilter += OMERO_EMISSION_FILTER_SUFFIX;
-        LSID key = new LSID(LogicalChannel.class, imageIndex,
-	                        logicalChannelIndex);
-        addReference(key, new LSID(secondaryEmissionFilter));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLogicalChannelSecondaryExcitationFilter(java.lang.String, int, int)
-     */
-    public void setLogicalChannelSecondaryExcitationFilter(
-    		String secondaryExcitationFilter, int imageIndex,
-    		int logicalChannelIndex)
-    {
-    	// XXX: Using this suffix is kind of a gross hack but the reference
-    	// processing logic does not easily handle multiple A --> B or B --> A 
-    	// linkages of the same type so we'll compromise.
-    	// Thu Jul  2 12:08:19 BST 2009 -- Chris Allan <callan@blackcat.ca>
-    	secondaryExcitationFilter += OMERO_EXCITATION_FILTER_SUFFIX;
-        LSID key = new LSID(LogicalChannel.class, imageIndex,
-        		            logicalChannelIndex);
-        addReference(key, new LSID(secondaryExcitationFilter));
-    }
-    
-    /**
-     * @param imageIndex
-     * @param roiIndex
-     * @param shapeIndex
-     * @return
-     */
-    public Mask getMask(int imageIndex, int roiIndex, int shapeIndex)
-    {
-        LinkedHashMap<String, Integer> indexes =
-        	new LinkedHashMap<String, Integer>();
-        indexes.put("imageIndex", imageIndex);
-        indexes.put("roiIndex", roiIndex);
-        indexes.put("shapeIndex", shapeIndex);
-        return getSourceObject(Mask.class, indexes);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMaskHeight(java.lang.String, int, int, int)
-     */
-    public void setMaskHeight(String height, int imageIndex, int roiIndex, int shapeIndex)
-    {
-    	// XXX: Disabled for now
-    	//Mask o = getMask(imageIndex, roiIndex, shapeIndex);
-    	//o.setHeight(toRType(Double.parseDouble(height)));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMaskID(java.lang.String, int, int, int)
-     */
-    public void setMaskID(String id, int imageIndex, int roiIndex, int shapeIndex)
-    {
-    	// XXX: Disabled for now
-    	//checkDuplicateLSID(Mask.class, id);
-        //LinkedHashMap<String, Integer> indexes =
-        //	new LinkedHashMap<String, Integer>();
-        //indexes.put("imageIndex", imageIndex);
-        //indexes.put("roiIndex", roiIndex);
-        //indexes.put("shapeIndex", shapeIndex);
-        //IObjectContainer o = getIObjectContainer(Mask.class, indexes);
-        //o.LSID = id;
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMaskTransform(java.lang.String, int, int, int)
-     */
-    public void setMaskTransform(String transform, int imageIndex, int roiIndex, int shapeIndex)
-    {
-    	// XXX: Disabled for now
-    	//Mask o = getMask(imageIndex, roiIndex, shapeIndex);
-    	//o.setTransform(toRType(transform));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMaskWidth(java.lang.String, int, int, int)
-     */
-    public void setMaskWidth(String width, int imageIndex, int roiIndex, int shapeIndex)
-    {
-    	// XXX: Disabled for now
-    	//Mask o = getMask(imageIndex, roiIndex, shapeIndex);
-    	//o.setWidth(toRType(Double.parseDouble(width)));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMaskX(java.lang.String, int, int, int)
-     */
-    public void setMaskX(String x, int imageIndex, int roiIndex, int shapeIndex)
-    {
-    	// XXX: Disabled for now
-    	//Mask o = getMask(imageIndex, roiIndex, shapeIndex);
-    	//o.setX(toRType(Double.parseDouble(x)));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMaskY(java.lang.String, int, int, int)
-     */
-    public void setMaskY(String y, int imageIndex, int roiIndex, int shapeIndex)
-    {
-    	// XXX: Disabled for now
-    	//Mask o = getMask(imageIndex, roiIndex, shapeIndex);
-    	//o.setY(toRType(Double.parseDouble(y)));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMaskPixelsBigEndian(java.lang.Boolean, int, int, int)
-     */
-    public void setMaskPixelsBigEndian(Boolean bigEndian, int imageIndex, int roiIndex, int shapeIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMaskPixelsBinData(byte[], int, int, int)
-     */
-    public void setMaskPixelsBinData(byte[] binData, int imageIndex, int roiIndex, int shapeIndex)
-    {
-    	// XXX: Disabled for now
-    	//Mask o = getMask(imageIndex, roiIndex, shapeIndex);
-    	//o.setBytes(binData);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMaskPixelsExtendedPixelType(java.lang.String, int, int, int)
-     */
-    public void setMaskPixelsExtendedPixelType(String extendedPixelType, int imageIndex, int roiIndex, int shapeIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMaskPixelsID(java.lang.String, int, int, int)
-     */
-    public void setMaskPixelsID(String id, int imageIndex, int roiIndex, int shapeIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMaskPixelsSizeX(java.lang.Integer, int, int, int)
-     */
-    public void setMaskPixelsSizeX(Integer sizeX, int imageIndex, int roiIndex, int shapeIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMaskPixelsSizeY(java.lang.Integer, int, int, int)
-     */
-    public void setMaskPixelsSizeY(Integer sizeY, int imageIndex, int roiIndex, int shapeIndex)
-    {
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationExperimenterRef(java.lang.String, int, int)
-     */
-    public void setMicrobeamManipulationExperimenterRef(String arg0, int arg1,
-            int arg2)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationID(java.lang.String, int, int)
-     */
-    public void setMicrobeamManipulationID(String arg0, int arg1, int arg2)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationRefID(java.lang.String, int, int)
-     */
-    public void setMicrobeamManipulationRefID(String arg0, int arg1, int arg2)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationType(java.lang.String, int, int)
-     */
-    public void setMicrobeamManipulationType(String arg0, int arg1, int arg2)
-    {
-
-        //
-
-    }
-    
-    /**
-     * @param instrumentIndex
-     * @return
-     */
-    private Microscope getMicroscope(int instrumentIndex)
-    {
-    	Instrument instrument = getInstrument(instrumentIndex);
-    	Microscope microscope = instrument.getMicroscope();
-    	if (microscope == null)
-    	{
-    		microscope = new MicroscopeI();
-    		instrument.setMicroscope(microscope);
-    	}
-    	return microscope;
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMicroscopeID(java.lang.String, int)
-     */
-    public void setMicroscopeID(String id, int instrumentIndex)
-    {
-    	// TODO: Not in model, etc.
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMicroscopeManufacturer(java.lang.String, int)
-     */
-    public void setMicroscopeManufacturer(String manufacturer,
-    		                              int instrumentIndex)
-    {
-    	Microscope o = getMicroscope(instrumentIndex);
-    	o.setManufacturer(toRType(manufacturer));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMicroscopeModel(java.lang.String, int)
-     */
-    public void setMicroscopeModel(String model, int instrumentIndex)
-    {
-    	Microscope o = getMicroscope(instrumentIndex);
-    	o.setModel(toRType(model));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMicroscopeSerialNumber(java.lang.String, int)
-     */
-    public void setMicroscopeSerialNumber(String serialNumber,
-    		                              int instrumentIndex)
-    {
-    	Microscope o = getMicroscope(instrumentIndex);
-    	o.setSerialNumber(toRType(serialNumber));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMicroscopeType(java.lang.String, int)
-     */
-    public void setMicroscopeType(String type, int instrumentIndex)
-    {
-    	Microscope o = getMicroscope(instrumentIndex);
-    	o.setType((MicroscopeType) getEnumeration(MicroscopeType.class, type));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setOTFBinaryFile(java.lang.String, int, int)
-     */
-    public void setOTFBinaryFile(String arg0, int arg1, int arg2)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlaneHashSHA1(java.lang.String, int, int, int)
-     */
-    public void setPlaneHashSHA1(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlaneID(java.lang.String, int, int, int)
-     */
-    public void setPlaneID(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlateRefSample(java.lang.Integer, int, int)
-     */
-    public void setPlateRefSample(Integer arg0, int arg1, int arg2)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlateRefWell(java.lang.String, int, int)
-     */
-    public void setPlateRefWell(String arg0, int arg1, int arg2)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPointID(java.lang.String, int, int, int)
-     */
-    public void setPointID(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPointCx(java.lang.String, int, int, int)
-     */
-    public void setPointCx(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPointCy(java.lang.String, int, int, int)
-     */
-    public void setPointCy(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPointR(java.lang.String, int, int, int)
-     */
-    public void setPointR(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPointTransform(java.lang.String, int, int, int)
-     */
-    public void setPointTransform(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPolygonID(java.lang.String, int, int, int)
-     */
-    public void setPolygonID(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPolygonPoints(java.lang.String, int, int, int)
-     */
-    public void setPolygonPoints(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPolygonTransform(java.lang.String, int, int, int)
-     */
-    public void setPolygonTransform(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPolylineID(java.lang.String, int, int, int)
-     */
-    public void setPolylineID(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPolylinePoints(java.lang.String, int, int, int)
-     */
-    public void setPolylinePoints(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPolylineTransform(java.lang.String, int, int, int)
-     */
-    public void setPolylineTransform(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setProjectDescription(java.lang.String, int)
-     */
-    public void setProjectDescription(String arg0, int arg1)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setProjectExperimenterRef(java.lang.String, int)
-     */
-    public void setProjectExperimenterRef(String arg0, int arg1)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setProjectGroupRef(java.lang.String, int)
-     */
-    public void setProjectGroupRef(String arg0, int arg1)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setProjectID(java.lang.String, int)
-     */
-    public void setProjectID(String arg0, int arg1)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setProjectName(java.lang.String, int)
-     */
-    public void setProjectName(String arg0, int arg1)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setProjectRefID(java.lang.String, int, int)
-     */
-    public void setProjectRefID(String arg0, int arg1, int arg2)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPumpLightSource(java.lang.String, int, int)
-     */
-    public void setPumpLightSource(String lightSource, int instrumentIndex,
-    		                       int lightSourceIndex)
-    {
-        LSID key = new LSID(LightSource.class, instrumentIndex,
-        		            lightSourceIndex);
-        addReference(key, new LSID(lightSource));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setROIRefID(java.lang.String, int, int, int)
-     */
-    public void setROIRefID(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setRectID(java.lang.String, int, int, int)
-     */
-    public void setRectID(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setRectHeight(java.lang.String, int, int, int)
-     */
-    public void setRectHeight(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setRectTransform(java.lang.String, int, int, int)
-     */
-    public void setRectTransform(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setRectWidth(java.lang.String, int, int, int)
-     */
-    public void setRectWidth(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setRectX(java.lang.String, int, int, int)
-     */
-    public void setRectX(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setRectY(java.lang.String, int, int, int)
-     */
-    public void setRectY(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setRegionID(java.lang.String, int, int)
-     */
-    public void setRegionID(String arg0, int arg1, int arg2)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setRegionName(java.lang.String, int, int)
-     */
-    public void setRegionName(String arg0, int arg1, int arg2)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setRegionTag(java.lang.String, int, int)
-     */
-    public void setRegionTag(String arg0, int arg1, int arg2)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setScreenDescription(java.lang.String, int)
-     */
-    public void setScreenDescription(String description, int screenIndex)
-    {
-    	//Screen o = getScreen(screenIndex);
-    	//o.setDescription(toRType(description));
-    	// Disabled
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setScreenExtern(java.lang.String, int)
-     */
-    public void setScreenExtern(String extern, int screenIndex)
-    {
-    	//
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setScreenReagentSetIdentifier(java.lang.String, int)
-     */
-    public void setScreenReagentSetIdentifier(String reagentSetIdentifier,
-    		                                  int screenIndex)
-    {
-    	//Screen o = getScreen(screenIndex);
-    	//o.setReagentSetIdentifier(toRType(reagentSetIdentifier));
-    	// Disabled
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setScreenRefID(java.lang.String, int, int)
-     */
-    public void setScreenRefID(String arg0, int arg1, int arg2)
-    {
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setThumbnailID(java.lang.String, int)
-     */
-    public void setThumbnailID(String arg0, int arg1)
-    {
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setThumbnailMIMEtype(java.lang.String, int)
-     */
-    public void setThumbnailMIMEtype(String arg0, int arg1)
-    {
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setThumbnailHref(java.lang.String, int)
-     */
-    public void setThumbnailHref(String arg0, int arg1)
-    {
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setTransmittanceRangeCutIn(java.lang.Integer, int, int)
-     */
-    public void setTransmittanceRangeCutIn(Integer cutIn, int instrumentIndex,
-    		                               int filterIndex)
-    {
-    	TransmittanceRange o = getTransmittanceRange(instrumentIndex,
-                                                     filterIndex);
-        o.setCutIn(toRType(cutIn));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setTransmittanceRangeCutInTolerance(java.lang.Integer, int, int)
-     */
-    public void setTransmittanceRangeCutInTolerance(Integer cutInTolerance,
-    		                                        int instrumentIndex,
-    		                                        int filterIndex)
-    {
-    	TransmittanceRange o = getTransmittanceRange(instrumentIndex,
-                                                     filterIndex);
-    	o.setCutInTolerance(toRType(cutInTolerance));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setTransmittanceRangeCutOut(java.lang.Integer, int, int)
-     */
-    public void setTransmittanceRangeCutOut(Integer cutOut, 
-    		                                int instrumentIndex,
-    		                                int filterIndex)
-    {
-    	TransmittanceRange o = getTransmittanceRange(instrumentIndex,
-                                                     filterIndex);
-    	o.setCutOut(toRType(cutOut));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setTransmittanceRangeCutOutTolerance(java.lang.Integer, int, int)
-     */
-    public void setTransmittanceRangeCutOutTolerance(Integer cutOutTolerance,
-    		                                         int instrumentIndex,
-    		                                         int filterIndex)
-    {
-    	TransmittanceRange o = getTransmittanceRange(instrumentIndex,
-                                                     filterIndex);
-    	o.setCutOutTolerance(toRType(cutOutTolerance));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setTransmittanceRangeTransmittance(java.lang.Integer, int, int)
-     */
-    public void setTransmittanceRangeTransmittance(Integer transmittance,
-    		                                       int instrumentIndex,
-    		                                       int filterIndex)
-    {
-    	TransmittanceRange o = getTransmittanceRange(instrumentIndex,
-    			                                     filterIndex);
-    	// TODO: Hack, model has integer, database has double
-    	o.setTransmittance(toRType(new Double(transmittance)));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setWellReagent(java.lang.String, int, int)
-     */
-    public void setWellReagent(String reagent, int plateIndex, int wellIndex)
-    {
-        LSID key = new LSID(Well.class, plateIndex, wellIndex);
-        addReference(key, new LSID(reagent));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setWellSampleImageRef(java.lang.String, int, int, int)
-     */
-    public void setWellSampleImageRef(String image, int plateIndex, 
-            int wellIndex, int wellSampleIndex)
-    {
-        LSID key = new LSID(WellSample.class, plateIndex,
-        		            wellIndex, wellSampleIndex);
-        addReference(key, new LSID(image));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setWellSampleRefID(java.lang.String, int, int, int)
-     */
-    public void setWellSampleRefID(String arg0, int arg1, int arg2, int arg3)
-    {
-    	//
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlateColumnNamingConvention(java.lang.String, int)
-     */
-    public void setPlateColumnNamingConvention(String columnNamingConvention,
-    		                                   int plateIndex)
-    {
-        Plate o = getPlate(plateIndex);
-        o.setColumnNamingConvention(toRType(columnNamingConvention));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlateRowNamingConvention(java.lang.String, int)
-     */
-    public void setPlateRowNamingConvention(String rowNamingConvention,
-    		                                int plateIndex)
-    {
-        Plate o = getPlate(plateIndex);
-        o.setRowNamingConvention(toRType(rowNamingConvention));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlateWellOriginX(java.lang.Double, int)
-     */
-    public void setPlateWellOriginX(Double wellOriginX, int plateIndex)
-    {
-        Plate o = getPlate(plateIndex);
-        o.setWellOriginX(toRType(wellOriginX));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlateWellOriginY(java.lang.Double, int)
-     */
-    public void setPlateWellOriginY(Double wellOriginY, int plateIndex)
-    {
-        Plate o = getPlate(plateIndex);
-        o.setWellOriginX(toRType(wellOriginY));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPathD(java.lang.String, int, int, int)
-     */
-    public void setPathD(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPathID(java.lang.String, int, int, int)
-     */
-    public void setPathID(String arg0, int arg1, int arg2, int arg3)
-    {
-
-        //
-
-    }
-    
-    /**
-     * @param imageIndex
-     * @param roiIndex
-     * @param shapeIndex
-     * @return
-     */
-    private Shape getShape(int imageIndex, int roiIndex, int shapeIndex)
-    {
-        LinkedHashMap<String, Integer> indexes =
-        	new LinkedHashMap<String, Integer>();
-        indexes.put("imageIndex", imageIndex);
-        indexes.put("roiIndex", roiIndex);
-        indexes.put("shapeIndex", shapeIndex);
-        return getSourceObject(Shape.class, indexes);
-    }
-    
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setShapeBaselineShift(java.lang.String, int, int, int)
-     */
-    public void setShapeBaselineShift(String baselineShift, int imageIndex,
-			int roiIndex, int shapeIndex)
-    {
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setShapeDirection(java.lang.String, int, int, int)
-	 */
-	public void setShapeDirection(String direction, int imageIndex,
-			int roiIndex, int shapeIndex)
-	{
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setShapeFillColor(java.lang.String, int, int, int)
-	 */
-	public void setShapeFillColor(String fillColor, int imageIndex,
-			int roiIndex, int shapeIndex) {
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setShapeFillOpacity(java.lang.String, int, int, int)
-	 */
-	public void setShapeFillOpacity(String fillOpacity, int imageIndex,
-			int roiIndex, int shapeIndex) {
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setShapeFillRule(java.lang.String, int, int, int)
-	 */
-	public void setShapeFillRule(String fillRule, int imageIndex, int roiIndex,
-			int shapeIndex) {
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setShapeFontFamily(java.lang.String, int, int, int)
-	 */
-	public void setShapeFontFamily(String fontFamily, int imageIndex,
-			int roiIndex, int shapeIndex) {
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setShapeFontSize(java.lang.Integer, int, int, int)
-	 */
-	public void setShapeFontSize(Integer fontSize, int imageIndex,
-			int roiIndex, int shapeIndex) {
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setShapeFontStretch(java.lang.String, int, int, int)
-	 */
-	public void setShapeFontStretch(String fontStretch, int imageIndex,
-			int roiIndex, int shapeIndex) {
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setShapeFontStyle(java.lang.String, int, int, int)
-	 */
-	public void setShapeFontStyle(String fontStyle, int imageIndex,
-			int roiIndex, int shapeIndex) {
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setShapeFontVariant(java.lang.String, int, int, int)
-	 */
-	public void setShapeFontVariant(String fontVariant, int imageIndex,
-			int roiIndex, int shapeIndex) {
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setShapeFontWeight(java.lang.String, int, int, int)
-	 */
-	public void setShapeFontWeight(String fontWeight, int imageIndex,
-			int roiIndex, int shapeIndex) {
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setShapeG(java.lang.String, int, int, int)
-	 */
-	public void setShapeG(String g, int imageIndex, int roiIndex, int shapeIndex) {
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setShapeGlyphOrientationVertical(java.lang.Integer, int, int, int)
-	 */
-	public void setShapeGlyphOrientationVertical(
-			Integer glyphOrientationVertical, int imageIndex, int roiIndex,
-			int shapeIndex) {
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setShapeID(java.lang.String, int, int, int)
-	 */
-	public void setShapeID(String id, int imageIndex, int roiIndex,
-			int shapeIndex) {
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setShapeLocked(java.lang.Boolean, int, int, int)
-	 */
-	public void setShapeLocked(Boolean locked, int imageIndex, int roiIndex,
-			int shapeIndex) {
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setShapeStrokeAttribute(java.lang.String, int, int, int)
-	 */
-	public void setShapeStrokeAttribute(String strokeAttribute, int imageIndex,
-			int roiIndex, int shapeIndex) {
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setShapeStrokeColor(java.lang.String, int, int, int)
-	 */
-	public void setShapeStrokeColor(String strokeColor, int imageIndex,
-			int roiIndex, int shapeIndex) {
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setShapeStrokeDashArray(java.lang.String, int, int, int)
-	 */
-	public void setShapeStrokeDashArray(String strokeDashArray, int imageIndex,
-			int roiIndex, int shapeIndex) {
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setShapeStrokeLineCap(java.lang.String, int, int, int)
-	 */
-	public void setShapeStrokeLineCap(String strokeLineCap, int imageIndex,
-			int roiIndex, int shapeIndex) {
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setShapeStrokeLineJoin(java.lang.String, int, int, int)
-	 */
-	public void setShapeStrokeLineJoin(String strokeLineJoin, int imageIndex,
-			int roiIndex, int shapeIndex) {
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setShapeStrokeMiterLimit(java.lang.Integer, int, int, int)
-	 */
-	public void setShapeStrokeMiterLimit(Integer strokeMiterLimit,
-			int imageIndex, int roiIndex, int shapeIndex) {
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setShapeStrokeOpacity(java.lang.Double, int, int, int)
-	 */
-	public void setShapeStrokeOpacity(Double strokeOpacity, int imageIndex,
-			int roiIndex, int shapeIndex) {
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setShapeStrokeWidth(java.lang.Integer, int, int, int)
-	 */
-	public void setShapeStrokeWidth(Integer strokeWidth, int imageIndex,
-			int roiIndex, int shapeIndex) {
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setShapeText(java.lang.String, int, int, int)
-	 */
-	public void setShapeText(String text, int imageIndex, int roiIndex,
-			int shapeIndex) {
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setShapeTextAnchor(java.lang.String, int, int, int)
-	 */
-	public void setShapeTextAnchor(String textAnchor, int imageIndex,
-			int roiIndex, int shapeIndex) {
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setShapeTextDecoration(java.lang.String, int, int, int)
-	 */
-	public void setShapeTextDecoration(String textDecoration, int imageIndex,
-			int roiIndex, int shapeIndex) {
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setShapeTextFill(java.lang.String, int, int, int)
-	 */
-	public void setShapeTextFill(String textFill, int imageIndex, int roiIndex,
-			int shapeIndex) {
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setShapeTextStroke(java.lang.String, int, int, int)
-	 */
-	public void setShapeTextStroke(String textStroke, int imageIndex,
-			int roiIndex, int shapeIndex) {
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setShapeTheT(java.lang.Integer, int, int, int)
-	 */
-	public void setShapeTheT(Integer theT, int imageIndex, int roiIndex,
-			int shapeIndex) {
-		// XXx: Disabled for now
-		//Shape o = getShape(imageIndex, roiIndex, shapeIndex);
-		//o.setTheT(toRType(theT));
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setShapeTheZ(java.lang.Integer, int, int, int)
-	 */
-	public void setShapeTheZ(Integer theZ, int imageIndex, int roiIndex,
-			int shapeIndex) {
-		// XXX: Disabled for now
-		//Shape o = getShape(imageIndex, roiIndex, shapeIndex);
-		//o.setTheZ(toRType(theZ));
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setShapeVectorEffect(java.lang.String, int, int, int)
-	 */
-	public void setShapeVectorEffect(String vectorEffect, int imageIndex,
-			int roiIndex, int shapeIndex) {
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setShapeVisibility(java.lang.Boolean, int, int, int)
-	 */
-	public void setShapeVisibility(Boolean visibility, int imageIndex,
-			int roiIndex, int shapeIndex) {
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setShapeWritingMode(java.lang.String, int, int, int)
-	 */
-	public void setShapeWritingMode(String writingMode, int imageIndex,
-			int roiIndex, int shapeIndex) {
-	}
-
-
-   /*-----------*/
+    /*-------------------*/
     
 	/**
-	 * @author Brian Loranger brain at lifesci.dundee.ac.uk
-	 *
-	 */
-    public class SortProjectsByName implements Comparator<Project>{
-        public int compare(Project o1, Project o2)
-        {
-            return o1.getName().getValue().compareTo(o2.getName().getValue());
-        }
-     }
-    
-    /**
-     * @author Brian Loranger brain at lifesci.dundee.ac.uk
-     *
-     */   
-    public class SortDatasetsByName implements Comparator<Dataset>{
-        public int compare(Dataset o1, Dataset o2)
-        {
-            return o1.getName().getValue().compareTo(o2.getName().getValue());
-        }
-     }
-    
-
-    /**
      * Based on immmersion table bug in 4.0 this is a hack to fix in code those enums missing/broken
      * 
      *  replace l1[0:3] (['Gly', 'Hl', 'Oel']) l2[0:3] (['Air', 'Glycerol', 'Multi'])
@@ -6334,89 +2289,5566 @@ public class OMEROMetadataStoreClient
         }
     }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setDichroicID(java.lang.String, int, int)
-	 */
-	public void setDichroicID(String id, int instrumentIndex, int dichroicIndex)
-	{
-		checkDuplicateLSID(Dichroic.class, id);
-        LinkedHashMap<String, Integer> indexes = 
-        	new LinkedHashMap<String, Integer>();
-        indexes.put("instrumentIndex", instrumentIndex);
-        indexes.put("dichroicIndex", dichroicIndex);
+    
+    //////////////////////////////////////////////
+    
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#getIObjectContainer(java.lang.Class, java.util.LinkedHashMap)
+     */
+    public IObjectContainer getIObjectContainer(Class<? extends IObject> klass,
+                                                LinkedHashMap<Index, Integer> indexes)
+    {
+        // Transform an integer collection into an integer array without using
+        // wrapper objects.
+        Collection<Integer> indexValues = indexes.values();
+        int[] indexesArray = new int[indexValues.size()];
+        int i = 0;
+        for (Integer index : indexValues)
+        {
+            indexesArray[i] = index;
+            i++;
+        }
+        
+        // Create a new LSID.
+        LSID lsid = new LSID(klass, indexesArray);
+        
+        // Because of the LightSource abstract type, here we need to handle
+        // the upcast to the "real" concrete type and the correct LSID
+        // mapping.
+        if ((klass.equals(Arc.class) || klass.equals(Laser.class)
+            || klass.equals(Filament.class))
+            && !containerCache.containsKey(lsid))
+        {
+        	IObjectContainer toReturn = 
+        		handleAbstractLightSource(klass, indexes, lsid);
+        	if (toReturn != null)
+        	{
+        		return toReturn;
+        	}
+        }
+        // Because of the Shape abstract type, here we need to handle
+        // the upcast to the "real" concrete type and the correct LSID
+        // mapping.
+        if ((klass.equals(Label.class) || klass.equals(Rect.class)
+            || klass.equals(Mask.class) || klass.equals(Ellipse.class)
+            || klass.equals(Point.class) || klass.equals(Path.class)
+            || klass.equals(Polygon.class) || klass.equals(Line.class))
+            && !containerCache.containsKey(lsid))
+        {
+        	IObjectContainer toReturn = 
+        		handleAbstractShape(klass, indexes, lsid);
+        	if (toReturn != null)
+        	{
+        		return toReturn;
+        	}
+        }
+        // We may have first had a concrete method call request, put the object
+        // in a container and in the cache. Now we have a request with only the
+        // abstract type's class to give us LSID resolution and must handle 
+        // that as well.
+        if (klass.equals(LightSource.class)
+            && !containerCache.containsKey(lsid))
+        {
+            Class<?>[] concreteClasses = 
+                new Class<?>[] { Arc.class, Laser.class, Filament.class };
+            for (Class<?> concreteClass : concreteClasses)
+            {
+                LSID lsLSID = new LSID(concreteClass,
+                                       indexes.get(Index.INSTRUMENT_INDEX.getValue()),
+                                       indexes.get(Index.LIGHT_SOURCE_INDEX.getValue()));
+                if (containerCache.containsKey(lsLSID))
+                {
+                    return containerCache.get(lsLSID);
+                }
+            }
+        }
+        if (klass.equals(Shape.class)
+            && !containerCache.containsKey(lsid))
+        {
+            Class<?>[] concreteClasses = 
+                new Class<?>[] { Label.class, Rect.class, Mask.class, Ellipse.class,
+            		          Point.class, Path.class, Polygon.class,
+            		          Line.class };
+            for (Class<?> concreteClass : concreteClasses)
+            {
+                LSID shapeLSID = new LSID(concreteClass,
+                                          indexes.get(Index.IMAGE_INDEX.getValue()),
+                                          indexes.get(Index.ROI_INDEX.getValue()),
+                                          indexes.get(Index.SHAPE_INDEX.getValue()));
+                if (containerCache.containsKey(shapeLSID))
+                {
+                    return containerCache.get(shapeLSID);
+                }
+            }
+        }
+        
+        Map<String, Integer> asString = new HashMap<String, Integer>();
+        for (Entry<Index, Integer> v : indexes.entrySet())
+        {
+            asString.put(v.getKey().toString(), v.getValue());
+        }
+        
+        if (!containerCache.containsKey(lsid))
+        {
+            IObjectContainer c = new IObjectContainer();
+            c.indexes = asString;
+            c.LSID = lsid.toString();
+            c.sourceObject = getSourceObjectInstance(klass);
+            containerCache.put(lsid, c);
+        }
+        
+        return containerCache.get(lsid);
+    }
+    
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#removeIObjectContainer(ome.util.LSID)
+     */
+    public void removeIObjectContainer(LSID lsid)
+    {
+    	containerCache.remove(lsid);
+    }
+    
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#getIObjectContainers(java.lang.Class)
+     */
+    @SuppressWarnings("unchecked")
+    public List<IObjectContainer> getIObjectContainers(Class<? extends IObject> klass)
+    {
+        Set<LSID> keys = containerCache.keySet();
+        List<IObjectContainer> toReturn = new ArrayList<IObjectContainer>();
+        for (LSID key : keys)
+        {
+            Class<? extends IObject> keyClass = key.getJavaClass();
+            if (keyClass != null && keyClass.equals(klass))
+            {
+                toReturn.add(containerCache.get(key));
+            }
+        }
+        return toReturn;
+    }
+    
+    /**
+     * Performs the task of actual source object instantiation using
+     * reflection.
+     * @param klass Class to instantiate a source object for.
+     * @return An OMERO Blitz model object.
+     */
+    private <T extends IObject> T getSourceObjectInstance(Class<T> klass)
+    {
+        return instanceProvider.getInstance(klass);
+    }
+        
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#countCachedContainers(java.lang.Class, int[])
+     */
+    @SuppressWarnings("unchecked")
+    public int countCachedContainers(Class<? extends IObject> klass,
+                                     int... indexes)
+    {
+        if (klass == null)
+        {
+            return new HashSet<IObjectContainer>(containerCache.values()).size();
+        }
+        
+        int count = 0;
+        for (LSID lsid : containerCache.keySet())
+        {
+            Class<? extends IObject> lsidClass = lsid.getJavaClass();
+            if (lsidClass != null && lsidClass.equals(klass))
+            {
+                if (indexes == null)
+                {
+                	// We're just doing a class match, increment the count
+                	count++;
+                }
+                else
+                {
+                	// We're doing a class and index match, loop over and
+                	// check the indexes based on the shortest array.
+                    int[] lsidIndexes = lsid.getIndexes();
+                    int n = Math.min(indexes.length, lsidIndexes.length);
+                    boolean match = true;
+                    for (int i = 0; i < n; i++)
+                    {
+                        if (lsidIndexes[i] != indexes[i])
+                        {
+                            match = false;
+                            break;
+                        }
+                    }
+                    if (match)
+                    {
+                    	count++;
+                    }
+                }
+            }
+        }
+        return count;
+    }
+    
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#countCachedReferences(java.lang.Class, java.lang.Class)
+     */
+    public int countCachedReferences(Class<? extends IObject> source,
+                                     Class<? extends IObject> target)
+    {
+        if (source == null && target == null)
+        {
+        	int count = 0;
+        	for (LSID key : referenceCache.keySet())
+        	{
+        		count += referenceCache.get(key).size();
+        	}
+        	return count;
+        }
+        
+        int count = 0;
+        if (target == null)
+        {
+            for (LSID lsid : referenceCache.keySet())
+            {
+                Class<?> containerClass = lsid.getJavaClass();
+                if (containerClass.equals(source))
+                {
+                    count++;
+                }
+            }
+            return count;
+        }
+        
+        if (source == null)
+        {
+        	for (LSID sourceLSID : referenceCache.keySet())
+        	{
+        		for (LSID targetLSID : referenceCache.get(sourceLSID))
+        		{
+        			Class<?> containerClass = targetLSID.getJavaClass();
+        			if (containerClass.equals(target))
+        			{
+        				count++;
+        			}
+        		}
+        	}
+            return count;
+        }
+        
+        for (LSID sourceLSID : referenceCache.keySet())
+        {
+            Class<?> sourceClass = sourceLSID.getJavaClass();
+            if (sourceClass.equals(source))
+            {
+            	for (LSID targetLSID : referenceCache.get(sourceLSID))
+            	{
+            		Class<?> targetClass = targetLSID.getJavaClass();
+            		if (targetClass.equals(target))
+            		{
+            			count++;
+            		}
+            	}
+            }
+        }
+        return count;
+    }
+
+    
+    
+    
+    /*
+     * 
+     * Bio-formats method calls start here
+     * 
+     */
+    
+    
+    //////// Arc /////////
+    
+    /**
+     * Retrieve Arc
+     * @param instrumentIndex
+     * @param lightSourceIndex
+     * @return
+     */
+    private Arc getArc(int instrumentIndex, int lightSourceIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
+        indexes.put(Index.LIGHT_SOURCE_INDEX, lightSourceIndex);
+        return getSourceObject(Arc.class, indexes);
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setArcID(java.lang.String, int, int)
+     */
+    public void setArcID(String id, int instrumentIndex, int lightSourceIndex)
+    {
+        checkDuplicateLSID(Arc.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
+        indexes.put(Index.LIGHT_SOURCE_INDEX, lightSourceIndex);
+        IObjectContainer o = getIObjectContainer(Arc.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(Arc.class, id, o);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setArcLotNumber(java.lang.String, int, int)
+     */
+    public void setArcLotNumber(String lotNumber, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        // TODO property is ignored
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setArcManufacturer(java.lang.String, int, int)
+     */
+    public void setArcManufacturer(String manufacturer, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        Arc o = getArc(instrumentIndex, lightSourceIndex);
+        o.setManufacturer(toRType(manufacturer));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setArcModel(java.lang.String, int, int)
+     */
+    public void setArcModel(String model, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        Arc o = getArc(instrumentIndex, lightSourceIndex);
+        o.setModel(toRType(model));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setArcPower(java.lang.Double, int, int)
+     */
+    public void setArcPower(Double power, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        Arc o = getArc(instrumentIndex, lightSourceIndex);
+        o.setPower(toRType(power));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setArcSerialNumber(java.lang.String, int, int)
+     */
+    public void setArcSerialNumber(String serialNumber, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        Arc o = getArc(instrumentIndex, lightSourceIndex);
+        o.setSerialNumber(toRType(serialNumber));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setArcType(ome.xml.r201004.enums.ArcType, int, int)
+     */
+    public void setArcType(ome.xml.r201004.enums.ArcType type,
+            int instrumentIndex, int lightSourceIndex)
+    {
+        Arc o = getArc(instrumentIndex, lightSourceIndex);
+        o.setType((ArcType) getEnumeration(ArcType.class, type.toString()));
+    }
+
+    
+    //////// BooleanAnnotation /////////
+    
+    /**
+     * @param booleanAnnotationIndex
+     * @return
+     */
+    private BooleanAnnotation getBooleanAnnotation(int booleanAnnotationIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.BOOLEAN_ANNOTATION_INDEX, booleanAnnotationIndex);
+        return getSourceObject(BooleanAnnotation.class, indexes);
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setBooleanAnnotationID(java.lang.String, int)
+     */
+    public void setBooleanAnnotationID(String id, int booleanAnnotationIndex)
+    {
+        checkDuplicateLSID(BooleanAnnotation.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.BOOLEAN_ANNOTATION_INDEX, booleanAnnotationIndex);
+        IObjectContainer o = getIObjectContainer(BooleanAnnotation.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(BooleanAnnotation.class, id, o);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setBooleanAnnotationNamespace(java.lang.String, int)
+     */
+    public void setBooleanAnnotationNamespace(String namespace,
+            int booleanAnnotationIndex)
+    {
+        BooleanAnnotation o = getBooleanAnnotation(booleanAnnotationIndex);
+        o.setNs(toRType(namespace));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setBooleanAnnotationValue(java.lang.Boolean, int)
+     */
+    public void setBooleanAnnotationValue(Boolean value,
+            int booleanAnnotationIndex)
+    {
+        BooleanAnnotation o = getBooleanAnnotation(booleanAnnotationIndex);
+        o.setBoolValue(toRType(value));
+    }
+
+    //////// Channel /////////
+    
+    public Channel getChannel(int imageIndex, int channelIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.IMAGE_INDEX, imageIndex);
+        indexes.put(Index.CHANNEL_INDEX, channelIndex);
+        return getSourceObject(Channel.class, indexes);
+    }
+
+    
+    /**
+     * Logical Channel and Channel combined in the new model
+     * 
+     * @param imageIndex
+     * @param logicalChannelIndex
+     * @return
+     */
+    private LogicalChannel getLogicalChannel(int imageIndex, int logicalChannelIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.IMAGE_INDEX, imageIndex);
+        indexes.put(Index.LOGICAL_CHANNEL_INDEX, logicalChannelIndex);
+        return getSourceObject(LogicalChannel.class, indexes);
+    }
+    
+    public void setLogicalChannelID(String id, int imageIndex,
+            int logicalChannelIndex)
+    {
+        checkDuplicateLSID(LogicalChannel.class, id);
+        LinkedHashMap<Index, Integer> indexes = new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.IMAGE_INDEX, imageIndex);
+        indexes.put(Index.LOGICAL_CHANNEL_INDEX, logicalChannelIndex);  
+        IObjectContainer o = getIObjectContainer(LogicalChannel.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(LogicalChannel.class, id, o);
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelID(java.lang.String, int, int)
+     */
+    public void setChannelID(String id, int imageIndex, int channelIndex)
+    {
+        checkDuplicateLSID(Channel.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.IMAGE_INDEX, imageIndex);
+        indexes.put(Index.CHANNEL_INDEX, channelIndex);
+        IObjectContainer o = getIObjectContainer(Channel.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(Channel.class, id, o);
+        
+        setLogicalChannelID(id, imageIndex, channelIndex);
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelAcquisitionMode(ome.xml.r201004.enums.AcquisitionMode, int, int)
+     */
+    public void setChannelAcquisitionMode(
+            ome.xml.r201004.enums.AcquisitionMode acquisitionMode,
+            int imageIndex, int channelIndex)
+    {
+        //Channel o = getChannel(imageIndex, channelIndex);
+        //o.getLogicalChannel().setMode((AcquisitionMode) getEnumeration(AcquisitionMode.class, acquisitionMode.toString()));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelColor(java.lang.Integer, int, int)
+     */
+    public void setChannelColor(Integer color, int imageIndex, int channelIndex)
+    {
+        Channel o = getChannel(imageIndex, channelIndex);
+        Color c = new Color(color);
+        o.setRed(toRType(c.getRed()));
+        o.setGreen(toRType(c.getGreen()));
+        o.setBlue(toRType(c.getBlue()));
+        o.setAlpha(toRType(c.getAlpha()));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelContrastMethod(ome.xml.r201004.enums.ContrastMethod, int, int)
+     */
+    public void setChannelContrastMethod(
+            ome.xml.r201004.enums.ContrastMethod contrastMethod,
+            int imageIndex, int channelIndex)
+    {
+        //LogicalChannel o = getLogicalChannel(imageIndex, channelIndex);
+        //o.setContrastMethod((ContrastMethod) getEnumeration(ContrastMethod.class, contrastMethod.toString()));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelEmissionWavelength(ome.xml.r201004.primitives.PositiveInteger, int, int)
+     */
+    public void setChannelEmissionWavelength(
+            PositiveInteger emissionWavelength, int imageIndex, int channelIndex)
+    {
+        //LogicalChannel o = getLogicalChannel(imageIndex, channelIndex);
+        //o.setEmissionWave(toRType(emissionWavelength.getValue()));
+    }
+
+    /** (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelExcitationWavelength(ome.xml.r201004.primitives.PositiveInteger, int, int)
+     */
+    public void setChannelExcitationWavelength(
+            PositiveInteger excitationWavelength, int imageIndex,
+            int channelIndex)
+    {
+        //LogicalChannel o = getLogicalChannel(imageIndex, channelIndex);
+        //o.setExcitationWave(toRType(excitationWavelength.getValue()));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelFilterSetsjava.lang.String, int, int)
+     */
+    public void setChannelFilterSetRef(String filterSet, int imageIndex,
+            int channelIndex)
+    {
+        LSID key = new LSID(Channel.class, imageIndex, channelIndex);
+        addReference(key, new LSID(filterSet));
+
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelFluor(java.lang.String, int, int)
+     */
+    public void setChannelFluor(String fluor, int imageIndex, int channelIndex)
+    {
+        //LogicalChannel o = getLogicalChannel(imageIndex, channelIndex);
+        //o.setFluor(toRType(fluor)); 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelIlluminationType(ome.xml.r201004.enums.IlluminationType, int, int)
+     */
+    public void setChannelIlluminationType(IlluminationType illuminationType,
+            int imageIndex, int channelIndex)
+    {
+        //LogicalChannel o = getLogicalChannel(imageIndex, channelIndex);
+        //o.setIllumination((Illumination) getEnumeration(Illumination.class, illuminationType.toString()));
+    }
+    
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelNDFilter(java.lang.Double, int, int)
+     */
+    public void setChannelNDFilter(Double ndfilter, int imageIndex,
+            int channelIndex)
+    {
+        //LogicalChannel o = getLogicalChannel(imageIndex, channelIndex);
+        //o.setNdFilter(toRType(ndfilter)); 
+    }
+    
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelName(java.lang.String, int, int)
+     */
+    public void setChannelName(String name, int imageIndex, int channelIndex)
+    {
+        //LogicalChannel o = getLogicalChannel(imageIndex, channelIndex);
+        //o.setName(toRType(name)); 
+    }
+    
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelOTFRef(java.lang.String, int, int)
+     */
+    public void setChannelOTFRef(String otf, int imageIndex, int channelIndex)
+    {
+        LSID key = new LSID(Channel.class, imageIndex, channelIndex);
+        addReference(key, new LSID(otf));
+    }
+    
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelPinholeSize(java.lang.Double, int, int)
+     */
+    public void setChannelPinholeSize(Double pinholeSize, int imageIndex,
+            int channelIndex)
+    {
+        //LogicalChannel o = getLogicalChannel(imageIndex, channelIndex);
+        //o.setPinHoleSize(toRType(pinholeSize)); 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelPockelCellSetting(java.lang.Integer, int, int)
+     */
+    public void setChannelPockelCellSetting(Integer pockelCellSetting,
+            int imageIndex, int channelIndex)
+    {
+        //LogicalChannel o = getLogicalChannel(imageIndex, channelIndex);
+        //o.setPockelCellSetting(toRType(pockelCellSetting)); 
+    }
+    
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelSamplesPerPixel(java.lang.Integer, int, int)
+     */
+    public void setChannelSamplesPerPixel(Integer samplesPerPixel,
+            int imageIndex, int channelIndex)
+    {
+        //LogicalChannel o = getLogicalChannel(imageIndex, channelIndex);
+        //o.setSamplesPerPixel(toRType(samplesPerPixel)); 
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelAnnotationRef(java.lang.String, int, int, int)
+     */
+    public void setChannelAnnotationRef(String annotation, int imageIndex,
+            int channelIndex, int annotationRefIndex)
+    {
+        //LSID key = new LSID(Channel.class, imageIndex, channelIndex, annotationRefIndex);
+        //addReference(key, new LSID(annotation));
+    }
+    
+     ////////Lightsource Settings/////////
+    
+    /**
+     * Logical Channel and Channel combined in the new model
+     * 
+     * @param imageIndex
+     * @param logicalChannelIndex
+     * @return
+     */
+    private LightSettings getChannelLightSourceSettings(int imageIndex, int channelIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.IMAGE_INDEX, imageIndex);
+        indexes.put(Index.LOGICAL_CHANNEL_INDEX, channelIndex);
+        return getSourceObject(LightSettings.class, indexes);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelLightSourceSettingsID(java.lang.String, int, int)
+     */
+    public void setChannelLightSourceSettingsID(String id, int imageIndex,
+            int channelIndex)
+    {
+        checkDuplicateLSID(LightSettings.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.IMAGE_INDEX, imageIndex);
+        indexes.put(Index.LOGICAL_CHANNEL_INDEX, channelIndex);
+        IObjectContainer o = getIObjectContainer(LightSettings.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(LightSettings.class, id, o);
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelLightSourceSettingsAttenuation(ome.xml.r201004.primitives.PercentFraction, int, int)
+     */
+    public void setChannelLightSourceSettingsAttenuation(
+            PercentFraction attenuation, int imageIndex, int channelIndex)
+    {
+        LightSettings o = getChannelLightSourceSettings(imageIndex, channelIndex);
+        o.setAttenuation(toRType(attenuation.getValue()));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setChannelLightSourceSettingsWavelength(ome.xml.r201004.primitives.PositiveInteger, int, int)
+     */
+    public void setChannelLightSourceSettingsWavelength(
+            PositiveInteger wavelength, int imageIndex, int channelIndex)
+    {
+        LightSettings o = getChannelLightSourceSettings(imageIndex, channelIndex);
+        o.setWavelength(toRType(wavelength.getValue())); 
+    }
+    
+    ////////Dataset/////////
+    
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDatasetID(java.lang.String, int)
+     */
+    
+    /**
+     * @param datasetIndex
+     * @return
+     */
+    private Dataset getDataset(int datasetIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+           new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.DATASET_INDEX, datasetIndex);
+        return getSourceObject(Dataset.class, indexes);
+    }
+    
+    
+    public void setDatasetID(String id, int datasetIndex)
+    {
+//        checkDuplicateLSID(Dataset.class, id);
+//        LinkedHashMap<Index, Integer> indexes =
+//            new LinkedHashMap<Index, Integer>();
+//       indexes.put(Index.DATASET_INDEX, datasetIndex);
+//        IObjectContainer o = getIObjectContainer(Dataset.class, indexes);
+//        o.LSID = id;
+//        addAuthoritativeContainer(Dataset.class, id, o);
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDatasetAnnotationRef(java.lang.String, int, int)
+     */
+    public void setDatasetAnnotationRef(String annotation, int datasetIndex,
+            int annotationRefIndex)
+    {
+//        LSID key = new LSID(Dataset.class, datasetIndex, annotationRefIndex);
+//        addReference(key, new LSID(annotation));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDatasetDescription(java.lang.String, int)
+     */
+    public void setDatasetDescription(String description, int datasetIndex)
+    {
+//        Dataset o = getDataset(datasetIndex);
+//        o.setDescription(toRType(description));  
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDatasetExperimenterRef(java.lang.String, int)
+     */
+    public void setDatasetExperimenterRef(String experimenter, int datasetIndex)
+    {
+//        LSID key = new LSID(Dataset.class, datasetIndex);
+//        addReference(key, new LSID(experimenter));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDatasetGroupRef(java.lang.String, int)
+     */
+    public void setDatasetGroupRef(String group, int datasetIndex)
+    {
+//        LSID key = new LSID(Dataset.class, datasetIndex);
+//        addReference(key, new LSID(group));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDatasetName(java.lang.String, int)
+     */
+    public void setDatasetName(String name, int datasetIndex)
+    {
+//        Dataset o = getDataset(datasetIndex);
+//        o.setName(toRType(name));  
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDatasetProjectRef(java.lang.String, int, int)
+     */
+    public void setDatasetProjectRef(String project, int datasetIndex,
+            int projectRefIndex)
+    {
+//        LSID key = new LSID(Dataset.class, datasetIndex, projectRefIndex);
+//        addReference(key, new LSID(project));
+    }
+    
+    ////////Detector/////////
+
+    /**
+     * @param instrumentIndex
+     * @param detectorIndex
+     * @return
+     */
+    public Detector getDetector(int instrumentIndex, int detectorIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
+        indexes.put(Index.DETECTOR_INDEX, detectorIndex);
+        return getSourceObject(Detector.class, indexes);
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorID(java.lang.String, int, int)
+     */
+    public void setDetectorID(String id, int instrumentIndex, int detectorIndex)
+    {
+        checkDuplicateLSID(Detector.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
+        indexes.put(Index.DETECTOR_INDEX, detectorIndex);
+        IObjectContainer o = getIObjectContainer(Detector.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(Detector.class, id, o);
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorAmplificationGain(java.lang.Double, int, int)
+     */
+    public void setDetectorAmplificationGain(Double amplificationGain,
+            int instrumentIndex, int detectorIndex)
+    {
+        Detector o = getDetector(instrumentIndex, detectorIndex);
+        o.setAmplificationGain(toRType(amplificationGain)); 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorGain(java.lang.Double, int, int)
+     */
+    public void setDetectorGain(Double gain, int instrumentIndex,
+            int detectorIndex)
+    {
+        Detector o = getDetector(instrumentIndex, detectorIndex);
+        o.setGain(toRType(gain));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorLotNumber(java.lang.String, int, int)
+     */
+    public void setDetectorLotNumber(String lotNumber, int instrumentIndex,
+            int detectorIndex)
+    {
+        //TODO missing from omero model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorManufacturer(java.lang.String, int, int)
+     */
+    public void setDetectorManufacturer(String manufacturer,
+            int instrumentIndex, int detectorIndex)
+    {
+        Detector o = getDetector(instrumentIndex, detectorIndex);
+        o.setManufacturer(toRType(manufacturer));  
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorModel(java.lang.String, int, int)
+     */
+    public void setDetectorModel(String model, int instrumentIndex,
+            int detectorIndex)
+    {
+        Detector o = getDetector(instrumentIndex, detectorIndex);
+        o.setModel(toRType(model));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorOffset(java.lang.Double, int, int)
+     */
+    public void setDetectorOffset(Double offset, int instrumentIndex,
+            int detectorIndex)
+    {
+        Detector o = getDetector(instrumentIndex, detectorIndex);
+        o.setOffsetValue(toRType(offset));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorSerialNumber(java.lang.String, int, int)
+     */
+    public void setDetectorSerialNumber(String serialNumber,
+            int instrumentIndex, int detectorIndex)
+    {
+        Detector o = getDetector(instrumentIndex, detectorIndex);
+        o.setSerialNumber(toRType(serialNumber));
+    }
+
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorType(ome.xml.r201004.enums.DetectorType, int, int)
+     */
+    public void setDetectorType(ome.xml.r201004.enums.DetectorType type,
+            int instrumentIndex, int detectorIndex)
+    {
+        Detector o = getDetector(instrumentIndex, detectorIndex);
+        o.setType((DetectorType) getEnumeration(DetectorType.class, type.toString()));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorVoltage(java.lang.Double, int, int)
+     */
+    public void setDetectorVoltage(Double voltage, int instrumentIndex,
+            int detectorIndex)
+    {
+        Detector o = getDetector(instrumentIndex, detectorIndex);
+        o.setVoltage(toRType(voltage));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorZoom(java.lang.Double, int, int)
+     */
+    public void setDetectorZoom(Double zoom, int instrumentIndex,
+            int detectorIndex)
+    {
+        Detector o = getDetector(instrumentIndex, detectorIndex);
+        o.setZoom(toRType(zoom));
+    }
+    
+    ////////Detector Settings/////////
+    
+    /**
+     * @param instrumentIndex
+     * @param detectorIndex
+     * @return
+     */
+    private DetectorSettings getDetectorSettings(int imageIndex, int channelIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.IMAGE_INDEX, imageIndex);
+        indexes.put(Index.CHANNEL_INDEX, channelIndex);
+        return getSourceObject(DetectorSettings.class, indexes);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorSettingsID(java.lang.String, int, int)
+     */
+    public void setDetectorSettingsID(String id, int imageIndex,
+            int channelIndex)
+    {
+        
+        LSID key = new LSID(DetectorSettings.class, imageIndex, channelIndex);
+        addReference(key, new LSID(id));
+        
+        /*
+        checkDuplicateLSID(DetectorSettings.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.IMAGE_INDEX, imageIndex);
+        indexes.put(Index.CHANNEL_INDEX, channelIndex);
+        IObjectContainer o = getIObjectContainer(DetectorSettings.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(DetectorSettings.class, id, o);
+        */
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorSettingsBinning(ome.xml.r201004.enums.Binning, int, int)
+     */
+    public void setDetectorSettingsBinning(
+            ome.xml.r201004.enums.Binning binning, int imageIndex,
+            int channelIndex)
+    {
+        DetectorSettings o = getDetectorSettings(imageIndex, channelIndex);
+        o.setBinning((Binning) getEnumeration(Binning.class, binning.toString()));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorSettingsGain(java.lang.Double, int, int)
+     */
+    public void setDetectorSettingsGain(Double gain, int imageIndex,
+            int channelIndex)
+    {
+        DetectorSettings o = getDetectorSettings(imageIndex, channelIndex);
+        o.setGain(toRType(gain));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorSettingsOffset(java.lang.Double, int, int)
+     */
+    public void setDetectorSettingsOffset(Double offset, int imageIndex,
+            int channelIndex)
+    {
+        DetectorSettings o = getDetectorSettings(imageIndex, channelIndex);
+        o.setOffsetValue(toRType(offset)); 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorSettingsReadOutRate(java.lang.Double, int, int)
+     */
+    public void setDetectorSettingsReadOutRate(Double readOutRate,
+            int imageIndex, int channelIndex)
+    {
+        DetectorSettings o = getDetectorSettings(imageIndex, channelIndex);
+        o.setReadOutRate(toRType(readOutRate)); 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorSettingsVoltage(java.lang.Double, int, int)
+     */
+    public void setDetectorSettingsVoltage(Double voltage, int imageIndex,
+            int channelIndex)
+    {
+        DetectorSettings o = getDetectorSettings(imageIndex, channelIndex);
+        o.setVoltage(toRType(voltage)); 
+    }
+
+    ////////Dichroic/////////
+    
+    /**
+     * @param instrumentIndex
+     * @param dichroicIndex
+     * @return
+     */
+    private Dichroic getDichroic(int instrumentIndex, int dichroicIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
+        indexes.put(Index.DICHROIC_INDEX, dichroicIndex);
+        return getSourceObject(Dichroic.class, indexes);
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDichroicID(java.lang.String, int, int)
+     */
+    public void setDichroicID(String id, int instrumentIndex, int dichroicIndex)
+    {
+        checkDuplicateLSID(Dichroic.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
+        indexes.put(Index.DICHROIC_INDEX, dichroicIndex);
         IObjectContainer o = getIObjectContainer(Dichroic.class, indexes);
         o.LSID = id;
         addAuthoritativeContainer(Dichroic.class, id, o);
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setFilterID(java.lang.String, int, int)
-	 */
-	public void setFilterID(String id, int instrumentIndex, int filterIndex)
-	{
-		checkDuplicateLSID(Filter.class, id);
-        LinkedHashMap<String, Integer> indexes = 
-        	new LinkedHashMap<String, Integer>();
-        indexes.put("instrumentIndex", instrumentIndex);
-        indexes.put("filterIndex", filterIndex);
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDichroicLotNumber(java.lang.String, int, int)
+     */
+    public void setDichroicLotNumber(String lotNumber, int instrumentIndex,
+            int dichroicIndex)
+    {
+        Dichroic o = getDichroic(instrumentIndex, dichroicIndex);
+        o.setLotNumber(toRType(lotNumber));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDichroicManufacturer(java.lang.String, int, int)
+     */
+    public void setDichroicManufacturer(String manufacturer,
+            int instrumentIndex, int dichroicIndex)
+    {
+        Dichroic o = getDichroic(instrumentIndex, dichroicIndex);
+        o.setManufacturer(toRType(manufacturer)); 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDichroicModel(java.lang.String, int, int)
+     */
+    public void setDichroicModel(String model, int instrumentIndex,
+            int dichroicIndex)
+    {
+        Dichroic o = getDichroic(instrumentIndex, dichroicIndex);
+        o.setModel(toRType(model)); 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDichroicSerialNumber(java.lang.String, int, int)
+     */
+    public void setDichroicSerialNumber(String serialNumber,
+            int instrumentIndex, int dichroicIndex)
+    {
+        //TODO: Not in OMERO model 
+    }
+
+    ////////Double Annotation/////////
+    
+    private DoubleAnnotation getDoubleAnnotation(int doubleAnnotationIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.DOUBLE_ANNOTATION_INDEX, doubleAnnotationIndex);
+        return getSourceObject(DoubleAnnotation.class, indexes);
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDoubleAnnotationID(java.lang.String, int)
+     */
+    public void setDoubleAnnotationID(String id, int doubleAnnotationIndex)
+    {
+        checkDuplicateLSID(DoubleAnnotation.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.DOUBLE_ANNOTATION_INDEX, doubleAnnotationIndex);
+        IObjectContainer o = getIObjectContainer(DoubleAnnotation.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(DoubleAnnotation.class, id, o);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDoubleAnnotationNamespace(java.lang.String, int)
+     */
+    public void setDoubleAnnotationNamespace(String namespace,
+            int doubleAnnotationIndex)
+    {
+        DoubleAnnotation o = getDoubleAnnotation(doubleAnnotationIndex);
+        o.setNs(toRType(namespace));
+    }
+
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDoubleAnnotationValue(java.lang.Double, int)
+     */
+    public void setDoubleAnnotationValue(Double value, int doubleAnnotationIndex)
+    {
+        DoubleAnnotation o = getDoubleAnnotation(doubleAnnotationIndex);
+        o.setDoubleValue(toRType(value));
+    }
+    
+    ////////Eclipse/////////  
+    
+    /**
+     * @param ROIIndex
+     * @param shapeIndex
+     * @return
+     */
+    private Ellipse getEllipse(int ROIIndex, int shapeIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.ROI_INDEX, ROIIndex);
+        indexes.put(Index.SHAPE_INDEX, shapeIndex);
+        return getSourceObject(Ellipse.class, indexes);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setEllipseID(java.lang.String, int, int)
+     */
+    public void setEllipseID(String id, int ROIIndex, int shapeIndex)
+    {
+        checkDuplicateLSID(Ellipse.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.ROI_INDEX, ROIIndex);
+        indexes.put(Index.SHAPE_INDEX, shapeIndex);
+        IObjectContainer o = getIObjectContainer(Ellipse.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(Ellipse.class, id, o); 
+    }
+
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setEllipseDescription(java.lang.String, int, int)
+     */
+    public void setEllipseDescription(String description, int ROIIndex,
+            int shapeIndex)
+    {
+        //TODO: not in the OMERO model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setEllipseFill(java.lang.Integer, int, int)
+     */
+    public void setEllipseFill(Integer fill, int ROIIndex, int shapeIndex)
+    {
+        //TODO: Which is this in the OMERO model?
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setEllipseFontSize(java.lang.Integer, int, int)
+     */
+    public void setEllipseFontSize(Integer fontSize, int ROIIndex,
+            int shapeIndex)
+    {
+        Ellipse o = getEllipse(ROIIndex, shapeIndex);
+        o.setFontSize(toRType(fontSize));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setEllipseLabel(java.lang.String, int, int)
+     */
+    public void setEllipseLabel(String label, int ROIIndex, int shapeIndex)
+    {
+        //TODO: not in the OMERO model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setEllipseName(java.lang.String, int, int)
+     */
+    public void setEllipseName(String name, int ROIIndex, int shapeIndex)
+    {
+        //TODO: not in the OMERO model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setEllipseRadiusX(java.lang.Double, int, int)
+     */
+    public void setEllipseRadiusX(Double radiusX, int ROIIndex, int shapeIndex)
+    {
+        Ellipse o = getEllipse(ROIIndex, shapeIndex);
+        o.setRx(toRType(radiusX));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setEllipseRadiusY(java.lang.Double, int, int)
+     */
+    public void setEllipseRadiusY(Double radiusY, int ROIIndex, int shapeIndex)
+    {
+        Ellipse o = getEllipse(ROIIndex, shapeIndex);
+        o.setRy(toRType(radiusY)); 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setEllipseStroke(java.lang.Integer, int, int)
+     */
+    public void setEllipseStroke(Integer stroke, int ROIIndex, int shapeIndex)
+    {
+        //TODO: Which in OMERO model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setEllipseStrokeDashArray(java.lang.String, int, int)
+     */
+    public void setEllipseStrokeDashArray(String strokeDashArray, int ROIIndex,
+            int shapeIndex)
+    {
+        Ellipse o = getEllipse(ROIIndex, shapeIndex);
+        o.setStrokeDashArray(toRType(strokeDashArray));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setEllipseStrokeWidth(java.lang.Double, int, int)
+     */
+    public void setEllipseStrokeWidth(Double strokeWidth, int ROIIndex,
+            int shapeIndex)
+    {
+        Ellipse o = getEllipse(ROIIndex, shapeIndex);
+        o.setStrokeWidth(toRType(strokeWidth.intValue()));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setEllipseTheC(java.lang.Integer, int, int)
+     */
+    public void setEllipseTheC(Integer theC, int ROIIndex, int shapeIndex)
+    {
+        Ellipse o = getEllipse(ROIIndex, shapeIndex);
+        o.setTheC(toRType(theC));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setEllipseTheT(java.lang.Integer, int, int)
+     */
+    public void setEllipseTheT(Integer theT, int ROIIndex, int shapeIndex)
+    {
+        Ellipse o = getEllipse(ROIIndex, shapeIndex);
+        o.setTheT(toRType(theT));   
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setEllipseTheZ(java.lang.Integer, int, int)
+     */
+    public void setEllipseTheZ(Integer theZ, int ROIIndex, int shapeIndex)
+    {
+        Ellipse o = getEllipse(ROIIndex, shapeIndex);
+        o.setTheZ(toRType(theZ));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setEllipseTransform(java.lang.String, int, int)
+     */
+    public void setEllipseTransform(String transform, int ROIIndex,
+            int shapeIndex)
+    {
+        Ellipse o = getEllipse(ROIIndex, shapeIndex);
+        o.setTransform(toRType(transform));   
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setEllipseX(java.lang.Double, int, int)
+     */
+    public void setEllipseX(Double x, int ROIIndex, int shapeIndex)
+    {
+        Ellipse o = getEllipse(ROIIndex, shapeIndex);
+        o.setCx(toRType(x));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setEllipseY(java.lang.Double, int, int)
+     */
+    public void setEllipseY(Double y, int ROIIndex, int shapeIndex)
+    {
+        Ellipse o = getEllipse(ROIIndex, shapeIndex);
+        o.setCy(toRType(y));
+    }
+
+    ////////Experiment/////////
+   
+    private Experiment getExperiment(int experimentIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.EXPERIMENT_INDEX, experimentIndex);
+        return getSourceObject(Experiment.class, indexes);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExperimentID(java.lang.String, int)
+     */
+    public void setExperimentID(String id, int experimentIndex)
+    {
+        checkDuplicateLSID(Experiment.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.EXPERIMENT_INDEX, experimentIndex);
+        IObjectContainer o = getIObjectContainer(Experiment.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(Experiment.class, id, o);
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExperimentDescription(java.lang.String, int)
+     */
+    public void setExperimentDescription(String description, int experimentIndex)
+    {
+        Experiment o = getExperiment(experimentIndex);
+        o.setDescription(toRType(description));  
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExperimentExperimenterRef(java.lang.String, int)
+     */
+    public void setExperimentExperimenterRef(String experimenter,
+            int experimentIndex)
+    {
+        //LSID key = new LSID(Experiment.class, experimentIndex);
+        //addReference(key, new LSID(experimenter));  
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExperimentType(ome.xml.r201004.enums.ExperimentType, int)
+     */
+    public void setExperimentType(ome.xml.r201004.enums.ExperimentType type,
+            int experimentIndex)
+    {
+        Experiment o = getExperiment(experimentIndex);
+        o.setType((ExperimentType) getEnumeration(ExperimentType.class, type.toString()));
+    }
+
+    ////////Experiment/////////
+
+    private Experimenter getExperimenter(int experimenterIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.EXPERIMENTER_INDEX, experimenterIndex);
+        return getSourceObject(Experimenter.class, indexes);
+    }    
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExperimenterID(java.lang.String, int)
+     */
+    public void setExperimenterID(String id, int experimenterIndex)
+    {
+        checkDuplicateLSID(Experimenter.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.EXPERIMENTER_INDEX, experimenterIndex);
+        IObjectContainer o = getIObjectContainer(Experimenter.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(Experimenter.class, id, o); 
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExperimenterAnnotationRef(java.lang.String, int, int)
+     */
+    public void setExperimenterAnnotationRef(String annotation,
+            int experimenterIndex, int annotationRefIndex)
+    {
+        //LSID key = new LSID(Experimenter.class, experimenterIndex, annotationRefIndex);
+        //addReference(key, new LSID(annotation));   
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExperimenterDisplayName(java.lang.String, int)
+     */
+    public void setExperimenterDisplayName(String displayName,
+            int experimenterIndex)
+    {
+        // TODO not in OMERO model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExperimenterEmail(java.lang.String, int)
+     */
+    public void setExperimenterEmail(String email, int experimenterIndex)
+    {
+        Experimenter o = getExperimenter(experimenterIndex);
+        o.setEmail(toRType(email));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExperimenterFirstName(java.lang.String, int)
+     */
+    public void setExperimenterFirstName(String firstName, int experimenterIndex)
+    {
+        Experimenter o = getExperimenter(experimenterIndex);
+        o.setFirstName(toRType(firstName)); 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExperimenterGroupRef(java.lang.String, int, int)
+     */
+    public void setExperimenterGroupRef(String group, int experimenterIndex,
+            int groupRefIndex)
+    {
+        //LSID key = new LSID(Experimenter.class, experimenterIndex, groupRefIndex);
+        //addReference(key, new LSID(group)); 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExperimenterInstitution(java.lang.String, int)
+     */
+    public void setExperimenterInstitution(String institution,
+            int experimenterIndex)
+    {
+        Experimenter o = getExperimenter(experimenterIndex);
+        o.setInstitution(toRType(institution)); 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExperimenterLastName(java.lang.String, int)
+     */
+    public void setExperimenterLastName(String lastName, int experimenterIndex)
+    {
+        Experimenter o = getExperimenter(experimenterIndex);
+        o.setLastName(toRType(lastName)); 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExperimenterMiddleName(java.lang.String, int)
+     */
+    public void setExperimenterMiddleName(String middleName,
+            int experimenterIndex)
+    {
+        Experimenter o = getExperimenter(experimenterIndex);
+        o.setMiddleName(toRType(middleName)); 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setExperimenterUserName(java.lang.String, int)
+     */
+    public void setExperimenterUserName(String userName, int experimenterIndex)
+    {
+        // TODO not in OMERO model
+    }
+
+    ////////Filament/////////
+    
+    public Filament getFilament(int instrumentIndex, int lightSourceIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
+        indexes.put(Index.LIGHT_SOURCE_INDEX, lightSourceIndex);
+        return getSourceObject(Filament.class, indexes);
+    }    
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilamentID(java.lang.String, int, int)
+     */
+    public void setFilamentID(String id, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        checkDuplicateLSID(Filament.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
+        indexes.put(Index.LIGHT_SOURCE_INDEX, lightSourceIndex);
+        IObjectContainer o = getIObjectContainer(Filament.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(Filament.class, id, o); 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilamentLotNumber(java.lang.String, int, int)
+     */
+    public void setFilamentLotNumber(String lotNumber, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        // TODO not in OMERO model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilamentManufacturer(java.lang.String, int, int)
+     */
+    public void setFilamentManufacturer(String manufacturer,
+            int instrumentIndex, int lightSourceIndex)
+    {
+        Filament o = getFilament(instrumentIndex, lightSourceIndex);
+        o.setManufacturer(toRType(manufacturer));  
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilamentModel(java.lang.String, int, int)
+     */
+    public void setFilamentModel(String model, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        Filament o = getFilament(instrumentIndex, lightSourceIndex);
+        o.setModel(toRType(model)); 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilamentPower(java.lang.Double, int, int)
+     */
+    public void setFilamentPower(Double power, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        Filament o = getFilament(instrumentIndex, lightSourceIndex);
+        o.setPower(toRType(power));   
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilamentSerialNumber(java.lang.String, int, int)
+     */
+    public void setFilamentSerialNumber(String serialNumber,
+            int instrumentIndex, int lightSourceIndex)
+    {
+        Filament o = getFilament(instrumentIndex, lightSourceIndex);
+        o.setSerialNumber(toRType(serialNumber)); 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilamentType(ome.xml.r201004.enums.FilamentType, int, int)
+     */
+    public void setFilamentType(ome.xml.r201004.enums.FilamentType type,
+            int instrumentIndex, int lightSourceIndex)
+    {
+        Filament o = getFilament(instrumentIndex, lightSourceIndex);
+        o.setType((FilamentType) getEnumeration(FilamentType.class, type.toString()));
+    }
+
+    ////////FileAnnotation/////////
+
+    private FileAnnotation getFileAnnotation(int fileAnnotationIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.FILE_ANNOTATION_INDEX, fileAnnotationIndex);
+        return getSourceObject(FileAnnotation.class, indexes);
+    } 
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFileAnnotationID(java.lang.String, int)
+     */
+    public void setFileAnnotationID(String id, int fileAnnotationIndex)
+    {
+        checkDuplicateLSID(FileAnnotation.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.FILE_ANNOTATION_INDEX, fileAnnotationIndex);
+        IObjectContainer o = getIObjectContainer(FileAnnotation.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(FileAnnotation.class, id, o); 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFileAnnotationNamespace(java.lang.String, int)
+     */
+    public void setFileAnnotationNamespace(String namespace,
+            int fileAnnotationIndex)
+    {
+        FileAnnotation o = getFileAnnotation(fileAnnotationIndex);
+        o.setNs(toRType(namespace)); 
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFileAnnotationBinaryFileFileName(java.lang.String, int)
+     */
+    public void setFileAnnotationBinaryFileFileName(String fileName,
+            int fileAnnotationIndex)
+    {
+        //TODO: not in OMERO model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFileAnnotationBinaryFileMIMEType(java.lang.String, int)
+     */
+    public void setFileAnnotationBinaryFileMIMEType(String mimetype,
+            int fileAnnotationIndex)
+    {
+        //TODO: not in OMERO model 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFileAnnotationBinaryFileSize(java.lang.Integer, int)
+     */
+    public void setFileAnnotationBinaryFileSize(Integer size,
+            int fileAnnotationIndex)
+    {
+        //TODO: not in OMERO model  
+    }
+
+    
+    ////////Filter/////////
+    
+    private Filter getFilter(int instrumentIndex, int filterIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
+        indexes.put(Index.FILTER_INDEX, filterIndex);
+        return getSourceObject(Filter.class, indexes);
+    } 
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilterID(java.lang.String, int, int)
+     */
+    public void setFilterID(String id, int instrumentIndex, int filterIndex)
+    {
+        checkDuplicateLSID(Filter.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
+        indexes.put(Index.FILTER_INDEX, filterIndex);
         IObjectContainer o = getIObjectContainer(Filter.class, indexes);
         o.LSID = id;
-        addAuthoritativeContainer(Filter.class, id, o);
-	}
+        addAuthoritativeContainer(Filter.class, id, o); 
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilterFilterWheel(java.lang.String, int, int)
+     */
+    public void setFilterFilterWheel(String filterWheel, int instrumentIndex,
+            int filterIndex)
+    {
+        Filter o = getFilter(instrumentIndex, filterIndex);
+        o.setFilterWheel(toRType(filterWheel));
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setFilterSetID(java.lang.String, int, int)
-	 */
-	public void setFilterSetID(String id, int instrumentIndex,
-			                   int filterSetIndex)
-	{
-		checkDuplicateLSID(FilterSet.class, id);
-        LinkedHashMap<String, Integer> indexes = 
-        	new LinkedHashMap<String, Integer>();
-        indexes.put("instrumentIndex", instrumentIndex);
-        indexes.put("filterSetIndex", filterSetIndex);
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilterLotNumber(java.lang.String, int, int)
+     */
+    public void setFilterLotNumber(String lotNumber, int instrumentIndex,
+            int filterIndex)
+    {
+        Filter o = getFilter(instrumentIndex, filterIndex);
+        o.setLotNumber(toRType(lotNumber));  
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilterManufacturer(java.lang.String, int, int)
+     */
+    public void setFilterManufacturer(String manufacturer, int instrumentIndex,
+            int filterIndex)
+    {
+        Filter o = getFilter(instrumentIndex, filterIndex);
+        o.setManufacturer(toRType(manufacturer));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilterModel(java.lang.String, int, int)
+     */
+    public void setFilterModel(String model, int instrumentIndex,
+            int filterIndex)
+    {
+        Filter o = getFilter(instrumentIndex, filterIndex);
+        o.setModel(toRType(model));  
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilterSerialNumber(java.lang.String, int, int)
+     */
+    public void setFilterSerialNumber(String serialNumber, int instrumentIndex,
+            int filterIndex)
+    {
+        //TODO not in OMERO model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilterType(ome.xml.r201004.enums.FilterType, int, int)
+     */
+    public void setFilterType(ome.xml.r201004.enums.FilterType type,
+            int instrumentIndex, int filterIndex)
+    {
+        Filter o = getFilter(instrumentIndex, filterIndex);
+        o.setType((FilterType) getEnumeration(FilterType.class, type.toString()));   
+    }
+    
+    ////////Filter Set/////////
+
+    public FilterSet getFilterSet(int instrumentIndex, int filterSetIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
+        indexes.put(Index.FILTER_SET_INDEX, filterSetIndex);
+        return getSourceObject(FilterSet.class, indexes);
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilterSetID(java.lang.String, int, int)
+     */
+    public void setFilterSetID(String id, int instrumentIndex,
+            int filterSetIndex)
+    {
+        checkDuplicateLSID(FilterSet.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
+        indexes.put(Index.FILTER_SET_INDEX, filterSetIndex);
         IObjectContainer o = getIObjectContainer(FilterSet.class, indexes);
         o.LSID = id;
-        addAuthoritativeContainer(FilterSet.class, id, o);
-	}
+        addAuthoritativeContainer(FilterSet.class, id, o); 
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilterSetDichroicRef(java.lang.String, int, int)
+     */
+    public void setFilterSetDichroicRef(String dichroic, int instrumentIndex,
+            int filterSetIndex)
+    {
+        LSID key = new LSID(FilterSet.class, instrumentIndex, filterSetIndex);
+        addReference(key, new LSID(dichroic));
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setRoiLinkDirection(java.lang.String, int, int, int)
-	 */
-	public void setRoiLinkDirection(String arg0, int arg1, int arg2, int arg3) {
-		// TODO Auto-generated method stub
-		
-	}
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilterSetEmissionFilterRef(java.lang.String, int, int, int)
+     */
+    public void setFilterSetEmissionFilterRef(String emissionFilter,
+            int instrumentIndex, int filterSetIndex, int emissionFilterRefIndex)
+    {
+        // XXX: Using this suffix is kind of a gross hack but the reference
+        // processing logic does not easily handle multiple A --> B or B --> A 
+        // linkages of the same type so we'll compromise.
+        // Thu Jul 16 13:34:37 BST 2009 -- Chris Allan <callan@blackcat.ca>
+        emissionFilter += OMERO_EMISSION_FILTER_SUFFIX;
+        LSID key = new LSID(FilterSet.class, instrumentIndex, filterSetIndex);
+        addReference(key, new LSID(emissionFilter));
+        // TODO EmissionFilter.class not in OMERO model
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setRoiLinkName(java.lang.String, int, int, int)
-	 */
-	public void setRoiLinkName(String arg0, int arg1, int arg2, int arg3) {
-		// TODO Auto-generated method stub
-		
-	}
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilterSetExcitationFilterRef(java.lang.String, int, int, int)
+     */
+    public void setFilterSetExcitationFilterRef(String excitationFilter,
+            int instrumentIndex, int filterSetIndex,
+            int excitationFilterRefIndex)
+    {
+        // XXX: Using this suffix is kind of a gross hack but the reference
+        // processing logic does not easily handle multiple A --> B or B --> A 
+        // linkages of the same type so we'll compromise.
+        // Thu Jul 16 13:34:37 BST 2009 -- Chris Allan <callan@blackcat.ca>
+        excitationFilter += OMERO_EXCITATION_FILTER_SUFFIX;
+        LSID key = new LSID(FilterSet.class, instrumentIndex, filterSetIndex);
+        addReference(key, new LSID(excitationFilter));
+        // TODO ExcitationFilter.class not in OMERO model
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilterSetLotNumber(java.lang.String, int, int)
+     */
+    public void setFilterSetLotNumber(String lotNumber, int instrumentIndex,
+            int filterSetIndex)
+    {
+        FilterSet o = getFilterSet(instrumentIndex, filterSetIndex);
+        o.setLotNumber(toRType(lotNumber));
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setRoiLinkRef(java.lang.String, int, int, int)
-	 */
-	public void setRoiLinkRef(String arg0, int arg1, int arg2, int arg3) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-        /* (non-Javadoc)
-         * @see loci.formats.meta.MetadataStore#setGroupID(java.lang.String, int)
-         */
-        public void setGroupID(String arg0, int arg1) {
-		// TODO Auto-generated method stub
-		
-	}
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilterSetManufacturer(java.lang.String, int, int)
+     */
+    public void setFilterSetManufacturer(String manufacturer,
+            int instrumentIndex, int filterSetIndex)
+    {
+        FilterSet o = getFilterSet(instrumentIndex, filterSetIndex);
+        o.setManufacturer(toRType(manufacturer));
+    }
 
-		public void setEncryptedConnection(boolean encryptedConnection) {
-			this.encryptedConnection = encryptedConnection;
-		}
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilterSetModel(java.lang.String, int, int)
+     */
+    public void setFilterSetModel(String model, int instrumentIndex,
+            int filterSetIndex)
+    {
+        FilterSet o = getFilterSet(instrumentIndex, filterSetIndex);
+        o.setModel(toRType(model));
+    }
 
-		public boolean isEncryptedConnection() {
-			return encryptedConnection;
-		}
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFilterSetSerialNumber(java.lang.String, int, int)
+     */
+    public void setFilterSetSerialNumber(String serialNumber,
+            int instrumentIndex, int filterSetIndex)
+    {
+        //FilterSet o = getFilterSet(instrumentIndex, filterSetIndex);
+        //o.setSerialNumber(toRType(serialNumber));
+        // TODO not in OMERO model
+    }
+
+    ////////Group/////////
+    
+    public ExperimenterGroup getGroup(int groupIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.GROUP_INDEX, groupIndex);
+        return getSourceObject(ExperimenterGroup.class, indexes);
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setGroupID(java.lang.String, int)
+     */
+    public void setGroupID(String id, int groupIndex)
+    {
+        checkDuplicateLSID(ExperimenterGroup.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.GROUP_INDEX, groupIndex);
+        IObjectContainer o = getIObjectContainer(ExperimenterGroup.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(ExperimenterGroup.class, id, o); 
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setGroupContact(java.lang.String, int)
+     */
+    public void setGroupContact(String contact, int groupIndex)
+    {
+        //ExperimenterGroup o = getFilterSet(groupIndex);
+        //o.set(toRType(model)); 
+        // TODO not in OMERO model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setGroupDescription(java.lang.String, int)
+     */
+    public void setGroupDescription(String description, int groupIndex)
+    {
+        ExperimenterGroup o = getGroup(groupIndex);
+        o.setDescription(toRType(description)); 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setGroupLeader(java.lang.String, int)
+     */
+    public void setGroupLeader(String leader, int groupIndex)
+    {
+        // TODO not in OMERO model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setGroupName(java.lang.String, int)
+     */
+    public void setGroupName(String name, int groupIndex)
+    {
+        ExperimenterGroup o = getGroup(groupIndex);
+        o.setName(toRType(name)); 
+    }
+
+    //////// Image /////////
+    
+    /**
+     * Retrieve Image
+     * @param imageIndex
+     * @return
+     */
+    private Image getImage(int imageIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.IMAGE_INDEX, imageIndex);
+        return getSourceObject(Image.class, indexes);
+    }    
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageID(java.lang.String, int)
+     */
+    public void setImageID(String id, int imageIndex)
+    {
+        checkDuplicateLSID(Image.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.IMAGE_INDEX, imageIndex);
+        IObjectContainer o = getIObjectContainer(Image.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(Image.class, id, o);  
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageAcquiredDate(java.lang.String, int)
+     */
+    public void setImageAcquiredDate(String acquiredDate, int imageIndex)
+    {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
+            java.util.Date date = sdf.parse(acquiredDate);
+            Timestamp aquiredTimestamp = new Timestamp(date.getTime());
+
+            Image o = getImage(imageIndex);
+            o.setAcquisitionDate(toRType(aquiredTimestamp));
+        }
+        catch (ParseException e)
+        {
+            log.error(String.format("Parsing start time failed!"), e);
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageAnnotationRef(java.lang.String, int, int)
+     */
+    public void setImageAnnotationRef(String annotation, int imageIndex,
+            int annotationRefIndex)
+    {
+        LSID key = new LSID(Image.class, imageIndex, annotationRefIndex);
+        addReference(key, new LSID(annotation));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageDatasetRef(java.lang.String, int, int)
+     */
+    public void setImageDatasetRef(String dataset, int imageIndex,
+            int datasetRefIndex)
+    {
+        //LSID key = new LSID(Image.class, imageIndex, datasetRefIndex);
+        //addReference(key, new LSID(dataset));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageDescription(java.lang.String, int)
+     */
+    public void setImageDescription(String description, int imageIndex)
+    {
+        Image o = getImage(imageIndex);
+        o.setDescription(toRType(description));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#/erimentRef(java.lang.String, int)
+     */
+    public void setImageExperimentRef(String experiment, int imageIndex)
+    {
+        //LSID key = new LSID(Image.class, imageIndex);
+        //addReference(key, new LSID(experiment));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageExperimenterRef(java.lang.String, int)
+     */
+    public void setImageExperimenterRef(String experimenter, int imageIndex)
+    {
+        //LSID key = new LSID(Image.class, imageIndex);
+        //addReference(key, new LSID(experimenter));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageGroupRef(java.lang.String, int)
+     */
+    public void setImageGroupRef(String group, int imageIndex)
+    {
+        //LSID key = new LSID(Image.class, imageIndex);
+        //addReference(key, new LSID(group));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageInstrumentRef(java.lang.String, int)
+     */
+    public void setImageInstrumentRef(String instrument, int imageIndex)
+    {
+        LSID key = new LSID(Image.class, imageIndex);
+        addReference(key, new LSID(instrument));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageMicrobeamManipulationRef(java.lang.String, int, int)
+     */
+    public void setImageMicrobeamManipulationRef(String microbeamManipulation,
+            int imageIndex, int microbeamManipulationRefIndex)
+    {
+        LSID key = new LSID(Image.class, imageIndex, microbeamManipulationRefIndex);
+        addReference(key, new LSID(microbeamManipulation));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageName(java.lang.String, int)
+     */
+    public void setImageName(String name, int imageIndex)
+    {
+        Image o = getImage(imageIndex);
+        o.setName(toRType(name));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageROIRef(java.lang.String, int, int)
+     */
+    public void setImageROIRef(String roi, int imageIndex, int ROIRefIndex)
+    {
+        LSID key = new LSID(Image.class, imageIndex, ROIRefIndex);
+        addReference(key, new LSID(roi));
+    }
+    
+    //////// Image Objective Settings /////////
+
+    public ObjectiveSettings getImageObjectiveSettings(int imageIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.IMAGE_INDEX, imageIndex);
+        return getSourceObject(ObjectiveSettings.class, indexes);   
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageObjectiveSettingsID(java.lang.String, int)
+     */
+    public void setImageObjectiveSettingsID(String id, int imageIndex)
+    {
+        LSID key = new LSID(ObjectiveSettings.class, imageIndex);
+        addReference(key, new LSID(id));
+        
+        /*
+        checkDuplicateLSID(ObjectiveSettings.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.IMAGE_INDEX, imageIndex);
+        IObjectContainer o = getIObjectContainer(ObjectiveSettings.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(ObjectiveSettings.class, id, o);
+        */
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageObjectiveSettingsCorrectionCollar(java.lang.Double, int)
+     */
+    public void setImageObjectiveSettingsCorrectionCollar(
+            Double correctionCollar, int imageIndex)
+    {
+        ObjectiveSettings o = getImageObjectiveSettings(imageIndex);
+        o.setCorrectionCollar(toRType(correctionCollar));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageObjectiveSettingsMedium(ome.xml.r201004.enums.Medium, int)
+     */
+    public void setImageObjectiveSettingsMedium(
+            ome.xml.r201004.enums.Medium medium, int imageIndex)
+    {
+        ObjectiveSettings o = getImageObjectiveSettings(imageIndex);
+        o.setMedium((Medium) getEnumeration(Medium.class, medium.toString()));   
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageObjectiveSettingsRefractiveIndex(java.lang.Double, int)
+     */
+    public void setImageObjectiveSettingsRefractiveIndex(
+            Double refractiveIndex, int imageIndex)
+    {
+        ObjectiveSettings o = getImageObjectiveSettings(imageIndex);
+        o.setRefractiveIndex(toRType(refractiveIndex));
+    }
+    
+    //////// Imaging Environment /////////
+    
+    public ImagingEnvironment getImagingEnvironment(int imageIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.IMAGE_INDEX, imageIndex);
+        return getSourceObject(ImagingEnvironment.class, indexes);   
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImagingEnvironmentAirPressure(java.lang.Double, int)
+     */
+    public void setImagingEnvironmentAirPressure(Double airPressure,
+            int imageIndex)
+    {
+        ImagingEnvironment o = getImagingEnvironment(imageIndex);
+        o.setAirPressure(toRType(airPressure));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImagingEnvironmentCO2Percent(ome.xml.r201004.primitives.PercentFraction, int)
+     */
+    public void setImagingEnvironmentCO2Percent(PercentFraction co2percent,
+            int imageIndex)
+    {
+        ImagingEnvironment o = getImagingEnvironment(imageIndex);
+        o.setCo2percent(toRType(co2percent));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImagingEnvironmentHumidity(ome.xml.r201004.primitives.PercentFraction, int)
+     */
+    public void setImagingEnvironmentHumidity(PercentFraction humidity,
+            int imageIndex)
+    {
+        ImagingEnvironment o = getImagingEnvironment(imageIndex);
+        o.setHumidity(toRType(humidity));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImagingEnvironmentTemperature(java.lang.Double, int)
+     */
+    public void setImagingEnvironmentTemperature(Double temperature,
+            int imageIndex)
+    {
+        ImagingEnvironment o = getImagingEnvironment(imageIndex);
+        o.setTemperature(toRType(temperature));
+    }
+
+    //////// Instrument /////////
+    
+    public Instrument getInstrument(int instrumentIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
+        return getSourceObject(Instrument.class, indexes);   
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setInstrumentID(java.lang.String, int)
+     */
+    public void setInstrumentID(String id, int instrumentIndex)
+    {
+        checkDuplicateLSID(Instrument.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
+        IObjectContainer o = getIObjectContainer(Instrument.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(Instrument.class, id, o);
+    }
+
+    //////// Laser /////////
+   
+    public Laser getLaser(int instrumentIndex, int lightSourceIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
+        indexes.put(Index.LIGHT_SOURCE_INDEX, lightSourceIndex);
+        return getSourceObject(Laser.class, indexes); 
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLaserID(java.lang.String, int, int)
+     */
+    public void setLaserID(String id, int instrumentIndex, int lightSourceIndex)
+    {
+        checkDuplicateLSID(Laser.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
+        indexes.put(Index.LIGHT_SOURCE_INDEX, lightSourceIndex);
+        IObjectContainer o = getIObjectContainer(Laser.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(Laser.class, id, o);
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLaserFrequencyMultiplication(ome.xml.r201004.primitives.PositiveInteger, int, int)
+     */
+    public void setLaserFrequencyMultiplication(
+            PositiveInteger frequencyMultiplication, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        Laser o = getLaser(instrumentIndex, lightSourceIndex);
+        o.setFrequencyMultiplication(toRType(frequencyMultiplication));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLaserLaserMedium(ome.xml.r201004.enums.LaserMedium, int, int)
+     */
+    public void setLaserLaserMedium(
+            ome.xml.r201004.enums.LaserMedium laserMedium, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        Laser o = getLaser(instrumentIndex, lightSourceIndex);
+        o.setLaserMedium((LaserMedium) getEnumeration(LaserMedium.class, laserMedium.toString())); 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLaserLotNumber(java.lang.String, int, int)
+     */
+    public void setLaserLotNumber(String lotNumber, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        // TODO not in OMERO model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLaserManufacturer(java.lang.String, int, int)
+     */
+    public void setLaserManufacturer(String manufacturer, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        Laser o = getLaser(instrumentIndex, lightSourceIndex);
+        o.setManufacturer(toRType(manufacturer));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLaserModel(java.lang.String, int, int)
+     */
+    public void setLaserModel(String model, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        Laser o = getLaser(instrumentIndex, lightSourceIndex);
+        o.setModel(toRType(model));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLaserPockelCell(java.lang.Boolean, int, int)
+     */
+    public void setLaserPockelCell(Boolean pockelCell, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        Laser o = getLaser(instrumentIndex, lightSourceIndex);
+        o.setPockelCell(toRType(pockelCell));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLaserPower(java.lang.Double, int, int)
+     */
+    public void setLaserPower(Double power, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        Laser o = getLaser(instrumentIndex, lightSourceIndex);
+        o.setPower(toRType(power)); 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLaserPulse(ome.xml.r201004.enums.Pulse, int, int)
+     */
+    public void setLaserPulse(ome.xml.r201004.enums.Pulse pulse,
+            int instrumentIndex, int lightSourceIndex)
+    {
+        Laser o = getLaser(instrumentIndex, lightSourceIndex);
+        o.setPulse((Pulse) getEnumeration(Pulse.class, pulse.toString())); 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLaserPump(java.lang.String, int, int)
+     */
+    public void setLaserPump(String pump, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        Laser o = getLaser(instrumentIndex, lightSourceIndex);
+        o.setPump((LightSource) getEnumeration(LightSource.class, pump));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLaserRepetitionRate(java.lang.Double, int, int)
+     */
+    public void setLaserRepetitionRate(Double repetitionRate,
+            int instrumentIndex, int lightSourceIndex)
+    {
+        Laser o = getLaser(instrumentIndex, lightSourceIndex);
+        o.setRepetitionRate(toRType(repetitionRate));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLaserSerialNumber(java.lang.String, int, int)
+     */
+    public void setLaserSerialNumber(String serialNumber, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        Laser o = getLaser(instrumentIndex, lightSourceIndex);
+        o.setSerialNumber(toRType(serialNumber));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLaserTuneable(java.lang.Boolean, int, int)
+     */
+    public void setLaserTuneable(Boolean tuneable, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        Laser o = getLaser(instrumentIndex, lightSourceIndex);
+        o.setTuneable(toRType(tuneable));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLaserType(ome.xml.r201004.enums.LaserType, int, int)
+     */
+    public void setLaserType(ome.xml.r201004.enums.LaserType type,
+            int instrumentIndex, int lightSourceIndex)
+    {
+        Laser o = getLaser(instrumentIndex, lightSourceIndex);
+        o.setType((LaserType) getEnumeration(LaserType.class, type.toString())); 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLaserWavelength(ome.xml.r201004.primitives.PositiveInteger, int, int)
+     */
+    public void setLaserWavelength(PositiveInteger wavelength,
+            int instrumentIndex, int lightSourceIndex)
+    {
+        Laser o = getLaser(instrumentIndex, lightSourceIndex);
+        o.setWavelength(toRType(wavelength));
+    }
+
+    //////// Laser Emitting Diode /////////
+    
+    public LightEmittingDiode getLightEmittingDiode(int instrumentIndex, int lightSourceIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
+        indexes.put(Index.LIGHT_SOURCE_INDEX, lightSourceIndex);
+        return getSourceObject(LightEmittingDiode.class, indexes); 
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLightEmittingDiodeID(java.lang.String, int, int)
+     */
+    public void setLightEmittingDiodeID(String id, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        checkDuplicateLSID(LightEmittingDiode.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
+        indexes.put(Index.LIGHT_SOURCE_INDEX, lightSourceIndex);
+        IObjectContainer o = getIObjectContainer(LightEmittingDiode.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(LightEmittingDiode.class, id, o);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLightEmittingDiodeLotNumber(java.lang.String, int, int)
+     */
+    public void setLightEmittingDiodeLotNumber(String lotNumber,
+            int instrumentIndex, int lightSourceIndex)
+    {
+        //LightEmittingDiode o = getLightEmittingDiode(instrumentIndex, lightSourceIndex);
+        //o.setLotNumber(toRType(lotNumber));
+        // TODO not in OMERO model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLightEmittingDiodeManufacturer(java.lang.String, int, int)
+     */
+    public void setLightEmittingDiodeManufacturer(String manufacturer,
+            int instrumentIndex, int lightSourceIndex)
+    {
+        LightEmittingDiode o = getLightEmittingDiode(instrumentIndex, lightSourceIndex);
+        o.setManufacturer(toRType(manufacturer));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLightEmittingDiodeModel(java.lang.String, int, int)
+     */
+    public void setLightEmittingDiodeModel(String model, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        LightEmittingDiode o = getLightEmittingDiode(instrumentIndex, lightSourceIndex);
+        o.setModel(toRType(model));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLightEmittingDiodePower(java.lang.Double, int, int)
+     */
+    public void setLightEmittingDiodePower(Double power, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        LightEmittingDiode o = getLightEmittingDiode(instrumentIndex, lightSourceIndex);
+        o.setPower(toRType(power));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLightEmittingDiodeSerialNumber(java.lang.String, int, int)
+     */
+    public void setLightEmittingDiodeSerialNumber(String serialNumber,
+            int instrumentIndex, int lightSourceIndex)
+    {
+        LightEmittingDiode o = getLightEmittingDiode(instrumentIndex, lightSourceIndex);
+        o.setSerialNumber(toRType(serialNumber));
+    }
+
+
+    //////// Light Path /////////
+    
+    public LightPath getLightPath(int imageIndex, int channelIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.IMAGE_INDEX, imageIndex);
+        indexes.put(Index.CHANNEL_INDEX, channelIndex);
+        return getSourceObject(LightPath.class, indexes); 
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLightPathDichroicRef(java.lang.String, int, int)
+     */
+    public void setLightPathDichroicRef(String dichroic, int imageIndex,
+            int channelIndex)
+    {
+        LSID key = new LSID(LightPath.class, imageIndex, channelIndex);
+        addReference(key, new LSID(dichroic));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLightPathEmissionFilterRef(java.lang.String, int, int, int)
+     */
+    public void setLightPathEmissionFilterRef(String emissionFilter,
+            int imageIndex, int channelIndex, int emissionFilterRefIndex)
+    {
+        LSID key = new LSID(LightPath.class, imageIndex, channelIndex, emissionFilterRefIndex);
+        addReference(key, new LSID(emissionFilter));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLightPathExcitationFilterRef(java.lang.String, int, int, int)
+     */
+    public void setLightPathExcitationFilterRef(String excitationFilter,
+            int imageIndex, int channelIndex, int excitationFilterRefIndex)
+    {
+        LSID key = new LSID(LightPath.class, imageIndex, channelIndex, excitationFilterRefIndex);
+        addReference(key, new LSID(excitationFilter));
+    }
+
+    
+    //////// Line /////////
+   
+    public Line getLine(int ROIIndex, int shapeIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.ROI_INDEX,ROIIndex);        
+        indexes.put(Index.SHAPE_INDEX, shapeIndex);
+        return getSourceObject(Line.class, indexes); 
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLineID(java.lang.String, int, int)
+     */
+    public void setLineID(String id, int ROIIndex, int shapeIndex)
+    {
+        checkDuplicateLSID(Line.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.ROI_INDEX,ROIIndex);        
+        indexes.put(Index.SHAPE_INDEX, shapeIndex);
+        IObjectContainer o = getIObjectContainer(Line.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(Line.class, id, o);  
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLineDescription(java.lang.String, int, int)
+     */
+    public void setLineDescription(String description, int ROIIndex,
+            int shapeIndex)
+    {
+        //Line o = getLine(ROIIndex, shapeIndex);
+        //o.setDescription()
+        // TODO not in OMERO model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLineFill(java.lang.Integer, int, int)
+     */
+    public void setLineFill(Integer fill, int ROIIndex, int shapeIndex)
+    {
+        //Line o = getLine(ROIIndex, shapeIndex);
+        //o.setFill(toRType(fill));
+        // TODO not in OMERO model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLineFontSize(java.lang.Integer, int, int)
+     */
+    public void setLineFontSize(Integer fontSize, int ROIIndex, int shapeIndex)
+    {
+        Line o = getLine(ROIIndex, shapeIndex);
+        o.setFontSize(toRType(fontSize)); 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLineLabel(java.lang.String, int, int)
+     */
+    public void setLineLabel(String label, int ROIIndex, int shapeIndex)
+    {
+        //Line o = getLine(ROIIndex, shapeIndex);
+        //o.setLineLabel(toRType(fontSize)); 
+        // TODO not in OMERO model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLineName(java.lang.String, int, int)
+     */
+    public void setLineName(String name, int ROIIndex, int shapeIndex)
+    {
+        //Line o = getLine(ROIIndex, shapeIndex);
+        //o.setName(toRType(fontSize)); 
+        // TODO not in OMERO model
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLineStroke(java.lang.Integer, int, int)
+     */
+    public void setLineStroke(Integer stroke, int ROIIndex, int shapeIndex)
+    {
+        Line o = getLine(ROIIndex, shapeIndex);
+        o.setStrokeWidth(toRType(stroke));  
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLineStrokeDashArray(java.lang.String, int, int)
+     */
+    public void setLineStrokeDashArray(String strokeDashArray, int ROIIndex,
+            int shapeIndex)
+    {
+        Line o = getLine(ROIIndex, shapeIndex);
+        o.setStrokeDashArray(toRType(strokeDashArray));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLineStrokeWidth(java.lang.Double, int, int)
+     */
+    public void setLineStrokeWidth(Double strokeWidth, int ROIIndex,
+            int shapeIndex)
+    {
+        Line o = getLine(ROIIndex, shapeIndex);
+        o.setStrokeWidth(toRType(strokeWidth.intValue())); 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLineTheC(java.lang.Integer, int, int)
+     */
+    public void setLineTheC(Integer theC, int ROIIndex, int shapeIndex)
+    {
+        Line o = getLine(ROIIndex, shapeIndex);
+        o.setTheC(toRType(theC));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLineTheT(java.lang.Integer, int, int)
+     */
+    public void setLineTheT(Integer theT, int ROIIndex, int shapeIndex)
+    {
+        Line o = getLine(ROIIndex, shapeIndex);
+        o.setTheT(toRType(theT));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLineTheZ(java.lang.Integer, int, int)
+     */
+    public void setLineTheZ(Integer theZ, int ROIIndex, int shapeIndex)
+    {
+        Line o = getLine(ROIIndex, shapeIndex);
+        o.setTheZ(toRType(theZ)); 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLineTransform(java.lang.String, int, int)
+     */
+    public void setLineTransform(String transform, int ROIIndex, int shapeIndex)
+    {
+        Line o = getLine(ROIIndex, shapeIndex);
+        o.setTransform(toRType(transform));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLineX1(java.lang.Double, int, int)
+     */
+    public void setLineX1(Double x1, int ROIIndex, int shapeIndex)
+    {
+        Line o = getLine(ROIIndex, shapeIndex);
+        o.setX1(toRType(x1));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLineX2(java.lang.Double, int, int)
+     */
+    public void setLineX2(Double x2, int ROIIndex, int shapeIndex)
+    {
+        Line o = getLine(ROIIndex, shapeIndex);
+        o.setX2(toRType(x2));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLineY1(java.lang.Double, int, int)
+     */
+    public void setLineY1(Double y1, int ROIIndex, int shapeIndex)
+    {
+        Line o = getLine(ROIIndex, shapeIndex);
+        o.setY1(toRType(y1));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLineY2(java.lang.Double, int, int)
+     */
+    public void setLineY2(Double y2, int ROIIndex, int shapeIndex)
+    {
+        Line o = getLine(ROIIndex, shapeIndex);
+        o.setY2(toRType(y2));
+    }
+
+    
+    //////// List Annotation /////////
+    
+    public ListAnnotation getListAnnotation(int listAnnotationIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.LIST_ANNOTATION_INDEX, listAnnotationIndex);    
+        return getSourceObject(ListAnnotation.class, indexes); 
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setListAnnotationID(java.lang.String, int)
+     */
+    public void setListAnnotationID(String id, int listAnnotationIndex)
+    {
+        checkDuplicateLSID(ListAnnotation.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.LIST_ANNOTATION_INDEX, listAnnotationIndex); 
+        IObjectContainer o = getIObjectContainer(ListAnnotation.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(ListAnnotation.class, id, o);
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setListAnnotationAnnotationRef(java.lang.String, int, int)
+     */
+    public void setListAnnotationAnnotationRef(String annotation,
+            int listAnnotationIndex, int annotationRefIndex)
+    {
+        LSID key = new LSID(Annotation.class, listAnnotationIndex, annotationRefIndex);
+        addReference(key, new LSID(annotation));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setListAnnotationNamespace(java.lang.String, int)
+     */
+    public void setListAnnotationNamespace(String namespace,
+            int listAnnotationIndex)
+    {
+        ListAnnotation o = getListAnnotation(listAnnotationIndex);
+        o.setNs(toRType(namespace));
+    }
+
+    
+    //////// Long Annotation /////////
+    
+    public LongAnnotation getLongAnnotation(int longAnnotationIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.LONG_ANNOTATION_INDEX, longAnnotationIndex);    
+        return getSourceObject(LongAnnotation.class, indexes); 
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLongAnnotationID(java.lang.String, int)
+     */
+    public void setLongAnnotationID(String id, int longAnnotationIndex)
+    {
+        checkDuplicateLSID(LongAnnotation.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.LONG_ANNOTATION_INDEX, longAnnotationIndex); 
+        IObjectContainer o = getIObjectContainer(LongAnnotation.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(LongAnnotation.class, id, o);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLongAnnotationNamespace(java.lang.String, int)
+     */
+    public void setLongAnnotationNamespace(String namespace,
+            int longAnnotationIndex)
+    {
+        LongAnnotation o = getLongAnnotation(longAnnotationIndex);
+        o.setNs(toRType(namespace));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLongAnnotationValue(java.lang.Long, int)
+     */
+    public void setLongAnnotationValue(Long value, int longAnnotationIndex)
+    {
+        LongAnnotation o = getLongAnnotation(longAnnotationIndex);
+        o.setLongValue(toRType(value));  
+    }
+
+    ///////// Mask ////////
+
+    public Mask getMask(int ROIIndex, int shapeIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.ROI_INDEX, ROIIndex);
+        indexes.put(Index.SHAPE_INDEX, shapeIndex);
+        return getSourceObject(Mask.class, indexes);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMaskDescription(java.lang.String, int, int)
+     */
+    public void setMaskDescription(String description, int ROIIndex,
+            int shapeIndex)
+    {
+        // TODO : not in OMERO model
+        //Mask o = getMask(ROIIndex, shapeIndex);
+        //o.setDescription(toRType(description));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMaskFill(java.lang.Integer, int, int)
+     */
+    public void setMaskFill(Integer fill, int ROIIndex, int shapeIndex)
+    {
+        // TODO : not in OMERO model
+        //Mask o = getMask(ROIIndex, shapeIndex);
+        //o.setFill(toRType(fill));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMaskFontSize(java.lang.Integer, int, int)
+     */
+    public void setMaskFontSize(Integer fontSize, int ROIIndex, int shapeIndex)
+    {
+        Mask o = getMask(ROIIndex, shapeIndex);
+        o.setFontSize(toRType(fontSize));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMaskID(java.lang.String, int, int)
+     */
+    public void setMaskID(String id, int ROIIndex, int shapeIndex)
+    {
+        checkDuplicateLSID(Mask.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.ROI_INDEX, ROIIndex);
+        indexes.put(Index.SHAPE_INDEX, shapeIndex);
+        IObjectContainer o = getIObjectContainer(Mask.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(Mask.class, id, o);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMaskLabel(java.lang.String, int, int)
+     */
+    public void setMaskLabel(String label, int ROIIndex, int shapeIndex)
+    {
+        // TODO : not in OMERO model
+        //Mask o = getMask(Mask.class, id);
+        //o.setLabel(toRType(label));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMaskName(java.lang.String, int, int)
+     */
+    public void setMaskName(String name, int ROIIndex, int shapeIndex)
+    {
+        // TODO : not in OMERO model
+        // Mask o = getMask(Mask.class, id);
+        // o.setName(toRType(name));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMaskStroke(java.lang.Integer, int, int)
+     */
+    public void setMaskStroke(Integer stroke, int ROIIndex, int shapeIndex)
+    {
+        // TODO : not in OMERO model
+        // Mask o = getMask(ROIIndex, shapeIndex);
+        // o.setStroke(toRType(stroke));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMaskStrokeDashArray(java.lang.String, int, int)
+     */
+    public void setMaskStrokeDashArray(String strokeDashArray, int ROIIndex,
+            int shapeIndex)
+    {
+        Mask o = getMask(ROIIndex, shapeIndex);
+        o.setStrokeDashArray(toRType(strokeDashArray));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMaskStrokeWidth(java.lang.Double, int, int)
+     */
+    public void setMaskStrokeWidth(Double strokeWidth, int ROIIndex,
+            int shapeIndex)
+    {
+        // TODO : not in OMERO model
+        //Mask o = getMask(ROIIndex, shapeIndex);
+        //o.setStrokeWidth(toRType(strokeWidth));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMaskTheC(java.lang.Integer, int, int)
+     */
+    public void setMaskTheC(Integer theC, int ROIIndex, int shapeIndex)
+    {
+        Mask o = getMask(ROIIndex, shapeIndex);
+        o.setTheC(toRType(theC));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMaskTheT(java.lang.Integer, int, int)
+     */
+    public void setMaskTheT(Integer theT, int ROIIndex, int shapeIndex)
+    {
+        Mask o = getMask(ROIIndex, shapeIndex);
+        o.setTheT(toRType(theT));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMaskTheZ(java.lang.Integer, int, int)
+     */
+    public void setMaskTheZ(Integer theZ, int ROIIndex, int shapeIndex)
+    {
+        Mask o = getMask(ROIIndex, shapeIndex);
+        o.setTheZ(toRType(theZ));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMaskTransform(java.lang.String, int, int)
+     */
+    public void setMaskTransform(String transform, int ROIIndex, int shapeIndex)
+    {
+        Mask o = getMask(ROIIndex, shapeIndex);
+        o.setTransform(toRType(transform));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMaskX(java.lang.Double, int, int)
+     */
+    public void setMaskX(Double x, int ROIIndex, int shapeIndex)
+    {
+        Mask o = getMask(ROIIndex, shapeIndex);
+        o.setX(toRType(x));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMaskY(java.lang.Double, int, int)
+     */
+    public void setMaskY(Double y, int ROIIndex, int shapeIndex)
+    {
+        Mask o = getMask(ROIIndex, shapeIndex);
+        o.setY(toRType(y));
+    }
+
+    //////// Microbean Manipulation /////////
+    
+    public MicrobeamManipulation getMicrobeamManipulation(int experimentIndex, int microbeamManipulationIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.EXPERIMENT_INDEX, experimentIndex);
+        indexes.put(Index.MICROBEAM_MANIPULATION_INDEX, microbeamManipulationIndex);        
+        return getSourceObject(MicrobeamManipulation.class, indexes); 
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationID(java.lang.String, int, int)
+     */
+    public void setMicrobeamManipulationID(String id, int experimentIndex,
+            int microbeamManipulationIndex)
+    {
+        checkDuplicateLSID(MicrobeamManipulation.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.EXPERIMENT_INDEX, experimentIndex);
+        indexes.put(Index.MICROBEAM_MANIPULATION_INDEX, microbeamManipulationIndex); 
+        IObjectContainer o = getIObjectContainer(MicrobeamManipulation.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(MicrobeamManipulation.class, id, o);
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationExperimenterRef(java.lang.String, int, int)
+     */
+    public void setMicrobeamManipulationExperimenterRef(String experimenter,
+            int experimentIndex, int microbeamManipulationIndex)
+    {
+        //LSID key = new LSID(MicrobeamManipulation.class, experimentIndex, microbeamManipulationIndex);
+        //addReference(key, new LSID(experimenter));
+    }
+
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationROIRef(java.lang.String, int, int, int)
+     */
+    public void setMicrobeamManipulationROIRef(String roi, int experimentIndex,
+            int microbeamManipulationIndex, int ROIRefIndex)
+    {
+        //LSID key = new LSID(MicrobeamManipulation.class, experimentIndex, microbeamManipulationIndex, ROIRefIndex);
+        //addReference(key, new LSID(roi));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationType(ome.xml.r201004.enums.MicrobeamManipulationType, int, int)
+     */
+    public void setMicrobeamManipulationType(ome.xml.r201004.enums.MicrobeamManipulationType type,
+            int experimentIndex, int microbeamManipulationIndex)
+    {
+        MicrobeamManipulation o = getMicrobeamManipulation(experimentIndex, microbeamManipulationIndex);
+        o.setType((MicrobeamManipulationType) getEnumeration(MicrobeamManipulationType.class, type.toString()));
+    }
+    
+    
+    ////////Microbeam Manipulation Light Source Settings /////////
+
+    public LightSettings getMicrobeamManipulationLightSourceSettings(int experimentIndex, int microbeamManipulationIndex,
+            int lightSourceSettingsIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.EXPERIMENT_INDEX, experimentIndex);
+        indexes.put(Index.MICROBEAM_MANIPULATION_INDEX, microbeamManipulationIndex); 
+        indexes.put(Index.LIGHT_SOURCE_SETTINGS_INDEX, lightSourceSettingsIndex);
+        return getSourceObject(LightSettings.class, indexes);
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationLightSourceSettingsID(java.lang.String, int, int, int)
+     */
+    public void setMicrobeamManipulationLightSourceSettingsID(String id,
+            int experimentIndex, int microbeamManipulationIndex,
+            int lightSourceSettingsIndex)
+    {
+        checkDuplicateLSID(LightSettings.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.EXPERIMENT_INDEX, experimentIndex);
+        indexes.put(Index.MICROBEAM_MANIPULATION_INDEX, microbeamManipulationIndex); 
+        indexes.put(Index.LIGHT_SOURCE_SETTINGS_INDEX, lightSourceSettingsIndex); 
+        IObjectContainer o = getIObjectContainer(LightSettings.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(LightSettings.class, id, o);
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationLightSourceSettingsAttenuation(ome.xml.r201004.primitives.PercentFraction, int, int, int)
+     */
+    public void setMicrobeamManipulationLightSourceSettingsAttenuation(
+            PercentFraction attenuation, int experimentIndex,
+            int microbeamManipulationIndex, int lightSourceSettingsIndex)
+    {
+        LightSettings o = getMicrobeamManipulationLightSourceSettings(experimentIndex, 
+                microbeamManipulationIndex, lightSourceSettingsIndex);
+        o.setAttenuation(toRType(attenuation.getValue())); 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationLightSourceSettingsWavelength(ome.xml.r201004.primitives.PositiveInteger, int, int, int)
+     */
+    public void setMicrobeamManipulationLightSourceSettingsWavelength(
+            PositiveInteger wavelength, int experimentIndex,
+            int microbeamManipulationIndex, int lightSourceSettingsIndex)
+    {
+        LightSettings o = getMicrobeamManipulationLightSourceSettings(experimentIndex, 
+                microbeamManipulationIndex, lightSourceSettingsIndex);
+        o.setWavelength(toRType(wavelength.getValue()));
+    }
+    
+    
+    //////// Microscope ////////
+    /**
+     * @param instrumentIndex
+     * @return
+     */
+    private Microscope getMicroscope(int instrumentIndex)
+    {
+        Instrument instrument = getInstrument(instrumentIndex);
+        Microscope microscope = instrument.getMicroscope();
+        if (microscope == null)
+        {
+                microscope = new MicroscopeI();
+                instrument.setMicroscope(microscope);
+        }
+        return microscope;
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMicroscopeLotNumber(java.lang.String, int)
+     */
+    public void setMicroscopeLotNumber(String lotNumber, int instrumentIndex)
+    {
+        //Microscope o = getMicroscope(instrumentIndex);
+        //o.getLotNumber(toRType(lotNumber));
+        // TODO not in OMERO model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMicroscopeManufacturer(java.lang.String, int)
+     */
+    public void setMicroscopeManufacturer(String manufacturer,
+            int instrumentIndex)
+    {
+        Microscope o = getMicroscope(instrumentIndex);
+        o.setManufacturer(toRType(manufacturer));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMicroscopeModel(java.lang.String, int)
+     */
+    public void setMicroscopeModel(String model, int instrumentIndex)
+    {
+        Microscope o = getMicroscope(instrumentIndex);
+        o.setModel(toRType(model));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMicroscopeSerialNumber(java.lang.String, int)
+     */
+    public void setMicroscopeSerialNumber(String serialNumber,
+            int instrumentIndex)
+    {
+        Microscope o = getMicroscope(instrumentIndex);
+        o.setSerialNumber(toRType(serialNumber)); 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMicroscopeType(ome.xml.r201004.enums.MicroscopeType, int)
+     */
+    public void setMicroscopeType(ome.xml.r201004.enums.MicroscopeType type,
+            int instrumentIndex)
+    {
+        Microscope o = getMicroscope(instrumentIndex);
+        o.setType((MicroscopeType) getEnumeration(MicroscopeType.class, type.toString()));
+    }
+
+    //////// OTF /////////
+
+    public OTF getOTF(int instrumentIndex, int OTFIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
+        indexes.put(Index.OTF_INDEX, OTFIndex);
+        return getSourceObject(OTF.class, indexes); 
+    }
+    
+
+    private OriginalFile getOriginalFile(int instrumentIndex, int OTFIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
+        indexes.put(Index.OTF_INDEX, OTFIndex);
+        return getSourceObject(OriginalFile.class, indexes);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setOTFID(java.lang.String, int, int)
+     */
+    public void setOTFID(String id, int instrumentIndex, int OTFIndex)
+    {
+        checkDuplicateLSID(OTF.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
+        indexes.put(Index.OTF_INDEX, OTFIndex);
+        IObjectContainer o = getIObjectContainer(OTF.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(OTF.class, id, o);
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setOTFBinaryFileFileName(java.lang.String, int, int)
+     */
+    public void setOTFBinaryFileFileName(String fileName, int instrumentIndex,
+            int OTFIndex)
+    {
+        OriginalFile o = getOriginalFile(instrumentIndex, OTFIndex);
+        o.setName(toRType(fileName));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setOTFBinaryFileMIMEType(java.lang.String, int, int)
+     */
+    public void setOTFBinaryFileMIMEType(String mimetype, int instrumentIndex,
+            int OTFIndex)
+    {
+        OriginalFile o = getOriginalFile(instrumentIndex, OTFIndex);
+        o.setMimetype(toRType(mimetype));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setOTFBinaryFileSize(java.lang.Integer, int, int)
+     */
+    public void setOTFBinaryFileSize(Integer size, int instrumentIndex,
+            int OTFIndex)
+    {
+        OriginalFile o = getOriginalFile(instrumentIndex, OTFIndex);
+        o.setSize(toRType(size.longValue()));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setOTFFilterSetRef(java.lang.String, int, int)
+     */
+    public void setOTFFilterSetRef(String filterSet, int instrumentIndex,
+            int OTFIndex)
+    {
+        LSID key = new LSID(OTF.class, instrumentIndex, OTFIndex);
+        addReference(key, new LSID(filterSet));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setOTFOpticalAxisAveraged(java.lang.Boolean, int, int)
+     */
+    public void setOTFOpticalAxisAveraged(Boolean opticalAxisAveraged,
+            int instrumentIndex, int OTFIndex)
+    {
+        OTF o = getOTF(instrumentIndex, OTFIndex);
+        o.setOpticalAxisAveraged(toRType(opticalAxisAveraged));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setOTFSizeX(ome.xml.r201004.primitives.PositiveInteger, int, int)
+     */
+    public void setOTFSizeX(PositiveInteger sizeX, int instrumentIndex,
+            int OTFIndex)
+    {
+        OTF o = getOTF(instrumentIndex, OTFIndex);
+        o.setSizeX(toRType(sizeX));   
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setOTFSizeY(ome.xml.r201004.primitives.PositiveInteger, int, int)
+     */
+    public void setOTFSizeY(PositiveInteger sizeY, int instrumentIndex,
+            int OTFIndex)
+    {
+        OTF o = getOTF(instrumentIndex, OTFIndex);
+        o.setSizeY(toRType(sizeY));  
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setOTFType(ome.xml.r201004.enums.PixelType, int, int)
+     */
+    public void setOTFType(ome.xml.r201004.enums.PixelType type, int instrumentIndex, int OTFIndex)
+    {
+        OTF o = getOTF(instrumentIndex, OTFIndex);
+        o.setPixelsType((PixelsType) getEnumeration(PixelsType.class, type.toString()));
+    }
+
+    
+    ////////OTF Objective Settings /////////
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setOTFObjectiveSettingsID(java.lang.String, int, int)
+     */
+    
+    public ObjectiveSettings getOTFObjectiveSettings(int instrumentIndex, int OTFIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
+        indexes.put(Index.OTF_INDEX, OTFIndex);
+        return getSourceObject(ObjectiveSettings.class, indexes); 
+    }
+    
+    public void setOTFObjectiveSettingsID(String id, int instrumentIndex,
+            int OTFIndex)
+    {
+        LSID key = new LSID(OTF.class, instrumentIndex, OTFIndex);
+        addReference(key, new LSID(id));
+        /*
+        checkDuplicateLSID(ObjectiveSettings.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
+        indexes.put(Index.OTF_INDEX, OTFIndex);
+        IObjectContainer o = getIObjectContainer(ObjectiveSettings.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(ObjectiveSettings.class, id, o);
+        */
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setOTFObjectiveSettingsCorrectionCollar(java.lang.Double, int, int)
+     */
+    public void setOTFObjectiveSettingsCorrectionCollar(
+            Double correctionCollar, int instrumentIndex, int OTFIndex)
+    {
+        ObjectiveSettings o = getOTFObjectiveSettings(instrumentIndex, OTFIndex);
+        o.setCorrectionCollar(toRType(correctionCollar));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setOTFObjectiveSettingsMedium(ome.xml.r201004.enums.Medium, int, int)
+     */
+    public void setOTFObjectiveSettingsMedium(
+            ome.xml.r201004.enums.Medium medium, int instrumentIndex,
+            int OTFIndex)
+    {
+        ObjectiveSettings o = getOTFObjectiveSettings(instrumentIndex, OTFIndex);
+        o.setMedium((Medium) getEnumeration(Medium.class, medium.toString()));  
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setOTFObjectiveSettingsRefractiveIndex(java.lang.Double, int, int)
+     */
+    public void setOTFObjectiveSettingsRefractiveIndex(Double refractiveIndex,
+            int instrumentIndex, int OTFIndex)
+    {
+        ObjectiveSettings o = getOTFObjectiveSettings(instrumentIndex, OTFIndex);
+        o.setRefractiveIndex(toRType(refractiveIndex)); 
+    }
+    
+    
+    //////// Objective /////////
+
+    public Objective getObjective(int instrumentIndex, int objectiveIndex)
+    {
+      LinkedHashMap<Index, Integer> indexes =
+          new LinkedHashMap<Index, Integer>();
+      indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
+      indexes.put(Index.OBJECTIVE_INDEX, objectiveIndex);
+      return getSourceObject(Objective.class, indexes);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setObjectiveCalibratedMagnification(java.lang.Double, int, int)
+     */
+    public void setObjectiveCalibratedMagnification(
+            Double calibratedMagnification, int instrumentIndex,
+            int objectiveIndex)
+    {
+        Objective o = getObjective(instrumentIndex, objectiveIndex);
+        o.setCalibratedMagnification(toRType(calibratedMagnification));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setObjectiveCorrection(ome.xml.r201004.enums.Correction, int, int)
+     */
+    public void setObjectiveCorrection(
+            ome.xml.r201004.enums.Correction correction, int instrumentIndex,
+            int objectiveIndex)
+    {
+        Objective o = getObjective(instrumentIndex, objectiveIndex);
+        o.setCorrection((Correction) getEnumeration(
+            Correction.class, correction.toString()));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setObjectiveID(java.lang.String, int, int)
+     */
+    public void setObjectiveID(String id, int instrumentIndex,
+            int objectiveIndex)
+    {
+        checkDuplicateLSID(Objective.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
+        indexes.put(Index.OBJECTIVE_INDEX, objectiveIndex);
+        IObjectContainer o = getIObjectContainer(Objective.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(Objective.class, id, o);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setObjectiveImmersion(ome.xml.r201004.enums.Immersion, int, int)
+     */
+    public void setObjectiveImmersion(
+            ome.xml.r201004.enums.Immersion immersion, int instrumentIndex,
+            int objectiveIndex)
+    {
+        Objective o = getObjective(instrumentIndex, objectiveIndex);
+        o.setImmersion(
+            (Immersion) getEnumeration(Immersion.class, immersion.toString()));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setObjectiveIris(java.lang.Boolean, int, int)
+     */
+    public void setObjectiveIris(Boolean iris, int instrumentIndex,
+            int objectiveIndex)
+    {
+        Objective o = getObjective(instrumentIndex, objectiveIndex);
+        o.setIris(toRType(iris));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setObjectiveLensNA(java.lang.Double, int, int)
+     */
+    public void setObjectiveLensNA(Double lensNA, int instrumentIndex,
+            int objectiveIndex)
+    {
+        Objective o = getObjective(instrumentIndex, objectiveIndex);
+        o.setLensNA(toRType(lensNA));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setObjectiveLotNumber(java.lang.String, int, int)
+     */
+    public void setObjectiveLotNumber(String lotNumber, int instrumentIndex,
+            int objectiveIndex)
+    {
+        // TODO : not in OMERO model
+        //Objective o = getObjective(instrumentIndex, objectiveIndex);
+        //o.setLotNumber(toRType(lotNumber));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setObjectiveManufacturer(java.lang.String, int, int)
+     */
+    public void setObjectiveManufacturer(String manufacturer,
+            int instrumentIndex, int objectiveIndex)
+    {
+        Objective o = getObjective(instrumentIndex, objectiveIndex);
+        o.setManufacturer(toRType(manufacturer));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setObjectiveModel(java.lang.String, int, int)
+     */
+    public void setObjectiveModel(String model, int instrumentIndex,
+            int objectiveIndex)
+    {
+        Objective o = getObjective(instrumentIndex, objectiveIndex);
+        o.setModel(toRType(model));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setObjectiveNominalMagnification(java.lang.Integer, int, int)
+     */
+    public void setObjectiveNominalMagnification(Integer nominalMagnification,
+            int instrumentIndex, int objectiveIndex)
+    {
+        Objective o = getObjective(instrumentIndex, objectiveIndex);
+        o.setNominalMagnification(toRType(nominalMagnification));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setObjectiveSerialNumber(java.lang.String, int, int)
+     */
+    public void setObjectiveSerialNumber(String serialNumber,
+            int instrumentIndex, int objectiveIndex)
+    {
+        Objective o = getObjective(instrumentIndex, objectiveIndex);
+        o.setSerialNumber(toRType(serialNumber));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setObjectiveWorkingDistance(java.lang.Double, int, int)
+     */
+    public void setObjectiveWorkingDistance(Double workingDistance,
+            int instrumentIndex, int objectiveIndex)
+    {
+        Objective o = getObjective(instrumentIndex, objectiveIndex);
+        o.setWorkingDistance(toRType(workingDistance));
+    }
+
+    //////// Path /////////
+
+    private Path getPath(int ROIIndex, int shapeIndex)
+    {
+      LinkedHashMap<Index, Integer> indexes =
+          new LinkedHashMap<Index, Integer>();
+      indexes.put(Index.ROI_INDEX, ROIIndex);
+      indexes.put(Index.SHAPE_INDEX, shapeIndex);
+      return getSourceObject(Path.class, indexes);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPathDefinition(java.lang.String, int, int)
+     */
+    public void setPathDefinition(String definition, int ROIIndex,
+            int shapeIndex)
+    {
+        // TODO : double-check that this is correct
+        Path o = getPath(ROIIndex, shapeIndex);
+        o.setD(toRType(definition));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPathDescription(java.lang.String, int, int)
+     */
+    public void setPathDescription(String description, int ROIIndex,
+            int shapeIndex)
+    {
+        // TODO : not in OMERO model
+        // Path o = getPath(ROIIndex, shapeIndex);
+        // o.setDescription(toRType(description));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPathFill(java.lang.Integer, int, int)
+     */
+    public void setPathFill(Integer fill, int ROIIndex, int shapeIndex)
+    {
+        // TODO : not in OMERO model
+        // Path o = getPath(ROIIndex, shapeIndex);
+        // o.setFill(toRType(fill));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPathFontSize(java.lang.Integer, int, int)
+     */
+    public void setPathFontSize(Integer fontSize, int ROIIndex, int shapeIndex)
+    {
+        Path o = getPath(ROIIndex, shapeIndex);
+        o.setFontSize(toRType(fontSize));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPathID(java.lang.String, int, int)
+     */
+    public void setPathID(String id, int ROIIndex, int shapeIndex)
+    {
+        checkDuplicateLSID(Path.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.ROI_INDEX, ROIIndex);
+        indexes.put(Index.SHAPE_INDEX, shapeIndex);
+        IObjectContainer o = getIObjectContainer(Path.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(Path.class, id, o);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPathLabel(java.lang.String, int, int)
+     */
+    public void setPathLabel(String label, int ROIIndex, int shapeIndex)
+    {
+        // TODO : not in OMERO model
+        // Path o = getPath(ROIIndex, shapeIndex);
+        // o.setLabel(toRType(label));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPathName(java.lang.String, int, int)
+     */
+    public void setPathName(String name, int ROIIndex, int shapeIndex)
+    {
+        // TODO : not in OMERO model
+        // Path o = getPath(ROIIndex, shapeIndex);
+        // o.setName(toRType(name));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPathStroke(java.lang.Integer, int, int)
+     */
+    public void setPathStroke(Integer stroke, int ROIIndex, int shapeIndex)
+    {
+        // TODO : not in OMERO model
+        // Path o = getPath(ROIIndex, shapeIndex);
+        // o.setStroke(toRType(stroke));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPathStrokeDashArray(java.lang.String, int, int)
+     */
+    public void setPathStrokeDashArray(String strokeDashArray, int ROIIndex,
+            int shapeIndex)
+    {
+        Path o = getPath(ROIIndex, shapeIndex);
+        o.setStrokeDashArray(toRType(strokeDashArray));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPathStrokeWidth(java.lang.Double, int, int)
+     */
+    public void setPathStrokeWidth(Double strokeWidth, int ROIIndex,
+            int shapeIndex)
+    {
+        // TODO : not in OMERO model
+        //Path o = getPath(ROIIndex, shapeIndex);
+        //o.setStrokeWidth(toRType(strokeWidth));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPathTheC(java.lang.Integer, int, int)
+     */
+    public void setPathTheC(Integer theC, int ROIIndex, int shapeIndex)
+    {
+        Path o = getPath(ROIIndex, shapeIndex);
+        o.setTheC(toRType(theC));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPathTheT(java.lang.Integer, int, int)
+     */
+    public void setPathTheT(Integer theT, int ROIIndex, int shapeIndex)
+    {
+        Path o = getPath(ROIIndex, shapeIndex);
+        o.setTheT(toRType(theT));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPathTheZ(java.lang.Integer, int, int)
+     */
+    public void setPathTheZ(Integer theZ, int ROIIndex, int shapeIndex)
+    {
+        Path o = getPath(ROIIndex, shapeIndex);
+        o.setTheZ(toRType(theZ));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPathTransform(java.lang.String, int, int)
+     */
+    public void setPathTransform(String transform, int ROIIndex, int shapeIndex)
+    {
+        Path o = getPath(ROIIndex, shapeIndex);
+        o.setTransform(toRType(transform));
+    }
+
+    //////// Pixels /////////
+
+    private Pixels getPixels(int imageIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.IMAGE_INDEX, imageIndex);
+        indexes.put(Index.PIXELS_INDEX, 0);
+        Pixels p = getSourceObject(Pixels.class, indexes);
+        p.setSha1(rstring("Foo"));
+        return p;
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsID(java.lang.String, int)
+     */
+    public void setPixelsID(String id, int imageIndex)
+    {
+        checkDuplicateLSID(Pixels.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.IMAGE_INDEX, imageIndex);
+        indexes.put(Index.PIXELS_INDEX, 0);
+        IObjectContainer o = getIObjectContainer(Pixels.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(Pixels.class, id, o);
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsAnnotationRef(java.lang.String, int, int)
+     */
+    public void setPixelsAnnotationRef(String annotation, int imageIndex,
+            int annotationRefIndex)
+    {
+        LSID key = new LSID(Pixels.class, imageIndex, 0, annotationRefIndex);
+        addReference(key, new LSID(annotation));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsBinDataBigEndian(java.lang.Boolean, int, int)
+     */
+    public void setPixelsBinDataBigEndian(Boolean bigEndian, int imageIndex,
+            int binDataIndex)
+    {
+        // TODO : not in OMERO model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsDimensionOrder(ome.xml.r201004.enums.DimensionOrder, int)
+     */
+    public void setPixelsDimensionOrder(
+            ome.xml.r201004.enums.DimensionOrder dimensionOrder, int imageIndex)
+    {
+        Pixels o = getPixels(imageIndex);
+        o.setDimensionOrder((DimensionOrder) getEnumeration(
+            DimensionOrder.class, dimensionOrder.toString()));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsPhysicalSizeX(java.lang.Double, int)
+     */
+    public void setPixelsPhysicalSizeX(Double physicalSizeX, int imageIndex)
+    {
+        Pixels o = getPixels(imageIndex);
+        o.setPhysicalSizeX(toRType(physicalSizeX));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsPhysicalSizeY(java.lang.Double, int)
+     */
+    public void setPixelsPhysicalSizeY(Double physicalSizeY, int imageIndex)
+    {
+        Pixels o = getPixels(imageIndex);
+        o.setPhysicalSizeY(toRType(physicalSizeY));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsPhysicalSizeZ(java.lang.Double, int)
+     */
+    public void setPixelsPhysicalSizeZ(Double physicalSizeZ, int imageIndex)
+    {
+        Pixels o = getPixels(imageIndex);
+        o.setPhysicalSizeZ(toRType(physicalSizeZ));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsSizeC(ome.xml.r201004.primitives.PositiveInteger, int)
+     */
+    public void setPixelsSizeC(PositiveInteger sizeC, int imageIndex)
+    {
+        Pixels o = getPixels(imageIndex);
+        o.setSizeC(toRType(sizeC));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsSizeT(ome.xml.r201004.primitives.PositiveInteger, int)
+     */
+    public void setPixelsSizeT(PositiveInteger sizeT, int imageIndex)
+    {
+        Pixels o = getPixels(imageIndex);
+        o.setSizeT(toRType(sizeT));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsSizeX(ome.xml.r201004.primitives.PositiveInteger, int)
+     */
+    public void setPixelsSizeX(PositiveInteger sizeX, int imageIndex)
+    {
+        Pixels o = getPixels(imageIndex);
+        o.setSizeX(toRType(sizeX));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsSizeY(ome.xml.r201004.primitives.PositiveInteger, int)
+     */
+    public void setPixelsSizeY(PositiveInteger sizeY, int imageIndex)
+    {
+        Pixels o = getPixels(imageIndex);
+        o.setSizeY(toRType(sizeY));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsSizeZ(ome.xml.r201004.primitives.PositiveInteger, int)
+     */
+    public void setPixelsSizeZ(PositiveInteger sizeZ, int imageIndex)
+    {
+        Pixels o = getPixels(imageIndex);
+        o.setSizeZ(toRType(sizeZ));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsTimeIncrement(java.lang.Double, int)
+     */
+    public void setPixelsTimeIncrement(Double timeIncrement, int imageIndex)
+    {
+        Pixels o = getPixels(imageIndex);
+        o.setTimeIncrement(toRType(timeIncrement));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsType(ome.xml.r201004.enums.PixelType, int)
+     */
+    public void setPixelsType(PixelType type, int imageIndex)
+    {
+        Pixels o = getPixels(imageIndex);
+        o.setPixelsType(
+            (PixelsType) getEnumeration(PixelsType.class, type.toString()));
+    }
+
+    //////// Plane /////////
+
+    private PlaneInfo getPlane(int imageIndex, int planeIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.IMAGE_INDEX, imageIndex);
+        indexes.put(Index.PIXELS_INDEX, 0);
+        indexes.put(Index.PLANE_INDEX, planeIndex);
+        return getSourceObject(PlaneInfo.class, indexes);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlaneAnnotationRef(java.lang.String, int, int, int)
+     */
+    public void setPlaneAnnotationRef(String annotation, int imageIndex,
+            int planeIndex, int annotationRefIndex)
+    {
+        LSID key = new LSID(
+            PlaneInfo.class, imageIndex, planeIndex, annotationRefIndex);
+        addReference(key, new LSID(annotation));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlaneDeltaT(java.lang.Double, int, int)
+     */
+    public void setPlaneDeltaT(Double deltaT, int imageIndex, int planeIndex)
+    {
+        PlaneInfo o = getPlane(imageIndex, planeIndex);
+        o.setDeltaT(toRType(deltaT));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlaneExposureTime(java.lang.Double, int, int)
+     */
+    public void setPlaneExposureTime(Double exposureTime, int imageIndex,
+            int planeIndex)
+    {
+        PlaneInfo o = getPlane(imageIndex, planeIndex);
+        o.setExposureTime(toRType(exposureTime));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlaneHashSHA1(java.lang.String, int, int)
+     */
+    public void setPlaneHashSHA1(String hashSHA1, int imageIndex, int planeIndex)
+    {
+        // TODO : not in the OMERO model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlanePositionX(java.lang.Double, int, int)
+     */
+    public void setPlanePositionX(Double positionX, int imageIndex,
+            int planeIndex)
+    {
+        PlaneInfo o = getPlane(imageIndex, planeIndex);
+        o.setPositionX(toRType(positionX));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlanePositionY(java.lang.Double, int, int)
+     */
+    public void setPlanePositionY(Double positionY, int imageIndex,
+            int planeIndex)
+    {
+        PlaneInfo o = getPlane(imageIndex, planeIndex);
+        o.setPositionY(toRType(positionY));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlanePositionZ(java.lang.Double, int, int)
+     */
+    public void setPlanePositionZ(Double positionZ, int imageIndex,
+            int planeIndex)
+    {
+        PlaneInfo o = getPlane(imageIndex, planeIndex);
+        o.setPositionZ(toRType(positionZ));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlaneTheC(java.lang.Integer, int, int)
+     */
+    public void setPlaneTheC(Integer theC, int imageIndex, int planeIndex)
+    {
+        PlaneInfo o = getPlane(imageIndex, planeIndex);
+        o.setTheC(toRType(theC));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlaneTheT(java.lang.Integer, int, int)
+     */
+    public void setPlaneTheT(Integer theT, int imageIndex, int planeIndex)
+    {
+        PlaneInfo o = getPlane(imageIndex, planeIndex);
+        o.setTheT(toRType(theT));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlaneTheZ(java.lang.Integer, int, int)
+     */
+    public void setPlaneTheZ(Integer theZ, int imageIndex, int planeIndex)
+    {
+        PlaneInfo o = getPlane(imageIndex, planeIndex);
+        o.setTheZ(toRType(theZ));
+    }
+
+    //////// PlateAcquisition /////////
+
+    private PlateAcquisition getPlateAcquisition(
+        int plateIndex, int plateAcquisitionIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.PLATE_INDEX, plateIndex);
+        indexes.put(Index.PLATE_ACQUISITION_INDEX, plateAcquisitionIndex);
+        return getSourceObject(PlateAcquisition.class, indexes);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateAcquisitionAnnotationRef(java.lang.String, int, int, int)
+     */
+    public void setPlateAcquisitionAnnotationRef(String annotation,
+            int plateIndex, int plateAcquisitionIndex, int annotationRefIndex)
+    {
+        LSID key = new LSID(PlateAcquisition.class, plateIndex,
+            plateAcquisitionIndex);
+        addReference(key, new LSID(annotation));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateAcquisitionDescription(java.lang.String, int, int)
+     */
+    public void setPlateAcquisitionDescription(String description,
+            int plateIndex, int plateAcquisitionIndex)
+    {
+        PlateAcquisition o =
+            getPlateAcquisition(plateIndex, plateAcquisitionIndex);
+        o.setDescription(toRType(description));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateAcquisitionEndTime(java.lang.String, int, int)
+     */
+    public void setPlateAcquisitionEndTime(String endTime, int plateIndex,
+            int plateAcquisitionIndex)
+    {
+        // TODO : should the type be changed to Timestamp?
+        //PlateAcquisition o =
+        //    getPlateAcquisition(plateIndex, plateAcquisitionIndex);
+        //o.setEndTime(toRType(endTime));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateAcquisitionID(java.lang.String, int, int)
+     */
+    public void setPlateAcquisitionID(String id, int plateIndex,
+            int plateAcquisitionIndex)
+    {
+        checkDuplicateLSID(PlateAcquisition.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.PLATE_INDEX, plateIndex);
+        indexes.put(Index.PLATE_ACQUISITION_INDEX, plateAcquisitionIndex);
+        IObjectContainer o =
+            getIObjectContainer(PlateAcquisition.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(PlateAcquisition.class, id, o);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateAcquisitionMaximumFieldCount(java.lang.Integer, int, int)
+     */
+    public void setPlateAcquisitionMaximumFieldCount(Integer maximumFieldCount,
+            int plateIndex, int plateAcquisitionIndex)
+    {
+        PlateAcquisition o =
+            getPlateAcquisition(plateIndex, plateAcquisitionIndex);
+        o.setMaximumFieldCount(toRType(maximumFieldCount));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateAcquisitionName(java.lang.String, int, int)
+     */
+    public void setPlateAcquisitionName(String name, int plateIndex,
+            int plateAcquisitionIndex)
+    {
+        PlateAcquisition o =
+            getPlateAcquisition(plateIndex, plateAcquisitionIndex);
+        o.setName(toRType(name));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateAcquisitionStartTime(java.lang.String, int, int)
+     */
+    public void setPlateAcquisitionStartTime(String startTime, int plateIndex,
+            int plateAcquisitionIndex)
+    {
+        // TODO : should the type be changed to Timestamp?
+        //PlateAcquisition o =
+        //    getPlateAcquisition(plateIndex, plateAcquisitionIndex);
+        //o.setStartTime(toRType(startTime));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateAcquisitionWellSampleRef(java.lang.String, int, int, int)
+     */
+    public void setPlateAcquisitionWellSampleRef(String wellSample,
+            int plateIndex, int plateAcquisitionIndex, int wellSampleRefIndex)
+    {
+        LSID key = new LSID(PlateAcquisition.class, plateIndex,
+            plateAcquisitionIndex, wellSampleRefIndex);
+        addReference(key, new LSID(wellSample));
+    }
+
+    //////// Plate /////////
+
+    private Plate getPlate(int plateIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.PLATE_INDEX, plateIndex);
+        return getSourceObject(Plate.class, indexes);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateAnnotationRef(java.lang.String, int, int)
+     */
+    public void setPlateAnnotationRef(String annotation, int plateIndex,
+            int annotationRefIndex)
+    {
+        LSID key = new LSID(Plate.class, plateIndex, annotationRefIndex);
+        addReference(key, new LSID(annotation));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateColumnNamingConvention(ome.xml.r201004.enums.NamingConvention, int)
+     */
+    public void setPlateColumnNamingConvention(
+            NamingConvention columnNamingConvention, int plateIndex)
+    {
+        Plate o = getPlate(plateIndex);
+        o.setColumnNamingConvention(toRType(columnNamingConvention));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateColumns(java.lang.Integer, int)
+     */
+    public void setPlateColumns(Integer columns, int plateIndex)
+    {
+        Plate o = getPlate(plateIndex);
+        o.setCols(toRType(columns));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateDescription(java.lang.String, int)
+     */
+    public void setPlateDescription(String description, int plateIndex)
+    {
+        Plate o = getPlate(plateIndex);
+        o.setDescription(toRType(description));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateExternalIdentifier(java.lang.String, int)
+     */
+    public void setPlateExternalIdentifier(String externalIdentifier,
+            int plateIndex)
+    {
+        Plate o = getPlate(plateIndex);
+        o.setExternalIdentifier(toRType(externalIdentifier));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateID(java.lang.String, int)
+     */
+    public void setPlateID(String id, int plateIndex)
+    {
+        checkDuplicateLSID(Plate.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.PLATE_INDEX, plateIndex);
+        IObjectContainer o = getIObjectContainer(Plate.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(Plate.class, id, o);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateName(java.lang.String, int)
+     */
+    public void setPlateName(String name, int plateIndex)
+    {
+        Plate o = getPlate(plateIndex);
+        o.setName(toRType(name));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateRowNamingConvention(ome.xml.r201004.enums.NamingConvention, int)
+     */
+    public void setPlateRowNamingConvention(
+            NamingConvention rowNamingConvention, int plateIndex)
+    {
+        Plate o = getPlate(plateIndex);
+        o.setRowNamingConvention(toRType(rowNamingConvention));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateRows(java.lang.Integer, int)
+     */
+    public void setPlateRows(Integer rows, int plateIndex)
+    {
+        Plate o = getPlate(plateIndex);
+        o.setRows(toRType(rows));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateScreenRef(java.lang.String, int, int)
+     */
+    public void setPlateScreenRef(String screen, int plateIndex,
+            int screenRefIndex)
+    {
+        LSID key = new LSID(Plate.class, plateIndex, screenRefIndex);
+        addReference(key, new LSID(screen));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateStatus(java.lang.String, int)
+     */
+    public void setPlateStatus(String status, int plateIndex)
+    {
+        Plate o = getPlate(plateIndex);
+        o.setStatus(toRType(status));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateWellOriginX(java.lang.Double, int)
+     */
+    public void setPlateWellOriginX(Double wellOriginX, int plateIndex)
+    {
+        Plate o = getPlate(plateIndex);
+        o.setWellOriginX(toRType(wellOriginX));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateWellOriginY(java.lang.Double, int)
+     */
+    public void setPlateWellOriginY(Double wellOriginY, int plateIndex)
+    {
+        Plate o = getPlate(plateIndex);
+        o.setWellOriginY(toRType(wellOriginY));
+    }
+
+    //////// Point /////////
+
+    private Point getPoint(int ROIIndex, int shapeIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.ROI_INDEX, ROIIndex);
+        indexes.put(Index.SHAPE_INDEX, shapeIndex);
+        return getSourceObject(Point.class, indexes);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPointDescription(java.lang.String, int, int)
+     */
+    public void setPointDescription(String description, int ROIIndex,
+            int shapeIndex)
+    {
+        // TODO : not in OMERO model
+        //Point o = getPoint(ROIIndex, shapeIndex);
+        //o.setDescription(toRType(description));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPointFill(java.lang.Integer, int, int)
+     */
+    public void setPointFill(Integer fill, int ROIIndex, int shapeIndex)
+    {
+        // TODO : not in OMERO model
+        //Point o = getPoint(ROIIndex, shapeIndex);
+        //o.setFill(toRType(fill));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPointFontSize(java.lang.Integer, int, int)
+     */
+    public void setPointFontSize(Integer fontSize, int ROIIndex, int shapeIndex)
+    {
+        Point o = getPoint(ROIIndex, shapeIndex);
+        o.setFontSize(toRType(fontSize));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPointID(java.lang.String, int, int)
+     */
+    public void setPointID(String id, int ROIIndex, int shapeIndex)
+    {
+        checkDuplicateLSID(Point.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.ROI_INDEX, ROIIndex);
+        indexes.put(Index.SHAPE_INDEX, shapeIndex);
+        IObjectContainer o = getIObjectContainer(Point.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(Point.class, id, o);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPointLabel(java.lang.String, int, int)
+     */
+    public void setPointLabel(String label, int ROIIndex, int shapeIndex)
+    {
+        // TODO : not in OMERO model
+        //Point o = getPoint(ROIIndex, shapeIndex);
+        //o.setLabel(toRType(label));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPointName(java.lang.String, int, int)
+     */
+    public void setPointName(String name, int ROIIndex, int shapeIndex)
+    {
+        // TODO : not in OMERO model
+        //Point o = getPoint(ROIIndex, shapeIndex);
+        //o.setName(toRType(name));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPointStroke(java.lang.Integer, int, int)
+     */
+    public void setPointStroke(Integer stroke, int ROIIndex, int shapeIndex)
+    {
+        // TODO : not in OMERO model
+        //Point o = getPoint(ROIIndex, shapeIndex);
+        //o.setStroke(toRType(stroke));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPointStrokeDashArray(java.lang.String, int, int)
+     */
+    public void setPointStrokeDashArray(String strokeDashArray, int ROIIndex,
+            int shapeIndex)
+    {
+        Point o = getPoint(ROIIndex, shapeIndex);
+        o.setStrokeDashArray(toRType(strokeDashArray));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPointStrokeWidth(java.lang.Double, int, int)
+     */
+    public void setPointStrokeWidth(Double strokeWidth, int ROIIndex,
+            int shapeIndex)
+    {
+        // TODO : not in OMERO model
+        //Point o = getPoint(ROIIndex, shapeIndex);
+        //o.setStrokeWidth(toRType(strokeWidth.intValue()));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPointTheC(java.lang.Integer, int, int)
+     */
+    public void setPointTheC(Integer theC, int ROIIndex, int shapeIndex)
+    {
+        Point o = getPoint(ROIIndex, shapeIndex);
+        o.setTheC(toRType(theC));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPointTheT(java.lang.Integer, int, int)
+     */
+    public void setPointTheT(Integer theT, int ROIIndex, int shapeIndex)
+    {
+        Point o = getPoint(ROIIndex, shapeIndex);
+        o.setTheT(toRType(theT));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPointTheZ(java.lang.Integer, int, int)
+     */
+    public void setPointTheZ(Integer theZ, int ROIIndex, int shapeIndex)
+    {
+        Point o = getPoint(ROIIndex, shapeIndex);
+        o.setTheZ(toRType(theZ));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPointTransform(java.lang.String, int, int)
+     */
+    public void setPointTransform(String transform, int ROIIndex, int shapeIndex)
+    {
+        Point o = getPoint(ROIIndex, shapeIndex);
+        o.setTransform(toRType(transform));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPointX(java.lang.Double, int, int)
+     */
+    public void setPointX(Double x, int ROIIndex, int shapeIndex)
+    {
+        Point o = getPoint(ROIIndex, shapeIndex);
+        o.setCx(toRType(x));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPointY(java.lang.Double, int, int)
+     */
+    public void setPointY(Double y, int ROIIndex, int shapeIndex)
+    {
+        Point o = getPoint(ROIIndex, shapeIndex);
+        o.setCy(toRType(y));
+    }
+
+    //////// Polyline /////////
+
+    private Polyline getPolyline(int ROIIndex, int shapeIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.ROI_INDEX, ROIIndex);
+        indexes.put(Index.SHAPE_INDEX, shapeIndex);
+        return getSourceObject(Polyline.class, indexes);
+    }    
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylineID(java.lang.String, int, int)
+     */
+    public void setPolylineID(String id, int ROIIndex, int shapeIndex)
+    {
+        checkDuplicateLSID(Polyline.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.ROI_INDEX, ROIIndex);
+        indexes.put(Index.SHAPE_INDEX, shapeIndex);
+        IObjectContainer o = getIObjectContainer(Polyline.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(Polyline.class, id, o);
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylineClosed(java.lang.Boolean, int, int)
+     */
+    public void setPolylineClosed(Boolean closed, int ROIIndex, int shapeIndex)
+    {
+//      Polyline o = getPolyline(ROIIndex, shapeIndex);
+//      o.set???(toRType(closed));
+      // TODO not in OMERO Model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylineDescription(java.lang.String, int, int)
+     */
+    public void setPolylineDescription(String description, int ROIIndex,
+            int shapeIndex)
+    {
+//      Polyline o = getPolyline(ROIIndex, shapeIndex);
+//      o.set???(toRType(description));
+      // TODO not in OMERO Model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylineFill(java.lang.Integer, int, int)
+     */
+    public void setPolylineFill(Integer fill, int ROIIndex, int shapeIndex)
+    {
+//      Polyline o = getPolyline(ROIIndex, shapeIndex);
+//      o.set???(toRType(fill));
+      // TODO which in OMERO Model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylineFontSize(java.lang.Integer, int, int)
+     */
+    public void setPolylineFontSize(Integer fontSize, int ROIIndex,
+            int shapeIndex)
+    {
+        Polyline o = getPolyline(ROIIndex, shapeIndex);
+        o.setFontSize(toRType(fontSize));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylineLabel(java.lang.String, int, int)
+     */
+    public void setPolylineLabel(String label, int ROIIndex, int shapeIndex)
+    {
+//      Polyline o = getPolyline(ROIIndex, shapeIndex);
+//      o.set???(toRType(label));
+      // TODO not in OMERO Model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylineName(java.lang.String, int, int)
+     */
+    public void setPolylineName(String name, int ROIIndex, int shapeIndex)
+    {
+//      Polyline o = getPolyline(ROIIndex, shapeIndex);
+//      o.set???(toRType(name));
+      // TODO not in OMERO Model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylinePoints(java.lang.String, int, int)
+     */
+    public void setPolylinePoints(String points, int ROIIndex, int shapeIndex)
+    {
+      Polyline o = getPolyline(ROIIndex, shapeIndex);
+      o.setPoints(toRType(points));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylineStroke(java.lang.Integer, int, int)
+     */
+    public void setPolylineStroke(Integer stroke, int ROIIndex, int shapeIndex)
+    {
+//      Polyline o = getPolyline(ROIIndex, shapeIndex);
+//      o.set???(toRType(stroke));
+      // TODO which in OMERO Model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylineStrokeDashArray(java.lang.String, int, int)
+     */
+    public void setPolylineStrokeDashArray(String strokeDashArray,
+            int ROIIndex, int shapeIndex)
+    {
+        Polyline o = getPolyline(ROIIndex, shapeIndex);
+        o.setStrokeDashArray(toRType(strokeDashArray));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylineStrokeWidth(java.lang.Double, int, int)
+     */
+    public void setPolylineStrokeWidth(Double strokeWidth, int ROIIndex,
+            int shapeIndex)
+    {
+//      Polyline o = getPolyline(ROIIndex, shapeIndex);
+//      o.setStrokeWidth(toRType(strokeWidth));
+      // TODO incorrect type in OMERO Model 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylineTheC(java.lang.Integer, int, int)
+     */
+    public void setPolylineTheC(Integer theC, int ROIIndex, int shapeIndex)
+    {
+        Polyline o = getPolyline(ROIIndex, shapeIndex);
+        o.setTheC(toRType(theC));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylineTheT(java.lang.Integer, int, int)
+     */
+    public void setPolylineTheT(Integer theT, int ROIIndex, int shapeIndex)
+    {
+        Polyline o = getPolyline(ROIIndex, shapeIndex);
+        o.setTheT(toRType(theT));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylineTheZ(java.lang.Integer, int, int)
+     */
+    public void setPolylineTheZ(Integer theZ, int ROIIndex, int shapeIndex)
+    {
+        Polyline o = getPolyline(ROIIndex, shapeIndex);
+        o.setTheZ(toRType(theZ));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPolylineTransform(java.lang.String, int, int)
+     */
+    public void setPolylineTransform(String transform, int ROIIndex,
+            int shapeIndex)
+    {
+        Polyline o = getPolyline(ROIIndex, shapeIndex);
+        o.setTransform(toRType(transform));
+    }
+
+    //////// Project /////////
+
+    /**
+     * Retrieve Project
+     * @param projectIndex
+     * @return
+     */
+    private Project getProject(int projectIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.PROJECT_INDEX, projectIndex);
+        return getSourceObject(Project.class, indexes);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setProjectID(java.lang.String, int)
+     */
+    public void setProjectID(String id, int projectIndex)
+    {
+        checkDuplicateLSID(Project.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.PROJECT_INDEX, projectIndex);
+        IObjectContainer o = getIObjectContainer(Project.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(Project.class, id, o);    }
+        
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setProjectAnnotationRef(java.lang.String, int, int)
+     */
+    public void setProjectAnnotationRef(String annotation, int projectIndex,
+            int annotationRefIndex)
+    {
+        LSID key = new LSID(Project.class, projectIndex, annotationRefIndex);
+        addReference(key, new LSID(annotation));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setProjectDescription(java.lang.String, int)
+     */
+    public void setProjectDescription(String description, int projectIndex)
+    {
+        Project o = getProject(projectIndex);
+        o.setDescription(toRType(description));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setProjectExperimenterRef(java.lang.String, int)
+     */
+    public void setProjectExperimenterRef(String experimenter, int projectIndex)
+    {
+        //LSID key = new LSID(Project.class, projectIndex, projectIndex);
+        //addReference(key, new LSID(experimenter));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setProjectGroupRef(java.lang.String, int)
+     */
+    public void setProjectGroupRef(String group, int projectIndex)
+    {
+        //LSID key = new LSID(Project.class, projectIndex, projectIndex);
+        //addReference(key, new LSID(group));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setProjectName(java.lang.String, int)
+     */
+    public void setProjectName(String name, int projectIndex)
+    {
+        Project o = getProject(projectIndex);
+        o.setName(toRType(name));
+    }
+
+    //////// ROI /////////
+
+    private Roi getROI(int ROIIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.ROI_INDEX, ROIIndex);
+        return getSourceObject(Roi.class, indexes);
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setROIID(java.lang.String, int)
+     */
+    public void setROIID(String id, int ROIIndex)
+    {
+        checkDuplicateLSID(Roi.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.ROI_INDEX, ROIIndex);
+        IObjectContainer o = getIObjectContainer(Roi.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(Roi.class, id, o);
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setROIAnnotationRef(java.lang.String, int, int)
+     */
+    public void setROIAnnotationRef(String annotation, int ROIIndex,
+            int annotationRefIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setROIDescription(java.lang.String, int)
+     */
+    public void setROIDescription(String description, int ROIIndex)
+    {
+        Roi o = getROI(ROIIndex);
+        o.setDescription(toRType(description));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setROIName(java.lang.String, int)
+     */
+    public void setROIName(String name, int ROIIndex)
+    {
+//        Roi o = getROI(ROIIndex);
+//        o.set(toRType(name));
+        // TODO not in OMERO model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setROINamespace(java.lang.String, int)
+     */
+    public void setROINamespace(String namespace, int ROIIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    //////// Reagent /////////
+
+    /**
+     * Retrieve Reagent
+     * @param screenIndex
+     * @param reagentIndex
+     * @return
+     */
+    private Reagent getReagent(int screenIndex, int reagentIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.SCREEN_INDEX, screenIndex);
+        indexes.put(Index.REAGENT_INDEX, reagentIndex);
+        return getSourceObject(Reagent.class, indexes);
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setReagentID(java.lang.String, int, int)
+     */
+    public void setReagentID(String id, int screenIndex, int reagentIndex)
+    {
+        checkDuplicateLSID(Arc.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.SCREEN_INDEX, screenIndex);
+        indexes.put(Index.REAGENT_INDEX, reagentIndex);
+        IObjectContainer o = getIObjectContainer(Arc.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(Arc.class, id, o);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setReagentAnnotationRef(java.lang.String, int, int, int)
+     */
+    public void setReagentAnnotationRef(String annotation, int screenIndex,
+            int reagentIndex, int annotationRefIndex)
+    {
+        LSID key = new LSID(Reagent.class, screenIndex, reagentIndex, annotationRefIndex);
+        addReference(key, new LSID(annotation));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setReagentDescription(java.lang.String, int, int)
+     */
+    public void setReagentDescription(String description, int screenIndex,
+            int reagentIndex)
+    {
+        Reagent o = getReagent(screenIndex, reagentIndex);
+        o.setDescription(toRType(description));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setReagentName(java.lang.String, int, int)
+     */
+    public void setReagentName(String name, int screenIndex, int reagentIndex)
+    {
+        Reagent o = getReagent(screenIndex, reagentIndex);
+        o.setName(toRType(name));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setReagentReagentIdentifier(java.lang.String, int, int)
+     */
+    public void setReagentReagentIdentifier(String reagentIdentifier,
+            int screenIndex, int reagentIndex)
+    {
+        Reagent o = getReagent(screenIndex, reagentIndex);
+        o.setReagentIdentifier(toRType(reagentIdentifier));
+    }
+    
+
+    //////// Rectangle /////////
+    
+    /**
+     * Retrieve the Rectangle object (as a Rect object)
+     * @param ROIIndex
+     * @param shapeIndex
+     * @return
+     */
+    private Rect getRectangle(int ROIIndex, int shapeIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.ROI_INDEX, ROIIndex);
+        indexes.put(Index.SHAPE_INDEX, shapeIndex);
+        return getSourceObject(Rect.class, indexes);
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRectangleID(java.lang.String, int, int)
+     */
+    public void setRectangleID(String id, int ROIIndex, int shapeIndex)
+    {
+        checkDuplicateLSID(Rect.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.ROI_INDEX, ROIIndex);
+        indexes.put(Index.SHAPE_INDEX, shapeIndex);
+        IObjectContainer o = getIObjectContainer(Rect.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(Rect.class, id, o);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRectangleDescription(java.lang.String, int, int)
+     */
+    public void setRectangleDescription(String description, int ROIIndex,
+            int shapeIndex)
+    {
+//        Rect o = getRectangle(ROIIndex, shapeIndex);
+//        o.set???(toRType(description));
+        // TODO not in OMERO Model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRectangleFill(java.lang.Integer, int, int)
+     */
+    public void setRectangleFill(Integer fill, int ROIIndex, int shapeIndex)
+    {
+//        Rect o = getRectangle(ROIIndex, shapeIndex);
+//        o.set???(toRType(fill));
+        // TODO which in OMERO Model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRectangleFontSize(java.lang.Integer, int, int)
+     */
+    public void setRectangleFontSize(Integer fontSize, int ROIIndex,
+            int shapeIndex)
+    {
+        Rect o = getRectangle(ROIIndex, shapeIndex);
+        o.setFontSize(toRType(fontSize));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRectangleHeight(java.lang.Double, int, int)
+     */
+    public void setRectangleHeight(Double height, int ROIIndex, int shapeIndex)
+    {
+        Rect o = getRectangle(ROIIndex, shapeIndex);
+        o.setHeight(toRType(height));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRectangleLabel(java.lang.String, int, int)
+     */
+    public void setRectangleLabel(String label, int ROIIndex, int shapeIndex)
+    {
+//        Rect o = getRectangle(ROIIndex, shapeIndex);
+//        o.set???(toRType(label));
+        // TODO not in OMERO Model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRectangleName(java.lang.String, int, int)
+     */
+    public void setRectangleName(String name, int ROIIndex, int shapeIndex)
+    {
+//        Rect o = getRectangle(ROIIndex, shapeIndex);
+//        o.set???(toRType(name));
+        // TODO not in OMERO Model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRectangleStroke(java.lang.Integer, int, int)
+     */
+    public void setRectangleStroke(Integer stroke, int ROIIndex, int shapeIndex)
+    {
+//        Rect o = getRectangle(ROIIndex, shapeIndex);
+//        o.set???(toRType(stroke));
+        // TODO which in OMERO Model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRectangleStrokeDashArray(java.lang.String, int, int)
+     */
+    public void setRectangleStrokeDashArray(String strokeDashArray,
+            int ROIIndex, int shapeIndex)
+    {
+        Rect o = getRectangle(ROIIndex, shapeIndex);
+        o.setStrokeDashArray(toRType(strokeDashArray));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRectangleStrokeWidth(java.lang.Double, int, int)
+     */
+    public void setRectangleStrokeWidth(Double strokeWidth, int ROIIndex,
+            int shapeIndex)
+    {
+//        Rect o = getRectangle(ROIIndex, shapeIndex);
+//        o.setStrokeWidth(toRType(strokeWidth));
+        // TODO incorrect type in OMERO Model 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRectangleTheC(java.lang.Integer, int, int)
+     */
+    public void setRectangleTheC(Integer theC, int ROIIndex, int shapeIndex)
+    {
+        Rect o = getRectangle(ROIIndex, shapeIndex);
+        o.setTheC(toRType(theC));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRectangleTheT(java.lang.Integer, int, int)
+     */
+    public void setRectangleTheT(Integer theT, int ROIIndex, int shapeIndex)
+    {
+        Rect o = getRectangle(ROIIndex, shapeIndex);
+        o.setTheT(toRType(theT));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRectangleTheZ(java.lang.Integer, int, int)
+     */
+    public void setRectangleTheZ(Integer theZ, int ROIIndex, int shapeIndex)
+    {
+        Rect o = getRectangle(ROIIndex, shapeIndex);
+        o.setTheZ(toRType(theZ));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRectangleTransform(java.lang.String, int, int)
+     */
+    public void setRectangleTransform(String transform, int ROIIndex,
+            int shapeIndex)
+    {
+        Rect o = getRectangle(ROIIndex, shapeIndex);
+        o.setTransform(toRType(transform));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRectangleWidth(java.lang.Double, int, int)
+     */
+    public void setRectangleWidth(Double width, int ROIIndex, int shapeIndex)
+    {
+        Rect o = getRectangle(ROIIndex, shapeIndex);
+        o.setWidth(toRType(width));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRectangleX(java.lang.Double, int, int)
+     */
+    public void setRectangleX(Double x, int ROIIndex, int shapeIndex)
+    {
+        Rect o = getRectangle(ROIIndex, shapeIndex);
+        o.setX(toRType(x));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRectangleY(java.lang.Double, int, int)
+     */
+    public void setRectangleY(Double y, int ROIIndex, int shapeIndex)
+    {
+        Rect o = getRectangle(ROIIndex, shapeIndex);
+        o.setY(toRType(y));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRoot(java.lang.Object)
+     */
+    public void setRoot(Object root)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    //////// Screen /////////
+
+    /**
+     * Retrieve Screen
+     * @param screenIndex
+     * @return
+     */
+    private Screen getScreen(int screenIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.SCREEN_INDEX, screenIndex);
+        return getSourceObject(Screen.class, indexes);
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setScreenID(java.lang.String, int)
+     */
+    public void setScreenID(String id, int screenIndex)
+    {
+        checkDuplicateLSID(Screen.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.SCREEN_INDEX, screenIndex);
+        IObjectContainer o = getIObjectContainer(Screen.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(Screen.class, id, o);   
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setScreenAnnotationRef(java.lang.String, int, int)
+     */
+    public void setScreenAnnotationRef(String annotation, int screenIndex,
+            int annotationRefIndex)
+    {
+        LSID key = new LSID(Screen.class, screenIndex, annotationRefIndex);
+        addReference(key, new LSID(annotation));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setScreenDescription(java.lang.String, int)
+     */
+    public void setScreenDescription(String description, int screenIndex)
+    {
+        Screen o = getScreen(screenIndex);
+        o.setDescription(toRType(description));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setScreenName(java.lang.String, int)
+     */
+    public void setScreenName(String name, int screenIndex)
+    {
+        Screen o = getScreen(screenIndex);
+        o.setName(toRType(name));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setScreenPlateRef(java.lang.String, int, int)
+     */
+    public void setScreenPlateRef(String plate, int screenIndex,
+            int plateRefIndex)
+    {
+        LSID key = new LSID(Screen.class, screenIndex, plateRefIndex);
+        addReference(key, new LSID(plate));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setScreenProtocolDescription(java.lang.String, int)
+     */
+    public void setScreenProtocolDescription(String protocolDescription,
+            int screenIndex)
+    {
+        Screen o = getScreen(screenIndex);
+        o.setProtocolDescription(toRType(protocolDescription));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setScreenProtocolIdentifier(java.lang.String, int)
+     */
+    public void setScreenProtocolIdentifier(String protocolIdentifier,
+            int screenIndex)
+    {
+        Screen o = getScreen(screenIndex);
+        o.setProtocolIdentifier(toRType(protocolIdentifier));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setScreenReagentSetDescription(java.lang.String, int)
+     */
+    public void setScreenReagentSetDescription(String reagentSetDescription,
+            int screenIndex)
+    {
+        Screen o = getScreen(screenIndex);
+        o.setReagentSetDescription(toRType(reagentSetDescription));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setScreenReagentSetIdentifier(java.lang.String, int)
+     */
+    public void setScreenReagentSetIdentifier(String reagentSetIdentifier,
+            int screenIndex)
+    {
+        Screen o = getScreen(screenIndex);
+        o.setReagentSetIdentifier(toRType(reagentSetIdentifier));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setScreenType(java.lang.String, int)
+     */
+    public void setScreenType(String type, int screenIndex)
+    {
+        Screen o = getScreen(screenIndex);
+        o.setType(toRType(type));
+    }
+
+    //////// StageLabel /////////
+
+    /**
+     * Retrieve StageLabel
+     * @param imageIndex
+     * @return
+     */
+    private StageLabel getStageLabel(int imageIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.IMAGE_INDEX, imageIndex);
+        return getSourceObject(StageLabel.class, indexes);
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setStageLabelName(java.lang.String, int)
+     */
+    public void setStageLabelName(String name, int imageIndex)
+    {
+        StageLabel o = getStageLabel(imageIndex);
+        o.setName(toRType(name));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setStageLabelX(java.lang.Double, int)
+     */
+    public void setStageLabelX(Double x, int imageIndex)
+    {
+        StageLabel o = getStageLabel(imageIndex);
+        o.setPositionX(toRType(x));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setStageLabelY(java.lang.Double, int)
+     */
+    public void setStageLabelY(Double y, int imageIndex)
+    {
+        StageLabel o = getStageLabel(imageIndex);
+        o.setPositionY(toRType(y));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setStageLabelZ(java.lang.Double, int)
+     */
+    public void setStageLabelZ(Double z, int imageIndex)
+    {
+        StageLabel o = getStageLabel(imageIndex);
+        o.setPositionZ(toRType(z));
+    }
+
+    //////// String Annotation /////////
+
+    /**
+     * Retrieve StringAnnotation object ( as a CommentAnnotation object )
+     * @param XMLAnnotationIndex
+     * @return
+     */
+    private CommentAnnotation getStringAnnotation(int stringAnnotationIndex)
+    {
+        // TODO is comment annotation the right place to store string annotations?
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.STRING_ANNOTATION_INDEX, stringAnnotationIndex);
+        return getSourceObject(CommentAnnotation.class, indexes);
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setStringAnnotationID(java.lang.String, int)
+     */
+    public void setStringAnnotationID(String id, int stringAnnotationIndex)
+    {
+        checkDuplicateLSID(CommentAnnotation.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.STRING_ANNOTATION_INDEX, stringAnnotationIndex);
+        IObjectContainer o = getIObjectContainer(CommentAnnotation.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(CommentAnnotation.class, id, o);        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setStringAnnotationNamespace(java.lang.String, int)
+     */
+    public void setStringAnnotationNamespace(String namespace,
+            int stringAnnotationIndex)
+    {
+        CommentAnnotation o = getStringAnnotation(stringAnnotationIndex);
+        o.setNs(toRType(namespace));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setStringAnnotationValue(java.lang.String, int)
+     */
+    public void setStringAnnotationValue(String value, int stringAnnotationIndex)
+    {
+        CommentAnnotation o = getStringAnnotation(stringAnnotationIndex);
+        o.setTextValue(toRType(value));
+    }
+
+    //////// Text /////////
+    
+    /**
+     * Retrieve the Text object (as a Label object)
+     * @param ROIIndex
+     * @param shapeIndex
+     * @return
+     */
+    private Label getText(int ROIIndex, int shapeIndex)
+    {
+        
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.ROI_INDEX, ROIIndex);
+        indexes.put(Index.SHAPE_INDEX, shapeIndex);
+        return getSourceObject(Label.class, indexes);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTextID(java.lang.String, int, int)
+     */
+    public void setTextID(String id, int ROIIndex, int shapeIndex)
+    {
+        checkDuplicateLSID(Label.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.ROI_INDEX, ROIIndex);
+        indexes.put(Index.SHAPE_INDEX, shapeIndex);
+        IObjectContainer o = getIObjectContainer(Label.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(Label.class, id, o);        
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTextDescription(java.lang.String, int, int)
+     */
+    public void setTextDescription(String description, int ROIIndex,
+            int shapeIndex)
+    {
+//        Label o = getText(ROIIndex, shapeIndex);
+//        o.set???(toRType(description));
+     // TODO not in OMERO Model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTextFill(java.lang.Integer, int, int)
+     */
+    public void setTextFill(Integer fill, int ROIIndex, int shapeIndex)
+    {
+//        Label o = getText(ROIIndex, shapeIndex);
+//        o.set???(toRType(fill));
+     // TODO which in OMERO Model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTextFontSize(java.lang.Integer, int, int)
+     */
+    public void setTextFontSize(Integer fontSize, int ROIIndex, int shapeIndex)
+    {
+        Label o = getText(ROIIndex, shapeIndex);
+        o.setFontSize(toRType(fontSize));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTextLabel(java.lang.String, int, int)
+     */
+    public void setTextLabel(String label, int ROIIndex, int shapeIndex)
+    {
+//        Label o = getText(ROIIndex, shapeIndex);
+//        o.set???(toRType(label));
+        // TODO not in OMERO Model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTextName(java.lang.String, int, int)
+     */
+    public void setTextName(String name, int ROIIndex, int shapeIndex)
+    {
+//        Label o = getText(ROIIndex, shapeIndex);
+//        o.set???(toRType(name));
+     // TODO not in OMERO Model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTextStroke(java.lang.Integer, int, int)
+     */
+    public void setTextStroke(Integer stroke, int ROIIndex, int shapeIndex)
+    {
+//        Label o = getText(ROIIndex, shapeIndex);
+//        o.set???(toRType(stroke));
+        // TODO not in OMERO Model 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTextStrokeDashArray(java.lang.String, int, int)
+     */
+    public void setTextStrokeDashArray(String strokeDashArray, int ROIIndex,
+            int shapeIndex)
+    {
+        Label o = getText(ROIIndex, shapeIndex);
+        o.setStrokeDashArray(toRType(strokeDashArray));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTextStrokeWidth(java.lang.Double, int, int)
+     */
+    public void setTextStrokeWidth(Double strokeWidth, int ROIIndex,
+            int shapeIndex)
+    {
+//        Label o = getText(ROIIndex, shapeIndex);
+//        o.setStrokeWidth(toRType(strokeWidth));
+        // TODO incorrect type in OMERO Model 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTextTheC(java.lang.Integer, int, int)
+     */
+    public void setTextTheC(Integer theC, int ROIIndex, int shapeIndex)
+    {
+        Label o = getText(ROIIndex, shapeIndex);
+        o.setTheC(toRType(theC));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTextTheT(java.lang.Integer, int, int)
+     */
+    public void setTextTheT(Integer theT, int ROIIndex, int shapeIndex)
+    {
+        Label o = getText(ROIIndex, shapeIndex);
+        o.setTheT(toRType(theT));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTextTheZ(java.lang.Integer, int, int)
+     */
+    public void setTextTheZ(Integer theZ, int ROIIndex, int shapeIndex)
+    {
+        Label o = getText(ROIIndex, shapeIndex);
+        o.setTheZ(toRType(theZ));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTextTransform(java.lang.String, int, int)
+     */
+    public void setTextTransform(String transform, int ROIIndex, int shapeIndex)
+    {
+        Label o = getText(ROIIndex, shapeIndex);
+        o.setTransform(toRType(transform));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTextValue(java.lang.String, int, int)
+     */
+    public void setTextValue(String value, int ROIIndex, int shapeIndex)
+    {
+        Label o = getText(ROIIndex, shapeIndex);
+        o.setTextValue(toRType(value));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTextX(java.lang.Double, int, int)
+     */
+    public void setTextX(Double x, int ROIIndex, int shapeIndex)
+    {
+        Label o = getText(ROIIndex, shapeIndex);
+        o.setX(toRType(x));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTextY(java.lang.Double, int, int)
+     */
+    public void setTextY(Double y, int ROIIndex, int shapeIndex)
+    {
+        Label o = getText(ROIIndex, shapeIndex);
+        o.setY(toRType(y));
+    }
+
+    //////// TiffData /////////
+ 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTiffDataFirstC(java.lang.Integer, int, int)
+     */
+    public void setTiffDataFirstC(Integer firstC, int imageIndex,
+            int tiffDataIndex)
+    {
+        // TODO not in OMERO Model 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTiffDataFirstT(java.lang.Integer, int, int)
+     */
+    public void setTiffDataFirstT(Integer firstT, int imageIndex,
+            int tiffDataIndex)
+    {
+        // TODO not in OMERO Model 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTiffDataFirstZ(java.lang.Integer, int, int)
+     */
+    public void setTiffDataFirstZ(Integer firstZ, int imageIndex,
+            int tiffDataIndex)
+    {
+        // TODO not in OMERO Model 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTiffDataIFD(java.lang.Integer, int, int)
+     */
+    public void setTiffDataIFD(Integer ifd, int imageIndex, int tiffDataIndex)
+    {
+        // TODO not in OMERO Model 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTiffDataPlaneCount(java.lang.Integer, int, int)
+     */
+    public void setTiffDataPlaneCount(Integer planeCount, int imageIndex,
+            int tiffDataIndex)
+    {
+        // TODO not in OMERO Model 
+    }
+
+    //////// Timestamp /////////
+    
+    /**
+     * Retrieve TimestampAnnotation
+     * @param timestampAnnotationIndex
+     * @return
+     */
+    private TimestampAnnotation getTimestampAnnotation(int timestampAnnotationIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.TIMESTAMP_ANNOTATION_INDEX, timestampAnnotationIndex);
+        return getSourceObject(TimestampAnnotation.class, indexes);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTimestampAnnotationID(java.lang.String, int)
+     */
+    public void setTimestampAnnotationID(String id, int timestampAnnotationIndex)
+    {
+        checkDuplicateLSID(TimestampAnnotation.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.TIMESTAMP_ANNOTATION_INDEX, timestampAnnotationIndex);
+        IObjectContainer o = getIObjectContainer(TimestampAnnotation.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(TimestampAnnotation.class, id, o);       }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTimestampAnnotationNamespace(java.lang.String, int)
+     */
+    public void setTimestampAnnotationNamespace(String namespace,
+            int timestampAnnotationIndex)
+    {
+        TimestampAnnotation o = getTimestampAnnotation(timestampAnnotationIndex);
+        o.setNs(toRType(namespace));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTimestampAnnotationValue(java.lang.String, int)
+     */
+    public void setTimestampAnnotationValue(String value,
+            int timestampAnnotationIndex)
+    {
+        try
+        {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
+            java.util.Date date = sdf.parse(value);
+            Timestamp creationTimestamp = new Timestamp(date.getTime());
+            TimestampAnnotation o = getTimestampAnnotation(timestampAnnotationIndex);
+            o.setTimeValue(toRType(creationTimestamp));
+        }
+        catch (ParseException e)
+        {
+            log.error(String.format("Parsing start time failed!"), e);
+        }
+    }
+
+    //////// TransmittanceRange /////////
+
+    /**
+     * Retrieve TransmittanceRange
+     * @param instrumentIndex
+     * @param filterIndex
+     * @return
+     */
+    private TransmittanceRange getTransmittanceRange(int instrumentIndex, int filterIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
+        indexes.put(Index.FILTER_INDEX, filterIndex);
+        return getSourceObject(TransmittanceRange.class, indexes);
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTransmittanceRangeCutIn(java.lang.Integer, int, int)
+     */
+    public void setTransmittanceRangeCutIn(Integer cutIn, int instrumentIndex,
+            int filterIndex)
+    {
+        TransmittanceRange o = getTransmittanceRange(instrumentIndex, filterIndex);
+        o.setCutIn(toRType(cutIn));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTransmittanceRangeCutInTolerance(java.lang.Integer, int, int)
+     */
+    public void setTransmittanceRangeCutInTolerance(Integer cutInTolerance,
+            int instrumentIndex, int filterIndex)
+    {
+        TransmittanceRange o = getTransmittanceRange(instrumentIndex, filterIndex);
+        o.setCutInTolerance(toRType(cutInTolerance));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTransmittanceRangeCutOut(java.lang.Integer, int, int)
+     */
+    public void setTransmittanceRangeCutOut(Integer cutOut,
+            int instrumentIndex, int filterIndex)
+    {
+        TransmittanceRange o = getTransmittanceRange(instrumentIndex, filterIndex);
+        o.setCutOut(toRType(cutOut));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTransmittanceRangeCutOutTolerance(java.lang.Integer, int, int)
+     */
+    public void setTransmittanceRangeCutOutTolerance(Integer cutOutTolerance,
+            int instrumentIndex, int filterIndex)
+    {
+        TransmittanceRange o = getTransmittanceRange(instrumentIndex, filterIndex);
+        o.setCutOutTolerance(toRType(cutOutTolerance));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTransmittanceRangeTransmittance(ome.xml.r201004.primitives.PercentFraction, int, int)
+     */
+    public void setTransmittanceRangeTransmittance(
+            PercentFraction transmittance, int instrumentIndex, int filterIndex)
+    {
+        TransmittanceRange o = getTransmittanceRange(instrumentIndex, filterIndex);
+        o.setTransmittance(toRType(transmittance));
+    }
+
+    //////// UUID /////////
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setUUID(java.lang.String)
+     */
+    public void setUUID(String uuid)
+    {
+        // TODO not in OMERO Model 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setUUIDFileName(java.lang.String, int, int)
+     */
+    public void setUUIDFileName(String fileName, int imageIndex,
+            int tiffDataIndex)
+    {
+        // TODO not in OMERO Model         
+    }
+
+    //////// Well /////////
+    
+    /**
+     * Retrieve Well
+     * @param plateIndex
+     * @param wellIndex
+     * @return
+     */
+    private Well getWell(int plateIndex, int wellIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.PLATE_INDEX, plateIndex);
+        indexes.put(Index.WELL_INDEX, wellIndex);
+        return getSourceObject(Well.class, indexes);
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellID(java.lang.String, int, int)
+     */
+    public void setWellID(String id, int plateIndex, int wellIndex)
+    {
+        checkDuplicateLSID(Well.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.PLATE_INDEX, plateIndex);
+        indexes.put(Index.WELL_INDEX, wellIndex);
+        IObjectContainer o = getIObjectContainer(Well.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(Well.class, id, o);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellAnnotationRef(java.lang.String, int, int, int)
+     */
+    public void setWellAnnotationRef(String annotation, int plateIndex,
+            int wellIndex, int annotationRefIndex)
+    {
+        LSID key = new LSID(Well.class, plateIndex, wellIndex);
+        addReference(key, new LSID(annotation));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellColor(java.lang.Integer, int, int)
+     */
+    public void setWellColor(Integer color, int plateIndex, int wellIndex)
+    {
+        Well o = getWell(plateIndex, wellIndex);
+        Color c = new Color(color);
+        o.setRed(toRType(c.getRed()));
+        o.setGreen(toRType(c.getGreen()));
+        o.setBlue(toRType(c.getBlue()));
+        o.setAlpha(toRType(c.getAlpha()));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellColumn(ome.xml.r201004.primitives.NonNegativeInteger, int, int)
+     */
+    public void setWellColumn(NonNegativeInteger column, int plateIndex,
+            int wellIndex)
+    {
+        Well o = getWell(plateIndex, wellIndex);
+        o.setColumn(toRType(column));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellExternalDescription(java.lang.String, int, int)
+     */
+    public void setWellExternalDescription(String externalDescription,
+            int plateIndex, int wellIndex)
+    {
+        Well o = getWell(plateIndex, wellIndex);
+        o.setExternalDescription(toRType(externalDescription));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellExternalIdentifier(java.lang.String, int, int)
+     */
+    public void setWellExternalIdentifier(String externalIdentifier,
+            int plateIndex, int wellIndex)
+    {
+        Well o = getWell(plateIndex, wellIndex);
+        o.setExternalIdentifier(toRType(externalIdentifier));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellReagentRef(java.lang.String, int, int)
+     */
+    public void setWellReagentRef(String reagent, int plateIndex, int wellIndex)
+    {
+        LSID key = new LSID(Well.class, plateIndex, wellIndex);
+        addReference(key, new LSID(reagent));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellRow(ome.xml.r201004.primitives.NonNegativeInteger, int, int)
+     */
+    public void setWellRow(NonNegativeInteger row, int plateIndex, int wellIndex)
+    {
+        Well o = getWell(plateIndex, wellIndex);
+        o.setRow(toRType(row));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellStatus(java.lang.String, int, int)
+     */
+    public void setWellStatus(String status, int plateIndex, int wellIndex)
+    {
+        LSID key = new LSID(Well.class, plateIndex, wellIndex);
+        addReference(key, new LSID(status));
+    }
+    
+    //////// WellSample /////////
+    
+    /**
+     * Retrieve WellSample
+     * @param plateIndex
+     * @param wellIndex
+     * @param wellSampleIndex
+     * @return
+     */
+    private WellSample getWellSample(int plateIndex, int wellIndex, int wellSampleIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.PLATE_INDEX, plateIndex);
+        indexes.put(Index.WELL_INDEX, wellIndex);
+        indexes.put(Index.WELL_SAMPLE_INDEX, wellSampleIndex);
+        return getSourceObject(WellSample.class, indexes);
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellSampleID(java.lang.String, int, int, int)
+     */
+    public void setWellSampleID(String id, int plateIndex, int wellIndex,
+            int wellSampleIndex)
+    {
+        checkDuplicateLSID(WellSample.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.PLATE_INDEX, plateIndex);
+        indexes.put(Index.WELL_INDEX, wellIndex);
+        indexes.put(Index.WELL_SAMPLE_INDEX, wellSampleIndex);
+        IObjectContainer o = getIObjectContainer(WellSample.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(WellSample.class, id, o);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellSampleAnnotationRef(java.lang.String, int, int, int, int)
+     */
+    public void setWellSampleAnnotationRef(String annotation, int plateIndex,
+            int wellIndex, int wellSampleIndex, int annotationRefIndex)
+    {
+        LSID key = new LSID(WellSample.class, plateIndex, wellIndex, wellSampleIndex);
+        addReference(key, new LSID(annotation));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellSampleImageRef(java.lang.String, int, int, int)
+     */
+    public void setWellSampleImageRef(String image, int plateIndex,
+            int wellIndex, int wellSampleIndex)
+    {
+        LSID key = new LSID(WellSample.class, plateIndex, wellIndex, wellSampleIndex);
+        addReference(key, new LSID(image));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellSampleIndex(ome.xml.r201004.primitives.NonNegativeInteger, int, int, int)
+     */
+    public void setWellSampleIndex(NonNegativeInteger index, int plateIndex,
+            int wellIndex, int wellSampleIndex)
+    {
+        // TODO not in OMERO Model        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellSamplePositionX(java.lang.Double, int, int, int)
+     */
+    public void setWellSamplePositionX(Double positionX, int plateIndex,
+            int wellIndex, int wellSampleIndex)
+    {
+        WellSample o = getWellSample(plateIndex, wellIndex, wellSampleIndex);
+        o.setPosX(toRType(positionX));        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellSamplePositionY(java.lang.Double, int, int, int)
+     */
+    public void setWellSamplePositionY(Double positionY, int plateIndex,
+            int wellIndex, int wellSampleIndex)
+    {
+        WellSample o = getWellSample(plateIndex, wellIndex, wellSampleIndex);
+        o.setPosY(toRType(positionY));        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellSampleTimepoint(java.lang.Integer, int, int, int)
+     */
+    public void setWellSampleTimepoint(Integer timepoint, int plateIndex,
+            int wellIndex, int wellSampleIndex)
+    {
+        // WellSample o = getWellSample(plateIndex, wellIndex, wellSampleIndex);
+        // o.setTimepoint(toRType(timepoint));
+        // TODO Correct when model has been updated to use time-stamp
+    }
+
+    //////// XMLAnnotation /////////
+    
+    /**
+     * Retrieve XMLAnnotation
+     * @param XMLAnnotationIndex
+     * @return
+     */
+
+    private XmlAnnotation getXMLAnnotation(int XMLAnnotationIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.XML_ANNOTATION_INDEX, XMLAnnotationIndex);
+        return getSourceObject(XmlAnnotation.class, indexes);
+    }
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setXMLAnnotationID(java.lang.String, int)
+     */
+    public void setXMLAnnotationID(String id, int XMLAnnotationIndex)
+    {
+        checkDuplicateLSID(XmlAnnotation.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.XML_ANNOTATION_INDEX, XMLAnnotationIndex);
+        IObjectContainer o = getIObjectContainer(XmlAnnotation.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(XmlAnnotation.class, id, o);        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setXMLAnnotationNamespace(java.lang.String, int)
+     */
+    public void setXMLAnnotationNamespace(String namespace,
+            int XMLAnnotationIndex)
+    {
+        XmlAnnotation o = getXMLAnnotation(XMLAnnotationIndex);
+        o.setNs(toRType(namespace));
+   }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setXMLAnnotationValue(java.lang.String, int)
+     */
+    public void setXMLAnnotationValue(String value, int XMLAnnotationIndex)
+    {
+        XmlAnnotation o = getXMLAnnotation(XMLAnnotationIndex);
+        o.setTextValue(toRType(value));
+    }
+
 }
