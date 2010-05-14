@@ -81,38 +81,35 @@ public class FSFileSystemView
 	 * @param file The file to handle.
 	 * @return See above.
 	 */
-    private RepositoryPrx getRepository(DataObject file)
+    private Entry getRepository(DataObject file)
     {
+    	Entry entry;
+    	Iterator i;
+    	String path;
+    	FileData data;
+    	String refPath;
     	if (file instanceof ImageData) {
     		ImageData img = (ImageData) file;
-    		String refPath = img.getPathToFile();
+    		refPath = img.getPathToFile();
     		if (img.getIndex() >= 0) refPath = img.getParentFilePath();
-        	Entry entry;
-        	Iterator i = repositories.entrySet().iterator();
-        	String path;
-        	FileData data;
+        	i = repositories.entrySet().iterator();
+
         	while (i.hasNext()) {
     			entry = (Entry) i.next();
     			data = (FileData) entry.getKey();
     			path = data.getAbsolutePath();
     			if (refPath.startsWith(path)) 
-    				return (RepositoryPrx) entry.getValue();
+    				return entry;
     		}
     	} else if (file instanceof FileData) {
-    		FileData f = (FileData) file;
-    		if (isRoot(f))
-        		return repositories.get(f);
-        	String refPath = f.getAbsolutePath();
-        	Entry entry;
-        	Iterator i = repositories.entrySet().iterator();
-        	String path;
-        	FileData data;
+        	refPath = f.getAbsolutePath();
+        	i = repositories.entrySet().iterator();
         	while (i.hasNext()) {
     			entry = (Entry) i.next();
     			data = (FileData) entry.getKey();
     			path = data.getAbsolutePath();
     			if (refPath.startsWith(path)) 
-    				return (RepositoryPrx) entry.getValue();
+    				return entry;
     		}
     	}
     	
@@ -127,7 +124,8 @@ public class FSFileSystemView
      * @param useFileHiding  Pass <code>true</code> to display the hidden files,
      * 						<code>false</code> otherwise.
      */
-    private void populate(Vector<DataObject> files, List<FileSet> elements,
+    private void populate(FileData root, 
+    		Vector<DataObject> files, List<FileSet> elements,
     		boolean useFileHiding)
     {
     	if (elements == null) return;
@@ -146,11 +144,13 @@ public class FSFileSystemView
 		ImageData image;
 		String parentName;
 		int index;
+		String absolute = root.getAbsolutePath();
 		if (useFileHiding) {
 		} else {
 			while (i.hasNext()) {
 				fs = i.next();
 				name = fs.fileName;
+				System.err.println(name);
 				f = new File(name);
 				if (!f.isHidden()) {
 					count = fs.imageCount;
@@ -162,6 +162,9 @@ public class FSFileSystemView
 							of = new OriginalFileI();
 							of.setName(omero.rtypes.rstring(name));
 							file = of;
+						} else {
+							file.setPath(omero.rtypes.rstring(
+									absolute+file.getPath().getValue()));
 						}
 						files.addElement(new FileData(file));
 					} else {
@@ -309,12 +312,17 @@ public class FSFileSystemView
     	throws FSAccessException
     {
     	if (object == null) return null;
+    	Entry entry;
+    	RepositoryPrx proxy;
+    	FileData root;
     	if (object instanceof FileData) {
     		FileData f = (FileData) object;
     		if (f.isDirectory() || f.isHidden())
         		return null;
         	if (!f.getAbsolutePath().contains(".")) return null;
-        	RepositoryPrx proxy = getRepository(f);
+        	entry = getRepository(f);
+        	if (entry == null) return null;
+        	proxy = (RepositoryPrx) entry.getValue();
         	if (proxy == null) return null;
         	try {
         		return proxy.getThumbnail(f.getAbsolutePath());
@@ -327,7 +335,9 @@ public class FSFileSystemView
     		String name = img.getPathToFile();
     		int index = img.getIndex();
     		if (index >= 0) name = img.getParentFilePath();
-        	RepositoryPrx proxy = getRepository(object);
+    		entry = getRepository(object);
+        	if (entry == null) return null;
+        	proxy = (RepositoryPrx) entry.getValue();
         	if (proxy == null) return null;
         	try {
         		if (index >= 0) 
@@ -355,12 +365,14 @@ public class FSFileSystemView
     {
     	if (dir == null) return null;
     	if (!dir.isDirectory()) return null;
-    	RepositoryPrx proxy = getRepository(dir);
+    	Entry entry = getRepository(dir);
+    	RepositoryPrx proxy = (RepositoryPrx) entry.getValue();
+    	FileData root = (FileData) entry.getKey();
     	if (proxy == null) return null;
     	Vector<DataObject> files = new Vector<DataObject>();
     	try {
     		String s = dir.getAbsolutePath();
-    		populate(files, proxy.listObjects(s, config), useFileHiding);
+    		populate(root, files, proxy.listFileSets(s, config), useFileHiding);
 		} catch (Exception e) { 
 			new FSAccessException("Cannot retrives the files contained in: " +
 					dir.getAbsolutePath(), e);

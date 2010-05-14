@@ -124,8 +124,8 @@ class StatusBar
         setBorder(BorderFactory.createEtchedBorder());
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-        p.add(statusButton);
-        p.add(Box.createRigidArea(H_SPACER_SIZE));
+        //p.add(statusButton);
+        //p.add(Box.createRigidArea(H_SPACER_SIZE));
         p.add(status);
         add(UIUtilities.buildComponentPanel(p));
         JPanel progressPanel = new JPanel();
