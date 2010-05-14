@@ -505,14 +505,20 @@ public class FigureParam
 	 * 
 	 * @param zStart The value to set.
 	 */
-	public void setZStart(int zStart) { this.zStart = zStart; }
+	public void setZStart(int zStart)
+	{ 
+		this.zStart = zStart; 
+	}
 	
 	/**
 	 * Sets the last z-section to project. 
 	 * 
 	 * @param zEnd The value to set.
 	 */
-	public void setZEnd(int zEnd) { this.zEnd = zEnd; }
+	public void setZEnd(int zEnd)
+	{ 
+		this.zEnd = zEnd; 
+	}
 	
 	/**
 	 * Sets the projection stepping.

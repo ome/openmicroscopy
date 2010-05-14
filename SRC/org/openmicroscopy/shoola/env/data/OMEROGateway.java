@@ -5623,8 +5623,10 @@ class OMEROGateway
 			map.put("Merged_Names", omero.rtypes.rbool(
 					param.getMergedLabel()));
 			map.put("Image_IDs", omero.rtypes.rlist(ids));
-			map.put("Z_Start", omero.rtypes.rint(param.getStartZ()));
-			map.put("Z_End", omero.rtypes.rint(param.getEndZ()));
+			if (param.getStartZ() >= 0)
+				map.put("Z_Start", omero.rtypes.rint(param.getStartZ()));
+			if (param.getEndZ() >= 0)
+				map.put("Z_End", omero.rtypes.rint(param.getEndZ()));
 			if (split.size() > 0) 
 				map.put("Channel_Names", omero.rtypes.rmap(split));
 			if (merge.size() > 0)
