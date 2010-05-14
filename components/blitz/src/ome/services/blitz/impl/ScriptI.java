@@ -209,13 +209,18 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         safeRunnableCall(__current, __cb, false, new Callable<Long>() {
             public Long call() throws Exception {
                 try {
-                    if (scripts.findInDb(path, false) != null) {
+                    // ticket:2356 - should only overwrite non-scripts
+                    Long scriptID = scripts.findInDb(path, true);
+                    Long fileID = scripts.findInDb(path, false);
+                    if (scriptID != null) {
                         throw new ApiUsageException(null, null,
                                 "Path already exists: " + path + "\n" +
                                 "Use editScript to modify existing official scripts.");
+                    } else if (fileID != null) {
+                        log.info("Overwriting existing non-script: " + fileID);
                     }
                     RepoFile f = scripts.write(path, scriptText);
-                    OriginalFile file = scripts.addOrReplace(f, null);
+                    OriginalFile file = scripts.addOrReplace(f, fileID);
                     validateParams(__current, file);
                     return file.getId();
                 } catch (IOException e) {
