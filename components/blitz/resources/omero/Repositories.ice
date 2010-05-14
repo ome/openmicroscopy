@@ -63,7 +63,7 @@ module omero {
                     throws ServerError;
             
             // A list of importable and non-importable file sets in a directory depending on config.
-            FileSetList listObjects(string path, RepositoryListConfig config) 
+            FileSetList listFileSets(string path, RepositoryListConfig config) 
                     throws ServerError;
             
             /**
@@ -75,11 +75,6 @@ module omero {
 
             /**
              * Create an OriginalFile in the database for the given path.
-             * If the given path is already registered as an OriginalFile,
-             * a ValidationException is thrown. Otherwise, one is added and
-             * returned.
-             *
-             * TODO should this just return and not throw?
              *
              **/
             omero::model::OriginalFile register(string path, omero::RString mimetype)
@@ -90,13 +85,21 @@ module omero {
              *
              * If the given IObject is null a ValidationException is thrown. 
              * If the given IObject is not a recognised type ValidationException is thrown. 
-             * If the given IObject is already registered a ValidationException is thrown. 
              * Otherwise, an entry is added and an unloaded IObject returned with id set.
-             *
-             * TODO should this final exception just return and not throw?
              *
              **/
             omero::model::IObject registerObject(omero::model::IObject obj, omero::api::StringStringMap params) 
+                    throws ServerError;
+            
+           /**
+             * Create entries in the database for the Images in the imageList of the FileSet.
+             *
+             * If the given FileSet is null a ValidationException is thrown. 
+             * If the given FileSet is not importable a ValidationException is thrown. 
+             * Otherwise, an entry is added and an unloaded IObject returned with id set.
+             *
+             **/
+            FileSet registerFileSet(FileSet set, omero::api::StringStringMap params) 
                     throws ServerError;
             
             /**
