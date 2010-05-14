@@ -131,9 +131,9 @@ import omero
 import omero.rtypes as rtypes
 import omero.scripts as scripts
 
-o = scripts.Long("opt").min(0).max(5).optional()
-a = scripts.String("a").values("foo", "bar")
-b = scripts.Long("b").out()
+o = scripts.Long("opt", min=0, max=5)
+a = scripts.String("a", values=("foo", "bar"), optional=True)
+b = scripts.Long("b", optional=True).out()
 
 client = scripts.client("length of input string",
 \"\"\"
