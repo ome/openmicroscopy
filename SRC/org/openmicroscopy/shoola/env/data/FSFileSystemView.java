@@ -102,6 +102,7 @@ public class FSFileSystemView
     				return entry;
     		}
     	} else if (file instanceof FileData) {
+    		FileData f = (FileData) file;
         	refPath = f.getAbsolutePath();
         	i = repositories.entrySet().iterator();
         	while (i.hasNext()) {
