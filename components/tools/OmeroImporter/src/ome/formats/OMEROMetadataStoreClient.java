@@ -7701,7 +7701,10 @@ public class OMEROMetadataStoreClient
         indexes.put(Index.PLATE_INDEX, plateIndex);
         indexes.put(Index.WELL_INDEX, wellIndex);
         indexes.put(Index.WELL_SAMPLE_INDEX, wellSampleIndex);
-        return getSourceObject(WellSample.class, indexes);
+        
+        WellSample ws = getSourceObject(WellSample.class, indexes);
+        ws.setPlateAcquisition(getSourceObject(PlateAcquisition.class, indexes));
+        return ws;
     }
     
     /* (non-Javadoc)

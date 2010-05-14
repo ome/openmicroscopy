@@ -81,6 +81,7 @@ import ome.model.screen.Reagent;
 import ome.model.screen.Screen;
 import ome.model.screen.Well;
 import ome.model.screen.WellSample;
+import ome.model.screen.PlateAcquisition;
 import ome.model.stats.StatsInfo;
 import ome.parameters.Parameters;
 import ome.system.ServiceFactory;
@@ -247,6 +248,10 @@ public class OMEROMetadataStore
     	else if (sourceObject instanceof Plate)
     	{
     	    handle(lsid, (Plate) sourceObject, indexes);
+    	}
+    	else if (sourceObject instanceof PlateAcquisition)
+    	{
+    		handle(lsid, (PlateAcquisition) sourceObject, indexes);
     	}
     	else if (sourceObject instanceof Well)
     	{
@@ -1015,6 +1020,19 @@ public class OMEROMetadataStore
      * object.
      */
     private void handle(String LSID, Experiment sourceObject,
+                        Map<String, Integer> indexes)
+    {
+        // No-op.
+    }
+ 
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, PlateAcquisition sourceObject,
                         Map<String, Integer> indexes)
     {
         // No-op.
