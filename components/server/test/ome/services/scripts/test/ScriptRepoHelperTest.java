@@ -74,7 +74,7 @@ public class ScriptRepoHelperTest extends AbstractManagedContextTest {
 
     public void testFindInDb() throws Exception {
         testLoadAddsObjects();
-        assertEquals(files.get(0).getId(), helper.findInDb(path));
+        assertEquals(files.get(0).getId(), helper.findInDb(path, true));
     }
 
     public void testFileModificationsAreFoundManually() throws Exception {
@@ -135,8 +135,7 @@ public class ScriptRepoHelperTest extends AbstractManagedContextTest {
         files = helper.loadAll(false);
         Long oldID = files.get(0).getId();
         helper.write(path, "updated");
-        helper.load(path, true);
-        files = helper.loadAll(false);
+        files = helper.loadAll(true);
         Long newID = files.get(0).getId();
         assertFalse(oldID.equals(newID));
         String fsSha1 = path.sha1();
