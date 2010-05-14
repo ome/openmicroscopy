@@ -158,6 +158,7 @@ omero.version=${omero.version}
 				<pathelement location="${classes.dir}"/>
 			</classpath>
 			<files/>
+			<jvmarg value="-Xmx${javac.maxmem}"/>
 			<jvmarg value="-Demma.coverage.out.file=${target.dir}/coverage.emma" />
 			<jvmarg value="-Dlog4j.configuration=log4j-build.xml"/>
 		</testng>
