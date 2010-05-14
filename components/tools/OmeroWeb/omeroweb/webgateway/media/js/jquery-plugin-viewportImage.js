@@ -46,10 +46,10 @@ $.fn.viewportImage = function(options) {
     var side_styles = 'background-color: #ABC; filter:alpha(opacity=50); opacity: 0.5; z-index: 5; position: absolute; display: block;';
     var side_styles_h = side_styles+'height: 100%;';
     var side_styles_v = side_styles+'width: 100%; left: 0%;';
-    wrapdiv.prepend('<div id="'+panleftId+'" style="'+ side_styles_h +'left: 0%;"><img src="/'+mediaroot+'/webgateway/img/arrow_left.gif">');
-    wrapdiv.prepend('<div id="'+panrightId+'" style="'+ side_styles_h +'right: 0px; _right: 0%;"><img src="/'+mediaroot+'/webgateway/img/arrow_right.gif">');
-    wrapdiv.prepend('<div id="'+pantopId+'" style="'+ side_styles_v +'top: 0%;"><img src="/'+mediaroot+'/webgateway/img/arrow_up.gif">');
-    wrapdiv.prepend('<div id="'+panbottomId+'" style="'+ side_styles_v +'bottom: 0%;"><img src="/'+mediaroot+'/webgateway/img/arrow_down.gif">');
+    wrapdiv.prepend('<div id="'+panleftId+'" style="'+ side_styles_h +'left: 0%;"><img src="'+mediaroot+'/webgateway/img/arrow_left.gif">');
+    wrapdiv.prepend('<div id="'+panrightId+'" style="'+ side_styles_h +'right: 0px; _right: 0%;"><img src="'+mediaroot+'/webgateway/img/arrow_right.gif">');
+    wrapdiv.prepend('<div id="'+pantopId+'" style="'+ side_styles_v +'top: 0%;"><img src="'+mediaroot+'/webgateway/img/arrow_up.gif">');
+    wrapdiv.prepend('<div id="'+panbottomId+'" style="'+ side_styles_v +'bottom: 0%;"><img src="'+mediaroot+'/webgateway/img/arrow_down.gif">');
     var panleft = jQuery('#'+panleftId);
     var panright = jQuery('#'+panrightId);
     var pantop = jQuery('#'+pantopId);

@@ -710,41 +710,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in q.findAllByQuery(sql,p):
             yield AnnotationWrapper(self, e)
     
-    def listUrls(self, o_type, oid):
-        """ Retrieves list of Urls not linked to the for the given Project/Dataset/Image id."""
-        
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["oid"] = rlong(long(oid))
-        p.map["eid"] = rlong(self.getEventContext().userId)
-        if o_type == "image":
-            sql = "select a from UriAnnotation as a " \
-                "where not exists ( select ial from ImageAnnotationLink as ial where ial.child=a.id and ial.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid and a.ns is null "
-        elif o_type == "dataset":
-            sql = "select a from UriAnnotation as a " \
-                "where not exists ( select dal from DatasetAnnotationLink as dal where dal.child=a.id and dal.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid and a.ns is null "
-        elif o_type == "project":
-            sql = "select a from UriAnnotation as a " \
-                "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid and a.ns is null "
-        elif o_type == "screen":
-            sql = "select a from UriAnnotation as a " \
-                "where not exists ( select sal from ScreenAnnotationLink as sal where sal.child=a.id and sal.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid and a.ns is null "
-        elif o_type == "plate":
-            sql = "select a from UriAnnotation as a " \
-                "where not exists ( select pal from PlateAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid and a.ns is null "
-        elif o_type == "well":
-            sql = "select a from UriAnnotation as a " \
-                "where not exists ( select wal from WellAnnotationLink as wal where wal.child=a.id and wal.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid and a.ns is null "
-        for e in q.findAllByQuery(sql,p):
-            yield AnnotationWrapper(self, e)
-    
     def listFiles(self, o_type, oid):
         """ Retrieves list of Files not linked to the for the given Project/Dataset/Image id."""
         
@@ -813,17 +778,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         sql = "select a from FileAnnotation a where a.id in (:ids) "
         for e in q.findAllByQuery(sql,p):
             yield FileAnnotationWrapper(self, e)
-    
-    def listSpecifiedUrls(self, ids):
-        """ Retrieves list of for the given Url ids."""
-        
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["ids"] = rlist([rlong(a) for a in set(ids)])
-        sql = "select a from UriAnnotation a where a.id in (:ids) "
-        for e in q.findAllByQuery(sql,p):
-            yield AnnotationWrapper(self, e)
     
     def lookupTags(self, eid=None):
         """ Retrieves list of Tags owned by current user.
@@ -1269,15 +1223,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         ta = query_serv.findByQuery(sql, p)
         return AnnotationWrapper(self, ta)
     
-    def getUriAnnotation (self, oid):
-        query_serv = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {} 
-        p.map["oid"] = rlong(long(oid))
-        sql = "select ua from UriAnnotation ua where ua.id = :oid"
-        ta = query_serv.findByQuery(sql, p)
-        return AnnotationWrapper(self, ta)
-    
     def getTagAnnotation (self, oid):
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
@@ -1333,7 +1278,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         store.setFileId(long(f_id))
         buf = 1048576
         if size <= buf:
-            return store.read(0,long(size))
+            temp = store.read(0,long(size))
         else:
             temp = "%s/%i-%s.download" % (settings.FILE_UPLOAD_TEMP_DIR, size, self._sessionUuid)
             outfile = open (temp, "wb")
@@ -1348,8 +1293,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                         data = store.read(pos+1, buf)
                 outfile.write(data)
             outfile.close()
-            return temp
-        return None
+        store.close()
+        return temp
     
     def uploadMyUserPhoto(self, filename, format, data):
         admin_serv = self.getAdminService()
@@ -1383,6 +1328,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             store = self.createRawFileStore()
             store.setFileId(ann.file.id.val)
             photo = store.read(0,long(ann.file.size.val))
+            store.close()
         except:
             logger.error(traceback.format_exc())
             photo = self.getExperimenterDefaultPhoto()
@@ -1401,6 +1347,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             store = self.createRawFileStore()
             store.setFileId(ann.file.id.val)
             photo = store.read(0,long(ann.file.size.val))
+            store.close()
             try:
                 im = Image.open(StringIO(photo))
             except IOError:
@@ -1423,18 +1370,20 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             store = self.createRawFileStore()
             store.setFileId(ann.file.id.val)
             photo = store.read(0,long(ann.file.size.val))
+            store.close()
         except:
             raise IOError("Photo does not exist.")
-        region = None
-        try:
-            im = Image.open(StringIO(photo))
-            region = im.crop(box)
-        except IOError:
-            raise IOError("Cannot open that photo.")
         else:
-            imdata=StringIO()
-            region.save(imdata, format=im.format)
-            self.uploadMyUserPhoto(ann.file.name.val, ann.file.mimetype.val, imdata.getvalue())
+            region = None
+            try:
+                im = Image.open(StringIO(photo))
+                region = im.crop(box)
+            except IOError:
+                raise IOError("Cannot open that photo.")
+            else:
+                imdata=StringIO()
+                region.save(imdata, format=im.format)
+                self.uploadMyUserPhoto(ann.file.name.val, ann.file.mimetype.val, imdata.getvalue())
             
     def getExperimenterDefaultPhoto(self):
         img = Image.open(settings.DEFAULT_USER)
@@ -1459,6 +1408,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             rlen = len(chunk)
             store.write(chunk, pos, rlen)
             pos = pos + rlen
+        store.close()
     
     ################################################
     ##   Counters
@@ -1753,7 +1703,11 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 except:
                     logger.error(traceback.format_exc())
                 
-    
+    def removeImage(self, share_id, image_id):
+        sh = self.getShareService()
+        img = self.getImage(image_id)
+        sh.removeObject(long(share_id), img._obj)
+            
     def createShare(self, host, blitz_id, image, message, members, enable, expiration=None):
         sh = self.getShareService()
         q = self.getQueryService()
@@ -1765,21 +1719,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         #images
         if len(image) > 0:
             p.map["ids"] = rlist([rlong(long(a)) for a in image])
-            sql = "select i from Image as i " \
-                  "left outer join fetch i.pixels as p " \
-                  "left outer join fetch p.pixelsType as pt " \
-                  "left outer join fetch p.channels as c " \
-                  "left outer join fetch c.logicalChannel as lc " \
-                  "left outer join fetch c.statsInfo " \
-                  "left outer join fetch lc.photometricInterpretation " \
-                  "left outer join fetch p.thumbnails as thumb join fetch thumb.details.updateEvent " \
-                  "left outer join fetch p.settings as rdef join fetch rdef.details.updateEvent join fetch rdef.details.owner " \
-                  "left outer join fetch rdef.quantization " \
-                  "left outer join fetch rdef.model " \
-                  "left outer join fetch rdef.waveRendering as cb " \
-                  "left outer join fetch cb.family " \
-                  "left outer join fetch rdef.spatialDomainEnhancement " \
-                  "where i.id in (:ids)"
+            sql = "select im from Image im join fetch im.details.owner join fetch im.details.group where im.id in (:ids) order by im.name"
             items.extend(q.findAllByQuery(sql, p))
         
         #members
@@ -1868,11 +1808,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 except:
                     logger.error(traceback.format_exc())
     
-    def setFile(self, buf):
-        f = self.createRawFileStore()
-        f.write(buf)
-    
-    
+
     ##############################################
     ##  History methods                        ##
     
@@ -2041,63 +1977,66 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if query:
            search.setAllowLeadingWildcard(True)
            search.byFullText(str(query))
-        if search.hasNext():
-            rv = search.results()
-            search.close()
-            for e in rv:
-                yield ImageWrapper(self, e)
+        rv = search.hasNext() and search.results() or list()
+        search.close()
+        for e in rv:
+            yield ImageWrapper(self, e)
 
     def searchDatasets (self, query=None, created=None):
         search = self.createSearchService()
         search.onlyType('Dataset')
         search.addOrderByAsc("name")
+        if created:
+            search.onlyCreatedBetween(created[0], created[1]);
         if query:
-            search.setAllowLeadingWildcard(True)
-            search.byFullText(str(query))
-        if search.hasNext():
-            rv = search.results()
-            search.close()
-            for e in rv:
-                yield DatasetWrapper(self, e)
+           search.setAllowLeadingWildcard(True)
+           search.byFullText(str(query))
+        rv = search.hasNext() and search.results() or list()
+        search.close()
+        for e in rv:
+            yield DatasetWrapper(self, e)
 
     def searchProjects (self, query=None, created=None):
         search = self.createSearchService()
         search.onlyType('Project')
         search.addOrderByAsc("name")
+        if created:
+            search.onlyCreatedBetween(created[0], created[1]);
         if query:
            search.setAllowLeadingWildcard(True)
            search.byFullText(str(query))
-        if search.hasNext():
-            rv = search.results()
-            search.close()
-            for e in rv:
-                yield ProjectWrapper(self, e)
+        rv = search.hasNext() and search.results() or list()
+        search.close()
+        for e in rv:
+            yield ProjectWrapper(self, e)
     
     def searchScreens (self, query=None, created=None):
         search = self.createSearchService()
         search.onlyType('Screen')
         search.addOrderByAsc("name")
+        if created:
+            search.onlyCreatedBetween(created[0], created[1]);
         if query:
            search.setAllowLeadingWildcard(True)
            search.byFullText(str(query))
-        if search.hasNext():
-            rv = search.results()
-            search.close()
-            for e in rv:
-                yield ScreenWrapper(self, e)
+        rv = search.hasNext() and search.results() or list()
+        search.close()
+        for e in rv:
+            yield ScreenWrapper(self, e)
     
     def searchPlates (self, query=None, created=None):
         search = self.createSearchService()
         search.onlyType('Plate')
         search.addOrderByAsc("name")
+        if created:
+            search.onlyCreatedBetween(created[0], created[1]);
         if query:
            search.setAllowLeadingWildcard(True)
            search.byFullText(str(query))
-        if search.hasNext():
-            rv = search.results()
-            search.close()
-            for e in rv:
-                yield PlateWrapper(self, e)
+        rv = search.hasNext() and search.results() or list()
+        search.close()
+        for e in rv:
+            yield PlateWrapper(self, e)
     
     ##############################################
     ##  helpers                                 ##

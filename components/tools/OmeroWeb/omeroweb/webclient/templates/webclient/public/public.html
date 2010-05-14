@@ -42,7 +42,7 @@
                             var obj = $(node).attr('id').split("-");
                             var par = $(node).parents('li:first').attr('id').split("-");
                             if (obj[0] == 'sh') {
-                                $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/>');                             
+                                $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/>');                             
                                 $("#right_panel").show();
                                 $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
                                 $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="/webclient/metadata_details/share/'+obj[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
@@ -54,14 +54,19 @@
                                     $("div#content_details").attr('rel', obj[1]);
                                 }
                             } else if (obj[0] == 'disc') {
-                                $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/>');
+                                $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/>');
                                                                 
                                 $("#right_panel").show();
                                 $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
                                 $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="/webclient/metadata_details/discussion/'+obj[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
                                 $('iframe#metadata_details').load();  
                             } else if (obj[0] == 'img') {
-                                $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/>');
+                                var ro = $(node).children().filter('span').attr('id'); 
+                                if (ro.indexOf('owner')>=0) {
+                                    $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <a href="/webclient/action/removefromshare/share/'+par[1]+'/?source='+obj[0]+'-'+obj[1]+'&url={{ url }}" onClick="return confirm(\'Remove image?\');"><img src="{% url webstatic "images/cut16.png" %}" alt="r" title="remove"/></a>');
+                                } else {
+                                    $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/>');
+                                }                                
                                                                 
                                 $("#right_panel").show();
                                 $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
@@ -89,7 +94,7 @@
 
     <div class="toolbar">
         <div id="buttons" class="align_left">
-            <input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" onclick="document.location.href='{% url load_template nav.menu %}'"> <input class="button" type="image" src="{% url webstatic "images/wp_protocol16.png" %}" alt="Discuss" onclick="makeDiscussion();"/>
+            <input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href='{% url load_template nav.menu %}'"> <input class="button" type="image" src="{% url webstatic "images/wp_protocol16.png" %}" alt="Discuss" title="Discuss" onclick="makeDiscussion();"/>
         </div>
         {% if form_users %}
         <div class="align_right">

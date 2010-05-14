@@ -97,7 +97,7 @@
         <ul>
             {% if manager.image or manager.well %}<li>|&nbsp;<a href="#preview_tab">{% trans "Preview" %}</a>&nbsp;</li>{% endif %}
             <li>|&nbsp;<a href="#metadata_tab">{% trans "Metadata" %}</a>&nbsp;</li>
-            <li>|&nbsp;<a href="#annotation_tab">{% trans "Annotation" %}</a>&nbsp;</li>
+            {% if manager.share %}<li>|&nbsp;<a href="#annotation_tab">{% trans "Annotation" %}</a>&nbsp;</li>{% endif %}
         </ul>
         <div class="clear"></div>        
         
@@ -164,7 +164,7 @@
             <table>
                 <tr><td rowspan="3"><img src="{% url webstatic "images/folder_html64.png" %}" alt="share" title="share"/></td>
                     <td><label>{{ manager.share.getShareType|lower }} {{ manager.share.id }}</label><a href="{% url manage_action_containers "edit" "share" manager.share.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a></td></tr>
-                <tr><td>Includes X image(s)</td></tr>
+                <tr><td>Includes {{ manager.share.itemCount }} image(s)</td></tr>
                 <tr><td>Status: <strong>{% if manager.share.active %}{% trans "ACTIVE" %}{% else %}{% trans "NOT ACTIVE" %}{% endif %}</strong></td></tr>                
                 <tr><td colspan="2">Created on: {{ manager.share.getStartDate|date:"Y-m-d H:i:s" }}</td></tr>
                 <tr><td colspan="2">Owner: {{ manager.share.getShareOwnerFullName }}</td></tr>              
@@ -366,66 +366,6 @@
                 {% endfor %}
             </div>            
             <div class="clear"></div>            
-        </div>
-        {% else %}        
-        <div id="annotation_tab">
-            <h1>{% trans "Comments" %}:
-                {% if manager.image.isEditable %}<a href="{% url manage_action_containers "newcomment" "image" manager.image.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="Create new comment."/></a>{% else %}
-                {% if manager.plate.isEditable %}<a href="{% url manage_action_containers "newcomment" "plate" manager.plate.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="Create new comment."/></a>{% else %}
-                {% if manager.well.isEditable %}<a href="{% url manage_action_containers "newcomment" "well" manager.well.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="Create new comment."/></a>
-                {% endif %}{% endif %}{% endif %}</h1>            
-            {% if manager.txannSize %}
-            <div class="lncomments">            
-                {% for tann in manager.text_annotations %}
-                <div id="ann_comment_wrapper">
-                    <div class="avatar"><img src="{% url load_photo tann.details.owner.id.val %}" alt="{{ tann.getOwnerFullName }}" title="{{ tann.getOwnerFullName }}" width="40" height="40" /></div>
-                    <div class="ann_comment"><span class="ann_comment_header">{{ tann.getOwnerFullName }} {% trans "posted comment at" %} {{ tann.creationEventDate|date:"Y-m-d H:i:s" }}</span><br/>
-                        {{ tann.textValue|safe|linebreaks }}
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            {% else %}
-                <p>Have not been commented yet.</p>    
-            {% endif %}
-            <div class="clear"></div>
-        
-        <!-- TAGS -->
-            <h1>{% trans "Tags" %}: 
-                {% if manager.image.isEditable %}<a href="{% url manage_action_containers "newtag" "image" manager.image.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
-                {% if manager.plate.isEditable %}<a href="{% url manage_action_containers "newtag" "plate" manager.plate.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
-                {% if manager.well.isEditable %}<a href="{% url manage_action_containers "newtag" "well" manager.well.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="Create new tag or use an existing one."/></a>
-                {% endif %}{% endif %}{% endif %}</h1>
-            {% if manager.tgannSize %}
-            <div class="lntags"> <h1> 
-            {% for tag in manager.tag_annotations %}
-                <a href="{% url load_template "usertags" %}{% if not tag.isOwned %}?experimenter={{ tag.getOwner.id }}{% endif %}" target="_top" title="Linked by {{ tag.link.getDetails.getOwner.getNameWithInitial }}. {{ tag.description|default_if_none:""  }}"> {{ tag.textValue }}</a></span> {% if tag.link.isOwned %}<a href="{% url manage_action_containers "remove" %}?parent={% if manager.image %}img-{{ manager.image.id}}{% else %}{% if manager.dataset %}ds-{{ manager.dataset.id}}{% else %}{% if manager.project %}pr-{{ manager.project.id}}{% endif %}{% endif %}{% endif %}&source=tann-{{ tag.id }}&url={{ url }}#annotation_tab" onClick="return confirm('Unlink tag?');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>{% endif %}, 
-            {% endfor %}
-            </h1></div>
-            {% else %}
-                <p>Have not been tagged yet.</p>
-            {% endif %}
-            
-            <div class="clear"></div>
-        
-        <!-- FILES -->
-            <h1>{% trans "Files" %}:
-                {% if manager.image.isEditable %}<a href="{% url manage_action_containers "newfile" "image" manager.image.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
-                {% if manager.plate.isEditable %}<a href="{% url manage_action_containers "newfile" "plate" manager.plate.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
-                {% if manager.well.isEditable %}<a href="{% url manage_action_containers "newfile" "well" manager.well.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="Attache new file or use an existing one."/></a>
-                {% endif %}{% endif %}{% endif %}</h1>
-            {% if manager.fileannSize %}
-            <div class="lnfiles">
-                {% for fileann in manager.file_annotations %}
-                <p><a href="#" onClick="document.location.href='{% url download_annotation "download" fileann.id %}';">{{ fileann.getFileName }}</a> ({{ fileann.getFileSize|default_if_none:0|filesizeformat }}) {% trans "by" %} {{ fileann.getDetails.getOwner.getNameWithInitial }} {% trans "at" %} {{ fileann.creationEventDate|date:"Y-m-d H:i:s" }} {% if fileann.isOwned and not fileann.isOriginalMetadata %}<a href="{% url manage_action_containers "remove" %}?parent={% if manager.image %}img-{{ manager.image.id}}{% else %}{% if manager.dataset %}ds-{{ manager.dataset.id}}{% else %}{% if manager.project %}pr-{{ manager.project.id}}{% endif %}{% endif %}{% endif %}&source=fann-{{ fileann.id }}&url={{ url }}#annotation_tab" onClick="return confirm('Unlink file?');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>{% endif %}</p>
-                {% endfor %}
-            </ol>
-            </div>
-            {% else %}
-                <p>No file has been attached yet.</p>
-            {% endif %}
-            
-            <div class="clear"></div>
         </div>
         {% endif %}
     </div>

@@ -107,10 +107,6 @@ class CommentAnnotationForm(forms.Form):
     
     content = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 39}))
 
-class UriAnnotationForm(forms.Form):
-    
-    link = UrlField(widget=forms.TextInput(attrs={'size':40}))
-
 class TagFilterForm(forms.Form):
     
     tag = forms.CharField(widget=forms.TextInput(attrs={'size':36}), required=False)

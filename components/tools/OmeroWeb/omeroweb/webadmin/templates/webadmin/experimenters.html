@@ -51,7 +51,7 @@
     {% for dict in controller.experimenters %}
         <tr>
           <td class="action">
-            <a href="{% url wamanageexperimenterid "delete" dict.experimenter.id %}" onClick="return confirm('Are you sure you want to delete this experimenter?');"><img src="{% url webstatic "images/del.png" %}" alt="delete" title="delete"></a> 
+            <!--<a href="{% url wamanageexperimenterid "delete" dict.experimenter.id %}" onClick="return confirm('Are you sure you want to delete this experimenter?');"><img src="{% url webstatic "images/del.png" %}" alt="delete" title="delete"></a> -->
             <a href="{% url wamanageexperimenterid "edit" dict.experimenter.id %}"><img src="{% url webstatic "images/edit.png" %}" alt="edit" title="edit"></a> id:{{ dict.experimenter.id }}
           </td>
           <td class="link">{{ dict.experimenter.getFullName }}</td>

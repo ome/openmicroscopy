@@ -129,13 +129,11 @@ def metadata (request, iid):
     file_annotations = list()
     tag_annotations = list()
     
-    from omero.model import CommentAnnotationI, UriAnnotationI, LongAnnotationI, TagAnnotationI, FileAnnotationI
+    from omero.model import CommentAnnotationI, LongAnnotationI, TagAnnotationI, FileAnnotationI
                             
     for ann in image.listAnnotations():
         if isinstance(ann._obj, CommentAnnotationI):
             text_annotations.append(ann)
-        elif isinstance(ann._obj, UriAnnotationI):
-            url_annotations.append(ann)
         elif isinstance(ann._obj, LongAnnotationI):
             long_annotations['votes'] += 1
             long_annotations['rate'] += int(ann.longValue)

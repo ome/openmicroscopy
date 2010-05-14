@@ -25,7 +25,7 @@
 from django.conf import settings
 
 from omero.rtypes import *
-from omero.model import CommentAnnotationI, UriAnnotationI, FileAnnotationI
+from omero.model import CommentAnnotationI, FileAnnotationI
 
 from webclient.controller import BaseController
 
@@ -42,10 +42,6 @@ class BaseAnnotation(BaseController):
                 self.comment = self.conn.getCommentAnnotation(long(oid))
                 if self.comment is None:
                     raise AttributeError("We are sorry, but that comment does not exist, or if it does, you have no permission to see it.")
-            elif o_type == "url":
-                self.url = self.conn.getUriAnnotation(long(oid))
-                if self.url is None:
-                    raise AttributeError("We are sorry, but that url does not exist, or if it does, you have no permission to see it.")
             elif o_type == "tag":
                 self.tag = self.conn.getTagAnnotation(long(oid))
                 if self.tag is None:
@@ -54,11 +50,6 @@ class BaseAnnotation(BaseController):
     def saveCommentAnnotation(self, content):
         ann = self.comment._obj
         ann.textValue = rstring(str(content))
-        self.conn.saveObject(ann)
-    
-    def saveUrlAnnotation(self, url):
-        ann = self.url._obj
-        ann.textValue = rstring(str(url))
         self.conn.saveObject(ann)
     
     def saveTagAnnotation(self, tag, description):

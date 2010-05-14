@@ -245,7 +245,7 @@ function treeCopyToClipboard(productType, productId) {
     if (productId == null) {
         alert("No object selected.");
     } else {
-        input = $('<input type="checkbox" checked/>').attr('name', productType).attr('id', productId);
+        input = $('<input type="checkbox" checked/>').attr('name', productType).attr('id', productId).attr('class', 'hide');
         copyToClipboard(input);
     }
 };

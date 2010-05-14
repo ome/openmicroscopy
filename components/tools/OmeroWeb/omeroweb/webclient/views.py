@@ -75,7 +75,7 @@ from omeroweb.webadmin.controller.uploadfile import BaseUploadFile
 
 from forms import ShareForm, BasketShareForm, ShareCommentForm, \
                     ContainerForm, CommentAnnotationForm, TagAnnotationForm, \
-                    UriAnnotationForm, UploadFileForm, UsersForm, ActiveGroupForm, HistoryTypeForm, \
+                    UploadFileForm, UsersForm, ActiveGroupForm, HistoryTypeForm, \
                     MetadataFilterForm, MetadataDetectorForm, MetadataChannelForm, \
                     MetadataEnvironmentForm, MetadataObjectiveForm, MetadataStageLabelForm, \
                     MetadataLightSourceForm, MetadataDichroicForm, MetadataMicroscopeForm, \
@@ -716,6 +716,7 @@ def load_searching(request, form=None, **kwargs):
         
     t = template_loader.get_template(template)
     c = Context(request,context)
+    logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
 
 @isUserConnected
@@ -941,6 +942,7 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
             
     t = template_loader.get_template(template)
     c = Context(request,context)
+    logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
 
 @isUserConnected
@@ -972,6 +974,7 @@ def load_metadata_details_multi(request, **kwargs):
             
     t = template_loader.get_template(template)
     c = Context(request,context)
+    logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
 
 @isUserConnected
@@ -998,6 +1001,7 @@ def load_hierarchies(request, o_type=None, o_id=None, **kwargs):
 
     t = template_loader.get_template(template)
     c = Context(request,context)
+    logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
     
 
@@ -1093,10 +1097,6 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             template = "webclient/annotations/annotation_form.html"
             form = CommentAnnotationForm(initial={'content':manager.comment.textValue})
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
-        elif o_type =="url" and o_id > 0:
-            template = "webclient/annotations/annotation_form.html"
-            form = UriAnnotationForm(initial={'link':manager.url.textValue})
-            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
         elif o_type =="tag" and o_id > 0:
             template = "webclient/annotations/annotation_form.html"
             form = TagAnnotationForm(initial={'tag':manager.tag.textValue, 'description':manager.tag.description})
@@ -1150,6 +1150,14 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             return HttpResponse()
         else:
             raise AttributeError('Operation not supported.')
+    elif action == 'removefromshare':
+        image_id = request.REQUEST['source'].split('-')[1]
+        try:
+            manager.removeImage(image_id)
+        except Exception, x:
+            logger.error(traceback.format_exc())
+            raise x
+        return HttpResponseRedirect(url)    
     elif action == 'save':
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, o_id]))
@@ -1208,15 +1216,6 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             if form.is_valid():
                 content = request.REQUEST['content'].encode('utf-8')
                 manager.saveCommentAnnotation(content)
-                return HttpResponseRedirect(url)
-            else:
-                template = "webclient/data/container_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
-        elif o_type == 'url':
-            form = UriAnnotationForm(data=request.REQUEST.copy())
-            if form.is_valid():
-                content = request.REQUEST['link'].encode('utf-8')
-                manager.saveUrlAnnotation(content)
                 return HttpResponseRedirect(url)
             else:
                 template = "webclient/data/container_form.html"
@@ -1438,6 +1437,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     
     t = template_loader.get_template(template)
     c = Context(request,context)
+    logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
 
 @isUserConnected
@@ -1533,6 +1533,7 @@ def load_public(request, share_id=None, **kwargs):
     context = {'nav':request.session['nav'], 'eContext':controller.eContext, 'share':controller}
     t = template_loader.get_template(template)
     c = Context(request,context)
+    logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
 
 ##################################################################
@@ -1672,6 +1673,7 @@ def basket_action (request, action=None, **kwargs):
 
     t = template_loader.get_template(template)
     c = Context(request,context)
+    logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
 
 @isUserConnected
@@ -1864,6 +1866,7 @@ def importer(request, **kwargs):
     context = {'sid':request.session['server'], 'uuid':conn._sessionUuid, 'nav':request.session['nav'], 'eContext': controller.eContext, 'controller':controller, 'form_active_group':form_active_group}
     t = template_loader.get_template(template)
     c = Context(request,context)
+    logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
 
 
@@ -1953,6 +1956,7 @@ def manage_myaccount(request, action=None, **kwargs):
     context = {'nav':request.session['nav'], 'eContext': eContext, 'controller':controller, 'form':form, 'ldapAuth': controller.ldapAuth, 'form_active_group':form_active_group}
     t = template_loader.get_template(template)
     c = Context(request,context)
+    logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
 
 @isUserConnected
@@ -1992,6 +1996,7 @@ def upload_myphoto(request, action=None, **kwargs):
     context = {'nav':request.session['nav'], 'form_file':form_file, 'photo_size':photo_size}
     t = template_loader.get_template(template)
     c = Context(request,context)
+    logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
 
 @isUserConnected
@@ -2019,6 +2024,7 @@ def help(request, **kwargs):
     context = {'nav':request.session['nav'], 'eContext': controller.eContext, 'controller':controller, 'form_active_group':form_active_group}
     t = template_loader.get_template(template)
     c = Context(request,context)
+    logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
 
 @isUserConnected

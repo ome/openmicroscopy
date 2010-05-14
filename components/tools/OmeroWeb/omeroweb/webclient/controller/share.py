@@ -162,6 +162,9 @@ class BaseShare(BaseController):
         self.comments = self.sortByAttr(list(self.conn.getComments(share_id)), 'details.creationEvent.time')
         self.cmSize = len(self.comments)
 
+    def removeImage(self, image_id):
+        self.conn.removeImage(self.share.id, image_id)
+    
     def getMembers(self, share_id):
         self.membersInShare = [m.id for m in self.conn.getAllMembers(share_id)]
     

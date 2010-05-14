@@ -340,7 +340,9 @@ ul.criteria li{
     margin: 0px;
     padding: 0px;
 }
-
+.hide {
+    display: none !important;
+}
 .details {
     border-bottom:1px solid #BBBBBB;
 }

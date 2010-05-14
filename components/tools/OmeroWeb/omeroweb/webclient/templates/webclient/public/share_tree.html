@@ -24,11 +24,15 @@
         {% if share.mshSize %}
         <ul>
             {% for s in share.memberShares %}
-            <li id="sh-{{ s.id }}"><span id="readonly">{{ s.truncateMessageForTree }}</span>
+            {% if s.isEmpty %}
+            <li id="disc-{{ s.id }}"><span id="readonly">share {{ s.id }}</span></li>
+            {% else %}
+            <li id="sh-{{ s.id }}"><span id="readonly">share {{ s.id }}</span>
                 <ul class="ajax">
                     <li id='{{ s.id }}'>{url:{% url load_public s.id %}?view=tree}</li>
                 </ul>
             </li>
+            {% endif %}
             {% endfor %}
         </ul>
         {% endif %}

@@ -25,7 +25,7 @@
 from omero.rtypes import *
 from django.core.urlresolvers import reverse
 
-from omero.model import CommentAnnotationI, UriAnnotationI, LongAnnotationI, TagAnnotationI, \
+from omero.model import CommentAnnotationI, LongAnnotationI, TagAnnotationI, \
                         FileAnnotationI, OriginalFileI, ImageAnnotationLinkI, DatasetAnnotationLinkI, \
                         ProjectAnnotationLinkI, PlateAnnotationLinkI, ScreenAnnotationLinkI, \
                         DatasetI, ProjectI, ScreenI, PlateI, DatasetImageLinkI, ProjectDatasetLinkI, \
@@ -43,7 +43,6 @@ class BaseContainer(BaseController):
     image = None
     tag = None
     comment = None
-    
     tags = None
     
     containers = None
@@ -54,9 +53,7 @@ class BaseContainer(BaseController):
     text_annotations = None
     txannSize = 0
     long_annotations = None
-    url_annotations = None
     file_annotations = None
-    urlannSize = 0
     
     orphaned = False
     
@@ -112,8 +109,6 @@ class BaseContainer(BaseController):
                 raise AttributeError("We are sorry, but that well does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
         elif o1_type == "tag" and o1_id is not None:
             self.tag = self.conn.getTagAnnotation(o1_id)
-        elif o1_type == "url" and o1_id is not None:
-            self.uri = self.conn.getUriAnnotation(o1_id)
         elif o1_type == "orphaned":
             self.orphaned = True
     
@@ -393,7 +388,6 @@ class BaseContainer(BaseController):
     def annotationList(self):
         self.text_annotations = list()
         self.long_annotations = {'rate': 0.00 , 'votes': 0}
-        self.url_annotations = list()
         self.file_annotations = list()
         self.tag_annotations = list()
         
@@ -412,8 +406,6 @@ class BaseContainer(BaseController):
         for ann in aList:
             if isinstance(ann._obj, CommentAnnotationI):
                 self.text_annotations.append(ann)
-            elif isinstance(ann._obj, UriAnnotationI):
-                self.url_annotations.append(ann)
             elif isinstance(ann._obj, LongAnnotationI):
                 self.long_annotations['votes'] += 1
                 self.long_annotations['rate'] += int(ann.longValue)
@@ -423,12 +415,10 @@ class BaseContainer(BaseController):
                 self.tag_annotations.append(ann)
 
         self.text_annotations = self.sortByAttr(self.text_annotations, "details.creationEvent.time", True)
-        self.url_annotations = self.sortByAttr(self.url_annotations, "textValue")
         self.file_annotations = self.sortByAttr(self.file_annotations, "details.creationEvent.time")
         self.tag_annotations = self.sortByAttr(self.tag_annotations, "textValue")
         
         self.txannSize = len(self.text_annotations)
-        self.urlannSize = len(self.url_annotations)
         self.fileannSize = len(self.file_annotations)
         self.tgannSize = len(self.tag_annotations)
 
@@ -462,20 +452,6 @@ class BaseContainer(BaseController):
             return list(self.conn.listComments("plate", self.plate.id))
         elif self.screen is not None:
             return list(self.conn.listComments("screen", self.screen.id))
-    
-    def listUrls(self):
-        if self.image is not None:
-            return list(self.conn.listUrls("image", self.image.id))
-        elif self.dataset is not None:
-            return list(self.conn.listUrls("dataset", self.dataset.id))
-        elif self.project is not None:
-            return list(self.conn.listUrls("project", self.project.id))
-        elif self.well is not None:
-            return list(self.conn.listUrls("well", self.well.id))
-        elif self.plate is not None:
-            return list(self.conn.listUrls("plate", self.plate.id))
-        elif self.screen is not None:
-            return list(self.conn.listUrls("screen", self.screen.id))
     
     def listFiles(self):
         if self.image is not None:
@@ -555,47 +531,6 @@ class BaseContainer(BaseController):
     
     def createImageCommentAnnotation(self, content):
         ann = CommentAnnotationI()
-        ann.textValue = rstring(str(content))
-        l_ann = ImageAnnotationLinkI()
-        l_ann.setParent(self.image._obj)
-        l_ann.setChild(ann)
-        self.conn.saveObject(l_ann)
-    
-    # URI annotation
-    def createProjectUriAnnotation(self, content):
-        ann = UriAnnotationI()
-        ann.textValue = rstring(str(content))
-        l_ann = ProjectAnnotationLinkI()
-        l_ann.setParent(self.project._obj)
-        l_ann.setChild(ann)
-        self.conn.saveObject(l_ann)
-    
-    def createScreenUriAnnotation(self, content):
-        ann = UriAnnotationI()
-        ann.textValue = rstring(str(content))
-        l_ann = ScreenAnnotationLinkI()
-        l_ann.setParent(self.screen._obj)
-        l_ann.setChild(ann)
-        self.conn.saveObject(l_ann)
-    
-    def createDatasetUriAnnotation(self, content):
-        ann = UriAnnotationI()
-        ann.textValue = rstring(str(content))
-        l_ann = DatasetAnnotationLinkI()
-        l_ann.setParent(self.dataset._obj)
-        l_ann.setChild(ann)
-        self.conn.saveObject(l_ann)
-    
-    def createPlateUriAnnotation(self, content):
-        ann = UriAnnotationI()
-        ann.textValue = rstring(str(content))
-        l_ann = PlateAnnotationLinkI()
-        l_ann.setParent(self.plate._obj)
-        l_ann.setChild(ann)
-        self.conn.saveObject(l_ann)
-    
-    def createImageUriAnnotation(self, content):
-        ann = UriAnnotationI()
         ann.textValue = rstring(str(content))
         l_ann = ImageAnnotationLinkI()
         l_ann.setParent(self.image._obj)
@@ -789,8 +724,6 @@ class BaseContainer(BaseController):
             anns = self.conn.listSpecifiedTags(ids)
         elif o_type == 'comment':
             anns = self.conn.listSpecifiedComments(ids)
-        elif o_type == 'url':
-            anns = self.conn.listSpecifiedUrls(ids)
         elif o_type == 'file':
             anns = self.conn.listSpecifiedFiles(ids)
         
@@ -808,8 +741,6 @@ class BaseContainer(BaseController):
             anns = self.conn.listSpecifiedTags(ids)
         elif o_type == 'comment':
             anns = self.conn.listSpecifiedComments(ids)
-        elif o_type == 'url':
-            anns = self.conn.listSpecifiedUrls(ids)
         elif o_type == 'file':
             anns = self.conn.listSpecifiedFiles(ids)
         
@@ -827,8 +758,6 @@ class BaseContainer(BaseController):
             anns = self.conn.listSpecifiedTags(ids)
         elif o_type == 'comment':
             anns = self.conn.listSpecifiedComments(ids)
-        elif o_type == 'url':
-            anns = self.conn.listSpecifiedUrls(ids)
         elif o_type == 'file':
             anns = self.conn.listSpecifiedFiles(ids)
         
@@ -846,8 +775,6 @@ class BaseContainer(BaseController):
             anns = self.conn.listSpecifiedTags(ids)
         elif o_type == 'comment':
             anns = self.conn.listSpecifiedComments(ids)
-        elif o_type == 'url':
-            anns = self.conn.listSpecifiedUrls(ids)
         elif o_type == 'file':
             anns = self.conn.listSpecifiedFiles(ids)
         
@@ -865,8 +792,6 @@ class BaseContainer(BaseController):
             anns = self.conn.listSpecifiedTags(ids)
         elif o_type == 'comment':
             anns = self.conn.listSpecifiedComments(ids)
-        elif o_type == 'url':
-            anns = self.conn.listSpecifiedUrls(ids)
         elif o_type == 'file':
             anns = self.conn.listSpecifiedFiles(ids)
         
@@ -1086,7 +1011,7 @@ class BaseContainer(BaseController):
                 dil = self.conn.getDatasetImageLink(parent[1], source[1])
                 if dil is not None:
                     self.conn.deleteObject(dil._obj)
-        elif source[0] == 'tann' or source[0] == 'cann' or source[0] == 'fann' or source[0] == 'uann':
+        elif source[0] == 'tann' or source[0] == 'cann' or source[0] == 'fann':
             if parent[0] == 'pr':
                 pal = self.conn.getProjectAnnotationLink(parent[1], source[1])
                 if pal is not None:
