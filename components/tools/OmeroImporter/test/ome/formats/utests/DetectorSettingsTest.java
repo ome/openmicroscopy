@@ -6,6 +6,7 @@ import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.model.BlitzInstanceProvider;
 import ome.util.LSID;
+import ome.xml.r201004.primitives.PositiveInteger;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Detector;
 import omero.model.DetectorSettings;
@@ -25,8 +26,6 @@ public class DetectorSettingsTest extends TestCase
 	
 	private static final int IMAGE_INDEX = 0;
 	
-	private static final int PIXELS_INDEX = 0;
-	
 	private static final int LOGICAL_CHANNEL_INDEX = 0;
 	
 	private static final String DETECTOR_MODEL = "Model";
@@ -44,9 +43,9 @@ public class DetectorSettingsTest extends TestCase
         wrapper.setMetadataStore(store);
         
         // Need to populate at least one pixels field of each Image.
-        store.setPixelsSizeX(1, IMAGE_INDEX, PIXELS_INDEX);
-        store.setPixelsSizeX(1, IMAGE_INDEX + 1, PIXELS_INDEX);
-        store.setPixelsSizeX(1, IMAGE_INDEX + 2, PIXELS_INDEX);
+        store.setPixelsSizeX(new PositiveInteger(1), IMAGE_INDEX);
+        store.setPixelsSizeX(new PositiveInteger(1), IMAGE_INDEX + 1);
+        store.setPixelsSizeX(new PositiveInteger(1), IMAGE_INDEX + 2);
         
         // Add some metadata to the Detector to ensure that it is not lost.
         store.setDetectorModel(
@@ -59,11 +58,11 @@ public class DetectorSettingsTest extends TestCase
         store.setImageInstrumentRef("Instrument:0", IMAGE_INDEX);
         store.setImageInstrumentRef("Instrument:0", IMAGE_INDEX + 1);
         store.setImageInstrumentRef("Instrument:0", IMAGE_INDEX + 2);
-        store.setDetectorSettingsDetector(
+        store.setDetectorSettingsID(
         		"Detector:0", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
-        store.setDetectorSettingsDetector(
+        store.setDetectorSettingsID(
         		"Detector:0", IMAGE_INDEX + 1, LOGICAL_CHANNEL_INDEX);
-        store.setDetectorSettingsDetector(
+        store.setDetectorSettingsID(
         		"Detector:0", IMAGE_INDEX + 2, LOGICAL_CHANNEL_INDEX);
 	}
 
@@ -71,7 +70,7 @@ public class DetectorSettingsTest extends TestCase
 	{
 	    for (int i = 0; i < 3; i++)
 	    {
-	        LSID lsid = new LSID(Pixels.class, i, PIXELS_INDEX);
+	        LSID lsid = new LSID(Pixels.class, i);
 	        assertNotNull(store.getSourceObject(lsid));
 	    }
 	    assertNotNull(store.getSourceObject(new LSID(Instrument.class, 0)));

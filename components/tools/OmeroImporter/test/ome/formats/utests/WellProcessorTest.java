@@ -3,6 +3,7 @@ package ome.formats.utests;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.model.BlitzInstanceProvider;
 import ome.util.LSID;
+import ome.xml.r201004.primitives.NonNegativeInteger;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Plate;
 import omero.model.Well;
@@ -25,9 +26,9 @@ public class WellProcessorTest extends TestCase
         store.setEnumerationProvider(new TestEnumerationProvider());
         store.setInstanceProvider(
         		new BlitzInstanceProvider(store.getEnumerationProvider()));
-        store.setWellColumn(0, PLATE_INDEX, WELL_INDEX);
-        store.setWellColumn(1, PLATE_INDEX, WELL_INDEX + 1);
-        store.setWellColumn(0, PLATE_INDEX + 1, WELL_INDEX);
+        store.setWellColumn(new NonNegativeInteger(0), PLATE_INDEX, WELL_INDEX);
+        store.setWellColumn(new NonNegativeInteger(1), PLATE_INDEX, WELL_INDEX + 1);
+        store.setWellColumn(new NonNegativeInteger(0), PLATE_INDEX + 1, WELL_INDEX);
         store.setPlateName("setUp Plate", PLATE_INDEX + 1);
 	}
 	

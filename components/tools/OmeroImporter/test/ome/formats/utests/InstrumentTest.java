@@ -6,9 +6,11 @@ import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.model.BlitzInstanceProvider;
 import ome.util.LSID;
+import ome.xml.r201004.primitives.PositiveInteger;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Image;
 import omero.model.Instrument;
+import omero.model.Laser;
 import omero.model.LightSource;
 import omero.model.Pixels;
 
@@ -41,12 +43,12 @@ public class InstrumentTest extends TestCase
         wrapper.setMetadataStore(store);
         
         // Need to populate at least one pixels field of each Image.
-        store.setPixelsSizeX(1, IMAGE_INDEX, PIXELS_INDEX);
-        store.setPixelsSizeX(1, IMAGE_INDEX + 1, PIXELS_INDEX);
-        store.setPixelsSizeX(1, IMAGE_INDEX + 2, PIXELS_INDEX);
+        store.setPixelsSizeX(new PositiveInteger(1), IMAGE_INDEX);
+        store.setPixelsSizeX(new PositiveInteger(1), IMAGE_INDEX + 1);
+        store.setPixelsSizeX(new PositiveInteger(1), IMAGE_INDEX + 2);
         
         // Add some metadata to the LightSource to ensure that it is not lost.
-        store.setLightSourceModel(
+        store.setLaserModel(
         		LIGHTSOURCE_MODEL, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
         
         // Set the LSID on our Instrument and link to all three images.
@@ -71,8 +73,7 @@ public class InstrumentTest extends TestCase
 	
 	public void testImageInstrumentLightSourceModelPreserved()
 	{
-        LightSource ls = store.getLightSource(INSTRUMENT_INDEX,
-                                              LIGHTSOURCE_INDEX);
+        Laser ls = store.getLaser(INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
         assertEquals(LIGHTSOURCE_MODEL, ls.getModel().getValue());
 	}
 	

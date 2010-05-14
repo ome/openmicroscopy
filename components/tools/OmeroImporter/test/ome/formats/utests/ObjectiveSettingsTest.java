@@ -6,6 +6,7 @@ import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.model.BlitzInstanceProvider;
 import ome.util.LSID;
+import ome.xml.r201004.primitives.PositiveInteger;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Image;
 import omero.model.Instrument;
@@ -42,9 +43,9 @@ public class ObjectiveSettingsTest extends TestCase
         wrapper.setMetadataStore(store);
         
         // Need to populate at least one pixels field of each Image.
-        store.setPixelsSizeX(1, IMAGE_INDEX, PIXELS_INDEX);
-        store.setPixelsSizeX(1, IMAGE_INDEX + 1, PIXELS_INDEX);
-        store.setPixelsSizeX(1, IMAGE_INDEX + 2, PIXELS_INDEX);
+        store.setPixelsSizeX(new PositiveInteger(1), IMAGE_INDEX);
+        store.setPixelsSizeX(new PositiveInteger(1), IMAGE_INDEX + 1);
+        store.setPixelsSizeX(new PositiveInteger(1), IMAGE_INDEX + 2);
         
         // Add some metadata to the Objective to ensure that it is not lost.
         store.setObjectiveModel(
@@ -57,9 +58,9 @@ public class ObjectiveSettingsTest extends TestCase
         store.setImageInstrumentRef("Instrument:0", IMAGE_INDEX);
         store.setImageInstrumentRef("Instrument:0", IMAGE_INDEX + 1);
         store.setImageInstrumentRef("Instrument:0", IMAGE_INDEX + 2);
-        store.setObjectiveSettingsObjective("Objective:0", IMAGE_INDEX);
-        store.setObjectiveSettingsObjective("Objective:0", IMAGE_INDEX + 1);
-        store.setObjectiveSettingsObjective("Objective:0", IMAGE_INDEX + 2);
+        store.setImageObjectiveSettingsID("Objective:0", IMAGE_INDEX);
+        store.setImageObjectiveSettingsID("Objective:0", IMAGE_INDEX + 1);
+        store.setImageObjectiveSettingsID("Objective:0", IMAGE_INDEX + 2);
 	}
 
 	public void testObjectiveCorrectionExists()
@@ -72,7 +73,7 @@ public class ObjectiveSettingsTest extends TestCase
 	
 	public void testObjectiveCorrectionZeroLength()
 	{
-		store.setObjectiveCorrection("", INSTRUMENT_INDEX, OBJECTIVE_INDEX);
+		store.setObjectiveCorrection(null, INSTRUMENT_INDEX, OBJECTIVE_INDEX);
 		Objective o =
 			(Objective) store.getSourceObject(new LSID(Objective.class, 0, 0));
 		assertNotNull(o);
@@ -96,7 +97,7 @@ public class ObjectiveSettingsTest extends TestCase
 	{
 	    for (int i = 0; i < 3; i++)
 	    {
-	        LSID lsid = new LSID(Pixels.class, i, PIXELS_INDEX);
+	        LSID lsid = new LSID(Pixels.class, i);
 	        assertNotNull(store.getSourceObject(lsid));
 	    }
 	    assertNotNull(store.getSourceObject(new LSID(Instrument.class, 0)));

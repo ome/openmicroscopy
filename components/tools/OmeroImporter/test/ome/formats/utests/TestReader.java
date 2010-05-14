@@ -457,4 +457,9 @@ public class TestReader implements IFormatReader {
         
     }
 
+	public boolean hasCompanionFiles() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

@@ -7,6 +7,8 @@ import ome.formats.importer.OMEROWrapper;
 import ome.formats.model.BlitzInstanceProvider;
 import ome.formats.model.MetaLightSource;
 import ome.util.LSID;
+import ome.xml.r201004.enums.*;
+import ome.xml.r201004.primitives.*;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Laser;
 import omero.model.LightSettings;
@@ -25,8 +27,6 @@ public class LightSourceSettingsLaserTest extends TestCase
 	
 	private static final int IMAGE_INDEX = 0;
 	
-	private static final int PIXELS_INDEX = 0;
-	
 	private static final int LOGICAL_CHANNEL_INDEX = 0;
 	
 	@Override
@@ -42,45 +42,39 @@ public class LightSourceSettingsLaserTest extends TestCase
         wrapper.setMetadataStore(store);
         
         // Need to populate at least one pixels field.
-        store.setPixelsSizeX(1, IMAGE_INDEX, PIXELS_INDEX);
+        store.setPixelsSizeX(new PositiveInteger(1), IMAGE_INDEX);
         
         // First Laser, First LightSourceSettings
-		store.setLightSourceModel(
-				"Model", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
-		store.setLightSourceID(
-				"Laser:0", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
-		store.setLightSourcePower(1.0, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
+		store.setLaserModel("Model", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
+		store.setLaserID("Laser:0", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
+		store.setLaserPower(1.0, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
 		store.setLaserFrequencyMultiplication(
-				1, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
-		store.setLightSourceSettingsLightSource(
+				new PositiveInteger(1), INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
+		store.setChannelLightSourceSettingsID(
 				"Laser:0", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
-		store.setLightSourceSettingsAttenuation(
-				1.0, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+		store.setChannelLightSourceSettingsAttenuation(
+				new PercentFraction(1f), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
 		
 		// Second Laser, Second LightSourceSettings
-		store.setLightSourceModel(
-				"Model", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
-		store.setLightSourceID(
-				"Laser:1", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
-		store.setLightSourcePower(1.0, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
+		store.setLaserModel("Model", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
+		store.setLaserID("Laser:1", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
+		store.setLaserPower(1.0, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
 		store.setLaserFrequencyMultiplication(
-				1, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
-		store.setLightSourceSettingsLightSource(
+				new PositiveInteger(1), INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
+		store.setChannelLightSourceSettingsID(
 				"Laser:1", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
-		store.setLightSourceSettingsAttenuation(
-				1.0, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
+		store.setChannelLightSourceSettingsAttenuation(
+			  new PercentFraction(1f), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
 				
 		// Third Laser, Third LightSourceSettings (different orientation)
 		store.setLaserLaserMedium(
-				"Ar", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 2);
-		store.setLaserType(
-				"Gas", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 2);
-		store.setLightSourceID(
-				"Laser:2", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 2);
-		store.setLightSourceSettingsLightSource(
+				LaserMedium.AR, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 2);
+		store.setLaserType(LaserType.GAS, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 2);
+		store.setLaserID("Laser:2", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 2);
+		store.setChannelLightSourceSettingsID(
 				"Laser:2", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 2);
-		store.setLightSourceSettingsAttenuation(
-				1.0, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 2);
+		store.setChannelLightSourceSettingsAttenuation(
+				new PercentFraction(1f), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 2);
 	}
 	
 	public void testLightSourceSettingsLightSourceNotMLS()
@@ -98,7 +92,7 @@ public class LightSourceSettingsLaserTest extends TestCase
 	
 	public void testLightSourceCount()
 	{
-        LSID lsid = new LSID(Pixels.class, IMAGE_INDEX, PIXELS_INDEX);
+        LSID lsid = new LSID(Pixels.class, IMAGE_INDEX);
         assertNotNull(store.getSourceObject(lsid));
         assertEquals(3, store.countCachedContainers(Laser.class));
         assertEquals(7, store.countCachedContainers(null));
@@ -106,7 +100,7 @@ public class LightSourceSettingsLaserTest extends TestCase
 	
 	public void testLightSourceSettingsCount()
 	{
-        LSID lsid = new LSID(Pixels.class, IMAGE_INDEX, PIXELS_INDEX);
+        LSID lsid = new LSID(Pixels.class, IMAGE_INDEX);
         assertNotNull(store.getSourceObject(lsid));
         assertEquals(3, store.countCachedContainers(Laser.class));
         assertEquals(7, store.countCachedContainers(null));

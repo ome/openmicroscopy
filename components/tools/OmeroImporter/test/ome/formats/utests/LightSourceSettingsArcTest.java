@@ -7,6 +7,8 @@ import ome.formats.importer.OMEROWrapper;
 import ome.formats.model.BlitzInstanceProvider;
 import ome.formats.model.MetaLightSource;
 import ome.util.LSID;
+import ome.xml.r201004.enums.*;
+import ome.xml.r201004.primitives.*;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Arc;
 import omero.model.LightSettings;
@@ -25,8 +27,6 @@ public class LightSourceSettingsArcTest extends TestCase
 	
 	private static final int IMAGE_INDEX = 0;
 	
-	private static final int PIXELS_INDEX = 0;
-	
 	private static final int LOGICAL_CHANNEL_INDEX = 0;
 	
 	@Override
@@ -42,29 +42,25 @@ public class LightSourceSettingsArcTest extends TestCase
         wrapper.setMetadataStore(store);
         
         // Need to populate at least one pixels field.
-        store.setPixelsSizeX(1, IMAGE_INDEX, PIXELS_INDEX);
+        store.setPixelsSizeX(new PositiveInteger(1), IMAGE_INDEX);
         
         // First Arc, First LightSourceSettings
-		store.setLightSourceModel(
-				"Model", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
-		store.setLightSourceID(
-				"Arc:0", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
-		store.setArcType("Unknown", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
-		store.setLightSourceSettingsLightSource(
+		store.setArcModel("Model", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
+		store.setArcID("Arc:0", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
+		store.setArcType(ArcType.OTHER, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
+		store.setChannelLightSourceSettingsID(
 				"Arc:0", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
-		store.setLightSourceSettingsAttenuation(
-				1.0, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+		store.setChannelLightSourceSettingsAttenuation(
+				new PercentFraction(1f), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
 		
 		// Second Arc, Second LightSourceSettings
-		store.setLightSourceModel(
-				"Model", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
-		store.setLightSourceID(
-				"Arc:1", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
-		store.setArcType("Unknown", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
-		store.setLightSourceSettingsLightSource(
+		store.setArcModel("Model", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
+		store.setArcID("Arc:1", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
+		store.setArcType(ArcType.OTHER, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
+		store.setChannelLightSourceSettingsID(
 				"Arc:1", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
-		store.setLightSourceSettingsAttenuation(
-				1.0, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
+		store.setChannelLightSourceSettingsAttenuation(
+				new PercentFraction(1f), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
 	}
 	
 	public void testLightSourceSettingsLightSourceNotMLS()
@@ -82,7 +78,7 @@ public class LightSourceSettingsArcTest extends TestCase
 	
 	public void testLightSourceCount()
 	{
-        LSID lsid = new LSID(Pixels.class, IMAGE_INDEX, PIXELS_INDEX);
+        LSID lsid = new LSID(Pixels.class, IMAGE_INDEX);
         assertNotNull(store.getSourceObject(lsid));
         assertEquals(2, store.countCachedContainers(Arc.class));
         assertEquals(5, store.countCachedContainers(null));

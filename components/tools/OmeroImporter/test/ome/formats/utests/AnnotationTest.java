@@ -3,6 +3,7 @@ package ome.formats.utests;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.model.BlitzInstanceProvider;
 import ome.util.LSID;
+import ome.xml.r201004.primitives.PositiveInteger;
 import omero.api.ServiceFactoryPrx;
 import omero.model.CommentAnnotation;
 import omero.model.Image;
@@ -28,7 +29,7 @@ public class AnnotationTest extends TestCase
         store.setInstanceProvider(
         		new BlitzInstanceProvider(store.getEnumerationProvider()));
         store.setImageName("An Image", IMAGE_INDEX);
-        store.setPixelsSizeZ(1, IMAGE_INDEX, PIXELS_INDEX);
+        store.setPixelsSizeZ(new PositiveInteger(1), IMAGE_INDEX);
 	}
 	
 	public void testLinkSingleAnnotation()

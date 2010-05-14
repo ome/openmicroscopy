@@ -5,8 +5,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ome.util.LSID;
+import ome.formats.Index;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.model.BlitzInstanceProvider;
+import ome.xml.r201004.primitives.PositiveInteger;
 import omero.model.Image;
 import omero.model.ObjectiveSettings;
 import omero.model.Pixels;
@@ -18,8 +20,6 @@ public class IObjectContainerStoreTest extends TestCase
 	private OMEROMetadataStoreClient store;
 	
 	private static final int IMAGE_INDEX = 0;
-	
-	private static final int PIXELS_INDEX = 0;
 	
 	@Override
 	protected void setUp() throws Exception
@@ -36,11 +36,11 @@ public class IObjectContainerStoreTest extends TestCase
         store.setImageName("Foo2", IMAGE_INDEX + 1);
         
         // Objects of a different type
-        store.setPixelsSizeX(1, IMAGE_INDEX, PIXELS_INDEX);
-        store.setPixelsSizeX(1, IMAGE_INDEX + 1, PIXELS_INDEX);
+        store.setPixelsSizeX(new PositiveInteger(1), IMAGE_INDEX);
+        store.setPixelsSizeX(new PositiveInteger(1), IMAGE_INDEX + 1);
         
         // Add a reference
-        store.setObjectiveSettingsObjective("Objective:0", IMAGE_INDEX);
+        store.setImageObjectiveSettingsID("Objective:0", IMAGE_INDEX);
 	}
 	
 	public void testGetCaches()
@@ -69,9 +69,9 @@ public class IObjectContainerStoreTest extends TestCase
 	
 	public void testGetIObjectContainer()
 	{
-		LinkedHashMap<String, Integer> indexes = 
-			new LinkedHashMap<String, Integer>();
-		indexes.put("imageIndex", IMAGE_INDEX + 2);
+		LinkedHashMap<Index, Integer> indexes =
+			new LinkedHashMap<Index, Integer>();
+		indexes.put(Index.IMAGE_INDEX, IMAGE_INDEX + 2);
 		store.getIObjectContainer(Image.class, indexes);
 		assertEquals(3, store.countCachedContainers(Image.class));
 	}

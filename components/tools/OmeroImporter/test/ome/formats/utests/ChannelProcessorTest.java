@@ -7,6 +7,8 @@ import ome.formats.importer.OMEROWrapper;
 import ome.formats.model.BlitzInstanceProvider;
 import ome.formats.model.ChannelData;
 import ome.formats.model.ChannelProcessor;
+import ome.xml.r201004.enums.*;
+import ome.xml.r201004.primitives.*;
 import omero.api.ServiceFactoryPrx;
 
 public class ChannelProcessorTest extends TestCase
@@ -44,31 +46,30 @@ public class ChannelProcessorTest extends TestCase
         
         // Need to populate at least one pixels and image field.
         store.setImageName("Image", IMAGE_INDEX);
-        store.setPixelsSizeX(1, IMAGE_INDEX, PIXELS_INDEX);
-        store.setPixelsSizeC(2, IMAGE_INDEX, PIXELS_INDEX);
+        store.setPixelsSizeX(new PositiveInteger(1), IMAGE_INDEX);
+        store.setPixelsSizeC(new PositiveInteger(2), IMAGE_INDEX);
         
-        // First Filament, First LightSourceSettings
-		store.setLightSourceID(
+        // First Laser, First LightSourceSettings
+		store.setLaserID(
 				"Laser:0", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
-		store.setLightSourceManufacturer("0", INSTRUMENT_INDEX,
+		store.setLaserManufacturer("0", INSTRUMENT_INDEX,
 				LIGHTSOURCE_INDEX);
-		store.setLaserType("Unknown", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
-		store.setLightSourceSettingsLightSource(
+		store.setLaserType(LaserType.OTHER, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
+		store.setChannelLightSourceSettingsID(
 				"Laser:0", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
-		store.setLightSourceSettingsAttenuation(
-				1.0, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+		store.setChannelLightSourceSettingsAttenuation(
+				new PercentFraction(1f), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
 		
-		// Second Filament, Second LightSourceSettings
-		store.setLightSourceID(
-				"Filament:1", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
-		store.setLightSourceManufacturer("1", INSTRUMENT_INDEX,
-				LIGHTSOURCE_INDEX + 1);
-		store.setFilamentType("Unknown", INSTRUMENT_INDEX,
-				LIGHTSOURCE_INDEX + 1);
-		store.setLightSourceSettingsLightSource(
+		// First Filament , Second LightSourceSettings
+		store.setFilamentID(
+				"Filament:1", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
+		store.setFilamentManufacturer("1", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
+		store.setFilamentType(
+        FilamentType.OTHER, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
+		store.setChannelLightSourceSettingsID(
 				"Filament:1", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
-		store.setLightSourceSettingsAttenuation(
-				2.0, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
+		store.setChannelLightSourceSettingsAttenuation(
+				new PercentFraction(1f), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
 		
 		// FilterSet
 		store.setFilterSetID("FilterSet:0", INSTRUMENT_INDEX,
@@ -81,9 +82,9 @@ public class ChannelProcessorTest extends TestCase
 				FILTER_SET_INDEX + 1);
 		
 		// FilterSet linkages
-		store.setLogicalChannelFilterSet("FilterSet:0", IMAGE_INDEX,
+		store.setChannelFilterSetRef("FilterSet:0", IMAGE_INDEX,
 				LOGICAL_CHANNEL_INDEX);
-		store.setLogicalChannelFilterSet("FilterSet:1", IMAGE_INDEX,
+		store.setChannelFilterSetRef("FilterSet:1", IMAGE_INDEX,
 				LOGICAL_CHANNEL_INDEX + 1);
 		
 		// Filters
@@ -105,22 +106,22 @@ public class ChannelProcessorTest extends TestCase
 		store.setFilterLotNumber("7", INSTRUMENT_INDEX, FILTER_INDEX + 7);
 		
 		// Filter linkages
-		store.setFilterSetEmFilter("Filter:0", INSTRUMENT_INDEX,
-				FILTER_SET_INDEX);
-		store.setFilterSetExFilter("Filter:1", INSTRUMENT_INDEX,
-				FILTER_SET_INDEX);
-		store.setFilterSetEmFilter("Filter:6", INSTRUMENT_INDEX,
-				FILTER_SET_INDEX + 1);
-		store.setFilterSetExFilter("Filter:7", INSTRUMENT_INDEX,
-				FILTER_SET_INDEX + 1);
-		store.setLogicalChannelSecondaryEmissionFilter(
-				"Filter:2", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
-		store.setLogicalChannelSecondaryExcitationFilter(
-				"Filter:3", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
-		store.setLogicalChannelSecondaryEmissionFilter(
-				"Filter:4", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
-		store.setLogicalChannelSecondaryExcitationFilter(
-				"Filter:5", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
+		store.setFilterSetEmissionFilterRef("Filter:0", INSTRUMENT_INDEX,
+				FILTER_SET_INDEX, FILTER_INDEX);
+		store.setFilterSetExcitationFilterRef("Filter:1", INSTRUMENT_INDEX,
+				FILTER_SET_INDEX, FILTER_INDEX);
+		store.setFilterSetEmissionFilterRef("Filter:6", INSTRUMENT_INDEX,
+				FILTER_SET_INDEX + 1, FILTER_INDEX);
+		store.setFilterSetExcitationFilterRef("Filter:7", INSTRUMENT_INDEX,
+				FILTER_SET_INDEX + 1, FILTER_INDEX);
+		store.setLightPathEmissionFilterRef(
+				"Filter:2", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX, LOGICAL_CHANNEL_INDEX);
+		store.setLightPathExcitationFilterRef(
+				"Filter:3", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX, LOGICAL_CHANNEL_INDEX);
+		store.setLightPathEmissionFilterRef("Filter:4", IMAGE_INDEX,
+        LOGICAL_CHANNEL_INDEX + 1, LOGICAL_CHANNEL_INDEX + 1);
+		store.setLightPathExcitationFilterRef("Filter:5", IMAGE_INDEX,
+        LOGICAL_CHANNEL_INDEX + 1, LOGICAL_CHANNEL_INDEX + 1);
 	}
 
 	public void testBaseDataChannelOne()
@@ -186,7 +187,8 @@ public class ChannelProcessorTest extends TestCase
 	
 	public void testLogicalChannelGreenEmissionWavelength()
 	{
-		store.setLogicalChannelEmWave(525, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+		store.setChannelEmissionWavelength(
+        new PositiveInteger(525), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
@@ -207,7 +209,8 @@ public class ChannelProcessorTest extends TestCase
 	
 	public void testLogicalChannelBlueEmissionWavelength()
 	{
-		store.setLogicalChannelEmWave(450, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+		store.setChannelEmissionWavelength(
+        new PositiveInteger(450), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
@@ -228,7 +231,8 @@ public class ChannelProcessorTest extends TestCase
 	
 	public void testLogicalChannelRedEmissionWavelength()
 	{
-		store.setLogicalChannelEmWave(625, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+		store.setChannelEmissionWavelength(
+        new PositiveInteger(625), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
@@ -293,7 +297,8 @@ public class ChannelProcessorTest extends TestCase
 	
 	public void testLaserBlueWavelength()
 	{
-		store.setLaserWavelength(435, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
+		store.setLaserWavelength(
+        new PositiveInteger(435), INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
@@ -314,7 +319,8 @@ public class ChannelProcessorTest extends TestCase
 	
 	public void testLogicalChannelGreenExcitationWavelength()
 	{
-		store.setLogicalChannelExWave(525, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+		store.setChannelExcitationWavelength(
+        new PositiveInteger(525), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
@@ -335,7 +341,8 @@ public class ChannelProcessorTest extends TestCase
 	
 	public void testLogicalChannelBlueExcitationWavelength()
 	{
-		store.setLogicalChannelExWave(450, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+		store.setChannelExcitationWavelength(
+        new PositiveInteger(450), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
@@ -356,7 +363,8 @@ public class ChannelProcessorTest extends TestCase
 	
 	public void testLogicalChannelRedExcitationWavelength()
 	{
-		store.setLogicalChannelExWave(625, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+		store.setChannelExcitationWavelength(
+        new PositiveInteger(625), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(

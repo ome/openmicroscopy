@@ -6,6 +6,8 @@ import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.model.BlitzInstanceProvider;
 import ome.formats.model.ChannelData;
+import ome.xml.r201004.enums.*;
+import ome.xml.r201004.primitives.*;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Filament;
 
@@ -28,7 +30,11 @@ public class ChannelDataTest extends TestCase
 	private static final int PIXELS_INDEX = 0;
 	
 	private static final int LOGICAL_CHANNEL_INDEX = 0;
-	
+
+  private static final int EM_FILTER_INDEX = 0;
+
+  private static final int EX_FILTER_INDEX = 0;
+
 	@Override
 	protected void setUp() throws Exception
 	{
@@ -42,30 +48,30 @@ public class ChannelDataTest extends TestCase
         wrapper.setMetadataStore(store);
         
         // Need to populate at least one pixels field.
-        store.setPixelsSizeX(1, IMAGE_INDEX, PIXELS_INDEX);
+        store.setPixelsSizeX(new PositiveInteger(1), IMAGE_INDEX);
         
         // First Filament, First LightSourceSettings
-		store.setLightSourceID(
+		store.setFilamentID(
 				"Filament:0", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
-		store.setLightSourceManufacturer("0", INSTRUMENT_INDEX,
+		store.setFilamentManufacturer("0", INSTRUMENT_INDEX,
 				LIGHTSOURCE_INDEX);
-		store.setFilamentType("Unknown", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
-		store.setLightSourceSettingsLightSource(
+		store.setFilamentType(FilamentType.OTHER, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
+		store.setChannelLightSourceSettingsID(
 				"Filament:0", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
-		store.setLightSourceSettingsAttenuation(
-				1.0, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+		store.setChannelLightSourceSettingsAttenuation(
+				new PercentFraction(1f), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
 		
 		// Second Filament, Second LightSourceSettings
-		store.setLightSourceID(
+		store.setFilamentID(
 				"Filament:1", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
-		store.setLightSourceManufacturer("1", INSTRUMENT_INDEX,
+		store.setFilamentManufacturer("1", INSTRUMENT_INDEX,
 				LIGHTSOURCE_INDEX + 1);
-		store.setFilamentType("Unknown", INSTRUMENT_INDEX,
+		store.setFilamentType(FilamentType.OTHER, INSTRUMENT_INDEX,
 				LIGHTSOURCE_INDEX + 1);
-		store.setLightSourceSettingsLightSource(
+		store.setChannelLightSourceSettingsID(
 				"Filament:1", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
-		store.setLightSourceSettingsAttenuation(
-				2.0, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
+		store.setChannelLightSourceSettingsAttenuation(
+				new PercentFraction(2f), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
 		
 		// FilterSet
 		store.setFilterSetID("FilterSet:0", INSTRUMENT_INDEX,
@@ -78,9 +84,9 @@ public class ChannelDataTest extends TestCase
 				FILTER_SET_INDEX + 1);
 		
 		// FilterSet linkages
-		store.setLogicalChannelFilterSet("FilterSet:0", IMAGE_INDEX,
+		store.setChannelFilterSetRef("FilterSet:0", IMAGE_INDEX,
 				LOGICAL_CHANNEL_INDEX);
-		store.setLogicalChannelFilterSet("FilterSet:1", IMAGE_INDEX,
+		store.setChannelFilterSetRef("FilterSet:1", IMAGE_INDEX,
 				LOGICAL_CHANNEL_INDEX + 1);
 		
 		// Filters
@@ -102,22 +108,22 @@ public class ChannelDataTest extends TestCase
 		store.setFilterLotNumber("7", INSTRUMENT_INDEX, FILTER_INDEX + 7);
 		
 		// Filter linkages
-		store.setFilterSetEmFilter("Filter:0", INSTRUMENT_INDEX,
-				FILTER_SET_INDEX);
-		store.setFilterSetExFilter("Filter:1", INSTRUMENT_INDEX,
-				FILTER_SET_INDEX);
-		store.setFilterSetEmFilter("Filter:6", INSTRUMENT_INDEX,
-				FILTER_SET_INDEX + 1);
-		store.setFilterSetExFilter("Filter:7", INSTRUMENT_INDEX,
-				FILTER_SET_INDEX + 1);
-		store.setLogicalChannelSecondaryEmissionFilter(
-				"Filter:2", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
-		store.setLogicalChannelSecondaryExcitationFilter(
-				"Filter:3", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
-		store.setLogicalChannelSecondaryEmissionFilter(
-				"Filter:4", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
-		store.setLogicalChannelSecondaryExcitationFilter(
-				"Filter:5", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
+		store.setFilterSetEmissionFilterRef("Filter:0", INSTRUMENT_INDEX,
+				FILTER_SET_INDEX, FILTER_INDEX);
+		store.setFilterSetExcitationFilterRef("Filter:1", INSTRUMENT_INDEX,
+				FILTER_SET_INDEX, FILTER_INDEX);
+		store.setFilterSetEmissionFilterRef("Filter:6", INSTRUMENT_INDEX,
+				FILTER_SET_INDEX + 1, FILTER_INDEX);
+		store.setFilterSetExcitationFilterRef("Filter:7", INSTRUMENT_INDEX,
+				FILTER_SET_INDEX + 1, FILTER_INDEX);
+		store.setLightPathEmissionFilterRef(
+				"Filter:2", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX, EM_FILTER_INDEX);
+		store.setLightPathExcitationFilterRef(
+				"Filter:3", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX, EX_FILTER_INDEX);
+		store.setLightPathEmissionFilterRef("Filter:4",
+        IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1, EM_FILTER_INDEX + 1);
+		store.setLightPathExcitationFilterRef("Filter:5",
+        IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1, EX_FILTER_INDEX + 1);
 	}
 	
 	public void testChannelDataChannelOne()

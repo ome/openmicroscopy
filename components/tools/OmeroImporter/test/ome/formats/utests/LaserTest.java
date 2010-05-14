@@ -2,8 +2,11 @@ package ome.formats.utests;
 
 import java.util.LinkedHashMap;
 
+import ome.formats.Index;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.model.BlitzInstanceProvider;
+import ome.xml.r201004.enums.*;
+import ome.xml.r201004.primitives.*;
 import omero.api.ServiceFactoryPrx;
 import omero.metadatastore.IObjectContainer;
 import omero.model.Laser;
@@ -32,43 +35,43 @@ public class LaserTest extends TestCase
 	public void testNewLaserAllAttributes()
 	{
 		int i = LIGHTSOURCE_INDEX + 10;
-		store.setLightSourceID("Laser:100", INSTRUMENT_INDEX, i);
-		store.setLaserWavelength(100, INSTRUMENT_INDEX, i);
-		store.setLaserType("Foo", INSTRUMENT_INDEX, i);
-		store.setLaserLaserMedium("Bar", INSTRUMENT_INDEX, i);
+		store.setLaserID("Laser:100", INSTRUMENT_INDEX, i);
+		store.setLaserWavelength(new PositiveInteger(100), INSTRUMENT_INDEX, i);
+		store.setLaserType(LaserType.METALVAPOR, INSTRUMENT_INDEX, i);
+		store.setLaserLaserMedium(LaserMedium.EMINUS, INSTRUMENT_INDEX, i);
 		store.setLaserPockelCell(true, INSTRUMENT_INDEX, i);
-		store.setLaserPulse("Pulse", INSTRUMENT_INDEX, i);
-		store.setLaserRepetitionRate(true, INSTRUMENT_INDEX, i);
+		store.setLaserPulse(Pulse.REPETITIVE, INSTRUMENT_INDEX, i);
+		store.setLaserRepetitionRate(2.0, INSTRUMENT_INDEX, i);
 		store.setLaserTuneable(true, INSTRUMENT_INDEX, i);
 	}
 
 	public void testNewLaserIdFirst()
 	{
 	    int i = LIGHTSOURCE_INDEX + 10;
-	    store.setLightSourceID("LightSource:100", INSTRUMENT_INDEX, i);
-        store.setLaserType("Foo", INSTRUMENT_INDEX, i);
-        LinkedHashMap<String, Integer> indexes =
-            new LinkedHashMap<String, Integer>();
-        indexes.put("instrumentIndex", INSTRUMENT_INDEX);
-        indexes.put("lightSourceIndex", i);
-        IObjectContainer laserContainer = 
-            store.getIObjectContainer(Laser.class, indexes);
-        IObjectContainer lightSourceContainer =
-            store.getIObjectContainer(LightSource.class, indexes);
-        assertEquals("LightSource:100", laserContainer.LSID);
-        assertEquals("LightSource:100", lightSourceContainer.LSID);
-        assertEquals(laserContainer.sourceObject, laserContainer.sourceObject);
+	    store.setLaserID("LightSource:100", INSTRUMENT_INDEX, i);
+      store.setLaserType(LaserType.METALVAPOR, INSTRUMENT_INDEX, i);
+      LinkedHashMap<Index, Integer> indexes =
+          new LinkedHashMap<Index, Integer>();
+      indexes.put(Index.INSTRUMENT_INDEX, INSTRUMENT_INDEX);
+      indexes.put(Index.LIGHT_SOURCE_INDEX, i);
+      IObjectContainer laserContainer = 
+          store.getIObjectContainer(Laser.class, indexes);
+      IObjectContainer lightSourceContainer =
+          store.getIObjectContainer(LightSource.class, indexes);
+      assertEquals("LightSource:100", laserContainer.LSID);
+      assertEquals("LightSource:100", lightSourceContainer.LSID);
+      assertEquals(laserContainer.sourceObject, laserContainer.sourceObject);
 	}
 
     public void testNewLaserConcreteAttributeFirst()
     {
         int i = LIGHTSOURCE_INDEX + 10;
-        store.setLaserType("Foo", INSTRUMENT_INDEX, i);
-        store.setLightSourceID("LightSource:100", INSTRUMENT_INDEX, i);
-        LinkedHashMap<String, Integer> indexes =
-            new LinkedHashMap<String, Integer>();
-        indexes.put("instrumentIndex", INSTRUMENT_INDEX);
-        indexes.put("lightSourceIndex", i);
+        store.setLaserType(LaserType.METALVAPOR, INSTRUMENT_INDEX, i);
+        store.setLaserID("LightSource:100", INSTRUMENT_INDEX, i);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.INSTRUMENT_INDEX, INSTRUMENT_INDEX);
+        indexes.put(Index.LIGHT_SOURCE_INDEX, i);
         IObjectContainer laserContainer = 
             store.getIObjectContainer(Laser.class, indexes);
         IObjectContainer lightSourceContainer =
@@ -81,13 +84,13 @@ public class LaserTest extends TestCase
     public void testNewLaserSuperclassAttributeLast()
     {
         int i = LIGHTSOURCE_INDEX + 10;
-        store.setLightSourceID("LightSource:100", INSTRUMENT_INDEX, i);
-        store.setLaserType("Foo", INSTRUMENT_INDEX, i);
-        store.setLightSourceModel("Bar", INSTRUMENT_INDEX, i);
-        LinkedHashMap<String, Integer> indexes =
-            new LinkedHashMap<String, Integer>();
-        indexes.put("instrumentIndex", INSTRUMENT_INDEX);
-        indexes.put("lightSourceIndex", i);
+        store.setLaserID("LightSource:100", INSTRUMENT_INDEX, i);
+        store.setLaserType(LaserType.METALVAPOR, INSTRUMENT_INDEX, i);
+        store.setLaserModel("Bar", INSTRUMENT_INDEX, i);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.INSTRUMENT_INDEX, INSTRUMENT_INDEX);
+        indexes.put(Index.LIGHT_SOURCE_INDEX, i);
         IObjectContainer laserContainer = 
             store.getIObjectContainer(Laser.class, indexes);
         IObjectContainer lightSourceContainer =

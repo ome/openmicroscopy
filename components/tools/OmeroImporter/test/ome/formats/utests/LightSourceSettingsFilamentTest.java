@@ -7,6 +7,8 @@ import ome.formats.importer.OMEROWrapper;
 import ome.formats.model.BlitzInstanceProvider;
 import ome.formats.model.MetaLightSource;
 import ome.util.LSID;
+import ome.xml.r201004.enums.*;
+import ome.xml.r201004.primitives.*;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Filament;
 import omero.model.LightSettings;
@@ -25,8 +27,6 @@ public class LightSourceSettingsFilamentTest extends TestCase
 	
 	private static final int IMAGE_INDEX = 0;
 	
-	private static final int PIXELS_INDEX = 0;
-	
 	private static final int LOGICAL_CHANNEL_INDEX = 0;
 	
 	@Override
@@ -42,30 +42,27 @@ public class LightSourceSettingsFilamentTest extends TestCase
         wrapper.setMetadataStore(store);
         
         // Need to populate at least one pixels field.
-        store.setPixelsSizeX(1, IMAGE_INDEX, PIXELS_INDEX);
+        store.setPixelsSizeX(new PositiveInteger(1), IMAGE_INDEX);
         
         // First Filament, First LightSourceSettings
-		store.setLightSourceModel(
-				"Model", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
-		store.setLightSourceID(
-				"Filament:0", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
-		store.setFilamentType("Unknown", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
-		store.setLightSourceSettingsLightSource(
+		store.setFilamentModel("Model", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
+		store.setFilamentID("Filament:0", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
+		store.setFilamentType(
+        FilamentType.OTHER, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
+		store.setChannelLightSourceSettingsID(
 				"Filament:0", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
-		store.setLightSourceSettingsAttenuation(
-				1.0, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+		store.setChannelLightSourceSettingsAttenuation(
+				new PercentFraction(1f), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
 		
 		// Second Filament, Second LightSourceSettings
-		store.setLightSourceModel(
-				"Model", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
-		store.setLightSourceID(
-				"Filament:1", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
+		store.setFilamentModel("Model", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
+		store.setFilamentID("Filament:1", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
 		store.setFilamentType(
-				"Unknown", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
-		store.setLightSourceSettingsLightSource(
+        FilamentType.OTHER, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
+		store.setChannelLightSourceSettingsID(
 				"Filament:1", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
-		store.setLightSourceSettingsAttenuation(
-				1.0, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
+		store.setChannelLightSourceSettingsAttenuation(
+				new PercentFraction(1f), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
 	}
 	
 	public void testLightSourceSettingsLightSourceNotMLS()
@@ -83,7 +80,7 @@ public class LightSourceSettingsFilamentTest extends TestCase
 	
 	public void testLightSourceCount()
 	{
-        LSID lsid = new LSID(Pixels.class, IMAGE_INDEX, PIXELS_INDEX);
+        LSID lsid = new LSID(Pixels.class, IMAGE_INDEX);
         assertNotNull(store.getSourceObject(lsid));
         assertEquals(2, store.countCachedContainers(Filament.class));
         assertEquals(5, store.countCachedContainers(null));
@@ -91,7 +88,7 @@ public class LightSourceSettingsFilamentTest extends TestCase
 	
 	public void testLightSourceSettingsCount()
 	{
-        LSID lsid = new LSID(Pixels.class, IMAGE_INDEX, PIXELS_INDEX);
+        LSID lsid = new LSID(Pixels.class, IMAGE_INDEX);
         assertNotNull(store.getSourceObject(lsid));
         assertEquals(2, store.countCachedContainers(Filament.class));
         assertEquals(5, store.countCachedContainers(null));
