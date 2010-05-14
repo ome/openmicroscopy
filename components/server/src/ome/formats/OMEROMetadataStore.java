@@ -738,7 +738,7 @@ public class OMEROMetadataStore
     		            Map<String, Integer> indexes)
     {
     	LogicalChannel lc = getLogicalChannel(indexes.get("imageIndex"),
-    			                              indexes.get("logicalChannelIndex"));
+    			                              indexes.get("channelIndex"));
     	lc.setDetectorSettings(sourceObject);
     }
     
@@ -753,7 +753,7 @@ public class OMEROMetadataStore
     		            Map<String, Integer> indexes)
     {
     	LogicalChannel lc = getLogicalChannel(indexes.get("imageIndex"),
-    			                              indexes.get("logicalChannelIndex"));
+    			                              indexes.get("channelIndex"));
     	lc.setLightSourceSettings(sourceObject);
     }
     
