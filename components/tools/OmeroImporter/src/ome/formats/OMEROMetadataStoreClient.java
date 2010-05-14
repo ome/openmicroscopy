@@ -2708,36 +2708,9 @@ public class OMEROMetadataStoreClient
             new LinkedHashMap<Index, Integer>();
         indexes.put(Index.IMAGE_INDEX, imageIndex);
         indexes.put(Index.CHANNEL_INDEX, channelIndex);
+        Channel c = getSourceObject(Channel.class, indexes);
+        c.setLogicalChannel(getSourceObject(LogicalChannel.class, indexes));
         return getSourceObject(Channel.class, indexes);
-    }
-
-    
-    /**
-     * Logical Channel and Channel combined in the new model
-     * 
-     * @param imageIndex
-     * @param logicalChannelIndex
-     * @return
-     */
-    private LogicalChannel getLogicalChannel(int imageIndex, int logicalChannelIndex)
-    {
-        LinkedHashMap<Index, Integer> indexes =
-            new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.IMAGE_INDEX, imageIndex);
-        indexes.put(Index.LOGICAL_CHANNEL_INDEX, logicalChannelIndex);
-        return getSourceObject(LogicalChannel.class, indexes);
-    }
-    
-    public void setLogicalChannelID(String id, int imageIndex,
-            int logicalChannelIndex)
-    {
-        checkDuplicateLSID(LogicalChannel.class, id);
-        LinkedHashMap<Index, Integer> indexes = new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.IMAGE_INDEX, imageIndex);
-        indexes.put(Index.LOGICAL_CHANNEL_INDEX, logicalChannelIndex);  
-        IObjectContainer o = getIObjectContainer(LogicalChannel.class, indexes);
-        o.LSID = id;
-        addAuthoritativeContainer(LogicalChannel.class, id, o);
     }
     
     /* (non-Javadoc)
@@ -2753,8 +2726,6 @@ public class OMEROMetadataStoreClient
         IObjectContainer o = getIObjectContainer(Channel.class, indexes);
         o.LSID = id;
         addAuthoritativeContainer(Channel.class, id, o);
-        
-        setLogicalChannelID(id, imageIndex, channelIndex);
     }
     
     /* (non-Javadoc)
