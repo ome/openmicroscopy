@@ -68,8 +68,20 @@ public class ExportLoader
     /** One of the constants defined by this class. */
     private int						index;
     
-    /** Notifies the user that an error occurred. */
-    protected void onException() { handleNullResult(); }
+    /**
+     * Notifies that an error occurred.
+     * @see UserNotifierLoader#onException(String)
+     */
+    protected void onException(String message)
+    { 
+    	switch (index) {
+			case EXPORT_AS_OME_TIFF:
+				activity.notifyError("Unable to export as OME-TIFF", message);
+				break;
+			case EXPORT_AS_OME_XML:
+				activity.notifyError("Unable to export as OME-XML", message);
+    	}
+    }
     
     /**
      * Creates a new instance.
@@ -108,23 +120,6 @@ public class ExportLoader
      * @see UserNotifierLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
-    
-    /**
-     * Notifies the user that it wasn't possible to export the image.
-     * @see UserNotifierLoader#handleNullResult()
-     */
-    public void handleNullResult()
-    { 
-    	switch (index) {
-			case EXPORT_AS_OME_TIFF:
-				activity.notifyError("Unable to export as OME-TIFF");
-				break;
-			case EXPORT_AS_OME_XML:
-				activity.notifyError("Unable to export as OME-XML");
-			default:
-				break;
-		}
-    }
  
     /** 
      * Feeds the result back to the viewer. 
@@ -132,7 +127,8 @@ public class ExportLoader
      */
     public void handleResult(Object result)
     { 
-    	activity.endActivity(result); 
+    	if (result == null) onException(MESSAGE_RESULT);
+    	else activity.endActivity(result); 
     }
     
 }

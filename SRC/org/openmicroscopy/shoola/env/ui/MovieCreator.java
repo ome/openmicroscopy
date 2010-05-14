@@ -70,10 +70,13 @@ public class MovieCreator
     /** The call-back returned by the server. */
     private ScriptCallback 			callBack;
     
-    /** Notifies the user that an error occurred. */
-    protected void onException()
+    /**
+     * Notifies that an error occurred.
+     * @see UserNotifierLoader#onException(String)
+     */
+    protected void onException(String message)
     { 
-    	activity.notifyError("Unable to create movie for "); 
+    	activity.notifyError("Unable to create movie", message);
     }
     
     /**
@@ -140,7 +143,7 @@ public class MovieCreator
         Object o = fe.getPartialResult();
         if (o != null) {
         	if (o instanceof Boolean) {
-        		onException();
+        		onException(MESSAGE_RUN);
         	} else {
         		callBack = (ScriptCallback) o;
             	callBack.setAdapter(this);
@@ -155,7 +158,7 @@ public class MovieCreator
      */
     public void handleResult(Object result)
     { 
-    	if (result == null) onException();
+    	if (result == null) onException(MESSAGE_RESULT);
     	else if (!(result instanceof Boolean)) {
     		activity.endActivity(result);
     	}

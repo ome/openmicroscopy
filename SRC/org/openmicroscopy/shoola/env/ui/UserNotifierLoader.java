@@ -52,6 +52,12 @@ abstract class UserNotifierLoader
 	extends DSCallAdapter
 {
 
+	/** Message indicating that no results were returned. */
+	static final String MESSAGE_RESULT ="No result returned.";
+	
+	/** Message indicating that no results were returned. */
+	static final String MESSAGE_RUN ="Unable to start the script.";
+	
 	/** Convenience reference for subclasses. */
     protected final Registry			registry;
     
@@ -125,11 +131,14 @@ abstract class UserNotifierLoader
         msg.print(s);
         msg.print(exc);
         registry.getLogger().error(this, msg);
-        onException();
+        onException(exc.getMessage());
     }
     
-    /** Subclasses should override this method. */
-    protected void onException() {};
+    /** Subclasses should override this method.
+     * 
+     * @param message The message to display.
+     */
+    protected void onException(String message) {};
     
     /** Fires an asynchronous data loading. */
     public abstract void load();

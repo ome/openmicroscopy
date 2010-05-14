@@ -76,8 +76,14 @@ public class FileLoader
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle	handle;
 
-    /** Notifies the user that an error occurred. */
-    protected void onException() { handleNullResult(); }
+    /**
+     * Notifies that an error occurred.
+     * @see UserNotifierLoader#onException(String)
+     */
+    protected void onException(String message)
+    { 
+    	activity.notifyError("Unable to download the file", message);
+    }
     
     /**
      * Creates a new instance.
@@ -159,23 +165,14 @@ public class FileLoader
         String info = "The data retrieval has been cancelled.";
         registry.getLogger().info(this, info);
     }
-    
-    /**
-     * Notifies the user that it wasn't possible to download the file.
-     * @see UserNotifierLoader#handleNullResult()
-     */
-    public void handleNullResult()
-    { 
-    	activity.notifyError("Unable to download the file");
-    }
-    
+
     /** 
      * Feeds the result back to the viewer. 
      * @see UserNotifierLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     { 
-    	if (result == null) handleNullResult();
+    	if (result == null) onException(MESSAGE_RESULT);
     	else {
     		if (activity != null) activity.endActivity(result); 
     	}

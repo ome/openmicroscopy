@@ -53,10 +53,16 @@ public class ScriptUploader
     
     /** Reference to the script to run. */
     private ScriptObject 			script;
-
-    /** Notifies the user that an error occurred. */
-    protected void onException() { handleNullResult(); }
     
+    /**
+     * Notifies that an error occurred.
+     * @see UserNotifierLoader#onException(String)
+     */
+    protected void onException(String message)
+    { 
+    	activity.notifyError("Unable to upload the script", message);
+    }
+
     /**
      * Creates a new instance.
      * 
@@ -89,15 +95,6 @@ public class ScriptUploader
      * @see UserNotifierLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
-    
-    /**
-     * Notifies the user that it wasn't possible to create the figure.
-     * @see UserNotifierLoader#handleNullResult()
-     */
-    public void handleNullResult()
-    { 
-    	activity.notifyError("Unable to upload the script.");
-    }
  
     /** 
      * Feeds the result back to the viewer. 
@@ -105,9 +102,10 @@ public class ScriptUploader
      */
     public void handleResult(Object result)
     { 
-    	if (result instanceof Long) {
+    	if (result == null) onException(MESSAGE_RESULT);
+    	else if (result instanceof Long) {
 			Long value = (Long) result;
-			if (value < 0) handleNullResult();
+			if (value < 0) onException(MESSAGE_RESULT);
 			else activity.endActivity(result); 
 		}
     }

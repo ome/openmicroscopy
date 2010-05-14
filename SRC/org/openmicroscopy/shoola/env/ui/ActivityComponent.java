@@ -736,11 +736,13 @@ public abstract class ActivityComponent
 	 * Notifies that it was not possible to complete the activity.
 	 * 
 	 * @param text The text to set.
+	 * @param message The reason of the error.
 	 */
-	public void notifyError(String text)
+	public void notifyError(String text, String message)
 	{
 		reset();
 		if (text != null) type.setText(text);
+		if (message != null) messageLabel.setText(message);
 	}
 	
 	/**

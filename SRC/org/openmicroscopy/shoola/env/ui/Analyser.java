@@ -29,6 +29,8 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.ScriptCallback;
+import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.FileAnnotationData;
@@ -67,6 +69,18 @@ public class Analyser
     
     /** The type of analysis to perform. */
     private int						index;
+    
+    /** The call-back returned by the server. */
+    private ScriptCallback 			callBack;
+    
+    /**
+     * Notifies that an error occurred.
+     * @see UserNotifierLoader#onException(String)
+     */
+    protected void onException(String message)
+    { 
+    	activity.notifyError("Unable to analyse data", message);
+    }
     
     /** Notifies the user that an error occurred. */
     protected void onException() { handleNullResult(); }
@@ -112,20 +126,41 @@ public class Analyser
 				break;
 		}
     }
-    
+
     /**
      * Cancels the ongoing data retrieval.
      * @see UserNotifierLoader#cancel()
      */
-    public void cancel() { handle.cancel(); }
-    
-    /**
-     * Notifies the user that it wasn't possible to create the figure.
-     * @see UserNotifierLoader#handleNullResult()
-     */
-    public void handleNullResult()
+    public void cancel()
     { 
-    	activity.notifyError("Unable to analyse data");
+    	try {
+    		if (callBack != null) {
+    			callBack.cancel();
+        		activity.onActivityCancelled();
+    		}
+		} catch (Exception e) {
+			handleException(e);
+		}
+    	handle.cancel();
+    }
+    
+    /** 
+     * Sets the call-back. 
+     * @see UserNotifierLoader#update(DSCallFeedbackEvent)
+     */
+    public void update(DSCallFeedbackEvent fe) 
+    {
+        //if (viewer.getState() == DataBrowser.DISCARDED) return;  //Async cancel.
+        Object o = fe.getPartialResult();
+        if (o != null) {
+        	if (o instanceof Boolean) {
+        		onException(MESSAGE_RUN); 
+        	} else {
+        		callBack = (ScriptCallback) o;
+            	callBack.setAdapter(this);
+            	activity.onCallBackSet();
+        	}
+        }
     }
  
     /** 
@@ -134,7 +169,10 @@ public class Analyser
      */
     public void handleResult(Object result)
     { 
-    	activity.endActivity(result); 
+    	if (result == null) onException(MESSAGE_RESULT); 
+    	else if (!(result instanceof Boolean)) {
+    		activity.endActivity(result);
+    	} 
     }
 	
 }
