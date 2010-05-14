@@ -671,6 +671,19 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
         # Keep other session informed
         self.ctx.on_newsession = self.register_session
 
+    def user_client(self, agent):
+        """
+        Creates an omero.client instance for use by
+        users.
+        """
+        args = ["--Ice.Config=%s" % (self.cfg)]
+        rtr = self.internal_session().ice_getRouter()
+        if rtr:
+            args.insert(0, "--Ice.Default.Router=%s" % rtr) # FIXME : How do we find an internal router?
+        client = omero.client(args)
+        client.setAgent(agent)
+        return client
+
     def internal_session(self):
         """
         Returns the session which should be used for lookups by this instance.
@@ -771,12 +784,7 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
     @remoted
     def parseJob(self, session, job, current = None):
         self.logger.info("parseJob: Session = %s, JobId = %s" % (session, job.id.val))
-        args = ["--Ice.Config=%s" % (self.cfg)]
-        rtr = self.internal_session().ice_getRouter()
-        if rtr:
-            args.insert(0, "--Ice.Default.Router=%s" % rtr) # FIXME : How do we find an internal router?
-        client = omero.client(args)
-        client.setAgent("OMERO.parseJob")
+        client = self.user_client("OMERO.parseJob")
 
         try:
             iskill = False
@@ -800,8 +808,7 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
         """
         """
         self.logger.info("processJob: Session = %s, JobId = %s" % (session, job.id.val))
-        client = omero.client(["--Ice.Config=%s" % (self.cfg)])
-        client.setAgent("OMERO.processJob")
+        client = self.user_client("OMERO.processJob")
         try:
             client.joinSession(session).detachOnDestroy()
             prx, process = self.process(client, session, job, current, params, iskill = True)
@@ -871,7 +878,9 @@ def usermode_processor(client, serverid = "UsermodeProcessor",\
     the ProcessorI implementation which is returned.
 
     cfg is the path to an --Ice.Config-valid file or files. If none
-    is given, the value of ICE_CONFIG will be taken from the environment.
+    is given, the value of ICE_CONFIG will be taken from the environment
+    if available. Otherwise, all properties will be taken from the client
+    instance.
 
     accepts_list is the list of IObject instances which will be passed to
     omero.api.IScripts.validateScript. If none is given, only the current
@@ -882,7 +891,7 @@ def usermode_processor(client, serverid = "UsermodeProcessor",\
     """
 
     if cfg is None:
-        cfg = os.environ["ICE_CONFIG"]
+        cfg = os.environ.get("ICE_CONFIG")
 
     if accepts_list is None:
         uid = client.sf.getAdminService().getEventContext().userId
