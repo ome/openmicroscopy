@@ -50,6 +50,7 @@ import StringIO
 from omero_sys_ParametersI import ParametersI
 from datetime import date
 
+COLOURS = scriptUtil.COLOURS    # name:(rgba) map
 
 JPEG = "image/jpeg"
 PNG = "image/png"
@@ -618,7 +619,8 @@ def splitViewFigure(session, commandArgs):
     
     overlayColour = (255,255,255)
     if "Overlay_Colour" in commandArgs:
-        overlayColour = imgUtil.RGBIntToRGB(commandArgs["Overlay_Colour"])
+        r,g,b,a = COLOURS[commandArgs["Overlay_Colour"]]
+        overlayColour = (r,g,a)
         
     mergedNames = False
     if "Merged_Names" in commandArgs:
@@ -664,6 +666,9 @@ def runAsScript():
     labels = [rstring('Image_Name'), rstring('Datasets'), rstring('Tags')]
     algorithums = [rstring('Maximum_Intensity'),rstring('Mean_Intensity')]
     formats = [rstring('JPEG'),rstring('PNG')]
+    ckeys = COLOURS.keys()
+    ckeys.sort()
+    cOptions = wrap(ckeys)
      
     client = scripts.client('Split_View_Figure.py', """Create a figure of split-view images.
 See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#Split-viewFigure""", 
@@ -683,7 +688,7 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#Split-viewFigure"
     scripts.Int("Scalebar", description="Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
     scripts.String("Format", description="Format to save image. E.g 'PNG'.", values=formats, default='JPEG'),
     scripts.String("Figure_Name", description="File name of the figure to save."),
-    scripts.Int("Overlay_Colour", description="The colour of the scalebar. Default is white"),
+    scripts.String("Overlay_Colour", description="The colour of the scalebar.",default='White',values=cOptions),
     #scripts.Long("fileAnnotation").out()
     )  # script returns a file annotation
     

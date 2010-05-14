@@ -44,7 +44,6 @@ import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
 import omero.util.imageUtil as imgUtil
 import Image, ImageDraw, ImageFont
 from datetime import date
-    
 
 WHITE = (255, 255, 255)
 
@@ -356,8 +355,8 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ThumbnailFigure""
         scripts.String("Data_Type", optional=False, grouping="1",
             description="The data you want to work with.", values=dataTypes, default="Dataset"),
 
-        scripts.List("IDs", optional=False, grouping="2",
-            description="List of image IDs. Use this OR datasetIds").ofType(rlong(0)),
+        scripts.List("IDs", grouping="2",
+            description="List of Dataset IDs or Image IDs").ofType(rlong(0)),
 
         scripts.List("Tag_IDs", grouping="3",
             description="Group thumbnails by these tags."),

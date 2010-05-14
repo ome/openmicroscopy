@@ -42,7 +42,7 @@ import omero.util.imageUtil as imgUtil
 import omero.util.figureUtil as figUtil
 import omero.util.script_utils as scriptUtil
 from omero.model import ImageI
-from omero.rtypes import *
+from omero.rtypes import *      # includes wrap()
 import omero.gateway
 import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
 import omero_api_IRoi_ice
@@ -59,7 +59,7 @@ formatExtensionMap = {JPEG:"jpg", PNG:"png"};
 
 WHITE = (255,255,255)
 
-colours = {'red': (255,0,0,255), 'green': (0,255,0,255), 'blue': (0,0,255,255), 'yellow': (255,255,0,255), 'white': (255,255,255,255),}
+COLOURS = scriptUtil.COLOURS
 
 logStrings = []
 def log(text):
@@ -595,10 +595,8 @@ def roiFigure(session, commandArgs):
     mergedColours = {}    # if no colours added, use existing rendering settings.
     if "Merged_Colours" in commandArgs:
         for i, c in enumerate(commandArgs["Merged_Colours"]):
-            if c in colours: 
-                mergedColours[i] = colours[c]
-            else:
-                mergedColours[i] = colours['red']
+            if c in COLOURS: 
+                mergedColours[i] = COLOURS[c]
     
     algorithm = omero.constants.projection.ProjectionType.MAXIMUMINTENSITY
     if "Algorithm" in commandArgs:
@@ -694,7 +692,9 @@ def runAsScript():
     roiLabel = """Specify an ROI to pick by specifying it's shape label. 'FigureROI' by default,
 (not case sensitive). If matching ROI not found, use any ROI."""
     formats = [rstring('JPEG'),rstring('PNG')]
-    cOptions = [rstring('red'),rstring('green'),rstring('blue'),rstring('yellow'),rstring('white')]
+    ckeys = COLOURS.keys()
+    ckeys.sort()
+    cOptions = wrap(ckeys)
     
     client = scripts.client('Roi_Movie_Figure.py', """Create a figure of movie frames from ROI region of image.
 See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIMovieFigure""",
@@ -708,7 +708,7 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIMovieFigure"""
     scripts.Int("Scalebar", description="Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
     scripts.String("Format", description="Format to save image.", values=formats, default='JPEG'),
     scripts.String("Figure_Name", description="File name of the figure to save."),
-    scripts.String("Scalebar_Colour", description="The colour of the scalebar. Default is white",default='white',values=cOptions),
+    scripts.String("Scalebar_Colour", description="The colour of the scalebar.",default='White',values=cOptions),
     scripts.Float("Roi_Zoom", description="How much to zoom the ROI. E.g. x 2. If 0 then zoom roi panel to fit"),
     scripts.Int("Max_Columns", description="The maximum number of columns in the figure, for ROI-movie frames.", min=1),
     scripts.Bool("Show_Roi_Duration", description="If true, times shown are from the start of the ROI frames, otherwise use movie timestamp."),

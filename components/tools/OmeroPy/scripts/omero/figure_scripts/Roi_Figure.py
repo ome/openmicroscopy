@@ -57,7 +57,7 @@ PNG = "image/png"
 formatExtensionMap = {JPEG:"jpg", PNG:"png"};
 
 WHITE = (255,255,255)
-
+COLOURS = scriptUtil.COLOURS    # name:(rgba) map
 
 logStrings = []
 def log(text):
@@ -675,7 +675,8 @@ def roiFigure(session, commandArgs):
     
     overlayColour = (255,255,255)
     if "Overlay_Colour" in commandArgs:
-        overlayColour = imgUtil.RGBIntToRGB(commandArgs["Overlay_Colour"])
+        r,g,b,a = COLOURS[commandArgs["Overlay_Colour"]]
+        overlayColour = (r,g,a)
     
     roiZoom = None
     if "ROI_Zoom" in commandArgs:
@@ -733,6 +734,9 @@ def runAsScript():
     roiLabel = """Specify an ROI to pick by specifying it's shape label. 'FigureROI' by default,
               (not case sensitive). If matching ROI not found, use any ROI."""
     formats = [rstring('JPEG'),rstring('PNG')]
+    ckeys = COLOURS.keys()
+    ckeys.sort()
+    cOptions = wrap(ckeys)
     
     client = scripts.client('Roi_Figure.py', """Create a figure of an ROI region as separate zoomed split-channel panels.
 See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIFigure""", 
@@ -750,8 +754,8 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIFigure""",
     scripts.Int("Scalebar", description="Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
     scripts.String("Format",description="Format to save image. E.g 'PNG'.", values=formats, default='JPEG'),
     scripts.String("Figure_Name", description="File name of the figure to save."),
-    scripts.Int("Overlay_Colour", description="The colour of the scalebar. Default is white"),
-    scripts.Int("ROI_Zoom", description="How much to zoom the ROI. E.g. x 2. If 0 then zoom roi panel to fit", min=0),
+    scripts.String("Overlay_Colour", description="The colour of the scalebar.",default='White',values=cOptions),
+    scripts.Float("ROI_Zoom", description="How much to zoom the ROI. E.g. x 2. If 0 then zoom roi panel to fit", min=0),
     scripts.String("ROI_Label", description=roiLabel),
     #scripts.Long("fileAnnotation", "Script returns a File Annotation ID of attached Figure").out()
     )

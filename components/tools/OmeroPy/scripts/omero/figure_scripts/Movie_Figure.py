@@ -52,8 +52,8 @@ import StringIO
 from omero_sys_ParametersI import ParametersI
 from datetime import date
     
-GATEWAYPATH = omero.gateway.THISPATH
 WHITE = (255, 255, 255)
+COLOURS = scriptUtil.COLOURS    # name:(rgba) map
 
 JPEG = "image/jpeg"
 PNG = "image/png"
@@ -473,7 +473,8 @@ def movieFigure(session, commandArgs):
     
     overlayColour = (255,255,255)
     if "Overlay_Colour" in commandArgs:
-        overlayColour = imgUtil.RGBIntToRGB(commandArgs["Overlay_Colour"])
+        r,g,b,a = COLOURS[commandArgs["Overlay_Colour"]]
+        overlayColour = (r,g,a)
                 
     figure = createMovieFigure(session, pixelIds, tIndexes, zStart, zEnd, width, height, spacer, 
                             algorithm, stepping, scalebar, overlayColour, timeUnits, imageLabels)
@@ -515,6 +516,9 @@ def runAsScript():
     algorithums = [rstring('Maximum_Intensity'),rstring('Mean_Intensity')]
     tunits =  [rstring("SECS"), rstring("MINS"), rstring("HOURS"), rstring("MINS_SECS"), rstring("HOURS_MINS")]
     formats = [rstring('JPEG'),rstring('PNG')]
+    ckeys = COLOURS.keys()
+    ckeys.sort()
+    cOptions = wrap(ckeys)
     
     client = scripts.client('Movie_Figure.py', 'Export a figure of a movie. See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport', 
     scripts.List("Image_IDs", description="List of image IDs. Resulting figure will be attached to first image.", optional=False).ofType(rlong(0)),
@@ -529,7 +533,7 @@ def runAsScript():
     scripts.Int("Scalebar", description="Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
     scripts.String("Format", description="Format to save image.", values=formats),
     scripts.String("Figure_Name", description="File name of the figure to save."),
-    scripts.Int("Overlay_Colour", description="The colour of the scalebar. Default is white"),
+    scripts.Int("Overlay_Colour", description="The colour of the scalebar.",default='White',values=cOptions),
     scripts.String("Time_Units", description="The units to use for time display", values=tunits),
     #scripts.Long("File_Annotation").out()
     )  # script returns a file annotation
