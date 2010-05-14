@@ -28,6 +28,7 @@ import java.io.File;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.RString;
 import omero.RTime;
 import omero.model.IObject;
 import omero.model.OriginalFile;
@@ -49,28 +50,55 @@ public class FileData
 	extends DataObject
 {
 
-	/** The file representing the original file. */
-	private File file;
-	
 	/** The description to associated to the object. */
 	private String description;
+	
+	/** Flag indicating that the object corresponds to a directory or not. */
+	private boolean directory;
+	
+	/** Flag indicating that the object is hidden or not. */
+	private boolean hidden;
+	
+	/** The path of the repository. */
+	private String repositoryPath;
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param object The object to store.
+	 * @param object    The object to store.
 	 */
 	public FileData(OriginalFile object)
+	{
+		this(object, false, false);
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param object    The object to store.
+	 * @param directory Pass <code>true</code> if the object is a directory, 
+	 * 					<code>false</code> otherwise.
+	 */
+	public FileData(OriginalFile object, boolean directory)
+	{
+		this(object, directory, false);
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param object    The object to store.
+	 * @param directory Pass <code>true</code> if the object is a directory, 
+	 * 					<code>false</code> otherwise.
+	 */
+	public FileData(OriginalFile object, boolean directory, boolean hidden)
 	{
 		if (!(object instanceof OriginalFile))
 			throw new IllegalArgumentException("File not supported.");
 		setValue(object);
-		
-		String path = "";
-		if (object.getPath() != null)
-			path = object.getPath().getValue();
-		path += object.getName().getValue();
-		file = new File(path);
+		this.directory = directory;
+		this.hidden = hidden;
+		repositoryPath = "";
 	}
 	
 	/**
@@ -83,10 +111,6 @@ public class FileData
 		if (object == null) return;
 		if (!(object instanceof OriginalFile))
 			throw new IllegalArgumentException("File not supported.");
-		//String v = getAbsolutePath();
-		//String path = oFile.getName().getValue();
-			
-		//if (!v.equals(path)) return;
 		setValue(object);
 	}
 	
@@ -108,11 +132,51 @@ public class FileData
 	}
 	
 	/**
+	 * Sets the path to the parent.
+	 * 
+	 * @param path The value to set.
+	 */
+	public void setRepositoryPath(String path)
+	{
+		if (path == null) path = "";
+		this.repositoryPath = path;
+	}
+	
+	/**
 	 * Returns the name of the file.
 	 * 
 	 * @return See above.
 	 */
-	public String getName() { return file.getName(); }
+	public String getName()
+	{ 
+		OriginalFile of = (OriginalFile) asIObject();
+		RString value = of.getName();
+		if (value == null) return "";
+		return value.getValue(); 
+	}
+	
+	/**
+	 * Returns the (relative) path of the file.
+	 * 
+	 * @return See above.
+	 */
+	public String getPath()
+	{ 
+		OriginalFile of = (OriginalFile) asIObject();
+		RString value = of.getPath();
+		if (value == null) return "";
+		return value.getValue(); 
+	}
+	
+	/**
+	 * Returns the absolute path.
+	 * 
+	 * @return See above.
+	 */
+	public String getAbsolutePath()
+	{
+		return repositoryPath+getPath()+getName();
+	}
 	
 	/**
 	 * Returns <code>true</code> if the file is hidden, <code>false</code>
@@ -120,7 +184,7 @@ public class FileData
 	 * 
 	 * @return See above.
 	 */
-	public boolean isHidden() { return file.isHidden(); }
+	public boolean isHidden() { return hidden; }
 	
 	/**
 	 * Returns when the file was last modified.
@@ -142,21 +206,6 @@ public class FileData
 	 * 
 	 * @return See above.
 	 */
-	public boolean isDirectory() { return file.isDirectory(); }
-
-	/**
-	 * Returns <code>true</code> if the file is a file, <code>false</code>
-	 * otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean isFile() { return file.isFile(); }
-	
-	/**
-     * Returns the absolute pathname string.
-     * 
-     * @return  See above.
-     */
-	public String getAbsolutePath() { return file.getAbsolutePath(); }
+	public boolean isDirectory() { return directory; }
 	
 }

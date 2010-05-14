@@ -108,7 +108,7 @@ public class ImageData extends DataObject {
     
     /** The path to the multi-images file. */
     private String	parentFilePath;
-    
+  
     /** Creates a new instance. */
     public ImageData() {
         setDirty(true);
@@ -143,7 +143,7 @@ public class ImageData extends DataObject {
     	if (path == null) pathToFile = getName();
     	else pathToFile = path;
     }
-    
+
     /**
      * Returns the path to the file.
      * 
