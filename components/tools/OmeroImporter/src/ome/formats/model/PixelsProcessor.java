@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 import loci.formats.IFormatReader;
+import ome.formats.Index;
 import ome.util.LSID;
 import omero.metadatastore.IObjectContainer;
 import omero.model.Annotation;
@@ -78,7 +79,7 @@ public class PixelsProcessor implements ModelProcessor
             store.getIObjectContainers(Pixels.class);
         for (IObjectContainer container : containers)
         {
-            Integer imageIndex = container.indexes.get("imageIndex");
+            Integer imageIndex = container.indexes.get(Index.IMAGE_INDEX.getValue());
             LSID imageLSID = new LSID(Image.class, imageIndex);
             Image image = (Image) store.getSourceObject(imageLSID);
             Pixels pixels = (Pixels) container.sourceObject;
@@ -126,9 +127,9 @@ public class PixelsProcessor implements ModelProcessor
             // If image is missing
             if (image == null)
             {
-                LinkedHashMap<String, Integer> indexes = 
-                    new LinkedHashMap<String, Integer>();
-                indexes.put("imageIndex", imageIndex);
+                LinkedHashMap<Index, Integer> indexes = 
+                    new LinkedHashMap<Index, Integer>();
+                indexes.put(Index.IMAGE_INDEX, imageIndex);
                 container = store.getIObjectContainer(Image.class, indexes);
                 image = (Image) container.sourceObject;
             }

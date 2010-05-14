@@ -30,6 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
+import ome.formats.Index;
 import omero.metadatastore.IObjectContainer;
 import omero.model.Plate;
 import omero.model.Well;
@@ -62,14 +63,14 @@ public class WellProcessor implements ModelProcessor
         Set<Integer> plateIndexes = new HashSet<Integer>();
         for (IObjectContainer container : containers)
         {
-        	Integer plateIndex = container.indexes.get("plateIndex");
+        	Integer plateIndex = container.indexes.get(Index.PLATE_INDEX.getValue());
         	plateIndexes.add(plateIndex);
         }
         for (Integer plateIndex : plateIndexes)
         {
-        	LinkedHashMap<String, Integer> indexes = 
-        		new LinkedHashMap<String, Integer>();
-        	indexes.put("plateIndex", plateIndex);
+        	LinkedHashMap<Index, Integer> indexes = 
+        		new LinkedHashMap<Index, Integer>();
+        	indexes.put(Index.PLATE_INDEX, plateIndex);
         	IObjectContainer container = 
         		store.getIObjectContainer(Plate.class, indexes);
         	Plate plate = (Plate) container.sourceObject;

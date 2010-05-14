@@ -54,34 +54,36 @@ public class TargetProcessor implements ModelProcessor
      * @throws ModelException If there is an error during processing.
      */
     public void process(IObjectContainerStore store)
-    	throws ModelException
+    throws ModelException
     {
-    	IObject target = store.getUserSpecifiedTarget();
-    	if (target == null)
-    	{
-    		return;
-    	}
-    	
-		List<IObjectContainer> containers = null;
-    	if (target instanceof Dataset)
-    	{
-    		containers = store.getIObjectContainers(Image.class);
-    	}
-    	else if (target instanceof Screen)
-    	{
-    		containers = store.getIObjectContainers(Plate.class);
-    	}
-    	else
-    	{
-    		throw new ModelException("Unable to handle target: " + target);
-    	}
-		for (IObjectContainer container : containers)
-		{
-			LSID targetLSID = new LSID(container.LSID);
-			LSID referenceLSID = 
-				new LSID(String.format("%s:%d", target.getClass().getName(),
-						               target.getId().getValue()));
-			store.addReference(targetLSID, referenceLSID);
-		}
-     }
+        IObject target = store.getUserSpecifiedTarget();
+        if (target == null)
+        {
+            return;
+        }
+
+        List<IObjectContainer> containers = null;
+        
+        if (target instanceof Dataset)
+        {
+            containers = store.getIObjectContainers(Image.class);
+        }
+        else if (target instanceof Screen)
+        {
+            containers = store.getIObjectContainers(Plate.class);
+        }
+        else
+        {
+            throw new ModelException("Unable to handle target: " + target);
+        }
+        
+        for (IObjectContainer container : containers)
+        {
+            LSID targetLSID = new LSID(container.LSID);
+            LSID referenceLSID = 
+                new LSID(String.format("%s:%d", target.getClass().getName(),
+                        target.getId().getValue()));
+            store.addReference(targetLSID, referenceLSID);
+        }
+    }
 }

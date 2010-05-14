@@ -26,6 +26,7 @@ package ome.formats.model;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import ome.formats.Index;
 import ome.util.LSID;
 import omero.metadatastore.IObjectContainer;
 import omero.model.Arc;
@@ -70,7 +71,7 @@ public class InstrumentProcessor implements ModelProcessor
         
         for (IObjectContainer container : containers)
         {
-            Integer instrumentIndex = container.indexes.get("instrumentIndex");
+            Integer instrumentIndex = container.indexes.get(Index.INSTRUMENT_INDEX.getValue());
             Instrument instrument = 
             	(Instrument) store.getSourceObject(new LSID(Instrument.class,
             			                           instrumentIndex));
@@ -78,9 +79,9 @@ public class InstrumentProcessor implements ModelProcessor
             // If instrument is missing
             if (instrument == null)
             {
-                LinkedHashMap<String, Integer> indexes = 
-                    new LinkedHashMap<String, Integer>();
-                indexes.put("instrumentIndex", instrumentIndex);
+                LinkedHashMap<Index, Integer> indexes = 
+                    new LinkedHashMap<Index, Integer>();
+                indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
                 container = store.getIObjectContainer(Instrument.class, indexes);
                 instrument = (Instrument) container.sourceObject;
             }

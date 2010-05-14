@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import ome.formats.Index;
 import omero.metadatastore.IObjectContainer;
 import omero.model.Ellipse;
 import omero.model.IObject;
@@ -86,12 +87,12 @@ public class ShapeProcessor implements ModelProcessor
 	        	store.getIObjectContainers(klass);
 	        for (IObjectContainer container : containers)
 	        {
-	            Integer imageIndex = container.indexes.get("imageIndex");
-	            Integer roiIndex = container.indexes.get("roiIndex");
-				LinkedHashMap<String, Integer> indexes = 
-					new LinkedHashMap<String, Integer>();
-				indexes.put("imageIndex", imageIndex);
-				indexes.put("roiIndex", roiIndex);
+	            Integer imageIndex = container.indexes.get(Index.IMAGE_INDEX.getValue());
+	            Integer roiIndex = container.indexes.get(Index.ROI_INDEX.getValue());
+				LinkedHashMap<Index, Integer> indexes = 
+					new LinkedHashMap<Index, Integer>();
+				indexes.put(Index.IMAGE_INDEX, imageIndex);
+				indexes.put(Index.ROI_INDEX, roiIndex);
 				// Creates an ROI if one doesn't exist
 				store.getIObjectContainer(Roi.class, indexes);
 	        }

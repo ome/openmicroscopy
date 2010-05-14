@@ -1,0 +1,50 @@
+<ivy-module version="1.0">
+  <info organisation="omero" module="OmeroImporter" revision="Beta-4.2.0-DEV" status="integration" publication="20100514092809"/>
+  <configurations>
+    <conf name="build"/>
+    <conf name="client"/>
+  </configurations>
+  <publications>
+    <artifact name="OmeroImporter" type="jar"/>
+  </publications>
+  <dependencies defaultconfmapping="build,client->default">
+    <!-- Internal -->
+    <dependency org="omero" name="omero_client" rev="Beta-4.2.0-DEV" changing="true" conf="build->build;client->client" transitive="false"/>
+    <dependency org="omero" name="blitz" rev="Beta-4.2.0-DEV" changing="true" conf="build->build"/>
+    <!-- Basics (as in DSL) -->
+    <dependency org="slf4j" name="slf4j-api" rev="1.5.8" conf="client->default"/>
+    <dependency org="slf4j" name="slf4j-log4j12" rev="1.5.8"/>
+    <dependency org="log4j" name="log4j" rev="1.2.14"/>
+    <dependency org="commons-logging" name="commons-logging" rev="1.1.1" conf="build,client->default"/>
+    <dependency org="commons-collections" name="commons-collections" rev="3.2" conf="build,client->default"/>
+    <dependency org="org/hibernate" name="hibernate" rev="3.5.0-Final" conf="build,client->default"/>
+    <!-- Spring -->
+    <dependency org="org.springframework" name="org.springframework.core" rev="3.0.1.RELEASE-A" conf="build,client->default"/>
+    <!-- Test engine -->
+    <dependency org="asm" name="asm" rev="1.5.3"/>
+    <dependency org="asm" name="asm-attrs" rev="1.5.3"/>
+    <dependency org="cglib" name="cglib" rev="2.2"/>
+    <dependency org="perf4j" name="perf4j" rev="0.9.10"/>
+    <!-- Gui -->
+    <dependency org="gui" name="TableLayout" rev="bin-jdk1.5-2009-08-26"/>
+    <dependency org="gui" name="hsqldb" rev="1.8.0.9"/>
+    <dependency org="gui" name="swingx" rev="0.9.4"/>
+    <dependency org="gui" name="omero-clients-util" rev="r7223-b1483"/>
+    <dependency org="gui" name="ini4j" rev="0.3.2"/>
+    <dependency org="gui" name="java-getopt" rev="1.0.13"/>
+    <dependency org="gui" name="commons-httpclient" rev="3.1"/>
+    <dependency org="gui" name="commons-codec" rev="1.3"/>
+    <dependency org="gui" name="commons-io" rev="1.4"/>
+    <dependency org="OME" name="ome-java" rev="2007-Aug-07-r3052"/>
+    <!-- Loci -->
+    <dependency org="OME" name="bio-formats" rev="r6301"/>
+    <dependency org="OME" name="loci-common" rev="r6301"/>
+    <dependency org="loci" name="poi-loci" rev="r6301"/>
+    <dependency org="loci" name="ome-xml" rev="r6301"/>
+    <dependency org="loci" name="mdbtools-java" rev="r6301"/>
+    <dependency org="loci" name="jai_imageio" rev="r6301"/>
+    <dependency org="loci" name="bufr" rev="1.1.00"/>
+    <dependency org="loci" name="grib" rev="5.1.03"/>
+    <dependency org="loci" name="netcdf" rev="4.0"/>
+  </dependencies>
+</ivy-module>

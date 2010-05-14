@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import loci.formats.IFormatReader;
+import ome.formats.Index;
 import ome.util.LSID;
 import omero.metadatastore.IObjectContainer;
 import omero.model.Annotation;
@@ -192,7 +193,7 @@ public interface IObjectContainerStore
      * @return See above.
      */
     IObjectContainer getIObjectContainer(Class<? extends IObject> klass,
-    		                             LinkedHashMap<String, Integer> indexes);
+    		                             LinkedHashMap<Index, Integer> indexes);
     
     /**
      * Removes an IObject container from within the OME-XML data model store.

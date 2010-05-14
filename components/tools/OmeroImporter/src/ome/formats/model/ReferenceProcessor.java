@@ -30,6 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import ome.formats.Index;
 import ome.util.LSID;
 import omero.metadatastore.IObjectContainer;
 import omero.model.DetectorSettings;
@@ -82,8 +83,8 @@ public class ReferenceProcessor implements ModelProcessor
             			// needs to be created as no MetadataStore methods
             			// pertaining to the "Settings" object have been
             			// entered.
-            			LinkedHashMap<String, Integer> indexes = 
-            				new LinkedHashMap<String, Integer>();
+            			LinkedHashMap<Index, Integer> indexes = 
+            				new LinkedHashMap<Index, Integer>();
             			int[] indexArray = target.getIndexes();
             			if (targetClass == null)
             			{
@@ -93,17 +94,17 @@ public class ReferenceProcessor implements ModelProcessor
             			}
             			else if (targetClass.equals(DetectorSettings.class))
             			{
-            				indexes.put("imageIndex", indexArray[0]);
-            				indexes.put("logicalChannelIndex", indexArray[1]);
+            				indexes.put(Index.IMAGE_INDEX, indexArray[0]);
+            				indexes.put(Index.LOGICAL_CHANNEL_INDEX, indexArray[1]);
             			}
             			else if (targetClass.equals(LightSettings.class))
             			{
-            				indexes.put("imageIndex", indexArray[0]);
-            				indexes.put("logicalChannelIndex", indexArray[1]);
+            				indexes.put(Index.IMAGE_INDEX, indexArray[0]);
+            				indexes.put(Index.LOGICAL_CHANNEL_INDEX, indexArray[1]);
             			}
             			else if (targetClass.equals(ObjectiveSettings.class))
             			{
-            				indexes.put("imageIndex", indexArray[0]);
+            				indexes.put(Index.IMAGE_INDEX, indexArray[0]);
             			}
             			else if (targetClass.equals(WellSample.class))
             			{
@@ -111,9 +112,9 @@ public class ReferenceProcessor implements ModelProcessor
             				// a Well and there was no acquisition specific
             				// metadata to record about the WellSample. We now
             				// need to create it.
-            				indexes.put("plateIndex", indexArray[0]);
-            				indexes.put("wellIndex", indexArray[1]);
-            				indexes.put("wellSample", indexArray[2]);
+            				indexes.put(Index.PLATE_INDEX, indexArray[0]);
+            				indexes.put(Index.WELL_INDEX, indexArray[1]);
+            				indexes.put(Index.WELL_SAMPLE_INDEX, indexArray[2]);
             			}
             			else
             			{

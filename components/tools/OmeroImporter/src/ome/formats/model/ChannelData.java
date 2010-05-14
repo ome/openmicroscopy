@@ -27,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import ome.formats.Index;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.util.LSID;
 import omero.metadatastore.IObjectContainer;
@@ -100,10 +101,10 @@ public class ChannelData
 		if (data.channel == null)
 		{
 			// Channel is missing, create it.
-			LinkedHashMap<String, Integer> indexes = 
-				new LinkedHashMap<String, Integer>();
-			indexes.put("imageIndex", imageIndex);
-			indexes.put("logicalChannelIndex", channelIndex);
+			LinkedHashMap<Index, Integer> indexes = 
+				new LinkedHashMap<Index, Integer>();
+			indexes.put(Index.IMAGE_INDEX, imageIndex);
+			indexes.put(Index.LOGICAL_CHANNEL_INDEX, channelIndex);
 			IObjectContainer container =
 				store.getIObjectContainer(Channel.class, indexes);
 			data.channel = (Channel) container.sourceObject;
@@ -116,10 +117,10 @@ public class ChannelData
 		if (data.logicalChannel == null)
 		{
 			// Channel is missing, create it.
-			LinkedHashMap<String, Integer> indexes = 
-				new LinkedHashMap<String, Integer>();
-			indexes.put("imageIndex", imageIndex);
-			indexes.put("logicalChannelIndex", channelIndex);
+			LinkedHashMap<Index, Integer> indexes = 
+				new LinkedHashMap<Index, Integer>();
+			indexes.put(Index.IMAGE_INDEX, imageIndex);
+			indexes.put(Index.LOGICAL_CHANNEL_INDEX, channelIndex);
 			IObjectContainer container =
 				store.getIObjectContainer(LogicalChannel.class, indexes);
 			data.logicalChannel = (LogicalChannel) container.sourceObject;
@@ -141,8 +142,8 @@ public class ChannelData
 					IObjectContainer filterSetContainer =
 						filterSetContainers.get(lsidString);
 					LSID filterSetLSID = new LSID(FilterSet.class,
-							filterSetContainer.indexes.get("instrumentIndex"),
-							filterSetContainer.indexes.get("filterSetIndex"));
+							filterSetContainer.indexes.get(Index.INSTRUMENT_INDEX.getValue()),
+							filterSetContainer.indexes.get(Index.FILTER_SET_INDEX.getValue()));
 					data.filterSet = (FilterSet) filterSetContainer.sourceObject;
 					// ... LogicalChannel --> FilterSet --> Filter (Em) AND
 					// ... LogicalChannel --> FilterSet --> Filter (Ex)
