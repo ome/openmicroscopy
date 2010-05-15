@@ -26,7 +26,7 @@ module omero {
             int depth;
             bool files;
             bool dirs;
-            bool system;
+            bool hidden;
             bool registered;
         };
 
@@ -34,6 +34,8 @@ module omero {
         {
             bool importableImage;
             string fileName;
+            bool hidden;
+            bool dir;
             string reader;
 	        int imageCount;
             omero::api::IObjectList usedFiles;

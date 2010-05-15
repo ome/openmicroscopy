@@ -236,6 +236,18 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return obj;
     }
 
+    /**
+     * Register the Images in a FileSet
+     * 
+     * @param set
+     *            FileSet object.
+     * @param params
+     *            Map<String, String>
+     * @param __current
+     *            ice context.
+     * @return The FileSet with Image ids set (unloaded)
+     *
+     */
     public FileSet registerFileSet(FileSet set, Map<String, String> params, Current __current) 
             throws ServerError {
         
@@ -326,7 +338,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * Get a list of those files as importable and non-importable list.
      * 
      * @param path
-     *            A path on a repositor     
+     *            A path on a repository    
      * @param config
      *            A RepositoryListConfig defining the listing config.
      * @param __current
@@ -355,84 +367,6 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return rv;
     }
     
-    private List<FileSet> processImportContainers(List<ImportContainer> containers, List<String> names) {
-        List<FileSet> rv = new ArrayList<FileSet>();
-
-        for (ImportContainer ic : containers) {
-            FileSet set = new FileSet();
-            OriginalFile oFile;
-            
-            set.importableImage = true;
-            set.fileName = ic.getFile().getAbsolutePath();
-            set.reader = ic.getReader();
-            set.imageCount = ic.getBfImageCount();
-                        
-            set.usedFiles = new ArrayList<IObject>();
-            List<String> iFileList = Arrays.asList(ic.getUsedFiles());
-            for (String iFile : iFileList)  {
-                File f = new File(iFile);
-                removeNameFromFileList(iFile, names);
-                oFile = getOriginalFile(f.getParent(),f.getName());
-                if (oFile != null) {
-                    set.usedFiles.add(oFile);
-                } else {
-                    set.usedFiles.add(createOriginalFile(f));   
-                }
-            }
-            
-            int i = 0;
-            set.imageList = new ArrayList<Image>();
-            List<String> iNames = ic.getBfImageNames();
-            for (Pixels pix : ic.getBfPixels())  {
-                Image image;
-                String imageName;
-                pix = createPixels(pix);
-                imageName = iNames.get(i);
-                if (imageName == null || imageName == "") {
-                    imageName = "UNKNOWN";
-                }
-                image = getImage(set.fileName, i);
-                if (image == null) {
-                    image = createImage(imageName, pix);   
-                }
-                set.imageList.add(image);
-                i++;
-            }
-            rv.add(set);
-        }
-        
-        // Add the left over files in the directory as OrignalFile objects
-        if (names.size() > 0) {
-            for (String iFile : names) {
-                File f = new File(iFile);
-                FileSet set = new FileSet();
-                OriginalFile oFile;
-            
-                set.importableImage = false;
-                set.fileName = iFile;
-                set.imageCount = 0;
-                        
-                set.usedFiles = new ArrayList<IObject>();
-                oFile = getOriginalFile(f.getParent(),f.getName());
-                if (oFile != null) {
-                    set.usedFiles.add(oFile);
-                } else {
-                    set.usedFiles.add(createOriginalFile(f));   
-                }
-                rv.add(set);
-            }
-        }
-        
-        return rv;
-    }
-
-    private Pixels createPixels(Pixels pix) {
-        // Use the same for all Pixels for now.
-        DimensionOrder dimOrder = getDimensionOrder("XYZCT");
-        pix.setDimensionOrder(dimOrder);
-        pix.setSha1(rstring("UNKNOWN"));
-        return pix;
-    }
     
     /**
      * Get the format object for a file.
@@ -643,8 +577,8 @@ public class PublicRepositoryI extends _RepositoryDisp {
         List<File> files;
         IOFileFilter filter;
         
-        // If system is true list all files othersise only those files not starting with "."
-        if (config.system) {
+        // If hidden is true list all files otherwise only those files not starting with "."
+        if (config.hidden) {
             filter = FileFilterUtils.trueFileFilter();
         } else {
             filter = FileFilterUtils.notFileFilter(FileFilterUtils.prefixFileFilter("."));
@@ -761,6 +695,81 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return containers;
     }
 
+    private List<FileSet> processImportContainers(List<ImportContainer> containers, List<String> names) {
+        List<FileSet> rv = new ArrayList<FileSet>();
+
+        for (ImportContainer ic : containers) {
+            FileSet set = new FileSet();
+            OriginalFile oFile;
+            
+            set.importableImage = true;
+            set.fileName = ic.getFile().getAbsolutePath();
+            set.hidden = ic.getFile().isHidden();
+            set.dir = ic.getFile().isDirectory();
+            set.reader = ic.getReader();
+            set.imageCount = ic.getBfImageCount();
+                        
+            set.usedFiles = new ArrayList<IObject>();
+            List<String> iFileList = Arrays.asList(ic.getUsedFiles());
+            for (String iFile : iFileList)  {
+                File f = new File(iFile);
+                removeNameFromFileList(iFile, names);
+                oFile = getOriginalFile(f.getParent(),f.getName());
+                if (oFile != null) {
+                    set.usedFiles.add(oFile);
+                } else {
+                    set.usedFiles.add(createOriginalFile(f));   
+                }
+            }
+            
+            int i = 0;
+            set.imageList = new ArrayList<Image>();
+            List<String> iNames = ic.getBfImageNames();
+            for (Pixels pix : ic.getBfPixels())  {
+                Image image;
+                String imageName;
+                pix = createPixels(pix);
+                imageName = iNames.get(i);
+                if (imageName == null || imageName == "") {
+                    imageName = "UNKNOWN";
+                }
+                image = getImage(set.fileName, i);
+                if (image == null) {
+                    image = createImage(imageName, pix);   
+                }
+                set.imageList.add(image);
+                i++;
+            }
+            rv.add(set);
+        }
+        
+        // Add the left over files in the directory as OrignalFile objects
+        if (names.size() > 0) {
+            for (String iFile : names) {
+                File f = new File(iFile);
+                FileSet set = new FileSet();
+                OriginalFile oFile;
+            
+                set.importableImage = false;
+                set.fileName = iFile;
+                set.hidden = f.isHidden();
+                set.dir = f.isDirectory();
+                set.imageCount = 0;
+                        
+                set.usedFiles = new ArrayList<IObject>();
+                oFile = getOriginalFile(f.getParent(),f.getName());
+                if (oFile != null) {
+                    set.usedFiles.add(oFile);
+                } else {
+                    set.usedFiles.add(createOriginalFile(f));   
+                }
+                rv.add(set);
+            }
+        }
+        
+        return rv;
+    }
+
     /**
      * Create an OriginalFile object corresponding to a File object 
      * 
@@ -805,13 +814,14 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
     
     /**
-     * Create an Image object corresponding to a File object.
+     * Create an Image object corresponding to an imagename and pixels object.
      * 
-     * @param f
-     *            A File object.
+     * @param imageName
+     *            A String.
+     * @param pix
+     *            A Pixels object.
      * @return An Image object
      *
-     * TODO populate more attribute fields than the few set here.
      */
     private Image createImage(String imageName, Pixels pix) {
         Image image = new ImageI();
@@ -820,6 +830,23 @@ public class PublicRepositoryI extends _RepositoryDisp {
         image.addPixels(pix);
         return image;
     }
+
+    /**
+     * Create a fuller Pixels object from a Pixels object.
+     * 
+     * @param pix
+     *            A Pixels object.
+     * @return An Pixels object
+     *
+     */
+    private Pixels createPixels(Pixels pix) {
+        // Use the same for all Pixels for now.
+        DimensionOrder dimOrder = getDimensionOrder("XYZCT");
+        pix.setDimensionOrder(dimOrder);
+        pix.setSha1(rstring("UNKNOWN"));
+        return pix;
+    }
+
     
     /**
      * Get an {@link OriginalFile} object at the given path and name. Returns null if
@@ -827,7 +854,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * 
      * @param path
      *            A path to a file.
-     * @return List of OriginalFile objects, empty if the query returned no values.
+     * @return OriginalFile object.
      *
      */
     private OriginalFile getOriginalFile(final String path, final String name)  {
@@ -863,6 +890,11 @@ public class PublicRepositoryI extends _RepositoryDisp {
     /**
      * Get an {@link OriginalFile} object based on its id. Returns null if
      * the file does not exist or does not belong to this repo.
+     *
+     * @param id
+     *            long, db id of original file.
+     * @return OriginalFile object.
+     *
      */
     private File getFile(final long id) {
         final String uuid = getRepoUuid();
@@ -886,16 +918,13 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
 
     /**
-     * Get a list of Images with path corresponding to the paramater path.
+     * Get an Image with path corresponding to the paramater path.
      * 
      * @param path
      *            A path to a file.
      * @return List of Image objects, empty if the query returned no values.
      *
-     * TODO Weak at present, returns all matched files based on path
-     *      but only the first element is used.
-     *      There should be further checking for uniqueness.
-     *      This should be done through the associated Pixels object.
+     * TODO Broken at present, params is not checked.
      */
     private Image getImage(String fullPath, final long count)  {
 
@@ -919,21 +948,14 @@ public class PublicRepositoryI extends _RepositoryDisp {
                         if (pixIds == null || pixIds.size() == 0) {
                             return null;
                         }
-                        BigInteger imageId;
-                        // Temporary test. Need to examine params for uniqueness
-                        if (pixIds.size() == 1) {
-                            imageId = (BigInteger) session.createSQLQuery(
-                                "select image from Pixels " +
-                                "where id = ?")
-                                .setParameter(0, pixIds.get(0))
-                                .uniqueResult();
-                        } else {
-                            imageId = (BigInteger) session.createSQLQuery(
+                        
+                        //Map<String, String> params = helper.getPixelsParams(pixIds.get(0).longValue());
+                        BigInteger imageId = (BigInteger) session.createSQLQuery(
                                 "select image from Pixels " +
                                 "where id = ?")
                                 .setParameter(0, pixIds.get((int)count))
                                 .uniqueResult();
-                        }
+
                         return sf.getQueryService().find(ome.model.core.Image.class, imageId.longValue());
                     }
                 });

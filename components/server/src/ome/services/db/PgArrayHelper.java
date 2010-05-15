@@ -8,6 +8,7 @@
 package ome.services.db;
 
 import java.sql.ResultSet;
+import java.sql.Array;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -185,10 +186,13 @@ public class PgArrayHelper {
                         public Map<String, String> mapRow(ResultSet arg0, int arg1)
                                 throws SQLException {
                             Map<String, String> params = new HashMap<String, String>();
-                            String[][] arr = (String[][]) arg0.getArray(1)
-                                    .getArray();
-                            for (int i = 0; i < arr.length; i++) {
-                                params.put(arr[i][0], arr[i][1]);
+                            Array arr1 = arg0.getArray(1);
+                            if (arr1 == null) {
+                                return params;
+                            }
+                            String[][] arr2 = (String[][]) arr1.getArray();
+                            for (int i = 0; i < arr2.length; i++) {
+                                params.put(arr2[i][0], arr2[i][1]);
                             }
                             return params;
                         }
