@@ -306,6 +306,7 @@ public class ScriptingDialog
 					Float.class.equals(type) || Double.class.equals(type)) {
 				if (comp == null) {
 					comp = new NumericalTextField();
+					((NumericalTextField) comp).setNumberType(type);
 					n = param.getMinValue();
 					if (n != null) {
 						if (Long.class.equals(type)) {
