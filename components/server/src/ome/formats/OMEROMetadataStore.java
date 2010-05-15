@@ -433,6 +433,14 @@ public class OMEROMetadataStore
     					continue;
     				}
     			}
+    			else if (targetObject instanceof PlateAcquisition)
+    			{
+    				if (referenceObject instanceof WellSample)
+    				{
+    					handleReference((PlateAcquisition) targetObject,
+    							(WellSample) referenceObject);
+    				}
+    			}
     			else if (targetObject instanceof Pixels)
     			{
     				if (referenceObject instanceof OriginalFile)
@@ -1181,6 +1189,17 @@ public class OMEROMetadataStore
     private void handleReference(WellSample target, Image reference)
     {
         reference.addWellSample(target);
+    }
+
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(PlateAcquisition target, WellSample reference)
+    {
+        reference.setPlateAcquisition(target);
     }
     
     /**
