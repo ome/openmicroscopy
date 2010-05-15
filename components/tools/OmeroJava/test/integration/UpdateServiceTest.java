@@ -161,9 +161,9 @@ public class UpdateServiceTest
         img.linkDataset(ds);
 
         List<IObject> retVal = iUpdate.saveAndReturnArray(
-        		Arrays.asList(img, ds));
-        img = (Image) retVal.get(0);
-        ds = (Dataset) retVal.get(1);
+        		Arrays.asList(ds, img));
+        img = (Image) retVal.get(1);
+        ds = (Dataset) retVal.get(0);
 
         List imgLinks = iQuery.findAllByQuery(DatasetImageLink.class.getName(),
                 new ParametersI().addLong("child.id", img.getId()));
