@@ -7,12 +7,11 @@
 package integration;
 
 import static omero.rtypes.*;
-import java.io.File;
-
 import junit.framework.TestCase;
 import omero.RString;
 
-import org.springframework.util.ResourceUtils;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -22,6 +21,38 @@ import org.testng.annotations.Test;
  */
 public class ClientUsageTest extends TestCase {
 
+	/** 
+	 * The client object, this is the entry point to the Server. 
+	 */
+    private omero.client refClient;
+    
+	/**
+     * Initializes the various services.
+     * 
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Override
+    @BeforeClass
+    protected void setUp() 
+    	throws Exception 
+    {
+    	refClient = new omero.client();
+    	refClient.createSession();
+    }
+
+    /**
+     * Closes the session.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Override
+    @AfterMethod
+    public void tearDown() 
+    	throws Exception 
+    {
+    	refClient.closeSession();
+    	refClient.getSession().destroy();
+    }
+    
     @Test
     public void testClientClosedAutomatically() throws Exception {
         omero.client client = new omero.client();

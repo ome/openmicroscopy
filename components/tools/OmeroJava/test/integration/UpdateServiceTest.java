@@ -146,6 +146,7 @@ public class UpdateServiceTest
     /**
      * Test to link datasets and images using the 
      * <code>saveAndReturnArray</code> method.
+     * Note that the dataset has to be before the image in the list.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
