@@ -232,7 +232,7 @@ public class ManageObjectAction
 				} else if (ho instanceof ProjectData 
 						|| ho instanceof DatasetData
 					|| ho instanceof ImageData || ho instanceof ScreenData
-					|| ho instanceof PlateData) {
+					) {//|| ho instanceof PlateData) {
 					i = selected.iterator();
 					while (i.hasNext()) {
 						obj = i.next();

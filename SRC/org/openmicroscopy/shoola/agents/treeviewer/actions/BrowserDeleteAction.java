@@ -106,8 +106,8 @@ public class BrowserDeleteAction
         if ((ho instanceof DatasetData) || (ho instanceof ProjectData) ||
         	(ho instanceof FileAnnotationData) ||
         	(ho instanceof TagAnnotationData) || 
-        	(ho instanceof ScreenData) || 
-        	(ho instanceof PlateData)) {
+        	(ho instanceof ScreenData)) { //|| 
+        	//(ho instanceof PlateData)) {
         	selected = model.getSelectedDisplays();
         	count = 0;
         	b = false;

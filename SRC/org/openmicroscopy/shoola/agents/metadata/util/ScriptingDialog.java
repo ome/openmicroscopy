@@ -326,7 +326,6 @@ public class ScriptingDialog
 							((NumericalTextField) comp).setMinimum(
 									n.floatValue());
 						} 
-						
 					}
 					n = param.getMaxValue();
 					if (n != null) {
