@@ -9,6 +9,7 @@ package integration;
 import static omero.rtypes.*;
 import junit.framework.TestCase;
 import omero.RString;
+import omero.api.ServiceFactoryPrx;
 
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -26,6 +27,9 @@ public class ClientUsageTest extends TestCase {
 	 */
     private omero.client refClient;
     
+    /** Helper reference to the <code>Service factory</code>. */
+    private ServiceFactoryPrx factory;
+    
 	/**
      * Initializes the various services.
      * 
@@ -37,7 +41,7 @@ public class ClientUsageTest extends TestCase {
     	throws Exception 
     {
     	refClient = new omero.client();
-    	refClient.createSession();
+    	factory = refClient.createSession();
     }
 
     /**
@@ -50,7 +54,7 @@ public class ClientUsageTest extends TestCase {
     	throws Exception 
     {
     	refClient.closeSession();
-    	refClient.getSession().destroy();
+    	factory.destroy();
     }
     
     @Test
