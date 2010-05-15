@@ -572,7 +572,7 @@ public class OMEROMetadataStore
     		            Map<String, Integer> indexes)
     {
     	Channel c = getChannel(indexes.get("imageIndex"),
-    			               indexes.get("logicalChannelIndex"));
+    			               indexes.get("channelIndex"));
     	c.setLogicalChannel(sourceObject);
     }
     

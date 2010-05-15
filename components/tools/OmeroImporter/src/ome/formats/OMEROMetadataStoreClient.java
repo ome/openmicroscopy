@@ -2735,8 +2735,8 @@ public class OMEROMetadataStoreClient
             ome.xml.r201004.enums.AcquisitionMode acquisitionMode,
             int imageIndex, int channelIndex)
     {
-        //Channel o = getChannel(imageIndex, channelIndex);
-        //o.getLogicalChannel().setMode((AcquisitionMode) getEnumeration(AcquisitionMode.class, acquisitionMode.toString()));
+        Channel o = getChannel(imageIndex, channelIndex);
+        o.getLogicalChannel().setMode((AcquisitionMode) getEnumeration(AcquisitionMode.class, acquisitionMode.toString()));
     }
 
     /* (non-Javadoc)
@@ -2759,8 +2759,8 @@ public class OMEROMetadataStoreClient
             ome.xml.r201004.enums.ContrastMethod contrastMethod,
             int imageIndex, int channelIndex)
     {
-        //LogicalChannel o = getLogicalChannel(imageIndex, channelIndex);
-        //o.setContrastMethod((ContrastMethod) getEnumeration(ContrastMethod.class, contrastMethod.toString()));
+        Channel o = getChannel(imageIndex, channelIndex);
+        o.getLogicalChannel().setContrastMethod((ContrastMethod) getEnumeration(ContrastMethod.class, contrastMethod.toString()));
     }
 
     /* (non-Javadoc)
@@ -2769,8 +2769,8 @@ public class OMEROMetadataStoreClient
     public void setChannelEmissionWavelength(
             PositiveInteger emissionWavelength, int imageIndex, int channelIndex)
     {
-        //LogicalChannel o = getLogicalChannel(imageIndex, channelIndex);
-        //o.setEmissionWave(toRType(emissionWavelength.getValue()));
+        Channel o = getChannel(imageIndex, channelIndex);
+        o.getLogicalChannel().setEmissionWave(toRType(emissionWavelength.getValue()));
     }
 
     /** (non-Javadoc)
@@ -2780,8 +2780,8 @@ public class OMEROMetadataStoreClient
             PositiveInteger excitationWavelength, int imageIndex,
             int channelIndex)
     {
-        //LogicalChannel o = getLogicalChannel(imageIndex, channelIndex);
-        //o.setExcitationWave(toRType(excitationWavelength.getValue()));
+        Channel o = getChannel(imageIndex, channelIndex);
+        o.getLogicalChannel().setExcitationWave(toRType(excitationWavelength.getValue()));
     }
 
     /* (non-Javadoc)
@@ -2800,8 +2800,8 @@ public class OMEROMetadataStoreClient
      */
     public void setChannelFluor(String fluor, int imageIndex, int channelIndex)
     {
-        //LogicalChannel o = getLogicalChannel(imageIndex, channelIndex);
-        //o.setFluor(toRType(fluor)); 
+        Channel o = getChannel(imageIndex, channelIndex);
+        o.getLogicalChannel().setFluor(toRType(fluor)); 
     }
 
     /* (non-Javadoc)
@@ -2810,8 +2810,8 @@ public class OMEROMetadataStoreClient
     public void setChannelIlluminationType(IlluminationType illuminationType,
             int imageIndex, int channelIndex)
     {
-        //LogicalChannel o = getLogicalChannel(imageIndex, channelIndex);
-        //o.setIllumination((Illumination) getEnumeration(Illumination.class, illuminationType.toString()));
+        Channel o = getChannel(imageIndex, channelIndex);
+        o.getLogicalChannel().setIllumination((Illumination) getEnumeration(Illumination.class, illuminationType.toString()));
     }
     
 
@@ -2821,8 +2821,8 @@ public class OMEROMetadataStoreClient
     public void setChannelNDFilter(Double ndfilter, int imageIndex,
             int channelIndex)
     {
-        //LogicalChannel o = getLogicalChannel(imageIndex, channelIndex);
-        //o.setNdFilter(toRType(ndfilter)); 
+        Channel o = getChannel(imageIndex, channelIndex);
+        o.getLogicalChannel().setNdFilter(toRType(ndfilter)); 
     }
     
 
@@ -2831,8 +2831,8 @@ public class OMEROMetadataStoreClient
      */
     public void setChannelName(String name, int imageIndex, int channelIndex)
     {
-        //LogicalChannel o = getLogicalChannel(imageIndex, channelIndex);
-        //o.setName(toRType(name)); 
+        Channel o = getChannel(imageIndex, channelIndex);
+        o.getLogicalChannel().setName(toRType(name)); 
     }
     
 
@@ -2852,8 +2852,8 @@ public class OMEROMetadataStoreClient
     public void setChannelPinholeSize(Double pinholeSize, int imageIndex,
             int channelIndex)
     {
-        //LogicalChannel o = getLogicalChannel(imageIndex, channelIndex);
-        //o.setPinHoleSize(toRType(pinholeSize)); 
+        Channel o = getChannel(imageIndex, channelIndex);
+        o.getLogicalChannel().setPinHoleSize(toRType(pinholeSize)); 
     }
 
     /* (non-Javadoc)
@@ -2862,8 +2862,8 @@ public class OMEROMetadataStoreClient
     public void setChannelPockelCellSetting(Integer pockelCellSetting,
             int imageIndex, int channelIndex)
     {
-        //LogicalChannel o = getLogicalChannel(imageIndex, channelIndex);
-        //o.setPockelCellSetting(toRType(pockelCellSetting)); 
+        Channel o = getChannel(imageIndex, channelIndex);
+        o.getLogicalChannel().setPockelCellSetting(toRType(pockelCellSetting)); 
     }
     
 
@@ -2873,8 +2873,8 @@ public class OMEROMetadataStoreClient
     public void setChannelSamplesPerPixel(Integer samplesPerPixel,
             int imageIndex, int channelIndex)
     {
-        //LogicalChannel o = getLogicalChannel(imageIndex, channelIndex);
-        //o.setSamplesPerPixel(toRType(samplesPerPixel)); 
+        Channel o = getChannel(imageIndex, channelIndex);
+        o.getLogicalChannel().setSamplesPerPixel(toRType(samplesPerPixel)); 
     }
     
     /* (non-Javadoc)
@@ -2883,8 +2883,8 @@ public class OMEROMetadataStoreClient
     public void setChannelAnnotationRef(String annotation, int imageIndex,
             int channelIndex, int annotationRefIndex)
     {
-        //LSID key = new LSID(Channel.class, imageIndex, channelIndex, annotationRefIndex);
-        //addReference(key, new LSID(annotation));
+        LSID key = new LSID(Channel.class, imageIndex, channelIndex, annotationRefIndex);
+        addReference(key, new LSID(annotation));
     }
     
      ////////Lightsource Settings/////////
