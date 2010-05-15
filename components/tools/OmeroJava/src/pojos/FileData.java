@@ -111,7 +111,8 @@ public class FileData
 		if (object == null) return;
 		if (!(object instanceof OriginalFile))
 			throw new IllegalArgumentException("File not supported.");
-		setValue(object);
+		OriginalFile of = (OriginalFile) asIObject();
+		of.setId(object.getId());
 	}
 	
 	/**

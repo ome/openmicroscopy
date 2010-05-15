@@ -31,6 +31,7 @@ import omero.model.ImageAnnotationLink;
 import omero.model.ImageI;
 import omero.model.Instrument;
 import omero.model.LongAnnotation;
+import omero.model.OriginalFile;
 import omero.model.Pixels;
 
 /**
@@ -180,6 +181,20 @@ public class ImageData extends DataObject {
      */
     public int getIndex() { return index; }
     
+	/**
+	 * Sets the registered file.
+	 * 
+	 * @param object The object to store.
+	 */
+	public void setRegisteredFile(Image object)
+	{
+		if (object == null) return;
+		if (!(object instanceof Image))
+			throw new IllegalArgumentException("Image not supported.");
+		Image img = asImage();
+		img.setId(object.getId());
+	}
+	
     // Immutables
 
     /**
