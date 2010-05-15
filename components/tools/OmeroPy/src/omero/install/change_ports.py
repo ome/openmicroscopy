@@ -22,7 +22,7 @@ dir = path(".")
 etc = dir / "etc"
 grid = etc / "grid"
 
-def change_ports(glacier2, registry, revert = False):
+def change_ports(glacier2, glacier2insecure, registry, revert = False):
     """
     Parses the etc configuration files to change
     the current port values. If the files have
@@ -39,28 +39,43 @@ def change_ports(glacier2, registry, revert = False):
 
     if revert:
         f_glacier2 = str(int(glacier2))
+        f_glacier2insecure = str(int(glacier2insecure))
         f_registry = str(int(registry))
         t_glacier2 = "4064"
+        t_glacier2insecure = "4063"
         t_registry = "4061"
     else:
         t_glacier2 = str(int(glacier2))
+        t_glacier2insecure = str(int(glacier2insecure))
         t_registry = str(int(registry))
         f_glacier2 = "4064"
+        f_glacier2insecure = "4063"
         f_registry = "4061"
+
+    def check_line (l, s, f, t):
+        """
+        @param l: the line
+        @param s: the string that denotes this line is supposed to change
+        @param f: from port
+        @param t: to port
+        @return: the line, changed if needed
+        """
+        if l.find(s) >= 0 and l.find(f) >= 0:
+            if f in t and l.find(t) >= 0:
+                # Already have the change... probably
+                return False
+            print l.replace(f, t),
+            done.add(fileinput.filename())
+            return True
+        return False
 
     cfgs = [ str(x) for x in etc.files("*.cfg") ]
     done = set()
     for line in fileinput.input(cfgs, inplace=1):
-        if line.find("Ice.Default.Locator") >= 0:
-            if line.find(f_registry) >= 0:
-                print line.replace(f_registry, t_registry),
-                done.add(fileinput.filename())
-                continue
-        elif line.find("IceGrid.Registry.Client.Endpoints") >= 0:
-            if line.find(f_registry) >= 0:
-                print line.replace(f_registry, t_registry),
-                done.add(fileinput.filename())
-                continue
+        if check_line(line, "Ice.Default.Locator", f_registry, t_registry):
+            continue
+        elif check_line(line, "IceGrid.Registry.Client.Endpoints", f_registry, t_registry):
+            continue
         print line,
     fileinput.close()
     if done:
@@ -71,11 +86,10 @@ def change_ports(glacier2, registry, revert = False):
     xmls = [ str(x) for x in grid.files("*.xml") ]
     done = set()
     for line in fileinput.input(xmls, inplace=1):
-        if line.find("ROUTERPORT") >= 0:
-            if line.find(f_glacier2) >= 0:
-                print line.replace(f_glacier2, t_glacier2),
-                done.add(fileinput.filename())
-                continue
+        if check_line(line, "ROUTERPORT", f_glacier2, t_glacier2):
+            continue
+        elif check_line(line, "INSECUREROUTER", f_glacier2insecure, t_glacier2insecure):
+            continue
         print line,
     fileinput.close()
     if done:
@@ -85,8 +99,8 @@ def change_ports(glacier2, registry, revert = False):
 
 if __name__ == "__main__":
     try:
-        if len(sys.argv) < 3 or len(sys.argv) > 4:
-            print """ %s [--revert] <glacier2 port> <icegrid registry port>
+        if len(sys.argv) < 3 or len(sys.argv) > 5:
+            print """ %s [--revert] <glacier2 port> <icegrid registry port> [<glacier2 insecure port>]
 
     Changes all 4064 ports to the given glacier2 port
     and all 4061 ports to the given registry port. You will
@@ -102,7 +116,8 @@ if __name__ == "__main__":
                 revert = False
             glacier2 = int(args[0])
             registry = int(args[1])
-            change_ports(glacier2, registry, revert)
+            glacier2insecure = len(args) > 2 and int(args[2]) or 4063
+            change_ports(glacier2, glacier2insecure, registry, revert)
             sys.exit(0)
     except exceptions.Exception, e:
         print "Failed to set ports: ", e
