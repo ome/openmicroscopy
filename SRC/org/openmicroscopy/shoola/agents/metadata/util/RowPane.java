@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.metadata.util;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Iterator;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -235,6 +237,17 @@ class RowPane
 	public void removeUpdate(DocumentEvent e)
 	{ 
 		firePropertyChange(MODIFIED_CONTENT_PROPERTY, null, this); 
+	}
+	
+	/**
+	 * Overridden to set the text for all components.
+	 * @see JPanel#setToolTipText(String)
+	 */
+	public void setToolTipText(String text)
+	{
+		super.setToolTipText(text);
+		if (keyComponent != null) keyComponent.setToolTipText(text);
+		if (valueComponent != null) valueComponent.setToolTipText(text);
 	}
 	
 	/**

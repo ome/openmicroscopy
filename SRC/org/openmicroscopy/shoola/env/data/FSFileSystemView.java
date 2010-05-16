@@ -146,7 +146,7 @@ public class FSFileSystemView
 		FileData data;
 		while (i.hasNext()) {
 			fs = i.next();
-			dir = true;
+			dir = fs.dir;
 			name = fs.fileName;
 			count = fs.imageCount;
 			usedFiles = fs.usedFiles;

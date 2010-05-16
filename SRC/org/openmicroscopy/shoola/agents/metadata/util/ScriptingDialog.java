@@ -287,6 +287,8 @@ public class ScriptingDialog
 		Number n;
 		String details = "";
 		String text = "";
+		Map<String, String> map = new HashMap<String, String>();
+		String grouping;
 		while (i.hasNext()) {
 			text = "";
 			comp = null;
@@ -390,15 +392,21 @@ public class ScriptingDialog
 					c.setRequired(!param.isOptional());
 				if (details != null && details.trim().length() > 0)
 					c.setInfo(details);
+
+				grouping = param.getGrouping();
+				c.setParentIndex(param.getParent());
 				results.put((String) entry.getKey(), c);
+				if (grouping.length() > 0)
+					map.put(grouping, (String) entry.getKey());
+				else map.put((String) entry.getKey(), (String) entry.getKey());
 			}
 		}
-		List<String> sortedKeys = sorter.sort(results.keySet());
+		List<String> sortedKeys = sorter.sort(map.keySet());
 		Iterator<String> k = sortedKeys.iterator();
-		String key;
+		String key, value;
 		while (k.hasNext()) {
 			key = k.next();
-			components.put(key, results.get(key));
+			components.put(key, results.get(map.get(key)));
 		}
 		canRunScript();
 	}

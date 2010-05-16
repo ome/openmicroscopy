@@ -202,6 +202,33 @@ public class ParamData
 	}
 	
 	/**
+	 * Returns the grouping value if set.
+	 * 
+	 * @return See above.
+	 */
+	public String getGrouping()
+	{
+		String grouping = "";
+		if (param.grouping != null) grouping = param.grouping.trim();
+		return grouping;
+	}
+	
+	/**
+	 * Parses the grouping value to find if the parameter is a sub-parameter
+	 * e.g. grouping = 5.1, the returned value is 5.
+	 * 
+	 * @return See above.
+	 */
+	public String getParent()
+	{
+		String v = getGrouping();
+		if (v.length() == 0) return "";
+		int index = v.lastIndexOf(".");
+		if (index >= 0) return v.substring(0, index);
+		return "";
+	}
+	
+	/**
 	 * Returns <code>true</code> if the parameter is optional,
 	 * <code>false</code> otherwise.
 	 *  

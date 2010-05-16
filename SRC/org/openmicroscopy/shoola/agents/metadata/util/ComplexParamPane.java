@@ -153,6 +153,7 @@ class ComplexParamPane
 		if (row != null) {
 			if (defaultValue != null)
 				row.setDefaultValue(defaultValue);
+			row.setToolTipText(getToolTipText());
 			rows.add(row);
 			row.addPropertyChangeListener(RowPane.REMOVE_ROW_PROPERTY, this);
 		}
@@ -316,7 +317,7 @@ class ComplexParamPane
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Removes a row from the display.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -328,6 +329,19 @@ class ComplexParamPane
 			removeRow((RowPane) evt.getNewValue());
 		else if (RowPane.MODIFIED_CONTENT_PROPERTY.equals(name)) {
 			firePropertyChange(name, evt.getOldValue(), evt.getNewValue());
+		}
+	}
+	
+	/**
+	 * Overridden to set the text for all components.
+	 * @see JPanel#setToolTipText(String)
+	 */
+	public void setToolTipText(String text)
+	{
+		super.setToolTipText(text);
+		Iterator<RowPane> i = rows.iterator();
+		while (i.hasNext()) {
+			((RowPane) i.next()).setToolTipText(text);
 		}
 	}
 	

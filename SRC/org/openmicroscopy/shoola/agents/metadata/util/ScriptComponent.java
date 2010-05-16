@@ -28,6 +28,8 @@ import info.clearthought.layout.TableLayout;
 
 import java.awt.FlowLayout;
 import java.awt.Font;
+
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -67,6 +69,9 @@ class ScriptComponent
 	/** The number of columns. */
 	static int COLUMNS = 10;
 	
+	/** Indicates the tabulation value. */
+	private static final int TAB = 10;
+	
 	/** The component to host. */
 	private JComponent component;
 	
@@ -85,6 +90,53 @@ class ScriptComponent
 	/** Indicates if a value is required. */
 	private boolean required;
 	
+	/** The index of the parent for grouping. */
+	private String parentIndex;
+	
+	/**
+	 * Returns the tabulation index. Returns <code>0</code> if no parent index
+	 * is set, otherwise the number of level in the parent e.g.
+	 * if parent is <code>3</code>, the method returns <code>1</code>, 
+	 * if parent is <code>3.1</code>, the method returns <code>2</code>.
+	 * 
+	 * @return See above.
+	 */
+	private int getTabulationLevel()
+	{
+		if (parentIndex == null || parentIndex.length() == 0)
+			return 0;
+		String[] values = parentIndex.split("\\.");
+		return values.length;
+	}
+	
+	/**
+	 * Returns the label associated to the component.
+	 * 
+	 * @return See above.
+	 */
+	private JComponent getLabel()
+	{ 
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		p.add(label);
+		if (info != null) p.add(info);
+		return UIUtilities.buildComponentPanel(p, 0, 0); 
+	}
+	
+	/**
+	 * Returns the component hosted.
+	 * 
+	 * @return See above.
+	 */
+	private JComponent getComponent()
+	{ 
+		JPanel p = new JPanel();
+		p.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		p.add(component);
+		if (unitLabel != null) p.add(unitLabel);
+		return p; 
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -96,6 +148,7 @@ class ScriptComponent
 		if (component == null)
 			throw new IllegalArgumentException("No component specified.");
 		this.component = component;
+		parentIndex = null;
 		//format
 		label = UIUtilities.setTextFont(parameter.replace(
 				ScriptObject.PARAMETER_SEPARATOR, 
@@ -149,42 +202,16 @@ class ScriptComponent
 	 */
 	boolean isRequired() { return required; }
 	
-	/**
-	 * Returns the component hosted.
-	 * 
-	 * @return See above.
-	 */
-	JComponent getComponent()
-	{ 
-		JPanel p = new JPanel();
-		p.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		p.add(component);
-		if (unitLabel != null) p.add(unitLabel);
-		return p; 
-	}
-	
 	/** Builds and lays out the UI. */
 	void buildUI()
 	{
-		double[][] size = {{TableLayout.PREFERRED, 5, TableLayout.FILL}, 
+		int width = TAB*getTabulationLevel();
+		double[][] size = {{width, TableLayout.PREFERRED, 5, TableLayout.FILL}, 
 				{TableLayout.PREFERRED}};
 		setLayout(new TableLayout(size));
-		add(getLabel(), "0, 0");
-		add(getComponent(), "2, 0");
-	}
-	
-	/**
-	 * Returns the label associated to the component.
-	 * 
-	 * @return See above.
-	 */
-	JComponent getLabel()
-	{ 
-		JPanel p = new JPanel();
-		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		p.add(label);
-		if (info != null) p.add(info);
-		return UIUtilities.buildComponentPanel(p, 0, 0); 
+		add(Box.createHorizontalStrut(width), "0, 0");
+		add(getLabel(), "1, 0");
+		add(getComponent(), "3, 0");
 	}
 	
 	/** 
@@ -232,4 +259,15 @@ class ScriptComponent
 		return null;
 	}
 	
+	/**
+	 * Sets the parent grouping values.
+	 * 
+	 * @param parentIndex The value to set.
+	 */
+	void setParentIndex(String parentIndex)
+	{
+		if (parentIndex != null) parentIndex = parentIndex.trim();
+		this.parentIndex = parentIndex;
+	}
+
 }
