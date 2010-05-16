@@ -33,6 +33,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -273,8 +274,7 @@ public class ScriptingDialog
 		components = new LinkedHashMap<String, ScriptComponent>(); 
 		Map<String, ParamData> types = script.getInputs();
 		if (types == null) return;
-		Map <String, ScriptComponent> 
-			results = new HashMap<String, ScriptComponent>();
+		List <ScriptComponent> results = new ArrayList<ScriptComponent>();
 		Entry entry;
 		ParamData param;
 		JComponent comp;
@@ -287,7 +287,6 @@ public class ScriptingDialog
 		Number n;
 		String details = "";
 		String text = "";
-		Map<String, String> map = new HashMap<String, String>();
 		String grouping;
 		while (i.hasNext()) {
 			text = "";
@@ -395,18 +394,17 @@ public class ScriptingDialog
 
 				grouping = param.getGrouping();
 				c.setParentIndex(param.getParent());
-				results.put((String) entry.getKey(), c);
-				if (grouping.length() > 0)
-					map.put(grouping, (String) entry.getKey());
-				else map.put((String) entry.getKey(), (String) entry.getKey());
+				if (grouping.length() > 0) c.setNameLabel(grouping);
+				else c.setNameLabel(name);
+				results.add(c);
 			}
 		}
-		List<String> sortedKeys = sorter.sort(map.keySet());
-		Iterator<String> k = sortedKeys.iterator();
-		String key, value;
+		List<ScriptComponent> sortedKeys = sorter.sort(results);
+		Iterator<ScriptComponent> k = sortedKeys.iterator();
+		ScriptComponent key;
 		while (k.hasNext()) {
 			key = k.next();
-			components.put(key, results.get(map.get(key)));
+			components.put(key.getParameterName(), key);
 		}
 		canRunScript();
 	}

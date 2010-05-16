@@ -93,6 +93,12 @@ class ScriptComponent
 	/** The index of the parent for grouping. */
 	private String parentIndex;
 	
+	/** The name associated to the component. */
+	private String nameLabel;
+	
+	/** The name of the parameter. */
+	private String name;
+	
 	/**
 	 * Returns the tabulation index. Returns <code>0</code> if no parent index
 	 * is set, otherwise the number of level in the parent e.g.
@@ -141,21 +147,29 @@ class ScriptComponent
 	 * Creates a new instance.
 	 * 
 	 * @param component The component to host.
-	 * @param parameter The 
+	 * @param name The name of the parameter
 	 */
-	ScriptComponent(JComponent component, String parameter)
+	ScriptComponent(JComponent component, String name)
 	{
 		if (component == null)
 			throw new IllegalArgumentException("No component specified.");
 		this.component = component;
+		this.name = name;
 		parentIndex = null;
 		//format
-		label = UIUtilities.setTextFont(parameter.replace(
+		label = UIUtilities.setTextFont(name.replace(
 				ScriptObject.PARAMETER_SEPARATOR, 
 				ScriptObject.PARAMETER_UI_SEPARATOR));
 		label.setToolTipText(component.getToolTipText());
 		required = false;
 	}
+	
+	/**
+	 * Returns the name of the parameter.
+	 * 
+	 * @return See above.
+	 */
+	String getParameterName() { return name; }
 	
 	/**
 	 * Sets the text explaining the component when the component is a list
@@ -270,4 +284,17 @@ class ScriptComponent
 		this.parentIndex = parentIndex;
 	}
 
+	/**
+	 * Sets the name used to sort the object.
+	 * 
+	 * @param nameLabel The value to set.
+	 */
+	void setNameLabel(String nameLabel) { this.nameLabel = nameLabel; }
+	
+	/**
+	 * Overridden to sort the object using its label.
+	 * @see JPanel#toString()
+	 */
+	public String toString() { return nameLabel; }
+	
 }
