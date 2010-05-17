@@ -577,8 +577,7 @@ public class OMEROMetadataStore
     private void handle(String LSID, LogicalChannel sourceObject,
     		            Map<String, Integer> indexes)
     {
-    	Channel c = getChannel(indexes.get("imageIndex"),
-    			               indexes.get("channelIndex"));
+    	Channel c = getChannel(indexes.get("imageIndex"), indexes.get("channelIndex"));
     	c.setLogicalChannel(sourceObject);
     }
     

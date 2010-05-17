@@ -2901,7 +2901,7 @@ public class OMEROMetadataStoreClient
         LinkedHashMap<Index, Integer> indexes =
             new LinkedHashMap<Index, Integer>();
         indexes.put(Index.IMAGE_INDEX, imageIndex);
-        indexes.put(Index.LOGICAL_CHANNEL_INDEX, channelIndex);
+        indexes.put(Index.CHANNEL_INDEX, channelIndex);
         return getSourceObject(LightSettings.class, indexes);
     }
 
@@ -2915,7 +2915,7 @@ public class OMEROMetadataStoreClient
         LinkedHashMap<Index, Integer> indexes =
             new LinkedHashMap<Index, Integer>();
         indexes.put(Index.IMAGE_INDEX, imageIndex);
-        indexes.put(Index.LOGICAL_CHANNEL_INDEX, channelIndex);
+        indexes.put(Index.CHANNEL_INDEX, channelIndex);
         IObjectContainer o = getIObjectContainer(LightSettings.class, indexes);
         o.LSID = id;
         addAuthoritativeContainer(LightSettings.class, id, o);

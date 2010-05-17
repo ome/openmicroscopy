@@ -95,12 +95,12 @@ public class ReferenceProcessor implements ModelProcessor
             			else if (targetClass.equals(DetectorSettings.class))
             			{
             				indexes.put(Index.IMAGE_INDEX, indexArray[0]);
-            				indexes.put(Index.LOGICAL_CHANNEL_INDEX, indexArray[1]);
+            				indexes.put(Index.CHANNEL_INDEX, indexArray[1]);
             			}
             			else if (targetClass.equals(LightSettings.class))
             			{
             				indexes.put(Index.IMAGE_INDEX, indexArray[0]);
-            				indexes.put(Index.LOGICAL_CHANNEL_INDEX, indexArray[1]);
+            				indexes.put(Index.CHANNEL_INDEX, indexArray[1]);
             			}
             			else if (targetClass.equals(ObjectiveSettings.class))
             			{

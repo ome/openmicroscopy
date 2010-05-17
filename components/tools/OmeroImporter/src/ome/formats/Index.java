@@ -51,7 +51,6 @@ public enum Index implements StringEnumeration
     LIGHT_SOURCE_INDEX("lightSourceIndex"),
     LIGHT_SOURCE_SETTINGS_INDEX("lightSourceSettingsIndex"),
     LIST_ANNOTATION_INDEX("listAnnotationIndex"),
-    LOGICAL_CHANNEL_INDEX("logicalChannelIndex"),
     LONG_ANNOTATION_INDEX("longAnnotationIndex"),
     MICROBEAM_MANIPULATION_INDEX("microbeamManipulationIndex"),
     OBJECTIVE_INDEX("objectiveIndex"),

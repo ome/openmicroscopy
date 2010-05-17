@@ -104,7 +104,7 @@ public class ChannelData
 			LinkedHashMap<Index, Integer> indexes = 
 				new LinkedHashMap<Index, Integer>();
 			indexes.put(Index.IMAGE_INDEX, imageIndex);
-			indexes.put(Index.LOGICAL_CHANNEL_INDEX, channelIndex);
+			indexes.put(Index.CHANNEL_INDEX, channelIndex);
 			IObjectContainer container =
 				store.getIObjectContainer(Channel.class, indexes);
 			data.channel = (Channel) container.sourceObject;
@@ -120,7 +120,7 @@ public class ChannelData
 			LinkedHashMap<Index, Integer> indexes = 
 				new LinkedHashMap<Index, Integer>();
 			indexes.put(Index.IMAGE_INDEX, imageIndex);
-			indexes.put(Index.LOGICAL_CHANNEL_INDEX, channelIndex);
+			indexes.put(Index.CHANNEL_INDEX, channelIndex);
 			IObjectContainer container =
 				store.getIObjectContainer(LogicalChannel.class, indexes);
 			data.logicalChannel = (LogicalChannel) container.sourceObject;
