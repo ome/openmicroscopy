@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.env.data;
 
 //Java imports
 import java.io.File;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -48,7 +47,6 @@ import omero.model.Image;
 import omero.model.IObject;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
-import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.FileData;
 import pojos.ImageData;
@@ -148,7 +146,6 @@ public class FSFileSystemView
 		int index;
 		boolean dir;
 		FileData data;
-		Image img;
 		while (i.hasNext()) {
 			fs = i.next();
 			dir = fs.dir;
