@@ -47,5 +47,22 @@ class TestTickets3000(lib.ITest):
         l_ia.setChild(fa)
         self.update.saveObject(l_ia)
 
+        # Alternatively, unload the file
+        of = self.update.saveAndReturnObject(oFile);
+        of.unload()
+
+        store = self.client.sf.createRawFileStore()
+        store.setFileId(of.id.val);
+        store.write(binary, 0, 0)
+        # Don't capture from save, but will be saved anyway.
+        store.close()
+
+        fa = omero.model.FileAnnotationI()
+        fa.setFile(of)
+        l_ia = omero.model.ImageAnnotationLinkI()
+        l_ia.setParent(img)
+        l_ia.setChild(fa)
+        self.update.saveObject(l_ia)
+
 if __name__ == '__main__':
     unittest.main()
