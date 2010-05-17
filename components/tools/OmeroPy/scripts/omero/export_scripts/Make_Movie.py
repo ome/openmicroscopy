@@ -68,12 +68,7 @@ from PIL import Image
 from PIL import ImageDraw
 import omero_Constants_ice
 
-try:
-    import hashlib
-    hash_sha1 = hashlib.sha1
-except:
-    import sha
-    hash_sha1 = sha.new
+COLOURS = scriptUtil.COLOURS    # name:(rgba) map
 
 MPEG = 'MPEG'
 QT = 'Quicktime'
@@ -118,17 +113,16 @@ def macOSX():
     else:
         return 0
 
-def buildAVI(sizeX, sizeY, filelist, fps, output, format):
+def buildAVI(sizeX, sizeY, filelist, fps, movieName, format):
     """ Encodes. """
     program = 'mencoder'
     args = ""
-    formatExtension = formatMap[format]
     if(format==WMV):
-        args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=jpg -ovc lavc -lavcopts vcodec=wmv2 -o movie.'+formatExtension
+        args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=jpg -ovc lavc -lavcopts vcodec=wmv2 -o %s'% movieName
     elif(format==QT):
-        args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=png -ovc lavc -lavcopts vcodec=mjpeg:vbitrate=800  -o movie.'+formatExtension
+        args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=png -ovc lavc -lavcopts vcodec=mjpeg:vbitrate=800  -o %s'% movieName
     else:
-        args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=jpg -ovc lavc -lavcopts vcodec=mpeg4 -o movie.'+formatExtension
+        args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=jpg -ovc lavc -lavcopts vcodec=mpeg4 -o %s'% movieName
     log(args)
     os.system(program+ args)
 
@@ -182,7 +176,7 @@ def addScalebar(scalebar, image, pixels, commandArgs):
     draw.text(((scaleBarX+scaleBarX2)/2, scaleBarTextY), str(scalebar), fill=commandArgs["Overlay_Colour"])
     return image
 
-def addPlaneInfo(z, t, pixels, image, commandArgs):
+def addPlaneInfo(z, t, pixels, image, colour):
     """ Displays the plane information. """
     draw = ImageDraw.Draw(image)
     planeInfoTextY = pixels.getSizeY().getValue()-60
@@ -190,17 +184,17 @@ def addPlaneInfo(z, t, pixels, image, commandArgs):
     if(planeInfoTextY<=0 or textX > pixels.getSizeX().getValue() or planeInfoTextY>pixels.getSizeY().getValue()):
         return image
     planeCoord = "z:"+str(z+1)+" t:"+str(t+1)
-    draw.text((textX, planeInfoTextY), planeCoord, fill=commandArgs["Overlay_Colour"])
+    draw.text((textX, planeInfoTextY), planeCoord, fill=colour)
     return image
 
-def addTimePoints(time, pixels, image, commandArgs):
+def addTimePoints(time, pixels, image, colour):
     """ Displays the time-points. """
     draw = ImageDraw.Draw(image)
     textY = pixels.getSizeY().getValue()-45
     textX = 20
     if(textY<=0 or textX > pixels.getSizeX().getValue() or textY>pixels.getSizeY().getValue()):
         return image
-    draw.text((textX, textY), str(time), fill=commandArgs["Overlay_Colour"])
+    draw.text((textX, textY), str(time), fill=colour)
     return image
 
 def getRenderingEngine(session, pixelsId, sizeC, cRange):
@@ -350,6 +344,11 @@ def writeMovie(commandArgs, session):
     frameNo = 1
     renderingEngine = getRenderingEngine(session, pixelsId, sizeC, cRange)
 
+    overlayColour = (255,255,255)
+    if "Overlay_Colour" in commandArgs:
+        r,g,b,a = COLOURS[commandArgs["Overlay_Colour"]]
+        overlayColour = (r,g,b)
+    
     format = commandArgs["Format"]
     fileNames = []
     for tz in tzList:
@@ -366,9 +365,9 @@ def writeMovie(commandArgs, session):
         planeInfo = "z:"+str(z)+"t:"+str(t)
         if "Show_Time" in commandArgs and commandArgs["Show_Time"]:
             time = timeMap[planeInfo]
-            image = addTimePoints(time, pixels, image, commandArgs)
+            image = addTimePoints(time, pixels, image, overlayColour)
         if "Show_Plane_Info" in commandArgs and commandArgs["Show_Plane_Info"]:
-            image = addPlaneInfo(z, t, pixels, image, commandArgs)
+            image = addPlaneInfo(z, t, pixels, image, overlayColour)
         if format==QT:
             filename = str(frameNo)+'.png'
             image.save(filename,"PNG")
@@ -403,6 +402,9 @@ def runAsScript():
     def __init__(self, name, optional = False, out = False, description = None, type = None, min = None, max = None, values = None)
     """
     formats = wrap(formatMap.keys())    # wrap each key in it's rtype
+    ckeys = COLOURS.keys()
+    ckeys.sort()
+    cOptions = wrap(ckeys)
     
     client = scripts.client('Make_Movie','MakeMovie creates a movie of the image and attaches it to the originating image.',
     scripts.Long("Image_ID", description="The Image Identifier.", optional=False),
@@ -417,7 +419,7 @@ def runAsScript():
     scripts.Int("FPS", description="Frames Per Second.", default=2),
     scripts.Int("Scalebar", description="Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
     scripts.String("Format", description="Format to save movie", values=formats, default=QT),
-    scripts.Int("Overlay_Colour", description="The colour of the scalebar. Default is white"),
+    scripts.String("Overlay_Colour", description="The colour of the scalebar.",default='White',values=cOptions),
     scripts.Map("Plane_Map", description="Specify the individual planes (instead of using T_Start, T_End, Z_Start and Z_End)"))
 
     session = client.getSession()
@@ -428,11 +430,6 @@ def runAsScript():
         if client.getInput(key):
             commandArgs[key] = client.getInput(key).getValue()
     print commandArgs
-
-    if "Overlay_Colour" in commandArgs:
-        commandArgs["Overlay_Colour"] = scriptUtil.RGBToPIL(commandArgs["Overlay_Colour"])
-    else:
-        commandArgs["Overlay_Colour"] = OVERLAYCOLOUR
 
     fileAnnotation = writeMovie(commandArgs, session)
     if fileAnnotation:
