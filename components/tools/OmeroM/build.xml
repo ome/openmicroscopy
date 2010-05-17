@@ -59,4 +59,8 @@
 
     <target name="tools-clean" depends="clean"/>
 
+    <target name="findbugs">
+        <echo>Not yet implemented</echo>
+    </target>
+
 </project>
