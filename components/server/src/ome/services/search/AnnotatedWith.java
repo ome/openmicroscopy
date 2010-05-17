@@ -18,12 +18,10 @@ import ome.model.annotations.CommentAnnotation;
 import ome.model.annotations.DoubleAnnotation;
 import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.LongAnnotation;
-import ome.model.annotations.QueryAnnotation;
 import ome.model.annotations.TagAnnotation;
+import ome.model.annotations.TermAnnotation;
 import ome.model.annotations.TextAnnotation;
-import ome.model.annotations.ThumbnailAnnotation;
 import ome.model.annotations.TimestampAnnotation;
-import ome.model.annotations.UriAnnotation;
 import ome.model.annotations.XmlAnnotation;
 import ome.model.core.OriginalFile;
 import ome.model.display.Thumbnail;
@@ -116,10 +114,8 @@ public class AnnotatedWith extends SearchAction {
                     annCls[i] = CommentAnnotation.class;
                 } else if (annotation[i] instanceof TagAnnotation) {
                     annCls[i] = TagAnnotation.class;
-                } else if (annotation[i] instanceof QueryAnnotation) {
-                    annCls[i] = QueryAnnotation.class;
-                } else if (annotation[i] instanceof UriAnnotation) {
-                    annCls[i] = UriAnnotation.class;
+                } else if (annotation[i] instanceof TermAnnotation) {
+                    annCls[i] = TermAnnotation.class;
                 } else if (annotation[i] instanceof XmlAnnotation) {
                     annCls[i] = XmlAnnotation.class;
                 } else {
@@ -143,11 +139,6 @@ public class AnnotatedWith extends SearchAction {
                 type[i] = OriginalFile.class;
                 path[i] = "file";
                 value[i] = ((FileAnnotation) annotation[i]).getFile();
-            } else if (annotation[i] instanceof ThumbnailAnnotation) {
-                annCls[i] = ThumbnailAnnotation.class;
-                type[i] = Thumbnail.class;
-                path[i] = "thumbnail";
-                value[i] = ((ThumbnailAnnotation) annotation[i]).getThumbnail();
             } else if (annotation[i] instanceof DoubleAnnotation) {
                 annCls[i] = DoubleAnnotation.class;
                 type[i] = Double.class;

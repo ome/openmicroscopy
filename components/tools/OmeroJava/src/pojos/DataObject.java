@@ -42,7 +42,7 @@ import omero.model.Plate;
 import omero.model.Project;
 import omero.model.Screen;
 import omero.model.TagAnnotation;
-import omero.model.UriAnnotation;
+import omero.model.TermAnnotation;
 import omero.model.Well;
 import omero.model.WellSample;
 
@@ -134,8 +134,8 @@ public abstract class DataObject {
             converted = new ProjectData((Project) obj);
         } else if (obj instanceof Dataset) {
             converted = new DatasetData((Dataset) obj);
-        } else if (obj instanceof UriAnnotation) {
-            converted = new URLAnnotationData((UriAnnotation) obj);
+        } else if (obj instanceof TermAnnotation) {
+            converted = new TermAnnotationData((TermAnnotation) obj);
         } else if (obj instanceof TagAnnotation) {
             converted = new TagAnnotationData((TagAnnotation) obj);
         } else if (obj instanceof CommentAnnotation) {
@@ -148,7 +148,7 @@ public abstract class DataObject {
                 converted = new LongAnnotationData(ann);
             }
         } else if (obj instanceof BooleanAnnotation) {
-        	converted = new BooleanAnnotationData((BooleanAnnotation) obj);
+            converted = new BooleanAnnotationData((BooleanAnnotation) obj);
         } else if (obj instanceof FileAnnotation) {
             converted = new FileAnnotationData((FileAnnotation) obj);
         } else if (obj instanceof Image) {

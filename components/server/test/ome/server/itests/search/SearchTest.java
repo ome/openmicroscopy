@@ -28,7 +28,7 @@ import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.ImageAnnotationLink;
 import ome.model.annotations.LongAnnotation;
 import ome.model.annotations.TagAnnotation;
-import ome.model.annotations.UriAnnotation;
+import ome.model.annotations.TermAnnotation;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.model.internal.Details;
@@ -2329,28 +2329,27 @@ public class SearchTest extends AbstractTest {
     }
 
     @Test
-    public void testAddingUriAnnotation() throws Exception {
+    public void testAddingTermAnnotation() throws Exception {
 
         String uuid = uuid();
-        String urlString = "http://" + uuid + ".com";
         Image i = new Image(testTimestamp, "name");
-        UriAnnotation url = new UriAnnotation();
-        url.setTextValue(urlString);
-        i.linkAnnotation(url);
+        TermAnnotation term = new TermAnnotation();
+        term.setTermValue("go:" + uuid);
+        i.linkAnnotation(term);
 
         loginRoot();
         i = this.iUpdate.saveAndReturnObject(i);
-        url = (UriAnnotation) i.linkedAnnotationList().get(0);
+        term = (TermAnnotation) i.linkedAnnotationList().get(0);
         this.iUpdate.indexObject(i);
-        this.iUpdate.indexObject(url);
+        this.iUpdate.indexObject(term);
 
         Search search = this.factory.createSearchService();
         search.onlyType(Image.class);
-        search.byFullText("url:" + uuid);
+        search.byFullText("term:" + uuid);
         assertResults(search, 1);
 
         search.onlyType(Image.class);
-        search.byFullText("url:http\\://" + uuid + ".com");
+        search.byFullText("go:" + uuid);
         assertResults(search, 1);
 
     }

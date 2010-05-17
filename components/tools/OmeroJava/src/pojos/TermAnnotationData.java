@@ -29,106 +29,76 @@ package pojos;
 
 //Application-internal dependencies
 import static omero.rtypes.rstring;
-import omero.model.UriAnnotation;
-import omero.model.UriAnnotationI;
+import omero.model.TermAnnotation;
+import omero.model.TermAnnotationI;
 
 /**
- * Define a URL Annotation. Note that a URL annotation is a specific text
- * annotation.
- * 
+ * Define a Term Annotation.
+ *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0 <small> (<b>Internal version:</b> $Revision: $Date: $)
  *          </small>
- * @since OME3.0
+ * @since Beta4.2
  */
-public class URLAnnotationData extends AnnotationData {
-
-    /** The <code>http</code> scheme for the url. */
-    public static final String HTTP = "http";
-
-    /** The <code>https</code> scheme for the url. */
-    public static final String HTTPS = "https";
-
-    /** The supported schemes for URL. */
-    public static final String[] URLS;
-
-    static {
-        URLS = new String[2];
-        URLS[0] = HTTP;
-        URLS[1] = HTTPS;
-    }
-
-    /**
-     * Controls if the value is valid URL.
-     * 
-     * @param value
-     *            The value to check.
-     */
-    private void validateURL(String value) {
-        if (value == null) {
-            throw new IllegalArgumentException("URL not valid.");
-        }
-        // FIXME - No longer using commons-validator
-    }
+public class TermAnnotationData extends AnnotationData {
 
     /**
      * Creates a new instance.
-     * 
-     * @param url
+     *
+     * @param term
      *            The value to set.
      */
-    public URLAnnotationData(String url) {
-        super(UriAnnotationI.class);
-        setURL(url);
+    public TermAnnotationData(String term) {
+        super(TermAnnotationI.class);
+        setTerm(term);
     }
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param annotation
      *            The value to set.
      */
-    public URLAnnotationData(UriAnnotation annotation) {
+    public TermAnnotationData(TermAnnotation annotation) {
         super(annotation);
     }
 
     /**
-     * Sets the url.
-     * 
-     * @param url
+     * Sets the term
+     *
+     * @param term
      *            The value to set.
      */
-    public void setURL(String url) {
-        validateURL(url);
-        ((UriAnnotation) asAnnotation()).setTextValue(rstring(url));
+    public void setTerm(String term) {
+        ((TermAnnotation) asAnnotation()).setTermValue(rstring(term));
     }
 
     /**
-     * Returns the <code>url</code>.
-     * 
+     * Returns the <code>term</code>.
+     *
      * @return See above.
      */
-    public String getURL() {
+    public String getTerm() {
         return getContentAsString();
     }
 
     /**
      * Returns the textual content of the annotation.
-     * 
+     *
      * @see AnnotationData#getContent()
      */
     @Override
     public Object getContent() {
-        omero.RString s = ((UriAnnotation) asAnnotation()).getTextValue();
+        omero.RString s = ((TermAnnotation) asAnnotation()).getTermValue();
         return s == null ? null : s.getValue();
     }
 
     /**
      * Returns the textual content of the annotation.
-     * 
+     *
      * @see AnnotationData#getContentAsString()
      */
     @Override
@@ -144,12 +114,12 @@ public class URLAnnotationData extends AnnotationData {
     @Override
     public void setContent(Object content) {
         if (content == null) {
-            throw new IllegalArgumentException("URL not valid.");
+            throw new IllegalArgumentException("Term not valid.");
         }
         if (content instanceof String) {
-            setURL((String) content);
+            setTerm((String) content);
         } else {
-            throw new IllegalArgumentException("URL not valid.");
+            throw new IllegalArgumentException("Term not valid.");
         }
     }
 

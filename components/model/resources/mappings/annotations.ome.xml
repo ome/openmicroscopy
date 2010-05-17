@@ -29,10 +29,7 @@
 	</abstract>
 	<type id="ome.model.annotations.CommentAnnotation" discriminator="/basic/text/comment/" superclass="ome.model.annotations.TextAnnotation"/>
 	<type id="ome.model.annotations.TagAnnotation" discriminator="/basic/text/tag/" superclass="ome.model.annotations.TextAnnotation"/>
-<!-- not used in data model - use StringAnnotation -->
 	<type id="ome.model.annotations.XmlAnnotation" discriminator="/basic/text/xml/" superclass="ome.model.annotations.TextAnnotation"/>
-	<type id="ome.model.annotations.UriAnnotation" discriminator="/basic/text/uri/" superclass="ome.model.annotations.TextAnnotation"/><!-- not used in data model - use StringAnnotation -->
-	<type id="ome.model.annotations.QueryAnnotation" discriminator="/basic/text/query/" superclass="ome.model.annotations.TextAnnotation"/><!-- not used in data model - use StringAnnotation -->
 <!--  /basic/num -->
 	<abstract id="ome.model.annotations.NumericAnnotation" discriminator="/basic/num/" superclass="ome.model.annotations.BasicAnnotation"/>
 	<type id="ome.model.annotations.LongAnnotation" discriminator="/basic/num/long/" superclass="ome.model.annotations.NumericAnnotation">
@@ -56,12 +53,12 @@
 			<optional name="timeValue" type="timestamp"/>
 		</properties>
 	</type>
-<!--  /type -->
-	<type id="ome.model.annotations.ThumbnailAnnotation" discriminator="/type/Thumbnail/" superclass="ome.model.annotations.TypeAnnotation"><!-- not used in data model-->
+	<type id="ome.model.annotations.TermAnnotation" discriminator="/basic/term/" superclass="ome.model.annotations.BasicAnnotation">
 		<properties>
-			<optional name="thumbnail" type="ome.model.display.Thumbnail"/>
+			<optional name="termValue" type="text"/>
 		</properties>
 	</type>
+<!--  /type -->
 	<type id="ome.model.annotations.FileAnnotation" discriminator="/type/OriginalFile/" superclass="ome.model.annotations.TypeAnnotation">
 		<properties>
 			<optional name="file" type="ome.model.core.OriginalFile"/>

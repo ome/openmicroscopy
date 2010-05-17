@@ -19,7 +19,7 @@ import ome.model.annotations.Annotation;
 import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.TextAnnotation;
-import ome.model.annotations.UriAnnotation;
+import ome.model.annotations.TermAnnotation;
 import ome.model.core.OriginalFile;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
@@ -179,14 +179,17 @@ public class FullTextBridge extends BridgeHelper {
                 if (annotation.getNs() != null) {
                     add(document, "annotation.ns", annotation.getNs(), opts);
                 }
-                if (annotation instanceof TextAnnotation) {
+                if (annotation instanceof TermAnnotation) {
+                    TermAnnotation term = (TermAnnotation) annotation;
+                    String termValue = term.getTermValue();
+                    termValue = termValue == null ? "" : termValue;
+                    add(document, "term", termValue, opts);
+                } else if (annotation instanceof TextAnnotation) {
                     TextAnnotation text = (TextAnnotation) annotation;
                     String textValue = text.getTextValue();
                     textValue = textValue == null ? "" : textValue;
                     add(document, "annotation", textValue, opts);
-                    if (annotation instanceof UriAnnotation) {
-                        add(document, "url", textValue, opts);
-                    } else if (annotation instanceof TagAnnotation) {
+                    if (annotation instanceof TagAnnotation) {
                         add(document, "tag", textValue, opts);
                         List<Annotation> list2 = annotation
                                 .linkedAnnotationList();
