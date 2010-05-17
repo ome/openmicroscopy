@@ -27,11 +27,9 @@ public class DetectorSettingsDetectorTest extends TestCase
 	
 	private static final int OBJECTIVE_INDEX = 0;
 	
-	private static final int LOGICAL_CHANNEL_INDEX = 0;
+	private static final int CHANNEL_INDEX = 0;
 	
 	private static final int IMAGE_INDEX = 0;
-	
-	private static final int PIXELS_INDEX = 0;
 	
 	@Override
 	protected void setUp() throws Exception
@@ -49,21 +47,20 @@ public class DetectorSettingsDetectorTest extends TestCase
         Map<String, Integer> pixelsIndexes = 
             new LinkedHashMap<String, Integer>();
         pixelsIndexes.put("imageIndex", IMAGE_INDEX);
-        pixelsIndexes.put("pixelsIndex", PIXELS_INDEX);
         
         String channelLSID = "Channel:0";
         Channel channel = new Channel();
         Map<String, Integer> channelIndexes = 
             new LinkedHashMap<String, Integer>();
         channelIndexes.put("imageIndex", IMAGE_INDEX);
-        channelIndexes.put("logicalChannelIndex", LOGICAL_CHANNEL_INDEX);
+        channelIndexes.put("logicalChannelIndex", CHANNEL_INDEX);
         
         String logicalChannelLSID = "LogicalChannel:0";
         LogicalChannel logicalChannel = new LogicalChannel();
         Map<String, Integer> logicalChannelIndexes = 
             new LinkedHashMap<String, Integer>();
         logicalChannelIndexes.put("imageIndex", IMAGE_INDEX);
-        logicalChannelIndexes.put("logicalChannelIndex", LOGICAL_CHANNEL_INDEX);
+        logicalChannelIndexes.put("logicalChannelIndex", CHANNEL_INDEX);
         
         String instrumentLSID = "Instrument:0";
         Instrument instrument = new Instrument();
@@ -90,7 +87,7 @@ public class DetectorSettingsDetectorTest extends TestCase
         Map<String, Integer> detectorSettingsIndexes = 
             new LinkedHashMap<String, Integer>();
         detectorSettingsIndexes.put("imageIndex", IMAGE_INDEX);
-        detectorSettingsIndexes.put("logicalChannelIndex", LOGICAL_CHANNEL_INDEX);
+        detectorSettingsIndexes.put("logicalChannelIndex", CHANNEL_INDEX);
         
         String objectiveSettingsLSID = "ObjectiveSettings:0";
         ObjectiveSettings objectiveSettings = new ObjectiveSettings();

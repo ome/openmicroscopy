@@ -27,7 +27,7 @@ public class LightSourceSettingsLaserTest extends TestCase
 	
 	private static final int IMAGE_INDEX = 0;
 	
-	private static final int LOGICAL_CHANNEL_INDEX = 0;
+	private static final int CHANNEL_INDEX = 0;
 	
 	@Override
 	protected void setUp() throws Exception
@@ -51,9 +51,9 @@ public class LightSourceSettingsLaserTest extends TestCase
 		store.setLaserFrequencyMultiplication(
 				new PositiveInteger(1), INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
 		store.setChannelLightSourceSettingsID(
-				"Laser:0", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+				"Laser:0", IMAGE_INDEX, CHANNEL_INDEX);
 		store.setChannelLightSourceSettingsAttenuation(
-				new PercentFraction(1f), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+				new PercentFraction(1f), IMAGE_INDEX, CHANNEL_INDEX);
 		
 		// Second Laser, Second LightSourceSettings
 		store.setLaserModel("Model", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
@@ -62,9 +62,9 @@ public class LightSourceSettingsLaserTest extends TestCase
 		store.setLaserFrequencyMultiplication(
 				new PositiveInteger(1), INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
 		store.setChannelLightSourceSettingsID(
-				"Laser:1", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
+				"Laser:1", IMAGE_INDEX, CHANNEL_INDEX + 1);
 		store.setChannelLightSourceSettingsAttenuation(
-			  new PercentFraction(1f), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
+			  new PercentFraction(1f), IMAGE_INDEX, CHANNEL_INDEX + 1);
 				
 		// Third Laser, Third LightSourceSettings (different orientation)
 		store.setLaserLaserMedium(
@@ -72,9 +72,9 @@ public class LightSourceSettingsLaserTest extends TestCase
 		store.setLaserType(LaserType.GAS, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 2);
 		store.setLaserID("Laser:2", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 2);
 		store.setChannelLightSourceSettingsID(
-				"Laser:2", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 2);
+				"Laser:2", IMAGE_INDEX, CHANNEL_INDEX + 2);
 		store.setChannelLightSourceSettingsAttenuation(
-				new PercentFraction(1f), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 2);
+				new PercentFraction(1f), IMAGE_INDEX, CHANNEL_INDEX + 2);
 	}
 	
 	public void testLightSourceSettingsLightSourceNotMLS()

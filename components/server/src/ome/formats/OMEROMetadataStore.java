@@ -35,11 +35,9 @@ import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.model.IEnum;
 import ome.model.IObject;
-import ome.model.acquisition.Arc;
 import ome.model.acquisition.Detector;
 import ome.model.acquisition.DetectorSettings;
 import ome.model.acquisition.Dichroic;
-import ome.model.acquisition.Filament;
 import ome.model.acquisition.Filter;
 import ome.model.acquisition.FilterSet;
 import ome.model.acquisition.ImagingEnvironment;
@@ -61,21 +59,9 @@ import ome.model.core.LogicalChannel;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.core.PlaneInfo;
-import ome.model.enums.AcquisitionMode;
-import ome.model.enums.Binning;
-import ome.model.enums.ContrastMethod;
-import ome.model.enums.Illumination;
-import ome.model.enums.Medium;
-import ome.model.enums.PhotometricInterpretation;
 import ome.model.experiment.Experiment;
-import ome.model.roi.Ellipse;
-import ome.model.roi.Line;
-import ome.model.roi.Mask;
-import ome.model.roi.Point;
-import ome.model.roi.Polygon;
-import ome.model.roi.Polyline;
-import ome.model.roi.Rect;
 import ome.model.roi.Roi;
+import ome.model.roi.Shape;
 import ome.model.screen.Plate;
 import ome.model.screen.Reagent;
 import ome.model.screen.Screen;
@@ -83,7 +69,6 @@ import ome.model.screen.Well;
 import ome.model.screen.WellSample;
 import ome.model.screen.PlateAcquisition;
 import ome.model.stats.StatsInfo;
-import ome.parameters.Parameters;
 import ome.system.ServiceFactory;
 import ome.conditions.ApiUsageException;
 import ome.util.LSID;
@@ -209,15 +194,7 @@ public class OMEROMetadataStore
     	{
     		handle(lsid, (FilterSet) sourceObject, indexes);
     	}
-    	else if (sourceObject instanceof Laser)
-    	{
-    		handle(lsid, (LightSource) sourceObject, indexes);
-    	}
-    	else if (sourceObject instanceof Filament)
-    	{
-    		handle(lsid, (LightSource) sourceObject, indexes);
-    	}
-    	else if (sourceObject instanceof Arc)
+    	else if (sourceObject instanceof LightSource)
     	{
     		handle(lsid, (LightSource) sourceObject, indexes);
     	}
@@ -281,33 +258,9 @@ public class OMEROMetadataStore
     	{
     	    handle(lsid, (Roi) sourceObject, indexes);
     	}
-    	else if (sourceObject instanceof Rect)
-    	{
-    	    handle(lsid, (Rect) sourceObject, indexes);
-    	}
-        else if (sourceObject instanceof Point)
+        else if (sourceObject instanceof Shape)
         {
-            handle(lsid, (Point) sourceObject, indexes);
-        }
-        else if (sourceObject instanceof Polygon)
-        {
-            handle(lsid, (Polygon) sourceObject, indexes);
-        }
-        else if (sourceObject instanceof Polyline)
-        {
-            handle(lsid, (Polyline) sourceObject, indexes);
-        }
-        else if (sourceObject instanceof Ellipse)
-        {
-            handle(lsid, (Ellipse) sourceObject, indexes);
-        }
-        else if (sourceObject instanceof Line)
-        {
-            handle(lsid, (Line) sourceObject, indexes);
-        }
-        else if (sourceObject instanceof Mask)
-        {
-            handle(lsid, (Mask) sourceObject, indexes);
+            handle(lsid, (Shape) sourceObject, indexes);
         }
         else
     	{
@@ -592,8 +545,7 @@ public class OMEROMetadataStore
     		            Map<String, Integer> indexes)
     {
     	int imageIndex = indexes.get("imageIndex");
-    	int pixelsIndex = indexes.get("pixelsIndex");
-    	Pixels p = imageList.get(imageIndex).getPixels(pixelsIndex);
+    	Pixels p = imageList.get(imageIndex).getPrimaryPixels();
     	p.addPlaneInfo(sourceObject);
     }
     
@@ -886,23 +838,7 @@ public class OMEROMetadataStore
      * @param indexes Any indexes that should be used to reference the model
      * object.
      */
-    private void handle(String LSID, Rect sourceObject,
-                        Map<String, Integer> indexes)
-    {
-        int imageIndex = indexes.get("imageIndex");
-        int roiIndex = indexes.get("roiIndex");
-        Roi r = getRoi(imageIndex, roiIndex);
-        r.addShape(sourceObject);
-    }
-    
-    /**
-     * Handles inserting a specific type of model object into our object graph.
-     * @param LSID LSID of the model object.
-     * @param sourceObject Model object itself.
-     * @param indexes Any indexes that should be used to reference the model
-     * object.
-     */
-    private void handle(String LSID, Point sourceObject,
+    private void handle(String LSID, Shape sourceObject,
                         Map<String, Integer> indexes)
     {
         int imageIndex = indexes.get("imageIndex");
@@ -911,86 +847,6 @@ public class OMEROMetadataStore
         r.addShape(sourceObject);
     }
 
-    /**
-     * Handles inserting a specific type of model object into our object graph.
-     * @param LSID LSID of the model object.
-     * @param sourceObject Model object itself.
-     * @param indexes Any indexes that should be used to reference the model
-     * object.
-     */
-    private void handle(String LSID, Polygon sourceObject,
-                        Map<String, Integer> indexes)
-    {
-        int imageIndex = indexes.get("imageIndex");
-        int roiIndex = indexes.get("roiIndex");
-        Roi r = getRoi(imageIndex, roiIndex);
-        r.addShape(sourceObject);
-    }
-
-    /**
-     * Handles inserting a specific type of model object into our object graph.
-     * @param LSID LSID of the model object.
-     * @param sourceObject Model object itself.
-     * @param indexes Any indexes that should be used to reference the model
-     * object.
-     */
-    private void handle(String LSID, Polyline sourceObject,
-                        Map<String, Integer> indexes)
-    {
-        int imageIndex = indexes.get("imageIndex");
-        int roiIndex = indexes.get("roiIndex");
-        Roi r = getRoi(imageIndex, roiIndex);
-        r.addShape(sourceObject);
-    }
-   
-    /**
-     * Handles inserting a specific type of model object into our object graph.
-     * @param LSID LSID of the model object.
-     * @param sourceObject Model object itself.
-     * @param indexes Any indexes that should be used to reference the model
-     * object.
-     */
-    private void handle(String LSID, Ellipse sourceObject,
-                        Map<String, Integer> indexes)
-    {
-        int imageIndex = indexes.get("imageIndex");
-        int roiIndex = indexes.get("roiIndex");
-        Roi r = getRoi(imageIndex, roiIndex);
-        r.addShape(sourceObject);
-    }
-
-    /**
-     * Handles inserting a specific type of model object into our object graph.
-     * @param LSID LSID of the model object.
-     * @param sourceObject Model object itself.
-     * @param indexes Any indexes that should be used to reference the model
-     * object.
-     */
-    private void handle(String LSID, Line sourceObject,
-                        Map<String, Integer> indexes)
-    {
-        int imageIndex = indexes.get("imageIndex");
-        int roiIndex = indexes.get("roiIndex");
-        Roi r = getRoi(imageIndex, roiIndex);
-        r.addShape(sourceObject);
-    }
-    
-    /**
-     * Handles inserting a specific type of model object into our object graph.
-     * @param LSID LSID of the model object.
-     * @param sourceObject Model object itself.
-     * @param indexes Any indexes that should be used to reference the model
-     * object.
-     */
-    private void handle(String LSID, Mask sourceObject,
-                        Map<String, Integer> indexes)
-    {
-        int imageIndex = indexes.get("imageIndex");
-        int roiIndex = indexes.get("roiIndex");
-        Roi r = getRoi(imageIndex, roiIndex);
-        r.addShape(sourceObject);
-    }
-    
     /**
      * Handles inserting a specific type of model object into our object graph.
      * @param LSID LSID of the model object.

@@ -69,8 +69,6 @@ import ome.formats.model.ChannelProcessor;
 import ome.formats.model.IObjectContainerStore;
 import ome.formats.model.InstanceProvider;
 import ome.formats.model.InstrumentProcessor;
-import ome.formats.model.MetaLightSource;
-import ome.formats.model.MetaShape;
 import ome.formats.model.ModelProcessor;
 import ome.formats.model.PixelsProcessor;
 import ome.formats.model.PlaneInfoProcessor;
@@ -1064,83 +1062,6 @@ public class OMEROMetadataStoreClient
     }
     
     /**
-     * Handles the upcast to the "real" concrete type and the correct LSID
-     * mapping if required.
-     * @param klass Class to retrieve a container for.
-     * @param indexes Indexes into the OME-XML data model.
-     * @param lsid LSID of the container.
-     * @return Created container or <code>null</code> if the container cache
-     * already contains <code>lsid</code>.
-     */
-    private IObjectContainer handleAbstractLightSource(
-    		Class<? extends IObject> klass,
-    		LinkedHashMap<Index, Integer> indexes, LSID lsid)
-    {
-        LSID lsLSID = new LSID(LightSource.class,
-                               indexes.get(Index.INSTRUMENT_INDEX.getValue()),
-                               indexes.get(Index.LIGHT_SOURCE_INDEX.getValue()));
-        if (containerCache.containsKey(lsLSID))
-        {
-            IObjectContainer container = containerCache.get(lsLSID);
-            MetaLightSource mls = 
-                (MetaLightSource) container.sourceObject;
-            LightSource realInstance = 
-                (LightSource) getSourceObjectInstance(klass);
-            mls.copyData(realInstance);
-            container.sourceObject = realInstance;
-            if (container.LSID == null
-                || container.LSID.equals(lsLSID.toString()))
-            {
-                container.LSID = lsid.toString();
-            }
-            containerCache.put(lsid, container);
-            return container;
-        }
-        return null;
-    }
-    
-    /**
-     * Handles the upcast to the "real" concrete type and the correct LSID
-     * mapping if required.
-     * @param klass Class to retrieve a container for.
-     * @param indexes Indexes into the OME-XML data model.
-     * @param lsid LSID of the container.
-     * @return Created container or <code>null</code> if the container cache
-     * already does not contain <code>lsid</code>.
-     */
-    private IObjectContainer handleAbstractShape(
-    		Class<? extends IObject> klass,
-    		LinkedHashMap<Index, Integer> indexes, LSID lsid)
-    {
-        LSID shapeLSID = new LSID(Shape.class,
-                                  indexes.get(Index.IMAGE_INDEX.getValue()),
-                                  indexes.get(Index.ROI_INDEX.getValue()),
-                                  indexes.get(Index.SHAPE_INDEX.getValue()));
-        if (containerCache.containsKey(shapeLSID))
-        {
-            IObjectContainer container = containerCache.get(shapeLSID);
-            MetaShape metaShape = 
-                (MetaShape) container.sourceObject;
-            Shape realInstance = 
-                (Shape) getSourceObjectInstance(klass);
-            metaShape.copyData(realInstance);
-            container.sourceObject = realInstance;
-            if (container.LSID == null
-                || container.LSID.equals(shapeLSID.toString()))
-            {
-                container.LSID = lsid.toString();
-            }
-            containerCache.put(lsid, container);
-            return container;
-        }
-        return null;
-    }
-    
-   /*-----------*/
-    
-    
-    
-    /**
      * Creates a temporary file on disk containing all metadata in the
      * Bio-Formats metadata hash table for the current series.
      * @return Temporary file created.
@@ -1298,7 +1219,7 @@ public class OMEROMetadataStoreClient
     			imageReader.getReader().getClass().toString();
     		formatString = formatString.replace("class loci.formats.in.", "");
     		formatString = formatString.replace("Reader", "");
-    		LSID pixelsKey = new LSID(Pixels.class, series, 0);
+    		LSID pixelsKey = new LSID(Pixels.class, series);
     		LSID imageKey = new LSID(Image.class, series);
     		LinkedHashMap<Index, Integer> imageIndexes =
     			new LinkedHashMap<Index, Integer>();
@@ -2104,7 +2025,7 @@ public class OMEROMetadataStoreClient
             double maximum, int series)
     {
         Pixels pixels = 
-            (Pixels) getSourceObject(new LSID(Pixels.class, series, 0));
+            (Pixels) getSourceObject(new LSID(Pixels.class, series));
         if (imageChannelGlobalMinMax == null)
         {
             int imageCount = countCachedContainers(Image.class);
@@ -2311,77 +2232,7 @@ public class OMEROMetadataStoreClient
         
         // Create a new LSID.
         LSID lsid = new LSID(klass, indexesArray);
-        
-        // Because of the LightSource abstract type, here we need to handle
-        // the upcast to the "real" concrete type and the correct LSID
-        // mapping.
-        if ((klass.equals(Arc.class) || klass.equals(Laser.class)
-            || klass.equals(Filament.class))
-            && !containerCache.containsKey(lsid))
-        {
-        	IObjectContainer toReturn = 
-        		handleAbstractLightSource(klass, indexes, lsid);
-        	if (toReturn != null)
-        	{
-        		return toReturn;
-        	}
-        }
-        // Because of the Shape abstract type, here we need to handle
-        // the upcast to the "real" concrete type and the correct LSID
-        // mapping.
-        if ((klass.equals(Label.class) || klass.equals(Rect.class)
-            || klass.equals(Mask.class) || klass.equals(Ellipse.class)
-            || klass.equals(Point.class) || klass.equals(Path.class)
-            || klass.equals(Polygon.class) || klass.equals(Line.class))
-            && !containerCache.containsKey(lsid))
-        {
-        	IObjectContainer toReturn = 
-        		handleAbstractShape(klass, indexes, lsid);
-        	if (toReturn != null)
-        	{
-        		return toReturn;
-        	}
-        }
-        // We may have first had a concrete method call request, put the object
-        // in a container and in the cache. Now we have a request with only the
-        // abstract type's class to give us LSID resolution and must handle 
-        // that as well.
-        if (klass.equals(LightSource.class)
-            && !containerCache.containsKey(lsid))
-        {
-            Class<?>[] concreteClasses = 
-                new Class<?>[] { Arc.class, Laser.class, Filament.class };
-            for (Class<?> concreteClass : concreteClasses)
-            {
-                LSID lsLSID = new LSID(concreteClass,
-                                       indexes.get(Index.INSTRUMENT_INDEX.getValue()),
-                                       indexes.get(Index.LIGHT_SOURCE_INDEX.getValue()));
-                if (containerCache.containsKey(lsLSID))
-                {
-                    return containerCache.get(lsLSID);
-                }
-            }
-        }
-        if (klass.equals(Shape.class)
-            && !containerCache.containsKey(lsid))
-        {
-            Class<?>[] concreteClasses = 
-                new Class<?>[] { Label.class, Rect.class, Mask.class, Ellipse.class,
-            		          Point.class, Path.class, Polygon.class,
-            		          Line.class };
-            for (Class<?> concreteClass : concreteClasses)
-            {
-                LSID shapeLSID = new LSID(concreteClass,
-                                          indexes.get(Index.IMAGE_INDEX.getValue()),
-                                          indexes.get(Index.ROI_INDEX.getValue()),
-                                          indexes.get(Index.SHAPE_INDEX.getValue()));
-                if (containerCache.containsKey(shapeLSID))
-                {
-                    return containerCache.get(shapeLSID);
-                }
-            }
-        }
-        
+                
         Map<String, Integer> asString = new HashMap<String, Integer>();
         for (Entry<Index, Integer> v : indexes.entrySet())
         {
@@ -5766,7 +5617,6 @@ public class OMEROMetadataStoreClient
         LinkedHashMap<Index, Integer> indexes =
             new LinkedHashMap<Index, Integer>();
         indexes.put(Index.IMAGE_INDEX, imageIndex);
-        indexes.put(Index.PIXELS_INDEX, 0);
         Pixels p = getSourceObject(Pixels.class, indexes);
         p.setSha1(rstring("Foo"));
         return p;
@@ -5782,7 +5632,6 @@ public class OMEROMetadataStoreClient
         LinkedHashMap<Index, Integer> indexes =
             new LinkedHashMap<Index, Integer>();
         indexes.put(Index.IMAGE_INDEX, imageIndex);
-        indexes.put(Index.PIXELS_INDEX, 0);
         IObjectContainer o = getIObjectContainer(Pixels.class, indexes);
         o.LSID = id;
         addAuthoritativeContainer(Pixels.class, id, o);
@@ -5794,7 +5643,7 @@ public class OMEROMetadataStoreClient
     public void setPixelsAnnotationRef(String annotation, int imageIndex,
             int annotationRefIndex)
     {
-        LSID key = new LSID(Pixels.class, imageIndex, 0, annotationRefIndex);
+        LSID key = new LSID(Pixels.class, imageIndex, annotationRefIndex);
         addReference(key, new LSID(annotation));
     }
 
@@ -5916,7 +5765,6 @@ public class OMEROMetadataStoreClient
         LinkedHashMap<Index, Integer> indexes =
             new LinkedHashMap<Index, Integer>();
         indexes.put(Index.IMAGE_INDEX, imageIndex);
-        indexes.put(Index.PIXELS_INDEX, 0);
         indexes.put(Index.PLANE_INDEX, planeIndex);
         return getSourceObject(PlaneInfo.class, indexes);
     }

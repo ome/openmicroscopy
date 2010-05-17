@@ -26,10 +26,8 @@ public class ChannelDataTest extends TestCase
 	private static final int INSTRUMENT_INDEX = 0;
 	
 	private static final int IMAGE_INDEX = 0;
-	
-	private static final int PIXELS_INDEX = 0;
-	
-	private static final int LOGICAL_CHANNEL_INDEX = 0;
+
+	private static final int CHANNEL_INDEX = 0;
 
   private static final int EM_FILTER_INDEX = 0;
 
@@ -57,9 +55,9 @@ public class ChannelDataTest extends TestCase
 				LIGHTSOURCE_INDEX);
 		store.setFilamentType(FilamentType.OTHER, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
 		store.setChannelLightSourceSettingsID(
-				"Filament:0", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+				"Filament:0", IMAGE_INDEX, CHANNEL_INDEX);
 		store.setChannelLightSourceSettingsAttenuation(
-				new PercentFraction(1f), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+				new PercentFraction(1.0f), IMAGE_INDEX, CHANNEL_INDEX);
 		
 		// Second Filament, Second LightSourceSettings
 		store.setFilamentID(
@@ -69,9 +67,9 @@ public class ChannelDataTest extends TestCase
 		store.setFilamentType(FilamentType.OTHER, INSTRUMENT_INDEX,
 				LIGHTSOURCE_INDEX + 1);
 		store.setChannelLightSourceSettingsID(
-				"Filament:1", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
+				"Filament:1", IMAGE_INDEX, CHANNEL_INDEX + 1);
 		store.setChannelLightSourceSettingsAttenuation(
-				new PercentFraction(2f), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
+				new PercentFraction(1.0f), IMAGE_INDEX, CHANNEL_INDEX + 1);
 		
 		// FilterSet
 		store.setFilterSetID("FilterSet:0", INSTRUMENT_INDEX,
@@ -85,9 +83,9 @@ public class ChannelDataTest extends TestCase
 		
 		// FilterSet linkages
 		store.setChannelFilterSetRef("FilterSet:0", IMAGE_INDEX,
-				LOGICAL_CHANNEL_INDEX);
+				CHANNEL_INDEX);
 		store.setChannelFilterSetRef("FilterSet:1", IMAGE_INDEX,
-				LOGICAL_CHANNEL_INDEX + 1);
+				CHANNEL_INDEX + 1);
 		
 		// Filters
 		store.setFilterID("Filter:0", INSTRUMENT_INDEX, FILTER_INDEX);
@@ -117,19 +115,19 @@ public class ChannelDataTest extends TestCase
 		store.setFilterSetExcitationFilterRef("Filter:7", INSTRUMENT_INDEX,
 				FILTER_SET_INDEX + 1, FILTER_INDEX);
 		store.setLightPathEmissionFilterRef(
-				"Filter:2", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX, EM_FILTER_INDEX);
+				"Filter:2", IMAGE_INDEX, CHANNEL_INDEX, EM_FILTER_INDEX);
 		store.setLightPathExcitationFilterRef(
-				"Filter:3", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX, EX_FILTER_INDEX);
+				"Filter:3", IMAGE_INDEX, CHANNEL_INDEX, EX_FILTER_INDEX);
 		store.setLightPathEmissionFilterRef("Filter:4",
-        IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1, EM_FILTER_INDEX + 1);
+        IMAGE_INDEX, CHANNEL_INDEX + 1, EM_FILTER_INDEX + 1);
 		store.setLightPathExcitationFilterRef("Filter:5",
-        IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1, EX_FILTER_INDEX + 1);
+        IMAGE_INDEX, CHANNEL_INDEX + 1, EX_FILTER_INDEX + 1);
 	}
 	
 	public void testChannelDataChannelOne()
 	{
 		ChannelData data = ChannelData.fromObjectContainerStore(
-				store, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+				store, IMAGE_INDEX, CHANNEL_INDEX);
 		assertNotNull(data);
 		assertNotNull(data.getChannel());
 		assertNotNull(data.getLogicalChannel());
@@ -159,7 +157,7 @@ public class ChannelDataTest extends TestCase
 	public void testChannelDataChannelTwo()
 	{
 		ChannelData data = ChannelData.fromObjectContainerStore(
-				store, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
+				store, IMAGE_INDEX, CHANNEL_INDEX + 1);
 		assertNotNull(data);
 		assertNotNull(data.getChannel());
 		assertNotNull(data.getLogicalChannel());
@@ -182,7 +180,7 @@ public class ChannelDataTest extends TestCase
 		assertEquals("1", 
 				data.getLightSource().getManufacturer().getValue());
 		assertNotNull(data.getLightSourceSettings());
-		assertEquals(2.0, 
+		assertEquals(1.0, 
 				data.getLightSourceSettings().getAttenuation().getValue());
 	}
 	

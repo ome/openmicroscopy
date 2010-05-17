@@ -27,7 +27,7 @@ public class LightSourceSettingsFilamentTest extends TestCase
 	
 	private static final int IMAGE_INDEX = 0;
 	
-	private static final int LOGICAL_CHANNEL_INDEX = 0;
+	private static final int CHANNEL_INDEX = 0;
 	
 	@Override
 	protected void setUp() throws Exception
@@ -50,9 +50,9 @@ public class LightSourceSettingsFilamentTest extends TestCase
 		store.setFilamentType(
         FilamentType.OTHER, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
 		store.setChannelLightSourceSettingsID(
-				"Filament:0", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+				"Filament:0", IMAGE_INDEX, CHANNEL_INDEX);
 		store.setChannelLightSourceSettingsAttenuation(
-				new PercentFraction(1f), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+				new PercentFraction(1f), IMAGE_INDEX, CHANNEL_INDEX);
 		
 		// Second Filament, Second LightSourceSettings
 		store.setFilamentModel("Model", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
@@ -60,9 +60,9 @@ public class LightSourceSettingsFilamentTest extends TestCase
 		store.setFilamentType(
         FilamentType.OTHER, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
 		store.setChannelLightSourceSettingsID(
-				"Filament:1", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
+				"Filament:1", IMAGE_INDEX, CHANNEL_INDEX + 1);
 		store.setChannelLightSourceSettingsAttenuation(
-				new PercentFraction(1f), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
+				new PercentFraction(1f), IMAGE_INDEX, CHANNEL_INDEX + 1);
 	}
 	
 	public void testLightSourceSettingsLightSourceNotMLS()

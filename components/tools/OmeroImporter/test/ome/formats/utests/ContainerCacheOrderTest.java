@@ -26,9 +26,7 @@ public class ContainerCacheOrderTest extends TestCase
 	
 	private static final int IMAGE_INDEX = 0;
 	
-	private static final int PIXELS_INDEX = 0;
-	
-	private static final int LOGICAL_CHANNEL_INDEX = 0;
+	private static final int CHANNEL_INDEX = 0;
 	
 	private static final int OBJECTIVE_INDEX = 0;
 	
@@ -49,11 +47,10 @@ public class ContainerCacheOrderTest extends TestCase
         
         // Populate at least one pixels field.
         store.setPixelsSizeX(new PositiveInteger(1), IMAGE_INDEX);
-        //store.setPixelsSizeX(1, IMAGE_INDEX, PIXELS_INDEX + 1);
         
         // Populate at least one logical channel field.
         store.setChannelEmissionWavelength(
-            new PositiveInteger(100), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+            new PositiveInteger(100), IMAGE_INDEX, CHANNEL_INDEX);
         
         // Populate at least one instrument field.
         store.setInstrumentID("Instrument:0", INSTRUMENT_INDEX);
@@ -68,9 +65,9 @@ public class ContainerCacheOrderTest extends TestCase
 		store.setLaserFrequencyMultiplication(
 				new PositiveInteger(1), INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
 		store.setChannelLightSourceSettingsID(
-				"Laser:0", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+				"Laser:0", IMAGE_INDEX, CHANNEL_INDEX);
 		store.setChannelLightSourceSettingsAttenuation(
-				new PercentFraction(1f), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+				new PercentFraction(1f), IMAGE_INDEX, CHANNEL_INDEX);
 		
 		// Second Laser, Second LightSourceSettings
 		store.setLaserModel(
@@ -82,9 +79,9 @@ public class ContainerCacheOrderTest extends TestCase
 		store.setLaserFrequencyMultiplication(
 				new PositiveInteger(1), INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
 		store.setChannelLightSourceSettingsID(
-				"Laser:1", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
+				"Laser:1", IMAGE_INDEX, CHANNEL_INDEX + 1);
 		store.setChannelLightSourceSettingsAttenuation(
-				new PercentFraction(1f), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
+				new PercentFraction(1f), IMAGE_INDEX, CHANNEL_INDEX + 1);
 				
 		// Third Laser, Third LightSourceSettings (different orientation)
 		store.setLaserLaserMedium(
@@ -94,9 +91,9 @@ public class ContainerCacheOrderTest extends TestCase
 		store.setLaserID(
 				"Laser:2", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 2);
 		store.setChannelLightSourceSettingsID(
-				"Laser:2", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 2);
+				"Laser:2", IMAGE_INDEX, CHANNEL_INDEX + 2);
 		store.setChannelLightSourceSettingsAttenuation(
-				new PercentFraction(1f), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 2);
+				new PercentFraction(1f), IMAGE_INDEX, CHANNEL_INDEX + 2);
 		
 		// First Objective, First ObjectiveSettings
 		store.setObjectiveLensNA(1.0, INSTRUMENT_INDEX, OBJECTIVE_INDEX);

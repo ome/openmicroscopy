@@ -26,8 +26,6 @@ public class InstrumentTest extends TestCase
 	
 	private static final int IMAGE_INDEX = 0;
 	
-	private static final int PIXELS_INDEX = 0;
-	
 	private static final String LIGHTSOURCE_MODEL = "Model";
 	
 	@Override
@@ -62,10 +60,10 @@ public class InstrumentTest extends TestCase
 	{
 	    for (int i = 0; i < 3; i++)
 	    {
-	        LSID lsid = new LSID(Pixels.class, i, PIXELS_INDEX);
+	        LSID lsid = new LSID(Pixels.class, i);
 	        assertNotNull(store.getSourceObject(lsid));
 	    }
-	    LSID lsid = new LSID(LightSource.class, 
+	    LSID lsid = new LSID(Laser.class, 
 	                           INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
 	    assertNotNull(store.getSourceObject(lsid));
 	    assertNotNull(store.getSourceObject(new LSID(Instrument.class, 0)));
@@ -79,7 +77,7 @@ public class InstrumentTest extends TestCase
 	
 	public void testContainerCount()
 	{
-	    assertEquals(1, store.countCachedContainers(LightSource.class));
+	    assertEquals(1, store.countCachedContainers(Laser.class));
 	    assertEquals(1, store.countCachedContainers(Instrument.class));
 	    assertEquals(3, store.countCachedContainers(Pixels.class));
 	    assertEquals(5, store.countCachedContainers(null));

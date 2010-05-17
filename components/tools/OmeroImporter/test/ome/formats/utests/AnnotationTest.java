@@ -17,8 +17,6 @@ public class AnnotationTest extends TestCase
 	
 	private static final int IMAGE_INDEX = 0;
 	
-	private static final int PIXELS_INDEX = 0;
-	
 	@Override
 	protected void setUp() throws Exception
 	{
@@ -65,7 +63,7 @@ public class AnnotationTest extends TestCase
 	public void testLinkSingleAnnotationAndOriginalFile()
 	{
         LSID imageKey = new LSID(Image.class, IMAGE_INDEX);
-        LSID pixelsKey = new LSID(Pixels.class, IMAGE_INDEX, PIXELS_INDEX);
+        LSID pixelsKey = new LSID(Pixels.class, IMAGE_INDEX);
         LSID annotationKey = new LSID(CommentAnnotation.class, IMAGE_INDEX);
         LSID originalFileKey = new LSID(OriginalFile.class, 0);
         store.addReference(imageKey, annotationKey);
@@ -86,7 +84,7 @@ public class AnnotationTest extends TestCase
 	public void testLinkTwoAnnotationsAndOriginalFiles()
 	{
         LSID imageKey = new LSID(Image.class, IMAGE_INDEX);
-        LSID pixelsKey = new LSID(Pixels.class, IMAGE_INDEX, PIXELS_INDEX);
+        LSID pixelsKey = new LSID(Pixels.class, IMAGE_INDEX);
         LSID annotationKey1 = new LSID(CommentAnnotation.class, IMAGE_INDEX);
         LSID annotationKey2 = new LSID(CommentAnnotation.class, IMAGE_INDEX + 1);
         LSID originalFileKey1 = new LSID(OriginalFile.class, 0);

@@ -27,7 +27,7 @@ public class LightSourceSettingsArcTest extends TestCase
 	
 	private static final int IMAGE_INDEX = 0;
 	
-	private static final int LOGICAL_CHANNEL_INDEX = 0;
+	private static final int CHANNEL_INDEX = 0;
 	
 	@Override
 	protected void setUp() throws Exception
@@ -49,18 +49,18 @@ public class LightSourceSettingsArcTest extends TestCase
 		store.setArcID("Arc:0", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
 		store.setArcType(ArcType.OTHER, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
 		store.setChannelLightSourceSettingsID(
-				"Arc:0", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+				"Arc:0", IMAGE_INDEX, CHANNEL_INDEX);
 		store.setChannelLightSourceSettingsAttenuation(
-				new PercentFraction(1f), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+				new PercentFraction(1f), IMAGE_INDEX, CHANNEL_INDEX);
 		
 		// Second Arc, Second LightSourceSettings
 		store.setArcModel("Model", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
 		store.setArcID("Arc:1", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
 		store.setArcType(ArcType.OTHER, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
 		store.setChannelLightSourceSettingsID(
-				"Arc:1", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
+				"Arc:1", IMAGE_INDEX, CHANNEL_INDEX + 1);
 		store.setChannelLightSourceSettingsAttenuation(
-				new PercentFraction(1f), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
+				new PercentFraction(1f), IMAGE_INDEX, CHANNEL_INDEX + 1);
 	}
 	
 	public void testLightSourceSettingsLightSourceNotMLS()

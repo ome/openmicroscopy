@@ -26,7 +26,7 @@ public class DetectorSettingsTest extends TestCase
 	
 	private static final int IMAGE_INDEX = 0;
 	
-	private static final int LOGICAL_CHANNEL_INDEX = 0;
+	private static final int CHANNEL_INDEX = 0;
 	
 	private static final String DETECTOR_MODEL = "Model";
 	
@@ -59,11 +59,11 @@ public class DetectorSettingsTest extends TestCase
         store.setImageInstrumentRef("Instrument:0", IMAGE_INDEX + 1);
         store.setImageInstrumentRef("Instrument:0", IMAGE_INDEX + 2);
         store.setDetectorSettingsID(
-        		"Detector:0", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+        		"Detector:0", IMAGE_INDEX, CHANNEL_INDEX);
         store.setDetectorSettingsID(
-        		"Detector:0", IMAGE_INDEX + 1, LOGICAL_CHANNEL_INDEX);
+        		"Detector:0", IMAGE_INDEX + 1, CHANNEL_INDEX);
         store.setDetectorSettingsID(
-        		"Detector:0", IMAGE_INDEX + 2, LOGICAL_CHANNEL_INDEX);
+        		"Detector:0", IMAGE_INDEX + 2, CHANNEL_INDEX);
 	}
 
 	public void testImageDetectorExists()
@@ -98,7 +98,7 @@ public class DetectorSettingsTest extends TestCase
 	    {
 	        LSID imageLsid = new LSID(Image.class, i);
 	        LSID dsLsid = new LSID(DetectorSettings.class, i,
-	                               LOGICAL_CHANNEL_INDEX);
+	                               CHANNEL_INDEX);
 	        assertTrue(store.hasReference(dsLsid, new LSID("Detector:0")));
 	        assertTrue(store.hasReference(imageLsid, new LSID("Instrument:0")));
 	    }

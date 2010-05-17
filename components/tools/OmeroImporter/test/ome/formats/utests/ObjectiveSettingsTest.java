@@ -6,6 +6,7 @@ import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.model.BlitzInstanceProvider;
 import ome.util.LSID;
+import ome.xml.r201004.enums.Correction;
 import ome.xml.r201004.primitives.PositiveInteger;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Image;
@@ -26,9 +27,9 @@ public class ObjectiveSettingsTest extends TestCase
 	
 	private static final int IMAGE_INDEX = 0;
 	
-	private static final int PIXELS_INDEX = 0;
-	
 	private static final String OBJECTIVE_MODEL = "Model";
+	
+	private static final Correction FL = ome.xml.r201004.enums.Correction.FL;
 	
 	@Override
 	protected void setUp() throws Exception
@@ -73,7 +74,7 @@ public class ObjectiveSettingsTest extends TestCase
 	
 	public void testObjectiveCorrectionZeroLength()
 	{
-		store.setObjectiveCorrection(null, INSTRUMENT_INDEX, OBJECTIVE_INDEX);
+		store.setObjectiveCorrection(FL, INSTRUMENT_INDEX, OBJECTIVE_INDEX);
 		Objective o =
 			(Objective) store.getSourceObject(new LSID(Objective.class, 0, 0));
 		assertNotNull(o);
@@ -84,7 +85,7 @@ public class ObjectiveSettingsTest extends TestCase
 	
 	public void testObjectiveCorrectionNull()
 	{
-		store.setObjectiveCorrection(null, INSTRUMENT_INDEX, OBJECTIVE_INDEX);
+		store.setObjectiveCorrection(FL, INSTRUMENT_INDEX, OBJECTIVE_INDEX);
 		Objective o =
 			(Objective) store.getSourceObject(new LSID(Objective.class, 0, 0));
 		assertNotNull(o);

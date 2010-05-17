@@ -59,7 +59,7 @@ public class LaserTest extends TestCase
       IObjectContainer lightSourceContainer =
           store.getIObjectContainer(LightSource.class, indexes);
       assertEquals("LightSource:100", laserContainer.LSID);
-      assertEquals("LightSource:100", lightSourceContainer.LSID);
+      assertEquals("omero.model.LightSource:0:10", lightSourceContainer.LSID);
       assertEquals(laserContainer.sourceObject, laserContainer.sourceObject);
 	}
 
@@ -77,7 +77,7 @@ public class LaserTest extends TestCase
         IObjectContainer lightSourceContainer =
             store.getIObjectContainer(LightSource.class, indexes);
         assertEquals("LightSource:100", laserContainer.LSID);
-        assertEquals("LightSource:100", lightSourceContainer.LSID);
+        assertEquals("omero.model.LightSource:0:10", lightSourceContainer.LSID);
         assertEquals(laserContainer.sourceObject, laserContainer.sourceObject);
     }
     
@@ -96,7 +96,7 @@ public class LaserTest extends TestCase
         IObjectContainer lightSourceContainer =
             store.getIObjectContainer(LightSource.class, indexes);
         assertEquals("LightSource:100", laserContainer.LSID);
-        assertEquals("LightSource:100", lightSourceContainer.LSID);
+        assertEquals("omero.model.LightSource:0:10", lightSourceContainer.LSID);
         assertEquals(laserContainer.sourceObject, laserContainer.sourceObject);
     }
 }

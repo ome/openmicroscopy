@@ -26,10 +26,8 @@ public class ChannelProcessorTest extends TestCase
 	private static final int INSTRUMENT_INDEX = 0;
 	
 	private static final int IMAGE_INDEX = 0;
-	
-	private static final int PIXELS_INDEX = 0;
-	
-	private static final int LOGICAL_CHANNEL_INDEX = 0;
+
+	private static final int CHANNEL_INDEX = 0;
 	
 	@Override
 	protected void setUp() throws Exception
@@ -56,9 +54,9 @@ public class ChannelProcessorTest extends TestCase
 				LIGHTSOURCE_INDEX);
 		store.setLaserType(LaserType.OTHER, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
 		store.setChannelLightSourceSettingsID(
-				"Laser:0", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+				"Laser:0", IMAGE_INDEX, CHANNEL_INDEX);
 		store.setChannelLightSourceSettingsAttenuation(
-				new PercentFraction(1f), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+				new PercentFraction(1f), IMAGE_INDEX, CHANNEL_INDEX);
 		
 		// First Filament , Second LightSourceSettings
 		store.setFilamentID(
@@ -67,9 +65,9 @@ public class ChannelProcessorTest extends TestCase
 		store.setFilamentType(
         FilamentType.OTHER, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
 		store.setChannelLightSourceSettingsID(
-				"Filament:1", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
+				"Filament:1", IMAGE_INDEX, CHANNEL_INDEX + 1);
 		store.setChannelLightSourceSettingsAttenuation(
-				new PercentFraction(1f), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
+				new PercentFraction(1f), IMAGE_INDEX, CHANNEL_INDEX + 1);
 		
 		// FilterSet
 		store.setFilterSetID("FilterSet:0", INSTRUMENT_INDEX,
@@ -83,9 +81,9 @@ public class ChannelProcessorTest extends TestCase
 		
 		// FilterSet linkages
 		store.setChannelFilterSetRef("FilterSet:0", IMAGE_INDEX,
-				LOGICAL_CHANNEL_INDEX);
+				CHANNEL_INDEX);
 		store.setChannelFilterSetRef("FilterSet:1", IMAGE_INDEX,
-				LOGICAL_CHANNEL_INDEX + 1);
+				CHANNEL_INDEX + 1);
 		
 		// Filters
 		store.setFilterID("Filter:0", INSTRUMENT_INDEX, FILTER_INDEX);
@@ -115,13 +113,13 @@ public class ChannelProcessorTest extends TestCase
 		store.setFilterSetExcitationFilterRef("Filter:7", INSTRUMENT_INDEX,
 				FILTER_SET_INDEX + 1, FILTER_INDEX);
 		store.setLightPathEmissionFilterRef(
-				"Filter:2", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX, LOGICAL_CHANNEL_INDEX);
+				"Filter:2", IMAGE_INDEX, CHANNEL_INDEX, CHANNEL_INDEX);
 		store.setLightPathExcitationFilterRef(
-				"Filter:3", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX, LOGICAL_CHANNEL_INDEX);
+				"Filter:3", IMAGE_INDEX, CHANNEL_INDEX, CHANNEL_INDEX);
 		store.setLightPathEmissionFilterRef("Filter:4", IMAGE_INDEX,
-        LOGICAL_CHANNEL_INDEX + 1, LOGICAL_CHANNEL_INDEX + 1);
+        CHANNEL_INDEX + 1, CHANNEL_INDEX + 1);
 		store.setLightPathExcitationFilterRef("Filter:5", IMAGE_INDEX,
-        LOGICAL_CHANNEL_INDEX + 1, LOGICAL_CHANNEL_INDEX + 1);
+        CHANNEL_INDEX + 1, CHANNEL_INDEX + 1);
 	}
 
 	public void testBaseDataChannelOne()
@@ -129,7 +127,7 @@ public class ChannelProcessorTest extends TestCase
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
-				store, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+				store, IMAGE_INDEX, CHANNEL_INDEX);
 		assertNotNull(data.getChannel());
 		assertNotNull(data.getChannel().getRed());
 		assertEquals(255, data.getChannel().getRed().getValue());
@@ -150,7 +148,7 @@ public class ChannelProcessorTest extends TestCase
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
-				store, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
+				store, IMAGE_INDEX, CHANNEL_INDEX + 1);
 		assertNotNull(data.getChannel());
 		assertNotNull(data.getChannel().getRed());
 		assertEquals(0, data.getChannel().getRed().getValue());
@@ -170,7 +168,7 @@ public class ChannelProcessorTest extends TestCase
 		store.setReader(new TestReader(true));
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
-				store, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+				store, IMAGE_INDEX, CHANNEL_INDEX);
 		assertNotNull(data.getChannel());
 		assertNotNull(data.getChannel().getRed());
 		assertEquals(255, data.getChannel().getRed().getValue());
@@ -188,11 +186,11 @@ public class ChannelProcessorTest extends TestCase
 	public void testLogicalChannelGreenEmissionWavelength()
 	{
 		store.setChannelEmissionWavelength(
-        new PositiveInteger(525), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+        new PositiveInteger(525), IMAGE_INDEX, CHANNEL_INDEX);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
-				store, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+				store, IMAGE_INDEX, CHANNEL_INDEX);
 		assertNotNull(data.getChannel());
 		assertNotNull(data.getChannel().getRed());
 		assertEquals(0, data.getChannel().getRed().getValue());
@@ -210,11 +208,11 @@ public class ChannelProcessorTest extends TestCase
 	public void testLogicalChannelBlueEmissionWavelength()
 	{
 		store.setChannelEmissionWavelength(
-        new PositiveInteger(450), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+        new PositiveInteger(450), IMAGE_INDEX, CHANNEL_INDEX);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
-				store, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+				store, IMAGE_INDEX, CHANNEL_INDEX);
 		assertNotNull(data.getChannel());
 		assertNotNull(data.getChannel().getRed());
 		assertEquals(0, data.getChannel().getRed().getValue());
@@ -232,11 +230,11 @@ public class ChannelProcessorTest extends TestCase
 	public void testLogicalChannelRedEmissionWavelength()
 	{
 		store.setChannelEmissionWavelength(
-        new PositiveInteger(625), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+        new PositiveInteger(625), IMAGE_INDEX, CHANNEL_INDEX);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
-				store, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+				store, IMAGE_INDEX, CHANNEL_INDEX);
 		assertNotNull(data.getChannel());
 		assertNotNull(data.getChannel().getRed());
 		assertEquals(255, data.getChannel().getRed().getValue());
@@ -258,7 +256,7 @@ public class ChannelProcessorTest extends TestCase
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
-				store, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+				store, IMAGE_INDEX, CHANNEL_INDEX);
 		assertNotNull(data.getChannel());
 		assertNotNull(data.getChannel().getRed());
 		assertEquals(0, data.getChannel().getRed().getValue());
@@ -280,7 +278,7 @@ public class ChannelProcessorTest extends TestCase
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
-				store, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+				store, IMAGE_INDEX, CHANNEL_INDEX);
 		assertNotNull(data.getChannel());
 		assertNotNull(data.getChannel().getRed());
 		assertEquals(0, data.getChannel().getRed().getValue());
@@ -302,7 +300,7 @@ public class ChannelProcessorTest extends TestCase
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
-				store, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+				store, IMAGE_INDEX, CHANNEL_INDEX);
 		assertNotNull(data.getChannel());
 		assertNotNull(data.getChannel().getRed());
 		assertEquals(0, data.getChannel().getRed().getValue());
@@ -320,11 +318,11 @@ public class ChannelProcessorTest extends TestCase
 	public void testLogicalChannelGreenExcitationWavelength()
 	{
 		store.setChannelExcitationWavelength(
-        new PositiveInteger(525), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+        new PositiveInteger(525), IMAGE_INDEX, CHANNEL_INDEX);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
-				store, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+				store, IMAGE_INDEX, CHANNEL_INDEX);
 		assertNotNull(data.getChannel());
 		assertNotNull(data.getChannel().getRed());
 		assertEquals(0, data.getChannel().getRed().getValue());
@@ -342,11 +340,11 @@ public class ChannelProcessorTest extends TestCase
 	public void testLogicalChannelBlueExcitationWavelength()
 	{
 		store.setChannelExcitationWavelength(
-        new PositiveInteger(450), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+        new PositiveInteger(450), IMAGE_INDEX, CHANNEL_INDEX);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
-				store, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+				store, IMAGE_INDEX, CHANNEL_INDEX);
 		assertNotNull(data.getChannel());
 		assertNotNull(data.getChannel().getRed());
 		assertEquals(0, data.getChannel().getRed().getValue());
@@ -364,11 +362,11 @@ public class ChannelProcessorTest extends TestCase
 	public void testLogicalChannelRedExcitationWavelength()
 	{
 		store.setChannelExcitationWavelength(
-        new PositiveInteger(625), IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+        new PositiveInteger(625), IMAGE_INDEX, CHANNEL_INDEX);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
-				store, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+				store, IMAGE_INDEX, CHANNEL_INDEX);
 		assertNotNull(data.getChannel());
 		assertNotNull(data.getChannel().getRed());
 		assertEquals(255, data.getChannel().getRed().getValue());
@@ -390,7 +388,7 @@ public class ChannelProcessorTest extends TestCase
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
-				store, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+				store, IMAGE_INDEX, CHANNEL_INDEX);
 		assertNotNull(data.getChannel());
 		assertNotNull(data.getChannel().getRed());
 		assertEquals(0, data.getChannel().getRed().getValue());
@@ -412,7 +410,7 @@ public class ChannelProcessorTest extends TestCase
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
-				store, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+				store, IMAGE_INDEX, CHANNEL_INDEX);
 		assertNotNull(data.getChannel());
 		assertNotNull(data.getChannel().getRed());
 		assertEquals(0, data.getChannel().getRed().getValue());

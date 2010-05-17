@@ -32,10 +32,8 @@ public class GenericReferenceTest extends TestCase
 	private OMEROMetadataStore store;
 	
 	private static final int IMAGE_INDEX = 0;
-	
-	private static final int PIXELS_INDEX = 0;
-	
-	private static final int LOGICAL_CHANNEL_INDEX = 0;
+
+	private static final int CHANNEL_INDEX = 0;
 	
 	private static final int INSTRUMENT_INDEX = 0;
 	
@@ -107,8 +105,7 @@ public class GenericReferenceTest extends TestCase
         Map<String, Integer> pixelsIndexes = 
             new LinkedHashMap<String, Integer>();
         pixelsIndexes.put("imageIndex", IMAGE_INDEX);
-        pixelsIndexes.put("pixelsIndex", PIXELS_INDEX);
-        String pixelsLSID = "Pixels:0:0";
+        String pixelsLSID = "Pixels:0";
         store.updateObject(pixelsLSID, pixels, pixelsIndexes);
         
 		// Update Channel
@@ -116,7 +113,7 @@ public class GenericReferenceTest extends TestCase
         Map<String, Integer> channelIndexes = 
             new LinkedHashMap<String, Integer>();
         channelIndexes.put("imageIndex", IMAGE_INDEX);
-        channelIndexes.put("logicalChannelIndex", LOGICAL_CHANNEL_INDEX);
+        channelIndexes.put("logicalChannelIndex", CHANNEL_INDEX);
         String channelLSID = "Channel:0:0";
         store.updateObject(channelLSID, channel, channelIndexes);
         
@@ -125,7 +122,7 @@ public class GenericReferenceTest extends TestCase
         Map<String, Integer> logicalChannelIndexes = 
             new LinkedHashMap<String, Integer>();
         logicalChannelIndexes.put("imageIndex", IMAGE_INDEX);
-        logicalChannelIndexes.put("logicalChannelIndex", LOGICAL_CHANNEL_INDEX);
+        logicalChannelIndexes.put("logicalChannelIndex", CHANNEL_INDEX);
         String logicalChannelLSID = "LogicalChannel:0:0";
         store.updateObject(logicalChannelLSID, logicalChannel,
         		           logicalChannelIndexes);
@@ -188,7 +185,7 @@ public class GenericReferenceTest extends TestCase
         Map<String, Integer> lightSettingsIndexes = 
             new LinkedHashMap<String, Integer>();
         lightSettingsIndexes.put("imageIndex", IMAGE_INDEX);
-        lightSettingsIndexes.put("logicalChannelIndex", LOGICAL_CHANNEL_INDEX);
+        lightSettingsIndexes.put("logicalChannelIndex", CHANNEL_INDEX);
         String lightSettingsLSID = "LightSourceSettings:0:0";
         store.updateObject(lightSettingsLSID, lightSettings,
         		           lightSettingsIndexes);
@@ -199,7 +196,7 @@ public class GenericReferenceTest extends TestCase
             new LinkedHashMap<String, Integer>();
         detectorSettingsIndexes.put("imageIndex", IMAGE_INDEX);
         detectorSettingsIndexes.put("logicalChannelIndex",
-        		                    LOGICAL_CHANNEL_INDEX);
+        		                    CHANNEL_INDEX);
         String detectorSettingsLSID = "DetectorSettings:0:0";
         store.updateObject(detectorSettingsLSID, detectorSettings,
         		           detectorSettingsIndexes);
