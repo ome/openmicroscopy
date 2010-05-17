@@ -945,7 +945,6 @@ public class PublicRepositoryI extends _RepositoryDisp {
         }
         IceMapper mapper = new IceMapper();
         rv = (OriginalFile) mapper.map(oFile);
-        rv.unload();
         return rv;
     }
 
@@ -1028,7 +1027,6 @@ public class PublicRepositoryI extends _RepositoryDisp {
         }
         IceMapper mapper = new IceMapper();
         Image rv = (Image) mapper.map(image);
-        rv.unload();
         return rv;
     }
 
