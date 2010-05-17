@@ -69,14 +69,6 @@ public class BlitzInstanceProvider implements InstanceProvider
 	{
 		try
 		{
-            if (klass.equals(LightSource.class))
-            {
-                return (T) new MetaLightSource();
-            }
-            if (klass.equals(Shape.class))
-            {
-            	return (T) new MetaShape();
-            }
             Constructor<T> constructor = getConstructor(klass); 
             IObject o = constructor.newInstance();
             return (T) modelObjectHandlerFactory.getHandler(klass).handle(o);
