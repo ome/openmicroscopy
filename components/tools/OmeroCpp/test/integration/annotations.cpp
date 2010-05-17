@@ -18,6 +18,12 @@
 #include <fstream>
 #include <iostream>
 
+//http://msdn.microsoft.com/en-us/library/t8ex5e91(VS.80).aspx
+#ifdef _WIN32
+#include <stdio.h>
+#include <io.h>
+#endif
+
 using namespace std;
 using namespace omero::api;
 using namespace omero::model;
