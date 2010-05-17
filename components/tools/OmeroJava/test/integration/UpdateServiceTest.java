@@ -72,10 +72,7 @@ public class UpdateServiceTest
     
     /** Helper reference to the <code>IUpdate</code> service. */
     private IUpdatePrx iUpdate;
-    
-    /** Reference to class used to create data object. */
-    //CreatePojosFixture2 fixture;
-    
+     
 	/**
      * Initializes the various services.
      * 
@@ -90,10 +87,6 @@ public class UpdateServiceTest
         factory = client.createSession();
         iQuery = factory.getQueryService();
         iUpdate = factory.getUpdateService();
-
-        //omero.client root = new omero.client();
-        //root.createSession("root", client.getProperty("omero.rootpass"));
-        //fixture = CreatePojosFixture2.withNewUser(root);
     }
 
     /**
