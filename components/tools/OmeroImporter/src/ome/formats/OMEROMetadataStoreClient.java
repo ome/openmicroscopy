@@ -2762,6 +2762,10 @@ public class OMEROMetadataStoreClient
     public void setChannelLightSourceSettingsID(String id, int imageIndex,
             int channelIndex)
     {
+    	LSID key = new LSID(LightSettings.class, imageIndex, channelIndex);
+    	addReference(key, new LSID(id));
+    	
+    	/*
         checkDuplicateLSID(LightSettings.class, id);
         LinkedHashMap<Index, Integer> indexes =
             new LinkedHashMap<Index, Integer>();
@@ -2770,6 +2774,7 @@ public class OMEROMetadataStoreClient
         IObjectContainer o = getIObjectContainer(LightSettings.class, indexes);
         o.LSID = id;
         addAuthoritativeContainer(LightSettings.class, id, o);
+        */
     }
     
     /* (non-Javadoc)
