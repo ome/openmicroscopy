@@ -76,7 +76,7 @@
         <run_py failonerror="false">
             <env key="ICE_CONFIG" value="${env.ICE_CONFIG}"/>
             <env key="PYTHONPATH" path="test:build/lib:${basedir}/../target/lib/python:${env.PYTHONPATH}"/>
-            <arg file="${basedir}/test/integration/suite.py"/>
+            <arg file="${basedir}/test/integration/integration_suite.py"/>
         </run_py>
     </target>
 

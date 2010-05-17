@@ -43,6 +43,7 @@ def additional_tests():
     suite.addTest(load("integration.files"))
     suite.addTest(load("integration.tickets1000"))
     suite.addTest(load("integration.tickets2000"))
+    suite.addTest(load("integration.tickets3000"))
     suite.addTest(load("clitest.integration_suite._additional_tests"))
     suite.addTest(load("gatewaytest.suite._additional_tests"))
     suite.addTest(load("scriptstest.suite._additional_tests"))
