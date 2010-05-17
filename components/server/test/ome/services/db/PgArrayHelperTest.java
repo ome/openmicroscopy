@@ -34,17 +34,39 @@ public class PgArrayHelperTest extends AbstractManagedContextTest {
     public void setup() {
         helper = new PgArrayHelper(this.jdbcTemplate);
         f = makefile();
-        p = makepixels();
+        //p = makepixels();
         key = uuid();
         value = uuid();
     }
 
     // OriginalFile
+    public void testGetEmptyFileParams() {
+        Map<String, String> t = helper.getFileParams(f.getId());
+        assertEquals(t.size(), 0);
+    }
+
+    public void testGetEmptyFileParamsUsingGetFileParamsAlternate() {
+        Map<String, String> t = helper.getFileParamsAlternate(f.getId());
+        assertEquals(t.size(), 0);
+    }
+
     public void testSetFileParams() {
         Map<String, String> params = new HashMap<String, String>();
         params.put(key, value);
         helper.setFileParams(f.getId(), params);
         Map<String, String> t = helper.getFileParams(f.getId());
+        assertNotNull(t);
+        assertEquals(params.size(), t.size());
+        assertTrue(t.containsKey(key));
+        assertEquals(value, t.get(key));
+    }
+
+    public void testSetFileParamsUsingGetFileParamsAlternate() {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put(key, value);
+        helper.setFileParams(f.getId(), params);
+        Map<String, String> t = helper.getFileParamsAlternate(f.getId());
+        assertNotNull(t);
         assertEquals(params.size(), t.size());
         assertTrue(t.containsKey(key));
         assertEquals(value, t.get(key));
@@ -73,9 +95,8 @@ public class PgArrayHelperTest extends AbstractManagedContextTest {
     }
 
 
-/* Commented out untl  can work out how to create a valid pixels object! */
-
     // Pixels 
+    @Test(enabled=false)
     public void testSetPixelsParams() {
         Map<String, String> params = new HashMap<String, String>();
         params.put(key, value);
@@ -104,6 +125,7 @@ public class PgArrayHelperTest extends AbstractManagedContextTest {
         assertEquals(uuid, params.get(uuid));
     }
 
+    @Test(enabled=false)
     public void testBadGetPixelsParamsReturnsNull() {
         assertNull(helper.getPixelsParamKeys(-1));
     }

@@ -102,6 +102,35 @@ public class PgArrayHelper {
     }
 
     /**
+     * Loads all the (possibly empty) params for the given original file. If the
+     * id is not found, null is returned.
+     */
+    @SuppressWarnings("unchecked")
+    public Map<String, String> getFileParamsAlternate(final long id) {
+        try {
+            return jdbc.queryForObject(
+                    "select params from originalfile where id = ?",
+                    new RowMapper<Map<String, String>>() {
+                        public Map<String, String> mapRow(ResultSet arg0, int arg1)
+                                throws SQLException {
+                            Map<String, String> params = new HashMap<String, String>();
+                            Array arr1 = arg0.getArray(1);
+                            if (arr1 == null) {
+                                return params;
+                            }
+                            String[][] arr2 = (String[][]) arr1.getArray();
+                            for (int i = 0; i < arr2.length; i++) {
+                                params.put(arr2[i][0], arr2[i][1]);
+                            }
+                            return params;
+                        }
+                    }, id);
+       } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    /**
      * Returns only the (possibly empty) keys which are set on the given
      * original file. If the given original file cannot be found, null is
      * returned.
