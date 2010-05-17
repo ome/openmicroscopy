@@ -491,6 +491,7 @@ public class OMEROMetadataStoreClient
                     server, port));
     	c = new client(server, port);
     	c.setAgent("OMERO.importer");
+        serviceFactory = c.joinSession(sessionKey);
    	
     	if (!isSecure)
     	{
@@ -498,7 +499,6 @@ public class OMEROMetadataStoreClient
     		c = c.createClient(false);
     	}
     	
-        serviceFactory = c.joinSession(sessionKey);
         initializeServices();
     }
     
