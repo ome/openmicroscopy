@@ -432,13 +432,11 @@ public class OMEROMetadataStore
     							(Image) referenceObject);
     					continue;
     				}
-    			}
-    			else if (targetObject instanceof PlateAcquisition)
-    			{
-    				if (referenceObject instanceof WellSample)
+    				if (referenceObject instanceof PlateAcquisition)
     				{
-    					handleReference((PlateAcquisition) targetObject,
-    							(WellSample) referenceObject);
+    					handleReference((WellSample) targetObject,
+    							(PlateAcquisition) referenceObject);
+    					continue;
     				}
     			}
     			else if (targetObject instanceof Pixels)
@@ -1043,7 +1041,9 @@ public class OMEROMetadataStore
     private void handle(String LSID, PlateAcquisition sourceObject,
                         Map<String, Integer> indexes)
     {
-        // No-op.
+        int plateIndex = indexes.get("plateIndex");
+        Plate p = getPlate(plateIndex);
+        p.addPlateAcquisition(sourceObject);
     }
     
     /**
@@ -1197,9 +1197,9 @@ public class OMEROMetadataStore
      * @param target Target model object.
      * @param reference Reference model object.
      */
-    private void handleReference(PlateAcquisition target, WellSample reference)
+    private void handleReference(WellSample target, PlateAcquisition reference)
     {
-        reference.setPlateAcquisition(target);
+        target.setPlateAcquisition(reference);
     }
     
     /**
