@@ -20,6 +20,7 @@ import ConfigParser
 
 import omero
 import omero.clients
+from omero.util.decorators import timeit, TimeIt
 import Ice
 import Glacier2
 
@@ -64,42 +65,6 @@ def omero_type(val):
         return rlong(val)
     else:
         return val
-
-class TimeIt (object):
-    """
-    Decorator to measure the execution time of a function.
-
-    @param level: the level to use for logging
-    """
-    def __init__ (self, level=logging.DEBUG):
-        self._level = level
-
-    def __call__ (self, func):
-        def wrapped (*args, **kwargs):
-            logger.log(self._level, "timing %s" % (func.func_name))
-            now = time.time()
-            rv = func(*args, **kwargs)
-            logger.log(self._level, "timed %s: %f" % (func.func_name, time.time()-now))
-            return rv
-        return wrapped
-
-def timeit (func):
-    """
-    Measures the execution time of a function using time.time() 
-    and the a @ function decorator.
-
-    Logs at logging.DEBUG level.
-    """
-    def wrapped (*args, **kwargs):
-        logger.log(self._level, "timing %s" % (func.func_name))
-        now = time.time()
-        rv = func(*args, **kwargs)
-        logger.log(self._level, "timed %s: %f" % (func.func_name, time.time()-now))
-        return rv
-    return TimeIt()(func)
-
-
-
 
 class BlitzObjectWrapper (object):
     """
