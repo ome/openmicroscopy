@@ -262,8 +262,11 @@ class OmeroEnvironment(SConsEnvironment):
                 # from the VS2008 x64 command line batch.
                 self.AppendUnique(LIBPATH=os.environ["LIB"].split(os.path.pathsep))
         if ice_home:
-            if self.iswin32() and self.is64bit():
-                self.Append(LIBPATH=[os.path.join(ice_home, "lib", "x64")])
+            if self.is64bit():
+                if self.iswin32():
+                    self.Append(LIBPATH=[os.path.join(ice_home, "lib", "x64")])
+                else:
+                    self.Append(LIBPATH=[os.path.join(ice_home, "lib64")])
             self.Append(LIBPATH=[os.path.join(ice_home, "lib")])
 
     def isdebug(self):
