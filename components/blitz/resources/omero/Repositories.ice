@@ -104,6 +104,17 @@ module omero {
             FileSet registerFileSet(FileSet set, omero::api::StringStringMap params) 
                     throws ServerError;
             
+           /**
+             * Create entries in the database for the Images in the imageList for the given file.
+             *
+             * If the given ImageList is null or empty a ValidationException is thrown. 
+             * If the given path does not exist in this repo a ValidationException is thrown. 
+             * Otherwise, an entries are added and list unloaded Images is returned with ids set.
+             *
+             **/
+            omero::api::ImageList registerImageList(string filename, omero::api::ImageList imageList, omero::api::StringStringMap params) 
+                    throws ServerError;
+            
             /**
              * Load the OriginalFile at the given path with annotations and
              * associated Pixels (if present). If the path does not point to

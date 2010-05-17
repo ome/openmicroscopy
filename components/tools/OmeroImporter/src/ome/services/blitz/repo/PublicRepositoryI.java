@@ -190,7 +190,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      *            Map<String, String>
      * @param __current
      *            ice context.
-     * @return The IObject with id set (unloaded)
+     * @return The IObject with id set
      *
      */
     public IObject registerObject(IObject obj, Map<String, String> params, Current __current)
@@ -232,7 +232,6 @@ public class PublicRepositoryI extends _RepositoryDisp {
         });
         
         obj.setId(rlong(id));
-        obj.unload();
         return obj;
     }
 
@@ -295,6 +294,69 @@ public class PublicRepositoryI extends _RepositoryDisp {
         }
         return set;
     }
+
+
+
+    /**
+     * Register the Images in a list of Images
+     * 
+     * @param filename
+     *            The absolute path of the parent file.
+     * @param imageList
+     *            A list of Image objects.
+     * @param params
+     *            Map<String, String>
+     * @param __current
+     *            ice context.
+     * @return A List of Images with ids set
+     *
+     */
+    public List<Image> registerImageList(String filename, List<Image> imageList, Map<String, String> params, Current __current) 
+            throws ServerError {
+        
+        if (imageList == null || imageList.size() == 0) {
+            throw new ValidationException(null, null,
+                    "imageList is a required argument and cannot be empty");
+        }
+        File f = checkPath(filename);
+        final String path = getRelativePath(f);
+        final String name = f.getName(); 
+        final String repoId = getRepoUuid();
+        
+        long imageCount = 0;
+        for (IObject obj : imageList) {
+            
+            params.put("image_no", Long.toString(imageCount));
+            
+            IceMapper mapper = new IceMapper();
+            final ome.model.IObject omeObj = (ome.model.IObject) mapper.reverse(obj);
+                    
+            final Map<String, String> paramMap = params;
+            
+            Long id = (Long) executor.execute(principal, new Executor.SimpleWork(
+                    this, "registerImageList", repoId) {
+                @Transactional(readOnly = false)
+                public Object doWork(Session session, ServiceFactory sf) {
+                    long id = sf.getUpdateService().saveAndReturnObject(omeObj).getId();
+                    ome.model.IObject result = sf.getQueryService().findByQuery("select p from Pixels p where p.image = " + id, null);
+                    long pixId = result.getId();                  
+                    jdbc.update("update pixels set name = ? where id = ?", name, pixId);
+                    jdbc.update("update pixels set path = ? where id = ?", path, pixId);
+                    jdbc.update("update pixels set repo = ? where id = ?", repoId, pixId);
+                    helper.setPixelsParams(pixId, paramMap);
+                    return id;
+                }
+            });
+            obj.setId(rlong(id));
+            imageCount++;
+        }
+        return imageList;
+    }
+
+
+
+
+
     
     public void delete(String path, Current __current) throws ServerError {
         File file = checkPath(path);
