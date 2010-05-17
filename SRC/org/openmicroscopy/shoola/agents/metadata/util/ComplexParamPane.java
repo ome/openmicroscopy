@@ -345,4 +345,18 @@ class ComplexParamPane
 		}
 	}
 	
+	/**
+	 * Overridden to handle grouping.
+	 * @see JPanel#setEnabled(boolean)
+	 */
+	public void setEnabled(boolean enabled)
+	{
+		super.setEnabled(enabled);
+		if (addButton != null) addButton.setEnabled(enabled);
+		Iterator<RowPane> i = rows.iterator();
+		while (i.hasNext()) {
+			((RowPane) i.next()).setEnabled(enabled);
+		}
+	}
+	
 }

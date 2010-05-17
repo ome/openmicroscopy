@@ -26,8 +26,6 @@ package org.openmicroscopy.shoola.agents.metadata.util;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Iterator;
-
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -248,6 +246,18 @@ class RowPane
 		super.setToolTipText(text);
 		if (keyComponent != null) keyComponent.setToolTipText(text);
 		if (valueComponent != null) valueComponent.setToolTipText(text);
+	}
+	
+	/**
+	 * Overridden to handle grouping.
+	 * @see JPanel#setEnabled(boolean)
+	 */
+	public void setEnabled(boolean enabled)
+	{
+		super.setEnabled(enabled);
+		if (removeButton != null) removeButton.setEnabled(enabled);
+		if (keyComponent != null) keyComponent.setEnabled(enabled);
+		if (valueComponent != null) valueComponent.setEnabled(enabled);
 	}
 	
 	/**

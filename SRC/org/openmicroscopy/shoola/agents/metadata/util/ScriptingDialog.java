@@ -288,6 +288,12 @@ public class ScriptingDialog
 		String details = "";
 		String text = "";
 		String grouping;
+		String parent;
+		Map<String, List<ScriptComponent>> childrenMap = 
+			new HashMap<String, List<ScriptComponent>>();
+		Map<String, ScriptComponent> 
+			parents = new HashMap<String, ScriptComponent>();
+		List<ScriptComponent> l;
 		while (i.hasNext()) {
 			text = "";
 			comp = null;
@@ -393,15 +399,37 @@ public class ScriptingDialog
 					c.setInfo(details);
 
 				grouping = param.getGrouping();
-				c.setParentIndex(param.getParent());
-				if (grouping.length() > 0) c.setNameLabel(grouping);
-				else c.setNameLabel(name);
+				parent = param.getParent();
+				c.setParentIndex(parent);
+				if (parent.length() > 0) {
+					l = childrenMap.get(parent);
+					if (l == null) {
+						l = new ArrayList<ScriptComponent>();
+						childrenMap.put(parent, l);
+					}
+					l.add(c);
+				}
+					
+				if (grouping.length() > 0) {
+					c.setGrouping(grouping);
+					c.setNameLabel(grouping);
+				} else c.setNameLabel(name);
 				results.add(c);
 			}
 		}
-		List<ScriptComponent> sortedKeys = sorter.sort(results);
-		Iterator<ScriptComponent> k = sortedKeys.iterator();
 		ScriptComponent key;
+		Iterator<ScriptComponent> k = results.iterator();
+		while (k.hasNext()) {
+			key = k.next();
+			grouping = key.getGrouping();
+			l = childrenMap.get(grouping);
+			if (l != null)
+				key.setChildren(l);
+		}
+		
+		List<ScriptComponent> sortedKeys = sorter.sort(results);
+		k = sortedKeys.iterator();
+		
 		while (k.hasNext()) {
 			key = k.next();
 			components.put(key.getParameterName(), key);

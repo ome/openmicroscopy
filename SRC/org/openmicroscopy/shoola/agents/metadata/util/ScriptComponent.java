@@ -24,11 +24,10 @@ package org.openmicroscopy.shoola.agents.metadata.util;
 
 
 //Java imports
-import info.clearthought.layout.TableLayout;
-
 import java.awt.FlowLayout;
 import java.awt.Font;
-
+import java.util.Iterator;
+import java.util.List;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
@@ -37,9 +36,12 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 
 //Third-party libraries
+import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
@@ -61,6 +63,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 class ScriptComponent 
 	extends JPanel
+	implements ChangeListener
 {
 	
 	/** Indicates the required field. */
@@ -98,6 +101,12 @@ class ScriptComponent
 	
 	/** The name of the parameter. */
 	private String name;
+	
+	/** The grouping value or empty string. */
+	private String grouping;
+	
+	/** The components related to the current component. */
+	private List<ScriptComponent> children;
 	
 	/**
 	 * Returns the tabulation index. Returns <code>0</code> if no parent index
@@ -141,6 +150,22 @@ class ScriptComponent
 		p.add(component);
 		if (unitLabel != null) p.add(unitLabel);
 		return p; 
+	}
+	
+	/** Handles the selection. */
+	private void handleSelection()
+	{
+		if (children == null) return;
+		if (component instanceof JCheckBox) {
+			Iterator<ScriptComponent> i = children.iterator();
+			ScriptComponent c;
+			JCheckBox box = (JCheckBox) component;
+			boolean selected = box.isSelected();
+			while (i.hasNext()) {
+				c = i.next();
+				c.setEnabled(selected);
+			}
+		}
 	}
 	
 	/**
@@ -285,11 +310,59 @@ class ScriptComponent
 	}
 
 	/**
+	 * Returns the grouping.
+	 * 
+	 * @param grouping The value to set.
+	 */
+	void setGrouping(String grouping) { this.grouping = grouping; }
+	
+	/**
+	 * Returns the grouping.
+	 * 
+	 * @return See above.
+	 */
+	String getGrouping() { return grouping; }
+	
+	/**
+	 * Returns the children associated to that component.
+	 * 
+	 * @param children The value to set.
+	 */
+	void setChildren(List<ScriptComponent> children)
+	{
+		this.children = children;
+		if (component instanceof JCheckBox) {
+			JCheckBox box = (JCheckBox) component;
+			box.addChangeListener(this);
+		}
+	}
+
+	/**
 	 * Sets the name used to sort the object.
 	 * 
 	 * @param nameLabel The value to set.
 	 */
 	void setNameLabel(String nameLabel) { this.nameLabel = nameLabel; }
+	
+	/** 
+	 * Controls the children is any set.
+	 * @see ChangeListener#stateChanged(ChangeEvent)
+	 */
+	public void stateChanged(ChangeEvent e)
+	{
+		handleSelection();
+	}
+	
+	/**
+	 * Overridden to handle grouping.
+	 * @see JPanel#setEnabled(boolean)
+	 */
+	public void setEnabled(boolean enabled)
+	{
+		super.setEnabled(enabled);
+		if (parentIndex == null) return;
+		component.setEnabled(enabled);
+	}
 	
 	/**
 	 * Overridden to sort the object using its label.
