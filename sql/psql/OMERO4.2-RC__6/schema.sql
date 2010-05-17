@@ -1941,7 +1941,7 @@
         owner_id int8 not null,
         update_id int8 not null,
         image int8 not null,
-        plateAcquisition int8 not null,
+        plateAcquisition int8,
         well int8 not null,
         well_index int4 not null,
         primary key (id),
