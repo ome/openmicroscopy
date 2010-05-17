@@ -15,23 +15,26 @@ import test.gateway.library as lib
 
 class ConnectionMethodsTest (lib.GTest):
     def testMultiProcessSession (self):
-        #120 amongst other things trying to getSession() twice for the same session dies. Also in separate processes.
-        # we mimic this by calling setGroupForSession, which calls sessionservice.getSession, 2 times on cloned connections
+        #120 amongst other things trying to getSession() twice for the same session dies.
+        # Also in separate processes.We mimic this by calling setGroupForSession, which
+        # calls sessionservice.getSession, 2 times on cloned connections
         self.loginAsAuthor()
+        self.gateway.setGroupNameForSession('user')
         self.assertNotEqual(self.gateway._session, None)
         c2 = self.gateway.clone()
         self.assert_(c2.connect(sUuid=self.gateway._sessionUuid))
         self.assertEqual(c2._session, None)
+        c2.setGroupNameForSession('user')
         a = c2.getAdminService()
         g = omero.gateway.ExperimenterGroupWrapper(c2, a.containedGroups(c2._userid)[-1])
-        self.assertNotEqual(g.name, c2.getEventContext().groupName)
+        self.assertNotEqual(g.id, c2.getSession().getDetails().group.id.val)
         c2.setGroupForSession(g)
         c3 = self.gateway.clone()
         self.assert_(c3.connect(sUuid=self.gateway._sessionUuid))
         self.assertEqual(c3._session, None)
         a = c3.getAdminService()
-        g = omero.gateway.ExperimenterGroupWrapper(c3, a.containedGroups(c3._userid)[1])
-        self.assertNotEqual(g.name, c3.getEventContext().groupName)
+        g = omero.gateway.ExperimenterGroupWrapper(c3, a.containedGroups(c3._userid)[0])
+        self.assertNotEqual(g.id, c3.getSession().getDetails().group.id.val)
         c3.setGroupForSession(g)
 
     def testSeppuku (self):

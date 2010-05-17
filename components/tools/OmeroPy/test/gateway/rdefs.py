@@ -109,12 +109,12 @@ class RDefsTest (lib.GTest):
 
     def testEmissionWave (self):
         """ """
-        self.assertEqual(self.channels[0].getEmissionWave(), 457)
-        self.assertEqual(self.channels[1].getEmissionWave(), 528)
+        self.assertEqual(self.channels[0].getEmissionWave(), '457')
+        self.assertEqual(self.channels[1].getEmissionWave(), '528')
         # Tiny image does not have emission wave set on the channel, ~should get channel index~
         # not channel index anymore, now get default wavelengths (first is 500)
         tiny = self.getTinyTestImage().getChannels()
-        self.assertEqual(tiny[0].getEmissionWave(), 500)
+        self.assertEqual(tiny[0].getEmissionWave(), '500')
 
 if __name__ == '__main__':
     unittest.main()

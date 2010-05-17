@@ -9,6 +9,7 @@
 """
 
 import unittest
+from datetime import datetime
 import omero
 
 import test.gateway.library as lib
@@ -45,6 +46,7 @@ class WrapperTest (lib.GTest):
         # we did not save, but revert anyway
         p.getDetails().permissions.setUserWrite(True)
         self.assertEqual(p.canOwnerWrite(), True)
+        self.assert_(isinstance(p.getDate(), datetime))
 
     def testDatasetWrapper (self):
         self.loginAsAuthor()
@@ -79,6 +81,7 @@ class WrapperTest (lib.GTest):
         self.loginAsAdmin()
         e = self.gateway.lookupExperimenter(self.USER.name)
         self.assertEqual(e.getDetails().getOwner().omeName, self.USER.name)
+        self.assertRaises(NotImplementedError, list, e.listChildren())
 
     def testDetailsWrapper (self):
         self.loginAsAuthor()
@@ -102,6 +105,9 @@ class WrapperTest (lib.GTest):
         
     def testOther (self):
         p = omero.gateway.ProjectWrapper()
+        self.assertNotEqual(repr(p), None)
+        self.loginAsAuthor()
+        p = self.getTestProject()
         self.assertNotEqual(repr(p), None)
 
 if __name__ == '__main__':
