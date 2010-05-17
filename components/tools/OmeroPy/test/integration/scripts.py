@@ -279,25 +279,32 @@ class TestScripts(lib.ITest):
             OS.String("b", values=("a","b","c")),
             OS.List("c").ofType(OM.ImageI))
         """
-        def timeit(func, *args, **kwargs):
-            start = time.time()
-            rv = func(*args, **kwargs)
-            stop = time.time()
-            elapsed = stop - start
-            return elapsed, rv
-        upload_time, scriptID = timeit(svc.uploadOfficialScript, "/test/perf%s.py" % self.uuid(), SCRIPT)
-        params_time, params = timeit(svc.getParams, scriptID)
+        upload_time, scriptID = self.timeit(svc.uploadOfficialScript, "/test/perf%s.py" % self.uuid(), SCRIPT)
+        params_time, params = self.timeit(svc.getParams, scriptID)
         self.assertTrue(params_time < (upload_time/10), "upload_time(%s) <= 10 * params_time(%s)!" % (upload_time, params_time))
         self.assertTrue(params_time < 0.1, "params_time(%s) >= 0.01 !" % params_time)
 
-        run_time, process = timeit(svc.runScript, scriptID, wrap({"a":long(5)}).val, None)
+        run_time, process = self.timeit(svc.runScript, scriptID, wrap({"a":long(5)}).val, None)
         def wait():
             cb = omero.scripts.ProcessCallbackI(self.root, process)
             while cb.block(500) is None:
-                process.poll() # This seems to make things much faster
-        wait_time, ignore = timeit(wait)
-        results_time, ignore = timeit(process.getResults, 0)
+                #process.poll() # This seems to make things much faster
+                pass
+        wait_time, ignore = self.timeit(wait)
+        results_time, ignore = self.timeit(process.getResults, 0)
         self.assertTrue(5 > (run_time+results_time+wait_time), "run(%s)+wait(%s)+results(%s) > 5" % (run_time, wait_time, results_time))
+
+    def testSpeedOfThumbnailFigure(self):
+        svc = self.client.sf.getScriptService()
+        svc.getScripts()
+        pixID = self.import_image()[0]
+        scriptID = svc.getScriptID("/omero/figure_scripts/Thumbnail_Figure.py")
+        process = svc.runScript(scriptID, wrap({"Data_Type":"Image", "IDs": [long(pixID)]}).val, None)
+        wait_time, ignore = self.timeit(omero.scripts.wait, self.client, process)
+        self.assertTrue(wait_time < 60, "wait_time over 1 min for TbFig!")
+        results = process.getResults(0)
+        results = omero.scripts.unwrap(results)
+        self.assertEquals("Thumbnail-Figure Created", results["Message"])
 
 if __name__ == '__main__':
     unittest.main()

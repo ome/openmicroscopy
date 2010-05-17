@@ -8,15 +8,19 @@
 
 """
 
+import os
 import Ice
 import sys
+import time
 import unittest
 import omero
 import tempfile
 import traceback
 import exceptions
+import subprocess
 from omero.rtypes import rstring, rtime
 from uuid import uuid4 as uuid
+from path import path
 
 
 class ITest(unittest.TestCase):
@@ -78,6 +82,29 @@ class ITest(unittest.TestCase):
         img.acquisitionDate = rtime(0)
         return img
 
+    def import_image(self, filename = None):
+        if filename is None:
+            filename = (path(".") / ".." / ".." / "common" / "test" / "tinyTest.d3d.dv").abspath()
+
+
+        server = self.client.getProperty("omero.host")
+        key = self.client.getSessionId()
+
+        dist_dir = path(".") / ".." / ".." / ".." / "dist"
+        args = ["python"]
+        args.append(str(path(".") / "bin" / "omero"))
+        args.extend(["-s", server, "-k", key, "import", filename])
+        popen = subprocess.Popen(args, cwd=str(dist_dir), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, err = popen.communicate()
+        rc = popen.wait()
+        if rc != 0:
+            raise exceptions.Exception("import failed: %s\n%s" % (rc, err))
+        pix_ids = []
+        for x in out.split("\n"):
+            if x and x.find("Created") < 0 and x.find("#") < 0:
+                pix_ids.append(long(x.strip()))
+        return pix_ids
+
     def new_user(self, group = None, perms = "rwr---"):
 
         if not self.root:
@@ -121,6 +148,13 @@ class ITest(unittest.TestCase):
         user = self.new_user(group)
         client = self.new_client(group, user)
         return client, user
+
+    def timeit(self, func, *args, **kwargs):
+        start = time.time()
+        rv = func(*args, **kwargs)
+        stop = time.time()
+        elapsed = stop - start
+        return elapsed, rv
 
     def tearDown(self):
         failure = False

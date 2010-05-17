@@ -613,3 +613,11 @@ class ProcessCallbackI(omero.grid.ProcessCallback):
     def close(self):
          self.adapter.remove(self.id) # OK ADAPTER USAGE
 
+
+def wait(client, process, ms = 500):
+    """
+    Wrapper around the use of ProcessCallbackI
+    """
+    cb = ProcessCallbackI(client, process)
+    while cb.block(500) is None:
+        process.poll()
