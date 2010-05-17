@@ -5346,7 +5346,9 @@ class OMEROGateway
 			map.put("Split_View", omero.rtypes.rbool(false));
 			map.put("Scalebar", omero.rtypes.rint(param.getScaleBar()));
 			map.put("Format", omero.rtypes.rstring(param.getFormatAsString()));
-			map.put("Overlay_Colour", omero.rtypes.rint(param.getColor()));
+			if (param.getColor() != null)
+				map.put("Overlay_Colour", omero.rtypes.rstring(
+						param.getColor()));
 			return runScript(id, map);
 		} catch (Exception e) {
 			handleException(e, "Cannot create a movie for image: "+imageID);
@@ -5645,7 +5647,7 @@ class OMEROGateway
 					omero.rtypes.rbool(param.isSplitGrey()));
 			if (param.getScaleBar() > 0)
 				map.put("Scalebar", omero.rtypes.rint(param.getScaleBar()));
-			map.put("Overlay_Colour", omero.rtypes.rint(param.getColor()));
+			map.put("Overlay_Colour", omero.rtypes.rstring(param.getColor()));
 			map.put("Width", omero.rtypes.rint(param.getWidth()));
 			map.put("Height", omero.rtypes.rint(param.getHeight()));
 			map.put("Stepping", omero.rtypes.rint(param.getStepping()));

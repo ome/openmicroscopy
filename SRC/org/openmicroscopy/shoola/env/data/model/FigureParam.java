@@ -151,8 +151,8 @@ public class FigureParam
 	/** The scale bar if displayed. */
 	private int 	scaleBar;
 	
-	/** The color of the scale bar. */
-	private int		color;
+	/** The color of the overlay. */
+	private String	color;
 	
 	/** The width of an image. */
 	private int		width;
@@ -593,10 +593,10 @@ public class FigureParam
 	 * 
 	 * @param c The value to set.
 	 */
-	public void setColor(Color c)
+	public void setColor(String c)
 	{ 
-		if (c == null) return;
-		this.color = c.getRGB() & 0x00ffffff;
+		if (c == null || c.trim().length() == 0) return;
+		this.color = c;//c.getRGB() & 0x00ffffff;
 	}
 	
 	/**
@@ -604,7 +604,7 @@ public class FigureParam
 	 * 
 	 * @return See above.
 	 */
-	public int getColor() { return color; }
+	public String getColor() { return color; }
 	
 	/**
 	 * Returns the projection's algorithm. 

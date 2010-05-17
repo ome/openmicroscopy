@@ -51,7 +51,7 @@ public class MovieExportParam
 
 	/** Identifies the <code>Movie</code> script. */
 	public static final String MOVIE_SCRIPT = 
-		ScriptObject.EXPORT_PATH+"makeMovie.py";
+		ScriptObject.EXPORT_PATH+"Make_Movie.py";
 	
 	/** Movie across z-section. */
 	public static final int		Z_MOVIE = 0;
@@ -124,7 +124,7 @@ public class MovieExportParam
 	private boolean labelVisible;
 	
 	/** The color of the scale bar. */
-	private int		color;
+	private String	color;
 	
 	/** 
 	 * Controls if the passed type is supported.
@@ -208,7 +208,7 @@ public class MovieExportParam
 		if (scaleBar < 0) scaleBar = 0;
 		this.scaleBar = scaleBar;
 		labelVisible = false;
-		color = Color.LIGHT_GRAY.getRGB();
+		color = null;//Color.LIGHT_GRAY.getRGB();
 		initialize();
 	}
 	
@@ -371,10 +371,10 @@ public class MovieExportParam
 	 * 
 	 * @param color The value to set.
 	 */
-	public void setColor(Color color)
+	public void setColor(String color)
 	{ 
 		if (color == null) return;
-		this.color = color.getRGB() & 0x00ffffff;
+		this.color = color;//color.getRGB() & 0x00ffffff;
 	}
 	
 	/**
@@ -382,7 +382,7 @@ public class MovieExportParam
 	 * 
 	 * @return See above.
 	 */
-	public int getColor() { return color; }
+	public String getColor() { return color; }
 	
 	/**
 	 * Returns the name of the script used to make a movie.

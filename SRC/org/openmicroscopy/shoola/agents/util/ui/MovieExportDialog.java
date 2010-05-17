@@ -444,10 +444,10 @@ public class MovieExportDialog
 		Map<Color, String> m = EditorUtil.COLORS_BAR;
 		Iterator i = m.entrySet().iterator();
 		int j = 0;
-		Color c = null;
+		String c = null;
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
-			if (j == index) c = (Color) entry.getKey();
+			if (j == index) c = (String) entry.getValue();
 			j++;
 		}
 		param.setColor(c);

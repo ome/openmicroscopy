@@ -445,7 +445,28 @@ public class FigureDialog
 	 * 
 	 * @return See above.
 	 */
-	private Color getSelectedColor()
+	private String getSelectedColor()
+	{
+		int index = colorBox.getSelectedIndex();
+		Map<Color, String> m = EditorUtil.COLORS_BAR;
+		Iterator i = m.entrySet().iterator();
+		int j = 0;
+		Entry entry;
+		String c = null;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			if (j == index) c = (String) entry.getValue();
+			j++;
+		}
+		return c;
+	}
+	
+	/**
+	 * Returns the selected color or <code>null</code>.
+	 * 
+	 * @return See above.
+	 */
+	private Color getColor()
 	{
 		int index = colorBox.getSelectedIndex();
 		Map<Color, String> m = EditorUtil.COLORS_BAR;
@@ -465,7 +486,7 @@ public class FigureDialog
 	private void modifyROIDisplay()
 	{
 		if (displayedROIs == null) return;
-		Color c = getSelectedColor();
+		Color c = getColor();
 		if (c == null) return;
 		Entry entry;
 		Iterator<ROI> ro;

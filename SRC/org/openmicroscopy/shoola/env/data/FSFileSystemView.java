@@ -129,7 +129,7 @@ public class FSFileSystemView
     	if (elements == null) return;
 		Iterator<FileSet> i = elements.iterator();
 		File f;
-		MultiImageData img;
+		MultiImageData multiImg;
 		Iterator j;
 		List<ImageData> components;
 		FileSet fs;
@@ -144,6 +144,7 @@ public class FSFileSystemView
 		int index;
 		boolean dir;
 		FileData data;
+		Image img;
 		while (i.hasNext()) {
 			fs = i.next();
 			dir = fs.dir;
@@ -168,19 +169,20 @@ public class FSFileSystemView
 					image = new ImageData(images.get(0));
 					data = new FileData(file);
 					data.setRepositoryPath(root.getAbsolutePath());
-					image.setName(data.getName());
+					if (image.getId() < 0)
+						image.setName(data.getName());
 					image.setPathToFile(data.getAbsolutePath());
 					files.addElement(image);
 				} else if (count > 1) {
 					//To be tested.
-					img = new MultiImageData(file);
-					parentName = img.getName();
+					multiImg = new MultiImageData(file);
+					parentName = multiImg.getName();
 					j = images.iterator();
 					components = new ArrayList<ImageData>();
 					index = 0;
 					while (j.hasNext()) {
 						image = new ImageData((Image) j.next()); 
-						image.setParentFilePath(img.getAbsolutePath(), 
+						image.setParentFilePath(multiImg.getAbsolutePath(), 
 								index);
 						name = image.getName();
 						if (name == null || name.length() == 0) {
@@ -189,8 +191,8 @@ public class FSFileSystemView
 						components.add(image);
 						index++;
 					}
-					img.setComponents(components);
-					files.addElement(img);
+					multiImg.setComponents(components);
+					files.addElement(multiImg);
 				}
 			}
 		}
@@ -277,6 +279,7 @@ public class FSFileSystemView
     	String value;
     	String name;
     	IObject r;
+    	List<Image> results;
     	Map<String, String> map = new HashMap<String, String>();
     	if (file instanceof FileData) {
     		FileData f = (FileData) file;
@@ -293,8 +296,12 @@ public class FSFileSystemView
     	} else if (file instanceof ImageData) {
     		ImageData img = (ImageData) file;
     		try {
-    			r = proxy.registerObject(img.asIObject(), map);
-    			img.setRegisteredFile((Image) r);
+    			List<Image> images = new ArrayList<Image>();
+    			images.add(img.asImage());
+    			results = proxy.registerImageList(img.getPathToFile(), images, 
+    					map);
+    			if (results != null && results.size() > 0)
+    				img.setRegisteredFile(results.get(0));
     			return img;
 			} catch (Exception e) {
 				new FSAccessException("Cannot register the image: " +
