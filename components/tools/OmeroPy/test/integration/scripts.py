@@ -9,6 +9,7 @@
 """
 
 import os
+import time
 import unittest
 import integration.library as lib
 import tempfile
@@ -266,6 +267,37 @@ class TestScripts(lib.ITest):
             self.assertTrue("stderr" not in results)
         finally:
             impl.cleanup()
+
+    def testParamLoadingPerformanceTicket2285(self):
+        svc = self.root.sf.getScriptService()
+        SCRIPT = """if True:
+        import omero.model as OM
+        import omero.rtypes as OR
+        import omero.scripts as OS
+        c = OS.client("perf test",
+            OS.Long("a", min=0, max=5),
+            OS.String("b", values=("a","b","c")),
+            OS.List("c").ofType(OM.ImageI))
+        """
+        def timeit(func, *args, **kwargs):
+            start = time.time()
+            rv = func(*args, **kwargs)
+            stop = time.time()
+            elapsed = stop - start
+            return elapsed, rv
+        upload_time, scriptID = timeit(svc.uploadOfficialScript, "/test/perf%s.py" % self.uuid(), SCRIPT)
+        params_time, params = timeit(svc.getParams, scriptID)
+        self.assertTrue(params_time < (upload_time/10), "upload_time(%s) <= 10 * params_time(%s)!" % (upload_time, params_time))
+        self.assertTrue(params_time < 0.1, "params_time(%s) >= 0.01 !" % params_time)
+
+        run_time, process = timeit(svc.runScript, scriptID, wrap({"a":long(5)}).val, None)
+        def wait():
+            cb = omero.scripts.ProcessCallbackI(self.root, process)
+            while cb.block(500) is None:
+                process.poll() # This seems to make things much faster
+        wait_time, ignore = timeit(wait)
+        results_time, ignore = timeit(process.getResults, 0)
+        self.assertTrue(5 > (run_time+results_time+wait_time), "run(%s)+wait(%s)+results(%s) > 5" % (run_time, wait_time, results_time))
 
 if __name__ == '__main__':
     unittest.main()
