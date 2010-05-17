@@ -1351,25 +1351,25 @@ public class OMEROMetadataStore
      * Returns a Channel model object based on its indexes within the
      * OMERO data model.
      * @param imageIndex Image index.
-     * @param logicalChannelIndex Logical channel index.
+     * @param channelIndex channel index.
      * @return See above.
      */
-    private Channel getChannel(int imageIndex, int logicalChannelIndex)
+    private Channel getChannel(int imageIndex, int channelIndex)
     {
-    	return getPixels(imageIndex, 0).getChannel(logicalChannelIndex); 
+    	return getPixels(imageIndex, 0).getChannel(channelIndex); 
     }
     
     /**
      * Returns a LogicalChannel model object based on its indexes within the
      * OMERO data model.
      * @param imageIndex Image index.
-     * @param logicalChannelIndex Logical channel index.
+     * @param channelIndex channel index.
      * @return See above.
      */
     private LogicalChannel getLogicalChannel(int imageIndex,
-    		                                 int logicalChannelIndex)
+    		                                 int channelIndex)
     {
-    	return getChannel(imageIndex, logicalChannelIndex).getLogicalChannel();
+    	return getChannel(imageIndex, channelIndex).getLogicalChannel();
     }
 
     /**
