@@ -41,7 +41,7 @@ from omero.rtypes import *
 import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
 import omero.util.script_utils as scriptUtil
 
-colourOptions = {"blue": (0,0,255,255), "green":(0,255,0,255), "red":(255,0,0,255), "white":(255,255,255,255)}
+COLOURS = scriptUtil.COLOURS
 
 def getPlane(rawPixelStore, pixels, theZ, theC, theT):
     """
@@ -68,20 +68,33 @@ def getPlane(rawPixelStore, pixels, theZ, theC, theT):
 def combineImages(session, parameterMap):
     
     # get the services we need 
-    gateway = session.createGateway()
-    renderingEngine = session.createRenderingEngine()
-    queryService = session.getQueryService()
-    pixelsService = session.getPixelsService()
-    rawPixelStore = session.createRawPixelsStore()
-    rawPixelStoreUpload = session.createRawPixelsStore()
-    updateService = session.getUpdateService()
-    rawFileStore = session.createRawFileStore()
+    services = {}
+    services["gateway"] = session.createGateway()
+    services["renderingEngine"] = session.createRenderingEngine()
+    services["queryService"] = session.getQueryService()
+    services["pixelsService"] = session.getPixelsService()
+    services["rawPixelStore"] = session.createRawPixelsStore()
+    services["rawPixelStoreUpload"] = session.createRawPixelsStore()
+    services["updateService"] = session.getUpdateService()
+    services["rawFileStore"] = session.createRawFileStore()
     
+    queryService = services["queryService"]
+    gateway = services["gateway"]
+    
+    colourMap = {}
+    if "Channel_Colours" in parameterMap:
+        for c, col in enumerate(parameterMap["Channel_Colours"]):
+            colour = col.getValue()
+            if colour in COLOURS:
+                colourMap[c] = COLOURS[colour]
+                
     # get the images IDs from list (in order) or dataset (sorted by name)
-    dataset = None
     imageIds = []
-    if "Image_IDs" in parameterMap:
-        for imageId in parameterMap["imageIds"]:
+    
+    dataType = parameterMap["Data_Type"]
+    if dataType == "Image":
+        dataset = None
+        for imageId in parameterMap["IDs"]:
             iId = long(imageId.getValue())
             imageIds.append(iId)
         # get dataset from first image
@@ -93,28 +106,39 @@ def combineImages(session, parameterMap):
                 dataset = gateway.getDataset(ds.id.val, True)
                 print "Dataset", dataset.name.val
                 break    # only use 1st dataset
+        outputImage = makeSingleImage(services, parameterMap, imageIds, dataset, colourMap)
+        return outputImage
     
-    elif "Dataset_ID" in parameterMap:
-        datasetId = parameterMap["datasetId"]
-        images = gateway.getImages(omero.api.ContainerClass.Dataset, [datasetId])
-        images.sort(key=lambda x:(x.getName().getValue()))
-        for i in images:
-            imageIds.append(i.getId().getValue())
-        dataset = gateway.getDataset(datasetId, False)
+    else:
+        for dId in parameterMap["IDs"]:
+            # TODO: This will only work on one dataset. Should process list! 
+            datasetId = long(dId.getValue())
             
+            images = gateway.getImages(omero.api.ContainerClass.Dataset, [datasetId])
+            images.sort(key=lambda x:(x.getName().getValue()))
+            for i in images:
+                imageIds.append(i.getId().getValue())
+            dataset = gateway.getDataset(datasetId, False)
+            outputImage = makeSingleImage(services, parameterMap, imageIds, dataset, colourMap)
+            
+        return outputImage  # just return the last one
+    
+    
+def makeSingleImage(services, parameterMap, imageIds, dataset, colourMap):
+    
     if len(imageIds) == 0:
         return
         
-    colourMap = {}
-    if "Channel_Colours" in parameterMap:
-        for c, col in enumerate(parameterMap["colours"]):
-            colour = col.getValue()
-            if colour in colourOptions:
-                colourMap[c] = colourOptions[colour]
-        
-    dimOrder = parameterMap["Dimension_Order"]
+    gateway = services["gateway"]
+    renderingEngine = services["renderingEngine"]
+    queryService = services["queryService"]
+    pixelsService = services["pixelsService"]
+    rawPixelStore = services["rawPixelStore"]
+    rawPixelStoreUpload = services["rawPixelStoreUpload"]
+    updateService = services["updateService"]
+    rawFileStore = services["rawFileStore"]
+    
     dims = []
-    nDims = len(dimOrder)
     
     sizeZ = 1
     sizeC = 1
@@ -122,23 +146,23 @@ def combineImages(session, parameterMap):
     
     dimSizes = [1,1,1]    # at least 1 in each dimension
     dimMap = {"C":"Size_C", "Z": "Size_Z", "T": "Size_T"}
-    for d, dim in enumerate(dimOrder):
-        dims.append(dim)
-        size = dimMap[dim]
-        if size in parameterMap:
-            dimSizes[d]= parameterMap[size]
-        else:
-            print "calculate size of dim:", d, dim
-            print "existing dim sizes:", dimSizes
-            dimSizes[d] = len(imageIds) / (dimSizes[0] * dimSizes[1] * dimSizes[2])
-            print "new dim sizes:", dimSizes
+
     
-    if len(dimSizes) < nDims - 1:
-        print "Not enough dimensions specified."
-        return
+    for i, d in enumerate(["Dimension_1", "Dimension_2", "Dimension_3"]):
+        if d in parameterMap and len(parameterMap[d]) > 0:
+            dim = parameterMap[d][0]     # First letter of 'Channel' or 'Time' or 'Z'
+            dims.append(dim)
+            sizeParam = dimMap[dim]
+            if sizeParam in parameterMap:
+                dimSizes[i]= parameterMap[sizeParam]
+            else:
+                print "calculate size of dim:", d, dim
+                print "existing dim sizes:", dimSizes
+                dimSizes[i] = len(imageIds) / (dimSizes[0] * dimSizes[1] * dimSizes[2])
+                print "new dim sizes:", dimSizes
     
-    print dims
-    print dimSizes
+    print "dims", dims
+    print "dimSizes", dimSizes
     
     imageIndex = 0
     
@@ -212,14 +236,15 @@ def combineImages(session, parameterMap):
                 maxValue = max(maxValue, plane2D.max())
         print "Setting the min, max ", minValue, maxValue
         pixelsService.setChannelGlobalMinMax(pixelsId, theC, float(minValue), float(maxValue))
-        rgba = colourOptions["white"]
+        rgba = COLOURS["White"]
         if theC in colourMap:
             rgba = colourMap[theC]
+            print "Setting the Channel colour:", rgba
         scriptUtil.resetRenderingSettings(renderingEngine, pixelsId, theC, minValue, maxValue, rgba)
         
     if "Channel_Names" in parameterMap:
         cNames = []
-        for name in parameterMap["channelNames"]:
+        for name in parameterMap["Channel_Names"]:
             cNames.append(name.getValue())
             
         pixels = gateway.getPixels(pixelsId)
@@ -240,21 +265,32 @@ def combineImages(session, parameterMap):
     
     return image
 
+
 def runAsScript():
     """
     The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
     """
-    cOptions = [rstring('red'),rstring('green'),rstring('blue'),rstring('white')]
+    
+    ckeys = COLOURS.keys()
+    ckeys.sort()
+    cOptions = wrap(ckeys)
+    dataTypes = [rstring('Dataset'),rstring('Image')]
+    firstDim = [rstring('Time'),rstring('Channel'),rstring('Z')]
+    extraDims = [rstring(''),rstring('Time'),rstring('Channel'),rstring('Z')]
     
     client = scripts.client('combineImages.py', 'Combine several single-plane images into one with greater Z, C, T dimensions.', 
-    scripts.List("Image_IDs", "Use these images OR images from datasetId"),
-    scripts.Long("Dataset_IDs", "Use images in this dataset OR images from imageIds"),
-    scripts.String("Dimension_Order", "Dimensions to 'stack' the planes, in the order that they change in the input list, E.g. 'T' or 'Z' or 'ZC' or 'ZCT' etc."), 
-    scripts.Int("Size_Z", "Number of Z planes in new image", min=1),
-    scripts.Int("Size_C", "Number of channels in new image", min=1),
-    scripts.Int("Size_T", "Number of time-points in new image", min=1),
-    scripts.List("Channel_Colours", "List of Colours for channels. Options are 'blue' 'green' 'red' 'white'", values=cOptions),
-    scripts.List("Channel_Names", "List of Names for channels in the new image."))
+    scripts.String("Data_Type", optional=False, grouping="1",
+        description="Use all the images in specified 'Datasets' or choose individual 'Images'.", values=dataTypes, default="Dataset"),
+    scripts.List("IDs", optional=False, grouping="2",
+        description="List of Dataset IDs or Image IDs to combine.").ofType(rlong(0)),
+    scripts.String("Dimension_1", optional=False, description="The first Dimension to change", values=firstDim), 
+    scripts.String("Dimension_2", description="The second Dimension to change", values=extraDims, default=""), 
+    scripts.String("Dimension_3", description="The third Dimension to change", values=extraDims, default=""), 
+    scripts.Int("Size_Z", description="Number of Z planes in new image", min=1),
+    scripts.Int("Size_C", description="Number of channels in new image", min=1),
+    scripts.Int("Size_T", description="Number of time-points in new image", min=1),
+    scripts.List("Channel_Colours", description="List of Colours for channels.", values=cOptions),
+    scripts.List("Channel_Names", description="List of Names for channels in the new image."))
     
     session = client.getSession()
     
@@ -264,6 +300,7 @@ def runAsScript():
         if client.getInput(key):
             parameterMap[key] = client.getInput(key).getValue()
     
+    print parameterMap
     image = combineImages(session, parameterMap)        
     
     client.setOutput("Message", rstring("Script Ran OK. New Image created ID: %s" % image.id.val))
