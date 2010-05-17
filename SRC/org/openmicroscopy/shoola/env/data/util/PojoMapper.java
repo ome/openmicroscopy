@@ -57,8 +57,8 @@ import omero.model.Project;
 import omero.model.Roi;
 import omero.model.Screen;
 import omero.model.TagAnnotation;
+import omero.model.TermAnnotation;
 import omero.model.TimestampAnnotation;
-import omero.model.UriAnnotation;
 import omero.model.Well;
 import omero.model.WellSample;
 import pojos.BooleanAnnotationData;
@@ -77,9 +77,9 @@ import pojos.ROIData;
 import pojos.RatingAnnotationData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
+import pojos.TermAnnotationData;
 import pojos.TextualAnnotationData;
 import pojos.TimeAnnotationData;
-import pojos.URLAnnotationData;
 import pojos.WellData;
 import pojos.WellSampleData;
 
@@ -133,8 +133,8 @@ public class PojoMapper
             return new DatasetData((Dataset) object);
         else if (object instanceof Image) 
         	return new ImageData((Image) object);
-        else if (object instanceof UriAnnotation)
-        	return new URLAnnotationData((UriAnnotation) object);
+        else if (object instanceof TermAnnotation)
+        	return new TermAnnotationData((TermAnnotation) object);
         else if (object instanceof TagAnnotation)
         	return new TagAnnotationData((TagAnnotation) object);
         else if (object instanceof CommentAnnotation) 

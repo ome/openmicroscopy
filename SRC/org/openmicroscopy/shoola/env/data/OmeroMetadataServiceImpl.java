@@ -86,8 +86,8 @@ import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.RatingAnnotationData;
 import pojos.TagAnnotationData;
+import pojos.TermAnnotationData;
 import pojos.TextualAnnotationData;
-import pojos.URLAnnotationData;
 
 /** 
  * Implementation of the {@link OmeroMetadataService} I/F.
@@ -664,7 +664,7 @@ class OmeroMetadataServiceImpl
 		if (annotations != null && annotations.size() > 0) {
 			List<AnnotationData> texts = new ArrayList<AnnotationData>();
 			List<AnnotationData> tags = new ArrayList<AnnotationData>();
-			List<AnnotationData> urls = new ArrayList<AnnotationData>();
+			List<AnnotationData> terms = new ArrayList<AnnotationData>();
 			List<AnnotationData> attachments = new ArrayList<AnnotationData>();
 			List<AnnotationData> ratings = new ArrayList<AnnotationData>();
 			List<AnnotationData> published = new ArrayList<AnnotationData>();
@@ -676,8 +676,8 @@ class OmeroMetadataServiceImpl
 			List<Long> annotationIds = new ArrayList<Long>();
 			while (i.hasNext()) {
 				data = (AnnotationData) i.next();
-				if (data instanceof URLAnnotationData)
-					urls.add(data);
+				if (data instanceof TermAnnotationData)
+					terms.add(data);
 				else if (data instanceof TextualAnnotationData)
 					texts.add(data);
 				else if ((data instanceof TagAnnotationData)) {
@@ -723,7 +723,7 @@ class OmeroMetadataServiceImpl
 			}
 			
 			results.setTextualAnnotations(texts);
-			results.setUrls(urls);
+			results.setTerms(terms);
 			results.setTags(tags);
 			results.setRatings(ratings);
 			results.setAttachments(attachments);

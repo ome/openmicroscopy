@@ -77,8 +77,8 @@ import omero.model.ScreenPlateLink;
 import omero.model.ScreenPlateLinkI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
-import omero.model.UriAnnotation;
-import omero.model.UriAnnotationI;
+import omero.model.TermAnnotation;
+import omero.model.TermAnnotationI;
 import omero.model.Well;
 import omero.model.WellAnnotationLink;
 import omero.model.WellAnnotationLinkI;
@@ -94,8 +94,8 @@ import pojos.ProjectData;
 import pojos.RatingAnnotationData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
+import pojos.TermAnnotationData;
 import pojos.TextualAnnotationData;
-import pojos.URLAnnotationData;
 
 /** 
  * Helper class to map {@link DataObject}s into their corresponding
@@ -473,15 +473,10 @@ public class ModelMapper
     				RatingAnnotationData.INSIGHT_RATING_NS));
     		((LongAnnotation) annotation).setLongValue(omero.rtypes.rlong(
     										(Long) data.getContent()));
-    	} else if (data instanceof URLAnnotationData) {
-    		annotation = new UriAnnotationI();
-    		try {
-    			((UriAnnotation) annotation).setTextValue(
-    					omero.rtypes.rstring(data.getContentAsString()));
-			} catch (Exception e) { //Need to propagate that.
-				return null;
-			}
-    		
+    	} else if (data instanceof TermAnnotationData) {
+    		annotation = new TermAnnotationI();
+    		((TermAnnotation) annotation).setTermValue(
+					omero.rtypes.rstring(data.getContentAsString()));
     	} else if (data instanceof TagAnnotationData) {
     		annotation = new TagAnnotationI();
     		((TagAnnotation) annotation).setTextValue(

@@ -163,10 +163,10 @@ import omero.model.ScreenI;
 import omero.model.Shape;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
+import omero.model.TermAnnotation;
+import omero.model.TermAnnotationI;
 import omero.model.TimestampAnnotation;
 import omero.model.TimestampAnnotationI;
-import omero.model.UriAnnotation;
-import omero.model.UriAnnotationI;
 import omero.model.Well;
 import omero.model.WellSample;
 import omero.sys.Parameters;
@@ -194,9 +194,9 @@ import pojos.RatingAnnotationData;
 import pojos.ScreenData;
 import pojos.ShapeData;
 import pojos.TagAnnotationData;
+import pojos.TermAnnotationData;
 import pojos.TextualAnnotationData;
 import pojos.TimeAnnotationData;
-import pojos.URLAnnotationData;
 import pojos.WellData;
 import pojos.WellSampleData;
 
@@ -1699,12 +1699,12 @@ class OMEROGateway
 			return "ome.model.annotations.LongAnnotation";
 		else if (FileAnnotationData.class.equals(pojo))
 			return "ome.model.annotations.FileAnnotation"; 
-		else if (URLAnnotationData.class.equals(pojo))
+		else if (TermAnnotationData.class.equals(pojo))
 			return "ome.model.annotations.UriAnnotation"; 
 		else if (TimeAnnotationData.class.equals(pojo))
-			return "ome.model.annotations.UriAnnotation"; 
+			return "ome.model.annotations.TimeAnnotation"; 
 		else if (BooleanAnnotationData.class.equals(pojo))
-			return "ome.model.annotations.UriAnnotation"; 
+			return "ome.model.annotations.BooleanAnnotation"; 
 		return null;
 	}
 	
@@ -1744,9 +1744,9 @@ class OMEROGateway
 		else if (nodeType.equals(BooleanAnnotation.class) ||
 				nodeType.equals(BooleanAnnotationData.class))
 			return BooleanAnnotationI.class.getName();
-		else if (nodeType.equals(UriAnnotation.class) ||
-				nodeType.equals(URLAnnotationData.class))
-			return UriAnnotationI.class.getName();
+		else if (nodeType.equals(TermAnnotation.class) ||
+				nodeType.equals(TermAnnotationData.class))
+			return TermAnnotationI.class.getName();
 		else if (nodeType.equals(FileAnnotation.class) ||
 				nodeType.equals(FileAnnotationData.class))
 			return FileAnnotationI.class.getName();
@@ -1841,8 +1841,8 @@ class OMEROGateway
 			return CommentAnnotation.class;
 		else if (FileAnnotationData.class.equals(nodeType))
 			return FileAnnotation.class;
-		else if (URLAnnotationData.class.equals(nodeType))
-			return UriAnnotation.class;
+		else if (TermAnnotationData.class.equals(nodeType))
+			return TermAnnotation.class;
 		else if (ScreenData.class.equals(nodeType)) 
 			return Screen.class;
 		else if (PlateData.class.equals(nodeType)) 
@@ -4678,7 +4678,7 @@ class OMEROGateway
 					link = (AnnotationAnnotationLink) i.next();
 					child = link.getChild();
 					if (!((child instanceof TagAnnotation) || 
-						(child instanceof UriAnnotation)))  {
+						(child instanceof TermAnnotation)))  {
 						deleteObject(link);
 						deleteObject(child);
 					}

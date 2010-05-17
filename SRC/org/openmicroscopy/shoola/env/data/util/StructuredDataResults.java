@@ -54,8 +54,8 @@ public class StructuredDataResults
 	/** The attachments related to the object. */
 	private Collection					attachments;
 	
-	/** The urls related to the object. */
-	private Collection					urls;
+	/** The terms related to the object. */
+	private Collection					terms;
 	
 	/** The textual annotations. */
 	private Collection					textualAnnotations;
@@ -176,18 +176,18 @@ public class StructuredDataResults
 	public void setTags(Collection tags) { this.tags = tags; }
 
 	/**
-	 * Returns the collection of urls.
+	 * Returns the collection of terms.
 	 * 
 	 * @return See above.
 	 */
-	public Collection getUrls() { return urls; }
+	public Collection getTerms() { return terms; }
 
 	/**
-	 * Sets the collections of urls.
+	 * Sets the collections of terms.
 	 * 
-	 * @param urls The value to set.
+	 * @param terms The value to set.
 	 */
-	public void setUrls(Collection urls) { this.urls = urls; }
+	public void setTerms(Collection terms) { this.terms = terms; }
 	
 	/**
 	 * Sets the collection of objects.

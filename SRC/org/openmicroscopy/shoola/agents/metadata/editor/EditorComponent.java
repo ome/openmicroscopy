@@ -70,7 +70,6 @@ import pojos.ImageData;
 import pojos.InstrumentData;
 import pojos.PixelsData;
 import pojos.TagAnnotationData;
-import pojos.URLAnnotationData;
 import pojos.WellSampleData;
 
 /** 
@@ -441,9 +440,6 @@ class EditorComponent
 		String s = null;
 		if (data instanceof FileAnnotationData) 
 			s = "Do you want to delete the attachment?";
-		else if (data instanceof URLAnnotationData) 
-			s = "Do you want to delete the URL?";
-		
 		if (s == null) return;
 		JFrame owner = 
 			MetadataViewerAgent.getRegistry().getTaskBar().getFrame();

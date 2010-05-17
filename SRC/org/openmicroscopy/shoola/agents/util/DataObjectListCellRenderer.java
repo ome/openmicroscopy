@@ -28,7 +28,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.util.Collection;
 import java.util.Iterator;
-
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.Icon;
 import javax.swing.JList;
@@ -39,14 +38,13 @@ import javax.swing.JList;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.ui.IconManager;
-
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.TagAnnotationData;
-import pojos.URLAnnotationData;
+import pojos.TermAnnotationData;
 
 /** 
  * Renderer used to display various kind of <code>DataObject</code>s in 
@@ -231,10 +229,10 @@ public class DataObjectListCellRenderer
         		} else icon = icons.getIcon(IconManager.FILE_XML);
         	} else icon = icons.getIcon(IconManager.FILE);
 			setIcon(icon);
-		} else if (value instanceof URLAnnotationData) {
-			URLAnnotationData url = (URLAnnotationData) value;
-			setText(url.getURL());
-			setIcon(icons.getIcon(IconManager.BROWSER));
+		} else if (value instanceof TermAnnotationData) {
+			TermAnnotationData term = (TermAnnotationData) value;
+			setText(term.getTerm());
+			setIcon(icons.getIcon(IconManager.ONTOLOGY));
 		} else if (value instanceof DatasetData) {
 			DatasetData d = (DatasetData) value;
 			setText(d.getName());
