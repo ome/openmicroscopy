@@ -355,8 +355,9 @@ class OriginalMetadataComponent
 							if (l != null) l.add(line);
 						}
 					} else {
-						if (line.trim().length() > 0) {
-							key = line.substring(1, line.length()-1);
+						line = line.trim();
+						if (line.length() > 0) {
+							key = line.substring(0, line.length()-1);
 							if (key != null && key.trim().length() > 0)
 								components.put(key, new ArrayList<String>());
 						}
