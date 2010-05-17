@@ -375,7 +375,11 @@ public class OmeroInterceptor implements Interceptor {
                 if (d != null) {
                     if (!HibernateUtils.idEqual(d.getGroup(),
                             currentUser.getGroup())) {
-                        throw new GroupSecurityViolation("MIXED GROUP");
+                        throw new GroupSecurityViolation(String.format(
+                                "MIXED GROUP: " +
+                                "%s(group=%s) and %s(group=%s) cannot be linked.",
+                                iObject, currentUser.getGroup(),
+                                object, d.getGroup()));
                     }
                 }
 
