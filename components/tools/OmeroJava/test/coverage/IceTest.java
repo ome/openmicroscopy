@@ -14,7 +14,6 @@ import omero.api.IUpdatePrxHelper;
 import omero.constants.UPDATESERVICE;
 import omero.model.ImageI;
 
-import org.springframework.util.ResourceUtils;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -30,10 +29,9 @@ public abstract class IceTest extends TestCase {
     @Override
     @BeforeMethod
     public void setUp() throws Exception {
-        File local = ResourceUtils.getFile("classpath:local.properties");
-        ice = new omero.client(local);
+        ice = new omero.client();
         ice.createSession();
-        root = new omero.client(local);
+        root = new omero.client();
         root.createSession("root", ice.getProperty("omero.rootpass"));
         ic = ice.getCommunicator();
     }
@@ -83,4 +81,9 @@ public abstract class IceTest extends TestCase {
         iUpdate.saveAndReturnObject(new ImageI());
         return iUpdate;
     }
+
+    protected String uuid() {
+        return java.util.UUID.randomUUID().toString();
+    }
+
 }

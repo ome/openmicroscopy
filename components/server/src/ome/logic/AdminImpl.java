@@ -462,9 +462,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         } else {
             file.setName(filename);
             file.setPath(filename);
-            file.setSize((long) data.length);
             file.setMimetype(mimetype);
-            file.setSha1(Utils.bufferToSha1(data));
             file = iUpdate.saveAndReturnObject(file);
         }
 
@@ -472,6 +470,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         try {
             rfs.setFileId(file.getId());
             rfs.write(data, 0, data.length);
+            file = rfs.save();
         } finally {
             rfs.close();
         }

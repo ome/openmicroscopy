@@ -485,7 +485,7 @@ public class OmeroInterceptor implements Interceptor {
 
                 Permissions groupPerms = currentUser.getCurrentEventContext()
                     .getCurrentGroupPermissions();
-                
+
                 boolean isInSysGrp = sysTypes.isInSystemGroup(newDetails);
                 boolean isInUsrGrp = sysTypes.isInUserGroup(newDetails);
                 if (groupPerms.identical(source.getPermissions())) {
@@ -599,7 +599,7 @@ public class OmeroInterceptor implements Interceptor {
             // Acquiring the context here to prevent multiple
             // accesses to the threadlocal
             final BasicEventContext bec = currentUser.current();
-            
+
             // ticket:1784 - NOTE: here we are NOT including a check
             // for sysTypes.isInSystemGroup(), since that implies that
             // the object doesn't have owner/group
@@ -609,13 +609,6 @@ public class OmeroInterceptor implements Interceptor {
             // see mapping.vm for more.
             altered |= managedExternalInfo(privileged, iobj,
                     previousDetails, currentDetails, newDetails);
-
-            // implies that Permissions dosn't matter
-            //if (!IGlobal.class.isAssignableFrom(iobj.getClass())) {
-            // ticket:1434 re-activating permission mgmt for globals.
-                altered |= managedPermissions(privileged, iobj,
-                        previousDetails, currentDetails, newDetails, sysType);
-            //}
 
             // implies that owner doesn't matter
             if (!sysType) {
@@ -628,6 +621,14 @@ public class OmeroInterceptor implements Interceptor {
                 altered |= managedGroup(privileged, iobj,
                         previousDetails, currentDetails, newDetails, bec);
             }
+
+            // implies that Permissions dosn't matter
+            //if (!IGlobal.class.isAssignableFrom(iobj.getClass())) {
+            // ticket:1434 re-activating permission mgmt for globals.
+            // ticket:1791 moving after managedGroup to re-use newDetails
+                altered |= managedPermissions(privileged, iobj,
+                        previousDetails, currentDetails, newDetails, sysType);
+            //}
 
             // the event check needs to be last, because we need to test
             // whether or not it is necessary to change the updateEvent
@@ -766,10 +767,11 @@ public class OmeroInterceptor implements Interceptor {
             // see https://trac.openmicroscopy.org.uk/omero/ticket/1776
             Permissions groupPerms = currentUser.getCurrentEventContext()
                 .getCurrentGroupPermissions();
-            if (!sysType && !groupPerms.sameRights(currentP)) { // ticket:1779
+            if ( !(sysType || sysTypes.isInUserGroup(newDetails)) // ticket:1791
+                && !groupPerms.sameRights(currentP)) { // ticket:1779
                 throw new GroupSecurityViolation(String.format(
-                        "Cannot change permissions for %s(%s) from %s to %s ",
-                        obj, groupPerms, tmpPreviousP, currentP));
+                        "Cannot change permissions for %s(group=%s) to %s ",
+                        obj, groupPerms, currentP));
             }
 
             // finally, check isOwnerOrSupervisor.

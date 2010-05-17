@@ -45,7 +45,7 @@ public class UpdateTest extends IceTest {
         IUpdatePrx prx = ice.getServiceFactory().getUpdateService();
         assertNotNull(prx);
 
-        String uuid = Ice.Util.generateUUID();
+        String uuid = uuid();
         omero.model.ImageI obj = new omero.model.ImageI();
         obj.setName(rstring(uuid));
         obj = (omero.model.ImageI) prx.saveAndReturnObject(obj);
