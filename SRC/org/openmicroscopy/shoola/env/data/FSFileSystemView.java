@@ -25,7 +25,10 @@ package org.openmicroscopy.shoola.env.data;
 
 //Java imports
 import java.io.File;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -45,6 +48,7 @@ import omero.model.Image;
 import omero.model.IObject;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
+import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.FileData;
 import pojos.ImageData;
@@ -198,6 +202,29 @@ public class FSFileSystemView
 		}
     }
    
+    /**
+     * Sorts the passed images by index. This should only be invoked to 
+     * handle.
+     * 
+     * @param images The images to handle.
+     */
+    private void sortImageByIndex(List<ImageData> images)
+    {
+    	if (images == null || images.size() == 0) return;
+    	Comparator c = new Comparator() {
+            public int compare(Object o1, Object o2)
+            {
+                int i1 = ((ImageData) o1).getIndex(),
+                          i2 = ((ImageData) o2).getIndex();
+                int v = 0;
+                if (i1 < i2) v = -1;
+                else if (i1 > i2) v = 1;
+                return -v;
+            }
+        };
+        Collections.sort(images, c);
+    }
+    
 	/** 
 	 * Creates a new instance.
 	 * 
@@ -279,9 +306,49 @@ public class FSFileSystemView
     	String value;
     	String name;
     	IObject r;
-    	List<Image> results;
+    	List<Image> images;
     	Map<String, String> map = new HashMap<String, String>();
-    	if (file instanceof FileData) {
+    	if (file instanceof ImageData) {
+    		ImageData img = (ImageData) file;
+    		try {
+    			images = new ArrayList<Image>();
+    			images.add(img.asImage());
+    			images = proxy.registerImageList(img.getPathToFile(), images, 
+    					map);
+    			if (images != null && images.size() > 0)
+    				img.setRegisteredFile(images.get(0));
+    			return img;
+			} catch (Exception e) {
+				new FSAccessException("Cannot register the image: " +
+						""+img.getName(), e);
+			}
+    	} else if (file instanceof MultiImageData) {
+    		MultiImageData mi = (MultiImageData) file;
+    		List<ImageData> files = mi.getComponents();
+    		//sort then by index.
+    		sortImageByIndex(files);
+    		images = new ArrayList<Image>();
+    		Iterator<ImageData> i = files.iterator();
+    		while (i.hasNext()) {
+				images.add(i.next().asImage());
+			}
+    		try {
+    			images = proxy.registerImageList(mi.getName(), images, 
+    					map);
+    			i = files.iterator();
+    			ImageData data;
+    			int index = 0;
+    			while (i.hasNext()) {
+					data = i.next();
+					data.setRegisteredFile(images.get(index));
+					index++;
+				}
+			} catch (Exception e) {
+				new FSAccessException("Cannot register the multi-images file:" +
+						" "+mi.getName(), e);
+			}
+    		
+    	}  else if (file instanceof FileData) {
     		FileData f = (FileData) file;
     		OriginalFile of = (OriginalFile) file.asIObject();
     		try {
@@ -293,21 +360,6 @@ public class FSFileSystemView
 				new FSAccessException("Cannot register the file: " +
 						""+f.getAbsolutePath(), e);
 			}
-    	} else if (file instanceof ImageData) {
-    		ImageData img = (ImageData) file;
-    		try {
-    			List<Image> images = new ArrayList<Image>();
-    			images.add(img.asImage());
-    			results = proxy.registerImageList(img.getPathToFile(), images, 
-    					map);
-    			if (results != null && results.size() > 0)
-    				img.setRegisteredFile(results.get(0));
-    			return img;
-			} catch (Exception e) {
-				new FSAccessException("Cannot register the image: " +
-						""+img.getName(), e);
-			}
-    		
     	}
     	return null;
     }
