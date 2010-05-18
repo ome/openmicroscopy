@@ -31,12 +31,9 @@ import java.util.List;
 import java.util.Set;
 
 import ome.formats.Index;
-import ome.util.LSID;
 import omero.metadatastore.IObjectContainer;
 import omero.model.Plate;
-import omero.model.PlateAcquisition;
 import omero.model.Well;
-import omero.model.WellSample;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -62,15 +59,12 @@ public class WellProcessor implements ModelProcessor
     throws ModelException
     {
         List<IObjectContainer> containers = 
-            store.getIObjectContainers(WellSample.class);
+            store.getIObjectContainers(Well.class);
         Set<Integer> plateIndexes = new HashSet<Integer>();
         for (IObjectContainer container : containers)
-        {	
+        {
         	Integer plateIndex = container.indexes.get(Index.PLATE_INDEX.getValue());
         	plateIndexes.add(plateIndex);
-        	
-            LSID palsid = new LSID(PlateAcquisition.class, plateIndex, 0);
-            store.addReference(new LSID(container.LSID), palsid);
         }
         for (Integer plateIndex : plateIndexes)
         {
@@ -85,14 +79,6 @@ public class WellProcessor implements ModelProcessor
         		log.warn("Missing plate name for: " + container.LSID);
         		plate.setName(rstring("Plate"));
         	}
-
-            LinkedHashMap<Index, Integer> paindexes =
-                new LinkedHashMap<Index, Integer>();
-            paindexes.put(Index.PLATE_INDEX, plateIndex);
-            paindexes.put(Index.PLATE_ACQUISITION_INDEX, 0);
-            
-            store.getIObjectContainer(PlateAcquisition.class, paindexes);
-        	
         }
     }
 }

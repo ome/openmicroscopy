@@ -23,6 +23,7 @@
 
 package ome.formats.model;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,10 +32,14 @@ import ome.formats.Index;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.util.LSID;
 import omero.metadatastore.IObjectContainer;
+import omero.model.Arc;
 import omero.model.Channel;
+import omero.model.Filament;
 import omero.model.Filter;
 import omero.model.FilterSet;
 import omero.model.IObject;
+import omero.model.Laser;
+import omero.model.LightEmittingDiode;
 import omero.model.LightSettings;
 import omero.model.LightSource;
 import omero.model.LogicalChannel;
@@ -77,7 +82,11 @@ public class ChannelData
 	
 	/** ... LogicalChannel --> LightSettings --> LightSource */
 	private LightSource lightSource;
-	
+
+    /** Exhaustive list of valid light source types from the model. */
+    private static final Class<?>[] LIGHT_SOURCE_TYPES = new Class<?>[] 
+        { Arc.class, Filament.class, LightEmittingDiode.class, Laser.class };
+
 	/**
 	 * Retrieves channel data from an object container store.
 	 * @param store Store to retrieve the channel data from.
@@ -198,33 +207,42 @@ public class ChannelData
 				}
 			}
 		}
-		// ... LogicalChannel --> LightSettings
-		LSID lightSettingsLSID = 
-			new LSID(LightSettings.class, imageIndex, channelIndex);
-		data.lightSourceSettings = 
-			(LightSettings) store.getSourceObject(lightSettingsLSID);
-		if (data.lightSourceSettings != null)
-		{
-			// ... LogicalChannel --> LightSettings --> LightSource
-			Map<String, IObjectContainer> lightSourceContainers =
-				containerCache.get(LightSource.class);
-			references = referenceCache.get(lightSettingsLSID);
-			if (references != null)
-			{
-				for (LSID reference : references)
-				{
-					lsidString = reference.toString();
-					if (lightSourceContainers.containsKey(lsidString))
-					{
-						data.lightSource = (LightSource)
-							lightSourceContainers.get(lsidString).sourceObject;
-					}
-				}
-			}
-		}
-		return data;
+        // ... LogicalChannel --> LightSettings
+        LSID lightSettingsLSID = new LSID(LightSettings.class, imageIndex,
+                channelIndex);
+        data.lightSourceSettings = (LightSettings) store
+                .getSourceObject(lightSettingsLSID);
+        Map<String, IObjectContainer> lightSourceContainers = 
+            new HashMap<String, IObjectContainer>();
+        if (data.lightSourceSettings != null)
+        {
+            // Pick up all potential light sources
+            for (Class<?> klass : LIGHT_SOURCE_TYPES)
+            {
+                Map<String, IObjectContainer> v = containerCache.get(klass);
+                if (v != null)
+                {
+                    lightSourceContainers.putAll(v);
+                }
+            }
+            // ... LogicalChannel --> LightSettings --> LightSource
+            references = referenceCache.get(lightSettingsLSID);
+            if (references != null)
+            {
+                for (LSID reference : references)
+                {
+                    lsidString = reference.toString();
+                    if (lightSourceContainers.containsKey(lsidString))
+                    {
+                        data.lightSource = (LightSource) lightSourceContainers
+                                .get(lsidString).sourceObject;
+                    }
+                }
+            }
+        }
+        return data;
 	}
-	
+
 	/**
 	 * Returns the channel this channel data is for.
 	 * @return See above.

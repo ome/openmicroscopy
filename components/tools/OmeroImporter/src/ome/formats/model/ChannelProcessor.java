@@ -401,7 +401,8 @@ public class ChannelProcessor implements ModelProcessor
     	reader = this.store.getReader();
     	if (reader == null)
     	{
-    		throw new ModelException("Unexpected null reader.");
+    		log.warn("Unexpected null reader.");
+    		return;
     	}
     	
     	List<Image> images = store.getSourceObjects(Image.class);

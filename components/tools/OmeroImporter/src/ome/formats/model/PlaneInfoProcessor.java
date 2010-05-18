@@ -25,6 +25,7 @@ package ome.formats.model;
 
 import java.util.List;
 
+import ome.formats.Index;
 import ome.util.LSID;
 import omero.metadatastore.IObjectContainer;
 import omero.model.PlaneInfo;
@@ -63,14 +64,10 @@ public class PlaneInfoProcessor implements ModelProcessor
         		&& pi.getPositionY() == null
         		&& pi.getPositionZ() == null)
         	{
-        		int[] indexes = new int[container.indexes.size()];
-        		int i = 0;
-        		for (Integer value : container.indexes.values())
-        		{
-        			indexes[i] = value.intValue();
-        			i++;
-        		}
-        		LSID lsid = new LSID(PlaneInfo.class, indexes);
+        		LSID lsid = new LSID(
+        		        PlaneInfo.class,
+        		        container.indexes.get(Index.IMAGE_INDEX.getValue()),
+        		        container.indexes.get(Index.PLANE_INDEX.getValue()));
         		log.debug("Removing empty PlaneInfo: " + lsid);
         		store.removeIObjectContainer(lsid);
         	}
