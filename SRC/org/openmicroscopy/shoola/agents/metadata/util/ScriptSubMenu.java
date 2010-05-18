@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.agents.metadata.util;
 
 
 //Java imports
+import java.util.List;
+
 import javax.swing.JMenu;
 
 
@@ -57,24 +59,42 @@ public class ScriptSubMenu
 	/** The full path to the directory. */
 	private String path;
 	
+	/** The text before being formatted. */
+	private String unformattedText;
+	
+	private String getValue(String[] values, int index, String sep, 
+			List<String> names, String value)
+	{
+		if (value == null || value.length() == 0) return value;
+		if (names.contains(value)) {
+			int n = values.length-1; 
+			if (n-index >= 0) {
+				String v = values[n-index]+sep+value;
+				return v;
+			}
+			return value;
+		}
+		return value;
+	}
+	
 	/** 
 	 * Formats the name of the menu. 
 	 * 
+	 * @param names The collection of formatted names already taken.
 	 * @return See above.
 	 * */
-	private String formatName()
+	private String formatName(List<String> names)
 	{
 		if (path == null) return NAME;
 		String[] values = UIUtilities.splitString(path);
+		String sep = UIUtilities.getStringSeparator(path);
 		if (values == null) return path;
-		int n = values.length-1;
-		String value = values[n];
-		if (value.length() == 0) {
-			if (n > 1) {
-				value = values[n-1];
-			}
-		}
+		int index = 0;
+		if (path.endsWith(sep)) index = 1;
+		String value = getValue(values, index, sep, names, 
+				values[values.length-1]);
 		if (value == null || value.trim().length() == 0) return NAME;
+		unformattedText = value;
 		value = value.replace(ScriptObject.PARAMETER_SEPARATOR, 
 				ScriptObject.PARAMETER_UI_SEPARATOR);
 		return WordUtils.capitalize(value);
@@ -84,11 +104,13 @@ public class ScriptSubMenu
 	 * Creates a new instance.
 	 * 
 	 * @param path The full path to the directory.
+	 * @param names The collection of formatted names already taken.
 	 */
-	public ScriptSubMenu(String path)
+	public ScriptSubMenu(String path, List<String> names)
 	{
 		this.path = path;
-		setText(formatName());
+		setText(formatName(names));
+		setToolTipText(path);
 	}
 	
 	/**
@@ -103,5 +125,13 @@ public class ScriptSubMenu
 		add(item);
 		return item;
 	}
+	
+	/** 
+	 * Returns the text before being formatted.
+	 * 
+	 * @return See above.
+	 */
+	public String getUnformattedText() { return unformattedText; }
+	
 	
 }

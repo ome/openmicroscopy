@@ -352,13 +352,15 @@ class ToolBar
     	String path;
     	ScriptSubMenu subMenu;
     	List<ScriptSubMenu> others = new ArrayList<ScriptSubMenu>();
+    	List<String> formattedName = new ArrayList<String>();
     	while (i.hasNext()) {
     		so = i.next();
     		setScriptIcon(so);
     		path = so.getPath();
     		subMenu = menus.get(path);
     		if (subMenu == null) {
-    			subMenu = new ScriptSubMenu(path);
+    			subMenu = new ScriptSubMenu(path, formattedName);
+    			//formattedName.add(subMenu.getUnformattedText());
     			menus.put(path, subMenu);
     			if (so.isOfficialScript()) menu.add(subMenu);
     			else others.add(subMenu);
@@ -367,7 +369,7 @@ class ToolBar
     	}
     	if (others.size() > 0) {
     		menu.add(new JSeparator());
-    		JMenu uploadedMenu = new JMenu("Uploaded Scripts");
+    		JMenu uploadedMenu = new JMenu("User Scripts");
     		menu.add(uploadedMenu);
     		Iterator<ScriptSubMenu> j = others.iterator();
         	while (j.hasNext()) 

@@ -62,8 +62,12 @@ public class ScriptMenuItem
 		if (script == null)
 			throw new IllegalArgumentException("A script cannot be null.");
 		this.script = script;
+		String text = "";
+		if (script.getScriptID() >= 0 && !script.isOfficialScript())
+			text = "ID: "+script.getScriptID()+" ";
+		text += script.getName();
 		setText(script.getDisplayedName()+"...");
-		setToolTipText(script.getName());
+		setToolTipText(text);
 		setIcon(script.getIcon());
 	}
 	

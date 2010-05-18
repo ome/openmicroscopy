@@ -227,7 +227,7 @@ public class ScriptObject
 		mimeType = null;
 		official = true;
 	}
-	
+
 	/**
 	 * Sets to <code>true</code> if the script is an official script i.e.
 	 * release by the team, <code>false</code> otherwise.
