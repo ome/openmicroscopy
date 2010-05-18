@@ -4497,6 +4497,11 @@ public class OMEROMetadataStoreClient
     public void setLightPathEmissionFilterRef(String emissionFilter,
             int imageIndex, int channelIndex, int emissionFilterRefIndex)
     {
+        // XXX: Using this suffix is kind of a gross hack but the reference
+        // processing logic does not easily handle multiple A --> B or B --> A 
+        // linkages of the same type so we'll compromise.
+        // Tue 18 May 2010 17:07:51 BST -- Chris Allan <callan@blackcat.ca>
+        emissionFilter += OMERO_EMISSION_FILTER_SUFFIX;
         LSID key = new LSID(LightPath.class, imageIndex, channelIndex);
         addReference(key, new LSID(emissionFilter));
     }
@@ -4507,6 +4512,11 @@ public class OMEROMetadataStoreClient
     public void setLightPathExcitationFilterRef(String excitationFilter,
             int imageIndex, int channelIndex, int excitationFilterRefIndex)
     {
+        // XXX: Using this suffix is kind of a gross hack but the reference
+        // processing logic does not easily handle multiple A --> B or B --> A 
+        // linkages of the same type so we'll compromise.
+        // Tue 18 May 2010 17:07:51 BST -- Chris Allan <callan@blackcat.ca>
+        excitationFilter += OMERO_EXCITATION_FILTER_SUFFIX;
         LSID key = new LSID(LightPath.class, imageIndex, channelIndex);
         addReference(key, new LSID(excitationFilter));
     }
