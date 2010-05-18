@@ -24,6 +24,7 @@
 package ome.formats;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -50,6 +51,7 @@ import ome.model.acquisition.OTF;
 import ome.model.acquisition.Objective;
 import ome.model.acquisition.ObjectiveSettings;
 import ome.model.acquisition.StageLabel;
+import ome.model.acquisition.TransmittanceRange;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.FileAnnotation;
 import ome.model.containers.Dataset;
@@ -206,10 +208,14 @@ public class OMEROMetadataStore
     	{
     		handle(lsid, (ImagingEnvironment) sourceObject, indexes);
     	}
-    	else if (sourceObject instanceof DetectorSettings)
-    	{
-    		handle(lsid, (DetectorSettings) sourceObject, indexes);
-    	}
+        else if (sourceObject instanceof TransmittanceRange)
+        {
+            handle(lsid, (TransmittanceRange) sourceObject, indexes);
+        }
+        else if (sourceObject instanceof DetectorSettings)
+        {
+            handle(lsid, (DetectorSettings) sourceObject, indexes);
+        }
     	else if (sourceObject instanceof LightSettings)
     	{
     		handle(lsid, (LightSettings) sourceObject, indexes);
@@ -674,7 +680,7 @@ public class OMEROMetadataStore
     	Instrument i = instrumentList.get(indexes.get("instrumentIndex"));
     	i.addFilterSet(sourceObject);
     }
-    
+
     /**
      * Handles inserting a specific type of model object into our object graph.
      * @param LSID LSID of the model object.
@@ -688,7 +694,22 @@ public class OMEROMetadataStore
     	Image i = imageList.get(indexes.get("imageIndex"));
     	i.setImagingEnvironment(sourceObject);
     }
-    
+
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, TransmittanceRange sourceObject,
+                        Map<String, Integer> indexes)
+    {
+        Filter f = getFilter(
+                indexes.get("instrumentIndex"), indexes.get("filterIndex"));
+        f.setTransmittanceRange(sourceObject);
+    }
+
     /**
      * Handles inserting a specific type of model object into our object graph.
      * @param LSID LSID of the model object.
@@ -1191,7 +1212,7 @@ public class OMEROMetadataStore
     {
     	return getImage(imageIndex).getPixels(pixelsIndex);
     }
-    
+
     /**
      * Returns an Instrument model object based on its indexes within the OMERO
      * data model.
@@ -1202,7 +1223,22 @@ public class OMEROMetadataStore
     {
     	return instrumentList.get(instrumentIndex);
     }
-    
+
+    /**
+     * Returns a Filter model object based on its indexes within the OMERO
+     * data model.
+     * @param instrumentIndex Instrument index.
+     * @param filterIndex Filter index.
+     * @return See above.
+     */
+    private Filter getFilter(int instrumentIndex, int filterIndex)
+    {
+        Collection<Filter> filters = 
+            getInstrument(instrumentIndex).unmodifiableFilter();
+        Filter[] filterArray = filters.toArray(new Filter[filters.size()]);
+        return filterArray[filterIndex];
+    }
+
     /**
      * Returns a Channel model object based on its indexes within the
      * OMERO data model.
