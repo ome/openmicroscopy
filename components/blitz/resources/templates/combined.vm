@@ -144,6 +144,7 @@ DECLARATION BLOCK:
 
 Note how the whitespace for the python definitions is important.
 [$pyc] import Ice
+[$pyc] import omero
 [$pyc] import omero_model_DetailsI
 [$pyc] import omero_model_${Pojo}_ice
 [$pyc] from omero.rtypes import rlong
@@ -330,10 +331,10 @@ DEFAULT CONSTRUCTOR BLOCK:
 [$cpp]       }
 
 Python combines the two constructors. See below for a comparison.
-[$pyc]       def __init__(self,id = None, loaded = True):
+[$pyc]       def __init__(self, id = None, loaded = True):
 [$pyc]           super(${Pojo}I, self).__init__()
 [$pyc]           # Relying on omero.rtypes.rlong's error-handling
-[$pyc]           self.id = rlong(id)
+[$pyc]           self._id = rlong(id)
 [$pyc]           self._loaded = loaded
 [$pyc]           if self._loaded:
 [$pyc]              self._details = _omero_model.DetailsI()
@@ -613,8 +614,8 @@ and protect later FOREACH blocks with "if (name == 'id' || name == 'details') sk
 [$cpp]       }
 
 [$pyc]       def proxy(self, $PYC_CURRENT):
-[$pyc]           if not id: raise omero.ClientError("Proxies require an id")
-[$pyc]           return ${PojoI}( _id.getValue(), False )
+[$pyc]           if self._id is None: raise omero.ClientError("Proxies require an id")
+[$pyc]           return ${PojoI}( self._id.getValue(), False )
 [$pyc]
 [$pyc]       def getDetails(self, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()

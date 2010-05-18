@@ -11,6 +11,7 @@
 
 import unittest
 import omero
+import omero.clients
 from omero_model_PixelsI import PixelsI
 from omero_model_ImageI import ImageI
 from omero_model_DatasetI import DatasetI
@@ -20,7 +21,10 @@ from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
 from omero_model_ScriptJobI import ScriptJobI
 from omero_model_DetailsI import DetailsI
+from omero_model_BooleanAnnotationI import BooleanAnnotationI
+from omero_model_ImageAnnotationLinkI import ImageAnnotationLinkI
 from omero.rtypes import *
+
 
 class TestModel(unittest.TestCase):
 
@@ -243,6 +247,16 @@ class TestModel(unittest.TestCase):
         d.owner = None
         self.assert_( None == d.owner)
         d.ice_preMarshal()
+
+    def testProxy(self):
+        i = ImageI()
+        self.assertRaises(omero.ClientError, i.proxy)
+        i = ImageI(5, False)
+        i.proxy()
+
+    def testId(self):
+        i = ImageI(4)
+        self.assertEquals(4, i.id.val)
 
 if __name__ == '__main__':
     unittest.main()
