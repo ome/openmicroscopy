@@ -55,22 +55,23 @@ public class ShapeProcessor implements ModelProcessor
 {
     /** Logger for this class */
     private Log log = LogFactory.getLog(ShapeProcessor.class);
-    
+
     /** Exhaustive list of ROI types. */
-    private static List<Class<? extends IObject>> roiClasses = 
+    private static final List<Class<? extends IObject>> SHAPE_TYPES = 
     	new ArrayList<Class<? extends IObject>>(); 
-    
-    static 
+
+    static
     {
-	roiClasses.add(Label.class);
-    	roiClasses.add(Rect.class);
-    	roiClasses.add(Ellipse.class);
-    	roiClasses.add(Mask.class);
-    	roiClasses.add(Point.class);
-    	roiClasses.add(Path.class);
-    	roiClasses.add(Polygon.class);
-    	roiClasses.add(Polyline.class);
-    	roiClasses.add(Line.class);
+        SHAPE_TYPES.add(Line.class);
+        SHAPE_TYPES.add(Rect.class);
+        SHAPE_TYPES.add(Mask.class);
+        SHAPE_TYPES.add(Ellipse.class);
+        SHAPE_TYPES.add(Point.class);
+        SHAPE_TYPES.add(Polyline.class);
+        SHAPE_TYPES.add(Path.class);
+        SHAPE_TYPES.add(Label.class);
+        // XXX: Unused OME-XML type
+        SHAPE_TYPES.add(Polygon.class);
     }
 
     /**
@@ -81,17 +82,15 @@ public class ShapeProcessor implements ModelProcessor
     public void process(IObjectContainerStore store)
     throws ModelException
     {
-    	for (Class<? extends IObject> klass : roiClasses)
+    	for (Class<? extends IObject> klass : SHAPE_TYPES)
     	{
 	        List<IObjectContainer> containers =
 	        	store.getIObjectContainers(klass);
 	        for (IObjectContainer container : containers)
 	        {
-	            Integer imageIndex = container.indexes.get(Index.IMAGE_INDEX.getValue());
 	            Integer roiIndex = container.indexes.get(Index.ROI_INDEX.getValue());
 				LinkedHashMap<Index, Integer> indexes = 
 					new LinkedHashMap<Index, Integer>();
-				indexes.put(Index.IMAGE_INDEX, imageIndex);
 				indexes.put(Index.ROI_INDEX, roiIndex);
 				// Creates an ROI if one doesn't exist
 				store.getIObjectContainer(Roi.class, indexes);
