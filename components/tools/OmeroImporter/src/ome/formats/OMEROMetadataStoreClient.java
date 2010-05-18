@@ -2641,7 +2641,7 @@ public class OMEROMetadataStoreClient
     public void setChannelFilterSetRef(String filterSet, int imageIndex,
             int channelIndex)
     {
-        LSID key = new LSID(Channel.class, imageIndex, channelIndex);
+        LSID key = new LSID(LogicalChannel.class, imageIndex, channelIndex);
         addReference(key, new LSID(filterSet));
 
     }
