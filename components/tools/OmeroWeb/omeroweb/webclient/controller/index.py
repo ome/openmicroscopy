@@ -40,7 +40,9 @@ class BaseIndex(BaseController):
     def loadMostRecent(self):
         #shc.extend(list(self.conn.getMostRecentComments()))
         self.mostRecentSharesComments = self.sortByAttr(list(self.conn.getMostRecentSharesCommentLinks()), 'child.details.creationEvent.time', True)
-        '''shares = list()
+        for cl in self.mostRecentSharesComments:
+            print (cl.getShare().id)
+        shares = list()
         for sh in list(self.conn.getMostRecentShares()):
             flag = True
             for s in shares:
@@ -48,7 +50,7 @@ class BaseIndex(BaseController):
                     flag = False 
             if flag:
                 shares.append(sh.getShare())
-        self.mostRecentShares = self.sortByAttr(shares, 'started', True)'''
+        self.mostRecentShares = self.sortByAttr(shares, 'started', True)
     
     def loadTagCloud(self):
         tags = dict()

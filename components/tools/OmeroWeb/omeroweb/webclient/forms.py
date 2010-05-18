@@ -102,7 +102,7 @@ class ContainerForm(forms.Form):
     
     name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':45}))
     description = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 39}), required=False, help_text=help_wiki)
-    
+
 class CommentAnnotationForm(forms.Form):
     
     content = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 39}))
@@ -123,20 +123,6 @@ class TagListForm(forms.Form):
         self.fields['tags'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['tags'], widget=forms.SelectMultiple(attrs={'size':6, 'class':'existing'}))
         self.fields.keyOrder = ['tags']
 
-class CommentListForm(forms.Form):
-    
-    def __init__(self, *args, **kwargs):
-        super(CommentListForm, self).__init__(*args, **kwargs)
-        self.fields['comments'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['comments'], widget=forms.SelectMultiple(attrs={'size':6, 'class':'existing'}))
-        self.fields.keyOrder = ['comments']
-
-class UrlListForm(forms.Form):
-    
-    def __init__(self, *args, **kwargs):
-        super(UrlListForm, self).__init__(*args, **kwargs)
-        self.fields['urls'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['urls'], widget=forms.SelectMultiple(attrs={'size':6, 'class':'existing'}))
-        self.fields.keyOrder = ['urls']
-
 class FileListForm(forms.Form):
     
     def __init__(self, *args, **kwargs):
@@ -151,6 +137,27 @@ class UploadFileForm(forms.Form):
         if self.cleaned_data['annotation_file'] is None:
             raise forms.ValidationError('This field is required.')
 
+class MultiAnnotationForm(forms.Form):
+    
+    def __init__(self, *args, **kwargs):
+        super(MultiAnnotationForm, self).__init__(*args, **kwargs)
+        
+        print self.data
+        try:
+            self.fields['image'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['images'], initial=kwargs['initial']['selected'], widget=forms.SelectMultiple(attrs={'size':10}))
+        except:
+            self.fields['image'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['images'], widget=forms.SelectMultiple(attrs={'size':10}))
+
+        self.fields['tags'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['tags'], widget=forms.SelectMultiple(attrs={'size':6, 'class':'existing'}), required=False)
+        self.fields['files'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['files'], widget=forms.SelectMultiple(attrs={'size':6, 'class':'existing'}), required=False)
+        
+        self.fields.keyOrder = ['content', 'tag', 'description', 'annotation_file','tags','files','image']
+        
+    content = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 39}), required=False)
+    tag = forms.CharField(widget=forms.TextInput(attrs={'size':36}), required=False)
+    description = forms.CharField(widget=forms.Textarea(attrs={'rows': 3, 'cols': 31}), required=False, label="Desc")
+    annotation_file  = forms.FileField(required=False)
+    
 class UsersForm(forms.Form):
 
     def __init__(self, *args, **kwargs):

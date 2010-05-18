@@ -8,6 +8,25 @@ var calculateCartTotal = function(total)
     $('#cartTotal').html(total);
 };
 
+function manyToAnnotation(){
+    if (!isCheckedById("image")) {//&& !isCheckedById("dataset") && !isCheckedById("plate")) {
+        alert ("Please select at least one image. Currently you cannot add other objects to basket."); 
+    } else { 
+        var productListQuery = "/webclient/metadata_details/multiaction/annotatemany/?";
+        $("input[type='checkbox']:checked").each(function() {
+            if(this.checked) {
+                productListQuery += "&"+this.name+"="+this.id;
+            }
+        });
+        
+        var h = $(window).height()-200;
+        $("#right_panel").show();
+        $("#swapMeta").html('<img tabindex="0" src="/appmedia/omeroweb/images/tree/spacer.gif"" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
+        $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="'+productListQuery+'" id="metadata_details" name="metadata_details"></iframe>');
+        $('iframe#metadata_details').load();
+    }    
+}
+
 function manyAddToBasket() {     
     if (!isCheckedById("image")) {//&& !isCheckedById("dataset") && !isCheckedById("plate")) {
         alert ("Please select at least one image. Currently you cannot add other objects to basket."); 

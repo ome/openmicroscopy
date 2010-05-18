@@ -369,6 +369,7 @@ class ShareCommentWrapper (OmeroWebObjectWrapper, omero.gateway.AnnotationWrappe
     pass
     
 class SessionAnnotationLinkWrapper (omero.gateway.BlitzObjectWrapper):
+    
     def getComment(self):
         return ShareCommentWrapper(self._conn, self.child)
     

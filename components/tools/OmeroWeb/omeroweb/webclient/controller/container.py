@@ -57,7 +57,7 @@ class BaseContainer(BaseController):
     
     orphaned = False
     
-    def __init__(self, conn, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, tag=None, metadata=False, **kw):
+    def __init__(self, conn, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, tag=None, **kw):
         BaseController.__init__(self, conn)
         if o1_type == "project":
             self.project = self.conn.getProject(o1_id)
@@ -438,20 +438,8 @@ class BaseContainer(BaseController):
             return list(self.conn.listTags("plate", self.plate.id))
         elif self.screen is not None:
             return list(self.conn.listTags("screen", self.screen.id))
-    
-    def listComments(self):
-        if self.image is not None:
-            return list(self.conn.listComments("image", self.image.id))
-        elif self.dataset is not None:
-            return list(self.conn.listComments("dataset", self.dataset.id))
-        elif self.project is not None:
-            return list(self.conn.listComments("project", self.project.id))
-        elif self.well is not None:
-            return list(self.conn.listComments("well", self.well.id))
-        elif self.plate is not None:
-            return list(self.conn.listComments("plate", self.plate.id))
-        elif self.screen is not None:
-            return list(self.conn.listComments("screen", self.screen.id))
+        else:
+            return list(self.conn.lookupTags())
     
     def listFiles(self):
         if self.image is not None:
@@ -466,7 +454,8 @@ class BaseContainer(BaseController):
             return list(self.conn.listFiles("plate", self.plate.id))
         elif self.screen is not None:
             return list(self.conn.listFiles("screen", self.screen.id))
-    
+        else:
+            return list(self.conn.lookupFiles())
     ####################################################################
     # Creation
     
@@ -537,7 +526,20 @@ class BaseContainer(BaseController):
         l_ann.setChild(ann)
         self.conn.saveObject(l_ann)
     
-    # Tag annotation
+    def createImageCommentAnnotations(self, content, oids):        
+        ann = CommentAnnotationI()
+        ann.textValue = rstring(str(content))
+        ann = self.conn.saveAndReturnObject(ann)
+        
+        new_links = list()
+        for im in list(self.conn.listSelectedImages(oids)):
+            l_ann = ImageAnnotationLinkI()
+            l_ann.setParent(im._obj)
+            l_ann.setChild(ann._obj)
+            new_links.append(l_ann)
+        self.conn.saveArray(new_links)
+    
+    # Tag annotation    
     def createImageTagAnnotation(self, tag, desc):
         ann = None
         try:
@@ -590,6 +592,26 @@ class BaseContainer(BaseController):
         t_ann.setChild(ann)
         self.conn.saveObject(t_ann)
     
+    def createImageTagAnnotations(self, tag, desc, oids):        
+        ann = None
+        try:
+            ann = self.conn.findTag(tag, desc)._obj
+        except:
+            pass
+        if ann is None:
+            ann = TagAnnotationI()
+            ann.textValue = rstring(str(tag))
+            ann.setDescription(rstring(str(desc)))
+            ann = self.conn.saveAndReturnObject(ann)
+        
+        new_links = list()
+        for im in list(self.conn.listSelectedImages(oids)):
+            l_ann = ImageAnnotationLinkI()
+            l_ann.setParent(im._obj)
+            l_ann.setChild(ann._obj)
+            new_links.append(l_ann)
+        self.conn.saveArray(new_links)
+    
     # File annotation
     def getFileFormat(self, newFile):
         format = None
@@ -615,16 +637,16 @@ class BaseContainer(BaseController):
         oFile.setSha1(rstring("pending"));
         oFile.setMimetype(rstring(str(format)));
         
-        of = self.conn.saveAndReturnObject(oFile);
-        self.conn.saveFile(newFile, of.id)
+        ofid = self.conn.saveAndReturnId(oFile);
+        of = self.conn.saveAndReturnFile(newFile, ofid)
         
         fa = FileAnnotationI()
-        fa.setFile(of._obj)
+        fa.setFile(of)
         l_ia = ProjectAnnotationLinkI()
         l_ia.setParent(self.project._obj)
         l_ia.setChild(fa)
         self.conn.saveObject(l_ia)
-    
+        
     def createScreenFileAnnotation(self, newFile):
         if newFile.content_type.startswith("image"):
             f = newFile.content_type.split("/") 
@@ -638,11 +660,11 @@ class BaseContainer(BaseController):
         oFile.setSha1(rstring("pending"));
         oFile.setMimetype(rstring(str(format)));
         
-        of = self.conn.saveAndReturnObject(oFile);
-        self.conn.saveFile(newFile, of.id)
+        ofid = self.conn.saveAndReturnId(oFile);
+        of = self.conn.saveAndReturnFile(newFile, ofid)
         
         fa = FileAnnotationI()
-        fa.setFile(of._obj)
+        fa.setFile(of)
         l_ia = ScreenAnnotationLinkI()
         l_ia.setParent(self.screen._obj)
         l_ia.setChild(fa)
@@ -661,11 +683,11 @@ class BaseContainer(BaseController):
         oFile.setSha1(rstring("pending"));
         oFile.setMimetype(rstring(str(format)));
         
-        of = self.conn.saveAndReturnObject(oFile);
-        self.conn.saveFile(newFile, of.id)
+        ofid = self.conn.saveAndReturnId(oFile);
+        of = self.conn.saveAndReturnFile(newFile, ofid)
         
         fa = FileAnnotationI()
-        fa.setFile(of._obj)
+        fa.setFile(of)
         l_ia = DatasetAnnotationLinkI()
         l_ia.setParent(self.dataset._obj)
         l_ia.setChild(fa)
@@ -684,11 +706,11 @@ class BaseContainer(BaseController):
         oFile.setSha1(rstring("pending"));
         oFile.setMimetype(rstring(str(format)));
         
-        of = self.conn.saveAndReturnObject(oFile);
-        self.conn.saveFile(newFile, of.id)
+        ofid = self.conn.saveAndReturnId(oFile);
+        of = self.conn.saveAndReturnFile(newFile, ofid)
         
         fa = FileAnnotationI()
-        fa.setFile(of._obj)
+        fa.setFile(of)
         l_ia = PlateAnnotationLinkI()
         l_ia.setParent(self.plate._obj)
         l_ia.setChild(fa)
@@ -707,15 +729,42 @@ class BaseContainer(BaseController):
         oFile.setSha1(rstring("pending"));
         oFile.setMimetype(rstring(str(format)));
         
-        of = self.conn.saveAndReturnObject(oFile);
-        self.conn.saveFile(newFile, of.id)
+        ofid = self.conn.saveAndReturnId(oFile);
+        of = self.conn.saveAndReturnFile(newFile, ofid)
         
         fa = FileAnnotationI()
-        fa.setFile(of._obj)
+        fa.setFile(of)
         l_ia = ImageAnnotationLinkI()
         l_ia.setParent(self.image._obj)
         l_ia.setChild(fa)
         self.conn.saveObject(l_ia)
+    
+    def createImageFileAnnotations(self, newFile, oids):        
+        if newFile.content_type.startswith("image"):
+            f = newFile.content_type.split("/") 
+            format = f[1].upper()
+        else:
+            format = newFile.content_type
+        oFile = OriginalFileI()
+        oFile.setName(rstring(str(newFile.name)));
+        oFile.setPath(rstring(str(newFile.name)));
+        oFile.setSize(rlong(long(newFile.size)));
+        oFile.setSha1(rstring("pending"));
+        oFile.setMimetype(rstring(str(format)));
+        
+        ofid = self.conn.saveAndReturnId(oFile);
+        of = self.conn.saveAndReturnFile(newFile, ofid)
+        
+        fa = FileAnnotationI()
+        fa.setFile(of)
+        
+        new_links = list()
+        for im in list(self.conn.listSelectedImages(oids)):            
+            l_ann = ImageAnnotationLinkI()
+            l_ann.setParent(im._obj)
+            l_ann.setChild(fa)
+            new_links.append(l_ann)
+        self.conn.saveArray(new_links)
     
     # Create links
     def createImageAnnotationLinks(self, o_type, ids):
@@ -801,6 +850,28 @@ class BaseContainer(BaseController):
             ann.setParent(self.screen._obj)
             ann.setChild(a._obj)
             new_links.append(ann)
+        self.conn.saveArray(new_links)
+    
+    def createImageTagAnnotationLinks(self, tids, oids):
+        #TODO: check if link already exist !!!
+        new_links = list()
+        for im in list(self.conn.listSelectedImages(oids)):
+            for t in self.conn.listSpecifiedTags(tids):
+                l_ann = ImageAnnotationLinkI()
+                l_ann.setParent(im._obj)
+                l_ann.setChild(t._obj)
+                new_links.append(l_ann)
+        self.conn.saveArray(new_links)
+    
+    def createImageFileAnnotationLinks(self, fids, oids):
+        #TODO: check if link already exist !!!
+        new_links = list()
+        for im in list(self.conn.listSelectedImages(oids)):
+            for t in self.conn.listSpecifiedFiles(fids):
+                l_ann = ImageAnnotationLinkI()
+                l_ann.setParent(im._obj)
+                l_ann.setChild(t._obj)
+                new_links.append(l_ann)
         self.conn.saveArray(new_links)
     
     ################################################################

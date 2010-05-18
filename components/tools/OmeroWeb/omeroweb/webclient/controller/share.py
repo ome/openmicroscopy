@@ -129,34 +129,22 @@ class BaseShare(BaseController):
         self.conn.addComment(host, int(blitz_id), self.share.id, comment)
 
     def getShares(self):
-        own_list = self.sortByAttr(list(self.conn.getOwnShares()), 'started', True)
-        mem_list = self.sortByAttr(list(self.conn.getMemberShares()), 'started', True)
+        sh_list = list(self.conn.getOwnShares())
+        sh_list.extend(list(self.conn.getMemberShares()))
+        sh_list = self.sortByAttr(sh_list, 'started', True)
         
-        os_list_with_counters = list()
-        ms_list_with_counters = list()
+        sh_list_with_counters = list()
         
-        own_ids = [sh.id for sh in own_list]
-        if len(own_ids) > 0:
-            osh_annotation_counter = self.conn.getCommentCount(own_ids)
+        sh_ids = [sh.id for sh in sh_list]
+        if len(sh_ids) > 0:
+            sh_annotation_counter = self.conn.getCommentCount(sh_ids)
             
-            for sh in own_list:
-                sh.annotation_counter = osh_annotation_counter.get(sh.id)
-                os_list_with_counters.append(sh)
+            for sh in sh_list:
+                sh.annotation_counter = sh_annotation_counter.get(sh.id)
+                sh_list_with_counters.append(sh)
             
-            self.ownShares = os_list_with_counters
-            self.oshSize = len(self.ownShares)
-            
-        mem_ids = [sh.id for sh in mem_list]
-        if len(mem_ids) > 0:
-            msh_annotation_counter = self.conn.getCommentCount(mem_ids)
-            
-            for sh in mem_list:
-                sh.annotation_counter = msh_annotation_counter.get(sh.id)
-                ms_list_with_counters.append(sh)
-            
-            self.memberShares = ms_list_with_counters
-            self.mshSize = len(self.memberShares)
-        self.sharesSize = self.oshSize + self.mshSize
+            self.shares = sh_list_with_counters
+            self.shSize = len(self.shares)
 
     def getComments(self, share_id):
         self.comments = self.sortByAttr(list(self.conn.getComments(share_id)), 'details.creationEvent.time')

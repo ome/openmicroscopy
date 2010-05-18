@@ -2,16 +2,15 @@
 {% load markup %}
 {% load custom_tags %}
 
-{% if share.sharesSize %}
+{% if share.shSize %}
 <ul class="simpleTree">
     <li class="root" id='0'><span>{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.getFullName }}{% endif %}</span>
-        {% if share.oshSize %}
         <ul>
-            {% for s in share.ownShares %}
+            {% for s in share.shares %}
             {% if s.isEmpty %}
-            <li id="disc-{{ s.id }}"><span id="readonly">share {{ s.id }}</span></li>
+            <li id="disc-{{ s.id }}"><span id="readonly">share {{ s.id }}</span> {% if not s.isOwned %}<img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</li>
             {% else %}
-            <li id="sh-{{ s.id }}"><span id="readonly">share {{ s.id }}</span>
+            <li id="sh-{{ s.id }}"><span id="readonly">share {{ s.id }}</span> {% if not s.isOwned %}<img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}
                 <ul class="ajax">
                     <li id='{{ s.id }}'>{url:{% url load_public s.id %}?view=tree}</li>
                 </ul>
@@ -19,23 +18,6 @@
             {% endif %}
             {% endfor %}
         </ul>
-        {% endif %}   
-    
-        {% if share.mshSize %}
-        <ul>
-            {% for s in share.memberShares %}
-            {% if s.isEmpty %}
-            <li id="disc-{{ s.id }}"><span id="readonly">share {{ s.id }}</span></li>
-            {% else %}
-            <li id="sh-{{ s.id }}"><span id="readonly">share {{ s.id }}</span>
-                <ul class="ajax">
-                    <li id='{{ s.id }}'>{url:{% url load_public s.id %}?view=tree}</li>
-                </ul>
-            </li>
-            {% endif %}
-            {% endfor %}
-        </ul>
-        {% endif %}
     </li>
 </ul>
 {% else %}

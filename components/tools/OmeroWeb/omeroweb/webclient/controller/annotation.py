@@ -64,7 +64,7 @@ class BaseAnnotation(BaseController):
     def getFileAnnotation(self, iid):
         self.annotation = self.conn.getFileAnnotation(iid)
         self.ann_type = self.annotation.file.mimetype
-        temp = self.conn.getFile(self.annotation.file.id.val, self.annotation.file.size.val)
+        temp = self.annotation.getFile()
         if temp.startswith(settings.FILE_UPLOAD_TEMP_DIR):
             from django.core.servers.basehttp import FileWrapper
             self.originalFile_data = FileWrapper(file(temp))

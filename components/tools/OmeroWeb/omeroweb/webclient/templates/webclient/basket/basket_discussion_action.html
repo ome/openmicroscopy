@@ -48,19 +48,13 @@
     <div>
         <form action="{% url basket_action "createdisc" %}" method="post">
             <table>
-            {% for field in form %}
-                {% ifequal field.label_tag form.image.label_tag %}
-                {% if field.errors %}<tr><th>{{ field.label_tag }}</th></tr>
-                <tr><td>{% if field.field.required %}*{% endif %}{{ field.errors }}{% endif %}</td></tr>
-                <tr class="hiddenField"><td>{{ field }}</td></tr>
-                {% else %}
+            {% for field in form %}                
                 {% ifequal field.label_tag form.enable.label_tag %}
                 <tr><th>{{ field.label_tag }}{% if field.field.required %}*{% endif %} {{ field }} {{ field.help_text|safe }} {% if field.errors %}{{ field.errors }}{% endif %}</th></tr>
                 {% else %}                
                 <tr><th>{{ field.label_tag }}{% if field.field.required %}*{% endif %} {{ field.help_text|safe }}</th></tr>
                 <tr><td>{% if field.errors %}{{ field.errors }}{% endif %}</th></tr>
                 <tr><td>{{ field }}</td></tr>
-                {% endifequal %}
                 {% endifequal %}
             {% endfor %}
                 <tr><td><input type="submit" value="{% trans 'Save' %}" /></td></tr>

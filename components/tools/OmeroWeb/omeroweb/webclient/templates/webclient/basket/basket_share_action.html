@@ -51,7 +51,7 @@
             {% for field in form %}
                 {% ifequal field.label_tag form.image.label_tag %}
                 {% if field.errors %}<tr><th>{{ field.label_tag }}</th></tr>
-                <tr><td>{% if field.field.required %}*{% endif %}{{ field.errors }}{% endif %}</td></tr>
+                <tr><td>{% if field.field.required %}*{% endif %}{{ field.errors }}</td></tr>{% endif %}
                 <tr class="hiddenField"><td>{{ field }}</td></tr>
                 {% else %}
                 {% ifequal field.label_tag form.enable.label_tag %}

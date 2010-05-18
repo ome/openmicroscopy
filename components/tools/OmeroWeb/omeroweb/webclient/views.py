@@ -79,7 +79,8 @@ from forms import ShareForm, BasketShareForm, ShareCommentForm, \
                     MetadataFilterForm, MetadataDetectorForm, MetadataChannelForm, \
                     MetadataEnvironmentForm, MetadataObjectiveForm, MetadataStageLabelForm, \
                     MetadataLightSourceForm, MetadataDichroicForm, MetadataMicroscopeForm, \
-                    TagListForm, UrlListForm, CommentListForm, FileListForm, TagFilterForm, \
+                    TagListForm, FileListForm, TagFilterForm, \
+                    MultiAnnotationForm, \
                     WellIndexForm
 from omeroweb.webadmin.forms import MyAccountForm, MyAccountLdapForm, UploadPhotoForm, LoginForm
 
@@ -817,8 +818,7 @@ def autocomplete_tags(request, **kwargs):
 def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):  
     conn = None
     try:
-        conn = kwargs["conn"]
-        
+        conn = kwargs["conn"]        
     except:
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
@@ -846,10 +846,10 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
         else:
             if conn_share is not None:
                 template = "webclient/annotations/annotations_share.html"                
-                manager = BaseContainer(conn_share, c_type, c_id, metadata=True)
+                manager = BaseContainer(conn_share, c_type, c_id)
             else:
                 template = "webclient/annotations/annotations.html"                
-                manager = BaseContainer(conn, c_type, c_id, metadata=True)
+                manager = BaseContainer(conn, c_type, c_id)
                 manager.annotationList()
     except AttributeError, x:
         logger.error(traceback.format_exc())
@@ -946,38 +946,6 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
     return HttpResponse(t.render(c))
 
 @isUserConnected
-def load_metadata_details_multi(request, **kwargs):   
-    template = "webclient/annotations/annotation_new_form_multi.html"
-     
-    conn = None
-    try:
-        conn = kwargs["conn"]
-        
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
-    
-    whos = request.session['nav']['whos']
-    try:
-        manager = BaseContainer(conn, c_type, c_id)
-    except AttributeError, x:
-        logger.error(traceback.format_exc())
-        return handlerInternalError(x)
-    
-    context = {'url':url, 'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager}
-            
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
-
-@isUserConnected
 def load_hierarchies(request, o_type=None, o_id=None, **kwargs):
     template = "webclient/hierarchy.html"
     conn = None
@@ -1007,6 +975,82 @@ def load_hierarchies(request, o_type=None, o_id=None, **kwargs):
 
 ###########################################################################
 # ACTIONS
+
+@isUserConnected
+def manage_annotation_multi(request, action=None, **kwargs):   
+    template = "webclient/annotations/annotation_new_form_multi.html"
+     
+    conn = None
+    try:
+        conn = kwargs["conn"]
+        
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+    
+    # check menu
+    menu = request.REQUEST.get("menu")
+    if menu is not None:
+        request.session['nav']['menu'] = menu
+    else:
+        menu = request.session['nav']['menu']
+    
+    url = None
+    try:
+        url = kwargs["url"]
+    except:
+        logger.error(traceback.format_exc())
+    
+    try:
+        manager = BaseContainer(conn)
+    except AttributeError, x:
+        logger.error(traceback.format_exc())
+        return handlerInternalError(x)
+    
+    images = list(conn.listSelectedImages(request.REQUEST.getlist('image')))
+    
+    form_multi = None
+    
+    if action == "annotatemany":        
+        form_multi = MultiAnnotationForm(initial={'tags':manager.listTags(), 'files':manager.listFiles(), 'images':images, 'selected':request.REQUEST.getlist('image')})
+    else:
+        if request.method == 'POST':
+            print request.FILES
+            
+            form_multi = MultiAnnotationForm(initial={'tags':manager.listTags(), 'files':manager.listFiles(), 'images':images}, data=request.REQUEST.copy(), files=request.FILES)
+            if form_multi.is_valid():
+                oids = request.REQUEST.getlist('image')
+                
+                content = request.REQUEST.get('content')
+                if content is not None and content != "":
+                    manager.createImageCommentAnnotations(content, oids)
+                
+                tag = request.REQUEST.get('tag')
+                description = request.REQUEST.get('description')
+                if tag is not None and tag != "":
+                    manager.createImageTagAnnotations(tag, description, oids)
+                
+                tags = request.REQUEST.getlist('tags')
+                if tags is not None and len(tags) > 0:
+                    manager.createImageTagAnnotationLinks(tags, oids)
+                
+                files = request.REQUEST.getlist('files')
+                if files is not None and len(files) > 0:
+                    manager.createImageFileAnnotationLinks(files, oids)
+                
+                f = request.FILES.get('annotation_file')
+                if f is not None:
+                    manager.createImageFileAnnotations(f, oids)
+
+                return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse(viewname="load_template", args=[menu]))
+            
+    context = {'url':url, 'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form_multi':form_multi}
+            
+    t = template_loader.get_template(template)
+    c = Context(request,context)
+    logger.debug('TEMPLATE: '+template)
+    return HttpResponse(t.render(c))
+
 
 @isUserConnected
 def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
@@ -1596,7 +1640,7 @@ def basket_action (request, action=None, **kwargs):
                 host = '%s://%s:%s%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], reverse("webindex"))
             share = BaseShare(conn)
             share.createShare(host, request.session['server'], images, message, members, enable, expiration)
-            return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse("load_public")) 
+            return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse("load_template", args=["public"])) 
         else:
             template = "webclient/basket/basket_share_action.html"
             context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'form':form}

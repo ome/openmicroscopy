@@ -124,7 +124,11 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for s in self.c.sf.activeServices():
             print s
         
-
+        for k in self._proxies.keys():
+            try:
+                self._proxies[k].close()
+            except:
+                print traceback.format_exc()
         try:
             self.c.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid, False))
             admin_serv = self.getAdminService()
@@ -669,7 +673,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map = {}
         p.map["oid"] = rlong(long(oid))
         p.map["gid"] = rlong(self.getEventContext().groupId)
-        if self.getEventContext().isReadOnly:
+        if self.getGroupFromContext().isReadOnly():
             p.map["eid"] = rlong(self.getEventContext().userId)
             sql += " and a.details.owner.id=:eid"
         for e in q.findAllByQuery(sql,p):
@@ -791,9 +795,23 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         else:
             p.map["eid"] = rlong(self.getEventContext().userId)
         sql = "select tg from TagAnnotation tg where tg.details.owner.id=:eid and tg.ns is null"
-        tags = list()
         for e in q.findAllByQuery(sql,p):
             yield AnnotationWrapper(self, e)
+    
+    def lookupFiles(self, eid=None):
+        """ Retrieves list of Tags owned by current user.
+            This method is used by autocomplite."""
+
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        if eid is not None:
+            p.map["eid"] = rlong(long(eid))
+        else:
+            p.map["eid"] = rlong(self.getEventContext().userId)
+        sql = "select f from FileAnnotation f join fetch f.file where f.details.owner.id=:eid and f.ns is null"
+        for e in q.findAllByQuery(sql,p):
+            yield FileAnnotationWrapper(self, e)
     
     ##############################################
     ##   Share methods
@@ -861,6 +879,13 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     
     ##############################################
     ##  Specific Object Getters                 ##
+    
+    def getGroupFromContext(self):
+        """ Fetch an Group and all contained users."""
+        
+        admin_service = self.getAdminService()
+        group = admin_service.getGroup(self.getEventContext().groupId)
+        return ExperimenterGroupWrapper(self, group)
     
     def getGroup(self, gid):
         """ Fetch an Group and all contained users."""
@@ -1273,29 +1298,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         of = query_serv.findByQuery(sql, p)
         return FileAnnotationWrapper(self, of)
     
-    def getFile(self, f_id, size):
-        store = self.createRawFileStore()
-        store.setFileId(long(f_id))
-        buf = 1048576
-        if size <= buf:
-            temp = store.read(0,long(size))
-        else:
-            temp = "%s/%i-%s.download" % (settings.FILE_UPLOAD_TEMP_DIR, size, self._sessionUuid)
-            outfile = open (temp, "wb")
-            for pos in range(0,long(size),buf):
-                data = None
-                if size-pos < buf:
-                    data = store.read(pos+1, size-pos)
-                else:
-                    if pos == 0:
-                        data = store.read(pos, buf)
-                    else:
-                        data = store.read(pos+1, buf)
-                outfile.write(data)
-            outfile.close()
-        store.close()
-        return temp
-    
     def uploadMyUserPhoto(self, filename, format, data):
         admin_serv = self.getAdminService()
         pid = admin_serv.uploadMyUserPhoto(filename, format, data)
@@ -1328,7 +1330,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             store = self.createRawFileStore()
             store.setFileId(ann.file.id.val)
             photo = store.read(0,long(ann.file.size.val))
-            store.close()
         except:
             logger.error(traceback.format_exc())
             photo = self.getExperimenterDefaultPhoto()
@@ -1347,7 +1348,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             store = self.createRawFileStore()
             store.setFileId(ann.file.id.val)
             photo = store.read(0,long(ann.file.size.val))
-            store.close()
             try:
                 im = Image.open(StringIO(photo))
             except IOError:
@@ -1370,7 +1370,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             store = self.createRawFileStore()
             store.setFileId(ann.file.id.val)
             photo = store.read(0,long(ann.file.size.val))
-            store.close()
         except:
             raise IOError("Photo does not exist.")
         else:
@@ -1398,88 +1397,13 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         query_serv = self.getQueryService()
         return query_serv.findByString("Format", "value", format).getValue().val;
     
-    def saveFile(self, binary, oFile_id):
-        store = self.createRawFileStore()
-        store.setFileId(oFile_id);
-        pos = 0
-        rlen = 0
-        
-        for chunk in binary.chunks():
-            rlen = len(chunk)
-            store.write(chunk, pos, rlen)
-            pos = pos + rlen
-        store.close()
-    
     ################################################
     ##   Counters
     
     def getCollectionCount(self, parent, child, ids):
         container = self.getContainerService()
         return container.getCollectionCount(parent, child, ids, None)
-    
-    ################################################
-    ##   Enumeration
-    
-    def getEnumerationEntries(self, klass):
-        types = self.getTypesService()
-        for e in types.allEnumerations(str(klass)):
-            yield EnumerationWrapper(self, e)
-    
-    def getEnumeration(self, klass, string):
-        types = self.getTypesService()
-        obj = types.getEnumeration(str(klass), str(string))
-        if obj is not None:
-            return EnumerationWrapper(self, obj)
-        else:
-            return None
-    
-    def getEnumerationById(self, klass, eid):
-        query_serv = self.getQueryService()
-        obj =  query_serv.find(klass, long(eid))
-        if obj is not None:
-            return EnumerationWrapper(self, obj)
-        else:
-            return None
-            
-    def getOriginalEnumerations(self):
-        types = self.getTypesService()
-        rv = dict()
-        for e in types.getOriginalEnumerations():
-            if rv.get(e.__class__.__name__) is None:
-                rv[e.__class__.__name__] = list()
-            rv[e.__class__.__name__].append(EnumerationWrapper(self, e))
-        return rv
-        
-    def getEnumerations(self):
-        types = self.getTypesService()
-        return types.getEnumerationTypes() 
-    
-    def getEnumerationsWithEntries(self):
-        types = self.getTypesService()
-        rv = dict()
-        for key, value in types.getEnumerationsWithEntries().items():
-            r = list()
-            for e in value:
-                r.append(EnumerationWrapper(self, e))
-            rv[key+"I"] = r
-        return rv
-    
-    def deleteEnumeration(self, obj):
-        types = self.getTypesService()
-        types.deleteEnumeration(obj)
-        
-    def createEnumeration(self, obj):
-        types = self.getTypesService()
-        types.createEnumeration(obj)
-    
-    def resetEnumerations(self, klass):
-        types = self.getTypesService()
-        types.resetEnumerations(klass)
-    
-    def updateEnumerations(self, new_entries):
-        types = self.getTypesService()
-        types.updateEnumerations(new_entries)
-        
+
     ################################################
     ##   Validators     
     
@@ -1598,8 +1522,27 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     def saveAndReturnObject (self, obj):
         u = self.getUpdateService()
         res = u.saveAndReturnObject(obj)
+        res.unload()
         obj = BlitzObjectWrapper(self, res)
         return obj
+    
+    def saveAndReturnId (self, obj):
+        u = self.getUpdateService()
+        res = u.saveAndReturnObject(obj)
+        res.unload()
+        return res.id.val
+    
+    def saveAndReturnFile(self, binary, oFile_id):
+        store = self.createRawFileStore()
+        store.setFileId(oFile_id);
+        pos = 0
+        rlen = 0
+        
+        for chunk in binary.chunks():
+            rlen = len(chunk)
+            store.write(chunk, pos, rlen)
+            pos = pos + rlen
+        return store.save()
     
     def deleteObject(self, obj):
         u = self.getUpdateService()
@@ -1845,7 +1788,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.limit = rint(10)
         p.theFilter = f
         for e in tm.getMostRecentShareCommentLinks(p):
-            yield BlitzObjectWrapper(self, e)
+            print e
+            yield SessionAnnotationLinkWrapper(self, e)
     
     def getMostRecentSharesCommentLinks (self):
         tm = self.getTimelineService()
@@ -1856,7 +1800,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.limit = rint(10)
         p.theFilter = f
         for e in tm.getMostRecentShareCommentLinks(p):
-            yield BlitzObjectWrapper(self, e)
+            yield SessionAnnotationLinkWrapper(self, e)
     
     def getMostRecentComments (self):
         tm = self.getTimelineService()
@@ -1977,10 +1921,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if query:
            search.setAllowLeadingWildcard(True)
            search.byFullText(str(query))
-        rv = search.hasNext() and search.results() or list()
-        search.close()
-        for e in rv:
-            yield ImageWrapper(self, e)
+        if search.hasNext():
+            for e in search.results():
+                yield ImageWrapper(self, e)
 
     def searchDatasets (self, query=None, created=None):
         search = self.createSearchService()
@@ -1991,10 +1934,11 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if query:
            search.setAllowLeadingWildcard(True)
            search.byFullText(str(query))
-        rv = search.hasNext() and search.results() or list()
-        search.close()
-        for e in rv:
-            yield DatasetWrapper(self, e)
+        
+        if search.hasNext():
+            for e in search.results():
+                yield DatasetWrapper(self, e)
+        
 
     def searchProjects (self, query=None, created=None):
         search = self.createSearchService()
@@ -2005,10 +1949,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if query:
            search.setAllowLeadingWildcard(True)
            search.byFullText(str(query))
-        rv = search.hasNext() and search.results() or list()
-        search.close()
-        for e in rv:
-            yield ProjectWrapper(self, e)
+        if search.hasNext():
+            for e in search.results():
+                yield ProjectWrapper(self, e)
     
     def searchScreens (self, query=None, created=None):
         search = self.createSearchService()
@@ -2019,10 +1962,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if query:
            search.setAllowLeadingWildcard(True)
            search.byFullText(str(query))
-        rv = search.hasNext() and search.results() or list()
-        search.close()
-        for e in rv:
-            yield ScreenWrapper(self, e)
+        if search.hasNext():
+            for e in search.results():
+                yield ScreenWrapper(self, e)
     
     def searchPlates (self, query=None, created=None):
         search = self.createSearchService()
@@ -2033,10 +1975,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if query:
            search.setAllowLeadingWildcard(True)
            search.byFullText(str(query))
-        rv = search.hasNext() and search.results() or list()
-        search.close()
-        for e in rv:
-            yield PlateWrapper(self, e)
+        if search.hasNext():
+            for e in search.results():
+                yield PlateWrapper(self, e)
     
     ##############################################
     ##  helpers                                 ##
