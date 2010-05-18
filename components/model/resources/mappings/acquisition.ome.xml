@@ -372,8 +372,8 @@
 			<optional name="filterWheel" type="string"/>
 			<optional name="type" type="ome.model.enums.FilterType"/>
 			<optional name="transmittanceRange" type="ome.model.acquisition.TransmittanceRange"/>
+                        <optional name="filterSet" type="ome.model.acquisition.FilterSet"/>
 			<manyone name="instrument" type="ome.model.acquisition.Instrument"/>
-                        <manyone name="filterSet" type="ome.model.acquisition.FilterSet"/>
 		</properties>
 	</type>
 	<type id="ome.model.acquisition.FilterSet" manufactured="true">
