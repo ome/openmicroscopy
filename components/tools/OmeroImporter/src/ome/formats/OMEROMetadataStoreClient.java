@@ -2734,7 +2734,7 @@ public class OMEROMetadataStoreClient
     public void setChannelAnnotationRef(String annotation, int imageIndex,
             int channelIndex, int annotationRefIndex)
     {
-        LSID key = new LSID(Channel.class, imageIndex, channelIndex, annotationRefIndex);
+        LSID key = new LSID(Channel.class, imageIndex, channelIndex);
         addReference(key, new LSID(annotation));
     }
     
@@ -2834,7 +2834,7 @@ public class OMEROMetadataStoreClient
     public void setDatasetAnnotationRef(String annotation, int datasetIndex,
             int annotationRefIndex)
     {
-//        LSID key = new LSID(Dataset.class, datasetIndex, annotationRefIndex);
+//        LSID key = new LSID(Dataset.class, datasetIndex);
 //        addReference(key, new LSID(annotation));
     }
 
@@ -2880,7 +2880,7 @@ public class OMEROMetadataStoreClient
     public void setDatasetProjectRef(String project, int datasetIndex,
             int projectRefIndex)
     {
-//        LSID key = new LSID(Dataset.class, datasetIndex, projectRefIndex);
+//        LSID key = new LSID(Dataset.class, datasetIndex);
 //        addReference(key, new LSID(project));
     }
     
@@ -3477,7 +3477,7 @@ public class OMEROMetadataStoreClient
     public void setExperimenterAnnotationRef(String annotation,
             int experimenterIndex, int annotationRefIndex)
     {
-        //LSID key = new LSID(Experimenter.class, experimenterIndex, annotationRefIndex);
+        //LSID key = new LSID(Experimenter.class, experimenterIndex);
         //addReference(key, new LSID(annotation));   
     }
 
@@ -3514,7 +3514,7 @@ public class OMEROMetadataStoreClient
     public void setExperimenterGroupRef(String group, int experimenterIndex,
             int groupRefIndex)
     {
-        //LSID key = new LSID(Experimenter.class, experimenterIndex, groupRefIndex);
+        //LSID key = new LSID(Experimenter.class, experimenterIndex);
         //addReference(key, new LSID(group)); 
     }
 
@@ -4013,7 +4013,7 @@ public class OMEROMetadataStoreClient
     public void setImageAnnotationRef(String annotation, int imageIndex,
             int annotationRefIndex)
     {
-        LSID key = new LSID(Image.class, imageIndex, annotationRefIndex);
+        LSID key = new LSID(Image.class, imageIndex);
         addReference(key, new LSID(annotation));
     }
 
@@ -4023,7 +4023,7 @@ public class OMEROMetadataStoreClient
     public void setImageDatasetRef(String dataset, int imageIndex,
             int datasetRefIndex)
     {
-        //LSID key = new LSID(Image.class, imageIndex, datasetRefIndex);
+        //LSID key = new LSID(Image.class, imageIndex);
         //addReference(key, new LSID(dataset));
     }
 
@@ -4078,7 +4078,7 @@ public class OMEROMetadataStoreClient
     public void setImageMicrobeamManipulationRef(String microbeamManipulation,
             int imageIndex, int microbeamManipulationRefIndex)
     {
-        LSID key = new LSID(Image.class, imageIndex, microbeamManipulationRefIndex);
+        LSID key = new LSID(Image.class, imageIndex);
         addReference(key, new LSID(microbeamManipulation));
     }
 
@@ -4096,7 +4096,7 @@ public class OMEROMetadataStoreClient
      */
     public void setImageROIRef(String roi, int imageIndex, int ROIRefIndex)
     {
-        LSID key = new LSID(Image.class, imageIndex, ROIRefIndex);
+        LSID key = new LSID(Image.class, imageIndex);
         addReference(key, new LSID(roi));
     }
     
@@ -4731,7 +4731,7 @@ public class OMEROMetadataStoreClient
     public void setListAnnotationAnnotationRef(String annotation,
             int listAnnotationIndex, int annotationRefIndex)
     {
-        LSID key = new LSID(Annotation.class, listAnnotationIndex, annotationRefIndex);
+        LSID key = new LSID(Annotation.class, listAnnotationIndex);
         addReference(key, new LSID(annotation));
     }
 
@@ -4994,7 +4994,7 @@ public class OMEROMetadataStoreClient
     public void setMicrobeamManipulationROIRef(String roi, int experimentIndex,
             int microbeamManipulationIndex, int ROIRefIndex)
     {
-        //LSID key = new LSID(MicrobeamManipulation.class, experimentIndex, microbeamManipulationIndex, ROIRefIndex);
+        //LSID key = new LSID(MicrobeamManipulation.class, experimentIndex, microbeamManipulationIndex);
         //addReference(key, new LSID(roi));
     }
 
@@ -5649,7 +5649,7 @@ public class OMEROMetadataStoreClient
     public void setPixelsAnnotationRef(String annotation, int imageIndex,
             int annotationRefIndex)
     {
-        LSID key = new LSID(Pixels.class, imageIndex, annotationRefIndex);
+        LSID key = new LSID(Pixels.class, imageIndex);
         addReference(key, new LSID(annotation));
     }
 
@@ -5782,7 +5782,7 @@ public class OMEROMetadataStoreClient
             int planeIndex, int annotationRefIndex)
     {
         LSID key = new LSID(
-            PlaneInfo.class, imageIndex, planeIndex, annotationRefIndex);
+            PlaneInfo.class, imageIndex, planeIndex);
         addReference(key, new LSID(annotation));
     }
 
@@ -5974,7 +5974,7 @@ public class OMEROMetadataStoreClient
             int plateIndex, int plateAcquisitionIndex, int wellSampleRefIndex)
     {
         LSID key = new LSID(PlateAcquisition.class, plateIndex,
-            plateAcquisitionIndex, wellSampleRefIndex);
+            plateAcquisitionIndex);
         addReference(key, new LSID(wellSample));
     }
 
@@ -5994,7 +5994,7 @@ public class OMEROMetadataStoreClient
     public void setPlateAnnotationRef(String annotation, int plateIndex,
             int annotationRefIndex)
     {
-        LSID key = new LSID(Plate.class, plateIndex, annotationRefIndex);
+        LSID key = new LSID(Plate.class, plateIndex);
         addReference(key, new LSID(annotation));
     }
 
@@ -6084,7 +6084,7 @@ public class OMEROMetadataStoreClient
     public void setPlateScreenRef(String screen, int plateIndex,
             int screenRefIndex)
     {
-        LSID key = new LSID(Plate.class, plateIndex, screenRefIndex);
+        LSID key = new LSID(Plate.class, plateIndex);
         addReference(key, new LSID(screen));
     }
 
@@ -6474,7 +6474,7 @@ public class OMEROMetadataStoreClient
     public void setProjectAnnotationRef(String annotation, int projectIndex,
             int annotationRefIndex)
     {
-        LSID key = new LSID(Project.class, projectIndex, annotationRefIndex);
+        LSID key = new LSID(Project.class, projectIndex);
         addReference(key, new LSID(annotation));
     }
 
@@ -6614,7 +6614,7 @@ public class OMEROMetadataStoreClient
     public void setReagentAnnotationRef(String annotation, int screenIndex,
             int reagentIndex, int annotationRefIndex)
     {
-        LSID key = new LSID(Reagent.class, screenIndex, reagentIndex, annotationRefIndex);
+        LSID key = new LSID(Reagent.class, screenIndex, reagentIndex);
         addReference(key, new LSID(annotation));
     }
 
@@ -6879,7 +6879,7 @@ public class OMEROMetadataStoreClient
     public void setScreenAnnotationRef(String annotation, int screenIndex,
             int annotationRefIndex)
     {
-        LSID key = new LSID(Screen.class, screenIndex, annotationRefIndex);
+        LSID key = new LSID(Screen.class, screenIndex);
         addReference(key, new LSID(annotation));
     }
 
@@ -6907,7 +6907,7 @@ public class OMEROMetadataStoreClient
     public void setScreenPlateRef(String plate, int screenIndex,
             int plateRefIndex)
     {
-        LSID key = new LSID(Screen.class, screenIndex, plateRefIndex);
+        LSID key = new LSID(Screen.class, screenIndex);
         addReference(key, new LSID(plate));
     }
 

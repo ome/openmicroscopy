@@ -123,17 +123,17 @@ public class OMEROMetadataStore
     private Map<Integer, Plate> plateList = 
     	new LinkedHashMap<Integer, Plate>();
 
+    /** A map of roiIndex vs. ROI object ordered by first access. */
+    private Map<Integer, Roi> roiList =
+        new LinkedHashMap<Integer, Roi>();
+
     /** A map of wellIndex vs. Well object ordered by first access. */
     private Map<Integer, Well> wellList = new LinkedHashMap<Integer, Well>();
     
     /** A map of instrumentIndex vs. Instrument object ordered by first access. */
     private Map<Integer, Instrument> instrumentList = 
     	new LinkedHashMap<Integer, Instrument>();
-    
-    /** A map of imageIndex vs. ROIs */    
-    private Map<Integer, Map<Integer, Roi>> roiMap = 
-    	new HashMap<Integer, Map<Integer, Roi>>();
-    
+
     /** A list of all objects we've received from the client and their LSIDs. */
     private Map<LSID, IObject> lsidMap = new HashMap<LSID, IObject>();
         
@@ -318,6 +318,12 @@ public class OMEROMetadataStore
     							(Annotation) referenceObject);
     					continue;
     				}
+                    if (referenceObject instanceof Roi)
+                    {
+                        handleReference((Image) targetObject,
+                                (Roi) referenceObject);
+                        continue;
+                    }
     				if (referenceLSID.toString().contains("DatasetI"))
     				{
     					int colonIndex = reference.indexOf(":");
@@ -873,17 +879,7 @@ public class OMEROMetadataStore
     private void handle(String LSID, Roi sourceObject,
                         Map<String, Integer> indexes)
     {
-        int imageIndex = indexes.get("imageIndex");
-        int roiIndex = indexes.get("roiIndex");
-        Image i = getImage(imageIndex);
-        Map<Integer, Roi> rois = roiMap.get(imageIndex);
-        if (rois == null)
-        {
-            rois = new HashMap<Integer, Roi>();
-            roiMap.put(imageIndex, rois);
-        }
-        rois.put(roiIndex, sourceObject);
-        i.addRoi(sourceObject);
+        roiList.put(indexes.get("roiIndex"), sourceObject);
     }
 
     /**
@@ -896,9 +892,8 @@ public class OMEROMetadataStore
     private void handle(String LSID, Shape sourceObject,
                         Map<String, Integer> indexes)
     {
-        int imageIndex = indexes.get("imageIndex");
         int roiIndex = indexes.get("roiIndex");
-        Roi r = getRoi(imageIndex, roiIndex);
+        Roi r = getRoi(roiIndex);
         r.addShape(sourceObject);
     }
 
@@ -1194,7 +1189,7 @@ public class OMEROMetadataStore
     				referenceLSID));
     	}
     }
-    
+
     /**
      * Handles linking a specific reference object to a target object in our
      * object graph.
@@ -1205,7 +1200,18 @@ public class OMEROMetadataStore
     {
         target.linkAnnotation(reference);
     }
-    
+
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(Image target, Roi reference)
+    {
+        target.addRoi(reference);
+    }
+
     /**
      * Handles linking a specific reference object to a target object in our
      * object graph.
@@ -1371,15 +1377,14 @@ public class OMEROMetadataStore
     /**
      * Returns a Roi model object based on its indexes within the
      * OMERO data model.
-     * @param plateIndex Plate index.
-     * @param wellIndex Well index
+     * @param roiIndex Roi index.
      * @return See above.
      */
-    private Roi getRoi(int imageIndex, int roiIndex)
+    private Roi getRoi(int roiIndex)
     {
-        return roiMap.get(imageIndex).get(roiIndex);
+        return roiList.get(roiIndex);
     }
-    
+
     /**
      * Empty constructor for testing purposes.
      */
