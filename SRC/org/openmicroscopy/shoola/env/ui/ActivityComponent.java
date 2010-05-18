@@ -573,10 +573,7 @@ public abstract class ActivityComponent
 			bus.post(new ActivityFinishedEvent(this));
 		}
 	}
-	
-	
 
-	
 	/**
 	 * Opens the passed object. Downloads it first.
 	 * 

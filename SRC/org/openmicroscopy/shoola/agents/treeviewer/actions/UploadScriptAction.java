@@ -33,9 +33,12 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.util.ScriptUploaderDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -89,7 +92,15 @@ public class UploadScriptAction
 			
 			public void propertyChange(PropertyChangeEvent evt) {
 				ScriptObject script = (ScriptObject) evt.getNewValue();
-				model.uploadScript(script);
+				UserNotifier un = 
+					TreeViewerAgent.getRegistry().getUserNotifier();
+				if (script == null) {
+					un.notifyInfo("Upload Script", "No script to upload");
+					return;
+				}
+				ScriptActivityParam p = new ScriptActivityParam(script, 
+						ScriptActivityParam.UPLOAD);
+				un.notifyActivity(p);
 			}
 		});
     	UIUtilities.centerAndShow(dialog);

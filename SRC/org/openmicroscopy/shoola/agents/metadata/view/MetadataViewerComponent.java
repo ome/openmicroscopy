@@ -65,6 +65,7 @@ import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.MovieActivityParam;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
+import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -988,12 +989,26 @@ class MetadataViewerComponent
 	
 	/**
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#runScript(ScriptObject)
+	 * @see MetadataViewer#manageScript(ScriptObject, int)
 	 */
-	public void runScript(ScriptObject value)
+	public void manageScript(ScriptObject value, int index)
 	{
 		if (value == null) return;
-		firePropertyChange(RUN_SCRIPT_PROPERTY, null, value);
+		ScriptActivityParam p = null;
+		switch (index) {
+			case RUN:
+				p = new ScriptActivityParam(value, ScriptActivityParam.RUN);
+				break;
+			case DOWNLOAD:
+				p = new ScriptActivityParam(value, 
+						ScriptActivityParam.DOWNLOAD);
+				break;
+			case VIEW:
+				p = new ScriptActivityParam(value, ScriptActivityParam.VIEW);
+				break;
+		}
+		if (p != null)
+			firePropertyChange(HANDLE_SCRIPT_PROPERTY, null, p);
 	}
 
 	/**

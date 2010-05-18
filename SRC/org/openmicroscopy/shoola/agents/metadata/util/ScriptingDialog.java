@@ -26,11 +26,15 @@ package org.openmicroscopy.shoola.agents.metadata.util;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -51,6 +55,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
@@ -63,6 +68,7 @@ import org.jdesktop.swingx.JXTaskPane;
 
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.model.ParamData;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
@@ -94,6 +100,14 @@ public class ScriptingDialog
 	public static final String RUN_SELECTED_SCRIPT_PROPERTY = 
 		"runSelectedScript";
 	
+	/** Bound property indicating to download the script. */
+	public static final String DOWNLOAD_SELECTED_SCRIPT_PROPERTY = 
+		"downloadSelectedScript";
+	
+	/** Bound property indicating to download the script. */
+	public static final String VIEW_SELECTED_SCRIPT_PROPERTY = 
+		"viewSelectedScript";
+	
 	/** 
 	 * The size of the invisible components used to separate buttons
 	 * horizontally.
@@ -119,12 +133,21 @@ public class ScriptingDialog
 	
 	/** Indicates to run the script. */
 	private static final int APPLY = 1;
+	
+	/** Indicates to download the script. */
+	private static final int DOWNLOAD = 2;
+	
+	/** Indicates to view the script. */
+	private static final int VIEW = 3;
 
 	/** Close the dialog. */
 	private JButton cancelButton;
 	
 	/** Run the script. */
 	private JButton applyButton;
+	
+	/** Menu offering the ability to download or view the script. */
+	private JButton menuButton;
 	
 	/** Component used to enter the author of the script. */
 	private JTextField	author;
@@ -150,6 +173,42 @@ public class ScriptingDialog
 	
 	/** Used to sort collections. */
 	private ViewerSorter sorter;
+	
+	/** The menu offering various options to manipulate the script. */
+	private JPopupMenu optionMenu;
+	
+	/** 
+	 * Creates the option menu.
+	 * 
+	 * @return See above.
+	 */
+	private JPopupMenu createOptionMenu()
+	{
+		if (optionMenu != null) return optionMenu;
+		optionMenu = new JPopupMenu();
+		optionMenu.add(createButton("Download", DOWNLOAD));
+		optionMenu.add(createButton("View", VIEW));
+		return optionMenu;
+	}
+	
+	/**
+	 * Creates a button.
+	 * 
+	 * @param text The text of the button.
+	 * @param actionID The action command id.
+	 * @param l The action listener.
+	 * @return See above.
+	 */
+	private JButton createButton(String text, int actionID)
+    {
+    	JButton b = new JButton(text);
+		b.setActionCommand(""+actionID);
+		b.addActionListener(this);
+		b.setOpaque(false);
+		//b.setForeground(UIUtilities.HYPERLINK_COLOR);
+		UIUtilities.unifiedButtonLookAndFeel(b);
+		return b;
+    }
 	
 	/** Closes the dialog. */
 	private void close()
@@ -271,6 +330,21 @@ public class ScriptingDialog
 		applyButton.setToolTipText("Run the script.");
 		applyButton.setActionCommand(""+APPLY);
 		applyButton.addActionListener(this);
+		IconManager icons = IconManager.getInstance();
+		menuButton = new JButton(icons.getIcon(IconManager.BLACK_ARROW_DOWN));
+		menuButton.setText("Script");
+		menuButton.setHorizontalTextPosition(JButton.LEFT);
+		menuButton.addMouseListener(new MouseAdapter() {
+			
+			public void mouseReleased(MouseEvent e) {
+				Object src = e.getSource();
+				if (src instanceof Component) {
+					Point p = e.getPoint();
+					createOptionMenu().show((Component) src, p.x, p.y);
+				}
+			}
+		});
+		
 		components = new LinkedHashMap<String, ScriptComponent>(); 
 		Map<String, ParamData> types = script.getInputs();
 		if (types == null) return;
@@ -490,8 +564,12 @@ public class ScriptingDialog
 		bar.setLayout(new BoxLayout(bar, BoxLayout.Y_AXIS));
 		bar.add(controlPanel);
 		bar.add(Box.createVerticalStrut(10));
-		JPanel p = UIUtilities.buildComponentPanelRight(bar);
-		return p;
+	
+		JPanel all = new JPanel();
+		all.setLayout(new BoxLayout(all, BoxLayout.X_AXIS));
+		all.add(UIUtilities.buildComponentPanel(menuButton));
+		all.add(UIUtilities.buildComponentPanelRight(bar));
+		return all;
 	}
 	
 	/**
@@ -613,6 +691,13 @@ public class ScriptingDialog
 				break;
 			case APPLY:
 				runScript();
+				break;
+			case DOWNLOAD:
+				firePropertyChange(DOWNLOAD_SELECTED_SCRIPT_PROPERTY, null, 
+						script);
+				break;
+			case VIEW:
+				firePropertyChange(VIEW_SELECTED_SCRIPT_PROPERTY, null, script);
 		}
 	}
 

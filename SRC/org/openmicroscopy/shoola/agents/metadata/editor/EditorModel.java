@@ -2217,8 +2217,12 @@ class EditorModel
 	 * Runs the passed script.
 	 * 
 	 * @param script The script to run.
+	 * @param index  Indicated to run, download or view.
 	 */
-	void runScript(ScriptObject script) { parent.runScript(script); }
+	void manageScript(ScriptObject script, int index)
+	{ 
+		parent.manageScript(script, index);
+	}
 	
 	/**
 	 * Returns the pixels data objects.

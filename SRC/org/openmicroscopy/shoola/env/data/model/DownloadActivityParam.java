@@ -84,6 +84,11 @@ public class DownloadActivityParam
     /** The third party application. */
     private ApplicationData data;
     
+    /** 
+     * Checks if the index is valid.
+     * 
+     * @param index The index to handle.
+     */
     private void checkIndex(int index)
     {
     	switch (index) {

@@ -31,6 +31,7 @@ import javax.swing.Icon;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 
 /** 
@@ -51,10 +52,16 @@ public class ScriptActivity
 {
 
 	/** Indicates to run the script. */
-	public static final int	RUN = 0;
+	public static final int	RUN = ScriptActivityParam.RUN;
 	
 	/** Indicates to upload the script. */
-	public static final int	UPLOAD = 1;
+	public static final int	UPLOAD = ScriptActivityParam.UPLOAD;
+	
+	/** Indicates to download the script. */
+	public static final int	DOWNLOAD = ScriptActivityParam.DOWNLOAD;
+	
+	/** Indicates to view the script. */
+	public static final int	VIEW = ScriptActivityParam.VIEW;
 	
 	/** The description of the activity. */
 	private static final String		DESCRIPTION_RUN_CREATION = 

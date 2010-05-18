@@ -378,12 +378,15 @@ public class IconManager
     
     /** The <code>Analysis</code> icon. */
     public static final int           ANALYSIS_RUN = 107;
+
+    /** The <code>Black arrow down</code> icon. */
+    public static final int         BLACK_ARROW_DOWN = 108;
     
     /** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static final int          MAX_ID = 107;
+	private static final int          MAX_ID = 108;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -496,6 +499,7 @@ public class IconManager
         relPaths[RND_UNDO] = "nuvola_undo16.png";
         relPaths[RND_APPLY_TO_ALL] = "rendering_applyAll16.png";
         relPaths[ANALYSIS_RUN] = "nuvola_script_run16.png";
+        relPaths[BLACK_ARROW_DOWN] = "eclipse_view_menu16.png";
 	}
    
 	/** The sole instance. */

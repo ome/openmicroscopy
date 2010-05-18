@@ -2900,20 +2900,6 @@ class TreeViewerComponent
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#uploadScript(ScriptObject)
 	 */
-	public void uploadScript(ScriptObject script)
-	{
-		UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
-		if (script == null) {
-			un.notifyInfo("Upload Script", "No script to upload");
-			return;
-		}
-		un.notifyActivity(script);
-	}
-	
-	/** 
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#uploadScript(ScriptObject)
-	 */
 	public boolean isLeaderOfSelectedGroup()
 	{
 		if (model.getState() == DISCARDED) return false;

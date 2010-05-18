@@ -198,7 +198,7 @@ public class IconManager
     
     /** The <code>Rendering Settings Owner</code> icon. */
     public static final int         RND_OWNER = 47;
-    
+
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
@@ -258,6 +258,7 @@ public class IconManager
         relPaths[RND_REDO] = "rendering_default16.png";
         relPaths[RND_MIN_MAX] = "rendering_min_max16.png";
         relPaths[RND_OWNER] = "rendering_owner16.png";
+
     }
     
     /** The sole instance. */

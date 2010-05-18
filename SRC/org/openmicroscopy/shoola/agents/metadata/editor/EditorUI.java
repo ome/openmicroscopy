@@ -718,9 +718,13 @@ class EditorUI
 	/**
 	 * Runs the passed script.
 	 * 
-	 * @param script The script to run.
+	 * @param script The script to handle.
+	 * @param index  Indicated to run, download or view.
 	 */
-	void runScript(ScriptObject script) { model.runScript(script); }
+	void manageScript(ScriptObject script, int index)
+	{ 
+		model.manageScript(script, index); 
+	}
 	
 	/** 
 	 * Discards the renderer. 

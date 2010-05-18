@@ -71,6 +71,15 @@ public interface MetadataViewer
 	extends ObservableComponent
 {
 	
+	/** Indicates to run the script. */
+	public static final int		RUN = 100;
+	
+	/** Indicates to download the script. */
+	public static final int		DOWNLOAD = 101;
+	
+	/** Indicates to view the script. */
+	public static final int		VIEW = 102;
+	
 	/** Indicates to select the renderer tab. */
 	public static final int		RENDERER_TAB = Editor.RENDERER_TAB;
 	
@@ -149,8 +158,8 @@ public interface MetadataViewer
 	public static final String	CHANNEL_COLOR_CHANGED_PROPERTY = 
 		"channelColorChanged";
 
-	/** Bound property indicating to run a script. */
-	public static final String	RUN_SCRIPT_PROPERTY = "runScript";
+	/** Bound property indicating to handle a script. */
+	public static final String	HANDLE_SCRIPT_PROPERTY = "handleScript";
 	
 	/** Bound property indicating to upload a script. */
 	public static final String	UPLOAD_SCRIPT_PROPERTY = "uploadScript";
@@ -526,8 +535,9 @@ public interface MetadataViewer
 	 * Runs the passed script.
 	 * 
 	 * @param script The script to run.
+	 * @param index  Indicated to run, download or view.
 	 */
-	public void runScript(ScriptObject script);
+	public void manageScript(ScriptObject script, int index);
 	
 	/**
 	 * Reloads the renderer if the passed value is <code>true</code>,

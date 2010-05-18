@@ -960,13 +960,6 @@ public interface TreeViewer
 	public Map<Long, String> getScriptsAsString();
 
 	/**
-	 * Uploads the specified script to the server.
-	 * 
-	 * @param script The script to upload.
-	 */
-	public void uploadScript(ScriptObject script);
-
-	/**
 	 * Returns <code>true</code> if the currently logged in user is 
 	 * a leader of the selected group, <code>false</code>.
 	 * 

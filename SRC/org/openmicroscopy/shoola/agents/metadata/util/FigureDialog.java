@@ -26,14 +26,18 @@ package org.openmicroscopy.shoola.agents.metadata.util;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
@@ -63,6 +67,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
@@ -163,10 +168,7 @@ public class FigureDialog
 	
 	/** Action id indicating to create a movie. */
 	public static final int 		SAVE = 1;
-	
-	/** The maximum number of time-points visible at a time. */
-	private static final int		MAX_CELLS = 20;
-	
+
 	/** Action id indicating to allow the modification of the scale bar. */
 	private static final int 		SCALE_BAR = 2;
 	
@@ -181,6 +183,15 @@ public class FigureDialog
 	
 	/** Action id indicating that the color has changed. */
 	private static final int 		COLOR_SELECTION = 7;
+	
+	/** Indicates to download the script. */
+	private static final int 		DOWNLOAD = 8;
+	
+	/** Indicates to view the script. */
+	private static final int 		VIEW = 9;
+	
+	/** The maximum number of time-points visible at a time. */
+	private static final int		MAX_CELLS = 20;
 	
 	/** The default text for the movie. */
 	private static final String		FRAMES_TEXT = "Number of frames: ";
@@ -440,6 +451,45 @@ public class FigureDialog
 	/** The original scaling factor for the ROI. */
 	private double							scalingFactor;
 
+	/** The menu offering various options to manipulate the script. */
+	private JPopupMenu 						optionMenu;
+	
+	/** Menu offering the ability to download or view the script. */
+	private JButton 						menuButton;
+	
+	/** 
+	 * Creates the option menu.
+	 * 
+	 * @return See above.
+	 */
+	private JPopupMenu createOptionMenu()
+	{
+		if (optionMenu != null) return optionMenu;
+		optionMenu = new JPopupMenu();
+		optionMenu.add(createButton("Download", DOWNLOAD));
+		optionMenu.add(createButton("View", VIEW));
+		return optionMenu;
+	}
+	
+	/**
+	 * Creates a button.
+	 * 
+	 * @param text The text of the button.
+	 * @param actionID The action command id.
+	 * @param l The action listener.
+	 * @return See above.
+	 */
+	private JButton createButton(String text, int actionID)
+    {
+    	JButton b = new JButton(text);
+		b.setActionCommand(""+actionID);
+		b.addActionListener(this);
+		b.setOpaque(false);
+		//b.setForeground(UIUtilities.HYPERLINK_COLOR);
+		UIUtilities.unifiedButtonLookAndFeel(b);
+		return b;
+    }
+	
 	/**
 	 * Returns the selected color or <code>null</code>.
 	 * 
@@ -881,6 +931,21 @@ public class FigureDialog
 	 */
 	private void initComponents(String name)
 	{	
+		IconManager icons = IconManager.getInstance();
+		menuButton = new JButton(icons.getIcon(IconManager.BLACK_ARROW_DOWN));
+		menuButton.setText("Script");
+		menuButton.setHorizontalTextPosition(JButton.LEFT);
+		menuButton.addMouseListener(new MouseAdapter() {
+			
+			public void mouseReleased(MouseEvent e) {
+				Object src = e.getSource();
+				if (src instanceof Component) {
+					Point p = e.getPoint();
+					createOptionMenu().show((Component) src, p.x, p.y);
+				}
+			}
+		});
+		
 		sorter = new ViewerSorter();
 		closeButton = new JButton("Cancel");
 		closeButton.setToolTipText(UIUtilities.formatToolTipText(
@@ -1101,9 +1166,12 @@ public class FigureDialog
 		bar.add(Box.createHorizontalStrut(5));
 		bar.add(saveButton);
 		bar.add(Box.createHorizontalStrut(20));
-		JPanel p = UIUtilities.buildComponentPanelRight(bar);
-		p.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-		return p;
+		JPanel all = new JPanel();
+		all.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+		all.setLayout(new BoxLayout(all, BoxLayout.X_AXIS));
+		all.add(UIUtilities.buildComponentPanel(menuButton));
+		all.add(UIUtilities.buildComponentPanelRight(bar));
+		return all;
 	}
 	
 	/**
@@ -2060,6 +2128,18 @@ public class FigureDialog
 				break;
 			case COLOR_SELECTION:
 				modifyROIDisplay();
+				break;
+				/*
+			case DOWNLOAD:
+				firePropertyChange(
+						ScriptingDialog.DOWNLOAD_SELECTED_SCRIPT_PROPERTY, null, 
+						script);
+				break;
+			case VIEW:
+				firePropertyChange(
+						ScriptingDialog.VIEW_SELECTED_SCRIPT_PROPERTY, null, 
+						script);
+						*/
 		}
 	}
 	

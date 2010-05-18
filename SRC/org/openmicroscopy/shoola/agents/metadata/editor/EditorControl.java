@@ -501,7 +501,15 @@ class EditorControl
 		} else if (MetadataViewer.CLOSE_RENDERER_PROPERTY.equals(name)) {
 			view.discardRenderer(evt.getNewValue());
 		} else if (ScriptingDialog.RUN_SELECTED_SCRIPT_PROPERTY.equals(name)) {
-			view.runScript((ScriptObject) evt.getNewValue());
+			view.manageScript((ScriptObject) evt.getNewValue(), 
+					MetadataViewer.RUN);
+		} else if (ScriptingDialog.DOWNLOAD_SELECTED_SCRIPT_PROPERTY.equals(
+				name)) {
+			view.manageScript((ScriptObject) evt.getNewValue(), 
+					MetadataViewer.DOWNLOAD);
+		} else if (ScriptingDialog.VIEW_SELECTED_SCRIPT_PROPERTY.equals(name)) {
+			view.manageScript((ScriptObject) evt.getNewValue(), 
+					MetadataViewer.VIEW);
 		} 
 	}
 

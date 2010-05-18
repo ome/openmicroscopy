@@ -32,6 +32,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -42,6 +43,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 import javax.swing.Icon;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JTabbedPane;
@@ -116,15 +118,22 @@ import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.finder.Finder;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
+import org.openmicroscopy.shoola.env.Environment;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
+import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.FigureActivityParam;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
+import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.JXTaskPaneContainerSingle;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -349,6 +358,41 @@ class TreeViewerControl
 
 	/** The loading window. */
 	private LoadingWindow   				loadingWindow;
+	
+	/**
+	 * Downloads the possible script.
+	 * 
+	 * @param param The parameter holding the script.
+	 */
+	private void downloadScript(ScriptActivityParam param)
+	{
+		FileChooser chooser = new FileChooser(view, FileChooser.SAVE, 
+				"Download", "Select where to download the file.", null, 
+				true);
+		IconManager icons = IconManager.getInstance();
+		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
+		chooser.setSelectedFileFull(param.getScript().getName());
+		chooser.setApproveButtonText("Download");
+		final long id = param.getScript().getScriptID();
+		chooser.addPropertyChangeListener(new PropertyChangeListener() {
+		
+			public void propertyChange(PropertyChangeEvent evt) {
+				String name = evt.getPropertyName();
+				if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
+					File folder = (File) evt.getNewValue();
+					IconManager icons = IconManager.getInstance();
+					DownloadActivityParam activity;
+					activity = new DownloadActivityParam(id, 
+							DownloadActivityParam.ORIGINAL_FILE,
+							folder, icons.getIcon(IconManager.DOWNLOAD_22));
+					UserNotifier un = 
+						TreeViewerAgent.getRegistry().getUserNotifier();
+					un.notifyActivity(activity);
+				}
+			}
+		});
+		chooser.centerDialog();
+	}
 	
 	/** 
 	 * Handles the selection of a <code>JXTaskPane</code>.
@@ -854,9 +898,11 @@ class TreeViewerControl
 			Object data = pce.getNewValue();
 			PasteRndSettingsCmd cmd;
 			if (data instanceof Collection) 
-				cmd = new PasteRndSettingsCmd(model, PasteRndSettingsCmd.SET_MIN_MAX,
+				cmd = new PasteRndSettingsCmd(model, 
+						PasteRndSettingsCmd.SET_MIN_MAX,
 						(Collection) data);
-			else cmd = new PasteRndSettingsCmd(model, PasteRndSettingsCmd.SET_MIN_MAX);
+			else cmd = new PasteRndSettingsCmd(model, 
+					PasteRndSettingsCmd.SET_MIN_MAX);
 			cmd.execute();
 		} else if (DataBrowser.SET__ORIGINAL_RND_SETTINGS_PROPERTY.equals(
 				name)) {
@@ -1025,9 +1071,29 @@ class TreeViewerControl
 					FigureActivityParam.SPLIT_VIEW_FIGURE);
 			activity.setIcon(icon);
 			un.notifyActivity(activity);
-		} else if (MetadataViewer.RUN_SCRIPT_PROPERTY.equals(name)) {
+		} else if (MetadataViewer.HANDLE_SCRIPT_PROPERTY.equals(name)) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
-			un.notifyActivity(pce.getNewValue());
+			ScriptActivityParam p = (ScriptActivityParam) pce.getNewValue();
+			int index = p.getIndex();
+			ScriptObject script = p.getScript();
+			if (index == ScriptActivityParam.VIEW) {
+				Environment env = (Environment) 
+				TreeViewerAgent.getRegistry().lookup(LookupNames.ENV);
+				String path = env.getOmeroFilesHome();
+				path += File.separator+script.getName();
+				File f = new File(path);
+				DownloadActivityParam activity;
+				activity = new DownloadActivityParam(
+						p.getScript().getScriptID(), 
+						DownloadActivityParam.ORIGINAL_FILE, f, null);
+				activity.setApplicationData(new ApplicationData(""));
+				un.notifyActivity(activity);
+			} else if (index == ScriptActivityParam.DOWNLOAD) {
+				downloadScript(p);
+			} else {
+				un.notifyActivity(pce.getNewValue());
+			}
+			
 		} else if (ImportManager.CANCEL_IMPORT_PROPERTY.equals(name)) {
 			model.cancelImports();
 		} else if (OpenWithDialog.OPEN_DOCUMENT_PROPERTY.equals(name)) {

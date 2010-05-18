@@ -44,7 +44,7 @@ import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
 import org.openmicroscopy.shoola.env.data.model.FigureActivityParam;
 import org.openmicroscopy.shoola.env.data.model.MovieActivityParam;
-import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -336,12 +336,13 @@ public class UserNotifierImpl
 		} else if (activity instanceof AnalysisActivityParam) {
 			AnalysisActivityParam p = (AnalysisActivityParam) activity;
 			comp = new AnalysisActivity(this, manager.getRegistry(), p);
-		} else if (activity instanceof ScriptObject) {
-			ScriptObject script = (ScriptObject) activity;
-			int index = ScriptActivity.UPLOAD;
-			if (script.getScriptID() > 0) index = ScriptActivity.RUN; 
+		} else if (activity instanceof ScriptActivityParam) {
+			ScriptActivityParam p = (ScriptActivityParam) activity;
+			//int index = ScriptActivity.UPLOAD;
+			
+			//if (script.getScriptID() > 0) index = ScriptActivity.RUN; 
 			comp = new ScriptActivity(this, manager.getRegistry(),
-					script, index);
+					p.getScript(), p.getIndex());
 		}
 		if (comp != null) {
 			UserNotifierLoader loader = comp.createLoader();
