@@ -5,14 +5,12 @@ import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.model.BlitzInstanceProvider;
-import ome.formats.model.MetaLightSource;
 import ome.util.LSID;
 import ome.xml.r201004.enums.*;
 import ome.xml.r201004.primitives.*;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Filament;
 import omero.model.LightSettings;
-import omero.model.LightSource;
 import omero.model.Pixels;
 
 public class LightSourceSettingsFilamentTest extends TestCase
@@ -64,20 +62,7 @@ public class LightSourceSettingsFilamentTest extends TestCase
 		store.setChannelLightSourceSettingsAttenuation(
 				new PercentFraction(1f), IMAGE_INDEX, CHANNEL_INDEX + 1);
 	}
-	
-	public void testLightSourceSettingsLightSourceNotMLS()
-	{
-        for (int i = 0; i < 2; i++)
-        {
-            LSID lsid = new LSID(LightSource.class, INSTRUMENT_INDEX, i);
-            LightSource ls = (LightSource) store.getSourceObject(lsid);
-            if (ls instanceof MetaLightSource)
-            {
-                fail("Light source " + ls + " is meta.");
-            }
-        }
-	}
-	
+
 	public void testLightSourceCount()
 	{
         LSID lsid = new LSID(Pixels.class, IMAGE_INDEX);
