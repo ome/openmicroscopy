@@ -893,7 +893,7 @@ class _BlitzGateway (object):
             self._proxies['rendsettings'] = ProxyObjectWrapper(self, 'getRenderingSettingsService')
             #self._proxies['projection'] = ProxyObjectWrapper(self, 'getProjectionService')
             self._proxies['rawpixels'] = ProxyObjectWrapper(self, 'createRawPixelsStore')
-            #self._proxies['thumbs'] = ProxyObjectWrapper(self, 'createThumbnailStore')
+            self._proxies['thumbs'] = ProxyObjectWrapper(self, 'createThumbnailStore')
             self._proxies['container'] = ProxyObjectWrapper(self, 'getContainerService')
             self._proxies['pixel'] = ProxyObjectWrapper(self, 'getPixelsService')
     #            self._proxies['ldap'] = ProxyObjectWrapper(self, 'getLdapService')
@@ -1369,15 +1369,14 @@ class _BlitzGateway (object):
 
     def createThumbnailStore (self):
         """
-        Creates a new thumbnail store.
-        This service is special in that it does not get cached inside BlitzGateway so every call to this function
-        returns a new object, avoiding unexpected inherited states.
+        Gets a reference to the thumbnail store on this connection object or creates a new one
+        if none exists.
         
-        @return:    omero.gateway.ProxyObjectWrapper
+        @rtype: omero.gateway.ProxyObjectWrapper
+        @return: The proxy wrapper of the thumbnail store
         """
         
-        return ProxyObjectWrapper(self, 'createThumbnailStore')
-        #return self._proxies['thumbs']
+        return self._proxies['thumbs']
     
     def createSearchService (self):
         """
@@ -2869,7 +2868,6 @@ class _ImageWrapper (BlitzObjectWrapper):
         return None
     
     def getThumbnail (self, size=(64,64), z=None, t=None):
-        tb = None
         try:
             tb = self._prepareTB()
             if tb is None:
@@ -2894,12 +2892,9 @@ class _ImageWrapper (BlitzObjectWrapper):
             if pos is not None:
                 args = list(pos) + args
             rv = thumb(*args)
-            tb.close()
             return rv
         except Exception: #pragma: no cover
             logger.error(traceback.print_exc())
-            if tb is not None:
-                tb.close()
             return None
 
     @assert_pixels
