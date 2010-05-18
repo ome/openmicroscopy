@@ -8,6 +8,7 @@ import java.util.Locale;
 import ome.util.LSID;
 import omero.model.DetectorSettings;
 import omero.model.IObject;
+import omero.model.LightPath;
 import omero.model.LightSettings;
 import omero.model.Pixels;
 
@@ -90,8 +91,9 @@ public class OMEXMLModelComparator implements Comparator<LSID>
             return 1;
         }
         
-        if (klass.equals(DetectorSettings.class) 
-            || klass.equals(LightSettings.class))
+        if (klass.equals(DetectorSettings.class)
+            || klass.equals(LightSettings.class)
+            || klass.equals(LightPath.class))
         {
             return 3;
         }

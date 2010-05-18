@@ -34,6 +34,7 @@ import ome.formats.Index;
 import ome.util.LSID;
 import omero.metadatastore.IObjectContainer;
 import omero.model.DetectorSettings;
+import omero.model.LightPath;
 import omero.model.LightSettings;
 import omero.model.ObjectiveSettings;
 import omero.model.WellSample;
@@ -115,6 +116,14 @@ public class ReferenceProcessor implements ModelProcessor
             				indexes.put(Index.PLATE_INDEX, indexArray[0]);
             				indexes.put(Index.WELL_INDEX, indexArray[1]);
             				indexes.put(Index.WELL_SAMPLE_INDEX, indexArray[2]);
+            			}
+            			else if (targetClass.equals(LightPath.class))
+            			{
+            			    // A LightPath has been used to link emission or
+            			    // excition filters and / or a dichroic to an
+            			    // image. We now need to create it.
+            			    indexes.put(Index.IMAGE_INDEX, indexArray[0]);
+            			    indexes.put(Index.CHANNEL_INDEX, indexArray[1]);
             			}
             			else
             			{

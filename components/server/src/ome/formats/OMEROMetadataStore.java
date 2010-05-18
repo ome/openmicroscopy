@@ -224,6 +224,10 @@ public class OMEROMetadataStore
     	{
     		handle(lsid, (ObjectiveSettings) sourceObject, indexes);
     	}
+        else if (sourceObject instanceof LightPath)
+        {
+            handle(lsid, (LightPath) sourceObject, indexes);
+        }
     	else if (sourceObject instanceof Screen)
     	{
     	    handle(lsid, (Screen) sourceObject, indexes);
@@ -343,6 +347,21 @@ public class OMEROMetadataStore
     					continue;
     				}
     			}
+                else if (targetObject instanceof LightPath)
+                {
+                    if (referenceObject instanceof Dichroic)
+                    {
+                        handleReference((LightPath) targetObject,
+                                (Dichroic) referenceObject);
+                        continue;
+                    }
+                    if (referenceObject instanceof Filter)
+                    {
+                        handleReference((LightPath) targetObject,
+                                (Filter) referenceObject, referenceLSID);
+                        continue;
+                    }
+                }
     			else if (targetObject instanceof LogicalChannel)
     			{
     				if (referenceObject instanceof Filter)
@@ -753,7 +772,22 @@ public class OMEROMetadataStore
     	Image i = getImage(indexes.get("imageIndex"));
     	i.setObjectiveSettings(sourceObject);
     }
-    
+
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, LightPath sourceObject,
+                        Map<String, Integer> indexes)
+    {
+        Channel c = getChannel(
+                indexes.get("imageIndex"), indexes.get("channelIndex"));
+        c.getLogicalChannel().setLightPath(sourceObject);
+    }
+
     /**
      * Handles inserting a specific type of model object into our object graph.
      * @param LSID LSID of the model object.
@@ -978,7 +1012,43 @@ public class OMEROMetadataStore
     {
     	target.setLightSource(reference);
     }
-    
+
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(LightPath target, Dichroic reference)
+    {
+        target.setDichroic(reference);
+    }
+
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(LightPath target, Filter reference,
+                                 LSID referenceLSID)
+    {
+        if (referenceLSID.toString().endsWith("OMERO_EMISSION_FILTER"))
+        {
+            target.linkEmissionFilter(reference);
+        }
+        else if (referenceLSID.toString().endsWith("OMERO_EXCITATION_FILTER"))
+        {
+            target.linkExcitationFilter(reference);
+        }
+        else
+        {
+            throw new ApiUsageException(String.format(
+                    "Unable to handle LightPath --> Filter reference: %s",
+                    referenceLSID));
+        }
+    }
+
     /**
      * Handles linking a specific reference object to a target object in our
      * object graph.

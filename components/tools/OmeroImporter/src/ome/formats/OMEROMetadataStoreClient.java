@@ -4480,16 +4480,7 @@ public class OMEROMetadataStoreClient
 
 
     //////// Light Path /////////
-    
-    public LightPath getLightPath(int imageIndex, int channelIndex)
-    {
-        LinkedHashMap<Index, Integer> indexes =
-            new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.IMAGE_INDEX, imageIndex);
-        indexes.put(Index.CHANNEL_INDEX, channelIndex);
-        return getSourceObject(LightPath.class, indexes); 
-    }
-    
+
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setLightPathDichroicRef(java.lang.String, int, int)
      */
@@ -4506,7 +4497,7 @@ public class OMEROMetadataStoreClient
     public void setLightPathEmissionFilterRef(String emissionFilter,
             int imageIndex, int channelIndex, int emissionFilterRefIndex)
     {
-        LSID key = new LSID(LightPath.class, imageIndex, channelIndex, emissionFilterRefIndex);
+        LSID key = new LSID(LightPath.class, imageIndex, channelIndex);
         addReference(key, new LSID(emissionFilter));
     }
 
@@ -4516,7 +4507,7 @@ public class OMEROMetadataStoreClient
     public void setLightPathExcitationFilterRef(String excitationFilter,
             int imageIndex, int channelIndex, int excitationFilterRefIndex)
     {
-        LSID key = new LSID(LightPath.class, imageIndex, channelIndex, excitationFilterRefIndex);
+        LSID key = new LSID(LightPath.class, imageIndex, channelIndex);
         addReference(key, new LSID(excitationFilter));
     }
 
