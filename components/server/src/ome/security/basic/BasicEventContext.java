@@ -194,28 +194,13 @@ class BasicEventContext extends SimpleEventContext {
     // ~ Special logic for groups
     // =========================================================================
 
-    /**
-     * HACK: Because the read filter cannot handle empty collections, we reset
-     * and null or empty collection to one containing {@link Long#MIN_VALUE}
-     */
     @Override
     public List<Long> getMemberOfGroupsList() {
-        if (memberOfGroups == null || memberOfGroups.size() == 0) {
-            memberOfGroups = Collections.singletonList(Long.MIN_VALUE);
-        }
         return memberOfGroups;
     }
 
-    /**
-     * HACK: Because the read filter cannot handle empty collections, we reset
-     * and null or empty collection to one containing {@link Long#MIN_VALUE}
-     * REVIEW
-     */
     @Override
     public List<Long> getLeaderOfGroupsList() {
-        if (leaderOfGroups == null || leaderOfGroups.size() == 0) {
-            leaderOfGroups = Collections.singletonList(Long.MIN_VALUE);
-        }
         return leaderOfGroups;
     }
 
