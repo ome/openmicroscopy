@@ -34,6 +34,7 @@ import omero.model.IObject;
 import omero.model.Project;
 import omero.model.ProjectI;
 import static omero.rtypes.rstring;
+import static omero.rtypes.rtime;
 import omero.sys.ParametersI;
 import pojos.ProjectData;
 
@@ -114,6 +115,7 @@ public class UpdateServiceTest
     {
     	Image img = new ImageI();
         img.setName(rstring("duplinks"));
+        img.setAcquisitionDate( rtime(0) );
 
         Dataset ds = new DatasetI();
         ds.setName(rstring("duplinks"));
@@ -148,6 +150,7 @@ public class UpdateServiceTest
     {
     	Image img = new ImageI();
         img.setName(rstring("duplinks"));
+        img.setAcquisitionDate(rtime(0));
 
         Dataset ds = new DatasetI();
         ds.setName(rstring("duplinks"));
@@ -227,6 +230,7 @@ public class UpdateServiceTest
         Image img = new ImageI();
 
         img.setName( rstring("version_test") );
+        img.setAcquisitionDate( rtime(0) );
         ann.setTextValue( rstring("version_test") );
         img.linkAnnotation(ann);
 
@@ -263,6 +267,7 @@ public class UpdateServiceTest
     {
         Image img = new ImageI();
         img.setName(rstring("no vers. increment")) ;
+        img.setAcquisitionDate( rtime(0) );
         img = (Image) iUpdate.saveAndReturnObject(img);
 
         Image test = (Image) iUpdate.saveAndReturnObject(img);

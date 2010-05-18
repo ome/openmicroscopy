@@ -20,6 +20,7 @@ public class UpdateTest extends IceTest {
 
         omero.model.ImageI obj = new omero.model.ImageI();
         obj.setName(rstring("foo"));
+        obj.setAcquisitionDate(rtime(0));
 
         omero.model.DatasetImageLinkI link = new omero.model.DatasetImageLinkI();
         omero.model.DatasetI cat = new omero.model.DatasetI();
@@ -48,6 +49,7 @@ public class UpdateTest extends IceTest {
         String uuid = uuid();
         omero.model.ImageI obj = new omero.model.ImageI();
         obj.setName(rstring(uuid));
+        obj.setAcquisitionDate(rtime(0));
         obj = (omero.model.ImageI) prx.saveAndReturnObject(obj);
 
         prx.deleteObject(obj);

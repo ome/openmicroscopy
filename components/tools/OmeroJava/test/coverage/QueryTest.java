@@ -31,6 +31,7 @@ public class QueryTest extends IceTest {
 
         ImageI i = new ImageI();
         i.setName(rstring("foo"));
+        i.setAcquisitionDate(rtime(0));
 
         i = (ImageI) up.saveAndReturnObject(i);
 
@@ -56,6 +57,7 @@ public class QueryTest extends IceTest {
 
         ImageI i = new ImageI();
         i.setName(rstring("foo"));
+        i.setAcquisitionDate(rtime(0));
 
         i = (ImageI) up.saveAndReturnObject(i);
 
