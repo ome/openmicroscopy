@@ -459,8 +459,8 @@ def movieFigure(session, commandArgs):
             stepping = s
     
     scalebar = None
-    if "Scalebar" in commandArgs:
-        sb = commandArgs["Scalebar"]
+    if "Scalebar_Size" in commandArgs:
+        sb = commandArgs["Scalebar_Size"]
         try:
             scalebar = int(sb)
             if scalebar <= 0:
@@ -472,9 +472,9 @@ def movieFigure(session, commandArgs):
             scalebar = None
     
     overlayColour = (255,255,255)
-    if "Overlay_Colour" in commandArgs:
-        r,g,b,a = COLOURS[commandArgs["Overlay_Colour"]]
-        overlayColour = (r,g,a)
+    if "Scalebar_Colour" in commandArgs:
+        r,g,b,a = COLOURS[commandArgs["Scalebar_Colour"]]
+        overlayColour = (r,g,b)
                 
     figure = createMovieFigure(session, pixelIds, tIndexes, zStart, zEnd, width, height, spacer, 
                             algorithm, stepping, scalebar, overlayColour, timeUnits, imageLabels)
@@ -521,20 +521,36 @@ def runAsScript():
     cOptions = wrap(ckeys)
     
     client = scripts.client('Movie_Figure.py', 'Export a figure of a movie. See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport', 
-    scripts.List("Image_IDs", description="List of image IDs. Resulting figure will be attached to first image.", optional=False).ofType(rlong(0)),
-    scripts.List("T_Indexes", description="The time frames to display in the figure for each image").ofType(rint(0)),
-    scripts.Int("Z_Start", description="Projection range (if not specified, use defaultZ only - no projection)", min=0),
-    scripts.Int("Z_End", description="Projection range (if not specified or, use defaultZ only - no projection)", min=0),
-    scripts.Int("Width", description="The max width of each image panel. Default is first image width", min=1),
-    scripts.Int("Height", description="The max height of each image panel. Default is first image height", min=1),
-    scripts.String("Algorithm", description="Algorithum for projection.", values=algorithums),
-    scripts.String("Image_Labels", description="Label images with Image name (default) or datasets or tags", values=labels),
-    scripts.Int("Stepping", description="The Z increment for projection. Default is 1", min=1),
-    scripts.Int("Scalebar", description="Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
-    scripts.String("Format", description="Format to save image.", values=formats),
-    scripts.String("Figure_Name", description="File name of the figure to save."),
-    scripts.Int("Overlay_Colour", description="The colour of the scalebar.",default='White',values=cOptions),
-    scripts.String("Time_Units", description="The units to use for time display", values=tunits),
+    scripts.List("Image_IDs", grouping="01", 
+        description="List of image IDs. Resulting figure will be attached to first image.", optional=False).ofType(rlong(0)),
+    scripts.List("T_Indexes", grouping="02", 
+        description="The time frames to display in the figure for each image").ofType(rint(0)),
+    scripts.String("Image_Labels", grouping="03", 
+        description="Label images with Image name (default) or datasets or tags", values=labels),
+    scripts.Int("Width", grouping="06", 
+        description="The max width of each image panel. Default is first image width", min=1),
+    scripts.Int("Height", grouping="07", 
+        description="The max height of each image panel. Default is first image height", min=1),
+    scripts.Bool("Z_Projection", grouping="08", default=True),
+    scripts.Int("Z_Start", grouping="08.1", 
+        description="Projection range (if not specified, use defaultZ only - no projection)", min=0),
+    scripts.Int("Z_End", grouping="08.2", 
+        description="Projection range (if not specified or, use defaultZ only - no projection)", min=0),
+    scripts.String("Algorithm", grouping="08.3", 
+        description="Algorithum for projection.", values=algorithums),
+    scripts.Int("Stepping", grouping="08.4", 
+        description="The Z increment for projection.", default=1, min=1),
+    scripts.Bool("Show_Scalebar", grouping="10", default=True),
+    scripts.Int("Scalebar_Size", grouping="10.1",
+        description="Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
+    scripts.String("Scalebar_Colour", grouping="10.2",
+        description="The colour of the scalebar.",default='White',values=cOptions),
+    scripts.String("Format", grouping="11",
+        description="Format to save image.", values=formats),
+    scripts.String("Figure_Name", grouping="12",
+        description="File name of the figure to save."),
+    scripts.String("Time_Units", grouping="13",
+        description="The units to use for time display", values=tunits),
     #scripts.Long("File_Annotation").out()
     )  # script returns a file annotation
     

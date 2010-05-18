@@ -620,7 +620,7 @@ def splitViewFigure(session, commandArgs):
     overlayColour = (255,255,255)
     if "Overlay_Colour" in commandArgs:
         r,g,b,a = COLOURS[commandArgs["Overlay_Colour"]]
-        overlayColour = (r,g,a)
+        overlayColour = (r,g,b)
         
     mergedNames = False
     if "Merged_Names" in commandArgs:
@@ -684,7 +684,7 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#Split-viewFigure"
     scripts.Int("Height", description="The max height of each image panel. Default is first image height", min=1),
     scripts.String("Image_Labels", description="Label images with Image name (default) or datasets or tags", values=labels),
     scripts.String("Algorithm", description="Algorithum for projection.", values=algorithums),
-    scripts.Int("Stepping", description="The Z increment for projection. Default is 1", min=1),
+    scripts.Int("Stepping", description="The Z increment for projection.",default=1, min=1),
     scripts.Int("Scalebar", description="Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
     scripts.String("Format", description="Format to save image. E.g 'PNG'.", values=formats, default='JPEG'),
     scripts.String("Figure_Name", description="File name of the figure to save."),

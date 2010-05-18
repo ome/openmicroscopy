@@ -676,7 +676,7 @@ def roiFigure(session, commandArgs):
     overlayColour = (255,255,255)
     if "Overlay_Colour" in commandArgs:
         r,g,b,a = COLOURS[commandArgs["Overlay_Colour"]]
-        overlayColour = (r,g,a)
+        overlayColour = (r,g,b)
     
     roiZoom = None
     if "ROI_Zoom" in commandArgs:
