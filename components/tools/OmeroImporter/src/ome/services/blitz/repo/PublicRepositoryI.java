@@ -200,9 +200,9 @@ public class PublicRepositoryI extends _RepositoryDisp {
             throw new ValidationException(null, null,
                     "obj is required argument");
         }
-        if (!(obj instanceof OriginalFile || obj instanceof Image)) {
+        if (!(obj instanceof OriginalFile)) {
             throw new ValidationException(null, null,
-                    "obj must be OriginalFile or Image");
+                    "obj must be OriginalFile (Image objects can no longer be registered using this method)");
         }
 
         IceMapper mapper = new IceMapper();
@@ -353,11 +353,6 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return imageList;
     }
 
-
-
-
-
-    
     public void delete(String path, Current __current) throws ServerError {
         File file = checkPath(path);
         FileUtils.deleteQuietly(file);
@@ -776,7 +771,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
             for (String iFile : iFileList)  {
                 File f = new File(iFile);
                 removeNameFromFileList(iFile, names);
-                oFile = getOriginalFile(f.getParent(),f.getName());
+                oFile = getOriginalFile(getRelativePath(f),f.getName());
                 if (oFile != null) {
                     set.usedFiles.add(oFile);
                 } else {
@@ -819,7 +814,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
                 set.imageCount = 0;
                         
                 set.usedFiles = new ArrayList<IObject>();
-                oFile = getOriginalFile(f.getParent(),f.getName());
+                oFile = getOriginalFile(getRelativePath(f),f.getName());
                 if (oFile != null) {
                     set.usedFiles.add(oFile);
                 } else {
