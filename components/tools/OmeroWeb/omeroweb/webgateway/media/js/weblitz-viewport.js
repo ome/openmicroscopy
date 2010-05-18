@@ -210,11 +210,14 @@ jQuery._WeblitzViewport = function (container, server, options) {
       } else {
         href = server + '/render_split_channel/' + _this.getRelUrl();
       }
-      var rcb = function () { after_img_load_cb(callback); _this.viewportimg.unbind('load', rcb); };
+      var rcb = function () {
+        after_img_load_cb(callback);
+        _this.viewportimg.unbind('load', rcb);
+        _this.self.trigger('imageChange', [_this]);
+      };
       showLoading();
       _this.viewportimg.load(rcb);
       _this.viewportimg.attr('src', href);
-      _this.self.trigger('imageChange', [_this]);
     }
   }
 
