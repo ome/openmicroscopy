@@ -134,6 +134,10 @@ class UserEntry (object):
         a.changeUserPassword(u.getOmeName().val, omero.gateway.omero_type(self.passwd))
         return True
 
+    def changePassword (self, client, password):
+        a = client.getAdminService()
+        a.changeUserPassword(self.name, omero.gateway.omero_type(password))
+
     @staticmethod
     def addGroupToUser (client, groupname, groupperms='rw----'):
         a = client.getAdminService()
@@ -147,42 +151,15 @@ class UserEntry (object):
 
     @staticmethod
     def setGroupForSession (client, groupname):
-#        sess = client._session
-#        if sess is None:
-#            return
-#        if sess.getDetails().getGroup().getName().val == groupname:
-#            # Already correct
-#            return
         a = client.getAdminService()
         if not groupname in [x.name.val for x in a.containedGroups(client._userid)]:
             UserEntry.addGroupToUser(client, groupname)
         g = a.lookupGroup(groupname)
         client.setGroupForSession(g.getId().val)
-#        sess.getDetails().setGroup(g)
-#        client.getSessionService().updateSession(sess)
 
 
 class ObjectEntry (object):
     pass
-#    @staticmethod
-#    def chGroup (client, obj, groupname):
-#        a = client.getAdminService()
-#        if not 'system' in [x.name.val for x in a.containedGroups(client._userid)]:
-#            admin = loginAsRoot()
-#            a = admin.getAdminService()
-#        else:
-#            admin = client
-#        try:
-#            g = a.lookupGroup(groupname)
-#        except:
-#            g = omero.model.ExperimenterGroupI()
-#            g.setName(omero.gateway.omero_type(groupname))
-#            a.createGroup(g)
-#            g = a.lookupGroup(groupname)
-#        ao = admin.getQueryService().find(obj.OMERO_CLASS, obj.getId())
-#        ao.getDetails().setGroup(g)
-#        admin.getUpdateService().saveObject(ao)
-        
 
 class ProjectEntry (ObjectEntry):
     def __init__ (self, name, owner, create_group=False, group_perms=False):
@@ -205,22 +182,15 @@ class ProjectEntry (ObjectEntry):
             client = USERS[self.owner].login()
         p = self.get(client)
         if p is not None:
-            #print ".. -> project already exists: %s" % self.name
             return p
-        #print ".. -> create new project: %s" % self.name
         p = omero.model.ProjectI(loaded=True)
         p.setName(omero.gateway.omero_type(self.name))
         p.setDescription(omero.gateway.omero_type(self.name))
-#        if self.group_perms:
-#            p.details.setPermissions(omero.model.PermissionsI())
-#            p.details.permissions.setGroupRead(True)
-#            p.details.permissions.setGroupWrite(True)
         if self.create_group:
             if isinstance(self.create_group, StringTypes):
                 groupname = self.create_group
             else:
                 raise ValueError('group must be string')
-                #groupname = 'project_%i' % p.getId().val
                 groupname = 'project_test'
             s = loginAsRoot()
             UserEntry.addGroupToUser (s, groupname)
@@ -262,17 +232,11 @@ class DatasetEntry (ObjectEntry):
             client = project._conn
         d = self.get(client, project)
         if d is not None and ((self.description is None and d.getDescription() == '') or (self.description is not None and omero.gateway.omero_type(d.getDescription()) == omero.gateway.omero_type(self.description))):
-            #print ".. -> dataset already exists: %s" % self.name
             return d
-        #print ".. -> create new dataset: %s" % self.name
-#        UserEntry.setGroupForSession(client, project.getDetails().getGroup().getName())
         d = omero.model.DatasetI(loaded=True)
         d.setName(omero.gateway.omero_type(self.name))
         if self.description is not None:
             d.setDescription(omero.gateway.omero_type(self.description))
-#        d.details.setPermissions(omero.model.PermissionsI())
-#        d.details.permissions.setGroupRead(project.details.permissions.isGroupRead())
-#        d.details.permissions.setGroupWrite(project.details.permissions.isGroupWrite())
         project.linkDataset(d)
         project.save()
         rv = self.get(client, project)
@@ -397,7 +361,8 @@ def bootstrap ():
     # Create users
     client = loginAsRoot()
     for k, u in USERS.items():
-        u.create(client)
+        if not u.create(client):
+            u.changePassword(client, u.passwd)
     for k, p in PROJECTS.items():
         p.create()
         #print p.get(client).getDetails().getPermissions().isUserWrite()
@@ -429,6 +394,10 @@ def cleanup ():
             #print ".. -> removing project %s" % p.getName()
             update.deleteObject(p._obj)
     # What about users?
+    admin = client.getAdminService()
+    for k, u in USERS.items():
+        u.changePassword(client, None)
+        
 
 
 ROOT=UserEntry('root','ome',admin=True)
