@@ -253,7 +253,6 @@ def combineImages(session, parameterMap):
                 print "Dataset", dataset.name.val
                 break    # only use 1st dataset
         outputImage = makeSingleImage(services, parameterMap, imageIds, dataset, colourMap)
-        return outputImage
     
     else:
         for dId in parameterMap["IDs"]:
@@ -267,7 +266,12 @@ def combineImages(session, parameterMap):
             dataset = gateway.getDataset(datasetId, False)
             outputImage = makeSingleImage(services, parameterMap, imageIds, dataset, colourMap)
             
-        return outputImage  # just return the last one
+    # try and close any stateful services     
+    for s in services:
+        try:
+            s.close()
+        except: pass
+    return outputImage  # just return the last one
 
 
 def runAsScript():
@@ -277,7 +281,7 @@ def runAsScript():
     
     ckeys = COLOURS.keys()
     ckeys.sort()
-    cOptions = wrap(ckeys)
+    cOptions = [rstring(col) for col in ckeys]
     dataTypes = [rstring('Dataset'),rstring('Image')]
     firstDim = [rstring('Time'),rstring('Channel'),rstring('Z')]
     extraDims = [rstring(''),rstring('Time'),rstring('Channel'),rstring('Z')]
@@ -285,7 +289,7 @@ def runAsScript():
     client = scripts.client('Combine_Images.py', 'Combine several single-plane images into one with greater Z, C, T dimensions.', 
     
     scripts.String("Data_Type", optional=False, grouping="1",
-        description="Use all the images in specified 'Datasets' or choose individual 'Images'.", values=dataTypes, default="Dataset"),
+        description="Use all the images in specified 'Datasets' or choose individual 'Images'.", values=dataTypes, default="Image"),
         
     scripts.List("IDs", optional=False, grouping="2",
         description="List of Dataset IDs or Image IDs to combine.").ofType(rlong(0)),
@@ -300,34 +304,37 @@ def runAsScript():
         description="The third Dimension to change", values=extraDims, default=""), 
     
     scripts.Int("Size_Z", grouping="4",
-        description="Number of Z planes in new image", default==1, min=1),
+        description="Number of Z planes in new image", min=1),
     
     scripts.Int("Size_C", grouping="5",
-        description="Number of channels in new image", default=1, min=1),
+        description="Number of channels in new image", min=1),
     
     scripts.Int("Size_T", grouping="6",
-        description="Number of time-points in new image", default=1, min=1),
+        description="Number of time-points in new image", min=1),
     
     scripts.List("Channel_Colours", grouping="7",
-        description="List of Colours for channels.", values=cOptions),
+        description="List of Colours for channels.", default=rstring("White"), values=cOptions),
     
     scripts.List("Channel_Names", grouping="8",
         description="List of Names for channels in the new image.")
     )
     
-    session = client.getSession()
+    try:
+        session = client.getSession()
     
-    # process the list of args above. 
-    parameterMap = {}
-    for key in client.getInputKeys():
-        if client.getInput(key):
-            parameterMap[key] = client.getInput(key).getValue()
+        # process the list of args above. 
+        parameterMap = {}
+        for key in client.getInputKeys():
+            if client.getInput(key):
+                parameterMap[key] = client.getInput(key).getValue()
     
-    # print parameterMap
-    image = combineImages(session, parameterMap)        
+        # print parameterMap
+        image = combineImages(session, parameterMap)        
     
-    client.setOutput("Message", rstring("Script Ran OK. New Image created ID: %s" % image.id.val))
-    client.setOutput("Combined_Image",robject(image))
+        client.setOutput("Message", rstring("Script Ran OK. New Image created ID: %s" % image.id.val))
+        client.setOutput("Combined_Image",robject(image))
+    finally:
+        client.closeSession()
     
 if __name__ == "__main__":
     runAsScript()
