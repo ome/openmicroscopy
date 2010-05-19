@@ -60,6 +60,7 @@ import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
 import static omero.rtypes.rstring;
+import static omero.rtypes.rtime;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import pojos.AnnotationData;
@@ -243,7 +244,7 @@ public class PojosServiceTest
     {
         ImageData imgData = simpleImageDataWithDatasets();
         Image image = (Image) imgData.asIObject();
-
+        image.setAcquisitionDate(rtime(0));
         image = (Image) iUpdate.saveAndReturnObject(image);
         assertTrue("It better have a dataset link",
         		image.sizeOfDatasetLinks() > 0);
@@ -321,87 +322,10 @@ public class PojosServiceTest
     	throws Exception 
     {
     	client.closeSession();
-		//factory.destroy();
-    }
-    
-    /**
-     * Tests that the experimenter with login name <code>root</code> is
-     * in the database, and makes sure it is converted into an 
-     * <code>Pojo</code> object.
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testExperimenterConvertion() 
-    	throws Exception
-    {
-    	/*TODO: rewrite test
-        List l = iQuery.findAllByExample(new ExperimenterI(), null);
-        assertTrue("Root has to exist.", l.size() > 0);
-        Experimenter exp = (Experimenter) l.get(0);
-        assertNotNull("Must have an id", exp.getId());
-        assertNotNull("And a login name", exp.getOmeName());
-
-        // Now let's try to map it.
-        ExperimenterData expData = new ExperimenterData(exp);
-        assertNotNull("And something should still be there", expData);
-        assertTrue("And it should have an id", expData.getId() > -1);
-        assertNotNull("And login name", expData.getUserName());
-        */
-    }
-
-    /**
-     * Test to create an image and <code>Pojo</code> representation.
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testCreateImage() 
-    	throws Exception
-    {
-    	/*
-        ImageData imgData = simpleImageData();
-        Image img = (Image) iContainer.createDataObject(imgData.asIObject(), 
-        			null);
-        assertNotNull("We should get something back", img);
-        assertNotNull("Should have an id", img.getId());
-        assertTrue(imgData.getName().equals(img.getName().getValue()));
-        Image img2 = (Image) iQuery.get(Image.class.getName(), 
-        		img.getId().getValue());
-        assertNotNull("And we should be able to find it again.", img2);
-        */
-    }
-
-    /**
-     * Test to create an image with datasets, convert it to <code>Pojo</code>
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testCreateImageWithDatasets() throws Exception {
-    	/*
-        Image image = saveImage(true);
-        List l = image.linkedDatasetList();
-        assertNotNull(l);
-        assertTrue(l.size() == 1);
-        
-        Dataset ds = (Dataset) l.get(0);
-        long id = ds.getId().getValue();
-
-        // another copy
-        Image img2 = (Image) iQuery.findAllByQuery(
-                "select i from Image i "
-                        + "left outer join fetch i.datasetLinks "
-                        + "where i.id = :id",
-                new ParametersI().addId(image.getId())).get(0);
-        //Convert the image into a Pojo
-        ImageData data = new ImageData(img2);
-        Set<DatasetData> datasets = data.getDatasets();
-        assertTrue("It better have a dataset link too", datasets.size() == 1);
-        Iterator<DatasetData> i = datasets.iterator();
-        DatasetData dataset;
-        while (i.hasNext()) {
-        	dataset = i.next();
-        	assertEquals("And the ids have to be the same", id, dataset.getId());
-		}
-		*/
+    	factory = client.createSession();
+        iContainer = factory.getContainerService();
+        iQuery = factory.getQueryService();
+        iUpdate = factory.getUpdateService();
     }
 
     /**
@@ -480,160 +404,6 @@ public class PojosServiceTest
     {
         //TODO
 
-    }
-
-    /**
-     * Test to link a dataset and an image.
-     * 
-     *  @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testLinkDatasetAndImage() 
-    	throws Exception 
-    {
-    	/*TODO: rewrite test
-        ImageData imgData = simpleImageData();
-        DatasetData dsData = simpleDatasetData();
-        DatasetImageLink link = new DatasetImageLinkI();
-        link.link(dsData.asDataset(), imgData.asImage());
-
-        IObject test = iContainer.link(
-        		Arrays.<IObject>asList(link) , null).get(0);
-        assertNotNull("ILink should be there", test);
-        */
-
-    }
-    
-    /**
-     * Test to link a dataset and an image.
-     * 
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testLinkProjectAndDataset() 
-    	throws Exception 
-    {
-    	/*TODO: rewrite test.
-        ProjectData p = simpleProjectData();
-        DatasetData d = simpleDatasetData();
-
-        ProjectDatasetLink link = new ProjectDatasetLinkI();
-        link.link(p.asProject(), d.asDataset());
-
-        IObject test = iContainer.link(
-        		Arrays.<IObject>asList(link) , null).get(0);
-        assertNotNull("ILink should be there", test);
-        */
-    }
-
-    /**
-     * Test to unlink datasets and images.
-     * 
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test(groups = { "broken", "ticket:541" })
-    public void testUnlinkDatasetAndImage() 
-    	throws Exception {
-
-        // Method 1:
-        Image img = saveImage(true);
-        List updated = unlinkImage(img);
-        iUpdate.saveCollection(updated);
-
-        // Make sure it's not linked.
-        List list = iQuery.findAllByQuery(DatasetImageLink.class.getName(),
-                new ParametersI().addLong("child.id", img.getId()));
-        assertTrue(list.size() == 0);
-
-        // Method 2:
-        img = saveImage(true);
-        updated = unlinkImage(img);
-        iContainer.updateDataObjects(updated, null);
-
-        List list2 = iQuery.findAllByQuery(DatasetImageLink.class.getName(),
-                new ParametersI().addLong("child.id", img.getId()));
-        assertTrue(list.size() == 0);
-
-        // Method 3:
-        img = saveImage(true);
-        Dataset target = img.linkedDatasetList().get(0);
-        // For querying
-        DatasetImageLink dslink = img.findDatasetImageLink(target).iterator()
-                .next();
-
-        img.unlinkDataset(target);
-        img = (Image) iContainer.updateDataObject(img, null);
-
-        IObject test = iQuery.find(DatasetImageLink.class.getName(), 
-        		dslink.getId().getValue());
-        assertNull(test);
-
-        // Method 4;
-        Dataset d = new DatasetI();
-        d.setName(rstring("unlinking"));
-        Project p = new ProjectI();
-        p.setName(rstring("unlinking"));
-        p = (Project) iContainer.createDataObject(p, null);
-        d = (Dataset) iContainer.createDataObject(d, null);
-
-        ProjectDatasetLink link = new ProjectDatasetLinkI();
-        link.setParent(p);
-        link.setChild(d);
-    }
-
-    /**
-     * Test to unlink projects and datasets. 
-     * 
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test(groups = { "broken", "ticket:541" })
-    public void testUnlinkProjectAndDataset() 
-    	throws Exception 
-    {
-
-       //TODO
-    }
-    
-    /**
-     * Test to unlink datasets and images from just one side.
-     * @throws Exception
-     */
-    @Test(groups = { "broken", "ticket:541" })
-    public void testUnlinkDatasetAndImageFromJustOneSide() 
-    	throws Exception 
-    {
-        Image img = saveImage(true);
-        DatasetImageLink link = img.copyDatasetLinks().get(0);
-        img.removeDatasetImageLinkFromBoth(link, false);
-
-        iContainer.updateDataObject(img, null);
-
-        DatasetImageLink test = (DatasetImageLink) 
-        	iQuery.find(DatasetImageLink.class.getName(), 
-        			link.getId().getValue());
-
-        assertNull(test);
-    }
-
-    /**
-     * Test to unlink projects and datasets from just one side.
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test(groups = { "broken", "ticket:541" })
-    public void testUnlinkProjectAndDatasetFromJustOneSide() 
-    	throws Exception 
-    {
-        Image img = saveImage(true);
-        DatasetImageLink link = img.copyDatasetLinks().get(0);
-        img.removeDatasetImageLinkFromBoth(link, false);
-
-        iContainer.updateDataObject(img, null);
-
-        DatasetImageLink test = (DatasetImageLink) 
-        	iQuery.find(DatasetImageLink.class.getName(), 
-        			link.getId().getValue());
-
-        assertNull(test);
     }
     
     /**
@@ -970,56 +740,6 @@ public class PojosServiceTest
     // / ~ Various bug-like checks
     // /
     // ========================================================================
-
-   
-
-
-    /**
-     * Test to handle duplicate links
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testDuplicateProjectDatasetLink() 
-    	throws Exception 
-    {
-
-    	/*TODO: rewrite test
-        String string = "duplinksagain" + System.currentTimeMillis();
-
-        Dataset d = new DatasetI();
-        d.setName(rstring(string));
-
-        Project p = new ProjectI();
-        p.setName(rstring(string));
-
-        d.linkProject(p);
-        d = (Dataset) iContainer.createDataObject(d, null);
-        List<Project> orig = d.linkedProjectList();
-        Set orig_ids = new HashSet();
-        for (Project pr : orig) {
-            orig_ids.add(pr.getId().getValue());
-        }
-
-        DatasetData dd = new DatasetData(d);
-        Dataset toSend = dd.asDataset();
-
-        Dataset updated = (Dataset) iContainer.updateDataObject(toSend, null);
-
-        List<Project> updt = updated.linkedProjectList();
-        Set updt_ids = new HashSet();
-        for (Project pr : updt) {
-            updt_ids.add(pr.getId().getValue());
-        }
-
-        if (log.isDebugEnabled()) {
-            log.debug(orig_ids);
-            log.debug(updt_ids);
-        }
-
-        assertTrue(updt_ids.containsAll(orig_ids));
-        assertTrue(orig_ids.containsAll(updt_ids));
-        */
-    }
    
     /**
      * Test to annotate a dataset with a comment.
@@ -1100,77 +820,6 @@ public class PojosServiceTest
     }
 
     /**
-     * Test to create a project and link datasets to it.
-     * 
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testCreateProjectAndLinkDatasets() 
-    	throws Exception 
-    {
-    	/*
-        String name = " 2&1 " + System.currentTimeMillis();
-        Project p = new ProjectI();
-        p.setName(rstring(name));
-
-        p = (Project) iUpdate.saveAndReturnObject(p);
-
-        Dataset d1 = new DatasetI();
-        d1.setName(rstring(name));
-        d1 = (Dataset) iUpdate.saveAndReturnObject(d1);
-
-        Dataset d2 = new DatasetI();
-        d2.setName(rstring(name));
-        d2 = (Dataset) iUpdate.saveAndReturnObject(d2);
-
-        ProjectDatasetLink l1 = new ProjectDatasetLinkI();
-        ProjectDatasetLink l2 = new ProjectDatasetLinkI();
-
-        l1.setParent(p);
-        l1.setChild(d1);
-
-        l2.setParent(p);
-        l2.setChild(d2);
-
-        p.addProjectDatasetLinkToBoth(l1, true);
-        p.addProjectDatasetLinkToBoth(l2, true);
-
-        p = (Project) iContainer.updateDataObject(p, null);
-
-        //Check the conversion of Project to ProjectData
-        ProjectData pData = new ProjectData(p);
-        Set<DatasetData> datasets = pData.getDatasets();
-        //We should have 2 datasets
-        assertTrue(datasets.size() == 2);
-        int count = 0;
-        Iterator<DatasetData> i = datasets.iterator();
-        DatasetData dataset;
-        while (i.hasNext()) {
-        	dataset = i.next();
-			if (dataset.getId() == d1.getId().getValue() ||
-					dataset.getId() == d2.getId().getValue()) count++;
-		}
-        assertTrue(count == 2);
-        
-        
-        Iterator it = p.copyDatasetLinks().iterator();
-        while (it.hasNext()) {
-            ProjectDatasetLink link = (ProjectDatasetLink) it.next();
-            if (link.getChild().getId().getValue() == d1.getId().getValue()) {
-                l1 = link;
-                d1 = link.getChild();
-            } else if (link.getChild().getId().getValue()
-            		== d2.getId().getValue()) {
-                l2 = link;
-                d2 = link.getChild();
-            } else {
-                fail("Links aren't set up propertly");
-            }
-        }
-        */
-    }
-
-    /**
      * Tests the deletion of a comment annotation.
      * 
      * @throws Exception Thrown if an error occurred.
@@ -1202,39 +851,6 @@ public class PojosServiceTest
         		a.getId().getValue());
         assertNull(o);
         */
-    }
-    
-    /**
-     * Tests to update a textual annotation.
-     * 
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testUpdateTextualAnnotation() 
-    	throws Exception 
-    {
-    	/* Test: rewrite test
-        DataObject annotatedObject;
-        AnnotationData data;
-
-        Dataset d = new DatasetI();
-        d.setName(rstring("update_annotation"));
-        d = (Dataset) iContainer.createDataObject(d, null);
-        annotatedObject = new DatasetData(d);
-
-        data = new TextualAnnotationData("update_annotation");
-       
-        IObject updated = iContainer.updateDataObject(
-        		annotatedObject.asIObject(), null);
-
-        DatasetAnnotationLink link = 
-        	((Dataset) updated).linkAnnotation(data.asAnnotation());
-        link = (DatasetAnnotationLink) iContainer.updateDataObject(link, null);
-        link.getChild().unload();
-
-        DataObject toReturn = 
-        	new TextualAnnotationData((CommentAnnotation) link.getChild());
-        	*/
     }
 
     /**
@@ -1400,25 +1016,6 @@ public class PojosServiceTest
         List results = iContainer.loadContainerHierarchy(Project.class.getName(), 
         		ids, GROUP_FILTER);
         assertFilterWorked(results, null, 100, null, fixture.g);
-        */
-    }
-
-    /**
-     * Tests the creation of a project without datasets.
-     * 
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test(groups = "ticket:1106")
-    public void testEmptyProject() 
-    	throws Exception
-    {
-    	/*TODO: rewrite test
-        ProjectData data = new ProjectData();
-        data.setName("name");
-        Project p = (Project) iContainer.createDataObject(data.asIObject(), 
-        		null);
-        assertTrue(p.getDetails().getGroup().sizeOfGroupExperimenterMap() != 0);
-        assertTrue(p.getDetails().getOwner().sizeOfGroupExperimenterMap() != 0);
         */
     }
 

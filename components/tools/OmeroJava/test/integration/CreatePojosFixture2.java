@@ -39,7 +39,6 @@ import omero.model.Project;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
-import omero.model.CommentAnnotationI;
 import omero.sys.EventContext;
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
