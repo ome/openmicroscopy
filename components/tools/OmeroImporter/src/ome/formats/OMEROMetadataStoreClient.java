@@ -3993,6 +3993,10 @@ public class OMEROMetadataStoreClient
      */
     public void setImageAcquiredDate(String acquiredDate, int imageIndex)
     {
+        if (acquiredDate == null)
+        {
+            return;
+        }
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
             java.util.Date date = sdf.parse(acquiredDate);
