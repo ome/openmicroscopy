@@ -692,21 +692,24 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#Split-viewFigure"
     #scripts.Long("fileAnnotation").out()
     )  # script returns a file annotation
     
-    session = client.getSession();
-    gateway = session.createGateway();
-    commandArgs = {}
+    try:
+        session = client.getSession();
+        gateway = session.createGateway();
+        commandArgs = {}
     
-    # process the list of args above. 
-    for key in client.getInputKeys():
-        if client.getInput(key):
-            commandArgs[key] = client.getInput(key).getValue()
-    print commandArgs
-    # call the main script, attaching resulting figure to Image. Returns the id of the originalFileLink child. (ID object, not value)
-    fileAnnotation = splitViewFigure(session, commandArgs)
-    # return this fileAnnotation to the client. 
-    if fileAnnotation:
-        client.setOutput("Message", rstring("Split-View Figure Created"))
-        client.setOutput("File_Annotation", robject(fileAnnotation))
-    
+        # process the list of args above. 
+        for key in client.getInputKeys():
+            if client.getInput(key):
+                commandArgs[key] = client.getInput(key).getValue()
+        print commandArgs
+        # call the main script, attaching resulting figure to Image. Returns the id of the originalFileLink child. (ID object, not value)
+        fileAnnotation = splitViewFigure(session, commandArgs)
+        # return this fileAnnotation to the client. 
+        if fileAnnotation:
+            client.setOutput("Message", rstring("Split-View Figure Created"))
+            client.setOutput("File_Annotation", robject(fileAnnotation))
+    finally:
+        client.closeSession()
+        
 if __name__ == "__main__":
     runAsScript()

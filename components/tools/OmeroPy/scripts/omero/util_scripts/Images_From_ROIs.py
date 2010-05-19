@@ -224,21 +224,23 @@ Assumes that all the ROIs on an Image are the same size and that all Images are 
     scripts.Bool("Make_Image_Stack", description="If true, make a single Image (stack) from all the ROIs of each parent Image")
     )
     
-    session = client.getSession();
+    try:
+        session = client.getSession();
     
-    # process the list of args above. 
-    parameterMap = {}
-    for key in client.getInputKeys():
-        if client.getInput(key):
-            parameterMap[key] = client.getInput(key).getValue()
+        # process the list of args above. 
+        parameterMap = {}
+        for key in client.getInputKeys():
+            if client.getInput(key):
+                parameterMap[key] = client.getInput(key).getValue()
     
-    print parameterMap
-    message = makeImagesFromRois(session, parameterMap)
+        print parameterMap
+        message = makeImagesFromRois(session, parameterMap)
     
-    if message:
-        client.setOutput("Message", rstring(message))
-    else:
-        client.setOutput("Message", rstring("Script Failed. See 'error' or 'info'"))
-
+        if message:
+            client.setOutput("Message", rstring(message))
+        else:
+            client.setOutput("Message", rstring("Script Failed. See 'error' or 'info'"))
+    finally:
+        client.closeSession()
 if __name__ == "__main__":
     runAsScript()

@@ -716,22 +716,24 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIMovieFigure"""
     #scripts.R("File_Annotation", description="Script returns a File Annotation ID of attached Figure").out()
     )
     
-    session = client.getSession();
-    gateway = session.createGateway();
-    commandArgs = {"Image_IDs":client.getInput("Image_IDs").getValue()}
+    try:
+        session = client.getSession();
+        gateway = session.createGateway();
+        commandArgs = {"Image_IDs":client.getInput("Image_IDs").getValue()}
     
-    # process the list of args above. 
-    for key in client.getInputKeys():
-        if client.getInput(key):
-            commandArgs[key] = client.getInput(key).getValue()
+        # process the list of args above. 
+        for key in client.getInputKeys():
+            if client.getInput(key):
+                commandArgs[key] = client.getInput(key).getValue()
     
-    #print commandArgs
-    # call the main script, attaching resulting figure to Image. Returns the id of the originalFileLink child. (ID object, not value)
-    fileAnnotation = roiFigure(session, commandArgs)
-    # return this fileAnnotation to the client. 
-    if fileAnnotation:
-        client.setOutput("Message", rstring("Roi-Movie Figure Created"))
-        client.setOutput("File_Annotation", robject(fileAnnotation))
-    
+        #print commandArgs
+        # call the main script, attaching resulting figure to Image. Returns the id of the originalFileLink child. (ID object, not value)
+        fileAnnotation = roiFigure(session, commandArgs)
+        # return this fileAnnotation to the client. 
+        if fileAnnotation:
+            client.setOutput("Message", rstring("Roi-Movie Figure Created"))
+            client.setOutput("File_Annotation", robject(fileAnnotation))
+    finally:
+        client.closeSession()
 if __name__ == "__main__":
     runAsScript()

@@ -422,20 +422,21 @@ def runAsScript():
     scripts.String("Overlay_Colour", description="The colour of the scalebar.",default='White',values=cOptions),
     scripts.Map("Plane_Map", description="Specify the individual planes (instead of using T_Start, T_End, Z_Start and Z_End)"))
 
-    session = client.getSession()
-    gateway = session.createGateway()
-    commandArgs = {}
+    try:
+        session = client.getSession()
+        commandArgs = {}
     
-    for key in client.getInputKeys():
-        if client.getInput(key):
-            commandArgs[key] = client.getInput(key).getValue()
-    print commandArgs
+        for key in client.getInputKeys():
+            if client.getInput(key):
+                commandArgs[key] = client.getInput(key).getValue()
+        print commandArgs
 
-    fileAnnotation = writeMovie(commandArgs, session)
-    if fileAnnotation:
-        client.setOutput("Message", rstring("Movie Created"))
-        client.setOutput("File_Annotation", robject(fileAnnotation))
-    
+        fileAnnotation = writeMovie(commandArgs, session)
+        if fileAnnotation:
+            client.setOutput("Message", rstring("Movie Created"))
+            client.setOutput("File_Annotation", robject(fileAnnotation))
+    finally:
+        client.closeSession()
     
 if __name__ == "__main__":
      runAsScript()

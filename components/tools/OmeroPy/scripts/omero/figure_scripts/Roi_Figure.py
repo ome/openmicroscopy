@@ -759,23 +759,24 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIFigure""",
     scripts.String("ROI_Label", description=roiLabel),
     #scripts.Long("fileAnnotation", "Script returns a File Annotation ID of attached Figure").out()
     )
+    try:
+        session = client.getSession();
+        gateway = session.createGateway();
+        commandArgs = {}
     
-    session = client.getSession();
-    gateway = session.createGateway();
-    commandArgs = {}
+        # process the list of args above. 
+        for key in client.getInputKeys():
+            if client.getInput(key):
+                commandArgs[key] = client.getInput(key).getValue()
     
-    # process the list of args above. 
-    for key in client.getInputKeys():
-        if client.getInput(key):
-            commandArgs[key] = client.getInput(key).getValue()
-    
-    print commandArgs
-    # call the main script, attaching resulting figure to Image. Returns the id of the originalFileLink child. (ID object, not value)
-    fileAnnotation = roiFigure(session, commandArgs)
-    # return this fileAnnotation to the client. 
-    if fileAnnotation:
-        client.setOutput("Message", rstring("ROI Figure Created"))
-        client.setOutput("File_Annotation", robject(fileAnnotation))
-    
+        print commandArgs
+        # call the main script, attaching resulting figure to Image. Returns the id of the originalFileLink child. (ID object, not value)
+        fileAnnotation = roiFigure(session, commandArgs)
+        # return this fileAnnotation to the client. 
+        if fileAnnotation:
+            client.setOutput("Message", rstring("ROI Figure Created"))
+            client.setOutput("File_Annotation", robject(fileAnnotation))
+    finally:
+        client.closeSession()
 if __name__ == "__main__":
     runAsScript()

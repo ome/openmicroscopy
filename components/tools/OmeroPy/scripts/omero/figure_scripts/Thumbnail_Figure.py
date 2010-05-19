@@ -383,19 +383,21 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ThumbnailFigure""
         #    description="Script returns a file annotation").out()
             )
 
-    session = client.getSession()
-    commandArgs = {}
+    try:
+        session = client.getSession()
+        commandArgs = {}
 
-    for key in client.getInputKeys():
-        if client.getInput(key):
-            commandArgs[key] = client.getInput(key).getValue()
-    print commandArgs
-    # Makes the figure and attaches it to Project/Dataset. Returns the id of the originalFileLink child. (ID object, not value)
-    fileAnnotation = makeThumbnailFigure(client, session, commandArgs)
-    if fileAnnotation:
-        client.setOutput("Message", rstring("Thumbnail-Figure Created"))
-        client.setOutput("File_Annotation", robject(fileAnnotation))
-        
+        for key in client.getInputKeys():
+            if client.getInput(key):
+                commandArgs[key] = client.getInput(key).getValue()
+        print commandArgs
+        # Makes the figure and attaches it to Project/Dataset. Returns the id of the originalFileLink child. (ID object, not value)
+        fileAnnotation = makeThumbnailFigure(client, session, commandArgs)
+        if fileAnnotation:
+            client.setOutput("Message", rstring("Thumbnail-Figure Created"))
+            client.setOutput("File_Annotation", robject(fileAnnotation))
+    finally:
+        client.closeSession() 
 
 if __name__ == "__main__":
     runAsScript()
