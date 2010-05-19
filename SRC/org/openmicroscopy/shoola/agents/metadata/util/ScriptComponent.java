@@ -108,6 +108,9 @@ class ScriptComponent
 	/** The components related to the current component. */
 	private List<ScriptComponent> children;
 	
+	/** The parent of the component. */
+	private ScriptComponent parent;
+	
 	/**
 	 * Returns the tabulation index. Returns <code>0</code> if no parent index
 	 * is set, otherwise the number of level in the parent e.g.
@@ -260,6 +263,13 @@ class ScriptComponent
 	 */
 	Object getValue()
 	{
+		if (parent != null) {
+			Object v = parent.getValue();
+			if (v instanceof Boolean) {
+				boolean b = ((Boolean) v).booleanValue();
+				if (!b) return null;
+			}
+		}
 		return ScriptComponent.getComponentValue(component);
 	}
 	
@@ -334,9 +344,24 @@ class ScriptComponent
 		if (component instanceof JCheckBox) {
 			JCheckBox box = (JCheckBox) component;
 			box.addChangeListener(this);
+			Iterator<ScriptComponent> i = children.iterator();
+			while (i.hasNext())
+				i.next().setParent(this);
 		}
+		handleSelection();
 	}
 
+	/**
+	 * Sets the parent of the component.
+	 * 
+	 * @param parent The value to set.
+	 */
+	void setParent(ScriptComponent parent)
+	{
+		if (children != null) return;
+		this.parent = parent;
+	}
+	
 	/**
 	 * Sets the name used to sort the object.
 	 * 
