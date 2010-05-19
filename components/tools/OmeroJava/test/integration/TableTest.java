@@ -1,8 +1,28 @@
+/*
+ * $Id$
+ *
+ *   Copyright 2006-2010 University of Dundee. All rights reserved.
+ *   Use is subject to license terms supplied in LICENSE.txt
+ */
 package integration;
 
+//Java imports
 import java.util.Date;
 import java.util.UUID;
 
+//Third-party libraries
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.*;
+
+//Application-internal dependencies
+import omero.api.IAdminPrx;
+import omero.api.IQueryPrx;
+import omero.api.IUpdatePrx;
+import omero.api.ServiceFactoryPrx;
 import omero.ApiUsageException;
 import omero.ServerError;
 import omero.grid.Column;
@@ -11,72 +31,114 @@ import omero.grid.StringColumn;
 import omero.grid.Data;
 import omero.grid.TablePrx;
 
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
 
-public class TableTest {
+/** 
+ * Collections of tests for the <code>IUpdate</code> service.
+ *
+ * @author  Brian loranger &nbsp;&nbsp;&nbsp;&nbsp;
+ * @version 3.0
+ * <small>
+ * (<b>Internal version:</b> $Revision: $Date: $)
+ * </small>
+ * @since 3.0-Beta4
+ */
+public class TableTest 
+{
 
+	/** The default size of a buffer. */
     protected int DEFAULT_BUFFER_SIZE = 3;
     
+    /** Identifies the ID column. */
     protected int UID_COLUMN = 0;
+    
+    /** Identifies the Long column. */
     protected int LONG_COLUMN = 1;
+    
+    /** Identifies the String column. */
     protected int STRING_COLUMN = 2;
     
     protected long[] ColNumbers = {UID_COLUMN, LONG_COLUMN, STRING_COLUMN};
     
+	/** 
+	 * The client object, this is the entry point to the Server. 
+	 */
     protected omero.client client = null;
-    protected omero.api.ServiceFactoryPrx  sf = null;
-    protected omero.api.IQueryPrx iQuery = null;
-    protected omero.api.IAdminPrx iAdmin = null;
-    protected omero.api.IUpdatePrx iUpdate = null;
     
-    protected Column[] myColumns = null;
+    /** Helper reference to the <code>Service factory</code>. */
+    protected ServiceFactoryPrx  sf;
+    
+    /** Helper reference to the <code>IQuery</code> service. */
+    protected IQueryPrx iQuery;
+    
+    /** Helper reference to the <code>IAdmin</code> service. */
+    protected IAdminPrx iAdmin;
+    
+    /** Helper reference to the <code>IUpdate</code> service. */
+    protected IUpdatePrx iUpdate;
+    
+    /** Reference to the columns. */
+    protected Column[] myColumns;
+    
+    /** Reference to the table. */
     protected TablePrx myTable = null;
     
+    
+    // ~ Helpers
+    // =========================================================================
+
     /**
-     * Set up services
+     * Creates a number of empty rows of [rows] size for the table
      * 
-     * @throws Exception
+     * @param rows The number of rows.
+     * @return See above.
+     */
+    private Column[] createColumns(int rows) 
+    {
+        Column[] newColumns = new Column[3];
+        newColumns[UID_COLUMN] = new LongColumn("Uid", "", new long[rows]);
+        newColumns[LONG_COLUMN] = new LongColumn("MyLongColumn", "", 
+        		new long[rows]);
+        newColumns[STRING_COLUMN] = new StringColumn("MyStringColumn", "", 
+        		64, new String[rows]);
+        return newColumns;
+    }
+    
+	/**
+     * Initializes the various services.
+     * @throws Exception Thrown if an error occurred.
      */
     @BeforeClass
-    public void setUp() throws Exception {
-        
+    public void setUp() 
+    	throws Exception 
+    { 
         client = new omero.client();
-        sf = client.createSession(); // Set ICE_CONFIG for configuration
-       
+        sf = client.createSession(); 
         iQuery = sf.getQueryService();
         iAdmin = sf.getAdminService();
         iUpdate = sf.getUpdateService();
     }
 	
     /**
-     * Close session and clear variables
-     * @throws Exception
+     * Closes session and clear variables.
+     *  @throws Exception Thrown if an error occurred.
      */
     @AfterClass
-    public void tearDown() throws Exception {        
+    public void tearDown() 
+    	throws Exception
+    {        
         client.closeSession();
-        
-        client = null;
-        sf = null;
-        iQuery = null;
-        iAdmin = null;
-        iUpdate = null;
+        sf.destroy();
     }
     
     
     /**
-     * Create/initialize a new myTable
-     * 
-     * @throws ServerError
+     * Create/initialize a new myTable.
+     * @throws ServerError Thrown if an error occurred.
      */
     @SuppressWarnings("unused")
 	@BeforeMethod
-    private String createTable() throws ServerError
+    private String createTable() 
+    	throws ServerError
     {
 		myColumns = createColumns(1);
 		
@@ -90,13 +152,13 @@ public class TableTest {
     }
     
     /**
-     * Delete myTable
-     * 
-     * @throws ServerError
+     * Delete myTable.
+     * @throws ServerError Thrown if an error occurred.
      */
     @SuppressWarnings("unused")
 	@AfterMethod
-    private void deleteTable() throws ServerError
+    private void deleteTable() 
+    	throws ServerError
     {
         iUpdate.deleteObject(myTable.getOriginalFile());
         myTable = null;
@@ -105,32 +167,35 @@ public class TableTest {
     // Simple Tests
     
     /**
-     * retrieve table's OriginalFile
-     * 
-     * @throws Exception
+     * Retrieve table's OriginalFile.
+     * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void getOriginalFileTest() throws Exception {;
+    public void getOriginalFileTest() 
+    	throws Exception
+    {
     	myTable.getOriginalFile();
     }
     
     /**
-     * Retrieve table header
-     * 
-     * @throws Exception
+     * Retrieve table header.
+     * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void getHeadersTest() throws Exception {
+    public void getHeadersTest() 
+    	throws Exception
+    {
     	myTable.getHeaders();
     }
 
     /**
-     * Add two rows of data to the table
-     * 
-     * @throws Exception
+     * Add two rows of data to the table.
+     * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void addDataTest() throws Exception {
+    public void addDataTest() 
+    	throws Exception 
+    {
     	Column[] newRow = createColumns(2);
 
     	LongColumn uids = (LongColumn) newRow[UID_COLUMN];
@@ -148,10 +213,13 @@ public class TableTest {
     }
     
     /**
-     * @throws Exception
+     * Retrieves the number of rows.
+     * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void getNumberOfRowsTest() throws Exception {
+    public void getNumberOfRowsTest() 
+    	throws Exception
+    {
     	
     	assertTrue(myTable.getNumberOfRows() == 0);
     	
@@ -170,16 +238,28 @@ public class TableTest {
     	assertTrue(myTable.getNumberOfRows() == 1);
     }
 
+    /**
+     * Tests the <code>WhereList</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test
-    public void getWhereListEmptyTableTest() throws Exception {
+    public void getWhereListEmptyTableTest() 
+    	throws Exception 
+    {
     	
-		long[] ids = myTable.getWhereList("(Uid=="+ 0 +")", null, 0, myTable.getNumberOfRows(), 1);
+		long[] ids = myTable.getWhereList("(Uid=="+ 0 +")", null, 0, 
+				myTable.getNumberOfRows(), 1);
 		
 		assertTrue(ids.length==0); 
     }
 
+    /**
+     * Tests the <code>WhereList</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test
-    public void getWhereListManyRowsTest() throws Exception {
+    public void getWhereListManyRowsTest() 
+    	throws Exception {
     	Column[] newRow = createColumns(3);
 
     	LongColumn uids = (LongColumn) newRow[UID_COLUMN];
@@ -198,7 +278,8 @@ public class TableTest {
     	
     	myTable.addData(newRow);
     	
-		long[] ids = myTable.getWhereList("(Uid=="+ 1 +")", null, 0, myTable.getNumberOfRows(), 1);
+		long[] ids = myTable.getWhereList("(Uid=="+ 1 +")", null, 0, 
+				myTable.getNumberOfRows(), 1);
 		
 		// getWhereList should have returned one row
 		assertTrue(ids.length==1); 
@@ -215,23 +296,25 @@ public class TableTest {
     }
 
     /**
-     * Test readCoordinates() with zero rows in table. This throws
+     * Tests <code>readCoordinates()</code> with zero rows in table. This throws
      * an exception because there's no need to try to read zero data.
-     *
-     * @throws Exception
+     * @throws Exception Thrown if an error occurred.
      */
     @Test(expectedExceptions = ApiUsageException.class)
-    public void getReadCoordinates0RowsTest() throws Exception {
+    public void getReadCoordinates0RowsTest() 
+    	throws Exception 
+    {
         myTable.readCoordinates(null);
     }
 
     /**
-     * Test readCoordinates() with one row in table.
-     * 
-     * @throws Exception
+     * Tests <code>readCoordinates()</code> with one row in table.
+     * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void getReadCoordinates1RowsTest() throws Exception {
+    public void getReadCoordinates1RowsTest()
+    	throws Exception
+    {
     	
     	Column[] newRow = createColumns(1);
 
@@ -248,12 +331,13 @@ public class TableTest {
     }
     
     /**
-     * Test readCoordinates() with two row in table
-     * 
-     * @throws Exception
+     * Tests <code>readCoordinates()</code> with two row in table
+     * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void getReadCoordinates2RowsTest() throws Exception {
+    public void getReadCoordinates2RowsTest() 
+    	throws Exception
+    {
     	
     	Column[] newRow = createColumns(2);
 
@@ -273,22 +357,24 @@ public class TableTest {
     }
     
     /**
-     * Test read() with no rows in table
-     * 
-     * @throws Exception
+     * Tests <code>read()</code> with no rows in table.
+     * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void read0RowsTest() throws Exception {
+    public void read0RowsTest() 
+    	throws Exception
+    {
     	myTable.read(ColNumbers, 0L, myTable.getNumberOfRows());
     }
     
     /**
-     * Test read() with one row in table
-     * 
-     * @throws Exception
+     * Tests <code>read</code> method with one row in table.
+     * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void read1RowsTest() throws Exception {
+    public void read1RowsTest()
+    	throws Exception
+    {
     	
     	Column[] newRow = createColumns(1);
 
@@ -305,12 +391,13 @@ public class TableTest {
     }
 
     /**
-     * Test read() with two rows in table
-     * 
-     * @throws Exception
+     * Test <code>read</code> method with two rows in table
+     * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void read2RowsTest() throws Exception {
+    public void read2RowsTest() 
+    	throws Exception
+    {
     	Column[] newRow = createColumns(2);
 
     	LongColumn uids = (LongColumn) newRow[UID_COLUMN];
@@ -329,20 +416,24 @@ public class TableTest {
     }
     
     /**
-     * @throws Exception
+     * Tests <code>slice</code> method.
+     * @throws Exception Thrown if an error occurred.
      */
-    @Test
-    public void slice0RowsTest() throws Exception {
+    @Test(expectedExceptions = ApiUsageException.class)
+    public void slice0RowsTest()
+    	throws Exception 
+    {
     	myTable.slice(null, null);
     }
 
     /**
-     * Read one row slice()
-     * 
-     * @throws Exception
+     * Tests <code>slice</code> method.
+     * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void slice1RowsTest() throws Exception {
+    public void slice1RowsTest() 
+    	throws Exception
+    {
     	Column[] newRow = createColumns(1);
 
     	LongColumn uids = (LongColumn) newRow[UID_COLUMN];
@@ -356,15 +447,15 @@ public class TableTest {
     	myTable.addData(newRow);
     	myTable.slice(ColNumbers, new long[]{0L});
     }
-    
-    
+
     /**
-     * Read two row slice()
-     * 
-     * @throws Exception
+     * Tests <code>slice</code> method.
+     * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void slice2RowsTest() throws Exception {
+    public void slice2RowsTest() 
+    	throws Exception 
+    {
     	Column[] newRow = createColumns(2);
 
     	LongColumn uids = (LongColumn) newRow[UID_COLUMN];
@@ -383,12 +474,14 @@ public class TableTest {
     	myTable.slice(ColNumbers, new long[]{0L,1L});
     }
     
-     /**
+    /**
      * Add then update a table row, assert its validity
-     * @throws Exception
+     * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void updateTableWith1RowsTest() throws Exception {
+    public void updateTableWith1RowsTest() 
+    	throws Exception 
+    {
     	// Add a new row to table
     	Column[] newRow = createColumns(1);
 
@@ -408,7 +501,8 @@ public class TableTest {
     	Data myData = myTable.read(ColNumbers, 0L, myTable.getNumberOfRows());	
     	
     	// Find the specific row we added
-    	long[] ids = myTable.getWhereList("(Uid==" + 1 + ")", null, 0, myTable.getNumberOfRows(), 1);
+    	long[] ids = myTable.getWhereList("(Uid==" + 1 + ")", null, 0, 
+    			myTable.getNumberOfRows(), 1);
     	
 		// getWhereList should have returned one row
 		assertTrue(ids.length==1); 
@@ -416,8 +510,10 @@ public class TableTest {
     	// Update the row with new data
     	Long newTime = new Date().getTime();
 		
-    	((LongColumn) myData.columns[LONG_COLUMN]).values[(int) ids[0]] = newTime;
-    	((StringColumn) myData.columns[STRING_COLUMN]).values[(int) ids[0]] = newTime.toString();
+    	((LongColumn) myData.columns[LONG_COLUMN]).values[
+    	                                              (int) ids[0]] = newTime;
+    	((StringColumn) myData.columns[STRING_COLUMN]).values[
+    	                                      (int) ids[0]] = newTime.toString();
     	       
         myTable.update(myData);
         
@@ -433,11 +529,13 @@ public class TableTest {
     } //updateTableRow()
 	
     /**
-     * Add then update a table row, assert its validity
-     * @throws Exception
+     * Add then update a table row, assert its validity.
+     * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void updateTableWith2RowsTest() throws Exception {
+    public void updateTableWith2RowsTest()
+    	throws Exception
+    {
     	// Add a new row to table
     	Column[] newRow = createColumns(2);
 
@@ -461,7 +559,8 @@ public class TableTest {
     	Data myData = myTable.read(ColNumbers, 0L, myTable.getNumberOfRows());	
     	
     	// Find the specific row we added
-    	long[] ids = myTable.getWhereList("(Uid==" + 1 + ")", null, 0, myTable.getNumberOfRows(), 1);
+    	long[] ids = myTable.getWhereList("(Uid==" + 1 + ")", null, 0, 
+    			myTable.getNumberOfRows(), 1);
     	
 		// getWhereList should have returned one row
 		assertTrue(ids.length==1); 
@@ -469,8 +568,10 @@ public class TableTest {
     	// Update the row with new data
     	Long newTime = new Date().getTime();
 		
-    	((LongColumn) myData.columns[LONG_COLUMN]).values[(int) ids[0]] = newTime;
-    	((StringColumn) myData.columns[STRING_COLUMN]).values[(int) ids[0]] = newTime.toString();
+    	((LongColumn) myData.columns[LONG_COLUMN]).values[(int) ids[0]] 
+    	                                                  = newTime;
+    	((StringColumn) myData.columns[STRING_COLUMN]).values[(int) ids[0]] 
+    	                                                  = newTime.toString();
     	       
         myTable.update(myData);
         
@@ -483,22 +584,6 @@ public class TableTest {
         // Row's time string and value should be the same
         assertTrue(newTime.toString().equals(myStrings.values[(int) ids[0]]));
         assertTrue(newTime==myLongs.values[(int) ids[0]]);
-    } //updateTableRow()
+    } 
     
-    // ~ Helpers
-    // =========================================================================
-
-    /**
-     * Creates a number of empty rows of [rows] size for the table
-     * 
-     * @param rows
-     * @return
-     */
-    private Column[] createColumns(int rows) {
-        Column[] newColumns = new Column[3];
-        newColumns[UID_COLUMN] = new LongColumn("Uid", "", new long[rows]);
-        newColumns[LONG_COLUMN] = new LongColumn("MyLongColumn", "", new long[rows]);
-        newColumns[STRING_COLUMN] = new StringColumn("MyStringColumn", "", 64, new String[rows]);
-        return newColumns;
-    }
 }

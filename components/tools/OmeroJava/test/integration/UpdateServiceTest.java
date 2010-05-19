@@ -76,7 +76,6 @@ public class UpdateServiceTest
      
 	/**
      * Initializes the various services.
-     * 
      * @throws Exception Thrown if an error occurred.
      */
     @Override
