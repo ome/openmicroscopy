@@ -388,12 +388,16 @@ APPLICATION_HOST='%s'
             self.syncmedia()
 
     def gateway(self, *args):
+        if len (args[0]) > 0:
+            appbase = self.ctx.dir / args[0][0]
+        else:
+            appbase = self.ctx.dir
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
         args = ["python", "-i", location / "../omero/gateway/scripts/dbhelpers.py"]
-        os.environ['ICE_CONFIG'] = self.ctx.dir / "etc" / "ice.config"
+        os.environ['ICE_CONFIG'] = appbase / "etc" / "ice.config"
         os.environ['PATH'] = os.environ.get('PATH', '.') + ':' + self.ctx.dir / 'bin'
         os.environ['DJANGO_SETTINGS_MODULE'] = os.environ.get('DJANGO_SETTINGS_MODULE', 'omeroweb.settings')
-        rv = self.ctx.call(args, cwd = location)
+        rv = self.ctx.call(args, cwd = appbase)
 
     def test(self, *args):
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
@@ -405,18 +409,27 @@ APPLICATION_HOST='%s'
         rv = self.ctx.call(cargs, cwd = location)
 
     def seleniumtest (self, *args):
-        location = self.ctx.dir / "lib" / "python" / "omeroweb"
-        cargs = ["python", "seleniumtests.py"]
         if len(args[0]) < 1:
-            self.ctx.die(121, "usage: seleniumtest {djangoapp} [seleniumserver] [hostname] [browser]")
-        location = location / args[0][0] / "tests"
+            self.ctx.die(121, "usage: seleniumtest [path.]{djangoapp} [seleniumserver] [hostname] [browser]")
+        appname = args[0][0]
+        if appname.find('.') > 0:
+            appname = appname.split('.')
+            appbase = appname[0]
+            location = self.ctx.dir / appbase
+            appname = '.'.join(appname[1:])
+        else:
+            appbase = "omeroweb"
+            location = self.ctx.dir / "lib" / "python" / "omeroweb"
+
+        #location = location / appname / "tests"
+        cargs = ["python", location / appname / "tests" / "seleniumtests.py"]
         cargs += args[0][1:]
         print cargs
         rv = self.ctx.call(cargs, cwd = location )
         
 
     def call (self, *args):
-        """ call [path].appname "[executable] scriptname" args """
+        """ call [path.]{djangoapp} "[executable] scriptname" args """
         try:
             if len(args[0]) < 2:
                 self.ctx.die(121, "not enough args")

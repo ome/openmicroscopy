@@ -67,13 +67,13 @@ class SeleniumTestServer (object):
                 except:
                     pass
             self.selenium = selenium(self.host, self.port, self.browser, self.url)
-            self.selenium.start()
-            self.selenium.open("/%s/" % self.base)
-            script = urllib2.urlopen("%s/appmedia/webgateway/js/3rdparty/jquery-1.3.2.js" % (self.url))
-            r = script.read()
-            self.selenium.run_script(r)
-            script.close()
-            self.selenium.add_location_strategy("jquery",
+        self.selenium.start()
+        self.selenium.open("/%s/" % self.base)
+        script = urllib2.urlopen("%s/appmedia/webgateway/js/3rdparty/jquery-1.3.2.js" % (self.url))
+        r = script.read()
+        self.selenium.run_script(r)
+        script.close()
+        self.selenium.add_location_strategy("jquery",
 '''
   if (inWindow.jQuery.expr[':'].containsExactly === undefined) {
     inWindow.jQuery.expr[':'].containsExactly = function (a,i,m) { return inWindow.jQuery(a).text() == m[3];};
@@ -136,18 +136,7 @@ class SeleniumTestBase (unittest.TestCase):
         self.verificationErrors = []
         if self.SERVER is None:
             self.SERVER = SeleniumTestServer()
-        print self.SERVER.__dict__
         self.selenium = self.SERVER.getSelenium()
-
-#    def waitOnFullViewerLoad (self):
-#        time.sleep(1)
-#        for i in range(20):
-#            try:
-#                if (not self.selenium.is_element_present("//div[@id='wblitz-workarea']/div[@class='box']/div[contains(@style,'none')]")) and self.selenium.get_text('wblitz-z-count') != '?': break
-#            except: pass
-#            time.sleep(1)
-#        else: self.fail("time out")
-#        time.sleep(1)
 
     def waitForElementPresence (self, element, present=True):
         """
