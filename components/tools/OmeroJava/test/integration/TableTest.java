@@ -127,7 +127,7 @@ public class TableTest
     	throws Exception
     {        
         client.closeSession();
-        sf.destroy();
+        // This also calls sf.destroy();
     }
     
     
