@@ -44,6 +44,7 @@ import omero.model.GroupExperimenterMap;
 import omero.model.Permissions;
 import omero.model.PermissionsI;
 import omero.sys.ParametersI;
+import pojos.ExperimenterData;
 
 
 
@@ -429,4 +430,22 @@ public class AdminTest
         }
     }
 
+    /**
+     * Retrieves the user and makes sure that the user is correctly
+     * converted into the corresponding <code>Pojo</code> object.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoginAndConversion()
+    	throws Exception 
+    {
+    	IAdminPrx prx = factory.getAdminService();
+    	Experimenter exp = prx.lookupExperimenter("root");
+    	assertNotNull(exp);
+    	//convert 
+    	ExperimenterData expData = new ExperimenterData(exp);
+    	assertTrue(expData.getId() == exp.getId().getValue());
+    	assertTrue(expData.getUserName().equals(exp.getOmeName().getValue()));
+    }
+    
 }

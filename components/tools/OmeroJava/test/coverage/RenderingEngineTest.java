@@ -34,7 +34,7 @@ public class RenderingEngineTest
         assertNotNull(prx);
         prx.load();
         ice.closeSession();
-        factory.destroy();
+        //factory.destroy();
     }
     
 }
