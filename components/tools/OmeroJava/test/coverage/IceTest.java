@@ -11,6 +11,7 @@ import java.io.File;
 import junit.framework.TestCase;
 import omero.api.IUpdatePrx;
 import omero.api.IUpdatePrxHelper;
+import omero.api.ServiceFactoryPrx;
 import omero.constants.UPDATESERVICE;
 import omero.model.ImageI;
 
@@ -26,21 +27,37 @@ public abstract class IceTest extends TestCase {
     protected omero.client ice = null, root = null;
     protected Ice.Communicator ic = null;
 
+    /** Helper reference to the <code>Service factory</code>. */
+    protected ServiceFactoryPrx factory;
+    
+    /** Helper reference to the <code>Service factory</code>. */
+    protected ServiceFactoryPrx factoryIce;
+    
+    /**
+     * Initializes the various services.
+     * @throws Exception Thrown if an error occurred.
+     */
     @Override
     @BeforeMethod
     public void setUp() throws Exception {
         ice = new omero.client();
-        ice.createSession();
+        factoryIce = ice.createSession();
         root = new omero.client();
-        root.createSession("root", ice.getProperty("omero.rootpass"));
+        factory = root.createSession("root", ice.getProperty("omero.rootpass"));
         ic = ice.getCommunicator();
     }
 
+    /**
+     * Closes the session.
+     * @throws Exception Thrown if an error occurred.
+     */
     @Override
     @AfterMethod
     public void tearDown() throws Exception {
         ice.closeSession();
         root.closeSession();
+        //factory.destroy();
+        //factoryIce.destroy();
     }
 
     // ~ Helpers

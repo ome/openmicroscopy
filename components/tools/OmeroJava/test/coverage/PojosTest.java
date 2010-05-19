@@ -22,10 +22,16 @@ import org.testng.annotations.Test;
 
 public class PojosTest extends IceTest {
 
+	/**
+	 * Tests the count of collection.
+	 * @throws Exception If an error occurred.
+	 */
     @Test
-    public void testGetCollectionCount() throws Exception {
+    public void testGetCollectionCount()
+    	throws Exception
+    {
 
-        IContainerPrx p = ice.getSession().getContainerService();
+        IContainerPrx p = factoryIce.getContainerService();
         p.getCollectionCount(ExperimenterI.class.getName(),
                 ExperimenterI.GROUPEXPERIMENTERMAP, Arrays.asList(0L), null);
     }

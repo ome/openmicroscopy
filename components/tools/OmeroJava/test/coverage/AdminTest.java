@@ -158,7 +158,7 @@ public class AdminTest
     public void testNewGroup() 
     	throws Exception 
     {
-        IAdminPrx prx = root.getServiceFactory().getAdminService();
+        IAdminPrx prx = factory.getAdminService();
         assertNotNull(prx);
         long id = prx.createGroup(createGroup());
         assertTrue(id > 0);
@@ -173,7 +173,7 @@ public class AdminTest
     public void testDeleteGroup()
     	throws Exception 
     {
-    	IAdminPrx prx = root.getServiceFactory().getAdminService();
+    	IAdminPrx prx = factory.getAdminService();
         assertNotNull(prx);
         //first create a group
         long id = prx.createGroup(createGroup());
@@ -198,7 +198,7 @@ public class AdminTest
     public void testChangeGroupPermissions() 
     	throws Exception 
     {
-        IAdminPrx prx = root.getServiceFactory().getAdminService();
+        IAdminPrx prx = factory.getAdminService();
         assertNotNull(prx);
     }
     
@@ -210,7 +210,7 @@ public class AdminTest
     public void testNewUser() 
     	throws Exception 
     {
-        IAdminPrx prx = root.getServiceFactory().getAdminService();
+        IAdminPrx prx = factory.getAdminService();
         assertNotNull(prx);
         long id = newUser(prx);
         assertTrue(id > 0);
@@ -225,8 +225,8 @@ public class AdminTest
     public void testNewExperimenterWithPassword() 
     	throws Exception 
     {
-        IAdminPrx prx = root.getServiceFactory().getAdminService();
-        IQueryPrx svc = root.getServiceFactory().getQueryService();
+        IAdminPrx prx = factory.getAdminService();
+        IQueryPrx svc = factory.getQueryService();
         assertNotNull(prx);
         assertNotNull(svc);
         ExperimenterGroup g = new ExperimenterGroupI(newGroup(prx), false);
@@ -253,8 +253,8 @@ public class AdminTest
     public void testNewExperimenter() 
     	throws Exception 
     {
-        IAdminPrx prx = root.getServiceFactory().getAdminService();
-        IQueryPrx svc = root.getServiceFactory().getQueryService();
+        IAdminPrx prx = factory.getAdminService();
+        IQueryPrx svc = factory.getQueryService();
         assertNotNull(prx);
         assertNotNull(svc);
         ExperimenterGroup g = new ExperimenterGroupI(newGroup(prx), false);
@@ -279,8 +279,8 @@ public class AdminTest
     public void testNewExperimenterAsAdministrator() 
     	throws Exception 
     {
-        IAdminPrx prx = root.getServiceFactory().getAdminService();
-        IQueryPrx svc = root.getServiceFactory().getQueryService();
+        IAdminPrx prx = factory.getAdminService();
+        IQueryPrx svc = factory.getQueryService();
         assertNotNull(prx);
         assertNotNull(svc);
         ExperimenterGroup g = prx.lookupGroup(SYSTEM_GROUP);
@@ -305,8 +305,8 @@ public class AdminTest
     public void testSetGroupOwner() 
     	throws Exception 
     {
-    	IAdminPrx prx = root.getServiceFactory().getAdminService();
-    	IQueryPrx svc = root.getServiceFactory().getQueryService();
+    	IAdminPrx prx = factory.getAdminService();
+    	IQueryPrx svc = factory.getQueryService();
         assertNotNull(prx);
         assertNotNull(svc);
         //create the group
@@ -347,7 +347,7 @@ public class AdminTest
     public void testChangeUserPassword() 
     	throws Exception 
     {
-        IAdminPrx prx = root.getServiceFactory().getAdminService();
+        IAdminPrx prx = factory.getAdminService();
         assertNotNull(prx);
         long id = newUser(prx);
         Experimenter e = prx.getExperimenter(id);
@@ -362,7 +362,7 @@ public class AdminTest
     public void testDeleteExperimenter()
     	throws Exception 
     {
-    	IAdminPrx prx = root.getServiceFactory().getAdminService();
+    	IAdminPrx prx = factory.getAdminService();
         assertNotNull(prx);
         //first create a group
         ExperimenterGroup g = new ExperimenterGroupI(newGroup(prx), false);
@@ -393,7 +393,7 @@ public class AdminTest
     @Test
     public void testUserPhoto() throws Exception
     {
-        IAdminPrx prx = root.getServiceFactory().getAdminService();
+        IAdminPrx prx = factory.getAdminService();
         // First create a user in two groups, one rwrw-- and one rwr---
         ExperimenterGroup rwr = new ExperimenterGroupI();
         rwr.setName(rstring(uuid()));
@@ -421,13 +421,12 @@ public class AdminTest
             client.createSession(e.getOmeName().getValue(), "foo");
             prx = client.getSession().getAdminService();
             prx.uploadMyUserPhoto("/tmp/foto.jpg", "image/jpeg", new byte[]{1});
-            client.getSession().setSecurityContext(new ExperimenterGroupI(rwrID, false));
+            client.getSession().setSecurityContext(
+            		new ExperimenterGroupI(rwrID, false));
             prx.uploadMyUserPhoto("/tmp/foto2.jpg", "image/jpeg", new byte[]{2});
         } finally {
             client.closeSession();
         }
-
-
     }
 
 }

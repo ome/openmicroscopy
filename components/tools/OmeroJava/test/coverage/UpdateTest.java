@@ -11,11 +11,19 @@ import omero.api.IUpdatePrx;
 
 import org.testng.annotations.Test;
 
-public class UpdateTest extends IceTest {
+public class UpdateTest 
+	extends IceTest
+{
 
+    /**
+     * Test the <code>saveAndReturnObject</code> method.
+     * @throws Exception If an error occurred.
+     */
     @Test
-    public void testSaveAndReturnObject() throws Exception {
-        IUpdatePrx prx = ice.getServiceFactory().getUpdateService();
+    public void testSaveAndReturnObject()
+    	throws Exception
+    {
+        IUpdatePrx prx = factoryIce.getUpdateService();
         assertNotNull(prx);
 
         omero.model.ImageI obj = new omero.model.ImageI();
@@ -41,9 +49,15 @@ public class UpdateTest extends IceTest {
         }
     }
 
+    /**
+     * Deletes an Image.
+     * @throws Exception If an error occurred.
+     */
     @Test
-    public void testDeleteObject() throws Exception {
-        IUpdatePrx prx = ice.getServiceFactory().getUpdateService();
+    public void testDeleteObject()
+    	throws Exception
+    {
+        IUpdatePrx prx = factoryIce.getUpdateService();
         assertNotNull(prx);
 
         String uuid = uuid();
@@ -53,7 +67,7 @@ public class UpdateTest extends IceTest {
         obj = (omero.model.ImageI) prx.saveAndReturnObject(obj);
 
         prx.deleteObject(obj);
-        assertTrue(ice.getServiceFactory().getQueryService().findAllByString(
+        assertTrue(factoryIce.getQueryService().findAllByString(
                 "Image", "name", uuid, false, null).size() == 0);
     }
 }

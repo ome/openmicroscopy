@@ -20,60 +20,45 @@ import org.testng.annotations.Test;
  * All configuration comes from the ICE_CONFIG
  * environment variable.
  */
-public class ClientUsageTest extends TestCase {
-
-	/** 
-	 * The client object, this is the entry point to the Server. 
-	 */
-    private omero.client refClient;
-    
-    /** Helper reference to the <code>Service factory</code>. */
-    private ServiceFactoryPrx factory;
-    
-	/**
-     * Initializes the various services.
-     * 
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Override
-    @BeforeClass
-    protected void setUp() 
-    	throws Exception 
-    {
-    	refClient = new omero.client();
-    	factory = refClient.createSession();
-    }
-
+public class ClientUsageTest 
+	extends TestCase
+{
+ 
     /**
-     * Closes the session.
-     * @throws Exception Thrown if an error occurred.
+     * Closes automatically the session.
+     * @throws Exception If an error occurred.
      */
-    @Override
-    @AfterMethod
-    public void tearDown() 
-    	throws Exception 
-    {
-    	refClient.closeSession();
-    	// This also calls factory.destroy();
-    }
-    
     @Test
-    public void testClientClosedAutomatically() throws Exception {
+    public void testClientClosedAutomatically() 
+    	throws Exception
+    {
         omero.client client = new omero.client();
         client.createSession();
         client.getSession().closeOnDestroy();
     }
 
+    /**
+     * Closes manually the session.
+     * @throws Exception If an error occurred.
+     */
     @Test
-    public void testClientClosedManually() throws Exception {
+    public void testClientClosedManually() 
+    	throws Exception
+    {
         omero.client client = new omero.client();
         client.createSession();
         client.getSession().closeOnDestroy();
         client.closeSession();
     }
 
+    /**
+     * Tests the usage of memory.
+     * @throws Exception If an error occurred.
+     */
     @Test
-    public void testUseSharedMemory() throws Exception {
+    public void testUseSharedMemory()
+    	throws Exception
+    	{
         omero.client client = new omero.client();
         client.createSession();
 
@@ -86,8 +71,14 @@ public class ClientUsageTest extends TestCase {
         client.closeSession();
     }
 
+    /**
+     * Test the creation of an insecure client.
+     * @throws Exception If an error occurred.
+     */
     @Test
-    public void testCreateInsecureClientTicket2099() throws Exception {
+    public void testCreateInsecureClientTicket2099()
+    	throws Exception
+    {
         omero.client secure = new omero.client();
         assertTrue(secure.isSecure());
         try {

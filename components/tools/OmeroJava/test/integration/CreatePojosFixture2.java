@@ -349,4 +349,65 @@ public class CreatePojosFixture2
         }
         return list;
     }
+    
+    /**
+     * Returns the collections of project's identifiers.
+     * 
+     * @return See above.
+     */
+    public List<Long> getProjectIds()
+    {
+    	List<Long> ids = new ArrayList<Long>();
+    	if (pr9090 != null) ids.add(pr9090.getId().getValue());
+    	if (pr9091 != null) ids.add(pr9091.getId().getValue());
+    	if (pr9092 != null) ids.add(pr9092.getId().getValue());
+    	if (pu9990 != null) ids.add(pu9990.getId().getValue());
+    	if (pu9991 != null) ids.add(pu9991.getId().getValue());
+    	if (pu9992 != null) ids.add(pu9992.getId().getValue());
+    	return ids;
+    }
+    
+    /**
+     * Returns the collections of project's identifiers.
+     * 
+     * @return See above.
+     */
+    public List<Long> getImageIds()
+    {
+    	List<Long> ids = new ArrayList<Long>();
+    	if (ir5050 != null) ids.add(ir5050.getId().getValue());
+    	if (ir5051 != null) ids.add(ir5051.getId().getValue());
+    	if (ir5052 != null) ids.add(ir5052.getId().getValue());
+    	if (iu5550 != null) ids.add(iu5550.getId().getValue());
+    	if (iu5551 != null) ids.add(iu5551.getId().getValue());
+    	if (iu5552 != null) ids.add(iu5552.getId().getValue());
+    	if (iu5580 != null) ids.add(iu5580.getId().getValue());
+    	if (iu5581 != null) ids.add(iu5581.getId().getValue());
+    	if (iu5582 != null) ids.add(iu5582.getId().getValue());
+    	if (iu5583 != null) ids.add(iu5583.getId().getValue());
+    	if (iu5584 != null) ids.add(iu5584.getId().getValue());
+    	if (iu5585 != null) ids.add(iu5585.getId().getValue());
+    	if (iu5586 != null) ids.add(iu5586.getId().getValue());
+    	if (iu5587 != null) ids.add(iu5587.getId().getValue());
+    	if (iu5588 != null) ids.add(iu5588.getId().getValue());
+    	return ids;
+    }
+    
+    /**
+     * Returns the collections of project's identifiers.
+     * 
+     * @return See above.
+     */
+    public List<Long> getDatasetIds()
+    {
+    	List<Long> ids = new ArrayList<Long>();
+    	if (dr7070 != null) ids.add(dr7070.getId().getValue());
+    	if (dr7071 != null) ids.add(dr7071.getId().getValue());
+    	if (dr7072 != null) ids.add(dr7072.getId().getValue());
+    	if (du7770 != null) ids.add(du7770.getId().getValue());
+    	if (du7771 != null) ids.add(du7771.getId().getValue());
+    	if (du7772 != null) ids.add(du7772.getId().getValue());
+    	return ids;
+    }
+    
 }
