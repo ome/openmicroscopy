@@ -99,7 +99,7 @@ public class UpdateServiceTest
     	throws Exception 
     {
         client.closeSession();
-        factory.destroy();
+        // This also calls: factory.destroy();
     }
     
     /**

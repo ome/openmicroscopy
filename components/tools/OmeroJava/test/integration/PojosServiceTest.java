@@ -328,7 +328,7 @@ public class PojosServiceTest
     	throws Exception 
     {
         client.closeSession();
-        factory.destroy();
+        // This also calls factory.destroy();
     }
     
     /**

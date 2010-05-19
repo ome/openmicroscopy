@@ -54,7 +54,7 @@ public class ClientUsageTest extends TestCase {
     	throws Exception 
     {
     	refClient.closeSession();
-    	factory.destroy();
+    	// This also calls factory.destroy();
     }
     
     @Test
