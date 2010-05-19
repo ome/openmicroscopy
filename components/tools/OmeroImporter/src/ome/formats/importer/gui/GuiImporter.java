@@ -457,7 +457,7 @@ WindowStateListener, WindowFocusListener
      * 
      * @param s - text to append
      */
-    public synchronized void appendToOutput(String s)
+    public void appendToOutput(String s)
     {
         try
         {
@@ -494,7 +494,7 @@ WindowStateListener, WindowFocusListener
      * 
      * @param s - string to append
      */
-    public synchronized void appendToDebug(String s)
+    public void appendToDebug(String s)
     {
         log.debug(s);
         try
@@ -542,6 +542,8 @@ WindowStateListener, WindowFocusListener
             if (loggedIn == true)
             {
                 logout();
+                loginHandler.logout();
+                loginHandler = null;
             } else 
             {
                 HistoryTable table = null;
@@ -659,9 +661,6 @@ WindowStateListener, WindowFocusListener
         loggedIn = false;
         appendToOutputLn("> Logged out.");
         statusBar.setStatusIcon("gfx/server_disconn16.png", "Logged out.");
-        
-        loginHandler.logout();
-        loginHandler = null;
     }
     
     /**

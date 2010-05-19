@@ -4045,8 +4045,8 @@ public class OMEROMetadataStoreClient
      */
     public void setImageExperimentRef(String experiment, int imageIndex)
     {
-        //LSID key = new LSID(Image.class, imageIndex);
-        //addReference(key, new LSID(experiment));
+        LSID key = new LSID(Image.class, imageIndex);
+        addReference(key, new LSID(experiment));
     }
 
     /* (non-Javadoc)

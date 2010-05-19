@@ -21,6 +21,7 @@ import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
 import ome.model.core.Pixels;
+import ome.model.experiment.Experiment;
 import ome.model.screen.Plate;
 import ome.model.screen.Reagent;
 import ome.model.screen.Screen;
@@ -36,6 +37,8 @@ public class GenericReferenceTest extends TestCase
 	private static final int CHANNEL_INDEX = 0;
 	
 	private static final int INSTRUMENT_INDEX = 0;
+	
+	private static final int EXPERIMENT_INDEX = 0;
 	
 	private static final int LASER_INDEX = 0;
 	
@@ -64,6 +67,8 @@ public class GenericReferenceTest extends TestCase
 	private LogicalChannel logicalChannel;
 	
 	private Instrument instrument;
+	
+	private Experiment experiment;
 	
 	private Laser laser;
 	
@@ -134,6 +139,14 @@ public class GenericReferenceTest extends TestCase
         instrumentIndexes.put("instrumentIndex", INSTRUMENT_INDEX);
         String instrumentLSID = "Instrument:0";
         store.updateObject(instrumentLSID, instrument, instrumentIndexes);
+        
+        // Update Experiment
+        experiment = new Experiment();
+        Map<String, Integer> experimentIndexes = 
+            new LinkedHashMap<String, Integer>();
+        instrumentIndexes.put("instrumentIndex", INSTRUMENT_INDEX);
+        String experimentLSID = "Experiment:0";
+        store.updateObject(experimentLSID, experiment, experimentIndexes);        
         
         // Update Laser
         laser = new Laser();
@@ -240,6 +253,14 @@ public class GenericReferenceTest extends TestCase
 	    referenceCache.put("Image:0", new String[] { "Instrument:0" });
 	    store.updateReferences(referenceCache);
 	    assertEquals(image.getInstrument(), instrument);
+	}
+
+	public void testImageExperimentReference()
+	{
+	    Map<String, String[]> referenceCache = new HashMap<String, String[]>();
+	    referenceCache.put("Image:0", new String[] { "Experiment:0" });
+	    store.updateReferences(referenceCache);
+	    assertEquals(image.getExperiment(), experiment);
 	}
 	
 	public void testWellReagentReference()

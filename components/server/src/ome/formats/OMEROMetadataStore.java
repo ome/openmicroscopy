@@ -134,6 +134,10 @@ public class OMEROMetadataStore
     private Map<Integer, Instrument> instrumentList = 
     	new LinkedHashMap<Integer, Instrument>();
 
+    /** A map of experimentIndex vs. Experiment object ordered by first access. */
+    private Map<Integer, Experiment> experimentList = 
+    	new LinkedHashMap<Integer, Experiment>();
+    
     /** A list of all objects we've received from the client and their LSIDs. */
     private Map<LSID, IObject> lsidMap = new HashMap<LSID, IObject>();
         
@@ -323,6 +327,12 @@ public class OMEROMetadataStore
                         handleReference((Image) targetObject,
                                 (Roi) referenceObject);
                         continue;
+                    }
+                    if (referenceObject instanceof Experiment)
+                    {
+                    	handleReference((Image) targetObject,
+                    			(Experiment) referenceObject);
+                    	continue;
                     }
     				if (referenceLSID.toString().contains("DatasetI"))
     				{
@@ -933,7 +943,8 @@ public class OMEROMetadataStore
     private void handle(String LSID, Experiment sourceObject,
                         Map<String, Integer> indexes)
     {
-        // No-op.
+    	int experimentIndex = indexes.get("experimentIndex");
+    	experimentList.put(experimentIndex, sourceObject);
     }
  
     /**
@@ -1218,6 +1229,17 @@ public class OMEROMetadataStore
      * @param target Target model object.
      * @param reference Reference model object.
      */
+    private void handleReference(Image target, Experiment reference)
+    {
+        target.setExperiment(reference);
+    }    
+    
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
     private void handleReference(Plate target, Annotation reference)
     {
         target.linkAnnotation(reference);
@@ -1300,6 +1322,17 @@ public class OMEROMetadataStore
     	return instrumentList.get(instrumentIndex);
     }
 
+    /**
+     * Returns an Experiment model object based on its indexes within the OMERO
+     * data model.
+     * @param experimentIndex Experiment index.
+     * @return See above.
+     */
+    private Experiment getExperiment(int experimentIndex)
+    {
+    	return experimentList.get(experimentIndex);
+    }    
+    
     /**
      * Returns a Filter model object based on its indexes within the OMERO
      * data model.
@@ -1433,6 +1466,7 @@ public class OMEROMetadataStore
         plateList = new LinkedHashMap<Integer, Plate>();
         wellList = new LinkedHashMap<Integer, Well>();
         instrumentList = new LinkedHashMap<Integer, Instrument>();
+        experimentList = new LinkedHashMap<Integer, Experiment>();
         lsidMap = new LinkedHashMap<LSID, IObject>();
     }
     
