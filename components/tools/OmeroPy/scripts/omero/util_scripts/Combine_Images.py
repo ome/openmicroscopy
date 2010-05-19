@@ -1,5 +1,5 @@
 """
- components/tools/OmeroPy/scripts/omero/util_scripts/combineImages.py 
+ components/tools/OmeroPy/scripts/omero/util_scripts/Combine_Images.py 
 
 -----------------------------------------------------------------------------
   Copyright (C) 2006-2010 University of Dundee. All rights reserved.
@@ -65,66 +65,12 @@ def getPlane(rawPixelStore, pixels, theZ, theC, theT):
     plane2D.resize((sizeY, sizeX))        # not sure why we have to resize (y, x)
     return plane2D
 
-def combineImages(session, parameterMap):
-    
-    # get the services we need 
-    services = {}
-    services["gateway"] = session.createGateway()
-    services["renderingEngine"] = session.createRenderingEngine()
-    services["queryService"] = session.getQueryService()
-    services["pixelsService"] = session.getPixelsService()
-    services["rawPixelStore"] = session.createRawPixelsStore()
-    services["rawPixelStoreUpload"] = session.createRawPixelsStore()
-    services["updateService"] = session.getUpdateService()
-    services["rawFileStore"] = session.createRawFileStore()
-    
-    queryService = services["queryService"]
-    gateway = services["gateway"]
-    
-    colourMap = {}
-    if "Channel_Colours" in parameterMap:
-        for c, col in enumerate(parameterMap["Channel_Colours"]):
-            colour = col.getValue()
-            if colour in COLOURS:
-                colourMap[c] = COLOURS[colour]
-                
-    # get the images IDs from list (in order) or dataset (sorted by name)
-    imageIds = []
-    
-    dataType = parameterMap["Data_Type"]
-    if dataType == "Image":
-        dataset = None
-        for imageId in parameterMap["IDs"]:
-            iId = long(imageId.getValue())
-            imageIds.append(iId)
-        # get dataset from first image
-        query_string = "select i from Image i join fetch i.datasetLinks idl join fetch idl.parent where i.id in (%s)" % imageIds[0]
-        image = queryService.findByQuery(query_string, None)
-        if image:
-            for link in image.iterateDatasetLinks():
-                ds = link.parent
-                dataset = gateway.getDataset(ds.id.val, True)
-                print "Dataset", dataset.name.val
-                break    # only use 1st dataset
-        outputImage = makeSingleImage(services, parameterMap, imageIds, dataset, colourMap)
-        return outputImage
-    
-    else:
-        for dId in parameterMap["IDs"]:
-            # TODO: This will only work on one dataset. Should process list! 
-            datasetId = long(dId.getValue())
-            
-            images = gateway.getImages(omero.api.ContainerClass.Dataset, [datasetId])
-            images.sort(key=lambda x:(x.getName().getValue()))
-            for i in images:
-                imageIds.append(i.getId().getValue())
-            dataset = gateway.getDataset(datasetId, False)
-            outputImage = makeSingleImage(services, parameterMap, imageIds, dataset, colourMap)
-            
-        return outputImage  # just return the last one
-    
-    
+
 def makeSingleImage(services, parameterMap, imageIds, dataset, colourMap):
+    """
+    This takes the images specified by imageIds, sorts them in to Z,C,T dimensions according to parameters
+    in the parameterMap, assembles them into a new Image, which is saved in dataset. 
+    """
     
     if len(imageIds) == 0:
         return
@@ -264,6 +210,64 @@ def makeSingleImage(services, parameterMap, imageIds, dataset, colourMap):
         gateway.saveAndReturnObject(link)
     
     return image
+    
+def combineImages(session, parameterMap):
+    
+    # get the services we need 
+    services = {}
+    services["gateway"] = session.createGateway()
+    services["renderingEngine"] = session.createRenderingEngine()
+    services["queryService"] = session.getQueryService()
+    services["pixelsService"] = session.getPixelsService()
+    services["rawPixelStore"] = session.createRawPixelsStore()
+    services["rawPixelStoreUpload"] = session.createRawPixelsStore()
+    services["updateService"] = session.getUpdateService()
+    services["rawFileStore"] = session.createRawFileStore()
+    
+    queryService = services["queryService"]
+    gateway = services["gateway"]
+    
+    colourMap = {}
+    if "Channel_Colours" in parameterMap:
+        for c, col in enumerate(parameterMap["Channel_Colours"]):
+            colour = col.getValue()
+            if colour in COLOURS:
+                colourMap[c] = COLOURS[colour]
+                
+    # get the images IDs from list (in order) or dataset (sorted by name)
+    imageIds = []
+    
+    dataType = parameterMap["Data_Type"]
+    if dataType == "Image":
+        dataset = None
+        for imageId in parameterMap["IDs"]:
+            iId = long(imageId.getValue())
+            imageIds.append(iId)
+        # get dataset from first image
+        query_string = "select i from Image i join fetch i.datasetLinks idl join fetch idl.parent where i.id in (%s)" % imageIds[0]
+        image = queryService.findByQuery(query_string, None)
+        if image:
+            for link in image.iterateDatasetLinks():
+                ds = link.parent
+                dataset = gateway.getDataset(ds.id.val, True)
+                print "Dataset", dataset.name.val
+                break    # only use 1st dataset
+        outputImage = makeSingleImage(services, parameterMap, imageIds, dataset, colourMap)
+        return outputImage
+    
+    else:
+        for dId in parameterMap["IDs"]:
+            # TODO: This will only work on one dataset. Should process list! 
+            datasetId = long(dId.getValue())
+            
+            images = gateway.getImages(omero.api.ContainerClass.Dataset, [datasetId])
+            images.sort(key=lambda x:(x.getName().getValue()))
+            for i in images:
+                imageIds.append(i.getId().getValue())
+            dataset = gateway.getDataset(datasetId, False)
+            outputImage = makeSingleImage(services, parameterMap, imageIds, dataset, colourMap)
+            
+        return outputImage  # just return the last one
 
 
 def runAsScript():
@@ -278,19 +282,38 @@ def runAsScript():
     firstDim = [rstring('Time'),rstring('Channel'),rstring('Z')]
     extraDims = [rstring(''),rstring('Time'),rstring('Channel'),rstring('Z')]
     
-    client = scripts.client('combineImages.py', 'Combine several single-plane images into one with greater Z, C, T dimensions.', 
+    client = scripts.client('Combine_Images.py', 'Combine several single-plane images into one with greater Z, C, T dimensions.', 
+    
     scripts.String("Data_Type", optional=False, grouping="1",
         description="Use all the images in specified 'Datasets' or choose individual 'Images'.", values=dataTypes, default="Dataset"),
+        
     scripts.List("IDs", optional=False, grouping="2",
         description="List of Dataset IDs or Image IDs to combine.").ofType(rlong(0)),
-    scripts.String("Dimension_1", optional=False, description="The first Dimension to change", values=firstDim), 
-    scripts.String("Dimension_2", description="The second Dimension to change", values=extraDims, default=""), 
-    scripts.String("Dimension_3", description="The third Dimension to change", values=extraDims, default=""), 
-    scripts.Int("Size_Z", description="Number of Z planes in new image", min=1),
-    scripts.Int("Size_C", description="Number of channels in new image", min=1),
-    scripts.Int("Size_T", description="Number of time-points in new image", min=1),
-    scripts.List("Channel_Colours", description="List of Colours for channels.", values=cOptions),
-    scripts.List("Channel_Names", description="List of Names for channels in the new image."))
+        
+    scripts.String("Dimension_1", optional=False, grouping="3.1",
+        description="The first Dimension to change", values=firstDim), 
+    
+    scripts.String("Dimension_2", grouping="3.2",
+        description="The second Dimension to change", values=extraDims, default=""), 
+    
+    scripts.String("Dimension_3", grouping="3.3",
+        description="The third Dimension to change", values=extraDims, default=""), 
+    
+    scripts.Int("Size_Z", grouping="4",
+        description="Number of Z planes in new image", default==1, min=1),
+    
+    scripts.Int("Size_C", grouping="5",
+        description="Number of channels in new image", default=1, min=1),
+    
+    scripts.Int("Size_T", grouping="6",
+        description="Number of time-points in new image", default=1, min=1),
+    
+    scripts.List("Channel_Colours", grouping="7",
+        description="List of Colours for channels.", values=cOptions),
+    
+    scripts.List("Channel_Names", grouping="8",
+        description="List of Names for channels in the new image.")
+    )
     
     session = client.getSession()
     
@@ -300,7 +323,7 @@ def runAsScript():
         if client.getInput(key):
             parameterMap[key] = client.getInput(key).getValue()
     
-    print parameterMap
+    # print parameterMap
     image = combineImages(session, parameterMap)        
     
     client.setOutput("Message", rstring("Script Ran OK. New Image created ID: %s" % image.id.val))
