@@ -144,7 +144,7 @@ public class GenericReferenceTest extends TestCase
         experiment = new Experiment();
         Map<String, Integer> experimentIndexes = 
             new LinkedHashMap<String, Integer>();
-        instrumentIndexes.put("instrumentIndex", INSTRUMENT_INDEX);
+        instrumentIndexes.put("experimentIndex", EXPERIMENT_INDEX);
         String experimentLSID = "Experiment:0";
         store.updateObject(experimentLSID, experiment, experimentIndexes);        
         
