@@ -20,7 +20,7 @@
 
 ------------------------------------------------------------------------------
 
-This script demonstrates the bare minimum framework of a script that can be run by the 
+This script demonstrates the minimum framework of a script that can be run by the 
 scripting service on an OMERO server. 
 It defines a name, description and parameter list for the script. 
     
@@ -46,7 +46,7 @@ if __name__ == "__main__":
     """
     
     client = scripts.client('HelloWorld.py', 'Hello World example script', 
-    scripts.String("message", optional=True).inout())    #     Message to pass to the script. 
+    scripts.String("Message", optional=True, description="Message to pass to the script."))
     
     session = client.getSession()
     
@@ -67,6 +67,6 @@ if __name__ == "__main__":
         # Any Exceptions (std.err) will go in another file on the server (E.g. /OMERO/Files/002) 
         raise Exception("message parameter was not in the argument list")    
         
-    client.setOutput("returnMessage", rstring("Script ran OK!"))
+    client.setOutput("outputMessage", rstring("Script ran OK!"))
     
     

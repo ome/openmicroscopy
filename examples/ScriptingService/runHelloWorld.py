@@ -50,6 +50,7 @@ def uploadScript(scriptService, scriptPath):
     file.close()
     print script
     # prints the script ID to the command line. This can be used to run the script. E.g. see runHelloWorld.py
+    print "Uploading script:", scriptPath
     scriptId = scriptService.uploadScript(scriptPath, script)
     print "Script uploaded with ID:", scriptId
 
@@ -58,20 +59,29 @@ def runScript(scriptService, scriptPath):
     
     # Identify the script we want to run: Get all 'my' scripts and filter by path.  
     acceptsList = [] # An empty list implies that the server should return what it would by default trust.
-    scripts = scriptService.getUserScripts(acceptsList)     # returns list of OriginalFiles     
-    namedScripts = [s.id.val for s in scripts if s.path.val == scriptPath]
+    scripts = scriptService.getUserScripts(acceptsList)     # returns list of OriginalFiles  
+    for s in scripts:
+        print s.id.val
+        print s.name.val
+        print s.path.val
+        
+    namedScripts = [s.id.val for s in scripts if s.path.val + s.name.val == scriptPath]
     
     if len(namedScripts) == 0:
         print "Didn't find any scripts with specified path"
     
     # use the most recent script (highest ID)
     scriptId = max(namedScripts)
+    
     print "Running script: %s with ID: %s" % (scriptPath, scriptId)
+    
+    # Don't attempt to run script without starting user processor! 
+    # return
     
     # make a map of all the parameters we want to pass to the script
     # keys are strings. Values must be omero.rtypes such as rlong, rbool, rlist. 
     map = {
-        "message": omero.rtypes.rstring("Sending this message to the server!"),
+        "Message": omero.rtypes.rstring("Sending this message to the server!"),
     }  
             
     # The last parameter is how long to wait as an RInt
@@ -87,8 +97,8 @@ def runScript(scriptService, scriptPath):
     
     # handle any results from the script 
     #print results.keys()
-    if 'returnMessage' in results:
-        print results['returnMessage'].getValue()
+    if 'outputMessage' in results:
+        print results['outputMessage'].getValue()
     if 'stdout' in results:
         origFile = results['stdout'].getValue()
         print "Script generated StdOut in file:" , origFile.getId().getValue()
@@ -138,8 +148,10 @@ if __name__ == "__main__":
     scriptPath = commandArgs["script"]
     scriptService = session.getScriptService()
     
+    scriptPath = os.path.abspath(scriptPath)
+    
     # upload script. Could comment this out if you just want to run. 
-    uploadScript(scriptService, scriptPath)
+    #uploadScript(scriptService, scriptPath)
     
     # run script
     runScript(scriptService, scriptPath)

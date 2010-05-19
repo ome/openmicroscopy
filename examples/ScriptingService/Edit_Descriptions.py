@@ -57,14 +57,10 @@ def editDescriptions(session, parameterMap):
     if "New_Description" in parameterMap:
         newDescription = parameterMap["New_Description"]
         
-    try:
-        dataset = gateway.getDataset(datasetId, True)   # True = get Images too
-    except:
-        # E.g. if dataset does not exist or you don't have permissions
-        return
+    dataset = gateway.getDataset(datasetId, True)   # True = get Images too
+    print "Dataset:", dataset.getName().getValue()
 
     for image in dataset.linkedImageList():
-        print image.name.val
         image.setDescription(rstring(newDescription))
         gateway.saveObject(image)
         
@@ -97,5 +93,4 @@ if __name__ == "__main__":
     else:
         ouputMessage = "Script failed. See error message"
         
-    client.setOutput("Output_Message", rstring(ouputMessage))
-    
+    client.setOutput("Message", rstring(ouputMessage))

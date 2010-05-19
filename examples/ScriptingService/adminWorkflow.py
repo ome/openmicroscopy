@@ -37,29 +37,46 @@ script and run it.
 
 import omero
 import omero.scripts
+import omero.util.script_utils as scriptUtil
 import getopt, sys, os, subprocess
 import omero_api_IScript_ice
 import omero_SharedResources_ice
-from omero.rtypes import *
+from omero.rtypes import rstring, RListI, robject, rint, rlong, rlist, unwrap
+import getpass
 
 
 def uploadScript(scriptService, scriptPath):
     
     file = open(scriptPath)
-    script = file.read()
+    scriptText = file.read()
     file.close()
-    print script
+    #print scriptText
     
     # first check if the script has already been uploaded
     existingScript = getScript(scriptService, scriptPath)
     if existingScript == None:
-        # if not, upload new script
-        scriptId = scriptService.uploadOfficialScript(scriptPath, script)
-        print "Script uploaded with ID:", scriptId
+        # try upload new script (may fail if invalid script exists with that path)
+        scriptId = scriptService.uploadOfficialScript(scriptPath, scriptText)
+        print "Script uploaded with ID:", scriptId   
     else:
         # if it has, edit the existing script
-        scriptService.editScript(existingScript, script)
+        scriptService.editScript(existingScript, scriptText)
         print "Script ID: %s was edited" % existingScript.id.val
+        
+        
+def listScripts(scriptService):
+    
+    print "--OFFICIAL SCRIPTS--"
+    scripts = scriptService.getScripts()
+    for s in scripts:
+        print s.id.val, s.path.val + s.name.val
+        
+    
+    print "--USER SCRIPTS--"
+    userGroups = []     # gives me available scripts for default group
+    scripts = scriptService.getUserScripts(userGroups)
+    for s in scripts:
+        print s.id.val, s.path.val + s.name.val
         
 
 def getScript(scriptService, scriptPath):
@@ -67,9 +84,7 @@ def getScript(scriptService, scriptPath):
     scripts = scriptService.getScripts()     # returns list of OriginalFiles     
         
     for s in scripts:
-        print s.id.val
-        print s.name.val  
-        print s.path.val
+        print s.id.val, s.path.val + s.name.val
         
     # make sure path starts with a slash. 
     # ** If you are a Windows client - will need to convert all path separators to "/" since server stores /path/to/script.py **
@@ -88,7 +103,23 @@ def getScript(scriptService, scriptPath):
     return namedScripts[0]
     
     
-def runScript(scriptService, scriptPath):
+def getParams(scriptService, scriptPath):
+    
+    scriptFile = getScript(scriptService, scriptPath)
+    scriptId = scriptFile.id.val
+    
+    params = scriptService.getParams(scriptId)
+    
+    for key, param in params.inputs.items():
+        print key
+        if param.description: print "   ", param.description
+        if param.min: print "   min:", param.min.getValue()
+        if param.max: print "   max:", param.max.getValue()
+        if param.values: print ", ".join([v.getValue() for v in param.values.getValue()])
+        if param.useDefault: print "   default:", param.prototype.val
+      
+    
+def runScript(session, scriptService, scriptPath):
     
     scriptFile = getScript(scriptService, scriptPath)
     scriptId = scriptFile.id.val
@@ -98,10 +129,68 @@ def runScript(scriptService, scriptPath):
     
     # make a map of all the parameters we want to pass to the script
     # keys are strings. Values must be omero.rtypes such as rlong, rbool, rlist. 
-    map = {
-        "message": omero.rtypes.rstring("Sending this message to the server!"),
-    }  
+    
+    map = {}  
+    
+    params = scriptService.getParams(scriptId)
+    for key, param in params.inputs.items():
+        
+        print ""
+        print key
+        if param.description: print param.description
+        if not param.optional: print " * Required"
+        if param.values:  print "Options:", ", ".join(unwrap(param.values))
+        if param.min: print "Min:", param.min.getValue()
+        if param.max: print "Max:", param.max.getValue()
+        
+        prototype = param.prototype
+        prompt = ": "
+        default = None
+        if param.useDefault:
+            default = param.prototype.val
+            prompt = "[%s]: " % default
+        pclass = prototype.__class__
+        
+        if pclass == omero.rtypes.RListI:
+            valueList = []
+            listClass = omero.rtypes.rstring
+            l = prototype.val     # list
+            if len(l) > 0:       # we have a prototype
+                listClass = l[0].getValue().__class__
+                if listClass == int(1).__class__:
+                    listClass = omero.rtypes.rint
+                if listClass == long(1).__class__:
+                    listClass = omero.rtypes.rlong
+                    
+            print "List:"
+            while(True):
+                value = raw_input(prompt)
+                if value == "": break
+                try:
+                    obj = listClass(value)
+                except:
+                    print "Invalid entry"
+                    continue
+                if isinstance(obj, omero.model.IObject):
+                    valueList.append(omero.rtypes.robject(obj))
+                else:
+                    valueList.append(obj)
+            if len(valueList) > 0:
+                map[key] = omero.rtypes.rlist(valueList)
+        else:
+            value = raw_input(prompt)
+            while(True):
+                if value == "":
+                    if default:  map[key] = param.prototype
+                    break
+                try:
+                    map[key] = pclass(value)
+                    break
+                except:
+                    print "Invalid entry"
             
+    print map
+    
     # The last parameter is how long to wait as an RInt
     proc = scriptService.runScript(scriptId, map, None)
     try:
@@ -115,15 +204,38 @@ def runScript(scriptService, scriptPath):
     
     # handle any results from the script 
     #print results.keys()
-    if 'returnMessage' in results:
-        print results['returnMessage'].getValue()
-    if 'stdout' in results:
-        origFile = results['stdout'].getValue()
-        print "Script generated StdOut in file:" , origFile.getId().getValue()
-    if 'stderr' in results:
-        origFile = results['stderr'].getValue()
-        print "Script generated StdErr in file:" , origFile.getId().getValue()
+    if 'Message' in results:
+        print "\nRESULTS:", results['Message'].getValue()
+        
+    for result in results.keys():
+        if result not in ["Message", "stdout", "stderr"]:
+            print "\n", result, results[result].getValue().__class__
+        
+    printOutErr = True
+    if printOutErr:
+        rawFileService = session.createRawFileStore()
+        queryService = session.getQueryService()
+        if 'stdout' in results:
+            origFile = results['stdout'].getValue()
+            fileId = origFile.getId().getValue()
+            print "\nScript generated StdOut in file:" , fileId
+            print scriptUtil.readFromOriginalFile(rawFileService, queryService, fileId)
+        if 'stderr' in results:
+            origFile = results['stderr'].getValue()
+            fileId = origFile.getId().getValue()
+            print "\nScript generated StdErr in file:" , fileId
+            print scriptUtil.readFromOriginalFile(rawFileService, queryService, fileId)
 
+
+def disableScript(session, scriptService, scriptPath):
+    """ This will simply stop the script from being returned by getScripts()"""
+    
+    gateway = session.createGateway()
+    
+    scriptFile = getScript(scriptService, scriptPath)
+    scriptFile.setMimetype("text/plain")
+    gateway.saveObject(scriptFile)
+    
 
 def readCommandArgs():
     """
@@ -137,37 +249,56 @@ def readCommandArgs():
     script = ""
     
     def usage():
-        print "Usage: runscript --host host --username username --password password --script script"
+        print "Usage: python adminWorkflow.py -s server -u username -f file"
     try:
-        opts, args = getopt.getopt(sys.argv[1:] ,"h:u:p:s:", ["host=", "username=", "password=","script="])
+        opts, args = getopt.getopt(sys.argv[1:] ,"s:u:p:f:", ["server=", "username=", "password=", "file="])
     except getopt.GetoptError, err:          
         usage()                         
         sys.exit(2)                     
     returnMap = {}                  
     for opt, arg in opts: 
-        if opt in ("-h","--host"):
+        if opt in ("-s","--server"):
             returnMap["host"] = arg
         elif opt in ("-u","--username"): 
             returnMap["username"] = arg    
         elif opt in ("-p","--password"): 
             returnMap["password"] = arg  
-        elif opt in ("-s","--script"): 
+        elif opt in ("-f","--file"): 
             returnMap["script"] = arg  
                    
-    return returnMap
+    return returnMap, args
 
 
 if __name__ == "__main__":        
-    commandArgs = readCommandArgs();
+    commandArgs, args = readCommandArgs()
     
     # log on to the server, create client and session and scripting service
     client = omero.client(commandArgs["host"])
-    session = client.createSession(commandArgs["username"], commandArgs["password"]);
-    scriptPath = commandArgs["script"]
+    if "password" in commandArgs:
+        password = commandArgs["password"]
+    else:
+        password = getpass.getpass()
+    session = client.createSession(commandArgs["username"], password)
     scriptService = session.getScriptService()
     
-    # upload script. Could comment this out if you just want to run. 
-    uploadScript(scriptService, scriptPath)
+    if len(args) == 0:  print "Choose from these options by adding argument: list, upload, params, run, remove"
+    
+    # list scripts
+    if "list" in args:
+        listScripts(scriptService)
+        
+    # upload script.
+    if "upload" in args:
+        uploadScript(scriptService, commandArgs["script"])
+    
+    # get params of script
+    if "params" in args:
+        getParams(scriptService, commandArgs["script"])
     
     # run script
-    #runScript(scriptService, scriptPath)
+    if "run" in args:
+        runScript(session, scriptService, commandArgs["script"])
+    
+    # disables script by changing the OriginalFile mimetype, from 'text/x-python' to 'text/plain'
+    if "remove" in args:
+        disableScript(session, scriptService, commandArgs["script"])
