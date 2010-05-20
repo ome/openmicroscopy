@@ -15,9 +15,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ome.conditions.InternalException;
+
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
+import org.springframework.jdbc.UncategorizedSQLException;
 
 /**
  * Strategy class for setting array values in the database. Must be used from
@@ -80,7 +83,8 @@ public class PgArrayHelper {
      * id is not found, null is returned.
      */
     @SuppressWarnings("unchecked")
-    public Map<String, String> getFileParams(final long id) {
+    public Map<String, String> getFileParams(final long id) 
+            throws InternalException {
         try {
             return jdbc.queryForObject(
                     "select params from originalfile where id = ?",
@@ -88,33 +92,7 @@ public class PgArrayHelper {
                         public Map<String, String> mapRow(ResultSet arg0, int arg1)
                                 throws SQLException {
                             Map<String, String> params = new HashMap<String, String>();
-                            String[][] arr = (String[][]) arg0.getArray(1)
-                                    .getArray();
-                            for (int i = 0; i < arr.length; i++) {
-                                params.put(arr[i][0], arr[i][1]);
-                            }
-                            return params;
-                        }
-                    }, id);
-        } catch (EmptyResultDataAccessException e) {
-            return null;
-        }
-    }
-
-    /**
-     * Loads all the (possibly empty) params for the given original file. If the
-     * id is not found, null is returned.
-     */
-    @SuppressWarnings("unchecked")
-    public Map<String, String> getFileParamsAlternate(final long id) {
-        try {
-            return jdbc.queryForObject(
-                    "select params from originalfile where id = ?",
-                    new RowMapper<Map<String, String>>() {
-                        public Map<String, String> mapRow(ResultSet arg0, int arg1)
-                                throws SQLException {
-                            Map<String, String> params = new HashMap<String, String>();
-                            Array arr1 = arg0.getArray(1);
+                            Array arr1 = (Array) arg0.getArray(1);
                             if (arr1 == null) {
                                 return params;
                             }
@@ -127,6 +105,8 @@ public class PgArrayHelper {
                     }, id);
        } catch (EmptyResultDataAccessException e) {
             return null;
+        } catch (UncategorizedSQLException e) {
+           throw new InternalException("Potential jdbc jar error.");
         }
     }
 
@@ -135,7 +115,8 @@ public class PgArrayHelper {
      * original file. If the given original file cannot be found, null is
      * returned.
      */
-    public List<String> getFileParamKeys(long id) {
+    public List<String> getFileParamKeys(long id) 
+            throws InternalException {
         try {
             return jdbc.queryForObject(
                     "select params[1:array_upper(params,1)][1:1] "
@@ -144,16 +125,21 @@ public class PgArrayHelper {
                         public List<String> mapRow(ResultSet arg0, int arg1)
                                 throws SQLException {
                             final List<String> keys = new ArrayList<String>();
-                            String[][] arr = (String[][]) arg0.getArray(1)
-                                    .getArray();
-                            for (int i = 0; i < arr.length; i++) {
-                                keys.add(arr[i][0]);
+                            Array arr1 = (Array) arg0.getArray(1);
+                            if (arr1 == null) {
+                                return keys;
+                            }
+                            String[][] arr2 = (String[][]) arr1.getArray();
+                            for (int i = 0; i < arr2.length; i++) {
+                                keys.add(arr2[i][0]);
                             }
                             return keys;
                         }
                     }, id);
         } catch (EmptyResultDataAccessException e) {
             return null;
+        } catch (UncategorizedSQLException e) {
+           throw new InternalException("Potential jdbc jar error.");
         }
     }
 
@@ -207,7 +193,8 @@ public class PgArrayHelper {
      * id is not found, null is returned.
      */
     @SuppressWarnings("unchecked")
-    public Map<String, String> getPixelsParams(final long id) {
+    public Map<String, String> getPixelsParams(final long id) 
+            throws InternalException {
         try {
             return jdbc.queryForObject(
                     "select params from pixels where id = ?",
@@ -215,7 +202,7 @@ public class PgArrayHelper {
                         public Map<String, String> mapRow(ResultSet arg0, int arg1)
                                 throws SQLException {
                             Map<String, String> params = new HashMap<String, String>();
-                            Array arr1 = arg0.getArray(1);
+                            Array arr1 = (Array) arg0.getArray(1);
                             if (arr1 == null) {
                                 return params;
                             }
@@ -224,10 +211,12 @@ public class PgArrayHelper {
                                 params.put(arr2[i][0], arr2[i][1]);
                             }
                             return params;
-                        }
+                       }
                     }, id);
         } catch (EmptyResultDataAccessException e) {
             return null;
+        } catch (UncategorizedSQLException e) {
+           throw new InternalException("Potential jdbc jar error.");
         }
     }
 
@@ -236,7 +225,8 @@ public class PgArrayHelper {
      * original file. If the given original file cannot be found, null is
      * returned.
      */
-    public List<String> getPixelsParamKeys(long id) {
+    public List<String> getPixelsParamKeys(long id) 
+            throws InternalException {
         try {
             return jdbc.queryForObject(
                     "select params[1:array_upper(params,1)][1:1] "
@@ -245,16 +235,21 @@ public class PgArrayHelper {
                         public List<String> mapRow(ResultSet arg0, int arg1)
                                 throws SQLException {
                             final List<String> keys = new ArrayList<String>();
-                            String[][] arr = (String[][]) arg0.getArray(1)
-                                    .getArray();
-                            for (int i = 0; i < arr.length; i++) {
-                                keys.add(arr[i][0]);
+                            Array arr1 = (Array) arg0.getArray(1);
+                            if (arr1 == null) {
+                                return keys;
+                            }
+                            String[][] arr2 = (String[][]) arr1.getArray();
+                            for (int i = 0; i < arr2.length; i++) {
+                                keys.add(arr2[i][0]);
                             }
                             return keys;
                         }
                     }, id);
         } catch (EmptyResultDataAccessException e) {
             return null;
+        } catch (UncategorizedSQLException e) {
+           throw new InternalException("Potential jdbc jar error.");
         }
     }
 
