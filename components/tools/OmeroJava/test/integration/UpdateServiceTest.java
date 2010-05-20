@@ -24,6 +24,8 @@ import org.testng.annotations.Test;
 
 //Application-internal dependencies
 import omero.ApiUsageException;
+import omero.OptimisticLockException;
+import omero.RInt;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
@@ -113,6 +115,43 @@ public class UpdateServiceTest
     	factory = client.createSession();
     	iQuery = factory.getQueryService();
     	iUpdate = factory.getUpdateService();
+    }
+    
+    /**
+     * Test to create an image and make sure the version is correct.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(groups = { "versions", "broken" })
+    public void testVersionHandling() 
+    	throws Exception
+    {
+        Image img = new ImageI();
+        img.setName(rstring("version handling"));
+        Image sent = (Image) iUpdate.saveAndReturnObject(img);
+        sent.setDescription(rstring("version handling update"));
+        RInt version = sent.getVersion();
+
+        // Version incremented
+        Image sent2 = (Image) iUpdate.saveAndReturnObject(sent);
+        RInt version2 = sent2.getVersion();
+        assertTrue(version.getValue() != version2.getValue());
+
+        // Resetting; should get error
+        sent2.setVersion(version);
+        CommentAnnotation iann = new CommentAnnotationI();
+        iann.setTextValue( rstring(" version handling "));
+        try {
+            iUpdate.saveAndReturnObject(sent2);
+            fail("Need optmistic lock exception.");
+        } catch (OptimisticLockException e) {
+            // ok.
+        }
+
+        // Fixing the change;
+        // now it should work.
+        sent2.setVersion( version2 );
+        iUpdate.saveAndReturnObject(iann);
+
     }
     
     /**

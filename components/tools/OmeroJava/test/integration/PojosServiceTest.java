@@ -9,6 +9,7 @@
 package integration;
 
 //Java imports
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,12 +27,12 @@ import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.validator.AssertTrue;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 //Application-internal dependencies
-import ome.testing.OMEData;
 import omero.ApiUsageException;
 import omero.OptimisticLockException;
 import omero.RInt;
@@ -55,10 +56,15 @@ import omero.model.ExperimenterI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
+import omero.model.Plate;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
+import omero.model.Screen;
+import omero.model.ScreenPlateLink;
+import omero.model.ScreenPlateLinkI;
+import static omero.rtypes.rlong;
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 import omero.sys.Parameters;
@@ -68,7 +74,9 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 import pojos.TextualAnnotationData;
 
 /**
@@ -169,6 +177,22 @@ public class PojosServiceTest
         id.setDescription("My test description");
         return id;
     }
+    
+    /**
+     * Creates a default image and returns it.
+     * 
+     * @return See above.
+     */
+    private Image simpleImage()
+    {
+        // prepare data
+        Image img = new ImageI();
+        img.setName(rstring("image1"));
+        img.setDescription(rstring("descriptionImage1"));
+        img.setAcquisitionDate(rtime(0));
+        return img;
+    }
+
 
     /**
      * Creates a default dataset and returns it.
@@ -196,6 +220,32 @@ public class PojosServiceTest
         return data;
     }
 
+    /**
+     * Creates a default screen and returns it.
+     * 
+     * @return See above.
+     */
+    private ScreenData simpleScreenData()
+    {
+    	ScreenData data = new ScreenData();
+        data.setName("screen1");
+        data.setDescription("screen1");
+        return data;
+    }
+    
+    /**
+     * Creates a default project and returns it.
+     * 
+     * @return See above.
+     */
+    private PlateData simplePlateData()
+    {
+    	PlateData data = new PlateData();
+        data.setName("plate1");
+        data.setDescription("plate1");
+        return data;
+    }
+    
     /**
      * Creates an image, links it to a a new dataset and returns it.
      * 
@@ -328,42 +378,7 @@ public class PojosServiceTest
         iUpdate = factory.getUpdateService();
     }
 
-    /**
-     * Test to create an image and make sure the version is correct.
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test(groups = { "versions", "broken" })
-    public void testVersionHandling() 
-    	throws Exception
-    {
-        Image img = new ImageI();
-        img.setName(rstring("version handling"));
-        Image sent = (Image) iUpdate.saveAndReturnObject(img);
-        sent.setDescription(rstring("version handling update"));
-        RInt version = sent.getVersion();
-
-        // Version incremented
-        Image sent2 = (Image) iUpdate.saveAndReturnObject(sent);
-        RInt version2 = sent2.getVersion();
-        assertTrue(version.getValue() != version2.getValue());
-
-        // Resetting; should get error
-        sent2.setVersion(version);
-        CommentAnnotation iann = new CommentAnnotationI();
-        iann.setTextValue( rstring(" version handling "));
-        try {
-            iUpdate.saveAndReturnObject(sent2);
-            fail("Need optmistic lock exception.");
-        } catch (OptimisticLockException e) {
-            // ok.
-        }
-
-        // Fixing the change;
-        // now it should work.
-        sent2.setVersion( version2 );
-        iUpdate.saveAndReturnObject(iann);
-
-    }
+  
 
     /**
      * Test to delete an newly created image.
@@ -407,25 +422,235 @@ public class PojosServiceTest
     }
     
     /**
-     * Test to load container hierarchy with dataset specified.
+     * Test to load container hierarchy with project specified.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testLoadContainerHierarchyDatasetSpecified() 
+    public void testLoadContainerHierarchyProjectSpecified() 
     	throws Exception 
     {
-    	/*
-
-        List ids = Arrays.asList(fixture.pu9990.getId().getValue(), 
-        			fixture.pu9991.getId().getValue());
+    	//first create a project
+    	Project p = (Project) iUpdate.saveAndReturnObject(
+    			simpleProjectData().asIObject());
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			simpleDatasetData().asIObject());
+    	
+    	//link the 2
+    	ProjectDatasetLink link = new ProjectDatasetLinkI();
+    	link.setParent(p);
+    	link.setChild(d);
+    	iUpdate.saveAndReturnObject(link);
+    	//
+    	Parameters param = new ParametersI();
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(p.getId().getValue());
         List results = iContainer.loadContainerHierarchy(
-        		Project.class.getName(), ids, null);
-
-        ParametersI po = new ParametersI().exp(rlong(0L));
-        results = iContainer.loadContainerHierarchy(Project.class.getName(), null, po);
-    	 */
+        		Project.class.getName(), ids, param);
+        assertTrue(results.size() == 1);
+        Iterator i = results.iterator();
+        ProjectData project;
+        Set<DatasetData> datasets;
+        Iterator<DatasetData> j;
+        DatasetData dataset;
+        while (i.hasNext()) {
+			project = new  ProjectData((Project) i.next());
+			if (project.getId() == p.getId().getValue()) {
+				datasets = project.getDatasets();
+				assertTrue(datasets.size() == 1);
+				j = datasets.iterator();
+				while (j.hasNext()) {
+					dataset = j.next();
+					assertTrue(dataset.getId() == d.getId().getValue());
+				}
+			} 
+		}
+    }
+    
+    /**
+     * Test to load container hierarchy with screen specified.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadContainerHierarchyScreenSpecified() 
+    	throws Exception 
+    {
+    	//first create a project
+    	Screen p = (Screen) iUpdate.saveAndReturnObject(
+    			simpleScreenData().asIObject());
+    	Plate d = (Plate) iUpdate.saveAndReturnObject(
+    			simplePlateData().asIObject());
+    	
+    	//link the 2
+    	ScreenPlateLink link = new ScreenPlateLinkI();
+    	link.setParent(p);
+    	link.setChild(d);
+    	iUpdate.saveAndReturnObject(link);
+    	//
+    	Parameters param = new ParametersI();
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(p.getId().getValue());
+        List results = iContainer.loadContainerHierarchy(
+        		Screen.class.getName(), ids, param);
+        assertTrue(results.size() == 1);
+        Iterator i = results.iterator();
+        ScreenData screen;
+        Set<PlateData> plates;
+        Iterator<PlateData> j;
+        PlateData plate;
+        while (i.hasNext()) {
+			screen = new  ScreenData((Screen) i.next());
+			if (screen.getId() == p.getId().getValue()) {
+				plates = screen.getPlates();
+				assertTrue(plates.size() == 1);
+				j = plates.iterator();
+				while (j.hasNext()) {
+					plate = j.next();
+					assertTrue(plate.getId() == d.getId().getValue());
+				}
+			} 
+		}
+    }
+    
+    /**
+     * Test to load container hierarchy with project specified, no orphan
+     * loaded
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadContainerHierarchyNoProjectSpecified() 
+    	throws Exception 
+    {
+    	//first create a project
+    	long self = factory.getAdminService().getEventContext().userId;
+    	Project p = (Project) iUpdate.saveAndReturnObject(
+    			simpleProjectData().asIObject());
+    	Project p2 = (Project) iUpdate.saveAndReturnObject(
+    			simpleProjectData().asIObject());
+    	
+    	ParametersI param = new ParametersI();
+    	param.exp(omero.rtypes.rlong(self));
+        List results = iContainer.loadContainerHierarchy(
+        		Project.class.getName(), new ArrayList(), param);
+        assertTrue(results.size() > 0);
+        Iterator i = results.iterator();
+        int count = 0;
+        IObject object;
+        while (i.hasNext()) {
+        	object = (IObject) i.next();
+			if (!(object instanceof Project)) {
+				count++;
+			}
+		}
+        assertTrue(count == 0);
     }
 
+    /**
+     * Test to load container hierarchy with screen specified, no orphan
+     * loaded
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadContainerHierarchyNoScreenSpecified() 
+    	throws Exception 
+    {
+    	//first create a project
+    	long self = factory.getAdminService().getEventContext().userId;
+    	Screen p = (Screen) iUpdate.saveAndReturnObject(
+    			simpleScreenData().asIObject());
+    	Screen p2 = (Screen) iUpdate.saveAndReturnObject(
+    			simpleScreenData().asIObject());
+    	
+    	ParametersI param = new ParametersI();
+    	param.exp(omero.rtypes.rlong(self));
+        List results = iContainer.loadContainerHierarchy(
+        		Screen.class.getName(), new ArrayList(), param);
+        assertTrue(results.size() > 0);
+        Iterator i = results.iterator();
+        int count = 0;
+        IObject object;
+        while (i.hasNext()) {
+        	object = (IObject) i.next();
+			if (!(object instanceof Screen)) {
+				count++;
+			}
+		}
+        assertTrue(count == 0);
+    }
+    
+    /**
+     * Test to load container hierarchy with project specified, with orphan
+     * loaded
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadContainerHierarchyNoProjectSpecifiedWithOrphan() 
+    	throws Exception 
+    {
+    	//first create a project
+    	long self = factory.getAdminService().getEventContext().userId;
+    	Project p = (Project) iUpdate.saveAndReturnObject(
+    			simpleProjectData().asIObject());
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			simpleDatasetData().asIObject());
+    	Project p2 = (Project) iUpdate.saveAndReturnObject(
+    			simpleProjectData().asIObject());
+    	
+    	ParametersI param = new ParametersI();
+    	param.exp(omero.rtypes.rlong(self));
+    	param.orphan();
+        List results = iContainer.loadContainerHierarchy(
+        		Project.class.getName(), new ArrayList(), param);
+        assertTrue(results.size() > 0);
+        Iterator i = results.iterator();
+        IObject object; 
+        int value = 0;
+        while (i.hasNext()) {
+        	object = (IObject) i.next();
+			if (object instanceof Dataset) {
+				if (object.getId().getValue() == d.getId().getValue()) {
+					value++;
+				}
+			}
+		}
+        assertTrue(value == 1);
+    }
+    
+    /**
+     * Test to load container hierarchy with project specified, with orphan
+     * loaded
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadContainerHierarchyNoScreenSpecifiedWithOrphan() 
+    	throws Exception 
+    {
+    	//first create a project
+    	long self = factory.getAdminService().getEventContext().userId;
+    	Screen p = (Screen) iUpdate.saveAndReturnObject(
+    			simpleScreenData().asIObject());
+    	Plate d = (Plate) iUpdate.saveAndReturnObject(
+    			simplePlateData().asIObject());
+    	
+    	ParametersI param = new ParametersI();
+    	param.exp(omero.rtypes.rlong(self));
+    	param.orphan();
+        List results = iContainer.loadContainerHierarchy(
+        		Screen.class.getName(), new ArrayList(), param);
+        assertTrue(results.size() > 0);
+        Iterator i = results.iterator();
+        IObject object; 
+        int value = 0;
+        while (i.hasNext()) {
+        	object = (IObject) i.next();
+			if (object instanceof Plate) {
+				if (object.getId().getValue() == d.getId().getValue()) {
+					value++;
+				}
+			}
+		}
+        assertTrue(value == 1);
+    }
+    
     /**
      * Test to load container hierarchy with dataset specified
      * and loads the images.
@@ -435,96 +660,39 @@ public class PojosServiceTest
     public void testLoadContainerHierarchyDatasetSpecifiedAndLeaves() 
     	throws Exception 
     {
-    	/*
-
-        List ids = Arrays.asList(fixture.pu9990.getId().getValue(), 
-        			fixture.pu9991.getId().getValue());
+    	
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			simpleDatasetData().asIObject());
+    	Image img = (Image) iUpdate.saveAndReturnObject(simpleImage());
+    	//link the 2
+    	DatasetImageLink link = new DatasetImageLinkI();
+    	link.setParent(d);
+    	link.setChild(img);
+    	iUpdate.saveAndReturnObject(link);
+    	ParametersI param = new ParametersI();
+    	param.leaves();
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(d.getId().getValue());
         List results = iContainer.loadContainerHierarchy(
-        		Project.class.getName(), ids, null);
-
-        ParametersI po = new ParametersI().exp(rlong(0L));
-        results = iContainer.loadContainerHierarchy(Project.class.getName(), null, po);
-    	 */
-    }
-    
-    /**
-     * Test to load container hierarchy, root node is <code>Project</code>.
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testLoadContainerHierarchyProjectAsRootWithOptions() 
-    	throws Exception 
-    {
-    	/*
-
-        List ids = Arrays.asList(fixture.pu9990.getId().getValue(), 
-        			fixture.pu9991.getId().getValue());
-        List results = iContainer.loadContainerHierarchy(
-        		Project.class.getName(), ids, null);
-
-        ParametersI po = new ParametersI().exp(rlong(0L));
-        results = iContainer.loadContainerHierarchy(Project.class.getName(), null, po);
-    	 */
-    }
-
-    /**
-     * Test to load container hierarchy, root node is <code>Screen</code>.
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testLoadContainerHierarchyScreenAsRootWithOptions() 
-    	throws Exception 
-    {
-    	/*
-
-        List ids = Arrays.asList(fixture.pu9990.getId().getValue(), 
-        			fixture.pu9991.getId().getValue());
-        List results = iContainer.loadContainerHierarchy(
-        		Project.class.getName(), ids, null);
-
-        ParametersI po = new ParametersI().exp(rlong(0L));
-        results = iContainer.loadContainerHierarchy(Project.class.getName(), null, po);
-    	 */
-    }
-    
-    /**
-     * Test to find hierarchies using the project as root node.
-     * @throws ServerError Thrown if an error occurred.
-     */
-    @Test(groups = "EJBExceptions")
-    public void testFindContainerHierarchiesProjectAsRoot() 
-    	throws ServerError 
-    {
-
-    	/*TODO: rewrite test
-        Parameters defaults = new ParametersI();
-        List ids = fixture.getImageIds();
-        List results = iContainer.findContainerHierarchies(
-        		Project.class.getName(), ids, defaults);
-        		*/
-    }
-    
-    /**
-     * Test to find hierarchies using the project as root node.
-     * @throws ServerError Thrown if an error occurred.
-     */
-    @Test(groups = "EJBExceptions")
-    public void testFindContainerHierarchiesDatasetAsRoot() 
-    	throws ServerError 
-    {
-
-    	/* TODO: rewrite test
-        Parameters empty = new ParametersI(new HashMap());
-
-        List ids = fixture.getImageIds();
-        try {
-        	List results = iContainer.findContainerHierarchies(
-            		Dataset.class.getName(), ids, empty);
-            fail("Should fail");
-        } catch (ApiUsageException e) {
-            // ok.
-        }
-        */
+        		Dataset.class.getName(), ids, param);
+        assertTrue(results.size() == 1);
+        Iterator i = results.iterator();
+        DatasetData dataset;
+        Set<ImageData> images;
+        Iterator<ImageData> j;
+        ImageData image;
+        while (i.hasNext()) {
+			dataset = new  DatasetData((Dataset) i.next());
+			if (dataset.getId() == d.getId().getValue()) {
+				images = dataset.getImages();
+				assertTrue(images.size() == 1);
+				j = images.iterator();
+				while (j.hasNext()) {
+					image = j.next();
+					assertTrue(image.getId() == img.getId().getValue());
+				}
+			} 
+		}
     }
 
     /**
