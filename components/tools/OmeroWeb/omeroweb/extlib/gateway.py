@@ -1598,7 +1598,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         
         if allitems is not None:
             for c in obj.listChildren():
-                self.deleteDataset(c)                
+                self.deleteDataset(c, allitems=True)                
         else:
             q = self.getQueryService()
             p = omero.sys.Parameters()
