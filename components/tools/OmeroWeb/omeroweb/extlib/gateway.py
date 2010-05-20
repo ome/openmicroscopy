@@ -505,7 +505,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     # LISTS selections
     def listSelectedImages(self, ids):
         """ Retrieves for the given Image ids."""
-        
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -516,7 +515,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
 
     def listSelectedDatasets(self, ids):
         """ Retrieves for the given Dataset ids."""
-        
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -527,7 +525,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
 
     def listSelectedProjects(self, ids):
         """ Retrieves for the given Project ids."""
-        
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -535,6 +532,26 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         sql = "select pr from Project pr join fetch pr.details.creationEvent join fetch pr.details.owner join fetch pr.details.group where pr.id in (:ids) order by pr.name"
         for e in q.findAllByQuery(sql, p):
             yield ProjectWrapper(self, e)
+    
+    def listSelectedScreens(self, ids):
+        """ Retrieves for the given Screen ids."""
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["ids"] = rlist([rlong(a) for a in ids])
+        sql = "select sc from Screen sc join fetch sc.details.creationEvent join fetch sc.details.owner join fetch sc.details.group where sc.id in (:ids) order by sc.name"
+        for e in q.findAllByQuery(sql, p):
+            yield ScreenWrapper(self, e)
+
+    def listSelectedPlates(self, ids):
+        """ Retrieves for the given Plate ids."""
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["ids"] = rlist([rlong(a) for a in ids])
+        sql = "select pl from Plate pl join fetch pl.details.creationEvent join fetch pl.details.owner join fetch pl.details.group where pl.id in (:ids) order by pl.name"
+        for e in q.findAllByQuery(sql, p):
+            yield PlateWrapper(self, e)
     
     # HIERARCHY RETRIVAL
     def listContainerHierarchy(self, root, eid=None, gid=None):
@@ -1616,7 +1633,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         members = list(self.getAllMembers(long(share_id)))
         sh = self.getShare(long(share_id))
         if self.getEventContext().userId != sh.owner.id.val:
-            members.append(sh.getOwnerAsExperimetner())
+            members.append(sh.getOwner())
         
         if sh.active:
             try:

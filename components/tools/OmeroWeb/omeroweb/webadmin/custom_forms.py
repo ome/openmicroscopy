@@ -203,35 +203,27 @@ class ExperimenterQuerySetIterator(object):
                 # lastName = obj.details.owner.lastName.val if hasattr(obj.details.owner.lastName, 'val') else ""
                 # firstName = obj.details.owner.firstName.val if hasattr(obj.details.owner.firstName, 'val') else ""
                 # middleName = obj.details.owner.middleName.val if hasattr(obj.details.owner.middleName, 'val') else ""
-                omeName = None
-                if hasattr(obj.omeName, 'val'):
-                    omeName = obj.omeName.val
+                if hasattr(obj, 'getFullName'):
+                    name = "%s (%s)" % (obj.getFullName(), obj.omeName)
                 else:
-                    if obj.omeName is not None:
-                        omeName = obj.omeName
-                lastName = None
-                if hasattr(obj.lastName, 'val'):
-                    lastName = obj.lastName.val
-                else:
-                    if obj.lastName is not None:
-                        lastName = obj.lastName
-                firstName = None
-                if hasattr(obj.firstName, 'val'):
-                    firstName = obj.firstName.val
-                else:
-                    if obj.firstName is not None:
-                        firstName = obj.firstName
-                middleName = None
-                if hasattr(obj.middleName, 'val'):
-                    middleName = obj.middleName.val
-                else:
-                    if obj.middleName is not None:
-                        middleName = obj.middleName
-
-                if middleName != '' and middleName is not None:
-                    name = "%s %s. %s (%s)" % (firstName, middleName[:1], lastName, omeName)
-                else:
-                    name = "%s %s (%s)" % (firstName, lastName, omeName)
+                    omeName = None
+                    if hasattr(obj.omeName, 'val'):
+                        omeName = obj.omeName.val
+                    lastName = None
+                    if hasattr(obj.lastName, 'val'):
+                        lastName = obj.lastName.val
+                    firstName = None
+                    if hasattr(obj.firstName, 'val'):
+                        firstName = obj.firstName.val
+                    middleName = None
+                    if hasattr(obj.middleName, 'val'):
+                        middleName = obj.middleName.val
+                    
+                    if middleName != '' and middleName is not None:
+                        name = "%s %s. %s (%s)" % (firstName, middleName[:1], lastName, omeName)
+                    else:
+                        name = "%s %s (%s)" % (firstName, lastName, omeName)
+                
 
                 l = len(name)
                 if l > 50:

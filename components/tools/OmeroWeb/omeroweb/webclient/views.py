@@ -508,7 +508,7 @@ def load_template(request, menu, **kwargs):
     filter_user_id = None
     
     users = sortByAttr(list(conn.getColleagues()), "lastName")
-    empty_label = "*%s" % conn.getUser().getFullName()
+    empty_label = "*%s (%s)" % (conn.getUser().getFullName(), conn.getUser().omeName)
     if len(users) > 0:
         if request.REQUEST.get('experimenter') == "":
             request.session.get('nav')['experimenter'] = None
@@ -1007,40 +1007,43 @@ def manage_annotation_multi(request, action=None, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError(x)
     
-    images = list(conn.listSelectedImages(request.REQUEST.getlist('image')))
-    
+    images = len(request.REQUEST.getlist('image')) > 0 and list(conn.listSelectedImages(request.REQUEST.getlist('image'))) or list()
+    datasets = len(request.REQUEST.getlist('dataset')) > 0 and list(conn.listSelectedDatasets(request.REQUEST.getlist('dataset'))) or list()
+    projects = len(request.REQUEST.getlist('project')) > 0 and list(conn.listSelectedProjects(request.REQUEST.getlist('project'))) or list()
+    screens = len(request.REQUEST.getlist('screen')) > 0 and list(conn.listSelectedScreens(request.REQUEST.getlist('screen'))) or list()
+    plates = len(request.REQUEST.getlist('plate')) > 0 and list(conn.listSelectedPlates(request.REQUEST.getlist('plate'))) or list()
+
     form_multi = None
     
-    if action == "annotatemany":        
-        form_multi = MultiAnnotationForm(initial={'tags':manager.listTags(), 'files':manager.listFiles(), 'images':images, 'selected':request.REQUEST.getlist('image')})
+    if action == "annotatemany":
+        selected = {'images':request.REQUEST.getlist('image'), 'datasets':request.REQUEST.getlist('dataset'), 'projects':request.REQUEST.getlist('project'), 'screens':request.REQUEST.getlist('screen'), 'plates':request.REQUEST.getlist('plate')}
+        form_multi = MultiAnnotationForm(initial={'tags':manager.listTags(), 'files':manager.listFiles(), 'selected':selected, 'images':images,  'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates})
     else:
         if request.method == 'POST':
-            print request.FILES
-            
-            form_multi = MultiAnnotationForm(initial={'tags':manager.listTags(), 'files':manager.listFiles(), 'images':images}, data=request.REQUEST.copy(), files=request.FILES)
+            form_multi = MultiAnnotationForm(initial={'tags':manager.listTags(), 'files':manager.listFiles(), 'images':images, 'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates}, data=request.REQUEST.copy(), files=request.FILES)
             if form_multi.is_valid():
-                oids = request.REQUEST.getlist('image')
-                
+                oids = {'image':request.REQUEST.getlist('image'), 'dataset':request.REQUEST.getlist('dataset'), 'project':request.REQUEST.getlist('project'), 'screen':request.REQUEST.getlist('screen'), 'plate':request.REQUEST.getlist('plate')}
+                               
                 content = request.REQUEST.get('content')
                 if content is not None and content != "":
-                    manager.createImageCommentAnnotations(content, oids)
+                    manager.createCommentAnnotations(content, oids)
                 
                 tag = request.REQUEST.get('tag')
                 description = request.REQUEST.get('description')
                 if tag is not None and tag != "":
-                    manager.createImageTagAnnotations(tag, description, oids)
+                    manager.createTagAnnotations(tag, description, oids)
                 
                 tags = request.REQUEST.getlist('tags')
                 if tags is not None and len(tags) > 0:
-                    manager.createImageTagAnnotationLinks(tags, oids)
+                    manager.createAnnotationsLinks('tag', tags, oids)
                 
                 files = request.REQUEST.getlist('files')
                 if files is not None and len(files) > 0:
-                    manager.createImageFileAnnotationLinks(files, oids)
+                    manager.createAnnotationsLinks('file', files, oids)
                 
                 f = request.FILES.get('annotation_file')
                 if f is not None:
-                    manager.createImageFileAnnotations(f, oids)
+                    manager.createFileAnnotations(f, oids)
 
                 return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse(viewname="load_template", args=[menu]))
             
@@ -1363,18 +1366,9 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["newcomment", o_type, oid]))
         form_comment = CommentAnnotationForm(data=request.REQUEST.copy())
-        if form_comment.is_valid():
+        if form_comment.is_valid() and o_type is not None and o_id > 0:
             content = request.REQUEST['content'].encode('utf-8')            
-            if o_type == 'project' and o_id > 0:
-                manager.createProjectCommentAnnotation(content)
-            elif o_type == 'dataset' and o_id > 0:
-                manager.createDatasetCommentAnnotation(content)
-            elif o_type == 'image' and o_id > 0:
-                manager.createImageCommentAnnotation(content)
-            elif o_type == 'screen' and o_id > 0:
-                manager.createScreenCommentAnnotation(content)
-            elif o_type == 'plate' and o_id > 0:
-                manager.createPlateCommentAnnotation(content)    
+            manager.createCommentAnnotation(o_type, content)    
             return HttpResponseRedirect(url)
         else:
             template = "webclient/annotations/annotation_new_form.html"
@@ -1383,19 +1377,10 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["newtag", o_type, oid]))
         form_tag = TagAnnotationForm(data=request.REQUEST.copy())
-        if form_tag.is_valid():
+        if form_tag.is_valid() and o_type is not None and o_id > 0:
             tag = request.REQUEST['tag'].encode('utf-8')
             desc = request.REQUEST['description'].encode('utf-8')
-            if o_type == 'project' and o_id > 0:
-                manager.createProjectTagAnnotation(tag, desc)
-            elif o_type == 'dataset' and o_id > 0:
-                manager.createDatasetTagAnnotation(tag, desc)
-            elif o_type == 'image' and o_id > 0:
-                manager.createImageTagAnnotation(tag, desc)
-            elif o_type == 'screen' and o_id > 0:
-                manager.createScreenTagAnnotation(tag, desc)
-            elif o_type == 'plate' and o_id > 0:
-                manager.createPlateTagAnnotation(tag, desc)    
+            manager.createTagAnnotation(o_type, tag, desc)
             return HttpResponseRedirect(url)
         else:
             template = "webclient/annotations/annotation_new_form.html"
@@ -1405,18 +1390,9 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             return HttpResponseRedirect(reverse("manage_action_containers", args=["usetag", o_type, oid]))
         tag_list = manager.listTags()
         form_tags = TagListForm(data=request.REQUEST.copy(), initial={'tags':tag_list})
-        if form_tags.is_valid():
+        if form_tags.is_valid() and o_type is not None and o_id > 0:
             tags = request.POST.getlist('tags')
-            if o_type == 'project' and o_id > 0:
-                manager.createProjectAnnotationLinks('tag', tags)
-            elif o_type == 'dataset' and o_id > 0:
-                manager.createDatasetAnnotationLinks('tag', tags)
-            elif o_type == 'image' and o_id > 0:
-                manager.createImageAnnotationLinks('tag', tags)
-            elif o_type == 'screen' and o_id > 0:
-                manager.createScreenAnnotationLinks('tag', tags)
-            elif o_type == 'plate' and o_id > 0:
-                manager.createPlateAnnotationLinks('tag', tags)    
+            manager.createAnnotationLinks(o_type, 'tag', tags)    
             return HttpResponseRedirect(url)
         else:
             template = "webclient/annotations/annotation_new_form.html"
@@ -1425,18 +1401,9 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["newfile", o_type, oid]))
         form_file = UploadFileForm(request.REQUEST.copy(), request.FILES)
-        if form_file.is_valid():
+        if form_file.is_valid() and o_type is not None and o_id > 0:
             f = request.FILES['annotation_file']
-            if o_type == 'project' and o_id > 0:
-                manager.createProjectFileAnnotation(f)
-            elif o_type == 'dataset' and o_id > 0:
-                manager.createDatasetFileAnnotation(f)
-            elif o_type == 'image' and o_id > 0:
-                manager.createImageFileAnnotation(f)
-            elif o_type == 'screen' and o_id > 0:
-                manager.createScreenFileAnnotation(f)
-            elif o_type == 'plate' and o_id > 0:
-                manager.createPlateFileAnnotation(f)
+            manager.createFileAnnotation(o_type, f)
             return HttpResponseRedirect(url)
         else:
             template = "webclient/annotations/annotation_new_form.html"
@@ -1446,18 +1413,9 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             return HttpResponseRedirect(reverse("manage_action_containers", args=["usefile", o_type, oid]))
         file_list = manager.listFiles()
         form_files = FileListForm(data=request.REQUEST.copy(), initial={'files':file_list})
-        if form_files.is_valid():
+        if form_files.is_valid() and o_type is not None and o_id > 0:
             files = request.POST.getlist('files')
-            if o_type == 'project' and o_id > 0:
-                manager.createProjectAnnotationLinks('file',files)
-            elif o_type == 'dataset' and o_id > 0:
-                manager.createDatasetAnnotationLinks('file', files)
-            elif o_type == 'image' and o_id > 0:
-                manager.createImageAnnotationLinks('file', files)
-            elif o_type == 'screen' and o_id > 0:
-                manager.createScreenAnnotationLinks('file', files)
-            elif o_type == 'plate' and o_id > 0:
-                manager.createPlateAnnotationLinks('file', files)    
+            manager.createAnnotationLinks(o_type, 'file', files)    
             return HttpResponseRedirect(url)
         else:
             template = "webclient/annotations/annotation_new_form.html"

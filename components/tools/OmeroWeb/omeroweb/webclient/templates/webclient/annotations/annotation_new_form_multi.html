@@ -51,9 +51,22 @@
 
     <table>
         {% if form_multi.image.errors %}<tr><th>{{ form_multi.image.label_tag }}</th></tr>
-        <tr><td>{% if form_multi.image.required %}*{% endif %}{{ form_multi.image.errors }}</td></tr>{% endif %}
-        <tr class="hiddenField"><td>{{ form_multi.image }}</td></tr>
+        <tr><td>{% if form_multi.image.required %}*{% endif %}{{ form_multi.image.errors }}</td></tr>{% endif %}        
+        {% if form_multi.dataset.errors %}<tr><th>{{ form_multi.dataset.label_tag }}</th></tr>
+        <tr><td>{% if form_multi.dataset.required %}*{% endif %}{{ form_multi.dataset.errors }}</td></tr>{% endif %}        
+        {% if form_multi.project.errors %}<tr><th>{{ form_multi.project.label_tag }}</th></tr>
+        <tr><td>{% if form_multi.project.required %}*{% endif %}{{ form_multi.project.errors }}</td></tr>{% endif %}        
+        {% if form_multi.screen.errors %}<tr><th>{{ form_multi.screen.label_tag }}</th></tr>
+        <tr><td>{% if form_multi.screen.required %}*{% endif %}{{ form_multi.screen.errors }}</td></tr>{% endif %}        
+        {% if form_multi.plate.errors %}<tr><th>{{ form_multi.plate.label_tag }}</th></tr>
+        <tr><td>{% if form_multi.plate.required %}*{% endif %}{{ form_multi.plate.errors }}</td></tr>{% endif %}
         
+        <tr class="hiddenField"><td>{{ form_multi.image }}</td></tr>
+        <tr class="hiddenField"><td>{{ form_multi.dataset }}</td></tr>
+        <tr class="hiddenField"><td>{{ form_multi.project }}</td></tr>
+        <tr class="hiddenField"><td>{{ form_multi.screen }}</td></tr>
+        <tr class="hiddenField"><td>{{ form_multi.plate }}</td></tr>
+                
         <tr><td><h1>{% trans "Add new comment" %}:</h1></td></tr>
         
         <tr><th>{{ form_multi.content.label_tag }}{% if form_multi.content.required %}*{% endif %} {{ form_multi.content.help_text|safe }}</th></tr>

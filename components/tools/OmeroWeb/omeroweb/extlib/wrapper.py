@@ -344,23 +344,8 @@ class ShareWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
         else:
             return False
     
-    def getOwnerAsExperimetner(self):
+    def getOwner(self):
         return omero.gateway.ExperimenterWrapper(self, self.owner)
-         
-    def getShareOwnerFullName(self):
-        try:
-            lastName = self.owner.lastName and self.owner.lastName.val or ''
-            firstName = self.owner.firstName and self.owner.firstName.val or ''
-            middleName = self.owner.middleName and self.owner.middleName.val or ''
-            
-            if middleName is not None and middleName != '':
-                name = "%s %s. %s" % (firstName, middleName, lastName)
-            else:
-                name = "%s %s" % (firstName, lastName)
-            return name
-        except:
-            logger.info(traceback.format_exc())
-            return None
     
 class ShareContentWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
     pass

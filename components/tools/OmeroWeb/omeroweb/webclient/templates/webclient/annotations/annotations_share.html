@@ -167,7 +167,7 @@
                 <tr><td>Includes {{ manager.share.itemCount }} image(s)</td></tr>
                 <tr><td>Status: <strong>{% if manager.share.active %}{% trans "ACTIVE" %}{% else %}{% trans "NOT ACTIVE" %}{% endif %}</strong></td></tr>                
                 <tr><td colspan="2">Created on: {{ manager.share.getStartDate|date:"Y-m-d H:i:s" }}</td></tr>
-                <tr><td colspan="2">Owner: {{ manager.share.getShareOwnerFullName }}</td></tr>              
+                <tr><td colspan="2">Owner: {{ manager.share.getOwner.getFullName }}</td></tr>              
                 <tr><td colspan="2">Member(s): 
                     <ol>
                         {% for m in manager.allInShare %}
@@ -351,15 +351,15 @@
             <h1>{% trans "Comments" %}: {% if not manager.share.isExpired %}<a href="{% url manage_action_containers "newsharecomment" "share" manager.share.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="Create new comment."/></a>{% endif %}</h1>            
             <div class="lncomments">
                 <div id="ann_comment_wrapper">
-                    <div class="avatar"><img src="{% url load_photo manager.share.getOwnerAsExperimetner.id %}" alt="{{ manager.share.getShareOwnerFullName }}" title="{{ manager.share.getShareOwnerFullName }}" width="40" height="40" /></div>
-                    <div class="ann_comment"><span class="ann_comment_header">{{ manager.share.getShareOwnerFullName }} {% trans "posted comment at" %} {{ manager.share.getStartDate|date:"Y-m-d H:i:s" }}</span><br/>
+                    <div class="avatar"><img src="{% url load_photo manager.share.getOwner.id %}" alt="{{ manager.share.getOwner.getNameWithInitial }}" title="{{ manager.share.getOwner.getNameWithInitial }}" width="40" height="40" /></div>
+                    <div class="ann_comment"><span class="ann_comment_header">{{ manager.share.getOwner.getNameWithInitial }} {% trans "posted comment at" %} {{ manager.share.getStartDate|date:"Y-m-d H:i:s" }}</span><br/>
                         {{ manager.share.message|sharewikify|safe|linebreaks }}
                     </div>
                 </div>
                 {% for cm in manager.comments %}
                 <div id="ann_comment_wrapper">
-                    <div class="avatar"><img src="{% url load_photo cm.details.owner.id.val %}" alt="{{ cm.getOwnerFullName }}" title="{{ cm.getOwnerFullName }}" width="40" height="40" /></div>
-                    <div class="ann_comment"><span class="ann_comment_header">{{ cm.getOwnerFullName }} {% trans "posted comment at" %} {{ cm.creationEventDate|date:"Y-m-d H:i:s" }}</span><br/>
+                    <div class="avatar"><img src="{% url load_photo cm.details.owner.id.val %}" alt="{{ cm.getOwner.getNameWithInitial }}" title="{{ cm.getOwner.getNameWithInitial }}" width="40" height="40" /></div>
+                    <div class="ann_comment"><span class="ann_comment_header">{{ cm.getOwner.getNameWithInitial }} {% trans "posted comment at" %} {{ cm.creationEventDate|date:"Y-m-d H:i:s" }}</span><br/>
                         {{ cm.textValue|sharewikify|safe|linebreaks }}
                     </div>
                 </div>

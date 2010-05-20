@@ -22,14 +22,9 @@
 # Version: 1.0
 #
 
+import omero
 from omero.rtypes import *
 from django.core.urlresolvers import reverse
-
-from omero.model import CommentAnnotationI, LongAnnotationI, TagAnnotationI, \
-                        FileAnnotationI, OriginalFileI, ImageAnnotationLinkI, DatasetAnnotationLinkI, \
-                        ProjectAnnotationLinkI, PlateAnnotationLinkI, ScreenAnnotationLinkI, \
-                        DatasetI, ProjectI, ScreenI, PlateI, DatasetImageLinkI, ProjectDatasetLinkI, \
-                        ScreenPlateLinkI, PermissionsI
 
 from webclient.controller import BaseController
 
@@ -404,14 +399,14 @@ class BaseContainer(BaseController):
             aList = list(self.plate.listAnnotations())
         
         for ann in aList:
-            if isinstance(ann._obj, CommentAnnotationI):
+            if isinstance(ann._obj, omero.model.CommentAnnotationI):
                 self.text_annotations.append(ann)
-            elif isinstance(ann._obj, LongAnnotationI):
+            elif isinstance(ann._obj, omero.model.LongAnnotationI):
                 self.long_annotations['votes'] += 1
                 self.long_annotations['rate'] += int(ann.longValue)
-            elif isinstance(ann._obj, FileAnnotationI):
+            elif isinstance(ann._obj, omero.model.FileAnnotationI):
                 self.file_annotations.append(ann)
-            elif isinstance(ann._obj, TagAnnotationI):
+            elif isinstance(ann._obj, omero.model.TagAnnotationI):
                 self.tag_annotations.append(ann)
 
         self.text_annotations = self.sortByAttr(self.text_annotations, "details.creationEvent.time", True)
@@ -460,157 +455,65 @@ class BaseContainer(BaseController):
     # Creation
     
     def createDataset(self, name, description):
-        ds = DatasetI()
+        ds = omero.model.DatasetI()
         ds.name = rstring(str(name))
         if description != "" :
             ds.description = rstring(str(description))
         if self.project is not None:
-            l_ds = ProjectDatasetLinkI()
+            l_ds = omero.model.ProjectDatasetLinkI()
             l_ds.setParent(self.project._obj)
             l_ds.setChild(ds)
             ds.addProjectDatasetLink(l_ds)
         self.conn.saveObject(ds)
         
     def createProject(self, name, description):
-        pr = ProjectI()
+        pr = omero.model.ProjectI()
         pr.name = rstring(str(name))
         if description != "" :
             pr.description = rstring(str(description))
         self.conn.saveObject(pr)
     
     def createScreen(self, name, description):
-        sc = ScreenI()
+        sc = omero.model.ScreenI()
         sc.name = rstring(str(name))
         if description != "" :
             sc.description = rstring(str(description))
         self.conn.saveObject(sc)
     
     # Comment annotation
-    def createProjectCommentAnnotation(self, content):
-        ann = CommentAnnotationI()
+    def createCommentAnnotation(self, otype, content):
+        otype = str(otype).lower()
+        if not otype.lower() in ("project", "dataset", "image", "screen", "plate"):
+            raise AttributeError("Object type must be: project, dataset, image, screen, plate. ")
+        selfobject = getattr(self, otype)
+                
+        ann = omero.model.CommentAnnotationI()
         ann.textValue = rstring(str(content))
-        l_ann = ProjectAnnotationLinkI()
-        l_ann.setParent(self.project._obj)
+        l_ann = getattr(omero.model, otype.title()+"AnnotationLinkI")()
+        l_ann.setParent(selfobject._obj)
         l_ann.setChild(ann)
         self.conn.saveObject(l_ann)
-    
-    def createScreenCommentAnnotation(self, content):
-        ann = CommentAnnotationI()
-        ann.textValue = rstring(str(content))
-        l_ann = ScreenAnnotationLinkI()
-        l_ann.setParent(self.screen._obj)
-        l_ann.setChild(ann)
-        self.conn.saveObject(l_ann)
-    
-    def createDatasetCommentAnnotation(self, content):
-        ann = CommentAnnotationI()
-        ann.textValue = rstring(str(content))
-        l_ann = DatasetAnnotationLinkI()
-        l_ann.setParent(self.dataset._obj)
-        l_ann.setChild(ann)
-        self.conn.saveObject(l_ann)
-    
-    def createPlateCommentAnnotation(self, content):
-        ann = CommentAnnotationI()
-        ann.textValue = rstring(str(content))
-        l_ann = PlateAnnotationLinkI()
-        l_ann.setParent(self.plate._obj)
-        l_ann.setChild(ann)
-        self.conn.saveObject(l_ann)
-    
-    def createImageCommentAnnotation(self, content):
-        ann = CommentAnnotationI()
-        ann.textValue = rstring(str(content))
-        l_ann = ImageAnnotationLinkI()
-        l_ann.setParent(self.image._obj)
-        l_ann.setChild(ann)
-        self.conn.saveObject(l_ann)
-    
-    def createImageCommentAnnotations(self, content, oids):        
-        ann = CommentAnnotationI()
-        ann.textValue = rstring(str(content))
-        ann = self.conn.saveAndReturnObject(ann)
-        
-        new_links = list()
-        for im in list(self.conn.listSelectedImages(oids)):
-            l_ann = ImageAnnotationLinkI()
-            l_ann.setParent(im._obj)
-            l_ann.setChild(ann._obj)
-            new_links.append(l_ann)
-        self.conn.saveArray(new_links)
     
     # Tag annotation    
-    def createImageTagAnnotation(self, tag, desc):
+    def createTagAnnotation(self, otype, tag, desc):
+        otype = str(otype).lower()
+        if not otype.lower() in ("project", "dataset", "image", "screen", "plate"):
+            raise AttributeError("Object type must be: project, dataset, image, screen, plate. ")
+        selfobject = getattr(self, otype)
         ann = None
         try:
             ann = self.conn.findTag(tag, desc)._obj
         except:
             pass
         if ann is None:
-            ann = TagAnnotationI()
+            ann = omero.model.TagAnnotationI()
             ann.textValue = rstring(str(tag))
             ann.setDescription(rstring(str(desc)))
         
-        t_ann = ImageAnnotationLinkI()
-        t_ann.setParent(self.image._obj)
+        t_ann = getattr(omero.model, otype.title()+"AnnotationLinkI")()
+        t_ann.setParent(selfobject._obj)
         t_ann.setChild(ann)
         self.conn.saveObject(t_ann)
-    
-    def createDatasetTagAnnotation(self, tag, desc):
-        ann = TagAnnotationI()
-        ann.textValue = rstring(str(tag))
-        ann.setDescription(rstring(str(desc)))
-        t_ann = DatasetAnnotationLinkI()
-        t_ann.setParent(self.dataset._obj)
-        t_ann.setChild(ann)
-        self.conn.saveObject(t_ann)
-    
-    def createPlateTagAnnotation(self, tag, desc):
-        ann = TagAnnotationI()
-        ann.textValue = rstring(str(tag))
-        ann.setDescription(rstring(str(desc)))
-        t_ann = PlateAnnotationLinkI()
-        t_ann.setParent(self.plate._obj)
-        t_ann.setChild(ann)
-        self.conn.saveObject(t_ann)
-    
-    def createProjectTagAnnotation(self, tag, desc):
-        ann = TagAnnotationI()
-        ann.textValue = rstring(str(tag))
-        ann.setDescription(rstring(str(desc)))
-        t_ann = ProjectAnnotationLinkI()
-        t_ann.setParent(self.project._obj)
-        t_ann.setChild(ann)
-        self.conn.saveObject(t_ann)
-    
-    def createScreenTagAnnotation(self, tag, desc):
-        ann = TagAnnotationI()
-        ann.textValue = rstring(str(tag))
-        ann.setDescription(rstring(str(desc)))
-        t_ann = ScreenAnnotationLinkI()
-        t_ann.setParent(self.screen._obj)
-        t_ann.setChild(ann)
-        self.conn.saveObject(t_ann)
-    
-    def createImageTagAnnotations(self, tag, desc, oids):        
-        ann = None
-        try:
-            ann = self.conn.findTag(tag, desc)._obj
-        except:
-            pass
-        if ann is None:
-            ann = TagAnnotationI()
-            ann.textValue = rstring(str(tag))
-            ann.setDescription(rstring(str(desc)))
-            ann = self.conn.saveAndReturnObject(ann)
-        
-        new_links = list()
-        for im in list(self.conn.listSelectedImages(oids)):
-            l_ann = ImageAnnotationLinkI()
-            l_ann.setParent(im._obj)
-            l_ann.setChild(ann._obj)
-            new_links.append(l_ann)
-        self.conn.saveArray(new_links)
     
     # File annotation
     def getFileFormat(self, newFile):
@@ -624,13 +527,18 @@ class BaseContainer(BaseController):
             format = "application/octet-stream"
         return format
     
-    def createProjectFileAnnotation(self, newFile):
+    def createFileAnnotation(self, otype, newFile):
+        otype = str(otype).lower()
+        if not otype.lower() in ("project", "dataset", "image", "screen", "plate"):
+            raise AttributeError("Object type must be: project, dataset, image, screen, plate. ")
+        selfobject = getattr(self, otype)
+        
         if newFile.content_type.startswith("image"):
             f = newFile.content_type.split("/") 
             format = f[1].upper()
         else:
             format = newFile.content_type
-        oFile = OriginalFileI()
+        oFile = omero.model.OriginalFileI()
         oFile.setName(rstring(str(newFile.name)));
         oFile.setPath(rstring(str(newFile.name)));
         oFile.setSize(rlong(long(newFile.size)));
@@ -640,239 +548,127 @@ class BaseContainer(BaseController):
         ofid = self.conn.saveAndReturnId(oFile);
         of = self.conn.saveAndReturnFile(newFile, ofid)
         
-        fa = FileAnnotationI()
+        fa = omero.model.FileAnnotationI()
         fa.setFile(of)
-        l_ia = ProjectAnnotationLinkI()
-        l_ia.setParent(self.project._obj)
-        l_ia.setChild(fa)
-        self.conn.saveObject(l_ia)
-        
-    def createScreenFileAnnotation(self, newFile):
-        if newFile.content_type.startswith("image"):
-            f = newFile.content_type.split("/") 
-            format = f[1].upper()
-        else:
-            format = newFile.content_type
-        oFile = OriginalFileI()
-        oFile.setName(rstring(str(newFile.name)));
-        oFile.setPath(rstring(str(newFile.name)));
-        oFile.setSize(rlong(long(newFile.size)));
-        oFile.setSha1(rstring("pending"));
-        oFile.setMimetype(rstring(str(format)));
-        
-        ofid = self.conn.saveAndReturnId(oFile);
-        of = self.conn.saveAndReturnFile(newFile, ofid)
-        
-        fa = FileAnnotationI()
-        fa.setFile(of)
-        l_ia = ScreenAnnotationLinkI()
-        l_ia.setParent(self.screen._obj)
+        l_ia = getattr(omero.model, otype.title()+"AnnotationLinkI")()
+        l_ia.setParent(selfobject._obj)
         l_ia.setChild(fa)
         self.conn.saveObject(l_ia)
     
-    def createDatasetFileAnnotation(self, newFile):
-        if newFile.content_type.startswith("image"):
-            f = newFile.content_type.split("/") 
-            format = f[1].upper()
-        else:
-            format = newFile.content_type
-        oFile = OriginalFileI()
-        oFile.setName(rstring(str(newFile.name)));
-        oFile.setPath(rstring(str(newFile.name)));
-        oFile.setSize(rlong(long(newFile.size)));
-        oFile.setSha1(rstring("pending"));
-        oFile.setMimetype(rstring(str(format)));
-        
-        ofid = self.conn.saveAndReturnId(oFile);
-        of = self.conn.saveAndReturnFile(newFile, ofid)
-        
-        fa = FileAnnotationI()
-        fa.setFile(of)
-        l_ia = DatasetAnnotationLinkI()
-        l_ia.setParent(self.dataset._obj)
-        l_ia.setChild(fa)
-        self.conn.saveObject(l_ia)
+    def createCommentAnnotations(self, content, oids):  
+        ann = omero.model.CommentAnnotationI()
+        ann.textValue = rstring(str(content))
+        ann = self.conn.saveAndReturnObject(ann)
+   
+        new_links = list() 
+        for k in oids:
+            if len(oids[k]) > 0:
+                listing = getattr(self.conn, "listSelected"+k.lower().title()+"s")
+                for ob in list(listing(oids[k])):
+                    l_ann = getattr(omero.model, k.lower().title()+"AnnotationLinkI")()
+                    print type(ob), type(ob._obj)
+                    l_ann.setParent(ob._obj)
+                    l_ann.setChild(ann._obj)
+                    new_links.append(l_ann)
+        if len(new_links) > 0 :
+            self.conn.saveArray(new_links)
     
-    def createPlateFileAnnotation(self, newFile):
-        if newFile.content_type.startswith("image"):
-            f = newFile.content_type.split("/") 
-            format = f[1].upper()
-        else:
-            format = newFile.content_type
-        oFile = OriginalFileI()
-        oFile.setName(rstring(str(newFile.name)));
-        oFile.setPath(rstring(str(newFile.name)));
-        oFile.setSize(rlong(long(newFile.size)));
-        oFile.setSha1(rstring("pending"));
-        oFile.setMimetype(rstring(str(format)));
-        
-        ofid = self.conn.saveAndReturnId(oFile);
-        of = self.conn.saveAndReturnFile(newFile, ofid)
-        
-        fa = FileAnnotationI()
-        fa.setFile(of)
-        l_ia = PlateAnnotationLinkI()
-        l_ia.setParent(self.plate._obj)
-        l_ia.setChild(fa)
-        self.conn.saveObject(l_ia)
-    
-    def createImageFileAnnotation(self, newFile):
-        if newFile.content_type.startswith("image"):
-            f = newFile.content_type.split("/") 
-            format = f[1].upper()
-        else:
-            format = newFile.content_type
-        oFile = OriginalFileI()
-        oFile.setName(rstring(str(newFile.name)));
-        oFile.setPath(rstring(str(newFile.name)));
-        oFile.setSize(rlong(long(newFile.size)));
-        oFile.setSha1(rstring("pending"));
-        oFile.setMimetype(rstring(str(format)));
-        
-        ofid = self.conn.saveAndReturnId(oFile);
-        of = self.conn.saveAndReturnFile(newFile, ofid)
-        
-        fa = FileAnnotationI()
-        fa.setFile(of)
-        l_ia = ImageAnnotationLinkI()
-        l_ia.setParent(self.image._obj)
-        l_ia.setChild(fa)
-        self.conn.saveObject(l_ia)
-    
-    def createImageFileAnnotations(self, newFile, oids):        
-        if newFile.content_type.startswith("image"):
-            f = newFile.content_type.split("/") 
-            format = f[1].upper()
-        else:
-            format = newFile.content_type
-        oFile = OriginalFileI()
-        oFile.setName(rstring(str(newFile.name)));
-        oFile.setPath(rstring(str(newFile.name)));
-        oFile.setSize(rlong(long(newFile.size)));
-        oFile.setSha1(rstring("pending"));
-        oFile.setMimetype(rstring(str(format)));
-        
-        ofid = self.conn.saveAndReturnId(oFile);
-        of = self.conn.saveAndReturnFile(newFile, ofid)
-        
-        fa = FileAnnotationI()
-        fa.setFile(of)
+    def createTagAnnotations(self, tag, desc, oids):
+        ann = None
+        try:
+            ann = self.conn.findTag(tag, desc)._obj
+        except:
+            pass
+        if ann is None:
+            ann = omero.model.TagAnnotationI()
+            ann.textValue = rstring(str(tag))
+            ann.setDescription(rstring(str(desc)))
+            ann = self.conn.saveAndReturnObject(ann)
         
         new_links = list()
-        for im in list(self.conn.listSelectedImages(oids)):            
-            l_ann = ImageAnnotationLinkI()
-            l_ann.setParent(im._obj)
-            l_ann.setChild(fa)
-            new_links.append(l_ann)
-        self.conn.saveArray(new_links)
+        for k in oids:
+            if len(oids[k]) > 0:
+                listing = getattr(self.conn, "listSelected"+k.lower().title()+"s")
+                for ob in list(listing(oids[k])):
+                    l_ann = getattr(omero.model, k.lower().title()+"AnnotationLinkI")()
+                    l_ann.setParent(ob._obj)
+                    l_ann.setChild(ann._obj)
+                    new_links.append(l_ann)
+        if len(new_links) > 0 :
+            self.conn.saveArray(new_links)
+    
+    def createFileAnnotations(self, newFile, oids):
+        if newFile.content_type.startswith("image"):
+            f = newFile.content_type.split("/") 
+            format = f[1].upper()
+        else:
+            format = newFile.content_type
+        oFile = omero.model.OriginalFileI()
+        oFile.setName(rstring(str(newFile.name)));
+        oFile.setPath(rstring(str(newFile.name)));
+        oFile.setSize(rlong(long(newFile.size)));
+        oFile.setSha1(rstring("pending"));
+        oFile.setMimetype(rstring(str(format)));
+        
+        ofid = self.conn.saveAndReturnId(oFile);
+        of = self.conn.saveAndReturnFile(newFile, ofid)
+        
+        fa = omero.model.FileAnnotationI()
+        fa.setFile(of)
+        fa = self.conn.saveAndReturnObject(fa)
+        
+        new_links = list()
+        for k in oids:
+            if len(oids[k]) > 0:
+                listing = getattr(self.conn, "listSelected"+k.lower().title()+"s")
+                for ob in list(listing(oids[k])):                    
+                    l_ann = getattr(omero.model, k.lower().title()+"AnnotationLinkI")()
+                    l_ann.setParent(ob._obj)
+                    l_ann.setChild(fa._obj)
+                    new_links.append(l_ann)
+        if len(new_links) > 0 :
+            self.conn.saveArray(new_links)
     
     # Create links
-    def createImageAnnotationLinks(self, o_type, ids):
-        anns = None
-        if o_type == 'tag':
-            anns = self.conn.listSpecifiedTags(ids)
-        elif o_type == 'comment':
-            anns = self.conn.listSpecifiedComments(ids)
-        elif o_type == 'file':
-            anns = self.conn.listSpecifiedFiles(ids)
+    def createAnnotationLinks(self, otype, atype, ids):
+        otype = str(otype).lower()
+        if not otype.lower() in ("project", "dataset", "image", "screen", "plate"):
+            raise AttributeError("Object type must be: project, dataset, image, screen, plate.")
+        atype = str(atype).lower()
+        if not atype.lower() in ("tag", "comment", "file"):
+            raise AttributeError("Object type must be: tag, comment, file.")
+        selfobject = getattr(self, otype)
+        listing = getattr(self.conn, "listSpecified"+atype.title()+"s")
+        anns = listing(ids)
         
         new_links = list()
         for a in anns:
-            ann = ImageAnnotationLinkI()
-            ann.setParent(self.image._obj)
+            ann = getattr(omero.model, otype.title()+"AnnotationLinkI")()
+            ann.setParent(selfobject._obj)
             ann.setChild(a._obj)
             new_links.append(ann)
         self.conn.saveArray(new_links)
     
-    def createDatasetAnnotationLinks(self, o_type, ids):
-        anns = None
-        if o_type == 'tag':
-            anns = self.conn.listSpecifiedTags(ids)
-        elif o_type == 'comment':
-            anns = self.conn.listSpecifiedComments(ids)
-        elif o_type == 'file':
-            anns = self.conn.listSpecifiedFiles(ids)
-        
-        new_links = list()
-        for a in anns:
-            ann = DatasetAnnotationLinkI()
-            ann.setParent(self.dataset._obj)
-            ann.setChild(a._obj)
-            new_links.append(ann)
-        self.conn.saveArray(new_links)
-    
-    def createPlateAnnotationLinks(self, o_type, ids):
-        anns = None
-        if o_type == 'tag':
-            anns = self.conn.listSpecifiedTags(ids)
-        elif o_type == 'comment':
-            anns = self.conn.listSpecifiedComments(ids)
-        elif o_type == 'file':
-            anns = self.conn.listSpecifiedFiles(ids)
-        
-        new_links = list()
-        for a in anns:
-            ann = PlateAnnotationLinkI()
-            ann.setParent(self.plate._obj)
-            ann.setChild(a._obj)
-            new_links.append(ann)
-        self.conn.saveArray(new_links)
-    
-    def createProjectAnnotationLinks(self, o_type, ids):
-        anns = None
-        if o_type == 'tag':
-            anns = self.conn.listSpecifiedTags(ids)
-        elif o_type == 'comment':
-            anns = self.conn.listSpecifiedComments(ids)
-        elif o_type == 'file':
-            anns = self.conn.listSpecifiedFiles(ids)
-        
-        new_links = list()
-        for a in anns:
-            ann = ProjectAnnotationLinkI()
-            ann.setParent(self.project._obj)
-            ann.setChild(a._obj)
-            new_links.append(ann)
-        self.conn.saveArray(new_links)
-    
-    def createScreenAnnotationLinks(self, o_type, ids):
-        anns = None
-        if o_type == 'tag':
-            anns = self.conn.listSpecifiedTags(ids)
-        elif o_type == 'comment':
-            anns = self.conn.listSpecifiedComments(ids)
-        elif o_type == 'file':
-            anns = self.conn.listSpecifiedFiles(ids)
-        
-        new_links = list()
-        for a in anns:
-            ann = ScreenAnnotationLinkI()
-            ann.setParent(self.screen._obj)
-            ann.setChild(a._obj)
-            new_links.append(ann)
-        self.conn.saveArray(new_links)
-    
-    def createImageTagAnnotationLinks(self, tids, oids):
+    def createAnnotationsLinks(self, atype, tids, oids):
+        print atype, tids, oids
         #TODO: check if link already exist !!!
+        atype = str(atype).lower()
+        if not atype.lower() in ("tag", "comment", "file"):
+            raise AttributeError("Object type must be: tag, comment, file.")
+        alisting = getattr(self.conn, "listSpecified"+atype.title()+"s")
+        
         new_links = list()
-        for im in list(self.conn.listSelectedImages(oids)):
-            for t in self.conn.listSpecifiedTags(tids):
-                l_ann = ImageAnnotationLinkI()
-                l_ann.setParent(im._obj)
-                l_ann.setChild(t._obj)
-                new_links.append(l_ann)
+        for k in oids:
+            if len(oids[k]) > 0:
+                listing = getattr(self.conn, "listSelected"+k.lower().title()+"s")
+                for ob in list(listing(oids[k])):
+                    for a in list(alisting(tids)):
+                        l_ann = getattr(omero.model, k.lower().title()+"AnnotationLinkI")()
+                        l_ann.setParent(ob._obj)
+                        l_ann.setChild(a._obj)
+                        new_links.append(l_ann)
         self.conn.saveArray(new_links)
-    
-    def createImageFileAnnotationLinks(self, fids, oids):
-        #TODO: check if link already exist !!!
-        new_links = list()
-        for im in list(self.conn.listSelectedImages(oids)):
-            for t in self.conn.listSpecifiedFiles(fids):
-                l_ann = ImageAnnotationLinkI()
-                l_ann.setParent(im._obj)
-                l_ann.setChild(t._obj)
-                new_links.append(l_ann)
-        self.conn.saveArray(new_links)
+
     
     ################################################################
     # Update
@@ -956,7 +752,7 @@ class BaseContainer(BaseController):
                         self.conn.saveObject(up_pdl._obj)
                     else:
                         ds = self.conn.getDataset(source[1])
-                        up_pdl = ProjectDatasetLinkI()
+                        up_pdl = omero.model.ProjectDatasetLinkI()
                         up_pdl.setChild(ds._obj)
                         up_pdl.setParent(new_pr._obj)
                         self.conn.saveObject(up_pdl)
@@ -1001,7 +797,7 @@ class BaseContainer(BaseController):
                         self.conn.saveObject(up_dsl._obj)
                     else:
                         im = self.conn.getImage(source[1])
-                        up_dsl = DatasetImageLinkI()
+                        up_dsl = omero.model.DatasetImageLinkI()
                         up_dsl.setChild(im._obj)
                         up_dsl.setParent(new_ds._obj)
                         self.conn.saveObject(up_dsl)
@@ -1045,7 +841,7 @@ class BaseContainer(BaseController):
                         self.conn.saveObject(up_spl._obj)
                     else:
                         pl = self.conn.getPlate(source[1])
-                        up_spl = ScreenPlateLinkI()
+                        up_spl = omero.model.ScreenPlateLinkI()
                         up_spl.setChild(pl._obj)
                         up_spl.setParent(new_sc._obj)
                         self.conn.saveObject(up_spl)
@@ -1175,7 +971,7 @@ class BaseContainer(BaseController):
         else:
             im = self.conn.getImage(source[1])
             ds = self.conn.getDataset(destination[1])
-            new_dsl = DatasetImageLinkI()
+            new_dsl = omero.model.DatasetImageLinkI()
             new_dsl.setChild(im._obj)
             new_dsl.setParent(ds._obj)
             self.conn.saveObject(new_dsl)
@@ -1189,7 +985,7 @@ class BaseContainer(BaseController):
                ds = self.conn.getDataset(dataset[1])
                link_array = list()
                for im in ims:
-                   new_dsl = DatasetImageLinkI()
+                   new_dsl = omero.model.DatasetImageLinkI()
                    new_dsl.setChild(im._obj)
                    new_dsl.setParent(ds._obj)
                    link_array.append(new_dsl)
@@ -1202,7 +998,7 @@ class BaseContainer(BaseController):
         else:
             ds = self.conn.getDataset(source[1])
             pr = self.conn.getProject(destination[1])
-            new_pdl = ProjectDatasetLinkI()
+            new_pdl = omero.model.ProjectDatasetLinkI()
             new_pdl.setChild(ds._obj)
             new_pdl.setParent(pr._obj)
             self.conn.saveObject(new_pdl)
@@ -1216,7 +1012,7 @@ class BaseContainer(BaseController):
             pr = self.conn.getProject(project[1])
             link_array = list()
             for ds in dss:
-                new_pdl = ProjectDatasetLinkI()
+                new_pdl = omero.model.ProjectDatasetLinkI()
                 new_pdl.setChild(ds._obj)
                 new_pdl.setParent(pr._obj)
                 link_array.append(new_pdl)
@@ -1229,7 +1025,7 @@ class BaseContainer(BaseController):
         else:
             pl = self.conn.getPlate(source[1])
             sc = self.conn.getScreen(destination[1])
-            new_spl = ScreenPlateLinkI()
+            new_spl = omero.model.ScreenPlateLinkI()
             new_spl.setChild(pl._obj)
             new_spl.setParent(sc._obj)
             self.conn.saveObject(new_spl)
@@ -1243,7 +1039,7 @@ class BaseContainer(BaseController):
             sc = self.conn.getScreen(screen[1])
             link_array = list()
             for pl in pls:
-                new_spl = ScreenPlateLinkI()
+                new_spl = omero.model.ScreenPlateLinkI()
                 new_spl.setChild(pl._obj)
                 new_spl.setParent(sc._obj)
                 link_array.append(new_spl)
