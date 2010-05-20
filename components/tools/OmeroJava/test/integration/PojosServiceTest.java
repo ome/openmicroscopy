@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import javax.security.auth.login.FailedLoginException;
+
 
 
 //Third-party libraries
@@ -36,6 +38,7 @@ import org.testng.annotations.Test;
 import omero.ApiUsageException;
 import omero.OptimisticLockException;
 import omero.RInt;
+import omero.RType;
 import omero.ServerError;
 import omero.api.IContainerPrx;
 import omero.api.IQueryPrx;
@@ -696,22 +699,37 @@ public class PojosServiceTest
     }
 
     /**
-     * Test to retrieve the annotations linked to an image.
+     * Test to the collection count method.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testRetrieveCollectionForImage() 
-    throws Exception 
+    public void testCollectionCountForDataset() 
+    	throws Exception 
     {
-    	/*TODO: rewrite test
-        Image i = (Image) iQuery.get(Image.class.getName(), 
-        		fixture.iu5551.getId().getValue());
-        i.unload();
-        List<IObject> annotations = iContainer.retrieveCollection(i,
-                ImageI.ANNOTATIONLINKS, null);
-        assertTrue(annotations.size() > 0);
-        */
+    	Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(
+    			simpleDatasetData().asIObject());
+    	Dataset d2 = (Dataset) iUpdate.saveAndReturnObject(
+    			simpleDatasetData().asIObject());
+    	Image i = (Image) iUpdate.saveAndReturnObject(
+    			simpleImage());
+    	//link the d and i
+    	DatasetImageLink link = new DatasetImageLinkI();
+    	link.setParent(d1);
+    	link.setChild(i);
+    	iUpdate.saveAndReturnObject(link);
+    	Parameters p = new ParametersI();
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(d1.getId().getValue());
+    	ids.add(d2.getId().getValue());
+    	Map m = iContainer.getCollectionCount(Dataset.class.getName(), 
+    			DatasetData.IMAGE_LINKS, ids, p);
+    	Long v = (Long) m.get(d1.getId().getValue());
+    	assertTrue(v.longValue() == 1);
+    	v = (Long) m.get(d2.getId().getValue());
+    	assertTrue(v.longValue() == 0);
     }
+    
+    
 
     @Test(groups = "EJBExceptions")
     public void testCountingApiExceptions() throws Exception{
@@ -1061,22 +1079,80 @@ public class PojosServiceTest
 
     /**
      * Tests the retrieval of images filtering by owners.
-     * 
      * @throws Exception Thrown if an error occurred.
      */
     @Test(groups = "ticket:318")
     public void testGetImagesByOwner() 
     	throws Exception
     {
-        /*TODO: rewrite test
-    	List ids = fixture.getProjectIds();
-
-        List<Image> images = iContainer.getImages(Project.class.getName(), ids, 
-        		OWNER_FILTER);
-        assertFilterWorked(images, null, 100, fixture.e, null);
-        */
+    	Image i1 = (Image) iUpdate.saveAndReturnObject(simpleImage());
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			simpleDatasetData().asIObject());
+    	DatasetImageLink link = new DatasetImageLinkI();
+    	link.setParent(d);
+    	link.setChild(i1);
+    	iUpdate.saveAndReturnObject(link);
+    	
+    	long self = factory.getAdminService().getEventContext().userId;
+    	ParametersI param = new ParametersI();
+    	//param.exp(rlong(self));
+    	
+    	List<Long> ids = new ArrayList<Long>(1);
+    	ids.add(d.getId().getValue());
+    	List<Image> images = iContainer.getImages(Dataset.class.getName(), ids, 
+    			param);
+    	assertTrue(images.size() > 0);
+    	Iterator<Image> i = images.iterator();
+    	Image img;
+    	int count = 0;
+    	while (i.hasNext()) {
+			img = i.next();
+			if (img.getId().getValue() == i1.getId().getValue())
+				count++;
+				
+		}
+    	assertTrue(count == 1);
+    	param = new ParametersI();
+    	param.exp(rlong(fixture.e.getId().getValue()));
+    	images = iContainer.getImages(Dataset.class.getName(), ids, 
+    			param);
+    	assertTrue(images.size() == 0);
     }
 
+    /**
+     * Links twice a dataset and an image. Only one link should be inserted.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(groups = "ticket:318")
+    public void testDuplicateDatasetImageLink() 
+    	throws Exception
+    {
+    	Image i1 = (Image) iUpdate.saveAndReturnObject(simpleImage());
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			simpleDatasetData().asIObject());
+    	DatasetImageLink link = new DatasetImageLinkI();
+    	link.setParent(d);
+    	link.setChild(i1);
+    	iUpdate.saveAndReturnObject(link);
+    	link = new DatasetImageLinkI();
+    	link.setParent(d);
+    	link.setChild(i1);
+    	try {
+    		iUpdate.saveAndReturnObject(link);
+    		fail("Should not be able to insert twice.");
+		} catch (Exception e) {
+		}
+    	String sql = "select link from DatasetImageLink as link where " +
+		"link.parent.id = :parentID and link.child.id = :childID";
+
+		ParametersI param = new ParametersI();
+		param.map = new HashMap<String, RType>();
+		param.map.put("parentID", d.getId());
+		param.map.put("childID", i1.getId());
+    	List l = iQuery.findAllByQuery(sql, param);
+    	assertTrue(l.size() == 1);
+    }
+    
     /**
      * Tests the retrieval of images filtering by groups.
      * 
@@ -1161,12 +1237,25 @@ public class PojosServiceTest
     public void testLoadContainerHierarchyFilterByOwner() 
     	throws Exception
     {
-    	/*TODO: rewrite test
+    	long id =  fixture.e.getId().getValue();
+    	Project p = (Project) iUpdate.saveAndReturnObject(
+    			simpleProjectData().asIObject());
+    	ParametersI param = new ParametersI();
+    	param.exp(omero.rtypes.rlong(id));
+    	
     	List<Long> ids = fixture.getProjectIds();
-    	List results = iContainer.loadContainerHierarchy(Project.class.getName(), 
-        		ids,  OWNER_FILTER);
-        assertFilterWorked(results, null, 100, fixture.e, null);
-        */
+    	List results = iContainer.loadContainerHierarchy(
+    			Project.class.getName(), 
+        		new ArrayList<Long>(),  param);
+       Iterator i = results.iterator();
+       IObject object;
+       int value = 0;
+       while (i.hasNext()) {
+    	   object = (IObject) i.next();
+    	   if (p.getId().getValue() == object.getId().getValue())
+    		   value++;
+       }
+       assertTrue(value == 0);
     }
     
     /**
@@ -1178,13 +1267,25 @@ public class PojosServiceTest
     public void testLoadContainerHierarchyFilterByGroup() 
     	throws Exception
     {
+    	long id =  fixture.g.getId().getValue();
+    	Project p = (Project) iUpdate.saveAndReturnObject(
+    			simpleProjectData().asIObject());
+    	ParametersI param = new ParametersI();
+    	param.grp(omero.rtypes.rlong(id));
     	
-    	/*TODO: rewrite Test
-        List ids = fixture.getProjectIds();
-        List results = iContainer.loadContainerHierarchy(Project.class.getName(), 
-        		ids, GROUP_FILTER);
-        assertFilterWorked(results, null, 100, null, fixture.g);
-        */
+    	List<Long> ids = fixture.getProjectIds();
+    	List results = iContainer.loadContainerHierarchy(
+    			Project.class.getName(), 
+        		new ArrayList<Long>(),  param);
+       Iterator i = results.iterator();
+       IObject object;
+       int value = 0;
+       while (i.hasNext()) {
+    	   object = (IObject) i.next();
+    	   if (p.getId().getValue() == object.getId().getValue())
+    		   value++;
+       }
+       assertTrue(value == 0);
     }
 
 }
