@@ -888,27 +888,29 @@ class _BlitzGateway (object):
             logger.debug("## Creating proxies")
             self._proxies = {}
             self._proxies['admin'] = ProxyObjectWrapper(self, 'getAdminService')
+            self._proxies['config'] = ProxyObjectWrapper(self, 'getConfigService')
+            self._proxies['container'] = ProxyObjectWrapper(self, 'getContainerService')
+            self._proxies['delete'] = ProxyObjectWrapper(self, 'getDeleteService')
+            self._proxies['export'] = ProxyObjectWrapper(self, 'createExporter')
+            self._proxies['ldap'] = ProxyObjectWrapper(self, 'getLdapService')
+            self._proxies['metadata'] = ProxyObjectWrapper(self, 'getMetadataService')
             self._proxies['query'] = ProxyObjectWrapper(self, 'getQueryService')
+            self._proxies['pixel'] = ProxyObjectWrapper(self, 'getPixelsService')
+            self._proxies['projection'] = ProxyObjectWrapper(self, 'getProjectionService')
+            self._proxies['rawpixels'] = ProxyObjectWrapper(self, 'createRawPixelsStore')
             self._proxies['rendering'] = ProxyObjectWrapper(self, 'createRenderingEngine')
             self._proxies['rendsettings'] = ProxyObjectWrapper(self, 'getRenderingSettingsService')
-            #self._proxies['projection'] = ProxyObjectWrapper(self, 'getProjectionService')
-            self._proxies['rawpixels'] = ProxyObjectWrapper(self, 'createRawPixelsStore')
-            self._proxies['thumbs'] = ProxyObjectWrapper(self, 'createThumbnailStore')
-            self._proxies['container'] = ProxyObjectWrapper(self, 'getContainerService')
-            self._proxies['pixel'] = ProxyObjectWrapper(self, 'getPixelsService')
-    #            self._proxies['ldap'] = ProxyObjectWrapper(self, 'getLdapService')
-            self._proxies['metadata'] = ProxyObjectWrapper(self, 'getMetadataService')
             self._proxies['rawfile'] = ProxyObjectWrapper(self, 'createRawFileStore')
             self._proxies['repository'] = ProxyObjectWrapper(self, 'getRepositoryInfoService')
-    #            self._proxies['script'] = ProxyObjectWrapper(self, 'getScriptService')
-    #            self._proxies['search'] = ProxyObjectWrapper(self, 'createSearchService')
-    #            self._proxies['session'] = ProxyObjectWrapper(self, 'getSessionService')
+            self._proxies['script'] = ProxyObjectWrapper(self, 'getScriptService')
+            self._proxies['search'] = ProxyObjectWrapper(self, 'createSearchService')
+            self._proxies['session'] = ProxyObjectWrapper(self, 'getSessionService')
             self._proxies['share'] = ProxyObjectWrapper(self, 'getShareService')
-    #            self._proxies['thumbs'] = ProxyObjectWrapper(self, 'createThumbnailStore')
+            self._proxies['thumbs'] = ProxyObjectWrapper(self, 'createThumbnailStore')
             self._proxies['timeline'] = ProxyObjectWrapper(self, 'getTimelineService')
             self._proxies['types'] = ProxyObjectWrapper(self, 'getTypesService')
-    #            self._proxies['update'] = ProxyObjectWrapper(self, 'getUpdateService')
-            self._proxies['config'] = ProxyObjectWrapper(self, 'getConfigService')
+            self._proxies['update'] = ProxyObjectWrapper(self, 'getUpdateService')
+            
         self._ctx = self._proxies['admin'].getEventContext()
         self._userid = self._ctx.userId
         self._user = self.getExperimenter(self._userid)
@@ -1271,7 +1273,7 @@ class _BlitzGateway (object):
         @return:    omero.gateway.ProxyObjectWrapper
         """
         
-        return ProxyObjectWrapper(self, 'getPixelsService')
+        return self._proxies['pixel']
     
     def getMetadataService (self):
         """
@@ -1354,6 +1356,12 @@ class _BlitzGateway (object):
         return rv
 
     def getRenderingSettingsService (self):
+        """
+        Gets reference to the rendering settings service from ProxyObjectWrapper.
+        
+        @return:    omero.gateway.ProxyObjectWrapper
+        """
+        
         return self._proxies['rendsettings']
    
     def createRawPixelsStore (self):
@@ -1386,7 +1394,7 @@ class _BlitzGateway (object):
         
         @return: omero.gateway.ProxyObjectWrapper
         """
-        return ProxyObjectWrapper(self, 'createSearchService')
+        return self._proxies['search']
 
     def getUpdateService (self):
         """
@@ -1394,7 +1402,7 @@ class _BlitzGateway (object):
         
         @return:    omero.gateway.ProxyObjectWrapper
         """
-        return ProxyObjectWrapper(self, 'getUpdateService')
+        return self._proxies['update']
 
     def getDeleteService (self):
         """
@@ -1402,7 +1410,7 @@ class _BlitzGateway (object):
         
         @return:    omero.gateway.ProxyObjectWrapper
         """
-        return ProxyObjectWrapper(self, 'getDeleteService')
+        return self._proxies['delete']
 
     def getSessionService (self):
         """
@@ -1410,7 +1418,7 @@ class _BlitzGateway (object):
         
         @return:    omero.gateway.ProxyObjectWrapper
         """
-        return ProxyObjectWrapper(self, 'getSessionService')
+        return self._proxies['session']
 
     def createExporter (self):
         """
@@ -1419,7 +1427,7 @@ class _BlitzGateway (object):
         @return:    omero.gateway.ProxyObjectWrapper
         """
         
-        return ProxyObjectWrapper(self, 'createExporter')
+        return self._proxies['export']
 
     #############################
     # Top level object fetchers #
