@@ -31,7 +31,6 @@ import omero.model.ImageAnnotationLink;
 import omero.model.ImageI;
 import omero.model.Instrument;
 import omero.model.LongAnnotation;
-import omero.model.OriginalFile;
 import omero.model.Pixels;
 
 /**
