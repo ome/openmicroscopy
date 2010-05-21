@@ -58,6 +58,7 @@ import org.openmicroscopy.shoola.util.ui.JLabelButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ChannelData;
 import pojos.FileAnnotationData;
+import pojos.WellSampleData;
 
 /** 
  * Component displaying the acquisition information.
@@ -490,6 +491,8 @@ class AcquisitionDataUI
 		if (!instrumentPane.isCollapsed() && load)
 			controller.loadInstrumentData();
 		originalMetadataPane.setCollapsed(true);
+		originalMetadataPane.setVisible(!(model.getRefObject() 
+				instanceof WellSampleData));
 	}
 	
 	/**
