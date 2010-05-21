@@ -189,6 +189,7 @@ public class ImportDialog extends JDialog implements ActionListener
 
         pbox = GuiCommonElements.addComboBox(pdPanel, "Project: ", projectItems, 'P', 
                 "Select dataset to use for this import.", 60, "0,0,f,c", debug);
+        pbox.addActionListener(this);
 
         // Fixing broken mac buttons.
         String offsetButtons = ",c";
@@ -218,28 +219,21 @@ public class ImportDialog extends JDialog implements ActionListener
 
         namedPanel = GuiCommonElements.addBorderedPanel(importPanel, namedTable, "File Naming", debug);
 
-        useCustomNamingChkBox = GuiCommonElements.addCheckBox(namedPanel, "Override default file naming. Instead use:", "0,0,1,0", debug);
-       	useCustomNamingChkBox.setSelected(!config.useCustomImageNaming.get());
-        
+        String fullPathTooltip = "The full file+path name for the file. For example: \"c:/myfolder/mysubfolder/myfile.dv\"";
 
-        String fullPathTooltip = "The full file+path name for " +
-        "the file. For example: \"c:/myfolder/mysubfolder/myfile.dv\"";
+        String partPathTooltip = "A partial path and file name for the file. For example: \"mysubfolder/myfile.dv\"";
 
-        String partPathTooltip = "A partial path and file name for " +
-        "the file. For example: \"mysubfolder/myfile.dv\"";
-
-        fullPathButton = GuiCommonElements.addRadioButton(namedPanel, 
-                "the full path+file name of your file", 'u', 
+        fullPathButton = GuiCommonElements.addRadioButton(namedPanel, "the full path+file name of your file", 'u', 
                 fullPathTooltip, "1,1", debug);
+        fullPathButton.addActionListener(this);
 
-        partPathButton = GuiCommonElements.addRadioButton(namedPanel, 
-                "a partial path+file name with...", 'u', 
+        partPathButton = GuiCommonElements.addRadioButton(namedPanel, "a partial path+file name with...", 'u', 
                 partPathTooltip, "1,2", debug);
+        partPathButton.addActionListener(this);
 
-        numOfDirectoriesField = GuiCommonElements.addWholeNumberField(namedPanel, 
-                "" , "0", "of the directories immediately before it.", 0, 
-                "Add this number of directories to the file names",
-                3, 40, "1,3,l,c", debug);
+        numOfDirectoriesField = GuiCommonElements.addWholeNumberField(namedPanel, "" , "0", "of the directories immediately before it.", 0, 
+                "Add this number of directories to the file names", 3, 40, "1,3,l,c", debug);
+        numOfDirectoriesField.addActionListener(this);
         
         numOfDirectoriesField.setText(Integer.toString(config.numOfDirectories.get()));
 
@@ -252,7 +246,7 @@ public class ImportDialog extends JDialog implements ActionListener
             public void focusLost(FocusEvent e) {}
 
         });        
-
+        
         ButtonGroup group = new ButtonGroup();
         group.add(fullPathButton);
         group.add(partPathButton);
@@ -262,20 +256,28 @@ public class ImportDialog extends JDialog implements ActionListener
         else
             group.setSelected(partPathButton.getModel(), true);
         
-        
-        
+        useCustomNamingChkBox = GuiCommonElements.addCheckBox(namedPanel, "Override default file naming. Instead use:", "0,0,1,0", debug);
+        useCustomNamingChkBox.addActionListener(this);
+        if (config.useCustomImageNaming.get() == true)
+        {
+        	useCustomNamingChkBox.setSelected(true);
+        	enabledPathButtons(true);
+        } else  {
+        	useCustomNamingChkBox.setSelected(false);
+        	enabledPathButtons(false);
+        }
 
         importPanel.add(namedPanel, "0, 3, 4, 2");
 
         // Buttons at the bottom of the form
 
-        cancelBtn = GuiCommonElements.addButton(importPanel, "Cancel", 'L',
-                "Cancel", "1, 5, f, c", debug);
+        cancelBtn = GuiCommonElements.addButton(importPanel, "Cancel", 'L', "Cancel", "1, 5, f, c", debug);
         cancelBtn.addActionListener(this);
 
-        importBtn = GuiCommonElements.addButton(importPanel, "Add to Queue", 'Q',
-                "Import", "3, 5, f, c", debug);
+        importBtn = GuiCommonElements.addButton(importPanel, "Add to Queue", 'Q', "Import", "3, 5, f, c", debug);
         importBtn.addActionListener(this);
+        importBtn.setEnabled(false);
+        this.getRootPane().setDefaultButton(importBtn);
 
         this.getRootPane().setDefaultButton(importBtn);
         GuiCommonElements.enterPressesWhenFocused(importBtn);
@@ -347,18 +349,7 @@ public class ImportDialog extends JDialog implements ActionListener
         this.add(tabbedPane);
         tabbedPane.addTab("Import Settings", null, importPanel, "Import Settings");
         tabbedPane.addTab("Metadata Defaults", null, metadataPanel, "Metadata Defaults");
-        //this.add(mainPanel);
 
-        importBtn.setEnabled(false);
-        //this.getRootPane().setDefaultButton(importBtn);
-
-        fullPathButton.addActionListener(this);
-        partPathButton.addActionListener(this);
-        numOfDirectoriesField.addActionListener(this);
-        cancelBtn.addActionListener(this);
-        importBtn.addActionListener(this);
-        pbox.addActionListener(this);
-        useCustomNamingChkBox.addActionListener(this);
         buildProjectsAndDatasets();
         setVisible(true);
     }
@@ -465,7 +456,7 @@ public class ImportDialog extends JDialog implements ActionListener
      * 
      * @param frame - parent component
      */
-    public void sendingNamingWarning(Component frame)
+    public void sendNamingWarning(Component frame)
     {
         final JOptionPane optionPane = new JOptionPane(
                 "\nNOTE: Some file formats do not include the file name in their metadata, " +
@@ -494,6 +485,18 @@ public class ImportDialog extends JDialog implements ActionListener
         warningDialog.setVisible(true);
     }
 
+    /**
+     * Enable/Disable the options under the custom naming section 
+     * of the dialog
+     * 
+     * @param enable
+     */
+    private void enabledPathButtons(boolean enable)
+    {
+		fullPathButton.setEnabled(enable);
+		partPathButton.setEnabled(enable); 
+		numOfDirectoriesField.setEnabled(enable);
+    }
     
     /* (non-Javadoc)
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
@@ -501,9 +504,17 @@ public class ImportDialog extends JDialog implements ActionListener
     public void actionPerformed(ActionEvent event)
     {
        
-        if (event.getSource() == useCustomNamingChkBox && !useCustomNamingChkBox.isSelected())
+        if (event.getSource() == useCustomNamingChkBox)
         {
-            sendingNamingWarning(this);   
+        	if (useCustomNamingChkBox.isSelected())
+        	{
+        		enabledPathButtons(true);
+        	}
+        	else
+        	{  
+        		enabledPathButtons(false);
+        		sendNamingWarning(this);
+        	}
         } 
         else if (event.getSource() == addProjectBtn)
         {
@@ -535,7 +546,7 @@ public class ImportDialog extends JDialog implements ActionListener
             cancelled = false;
             importBtn.requestFocus();
             
-            config.useCustomImageNaming.set(!useCustomNamingChkBox.isSelected());
+            config.useCustomImageNaming.set(useCustomNamingChkBox.isSelected());
             config.numOfDirectories.set(numOfDirectoriesField.getValue());
             
             dataset = ((DatasetItem) dbox.getSelectedItem()).getDataset();
