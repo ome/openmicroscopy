@@ -71,7 +71,7 @@ public class ChannelDataLoader
 	}
 	
     /** 
-     * Retrieves the emission wavelengths for the specified pixels set.
+     * Retrieves the channels for the specified pixels set.
      * @see EditorLoader#load()
      */
     public void load()
