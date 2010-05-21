@@ -61,6 +61,7 @@ import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
@@ -1488,6 +1489,7 @@ public class UIUtilities
 		else if (OMETextArea.class.equals(type)) comp = new OMETextArea();
 		else if (NumericalTextField.class.equals(type)) {
 			comp = new NumericalTextField();
+			((NumericalTextField) comp).setHorizontalAlignment(JTextField.LEFT);
 			((NumericalTextField) comp).setNegativeAccepted(true);
 			comp.setBorder(null);
 		}

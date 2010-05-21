@@ -303,6 +303,19 @@ class OriginalMetadataComponent
 		return new JScrollPane(table);
 	}
 	
+	/** 
+	 * Returns the start to extract the key.
+	 * 
+	 * @param line The line to handles
+	 * @return See above.
+	 */
+	private int getStart(String line)
+	{
+		if (line == null || line.length() == 0) return 0;
+		if (line.startsWith("[")) return 1;
+		return 0;
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -348,6 +361,7 @@ class OriginalMetadataComponent
 				String line = null;
 				List<String> l;
 				String key = null;
+				int start = 0;
 				while ((line = input.readLine()) != null) {
 					if (line.contains("=")) {
 						if (key != null && key.trim().length() > 0) {
@@ -357,7 +371,8 @@ class OriginalMetadataComponent
 					} else {
 						line = line.trim();
 						if (line.length() > 0) {
-							key = line.substring(0, line.length()-1);
+							start = getStart(line);
+							key = line.substring(start, line.length()-1);
 							if (key != null && key.trim().length() > 0)
 								components.put(key, new ArrayList<String>());
 						}
