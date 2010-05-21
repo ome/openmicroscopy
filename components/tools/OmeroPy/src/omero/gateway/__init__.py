@@ -643,8 +643,15 @@ class _BlitzGateway (object):
     """
     ICE_CONFIG - Defines the path to the Ice configuration
     """
-    
-    ICE_CONFIG = None#os.path.join(p,'etc/ice.config')
+
+    CONFIG = {}
+    """
+    Holder for class wide configuration properties:
+     - IMG_RDEFNS: a namespace for annotations linked on images holding the default rendering
+                   settings object id.
+    One good place to define this is on the extending class' connect() method.
+    """
+    ICE_CONFIG = None
 #    def __init__ (self, username, passwd, server, port, client_obj=None, group=None, clone=False):
     
     def __init__ (self, username=None, passwd=None, client_obj=None, group=None, clone=False, try_super=False, host=None, port=None, extra_config=[], secure=False):
@@ -2641,17 +2648,52 @@ class _ImageWrapper (BlitzObjectWrapper):
             self.__loadedHotSwap__()
         return self._obj.sizeOfPixels() > 0
 
-    def _prepareRE (self):
-        re = self._conn.createRenderingEngine()
+    def _createRDef (self):
+        """
+        """
         pixels_id = self._obj.getPrimaryPixels().id.val
-        re.lookupPixels(pixels_id)
-        if re.lookupRenderingDef(pixels_id) == False: #pragma: no cover
-            try:
-                re.resetDefaults()
-            except omero.ResourceError:
-                # broken image
-                return False
-            re.lookupRenderingDef(pixels_id)
+        rdid = self._conn.getRenderingSettingsService().getRenderingSettings(pixels_id)
+        if rdid is None:
+            tb = self._conn.createThumbnailStore()
+            if not tb.setPixelsId(pixels_id):
+                tb.resetDefaults()
+            tb.close()
+            rdid = self._conn.getRenderingSettingsService().getRenderingSettings(pixels_id)
+        return pixels_id, rdid.id.val
+
+    def _getRDef (self):
+        """
+        return a tuple with (pixels_id, rdef_id) for this image.
+        """
+        if not self._loadPixels():
+            logger.debug('#NO PIXELS')
+            return None,None
+        pixels_id = self._obj.getPrimaryPixels().id.val
+        rdid = None
+        rdefns = self._conn.CONFIG.get('IMG_RDEFNS', None)
+        if rdefns:
+            ann = self.getAnnotation(rdefns)
+            if ann is not None:
+                rdid = ann.getValue()
+        if rdid is None:
+            pid, rdid = self._createRDef()
+            if rdefns:
+                a = LongAnnotationWrapper(self)
+                a.setNs(rdefns)
+                a.setValue(rdid)
+                self.linkAnnotation(a, sameOwner=False)
+        logger.debug('_getRDef: %s, %s' % (str(pixels_id), str(rdid)))
+        return pixels_id, rdid
+
+    def _prepareRE (self):
+        pid, rdid = self._getRDef()
+        logger.info('pid:%s rdid:%s' % (str(pid), str(rdid)))
+        if rdid is None: #pragma: nocover
+            return None
+        re = self._conn.createRenderingEngine()
+        re.lookupPixels(pid)
+        re.lookupRenderingDef(pid)
+        re.loadRenderingDef(rdid)
         re.load()
         return re
 
@@ -2768,20 +2810,34 @@ class _ImageWrapper (BlitzObjectWrapper):
     def getPixelsId (self):
         return self._obj.getPrimaryPixels().getId().val
 
-    def _prepareTB (self):
-        pixels_id = self.getPixelsId()
-        if pixels_id is None:
-            return None
+    def _prepareTB (self, _r=False):
+        pid, rdid = self._getRDef()
+        logger.debug('#%s, %s' % (str(pid),str(rdid)))
         tb = self._conn.createThumbnailStore()
-        try:
-            rv = tb.setPixelsId(pixels_id)
-        except omero.InternalException:
-            rv = False
-        if not rv: #pragma: no cover
+        tb.setPixelsId(pid)
+        if rdid is None:
+            if _r:
+                return None
             tb.resetDefaults()
             tb.close()
-            tb.setPixelsId(pixels_id)
+            return self._prepareTB(_r=True)
+        tb.setRenderingDefId(rdid)
         return tb
+
+#    def _prepareTB (self):
+#        pixels_id = self.getPixelsId()
+#        if pixels_id is None:
+#            return None
+#        tb = self._conn.createThumbnailStore()
+#        try:
+#            rv = tb.setPixelsId(pixels_id)
+#        except omero.InternalException:
+#            rv = False
+#        if not rv: #pragma: no cover
+#            tb.resetDefaults()
+#            tb.close()
+#            tb.setPixelsId(pixels_id)
+#        return tb
     
     def loadOriginalMetadata(self):
         global_metadata = list()
