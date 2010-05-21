@@ -249,14 +249,14 @@ class ImageAcquisitionComponent
 			if (value instanceof Number) {
 				area = UIUtilities.createComponent(
 						NumericalTextField.class, null);
-				if (EditorUtil.TEMPERATURE.equals(key)) {
-					((NumericalTextField) area).setMinimum(-Double.MAX_VALUE);
-					((NumericalTextField) area).setNegativeAccepted(true);
-				}
 				if (value instanceof Double) 
 					((NumericalTextField) area).setNumberType(Double.class);
 				else if (value instanceof Float) 
 					((NumericalTextField) area).setNumberType(Float.class);
+				if (EditorUtil.TEMPERATURE.equals(key)) {
+					((NumericalTextField) area).setMinimum(-Double.MAX_VALUE);
+				}
+				
 				((NumericalTextField) area).setText(""+value);
 				((NumericalTextField) area).setEditedColor(
 						UIUtilities.EDITED_COLOR);
@@ -275,7 +275,7 @@ class ImageAcquisitionComponent
 			area.setEnabled(!set);
 			comp = new DataComponent(label, area);
             comp.setEnabled(false);
-			comp.setSetField(!notSet.contains(key));
+			comp.setSetField(set);
 			fieldsEnv.put(key, comp);
 		}
 	}
@@ -286,13 +286,13 @@ class ImageAcquisitionComponent
 		removeAll();
 		if (objectivePane.isVisible()) add(objectivePane);
 		if (envPane.isVisible()) {
-			parent.layoutFields(stagePane, unsetStage, fieldsStage, 
-					unsetStageShown);
+			parent.layoutFields(envPane, unsetEnv, fieldsEnv, unsetEnvShown);
 			add(envPane);
 			parent.attachListener(fieldsEnv);
 		}
 		if (stagePane.isVisible()) {
-			parent.layoutFields(envPane, unsetEnv, fieldsEnv, unsetEnvShown);
+			parent.layoutFields(stagePane, unsetStage, fieldsStage, 
+					unsetStageShown);
 			add(stagePane);
 			parent.attachListener(fieldsStage);
 		}
