@@ -418,22 +418,6 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         		{
         			viewer.historyTable.db.initialize(store);
         			viewer.historyTable.db.initializeDataSource();
-                	if (viewer.historyTable.db.historyEnabled == false)
-                	{
-                        log.error("Could not start history DB.");
-                        if (HistoryDB.alertOnce == false)
-                        {
-                            JOptionPane.showMessageDialog(null,
-                                "For some reason we are not able to connect to the remote\n" +
-                                "history service (this most likely means the server does\n" +
-                                "not have this feature installed). In the meantime, you will\n" +
-                                "still be able to use the importer, however the history tab's\n" +
-                                "functionality will not be enabled.",
-                                "Warning",
-                                JOptionPane.ERROR_MESSAGE);
-                            HistoryDB.alertOnce = true;
-                        }        		
-                	}
         		}
         		catch (Exception e)
         		{

@@ -37,6 +37,8 @@ import java.awt.event.AdjustmentListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowListener;
@@ -65,8 +67,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
-
-import loci.formats.ImageWriter;
 
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
@@ -159,6 +159,7 @@ WindowStateListener, WindowFocusListener
     private JPanel              errorPanel;
 
     private JTabbedPane         tPane;
+    private static final int historyTabIndex = 1;
 
     private boolean errors_pending = false;
 
@@ -364,6 +365,11 @@ WindowStateListener, WindowFocusListener
 
         tPane.setSelectedIndex(0);
 
+        if (historyTable.db.historyEnabled == false)
+        	tPane.setEnabledAt(historyTabIndex,false);
+        
+        checkHistoryEnable();
+        
         // Add the tabbed pane to this panel.
         add(tPane);
 
@@ -390,6 +396,38 @@ WindowStateListener, WindowFocusListener
     }
 
     /**
+     * Check if the history table is enabled, disabling the history tab 
+     * if it is not.
+     */
+    private void checkHistoryEnable() {
+        tPane.addMouseListener(new MouseAdapter() {
+        	
+        	public void mouseClicked(MouseEvent e) {
+        		
+            	JTabbedPane pane = (JTabbedPane) e.getSource();
+        		
+        		if (pane.indexAtLocation(e.getX(), e.getY()) == historyTabIndex 
+        				&& historyTable.db.historyEnabled == false)
+				{
+					log.error("Could not start history DB.");
+					if (HistoryDB.alertOnce == false)
+					{
+						JOptionPane.showMessageDialog(null,
+								"For some reason we are not able to connect to the remote\n" +
+								"history service (this most likely means the server does\n" +
+								"not have this feature installed). In the meantime, you will\n" +
+								"still be able to use the importer, however the history tab's\n" +
+								"functionality will not be enabled.",
+								"Warning",
+								JOptionPane.ERROR_MESSAGE);
+						HistoryDB.alertOnce = true;
+					}        		
+				}
+        	}
+        });
+	}
+
+	/**
      * save ini file and gui settings on exist
      */
     protected void shutdown()
