@@ -2469,8 +2469,7 @@ class OMEROGateway
 	 * Wraps the call to the {@link IPojos#getImages(Class, List, Parameters)}
 	 * and maps the result calling {@link PojoMapper#asDataObjects(Set)}.
 	 * 
-	 * @param nodeType  The type of container. Can be either Project, Dataset,
-	 *                  CategoryGroup, Category.
+	 * @param nodeType  The type of container. Can be either Project, Dataset.
 	 * @param nodeIDs   Set of containers' IDS.
 	 * @param options   Options to retrieve the data.
 	 * @return A <code>Set</code> of retrieved images.
@@ -5901,24 +5900,24 @@ class OMEROGateway
 	/**
 	 * Loads the instrument and its components.
 	 * 
-	 * @param instrumentID The id of the instrument.
+	 * @param id The id of the instrument.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Object loadInstrument(long instrumentID)
+	Object loadInstrument(long id)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		try {
 			IMetadataPrx service = getMetadataService();
-			List<IObject> list = service.loadInstrument(instrumentID);
+			List<IObject> list = service.loadInstrument(id);
 			if (list == null || list.size() < 1) return null;
 			return new InstrumentData(list);
 		} catch (Exception e) {
-			handleException(e, "Cannot load the instrument: "+instrumentID);
+			handleException(e, "Cannot load the instrument: "+id);
 		}
 		return null;
 	}
