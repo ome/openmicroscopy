@@ -34,6 +34,7 @@ import org.openmicroscopy.shoola.agents.events.FocusGainedEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.ImageViewport;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
+import org.openmicroscopy.shoola.agents.events.iviewer.RendererUnloadedEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
@@ -77,7 +78,7 @@ public class ImViewerAgent
 {
 
     /** The default error message. */
-    public static final String ERROR = " An error occured while modifying  " +
+    public static final String ERROR = " An error occurred while modifying  " +
     		"the rendering settings.";
     
     /** Reference to the registry. */
@@ -279,6 +280,20 @@ public class ImViewerAgent
     	}
     }
     
+    /**
+     * Indicates that the rendered could not be loaded.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleRendererUnloadedEvent(RendererUnloadedEvent evt)
+    {
+    	if (evt == null) return;
+    	ImViewer viewer = ImViewerFactory.getImageViewer(
+				evt.getPixelsID());
+    	if (viewer == null) return;
+    	viewer.discard();
+    }
+    
     /** Creates a new instance. */
     public ImViewerAgent() {}
     
@@ -312,6 +327,7 @@ public class ImViewerAgent
         bus.register(this, ImageViewport.class);
         bus.register(this, UserGroupSwitched.class);
         bus.register(this, ViewObjectEvent.class);
+        bus.register(this, RendererUnloadedEvent.class);
     }
 
     /**
@@ -365,6 +381,8 @@ public class ImViewerAgent
 			handleUserGroupSwitched((UserGroupSwitched) e);
         else if (e instanceof ViewObjectEvent)
         	handleViewObjectEvent((ViewObjectEvent) e);
+        else if (e instanceof RendererUnloadedEvent)
+        	handleRendererUnloadedEvent((RendererUnloadedEvent) e);
     }
 
 }

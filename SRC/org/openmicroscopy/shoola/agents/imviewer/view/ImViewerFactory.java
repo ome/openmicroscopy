@@ -300,16 +300,7 @@ public class ImViewerFactory
 	 */
 	public static void reloadRenderingEngine(Collection pixelsIDs, long refID)
 	{
-		if (pixelsIDs == null || pixelsIDs.size() == 0) return;
-		Iterator i = singleton.viewers.iterator();
-		ImViewerComponent comp;
-		long id;
-		while (i.hasNext()) {
-			comp = (ImViewerComponent) i.next();
-			id = comp.getPixelsID();
-			if (pixelsIDs.contains(id) && id != refID)
-				comp.reset();
-		}
+		
 	}
 	
 	/** 
@@ -467,6 +458,7 @@ public class ImViewerFactory
 		ImViewerComponent comp = (ImViewerComponent) ce.getSource(); 
 		if (comp.getState() == ImViewer.DISCARDED) {
 			viewers.remove(comp);
+			recentViewers.remove(comp);
 		}
 	}
 

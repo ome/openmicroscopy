@@ -101,10 +101,9 @@ public class ImageDataLoader
         msg.print(s);
         msg.print(exc);
         registry.getLogger().error(this, msg);
-        
-        registry.getUserNotifier().notifyInfo("Data Retrieval Failure", 
-                "The image with ID:"+imageID+" cannot be viewed.");
         viewer.discard();
+        //registry.getUserNotifier().notifyInfo("Data Retrieval Failure", 
+         //       "The image with ID:"+imageID+" cannot be viewed.");
     }
     
     /** 

@@ -662,56 +662,6 @@ class ImViewerModel
 		return rnd.isChannelActive(w);
 	}
 	
-	/** 
-	 * Fires an asynchronous retrieval of the rendering control. 
-	 * 
-	 * @param pixelsID The id of the pixels set to load.
-	 */
-	void fireRenderingControlLoading(long pixelsID)
-	{
-		
-		/*
-		currentPixelsID = pixelsID;
-		DataLoader loader = new RenderingControlLoader(component, pixelsID, 
-												RenderingControlLoader.LOAD);
-		loader.load();
-		if (loaders.get(RND) != null)
-			loaders.get(RND).cancel();
-		loaders.put(RND, loader);
-		state = ImViewer.LOADING_RENDERING_CONTROL;
-		*/
-	}
-
-	/** Fires an asynchronous retrieval of the rendering control. */
-	void fireRenderingControlReloading()
-	{
-		/*
-		DataLoader loader = new RenderingControlLoader(component, 
-									image.getDefaultPixels().getId(), 
-										RenderingControlLoader.RELOAD);
-		loader.load();
-		if (loaders.get(RND) != null)
-			loaders.get(RND).cancel();
-		loaders.put(RND, loader);
-		state = ImViewer.LOADING_RENDERING_CONTROL;
-		*/
-	}
-
-	/** Fires an asynchronous retrieval of the rendering control. */
-	void fireRenderingControlResetting()
-	{
-		/*
-		DataLoader loader = new RenderingControlLoader(component, 
-										image.getDefaultPixels().getId(), 
-										RenderingControlLoader.RESET);
-		loader.load();
-		if (loaders.get(RND) != null)
-			loaders.get(RND).cancel();
-		loaders.put(RND, loader);
-		state = ImViewer.LOADING_RENDERING_CONTROL;
-		*/
-	}
-	
 	/**
 	 * Starts an asynchronous call to retrieve the plane info related
 	 * to the image. This method should only be invoked for fast connection.

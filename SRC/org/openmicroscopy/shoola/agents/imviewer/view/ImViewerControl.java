@@ -683,16 +683,6 @@ class ImViewerControl
 	{
 		model.setGridMagnificationFactor(factor);
 	}
-	
-	/**
-	 * Loads the rendering control for the passed pixels ID.
-	 * 
-	 * @param pixelsID The id of the pixels set.
-	 */
-	void loadRenderingControl(long pixelsID)
-	{
-		model.loadRenderingControl(pixelsID);
-	}
 
 	/** 
 	 * Sets the interval of z-sections to project. 

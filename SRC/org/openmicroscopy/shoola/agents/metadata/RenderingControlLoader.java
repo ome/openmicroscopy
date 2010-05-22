@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.metadata;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.iviewer.RendererUnloadedEvent;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
@@ -67,7 +68,7 @@ public class RenderingControlLoader
 	
     /** The ID of the pixels set. */
     private long        pixelsID;
-  
+    
     /** One of the constants defined by this class. */
     private int			index;
     
@@ -97,6 +98,7 @@ public class RenderingControlLoader
      * @param viewer    The view this loader is for.
      *                  Mustn't be <code>null</code>.
      * @param pixelsID  The id of the pixels set.
+     * @param imageID   The id of the image.
      * @param index		One of the constants defined by this class.
      */
     public RenderingControlLoader(Editor viewer, long pixelsID, int index)
@@ -137,9 +139,7 @@ public class RenderingControlLoader
         registry.getUserNotifier().notifyInfo("Loading Rendering data", 
         		"The image could not be opened. \n" +
         		"The image is not a valid image.");
-        //TODO: Change this.  What to do in the case of failure is up to
-        //the viewer.  So we need to refactor this b/c the decision is
-        //made in the wrong place!
+       registry.getEventBus().post(new RendererUnloadedEvent(pixelsID));
     }
     
     /** 

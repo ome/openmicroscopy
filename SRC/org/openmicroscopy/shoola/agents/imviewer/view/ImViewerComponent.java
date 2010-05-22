@@ -545,15 +545,7 @@ class ImViewerComponent
 	 * @return See above.
 	 */
 	String getTitle() { return view.getTitle(); }
-	
-	/** Resets the rendering engine. */
-	void reset()
-	{
-		//TODO: check state.
-		model.fireRenderingControlResetting();
-		fireStateChange();
-	}
-	
+
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#activate(RndProxyDef, long)
@@ -2445,18 +2437,7 @@ class ImViewerComponent
 			setSelectedPane(index);
 		}
 	}
-
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#loadRenderingControl(long)
-	 */
-	public void loadRenderingControl(long pixelsID)
-	{
-		//TODO: check state.
-		if (pixelsID == model.getPixelsID()) return;
-		model.fireRenderingControlLoading(pixelsID);
-	}
-
+	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#setOriginalRndSettings()
@@ -2627,7 +2608,6 @@ class ImViewerComponent
 			throw new IllegalArgumentException("No image to set.");
 		model.setImageData(data);
 		view.setTitle(model.getImageTitle());
-		model.fireRenderingControlLoading(model.getPixelsID());
 		
 		if (model.getMetadataViewer() != null)
 			model.getMetadataViewer().addPropertyChangeListener(controller);
