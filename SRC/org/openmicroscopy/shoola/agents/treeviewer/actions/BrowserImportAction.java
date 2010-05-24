@@ -79,6 +79,7 @@ public class BrowserImportAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
+    	/*
     	if (model.isImporting() || selectedDisplay == null) {
     		setEnabled(false);
             return;
@@ -89,7 +90,8 @@ public class BrowserImportAction
         	if (selected.length > 1) setEnabled(false);
         	else setEnabled(model.isUserOwner(ho));
         } else setEnabled(false);
-        //setEnabled(false);
+        */
+        setEnabled(false);
     }
     
     /**

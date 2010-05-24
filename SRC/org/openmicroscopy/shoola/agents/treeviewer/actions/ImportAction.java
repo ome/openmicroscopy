@@ -86,7 +86,8 @@ public class ImportAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
-    	
+    	setEnabled(false);
+    	/*
     	if (model.isImporting()) {
     		setEnabled(false);
     		return;
@@ -109,6 +110,7 @@ public class ImportAction
         if (ho instanceof DatasetData) {
         	setEnabled(model.isUserOwner(ho));
         } else setEnabled(false);
+        */
     }
     
     /**
