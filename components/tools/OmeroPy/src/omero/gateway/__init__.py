@@ -647,8 +647,10 @@ class _BlitzGateway (object):
     CONFIG = {}
     """
     Holder for class wide configuration properties:
-     - IMG_RDEFNS: a namespace for annotations linked on images holding the default rendering
-                   settings object id.
+     - IMG_RDEFNS:  a namespace for annotations linked on images holding the default rendering
+                    settings object id.
+     - IMG_ROPTSNS: a namespace for annotations linked on images holding default rendering options
+                    that don't get saved in the rendering settings.
     One good place to define this is on the extending class' connect() method.
     """
     ICE_CONFIG = None
@@ -2131,7 +2133,7 @@ class LongAnnotationWrapper (AnnotationWrapper):
     OMERO_TYPE = LongAnnotationI
 
     def getValue (self):
-        return self._obj.longValue.val
+        return self._obj.longValue and self._obj.longValue.val or None
 
     def setValue (self, val):
         self._obj.longValue = rlong(val)
@@ -2661,7 +2663,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             rdid = self._conn.getRenderingSettingsService().getRenderingSettings(pixels_id)
         return pixels_id, rdid.id.val
 
-    def _getRDef (self):
+    def _getRDef (self, forcenew=False):
         """
         return a tuple with (pixels_id, rdef_id) for this image.
         """
@@ -2671,29 +2673,39 @@ class _ImageWrapper (BlitzObjectWrapper):
         pixels_id = self._obj.getPrimaryPixels().id.val
         rdid = None
         rdefns = self._conn.CONFIG.get('IMG_RDEFNS', None)
-        if rdefns:
+        if rdefns and not forcenew:
             ann = self.getAnnotation(rdefns)
             if ann is not None:
                 rdid = ann.getValue()
         if rdid is None:
             pid, rdid = self._createRDef()
+            
             if rdefns:
                 a = LongAnnotationWrapper(self)
                 a.setNs(rdefns)
                 a.setValue(rdid)
                 self.linkAnnotation(a, sameOwner=False)
         logger.debug('_getRDef: %s, %s' % (str(pixels_id), str(rdid)))
+        logger.debug('now load render options: %s' % str(self._loadRenderOptions()))
+        self.loadRenderOptions()
         return pixels_id, rdid
 
-    def _prepareRE (self):
-        pid, rdid = self._getRDef()
+    def _prepareRE (self, forcenew=False):
+        pid, rdid = self._getRDef(forcenew=forcenew)
         logger.info('pid:%s rdid:%s' % (str(pid), str(rdid)))
         if rdid is None: #pragma: nocover
             return None
         re = self._conn.createRenderingEngine()
         re.lookupPixels(pid)
-        re.lookupRenderingDef(pid)
-        re.loadRenderingDef(rdid)
+        re.lookupRenderingDef(rdid)
+        try:
+            re.loadRenderingDef(rdid)
+        except omero.ValidationException:
+            if not forcenew:
+                return self._prepareRE(forcenew=True)
+            else:
+                return None
+        #re.loadRenderingDef(rdid)
         re.load()
         return re
 
@@ -2810,8 +2822,11 @@ class _ImageWrapper (BlitzObjectWrapper):
     def getPixelsId (self):
         return self._obj.getPrimaryPixels().getId().val
 
-    def _prepareTB (self, _r=False):
-        pid, rdid = self._getRDef()
+    def _prepareTB (self, forcenew=False, _r=False):
+        pid, rdid = self._getRDef(forcenew=forcenew)
+        if pid is None:
+            return None
+        print '#%s, %s' % (str(pid),str(rdid))
         logger.debug('#%s, %s' % (str(pid),str(rdid)))
         tb = self._conn.createThumbnailStore()
         tb.setPixelsId(pid)
@@ -2820,8 +2835,15 @@ class _ImageWrapper (BlitzObjectWrapper):
                 return None
             tb.resetDefaults()
             tb.close()
-            return self._prepareTB(_r=True)
-        tb.setRenderingDefId(rdid)
+            return self._prepareTB(_r=True, forcenew=forcenew)
+        try:
+            tb.setRenderingDefId(rdid)
+        except omero.ValidationException:
+            if not forcenew:
+                tb.close()
+                return self._prepareTB(_r=_r,forcenew=True)
+            else:
+                return None
         return tb
 
 #    def _prepareTB (self):
@@ -2864,7 +2886,32 @@ class _ImageWrapper (BlitzObjectWrapper):
                                     series_metadata.append(l)
                     return (a, (global_metadata), (series_metadata))
         return None
-    
+
+    @assert_re
+    def _getProjectedThumbnail (self, size, pos):
+        """
+        Returns a string holding a rendered JPEG of the projected image, sized to mimic a thumbnail.
+        """
+        if pos is None:
+            t = z = None
+        else:
+            z, t = pos
+        img = self.renderImage(z,t)
+        if len(size) == 1:
+            w = self.getWidth()
+            h = self.getHeight()
+            ratio = float(w) / h
+            if ratio > 1:
+                h = h * size[0] / w
+                w = size[0]
+            else:
+                w = w * size[0] / h
+                h = size[0]
+        img = img.resize((w,h), Image.NEAREST)
+        rv = StringIO()
+        img.save(rv, 'jpeg', quality=70)
+        return rv.getvalue()
+
     def getThumbnail (self, size=(64,64), z=None, t=None):
         """
         Returns a string holding a rendered JPEG of the thumbnail.
@@ -2876,9 +2923,9 @@ class _ImageWrapper (BlitzObjectWrapper):
                      If two ints are passed in a tuple, they set the width and height of the
                      rendered thumb.
         @type z: number
-        @param z: the Z position to use for rendering the thumbnail. Only used if T is also provided.
+        @param z: the Z position to use for rendering the thumbnail. If not provided default is used.
         @type t: number
-        @param t: the T position to use for rendering the thumbnail. Only used if Z is also provided.
+        @param t: the T position to use for rendering the thumbnail. If not provided default is used.
         @rtype: string or None
         @return: the rendered JPEG, or None if there was an error.
         """
@@ -2891,7 +2938,17 @@ class _ImageWrapper (BlitzObjectWrapper):
             if z is not None and t is not None:
                 pos = z,t
             else:
-                pos = None
+                re = self._prepareRE()
+                if re:
+                    if z is None:
+                        z = re.getDefaultZ()
+                    if t is None:
+                        t = re.getDefaultT()
+                    pos = z,t
+                else:
+                    pos = None
+            if self.getProjection() != 'normal':
+                return self._getProjectedThumbnail(size, pos)
             if len(size) == 1:
                 if pos is None:
                     thumb = tb.getThumbnailByLongestSideDirect
@@ -2942,6 +2999,11 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     def getProjections (self):
         return self.PROJECTIONS.keys()
+
+    def getProjection (self):
+        if self._pr in self.PROJECTIONS.keys():
+            return self._pr
+        return 'normal'
 
     def setProjection (self, proj):
         self._pr = proj
@@ -3345,6 +3407,29 @@ class _ImageWrapper (BlitzObjectWrapper):
         self._conn.getDeleteService().deleteSettings(self.getId())
         return True
 
+    def _collectRenderOptions (self):
+        """
+        Stores the render options that are not stored in the rendering settings, if the annotation ns is set
+        in _conn.CONFIG.
+        """
+        rv = {}
+        rv['p'] = self.getProjection()
+        return rv
+
+    def _loadRenderOptions (self):
+        ns = self._conn.CONFIG.get('IMG_ROPTSNS', None)
+        if ns:
+            ann = self.getAnnotation(ns)
+            if ann is not None:
+                opts = dict([x.split('=') for x in ann.getValue().split('&')])
+                return opts
+        return {}
+
+    def loadRenderOptions (self):
+        opts = self._loadRenderOptions()
+        self.setProjection(opts.get('p', None))
+        return True
+
     @assert_re
     def saveDefaults (self):
         """
@@ -3356,6 +3441,16 @@ class _ImageWrapper (BlitzObjectWrapper):
         
         if not self.canWrite():
             return False
+        ns = self._conn.CONFIG.get('IMG_ROPTSNS', None)
+        print ns
+        if ns:
+            opts = self._collectRenderOptions()
+            self.removeAnnotations(ns)
+            ann = omero.gateway.CommentAnnotationWrapper()
+            ann.setNs(ns)
+            ann.setValue('&'.join(['='.join(map(str, x)) for x in opts.items()]))
+            self.linkAnnotation(ann)
+            print ann
         self._re.saveCurrentSettings()
         return True
 
