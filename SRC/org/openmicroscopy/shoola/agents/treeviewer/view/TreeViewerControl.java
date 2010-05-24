@@ -43,7 +43,6 @@ import java.util.Set;
 import java.util.Map.Entry;
 import javax.swing.Icon;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JTabbedPane;

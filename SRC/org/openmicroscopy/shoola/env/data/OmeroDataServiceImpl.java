@@ -987,7 +987,8 @@ class OmeroDataServiceImpl
 		gateway.updateExperimenter(exp.asExperimenter());
 		ExperimenterData data;
 		if (group != null && exp.getDefaultGroup().getId() != group.getId()) {
-			gateway.changeCurrentGroup(exp, group.getId());
+			gateway.changeCurrentGroup(exp, group.getId(), uc.getUserName(), 
+					uc.getPassword());
 			/*
 			data = gateway.login(uc.getUserName(), uc.getPassword(), 
 					uc.getHostName(), 1, group.getId());

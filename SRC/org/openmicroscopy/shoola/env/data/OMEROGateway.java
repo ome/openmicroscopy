@@ -1713,7 +1713,6 @@ class OMEROGateway
 	{
 		thumbnailService = null;
 		fileStore = null;
-		//metadataStore = null;
 		metadataService = null;
 		pojosService = null;
 		projService = null;
@@ -1944,28 +1943,9 @@ class OMEROGateway
 			secureClient.setAgent(AGENT);
 			
 			if (!encrypted) {
-				
 				unsecureClient = secureClient.createClient(false);
 				entryUnencrypted = unsecureClient.getSession();
 			}
-			
-			//if ()
-			//TODO request server string
-			// 1. if encrypted
-			// 2.
-			/*
-			entry.getConfigService().getConfigValue("omero.router.encrypted");
-			entry.getConfigService().getConfigValue("omero.router.unecrypted");
-			
-			Properties p = new Properties();
-			p.setProperty("Ice.Default.Router", encrypted);
-			
-			blitzClient = new omero.client();
-			blitzClient.createSession(hostName, "");
-			blitzClient.getSession();
-			blitzClient.getSecureSession();
-			new omero.client(p);
-			*/
 			connected = true;
 			
 			ExperimenterData exp = getUserDetails(userName);
@@ -1985,7 +1965,6 @@ class OMEROGateway
 			}
 			return exp;
 		} catch (Throwable e) {
-			e.printStackTrace();
 			connected = false;
 			String s = "Can't connect to OMERO. OMERO info not valid.\n\n";
 			s += printErrorText(e);
@@ -2045,7 +2024,7 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	void changeCurrentGroup(ExperimenterData exp, long groupID)
+	private void changeCurrentGroup(ExperimenterData exp, long groupID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		List<GroupData> groups = exp.getGroups();
@@ -2064,6 +2043,7 @@ class OMEROGateway
 			throw new DSOutOfServiceException(s);  
 		}
 		try {
+			
 			getAdminService().setDefaultGroup(exp.asExperimenter(), 
 					group.asGroup());
 			entryEncrypted.setSecurityContext(
@@ -2071,14 +2051,52 @@ class OMEROGateway
 		} catch (Exception e) {
 			handleException(e, s);
 		}
-		//Clear
-		try {
-			clear();
-		} catch (Exception e) {
-			//ignore exception
-		}
 	}
 	
+	/**
+	 * Changes the default group of the currently logged in user.
+	 * 
+	 * @param exp The experimenter to handle
+	 * @param groupID The id of the group.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in.
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	void changeCurrentGroup(ExperimenterData exp, long groupID, 
+			String userName, String password)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		List<GroupData> groups = exp.getGroups();
+		Iterator<GroupData> i = groups.iterator();
+		GroupData group = null;
+		boolean in = false;
+		while (i.hasNext()) {
+			group = i.next();
+			if (group.getId() == groupID) {
+				in = true;
+				break;
+			}
+		}
+		String s = "Can't modify the current group.\n\n";
+		if (!in) return;
+		try {
+			clear();
+			secureClient.closeSession();
+			if (unsecureClient != null) secureClient.closeSession();
+			entryEncrypted = secureClient.createSession(userName, password);
+			if (unsecureClient != null) {
+				unsecureClient = secureClient.createClient(false);
+				entryUnencrypted = unsecureClient.getSession();
+			}
+			getAdminService().setDefaultGroup(exp.asExperimenter(), 
+					group.asGroup());
+			entryEncrypted.setSecurityContext(
+					new ExperimenterGroupI(groupID, false));
+		} catch (Exception e) {
+			handleException(e, s);
+		} 
+	}
+
 	/**
 	 * Returns the version of the server.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in.
@@ -2170,7 +2188,7 @@ class OMEROGateway
 		try {
 			clear();
 			secureClient.closeSession();
-			entryEncrypted.destroy();
+			//entryEncrypted.destroy();
 			secureClient = null;
 			entryEncrypted = null;
 		} catch (Exception e) {
@@ -2181,7 +2199,7 @@ class OMEROGateway
 		}
 		try {
 			if (unsecureClient != null) secureClient.closeSession();
-			if (entryUnencrypted != null) entryUnencrypted.destroy();
+			//if (entryUnencrypted != null) entryUnencrypted.destroy();
 			unsecureClient = null;
 			entryUnencrypted = null;
 		} catch (Exception e) {

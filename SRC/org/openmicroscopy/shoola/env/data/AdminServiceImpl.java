@@ -173,7 +173,10 @@ class AdminServiceImpl
 		if (groupID < 0)
 			throw new DSAccessException("No group specified.");
 		if (exp.getDefaultGroup().getId() != groupID) {
-			gateway.changeCurrentGroup(exp, groupID);
+			UserCredentials uc = (UserCredentials) 
+			context.lookup(LookupNames.USER_CREDENTIALS);
+			gateway.changeCurrentGroup(exp, groupID, uc.getUserName(), 
+					uc.getPassword());
 		}
 		UserCredentials uc = (UserCredentials) 
 			context.lookup(LookupNames.USER_CREDENTIALS);
@@ -212,7 +215,8 @@ class AdminServiceImpl
 		gateway.updateExperimenter(exp.asExperimenter());
 		ExperimenterData data;
 		if (group != null && exp.getDefaultGroup().getId() != group.getId()) {
-			gateway.changeCurrentGroup(exp, group.getId());
+			gateway.changeCurrentGroup(exp, group.getId(), 
+					uc.getUserName(), uc.getPassword());
 		}
 		data = gateway.getUserDetails(uc.getUserName());
 		if (currentUser.getId() != exp.getId()) 
