@@ -400,10 +400,19 @@ APPLICATION_HOST='%s'
         rv = self.ctx.call(args, cwd = appbase)
 
     def test(self, *args):
-        location = self.ctx.dir / "lib" / "python" / "omeroweb"
+        appname = args[0][0]
+        if appname.find('.') > 0:
+            appname = appname.split('.')
+            appbase = appname[0]
+            location = self.ctx.dir / appbase
+            appname = '.'.join(appname[1:])
+        else:
+            appbase = "omeroweb"
+            location = self.ctx.dir / "lib" / "python" / "omeroweb"
+
         cargs = ["coverage","-x", "manage.py", "test"]
-        if len(args[0]) > 0:
-            cargs.append(args[0][0])
+        if appname:
+            cargs.append(appname)
         os.environ['ICE_CONFIG'] = self.ctx.dir / "etc" / "ice.config"
         os.environ['PATH'] = os.environ.get('PATH', '.') + ':' + self.ctx.dir / 'bin'
         rv = self.ctx.call(cargs, cwd = location)
