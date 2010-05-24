@@ -989,7 +989,10 @@ public class OMEROMetadataStoreClient
     		targets = new ArrayList<LSID>();
     		referenceCache.put(source, targets);
     	}
-    	targets.add(target);
+    	if (!targets.contains(target))
+    	{
+    	    targets.add(target);
+    	}
     }
     
     /* (non-Javadoc)
@@ -3037,22 +3040,10 @@ public class OMEROMetadataStoreClient
     public void setDetectorSettingsID(String id, int imageIndex,
             int channelIndex)
     {
-        
         LSID key = new LSID(DetectorSettings.class, imageIndex, channelIndex);
         addReference(key, new LSID(id));
-        
-        /*
-        checkDuplicateLSID(DetectorSettings.class, id);
-        LinkedHashMap<Index, Integer> indexes =
-            new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.IMAGE_INDEX, imageIndex);
-        indexes.put(Index.CHANNEL_INDEX, channelIndex);
-        IObjectContainer o = getIObjectContainer(DetectorSettings.class, indexes);
-        o.LSID = id;
-        addAuthoritativeContainer(DetectorSettings.class, id, o);
-        */
     }
-    
+
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDetectorSettingsBinning(ome.xml.r201004.enums.Binning, int, int)
      */
