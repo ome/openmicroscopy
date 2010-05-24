@@ -73,11 +73,13 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.AdminService;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -204,6 +206,9 @@ class EditorModel
 	
 	/** Collection of uploaded scripts. */
 	private Map<Long, ScriptObject>		scripts;
+	
+	/** Scripts with a UI. */
+	private List<ScriptObject> scriptsWithUI;
 	
 	/**
 	 * Downloads the files.
@@ -2433,6 +2438,46 @@ class EditorModel
     void uploadScript()
     {
     	parent.uploadScript();
+    }
+    
+    /**
+     * Returns the collection of scripts with a UI, mainly the figure scripts.
+     * 
+     * @return See above.
+     */
+    private List<ScriptObject> getScriptsWithUI()
+    {
+    	if (scriptsWithUI != null) return scriptsWithUI;
+    	try {
+    		OmeroImageService svc = 
+    			MetadataViewerAgent.getRegistry().getImageService();
+    		scriptsWithUI = svc.loadAvailableScriptsWithUI();
+    		return scriptsWithUI;
+		} catch (Exception e) {
+			LogMessage msg = new LogMessage();
+			msg.print("Scripts with UI");
+			msg.print(e);
+			MetadataViewerAgent.getRegistry().getLogger().error(this, msg);
+		}
+    	return new ArrayList<ScriptObject>();
+    }
+    
+    /**
+     * Returns the script corresponding to the specified name.
+     * 
+     * @return See above.
+     */
+    ScriptObject getScriptFromName(String name)
+    { 
+    	List<ScriptObject> scripts = getScriptsWithUI();
+    	Iterator<ScriptObject> i = scripts.iterator();
+    	ScriptObject script;
+    	while (i.hasNext()) {
+    		script = i.next();
+			if (name.contains(script.getName()))
+				return script;
+		}
+    	return null;
     }
     
 }

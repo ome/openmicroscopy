@@ -505,11 +505,25 @@ class EditorControl
 					MetadataViewer.RUN);
 		} else if (ScriptingDialog.DOWNLOAD_SELECTED_SCRIPT_PROPERTY.equals(
 				name)) {
-			view.manageScript((ScriptObject) evt.getNewValue(), 
-					MetadataViewer.DOWNLOAD);
+			Object value = evt.getNewValue();
+			if (value instanceof ScriptObject)
+				view.manageScript((ScriptObject) value, 
+						MetadataViewer.DOWNLOAD);
+			else if (value instanceof String) {
+				ScriptObject script = view.getScriptFromName((String) value);
+				if (script != null)
+					view.manageScript(script, MetadataViewer.DOWNLOAD);
+			}
 		} else if (ScriptingDialog.VIEW_SELECTED_SCRIPT_PROPERTY.equals(name)) {
-			view.manageScript((ScriptObject) evt.getNewValue(), 
-					MetadataViewer.VIEW);
+			Object value = evt.getNewValue();
+			if (value instanceof ScriptObject)
+				view.manageScript((ScriptObject) value, 
+						MetadataViewer.VIEW);
+			else if (value instanceof String) {
+				ScriptObject script = view.getScriptFromName((String) value);
+				if (script != null)
+					view.manageScript(script, MetadataViewer.VIEW);
+			}
 		} 
 	}
 

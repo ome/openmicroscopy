@@ -284,13 +284,13 @@ class OMEROGateway
 		
 		//script w/ a UI.
 		SCRIPTS_UI_AVAILABLE = new ArrayList<String>();
-		/*
+		
 		SCRIPTS_UI_AVAILABLE.add(FigureParam.ROI_SCRIPT);
 		SCRIPTS_UI_AVAILABLE.add(FigureParam.THUMBNAIL_SCRIPT);
 		SCRIPTS_UI_AVAILABLE.add(FigureParam.MOVIE_SCRIPT);
 		SCRIPTS_UI_AVAILABLE.add(FigureParam.SPLIT_VIEW_SCRIPT);
 		SCRIPTS_UI_AVAILABLE.add(MovieExportParam.MOVIE_SCRIPT);
-		*/
+		
 		SCRIPTS_NOT_AVAILABLE_TO_USER = new ArrayList<String>();
 		SCRIPTS_NOT_AVAILABLE_TO_USER.add(
 				ScriptObject.REGION_PATH+"populatePlateRoi.py");
@@ -5409,6 +5409,50 @@ class OMEROGateway
 			}
 		} catch (Exception e) {
 			handleException(e, "Cannot load the scripts. ");
+		}
+		return scripts;
+	}
+	
+	/**
+	 * Returns all the official scripts with a UI.
+	 * 
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	List<ScriptObject> loadRunnableScriptsWithUI()
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		List<ScriptObject> scripts = new ArrayList<ScriptObject>();
+		try {
+			IScriptPrx svc = getScripService();
+			List<OriginalFile> storedScripts = svc.getScripts();
+		
+			if (storedScripts == null || storedScripts.size() == 0) 
+				return scripts;
+			Entry en;
+			Iterator<OriginalFile> j = storedScripts.iterator();
+			ScriptObject script;
+			OriginalFile of;
+			RString value;
+			String v = null;
+			while (j.hasNext()) {
+				of = j.next();
+				value = of.getName();
+				v = of.getPath().getValue()+ value.getValue();
+				if (SCRIPTS_UI_AVAILABLE.contains(v)) {
+					script = new ScriptObject(of.getId().getValue(), 
+							of.getPath().getValue(), of.getName().getValue());
+					value = of.getMimetype();
+					if (value != null) script.setMIMEType(value.getValue());
+					scripts.add(script);
+				}
+			}
+		} catch (Exception e) {
+			handleException(e, "Cannot load the scripts with UI. ");
 		}
 		return scripts;
 	}

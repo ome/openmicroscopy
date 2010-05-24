@@ -100,6 +100,7 @@ import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
@@ -1870,6 +1871,26 @@ public class FigureDialog
 	}
 	
 	/**
+	 * Returns the name of the script.
+	 * 
+	 * @return See above.
+	 */
+	private String getScriptName()
+	{
+		switch (dialogType) {
+			case SPLIT:
+				return FigureParam.SPLIT_VIEW_SCRIPT;
+			case SPLIT_ROI:
+				return FigureParam.ROI_SCRIPT;
+			case MOVIE:
+				return FigureParam.MOVIE_SCRIPT;
+			case THUMBNAILS:
+				return FigureParam.THUMBNAIL_SCRIPT;
+		}
+		return "";
+	}
+	
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param owner The owner of the dialog.
@@ -2096,7 +2117,7 @@ public class FigureDialog
     	UIUtilities.centerAndShow(this);
     	return option;	
     }
-    
+   
 	/**
 	 * Closes or creates a figure.
 	 * @see ActionListener#actionPerformed(ActionEvent)
@@ -2129,20 +2150,18 @@ public class FigureDialog
 			case COLOR_SELECTION:
 				modifyROIDisplay();
 				break;
-				/*
 			case DOWNLOAD:
 				firePropertyChange(
 						ScriptingDialog.DOWNLOAD_SELECTED_SCRIPT_PROPERTY, null, 
-						script);
+						getScriptName());
 				break;
 			case VIEW:
 				firePropertyChange(
 						ScriptingDialog.VIEW_SELECTED_SCRIPT_PROPERTY, null, 
-						script);
-						*/
+						getScriptName());
 		}
 	}
-	
+
 	/**
 	 * Sets the <code>enabled</code> flag of the controls.
 	 * @see DocumentListener#insertUpdate(DocumentEvent)

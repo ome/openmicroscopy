@@ -765,11 +765,22 @@ class EditorUI
     	model.uploadScript();
     }
 	
+    /** Reloads the scripts. */
     void reloadScript()
     {
     	model.setScripts(null);
     	model.loadScripts();
     	toolBar.setStatus(true);
+    }
+    
+    /**
+     * Returns the script corresponding to the specified name.
+     * 
+     * @return See above.
+     */
+    ScriptObject getScriptFromName(String name)
+    { 
+    	return model.getScriptFromName(name);
     }
     
 }

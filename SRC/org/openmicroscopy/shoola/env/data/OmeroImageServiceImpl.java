@@ -903,6 +903,16 @@ class OmeroImageServiceImpl
 	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroImageService#loadAvailableScriptsWithUI()
+	 */
+	public List<ScriptObject> loadAvailableScriptsWithUI()
+			throws DSOutOfServiceException, DSAccessException
+	{
+		return gateway.loadRunnableScriptsWithUI();
+	}
+	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroImageService#loadAvailableScripts(long)
 	 */
 	public List<ScriptObject> loadAvailableScripts(long userID)

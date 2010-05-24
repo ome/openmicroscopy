@@ -450,6 +450,16 @@ public class NullRenderingService
 
 	/**
      * No-op implementation
+     * @see OmeroImageService#loadAvailableScriptsWithUI()
+     */
+	public List<ScriptObject> loadAvailableScriptsWithUI()
+			throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+	
+	/**
+     * No-op implementation
      * @see OmeroImageService#uploadScript(ScriptObject)
      */
 	public Object uploadScript(ScriptObject script)

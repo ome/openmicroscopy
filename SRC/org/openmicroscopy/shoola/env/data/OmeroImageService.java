@@ -647,6 +647,19 @@ public interface OmeroImageService
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
+	 * Returns all the scripts with a UI.
+	 * 
+	 * @param userID The id of the experimenter or <code>-1</code>.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public List<ScriptObject> loadAvailableScriptsWithUI()
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
 	 * Loads the specified script and its parameters.
 	 * 
 	 * @param scriptID The id of the script.
