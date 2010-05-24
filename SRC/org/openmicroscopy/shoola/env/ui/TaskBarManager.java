@@ -66,6 +66,7 @@ import org.openmicroscopy.shoola.env.data.events.ServiceActivationResponse;
 import org.openmicroscopy.shoola.env.data.events.SwitchUserGroup;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
+import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
@@ -419,6 +420,18 @@ public class TaskBarManager
     						LookupNames.FORUM);
     	openURL(path);
     }
+    
+    /** Opens the directory where the log file is. */
+    private void logFile()
+    {
+    	String logDirName = (String) container.getRegistry().lookup(
+    			LookupNames.LOG_DIR);	
+		String name = (String) container.getRegistry().lookup(
+				LookupNames.USER_HOME_OMERO);
+    	String path = name+File.separator+logDirName;
+    	container.getRegistry().getUserNotifier().openApplication(
+    			new ApplicationData(""), path);
+    }
 
 	/**
 	 * Attaches the {@link #notAvailable() not-available} action to all buttons
@@ -463,6 +476,10 @@ public class TaskBarManager
             	((UserNotifierImpl) 
             		container.getRegistry().getUserNotifier()).showActivity();
             }
+        });
+		view.getButton(TaskBarView.LOG_FILE_MI).addActionListener(
+				new ActionListener() {       
+            public void actionPerformed(ActionEvent ae) { logFile(); }
         });
 	}
 	

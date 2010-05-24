@@ -101,7 +101,7 @@ class TaskBarView
 	/** Identifies the help contents menu item within the help menu. */
 	static final int	HELP_MI = 4;
 	
-	/** Identifies the howto menu item within the help menu. */
+	/** Identifies the how-to menu item within the help menu. */
 	static final int	HOWTO_MI = 5;
 
 	/** Identifies the software updates menu item within the help menu. */
@@ -130,14 +130,17 @@ class TaskBarView
 	/** Identifies the help contents menu item within the help menu. */
 	static final int	FORUM_MI = 13;
 	
-	/** Identifies the activity contents menu item within the windows menu. */
+	/** Identifies the activity menu item within the windows menu. */
 	static final int	ACTIVITY_MI = 14;
+	
+	/** Identifies the log file location menu item within the windows menu. */
+	static final int	LOG_FILE_MI = 15;
 	
 	/** 
 	 * The maximum id of the buttons and menu items identifiers.
 	 * Allows to size the {@link #buttons} array correctly.
 	 */
-	private static final int	MAX_ID = 14;
+	private static final int	MAX_ID = 15;
 		
     /** The title of the frame. */
     private static final String TITLE = "Open Microscopy Environment";
@@ -212,6 +215,8 @@ class TaskBarView
 								iconManager.getIcon(IconManager.COMMENT));
 		buttons[FORUM_MI] = new JMenuItem("Forum",
 				iconManager.getIcon(IconManager.FORUM));
+		buttons[LOG_FILE_MI] = new JMenuItem("Show Log File",
+				iconManager.getIcon(IconManager.LOG_FILE));
 		buttons[ACTIVITY_MI] = new JMenuItem("Activities",
 				iconManager.getIcon(IconManager.ACTIVITY));
 	}
@@ -331,6 +336,7 @@ class TaskBarView
 		help.add(buttons[COMMENT_MI]);
 		help.add(buttons[HELP_MI]);
 		help.add(buttons[FORUM_MI]);
+		help.add(buttons[LOG_FILE_MI]);
 		//help.add(buttons[HOWTO_MI]);
 		help.add(buttons[UPDATES_MI]);
 		//help.add(new JSeparator());
