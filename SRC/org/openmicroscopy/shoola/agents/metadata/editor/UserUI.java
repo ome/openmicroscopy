@@ -34,6 +34,8 @@ import java.util.List;
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXTaskPane;
+import org.jdesktop.swingx.JXTaskPaneContainer;
+import org.jdesktop.swingx.VerticalLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -101,10 +103,17 @@ class UserUI
 				UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
 		
 		double[][] size = {{TableLayout.FILL}, 
-				{TableLayout.PREFERRED, TableLayout.PREFERRED}};
+				{TableLayout.PREFERRED}};
+		JXTaskPaneContainer container  = new JXTaskPaneContainer();
+		container.setBackground(UIUtilities.BACKGROUND);
+		if (container.getLayout() instanceof VerticalLayout) {
+			VerticalLayout vl = (VerticalLayout) container.getLayout();
+			vl.setGap(0);
+		}
+		container.add(pane);
+		container.add(diskTask);
 		setLayout(new TableLayout(size));
-		add(pane, "0, 0");
-		add(diskTask, "0, 1");
+		add(container, "0, 0");
 	}
 	
 	/**

@@ -36,9 +36,9 @@ import java.util.Map;
 import javax.swing.BorderFactory;
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
+import org.jdesktop.swingx.VerticalLayout;
 
 //Application-internal dependencies
 
@@ -75,10 +75,10 @@ public class JXTaskPaneContainerSingle
 	{
 		expandable = true;
 		panes = new HashMap<JXTaskPane, Integer>();
-		TableLayout layout = new TableLayout();
-		double[] size = {TableLayout.FILL};
-		layout.setColumn(size);
-		setLayout(layout);
+		if (getLayout() instanceof VerticalLayout) {
+			 VerticalLayout vl = (VerticalLayout) getLayout();
+		        vl.setGap(0);
+		}
 		setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
 		setBackground(UIUtilities.BACKGROUND);
 	}
@@ -138,17 +138,13 @@ public class JXTaskPaneContainerSingle
 	 * <code>JXTaskPane</code>.
 	 * @see JXTaskPaneContainer#add(Component)
 	 */
-	public void add(JXTaskPane c)
+	public void add(JXTaskPane component)
 	{
 		int index = panes.size();
-		TableLayout layout = (TableLayout) getLayout();
-		double h;
-		if (c.isCollapsed()) h = TableLayout.PREFERRED;
-		else  h = TableLayout.FILL;
-		layout.insertRow(index, h);
-		super.add(c, "0, "+index);
-		panes.put(c, index);
-		c.addPropertyChangeListener(
+		super.add(component);
+		
+		panes.put(component, index);
+		component.addPropertyChangeListener(
 				UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
 	}
 
@@ -163,9 +159,7 @@ public class JXTaskPaneContainerSingle
 			src.setCollapsed(true);
 			return;
 		}
-		TableLayout layout = (TableLayout) getLayout();
 		if (src.isCollapsed()) {
-			layout.setRow(panes.get(src), TableLayout.PREFERRED);
 			if (hasTaskPaneExpanded()) return;
 			firePropertyChange(SELECTED_TASKPANE_PROPERTY, null, src);
 			return;
@@ -178,7 +172,6 @@ public class JXTaskPaneContainerSingle
 			if (c instanceof JXTaskPane) {
 				JXTaskPane p = (JXTaskPane) c;
 				if (p != src) {
-					layout.setRow(panes.get(src), TableLayout.FILL);
 					p.setCollapsed(true);
 					p.setSpecial(false);
 				}
