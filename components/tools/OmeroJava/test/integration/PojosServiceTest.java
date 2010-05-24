@@ -1095,7 +1095,6 @@ public class PojosServiceTest
     	
     	long self = factory.getAdminService().getEventContext().userId;
     	ParametersI param = new ParametersI();
-    	//param.exp(rlong(self));
     	
     	List<Long> ids = new ArrayList<Long>(1);
     	ids.add(d.getId().getValue());
