@@ -39,9 +39,12 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
+import ome.formats.importer.gui.AddProjectDialog.MyDocumentListener;
 import omero.model.Dataset;
 import omero.model.Project;
 
@@ -118,6 +121,7 @@ public class AddDatasetDialog extends JDialog implements ActionListener
         OKBtn = GuiCommonElements.addButton(mainPanel, "OK", 'O',
                 "Accept your new dataset", "3, 1, f, c", debug);
         OKBtn.addActionListener(this);
+        OKBtn.setEnabled(false);
 
         this.getRootPane().setDefaultButton(OKBtn);
         GuiCommonElements.enterPressesWhenFocused(OKBtn);
@@ -137,6 +141,8 @@ public class AddDatasetDialog extends JDialog implements ActionListener
 
         nameField = GuiCommonElements.addTextField(internalPanel, "Dataset Name: ", "", 'E',
         "Input your dataset name here.", "", TableLayout.PREFERRED, "0, 1, 1, 1", debug);
+        
+        nameField.getDocument().addDocumentListener(new MyDocumentListener());
         
         descriptionArea = GuiCommonElements.addScrollingTextArea(internalPanel, "Description: (optional)", 
                 "", 'W', "0, 2, 1, 2", debug);
@@ -181,6 +187,32 @@ public class AddDatasetDialog extends JDialog implements ActionListener
         }
     }
 
+    /**
+     * Check to make sure blank objects are not added to 
+     * the db
+     * 
+     * @author Brian W. Loranger
+     *
+     */
+    class MyDocumentListener implements DocumentListener {
+
+		public void changedUpdate(DocumentEvent e) {}
+
+		public void insertUpdate(DocumentEvent e) {
+			if (nameField.getText().trim().length() < 1)
+				OKBtn.setEnabled(false);
+			else
+				OKBtn.setEnabled(true);
+		}
+
+		public void removeUpdate(DocumentEvent e) {
+			if (nameField.getText().trim().length() < 1)
+				OKBtn.setEnabled(false);
+			else
+				OKBtn.setEnabled(true);
+		}
+    }
+    
     /**
      * Internal testing main (for deugging only)
      * 
