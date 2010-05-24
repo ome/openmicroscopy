@@ -41,6 +41,8 @@ import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
@@ -155,13 +157,13 @@ public class RenderingSettingsSaver
 						LookupNames.CURRENT_USER_DETAILS)).getId();
 				OmeroDataService os = context.getDataService();
 				Collection l = os.getImagesPeriod(ref.getStartTime(), 
-												ref.getEndTime(), userID, false); 
+												ref.getEndTime(), userID, true); 
 				if (l != null) {
 					Iterator i = l.iterator();
-					IObject element;
+					DataObject element;
 					List<Long> ids = new ArrayList<Long>(l.size());
 					while (i.hasNext()) {
-						element = (IObject) i.next();
+						element = (DataObject) i.next();
 						ids.add(element.getId());
 					}
 					OmeroImageService rds = context.getImageService();
