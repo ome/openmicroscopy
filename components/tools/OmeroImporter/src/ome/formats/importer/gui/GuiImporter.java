@@ -161,7 +161,8 @@ WindowStateListener, WindowFocusListener
     private JTabbedPane         tPane;
     private static final int historyTabIndex = 1;
 
-    private boolean errors_pending = false;
+    private boolean errors_pending = false; // used to change error icon on tab
+	private boolean error_notification = false; // used if unsent errors on quit
 
     private ScheduledExecutorService scanEx = Executors.newScheduledThreadPool(1);
     private ScheduledExecutorService importEx = Executors.newScheduledThreadPool(1);
@@ -592,7 +593,13 @@ WindowStateListener, WindowFocusListener
                 //loginHandler.displayLogin(false);
             }
         } else if ("quit".equals(cmd)) {
-            if (GuiCommonElements.quitConfirmed(this, null) == true)
+        	String message = null;
+        	if(error_notification == true)
+        		message = "Do you really want to quit?\n" +
+                "Doing so will cancel any running imports.\n\n" +
+                "NOTE: You still have unsent error messages!";
+        	
+            if (GuiCommonElements.quitConfirmed(this, message) == true)
             {
             	if (loggedIn)
             		loginHandler.logout();
@@ -818,11 +825,13 @@ WindowStateListener, WindowFocusListener
         {
             tPane.setIconAt(4, GuiCommonElements.getImageIcon(ERROR_ICON_ANIM));
             errors_pending  = true;
+            error_notification  = true;
         }
 
         else if (event instanceof ImportEvent.ERRORS_COMPLETE)
         {
             tPane.setIconAt(4, GuiCommonElements.getImageIcon(ERROR_ICON));
+            error_notification  = false;
         }
 
         else if (event instanceof ImportEvent.ERRORS_FAILED)
@@ -972,6 +981,12 @@ WindowStateListener, WindowFocusListener
      */
     public void windowClosing(WindowEvent e)  
     {
+    	String message = null;
+    	if(error_notification == true)
+    		message = "Do you really want to quit?\n" +
+            "Doing so will cancel any running imports.\n\n" +
+            "NOTE: You still have unsent error messages!";
+    	
         if (GuiCommonElements.quitConfirmed(this, null) == true)
         {
             System.exit(0);
