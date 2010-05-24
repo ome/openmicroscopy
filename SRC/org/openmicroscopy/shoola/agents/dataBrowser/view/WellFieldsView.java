@@ -138,7 +138,8 @@ class WellFieldsView
 		layoutFields = DEFAULT_LAYOUT;
 		selectedField = new JLabel();
 		grid = new PlateGrid(model.getRowSequenceIndex(), 
-				model.getColumnSequenceIndex(), model.getValidWells());
+				model.getColumnSequenceIndex(), model.getValidWells(), 
+				model.getRows(), model.getColumns());
 		grid.addPropertyChangeListener(controller);
 		WellImageSet node = model.getSelectedWell();
 		selectedNode = new JLabel();

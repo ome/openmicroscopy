@@ -30,6 +30,9 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -61,11 +64,11 @@ public class PlateGrid
 	/** Indicates the row or column is an ascending number. */
 	public static final int 	ASCENDING_NUMBER = 1;
 	
-	/** The maximum number of rows. */
-	public final static int		MAX_ROWS = 16;
+	/** The default number of rows. */
+	public final static int		DEFAULT_ROWS = 16;
 	
-	/** The maximum number of columns. */
-	public final static int		MAX_COLUMNS = 24;
+	/** The default number of columns. */
+	public final static int		DEFAULT_COLUMNS = 24;
 	
 	/** Bound property indicating that a well is selected. */
 	public static final String  WELL_FIELDS_PROPERTY = "wellFields";
@@ -92,7 +95,7 @@ public class PlateGrid
 	private int typeColumn;
 	
 	/** Hosts the valid wells. */
-	private boolean[][] validValues;
+	private List<WellGridElement> validValues;
 	
 	/** Identifies the row of the selected cell. */
 	private int selectedRow;
@@ -150,16 +153,29 @@ public class PlateGrid
 	 * 
 	 * @param typeRow     One of the constants defined by this class.
 	 * @param typeColumn  One of the constants defined by this class.
-	 * @param validValues Host the valid wells.
+	 * @param values Host the valid wells.
 	 */
-	public PlateGrid(int typeRow, int typeColumn, boolean[][] validValues)
+	public PlateGrid(int typeRow, int typeColumn, List<WellGridElement> values, 
+			int rows, int columns)
 	{
 		this.typeColumn = typeColumn;
 		this.typeRow = typeRow;
-		this.validValues = validValues;
-		initialize(MAX_ROWS, MAX_COLUMNS);
+		this.validValues = values;
+		initialize(DEFAULT_ROWS, DEFAULT_COLUMNS);
 	}
 	
+	/** 
+	 * Creates a default instance. 
+	 * 
+	 * @param typeRow     One of the constants defined by this class.
+	 * @param typeColumn  One of the constants defined by this class.
+	 * @param values Host the valid wells.
+	 */
+	public PlateGrid(int typeRow, int typeColumn, List<WellGridElement> values)
+	{
+		this(typeRow, typeColumn, values, DEFAULT_ROWS, DEFAULT_COLUMNS);
+	}
+
 	/** 
 	 * Creates a default instance, one row and multiple column.
 	 * 
@@ -167,9 +183,9 @@ public class PlateGrid
 	 */
 	public PlateGrid(int columns)
 	{
-		validValues = new boolean[1][columns];
+		validValues = new ArrayList<WellGridElement>();//boolean[1][columns];
 		for (int i = 0; i < columns; i++)
-			validValues[0][i] = true;
+			validValues.add(new WellGridElement(0, i));
 		initialize(1, columns);
 	}
 	
@@ -201,7 +217,14 @@ public class PlateGrid
 	boolean isCellValid(int row, int column) 
 	{
 		if (validValues == null) return false;
-		return validValues[row][column];
+		Iterator<WellGridElement> i = validValues.iterator();
+		WellGridElement well;
+		while (i.hasNext()) {
+			well = i.next();
+			if (well.getRow() == row && well.getColumn() == column)
+				return well.isValid();
+		}
+		return false;
 	}
 	
 	/**

@@ -58,9 +58,9 @@ import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.PlateGrid;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.WellGridElement;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourObject;
 import pojos.DataObject;
-import pojos.ImageData;
 import pojos.PlateData;
 import pojos.WellData;
 import pojos.WellSampleData;
@@ -113,7 +113,7 @@ class WellsModel
 	private int					columnSequenceIndex;
 	
 	/** Value indicating if the wells are valid or not. */
-	private boolean[][]			validWells;
+	private List<WellGridElement>	validWells;
 	
 	/** Flag indicating to load or not the thumbnails. */
 	private boolean				withThumbnails;
@@ -275,10 +275,10 @@ class WellsModel
 		String type;
 		ColourObject co;
 		Color color;
-		validWells = new boolean[PlateGrid.MAX_ROWS][PlateGrid.MAX_COLUMNS];
+		boolean b;
+		validWells = new ArrayList<WellGridElement>();
 		while (j.hasNext()) {
 			node = (WellImageSet) j.next();
-			
 			row = node.getRow();
 			column = node.getColumn();
 			data = (WellData) node.getHierarchyObject();
@@ -326,12 +326,12 @@ class WellsModel
 			node.setSelectedWellSample(selectedField);
 			selected = node.getSelectedWellSample();
 			samples.add(selected);
+			b = false;
 			if (((DataObject) selected.getHierarchyObject()).getId() >= 0) {
 				wellDimension = selected.getThumbnail().getOriginalSize();
-				validWells[row][column] = true;
-			} else {
-				validWells[row][column] = false;
-			}
+				b = true;
+			} 
+			validWells.add(new WellGridElement(row, column, b));
 		}
 		
 		columns++;
@@ -412,7 +412,7 @@ class WellsModel
 	 * 
 	 * @return See above.
 	 */
-	boolean[][] getValidWells() { return validWells; }
+	List<WellGridElement> getValidWells() { return validWells; }
 	
 	/**
 	 * Returns the number of fields per well.
