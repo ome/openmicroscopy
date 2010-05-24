@@ -580,7 +580,7 @@ def imageMarshal (image, key=None):
             rv['channels'] = map(lambda x: channelMarshal(x), image.getChannels())
             rv['split_channel'] = image.splitChannelDims()
             rv['rdefs'] = {'model': image.isGreyscaleRenderingModel() and 'greyscale' or 'color',
-                           'projection': 'normal',
+                           'projection': image.getProjection(),
                            'defaultZ': image._re.getDefaultZ(),
                            'defaultT': image._re.getDefaultT()}
         except TypeError:
@@ -588,7 +588,7 @@ def imageMarshal (image, key=None):
             rv['pixel_range'] = (0, 0)
             rv['channels'] = ()
             rv['split_channel'] = ()
-            rv['rdefs'] = {'model': 'color', 'projection': 'normal',}
+            rv['rdefs'] = {'model': 'color', 'projection': image.getProjection,}
     except AttributeError:
         rv = None
         raise
