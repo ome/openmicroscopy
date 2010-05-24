@@ -157,7 +157,8 @@ class DataBrowserUI
 		buildGUI(true);
 	}
 	
-	/** Builds and lays out the UI. 
+	/** 
+	 * Builds and lays out the UI. 
 	 * 
 	 * @param full  Pass <code>true</code> to add all the components,
 	 * 				<code>false</code> otherwise.

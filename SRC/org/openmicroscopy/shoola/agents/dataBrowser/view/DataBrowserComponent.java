@@ -322,7 +322,7 @@ class DataBrowserComponent
 	 */
 	public JComponent getUI(boolean full)
 	{ 
-		view.buildGUI(full);
+		//view.buildGUI(full);
 		return view;
 	}
 
