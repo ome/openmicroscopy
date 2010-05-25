@@ -85,7 +85,6 @@ import omero.SecurityViolation;
 import omero.ServerError;
 import omero.SessionException;
 import omero.client;
-import omero.rtypes;
 import omero.api.ExporterPrx;
 import omero.api.IAdminPrx;
 import omero.api.IContainerPrx;
@@ -447,7 +446,8 @@ class OMEROGateway
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (cb != null) cb.close();
-			throw new ScriptingException("Cannot run script with ID:"+scriptID);
+			throw new ScriptingException("Cannot run script with ID:"+scriptID, 
+					e);
 		}
 		return cb;
 	}
@@ -5485,13 +5485,10 @@ class OMEROGateway
 	 * 
 	 * @param scriptID The id of the script.
 	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
-	 *                                  retrieve data from OMEDS service.
+	 * @throws ScriptingException  If the script could not be loaded.
 	 */
 	ScriptObject loadScript(long scriptID)
-		throws DSOutOfServiceException, DSAccessException
+		throws ScriptingException
 	{
 		isSessionAlive();
 		ScriptObject script = null;
@@ -5500,8 +5497,8 @@ class OMEROGateway
 			script = new ScriptObject(scriptID, "", "");
 			script.setJobParams(svc.getParams(scriptID));
 		} catch (Exception e) {
-			e.printStackTrace();
-			handleException(e, "Cannot load the script: "+scriptID);
+			throw new ScriptingException("Cannot load the script: "+scriptID, 
+					e);
 		}
 		return script;
 	}

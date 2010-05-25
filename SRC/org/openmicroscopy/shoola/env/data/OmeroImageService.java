@@ -665,13 +665,10 @@ public interface OmeroImageService
 	 * 
 	 * @param scriptID The id of the script.
 	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
-	 *                                  retrieve data from OMEDS service.
+	 * @throws ScriptingException  If the script could not be loaded.
 	 */
 	public ScriptObject loadScript(long scriptID)
-		throws DSOutOfServiceException, DSAccessException;
+		throws ScriptingException;
 	
 	/**
 	 * Returns all the scripts currently stored into the system.

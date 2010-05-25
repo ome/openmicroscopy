@@ -926,7 +926,7 @@ class OmeroImageServiceImpl
 	 * @see OmeroImageService#loadScript(long)
 	 */
 	public ScriptObject loadScript(long scriptID)
-		throws DSOutOfServiceException, DSAccessException
+		throws ScriptingException
 	{
 		return gateway.loadScript(scriptID);
 	}

@@ -255,10 +255,10 @@ class ToolBar
     	bar.add(downloadButton);
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(publishingButton);
-    	if (MetadataViewerAgent.isAdministrator()) {
+    	//if (MetadataViewerAgent.isAdministrator()) {
     		bar.add(Box.createHorizontalStrut(5));
         	bar.add(uploadScriptButton);
-    	}
+    	//}
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(scriptsButton);
     	return bar;
