@@ -1543,7 +1543,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     
     def deletePlate(self, oid):
         d = self.getDeleteService()
-        d.deletePlate(long(oid), True)
+        d.deletePlate(long(oid))
     
     def deleteDataset(self, obj, allitems=None):
         d = self.getDeleteService()
@@ -1577,7 +1577,20 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         self.deleteObject(obj._obj)           
     
     def deleteScreen(self, obj, allitems=None):
-        pass
+        d = self.getDeleteService()
+        
+        if allitems is not None:
+            for c in obj.listChildren():
+                self.deletePlate(c.id)                
+        else:
+            q = self.getQueryService()
+            p = omero.sys.Parameters()
+            p.map = {}
+            p.map["oid"] = rlong(obj.id)
+            query = "select c from %s as c where c.parent.id=:oid" % obj.LINK_CLASS
+            for l in q.findAllByQuery(query, p):
+                self.deleteObject(l)
+        self.deleteObject(obj._obj)
     
     def prepareRecipients(self, recipients):
         recps = list()
