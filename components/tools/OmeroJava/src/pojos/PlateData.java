@@ -78,6 +78,12 @@ public class PlateData extends DataObject {
     /** Identifies the {@link Plate#ANNOTATIONLINKS} field. */
     public final static String ANNOTATIONS = PlateI.ANNOTATIONLINKS;
 
+    /** Indicates that the convention is to use <code>letter</code>. */
+    private final static String LETTER_CONVENTION = "letter";
+    
+    /** Indicates that the convention is to use <code>number</code>. */
+    private final static String NUMBER_CONVENTION = "number";
+    
     /**
      * All the Screens that contain this Plate. The elements of this set are
      * {@link ScreenData} objects. If this Plate is not contained in any
@@ -108,14 +114,15 @@ public class PlateData extends DataObject {
      */
     private int getSequenceIndex(String value)
     {
-    	if ("a".equals(value)) return ASCENDING_LETTER;
-    	else if ("1".equals(value)) return ASCENDING_NUMBER;
+    	if (LETTER_CONVENTION.equals(value)) return ASCENDING_LETTER;
+    	else if (NUMBER_CONVENTION.equals(value)) return ASCENDING_NUMBER;
     	//TODO
     	return -1;
     }
     
     /** Creates a new instance. */
-    public PlateData() {
+    public PlateData()
+    {
         setDirty(true);
         setValue(new PlateI());
     }
@@ -123,13 +130,13 @@ public class PlateData extends DataObject {
     /**
      * Creates a new instance.
      * 
-     * @param plate
-     *            Back pointer to the {@link Plate} model object. Mustn't be
+     * @param plate Back pointer to the {@link Plate} model object. Mustn't be
      *            <code>null</code>.
      * @throws IllegalArgumentException
      *             If the object is <code>null</code>.
      */
-    public PlateData(Plate plate) {
+    public PlateData(Plate plate)
+    {
         if (plate == null) {
             throw new IllegalArgumentException("Object cannot null.");
         }
@@ -141,12 +148,12 @@ public class PlateData extends DataObject {
     /**
      * Sets the name of the plate.
      * 
-     * @param name
-     *            The name of the plate. Mustn't be <code>null</code>.
+     * @param name The name of the plate. Mustn't be <code>null</code>.
      * @throws IllegalArgumentException
      *             If the name is <code>null</code>.
      */
-    public void setName(String name) {
+    public void setName(String name)
+    {
         if (name == null) {
             throw new IllegalArgumentException("The name cannot be null.");
         }
@@ -159,7 +166,8 @@ public class PlateData extends DataObject {
      * 
      * @return See above.
      */
-    public String getName() {
+    public String getName()
+    {
         omero.RString n = asPlate().getName();
         if (n == null || n.getValue() == null) {
             throw new IllegalStateException(
@@ -171,10 +179,10 @@ public class PlateData extends DataObject {
     /**
      * Sets the description of the plate.
      * 
-     * @param description
-     *            The description of the plate.
+     * @param description The description of the plate.
      */
-    public void setDescription(String description) {
+    public void setDescription(String description)
+    {
         setDirty(true);
         asPlate().setDescription(rstring(description));
     }
@@ -184,7 +192,8 @@ public class PlateData extends DataObject {
      * 
      * @return See above.
      */
-    public String getDescription() {
+    public String getDescription()
+    {
         omero.RString d = asPlate().getDescription();
         return d == null ? null : d.getValue();
     }
@@ -196,7 +205,8 @@ public class PlateData extends DataObject {
      * 
      * @return See above.
      */
-    public Map<Long, Long> getAnnotationsCounts() {
+    public Map<Long, Long> getAnnotationsCounts()
+    {
         return asPlate().getAnnotationLinksCountPerOwner();
     }
 
@@ -205,7 +215,8 @@ public class PlateData extends DataObject {
      * 
      * @return See above.
      */
-    public Set getScreens() {
+    public Set<ScreenData> getScreens() 
+    {
         if (screens == null && asPlate().sizeOfScreenLinks() >= 0) {
             screens = new HashSet<ScreenData>();
             List<ScreenPlateLink> links = asPlate().copyScreenLinks();
@@ -214,7 +225,7 @@ public class PlateData extends DataObject {
             }
         }
 
-        return screens == null ? null : new HashSet(screens);
+        return screens == null ? null : new HashSet<ScreenData>(screens);
     }
 
     /**
@@ -362,7 +373,6 @@ public class PlateData extends DataObject {
     	return value.getValue();
     }
     
-    
     /**
      * Returns the plate acquisitions related to this plate.
      * 
@@ -387,7 +397,8 @@ public class PlateData extends DataObject {
      * 
      * @param value The set of plate acquisitions.
      */
-    public void setPlateAcquisition(Set<PlateAcquisitionData> value) {
+    public void setPlateAcquisition(Set<PlateAcquisitionData> value)
+    {
         Set<PlateAcquisitionData> currentValue = getPlateAcquisitions();
         SetMutator<PlateAcquisitionData> 
         	m = new SetMutator<PlateAcquisitionData>(currentValue, value);
