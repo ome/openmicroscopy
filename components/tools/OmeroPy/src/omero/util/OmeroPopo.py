@@ -6,14 +6,44 @@ from omero.model import EllipseI
 from omero.model import LineI
 from omero.model import RectI
 from omero.model import PointI
-from omero.model import LabelI
+from omero.model import TextI
 from omero.model import PolylineI
 from omero.model import PolygonI
 from omero.model import PathI
+from omero.model import WorkflowI
 from omero.rtypes import rdouble 
 from omero.rtypes import rstring 
 from omero.rtypes import rint 
 from omero.rtypes import rfloat 
+
+## Popo helpers ##
+  
+def toCSV(list):
+    """
+    Convert a list to a Comma Separated Value string.
+    @param list The list to convert.
+    @return See above.
+    """
+    lenList = len(list);
+    cnt = 0;
+    str = "";
+    for item in list:
+        str = str + item;
+        if(cnt < lenList-1):
+              str = str + ",";
+        cnt = cnt +1;
+    return str;
+  
+def toList(csvString):
+    """
+    Convert a csv string to a list of strings
+    @param csvString The CSV string to convert.
+    @return See above.
+    """
+    list = a.split(',');
+    for index in range(len(list)):
+        list[index] = list[index].strip();
+    return list;
 
 ##
 # Create instance of data object this object wraps the basic OMERO types.
@@ -25,6 +55,7 @@ class DataObject():
     #
     def __init__(self):
         self.value = None;
+        self.dirty = False;
                 
      ##
      # Sets the {@link IObject}.
@@ -32,6 +63,8 @@ class DataObject():
      # @param value The value to set.
      #
     def setValue(self, value):
+        if(value==None):
+            raise Exception("IObject delegate for DataObject cannot be null.");
         self.value = value;
     
     ##
@@ -39,13 +72,16 @@ class DataObject():
     # @return See above.
     #
     def getId(self):
-        return self.id;
+        if(self.value.getId()==None):
+            return -1;
+        return self.value.getId().getValue();
         
     ##
     # Set the id of the data object
     # @param id See above.
     def setId(self, id):
-        self.id = id;
+        self.setDirty(True);
+        self.value.setId(rlong(id));
   
     ##
     # Get the current object.
@@ -53,14 +89,44 @@ class DataObject():
     #
     def asIObject(self):
         return self.value;
+        
+    ##
+    # The object has been changed and is now dirty.
+    # @param boolean See above.
+    #
+    def setDirty(self, boolean):
+        self.dirty = boolean;
+        
+    ##
+    # Has the object has been changed.
+    # @return See above.
+    #
+    def getDirty(self):
+        return self.dirty;
+
+    ##
+    # Is the object loaded
+    # @return see above.
+    def isLoaded(self):
+        return value.isLoaded();
+
+    ##
+    # Get the user details for the object.
+    # @return see above.
+    def getDetails(self):
+        return  asIObject().getDetails();
 
 class ImageData(DataObject):
     
     ##
     # Create Instance
     #
-    def __init__(self):
+    def __init__(self, image = None):
         DataObject.__init__(self)
+        if(image==None):
+            setValue(ImageI());
+        else:
+            setValue(image);
         
     ##
     # Sets the name of the image.
@@ -69,7 +135,11 @@ class ImageData(DataObject):
     # The name of the image. Mustn't be <code>null</code>.
     #
     def setName(self, name):
-        self.name = name
+        image = self.asIObject();
+        if(image==None):
+            raise Exception("No Image specified.");
+        image.setName(rstring(name));
+        self.setDirty(True);
 
     ##
     # Returns the name of the image.
@@ -77,7 +147,13 @@ class ImageData(DataObject):
     # @return See above.
     #
     def getName(self):
-        return self.name;
+        image = self.asIObject();
+        if(image==None):
+            raise Exception("No Image specified.");
+        name = image.getName();
+        if(name==None):
+            return "";
+        return name.getValue();
     
     ##
     # Sets the description of the image.
@@ -86,7 +162,11 @@ class ImageData(DataObject):
     #            The description of the image.
     #
     def setDescription(self, description):
-        self.description = description;
+        image = self.asIObject();
+        if(image==None):
+            raise Exception("No Image specified.");
+        image.setDescription(rstring(description));
+        self.setDirty(True);
 
     ##
     # Returns the description of the image.
@@ -94,8 +174,13 @@ class ImageData(DataObject):
     # @return See above.
     #
     def getDescription(self):
-        return self.description
-
+        image = self.asIObject();
+        if(image==None):
+            raise Exception("No Image specified.");
+        description = image.getDescription();
+        if(description==None):
+            return "";
+        return description.getValue();
     
 ##
 # This class stores the ROI Coordinate (Z,T).
@@ -202,7 +287,24 @@ class ROICoordinate:
     #
     def setTimepoint(self, t):
         self.t = t;
-        
+
+
+###
+# Shape wrapper.
+#
+def shapeWrapper(serverSideShape):
+    """
+    Wrap the serverSide shape as the appropriate OmeroPopos
+    @param serverSideShape The shape object to wrap.
+    @return See above.
+    """    
+    if serverSideShape.__class__.__name__=='EllipseI':
+        return EllipseData(serverSideShape);
+    if serverSideShape.__class__.__name__=='RectI':
+        return RectData(serverSideShape);
+    if serverSideShape.__class__.__name__=='MaskI':
+        return MaskData(serverSideShape);
+    return None;     
 
 ##
 # This class defines the python mapping of the ROIData object {See Pojos#ROIData} 
@@ -212,30 +314,61 @@ class ROIData(DataObject):
     ##
     # Create a new instance of an ROIData object.
     #
-    def __init__(self):
-        DataObject.__init__(self)
-        self.roiShapes = {};
-        
-        
+    def __init__(self, roi = None):
+        DataObject.__init__(self);
+        if(roi==None):
+            self.setValue(RoiI());
+        else:
+            self.setValue(roi);
+        self.roiShapes = dict();
+        if(roi!=None):
+            self.initialise();
+    ##
+    # Initialise the shape map of the ROIData object.
+    #
+    def initialise(self):
+        self.roiShapes = dict();
+        roi = self.asIObject();
+        shapes = roi.copyShapes();
+        s = None;
+        for shape in shapes:
+            s = shapeWrapper(shape);
+            if(s!=None):
+                coord = ROICoordinate(s.getZ(), s.getT());
+                if(not self.roiShapes.has_key(coord)):
+                    self.roiShapes[coord] = list();
+                data = self.roiShapes[coord];
+                data.append(s);
+    
     ##
     # Set the imageId for the ROI.
     # @param imageId See above.
     #
     def setImage(self, image):
-        self.image = image;
+        roi = self.asIObject();
+        if(roi==None):
+            raise Exception("No Roi specified.");
+        roi.setImage(image);
+        self.setDirty(True);
     
     ##
     # Get the image for the ROI.
     # @return See above.
     #
     def getImage(self):
-        return self.image;
+        roi = self.asIObject();
+        if(roi==None):
+            raise Exception("No Roi specified.");
+        return roi.getImage();
         
     ##
     # Add ShapeData object to ROIData.
     # @param shape See above.
     #
     def addShapeData(self, shape):
+        roi = self.asIObject();
+        if(roi==None):
+            raise Exception("No Roi specified.");
         coord = shape.getROICoordinate();
         shapeList = None;
         if(self.roiShapes.has_key(coord) == False):
@@ -244,7 +377,23 @@ class ROIData(DataObject):
         else:
             shapeList = self.roiShapes[coord];
         shapeList.append(shape);
-    
+        roi.addShape(shape.asIObject());
+        self.setDirty(True);
+
+    ##
+    # Remove ShapeData object from ROIData.
+    # @param shape See above.
+    #
+    def removeShapeData(self, shape):
+        roi = self.asIObject();
+        if(roi==None):
+            raise Exception("No Roi specified.");
+        coord = shape.getROICoordinate();
+        shapeList = self.roiShapes[coord];
+        shapeList.remove(shape);
+        roi.removeShape(shape.asIObject());
+        self.setDirty(True);
+
     ##
     # Get the number of planes occupied by the ROI.
     # @return See above.
@@ -302,55 +451,85 @@ class ROIData(DataObject):
     #
     # @return see above.
     #
-    def getNamespace(self):
+    def setNamespaceKeywords(self, namespace, keywords):
         roi = self.asIObject();
         if(roi==None):
             raise Exception("No Roi specified.");
-        ns = roi.getNs();
-        if(ns!=None):
-            return ns.getValue();
-        return "";
-
-    ##
-    # Returns the keywords of the ROI.
-    #
-    # @return see above.
-    #
-    def getKeywords(self):
-        roi = self.asIObject();
-        if(roi==None):
-            raise Exception("No Roi specified.");
-        keywords = roi.getKeywords();
-        if(keywords!=None):
-            return keywords.getValue();
-        return "";        
-
-    ##
-    # Set the namespace of the ROI.
-    # @param namespace See above.
-    #
-    def setNamespace(self, namespace):
-        roi = self.asIObject();
-        if(roi==None):
-            raise Exception("No Roi specified.");
-        roi.setNs(rtypes.string(namespace));
+        if(len(keywords)==0):
+            self.removeNamespace(namespace);
+        else:
+            map = self.getNamespaceKeywords();
+            map[namespace] = keywords;
+            self.setNamespaceMap(map);
+            self.setDirty(True);
     
     ##
-    # Set the keywords of the ROI.
-    # @param keywords See above.
+    # Remove the namespace from the ROI
+    # @param namespace See above.
     #
-    def setKeywords(self, keywords):
+    def removeNamespace(self, namespace):
         roi = self.asIObject();
         if(roi==None):
             raise Exception("No Roi specified.");
-        roi.setKeywords(rtypes.string(keywords));
+        map = self.getNamespaceKeywords();
+        if(map.has_key(namespace)):
+            del map[namespace];
+        self.setNamespaceMap(map);
+        self.setDirty(True);
+    
+    ##
+    # Update the ROIData object to have the namespaces of the 
+    # map, and the keywords of the map.
+    # @param map See above.
+    #
+    def setNamespaceMap(self, map):
+        roi = self.asIObject();
+        if(roi==None):
+            raise Exception("No Roi specified.");
+        roi.setNamespaces(map.keys);
+        keywords = [];
+        for namespace in map.keys:
+            keywords.append(map[namespace]);
+        roi.setKeywords(keywords);
+        self.setDirty(True);
+    
+    ##
+    # Retrieve the namespaces of the ROI
+    # @return See above.
+    #
+    def getNamespaces(self):
+        roi = self.asIObject();
+        if(roi==None):
+            raise Exception("No Roi specified.");
+        namespaces = roi.getNamespaces();
+        if(namespaces==None):
+            return [];
+        return namespaces;
+
+    ##
+    # Get the keywords and namespaces as a map<namespace, keywords>
+    # @return See above.
+    #
+    def getNamespaceKeywords(self):
+        roi = self.asIObject();
+        if(roi==None):
+            raise Exception("No Roi specified.");
+        namespaces = self.getNamespaces();
+        namespaceKeywords = roi.getKeywords();
+        if(len(namespaces) != len(namespaceKeywords)):
+            raise Exception("Namespaces length does not match keywords namespace length.");
+        map = {};
+        for i in range(len(namespaces)):
+            map[namespaces[i]] = namespaceKeywords[i];
+        return map;
+
     
 class ShapeData(DataObject):
     
     def __init__(self):
         DataObject.__init__(self)
-        self.coord = ROICoordinate();
         self.text = None;
+        self.coord = ROICoordinate();
     
     ##
     # Returns the z-section.
@@ -358,55 +537,100 @@ class ShapeData(DataObject):
     # @return See above.
     #
     def getZ(self):
-        return self.coord.getZSection();
+        shape = self.asIObject();
+        if(shape==None):
+            raise Exception("No Shape specified.");
+        z = shape.getTheZ();
+        if(z==None):
+            return 0;
+        else:
+            return z.getValue();
     
     ##
     # Set the z-section.
     # @param theZ See above.
     #
     def setZ(self, theZ):
-        self.coord.setZSection(theZ);    
-
+        shape = self.asIObject();
+        if(shape==None):
+            raise Exception("No Shape specified.");
+        shape.setTheZ(rint(theZ));
+        self.coord.setZSection(theZ);
+        self.setDirty(True);
+        
     ##
     # Returns the timepoint.
     # 
     # @return See above.
     #
     def getT(self):   
-        return self.coord.getTimepoint();
+        shape = self.asIObject();
+        if(shape==None):
+            raise Exception("No Shape specified.");
+        t = shape.getTheT();
+        if(t==None):
+            return 0;
+        else:
+            return t.getValue();
 
     ##
     # Set the timepoint.
     # @param See above.
     #
     def setT(self, theT):  
-        self.coord.setTimepoint(theT);
+        shape = self.asIObject();
+        if(shape==None):
+            raise Exception("No Shape specified.");
+        shape.setTheT(rint(theT));
+        self.coord.setTimePoint(theT);
+        self.setDirty(True);
         
     ## 
     # Set the ROICoordinate for the ShapeData 
     # @param roiCoordinate See above.
     #
     def setROICoordinate(self, coord):
-       self.coord = coord;
-       
+        shape = self.asIObject();
+        if(shape==None):
+            raise Exception("No Shape specified.");
+        self.setZ(coord.getZSection());
+        self.setT(coord.getTimePoint());
+        self.coord.setZSection(coord.getZSection());
+        self.coord.setTimePoint(coord.getTimePoint());
+        self.setDirty(True);
+        
     ##
     # Get the ROICoordinate for the ShapeData 
     # @return See above.
     #
     def getROICoordinate(self):
+        shape = self.asIObject();
+        if(shape==None):
+            raise Exception("No Shape specified.");
         return self.coord;
     
     ##
     # Get the text for the Object
     # @return See above.
     def getText(self):
-        return self.text;
-    
+        shape = self.asIObject();
+        if(shape==None):
+            raise Exception("No Shape specified.");
+        text = shape.getTextValue();
+        if(text==None):
+            return "";
+        else:
+            return text.getValue();
+            
     ## 
     # Set the text for the Obect. 
     # @param See above.
-    def setText(self, text):
-        self.text = text;
+    def setText(self, text):        
+        shape = self.asIObject();
+        if(shape==None):
+            raise Exception("No Shape specified.");
+        shape.setTextValue(rstring(text));
+        self.setDirty(true);        
 
     ##
     # Get the affinetransform from the object, returned as a string matrix(m00 m01 m10 m11 m02 m12) 
@@ -419,8 +643,19 @@ class ShapeData(DataObject):
             raise Exception("No Shape specified.");
         transform = shape.getTransform();
         if(transform!=None):
-            return transform.getValue();
+            transformValue = transform.getValue();
+            if(transformValue=="none"):
+                return "";
+            else:
+                return transformValue;
         return "";
+    
+    def setTransform(self, transform):
+        shape = self.asIObject();
+        if(shape==None):
+            raise Exception("No Shape specified.");
+        shape.setTransform(rstring(transform));
+        self.setDirty(True);        
     
     ##
     # Transform the affine transform matrix from the string 'matrix(m00 m01 m10 m 11 m02 m12)' to a 
@@ -432,14 +667,18 @@ class ShapeData(DataObject):
             return numpy.matrix([[1,0,0],[0,1,0]])
         transformstr = str[str.find('(')+1:len(str)-1];
         values = transformstr.split(' ');
-        b = numpy.matrix(values, dtype='double');
+        '''print "values";
+        print values;'''
+        b = numpy.matrix(numpy.array(values, dtype='double'));
+        '''print "b";
+        print b[0];'''
         t = numpy.matrix(numpy.zeros((3,3)));
-        t[0,0] = b[0];
-        t[0,1] = b[1];
-        t[1,0] = b[2];
-        t[1,1] = b[3];
-        t[0,2] = b[4];
-        t[1,2] = b[5];
+        t[0,0] = b[0,0];
+        t[0,1] = b[0,2];
+        t[1,0] = b[0,1];
+        t[1,1] = b[0,3];
+        t[0,2] = b[0,4];
+        t[1,2] = b[0,5];
         t[2,2] = 1;
         return t;
     
@@ -559,12 +798,26 @@ class EllipseData(ShapeData):
             return 0;
         return ry.getValue();
     
+    ##
+    # Transform the point by the affineTransform transform.
+    # @param transform See above.
+    # @param point See above.
+    # @return See above.
+    #
     def transformPoint(self, transform, point):
         p = numpy.matrix(point).transpose();
         return transform*p;
-        
+    
+    ##
+    # Return a map of points(x,y) contained within the Shape
+    # @return See above.
+    #       
     def containsPoints(self):
+        '''print "TRANSFORM STRING";
+        print self.getTransform();'''
         transform = self.transformToMatrix(self.getTransform());
+        '''print "TRANSFORM MATRIX";
+        print transform'''
         cx = self.getCx();
         cy = self.getCy();
         rx = self.getRx();
@@ -575,6 +828,14 @@ class EllipseData(ShapeData):
         BR = numpy.matrix((cx+rx, cy+ry, 1)).transpose();
         TL = numpy.matrix((cx-rx, cy-ry, 1)).transpose();
         TR = numpy.matrix((cx+rx, cy-ry, 1)).transpose();
+        '''print('BL : ');
+        print BL;
+        print('BR : ');
+        print BR;
+        print('TL : ');
+        print TL;
+        print('TR : ');
+        print TR;'''
         MajorAxisLeft = numpy.matrix((cx-rx, cy, 1)).transpose();
         MajorAxisRight = numpy.matrix((cx+rx, cy, 1)).transpose();
         MinorAxisTop = numpy.matrix((cx, cy-ry, 1)).transpose();
@@ -583,6 +844,14 @@ class EllipseData(ShapeData):
         rb = transform*BR;
         lt = transform*TL;
         rt = transform*TR;
+        '''print('lb : ');
+        print lb;
+        print('rb : ');
+        print rb;
+        print('lt : ');
+        print lt;
+        print('rt : ');
+        print rt;'''
         majl = transform*MajorAxisLeft;
         majr = transform*MajorAxisRight;
         mint = transform*MinorAxisTop;
@@ -591,13 +860,16 @@ class EllipseData(ShapeData):
         a = (majr[0]-majl[0]);
         h = math.sqrt(o*o+a*a);
         majorAxisAngle = math.asin(o/h); 
-        boundingBoxMinX = min(lb[0], rb[0], lt[0], rt[0]);
-        boundingBoxMaxX = max(lb[0], rb[0], lt[0], rt[0]);
-        boundingBoxMinY = min(lb[1], rb[1], lt[1], rt[1]);
-        boundingBoxMaxY = max(lb[1], rb[1], lt[1], rt[1]);
+        '''print majorAxisAngle'''
+        boundingBoxMinX = min(lt[0], rt[0],lb[0], rb[0]);
+        boundingBoxMaxX = max(lt[0], rt[0], lb[0], rb[0]);
+        boundingBoxMinY = min(lt[1], rt[1], lb[1], rb[1]);
+        boundingBoxMaxY = max(lt[1], rt[1], lb[1], rb[1]);
         boundingBox = ((boundingBoxMinX, boundingBoxMinY), (boundingBoxMaxX, boundingBoxMaxY));
         centredBoundingBox = ((boundingBox[0][0]-centre[0],boundingBox[0][1]-centre[1]),(boundingBox[1][0]-centre[0],boundingBox[1][1]-centre[1]))
         points = {};
+        cx = float(centre[0]);
+        cy = float(centre[1]);
         xrange =  range(centredBoundingBox[0][0], centredBoundingBox[1][0])
         yrange = range(centredBoundingBox[0][1], centredBoundingBox[1][1])
         for x in xrange:
@@ -606,8 +878,225 @@ class EllipseData(ShapeData):
                 newY = -x*math.sin(majorAxisAngle)+y*math.cos(majorAxisAngle);
                 val = (newX*newX)/(rx*rx)+ (newY*newY)/(ry*ry);
                 if(val <= 1):
-                    points[(x,y)]=1;
+                    points[(int(x+cx), int(y+cy))]=1;
         return points;              
+    
+##
+# Instance of Polygon object.
+#
+def PolygonData(ShapeData):
+    
+    ###
+    # Create instance of PolygonData Object
+    #
+    def __init__(self, polygonShape=None):
+        ShapeData.__init__(self);
+        self.NUMREGEX = "\\[.*\\]";  # Regex for a data in block. 
+        if(polygonShape==None):
+            self.setValue(PolygonI());
+            self.points = [];
+            self.points1 = [];
+            self.points2 = [];
+            self.mask = [];
+        else:
+            self.setValue(polygonShape);
+            self.parseShapeStringToPoints();
+    
+    ##
+    # Get the points from the points String 
+    # @return See above.
+    #
+    def getPoints(self):
+        pts = self.fromPoints("points");
+        return self.parsePointsToList(pts);
+
+    ##
+    # Get the points1 from the points String 
+    # @return See above.
+    #
+    def getPoints1(self):
+        pts =  self.fromPoints("points1");
+        return self.parsePointsToList(pts);
+
+    ##
+    # Get the points2 from the points String 
+    # @return See above.
+    #
+    def getPoints2(self):
+        pts =  self.fromPoints("points2");
+        return self.parsePointsToList(pts);
+        
+    ##
+    # Get the mask type from the points String 
+    # @return See above.
+    #
+    def getMaskPoints(self):
+        pts =  self.fromPoints("mask");
+        return self.parsePointsToList(pts);
+    
+    ##
+    # Set the points from the original PolygonI type.
+    # @param pts The points values.
+    #
+    def setPointsString(self, pts):
+        shape = self.asIObject();
+        if(shape==None):
+            raise Exception("No Shape specified.");
+        shape.setPoints(pts);
+        self.setDirty(True);        
+        self.parseShapeStringToPoints();
+    
+    ##
+    # Set the points from a series of lists, and also set the points string.
+    # @param points The points list.
+    # @param points1 The points1 list.
+    # @param points2 The points2 list.
+    # @param mask The mask represents the curve type, lineTo, ArcTo..
+    def setPointsFromList(self, points, points1, point2, mask):
+        pts = self.toString(points);
+        pts1 = self.toString(points);
+        pts2 = self.toString(points);
+        mask = self.toString(points);
+        str =  "points["+pts+"] ";
+        str = str + "points1["+pts1+"] ";
+        str = str + "points2["+pts2+"] ";
+        str = str + "mask["+mask+"]";
+        self.setPointsString(str);
+        
+    ##
+    # Get the points string from the IObject
+    # @return See above.
+    def getPointsString(self):
+        shape = self.asIObject();
+        if(shape==None):
+            raise Exception("No Shape specified.");
+        pts = shape.getPoints();
+        if(pts==None):
+            return "";
+        else:
+            return pts.getValue();
+    
+    ##
+    # Get the points of type from the point string.
+    # @param type The points type to return, points, point1, point2, mask
+    # @return See above.
+    #
+    def fromPoints(self, type):
+        return self.getContents(self.getPointsString(), type+"[","]");
+        
+    ##
+    # Helper method to get the contents of the values from the string of form type[values].
+    # @param string The string to parse.
+    # @param start the first part of the string to break apart on. "type["
+    # @param end the last part of the string to break apart "]".
+    # @return The contents of the string between start ReturnValues end
+    #
+    def getContents(self, string, start, end):
+        lIndex = string.find(start);
+        if(lIndex == -1):
+            return ""; 
+        strFragment = string[lIndex:];
+        rIndex = strFragment.find(']');
+        if(rIndex == -1):
+            return "";
+        return string[lIndex+len(start):rIndex];
+    
+    ##
+    # Convert the pts string to a list
+    # @return See above.
+    #
+    def parsePointsToList(self, pts):
+        numberList = pts.split(',');
+        return numberList;
+        
+    ##
+    # Convert the pointsList to a string, of CSV 
+    # @return See above.
+    # 
+    def toString(self, pointsList):
+        str = "";
+        for index in range(len(pointsList)):
+            str = str + pt;
+            if(index<len(pointsList)-1):
+                str = str + ",";
+        return str;
+    
+    ##
+    # Convert the points string to the points lists, points, point1, point2 and mask.
+    #
+    def parseShapeStringToPoints(self):
+        self.points = self.fromPoints("points");
+        self.points1 = self.fromPoints("points1");
+        self.points2 = self.fromPoints("points2");
+        self.mask = self.fromPoints("mask");
+    
+    ##
+    # Returns the bounding rectangle of the polygon, as a list of coords [(x1,y1), (x2,y2)]
+    # @return See above.
+    #
+    def getBoundingRectangle(self):
+        pts = self.toCoords(self.getPoints());
+        minx = pts[0][0];
+        maxx = minx;
+        miny = pts[0][1];
+        maxy = miny;
+    
+        for pt in pts:
+            minx = min(pt[0],minx);
+            miny = min(pt[1],miny);
+            maxx = max(pt[0],maxx);
+            maxy = max(pt[1],maxy);
+        return [(minx,miny), (maxx, maxy)];
+            
+    ##
+    # Convert the points list to a coord list.
+    # @param ptsList The list of points.
+    # @return See above. 
+    def toCoords(self, ptsList):
+        coords = {};
+        for index in range(len(ptsList)/2):
+            coords.append((ptsList[index*2], ptsList[index*2+1]));
+        return coords;
+    
+    
+    ##
+    # Return a map of points(x,y) contained within the Shape
+    # @return See above.
+    #       
+    def containsPoints(self):
+        points = {};
+        boundingRectangle = self.getBoundingRectangle();
+        xrange =  range(boundingRectangle[0][0], boundingRectangle[1][0])
+        yrange = range(boundingRectangle[0][1], boundingRectangle[1][1])
+        for xx in xrange:
+            for yy in yrange:
+                if(self.inPolygon((xx,yy))):
+                    points.append((xx,xy));       
+        return points;              
+        
+    ##
+    # Returns true if the point is in the polygon defined by the points list 
+    # @param point The point to check.
+    # @return See above.
+    #
+    def inPolygon(self, point):
+        poly = self.getPoints();
+        n = len(poly);
+        
+        inside = False;
+
+        p1x,p1y = poly[0];
+        for i in range(n+1):
+            p2x,p2y = poly[i % n];
+            if y > min(p1y,p2y):
+                if y <= max(p1y,p2y):
+                    if x <= max(p1x,p2x):
+                        if p1y != p2y:
+                            xinters = (y-p1y)*(p2x-p1x)/(p2y-p1y)+p1x;
+                        if p1x == p2x or x <= xinters:
+                            inside = not inside;
+            p1x,p1y = p2x,p2y;
+        return inside;    
     
 ##
 # Instance of the Mask Object
@@ -834,11 +1323,153 @@ class RectData(ShapeData):
             return 0;
         return height.getValue();
         
+    ##
+    # Transform the point by the affineTransform transform.
+    # @param transform See above.
+    # @param point See above.
+    # @return See above.
+    #
+    def transformPoint(self, transform, point):
+        p = numpy.matrix(point).transpose();
+        return transform*p;
+    
+    ##
+    # Return a map of points(x,y) contained within the Shape
+    # @return See above.
+    #         
     def containsPoints(self):
+        transform = self.transformToMatrix(self.getTransform());
+        x = self.getX();
+        y = self.getY();
+        w = self.getWidth();
+        h = self.getHeight();
+        point = numpy.matrix((x, y, 1)).transpose();
+        centre = transform*point;
+        BL = numpy.matrix((x, y+height, 1)).transpose();
+        BR = numpy.matrix((x+width, y+height, 1)).transpose();
+        TL = numpy.matrix((x, y, 1)).transpose();
+        TR = numpy.matrix((x+width, y, 1)).transpose();
+        '''print('BL : ');
+        print BL;
+        print('BR : ');
+        print BR;
+        print('TL : ');
+        print TL;
+        print('TR : ');
+        print TR;'''
+        lb = transform*BL;
+        rb = transform*BR;
+        lt = transform*TL;
+        rt = transform*TR;
+        '''print('lb : ');
+        print lb;
+        print('rb : ');
+        print rb;
+        print('lt : ');
+        print lt;
+        print('rt : ');
+        print rt;'''
+        majl = lb
+        majr = lr
+        o = (majr[1]-majl[1]);
+        a = (majr[0]-majl[0]);
+        h = math.sqrt(o*o+a*a);
+        angle = math.asin(o/h); 
+        boundingBoxMinX = min(lt[0], rt[0],lb[0], rb[0]);
+        boundingBoxMaxX = max(lt[0], rt[0], lb[0], rb[0]);
+        boundingBoxMinY = min(lt[1], rt[1], lb[1], rb[1]);
+        boundingBoxMaxY = max(lt[1], rt[1], lb[1], rb[1]);
+        boundingBox = ((boundingBoxMinX, boundingBoxMinY), (boundingBoxMaxX, boundingBoxMaxY));
         points = {};
-        offsetX = self.getX();
-        offsetY = self.getY();
-        for x in range(self.getWidth()):
-            for y in range(self.getHeight()):
-                points[(offsetX+x,offsetY+y)] = 1;
-        return points;
+        xrange =  range(boundingBox[0][0], boundingBox[1][0])
+        yrange = range(boundingBox[0][1], boundingBox[1][1])
+        for xx in xrange:
+            for yy in yrange:
+                newX = xx*math.cos(angle)+yy*math.sin(angle);
+                newY = -xx*math.sin(angle)+yy*math.cos(angle);
+                if( newX-transformedX < width and newY-transformedY < height and newX-transformedX > 0 and newY-transformedY > 0):
+                    points[(int(x+cx), int(y+cy))]=1;
+        return points;              
+
+        
+class WorkflowData(DataObject):
+    def __init__(self, workflow=None):
+        DataObject.__init__(self);
+        if(workflow==None):
+            self.setValue(WorkflowI());
+            self.setNamespace("");
+            self.setKeywords("");
+        else:
+            self.setValue(workflow);
+
+    ## 
+    # Set the namespace of the workflow.
+    # @param namespace See above.
+    def setNamespace(self, namespace):
+        workflow = self.asIObject();
+        if(workflow==None):
+            raise Exception("No workflow specified.");
+        workflow.setNs(rstring(namespace));
+        self.setDirty(True);
+
+    ## 
+    # Get the namespace of the workflow
+    # @return See Above. 
+    def getNamespace(self):
+        workflow = self.asIObject();
+        if(workflow==None):
+            raise Exception("No Workflow specified.");
+        namespace = workflow.getNs();
+        if(namespace==None):
+            return "";
+        return namespace.getValue();
+        
+    ## 
+    # Set the keywords of the workflow.
+    # @param namespace See above.
+    def setKeywords(self, keywords):
+        workflow = self.asIObject();
+        if(workflow==None):
+            raise Exception("No workflow specified.");
+        workflow.setKeywords(rstring(keywords));
+        self.setDirty(True);
+
+    ## 
+    # Get the keywords of the workflow
+    # @return See Above. 
+    def getKeywords(self):
+        workflow = self.asIObject();
+        if(workflow==None):
+            raise Exception("No Workflow specified.");
+        keywords = workflow.getNs();
+        if(keywords==None):
+            return "";
+        return keywords.getValue();
+        
+    ## 
+    # Add a keyword to the workflow
+    # @param keyword See Above. 
+    def addKeyword(self, keyword):
+        if(self.containsKeyword(keyword)):
+            return;
+        keywords = toList(self.getKeywords());
+        keywords.append(keyword);
+        self.setKeywords(keywords);       
+
+    ## 
+    # Return <code>True</code> if the keyword is part of workflow
+    # @return See Above. 
+    def containsKeyword(self, keyword):
+        keywords = toList(self.getKeywords);
+        return (keyword in keywords);
+        
+    ## 
+    # Remove the keyword from the workflow
+    # @param keyword See Above. 
+    def removeKeyword(self, keyword):
+        if(not self.containsKeyword()):
+            return;
+        newList = toList(self.getKeywords());
+        newList.remove(keyword);
+        self.setKeywords(toCSV(newList));
+        
