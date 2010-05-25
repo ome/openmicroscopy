@@ -53,6 +53,7 @@ import loci.formats.ImageReader;
 import loci.formats.ImageWriter;
 import loci.formats.meta.IMetadata;
 import loci.formats.services.OMEXMLService;
+import ome.conditions.InternalException;
 import ome.formats.importer.ImportContainer;
 import ome.services.blitz.util.RegisterServantMessage;
 import ome.services.db.PgArrayHelper;
@@ -106,6 +107,8 @@ public class PublicRepositoryI extends _RepositoryDisp {
     private final static String OMERO_PATH = ".omero";
 
     private final static String THUMB_PATH = "thumbnails";
+
+    private final static String IMAGE_NO_KEY = "image_no";
 
     private final long id;
 
@@ -419,8 +422,12 @@ public class PublicRepositoryI extends _RepositoryDisp {
         List<File> files = filteredFiles(file, conf);
         List<String> names = filesToPaths(files);
         List<ImportContainer> containers = importableImageFiles(path, conf.depth);
-        List<FileSet> rv = processImportContainers(containers, names);
-        
+        List<FileSet> rv;
+        try {
+            rv = processImportContainers(containers, names);
+        } catch (InternalException e) {
+            throw new omero.InternalException(stackTraceAsString(e), null, e.getMessage());
+        }
         return rv;
     }
     
@@ -1005,11 +1012,21 @@ public class PublicRepositoryI extends _RepositoryDisp {
                             return null;
                         }
                         
-                        //Map<String, String> params = helper.getPixelsParams(pixIds.get(0).longValue());
+                        long pixelsId = 0;
+                        for (BigInteger pId : pixIds) {
+                            Map<String, String> params = helper.getPixelsParams(pId.longValue());
+                            if (Long.parseLong(params.get(IMAGE_NO_KEY)) == count) {
+                                pixelsId = pId.longValue();
+                                break;
+                            }
+                        }
+                        if (pixelsId == 0) {
+                            return null;
+                        }
                         BigInteger imageId = (BigInteger) session.createSQLQuery(
                                 "select image from Pixels " +
                                 "where id = ?")
-                                .setParameter(0, pixIds.get((int)count))
+                                .setParameter(0, pixelsId)
                                 .uniqueResult();
 
                         return sf.getQueryService().find(ome.model.core.Image.class, imageId.longValue());
