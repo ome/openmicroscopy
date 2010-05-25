@@ -1588,13 +1588,20 @@ class BrowserComponent
 			return false;
 		if (file.getId() > 0) return false;
 		try {
-			TreeImageDisplay exp = BrowserFactory.getDataOwner(
-					model.getLastSelectedDisplay());
+			TreeImageDisplay d = model.getLastSelectedDisplay();
+			TreeImageDisplay exp = BrowserFactory.getDataOwner(d);
 			if (exp == null) return false;
 			Object ho  = exp.getUserObject();
 			if (!(ho instanceof ExperimenterData)) return false;
 			long id = ((ExperimenterData) ho).getId();
-			
+			if (file instanceof ImageData) {
+				ImageData img = (ImageData) file;
+				if (img.getIndex() >= 0) {
+					if (!(d.getUserObject() instanceof MultiImageData))
+						return false;
+					file = (DataObject) d.getUserObject();
+				}
+			}
 			DataObject o = model.getRepositories(id).register(file);
 			if (o == null) return false;
 		} catch (FSAccessException e) {
