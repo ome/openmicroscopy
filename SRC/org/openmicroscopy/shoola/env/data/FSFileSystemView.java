@@ -174,8 +174,8 @@ public class FSFileSystemView
 					image.setPathToFile(data.getAbsolutePath());
 					files.addElement(image);
 				} else if (count > 1) {
-					//To be tested.
 					multiImg = new MultiImageData(file);
+					multiImg.setRepositoryPath(root.getAbsolutePath());
 					parentName = multiImg.getName();
 					j = images.iterator();
 					components = new ArrayList<ImageData>();
@@ -329,7 +329,7 @@ public class FSFileSystemView
 				images.add(i.next().asImage());
 			}
     		try {
-    			images = proxy.registerImageList(mi.getName(), images, 
+    			images = proxy.registerImageList(mi.getAbsolutePath(), images, 
     					map);
     			i = files.iterator();
     			ImageData data;
@@ -352,7 +352,6 @@ public class FSFileSystemView
     			f.setRegisteredFile((OriginalFile) r);
     			return f;
 			} catch (Exception e) {
-				e.printStackTrace();
 				new FSAccessException("Cannot register the file: " +
 						""+f.getAbsolutePath(), e);
 			}
@@ -417,7 +416,7 @@ public class FSFileSystemView
     		RepositoryPrx proxy = (RepositoryPrx) entry.getValue();
     		populate(root, files, proxy.listFileSets(s, config));
 		} catch (Exception e) { 
-			new FSAccessException("Cannot retrives the files contained in: " +
+			new FSAccessException("Cannot retrieves the files contained in: " +
 					dir.getAbsolutePath(), e);
 		}
     	return (DataObject[]) files.toArray(new DataObject[files.size()]);

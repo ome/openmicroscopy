@@ -47,7 +47,6 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 //Third-party libraries
-import Ice.ConnectionLostException;
 import loci.formats.FormatException;
 
 //Application-internal dependencies
@@ -2024,9 +2023,8 @@ class OMEROGateway
 				if (!f.getName().contains("Tmp")) {
 					proxy = (RepositoryPrx) proxys.get(index);
 					repositories.put(f, proxy);
-					index++;
 				}
-				
+				index++;
 			}
 			view = new FSFileSystemView(userID, repositories);
 		} catch (Throwable e) {
