@@ -40,7 +40,6 @@ import ome.api.IMetadata;
 import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
 import ome.model.IAnnotated;
-import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.annotations.AnnotationAnnotationLink;
 import ome.model.annotations.FileAnnotation;
@@ -59,7 +58,6 @@ import ome.model.screen.Screen;
 import ome.parameters.Parameters;
 import ome.services.query.PojosFindAnnotationsQueryDefinition;
 import ome.services.query.Query;
-import ome.util.CBlock;
 
 
 /** 
@@ -212,6 +210,18 @@ public class MetadataImpl
 		sb.append("where ail.child.id = :id");
 		l = iQuery.findAllByQuery(sb.toString(), param);
 		if (l != null) n += l.size();
+		sb = new StringBuilder();
+    	sb.append("select p from Screen as p ");
+		sb.append("left outer join fetch p.annotationLinks ail ");
+		sb.append("where ail.child.id = :id");
+		l = iQuery.findAllByQuery(sb.toString(), param);
+		if (l != null) n += l.size();
+		sb = new StringBuilder();
+    	sb.append("select p from Plate as p ");
+		sb.append("left outer join fetch p.annotationLinks ail ");
+		sb.append("where ail.child.id = :id");
+		l = iQuery.findAllByQuery(sb.toString(), param);
+		if (l != null) n += l.size();
 		return n;
     }
     
@@ -314,9 +324,6 @@ public class MetadataImpl
 			Set p = iContainer.loadContainerHierarchy(Screen.class, ids, po);
 			result.addAll(p);
 		}
-		
-		
-		
     	return result;
     }
     
@@ -449,23 +456,7 @@ public class MetadataImpl
         sb.append("left outer join fetch exfLpl.child as exfLp ");
         sb.append("left outer join fetch exfLp.transmittanceRange as exfLpTrans ");
         sb.append("left outer join fetch exfLp.type as type4 ");
-        
-        /*
-        sb.append("left outer join fetch filter.emFilter as ef ");
-        sb.append("left outer join fetch filter.exFilter as exf ");
-        sb.append("left outer join fetch channel.secondaryEmissionFilter as emfilter ");
-        sb.append("left outer join fetch channel.secondaryExcitationFilter as exfilter ");
-        sb.append("left outer join fetch exfilter.transmittanceRange as exfilterTrans ");
-        sb.append("left outer join fetch emfilter.transmittanceRange as emfilterTrans ");
-        sb.append("left outer join fetch emfilter.type as emt ");
-        sb.append("left outer join fetch exfilter.type as ext ");
-        
-        sb.append("left outer join fetch ef.type as et1 ");
-        sb.append("left outer join fetch exf.type as ext1 ");
-        
-        sb.append("left outer join fetch exf.transmittanceRange as exfTrans ");
-        sb.append("left outer join fetch ef.transmittanceRange as efTrans ");
-        */
+
         sb.append("left outer join fetch ds.detector as detector ");
         sb.append("left outer join fetch detector.type as dt ");
         sb.append("left outer join fetch ds.binning as binning ");
