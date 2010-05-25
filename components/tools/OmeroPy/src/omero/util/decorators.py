@@ -92,15 +92,17 @@ class TimeIt (object):
 
     @param level: the level to use for logging
     """
+    logger = logging.getLogger('omero.timeit')
+
     def __init__ (self, level=logging.DEBUG):
         self._level = level
  
     def __call__ (self, func):
         def wrapped (*args, **kwargs):
-            logger.log(self._level, "timing %s" % (func.func_name))
+            self.logger.log(self._level, "timing %s" % (func.func_name))
             now = time.time()
             rv = func(*args, **kwargs)
-            logger.log(self._level, "timed %s: %f" % (func.func_name, time.time()-now))
+            self.logger.log(self._level, "timed %s: %f" % (func.func_name, time.time()-now))
             return rv
         return wrapped
 
@@ -110,10 +112,10 @@ def timeit (func):
     Logs at logging.DEBUG level.
     """
     def wrapped (*args, **kwargs):
-        logger.log(self._level, "timing %s" % (func.func_name))
+        TimeIt.logger.log(self._level, "timing %s" % (func.func_name))
         now = time.time()
         rv = func(*args, **kwargs)
-        logger.log(self._level, "timed %s: %f" % (func.func_name, time.time()-now))
+        TimeIt.logger.log(self._level, "timed %s: %f" % (func.func_name, time.time()-now))
         return rv
     return TimeIt()(func)
 
