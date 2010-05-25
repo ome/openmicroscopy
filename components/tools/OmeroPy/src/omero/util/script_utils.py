@@ -47,6 +47,9 @@ import omero.util.pixelstypetopython as pixelstypetopython
 from omero.util.OmeroPopo import EllipseData as EllipseData
 from omero.util.OmeroPopo import RectData as RectData
 from omero.util.OmeroPopo import MaskData as MaskData
+from omero.util.OmeroPopo import WorkflowData as WorkflowData
+from omero.util.OmeroPopo import ROIData as ROIData
+
 
 try: 
     import hashlib 
@@ -708,20 +711,6 @@ def getROIFromImage(iROIService, imageId, namespace=None):
     if(namespace!=None):
         roiOpts.namespace = namespace;
     return iROIService.findByImage(imageId, roiOpts);
-
-def roiWrapper(serverSideROI):
-    """
-    Wrap the serverSide ROI as the appropriate OmeroPopos
-    @param serverSideROI The roi object to wrap.
-    @return See above.
-    """    
-    if serverSideROI.__class__.__name__=='EllipseI':
-        return EllipseData(serverSideROI);
-    if serverSideROI.__class__.__name__=='RectI':
-        return RectData(serverSideROI);
-    if serverSideROI.__class__.__name__=='MaskI':
-        return MaskData(serverSideROI);
-    raise Exception("ROI of type " + serverSideROI.__class__.__name__+ " Not supported by OmeroPopos");
   
 def toCSV(list):
     """
@@ -745,7 +734,7 @@ def toList(csvString):
     @param csvString The CSV string to convert.
     @return See above.
     """
-    list = a.split(',');
+    list = csvString.split(',');
     for index in range(len(list)):
         list[index] = list[index].strip();
     return list;
@@ -760,22 +749,24 @@ def registerNamespace(iQuery, iUpdate, namespace, keywords):
     @param keywords The keywords associated with the workflow.
     @return see above.
     """
-    workflow = iQuery.findByQuery('from workflow as w where w.namespace = ' + namespace, None);
+    workflow = iQuery.findByQuery("from Workflow as w where w.ns = '" + namespace+"'", None);
+    workflowData = None;
     if(workflow!=None):
-        keywordList = toList(workflow.getKeywords.getValue());
-        toAppend = [];
-        for keyword in keywords:
-            if keyword not in keywordList:
-                toAppend.append(keyword);
-        if(len(toAppend)!=None):
-            for keyword in toAppend:
-                keywordList.append(keyword);
-            workflow.setKeywords(rstring(keywordList));
-            workflow = iUpdate.saveAndReturnObject(workflow);
-        return workflow;
-    
-    workflow = WorkflowI(rstring(namespace), rstring(toCSV(keywords)));
-    return iUpdate.saveAndReturnObject(workflow);
+        return;
+    workflowData = WorkflowData();
+    workflowData.setNamespace(namespace);
+    workflowData.setKeywords(keywords);
+    workflow = iUpdate.saveAndReturnObject(workflowData.asIObject());
+    return WorkflowData(workflow);
+
+def findROIByImage(roiService, image, namespace):
+    roiOptions = omero.api.RoiOptions();
+    roiOptions.namespace = omero.rtypes.rstring(namespace);
+    results = roiService.findByImage(image, roiOptions);
+    roiList = [];
+    for roi in results.rois:
+        roiList.append(ROIData(roi));
+    return roiList;
 
 class sessionWrapper():
     """
