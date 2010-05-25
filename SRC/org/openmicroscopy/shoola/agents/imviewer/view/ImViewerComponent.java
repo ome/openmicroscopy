@@ -696,9 +696,12 @@ class ImViewerComponent
 		switch (model.getState()) {
 			case NEW:
 			case DISCARDED:
+				return;
+				/*
 				throw new IllegalStateException(
-						"This method can't be invoked in the DISCARDED, NEW " +
-				"or LOADING_RENDERING_CONTROL state.");
+						"This method can't be invoked in the DISCARDED or NEW" +
+				" state.");
+				*/
 		}
 		int defaultZ = model.getDefaultZ();
 		int defaultT = model.getDefaultT();

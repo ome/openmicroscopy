@@ -295,7 +295,7 @@ class OMEROGateway
 		
 		SCRIPTS_NOT_AVAILABLE_TO_USER = new ArrayList<String>();
 		SCRIPTS_NOT_AVAILABLE_TO_USER.add(
-				ScriptObject.REGION_PATH+"populatePlateRoi.py");
+				ScriptObject.REGION_PATH+"Populate_Plate_Roi.py");
 	}
 	
 	/**
