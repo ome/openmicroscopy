@@ -26,7 +26,9 @@ package org.openmicroscopy.shoola.env.ui;
 //Java imports
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -116,6 +118,9 @@ class UserNotifierManager
 	/** The dialog keeping track of the activity files. */
 	private DownloadsDialog					activityDialog;
 	
+	/** The collection of running activities. */
+	private List<ActivityComponent>		   activities;
+	
 	/**
 	 * Submits files that failed to import.
 	 * 
@@ -125,7 +130,8 @@ class UserNotifierManager
 	private void submitFiles(MessengerDialog source, 
 								MessengerDetails details)
 	{
-		FileUploader loader = new FileUploader(component, container.getRegistry(), 
+		FileUploader loader = new FileUploader(component, 
+				container.getRegistry(), 
 				source, details);
 		loader.load();
 		/*
@@ -292,14 +298,21 @@ class UserNotifierManager
 	/**
 	 * Registers the passed activity.
 	 * 
-	 * @param activity The activity to register.
+	 * @param activity   The activity to register.
+	 * @param uiRegister Pass <code>true</code> to display the activity in the
+	 *                   activity dialog, <code>false</code> otherwise.
 	 */
-	void registerActivity(ActivityComponent activity)
+	void registerActivity(ActivityComponent activity, boolean uiRegister)
 	{
 		if (activity == null) return;
-		createActivity();
-		activityDialog.addActivityEntry(activity);
-		showActivity();
+		if (uiRegister) {
+			createActivity();
+			activityDialog.addActivityEntry(activity);
+			showActivity();
+		}
+		if (activities == null) activities = new ArrayList<ActivityComponent>();
+		activity.addPropertyChangeListener(this);
+		activities.add(activity);
 	}
 
 	/**
@@ -352,6 +365,17 @@ class UserNotifierManager
 	}
 	
 	/**
+	 * Returns the number of running activities.
+	 * 
+	 * @return See above.
+	 */
+	int getRunningActivitiesCount()
+	{ 
+		if (activities == null) return 0;
+		return activities.size();
+	}
+	
+	/**
 	 * Reacts to property changes fired by dialogs.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
@@ -373,7 +397,11 @@ class UserNotifierManager
 			String fileName = (String) pce.getNewValue();
 			UserNotifierLoader loader = loaders.get(fileName);
 			if (loader != null) loader.cancel();
-		} 
+		} else if (ActivityComponent.UNREGISTER_ACTIVITY_PROPERTY.equals(name))
+		{
+			ActivityComponent c = (ActivityComponent) pce.getNewValue();
+			if (c != null) activities.remove(c);
+		}
 	}
 
 }

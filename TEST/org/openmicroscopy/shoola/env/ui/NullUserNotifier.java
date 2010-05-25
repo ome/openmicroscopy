@@ -149,4 +149,9 @@ public class NullUserNotifier
 	 */
 	public void setStatus(Object node) {}
 
+	/**
+	 * @see UserNotifier#hasRunningActivities()
+	 */
+	public boolean hasRunningActivities() { return false; }
+
 }

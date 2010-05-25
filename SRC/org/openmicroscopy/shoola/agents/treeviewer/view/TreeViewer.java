@@ -49,7 +49,6 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
-import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
@@ -65,7 +64,7 @@ import pojos.ImageData;
 * hierarchy display and let the user interact with it.
 * A display is a view with a visualization tree. A visualization tree
 * is a graphical tree that represents objects in a given  <i>OME</i> hierarchy,
-* like Project/Dataset/Image, Category Group/Category/Image or simply Images.
+* like Project/Dataset/Image, Screen/Plate/Wells or simply Images.
 * The component follows the <code>Lazy loading rule</code> i.e. the leaves 
 * of a given hierarchy are only retrieved if the parent is selected.
 * In practise, this means that we only display a Project/Dataset hierarchy
@@ -895,13 +894,15 @@ public interface TreeViewer
 	 * Indicates that an activity has just terminated.
 	 * 
 	 * @param activity The activity to handle.
+	 * @param finished Pass <code>true</code> to indicate the activity is 
+	 * 				   finished, <code>false</code> otherwise.
 	 */
-	void onActivityTerminated(ActivityComponent activity);
+	void onActivityProcessed(ActivityComponent activity, boolean finished);
 
 	/**
 	 * Downloads the currently selected files to the specified folder.
 	 * 
-	 * @param folder 	The folder where to download the files.
+	 * @param folder The folder where to download the files.
 	 */
 	void download(File folder);
 

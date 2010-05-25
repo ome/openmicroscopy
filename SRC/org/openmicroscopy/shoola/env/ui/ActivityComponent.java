@@ -94,8 +94,11 @@ public abstract class ActivityComponent
 {
 
 	/** Bound property indicating to remove the entry from the display. */
-	public static final String 	REMOVE_ACTIVITY_PROPERTY = "removeActivity";
+	static final String 	REMOVE_ACTIVITY_PROPERTY = "removeActivity";
 	
+	/** Bound property indicating to unregister the activity. */
+	static final String 	UNREGISTER_ACTIVITY_PROPERTY = "unregisterActivity";
+
 	/** The default dimension of the status. */
 	private static final Dimension SIZE = new Dimension(22, 22);
 	
@@ -401,7 +404,7 @@ public abstract class ActivityComponent
      * @param text		The text of the activity.
      * @param icon		The icon to display then done.
      */
-	public ActivityComponent(UserNotifier viewer, Registry registry, String 
+	ActivityComponent(UserNotifier viewer, Registry registry, String 
 			text, Icon icon)
 	{
 		if (viewer == null) throw new NullPointerException("No viewer.");
@@ -470,6 +473,9 @@ public abstract class ActivityComponent
 	{
 		reset();
 		notifyActivityCancelled();
+		firePropertyChange(UNREGISTER_ACTIVITY_PROPERTY, null, this);
+		EventBus bus = registry.getEventBus();
+		bus.post(new ActivityProcessEvent(this, false));
 	}
 	
 	/** Invokes when the call-back has been set. */
@@ -482,7 +488,6 @@ public abstract class ActivityComponent
 	public void startActivity()
 	{
 		status.setBusy(true);
-		//cancelButton.setEnabled(true);
 	}
 	
 	/**
@@ -567,11 +572,12 @@ public abstract class ActivityComponent
 		}
 			
 		notifyActivityEnd();
+		firePropertyChange(UNREGISTER_ACTIVITY_PROPERTY, null, this);
 		//Post an event to 
-		if (busy) {
-			EventBus bus = registry.getEventBus();
-			bus.post(new ActivityFinishedEvent(this));
-		}
+		//if (busy) {
+		EventBus bus = registry.getEventBus();
+		bus.post(new ActivityProcessEvent(this, busy));
+		//}
 	}
 
 	/**
@@ -740,6 +746,9 @@ public abstract class ActivityComponent
 		reset();
 		if (text != null) type.setText(text);
 		if (message != null) messageLabel.setText(message);
+		firePropertyChange(UNREGISTER_ACTIVITY_PROPERTY, null, this);
+		EventBus bus = registry.getEventBus();
+		bus.post(new ActivityProcessEvent(this, false));
 	}
 	
 	/**

@@ -25,21 +25,13 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.File;
-import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.model.OriginalFile;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.MovieActivityParam;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
-import pojos.FileAnnotationData;
 
 /**
  * Activity to create a movie.

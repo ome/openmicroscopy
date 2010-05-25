@@ -43,6 +43,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.GroupData;
@@ -134,10 +135,16 @@ public class PersonalManagementAction
     		setEnabled(false);
     	} else {
     		if (browser.getState() == Browser.READY) {
-    			if (!model.isImporting())
-    				setEnabled(
-    					TreeViewerAgent.getAvailableUserGroups().size() > 1);
-    			else setEnabled(false);
+    			UserNotifier un = 
+    				TreeViewerAgent.getRegistry().getUserNotifier();
+    			if (un.hasRunningActivities()) {
+    				setEnabled(false);
+    			} else {
+    				if (!model.isImporting())
+        				setEnabled(
+        				TreeViewerAgent.getAvailableUserGroups().size() > 1);
+        			else setEnabled(false);
+    			}
         	} else setEnabled(false);
     	}
     }

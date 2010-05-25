@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.ui.ActivityFinishedEvent 
+ * org.openmicroscopy.shoola.env.ui.ActivityProcessEvent 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -43,21 +43,37 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
  * </small>
  * @since 3.0-Beta4
  */
-public class ActivityFinishedEvent 
+public class ActivityProcessEvent 
 	extends RequestEvent
 {
 
 	/** Reference to the activity that has terminated. */
 	private ActivityComponent activity;
 	
+	/** Flag indicating that the activity has finished. */
+	private boolean finished;
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param activity Reference to the activity that has terminated.
+	 * @param finished Pass <code>true</code> to indicate that the current 
+	 *                 activity has finished, <code>false</code> otherwise.
+	 */
+	public ActivityProcessEvent(ActivityComponent activity, boolean finished)
+	{
+		this.activity = activity;
+		this.finished = finished;
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param activity Reference to the activity that has terminated.
 	 */
-	public ActivityFinishedEvent(ActivityComponent activity)
+	public ActivityProcessEvent(ActivityComponent activity)
 	{
-		this.activity = activity;
+		this(activity, true);
 	}
 	
 	/**
@@ -66,5 +82,13 @@ public class ActivityFinishedEvent
 	 * @return See above.
 	 */
 	public ActivityComponent getActivity() { return activity; }
+	
+	/**
+	 * Returns <code>true</code> if the activity is finished,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isFinished() { return finished; }
 	
 }

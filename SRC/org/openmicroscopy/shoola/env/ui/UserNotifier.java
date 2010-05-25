@@ -26,11 +26,10 @@ package org.openmicroscopy.shoola.env.ui;
 import java.util.Map;
 import javax.swing.Icon;
 
-import org.openmicroscopy.shoola.env.data.model.ApplicationData;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 
 /** 
  * Acts as a centralized place where user notifications are collected and 
@@ -168,8 +167,16 @@ public interface UserNotifier
     /**
      * Sets the status of the saving.
      * 
-     * @param node		 The node returned.
+     * @param node The node returned.
      */
     public void setStatus(Object node);
+    
+    /**
+     * Returns <code>true</code> if some activities are still running,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+	public boolean hasRunningActivities();
     
 }

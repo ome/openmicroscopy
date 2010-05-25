@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
 import org.openmicroscopy.shoola.env.data.model.FigureActivityParam;
 import org.openmicroscopy.shoola.env.data.model.MovieActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -338,21 +339,27 @@ public class UserNotifierImpl
 			comp = new AnalysisActivity(this, manager.getRegistry(), p);
 		} else if (activity instanceof ScriptActivityParam) {
 			ScriptActivityParam p = (ScriptActivityParam) activity;
-			//int index = ScriptActivity.UPLOAD;
-			
-			//if (script.getScriptID() > 0) index = ScriptActivity.RUN; 
 			comp = new ScriptActivity(this, manager.getRegistry(),
 					p.getScript(), p.getIndex());
 		}
 		if (comp != null) {
 			UserNotifierLoader loader = comp.createLoader();
 			if (loader == null) return;
-			if (register) {
-				manager.registerActivity(comp);
-				comp.startActivity();
-			}
+			if (register) comp.startActivity();
+			manager.registerActivity(comp, register);
+			EventBus bus = manager.getRegistry().getEventBus();
+			bus.post(new ActivityProcessEvent(comp, false));
 			loader.load();
 		}
+	}
+	
+	/** 
+	 * Implemented as specified by {@link UserNotifier}. 
+	 * @see UserNotifier#hasRunningActivities()
+	 */ 
+	public boolean hasRunningActivities()
+	{
+		return manager.getRunningActivitiesCount() > 0;
 	}
 	
 	/** 

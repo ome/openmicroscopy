@@ -52,7 +52,7 @@ import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.env.ui.ActivityFinishedEvent;
+import org.openmicroscopy.shoola.env.ui.ActivityProcessEvent;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -205,11 +205,11 @@ public class TreeViewerAgent
     }
     
     /**
-     * Handles the {@link ActivityFinishedEvent} event.
+     * Handles the {@link ActivityProcessEvent} event.
      * 
      * @param evt The event to handle.
      */
-    private void handleActivityFinished(ActivityFinishedEvent evt)
+    private void handleActivityFinished(ActivityProcessEvent evt)
     {
     	Environment env = (Environment) registry.lookup(LookupNames.ENV);
     	if (!env.isServerAvailable()) return;
@@ -220,7 +220,7 @@ public class TreeViewerAgent
     	if (gp != null) id = gp.getId();
         TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
         if (viewer != null) {
-        	viewer.onActivityTerminated(evt.getActivity());
+        	viewer.onActivityProcessed(evt.getActivity(), evt.isFinished());
         }
     }
     
@@ -293,7 +293,7 @@ public class TreeViewerAgent
         bus.register(this, SaveEventRequest.class);
         bus.register(this, RndSettingsCopied.class);
         bus.register(this, ImageProjected.class);
-        bus.register(this, ActivityFinishedEvent.class);
+        bus.register(this, ActivityProcessEvent.class);
         bus.register(this, ViewerCreated.class);
         bus.register(this, UserGroupSwitched.class);
     }
@@ -334,8 +334,8 @@ public class TreeViewerAgent
     		handleRndSettingsCopied((RndSettingsCopied) e);
 		else if (e instanceof ImageProjected)
     		handleImageProjected((ImageProjected) e);
-		else if (e instanceof ActivityFinishedEvent)
-			handleActivityFinished((ActivityFinishedEvent) e);
+		else if (e instanceof ActivityProcessEvent)
+			handleActivityFinished((ActivityProcessEvent) e);
 		else if (e instanceof ViewerCreated)
 			handleViewerCreated((ViewerCreated) e);
 		else if (e instanceof UserGroupSwitched)

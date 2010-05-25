@@ -2678,12 +2678,17 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#onActivityTerminated(ActivityComponent)
+	 * @see TreeViewer#onActivityProcessed(ActivityComponent, boolean)
 	 */
-	public void onActivityTerminated(ActivityComponent activity)
+	public void onActivityProcessed(ActivityComponent activity, 
+			boolean finished)
 	{
 		if (model.getState() == DISCARDED) return;
-		view.onActivityTerminated(activity);
+		if (finished) {
+			view.onActivityTerminated(activity);
+		} 
+		firePropertyChange(IMPORTED_PROPERTY, Boolean.valueOf(!finished), 
+				Boolean.valueOf(finished));
 	}
 
 	/**
@@ -3034,7 +3039,6 @@ class TreeViewerComponent
 				browser = (Browser) entry.getValue();
 				browser.reActivate();
 			}
-			
 			firePropertyChange(GROUP_CHANGED_PROPERTY, oldGroup, 
 					model.getUserGroupID());
 		}
