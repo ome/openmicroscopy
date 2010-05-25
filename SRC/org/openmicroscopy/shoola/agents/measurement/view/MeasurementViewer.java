@@ -35,7 +35,7 @@ import javax.swing.JFrame;
 import org.jhotdraw.draw.AttributeKey;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.measurement.util.model.Workflow;
+import pojos.WorkflowData;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -350,5 +350,11 @@ public interface MeasurementViewer
 	 * @return See above.
 	 */
 	public boolean isImageWritable();
+
+	/**
+	 * Set the workflows in the measurement tool to be list passed.
+	 * @param workflows See above.
+	 */
+	public void setWorkflowList(List<WorkflowData> workflows);
 	
 }

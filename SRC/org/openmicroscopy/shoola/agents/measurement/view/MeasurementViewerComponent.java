@@ -46,7 +46,7 @@ import org.jhotdraw.draw.Drawing;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
-import org.openmicroscopy.shoola.agents.measurement.util.model.Workflow;
+import pojos.WorkflowData;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -203,6 +203,7 @@ class MeasurementViewerComponent
     void saveAndDiscard()
     {
     	model.saveROIToServer(false);
+    	model.saveWorkflowToServer(false);	
     	discard();
     }
     
@@ -235,6 +236,7 @@ class MeasurementViewerComponent
         		if (location) model.fireLoadROIFromServer(measurements);
         		else
         		*/	
+        		model.fireLoadWorkflow();
         		model.fireLoadROIServerOrClient(false);
         		//model.fireROILoading(null);
         		//fireStateChange();
@@ -476,6 +478,7 @@ class MeasurementViewerComponent
 	public void saveROIToServer()
 	{
 		model.saveROIToServer(true);
+		model.saveWorkflowToServer(true);
 	}
 	
 	/** 
@@ -863,13 +866,13 @@ class MeasurementViewerComponent
      */
 	public void getWorkflows()
 	{
-		List<String> keywords = new ArrayList<String>();
+		/*List<String> keywords = new ArrayList<String>();
 		keywords.add("1");
 		keywords.add("2");
 		keywords.add("3");
 		keywords.add("4");
 		
-		Workflow workflow = new Workflow("Classification",keywords);
+		WorkflowData workflow = new WorkflowData("Classification",keywords);
 		
 		
 		model.addWorkflow(workflow);
@@ -879,8 +882,8 @@ class MeasurementViewerComponent
 		keywords.add("c");
 		keywords.add("d");
 		
-		workflow = new Workflow("State",keywords);
-		model.addWorkflow(workflow);
+		workflow = new WorkflowData("State",keywords);
+		model.addWorkflow(workflow);*/
 		
 	}
 
@@ -890,7 +893,7 @@ class MeasurementViewerComponent
      */
 	public void createWorkflow()
 	{
-		
+		view.createWorkflow();
 	}
 
 	/** 
@@ -905,7 +908,7 @@ class MeasurementViewerComponent
 
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#setWorkflow(List<String> )
+     * @see MeasurementViewer#setWorkflow(List)
      */
 	public void setKeyword(List<String> keyword)
 	{
@@ -914,7 +917,7 @@ class MeasurementViewerComponent
 	
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#isObjectWritable()
+     * @see MeasurementViewer#isImageWritable()
      */
 	public boolean isImageWritable()
 	{
@@ -940,5 +943,16 @@ class MeasurementViewerComponent
 	 * @see #toString()
 	 */
 	public String toString() { return view.getTitle(); }
+
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#setWorkflowList(List)
+     */
+	public void setWorkflowList(List<WorkflowData> workflows)
+	{
+		for(WorkflowData workflow : workflows)
+			model.addWorkflow(workflow);
+		view.addedWorkflow();
+	}
 	
 }

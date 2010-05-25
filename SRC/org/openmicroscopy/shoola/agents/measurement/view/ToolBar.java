@@ -92,7 +92,7 @@ class ToolBar
 	private final static boolean addPolyline = false;
 
 	/** Add the polygon tool to the toolbar. */
-	private final static boolean addPolygon = false;
+	private final static boolean addPolygon = true;
 	
 	/** Add the connection tool to the toolbar. */
 	private final static boolean addConnection = false;
@@ -450,4 +450,26 @@ class ToolBar
 		workflowPanel.updateWorkflow();
 	}
 	
+	/**
+	 * Get the workflow panel.
+	 * @return See above.
+	 */
+	public WorkflowPanel getWorkflowPanel()
+	{
+		return workflowPanel;
+	}
+
+	/**
+	 * Show the create workflow menu.
+	 */
+	public void createWorkflow()
+	{
+		workflowPanel.createWorkflow();
+	}
+	
+	public void addedWorkflow()
+	{
+		workflowPanel.addedWorkflow();
+		
+	}
 }

@@ -63,11 +63,14 @@ public class ROITableModel
 	/** Type Column no for the wizard. */
 	public static final int				SHAPE_COLUMN = 3;
 
+	public static final int 			NAMESPACE_COLUMN = 4;
+	public static final int 			KEYWORDS_COLUMN = 5;
+	
 	/** Annotation Column no for the wizard. */
-	public static final int				ANNOTATION_COLUMN = 4;
+	public static final int				ANNOTATION_COLUMN = 6;
 
 	/** Visible Column no for the wizard. */
-	public static final int				VISIBLE_COLUMN = 5;
+	public static final int				VISIBLE_COLUMN = 7;
 
 	/**
 	 * Set the model to use ROI nodes and columns as a vector.
@@ -161,6 +164,10 @@ public class ROITableModel
 				return Integer.class;
 			case SHAPE_COLUMN+1:
 				return ShapeType.class;
+			case NAMESPACE_COLUMN+1:
+				return String.class;
+			case KEYWORDS_COLUMN+1:
+				return String.class;
 			case ANNOTATION_COLUMN+1:
 				return String.class;
 			case VISIBLE_COLUMN+1:

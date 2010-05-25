@@ -223,7 +223,6 @@ public class OutputStrategy
 	
 	private void addAttributes(XMLElement annotation, Object value)
 	{
-		String str;
 		if (value instanceof Double||value instanceof Float
 				||value instanceof Integer||value instanceof Long
 				||value instanceof Boolean)
@@ -326,14 +325,7 @@ public class OutputStrategy
 			}
 		}
 	}
-	
-	
-	private String newLine()
-	{
-		return System.getProperty("line.separator");
-	}
-	
-	
+		
 	private void writeROIShape(XMLElement roiElement, ROIShape shape)
 			throws ParsingException
 	{
@@ -686,10 +678,6 @@ public class OutputStrategy
 	protected void writeShapeAttributes(IXMLElement elem,
 			Map<AttributeKey, Object> f) throws ParsingException
 	{
-		Color color;
-		String value;
-		int intValue;
-		
 		
 		// 'color'
 		// Value: <color> | inherit
@@ -957,8 +945,6 @@ public class OutputStrategy
 	private void writeFontAttributes(IXMLElement elem,
 			Map<AttributeKey, Object> a) throws ParsingException
 	{
-		String value;
-		double doubleValue;
 		Object gradient=FILL_GRADIENT.get(a);
 		if (gradient!=null)
 		{

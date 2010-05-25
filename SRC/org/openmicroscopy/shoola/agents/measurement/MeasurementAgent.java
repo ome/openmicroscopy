@@ -211,7 +211,7 @@ public class MeasurementAgent
     	if (evt == null) return;
     	MeasurementViewerFactory.onGroupSwitched(evt.isSuccessful());
     }
-    
+        
     /**
      * Helper method. 
      * 
@@ -257,7 +257,7 @@ public class MeasurementAgent
 		bus.register(this, SaveData.class);
 		bus.register(this, FocusGainedEvent.class);
 		bus.register(this, ImageRendered.class);
-		 bus.register(this, UserGroupSwitched.class);
+		bus.register(this, UserGroupSwitched.class);
 	}
 
     /**

@@ -1253,7 +1253,7 @@ class IntensityView
 	}
 	
 	/**
-	 * Overridden version of {@line TabPaneInterface#getIndex()}
+	 * Overridden version of {@see TabPaneInterface#getIndex()}
 	 * @return the index.
 	 */
 	public int getIndex() {return INDEX; }

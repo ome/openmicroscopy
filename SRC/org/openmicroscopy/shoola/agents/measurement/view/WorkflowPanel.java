@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
@@ -50,12 +52,13 @@ import javax.swing.event.TableModelListener;
 import org.jhotdraw.draw.Figure;
 import org.jhotdraw.draw.FigureListener;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
-import org.openmicroscopy.shoola.agents.measurement.util.model.Workflow;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.checkboxlist.CheckBoxList;
 import org.openmicroscopy.shoola.util.ui.checkboxlist.CheckBoxModel;
+
+import pojos.WorkflowData;
 
 /**
  *
@@ -71,8 +74,9 @@ import org.openmicroscopy.shoola.util.ui.checkboxlist.CheckBoxModel;
  * @since 3.0-Beta4
  */
 public class WorkflowPanel
-	extends JDialog implements MouseListener
+	extends JDialog implements MouseListener, ComponentListener
 {
+	
 	/** Label for the keyword selected. */
 	private JLabel label;
 	
@@ -99,12 +103,18 @@ public class WorkflowPanel
 	 */
 	private CheckBoxModel checkBoxModel;
 	
+	/** The create workflow Dialog. */
+	private WorkflowDialog workflowDialog;
+	
 	/**
 	 * The constructor for the workflow panel, allowing the selection of the 
 	 * keyword from the current workflow. 
-	 * @param model The model which will indicate current workflows. 
+	 * @param view The view which will indicate current workflows. 
+	 * @param model The model. 
+	 * @param controller The controller. 
 	 */
-	public WorkflowPanel(MeasurementViewerUI view, MeasurementViewerModel model, MeasurementViewerControl controller)
+	public WorkflowPanel(MeasurementViewerUI view, MeasurementViewerModel model,
+							MeasurementViewerControl controller)
 	{
 		this.view = view;
 		this.model = model;
@@ -127,6 +137,8 @@ public class WorkflowPanel
 		checkBoxModel = new CheckBoxModel();
 		keywords = new CheckBoxList(checkBoxModel);
 		keywords.addMouseListener(this);
+		addComponentListener(this);
+		workflowDialog = new WorkflowDialog(view, model);
 	}
 	/**
 	 * Build the UI using the components created in init().
@@ -162,9 +174,16 @@ public class WorkflowPanel
 	 */
 	public void updateWorkflow()
 	{
-		Workflow workflow = model.getWorkflow();
+		WorkflowData workflow = model.getWorkflow();
 		if(workflow == null)
-			this.setVisible(false);
+		{
+			namespaceCombobox.removeActionListener(this.controller.getAction(
+					MeasurementViewerControl.SELECTWORKFLOW));
+			namespaceCombobox.setSelectedItem(WorkflowData.DEFAULTWORKFLOW);
+			keywords.setModel(new CheckBoxModel(new ArrayList()));
+			namespaceCombobox.addActionListener(this.controller.getAction(
+					MeasurementViewerControl.SELECTWORKFLOW));
+		}
 		else
 		{
 			namespaceCombobox.removeActionListener(this.controller.getAction(
@@ -173,12 +192,26 @@ public class WorkflowPanel
 			namespaceCombobox.addActionListener(this.controller.getAction(
 					MeasurementViewerControl.SELECTWORKFLOW));
 			
-			CheckBoxModel tableModel = new CheckBoxModel(workflow.getKeywords());
+			CheckBoxModel tableModel = new CheckBoxModel(workflow.getKeywordsAsList());
 			keywords.setModel(tableModel);
 			keywords.setTrueValues(model.getKeywords());
 			repaint();
-			UIUtilities.setLocationRelativeToAndSizeToWindow(view, this, new Dimension(this.getWidth(), this.getHeight()));
+			if(!isVisible())
+				UIUtilities.setLocationRelativeToAndSizeToWindow(view, this, 
+						new Dimension(this.getWidth(), this.getHeight()));
 		}
+	}
+	
+	public void addedWorkflow()
+	{
+		namespaceCombobox.removeActionListener(this.controller.getAction(
+				MeasurementViewerControl.SELECTWORKFLOW));
+		namespaceCombobox.removeAllItems();
+		for(String workflow : model.getWorkflows())
+			namespaceCombobox.addItem(workflow);
+		//namespaceCombobox.setSelectedItem(model.getWorkflow().getNameSpace());
+		namespaceCombobox.addActionListener(this.controller.getAction(
+				MeasurementViewerControl.SELECTWORKFLOW));
 	}
 	
 	/**
@@ -192,6 +225,8 @@ public class WorkflowPanel
 	    model.setWorkflow((String)this.namespaceCombobox.getSelectedItem());
 	    model.setKeyword(keywords);
 		applyWorkflowToCollection(view.getDrawingView().getSelectedFigures());
+		view.rebuildManagerTable();
+		view.refreshInspectorTable();
 	}
 
 	/**
@@ -259,4 +294,43 @@ public class WorkflowPanel
 		// TODO Auto-generated method stub
 		
 	}
+
+	/**
+	 * Called when the dialog is closed.
+	 * @param e The event, which is ignored. 
+	 */
+	public void componentHidden(ComponentEvent e)
+	{
+		model.setWorkflow(WorkflowData.DEFAULTWORKFLOW);
+	}
+
+
+	public void componentMoved(ComponentEvent e)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	public void componentResized(ComponentEvent e)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	public void componentShown(ComponentEvent e)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	/** 
+	 * Show the create workflow Dialog.
+	 */
+	public void createWorkflow()
+	{
+		UIUtilities.centerAndShow(workflowDialog);
+	}
+	
 }

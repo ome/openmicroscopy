@@ -54,80 +54,41 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
  * @since OME3.0
  */
 public class ROITreeTableCellRenderer
-extends JLabel
-implements TreeCellRenderer
+	extends JLabel
+	implements TreeCellRenderer
 {
 
-/**
- * Creates a new instance. Sets the opacity of the label to 
- * <code>true</code>.
- */
-public ROITreeTableCellRenderer()
-{
-	setOpaque(false);
-}
-
-/* (non-Javadoc)
- * @see javax.swing.tree.TreeCellRenderer#getTreeCellRendererComponent
- * (javax.swing.JTree, java.lang.Object, boolean, boolean, boolean, 
- * int, boolean)
- */
-public Component getTreeCellRendererComponent(JTree tree, 
-		Object value, boolean selected, boolean expanded, 
-		boolean leaf, int row, boolean hasFocus)
-{
-	
-	Object thisObject = ((ROITreeNode)value).getUserObject();
-	
-	if( thisObject instanceof ROI)
+	/**
+	 * Creates a new instance. Sets the opacity of the label to 
+	 * <code>true</code>.
+	 */
+	public ROITreeTableCellRenderer()
 	{
-		setIcon(IconManager.getInstance().getIcon(IconManager.ROISTACK));
+		setOpaque(false);
 	}
-	else if( thisObject instanceof ROIShape)
+
+	/* (non-Javadoc)
+	 * @see javax.swing.tree.TreeCellRenderer#getTreeCellRendererComponent
+	 * (javax.swing.JTree, java.lang.Object, boolean, boolean, boolean, 
+	 * int, boolean)
+	 */
+	public Component getTreeCellRendererComponent(JTree tree, 
+			Object value, boolean selected, boolean expanded, 
+			boolean leaf, int row, boolean hasFocus)
 	{
-		setIcon(IconManager.getInstance().getIcon(IconManager.ROISHAPE));
+
+		Object thisObject = ((ROITreeNode)value).getUserObject();
+
+		if( thisObject instanceof ROI)
+		{
+			setIcon(IconManager.getInstance().getIcon(IconManager.ROISTACK));
+		}
+		else if( thisObject instanceof ROIShape)
+		{
+			setIcon(IconManager.getInstance().getIcon(IconManager.ROISHAPE));
+		}
+		return this;
 	}
-	return this;
-}
-
-	
-/**
- * is the str representing a shapes object.
- * @param str see above.
- * @return see above.
- */
-private boolean isShape(String str)
-{
-	for(int i = 0 ; i < ShapeTypes.SHAPE_LIST.size() ; i++)
-		if(ShapeTypes.SHAPE_LIST.get(i).equals(str))
-			return true;
-	return false;
-}
-
-/**
- * Add the approriate shape icon to the label.
- * @param label see above.
- * @param shape above.
- */
-private void makeShapeIcon(JLabel label, String shape)
-{
-	if(shape.equals(FigureUtil.SCRIBBLE_TYPE))
-		label.setIcon(IconManager.getInstance().getIcon(IconManager.SCRIBBLE_16));
-	if(shape.equals(FigureUtil.LINE_TYPE))
-		label.setIcon(IconManager.getInstance().getIcon(IconManager.LINE_16));
-	if(shape.equals(FigureUtil.LINE_CONNECTION_TYPE))
-		label.setIcon(IconManager.getInstance().getIcon(IconManager.CONNECTION_16));
-	if(shape.equals(FigureUtil.POLYGON_TYPE))
-		label.setIcon(IconManager.getInstance().getIcon(IconManager.POLYGON_16));
-	if(shape.equals(FigureUtil.POINT_TYPE))
-		label.setIcon(IconManager.getInstance().getIcon(IconManager.POINT_16));
-	if(shape.equals(FigureUtil.RECTANGLE_TYPE))
-		label.setIcon(IconManager.getInstance().getIcon(IconManager.RECTANGLE_16));
-	if(shape.equals(FigureUtil.ELLIPSE_TYPE))
-		label.setIcon(IconManager.getInstance().getIcon(IconManager.ELLIPSE_16));
-	if(shape.equals(FigureUtil.TEXT_TYPE))
-		label.setIcon(IconManager.getInstance().getIcon(IconManager.TEXT_16));
-}
 
 }
 

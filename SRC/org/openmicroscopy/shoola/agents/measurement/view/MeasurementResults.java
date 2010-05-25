@@ -161,7 +161,7 @@ class MeasurementResults
 	private ListSelectionListener			listener;
 
 	/**
-	 * overridden version of {@line TabPaneInterface#getIndex()}
+	 * overridden version of {@see TabPaneInterface#getIndex()}
 	 */
 	public int getIndex() {return INDEX; }
 	
@@ -644,8 +644,9 @@ class MeasurementResults
 		/**
 		 * Creates a new instance.
 		 * 
-		 * @param columnNames2	The collection of column's names.
+		 * @param colNames	The collection of column's names.
 		 * 						Mustn't be <code>null</code>.
+		 * @param units The units of measurement.
 		 */
 		MeasurementTableModel(List<KeyDescription> colNames, MeasurementUnits units)
 		{

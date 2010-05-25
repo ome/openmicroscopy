@@ -70,9 +70,6 @@ public class IntensityValuesDialog
 	/** Spacer for the row header. */
 	private final static String ROWSPACER = "  ";
 	
-	/** Table Model. */
-	private IntensityModel	tableModel;
-	
 	/** Table view. */
 	private IntensityTable	table;
 	
@@ -113,7 +110,6 @@ public class IntensityValuesDialog
 	 */
 	IntensityValuesDialog(IntensityModel model)
 	{
-		this.tableModel = model;
 		table = new IntensityTable(model);
 		buildUI();
 	}

@@ -50,8 +50,12 @@ import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.EllipseData;
 import pojos.ImageData;
 import pojos.MaskData;
@@ -149,9 +153,7 @@ public class OutputServerStrategy
 	{
 		
 		ROIData roiData = new ROIData();
-		String[] values = new String[1];
-		values[0] = roi.getNamespace();
-		roiData.setNamespaces(values);
+		roiData.setNamespaceKeywords((String)roi.getAnnotation(AnnotationKeys.NAMESPACE), (String[])UIUtilities.CSVToList((String)roi.getAnnotation(AnnotationKeys.KEYWORDS)).toArray());
 		//TODO Fix Name
 		//roiData.setKeywords(roi.getKeyword());
 		

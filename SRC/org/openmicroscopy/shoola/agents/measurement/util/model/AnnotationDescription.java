@@ -94,6 +94,11 @@ public class AnnotationDescription
 														"Measurement Colour");
 		annotationDescription.put(MeasurementAttributes.SHOWMEASUREMENT,
 														"Show Measurement");
+
+		annotationDescription.put(AnnotationKeys.NAMESPACE,
+														"Workflow");
+		annotationDescription.put(AnnotationKeys.KEYWORDS,
+														"Keywords");
 		}
 }
 

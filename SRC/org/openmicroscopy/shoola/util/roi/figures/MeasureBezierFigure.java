@@ -645,7 +645,7 @@ public class MeasureBezierFigure
 	
 	/**
 	 * Overridden to stop updating shape if read only.
-	 * @see AbstractAttributedFigure#setBounds(Double, Double)
+	 * @see AbstractAttributedFigure#setBounds(Point2D, Point2D)
 	 */
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
 	{
@@ -846,6 +846,11 @@ public class MeasureBezierFigure
 		return figListeners;
 	}
 
+	public BezierPath.Node removeNode(int node)
+	{
+		return super.removeNode(node);
+	}
+	
 }
 
 

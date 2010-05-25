@@ -80,7 +80,7 @@ import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.ROIData;
-
+import pojos.WorkflowData;
 
 /** 
 * Implementation of the {@link OmeroImageService} I/F.
@@ -1027,6 +1027,30 @@ class OmeroImageServiceImpl
 		}
 		return m;
 	}
+	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroImageService#storeWorkflows(List, long)
+	 */
+	public Object storeWorkflows(List<WorkflowData> workflows, long userID)
+			throws DSAccessException, DSOutOfServiceException
+	{
+		return gateway.storeWorkflows(workflows, userID);
+	}
+	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroImageService#retrieveWorkflows(long)
+	 */
+	public List<WorkflowData> retrieveWorkflows(long userID) 
+	throws DSAccessException, DSOutOfServiceException
+	{
+		System.err.println("Retrieving Workflows");
+		List<WorkflowData> workflows = gateway.retrieveWorkflows(userID);
+		System.err.println("Workflows : " + workflows);
+		return workflows;
+	}
+
 	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.

@@ -1806,4 +1806,38 @@ public class UIUtilities
     	((c.getGreen() & 0xFF) << 8)  |
     	((c.getBlue() & 0xFF) << 0);
 	}
+	
+	/**
+	* Converts a list to a CSV string.
+	*
+	* @param list The list to convert.
+	* @return See above.
+	*/
+	public static String listToCSV(List<String> list)
+	{
+		String str = "";
+		for(int i = 0 ; i < list.size() ; i++)
+		{
+			str = str + list.get(i);
+			if(i<list.size()-1)
+				str = str + ",";
+		}
+		return str;
+	}
+	
+	/**
+	* Converts a CSV string to a list of strings.
+	*
+	* @param str The CSV string to convert.
+	* @return See above.
+	*/
+	public static List<String> CSVToList(String str)
+	{
+		List<String> list = new ArrayList<String>();
+		String[] valueString = str.split(",");
+		for(String value : valueString)
+			if(!value.equals("[]"))
+				list.add(value);
+		return list;
+	}
 }

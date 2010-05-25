@@ -128,6 +128,6 @@ class StatusBar
 	 * 
 	 * @param s The message to display.
 	 */
-	void setStatus(String s) { status.setText(s); }
+	public void setStatus(String s) { status.setText(s); }
 	
 }

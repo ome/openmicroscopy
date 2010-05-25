@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import pojos.WorkflowData;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -50,11 +52,7 @@ import java.util.Set;
  * @since OME3.0
  */
 public class AnnotationKeys 
-{
-	
-	/** The default workflow, i.e. nothing .*/
-	public static String DEFAULTWORKFLOW = "Default Workflow";
-	
+{	
 	/** This is the text of the figure object. */
 	public static final AnnotationKey<String> TEXT =
 		new AnnotationKey<String>("basicTextAnnotation", "");
@@ -142,7 +140,7 @@ public class AnnotationKeys
 	 * The namespace associated with the ROI.
 	 */
 	public static final AnnotationKey<String> NAMESPACE = 
-		new AnnotationKey<String>("Namespace", DEFAULTWORKFLOW);
+		new AnnotationKey<String>("Namespace", WorkflowData.DEFAULTWORKFLOW);
 	
 	/**
 	 * The keywords associated with the ROI.

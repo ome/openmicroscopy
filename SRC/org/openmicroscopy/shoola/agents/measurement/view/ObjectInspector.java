@@ -95,7 +95,7 @@ class ObjectInspector
 	}
 
 	/**
-	 * overridden version of {@line TabPaneInterface#getIndex(int)}
+	 * overridden version of {@see TabPaneInterface#getIndex(int)}
 	 */
 	public int getIndex() {return INDEX; }
 	

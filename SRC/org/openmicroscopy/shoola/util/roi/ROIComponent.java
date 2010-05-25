@@ -283,7 +283,6 @@ public class ROIComponent
 		if (roi == null) throw new ROICreationException("Unable to create ROI.");
     	ROIShape shape = figure.getROIShape();
     	setShapeAnnotations(shape);
-    //	AnnotationKeys.ROIID.set(shape, roi.getID());
     	return roi;
     }
     
@@ -309,7 +308,6 @@ public class ROIComponent
 		if (roi == null) throw new ROICreationException("Unable to create ROI.");
     	ROIShape shape = figure.getROIShape();
     	setShapeAnnotations(shape);
-    //	AnnotationKeys.ROIID.set(shape, roi.getID());
     	return roi;
     }
 	

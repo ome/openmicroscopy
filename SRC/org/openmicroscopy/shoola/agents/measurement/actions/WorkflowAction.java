@@ -88,15 +88,16 @@ public class WorkflowAction
 			{
 				JComboBox comboBox = (JComboBox)e.getSource();
 				model.setWorkflow((String)comboBox.getSelectedItem());
+				
 			}
-			else
+			else 			
 				model.setWorkflow(e.getActionCommand());
 		}
 	}
     
 	/** 
      * Implemented by sub-classes.
-     * @see java.awt.event.ActionListener#onStateChange()
+     * @see MeasurementViewerAction#onStateChange()
      */
 	protected void onStateChange() 
     {

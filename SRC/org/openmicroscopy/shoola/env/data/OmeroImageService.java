@@ -50,6 +50,7 @@ import pojos.DataObject;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.ROIData;
+import pojos.WorkflowData;
 
 /** 
  * List of methods to view images or thumbnails.
@@ -724,6 +725,26 @@ public interface OmeroImageService
 			List<DataObject> files, int maxLength, long userID)
 		throws DSAccessException, DSOutOfServiceException, FSAccessException;
 	
+	/**
+	 * Get all the available workflows from the server for the user.
+	 * @param userID The users id.
+	 * @return See above.
+	 * @throws DSAccessException
+	 * @throws DSOutOfServiceException
+	 */
+	public List<WorkflowData> retrieveWorkflows(long userID) 
+		throws DSAccessException, DSOutOfServiceException;
+	
+	/**
+	 * Add the workflows to the server for the user.
+	 * @param workflows See above.
+	 * @param userID The id of the user.
+	 * @throws DSAccessException
+	 * @throws DSOutOfServiceException
+	 */
+	public  Object storeWorkflows(List<WorkflowData> workflows, long userID) 
+	throws DSAccessException, DSOutOfServiceException;
+
 	/**
 	 * Retrieves the thumbnails corresponding to the passed collection of
 	 * experimenter.

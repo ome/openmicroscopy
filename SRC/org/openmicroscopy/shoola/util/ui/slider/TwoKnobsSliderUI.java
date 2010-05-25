@@ -353,6 +353,9 @@ class TwoKnobsSliderUI
 			g2D.fillRoundRect(trackRect.x, trackRect.y+3, trackRect.width,
 					trackRect.height-12, trackRect.height/3, 
 					trackRect.height/3);
+			g2D.setColor(TRACK_COLOR);
+			g2D.drawRoundRect(trackRect.x, trackRect.y+2, trackRect.width,
+					trackRect.height-9, trackRect.height/3, trackRect.height/3);
 		}
 		else
 		{
@@ -365,9 +368,6 @@ class TwoKnobsSliderUI
 			g2D.fillRoundRect(trackRect.x, trackRect.y+2, trackRect.width,
 						trackRect.height-9, trackRect.height/3, 
 						trackRect.height/3);
-			g2D.setColor(UIUtilities.BACKGROUND_COLOUR_ODD);
-			g2D.drawRoundRect(trackRect.x, trackRect.y+2, trackRect.width,
-					trackRect.height-9, trackRect.height/3, trackRect.height/3);
 			g2D.setColor(UIUtilities.BACKGROUND_COLOR);
 			g2D.drawRoundRect(trackRect.x, trackRect.y+2, trackRect.width,
 					trackRect.height-9, trackRect.height/3, trackRect.height/3);

@@ -100,23 +100,7 @@ public class ROIPopupMenu
 		return roiOptionsParent;
 	}
 	
-	/**
-	 * Creates the menu which will allow the user to calculate the ROIstats.
-	 * 
-	 * @return The ROI control menu.
-	 */
-	private JMenu createROIStatsOptions()
-	{
-		JMenu roiOptionsParent = new JMenu(ROI_STATS_OPTIONS);
-		JMenuItem roiOption;
-		
-		for (int indexCnt = 0 ; indexCnt < ROIActionController.StatsActionType.values().length ; indexCnt++)
-		{
-			roiOption = new JMenuItem(new ROIStatsAction(controller, ROIActionController.StatsActionType.values()[indexCnt]));
-			roiOptionsParent.add(roiOption);
-		}
-		return roiOptionsParent;
-	}
+	
 	/**
 	 * Create the popup menu;
 	 *

@@ -247,7 +247,7 @@ class IntensityResultsView
 	private 	ROIShape shape;
 	
 	/**
-	 * overridden version of {@line TabPaneInterface#getIndex()}
+	 * overridden version of {@see TabPaneInterface#getIndex()}
 	 * @return the index.
 	 */
 	public int getIndex() { return INDEX; }

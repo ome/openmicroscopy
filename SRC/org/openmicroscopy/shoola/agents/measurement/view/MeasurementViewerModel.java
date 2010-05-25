@@ -44,6 +44,8 @@ import java.util.Map.Entry;
 
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
+import com.sun.tools.internal.ws.processor.model.Model;
+
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.DrawingEditor;
@@ -58,8 +60,10 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementViewerLoader;
 import org.openmicroscopy.shoola.agents.measurement.ROILoader;
 import org.openmicroscopy.shoola.agents.measurement.ROISaver;
 import org.openmicroscopy.shoola.agents.measurement.ServerSideROILoader;
+import org.openmicroscopy.shoola.agents.measurement.WorkflowLoader;
+import org.openmicroscopy.shoola.agents.measurement.WorkflowSaver;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
-import org.openmicroscopy.shoola.agents.measurement.util.model.Workflow;
+import pojos.WorkflowData;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
@@ -185,7 +189,7 @@ class MeasurementViewerModel
 	private String 					workflowNamespace;
     
 	/** The map of workflow namespace, workflow. */
-	private Map<String, Workflow> 	workflows;
+	private Map<String, WorkflowData> 	workflows;
 	
 	/** The keyword of the current workflow. */
 	private List<String>			keyword;
@@ -237,8 +241,8 @@ class MeasurementViewerModel
 		roiComponent.setMicronsPixelX(getPixelSizeX());
 		roiComponent.setMicronsPixelY(getPixelSizeY());
 		roiComponent.setMicronsPixelZ(getPixelSizeZ());
-		workflows = new HashMap<String, Workflow>();
-		this.workflowNamespace = Workflow.DEFAULTWORKFLOW;
+		workflows = new HashMap<String, WorkflowData>();
+		this.workflowNamespace = WorkflowData.DEFAULTWORKFLOW;
 		this.keyword = new ArrayList<String>();
 	}
 	
@@ -721,7 +725,6 @@ class MeasurementViewerModel
 	void removeAllROI() throws NoSuchROIException
 	{
 		drawingComponent.removeAllFigures();
-		int mapSize = roiComponent.getROIMap().size();
 		int size = roiComponent.getROIMap().values().size();
 		ROI[] valueList = new ROI[size];
 		roiComponent.getROIMap().values().toArray(valueList);
@@ -853,10 +856,20 @@ class MeasurementViewerModel
 	}
 	
 	/** 
+	 * Fires an asynchronous retrieval of the Workflow related user.
+	 */
+	void fireLoadWorkflow()
+	{
+		ExperimenterData exp = 
+			(ExperimenterData) MeasurementAgent.getUserDetails();
+		currentLoader = new WorkflowLoader(component, exp.getId());
+		currentLoader.load();
+	}
+	/** 
 	 * Fires an asynchronous retrieval of the ROI related to the pixels set. 
 	 * 
 	 * @param fileName The name of the file to load. If <code>null</code>
-	 * 					the {@link #roiFileName} is selected.
+	 * 					is selected.
 	 */
 	void fireROILoading(String fileName)
 	{
@@ -950,7 +963,7 @@ class MeasurementViewerModel
 	/** 
 	 * Saves the current ROISet in the ROI component to server. 
 	 * 
-	 * @param asynch Pass <code>true</code> to save the ROI asynchronously,
+	 * @param async Pass <code>true</code> to save the ROI asynchronously,
 	 * 				 <code>false</code> otherwise.
 	 */
 	void saveROIToServer(boolean async)
@@ -974,6 +987,38 @@ class MeasurementViewerModel
 		} catch (Exception e) {
 			Logger log = MeasurementAgent.getRegistry().getLogger();
 			log.warn(this, "Cannot save to server "+e.getMessage());
+		}
+		
+	}
+	
+	/** 
+	 * Saves the current ROISet in the ROI component to server. 
+	 * 
+	 * @param async Pass <code>true</code> to save the ROI asynchronously,
+	 * 				 <code>false</code> otherwise.
+	 */
+	void saveWorkflowToServer(boolean async)
+	{
+		List<WorkflowData> workflowList = new ArrayList<WorkflowData>();
+		Iterator<WorkflowData> workflowIterator = workflows.values().iterator();
+		while(workflowIterator.hasNext())
+			workflowList.add(workflowIterator.next());
+		try {
+			ExperimenterData exp = 
+				(ExperimenterData) MeasurementAgent.getUserDetails();
+			if (async) {
+				currentSaver = new WorkflowSaver(component, workflowList, exp.getId());
+				currentSaver.load();
+				nofityDataChanged(false);
+			} else {
+				OmeroImageService svc = 
+					MeasurementAgent.getRegistry().getImageService();
+				svc.storeWorkflows(workflowList, exp.getId());
+				event = null;
+			}
+		} catch (Exception e) {
+			Logger log = MeasurementAgent.getRegistry().getLogger();
+			log.warn(this, "Cannot save workflows to server "+e.getMessage());
 		}
 		
 	}
@@ -1310,15 +1355,13 @@ class MeasurementViewerModel
 	 */
 	boolean isServerROI() { return serverROI; }
 
-	/** 
-	 * Returns <code>true</code> if the tool hosts server ROIs,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
+	/**
+	 * Set the workflow for the next ROI.
+	 * @param workflowNamespace  See above.
 	 */
 	public void setWorkflow(String workflowNamespace)
 	{
-		if(workflowNamespace == Workflow.DEFAULTWORKFLOW)
+		if(workflowNamespace.equals(WorkflowData.DEFAULTWORKFLOW))
 		{
 			this.workflowNamespace = workflowNamespace;
 			this.keyword = new ArrayList<String>();
@@ -1337,19 +1380,21 @@ class MeasurementViewerModel
 	 *  
 	 * @return See above.
 	 */
-	public Workflow getWorkflow()
+	public WorkflowData getWorkflow()
 	{
-		if(workflowNamespace != Workflow.DEFAULTWORKFLOW)
+		if(workflowNamespace != WorkflowData.DEFAULTWORKFLOW)
 			return workflows.get(workflowNamespace);
 		return null;
 	}
 	
 	/** 
 	 * Add a new workflow to the workflow list;
+	 * @param workflow See above.
 	 */
-	public void addWorkflow(Workflow workflow)
+	public void addWorkflow(WorkflowData workflow)
 	{
 		workflows.put(workflow.getNameSpace(), workflow);
+		
 	}
 
 	/** 
@@ -1360,7 +1405,7 @@ class MeasurementViewerModel
 	{
 		List<String> workflowList = new ArrayList<String>();
 		Iterator<String> i = workflows.keySet().iterator();
-		workflowList.add(Workflow.DEFAULTWORKFLOW);
+		workflowList.add(WorkflowData.DEFAULTWORKFLOW);
 		while(i.hasNext())
 		{
 			workflowList.add(i.next());
@@ -1379,7 +1424,7 @@ class MeasurementViewerModel
 			this.keyword = keywords;
 		else
 		{
-			Workflow workflow = getWorkflow();
+			WorkflowData workflow = getWorkflow();
 			for(String word : keywords)
 				if(!workflow.contains(word) && word != "")
 					throw new IllegalArgumentException("Workflow does not contain keyword '" + keyword +"'");

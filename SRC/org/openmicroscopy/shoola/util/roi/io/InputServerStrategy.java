@@ -63,8 +63,11 @@ import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.io.util.SVGTransform;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.EllipseData;
 import pojos.LineData;
 import pojos.PointData;
@@ -163,6 +166,8 @@ class InputServerStrategy
 	{
 		long id = roi.getId();
 		ROI newROI = component.createROI(id, readOnly);
+		newROI.setAnnotation(AnnotationKeys.NAMESPACE, roi.getNamespaces().get(0));
+		newROI.setAnnotation(AnnotationKeys.KEYWORDS, UIUtilities.listToCSV(roi.getNamespaceKeywords(roi.getNamespaces().get(0))));
 		ROIShape shape;
 		ShapeData shapeData;
 		Iterator<List<ShapeData>> i = roi.getIterator();

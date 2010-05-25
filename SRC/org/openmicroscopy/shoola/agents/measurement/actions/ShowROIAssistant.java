@@ -62,7 +62,7 @@ public class ShowROIAssistant
 
 	/** 
 	 * Sets the action enabled if the ROIs are server ROI. 
-	 * @see MeasurementViewerAction# onStateChange()
+	 * @see MeasurementViewerAction#onStateChange()
 	 */
 	protected void onStateChange()
 	{

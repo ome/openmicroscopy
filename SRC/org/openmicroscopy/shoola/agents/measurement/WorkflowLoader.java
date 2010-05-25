@@ -1,11 +1,11 @@
 /*
-* org.openmicroscopy.shoola.agents.measurement.ROISaver
+* org.openmicroscopy.shoola.agents.measurement.WorkflowLoader
 *
- *------------------------------------------------------------------------------
+*------------------------------------------------------------------------------
 *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
 *
 *
-* 	This program is free software; you can redistribute it and/or modify
+*  This program is free software; you can redistribute it and/or modify
 *  it under the terms of the GNU General Public License as published by
 *  the Free Software Foundation; either version 2 of the License, or
 *  (at your option) any later version.
@@ -22,8 +22,6 @@
 */
 package org.openmicroscopy.shoola.agents.measurement;
 
-
-
 //Java imports
 import java.util.Collection;
 import java.util.List;
@@ -33,34 +31,27 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-
-import pojos.ROIData;
+import pojos.WorkflowData;
 
 /**
- * Save the ROIs for a given image.
+ *
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
  * @since 3.0-Beta4
  */
-public class ROISaver 	
+public class WorkflowLoader
 	extends MeasurementViewerLoader
 {
 
-	/** The id of the image the ROIs are related to. */
-	private long		imageID;
-	
 	/** The id of the user. */
 	private long		userID;
-	
-	/** The ROI data to save. */
-	private List<ROIData> roiList;
 	
 	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
@@ -69,20 +60,12 @@ public class ROISaver
      * Creates a new instance. 
      * 
      * @param viewer	The viewer this data loader is for.
-     *                  Mustn't be <code>null</code>.
-     * @param imageID	The id of the image the ROIs are related to.
      * @param userID	The id of the user.
-     * @param roiList	The list of the roi id's to load.
      */
-	public ROISaver(MeasurementViewer viewer, long imageID, long userID, 
-			List<ROIData> roiList)
+	public WorkflowLoader(MeasurementViewer viewer,	long userID)
 	{
 		super(viewer);
-		if (imageID < 0) 
-			throw new IllegalArgumentException("No image specified.");
-		this.imageID = imageID;
 		this.userID = userID;
-		this.roiList = roiList;
 	}
 	
 	/**
@@ -91,7 +74,7 @@ public class ROISaver
      */
     public void load()
     {
-    	handle = idView.saveROI(imageID, userID, roiList , this);
+    	handle = this.idView.retrieveWorkflows(userID, this);
     }
     
     /**
@@ -107,7 +90,8 @@ public class ROISaver
     public void handleResult(Object result)
     {
     	if (viewer.getState() == MeasurementViewer.DISCARDED) return;  //Async cancel.
-    	viewer.setUpdateROIComponent((Collection) result);
+    	System.err.println("handleResult");
+    	viewer.setWorkflowList((List<WorkflowData>) result);
     }
 
 }

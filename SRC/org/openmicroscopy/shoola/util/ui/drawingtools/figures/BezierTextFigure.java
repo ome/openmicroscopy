@@ -37,6 +37,7 @@ import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.BezierFigure;
 import org.jhotdraw.draw.TextHolderFigure;
 import org.jhotdraw.draw.Tool;
+import org.jhotdraw.geom.BezierPath;
 import org.jhotdraw.geom.Insets2D;
 
 //Application-internal dependencies
@@ -331,6 +332,11 @@ public class BezierTextFigure
 		BezierTextFigure that = (BezierTextFigure) super.clone();
 		that.setText(this.getText());
 		return that;
+	}
+	
+	public BezierPath.Node removeNode(int node)
+	{
+		return super.removeNode(node);
 	}
 
 }

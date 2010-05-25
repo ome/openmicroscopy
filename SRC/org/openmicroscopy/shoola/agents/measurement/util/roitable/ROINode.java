@@ -70,11 +70,17 @@ public class ROINode
 	/** Type Column no for the wizard. */
 	private static final int				SHAPE_COLUMN = 3;
 
+	/** Type Column no for the wizard. */
+	private static final int				NAMESPACE_COLUMN = 4;
+	
+	/** Type Column no for the wizard. */
+	private static final int				KEYWORDS_COLUMN = 5;
+	
 	/** Annotation Column no for the wizard. */
-	private static final int				ANNOTATION_COLUMN = 4;
+	private static final int				ANNOTATION_COLUMN = 6;
 
 	/** Visible Column no for the wizard. */
-	private static final int				VISIBLE_COLUMN = 5;
+	private static final int				VISIBLE_COLUMN = 7;
 	
 	/** The map of the children, ROIShapes belonging to the ROINode. */
 	HashMap<ROIShape, ROINode>				childMap;
@@ -218,7 +224,7 @@ public class ROINode
 	 
 	 /**
 	 * Remove a child to the current node.
-	 * @param child see above.
+	 * @param childCoord see above.
 	 */
 	 public void remove(Coord3D childCoord) 
 	 {
@@ -256,6 +262,10 @@ public class ROINode
 					return roi.getZRange();
 				case SHAPE_COLUMN+1:
 					return roi.getShapeTypes();
+				case NAMESPACE_COLUMN+1:
+					return AnnotationKeys.NAMESPACE.get(roi);
+				case KEYWORDS_COLUMN+1:
+					return AnnotationKeys.KEYWORDS.get(roi);
 				case ANNOTATION_COLUMN+1:
 					return AnnotationKeys.TEXT.get(roi);
 				case VISIBLE_COLUMN+1:

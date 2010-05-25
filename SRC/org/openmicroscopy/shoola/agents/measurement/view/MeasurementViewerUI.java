@@ -61,7 +61,7 @@ import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
-import org.openmicroscopy.shoola.agents.measurement.util.model.Workflow;
+import pojos.WorkflowData;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -195,6 +195,9 @@ class MeasurementViewerUI
     
     /** The collection of components displaying the tables. */
     private List<ServerROITable>		roiTables;
+    
+    private JMenuBar mainMenu;
+    private JMenu workflowMenu;
 
     /**
      * Scrolls to the passed figure.
@@ -218,7 +221,8 @@ class MeasurementViewerUI
     	JMenuBar menuBar = new JMenuBar(); 
     	menuBar.add(createControlsMenu());
     	menuBar.add(createOptionsMenu());
-    	menuBar.add(createWorkFlowMenu());
+    	workflowMenu = createWorkFlowMenu();
+    	menuBar.add(workflowMenu);
         return menuBar;
     }
     
@@ -317,7 +321,7 @@ class MeasurementViewerUI
         	MeasurementViewerAction a = controller.getAction(
     			MeasurementViewerControl.SELECTWORKFLOW);
         	JCheckBoxMenuItem workflowItem = new JCheckBoxMenuItem(a);
-        	if(workFlow == Workflow.DEFAULTWORKFLOW)
+        	if(workFlow == WorkflowData.DEFAULTWORKFLOW)
         		workflowItem.setSelected(true);
         	workflowItem.setText(workFlow);
         	workflows.add(workflowItem);
@@ -330,7 +334,7 @@ class MeasurementViewerUI
        	JMenuItem createWorkflow = new JMenuItem();
        	createWorkflow.setText(a.getName());
     	createWorkflow.addActionListener(a);
-       	menu.add(createWorkflow);
+       	//menu.add(createWorkflow);
         return menu;
     }
     
@@ -387,7 +391,8 @@ class MeasurementViewerUI
 	/** Builds and lays out the GUI. */
 	private void buildGUI()
 	{
-		setJMenuBar(createMenuBar());
+		mainMenu = createMenuBar();
+		setJMenuBar(mainMenu);
 		tabs.addTab(roiManager.getComponentName(), 
 					roiManager.getComponentIcon(), roiManager);
 		tabs.addTab(roiInspector.getComponentName(), 
@@ -1217,7 +1222,6 @@ class MeasurementViewerUI
 	 * Calculate the stats for the Rois in the shapelist. This method
 	 * will call the graphView.
 	 * 
-	 * @param id see above.
 	 * @param shapeList see above.
 	 */
 	void calculateStats(List<ROIShape> shapeList)
@@ -1246,9 +1250,39 @@ class MeasurementViewerUI
     /**
      * Update the workflow in the toolbar.
      */
+	public void addedWorkflow()
+	{
+		if(workflowMenu!=null && mainMenu!=null)
+		{
+			mainMenu.remove(workflowMenu);
+			workflowMenu = createWorkFlowMenu(); 
+			mainMenu.add(workflowMenu);
+			toolBar.addedWorkflow();
+		}
+	}
+	
 	public void updateWorkflow()
 	{
 		toolBar.updateWorkflow();
+	}
+	
+	/** 
+     * Overridden to the hide the window'd items of the UI.
+     * @see TopWindow#setVisible() 
+     */
+ 	public void setVisible(boolean value)
+	{
+		if(value==false)
+			toolBar.getWorkflowPanel().setVisible(false);
+		super.setVisible(value);
+	}
+
+ 	/**
+ 	 * Show the workflow for the toolbar.
+ 	 */
+	public void createWorkflow()
+	{
+		toolBar.createWorkflow();
 	}
     
 }

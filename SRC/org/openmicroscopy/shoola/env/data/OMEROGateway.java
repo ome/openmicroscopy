@@ -51,6 +51,7 @@ import Ice.ConnectionLostException;
 import loci.formats.FormatException;
 
 //Application-internal dependencies
+
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
@@ -84,6 +85,7 @@ import omero.SecurityViolation;
 import omero.ServerError;
 import omero.SessionException;
 import omero.client;
+import omero.rtypes;
 import omero.api.ExporterPrx;
 import omero.api.IAdminPrx;
 import omero.api.IContainerPrx;
@@ -144,6 +146,7 @@ import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
+import omero.model.NamespaceI;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.Permissions;
@@ -199,6 +202,7 @@ import pojos.TextualAnnotationData;
 import pojos.TimeAnnotationData;
 import pojos.WellData;
 import pojos.WellSampleData;
+import pojos.WorkflowData;
 
 /** 
  * Unified access point to the various <i>OMERO</i> services.
@@ -6199,6 +6203,14 @@ class OMEROGateway
 					}
 					
 				}
+				
+				/* 
+				 * Step 7. update properties of ROI, if they are changed.
+				 * 
+				 */
+				serverRoi.setDescription(((Roi)roi.asIObject()).getDescription());
+				serverRoi.setNamespaces(((Roi)roi.asIObject()).getNamespaces());
+				serverRoi.setKeywords(((Roi)roi.asIObject()).getKeywords());
 				updateService.saveAndReturnObject(serverRoi);
 			}
 			return roiList;
@@ -7047,6 +7059,65 @@ class OMEROGateway
 		}
 		return null;
 	}
+	
+	/**
+	 * Get the list of available workflows on the server. 
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	List<WorkflowData> retrieveWorkflows(long userID)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		IQueryPrx svc = getQueryService();
+		try
+		{
+			ParametersI param = new ParametersI();
+			param.map.put("userID", omero.rtypes.rlong(userID));
+			List<NamespaceI> serverWorkflows = 
+				(List)svc.findAllByQuery("from Namespace as n", param);
+			List<WorkflowData> mappedWorkflows = new ArrayList<WorkflowData>();
+			for(NamespaceI serverWorkflow : serverWorkflows)
+				mappedWorkflows.add(new WorkflowData(serverWorkflow));
+			return mappedWorkflows;
+		}
+		catch(Throwable t)
+		{
+			return new ArrayList<WorkflowData>();
+		}
+	}
+	
+	/**
+	 * Get the list of available workflows on the server. 
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	Object storeWorkflows(List<WorkflowData> workflows, long userID)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		IUpdatePrx updateService = getUpdateService();
+		for(WorkflowData workflow : workflows)
+			if(workflow.isDirty())
+			{
+				try
+				{
+					updateService.saveObject(workflow.asIObject());
+				} catch (ServerError e)
+				{
+					handleException(e, "Unable to save Object : "+ workflow);
+				}
+			}
+		return new Boolean(true);
+	}
+	
+	
 	
 	/**
 	 * Reads the file hosting the user photo.

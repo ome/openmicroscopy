@@ -148,7 +148,7 @@ public class MeasureEllipseFigure
 	 * 
 	 * @param readOnly Pass <code>true</code> if the ROI is read only, 
 	 * 				   <code>false</code> otherwise.
-     * @param clientObject the figure is a client object
+     * @param isClientObject the figure is a client object
 	 */
 	public MeasureEllipseFigure(boolean readOnly, boolean isClientObject)
 	{

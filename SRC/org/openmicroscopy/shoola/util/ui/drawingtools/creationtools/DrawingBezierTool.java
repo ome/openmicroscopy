@@ -26,10 +26,9 @@ package org.openmicroscopy.shoola.util.ui.drawingtools.creationtools;
 import java.util.Map;
 
 //Third-party libraries
-import org.jhotdraw.draw.BezierTool;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
+import org.openmicroscopy.shoola.util.ui.drawingtools.figures.BezierTextFigure;
 
 /** 
  * A Bezier figure with text.
@@ -57,7 +56,7 @@ public class DrawingBezierTool
 	 * 
 	 * @param prototype 	The prototype. Mustn't be <code>null</code>.
 	 */
-	public DrawingBezierTool(MeasureBezierFigure prototype)
+	public DrawingBezierTool(BezierTextFigure prototype)
 	{
 		this(prototype, null);
 	}
@@ -68,7 +67,7 @@ public class DrawingBezierTool
 	 * @param prototype 	The prototype. Mustn't be <code>null</code>.
 	 * @param attributes	The attributes for the new figures.
 	 */
-	public DrawingBezierTool(MeasureBezierFigure prototype, Map attributes)
+	public DrawingBezierTool(BezierTextFigure prototype, Map attributes)
 	{
 		super(prototype, attributes);
 	}

@@ -137,7 +137,7 @@ class GraphPane
 	private ROIShape 								shape;
 	
 	/**
-	 * Overridden version of {@line TabPaneInterface#getIndex()}
+	 * Overridden version of {@see TabPaneInterface#getIndex()}
 	 * @return the index of the tab.
 	 */
 	public int getIndex() { return INDEX; }

@@ -557,13 +557,13 @@ public class MeasureLineConnectionFigure
 	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
-	 * @see {@link ROIFigure#setStatus(boolean)}
+	 * @see ROIFigure#setStatus(boolean)
 	 */
 	public void setStatus(int status) { this.status = status; }
 	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
-	 * @see {@link ROIFigure#getStatus()}
+	 * @see ROIFigure#getStatus()
 	 */
 	public int getStatus() { return status; }
 
