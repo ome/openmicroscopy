@@ -31,6 +31,8 @@ import org.testng.annotations.Test;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
 
+import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
+
 /**
  *<pre>
  * // REMAINING TESTS:
@@ -46,6 +48,7 @@ public class AbstractRoiITest extends AbstractServantTest {
     protected RoiI user_roisvc, root_roisvc;
     protected GeomTool geomTool;
     protected Shape test;
+    protected SimpleJdbcOperations jdbc;
 
     @Override
     @BeforeClass
@@ -53,11 +56,12 @@ public class AbstractRoiITest extends AbstractServantTest {
         super.setUp();
 
         geomTool = (GeomTool) ctx.getBean("geomTool");
-        user_roisvc = new RoiI(be, geomTool);
+        jdbc = (SimpleJdbcOperations) ctx.getBean("simpleJdbcTemplate");
+        user_roisvc = new RoiI(be, geomTool, jdbc);
         user_roisvc.setServiceFactory(user_sf);
         user_roisvc.setServiceFactory(user_sf);
 
-        root_roisvc = new RoiI(be, geomTool);
+        root_roisvc = new RoiI(be, geomTool, jdbc);
         root_roisvc.setServiceFactory(root_sf);
         root_roisvc.setServiceFactory(root_sf);
     }
