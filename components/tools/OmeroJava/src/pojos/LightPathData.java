@@ -106,7 +106,7 @@ public class LightPathData
 				excitationFilters.add(new FilterData(i.next().getChild()));
 			}
 		}
-		return emissionFilters;
+		return excitationFilters;
 	}
 	
 	/**
