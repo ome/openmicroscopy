@@ -1,3 +1,40 @@
+"""
+ components/tools/OmeroPy/scripts/omero/analysis_scripts/FLIM.py
+
+-----------------------------------------------------------------------------
+  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+
+
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+  
+  You should have received a copy of the GNU General Public License along
+  with this program; if not, write to the Free Software Foundation, Inc.,
+  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+------------------------------------------------------------------------------
+
+This script takes a number of images and displays regions defined by their ROIs as
+zoomed panels beside the images.
+
+@author  Pieta Schofield &nbsp;&nbsp;&nbsp;&nbsp;
+<a href="mailto:p@schofield.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
+@author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+@version 3.0
+<small>
+(<b>Internal version:</b> $Revision: $Date: $)
+</small>
+@since 3.0-Beta4.1
+ 
+"""
+
 import sys
 import os as OS
 import time
@@ -5,7 +42,7 @@ import numpy as NP
 import itertools as IT
 import resource
 import platform
-import mpfit as mpfit
+import omero.util.mpfit as mpfit
 # OMERO Imports 
 import omero.clients
 import omero.scripts as scripts
@@ -32,7 +69,7 @@ from PIL import Image
 import ImageDraw
 
 CELL = "Cell";
-NAMESPACE = "FLIM";
+NAMESPACE = "openmicroscopy.org.uk/ROI/FLIM";
 BACKGROUND = "Background";
 
 
@@ -68,7 +105,7 @@ def exp2(p,fjac=None,x=None,y=None,i=None,sh=None,sm=None,err=None,weights=None)
 
 # Call to mpfit wrapped for calling in loop It might be possible to generate threads here as nothing is returned it depends if parameters are by reference (addresses) or by value (copies)
 def fitpixary(sigf,t,i,shift,sigmax,paras,pxy,pxx,a1,a2,k1,k2,b,chi,s1,fittype):
-    sizeC = 256
+    sizeC = len(sigf);
     maxv=float(max(sigf))
     maxv=1
     s=NP.zeros(sizeC*2)
@@ -111,10 +148,7 @@ def fitpixary(sigf,t,i,shift,sigmax,paras,pxy,pxx,a1,a2,k1,k2,b,chi,s1,fittype):
 
 ### --------------------------------------------
 
-def runfret(commandArgs, session):
-    # Open and read in IRF find delta-t between bins
-    #fd=open('/Users/pschofield/Projects/FLIM-FRET/Data/imagej/irf_rec','r')
-    #irf=NP.loadtxt(fd)
+def runfret(session, commandArgs):
     iROI = session.getRoiService();
     iQuery = session.getQueryService();
     iUpdate = session.getUpdateService();
@@ -200,11 +234,6 @@ def runfret(commandArgs, session):
         t[pos]=pos*dt
 
     # read no fret file
-    #fd=open('/Users/pschofield/Projects/FLIM-FRET/Data/No_FRET_conditions/gfp_nip30_alone.raw','rb')
-    #size=256*256*256
-    #shape=(256,256,256)
-    #nofret = NP.empty(shape,NP.float)
-    #nofret = NP.fromfile(file=fd, dtype=NP.uint16).reshape(shape)
     nofret = script_utils.readFlimImageFile(rawPixelsStore, noFretPixels);
     sigf=NP.sum(nofret.reshape(sizeC,sizeX*sizeY),axis=1)
     maxs=float(NP.max(sigf))
@@ -214,7 +243,6 @@ def runfret(commandArgs, session):
     sigmax=argmax(sigf)
     s=NP.zeros(sizeC_double)
     s[0:sizeC]=sigf[0:sizeC]
-    #PLT.plot(t[0:256],s[0:256])
     # Setup arrays of values to send to fit function (zero pad this too use convolve) and calculate shift
     a1_0=1
     t1_0=1
@@ -234,13 +262,8 @@ def runfret(commandArgs, session):
     #  DO THE FIT
     mpf = mpfit.mpfit(exp1,parinfo=params,functkw=fa,quiet=True)
     # Output stuff for checking
-    #print(mpf.status)
-    #print(mpf.params)
-    #print(mpf.fnorm)
     nflt=mpf.params[1]
     cf=mod1exp(mpf.params,t,i)
-    #PLT.plot(t[0:256],NP.log(s[0:256]),'b.')
-    #PLT.plot(t[0:256],NP.log(cf[shift:shift+256]),'r-')
 
 ### NEW pixel-by-pixel fit for NO FRET data to calculate average decay rather than decay of average
 
@@ -314,7 +337,6 @@ def runfret(commandArgs, session):
     sigmax=argmax(sigf)
     s=NP.zeros(sizeC_double)
     s[0:sizeC]=sigf[0:sizeC]
-    #PLT.plot(t[0:256],s[0:256])
 ### set initial values to new mean (nmean) not k1
     p0 = NP.array([mpf.params[0], mpf.params[0], nmean, nmean, mpf.params[2]])
     params = [{'value':p0[0], 'fixed':0, 'limited':[1,0], 'limits':[0.,2.]},
@@ -331,13 +353,8 @@ def runfret(commandArgs, session):
     fa={'x':t, 'y':s, 'i':i, 'sh':shift, 'sm':sigmax}
     # Do a global fit of aggregated pixels
     mpf = mpfit.mpfit(exp2,parinfo=params,functkw=fa,quiet=True)
-    #print(mpf.status)
-    #print(mpf.params)
-    #print(mpf.fnorm)
     # This is what is meant to happen DO fits for all pixels where the photon count over bins is greater than a threshold
     cf=mod2exp(mpf.params,t,i)
-    #PLT.plot(t[0:256],NP.log(s[0:256]),'b.')
-    #PLT.plot(t[0:256],NP.log(cf[shift:shift+256]),'r-') 
     p0 = NP.array([mpf.params[0], mpf.params[1], mpf.params[2], mpf.params[3], mpf.params[4]])
     params = [{'value':p0[0], 'fixed':0, 'limited':[1,1], 'limits':[0.,2.]},
                 {'value':p0[1], 'fixed':0, 'limited':[1,1], 'limits':[0.,2.]},
@@ -384,7 +401,6 @@ def runfret(commandArgs, session):
 
     # write out the parameter arrays this point will be writing back an image to OMERO
     # while nstarted < 1: pass 
-    print '5'
     script_utils.uploadArray(rawFileStore, iUpdate, iQuery, annotateImage, "a1.csv", a1);
     script_utils.uploadArray(rawFileStore, iUpdate, iQuery, annotateImage, "a2.csv", a2);
     script_utils.uploadArray(rawFileStore, iUpdate, iQuery, annotateImage, "k1.csv", k1);
@@ -392,27 +408,31 @@ def runfret(commandArgs, session):
     script_utils.uploadArray(rawFileStore, iUpdate, iQuery, annotateImage, "chi.csv", chi);
     script_utils.uploadArray(rawFileStore, iUpdate, iQuery, annotateImage, "s1.csv", s1);
     
-    print('finish')
 
-
-def main():
-    client = omero.client('localhost');
-    client.enableKeepAlive(30);
-    session = client.createSession('root','ome');
-    commandArgs = {"imageIdNoFret":202, \
-    "imageIdFret":201, \
-    "irfId":153}
-    runfret(commandArgs, session);
-    client.closeSession();
+def runAsScript():
+    client = scripts.client('FLIM.py', """Analysis a set of Lifetime images and perform FRET analysis betweeen control and sample images.
+    See http://trac.openmicroscopy.org.uk/shoola/wiki/Analysis_Scripts#FLIM""", 
+    scripts.Long("imageIdNoFret", description="The image to analysis with no fret condition"),
+    scripts.Long("imageIdFret", description="The image to analysis under fret condition"),
+    scripts.Long("irfId", description="The file containing the instrument response function(IRF)"));
+    try:
+        session = client.getSession();
+        commandArgs = {}
     
+        # process the list of args above. 
+        for key in client.getInputKeys():
+            if client.getInput(key):
+                commandArgs[key] = client.getInput(key).getValue()
+    
+        print commandArgs
+        # call the main script, attaching resulting analysis files.. Returns the id of the originalFileLink child. (ID object, not value)
+        fileAnnotation = runfret(session, commandArgs)
+        # return this fileAnnotation to the client. 
+        if fileAnnotation:
+            client.setOutput("Message", rstring("FLIM Analysis complete."))
+            client.setOutput("File_Annotation", robject(fileAnnotation))
+    finally:
+        client.closeSession()
+
 if __name__ == '__main__':
     main();
-        
-#client = scripts.client('fitIrf','FLIM', scripts.Long("imageIdNoFret").inout(), \
-#scripts.Long("imageIdFret").inout(), scripts.Long("irfId").inout(), scripts.Long("fileAnnotation").out())
-#session = client.createSession();
-#commandArgs = {"imageIdNoFret":client.getInput("imageIdNoFret").getValue(), \
-#"imageIdFret":client.getInput("imageIdFret").getValue(), \
-#"irfId":client.getInput("irfId").getValue()}
-
-#runfret(commandArgs, session);
