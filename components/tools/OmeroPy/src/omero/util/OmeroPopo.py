@@ -6,11 +6,11 @@ from omero.model import EllipseI
 from omero.model import LineI
 from omero.model import RectI
 from omero.model import PointI
-from omero.model import TextI
+from omero.model import LabelI
 from omero.model import PolylineI
 from omero.model import PolygonI
 from omero.model import PathI
-from omero.model import WorkflowI
+from omero.model import NamespaceI
 from omero.rtypes import rdouble 
 from omero.rtypes import rstring 
 from omero.rtypes import rint 
@@ -1396,7 +1396,7 @@ class WorkflowData(DataObject):
     def __init__(self, workflow=None):
         DataObject.__init__(self);
         if(workflow==None):
-            self.setValue(WorkflowI());
+            self.setValue(NamespaceI());
             self.setNamespace("");
             self.setKeywords("");
         else:
