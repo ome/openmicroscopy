@@ -112,6 +112,7 @@ public class EllipseData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		shape.setTextValue(rtypes.rstring(text));
+		setDirty(true);
 	}
 	
 	/**
@@ -140,6 +141,7 @@ public class EllipseData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		shape.setCx(rtypes.rdouble(x));
+		setDirty(true);
 	}
 
 	
@@ -169,6 +171,7 @@ public class EllipseData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		shape.setCy(rtypes.rdouble(y));
+		setDirty(true);
 	}
 	
 	/**
@@ -199,6 +202,7 @@ public class EllipseData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		shape.setRx(rtypes.rdouble(x));
+		setDirty(true);
 	}
 	
 	/**
@@ -227,6 +231,7 @@ public class EllipseData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		shape.setRy(rtypes.rdouble(y));
+		setDirty(true);
 	}
 	
 }

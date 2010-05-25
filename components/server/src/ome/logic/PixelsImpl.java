@@ -306,7 +306,6 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 	public void setChannelGlobalMinMax(long pixelsId, int channelIndex,
 			double min, double max)
 	{
-
 		Pixels pixels = retrievePixDescription(pixelsId);
 		StatsInfo stats = pixels.getChannel(channelIndex).getStatsInfo();
 		stats.setGlobalMax(max);

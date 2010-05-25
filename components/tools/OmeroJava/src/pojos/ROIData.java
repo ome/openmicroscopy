@@ -1,7 +1,7 @@
 /*
  * pojos.ROIData
  *
-*------------------------------------------------------------------------------
+ *------------------------------------------------------------------------------
  * Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
  *
@@ -24,10 +24,12 @@ package pojos;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.Map;
+import java.lang.Math;
 //Third-party libraries
 
 //Application-internal dependencies
@@ -148,6 +150,7 @@ public class ROIData
 		if (roi == null) 
 			throw new IllegalArgumentException("No Roi specified.");
 		roi.setImage(image);
+		setDirty(true);
 	}
 	
 	/**
@@ -182,6 +185,24 @@ public class ROIData
 			shapeList = roiShapes.get(coord);
 		shapeList.add(shape);
 		roi.addShape((Shape) shape.asIObject());
+		setDirty(true);
+	}
+	
+    /**
+	 * Remove the ShapeData object from ROIData.
+	 * @param shape See above.
+	 */
+	public void removeShapeData(ShapeData shape)
+	{
+		Roi roi = (Roi) asIObject();
+		if (roi == null) 
+			throw new IllegalArgumentException("No Roi specified.");
+		ROICoordinate coord = shape.getROICoordinate();
+		List<ShapeData> shapeList;
+		shapeList = roiShapes.get(coord);
+		shapeList.remove(shape);
+		roi.removeShape((Shape) shape.asIObject());
+		setDirty(true);
 	}
 	
 	/**
@@ -283,50 +304,129 @@ public class ROIData
 	}
 	
 	/**
-	* Set the namespace of the ROI.
+	* Set the namespace keywords of the.
     * @param namespace See above.
+    * @param keywords See above.
 	*/
-	public void setNamespaces(String[] namespaces)
+	public void setNamespaceKeywords(String namespace, String[] keywords)
 	{
         Roi roi = (Roi) asIObject();
 		if (roi == null) 
 			throw new IllegalArgumentException("No Roi specified.");
-        roi.setNamespaces(namespaces);
+		if(keywords.length==0)
+			removeNamespace(namespace);
+		else
+		{
+			Map<String, List<String>> map = getNamespaceKeywords();
+			List<String> keywordsList = new ArrayList<String>();
+			for(String keyword: keywords)
+				keywordsList.add(keyword);
+			map.put(namespace, keywordsList);
+			setNamespaceMap(map);
+			setDirty(true);
+		}
+	}
+	
+	/**
+	 * Remove the namespace from the ROI
+	 * @param namespace See above.
+	 */
+	public void removeNamespace(String namespace)
+	{
+        Roi roi = (Roi) asIObject();
+		if (roi == null) 
+			throw new IllegalArgumentException("No Roi specified.");
+		Map<String, List<String>> map = getNamespaceKeywords();
+		if(map.containsKey(namespace))
+		{
+			map.remove(namespace);
+			setNamespaceMap(map);
+			setDirty(true);
+		}
+	}
+	
+	/**
+	 * Set the namespaces and keywords of the ROI from the map
+	 * @param map See above.
+	 */
+	public void setNamespaceMap(Map<String, List<String>> map)
+	{
+        Roi roi = (Roi) asIObject();
+		if (roi == null) 
+			throw new IllegalArgumentException("No Roi specified.");
+		String[] namespaces = (String[])map.keySet().toArray();
+		roi.setNamespaces(namespaces);
+		int maxKeywordLength = 0;
+		for(String namespace : namespaces)
+			maxKeywordLength = Math.max(maxKeywordLength, map.get(namespace).size());
+		String[][] keywords = new String[namespaces.length][maxKeywordLength];
+		for(int i = 0 ; i < namespaces.length ; i++)
+		{
+			List<String> keywordsList = map.get(namespaces[i]);
+			for(int j = 0 ; j < map.get(namespaces[i]).size() ; j++)
+				keywords[i][j] =keywordsList.get(j);
+		}
+		roi.setKeywords(keywords);
+		setDirty(true);
 	}
 	
 	/**
 	* Get the namespace of the ROI.
     * @return See above.
 	*/
-	public String[] getNamespaces()
+	public List<String> getNamespaces()
 	{
         Roi roi = (Roi) asIObject();
 		if (roi == null) 
 			throw new IllegalArgumentException("No Roi specified.");
-        return roi.getNamespaces();
+		List<String> namespaces = new ArrayList<String>(); 
+        String[] namespacesArray = roi.getNamespaces();
+        if(namespacesArray!=null)
+        	for(String namespace : namespacesArray)
+        		namespaces.add(namespace);
+        return namespaces;
 	}
 	
 	/**
-	* Set the keywords of the ROI.
-    * @param keywords See above.
-	*/
-    public void setKeywords(String[][] keywords)
+	 * Get the keywords of the namespace on the ROI.
+	 * @param namespace See above.
+	 * @return See above.
+	 */
+	public List<String> getNamespaceKeywords(String namespace)
 	{
-        Roi roi = (Roi) asIObject();
-		if (roi == null) 
-			throw new IllegalArgumentException("No Roi specified.");
-        roi.setKeywords(keywords);
+		Map<String, List<String>> map = getNamespaceKeywords();
+		if(!map.containsKey(namespace))
+			throw new IllegalArgumentException("Namespace " + namespace + " does not exist.");
+		return map.get(namespace);
 	}
 	
 	/**
 	* Get the keywords of the ROI.
     * @return See above.
 	*/
-	public String[][] getKeywords()
+	public Map<String, List<String>> getNamespaceKeywords()
 	{
-        Roi roi = (Roi) asIObject();
+        Map<String, List<String>> map = new HashMap<String, List<String>>();
+		Roi roi = (Roi) asIObject();
 		if (roi == null) 
 			throw new IllegalArgumentException("No Roi specified.");
-        return roi.getKeywords();
+		List<String> namespaces = this.getNamespaces();
+		String[][] namespaceKeywords = roi.getKeywords();
+		if(namespaceKeywords==null)
+			return map;
+		if(namespaces.size() != namespaceKeywords.length)
+			throw new IllegalArgumentException("Namespaces length = " + 
+				namespaces.size() + " not equal to keywords namespaces " + 
+					namespaceKeywords.length);
+		List<String> keywordList;
+		for(int index = 0 ; index < namespaces.size() ; index++)
+		{
+			keywordList = new ArrayList<String>();
+			String[] keywords = namespaceKeywords[index];
+			for(String keyword : keywords)
+				keywordList.add(keyword);
+			map.put(namespaces.get(index), keywordList);
+		}
+		return map;
 	}
 }

@@ -1,7 +1,7 @@
 /*
  * pojos.ShapeData
  *
-*------------------------------------------------------------------------------
+ *------------------------------------------------------------------------------
  * Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
  *
@@ -174,6 +174,7 @@ public abstract class ShapeData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		shape.setTheZ(rtypes.rint(theZ));
+		setDirty(true);
 	}
 
 	
@@ -203,6 +204,7 @@ public abstract class ShapeData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		shape.setTheT(rtypes.rint(theT));
+		setDirty(true);
 	}
 	
 	/** 
@@ -216,6 +218,7 @@ public abstract class ShapeData
 			throw new IllegalArgumentException("No shape specified.");
 		setZ(coord.getZSection());
 		setT(coord.getTimePoint());
+		setDirty(true);
 	}
 	
 	/** 
@@ -257,6 +260,7 @@ public abstract class ShapeData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		shape.setTransform(rtypes.rstring(transform));
+		setDirty(true);
 	}
 
 	/**

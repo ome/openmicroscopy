@@ -31,6 +31,7 @@ module omero {
                 omero::RInt        offset;
                 omero::RLong       userId;
                 omero::RLong       groupId;
+				omero::RString	   namespace;
             };
 
         /**

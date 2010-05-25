@@ -77,6 +77,7 @@ import org.apache.commons.collections.MultiMap;
 import org.apache.commons.collections.map.MultiValueMap;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
@@ -93,10 +94,12 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
 
     protected final GeomTool geomTool;
     
+    protected final SimpleJdbcOperations jdbc;
 
-    public RoiI(BlitzExecutor be, GeomTool geomTool) {
-        super(null, be);
+    public RoiI(BlitzExecutor be, GeomTool geomTool, SimpleJdbcOperations jdbc) {
+    	super(null, be);
         this.geomTool = geomTool;
+    	this.jdbc = jdbc;
     }
 
     public void setServiceFactory(ServiceFactoryI sf) {
@@ -162,24 +165,35 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
     }
 
     public void findByImage_async(AMD_IRoi_findByImage __cb,
-            final long imageId, RoiOptions opts, Current __current)
+            final long imageId, final RoiOptions opts, Current __current)
             throws ServerError {
 
         final IceMapper mapper = new RoiResultMapper(opts);
 
         runnableCall(__current, new Adapter(__cb, __current, mapper, factory
                 .getExecutor(), factory.principal, new SimpleWork(this,
-                "findByImage", imageId) {
+                "findByImage", imageId, opts) {
 
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
-                Query q = session
-                        .createQuery("select distinct r from Roi r join r.image i "
-                                + "join fetch r.shapes where i.id = :id "
-                                + "order by r.id");
-                q.setParameter("id", imageId);
-                return q.list();
-
+            	if(opts.namespace!=null)
+            	{
+                	Object[] parameters;	
+                	String queryString;
+                	parameters = new Object[] {new Long(imageId), 
+            			new String(opts.namespace.getValue())};
+                	queryString = "select id from roi where image = ? and ? = any (namespace)";
+					return null;
+            	}
+            	else
+            	{
+        		    String queryString = "select distinct r from Roi r join r.image i "
+                        + "join fetch r.shapes where i.id = :id";
+        		    queryString = queryString + " order by r.id";
+        		    Query q = session.createQuery(queryString);
+        		    q.setParameter("id", imageId);
+        		    return q.list();
+            	}   	
             }
         }));
 

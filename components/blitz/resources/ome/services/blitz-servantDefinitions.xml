@@ -38,6 +38,7 @@
         <bean class="ome.services.blitz.impl.RoiI">
             <constructor-arg ref="throttlingStrategy"/>
             <constructor-arg ref="geomTool"/>
+      		<constructor-arg ref="simpleJdbcTemplate"/>
         </bean>
     </constructor-arg>
   </bean>
