@@ -271,17 +271,16 @@ class FilterGroupComponent
 			parent.layoutFields(this, unsetFilterSet, fieldsFilterSet, 
 					unsetFilterSetShown);
 		}
-		Iterator<FilterComponent> i = emissionfilters.iterator();
+		Iterator<FilterComponent> i = excitationfilters.iterator();
 		while (i.hasNext()) {
 			add(i.next(), constraints);	
 			++constraints.gridy;
 		}
-		
 		if (dichroic.isVisible()) {
 			add(dichroic, constraints);
 			++constraints.gridy;
 		}
-		i = excitationfilters.iterator();
+		i = emissionfilters.iterator();
 		while (i.hasNext()) {
 			add(i.next(), constraints);	
 			++constraints.gridy;
