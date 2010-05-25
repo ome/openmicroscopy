@@ -837,8 +837,12 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
         logger.error(traceback.format_exc())
     
     try:
+        index = int(request.REQUEST['index'])
+    except:
+        index = 0
+    
+    try:
         if c_type in ("share", "discussion"):
-            print c_type
             template = "webclient/annotations/annotations_share.html"
             manager = BaseShare(conn, conn_share, c_id)
             manager.getAllUsers(c_id)
@@ -875,7 +879,6 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
                                         'illuminations': list(conn.getEnumerationEntries("IlluminationI")), 
                                         'contrastMethods': list(conn.getEnumerationEntries("ContrastMethodI")), 
                                         'modes': list(conn.getEnumerationEntries("AcquisitionModeI"))})
-                #print ch.getLogicalChannel().simpleMarshal()
                 if ch.getLogicalChannel().getLightPath()._obj is not None:
                     if ch.getLogicalChannel().getLightPath().getSecondaryEmissionFilter()._obj is not None:
                         channel['form_emission_filter'] = MetadataFilterForm(initial={'filter': ch.getLogicalChannel().getLightPath().getSecondaryEmissionFilter(),

@@ -219,6 +219,14 @@ class BaseContainer(BaseController):
             self.paging = self.doPaging(page, len(im_list_with_counters), self.c_size)
     
     def listPlate(self, plid, index):
+        
+        def letterNamingConventions(i):
+            i-=1
+            if i < 26:
+                return chr(i+ord("A"))
+            elif i >= 26 and i < 702:
+                return chr(((i/26)-1)+ord("A")), chr(((i % 26))+ord("A"))        
+        
         wl_list = list(self.conn.lookupWellsInPlate(oid=plid, index=index))
         wl_list_with_counters = dict()
         wl_ids = list()
@@ -228,54 +236,37 @@ class BaseContainer(BaseController):
         column_names = set()
         row_count = 0
         col_count = 0
+        
         for wl in wl_list:
             wl_ids.append(wl.id)
             row_count = wl.row > row_count and wl.row or row_count
             col_count = wl.column > col_count and wl.column or col_count
-        
-        if row_count >= 0 or col_count >= 0:             
-            for r in range(0, row_count+1):
-                if self.plate.rowNamingConvention.isdigit():
-                    row_names.add(r+int(self.plate.rowNamingConvention))
-                elif self.plate.rowNamingConvention.isalpha():
-                    row_names.add(chr(r+ord(self.plate.rowNamingConvention)))
+            
+        if row_count >= 0 and col_count >= 0:   
+            for r in range(1, row_count+2):
+                row_names.add(r)
                 wl_list_with_counters[r] = dict()
-                for c in range(0, col_count+1):
-                    if self.plate.columnNamingConvention.isdigit():
-                        column_names.add(c+int(self.plate.columnNamingConvention))
-                    elif self.plate.columnNamingConvention.isalpha():
-                        column_names.add(chr(c+ord(self.plate.columnNamingConvention)))
+                for c in range(1, col_count+2):
+                    column_names.add(c)
                     wl_list_with_counters[r][c] = None
 
             if len(wl_ids) > 0:
                 wl_annotation_counter = self.conn.getCollectionCount("Well", "annotationLinks", wl_ids)
-
                 for wl in wl_list:
                     if self.fields is None or self.fields == 0:
                         self.fields = wl.countWellSample()
                     wl.annotation_counter = wl_annotation_counter.get(wl.id)
-                    wl_list_with_counters[wl.row][wl.column]= wl
-        
-        if self.plate.rowNamingConvention.isalpha():
-            row_names = list(row_names).sort()
-        if self.plate.columnNamingConvention.isalpha():
-            column_names = list(column_names).sort()
+                    wl_list_with_counters[wl.row+1][wl.column+1]= wl
         
         wl_list_with_counters_final = list()
-        for key,val in wl_list_with_counters.items():
+        for key,val in wl_list_with_counters.iteritems():
             row_final = list()
             for k,v in val.items():
-                if self.plate.columnNamingConvention.isalpha():
-                    k = chr(k+ord(self.plate.columnNamingConvention))
-                if self.plate.columnNamingConvention.isdigit():
-                    k = k+int(self.plate.columnNamingConvention)
+                k = self.plate.columnNamingConvention=='number' and k or letterNamingConventions(k)
                 row_final.append((k,v))
-            if self.plate.rowNamingConvention.isalpha():
-                key = chr(key+ord(self.plate.rowNamingConvention))
-            if self.plate.rowNamingConvention.isdigit():
-                key = key+int(self.plate.rowNamingConvention)
+            key = self.plate.rowNamingConvention=='number' and key or letterNamingConventions(key)
             wl_list_with_counters_final.append((key,row_final))
-        
+
         self.index = index is None and 0 or index
         self.containers = {'wells': wl_list_with_counters_final}
         self.names = {'row_names':row_names, 'column_names':column_names}
