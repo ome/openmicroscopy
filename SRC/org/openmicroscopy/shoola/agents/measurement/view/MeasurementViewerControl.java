@@ -54,8 +54,6 @@ import javax.swing.event.MenuKeyListener;
 import javax.swing.event.MenuListener;
 
 //Third-party libraries
-
-//Application-internal dependencies
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.DrawingEvent;
 import org.jhotdraw.draw.DrawingListener;
@@ -64,6 +62,8 @@ import org.jhotdraw.draw.FigureEvent;
 import org.jhotdraw.draw.FigureListener;
 import org.jhotdraw.draw.FigureSelectionEvent;
 import org.jhotdraw.draw.FigureSelectionListener;
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.actions.CreateFigureAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.KeywordSelectionAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.LoadROIAction;
@@ -83,8 +83,6 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
-
-import com.sun.xml.internal.rngom.ast.builder.Annotations;
 
 /** 
  * The MeasurementViewer's Controller.
