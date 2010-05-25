@@ -214,7 +214,7 @@ public class UIUtilities
     /** String to represent the micron symbol. */
     public static final String 				MICRONS = "(in \u00B5)";
     
-	/** Background color of the hightlighted node. */
+	/** Background color of the highlighted node. */
 	public static final Color				HIGHLIGHT = new Color(204, 255, 
 															204);
 	/** Background color of the even rows. */
@@ -256,17 +256,10 @@ public class UIUtilities
 	/** Key value for the default folder. */
     private static final String 			DEFAULT_FOLDER = "defaultFolder";
     
-    /** The default mac L&F. */
-   //private static final String				MAC_L_AND_F = 
-    //											"apple.laf.AquaLookAndFeel";
-    
     /** The pattern to format date. */
     private static final String				WDMY_FORMAT = 
     											"E dd MMM yyyy, HH:mm:ss";
-    
-    /** The pattern to format date. */
-    private static final String				MM_SS_FORMAT = 
-    											"E dd MMM yyyy, HH:mm:ss";
+
     
     /** The text displayed in the tool tip of the calendar button. */
 	private static final String		DATE_TOOLTIP = "Bring up a calendar.";
@@ -302,6 +295,58 @@ public class UIUtilities
 		LETTERS.put(24, "X");
 		LETTERS.put(25, "Y");
 		LETTERS.put(26, "Z");
+		LETTERS.put(27, "AA");
+		LETTERS.put(28, "AB");
+		LETTERS.put(29, "AC");
+		LETTERS.put(30, "AD");
+		LETTERS.put(31, "AE");
+		LETTERS.put(32, "AF");
+		LETTERS.put(33, "AG");
+		LETTERS.put(34, "AH");
+		LETTERS.put(35, "AI");
+		LETTERS.put(36, "AJ");
+		LETTERS.put(37, "AK");
+		LETTERS.put(38, "AL");
+		LETTERS.put(39, "AM");
+		LETTERS.put(40, "AN");
+		LETTERS.put(41, "AO");
+		LETTERS.put(42, "AP");
+		LETTERS.put(43, "AQ");
+		LETTERS.put(44, "AR");
+		LETTERS.put(45, "AS");
+		LETTERS.put(46, "AT");
+		LETTERS.put(47, "AU");
+		LETTERS.put(48, "AV");
+		LETTERS.put(49, "AW");
+		LETTERS.put(50, "AX");
+		LETTERS.put(51, "AY");
+		LETTERS.put(52, "AZ");
+		LETTERS.put(53, "BA");
+		LETTERS.put(54, "BB");
+		LETTERS.put(55, "BC");
+		LETTERS.put(56, "BD");
+		LETTERS.put(57, "BE");
+		LETTERS.put(58, "BF");
+		LETTERS.put(59, "BG");
+		LETTERS.put(60, "BH");
+		LETTERS.put(61, "BI");
+		LETTERS.put(62, "BJ");
+		LETTERS.put(63, "BK");
+		LETTERS.put(64, "BL");
+		LETTERS.put(65, "BM");
+		LETTERS.put(66, "BN");
+		LETTERS.put(67, "BO");
+		LETTERS.put(68, "BP");
+		LETTERS.put(69, "BQ");
+		LETTERS.put(70, "BR");
+		LETTERS.put(71, "BS");
+		LETTERS.put(72, "BT");
+		LETTERS.put(73, "BU");
+		LETTERS.put(74, "BV");
+		LETTERS.put(75, "BW");
+		LETTERS.put(76, "BX");
+		LETTERS.put(77, "BY");
+		LETTERS.put(78, "BZ");
 	}
 	
 	/**

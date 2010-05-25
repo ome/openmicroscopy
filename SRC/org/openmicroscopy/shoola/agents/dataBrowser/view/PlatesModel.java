@@ -24,9 +24,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 
 //Java imports
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -39,7 +37,6 @@ import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserTranslator;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
-import pojos.ImageData;
 import pojos.PlateData;
 
 /**
