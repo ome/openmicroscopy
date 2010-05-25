@@ -54,6 +54,7 @@ import pojos.DataObject;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.ROIData;
+import pojos.WorkflowData;
 
 
 /** 
@@ -507,6 +508,27 @@ public class NullRenderingService
      */
 	public Map setOwnerRenderingSettings(Class rootNodeType, List<Long> nodeIDs)
 			throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroImageService#retrieveWorkflows(long)
+     */
+	public List<WorkflowData> retrieveWorkflows(long userID)
+			throws DSAccessException, DSOutOfServiceException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroImageService#storeWorkflows(List, long)
+     */
+	public Object storeWorkflows(List<WorkflowData> workflows, long userID)
+			throws DSAccessException, DSOutOfServiceException
 	{
 		return null;
 	}
