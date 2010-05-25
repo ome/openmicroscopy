@@ -424,6 +424,23 @@ class OMEROGateway
 	
 	/** Keep track of the file system view. */
 	private Map<Long, FSFileSystemView>				fsViews;
+
+	/** Checks if the session is still alive. */
+	private void isSessionAlive()
+	{
+		/*
+		if (!connected) return;
+		try {
+			getAdminService().getEventContext();
+		} catch (Exception e) {
+			Throwable cause = e.getCause();
+			int index = SERVER_OUT_OF_SERVICE;
+			if (cause instanceof ConnectionLostException)
+				index = LOST_CONNECTION;
+			dsFactory.sessionExpiredExit(index);
+		}
+		*/
+	}
 	
 	/**
 	 * Returns the specified script.
@@ -4707,21 +4724,6 @@ class OMEROGateway
 			}
 		} catch (Exception e) {
 			handleException(e, "Cannot remove the tag description.");
-		}
-	}
-	
-	/** Checks if the session is still alive. */
-	void isSessionAlive()
-	{
-		if (!connected) return;
-		try {
-			getAdminService().getEventContext();
-		} catch (Exception e) {
-			Throwable cause = e.getCause();
-			int index = SERVER_OUT_OF_SERVICE;
-			if (cause instanceof ConnectionLostException)
-				index = LOST_CONNECTION;
-			dsFactory.sessionExpiredExit(index);
 		}
 	}
 	

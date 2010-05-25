@@ -37,6 +37,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 
@@ -74,11 +76,40 @@ public class CheckoutBox
 	/** The components to handle. */
 	private Map<Agent, List<CheckOutItem>> components;
 	
+	/** Sets the <code>enabled</code> flag of the <code>CheckOutItem</code>. */
+	private void handleSelection()
+	{
+		if (components == null) return;
+		Entry entry;
+		Iterator i = components.entrySet().iterator();
+		List<CheckOutItem> l;
+		Iterator<CheckOutItem> j;
+		CheckOutItem item;
+		boolean selected = saveAll.isSelected();
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			l = (List<CheckOutItem>) entry.getValue();
+			if (l != null) {
+				j = l.iterator();
+				while (j.hasNext()) {
+					item = j.next();
+					item.setEnabled(selected);
+				}
+			}
+		}
+	}
+	
 	/** Initializes the display. */
 	private void initComponents()
 	{
-		saveAll = new JCheckBox("Save unsaved changes");
+		saveAll = new JCheckBox("Save Changes");
 		if (map != null && map.size() > 0) saveAll.setSelected(true);
+		saveAll.addChangeListener(new ChangeListener() {
+			
+			public void stateChanged(ChangeEvent evt) {
+				handleSelection();
+			}
+		});
 	}
 	
 	/**

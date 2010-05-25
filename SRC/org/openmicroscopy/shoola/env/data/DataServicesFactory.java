@@ -80,7 +80,7 @@ public class DataServicesFactory
 	
 	/**
 	 * Creates a new instance. This can't be called outside of container 
-	 * b/c agents have no refs to the singleton container.
+	 * b/c agents have no references to the singleton container.
 	 * So we can be sure this method is going to create services just once.
 	 * 
 	 * @param c Reference to the singleton container. Mustn't be 
@@ -303,13 +303,14 @@ public class DataServicesFactory
 	 * 
 	 * @param reg Reference to the container registry.
 	 */
+	/*
 	public static void isSessionAlive(Registry reg)
 	{
 		if (!(reg.equals(registry)))
 			throw new IllegalArgumentException("Not allow to access method.");
-		omeroGateway.isSessionAlive();
+		//omeroGateway.isSessionAlive();
 	}
-	
+	*/
     /**
      * Returns the {@link OmeroDataService}.
      * 

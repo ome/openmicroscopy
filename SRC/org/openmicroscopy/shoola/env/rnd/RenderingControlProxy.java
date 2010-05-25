@@ -1598,7 +1598,7 @@ class RenderingControlProxy
 	public void setOriginalRndSettings() 
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		DataServicesFactory.isSessionAlive(context);
+		//DataServicesFactory.isSessionAlive(context);
     	try {
     		servant.resetDefaultsNoSave();
     		if (getPixelsDimensionsC() > 1) setModel(RGB);
@@ -1637,7 +1637,7 @@ class RenderingControlProxy
 			                           int type, List<Integer> channels) 
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		DataServicesFactory.isSessionAlive(context);
+		//DataServicesFactory.isSessionAlive(context);
 		List<Integer> active = getActiveChannels();
 		for (int i = 0; i < getPixelsDimensionsC(); i++) 
 			setActive(i, false);
@@ -1665,7 +1665,7 @@ class RenderingControlProxy
 			int stepping, int type, List<Integer> channels) 
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		DataServicesFactory.isSessionAlive(context);
+		//DataServicesFactory.isSessionAlive(context);
 		List<Integer> active = getActiveChannels();
 		for (int i = 0; i < getPixelsDimensionsC(); i++) 
 			setActive(i, false);
@@ -1695,11 +1695,11 @@ class RenderingControlProxy
 							List<Integer> indexes) 
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		DataServicesFactory.isSessionAlive(context);
+		//DataServicesFactory.isSessionAlive(context);
 		if (rndDef == null)
 			throw new IllegalArgumentException("No rendering settings to " +
 					"set");
-		DataServicesFactory.isSessionAlive(context);
+		//DataServicesFactory.isSessionAlive(context);
 		setModel(rndToCopy.getColorModel());
 		setCodomainInterval(rndToCopy.getCdStart(), rndToCopy.getCdEnd());
 		setQuantumStrategy(rndToCopy.getBitResolution());

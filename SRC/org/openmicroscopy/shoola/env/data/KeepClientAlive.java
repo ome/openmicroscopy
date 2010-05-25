@@ -55,7 +55,7 @@ class KeepClientAlive
 	
 	/** Reference to the container. */
 	private Container	container;
-	
+
 	/** Runs. */
 	public void run()
 	{
