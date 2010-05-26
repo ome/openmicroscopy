@@ -235,7 +235,7 @@ public class ImportDialog extends JDialog implements ActionListener
                 "Add this number of directories to the file names", 3, 40, "1,3,l,c", debug);
         numOfDirectoriesField.addActionListener(this);
         
-        numOfDirectoriesField.setText(Integer.toString(config.numOfDirectories.get()));
+        numOfDirectoriesField.setText(Integer.toString(config.getNumOfDirectories()));
 
         // focus on the partial path button if you enter the numofdirfield
         numOfDirectoriesField.addFocusListener(new FocusListener() {
@@ -271,6 +271,18 @@ public class ImportDialog extends JDialog implements ActionListener
 
         importPanel.add(namedPanel, "0, 3, 4, 2");
 
+        archiveImage = GuiCommonElements.addCheckBox(importPanel, 
+        		"Archive the original imported file(s) to the server.", "0,4,4,4", debug);
+        archiveImage.addActionListener(this);
+        
+        archiveImage.setSelected(config.getArchiveImage());
+        if (ARCHIVE_ENABLED)
+        {
+        	archiveImage.setVisible(true);
+        } else {
+        	archiveImage.setVisible(false);                
+        }
+        
         // Buttons at the bottom of the form
 
         cancelBtn = GuiCommonElements.addButton(importPanel, "Cancel", 'L', "Cancel", "1, 5, f, c", debug);
@@ -284,16 +296,6 @@ public class ImportDialog extends JDialog implements ActionListener
         this.getRootPane().setDefaultButton(importBtn);
         GuiCommonElements.enterPressesWhenFocused(importBtn);
 
-        
-            archiveImage = GuiCommonElements.addCheckBox(importPanel, 
-                    "Archive the original imported file(s) to the server.", "0,4,4,4", debug);
-            archiveImage.setSelected(false);
-            if (ARCHIVE_ENABLED)
-            {
-                archiveImage.setVisible(true);
-            } else {
-                archiveImage.setVisible(false);                
-            }
 
         /////////////////////// START METADATA PANEL ////////////////////////
         
@@ -508,17 +510,8 @@ public class ImportDialog extends JDialog implements ActionListener
        
         if (event.getSource() == useCustomNamingChkBox)
         {
-        	config.setCustomImageNaming(useCustomNamingChkBox.isSelected());
-        	if (useCustomNamingChkBox.isSelected())
-        	{
-        		enabledPathButtons(true);
-        	
-        	}
-        	else
-        	{  
-        		enabledPathButtons(false);
-        		sendNamingWarning(this);
-        	}
+        	if (!useCustomNamingChkBox.isSelected()) sendNamingWarning(this);
+            enabledPathButtons(useCustomNamingChkBox.isSelected());
         } 
         else if (event.getSource() == addProjectBtn)
         {
@@ -531,16 +524,6 @@ public class ImportDialog extends JDialog implements ActionListener
             new AddDatasetDialog(config, this, "Add a new Dataset to: " + project.getName().getValue(), true, project, store);
             refreshAndSetDataset(project);
         } 
-        else if (event.getSource() == fullPathButton)
-        {
-            config.useFullPath.set(true);
-            config.setUserFullPath(true);
-        }
-        else if (event.getSource() == partPathButton)
-        {
-            config.useFullPath.set(false);
-            config.setUserFullPath(false);
-        }
         else if (event.getSource() == cancelBtn)
         {
             cancelled = true;
@@ -551,8 +534,13 @@ public class ImportDialog extends JDialog implements ActionListener
             cancelled = false;
             importBtn.requestFocus();
             
+            config.setCustomImageNaming(useCustomNamingChkBox.isSelected());
             config.useCustomImageNaming.set(useCustomNamingChkBox.isSelected());
+            config.useFullPath.set(fullPathButton.isSelected());
+            config.setUserFullPath(fullPathButton.isSelected());
+            config.setArchiveImage(archiveImage.isSelected());
             config.numOfDirectories.set(numOfDirectoriesField.getValue());
+            config.setNumOfDirectories(numOfDirectoriesField.getValue());
             
             dataset = ((DatasetItem) dbox.getSelectedItem()).getDataset();
             project = ((ProjectItem) pbox.getSelectedItem()).getProject();

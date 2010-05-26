@@ -461,14 +461,42 @@ public class ImportConfig {
      * @return ini user full path
      */
     public boolean getCustomImageNaming() {
-        return ini.getUserFullPath();
+        return ini.getCustomImageNaming();
     }    
 
     /**
      * @return ini user full path
      */
     public void setCustomImageNaming(boolean b) {
-        ini.setUserFullPath(b);
+        ini.setCustomImageNaming(b);
+    }
+ 
+    /**
+     * @return ini user full path
+     */
+    public boolean getArchiveImage() {
+        return ini.getArchiveImage();
+    }    
+
+    /**
+     * @return ini user full path
+     */
+    public void setArchiveImage(boolean b) {
+        ini.setArchiveImage(b);
+    }
+   
+    /**
+     * @return ini user full path
+     */
+    public int getNumOfDirectories() {
+        return ini.getNumOfDirectories();
+    }    
+
+    /**
+     * @return ini user full path
+     */
+    public void setNumOfDirectories(int i) {
+        ini.setNumOfDirectories(i);
     }
     
     //

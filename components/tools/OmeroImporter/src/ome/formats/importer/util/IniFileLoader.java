@@ -369,6 +369,26 @@ public class IniFileLoader {
     {
     	userPrefs.node("UI").putBoolean("customImageNaming", b);
     }
+
+    public boolean getArchiveImage()
+    {
+    	return userPrefs.node("UI").getBoolean("archiveImage", true);	
+    }
+    
+    public void setArchiveImage(boolean b)
+    {
+    	userPrefs.node("UI").putBoolean("archiveImage", b);
+    }
+
+    public int getNumOfDirectories()
+    {
+    	return userPrefs.node("UI").getInt("numOfDirectories", 0);	
+    }
+    
+    public void setNumOfDirectories(int i)
+    {
+    	userPrefs.node("UI").putInt("numOfDirectories", i);
+    }
     
     /**
      * @return uploader token URL for QA
