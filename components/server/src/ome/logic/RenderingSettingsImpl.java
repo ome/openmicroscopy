@@ -716,7 +716,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         int n = channelBindings.size();
         Map<ChannelBinding, Boolean> m = new HashMap<ChannelBinding, Boolean>();
         List<Boolean> values = new ArrayList<Boolean>();
-        boolean v;
+        //boolean v;
         String name;
         List<LogicalChannel> toUpdate = new ArrayList<LogicalChannel>();
         
@@ -737,9 +737,10 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             if (defaultColor == null) {
             	lc = channel.getLogicalChannel();
                 if (lc != null) lc = loadLogicalChannel(lc.getId());
-                v = ColorsFactory.hasEmissionData(lc);
+                
                 //Update the name of the channel if no name, to be moved.
                 /*
+                 * v = ColorsFactory.hasEmissionData(lc);
                 name = lc.getName();
                 if (name == null || name.trim().length() == 0) {
                 	name = getChannelName(lc);
