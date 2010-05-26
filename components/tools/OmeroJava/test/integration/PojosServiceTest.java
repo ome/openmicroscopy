@@ -10,34 +10,25 @@ package integration;
 
 //Java imports
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
-
-import javax.security.auth.login.FailedLoginException;
-
-
 
 //Third-party libraries
-import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.validator.AssertTrue;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 //Application-internal dependencies
-import omero.ApiUsageException;
-import omero.OptimisticLockException;
-import omero.RInt;
 import omero.RType;
 import omero.ServerError;
 import omero.api.IContainerPrx;
@@ -48,14 +39,11 @@ import omero.model.Annotation;
 import omero.model.CommentAnnotation;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
-import omero.model.DatasetAnnotationLink;
-import omero.model.DatasetAnnotationLinkI;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
-import omero.model.ExperimenterI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
@@ -72,10 +60,8 @@ import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
-import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
-import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -186,16 +172,23 @@ public class PojosServiceTest
      * 
      * @return See above.
      */
-    private Image simpleImage()
+    private Image simpleImage() { return simpleImage(0); }
+
+    /**
+     * Creates a default image and returns it.
+     * 
+     * @param time The acquisition time.
+     * @return See above.
+     */
+    private Image simpleImage(long time)
     {
         // prepare data
         Image img = new ImageI();
         img.setName(rstring("image1"));
         img.setDescription(rstring("descriptionImage1"));
-        img.setAcquisitionDate(rtime(0));
+        img.setAcquisitionDate(rtime(time));
         return img;
     }
-
 
     /**
      * Creates a default dataset and returns it.
@@ -1047,17 +1040,22 @@ public class PojosServiceTest
     public void testUnloadedDataset() 
     	throws Exception 
     {
-        Project p = new ProjectI();
-        p.setName(rstring("ui"));
-        Dataset d = new DatasetI();
-        d.setName(rstring("ui"));
-        Image i = new ImageI();
-        i.setName(rstring("ui"));
-        p.linkDataset(d);
-        d.linkImage(i);
-
-        p = (Project) iContainer.createDataObject(p, null);
-
+    	Image i = (Image) iUpdate.saveAndReturnObject(simpleImage());
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			simpleDatasetData().asIObject());
+    	Project p = (Project) iUpdate.saveAndReturnObject(
+    			simpleProjectData().asIObject());
+    	//link dataset and image
+    	DatasetImageLink link = new DatasetImageLinkI();
+    	link.setParent(d);
+    	link.setChild(i);
+    	iUpdate.saveAndReturnObject(link);
+    	//link project and dataset
+    	ProjectDatasetLink l = new ProjectDatasetLinkI();
+    	l.setParent(p);
+    	l.setChild(d);
+    	iUpdate.saveAndReturnObject(l);
+    	
         p = (Project) iContainer.loadContainerHierarchy(
                 Project.class.getName(), 
                 Collections.singletonList(p.getId().getValue()), 
@@ -1068,7 +1066,6 @@ public class PojosServiceTest
         pData.setDescription("new value:ui");
 
         iContainer.updateDataObject(pData.asIObject(), null);
-
         try {
         	dData.getName();
             fail(" this should blow up ");
@@ -1092,10 +1089,7 @@ public class PojosServiceTest
     	link.setParent(d);
     	link.setChild(i1);
     	iUpdate.saveAndReturnObject(link);
-    	
-    	long self = factory.getAdminService().getEventContext().userId;
     	ParametersI param = new ParametersI();
-    	
     	List<Long> ids = new ArrayList<Long>(1);
     	ids.add(d.getId().getValue());
     	List<Image> images = iContainer.getImages(Dataset.class.getName(), ids, 
@@ -1175,56 +1169,45 @@ public class PojosServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test(groups = "ticket:318")
-    public void testFindContainerHierarchiesFilterByOwner() 
+    public void testFindContainerHierarchiesProjectAsRootFilterByOwner() 
     	throws Exception
     {
-    	/*TODO: rewrite test
-    	List ids = fixture.getImageIds();
-        try {
-        	List results = iContainer.findContainerHierarchies(
-            		Project.class.getName(), ids,
-                    OWNER_FILTER);
-            assertFilterWorked(results, null, 100, fixture.e, null);
-            //but this shouldn't.
-            Iterator i = results.iterator();
-            while (i.hasNext()) {
-                if (i.next() instanceof Image) {
-                    i.remove();
-                }
-            }
-            assertFilterWorked(results, null, 100, fixture.e, null);
-        } catch (AssertionFailedError afe) {
-        	// First assert may fail since the images aren't filtered
-        }
-        */
-    }
-
-    /**
-     * Tests the finding of projects filtering by owners.
-     * 
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test(groups = "ticket:318")
-    public void testFindContainerHierarchiesFilterByGroup() 
-    	throws Exception
-    {
-    	/*TODO: rewrite test
-    	List ids = fixture.getImageIds();
-        try {
-        	List results = iContainer.findContainerHierarchies(
-            		Project.class.getName(), ids, GROUP_FILTER);
-            assertFilterWorked(results, null, 100, null, fixture.g);
-            Iterator i = results.iterator();
-            while (i.hasNext()) {
-                if (i.next() instanceof Image) {
-                    i.remove();
-                }
-            }
-            assertFilterWorked(results, null, 100, null, fixture.g);
-        } catch (AssertionFailedError afe) {
-        	// First assert may fail since the images aren't filtered
-        }
-        */
+    	long id =  fixture.e.getId().getValue();
+    	ParametersI param = new ParametersI();
+    	param.leaves();
+    	param.exp(omero.rtypes.rlong(id));
+    	
+    	
+    	Image i = (Image) iUpdate.saveAndReturnObject(simpleImage());
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			simpleDatasetData().asIObject());
+    	Project p = (Project) iUpdate.saveAndReturnObject(
+    			simpleProjectData().asIObject());
+    	//link dataset and image
+    	DatasetImageLink link = new DatasetImageLinkI();
+    	link.setParent(d);
+    	link.setChild(i);
+    	iUpdate.saveAndReturnObject(link);
+    	//link project and dataset
+    	ProjectDatasetLink l = new ProjectDatasetLinkI();
+    	l.setParent(p);
+    	l.setChild(d);
+    	iUpdate.saveAndReturnObject(l);
+    	
+    	List<Long> ids = new ArrayList<Long>(1);
+    	ids.add(i.getId().getValue());
+    	//Should have one project.
+    	List results = iContainer.findContainerHierarchies(
+        		Project.class.getName(), ids, param);
+    	assertTrue(results.size() == 1);
+    	try {
+    		Project pp = (Project) results.get(0);
+        	assertTrue(pp.getId().getValue() == p.getId().getValue());
+        	//Should return a project not an image.
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+    	
     }
     
     /**
@@ -1286,5 +1269,55 @@ public class PojosServiceTest
        }
        assertTrue(value == 0);
     }
+
+    /**
+     * Tests the retrieval of images created during a given period.
+     * 
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(groups = "ticket:318")
+    public void testGetImagesByOptions() 
+    	throws Exception
+    {
+    	GregorianCalendar gc = new GregorianCalendar();
+    	gc = new GregorianCalendar(gc.get(Calendar.YEAR), 
+				gc.get(Calendar.MONTH), 
+				gc.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
+    	long startTime = gc.getTime().getTime();
+    	ParametersI po = new ParametersI();
+		po.leaves();
+		po.startTime(omero.rtypes.rtime(startTime-1));
+		Image i = (Image) iUpdate.saveAndReturnObject(simpleImage(startTime));
+		
+		List result = iContainer.getImagesByOptions(po);
+		assertTrue(result.size() > 0);
+		Iterator j = result.iterator();
+		int count = 0;
+		IObject object;
+		Image img;
+		int value = 0;
+		while (j.hasNext()) {
+			object = (IObject) j.next();
+			if (object instanceof Image) {
+				img = (Image) object;
+				if (img.getId().getValue() == i.getId().getValue())
+					value++;
+					
+				count++;
+			}
+		}
+		assertTrue(result.size() == count);
+		assertTrue(value == 1);
+		//
+		gc = new GregorianCalendar(gc.get(Calendar.YEAR), 
+				gc.get(Calendar.MONTH), 
+				gc.get(Calendar.DAY_OF_MONTH), 23, 59, 59);
+		startTime = gc.getTime().getTime();
+		po = new ParametersI();
+		po.leaves();
+		po.startTime(omero.rtypes.rtime(startTime));
+		result = iContainer.getImagesByOptions(po);
+		assertTrue(result.size() == 0);
+    } 
 
 }
