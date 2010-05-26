@@ -8,15 +8,22 @@
 package omeis.providers.re;
 
 // Java imports
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 
 // Third-party libraries
 
 // Application-internal dependencies
-import java.util.Iterator;
-
 import ome.model.acquisition.Filter;
 import ome.model.acquisition.FilterSet;
+import ome.model.acquisition.FilterSetEmissionFilterLink;
+import ome.model.acquisition.FilterSetExcitationFilterLink;
 import ome.model.acquisition.Laser;
+import ome.model.acquisition.LightPath;
 import ome.model.acquisition.LightSource;
 import ome.model.acquisition.TransmittanceRange;
 import ome.model.core.Channel;
@@ -136,13 +143,43 @@ public class ColorsFactory {
     {
     	if (lc == null) return false;
     	if (lc.getEmissionWave() != null) return true;
+    	//Need to check the light path.
+    	List<Filter> filters;
+    	Iterator<Filter> j;
+    	FilterSet f = null;
+    	LightPath lp = null;
     	if (lc.getFilterSet() != null) {
-		Iterator<Filter> it = lc.getFilterSet().linkedEmissionFilterIterator();
-		while (it.hasNext()) {
-		    Filter f = it.next();
-		    if (isFilterHasEmissionData(f)) return true;
-		}
+    		f = (FilterSet) lc.getFilterSet();
+    		if (f.sizeOfEmissionFilterLink() > 0) {
+    			filters = new ArrayList<Filter>();
+    			j = f.linkedEmissionFilterIterator();
+        		while (j.hasNext()) {
+        			filters.add(j.next());
+        		}
+    			sortFilters(filters);
+    			j = filters.iterator();
+    			while (j.hasNext()) {
+					if (isFilterHasEmissionData(j.next())) return true;
+				}
+    		}
     	}
+    	
+    	if (lc.getLightPath() != null) {
+    		lp = (LightPath) lc.getLightPath();
+    		if (lp.sizeOfEmissionFilterLink() > 0) {
+    			filters = new ArrayList<Filter>();
+    			j = lp.linkedEmissionFilterIterator();
+        		while (j.hasNext()) {
+        			filters.add(j.next());
+        		}
+    			sortFilters(filters);
+    			j = filters.iterator();
+    			while (j.hasNext()) {
+					if (isFilterHasEmissionData(j.next())) return true;
+				}
+    		}
+    	}
+    	
     	
     	if (!full) return false;
     	//Excitation
@@ -155,15 +192,36 @@ public class ColorsFactory {
     		}
     	}
     	if (lc.getExcitationWave() != null) return true;
-    	if (lc.getFilterSet() != null) {
-	    Iterator<Filter> it = lc.getFilterSet().linkedExcitationFilterIterator();
-	    while (it.hasNext()) {
-	        Filter f = it.next();
-	        if (isFilterHasEmissionData(f)) return true;
-	    }
+    	if (f != null) {
+    		if (f.sizeOfExcitationFilterLink() > 0) {
+    			filters = new ArrayList<Filter>();
+    			j = f.linkedExcitationFilterIterator();
+        		while (j.hasNext()) {
+        			filters.add(j.next());
+        		}
+    			sortFilters(filters);
+    			j = filters.iterator();
+    			while (j.hasNext()) {
+					if (isFilterHasEmissionData(j.next())) return true;
+				}
+    		}
     	}
 
-	return false;
+    	if (lp != null) {
+    		if (lp.sizeOfExcitationFilterLink() > 0) {
+    			filters = new ArrayList<Filter>();
+    			j = lp.linkedExcitationFilterIterator();
+        		while (j.hasNext()) {
+        			filters.add(j.next());
+        		}
+    			sortFilters(filters);
+    			j = filters.iterator();
+    			while (j.hasNext()) {
+					if (isFilterHasEmissionData(j.next())) return true;
+				}
+    		}
+    	}
+    	return false;
     }
     
     /**
@@ -178,52 +236,91 @@ public class ColorsFactory {
     	if (lc == null) return null;
     	if (!hasEmissionExcitationData(lc, true)) {
     		Integer red = channel.getRed();
-            Integer green = channel.getGreen();
-            Integer blue = channel.getBlue();
-            Integer alpha = channel.getAlpha();
-            if (red != null && green != null && blue != null && alpha != null) {
-            	// We've got a color image of some type that has explicitly
-            	// specified which channel is Red, Green, Blue or some other wacky
-            	// color.
-            	//if (red == 0 && green == 0 && blue == 0 && alpha == 0)
-            	//	alpha = DEFAULT_ALPHA;
-                return new int[] { red, green, blue, alpha };
-            }
-            return null;
+    		Integer green = channel.getGreen();
+    		Integer blue = channel.getBlue();
+    		Integer alpha = channel.getAlpha();
+    		if (red != null && green != null && blue != null && alpha != null) {
+    			// We've got a color image of some type that has explicitly
+    			// specified which channel is Red, Green, Blue or some other wacky
+    			// color.
+    			//if (red == 0 && green == 0 && blue == 0 && alpha == 0)
+    			//	alpha = DEFAULT_ALPHA;
+    			return new int[] { red, green, blue, alpha };
+    		}
+    		return null;
     	}
     	Integer value = lc.getEmissionWave();
-        //First we check the emission wavelength.
-        if (value != null) return determineColor(value);
-        
-        //First check the emission filter.
+    	//First we check the emission wavelength.
+    	if (value != null) return determineColor(value);
+
+    	//First check the emission filter.
     	//First check if filter
-       
-	if (lc.getFilterSet() != null) {
-	    Iterator<Filter> it = lc.getFilterSet().linkedEmissionFilterIterator();
-	    while (value == null && it.hasNext()) {
-	            value = getValueFromFilter(it.next());
-	    }
-	}
-    
+
+    	List<Filter> filters;
+    	Iterator<Filter> j;
+    	FilterSet f = null;
+    	LightPath lp = null;
+    	if (lc.getFilterSet() != null) {
+    		filters = new ArrayList<Filter>();
+    		f = lc.getFilterSet();
+    		j = f.linkedEmissionFilterIterator();
+    		while (j.hasNext()) {
+				filters.add(j.next());
+			}
+    		sortFilters(filters);
+    		while (value == null && j.hasNext()) {
+    			value = getValueFromFilter(j.next());
+    		}
+    	}
+    	//LightPath
+    	if (value == null && lc.getLightPath() != null) {
+    		filters = new ArrayList<Filter>();
+    		lp = lc.getLightPath();
+    		j = f.linkedEmissionFilterIterator();
+    		while (j.hasNext()) {
+				filters.add(j.next());
+			}
+    		sortFilters(filters);
+    		while (value == null && j.hasNext()) {
+    			value = getValueFromFilter(j.next());
+    		}
+    	}
+    	
     	//Laser
     	if (value == null && lc.getLightSourceSettings() != null) {
     		LightSource ls = lc.getLightSourceSettings().getLightSource();
     		if (ls instanceof Laser) value = ((Laser) ls).getWavelength();
     	}
     	if (value != null) return determineColor(value);
-    	
+
     	//Excitation
     	value = lc.getExcitationWave();
     	if (value != null) return determineColor(value);
 
-	if (value == null && lc.getFilterSet() != null) {
-	    Iterator<Filter> it = lc.getFilterSet().linkedExcitationFilterIterator();
-	    while (value == null && it.hasNext()) {
-	        value = getValueFromFilter(it.next());
-	    }
-        }
+    	if (value == null && f != null) {
+    		filters = new ArrayList<Filter>();
+    		j = f.linkedExcitationFilterIterator();
+    		while (j.hasNext()) {
+				filters.add(j.next());
+			}
+    		sortFilters(filters);
+    		while (value == null && j.hasNext()) {
+    			value = getValueFromFilter(j.next());
+    		}
+    	}
 
-        return determineColor(value);
+    	if (value == null && lp != null) {
+    		filters = new ArrayList<Filter>();
+    		j = lp.linkedExcitationFilterIterator();
+    		while (j.hasNext()) {
+				filters.add(j.next());
+			}
+    		sortFilters(filters);
+    		while (value == null && j.hasNext()) {
+    			value = getValueFromFilter(j.next());
+    		}
+    	}
+    	return determineColor(value);
     }
  
     /**
@@ -275,12 +372,33 @@ public class ColorsFactory {
     }
     
     /**
+     * Sorts the filters by ID to make sure that the filters with the 
+     * highest ID is first picked.
+     * 
+     * @param filters the filters to handle.
+     */
+    private static void sortFilters(List<Filter> filters)
+    {
+    	if (filters == null || filters.size() == 0) return;
+        Comparator c = new Comparator() {
+            public int compare(Object o1, Object o2)
+            {
+                long id1 = ((Filter) o1).getId(),
+                id2 = ((Filter) o2).getId();
+                int v = 0;
+                if (id1 < id2) v = -1;
+                else if (id1 > id2) v = 1;
+                return v;
+            }
+        };
+        Collections.sort(filters, c);
+    }
+    
+    /**
      * Determines the color usually associated to the specified wavelength.
      * 
-     * @param index
-     *            The channel index.
-     * @param channel
-     *            The channel to determine the color for.
+     * @param index The channel index.
+     * @param channel The channel to determine the color for.
      * @return A color.
      */
     public static int[] getColor(int index, Channel channel) {
@@ -292,6 +410,7 @@ public class ColorsFactory {
      * 
      * @param index The channel index.
      * @param channel The channel to determine the color for.
+     * @param lc The entity hosting information about the emission etc.
      * @return A color.
      */
     public static int[] getColor(int index, Channel channel, LogicalChannel
@@ -362,6 +481,5 @@ public class ColorsFactory {
     public static int[] newWhiteColor() {
         return new int[] { 255, 255, 255, DEFAULT_ALPHA };
     }
-    
-    
+ 
 }
