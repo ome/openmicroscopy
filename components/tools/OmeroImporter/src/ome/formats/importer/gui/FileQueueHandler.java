@@ -324,12 +324,37 @@ public class FileQueueHandler extends JPanel
 
     	Boolean spw = spwOrNull(containers);
         
+        if (containers.size() == 0 && !candidatesFormatException)
+        {
+        	final JOptionPane optionPane = new JOptionPane("\nNo importable files found in this selection.", JOptionPane.WARNING_MESSAGE);
+            final JDialog errorDialog = new JDialog(viewer, "No Importable Files Found", true);
+            errorDialog.setContentPane(optionPane);
+
+            optionPane.addPropertyChangeListener(
+                    new PropertyChangeListener() {
+                        public void propertyChange(PropertyChangeEvent e) {
+                            String prop = e.getPropertyName();
+
+                            if (errorDialog.isVisible() 
+                                    && (e.getSource() == optionPane)
+                                    && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                                errorDialog.dispose();
+                            }
+                        }
+                    });
+
+            errorDialog.toFront();
+            errorDialog.pack();
+            errorDialog.setLocationRelativeTo(viewer);
+            errorDialog.setVisible(true);
+        }
+    	
         if (candidatesFormatException)
         {
             viewer.candidateErrorsCollected(viewer);
             candidatesFormatException = false;
         }
-                
+                     
         if (spw == null) {
         	addEnabled(true);
             containers.clear();
