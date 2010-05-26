@@ -191,6 +191,7 @@ import omero.model.Shape;
 import omero.model.StageLabel;
 import omero.model.TimestampAnnotation;
 import omero.model.TransmittanceRange;
+import omero.model.TransmittanceRangeI;
 import omero.model.Well;
 import omero.model.WellSample;
 import omero.model.XmlAnnotation;
@@ -7350,9 +7351,16 @@ public class OMEROMetadataStoreClient
             new LinkedHashMap<Index, Integer>();
         indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
         indexes.put(Index.FILTER_INDEX, filterIndex);
-        return getSourceObject(TransmittanceRange.class, indexes);
+        Filter filter = getFilter(instrumentIndex, filterIndex);
+        TransmittanceRange tm = filter.getTransmittanceRange();
+        if (tm == null)
+        {
+            tm = new TransmittanceRangeI();
+            filter.setTransmittanceRange(tm);
+        }
+        return tm;
     }
-    
+
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTransmittanceRangeCutIn(java.lang.Integer, int, int)
      */

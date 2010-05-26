@@ -212,10 +212,6 @@ public class OMEROMetadataStore
     	{
     		handle(lsid, (ImagingEnvironment) sourceObject, indexes);
     	}
-        else if (sourceObject instanceof TransmittanceRange)
-        {
-            handle(lsid, (TransmittanceRange) sourceObject, indexes);
-        }
         else if (sourceObject instanceof DetectorSettings)
         {
             handle(lsid, (DetectorSettings) sourceObject, indexes);
@@ -728,21 +724,6 @@ public class OMEROMetadataStore
     {
     	Image i = imageList.get(indexes.get("imageIndex"));
     	i.setImagingEnvironment(sourceObject);
-    }
-
-    /**
-     * Handles inserting a specific type of model object into our object graph.
-     * @param LSID LSID of the model object.
-     * @param sourceObject Model object itself.
-     * @param indexes Any indexes that should be used to reference the model
-     * object.
-     */
-    private void handle(String LSID, TransmittanceRange sourceObject,
-                        Map<String, Integer> indexes)
-    {
-        Filter f = getFilter(
-                indexes.get("instrumentIndex"), indexes.get("filterIndex"));
-        f.setTransmittanceRange(sourceObject);
     }
 
     /**
@@ -1331,21 +1312,6 @@ public class OMEROMetadataStore
     private Experiment getExperiment(int experimentIndex)
     {
     	return experimentList.get(experimentIndex);
-    }    
-    
-    /**
-     * Returns a Filter model object based on its indexes within the OMERO
-     * data model.
-     * @param instrumentIndex Instrument index.
-     * @param filterIndex Filter index.
-     * @return See above.
-     */
-    private Filter getFilter(int instrumentIndex, int filterIndex)
-    {
-        Collection<Filter> filters = 
-            getInstrument(instrumentIndex).unmodifiableFilter();
-        Filter[] filterArray = filters.toArray(new Filter[filters.size()]);
-        return filterArray[filterIndex];
     }
 
     /**
