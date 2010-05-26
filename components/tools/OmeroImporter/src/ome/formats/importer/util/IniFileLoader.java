@@ -350,6 +350,26 @@ public class IniFileLoader {
         userPrefs.node("UI").putInt("yOffset", bounds.y);
     }
 
+    public boolean getUserFullPath()
+    {
+    	return userPrefs.node("UI").getBoolean("userFullPath", true);	
+    }
+    
+    public void setUserFullPath(boolean b)
+    {
+    	userPrefs.node("UI").putBoolean("userFullPath", b);
+    }
+
+    public boolean getCustomImageNaming()
+    {
+    	return userPrefs.node("UI").getBoolean("customImageNaming", true);	
+    }
+    
+    public void setCustomImageNaming(boolean b)
+    {
+    	userPrefs.node("UI").putBoolean("customImageNaming", b);
+    }
+    
     /**
      * @return uploader token URL for QA
      */

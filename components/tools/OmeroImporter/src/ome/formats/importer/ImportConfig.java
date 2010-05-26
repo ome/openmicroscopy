@@ -443,6 +443,34 @@ public class ImportConfig {
         return ini.getUploaderURL();
     }
 
+    /**
+     * @return ini user full path
+     */
+    public boolean getUserFullPath() {
+        return ini.getUserFullPath();
+    }    
+
+    /**
+     * @return ini user full path
+     */
+    public void setUserFullPath(boolean b) {
+        ini.setUserFullPath(b);
+    }  
+
+    /**
+     * @return ini user full path
+     */
+    public boolean getCustomImageNaming() {
+        return ini.getUserFullPath();
+    }    
+
+    /**
+     * @return ini user full path
+     */
+    public void setCustomImageNaming(boolean b) {
+        ini.setUserFullPath(b);
+    }
+    
     //
     // Server list
     //
@@ -737,15 +765,15 @@ public class ImportConfig {
         public synchronized void store() {
             if (which instanceof Properties || which instanceof Preferences) {
                 prefs.put(key, toString());
-                log.trace("Saved " + key + " to " + prefs);
+                log.debug("Saved " + key + " to " + prefs);
             } else if (which instanceof IniFileLoader) {
                 // FIXME ((IniFileLoader)which).set
-                log.trace("Saved " + key + " to " + ini);
+                log.debug("Saved " + key + " to " + ini);
             } else if (which == null && prefs != null) { // Loaded from defaults
                 prefs.put(key, toString());
-                log.trace("Freshly saved " + key + " to " + prefs);
+                log.debug("Freshly saved " + key + " to " + prefs);
             } else {
-                log.trace("WHICH:" + which); // Unknown state
+                log.debug("WHICH:" + which); // Unknown state
             }
 
         }
@@ -757,33 +785,34 @@ public class ImportConfig {
          * default value.
          */
         public synchronized void load() {
+        	
             if (empty() && props != null) {
                 set(fromString(props.getProperty(key)));
                 if (!empty()) {
                     which = props;
-                    log.trace("Loaded " + key + " from " + props);
+                    log.debug("Loaded " + key + " from " + props);
                     return;
                 }
             }
-
+        	
             if (empty() && prefs != null) {
                 set(fromString(prefs.get(key, "")));
                 if (!empty()) {
                     which = prefs;
-                    log.trace("Loaded " + key + " from " + prefs);
+                    log.debug("Loaded " + key + " from " + prefs);
                     return;
                 }
             }
-
+            
             if (empty() && ini != null) {
                 // set(fromString((ini.getProperty(key));
-                log.trace("Loaded " + key + " from " + ini);
+                log.debug("Loaded " + key + " from " + ini);
                 // break; FIXME
             }
 
             if (empty()) {
                 set(_default);
-                log.trace("Loaded " + key + " from default");
+                log.debug("Loaded " + key + " from default");
                 which = null;
             }
         }

@@ -251,14 +251,16 @@ public class ImportDialog extends JDialog implements ActionListener
         group.add(fullPathButton);
         group.add(partPathButton);
 
-        if (config.useFullPath.get() == true )
+        //if (config.useFullPath.get() == true )
+        if (config.getUserFullPath() == true )
             group.setSelected(fullPathButton.getModel(), true);
         else
             group.setSelected(partPathButton.getModel(), true);
         
         useCustomNamingChkBox = GuiCommonElements.addCheckBox(namedPanel, "Override default file naming. Instead use:", "0,0,1,0", debug);
         useCustomNamingChkBox.addActionListener(this);
-        if (config.useCustomImageNaming.get() == true)
+        //if (config.useCustomImageNaming.get() == true)
+        if (config.getCustomImageNaming() == true)
         {
         	useCustomNamingChkBox.setSelected(true);
         	enabledPathButtons(true);
@@ -506,9 +508,11 @@ public class ImportDialog extends JDialog implements ActionListener
        
         if (event.getSource() == useCustomNamingChkBox)
         {
+        	config.setCustomImageNaming(useCustomNamingChkBox.isSelected());
         	if (useCustomNamingChkBox.isSelected())
         	{
         		enabledPathButtons(true);
+        	
         	}
         	else
         	{  
@@ -530,11 +534,12 @@ public class ImportDialog extends JDialog implements ActionListener
         else if (event.getSource() == fullPathButton)
         {
             config.useFullPath.set(true);
-
+            config.setUserFullPath(true);
         }
         else if (event.getSource() == partPathButton)
         {
             config.useFullPath.set(false);
+            config.setUserFullPath(false);
         }
         else if (event.getSource() == cancelBtn)
         {
