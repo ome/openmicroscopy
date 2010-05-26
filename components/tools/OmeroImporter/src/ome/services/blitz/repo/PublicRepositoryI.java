@@ -219,17 +219,8 @@ public class PublicRepositoryI extends _RepositoryDisp {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
                 long id = sf.getUpdateService().saveAndReturnObject(omeObj).getId();
-                if (omeObj instanceof ome.model.core.OriginalFile) {
-                    jdbc.update("update originalfile set repo = ? where id = ?", repoId, id);
-                    helper.setFileParams(id, paramMap);
-                } else { // must be an Image object here.
-                    ome.model.IObject result = sf.getQueryService().findByQuery("select p from Pixels p where p.image = " + id, null);
-                    long pixId = result.getId();                  
-                    jdbc.update("update pixels set repo = ? where id = ?", repoId, pixId);
-                    helper.setPixelsParams(pixId, paramMap);
-                    return id;
-
-                }
+                jdbc.update("update originalfile set repo = ? where id = ?", repoId, id);
+                helper.setFileParams(id, paramMap);
                 return id;
             }
         });
@@ -238,70 +229,9 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return obj;
     }
 
-    /**
-     * Register the Images in a FileSet
-     * 
-     * @param set
-     *            FileSet object.
-     * @param params
-     *            Map<String, String>
-     * @param __current
-     *            ice context.
-     * @return The FileSet with Image ids set (unloaded)
-     *
-     */
-    public FileSet registerFileSet(FileSet set, Map<String, String> params, Current __current) 
-            throws ServerError {
-        
-        if (set == null) {
-            throw new ValidationException(null, null,
-                    "fileSet is a required argument");
-        }
-        if (!set.importableImage) {
-            throw new ValidationException(null, null,
-                    "fileSet is not importable");
-        }
-        
-        File f = new File(set.fileName);
-        final String path = getRelativePath(f);
-        final String name = f.getName(); 
-        final String repoId = getRepoUuid();
-        
-        long imageCount = 0;
-        for (IObject obj : set.imageList) {
-            
-            params.put("image_no", Long.toString(imageCount));
-            
-            IceMapper mapper = new IceMapper();
-            final ome.model.IObject omeObj = (ome.model.IObject) mapper.reverse(obj);
-                    
-            final Map<String, String> paramMap = params;
-            
-            Long id = (Long) executor.execute(principal, new Executor.SimpleWork(
-                    this, "registerFileSet", repoId) {
-                @Transactional(readOnly = false)
-                public Object doWork(Session session, ServiceFactory sf) {
-                    long id = sf.getUpdateService().saveAndReturnObject(omeObj).getId();
-                    ome.model.IObject result = sf.getQueryService().findByQuery("select p from Pixels p where p.image = " + id, null);
-                    long pixId = result.getId();                  
-                    jdbc.update("update pixels set name = ? where id = ?", name, pixId);
-                    jdbc.update("update pixels set path = ? where id = ?", path, pixId);
-                    jdbc.update("update pixels set repo = ? where id = ?", repoId, pixId);
-                    helper.setPixelsParams(pixId, paramMap);
-                    return id;
-                }
-            });
-            obj.setId(rlong(id));
-            obj.unload();
-            imageCount++;
-        }
-        return set;
-    }
-
-
 
     /**
-     * Register the Images in a list of Images
+     * Register the Images in a list of Images, a single image will be a one-element list
      * 
      * @param filename
      *            The absolute path of the parent file.
@@ -326,10 +256,10 @@ public class PublicRepositoryI extends _RepositoryDisp {
         final String name = f.getName(); 
         final String repoId = getRepoUuid();
         
-        long imageCount = 0;
+        int imageCount = 0;
         for (IObject obj : imageList) {
             
-            params.put("image_no", Long.toString(imageCount));
+            params.put("image_no", Integer.toString(imageCount));
             
             IceMapper mapper = new IceMapper();
             final ome.model.IObject omeObj = (ome.model.IObject) mapper.reverse(obj);
@@ -354,6 +284,84 @@ public class PublicRepositoryI extends _RepositoryDisp {
             imageCount++;
         }
         return imageList;
+    }
+
+    /**
+     * Register the Images in a list of Images, a single image will be a one-element list
+     * 
+     * @param filename
+     *            The absolute path of the parent file.
+     * @param imageList
+     *            A list of Image objects.
+     * @param params
+     *            Map<String, String>
+     * @param __current
+     *            ice context.
+     * @return A List of Images with ids set
+     *
+     */
+    public List<IObject> registerFileSet(OriginalFile keyFile, List<Image> imageList, Current __current) 
+            throws ServerError {
+
+        if (keyFile == null) {
+            throw new ValidationException(null, null,
+                    "keyFile is a required argument");
+        }
+        
+        List<IObject> objList = new ArrayList<IObject>();
+        
+        IceMapper mapper = new IceMapper();
+        
+        final ome.model.IObject omeFile = (ome.model.IObject) mapper.reverse(keyFile);
+        final String repoId = getRepoUuid();
+
+        Long ofId = (Long) executor.execute(principal, new Executor.SimpleWork(
+                this, "registerObject", repoId) {
+            @Transactional(readOnly = false)
+            public Object doWork(Session session, ServiceFactory sf) {
+                long id = sf.getUpdateService().saveAndReturnObject(omeFile).getId();
+                jdbc.update("update originalfile set repo = ? where id = ?", repoId, id);
+                return id;
+            }
+        });
+        keyFile.setId(rlong(ofId));
+        objList.add(keyFile);
+        
+        if (imageList == null || imageList.size() == 0) {
+            return objList;
+        }
+        
+        
+        final String path = keyFile.getPath().getValue();
+        final String name = keyFile.getName().getValue(); 
+        
+        int imageCount = 0;
+        Map<String, String> params = new HashMap<String, String>();
+        for (IObject obj : imageList) {
+            
+            params.put("image_no", Integer.toString(imageCount));
+            final Map<String, String> paramMap = params;
+            final ome.model.IObject omeObj = (ome.model.IObject) mapper.reverse(obj);
+                          
+            Long id = (Long) executor.execute(principal, new Executor.SimpleWork(
+                    this, "registerImageList", repoId) {
+                @Transactional(readOnly = false)
+                public Object doWork(Session session, ServiceFactory sf) {
+                    long id = sf.getUpdateService().saveAndReturnObject(omeObj).getId();
+                    ome.model.IObject result = sf.getQueryService().findByQuery("select p from Pixels p where p.image = " + id, null);
+                    long pixId = result.getId();                  
+                    jdbc.update("update pixels set name = ? where id = ?", name, pixId);
+                    jdbc.update("update pixels set path = ? where id = ?", path, pixId);
+                    jdbc.update("update pixels set repo = ? where id = ?", repoId, pixId);
+                    helper.setPixelsParams(pixId, paramMap);
+                    return id;
+                }
+            });
+            obj.setId(rlong(id));
+            objList.add(obj);
+            imageCount++;
+        }
+        return objList;
     }
 
     public void delete(String path, Current __current) throws ServerError {
@@ -433,18 +441,18 @@ public class PublicRepositoryI extends _RepositoryDisp {
     
     
     /**
-     * Get the format object for a file.
+     * Get the mimetype for a file.
      * 
      * @param path
      *            A path on a repository.
      * @param __current
      *            ice context.
-     * @return Format object
+     * @return mimetype
      *
      */
-    public Format format(String path, Current __current) throws ServerError {
+    public String mimetype(String path, Current __current) throws ServerError {
         File file = checkPath(path);
-        throw new omero.InternalException(null, null, "ticket:2211 - For Colin");
+        return getMimetype(file);
     }
 
     /**
@@ -771,7 +779,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
             set.hidden = ic.getFile().isHidden();
             set.dir = ic.getFile().isDirectory();
             set.reader = ic.getReader();
-            set.imageCount = ic.getBfImageCount();
+            set.imageCount = ic.getBfImageCount().intValue();
                         
             set.usedFiles = new ArrayList<IObject>();
             List<String> iFileList = Arrays.asList(ic.getUsedFiles());
@@ -794,8 +802,10 @@ public class PublicRepositoryI extends _RepositoryDisp {
                 String imageName;
                 pix = createPixels(pix);
                 imageName = iNames.get(i);
-                if (imageName == null || imageName == "") {
-                    imageName = "UNKNOWN";
+                if (imageName == null) {
+                    imageName = "IMAGE NAME NULL";
+                } else if (imageName.equals("")) {
+                    imageName = "IMAGE NAME EMPTY";
                 }
                 image = getImage(set.fileName, i);
                 if (image == null) {
@@ -981,15 +991,14 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
 
     /**
-     * Get an Image with path corresponding to the paramater path.
+     * Get an Image with path corresponding to the parameter path and the count.
      * 
      * @param path
      *            A path to a file.
      * @return List of Image objects, empty if the query returned no values.
      *
-     * TODO Broken at present, params is not checked.
      */
-    private Image getImage(String fullPath, final long count)  {
+    private Image getImage(String fullPath, final int count)  {
 
         File f = new File(fullPath);
         final String uuid = getRepoUuid();
@@ -1015,7 +1024,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
                         long pixelsId = 0;
                         for (BigInteger pId : pixIds) {
                             Map<String, String> params = helper.getPixelsParams(pId.longValue());
-                            if (Long.parseLong(params.get(IMAGE_NO_KEY)) == count) {
+                            if (Integer.parseInt(params.get(IMAGE_NO_KEY)) == count) {
                                 pixelsId = pId.longValue();
                                 break;
                             }
@@ -1039,6 +1048,60 @@ public class PublicRepositoryI extends _RepositoryDisp {
         }
         IceMapper mapper = new IceMapper();
         Image rv = (Image) mapper.map(image);
+        return rv;
+    }
+    /**
+     * Get an Image with path corresponding to the parameter path and the count.
+     * 
+     * @param path
+     *            A path to a file.
+     * @return List of Image objects, empty if the query returned no values.
+     *
+     */
+    private List<Image> getImageList(String fullPath, final int count)  {
+
+        File f = new File(fullPath);
+        final String uuid = getRepoUuid();
+        final String path = getRelativePath(f);
+        final String name = f.getName();
+        
+        List<ome.model.core.Image> imageList = (List<ome.model.core.Image>) executor
+                .execute(principal, new Executor.SimpleWork(this, "getImageList") {
+
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+
+                        List<ome.model.core.Image> iList = new ArrayList<ome.model.core.Image>();
+                        for(int i=0; i<count; i++) iList.add(null);
+                        
+                        List<BigInteger> pixIds = session.createSQLQuery(
+                                "select id from Pixels " +
+                                "where path = ? and name = ? and repo = ?")
+                                .setParameter(0, path)
+                                .setParameter(1, name)
+                                .setParameter(2, uuid)
+                                .list();
+                        if (pixIds == null || pixIds.size() == 0) {
+                            return iList;
+                        }
+                        
+                        for (BigInteger pId : pixIds) {
+                            Map<String, String> params = helper.getPixelsParams(pId.longValue());
+                            long pixelsId = pId.longValue();
+                            BigInteger imageId = (BigInteger) session.createSQLQuery(
+                                    "select image from Pixels " +
+                                    "where id = ?")
+                                    .setParameter(0, pixelsId)
+                                    .uniqueResult();
+                            ome.model.core.Image image = sf.getQueryService().find(ome.model.core.Image.class, imageId.longValue());
+                            iList.set(Integer.parseInt(params.get(IMAGE_NO_KEY)),image);
+                        }
+                        return iList;
+                    }
+                });
+            
+        IceMapper mapper = new IceMapper();
+        List<Image> rv = (List<Image>) mapper.map(imageList);
         return rv;
     }
 

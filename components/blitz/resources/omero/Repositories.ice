@@ -69,11 +69,10 @@ module omero {
                     throws ServerError;
             
             /**
-             * Returns the best-guess of the [omero::model::Format] for the given path.
-             * If the file is "known" (see [listKnown]), then the format returned will
-             * be the stored value, rather than a newly calculated one.
+             * Returns the best-guess mimetype for the given path.
+             *
              **/
-            omero::model::Format format(string path) throws ServerError;
+            string mimetype(string path) throws ServerError;
 
             /**
              * Create an OriginalFile in the database for the given path.
@@ -94,17 +93,6 @@ module omero {
                     throws ServerError;
             
            /**
-             * Create entries in the database for the Images in the imageList of the FileSet.
-             *
-             * If the given FileSet is null a ValidationException is thrown. 
-             * If the given FileSet is not importable a ValidationException is thrown. 
-             * Otherwise, an entry is added and an unloaded IObject returned with id set.
-             *
-             **/
-            FileSet registerFileSet(FileSet set, omero::api::StringStringMap params) 
-                    throws ServerError;
-            
-           /**
              * Create entries in the database for the Images in the imageList for the given file.
              *
              * If the given ImageList is null or empty a ValidationException is thrown. 
@@ -113,6 +101,9 @@ module omero {
              *
              **/
             omero::api::ImageList registerImageList(string filename, omero::api::ImageList imageList, omero::api::StringStringMap params) 
+                    throws ServerError;
+            
+            omero::api::IObjectList registerFileSet(omero::model::OriginalFile keyFile, omero::api::ImageList imageList) 
                     throws ServerError;
             
             /**
