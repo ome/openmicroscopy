@@ -135,6 +135,8 @@ public class IQueryEnumProvider implements EnumerationProvider
         // Step 1, check if we've got an exact match for our enumeration value.
         if (enumerations.containsKey(value))
         {
+            log.debug(String.format("Returning %s exact match for: %s",
+                    klass.toString(), value));
             if (!loaded)
             {
                 return (T) copyEnumeration(enumerations.get(value));
@@ -145,6 +147,8 @@ public class IQueryEnumProvider implements EnumerationProvider
         IObject enumeration = handler.findEnumeration((HashMap<String, IObject>) enumerations, value);
         if (enumeration != null)
         {
+            log.debug(String.format("Handler found %s match for: %s",
+                    klass.toString(), value));
             if (!loaded)
             {
                 return (T) copyEnumeration(enumeration);
