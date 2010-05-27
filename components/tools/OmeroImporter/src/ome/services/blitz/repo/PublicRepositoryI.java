@@ -124,6 +124,8 @@ public class PublicRepositoryI extends _RepositoryDisp {
     
     private Map<String,DimensionOrder> dimensionOrderMap;
     
+    private Map<String,PixelsType> pixelsTypeMap;
+    
     private String repoUuid;
 
     public PublicRepositoryI(File root, long repoObjectId, Executor executor,
@@ -141,7 +143,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         this.root = root.getAbsoluteFile();
         this.repoUuid = null;
         this.dimensionOrderMap = null;
-        
+        this.pixelsTypeMap = null;
     }
 
     public OriginalFile root(Current __current) throws ServerError {
@@ -704,6 +706,23 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
 
     /**
+     * Get the PixelsType
+     * 
+     * @param String
+     *            A string representing the pixels type
+     * @return A PixelsType object
+     *
+     * The HashMap is built on the first call.
+     * TODO: Move that build to constructor?
+     */
+    private PixelsType getPixelsType(String pixelsType) {
+        if (pixelsTypeMap == null) {
+            pixelsTypeMap = buildPixelsTypeMap();
+        }
+        return pixelsTypeMap.get(pixelsType);
+    }
+
+    /**
      * Get OriginalFile objects corresponding to a collection of File objects.
      * 
      * @param files
@@ -933,6 +952,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         // Use the same for all Pixels for now.
         DimensionOrder dimOrder = getDimensionOrder("XYZCT");
         pix.setDimensionOrder(dimOrder);
+        pix.setPixelsType(getPixelsType(pix.getPixelsType().getValue().getValue()));
         pix.setSha1(rstring("UNKNOWN"));
         return pix;
     }
@@ -1272,6 +1292,35 @@ public class PublicRepositoryI extends _RepositoryDisp {
             dimensionOrderMap.put(dimensionOrder.getValue().getValue(), dimensionOrder);
         }
         return dimensionOrderMap;
+    }
+    
+    /**
+     * Utility to a build map of PixelsType objects keyed by value.
+     * This is run once by getPixelsType() when first needed, 
+     * thereafter lookups are local.
+     *
+     * TODO: this should probably be done in the constructor?
+     */
+    private Map<String, PixelsType> buildPixelsTypeMap() {
+        List <PixelsType> pixelsTypeList;
+        List<ome.model.enums.PixelsType> pixTypeList = (List<ome.model.enums.PixelsType>) executor
+                .execute(principal, new Executor.SimpleWork(this, "buildPixelsTypeMap") {
+
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        return sf.getQueryService().findAllByQuery("from PixelsType as p",
+                                null);
+                    }
+                });
+            
+        IceMapper mapper = new IceMapper();
+        pixelsTypeList = (List<PixelsType>) mapper.map(pixTypeList);
+
+        Map<String, PixelsType> pixelsTypeMap = new HashMap<String, PixelsType>();
+        for (PixelsType pixelsType : pixelsTypeList) {
+            pixelsTypeMap.put(pixelsType.getValue().getValue(), pixelsType);
+        }
+        return pixelsTypeMap;
     }
     
     private String getRelativePath(File f) {
