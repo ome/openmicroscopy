@@ -155,15 +155,17 @@
                                     $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="/webclient/metadata_details/plate/'+obj[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
                                     $('iframe#metadata_details').load();
                                     
-                                    if (par != 0) {
-                                        var parobj = par.split("-");
-                                        $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-                                        $("div#content_details").load('/webclient/load_data/screen/'+parobj[1]+'/plate/'+obj[1]+'/?view=icon');
-                                    } else {
-                                        $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-                                        $("div#content_details").load('/webclient/load_data/plate/'+obj[1]+'/?view=icon');
+                                    if ($("div#content_details").attr('rel') != obj[1]) {
+                                        if (par != 0) {
+                                            var parobj = par.split("-");
+                                            $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                                            $("div#content_details").load('/webclient/load_data/screen/'+parobj[1]+'/plate/'+obj[1]+'/?view=icon');
+                                        } else {
+                                            $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                                            $("div#content_details").load('/webclient/load_data/plate/'+obj[1]+'/?view=icon');
+                                        }
+                                        $("div#content_details").attr('rel', obj[1]);
                                     }
-                                    $("div#content_details").removeAttr('rel');
                                 }
                             }                
                         },

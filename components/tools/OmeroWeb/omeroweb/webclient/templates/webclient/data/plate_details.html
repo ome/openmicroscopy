@@ -3,31 +3,8 @@
 {% load custom_tags %}
 {% load wikitags %}
 
-
-    <link rel="stylesheet" href="{% url webstatic "css/spw.css" %}" type="text/css" media="screen"/>
-
-       
-    <script>
-        $(document).ready(function(){
-            $("div#www").css('width', $(window).width()-770);
-        });
-        
-        function changeIndex(index) {
-            if(index>=0) {
-                var rel = $("div#content_details").attr('rel');
-                $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/tree/spinner.gif"/></p>');
-                var url = ('{{ url }}').split("?");                
-                $("div#content_details").load(url[0]+'?view={{ nav.view }}&index='+index);
-                return false;
-            } else {
-                alert('Attribute error: index out of range');
-            }
-        }
-    </script>
-        
-
 <!--content-->
-<div id="www" style="overflow:auto;">
+<div>
 <div id="index">
     <form action="" method="POST">
     <table>

@@ -163,7 +163,8 @@
             {% if manager.share %}
             <table>
                 <tr><td rowspan="3"><img src="{% url webstatic "images/folder_html64.png" %}" alt="share" title="share"/></td>
-                    <td><p><label>{{ manager.share.getShareType|lower }} {{ manager.share.id }}</label></p><a href="{% url manage_action_containers "edit" "share" manager.share.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a> (id: {{ manager.share.id }})</td></tr>
+                    <td><p><label>{{ manager.share.getShareType|lower }} {{ manager.share.id }}</label></p>
+                        {% if not manager.share.isExpired and manager.share.isOwned %}<a href="{% url manage_action_containers "edit" "share" manager.share.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %} (id: {{ manager.share.id }})</td></tr>
                 <tr><td>Includes {{ manager.share.itemCount }} image(s)</td></tr>
                 <tr><td>Status: <strong>{% if manager.share.active %}{% trans "ACTIVE" %}{% else %}{% trans "NOT ACTIVE" %}{% endif %}</strong></td></tr>                
                 <tr><td colspan="2">Created on: {{ manager.share.getStartDate|date:"Y-m-d H:i:s" }}</td></tr>
