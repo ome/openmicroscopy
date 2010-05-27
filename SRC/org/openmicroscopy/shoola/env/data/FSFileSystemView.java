@@ -293,8 +293,8 @@ public class FSFileSystemView
     	throws FSAccessException
     {
     	if (file == null) return null;
-    	if (!(file instanceof FileData || file instanceof ImageData || 
-				file instanceof MultiImageData)) return null;
+    	if (!(file instanceof FileData || file instanceof ImageData)) 
+    		return null;
     	if (file.getId() > 0) return file;
     	Entry entry = getRepository(file);
     	if (entry == null) return null;
@@ -303,6 +303,8 @@ public class FSFileSystemView
     	String name;
     	IObject r;
     	List<Image> images;
+    	OriginalFile of;
+    	List<IObject> objects;
     	Map<String, String> map = new HashMap<String, String>();
     	if (file instanceof ImageData) {
     		ImageData img = (ImageData) file;
@@ -320,6 +322,7 @@ public class FSFileSystemView
 			}
     	} else if (file instanceof MultiImageData) {
     		MultiImageData mi = (MultiImageData) file;
+    		of = (OriginalFile) mi.asIObject();
     		List<ImageData> files = mi.getComponents();
     		//sort then by index.
     		sortImageByIndex(files);
@@ -329,16 +332,19 @@ public class FSFileSystemView
 				images.add(i.next().asImage());
 			}
     		try {
-    			images = proxy.registerImageList(mi.getAbsolutePath(), images, 
-    					map);
+    			int index = 0;
+    			objects = proxy.registerFileSet(of, images);
+    			mi.setRegisteredFile((OriginalFile) objects.get(index));
+    			//images = proxy.registerImageList(of, images, map);
     			i = files.iterator();
     			ImageData data;
-    			int index = 0;
+    			index++;
     			while (i.hasNext()) {
 					data = i.next();
-					data.setRegisteredFile(images.get(index));
+					data.setRegisteredFile((Image) objects.get(index));
 					index++;
 				}
+    			return mi;
 			} catch (Exception e) {
 				new FSAccessException("Cannot register the multi-images file:" +
 						" "+mi.getName(), e);
@@ -346,7 +352,7 @@ public class FSFileSystemView
     		
     	}  else if (file instanceof FileData) {
     		FileData f = (FileData) file;
-    		OriginalFile of = (OriginalFile) file.asIObject();
+    		of = (OriginalFile) file.asIObject();
     		try {
     			r = proxy.registerObject(of, map);
     			f.setRegisteredFile((OriginalFile) r);

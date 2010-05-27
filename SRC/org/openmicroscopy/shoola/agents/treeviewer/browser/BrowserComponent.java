@@ -1583,8 +1583,7 @@ class BrowserComponent
 		if (file == null)
 			throw new IllegalArgumentException("No file to register.");
 		if (model.getBrowserType() != FILE_SYSTEM_EXPLORER) return false;
-		if (!(file instanceof FileData || file instanceof ImageData || 
-				file instanceof MultiImageData))
+		if (!(file instanceof FileData || file instanceof ImageData))
 			return false;
 		if (file.getId() > 0) return false;
 		try {
@@ -1597,9 +1596,11 @@ class BrowserComponent
 			if (file instanceof ImageData) {
 				ImageData img = (ImageData) file;
 				if (img.getIndex() >= 0) {
-					if (!(d.getUserObject() instanceof MultiImageData))
+					TreeImageDisplay pd = d.getParentDisplay();
+					if (pd == null) return false;
+					if (!(pd.getUserObject() instanceof MultiImageData))
 						return false;
-					file = (DataObject) d.getUserObject();
+					file = (DataObject) pd.getUserObject();
 				}
 			}
 			DataObject o = model.getRepositories(id).register(file);
