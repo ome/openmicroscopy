@@ -630,8 +630,8 @@ public class FigureParam
 		switch (label) {
 			default:
 			case IMAGE_NAME: return "Image_Name";
-			case DATASET_NAME: return "Tags";
-			case TAG_NAME: return "TAGS";
+			case DATASET_NAME: return "Datasets";
+			case TAG_NAME: return "Tags";
 		}
 	}
 	
