@@ -262,7 +262,7 @@ public class FileQueueChooser extends JFileChooser implements ActionListener
      * @param fileChooser fileChooser
      * @return fileListObjects
      */
-    protected Component[] getFileListObjects(JFileChooser fileChooser) {
+    public Component[] getFileListObjects(JFileChooser fileChooser) {
         Vector<Component> v = new Vector<Component>();
         Stack<Component> s = new Stack<Component>();
         s.push(fileChooser);

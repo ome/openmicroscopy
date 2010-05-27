@@ -27,7 +27,6 @@ import info.clearthought.layout.TableLayout;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -46,17 +45,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JSplitPane;
 import javax.swing.WindowConstants;
-import javax.swing.event.ListDataEvent;
-import javax.swing.event.ListDataListener;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.plaf.basic.BasicDirectoryModel;
-import javax.swing.plaf.basic.BasicFileChooserUI;
 
 import loci.formats.IFormatReader;
 import loci.formats.gui.FormatFileFilter;
@@ -138,12 +132,6 @@ public class FileQueueHandler extends JPanel
         fileChooser.addActionListener(this);
         fileChooser.addPropertyChangeListener(this);
         
-        //TODO: Finish TypeSelectorCode
-        //new TypeSelector(fileChooser);
-        
-        
-        //fc.setAccessory(new FindAccessory(fc));
-        
         qTable = new FileQueueTable();
         qTable.addPropertyChangeListener(this);
         
@@ -186,7 +174,7 @@ public class FileQueueHandler extends JPanel
         
         //If the directory changed, don't show an image.
         if (action.equals(JFileChooser.APPROVE_SELECTION)) {
-            addSelectedFiles();
+        	doSelection(true);
         }
     }
 
@@ -202,13 +190,27 @@ public class FileQueueHandler extends JPanel
     }
     
     /**
+     * @param enterDirectories -if True, will enter a directory rather then import it
+     * This is used to allow 'normal' functionality for JFileChooser.APPROVE_SELECTION
+     * using the VK_ENTER key.
+     */
+    private void doSelection(boolean enterDirectories)
+    {
+    	if (enterDirectories)
+    		fileChooser.setCurrentDirectory(fileChooser.getSelectedFile());
+    	else 
+    		addSelectedFiles();
+    }
+    
+    /**
      * Add all files that are selected in the JFileChooser
+     * 
      */
     private void addSelectedFiles()
     {
+    	
         boolean filesOnly = true;
         
-        addEnabled(false);
         final File[] _files = fileChooser.getSelectedFiles();                    
 
         if (_files == null)
@@ -232,6 +234,8 @@ public class FileQueueHandler extends JPanel
             if (file.isDirectory()) filesOnly = false;
         }
         
+        addEnabled(false);
+		
         if (filesOnly)
         {
             boolean isSPW = false;
@@ -437,7 +441,7 @@ public class FileQueueHandler extends JPanel
         String prop = e.getPropertyName();
         if (prop.equals(ADD))
         {
-            addSelectedFiles();
+        	doSelection(false);
         }
         
         else if (prop.equals(REMOVE))
@@ -959,89 +963,5 @@ public class FileQueueHandler extends JPanel
                 directoryProgressBar.setString("Scanned " + numFiles + " of " + totalFiles);   
             }
         });
-    } 
-     
-    
-    
-    /**
-     * Filter the JFileChooser list based on typed input
-     * 
-     * @author Brian W. Loranger
-     *
-     */
-    public class TypingFilter extends KeyAdapter implements PropertyChangeListener {
-        private JFileChooser chooser;
-        private Vector files;
-        private StringBuffer searchString = new StringBuffer();
-        private Boolean resetSearchString = true;
-
-        
-        /**
-         * Find the JList containing the file view
-         * and add a key listener to it
-         * 
-         * @param chooser
-         */
-        public TypingFilter(JFileChooser chooser) {
-            this.chooser = chooser;
-            Component comp = findChooserList(chooser);
-            if (comp == null) return;
-            comp.addKeyListener(this);
-            setChooserListListener();
-            chooser.addPropertyChangeListener(this);
-        }
-        
-        private Component findChooserList(Component comp) {
-            if (comp.getClass() == JList.class) return comp;
-            if (comp instanceof Container) {
-                Component[] components = ((Container)comp).getComponents();
-                for(int i = 0; i < components.length; i++) {
-                    Component child = findChooserList(components[i]);
-                    if (child != null) return child;
-                }
-            }
-            return null;
-        }
-        
-        public void propertyChange(PropertyChangeEvent e) {
-            String prop = e.getPropertyName();
-            if (prop.equals(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY)) {
-                if (resetSearchString) searchString.setLength(0);
-                resetSearchString = true;
-            }
-        }
-
-        public void keyTyped(KeyEvent ke) {
-            if (ke.getKeyChar() == KeyEvent.VK_ENTER) {
-                if (chooser.getSelectedFile().isFile()) chooser.approveSelection();
-            }
-            searchString.append(ke.getKeyChar());
-            String lcSearchString = searchString.toString().toLowerCase();
-            for(int i = 0; i < files.size(); i++) {
-                File item = (File)files.get(i);
-                String name = item.getName().toLowerCase();
-                if (name.contains(lcSearchString)) {
-                    resetSearchString = false;
-                    chooser.setSelectedFile(item);
-                    return;
-                }
-            }
-        }
-    
-        private void setChooserListListener() {
-            final BasicDirectoryModel model = 
-                ((BasicFileChooserUI)chooser.getUI()).getModel();
-            model.addListDataListener(new ListDataListener() {
-                public void contentsChanged(ListDataEvent lde) {
-                    Vector buffer = model.getFiles();
-                    if (buffer.size() > 0) {
-                        files = buffer;
-                    }
-                }
-                public void intervalAdded(ListDataEvent lde) {}
-                public void intervalRemoved(ListDataEvent lde) {}
-            });
-        }
     }
-    
 }
