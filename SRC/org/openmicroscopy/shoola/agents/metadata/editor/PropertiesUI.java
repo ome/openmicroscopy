@@ -101,7 +101,7 @@ class PropertiesUI
 	static final String			TITLE = "Properties";
 
 	/** The default text indicating the type of plate displayed. */
-	private static final String	DEFAULT_PLATE_TYPE ="-Well Plate";
+	private static final String	DEFAULT_PLATE_TYPE ="Type: ";
 	
 	/** The default description. */
     private static final String	DEFAULT_DESCRIPTION_TEXT = "Description";
@@ -281,12 +281,21 @@ class PropertiesUI
     	
     	Map<JLabel, JComponent> components = 
     		new LinkedHashMap<JLabel, JComponent>();
-    	
+    	String v = plate.getPlateType();
+    	JLabel value;
+    	if (v != null && v.trim().length() > 0) {
+    		l = UIUtilities.setTextFont(DEFAULT_PLATE_TYPE, Font.BOLD, size);
+        	value = UIUtilities.createComponent(null);
+        	value.setFont(font.deriveFont(font.getStyle(), size));
+        	value.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+        	value.setText(v);
+        	components.put(l, value);
+    	}
     	l = UIUtilities.setTextFont(EXTERNAL_IDENTIFIER, Font.BOLD, size);
-    	JLabel value = UIUtilities.createComponent(null);
+    	value = UIUtilities.createComponent(null);
     	value.setFont(font.deriveFont(font.getStyle(), size));
     	value.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
-    	String v = plate.getExternalIdentifier();
+    	v = plate.getExternalIdentifier();
     	if (v == null || v.length() == 0) v = NO_SET_TEXT;
     	value.setText(v);
     	components.put(l, value);

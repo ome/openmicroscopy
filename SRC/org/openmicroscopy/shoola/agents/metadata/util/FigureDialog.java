@@ -2097,12 +2097,16 @@ public class FigureDialog
 		String value = "";
 		Map<String, Object> details;
 		PlaneInfo pi;
+		List<String> notSet;
 		while (i.hasNext()) {
 			pi = (PlaneInfo) i.next();
 			details = EditorUtil.transformPlaneInfo(pi);
-			value = EditorUtil.formatTimeInSeconds(
-					(Double) details.get(EditorUtil.DELTA_T));
-			values.put(pi.getTheT().getValue(), value);
+			notSet = (List<String> )details.get(EditorUtil.NOT_SET);
+			if (!notSet.contains(EditorUtil.DELTA_T)) {
+				value = EditorUtil.formatTimeInSeconds(
+						(Double) details.get(EditorUtil.DELTA_T));
+				values.put(pi.getTheT().getValue(), value);
+			}
 		}
 		movieSlider.setCellNames(values);
 	}

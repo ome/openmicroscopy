@@ -480,11 +480,15 @@ class ChannelAcquisitionComponent
 		Iterator j = result.iterator();
 		PlaneInfo info;
 		Map<String, Object> details;
+		List<String> notSet;
 		while (j.hasNext()) {
 			info = (PlaneInfo) j.next();
 			details = EditorUtil.transformPlaneInfo(info);
-			values[0][i] = details.get(EditorUtil.EXPOSURE_TIME)+
-							EditorUtil.TIME_UNIT;
+			notSet = (List<String> )details.get(EditorUtil.NOT_SET);
+			if (!notSet.contains(EditorUtil.EXPOSURE_TIME)) {
+				values[0][i] = details.get(EditorUtil.EXPOSURE_TIME)+
+				EditorUtil.TIME_UNIT;
+			} else values[0][i] = "--";
 			names[i] = "t="+(i+1);
 			i++;
 		}

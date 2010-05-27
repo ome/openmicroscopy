@@ -395,47 +395,50 @@ public class EditorUtil
 	/** Identifies a light source settings attenuation. */
 	public static final String	ATTENUATION = "Attenuation "+PERCENT;
 	
-	/** The maximum number of field for a detector and its settings. */
+	/** The maximum number of fields for a detector and its settings. */
 	public static final int		MAX_FIELDS_DETECTOR_AND_SETTINGS = 12;
 	
-	/** The maximum number of field for a detector. */
+	/** The maximum number of fields for a detector. */
 	public static final int		MAX_FIELDS_DETECTOR = 10;
 	
-	/** The maximum number of field for a filter. */
+	/** The maximum number of fields for a filter. */
 	public static final int		MAX_FIELDS_FILTER = 11;
 	
-	/** The maximum number of field for an objective and its settings. */
+	/** The maximum number of fields for an objective and its settings. */
 	public static final int		MAX_FIELDS_OBJECTIVE_AND_SETTINGS = 14;
 	
-	/** The maximum number of field for an objective. */
+	/** The maximum number of fields for an objective. */
 	public static final int		MAX_FIELDS_OBJECTIVE = 11;
 	
-	/** The maximum number of field for a laser. */
+	/** The maximum number of fields for a laser. */
 	public static final int		MAX_FIELDS_LASER = 14;
 	
-	/** The maximum number of field for a filament and arc. */
+	/** The maximum number of fields for a filament and arc. */
 	public static final int		MAX_FIELDS_LIGHT = 7;
 	
-	/** The maximum number of field for a filament and arc. */
+	/** The maximum number of fields for a filament and arc. */
 	public static final int		MAX_FIELDS_LIGHT_AND_SETTINGS = 9;
 	
-	/** The maximum number of field for a laser. */
+	/** The maximum number of fields for a laser. */
 	public static final int		MAX_FIELDS_LASER_AND_SETTINGS = 15;
 	
-	/** The maximum number of field for a dichroic. */
+	/** The maximum number of fields for a dichroic. */
 	public static final int		MAX_FIELDS_DICHROIC = 4;
 	
-	/** The maximum number of field for a channel. */
+	/** The maximum number of fields for a channel. */
 	public static final int		MAX_FIELDS_CHANNEL = 10;
 	
-	/** The maximum number of field for a Stage Label. */
+	/** The maximum number of fields for a Stage Label. */
 	public static final int		MAX_FIELDS_STAGE_LABEL = 4;
 	
-	/** The maximum number of field for an environment. */
+	/** The maximum number of fields for an environment. */
 	public static final int		MAX_FIELDS_ENVIRONMENT = 4;
 	
-	/** The maximum number of field for a microscope. */
+	/** The maximum number of fields for a microscope. */
 	public static final int		MAX_FIELDS_MICROSCOPE = 5;
+	
+	/** The maximum number of fields for an environment. */
+	public static final int		MAX_FIELDS_PLANE_INFO = 5;
 	
 	/** The unit used to store time in Plane info. */
 	public static final String	TIME_UNIT = "s";
@@ -1195,7 +1198,7 @@ public class EditorUtil
     	
     	if (data == null) m = transformObjective(null);
     	else  m = transformObjective(data.getObjective());
-    	List<String> notSet = (List) m.get(NOT_SET);
+    	List<String> notSet = (List<String>) m.get(NOT_SET);
     	m.remove(NOT_SET);
     	details.putAll(m);
         details.put(CORRECTION_COLLAR, Float.valueOf(0));
@@ -1697,19 +1700,19 @@ public class EditorUtil
 		if (f == null) {
 			v = 0;
 			notSet.add(OFFSET);
-		} else v = f;
+		} else v = UIUtilities.roundTwoDecimals(f);
 		details.put(OFFSET, v);
         f = data.getZoom();
         if (f == null) {
         	v = 0;
         	notSet.add(ZOOM);
-        } else v = f;
+        } else v = UIUtilities.roundTwoDecimals(f);
         details.put(ZOOM, v);
         f = data.getAmplificationGain();
         if (f == null) {
         	v = 0;
         	notSet.add(AMPLIFICATION);
-        } else v = f;
+        } else v = UIUtilities.roundTwoDecimals(f);
         details.put(AMPLIFICATION, v);
         s = data.getType();
         if (s == null || s.trim().length() == 0) 
@@ -1749,20 +1752,20 @@ public class EditorUtil
         Double f = data.getDetectorSettingsGain();
         
     	if (f != null)  {
-    		details.put(GAIN, f);
+    		details.put(GAIN, UIUtilities.roundTwoDecimals(f));
     		notSet.remove(GAIN);
     	}
     	
     	f = data.getDetectorSettingsVoltage();
     	if (f != null) {
     		notSet.remove(VOLTAGE);
-    		details.put(VOLTAGE, f);
+    		details.put(VOLTAGE, UIUtilities.roundTwoDecimals(f));
     	}
 
     	f = data.getDetectorSettingsOffset();
     	if (f != null) {
     		notSet.remove(OFFSET);
-    		details.put(OFFSET, f);
+    		details.put(OFFSET, UIUtilities.roundTwoDecimals(f));
     	}
     	
     	f = data.getDetectorSettingsReadOutRate();
@@ -1770,7 +1773,7 @@ public class EditorUtil
     	if (f == null) {
 			v = 0;
 			notSet.add(READ_OUT_RATE);
-		} else v = f;
+		} else v = UIUtilities.roundTwoDecimals(f);
         details.put(READ_OUT_RATE, v);
         String s = data.getDetectorSettingsBinning();
         if (s == null || s.trim().length() == 0) 
@@ -1818,27 +1821,44 @@ public class EditorUtil
 		details.put(POSITION_X, new Double(0));
 		details.put(POSITION_Y, new Double(0));
 		details.put(POSITION_Z, new Double(0));
+		List<String> notSet = new ArrayList<String>();
+		notSet.add(DELTA_T);
+		notSet.add(EXPOSURE_TIME);
+		notSet.add(POSITION_X);
+		notSet.add(POSITION_Y);
+		notSet.add(POSITION_Z);
+		details.put(NOT_SET, notSet);
     	if (plane != null) {
     		RDouble o = plane.getDeltaT();
-    		if (o != null) 
+    		if (o != null)  {
+    			notSet.remove(DELTA_T);
     			details.put(DELTA_T, 
-    					UIUtilities.roundTwoDecimals(o.getValue()));	
+    					UIUtilities.roundTwoDecimals(o.getValue()));
+    		}
     		o = plane.getExposureTime();
-    		if (o != null) 
+    		if (o != null) {
+    			notSet.remove(EXPOSURE_TIME);
     			details.put(EXPOSURE_TIME, 
     					UIUtilities.roundTwoDecimals(o.getValue()));
+    		}
     		o = plane.getPositionX();
-    		if (o != null) 
+    		if (o != null) {
+    			notSet.remove(POSITION_X);
     			details.put(POSITION_X, 
     					UIUtilities.roundTwoDecimals(o.getValue()));
+    		}
     		o = plane.getPositionY();
-    		if (o != null) 
+    		if (o != null) {
+    			notSet.remove(POSITION_Y);
     			details.put(POSITION_Y, 
     					UIUtilities.roundTwoDecimals(o.getValue()));
+    		}
     		o = plane.getPositionZ();
-    		if (o != null) 
+    		if (o != null) {
+    			notSet.remove(POSITION_Z);
     			details.put(POSITION_Z, 
     					UIUtilities.roundTwoDecimals(o.getValue()));
+    		}
     	}
     	return details;
     }

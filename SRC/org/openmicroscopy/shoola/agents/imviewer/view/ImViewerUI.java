@@ -1319,6 +1319,7 @@ class ImViewerUI
 		List<ChannelData> metadata = model.getChannelData();
 		Iterator<ChannelData> c = metadata.iterator();
 		int index;
+		List<String> notSet;
 		while (c.hasNext()) {
 			index = c.next().getIndex();
 			//if (indexes.contains(index)) {
@@ -1329,18 +1330,28 @@ class ImViewerUI
 				comp = planes.get(index);
 				if (info != null) {
 					details = EditorUtil.transformPlaneInfo(info);
+					notSet = (List<String> )details.get(EditorUtil.NOT_SET);
 					comp.setColor(colors.get(index));
-					s += EditorUtil.formatTimeInSeconds(
-							(Double) details.get(EditorUtil.DELTA_T));
-					toolTipText += EditorUtil.EXPOSURE_TIME+": ";
-					toolTipText += details.get(EditorUtil.EXPOSURE_TIME);
-					toolTipText += EditorUtil.TIME_UNIT;
-					tips.add(toolTipText);
+					if (!notSet.contains(EditorUtil.DELTA_T)) {
+						s += EditorUtil.formatTimeInSeconds(
+								(Double) details.get(EditorUtil.DELTA_T));
+					}
+					if (!notSet.contains(EditorUtil.EXPOSURE_TIME)) {
+						toolTipText += EditorUtil.EXPOSURE_TIME+": ";
+						toolTipText += details.get(EditorUtil.EXPOSURE_TIME);
+						toolTipText += EditorUtil.TIME_UNIT;
+						tips.add(toolTipText);
+					}
 					toolTipText = "";
 					toolTipText += "Stage coordinates: ";
-					toolTipText += details.get(EditorUtil.POSITION_X)+", ";
-					toolTipText += details.get(EditorUtil.POSITION_Y)+", ";
-					toolTipText += details.get(EditorUtil.POSITION_Z)+" ";
+					if (!notSet.contains(EditorUtil.POSITION_X))
+						toolTipText += 
+							"x="+details.get(EditorUtil.POSITION_X)+" ";
+					if (!notSet.contains(EditorUtil.POSITION_Y)) 
+						toolTipText += "y="+
+							details.get(EditorUtil.POSITION_Y)+" ";
+					if (!notSet.contains(EditorUtil.POSITION_Z)) 
+						toolTipText += "z="+details.get(EditorUtil.POSITION_Z);
 					tips.add(toolTipText);
 					comp.setToolTipText(UIUtilities.formatToolTipText(tips));
 					comp.setText(s);
