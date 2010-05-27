@@ -28,12 +28,14 @@ module omero {
             bool dirs;
             bool hidden;
             bool registered;
+            bool showOriginalFiles;
         };
 
         class FileSet 
         {
             bool importableImage;
             string fileName;
+            omero::model::OriginalFile parentFile;
             bool hidden;
             bool dir;
             string reader;
@@ -89,7 +91,7 @@ module omero {
              * Otherwise, an entry is added and an unloaded IObject returned with id set.
              *
              **/
-            omero::model::IObject registerObject(omero::model::IObject obj, omero::api::StringStringMap params) 
+            omero::model::IObject registerObject(omero::model::IObject obj) 
                     throws ServerError;
             
            /**
@@ -97,12 +99,21 @@ module omero {
              *
              * If the given ImageList is null or empty a ValidationException is thrown. 
              * If the given path does not exist in this repo a ValidationException is thrown. 
-             * Otherwise, an entries are added and list unloaded Images is returned with ids set.
+             * Otherwise, objects are added and list of loaded Images is returned with ids set.
              *
              **/
-            omero::api::ImageList registerImageList(string filename, omero::api::ImageList imageList, omero::api::StringStringMap params) 
+            omero::api::ImageList registerImageList(string filename, omero::api::ImageList imageList) 
                     throws ServerError;
             
+           /**
+             * Create entries in the database for the OriginalFile and Images in the imageList.
+             *
+             * If the given ImageList is null or empty the OriginalFile is registered only. 
+             * If the OriginalFile is null a ValidationException is thrown. 
+             * Otherwise, objects are added and list containing a loaded OriginalFile followed 
+             * by the loaded Images is returned with ids set.
+             *
+             **/
             omero::api::IObjectList registerFileSet(omero::model::OriginalFile keyFile, omero::api::ImageList imageList) 
                     throws ServerError;
             

@@ -196,7 +196,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * @return The IObject with id set
      *
      */
-    public IObject registerObject(IObject obj, Map<String, String> params, Current __current)
+    public IObject registerObject(IObject obj, Current __current)
             throws ServerError {
 
         if (obj == null) {
@@ -212,7 +212,6 @@ public class PublicRepositoryI extends _RepositoryDisp {
         final ome.model.IObject omeObj = (ome.model.IObject) mapper.reverse(obj);
                 
         final String repoId = getRepoUuid();
-        final Map<String, String> paramMap = params;
 
         Long id = (Long) executor.execute(principal, new Executor.SimpleWork(
                 this, "registerObject", repoId) {
@@ -220,7 +219,6 @@ public class PublicRepositoryI extends _RepositoryDisp {
             public Object doWork(Session session, ServiceFactory sf) {
                 long id = sf.getUpdateService().saveAndReturnObject(omeObj).getId();
                 jdbc.update("update originalfile set repo = ? where id = ?", repoId, id);
-                helper.setFileParams(id, paramMap);
                 return id;
             }
         });
@@ -244,7 +242,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * @return A List of Images with ids set
      *
      */
-    public List<Image> registerImageList(String filename, List<Image> imageList, Map<String, String> params, Current __current) 
+    public List<Image> registerImageList(String filename, List<Image> imageList, Current __current) 
             throws ServerError {
         
         if (imageList == null || imageList.size() == 0) {
@@ -258,14 +256,13 @@ public class PublicRepositoryI extends _RepositoryDisp {
         
         int imageCount = 0;
         for (IObject obj : imageList) {
-            
+            Map<String, String> params = new HashMap<String, String>();
             params.put("image_no", Integer.toString(imageCount));
+            final Map<String, String> paramMap = params;
             
             IceMapper mapper = new IceMapper();
             final ome.model.IObject omeObj = (ome.model.IObject) mapper.reverse(obj);
-                    
-            final Map<String, String> paramMap = params;
-            
+
             Long id = (Long) executor.execute(principal, new Executor.SimpleWork(
                     this, "registerImageList", repoId) {
                 @Transactional(readOnly = false)
@@ -390,7 +387,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         RepositoryListConfig conf;
         
         if(config == null) {
-            conf = new RepositoryListConfig(1, true, true, false, true);
+            conf = new RepositoryListConfig(1, true, true, false, true, false);
         } else {
             conf = config;
         }
@@ -423,7 +420,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         RepositoryListConfig conf;
         
         if(config == null) {
-            conf = new RepositoryListConfig(1, true, true, false, true);
+            conf = new RepositoryListConfig(1, true, true, false, true, false);
         } else {
             conf = config;
         }
@@ -432,7 +429,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         List<ImportContainer> containers = importableImageFiles(path, conf.depth);
         List<FileSet> rv;
         try {
-            rv = processImportContainers(containers, names);
+            rv = processImportContainers(containers, names, conf.showOriginalFiles);
         } catch (InternalException e) {
             throw new omero.InternalException(stackTraceAsString(e), null, e.getMessage());
         }
@@ -767,7 +764,8 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return containers;
     }
 
-    private List<FileSet> processImportContainers(List<ImportContainer> containers, List<String> names) {
+    private List<FileSet> processImportContainers(List<ImportContainer> containers, 
+            List<String> names, boolean showOriginalFiles) {
         List<FileSet> rv = new ArrayList<FileSet>();
 
         for (ImportContainer ic : containers) {
@@ -776,6 +774,12 @@ public class PublicRepositoryI extends _RepositoryDisp {
             
             set.importableImage = true;
             set.fileName = ic.getFile().getAbsolutePath();
+
+            set.parentFile = getOriginalFile(getRelativePath(ic.getFile()),ic.getFile().getName());
+            if (set.parentFile == null) {
+                set.parentFile = createOriginalFile(ic.getFile());   
+            }
+
             set.hidden = ic.getFile().isHidden();
             set.dir = ic.getFile().isDirectory();
             set.reader = ic.getReader();
@@ -784,13 +788,15 @@ public class PublicRepositoryI extends _RepositoryDisp {
             set.usedFiles = new ArrayList<IObject>();
             List<String> iFileList = Arrays.asList(ic.getUsedFiles());
             for (String iFile : iFileList)  {
-                File f = new File(iFile);
                 removeNameFromFileList(iFile, names);
-                oFile = getOriginalFile(getRelativePath(f),f.getName());
-                if (oFile != null) {
-                    set.usedFiles.add(oFile);
-                } else {
-                    set.usedFiles.add(createOriginalFile(f));   
+                if (showOriginalFiles) {
+                    File f = new File(iFile);
+                    oFile = getOriginalFile(getRelativePath(f),f.getName());
+                    if (oFile != null) {
+                        set.usedFiles.add(oFile);
+                    } else {
+                        set.usedFiles.add(createOriginalFile(f));   
+                    }
                 }
             }
             
@@ -826,17 +832,27 @@ public class PublicRepositoryI extends _RepositoryDisp {
             
                 set.importableImage = false;
                 set.fileName = iFile;
+
+                set.parentFile = getOriginalFile(getRelativePath(f),f.getName());
+                if (set.parentFile == null) {
+                    set.parentFile = createOriginalFile(f);   
+                }
+
                 set.hidden = f.isHidden();
                 set.dir = f.isDirectory();
                 set.imageCount = 0;
-                        
+
                 set.usedFiles = new ArrayList<IObject>();
-                oFile = getOriginalFile(getRelativePath(f),f.getName());
-                if (oFile != null) {
-                    set.usedFiles.add(oFile);
-                } else {
-                    set.usedFiles.add(createOriginalFile(f));   
+                if (showOriginalFiles) {
+                    oFile = getOriginalFile(getRelativePath(f),f.getName());
+                    if (oFile != null) {
+                        set.usedFiles.add(oFile);
+                    } else {
+                        set.usedFiles.add(createOriginalFile(f));   
+                    }
                 }
+                set.imageList = new ArrayList<Image>();
+                        
                 rv.add(set);
             }
         }
