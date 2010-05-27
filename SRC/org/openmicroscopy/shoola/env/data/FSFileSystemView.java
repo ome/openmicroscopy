@@ -305,14 +305,12 @@ public class FSFileSystemView
     	List<Image> images;
     	OriginalFile of;
     	List<IObject> objects;
-    	Map<String, String> map = new HashMap<String, String>();
     	if (file instanceof ImageData) {
     		ImageData img = (ImageData) file;
     		try {
     			images = new ArrayList<Image>();
     			images.add(img.asImage());
-    			images = proxy.registerImageList(img.getPathToFile(), images, 
-    					map);
+    			images = proxy.registerImageList(img.getPathToFile(), images);
     			if (images != null && images.size() > 0)
     				img.setRegisteredFile(images.get(0));
     			return img;
@@ -335,7 +333,6 @@ public class FSFileSystemView
     			int index = 0;
     			objects = proxy.registerFileSet(of, images);
     			mi.setRegisteredFile((OriginalFile) objects.get(index));
-    			//images = proxy.registerImageList(of, images, map);
     			i = files.iterator();
     			ImageData data;
     			index++;
@@ -354,7 +351,7 @@ public class FSFileSystemView
     		FileData f = (FileData) file;
     		of = (OriginalFile) file.asIObject();
     		try {
-    			r = proxy.registerObject(of, map);
+    			r = proxy.registerObject(of);
     			f.setRegisteredFile((OriginalFile) r);
     			return f;
 			} catch (Exception e) {
