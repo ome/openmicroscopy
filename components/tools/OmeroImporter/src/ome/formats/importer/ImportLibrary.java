@@ -95,6 +95,9 @@ public class ImportLibrary implements IObservable
 
     private byte[] arrayBuf = new byte[DEFAULT_ARRAYBUF_SIZE];
 
+    /** Whether or not to import as metadata only. */
+    private boolean isMetadataOnly = false;
+
     /**
      * The library will not close the client instance. The reader will be closed
      * between calls to import.
@@ -114,6 +117,25 @@ public class ImportLibrary implements IObservable
         this.reader = reader;
     }
 
+    /**
+     * Sets the metadata only flag.
+     * @param isMetadataOnly Whether or not to perform metadata only imports
+     * with this import library.
+     */
+    public void setMetadataOnly(boolean isMetadataOnly)
+    {
+        this.isMetadataOnly = isMetadataOnly;
+    }
+
+    /**
+     * Retrieves the metadata only flag.
+     * @return See above.
+     */
+    public boolean isMetadataOnly()
+    {
+        return isMetadataOnly;
+    }
+
     //
     // Delegation methods
     //
@@ -126,6 +148,11 @@ public class ImportLibrary implements IObservable
     public InstanceProvider getInstanceProvider()
     {
         return store.getInstanceProvider();
+    }
+
+    public void prepare(Map<Integer, Image> existingMetadata)
+    {
+        store.prepare(existingMetadata);
     }
 
     //
@@ -452,6 +479,11 @@ public class ImportLibrary implements IObservable
             for (Pixels pixels : pixList)
             {
                 pixelsIds.add(pixels.getId().getValue());
+            }
+            // If we're metadata only, we want to exit early.
+            if (isMetadataOnly)
+            {
+                return pixList;
             }
             store.preparePixelsStore(pixelsIds);
 
