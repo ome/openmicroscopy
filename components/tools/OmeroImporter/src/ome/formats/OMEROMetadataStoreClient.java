@@ -708,9 +708,38 @@ public class OMEROMetadataStoreClient
             c = null;
             log.debug("client closed.");
         }
-
     }
-    
+
+    /**
+     * Prepares the metadata store using existing metadata that has been
+     * pre-registered by OMERO.fs. The expected graph should be fully loaded:
+     * <ul>
+     *   <li>Image</li>
+     *   <li>Pixels</li>
+     * </ul>
+     * @param existingMetadata Map of imageIndex or series vs. populated Image
+     * source graph with the fetched objects defined above.
+     */
+    public void prepare(Map<Integer, Image> existingMetadata)
+    {
+        IObjectContainer container;
+        for (Entry<Integer, Image> entry : existingMetadata.entrySet())
+        {
+            Image image = entry.getValue();
+            // Reset the image acquisition date as it has been inserted
+            // erroneously by the OMERO.fs infrastructure.
+            image.setAcquisitionDate(null);
+            Pixels pixels = image.getPrimaryPixels();
+            LinkedHashMap<Index, Integer> indexes = 
+                new LinkedHashMap<Index, Integer>();
+            indexes.put(Index.IMAGE_INDEX, entry.getKey());
+            container = getIObjectContainer(Image.class, indexes);
+            container.sourceObject = image;
+            container = getIObjectContainer(Pixels.class, indexes);
+            container.sourceObject = pixels;
+        }
+    }
+
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#createRoot()
      */
