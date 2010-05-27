@@ -101,7 +101,9 @@ public class PopupMenuButton
 			}
 			private void maybeShowPopup(MouseEvent e) {
 				if (e.getComponent().isVisible()) {
-					popupMenu.show(e.getComponent(), e.getX(), e.getY());
+					try {
+						popupMenu.show(e.getComponent(), e.getX(), e.getY());
+					} catch (Exception ex) {}
 				}
 			}
 			public void mouseClicked(MouseEvent e) {}
