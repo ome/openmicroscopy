@@ -22,19 +22,15 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser;
 
-import java.util.Collection;
-import java.util.List;
-
-import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
-import org.openmicroscopy.shoola.env.data.views.CallHandle;
-
-import pojos.DataObject;
 
 //Java imports
+import java.util.Collection;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
+import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
  * 

@@ -491,14 +491,17 @@ class WellsModel
 		browser.refresh(samples, nodes);
 		layoutBrowser(LayoutFactory.PLATE_LAYOUT);
 		//quietly save the field.
+
 		PlateData plate = (PlateData) parent;
-		plate.setDefaultSample(selectedField);
-		List<DataObject> list = new ArrayList<DataObject>();
-		list.add(plate);
-		DataBrowserLoader loader = new PlateSaver(component, list);
-		loader.load();
+		long userID = DataBrowserAgent.getUserDetails().getId();
+		if (plate.getOwner().getId() == userID) {
+			plate.setDefaultSample(selectedField);
+			List<DataObject> list = new ArrayList<DataObject>();
+			list.add(plate);
+			DataBrowserLoader loader = new PlateSaver(component, list);
+			loader.load();
+		}
 	}
-	
 	
 	/**
 	 * Sets the values for the row or the column.
