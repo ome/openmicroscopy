@@ -30,8 +30,6 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -196,7 +194,14 @@ public class FileQueueHandler extends JPanel
      */
     private void doSelection(boolean enterDirectories)
     {
-    	if (enterDirectories)
+    	boolean filesOnly = true;
+    	
+        for (File file: fileChooser.getSelectedFiles())
+        {
+            if (file.isDirectory()) filesOnly = false;
+        }
+    	
+    	if (enterDirectories && !filesOnly && fileChooser.getSelectedFiles().length == 1)
     		fileChooser.setCurrentDirectory(fileChooser.getSelectedFile());
     	else 
     		addSelectedFiles();
