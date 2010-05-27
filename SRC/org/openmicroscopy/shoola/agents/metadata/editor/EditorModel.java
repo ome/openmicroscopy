@@ -1231,7 +1231,8 @@ class EditorModel
 	    imageAcquisitionData = null;
 	    instrumentData = null;
 	    originalMetadata = null;
-	    if (refObject instanceof ImageData) {
+	    if (refObject instanceof ImageData || 
+	    		refObject instanceof WellSampleData) {
 	    	fireChannelEnumerationsLoading();
 	    	fireImageEnumerationsLoading();
 	    } else if (refObject instanceof ExperimenterData) {
