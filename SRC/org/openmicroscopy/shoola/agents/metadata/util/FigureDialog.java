@@ -100,7 +100,6 @@ import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
-import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
@@ -594,7 +593,8 @@ public class FigureDialog
         	entry = (Entry) k.next();
         	j = (Integer) entry.getKey();
 			fc = (FigureComponent) entry.getValue();
-			lens.setPlaneImage(renderer.createSingleChannelImage(true, j, pDef));
+			lens.setPlaneImage(renderer.createSingleChannelImage(true, j, 
+					pDef));
 			img = lens.getZoomedImage();
 			if (img != null) {
 				w = img.getWidth()*size.width/pixels.getSizeX();
@@ -1481,6 +1481,7 @@ public class FigureDialog
         	Dimension ds = movieSlider.getPreferredSize();
         	sp.getViewport().setPreferredSize(new Dimension(
         			MAX_CELLS*GridSlider.CELL_SIZE.width, ds.height));
+        	p.add(sp, c);
         }
         c.weightx = 0.0;          
         c.gridy++;
