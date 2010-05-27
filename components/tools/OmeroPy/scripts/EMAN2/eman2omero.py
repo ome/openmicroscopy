@@ -69,41 +69,37 @@ re= None
 updateService= None
 rawFileStore= None
 
-newImageMap = {}
+demo = True
+newImageMap = {}    # map of imported images. EMAN-ID : OMERO-ID
+
+# map between extension of particle sets bdb ("data" or "flipped" or "filtered") and original particle bdb extensions
+particleSetExtMap = {"data": "ptcls", "flipped":"flip", "filtered":"wiener"}
     
-def uploadBdbAsDataset(infile, datasetName, project = None):
+def uploadBdbAsDataset(infile, dataset):
     
     """
-    @param infile             path to bdb (absolute OR from where we are running) OR this can be a list of image paths. 
-    @param datasetName        name for new Dataset to put images in
-    @param project            if specified, put the dataset into this project (omero.model.ProjectI)
-    
+    @param infile       path to bdb (absolute OR from where we are running) OR this can be a list of image paths. 
+    @param dataset      Dataset to put images in (omero.model.DatasetI)
     """
 
     imageList = None
+    # particleExt will be "ptcls" or "flip" or "wiener" if we are importing original particles
+    # particleExt will be "data" or "flipped" or "filtered" if we are importing sets particles
+    particleExt = None
     nimg = 0
     try:
         nimg = EMUtil.get_image_count(infile)    # eg images in bdb 'folder'
-        print "Found %d images to import from: %s to new dataset: %s" % (nimg, infile, datasetName)
+        particleExt = infile.split("_")[-1]
+        print "Found %d %s images to import from: %s to dataset: %s" % (nimg, particleExt, infile, dataset.name.val)
     except:
         nimg = len(infile)    # OK, we're probably dealing with a list
         imageList = infile
-        print "Importing %d images to new dataset: %s" % (nimg, datasetName)
+        print "Importing %d images to dataset: %s" % (nimg, dataset.name.val)
     
     if nimg == 0:
         return
         
     d = EMData()
-        
-    dataset = omero.model.DatasetI()
-    dataset.name = rstring(datasetName)
-    dataset = gateway.saveAndReturnObject(dataset)
-    if project:        # and put it in a new project
-        link = omero.model.ProjectDatasetLinkI()
-        link.parent = omero.model.ProjectI(project.id.val, False)
-        link.child = omero.model.DatasetI(dataset.id.val, False)
-        gateway.saveAndReturnObject(link)
-    
     # use first image to get data-type (assume all the same!)
     if imageList:
         d.read_image(imageList[0])
@@ -126,17 +122,18 @@ def uploadBdbAsDataset(infile, datasetName, project = None):
     namespace = omero.constants.namespaces.NSCOMPANIONFILE 
     fileName = "original_metadata.txt"
     
-    # loop through all the images. 
+    # loop through all the images.
+    if demo: nimg = min(2, nimg) 
     for i in range(nimg):
         description = "Imported from EMAN2 bdb: %s" % infile
         newImageName = ""
         if imageList:
             h, newImageName = os.path.split(imageList[i])
-            print "Reading image:", imageList[i]
+            print "\nReading image:", imageList[i]
             d.read_image(imageList[i])
         else:
             newImageName = "%d" % i
-            print "Reading image: %s / %s" % (newImageName, nimg)
+            print "\nReading image: %s / %s" % (i, nimg)
             d.read_image(infile, i)
         plane2D = EMNumPy.em2numpy(d)
         #display(d)
@@ -148,19 +145,40 @@ def uploadBdbAsDataset(infile, datasetName, project = None):
         
         # test attributes for source image link
         attributes = d.get_attr_dict()
+        particleSource = ""
         if "ptcl_source_image" in attributes:
             parentName = attributes["ptcl_source_image"]
+            newImageName = parentName   # name the particle after it's parent
+            description = description + "\nSource Image: %s" % parentName
+            particleSource += parentName
             if parentName in newImageMap:
                 #print "Add link to image named: ", parentName
                 # simply add to description, since we don't have Image-Image links yet
-                description = description + "\nSource Image: ID: %s Name: %s" % (newImageMap[parentName], parentName)
+                description = description + "\nSource Image ID: %s" % newImageMap[parentName]
         if "ptcl_source_coord" in attributes:
             try:
                 x, y = attributes["ptcl_source_coord"]
+                particleSource = "%s.%d.%d" % (particleSource, x, y)
                 xCoord = float(x)
                 yCoord = float(y)
                 description = description + "\nSource Coordinates: %.1f, %.1f" % (xCoord, yCoord)
             except: pass
+        
+        print "particleSource", particleSource
+        # if this particle has been imported already, simple put it in the dataset...
+        if "data_path" in attributes:
+            if particleExt in particleSetExtMap:    # E.g. "data" 
+                originalParticleExt = particleSetExtMap[particleExt]    # E.g. "ptcls"
+                particleSource += ".%s" % originalParticleExt
+                if particleSource in newImageMap:
+                    print particleSource, "already imported..."
+                    particleId = newImageMap[particleSource]
+            
+                    link = omero.model.DatasetImageLinkI()
+                    link.parent = omero.model.DatasetI(dataset.id.val, False)
+                    link.child = omero.model.ImageI(particleId, False)
+                    gateway.saveAndReturnObject(link)
+                    continue
         
         # create new Image from numpy data.
         print "Creating image in OMERO and uploading data..."
@@ -181,8 +199,14 @@ def uploadBdbAsDataset(infile, datasetName, project = None):
             pixels.setPhysicalSizeY(rdouble(physicalSizeY))
             gateway.saveObject(pixels)
              
-        # make a map of name: imageId, for creating image-image links
-        newImageMap[newImageName] = imageId
+        # make a map of name: imageId, for creating image links
+        if particleSource:
+            particleSource += ".%s" % particleExt
+            print particleSource, "added to map"
+            newImageMap[particleSource] = imageId
+        else:
+            print newImageName, "added to map"
+            newImageMap[newImageName] = imageId
         
         f = open(fileName, 'w')        # will overwrite each time. 
         f.write("[GlobalMetadata]\n")
@@ -197,7 +221,69 @@ def uploadBdbAsDataset(infile, datasetName, project = None):
         
         scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, image, fileName, "text/plain", None, namespace)
     # delete temp file
-    os.remove(fileName)
+    if os.path.exists(fileName):    os.remove(fileName)
+    
+def importMicrographs(path, datasetName="raw_data"):
+    """ Imports all the image files in the given directory that can be read by EMAN2 """
+    imageList = []
+    i = EMData()
+    for f in os.listdir(path):
+        fullpath = path + f
+        # ignore folders in root dir:
+        if not os.path.isdir(fullpath):    # e.g. 'particles' folder
+            try:
+                i.read_image(fullpath, 0, True)    # header only 
+                #print " is an image"
+                imageList.append(fullpath)
+            except:
+                print "."
+                
+    print "Uploading image list: "
+    print imageList          
+    
+    dataset = omero.model.DatasetI()
+    dataset.name = rstring(datasetName)
+    dataset = gateway.saveAndReturnObject(dataset)
+    if project:        # and put it in a new project
+        link = omero.model.ProjectDatasetLinkI()
+        link.parent = omero.model.ProjectI(project.id.val, False)
+        link.child = omero.model.DatasetI(dataset.id.val, False)
+        gateway.saveAndReturnObject(link)  
+    uploadBdbAsDataset(imageList, dataset)
+                
+
+def importParticles(dbpath, bdbExt=None, datasetName=None, project=None):
+    """ Imports particles from bdbs in the specified folder into a new dataset """
+    if dbpath.lower()[:4]!="bdb:" : dbpath="bdb:"+dbpath
+    if not '#' in dbpath and dbpath[-1]!='/' : dbpath+='#'            
+    #if len(args)>1 : print "\n",path[:-1],":"
+    dbs=db_list_dicts(dbpath)
+    
+    dataset = None
+    # create dataset
+    if datasetName:
+        dataset = createDataset(datasetName, project)
+    
+    # import selected folders
+    print "Uploading bdbs ", dbs
+    for db in dbs:
+        if bdbExt == None or db.endswith(bdbExt):
+            infile = dbpath + db
+            if datasetName == None: dataset = createDataset(db, project)
+            uploadBdbAsDataset(infile, dataset)
+
+
+def createDataset(datasetName, project=None):
+    dataset = omero.model.DatasetI()
+    dataset.name = rstring(datasetName)
+    dataset = gateway.saveAndReturnObject(dataset)
+    if project:        # and put it in a new project
+        link = omero.model.ProjectDatasetLinkI()
+        link.parent = omero.model.ProjectI(project.id.val, False)
+        link.child = omero.model.DatasetI(dataset.id.val, False)
+        gateway.saveAndReturnObject(link)
+    return dataset
+
 
 def emanToOmero(commandArgs):
     #print commandArgs
@@ -231,7 +317,21 @@ def emanToOmero(commandArgs):
     project = omero.model.ProjectI()
     project.name = rstring(projectName)
     project = gateway.saveAndReturnObject(project)
-        
+    
+    # import the micrographs in the root folder  
+    #importMicrographs(path)
+    
+    # import particles into 3 datasets, "particles", "ctf", "wiener"
+    importParticles(path + "particles", bdbExt="ptcls", datasetName="particles", project=project)
+    importParticles(path + "particles", bdbExt="ctf_flip", datasetName="ctf", project=project)
+    importParticles(path + "particles", bdbExt="ctf_wiener", datasetName="wiener", project=project)
+    
+    # make a dataset from each particle set (only do '...filtered' particle sets)
+    importParticles(path + "sets", bdbExt="filtered", project=project)
+    
+    
+    return
+    
     # ignore directories that don't have interesting images in 
     utilDirs = ["e2boxercache", "EMAN2DB"]
     # process directories in root dir. 
@@ -240,7 +340,7 @@ def emanToOmero(commandArgs):
     if os.path.isdir(path):
         for f in os.listdir(path):
             fullpath = path + f
-            print fullpath
+            #print fullpath
             # process folders in root dir:
             if f not in utilDirs and os.path.isdir(fullpath):    # e.g. 'particles' folder
                 dbpath = fullpath
@@ -260,15 +360,17 @@ def emanToOmero(commandArgs):
                 i = EMData()
                 try:
                     i.read_image(fullpath, 0, True)    # header only 
-                    print " is an image"
+                    #print " is an image"
                     imageList.append(fullpath)
                 except:
-                    print " not image"
+                    print "."
                     
     # first, upload any root images    
     print "Uploading image list: "
-    print imageList            
-    uploadBdbAsDataset(imageList, "raw_data", project)
+    print imageList     
+    print dbs
+    return        
+    #uploadBdbAsDataset(imageList, "raw_data", project)
     
     # and now do any bdbs in root folder subdirectories
     print "Uploading bdbs "
@@ -322,10 +424,12 @@ def readCommandArgs():
         elif opt in ("-b","--bdb"): 
             bdb = arg;    
     returnMap = {"host":host, "username":username, "password":password, "bdb":bdb}
-    return returnMap
+    return returnMap, args
 
 if __name__ == "__main__":        
-    commandArgs = readCommandArgs()
+    commandArgs, args = readCommandArgs()
+    #global demo
+    demo = "demo" in args
     emanToOmero(commandArgs)
     
     
