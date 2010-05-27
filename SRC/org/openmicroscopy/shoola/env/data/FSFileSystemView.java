@@ -28,7 +28,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -138,7 +137,6 @@ public class FSFileSystemView
 		int count = 0;
 		OriginalFile of;
 		List<Image> images;
-		List<IObject> usedFiles;
 		OriginalFile file = null;
 		ImageData image;
 		String parentName;
@@ -148,11 +146,9 @@ public class FSFileSystemView
 		while (i.hasNext()) {
 			fs = i.next();
 			dir = fs.dir;
+			file = fs.parentFile;
 			name = fs.fileName;
 			count = fs.imageCount;
-			usedFiles = fs.usedFiles;
-			if (usedFiles.size() > 0) 
-				file = (OriginalFile) usedFiles.get(0);
 			if (count == 0) {
 				if (file == null) {
 					of = new OriginalFileI();
