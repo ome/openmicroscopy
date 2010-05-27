@@ -202,9 +202,8 @@ class BrowserControl
         			view.loadFile(display);
         		}
         		return;
-    		} else if ((ho instanceof ImageData) && display.isChildrenLoaded()) {
+    		} else if ((ho instanceof ImageData) && display.isChildrenLoaded())
     			return;
-    		}
     	} 
     	if (!expanded) {
     		model.cancel();

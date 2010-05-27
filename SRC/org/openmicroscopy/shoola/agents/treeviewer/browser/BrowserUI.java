@@ -584,9 +584,10 @@ class BrowserUI
 			file = files[j];
 			if (file.isDirectory() && !file.isHidden()) {
 				display = new TreeImageSet(file);
-				display.setChildrenLoaded(true);
+				//display.setChildrenLoaded(true);
 				expNode.addChildDisplay(display);
-				transformDirectory(display);
+				buildEmptyNode(display);
+				//transformDirectory(display);
 				results.add(display);
     		}
 		}
@@ -753,7 +754,6 @@ class BrowserUI
                 					new DefaultMutableTreeNode(EMPTY_MSG), 
                     				n, n.getChildCount());
                 		}
-                			
                 	}
                 }  
             }
