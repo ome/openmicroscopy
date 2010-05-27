@@ -233,7 +233,7 @@ public class FSFileSystemView
 			throw new IllegalArgumentException("No repositories specified.");
 		this.userID = userID;
 		this.repositories = repositories;
-		config = new RepositoryListConfig(1, true, true, false, true);
+		config = new RepositoryListConfig(1, true, true, false, true, false);
 	}
 
 	/**
