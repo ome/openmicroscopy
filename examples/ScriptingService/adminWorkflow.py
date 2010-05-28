@@ -55,10 +55,12 @@ def uploadScript(scriptService, scriptPath):
     # first check if the script has already been uploaded
     existingScript = getScript(scriptService, scriptPath)
     if existingScript == None:
-        # try upload new script (may fail if invalid script exists with that path)
+        print "Uploading script:", scriptPath
+        # try upload new script
         scriptId = scriptService.uploadOfficialScript(scriptPath, scriptText)
         print "Script uploaded with ID:", scriptId   
     else:
+        print "Editing script:", scriptPath
         # if it has, edit the existing script
         scriptService.editScript(existingScript, scriptText)
         print "Script ID: %s was edited" % existingScript.id.val
@@ -76,11 +78,16 @@ def listScripts(scriptService):
     userGroups = []     # gives me available scripts for default group
     scripts = scriptService.getUserScripts(userGroups)
     for s in scripts:
-        print s.id.val, s.path.val + s.name.val
+        print s.id.val, s.path.val + s.name.val, s.mimetype.val
         
 
 def getScript(scriptService, scriptPath):
+    """
+    This method first tries to get the named script as an 'Official' script using getScripts()
+    If this fails, then it calls getUserScripts() in case the named script is a user script. 
+    """
     
+    print "getScript:", scriptPath
     scripts = scriptService.getScripts()     # returns list of OriginalFiles     
         
     for s in scripts:
@@ -94,13 +101,36 @@ def getScript(scriptService, scriptPath):
     namedScripts = [s for s in scripts if s.path.val + s.name.val == scriptPath]
     
     if len(namedScripts) == 0:
-        print "Didn't find any scripts with specified path: %s" % scriptPath
-        return
+        print "Didn't find any Official scripts with specified path: %s" % scriptPath
+        return getUserScript(scriptService, scriptPath)
     
     if len(namedScripts) > 1:
         print "Found more than one script with specified path: %s" % scriptPath
         
-    return namedScripts[0]
+    return namedScripts[-1]
+    
+
+def getUserScript(scriptService, scriptPath):
+    """ Looks up a script by name. Returns  """
+    
+    print "getUserScript:", scriptPath
+    scripts = scriptService.getUserScripts([])     # returns list of OriginalFiles     
+           
+    # make sure path starts with a slash. 
+    # ** If you are a Windows client - will need to convert all path separators to "/" since server stores /path/to/script.py **
+    if not scriptPath.startswith("/"):
+        scriptPath =  "/" + scriptPath
+        
+    script = None
+    for s in scripts:
+        # look for the script that has matching paths and highest ID
+        if s.path.val + s.name.val == scriptPath:
+            if script == None or script.id.val < s.id.val:
+                script = s
+                
+    if script == None:
+        print "Didn't find any User scripts with specified path: %s" % scriptPath
+    return script
     
     
 def getParams(scriptService, scriptPath):
@@ -218,12 +248,12 @@ def runScript(session, scriptService, scriptPath):
         if 'stdout' in results:
             origFile = results['stdout'].getValue()
             fileId = origFile.getId().getValue()
-            print "\nScript generated StdOut in file:" , fileId
+            print "\n******** Script generated StdOut in file:%s  *******" % fileId
             print scriptUtil.readFromOriginalFile(rawFileService, queryService, fileId)
         if 'stderr' in results:
             origFile = results['stderr'].getValue()
             fileId = origFile.getId().getValue()
-            print "\nScript generated StdErr in file:" , fileId
+            print "\n******** Script generated StdErr in file:%s  *******" % fileId
             print scriptUtil.readFromOriginalFile(rawFileService, queryService, fileId)
 
 
@@ -231,9 +261,10 @@ def disableScript(session, scriptService, scriptPath):
     """ This will simply stop the script from being returned by getScripts()"""
     
     gateway = session.createGateway()
-    
     scriptFile = getScript(scriptService, scriptPath)
-    scriptFile.setMimetype("text/plain")
+    
+    print "Disabling script:", scriptFile.id.val, scriptFile.path.val + scriptFile.name.val
+    scriptFile.setMimetype(rstring("text/plain"))
     gateway.saveObject(scriptFile)
     
 
@@ -278,27 +309,30 @@ if __name__ == "__main__":
         password = commandArgs["password"]
     else:
         password = getpass.getpass()
-    session = client.createSession(commandArgs["username"], password)
-    scriptService = session.getScriptService()
+    try:
+        session = client.createSession(commandArgs["username"], password)
+        scriptService = session.getScriptService()
     
-    if len(args) == 0:  print "Choose from these options by adding argument: list, upload, params, run, remove"
+        if len(args) == 0:  print "Choose from these options by adding argument: list, upload, params, run, remove"
     
-    # list scripts
-    if "list" in args:
-        listScripts(scriptService)
+        # list scripts
+        if "list" in args:
+            listScripts(scriptService)
         
-    # upload script.
-    if "upload" in args:
-        uploadScript(scriptService, commandArgs["script"])
+        # upload script.
+        if "upload" in args:
+            uploadScript(scriptService, commandArgs["script"])
     
-    # get params of script
-    if "params" in args:
-        getParams(scriptService, commandArgs["script"])
+        # get params of script
+        if "params" in args:
+            getParams(scriptService, commandArgs["script"])
     
-    # run script
-    if "run" in args:
-        runScript(session, scriptService, commandArgs["script"])
+        # run script
+        if "run" in args:
+            runScript(session, scriptService, commandArgs["script"])
     
-    # disables script by changing the OriginalFile mimetype, from 'text/x-python' to 'text/plain'
-    if "remove" in args:
-        disableScript(session, scriptService, commandArgs["script"])
+        # disables script by changing the OriginalFile mimetype, from 'text/x-python' to 'text/plain'
+        if "remove" in args:
+            disableScript(session, scriptService, commandArgs["script"])
+    except:
+        client.closeSession()
