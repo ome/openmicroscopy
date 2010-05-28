@@ -3117,6 +3117,11 @@ public class OmeroMetadata implements MetadataRetrieve {
 	}
 
 
+	public String getUUIDValue(int arg0, int arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	public String getUUIDFileName(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;

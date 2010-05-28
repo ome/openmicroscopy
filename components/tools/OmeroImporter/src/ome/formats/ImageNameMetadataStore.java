@@ -4054,6 +4054,15 @@ public class ImageNameMetadataStore implements MetadataStore
     }
 
     /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setUUIDValue(java.lang.String, int, int)
+     */
+    public void setUUIDValue(String fileName, int imageIndex,
+            int tiffDataIndex)
+    {
+        // TODO not in OMERO Model
+    }
+
+    /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setWellAnnotationRef(java.lang.String, int, int, int)
      */
     public void setWellAnnotationRef(String annotation, int plateIndex,

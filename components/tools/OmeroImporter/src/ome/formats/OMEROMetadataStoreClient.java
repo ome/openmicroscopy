@@ -7459,6 +7459,12 @@ public class OMEROMetadataStoreClient
         // TODO not in OMERO Model         
     }
 
+    public void setUUIDValue(String fileName, int imageIndex,
+            int tiffDataIndex)
+    {
+        // TODO not in OMERO Model         
+    }
+
     //////// Well /////////
     
     /**
