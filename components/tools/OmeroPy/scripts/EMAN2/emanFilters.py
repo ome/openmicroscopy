@@ -57,39 +57,6 @@ def log(text):
     logStrings.append(text)
     
 
-def downloadImage(sessionWrapper, imageId, imageName):
-    """
-    This method downloads the first (only?) plane of the OMERO image and saves it as a local image.
-    
-    @param session        The OMERO session
-    @param imageId        The ID of the image to download
-    @param imageName    The name of the image to write. If no path, saved in the current directory. 
-    """
-    # get services from sessionWrapper
-    queryService = sessionWrapper.getQueryService()
-    rawPixelStore = sessionWrapper.createRawPixelsStore()
-
-    # get pixels with pixelsType
-    query_string = "select p from Pixels p join fetch p.image i join fetch p.pixelsType pt where i.id='%d'" % imageId
-    pixels = queryService.findByQuery(query_string, None)
-    theX = pixels.getSizeX().getValue()
-    theY = pixels.getSizeY().getValue()
-
-    # get the plane
-    theZ, theC, theT = (0,0,0)
-    pixelsId = pixels.getId().getValue()
-    bypassOriginalFile = True
-    rawPixelStore.setPixelsId(pixelsId, bypassOriginalFile)
-    plane2D = scriptUtil.downloadPlane(rawPixelStore, pixels, theZ, theC, theT)
-    
-    plane2D.resize((theY, theX))        # not sure why we have to resize (y, x)
-    p = Image.fromarray(plane2D)
-    #p.show()
-    p.save(imageName)
-    
-    return (theX, theY)
-    
-
 def emanFilter(session, parameterMap):
     """
     This is where the action happens.
@@ -193,8 +160,8 @@ def emanFilter(session, parameterMap):
                     EMNumPy.numpy2em(plane2D, e)
                     em.insert_clip(e,(0,0,z))
                 # do the filtering
-                #if filterParamMap:  em.process_inplace(filterName, filterParamMap)
-                #else:   em.process_inplace(filterName)
+                if filterParamMap:  em.process_inplace(filterName, filterParamMap)
+                else:   em.process_inplace(filterName)
                 # convert back to numpy (datatype may be different) and upload to OMERO as new image
                 filteredPlanes = EMNumPy.em2numpy(em)
                 print "em.get_zsize()", em.get_zsize()
@@ -254,7 +221,9 @@ def runAsScript():
     """
     The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
     """
-    client = scripts.client('emanFilters.py', 'Use EMAN2 to filter images and upload results back to OMERO. Filters: http://blake.bcm.edu/eman2/processors.html', 
+    client = scripts.client('emanFilters.py', """Use EMAN2 to filter images and upload results back to OMERO. 
+Filters: http://blake.bcm.edu/eman2/processors.html
+See http://trac.openmicroscopy.org.uk/omero/wiki/EmPreviewFunctionality""", 
     scripts.List("imageIds", optional=True).inout(),    # List of image IDs. Use this OR datasetId
     scripts.Long("datasetId", optional=True).inout(),    # Dataset Id. Use this OR imageIds
     scripts.String("filterName").inout(),    # E.g. "filter.lowpass.gauss"   http://blake.bcm.edu/eman2/processors.html

@@ -374,13 +374,13 @@ def doAutoBoxing(session, parameterMap):
     imageIds = []
     boxSize = None
     
-    if "imageIds" in parameterMap:
-        for idCount, imageId in enumerate(parameterMap["imageIds"]):
+    if "Image_IDs" in parameterMap:
+        for idCount, imageId in enumerate(parameterMap["Image_IDs"]):
             iId = long(imageId.getValue())
             imageIds.append(iId)
             
-    if "boxSize" in parameterMap:
-        boxSize = parameterMap["boxSize"]
+    if "Box_Size" in parameterMap:
+        boxSize = parameterMap["Box_Size"]
         print "Using user-specified box_size: ", boxSize
     
     gateway = session.createGateway()
@@ -432,19 +432,23 @@ def runAsScript():
     """
     The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
     """
-    client = scripts.client('boxer.py', 'Use EMAN2 to auto-box particles based on 1 or more user-picked particles (ROIs).', 
-    scripts.List("imageIds").inout(),                    # List of image IDs.
-    scripts.Long("boxSize", optional=True).inout())        # Size of particle box. If not specified, determined from user ROIs
+    client = scripts.client('boxer.py', """Use EMAN2 to auto-box particles based on 1 or more user-picked particles (ROIs).
+See http://trac.openmicroscopy.org.uk/omero/wiki/EmPreviewFunctionality""", 
+    scripts.List("Image_IDs", optional=False, description="List of image IDs you want to auto-box.").ofType(rlong(0)),                  
+    scripts.Long("Box_Size", description="Size of particle box. If not specified, determined from user ROIs"))
     
     session = client.getSession()
     
-    # process the list of args above. 
-    parameterMap = {}
-    for key in client.getInputKeys():
-        if client.getInput(key):
-            parameterMap[key] = client.getInput(key).getValue()
+    try:
+        # process the list of args above. 
+        parameterMap = {}
+        for key in client.getInputKeys():
+            if client.getInput(key):
+                parameterMap[key] = client.getInput(key).getValue()
     
-    doAutoBoxing(session, parameterMap)
+        doAutoBoxing(session, parameterMap)
+    finally:
+        client.closeSession()
     
     
 if __name__ == "__main__":

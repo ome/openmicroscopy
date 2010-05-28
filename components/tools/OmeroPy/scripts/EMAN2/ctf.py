@@ -60,7 +60,7 @@ def log(text):
     logStrings.append(text)
     
 
-def uploadBdbsAsDataset(sessionWrapper, bdbContainer, imageIds, project = None, info = None):
+def uploadBdbsAsDataset(services, bdbContainer, imageIds, project = None, info = None):
     
     """
     This method takes a folder that contains multiple bdbs, each representing different ctf output. 
@@ -75,13 +75,13 @@ def uploadBdbsAsDataset(sessionWrapper, bdbContainer, imageIds, project = None, 
     
     """
     
-    gateway = sessionWrapper.createGateway()
-    re = sessionWrapper.createRenderingEngine()
-    queryService = sessionWrapper.getQueryService()
-    pixelsService = sessionWrapper.getPixelsService()
-    rawPixelStore = sessionWrapper.createRawPixelsStore()
-    updateService = sessionWrapper.getUpdateService()
-    rawFileStore = sessionWrapper.createRawFileStore()
+    gateway = services["gateway"]
+    re = services["renderingEngine"]
+    queryService = services["queryService"]
+    pixelsService = services["pixelsService"]
+    rawPixelStore = services["rawPixelsStore"]
+    updateService = services["updateService"]
+    rawFileStore = services["rawFileStore"]
 
     # get the list of bdbs
     dbs = db_list_dicts('bdb:%s' % bdbContainer)
@@ -177,7 +177,7 @@ def uploadBdbsAsDataset(sessionWrapper, bdbContainer, imageIds, project = None, 
         os.remove(fileName)
 
 
-def downloadImages(sessionWrapper, imageIds, local2dStack):
+def downloadImages(services, imageIds, local2dStack):
     """
     This method downloads the first (only?) plane of the OMERO image and saves it as a local image.
     
@@ -185,9 +185,9 @@ def downloadImages(sessionWrapper, imageIds, local2dStack):
     @param imageId        The ID of the image to download
     @param imageName    The name of the image to write. If no path, saved in the current directory. 
     """
-    # get services from sessionWrapper
-    queryService = sessionWrapper.getQueryService()
-    rawPixelStore = sessionWrapper.createRawPixelsStore()
+    # get services
+    queryService = services["queryService"]
+    rawPixelStore = services["rawPixelStore"]
 
     d = EMData()
     for imageId in imageIds:
@@ -215,29 +215,40 @@ def runCtf(session, parameterMap):
     images into a new dataset. 
     """
     
-    # make a wrapper, so we don't create multiple services from the same session. 
-    # sessionWrapper has the same methods as session.
-    sessionWrapper = session
+    services["gateway"] = session.createGateway()
+    services["renderingEngine"] = session.createRenderingEngine()
+    services["queryService"] = session.getQueryService()
+    services["pixelsService"] = session.getPixelsService()
+    services["rawPixelsStore"] = session.createRawPixelsStore()
+    services["updateService"] = session.getUpdateService()
+    services["rawFileStore"] = session.createRawFileStore()
+    
+    gateway = services["gateway"]
+    queryService = services["queryService"]
     
     imageIds = []
     
-    if "imageIds" in parameterMap:
-        for imageId in parameterMap["imageIds"]:
+    dataType = commandArgs["Data_Type"]
+    if dataType == "Image":
+        for imageId in commandArgs["IDs"]:
             iId = long(imageId.getValue())
             imageIds.append(iId)
-    
-    elif "datasetId" in parameterMap:
-        datasetId = parameterMap["datasetId"]
-        gateway = sessionWrapper.createGateway()
-        images = gateway.getImages(omero.api.ContainerClass.Dataset, [datasetId])
-        for i in images:
-            imageIds.append(i.getId().getValue())
+    else:   # Dataset
+        for datasetId in commandArgs["IDs"]:
+            datasetIds = []
+            try:
+                dId = long(datasetId.getValue())
+                datasetIds.append(dId)
+            except: pass
+            # simply aggregate all images from the datasets
+            images = gateway.getImages(omero.api.ContainerClass.Dataset, datasetIds)
+            for i in images:
+                imageIds.append(i.getId().getValue())
             
     if len(imageIds) == 0:
         return
         
     imageIds.sort()     # just so we process and re-import in order. 
-    queryService = sessionWrapper.getQueryService()
         
     # get the project from the first image
     project = None
@@ -261,7 +272,7 @@ def runCtf(session, parameterMap):
     
     # going to write all images to a single 2D stack - processed together to give single CTF correction
     # for all particles. 
-    downloadImages(sessionWrapper, imageIds, local2dStack)
+    downloadImages(services, imageIds, local2dStack)
         
     ctfCommandArgs = ["e2ctf.py"]
     ctfCommandArgs.append(local2dStack)
@@ -292,7 +303,7 @@ def runCtf(session, parameterMap):
     lastline = dbg.readlines()[-1]      # E.g.  5.146454	234.796172	1.624790	1.862878	3.015170	43
     cols = lastline.split("\t")
     ctfInfo = "Best DF = %s   B-factor = %s" % (cols[0], cols[1])
-    uploadBdbsAsDataset(sessionWrapper, 'particles', imageIds, project, ctfInfo)
+    uploadBdbsAsDataset(services, 'particles', imageIds, project, ctfInfo)
 
 
 def runAsScript():
@@ -306,26 +317,33 @@ def runAsScript():
     In future, could use a 'map' parameter for users to pass additional command args and values, or even a single 
     string argument to append to the command line! 
     """
-    client = scripts.client('ctf.py', 'Use EMAN2 to calculate CTF correction on images.', 
-    scripts.List("imageIds", optional=True).inout(),    # List of image IDs. Use this OR datasetId
-    scripts.Long("datasetId", optional=True).inout(),    # Dataset Id. Use this OR imageIds
-    scripts.String("voltage").inout(),    # Voltage in Kv 
-    scripts.String("cs").inout(),        # Coefficient of Spherical abherration
-    scripts.String("apix").inout(),        # Angstroms per pixel.
-    scripts.String("oversamp", optional=True).inout(),    # optional argument to pass to ctf command. E.g. --oversamp=1
-    scripts.String("ac", optional=True).inout(),        # optional argument to pass to ctf command. E.g. --ac=10.0
-    scripts.Bool("autohp", optional=True).inout())        # if true, add --autohp to command arg
+    dataTypes = [rstring('Dataset'),rstring('Image')]
     
+    client = scripts.client('ctf.py', """Use EMAN2 to calculate CTF correction on images.
+See http://trac.openmicroscopy.org.uk/omero/wiki/EmPreviewFunctionality""", 
+    scripts.String("Data_Type", optional=False, grouping="1",
+        description="The data you want to work with.", values=dataTypes, default="Dataset"),
+    scripts.List("IDs", optional=False, grouping="2",
+        description="List of Dataset IDs or Image IDs").ofType(rlong(0)),
+    scripts.String("voltage", description="Voltage in Kv", optional=False), 
+    scripts.String("cs", description="Coefficient of Spherical abherration", optional=False),
+    scripts.String("apix", description="Angstroms per pixel", optional=False),
+    scripts.String("oversamp", description="optional argument to pass to ctf command. E.g. --oversamp=1"),
+    scripts.String("ac", description="optional argument to pass to ctf command. E.g. --ac=10.0"),
+    scripts.Bool("autohp", description="if true, add --autohp to command arg"))
     
     session = client.getSession()
     
-    # process the list of args above. 
-    parameterMap = {}
-    for key in client.getInputKeys():
-        if client.getInput(key):
-            parameterMap[key] = client.getInput(key).getValue()
+    try:
+        # process the list of args above. 
+        parameterMap = {}
+        for key in client.getInputKeys():
+            if client.getInput(key):
+                parameterMap[key] = client.getInput(key).getValue()
     
-    runCtf(session, parameterMap)
+        runCtf(session, parameterMap)
+    finally:
+        client.closeSession()
     
     # test
 if __name__ == "__main__":
