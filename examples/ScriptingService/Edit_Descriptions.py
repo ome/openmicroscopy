@@ -74,23 +74,27 @@ if __name__ == "__main__":
     """
     
     client = scripts.client('Edit_Descriptions.py', 'Edits the descriptions for all the images in a given Dataset.', 
-    scripts.Long("Dataset_ID", False, "Specifiy the Dataset by ID"),
-    scripts.String("New_Description", True, "The new description to set for each Image in the Dataset"),
+    scripts.Long("Dataset_ID", optional=False, description="Specifiy the Dataset by ID"),
+    scripts.String("New_Description", description="The new description to set for each Image in the Dataset"),
     )
     
     session = client.getSession()
     
-    # process the list of args above. Not scrictly necessary, but useful for more complex scripts
-    parameterMap = {}
-    for key in client.getInputKeys():
-        if client.getInput(key):
-            parameterMap[key] = client.getInput(key).getValue() # convert from rtype to value (String, Integer etc)
+    try:
+        # process the list of args above. Not scrictly necessary, but useful for more complex scripts
+        parameterMap = {}
+        for key in client.getInputKeys():
+            if client.getInput(key):
+                parameterMap[key] = client.getInput(key).getValue() # convert from rtype to value (String, Integer etc)
     
-    # do the editing and handle the result
-    datasetName = editDescriptions(session, parameterMap)
-    if datasetName:
-        ouputMessage = "Script Ran OK on Dataset: %s" % datasetName
-    else:
-        ouputMessage = "Script failed. See error message"
+        # do the editing and handle the result
+        datasetName = editDescriptions(session, parameterMap)
+        if datasetName:
+            ouputMessage = "Script Ran OK on Dataset: %s" % datasetName
+        else:
+            ouputMessage = "Script failed. See error message"
         
-    client.setOutput("Message", rstring(ouputMessage))
+        client.setOutput("Message", rstring(ouputMessage))
+    finally:
+        client.closeSession()
+    

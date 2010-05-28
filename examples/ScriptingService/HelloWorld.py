@@ -46,27 +46,30 @@ if __name__ == "__main__":
     """
     
     client = scripts.client('HelloWorld.py', 'Hello World example script', 
-    scripts.String("Message", optional=True, description="Message to pass to the script."))
+    scripts.String("Input_Message", description="Message to pass to the script."))
     
     session = client.getSession()
     
-    # process the list of args above. Not scrictly necessary, but useful for more complex scripts
-    parameterMap = {}
-    for key in client.getInputKeys():
-        if client.getInput(key):
-            parameterMap[key] = client.getInput(key).getValue() # convert from rtype to value (String, Integer etc)
+    try:
+        # process the list of args above. Not scrictly necessary, but useful for more complex scripts
+        parameterMap = {}
+        for key in client.getInputKeys():
+            if client.getInput(key):
+                parameterMap[key] = client.getInput(key).getValue() # convert from rtype to value (String, Integer etc)
     
-    # now we can work with arguments in our parameterMap
-    if "message" in parameterMap:
-        print "Hello World"                    
-        print parameterMap["message"]
-    else:
-        # Any print statments (std.out) will go into one file on the server (E.g. /OMERO/Files/001) 
-        print "No message parameter"    
+        # now we can work with arguments in our parameterMap
+        if "Input_Message" in parameterMap:
+            print "Hello World"                    
+            print parameterMap["Input_Message"]
+        else:
+            # Any print statments (std.out) will go into one file on the server (E.g. /OMERO/Files/001) 
+            print "No message parameter"    
         
-        # Any Exceptions (std.err) will go in another file on the server (E.g. /OMERO/Files/002) 
-        raise Exception("message parameter was not in the argument list")    
+            # Any Exceptions (std.err) will go in another file on the server (E.g. /OMERO/Files/002) 
+            raise Exception("message parameter was not in the argument list")    
         
-    client.setOutput("outputMessage", rstring("Script ran OK!"))
+        client.setOutput("Message", rstring("Script ran OK!"))
+    finally:
+        client.closeSession()
     
     
