@@ -383,7 +383,7 @@ class DataBrowserToolBar
 		group.add(thumbView);
 		columnsView = new JToggleButton(
 				icons.getIcon(IconManager.COLUMN_VIEW));
-		columnsView.setToolTipText("View as Table.");
+		columnsView.setToolTipText("View as List.");
 		columnsView.addActionListener(this);
 		columnsView.setActionCommand(""+DataBrowserUI.COLUMNS_VIEW);
 		columnsView.setSelected(index == DataBrowserUI.COLUMNS_VIEW);
