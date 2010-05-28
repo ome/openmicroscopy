@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.FlowLayout;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -32,7 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.VerticalLayout;
@@ -101,9 +101,6 @@ class UserUI
 		diskTask.add(diskSpace, null, 0);
 		diskTask.addPropertyChangeListener(
 				UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
-		
-		double[][] size = {{TableLayout.FILL}, 
-				{TableLayout.PREFERRED}};
 		JXTaskPaneContainer container  = new JXTaskPaneContainer();
 		container.setBackground(UIUtilities.BACKGROUND);
 		if (container.getLayout() instanceof VerticalLayout) {
@@ -112,8 +109,8 @@ class UserUI
 		}
 		container.add(pane);
 		container.add(diskTask);
-		setLayout(new TableLayout(size));
-		add(container, "0, 0");
+		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		add(container);
 	}
 	
 	/**

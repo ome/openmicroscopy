@@ -31,7 +31,6 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ActionCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.CopyCmd;
@@ -246,7 +245,7 @@ public class ManageObjectAction
 				break;
 			case REMOVE:
 				if (ho instanceof ProjectData || ho instanceof DatasetData ||
-					ho instanceof ScreenData ||// ho instanceof PlateData ||
+					//ho instanceof ScreenData || ho instanceof PlateData ||
 					ho instanceof FileAnnotationData || 
 					ho instanceof TagAnnotationData ||
 					ho instanceof ImageData) {
