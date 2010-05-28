@@ -504,7 +504,7 @@ def movieFigure(session, commandArgs):
     
 
     fileAnnotation = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, omeroImage, output, format, figLegend)
-    return fileAnnotation    
+    return (fileAnnotation, omeroImage)    
 
 def runAsScript():
     """
@@ -565,9 +565,10 @@ def runAsScript():
         # Makes the figure and attaches it to Image. Returns the id of the originalFileLink child. (ID object, not value)
         fileAnnotation = movieFigure(session, commandArgs)
         if fileAnnotation:
-            client.setOutput("Message", rstring("Movie Figure Created"))
+            client.setOutput("Message", rstring("Movie Figure Created")
             client.setOutput("File_Annotation", robject(fileAnnotation))
-    finally:
-        client.closeSession()
+    except: raise
+    finally: client.closeSession()
+    
 if __name__ == "__main__":
     runAsScript()

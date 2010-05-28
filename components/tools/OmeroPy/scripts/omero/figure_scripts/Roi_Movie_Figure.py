@@ -731,9 +731,11 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIMovieFigure"""
         fileAnnotation = roiFigure(session, commandArgs)
         # return this fileAnnotation to the client. 
         if fileAnnotation:
-            client.setOutput("Message", rstring("Roi-Movie Figure Created"))
+            imageId = fileAnnotation.parent.id.val
+            client.setOutput("Message", rstring("ROI Movie Figure Created"))
             client.setOutput("File_Annotation", robject(fileAnnotation))
-    finally:
-        client.closeSession()
+    except: raise
+    finally: client.closeSession()
+    
 if __name__ == "__main__":
     runAsScript()

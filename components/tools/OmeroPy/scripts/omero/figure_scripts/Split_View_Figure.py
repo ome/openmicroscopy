@@ -686,7 +686,7 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#Split-viewFigure"
     scripts.String("Algorithm", description="Algorithum for projection.", values=algorithums),
     scripts.Int("Stepping", description="The Z increment for projection.",default=1, min=1),
     scripts.Int("Scalebar", description="Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
-    scripts.String("Format", description="Format to save image. E.g 'PNG'.", values=formats, default='JPEG'),
+    scripts.String("Format", description="Format to save image", values=formats, default='JPEG'),
     scripts.String("Figure_Name", description="File name of the figure to save."),
     scripts.String("Overlay_Colour", description="The colour of the scalebar.",default='White',values=cOptions),
     #scripts.Long("fileAnnotation").out()
@@ -706,10 +706,11 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#Split-viewFigure"
         fileAnnotation = splitViewFigure(session, commandArgs)
         # return this fileAnnotation to the client. 
         if fileAnnotation:
+            imageId = fileAnnotation.parent.id.val
             client.setOutput("Message", rstring("Split-View Figure Created"))
             client.setOutput("File_Annotation", robject(fileAnnotation))
-    finally:
-        client.closeSession()
+    except: raise
+    finally: client.closeSession()
         
 if __name__ == "__main__":
     runAsScript()

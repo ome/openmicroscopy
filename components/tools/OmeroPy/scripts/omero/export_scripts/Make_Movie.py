@@ -435,6 +435,7 @@ def runAsScript():
         if fileAnnotation:
             client.setOutput("Message", rstring("Movie Created"))
             client.setOutput("File_Annotation", robject(fileAnnotation))
+    except: raise
     finally:
         client.closeSession()
     

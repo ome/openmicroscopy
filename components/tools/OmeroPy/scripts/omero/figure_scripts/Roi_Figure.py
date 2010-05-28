@@ -748,7 +748,7 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIFigure""",
     scripts.Map("Merged_Colours", description="Map of index:int colours for each merged channel. Default: Blue, Green, Red"),
     scripts.Int("Width",description="Max width of each image panel", min=1),   
     scripts.Int("Height",description="The max height of each image panel", min=1),
-    scripts.String("Image_Labels",description="Label images with the IMAGENAME or DATASETS or TAGS", values=labels),               
+    scripts.String("Image_Labels",description="Label images with the Image's Name or it's Datasets or Tags", values=labels),               
     scripts.String("Algorithm", description="Algorithum for projection.", values=algorithums),
     scripts.Int("Stepping",description="The Z-plane increment for projection. Default is 1", min=1),
     scripts.Int("Scalebar", description="Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
@@ -774,9 +774,11 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIFigure""",
         fileAnnotation = roiFigure(session, commandArgs)
         # return this fileAnnotation to the client. 
         if fileAnnotation:
+            imageId = fileAnnotation.parent.id.val
             client.setOutput("Message", rstring("ROI Figure Created"))
             client.setOutput("File_Annotation", robject(fileAnnotation))
-    finally:
-        client.closeSession()
+    except: raise
+    finally: client.closeSession()
+    
 if __name__ == "__main__":
     runAsScript()

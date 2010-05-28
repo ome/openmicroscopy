@@ -240,6 +240,7 @@ Assumes that all the ROIs on an Image are the same size and that all Images are 
             client.setOutput("Message", rstring(message))
         else:
             client.setOutput("Message", rstring("Script Failed. See 'error' or 'info'"))
+    except: raise
     finally:
         client.closeSession()
 if __name__ == "__main__":

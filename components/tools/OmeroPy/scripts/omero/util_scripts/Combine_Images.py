@@ -286,10 +286,11 @@ def runAsScript():
     firstDim = [rstring('Time'),rstring('Channel'),rstring('Z')]
     extraDims = [rstring(''),rstring('Time'),rstring('Channel'),rstring('Z')]
     
-    client = scripts.client('Combine_Images.py', 'Combine several single-plane images into one with greater Z, C, T dimensions.', 
+    client = scripts.client('Combine_Images.py', """Combine several single-plane images into one with greater Z, C, T dimensions.
+See http://trac.openmicroscopy.org.uk/shoola/wiki/UtilScripts#CombineImages""", 
     
     scripts.String("Data_Type", optional=False, grouping="1",
-        description="Use all the images in specified 'Datasets' or choose individual 'Images'.", values=dataTypes, default="Image"),
+        description="Use all the images in specified 'Datasets' or choose individual 'Images'.", values=dataTypes, default="Dataset"),
         
     scripts.List("IDs", optional=False, grouping="2",
         description="List of Dataset IDs or Image IDs to combine.").ofType(rlong(0)),
@@ -313,7 +314,7 @@ def runAsScript():
         description="Number of time-points in new image", min=1),
     
     scripts.List("Channel_Colours", grouping="7",
-        description="List of Colours for channels.", default=rstring("White"), values=cOptions),
+        description="List of Colours for channels.", default=rstring("White"), values=cOptions).ofType(rstring("")),
     
     scripts.List("Channel_Names", grouping="8",
         description="List of Names for channels in the new image.")
@@ -330,9 +331,11 @@ def runAsScript():
     
         # print parameterMap
         image = combineImages(session, parameterMap)        
-    
-        client.setOutput("Message", rstring("Script Ran OK. New Image created ID: %s" % image.id.val))
-        client.setOutput("Combined_Image",robject(image))
+        
+        if image:
+            client.setOutput("Message", rstring("Script Ran OK. New Image created ID: %s" % image.id.val))
+            client.setOutput("Combined_Image",robject(image))
+    except: raise
     finally:
         client.closeSession()
     

@@ -396,8 +396,8 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ThumbnailFigure""
         if fileAnnotation:
             client.setOutput("Message", rstring("Thumbnail-Figure Created"))
             client.setOutput("File_Annotation", robject(fileAnnotation))
-    finally:
-        client.closeSession() 
+    except: raise
+    finally: client.closeSession() 
 
 if __name__ == "__main__":
     runAsScript()
