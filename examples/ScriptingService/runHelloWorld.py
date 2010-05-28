@@ -48,7 +48,7 @@ def uploadScript(scriptService, scriptPath):
     file = open(scriptPath)
     script = file.read()
     file.close()
-    print script
+    # print script
     # prints the script ID to the command line. This can be used to run the script. E.g. see runHelloWorld.py
     print "Uploading script:", scriptPath
     scriptId = scriptService.uploadScript(scriptPath, script)
@@ -124,21 +124,21 @@ def readCommandArgs():
     script = ""
     
     def usage():
-        print "Usage: runscript --host host --username username --password password --script script"
+        print "Usage: runHelloWorld.py --server server --username username --password password --file file"
     try:
-        opts, args = getopt.getopt(sys.argv[1:] ,"h:u:p:s:", ["host=", "username=", "password=","script="])
+        opts, args = getopt.getopt(sys.argv[1:] ,"s:u:p:f:", ["server=", "username=", "password=","file="])
     except getopt.GetoptError, err:          
         usage()                         
         sys.exit(2)                     
     returnMap = {}                  
     for opt, arg in opts: 
-        if opt in ("-h","--host"):
+        if opt in ("-s","--server"):
             returnMap["host"] = arg
         elif opt in ("-u","--username"): 
             returnMap["username"] = arg    
         elif opt in ("-p","--password"): 
             returnMap["password"] = arg  
-        elif opt in ("-s","--script"): 
+        elif opt in ("-f","--file"): 
             returnMap["script"] = arg  
                    
     return returnMap
