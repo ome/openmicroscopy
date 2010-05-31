@@ -24,12 +24,18 @@ package org.openmicroscopy.shoola.agents.metadata.util;
 
 
 //Java imports
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import javax.swing.JMenuItem;
 
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.FigureParam;
+import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 
 /** 
@@ -49,8 +55,38 @@ public class ScriptMenuItem
 	extends JMenuItem
 {
 	
+	/** Identifies the ROI figure script. */
+	public static final int ROI_FIGURE_SCRIPT = 0;
+	
+	/** Identifies the Thumbnail figure script. */
+	public static final int THUMBNAIL_FIGURE_SCRIPT = 1;
+	
+	/** Identifies the movie figure script. */
+	public static final int MOVIE_FIGURE_SCRIPT = 2;
+	
+	/** Identifies the split view figure script. */
+	public static final int SPLIT_VIEW_FIGURE_SCRIPT = 3;
+	
+	/** Identifies the movie export script. */
+	public static final int MOVIE_EXPORT_SCRIPT = 4;
+	
+	/** The collection of scripts that have a UI available. */
+	private static final List<String>		SCRIPTS_UI_AVAILABLE;
+	
+	static {
+		SCRIPTS_UI_AVAILABLE = new ArrayList<String>();
+		SCRIPTS_UI_AVAILABLE.add(FigureParam.ROI_SCRIPT);
+		SCRIPTS_UI_AVAILABLE.add(FigureParam.THUMBNAIL_SCRIPT);
+		SCRIPTS_UI_AVAILABLE.add(FigureParam.MOVIE_SCRIPT);
+		SCRIPTS_UI_AVAILABLE.add(FigureParam.SPLIT_VIEW_SCRIPT);
+		SCRIPTS_UI_AVAILABLE.add(MovieExportParam.MOVIE_SCRIPT);
+	}
+	
 	/** The script to handle. */
 	private ScriptObject script;
+	
+	/** Flag indicating if the script has a built-in UI. */
+	private boolean		scriptWithUI;
 	
 	/**
 	 * Creates a new instance.
@@ -69,7 +105,42 @@ public class ScriptMenuItem
 		setText(script.getDisplayedName()+"...");
 		setToolTipText(text);
 		setIcon(script.getIcon());
+		scriptWithUI = SCRIPTS_UI_AVAILABLE.contains(script.getScriptLabel());
+		if (scriptWithUI) {//reset the icon associated the script.
+			
+		}
 	}
+	
+	/**
+	 * Returns the index or <code>-1</code> if the script does not 
+	 * have a built-in UI.
+	 * 
+	 * @return See above.
+	 */
+	public int getIndex()
+	{
+		if (!scriptWithUI) return -1;
+		String path = script.getScriptLabel();
+		if (FigureParam.ROI_SCRIPT.equals(path))
+			return ROI_FIGURE_SCRIPT;
+		else if (FigureParam.THUMBNAIL_SCRIPT.equals(path))
+			return THUMBNAIL_FIGURE_SCRIPT;
+		else if (FigureParam.MOVIE_SCRIPT.equals(path))
+			return MOVIE_FIGURE_SCRIPT;
+		else if (FigureParam.SPLIT_VIEW_SCRIPT.equals(path))
+			return SPLIT_VIEW_FIGURE_SCRIPT;
+		else if (MovieExportParam.MOVIE_SCRIPT.equals(path))
+			return MOVIE_EXPORT_SCRIPT;
+		return -1;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the script has already a UI.
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isScriptWithUI() { return scriptWithUI; }
 	
 	/**
 	 * Returns the script.

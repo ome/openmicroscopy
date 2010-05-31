@@ -535,10 +535,29 @@ class EditorControl
 	{
 		if (e.getSource() instanceof ScriptMenuItem) {
 			ScriptMenuItem item = (ScriptMenuItem) e.getSource();
-			ScriptObject object = item.getScript();
-			if (!object.isParametersLoaded())
-				model.loadScript(object.getScriptID());
-			else model.setScript(object);
+			if (item.isScriptWithUI()) {
+				switch (item.getIndex()) {
+					case ScriptMenuItem.MOVIE_FIGURE_SCRIPT:
+						model.createFigure(FigureDialog.MOVIE);
+						break;
+					case ScriptMenuItem.ROI_FIGURE_SCRIPT:
+						model.createFigure(FigureDialog.SPLIT_ROI);
+						break;
+					case ScriptMenuItem.THUMBNAIL_FIGURE_SCRIPT:
+						model.createFigure(FigureDialog.THUMBNAILS);
+						break;
+					case ScriptMenuItem.SPLIT_VIEW_FIGURE_SCRIPT:
+						model.createFigure(FigureDialog.SPLIT);
+						break;
+					case ScriptMenuItem.MOVIE_EXPORT_SCRIPT:
+						view.makeMovie(-1, null);
+				}
+			} else {
+				ScriptObject object = item.getScript();
+				if (!object.isParametersLoaded())
+					model.loadScript(object.getScriptID());
+				else model.setScript(object);
+			}
 			return;
 		}
 		

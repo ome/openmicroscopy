@@ -56,9 +56,6 @@ class PublishingDialog
 	extends JPopupMenu
 {
 
-	/** Horizontal gap between components. */
-	private static final int	HORIZONTAL_STRUT = 5;
-	
 	/** The text associated to the movie action. */
 	private static final String MOVIE_TOOLTIP = "Make a movie of the " +
 			"selected image.";
@@ -69,11 +66,11 @@ class PublishingDialog
 
 	/** The text associated to the SPLIT_VIEW_FIGURE action. */
 	private static final String SPLIT_VIEW_FIGURE_TOOLTIP = "" +
-			"Create a split view figure.";
+			"Create a Split View figure.";
 	
 	/** The text associated to the SPLIT_VIEW_FIGURE action. */
 	private static final String SPLIT_VIEW_ROI_FIGURE_TOOLTIP = "" +
-			"Create a split view figure.";
+			"Create a Roi Split View figure.";
 	
 	/** The text associated to the movie action. */
 	private static final String MOVIE_TEXT = "Make Movie...";
@@ -83,10 +80,10 @@ class PublishingDialog
 		"Export As OME-TIFF...";
 	
 	/** The text associated to the SPLIT_VIEW_FIGURE action. */
-	private static final String SPLIT_VIEW_FIGURE_TEXT = "Split Figure...";
+	private static final String SPLIT_VIEW_FIGURE_TEXT = "Split View Figure...";
 	
 	/** The text associated to the SPLIT_VIEW_FIGURE action. */
-	private static final String SPLIT_VIEW_ROI_FIGURE_TEXT = "ROI Figure...";
+	private static final String SPLIT_VIEW_ROI_FIGURE_TEXT = "Roi Figure...";
 	
 	/** The text associated to the Thumbnails action. */
 	private static final String THUMBNAILS_FIGURE_TOOLTIP = "" +
@@ -94,7 +91,7 @@ class PublishingDialog
 	
 	/** The text associated to the Thumbnails action. */
 	private static final String THUMBNAILS_FIGURE_TEXT = "" +
-			"Thumbnails Figure...";
+			"Thumbnail Figure...";
 	
 	/** The text associated to the Movie figure action. */
 	private static final String MOVIE_FIGURE_TOOLTIP = "" +
