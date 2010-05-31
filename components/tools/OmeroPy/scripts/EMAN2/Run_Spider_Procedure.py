@@ -1,5 +1,5 @@
 """
- components/tools/OmeroPy/scripts/EMAN2/runSpiderProcedure.py 
+ components/tools/OmeroPy/scripts/EMAN2/Run_Spider_Procedure.py 
 
 -----------------------------------------------------------------------------
   Copyright (C) 2006-2010 University of Dundee. All rights reserved.
@@ -331,7 +331,7 @@ def runAsScript():
     Calls the Spider command line.
     
     """
-    client = scripts.client('runSpiderProcedure.py', """Run a Spider Procedure File against Images on OMERO.
+    client = scripts.client('Run_Spider_Procedure.py', """Run a Spider Procedure File against Images on OMERO.
 See http://trac.openmicroscopy.org.uk/omero/wiki/EmPreviewFunctionality""", 
     scripts.List("imageIds", optional=True).inout(),    # List of image IDs. Use this OR datasetId
     scripts.Long("datasetId", optional=True).inout(),    # Dataset Id. Use this OR imageIds

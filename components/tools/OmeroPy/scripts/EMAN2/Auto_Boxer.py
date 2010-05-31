@@ -1,5 +1,5 @@
 """
- components/tools/OmeroPy/scripts/EMAN2/boxer.py 
+ components/tools/OmeroPy/scripts/EMAN2/Auto_Boxer.py 
 
 -----------------------------------------------------------------------------
   Copyright (C) 2006-2010 University of Dundee. All rights reserved.
@@ -432,7 +432,7 @@ def runAsScript():
     """
     The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
     """
-    client = scripts.client('boxer.py', """Use EMAN2 to auto-box particles based on 1 or more user-picked particles (ROIs).
+    client = scripts.client('Auto_Boxer.py', """Use EMAN2 to auto-box particles based on 1 or more user-picked particles (ROIs).
 See http://trac.openmicroscopy.org.uk/omero/wiki/EmPreviewFunctionality""", 
     scripts.List("Image_IDs", optional=False, description="List of image IDs you want to auto-box.").ofType(rlong(0)),                  
     scripts.Long("Box_Size", description="Size of particle box. If not specified, determined from user ROIs"))

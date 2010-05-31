@@ -1,5 +1,5 @@
 """
- components/tools/OmeroPy/scripts/EMAN2/saveImageAs.py 
+ components/tools/OmeroPy/scripts/EMAN2/Save_Image_As_Em.py 
 
 -----------------------------------------------------------------------------
   Copyright (C) 2006-2010 University of Dundee. All rights reserved.
@@ -224,7 +224,7 @@ def runAsScript():
     """
     The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
     """
-    client = scripts.client('saveImageAs.py', """Use EMAN2 to save an image as mrc etc.
+    client = scripts.client('Save_Image_As_Em.py', """Use EMAN2 to save an image as mrc etc.
 See http://trac.openmicroscopy.org.uk/omero/wiki/EmPreviewFunctionality""", 
     scripts.List("imageIds").inout(),        # List of image IDs. 
     scripts.Long("cIndex", optional=True).inout(),

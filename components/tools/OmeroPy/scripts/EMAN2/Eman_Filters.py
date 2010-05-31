@@ -1,5 +1,5 @@
 """
- components/tools/OmeroPy/scripts/EMAN2/emanFilters.py 
+ components/tools/OmeroPy/scripts/EMAN2/Eman_Filters.py 
 
 -----------------------------------------------------------------------------
   Copyright (C) 2006-2010 University of Dundee. All rights reserved.
@@ -221,7 +221,7 @@ def runAsScript():
     """
     The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
     """
-    client = scripts.client('emanFilters.py', """Use EMAN2 to filter images and upload results back to OMERO. 
+    client = scripts.client('Eman_Filters.py', """Use EMAN2 to filter images and upload results back to OMERO. 
 Filters: http://blake.bcm.edu/eman2/processors.html
 See http://trac.openmicroscopy.org.uk/omero/wiki/EmPreviewFunctionality""", 
     scripts.List("imageIds", optional=True).inout(),    # List of image IDs. Use this OR datasetId

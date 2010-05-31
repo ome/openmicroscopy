@@ -1,5 +1,5 @@
 """
- components/tools/OmeroPy/scripts/EMAN2/ctf.py 
+ components/tools/OmeroPy/scripts/EMAN2/Ctf_Correction.py 
 
 -----------------------------------------------------------------------------
   Copyright (C) 2006-2010 University of Dundee. All rights reserved.
@@ -319,7 +319,7 @@ def runAsScript():
     """
     dataTypes = [rstring('Dataset'),rstring('Image')]
     
-    client = scripts.client('ctf.py', """Use EMAN2 to calculate CTF correction on images.
+    client = scripts.client('Ctf_Correction.py', """Use EMAN2 to calculate CTF correction on images.
 See http://trac.openmicroscopy.org.uk/omero/wiki/EmPreviewFunctionality""", 
     scripts.String("Data_Type", optional=False, grouping="1",
         description="The data you want to work with.", values=dataTypes, default="Dataset"),
