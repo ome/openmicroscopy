@@ -569,6 +569,17 @@ public class FileQueueHandler extends JPanel
         }
     }
 
+
+	public void enableImports(boolean b)
+	{
+		qTable.addBtn.setEnabled(b);
+		qTable.removeBtn.setEnabled(b);
+		if (b==true && qTable.table.getRowCount() > 0)
+			qTable.importBtn.setEnabled(true);
+		else if (b==false)
+			qTable.importBtn.setEnabled(false);
+	}
+    
     /**
      * Checks whether all the candidate imports in the list are either SPW or
      * not SPW. If there is a mismatch, then a warning is shown and null returned,

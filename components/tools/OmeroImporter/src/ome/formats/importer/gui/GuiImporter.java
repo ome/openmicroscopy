@@ -583,6 +583,7 @@ WindowStateListener, WindowFocusListener
                 logout();
                 loginHandler.logout();
                 loginHandler = null;
+                fileQueueHandler.enableImports(false);
             } else 
             {
                 HistoryTable table = null;
@@ -590,6 +591,7 @@ WindowStateListener, WindowFocusListener
                     table = historyHandler.table;
                 }
                 loginHandler = new LoginHandler(this, table, true, true, false);
+                fileQueueHandler.enableImports(true);
                 //loginHandler.displayLogin(false);
             }
         } else if ("quit".equals(cmd)) {

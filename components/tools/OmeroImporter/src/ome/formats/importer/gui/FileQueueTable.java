@@ -586,7 +586,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
     	groupBtn.setModel(model);
     	groupBtn.invalidate();
 	}
-
+	
 	/**
      * Get the renderer used for rendering header cells
      * @return
