@@ -40,7 +40,7 @@ def toList(csvString):
     @param csvString The CSV string to convert.
     @return See above.
     """
-    list = a.split(',');
+    list = csvString.split(',');
     for index in range(len(list)):
         list[index] = list[index].strip();
     return list;
@@ -1409,7 +1409,7 @@ class WorkflowData(DataObject):
         workflow = self.asIObject();
         if(workflow==None):
             raise Exception("No workflow specified.");
-        workflow.setNs(rstring(namespace));
+        workflow.setName(rstring(namespace));
         self.setDirty(True);
 
     ## 
@@ -1419,7 +1419,7 @@ class WorkflowData(DataObject):
         workflow = self.asIObject();
         if(workflow==None):
             raise Exception("No Workflow specified.");
-        namespace = workflow.getNs();
+        namespace = workflow.getName();
         if(namespace==None):
             return "";
         return namespace.getValue();
@@ -1431,7 +1431,7 @@ class WorkflowData(DataObject):
         workflow = self.asIObject();
         if(workflow==None):
             raise Exception("No workflow specified.");
-        workflow.setKeywords(rstring(keywords));
+        workflow.setKeywords(toList(keywords));
         self.setDirty(True);
 
     ## 
@@ -1441,7 +1441,7 @@ class WorkflowData(DataObject):
         workflow = self.asIObject();
         if(workflow==None):
             raise Exception("No Workflow specified.");
-        keywords = workflow.getNs();
+        keywords = workflow.getKeywords();
         if(keywords==None):
             return "";
         return keywords.getValue();

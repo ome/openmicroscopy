@@ -20,8 +20,8 @@
 
 ------------------------------------------------------------------------------
 
-This script takes a number of images and displays regions defined by their ROIs as
-zoomed panels beside the images.
+This script performs FRET analysis on FLIM images calculating Decay curve differences
+between control and experimental datasets. 
 
 @author  Pieta Schofield &nbsp;&nbsp;&nbsp;&nbsp;
 <a href="mailto:p@schofield.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -156,10 +156,7 @@ def runfret(session, commandArgs):
     rawPixelsStore = session.createRawPixelsStore();
     iPixels = session.getPixelsService();
     roiService = session.getRoiService();
-    
-    keywords = BACKGROUND+","+CELL;
-    script_utils.registerNamespace(iQuery, iUpdate, NAMESPACE, keywords);
-    
+        
     noFretPixelsId = commandArgs['imageIdNoFret'];
     fretPixelsId = commandArgs['imageIdFret'];
    
@@ -183,7 +180,6 @@ def runfret(session, commandArgs):
     
     noFretKeywords = {};
     fretKeywords = {};
-    
     
     for roi in noFretROI:
         shapeList = roi.getShapes(0,0);
@@ -435,4 +431,4 @@ def runAsScript():
         client.closeSession()
 
 if __name__ == '__main__':
-    main();
+    runAsScript();

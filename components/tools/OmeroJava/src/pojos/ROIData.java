@@ -310,6 +310,8 @@ public class ROIData
 	*/
 	public void setNamespaceKeywords(String namespace, String[] keywords)
 	{
+		if(namespace.equals("") || keywords.length==0)
+			return;
         Roi roi = (Roi) asIObject();
 		if (roi == null) 
 			throw new IllegalArgumentException("No Roi specified.");
@@ -320,7 +322,10 @@ public class ROIData
 			Map<String, List<String>> map = getNamespaceKeywords();
 			List<String> keywordsList = new ArrayList<String>();
 			for(String keyword: keywords)
-				keywordsList.add(keyword);
+					if(!keyword.equals(""))
+						keywordsList.add(keyword);
+			if(keywordsList.size()==0)
+				return;
 			map.put(namespace, keywordsList);
 			setNamespaceMap(map);
 			setDirty(true);

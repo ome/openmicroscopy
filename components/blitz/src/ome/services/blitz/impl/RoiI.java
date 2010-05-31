@@ -7,6 +7,7 @@
 
 package ome.services.blitz.impl;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.geom.Point2D;
@@ -18,6 +19,10 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.sql.Array;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,6 +39,7 @@ import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.model.IObject;
 import ome.model.core.OriginalFile;
+import ome.model.meta.Event;
 import ome.parameters.Filter;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
@@ -45,6 +51,12 @@ import ome.system.ServiceFactory;
 import ome.tools.hibernate.QueryBuilder;
 import ome.util.Filterable;
 import omero.InternalException;
+import omero.RBool;
+import omero.RDouble;
+import omero.RFloat;
+import omero.RInt;
+import omero.RLong;
+import omero.RString;
 import omero.ServerError;
 import omero.rtypes;
 import omero.api.AMD_IRoi_findByAnyIntersection;
@@ -77,9 +89,14 @@ import org.apache.commons.collections.MultiMap;
 import org.apache.commons.collections.map.MultiValueMap;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementSetter;
+import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.transaction.annotation.Transactional;
-
 import Ice.Current;
 
 /**
@@ -178,12 +195,32 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
             public Object doWork(Session session, ServiceFactory sf) {
             	if(opts.namespace!=null)
             	{
-                	Object[] parameters;	
                 	String queryString;
-                	parameters = new Object[] {new Long(imageId), 
-            			new String(opts.namespace.getValue())};
-                	queryString = "select id from roi where image = ? and ? = any (namespace)";
-					return null;
+                	queryString = "select * from roi where image = :imageParam " +
+                			"and :namespaceParam = any (namespace)";
+                	MapSqlParameterSource parameters = new MapSqlParameterSource();
+                	parameters.addValue("imageParam", new Long(imageId));
+                	parameters.addValue("namespaceParam", opts.namespace.getValue());
+
+                	List idList = jdbc.queryForList(queryString,
+                	Long.class, parameters);
+                	String hqlQuery = "select distinct r from Roi r join " +
+                			"r.image i join fetch r.shapes where r.id in :ids";
+                	hqlQuery = hqlQuery + " order by r.id";
+        		    Query q = session.createQuery(hqlQuery);
+        		    q.setParameter("ids", idList);
+        		    return q.list();
+        		    /*List<omero.model.RoiI> list = q.list();
+        		    for(omero.model.RoiI roi : list)
+        		    {
+        		    	if(idMap.containsKey(roi.getId().getValue()))
+        		    	{
+        		    		NamespaceKeywords ns = idMap.get(roi.getId().getValue());
+        		    		roi.setNamespaces(ns.namespaces);
+        		    		roi.setKeywords(ns.keywords);
+        		    	}
+        		    }
+        		    return list;*/
             	}
             	else
             	{
@@ -191,6 +228,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                         + "join fetch r.shapes where i.id = :id";
         		    queryString = queryString + " order by r.id";
         		    Query q = session.createQuery(queryString);
+        		    System.err.println("ROII.findbyImage : " + queryString);
         		    q.setParameter("id", imageId);
         		    return q.list();
             	}   	
@@ -730,4 +768,11 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
         }
 
     }
+    
+    private class NamespaceKeywords
+    {
+    	public String[] namespaces;
+    	public String[][] keywords;
+    }
+    
 }

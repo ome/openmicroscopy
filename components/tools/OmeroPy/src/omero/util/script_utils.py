@@ -749,7 +749,7 @@ def registerNamespace(iQuery, iUpdate, namespace, keywords):
     @param keywords The keywords associated with the workflow.
     @return see above.
     """
-    workflow = iQuery.findByQuery("from Workflow as w where w.ns = '" + namespace+"'", None);
+    workflow = iQuery.findByQuery("from Namespace as n where n.name = '" + namespace+"'", None);
     workflowData = None;
     if(workflow!=None):
         return;
