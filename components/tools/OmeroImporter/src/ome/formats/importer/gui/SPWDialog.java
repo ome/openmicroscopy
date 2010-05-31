@@ -146,10 +146,10 @@ public class SPWDialog extends JDialog implements ActionListener
         sPanel = GuiCommonElements.addMainPanel(importPanel, pdTable, 0, 0, 0, 0, debug);
 
         sbox = GuiCommonElements.addComboBox(sPanel, "Screen: ", screenItems, 'P', 
-                "Select dataset to use for this import.", 50, "0,0,f,c", debug);
+                "Select dataset to use for this import.", 50, "0,0,F,C", debug);
 
         // Fixing broken mac buttons.
-        String offsetButtons = ",c";
+        String offsetButtons = ",C";
         //if (GuiCommonElements.offsetButtons == true) offsetButtons = ",t";
 
         int addBtnSize = 60;

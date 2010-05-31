@@ -48,7 +48,6 @@ import loci.formats.in.MetadataLevel;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
-import ome.formats.importer.Plane2D;
 import ome.formats.model.BlitzInstanceProvider;
 import ome.util.LSID;
 import omero.api.ServiceFactoryPrx;

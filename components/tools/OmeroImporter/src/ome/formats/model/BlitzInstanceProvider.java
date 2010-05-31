@@ -30,8 +30,6 @@ import java.util.Map;
 import ome.formats.enums.EnumerationProvider;
 import ome.formats.model.handler.ModelObjectHandlerFactory;
 import omero.model.IObject;
-import omero.model.LightSource;
-import omero.model.Shape;
 
 /**
  * An instance provider which uses reflection to fulfill the contract of an 

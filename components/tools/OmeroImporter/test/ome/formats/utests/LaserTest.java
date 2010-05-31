@@ -10,7 +10,6 @@ import ome.xml.r201004.primitives.*;
 import omero.api.ServiceFactoryPrx;
 import omero.metadatastore.IObjectContainer;
 import omero.model.Laser;
-import omero.model.LightSource;
 import junit.framework.TestCase;
 
 public class LaserTest extends TestCase

@@ -770,7 +770,7 @@ public class FileQueueHandler extends JPanel
                     directoryProgressBar.setString("Please wait.");
                     directoryProgressBar.setStringPainted(true);
                     directoryProgressBar.setIndeterminate(true);
-                    progressDialog.add(directoryProgressBar,"1,1,2,c");
+                    progressDialog.add(directoryProgressBar,"1,1,2,1");
                     JButton cancelBtn = new JButton("Cancel");
                     
                     progressDialog.setDefaultCloseOperation(
@@ -787,7 +787,7 @@ public class FileQueueHandler extends JPanel
                         }
                     });      
 
-                    progressDialog.add(cancelBtn, "2,3,r,c");
+                    progressDialog.add(cancelBtn, "2,3,R,C");
                     progressDialog.getRootPane().setDefaultButton(cancelBtn);
                     progressDialog.setVisible(true);
                     progressDialog.toFront();

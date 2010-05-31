@@ -231,7 +231,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
         JScrollPane scrollPane = new JScrollPane(queue);
 
         queuePanel.add(scrollPane);
-        
+                        
         JPanel importPanel = new JPanel();
         importPanel.setLayout(new BoxLayout(importPanel, BoxLayout.LINE_AXIS));
         clearDoneBtn = GuiCommonElements.addBasicButton("Clear Done", null, null);
@@ -758,7 +758,8 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
             String cellText = getText();
             FontMetrics fm = getFontMetrics( getFont() );
             // Set tool tip if desired
- 
+            setToolTipText((String)value);
+            
             if (fm.stringWidth(cellText) > availableWidth)
             {
                 String dots = "...";
@@ -820,7 +821,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
             setHorizontalAlignment(DefaultTableCellRenderer.CENTER);
             
             // Set tool tip if desired
-            //setToolTipText((String)value);
+            setToolTipText((String)value);
             
             if (queue.getValueAt(row, 2).equals("done"))
             { this.setEnabled(false); } 

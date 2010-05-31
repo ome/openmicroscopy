@@ -1,7 +1,5 @@
 package ome.formats.utests;
 
-import static omero.rtypes.*;
-
 import java.util.List;
 import java.util.Map;
 
@@ -17,11 +15,9 @@ import Ice.LocatorPrx;
 import Ice.ObjectPrx;
 import Ice.OperationMode;
 import Ice.RouterPrx;
-import omero.RString;
 import omero.ServerError;
 import omero.grid.InteractiveProcessorPrx;
 import omero.metadatastore.IObjectContainer;
-import omero.model.IObject;
 import omero.model.Pixels;
 import omero.sys.EventContext;
 

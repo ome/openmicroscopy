@@ -178,7 +178,7 @@ WindowStateListener, WindowFocusListener
     {
         //super(TITLE);
     	
-        javax.swing.ToolTipManager.sharedInstance().setDismissDelay(0);
+        //javax.swing.ToolTipManager.sharedInstance().setDismissDelay(0);
 
         this.config = config;
         this.bounds = config.getUIBounds();

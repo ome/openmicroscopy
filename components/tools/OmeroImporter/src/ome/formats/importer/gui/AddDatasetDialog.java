@@ -44,7 +44,6 @@ import javax.swing.event.DocumentListener;
 
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
-import ome.formats.importer.gui.AddProjectDialog.MyDocumentListener;
 import omero.model.Dataset;
 import omero.model.Project;
 

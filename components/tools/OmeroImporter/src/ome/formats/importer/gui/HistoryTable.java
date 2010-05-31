@@ -260,7 +260,7 @@ public class HistoryTable
         bottomSidePanel.add(historyTaskBar, "0,0");  
         
         clearBtn = GuiCommonElements.addIconButton(mainPanel, "Wipe History", clearIcon, 
-                130, 32, (int)'S', "Click here to clear your history log.", "0,5,c,c", debug);   
+                130, 32, (int)'S', "Click here to clear your history log.", "0,5,C,C", debug);   
         
         clearBtn.setActionCommand(HistoryHandler.CLEARHISTORY);
         clearBtn.addActionListener(this);
@@ -270,7 +270,7 @@ public class HistoryTable
                 "Type in a file name to search for here.", "", 
                 TableLayout.PREFERRED, "2,1, 0, 0", debug);
 
-        searchBtn = GuiCommonElements.addButton(mainPanel, "Search", 'S', "Click here to search", "3,1,c,c", debug);
+        searchBtn = GuiCommonElements.addButton(mainPanel, "Search", 'S', "Click here to search", "3,1,C,C", debug);
         
         searchBtn.setActionCommand(HistoryHandler.HISTORYSEARCH);
         searchBtn.addActionListener(this);
@@ -286,10 +286,10 @@ public class HistoryTable
         filterPanel = GuiCommonElements.addPlanePanel(mainPanel, filterTable, debug);     
         filterLabel = GuiCommonElements.addTextPane(filterPanel, "Status Filters: ", "0,0,r,c", debug);
         
-        doneCheckBox = GuiCommonElements.addCheckBox(filterPanel, "Done", "1,0,l,c", debug);
-        failedCheckBox = GuiCommonElements.addCheckBox(filterPanel, "Failed", "2,0,l,c", debug);
-        invalidCheckBox = GuiCommonElements.addCheckBox(filterPanel, "Invalid", "3,0,l,c", debug);
-        pendingCheckBox = GuiCommonElements.addCheckBox(filterPanel, "Pending", "4,0,l,c", debug);
+        doneCheckBox = GuiCommonElements.addCheckBox(filterPanel, "Done", "1,0,L,C", debug);
+        failedCheckBox = GuiCommonElements.addCheckBox(filterPanel, "Failed", "2,0,L,C", debug);
+        invalidCheckBox = GuiCommonElements.addCheckBox(filterPanel, "Invalid", "3,0,L,C", debug);
+        pendingCheckBox = GuiCommonElements.addCheckBox(filterPanel, "Pending", "4,0,L,C", debug);
         
         // Default filters to 'on'
         doneCheckBox.setSelected(true);
@@ -341,7 +341,7 @@ public class HistoryTable
         // Add the table to the scollpane
         JScrollPane scrollPane = new JScrollPane(eTable);
 
-        reimportBtn = GuiCommonElements.addButton(filterPanel, "Reimport", 'R', "Click here to reimport selected images", "5,0,r,c", debug);
+        reimportBtn = GuiCommonElements.addButton(filterPanel, "Reimport", 'R', "Click here to reimport selected images", "5,0,R,C", debug);
         reimportBtn.setEnabled(false);
         
         reimportBtn.setActionCommand(HistoryHandler.HISTORYREIMPORT);

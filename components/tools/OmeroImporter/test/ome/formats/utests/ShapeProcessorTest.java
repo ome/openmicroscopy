@@ -3,13 +3,9 @@ package ome.formats.utests;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.model.BlitzInstanceProvider;
 import ome.util.LSID;
-import ome.xml.r201004.primitives.NonNegativeInteger;
 import omero.api.ServiceFactoryPrx;
-import omero.model.Plate;
 import omero.model.Rect;
 import omero.model.Roi;
-import omero.model.Shape;
-import omero.model.Well;
 import junit.framework.TestCase;
 
 public class ShapeProcessorTest extends TestCase

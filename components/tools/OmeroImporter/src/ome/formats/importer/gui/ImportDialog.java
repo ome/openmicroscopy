@@ -188,18 +188,18 @@ public class ImportDialog extends JDialog implements ActionListener
         pdPanel = GuiCommonElements.addMainPanel(importPanel, pdTable, 0, 0, 0, 0, debug);
 
         pbox = GuiCommonElements.addComboBox(pdPanel, "Project: ", projectItems, 'P', 
-                "Select dataset to use for this import.", 60, "0,0,f,c", debug);
+                "Select dataset to use for this import.", 60, "0,0,F,C", debug);
         pbox.addActionListener(this);
 
         // Fixing broken mac buttons.
-        String offsetButtons = ",c";
+        String offsetButtons = ",C";
         //if (GuiCommonElements.offsetButtons == true) offsetButtons = ",t";
 
         addProjectBtn = GuiCommonElements.addIconButton(pdPanel, "", addIcon, 20, 60, null, null, "2,0,f" + offsetButtons, debug);
         addProjectBtn.addActionListener(this);
         
         dbox = GuiCommonElements.addComboBox(pdPanel, "Dataset: ", datasetItems, 'D',
-                "Select dataset to use for this import.", 60, "0,1,f,c", debug);
+                "Select dataset to use for this import.", 60, "0,1,F,C", debug);
 
         dbox.setEnabled(false);
 
@@ -232,7 +232,7 @@ public class ImportDialog extends JDialog implements ActionListener
         partPathButton.addActionListener(this);
 
         numOfDirectoriesField = GuiCommonElements.addWholeNumberField(namedPanel, "" , "0", "of the directories immediately before it.", 0, 
-                "Add this number of directories to the file names", 3, 40, "1,3,l,c", debug);
+                "Add this number of directories to the file names", 3, 40, "1,3,L,C", debug);
         numOfDirectoriesField.addActionListener(this);
         
         numOfDirectoriesField.setText(Integer.toString(config.getNumOfDirectories()));
@@ -316,13 +316,13 @@ public class ImportDialog extends JDialog implements ActionListener
         GuiCommonElements.addTextPane(pixelPanel, message, "1, 0, 6, 0", debug);
         
         xPixelSize = GuiCommonElements.addDecimalNumberField(pixelPanel, 
-                "X: " , null, "", 0, "", 8, 80, "1,1,l,c", debug);
+                "X: " , null, "", 0, "", 8, 80, "1,1,L,C", debug);
 
         yPixelSize = GuiCommonElements.addDecimalNumberField(pixelPanel, 
-                "Y: " , null, "", 0, "", 8, 80, "3,1,l,c", debug);
+                "Y: " , null, "", 0, "", 8, 80, "3,1,L,C", debug);
 
         zPixelSize = GuiCommonElements.addDecimalNumberField(pixelPanel, 
-                "Z: " , null, "", 0, "", 8, 80, "5,1,l,c", debug);
+                "Z: " , null, "", 0, "", 8, 80, "5,1,L,C", debug);
         
         metadataPanel.add(pixelPanel, "0, 0");
 
@@ -333,13 +333,13 @@ public class ImportDialog extends JDialog implements ActionListener
         channelPanel = GuiCommonElements.addBorderedPanel(metadataPanel, channelTable, "Channel Defaults", debug);
         
         rChannel = GuiCommonElements.addWholeNumberField(channelPanel, 
-                "R: " , "0", "", 0, "", 8, 80, "1,1,l,c", debug);
+                "R: " , "0", "", 0, "", 8, 80, "1,1,L,C", debug);
 
         gChannel = GuiCommonElements.addWholeNumberField(channelPanel, 
-                "G: " , "1", "", 0, "", 8, 80, "3,1,l,c", debug);
+                "G: " , "1", "", 0, "", 8, 80, "3,1,L,C", debug);
 
         bChannel = GuiCommonElements.addWholeNumberField(channelPanel, 
-                "B: " , "2", "", 0, "", 8, 80, "5,1,l,c", debug);
+                "B: " , "2", "", 0, "", 8, 80, "5,1,L,C", debug);
         
         message = "These RGB channel wavelengths (typically measured in nanometers)" +
         		" will be used if no channel values are included in the image file metadata:";

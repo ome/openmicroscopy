@@ -12,11 +12,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import ome.conditions.InternalException;
-import ome.model.enums.Format;
-import ome.model.internal.Permissions;
-import ome.model.internal.Permissions.Right;
-import ome.model.internal.Permissions.Role;
 import ome.services.blitz.fire.Registry;
 import ome.services.db.PgArrayHelper;
 import ome.services.util.Executor;

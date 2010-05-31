@@ -644,7 +644,7 @@ public class GuiCommonElements
 
         JLabel labelTxt = new JLabel(label);
         labelTxt.setDisplayedMnemonic(mnemonic);
-        panel.add(labelTxt, "0,0,l,c");
+        panel.add(labelTxt, "0,0,L,C");
 
         JComboBox result = null;
         if (initialValues != null)
@@ -655,7 +655,7 @@ public class GuiCommonElements
         }
         labelTxt.setLabelFor(result);
         result.setToolTipText(tooltip);
-        panel.add(result, "1,0,f,c");
+        panel.add(result, "1,0,F,C");
         container.add(panel, placement);
         result.setOpaque(false);
         return result;

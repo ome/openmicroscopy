@@ -372,7 +372,7 @@ public class IniFileLoader {
 
     public boolean getArchiveImage()
     {
-    	return userPrefs.node("UI").getBoolean("archiveImage", true);	
+    	return userPrefs.node("UI").getBoolean("archiveImage", false);	
     }
     
     public void setArchiveImage(boolean b)

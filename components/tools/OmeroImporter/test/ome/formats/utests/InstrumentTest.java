@@ -11,7 +11,6 @@ import omero.api.ServiceFactoryPrx;
 import omero.model.Image;
 import omero.model.Instrument;
 import omero.model.Laser;
-import omero.model.LightSource;
 import omero.model.Pixels;
 
 public class InstrumentTest extends TestCase

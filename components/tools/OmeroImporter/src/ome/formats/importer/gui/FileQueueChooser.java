@@ -136,8 +136,8 @@ public class FileQueueChooser extends JFileChooser implements ActionListener
             {
                 //do Quaqua implimentation
                 fp = (JPanel) this.getComponent(1);
-                panel.add(refreshBtn, "1,0,c,c");
-                panel.add(fp.getComponent(0), "2,0,c,c");
+                panel.add(refreshBtn, "1,0,C,C");
+                panel.add(fp.getComponent(0), "2,0,C,C");
                 fp.add(panel, BorderLayout.NORTH);
             }
             else if (laf.contains("Windows"))

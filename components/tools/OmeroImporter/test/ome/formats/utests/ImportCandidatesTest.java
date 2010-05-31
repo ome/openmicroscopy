@@ -23,7 +23,6 @@ import ome.formats.importer.ImportFixture;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.ImportCandidates.SCANNING;
-import ome.model.IObject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

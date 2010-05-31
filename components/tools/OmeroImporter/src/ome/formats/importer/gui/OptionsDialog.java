@@ -196,7 +196,7 @@ public class OptionsDialog extends JDialog implements ActionListener
         String message = "Choose the level of detail for your log file's data.";
         GuiCommonElements.addTextPane(debugOptionsPanel, message, "0, 1, 0, 0", debug);
         dBox = GuiCommonElements.addComboBox(debugOptionsPanel, "Debug Level: ", debugItems, 'D',
-                "Choose the level of detail for your log file's data.", 95, "0,3,f,c", debug);
+                "Choose the level of detail for your log file's data.", 95, "0,3,F,C", debug);
         
         int debugLevel = config.getDebugLevel();
         

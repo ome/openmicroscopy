@@ -236,12 +236,12 @@ public class ErrorTable
         
         progressPanel.setVisible(false);
        
-        cancelBtn = GuiCommonElements.addButton(mainPanel, "Cancel", 'c', "Cancel sending", "2,4,l,c", debug);
+        cancelBtn = GuiCommonElements.addButton(mainPanel, "Cancel", 'c', "Cancel sending", "2,4,L,C", debug);
         cancelBtn.addActionListener(this);
         
         cancelBtn.setVisible(false);
         
-        sendBtn = GuiCommonElements.addButton(mainPanel, "Send Feedback", 's', "Send your errors to the OMERO team", "4,4,r,c", debug);
+        sendBtn = GuiCommonElements.addButton(mainPanel, "Send Feedback", 's', "Send your errors to the OMERO team", "4,4,R,C", debug);
         sendBtn.addActionListener(this);
         sendBtn.setEnabled(false);
         

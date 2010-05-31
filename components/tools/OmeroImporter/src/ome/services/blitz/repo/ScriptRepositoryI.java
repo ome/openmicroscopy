@@ -7,7 +7,6 @@
 package ome.services.blitz.repo;
 
 import ome.services.blitz.fire.Registry;
-import ome.services.blitz.impl.SharedResourcesI;
 import ome.services.scripts.ScriptRepoHelper;
 import ome.services.util.Executor;
 import omero.ServerError;
