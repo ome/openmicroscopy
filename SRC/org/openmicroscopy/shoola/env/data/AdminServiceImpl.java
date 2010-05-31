@@ -336,6 +336,7 @@ class AdminServiceImpl
 			return AdminObject.PERMISSIONS_PUBLIC_READ;
 		}
 		//Check if the user is owner of the group.
+		/*
 		Set leaders = group.getLeaders();
 		if (leaders == null || leaders.size() == 0) 
 			return AdminObject.PERMISSIONS_PRIVATE;
@@ -346,6 +347,7 @@ class AdminServiceImpl
 			if (exp.getId() == id) 
 				return AdminObject.PERMISSIONS_GROUP_READ;
 		}
+		*/
 		return AdminObject.PERMISSIONS_PRIVATE;
 	}
 	
