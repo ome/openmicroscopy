@@ -371,7 +371,9 @@ class MetadataViewerComponent
 		if (rnd != null && getRndIndex() == RND_GENERAL) {
 			//save settings 
 			try {
-				rnd.saveCurrentSettings();
+				//check if I can save first
+				if (model.isWritable()) 
+					rnd.saveCurrentSettings();
 				Object obj = model.getRefObject();
 				if (obj instanceof WellSampleData) {
 					WellSampleData wsd = (WellSampleData) obj;

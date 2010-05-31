@@ -906,4 +906,10 @@ class EditorComponent
 		}
 	}
 	
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#isWritable()
+	 */
+	public boolean isWritable() { return model.isWritable(); }
+	
 }

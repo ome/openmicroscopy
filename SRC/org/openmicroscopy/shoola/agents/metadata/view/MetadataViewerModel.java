@@ -809,4 +809,16 @@ class MetadataViewerModel
 		if (rnd != null) rnd.resetSettings(rndDef, true);
 	}
 	
+	/**
+	 * Returns <code>true</code> if the object is writable,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isWritable()
+	{
+		if (editor == null) return false;
+		return editor.isWritable();
+	}
+	
 }

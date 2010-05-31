@@ -303,8 +303,7 @@ class EditorUI
 					load = true;
 					ImageData img = (ImageData) uo;
 					tabPane.setEnabledAt(ACQUISITION_INDEX, img.getId() > 0);
-					tabPane.setEnabledAt(RND_INDEX, model.isWritable() 
-							&& img.getId() > 0);
+					tabPane.setEnabledAt(RND_INDEX, img.getId() > 0);
 					if (tabPane.getSelectedIndex() == RND_INDEX) {
 						tabPane.setComponentAt(RND_INDEX, dummyPanel);
 						//tabPane.setSelectedIndex(GENERAL_INDEX);
@@ -319,7 +318,7 @@ class EditorUI
 					if (img != null && img.getId() >= 0) {
 						load = true;
 						tabPane.setEnabledAt(ACQUISITION_INDEX, true);
-						tabPane.setEnabledAt(RND_INDEX, model.isWritable());
+						tabPane.setEnabledAt(RND_INDEX, true);
 					} else {
 						tabPane.setSelectedIndex(GENERAL_INDEX);
 						tabPane.setEnabledAt(ACQUISITION_INDEX, false);

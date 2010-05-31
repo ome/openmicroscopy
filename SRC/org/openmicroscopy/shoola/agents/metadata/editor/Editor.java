@@ -433,4 +433,12 @@ public interface Editor
 	 */
 	void setUserPhoto(BufferedImage photo, long experimenterID);
 	
+	/**
+	 * Returns <code>true</code> if the object is writable,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isWritable();
+	
 }
