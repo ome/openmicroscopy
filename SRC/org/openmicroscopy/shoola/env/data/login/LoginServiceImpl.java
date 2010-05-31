@@ -36,6 +36,8 @@ import Ice.ConnectionRefusedException;
 import Ice.DNSException;
 
 //Application-internal dependencies
+import omero.SecurityViolation;
+
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
@@ -173,6 +175,9 @@ public class LoginServiceImpl
             		failureIndex = DNS_INDEX;
             	} else if (cause instanceof PermissionDeniedException) {
             		failureIndex = PERMISSION_INDEX;
+            	} else if (cause instanceof DSOutOfServiceException) {
+            		if (cause.getCause() instanceof SecurityViolation)
+            			failureIndex = ACTIVE_INDEX;
             	}
                 LogMessage msg = new LogMessage();
                 msg.println("Failed to log onto OMERO.");
@@ -182,7 +187,7 @@ public class LoginServiceImpl
                 	msg.println(uc);
                 }
                 Logger logger = container.getRegistry().getLogger();
-                logger.error(this, msg);
+                //logger.error(this, msg);
         	}
         }
         return NOT_CONNECTED;
@@ -296,18 +301,22 @@ public class LoginServiceImpl
 		String text = "";
     	switch (failureIndex) {
 			case LoginService.DNS_INDEX:
-				text = "the server address\n";
+				text = "Please check the server address\nor try again later.";
 				break;
 			case LoginService.CONNECTION_INDEX:
-				text = "the port\n";
+				text = "Please check the port\nor try again later.";
+				break;
+			case LoginService.ACTIVE_INDEX:
+				text = "Your user account is no longer active.\nPlease" +
+				" contact your administrator.";
 				break;
 			case LoginService.PERMISSION_INDEX:
 				default:
-				text = "your user name\nand/or password ";
+				text = "Please check your user name\nand/or password " +
+						"or try again later.";
 		}
     	NotificationDialog dialog = new NotificationDialog(
-                f, "Login Failure", "Failed to log onto OMERO.\n" +
-                "Please check "+text+"or try again later.", 
+                f, "Login Failure", "Failed to log onto OMERO.\n"+text, 
                 IconManager.getDefaultErrorIcon());
 		dialog.pack();  
 		UIUtilities.centerAndShow(dialog);

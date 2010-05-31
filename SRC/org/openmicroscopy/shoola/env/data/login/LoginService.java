@@ -201,6 +201,12 @@ public interface LoginService
 	 */
 	public static final int		CONNECTION_INDEX = 102;
 	
+	/** 
+	 * Indicates that the client couldn't connect b/c the user is no longer 
+	 * active
+	 */
+	public static final int		ACTIVE_INDEX = 103;
+	
     /**
      * Flag to denote the Idle state.
      * While in this state, the Login Service is waiting for a login request.
@@ -236,7 +242,7 @@ public interface LoginService
      * Otherwise, the most recently entered user's credentials are used to 
      * attempt establishing a valid link to the server.
      * Upon failure, this method retries for how many times as specified by the
-     * Container's configuration.  (The time interaval between each attempt is
+     * Container's configuration. (The time interval between each attempt is
      * also specified by the Container's configuration.)  If all attempts fail,
      * then a dialog is brought up on screen to allow the user to reenter their
      * credentials (which now become the current credentials) and a last attempt
