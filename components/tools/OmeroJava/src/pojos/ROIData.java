@@ -359,7 +359,11 @@ public class ROIData
         Roi roi = (Roi) asIObject();
 		if (roi == null) 
 			throw new IllegalArgumentException("No Roi specified.");
-		String[] namespaces = (String[])map.keySet().toArray();
+		Iterator<String> namespaceIterator = map.keySet().iterator();
+		String[] namespaces = new String[map.size()];
+		int k = 0;
+		while(namespaceIterator.hasNext())
+			namespaces[k++] = namespaceIterator.next();
 		roi.setNamespaces(namespaces);
 		int maxKeywordLength = 0;
 		for(String namespace : namespaces)
