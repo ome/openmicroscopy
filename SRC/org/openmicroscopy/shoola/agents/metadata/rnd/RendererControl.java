@@ -341,8 +341,7 @@ class RendererControl
 						(Boolean) entry.getValue());
 			}
         } else if (ChannelButton.CHANNEL_COLOR_PROPERTY.equals(name)) {
-        	//if (view.isSourceDisplayed(evt.getSource()))
-        		showColorPicker(((Integer) evt.getNewValue()).intValue());
+        	showColorPicker(((Integer) evt.getNewValue()).intValue());
         } else if (Renderer.INPUT_INTERVAL_PROPERTY.equals(name)) {
             view.setInputInterval();
         } else if (ColourPicker.COLOUR_PROPERTY.equals(name)) { 

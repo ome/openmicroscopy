@@ -248,13 +248,15 @@ class GraphicsPane
     		content.add(new JSeparator(), c);
     		c.gridy++;
     	}
-   	 	//content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+   	 
    	 	content.add(controlsBar, c);
+   	 	/*
    	 	c.gridy++;
-   	 	c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-   	 	c.fill = GridBagConstraints.HORIZONTAL;
-   	 	c.weightx = 1.0;
-   	 	content.add(viewedBy, c);
+	 	c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+	 	c.fill = GridBagConstraints.HORIZONTAL;
+	 	c.weightx = 1.0;
+	 	content.add(viewedBy, c);
+	 	*/
    	 	c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
    	 	c.fill = GridBagConstraints.NONE;      //reset to default
    	 	c.weightx = 0.0;  
@@ -264,6 +266,11 @@ class GraphicsPane
     		c.gridy++;
     		content.add(i.next(), c);
     	}
+    	c.gridy++;
+	 	c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+	 	c.fill = GridBagConstraints.HORIZONTAL;
+	 	c.weightx = 1.0;
+	 	content.add(viewedBy, c);
     	return content;
     	
     }

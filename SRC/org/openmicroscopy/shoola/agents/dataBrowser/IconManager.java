@@ -255,8 +255,8 @@ public class IconManager
         relPaths[EDIT_8] = "nuvola_ksig8.png";
         relPaths[DATASET_48] = "nuvola_folder_image48.png";
         relPaths[FIELDS_VIEW] = "nuvola_view_multicolumn16.png";
-        relPaths[RND_REDO] = "rendering_default16.png";
-        relPaths[RND_MIN_MAX] = "rendering_min_max16.png";
+        relPaths[RND_REDO] = "nuvola_undo16.png";
+        relPaths[RND_MIN_MAX] =  "nuvola_rendering_minmax16.png";
         relPaths[RND_OWNER] = "rendering_owner16.png";
 
     }

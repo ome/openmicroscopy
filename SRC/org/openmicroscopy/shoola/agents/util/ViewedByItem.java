@@ -130,7 +130,12 @@ public class ViewedByItem
 	    	setHorizontalTextPosition(AbstractButton.CENTER);
 	    	setIconTextGap(0);
 	    	setText(experimenter.getLastName());
-		} else setText(EditorUtil.formatExperimenter(experimenter));
+		} else {
+			Dimension d = new Dimension(MAX_ICON_SIZE, MAX_ICON_SIZE);
+	    	setPreferredSize(d);
+			setSize(d);
+			setText(EditorUtil.formatExperimenter(experimenter));
+		}
 		List<String> l = new ArrayList<String>();
 		l.add("Viewed by: "+getText());
 		Timestamp time = rndDef.getLastModified();
@@ -140,8 +145,18 @@ public class ViewedByItem
 		addActionListener(this);
 	}
 	
+	/**
+	 * Returns the experimenter the settings belong to.
+	 * 
+	 * @return See above.
+	 */
 	public ExperimenterData getExperimenter() { return experimenter; }
 	
+	/**
+	 * Returns the rendering settings.
+	 * 
+	 * @return See above.
+	 */
 	public RndProxyDef getRndDef() { return rndDef; }
 	
 	/**
@@ -150,6 +165,13 @@ public class ViewedByItem
 	 * @return See above.
 	 */
 	public long getExperimenterID() { return experimenter.getId(); }
+	
+	/**
+	 * Returns the image or <code>null</code>.
+	 * 
+	 * @return  See above.
+	 */
+	public BufferedImage getImage() { return image; }
 	
 	/** 
 	 * Sets the image as viewed by the experimenter. 
@@ -162,13 +184,7 @@ public class ViewedByItem
 		if (image == null) return;
 		setIcon(new ImageIcon(
 				Factory.scaleBufferedImage(image, MAX_ICON_SIZE)));
-		/*
-		Icon icon = getIcon();
-		Dimension d = getPreferredSize();
-		Dimension d2 = new Dimension(d.width, icon.getIconHeight());
-		setPreferredSize(d2);
-		setSize(d2);
-		*/
+		
 		revalidate();
 		if (!asMenuItem) {
 			addMouseListener(new MouseAdapter() {

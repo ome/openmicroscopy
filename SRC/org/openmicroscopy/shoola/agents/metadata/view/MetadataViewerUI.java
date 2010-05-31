@@ -29,6 +29,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -43,6 +45,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JSplitPane;
@@ -123,6 +126,9 @@ class MetadataViewerUI
 	
 	/** The menu displaying the user who viewed the image. */
 	private JPopupMenu					viewedByMenu;
+	
+	/** The item used to display the thumbnails. */
+	private JMenuItem					thumbnailsMenuItem;
 	
 	/** 
      * Returns the message corresponding to the <code>DataObject</code>.
@@ -281,8 +287,55 @@ class MetadataViewerUI
 						ViewedByItem.VIEWED_BY_PROPERTY, this);
 				viewedByMenu.add(item);
 			}
+			if (list.size() == 0) {
+				thumbnailsMenuItem = new JMenuItem("Not viewed");
+				thumbnailsMenuItem.setToolTipText("No other users " +
+						"viewed the image.");
+			} else {
+				IconManager icons = IconManager.getInstance();
+				thumbnailsMenuItem = new JMenuItem("Show thumbnails");
+				thumbnailsMenuItem.setIcon(icons.getIcon(
+						IconManager.TRANSPARENT_32));
+				thumbnailsMenuItem.addActionListener(new ActionListener() {
+					
+					public void actionPerformed(ActionEvent e)
+					{
+						showViewedBy();
+					}
+				});
+			}
+			
+			viewedByMenu.add(thumbnailsMenuItem);
 		}
 		viewedByMenu.show(source, location.x, location.y);
+	}
+	
+	/** Displays all the thumbnails. */
+	private void showViewedBy()
+	{
+		if (viewedByMenu == null) return;
+		ViewedByItem item, itemNew;
+		Component comp;
+		BufferedImage img;
+		Component[] components = viewedByMenu.getComponents();
+		List<ViewedByItem> items = new ArrayList<ViewedByItem>();
+		for (int i = 0; i < components.length; i++) {
+			comp = components[i];
+			if (comp instanceof ViewedByItem) {
+				item = (ViewedByItem) comp;
+				img = item.getImage();
+				if (img != null) {
+					item.setImage(img);
+					itemNew = new ViewedByItem(item.getExperimenter(), 
+							item.getRndDef(), false);
+					itemNew.setImage(img);
+					itemNew.addPropertyChangeListener(
+							ViewedByItem.VIEWED_BY_PROPERTY, this);
+					items.add(itemNew);
+				}
+			}
+		}
+		model.getEditor().getRenderer().loadRndSettings(true, items);
 	}
 	
 	/** 
@@ -314,8 +367,8 @@ class MetadataViewerUI
 				}
 			}
 		}
-		model.getEditor().getRenderer().loadRndSettings(items.size() > 0, 
-				items);
+		thumbnailsMenuItem.setEnabled(items.size() > 0);
+		model.getEditor().getRenderer().loadRndSettings(true, null);
 	}
 	
 	/**

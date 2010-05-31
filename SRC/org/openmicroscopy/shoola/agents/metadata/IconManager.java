@@ -382,11 +382,14 @@ public class IconManager
     /** The <code>Black arrow down</code> icon. */
     public static final int         BLACK_ARROW_DOWN = 108;
     
+    /** The <code>Transparent</code> icon. */
+    public static final int         TRANSPARENT_32 = 109;
+    
     /** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static final int          MAX_ID = 108;
+	private static final int          MAX_ID = 109;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -493,13 +496,14 @@ public class IconManager
         relPaths[USER_PHOTO_22] = "nuvola_personal22.png"; //"nuvola_licq22.png";
         relPaths[USER_PHOTO_48] = "nuvola_personal48.png";//"nuvola_licq48.png";
         relPaths[USER_PHOTO_32] = "nuvola_personal32.png";
-        relPaths[RND_REDO] = "nuvola_reset16.png";
+        relPaths[RND_REDO] = "nuvola_undo16.png"; 
         relPaths[RND_MIN_MAX] = "nuvola_rendering_minmax16.png";
         relPaths[RND_OWNER] = "nuvola_rendering_owner16.png";
-        relPaths[RND_UNDO] = "nuvola_undo16.png";
+        relPaths[RND_UNDO] = "nuvola_reset16.png";
         relPaths[RND_APPLY_TO_ALL] = "rendering_applyAll16.png";
         relPaths[ANALYSIS_RUN] = "nuvola_script_run16.png";
         relPaths[BLACK_ARROW_DOWN] = "eclipse_view_menu16.png";
+        relPaths[TRANSPARENT_32] = "eclipse_transparent32.png";
 	}
    
 	/** The sole instance. */

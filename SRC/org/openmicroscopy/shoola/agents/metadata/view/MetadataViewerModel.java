@@ -760,7 +760,7 @@ class MetadataViewerModel
 			}
 		}
 		this.viewedBy = m; 
-		getEditor().getRenderer().loadRndSettings(m.size() > 0, null);
+		getEditor().getRenderer().loadRndSettings(true, null);
 	}
 	
 	/**
@@ -774,7 +774,7 @@ class MetadataViewerModel
 		else if (refObject instanceof WellSampleData) 
 			img = ((WellSampleData) refObject).getImage();
 		if (img == null) return;
-		getEditor().getRenderer().loadRndSettings(true, null);
+		getEditor().getRenderer().loadRndSettings(false, null);
 		RenderingSettingsLoader loader = new RenderingSettingsLoader(component, 
 				img.getDefaultPixels().getId());
 		loader.load();

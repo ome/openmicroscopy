@@ -83,7 +83,7 @@ public class ManageRndSettingsAction
 	private static final String NAME_RESET = "Reset";
 	
 	/** The description of the action if {@link #SET_OWNER_SETTING}. */
-	public static final String NAME_OWNER = "View by";
+	public static final String NAME_OWNER = "Viewed by";
 
 	/** The description of the action if {@link #MIN_MAX}. */
 	private static final String DESCRIPTION_MIN_MAX = 
@@ -104,7 +104,8 @@ public class ManageRndSettingsAction
      * The description of the action if the index is {@link #SET_OWNER_SETTING}. 
      */
     private static final String DESCRIPTION_SET_OWNER_SETTING  = 
-    						"Set the Users' rendering settings.";
+    			"View the image using the rendering settings used by" +
+    			" other users.";
     
 	/** One of the constants defined by this class. */
 	private int index;
