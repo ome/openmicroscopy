@@ -1879,7 +1879,7 @@ public class OMEROMetadataStoreClient
         try
         {
             List<IObject> objects = 
-                iContainer.loadContainerHierarchy(Screen.class.getName(), null, null);
+                iContainer.loadContainerHierarchy(Screen.class.getName(), null, new ParametersI().exp(rlong(getExperimenterID())));
             List<Screen> screens = new ArrayList<Screen>(objects.size());
             for (IObject object : objects)
             {
