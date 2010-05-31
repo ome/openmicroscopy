@@ -153,7 +153,13 @@ public class OutputServerStrategy
 	{
 		
 		ROIData roiData = new ROIData();
-		roiData.setNamespaceKeywords((String)roi.getAnnotation(AnnotationKeys.NAMESPACE), (String[])UIUtilities.CSVToList((String)roi.getAnnotation(AnnotationKeys.KEYWORDS)).toArray());
+		String ns = (String)roi.getAnnotation(AnnotationKeys.NAMESPACE);
+		List<String> list = UIUtilities.CSVToList((String)roi.getAnnotation(AnnotationKeys.KEYWORDS));
+		String[] kw = new String[list.size()];
+		list.toArray(kw);
+		
+		
+		roiData.setNamespaceKeywords(ns,kw);
 		//TODO Fix Name
 		//roiData.setKeywords(roi.getKeyword());
 		
