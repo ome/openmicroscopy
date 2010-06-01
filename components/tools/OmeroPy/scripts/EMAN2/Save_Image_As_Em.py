@@ -39,7 +39,7 @@ import numpy
 import omero
 import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
 import omero.scripts as scripts
-from omero.rtypes import *
+from omero.rtypes import *      # includes wrap
 import omero.util.script_utils as scriptUtil
 
 # would really like to get a list of the supported file types for saving, 
@@ -97,8 +97,8 @@ def saveImageAs(session, parameterMap):
     
     imageIds = []
     
-    if "imageIds" in parameterMap:
-        for idCount, imageId in enumerate(parameterMap["imageIds"]):
+    if "Image_IDs" in parameterMap:
+        for idCount, imageId in enumerate(parameterMap["Image_IDs"]):
             iId = long(imageId.getValue())
             imageIds.append(iId)
     else:
@@ -107,13 +107,13 @@ def saveImageAs(session, parameterMap):
         
     cIndexes = None
     theT = 0
-    if "cIndex" in parameterMap:
-        cIndexes = [parameterMap["cIndex"]]
+    if "Channel_Index" in parameterMap:
+        cIndexes = [parameterMap["Channel_Index"]]
         
     extension = None
     format = None
-    if "extension" in parameterMap:
-        extension = parameterMap["extension"]
+    if "Extension" in parameterMap:
+        extension = parameterMap["Extension"]
         if extension in filetypes:
             format = filetypes[extension]
             print "Saving all images as .%s files. Format: %s" % (extension, filetypes[extension])
@@ -124,7 +124,7 @@ def saveImageAs(session, parameterMap):
         print "No extension specified. Will attempt get extensions from image names."
     
     gateway = session.createGateway()
-    originalFileIds = []
+    originalFiles = []
     
     for imageId in imageIds:
         
@@ -215,9 +215,9 @@ def saveImageAs(session, parameterMap):
             scriptUtil.uploadFile(rawFileStore, originalFile, saveName)
         
             print "File uploaded with ID:", originalFile.getId().getValue()
-            originalFileIds.append(originalFile.getId())
+            originalFiles.append(originalFile)
     
-    return originalFileIds
+    return originalFiles
     
 
 def runAsScript():
@@ -226,10 +226,10 @@ def runAsScript():
     """
     client = scripts.client('Save_Image_As_Em.py', """Use EMAN2 to save an image as mrc etc.
 See http://trac.openmicroscopy.org.uk/omero/wiki/EmPreviewFunctionality""", 
-    scripts.List("imageIds").inout(),        # List of image IDs. 
-    scripts.Long("cIndex", optional=True).inout(),
-    scripts.String("extension", optional=True).inout(),  # File type/extension. E.g. "mrc". If not given, will try to use extension of each image name
-    scripts.List("originalFileIds").out())
+    scripts.List("Image_IDs", optional=False, description="List of image IDs.").ofType(rlong(0)), 
+    scripts.Int("Channel_Index",description="If images are multi-channel, specify a channel to save"),
+    scripts.String("Extension", description="File type/extension. E.g. 'mrc'. If not given, will try to use extension of each image name"),
+    )
     
     session = client.getSession()
     
@@ -239,11 +239,13 @@ See http://trac.openmicroscopy.org.uk/omero/wiki/EmPreviewFunctionality""",
         if client.getInput(key):
             parameterMap[key] = client.getInput(key).getValue()
     
-    fileIds = saveImageAs(session, parameterMap)        # might return None if failed. 
-    print fileIds
-    result = omero.rtypes.rlist(fileIds)
-    print type(result)
-    client.setOutput("originalFileIds", result)
+    originalFiles = saveImageAs(session, parameterMap)        # might return None if failed. 
+    
+    # Return a single list for other scripts to use
+    client.setOutput("Original_Files", wrap(originalFiles))
+    # But also return individual objects so Insight can offer 'Download' for each
+    for i, o in enumerate(originalFiles):
+        client.setOutput("Original_File%s"%i, omero.rtypes.robject(o))
     
 if __name__ == "__main__":
     runAsScript()

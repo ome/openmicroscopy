@@ -74,20 +74,25 @@ def emanFilter(session, parameterMap):
     
     imageIds = []
     
-    if "imageIds" in parameterMap:
-        for imageId in parameterMap["imageIds"]:
+    dataType = parameterMap["Data_Type"]
+    if dataType == "Image":
+        for imageId in parameterMap["IDs"]:
             iId = long(imageId.getValue())
             imageIds.append(iId)
-    
-    elif "datasetId" in parameterMap:
-        datasetId = parameterMap["datasetId"]
-        images = gateway.getImages(omero.api.ContainerClass.Dataset, [datasetId])
-        for i in images:
-            imageIds.append(i.getId().getValue())
+    else:   # Dataset
+        for datasetId in parameterMap["IDs"]:
+            datasetIds = []
+            try:
+                dId = long(datasetId.getValue())
+                datasetIds.append(dId)
+            except: pass
+            # simply aggregate all images from the datasets
+            images = gateway.getImages(omero.api.ContainerClass.Dataset, datasetIds)
+            for i in images:
+                imageIds.append(i.getId().getValue())
             
     if len(imageIds) == 0:
         return
-        
         
     # get the project from the first image
     project = None
@@ -105,10 +110,10 @@ def emanFilter(session, parameterMap):
                 break # only use 1st Project
             break    # only use 1st Dataset
     
-    if "newDatasetName" in parameterMap:
+    if "New_Dataset_Name" in parameterMap:
         # make a dataset for images
         dataset = omero.model.DatasetI()
-        dataset.name = rstring(parameterMap["newDatasetName"])
+        dataset.name = rstring(parameterMap["New_Dataset_Name"])
         dataset = gateway.saveAndReturnObject(dataset)
         if project:        # and put it in the same project
             link = omero.model.ProjectDatasetLinkI()
@@ -116,16 +121,19 @@ def emanFilter(session, parameterMap):
             link.child = omero.model.DatasetI(dataset.id.val, False)
             gateway.saveAndReturnObject(link)
     
-    filterName = parameterMap["filterName"]
+    filterName = parameterMap["Filter_Name"]
     paramStrings = []
     filterParamMap = None
-    if "filterParams" in parameterMap:
+    if "Filter_Params" in parameterMap:
         filterParamMap = {}
-        fpMap = parameterMap["filterParams"]
+        fpMap = parameterMap["Filter_Params"]
         for p, v in fpMap.items():
             paramStrings.append("%s: %s" % (p, v.getValue())) # get value from rtype
-            filterParamMap[p] = v.getValue()
-    paramString = ", ".join(paramStrings)
+            try:
+                filterParamMap[p] = float(v.getValue())  # if the value is a float
+            except:
+                filterParamMap[p] = v.getValue()
+    paramString = ", ".join(paramStrings)   # just for adding to new image description
     
     e = EMData()
     bypassOriginalFile = True
@@ -221,14 +229,21 @@ def runAsScript():
     """
     The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
     """
+    dataTypes = [rstring('Dataset'),rstring('Image')]
+    
     client = scripts.client('Eman_Filters.py', """Use EMAN2 to filter images and upload results back to OMERO. 
 Filters: http://blake.bcm.edu/eman2/processors.html
 See http://trac.openmicroscopy.org.uk/omero/wiki/EmPreviewFunctionality""", 
-    scripts.List("imageIds", optional=True).inout(),    # List of image IDs. Use this OR datasetId
-    scripts.Long("datasetId", optional=True).inout(),    # Dataset Id. Use this OR imageIds
-    scripts.String("filterName").inout(),    # E.g. "filter.lowpass.gauss"   http://blake.bcm.edu/eman2/processors.html
-    scripts.Map("filterParams", optional=True).inout(), # Map of parameters to add to filter. See http://blake.bcm.edu/emanwiki/Eman2ProgQuickstart
-    scripts.String("newDatasetName", optional=True))    # If specified, put the filtered images in a new dataset. 
+    scripts.String("Data_Type", optional=False, grouping="1",
+        description="The data you want to work with.", values=dataTypes, default="Dataset"),
+    scripts.List("IDs", optional=False, grouping="2",
+        description="List of Dataset IDs or Image IDs").ofType(rlong(0)),
+    scripts.String("Filter_Name", optional=False, grouping="3",
+        description="E.g. 'filter.lowpass.gauss'   http://blake.bcm.edu/eman2/processors.html"),
+    scripts.Map("Filter_Params", grouping="4",  # map of strings. Where possible, values are converted to floats
+        description="Map of parameters to add to filter. E.g. sigma: 0.125"), # See http://blake.bcm.edu/emanwiki/Eman2ProgQuickstart
+    scripts.String("New_Dataset_Name", grouping="5",
+        description="If specified, put the filtered images in a new dataset.")) 
     
     session = client.getSession()
     

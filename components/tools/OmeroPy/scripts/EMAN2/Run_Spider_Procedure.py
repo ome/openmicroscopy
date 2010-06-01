@@ -248,20 +248,25 @@ def runSpf(session, parameterMap):
     
     imageIds = []
     
-    if "imageIds" in parameterMap:
-        for imageId in parameterMap["imageIds"]:
+    dataType = parameterMap["Data_Type"]
+    if dataType == "Image":
+        for imageId in parameterMap["IDs"]:
             iId = long(imageId.getValue())
             imageIds.append(iId)
-    
-    elif "datasetId" in parameterMap:
-        datasetId = parameterMap["datasetId"]
-        images = gateway.getImages(omero.api.ContainerClass.Dataset, [datasetId])
-        for i in images:
-            imageIds.append(i.getId().getValue())
+    else:   # Dataset
+        for datasetId in parameterMap["IDs"]:
+            datasetIds = []
+            try:
+                dId = long(datasetId.getValue())
+                datasetIds.append(dId)
+            except: pass
+            # simply aggregate all images from the datasets
+            images = gateway.getImages(omero.api.ContainerClass.Dataset, datasetIds)
+            for i in images:
+                imageIds.append(i.getId().getValue())
             
     if len(imageIds) == 0:
         return
-        
         
     # get the project from the first image
     project = None
@@ -279,10 +284,10 @@ def runSpf(session, parameterMap):
                 break # only use 1st Project
             break    # only use 1st Dataset
     
-    if "newDatasetName" in parameterMap:
+    if "New_Dataset_Name" in parameterMap:
         # make a dataset for images
         dataset = omero.model.DatasetI()
-        dataset.name = rstring(parameterMap["newDatasetName"])
+        dataset.name = rstring(parameterMap["New_Dataset_Name"])
         dataset = gateway.saveAndReturnObject(dataset)
         if project:        # and put it in the same project
             link = omero.model.ProjectDatasetLinkI()
@@ -295,15 +300,15 @@ def runSpf(session, parameterMap):
     fileExt = "dat"
         
     inputName = "input"
-    if "inputName" in parameterMap:
-        inputName = parameterMap["inputName"]
+    if "Input_Name" in parameterMap:
+        inputName = parameterMap["Input_Name"]
     outputName = "output"
-    if "outputName" in parameterMap:
-        outputName = parameterMap["outputName"]
+    if "Output_Name" in parameterMap:
+        outputName = parameterMap["Output_Name"]
             
     # download the procdure file
     spfName = "procedure.spf"
-    spfFileId = parameterMap["spfFileId"]
+    spfFileId = parameterMap["Spf_File_Id"]
     annotation = queryService.get('FileAnnotation', spfFileId)
     origFileId = annotation.file.id.val
     originalFile = queryService.findByQuery("from OriginalFile as o where o.id = %s" % origFileId, None)
@@ -331,14 +336,19 @@ def runAsScript():
     Calls the Spider command line.
     
     """
+    dataTypes = [rstring('Dataset'),rstring('Image')]
+    
     client = scripts.client('Run_Spider_Procedure.py', """Run a Spider Procedure File against Images on OMERO.
 See http://trac.openmicroscopy.org.uk/omero/wiki/EmPreviewFunctionality""", 
-    scripts.List("imageIds", optional=True).inout(),    # List of image IDs. Use this OR datasetId
-    scripts.Long("datasetId", optional=True).inout(),    # Dataset Id. Use this OR imageIds
-    scripts.Long("spfFileId").inout(),         # the FileAnnotation-ID of the Spider Procedure File
-    scripts.String("newDatasetName", optional=True).inout(),     # Make a dataset to put results. Otherwise put in same as input images.
-    scripts.String("inputName", optional=True).inout(),     # The name of the input image at the start of the spf file. Default is "input"
-    scripts.String("outputName", optional=True).inout())    # The name of the output image at the end of the spf file. Default is "output"
+    scripts.String("Data_Type", optional=False, grouping="1",
+        description="The data you want to work with.", values=dataTypes, default="Dataset"),
+    scripts.List("IDs", optional=False, grouping="2",
+        description="List of Dataset IDs or Image IDs").ofType(rlong(0)),
+    scripts.Long("Spf_File_Id", optional=False, description="The FileAnnotation-ID of the Spider Procedure File"), 
+    scripts.String("New_Dataset_Name", description="If specified, make a dataset to put results."),
+    scripts.String("Input_Name", description="The name of the input image at the start of the spf file.", default="input"),
+    scripts.String("Output_Name", description="The name of the output image at the start of the spf file.", default="output"),
+    )
     
     session = client.getSession()
     

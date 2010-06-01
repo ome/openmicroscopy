@@ -706,7 +706,6 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#Split-viewFigure"
         fileAnnotation = splitViewFigure(session, commandArgs)
         # return this fileAnnotation to the client. 
         if fileAnnotation:
-            imageId = fileAnnotation.parent.id.val
             client.setOutput("Message", rstring("Split-View Figure Created"))
             client.setOutput("File_Annotation", robject(fileAnnotation))
     except: raise

@@ -680,7 +680,7 @@ def roiFigure(session, commandArgs):
     # figLegend as the fileAnnotation description. 
     # Returns the id of the originalFileLink child. (ID object, not value)
     fileAnnotation = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, omeroImage, output, format, figLegend)
-    return fileAnnotation
+    return (fileAnnotation, omeroImage)
 
 def runAsScript():
     """
@@ -728,11 +728,10 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIMovieFigure"""
     
         #print commandArgs
         # call the main script, attaching resulting figure to Image. Returns the id of the originalFileLink child. (ID object, not value)
-        fileAnnotation = roiFigure(session, commandArgs)
+        fileAnnotation, image = roiFigure(session, commandArgs)
         # return this fileAnnotation to the client. 
         if fileAnnotation:
-            imageId = fileAnnotation.parent.id.val
-            client.setOutput("Message", rstring("ROI Movie Figure Created"))
+            client.setOutput("Message", rstring("ROI Movie Figure Attached to Image: %s" % image.name.val))
             client.setOutput("File_Annotation", robject(fileAnnotation))
     except: raise
     finally: client.closeSession()

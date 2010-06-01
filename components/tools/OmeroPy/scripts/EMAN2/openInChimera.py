@@ -83,22 +83,16 @@ def run(commandArgs):
         return
     
     # get the most recent (highest ID) script with the correct name
-    scriptName = "saveImageAs.py"
-    scripts = scriptService.getUserScripts([])
-    #namedScripts = [s.id.val for s in scripts if s.name.val == scriptName]
+    scriptName = "/EMAN2/Save_Image_As_Em.py"
+    scriptId = scriptService.getScriptID(scriptName)
     
-    #if len(namedScripts) == 0:
-    #    print "Didn't find 'saveImageAs.py' script on server. Need to upload it!"
-    #scriptId = max(namedScripts)
-    scriptId = 901
-    
-    print "Running saveImageAs.py with script ID: " , scriptId
-    imageIds = omero.rtypes.rlist([omero.rtypes.rint(imageId)])
+    print "Running %s with script ID: %s" % (scriptName, scriptId)
+    imageIds = omero.rtypes.rlist([omero.rtypes.rlong(imageId)])
     
     map = {
-        "imageIds": imageIds,
-        "extension": omero.rtypes.rstring("mrc")    # export as mrc file
-    }  
+        "Image_IDs": imageIds,
+        "Extension": omero.rtypes.rstring("mrc")    # export as mrc file
+    }
     
     results = None
     
@@ -119,10 +113,11 @@ def run(commandArgs):
     
     
     fileNames = []    # need names for passing to chimera
-    if "originalFileIds" in results:
-        for r in results["originalFileIds"].getValue():
+    if "Original_Files" in results:
+        for r in results["Original_Files"].getValue():
             # download the file from OMERO 
-            fileId = r.getValue()
+            f = r.getValue()
+            fileId = f.getId().getValue()
             print "Downloading Original File ID:", fileId
             originalFile = queryService.findByQuery("from OriginalFile as o where o.id = %s" % fileId, None)
             name = originalFile.getName().getValue()
@@ -135,6 +130,16 @@ def run(commandArgs):
             gateway.deleteObject(originalFile)
     else:
         print "No OriginalFileIds returned by script"
+        if 'stdout' in results:
+            origFile = results['stdout'].getValue()
+            fileId = origFile.getId().getValue()
+            print "\n******** Script: %s generated StdOut in file:%s  *******" % (scriptName, fileId)
+            print scriptUtil.readFromOriginalFile(rawFileStore, queryService, fileId)
+        if 'stderr' in results:
+            origFile = results['stderr'].getValue()
+            fileId = origFile.getId().getValue()
+            print "\n******** Script: %s generated StdErr in file:%s  *******" % (scriptName, fileId)
+            print scriptUtil.readFromOriginalFile(rawFileStore, queryService, fileId)
         return
         
 

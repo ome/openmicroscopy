@@ -176,9 +176,9 @@ def makeImagesFromRois(session, parameterMap):
     
         # ..else, make an image for each ROI (all in one dataset?)
         else:
-            print "Making Dataset of Images from ROIs of Image:", imageId
             # create a new dataset for new images
             datasetName = "%s_%s" % (os.path.basename(imageName), containerName)    # e.g. myImage.mrc_particles
+            print "Making Dataset: %s of Images from ROIs of Image: %s" % (datasetName, imageId)
             dataset = omero.model.DatasetI()
             dataset.name = rstring(datasetName)
             desc = "Images in this Dataset are from ROIs of parent Image:\n  Name: %s\n  Image ID: %d" % (imageName, imageId)
@@ -220,7 +220,7 @@ def runAsScript():
 Designed to work with single-plane images (Z=1 T=1) with multiple ROIs per image. 
 Assumes that all the ROIs on an Image are the same size and that all Images are in the same dataset.""", 
     scripts.List("Image_IDs", optional=False, description="List the images to work with").ofType(rlong(0)),
-    scripts.String("Container_Name", description="New Dataset name or Image name (if 'Make_Image_Stack')", default=rstring("From_ROIs")),
+    scripts.String("Container_Name", description="New Dataset name or Image name (if 'Make_Image_Stack')", default="From_ROIs"),
     scripts.Bool("Make_Image_Stack", description="If true, make a single Image (stack) from all the ROIs of each parent Image")
     )
     

@@ -774,7 +774,6 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIFigure""",
         fileAnnotation = roiFigure(session, commandArgs)
         # return this fileAnnotation to the client. 
         if fileAnnotation:
-            imageId = fileAnnotation.parent.id.val
             client.setOutput("Message", rstring("ROI Figure Created"))
             client.setOutput("File_Annotation", robject(fileAnnotation))
     except: raise
