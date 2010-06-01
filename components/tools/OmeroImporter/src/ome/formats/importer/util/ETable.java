@@ -251,13 +251,26 @@ public class ETable extends JTable {
 	 * This means that all users automatically get tool tips on truncated text fields that show them the full value.
 	 */
 	public void initToolTip(JComponent c, int row, int column) {
+		
+		// if a custom value is set.. don't reset
+		if (c instanceof JLabel)
+		{
+			JLabel jl = (JLabel) c;
+			if (c.getToolTipText() != jl.getText())
+				return;
+		}
+		
+		if (c.getToolTipText() != getValueAt(row, column).toString())
+			return;
+		
+		// if tooltip is shorter than column width, don't set
 		String toolTipText = null;
 		if (c.getPreferredSize().width > getCellRect(row, column, false).width) {
 			toolTipText = getValueAt(row, column).toString();
 		}
 		c.setToolTipText(toolTipText);
 	}
-
+	
 	/**
 	 * Improve the appearance of of a table in a JScrollPane on Mac OS, where there's otherwise an unsightly hole.
 	 */

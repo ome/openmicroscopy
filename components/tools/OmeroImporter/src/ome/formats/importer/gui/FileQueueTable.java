@@ -149,6 +149,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
         addBtn.setSize(new Dimension(buttonSize, buttonSize));
         addBtn.setActionCommand(FileQueueHandler.ADD);
         addBtn.addActionListener(this);
+        addBtn.setToolTipText("Add files to the import queue.");
         
         removeBtn = GuiCommonElements.addBasicButton(null, removeIcon, null);
         removeBtn.setMaximumSize(new Dimension(buttonSize, buttonSize));
@@ -157,6 +158,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
         removeBtn.setSize(new Dimension(buttonSize, buttonSize));
         removeBtn.setActionCommand(FileQueueHandler.REMOVE);
         removeBtn.addActionListener(this);
+        removeBtn.setToolTipText("Remove files from the import queue.");
         
         buttonPanel.add(Box.createRigidArea(new Dimension(0,60)));
         //buttonPanel.add(refreshBtn);
@@ -180,6 +182,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
         labelPanel.add(label);
         labelPanel.add(Box.createHorizontalGlue());
 		groupBtn = GuiCommonElements.addBasicButton("Group: ", null, "Current Group");
+		groupBtn.setToolTipText("The user group you are logged into.");
 		//groupBtn.setEnabled(false);
         labelPanel.add(groupBtn);
         queuePanel.add(labelPanel);
@@ -242,16 +245,19 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
         clearDoneBtn.setEnabled(false);
         clearDoneBtn.setActionCommand(FileQueueHandler.CLEARDONE);
         clearDoneBtn.addActionListener(this);
+        clearDoneBtn.setToolTipText("Clear all 'done' entries from the import queue.");
         importPanel.add(Box.createRigidArea(new Dimension(0,5)));
         importPanel.add(clearFailedBtn);
         clearFailedBtn.setEnabled(false);
         clearFailedBtn.setActionCommand(FileQueueHandler.CLEARFAILED);
         clearFailedBtn.addActionListener(this);
+        clearFailedBtn.setToolTipText("Clear all 'failed' entries from the import queue.");
         importPanel.add(Box.createRigidArea(new Dimension(0,10)));
         importPanel.add(importBtn);
         importBtn.setEnabled(false);
         importBtn.setActionCommand(FileQueueHandler.IMPORT);
         importBtn.addActionListener(this);
+        importBtn.setToolTipText("Begin importing files.");
         GuiCommonElements.enterPressesWhenFocused(importBtn);
         queuePanel.add(Box.createRigidArea(new Dimension(0,5)));
         queuePanel.add(importPanel);
@@ -758,7 +764,8 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
             String cellText = getText();
             FontMetrics fm = getFontMetrics( getFont() );
             // Set tool tip if desired
-            setToolTipText((String)value);
+            ImportContainer ic = (ImportContainer) queue.getModel().getValueAt(row, 3);
+            setToolTipText(ic.getFile().getAbsolutePath());
             
             if (fm.stringWidth(cellText) > availableWidth)
             {

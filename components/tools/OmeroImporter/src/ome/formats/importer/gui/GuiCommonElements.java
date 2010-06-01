@@ -465,6 +465,7 @@ public class GuiCommonElements
                 log.warn("Couldn't find icon: " + image);
             }
         }
+        button.setToolTipText(tooltip);
         return button;
     }
     
@@ -484,6 +485,7 @@ public class GuiCommonElements
     {
         JButton button = new JButton(label);
         button.setMnemonic(mnemonic);
+        button.setToolTipText(tooltip);
         button.setOpaque(!getIsMac());
         container.add(button, placement);
         
@@ -542,6 +544,7 @@ public class GuiCommonElements
         
         if (mnemonic != null) button.setMnemonic(mnemonic);
         button.setOpaque(!getIsMac());
+        button.setToolTipText(tooltip);
         container.add(button, placement);
         if (isMotif() == true) 
             {
@@ -594,6 +597,7 @@ public class GuiCommonElements
             int mnemonic, String tooltip, String placement, boolean debug)
     {
         JRadioButton button = new JRadioButton(label);
+        button.setToolTipText(tooltip);
         container.add(button, placement);  
         button.setOpaque(false);
         return button;

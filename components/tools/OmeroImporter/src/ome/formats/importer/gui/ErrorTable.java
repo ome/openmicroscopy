@@ -242,6 +242,7 @@ public class ErrorTable
         cancelBtn.setVisible(false);
         
         sendBtn = GuiCommonElements.addButton(mainPanel, "Send Feedback", 's', "Send your errors to the OMERO team", "4,4,R,C", debug);
+        sendBtn.setOpaque(false);
         sendBtn.addActionListener(this);
         sendBtn.setEnabled(false);
         
@@ -565,7 +566,7 @@ public class ErrorTable
             setOpaque(true);
                 
             // Set tool tip if desired
-            setToolTipText((String)value);
+            //setToolTipText((String)value);
              
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
     
@@ -596,69 +597,6 @@ public class ErrorTable
         public void firePropertyChange(String propertyName, boolean oldValue, boolean newValue) {}
     }
 
-    /**
-     * @author Brian Loranger brain at lifesci.dundee.ac.uk
-     *
-     */
-    class LeftTableHeaderRenderer extends DefaultTableCellRenderer 
-{
-    private static final long serialVersionUID = 1L;
-    
-    
-    /* Called each time a column header using this renderer needs to be rendered.
-     * (non-Javadoc)
-     * @see javax.swing.table.DefaultTableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
-     */
-    public Component getTableCellRendererComponent(JTable table, Object value,
-            boolean isSelected, boolean hasFocus, int row, int column) {
-
-       // setBorder(UIManager.getBorder("TableHeader.cellBorder"));
-        setBorder(BorderFactory.createLineBorder(new Color(0xe0e0e0)));
-        setForeground(UIManager.getColor("TableHeader.foreground"));
-        setBackground(UIManager.getColor("TableHeader.background"));
-        setFont(UIManager.getFont("TableHeader.font"));
-
-        // Configure the component with the specified value
-        setFont(getFont().deriveFont(Font.BOLD));
-        setHorizontalAlignment(DefaultTableCellRenderer.LEFT);
-        setText(value.toString());
-        setOpaque(true);
-            
-        // Set tool tip if desired
-        setToolTipText((String)value);
-         
-        super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-
-        // Since the renderer is a component, return itself
-        return this;
-    }
-    
-    // The following methods override the defaults for performance reasons
-    
-    /* (non-Javadoc)
-     * @see javax.swing.table.DefaultTableCellRenderer#validate()
-     */
-    public void validate() {}
-    /* (non-Javadoc)
-     * @see javax.swing.table.DefaultTableCellRenderer#revalidate()
-     */
-    
-    /* (non-Javadoc)
-     * @see javax.swing.table.DefaultTableCellRenderer#revalidate()
-     */
-    public void revalidate() {}
-    
-    /* (non-Javadoc)
-     * @see javax.swing.table.DefaultTableCellRenderer#firePropertyChange(java.lang.String, java.lang.Object, java.lang.Object)
-     */
-    protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {}
-    
-    /* (non-Javadoc)
-     * @see javax.swing.table.DefaultTableCellRenderer#firePropertyChange(java.lang.String, boolean, boolean)
-     */
-    public void firePropertyChange(String propertyName, boolean oldValue, boolean newValue) {}
-}
-    
     /**
      * @author Brian Loranger brain at lifesci.dundee.ac.uk
      *
@@ -741,6 +679,8 @@ public class ErrorTable
            
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             
+            setToolTipText(value.toString());
+            
             if (eTable.getValueAt(row, 3) == (Integer)20)
             {
                 setEnabled(false);
@@ -820,7 +760,7 @@ public class ErrorTable
             {
                 text = "done";
             }
-
+            
             super.getTableCellRendererComponent(table, text, isSelected, hasFocus, row, column);
             
             if (eTable.getValueAt(row, 3) == (Integer)20)
@@ -831,7 +771,7 @@ public class ErrorTable
             {
                 setEnabled(true);
             }
-                        
+            
             return this;
         }
     }
