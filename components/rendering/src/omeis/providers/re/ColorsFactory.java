@@ -8,7 +8,6 @@
 package omeis.providers.re;
 
 // Java imports
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -20,8 +19,6 @@ import java.util.List;
 // Application-internal dependencies
 import ome.model.acquisition.Filter;
 import ome.model.acquisition.FilterSet;
-import ome.model.acquisition.FilterSetEmissionFilterLink;
-import ome.model.acquisition.FilterSetExcitationFilterLink;
 import ome.model.acquisition.Laser;
 import ome.model.acquisition.LightPath;
 import ome.model.acquisition.LightSource;
@@ -148,22 +145,7 @@ public class ColorsFactory {
     	Iterator<Filter> j;
     	FilterSet f = null;
     	LightPath lp = null;
-    	if (lc.getFilterSet() != null) {
-    		f = (FilterSet) lc.getFilterSet();
-    		if (f.sizeOfEmissionFilterLink() > 0) {
-    			filters = new ArrayList<Filter>();
-    			j = f.linkedEmissionFilterIterator();
-        		while (j.hasNext()) {
-        			filters.add(j.next());
-        		}
-    			sortFilters(filters);
-    			j = filters.iterator();
-    			while (j.hasNext()) {
-					if (isFilterHasEmissionData(j.next())) return true;
-				}
-    		}
-    	}
-    	
+    	//light path first
     	if (lc.getLightPath() != null) {
     		lp = (LightPath) lc.getLightPath();
     		if (lp.sizeOfEmissionFilterLink() > 0) {
@@ -180,7 +162,22 @@ public class ColorsFactory {
     		}
     	}
     	
-    	
+    	if (lc.getFilterSet() != null) {
+    		f = (FilterSet) lc.getFilterSet();
+    		if (f.sizeOfEmissionFilterLink() > 0) {
+    			filters = new ArrayList<Filter>();
+    			j = f.linkedEmissionFilterIterator();
+        		while (j.hasNext()) {
+        			filters.add(j.next());
+        		}
+    			sortFilters(filters);
+    			j = filters.iterator();
+    			while (j.hasNext()) {
+					if (isFilterHasEmissionData(j.next())) return true;
+				}
+    		}
+    	}
+
     	if (!full) return false;
     	//Excitation
     	//Laser
@@ -192,6 +189,22 @@ public class ColorsFactory {
     		}
     	}
     	if (lc.getExcitationWave() != null) return true;
+    	//ligth path
+    	if (lp != null) {
+    		if (lp.sizeOfExcitationFilterLink() > 0) {
+    			filters = new ArrayList<Filter>();
+    			j = lp.linkedExcitationFilterIterator();
+        		while (j.hasNext()) {
+        			filters.add(j.next());
+        		}
+    			sortFilters(filters);
+    			j = filters.iterator();
+    			while (j.hasNext()) {
+					if (isFilterHasEmissionData(j.next())) return true;
+				}
+    		}
+    	}
+    	//filter set
     	if (f != null) {
     		if (f.sizeOfExcitationFilterLink() > 0) {
     			filters = new ArrayList<Filter>();
@@ -207,20 +220,6 @@ public class ColorsFactory {
     		}
     	}
 
-    	if (lp != null) {
-    		if (lp.sizeOfExcitationFilterLink() > 0) {
-    			filters = new ArrayList<Filter>();
-    			j = lp.linkedExcitationFilterIterator();
-        		while (j.hasNext()) {
-        			filters.add(j.next());
-        		}
-    			sortFilters(filters);
-    			j = filters.iterator();
-    			while (j.hasNext()) {
-					if (isFilterHasEmissionData(j.next())) return true;
-				}
-    		}
-    	}
     	return false;
     }
     
@@ -260,7 +259,21 @@ public class ColorsFactory {
     	Iterator<Filter> j;
     	FilterSet f = null;
     	LightPath lp = null;
-    	if (lc.getFilterSet() != null) {
+    	//LightPath
+    	if (value == null && lc.getLightPath() != null) {
+    		filters = new ArrayList<Filter>();
+    		lp = lc.getLightPath();
+    		j = lp.linkedEmissionFilterIterator();
+    		while (j.hasNext()) {
+				filters.add(j.next());
+			}
+    		sortFilters(filters);
+    		while (value == null && j.hasNext()) {
+    			value = getValueFromFilter(j.next());
+    		}
+    	}
+    	
+    	if (value == null && lc.getFilterSet() != null) {
     		filters = new ArrayList<Filter>();
     		f = lc.getFilterSet();
     		j = f.linkedEmissionFilterIterator();
@@ -272,19 +285,7 @@ public class ColorsFactory {
     			value = getValueFromFilter(j.next());
     		}
     	}
-    	//LightPath
-    	if (value == null && lc.getLightPath() != null) {
-    		filters = new ArrayList<Filter>();
-    		lp = lc.getLightPath();
-    		j = f.linkedEmissionFilterIterator();
-    		while (j.hasNext()) {
-				filters.add(j.next());
-			}
-    		sortFilters(filters);
-    		while (value == null && j.hasNext()) {
-    			value = getValueFromFilter(j.next());
-    		}
-    	}
+    	
     	
     	//Laser
     	if (value == null && lc.getLightSourceSettings() != null) {
@@ -297,9 +298,10 @@ public class ColorsFactory {
     	value = lc.getExcitationWave();
     	if (value != null) return determineColor(value);
 
-    	if (value == null && f != null) {
+    	//light path first
+    	if (value == null && lp != null) {
     		filters = new ArrayList<Filter>();
-    		j = f.linkedExcitationFilterIterator();
+    		j = lp.linkedExcitationFilterIterator();
     		while (j.hasNext()) {
 				filters.add(j.next());
 			}
@@ -308,10 +310,10 @@ public class ColorsFactory {
     			value = getValueFromFilter(j.next());
     		}
     	}
-
-    	if (value == null && lp != null) {
+    	
+    	if (value == null && f != null) {
     		filters = new ArrayList<Filter>();
-    		j = lp.linkedExcitationFilterIterator();
+    		j = f.linkedExcitationFilterIterator();
     		while (j.hasNext()) {
 				filters.add(j.next());
 			}
