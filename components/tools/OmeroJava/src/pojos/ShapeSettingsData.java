@@ -188,8 +188,6 @@ public class ShapeSettingsData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		shape.setStrokeColor(rtypes.rstring(new Integer(strokeColour.getRGB()).toString()));
-		System.err.println("STROKE COLOUR : " + strokeColour.getRGB());
-		System.err.println("STROKE ALPHA : " + strokeColour.getAlpha());
 		shape.setStrokeOpacity(rtypes.rfloat(strokeColour.getAlpha()/255.0f));
 	}
 	
