@@ -94,50 +94,7 @@ public class ShapeSettingsData
 	/** Set if font bold. */
 	public final static String FONT_BOLD = "bold";
 	
-	/**
-	 * Converts the string into a color.
-	 * 
-	 * @param value The value to convert.
-	 * @return
-	 */
-	private Color stringToColor(String value)
-	{
-		if (value == null) return null;
-		return Color.decode(value);
-	}
-	
-	/**
-	 * Converts the colour into a string.
-	 * 
-	 * @param value The value to convert.
-	 * @return
-	 */
-	private String ColourToString(Color value)
-	{
-		if (value == null) return null;
-		return encode(value);
-	}
-	
-	/**
-	 * Encode a colour to a string that decode can read. 
-	 * @param color See above. 
-	 * @return See above.
-	 */
-	private String encode(Color color)
-	{
-		if (color==null) { return "none"; }
-		
-		String value;
-		value="000000"+Integer.toHexString(color.getRGB());
-		value="#"+value.substring(value.length()-6);
-		if (value.charAt(1)==value.charAt(2)&&value.charAt(3)==value.charAt(4)
-				&&value.charAt(5)==value.charAt(6))
-		{
-			value="#"+value.charAt(1)+value.charAt(3)+value.charAt(5);
-		}
-		return value;
-	}
-	
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -185,13 +142,9 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		RString value = shape.getFillColor();
 		if (value == null) return DEFAULT_FILL_COLOUR;
-		Color c = stringToColor(value.getValue());
-		if (c == null) return DEFAULT_FILL_COLOUR;
-		RFloat alphaValue = shape.getFillOpacity();
-		if (alphaValue == null) return DEFAULT_FILL_COLOUR;
-		int alpha = (int) (255*alphaValue.getValue());
-		Color newColour = new Color(c.getRed(), c.getGreen(), c.getBlue(), alpha);
-		return newColour;
+		if(value.getValue()==null) return DEFAULT_FILL_COLOUR;
+		int colour = new Integer(value.getValue());
+		return new Color(colour, true);
 	}
 	
 	/**
@@ -204,7 +157,7 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		shape.setFillColor(rtypes.rstring(ColourToString(fillColour)));
+		shape.setFillColor(rtypes.rstring(new Integer(fillColour.getRGB()).toString()));
 		shape.setFillOpacity(rtypes.rfloat(fillColour.getAlpha()/255.0f));
 	}
 
@@ -219,13 +172,9 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		RString value = shape.getStrokeColor();
 		if (value == null) return DEFAULT_STROKE_COLOUR;
-		Color c = stringToColor(value.getValue());
-		if (c == null) return DEFAULT_STROKE_COLOUR;
-		RFloat alphaValue = shape.getStrokeOpacity();
-		if (alphaValue == null) return DEFAULT_STROKE_COLOUR;
-		int alpha = (int) (255*alphaValue.getValue());
-		Color newColour = new Color(c.getRed(), c.getGreen(), c.getBlue(), alpha);
-		return newColour;
+		if(value.getValue()==null) return DEFAULT_STROKE_COLOUR;
+		int colour = new Integer(value.getValue());
+		return new Color(colour, true);
 	}
 
 	/**
@@ -238,7 +187,9 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		shape.setStrokeColor(rtypes.rstring(ColourToString(strokeColour)));
+		shape.setStrokeColor(rtypes.rstring(new Integer(strokeColour.getRGB()).toString()));
+		System.err.println("STROKE COLOUR : " + strokeColour.getRGB());
+		System.err.println("STROKE ALPHA : " + strokeColour.getAlpha());
 		shape.setStrokeOpacity(rtypes.rfloat(strokeColour.getAlpha()/255.0f));
 	}
 	
