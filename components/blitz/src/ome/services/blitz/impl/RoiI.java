@@ -193,7 +193,11 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
 
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
-            	if(opts.namespace!=null)
+            	boolean ns=false;
+            	if(opts!=null)
+            		if(opts.namespace!=null)
+            			ns=true;
+            	if(ns)
             	{
                 	String queryString;
                 	queryString = "select * from roi where image = :imageParam " +
