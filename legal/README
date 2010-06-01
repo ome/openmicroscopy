@@ -294,3 +294,9 @@
   Web Site: http://ini4j.sourceforge.net/
   License: Apache License, Version 2.0
   License File: apache-v2.0.txt
+  
+  Project: Tango. We are using a few of their icons.
+  Web Site: http://tango.freedesktop.org/Tango_Desktop_Project
+  Artifacts: All the tango_* graphics files contained the Shoola SVN 
+  		module.
+  License: Public Domain.

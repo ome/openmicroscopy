@@ -385,11 +385,20 @@ public class IconManager
     /** The <code>Transparent</code> icon. */
     public static final int         TRANSPARENT_32 = 109;
     
+    /** The <code>Script with UI</code> icon. */
+    public static final int         SCRIPT_WITH_UI = 110;
+    
+    /** The 22x22 <code>Script with UI</code> icon. */
+    public static final int         SCRIPT_WITH_UI_22 = 111;
+    
+    /** The 32x32 <code>Script with UI</code> icon. */
+    public static final int         PREVIEW_THUMBNAILS_32 = 112;
+    
     /** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static final int          MAX_ID = 109;
+	private static final int          MAX_ID = 112;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -504,6 +513,9 @@ public class IconManager
         relPaths[ANALYSIS_RUN] = "nuvola_script_run16.png";
         relPaths[BLACK_ARROW_DOWN] = "eclipse_view_menu16.png";
         relPaths[TRANSPARENT_32] = "eclipse_transparent32.png";
+        relPaths[SCRIPT_WITH_UI] = "nuvola_script_ui16.png";
+        relPaths[SCRIPT_WITH_UI_22] = "nuvola_script_ui22.png";
+        relPaths[PREVIEW_THUMBNAILS_32] = "preview_thumbs32.png";
 	}
    
 	/** The sole instance. */

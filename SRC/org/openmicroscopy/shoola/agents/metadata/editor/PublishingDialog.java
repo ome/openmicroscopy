@@ -180,40 +180,40 @@ class PublishingDialog
 	private void initComponents()
 	{
 		IconManager icons = IconManager.getInstance();
-		movieButton = createButton(icons.getIcon(IconManager.MOVIE), 
+		movieButton = createButton(icons.getIcon(IconManager.SCRIPT_WITH_UI), 
 				MOVIE_TOOLTIP, EditorControl.CREATE_MOVIE);
 		exportAsOmeTiffButton = createButton(
 				icons.getIcon(IconManager.EXPORT_AS_OMETIFF), 
 				EXPORT_AS_OME_TIFF_TOOLTIP, 
 				EditorControl.EXPORT_AS_OMETIFF);
 		splitViewFigureButton = createButton(
-				icons.getIcon(IconManager.SPLIT_VIEW), 
+				icons.getIcon(IconManager.SCRIPT_WITH_UI), 
 				SPLIT_VIEW_FIGURE_TEXT, EditorControl.SPLIT_VIEW_FIGURE);
 		splitViewFigureButton.setEnabled(true);
 		
-		movieItem = createMenuItem(icons.getIcon(IconManager.MOVIE), 
+		movieItem = createMenuItem(icons.getIcon(IconManager.SCRIPT_WITH_UI), 
 				MOVIE_TOOLTIP, MOVIE_TEXT, EditorControl.CREATE_MOVIE);
 		exportAsOmeTiffItem = createMenuItem(
 				icons.getIcon(IconManager.EXPORT_AS_OMETIFF), 
 				EXPORT_AS_OME_TIFF_TOOLTIP, EXPORT_AS_OME_TIFF_TEXT,
 				EditorControl.EXPORT_AS_OMETIFF);
 		splitViewFigureItem = createMenuItem(
-				icons.getIcon(IconManager.SPLIT_VIEW), 
+				icons.getIcon(IconManager.SCRIPT_WITH_UI), 
 				SPLIT_VIEW_FIGURE_TOOLTIP, SPLIT_VIEW_FIGURE_TEXT,
 				EditorControl.SPLIT_VIEW_FIGURE);
 		splitViewFigureItem.setEnabled(true);
 		splitViewROIFigureItem = createMenuItem(
-				icons.getIcon(IconManager.SPLIT_VIEW), 
+				icons.getIcon(IconManager.SCRIPT_WITH_UI), 
 				SPLIT_VIEW_ROI_FIGURE_TOOLTIP, SPLIT_VIEW_ROI_FIGURE_TEXT,
 				EditorControl.SPLIT_VIEW_ROI_FIGURE);
 		splitViewFigureButton.setEnabled(true);
 		thumbnailsFigureItem = createMenuItem(
-				icons.getIcon(IconManager.SPLIT_VIEW), 
+				icons.getIcon(IconManager.SCRIPT_WITH_UI), 
 				THUMBNAILS_FIGURE_TOOLTIP, THUMBNAILS_FIGURE_TEXT,
 				EditorControl.THUMBNAILS_FIGURE);
 		thumbnailsFigureItem.setEnabled(true);
 		movieFigureItem = createMenuItem(
-				icons.getIcon(IconManager.SPLIT_VIEW), 
+				icons.getIcon(IconManager.SCRIPT_WITH_UI), 
 				MOVIE_FIGURE_TOOLTIP, MOVIE_FIGURE_TEXT,
 				EditorControl.MOVIE_FIGURE);
 		movieFigureItem.setEnabled(true);

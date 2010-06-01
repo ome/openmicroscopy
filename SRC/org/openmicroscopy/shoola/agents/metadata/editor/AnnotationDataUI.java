@@ -125,19 +125,13 @@ class AnnotationDataUI
 	
 	/** Components hosting the attachments. */
 	private JPanel							docPane;
-	
-	/** Components displaying the name of the users who viewed the image. */
-	private JPanel							viewedByPane;
-	
+
 	/** The last selected value. */
 	private int								selectedValue;
 	
 	/** The initial value of the rating. */
 	private int 							initialValue;
-	
-	/** The index of the view row. */
-	private int								viewedByRow;
-	
+
 	/** The index of the tag row. */
 	private int								tagRow;
 
@@ -375,10 +369,6 @@ class AnnotationDataUI
 		doc = new DocComponent(null, model);
 		filesDocList.add(doc);
 		docPane.add(doc);
-		viewedByPane = new JPanel();
-		viewedByPane.setLayout(new BoxLayout(viewedByPane, BoxLayout.Y_AXIS));
-		viewedByPane.setOpaque(false);
-		viewedByPane.setBackground(UIUtilities.BACKGROUND_COLOR);
 		publishedBox = new JCheckBox();
 		publishedBox.setBackground(UIUtilities.BACKGROUND_COLOR);
 		publishedBox.addItemListener(new ItemListener() {
@@ -457,14 +447,6 @@ class AnnotationDataUI
 		p.add(createBar(addDocsButton));
 		content.add(p, "0, "+i+", LEFT, TOP");
 		content.add(docPane, "2, "+i);
-		i++;
-		layout.insertRow(i, 0);
-		content.add(UIUtilities.setTextFont("viewed by", Font.BOLD, size),
-				"0, "+i+", LEFT, TOP");
-		p = UIUtilities.buildComponentPanel(viewedByPane, 0, 0);
-		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		content.add(viewedByPane, "2, "+i);
-		viewedByRow = i;
 		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		setBackground(UIUtilities.BACKGROUND);
 		setBorder(new SeparatorOneLineBorder());
@@ -510,45 +492,6 @@ class AnnotationDataUI
 		}
 		p.add(row);
 		return p;
-	}
-	
-	/** 
-	 * Lays out the users who viewed the image. 
-	 * Returns <code>true</code> if the image has been seen by other users,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	private boolean layoutViewedBy()
-	{
-		//value order by user name.
-		/*
-		Collection views = model.getViewedBy();
-		viewedByPane.removeAll();
-		viewedBy.clear();
-		if (views == null || views.size() == 0) return false;
-		Iterator i = views.iterator();
-		ViewedByDef def;
-		ViewedByComponent comp;
-		JPanel p = initRow();
-		int width = 0;
-		while (i.hasNext()) {
-			def = (ViewedByDef) i.next();
-			comp = new ViewedByComponent(def, model);
-			viewedBy.put(def.getExperimenter().getId(), comp);
-			if (width+comp.getPreferredSize().width >= COLUMN_WIDTH) {
-				viewedByPane.add(layoutRow(p));
-				p = initRow();
-				width = 0;
-			} else {
-				width += comp.getPreferredSize().width;
-			}
-			p.add(comp);
-		}
-		if (p.getComponentCount() > 0)
-			viewedByPane.add(layoutRow(p));
-			*/
-		return true;
 	}
   
 	/** 
@@ -794,13 +737,9 @@ class AnnotationDataUI
 		//Viewed by
 		Object refObject = model.getRefObject();
 		TableLayout layout = (TableLayout) content.getLayout();
-		double h = 0;
 		double hTag = TableLayout.PREFERRED;
 		
 		if (!model.isMultiSelection()) {
-			if (refObject instanceof ImageData) {
-				if (layoutViewedBy()) h = TableLayout.PREFERRED;
-			} 
 			l = model.getTags();
 			if (l != null) count += l.size();
 			layoutTags(l);
@@ -812,8 +751,6 @@ class AnnotationDataUI
 		addTagsButton.setEnabled(enabled);
 		addDocsButton.setEnabled(enabled);
 		unrateButton.setEnabled(enabled);
-		
-		layout.setRow(viewedByRow, h);
 		layout.setRow(tagRow, hTag);
 		content.revalidate();
 		content.repaint();

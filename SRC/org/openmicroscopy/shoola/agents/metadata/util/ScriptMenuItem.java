@@ -25,15 +25,13 @@ package org.openmicroscopy.shoola.agents.metadata.util;
 
 //Java imports
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.JMenuItem;
-
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
@@ -104,11 +102,13 @@ public class ScriptMenuItem
 		text += script.getName();
 		setText(script.getDisplayedName()+"...");
 		setToolTipText(text);
-		setIcon(script.getIcon());
 		scriptWithUI = SCRIPTS_UI_AVAILABLE.contains(script.getScriptLabel());
 		if (scriptWithUI) {//reset the icon associated the script.
-			
+			IconManager icons = IconManager.getInstance();
+			script.setIcon(icons.getIcon(IconManager.SCRIPT_WITH_UI));
+			script.setIconLarge(icons.getIcon(IconManager.SCRIPT_WITH_UI_22));
 		}
+		setIcon(script.getIcon());
 	}
 	
 	/**
