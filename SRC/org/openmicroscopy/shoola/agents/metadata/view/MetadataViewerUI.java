@@ -295,7 +295,7 @@ class MetadataViewerUI
 				IconManager icons = IconManager.getInstance();
 				thumbnailsMenuItem = new JMenuItem("Show thumbnails");
 				thumbnailsMenuItem.setIcon(icons.getIcon(
-						IconManager.TRANSPARENT_32));
+						IconManager.PREVIEW_THUMBNAILS_32));
 				thumbnailsMenuItem.addActionListener(new ActionListener() {
 					
 					public void actionPerformed(ActionEvent e)

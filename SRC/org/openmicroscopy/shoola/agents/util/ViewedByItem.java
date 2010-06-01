@@ -131,7 +131,7 @@ public class ViewedByItem
 	    	setIconTextGap(0);
 	    	setText(experimenter.getLastName());
 		} else {
-			Dimension d = new Dimension(MAX_ICON_SIZE, MAX_ICON_SIZE);
+			Dimension d = new Dimension(MAX_ICON_SIZE+2, MAX_ICON_SIZE+2);
 	    	setPreferredSize(d);
 			setSize(d);
 			setText(EditorUtil.formatExperimenter(experimenter));
