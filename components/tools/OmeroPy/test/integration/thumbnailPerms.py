@@ -11,7 +11,8 @@
    'failureException', 'id', 'login_args', 'new_user', 'query', 'root', 'run', 'setUp', 'sf', 'shortDescription', 'tearDown', 'testfoo', 
    'tmpfile', 'tmpfiles', 'update'
    
-   PYTHONPATH=/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages/:/opt/Ice-3.3.1/python:.:test:build/lib ICE_CONFIG=/Users/will/Documents/workspace/Omero/etc/ice.config python integration/thumbnailPerms.py
+   ** Run from OmeroPy **
+   PYTHONPATH=$PYTHONPATH:.:test:build/lib ICE_CONFIG=/Users/will/Documents/workspace/Omero/etc/ice.config python test/integration/thumbnailPerms.py
    
    
 """
@@ -60,6 +61,7 @@ class TestIShare(lib.ITest):
         ### create three users in 3 groups
         listOfGroups = list()
         listOfGroups.append(admin.lookupGroup("user"))  # all users need to be in 'user' group to do anything! 
+        
         
         #group1 - private
         new_gr1 = ExperimenterGroupI()
@@ -148,9 +150,14 @@ class TestIShare(lib.ITest):
         client_share1 = omero.client()
         client_share1.createSession(user1.omeName.val,"ome")
         
+        print len(client_share1.sf.activeServices())
+        
         # create image in private group
         privateImageId = createTestImage(client_share1.sf)
+        print len(client_share1.sf.activeServices())
         self.getThumbnail(client_share1.sf, privateImageId)    # if we don't get thumbnail, test fails when another user does
+        
+        print len(client_share1.sf.activeServices())
         
         # change user into read-only group. Use object Ids for this, NOT objects from a different context
         a = client_share1.sf.getAdminService()
@@ -259,6 +266,9 @@ class TestIShare(lib.ITest):
         self.assertNotEqual(None, t)
         t = thumbnailStore.getThumbnailByLongestSide(rint(16))
         self.assertNotEqual(None, t)
+    
+        thumbnailStore.close()
+        gateway.close()
         return t
         
 def createTestImage(session):
@@ -274,6 +284,11 @@ def createTestImage(session):
     pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
     
     image = scriptUtil.createNewImage(pixelsService, rawPixelStore, renderingEngine, pixelsType, gateway, [plane2D], "imageName", "description", dataset=None)
+    
+    gateway.close()
+    renderingEngine.close()
+    rawPixelStore.close()
+    
     return image.getId().getValue()
 
 if __name__ == '__main__':

@@ -22,6 +22,7 @@ import unittest, time
 #import test.integration.library as lib
 import integration.library as lib
 import omero
+import omero.clients
 from omero.rtypes import *
 from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
@@ -29,6 +30,8 @@ from omero_model_PermissionsI import PermissionsI
 import omero_api_Gateway_ice
 import omero_api_IRoi_ice
 import omero.util.script_utils as scriptUtil
+import omero.scripts
+from omero import ApiUsageException
 
 import omero_SharedResources_ice
 import omero_api_IScript_ice
@@ -42,12 +45,12 @@ from EMAN2 import *
 boxerTestImage = "/Users/will/Documents/biology-data/testData/boxerTest.tiff"
 smallTestImage = "/Users/will/Documents/biology-data/testData/smallTest.tiff"
 
-runSpiderScriptPath = "scripts/EMAN2/runSpiderProcedure.py"
-saveImageAsScriptPath = "scripts/EMAN2/saveImageAs.py"
+runSpiderScriptPath = "scripts/EMAN2/Run_Spider_Procedure.py"
+saveImageAsScriptPath = "scripts/EMAN2/Save_Image_As_Em.py"
 export2emScriptPath = "scripts/EMAN2/export2em.py"
-boxerScriptPath = "scripts/EMAN2/boxer.py" 
-imagesFromRoisPath = "scripts/EMAN2/imagesFromRois.py"
-emanFiltersScript = "scripts/EMAN2/emanFilters.py"
+boxerScriptPath = "scripts/EMAN2/Auto_Boxer.py" 
+imagesFromRoisPath = "scripts/omero/util_scripts/Images_From_ROIs.py"
+emanFiltersScript = "scripts/EMAN2/Eman_Filters.py"
 
 class TestEmanScripts(lib.ITest):
     
@@ -60,6 +63,7 @@ class TestEmanScripts(lib.ITest):
         admin = self.root.sf.getAdminService()
         # run as root
         session = self.root.sf
+        client = self.root
         gateway = session.createGateway()
         
         # upload script
@@ -97,25 +101,28 @@ class TestEmanScripts(lib.ITest):
         
         # run script with all parameters. See http://blake.bcm.edu/emanwiki/Eman2ProgQuickstart
         newDatasetName = "filter-results"
-        filterParams = {"sigma": omero.rtypes.rfloat(0.125)}
-        argMap = {"datasetId":omero.rtypes.rlong(dataset.id.val),       # process these images
-            "filterName":omero.rtypes.rstring("filter.lowpass.gauss"),        # using this filter
-            "filterParams":omero.rtypes.rmap(filterParams),             # additional params
-            "newDatasetName": omero.rtypes.rstring(newDatasetName),   # optional: put results in new dataset
+        filterParams = {"sigma": omero.rtypes.rstring('0.125')}
+        argMap = {"IDs":omero.rtypes.rlist([dataset.id]),       # process these images
+            "Data_Type": omero.rtypes.rstring("Dataset"),
+            "Filter_Name":omero.rtypes.rstring("filter.lowpass.gauss"),        # using this filter
+            "Filter_Params":omero.rtypes.rmap(filterParams),             # additional params
+            "New_Dataset_Name": omero.rtypes.rstring(newDatasetName),   # optional: put results in new dataset
         }
-        runScript(session, scriptId, omero.rtypes.rmap(argMap))
+        runScript(scriptService, client, scriptId, argMap)
         
         # try with minimal parameters - put results into same dataset. 
         imageIds = [omero.rtypes.rlong(imageId)]
-        aMap = {"imageIds":omero.rtypes.rlist(imageIds),       # process these images
-            "filterName":omero.rtypes.rstring("normalize"),        # using this filter - no params
+        aMap = {"IDs":omero.rtypes.rlist(imageIds),       # process these images
+            "Data_Type": omero.rtypes.rstring("Image"),
+            "Filter_Name":omero.rtypes.rstring("normalize"),        # using this filter - no params
         }
-        runScript(session, scriptId, omero.rtypes.rmap(aMap))
+        runScript(scriptService, client, scriptId, aMap)
         
-        rMap = {"imageIds":omero.rtypes.rlist(imageIds),       # process these images
-            "filterName":omero.rtypes.rstring("normalize.edgemean"),    # using this filter - no params
+        rMap = {"IDs":omero.rtypes.rlist(imageIds),       # process these images
+            "Data_Type": omero.rtypes.rstring("Image"),
+            "Filter_Name":omero.rtypes.rstring("normalize.edgemean"),    # using this filter - no params
         }
-        runScript(session, scriptId, omero.rtypes.rmap(rMap))
+        runScript(scriptService, client, scriptId, rMap)
         
         # should now have 2 datasets in the project above...
         pros = gateway.getProjects([project.id.val], True)
@@ -178,6 +185,7 @@ class TestEmanScripts(lib.ITest):
         
         # run as root
         session = self.root.sf
+        client = self.root
         
         # create user services 
         gateway = session.createGateway()    
@@ -214,12 +222,13 @@ class TestEmanScripts(lib.ITest):
         gateway.saveAndReturnObject(dlink)
         
         containerName = "particles"
-        ids = [omero.rtypes.rint(iId), ]
+        ids = [omero.rtypes.rlong(iId), ]
         argMap = {
-            "imageIds": omero.rtypes.rlist(ids),
-            "containerName": rstring(containerName),
+            "Image_IDs": omero.rtypes.rlist(ids),
+            "Container_Name": rstring(containerName),
             }
-        runScript(session, scriptId, omero.rtypes.rmap(argMap))
+        runScript(scriptService, client, scriptId, argMap)
+        
         
         # now we should have a dataset with 2 images, in project
         newDatasetName = "%s_%s" % (imageName, containerName)
@@ -232,7 +241,7 @@ class TestEmanScripts(lib.ITest):
                     dsId = ds.id.val
                     iList = gateway.getImages(omero.api.ContainerClass.Dataset, [dsId])
                     self.assertEquals(2, len(iList))
-        self.assertTrue(datasetFound, "No dataset found with images from ROIs")
+        self.assertTrue(datasetFound, "No dataset: %s found with images from ROIs" % newDatasetName)
         
     
     def testBoxer(self):
@@ -275,6 +284,7 @@ class TestEmanScripts(lib.ITest):
         #session = user_client.sf
         
         # run as root
+        client = self.root
         session = self.root.sf
         
         # create user services 
@@ -315,7 +325,7 @@ class TestEmanScripts(lib.ITest):
         scriptId = uploadScript(scriptService, boxerScriptPath)
         ids = [omero.rtypes.rint(iId), ]
         argMap = {"imageIds": omero.rtypes.rlist(ids),}
-        runScript(session, scriptId, omero.rtypes.rmap(argMap))
+        runScript(scriptService, client, scriptId, omero.rtypes.rmap(argMap))
         
         # if the script ran OK, we should have more than the 2 ROIs we added above
         result = roiService.findByImage(iId, None)
@@ -512,18 +522,19 @@ class TestEmanScripts(lib.ITest):
         f.write("\n")
         f.write("EN D")
         f.close() 
-        fileId = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, image, "spider.spf", "text/plain")
+        fileAnnot = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, image, "spider.spf", "text/plain")
         os.remove("spider.spf")
         
         newDatasetName = "spider-results"
         # run script
-        ids = [omero.rtypes.rint(iId), ]
-        argMap = {"imageIds": omero.rtypes.rlist(ids),
-                "spfFileId": omero.rtypes.rlong(fileId),
-                "newDatasetName": omero.rtypes.rstring(newDatasetName),
-                "inputName": omero.rtypes.rstring("test001"),
-                "outputName": omero.rtypes.rstring("win001")}
-        runScript(session, scriptId, omero.rtypes.rmap(argMap))
+        ids = [omero.rtypes.rlong(iId), ]
+        argMap = {"IDs":omero.rtypes.rlist(ids),       # process these images
+                "Data_Type": omero.rtypes.rstring("Image"),
+                "Spf_File_Id": fileAnnot.id,
+                "New_Dataset_Name": omero.rtypes.rstring(newDatasetName),
+                "Input_Name": omero.rtypes.rstring("test001"),
+                "Output_Name": omero.rtypes.rstring("win001")}
+        runScript(scriptService, self.root, scriptId, argMap)
         
         # check that image has been created. 
         # now we should have a dataset with 1 image, in project
@@ -539,16 +550,18 @@ class TestEmanScripts(lib.ITest):
         self.assertTrue(datasetFound, "No dataset found with images from ROIs")
         
         
-def runScript(session, scriptId, argMap, returnKey=None): 
-    # TODO: this will be refactored 
-    job = omero.model.ScriptJobI() 
-    job.linkOriginalFile(omero.model.OriginalFileI(scriptId, False)) 
-    processor = session.sharedResources().acquireProcessor(job, 10) 
-    proc = processor.execute(argMap) 
-    processor.setDetach(True)
-    proc.wait()
-    results = processor.getResults(proc).getValue()
-        
+def runScript(scriptService, client, scriptId, argMap, returnKey=None): 
+    # The last parameter is how long to wait as an RInt
+    proc = scriptService.runScript(scriptId, argMap, None)
+    try:
+        cb = omero.scripts.ProcessCallbackI(client, proc)
+        while not cb.block(1000): # ms.
+            pass
+        cb.close()
+        results = proc.getResults(0)    # ms
+    finally:
+        proc.close(False)
+         
     if 'stderr' in results:
         origFile = results['stderr'].getValue()
         # But, we still get stderr from EMAN2 import (duplicate numpy etc.)
@@ -558,10 +571,26 @@ def runScript(session, scriptId, argMap, returnKey=None):
 
 def uploadScript(scriptService, scriptPath):
     file = open(scriptPath)
-    script = file.read()
+    scriptText = file.read()
     file.close()
-    scriptId = scriptService.uploadScript(scriptPath, script)
+    try:
+        scriptId = scriptService.uploadOfficialScript(scriptPath, scriptText)
+    except ApiUsageException:
+        scriptId = editScript(scriptService, scriptPath)
     return scriptId
+    
+def editScript(scriptService, scriptPath):
+    file = open(scriptPath)
+    scriptText = file.read()
+    file.close()
+    # need the script Original File to edit
+    scripts = scriptService.getScripts()
+    if not scriptPath.startswith("/"): scriptPath =  "/" + scriptPath
+    namedScripts = [s for s in scripts if s.path.val + s.name.val == scriptPath]
+    script = namedScripts[-1]
+    print "Editing script:", scriptPath
+    scriptService.editScript(script, scriptText)
+    return script.id.val
 
 def addRectangleRoi(gateway, x, y, width, height, image):
     """

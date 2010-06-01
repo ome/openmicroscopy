@@ -100,8 +100,9 @@ class TestFigureExportScripts(lib.ITest):
         # run the script twice. First with all args...
         datasetIds = [omero.rtypes.rlong(dataset.id.val), ]
         argMap = {
-            "Dataset_IDs": omero.rtypes.rlist(datasetIds),
-            "Parent_ID": omero.rtypes.rint(project.id.val),
+            "IDs": omero.rtypes.rlist(datasetIds),
+            "Data_Type": omero.rtypes.rstring("Dataset"),
+            "Parent_ID": omero.rtypes.rlong(project.id.val),
             "Thumbnail_Size": omero.rtypes.rint(16),
             "Max_Columns": omero.rtypes.rint(6),
             "Format": omero.rtypes.rstring("PNG"),
@@ -112,7 +113,7 @@ class TestFigureExportScripts(lib.ITest):
         fileAnnot1 = runScript(client, session, scriptId, argMap, "File_Annotation")
         
         # ...then with bare minimum args
-        args = {"Image_IDs": omero.rtypes.rlist(imageIds)}
+        args = {"Data_Type": omero.rtypes.rstring("Image"), "IDs": omero.rtypes.rlist(imageIds)}
         fileAnnot2 = runScript(client, session, scriptId, args, "File_Annotation")
         
         # should have figures attached to project and first image. 
@@ -288,8 +289,8 @@ class TestFigureExportScripts(lib.ITest):
            "Scalebar": omero.rtypes.rint(10), # will be ignored since no pixelsize set
            "Format": omero.rtypes.rstring("PNG"),
            "Figure_Name": omero.rtypes.rstring("splitViewTest"),
-           "Overlay_Colour": red,
-           "ROI_Zoom":omero.rtypes.rint(3),
+           "Overlay_Colour": omero.rtypes.rstring("Red"),
+           "ROI_Zoom":omero.rtypes.rfloat(3),
            "ROI_Label":omero.rtypes.rstring("fakeTest"), # won't be found - but should still work
            }
         fileId1 = runScript(client, session, scriptId, argMap, "File_Annotation")
@@ -438,8 +439,8 @@ def getScript(scriptService, scriptPath):
     
     scripts = scriptService.getScripts()     # returns list of OriginalFiles     
         
-    for s in scripts:
-        print s.id.val, s.path.val + s.name.val
+    #for s in scripts:
+    #    print s.id.val, s.path.val + s.name.val
         
     # make sure path starts with a slash. 
     # ** If you are a Windows client - will need to convert all path separators to "/" since server stores /path/to/script.py **
