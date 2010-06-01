@@ -1,4 +1,29 @@
+/*
+ * ome.formats.utests.ChannelDataTest
+ *
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
 package ome.formats.utests;
+
+import java.util.Iterator;
+import java.util.List;
 
 import junit.framework.TestCase;
 import ome.formats.OMEROMetadataStoreClient;
@@ -10,31 +35,53 @@ import ome.xml.r201004.enums.*;
 import ome.xml.r201004.primitives.*;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Filament;
+import omero.model.Filter;
 
-public class ChannelDataTest extends TestCase
+/**
+ * Tests the creation of channel objects.
+ * 
+ * @author Chris Allan <callan at blackcat dot ca>
+ */
+public class ChannelDataTest 
+	extends TestCase
 {
+	
+	/** Reference to the wrapper. */
 	private OMEROWrapper wrapper;
 	
+	/** Reference to the store. */
 	private OMEROMetadataStoreClient store;
 	
+	/** Identifies the index of the filter set. */
 	private static final int FILTER_SET_INDEX = 0;
 	
+	/** Identifies the index of the filter. */
 	private static final int FILTER_INDEX = 0;
 	
+	/** Identifies the index of the light source. */
 	private static final int LIGHTSOURCE_INDEX = 0;
 	
+	/** Identifies the index of the instrument. */
 	private static final int INSTRUMENT_INDEX = 0;
 	
+	/** Identifies the index of the image. */
 	private static final int IMAGE_INDEX = 0;
 
+	/** Identifies the index of the channel. */
 	private static final int CHANNEL_INDEX = 0;
 
-  private static final int EM_FILTER_INDEX = 0;
+	/** Identifies the index of the emission filter. */
+    private static final int EM_FILTER_INDEX = 0;
 
-  private static final int EX_FILTER_INDEX = 0;
+    /** Identifies the index of the excitation filter. */
+    private static final int EX_FILTER_INDEX = 0;
 
+    /**
+     * Initializes the components and populates the store.
+     */
 	@Override
-	protected void setUp() throws Exception
+	protected void setUp() 
+		throws Exception
 	{
 		ServiceFactoryPrx sf = new TestServiceFactory();
         wrapper = new OMEROWrapper(new ImportConfig());
@@ -53,7 +100,8 @@ public class ChannelDataTest extends TestCase
 				"Filament:0", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
 		store.setFilamentManufacturer("0", INSTRUMENT_INDEX,
 				LIGHTSOURCE_INDEX);
-		store.setFilamentType(FilamentType.OTHER, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
+		store.setFilamentType(FilamentType.OTHER, INSTRUMENT_INDEX, 
+				LIGHTSOURCE_INDEX);
 		store.setChannelLightSourceSettingsID(
 				"Filament:0", IMAGE_INDEX, CHANNEL_INDEX);
 		store.setChannelLightSourceSettingsAttenuation(
@@ -123,7 +171,8 @@ public class ChannelDataTest extends TestCase
 		store.setLightPathExcitationFilterRef("Filter:5",
         IMAGE_INDEX, CHANNEL_INDEX + 1, EX_FILTER_INDEX + 1);
 	}
-	
+
+	/** Tests the creation of the first channel. */
 	public void testChannelDataChannelOne()
 	{
 		ChannelData data = ChannelData.fromObjectContainerStore(
@@ -139,12 +188,25 @@ public class ChannelDataTest extends TestCase
 		assertNotNull(data.getFilterSetExcitationFilter());
 		assertEquals("1", 
 				data.getFilterSetExcitationFilter().getLotNumber().getValue());
-		assertNotNull(data.getSecondaryEmissionFilter());
-		assertEquals("2", 
-				data.getSecondaryEmissionFilter().getLotNumber().getValue());
-		assertNotNull(data.getSecondaryExcitationFilter());
-		assertEquals("3", 
-				data.getSecondaryExcitationFilter().getLotNumber().getValue());
+		List<Filter> filters = data.getLightPathEmissionFilters();
+		assertNotNull(filters);
+		Iterator<Filter> i = filters.iterator();
+		assertTrue(filters.size() == 1);
+		Filter f;
+		while (i.hasNext()) {
+			f = i.next();
+			assertEquals("2", f.getLotNumber().getValue());
+		}
+		filters = data.getLightPathExcitationFilters();
+		assertNotNull(filters);
+		i = filters.iterator();
+		
+		assertTrue(filters.size() == 1);
+
+		while (i.hasNext()) {
+			f = i.next();
+			assertEquals("3", f.getLotNumber().getValue());
+		}
 		assertNotNull(data.getLightSource());
 		assertTrue(data.getLightSource() instanceof Filament);
 		assertEquals("0", 
@@ -154,6 +216,7 @@ public class ChannelDataTest extends TestCase
 				data.getLightSourceSettings().getAttenuation().getValue());
 	}
 	
+	/** Tests the creation of the second channel. */
 	public void testChannelDataChannelTwo()
 	{
 		ChannelData data = ChannelData.fromObjectContainerStore(
@@ -169,12 +232,28 @@ public class ChannelDataTest extends TestCase
 		assertNotNull(data.getFilterSetExcitationFilter());
 		assertEquals("7", 
 				data.getFilterSetExcitationFilter().getLotNumber().getValue());
-		assertNotNull(data.getSecondaryEmissionFilter());
-		assertEquals("4", 
-				data.getSecondaryEmissionFilter().getLotNumber().getValue());
-		assertNotNull(data.getSecondaryExcitationFilter());
-		assertEquals("5", 
-				data.getSecondaryExcitationFilter().getLotNumber().getValue());
+		List<Filter> filters = data.getLightPathEmissionFilters();
+		assertNotNull(filters);
+		Iterator<Filter> i = filters.iterator();
+		
+		assertTrue(filters.size() == 1);
+		
+		Filter f;
+		while (i.hasNext()) {
+			f = i.next();
+			assertEquals("4", f.getLotNumber().getValue());
+		}
+		filters = data.getLightPathExcitationFilters();
+		assertNotNull(filters);
+		i = filters.iterator();
+		
+		assertTrue(filters.size() == 1);
+
+		while (i.hasNext()) {
+			f = i.next();
+			assertEquals("5", f.getLotNumber().getValue());
+		}
+		
 		assertNotNull(data.getLightSource());
 		assertTrue(data.getLightSource() instanceof Filament);
 		assertEquals("1", 
