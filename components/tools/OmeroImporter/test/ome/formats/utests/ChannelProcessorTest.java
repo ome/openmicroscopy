@@ -586,4 +586,148 @@ public class ChannelProcessorTest
 		assertEquals("625", data.getLogicalChannel().getName().getValue());
 	}
 	
+	/**
+	 * Tests an image with 2 channels, one blue (light path emission filter)
+	 * and another one with a transmitted light.
+	 */
+	public void testChannelsEmFilterLightPathBlueAndTransmittedLight()
+	{
+		ChannelProcessor processor = new ChannelProcessor();
+		store.setReader(new TestReader(false));
+		store.setTransmittanceRangeCutIn(430, INSTRUMENT_INDEX, 2);
+		store.setTransmittanceRangeCutOut(435, INSTRUMENT_INDEX, 2);
+		processor.process(store);
+		ChannelData data = ChannelData.fromObjectContainerStore(
+				store, IMAGE_INDEX, CHANNEL_INDEX);
+		assertNotNull(data.getChannel());
+		assertNotNull(data.getChannel().getRed());
+		assertEquals(0, data.getChannel().getRed().getValue());
+		assertNotNull(data.getChannel().getGreen());
+		assertEquals(0, data.getChannel().getGreen().getValue());
+		assertNotNull(data.getChannel().getBlue());
+		assertEquals(255, data.getChannel().getBlue().getValue());
+		assertNotNull(data.getChannel().getAlpha());
+		assertEquals(255, data.getChannel().getAlpha().getValue());
+		//
+		data = ChannelData.fromObjectContainerStore(
+				store, IMAGE_INDEX, CHANNEL_INDEX+1);
+		assertNotNull(data.getChannel());
+		assertNotNull(data.getChannel().getRed());
+		assertEquals(255, data.getChannel().getRed().getValue());
+		assertNotNull(data.getChannel().getGreen());
+		assertEquals(255, data.getChannel().getGreen().getValue());
+		assertNotNull(data.getChannel().getBlue());
+		assertEquals(255, data.getChannel().getBlue().getValue());
+		assertNotNull(data.getChannel().getAlpha());
+		assertEquals(255, data.getChannel().getAlpha().getValue());
+	}
+	
+	/**
+	 * Tests an image with 2 channels, one red (light path emission filter) 
+	 * and another one with a transmitted light.
+	 */
+	public void testChannelsEmFilterLightPathRedAndTransmittedLight()
+	{
+		ChannelProcessor processor = new ChannelProcessor();
+		store.setReader(new TestReader(false));
+		store.setTransmittanceRangeCutIn(600, INSTRUMENT_INDEX, 2);
+		store.setTransmittanceRangeCutOut(620, INSTRUMENT_INDEX, 2);
+		processor.process(store);
+		ChannelData data = ChannelData.fromObjectContainerStore(
+				store, IMAGE_INDEX, CHANNEL_INDEX);
+		assertNotNull(data.getChannel());
+		assertNotNull(data.getChannel().getRed());
+		assertEquals(255, data.getChannel().getRed().getValue());
+		assertNotNull(data.getChannel().getGreen());
+		assertEquals(0, data.getChannel().getGreen().getValue());
+		assertNotNull(data.getChannel().getBlue());
+		assertEquals(0, data.getChannel().getBlue().getValue());
+		assertNotNull(data.getChannel().getAlpha());
+		assertEquals(255, data.getChannel().getAlpha().getValue());
+		//
+		data = ChannelData.fromObjectContainerStore(
+				store, IMAGE_INDEX, CHANNEL_INDEX+1);
+		assertNotNull(data.getChannel());
+		assertNotNull(data.getChannel().getRed());
+		assertEquals(255, data.getChannel().getRed().getValue());
+		assertNotNull(data.getChannel().getGreen());
+		assertEquals(255, data.getChannel().getGreen().getValue());
+		assertNotNull(data.getChannel().getBlue());
+		assertEquals(255, data.getChannel().getBlue().getValue());
+		assertNotNull(data.getChannel().getAlpha());
+		assertEquals(255, data.getChannel().getAlpha().getValue());
+	}
+	
+	/**
+	 * Tests an image with 2 channels, one green (light path emission filter) 
+	 * and another one with a transmitted light.
+	 */
+	public void testChannelsEmFilterLightPathGreenAndTransmittedLight()
+	{
+		ChannelProcessor processor = new ChannelProcessor();
+		store.setReader(new TestReader(false));
+		store.setTransmittanceRangeCutIn(510, INSTRUMENT_INDEX, 2);
+		store.setTransmittanceRangeCutOut(520, INSTRUMENT_INDEX, 2);
+		processor.process(store);
+		ChannelData data = ChannelData.fromObjectContainerStore(
+				store, IMAGE_INDEX, CHANNEL_INDEX);
+		assertNotNull(data.getChannel());
+		assertNotNull(data.getChannel().getRed());
+		assertEquals(0, data.getChannel().getRed().getValue());
+		assertNotNull(data.getChannel().getGreen());
+		assertEquals(255, data.getChannel().getGreen().getValue());
+		assertNotNull(data.getChannel().getBlue());
+		assertEquals(0, data.getChannel().getBlue().getValue());
+		assertNotNull(data.getChannel().getAlpha());
+		assertEquals(255, data.getChannel().getAlpha().getValue());
+		//
+		data = ChannelData.fromObjectContainerStore(
+				store, IMAGE_INDEX, CHANNEL_INDEX+1);
+		assertNotNull(data.getChannel());
+		assertNotNull(data.getChannel().getRed());
+		assertEquals(255, data.getChannel().getRed().getValue());
+		assertNotNull(data.getChannel().getGreen());
+		assertEquals(255, data.getChannel().getGreen().getValue());
+		assertNotNull(data.getChannel().getBlue());
+		assertEquals(255, data.getChannel().getBlue().getValue());
+		assertNotNull(data.getChannel().getAlpha());
+		assertEquals(255, data.getChannel().getAlpha().getValue());
+	}
+	
+	/**
+	 * Tests an image with 2 channels, one green (filter set emission filter) 
+	 * and another one with a transmitted light.
+	 */
+	public void testChannelsEmFilterFilterSetGreenAndTransmittedLight()
+	{
+		ChannelProcessor processor = new ChannelProcessor();
+		store.setReader(new TestReader(false));
+		store.setTransmittanceRangeCutIn(510, INSTRUMENT_INDEX, 0);
+		store.setTransmittanceRangeCutOut(520, INSTRUMENT_INDEX, 0);
+		processor.process(store);
+		ChannelData data = ChannelData.fromObjectContainerStore(
+				store, IMAGE_INDEX, CHANNEL_INDEX);
+		assertNotNull(data.getChannel());
+		assertNotNull(data.getChannel().getRed());
+		assertEquals(0, data.getChannel().getRed().getValue());
+		assertNotNull(data.getChannel().getGreen());
+		assertEquals(255, data.getChannel().getGreen().getValue());
+		assertNotNull(data.getChannel().getBlue());
+		assertEquals(0, data.getChannel().getBlue().getValue());
+		assertNotNull(data.getChannel().getAlpha());
+		assertEquals(255, data.getChannel().getAlpha().getValue());
+		//
+		data = ChannelData.fromObjectContainerStore(
+				store, IMAGE_INDEX, CHANNEL_INDEX+1);
+		assertNotNull(data.getChannel());
+		assertNotNull(data.getChannel().getRed());
+		assertEquals(255, data.getChannel().getRed().getValue());
+		assertNotNull(data.getChannel().getGreen());
+		assertEquals(255, data.getChannel().getGreen().getValue());
+		assertNotNull(data.getChannel().getBlue());
+		assertEquals(255, data.getChannel().getBlue().getValue());
+		assertNotNull(data.getChannel().getAlpha());
+		assertEquals(255, data.getChannel().getAlpha().getValue());
+	}
+
 }
