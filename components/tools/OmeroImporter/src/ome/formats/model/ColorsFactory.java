@@ -8,7 +8,8 @@
 package ome.formats.model;
 
 // Java imports
-
+import java.util.Iterator;
+import java.util.List;
 // Third-party libraries
 
 // Application-internal dependencies
@@ -140,12 +141,20 @@ public class ColorsFactory {
     	LogicalChannel lc = channelData.getLogicalChannel();
     	if (lc == null) return false;
     	if (lc.getEmissionWave() != null) return true;
+    	
+    	List<Filter> filters = channelData.getLightPathEmissionFilters();
+    	Iterator<Filter> i;
+    	if (filters != null) {
+    		i = filters.iterator();
+    		while (i.hasNext()) {
+    			if (isFilterHasEmissionData(i.next()))
+    	    		return true;
+			}
+    	}
     	if (channelData.getFilterSet() != null) {
     		Filter f = channelData.getFilterSetEmissionFilter();
         	if (isFilterHasEmissionData(f)) return true;
     	}
-    	if (isFilterHasEmissionData(channelData.getSecondaryEmissionFilter()))
-    		return true;
     	
     	if (!full) return false;
     	//Excitation
@@ -158,12 +167,20 @@ public class ColorsFactory {
     		}
     	}
     	if (lc.getExcitationWave() != null) return true;
+    	filters = channelData.getLightPathExcitationFilters();
+    	if (filters != null) {
+    		i = filters.iterator();
+    		while (i.hasNext()) {
+    			if (isFilterHasEmissionData(i.next()))
+    	    		return true;
+			}
+    	}
     	if (channelData.getFilterSet() != null) {
     		Filter f = channelData.getFilterSetExcitationFilter();
         	if (isFilterHasEmissionData(f)) return true;
     	}
-    	return isFilterHasEmissionData(
-    			channelData.getSecondaryExcitationFilter());
+    	
+    	return false;
     }
     
     /**
@@ -198,13 +215,19 @@ public class ColorsFactory {
         
         //First check the emission filter.
     	//First check if filter
-       
-    	value = getValueFromFilter(
-    			channelData.getFilterSetEmissionFilter());
-    	//nothing so we check the secondary filter
+        //light path first
+        List<Filter> filters = channelData.getLightPathEmissionFilters();
+    	Iterator<Filter> i;
+        if (filters != null) {
+        	i = filters.iterator();
+        	while (value == null && i.hasNext()) {
+				value = getValueFromFilter(i.next());
+			}
+        }
+        
     	if (value == null) 
     		value = getValueFromFilter(
-    				channelData.getSecondaryEmissionFilter());
+        			channelData.getFilterSetEmissionFilter());
     
     	//Laser
     	if (value == null && channelData.getLightSource() != null) {
@@ -219,14 +242,19 @@ public class ColorsFactory {
     	value = getValue(lc.getExcitationWave());
     	if (value != null) return determineColor(value);
     	
+    	if (value == null) {
+    		filters = channelData.getLightPathExcitationFilters();
+    		if (filters != null) {
+            	i = filters.iterator();
+            	while (value == null && i.hasNext()) {
+    				value = getValueFromFilter(i.next());
+    			}
+            }
+    	}
     	if (value == null)
     		value = getValueFromFilter(
     				channelData.getFilterSetExcitationFilter());
 
-    	if (value == null) 
-    		value = getValueFromFilter(
-    				channelData.getSecondaryExcitationFilter());
-    	
     	int[] toReturn = determineColor(value);
     	if (toReturn != null)
     	{
@@ -237,6 +265,7 @@ public class ColorsFactory {
 	    	case 1: return newBlueColor();
 	    	default: return newGreenColor();
     	}
+    	
     }
  
     /**
@@ -343,6 +372,5 @@ public class ColorsFactory {
     public static int[] newWhiteColor() {
         return new int[] { 255, 255, 255, DEFAULT_ALPHA };
     }
-    
-    
+
 }

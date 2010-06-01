@@ -1,5 +1,5 @@
 /*
- * ome.formats.importer.gui.GuiCommonElements
+ * ome.formats.OMEROMetadataStoreClient
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.

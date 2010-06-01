@@ -34,6 +34,11 @@ import java.util.Map;
 
 import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
+import ome.formats.model.ChannelData;
+import ome.formats.model.ColorsFactory;
+import ome.formats.model.IObjectContainerStore;
+import ome.formats.model.ModelException;
+import ome.formats.model.ModelProcessor;
 import ome.util.LSID;
 import omero.RInt;
 import omero.RString;
@@ -161,26 +166,26 @@ public class ChannelProcessor implements ModelProcessor
     	
     	//First check the emission filter.
     	//First check if filter
-    	value = getValueFromFilter(channelData.getFilterSetEmissionFilter());
+    	Filter f = getValidFilter(channelData.getLightPathEmissionFilters());
+    	if (f != null)
+    		value = getValueFromFilter(f);
     	if (value != null) {
     		setChannelColor(channel, channelIndex, 
     				ColorsFactory.determineColor(value));
     		if (lc.getName() == null) {
-    			name = getNameFromFilter(
-    					channelData.getFilterSetEmissionFilter());
+    			name = getNameFromFilter(f);
     			if (name != null) lc.setName(name);
     		}
     		return;
-    	}
-    	value = getValueFromFilter(
-				channelData.getSecondaryEmissionFilter());
+    	} 
+    	f = channelData.getFilterSetEmissionFilter();
+    	value = getValueFromFilter(f);
     	
     	if (value != null) {
     		setChannelColor(channel, channelIndex,
     				ColorsFactory.determineColor(value));
     		if (lc.getName() == null) {
-    			name = getNameFromFilter(
-    					channelData.getSecondaryEmissionFilter());
+    			name = getNameFromFilter(f);
     			if (name != null) lc.setName(name);
     		}
     		return;
@@ -209,26 +214,27 @@ public class ChannelProcessor implements ModelProcessor
     			lc.setName(rstring(value.toString()));
     		return;
     	}
-    	value = getValueFromFilter(channelData.getFilterSetExcitationFilter());
-    	if (value != null) {
-    		setChannelColor(channel, channelIndex, 
-    				ColorsFactory.determineColor(value));
-    		if (lc.getName() == null) {
-    			name = getNameFromFilter(
-    					channelData.getFilterSetExcitationFilter());
-    			if (name != null) lc.setName(name);
-    		}
-    		return;
-    	}
-    	value = getValueFromFilter(
-				channelData.getSecondaryExcitationFilter());
+    	f = getValidFilter(channelData.getLightPathExcitationFilters());
+    	if (f != null) 
+    		value = getValueFromFilter(f);
     	
     	if (value != null) {
     		setChannelColor(channel, channelIndex, 
     				ColorsFactory.determineColor(value));
     		if (lc.getName() == null) {
-    			name = getNameFromFilter(
-    					channelData.getSecondaryExcitationFilter());
+    			name = getNameFromFilter(f);
+    			if (name != null) lc.setName(name);
+    		}
+    		return;
+    	}
+    	f = channelData.getFilterSetExcitationFilter();
+    	value = getValueFromFilter(f);
+
+    	if (value != null) {
+    		setChannelColor(channel, channelIndex, 
+    				ColorsFactory.determineColor(value));
+    		if (lc.getName() == null) {
+    			name = getNameFromFilter(f);
     			if (name != null) lc.setName(name);
     		}
     		return;
@@ -237,6 +243,27 @@ public class ChannelProcessor implements ModelProcessor
     	//not been able to set the color
     	 
     	setDefaultChannelColor(channel, channelIndex);
+    }
+    
+    /**
+     * Returns the first filter from the list with a <code>not null</code>
+     * value.
+     * 
+     * @param filters The collection to handle.
+     * @return See above.
+     */
+    private Filter getValidFilter(List<Filter> filters)
+    {
+    	if (filters == null) return null;
+    	Iterator<Filter> i = filters.iterator();
+    	Integer value = null;
+    	Filter f;
+    	while (i.hasNext()) {
+    		f = i.next();
+    		value = getValueFromFilter(f);
+			if (value != null) return f;
+		}
+    	return null;
     }
     
     /**
@@ -352,16 +379,22 @@ public class ChannelProcessor implements ModelProcessor
     	{
     		return rstring(value.toString());
     	}
+       	Iterator<Filter> i;
+    	List<Filter> filters = channelData.getLightPathEmissionFilters();
+    	if (filters != null) {
+    		i = filters.iterator();
+    		while (i.hasNext()) {
+    			name = getNameFromFilter(i.next());
+    			if (name != null) return name;
+			}
+    	}
+    	
     	name = getNameFromFilter(channelData.getFilterSetEmissionFilter());
     	if (name != null)
     	{
     		return name;
     	}
-    	name = getNameFromFilter(channelData.getSecondaryEmissionFilter());
-    	if (name != null)
-    	{
-    		return name;
-    	}
+
     	//Laser
     	LightSource ls = channelData.getLightSource();
     	if (ls != null)
@@ -381,12 +414,16 @@ public class ChannelProcessor implements ModelProcessor
     	{
     		return rstring(value.toString());
     	}
-    	name = getNameFromFilter(channelData.getFilterSetExcitationFilter());
-    	if (name != null)
-    	{
-    		return name;
+    	filters = channelData.getLightPathExcitationFilters();
+    	if (filters != null) {
+    		i = filters.iterator();
+    		while (i.hasNext()) {
+    			name = getNameFromFilter(i.next());
+    			if (name != null) return name;
+			}
     	}
-    	return getNameFromFilter(channelData.getSecondaryExcitationFilter());
+    	name = getNameFromFilter(channelData.getFilterSetExcitationFilter());
+    	return name;
     }
 
     /**
@@ -480,6 +517,5 @@ public class ChannelProcessor implements ModelProcessor
 	    	}
     	}
     }
-    
     
 }

@@ -23,13 +23,15 @@
 
 package ome.formats.model;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 import ome.formats.Index;
 import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.model.IObjectContainerStore;
 import ome.util.LSID;
 import omero.metadatastore.IObjectContainer;
 import omero.model.Arc;
@@ -40,6 +42,7 @@ import omero.model.FilterSet;
 import omero.model.IObject;
 import omero.model.Laser;
 import omero.model.LightEmittingDiode;
+import omero.model.LightPath;
 import omero.model.LightSettings;
 import omero.model.LightSource;
 import omero.model.LogicalChannel;
@@ -53,6 +56,7 @@ import omero.model.LogicalChannel;
  */
 public class ChannelData
 {
+	
 	/** Base channel data. */
 	private Channel channel;
 	
@@ -70,13 +74,16 @@ public class ChannelData
 
 	/** ... LogicalChannel --> FilterSet --> Filter (Ex) */
 	private Filter filterSetExFilter;
+
+	/** ... LogicalChannel --> LightPath */
+	private LightPath lightPath;
 	
-	/** ... LogicalChannel --> Filter (SecondaryEm) */
-	private Filter secondaryEmFilter;
+	/** ... LogicalChannel --> LightPath --> Filter (Em) */
+	private List<Filter> lightPathEmFilters;
 	
-	/** ... LogicalChannel --> Filter (SecondaryEx) */
-	private Filter secondaryExFilter;
-	
+	/** ... LogicalChannel --> LightPath --> Filter (Ex) */
+	private  List<Filter> lightPathExFilters;
+
 	/** ... LogicalChannel --> LightSettings */
 	private LightSettings lightSourceSettings;
 	
@@ -107,6 +114,7 @@ public class ChannelData
 		data.channel = (Channel) store.getSourceObject(
 				new LSID(Channel.class, imageIndex, channelIndex));
 		data.channelIndex = channelIndex;
+		
 		if (data.channel == null)
 		{
 			// Channel is missing, create it.
@@ -134,10 +142,17 @@ public class ChannelData
 				store.getIObjectContainer(LogicalChannel.class, indexes);
 			data.logicalChannel = (LogicalChannel) container.sourceObject;
 		}
+		List<Filter> lightPathEmFilters = new ArrayList<Filter>();
+		List<Filter> lightPathExFilters = new ArrayList<Filter>();
+		data.lightPathEmFilters = lightPathEmFilters;
+		data.lightPathExFilters = lightPathExFilters;
 		// ... LogicalChannel --> FilterSet
 		List<LSID> references = referenceCache.get(logicalChannelLSID);
+		
 		Map<String, IObjectContainer> filterSetContainers =
 			containerCache.get(FilterSet.class);
+		Map<String, IObjectContainer> lightPathContainers =
+			containerCache.get(LightPath.class);
 		Map<String, IObjectContainer> filterContainers =
 			containerCache.get(Filter.class);
 		if (references != null)
@@ -145,15 +160,19 @@ public class ChannelData
 			for (LSID reference : references)
 			{
 				lsidString = reference.toString();
+				//filters set
 				if (filterSetContainers != null
 				    && filterSetContainers.containsKey(lsidString))
 				{
 					IObjectContainer filterSetContainer =
 						filterSetContainers.get(lsidString);
 					LSID filterSetLSID = new LSID(FilterSet.class,
-							filterSetContainer.indexes.get(Index.INSTRUMENT_INDEX.getValue()),
-							filterSetContainer.indexes.get(Index.FILTER_SET_INDEX.getValue()));
-					data.filterSet = (FilterSet) filterSetContainer.sourceObject;
+							filterSetContainer.indexes.get(
+									Index.INSTRUMENT_INDEX.getValue()),
+							filterSetContainer.indexes.get(
+									Index.FILTER_SET_INDEX.getValue()));
+					data.filterSet = 
+						(FilterSet) filterSetContainer.sourceObject;
 					// ... LogicalChannel --> FilterSet --> Filter (Em) AND
 					// ... LogicalChannel --> FilterSet --> Filter (Ex)
 					List<LSID> filterSetReferences = 
@@ -181,32 +200,76 @@ public class ChannelData
 						}
 					}
 				}
+				/*
+				if (lightPathContainers != null
+					    && lightPathContainers.containsKey(lsidString))
+					{
+						IObjectContainer lightPathContainer =
+							lightPathContainers.get(lsidString);
+						LSID lightPathLSID = new LSID(LightPath.class,
+								imageIndex, channelIndex);
+						data.lightPath = 
+							(LightPath) lightPathContainer.sourceObject;
+						List<LSID> lightPathReferences = 
+							referenceCache.get(lightPathLSID);
+						if (lightPathReferences == null)
+						{
+							continue;
+						}
+						for (LSID lightPathReference : lightPathReferences)
+						{
+							lsidString = lightPathReference.toString();
+							String unsuffixed = 
+								lsidString.substring(0, 
+										lsidString.lastIndexOf(':'));
+							if (lsidString.endsWith(
+									OMEROMetadataStoreClient.OMERO_EMISSION_FILTER_SUFFIX))
+							{
+								lightPathEmFilters.add((Filter) 
+								filterContainers.get(unsuffixed).sourceObject);
+							}
+							if (lsidString.endsWith(
+									OMEROMetadataStoreClient.OMERO_EXCITATION_FILTER_SUFFIX))
+							{
+								lightPathEmFilters.add((Filter) 
+								filterContainers.get(unsuffixed).sourceObject);
+							}
+						}
+					}
+					*/
 			}
 		}
-		// ... LogicalChannel --> Filter (SecondaryEm)
-		// ... LogicalChannel --> Filter (SecondaryEx)
-		references = referenceCache.get(logicalChannelLSID);
-		if (references != null)
-		{
-			for (LSID reference : references)
+
+		//light path 
+		LSID lightPathLSID = new LSID(LightPath.class, imageIndex, 
+				channelIndex);
+		data.lightPath = 
+			(LightPath) store.getSourceObject(lightPathLSID);
+		List<LSID> lightPathReferences = 
+			referenceCache.get(lightPathLSID);
+		if (lightPathReferences != null) {
+			for (LSID lightPathReference : lightPathReferences)
 			{
-				lsidString = reference.toString();
+				lsidString = lightPathReference.toString();
 				String unsuffixed = 
-					lsidString.substring(0, lsidString.lastIndexOf(':'));
+					lsidString.substring(0, 
+							lsidString.lastIndexOf(':'));
 				if (lsidString.endsWith(
 						OMEROMetadataStoreClient.OMERO_EMISSION_FILTER_SUFFIX))
 				{
-					data.secondaryEmFilter = (Filter) 
-					filterContainers.get(unsuffixed).sourceObject;
+					lightPathEmFilters.add((Filter) 
+					filterContainers.get(unsuffixed).sourceObject);
 				}
-				else if (lsidString.endsWith(
+				if (lsidString.endsWith(
 						OMEROMetadataStoreClient.OMERO_EXCITATION_FILTER_SUFFIX))
 				{
-					data.secondaryExFilter = (Filter) 
-					filterContainers.get(unsuffixed).sourceObject;
+					lightPathExFilters.add((Filter) 
+					filterContainers.get(unsuffixed).sourceObject);
 				}
 			}
 		}
+		
+		
         // ... LogicalChannel --> LightSettings
         LSID lightSettingsLSID = new LSID(LightSettings.class, imageIndex,
                 channelIndex);
@@ -298,25 +361,25 @@ public class ChannelData
 	{
 		return filterSetExFilter;
 	}
-	
+
 	/**
-	 * Returns the logical channel's secondary emission filter of this channel
-	 * data. 
+	 * Returns the collection of emission filters in the light path.
+	 * 
 	 * @return See above.
 	 */
-	public Filter getSecondaryEmissionFilter()
+	public List<Filter> getLightPathEmissionFilters()
 	{
-		return secondaryEmFilter;
+		return lightPathEmFilters;
 	}
 	
 	/**
-	 * Returns the logical channel's secondary excitation filter of this
-	 * channel data. 
+	 * Returns the collection of excitation filters in the light path.
+	 * 
 	 * @return See above.
 	 */
-	public Filter getSecondaryExcitationFilter()
+	public List<Filter> getLightPathExcitationFilters()
 	{
-		return secondaryExFilter;
+		return  lightPathExFilters;
 	}
 	
 	/**
@@ -338,4 +401,5 @@ public class ChannelData
 	{
 		return lightSource;
 	}
+	
 }
