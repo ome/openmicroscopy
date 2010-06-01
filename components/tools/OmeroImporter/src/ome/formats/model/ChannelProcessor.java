@@ -454,7 +454,7 @@ public class ChannelProcessor implements ModelProcessor
     			break;
     		}
     	}
-    	List<Boolean> values;
+    	int count;
     	boolean v;
     	Map<ChannelData, Boolean> m;
     	Pixels pixels;
@@ -469,7 +469,7 @@ public class ChannelProcessor implements ModelProcessor
     			throw new ModelException("Unable to locate Pixels:" + i);
     		}
     		//Require to reset transmitted light
-    		values = new ArrayList<Boolean>();
+    		count = 0;
     		m = new HashMap<ChannelData, Boolean>();
     		
     		//Think of strategy for images with high number of channels
@@ -487,7 +487,7 @@ public class ChannelProcessor implements ModelProcessor
                 	v = ColorsFactory.hasEmissionData(channelData);
                 	if (!v)
                 	{
-                		values.add(v);
+                		count++;
                 	}
                     m.put(channelData, v);
                 }
@@ -497,7 +497,7 @@ public class ChannelProcessor implements ModelProcessor
 	    	//i.e. images with several "emission channels"
 	    	//check if 0 size
 
-	    	if (values.size() > 0 && values.size() != m.size()) {
+	    	if (count > 0 && count != m.size()) {
 	    		k = m.keySet().iterator();
 	    		while (k.hasNext()) {
 	    			channelData = k.next();
