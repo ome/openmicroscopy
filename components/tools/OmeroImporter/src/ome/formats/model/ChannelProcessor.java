@@ -491,12 +491,12 @@ public class ChannelProcessor implements ModelProcessor
                 	}
                     m.put(channelData, v);
                 }
-   			    //populateName(channelData, isGraphicsDomain);
     		}
     		
 	    	//Need to reset the color of transmitted light
 	    	//i.e. images with several "emission channels"
 	    	//check if 0 size
+
 	    	if (values.size() > 0 && values.size() != m.size()) {
 	    		k = m.keySet().iterator();
 	    		while (k.hasNext()) {
