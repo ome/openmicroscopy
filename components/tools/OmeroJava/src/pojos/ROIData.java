@@ -373,7 +373,7 @@ public class ROIData
 		{
 			List<String> keywordsList = map.get(namespaces[i]);
 			for(int j = 0 ; j < map.get(namespaces[i]).size() ; j++)
-				keywords[i][j] =keywordsList.get(j);
+				keywords[i][j] = keywordsList.get(j);
 		}
 		roi.setKeywords(keywords);
 		setDirty(true);
