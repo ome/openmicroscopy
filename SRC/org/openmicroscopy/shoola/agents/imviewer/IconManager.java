@@ -257,11 +257,14 @@ public class IconManager
     /** The <code>Rendering Settings Undo</code> icon. */
     public static final int          RND_UNDO = 67;
     
+    /** The <code>Refresh</code> icon. */
+    public static final int          REFRESH = 68;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 67;
+    private static final int          MAX_ID = 68;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -334,6 +337,7 @@ public class IconManager
         relPaths[RND_MIN_MAX] = "nuvola_rendering_minmax16.png";
         relPaths[RND_OWNER] = "rendering_owner16.png";
         relPaths[RND_UNDO] = "nuvola_undo16.png";
+        relPaths[REFRESH] = "nuvola_reload16.png";
     }
     
     /** The sole instance. */

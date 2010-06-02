@@ -2944,7 +2944,6 @@ class ImViewerComponent
 	{
 		if (model.getState() == DISCARDED) return;
 		if (!view.isVisible()) return;
-		//if (model.isSeparateWindow()) return; //Option not available.
 		if (notifyUser) postViewerCreated(false, false);
 		switch (model.getState()) {
 			//case DISCARDED:

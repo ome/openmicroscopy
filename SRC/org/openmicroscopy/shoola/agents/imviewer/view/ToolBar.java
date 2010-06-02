@@ -46,7 +46,6 @@ import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ActivityImageAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ROIToolAction;
-import org.openmicroscopy.shoola.agents.imviewer.actions.UserAction;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -138,7 +137,7 @@ class ToolBar
 	
 	/** Button to detach the viewer when it is embedded. */
 	private JButton					detachButton;
-	
+
 	/** Indicates the launching of the measurement tool. */
 	private JXBusyLabel				measurementLabel;
 	
@@ -157,6 +156,7 @@ class ToolBar
     /** Helper method to create the tool bar hosting the buttons. */
     private void createControlsBar()
     {
+    	JButton b;
         bar = new JToolBar();
         bar.setFloatable(false);
         bar.setRollover(true);
@@ -182,7 +182,12 @@ class ToolBar
         historyButton.setSelected(view.isHistoryShown());
         historyButton.setAction(controller.getAction(ImViewerControl.HISTORY));
         //if (view.isSeparateWindow()) bar.add(historyButton);
-        JButton b;
+        
+        b = new JButton(
+        		controller.getAction(ImViewerControl.REFRESH));
+        UIUtilities.unifiedButtonLookAndFeel(b);
+        bar.add(b);  
+    
         closeButton = new JButton(controller.getAction(ImViewerControl.CLOSE));
         UIUtilities.unifiedButtonLookAndFeel(closeButton);
         detachButton = new JButton(
@@ -196,6 +201,7 @@ class ToolBar
         bar.add(new JSeparator(JSeparator.VERTICAL));
 
         bar.add(Box.createRigidArea(H_SPACE));
+        
         b = new JButton(
         			controller.getAction(ImViewerControl.COPY_RND_SETTINGS));
         UIUtilities.unifiedButtonLookAndFeel(b);

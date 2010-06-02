@@ -75,6 +75,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.PreferencesAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ProjectionPreviewAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ProjectionProjectAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ROIToolAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.RefreshAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.RendererAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.SaveAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.SaveRndSettingsAction;
@@ -335,6 +336,9 @@ class ImViewerControl
 
 	/** Identifies the <code>Detach</code> action. */
 	static final Integer     DETACH = Integer.valueOf(74);
+	
+	/** Identifies the <code>Refresh</code> action. */
+	static final Integer     REFRESH = Integer.valueOf(75);
 
 	/** 
 	 * Reference to the {@link ImViewer} component, which, in this context,
@@ -345,7 +349,7 @@ class ImViewerControl
 	/** Reference to the View. */
 	private ImViewerUI  				view;
 
-	/** Maps actions ids onto actual <code>Action</code> object. */
+	/** Maps actions identifiers onto actual <code>Action</code> object. */
 	private Map<Integer, ViewerAction>	actionsMap;
 
 	/** Keep track of the old state.*/
@@ -450,6 +454,7 @@ class ImViewerControl
 		actionsMap.put(ACTIVITY, new ActivityImageAction(model));
 		actionsMap.put(CLOSE, new CloseAction(model));
 		actionsMap.put(DETACH, new DetachAction(model));
+		actionsMap.put(REFRESH, new RefreshAction(model));
 		//TO be modified.
 		actionsMap.put(PLAY_LIFETIME_MOVIE, new PlayMovieAction(model, 
 				PlayMovieAction.ACROSS_T));
@@ -924,7 +929,7 @@ class ImViewerControl
 	 */
 	public void windowGainedFocus(WindowEvent e)
 	{
-		model.refresh();
+		//model.refresh();
 	}
 	
 	/**
