@@ -47,6 +47,7 @@ public class Main {
 
     public static Roi createRoi() {
 
+		RInt GREY = rtypes.rint(11184810);
         CommentAnnotation comment = new CommentAnnotationI();
         comment.setTextValue(rstring("Wow. Take a look at this!"));
 
@@ -179,8 +180,8 @@ public class Main {
         text.setFontFamily(rstring("Verdana"));
         text.setFontSize(rint(40));
         text.setFontWeight(rstring("bold"));
-        text.setFillColor(rstring("red"));
-        text.setStrokeColor(rstring("blue"));
+        text.setFillColor(GREY);
+        text.setStrokeColor(GREY);
         text.setStrokeWidth(rint(25));
         text.setVisibility(rbool(true));
         text.setLocked(rbool(true));
@@ -191,16 +192,14 @@ public class Main {
         text.setFontStretch(rstring("wider"));
         text.setFontStyle(rstring("italic"));
         text.setFontVariant(rstring("small-caps"));
-        text.setFillColor(rstring("blue"));
-        text.setFillOpacity(rfloat(0.2f)); // Not above 1.0
+        text.setFillColor(GREY);
         text.setFillRule(rstring("even-odd"));
-        text.setStrokeColor(rstring("#666"));
+        text.setStrokeColor(GREY);
         text.setStrokeDashArray(rstring("10 20 30 10"));
         text.setStrokeDashOffset(rint(1));
         text.setStrokeLineCap(rstring("butt"));
         text.setStrokeLineJoin(rstring("bevel"));
         text.setStrokeMiterLimit(rint(1));
-        text.setStrokeOpacity(rfloat(0.5f)); // Not above 1.0
         text.setStrokeWidth(rint(10));
         text.setAnchor(rstring("middle"));
         text.setDecoration(rstring("underline"));
