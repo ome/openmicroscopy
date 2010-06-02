@@ -713,11 +713,11 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         LogicalChannel lc;
         Family family;
         int[] defaultColor;
-        int n = channelBindings.size();
+        //int n = channelBindings.size();
         Map<ChannelBinding, Boolean> m = new HashMap<ChannelBinding, Boolean>();
         List<Boolean> values = new ArrayList<Boolean>();
-        //boolean v;
-        String name;
+        boolean v;
+        int count = 0;
         List<LogicalChannel> toUpdate = new ArrayList<LogicalChannel>();
         
         for (Channel channel : pixels.<Channel>collectChannels(null)) {
@@ -753,6 +753,10 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
                 if (!v) values.add(v);
                 m.put(channelBinding, v);
                 */
+                //Need to turn that back on.
+                v = ColorsFactory.hasEmissionData(lc);
+                if (!v) count++;
+                m.put(channelBinding, v);
                 defaultColor = ColorsFactory.getColor(i, channel, lc);
             } 
             channelBinding.setRed(defaultColor[ColorsFactory.RED_INDEX]);
@@ -763,7 +767,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             channelBinding.setNoiseReduction(false);
             i++;
         }
-        if (values.size() > 0 && values.size() != m.size()) {
+        if (count > 0 && count != m.size()) {
         	Iterator<ChannelBinding> k = m.keySet().iterator();
             while (k.hasNext()) {
     			channelBinding = k.next();
