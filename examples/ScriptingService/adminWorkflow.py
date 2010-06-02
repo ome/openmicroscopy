@@ -46,6 +46,13 @@ import getpass
 
 
 def uploadScript(scriptService, scriptPath):
+    """
+    Tries to upload the specified script as an official script.
+    *WARNING* 
+    If the script has already been uploaded, then it will be replaced with
+    the new script.
+    If uploaded scripts are not valid, they will not be returned by getScripts().
+    """
     
     file = open(scriptPath)
     scriptText = file.read()
@@ -67,6 +74,10 @@ def uploadScript(scriptService, scriptPath):
         
         
 def listScripts(scriptService):
+    """
+    Prints out the available Official Scripts returned by getScripts() 
+    and User Scripts returned by getUserScripts()
+    """
     
     print "--OFFICIAL SCRIPTS--"
     scripts = scriptService.getScripts()
@@ -78,7 +89,7 @@ def listScripts(scriptService):
     userGroups = []     # gives me available scripts for default group
     scripts = scriptService.getUserScripts(userGroups)
     for s in scripts:
-        print s.id.val, s.path.val + s.name.val, s.mimetype.val
+        print s.id.val, s.path.val + s.name.val
         
 
 def getScript(scriptService, scriptPath):
@@ -111,7 +122,11 @@ def getScript(scriptService, scriptPath):
     
 
 def getUserScript(scriptService, scriptPath):
-    """ Looks up a script by name. Returns  """
+    """ 
+    Looks up a user script by name. 
+    Since many user scripts may have the same path/name (user scripts not unique),
+    this returns the matching script with the highest ID (most recent)
+    """
     
     print "getUserScript:", scriptPath
     scripts = scriptService.getUserScripts([])     # returns list of OriginalFiles     
@@ -134,6 +149,11 @@ def getUserScript(scriptService, scriptPath):
     
     
 def getParams(scriptService, scriptPath):
+    """
+    This simply queries the parameters of the script and prints them out, 
+    including various attributes such as descriptions, default values etc. 
+    Useful for checking that parameters are being defined correctly.
+    """
     
     scriptFile = getScript(scriptService, scriptPath)
     scriptId = scriptFile.id.val
@@ -150,6 +170,11 @@ def getParams(scriptService, scriptPath):
       
     
 def runScript(session, scriptService, scriptPath):
+    """
+    This will attempt to run the specified script, asking the user
+    for inputs for all the script parameters, and printing out the 
+    results when the script completes. 
+    """
     
     scriptFile = getScript(scriptService, scriptPath)
     scriptId = scriptFile.id.val
@@ -258,15 +283,85 @@ def runScript(session, scriptService, scriptPath):
 
 
 def disableScript(session, scriptService, scriptPath):
-    """ This will simply stop the script from being returned by getScripts()"""
+    """ This will simply stop a defined script from being returned by getScripts()"""
     
-    gateway = session.createGateway()
+    updateService = session.getUpdateService()
     scriptFile = getScript(scriptService, scriptPath)
     
     print "Disabling script:", scriptFile.id.val, scriptFile.path.val + scriptFile.name.val
     scriptFile.setMimetype(rstring("text/plain"))
-    gateway.saveObject(scriptFile)
+    updateService.saveObject(scriptFile)
     
+
+def cleanUpScriptFiles(session, scriptService):
+    """ 
+    In the case where official script files have been manually deleted (from /lib/scripts/ ) 
+    they will not be returned by getScripts(), but they are still in the OriginalFiles table in DB
+    which means that uploadScript(path, text) will fail. 
+    This can be fixed by setting the mimetype to 'text/x-python' for all scripts that are still in the 
+    OriginalFiles table, but not returned by getScripts() or getUserScripts() so that they become disabled,
+    allowing uploadScript(path, text) to work again. 
+    """
+    queryService = session.getQueryService()
+    updateService = session.getUpdateService()
+    
+    scriptIds = []
+    
+    scripts = scriptService.getScripts()
+    print "\n Scripts: "
+    for s in scripts:
+        scriptIds.append(s.id.val)
+        print s.id.val, s.path.val + s.name.val
+        
+    userScripts = scriptService.getScripts()
+    print "\n User Scripts: "
+    for s in userScripts:
+        scriptIds.append(s.id.val)
+        print s.id.val, s.path.val + s.name.val
+    
+    # get all script files in the DB
+    query_string = "select o from OriginalFile o where o.mimetype='text/x-python'"
+    scriptFiles = queryService.findAllByQuery(query_string, None)
+    
+    print "\n ScriptFiles: "
+    for s in scriptFiles:
+        #print s.id.val, s.path.val + s.name.val
+        if s.id.val not in scriptIds:
+            print s.id.val, s.path.val + s.name.val, "NOT A VALID SCRIPT"
+            s.setMimetype(rstring("text/plain"))
+            updateService.saveObject(s)
+
+
+def usage():
+    print "USAGE: python adminWorkflow.py -s server -u username -f file [options]" 
+               
+def printHelp(args):          
+    
+    print ""
+    usage()
+    
+    print "\nThe -f argument to specifiy a script file is only required for some options below"
+    print "Admin permissions are required for upload, remove and clean options"
+    print "\nOPTIONS:"
+    
+    print "\n list"
+    print listScripts.__doc__
+
+    print "\n upload"
+    print uploadScript.__doc__
+
+    print "\n params"
+    print getParams.__doc__
+
+    print "\n run"
+    print runScript.__doc__
+
+    print "\n clean" 
+    print cleanUpScriptFiles.__doc__
+    
+    print "\n remove" 
+    print disableScript.__doc__
+
 
 def readCommandArgs():
     """
@@ -279,8 +374,6 @@ def readCommandArgs():
     password = ""
     script = ""
     
-    def usage():
-        print "Usage: python adminWorkflow.py -s server -u username -f file"
     try:
         opts, args = getopt.getopt(sys.argv[1:] ,"s:u:p:f:", ["server=", "username=", "password=", "file="])
     except getopt.GetoptError, err:          
@@ -295,44 +388,52 @@ def readCommandArgs():
         elif opt in ("-p","--password"): 
             returnMap["password"] = arg  
         elif opt in ("-f","--file"): 
-            returnMap["script"] = arg  
-                   
+            returnMap["script"] = arg   
     return returnMap, args
-
-
-if __name__ == "__main__":        
+    
+    
+if __name__ == "__main__":
     commandArgs, args = readCommandArgs()
     
-    # log on to the server, create client and session and scripting service
-    client = omero.client(commandArgs["host"])
-    if "password" in commandArgs:
-        password = commandArgs["password"]
-    else:
-        password = getpass.getpass()
-    try:
-        session = client.createSession(commandArgs["username"], password)
-        scriptService = session.getScriptService()
-    
-        if len(args) == 0:  print "Choose from these options by adding argument: list, upload, params, run, remove"
-    
-        # list scripts
-        if "list" in args:
-            listScripts(scriptService)
+    if "help" in args:
+        printHelp(args)
         
-        # upload script.
-        if "upload" in args:
-            uploadScript(scriptService, commandArgs["script"])
+    else:
+        # log on to the server, create client and session and scripting service
+        client = omero.client(commandArgs["host"])
+        if "password" in commandArgs:
+            password = commandArgs["password"]
+        else:
+            password = getpass.getpass()
+        try:
+            session = client.createSession(commandArgs["username"], password)
+            scriptService = session.getScriptService()
     
-        # get params of script
-        if "params" in args:
-            getParams(scriptService, commandArgs["script"])
+            if len(args) == 0:  print "Choose from these options by adding argument: help, list, upload, params, run, remove, clean"
     
-        # run script
-        if "run" in args:
-            runScript(session, scriptService, commandArgs["script"])
+            # list scripts
+            if "list" in args:
+                listScripts(scriptService)
+        
+            # upload script.
+            if "upload" in args:
+                uploadScript(scriptService, commandArgs["script"])
     
-        # disables script by changing the OriginalFile mimetype, from 'text/x-python' to 'text/plain'
-        if "remove" in args:
-            disableScript(session, scriptService, commandArgs["script"])
-    except:
-        client.closeSession()
+            # get params of script
+            if "params" in args:
+                getParams(scriptService, commandArgs["script"])
+    
+            # run script
+            if "run" in args:
+                runScript(session, scriptService, commandArgs["script"])
+    
+            # disables script by changing the OriginalFile mimetype, from 'text/x-python' to 'text/plain'
+            if "remove" in args:
+                disableScript(session, scriptService, commandArgs["script"])
+            
+            if "clean" in args:
+                cleanUpScriptFiles(session, scriptService)
+        except:
+            raise
+        finally:
+            client.closeSession()
