@@ -1598,7 +1598,6 @@ class OMEROGateway
 				}
 			} else {
 				if (!(re.lookupRenderingDef(pixelsID))) {
-					//re.resetDefaultsNoSave();
 					re.resetDefaults();
 					re.lookupRenderingDef(pixelsID);
 				}
@@ -4159,7 +4158,6 @@ class OMEROGateway
 	RenderingDef getRenderingDef(long pixelsID, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		//This method should be pushed server side.
 		isSessionAlive();
 		try {
 			IPixelsPrx service = getPixelsService();

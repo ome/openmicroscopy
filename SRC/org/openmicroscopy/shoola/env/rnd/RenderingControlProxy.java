@@ -54,7 +54,6 @@ import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.cache.CacheService;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
-import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
@@ -415,7 +414,6 @@ class RenderingControlProxy
                 cb.setRGBA(servant.getRGBA(i));
                 cb.setLowerBound(servant.getPixelsTypeLowerBound(i));
                 cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
-				
 			}
             tmpSolutionForNoiseReduction();
 		} catch (Exception e) {
@@ -506,7 +504,7 @@ class RenderingControlProxy
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		//Need to adjust the cache.
-		Object array = getFromCache(pDef);
+		//Object array = getFromCache(pDef);
 		try {
 			byte[] values = servant.renderCompressed(pDef);
 			imageSize = values.length;
@@ -1286,6 +1284,7 @@ class RenderingControlProxy
     	//DataServicesFactory.isSessionAlive(context);
     	try {
     		 servant.resetDefaultsNoSave();
+    		 //servant.resetDefaults();
     		 setModel(RGB);
     		 invalidateCache();
     		 initialize();
