@@ -22,11 +22,13 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 //Application-internal dependencies
+import ome.model.annotations.TagAnnotation;
 import omero.OptimisticLockException;
 import omero.RInt;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
+import omero.model.Annotation;
 import omero.model.CommentAnnotation;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
@@ -34,6 +36,8 @@ import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.Image;
+import omero.model.ImageAnnotationLink;
+import omero.model.ImageAnnotationLinkI;
 import omero.model.ImageI;
 import omero.model.IObject;
 import omero.model.Project;
@@ -41,6 +45,7 @@ import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
 import omero.model.Screen;
+import omero.model.TagAnnotationI;
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 import omero.sys.ParametersI;
@@ -83,6 +88,22 @@ public class UpdateServiceTest
     
     /** Helper reference to the <code>IUpdate</code> service. */
     private IUpdatePrx iUpdate;
+    
+    /**
+     * Creates a default image and returns it.
+     * 
+     * @param time The acquisition time.
+     * @return See above.
+     */
+    private Image simpleImage(long time)
+    {
+        // prepare data
+        Image img = new ImageI();
+        img.setName(rstring("image1"));
+        img.setDescription(rstring("descriptionImage1"));
+        img.setAcquisitionDate(rtime(time));
+        return img;
+    }
     
 	/**
      * Initializes the various services.
@@ -680,10 +701,9 @@ public class UpdateServiceTest
     }
     
     
-    //Annotation
+    //Annotation section
     /**
      * Tests to update a textual annotation.
-     * 
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -712,6 +732,53 @@ public class UpdateServiceTest
         DataObject toReturn = 
         	new TextualAnnotationData((CommentAnnotation) link.getChild());
         	*/
+    }
+    
+    /**
+     * Tests the creation of tag annotation, linked it to an image by a
+     * user and link it to the same image by a different user.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testUpdateSameTagAnnotationUsedByTwoUsers() 
+    	throws Exception 
+    {
+    	//create an image.
+    	Image image = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
+    	
+    	//create the tag.
+    	TagAnnotationI tag = new TagAnnotationI();
+    	tag.setTextValue(omero.rtypes.rstring("tag1"));
+    	
+    	Annotation data = (Annotation) iUpdate.saveAndReturnObject(tag);
+    	//link the image and the tag
+    	ImageAnnotationLink l = new ImageAnnotationLinkI();
+		l.setParent(image);
+		l.setChild(data);
+		
+		IObject o1 = iUpdate.saveAndReturnObject(l);
+		assertNotNull(o1);
+		try {
+			omero.client root = new omero.client();
+	        root.createSession("root", client.getProperty("omero.rootpass"));
+	        CreatePojosFixture2 fixture = CreatePojosFixture2.withNewUser(root);
+	        
+	        l = new ImageAnnotationLinkI();
+			l.setParent(image);
+			l.setChild(data);
+			l.getDetails().setOwner(fixture.e);
+			IObject o2 = iUpdate.saveAndReturnObject(l);
+			assertNotNull(o2);
+			
+			long self = factory.getAdminService().getEventContext().userId;
+			
+	        assertTrue(o1.getId().getValue() != o2.getId().getValue());
+	        assertTrue(o1.getDetails().getOwner().getId().getValue() == self);
+	        assertTrue(o2.getDetails().getOwner().getId().getValue() == 
+	        	fixture.e.getId().getValue());
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
     }
 
 }

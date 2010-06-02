@@ -51,7 +51,6 @@ import omero.model.Plate;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
-import omero.model.ProjectI;
 import omero.model.Screen;
 import omero.model.ScreenPlateLink;
 import omero.model.ScreenPlateLinkI;
@@ -373,8 +372,6 @@ public class PojosServiceTest
         iQuery = factory.getQueryService();
         iUpdate = factory.getUpdateService();
     }
-
-  
 
     /**
      * Test to delete an newly created image.
