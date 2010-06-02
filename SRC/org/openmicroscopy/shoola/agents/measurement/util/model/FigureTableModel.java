@@ -130,7 +130,6 @@ public 	class FigureTableModel
 				{
 					keys.add(fieldName.getKey());
 					values.add(figure.getROI().getAnnotation((AnnotationKey)fieldName.getKey()));
-					System.err.println(fieldName.getKey()+ " " + figure.getROI().getAnnotation((AnnotationKey)fieldName.getKey()));
 				}
 				else
 				{

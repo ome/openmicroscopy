@@ -90,7 +90,6 @@ public class WorkflowLoader
     public void handleResult(Object result)
     {
     	if (viewer.getState() == MeasurementViewer.DISCARDED) return;  //Async cancel.
-    	System.err.println("handleResult");
     	viewer.setWorkflowList((List<WorkflowData>) result);
     }
 

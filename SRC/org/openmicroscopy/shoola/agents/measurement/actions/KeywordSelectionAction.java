@@ -77,7 +77,6 @@ public class KeywordSelectionAction
 	{
 		CheckBoxList checkBoxList = (CheckBoxList)e.getSource();
 	    List<String> keywords = checkBoxList.getTrueValues();
-	    System.err.println(keywords);
 	    model.setKeyword(keywords);
 	}
     

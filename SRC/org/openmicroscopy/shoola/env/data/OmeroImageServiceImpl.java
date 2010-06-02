@@ -1045,9 +1045,7 @@ class OmeroImageServiceImpl
 	public List<WorkflowData> retrieveWorkflows(long userID) 
 	throws DSAccessException, DSOutOfServiceException
 	{
-		System.err.println("Retrieving Workflows");
 		List<WorkflowData> workflows = gateway.retrieveWorkflows(userID);
-		System.err.println("Workflows : " + workflows);
 		return workflows;
 	}
 
