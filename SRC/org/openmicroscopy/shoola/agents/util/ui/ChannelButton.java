@@ -108,8 +108,8 @@ public class ChannelButton
     private final void setChannelSelected()
     {
     	if (!isEnabled()) return;
-        Boolean value = Boolean.TRUE;
-        if (isSelected()) value = Boolean.FALSE;
+        Boolean value = Boolean.valueOf(true);
+        if (isSelected()) value = Boolean.valueOf(false);
         Map<Integer, Boolean> map = new HashMap<Integer, Boolean>(1);
         map.put(Integer.valueOf(index), value);
         if (overlay) 

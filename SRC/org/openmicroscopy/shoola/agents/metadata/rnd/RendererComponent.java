@@ -294,6 +294,18 @@ class RendererComponent
 						model.setChannelActive(i, c);  
 					}
 				} else {
+					model.setChannelActive(index, selected);
+					List<Integer> active = model.getActiveChannels();
+					if (!active.contains(index) && active.size() > 0) {
+						int oldSelected = model.getSelectedChannel();
+						if (active.contains(oldSelected)) 
+							selectedIndex = oldSelected;
+						else {
+							int setIndex = model.createSelectedChannel();
+							if (setIndex >= 0) selectedIndex = setIndex;
+						}
+					}
+					/*
 					if (!selected && model.isChannelActive(index) &&
 							model.getSelectedChannel() != index) {
 						selectedIndex = index;
@@ -311,11 +323,11 @@ class RendererComponent
 							}
 						}
 					}
+					*/
 				}
 			}
 			model.setSelectedChannel(selectedIndex);
 			view.setSelectedChannel();
-        	//if (model.isGeneralIndex()) model.saveRndSettings();
         	if (render)
         		firePropertyChange(RENDER_PLANE_PROPERTY, 
         				Boolean.valueOf(false), Boolean.valueOf(true));

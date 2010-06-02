@@ -893,24 +893,6 @@ public class DomainPane
     void setSelectedChannel()
     {
         graphicsPane.setSelectedChannel();
-        /*
-        String f = model.getFamily();
-        familyBox.removeActionListener(this);
-        familyBox.setSelectedItem(f);
-        familyBox.addActionListener(this);
-        boolean b = !(f.equals(RendererModel.LINEAR) || 
-    			f.equals(RendererModel.LOGARITHMIC));
-        double k = 1;
-        if (b) k = model.getCurveCoefficient();
-        resetGamma(k);
-        gammaSlider.setEnabled(b);
-        noiseReduction.removeActionListener(
-                controller.getAction(RendererControl.NOISE_REDUCTION));
-        noiseReduction.setSelected(model.isNoiseReduction());
-        noiseReduction.addActionListener(
-                controller.getAction(RendererControl.NOISE_REDUCTION));
-        noiseReduction.setText(NoiseReductionAction.NAME);
-        */
         Iterator<ChannelButton> i = channelList.iterator();
         ChannelButton btn;
         List<Integer> active = model.getActiveChannels();
