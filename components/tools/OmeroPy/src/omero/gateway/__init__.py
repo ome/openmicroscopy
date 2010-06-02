@@ -3132,18 +3132,39 @@ class _ImageWrapper (BlitzObjectWrapper):
             self._re = None
             raise
 
-    def exportOmeTiff (self):
-        e = self._conn.createExporter()
-        e.addImage(self.getId())
-        size = e.generateTiff()
+    def exportOmeTiff_gen (self, fin, fsize, bufsize):
         p = 0
-        rv = ''
-        while p < size:
-            s = min(65536, size-p)
-            rv += e.read(p,s)
+        while p < fsize:
+            s = min(bufsize, fsize-p)
+            yield timeit(lambda: fin.read(p,s))()
             p += s
-        e.close()
-        return rv
+        fin.close()
+    
+    def exportOmeTiff (self, bufsize=0):
+        """
+        Exports the OME-TIFF representation of this image.
+
+        @type bufsize: int or tuple
+        @param bufsize: if 0 return a single string buffer with the whole OME-TIFF
+                        if >0 return a tuple holding total size and generator of chunks
+                        (string buffers) of bufsize bytes each
+        """
+        e = self._conn.createExporter()
+        timeit(lambda: e.addImage(self.getId()))()
+        size = timeit(lambda: e.generateTiff())()
+        if bufsize==0:
+            # Read it all in one go
+            p = 0
+            rv = ''
+            while p < size:
+                s = min(65536, size-p)
+                rv += timeit(lambda: e.read(p,s))()
+                p += s
+            e.close()
+            return rv
+        else:
+            # generator using bufsize
+            return (size, self.exportOmeTiff_gen(e, size, bufsize))
 
     def renderImage (self, z, t, compression=0.9):
         rv = self.renderJpeg(z,t,compression)

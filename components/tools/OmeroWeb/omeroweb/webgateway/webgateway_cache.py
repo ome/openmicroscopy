@@ -420,6 +420,12 @@ class WebGatewayCache (object):
     def getSplitChannelImage (self, r, client_base, img, z, t):
         return self.getImage(r, client_base, img, z, t, '-sc')
 
+    def setOmeTiffImage (self, r, client_base, img, obj):
+        return self.setImage(r, client_base, img, 0, 0, obj, '-ometiff')
+
+    def getOmeTiffImage (self, r, client_base, img):
+        return self.getImage(r, client_base, img, 0, 0, '-ometiff')
+
     ##
     # hierarchies (json)
 

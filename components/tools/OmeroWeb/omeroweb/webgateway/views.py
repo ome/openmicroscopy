@@ -385,9 +385,6 @@ def _get_prepared_image (request, iid, server_id=None, _conn=None, with_session=
         _conn = getBlitzConnection(request, server_id=server_id, with_session=with_session)
     if _conn is None or not _conn.isConnected():
         return HttpResponseServerError('""', mimetype='application/javascript')
-    #blitzcon = getBlitzConnection(request, server_id=server_id,with_session=with_session)
-    if _conn is None or not _conn.isConnected():
-        return None
     img = _conn.getImage(iid)
     if r.has_key('c'):
         logger.debug("c="+r['c'])
@@ -430,6 +427,27 @@ def render_image (request, iid, z, t, server_id=None, _conn=None, **kwargs):
     rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
     return rsp
 
+def render_ome_tiff (request, iid, server_id=None, _conn=None, **kwargs):
+    """ Renders the OME-TIFF representation of the image with id iid """
+    USE_SESSION = False
+    if _conn is None:
+        _conn = getBlitzConnection(request, server_id=server_id, with_session=USE_SESSION)
+    if _conn is None or not _conn.isConnected():
+        return HttpResponseServerError('""', mimetype='application/javascript')
+    img = _conn.getImage(iid)
+    if img is None:
+        raise Http404
+    tiff_data = webgateway_cache.getOmeTiffImage(request, server_id, img)
+    if tiff_data is None:
+        tiff_data = img.exportOmeTiff()
+        if tiff_data is None:
+            raise Http404
+        webgateway_cache.setOmeTiffImage(request, server_id, img, tiff_data)
+    rsp = HttpResponse(tiff_data, mimetype='application/x-ome-tiff')
+    from django.utils.http import urlquote
+    rsp['Content-Disposition'] = 'attachment; filename="%s.ome.tiff"' % img.getName()
+    return rsp
+    
 def render_split_channel (request, iid, z, t, server_id=None, _conn=None, **kwargs):
     """ Renders a split channel view of the image with id {{iid}} at {{z}} and {{t}} as jpeg.
         Many options are available from the request dict. """
