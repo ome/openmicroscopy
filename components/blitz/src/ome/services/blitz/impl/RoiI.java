@@ -214,17 +214,6 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
         		    Query q = session.createQuery(hqlQuery);
         		    q.setParameter("ids", idList);
         		    return q.list();
-        		    /*List<omero.model.RoiI> list = q.list();
-        		    for(omero.model.RoiI roi : list)
-        		    {
-        		    	if(idMap.containsKey(roi.getId().getValue()))
-        		    	{
-        		    		NamespaceKeywords ns = idMap.get(roi.getId().getValue());
-        		    		roi.setNamespaces(ns.namespaces);
-        		    		roi.setKeywords(ns.keywords);
-        		    	}
-        		    }
-        		    return list;*/
             	}
             	else
             	{
@@ -232,7 +221,6 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                         + "join fetch r.shapes where i.id = :id";
         		    queryString = queryString + " order by r.id";
         		    Query q = session.createQuery(queryString);
-        		    System.err.println("ROII.findbyImage : " + queryString);
         		    q.setParameter("id", imageId);
         		    return q.list();
             	}   	
