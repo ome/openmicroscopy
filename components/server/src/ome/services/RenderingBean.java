@@ -660,13 +660,16 @@ public class RenderingBean implements RenderingEngine, Serializable {
         rwl.writeLock().lock();
         try {
             errorIfInvalidState();
-            ex.execute(/*ex*/null/*principal*/, new Executor.SimpleWork(this, "resetDefaultsNoSave"){
+            ex.execute(/*ex*/null/*principal*/, new Executor.SimpleWork(this, 
+            		"resetDefaultsNoSave"){
                 @Transactional(readOnly = true)
                 public Object doWork(Session session, ServiceFactory sf) {
-                    IRenderingSettings settingsSrv = sf.getRenderingSettingsService();
+                    IRenderingSettings settingsSrv = 
+                    	sf.getRenderingSettingsService();
                     settingsSrv.resetDefaultsNoSave(rendDefObj, pixelsObj);
                     return null;
                 }});
+            load(); //require or we are out of synch
         } finally {
             rwl.writeLock().unlock();
         }
