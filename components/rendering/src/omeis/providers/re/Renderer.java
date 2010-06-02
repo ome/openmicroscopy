@@ -78,7 +78,7 @@ public class Renderer {
     private static Log log = LogFactory.getLog(Renderer.class);
     
     /** The maximum number of channels. */
-    public static final int		MAX_CHANNELS = 6;
+    public static final int		MAX_CHANNELS = 8;
     
     /** Identifies the type used to store model values. */
     public static final String MODEL_GREYSCALE = "greyscale";
