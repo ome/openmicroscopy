@@ -5721,7 +5721,7 @@ class OMEROGateway
 			map.put("Image_Labels", 
 					omero.rtypes.rstring(param.getLabelAsString()));
 			if (scriptIndex == FigureParam.SPLIT_VIEW_ROI) {
-				map.put("ROI_Zoom", omero.rtypes.rint((int) 
+				map.put("ROI_Zoom", omero.rtypes.rfloat((float)
 								param.getMagnificationFactor()));
 			}
 			return runScript(id, map);
