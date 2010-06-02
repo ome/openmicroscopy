@@ -6053,7 +6053,6 @@ class OMEROGateway
 		isSessionAlive();
 		try 
 		{
-			System.err.println("1");
 			IUpdatePrx updateService = getUpdateService();
 			IRoiPrx svc = getROIService();
 			
@@ -6061,7 +6060,6 @@ class OMEROGateway
 			options.userId = omero.rtypes.rlong(userID);
 			RoiResult serverReturn;
 			serverReturn = svc.findByImage(imageID, new RoiOptions());
-			System.err.println("1");
 	
 			Map<Long, Roi> roiMap = new HashMap<Long, Roi>();
 			List<Roi> serverRoiList = serverReturn.rois;
@@ -6071,7 +6069,6 @@ class OMEROGateway
 			for (ROIData roi : roiList)
 				clientROIMap.put(roi.getId(), roi);
 			
-			System.err.println("1");
 			/* Create a map of the <id, serverROI>, but remove any roi from 
 			 * the server that should be deleted, before creating map.
 			 * To delete an roi we first must delete all the roiShapes in 
@@ -6086,7 +6083,6 @@ class OMEROGateway
 				else
 					roiMap.put(roi.getId().getValue(), roi);
 			
-			System.err.println("1");
 			/* For each roi in the client, see what should be done:
 			 * 1. Create a new roi if it does not exist. 
 			 * 2. build a map of the roiShapes in the clientROI with ROICoordinate 
@@ -6111,7 +6107,6 @@ class OMEROGateway
 			RoiResult tempResults;
 			int shapeIndex;
 	
-			System.err.println("1");
 			for (ROIData roi : roiList)
 			{
 				/*
@@ -6136,7 +6131,6 @@ class OMEROGateway
 					shape = shapeList.get(0);
 					clientCoordMap.put(shape.getROICoordinate(), shape);
 				}
-				System.err.println("1");
 				
 				/*
 				 * Step 3. create the server roiShape map.
@@ -6164,7 +6158,6 @@ class OMEROGateway
 						updateService.deleteObject(s);
 					}
 				}
-				System.err.println("1");
 				
 				/*
 				 * Step 5. retrieve new roi as some are stale.
@@ -6205,7 +6198,6 @@ class OMEROGateway
 									"corrupted");
 						serverRoi.setShape(shapeIndex,(Shape) shape.asIObject());
 					}
-					System.err.println("END");
 					
 				}
 				
