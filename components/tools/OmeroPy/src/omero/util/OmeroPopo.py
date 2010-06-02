@@ -813,11 +813,6 @@ class EllipseData(ShapeData):
     # @return See above.
     #       
     def containsPoints(self):
-        '''print "TRANSFORM STRING";
-        print self.getTransform();'''
-        transform = self.transformToMatrix(self.getTransform());
-        '''print "TRANSFORM MATRIX";
-        print transform'''
         cx = self.getCx();
         cy = self.getCy();
         rx = self.getRx();
@@ -828,14 +823,6 @@ class EllipseData(ShapeData):
         BR = numpy.matrix((cx+rx, cy+ry, 1)).transpose();
         TL = numpy.matrix((cx-rx, cy-ry, 1)).transpose();
         TR = numpy.matrix((cx+rx, cy-ry, 1)).transpose();
-        '''print('BL : ');
-        print BL;
-        print('BR : ');
-        print BR;
-        print('TL : ');
-        print TL;
-        print('TR : ');
-        print TR;'''
         MajorAxisLeft = numpy.matrix((cx-rx, cy, 1)).transpose();
         MajorAxisRight = numpy.matrix((cx+rx, cy, 1)).transpose();
         MinorAxisTop = numpy.matrix((cx, cy-ry, 1)).transpose();
@@ -844,14 +831,6 @@ class EllipseData(ShapeData):
         rb = transform*BR;
         lt = transform*TL;
         rt = transform*TR;
-        '''print('lb : ');
-        print lb;
-        print('rb : ');
-        print rb;
-        print('lt : ');
-        print lt;
-        print('rt : ');
-        print rt;'''
         majl = transform*MajorAxisLeft;
         majr = transform*MajorAxisRight;
         mint = transform*MinorAxisTop;
@@ -860,7 +839,6 @@ class EllipseData(ShapeData):
         a = (majr[0]-majl[0]);
         h = math.sqrt(o*o+a*a);
         majorAxisAngle = math.asin(o/h); 
-        '''print majorAxisAngle'''
         boundingBoxMinX = min(lt[0], rt[0],lb[0], rb[0]);
         boundingBoxMaxX = max(lt[0], rt[0], lb[0], rb[0]);
         boundingBoxMinY = min(lt[1], rt[1], lb[1], rb[1]);
@@ -1349,26 +1327,10 @@ class RectData(ShapeData):
         BR = numpy.matrix((x+width, y+height, 1)).transpose();
         TL = numpy.matrix((x, y, 1)).transpose();
         TR = numpy.matrix((x+width, y, 1)).transpose();
-        '''print('BL : ');
-        print BL;
-        print('BR : ');
-        print BR;
-        print('TL : ');
-        print TL;
-        print('TR : ');
-        print TR;'''
         lb = transform*BL;
         rb = transform*BR;
         lt = transform*TL;
         rt = transform*TR;
-        '''print('lb : ');
-        print lb;
-        print('rb : ');
-        print rb;
-        print('lt : ');
-        print lt;
-        print('rt : ');
-        print rt;'''
         majl = lb
         majr = lr
         o = (majr[1]-majl[1]);
