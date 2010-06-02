@@ -72,16 +72,17 @@ class ShapeSettingsData:
     # StrokeWidth defaults to 1
     #
     def __init__(self):   
-        self.strokeColour = rstring('#444444');
+		self.WHITE = 16777215;
+		self.BLACK = 0;
+		self.GREY = 11184810;
+        self.strokeColour = rint(GREY);
         self.strokeWidth = rint(1);
-        self.strokeOpacity = rfloat(0);
         self.strokeDashArray = rstring('');
         self.strokeDashOffset = rint(0);
         self.strokeLineCap = rstring('');
         self.strokeLineJoin = rstring('');
         self.strokeMiterLimit = rint(0);
-        self.fillColour = rstring('#222222');
-        self.fillOpacity = rfloat(0);
+        self.fillColour = rint(GREY);
         self.fillRule = rstring('');
         
     ##
@@ -97,27 +98,22 @@ class ShapeSettingsData:
         shape.setStrokeLineJoin(self.strokeLineJoin);
         shape.setStrokeMiterLimit(self.strokeMiterLimit);
         shape.setFillColor(self.fillColour);
-        shape.setFillOpacity(self.fillOpacity);
         shape.setFillRule(self.fillRule);
     
     ##
     # Set the Stroke settings of the ShapeSettings.
     # @param colour The colour of the stroke.
     # @param width The stroke width.
-    # @param opacity The stroke opacity.
     #
-    def setStrokeSettings(self, colour, width = 1, opacity = 0):
-        self.strokeColour = rsting(colour);
+    def setStrokeSettings(self, colour, width = 1):
+        self.strokeColour = rint(colour);
         self.strokeWidth = rint(width);
-        self.strokeOpacity = rfloat(opacity);
-
+ 
     ###
     # Set the Fill Settings for the ShapeSettings.
     # @param colour The fill colour of the shape.
-    # @param opacity The opacity of the fill.
-    def setFillSettings(self, colour, opacity = 0):
+    def setFillSettings(self, colour):
         self.fillColour = rsting(colour);
-        self.fillOpacity = rfloat(opacity);   
     
     ##
     # Get the stroke settings as the tuple (strokeColour, strokeWidth).
@@ -127,14 +123,14 @@ class ShapeSettingsData:
         return (self.strokeColour.getValue(), self.strokeWidth.getValue());
     
     ##
-    # Get the fill setting as a tuple of (fillColour, opacity)
+    # Get the fill setting as a tuple of (fillColour)
     # @return See above.
     #
     def getFillSettings(self):
-        return (self.fillColour.getValue(), self.fillOpacity.getValue());
+        return (self.fillColour.getValue());
     
     ##
-    # Get the tuple ((stokeColor, strokeWidth), (fillColour, fillOpacity)).
+    # Get the tuple ((stokeColor, strokeWidth), (fillColour)).
     # @return see above.
     #
     def getSettings(self):
@@ -147,14 +143,12 @@ class ShapeSettingsData:
     def getShapeSettingsFromROI(self, roi):
         self.strokeColour = roi.getStrokeColor();
         self.strokeWidth = roi.getStrokeWidth();
-        self.strokeOpacity = roi.getStrokeOpacity();
         self.strokeDashArray = roi.getStrokeDashArray();
         self.strokeDashOffset = roi.getStrokeDashOffset();
         self.strokeLineCap = roi.getStrokeLineCap();
         self.strokeLineJoin = roi.getStrokeLineJoin();
         self.strokeMiterLimit =  roi.getStrokeMiterLimit();
         self.fillColour = roi.getFillColor();
-        self.fillOpacity = roi.getFillOpacity();
         self.fillRule = roi.getFillRule();
 
 ##

@@ -140,11 +140,9 @@ public class ShapeSettingsData
 	public Color getFillColor()
 	{
 		Shape shape = (Shape) asIObject();
-		RString value = shape.getFillColor();
+		RInt value = shape.getFillColor();
 		if (value == null) return DEFAULT_FILL_COLOUR;
-		if(value.getValue()==null) return DEFAULT_FILL_COLOUR;
-		int colour = new Integer(value.getValue());
-		return new Color(colour, true);
+		return new Color(value.getValue(), true);
 	}
 	
 	/**
@@ -157,8 +155,7 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		shape.setFillColor(rtypes.rstring(new Integer(fillColour.getRGB()).toString()));
-		shape.setFillOpacity(rtypes.rfloat(fillColour.getAlpha()/255.0f));
+		shape.setFillColor(rtypes.rint(fillColour.getRGB()));
 	}
 
 	
@@ -170,11 +167,9 @@ public class ShapeSettingsData
 	public Color getStrokeColor()
 	{
 		Shape shape = (Shape) asIObject();
-		RString value = shape.getStrokeColor();
+		RInt value = shape.getStrokeColor();
 		if (value == null) return DEFAULT_STROKE_COLOUR;
-		if(value.getValue()==null) return DEFAULT_STROKE_COLOUR;
-		int colour = new Integer(value.getValue());
-		return new Color(colour, true);
+		return new Color(value.getValue(), true);
 	}
 
 	/**
@@ -187,8 +182,7 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		shape.setStrokeColor(rtypes.rstring(new Integer(strokeColour.getRGB()).toString()));
-		shape.setStrokeOpacity(rtypes.rfloat(strokeColour.getAlpha()/255.0f));
+		shape.setStrokeColor(rtypes.rint(strokeColour.getRGB()));
 	}
 	
 	/**

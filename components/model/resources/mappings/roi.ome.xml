@@ -49,17 +49,15 @@
                         <optional name="vectorEffect" type="string"/><!-- non-scaling-stroke, none -->
                         <optional name="visibility" type="boolean"/>
                         <!-- Fill -->
-                        <optional name="fillColor" type="string"/>
-                        <optional name="fillOpacity" type="float"/>
+                        <optional name="fillColor" type="int"/>
                         <optional name="fillRule" type="string"/><!-- even-odd, nonzero -->
                         <!-- Stroke -->
-                        <optional name="strokeColor" type="string"/>
+                        <optional name="strokeColor" type="int"/>
                         <optional name="strokeDashArray" type="string"/><!-- e.g. none, 10 20 30 10 -->
                         <optional name="strokeDashOffset" type="int"/>
                         <optional name="strokeLineCap" type="string"/><!-- butt, round, square -->
                         <optional name="strokeLineJoin" type="string"/><!-- miter, round, bevel -->
                         <optional name="strokeMiterLimit" type="int"/>
-                        <optional name="strokeOpacity" type="float"/>
                         <optional name="strokeWidth" type="int"/>
                         <!-- Font -->
                         <optional name="fontFamily" type="string"/><!-- e.g. monospace, serif -->
