@@ -70,7 +70,7 @@ public class BezierTool
     /**
      * Set this to true to turn on debugging output on System.out.
      */
-    private final static boolean DEBUG = true;
+    private final static boolean DEBUG = false;
     
     private final boolean clickOnly = true;
     private final double error = 1;
