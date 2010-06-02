@@ -75,7 +75,6 @@ public class GeomToolTest extends TestCase {
         r.setTheZ(rint(0));
         r.setTextValue(rstring("Text"));
         r.setStrokeWidth(rint(1));
-        r.setFillOpacity(rfloat(0.25098f));
 
         ImageI img = new ImageI();
         RoiI roi = new RoiI();
