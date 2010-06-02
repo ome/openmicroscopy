@@ -301,6 +301,11 @@ public class OmeroMetadata implements MetadataRetrieve {
         return null;
     }
 
+        public int getPixelsBinDataCount(int imageIndex)
+        {
+		// TODO Auto-generated method stub
+		return 0;
+        }
 
 	public String getArcID(int arg0, int arg1) {
 		// TODO Auto-generated method stub
