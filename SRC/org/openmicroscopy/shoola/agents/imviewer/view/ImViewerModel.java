@@ -1838,7 +1838,7 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	boolean isOriginalSettings() { return isSameSettings(originalDef); }
+	boolean isOriginalSettings() { return isSameSettings(originalDef, false); }
 
 	/**
 	 * Returns <code>true</code> if it is the original plane, 
@@ -1858,14 +1858,16 @@ class ImViewerModel
 	 * that the current one, <code>false</code> otherwise.
 	 * 
 	 * @param def The settings to check.
+	 * @param checkPlane Pass <code>true</code> to check the plane, 
+	 * 					 <code>false</code> otherwise.
 	 * @return See above.
 	 */
-	boolean isSameSettings(RndProxyDef def)
+	boolean isSameSettings(RndProxyDef def, boolean checkPlane)
 	{
 		if (metadataViewer == null) return false;
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return false;
-		return rnd.isSameSettings(def, false);
+		return rnd.isSameSettings(def, checkPlane);
 	}
 	
     /**

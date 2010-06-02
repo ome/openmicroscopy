@@ -1688,13 +1688,13 @@ public class EditorUtil
 		Double f = data.getGain();
 		double v = 0;
 		if (f == null) notSet.add(GAIN);
-		else v = f;
+		else v = UIUtilities.roundTwoDecimals(f);
 		details.put(GAIN, v);
     	f = data.getVoltage();
     	if (f == null) {
     		v = 0;
     		notSet.add(VOLTAGE);
-    	} else v = f;
+    	} else v = UIUtilities.roundTwoDecimals(f);
 		details.put(VOLTAGE, v);
 		f = data.getOffset();
 		if (f == null) {

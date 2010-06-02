@@ -82,7 +82,6 @@ import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
-import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.SaveEventBox;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -906,50 +905,6 @@ class ImViewerComponent
 		renderXYPlane();
 		postActiveChannelSelection(ChannelSelection.CHANNEL_SELECTION);
 	}
-
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#setRenderingControl(RenderingControl)
-	 */
-	public void setRenderingControl(RenderingControl result)
-	{
-		/*
-		if (model.getState() != LOADING_RENDERING_CONTROL)
-			throw new IllegalStateException(
-					"This method can't be invoked in the " +
-					"LOADING_RENDERING_CONTROL.");
-		Object rnd = model.getRenderer();
-		model.setRenderingControl(result);
-		//Register the renderer
-		model.getRenderer().addPropertyChangeListener(controller);
-		if (model.isLifetime()) {
-			try {
-				model.setForLifetime();
-			} catch (Exception e) {
-				// TODO: handle exception
-			}
-		} 
-		if (rnd == null) { //initial 
-			colorModel = model.getColorModel();
-			view.buildComponents();
-			view.setOnScreen();
-			view.toFront();
-			view.requestFocusInWindow();
-			if (ImViewerAgent.isFastConnection())
-				model.firePlaneInfoRetrieval();
-			
-			view.setLeftStatus();
-		} else {
-			//TODO
-			//clean history, reset UI element
-			model.resetHistory();
-			view.switchRndControl();
-		}
-		
-		renderXYPlane();
-		fireStateChange();
-		*/
-	}
 	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
@@ -971,11 +926,11 @@ class ImViewerComponent
 		if (index == PROJECTION_INDEX) {
 			def = model.getLastProjDef();
 			boolean b = false;
-			if (def != null) b = model.isSameSettings(def);
+			if (def != null) b = model.isSameSettings(def, false);
 			if (b && isSameProjectionParam()) stop = true;
 		} else {
 			def = model.getLastMainDef();
-			if (def != null) stop = model.isSameSettings(def);
+			if (def != null) stop = model.isSameSettings(def, true);
 		}
 		//if (stop) return;
 		if (index == PROJECTION_INDEX) {
@@ -990,6 +945,7 @@ class ImViewerComponent
 				fireStateChange();
 			}
 		} else {
+			if (stop) return;
 			if (model.isBigImage()) {
 				try {
 					model.saveRndSettings(false);
@@ -1724,76 +1680,6 @@ class ImViewerComponent
 			default:
 				throw new IllegalArgumentException("Menu not supported.");
 		}
-	}
-
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#setRenderingControlReloaded(RenderingControl, boolean)
-	 */
-	public void setRenderingControlReloaded(boolean updateView)
-	{
-		//TODO: Code to be moved to the renderer
-		if (updateView) {
-			//model.getRenderer().resetRndSettings();
-			//view.resetDefaults();
-		}
-		renderXYPlane();
-	}
-
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#handleException(Throwable)
-	 */
-	private void handleException(Throwable e)
-	{
-		/*
-		Logger logger = ImViewerAgent.getRegistry().getLogger();
-		UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-		if (e instanceof RenderingServiceException) {
-			RenderingServiceException rse = (RenderingServiceException) e;
-			LogMessage logMsg = new LogMessage();
-			logMsg.print("Rendering Exception:");
-			logMsg.println(rse.getExtendedMessage());
-			logMsg.print(rse);
-			logger.error(this, logMsg);
-			if (newPlane) {
-				MessageBox msg = new MessageBox(view, "Invalid Plane", 
-						"The selected plane contains invalid value. " +
-				"Do you want to reload it?");
-				if (msg.centerMsgBox() == MessageBox.YES_OPTION) {
-					logger.debug(this, "Reload rendering Engine.");
-					model.fireRenderingControlReloading();
-					fireStateChange();
-				} else {
-					logger.debug(this, e.getMessage());
-					model.discard();
-					fireStateChange();
-				}
-			} else {
-				if (e.getCause() instanceof OutOfMemoryError) {
-					un.notifyInfo("Image", "Due to an out of Memory error, " +
-							"\nit is not possible to render the image.");
-					//model.setState(READY);
-					//fireStateChange();
-				} else {
-					un.notifyError(ImViewerAgent.ERROR, logMsg.toString(), 
-							e.getCause());
-				}
-				model.discard();
-				fireStateChange();
-			}
-			newPlane = false;
-		} else if (e instanceof DSOutOfServiceException) {
-			logger.debug(this, "Reload rendering Engine.");
-			//model.fireRenderingControlReloading();
-			//fireStateChange();
-			un.notifyError(ImViewerAgent.ERROR, "Out of service.", 
-					e.getCause());
-			model.discard();
-			fireStateChange();
-		}
-		return;
-		*/
 	}
 
 	/** 

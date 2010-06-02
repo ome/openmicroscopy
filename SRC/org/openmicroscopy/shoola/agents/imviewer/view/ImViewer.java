@@ -389,13 +389,6 @@ public interface ImViewer
 	 */
 	public int getMaxZ();
 
-	/**
-	 * Sets the {@link RenderingControl}.
-	 * 
-	 * @param rndControl The {@link RenderingControl} to set.
-	 */
-	public void setRenderingControl(RenderingControl rndControl);
-
 	/** Renders the current XY-plane. */
 	public void renderXYPlane();
 
@@ -582,14 +575,6 @@ public interface ImViewer
 	 *                  <code>component</code>'s coordinates.
 	 */
 	public void showMenu(int menuID, Component source, Point location);
-
-	/**
-	 * Invokes only when the rendering engine was reloaded after time out.
-	 *
-	 * @param updateView	Pass <code>true</code> to update the view,
-	 * 						<code>false</code> otherwise.
-	 */
-	public void setRenderingControlReloaded(boolean updateView);
 
 	/**
 	 * Returns the number of pixels along the X-axis.
