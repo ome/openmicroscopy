@@ -121,7 +121,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
     private final static String IMAGE_NO_KEY = "image_no";
     
     /* String to use when there is no image name */
-    private final static String NO_NAME_SET = "NO_NAME_SET";
+    public final static String NO_NAME_SET = "NO_NAME_SET";
 
     private final long id;
 
