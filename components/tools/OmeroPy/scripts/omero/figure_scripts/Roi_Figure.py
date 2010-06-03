@@ -740,7 +740,7 @@ def runAsScript():
     
     client = scripts.client('Roi_Figure.py', """Create a figure of an ROI region as separate zoomed split-channel panels.
 See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIFigure""", 
-    scripts.List("Image_IDs", description="List of image IDs. Resulting figure will be attached to first image.").ofType(rlong(0)),
+    scripts.List("Image_IDs", optional=False, description="List of image IDs. Resulting figure will be attached to first image.").ofType(rlong(0)),
     scripts.Map("Channel_Names", description="Map of index: channel name for All channels"),
     scripts.Bool("Merged_Names", description="If true, label the merged panel with channel names. Otherwise label with 'Merged'"),
     scripts.List("Split_Indexes", description="List of the channels in the split view panels"),

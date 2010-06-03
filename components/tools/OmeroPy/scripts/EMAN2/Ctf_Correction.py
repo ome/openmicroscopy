@@ -342,8 +342,8 @@ See http://trac.openmicroscopy.org.uk/omero/wiki/EmPreviewFunctionality""",
                 parameterMap[key] = client.getInput(key).getValue()
     
         runCtf(session, parameterMap)
-    finally:
-        client.closeSession()
+    except: raise
+    finally: client.closeSession()
     
     # test
 if __name__ == "__main__":

@@ -231,21 +231,25 @@ See http://trac.openmicroscopy.org.uk/omero/wiki/EmPreviewFunctionality""",
     scripts.String("Extension", description="File type/extension. E.g. 'mrc'. If not given, will try to use extension of each image name"),
     )
     
-    session = client.getSession()
+    try:
+        session = client.getSession()
     
-    # process the list of args above. 
-    parameterMap = {}
-    for key in client.getInputKeys():
-        if client.getInput(key):
-            parameterMap[key] = client.getInput(key).getValue()
+        # process the list of args above. 
+        parameterMap = {}
+        for key in client.getInputKeys():
+            if client.getInput(key):
+                parameterMap[key] = client.getInput(key).getValue()
     
-    originalFiles = saveImageAs(session, parameterMap)        # might return None if failed. 
+        originalFiles = saveImageAs(session, parameterMap)        # might return None if failed. 
     
-    # Return a single list for other scripts to use
-    client.setOutput("Original_Files", wrap(originalFiles))
-    # But also return individual objects so Insight can offer 'Download' for each
-    for i, o in enumerate(originalFiles):
-        client.setOutput("Original_File%s"%i, omero.rtypes.robject(o))
+        # Return a single list for other scripts to use
+        client.setOutput("Original_Files", wrap(originalFiles))
+        # But also return individual objects so Insight can offer 'Download' for each
+        for i, o in enumerate(originalFiles):
+            client.setOutput("Original_File%s"%i, omero.rtypes.robject(o))
+    
+    except: raise
+    finally: client.closeSession()
     
 if __name__ == "__main__":
     runAsScript()

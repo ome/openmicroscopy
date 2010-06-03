@@ -195,7 +195,7 @@ class Target():
             x -= self.box_size/2    # convert from centre of particle, to top-left of ROI
             y = self.imageY - y        # convert from bottom to top Y coordinates. 
             y -= self.box_size/2
-            self.addRectangleRoi(x, y, typeString, "#00ff00")
+            self.addRectangleRoi(x, y, typeString)
         # removed a lot of UI code from emboxerbase.EMBoxerModule
         self.box_list.add_boxes(boxes)
         
@@ -447,8 +447,8 @@ See http://trac.openmicroscopy.org.uk/omero/wiki/EmPreviewFunctionality""",
                 parameterMap[key] = client.getInput(key).getValue()
     
         doAutoBoxing(session, parameterMap)
-    finally:
-        client.closeSession()
+    except: raise
+    finally: client.closeSession()
     
     
 if __name__ == "__main__":

@@ -245,16 +245,18 @@ See http://trac.openmicroscopy.org.uk/omero/wiki/EmPreviewFunctionality""",
     scripts.String("New_Dataset_Name", grouping="5",
         description="If specified, put the filtered images in a new dataset.")) 
     
-    session = client.getSession()
+    try:
+        session = client.getSession()
     
-    # process the list of args above. 
-    parameterMap = {}
-    for key in client.getInputKeys():
-        if client.getInput(key):
-            parameterMap[key] = client.getInput(key).getValue()
+        # process the list of args above. 
+        parameterMap = {}
+        for key in client.getInputKeys():
+            if client.getInput(key):
+                parameterMap[key] = client.getInput(key).getValue()
     
-    emanFilter(session, parameterMap)
-    
+        emanFilter(session, parameterMap)
+    except: raise
+    finally: client.closeSession()
     
 if __name__ == "__main__":
     runAsScript()

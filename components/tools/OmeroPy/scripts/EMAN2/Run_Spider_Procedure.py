@@ -231,6 +231,7 @@ def runSpf(session, parameterMap):
     Then we get the output from the folder where the results should be, and upload these
     images into a new dataset. 
     """
+    
     # create services we need 
     services = {}
     services["gateway"] = session.createGateway()
@@ -344,21 +345,28 @@ See http://trac.openmicroscopy.org.uk/omero/wiki/EmPreviewFunctionality""",
         description="The data you want to work with.", values=dataTypes, default="Dataset"),
     scripts.List("IDs", optional=False, grouping="2",
         description="List of Dataset IDs or Image IDs").ofType(rlong(0)),
-    scripts.Long("Spf_File_Id", optional=False, description="The FileAnnotation-ID of the Spider Procedure File"), 
-    scripts.String("New_Dataset_Name", description="If specified, make a dataset to put results."),
-    scripts.String("Input_Name", description="The name of the input image at the start of the spf file.", default="input"),
-    scripts.String("Output_Name", description="The name of the output image at the start of the spf file.", default="output"),
+    scripts.Long("Spf_File_Id", optional=False, grouping="3",
+        description="The FileAnnotation-ID of the Spider Procedure File"), 
+    scripts.String("New_Dataset_Name", grouping="4", 
+        description="If specified, make a dataset to put results."),
+    scripts.String("Input_Name", grouping="5",
+        description="The name of the input image at the start of the spf file.", default="input"),
+    scripts.String("Output_Name", grouping="6",
+        description="The name of the output image at the start of the spf file.", default="output"),
     )
     
-    session = client.getSession()
+    try:
+        session = client.getSession()
     
-    # process the list of args above. 
-    parameterMap = {}
-    for key in client.getInputKeys():
-        if client.getInput(key):
-            parameterMap[key] = client.getInput(key).getValue()
+        # process the list of args above. 
+        parameterMap = {}
+        for key in client.getInputKeys():
+            if client.getInput(key):
+                parameterMap[key] = client.getInput(key).getValue()
     
-    runSpf(session, parameterMap)
+        runSpf(session, parameterMap)
+    except: raise
+    finally: client.closeSession()
     
 if __name__ == "__main__":
     runAsScript()

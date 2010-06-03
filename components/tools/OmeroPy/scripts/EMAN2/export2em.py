@@ -96,14 +96,14 @@ def run(commandArgs):
     
     print "Running script %s with ID: %s" % (scriptName, scriptId)
     
-    imageIds = omero.rtypes.rlist([omero.rtypes.rint(iId) for iId in ids])
+    imageIds = omero.rtypes.rlist([omero.rtypes.rlong(iId) for iId in ids])
     
     map = {
-        "imageIds": imageIds,
+        "Image_IDs": imageIds,
     }  
     
     if "extension" in commandArgs:
-        map["extension"] = omero.rtypes.rstring(commandArgs["extension"])
+        map["Extension"] = omero.rtypes.rstring(commandArgs["extension"])
     
     results = None
     
@@ -122,10 +122,11 @@ def run(commandArgs):
     if "path" in commandArgs:
         path = commandArgs["path"]
         
-    if "originalFileIds" in results:
-        for r in results["originalFileIds"].getValue():
+    if "Original_Files" in results:
+        for r in results["Original_Files"].getValue():
             # download the file from OMERO 
-            fileId = r.getValue()
+            f = r.getValue()    # unloaded originalfile
+            fileId = f.getId().getValue()
             originalFile = queryService.findByQuery("from OriginalFile as o where o.id = %s" % fileId, None)
             name = originalFile.getName().getValue()
             if path:
