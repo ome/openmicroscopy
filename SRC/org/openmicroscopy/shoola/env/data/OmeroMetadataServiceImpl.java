@@ -702,7 +702,9 @@ class OmeroMetadataServiceImpl
 				}
 			}
 			//load the links tags and attachments
-			if (annotationIds.size() > 0) {
+			if (annotationIds.size() > 0 && 
+				!(object instanceof TagAnnotationData
+					|| object instanceof FileAnnotationData)) {
 				List links = gateway.findAnnotationLinks(object.getClass(), 
 						r.getId(), annotationIds, -1);
 				if (links != null) {
