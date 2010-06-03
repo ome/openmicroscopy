@@ -158,31 +158,6 @@ class TestEmanScripts(lib.ITest):
         scriptService = self.root.sf.getScriptService()
         scriptId = uploadScript(scriptService, imagesFromRoisPath)
         
-        ### create user in group
-        listOfGroups = list()
-        listOfGroups.append(admin.lookupGroup("user"))  # all users need to be in 'user' group to do anything! 
-        
-        #group
-        new_gr1 = ExperimenterGroupI()
-        new_gr1.name = rstring("roi2images-test_%s" % uuid)
-        gid = admin.createGroup(new_gr1)
-        group = admin.getGroup(gid)
-        listOfGroups.append(group)
-        
-        # add user
-        new_exp = ExperimenterI()
-        new_exp.omeName = rstring("roi2images-user1_%s" % uuid)
-        new_exp.firstName = rstring("New")
-        new_exp.lastName = rstring("Test")
-        new_exp.email = rstring("newtest@emaildomain.com")
-        
-        eid = admin.createExperimenterWithPassword(new_exp, rstring("ome"), group, listOfGroups)
-        
-        # log in as user
-        #user_client = omero.client()
-        #user_client.createSession(new_exp.omeName.val,"ome")
-        #session = user_client.sf
-        
         # run as root
         session = self.root.sf
         client = self.root
@@ -258,31 +233,6 @@ class TestEmanScripts(lib.ITest):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         admin = self.root.sf.getAdminService()
         
-        ### create user in group
-        listOfGroups = list()
-        listOfGroups.append(admin.lookupGroup("user"))  # all users need to be in 'user' group to do anything! 
-        
-        #group
-        new_gr1 = ExperimenterGroupI()
-        new_gr1.name = rstring("boxer-test_%s" % uuid)
-        gid = admin.createGroup(new_gr1)
-        group = admin.getGroup(gid)
-        listOfGroups.append(group)
-        
-        # add user
-        new_exp = ExperimenterI()
-        new_exp.omeName = rstring("boxer-user1_%s" % uuid)
-        new_exp.firstName = rstring("New")
-        new_exp.lastName = rstring("Test")
-        new_exp.email = rstring("newtest@emaildomain.com")
-        
-        eid = admin.createExperimenterWithPassword(new_exp, rstring("ome"), group, listOfGroups)
-        
-        # log in as user
-        #user_client = omero.client()
-        #user_client.createSession(new_exp.omeName.val,"ome")
-        #session = user_client.sf
-        
         # run as root
         client = self.root
         session = self.root.sf
@@ -323,9 +273,9 @@ class TestEmanScripts(lib.ITest):
         # upload (as root) and run the boxer.py script as user 
         scriptService = self.root.sf.getScriptService()
         scriptId = uploadScript(scriptService, boxerScriptPath)
-        ids = [omero.rtypes.rint(iId), ]
-        argMap = {"imageIds": omero.rtypes.rlist(ids),}
-        runScript(scriptService, client, scriptId, omero.rtypes.rmap(argMap))
+        ids = [omero.rtypes.rlong(iId), ]
+        argMap = {"Image_IDs": omero.rtypes.rlist(ids),}
+        runScript(scriptService, client, scriptId, argMap)
         
         # if the script ran OK, we should have more than the 2 ROIs we added above
         result = roiService.findByImage(iId, None)
@@ -357,31 +307,6 @@ class TestEmanScripts(lib.ITest):
         # upload saveImageAs.py script as root
         scriptService = self.root.sf.getScriptService()
         scriptId = uploadScript(scriptService, saveImageAsScriptPath)
-        
-        ### create user in group
-        listOfGroups = list()
-        listOfGroups.append(admin.lookupGroup("user"))  # all users need to be in 'user' group to do anything! 
-        
-        #group
-        new_gr1 = ExperimenterGroupI()
-        new_gr1.name = rstring("export-test_%s" % uuid)
-        gid = admin.createGroup(new_gr1)
-        group = admin.getGroup(gid)
-        listOfGroups.append(group)
-        
-        # add user
-        new_exp = ExperimenterI()
-        new_exp.omeName = rstring("export-user1_%s" % uuid)
-        new_exp.firstName = rstring("New")
-        new_exp.lastName = rstring("Test")
-        new_exp.email = rstring("newtest@emaildomain.com")
-        
-        eid = admin.createExperimenterWithPassword(new_exp, rstring("ome"), group, listOfGroups)
-        
-        # log in as user
-        user_client = omero.client()
-        user_client.createSession(new_exp.omeName.val,"ome")
-        #session = user_client.sf
         
         # upload image as root, since only root has only root has permission to run 
         # export2em.py because it uses the scripting service to look up the 'saveImageAs.py'
@@ -573,8 +498,10 @@ def uploadScript(scriptService, scriptPath):
     file = open(scriptPath)
     scriptText = file.read()
     file.close()
+    path = scriptPath.replace("scripts/EMAN2", "/EMAN2")  # convert scripts/EMAN2/script.py to /EMAN2/scripts.py
+    print "uploading scriptPath",scriptPath
     try:
-        scriptId = scriptService.uploadOfficialScript(scriptPath, scriptText)
+        scriptId = scriptService.uploadOfficialScript(path, scriptText)
     except ApiUsageException:
         scriptId = editScript(scriptService, scriptPath)
     return scriptId
@@ -583,6 +510,7 @@ def editScript(scriptService, scriptPath):
     file = open(scriptPath)
     scriptText = file.read()
     file.close()
+    scriptPath = scriptPath.replace("scripts/EMAN2", "/EMAN2")  # convert scripts/EMAN2/script.py to /EMAN2/scripts.py
     # need the script Original File to edit
     scripts = scriptService.getScripts()
     if not scriptPath.startswith("/"): scriptPath =  "/" + scriptPath

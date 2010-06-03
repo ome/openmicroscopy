@@ -26,6 +26,7 @@ from omero_model_PermissionsI import PermissionsI
 import omero_api_Gateway_ice
 import omero_api_IRoi_ice
 import omero.util.script_utils as scriptUtil
+from omero import ApiUsageException
 
 from numpy import *
 
@@ -421,26 +422,34 @@ def uploadScript(scriptService, scriptPath):
     file = open(scriptPath)
     scriptText = file.read()
     file.close()
-    # first check if the script has already been uploaded
-    existingScript = getScript(scriptService, scriptPath)
-    if existingScript == None:
-        # if not, upload new script
+    try:
         scriptId = scriptService.uploadOfficialScript(scriptPath, scriptText)
-        print "Script uploaded with ID:", scriptId
-    else:
-        # if it has, edit the existing script
-        scriptService.editScript(existingScript, scriptText)
-        print "Script ID: %s was edited" % existingScript.id.val
-        scriptId = existingScript.id.val
+    except ApiUsageException:
+        raise
+        scriptId = editScript(scriptService, scriptPath)
     return scriptId
+    
+def editScript(scriptService, scriptPath):
+    file = open(scriptPath)
+    scriptText = file.read()
+    file.close()
+    # need the script Original File to edit
+    #scripts = scriptService.getScripts()
+    #if not scriptPath.startswith("/"): scriptPath =  "/" + scriptPath
+    #namedScripts = [s for s in scripts if s.path.val + s.name.val == scriptPath]
+    #script = namedScripts[-1]
+    script = getScript(scriptService, scriptPath)
+    print "Editing script:", scriptPath
+    scriptService.editScript(script, scriptText)
+    return script.id.val
     
 
 def getScript(scriptService, scriptPath):
     
     scripts = scriptService.getScripts()     # returns list of OriginalFiles     
         
-    #for s in scripts:
-    #    print s.id.val, s.path.val + s.name.val
+    for s in scripts:
+        print s.id.val, s.path.val + s.name.val
         
     # make sure path starts with a slash. 
     # ** If you are a Windows client - will need to convert all path separators to "/" since server stores /path/to/script.py **
