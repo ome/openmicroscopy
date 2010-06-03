@@ -438,21 +438,34 @@ public class ImportDialog extends JDialog implements ActionListener
      */
     private void refreshAndSetDataset(Project p)
     {
-        datasetItems = 
-            DatasetItem.createDatasetItems(store.getDatasets(p));
-        dbox.removeAllItems();
-        for (int k = 0; k < datasetItems.length; k++ )
-        {
-            RLong dId = datasetItems[k].getDataset().getId();
-            dbox.setEnabled(true);
-            addDatasetBtn.setEnabled(true);
-            importBtn.setEnabled(true);
-            dbox.insertItemAt(datasetItems[k], k);
-            if (dId != null && dId.getValue() == config.savedDataset.get())
-            {
-                dbox.setSelectedIndex(k);
-            }                        
-        }
+    	datasetItems = 
+    		DatasetItem.createDatasetItems(store.getDatasets(p));
+    	dbox.removeAllItems();
+    	if (datasetItems.length == 0)
+    	{
+    		datasetItems = 
+    			DatasetItem.createEmptyDataset();
+    		dbox.addItem(datasetItems[0]);
+    		dbox.setEnabled(false);
+    		// Clear button focus
+    		addDatasetBtn.setFocusable(false);
+    		addDatasetBtn.setFocusable(true);
+    		addDatasetBtn.setSelected(false);
+    		importBtn.setEnabled(false);
+    	} else {
+    		for (int k = 0; k < datasetItems.length; k++ )
+    		{
+    			RLong dId = datasetItems[k].getDataset().getId();
+    			dbox.setEnabled(true);
+    			addDatasetBtn.setEnabled(true);
+    			importBtn.setEnabled(true);
+    			dbox.insertItemAt(datasetItems[k], k);
+    			if (dId != null && dId.getValue() == config.savedDataset.get())
+    			{
+    				dbox.setSelectedIndex(k);
+    			}                        
+    		}
+    	}
     }
     
     /**

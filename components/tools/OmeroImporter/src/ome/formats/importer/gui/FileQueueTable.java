@@ -591,6 +591,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
     	};
     	groupBtn.setModel(model);
     	groupBtn.invalidate();
+    	groupBtn.setFocusable(false);
 	}
 	
 	/**

@@ -832,9 +832,10 @@ public class GuiCommonElements
             try {
                 retVal = integerFormatter.parse(getText()).intValue();
             } catch (ParseException e) {
+            	// Capture and ignore these
                 // This should never happen because insertString allows
                 // only properly formatted data to get in the field.
-                log.error(e);
+                // log.error(e);
             }
             return retVal;
         }
@@ -980,9 +981,10 @@ public class GuiCommonElements
                 retVal = formatter.parse(getText()).doubleValue();
             } catch (ParseException e) 
             {
+            	// Capture and ignore these
                 // This should never happen because insertString allows
                 // only properly formatted data to get in the field.
-                log.error(e);
+                // log.error(e);
             }
             return retVal;
         }
