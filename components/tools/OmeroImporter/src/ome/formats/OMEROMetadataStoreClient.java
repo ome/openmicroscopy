@@ -1236,7 +1236,7 @@ public class OMEROMetadataStoreClient
     public List<File> setArchive(boolean archive, boolean useMetadataFile)
     {
     	List<File> metadataFiles = new ArrayList<File>();
-    	int originalFileIndex = 0;
+    	int originalFileIndex = countCachedContainers(OriginalFile.class, null);
 		Map<String, Integer> pathIndexMap = new HashMap<String, Integer>();
     	for (int series = 0; series < reader.getSeriesCount(); series++)
     	{
