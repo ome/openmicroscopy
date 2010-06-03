@@ -50,12 +50,10 @@ import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
-import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.EllipseData;
 import pojos.ImageData;
 import pojos.MaskData;
@@ -143,7 +141,7 @@ public class OutputServerStrategy
 	/**
 	 * Creates an ROIData object from an ROI. 
 	 * 
-	 * @param roi See above.
+	 * @param roi The ROI to handle.
 	 * @param image The image the ROI is on.
 	 * @return See above.
 	 * @throws Exception If an error occurred while parsing the ROI.
@@ -151,18 +149,13 @@ public class OutputServerStrategy
 	private ROIData createServerROI(ROI roi, ImageData image) 
 		throws Exception
 	{
-		
 		ROIData roiData = new ROIData();
 		String ns = (String)roi.getAnnotation(AnnotationKeys.NAMESPACE);
-		List<String> list = UIUtilities.CSVToList((String)roi.getAnnotation(AnnotationKeys.KEYWORDS));
+		List<String> list = UIUtilities.CSVToList(
+				(String) roi.getAnnotation(AnnotationKeys.KEYWORDS));
 		String[] kw = new String[list.size()];
 		list.toArray(kw);
-		
-		
-		roiData.setNamespaceKeywords(ns,kw);
-		//TODO Fix Name
-		//roiData.setKeywords(roi.getKeyword());
-		
+		roiData.setNamespaceKeywords(ns, kw);
 		roiData.setClientSide(roi.isClientSide());
 		if (!roi.isClientSide())
 			roiData.setId(roi.getID());
@@ -200,7 +193,7 @@ public class OutputServerStrategy
 	}
 	
 	/**
-	 * Creates a ellipse figure server side object from a MeasureEllipseFigure 
+	 * Creates an ellipse figure server side object from a MeasureEllipseFigure 
 	 * client side object.
 	 * 
 	 * @param shape See above.
@@ -211,10 +204,10 @@ public class OutputServerStrategy
 		throws ParsingException
 	{
 		MeasureEllipseFigure fig = (MeasureEllipseFigure)shape.getFigure();
-		double rx=fig.getEllipse().getWidth()/2d;
-		double ry=fig.getEllipse().getHeight()/2d;
-		double cx=fig.getEllipse().getCenterX();
-		double cy=fig.getEllipse().getCenterY();
+		double rx = fig.getEllipse().getWidth()/2d;
+		double ry = fig.getEllipse().getHeight()/2d;
+		double cx = fig.getEllipse().getCenterX();
+		double cy = fig.getEllipse().getCenterY();
 		
 		EllipseData ellipse = new EllipseData(cx, cy, rx, ry); 
 		if (!fig.isClientObject())
