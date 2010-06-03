@@ -133,8 +133,9 @@ class OmeroMetadataServiceImpl
 		if (object == null)
 			throw new IllegalArgumentException("No object to handle.");
 		IObject ho = gateway.findIObject(annotation.asIObject());
+		ExperimenterData exp = getUserDetails();
 		IObject link = gateway.findAnnotationLink(object.getClass(), 
-				                         object.getId(), ho.getId().getValue());
+				       object.getId(), ho.getId().getValue(), exp.getId());
 		if (ho != null && link != null) {
 			gateway.deleteObject(link);
 			//Check that the annotation is not shared.
@@ -422,19 +423,20 @@ class OmeroMetadataServiceImpl
 		//		annotation.getClass()), annotation.getId());
 		//ModelMapper.unloadCollections(an);
 		Annotation an = annotation.asAnnotation();
+		ExperimenterData exp = getUserDetails();
 		if (annotation instanceof TagAnnotationData) {
 			TagAnnotationData tag = (TagAnnotationData) annotation;
 			//tag a tag.
 			if (TagAnnotationData.class.equals(data.getClass())) {
 				link = gateway.findAnnotationLink(
 						AnnotationData.class, tag.getId(), 
-						ho.getId().getValue());
+						ho.getId().getValue(), exp.getId());
 				if (link == null) 
 					link = ModelMapper.linkAnnotation(an, (Annotation) ho);
 				else exist = true;
 			} else {
 				link = gateway.findAnnotationLink(ho.getClass(), 
-						ho.getId().getValue(), tag.getId());
+						ho.getId().getValue(), tag.getId(), exp.getId());
 				if (link == null)
 					link = ModelMapper.linkAnnotation(ho, an);
 				else {
@@ -788,6 +790,7 @@ class OmeroMetadataServiceImpl
 		IObject link = null;
 		boolean exist = false;
 		IObject annObject;
+		ExperimenterData exp = getUserDetails();
 		if (annotation instanceof TagAnnotationData) {
 			TagAnnotationData tag = (TagAnnotationData) annotation;
 			//tag a tag
@@ -804,7 +807,7 @@ class OmeroMetadataServiceImpl
 					ModelMapper.unloadCollections(annObject);
 					link = gateway.findAnnotationLink(
 							AnnotationData.class, tag.getId(), 
-							ho.getId().getValue());
+							ho.getId().getValue(), exp.getId());
 					if (link == null) 
 						link = ModelMapper.linkAnnotation(annObject, 
 								(Annotation) ho);
@@ -817,7 +820,7 @@ class OmeroMetadataServiceImpl
 					ModelMapper.unloadCollections(annObject);
 					link = gateway.findAnnotationLink(ho.getClass(), 
 												ho.getId().getValue(), 
-												tag.getId());
+												tag.getId(), exp.getId());
 					if (link == null)
 						link = ModelMapper.linkAnnotation(ho, 
 								(Annotation) annObject);

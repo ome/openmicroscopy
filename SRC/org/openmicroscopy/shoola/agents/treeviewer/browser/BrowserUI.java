@@ -417,6 +417,9 @@ class BrowserUI
 			case Browser.FILES_EXPLORER:
 				createFileElements(node);
 				break;
+			case Browser.TAGS_EXPLORER:
+				createTagsElements(node);
+				break;
 			default:
 				buildEmptyNode(node);
 		}
@@ -429,7 +432,7 @@ class BrowserUI
     /**
      * Creates the smart folders added to the passed node.
      * 
-     * @param parent	The parent of the smart folder.
+     * @param parent The parent of the smart folder.
      */
     private void createTimeElements(TreeImageSet parent)
     {
@@ -450,7 +453,7 @@ class BrowserUI
     }
     
     /**
-     * Creates folder hosting <code>FileAnnotation</code>s.
+     * Creates folders hosting <code>FileAnnotation</code>s.
      * 
      * @param parent The parent of the elements.
      */
@@ -465,6 +468,21 @@ class BrowserUI
     		parent.addChildDisplay(node);
     		tm.insertNodeInto(node, parent, parent.getChildCount());
 		}
+    }
+    
+    /**
+     * Creates the smart folders added to the passed node.
+     * 
+     * @param parent The parent of the smart folder.
+     */
+    private void createTagsElements(TreeImageSet parent)
+    {
+    	DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+    	TreeFileSet node = new TreeFileSet(TreeFileSet.TAG);
+    	buildEmptyNode(node);
+		node.setNumberItems(-1);
+		parent.addChildDisplay(node);
+		tm.insertNodeInto(node, parent, parent.getChildCount());
     }
     
     /**
@@ -1609,7 +1627,6 @@ class BrowserUI
 	 */
 	void addExperimenter(ExperimenterData experimenter, boolean load)
 	{
-		
 		TreeImageSet node = createExperimenterNode(experimenter);
 		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
 		dtm.reload();
@@ -1650,6 +1667,7 @@ class BrowserUI
 		tm.reload();
 	}
 
+	/** Reactivates the tree. */
 	void reActivate()
 	{
 		TreeImageDisplay root = getTreeRoot();

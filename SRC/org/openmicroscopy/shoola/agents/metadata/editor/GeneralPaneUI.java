@@ -454,9 +454,6 @@ class GeneralPaneUI
     	repaint();
 	}
 	
-	/** Lays out the thumbnails. */
-	void setThumbnails() { annotationUI.setThumbnails(); }
-	
 	/**
 	 * Returns the list of tags currently selected by the user.
 	 * 

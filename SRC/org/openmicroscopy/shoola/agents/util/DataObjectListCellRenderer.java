@@ -79,6 +79,9 @@ public class DataObjectListCellRenderer
 	/** The collection of immutable  nodes. */
 	private Collection			immutable;
 	
+	/** Reference to the model. */
+	private SelectionWizardUI 	model;
+	
     /**
      * Sets the text displayed in the tool tip.
      * 
@@ -109,26 +112,23 @@ public class DataObjectListCellRenderer
     	while (i.hasNext()) {
 			object = i.next();
 			if (object.getClass().equals(value.getClass())) {
-				if (((DataObject) object).getId() == id)
-					return true;
+				if (((DataObject) object).getId() == id) {
+					return !model.isAddedNode(value);
+				}
 			}
 		}
     	return false;
     }
-    
-	/** Creates a new instance. */
-	public DataObjectListCellRenderer()
-	{
-		this(-1);
-	}
 	
 	/** 
 	 * Creates a new instance.
 	 * 
-	 *  @param currentUserID The id of the user currently logged in.
+	 * @param currentUserID The id of the user currently logged in.
+	 * @param model Reference to the UI wizard.  
 	 */
-	public DataObjectListCellRenderer(long currentUserID)
+	DataObjectListCellRenderer(long currentUserID, SelectionWizardUI model)
 	{
+		this.model = model;
 		this.currentUserID = currentUserID;
 		icons = IconManager.getInstance();
         filter = new EditorFileFilter();

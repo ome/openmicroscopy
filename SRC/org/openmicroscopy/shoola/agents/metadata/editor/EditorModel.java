@@ -694,6 +694,36 @@ class EditorModel
 	}
 	
 	/**
+	 * Returns <code>true</code> if the annotation is already used by the 
+	 * current user, <code>false</code> otherwise.
+	 * 
+	 * @param annotation The annotation to handle.
+	 * @return See above.
+	 */
+	boolean isAnnotationUsedByUser(Object annotation)
+	{
+		StructuredDataResults data = parent.getStructuredData();
+		if (data == null) return false;
+		Map m = data.getLinks();
+		if (m == null) return false;
+		long id = MetadataViewerAgent.getUserDetails().getId();
+		Entry entry;
+		Iterator i = m.entrySet().iterator();
+		DataObject o;
+		DataObject ann = (DataObject) annotation;
+		ExperimenterData exp;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			o = (DataObject) entry.getKey();
+			if (o.getId() == ann.getId()) {
+				exp = (ExperimenterData) entry.getValue();
+				if (exp.getId() == id) return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
 	 * Returns the collection of annotation that cannot be removed 
 	 * by the user currently logged.
 	 * 

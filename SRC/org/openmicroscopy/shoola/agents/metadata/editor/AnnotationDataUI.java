@@ -45,6 +45,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -71,7 +73,6 @@ import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.DataObject;
 import pojos.FileAnnotationData;
-import pojos.ImageData;
 import pojos.RatingAnnotationData;
 import pojos.TagAnnotationData;
 
@@ -594,7 +595,8 @@ class AnnotationDataUI
 						doc = new DocComponent(i.next(), model);
 						doc.addPropertyChangeListener(controller);
 						tagsDocList.add(doc);
-					    if (width+doc.getPreferredSize().width >= COLUMN_WIDTH) {
+					    if (width+doc.getPreferredSize().width >= COLUMN_WIDTH)
+					    {
 					    	tagsPane.add(p);
 					    	p = initRow();
 							width = 0;
@@ -680,25 +682,6 @@ class AnnotationDataUI
 		this.controller = controller;
 		initComponents();
 		init = false;
-	}
-	
-	/** Sets the thumbnails. */
-	void setThumbnails()
-	{
-		/*
-		Map<Long, BufferedImage> thumbnails = model.getThumbnails();
-		if (thumbnails == null) return;
-		Set set = thumbnails.entrySet();
-		Iterator i = set.iterator();
-		Entry entry;
-		ViewedByComponent comp;
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			comp = viewedBy.get(entry.getKey());
-			if (comp != null)
-				comp.setThumbnail((BufferedImage) entry.getValue());
-		}
-		*/
 	}
 	
 	/**
@@ -874,7 +857,9 @@ class AnnotationDataUI
 			} else {
 				while (i.hasNext()) {
 					tag = (TagAnnotationData) i.next();
-					ids.add(tag.getId());
+					if (!model.isAnnotationUsedByUser(tag)) {
+						ids.add(tag.getId());
+					}
 				}
 				i = tags.iterator();
 				while (i.hasNext()) {
@@ -909,8 +894,8 @@ class AnnotationDataUI
 				}
 			}
 		}
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
-				Boolean.TRUE);
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false), 
+				Boolean.valueOf(true));
 	}
 	
 	/**
@@ -1060,24 +1045,66 @@ class AnnotationDataUI
 		Iterator j;
 		List<Long> ids;
 		Collection original;
+		List<Long> added = new ArrayList<Long>();
 		long id;
 		if (tagFlag) {
 			original = model.getTags();
 			j = original.iterator();
 			ids = new ArrayList<Long>();
 			while (j.hasNext()) {
-				ids.add(((AnnotationData) j.next()).getId());
+				annotation = (AnnotationData) j.next();
+				ids.add(annotation.getId());
 			}
 			
 			i = tagsDocList.iterator();
+			/*
 			while (i.hasNext()) {
 				doc = i.next();
 				object = doc.getData();
 				if (object instanceof TagAnnotationData) {
 					annotation = (AnnotationData) object;
 					id = annotation.getId();
-					if (!ids.contains(id)) l.add(annotation);
+					if (!ids.contains(id) && !added.contains(id)) {
+						added.add(id);
+						l.add(annotation);
+					}
 				}
+			}
+			*/
+			Map<Long, Integer> map = new HashMap<Long, Integer>();
+			Map<Long, AnnotationData> 
+				annotations = new HashMap<Long, AnnotationData>();
+			Integer count;
+			while (i.hasNext()) {
+				doc = i.next();
+				object = doc.getData();
+				if (object instanceof TagAnnotationData) {
+					annotation = (AnnotationData) object;
+					id = annotation.getId();
+					if (!ids.contains(id)) {
+						l.add(annotation);
+					} else {
+						count = map.get(id);
+						if (count != null) {
+							count++;
+							map.put(id, count);
+						} else {
+							count = 1;
+							annotations.put(id, annotation);
+							map.put(id, count);
+						}
+					}
+				}
+			}
+			
+			//check the count
+			Entry entry;
+			Iterator k = map.entrySet().iterator();
+			while (k.hasNext()) {
+				entry = (Entry) k.next();
+				count = (Integer) entry.getValue();
+				if (count > 1)
+					l.add(annotations.get(entry.getKey()));
 			}
 		}
 		i = tagsDocList.iterator();

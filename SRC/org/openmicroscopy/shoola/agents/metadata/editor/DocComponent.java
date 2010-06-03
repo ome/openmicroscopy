@@ -37,6 +37,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -148,6 +150,9 @@ class DocComponent
 	/** Button to open the delete the file annotation. */
 	private JButton		deleteButton;
 	
+	/** Button to open the delete the file annotation. */
+	private JButton		transparentButton;
+	
 	/** Component displaying the file name. */
 	private JLabel		label;
 	
@@ -174,15 +179,18 @@ class DocComponent
 	
 	/**
 	 * Enables or disables the various buttons depending on the passed value.
+	 * Returns <code>true</code> if some controls are visible, 
+	 * <code>false</code> otherwise.
 	 * 
 	 * @param enabled 	Pass <code>true</code> to enable the controls,
 	 * 					<code>false</code> otherwise.
+	 * @return See above.
 	 */
-	private void setControlsEnabled(boolean enabled)
+	private boolean setControlsEnabled(boolean enabled)
 	{
 		boolean b = enabled;
 		boolean link = enabled;
-		
+		int count = 0;
 		if (enabled && data != null) {
 			b = model.isUserOwner(data);
 			link = model.isLinkOwner(data);
@@ -190,24 +198,30 @@ class DocComponent
 		if (unlinkButton != null) {
 			unlinkButton.setEnabled(link);
 			unlinkButton.setVisible(link);
+			if (link) count++;
 		} 
 		
 		if (editButton != null) {
 			editButton.setEnabled(b);
 			editButton.setVisible(b);
+			if (b) count++;
 		}
 		if (downloadButton != null) {
 			downloadButton.setEnabled(link);
 			downloadButton.setVisible(link);
+			if (link) count++;
 		}
 		if (openButton != null) {
 			openButton.setEnabled(enabled);
 			openButton.setVisible(enabled);
+			if (enabled) count++;
 		}
 		if (deleteButton != null) {
 			deleteButton.setEnabled(b);
 			deleteButton.setVisible(b);
+			if (b) count++;
 		}
+		return count > 0;
 	}
 	
 	/** Opens the file. */
@@ -326,7 +340,6 @@ class DocComponent
 		unlinkButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		unlinkButton.addActionListener(this);
 		unlinkButton.setActionCommand(""+UNLINK);
-
 		if (data instanceof FileAnnotationData) {
 			FileAnnotationData fa = (FileAnnotationData) data;
 			unlinkButton.setToolTipText("Remove the attachment.");
@@ -394,7 +407,8 @@ class DocComponent
 	private void initComponents()
 	{
 		imageToLoad = -1;
-		if (model.isUserOwner(data)) initButtons();
+		if (model.isUserOwner(data)) 
+			initButtons();
 		label = new JLabel();
 		label.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
 		if (data == null) {
@@ -479,8 +493,11 @@ class DocComponent
 		if (downloadButton != null) bar.add(downloadButton);
 		if (openButton != null) bar.add(openButton);
 		if (deleteButton != null) bar.add(deleteButton);
-		setControlsEnabled(data != null);
-		if (bar.getComponentCount() > 0) add(bar);
+		boolean b = setControlsEnabled(data != null);
+		if (bar.getComponentCount() > 0) {
+			if (!b) bar.add(Box.createHorizontalStrut(8));
+			add(bar);
+		}
 	}
 	
 	/** Adds or edits the description of the tag. */

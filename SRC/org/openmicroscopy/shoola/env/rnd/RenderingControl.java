@@ -35,6 +35,8 @@ import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
+
+import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import pojos.ChannelData;
 import pojos.PixelsData;
@@ -66,7 +68,7 @@ public interface RenderingControl
 	public static final int		MAX_SIZE_THREE = 3*MAX_SIZE;
 	
 	/** The maximum number of channels. */
-	public static final int		MAX_CHANNELS = 8;
+	public static final int		MAX_CHANNELS = Renderer.MAX_CHANNELS;
 	
 	/** Flag to indicate that the image is not compressed. */
 	public static final int		UNCOMPRESSED = 0;

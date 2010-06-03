@@ -2967,16 +2967,18 @@ class OMEROGateway
 	/**
 	 * Finds the link if any between the specified parent and child.
 	 * 
-	 * @param type    
-	 * @param parentID
+	 * @param type    The type of annotation to handle.
+	 * @param parentID The id of the parent.
 	 * @param childID   The id of the child, or <code>-1</code> if no 
 	 * 					child specified.
+	 * @param userID   The id of the user.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	IObject findAnnotationLink(Class type, long parentID, long childID)
+	IObject findAnnotationLink(Class type, long parentID, long childID, 
+			long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
@@ -2985,10 +2987,11 @@ class OMEROGateway
 			String table = getTableForAnnotationLink(type.getName());
 			if (table == null) return null;
 			String sql = "select link from "+table+" as link where " +
-			"link.parent.id = :parentID"; 
+			"link.parent.id = :parentID and link.details.owner.id = :userID"; 
 			Parameters p = new ParametersI();
 			p.map = new HashMap<String, RType>();
 			p.map.put("parentID", omero.rtypes.rlong(parentID));
+			p.map.put("userID", omero.rtypes.rlong(userID));
 			if (childID >= 0) {
 				sql += " and link.child.id = :childID";
 				p.map.put("childID", omero.rtypes.rlong(childID));

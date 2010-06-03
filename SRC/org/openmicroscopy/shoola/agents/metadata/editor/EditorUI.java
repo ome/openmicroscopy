@@ -367,9 +367,6 @@ class EditorUI
 		model.fireAnnotationSaving(toAdd, toRemove, metadata, async);
 	}
 
-	/** Lays out the thumbnails. */
-	void setThumbnails() { generalPane.setThumbnails(); }
-
 	/**
 	 * Returns the list of tags currently selected by the user.
 	 * 

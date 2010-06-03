@@ -210,22 +210,6 @@ class EditorComponent
 		model.setParentRootObject(parentRefObject);
 		view.setParentRootObject();
 	}
-	
-	/** 
-	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#setThumbnails(Map, long)
-	 */
-	public void setThumbnails(Map<Long, BufferedImage> thumbnails, 
-							long imageID)
-	{
-		Object ref = model.getRefObject();
-		if (ref instanceof ImageData) {
-			if (((ImageData) ref).getId() == imageID) {
-				model.setThumbnails(thumbnails);
-				view.setThumbnails();
-			}
-		}
-	}
 
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
@@ -238,13 +222,16 @@ class EditorComponent
 		Collection setTags = view.getCurrentTagsSelection();
 		Iterator<TagAnnotationData> k = setTags.iterator();
 		List<Long> ids = new ArrayList<Long>();
+		TagAnnotationData tag;
 		while (k.hasNext()) {
-			ids.add(k.next().getId());
+			tag = k.next();
+			if (model.isAnnotationUsedByUser(tag))
+				ids.add(tag.getId());
 		}
 		List available = new ArrayList();
 		if (tags != null) {
 			Iterator i = tags.iterator();
-			TagAnnotationData data, tag;
+			TagAnnotationData data;
 			String ns;
 			Set<TagAnnotationData> l;
 			Iterator<TagAnnotationData> j;

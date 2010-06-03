@@ -56,6 +56,12 @@ public class TreeFileSet
 	
 	/** Indicates that the node should host all the other types of files. */
 	public static final int OTHER = 3;
+	
+	/** 
+	 * Indicates that the node should host all tags not owned by an
+	 * experimenter but used by him/her. 
+	 */
+	public static final int TAG = 4;
 
 	/**
 	 * Returns the value corresponding to the passed index.
@@ -70,6 +76,8 @@ public class TreeFileSet
 				return "Protocols";
 			case EXPERIMENT: return "Experiments";
 			case MOVIE: return "Movies";
+			case TAG: 
+				return "Other Tags";
 			case OTHER:
 			default:
 				return "Other files";
@@ -80,7 +88,7 @@ public class TreeFileSet
 	private int type;
 	
 	/**
-	 * Creates a new intance.
+	 * Creates a new instance.
 	 * 
 	 * @param type One of the constants defined by this class.
 	 */
@@ -91,6 +99,7 @@ public class TreeFileSet
 			case PROTOCOL: 
 			case EXPERIMENT: 
 			case MOVIE:
+			case TAG:
 				this.type = type;
 				break;
 			case OTHER:

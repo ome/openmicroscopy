@@ -125,7 +125,10 @@ public class SelectionWizardUI
 	private Collection			immutable;
 	
 	/** The renderer used. */
-	private DataObjectListCellRenderer cellRenderer;
+	private DataObjectListCellRenderer cellRendererLeft;
+	
+	/** The renderer used. */
+	private DataObjectListCellRenderer cellRendererRight;
 	
 	/**
 	 * Returns <code>true</code> if an object object of the same type 
@@ -162,10 +165,11 @@ public class SelectionWizardUI
 	{
 		sorter = new ViewerSorter();
 		availableItemsListbox = new JList();
-		cellRenderer = new DataObjectListCellRenderer(userID);
-		availableItemsListbox.setCellRenderer(cellRenderer);
+		cellRendererLeft = new DataObjectListCellRenderer(userID, this);
+		availableItemsListbox.setCellRenderer(cellRendererLeft);
 		selectedItemsListbox = new JList();
-		selectedItemsListbox.setCellRenderer(cellRenderer);
+		cellRendererRight = new DataObjectListCellRenderer(userID, this);
+		selectedItemsListbox.setCellRenderer(cellRendererRight);
 		IconManager icons = IconManager.getInstance();
 		addButton = new JButton(icons.getIcon(IconManager.RIGHT_ARROW));
 		removeButton = new JButton(icons.getIcon(IconManager.LEFT_ARROW));
@@ -204,7 +208,6 @@ public class SelectionWizardUI
 	/** Adds all the items to the selection. */
 	private void addAllItems()
 	{
-		//selectedItems.clear();
 		for (Object item: availableItems)
 			selectedItems.add(item);
 		availableItems.clear();
@@ -516,15 +519,45 @@ public class SelectionWizardUI
 	{
 		if (immutable == null) immutable = new ArrayList();
 		this.immutable = immutable;
-		cellRenderer.setImmutableElements(immutable);
+		cellRendererRight.setImmutableElements(immutable);
 	}
 	
 	/**
-	 * Returns the selected items.
+	 * Returns <code>true</code> if the node has been added,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param value The value to handle.
+	 * @return See above.
+	 */
+	boolean isAddedNode(Object value)
+	{
+		return !originalSelectedItems.contains(value);
+	}
+	
+	/**
+	 * Returns the selected items, excluding the immutable node.
 	 * 
 	 * @return See above.
 	 */
-	public Collection<Object> getSelection() { return selectedItems; }
+	public Collection<Object> getSelection()
+	{ 
+		Iterator<Object> i = selectedItems.iterator();
+		List<Object> results = new ArrayList<Object>();
+		Object object;
+		while (i.hasNext()) {
+			object = i.next();
+			if (isAddedNode(object))
+				results.add(object);
+			else {
+				//was there but is immutable
+				if (object instanceof DataObject) {
+					if (!isImmutable((DataObject) object))
+						results.add(object);
+				} else results.add(object);
+			}
+		}
+		return selectedItems; 
+	}
 	
 	/**
 	 * Reacts to event fired by the various controls.
