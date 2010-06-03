@@ -117,6 +117,16 @@ module omero {
             omero::api::IObjectList registerFileSet(omero::model::OriginalFile keyFile, omero::api::ImageList imageList) 
                     throws ServerError;
             
+           /**
+             * Import image metadata using pixels id.
+             *
+             * If the id does not exist a ValidationException is thrown. 
+             * Otherwise, the image with that id will have its metadata imported.
+             * The image id is returned.
+             *
+             **/
+            omero::model::Image importImageMetadata(long id) throws ServerError;
+            
             /**
              * Load the OriginalFile at the given path with annotations and
              * associated Pixels (if present). If the path does not point to

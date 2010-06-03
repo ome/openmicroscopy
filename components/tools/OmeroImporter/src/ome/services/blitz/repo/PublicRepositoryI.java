@@ -50,14 +50,24 @@ import loci.formats.IFormatReader;
 import loci.formats.IFormatWriter;
 import loci.formats.ImageReader;
 import loci.formats.ImageWriter;
+import loci.formats.in.DefaultMetadataOptions;
+import loci.formats.in.MetadataLevel;
 import loci.formats.meta.IMetadata;
+import loci.formats.meta.MetadataStore;
 import loci.formats.services.OMEXMLService;
 import ome.conditions.InternalException;
+import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.ImportCandidates;
+import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
+import ome.formats.importer.ImportLibrary;
+import ome.formats.importer.OMEROWrapper;
+import ome.formats.importer.cli.ErrorHandler;
 import ome.services.blitz.util.RegisterServantMessage;
 import ome.services.db.PgArrayHelper;
 import ome.services.util.Executor;
 import ome.system.Principal;
+import ome.parameters.Parameters;
 import ome.system.ServiceFactory;
 import ome.xml.r201004.primitives.PositiveInteger;
 import omero.ServerError;
@@ -102,11 +112,16 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
     private final static Log log = LogFactory.getLog(PublicRepositoryI.class);
 
+    /* These two path elements make up the local thumbnail cache */
     private final static String OMERO_PATH = ".omero";
 
     private final static String THUMB_PATH = "thumbnails";
 
+    /* String used as key in params field of db for indexing image series number */
     private final static String IMAGE_NO_KEY = "image_no";
+    
+    /* String to use when there is no image name */
+    private final static String NO_NAME_SET = "NO_NAME_SET";
 
     private final long id;
 
@@ -119,7 +134,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
     private final SimpleJdbcOperations jdbc;
 
     private final Principal principal;
-    
+
     private Map<String,DimensionOrder> dimensionOrderMap;
     
     private Map<String,PixelsType> pixelsTypeMap;
@@ -361,6 +376,102 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return objList;
     }
 
+    
+    /**
+     * Import an image's metadata.
+     * 
+     * @param id
+     *            An Image id.
+     * @param config
+     *            A RepositoryListConfig defining the listing config.
+     * @param __current
+     *            ice context.
+     * @return 
+     *
+     */
+    public Image importImageMetadata(long id, Current __current) throws ServerError {
+        
+        final long pixelsId = id;
+        
+        Integer series = (Integer) executor.execute(principal, new Executor.SimpleWork(this, "importImageMetadata", id) {
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+                Map<String, String> params = helper.getPixelsParams(pixelsId);
+                Integer result = new Integer(params.get(IMAGE_NO_KEY));
+                return result;
+            }
+        });
+        
+        ome.model.core.Image image = (ome.model.core.Image) executor.execute(principal, new Executor.SimpleWork(this, "importImageMetadata", id) {
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+
+                BigInteger imageId = (BigInteger) session.createSQLQuery(
+                        "select image from Pixels " +
+                        "where id = ?")
+                        .setParameter(0, pixelsId)
+                        .uniqueResult();
+                
+                if(imageId == null) return null;
+                
+                Parameters p = new Parameters();
+                p.addId(new Long(imageId.longValue()));
+                
+                ome.model.core.Image result = sf.getQueryService().findByQuery(
+                    "select i from Image i " +
+                    "join fetch i.pixels as p " +
+                    "join fetch p.pixelsType " +
+                    "join fetch p.dimensionOrder " +
+                    "left outer join fetch p.channels " +
+                    "left outer join fetch p.planeInfo " +
+                    "left outer join fetch p.pixelsFileMaps " +
+                    "left outer join fetch p.settings " +
+                    "left outer join fetch p.thumbnails " +
+                    "left outer join fetch i.instrument " +
+                    "left outer join fetch i.imagingEnvironment " +
+                    "left outer join fetch i.experiment " +
+                    "left outer join fetch i.format " +
+                    "left outer join fetch i.objectiveSettings " +
+                    "left outer join fetch i.stageLabel " +
+                    "left outer join fetch i.annotationLinks " +
+                    "left outer join fetch i.wellSamples " +
+                    "left outer join fetch i.rois " +
+                    "where i.id = :id", p);
+                
+                return result;
+            }
+        });
+                
+        if (image == null)
+        {
+            return null;
+        }
+        IceMapper mapper = new IceMapper();
+        Image rv = (Image) mapper.map(image);
+        
+        Map<Integer, Image> imageMap = new HashMap<Integer, Image>();
+        imageMap.put(series, rv);
+        
+
+        OMEROMetadataStoreClient client = new OMEROMetadataStoreClient();
+        
+        // For now!! TODO use the session information.
+        try {
+        	client.initialize("root", "ome", "localhost", 4063, true);
+        } catch (Exception e) {
+            throw new omero.InternalException(stackTraceAsString(e), null, e.getMessage());
+        }
+        ImportConfig config = new ImportConfig();
+        OMEROWrapper reader = new OMEROWrapper(config);
+        ImportLibrary library = new ImportLibrary(client, reader);
+
+        library.setMetadataOnly(true);
+        library.prepare(imageMap);
+
+        return rv;
+    }
+    
+    
     public void delete(String path, Current __current) throws ServerError {
         File file = checkPath(path);
         FileUtils.deleteQuietly(file);
@@ -826,9 +937,10 @@ public class PublicRepositoryI extends _RepositoryDisp {
                 pix = createPixels(pix);
                 imageName = iNames.get(i);
                 if (imageName == null) {
-                    imageName = "IMAGE NAME NULL";
-                } else if (imageName.equals("")) {
-                    imageName = "IMAGE NAME EMPTY";
+                    imageName = NO_NAME_SET;
+                } 
+                else if (imageName.equals("")) {
+                    imageName = NO_NAME_SET;
                 }
                 image = getImage(set.fileName, i);
                 if (image == null) {
@@ -966,7 +1078,6 @@ public class PublicRepositoryI extends _RepositoryDisp {
      *
      */
     private OriginalFile getOriginalFile(final String path, final String name)  {
-        OriginalFile rv;
         final String uuid = getRepoUuid();
         ome.model.core.OriginalFile oFile = (ome.model.core.OriginalFile) executor
                 .execute(principal, new Executor.SimpleWork(this, "getOriginalFile", uuid, path, name) {
@@ -985,12 +1096,13 @@ public class PublicRepositoryI extends _RepositoryDisp {
                         return sf.getQueryService().find(ome.model.core.OriginalFile.class, id.longValue());
                     }
                 });
+        
         if (oFile == null)
         {
             return null;
         }
         IceMapper mapper = new IceMapper();
-        rv = (OriginalFile) mapper.map(oFile);
+        OriginalFile rv = (OriginalFile) mapper.map(oFile);
         return rv;
     }
 
