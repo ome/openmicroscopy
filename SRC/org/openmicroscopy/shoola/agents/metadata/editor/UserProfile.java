@@ -188,6 +188,9 @@ class UserProfile
             	passwordNew.requestFocus();
             	return;
             }
+            un = MetadataViewerAgent.getRegistry().getUserNotifier();
+        	un.notifyInfo(PASSWORD_CHANGE_TITLE, "Password changed.");
+            passwordNew.setText("");
             model.resetPassword(newPass);
     		return;
     	}
@@ -254,6 +257,7 @@ class UserProfile
     	activeBox.setBackground(UIUtilities.BACKGROUND_COLOR);
     	activeBox.setVisible(false);
     	passwordButton =  new JButton("Change password");
+    	passwordButton.setEnabled(false);
     	passwordButton.setBackground(UIUtilities.BACKGROUND_COLOR);
     	passwordButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {  
@@ -324,6 +328,36 @@ class UserProfile
 			activeBox.setSelected(active);
 			activeBox.addChangeListener(this);
 			admin = false;
+			passwordNew.getDocument().addDocumentListener(
+					new DocumentListener() {
+				
+			   /**
+				* Allows the user to interact with the password controls
+				* depending on the value entered.
+				* @see DocumentListener#removeUpdate(DocumentEvent)
+				*/
+				public void removeUpdate(DocumentEvent e)
+				{
+					handlePasswordEntered();
+				}
+				
+				/**
+				 * Allows the user to interact with the password controls
+				 * depending on the value entered.
+				 * @see DocumentListener#insertUpdate(DocumentEvent)
+				 */
+				public void insertUpdate(DocumentEvent e)
+				{
+					handlePasswordEntered();
+				}
+				
+				/**
+				 * Required by the {@link DocumentListener} I/F but 
+				 * no-operation implementation in our case.
+				 * @see DocumentListener#changedUpdate(DocumentEvent)
+				 */
+				public void changedUpdate(DocumentEvent e) {}
+			});
 		}
 		
 		ownerBox.setEnabled(owner);
@@ -340,6 +374,16 @@ class UserProfile
 				
 			});
 		}
+    }
+    
+    /**
+     * Sets the enabled flag of some password controls depending on the
+     * text entered.
+     */
+    private void handlePasswordEntered()
+    {
+    	char[] values = passwordNew.getPassword();
+    	passwordButton.setEnabled(values != null && values.length > 0);
     }
     
     /** Brings up the dialog to choose the photo to upload. */
@@ -410,9 +454,9 @@ class UserProfile
 		c.gridx = 0;
 		c.gridy = 0;
 		c.gridwidth = 3;
-		 c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-	        c.fill = GridBagConstraints.HORIZONTAL;
-    	content.add(userPicture, c);
+		c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+		c.fill = GridBagConstraints.HORIZONTAL;
+		content.add(userPicture, c);
         c.gridy++;
         c.gridx = 0;
         label = UIUtilities.setTextFont(EditorUtil.DISPLAY_NAME+
