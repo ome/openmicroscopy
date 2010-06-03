@@ -696,18 +696,12 @@ class ImViewerComponent
 			case NEW:
 			case DISCARDED:
 				return;
-				/*
-				throw new IllegalStateException(
-						"This method can't be invoked in the DISCARDED or NEW" +
-				" state.");
-				*/
 		}
 		int defaultZ = model.getDefaultZ();
 		int defaultT = model.getDefaultT();
 		if (bin >= 0) { //lifetime
 			model.setSelectedBin(bin);
 			renderXYPlane();
-			
 		} else {
 			if (defaultZ == z && defaultT == t) return;
 			if (defaultZ != z) {

@@ -193,7 +193,7 @@ public class ImViewerAgent
     	if (evt == null) return;
     	long pixelsID = evt.getPixelsID();
     	ImViewer view = ImViewerFactory.getImageViewer(pixelsID);
-    	if (view != null) 
+    	if (view != null && !view.isPlayingMovie()) 
     		view.setSelectedXYPlane(evt.getDefaultZ(), evt.getDefaultT());
     }
     
