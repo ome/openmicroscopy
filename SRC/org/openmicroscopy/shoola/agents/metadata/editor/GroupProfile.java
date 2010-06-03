@@ -107,7 +107,6 @@ class GroupProfile
     	GroupData group = (GroupData) model.getRefObject();
     	ExperimenterData exp = MetadataViewerAgent.getUserDetails();
     	Set l = group.getLeaders();
-    	
     	ExperimenterData leader;
     	boolean edit = false;
     	if (l != null) {

@@ -282,7 +282,9 @@ class EditorUI
 		toolBar.setRootObject();
 		toolBar.buildUI();
 		if (!(uo instanceof DataObject)) {
+			//saved = false;
 			setDataToSave(false);
+			toolBar.setStatus(false);
 			toolBar.buildUI();
 			remove(component);
 			component = defaultPane;

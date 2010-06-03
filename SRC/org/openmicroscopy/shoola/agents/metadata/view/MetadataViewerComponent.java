@@ -69,7 +69,6 @@ import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.AnnotationData;
@@ -118,20 +117,6 @@ class MetadataViewerComponent
 	
 	/** The View sub-component. */
 	private MetadataViewerUI 		view;
-
-	/**
-	 * Initializes a message dialog.
-	 * 
-	 * @return See above.
-	 */
-	private MessageBox initMessageDialog()
-	{
-		MessageBox dialog = new MessageBox(view, "Save Annotations", 
-        "Do you want to attach the annotations to: ");
-		dialog.setNoText("Cancel");
-		dialog.setYesText("OK");
-		return dialog;
-	}
 	
 	/**
 	 * Creates the movie.
@@ -141,12 +126,6 @@ class MetadataViewerComponent
 	private void createMovie(MovieExportParam parameters)
 	{
 		if (parameters == null) return;
-		/*
-		firePropertyChange(CREATING_MOVIE_PROPERTY, Boolean.valueOf(false),
-				Boolean.valueOf(true));
-				*/
-		
-		
 		if (parameters == null) return;
 		Object refObject = model.getRefObject();
 		ImageData img = null;
