@@ -67,6 +67,9 @@ import pojos.MultiImageData;
 public class FSFileSystemView 
 {
 
+	/** Indicates that no name was set. */
+	private static final String NO_NAME = "NO_NAME_SET";
+	
 	/** Reference to the repositories. */
 	private Map<FileData, RepositoryPrx> repositories;
 	
@@ -181,7 +184,8 @@ public class FSFileSystemView
 						image.setParentFilePath(multiImg.getAbsolutePath(), 
 								index);
 						name = image.getName();
-						if (name == null || name.length() == 0) {
+						if (name == null || name.length() == 0 || 
+								name.equals(NO_NAME)) {
 							image.setName(parentName+"_"+index);
 						}
 						components.add(image);
