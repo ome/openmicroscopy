@@ -318,7 +318,8 @@ public class CreateTopContainerAction
 							withParent = model.isUserOwner(uo);
 						break;
 					case EXPERIMENTER:
-						if (uo instanceof ExperimenterData) withParent = false;//true;
+						if (uo instanceof ExperimenterData) 
+							withParent = false;//true;
 					case TAG:
 						if (uo instanceof TagAnnotationData) {
 							TagAnnotationData tag = (TagAnnotationData) uo;

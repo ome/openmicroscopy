@@ -630,7 +630,7 @@ public class ScriptingDialog
 		JLabel label = new JLabel(TEXT_END);
 		Font font = label.getFont();
 		label.setFont(font.deriveFont(font.getStyle(), font.getSize()-2));
-		label.setForeground(Color.RED);
+		label.setForeground(UIUtilities.REQUIRED_FIELDS_COLOR);
 		layout.insertRow(row, TableLayout.PREFERRED);
 		p.add(UIUtilities.buildComponentPanel(label), "0,"+row+",2, "+row);
 		JXTaskPane pane = null;

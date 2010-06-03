@@ -129,6 +129,9 @@ public class UIUtilities
 	/** The default background color. */
     public static final Color				BACKGROUND_COLOR = Color.WHITE;
     
+    /** The color of the required fields. */
+    public static final Color				REQUIRED_FIELDS_COLOR = Color.RED;
+    
     /** The default background color. */
     public static final Color				WINDOW_BACKGROUND_COLOR = 
     										new Color(248, 248, 248);

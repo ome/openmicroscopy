@@ -339,8 +339,7 @@ public class AdminDialog
 					if (data.getId() == p.getId()) {
 						toRemove = data;
 						break;
-					}
-						
+					}	
 				}
 				if (toRemove != null) groups.remove(toRemove);
 			}

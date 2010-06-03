@@ -259,6 +259,7 @@ class ExperimenterPane
         c.gridy++;
         label = UIUtilities.setTextFont(EditorUtil.MANDATORY_DESCRIPTION,
         		Font.ITALIC);
+        label.setForeground(UIUtilities.REQUIRED_FIELDS_COLOR);
         c.weightx = 0.0;  
         content.add(label, c);
         return content;

@@ -312,7 +312,7 @@ public interface TreeViewer
 
 	/** 
 	 * Adds or removes the {@link Browser} corresponding to the specified type
-	 * to the display depending on the actual status of the browseer.
+	 * to the display depending on the actual status of the browser.
 	 * 
 	 * @param browserType The browser's type.
 	 */
