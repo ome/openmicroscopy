@@ -365,7 +365,11 @@ class DSLHandler extends DefaultHandler {
             SemanticType t = types.get(id);
             if (t instanceof LinkType) {
                 LinkType link = (LinkType) t;
-                link.getUniqueConstraints().add("\"parent\",\"child\"");
+                if (link.getGlobal()) {
+                    link.getUniqueConstraints().add("\"parent\",\"child\"");
+                } else {
+                    link.getUniqueConstraints().add("\"parent\",\"child\",\"owner_id\"");
+                }
             }
         }
 
