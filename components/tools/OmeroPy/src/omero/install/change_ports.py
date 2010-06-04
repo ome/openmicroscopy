@@ -14,13 +14,19 @@
 """
 
 
-import sys, exceptions
+import re, sys, exceptions
 import fileinput
 from path import path
 
 dir = path(".")
 etc = dir / "etc"
 grid = etc / "grid"
+
+def line_has_port(line, port):
+    m = re.match("^.*?\D%s\D.*?$" % port, line)
+    if not m:
+        m = re.match("^.*?\D%s$" % port, line)
+    return m
 
 def change_ports(glacier2, glacier2insecure, registry, revert = False):
     """
@@ -52,7 +58,7 @@ def change_ports(glacier2, glacier2insecure, registry, revert = False):
         f_glacier2insecure = "4063"
         f_registry = "4061"
 
-    def check_line (l, s, f, t):
+    def check_line (l, s, f, t, done):
         """
         @param l: the line
         @param s: the string that denotes this line is supposed to change
@@ -60,10 +66,7 @@ def change_ports(glacier2, glacier2insecure, registry, revert = False):
         @param t: to port
         @return: the line, changed if needed
         """
-        if l.find(s) >= 0 and l.find(f) >= 0:
-            if f in t and l.find(t) >= 0:
-                # Already have the change... probably
-                return False
+        if l.find(s) >= 0 and line_has_port(l, f):
             print l.replace(f, t),
             done.add(fileinput.filename())
             return True
@@ -72,9 +75,9 @@ def change_ports(glacier2, glacier2insecure, registry, revert = False):
     cfgs = [ str(x) for x in etc.files("*.cfg") ]
     done = set()
     for line in fileinput.input(cfgs, inplace=1):
-        if check_line(line, "Ice.Default.Locator", f_registry, t_registry):
+        if check_line(line, "Ice.Default.Locator", f_registry, t_registry, done):
             continue
-        elif check_line(line, "IceGrid.Registry.Client.Endpoints", f_registry, t_registry):
+        elif check_line(line, "IceGrid.Registry.Client.Endpoints", f_registry, t_registry, done):
             continue
         print line,
     fileinput.close()
@@ -86,9 +89,9 @@ def change_ports(glacier2, glacier2insecure, registry, revert = False):
     xmls = [ str(x) for x in grid.files("*.xml") ]
     done = set()
     for line in fileinput.input(xmls, inplace=1):
-        if check_line(line, "ROUTERPORT", f_glacier2, t_glacier2):
+        if check_line(line, "ROUTERPORT", f_glacier2, t_glacier2, done):
             continue
-        elif check_line(line, "INSECUREROUTER", f_glacier2insecure, t_glacier2insecure):
+        elif check_line(line, "ROUTER", f_glacier2insecure, t_glacier2insecure, done):
             continue
         print line,
     fileinput.close()
