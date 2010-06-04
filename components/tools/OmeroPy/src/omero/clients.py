@@ -330,7 +330,10 @@ class BaseClient(object):
         """
         self.__lock.acquire()
         try:
-            return self.__sf
+            sf = self.__sf
+            if not sf:
+                raise omero.ClientError("No session avaliable")
+            return sf
         finally:
             self.__lock.release()
 
@@ -470,6 +473,9 @@ class BaseClient(object):
             raw = self.__oa.createProxy(id)
             self.__sf.setCallback(omero.api.ClientCallbackPrx.uncheckedCast(raw))
             #self.__sf.subscribe("/public/HeartBeat", raw)
+
+            # Set the session uuid in the implicit context
+            self.getImplicitContext()..put(omero.constants.SESSIONUUID, self.getSessionId())
 
             return self.__sf
         finally:
@@ -720,14 +726,10 @@ class BaseClient(object):
         cannot be called, -1 is returned.
         """
 
-        sf = self.sf
-        if not sf:
-            raise omero.ClientError("No session avaliable")
-
         s = omero.model.SessionI()
-        s.uuid = omero.rtypes.rstring(sf.ice_getIdentity().name)
+        s.uuid = omero.rtypes.rstring(self.getSessionId())
         try:
-            svc = sf.getSessionService()
+            svc = self.sf.getSessionService()
         except:
             self.__logger.warning("Cannot get session service for killSession. Using closeSession")
             self.closeSession()

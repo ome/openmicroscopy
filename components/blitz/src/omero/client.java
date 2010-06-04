@@ -638,6 +638,9 @@ public class client {
         Ice.Identity id = __ic.stringToIdentity("ClientCallback/" + __uuid);
         Ice.ObjectPrx raw = __oa.createProxy(id);
         __sf.setCallback(ClientCallbackPrxHelper.uncheckedCast(raw));
+
+        // Set the session uuid in the implicit context
+        getImplicitContext().put(omero.constants.SESSIONUUID.value, getSessionId());
         return this.__sf;
 
     }
@@ -791,7 +794,7 @@ public class client {
         Ice.Logger __logger = getCommunicator().getLogger();
 
         omero.model.Session s = new omero.model.SessionI();
-        s.setUuid(omero.rtypes.rstring(sf.ice_getIdentity().name));
+        s.setUuid(omero.rtypes.rstring(getSessionId()));
 
         omero.api.ISessionPrx prx = null;
         try {

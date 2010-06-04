@@ -443,6 +443,11 @@ namespace omero {
 	Ice::ObjectPrx raw = __oa->createProxy(id);
 	__sf->setCallback(omero::api::ClientCallbackPrx::uncheckedCast(raw));
 	//__sf->subscribe("/public/HeartBeat", raw);
+
+
+        // Set the session uuid in the implicit context
+        getImplicitContext()->put(omero::constants::SESSIONUUID, getSessionId());
+
 	return __sf;
     }
 
@@ -535,7 +540,7 @@ namespace omero {
         Ice::LoggerPtr __logger = getCommunicator()->getLogger();
 
         omero::model::SessionPtr s = new omero::model::SessionI();
-        s->setUuid(omero::rtypes::rstring(sf->ice_getIdentity().name));
+        s->setUuid(omero::rtypes::rstring(getSessionId()));
 
         omero::api::ISessionPrx prx;
         try {

@@ -18,9 +18,19 @@ module omero {
 
     /**
      * Key in the ImplicitContext which must be filled
-     * by all omero.client implementations.
+     * by all omero.client implementations. Primarily
+     * used by the session manager to count references
+     * to sessions.
      **/
     const string CLIENTUUID = "omero.client.uuid";
+
+    /**
+     * Key in the ImplicitContext which must be filled
+     * by all omero.client implementations. Primarily
+     * used by backend services to lookup the proper
+     * sessions for clients.
+     **/
+    const string SESSIONUUID = "omero.session.uuid";
 
     /**
      * Default Ice.GC.Interval for OmeroCpp (60 seconds)
