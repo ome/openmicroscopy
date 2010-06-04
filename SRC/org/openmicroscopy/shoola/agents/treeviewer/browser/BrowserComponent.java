@@ -192,15 +192,18 @@ class BrowserComponent
         return false;
     }
 
+    /** Counts the tags used but not owned by the user. */
     private void countTagsUsedNotOwned()
     {
-    	TreeImageDisplay d = model.getLastSelectedDisplay();
-		if (d != null) {
-			if (!(d.getUserObject() instanceof ExperimenterData)) {
-				d = BrowserFactory.getDataOwner(d);
-			}
-			if (d != null && d.getUserObject() instanceof ExperimenterData)
-				countExperimenterImages(d);
+    	ContainerFinder finder = new ContainerFinder(ExperimenterData.class);
+		accept(finder, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
+		Set<TreeImageSet> nodes = finder.getContainerNodes();
+		Iterator<TreeImageSet> i = nodes.iterator();
+		TreeImageSet node;
+		while (i.hasNext()) {
+			node = i.next();
+			if (node.getUserObject() instanceof ExperimenterData)
+				countExperimenterImages(node);
 		}
     }
     

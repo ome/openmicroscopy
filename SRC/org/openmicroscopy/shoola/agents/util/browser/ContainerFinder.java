@@ -35,12 +35,13 @@ import java.util.Set;
 //Application-internal dependencies
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.TagAnnotationData;
 
 /** 
- * Finds the {@link TreeImageSet} representing {@link TagAnnotationData} or 
- * a {@link DatasetData}.
+ * Finds the {@link TreeImageSet} representing {@link TagAnnotationData},
+ * {@link DatasetData}, {@link GroupData} or {@link ExperimenterData}.
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -105,7 +106,8 @@ public class ContainerFinder
         Object userObject = node.getUserObject();
         if (userObject != null && userObject.getClass().equals(rootType)) {
         	if (userObject instanceof DatasetData || 
-        			userObject instanceof GroupData) {
+        			userObject instanceof GroupData || 
+        			userObject instanceof ExperimenterData) {
                 containerNodes.add(node); 
                 containers.add((DataObject) userObject);
             } else if (userObject instanceof TagAnnotationData) {
@@ -115,12 +117,6 @@ public class ContainerFinder
             		containerNodes.add(node); 
                     containers.add((DataObject) userObject);
             	}
-            	/*
-            	if (!node.isChildrenLoaded()) {
-            		containerNodes.add(node); 
-                    containers.add((DataObject) userObject);
-            	}
-            	*/
             }
         }
     }
