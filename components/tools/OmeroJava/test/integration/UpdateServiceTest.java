@@ -80,6 +80,11 @@ public class UpdateServiceTest
 	 */
     private omero.client client;
     
+    /**
+     * A root-client object.
+     */
+    private omero.client root;
+
     /** Helper reference to the <code>Service factory</code>. */
     private ServiceFactoryPrx factory;
     
@@ -115,6 +120,9 @@ public class UpdateServiceTest
     	throws Exception 
     {
         client = new omero.client();
+        String rootpass = client.getProperty("omero.rootpas");
+        root = new omero.client(new String[]{"--omero.user=root",
+                "--omero.pass=" + rootpass});
         factory = client.createSession();
         iQuery = factory.getQueryService();
         iUpdate = factory.getUpdateService();
@@ -126,15 +134,12 @@ public class UpdateServiceTest
      */
     @Override
     @AfterMethod
-    public void tearDown() 
-    	throws Exception 
+    public void tearDown() throws Exception
     {
-    	client.closeSession();
-    	factory = client.createSession();
-    	iQuery = factory.getQueryService();
-    	iUpdate = factory.getUpdateService();
+        client.__del__();
+        root.__del__();
     }
-    
+
     /**
      * Test to create an image and make sure the version is correct.
      * @throws Exception Thrown if an error occurred.
@@ -757,7 +762,7 @@ public class UpdateServiceTest
 
         IObject o1 = iUpdate.saveAndReturnObject(l);
         assertNotNull(o1);
-        CreatePojosFixture2 fixture = CreatePojosFixture2.withNewUser(client);
+        CreatePojosFixture2 fixture = CreatePojosFixture2.withNewUser(root);
 
         l = new ImageAnnotationLinkI();
         l.setParent(image);
