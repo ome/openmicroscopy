@@ -475,7 +475,7 @@ class BaseClient(object):
             #self.__sf.subscribe("/public/HeartBeat", raw)
 
             # Set the session uuid in the implicit context
-            self.getImplicitContext()..put(omero.constants.SESSIONUUID, self.getSessionId())
+            self.getImplicitContext().put(omero.constants.SESSIONUUID, self.getSessionId())
 
             return self.__sf
         finally:
