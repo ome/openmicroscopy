@@ -1745,6 +1745,9 @@ class OmeroMetadataServiceImpl
 				include.add(FileAnnotationData.MOVIE_QUICK_TIME_NS);
 				include.add(FileAnnotationData.MOVIE_WINDOWS_MEDIA_NS);
 				break;
+			case TAG_NOT_OWNED:
+				return gateway.countAnnotationsUsedNotOwned(
+						TagAnnotationData.class, userID);
 			case OTHER:
 			default:
 				exclude.add(FileAnnotationData.EDITOR_PROTOCOL_NS);
@@ -1760,7 +1763,7 @@ class OmeroMetadataServiceImpl
 		return gateway.countSpecificAnnotation(FileAnnotationData.class, 
 				include, exclude, po);
 	}
-
+	
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroMetadataService#loadFiles(int, long)
@@ -1770,6 +1773,8 @@ class OmeroMetadataServiceImpl
 	{
 		List<String> include = new ArrayList<String>();
 		List<String> exclude = new ArrayList<String>();
+		ParametersI po = new ParametersI();
+		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
 		switch (fileType) {
 			case EDITOR_PROTOCOL:
 				include.add(FileAnnotationData.EDITOR_PROTOCOL_NS);
@@ -1782,6 +1787,9 @@ class OmeroMetadataServiceImpl
 				include.add(FileAnnotationData.MOVIE_QUICK_TIME_NS);
 				include.add(FileAnnotationData.MOVIE_WINDOWS_MEDIA_NS);
 				break;
+			case TAG_NOT_OWNED:
+				return gateway.loadAnnotationsUsedNotOwned(
+						TagAnnotationData.class, userID);
 			case OTHER:
 			default:
 				exclude.add(FileAnnotationData.MOVIE_MPEG_NS);
@@ -1792,8 +1800,7 @@ class OmeroMetadataServiceImpl
 				exclude.add(FileAnnotationData.COMPANION_FILE_NS);
 				exclude.add(FileAnnotationData.MEASUREMENT_NS);
 		}
-		ParametersI po = new ParametersI();
-		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
+		
 		return gateway.loadSpecificAnnotation(FileAnnotationData.class, 
 				include, exclude, po);
 	}

@@ -82,6 +82,10 @@ public interface MetadataHandlerView
 	/** Identifies that the file is of type other. */
 	public static final int		OTHER = OmeroMetadataService.OTHER;
 	
+	/** Identifies that the tag and tag sets used but not owned. */
+	public static final int		TAG_NOT_OWNED = 
+			OmeroMetadataService.TAG_NOT_OWNED;
+	
 	/**
 	 * Loads all the containers containing the specified object.
 	 * Retrieves the files if the userID is not <code>-1</code>.

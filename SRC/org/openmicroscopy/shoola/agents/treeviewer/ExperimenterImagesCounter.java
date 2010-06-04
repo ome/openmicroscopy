@@ -137,6 +137,9 @@ public class ExperimenterImagesCounter
 					case TreeFileSet.MOVIE:
 						ref.setFileType(MetadataHandlerView.MOVIE);
 						break;
+					case TreeFileSet.TAG:
+						ref.setFileType(MetadataHandlerView.TAG_NOT_OWNED);
+						break;
 					case TreeFileSet.OTHER:
 					default:
 						ref.setFileType(MetadataHandlerView.OTHER);

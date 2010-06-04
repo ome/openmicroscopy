@@ -134,6 +134,12 @@ public class CreateTopContainerAction
     private int nodeType;
     
     /** 
+     * Indicates that the action was used in the top menu 
+     * if <code>true</code>.
+     */
+    private boolean fromTopMenu;
+    
+    /** 
      * Checks if the passed value is supported.
      * 
      * @param value The value to handle.
@@ -292,10 +298,21 @@ public class CreateTopContainerAction
     public CreateTopContainerAction(TreeViewer model, int nodeType)
     {
         super(model);
+        fromTopMenu = false;
         checkType(nodeType);
         this.nodeType = nodeType;
         onBrowserSelection(model.getSelectedBrowser());
     } 
+    
+    /** 
+     * Sets the flag indicating that the action was used in a top menu.
+     * 
+     * @param fromTopMenu The value to set.
+     */
+    public void setFromTopMenu(boolean fromTopMenu)
+    { 
+    	this.fromTopMenu = fromTopMenu; 
+    }
     
     /**
      * Creates a {@link CreateCmd} command to execute the action.
@@ -321,18 +338,20 @@ public class CreateTopContainerAction
 						if (uo instanceof ExperimenterData) 
 							withParent = false;//true;
 					case TAG:
-						if (uo instanceof TagAnnotationData) {
-							TagAnnotationData tag = (TagAnnotationData) uo;
-							String ns = tag.getNameSpace();
-							if (ns != null && 
+						if (fromTopMenu) withParent = false;
+						else {
+							if (uo instanceof TagAnnotationData) {
+								TagAnnotationData tag = (TagAnnotationData) uo;
+								String ns = tag.getNameSpace();
+								if (ns != null && 
 									TagAnnotationData.INSIGHT_TAGSET_NS.equals(
-											ns));
-								withParent = model.isUserOwner(tag);
+												ns));
+									withParent = model.isUserOwner(tag);
+							}
 						}
 				}
         	}
         }
-		
         CreateCmd cmd = new CreateCmd(model, nodeType, false);
         cmd.setWithParent(withParent);
         cmd.execute();

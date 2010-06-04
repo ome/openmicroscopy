@@ -331,8 +331,7 @@ class BrowserModel
     void fireLeavesLoading(TreeImageDisplay expNode, TreeImageDisplay node)
     {
     	state = Browser.LOADING_LEAVES;
-    	if ((node instanceof TreeImageTimeSet) || 
-    		(node instanceof TreeFileSet)) {
+    	if (node instanceof TreeImageTimeSet || node instanceof TreeFileSet) {
     		currentLoader = new ExperimenterImageLoader(component, 
 					(TreeImageSet) expNode, (TreeImageSet) node);
     		 currentLoader.load();
@@ -639,12 +638,16 @@ class BrowserModel
 				}
 				break;
 			case Browser.FILES_EXPLORER:
+			case Browser.TAGS_EXPLORER:
 				TreeFileSet file;
+				Object o;
 				while (i.hasNext()) {
-					file = (TreeFileSet) i.next();
-					indexes.add(file.getType());
+					o = i.next();
+					if (o instanceof TreeFileSet) {
+						file = (TreeFileSet) o;
+						indexes.add(file.getType());
+					}
 				}
-				break;
 		}
 
 		if (indexes.size() == 0) return;

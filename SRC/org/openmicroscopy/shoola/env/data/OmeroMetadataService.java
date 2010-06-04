@@ -85,6 +85,9 @@ public interface OmeroMetadataService
 	/** Identifies that the file is of type other. */
 	public static final int		OTHER = 3;
 	
+	/** Identifies that the tag and tag set not owned. */
+	public static final int		TAG_NOT_OWNED = 4;
+	
 	/** Indicates to retrieve the tags. */
 	public static final int LEVEL_TAG = 0;
 	

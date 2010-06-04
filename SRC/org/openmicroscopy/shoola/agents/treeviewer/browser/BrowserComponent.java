@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.agents.util.browser.ContainerFinder;
 import org.openmicroscopy.shoola.agents.util.browser.NodeSelectionVisitor;
 import org.openmicroscopy.shoola.agents.util.browser.PartialNameVisitor;
 import org.openmicroscopy.shoola.agents.util.browser.SimilarNodesVisitor;
+import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
@@ -191,6 +192,18 @@ class BrowserComponent
         return false;
     }
 
+    private void countTagsUsedNotOwned()
+    {
+    	TreeImageDisplay d = model.getLastSelectedDisplay();
+		if (d != null) {
+			if (!(d.getUserObject() instanceof ExperimenterData)) {
+				d = BrowserFactory.getDataOwner(d);
+			}
+			if (d != null && d.getUserObject() instanceof ExperimenterData)
+				countExperimenterImages(d);
+		}
+    }
+    
 	/** 
 	 * Retrieves the nodes to count the value for.
 	 *
@@ -410,8 +423,6 @@ class BrowserComponent
         	fireStateChange();
             return;
         }
-        
-        
         ExperimenterData exp = (ExperimenterData) ho;
         long userID = exp.getId();
         long groupID = exp.getDefaultGroup().getId();
@@ -423,7 +434,10 @@ class BrowserComponent
         model.setState(READY);
         if (parent != null && 
         		parent.getUserObject() instanceof TagAnnotationData)
-        	countItems(DatasetData.class);
+        	countItems(TagAnnotationData.class);
+        if (model.getBrowserType() == TAGS_EXPLORER && 
+        		parent instanceof TreeFileSet)
+        	countItems(TagAnnotationData.class);
         Object p = null;
         if (parent != null && 
         		parent.getUserObject() instanceof PlateData) {
@@ -1017,6 +1031,7 @@ class BrowserComponent
         model.setState(READY);
         
         countItems(null);
+        countTagsUsedNotOwned();
         model.getParentModel().setStatus(false, "", true);
         fireStateChange();
 	}
@@ -1240,7 +1255,8 @@ class BrowserComponent
 	                    "LOADING_LEAVES state.");
 		}  
 		int browserType = model.getBrowserType();
-		if (browserType!= IMAGES_EXPLORER && browserType != FILES_EXPLORER) 
+		if (!(browserType == IMAGES_EXPLORER || browserType == FILES_EXPLORER
+			|| browserType == TAGS_EXPLORER))
 			return;
         model.fireCountExperimenterImages((TreeImageSet) expNode);
         model.getParentModel().setStatus(true, TreeViewer.LOADING_TITLE, false);
@@ -1257,7 +1273,8 @@ class BrowserComponent
 				!(expNode.getUserObject() instanceof ExperimenterData))
 				throw new IllegalArgumentException("Node not valid.");
 		int browserType = model.getBrowserType();
-		if (browserType != IMAGES_EXPLORER && browserType != FILES_EXPLORER) 
+		if (!(browserType == IMAGES_EXPLORER || browserType == FILES_EXPLORER
+				|| browserType == TAGS_EXPLORER))
 			return;
 		boolean b = model.setExperimenterCount(expNode, index);
 		if (index != -1 && v != null) {

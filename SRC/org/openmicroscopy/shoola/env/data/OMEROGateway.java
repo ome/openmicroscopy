@@ -73,6 +73,7 @@ import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
+import ome.model.ILink;
 import ome.system.UpgradeCheck;
 import omero.ApiUsageException;
 import omero.AuthenticationException;
@@ -141,6 +142,7 @@ import omero.model.FileAnnotationI;
 import omero.model.GroupExperimenterMap;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.ImageAnnotationLink;
 import omero.model.ImageI;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
@@ -4234,6 +4236,59 @@ class OMEROGateway
 			handleException(e, "Cannot retrieve the annotations");
 		}
 		return -1;
+	}
+	
+	long countAnnotationsUsedNotOwned(Class annotationType, long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		long count = 0;
+		try {
+			IMetadataPrx service = getMetadataService();
+			RLong value = service.countAnnotationsUsedNotOwned(
+					convertAnnotation(annotationType), userID);
+			if (value != null)
+				count = value.getValue();
+			if (count < 0) count = 0;
+		} catch (Exception e) {
+			handleException(e, "Cannot count the type of annotation " +
+					"used by the specified user");
+		}
+		return count;
+	}
+	
+	/**
+	 * Loads the tag Sets and the orphaned tags, if requested.
+	 * 
+	 * @param userID 
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	Collection loadAnnotationsUsedNotOwned(Class annotationType, long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		Set result = new HashSet();
+		try {
+			IMetadataPrx service = getMetadataService();
+			List<IObject> set = service.loadAnnotationsUsedNotOwned(
+					convertAnnotation(annotationType), userID);
+			Iterator<IObject> i = set.iterator();
+			IObject o;
+			while (i.hasNext()) {
+				o = i.next();
+				if (TagAnnotationData.class.equals(annotationType)) {
+					result.add(new TagAnnotationData((TagAnnotation) o));
+				}
+			}
+			return result;
+		} catch (Exception e) {
+			handleException(e, "Cannot find the Used Tags.");
+		}
+		return result;
 	}
 	
 	/** 

@@ -475,7 +475,7 @@ class BrowserUI
      * 
      * @param parent The parent of the smart folder.
      */
-    private void createTagsElements(TreeImageSet parent)
+    private void createTagsElements(TreeImageDisplay parent)
     {
     	DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
     	TreeFileSet node = new TreeFileSet(TreeFileSet.TAG);
@@ -1437,24 +1437,30 @@ class BrowserUI
 		expNode.setChildrenLoaded(Boolean.TRUE);
 		//expNode.setExpanded(true);
         dtm.reload();
+        Iterator i;
         if (nodes.size() != 0) {
-            Iterator i = nodes.iterator();
+            i = nodes.iterator();
             while (i.hasNext()) {
             	expNode.addChildDisplay((TreeImageDisplay) i.next());
             } 
             buildTreeNode(expNode, prepareSortedList(sorter.sort(nodes)), 
                         (DefaultTreeModel) treeDisplay.getModel());
+            if (model.getBrowserType() == Browser.TAGS_EXPLORER)
+           	 	createTagsElements(expNode);
         } else {
         	expNode.setExpanded(false);
-        	buildEmptyNode(expNode);
+        	 if (model.getBrowserType() == Browser.TAGS_EXPLORER)
+            	 createTagsElements(expNode);
+        	 else buildEmptyNode(expNode);
+        	
         }
-        Iterator j = nodesToReset.iterator();
-        while (j.hasNext()) 
-			setExpandedParent((TreeImageDisplay) j.next(), true);
+        i= nodesToReset.iterator();
+        while (i.hasNext()) 
+			setExpandedParent((TreeImageDisplay) i.next(), true);
         TreeImageDisplay root = getTreeRoot();
 		TreeImageDisplay element;
-		for (int i = 0; i < root.getChildCount(); i++) {
-			element = (TreeImageDisplay) root.getChildAt(i);
+		for (int j = 0; j < root.getChildCount(); j++) {
+			element = (TreeImageDisplay) root.getChildAt(j);
 			if (element.getUserObject() instanceof ExperimenterData) {
 				if (element.isExpanded()) expandNode(element);
 			}
@@ -1574,7 +1580,6 @@ class BrowserUI
 						node.setNumberItems((Long) value);
 				}
 			}
-			
 		}
 	}
 		

@@ -41,6 +41,7 @@ import javax.swing.border.BevelBorder;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateTopContainerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewOtherAction;
 
@@ -294,6 +295,7 @@ class PopupMenu
 				break;
 			case TreeViewer.CREATE_MENU_TAGS:
 				a = controller.getAction(TreeViewerControl.CREATE_TOP_TAG);
+				((CreateTopContainerAction) a).setFromTopMenu(true);
 				createTag = new JMenuItem(a);
 				initMenuItem(createTag, a.getActionName());
 				a = controller.getAction(TreeViewerControl.CREATE_TOP_TAG_SET);
