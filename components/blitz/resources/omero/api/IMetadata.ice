@@ -40,6 +40,8 @@ module omero {
                                                        omero::sys::Parameters options) throws ServerError;
                 idempotent AnnotationList loadAnnotation(omero::sys::LongList annotationIds) throws ServerError;
                 idempotent IObjectList loadInstrument(long id) throws ServerError;
+                idempotent IObjectList loadAnnotationsUsedNotOwned(string annotationType, long userID) throws ServerError;
+                omero::RLong countAnnotationsUsedNotOwned(string annotationType, long userID) throws ServerError;
             };
 
     };
