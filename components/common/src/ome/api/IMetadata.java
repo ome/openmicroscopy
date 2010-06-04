@@ -232,4 +232,26 @@ public interface IMetadata
      */
     public Set<IObject> loadInstrument(long id);
     
+    /**
+     * Counts the number of annotation of a given type used by the specified
+     * user but not owned by the user.
+     * 
+     * @param type     The type of annotations to load.
+     * @param userID   The identifier of the user.
+     * @return See above.
+     */
+    public Long countAnnotationsUsedNotOwned(@NotNull Class annotationType, 
+    		long userID);
+    
+    /**
+     * Loads the annotations of a given type used by the specified
+     * user but not owned by the user.
+     * 
+     * @param type     The type of annotations to load.
+     * @param userID   The identifier of the user.
+     * @return See above.
+     */
+    public Set<IObject> loadAnnotationsUsedNotOwned(@NotNull Class annotationType, 
+    		long userID);
+    
 }
