@@ -7,7 +7,6 @@
 package ome.services;
 
 import java.util.List;
-
 import ome.api.IQuery;
 import ome.io.nio.OriginalFileMetadataProvider;
 import ome.model.core.OriginalFile;
@@ -38,8 +37,10 @@ public class OmeroOriginalFileMetadataProvider
 		this.iQuery = iQuery;
 	}
 
-	/* (non-Javadoc)
-	 * @see ome.io.nio.OriginalFileMetadataProvider#getOriginalFileWhereFormatStartsWith(ome.model.core.Pixels, java.lang.String)
+	/**
+	 * Implemented as specified by the {@link OriginalFileMetadataProvider} I/F.
+	 * @see OriginalFileMetadataProvider#getOriginalFileWhereFormatStartsWith(
+	 * Pixels, String)
 	 */
 	public OriginalFile getOriginalFileWhereFormatStartsWith(Pixels pixels,
 			                                                 String s)
@@ -47,7 +48,7 @@ public class OmeroOriginalFileMetadataProvider
 		String hql = String.format(
 			"select f from OriginalFile f " +
 			"left outer join f.pixelsFileMaps as map " +
-			"where f.format.value like '%s%%' and map.child.id = :id", s);
+			"where f.mimetype like '%s%%' and map.child.id = :id", s);
 		Parameters p = new Parameters();
 		p.addId(pixels.getId());
 		List<OriginalFile> originalFiles = iQuery.findAllByQuery(hql, p);
