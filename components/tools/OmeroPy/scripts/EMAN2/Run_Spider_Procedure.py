@@ -123,7 +123,7 @@ def log(text):
     logStrings.append(text)
     
 
-def uploadImageToDataset(services, pixelsType, imageName, dataset=None, description=""):
+def uploadImageToDataset(services, pixelsType, localImage, dataset=None, description="", imageName=None):
     
     """
     Uploads a local Spider image to an OMERO dataset. Same function exists in spider2omero.py.
@@ -146,14 +146,15 @@ def uploadImageToDataset(services, pixelsType, imageName, dataset=None, descript
     namespace = omero.constants.namespaces.NSCOMPANIONFILE 
     fileName = "original_metadata.txt"
     
+    if imageName == None:  imageName = localImage
     print "Importing image: %s" % imageName
-    plane2D = spider2array(imageName)
+    plane2D = spider2array(localImage)
     plane2Dlist = [plane2D]        # single plane image
     
     image = scriptUtil.createNewImage(pixelsService, rawPixelStore, renderingEngine, pixelsType, gateway, plane2Dlist, imageName, description, dataset)
     
     # header is a list of values corresponding to attributes 
-    header = getSpiderHeader(imageName)
+    header = getSpiderHeader(localImage)
     
     # if we know the pixel size, set it in the new image
     if len(header) >= 38:
@@ -203,7 +204,6 @@ def downloadImage(queryService, rawPixelStore, imageId, imageName):
     rawPixelStore.setPixelsId(pixelsId, bypassOriginalFile)
     plane2D = scriptUtil.downloadPlane(rawPixelStore, pixels, theZ, theC, theT)
     
-    plane2D.resize((theY, theX))        # not sure why we have to resize (y, x)
     array2spider(plane2D, imageName)
     
 def getPixelsType(queryService, imageName):
@@ -248,6 +248,7 @@ def runSpf(session, parameterMap):
     rawPixelStore = services["rawPixelStore"]
     
     imageIds = []
+    imageNames = {}     # map of id:name
     
     dataType = parameterMap["Data_Type"]
     if dataType == "Image":
@@ -264,7 +265,9 @@ def runSpf(session, parameterMap):
             # simply aggregate all images from the datasets
             images = gateway.getImages(omero.api.ContainerClass.Dataset, datasetIds)
             for i in images:
-                imageIds.append(i.getId().getValue())
+                iId = i.getId().getValue()
+                imageIds.append(iId)
+                imageNames[iId] = i.name.val
             
     if len(imageIds) == 0:
         return
@@ -307,29 +310,52 @@ def runSpf(session, parameterMap):
     if "Output_Name" in parameterMap:
         outputName = parameterMap["Output_Name"]
             
-    # download the procdure file
+    # get the procdure file
     spfName = "procedure.spf"
-    spfFileId = parameterMap["Spf_File_Id"]
-    annotation = queryService.get('FileAnnotation', spfFileId)
-    origFileId = annotation.file.id.val
-    originalFile = queryService.findByQuery("from OriginalFile as o where o.id = %s" % origFileId, None)
-    scriptUtil.downloadFile(rawFileStore, originalFile, filePath=spfName)
+    spf = parameterMap["Spf"]
+    spfText = None
+    try:
+        # either the user specified the SPF as a file annotation ID....
+        spfFileId = long(spf)   
+        annotation = queryService.get('FileAnnotation', spfFileId)
+        origFileId = annotation.file.id.val
+        originalFile = queryService.findByQuery("from OriginalFile as o where o.id = %s" % origFileId, None)
+        scriptUtil.downloadFile(rawFileStore, originalFile, filePath=spfName)
+    except:
+        # or they specified Spider command and args separated by ; E.g. WI; 75,75 ; 1,75
+        spfCommands = [cmd.strip() for cmd in spf.split(";")]
+        spfCommands.insert(1, inputName)
+        spfCommands.insert(2, outputName)
+        spfCommands.append("")
+        spfCommands.append("EN D") 
+        spfText = "\n".join(spfCommands)
+        spfFile = open(spfName, "w")
+        spfFile.write(spfText) 
+        spfFile.close()
+
     # run command. E.g. spider spf/dat @bat01
     spfCommand = "spider spf/%s @procedure" % fileExt
     
     spfText = open(spfName, 'r').read()
+    print spfText
     # for each image, download it, run the spider command and upload result to OMERO
     inputImage = "%s.%s" % (inputName, fileExt)
     outputImage = "%s.%s" % (outputName, fileExt)
     pixelsType = None   # set by first image result - assume all the same
     for i, imageId in enumerate(imageIds):
         downloadImage(queryService, rawPixelStore, imageId, inputImage)
+        #print "Image downloaded to ", inputImage, os.path.exists(inputImage)
+        print spfCommand
         os.system(spfCommand)
+        #print "Output image exists ", os.path.exists(outputImage)
         if pixelsType == None:      pixelsType = getPixelsType(queryService, outputImage)
+        name = None
+        if imageId in imageNames:   name = imageNames[imageId]
         description = "Created from Image ID: %s with the Spider Procedure\n%s" % (imageId, spfText)
-        image = uploadImageToDataset(services, pixelsType, outputImage, dataset, description)
-        # attach Spf to new image
-        scriptUtil.attachFileToParent(services["updateService"], image, originalFile)
+        image = uploadImageToDataset(services, pixelsType, outputImage, dataset, description, name)
+        # attach Spf to new image (not so important, since we add the text to image description)
+        # This creates a new FileAnnotationI for each image. Really want a singe FA linked to all images. 
+        #scriptUtil.attachFileToParent(services["updateService"], image, originalFile)
 
 def runAsScript():
     """
@@ -340,13 +366,15 @@ def runAsScript():
     dataTypes = [rstring('Dataset'),rstring('Image')]
     
     client = scripts.client('Run_Spider_Procedure.py', """Run a Spider Procedure File against Images on OMERO.
-See http://trac.openmicroscopy.org.uk/omero/wiki/EmPreviewFunctionality""", 
+See http://trac.openmicroscopy.org.uk/omero/wiki/EmPreviewFunctionality
+Can process images with a single Spider command with args E.g. WI; 75,75 ; 1,75
+See list at http://www.wadsworth.org/spider_doc/spider/docs/operations_doc.html""", 
     scripts.String("Data_Type", optional=False, grouping="1",
         description="The data you want to work with.", values=dataTypes, default="Dataset"),
     scripts.List("IDs", optional=False, grouping="2",
         description="List of Dataset IDs or Image IDs").ofType(rlong(0)),
-    scripts.Long("Spf_File_Id", optional=False, grouping="3",
-        description="The FileAnnotation-ID of the Spider Procedure File"), 
+    scripts.String("Spf", optional=False, grouping="3",
+        description="The FileAnnotation-ID of the Spider Procedure File, OR Spider commands separated by ; E.g. WI; 75,75 ; 1,75"), 
     scripts.String("New_Dataset_Name", grouping="4", 
         description="If specified, make a dataset to put results."),
     scripts.String("Input_Name", grouping="5",
