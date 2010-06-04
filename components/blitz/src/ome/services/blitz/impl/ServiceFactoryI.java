@@ -548,7 +548,18 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         this.callback = callback;
         log.info(Ice.Util.identityToString(this.sessionId())
                 + " set callback to " + this.callback);
-        subscribe(HEARTBEAT.value, callback, current);
+        try {
+            subscribe(HEARTBEAT.value, callback, current);
+        } catch (RuntimeException e) {
+            log.warn("Failed to subscribe " + callback, e);
+            throw e;
+        } catch (ServerError e) {
+            log.warn("Failed to subscribe " + callback, e);
+            throw e;
+        } catch (Exception e) {
+            log.warn("Failed to subscribe " + callback, e);
+            throw new RuntimeException(e);
+        }
     }
 
     public void detachOnDestroy(Ice.Current current) {
