@@ -98,30 +98,6 @@ public class ContainerCounterLoader
      */
     public void cancel() { handle.cancel(); }
     
-    /** 
-     * Feeds the result back to the viewer, as they arrive. 
-     * @see DataBrowserLoader#update(DSCallFeedbackEvent)
-     */
-    /*
-    public void update(DSCallFeedbackEvent fe) 
-    {
-        if (viewer.getState() == Browser.DISCARDED) return; //Async cancel
-        Map map = (Map) fe.getPartialResult();
-        if (map == null) return; //Last fe has null object.
-        //map should be only size == 1
-        if (map.size() == 1) {
-            Iterator i = map.keySet().iterator();
-            Long containerID;
-            Integer value;
-            while (i.hasNext()) {
-                containerID = (Long) i.next();
-                value = (Integer) map.get(containerID);
-                viewer.setContainerCountValue(containerID.longValue(),
-                        						value.intValue());
-            }
-        }
-    }
-*/
     /**
      * Feeds the result back to the viewer.
      * @see DataBrowserLoader#handleResult(Object)

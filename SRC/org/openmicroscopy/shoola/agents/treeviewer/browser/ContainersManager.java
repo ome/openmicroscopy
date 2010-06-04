@@ -154,6 +154,7 @@ public class ContainersManager
             DefaultTreeModel dtm = (DefaultTreeModel) tree.getModel();
             while (i.hasNext()) {
                 node = (TreeImageSet) i.next();
+                System.err.println(containerID);
                 node.setNumberItems(value);
                 //remove the empty node if the container is empty.
                 if (value == 0 && dtm.getChildCount(node) == 1) 

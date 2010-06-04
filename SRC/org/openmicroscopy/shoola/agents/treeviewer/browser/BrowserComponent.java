@@ -1232,6 +1232,8 @@ class BrowserComponent
 		model.setSelectedDisplay(null, true);
 		model.setState(READY);
 		countItems(null);
+		if (model.getBrowserType() == TAGS_EXPLORER)
+			countTagsUsedNotOwned();
 		model.getParentModel().setStatus(false, "", true);
 		PartialNameVisitor v = new PartialNameVisitor(view.isPartialName());
 		accept(v, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);

@@ -130,6 +130,12 @@ class BrowserModel
      */
     private ContainersManager		containersManager;
     
+    /** 
+     * Maps an container id to the list of number of items providers for that 
+     * container.
+     */
+    private ContainersManager		containersManagerWithIndexes;
+    
     /** Indicates if the browser is currently selected. */
     private boolean					selected;
     
@@ -651,8 +657,8 @@ class BrowserModel
 		}
 
 		if (indexes.size() == 0) return;
-		if (containersManager == null)
-            containersManager = new ContainersManager(indexes);
+		if (containersManagerWithIndexes == null)
+			containersManagerWithIndexes = new ContainersManager(indexes);
 		state = Browser.COUNTING_ITEMS;
         numberLoader = new ExperimenterImagesCounter(component, expNode, n);
         numberLoader.load();  
@@ -669,12 +675,14 @@ class BrowserModel
 	 */
 	boolean setExperimenterCount(TreeImageSet expNode, int index) 
 	{
-		if (containersManager == null) return true;
-		containersManager.setItem(index);
-		if (containersManager.isDone()) {
-			if (state == Browser.COUNTING_ITEMS)
-				state = Browser.READY;
-			containersManager = null;
+		if (containersManagerWithIndexes == null) return true;
+		containersManagerWithIndexes.setItem(index);
+		if (containersManagerWithIndexes.isDone()) {
+			if (state == Browser.COUNTING_ITEMS) {
+				if (containersManager == null)
+					state = Browser.READY;
+			}
+			containersManagerWithIndexes = null;
 			numberLoader = null;
 			return true;
 		}
