@@ -28,10 +28,12 @@ import java.util.List;
 import ome.api.IMetadata;
 import ome.services.blitz.util.BlitzExecutor;
 import omero.ServerError;
+import omero.api.AMD_IMetadata_countAnnotationsUsedNotOwned;
 import omero.api.AMD_IMetadata_countSpecifiedAnnotations;
 import omero.api.AMD_IMetadata_getTaggedObjectsCount;
 import omero.api.AMD_IMetadata_loadAnnotation;
 import omero.api.AMD_IMetadata_loadAnnotations;
+import omero.api.AMD_IMetadata_loadAnnotationsUsedNotOwned;
 import omero.api.AMD_IMetadata_loadChannelAcquisitionData;
 import omero.api.AMD_IMetadata_loadInstrument;
 import omero.api.AMD_IMetadata_loadSpecifiedAnnotations;
@@ -137,4 +139,16 @@ public class MetadataI
 		 callInvokerOnRawArgs(__cb, __current, id);
 	 }
 	 
+	 public void countAnnotationsUsedNotOwned_async(AMD_IMetadata_countAnnotationsUsedNotOwned __cb,
+			 String annotationType, long userID, Current __current) 
+	 throws ServerError {
+		 callInvokerOnRawArgs(__cb, __current, annotationType, userID);
+	 }
+	 
+	 public void loadAnnotationsUsedNotOwned_async(AMD_IMetadata_loadAnnotationsUsedNotOwned __cb,  
+			 String annotationType, long userID, Current __current) 
+	 throws ServerError 
+	 {
+		 callInvokerOnRawArgs(__cb, __current, annotationType, userID);
+	 }
 }
