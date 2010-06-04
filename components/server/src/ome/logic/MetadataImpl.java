@@ -40,9 +40,16 @@ import ome.api.IMetadata;
 import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
 import ome.model.IAnnotated;
+import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.annotations.AnnotationAnnotationLink;
+import ome.model.annotations.DatasetAnnotationLink;
 import ome.model.annotations.FileAnnotation;
+import ome.model.annotations.ImageAnnotationLink;
+import ome.model.annotations.PlateAnnotationLink;
+import ome.model.annotations.ProjectAnnotationLink;
+import ome.model.annotations.ScreenAnnotationLink;
+import ome.model.annotations.WellSampleAnnotationLink;
 import ome.model.acquisition.Arc;
 import ome.model.acquisition.Filament;
 import ome.model.acquisition.Instrument;
@@ -805,4 +812,158 @@ public class MetadataImpl
     	return counts;
     }
     
+    /**
+     * Implemented as specified by the {@link IMetadata} I/F
+     * @see IMetadata#loadAnnotationUsedNotOwned(Class, Long)
+     */
+    @RolesAllowed("user")
+    @Transactional(readOnly = true)
+    public Set<IObject> loadAnnotationsUsedNotOwned(@NotNull Class annotationType,
+    		long userID)
+    {
+    	Set result = new HashSet();
+    	String type = annotationType.getName();
+    	List<Long> ids = new ArrayList<Long>();
+    	Iterator i;
+    	IObject o;
+    	Parameters param = new Parameters();
+    	param.addLong("userID", userID);
+    	List<IObject> l;
+    	StringBuffer sb = new StringBuffer();
+		sb.append("select link from ImageAnnotationLink as link ");
+		sb.append("left outer join fetch link.child child ");
+		sb.append("left outer join fetch child.details.owner as co ");
+		sb.append("left outer join fetch link.details.owner as lo ");
+		sb.append("where co.id != :userID and lo.id = :userID " +
+				"and child member of "+type);
+		l = iQuery.findAllByQuery(sb.toString(), param);
+		if (l != null && l.size() > 0) {
+			i = l.iterator();
+			ImageAnnotationLink link;
+			while (i.hasNext()) {
+				link = (ImageAnnotationLink) i.next();
+				o = link.getChild();
+				if (!ids.contains(o.getId())) {
+					result.add(o);
+					ids.add(o.getId());
+				}
+			}
+		}
+		sb = new StringBuffer();
+		sb.append("select link from DatasetAnnotationLink as link ");
+		sb.append("left outer join fetch link.child child ");
+		sb.append("left outer join fetch child.details.owner as co ");
+		sb.append("left outer join fetch link.details.owner as lo ");
+		sb.append("where co.id != :userID and lo.id = :userID " +
+				"and child member of "+type);
+		l = iQuery.findAllByQuery(sb.toString(), param);
+		if (l != null && l.size() > 0) {
+			i = l.iterator();
+			DatasetAnnotationLink link;
+			while (i.hasNext()) {
+				link = (DatasetAnnotationLink) i.next();
+				o = link.getChild();
+				if (!ids.contains(o.getId())) {
+					result.add(o);
+					ids.add(o.getId());
+				}
+			}
+		}
+		sb = new StringBuffer();
+		sb.append("select link from ProjectAnnotationLink as link ");
+		sb.append("left outer join fetch link.child child ");
+		sb.append("left outer join fetch child.details.owner as co ");
+		sb.append("left outer join fetch link.details.owner as lo ");
+		sb.append("where co.id != :userID and lo.id = :userID " +
+				"and child member of "+type);
+		l = iQuery.findAllByQuery(sb.toString(), param);
+		if (l != null && l.size() > 0) {
+			i = l.iterator();
+			ProjectAnnotationLink link;
+			while (i.hasNext()) {
+				link = (ProjectAnnotationLink) i.next();
+				o = link.getChild();
+				if (!ids.contains(o.getId())) {
+					result.add(o);
+					ids.add(o.getId());
+				}
+			}
+		}
+		sb = new StringBuffer();
+		sb.append("select link from ScreenAnnotationLink as link ");
+		sb.append("left outer join fetch link.child child ");
+		sb.append("left outer join fetch child.details.owner as co ");
+		sb.append("left outer join fetch link.details.owner as lo ");
+		sb.append("where co.id != :userID and lo.id = :userID " +
+				"and child member of "+annotationType.getName());
+		l = iQuery.findAllByQuery(sb.toString(), param);
+		if (l != null && l.size() > 0) {
+			i = l.iterator();
+			ScreenAnnotationLink link;
+			while (i.hasNext()) {
+				link = (ScreenAnnotationLink) i.next();
+				o = link.getChild();
+				if (!ids.contains(o.getId())) {
+					result.add(o);
+					ids.add(o.getId());
+				}
+			}
+		}
+		sb = new StringBuffer();
+		sb.append("select link from PlateAnnotationLink as link ");
+		sb.append("left outer join fetch link.child child ");
+		sb.append("left outer join fetch child.details.owner as co ");
+		sb.append("left outer join fetch link.details.owner as lo ");
+		sb.append("where co.id != :userID and lo.id = :userID " +
+				"and child member of "+annotationType.getName());
+		l = iQuery.findAllByQuery(sb.toString(), param);
+		if (l != null && l.size() > 0) {
+			i = l.iterator();
+			PlateAnnotationLink link;
+			while (i.hasNext()) {
+				link = (PlateAnnotationLink) i.next();
+				o = link.getChild();
+				if (!ids.contains(o.getId())) {
+					result.add(o);
+					ids.add(o.getId());
+				}
+			}
+		}
+		sb = new StringBuffer();
+		sb.append("select link from WellSampleAnnotationLink as link ");
+		sb.append("left outer join fetch link.child child ");
+		sb.append("left outer join fetch child.details.owner as co ");
+		sb.append("left outer join fetch link.details.owner as lo ");
+		sb.append("where co.id != :userID and lo.id = :userID " +
+				"and child member of "+type);
+		l = iQuery.findAllByQuery(sb.toString(), param);
+		if (l != null && l.size() > 0) {
+			i = l.iterator();
+			WellSampleAnnotationLink link;
+			while (i.hasNext()) {
+				link = (WellSampleAnnotationLink) i.next();
+				o = link.getChild();
+				if (!ids.contains(o.getId())) {
+					result.add(o);
+					ids.add(o.getId());
+				}
+			}
+		}
+    	return result;
+    }
+    
+    /**
+     * Implemented as specified by the {@link IMetadata} I/F
+     * @see IMetadata#countAnnotationsUsedNotOwned(Class, Long)
+     */
+    @RolesAllowed("user")
+    @Transactional(readOnly = true)
+    public Long countAnnotationsUsedNotOwned(@NotNull Class annotationType, 
+    		long userID)
+    {
+    	Set s = loadAnnotationsUsedNotOwned(annotationType, userID);
+    	if (s != null) return new Long(s.size());
+    	return -1L;
+    }
+
 }
