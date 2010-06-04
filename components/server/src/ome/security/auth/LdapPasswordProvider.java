@@ -90,7 +90,8 @@ public class LdapPasswordProvider extends ConfigurablePasswordProvider {
                     return true;
                 }
             } catch (ApiUsageException e) {
-                log.warn("Default choice on create user exception: " + user, e);
+                log.info(String.format(
+                        "Default choice on create user: %s (%s)", user, e));
             }
         }
 
