@@ -783,6 +783,14 @@ class TreeViewerModel
 	            } else if (object instanceof PlateData) {
 	            	if (p instanceof ScreenData)
 	            		data = ((DataObject) p);
+	            } else if (object instanceof TagAnnotationData) {
+	            	if (p instanceof TagAnnotationData) {
+	            		TagAnnotationData tag = (TagAnnotationData) p;
+	            		String ns = tag.getNameSpace();
+	            		if (ns != null && 
+	            				TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns))
+	            			data = tag;
+	            	}	
 	            }
 	        }
 		}

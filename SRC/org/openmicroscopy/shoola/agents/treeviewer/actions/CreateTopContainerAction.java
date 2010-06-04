@@ -333,7 +333,6 @@ public class CreateTopContainerAction
         	}
         }
 		
-        
         CreateCmd cmd = new CreateCmd(model, nodeType, false);
         cmd.setWithParent(withParent);
         cmd.execute();
