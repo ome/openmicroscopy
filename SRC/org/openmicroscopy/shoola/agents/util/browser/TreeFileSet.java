@@ -77,7 +77,7 @@ public class TreeFileSet
 			case EXPERIMENT: return "Experiments";
 			case MOVIE: return "Movies";
 			case TAG: 
-				return "Other Tags";
+				return "Tags used not owned";
 			case OTHER:
 			default:
 				return "Other files";

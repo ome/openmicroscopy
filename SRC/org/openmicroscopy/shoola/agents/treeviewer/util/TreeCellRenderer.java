@@ -85,7 +85,7 @@ public class TreeCellRenderer
     private boolean             numberChildrenVisible;
     
     /** The ID of the current user. */
-    //private long				userID;
+    private long				userID;
 
     /** Filter to identify protocol file. */
     private EditorFileFilter 	filter;
@@ -123,6 +123,11 @@ public class TreeCellRenderer
         	if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns))
         		icon = icons.getIcon(IconManager.TAG_SET);
         	else icon = icons.getIcon(IconManager.TAG);
+        	
+        	
+        	
+        	
+        	
         } else if (usrObject instanceof ScreenData) {
         	if (EditorUtil.isAnnotated(usrObject))
         		icon = icons.getIcon(IconManager.SCREEN_ANNOTATED);
