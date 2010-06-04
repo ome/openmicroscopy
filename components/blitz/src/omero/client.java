@@ -635,9 +635,17 @@ public class client {
 
         // Set the client callback on the session
         // and pass it to icestorm
-        Ice.Identity id = __ic.stringToIdentity("ClientCallback/" + __uuid);
-        Ice.ObjectPrx raw = __oa.createProxy(id);
-        __sf.setCallback(ClientCallbackPrxHelper.uncheckedCast(raw));
+        try {
+            Ice.Identity id = __ic.stringToIdentity("ClientCallback/" + __uuid);
+            Ice.ObjectPrx raw = __oa.createProxy(id);
+            __sf.setCallback(ClientCallbackPrxHelper.uncheckedCast(raw));
+        } catch (RuntimeException e) {
+            __del__();
+            throw e;
+        } catch (Exception e) {
+            __del__();
+            throw new RuntimeException(e);
+        }
 
         // Set the session uuid in the implicit context
         getImplicitContext().put(omero.constants.SESSIONUUID.value, getSessionId());

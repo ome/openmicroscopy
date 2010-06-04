@@ -469,10 +469,14 @@ class BaseClient(object):
 
             # Set the client callback on the session
             # and pass it to icestorm
-            id = self.__ic.stringToIdentity("ClientCallback/%s" % self.__uuid )
-            raw = self.__oa.createProxy(id)
-            self.__sf.setCallback(omero.api.ClientCallbackPrx.uncheckedCast(raw))
-            #self.__sf.subscribe("/public/HeartBeat", raw)
+            try:
+                id = self.__ic.stringToIdentity("ClientCallback/%s" % self.__uuid )
+                raw = self.__oa.createProxy(id)
+                self.__sf.setCallback(omero.api.ClientCallbackPrx.uncheckedCast(raw))
+                #self.__sf.subscribe("/public/HeartBeat", raw)
+            except:
+                self.__del__()
+                raise
 
             # Set the session uuid in the implicit context
             self.getImplicitContext().put(omero.constants.SESSIONUUID, self.getSessionId())

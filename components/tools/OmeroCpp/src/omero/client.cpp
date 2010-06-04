@@ -253,7 +253,11 @@ namespace omero {
 
     // --------------------------------------------------------------------
 
-    client::~client(){
+    client::~client() {
+        __del__();
+    }
+
+    void client::__del__() {
 	try {
 	    closeSession();
 	} catch (const std::exception& ex) {
@@ -439,10 +443,15 @@ namespace omero {
 
 	// Set the client callback on the session
 	// and pass it to icestorm
-	Ice::Identity id = __ic->stringToIdentity("ClientCallback/" + __uuid);
-	Ice::ObjectPrx raw = __oa->createProxy(id);
-	__sf->setCallback(omero::api::ClientCallbackPrx::uncheckedCast(raw));
-	//__sf->subscribe("/public/HeartBeat", raw);
+	try {
+		Ice::Identity id = __ic->stringToIdentity("ClientCallback/" + __uuid);
+		Ice::ObjectPrx raw = __oa->createProxy(id);
+		__sf->setCallback(omero::api::ClientCallbackPrx::uncheckedCast(raw));
+		//__sf->subscribe("/public/HeartBeat", raw);
+	} catch (...) {
+		__del__();
+		throw;
+	}
 
 
         // Set the session uuid in the implicit context
