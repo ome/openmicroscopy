@@ -81,7 +81,7 @@ class ServerControl(BaseControl):
             cmd += " maxchildren=5 minspare=1 maxspare=5 maxrequests=400"
             django = (cmd % {'base': self.ctx.dir}).split()+list(args)
         else:
-            host = omeroweb.custom_settings.APPLICATION_HOST
+            host = settings.APPLICATION_HOST
             wikifier = re.compile(r'http[s]?://')
             host = wikifier.sub(r'', host)            
             django = ["python","manage.py","runserver","--noreload", host]+list(args)
