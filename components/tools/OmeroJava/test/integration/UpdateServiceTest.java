@@ -143,7 +143,7 @@ public class UpdateServiceTest
     public void testVersionHandling() 
     	throws Exception
     {
-        Image img = new ImageI();
+        Image img = simpleImage(0);
         img.setName(rstring("version handling"));
         Image sent = (Image) iUpdate.saveAndReturnObject(img);
         sent.setDescription(rstring("version handling update"));
@@ -287,7 +287,7 @@ public class UpdateServiceTest
             throws Exception 
     {
         CommentAnnotation ann = new CommentAnnotationI();
-        Image img = new ImageI();
+        Image img = simpleImage(0);
 
         img.setName(rstring("version_test"));
         img.setAcquisitionDate( rtime(0) );
@@ -740,45 +740,38 @@ public class UpdateServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testUpdateSameTagAnnotationUsedByTwoUsers() 
-    	throws Exception 
+    public void testUpdateSameTagAnnotationUsedByTwoUsers() throws Exception
     {
-    	//create an image.
-    	Image image = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
-    	
-    	//create the tag.
-    	TagAnnotationI tag = new TagAnnotationI();
-    	tag.setTextValue(omero.rtypes.rstring("tag1"));
-    	
-    	Annotation data = (Annotation) iUpdate.saveAndReturnObject(tag);
-    	//link the image and the tag
-    	ImageAnnotationLink l = new ImageAnnotationLinkI();
-		l.setParent(image);
-		l.setChild(data);
-		
-		IObject o1 = iUpdate.saveAndReturnObject(l);
-		assertNotNull(o1);
-		try {
-			omero.client root = new omero.client();
-	        root.createSession("root", client.getProperty("omero.rootpass"));
-	        CreatePojosFixture2 fixture = CreatePojosFixture2.withNewUser(root);
-	        
-	        l = new ImageAnnotationLinkI();
-			l.setParent(image);
-			l.setChild(data);
-			l.getDetails().setOwner(fixture.e);
-			IObject o2 = iUpdate.saveAndReturnObject(l);
-			assertNotNull(o2);
-			
-			long self = factory.getAdminService().getEventContext().userId;
-			
-	        assertTrue(o1.getId().getValue() != o2.getId().getValue());
-	        assertTrue(o1.getDetails().getOwner().getId().getValue() == self);
-	        assertTrue(o2.getDetails().getOwner().getId().getValue() == 
-	        	fixture.e.getId().getValue());
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
+        //create an image.
+        Image image = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
+
+        //create the tag.
+        TagAnnotationI tag = new TagAnnotationI();
+        tag.setTextValue(omero.rtypes.rstring("tag1"));
+
+        Annotation data = (Annotation) iUpdate.saveAndReturnObject(tag);
+        //link the image and the tag
+        ImageAnnotationLink l = new ImageAnnotationLinkI();
+        l.setParent(image);
+        l.setChild(data);
+
+        IObject o1 = iUpdate.saveAndReturnObject(l);
+        assertNotNull(o1);
+        CreatePojosFixture2 fixture = CreatePojosFixture2.withNewUser(client);
+
+        l = new ImageAnnotationLinkI();
+        l.setParent(image);
+        l.setChild(data);
+        l.getDetails().setOwner(fixture.e);
+        IObject o2 = iUpdate.saveAndReturnObject(l);
+        assertNotNull(o2);
+
+        long self = factory.getAdminService().getEventContext().userId;
+
+        assertTrue(o1.getId().getValue() != o2.getId().getValue());
+        assertTrue(o1.getDetails().getOwner().getId().getValue() == self);
+        assertTrue(o2.getDetails().getOwner().getId().getValue() ==
+            fixture.e.getId().getValue());
     }
 
 }
