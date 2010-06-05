@@ -11,8 +11,6 @@ import junit.framework.TestCase;
 import omero.RString;
 import omero.api.ServiceFactoryPrx;
 
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**

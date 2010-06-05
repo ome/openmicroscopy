@@ -24,7 +24,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -87,6 +87,8 @@ public class PojosServiceTest
 	 * The client object, this is the entry point to the Server. 
 	 */
     private omero.client client;
+
+    private omero.client root;
     
     /** Helper reference to the <code>Service factory</code>. */
     private ServiceFactoryPrx factory;
@@ -348,7 +350,7 @@ public class PojosServiceTest
         iQuery = factory.getQueryService();
         iUpdate = factory.getUpdateService();
 
-        omero.client root = new omero.client();
+        root = new omero.client();
         root.createSession("root", client.getProperty("omero.rootpass"));
         fixture = CreatePojosFixture2.withNewUser(root);
         fixture.createAllPojos();
@@ -362,15 +364,12 @@ public class PojosServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Override
-    @AfterMethod
+    @AfterClass
     public void tearDown() 
     	throws Exception 
     {
-    	client.closeSession();
-    	factory = client.createSession();
-        iContainer = factory.getContainerService();
-        iQuery = factory.getQueryService();
-        iUpdate = factory.getUpdateService();
+        client.__del__();
+        root.__del__();
     }
 
     /**
