@@ -7,20 +7,22 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
-    <link rel="stylesheet" href="{% url webstatic "css/layout.css" %}" type="text/css" />
+    <link rel="stylesheet" href="{% url webstatic "css/layout-feedback.css" %}" type="text/css" />
     <link rel="shortcut icon" href="{% url webstatic "images/ome.ico" %}" type="image/x-icon" />
     
-    <title>{% trans "Web - Error 500" %}</title>
+    <title>{% trans "OMERO.web - support" %}</title>
     
 </head>
 <body>
-<div class="error"><h1>
-    {% trans "Go back to" %}: <a href="{% url waindex %}">{% trans "Webadmin" %}</a>, <a href="{% url webindex %}">{% trans "Webclient" %}</a> {% trans "or" %}  <a href="{% url weblogout %}">{% trans "Logout" %}</a>
-</h1>
-{% block content %}{% endblock %}
-</div>
-<div id="footer"><p>&copy;2009 University of Dundee & Open Microscopy Environment</p></div>
+    <div class="bodyWrapper">
+        <div class="error"><h1>
+            {% trans "Go back to" %}: <a href="{% url waindex %}">{% trans "Webadmin" %}</a>, <a href="{% url webindex %}">{% trans "Webclient" %}</a> {% trans "or" %}  <a href="{% url weblogout %}">{% trans "Logout" %}</a>
+        </h1>
+        {% block content %}{% endblock %}
+        </div>
+        <div id="footer"><p>&copy;2009 University of Dundee & Open Microscopy Environment</p></div>
 
-</div>
+        </div>
+    </div>
 </body>
 </html>

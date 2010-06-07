@@ -402,15 +402,3 @@ function makeDiscussion() {
     $('iframe#metadata_details').load();
     return false;
 }
-
-function changeIndex(index) {
-    if(index>=0) {
-        var rel = $("div#content_details").attr('rel');
-        $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/tree/spinner.gif"/></p>');
-        var url = ('{{ url }}').split("?");                
-        $("div#content_details").load(url[0]+'?view={{ nav.view }}&index='+index);
-        return false;
-    } else {
-        alert('Attribute error: index out of range');
-    }
-}

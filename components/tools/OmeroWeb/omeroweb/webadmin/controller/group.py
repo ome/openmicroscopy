@@ -232,7 +232,7 @@ class BaseGroup(BaseController):
             permissions.setWorldRead(False)
             permissions.setWorldWrite(False)
         elif p == 1:
-            #colaborative
+            #collaborative
             permissions.setUserRead(True)
             permissions.setUserWrite(True)
             permissions.setGroupRead(True)

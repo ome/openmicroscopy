@@ -86,9 +86,9 @@ class BaseController(object):
         elif p.isUserRead() and not p.isUserWrite():
             flag = 'Private (read-only)'
         if p.isGroupRead() and p.isGroupWrite():
-            flag = 'Colaborative'
+            flag = 'Collaborative'
         elif p.isGroupRead() and not p.isGroupWrite():
-            flag = 'Colaborative (read-only)'
+            flag = 'Collaborative (read-only)'
         if p.isWorldRead() and p.isWorldWrite():
             flag = 'Public'
         elif p.isWorldRead() and not p.isWorldWrite():

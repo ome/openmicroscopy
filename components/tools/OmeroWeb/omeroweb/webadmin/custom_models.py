@@ -23,12 +23,6 @@
 
 from django.utils.encoding import smart_unicode, force_unicode
 
-SERVER_LIST = (
-    ('omero', 'localhost', 4064),
-    ('aaa', 'bbb', 4064),
-    ('aaa', 'ccc', 4064),
-)
-
 class Server(object):
     
     def __init__ (self, pk, host, port, server=None):
@@ -71,8 +65,3 @@ class ServerObjects(object):
     def all(self):
         return self.blitz_list
 
-if __name__ == "__main__":
-    
-    sl = ServerObjects(SERVER_LIST)
-    print sl.get(pk=1)
-    print sl.all()

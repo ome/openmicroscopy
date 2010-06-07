@@ -1,0 +1,39 @@
+body {
+    margin: 0;
+    font-size: 13px;
+    font-family: Arial, Verdana, Lucida, Helvetica, sans-serif;
+    color: #555;
+    padding: 0;
+    background-color: #f3f3f3;
+}
+
+.error {
+    color: #e3646f;
+}
+
+a {
+    color: #1b7bc7;
+    text-decoration: none;
+    border: none;
+}
+a:hover,a:link,a:visited {
+    color: #1b7bc7;
+    text-decoration: none;
+    border: none;
+}
+
+h1 {
+    font-size: 15px;
+    text-align: left;
+    margin: 0;
+    padding: 10px 0;
+}
+h2 {
+    font-size: 12px;
+    text-align: left;
+}
+
+.bodyWrapper {
+    width: 600px;
+    margin: 5px auto;
+}

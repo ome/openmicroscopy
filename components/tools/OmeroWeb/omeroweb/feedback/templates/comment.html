@@ -1,0 +1,22 @@
+{% extends "base_error.html" %}
+{% load i18n %}
+
+{% block content %}
+    <div>
+        <h1>{% trans "Comment." %}</h1>
+
+        <p>{% trans "Thank you for taking the time to send us your comments. Your feedback will be used to further the development of the OMERO.web and improve our software. Any personal details you provide are purely optional, and will only be used for development purpose." %}</p>
+        {% if error %}<ul class="errorlist"><li>{{ error }}</li></ul>{% endif %}
+        
+        <form action="{% url csend %}" method="post">
+        <table>
+            {% for field in form %}
+                <tr><th>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</th>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
+                </tr>
+            {% endfor %}
+                <tr><td colspan="2"><input type="submit" value="Send" /></td></tr>
+            </table>
+        </form>
+    </div>
+{% endblock %}

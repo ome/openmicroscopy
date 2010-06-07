@@ -27,6 +27,11 @@ from django.forms.widgets import Textarea
 
 class ErrorForm(forms.Form):
     
-    email = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':50}), label="Your email", required=False)
-    comment = forms.CharField(widget=forms.Textarea(attrs={'rows': 5, 'cols': 70}), required=False)
-    error = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 70}))
+    email = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':40}), label="Your email", required=False)
+    comment = forms.CharField(widget=forms.Textarea(attrs={'rows': 5, 'cols': 60}), required=False)
+    error = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 60}))
+
+class CommentForm(forms.Form):
+
+    email = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':40}), label="Your email", required=False)
+    comment = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 60}))

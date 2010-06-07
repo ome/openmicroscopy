@@ -29,7 +29,8 @@ from omeroweb.feedback import views
 # url patterns
 urlpatterns = patterns('',
 
-    url(r'^send/', views.send_feedback, name="fsend"),
+    url(r'^feedback/', views.send_feedback, name="fsend"),
+    url(r'^comment/', views.send_comment, name="csend"),
     url(r'^thanks/', views.thanks, name="fthanks"),
     
 )

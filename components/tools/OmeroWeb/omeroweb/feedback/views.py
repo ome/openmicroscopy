@@ -42,8 +42,8 @@ from django.views.defaults import page_not_found, server_error
 from django.views import debug
 from django.core.urlresolvers import reverse
 
-from omeroweb.feedback.sendfeedback import SendFeedback 
-from omeroweb.feedback.forms import ErrorForm
+from omeroweb.feedback.sendfeedback import SendFeedback
+from omeroweb.feedback.forms import ErrorForm, CommentForm
 
 logger = logging.getLogger('views-feedback')
 
@@ -81,6 +81,32 @@ def send_feedback(request):
         
     context = {'form':form, 'error':error}
     t = template_loader.get_template('500.html') 
+    c = Context(request, context)
+    return HttpResponse(t.render(c))
+
+def send_comment(request):
+    error = None
+    form = CommentForm()    
+    
+    if request.method == "POST":
+        form = CommentForm(data=request.REQUEST.copy())
+        if form.is_valid():
+            comment = request.REQUEST['comment']
+            email = None
+            if request.REQUEST['email'] is not None or request.REQUEST['email'] != "":
+                email = request.REQUEST['email']
+            try:
+                sf = SendFeedback()
+                sf.give_comment(comment, email)
+            except:
+                logger.error('handler500: Feedback could not be sent')
+                logger.error(traceback.format_exc())
+                error = "Feedback could not been sent. Please contact administrator."
+            else:
+                return HttpResponseRedirect(reverse("fthanks"))
+        
+    context = {'form':form, 'error':error}
+    t = template_loader.get_template('comment.html') 
     c = Context(request, context)
     return HttpResponse(t.render(c))
 
