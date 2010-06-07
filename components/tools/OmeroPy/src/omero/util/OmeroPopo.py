@@ -10,6 +10,7 @@ from omero.model import LabelI
 from omero.model import PolylineI
 from omero.model import PolygonI
 from omero.model import PathI
+from omero.model import MaskI
 from omero.model import NamespaceI
 from omero.rtypes import rdouble 
 from omero.rtypes import rstring 
@@ -667,11 +668,7 @@ class ShapeData(DataObject):
             return numpy.matrix([[1,0,0],[0,1,0]])
         transformstr = str[str.find('(')+1:len(str)-1];
         values = transformstr.split(' ');
-        '''print "values";
-        print values;'''
         b = numpy.matrix(numpy.array(values, dtype='double'));
-        '''print "b";
-        print b[0];'''
         t = numpy.matrix(numpy.zeros((3,3)));
         t[0,0] = b[0,0];
         t[0,1] = b[0,2];
@@ -862,22 +859,22 @@ class EllipseData(ShapeData):
 ##
 # Instance of Polygon object.
 #
-def PolygonData(ShapeData):
+class PolygonData(ShapeData):
     
     ###
     # Create instance of PolygonData Object
     #
-    def __init__(self, polygonShape=None):
+    def __init__(self, shape = None):
         ShapeData.__init__(self);
         self.NUMREGEX = "\\[.*\\]";  # Regex for a data in block. 
-        if(polygonShape==None):
+        if(shape==None):
             self.setValue(PolygonI());
             self.points = [];
             self.points1 = [];
             self.points2 = [];
             self.mask = [];
         else:
-            self.setValue(polygonShape);
+            self.setValue(shape);
             self.parseShapeStringToPoints();
     
     ##
@@ -1092,7 +1089,7 @@ class MaskData(ShapeData):
             self.setY(0);
             self.setWidth(0);
             self.setHeight(0);
-            self.setMask(None);
+            self.setBytes(None);
         else:
             self.setValue(maskShape);
             
@@ -1184,7 +1181,7 @@ class MaskData(ShapeData):
         shape = self.asIObject();
         if(shape==None):
             raise Exception("No Shape specified.");
-        shape.setMask(mask);
+        shape.setBytes(mask);
     
     ## 
     # Get the bitmask of the Mask
@@ -1193,7 +1190,7 @@ class MaskData(ShapeData):
         shape = self.asIObject();
         if(shape==None):
             raise Exception("No Shape specified.");
-        mask = shape.getMask();
+        mask = shape.getBytes();
         if(x==None):
             return 0;
         return mask.getValue();        
@@ -1215,7 +1212,6 @@ class RectData(ShapeData):
             self.setY(0);
             self.setWidth(0);
             self.setHeight(0);
-            self.setMask(None);
         else:
             self.setValue(rectShape);
             
