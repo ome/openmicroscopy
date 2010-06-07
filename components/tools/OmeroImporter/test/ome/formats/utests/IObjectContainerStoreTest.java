@@ -8,7 +8,7 @@ import ome.util.LSID;
 import ome.formats.Index;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.model.BlitzInstanceProvider;
-import ome.xml.r201004.primitives.PositiveInteger;
+import ome.xml.model.primitives.PositiveInteger;
 import omero.model.Image;
 import omero.model.ObjectiveSettings;
 import omero.model.Pixels;

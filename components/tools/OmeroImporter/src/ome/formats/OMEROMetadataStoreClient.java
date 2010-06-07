@@ -77,12 +77,12 @@ import ome.formats.model.ShapeProcessor;
 import ome.formats.model.TargetProcessor;
 import ome.formats.model.WellProcessor;
 import ome.util.LSID;
-import ome.xml.r201004.enums.IlluminationType;
-import ome.xml.r201004.enums.NamingConvention;
-import ome.xml.r201004.enums.PixelType;
-import ome.xml.r201004.primitives.NonNegativeInteger;
-import ome.xml.r201004.primitives.PercentFraction;
-import ome.xml.r201004.primitives.PositiveInteger;
+import ome.xml.model.enums.IlluminationType;
+import ome.xml.model.enums.NamingConvention;
+import ome.xml.model.enums.PixelType;
+import ome.xml.model.primitives.NonNegativeInteger;
+import ome.xml.model.primitives.PercentFraction;
+import ome.xml.model.primitives.PositiveInteger;
 import omero.RBool;
 import omero.RDouble;
 import omero.RInt;
@@ -2524,9 +2524,9 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setArcType(ome.xml.r201004.enums.ArcType, int, int)
+     * @see loci.formats.meta.MetadataStore#setArcType(ome.xml.model.enums.ArcType, int, int)
      */
-    public void setArcType(ome.xml.r201004.enums.ArcType type,
+    public void setArcType(ome.xml.model.enums.ArcType type,
             int instrumentIndex, int lightSourceIndex)
     {
         Arc o = getArc(instrumentIndex, lightSourceIndex);
@@ -2611,10 +2611,10 @@ public class OMEROMetadataStoreClient
     }
     
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setChannelAcquisitionMode(ome.xml.r201004.enums.AcquisitionMode, int, int)
+     * @see loci.formats.meta.MetadataStore#setChannelAcquisitionMode(ome.xml.model.enums.AcquisitionMode, int, int)
      */
     public void setChannelAcquisitionMode(
-            ome.xml.r201004.enums.AcquisitionMode acquisitionMode,
+            ome.xml.model.enums.AcquisitionMode acquisitionMode,
             int imageIndex, int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
@@ -2635,10 +2635,10 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setChannelContrastMethod(ome.xml.r201004.enums.ContrastMethod, int, int)
+     * @see loci.formats.meta.MetadataStore#setChannelContrastMethod(ome.xml.model.enums.ContrastMethod, int, int)
      */
     public void setChannelContrastMethod(
-            ome.xml.r201004.enums.ContrastMethod contrastMethod,
+            ome.xml.model.enums.ContrastMethod contrastMethod,
             int imageIndex, int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
@@ -2646,7 +2646,7 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setChannelEmissionWavelength(ome.xml.r201004.primitives.PositiveInteger, int, int)
+     * @see loci.formats.meta.MetadataStore#setChannelEmissionWavelength(ome.xml.model.primitives.PositiveInteger, int, int)
      */
     public void setChannelEmissionWavelength(
             PositiveInteger emissionWavelength, int imageIndex, int channelIndex)
@@ -2656,7 +2656,7 @@ public class OMEROMetadataStoreClient
     }
 
     /** (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setChannelExcitationWavelength(ome.xml.r201004.primitives.PositiveInteger, int, int)
+     * @see loci.formats.meta.MetadataStore#setChannelExcitationWavelength(ome.xml.model.primitives.PositiveInteger, int, int)
      */
     public void setChannelExcitationWavelength(
             PositiveInteger excitationWavelength, int imageIndex,
@@ -2687,7 +2687,7 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setChannelIlluminationType(ome.xml.r201004.enums.IlluminationType, int, int)
+     * @see loci.formats.meta.MetadataStore#setChannelIlluminationType(ome.xml.model.enums.IlluminationType, int, int)
      */
     public void setChannelIlluminationType(IlluminationType illuminationType,
             int imageIndex, int channelIndex)
@@ -2809,7 +2809,7 @@ public class OMEROMetadataStoreClient
     }
     
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setChannelLightSourceSettingsAttenuation(ome.xml.r201004.primitives.PercentFraction, int, int)
+     * @see loci.formats.meta.MetadataStore#setChannelLightSourceSettingsAttenuation(ome.xml.model.primitives.PercentFraction, int, int)
      */
     public void setChannelLightSourceSettingsAttenuation(
             PercentFraction attenuation, int imageIndex, int channelIndex)
@@ -2819,7 +2819,7 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setChannelLightSourceSettingsWavelength(ome.xml.r201004.primitives.PositiveInteger, int, int)
+     * @see loci.formats.meta.MetadataStore#setChannelLightSourceSettingsWavelength(ome.xml.model.primitives.PositiveInteger, int, int)
      */
     public void setChannelLightSourceSettingsWavelength(
             PositiveInteger wavelength, int imageIndex, int channelIndex)
@@ -3017,9 +3017,9 @@ public class OMEROMetadataStoreClient
 
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDetectorType(ome.xml.r201004.enums.DetectorType, int, int)
+     * @see loci.formats.meta.MetadataStore#setDetectorType(ome.xml.model.enums.DetectorType, int, int)
      */
-    public void setDetectorType(ome.xml.r201004.enums.DetectorType type,
+    public void setDetectorType(ome.xml.model.enums.DetectorType type,
             int instrumentIndex, int detectorIndex)
     {
         Detector o = getDetector(instrumentIndex, detectorIndex);
@@ -3073,10 +3073,10 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDetectorSettingsBinning(ome.xml.r201004.enums.Binning, int, int)
+     * @see loci.formats.meta.MetadataStore#setDetectorSettingsBinning(ome.xml.model.enums.Binning, int, int)
      */
     public void setDetectorSettingsBinning(
-            ome.xml.r201004.enums.Binning binning, int imageIndex,
+            ome.xml.model.enums.Binning binning, int imageIndex,
             int channelIndex)
     {
         DetectorSettings o = getDetectorSettings(imageIndex, channelIndex);
@@ -3457,9 +3457,9 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setExperimentType(ome.xml.r201004.enums.ExperimentType, int)
+     * @see loci.formats.meta.MetadataStore#setExperimentType(ome.xml.model.enums.ExperimentType, int)
      */
-    public void setExperimentType(ome.xml.r201004.enums.ExperimentType type,
+    public void setExperimentType(ome.xml.model.enums.ExperimentType type,
             int experimentIndex)
     {
         Experiment o = getExperiment(experimentIndex);
@@ -3651,9 +3651,9 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setFilamentType(ome.xml.r201004.enums.FilamentType, int, int)
+     * @see loci.formats.meta.MetadataStore#setFilamentType(ome.xml.model.enums.FilamentType, int, int)
      */
-    public void setFilamentType(ome.xml.r201004.enums.FilamentType type,
+    public void setFilamentType(ome.xml.model.enums.FilamentType type,
             int instrumentIndex, int lightSourceIndex)
     {
         Filament o = getFilament(instrumentIndex, lightSourceIndex);
@@ -3798,9 +3798,9 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setFilterType(ome.xml.r201004.enums.FilterType, int, int)
+     * @see loci.formats.meta.MetadataStore#setFilterType(ome.xml.model.enums.FilterType, int, int)
      */
-    public void setFilterType(ome.xml.r201004.enums.FilterType type,
+    public void setFilterType(ome.xml.model.enums.FilterType type,
             int instrumentIndex, int filterIndex)
     {
         Filter o = getFilter(instrumentIndex, filterIndex);
@@ -4163,10 +4163,10 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setImageObjectiveSettingsMedium(ome.xml.r201004.enums.Medium, int)
+     * @see loci.formats.meta.MetadataStore#setImageObjectiveSettingsMedium(ome.xml.model.enums.Medium, int)
      */
     public void setImageObjectiveSettingsMedium(
-            ome.xml.r201004.enums.Medium medium, int imageIndex)
+            ome.xml.model.enums.Medium medium, int imageIndex)
     {
         ObjectiveSettings o = getImageObjectiveSettings(imageIndex);
         o.setMedium((Medium) getEnumeration(Medium.class, medium.toString()));   
@@ -4203,7 +4203,7 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setImagingEnvironmentCO2Percent(ome.xml.r201004.primitives.PercentFraction, int)
+     * @see loci.formats.meta.MetadataStore#setImagingEnvironmentCO2Percent(ome.xml.model.primitives.PercentFraction, int)
      */
     public void setImagingEnvironmentCO2Percent(PercentFraction co2percent,
             int imageIndex)
@@ -4213,7 +4213,7 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setImagingEnvironmentHumidity(ome.xml.r201004.primitives.PercentFraction, int)
+     * @see loci.formats.meta.MetadataStore#setImagingEnvironmentHumidity(ome.xml.model.primitives.PercentFraction, int)
      */
     public void setImagingEnvironmentHumidity(PercentFraction humidity,
             int imageIndex)
@@ -4283,7 +4283,7 @@ public class OMEROMetadataStoreClient
     }
     
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLaserFrequencyMultiplication(ome.xml.r201004.primitives.PositiveInteger, int, int)
+     * @see loci.formats.meta.MetadataStore#setLaserFrequencyMultiplication(ome.xml.model.primitives.PositiveInteger, int, int)
      */
     public void setLaserFrequencyMultiplication(
             PositiveInteger frequencyMultiplication, int instrumentIndex,
@@ -4294,10 +4294,10 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLaserLaserMedium(ome.xml.r201004.enums.LaserMedium, int, int)
+     * @see loci.formats.meta.MetadataStore#setLaserLaserMedium(ome.xml.model.enums.LaserMedium, int, int)
      */
     public void setLaserLaserMedium(
-            ome.xml.r201004.enums.LaserMedium laserMedium, int instrumentIndex,
+            ome.xml.model.enums.LaserMedium laserMedium, int instrumentIndex,
             int lightSourceIndex)
     {
         Laser o = getLaser(instrumentIndex, lightSourceIndex);
@@ -4354,9 +4354,9 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLaserPulse(ome.xml.r201004.enums.Pulse, int, int)
+     * @see loci.formats.meta.MetadataStore#setLaserPulse(ome.xml.model.enums.Pulse, int, int)
      */
-    public void setLaserPulse(ome.xml.r201004.enums.Pulse pulse,
+    public void setLaserPulse(ome.xml.model.enums.Pulse pulse,
             int instrumentIndex, int lightSourceIndex)
     {
         Laser o = getLaser(instrumentIndex, lightSourceIndex);
@@ -4404,9 +4404,9 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLaserType(ome.xml.r201004.enums.LaserType, int, int)
+     * @see loci.formats.meta.MetadataStore#setLaserType(ome.xml.model.enums.LaserType, int, int)
      */
-    public void setLaserType(ome.xml.r201004.enums.LaserType type,
+    public void setLaserType(ome.xml.model.enums.LaserType type,
             int instrumentIndex, int lightSourceIndex)
     {
         Laser o = getLaser(instrumentIndex, lightSourceIndex);
@@ -4414,7 +4414,7 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLaserWavelength(ome.xml.r201004.primitives.PositiveInteger, int, int)
+     * @see loci.formats.meta.MetadataStore#setLaserWavelength(ome.xml.model.primitives.PositiveInteger, int, int)
      */
     public void setLaserWavelength(PositiveInteger wavelength,
             int instrumentIndex, int lightSourceIndex)
@@ -5022,9 +5022,9 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationType(ome.xml.r201004.enums.MicrobeamManipulationType, int, int)
+     * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationType(ome.xml.model.enums.MicrobeamManipulationType, int, int)
      */
-    public void setMicrobeamManipulationType(ome.xml.r201004.enums.MicrobeamManipulationType type,
+    public void setMicrobeamManipulationType(ome.xml.model.enums.MicrobeamManipulationType type,
             int experimentIndex, int microbeamManipulationIndex)
     {
         MicrobeamManipulation o = getMicrobeamManipulation(experimentIndex, microbeamManipulationIndex);
@@ -5072,7 +5072,7 @@ public class OMEROMetadataStoreClient
     }
     
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationLightSourceSettingsAttenuation(ome.xml.r201004.primitives.PercentFraction, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationLightSourceSettingsAttenuation(ome.xml.model.primitives.PercentFraction, int, int, int)
      */
     public void setMicrobeamManipulationLightSourceSettingsAttenuation(
             PercentFraction attenuation, int experimentIndex,
@@ -5084,7 +5084,7 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationLightSourceSettingsWavelength(ome.xml.r201004.primitives.PositiveInteger, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationLightSourceSettingsWavelength(ome.xml.model.primitives.PositiveInteger, int, int, int)
      */
     public void setMicrobeamManipulationLightSourceSettingsWavelength(
             PositiveInteger wavelength, int experimentIndex,
@@ -5153,9 +5153,9 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMicroscopeType(ome.xml.r201004.enums.MicroscopeType, int)
+     * @see loci.formats.meta.MetadataStore#setMicroscopeType(ome.xml.model.enums.MicroscopeType, int)
      */
-    public void setMicroscopeType(ome.xml.r201004.enums.MicroscopeType type,
+    public void setMicroscopeType(ome.xml.model.enums.MicroscopeType type,
             int instrumentIndex)
     {
         Microscope o = getMicroscope(instrumentIndex);
@@ -5249,7 +5249,7 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setOTFSizeX(ome.xml.r201004.primitives.PositiveInteger, int, int)
+     * @see loci.formats.meta.MetadataStore#setOTFSizeX(ome.xml.model.primitives.PositiveInteger, int, int)
      */
     public void setOTFSizeX(PositiveInteger sizeX, int instrumentIndex,
             int OTFIndex)
@@ -5259,7 +5259,7 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setOTFSizeY(ome.xml.r201004.primitives.PositiveInteger, int, int)
+     * @see loci.formats.meta.MetadataStore#setOTFSizeY(ome.xml.model.primitives.PositiveInteger, int, int)
      */
     public void setOTFSizeY(PositiveInteger sizeY, int instrumentIndex,
             int OTFIndex)
@@ -5269,9 +5269,9 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setOTFType(ome.xml.r201004.enums.PixelType, int, int)
+     * @see loci.formats.meta.MetadataStore#setOTFType(ome.xml.model.enums.PixelType, int, int)
      */
-    public void setOTFType(ome.xml.r201004.enums.PixelType type, int instrumentIndex, int OTFIndex)
+    public void setOTFType(ome.xml.model.enums.PixelType type, int instrumentIndex, int OTFIndex)
     {
         OTF o = getOTF(instrumentIndex, OTFIndex);
         o.setPixelsType((PixelsType) getEnumeration(PixelsType.class, type.toString()));
@@ -5321,10 +5321,10 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setOTFObjectiveSettingsMedium(ome.xml.r201004.enums.Medium, int, int)
+     * @see loci.formats.meta.MetadataStore#setOTFObjectiveSettingsMedium(ome.xml.model.enums.Medium, int, int)
      */
     public void setOTFObjectiveSettingsMedium(
-            ome.xml.r201004.enums.Medium medium, int instrumentIndex,
+            ome.xml.model.enums.Medium medium, int instrumentIndex,
             int OTFIndex)
     {
         ObjectiveSettings o = getOTFObjectiveSettings(instrumentIndex, OTFIndex);
@@ -5365,10 +5365,10 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setObjectiveCorrection(ome.xml.r201004.enums.Correction, int, int)
+     * @see loci.formats.meta.MetadataStore#setObjectiveCorrection(ome.xml.model.enums.Correction, int, int)
      */
     public void setObjectiveCorrection(
-            ome.xml.r201004.enums.Correction correction, int instrumentIndex,
+            ome.xml.model.enums.Correction correction, int instrumentIndex,
             int objectiveIndex)
     {
         Objective o = getObjective(instrumentIndex, objectiveIndex);
@@ -5393,10 +5393,10 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setObjectiveImmersion(ome.xml.r201004.enums.Immersion, int, int)
+     * @see loci.formats.meta.MetadataStore#setObjectiveImmersion(ome.xml.model.enums.Immersion, int, int)
      */
     public void setObjectiveImmersion(
-            ome.xml.r201004.enums.Immersion immersion, int instrumentIndex,
+            ome.xml.model.enums.Immersion immersion, int instrumentIndex,
             int objectiveIndex)
     {
         Objective o = getObjective(instrumentIndex, objectiveIndex);
@@ -5686,10 +5686,10 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsDimensionOrder(ome.xml.r201004.enums.DimensionOrder, int)
+     * @see loci.formats.meta.MetadataStore#setPixelsDimensionOrder(ome.xml.model.enums.DimensionOrder, int)
      */
     public void setPixelsDimensionOrder(
-            ome.xml.r201004.enums.DimensionOrder dimensionOrder, int imageIndex)
+            ome.xml.model.enums.DimensionOrder dimensionOrder, int imageIndex)
     {
         Pixels o = getPixels(imageIndex);
         o.setDimensionOrder((DimensionOrder) getEnumeration(
@@ -5724,7 +5724,7 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsSizeC(ome.xml.r201004.primitives.PositiveInteger, int)
+     * @see loci.formats.meta.MetadataStore#setPixelsSizeC(ome.xml.model.primitives.PositiveInteger, int)
      */
     public void setPixelsSizeC(PositiveInteger sizeC, int imageIndex)
     {
@@ -5733,7 +5733,7 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsSizeT(ome.xml.r201004.primitives.PositiveInteger, int)
+     * @see loci.formats.meta.MetadataStore#setPixelsSizeT(ome.xml.model.primitives.PositiveInteger, int)
      */
     public void setPixelsSizeT(PositiveInteger sizeT, int imageIndex)
     {
@@ -5742,7 +5742,7 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsSizeX(ome.xml.r201004.primitives.PositiveInteger, int)
+     * @see loci.formats.meta.MetadataStore#setPixelsSizeX(ome.xml.model.primitives.PositiveInteger, int)
      */
     public void setPixelsSizeX(PositiveInteger sizeX, int imageIndex)
     {
@@ -5751,7 +5751,7 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsSizeY(ome.xml.r201004.primitives.PositiveInteger, int)
+     * @see loci.formats.meta.MetadataStore#setPixelsSizeY(ome.xml.model.primitives.PositiveInteger, int)
      */
     public void setPixelsSizeY(PositiveInteger sizeY, int imageIndex)
     {
@@ -5760,7 +5760,7 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsSizeZ(ome.xml.r201004.primitives.PositiveInteger, int)
+     * @see loci.formats.meta.MetadataStore#setPixelsSizeZ(ome.xml.model.primitives.PositiveInteger, int)
      */
     public void setPixelsSizeZ(PositiveInteger sizeZ, int imageIndex)
     {
@@ -5778,7 +5778,7 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPixelsType(ome.xml.r201004.enums.PixelType, int)
+     * @see loci.formats.meta.MetadataStore#setPixelsType(ome.xml.model.enums.PixelType, int)
      */
     public void setPixelsType(PixelType type, int imageIndex)
     {
@@ -6022,7 +6022,7 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlateColumnNamingConvention(ome.xml.r201004.enums.NamingConvention, int)
+     * @see loci.formats.meta.MetadataStore#setPlateColumnNamingConvention(ome.xml.model.enums.NamingConvention, int)
      */
     public void setPlateColumnNamingConvention(
             NamingConvention columnNamingConvention, int plateIndex)
@@ -6083,7 +6083,7 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPlateRowNamingConvention(ome.xml.r201004.enums.NamingConvention, int)
+     * @see loci.formats.meta.MetadataStore#setPlateRowNamingConvention(ome.xml.model.enums.NamingConvention, int)
      */
     public void setPlateRowNamingConvention(
             NamingConvention rowNamingConvention, int plateIndex)
@@ -7429,7 +7429,7 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setTransmittanceRangeTransmittance(ome.xml.r201004.primitives.PercentFraction, int, int)
+     * @see loci.formats.meta.MetadataStore#setTransmittanceRangeTransmittance(ome.xml.model.primitives.PercentFraction, int, int)
      */
     public void setTransmittanceRangeTransmittance(
             PercentFraction transmittance, int instrumentIndex, int filterIndex)
@@ -7519,7 +7519,7 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setWellColumn(ome.xml.r201004.primitives.NonNegativeInteger, int, int)
+     * @see loci.formats.meta.MetadataStore#setWellColumn(ome.xml.model.primitives.NonNegativeInteger, int, int)
      */
     public void setWellColumn(NonNegativeInteger column, int plateIndex,
             int wellIndex)
@@ -7558,7 +7558,7 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setWellRow(ome.xml.r201004.primitives.NonNegativeInteger, int, int)
+     * @see loci.formats.meta.MetadataStore#setWellRow(ome.xml.model.primitives.NonNegativeInteger, int, int)
      */
     public void setWellRow(NonNegativeInteger row, int plateIndex, int wellIndex)
     {
@@ -7634,7 +7634,7 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setWellSampleIndex(ome.xml.r201004.primitives.NonNegativeInteger, int, int, int)
+     * @see loci.formats.meta.MetadataStore#setWellSampleIndex(ome.xml.model.primitives.NonNegativeInteger, int, int, int)
      */
     public void setWellSampleIndex(NonNegativeInteger index, int plateIndex,
             int wellIndex, int wellSampleIndex)

@@ -29,8 +29,8 @@ import ome.formats.importer.OMEROWrapper;
 import ome.formats.model.BlitzInstanceProvider;
 import ome.formats.model.ChannelData;
 import ome.formats.model.ChannelProcessor;
-import ome.xml.r201004.enums.*;
-import ome.xml.r201004.primitives.*;
+import ome.xml.model.enums.*;
+import ome.xml.model.primitives.*;
 import omero.api.ServiceFactoryPrx;
 
 /**

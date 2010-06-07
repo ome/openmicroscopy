@@ -6,8 +6,8 @@ import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.model.BlitzInstanceProvider;
 import ome.util.LSID;
-import ome.xml.r201004.enums.Correction;
-import ome.xml.r201004.primitives.PositiveInteger;
+import ome.xml.model.enums.Correction;
+import ome.xml.model.primitives.PositiveInteger;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Image;
 import omero.model.Instrument;
@@ -29,7 +29,7 @@ public class ObjectiveSettingsTest extends TestCase
 	
 	private static final String OBJECTIVE_MODEL = "Model";
 	
-	private static final Correction FL = ome.xml.r201004.enums.Correction.FL;
+	private static final Correction FL = ome.xml.model.enums.Correction.FL;
 	
 	@Override
 	protected void setUp() throws Exception

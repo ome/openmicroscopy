@@ -3,7 +3,7 @@ package ome.formats.utests;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.model.BlitzInstanceProvider;
 import ome.util.LSID;
-import ome.xml.r201004.primitives.NonNegativeInteger;
+import ome.xml.model.primitives.NonNegativeInteger;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Plate;
 import omero.model.Well;
