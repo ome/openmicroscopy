@@ -149,10 +149,10 @@ import Ice.ObjectPrx;
 
 /**
  * Responsible for maintaining all servants for a single session.
- * 
+ *
  * In general, try to reduce access to the {@link Ice.Current} and
  * {@link Ice.Util} objects.
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta2
  */
@@ -173,7 +173,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     boolean doClose = true;
 
     public final String clientId;
-    
+
     public final Glacier2.SessionControlPrx control;
 
     private ClientCallbackPrx callback;
@@ -312,17 +312,22 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
             ome.model.IObject old = sessionManager.setSecurityContext(principal, iobj);
             return (IObject) mapper.map(old);
         } catch (Exception e) {
-            Ice.UserException iue = mapper.handleException(e, context);
-            if (iue instanceof ServerError) {
-                throw (ServerError) iue;
-            } else {
-                InternalException iu = new InternalException();
-                iu.initCause(iue);
-                IceMapper.fillServerError(iu, e);
-                throw iu;
-            }
+            throw handleException(e);
         }
 
+    }
+
+    protected omero.ServerError handleException(Throwable t) {
+        IceMapper mapper = new IceMapper();
+        Ice.UserException iue = mapper.handleException(t, context);
+        if (iue instanceof ServerError) {
+            return (ServerError) iue;
+        } else { // This may not be necessary
+            InternalException iu = new InternalException();
+            iu.initCause(t);
+            IceMapper.fillServerError(iu, t);
+            return iu;
+        }
     }
 
 
@@ -775,45 +780,53 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         return holder.getServantList();
     }
 
-    public long keepAllAlive(ServiceInterfacePrx[] proxies, Current __current) {
+    public long keepAllAlive(ServiceInterfacePrx[] proxies, Current __current) throws ServerError {
 
-        // First take measures to keep the session alive
-        sessionManager.getEventContext(this.principal);
-        if (log.isInfoEnabled()) {
-            log.info("Keep alive: " + __current.id.name);
-        }
-
-        if (proxies == null || proxies.length == 0) {
-            return -1; // All set to 1
-        }
-
-        long retVal = 0;
-        for (int i = 0; i < proxies.length; i++) {
-            ServiceInterfacePrx prx = proxies[i];
-            Ice.Identity id = prx.ice_getIdentity();
-            if (null == holder.get(id)) {
-                retVal |= 1 << i;
+        try {
+            // First take measures to keep the session alive
+            sessionManager.getEventContext(this.principal);
+            if (log.isInfoEnabled()) {
+                log.info("Keep alive: " + __current.id.name);
             }
+
+            if (proxies == null || proxies.length == 0) {
+                return -1; // All set to 1
+            }
+
+            long retVal = 0;
+            for (int i = 0; i < proxies.length; i++) {
+                ServiceInterfacePrx prx = proxies[i];
+                Ice.Identity id = prx.ice_getIdentity();
+                if (null == holder.get(id)) {
+                    retVal |= 1 << i;
+                }
+            }
+            return retVal;
+        } catch (Throwable t) {
+            throw handleException(t);
         }
-        return retVal;
     }
 
     /**
      * Currently ignoring the individual proxies
      */
-    public boolean keepAlive(ServiceInterfacePrx proxy, Current __current) {
+    public boolean keepAlive(ServiceInterfacePrx proxy, Current __current) throws ServerError {
 
-        // First take measures to keep the session alive
-        sessionManager.getEventContext(this.principal);
-        if (log.isInfoEnabled()) {
-            log.info("Keep alive: " + __current.id.name);
-        }
+        try {
+            // First take measures to keep the session alive
+            sessionManager.getEventContext(this.principal);
+            if (log.isInfoEnabled()) {
+                log.info("Keep alive: " + __current.id.name);
+            }
 
-        if (proxy == null) {
-            return false;
+            if (proxy == null) {
+                return false;
+            }
+            Ice.Identity id = proxy.ice_getIdentity();
+            return null != holder.get(id);
+        } catch (Throwable t) {
+            throw handleException(t);
         }
-        Ice.Identity id = proxy.ice_getIdentity();
-        return null != holder.get(id);
     }
 
     // ~ Helpers
