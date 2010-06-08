@@ -246,6 +246,8 @@ $.fn.simpleTree = function(opt){
 		        pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/folder_screen16.png" alt="screen"/>';
             } else if(node.id.indexOf('pl')>=0){    
 		        pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/folder_plate16.png" alt="plate"/>';
+		    } else if(node.id.indexOf('tag')>=0){    
+		        pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/knotes16.png" alt="tag"/>'; 
             } else{
 		        pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/image16.png" alt="image"/>';
 		    }
