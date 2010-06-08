@@ -32,7 +32,7 @@ class NodeControl(BaseControl):
 
     def _configure(self, parser):
         parser.add_argument("name", nargs="?", help="Optional name of this node.", default=self._node())
-        parser.add_argument("sync", nargs="?", choices=("sync",), help="Whether")
+        parser.add_argument("sync", nargs="?", choices=("sync",), help="Whether or not to call wait on results")
         parser.add_argument("command", nargs="+", choices=("start","stop","status","restart"))
         parser.set_defaults(func=self.__call__)
 
@@ -89,7 +89,9 @@ class NodeControl(BaseControl):
                 self._handleNZRC(nzrc)
         else:
                 pid = open(self._pid(),"r").readline()
-                os.kill(int(pid), signal.SIGQUIT)
+                os.kill(int(pid), signal.SIGTERM)
+                # command = ["icegridadmin"] + [self._intcfg()] + ["-c", "node shutdown %s" % args.name]
+                # self.ctx.call(command)
 
     def kill(self, args):
         pid = open(self._pid(),"r").readline()
