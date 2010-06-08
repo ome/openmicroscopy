@@ -47,20 +47,20 @@ def with_config(func):
     """
     opens a config and passes it as the second argument.
     """
-    def open_config(*args, **kwargs):
+    def open_and_close_config(*args, **kwargs):
         args = list(args)
         self = args[0]
         argp = args[1]
         config = None
         if len(args) == 2:
-            config = self.open(argp)
+            config = self.open_config(argp)
             args.append(config)
         try:
             return func(*args, **kwargs)
         finally:
             if config:
                 config.close()
-    return wraps(func)(open_config)
+    return wraps(func)(open_and_close_config)
 
 
 class PrefsControl(BaseControl):
@@ -128,7 +128,7 @@ class PrefsControl(BaseControl):
         old = parser.add(sub, self.old, "Delegates to the old configuration system using Java preferences")
         old.add_argument("target", nargs="*")
 
-    def open(self, args):
+    def open_config(self, args):
         if args.source:
             cfg_xml = path(args.source)
             if not cfg_xml.exists():

@@ -143,46 +143,51 @@ class ConfigXml(object):
             print "# ===> %s <===" % id
             print self.dict_to_text(props)
 
+    def save(self):
+        """
+        Creates a fresh <icegrid> block (removing any unwanted
+        intra-element whitespace) and overwrites the file on disk.
+        """
+        icegrid = Element("icegrid")
+        comment = Comment("\n".join(["\n",
+        "\tThis file was generated at %s by the OmeroConfig system.",
+        "\tDo not edit directly but see bin/omero config for details.",
+        "\tThis file may be included into your IceGrid application.",
+        "\n"]) % time.ctime())
+        icegrid.append(comment)
+        # First step is to add a new self.INTERNAL block to it
+        # which has self.DEFAULT set to the current default,
+        # and then copies all the values from that profile.
+        default = self.default()
+        internal = SubElement(icegrid, "properties", id=self.INTERNAL)
+        SubElement(internal, "property", name=self.DEFAULT, value=default)
+        SubElement(internal, "property", name=self.KEY, value=self.VERSION)
+        to_copy = self.properties(default)
+        if to_copy is not None:
+            for x in to_copy.getchildren():
+                if x.get("name") != self.DEFAULT and x.get("name") != self.KEY:
+                    SubElement(internal, "property", x.attrib)
+        else:
+            # Doesn't exist, create it
+            properties = SubElement(icegrid, "properties", id=default)
+            SubElement(properties, "property", name=self.KEY, value=self.VERSION)
+        # Now we simply reproduce all the other blocks
+        prop_list = self.properties(None, True)
+        for k, p in prop_list:
+            self.clear_text(p)
+            icegrid.append(p)
+        self.source.seek(0)
+        self.source.truncate()
+        self.source.write(self.element_to_xml(icegrid))
+        self.source.flush()
+
     def close(self):
         try:
             # If we didn't get an XML instance,
             # then something has gone wrong and
             # we should exit.
             if self.XML:
-                # Create a new icegrid block
-                #
-                #
-                icegrid = Element("icegrid")
-                comment = Comment("\n".join(["\n",
-                "\tThis file was generated at %s by the OmeroConfig system.",
-                "\tDo not edit directly but see bin/omero config for details.",
-                "\tThis file may be included into your IceGrid application.",
-                "\n"]) % time.ctime())
-                icegrid.append(comment)
-                # First step is to add a new self.INTERNAL block to it
-                # which has self.DEFAULT set to the current default,
-                # and then copies all the values from that profile.
-                default = self.default()
-                internal = SubElement(icegrid, "properties", id=self.INTERNAL)
-                SubElement(internal, "property", name=self.DEFAULT, value=default)
-                SubElement(internal, "property", name=self.KEY, value=self.VERSION)
-                to_copy = self.properties(default)
-                if to_copy is not None:
-                    for x in to_copy.getchildren():
-                        if x.get("name") != self.DEFAULT and x.get("name") != self.KEY:
-                            SubElement(internal, "property", x.attrib)
-                else:
-                    # Doesn't exist, create it
-                    properties = SubElement(icegrid, "properties", id=default)
-                    SubElement(properties, "property", name=self.KEY, value=self.VERSION)
-                # Now we simply reproduce all the other blocks
-                prop_list = self.properties(None, True)
-                for k, p in prop_list:
-                    self.clear_text(p)
-                    icegrid.append(p)
-                self.source.seek(0)
-                self.source.truncate()
-                self.source.write(self.element_to_xml(icegrid))
+                self.save()
         finally:
             self.source.close()
 

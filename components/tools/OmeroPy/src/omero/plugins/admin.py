@@ -30,7 +30,7 @@ from omero.cli import BaseControl
 from omero.cli import NonZeroReturnCode
 from omero.cli import VERSION
 
-from omero.util.decorators import wraps
+from omero.plugins.prefs import with_config
 
 try:
     import win32service
@@ -299,13 +299,13 @@ class AdminControl(BaseControl):
     # Commands
     #
 
-    def startasync(self, args):
+    @with_config
+    def startasync(self, args, config):
         """
         First checks for a valid installation, then checks the grid,
         then registers the action: "node HOST start"
         """
 
-        self.check_config()
         self.check_node(args)
         if self._isWindows():
             self.checkwindows()
@@ -364,9 +364,8 @@ class AdminControl(BaseControl):
         self.startasync(args)
         self.waitup(args)
 
-    def deploy(self, args):
-
-        self.check_config()
+    @with_config
+    def deploy(self, args, config):
         descript = self._descript(args)
 
         # TODO : Doesn't properly handle whitespace
@@ -640,16 +639,25 @@ OMERO Diagnostics %s
         if not hasattr(args, "node"):
             args.node = self._node()
 
-    def check_config(self):
+    def open_config(self, unused):
+        """
+        Callers are responsible for closing the
+        returned ConfigXml object.
+        """
         cfg_xml = self.dir / "etc" / "grid" / "config.xml"
         cfg_tmp = self.dir / "etc" / "grid" / "config.xml.tmp"
         if not cfg_xml.exists():
             config = omero.config.ConfigXml(str(cfg_tmp))
             try:
-                self.ctx.controls["config"].upgrade(None, config)
+             self.ctx.controls["config"].upgrade(None, config)
             finally:
-                config.close()
+                config.save()
             cfg_tmp.rename(str(cfg_xml))
+        else:
+            # File exists, but we create it for updating.
+            config = omero.config.ConfigXml(str(cfg_xml))
+            config.save()
+        return config
 
 try:
     register("admin", AdminControl, HELP)
