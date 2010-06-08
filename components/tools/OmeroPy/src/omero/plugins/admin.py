@@ -23,11 +23,14 @@ from which import whichall
 from omero_ext.argparse import FileType, RawDescriptionHelpFormatter
 
 import omero
+import omero.config
 
 from omero.cli import CLI
 from omero.cli import BaseControl
 from omero.cli import NonZeroReturnCode
 from omero.cli import VERSION
+
+from omero.util.decorators import wraps
 
 try:
     import win32service
@@ -49,6 +52,7 @@ Configuration properties:
  omero.windows.user
  omero.windows.pass
 """ + "\n" + "="*50 + "\n"
+
 
 class AdminControl(BaseControl):
 
@@ -301,6 +305,8 @@ class AdminControl(BaseControl):
         then registers the action: "node HOST start"
         """
 
+        self.check_config()
+        self.check_node(args)
         if self._isWindows():
             self.checkwindows()
 
@@ -317,7 +323,7 @@ class AdminControl(BaseControl):
         descript = self._descript(args)
 
         if self._isWindows():
-            svc_name = "OMERO.%s" % self._node()
+            svc_name = "OMERO.%s" % args.node
             output = self._query_service(svc_name)
 
             # Now check if the server exists
@@ -351,7 +357,7 @@ class AdminControl(BaseControl):
             output = self.ctx.popen(["sc","start",svc_name]).communicate()[0] # popen
             self.ctx.out(output)
         else:
-            command = ["icegridnode","--daemon","--pidfile",str(self._pid()),"--nochdir",self._icecfg(),"--deploy",str(descript)] + other.args
+            command = ["icegridnode","--daemon","--pidfile",str(self._pid()),"--nochdir",self._icecfg(),"--deploy",str(descript)] + args.targets
             self.ctx.call(command)
 
     def start(self, args):
@@ -359,25 +365,24 @@ class AdminControl(BaseControl):
         self.waitup(args)
 
     def deploy(self, args):
+
+        self.check_config()
         descript = self._descript(args)
 
         # TODO : Doesn't properly handle whitespace
-        command = ["icegridadmin",self._intcfg(),"-e"," ".join(["application","update", str(descript)] + other.args)]
+        command = ["icegridadmin",self._intcfg(),"-e"," ".join(["application","update", str(descript)] + args.targets)]
         self.ctx.call(command)
 
     def status(self, args):
-        node = args.node
-
-        command = self._cmd("-e","node ping %s" % node)
+        self.check_node(args)
+        command = self._cmd("-e","node ping %s" % args.node)
         self.ctx.rv = self.ctx.popen(command).wait() # popen
 
         if self.ctx.rv == 0:
             try:
-                import Ice, IceGrid, Glacier2
+                import Ice
                 import omero_ServerErrors_ice
                 ic = Ice.initialize([self._intcfg()])
-                import pdb
-                pdb.set_trace()
                 try:
                     sm = self.session_manager(ic)
                     try:
@@ -431,8 +436,9 @@ class AdminControl(BaseControl):
     def stopasync(self, args):
         ##if 0 == self.status(args):
         ##    self.ctx.err("Server not running")
+        self.check_node(args)
         if self._isWindows():
-            svc_name = "OMERO.%s" % self._node()
+            svc_name = "OMERO.%s" % args.node
             output = self._query_service(svc_name)
             if 0 <= output.find("DOESNOTEXIST"):
                 self.ctx.die(203, "%s does not exist. Use 'start' first." % svc_name)
@@ -619,11 +625,31 @@ OMERO Diagnostics %s
         env_val("DYLD_LIBRARY_PATH")
 
     def session_manager(self, communicator):
+        import IceGrid, Glacier2
         iq = communicator.stringToProxy("IceGrid/Query")
         iq = IceGrid.QueryPrx.checkedCast(iq)
         sm = iq.findAllObjectsByType("::Glacier2::SessionManager")[0]
         sm = Glacier2.SessionManagerPrx.checkedCast(sm)
         return sm
+
+    def check_node(self, args):
+        """
+        If the args argparse.Namespace argument has no "node" attribute,
+        then assign one.
+        """
+        if not hasattr(args, "node"):
+            args.node = self._node()
+
+    def check_config(self):
+        cfg_xml = self.dir / "etc" / "grid" / "config.xml"
+        cfg_tmp = self.dir / "etc" / "grid" / "config.xml.tmp"
+        if not cfg_xml.exists():
+            config = omero.config.ConfigXml(str(cfg_tmp))
+            try:
+                self.ctx.controls["config"].upgrade(None, config)
+            finally:
+                config.close()
+            cfg_tmp.rename(str(cfg_xml))
 
 try:
     register("admin", AdminControl, HELP)

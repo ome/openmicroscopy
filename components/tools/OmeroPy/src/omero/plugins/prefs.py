@@ -121,20 +121,12 @@ class PrefsControl(BaseControl):
         load.add_argument("-q", action="store_true", help="No error on conflict")
         load.add_argument("file", nargs="+", type=FileType('r'), default=sys.stdin, help="Read from files or standard in")
 
-        edit = sub.add_parser("edit", help="""
-            Presents the properties for the current profile in your editor. Saving them will update your profile.
-        """)
-        edit.set_defaults(func=self.edit)
-
-        version = sub.add_parser("version", help="""
-            Prints the configuration version for the current profile.
-        """)
-        version.set_defaults(func=self.version)
-
-        path = sub.add_parser("path", help="""
-            Prints the file that is used for configuration
-        """)
-        path.set_defaults(func=self.path)
+        edit = parser.add(sub, self.edit, "Presents the properties for the current profile in your editor. Saving them will update your profile.")
+        version = parser.add(sub, self.version, "Prints the configuration version for the current profile.")
+        path = parser.add(sub, self.path, "Prints the file that is used for configuration")
+        upgrade = parser.add(sub, self.upgrade, "Creates a 4.2 config.xml file based on your current Java Preferences")
+        old = parser.add(sub, self.old, "Delegates to the old configuration system using Java preferences")
+        old.add_argument("target", nargs="*")
 
     def open(self, args):
         if args.source:
@@ -201,19 +193,14 @@ class PrefsControl(BaseControl):
 
     @with_config
     def load(self, args, config):
-        keys = config.keys()
+        keys = None
+        if not args.q:
+            keys = config.keys()
+
         for f in args.file:
             try:
                 for line in f:
-                    line = line.strip()
-                    parts = line.split("=")
-                    if len(parts) == 1:
-                        parts.append("")
-                    if not args.q and parts[0] in keys:
-                        self.ctx.die(502, "Duplicate property: %s (%s => %s)"\
-                            % (parts[0], config[parts[0]], parts[1]))
-                    keys.append(parts[0])
-                    config[parts[0]] = parts[1]
+                    self.handle_line(line, config, keys)
             finally:
                 f.close()
 
@@ -242,6 +229,29 @@ class PrefsControl(BaseControl):
     @with_config
     def path(self, args, config):
         self.ctx.out(config.filename)
+
+    @with_config
+    def upgrade(self, args, config):
+        self.ctx.out("Importing pre-4.2 preferences")
+        txt = getprefs(["get"], str(self.ctx.dir / "lib"))
+        for line in txt.split("\n"):
+            self.handle_line(line, config, None)
+
+    def handle_line(self, line, config, keys):
+        line = line.strip()
+        parts = line.split("=")
+        if len(parts[0]) == 0:
+            return
+        if len(parts) == 1:
+            parts.append("")
+        if keys and parts[0] in keys:
+            self.ctx.die(502, "Duplicate property: %s (%s => %s)"\
+                % (parts[0], config[parts[0]], parts[1]))
+            keys.append(parts[0])
+        config[parts[0]] = parts[1]
+
+    def old(self, args):
+        self.ctx.out(getprefs(args.target, str(self.ctx.dir / "lib")))
 
 try:
     register("config", PrefsControl, HELP)

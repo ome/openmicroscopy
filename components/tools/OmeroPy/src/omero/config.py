@@ -178,6 +178,7 @@ class ConfigXml(object):
                 # Now we simply reproduce all the other blocks
                 prop_list = self.properties(None, True)
                 for k, p in prop_list:
+                    self.clear_text(p)
                     icegrid.append(p)
                 self.source.seek(0)
                 self.source.truncate()
@@ -209,7 +210,17 @@ class ConfigXml(object):
 
     def element_to_xml(self, elem):
         string = tostring(elem, 'utf-8')
-        return xml.dom.minidom.parseString(string).toxml()
+        return xml.dom.minidom.parseString(string).toprettyxml("  ", "\n", None)
+
+    def clear_text(self, p):
+        """
+        To prevent the accumulation of text outside of elements (including whitespace)
+        we walk the given element and remove tail from it and it's children.
+        """
+        p.tail = ""
+        p.text = ""
+        for p2 in p.getchildren():
+            self.clear_text(p2)
 
     #
     # Map interface on the default properties element
