@@ -116,16 +116,18 @@ public class UpdateServiceTest
      */
     @Override
     @BeforeClass
-    protected void setUp() 
-    	throws Exception 
+    protected void setUp() throws Exception
     {
         client = new omero.client();
-        String rootpass = client.getProperty("omero.rootpas");
-        root = new omero.client(new String[]{"--omero.user=root",
-                "--omero.pass=" + rootpass});
         factory = client.createSession();
         iQuery = factory.getQueryService();
         iUpdate = factory.getUpdateService();
+
+        // administrator client
+        String rootpass = client.getProperty("omero.rootpas");
+        root = new omero.client(new String[]{"--omero.user=root",
+                "--omero.pass=" + rootpass});
+        root.createSession()
     }
 
     /**
