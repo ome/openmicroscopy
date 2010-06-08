@@ -123,6 +123,8 @@ class ConfigXml(object):
         if id is None:
             id = self.default()
         properties = self.properties(id)
+        if not properties:
+            raise KeyError("No such configuration: %s" % id)
         self.XML.remove(properties)
 
     def default(self, value = None):

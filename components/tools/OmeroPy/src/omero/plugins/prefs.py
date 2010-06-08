@@ -146,7 +146,10 @@ class PrefsControl(BaseControl):
 
     @with_config
     def drop(self, args, config):
-        config.remove(args.NAME)
+        try:
+            config.remove(args.NAME)
+        except KeyError:
+            self.ctx.err("Unknown configuration: %s" % args.NAME)
 
     @with_config
     def get(self, args, config):
@@ -189,8 +192,11 @@ class PrefsControl(BaseControl):
 
         for f in args.file:
             try:
+                previous = None
                 for line in f:
-                    self.handle_line(line, config, keys)
+                    if previous:
+                        line = previous + line
+                    previous = self.handle_line(line, config, keys)
             finally:
                 f.close()
 
@@ -231,8 +237,45 @@ class PrefsControl(BaseControl):
         for line in txt.split("\n"):
             self.handle_line(line, config, None)
 
+        # Upgrade procedure for 4.2
+        MSG = """Manually modify them via "omero config old set ..." and re-run"""
+        m = config.as_map()
+        for x in ("keyStore", "keyStorePassword", "trustStore", "trustStorePassword"):
+            old = "omero.ldap." + x
+            new = "omero.security." + x
+            if old in m:
+                config[new] = config[old]
+
+        attributes, values = [], []
+        if "omero.ldap.attributes" in m:
+            attributes = config["omero.ldap.attributes"]
+            attributes = attributes.split(",")
+        if "omero.ldap.values" in m:
+            values = config["omero.ldap.values"]
+            values = values.split(",")
+
+        if len(attributes) != len(values):
+            raise ValueError("%s != %s\nLDAP properties in pre-4.2 configuration are invalid.\n%s" % (attributes, values, MSG))
+        pairs = zip(attributes, values)
+        if pairs:
+            if len(pairs) == 1:
+                user_filter = "(%s=%s)" % (tuple(pairs[0]))
+            else:
+                user_filter = "(&%s)" % ["(%s=%s)" % tuple(pair) for pair in pairs]
+            config["omero.ldap.user_filter"] = user_filter
+
+        if "omero.ldap.groups" in m:
+            raise ValueError("Not currently handling omero.ldap.groups\n%s" % MSG)
+
+        config["omero.config.upgraded"] = "4.2.0"
+
     def handle_line(self, line, config, keys):
         line = line.strip()
+        if not line or line.startswith("#"):
+            return None
+        if line.endswith("\\"):
+            return line[:-1]
+
         parts = line.split("=")
         if len(parts[0]) == 0:
             return
