@@ -12,27 +12,14 @@ import unittest, os, subprocess, StringIO
 from path import path
 from omero.plugins.admin import AdminControl, NonZeroReturnCode
 from omero.cli import CLI
+from clitest.mocks import MockCLI
 
 omeroDir = path(os.getcwd()) / "build"
-
-class MockCLI(CLI):
-    """
-    Prevents OS and server calls.
-    """
-
-    def conn(self, *args, **kwargs):
-        raise
-
-    def popen(self, *args, **kwargs):
-        raise
-
-    def call(self, *args, **kwargs):
-        raise
 
 class TestAdmin(unittest.TestCase):
 
     def setUp(self):
-        self.cli = CLI()
+        self.cli = MockCLI()
         self.cli.register("a", AdminControl, "TEST")
 
     def invoke(self, string):
@@ -49,13 +36,13 @@ class TestAdmin(unittest.TestCase):
         self.invoke("a startasync")
 
     def testCheck(self):
-        e1 = E1()
-        c = AdminControl(e1, omeroDir)
+        self.cli = MockCLI()
+        c = AdminControl(self.cli, omeroDir)
         c.check([])
         c("check")
     def testStop(self):
-        e1 = E1()
-        c = AdminControl(e1, omeroDir)
+        self.cli = MockCLI()
+        c = AdminControl(self.cli, omeroDir)
         c("stop")
         c.stop([])
     def testComplete(self):

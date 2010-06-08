@@ -12,36 +12,34 @@ import unittest, os, subprocess, StringIO
 from path import path
 from omero.plugins.node import NodeControl
 from omero.cli import Context
+from clitest.mocks import MockCLI
 
 omeroDir = path(os.getcwd()) / "build"
-class E1(Context):
-    def popen(self, *args, **kwards):
-        if not hasattr(self,"called"):
-            self.called = 1
-        else:
-            self.called = self.called + 1
 
 class TestJava(unittest.TestCase):
+
     def testStart(self):
-        e1 = E1()
-        c = NodeControl(omeroDir, e1)
+        self.cli = MockCLI()
+        c = NodeControl(omeroDir, self.cli)
         self.assert_(c._likes(None))
         self.assert_(c._likes("start"))
         c("start")
-        self.assert_(e1.called == 1)
+        self.assert_(self.cli.called == 1)
         c("start")
-        self.assert_(e1.called == 2)
+        self.assert_(self.cli.called == 2)
+
     def testStop(self):
-        e1 = E1()
-        c = NodeControl(omeroDir, e1)
+        self.cli = MockCLI()
+        c = NodeControl(omeroDir, self.cli)
         c("stop")
         c.stop()
+
     def testKill(self):
-        e1 = E1()
+        self.cli = MockCLI()
 
         p = subprocess.Popen(["sleep","100"])
 
-        c = NodeControl(omeroDir, e1)
+        c = NodeControl(omeroDir, self.cli)
         f = file(c._pid(),"w")
         f.write(str(p.pid))
         f.close()

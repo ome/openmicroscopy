@@ -14,11 +14,13 @@ from omero.cli import Context, CLI, NonZeroReturnCode
 
 # Workaround for a poorly named module
 map = {}
-omeroDir = path(os.getcwd()) / "build"
-pluginDir = path(os.getcwd()) / "src" / "omero" / "plugins"
 
-def register(k,v):
-    map[k] = v
+rootDir = path(__file__).dirname() / ".." / ".."
+omeroDir = rootDir / "build"
+pluginDir = rootDir / "src" / "omero" / "plugins"
+
+def register(key, klass, help):
+    map[key] = klass
 loc = {"register": register}
 execfile( str(pluginDir/"import.py"), loc)
 ImportControl = map["import"]

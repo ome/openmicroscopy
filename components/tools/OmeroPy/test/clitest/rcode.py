@@ -22,7 +22,7 @@ class TestRCode(unittest.TestCase):
 
     def testOne(self):
         cli = CLI()
-        cli.register("t", TestRCode.T)
+        cli.register("t", TestRCode.T, "TEST")
         cli.invoke(["t"])
         self.assert_(cli.rv == 1, cli.rv)
 if __name__ == '__main__':

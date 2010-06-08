@@ -8,7 +8,7 @@
 import unittest, os, subprocess, StringIO
 from exceptions import Exception as Exc
 from path import path
-from omero.cli import Context, BaseControl, Arguments
+from omero.cli import Context, BaseControl
 
 omeroDir = path(os.getcwd()) / "build"
 
