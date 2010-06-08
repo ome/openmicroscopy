@@ -70,19 +70,22 @@ class SessionsControl(BaseControl):
         sub = parser.sub()
         help = parser.add(sub, self.help, "Extended help")
         login = parser.add(sub, self.login, "Login to a given server, and store session key locally")
-        login.add_argument("-t", "--timeout", help="Timeout for session. After this many inactive seconds, the session will be closed")
-        login.add_argument("-C", "--create", action="store_true", help="Create a new session regardless of existing ones")
-        login.add_argument("connection", nargs="?", help="Connection string. See extended help for examples")
         logout = parser.add(sub, self.logout, "Logout and remove current session key")
-        for x in (login, logout):
-            x.add_argument("-d", "--dir", help="Use a different sessions directory (Default: $HOME/omero/sessions)")
-
+        self._configure_login(login, logout)
         list = parser.add(sub, self.list, "List all locally stored sessions")
         list.add_argument("--purge", action="store_true", help="Remove inactive sessions")
         keepalive = parser.add(sub, self.keepalive, "Keeps the current session alive")
         keepalive.add_argument("-f", "--frequency", type=int, default=60, help="Time in seconds between keep alive calls", metavar="SECS")
         clear = parser.add(sub, self.clear, "Close and remove locally stored sessions")
         clear.add_argument("--all", action="store_true", help="Remove all locally stored sessions not just inactive ones")
+
+    def _configure_login(self, login, logout = None):
+        login.add_argument("-t", "--timeout", help="Timeout for session. After this many inactive seconds, the session will be closed")
+        login.add_argument("-C", "--create", action="store_true", help="Create a new session regardless of existing ones")
+        login.add_argument("connection", nargs="?", help="Connection string. See extended help for examples")
+        for x in (login, logout):
+            if x:
+                x.add_argument("-d", "--dir", help="Use a different sessions directory (Default: $HOME/omero/sessions)")
 
     def help(self, args):
         self.ctx.err(LONGHELP % {"prog":args.prog})

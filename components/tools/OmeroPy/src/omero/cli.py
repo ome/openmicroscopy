@@ -155,6 +155,20 @@ class Parser(ArgumentParser):
         parser.set_defaults(func=func, **kwargs)
         return parser
 
+    def _check_value(self, action, value):
+        # converted value must be one of the choices (if specified)
+        if action.choices is not None and value not in action.choices:
+            msg = 'invalid choice: %r\nchoose from:\n' % value
+            choices = sorted(action.choices)
+            lines = ["\t"]
+            while len(choices) > 1:
+                choice = choices.pop(0)
+                lines[-1] += ("%s, " % choice)
+                if len(lines[-1]) > 62:
+                    lines.append("\t")
+            lines[-1] += choices.pop(0)
+            msg += "\n".join(lines)
+            raise ArgumentError(action, msg)
 
 class NewFileType(FileType):
     """
@@ -204,22 +218,33 @@ class Context:
         self.parser = Parser(prog = sys.argv[0],
             description = OMERODOC)
         self.subparsers = self.parser_init(self.parser)
-        self.subparsers\
-            .add_parser("login", help="Shortcut for 'sessions login'", description = "See 'sessions login -h'")\
-            .set_defaults(func=lambda args:self.controls["sessions"].login(args))
-        self.subparsers\
-            .add_parser("logout", help="Shortcut for 'sessions logout'", description = "See 'sessions logout -h'")\
-            .set_defaults(func=lambda args:self.controls["sessions"].logout(args))
 
-    def parser_init(self, parser):
-        parser.add_argument("-v", "--version", action="version", version="%%(prog)s %s" % VERSION)
-        parser.add_argument("-d", "--debug", help="Use 'help debug' for more information", default = SUPPRESS)
+    def post_process(self):
+        """
+        Runs further processing once all the controls have been added.
+        """
+        sessions = self.controls["sessions"]
+
+        login = self.subparsers.add_parser("login", help="Shortcut for 'sessions login'")
+        login.set_defaults(func=lambda args:sessions.login(args))
+        self.add_login(login)
+        sessions._configure_login(login)
+
+        logout = self.subparsers.add_parser("logout", help="Shortcut for 'sessions logout'")
+        logout.set_defaults(func=lambda args:self.controls["sessions"].logout(args))
+
+    def add_login(self, parser):
         parser.add_argument("-s", "--server")
         parser.add_argument("-p", "--port")
         parser.add_argument("-g", "--group")
         parser.add_argument("-u", "--user")
         parser.add_argument("-w", "--password")
         parser.add_argument("-k", "--key", help="UUID of an active session")
+
+    def parser_init(self, parser):
+        parser.add_argument("-v", "--version", action="version", version="%%(prog)s %s" % VERSION)
+        parser.add_argument("-d", "--debug", help="Use 'help debug' for more information", default = SUPPRESS)
+        self.add_login(parser)
         subparsers = parser.add_subparsers(title="Subcommands", description=OMEROSUBS, metavar=OMEROSUBM)
         return subparsers
 
@@ -947,6 +972,7 @@ class CLI(cmd.Cmd, Context):
                     traceback.print_exc()
         self.configure_plugins()
         self._pluginsLoaded.set()
+        self.post_process()
 
     ## End Cli
     ###########################################################
