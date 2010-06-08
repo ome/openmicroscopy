@@ -184,26 +184,24 @@ class AdminControl(BaseControl):
     #
 
     def _complete(self, text, line, begidx, endidx):
-        s = " deploy "
-        l = len(s)
-        i = line.find(s)
-        if i >= 0:
-            f = line[i+l:]
-            p = path(f)
-            if p.exists() and p.isdir():
-                if not f.endswith(os.sep):
-                    return [p.basename()+os.sep]
-                return [ str(i)[len(f):] for i in p.listdir() ]
-            else:
-                results = [ str(i.basename()) for i in self.dir.glob(f+"*")  ]
-                if len(results) == 1:
-                    # Relative to cwd
-                    maybe_dir = path(results[0])
-                    if maybe_dir.exists() and maybe_dir.isdir():
-                        return [ results[0] + os.sep ]
-                return results
-        else:
-            return BaseControl._complete(self, text, line, begidx, endidx)
+        for s in (" deploy ", " start ", " startasync "):
+            l = len(s)
+            i = line.find(s) if i >= 0:
+                f = line[i+l:]
+                p = path(f)
+                if p.exists() and p.isdir():
+                    if not f.endswith(os.sep):
+                        return [p.basename()+os.sep]
+                    return [ str(i)[len(f):] for i in p.listdir() ]
+                else:
+                    results = [ str(i.basename()) for i in self.dir.glob(f+"*")  ]
+                    if len(results) == 1:
+                        # Relative to cwd
+                        maybe_dir = path(results[0])
+                        if maybe_dir.exists() and maybe_dir.isdir():
+                            return [ results[0] + os.sep ]
+                    return results
+        return BaseControl._complete(self, text, line, begidx, endidx)
 
     def _node(self, omero_node = None):
         """ Overrides the regular node() logic to return the value of OMERO_MASTER or "master" """

@@ -25,6 +25,7 @@ class MockCLI(CLI):
         self.__output = []
         self.__error = []
         self.__popen = []
+        self.__call = []
         self.mox = mox.Mox()
         CLI.__init__(self, *args, **kwargs)
 
@@ -38,8 +39,11 @@ class MockCLI(CLI):
     def err(self, *args):
         self.__error.append(args[0])
 
-    def call(self, *args, **kwargs):
-        assert False
+    def call(self, args):
+        rv = self.__call.pop(0)
+        if rv != 0:
+            raise NonZeroReturnCode(rv)
+        return 0
 
     def conn(self, *args, **kwargs):
         assert False
@@ -67,10 +71,19 @@ class MockCLI(CLI):
         finally:
             self.__error = []
 
+    def addCall(self, rv):
+        self.__call.append(rv)
+
+    def assertCalled(self):
+        self.assertEquals(0, len(self.__call))
+
     def createPopen(self):
         popen = self.mox.CreateMock(subprocess.Popen)
         self.__popen.append(popen)
         return popen
+
+    def assertPopened(self):
+        self.assertEquals(0, len(self.__popen))
 
     def replay(self, mock):
         mox.Replay(mock)

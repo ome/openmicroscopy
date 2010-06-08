@@ -17,8 +17,11 @@ from path import path
 import omero
 import omero_ServerErrors_ice
 
-from omero.plugins.admin import AdminControl, NonZeroReturnCode
-from omero.cli import CLI
+from omero.cli import CLI, NonZeroReturnCode
+from omero.plugins.admin import AdminControl
+from omero.plugins.prefs import PrefsControl
+from omero.util.temp_files import create_path
+
 from clitest.mocks import MockCLI
 
 omeroDir = path(os.getcwd()) / "build"
@@ -26,24 +29,75 @@ omeroDir = path(os.getcwd()) / "build"
 class TestAdmin(unittest.TestCase):
 
     def setUp(self):
+        # Non-temp directories
+        build_dir = path() / "build"
+        top_dir = path() / ".." / ".." / ".."
+        etc_dir = top_dir / "etc"
+
+        # Necessary fiels
+        prefs_file = build_dir / "prefs.class"
+        internal_cfg = etc_dir / "internal.cfg"
+        master_cfg = etc_dir / "master.cfg"
+
+        # Temp directories
+        tmp_dir = create_path(folder=True)
+        tmp_etc_dir = tmp_dir / "etc"
+        tmp_grid_dir = tmp_etc_dir / "grid"
+        tmp_lib_dir = tmp_dir / "lib"
+
+        # Setup tmp dir
+        [x.makedirs() for x in (tmp_grid_dir, tmp_lib_dir)]
+        prefs_file.copy(tmp_lib_dir)
+        master_cfg.copy(tmp_etc_dir)
+        internal_cfg.copy(tmp_etc_dir)
+
+        # Other setup
         self.cli = MockCLI()
+        self.cli.dir = tmp_dir
+        grid_dir = self.cli.dir / "etc" / "grid"
         self.cli.register("a", AdminControl, "TEST")
+        self.cli.register("config", PrefsControl, "TEST")
 
     def tearDown(self):
         self.cli.tearDown()
 
-    def invoke(self, string):
-        self.cli.invoke(string, strict=True)
+    def invoke(self, string, fails=False):
+        try:
+            self.cli.invoke(string, strict=True)
+            if fails: self.fail("Failed to fail")
+        except:
+            if not fails: raise
 
     def testMain(self):
         try:
-            self.invoke()
+            self.invoke("")
         except NonZeroReturnCode:
             # Command-loop not implemented
             pass
 
+    #
+    # Async first because simpler
+    #
+
     def testStartAsync(self):
+        self.cli.addCall(0)
         self.invoke("a startasync")
+        self.cli.assertCalled()
+        self.cli.assertStderr(['No descriptor given. Using etc/grid/default.xml'])
+
+    def testStopAsyncRunning(self):
+        self.cli.addCall(0)
+        self.invoke("a stopasync")
+        self.cli.assertCalled()
+        self.cli.assertStderr([])
+        self.cli.assertStdout([])
+
+    def testStopAsyncNotRunning(self):
+        self.cli.addCall(1)
+        self.invoke("a stopasync", fails=True)
+        self.cli.assertCalled()
+        self.cli.assertStderr([])
+        self.cli.assertStdout(["Was the server already stopped?"])
 
     def testStop(self):
         self.invoke("a stop")
@@ -100,7 +154,9 @@ class TestAdmin(unittest.TestCase):
         control = self.cli.controls["a"]
         control._intcfg = lambda: ""
         def sm(*args):
-            raise omero.WrappedCreateSessionException()
+            class A(object):
+                def create(self, *args): raise omero.WrappedCreateSessionException()
+            return A()
         control.session_manager = sm
 
         self.cli.mox.ReplayAll()

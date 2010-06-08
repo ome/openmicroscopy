@@ -691,6 +691,7 @@ class CLI(cmd.Cmd, Context):
                 self._stack.pop(0)
                 self.dbg("Stack-: %s" % len(self._stack))
         except SystemExit, exc: # Thrown by argparse
+            self.dbg("SystemExit raised\n%s" % traceback.format_exc())
             self.rv = exc.code
             return False
         #
@@ -704,6 +705,7 @@ class CLI(cmd.Cmd, Context):
         #    if self.isdebug:
         #        traceback.print_exc()
         except NonZeroReturnCode, nzrc:
+            self.dbg(traceback.format_exc())
             self.rv = nzrc.rv
         return False # Continue
 
@@ -787,7 +789,7 @@ class CLI(cmd.Cmd, Context):
         self.err(text)
         self.rv = rc
         self.interrupt_loop = True
-        raise NonZeroReturnCode(rc, "die called")
+        raise NonZeroReturnCode(rc, "die called: %s" % text)
 
     def _env(self):
         """
@@ -938,7 +940,7 @@ class CLI(cmd.Cmd, Context):
             if isinstance(control, tuple):
                 Control = control[0]
                 help = control[1]
-                control = Control(ctx = self)
+                control = Control(ctx = self, dir = self.dir)
                 self.controls[name] = control
                 parser = self.subparsers.add_parser(name, help=help)
                 parser.description = help
