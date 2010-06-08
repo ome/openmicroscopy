@@ -55,6 +55,9 @@ public class ChannelDataLoader
     /** The id of the pixels set. */
     private long        pixelsID;
     
+    /** The id of the user. */
+    private long        userID;
+    
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
     
@@ -63,11 +66,13 @@ public class ChannelDataLoader
      * 
      * @param viewer	Reference to the viewer. Mustn't be <code>null</code>.
      * @param pixelsID	The id of the pixels set.
+     * @param userID    The id of the user.
      */
-	public ChannelDataLoader(Editor viewer, long pixelsID)
+	public ChannelDataLoader(Editor viewer, long pixelsID, long userID)
 	{
 		super(viewer);
 		this.pixelsID = pixelsID;
+		this.userID = userID;
 	}
 	
     /** 
@@ -76,7 +81,6 @@ public class ChannelDataLoader
      */
     public void load()
     {
-    	long userID = MetadataViewerAgent.getUserDetails().getId();
         handle = dmView.loadChannelsData(pixelsID, userID, this);
     }
     

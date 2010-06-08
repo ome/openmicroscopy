@@ -1449,7 +1449,7 @@ class EditorModel
 		try {
 			PixelsData pixs = data.getDefaultPixels();
 			ChannelDataLoader loader = new ChannelDataLoader(component, 
-					pixs.getId());
+					pixs.getId(), parent.getUserID());
 			loader.load();
 			loaders.add(loader);
 		} catch (Exception e) {}
