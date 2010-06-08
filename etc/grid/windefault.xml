@@ -37,6 +37,7 @@
     </properties>
 
     <include file="templates.xml"/>
+    <include file="config.xml"/>
 
     <node name="master">
       <server-instance template="Glacier2Template"
