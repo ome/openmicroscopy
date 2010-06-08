@@ -124,6 +124,7 @@ class PrefsControl(BaseControl):
         edit = parser.add(sub, self.edit, "Presents the properties for the current profile in your editor. Saving them will update your profile.")
         version = parser.add(sub, self.version, "Prints the configuration version for the current profile.")
         path = parser.add(sub, self.path, "Prints the file that is used for configuration")
+        lock = parser.add(sub, self.lock, "Acquires the config file lock and holds it")
         upgrade = parser.add(sub, self.upgrade, "Creates a 4.2 config.xml file based on your current Java Preferences")
         old = parser.add(sub, self.old, "Delegates to the old configuration system using Java preferences")
         old.add_argument("target", nargs="*")
@@ -229,6 +230,10 @@ class PrefsControl(BaseControl):
     @with_config
     def path(self, args, config):
         self.ctx.out(config.filename)
+
+    @with_config
+    def lock(self, args, config):
+        self.ctx.input("Press enter to continue")
 
     @with_config
     def upgrade(self, args, config):

@@ -17,6 +17,7 @@ import os
 import sys
 import time
 import exceptions
+import portalocker
 
 from path import path
 from which import whichall
@@ -647,16 +648,22 @@ OMERO Diagnostics %s
         cfg_xml = self.dir / "etc" / "grid" / "config.xml"
         cfg_tmp = self.dir / "etc" / "grid" / "config.xml.tmp"
         if not cfg_xml.exists():
+            if cfg_tmp.exists():
+                self.ctx.dbg("Removing old config.xml.tmp")
+                cfg_tmp.remove()
             config = omero.config.ConfigXml(str(cfg_tmp))
             try:
-             self.ctx.controls["config"].upgrade(None, config)
+                self.ctx.controls["config"].upgrade(None, config)
             finally:
                 config.save()
             cfg_tmp.rename(str(cfg_xml))
         else:
             # File exists, but we create it for updating.
-            config = omero.config.ConfigXml(str(cfg_xml))
-            config.save()
+            try:
+                config = omero.config.ConfigXml(str(cfg_xml))
+                config.save()
+            except portalocker.LockException:
+                self.ctx.die(111, "Could not acquire lock on %s" % cfg_xml)
         return config
 
 try:
