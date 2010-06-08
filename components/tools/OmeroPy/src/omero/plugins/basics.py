@@ -30,36 +30,6 @@ except:
     readline_status = "disabled"
 
 
-class DebugControl(BaseControl):
-
-    def _configure(self, parser):
-        parser.raw()
-
-    def __call__(self, args):
-        self.ctx.setdebug()
-        self.ctx.invoke(args)
-
-
-class TraceControl(BaseControl):
-
-    def __call__(self, args):
-        import trace
-        tracer = trace.Trace()
-        tracer.runfunc(self.ctx.invoke, previous_args = args)
-
-
-class ProfileControl(BaseControl):
-
-    def __call__(self, args):
-        import hotshot
-        from hotshot import stats
-        prof = hotshot.Profile("hotshot_edi_stats")
-        rv = prof.runcall( lambda: self.ctx.invoke(args) )
-        prof.close()
-        s = stats.load("hotshot_edi_stats")
-        s.sort_stats("time").print_stats()
-
-
 class QuitControl(BaseControl):
 
     def __call__(self, args):
@@ -92,14 +62,59 @@ class ShellControl(BaseControl):
         ipshell = IPShellEmbed(args)
         ipshell()
 
+
+class HelpControl(BaseControl):
+    """
+    Defined here since the background loading might be too
+    slow to have all help available
+    """
+
+    def _configure(self, parser):
+        parser.set_defaults(func=self.__call__)
+        parser.add_argument("topic", nargs="?", help="Topic for more information")
+
+    def _complete(self, text, line, begidx, endidx):
+        """
+        This is something of a hack. This should either be a part
+        of the context interface, or we should put it somewhere
+        in a utility. FIXME.
+        """
+        return self.ctx.completenames(text, line, begidx, endidx)
+
+    def __call__(self, args):
+
+        self.ctx.waitForPlugins()
+        controls = sorted(self.ctx.controls)
+
+        if not args.topic:
+            self.ctx.invoke("-h")
+            print """
+Usage: %(program_name)s <command> [options] args
+See 'help <command>' or '<command> -h' for more information on syntax
+Type 'quit' to exit
+
+Available commands:
+""" % {"program_name":sys.argv[0],"version":VERSION}
+
+            for name in controls:
+                print """ %s""" % name
+            print """
+For additional information, see http://trac.openmicroscopy.org.uk/omero/wiki/OmeroCli
+Report bugs to <ome-users@openmicroscopy.org.uk>"""
+
+        else:
+            try:
+                c = self.ctx.controls[args.topic]
+                self.ctx.invoke("%s -h" % args.topic)
+            except KeyError, ke:
+                self.ctx.unknown_command(args.topic)
+
 controls = {
+    "help": (HelpControl, "Syntax help for all commands"),
     "load": (LoadControl, "Load file as if it were sent on standard in. File tab-completion %s" % readline_status),
     "quit": (QuitControl, "Quit application"),
     "shell": (ShellControl, "Starts an IPython interpreter session"),
     "version": (VersionControl, "Version number"),
-    "debug": (DebugControl, "Run command with debug"),
-    "profile": (ProfileControl, "Run command with profiling"),
-    "trace": (TraceControl, "Run command with tracing turned on")
 }
 
 try:

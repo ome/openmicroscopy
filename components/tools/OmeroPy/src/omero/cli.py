@@ -170,9 +170,22 @@ class Context:
             OMERO CLI
             """)
         self.subparsers = self.parser_init(self.parser)
+        self.subparsers\
+            .add_parser("login", help="Set active server/user information")\
+            .set_defaults(func=lambda args:self.invoke("sessions login", args))
+        self.subparsers\
+            .add_parser("logout", help="Cancel active server/user information")\
+            .set_defaults(func=lambda args:self.invoke("sessions logout", args))
 
     def parser_init(self, parser):
         parser.add_argument("-v", "--version", action="version", version="%%(prog)s %s" % VERSION)
+        parser.add_argument("-d", "--debug", help="""Comma-separated list of trace,profile,debug
+        debug prints at the "debug" level. Similar to setting DEBUG=1 in the environment.
+        trace runs the command with tracing enabled.
+        profile runs the command with profiling enabled.
+
+        Only one of "trace" and "profile" can be chosen.
+        """)
         parser.add_argument("-s", "--server")
         parser.add_argument("-p", "--port")
         parser.add_argument("-g", "--group")
@@ -514,53 +527,6 @@ class BaseControl:
         return completions
 
 
-class HelpControl(BaseControl):
-    """
-    Defined here since the background loading might be too
-    slow to have all help available
-    """
-
-    def _configure(self, parser):
-        parser.set_defaults(func=self.__call__)
-        parser.add_argument("topic", nargs="?", help="Topic for more information")
-
-    def _complete(self, text, line, begidx, endidx):
-        """
-        This is something of a hack. This should either be a part
-        of the context interface, or we should put it somewhere
-        in a utility. FIXME.
-        """
-        return self.ctx.completenames(text, line, begidx, endidx)
-
-    def __call__(self, args):
-
-        self.ctx.waitForPlugins()
-        controls = sorted(self.ctx.controls)
-
-        if not args.topic:
-            self.ctx.invoke("-h")
-            print """
-Usage: %(program_name)s <command> [options] args
-See 'help <command>' or '<command> -h' for more information on syntax
-Type 'quit' to exit
-
-Available commands:
-""" % {"program_name":sys.argv[0],"version":VERSION}
-
-            for name in controls:
-                print """ %s""" % name
-            print """
-For additional information, see http://trac.openmicroscopy.org.uk/omero/wiki/OmeroCli
-Report bugs to <ome-users@openmicroscopy.org.uk>"""
-
-        else:
-            try:
-                c = self.ctx.controls[args.topic]
-                self.ctx.invoke("%s -h" % args.topic)
-            except KeyError, ke:
-                self.ctx.unknown_command(args.topic)
-
-
 class CLI(cmd.Cmd, Context):
     """
     Command line interface class. Supports various styles of executing the
@@ -715,10 +681,36 @@ class CLI(cmd.Cmd, Context):
             self.exit("")
             return
 
-        args = self.parser.parse_args(args)
+        args = self.parser.parse_args(args, previous_args)
         args.prog = self.parser.prog
         self.waitForPlugins()
-        args.func(args)
+
+        debug_opts = []
+        if args.debug:
+            debug_opts = [x.lower() for x in args.debug.split(",")]
+            if "debug" in debug_opts:
+                self.setdebug()
+                debug_opts.remove("debug")
+
+        if len(debug_opts) == 0:
+            args.func(args)
+        elif len(debug_opts) > 1:
+            self.die(9, "Conflicting debug options: %s" % ", ".join(debug_opts))
+
+        elif "trace" in debug_opts:
+            import trace
+            tracer = trace.Trace()
+            tracer.runfunc(args.func, args)
+        elif "profile" in debug_opts:
+            import hotshot
+            from hotshot import stats
+            prof = hotshot.Profile("hotshot_edi_stats")
+            rv = prof.runcall( lambda: args.func(args) )
+            prof.close()
+            s = stats.load("hotshot_edi_stats")
+            s.sort_stats("time").print_stats()
+        else:
+            self.die(10, "Unknown debug action: %s" % debug_opts[0])
 
     def completenames(self, text, line, begidx, endidx):
         names = self.controls.keys()
@@ -957,7 +949,6 @@ def argv(args=sys.argv):
             args = parts
 
         cli = CLI()
-        cli.register("help", HelpControl, "Syntax help for all commands")
         class PluginLoader(Thread):
             def run(self):
                 cli.loadplugins()
