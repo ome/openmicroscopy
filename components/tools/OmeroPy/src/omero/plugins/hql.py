@@ -46,8 +46,8 @@ class HqlControl(BaseControl):
         q = c.sf.getQueryService()
         p = ParametersI()
         p.page(args.offset, args.limit)
-        rv = q.findAllByQuery(args.query, p)
-        self.display(rv)
+        rv = q.projection(args.query, p)
+        has_details = self.display(rv)
         if args.quiet:
             return
 
@@ -81,56 +81,96 @@ To quit, enter 'q' or just enter.
                 try:
                     id = long(id)
                     obj = rv[id]
+                    if id not in has_details:
+                        self.ctx.out("No details available: %s" % id)
+                        continue
+                    else:
+                        obj = obj[0].val # Unwrap the object_list from IQuery.projection
                 except:
                     self.ctx.out("Invalid choice: %s" % id)
                     continue
                 keys = sorted(obj.__dict__)
                 keys.remove("_id")
                 keys.remove("_details")
-                self.ctx.out("id=%s" % obj.id.val)
+                self.ctx.out("id = %s" % obj.id.val)
                 for key in keys:
-                    self.ctx.out("%s=%s" % (key, self.unwrap(obj.__dict__[key])))
+                    value = self.unwrap(obj.__dict__[key])
+                    if isinstance(value, (str, unicode)):
+                        value = "'%s'" % value
+                    if key.startswith("_"):
+                        key = key[1:]
+                    self.ctx.out("%s = %s" % (key, value))
             continue
 
     def display(self, rv):
         import omero_model_Details_ice
         import omero_model_IObject_ice
+        import omero.rtypes
         from omero.model import IObject
         from omero.model import Details
         from omero.util.text import TableBuilder
-        tb = TableBuilder("#", "Class", "Id")
-        for i, o in enumerate(rv):
+
+        has_details = []
+        tb = TableBuilder("#")
+        for idx, object_list in enumerate(rv):
             klass = "Null"
             id = ""
             values = {}
-            if o:
-                klass = o.__class__.__name__
-                id = o.id.val
-                for k, v in o.__dict__.items():
-                    values[k] = self.unwrap(v)
-                values = self.filter(values)
-                tb.cols(values.keys())
-            tb.row(i, klass, id, **values)
+            # Handling for simple lookup
+            if len(object_list) == 1 and isinstance(object_list[0], omero.rtypes.RObjectI):
+                has_details.append(idx)
+                o = object_list[0].val
+                if o:
+                    tb.cols(["Class", "Name"])
+                    klass = o.__class__.__name__
+                    id = o.id.val
+                    for k, v in o.__dict__.items():
+                        values[k] = self.unwrap(v)
+                    values = self.filter(values)
+                    tb.cols(values.keys())
+                tb.row(idx, klass, id, **values)
+            # Handling for true projections
+            else:
+                indices = range(1, len(object_list) + 1)
+                tb.cols(["Col%s" % x for x in indices])
+                values = tuple([self.unwrap(x) for x in object_list])
+                tb.row(idx, *values)
         self.ctx.out(str(tb.build()))
+        return has_details
 
-    def unwrap(self, object):
+    def unwrap(self, object, cache = None):
+
+        if cache == None:
+            cache = {}
+        elif object in cache:
+            return cache[id(object)]
+
         from omero.rtypes import unwrap
         import omero_model_Details_ice
         import omero_model_IObject_ice
         from omero.model import IObject
         from omero.model import Details
-        if isinstance(object, IObject):
-            return "%s:%s" % (object.__class__.__name__, object.id.val)
+        from omero.rtypes import RObjectI
+        #if isinstance(object, list):
+        #    return [self.unwrap(x, cache) for x in object]
+        #elif isinstance(object, RObject):
+        #    return self.unwrap(object.val, cache)
+        unwrapped = unwrap(object, cache)
+        if isinstance(unwrapped, IObject):
+            rv = "%s:%s" % (unwrapped.__class__.__name__, unwrapped.id.val)
         elif isinstance(object, Details):
             owner = None
             group = None
-            if object.owner is not None:
-                owner = object.owner.id.val
-            if object.group is not None:
-                group = object.group.id.val
-            return "owner=%s;group=%s" % (owner, group)
+            if unwrapped.owner is not None:
+                owner = unwrapped.owner.id.val
+            if unwrapped.group is not None:
+                group = unwrapped.group.id.val
+            rv = "owner=%s;group=%s" % (owner, group)
         else:
-            return unwrap(object)
+            rv = unwrapped
+
+        cache[id(object)] = rv
+        return rv;
 
     def filter(self, values):
         values = dict(values)

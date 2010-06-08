@@ -33,6 +33,7 @@
         This can be used to keep all your settings in one place, since templates.xml
         is more likely to change between releases.
       -->
+      <properties refid="__ACTIVE__"/><!-- Created in config.xml by bin/omero -->
       <property name="omero.example" value="my_value"/>
     </properties>
 

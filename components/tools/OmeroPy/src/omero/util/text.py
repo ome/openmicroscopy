@@ -60,19 +60,25 @@ class TableBuilder(object):
             columns.append(Column(x, self.results[i]))
         return Table(*columns)
 
+    def __str__(self):
+        return str(self.build())
+
+
 class ALIGN:
     LEFT, RIGHT = '-', ''
 
 
 class Column(list):
+
     def __init__(self, name, data, align=ALIGN.LEFT):
         list.__init__(self, data)
         self.name = name
-        width = max(len(str(x)) for x in data + [name])
-        self.format = ' %%%s%ds ' % (align, width)
+        self.width = max(len(str(x)) for x in data + [name])
+        self.format = ' %%%s%ds ' % (align, self.width)
 
 
 class Table:
+
     def __init__(self, *columns):
         self.columns = columns
         self.length = max(len(x) for x in columns)
@@ -83,10 +89,13 @@ class Table:
                 yield x.format % x.name
             else:
                 yield x.format % x[i]
+
     def get_rows(self):
         yield '|'.join(self.get_row(None))
+        yield "+".join(["-"* (x.width+2) for x in self.columns])
         for i in range(0, self.length):
             yield '|'.join(self.get_row(i))
+        yield "(%s %s)" % (self.length, (self.length == 1 and "row" or "rows"))
 
     def __str__(self):
         return '\n'.join(self.get_rows())

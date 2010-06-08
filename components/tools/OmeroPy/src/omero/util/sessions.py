@@ -103,17 +103,17 @@ class SessionsStore(object):
                 conflicts += (key + (":%s!=%s;" % tuple(vals)))
         return conflicts
 
-    def remove(self, host, name, id):
+    def remove(self, host, name, uuid):
         """
         Removes the given session file from the store
         """
-        (self.dir / host / name / id).remove()
+        (self.dir / host / name / uuid).remove()
 
-    def get(self, host, name, id):
+    def get(self, host, name, uuid):
         """
         Returns the properties stored in the given session file
         """
-        return self.props(self.dir / host / name / id)
+        return self.props(self.dir / host / name / uuid)
 
     def available(self, host, name):
         """

@@ -25,12 +25,6 @@ from omero.cli import BaseControl
 from omero.cli import CLI
 from omero.cli import VERSION
 
-readline_status = "enabled"
-try:
-    import readline
-except:
-    readline_status = "disabled"
-
 
 class QuitControl(BaseControl):
 
@@ -133,16 +127,33 @@ Report bugs to <ome-users@openmicroscopy.org.uk>
             except KeyError, ke:
                 try:
                     self.ctx.out(self.ctx.topics[args.topic])
-                    self.ctx.die(2, "")
                 except KeyError:
-                    self.ctx.die(2, "Unknown help topic: %s" % args.topic)
+                    self.ctx.err("Unknown help topic: %s" % args.topic)
 
 controls = {
     "help": (HelpControl, "Syntax help for all commands"),
-    "load": (LoadControl, "Load file as if it were sent on standard in. File tab-completion %s" % readline_status),
     "quit": (QuitControl, "Quit application"),
     "shell": (ShellControl, "Starts an IPython interpreter session"),
     "version": (VersionControl, "Version number"),
+    "load": (LoadControl, """Load file as if it were sent on standard in.
+
+This can be used as the #! header of a file to make standand-alone script.
+
+Examples:
+    #!/usr/bin/env omero load
+    login -C root@localhost
+    group add new_group
+    user add foo some user new_group
+
+ or
+
+    $ bin/omero login       # login can't take place in HERE-document
+    $ bin/omero load <<EOF
+    user list
+    group list
+    EOF
+
+""")
 }
 
 try:

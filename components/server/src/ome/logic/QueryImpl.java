@@ -410,7 +410,18 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                 new HibernateCallback() {
                     public Object doInHibernate(Session session)
                             throws HibernateException, SQLException {
-                        return qb.query(session).list();
+                        List<Object> rv = qb.query(session).list();
+                        int size = rv.size();
+                        Object obj = null;
+                        for (int i = 0; i < size; i++) {
+                            obj = rv.get(i);
+                            if (obj != null) {
+                                if (IObject.class.isAssignableFrom(obj.getClass())) {
+                                    rv.set(i, new Object[]{obj});
+                                }
+                            }
+                        }
+                        return rv;
                     }});
     }
 

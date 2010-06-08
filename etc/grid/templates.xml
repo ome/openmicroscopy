@@ -16,7 +16,6 @@
     -->
 
     <properties id="Blitz">
-      <properties refid="__ACTIVE__"/><!-- Created in config.xml by bin/omero -->
       <property name="Ice.Default.CollocationOptimized" value="0"/>
       <property name="omero.router.insecure" value="${INSECUREROUTER}"/>
     </properties>

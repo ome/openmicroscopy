@@ -14,9 +14,17 @@ import exceptions
 
 from omero.cli import BaseControl, CLI
 
-HELP = """Delete OMERO data
+HELP = """Delete OMERO data.
 
-Example: bin/omero delete Image:50
+Where available (currently: Image & Plate) special methods
+are used for deleting the objects. Otherwise, IUpdate.deleteObject()
+is used.
+
+
+Examples:
+
+    bin/omero delete Image:50
+    bin/omero delete Plate:1
 
 """
 
@@ -28,10 +36,12 @@ class DeleteControl(BaseControl):
 
     def delete(self, args):
 
+        import omero
         client = self.ctx.conn(args)
 
         images = []
         plates = []
+        objects = []
         for arg in args.obj:
             klass, id = arg.split(":")
             if klass == "Image":
@@ -39,7 +49,14 @@ class DeleteControl(BaseControl):
             elif klass == "Plate":
                 plates.append(long(id))
             else:
-                self.ctx.die(5, "Can't delete type: %s" % klass)
+                ctor = getattr(omero.model, "%sI" % klass)
+                if not ctor:
+                    ctor = getattr(omero.model, klass)
+                try:
+                    objects.append(ctor(long(id), False))
+                except exceptions.Exception, e:
+                    self.ctx.dbg("Exception on ctor: %s" % e)
+                    self.ctx.die(5, "Can't delete type: %s" % klass)
 
         def action(klass, method, *args):
             import omero
@@ -53,8 +70,10 @@ class DeleteControl(BaseControl):
                 self.ctx.out("failed (%s)" % e)
 
         deleteSrv = client.getSession().getDeleteService()
+        updateSrv = client.getSession().getUpdateService()
         for image in images: action("Image", deleteSrv.deleteImage, image, True)
         for plate in plates: action("Plate", deleteSrv.deletePlate, plate)
+        for object in objects: action(object.__class__.__name__, updateSrv.deleteObject, object)
 
 try:
     register("delete", DeleteControl, HELP)

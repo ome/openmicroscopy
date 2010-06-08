@@ -151,7 +151,7 @@ class Parser(ArgumentParser):
         return self.add_subparsers(title = "Subcommands", description = OMEROSUBS, metavar = OMEROSUBM)
 
     def add(self, sub, func, help, **kwargs):
-        parser = sub.add_parser(func.im_func.__name__, help=help)
+        parser = sub.add_parser(func.im_func.__name__, help=help, description=help)
         parser.set_defaults(func=func, **kwargs)
         return parser
 
@@ -654,8 +654,6 @@ class CLI(cmd.Cmd, Context):
                     # Calls the same thing as invoke
                     self.cmdloop(self.selfintro)
                 except KeyboardInterrupt, ki:
-                    # We've done the intro once now. Don't repeat yourself.
-                    self.selfintro = ""
                     try:
                         import readline
                         if len(readline.get_line_buffer()) > 0:
@@ -666,6 +664,10 @@ class CLI(cmd.Cmd, Context):
                         self.out("Use quit to exit")
         finally:
             self.close()
+
+    def postloop(self):
+        # We've done the intro once now. Don't repeat yourself.
+        self.selfintro = ""
 
     def onecmd(self, line, previous_args = None):
         """
@@ -819,9 +821,11 @@ class CLI(cmd.Cmd, Context):
             raise NonZeroReturnCode(rv, "%s => %d" % (" ".join(args), rv))
         return rv
 
-    def popen(self, args, cwd = None, stdout = subprocess.PIPE, stderr = subprocess.PIPE):
+    def popen(self, args, cwd = None, stdout = subprocess.PIPE, stderr = subprocess.PIPE, **kwargs):
         self.dbg("Returning popen: %s" % args)
-        return subprocess.Popen(args, env = self._env(), cwd = self._cwd(cwd), stdout = stdout, stderr = stderr)
+        env = self._env()
+        env.update(kwargs)
+        return subprocess.Popen(args, env = env, cwd = self._cwd(cwd), stdout = stdout, stderr = stderr)
 
     def readDefaults(self):
         try:

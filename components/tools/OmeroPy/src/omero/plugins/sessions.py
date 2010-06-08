@@ -21,7 +21,9 @@ from path import path
 
 HELP = """Control and create user sessions
 
-    Sessions are created 
+Sessions are stored locally on disk. Several can
+be active simultaneously, but only one will be used
+for a single invocation of bin/omero.
 
 """
 
@@ -66,6 +68,10 @@ class SessionsControl(BaseControl):
 
     FACTORY = SessionsStore
 
+    def store(self, args):
+        dir = getattr(args, "dir", None)
+        return self.FACTORY(dir)
+
     def _configure(self, parser):
         sub = parser.sub()
         help = parser.add(sub, self.help, "Extended help")
@@ -78,14 +84,19 @@ class SessionsControl(BaseControl):
         keepalive.add_argument("-f", "--frequency", type=int, default=60, help="Time in seconds between keep alive calls", metavar="SECS")
         clear = parser.add(sub, self.clear, "Close and remove locally stored sessions")
         clear.add_argument("--all", action="store_true", help="Remove all locally stored sessions not just inactive ones")
+        file = parser.add(sub, self.file, "Print the path to the current session file")
+
+        for x in (file, logout, keepalive, list, clear):
+            self._configure_dir(x)
 
     def _configure_login(self, login, logout = None):
         login.add_argument("-t", "--timeout", help="Timeout for session. After this many inactive seconds, the session will be closed")
         login.add_argument("-C", "--create", action="store_true", help="Create a new session regardless of existing ones")
         login.add_argument("connection", nargs="?", help="Connection string. See extended help for examples")
-        for x in (login, logout):
-            if x:
-                x.add_argument("-d", "--dir", help="Use a different sessions directory (Default: $HOME/omero/sessions)")
+        self._configure_dir(login)
+
+    def _configure_dir(self, parser):
+        parser.add_argument("-d", "--dir", help="Use a different sessions directory (Default: $HOME/omero/sessions)")
 
     def help(self, args):
         self.ctx.err(LONGHELP % {"prog":args.prog})
@@ -97,11 +108,35 @@ class SessionsControl(BaseControl):
             return # EARLY EXIT
 
         create = getattr(args, "create", None)
-        dir = getattr(args, "dir", None)
-        store = self.FACTORY(dir)
-
+        store = self.store(args)
         previous = store.get_current()
-        if not create:
+
+        #
+        # Retrieving the parameters as set by the user
+        # If these are set and different from the current
+        # connection, then a new one may be created.
+        #
+        server = getattr(args, "connection", None) # May be called by another plugin
+        name = None
+
+        if args.server:
+            if server:
+                self.ctx.die(3, "Server specified twice: %s and %s" % (server, args.server))
+            else:
+                server = args.server
+
+        if server: server, name = self._parse_conn(server)
+
+        if args.user:
+            if name:
+                self.ctx.die(4, "Username specified twice: %s and %s" % (name, args.user))
+            else:
+                name = args.user
+
+        server_differs = (server is not None and server != previous[0])
+        name_differs = (name is not None and name != previous[1])
+
+        if not create and not server_differs and not name_differs:
             try:
                 rv = store.attach(*previous)
                 return self.handle(rv, "Using")
@@ -111,21 +146,13 @@ class SessionsControl(BaseControl):
         if previous[0] and previous[1]:
             self.ctx.out("Previously logged in to %s as %s" % (previous[0], previous[1]))
 
-        server = getattr(args, "connection", None) # May be called by another plugin
-
-        if args.server:
-            if server:
-                self.ctx.die(3, "Server specified twice: %s and %s" % (server, args.server))
-            else:
-                server = args.server
-
-        server, name = self._server(store, server)
-
-        if args.user:
-            if name:
-                self.ctx.die(4, "Username specified twice: %s and %s" % (name, args.user))
-            else:
-                name = args.user
+        #
+        # If we've reached here, then the user either does not have
+        # an active session or has requested another (different options)
+        # If they've omitted some required value, we must ask for it.
+        #
+        if not server: server = self._get_server(store)
+        if not name: name = self._get_username()
 
         pasw = args.password
         if args.key:
@@ -179,9 +206,12 @@ class SessionsControl(BaseControl):
         """
         Handles a new connection
         """
-        self.ctx._client, id, idle, live = rv
+        client, uuid, idle, live = rv
+        self.ctx._client = client
+        ec = self.ctx._client.sf.getAdminService().getEventContext()
+        self.ctx._event_context = ec
 
-        msg = "%s session %s." % (action, id)
+        msg = "%s session %s (%s@%s)." % (action, uuid, ec.userName, client.getProperty("omero.host"))
         if idle:
             msg = msg + " Idle timeout: %s min." % (float(idle)/60/1000)
         if live:
@@ -192,8 +222,7 @@ class SessionsControl(BaseControl):
         self.ctx.err(msg)
 
     def logout(self, args):
-        dir = getattr(args, "dir", None)
-        store = self.FACTORY(dir)
+        store = self.store(args)
         previous = store.get_current()
 
         import Glacier2
@@ -206,7 +235,7 @@ class SessionsControl(BaseControl):
 
     def list(self, args):
         import Glacier2
-        store = self.FACTORY()
+        store = self.store(args)
         s = store.contents()
         previous = store.get_current()
 
@@ -252,7 +281,7 @@ class SessionsControl(BaseControl):
         self.ctx.out(str(Table(*columns)))
 
     def clear(self, args):
-        store = self.FACTORY()
+        store = self.store(args)
         count = store.count()
         store.clear()
         self.ctx.out("%s session(s) cleared" % count)
@@ -280,6 +309,12 @@ class SessionsControl(BaseControl):
             t.client = None
             t.event.set()
 
+    def file(self, args):
+        store = self.store(args)
+        srv, usr, uuid = store.get_current()
+        if srv and usr and uuid:
+            self.ctx.out(str(store.dir / srv / usr / uuid))
+
     def conn(self, properties={}, profile=None, args=None):
         """
         Either creates or returns the exiting omero.client instance.
@@ -303,22 +338,23 @@ class SessionsControl(BaseControl):
     #
     # Private methods
     #
-    def _server(self, store, server):
-        if not server:
-            defserver = store.last_host()
-            rv = self.ctx.input("Server: [%s]" % defserver)
-            if not rv:
-                return defserver, None # Prevents loop
-            else:
-                return self._server(store, rv)
-        else:
-            try:
-                idx = server.rindex("@")
-                return  server[idx+1:], server[0:idx] # server, user which may also contain an @
-            except ValueError:
-                return server, None
 
-    def _username(self):
+    def _parse_conn(self, server):
+        try:
+            idx = server.rindex("@")
+            return  server[idx+1:], server[0:idx] # server, user which may also contain an @
+        except ValueError:
+            return server, None
+
+    def _get_server(self, store):
+        defserver = store.last_host()
+        rv = self.ctx.input("Server: [%s]" % defserver)
+        if not rv:
+            return defserver, None
+        else:
+            return self._parse_conn(rv)
+
+    def _get_username(self):
         defuser = getpass.getuser()
         rv = self.ctx.input("Username: [%s]" % defuser)
         if not rv:

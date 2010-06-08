@@ -547,8 +547,11 @@ class BaseClient(object):
         """
         Calculates the local sha1 for a file.
         """
-        import sha
-        digest = sha.new()
+        try:
+            from hashlib import sha1 as sha_new
+        except ImportError:
+            from sha import new as sha_new
+        digest = sha_new()
         file = open(filename, 'rb')
         try:
             while True:

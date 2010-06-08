@@ -31,6 +31,7 @@
         "-Domero.example=value" were set on the command line.
         These values may be overwritten by `bin/omero config` values.
       -->
+      <properties refid="__ACTIVE__"/><!-- Created in config.xml by bin/omero -->
       <property name="omero.example"  value="my_value"/>
     </properties>
 

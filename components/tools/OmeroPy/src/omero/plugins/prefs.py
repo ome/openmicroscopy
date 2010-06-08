@@ -26,11 +26,19 @@ from omero.util.decorators import wraps
 import omero.java
 
 HELP="""Commands for server configuration.
-  A config.xml file will be created under your etc/grid
-  directory.
 
-  Environment variables:
+A config.xml file will be modified under your etc/grid
+directory. If you do not have one, "upgrade" will create
+a new 4.2 configuration file.
+
+The configuration values are used by bin/omero admin {start,deploy}
+to set properties on launch. See etc/grid/(win)default.xml. The "Profile"
+block contains a reference to "__ACTIVE__" which is the current value
+in config.xml
+
+Environment variables:
     OMERO_CONFIG - Changes the active profile
+
 """
 
 def getprefs(args, dir):
@@ -74,46 +82,30 @@ class PrefsControl(BaseControl):
 
         sub = parser.sub()
 
-        all = sub.add_parser("all", help="""
-            List all properties in the current config.xml file.
-        """)
+        all = sub.add_parser("all", help="""List all properties in the current config.xml file.""")
         all.set_defaults(func=self.all)
 
-        default = sub.add_parser("def", help="""
-            List (or set) the current properties. See 'all' for a list of available properties.
-        """)
+        default = sub.add_parser("def", help="""List (or set) the current properties. See 'all' for a list of available properties.""")
         default.set_defaults(func=self.default)
-        default.add_argument("NAME", nargs="?", help="""
-            Name of the profile which should be made the new active profile.
-        """)
+        default.add_argument("NAME", nargs="?", help="""Name of the profile which should be made the new active profile.""")
 
-        get = sub.add_parser("get", help="""
-            Get keys from the current profile. All by default
-        """)
+        get = sub.add_parser("get", help="""Get keys from the current profile. All by default""")
         get.set_defaults(func=self.get)
         get.add_argument("KEY", nargs="*")
 
-        set = sub.add_parser("set", help="""
-            Set key-value pair in the current profile.
-        """)
+        set = sub.add_parser("set", help="""Set key-value pair in the current profile.""")
         set.set_defaults(func=self.set)
         set.add_argument("KEY")
         set.add_argument("VALUE", nargs="?", help="Value to be set. If it is missing, the key will be removed")
 
-        drop = sub.add_parser("drop", help="""
-            Removes the profile from the configuration file
-        """)
+        drop = sub.add_parser("drop", help="""Removes the profile from the configuration file""")
         drop.set_defaults(func=self.drop)
         drop.add_argument("NAME")
 
-        keys = sub.add_parser("keys", help="""
-            List all keys for the current profile
-        """)
+        keys = sub.add_parser("keys", help="""List all keys for the current profile""")
         keys.set_defaults(func=self.keys)
 
-        load = sub.add_parser("load", help="""
-            Read into current profile from a file or standard in
-        """)
+        load = sub.add_parser("load", help="""Read into current profile from a file or standard in""")
         load.set_defaults(func=self.load)
         load.add_argument("-q", action="store_true", help="No error on conflict")
         load.add_argument("file", nargs="+", type=FileType('r'), default=sys.stdin, help="Read from files or standard in")
@@ -207,7 +199,7 @@ class PrefsControl(BaseControl):
         from omero.util.temp_files import create_path, remove_path
         start_text = "# Edit your preferences below. Comments are ignored\n"
         for k in config.keys():
-            start_text += ("%s=%s" % (k, config[k]))
+            start_text += ("%s=%s\n" % (k, config[k]))
         temp_file = create_path()
         try:
             edit_path(temp_file, start_text)
@@ -230,7 +222,7 @@ class PrefsControl(BaseControl):
 
     @with_config
     def lock(self, args, config):
-        self.ctx.input("Press enter to continue")
+        self.ctx.input("Press enter to unlock")
 
     @with_config
     def upgrade(self, args, config):
