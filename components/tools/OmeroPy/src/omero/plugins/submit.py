@@ -71,7 +71,8 @@ class SubmitControl(BaseControl):
                     print l," items queued. Really cancel? [Yn]"
 
 try:
-    register("submit", SubmitControl, HELP)
+    # register("submit", SubmitControl, HELP)
+    pass
 except NameError:
     if __name__ == "__main__":
         cli = CLI()
