@@ -8,16 +8,17 @@
 """
 
 from exceptions import Exception
-from omero.cli import Arguments, BaseControl, VERSION
+from omero.cli import BaseControl, CLI
 import omero.java
 import time
+import sys
 
 HELP=""" omero web settings
 
 OMERO.web tools:
 
      settings           - Configuration for web
-     
+
 For advance use:
      custom_settings    - Creates only custom_settings.py
      server             - Set to 'default' for django internal webserver
@@ -34,6 +35,36 @@ For advance use:
 """
 class WebControl(BaseControl):
 
+    def _configure(self, parser):
+        sub = parser.sub()
+        parser.add(sub, self.help, "Print extended help")
+        parser.add(sub, self.settings, "Primary configuration for web")
+        parser.add(sub, self.custom_settings, "Advanced use: Creates only a a custom_settings.py")
+
+        server = parser.add(sub, self.server, "Advanced use: Set to 'default' for django internal webserver or 'fastcfgi'")
+        server.add_argument("server")
+
+        config = parser.add(sub, self.config, "Advanced use: Output a config template for server (only 'nginx' for the moment")
+        config.add_argument("type", choices=("nginx"))
+
+        parser.add(sub, self.syncmedia, "Advanced use: Creates needed symlinks for static media files")
+
+        enableapp = parser.add(sub, self.enableapp, "Advanced use:")
+        enableapp.add_argument("appname", nargs="*")
+
+        parser.add(sub, self.gateway, "Advanced use:")
+
+        test = parser.add(sub, self.test, "Advanced use:")
+        test.add_argument("arg", nargs="*")
+
+        selenium = parser.add(sub, self.seleniumtest, "Advanced use: runs selenium tests on a django app")
+        selenium.add_argument("djangoapp", help = "Django-app to be tested")
+
+        call = parser.add(sub, self.call, """Advanced use: call appname "[executable] scriptname" args """)
+        call.add_argument("appname")
+        call.add_argument("scriptname")
+        call.add_argument("arg", nargs="*")
+
     def help(self, args = None):
         self.ctx.out(HELP)
 
@@ -47,14 +78,14 @@ class WebControl(BaseControl):
                 continue
             settings["APPLICATION_HOST"] = app_host
             break
-        
+
         while not sender_address or len(sender_address) < 1 :
             sender_address = self.ctx.input("Please enter the Email address you want to send from (omero_admin@example.com): ")
             if sender_address == None or sender_address == "":
                 self.ctx.err("Email cannot be empty")
                 continue
             break
-        
+
         while not smtp_server or len(smtp_server) < 1 :
             smtp_server = self.ctx.input("Please enter the SMTP server host you want to send from (smtp.example.com): ")
             if smtp_server == None or smtp_server == "":
@@ -82,12 +113,12 @@ class WebControl(BaseControl):
             settings["EMAIL_HOST_PASSWORD"] = smtp_password
         if smtp_tls:
             settings["EMAIL_USE_TLS"] = smtp_tls
-        
+
         return settings
 
     def _update_settings(self, location, settings=None):
         output = open(location, 'w')
-        
+
         try:
             output.write("""#!/usr/bin/env python
 # 
@@ -158,7 +189,7 @@ APPLICATION_HOST='%s'
             output.close()
 
         self.ctx.out("Saved to " + location)
-    
+
     def _get_yes_or_no(self, file_name, answer=None):
         while answer != "yes" and answer != "no":
             answer = self.ctx.input("%s already exist. Do you want to ovewrite it? (yes/no)" % file_name)
@@ -167,28 +198,29 @@ APPLICATION_HOST='%s'
                 continue
             break
         return answer
-    
-    def custom_settings(self, do_exit=True, *args):
+
+    def custom_settings(self, args):
         location = self.ctx.dir / "lib" / "python" / "omeroweb" / "custom_settings.py"
-        
+
         if location.exists():
             if self._get_yes_or_no("%s" % location) == 'no':
-                if do_exit:
-                    sys.exit()
-                else:
+                if hasattr(args, "no_exit") and args.no_exit:
                     return
+                else:
+                    sys.exit()
         else:
             self.ctx.out("You just installed OMERO, which means you didn't have settings configured in OMERO.web.")
-            
+
         settings = self._setup_server()
         self._update_settings(location, settings)
-    
-    def settings(self, *args):
-        self.custom_settings(do_exit=False)
-        self.syncmedia()
 
-    def server(self, *args):
-        if not len(args[0]):
+    def settings(self, args):
+        args.no_exit = True
+        self.custom_settings(args)
+        self.syncmedia(args)
+
+    def server(self, args):
+        if not args.server:
             self.ctx.out("OMERO.web application is served by 'default'")
         else:
             location = self.ctx.dir / "lib" / "python" / "omeroweb" / "custom_settings.py"
@@ -199,7 +231,7 @@ APPLICATION_HOST='%s'
             for l in settings:
                 if l.startswith('APPLICATION_SERVER'):
                     cserver = l.split('=')[-1].strip().replace("'",'').replace('"','')
-            server = args[0][0]
+            server = args.server
             if server == cserver:
                 self.ctx.out("OMERO.web was already configured to be served by '%s'" % server)
             elif server in ('default', 'fastcgi'):
@@ -219,8 +251,8 @@ APPLICATION_HOST='%s'
             else:
                 self.ctx.err("Unknown server '%s'" % server)
 
-    def config(self, *args):
-        if not len(args[0]):
+    def config(self, args):
+        if not args.type:
             self.ctx.out("Available configuration helpers:\n - nginx\n")
         else:
             import omeroweb.custom_settings as settings
@@ -229,7 +261,7 @@ APPLICATION_HOST='%s'
                 port = int(host[-1])
             except ValueError:
                 port = 8000
-            server = args[0][0]
+            server = args.type
             if server == "nginx":
                 c = file(self.ctx.dir / "etc" / "nginx.conf.template").read()
                 d = {
@@ -239,7 +271,7 @@ APPLICATION_HOST='%s'
                     }
                 self.ctx.out(c % d)
 
-    def syncmedia(self, *args):
+    def syncmedia(self, args):
         import os, shutil
         from glob import glob
         from omeroweb.settings import INSTALLED_APPS
@@ -250,7 +282,7 @@ APPLICATION_HOST='%s'
         # Destination dir
         if not os.path.exists(location / 'media'):
             os.mkdir(location / 'media')
-        
+
         # Create app media links
         for app in apps:
             media_dir = location / app / 'media'
@@ -258,17 +290,17 @@ APPLICATION_HOST='%s'
                 if os.path.exists(location / 'media' / app):
                     os.remove(os.path.abspath(location / 'media' / app))
                 os.symlink(os.path.abspath(media_dir), location / 'media' / app)
-        
-    def enableapp(self, *args):
+
+    def enableapp(self, args):
         from omeroweb.settings import INSTALLED_APPS
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
-        if len(args[0]) < 1:
+        if not args.appname:
             apps = [x.name for x in filter(lambda x: x.isdir() and (x / 'scripts' / 'enable.py').exists(), location.listdir())]
             iapps = map(lambda x: x.startswith('omeroweb.') and x[9:] or x, INSTALLED_APPS)
             apps = filter(lambda x: x not in iapps, apps)
             self.ctx.out('[enableapp] available apps:\n - ' + '\n - '.join(apps) + '\n')
         else:
-            for app in args[0]:
+            for app in args.appname:
                 args = ["python", location / app / "scripts" / "enable.py"]
                 rv = self.ctx.call(args, cwd = location)
                 if rv != 0:
@@ -277,9 +309,9 @@ APPLICATION_HOST='%s'
                     self.ctx.out("App '%s' was enabled\n" % app)
             args = ["python", "manage.py", "syncdb", "--noinput"]
             rv = self.ctx.call(args, cwd = location)
-            self.syncmedia()
+            self.syncmedia(None)
 
-    def gateway(self, *args):
+    def gateway(self, args):
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
         args = ["python", "-i", location / "../omero/gateway/scripts/dbhelpers.py"]
         os.environ['ICE_CONFIG'] = self.ctx.dir / "etc" / "ice.config"
@@ -287,39 +319,34 @@ APPLICATION_HOST='%s'
         os.environ['DJANGO_SETTINGS_MODULE'] = os.environ.get('DJANGO_SETTINGS_MODULE', 'omeroweb.settings')
         rv = self.ctx.call(args, cwd = location)
 
-    def test(self, *args):
+    def test(self, args):
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
         cargs = ["coverage","-x", "manage.py", "test"]
-        if len(args[0]) > 0:
-            cargs.append(args[0][0])
+        if args.arg:
+            cargs.append(args.arg)
         os.environ['ICE_CONFIG'] = self.ctx.dir / "etc" / "ice.config"
         os.environ['PATH'] = os.environ.get('PATH', '.') + ':' + self.ctx.dir / 'bin'
         rv = self.ctx.call(cargs, cwd = location)
 
-    def seleniumtest (self, *args):
+    def seleniumtest (self, args):
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
         cargs = ["python", "seleniumtests.py"]
-        if len(args[0]) != 1:
-            self.ctx.die(121, "usage: seleniumtest {djangoapp}")
-        location = location / args[0][0] / "tests"
-        print location 
+        location = location / args.djangoapp / "tests"
+        print location
         rv = self.ctx.call(cargs, cwd = location )
-        
-    def call (self, *args):
-        """ call appname "[executable] scriptname" args """
+
+    def call (self, args):
         try:
-            if len(args[0]) < 2:
-                self.ctx.die(121, "not enough args")
             location = self.ctx.dir / "lib" / "python" / "omeroweb"
             cargs = []
-            appname = args[0][0]
-            scriptname = args[0][1].split(' ')
+            appname = args.appname
+            scriptname = args.scriptname.split(' ')
             if len(scriptname) > 1:
                 cargs.append(scriptname[0])
                 scriptname = ' '.join(scriptname[1:])
             else:
                 scriptname = scriptname[0]
-            cargs.extend([location / appname / "scripts" / scriptname] + args[0][2:])
+            cargs.extend([location / appname / "scripts" / scriptname] + args.arg)
             print cargs
             os.environ['DJANGO_SETTINGS_MODULE'] = 'omeroweb.settings'
             os.environ['ICE_CONFIG'] = self.ctx.dir / "etc" / "ice.config"
@@ -330,6 +357,9 @@ APPLICATION_HOST='%s'
             print traceback.print_exc()
 
 try:
-    register("web", WebControl)
+    register("web", WebControl, HELP)
 except NameError:
-    WebControl()._main()
+    if __name__ == "__main__":
+        cli = CLI()
+        cli.register("web", WebControl, HELP)
+        cli.invoke(sys.argv[1:])

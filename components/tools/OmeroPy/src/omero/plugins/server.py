@@ -12,10 +12,19 @@
 """
 
 import subprocess, optparse, os, sys, signal, time
-from omero.cli import Arguments, BaseControl, VERSION
+from omero.cli import BaseControl, CLI
 import omero.java
 
+HELP = """Start commands for server components"""
+
 class ServerControl(BaseControl):
+
+    def _configure(self, parser):
+        sub = parser.sub()
+        blitz = parser.add(sub, self.blitz, help = "Start OMERO.blitz")
+        indexer = parser.add(sub, self.indexer, help = "Start OMERO.indexer")
+        web = parser.add(sub, self.web, help = "Start OMERO.web")
+        web.add_argument("arg", nargs="*")
 
     def _prop(self, data, key):
         return data.properties.getProperty("omero."+key)
@@ -51,7 +60,6 @@ class ServerControl(BaseControl):
         self.ctx.out("Start the blitz server -- Reads properties via omero prefs")
 
     def blitz(self, args):
-        args = Arguments(args)
         pre, post = self._checkIceConfig(args)
         xargs, debug = self._xargsAndDebug("blitz", ["-Xmx400M"])
         blitz_jar = os.path.join("lib","server","blitz.jar")
@@ -59,14 +67,12 @@ class ServerControl(BaseControl):
         omero.java.run(command, debug=debug, xargs=xargs, use_exec = True)
 
     def indexer(self, args):
-        args = Arguments(args)
         pre, post = self._checkIceConfig(args)
         xargs, debug = self._xargsAndDebug("indexer", ["-Xmx256M"])
         blitz_jar = os.path.join("lib","server","blitz.jar")
         omero.java.run(pre+["-jar",blitz_jar,"ome.fulltext"]+post, debug=debug, xargs=xargs, use_exec = True)
 
     def web(self, args):
-        args = Arguments(args)
         sys.stderr.write("Starting django... \n")
         omero_web = self.ctx.dir / "lib" / "python" / "omeroweb"
         # subprocess.call(["python","manage.py","syncdb","--noinput"], cwd=str(omero_web), env = os.environ)
@@ -79,15 +85,18 @@ class ServerControl(BaseControl):
             cmd += " method=prefork socket=%(base)s/var/django_fcgi.sock"
             cmd += " pidfile=%(base)s/var/django.pid daemonize=false"
             cmd += " maxchildren=5 minspare=1 maxspare=5 maxrequests=400"
-            django = (cmd % {'base': self.ctx.dir}).split()+list(args)
+            django = (cmd % {'base': self.ctx.dir}).split()+list(args.arg)
         else:
             host = settings.APPLICATION_HOST
             wikifier = re.compile(r'http[s]?://')
-            host = wikifier.sub(r'', host)            
+            host = wikifier.sub(r'', host)
             django = ["python","manage.py","runserver","--noreload", host]+list(args)
         sys.stderr.write(str(django) + '\n')
         os.execvpe("python", django, os.environ)
 try:
     register("server", ServerControl)
 except NameError:
-    ServerControl()._main()
+    if __name__ == "__main__":
+        cli = CLI()
+        cli.register("server", ServerControl, HELP)
+        cli.invoke(sys.argv[1:])

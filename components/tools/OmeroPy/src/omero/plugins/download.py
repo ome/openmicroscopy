@@ -10,26 +10,24 @@
 
 """
 
-from omero.cli import Arguments, BaseControl
+import sys
+from omero.cli import BaseControl, CLI
+
+HELP = """
+    Download the given file id to the given filename
+"""
 
 class DownloadControl(BaseControl):
 
-    def help(self, args = None):
-        self.ctx.out(
-        """
-Syntax: %(program_name)s download <id> <filename>
-        Download the given file id to the given file name
-        """ )
+    def _configure(self, parser):
+        parser.add_argument("id", help="OriginalFile id")
+        parser.add_argument("filename", help="Local filename to be saved to")
 
-    def __call__(self, *args):
-        args = Arguments(args)
+    def __call__(self, args):
         from omero_model_OriginalFileI import OriginalFileI as OFile
-        if len(args) != 2:
-            self.help()
-            self.ctx.die(2, "")
 
-        orig_file = OFile(long(args.args[0]))
-        target_file = str(args.args[1])
+        orig_file = OFile(long(args.id))
+        target_file = str(args.filename)
 
         client = self.ctx.conn(args)
         client.download(orig_file, target_file)
@@ -37,4 +35,7 @@ Syntax: %(program_name)s download <id> <filename>
 try:
     register("download", DownloadControl)
 except NameError:
-    DownloadControl()._main()
+    if __name__ == "__main__":
+        cli = CLI()
+        cli.register("download", DownloadControl, HELP)
+        cli.invoke(sys.argv[1:])

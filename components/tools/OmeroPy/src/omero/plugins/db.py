@@ -11,7 +11,11 @@
 """
 
 from exceptions import Exception
-from omero.cli import Arguments, BaseControl, VERSION
+
+from omero.cli import BaseControl
+from omero.cli import CLI
+from omero.cli import VERSION
+
 import omero.java
 import time
 
@@ -24,8 +28,30 @@ Database tools:
 """
 class DatabaseControl(BaseControl):
 
-    def help(self, args = None):
-        self.ctx.out(HELP)
+    def _configure(self, parser):
+        sub = parser.add_subparsers(title="Subcommands", help="""
+                Use %(prog)s db <subcommand> -h for more information.
+        """)
+        args = {}
+
+        class Arg(object):
+            def __init__(this, name, help):
+                this.parser = sub.add_parser(name, help=help)
+                this.parser.set_defaults(func=getattr(self, name))
+                args[name] = this.parser
+
+    def _configure(self, parser):
+        sub = parser.add_subparsers(title="Subcommands")
+
+        script = sub.add_parser("script")
+        script.set_defaults(func=self.script)
+        script.add_argument("dbversion")
+        script.add_argument("dbpatch")
+        script.add_argument("password")
+
+        pw = sub.add_parser("password", help="Prints SQL command for updating your root password")
+        pw.add_argument("password", nargs="?")
+        pw.set_defaults(func=self.password)
 
     def _lookup(self, data, data2, key, map, hidden = False):
         """
@@ -119,18 +145,16 @@ BEGIN;
             output.flush()
             output.close()
 
-    def password(self, *args):
-        args = Arguments(args)
+    def password(self, args):
         root_pass = None
         try:
-            root_pass = args.args[0]
+            root_pass = args.password
         except Exception, e:
             self.ctx.dbg("While getting arguments:" + str(e))
         password_hash = self._get_password_hash(root_pass)
         self.ctx.out("""UPDATE password SET hash = '%s' WHERE experimenter_id = 0;""" % password_hash)
 
-    def script(self, *args):
-        args = Arguments(args)
+    def script(self, args):
 
         data = self.ctx.initData({})
         try:
@@ -165,6 +189,9 @@ BEGIN;
         self._create(sql,map["version"],map["patch"],map["pass"])
 
 try:
-    register("db", DatabaseControl)
+    register("db", DatabaseControl, HELP)
 except NameError:
-    DatabaseControl()._main()
+    import sys
+    cli = CLI()
+    cli.register("db", DatabaseControl, HELP)
+    cli.invoke(sys.argv[1:])

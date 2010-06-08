@@ -10,7 +10,7 @@
 
 """
 
-from omero.cli import CLI, BaseControl
+from omero.cli import BaseControl, CLI
 import cmd, sys, exceptions
 import sys
 
@@ -40,28 +40,27 @@ class SubmitCLI(CLI):
     def do_cancel(self, arg):
         raise Cancel()
 
-    def execute(self):
+    def post_process(self):
         print "Uploading"
         print submit.queue
 
-class SubmitControl(BaseControl):
-
-    def help(self, args = None):
-        self.ctx.out("""
-Syntax: %(program_name)s submit single command with args
-                         submit
-
+HELP = """
         When run without arguments, submit shell is opened
         which takes commands without executing them. On save,
         the file is trasferred to the server, and executed.
-        """)
+       """
+class SubmitControl(BaseControl):
 
-    def __call__(self, *args):
-        args = Arguments(args)
+    def _configure(self, parser):
+        parser.add_argument("arg", nargs="*", help="single command with args")
+        parser.set_defaults(func=self.__call__)
+
+    def __call__(self, args):
         submit = SubmitCLI()
+        arg = args.arg
         if arg and len(arg) > 0:
             submit.invoke(arg)
-            submit.execute()
+            submit.post_process()
         else:
             try:
                 submit.invokeloop()
@@ -73,6 +72,9 @@ Syntax: %(program_name)s submit single command with args
                     print l," items queued. Really cancel? [Yn]"
 
 try:
-    register("submit", SubmitControl)
+    register("submit", SubmitControl, HELP)
 except NameError:
-    SubmitControl()._main()
+    if __name__ == "__main__":
+        cli = CLI()
+        cli.register("submit", SubmitControl, HELP)
+        cli.invoke(sys.argv[1:])

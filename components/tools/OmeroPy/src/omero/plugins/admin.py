@@ -14,15 +14,17 @@
 
 import re
 import os
+import sys
 import time
 import exceptions
 
 from path import path
 from which import whichall
+from omero_ext.argparse import FileType, RawDescriptionHelpFormatter
 
 import omero
-import omero_ServerErrors_ice
-from omero.cli import Arguments
+
+from omero.cli import CLI
 from omero.cli import BaseControl
 from omero.cli import NonZeroReturnCode
 from omero.cli import VERSION
@@ -34,61 +36,104 @@ try:
 except ImportError:
     has_win32 = False
 
+HELP="""
+Subcommand help / subparser help
+no argument opens a command shell
+THIS NEEDS TO BE UPDATED AND EXPANEDED
+
+Environment variables:
+ OMERO_MASTER
+ OMERO_NODE
+
+Configuration properties:
+ omero.windows.user
+ omero.windows.pass
+""" + "\n" + "="*50 + "\n"
 
 class AdminControl(BaseControl):
 
-    def help(self, args = None):
-        self.ctx.out( """
-Syntax: %(program_name)s admin  [ start | update | stop | status ]
-
-                                             : No argument opens a command shell
-
-           Main Commands
-           -------------
-
-           start [filename] [targets]        : Start icegridnode daemon and waits for required components
-                                             : to come up, i.e. status == 0
-                                             :
-                                             : If the first argument can be found as a file, it will
-                                             : be deployed as the application descriptor rather than
-                                             : etc/grid/default.xml. All other arguments will be used
-                                             : as targets to enable optional sections of the descriptor
-
-           startasync [filename] [targets]   : The same as start but returns immediately.
-
-           deploy [filename] [targets]       : Deploy the given deployment descriptor. See etc/grid/*.xml
-                                             : If the first argument is not a file path, etc/grid/default.xml
-                                             : will be deployed by default. Same functionality as start, but
-                                             : requires that the node already be running. This may automatically
-                                             : restart some server components.
-
-           stop                              : Initiates node shutdown and waits for status to return a non-0
-                                             : value
-
-           stopasync                         : The same as stop but returns immediately.
-
-           status                            : Status of server. Returns with 0 status if a node ping is successful
-                                             : and if some SessionManager returns an OMERO-specific exception on
-                                             : a bad login. This can be used in shell scripts, e.g.:
-                                             :
-                                             :     omero admin status && echo "server started"
-                                             :
-
-           ice [arg1 arg2 ...]               : Drop user into icegridadmin console or execute arguments
-
-
-           Other Commands
-           --------------
-
-           diagnostics                       : Run a set of checks on the current, preferably active server
-
-           waitup                            : Used by start after calling startasync to wait on status==0
-
-           waitdown                          : Used by stop after calling stopasync to wait on status!=0
-
-           events                            : Print event log (Windows-only)
-
+    def _configure(self, parser):
+        sub = parser.add_subparsers(title="Subcommands", help="""
+                Use %(prog)s <subcommand> -h for more information.
         """)
+        args = {}
+
+        class Arg(object):
+            def __init__(this, name, help):
+                this.parser = sub.add_parser(name, help=help)
+                this.parser.set_defaults(func=getattr(self, name))
+                args[name] = this.parser
+
+        Arg("start", """
+             Start icegridnode daemon and waits for required components
+             to come up, i.e. status == 0
+
+             If the first argument can be found as a file, it will
+             be deployed as the application descriptor rather than
+             etc/grid/default.xml. All other arguments will be used
+             as targets to enable optional sections of the descriptor""")
+
+        Arg("startasync", """
+             The same as start but returns immediately.""",)
+
+        Arg("status", """
+             Status of server. Returns with 0 status if a node ping is successful
+             and if some SessionManager returns an OMERO-specific exception on
+             a bad login. This can be used in shell scripts, e.g.:
+
+                 omero admin status && echo "server started"
+            """)
+
+        Arg("stop", """
+             Initiates node shutdown and waits for status to return a non-0
+             value""")
+
+        Arg("stopasync", """
+             The same as stop but returns immediately.""")
+
+        Arg("deploy", """
+             Deploy the given deployment descriptor. See etc/grid/*.xml
+             If the first argument is not a file path, etc/grid/default.xml
+             will be deployed by default. Same functionality as start, but
+             requires that the node already be running. This may automatically
+             restart some server components.""")
+
+        Arg("ice", """
+             Drop user into icegridadmin console or execute arguments""")
+
+        Arg("diagnostics", """
+             Run a set of checks on the current, preferably active server""")
+
+        Arg("waitup", """
+             Used by start after calling startasync to wait on status==0""")
+
+        Arg("waitdown", """
+             Used by stop after calling stopasync to wait on status!=0""")
+
+        Arg("checkwindows", """
+             Run simple check of the local installation (Windows-only)""")
+
+        Arg("events", """
+             Print event log (Windows-only)""")
+
+        args["ice"].add_argument("arguments", nargs="?")
+
+        args["status"].add_argument("node", nargs="?", default="master")
+
+        for name in ("start", "startasync"):
+            args[name].add_argument("-u","--user", help="""
+            User argument which should be logged in. If none is provided, the configuration
+            value for omero.windows.user will be taken. (Windows-only)
+            """)
+
+        for k in ("start", "startasync", "deploy"):
+            args[k].add_argument("file", nargs="?", type=FileType("r"),
+                help="""Application descriptor. If not provided, a default will be used""")
+            args[k].add_argument("targets", nargs="*",
+                help="""Targets within the application descriptor which should be activated.
+                        Common values are: "debug", "trace" """)
+
+
         DISABLED = """ see: http://www.zeroc.com/forums/bug-reports/4237-sporadic-freeze-errors-concurrent-icegridnode-access.html
            restart [filename] [targets]      : Calls stop followed by start args
            restartasync [filename] [targets] : Calls stop followed by startasync args
@@ -182,18 +227,21 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
         else:
             return "master"
 
-    def _cmd(self, *args):
+    def _cmd(self, command_arguments):
+        """
+        Used to generate an icegridadmin command line argument list
+        """
         command = ["icegridadmin", self._intcfg() ]
-        command.extend(args)
+        command.extend(command_arguments)
         return command
 
-    def _descript(self, first, other):
-        if first != None and len(first) > 0:
+    def _descript(self, args):
+        if args.file != None:
             # Relative to cwd
-            descript = path(first).abspath()
+            descript = path(args.file).abspath()
             if not descript.exists():
                 self.ctx.dbg("No such file: %s -- Using as target" % descript)
-                other.insert(0, first)
+                args.targets.insert(0, args.file)
                 descript = None
         else:
             descript = None
@@ -206,7 +254,7 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
             self.ctx.err("No descriptor given. Using %s" % os.path.sep.join(["etc","grid",__d__]))
         return descript
 
-    def checkwindows(self, *args):
+    def checkwindows(self, args):
         """
         Checks that the templates file as defined in etc\Windows.cfg
         can be found.
@@ -215,7 +263,6 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
         if not self._isWindows():
             self.ctx.die(123, "Not Windows")
 
-        args = Arguments(args)
         import Ice
         key = "IceGrid.Node.Data"
         properties = Ice.createProperties([self._icecfg()])
@@ -266,14 +313,8 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
         self._regdata()
         self.check([])
 
-        user = None
-        args = Arguments(args)
-        first, other = args.firstOther()
-        if first == "-u":
-            user = first
-            args = Arguments(other)
-            first, other = args.firstOther()
-        descript = self._descript(first, other)
+        user = args.user
+        descript = self._descript(args)
 
         if self._isWindows():
             svc_name = "OMERO.%s" % self._node()
@@ -318,26 +359,22 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
         self.waitup(args)
 
     def deploy(self, args):
-        args = Arguments(args)
-        first, other = args.firstOther()
-        descript = self._descript(first, other)
+        descript = self._descript(args)
 
         # TODO : Doesn't properly handle whitespace
         command = ["icegridadmin",self._intcfg(),"-e"," ".join(["application","update", str(descript)] + other.args)]
         self.ctx.call(command)
 
     def status(self, args):
-        args = Arguments(args)
-        first,other = args.firstOther()
-        if first == None:
-            first = "master"
+        node = args.node
 
-        command = self._cmd("-e","node ping %s" % first)
+        command = self._cmd("-e","node ping %s" % node)
         self.ctx.rv = self.ctx.popen(command).wait() # popen
 
         if self.ctx.rv == 0:
             try:
-                import omero, Ice, IceGrid, Glacier2
+                import Ice, IceGrid, Glacier2
+                import omero_ServerErrors_ice
                 ic = Ice.initialize([self._intcfg()])
                 try:
                     iq = ic.stringToProxy("IceGrid/Query")
@@ -366,7 +403,6 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
         self.startasync(args)
 
     def waitup(self, args):
-        args = Arguments(args)
         self.ctx.out("Waiting on startup. Use CTRL-C to exit")
         count = 30
         while True:
@@ -380,7 +416,6 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
                 time.sleep(10)
 
     def waitdown(self, args):
-        args = Arguments(args)
         self.ctx.out("Waiting on shutdown. Use CTRL-C to exit")
         count = 30
         while True:
@@ -421,16 +456,14 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
         pass
 
     def ice(self, args):
-        args = Arguments(args)
         command = self._cmd()
-        if len(args) > 0:
-            command.extend(["-e",args.join(" ")])
+        if len(args.arguments) > 0:
+            command.extend(["-e", args.arguments.join(" ")])
             return self.ctx.call(command)
         else:
             rv = self.ctx.call(command)
 
     def diagnostics(self, args):
-        args = Arguments(args)
         self.ctx.out("""
 %s
 OMERO Diagnostics %s
@@ -586,6 +619,9 @@ OMERO Diagnostics %s
         env_val("LD_LIBRARY_PATH")
         env_val("DYLD_LIBRARY_PATH")
 try:
-    register("admin", AdminControl)
+    register("admin", AdminControl, HELP)
 except NameError:
-    AdminControl()._main()
+    if __name__ == "__main__":
+        cli = CLI()
+        cli.register("admin", AdminControl, HELP)
+        cli.invoke(sys.argv[1:])

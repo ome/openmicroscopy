@@ -16,27 +16,18 @@ import getpass, pickle
 import omero.java
 
 from omero.util.sessions import SessionsStore
-from omero.cli import Arguments, BaseControl, VERSION
+from omero.cli import BaseControl, CLI
 from path import path
 
-class SessionsControl(BaseControl):
+HELP = """
+    Control and create user sessions; login and logout
+"""
+LONGHELP = """
+    Uses the login parameters from %(prog)s to login.
 
-    def help(self, args = None):
-        self.ctx.out("login  --   login to a given server, and store session key")
-        self.ctx.out("logout --   logout and remove current session key")
-        self.ctx.out("info   --   list info on the current session")
-        self.ctx.out("list   --   list all stored sessions")
-        self.ctx.out("clear  --   close and remove all stored sessions")
-        self.ctx.out("""
+    To list these options, use "%(prog)s -h"
 
-        TODO logout v. kill ???
-        TODO append default loginArguments help here
-
-        Options:
-        -d Use a different sessions directory (Default: $HOME/omero/sessions)
-        -p Use a different port (Default: 4063)
-        -t Timeout
-
+    Sample session:
         $ login -s localhost
         Username:
         Password:
@@ -67,59 +58,80 @@ class SessionsControl(BaseControl):
         Password:
         $ login -k 8afe443f-19fc-4cc4-bf4a-850ec94f4650
         $ clear
+"""
 
-        """)
+class SessionsControl(BaseControl):
 
-    def login(self, *args):
+    FACTORY = SessionsStore
+
+    def _configure(self, parser):
+        sub = parser.sub()
+        help = parser.add(sub, self.help, "Extended help")
+        login = parser.add(sub, self.login, "Login to a given server, and store session key locally")
+        login.add_argument("-t", "--timeout", help="Timeout for session. After this many inactive seconds, the session will be closed")
+        login.add_argument("-d", "--dir", help="Use a different sessions directory (Default: $HOME/omero/sessions)")
+        login.add_argument("connection", nargs="?", help="Connection string. See extended help for examples")
+        logout = parser.add(sub, self.logout, "Logout and remove current session key")
+        info = parser.add(sub, self.info, "List info on current sessions")
+        list = parser.add(sub, self.list, "List all stored sessions")
+        clear = parser.add(sub, self.clear, "Close and remove all stored sessions")
+
+    def help(self, args):
+        self.ctx.err(LONGHELP % {"prog":args.prog})
+
+    def login(self, args):
 
         if self.ctx.conn():
-            self.ctx.dbg("Active client found")
+            self.ctx.err("Active client found")
             return # EARLY EXIT
 
-        args = Arguments(args, shortopts="t:d:", longopts=["timeout","dir"])
+        server = args.connection
 
-        server, other = args.firstOther()
-        if len(other) > 0:
-            self.ctx.die(2, "Unknown argument: %s" % other)
+        if args.server:
+            if server:
+                self.ctx.die(3, "Server specified twice: %s and %s" % (server, args.server))
+            else:
+                server = args.server
 
-        if server and args.get_server():
-            self.ctx.die(3, "Server specified twice: %s and %s" % (server, args.get_server()))
+        store = self.FACTORY()
+        server, name = self._server(store, server, args.last)
 
-        if not server:
-            server = args.get_server()
+        if args.user:
+            if name:
+                self.ctx.die(4, "Username specified twice: %s and %s" % (name, args.user))
+            else:
+                name = args.user
 
-        store = SessionsStore()
-        server, name = self._server(store, server, args.is_quiet())
-
-        if name and args.get_user():
-            self.ctx.die(4, "Username specified twice: %s and %s" % (name, args.get_user()))
-
-        if args.get_user():
-            name = args.get_user()
-
-        pasw = args.get_password()
-        if args.get_key():
+        pasw = args.password
+        if args.key:
 
             if name:
                 self.ctx.err("Overriding name since session set")
-            name = args.get_key()
+            name = args.key
 
-            if args.get_password():
-                self.ctx.err("Ignoring password since password set")
-            pasw = args.get_key()
+            if args.password:
+                self.ctx.err("Ignoring password since key set")
+            pasw = args.key
 
         if not name:
-            name = self._username(args.is_quiet())
+            name = self._username(args.last)
 
         props = {}
         props["omero.host"] = server
-        if args.get_port():
-            props["omero.port"] = args.get_port()
+        props["omero.user"] = name
+        if args.port:
+            props["omero.port"] = args.port
+        if args.group:
+            props["omero.group"] = args.group
 
         rv = None
-        if not args.is_create():
+        if not args.create:
             available = store.available(server, name)
             for uuid in available:
+                conflicts = store.conflicts(server, name, uuid, props)
+                if conflicts:
+                    self.ctx.dbg("Skipping %s due to conflicts: %s" % (uuid, conflicts))
+                    continue
                 try:
                     rv = store.attach(server, name, uuid)
                     action = "Reconnected to"
@@ -131,8 +143,8 @@ class SessionsControl(BaseControl):
 
         if not rv:
             if not pasw:
-                if args.is_quiet():
-                    self.ctx.die(394,"A password or key must be provided when 'quiet' is set")
+                if args.last:
+                    self.ctx.die(394,"A password or key must be provided when '--last' is set")
                 pasw = self.ctx.input("Password:", hidden = True, required = True)
             rv = store.create(name, pasw, props)
             action = "Created"
@@ -147,15 +159,15 @@ class SessionsControl(BaseControl):
 
         self.ctx.out(msg)
 
-    def logout(self, *args):
+    def logout(self, args):
         old_sess = self._savesession(None)
         client = omero.client()
         client.joinSession(old_session)
         print "Do until 0"
         client.closeSession()
 
-    def list(self, *args):
-        store = SessionsStore()
+    def list(self, args):
+        store = self.FACTORY()
         s = store.contents()
         fmt = "%-25.25s\t%-16.16s\t%-40.40s\t%-8.8s"
         self.ctx.out(fmt % ("Server","User","Session","Active"))
@@ -165,8 +177,11 @@ class SessionsControl(BaseControl):
                 for id, props in sessions.items():
                     self.ctx.out(fmt % (server, name, id, props["active"]))
 
-    def clear(self, *args):
-        store = SessionsStore()
+    def info(self, args):
+        print "info here"
+
+    def clear(self, args):
+        store = self.FACTORY()
         count = store.count()
         store.clear()
         self.ctx.out("%s session(s) cleared" % count)
@@ -194,18 +209,18 @@ class SessionsControl(BaseControl):
     #
     # Private methods
     #
-    def _server(self, store, server, quiet):
+    def _server(self, store, server, use_last):
         if not server:
             defserver = store.last_host()
-            if quiet:
+            if use_last:
                 self.ctx.out("Using server: %s" % defserver)
-                return defserver
+                return defserver, None
             else:
                 rv = self.ctx.input("Server: [%s]" % defserver)
                 if not rv:
                     return defserver, None # Prevents loop
                 else:
-                    return self._server(store, rv, quiet)
+                    return self._server(store, rv, use_last)
         else:
             try:
                 idx = server.rindex("@")
@@ -213,10 +228,10 @@ class SessionsControl(BaseControl):
             except ValueError:
                 return server, None
 
-    def _username(self, quiet):
+    def _username(self, use_last):
         defuser = getpass.getuser()
-        if quiet:
-            slf.ctx.out("Using username: %s" % defuser)
+        if use_last:
+            self.ctx.out("Using username: %s" % defuser)
             return defuser
         else:
             rv = self.ctx.input("Username: [%s]" % defuser)
@@ -227,6 +242,9 @@ class SessionsControl(BaseControl):
 
 
 try:
-    register("sessions", SessionsControl)
+    register("sessions", SessionsControl, HELP)
 except NameError:
-    SessionsControl()._main()
+    if __name__ == "__main__":
+        cli = CLI()
+        cli.register("sessions", SessionsControl, HELP)
+        cli.invoke(sys.argv[1:])

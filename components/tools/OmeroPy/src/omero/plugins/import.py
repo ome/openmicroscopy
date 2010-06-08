@@ -8,21 +8,28 @@
 """
 
 import subprocess, optparse, os, sys, signal, time
-from omero.cli import Arguments, BaseControl, CLI, VERSION, OMERODIR
+from omero.cli import BaseControl, CLI, OMERODIR
 import omero.java
 
 START_CLASS="ome.formats.importer.cli.CommandLineImporter"
 TEST_CLASS="ome.formats.test.util.TestEngine"
 
+HELP = """Run the Java-based command-line importer"""
+TESTHELP = """Run the Importer TestEngine suite (devs-only)"""
+
 class ImportControl(BaseControl):
 
-    def __init__(self, ctx, dir = OMERODIR):
-        BaseControl.__init__(self, ctx, dir)
-        self.command = [ START_CLASS ]
+    COMMAND = [START_CLASS]
 
-    def _run(self, args = []):
-        args = Arguments(args)
-        self.ctx.conn(args)
+    def _configure(self, parser):
+        parser.add_argument("--longhelp", action="store_true", help="Show the Java help text")
+        parser.add_argument("---file", nargs="?", help="File for storing the standard out of the Java process")
+        parser.add_argument("---errs", nargs="?", help="File for storing the standard err of the Java process")
+        parser.add_argument("arg", nargs="*", help="Arguments to be passed to the Java process")
+        parser.set_defaults(func=self.importer)
+
+    def importer(self, args):
+
         client_dir = self.ctx.dir / "lib" / "client"
         log4j = "-Dlog4j.configuration=log4j-cli.properties"
         classpath = [ file.abspath() for file in client_dir.files("*.jar") ]
@@ -31,40 +38,33 @@ class ImportControl(BaseControl):
         # Here we permit passing ---file=some_output_file in order to
         # facilitate the omero.util.import_candidates.as_dictionary
         # call. This may not always be necessary.
-        out = None
-	err = None
-        for i in args.args:
-            if i.startswith("---file="):
-                out = i
-            if i.startswith("---errs="):
-                err = i
+        out = args.file
+	err = args.errs
+
         if out:
             args.args.remove(out)
-            out = open(out[8:], "w")
+            out = open(out, "w")
         if err:
             args.args.remove(err)
-            err = open(err[8:], "w")
+            err = open(err, "w")
 
-        a = self.command + args.as_args() + args.args
+        login_args = []
+        if not args.longhelp: # Then we need a login
+            client = self.ctx.conn(args)
+
+        a = self.COMMAND + login_args + args.arg
         p = omero.java.popen(a, debug=False, xargs = xargs, stdout=out, stderr=err)
         self.ctx.rv = p.wait()
 
-    def help(self, args = None):
-        self._run() # Prints help by default
-
-    def __call__(self, *args):
-        args = Arguments(args)
-        self._run(args)
-
-
 class TestEngine(ImportControl):
-
-    def __init__(self, ctx, dir = OMERODIR):
-        ImportControl.__init__(self, ctx, dir)
-        self.command = [ TEST_CLASS ]
+    COMMAND = [ TEST_CLASS ]
 
 try:
-    register("import", ImportControl)
-    register("testengine", TestEngine)
+    register("import", ImportControl, HELP)
+    register("testengine", TestEngine, HELP)
 except NameError:
-    ImportControl(None)._main()
+    if __name__ == "__main__":
+        cli = CLI()
+        cli.register("import", ImportControl, HELP)
+        cli.register("testengine", TestEngine, TESTHELP)
+        cli.invoke(sys.argv[1:])

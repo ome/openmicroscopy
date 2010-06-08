@@ -10,60 +10,84 @@
 import os
 import sys
 
-from omero.cli import Arguments, BaseControl, VERSION, OMERODIR
+from omero.cli import BaseControl, CLI
+
+HELP = "Support for adding and managing users"
 
 class UserControl(BaseControl):
 
-    def password(self, *args):
-        args = Arguments(args)
-        client = self.ctx.conn(args)
-        pw = self._ask_for_password()
+    def _configure(self, parser):
+        sub = parser.sub()
+
+        password = parser.add(sub, self.password, help = "Set user's password")
+        password.add_argument("user", nargs="?", help = "Username if not the current user")
+
+        add = parser.add(sub, self.add, help = "Add users")
+        add.add_argument("-m", "--middlename", help = "Middle name, if available")
+        add.add_argument("-e", "--email")
+        add.add_argument("-i", "--institution")
+        # Capitalized since conflict with main values
+        add.add_argument("-P", "--userpassword", help = "Password for user")
+        add.add_argument("-a", "--admin", help = "Whether the user should be an admin")
+        add.add_argument("username", help = "User's login name")
+        add.add_argument("firstname", help = "User's given name")
+        add.add_argument("lastname", help = "User's surname name")
+        add.add_argument("group", nargs="+", help = "Groups which the user is a member of")
+
+    def password(self, args):
         from omero.rtypes import rstring
-        client.sf.getAdminService().changePassword(rstring(pw))
+        client = self.ctx.conn(args)
+        admin = client.sf.getAdminService()
+        pw = self._ask_for_password()
+        pw = rstring(pw)
+        if args.user:
+            admin.changeUserPassword(args.user, pw)
+        else:
+            admin.changePassword(pw)
         self.ctx.out("Password changed")
 
-    def add(self, *args):
-        args = Arguments(args, shortopts="e:i:g:P:", longopts=["email=","institute=","group=", "userpassword="])
-        email = args.get_arg("email", "e")
-        inst = args.get_arg("institute", "i")
-        pasw = args.get_arg("userpassword", "P")
-        group = args.get_arg("group", "g")
-        if not group:
-            group = "CHANGE_ME"
+    def add(self, args):
+        email = args.email
+        login = args.username
+        first = args.firstname
+        middle = args.middlename
+        last = args.lastname
+        inst = args.institute
+        pasw = args.userpassword
 
-	l = len(args)
-        if l not in (3, 4):
-            self.ctx.die(2, "Usage: omename firstname [middlename] lastname")
-
-	if l == 3 :
-		on, fn, ln = args.args
-		mn = None
-	elif l == 4 :
-		on, fn, mn, ln = args.args
-
-	import omero, Ice
         from omero.rtypes import rstring
 	from omero_model_ExperimenterI import ExperimenterI as Exp
 	from omero_model_ExperimenterGroupI import ExperimenterGroupI as Grp
         c = self.ctx.conn(args)
 	p = c.ic.getProperties()
 	e = Exp()
-	e.omeName = rstring(on)
-	e.firstName = rstring(fn)
-	e.lastName = rstring(ln)
-	e.middleName = rstring(mn)
-	e.email = email and rstring(email) or None
-	e.institution = inst and rstring(inst) or None
+	e.omeName = rstring(login)
+	e.firstName = rstring(first)
+	e.lastName = rstring(last)
+	e.middleName = rstring(middle)
+	e.email = rstring(email)
+	e.institution = rstring(inst)
 	admin = c.getSession().getAdminService()
 
-        group = admin.lookupGroup(group)
+        groups = [admin.lookupGroup(group) for group in args.group]
+        roles = admin.getSecurityRoles()
+        groups.append(Grp(roles.userGroupId, False))
+        if args.admin:
+            groups.append(Grp(roles.systemGroupId, False))
+
         if pasw is None:
-            id = admin.createUser(e, group.name.val)
+            id = admin.createExperimenter(e, groups)
             self.ctx.out("Added user %s" % id)
         else:
-            user_group = Grp(admin.getSecurityRoles().userGroupId, False)
-            id = admin.createExperimenterWithPassword(e, rstring(pasw), group, [user_group])
+            group = groups.pop(0)
+            id = admin.createExperimenterWithPassword(e, rstring(pasw), group, groups)
             self.ctx.out("Added user %s with password" % id)
 
-register("user", UserControl)
+try:
+    register("user", UserControl, HELP)
+except NameError:
+    if __name__ == "__main__":
+        cli = CLI()
+        cli.register("user", UserControl, HELP)
+        cli.invoke(sys.argv[1:])
 

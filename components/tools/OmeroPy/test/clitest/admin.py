@@ -10,33 +10,44 @@
 
 import unittest, os, subprocess, StringIO
 from path import path
-from omero.plugins.admin import AdminControl
-from omero.cli import Context
+from omero.plugins.admin import AdminControl, NonZeroReturnCode
+from omero.cli import CLI
 
 omeroDir = path(os.getcwd()) / "build"
 
-class E1(Context):
-    def pub(self, args):
-        if not hasattr(self,"called"):
-            self.called = 1
-        else:
-            self.called = self.called + 1
+class MockCLI(CLI):
+    """
+    Prevents OS and server calls.
+    """
+
+    def conn(self, *args, **kwargs):
+        raise
+
+    def popen(self, *args, **kwargs):
+        raise
+
+    def call(self, *args, **kwargs):
+        raise
 
 class TestAdmin(unittest.TestCase):
+
+    def setUp(self):
+        self.cli = CLI()
+        self.cli.register("a", AdminControl, "TEST")
+
+    def invoke(self, string):
+        self.cli.invoke(string, strict=True)
+
     def testMain(self):
-        e1 = E1()
-        c = AdminControl(e1, omeroDir)
-        c._noargs()
-        c()
-    def testStart(self):
-        e1 = E1()
-        c = AdminControl(e1, omeroDir)
-        self.assert_(c._likes(None))
-        self.assert_(c._likes("start"))
-        c("start")
-        self.assert_(e1.called == 1)
-        c("start")
-        self.assert_(e1.called == 2)
+        try:
+            self.invoke("a")
+        except NonZeroReturnCode:
+            # Command-loop not implemented
+            pass
+
+    def testStartAsync(self):
+        self.invoke("a startasync")
+
     def testCheck(self):
         e1 = E1()
         c = AdminControl(e1, omeroDir)
@@ -56,6 +67,9 @@ class TestAdmin(unittest.TestCase):
         self.assert_( "omero" in l, str(l) )
         l = c._complete(t,l+"lib/",b,b+4)
         self.assert_( "omero" in l, str(l) )
+
+    def testProperMethodsUseConfigXml(self):
+        self.fail("NYI")
 
 if __name__ == '__main__':
     unittest.main()

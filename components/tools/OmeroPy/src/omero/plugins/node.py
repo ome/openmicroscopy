@@ -11,46 +11,14 @@
 
 """
 
-from omero.cli import Arguments, BaseControl
+from omero.cli import BaseControl, CLI
+from omero.util import tail_lines
 from omero_ext.strings import shlex
 import re, os, sys, signal
 from exceptions import Exception as Exc
 from path import path
 
-RE=re.compile("^\s*(\S*)\s*(start|stop|restart|status)\s*(\S*)\s*$")
-
-#From: http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/157035
-def tail_lines(filename,linesback=10,returnlist=0):
-    """Does what "tail -10 filename" would have done
-       Parameters::
-            filename   file to read
-            linesback  Number of lines to read from end of file
-            returnlist Return a list containing the lines instead of a string
-
-    """
-    avgcharsperline=75
-
-    file = open(filename,'r')
-    while 1:
-        try: file.seek(-1 * avgcharsperline * linesback,2)
-        except IOError: file.seek(0)
-        if file.tell() == 0: atstart=1
-        else: atstart=0
-
-        lines=file.read().split("\n")
-        if (len(lines) > (linesback+1)) or atstart: break
-        #The lines are bigger than we thought
-        avgcharsperline=avgcharsperline * 1.3 #Inc avg for retry
-    file.close()
-
-    if len(lines) > linesback: start=len(lines)-linesback -1
-    else: start=0
-    if returnlist: return lines[start:len(lines)-1]
-
-    out=""
-    for l in lines[start:len(lines)-1]: out=out + l + "\n"
-    return out
-
+HELP = "Control icegridnode."
 
 class NodeControl(BaseControl):
 
@@ -65,16 +33,22 @@ Syntax: %(program_name)s node [node-name ] [sync] [ start | stop | status | rest
         node-name cannot be "start", "stop", "restart", "status", or "sync".
         """ )
 
+    def _configure(self, parser):
+        sub = parser.sub()
+        start = parser.add(sub, self.start, help = "Start the node via icegridnode. With sync doesn't return until reachable")
+        stop = parser.add(sub, self.stop, help = "Stop the node via icegridadmin. With sync doesn't return until stopped")
+        status = parser.add(sub, self.status, help = "Prints a status message. Return code is non-zero if there is a problem")
+        restart = parser.add(sub, self.restart, help = "Calls 'sync start' then 'stop' ('sync stop' if sync is specified")
+
+
     def _likes(self, args):
-        args = Arguments(args)
         first, other = args.firstOther()
         return hasattr(self,first) or RE.match(args.join(" ")) and True or False
 
     def _noargs(self):
         self.help()
 
-    def __call__(self, *args):
-        args = Arguments(args)
+    def __call__(self, args):
         first, other = args.firstOther()
         try:
             name = self._node()
@@ -185,6 +159,9 @@ Syntax: %(program_name)s node [node-name ] [sync] [ start | stop | status | rest
         os.kill(int(pid), signal.SIGKILL)
 
 try:
-    register("node", NodeControl)
+    register("node", NodeControl, HELP)
 except NameError:
-    NodeControl()._main()
+    if __name__ == "__main__":
+        cli = CLI()
+        cli.register("node", NodeControl, HELP)
+        cli.invoke(sys.argv[1:])

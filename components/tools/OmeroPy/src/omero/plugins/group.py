@@ -10,20 +10,33 @@
 import os
 import sys
 
-from omero.cli import Arguments, BaseControl, VERSION, OMERODIR
+from omero.cli import BaseControl, CLI
+
+HELP="""
+    Group administration methods
+"""
 
 class GroupControl(BaseControl):
 
-    def add(self, *args):
-        args = Arguments(args, longopts=["perms="])
-        perms = args.get_arg("perms", None)
+    def _configure(self, parser):
+        sub = parser.sub()
+        add = parser.add(sub, self.add, "Add a new group with given permissions")
+        add.add_argument("name", help="ExperimenterGroup.name value")
+        group = add.add_mutually_exclusive_group()
+        group.add_argument("--perms", default="rw----", help="Group permissions set as string, e.g. 'rw----' ")
+        group.add_argument("--type", default="private", help="Group permission set symbollically",
+            choices=("private", "read-only", "collaborative"))
+
+    def add(self, args):
+
+        perms = args.perms
         if not perms:
-            perms = "rw----"
-
-        if len(args) != 1:
-            self.ctx.die(2, "Usage: --perms=[rwrwrw] <group name>")
-
-        group_name = args.args[0]
+            if args.type == "private":
+                perms = "rw----"
+            elif args.type == "read-only":
+                perms = "rwr---"
+            elif args.type == "collaborative":
+                perms = "rwrw--"
 
 	import omero, Ice
         from omero.rtypes import rstring
@@ -33,11 +46,16 @@ class GroupControl(BaseControl):
         c = self.ctx.conn(args)
 	p = c.ic.getProperties()
 	g = Grp()
-        g.name = rstring(group_name)
+        g.name = rstring(args.name)
         g.details.permissions = Perms(perms)
 	admin = c.getSession().getAdminService()
 	id = admin.createGroup(g)
 	self.ctx.out("Added group %s with permissions %s" % (id, perms))
 
-register("group", GroupControl)
-
+try:
+    register("group", GroupControl, HELP)
+except NameError:
+    if __name__ == "__main__":
+        cli = CLI()
+        cli.register("group", GroupControl, HELP)
+        cli.invoke(sys.argv[1:])

@@ -10,9 +10,13 @@
 
 """
 
-from omero.cli import CLI, BaseControl
+from omero.cli import BaseControl, CLI
 import cmd, sys, exceptions
 import sys
+
+HELP = """
+  Execute HQL queries from the command-line
+"""
 
 class HqlCLI(CLI):
 
@@ -24,7 +28,7 @@ class HqlCLI(CLI):
         self.prompt = HqlCLI.prompt % str(0)
 
     def invoke(self, args):
-        args = Arguments(args)
+        pass
 
 class HqlControl(BaseControl):
 
@@ -37,8 +41,7 @@ Syntax: %(program_name)s hql param1=value1 param2=value2 select x from X ...
         will run any entered query with the current parameters.
         """)
 
-    def __call__(self, *args):
-        args = Arguments(args)
+    def __call__(self, args):
         hql = HqlCLI()
         if len(args) > 0:
             hql.invoke(args)
@@ -46,6 +49,9 @@ Syntax: %(program_name)s hql param1=value1 param2=value2 select x from X ...
             hql.invokeloop()
 
 try:
-    register("hql", HqlControl)
+    register("hql", HqlControl, HELP)
 except NameError:
-    HqlControl()._main()
+    if __name__ == "__main__":
+        cli = CLI()
+        cli.register("hql", HqlControl, HELP)
+        cli.invoke(sys.argv[1:])

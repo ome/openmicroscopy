@@ -42,8 +42,7 @@ class SetupControl(BaseControl):
 Syntax: %(program_name)s setup [simple|intermediate|advanced] [+|-psql] [+|-django] [+|-jboss] [dirs]
         """)
 
-    def __call__(self, *args):
-        args = Arguments(args)
+    def __call__(self, args):
 
         p = optparse.OptionParser()
         g = optparse.OptionGroup(p, "Skill level","Number of questions asked by setup")

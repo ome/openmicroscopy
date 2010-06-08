@@ -21,9 +21,11 @@ def additional_tests():
     suite.addTest(load("clitest.args"))
     suite.addTest(load("clitest.cli"))
     suite.addTest(load("clitest.db"))
+    suite.addTest(load("clitest.export"))
     suite.addTest(load("clitest.java"))
     suite.addTest(load("clitest.node"))
     suite.addTest(load("clitest.base"))
+    suite.addTest(load("clitest.prefs"))
     suite.addTest(load("clitest.rcode"))
     suite.addTest(load("clitest.sess"))
     return suite

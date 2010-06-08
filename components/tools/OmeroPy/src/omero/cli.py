@@ -11,7 +11,7 @@ Usable via the ./omero script provided with the distribution
 as well as from python via "import omero.cli; omero.cli.argv()"
 
 Arguments are taken from (in order of priority): the run method
-arguments, sys.argv, and finally from standard in using the
+arguments, sys.argv, and finally from standard-in using the
 cmd.Cmd.cmdloop method.
 
 Josh Moore, josh at glencoesoftware.com
@@ -23,12 +23,15 @@ See LICENSE for details.
 sys = __import__("sys")
 
 import cmd, string, re, os, subprocess, socket, exceptions, traceback, glob, platform, time
-import shlex as pyshlex
+import shlex
 from exceptions import Exception as Exc
 from threading import Thread, Lock
-from omero_ext.argparse import ArgumentError, ArgumentParser, SUPPRESS
-from omero.util.sessions import SessionsStore
 from path import path
+
+from omero_ext.argparse import ArgumentError, ArgumentParser, RawTextHelpFormatter, FileType, SUPPRESS
+from omero.util.sessions import SessionsStore
+
+import omero
 
 #
 # Static setup
@@ -65,13 +68,9 @@ LINEWSP = re.compile("^\s*\w+\s+")
 # Possibilities:
 #  - Always return and print any output
 #  - Have a callback on the fired event
-#  - switch register() to take a class.
 #  - how should state machine work?
 #   -- is the last control stored somwhere? in a stack history[3]
 #   -- or do they all share a central memory? self.ctx["MY_VARIABLE"]
-#  - add an argument class which is always used at the top of a control
-#    def somemethod(self, args): # args always assumed to be a shlex'd arg, but checked
-#        arg = Arguments(args)
 #  - In almost all cases, mark a flag in the CLI "lastError" and continue,
 #    allowing users to do something of the form: on_success or on_fail
 
@@ -85,301 +84,39 @@ class NonZeroReturnCode(Exc):
         self.rv = rv
         Exc.__init__(self, *args)
 
-class BadArgument(Exc): pass
-
 
 #####################################################
 #
-class Arguments:
+
+class Parser(ArgumentParser):
     """
-    Wrapper for arguments in all controls. All non-"_" control methods are
-    assumed to take some representation of the command line. This can either
-    be:
-
-        - the line as a string
-        - the shlex'd line as a string list
-
-    To simplify usage, this class can be used at the beginning of every
-    method so::
-
-        def method(self, *args):
-            args = Arguments(args)
-
-    and it will handle the above cases as well as wrapping other Argument
-    instances.
-
+    Extension of ArgumentParser for simplifying the
+    _configure() code in most Controls
     """
 
-    def __init__(self, args = [], shortopts = None, longopts = None):
+    def sub(self):
+        sub = self.add_subparsers(title="Subcommands", help="""
+                Use %(prog)s <subcommand> -h for more information.
+        """)
+        return sub
 
-        original = args
-
-        self.argmap = {}
-        self.opts = {}
-        self.longopts = longopts
-        self.shortopts = shortopts
-
-        if args == None:
-            self.args = []
-        elif isinstance(args, Arguments):
-            self._copy_args(args)
-            opts, self.args = self._argparse(self.args, shortopts, longopts)
-            self.opts.update(opts)
-        elif isinstance(args, (str, unicode)):
-            self.args = self.shlex(args)
-            self._apply_opts()
-            self._make_argmap()
-        elif isinstance(args, (list, tuple)):
-            skip = False
-            if len(args) == 1:
-                if isinstance(args[0], (list, tuple)):
-                    args = args[0] # Unwrap if necessary
-                for l in args:
-                    if isinstance(l, (str, unicode)):
-                        pass
-                    elif isinstance(l, Arguments):
-                        self._copy_args(l)
-                        opts, self.args = self._argparse(self.args, shortopts, longopts)
-                        self.opts.update(opts)
-                        skip = True
-                        continue
-                    else:
-                        raise BadArgument("arg not string: %s in %s" % (l, args))
-            if not skip:
-                self.args = list(args)
-                self._apply_opts()
-                self._make_argmap()
-        else:
-            raise BadArgument("Unknown argument: %s" % args)
-
-    def _copy_args(self, args):
-        self.longopts = args.longopts
-        self.shortopts = args.shortopts
-        self.opts = dict(args.opts)
-        self.args = list(args.args)
-        self.argmap = dict(args.argmap)
-
-    def _apply_opts(self):
-
-        if self.longopts == None:
-            self.longopts = []
-        if not 'quiet' in self.longopts:
-            self.longopts = ['quiet'] + self.longopts
-
-        if self.shortopts == None:
-            self.shortopts = ''
-        if not 'q' in self.shortopts:
-            self.shortopts = 'q' + self.shortopts
-
-        lloginopts = ["create", "server=", "port=", "user=", "key=", "password="]
-        sloginopts = "Cs:p:u:k:w:"
-
-        for l in lloginopts:
-            if l in self.longopts:
-                raise BadArgument("Duplicate longopt: %s", l)
-
-        for s in sloginopts:
-            if s in self.shortopts and s != ":":
-                raise BadArgument("Duplicate shortopt: %s", s)
-
-        self.longopts = lloginopts + self.longopts
-        self.shortopts = "%s%s" % (sloginopts, self.shortopts)
-        self.opts, self.args = self._argparse(self.args, self.shortopts, self.longopts)
-
-    def _argparse(self, args, shortopts, longopts):
-
-        try:
-            # TODO: currently adapting getopt like parameters
-            # to use argparse, but a better way to use argparse
-            # may be to replace this class completely!
-            #
-            a = ArgumentParser()
-
-            if shortopts is not None:
-                i = 0
-                while i < len(shortopts):
-                    o = shortopts[i]
-                    c = "store_true"
-                    try:
-                        if shortopts[i+1] == ":":
-                            i += 1
-                            c = "store"
-                    except IndexError:
-                        pass
-                    a.add_argument("-%s" % o, default=SUPPRESS, action=c, required=False)
-                    i += 1
-
-            if longopts is not None:
-                for o in longopts:
-                    c = "store_true"
-                    if o.endswith("="):
-                        o = o[:-1]
-                        c = "store"
-                    a.add_argument("--%s" % o, default=SUPPRESS, action=c, required=False)
-
-            ns, args = a.parse_known_args(args)
-            opts = dict(ns._get_kwargs())
-            return opts, args
-        except ArgumentError, ae:
-            raise BadArgument(ae)
-
-    def _make_argmap(self):
-        for arg in self.args:
-            parts = arg.split("=", 1)
-            if parts[0] in self.argmap:
-                # ticket:2062 raise BadArgument("Argument overwrite: %s" % parts[0])
-                pass
-            if len(parts) == 1:
-                self.argmap[parts[0]] = True
-            else:
-                self.argmap[parts[0]] = parts[1]
-
-    def is_quiet(self):
-        return "q" in self.opts or "quiet" in self.opts
-
-    def firstOther(self):
-        """
-        Returns the first non-opts argument to this instance as a string,
-        and a second Arguments object with that first argument removed.
-        """
-        other = Arguments(self)
-        if len(self.args) == 0:
-            return (None, other)
-
-        first = self.args[0]
-        other.popFirst()
-        return (first, other)
-
-    def popFirst(self):
-        rv = self.args.pop(0)
-        self.argmap.pop(rv)
-        return rv
-
-    def insert(self, idx, key, value = True):
-        """
-        Allows to undo the effects of popFirst or firstOther
-        """
-        self.args.insert(idx, key)
-        self.argmap[key] = value
-
-    def shlex(self, input):
-        """
-        Used to split a string argument via shlex.split(). If the
-        argument is not a string, then it is returned unchnaged.
-        This is useful since the arg argument to all plugins can
-        be either a list or a string.
-        """
-        if None == input:
-            return []
-        elif isinstance(input, str):
-            return pyshlex.split(input)
-        else:
-            return input
-
-    #######################################
-    #
-    # Usability methods :
-    # Allow an Argument instance to be used
-    # more like a list and a dict
-    #
-    def get(self, key, defvalue):
-        return self.argmap.get(key, defvalue)
-    def __iter__(self):
-        return iter(self.args)
-    def __len__(self):
-        return len(self.args)
-    def __str__(self):
-        return ", ".join(self.args)
-    def join(self, text):
-        return text.join(self.args)
-    def __getitem__(self, idx):
-        """
-        For every argument without an "=" we return True. Otherwise,
-        the value following the first "=" is returned.
-        """
-        return self.argmap[idx]
-
-    def getBool(self, key, defvalue):
-        value = self.get(key, defvalue)
-        value = str(value).lower()
-        return value in ("true", "yes", "1")
-
-    def getInt(self, key, defvalue):
-        value = self.get(key, defvalue)
-        if value is None:
-            return value
-        else:
-            value = int(value)
-            return value
-
-    #######################################
-    #
-    # Login methods
-    #
-
-    def is_arg(self, long, short):
-        return long in self.opts or short in self.opts
-
-    def get_arg(self, long, short):
-        rv = self.opts.get(long, None)
-        if not rv:
-            rv = self.opts.get(short, None)
-        return rv
-
-    def is_create(self): return self.is_arg("create", "C")
-    def get_server(self): return self.get_arg("server", "s")
-    def get_port(self): return self.get_arg("port", "p")
-    def get_user(self): return self.get_arg("user", "u")
-    def get_password(self): return self.get_arg("password", "w")
-    def get_key(self): return self.get_arg("key", "k")
-
-    def as_props(self):
-        props = {}
-        srv = self.get_server()
-        prt = self.get_port()
-        key = self.get_key()
-        usr = self.get_user()
-        psw = self.get_password()
-
-        if srv: props["omero.host"] = srv
-        if prt: props["omero.port"] = prt
-        if key:
-            props["omero.user"] = key
-            props["omero.pass"] = key
-        else:
-            if usr: props["omero.user"] = usr
-            if psw: props["omero.pass"] = psw
-
-    def as_args(self):
-        args = []
-        srv = self.get_server()
-        prt = self.get_port()
-        key = self.get_key()
-        usr = self.get_user()
-        psw = self.get_password()
-
-        if self.is_create(): args.append("-C")
-        if srv: args.extend(["-s", srv])
-        if prt: args.extend(["-p", prt])
-        if key: args.extend(["-k", key])
-        if usr: args.extend(["-u", usr])
-        if psw: args.extend(["-w", psw])
-
-        return args
-
-    def for_pub(self, *args):
-        return Arguments(list(self.as_args())+list(args))
-
-    def acquire(self, ctx):
-        """
-        If passed a context object, will use the current settings to connect.
-        If required attributes are missing, will delegate to the login command.
-        """
-        ctx.pub(["sessions", "login"] + self.as_args())
+    def add(self, sub, func, help, **kwargs):
+        parser = sub.add_parser(func.im_func.__name__, help=help)
+        parser.set_defaults(func=func, **kwargs)
+        return parser
 
 
-#####################################################
-#
+class NewFileType(FileType):
+    """
+    Extension of the argparse.FileType to prevent
+    overwrite existing files.
+    """
+    def __call__(self, string):
+        if os.path.exists(string):
+            raise ValueError("File exists: %s" % string)
+        return FileType.__call__(self, string)
+
+
 class Context:
     """Simple context used for default logic. The CLI registry which registers
     the plugins installs itself as a fully functional Context.
@@ -397,6 +134,21 @@ class Context:
         self.controls = controls
         self.dir = OMERODIR
         self.isdebug = DEBUG # This usage will go away and default will be False
+        self.parser = Parser(prog=sys.argv[0], formatter_class=RawTextHelpFormatter)
+        self.subparsers = self.parser_init(self.parser)
+
+    def parser_init(self, parser):
+        parser.add_argument("-v", "--version", action="version", version="%%(prog)s %s" % VERSION)
+        parser.add_argument("-s", "--server")
+        parser.add_argument("-p", "--port")
+        parser.add_argument("-g", "--group")
+        parser.add_argument("-u", "--user")
+        parser.add_argument("-w", "--password")
+        parser.add_argument("-k", "--key")
+        parser.add_argument("-C", "--create", action="store_true")
+        parser.add_argument("-L", "--last", action="store_true")
+        subparsers = parser.add_subparsers(title="Subcommands")
+        return subparsers
 
     def get(self, key, defvalue = None):
         return self.params.get(key, defvalue)
@@ -513,12 +265,16 @@ class Context:
 class BaseControl:
     """Controls get registered with a CLI instance on loadplugins().
 
-    To create a new control, subclass BaseControl and end your module with::
+    To create a new control, subclass BaseControl, implement _configure,
+    and end your module with::
 
         try:
-            registry("name", MyControl)
+            register("name", MyControl, HELP)
         except:
-            MyControl()._main()
+            if __name__ == "__main__":
+                cli = CLI()
+                cli.register("name", MyControl, HELP)
+                cli.invoke(sys.argv[1:])
 
     This module should be put in the omero.plugins package.
 
@@ -739,13 +495,12 @@ class BaseControl:
         no arguments are given, True is returned since self._noargs()
         can be called.
         """
-        args = Arguments(args)
         first, other = args.firstOther()
         if first == None or hasattr(self, first):
             return True
         return False
 
-    def __call__(self, *args):
+    def __call__(self, args):
         """
         Main dispatch method for a control instance. The default
         implementation assumes that the *args consists of either
@@ -757,7 +512,6 @@ class BaseControl:
         Otherwise, the rest of the arguments are passed to the method
         named by the first argument, if _likes() returns True.
         """
-        args = Arguments(args)
         first, other = args.firstOther()
         if first == None:
             self._noargs()
@@ -800,6 +554,10 @@ class HelpControl(BaseControl):
     slow to have all help available
     """
 
+    def _configure(self, parser):
+        parser.set_defaults(func=self.__call__)
+        parser.add_argument("topic", nargs="?", help="Topic for more information")
+
     def _complete(self, text, line, begidx, endidx):
         """
         This is something of a hack. This should either be a part
@@ -808,19 +566,13 @@ class HelpControl(BaseControl):
         """
         return self.ctx.completenames(text, line, begidx, endidx)
 
-    def help(self, args = None):
-        self.out("Print help")
-
-    def __call__(self, *args):
-
-        args = Arguments(args)
-        first, other = args.firstOther()
+    def __call__(self, args):
 
         self.ctx.waitForPlugins()
         controls = self.ctx.controls.keys()
         controls.sort()
 
-        if not first:
+        if not args.topic:
             print """OmeroCli client, version %(version)s
 
 Usage: %(program_name)s <command> [options] args
@@ -833,16 +585,19 @@ Available commands:
             for name in controls:
                 print """ %s""" % name
             print """
-For additional information, see http://trac.openmicroscopy.org.uk/omero/wiki/OmeroCli"""
+For additional information, see http://trac.openmicroscopy.org.uk/omero/wiki/OmeroCli
+Report bugs to <ome-users@openmicroscopy.org.uk>"""
 
         else:
             try:
-                self.ctx.controls[first].help_method()
-                ##event = [first, "help"]
-                ##event.extend(other)
-                ##self.ctx.pub(event)
+                c = self.ctx.controls[args.topic]
+                if hasattr(c, "help"):
+                    c.help(args)
+                else:
+                    self.ctx.err("No extended help")
             except KeyError, ke:
-                self.ctx.unknown_command(first)
+                self.ctx.unknown_command(args.topic)
+
 
 class CLI(cmd.Cmd, Context):
     """
@@ -894,31 +649,37 @@ class CLI(cmd.Cmd, Context):
         """
         Copied from cmd.py
         """
-        line = self.precmd(line)
-        stop = self.onecmd(line)
-        stop = self.postcmd(stop, line)
-        if strict:
-            self.assertRC()
+        try:
+            line = self.precmd(line)
+            stop = self.onecmd(line)
+            stop = self.postcmd(stop, line)
+            if strict:
+                self.assertRC()
+        finally:
+            self.close()
 
     def invokeloop(self):
-        self.selfintro = TEXT
-        if not self.stdin.isatty():
-            self.selfintro = ""
-            self.prompt = ""
-        while not self.interrupt_loop:
-            try:
-                self.cmdloop(self.selfintro)
-            except KeyboardInterrupt, ki:
-                # We've done the intro once now. Don't repeat yourself.
+        try:
+            self.selfintro = TEXT
+            if not self.stdin.isatty():
                 self.selfintro = ""
+                self.prompt = ""
+            while not self.interrupt_loop:
                 try:
-                    import readline
-                    if len(readline.get_line_buffer()) > 0:
-                        self.out("")
-                    else:
+                    self.cmdloop(self.selfintro)
+                except KeyboardInterrupt, ki:
+                    # We've done the intro once now. Don't repeat yourself.
+                    self.selfintro = ""
+                    try:
+                        import readline
+                        if len(readline.get_line_buffer()) > 0:
+                            self.out("")
+                        else:
+                            self.out("Use quit to exit")
+                    except ImportError:
                         self.out("Use quit to exit")
-                except ImportError:
-                    self.out("Use quit to exit")
+        finally:
+            self.close()
 
     def precmd(self, input):
         if isinstance(input,str):
@@ -931,16 +692,21 @@ class CLI(cmd.Cmd, Context):
             # Starting a new command. Reset the return value to 0
             # If err or die are called, set rv non-0 value
             self.rv = 0
-            return cmd.Cmd.onecmd(self, line)
-        except BadArgument, exc:
-            self.rv = -1
+            return self.execute(line)
+        except SystemExit, exc: # Thrown by argparse
+            self.rv = exc.code
             self.err("Bad arguments: %s" % exc)
             return False
-        except AttributeError, ae:
-            self.err("Possible error in plugin:")
-            self.err(str(ae))
-            if self.isdebug:
-                traceback.print_exc()
+        #
+        # This was perhaps only needed previously
+        # Omitting for the moment with the new
+        # argparse refactoring
+        #
+        #except AttributeError, ae:
+        #    self.err("Possible error in plugin:")
+        #    self.err(str(ae))
+        #    if self.isdebug:
+        #        traceback.print_exc()
         except NonZeroReturnCode, nzrc:
             self.rv = nzrc.rv
         return False # Continue
@@ -948,42 +714,29 @@ class CLI(cmd.Cmd, Context):
     def postcmd(self, stop, line):
         return self.interrupt_loop
 
-    def emptyline(self):
-        pass
+    def execute(self, line):
 
-    def parseline(self, line):
-        """
-        Overrides the parseline functionality of cmd.py in order to
-        take command line parameters without shlex'ing and unshlex'ing
-        them. If "line" is an array, then the first element will be
-        returned as "cmd" and the rest as "args".
-        """
-        if isinstance(line,list):
-            if not line:
-                return (None, None, None)
-            elif len(line) == 0:
-                return (None, None, "")
-            elif len(line) == 1:
-                return (line[0], "", line[0])
-            else:
-                return (line[0], line[1:], Arguments(line))
-        elif isinstance(line, Arguments):
-            first, other = line.firstOther()
-            return (first, other, line) # Passing new args instance as "other"
-        else:
-            return cmd.Cmd.parseline(self, line)
-
-    def default(self, arg):
-        args = Arguments(arg)
-        try:
-            args["EOF"]
+        if line == "EOF" or line == ["EOF"]:
             self.exit("")
-        except KeyError:
+
+        if isinstance(line, (str, unicode)):
+            args = shlex.split(line)
+        else:
+            args = list(line)
+
+        args = self.parser.parse_args(args)
+        args.prog = self.parser.prog
+        self.waitForPlugins()
+        args.func(args)
+
+        # How to handle: background loading, unknown commands, do_ methods, delegation
+        if False:
             first, other = args.firstOther()
             file = OMEROCLI / "plugins" / (first + ".py")
             loc = {"register": self.register}
             try:
                 execfile( str(file), loc )
+                print loc.keys()
             except Exc, ex:
                 self.dbg("Could not load %s: %s" % (first, ex))
                 self.waitForPlugins()
@@ -993,10 +746,7 @@ class CLI(cmd.Cmd, Context):
             elif hasattr(self, "do_%s" % first):
                 return getattr(self, "do_%s" % first)(other)
             else:
-                self.unknown_command(first)
-
-    def unknown_command(self, first):
-            self.err("""Unknown command: "%s" Try "help".""" % first)
+                self.err("""Unknown command: "%s" Try "help".""" % first)
 
     def completenames(self, text, line, begidx, endidx):
         names = self.controls.keys()
@@ -1088,9 +838,9 @@ class CLI(cmd.Cmd, Context):
             raise NonZeroReturnCode(rv, "%s => %d" % (" ".join(args), rv))
         return rv
 
-    def popen(self, args, cwd = None):
+    def popen(self, args, cwd = None, stdout = subprocess.PIPE, stderr = subprocess.PIPE):
         self.dbg("Returning popen: %s" % args)
-        return subprocess.Popen(args, env = self._env(), cwd = self._cwd(cwd), stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        return subprocess.Popen(args, env = self._env(), cwd = self._cwd(cwd), stdout = stdout, stderr = stderr)
 
     def readDefaults(self):
         try:
@@ -1142,6 +892,14 @@ class CLI(cmd.Cmd, Context):
         """
         Returns any active _client object. If one is present but
         not alive, it will be removed.
+
+        If no client is found and arguments are available,
+        will use the current settings to connect.
+
+        If required attributes are missing, will delegate to the login command.
+
+        FIXME: Currently differing setting sessions on the same CLI instance
+        will misuse a client.
         """
         if self._client:
             self.dbg("Found client")
@@ -1155,69 +913,38 @@ class CLI(cmd.Cmd, Context):
                 self.dbg("Removing client")
                 self._client.closeSession()
                 self._client = None
+
         if args is not None:
-            args.acquire(self)
-            if self._client:
-                args.opts["k"] = self._client.sf.ice_getIdentity().name
+            self.controls["sessions"].login(args)
 
         return self._client # Possibly added by "login"
+
+    def close(self):
+        client = self._client
+        if client:
+            self.dbg("Closing client: %s" % client)
+            client.__del__()
 
     ##
     ## Plugin registry
     ##
 
-    def register(self, name, Control):
+    def register(self, name, Control, help):
         """ This method is added to the globals when execfile() is
-        called on each plugin. An instance of the control should be
+        called on each plugin. A Control class should be
         passed to the register method which will be added to the CLI.
         """
-
-        class Wrapper:
-            def __init__(self, ctx, control):
-                self.ctx = ctx
-                self.Control = Control
-                self.control = None
-            def _setup(self):
-                if self.control == None:
-                    self.control = self.Control(ctx = self.ctx)
-            def do_method(self, *args):
-                try:
-                    self._setup()
-                    return self.control.__call__(*args)
-                except NonZeroReturnCode, nzrc:
-                    raise
-                except Exc, exc:
-                    if self.ctx.isdebug:
-                        traceback.print_exc()
-                    ## Prevent duplication - self.ctx.err("Error:"+str(exc))
-                    self.ctx.die(10, str(exc))
-            def complete_method(self, *args):
-                try:
-                    self._setup()
-                    return self.control._complete(*args)
-                except Exc, exc:
-                    self.ctx.err("Completion error:"+str(exc))
-            def help_method(self, *args):
-                try:
-                    self._setup()
-                    return self.control.help(*args)
-                except Exc, exc:
-                    self.ctx.err("Help error:"+str(exc))
-            def __call__(self, *args):
-                """
-                If the wrapper gets treated like the control
-                instance, and __call__()'d, then pass the *args
-                to do_method()
-                """
-                return self.do_method(*args)
-
-        wrapper = Wrapper(self, Control)
-        setattr(self, "do_" + name, wrapper.do_method)
-        setattr(self, "complete_" + name, wrapper.complete_method)
-        setattr(self, "help_" + name, wrapper.help_method)
-        self.controls[name] = wrapper
+        control = Control(ctx = self)
+        parser = self.subparsers.add_parser(name, help=help)
+        if hasattr(control, "_configure"):
+            control._configure(parser)
+        elif hasattr(control, "__call__"):
+            parser.set_defaults(func=control.__call__)
+        self.controls[name] = control
 
     def waitForPlugins(self):
+        if True:
+            return # Disabling. See comment in argv
         self.dbg("Starting waitForPlugins")
         while not self._pluginsLoaded.get():
             self.dbg("Waiting for plugins...")
@@ -1274,7 +1001,7 @@ def argv(args=sys.argv):
             args = parts
 
         cli = CLI()
-        cli.register("help", HelpControl)
+        cli.register("help", HelpControl, "Extend help for all commands")
         class PluginLoader(Thread):
             def run(self):
                 cli.loadplugins()
