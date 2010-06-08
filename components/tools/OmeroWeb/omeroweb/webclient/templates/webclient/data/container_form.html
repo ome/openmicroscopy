@@ -55,7 +55,7 @@
             <tr><td>{{ field }}</td><td>{{ field.help_text|safe }}</td></tr>
         {% endfor %}
         </table>
-        <input type="submit" value="{% trans 'Save' %}" /> <input type="button" onclick='document.location.href="{{ url }}";' value="{% trans 'Cancel' %}" />
+        <input type="submit" value="{% trans 'Save' %}" /> <input type="button" onClick="history.go(-1);return true;" value="{% trans 'Cancel' %}" />
     </form>
     <script type="text/javascript">
         var googie_spell = new GoogieSpell("static_core/googiespell/", "{% url spellchecker %}"+"?lang=");

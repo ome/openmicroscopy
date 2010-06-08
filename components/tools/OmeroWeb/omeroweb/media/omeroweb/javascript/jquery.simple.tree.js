@@ -203,23 +203,8 @@ $.fn.simpleTree = function(opt){
 				var LI = this;
 				var childNode = $('>ul',this);
 				if(childNode.size()>0){
-				    var unknown = 0;
-				    if(this.id.match(/(orphaned)/)) {
-				        var setClassName = 'orfolder-'; 
-					} else if(this.id.match(/(tag)+-[0-9]+/)) {
-    					var setClassName = 'tag-';
-                    } else if(this.id.match(/(sh)+-[0-9]+/)) {
-    					var setClassName = 'share-';
-                    } else if(this.id.match(/(pr)+-[0-9]+/)) {
-    					var setClassName = 'folder-';
-					} else if(this.id.match(/(sc)+-[0-9]+/)) {
-    					var setClassName = 'folder2-';
-					} else if(this.id.match(/(ds)+-[0-9]+/)) {
-					    var setClassName = 'subfolder-';
-					} else {
-					    var setClassName = 'doc';
-					    unknown = 1;
-					}
+				    var unknown = 0
+				    var setClassName = 'folder-';
 					
 					if(unknown < 1) {
 					    if(className && className.indexOf('open')>=0){
@@ -236,21 +221,40 @@ $.fn.simpleTree = function(opt){
 
 					TREE.setTrigger(this);
 				} else {
-				    if(this.id.match(/(disc)+-[0-9]+/)) {
-    					var setClassName = 'doc3'; 
-                    } else if (this.id.match(/(pl)+-[0-9]+/)) {
-					    var setClassName = 'doc2';
-				    } else {
-				        var setClassName = 'doc';
-				    }
-				    this.className = setClassName + ($(this).is(':last-child')? '-last':'');
+				    var setClassName = 'doc'; 
+                    this.className = setClassName + ($(this).is(':last-child')? '-last':'');
 				}
+				TREE.setIcon(this);
 			}).before('<li class="line">&nbsp;</li>')
 			.filter(':last-child').after('<li class="line-last"></li>');
 			if($('>li',$('>ul',obj)).size()==0) {
 				$('>ul',obj).append('<li class="line-last"></li>');
 			}
 			TREE.setEventLine($('.line, .line-last', obj));
+		};
+		TREE.setIcon = function(node){
+		    var pic = null
+		    if(node.id.indexOf('orphaned')>=0){    
+		        pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/folder_yellow16.png" alt="orphaned"/>';
+		    } else if(node.id.indexOf('pr')>=0){
+    		    pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/folder16.png" alt="project"/>';
+    		} else if(node.id.indexOf('ds')>=0){    
+		        pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/folder_image16.png" alt="dataset"/>';
+            } else if(node.id.indexOf('img')>=0){    
+		        pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/image16.png" alt="image"/>';
+            } else if(node.id.indexOf('sc')>=0){    
+		        pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/folder_screen16.png" alt="screen"/>';
+            } else if(node.id.indexOf('pl')>=0){    
+		        pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/folder_plate16.png" alt="plate"/>';
+            } else{
+		        pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/image16.png" alt="image"/>';
+		    }
+			$('>span',node).before(pic);
+			var icon = $('>.icon', node);
+			if(!$.browser.msie)
+			{
+				icon.css('float','left');
+			}
 		};
 		TREE.setTrigger = function(node){
 			$('>span',node).before('<img class="trigger" src="/appmedia/omeroweb/images/tree/spacer.gif" border=0>');
@@ -397,6 +401,7 @@ $.fn.simpleTree = function(opt){
 			node[0].className = node[0].className.replace('doc','folder-open');
 			node.append('<ul><li class="line-last"></li></ul>');
 			TREE.setTrigger(node[0]);
+			TREE.setIcon(node[0]);
 			TREE.setEventLine($('.line, .line-last', node));
 		};
 		TREE.convertToDoc = function(node){

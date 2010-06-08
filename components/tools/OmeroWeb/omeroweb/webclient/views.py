@@ -573,7 +573,6 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
             logger.error(traceback.format_exc())
         if url is None:
             url = reverse(viewname="load_template", args=[menu])
-        
     
     # get page 
     try:

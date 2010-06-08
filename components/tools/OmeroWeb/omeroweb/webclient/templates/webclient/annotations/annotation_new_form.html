@@ -33,7 +33,7 @@
                 <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
             </tr>
         {% endfor %}
-            <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /> <input type="button" onclick='document.location.href="{{ url }}#annotation_tab";' value="{% trans 'Cancel' %}" /></td></tr>
+            <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /> <input type="button" onClick="history.go(-1);return true;" value="{% trans 'Cancel' %}" /></td></tr>
     </table>
     </form>
     <script type="text/javascript">
@@ -56,7 +56,7 @@
                 <td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
             </tr>
         {% endfor %}
-        <tr><td></td><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /> <input type="button" onclick='document.location.href="{{ url }}#annotation_tab";' value="{% trans 'Cancel' %}" /></td></tr>
+        <tr><td></td><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /> <input type="button" onClick="history.go(-1);return true;" value="{% trans 'Cancel' %}" /></td></tr>
         </table>
     </form>
 </div>
@@ -75,7 +75,7 @@
             <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
         </tr>
     {% endfor %}
-    <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /> <input type="button" onclick='document.location.href="{{ url }}#annotation_tab";' value="{% trans 'Cancel' %}" /></td></tr>
+    <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /> <input type="button" onClick="history.go(-1);return true;" value="{% trans 'Cancel' %}" /></td></tr>
     </table>
     </form>
 </div>
@@ -94,7 +94,7 @@
             <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
         </tr>
     {% endfor %}
-    <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /> <input type="button" onclick='document.location.href="{{ url }}#annotation_tab";' value="{% trans 'Cancel' %}" /></td></tr>
+    <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /> <input type="button" onClick="history.go(-1);return true;" value="{% trans 'Cancel' %}" /></td></tr>
     </table>
     </form>
 </div>
@@ -113,7 +113,7 @@
             <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
         </tr>
     {% endfor %}
-    <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /> <input type="button" onclick='document.location.href="{{ url }}#annotation_tab";' value="{% trans 'Cancel' %}" /></td></tr>
+    <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /> <input type="button" onClick="history.go(-1);return true;" value="{% trans 'Cancel' %}" /></td></tr>
     </table>
     </form>
 </div>
@@ -130,7 +130,7 @@
             <tr><td>{{ field }}</td></tr>
         {% endfor %}
         </table>
-    <input type="submit" value="{% trans 'Post' %}" /> <input type="button" onclick='document.location.href="{{ url }}#annotation_tab";' value="{% trans 'Cancel' %}" />
+    <input type="submit" value="{% trans 'Post' %}" /> <input type="button" onClick="history.go(-1);return true;" value="{% trans 'Cancel' %}" />
     </form>
     <script type="text/javascript">
         var googie_spell = new GoogieSpell("static_core/googiespell/", "{% url spellchecker %}"+"?lang=");

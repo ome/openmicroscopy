@@ -16,17 +16,20 @@
 	display:inline;
 	clear: left;
 	white-space: nowrap;
+	padding: 1px;
 }
+
 .simpleTree ul
 {
 	margin:0; 
 	padding:0;
 }
+
 .simpleTree .root
 {
 	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/root.gif) no-repeat 16px 0;
 }
+
 .simpleTree .line
 {
 	margin:0 0 0 -16px;
@@ -63,68 +66,7 @@
 	font-size:3px;
 	background: url(/appmedia/omeroweb/images/tree/line_bg_over_last.gif) 0 0 no-repeat transparent;
 }
-/*tags*/
-.simpleTree .tag-open
-{
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/collapsable3.png) 0 -2px no-repeat;
-}
-.simpleTree .tag-open-last
-{
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/collapsable3-last.png) 0 -2px no-repeat;
-}
-.simpleTree .tag-open-last-static
-{
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/collapsable3-last-static.png) 0 -2px no-repeat;
-}
-.simpleTree .tag-close
-{
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/expandable3.png) 0 -2px no-repeat;
-}
-.simpleTree .tag-close-last
-{
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/expandable3-last.png) 0 -2px no-repeat;
-}
-.simpleTree .tag-close-last-static
-{
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/expandable3-last-static.png) 0 -2px no-repeat;
-}
-/*shares*/
-.simpleTree .share-open
-{
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/collapsable4.png) 0 -2px no-repeat;
-}
-.simpleTree .share-open-last
-{
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/collapsable4-last.png) 0 -2px no-repeat;
-}
-.simpleTree .share-open-last-static
-{
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/collapsable4-last-static.png) 0 -2px no-repeat;
-}
-.simpleTree .share-close
-{
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/expandable4.png) 0 -2px no-repeat;
-}
-.simpleTree .share-close-last
-{
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/expandable4-last.png) 0 -2px no-repeat;
-}
-.simpleTree .share-close-last-static
-{
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/expandable4-last-static.png) 0 -2px no-repeat;
-}
+
 /*folder*/
 .simpleTree .folder-open
 {
@@ -156,100 +98,6 @@
 	margin-left:-16px;
 	background: url(/appmedia/omeroweb/images/tree/expandable-last-static.png) 0 -2px no-repeat;
 }
-/*folder2*/
-.simpleTree .folder2-open
-{
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/collapsable2.png) 0 -2px no-repeat;
-}
-.simpleTree .folder2-open-last
-{
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/collapsable2-last.png) 0 -2px no-repeat;
-}
-.simpleTree .folder2-open-last-static
-{
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/collapsable2-last-static.png) 0 -2px no-repeat;
-}
-.simpleTree .folder2-close
-{
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/expandable2.png) 0 -2px no-repeat;
-}
-.simpleTree .folder2-close-last
-{
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/expandable2-last.png) 0 -2px no-repeat;
-}
-.simpleTree .folder2-close-last-static
-{
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/expandable2-last-static.png) 0 -2px no-repeat;
-}
-/*subfolder*/
-.simpleTree .subfolder-open
-{
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/collapsable-sub.png) 0 -2px no-repeat;
-}
-.simpleTree .subfolder-open-last
-{
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/collapsable-sub-last.png) 0 -2px no-repeat;
-}
-.simpleTree .subfolder-open-last-static
-{
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/collapsable-sub-last-static.png) 0 -2px no-repeat;
-}
-.simpleTree .subfolder-close
-{
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/expandable-sub.png) 0 -2px no-repeat;
-}
-.simpleTree .subfolder-close-last
-{
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/expandable-sub-last.png) 0 -2px no-repeat;
-}
-.simpleTree .subfolder-close-last-static
-{
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/expandable-sub-last-static.png) 0 -2px no-repeat;
-}
-
-.simpleTree .orfolder-open
-{
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/collapsable-or.png) 0 -2px no-repeat;
-}
-.simpleTree .orfolder-open-last
-{
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/collapsable-or-last.png) 0 -2px no-repeat;
-}
-.simpleTree .orfolder-open-last-static
-{
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/collapsable-or-last-static.png) 0 -2px no-repeat;
-}
-.simpleTree .orfolder-close
-{
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/expandable-or.png) 0 -2px no-repeat;
-}
-.simpleTree .orfolder-close-last
-{
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/expandable-or-last.png) 0 -2px no-repeat;
-}
-.simpleTree .orfolder-close-last-static
-{
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/expandable-or-last-static.png) 0 -2px no-repeat;
-}
-
 
 .simpleTree .doc
 {
@@ -262,28 +110,7 @@
 	margin-left:-16px;
 	background: url(/appmedia/omeroweb/images/tree/leaf-last.png) 0 -1px no-repeat;
 }
-.simpleTree .doc2
-{
-	cursor: pointer;
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/leaf2.png) 0 -1px no-repeat;
-}
-.simpleTree .doc2-last
-{
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/leaf2-last.png) 0 -1px no-repeat;
-}
-.simpleTree .doc3
-{
-	cursor: pointer;
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/leaf3.png) 0 -1px no-repeat;
-}
-.simpleTree .doc3-last
-{
-	margin-left:-16px;
-	background: url(/appmedia/omeroweb/images/tree/leaf3-last.png) 0 -1px no-repeat;
-}
+
 .simpleTree .ajax
 {
 	background: url(/appmedia/omeroweb/images/tree/spinner.gif) no-repeat 0 0;
@@ -300,32 +127,38 @@
 {
 	display:inline;
 	margin-left:-32px;
-	width: 28px;
-	height: 11px;
+	width: 16px;
+	height: 16px;
 	cursor:pointer;
+}
+.simpleTree .icon {
+    margin-left: -16px;
 }
 .simpleTree .text
 {
 	cursor: pointer;
+	padding:1px;
 }
 .simpleTree .text-select
 {
 	cursor: pointer;
-	background-color: #eee
+	background-color: #eee;
+	padding:1px;
 }
 .simpleTree .active
 {
 	cursor: pointer;
-	background-color:#fff;
-	padding:0px 2px;
-	border: 1px dashed #444;
+	background-color:#eee;
+	padding:1px;
 }
+
 #drag_container
 {
-	background:#fff;
+	background-color: #eee;
 	color:#000;
 	font: normal 11px arial, tahoma, helvetica, sans-serif;
-	border: 1px dashed #767676;
+	padding:1px;
+	border: 1px dotted #bbb;
 }
 #drag_container ul
 {

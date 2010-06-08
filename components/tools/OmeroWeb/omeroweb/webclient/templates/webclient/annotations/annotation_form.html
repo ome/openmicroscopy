@@ -27,7 +27,7 @@
                 <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
             </tr>
         {% endfor %}
-            <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /> <input type="button" onclick='document.location.href="{{ url }}#annotation_tab";' value="{% trans 'Cancel' %}" /></td></tr>
+            <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /> <input type="button" onClick="history.go(-1);return true;" value="{% trans 'Cancel' %}" /></td></tr>
         </table>
     </form>
     <script type="text/javascript">
@@ -45,7 +45,7 @@
                 <td class="form">{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
             </tr>
         {% endfor %}
-            <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /> <input type="button" onclick='document.location.href="{{ url }}#annotation_tab";' value="{% trans 'Cancel' %}" /></td></tr>
+            <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /> <input type="button" onClick="history.go(-1);return true;" value="{% trans 'Cancel' %}" /></td></tr>
         </table>
     </form>
     {% endif %}
