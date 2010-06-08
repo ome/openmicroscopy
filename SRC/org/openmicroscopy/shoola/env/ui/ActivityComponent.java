@@ -99,6 +99,12 @@ public abstract class ActivityComponent
 	/** Bound property indicating to unregister the activity. */
 	static final String 	UNREGISTER_ACTIVITY_PROPERTY = "unregisterActivity";
 
+	/** Text indicating to view the object. */
+	private static final String   VIEW_TEXT = "View";
+	
+	/** Text indicating to browse the object. */
+	private static final String   BROWSE_TEXT = "Browse";
+	
 	/** The default dimension of the status. */
 	private static final Dimension SIZE = new Dimension(22, 22);
 	
@@ -229,7 +235,7 @@ public abstract class ActivityComponent
 		//if (index == ADVANCED)
 		downloadButton = createButton("Download", DOWNLOAD, this);
 		downloadButton.setVisible(false);
-		viewButton = createButton("View", VIEW, this);
+		viewButton = createButton(VIEW_TEXT, VIEW, this);
 		viewButton.setVisible(false);
 		infoButton = createButton("Info", INFO, this);
 		infoButton.setVisible(false);
@@ -491,6 +497,20 @@ public abstract class ActivityComponent
 	}
 	
 	/**
+	 * Returns the text of the viewable object.
+	 * 
+	 * @param object The object to handle.
+	 * @return See above.
+	 */
+	String getViewText(Object object)
+	{
+		if (!isViewable(object)) return VIEW_TEXT;
+		if (object instanceof DatasetData || object instanceof ProjectData) 
+			return BROWSE_TEXT;
+		return VIEW_TEXT;
+	}
+	
+	/**
 	 * Returns <code>true</code> if the object can be viewed, 
 	 * <code>false</code> otherwise.
 	 * 
@@ -560,7 +580,11 @@ public abstract class ActivityComponent
 			} else this.result = m;
 		}
 		downloadButton.setVisible(isDownloadable(this.result));
-		viewButton.setVisible(isViewable(this.result));
+		if (isViewable(this.result)) {
+			viewButton.setText(getViewText(this.result));
+			viewButton.setVisible(true);
+		} else viewButton.setVisible(false);
+		
 		if (!viewButton.isVisible() && !downloadButton.isVisible()) {
 			if (this.result instanceof Collection) {
 				Collection l = (Collection) this.result;

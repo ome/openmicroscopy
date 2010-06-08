@@ -1156,8 +1156,6 @@ class PropertiesUI
 			*/
 			//editField(descriptionPanel, descriptionPane, editDescription, 
 			//		false);
-			editField(descriptionPanel, descriptionPane, editDescription, 
-					false);
 			String text = descriptionPane.getText();
 			editDescription.setEnabled(true);
 			if (text == null || text.trim().length() == 0) {

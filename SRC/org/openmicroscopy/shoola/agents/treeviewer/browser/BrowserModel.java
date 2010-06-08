@@ -593,9 +593,12 @@ class BrowserModel
 	/** 
      * Reloads the experimenter data.
      * 
-     * @param nodes
+     * @param nodes The objects to refresh.
+     * @param type  The type of node to select when refreshed
+     * @param id    The identifier of the node.
      */
-    void loadRefreshExperimenterData(Map<Long, RefreshExperimenterDef> nodes)
+    void loadRefreshExperimenterData(Map<Long, RefreshExperimenterDef> nodes, 
+    		Class type, long id)
     {
         Class klass = null;
         switch (browserType) {
@@ -620,7 +623,7 @@ class BrowserModel
         state = Browser.LOADING_DATA;
         if (klass == null) return;
         currentLoader = new RefreshExperimenterDataLoader(component, klass,
-        												nodes);
+        					nodes, type, id);
         currentLoader.load();   
     }
 

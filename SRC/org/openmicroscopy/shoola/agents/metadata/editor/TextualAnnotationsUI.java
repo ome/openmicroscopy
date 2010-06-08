@@ -231,7 +231,7 @@ class TextualAnnotationsUI
 		inBetweenComponent.addActionListener(this);
 		inBetweenComponent.setActionCommand(""+MORE);
 		
-		commentArea = new OMEWikiComponent();
+		commentArea = new OMEWikiComponent(false);
 		commentArea.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 		commentArea.addPropertyChangeListener(controller);
 		originalText = DEFAULT_TEXT_COMMENT;

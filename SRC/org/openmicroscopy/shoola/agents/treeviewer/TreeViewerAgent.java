@@ -41,6 +41,8 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ImageProjected;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerCreated;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEvent;
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewerFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
@@ -54,8 +56,14 @@ import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.ActivityProcessEvent;
+import org.openmicroscopy.shoola.env.ui.ViewObjectEvent;
+
+import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
+import pojos.ImageData;
+import pojos.ProjectData;
 
 /** 
  * The TreeViewer agent. This agent manages and presents the
@@ -262,9 +270,6 @@ public class TreeViewerAgent
         TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
         if (viewer != null)
         	viewer.findDataObject(evt.getDataType(), evt.getID());
-        //if (viewer != null)
-        	//viewer.displayViewer(evt.getViewer(), evt.getControls(), 
-        	//		evt.isToAdd(), evt.isToDetach());
     }
     
     /**
@@ -278,6 +283,31 @@ public class TreeViewerAgent
     	Environment env = (Environment) registry.lookup(LookupNames.ENV);
     	if (!env.isServerAvailable()) return;
     	TreeViewerFactory.onGroupSwitched(evt.isSuccessful());
+    }
+    
+    /**
+     * Views the passed object if the object is an image.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleViewObjectEvent(ViewObjectEvent evt)
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (!env.isServerAvailable()) return;
+    	
+    	if (evt == null) return;
+    	Object o = evt.getObject();
+    	if (o instanceof DatasetData || o instanceof ProjectData) {
+    		DataObject data = (DataObject) o;
+    		ExperimenterData exp = (ExperimenterData) registry.lookup(
+    				LookupNames.CURRENT_USER_DETAILS);
+    		GroupData gp = exp.getDefaultGroup();
+    		long id = -1;
+			if (gp != null) id = gp.getId();
+			TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
+			if (viewer != null)
+				viewer.findDataObject(data.getClass(), data.getId());
+    	}
     }
     
     /**
@@ -367,6 +397,8 @@ public class TreeViewerAgent
 			handleUserGroupSwitched((UserGroupSwitched) e);
 		else if (e instanceof DataObjectSelectionEvent)
 			handleDataObjectSelectionEvent((DataObjectSelectionEvent) e);
+		 else if (e instanceof ViewObjectEvent)
+	        	handleViewObjectEvent((ViewObjectEvent) e);
 	}
 
 }

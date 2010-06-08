@@ -71,6 +71,12 @@ public class RefreshExperimenterDataLoader
 	extends DataBrowserLoader
 {
 	
+	/** The type of the nodes to select when done. */
+    private Class								type;
+    
+    /** The identifier of the object to select when done. */
+    private long								id;
+    
     /** The type of the root node. */
     private Class								rootNodeType;
     
@@ -170,7 +176,8 @@ public class RefreshExperimenterDataLoader
      * 							Mustn't be <code>null</code>.
      */
     public RefreshExperimenterDataLoader(Browser viewer, 
-    			Class rootNodeType, Map<Long, RefreshExperimenterDef> expNodes)
+    			Class rootNodeType, Map<Long, RefreshExperimenterDef> expNodes, 
+    			Class type, long id)
     {
         super(viewer);
         if (expNodes == null || expNodes.size() == 0)
@@ -178,6 +185,8 @@ public class RefreshExperimenterDataLoader
         checkClass(rootNodeType);
         this.rootNodeType = rootNodeType;
         this.expNodes = expNodes;
+        this.type = type;
+        this.id = id;
     }
     
     /**
@@ -289,7 +298,7 @@ public class RefreshExperimenterDataLoader
     		}
         }
         
-        viewer.setRefreshExperimenterData(expNodes);
+        viewer.setRefreshExperimenterData(expNodes, type, id);
     }
 
 }

@@ -1813,6 +1813,25 @@ class BrowserUI
 			}
 		}
 	}
+	/**
+     * Expands the specified node. To avoid loop, we first need to 
+     * remove the <code>TreeExpansionListener</code>.
+     * 
+     * @param node The node to expand.
+     */
+    void expandNode(TreeImageDisplay node, boolean withListener)
+    {
+    	 //First remove listener otherwise an event is fired.
+    	node.setExpanded(true);
+    	if (withListener) {
+    		treeDisplay.expandPath(new TreePath(node.getPath()));
+    	} else {
+    		 treeDisplay.removeTreeExpansionListener(listener);
+    	        treeDisplay.expandPath(new TreePath(node.getPath()));
+    	        treeDisplay.addTreeExpansionListener(listener);
+    	}
+       
+    }
 	
     /**
      * Expands the specified node. To avoid loop, we first need to 
@@ -1822,11 +1841,7 @@ class BrowserUI
      */
     void expandNode(TreeImageDisplay node)
     {
-        //First remove listener otherwise an event is fired.
-    	node.setExpanded(true);
-        treeDisplay.removeTreeExpansionListener(listener);
-        treeDisplay.expandPath(new TreePath(node.getPath()));
-        treeDisplay.addTreeExpansionListener(listener);
+    	expandNode(node, false);
     }
 	
 }

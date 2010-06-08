@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.RefreshVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.ContainerFinder;
 import org.openmicroscopy.shoola.agents.util.browser.NodeSelectionVisitor;
+import org.openmicroscopy.shoola.agents.util.browser.NodesFinder;
 import org.openmicroscopy.shoola.agents.util.browser.PartialNameVisitor;
 import org.openmicroscopy.shoola.agents.util.browser.SimilarNodesVisitor;
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
@@ -1105,7 +1106,7 @@ class BrowserComponent
 		Map<Long, RefreshExperimenterDef> 
 			m = new HashMap<Long, RefreshExperimenterDef>(1);
 		m.put(id, def);
-		model.loadRefreshExperimenterData(m);
+		model.loadRefreshExperimenterData(m, null, -1);
 		fireStateChange();
 	}
 	
@@ -1137,7 +1138,7 @@ class BrowserComponent
 		Map<Long, RefreshExperimenterDef> 
 			m = new HashMap<Long, RefreshExperimenterDef>(1);
 		m.put(node.getUserObjectId(), def);
-		model.loadRefreshExperimenterData(m);
+		model.loadRefreshExperimenterData(m, null, -1);
 		fireStateChange();
 	}
 	
@@ -1187,16 +1188,16 @@ class BrowserComponent
 					v.getExpandedTopNodes());
     		m.put(expNode.getUserObjectId(), def);
 		}
-	    model.loadRefreshExperimenterData(m);
+	    model.loadRefreshExperimenterData(m, null, -1);
 		fireStateChange();
     }
 
     /**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setRefreshExperimenterData(Map)
+     * @see Browser#setRefreshExperimenterData(Map, Class, long)
      */
-	public void setRefreshExperimenterData(
-					Map<Long, RefreshExperimenterDef> nodes)
+	public void setRefreshExperimenterData(Map<Long, RefreshExperimenterDef> 
+		nodes, Class type, long id)
 	{
 		if (nodes == null || nodes.size() == 0) return;
 		Iterator i = nodes.keySet().iterator();
@@ -1240,6 +1241,27 @@ class BrowserComponent
 		model.getParentModel().setStatus(false, "", true);
 		PartialNameVisitor v = new PartialNameVisitor(view.isPartialName());
 		accept(v, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
+		if (ProjectData.class.equals(type) || DatasetData.class.equals(type) ||
+        		ScreenData.class.equals(type)) {
+        	NodesFinder finder = new NodesFinder(type, id);
+			accept(finder);
+			Set<TreeImageDisplay> found = finder.getNodes();
+			if (found.size() > 0) {
+				Iterator<TreeImageDisplay> n = found.iterator();
+				TreeImageDisplay display;
+				if (DatasetData.class.equals(type)) {
+					while (n.hasNext()) {
+						display = n.next();
+						setSelectedDisplay(display);
+						view.expandNode(display, true);
+					}
+				} else {
+					while (n.hasNext()) {
+						setSelectedDisplay(n.next());
+					}
+				}	
+			}
+        }
 		fireStateChange(); 
 	}
 
@@ -1696,6 +1718,42 @@ class BrowserComponent
 	{
 		if (model.getState() == DISCARDED) return;
 		model.getParentModel().resetPassword(value);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#refreshBrowser(Class, long)
+	 */
+	public void refreshBrowser(Class type, long id)
+	{
+		if (ProjectData.class.equals(type) || 
+				DatasetData.class.equals(type) || 
+				ScreenData.class.equals(type)) {
+			TreeImageDisplay root = view.getTreeRoot();
+		    TreeImageSet expNode;
+		    RefreshExperimenterDef def;
+		    RefreshVisitor v = new RefreshVisitor(this);
+		    int n = root.getChildCount();
+		    Map<Long, RefreshExperimenterDef> 
+		    	m = new HashMap<Long, RefreshExperimenterDef>(n);
+		    Collection foundNodes;
+		    Map topNodes;
+		    int index = model.getBrowserType();
+		    for (int i = 0; i < n; i++) {
+		    	expNode = (TreeImageSet) root.getChildAt(i);
+		    	expNode.accept(v, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
+		    	foundNodes = v.getFoundNodes();
+		    	topNodes = v.getExpandedTopNodes();
+		    	if (index == Browser.IMAGES_EXPLORER)
+		    		countExperimenterImages(expNode);
+		    	def = new RefreshExperimenterDef(expNode, v.getFoundNodes(), 
+						v.getExpandedTopNodes());
+	    		m.put(expNode.getUserObjectId(), def);
+			}
+		    model.loadRefreshExperimenterData(m, type, id);
+			fireStateChange();
+		}
+		
 	}
 	
 }

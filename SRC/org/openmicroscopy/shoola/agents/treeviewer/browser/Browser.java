@@ -49,7 +49,6 @@ import org.openmicroscopy.shoola.env.data.FSFileSystemView;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
 import pojos.ExperimenterData;
-import pojos.FileData;
 import pojos.ImageData;
 
 /** 
@@ -527,9 +526,11 @@ public interface Browser
 	 * Sets the data for the selected experimenter. 
 	 * 
 	 * @param def The data to set. Mustn't be <code>null</code>.
+	 * @param type The type of data object to select or <code>null</code>.
+	 * @param id   The identifier of the data object.
 	 */
-	public void setRefreshExperimenterData(
-					Map<Long, RefreshExperimenterDef> def);
+	public void setRefreshExperimenterData(Map<Long, RefreshExperimenterDef> 
+					def, Class type, long id);
 
 	/** Refreshes the data used by the currently logged in user. */
 	public void refreshLoggedExperimenterData();
@@ -676,7 +677,7 @@ public interface Browser
 	/** Brings up the importer. */
 	void showImporter();
 
-	/** Refreshes the specified browser. */
+	/** Refreshes the browser. */
 	void refreshBrowser();
 	
 	/** Removes the passed nodes from the display. */
@@ -747,5 +748,14 @@ public interface Browser
 	 * @param value The value to set.
 	 */
 	void resetPassword(String value);
+	
+	/**
+	 * Refreshes the browser and selects the nodes identified by the type
+	 * and the identifier.
+	 * 
+	 * @param type The type of object to handle.
+	 * @param id   The identifier of the object.
+	 */
+	void refreshBrowser(Class type, long id);
 	
 }

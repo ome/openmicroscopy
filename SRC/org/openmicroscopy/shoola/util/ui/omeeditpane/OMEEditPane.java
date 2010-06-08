@@ -158,7 +158,7 @@ class OMEEditPane
 	public void focusLost(FocusEvent e) { select(0, 0); }
 
 	/**
-	 * Selects the data
+	 * Selects the data.
 	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent e)

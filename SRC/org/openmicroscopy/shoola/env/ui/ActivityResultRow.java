@@ -112,8 +112,8 @@ class ActivityResultRow
 		add(new JLabel(text));
 		if (activity.isDownloadable(row))
 			add(activity.createButton("Download", DOWNLOAD, this));
-		if (activity.isViewable(row))
-			add(activity.createButton("View", VIEW, this));
+		if (activity.isViewable(row)) 
+			add(activity.createButton(activity.getViewText(row), VIEW, this));	
 	}
 	
 	/**

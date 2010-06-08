@@ -3051,15 +3051,37 @@ class TreeViewerComponent
 	 */
 	public void findDataObject(Class type, long id)
 	{
-		
 		Browser browser = model.getSelectedBrowser();
 		if (browser != null) {
 			NodesFinder finder = new NodesFinder(type, id);
 			browser.accept(finder);
 			Set<TreeImageDisplay> nodes = finder.getNodes();
-			Iterator<TreeImageDisplay> i = nodes.iterator();
-			while (i.hasNext()) {
-				browser.setSelectedDisplay(i.next());
+			if (nodes.size() == 0) { //not found so, reloads the data.
+				if (ProjectData.class.equals(type) || 
+					DatasetData.class.equals(type) || 
+					ScreenData.class.equals(type)) {
+					DataBrowserFactory.discardAll();
+				    view.removeAllFromWorkingPane();
+			        browser.refreshBrowser(type, id);
+			        ExperimenterData exp = model.getUserDetails();
+			        model.getMetadataViewer().setRootObject(null, exp.getId());
+				}
+			} else {
+				Iterator<TreeImageDisplay> i = nodes.iterator();
+				TreeImageDisplay node;
+				if (DatasetData.class.equals(type)) {
+					while (i.hasNext()) {
+						node = i.next();
+						if (node.isChildrenLoaded())
+							browser.setSelectedDisplay(node);
+						else browser.refreshBrowser(type, id);
+					}
+				} else {
+					while (i.hasNext()) {
+						browser.setSelectedDisplay(i.next());
+					}
+				}
+				
 			}
 		}
 	}
