@@ -289,9 +289,9 @@ public class ExporterI extends AbstractAmdServant implements
                         }
                     });
         } catch (Exception e) {
-            omero.InternalException ie = new omero.InternalException();
-            IceMapper.fillServerError(ie, e);
-            __cb.ice_exception(ie);
+            IceMapper mapper = new IceMapper();
+            Ice.UserException ue = mapper.handleException(e, factory.getExecutor().getContext());
+            __cb.ice_exception(ue);
         }
     }
 
@@ -386,9 +386,9 @@ public class ExporterI extends AbstractAmdServant implements
                         }
                     });
         } catch (Exception e) {
-            omero.InternalException ie = new omero.InternalException();
-            IceMapper.fillServerError(ie, e);
-            __cb.ice_exception(ie);
+            IceMapper mapper = new IceMapper();
+            Ice.UserException ue = mapper.handleException(e, factory.getExecutor().getContext());
+            __cb.ice_exception(ue);
         }
     }
 

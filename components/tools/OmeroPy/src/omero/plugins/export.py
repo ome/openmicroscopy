@@ -41,14 +41,23 @@ class ExportControl(BaseControl):
 
         c = self.ctx.conn(args)
         e = c.getSession().createExporter()
+
+        remove = True
         try:
             for img in images:
                 e.addImage(long(img))
-            if args.type == "TIFF":
-                l = e.generateTiff()
-            else:
-                l = e.generateXml()
 
+            import omero
+            try:
+                if args.type == "TIFF":
+                    l = e.generateTiff()
+                else:
+                    l = e.generateXml()
+            except omero.ServerError, se:
+                self.ctx.err("%s: %s" % (se.__class__.__name__, se.message))
+                return
+
+            remove = False
             offset = 0
             while True:
                 rv = e.read(offset, 1000*1000)
@@ -63,6 +72,8 @@ class ExportControl(BaseControl):
         finally:
             if handle != sys.stdout:
                 handle.close()
+            if remove:
+                os.remove(handle.name)
             e.close()
 
 try:

@@ -14,7 +14,17 @@ import omero.java
 START_CLASS="ome.formats.importer.cli.CommandLineImporter"
 TEST_CLASS="ome.formats.test.util.TestEngine"
 
-HELP = """Run the Java-based command-line importer"""
+HELP = """Run the Java-based command-line importer
+
+This is a Python wrapper around the Java importer. Login is handled
+by Python OmeroCli. To see more options, use "--longhelp".
+
+Examples:
+
+  bin/omero login ~/Data/my_file.dv                    # Use current login
+  bin/omero login -- --debug=ALL ~/Data/my_file2.png   # Set Java debug
+
+"""
 TESTHELP = """Run the Importer TestEngine suite (devs-only)"""
 
 class ImportControl(BaseControl):
@@ -48,9 +58,16 @@ class ImportControl(BaseControl):
             args.args.remove(err)
             err = open(err, "w")
 
+        need_login = not args.longhelp
+        if "-f" in args.arg:
+            need_login = False
+
         login_args = []
-        if not args.longhelp: # Then we need a login
+        if need_login:
             client = self.ctx.conn(args)
+            srv = client.getProperty("omero.host")
+            login_args.extend(["-s", srv])
+            login_args.extend(["-k", client.getSessionId()])
 
         a = self.COMMAND + login_args + args.arg
         p = omero.java.popen(a, debug=False, xargs = xargs, stdout=out, stderr=err)
@@ -61,7 +78,7 @@ class TestEngine(ImportControl):
 
 try:
     register("import", ImportControl, HELP)
-    register("testengine", TestEngine, HELP)
+    register("testengine", TestEngine, TESTHELP)
 except NameError:
     if __name__ == "__main__":
         cli = CLI()

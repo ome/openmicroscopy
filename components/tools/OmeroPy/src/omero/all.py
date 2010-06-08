@@ -34,6 +34,7 @@ if omero.__import_style__ is None:
     import omero_api_ITimeline_ice
     import omero_api_ITypes_ice
     import omero_api_IUpdate_ice
+    import omero_api_Exporter_ice
     import omero_api_JobHandle_ice
     import omero_api_MetadataStore_ice
     import omero_api_RawFileStore_ice
