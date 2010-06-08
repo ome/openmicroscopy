@@ -73,6 +73,7 @@ class HelpControl(BaseControl):
     """
 
     def _configure(self, parser):
+        self.__parser__ = parser # For formatting later
         parser.set_defaults(func=self.__call__)
         parser.add_argument("--all", action="store_true", help="Print help for all topics")
         parser.add_argument("topic", nargs="?", help="Topic for more information")
@@ -88,8 +89,9 @@ class HelpControl(BaseControl):
     def __call__(self, args):
 
         self.ctx.waitForPlugins()
-        commands = "\n".join([" %s" % name for name in sorted(self.ctx.controls)])
-        topics = "\n".join([" %s" % topic for topic in self.ctx.topics])
+        #commands = "\n".join([" %s" % name for name in sorted(self.ctx.controls)])
+        #topics = "\n".join([" %s" % topic for topic in self.ctx.topics])
+        commands, topics = [self.__parser__._format_list(x) for x in [sorted(self.ctx.controls), sorted(self.ctx.topics)]]
 
         if args.all:
             for control in sorted(self.ctx.controls):

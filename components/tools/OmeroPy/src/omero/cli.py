@@ -160,6 +160,10 @@ class Parser(ArgumentParser):
         if action.choices is not None and value not in action.choices:
             msg = 'invalid choice: %r\nchoose from:\n' % value
             choices = sorted(action.choices)
+            msg += self._format_list(choices)
+            raise ArgumentError(action, msg)
+
+    def _format_list(self, choices):
             lines = ["\t"]
             while len(choices) > 1:
                 choice = choices.pop(0)
@@ -167,8 +171,7 @@ class Parser(ArgumentParser):
                 if len(lines[-1]) > 62:
                     lines.append("\t")
             lines[-1] += choices.pop(0)
-            msg += "\n".join(lines)
-            raise ArgumentError(action, msg)
+            return "\n".join(lines)
 
 class NewFileType(FileType):
     """
