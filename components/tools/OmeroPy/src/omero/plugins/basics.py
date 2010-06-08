@@ -17,7 +17,9 @@
 
 """
 
-import subprocess, optparse, os, sys
+import sys
+
+from omero_ext.argparse import FileType
 
 from omero.cli import BaseControl
 from omero.cli import CLI
@@ -44,22 +46,29 @@ class VersionControl(BaseControl):
 
 class LoadControl(BaseControl):
 
+    def _configure(self, parser):
+        parser.add_argument("infile", nargs="*", type=FileType("r"), default=[sys.stdin])
+        parser.set_defaults(func=self.__call__)
+
     def __call__(self, args):
-        for arg in args:
-            file = open(arg,'r')
-            self.ctx.dbg("Loading file %s" % arg)
+        for file in args.infile:
+            self.ctx.dbg("Loading file %s" % file)
             for line in file:
-                self.invoke.ctx(line)
+                self.ctx.invoke(line)
 
 
 class ShellControl(BaseControl):
+
+    def _configure(self, parser):
+        parser.add_argument("arg", nargs="*", help="Arguments for IPython")
+        parser.set_defaults(func=self.__call__)
 
     def __call__(self, args):
         """
         Copied from IPython embed-short example
         """
         from IPython.Shell import IPShellEmbed
-        ipshell = IPShellEmbed(args)
+        ipshell = IPShellEmbed(args.arg)
         ipshell()
 
 

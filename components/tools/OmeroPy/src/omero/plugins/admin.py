@@ -103,7 +103,7 @@ class AdminControl(BaseControl):
 
         Arg("events", """Print event log (Windows-only)""")
 
-        args["ice"].add_argument("arguments", nargs="?", help="""Arguments joined together to make an Ice command.
+        args["ice"].add_argument("argument", nargs="*", help="""Arguments joined together to make an Ice command.
         If not present, the user will enter a console""")
 
         args["status"].add_argument("node", nargs="?", default="master")
@@ -445,8 +445,8 @@ class AdminControl(BaseControl):
 
     def ice(self, args):
         command = self._cmd()
-        if len(args.arguments) > 0:
-            command.extend(["-e", args.arguments.join(" ")])
+        if len(args.argument) > 0:
+            command.extend(["-e", " ".join(args.argument)])
             return self.ctx.call(command)
         else:
             rv = self.ctx.call(command)

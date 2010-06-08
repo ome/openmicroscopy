@@ -14,23 +14,19 @@ import exceptions
 
 from omero.cli import BaseControl, CLI
 
-HELP = """Delete OMERO data"""
+HELP = """Delete OMERO data
 
-LONGHELP = """
-    Example: ... delete Image:50
+Example: bin/omero delete Image:50
+
 """
+
 class DeleteControl(BaseControl):
 
     def _configure(self, parser):
-        parser.add_argument("obj", nargs="*", help="""Objects to be deleted in the form "<Classs>:<Id>""")
-        parser.add_argument("--longhelp", action="store_true", help="Extended help")
+        parser.add_argument("obj", nargs="+", help="""Objects to be deleted in the form "<Classs>:<Id>""")
         parser.set_defaults(func=self.delete)
 
     def delete(self, args):
-
-        if args.longhelp or not args.obj:
-            self.ctx.err(LONGHELP)
-            return
 
         client = self.ctx.conn(args)
 
@@ -46,14 +42,17 @@ class DeleteControl(BaseControl):
                 self.ctx.die(5, "Can't delete type: %s" % klass)
 
         def action(klass, method, *args):
-            self.ctx.out("Deleting %s %s..." % (klass, args), newline = False)
+            import omero
+            self.ctx.out(("Deleting %s %s... " % (klass, args)), newline = False)
             try:
                 method(*args)
                 self.ctx.out("ok.")
+            except omero.ApiUsageException, aue:
+                self.ctx.out(aue.message)
             except exceptions.Exception, e:
                 self.ctx.out("failed (%s)" % e)
 
-        deleteSrv = c.getSession().getDeleteService()
+        deleteSrv = client.getSession().getDeleteService()
         for image in images: action("Image", deleteSrv.deleteImage, image, True)
         for plate in plates: action("Plate", deleteSrv.deletePlate, plate)
 

@@ -77,12 +77,12 @@ class SessionsControl(BaseControl):
         for x in (login, logout):
             x.add_argument("-d", "--dir", help="Use a different sessions directory (Default: $HOME/omero/sessions)")
 
-        list = parser.add(sub, self.list, "List all stored sessions")
+        list = parser.add(sub, self.list, "List all locally stored sessions")
         list.add_argument("--purge", action="store_true", help="Remove inactive sessions")
         keepalive = parser.add(sub, self.keepalive, "Keeps the current session alive")
         keepalive.add_argument("-f", "--frequency", type=int, default=60, help="Time in seconds between keep alive calls", metavar="SECS")
-        clear = parser.add(sub, self.clear, "Close and remove stored sessions")
-        clear.add_argument("--all", action="store_true", help="Remove all sessions not just inactive ones")
+        clear = parser.add(sub, self.clear, "Close and remove locally stored sessions")
+        clear.add_argument("--all", action="store_true", help="Remove all locally stored sessions not just inactive ones")
 
     def help(self, args):
         self.ctx.err(LONGHELP % {"prog":args.prog})
@@ -101,9 +101,7 @@ class SessionsControl(BaseControl):
         if not create:
             try:
                 rv = store.attach(*previous)
-                grp = rv[0].sf.getAdminService().getEventContext().groupName
-                self.ctx.out("Already logged in to %s as %s (group = %s)" % (previous[0], previous[1], grp))
-                return self.handle(rv, "Still connected")
+                return self.handle(rv, "Using")
             except exceptions.Exception, e:
                 self.ctx.dbg("Exception on attach: %s" % e)
 
@@ -188,7 +186,7 @@ class SessionsControl(BaseControl):
 
         msg += (" Current group: %s" % self.ctx._client.sf.getAdminService().getEventContext().groupName)
 
-        self.ctx.out(msg)
+        self.ctx.err(msg)
 
     def logout(self, args):
         dir = getattr(args, "dir", None)

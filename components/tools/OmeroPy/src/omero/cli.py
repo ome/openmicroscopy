@@ -143,6 +143,7 @@ class Parser(ArgumentParser):
     def __init__(self, *args, **kwargs):
         kwargs["formatter_class"] = HelpFormatter
         ArgumentParser.__init__(self, *args, **kwargs)
+        self._positionals.title = "Positional Arguments"
         self._optionals.title = "Optional Arguments"
         self._optionals.description = "In addition to any higher level options"
 
@@ -319,11 +320,9 @@ class Context:
             self.err(text, newline)
 
     def die(self, rc, args):
-        self.event.set()
         raise exceptions.Exception((rc,args))
 
     def exit(self, args):
-        self.event.set()
         self.out(args)
         self.interrupt_loop = True
 

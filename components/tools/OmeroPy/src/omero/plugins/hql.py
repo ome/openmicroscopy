@@ -137,6 +137,8 @@ To quit, enter 'q' or just enter.
         for x in ("_id", "_loaded"):
             if x in values:
                 values.pop(x)
+        if "owner=None;group=None" == values.get("_details"):
+            values.pop("_details")
         multi_valued = sorted([k for k in values if isinstance(values[k], list)])
         false_valued = sorted([k for k in values if not values[k]])
         for x in multi_valued + false_valued:
