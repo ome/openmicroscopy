@@ -25,8 +25,7 @@ from omero.util import edit_path, get_user_dir
 from omero.util.decorators import wraps
 import omero.java
 
-HELP="""
-  Commands for configuration server installation.
+HELP="""Commands for server configuration.
   A config.xml file will be created under your etc/grid
   directory.
 
@@ -73,9 +72,7 @@ class PrefsControl(BaseControl):
             need to modify the application descriptor.
         """)
 
-        sub = parser.add_subparsers(title="Subcommands", help="""
-                Use %(prog)s <subcommand> -h for more information.
-        """)
+        sub = parser.sub()
 
         all = sub.add_parser("all", help="""
             List all properties in the current config.xml file.

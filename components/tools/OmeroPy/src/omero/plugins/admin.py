@@ -40,10 +40,7 @@ try:
 except ImportError:
     has_win32 = False
 
-HELP="""
-Subcommand help / subparser help
-no argument opens a command shell
-THIS NEEDS TO BE UPDATED AND EXPANEDED
+HELP="""Administrative tools including starting/stopping OMERO.
 
 Environment variables:
  OMERO_MASTER
@@ -52,15 +49,14 @@ Environment variables:
 Configuration properties:
  omero.windows.user
  omero.windows.pass
+
 """ + "\n" + "="*50 + "\n"
 
 
 class AdminControl(BaseControl):
 
     def _configure(self, parser):
-        sub = parser.add_subparsers(title="Subcommands", help="""
-                Use %(prog)s <subcommand> -h for more information.
-        """)
+        sub = parser.sub()
         args = {}
 
         class Arg(object):
@@ -69,59 +65,47 @@ class AdminControl(BaseControl):
                 this.parser.set_defaults(func=getattr(self, name))
                 args[name] = this.parser
 
-        Arg("start", """
-             Start icegridnode daemon and waits for required components
-             to come up, i.e. status == 0
+        Arg("start", """Start icegridnode daemon and waits for required components to come up, i.e. status == 0
 
              If the first argument can be found as a file, it will
              be deployed as the application descriptor rather than
              etc/grid/default.xml. All other arguments will be used
              as targets to enable optional sections of the descriptor""")
 
-        Arg("startasync", """
-             The same as start but returns immediately.""",)
+        Arg("startasync", """The same as start but returns immediately.""",)
 
-        Arg("status", """
-             Status of server. Returns with 0 status if a node ping is successful
+        Arg("status", """Status of server.
+             Returns with 0 status if a node ping is successful
              and if some SessionManager returns an OMERO-specific exception on
              a bad login. This can be used in shell scripts, e.g.:
 
                  omero admin status && echo "server started"
             """)
 
-        Arg("stop", """
-             Initiates node shutdown and waits for status to return a non-0
-             value""")
+        Arg("stop", """Initiates node shutdown and waits for status to return a non-0 value""")
 
-        Arg("stopasync", """
-             The same as stop but returns immediately.""")
+        Arg("stopasync", """The same as stop but returns immediately.""")
 
-        Arg("deploy", """
-             Deploy the given deployment descriptor. See etc/grid/*.xml
+        Arg("deploy", """Deploy the given deployment descriptor. See etc/grid/*.xml
              If the first argument is not a file path, etc/grid/default.xml
              will be deployed by default. Same functionality as start, but
              requires that the node already be running. This may automatically
              restart some server components.""")
 
-        Arg("ice", """
-             Drop user into icegridadmin console or execute arguments""")
+        Arg("ice", """Drop user into icegridadmin console or execute arguments""")
 
-        Arg("diagnostics", """
-             Run a set of checks on the current, preferably active server""")
+        Arg("diagnostics", """Run a set of checks on the current, preferably active server""")
 
-        Arg("waitup", """
-             Used by start after calling startasync to wait on status==0""")
+        Arg("waitup", """Used by start after calling startasync to wait on status==0""")
 
-        Arg("waitdown", """
-             Used by stop after calling stopasync to wait on status!=0""")
+        Arg("waitdown", """Used by stop after calling stopasync to wait on status!=0""")
 
-        Arg("checkwindows", """
-             Run simple check of the local installation (Windows-only)""")
+        Arg("checkwindows", """Run simple check of the local installation (Windows-only)""")
 
-        Arg("events", """
-             Print event log (Windows-only)""")
+        Arg("events", """Print event log (Windows-only)""")
 
-        args["ice"].add_argument("arguments", nargs="?")
+        args["ice"].add_argument("arguments", nargs="?", help="""Arguments joined together to make an Ice command.
+        If not present, the user will enter a console""")
 
         args["status"].add_argument("node", nargs="?", default="master")
 

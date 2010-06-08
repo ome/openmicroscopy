@@ -27,21 +27,9 @@ HELP="""Database tools for creating scripts, setting passwords, etc."""
 class DatabaseControl(BaseControl):
 
     def _configure(self, parser):
-        sub = parser.add_subparsers(title="Subcommands", help="""
-                Use %(prog)s db <subcommand> -h for more information.
-        """)
-        args = {}
+        sub = parser.sub()
 
-        class Arg(object):
-            def __init__(this, name, help):
-                this.parser = sub.add_parser(name, help=help)
-                this.parser.set_defaults(func=getattr(self, name))
-                args[name] = this.parser
-
-    def _configure(self, parser):
-        sub = parser.add_subparsers(title="Subcommands")
-
-        script = sub.add_parser("script")
+        script = sub.add_parser("script", help="Generates a DB creation script")
         script.set_defaults(func=self.script)
         script.add_argument("dbversion", nargs="?")
         script.add_argument("dbpatch", nargs="?")

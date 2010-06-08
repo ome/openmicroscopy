@@ -71,6 +71,7 @@ class HelpControl(BaseControl):
 
     def _configure(self, parser):
         parser.set_defaults(func=self.__call__)
+        parser.add_argument("--all", action="store_true", help="Print help for all topics")
         parser.add_argument("topic", nargs="?", help="Topic for more information")
 
     def _complete(self, text, line, begidx, endidx):
@@ -84,30 +85,48 @@ class HelpControl(BaseControl):
     def __call__(self, args):
 
         self.ctx.waitForPlugins()
-        controls = sorted(self.ctx.controls)
+        commands = "\n".join([" %s" % name for name in sorted(self.ctx.controls)])
+        topics = "\n".join([" %s" % topic for topic in self.ctx.topics])
 
-        if not args.topic:
-            self.ctx.invoke("-h")
-            print """
-Usage: %(program_name)s <command> [options] args
+        if args.all:
+            for control in sorted(self.ctx.controls):
+                self.ctx.out("*" * 80)
+                self.ctx.out(control)
+                self.ctx.out("*" * 80)
+                self.ctx.invoke([control, "-h"])
+                self.ctx.out("\n")
+            for topic in sorted(self.ctx.topics):
+                self.ctx.out("*" * 80)
+                self.ctx.out(topic)
+                self.ctx.out("*" * 80)
+                self.ctx.out(self.ctx.topics[topic])
+                self.ctx.out("\n")
+        elif not args.topic:
+            #self.ctx.invoke("-h")
+            print """usage: %(program_name)s <command> [options] args
 See 'help <command>' or '<command> -h' for more information on syntax
 Type 'quit' to exit
 
 Available commands:
-""" % {"program_name":sys.argv[0],"version":VERSION}
+%(commands)s
 
-            for name in controls:
-                print """ %s""" % name
-            print """
+Other help topics:
+%(topics)s
+
 For additional information, see http://trac.openmicroscopy.org.uk/omero/wiki/OmeroCli
-Report bugs to <ome-users@openmicroscopy.org.uk>"""
+Report bugs to <ome-users@openmicroscopy.org.uk>
+""" % {"program_name":sys.argv[0],"version":VERSION, "commands":commands, "topics":topics}
 
         else:
             try:
                 c = self.ctx.controls[args.topic]
                 self.ctx.invoke("%s -h" % args.topic)
             except KeyError, ke:
-                self.ctx.unknown_command(args.topic)
+                try:
+                    self.ctx.out(self.ctx.topics[args.topic])
+                    self.ctx.die(2, "")
+                except KeyError:
+                    self.ctx.die(2, "Unknown help topic: %s" % args.topic)
 
 controls = {
     "help": (HelpControl, "Syntax help for all commands"),

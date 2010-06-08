@@ -31,8 +31,14 @@ from path import path
 from omero_ext.argparse import ArgumentError
 from omero_ext.argparse import ArgumentParser
 from omero_ext.argparse import FileType
+from omero_ext.argparse import Namespace
+
+# Help text
+from omero_ext.argparse import ArgumentDefaultsHelpFormatter
 from omero_ext.argparse import RawDescriptionHelpFormatter
 from omero_ext.argparse import RawTextHelpFormatter
+from omero_ext.argparse import SUPPRESS
+
 from omero.util.sessions import SessionsStore
 
 import omero
@@ -53,8 +59,13 @@ if os.environ.has_key("DEBUG"):
     print "Running omero with debugging on"
     DEBUG = True
 
+OMERODOC = """
+Command-line tool for local and remote interactions with OMERO.
+"""
 OMEROSHELL = """OMERO Python Shell. Version %s""" % str(VERSION)
 OMEROHELP = """Type "help" for more information, "quit" or Ctrl-D to exit"""
+OMEROSUBS = """Use %(prog)s <subcommand> -h for more information."""
+OMEROSUBM = """<subcommand>"""
 OMEROCLI = path(__file__).expand().dirname()
 OMERODIR = os.getenv('OMERODIR', None)
 if OMERODIR is not None:
@@ -90,33 +101,37 @@ class NonZeroReturnCode(Exc):
 #####################################################
 #
 
-class HelpFormatter(object):
+class HelpFormatter(RawTextHelpFormatter):
+    """
+    argparse.HelpFormatter subclass which cleans up our usage, preventing very long
+    lines in subcommands.
+    """
 
-    def __init__(self, *args, **kwargs):
-        import pdb
-        pdb.set_trace()
-        self.args = list(args)
-        self.kwargs = dict(kwargs)
-        print "INIT:", args, kwargs
+    def __init__(self, prog, indent_increment=2, max_help_position=32, width=None):
+        RawTextHelpFormatter.__init__(self, prog, indent_increment, max_help_position, width)
+        self._action_max_length = 20
 
-    def add_arguments(self, *args, **kwargs):
-        print "ADA:", args, kwargs
+    def _split_lines(self, text, width):
+        return [text.splitlines()[0]]
 
-    def add_usage(self, *args, **kwargs):
-        print "ADU:", args, kwargs
+    class _Section(RawTextHelpFormatter._Section):
 
-    def add_text(self, *args, **kwargs):
-        print "TXT:", args, kwargs
+        def __init__(self, formatter, parent, heading=None):
+            #if heading:
+            #    heading = "\n%s\n%s" % ("=" * 40, heading)
+            RawTextHelpFormatter._Section.__init__(self, formatter, parent, heading)
 
-    def start_section(self, *args, **kwargs):
-        print "SEC+:", args, kwargs
 
-    def end_section(self, *args, **kwargs):
-        print "SEC-:", args, kwargs
+class WriteOnceNamespace(Namespace):
+    """
+    Namespace subclass which prevents overwriting any values by accident.
+    """
+    def __setattr__(self, name, value):
+        if hasattr(self, name):
+            raise exceptions.Exception("%s already has field %s" % (self.__class__.__name__, name))
+        else:
+            return Namespace.__setattr__(self, name, value)
 
-    def format_help(self, *args, **kwargs):
-        print "FMT:", args, kwargs
-        return ""
 
 class Parser(ArgumentParser):
     """
@@ -124,11 +139,14 @@ class Parser(ArgumentParser):
     _configure() code in most Controls
     """
 
+    def __init__(self, *args, **kwargs):
+        kwargs["formatter_class"] = HelpFormatter
+        ArgumentParser.__init__(self, *args, **kwargs)
+        self._optionals.title = "Optional Arguments"
+        self._optionals.description = "In addition to any higher level options"
+
     def sub(self):
-        sub = self.add_subparsers(title="Subcommands", help="""
-                Use %(prog)s <subcommand> -h for more information.
-        """)
-        return sub
+        return self.add_subparsers(title = "Subcommands", description = OMEROSUBS, metavar = OMEROSUBM)
 
     def add(self, sub, func, help, **kwargs):
         parser = sub.add_parser(func.im_func.__name__, help=help)
@@ -164,28 +182,27 @@ class Context:
         self.controls = controls
         self.dir = OMERODIR
         self.isdebug = DEBUG # This usage will go away and default will be False
-        self.parser = Parser(prog = sys.argv[0],
-            formatter_class = RawTextHelpFormatter,
-            description = """
-            OMERO CLI
-            """)
-        self.subparsers = self.parser_init(self.parser)
-        self.subparsers\
-            .add_parser("login", help="Set active server/user information")\
-            .set_defaults(func=lambda args:self.invoke("sessions login", args))
-        self.subparsers\
-            .add_parser("logout", help="Cancel active server/user information")\
-            .set_defaults(func=lambda args:self.invoke("sessions logout", args))
+        self.topics = {"debug":"""Comma-separated list of trace,profile,debug,help
 
-    def parser_init(self, parser):
-        parser.add_argument("-v", "--version", action="version", version="%%(prog)s %s" % VERSION)
-        parser.add_argument("-d", "--debug", help="""Comma-separated list of trace,profile,debug
         debug prints at the "debug" level. Similar to setting DEBUG=1 in the environment.
         trace runs the command with tracing enabled.
         profile runs the command with profiling enabled.
+        help prints this help message and exits
 
-        Only one of "trace" and "profile" can be chosen.
-        """)
+        Only one of "trace", "profile", and "help" can be chosen. """}
+        self.parser = Parser(prog = sys.argv[0],
+            description = OMERODOC)
+        self.subparsers = self.parser_init(self.parser)
+        self.subparsers\
+            .add_parser("login", help="Set active server/user information")\
+            .set_defaults(func=lambda args:self.invoke("sessions login", previous_args=args))
+        self.subparsers\
+            .add_parser("logout", help="Cancel active server/user information")\
+            .set_defaults(func=lambda args:self.invoke("sessions logout", previous_args=args))
+
+    def parser_init(self, parser):
+        parser.add_argument("-v", "--version", action="version", version="%%(prog)s %s" % VERSION)
+        parser.add_argument("-d", "--debug", help="Use 'help debug' for more information", default = SUPPRESS)
         parser.add_argument("-s", "--server")
         parser.add_argument("-p", "--port")
         parser.add_argument("-g", "--group")
@@ -194,7 +211,7 @@ class Context:
         parser.add_argument("-k", "--key")
         parser.add_argument("-C", "--create", action="store_true")
         parser.add_argument("-L", "--last", action="store_true")
-        subparsers = parser.add_subparsers(title="Subcommands")
+        subparsers = parser.add_subparsers(title="Subcommands", description=OMEROSUBS, metavar=OMEROSUBM)
         return subparsers
 
     def get(self, key, defvalue = None):
@@ -685,18 +702,18 @@ class CLI(cmd.Cmd, Context):
         args.prog = self.parser.prog
         self.waitForPlugins()
 
-        debug_opts = []
-        if args.debug:
-            debug_opts = [x.lower() for x in args.debug.split(",")]
-            if "debug" in debug_opts:
-                self.setdebug()
-                debug_opts.remove("debug")
+        debug_str = getattr(args, "debug", "")
+        debug_opts = set([x.lower() for x in debug_str.split(",")])
+        debug_opts.remove("")
+
+        if "debug" in debug_opts:
+            self.setdebug()
+            debug_opts.remove("debug")
 
         if len(debug_opts) == 0:
             args.func(args)
         elif len(debug_opts) > 1:
             self.die(9, "Conflicting debug options: %s" % ", ".join(debug_opts))
-
         elif "trace" in debug_opts:
             import trace
             tracer = trace.Trace()
@@ -880,6 +897,7 @@ class CLI(cmd.Cmd, Context):
                 control = Control(ctx = self)
                 self.controls[name] = control
                 parser = self.subparsers.add_parser(name, help=help)
+                parser.description = help
                 if hasattr(control, "_configure"):
                     control._configure(parser)
                 elif hasattr(control, "__call__"):
