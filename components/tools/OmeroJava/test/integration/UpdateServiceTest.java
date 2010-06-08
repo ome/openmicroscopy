@@ -127,7 +127,7 @@ public class UpdateServiceTest
         String rootpass = client.getProperty("omero.rootpas");
         root = new omero.client(new String[]{"--omero.user=root",
                 "--omero.pass=" + rootpass});
-        root.createSession()
+        root.createSession();
     }
 
     /**
