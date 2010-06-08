@@ -25,7 +25,7 @@ from omero_ext.strings import shlex
 from omero_ext.functional import wraps
 
 
-HELP = """ Support for launching, uploading and otherwise managing OMERO.scripts """
+HELP = """Support for launching, uploading and otherwise managing OMERO.scripts"""
 
 DEMO_SCRIPT = """#!/usr/bin/env python
 import omero
@@ -444,8 +444,7 @@ class ScriptControl(BaseControl):
 
 
     def upload(self, args):
-        args.insert(0, "upload")
-        self.ctx.pub(args, strict=True)
+        self.ctx.invoke(["upload", args.file], strict = True, previous_args = args)
         id = self.ctx.get("last.upload.id")
         self.ctx.set("script.file.id", id)
 

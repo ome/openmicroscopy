@@ -14,9 +14,7 @@ import exceptions
 
 from omero.cli import BaseControl, CLI
 
-HELP = """
-    Delete OMERO data
-"""
+HELP = """Delete OMERO data"""
 
 LONGHELP = """
     Example: ... delete Image:50
@@ -60,7 +58,7 @@ class DeleteControl(BaseControl):
         for plate in plates: action("Plate", deleteSrv.deletePlate, plate)
 
 try:
-    register("delete", DeleteControl)
+    register("delete", DeleteControl, HELP)
 except NameError:
     if __name__ == "__main__":
         cli = CLI()

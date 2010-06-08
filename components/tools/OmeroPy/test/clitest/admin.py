@@ -8,8 +8,15 @@
 
 """
 
-import unittest, os, subprocess, StringIO
+import exceptions
+import unittest
+import os
+
 from path import path
+
+import omero
+import omero_ServerErrors_ice
+
 from omero.plugins.admin import AdminControl, NonZeroReturnCode
 from omero.cli import CLI
 from clitest.mocks import MockCLI
@@ -22,12 +29,15 @@ class TestAdmin(unittest.TestCase):
         self.cli = MockCLI()
         self.cli.register("a", AdminControl, "TEST")
 
+    def tearDown(self):
+        self.cli.tearDown()
+
     def invoke(self, string):
         self.cli.invoke(string, strict=True)
 
     def testMain(self):
         try:
-            self.invoke("a")
+            self.invoke()
         except NonZeroReturnCode:
             # Command-loop not implemented
             pass
@@ -35,16 +45,9 @@ class TestAdmin(unittest.TestCase):
     def testStartAsync(self):
         self.invoke("a startasync")
 
-    def testCheck(self):
-        self.cli = MockCLI()
-        c = AdminControl(self.cli, omeroDir)
-        c.check([])
-        c("check")
     def testStop(self):
-        self.cli = MockCLI()
-        c = AdminControl(self.cli, omeroDir)
-        c("stop")
-        c.stop([])
+        self.invoke("a stop")
+
     def testComplete(self):
         c = AdminControl()
         t = ""
@@ -57,6 +60,52 @@ class TestAdmin(unittest.TestCase):
 
     def testProperMethodsUseConfigXml(self):
         self.fail("NYI")
+
+    #
+    # STATUS
+    #
+
+    def testStatusNodeFails(self):
+
+        # Setup the call to bin/omero admin ice node
+        popen = self.cli.createPopen()
+        popen.wait().AndReturn(1)
+
+        self.cli.mox.ReplayAll()
+        self.assertRaises(NonZeroReturnCode, self.invoke, "a status")
+
+    def testStatusSMFails(self):
+
+        # Setup the call to bin/omero admin ice node
+        popen = self.cli.createPopen()
+        popen.wait().AndReturn(0)
+
+        # Setup the call to session manager
+        control = self.cli.controls["a"]
+        control._intcfg = lambda: ""
+        def sm(*args):
+            raise exceptions.Exception("unknown")
+        control.session_manager = sm
+
+        self.cli.mox.ReplayAll()
+        self.assertRaises(NonZeroReturnCode, self.invoke, "a status")
+
+    def testStatusPasses(self):
+
+        # Setup the call to bin/omero admin ice node
+        popen = self.cli.createPopen()
+        popen.wait().AndReturn(0)
+
+        # Setup the call to session manager
+        control = self.cli.controls["a"]
+        control._intcfg = lambda: ""
+        def sm(*args):
+            raise omero.WrappedCreateSessionException()
+        control.session_manager = sm
+
+        self.cli.mox.ReplayAll()
+        self.invoke("a status")
+        self.assertEquals(0, self.cli.rv)
 
 if __name__ == '__main__':
     unittest.main()

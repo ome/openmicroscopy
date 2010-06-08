@@ -13,7 +13,7 @@ import omero.java
 import time
 import sys
 
-HELP=""" omero web settings
+HELP="""omero web settings
 
 OMERO.web tools:
 

@@ -14,9 +14,7 @@ from omero.cli import BaseControl, CLI
 import cmd, sys, exceptions
 import sys
 
-HELP = """
-  Execute HQL queries from the command-line
-"""
+HELP = """Execute HQL queries from the command-line"""
 
 class HqlCLI(CLI):
 

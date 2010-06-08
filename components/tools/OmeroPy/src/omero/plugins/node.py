@@ -14,77 +14,33 @@
 from omero.cli import BaseControl, CLI
 from omero.util import tail_lines
 from omero_ext.strings import shlex
+from omero.plugins.admin import AdminControl
 import re, os, sys, signal
 from exceptions import Exception as Exc
 from path import path
 
-HELP = "Control icegridnode."
-
-class NodeControl(BaseControl):
-
-    def help(self, args = None):
-        self.ctx.out( """
-Syntax: %(program_name)s node [node-name ] [sync] [ start | stop | status | restart ]
+HELP = """Control icegridnode.
            start       -- Start the node via icegridnode. With sync doesn't return until reachable.
            stop        -- Stop the node via icegridadmin. With sync doesn't return until stopped.
            status      -- Prints a status message. Return code is non-zero if there is a problem.
            restart     -- Calls "sync start" then "stop" ("sync stop" if sync is specified)
 
         node-name cannot be "start", "stop", "restart", "status", or "sync".
-        """ )
+"""
+
+class NodeControl(BaseControl):
 
     def _configure(self, parser):
-        sub = parser.sub()
-        start = parser.add(sub, self.start, help = "Start the node via icegridnode. With sync doesn't return until reachable")
-        stop = parser.add(sub, self.stop, help = "Stop the node via icegridadmin. With sync doesn't return until stopped")
-        status = parser.add(sub, self.status, help = "Prints a status message. Return code is non-zero if there is a problem")
-        restart = parser.add(sub, self.restart, help = "Calls 'sync start' then 'stop' ('sync stop' if sync is specified")
-
-
-    def _likes(self, args):
-        first, other = args.firstOther()
-        return hasattr(self,first) or RE.match(args.join(" ")) and True or False
-
-    def _noargs(self):
-        self.help()
+        parser.add_argument("name", nargs="?", help="Optional name of this node.", default=self._node())
+        parser.add_argument("sync", nargs="?", choices=("sync",), help="Whether")
+        parser.add_argument("command", nargs="+", choices=("start","stop","status","restart"))
+        parser.set_defaults(func=self.__call__)
 
     def __call__(self, args):
-        first, other = args.firstOther()
-        try:
-            name = self._node()
-            sync = False
-            acts = []
-
-            if first == "sync":
-                # No master specified
-                sync = True
-                name = self._node()
-                acts.extend(other)
-            elif first == "start" or first == "stop" or first =="stop" or first == "kill" or first == "restart":
-                # Neither master nor sync specified. Defaults in effect
-                acts.append(first)
-                acts.extend(other)
-            else:
-                # Otherwise, command is name of master
-                name = first
-                # Check for sync
-                if len(other) > 0 and other[0] == "sync":
-                    sync = True
-                    other.pop(0)
-                acts.extend(other)
-
-            self._node(name)
-            if len(acts) == 0:
-                self.help()
-            else:
-                for act in acts:
-                    c = getattr(self, act)
-                    c(name, sync)
-        finally:
-            pass
-
-            #self.ctx.dbg(str(ex))
-            #self.ctx.die(100, "Bad argument: "+ str(first) + ", " + ", ".join(other))
+        self._node(args.name) # Set environment value
+        for act in args.command:
+            c = getattr(self, act)
+            c(args)
 
     def _handleNZRC(self, nzrc):
         """
@@ -100,27 +56,16 @@ Syntax: %(program_name)s node [node-name ] [sync] [ start | stop | status | rest
                 print "from %s:" % str(myoutput)
                 print tail_lines(str(myoutput),2)
 
-
-    ##############################################
-    #
-    # Commands : Since node plugin implements its own
-    # __call__() method, the pattern for the following
-    # commands is somewhat different.
-    #
-
-    def start(self, name = None, sync = False):
+    def start(self, args):
 
         self._initDir()
-
-        if name == None:
-            name = self._node()
 
         try:
             command = ["icegridnode", self._icecfg()]
             if self._isWindows():
-                command = command + ["--install","OMERO."+self._node()]
+                command = command + ["--install","OMERO."+args.node]
                 self.ctx.call(command)
-                self.ctx.call(["icegridnode","--start","OMERO."+self._node()])
+                self.ctx.call(["icegridnode","--start","OMERO."+args.node])
             else:
                 command = command + ["--daemon", "--pidfile", str(self._pid()),"--nochdir"]
                 self.ctx.call(command)
@@ -130,31 +75,23 @@ Syntax: %(program_name)s node [node-name ] [sync] [ start | stop | status | rest
         except NonZeroReturnCode, nzrc:
                 self._handleNZRC(nzrc)
 
-    def status(self, name = None):
+    def status(self, args):
+        self.ctx.invoke(["admin", "status", args.name])
 
-        if name == None:
-            name = self._node()
-
-        self.ctx.pub(["admin","status",name])
-
-    def stop(self, name = None, sync = False):
-        if name == None:
-            name = self._node()
+    def stop(self, args):
         if self._isWindows():
-                try:
-                        command = ["icegridnode", "--stop", "OMERO."+self._node()]
-                        self.ctx.call(command)
-                        command = ["icegridnode", "--uninstall", "OMERO."+self._node()]
-                        self.ctx.call(command)
-                except NonZeroReturnCode, nzrc:
-                        self._handleNZRC(nzrc)
+            try:
+                command = ["icegridnode", "--stop", "OMERO."+args.name]
+                self.ctx.call(command)
+                command = ["icegridnode", "--uninstall", "OMERO."+args.name]
+                self.ctx.call(command)
+            except NonZeroReturnCode, nzrc:
+                self._handleNZRC(nzrc)
         else:
                 pid = open(self._pid(),"r").readline()
                 os.kill(int(pid), signal.SIGQUIT)
 
-    def kill(self, name = None, sync = False):
-        if name == None:
-            name = self._node()
+    def kill(self, args):
         pid = open(self._pid(),"r").readline()
         os.kill(int(pid), signal.SIGKILL)
 
@@ -163,5 +100,5 @@ try:
 except NameError:
     if __name__ == "__main__":
         cli = CLI()
-        cli.register("node", NodeControl, HELP)
+        cli.loadplugins()
         cli.invoke(sys.argv[1:])

@@ -12,9 +12,7 @@ import sys
 
 from omero.cli import BaseControl, CLI
 
-HELP="""
-    Group administration methods
-"""
+HELP="""Group administration methods"""
 
 class GroupControl(BaseControl):
 

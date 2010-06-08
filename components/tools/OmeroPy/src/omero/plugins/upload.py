@@ -32,9 +32,8 @@ except:
     import sha
     hash_sha1 = sha.new
 
-HELP = """
- Upload local files to the OMERO server
-"""
+HELP = """Upload local files to the OMERO server"""
+
 class UploadControl(BaseControl):
 
     def _configure(self, parser):
@@ -45,7 +44,7 @@ class UploadControl(BaseControl):
     def upload(self, args):
         client = self.ctx.conn(args)
         for file in args.file:
-            is_importer, omero_format = omero.util.originalfileutils.getFormat(filename)
+            is_importer, omero_format = omero.util.originalfileutils.getFormat(file)
             if (is_importer == omero.util.originalfileutils.IMPORTER):
                 self.ctx.dir(493, "This file should be imported using omero import")
             else:

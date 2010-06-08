@@ -13,9 +13,7 @@
 import sys
 from omero.cli import BaseControl, CLI
 
-HELP = """
-    Download the given file id to the given filename
-"""
+HELP = """Download the given file id to the given filename"""
 
 class DownloadControl(BaseControl):
 
@@ -33,7 +31,7 @@ class DownloadControl(BaseControl):
         client.download(orig_file, target_file)
 
 try:
-    register("download", DownloadControl)
+    register("download", DownloadControl, HELP)
 except NameError:
     if __name__ == "__main__":
         cli = CLI()

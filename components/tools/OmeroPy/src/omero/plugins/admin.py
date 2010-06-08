@@ -227,7 +227,7 @@ class AdminControl(BaseControl):
         else:
             return "master"
 
-    def _cmd(self, command_arguments):
+    def _cmd(self, *command_arguments):
         """
         Used to generate an icegridadmin command line argument list
         """
@@ -376,11 +376,10 @@ class AdminControl(BaseControl):
                 import Ice, IceGrid, Glacier2
                 import omero_ServerErrors_ice
                 ic = Ice.initialize([self._intcfg()])
+                import pdb
+                pdb.set_trace()
                 try:
-                    iq = ic.stringToProxy("IceGrid/Query")
-                    iq = IceGrid.QueryPrx.checkedCast(iq)
-                    sm = iq.findAllObjectsByType("::Glacier2::SessionManager")[0]
-                    sm = Glacier2.SessionManagerPrx.checkedCast(sm)
+                    sm = self.session_manager(ic)
                     try:
                         sm.create("####### STATUS CHECK ########", None) # Not adding "omero.client.uuid"
                     except omero.WrappedCreateSessionException, wcse:
@@ -389,7 +388,7 @@ class AdminControl(BaseControl):
                         self.ctx.rv = 0
                 finally:
                     ic.destroy()
-            except Exc, exc:
+            except exceptions.Exception, exc:
                 self.ctx.rv = 1
                 self.ctx.dbg("Server not reachable: "+str(exc))
         return self.ctx.rv
@@ -556,7 +555,7 @@ OMERO Diagnostics %s
 
         self.ctx.out("")
         item("Server", "icegridnode")
-        p = self.ctx.popen(self._cmd() + ["-e", "server list"]) # popen
+        p = self.ctx.popen(self._cmd("-e", "server list")) # popen
         rv = p.wait()
         io = p.communicate()
         if rv != 0:
@@ -571,7 +570,7 @@ OMERO Diagnostics %s
             servers.sort()
             for s in servers:
                 item("Server", "%s" % s)
-                p2 = self.ctx.popen(self._cmd() + ["-e", "server state %s" % s]) # popen
+                p2 = self.ctx.popen(self._cmd("-e", "server state %s" % s)) # popen
                 rv2 = p2.wait()
                 io2 = p2.communicate()
                 if io2[1]:
@@ -618,6 +617,14 @@ OMERO Diagnostics %s
         env_val("ICE_HOME")
         env_val("LD_LIBRARY_PATH")
         env_val("DYLD_LIBRARY_PATH")
+
+    def session_manager(self, communicator):
+        iq = communicator.stringToProxy("IceGrid/Query")
+        iq = IceGrid.QueryPrx.checkedCast(iq)
+        sm = iq.findAllObjectsByType("::Glacier2::SessionManager")[0]
+        sm = Glacier2.SessionManagerPrx.checkedCast(sm)
+        return sm
+
 try:
     register("admin", AdminControl, HELP)
 except NameError:

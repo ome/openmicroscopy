@@ -498,6 +498,13 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   License File: apache-v2.0.txt
 
 
+  Artifacts:    components/tools/OmeroPy/src/omero_ext/mox.py
+  Project:      mox: an object-mocking framework for Python
+  Web Site:     http://code.google.com/p/pymox
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
   Artifacts:    components/tools/OmeroPy/src/path.py
   Project:      Improved Python path library
   Web Site:     http://www.jorendorff.com/articles/python/path

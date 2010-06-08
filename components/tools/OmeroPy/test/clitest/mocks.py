@@ -8,20 +8,48 @@
 
 """
 
-from omero.cli import Context, BaseControl, CLI, NonZeroReturnCode
+import exceptions
+import subprocess
+
+from omero.cli import CLI
+from omero.cli import Context
+from omero.cli import BaseControl
+from omero.cli import NonZeroReturnCode
+
+from omero_ext import mox
+
 
 class MockCLI(CLI):
 
     def __init__(self, *args, **kwargs):
         self.__output = []
         self.__error = []
+        self.__popen = []
+        self.mox = mox.Mox()
         CLI.__init__(self, *args, **kwargs)
+
+    #
+    # Overrides
+    #
 
     def out(self, *args):
         self.__output.append(args[0])
 
     def err(self, *args):
         self.__error.append(args[0])
+
+    def call(self, *args, **kwargs):
+        assert False
+
+    def conn(self, *args, **kwargs):
+        assert False
+
+    def popen(self, *args, **kwargs):
+        return self.__popen.pop(0)
+
+    #
+    # Test methods
+    #
 
     def assertEquals(self, a, b):
         if a != b:
@@ -39,12 +67,16 @@ class MockCLI(CLI):
         finally:
             self.__error = []
 
-    def conn(self, *args, **kwargs):
-        raise
+    def createPopen(self):
+        popen = self.mox.CreateMock(subprocess.Popen)
+        self.__popen.append(popen)
+        return popen
 
-    def popen(self, *args, **kwargs):
-        raise
+    def replay(self, mock):
+        mox.Replay(mock)
 
-    def call(self, *args, **kwargs):
-        raise
-
+    def tearDown(self):
+        try:
+            self.mox.VerifyAll()
+        finally:
+            self.mox.UnsetStubs()

@@ -28,7 +28,11 @@ from exceptions import Exception as Exc
 from threading import Thread, Lock
 from path import path
 
-from omero_ext.argparse import ArgumentError, ArgumentParser, RawTextHelpFormatter, FileType, SUPPRESS
+from omero_ext.argparse import ArgumentError
+from omero_ext.argparse import ArgumentParser
+from omero_ext.argparse import FileType
+from omero_ext.argparse import RawDescriptionHelpFormatter
+from omero_ext.argparse import RawTextHelpFormatter
 from omero.util.sessions import SessionsStore
 
 import omero
@@ -48,11 +52,9 @@ if os.environ.has_key("DEBUG"):
     print "Deprecated warning: use the 'bin/omero debug [args]' to debug"
     print "Running omero with debugging on"
     DEBUG = True
-TEXT="""
-  OMERO Python Shell. Version %s
-  Type "help" for more information, "quit" or Ctrl-D to exit
-""" % str(VERSION)
 
+OMEROSHELL = """OMERO Python Shell. Version %s""" % str(VERSION)
+OMEROHELP = """Type "help" for more information, "quit" or Ctrl-D to exit"""
 OMEROCLI = path(__file__).expand().dirname()
 OMERODIR = os.getenv('OMERODIR', None)
 if OMERODIR is not None:
@@ -87,6 +89,34 @@ class NonZeroReturnCode(Exc):
 
 #####################################################
 #
+
+class HelpFormatter(object):
+
+    def __init__(self, *args, **kwargs):
+        import pdb
+        pdb.set_trace()
+        self.args = list(args)
+        self.kwargs = dict(kwargs)
+        print "INIT:", args, kwargs
+
+    def add_arguments(self, *args, **kwargs):
+        print "ADA:", args, kwargs
+
+    def add_usage(self, *args, **kwargs):
+        print "ADU:", args, kwargs
+
+    def add_text(self, *args, **kwargs):
+        print "TXT:", args, kwargs
+
+    def start_section(self, *args, **kwargs):
+        print "SEC+:", args, kwargs
+
+    def end_section(self, *args, **kwargs):
+        print "SEC-:", args, kwargs
+
+    def format_help(self, *args, **kwargs):
+        print "FMT:", args, kwargs
+        return ""
 
 class Parser(ArgumentParser):
     """
@@ -134,7 +164,11 @@ class Context:
         self.controls = controls
         self.dir = OMERODIR
         self.isdebug = DEBUG # This usage will go away and default will be False
-        self.parser = Parser(prog=sys.argv[0], formatter_class=RawTextHelpFormatter)
+        self.parser = Parser(prog = sys.argv[0],
+            formatter_class = RawTextHelpFormatter,
+            description = """
+            OMERO CLI
+            """)
         self.subparsers = self.parser_init(self.parser)
 
     def parser_init(self, parser):
@@ -463,8 +497,6 @@ class BaseControl:
     #
     # Methods likely to be implemented by subclasses
     #
-    def help(self, args = []):
-        return """ Help not implemented """
 
     def _complete(self, text, line, begidx, endidx):
         try:
@@ -481,72 +513,6 @@ class BaseControl:
         completions = [ str(method + " ") for method in completions if method.startswith(text) and not method.startswith("_") ]
         return completions
 
-    def _likes(self, args):
-        """
-        Checks whether or not it is likely for the given args
-        to be run successfully by the given command. This is
-        useful for plugins which have significant start up
-        times.
-
-        Simply return True is a possible solution. The default
-        implementation checks that the subclass has a method
-        matching the first argument, such that the default
-        __call__() implementation could dispatch to it. Or if
-        no arguments are given, True is returned since self._noargs()
-        can be called.
-        """
-        first, other = args.firstOther()
-        if first == None or hasattr(self, first):
-            return True
-        return False
-
-    def __call__(self, args):
-        """
-        Main dispatch method for a control instance. The default
-        implementation assumes that the *args consists of either
-        no elements or exactly one list of strings ==> (["str"],)
-
-        If no args are present, _noargs is called. Subclasses may want
-        to read from stdin or drop into a shell from _noargs().
-
-        Otherwise, the rest of the arguments are passed to the method
-        named by the first argument, if _likes() returns True.
-        """
-        first, other = args.firstOther()
-        if first == None:
-            self._noargs()
-        else:
-            if not self._likes(args):
-                if self.ctx.isdebug:
-                    # Throwing an exception
-                    # so we can see how we got here.
-                    raise Exc("Bad arguments: " + str(args))
-                self.ctx.err("Bad arguments: " + ",".join(args))
-                self.help()
-                self.ctx.die(8, "Exiting.")
-            else:
-                m = getattr(self, first)
-                return m(other)
-
-    def _noargs(self):
-        """
-        Method called when __call__() is called without any arguments. Some implementations
-        may want to drop the user into a shell or read from standard in. By default, help()
-        is printed.
-        """
-        self.help()
-
-    def _main(self):
-        """
-        Simple _main() logic which is reusable by subclasses to do something when the control
-        is executed directly. It is unlikely that such an excution will function properly,
-        but it may be useful for testing purposes.
-        """
-        if __name__ == "__main__":
-            if not self._likes(sys.argv[1:]):
-                self.help()
-            else:
-                self.__call__(sys.argv[1:])
 
 class HelpControl(BaseControl):
     """
@@ -569,14 +535,13 @@ class HelpControl(BaseControl):
     def __call__(self, args):
 
         self.ctx.waitForPlugins()
-        controls = self.ctx.controls.keys()
-        controls.sort()
+        controls = sorted(self.ctx.controls)
 
         if not args.topic:
-            print """OmeroCli client, version %(version)s
-
+            self.ctx.invoke("-h")
+            print """
 Usage: %(program_name)s <command> [options] args
-See 'help <command>' for more information on syntax
+See 'help <command>' or '<command> -h' for more information on syntax
 Type 'quit' to exit
 
 Available commands:
@@ -591,10 +556,7 @@ Report bugs to <ome-users@openmicroscopy.org.uk>"""
         else:
             try:
                 c = self.ctx.controls[args.topic]
-                if hasattr(c, "help"):
-                    c.help(args)
-                else:
-                    self.ctx.err("No extended help")
+                self.ctx.invoke("%s -h" % args.topic)
             except KeyError, ke:
                 self.ctx.unknown_command(args.topic)
 
@@ -637,35 +599,40 @@ class CLI(cmd.Cmd, Context):
         Context.__init__(self)
         self.prompt = 'omero> '
         self.interrupt_loop = False
-        self._client = None
+        self.rv = 0                         #: Return value to be returned
+        self._stack = []                    #: List of commands being processed
+        self._client = None                 #: Single client for all activities
         self._pluginsLoaded = CLI.PluginsLoaded()
-        self.rv = 0 # Return value to be returned
 
     def assertRC(self):
         if self.rv != 0:
             raise NonZeroReturnCode(self.rv, "assert failed")
 
-    def invoke(self, line, strict = False):
+    def invoke(self, line, strict = False, previous_args = None):
         """
         Copied from cmd.py
         """
         try:
             line = self.precmd(line)
-            stop = self.onecmd(line)
+            stop = self.onecmd(line, previous_args)
             stop = self.postcmd(stop, line)
             if strict:
                 self.assertRC()
         finally:
-            self.close()
+            if len(self._stack) == 0:
+                self.close()
+            else:
+                self.dbg("Delaying close for stack: %s" % len(self._stack))
 
     def invokeloop(self):
         try:
-            self.selfintro = TEXT
+            self.selfintro = "\n".join([OMEROSHELL, OMEROHELP])
             if not self.stdin.isatty():
                 self.selfintro = ""
                 self.prompt = ""
             while not self.interrupt_loop:
                 try:
+                    # Calls the same thing as invoke
                     self.cmdloop(self.selfintro)
                 except KeyboardInterrupt, ki:
                     # We've done the intro once now. Don't repeat yourself.
@@ -681,21 +648,26 @@ class CLI(cmd.Cmd, Context):
         finally:
             self.close()
 
-    def precmd(self, input):
-        if isinstance(input,str):
-            if COMMENT.match(input):
-                return ""
-        return input
-
-    def onecmd(self, line):
+    def onecmd(self, line, previous_args = None):
+        """
+        Single command logic. Overrides the cmd.Cmd logic
+        by calling execute. Also handles various exception
+        conditions.
+        """
         try:
             # Starting a new command. Reset the return value to 0
             # If err or die are called, set rv non-0 value
             self.rv = 0
-            return self.execute(line)
+            try:
+                self._stack.insert(0, line)
+                self.dbg("Stack+: %s" % len(self._stack))
+                self.execute(line, previous_args)
+                return True
+            finally:
+                self._stack.pop(0)
+                self.dbg("Stack-: %s" % len(self._stack))
         except SystemExit, exc: # Thrown by argparse
             self.rv = exc.code
-            self.err("Bad arguments: %s" % exc)
             return False
         #
         # This was perhaps only needed previously
@@ -712,59 +684,45 @@ class CLI(cmd.Cmd, Context):
         return False # Continue
 
     def postcmd(self, stop, line):
-        return self.interrupt_loop
+        """
+        Checks interrupt_loop for True and return as much
+        which will end the call to cmdloop. Otherwise use
+        the default postcmd logic (which simply returns stop)
+        """
+        if self.interrupt_loop:
+            return True
+        return cmd.Cmd.postcmd(self, stop, line)
 
-    def execute(self, line):
-
-        if line == "EOF" or line == ["EOF"]:
-            self.exit("")
+    def execute(self, line, previous_args):
+        """
+        String/list handling as well as EOF and comment handling.
+        Otherwise, parses the arguments as shlexed and runs the
+        function returned by argparse.
+        """
 
         if isinstance(line, (str, unicode)):
+            if COMMENT.match(line):
+                return # EARLY EXIT!
             args = shlex.split(line)
-        else:
+        elif isinstance(line, (tuple, list)):
             args = list(line)
+        else:
+            self.die(1, "Bad argument type: %s ('%s')" % (type(line), line))
+
+        if not args:
+            return
+        elif args == ["EOF"]:
+            self.exit("")
+            return
 
         args = self.parser.parse_args(args)
         args.prog = self.parser.prog
         self.waitForPlugins()
         args.func(args)
 
-        # How to handle: background loading, unknown commands, do_ methods, delegation
-        if False:
-            first, other = args.firstOther()
-            file = OMEROCLI / "plugins" / (first + ".py")
-            loc = {"register": self.register}
-            try:
-                execfile( str(file), loc )
-                print loc.keys()
-            except Exc, ex:
-                self.dbg("Could not load %s: %s" % (first, ex))
-                self.waitForPlugins()
-
-            if self.controls.has_key(first):
-                return self.invoke(args)
-            elif hasattr(self, "do_%s" % first):
-                return getattr(self, "do_%s" % first)(other)
-            else:
-                self.err("""Unknown command: "%s" Try "help".""" % first)
-
     def completenames(self, text, line, begidx, endidx):
         names = self.controls.keys()
         return [ str(n + " ") for n in names if n.startswith(line) ]
-
-    # Delegation
-    def delegate(self, prepend, *args):
-        args = Arguments(args)
-        prepend = list(prepend)
-        prepend.reverse()
-        for p in prepend:
-            args.insert(0, p)
-        self.pub(args)
-
-    # Note: this delegation doesn't work well with "bin/omero debug ..."
-    def do_start(self, args): self.delegate(["node", "start"], args)
-    def do_login(self, args):  self.delegate(["sessions", "login"], args)
-    def do_logout(self, args):  self.delegate(["sessions", "logout"], args)
 
     ##########################################
     ##
@@ -779,29 +737,6 @@ class CLI(cmd.Cmd, Context):
         self.rv = rc
         self.interrupt_loop = True
         raise NonZeroReturnCode(rc, "die called")
-
-    def pub(self, args, strict = False):
-        """
-        Publishes the command, using the first argument as routing
-        information, i.e. the name of the plugin to be instantiated,
-        and the rest as the arguments to its __call__() method.
-        """
-        try:
-            args = Arguments(args)
-            first, other = args.firstOther()
-            if first == None:
-                self.ctx.die(2, "No plugin given. Giving up")
-            else:
-                control = self.controls[first]
-                control(other)
-        except KeyError, ke:
-            if hasattr(self, "do_%s" % first):
-                m = getattr(self, "do_%s" % first)
-                m(other)
-            else:
-                self.die(11, "Missing required plugin: "+ str(ke))
-        if strict:
-            self.assertRC()
 
     def _env(self):
         """
@@ -930,17 +865,33 @@ class CLI(cmd.Cmd, Context):
     ##
 
     def register(self, name, Control, help):
+        self.register_only(name, Control, help)
+        self.configure_plugins()
+
+    def register_only(self, name, Control, help):
         """ This method is added to the globals when execfile() is
         called on each plugin. A Control class should be
         passed to the register method which will be added to the CLI.
         """
-        control = Control(ctx = self)
-        parser = self.subparsers.add_parser(name, help=help)
-        if hasattr(control, "_configure"):
-            control._configure(parser)
-        elif hasattr(control, "__call__"):
-            parser.set_defaults(func=control.__call__)
-        self.controls[name] = control
+        self.controls[name] = (Control, help)
+
+    def configure_plugins(self):
+        """
+        Run to instantiate and configure all plugins
+        which were registered via register_only()
+        """
+        for name in sorted(self.controls):
+            control = self.controls[name]
+            if isinstance(control, tuple):
+                Control = control[0]
+                help = control[1]
+                control = Control(ctx = self)
+                self.controls[name] = control
+                parser = self.subparsers.add_parser(name, help=help)
+                if hasattr(control, "_configure"):
+                    control._configure(parser)
+                elif hasattr(control, "__call__"):
+                    parser.set_defaults(func=control.__call__)
 
     def waitForPlugins(self):
         if True:
@@ -951,10 +902,13 @@ class CLI(cmd.Cmd, Context):
             time.sleep(0.1)
 
     def loadplugins(self):
-        """ Finds all plugins and gives them a chance to register
-        themselves with the CLI instance """
+        """
+        Finds all plugins and gives them a chance to register
+        themselves with the CLI instance. Here register_only()
+        is used to guarantee the orderedness of the plugins
+        in the parser
+        """
 
-        loc = {"register": self.register}
 
         plugins = OMEROCLI / "plugins"
         for plugin in plugins.walkfiles("*.py"):
@@ -962,12 +916,14 @@ class CLI(cmd.Cmd, Context):
                 print "Loading " + plugin
             if -1 == plugin.find("#"): # Omit emacs files
                 try:
+                    loc = {"register": self.register_only}
                     execfile( plugin, loc )
                 except KeyboardInterrupt:
                     raise
                 except:
                     self.err("Error loading:"+plugin)
                     traceback.print_exc()
+        self.configure_plugins()
         self._pluginsLoaded.set()
 
     ## End Cli
@@ -1001,7 +957,7 @@ def argv(args=sys.argv):
             args = parts
 
         cli = CLI()
-        cli.register("help", HelpControl, "Extend help for all commands")
+        cli.register("help", HelpControl, "Syntax help for all commands")
         class PluginLoader(Thread):
             def run(self):
                 cli.loadplugins()

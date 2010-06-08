@@ -12,6 +12,9 @@ import sys
 
 from omero.cli import BaseControl, CLI, NewFileType
 
+HELP="""Support for exporting data in XML and TIFF formats"""
+
+
 class ExportControl(BaseControl):
 
     def _configure(self, parser):

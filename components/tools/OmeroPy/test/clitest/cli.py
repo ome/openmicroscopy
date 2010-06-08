@@ -36,5 +36,17 @@ class TestCli(unittest.TestCase):
         cli.invoke(["test","a=b"])
         self.assertEquals(0, cli.rv)
 
+    def testVarious(self):
+        self.fail("How to handle: background loading, unknown commands, do_ methods, delegation")
+        self.fail("omero start") # delegates
+        self.fail("omero login")
+        self.fail("omero etc.")
+        self.fail("special noarg handling") # Perhaps with parse_known_args?
+        self.fail("name completion in help")
+        self.fail("help on bad arguments")
+        self.fail("tracing, debugging, etc")
+        self.fail("loading")
+        self.fail("hyphen splitting")
+
 if __name__ == '__main__':
     unittest.main()

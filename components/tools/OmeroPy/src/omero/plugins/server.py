@@ -94,7 +94,7 @@ class ServerControl(BaseControl):
         sys.stderr.write(str(django) + '\n')
         os.execvpe("python", django, os.environ)
 try:
-    register("server", ServerControl)
+    register("server", ServerControl, HELP)
 except NameError:
     if __name__ == "__main__":
         cli = CLI()

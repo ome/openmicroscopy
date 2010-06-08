@@ -32,9 +32,12 @@ except:
 
 class DebugControl(BaseControl):
 
+    def _configure(self, parser):
+        parser.raw()
+
     def __call__(self, args):
         self.ctx.setdebug()
-        self.ctx.pub(args)
+        self.ctx.invoke(args)
 
 
 class TraceControl(BaseControl):
@@ -42,7 +45,7 @@ class TraceControl(BaseControl):
     def __call__(self, args):
         import trace
         tracer = trace.Trace()
-        tracer.runfunc(self.ctx.pub, args)
+        tracer.runfunc(self.ctx.invoke, previous_args = args)
 
 
 class ProfileControl(BaseControl):
@@ -51,7 +54,7 @@ class ProfileControl(BaseControl):
         import hotshot
         from hotshot import stats
         prof = hotshot.Profile("hotshot_edi_stats")
-        rv = prof.runcall( lambda: self.ctx.pub(args) )
+        rv = prof.runcall( lambda: self.ctx.invoke(args) )
         prof.close()
         s = stats.load("hotshot_edi_stats")
         s.sort_stats("time").print_stats()
@@ -76,7 +79,7 @@ class LoadControl(BaseControl):
             file = open(arg,'r')
             self.ctx.dbg("Loading file %s" % arg)
             for line in file:
-                self.pub.ctx(line)
+                self.invoke.ctx(line)
 
 
 class ShellControl(BaseControl):

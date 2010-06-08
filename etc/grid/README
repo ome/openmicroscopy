@@ -8,15 +8,8 @@
 
   All examples assume that processes will be run from the OMERO_HOME
   directory. This simplifies deployment, but is less secure since
-  this directory may not belong to run. To further secure your installation,
+  this directory may not belong to you. To further secure your installation,
   make all path references absolute.
-
-  All examples use the default templates location of 
-
-  The examples include:
-
-
-
 
   See https://trac.openmicroscopy.org.uk/omero/wiki/OmeroGrid for
   more information.

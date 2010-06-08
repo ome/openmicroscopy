@@ -16,16 +16,14 @@ from omero.cli import BaseControl
 from omero.cli import CLI
 from omero.cli import VERSION
 
+from path import path
+
 import omero.java
 import time
 
-HELP=""" omero db [ script ]
+HELP="""Database tools for creating scripts, setting passwords, etc."""
 
-Database tools:
 
-     script - Generates a script for creating an OMERO database
-
-"""
 class DatabaseControl(BaseControl):
 
     def _configure(self, parser):
@@ -45,9 +43,9 @@ class DatabaseControl(BaseControl):
 
         script = sub.add_parser("script")
         script.set_defaults(func=self.script)
-        script.add_argument("dbversion")
-        script.add_argument("dbpatch")
-        script.add_argument("password")
+        script.add_argument("dbversion", nargs="?")
+        script.add_argument("dbpatch", nargs="?")
+        script.add_argument("password", nargs="?")
 
         pw = sub.add_parser("password", help="Prints SQL command for updating your root password")
         pw.add_argument("password", nargs="?")
@@ -114,7 +112,7 @@ class DatabaseControl(BaseControl):
 
         script = "%s__%s.sql" % (db_vers, db_patch)
         if not location:
-            location = path().getcwd() / script
+            location = path.getcwd() / script
 
         output = open(location, 'w')
         self.ctx.out("Saving to " + location)
@@ -167,8 +165,8 @@ BEGIN;
         map = {}
         root_pass = None
         try:
-            db_vers = args.args[0]
-            db_patch = args.args[1]
+            db_vers = args.dbversion
+            db_patch = args.dbpatch
             if data2:
                 if len(db_vers) == 0:
                     db_vers = data2.properties.getProperty("omero.db.version")
@@ -178,7 +176,7 @@ BEGIN;
             self.ctx.err("Using %s for version" % db_vers)
             data.properties.setProperty("omero.db.patch", db_patch)
             self.ctx.err("Using %s for patch" % db_patch)
-            root_pass = args.args[2]
+            root_pass = args.password
             self.ctx.err("Using password from commandline")
         except Exception, e:
             self.ctx.dbg("While getting arguments:"+str(e))

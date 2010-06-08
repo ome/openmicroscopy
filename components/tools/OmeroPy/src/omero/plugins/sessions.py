@@ -19,9 +19,8 @@ from omero.util.sessions import SessionsStore
 from omero.cli import BaseControl, CLI
 from path import path
 
-HELP = """
-    Control and create user sessions; login and logout
-"""
+HELP = """Control and create user sessions; login and logout"""
+
 LONGHELP = """
     Uses the login parameters from %(prog)s to login.
 
@@ -85,7 +84,7 @@ class SessionsControl(BaseControl):
             self.ctx.err("Active client found")
             return # EARLY EXIT
 
-        server = args.connection
+        server = getattr(args, "connection", None) # May be called by another plugin
 
         if args.server:
             if server:

@@ -44,11 +44,10 @@ class SubmitCLI(CLI):
         print "Uploading"
         print submit.queue
 
-HELP = """
-        When run without arguments, submit shell is opened
-        which takes commands without executing them. On save,
-        the file is trasferred to the server, and executed.
-       """
+HELP = """When run without arguments, submit shell is opened
+which takes commands without executing them. On save,
+the file is trasferred to the server, and executed."""
+
 class SubmitControl(BaseControl):
 
     def _configure(self, parser):
