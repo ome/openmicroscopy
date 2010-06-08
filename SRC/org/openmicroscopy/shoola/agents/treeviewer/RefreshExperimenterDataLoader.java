@@ -276,7 +276,6 @@ public class RefreshExperimenterDataLoader
         		viewer.setGroups((Collection) result, 
         				(List) nodes.get(GroupData.class));
 			}
-        	
         	return;
         }
         Map m = (Map) result;

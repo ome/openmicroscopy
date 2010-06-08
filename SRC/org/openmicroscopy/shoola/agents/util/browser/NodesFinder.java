@@ -24,7 +24,9 @@ package org.openmicroscopy.shoola.agents.util.browser;
 
 
 //Java imports
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
@@ -50,7 +52,7 @@ public class NodesFinder
 {
 
 	/** The identifier of the data object to find. */
-	private long id;
+	private List<Long> ids;
 	
 	/** The type of object to handle. */
 	private Class type;
@@ -69,9 +71,23 @@ public class NodesFinder
 		if (userObject != null && userObject.getClass().equals(type)) {
 			if (userObject instanceof DataObject) {
 				DataObject data = (DataObject) userObject;
-				if (data.getId() == id) nodes.add(node);
+				if (ids.contains(data.getId())) nodes.add(node);
 			}
 		} 	
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param type The type to data object.
+	 * @param id   The identifier of the data object.
+	 */
+	public NodesFinder(Class type, List id)
+	{
+		this.type = type;
+		ids = new ArrayList<Long>();
+		ids.addAll(id);
+		nodes = new HashSet<TreeImageDisplay>();
 	}
 	
 	/**
@@ -83,7 +99,8 @@ public class NodesFinder
 	public NodesFinder(Class type, long id)
 	{
 		this.type = type;
-		this.id = id;
+		ids = new ArrayList<Long>(1);
+		ids.add(id);
 		nodes = new HashSet<TreeImageDisplay>();
 	}
 	

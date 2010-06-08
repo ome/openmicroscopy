@@ -36,6 +36,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
+
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JTree;
@@ -1227,12 +1229,41 @@ class BrowserComponent
 		}
 		//expand the nodes.
 		i = nodes.keySet().iterator();
-		while (i.hasNext()) {
-			userId = (Long) i.next();
-			node = nodes.get(userId);
-			expNode = node.getExperimenterNode();
-			//if (expNode.isExpanded()) view.expandNode(expNode);
+		Map m;
+		Entry entry;
+		Iterator j;
+		NodesFinder finder;
+		if (type == null) {
+			List l;
+			Iterator k;
+			Set<TreeImageDisplay> found;
+			while (i.hasNext()) {
+				userId = (Long) i.next();
+				node = nodes.get(userId);
+				expNode = node.getExperimenterNode();
+				if (expNode.isExpanded()) {
+					m = node.getExpandedTopNodes();
+					if (m != null && m.size() > 0 && 
+							node.getExpandedNodes().size() == 0) {
+						j = m.entrySet().iterator();
+						while (j.hasNext()) {
+							entry = (Entry) j.next();
+							finder = new NodesFinder((Class) entry.getKey(), 
+									(List) entry.getValue());
+							accept(finder);
+							found = finder.getNodes();
+							if (found.size() > 0) {
+								k = found.iterator();
+								while (k.hasNext()) {
+									view.expandNode((TreeImageDisplay) k.next());
+								}
+							}
+						}
+					} else view.expandNode(expNode);
+				}
+			}
 		}
+		
 		model.setSelectedDisplay(null, true);
 		model.setState(READY);
 		countItems(null);
@@ -1243,7 +1274,7 @@ class BrowserComponent
 		accept(v, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
 		if (ProjectData.class.equals(type) || DatasetData.class.equals(type) ||
         		ScreenData.class.equals(type)) {
-        	NodesFinder finder = new NodesFinder(type, id);
+        	finder = new NodesFinder(type, id);
 			accept(finder);
 			Set<TreeImageDisplay> found = finder.getNodes();
 			if (found.size() > 0) {

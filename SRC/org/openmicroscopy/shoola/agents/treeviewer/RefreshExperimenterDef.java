@@ -87,7 +87,7 @@ public class RefreshExperimenterDef
      * 
      * @return See above.
      */
-    List getExpandedNodes() { return expandedNodes; }
+    public List getExpandedNodes() { return expandedNodes; }
     
     /**
      * Returns the map containing the expanded nodes with images.

@@ -185,7 +185,6 @@ public class RefreshVisitor
         		&& node.isExpanded()) {
     		foundNodes.add(node);
     	}
-        
     }
     
 }
