@@ -151,7 +151,7 @@ class SessionsControl(BaseControl):
         # an active session or has requested another (different options)
         # If they've omitted some required value, we must ask for it.
         #
-        if not server: server = self._get_server(store)
+        if not server: server, name = self._get_server(store)
         if not name: name = self._get_username()
 
         pasw = args.password

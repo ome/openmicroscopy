@@ -29,7 +29,7 @@ from omero.cli import VERSION
 class QuitControl(BaseControl):
 
     def __call__(self, args):
-        self.ctx.exit("")
+        self.ctx.exit("", newline = False)
 
 
 class VersionControl(BaseControl):

@@ -567,20 +567,58 @@ class BaseControl:
     # Methods likely to be implemented by subclasses
     #
 
+    def _complete_file(self, f):
+        """
+        f: path part
+        """
+        p = path(f)
+        if p.exists() and p.isdir():
+            if not f.endswith(os.sep):
+                return [p.basename()+os.sep]
+            return [ str(x)[len(f):] for x in p.listdir() ]
+        else:
+            results = [ str(x.basename()) for x in self.dir.glob(f+"*")  ]
+            if len(results) == 1:
+                # Relative to cwd
+                maybe_dir = path(results[0])
+                if maybe_dir.exists() and maybe_dir.isdir():
+                    return [ results[0] + os.sep ]
+            return results
+
     def _complete(self, text, line, begidx, endidx):
         try:
-            import readline
-            # import rlcompleter
-        except ImportError, ie:
-            self.ctx.err("No readline")
-            return []
+            return self._complete2(text, line, begidx, endidx)
+        except:
+            self.ctx.dbg("Complete error: %s" % traceback.format_exc())
 
-        # readline.parse_and_bind("tab: complete")
-        # readline.set_completer_delims(' \t\n`~!@#$%^&*()-=+[{]}\\|;:\'",<>;?')
+    def _complete2(self, text, line, begidx, endidx):
+        items = shlex.split(line)
+        parser = getattr(self, "parser", None)
+        if parser:
+            result = []
+            actions = getattr(parser, "_actions")
+            if actions:
+                if len(items) > 1:
+                    subparsers = [x for x in actions if x.__class__.__name__ == "_SubParsersAction"]
+                    if subparsers:
+                        subparsers = subparsers[0] # Guaranteed one
+                        choice = subparsers.choices.get(items[-1])
+                        if choice and choice._actions:
+                            actions = choice._actions
+                if len(items) > 2:
+                    actions = [] # TBD
 
+            for action in actions:
+                if action.__class__.__name__ == "_HelpAction":
+                    result.append("-h")
+                elif action.__class__.__name__ == "_SubParsersAction":
+                    result.extend(action.choices)
+
+            return ["%s " % x for x in result if (not text or x.startswith(text)) and line.find(" %s " % x) < 0]
+
+        # Fallback
         completions = [method for method in dir(self) if callable(getattr(self, method)) ]
-        completions = [ str(method + " ") for method in completions if method.startswith(text) and not method.startswith("_") ]
-        return completions
+        return [ str(method + " ") for method in completions if method.startswith(text) and not method.startswith("_") ]
 
 
 class CLI(cmd.Cmd, Context):
@@ -657,14 +695,8 @@ class CLI(cmd.Cmd, Context):
                     # Calls the same thing as invoke
                     self.cmdloop(self.selfintro)
                 except KeyboardInterrupt, ki:
-                    try:
-                        import readline
-                        if len(readline.get_line_buffer()) > 0:
-                            self.out("")
-                        else:
-                            self.out("Use quit to exit")
-                    except ImportError:
-                        self.out("Use quit to exit")
+                    self.selfintro = ""
+                    self.out("Use quit to exit")
         finally:
             self.close()
 
@@ -773,6 +805,9 @@ class CLI(cmd.Cmd, Context):
         else:
             self.die(10, "Unknown debug action: %s" % debug_opts[0])
 
+    def completedefault(self, *args):
+        return []
+
     def completenames(self, text, line, begidx, endidx):
         names = self.controls.keys()
         return [ str(n + " ") for n in names if n.startswith(line) ]
@@ -781,12 +816,12 @@ class CLI(cmd.Cmd, Context):
     ##
     ## Context interface
     ##
-    def exit(self, args):
-        self.out(args)
+    def exit(self, args, newline=True):
+        self.out(args, newline)
         self.interrupt_loop = True
 
-    def die(self, rc, text):
-        self.err(text)
+    def die(self, rc, text, newline=True):
+        self.err(text, newline)
         self.rv = rc
         self.interrupt_loop = True
         raise NonZeroReturnCode(rc, "die called: %s" % text)
@@ -942,12 +977,14 @@ class CLI(cmd.Cmd, Context):
                 help = control[1]
                 control = Control(ctx = self, dir = self.dir)
                 self.controls[name] = control
+                setattr(self, "complete_%s" % name, control._complete)
                 parser = self.subparsers.add_parser(name, help=help)
                 parser.description = help
                 if hasattr(control, "_configure"):
                     control._configure(parser)
                 elif hasattr(control, "__call__"):
                     parser.set_defaults(func=control.__call__)
+                control.parser = parser
 
     def waitForPlugins(self):
         if True:

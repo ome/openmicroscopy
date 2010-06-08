@@ -10,7 +10,7 @@
 
 """
 
-import sys
+import sys, re
 
 from omero.cli import BaseControl, CLI
 
@@ -33,8 +33,20 @@ except:
     hash_sha1 = sha.new
 
 HELP = """Upload local files to the OMERO server"""
+RE = re.compile("\s*upload\s*")
 
 class UploadControl(BaseControl):
+
+    def _complete(self, text, line, begidx, endidx):
+        """
+        Returns a file after "deploy", "start", or "startasync"
+        and otherwise delegates to the BaseControl
+        """
+        m = RE.match(line)
+        if m:
+            return self._complete_file(RE.sub('', line))
+        else:
+            return BaseControl._complete(self, text, line, begidx, endidx)
 
     def _configure(self, parser):
         parser.add_argument("--pytable", action="store_true", help="If set, the following files are interpreted as pytable files" )

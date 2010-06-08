@@ -54,26 +54,39 @@ Configuration properties:
 
 class AdminControl(BaseControl):
 
+    def _complete(self, text, line, begidx, endidx):
+        """
+        Returns a file after "deploy", "start", or "startasync"
+        and otherwise delegates to the BaseControl
+        """
+        for s in (" deploy ", " start ", " startasync "):
+            l = len(s)
+            i = line.find(s)
+            if i >= 0:
+                f = line[i+l:]
+                return self._complete_file(f)
+        return BaseControl._complete(self, text, line, begidx, endidx)
+
     def _configure(self, parser):
         sub = parser.sub()
-        args = {}
+        self.actions = {}
 
-        class Arg(object):
+        class Action(object):
             def __init__(this, name, help):
                 this.parser = sub.add_parser(name, help=help)
                 this.parser.set_defaults(func=getattr(self, name))
-                args[name] = this.parser
+                self.actions[name] = this.parser
 
-        Arg("start", """Start icegridnode daemon and waits for required components to come up, i.e. status == 0
+        Action("start", """Start icegridnode daemon and waits for required components to come up, i.e. status == 0
 
              If the first argument can be found as a file, it will
              be deployed as the application descriptor rather than
              etc/grid/default.xml. All other arguments will be used
              as targets to enable optional sections of the descriptor""")
 
-        Arg("startasync", """The same as start but returns immediately.""",)
+        Action("startasync", """The same as start but returns immediately.""",)
 
-        Arg("status", """Status of server.
+        Action("status", """Status of server.
              Returns with 0 status if a node ping is successful
              and if some SessionManager returns an OMERO-specific exception on
              a bad login. This can be used in shell scripts, e.g.:
@@ -81,43 +94,43 @@ class AdminControl(BaseControl):
                  omero admin status && echo "server started"
             """)
 
-        Arg("stop", """Initiates node shutdown and waits for status to return a non-0 value""")
+        Action("stop", """Initiates node shutdown and waits for status to return a non-0 value""")
 
-        Arg("stopasync", """The same as stop but returns immediately.""")
+        Action("stopasync", """The same as stop but returns immediately.""")
 
-        Arg("deploy", """Deploy the given deployment descriptor. See etc/grid/*.xml
+        Action("deploy", """Deploy the given deployment descriptor. See etc/grid/*.xml
              If the first argument is not a file path, etc/grid/default.xml
              will be deployed by default. Same functionality as start, but
              requires that the node already be running. This may automatically
              restart some server components.""")
 
-        Arg("ice", """Drop user into icegridadmin console or execute arguments""")
+        Action("ice", """Drop user into icegridadmin console or execute arguments""")
 
-        Arg("diagnostics", """Run a set of checks on the current, preferably active server""")
+        Action("diagnostics", """Run a set of checks on the current, preferably active server""")
 
-        Arg("waitup", """Used by start after calling startasync to wait on status==0""")
+        Action("waitup", """Used by start after calling startasync to wait on status==0""")
 
-        Arg("waitdown", """Used by stop after calling stopasync to wait on status!=0""")
+        Action("waitdown", """Used by stop after calling stopasync to wait on status!=0""")
 
-        Arg("checkwindows", """Run simple check of the local installation (Windows-only)""")
+        Action("checkwindows", """Run simple check of the local installation (Windows-only)""")
 
-        Arg("events", """Print event log (Windows-only)""")
+        Action("events", """Print event log (Windows-only)""")
 
-        args["ice"].add_argument("argument", nargs="*", help="""Arguments joined together to make an Ice command.
+        self.actions["ice"].add_argument("argument", nargs="*", help="""Arguments joined together to make an Ice command.
         If not present, the user will enter a console""")
 
-        args["status"].add_argument("node", nargs="?", default="master")
+        self.actions["status"].add_argument("node", nargs="?", default="master")
 
         for name in ("start", "startasync"):
-            args[name].add_argument("-u","--user", help="""
+            self.actions[name].add_argument("-u","--user", help="""
             User argument which should be logged in. If none is provided, the configuration
             value for omero.windows.user will be taken. (Windows-only)
             """)
 
         for k in ("start", "startasync", "deploy"):
-            args[k].add_argument("file", nargs="?", type=FileType("r"),
+            self.actions[k].add_argument("file", nargs="?", type=FileType("r"),
                 help="""Application descriptor. If not provided, a default will be used""")
-            args[k].add_argument("targets", nargs="*",
+            self.actions[k].add_argument("targets", nargs="*",
                 help="""Targets within the application descriptor which should be activated.
                         Common values are: "debug", "trace" """)
 
@@ -182,26 +195,6 @@ class AdminControl(BaseControl):
     #
     # End Windows Methods
     #
-
-    def _complete(self, text, line, begidx, endidx):
-        for s in (" deploy ", " start ", " startasync "):
-            l = len(s)
-            i = line.find(s) if i >= 0:
-                f = line[i+l:]
-                p = path(f)
-                if p.exists() and p.isdir():
-                    if not f.endswith(os.sep):
-                        return [p.basename()+os.sep]
-                    return [ str(i)[len(f):] for i in p.listdir() ]
-                else:
-                    results = [ str(i.basename()) for i in self.dir.glob(f+"*")  ]
-                    if len(results) == 1:
-                        # Relative to cwd
-                        maybe_dir = path(results[0])
-                        if maybe_dir.exists() and maybe_dir.isdir():
-                            return [ results[0] + os.sep ]
-                    return results
-        return BaseControl._complete(self, text, line, begidx, endidx)
 
     def _node(self, omero_node = None):
         """ Overrides the regular node() logic to return the value of OMERO_MASTER or "master" """
