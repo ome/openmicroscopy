@@ -15,7 +15,6 @@
 import re
 import os
 import sys
-import time
 import exceptions
 import portalocker
 
@@ -401,7 +400,7 @@ class AdminControl(BaseControl):
                 break
             else:
                 self.ctx.out(".", newline = False)
-                time.sleep(10)
+                self.ctx.sleep(10)
 
     def waitdown(self, args):
         self.ctx.out("Waiting on shutdown. Use CTRL-C to exit")
@@ -414,7 +413,7 @@ class AdminControl(BaseControl):
                 break
             else:
                 self.ctx.out(".", newline = False)
-                time.sleep(10)
+                self.ctx.sleep(10)
         self.ctx.rv = 0
 
     def stopasync(self, args):

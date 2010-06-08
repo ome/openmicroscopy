@@ -709,4 +709,3 @@ def tail_lines(filename,linesback=10,returnlist=0):
     out=""
     for l in lines[start:len(lines)-1]: out=out + l + "\n"
     return out
-

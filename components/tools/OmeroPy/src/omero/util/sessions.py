@@ -88,7 +88,7 @@ class SessionsStore(object):
             dhn.makedirs()
 
         (dhn / id).write_lines(lines)
-        self.current(host, name, id)
+        self.set_current(host, name, id)
 
     def conflicts(self, host, name, id, new_props):
         """
@@ -125,24 +125,39 @@ class SessionsStore(object):
             return []
         return [x.basename() for x in self.non_dot(d)]
 
-    def current(self, host, name = None, id = None):
+    def set_current(self, host, name = None, uuid = None):
         """
         Sets the current session, user, and host files
         These are used as defaults by other methods.
         """
-        if host: self.host_file().write_text(host)
-        if name: self.user_file(host).write_text(name)
-        if id:  self.sess_file(host, name).write_text(id)
+        if host is not None: self.host_file().write_text(host)
+        if name is not None: self.user_file(host).write_text(name)
+        if uuid is not None: self.sess_file(host, name).write_text(uuid)
+
+    def get_current(self):
+        host = None
+        name = None
+        uuid = None
+        if self.host_file().exists():
+            host = self.host_file().text().strip()
+        if host:
+            name = self.user_file(host).text().strip()
+        if name:
+            uuid = self.sess_file(host, name).text().strip()
+        return (host, name, uuid)
 
     def last_host(self):
         """
-        Prints either the last saved host (see current())
+        Prints either the last saved host (see get_current())
         or "localhost"
         """
         f = self.host_file()
         if not f.exists():
             return "localhost"
-        return f.text().strip()
+        text = f.text().strip()
+        if not text:
+            return "localhost"
+        return text
 
     def contents(self):
         """
@@ -215,14 +230,14 @@ class SessionsStore(object):
         client = omero.client(props)
         client.setAgent("OMERO.sessions")
         sf = client.createSession(name, pasw)
-        id = sf.ice_getIdentity().name
+        uuid = sf.ice_getIdentity().name
         sf.detachOnDestroy()
-        sess = sf.getSessionService().getSession(id)
+        sess = sf.getSessionService().getSession(uuid)
         timeToIdle = sess.getTimeToIdle().getValue()
         timeToLive = sess.getTimeToLive().getValue()
         if new:
-            self.add(props["omero.host"], name, id, props)
-        return client, id, timeToIdle, timeToLive
+            self.add(props["omero.host"], name, uuid, props)
+        return client, uuid, timeToIdle, timeToLive
 
     def clear(self, host = None, name = None, sess = None):
         """

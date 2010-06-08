@@ -39,6 +39,7 @@ from omero_ext.argparse import RawDescriptionHelpFormatter
 from omero_ext.argparse import RawTextHelpFormatter
 from omero_ext.argparse import SUPPRESS
 
+from omero.util.concurrency import get_event
 from omero.util.sessions import SessionsStore
 
 import omero
@@ -178,27 +179,36 @@ class Context:
     """
 
     def __init__(self, controls = {}, params = {}):
+        self.event = get_event()
         self.params = {}
         self.controls = controls
         self.dir = OMERODIR
         self.isdebug = DEBUG # This usage will go away and default will be False
-        self.topics = {"debug":"""Comma-separated list of trace,profile,debug,help
+        self.topics = {"debug":"""
 
-        debug prints at the "debug" level. Similar to setting DEBUG=1 in the environment.
-        trace runs the command with tracing enabled.
-        profile runs the command with profiling enabled.
-        help prints this help message and exits
+        debug options for developers:
 
-        Only one of "trace", "profile", and "help" can be chosen. """}
+        The value to the debug argument is a comma-separated list of commands:
+
+         * 'debug' prints at the "debug" level. Similar to setting DEBUG=1 in the environment.
+         * 'trace' runs the command with tracing enabled.
+         * 'profile' runs the command with profiling enabled.
+
+        Only one of "trace" and "profile" can be chosen.
+
+        Example:
+
+            bin/omero --debug=debug,trace admin start
+        """}
         self.parser = Parser(prog = sys.argv[0],
             description = OMERODOC)
         self.subparsers = self.parser_init(self.parser)
         self.subparsers\
-            .add_parser("login", help="Set active server/user information")\
-            .set_defaults(func=lambda args:self.invoke("sessions login", previous_args=args))
+            .add_parser("login", help="Shortcut for 'sessions login'", description = "See 'sessions login -h'")\
+            .set_defaults(func=lambda args:self.controls["sessions"].login(args))
         self.subparsers\
-            .add_parser("logout", help="Cancel active server/user information")\
-            .set_defaults(func=lambda args:self.invoke("sessions logout", previous_args=args))
+            .add_parser("logout", help="Shortcut for 'sessions logout'", description = "See 'sessions logout -h'")\
+            .set_defaults(func=lambda args:self.controls["sessions"].logout(args))
 
     def parser_init(self, parser):
         parser.add_argument("-v", "--version", action="version", version="%%(prog)s %s" % VERSION)
@@ -208,9 +218,7 @@ class Context:
         parser.add_argument("-g", "--group")
         parser.add_argument("-u", "--user")
         parser.add_argument("-w", "--password")
-        parser.add_argument("-k", "--key")
-        parser.add_argument("-C", "--create", action="store_true")
-        parser.add_argument("-L", "--last", action="store_true")
+        parser.add_argument("-k", "--key", help="UUID of an active session")
         subparsers = parser.add_subparsers(title="Subcommands", description=OMEROSUBS, metavar=OMEROSUBM)
         return subparsers
 
@@ -311,9 +319,11 @@ class Context:
             self.err(text, newline)
 
     def die(self, rc, args):
+        self.event.set()
         raise exceptions.Exception((rc,args))
 
     def exit(self, args):
+        self.event.set()
         self.out(args)
         self.interrupt_loop = True
 
@@ -323,6 +333,8 @@ class Context:
     def popen(self, args):
         self.out(str(args))
 
+    def sleep(self, time):
+        self.event.wait(time)
 
 #####################################################
 #
@@ -704,7 +716,8 @@ class CLI(cmd.Cmd, Context):
 
         debug_str = getattr(args, "debug", "")
         debug_opts = set([x.lower() for x in debug_str.split(",")])
-        debug_opts.remove("")
+        if "" in debug_opts:
+            debug_opts.remove("")
 
         if "debug" in debug_opts:
             self.setdebug()

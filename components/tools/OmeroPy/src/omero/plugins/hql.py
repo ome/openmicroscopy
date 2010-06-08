@@ -97,7 +97,8 @@ To quit, enter 'q' or just enter.
         import omero_model_IObject_ice
         from omero.model import IObject
         from omero.model import Details
-        self.ctx.out("#\tClass\tId\tValues")
+        from omero.util.text import TableBuilder
+        tb = TableBuilder("#", "Class", "Id")
         for i, o in enumerate(rv):
             klass = "Null"
             id = ""
@@ -107,8 +108,10 @@ To quit, enter 'q' or just enter.
                 id = o.id.val
                 for k, v in o.__dict__.items():
                     values[k] = self.unwrap(v)
-                values = self.to_text(values)
-            self.ctx.out("%s\t%s\t%s\t%s" % (i, klass, id, values))
+                values = self.filter(values)
+                tb.cols(values.keys())
+            tb.row(i, klass, id, **values)
+        self.ctx.out(str(tb.build()))
 
     def unwrap(self, object):
         from omero.rtypes import unwrap
@@ -129,32 +132,24 @@ To quit, enter 'q' or just enter.
         else:
             return unwrap(object)
 
-    def to_text(self, values):
+    def filter(self, values):
         values = dict(values)
-        for x in ("_id", "_details", "_loaded"):
+        for x in ("_id", "_loaded"):
             if x in values:
                 values.pop(x)
-        single_valued = sorted([k for k in values if not isinstance(values[k], list)])
         multi_valued = sorted([k for k in values if isinstance(values[k], list)])
-        true_valued = sorted([k for k in values if values[k]])
+        false_valued = sorted([k for k in values if not values[k]])
+        for x in multi_valued + false_valued:
+            if x in values:
+                values.pop(x)
 
-        length = 60
-        keys = [x for x in single_valued if x in true_valued]
-        parsed = dict()
-        missed = len(values)
-        for k in keys:
-            v = values[k]
+        rv = dict()
+        for k, v in values.items():
             if k.startswith("_"):
-                k = k[1:]
-            parsed[k] = v
-            missed -= 1
-            text = str(parsed)
-            if text > length:
-                continue
-
-        if missed:
-            text += (" (%s unshown values)" % missed)
-        return text
+                rv[k[1:]] = v
+            else:
+                rv[k] = v
+        return rv
 
 try:
     register("hql", HqlControl, HELP)
