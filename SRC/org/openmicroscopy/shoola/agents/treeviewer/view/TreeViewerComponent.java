@@ -74,6 +74,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.util.ImportableObject;
 import org.openmicroscopy.shoola.agents.treeviewer.util.NotDeletedObjectDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.OpenWithDialog;
 import org.openmicroscopy.shoola.agents.util.browser.ContainerFinder;
+import org.openmicroscopy.shoola.agents.util.browser.NodesFinder;
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplayVisitor;
@@ -3041,6 +3042,25 @@ class TreeViewerComponent
 			}
 			firePropertyChange(GROUP_CHANGED_PROPERTY, oldGroup, 
 					model.getUserGroupID());
+		}
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#findDataObject(Class, int)
+	 */
+	public void findDataObject(Class type, long id)
+	{
+		
+		Browser browser = model.getSelectedBrowser();
+		if (browser != null) {
+			NodesFinder finder = new NodesFinder(type, id);
+			browser.accept(finder);
+			Set<TreeImageDisplay> nodes = finder.getNodes();
+			Iterator<TreeImageDisplay> i = nodes.iterator();
+			while (i.hasNext()) {
+				browser.setSelectedDisplay(i.next());
+			}
 		}
 	}
 	

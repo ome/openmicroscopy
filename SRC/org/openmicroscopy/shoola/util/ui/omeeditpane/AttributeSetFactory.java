@@ -56,10 +56,10 @@ public class AttributeSetFactory
 	public static final Color DEFAULT_URL = Color.BLUE;
 	
 	/** The default color for image, dataset etc. linkages. */
-	public static final Color DEFAULT_LINK = Color.RED;
+	public static final Color DEFAULT_LINK = Color.BLUE;
 	
 	/** The default color for image, dataset etc. linkages. */
-	public static final Color PROTOCOL_LINK = Color.GREEN;
+	public static final Color PROTOCOL_LINK = Color.BLUE;
 	
 	/**
 	 * Identifies URL.

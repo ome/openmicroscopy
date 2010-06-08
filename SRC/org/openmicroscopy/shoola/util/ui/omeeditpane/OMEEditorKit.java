@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.util.ui.omeeditpane;
 
 
 //Java imports
+import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JEditorPane;
 import javax.swing.text.Element;
@@ -75,6 +76,19 @@ class OMEEditorKit
 	}
 	
 	/**
+	 * Adds the specified formatter.
+	 * 
+	 * @param value The value to identify the formatter.
+	 * @param action The action associated.
+	 */
+	void addFormatter(String value, FormatSelectionAction action)
+	{
+		if (formatMap == null) 
+			formatMap = new HashMap<String, FormatSelectionAction>();
+		formatMap.put(value, action);
+	}
+	
+	/**
 	 * Returns the view of the edit component.
 	 * 
 	 * @return See above.
@@ -85,7 +99,8 @@ class OMEEditorKit
 	}
 
 	/**
-	 * Create a new instance for element.
+	 * Creates a new instance for element.
+	 * 
 	 * @param element see above.
 	 * @return see above.
 	 */

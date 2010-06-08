@@ -46,7 +46,7 @@ public class ClickSelectionAction
 {
 
 	/**
-	 * Implemented as speficied by 
+	 * Implemented as specified by {@link SelectionAction} I/F.
 	 * @see SelectionAction#onSelection(String)
 	 */
 	public void onSelection(String selectedText)

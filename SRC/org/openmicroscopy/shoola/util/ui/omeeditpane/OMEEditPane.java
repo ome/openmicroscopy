@@ -25,12 +25,15 @@ package org.openmicroscopy.shoola.util.ui.omeeditpane;
 
 //Java imports
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Map;
 import javax.swing.JTextPane;
+import javax.swing.Timer;
 
 //Third-party libraries
 
@@ -51,8 +54,11 @@ import javax.swing.JTextPane;
  */
 class OMEEditPane
 	extends JTextPane
-	implements FocusListener
+	implements ActionListener, FocusListener
 {
+	
+	/** The delay of the timer. */
+	private static final int 	DELAY = 400;
 	
 	/** The type of the document. */
 	private static String DOC_TYPE = "text/wiki";
@@ -63,18 +69,24 @@ class OMEEditPane
 	/** Reference to the main component. */
 	private OMEWikiComponent 	component;
 	
-	/**
-	 * Handles the text selection.
-	 * 
-	 * @param e The event to handle.
-	 */
-	private void onTextSelection(MouseEvent e)
+	/** The timer. */
+	private Timer			timer;
+
+	/** Count the number of mouse clicked. */
+	private int				count;
+	
+	/** The location of the mouse clicked. */
+	private Point			location;
+	
+
+	/** Handles mouse pressed. */
+	private void handleMousePressed()
 	{
-		int index = viewToModel(new Point(e.getX(), e.getY()));
-		WikiView view = editorKit.getView();
-		SelectionAction action = view.getSelectionAction(index);
-		component.onSelection(action, view.getSelectedText(index), 
-				e.getClickCount());
+		if (timer == null) {
+			timer = new Timer(DELAY, this);
+			timer.setRepeats(false);
+		}
+		timer.start();
 	}
 	
 	/**
@@ -94,19 +106,33 @@ class OMEEditPane
 	    setContentType(DOC_TYPE);
 	    
 	    addMouseListener(new MouseAdapter() {
-		
+
 			/**
-			 * Handles text selection.
-			 * @see MouseAdapter#mouseClicked(MouseEvent)
+			 * Starts the timer.
+			 * @see MouseAdapter#mousePressed(MouseEvent)
 			 */
-			public void mouseClicked(MouseEvent e) {
-				onTextSelection(e);
+			public void mousePressed(MouseEvent e)
+			{
+				handleMousePressed();
+				count++;
+				location = e.getPoint();
 			}
-		
+			
 		});
 	    addFocusListener(this);
 	}
-
+	
+	/**
+	 * Adds the specified formatter.
+	 * 
+	 * @param value The value to identify the formatter.
+	 * @param action The action associated.
+	 */
+	void addFormatter(String value, FormatSelectionAction action)
+	{
+		editorKit.addFormatter(value, action);
+	}
+	
 	/**
 	 * Selects the text and sets the position of the caret.
 	 * @see FocusListener#focusGained(FocusEvent)
@@ -130,6 +156,22 @@ class OMEEditPane
 	 * @see FocusListener#focusLost(FocusEvent)
 	 */
 	public void focusLost(FocusEvent e) { select(0, 0); }
+
+	/**
+	 * Selects the data
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e)
+	{
+		if (count == 1 || count == 2) {
+			int index = viewToModel(location);
+			WikiView view = editorKit.getView();
+			SelectionAction action = view.getSelectionAction(index);
+			component.onSelection(action, view.getSelectedText(index), count);
+			timer.stop();
+			count = 0;
+		}
+	}
 	 
 }
 

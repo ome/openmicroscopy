@@ -36,7 +36,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -74,6 +73,10 @@ public class OMEWikiComponent
 	/** Bounds property indicating that a data object has been selected. */
 	public static final String WIKI_DATA_OBJECT_PROPERTY = "wikiDataObject";
 	
+	/** Bounds property indicating that a data object has been selected. */
+	public static final String WIKI_DATA_OBJECT_ONE_CLICK_PROPERTY = 
+		"wikiDataObjectOneClick";
+	
 	/** Regular expression for text. */
 	public static final String TEXTREGEX = OMEWikiConstants.TEXTREGEX;
 	
@@ -86,19 +89,19 @@ public class OMEWikiComponent
 	/** Regular expression for a <code>Wiki</code> link. */
 	public static final String WIKILINKREGEX = OMEWikiConstants.WIKILINKREGEX;
 	
-	/** Regular expression defining Thumbnail [Thumbnail: 30]. */
+	/** Regular expression defining Thumbnail. */
 	public static final String THUMBNAILREGEX = OMEWikiConstants.THUMBNAILREGEX;
 	
-	/** Regular expression defining Dataset [Dataset: 30]. */
+	/** Regular expression defining Dataset. */
 	public static final String DATASETREGEX = OMEWikiConstants.DATASETREGEX;
 	
-	/** Regular expression defining Project [Project: 30]. */
+	/** Regular expression defining Project. */
 	public static final String PROJECTREGEX = OMEWikiConstants.PROJECTREGEX;
 	
-	/** Regular expression defining Protocol [Protocol: 30]. */
+	/** Regular expression defining Protocol. */
 	public static final String PROTOCOLREGEX = OMEWikiConstants.PROTOCOLREGEX;
 	
-	/** Regular expression defining Image [Image: 30]. */
+	/** Regular expression defining Image. */
 	public static final String IMAGEREGEX = OMEWikiConstants.IMAGEREGEX;
 	
 	/** Regular expression defining Wiki Heading. */
@@ -134,7 +137,7 @@ public class OMEWikiComponent
 	
 	/** Action id to create a protocol's entry. */
 	private static final int	PROTOCOL = 2;
-	
+
 	/** The formatters installed by default. */
 	private static Map<String, FormatSelectionAction> DEFAULT_FORMATTERS;
 	
@@ -168,13 +171,15 @@ public class OMEWikiComponent
 	/** This text will be removed when starting typing. */
 	private String			defaultText;
 	
+	/** Flag indicating that one click is supported if <code>true</code>. */
+	private boolean			allowOneClick;
+	
 	/** Installs the default actions.  */
 	private void installDefaultAction()
 	{
 		toolBarActions = new ArrayList<JButton>();
 		IconManager icons = IconManager.getInstance();
 		JButton b = new JButton(icons.getIcon(IconManager.HYPERLINK));
-		//UIUtilities.unifiedButtonLookAndFeel(b);
 		b.addActionListener(this);
 		b.setActionCommand(""+HYPERLINK);
 		b.setToolTipText(OMEWikiConstants.HYPERLINK_TOOLTIP);
@@ -296,20 +301,49 @@ public class OMEWikiComponent
 	{
 		if (action == null) return;
 		int ref = 2;
-		System.err.println(isEnabled());
-		if (!isEnabled()) ref = 1;
-		//depending on the type of action.
-		if ((action instanceof ElementSelectionAction) && count == ref) {
-			action.onSelection(text);
-			ElementSelectionAction a = (ElementSelectionAction) action;
-			int index = a.getWikiDataObjectIndex();
-			long id = a.getObjectID();
-			if (id >= 0) {
-				WikiDataObject object = new WikiDataObject(index, id);
-				firePropertyChange(WIKI_DATA_OBJECT_PROPERTY, null, object);
+		if (!isEnabled()) {
+			if ((action instanceof URLLaunchAction) && count == 1) {
+				action.onSelection(text);
+			} else {
+				if ((action instanceof ElementSelectionAction)) {
+					action.onSelection(text);
+					ElementSelectionAction a = (ElementSelectionAction) action;
+					int index = a.getWikiDataObjectIndex();
+					long id = a.getObjectID();
+					if (id >= 0) {
+						WikiDataObject object = new WikiDataObject(index, id);
+						if (allowOneClick) {
+							if (count == 1) {
+								
+								firePropertyChange(
+										WIKI_DATA_OBJECT_ONE_CLICK_PROPERTY, 
+										null, object);
+							}
+							else if (count == 2) 
+								firePropertyChange(WIKI_DATA_OBJECT_PROPERTY, 
+										null, object);
+							
+						} else {
+							if (count == 1) 
+								firePropertyChange(WIKI_DATA_OBJECT_PROPERTY, 
+										null, object);
+						}
+					}
+				}
 			}
-		} else if ((action instanceof URLLaunchAction) && count == ref) {
-			action.onSelection(text);
+		} else {
+			if ((action instanceof ElementSelectionAction) && count == ref) {
+				action.onSelection(text);
+				ElementSelectionAction a = (ElementSelectionAction) action;
+				int index = a.getWikiDataObjectIndex();
+				long id = a.getObjectID();
+				if (id >= 0) {
+					WikiDataObject object = new WikiDataObject(index, id);
+					firePropertyChange(WIKI_DATA_OBJECT_PROPERTY, null, object);
+				}
+			} else if ((action instanceof URLLaunchAction) && count == ref) {
+				action.onSelection(text);
+			}
 		}
 	}
 
@@ -327,6 +361,29 @@ public class OMEWikiComponent
 	}
 	
 	/**
+	 * Installs formatter for various objects. 
+	 */
+	public void installObjectFormatters()
+	{
+		pane.addFormatter(IMAGEREGEX, 
+				new FormatSelectionAction(
+						new ColourFormatter(Formatter.DEFAULT_LINK, false), 
+						new ElementSelectionAction(WikiDataObject.IMAGE)));
+		pane.addFormatter(PROTOCOLREGEX, 
+				new FormatSelectionAction(
+						new ColourFormatter(Formatter.DEFAULT_LINK, false), 
+						new ElementSelectionAction(WikiDataObject.PROTOCOL)));
+		pane.addFormatter(DATASETREGEX, 
+				new FormatSelectionAction(
+						new ColourFormatter(Formatter.DEFAULT_LINK, false), 
+						new ElementSelectionAction(WikiDataObject.DATASET)));
+		pane.addFormatter(PROJECTREGEX, 
+				new FormatSelectionAction(
+						new ColourFormatter(Formatter.DEFAULT_LINK, false), 
+						new ElementSelectionAction(WikiDataObject.PROJECT)));
+	}
+	
+	/**
 	 * Sets the default text.
 	 * 
 	 * @param text The value to set.
@@ -336,6 +393,20 @@ public class OMEWikiComponent
 		if (text == null) return;
 		defaultText = text.trim();
 	}
+	
+	/**
+	 * Selects all the text in the <code>TextComponent</code>.
+     * Does nothing on a <code>null</code> or empty document.
+	 */
+	public void selectAll() { pane.selectAll(); }
+	
+	/**
+	 * Sets the position of the text insertion caret for the 
+     * <code>TextComponent</code>.
+     *
+	 * @param n The position.
+	 */
+	public void setCaretPosition(int n) { pane.setCaretPosition(n); }
 	
 	/**
 	 * Sets the text.
@@ -380,6 +451,18 @@ public class OMEWikiComponent
 	public void setComponentBorder(Border border)
 	{
 		pane.setBorder(border);
+	}
+	
+	/**
+	 * Sets the value indicating that the one click is supported if the 
+	 * <code>enabled</code> flag is <code>false</code>.
+	 * 
+	 * @param allowOneClick Pass <code>true</code> to allow one click event,
+	 * 						<code>false</code> otherwise.
+	 */
+	public void setAllowOneClick(boolean allowOneClick)
+	{
+		this.allowOneClick = allowOneClick;
 	}
 	
 	/**

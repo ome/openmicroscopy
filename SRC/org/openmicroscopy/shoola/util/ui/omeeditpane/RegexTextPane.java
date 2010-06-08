@@ -107,6 +107,7 @@ public class RegexTextPane
 	 */
 	private class UrlMouseListener extends MouseAdapter
     {
+		
     	/**
     	 * Handles double-clicks, checks whether the character clicked is 
     	 * within a URL (parses all text for URL regular expressions).

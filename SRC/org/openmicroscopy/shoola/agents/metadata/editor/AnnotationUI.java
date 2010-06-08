@@ -62,6 +62,10 @@ abstract class AnnotationUI
 	static final Border EDIT_BORDER = BorderFactory.createLineBorder(
 			Color.LIGHT_GRAY);
 	
+	/** The border of a field that can be edited. */
+	static final Border EDIT_BORDER_BLACK = BorderFactory.createLineBorder(
+			Color.BLACK);
+	
 	/** Bound property indicating to remove the annotation from the view. */
 	static final String	DELETE_ANNOTATION_PROPERTY = "deleteAnnotation";
 	

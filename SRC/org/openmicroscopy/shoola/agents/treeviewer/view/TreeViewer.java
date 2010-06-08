@@ -1013,4 +1013,12 @@ public interface TreeViewer
 	 */
 	void onGroupSwitched(boolean success);
 	
+	/**
+	 * Finds the specified object.
+	 * 
+	 * @param type The type of data object to find.
+	 * @param id   The identifier of the data object.
+	 */
+	void findDataObject(Class type, long id);
+	
 }

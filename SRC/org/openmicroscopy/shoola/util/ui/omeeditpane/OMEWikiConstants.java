@@ -50,30 +50,30 @@ public class OMEWikiConstants
 	/** Identifies the <code>name</code> token. */
 	static final String	REF_NAME = "name";
 	
-	/** Regex expression for number. */
+	/** Regular expression for number. */
 	static  final String NUMBERREGEX = "[0-9]+";
 	
-	/** Regex expression for text. */
+	/** Regular expression for text. */
 	public static final String TEXTREGEX = "[-a-zA-Z0-9+&@#/%?~_|!:,.;\\\\]*";
 	
-	/** Regex for a sentence. */
+	/** Regular for a sentence. */
 	public static final String SENTENCEREGEX = "[-a-zA-Z0-9+&@#/%?~_|!:,. ;]*";
 	
-	/** Regex for a sequence of characters. */
+	/** Regular for a sequence of characters. */
 	static final String CHARACTERREGEX = "[a-zA-Z]+[a-zA-Z0-9]+";
 	
-	/** Regex for a wiki link. */
+	/** Regular for a Wiki link. */
 	public static final String WIKILINKREGEX = "\\[\\["+SENTENCEREGEX+"\\]\\]";
 	
-	/** Regex expression defining Thumbnail [Thumbnail: 30]. */
+	/** Regular expression defining Thumbnail [Thumbnail: 30]. */
 	static final String THUMBNAILREGEX = "\\[(Thumbnail|thumbnail):[ ]*"+NUMBERREGEX+"[ ]*\\]";
 
-	/** Regex expression defining Dataset [Dataset: 30]. */
+	/** Regular expression defining Dataset [Dataset: 30]. */
 	//static final String DATASETREGEX = "\\[(Dataset|dataset):[ ]*"+NUMBERREGEX+"[ ]*\\]";
 
 	static final String DATASETREGEX =  "(Dataset|dataset) (ID|id): ("+NUMBERREGEX+")";
 	
-	/** Regex expression defining Project [Project: 30]. */
+	/** Regular expression defining Project [Project: 30]. */
 	//static final String PROJECTREGEX = "\\[(Project|project):[ ]*"+NUMBERREGEX+"[ ]*\\]";
 	
 	static final String PROJECTREGEX =  "(Project|project) (ID|id): ("+NUMBERREGEX+")";
@@ -84,31 +84,33 @@ public class OMEWikiConstants
 	static final String IMAGEREGEX =  "(Image|image|Image's) (ID|id): ("+NUMBERREGEX+")";
 	
 	/** Regex expression defining Protocol [Protocol: id 30]. */
-	static final String PROTOCOLREGEX = "\\[(Protocol|Protocol):[ ]*"+NUMBERREGEX+"[ ]*\\]";
+	//static final String PROTOCOLREGEX = "\\[(Protocol|Protocol):[ ]*"+NUMBERREGEX+"[ ]*\\]";
 
-	/** Regex expression defining Wiki Heading. */
+	static final String PROTOCOLREGEX =  "(Protocol|protocol) (ID|id): ("+NUMBERREGEX+")";
+	
+	/** Regular expression expression defining Wiki Heading. */
 	static final String HEADINGREGEX = "(^[=]{3}[ ]+"+SENTENCEREGEX+"[ ]+[=]{3}[ ]*$|^[=]{2}[ ]+"+SENTENCEREGEX+"[ ]+[=]{2}[ ]*$|^[=]{1}[ ]+"+SENTENCEREGEX+"[ ]+[=]{1}[ ]*$)";
 			
-	/** Regex for a bullet list. */
+	/** Regular expression for a bullet list. */
 	static final String BULLETREGEX = "^\\*[ ]+"+SENTENCEREGEX;
 
-	/** Regex for bold. */
+	/** Regular expression for bold. */
 	static final String BOLDREGEX = "'''"+SENTENCEREGEX+"'''";
 
-	/** Italic regex. */
+	/** Italic regular expression. */
 	static final String ITALICREGEX = "''"+SENTENCEREGEX+"''";
 
-	/** Italic and bold regex. */
+	/** Italic and bold regular expression. */
 	static final String ITALICBOLDREGEX = "'''''"+SENTENCEREGEX+"'''''";
 
-	/** Indent regex. */
+	/** Indent regular expression. */
 	static final String INDENTREGEX = "^[:]+"+SENTENCEREGEX+"$";
 		
-	/** Regex expression defining URL. */
+	/** Regular expression defining URL. */
 	static final String URLREGEX = 
 		"(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
 	
-	/** Regex for names linked regex. */
+	/** Regular expression for names linked regular expression. */
 	static final String NAMEDLINKREGEX = "\\["+URLREGEX+"[ ]+"+SENTENCEREGEX+"\\]";
 	
 	/** The tooltip of the hyperlink button. */

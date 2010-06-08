@@ -199,8 +199,6 @@ public class OMERegexFormatter
 		    		}
 					
 				} catch (BadLocationException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
 				}
 				doc.addDocumentListener(OMERegexFormatter.this);
 	        }

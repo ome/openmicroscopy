@@ -90,7 +90,7 @@ class ElementSelectionAction
 	String getObjectName() { return name; }
 	
 	/**
-	 * Implemented as specified by {@link SelectionAction} I/F
+	 * Implemented as specified by {@link SelectionAction} I/F.
 	 * @see SelectionAction#onSelection(String)
 	 */
 	public void onSelection(String selectedText)
@@ -98,16 +98,17 @@ class ElementSelectionAction
 		if (selectedText == null) return;
 		int index = 0; 
 		String tok[] = new String [500];
-		StringTokenizer st = new StringTokenizer(selectedText,": []");
+		StringTokenizer st = new StringTokenizer(selectedText,":");
 		while (st.hasMoreTokens()) { 
 			tok[index] = st.nextToken(); 
 			index++; 
 		}
 		String value = tok[1];
-		String key = tok[0];
-		if(value != null)
+		//String key = tok[0];
+		if (value != null)
 		{
-			if(value.length() >0)
+			value = value.trim();
+			if (value.length() > 0)
 				id = Long.parseLong(value);
 			name = OMEWikiConstants.REF_ID;
 		}
@@ -116,9 +117,6 @@ class ElementSelectionAction
 			name = OMEWikiConstants.REF_ID;
 			id = -1;
 		}
-			
-		
-		
 	}
 	
 }

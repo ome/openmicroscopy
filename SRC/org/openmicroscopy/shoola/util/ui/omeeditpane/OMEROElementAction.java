@@ -32,7 +32,7 @@ import java.util.StringTokenizer;
 //Application-internal dependencies
 
 /** 
- * 
+ * Sets the value and type.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -69,21 +69,19 @@ public class OMEROElementAction
 	public String getValue() { return value; }
 	
 	/**
-	 * Overriden to set the value and the type.
+	 * Implemented as specified by {@link SelectionAction} I/F.
 	 * @see SelectionAction#onSelection(String)
 	 */
 	public void onSelection(String selectedText)
 	{
 		 int index = 0; 
 		 String tok[] = new String [500];
-		 StringTokenizer st = new StringTokenizer(selectedText,": []");
-		    
+		 StringTokenizer st = new StringTokenizer(selectedText,": []");  
 		 while (st.hasMoreTokens()) // make sure there is stuff to get
 		 { 
 			 tok[index] = st.nextToken(); 
 		     index++; 
 		 }
-		 
 		 type = tok[1];
 		 value = tok[2];
 	}	

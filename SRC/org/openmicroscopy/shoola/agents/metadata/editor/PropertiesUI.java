@@ -34,6 +34,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -58,11 +60,17 @@ import javax.swing.text.Document;
 import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEvent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.omeeditpane.RegexTextPane;
+import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
+import org.openmicroscopy.shoola.util.ui.omeeditpane.WikiDataObject;
 import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.DatasetData;
@@ -94,7 +102,8 @@ import pojos.WellSampleData;
  */
 class PropertiesUI   
 	extends AnnotationUI
-	implements ActionListener, DocumentListener, FocusListener
+	implements ActionListener, DocumentListener, FocusListener, 
+	PropertyChangeListener
 {
     
 	/** The title associated to this component. */
@@ -143,9 +152,7 @@ class PropertiesUI
     private JTextArea			typePane;
     
     /** The component hosting the description of the <code>DataObject</code>. */
-    //private JTextArea			descriptionPane;
-    
-    private RegexTextPane		descriptionPane;
+    private OMEWikiComponent	descriptionPane;
     
     /** The component hosting the {@link #namePane}. */
     private JPanel				namePanel;
@@ -210,12 +217,17 @@ class PropertiesUI
     	namePane.setEditable(false);
     	namePane.addFocusListener(this);
     	f = namePane.getFont(); 
-    	descriptionPane = new RegexTextPane(f.getFamily(), f.getSize()-2);
-    	descriptionPane.installDefaultRegEx();
-    	descriptionPane.addPropertyChangeListener(controller);
+    	Font newFont = f.deriveFont(f.getStyle(), f.getSize()-2);
+    	descriptionPane = new OMEWikiComponent(false);
+    	descriptionPane.installObjectFormatters();
+    	descriptionPane.setFont(newFont);
+    	//descriptionPane = new RegexTextPane(f.getFamily(), f.getSize()-2);
+    	//descriptionPane.installDefaultRegEx();
+    	//descriptionPane.addPropertyChangeListener(controller);
     	descriptionPane.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
     	
     	descriptionPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	descriptionPane.addPropertyChangeListener(this);
     	//descriptionPane.setLineWrap(true);
     	//descriptionPane.setColumns(20);
     	/*
@@ -227,12 +239,12 @@ class PropertiesUI
     		}
 		});
 		*/
-    	descriptionPane.addPropertyChangeListener(controller);
     	descriptionPane.setText(DEFAULT_TEXT);
+    	descriptionPane.setEnabled(false);
+    	descriptionPane.setAllowOneClick(true);
     	descriptionPane.addFocusListener(this);
+    	
     	defaultBorder = namePane.getBorder();
-    	
-    	
     	namePane.setFont(f.deriveFont(Font.BOLD));
     	typePane.setFont(f.deriveFont(Font.BOLD));
     	typePane.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
@@ -242,8 +254,6 @@ class PropertiesUI
     	parentLabel.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
     	f = ownerLabel.getFont();
     	ownerLabel.setFont(f.deriveFont(Font.BOLD, f.getSize()-2));
-    	
-    	
     	channelsArea = UIUtilities.createComponent(null);
     	
     	IconManager icons = IconManager.getInstance();
@@ -633,7 +643,7 @@ class PropertiesUI
         	(refObject instanceof ScreenData)) {
         	//|| (refObject instanceof FolderData)) {
         	 p.add(Box.createVerticalStrut(5));
-        	 descriptionPanel = layoutEditablefield(null, 
+        	 descriptionPanel = layoutEditablefield(editDescription, 
         			 descriptionPane, 80);
         	 descriptionPanel.setBorder(AnnotationUI.EDIT_BORDER);
         	 p.add(descriptionPanel);
@@ -708,30 +718,36 @@ class PropertiesUI
 	 * @param editable	Pass <code>true</code> if  to <code>edit</code>,
 	 * 					<code>false</code> otherwise.
 	 */
-	private void editField(JPanel panel, JTextArea field, JButton button, 
+	private void editField(JPanel panel, JComponent field, JButton button, 
 			boolean editable)
 	{
-		field.setEditable(editable);
+		
 		button.setEnabled(editable);
-		if (editable) {
-			panel.setBorder(EDIT_BORDER);
-			field.requestFocus();
-		} else {
-			panel.setBorder(defaultBorder);
-		}
 		if (field == namePane) {
+			namePane.setEditable(editable);
+			
+			if (editable) {
+				panel.setBorder(EDIT_BORDER_BLACK);
+				field.requestFocus();
+			} else {
+				panel.setBorder(defaultBorder);
+			}
 			namePane.getDocument().removeDocumentListener(this);
 			String text = namePane.getText();
 			if (text != null) text = text.trim();
-			if (editable) {
-				namePane.setText(modifiedName);
-			} else {
-				namePane.setText(EditorUtil.getPartialName(text));
-			}
-			
+			if (editable) namePane.setText(modifiedName);
+			else namePane.setText(EditorUtil.getPartialName(text));
 			namePane.getDocument().addDocumentListener(this);
 			namePane.select(0, 0);
 			namePane.setCaretPosition(0);
+		} else if (field == descriptionPane) {
+			descriptionPane.setEnabled(editable); //was editable
+			if (editable) {
+				panel.setBorder(EDIT_BORDER_BLACK);
+				field.requestFocus();
+			} else {
+				panel.setBorder(EDIT_BORDER);
+			}
 		}
 	}
 	
@@ -793,7 +809,8 @@ class PropertiesUI
 		removeAll();
 		if (model.isMultiSelection()) return;
 		namePane.getDocument().removeDocumentListener(this);
-		descriptionPane.getDocument().removeDocumentListener(this);
+		//descriptionPane.getDocument().removeDocumentListener(this);
+		descriptionPane.removeDocumentListener(this);
 		originalName = model.getRefObjectName();
 		modifiedName = model.getRefObjectName();
 		originalDisplayedName = EditorUtil.getPartialName(originalName);
@@ -859,13 +876,16 @@ class PropertiesUI
         		(refObject instanceof PlateAcquisitionData)) b = false;
         
         namePane.setEnabled(b);
-        descriptionPane.setEnabled(b);
+        //descriptionPane.setEnabled(b);
         if (!(refObject instanceof FileData)) editName.setEnabled(b);
         
         if (b) {
         	namePane.getDocument().addDocumentListener(this);
-        	descriptionPane.getDocument().addDocumentListener(this);
-            descriptionPane.setEditable(b);
+        	//descriptionPane.getDocument().addDocumentListener(this);
+            //descriptionPane.setEditable(b);
+        	descriptionPane.addDocumentListener(this);
+            //descriptionPane.setEnabled(b);
+        	editDescription.setEnabled(b);
         }
         setParentLabel();
         buildGUI();
@@ -885,10 +905,10 @@ class PropertiesUI
 			originalDescription = DEFAULT_DESCRIPTION_TEXT;
 		descriptionPane.setText(originalDescription);
         boolean b = model.isUserOwner(model.getRefObject());
-        descriptionPane.setEnabled(b);
-        descriptionPane.setEditable(b);
+        editDescription.setEnabled(b);
         if (b) {
-        	descriptionPane.getDocument().addDocumentListener(this);
+        	//descriptionPane.getDocument().addDocumentListener(this);
+        	descriptionPane.addDocumentListener(this);
         }
         //buildGUI();
 	}
@@ -1040,13 +1060,15 @@ class PropertiesUI
 		originalDisplayedName = originalName;
 		originalDescription = model.getRefObjectDescription();
 		namePane.getDocument().removeDocumentListener(this);
-		descriptionPane.getDocument().removeDocumentListener(this);
+		//descriptionPane.getDocument().removeDocumentListener(this);
+		descriptionPane.removeDocumentListener(this);
 		idLabel.setText("");
 		ownerLabel.setText("");
 		namePane.setText(originalName);
 		descriptionPane.setText(originalDescription);
 		namePane.getDocument().addDocumentListener(this);
-		descriptionPane.getDocument().addDocumentListener(this);
+		//descriptionPane.getDocument().addDocumentListener(this);
+		descriptionPane.addDocumentListener(this);
 		channelsArea.setText("");
 	}
 	
@@ -1096,8 +1118,8 @@ class PropertiesUI
 				editField(namePanel, namePane, editName, true);
 				break;
 			case EDIT_DESC:
-				//editField(descriptionPanel, descriptionPane, editDescription,
-				//		true);
+				editField(descriptionPanel, descriptionPane, editDescription,
+						true);
 		}
 	}
 	
@@ -1132,11 +1154,18 @@ class PropertiesUI
 			}
 			descriptionPane.select(0, 0);
 			*/
+			//editField(descriptionPanel, descriptionPane, editDescription, 
+			//		false);
+			editField(descriptionPanel, descriptionPane, editDescription, 
+					false);
 			String text = descriptionPane.getText();
+			editDescription.setEnabled(true);
 			if (text == null || text.trim().length() == 0) {
-				descriptionPane.getDocument().removeDocumentListener(this);
+				//descriptionPane.getDocument().removeDocumentListener(this);
+				descriptionPane.removeDocumentListener(this);
 				descriptionPane.setText(DEFAULT_DESCRIPTION_TEXT);
-				descriptionPane.getDocument().addDocumentListener(this);
+				//descriptionPane.getDocument().addDocumentListener(this);
+				descriptionPane.addDocumentListener(this);
 				firePropertyChange(EditorControl.SAVE_PROPERTY, 
 						Boolean.valueOf(false), Boolean.valueOf(true));
 			}
@@ -1164,13 +1193,76 @@ class PropertiesUI
 		} else if (src == descriptionPane) {
 			String text = descriptionPane.getText();
 			if (text != null) {
+				/*
 				if (DEFAULT_DESCRIPTION_TEXT.equals(text.trim())) {
 					descriptionPane.selectAll();
 				} else {
 					int n = text.length()-1;
 					if (n >= 0) descriptionPane.setCaretPosition(n);
 				}
+				*/
 				//descriptionPane.selectAll();
+			}
+		}
+	}
+	
+	/** 
+	 * Listens to property changes fired by the {@link #descriptionPane}.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
+		/*
+		if (RegexTextPane.REGEX_DBL_CLICKED_PROPERTY.equals(name)) {
+			WikiDataObject object = (WikiDataObject) evt.getNewValue();
+			long id = object.getId();
+			switch (object.getIndex()) {
+				case WikiDataObject.IMAGE:
+					if (id > 0) {
+						bus.post(new ViewImage(id, null));
+					}
+					break;
+				case WikiDataObject.PROTOCOL:
+					bus.post(new EditFileEvent(id));
+					break;
+			}
+		} 
+		*/
+		
+		if (OMEWikiComponent.WIKI_DATA_OBJECT_PROPERTY.equals(name)) {
+			WikiDataObject object = (WikiDataObject) evt.getNewValue();
+			long id = object.getId();
+			switch (object.getIndex()) {
+				case WikiDataObject.IMAGE:
+					if (id > 0) bus.post(new ViewImage(id, null));
+					break;
+				case WikiDataObject.PROTOCOL:
+					bus.post(new EditFileEvent(id));
+					break;
+			}
+		} else if (OMEWikiComponent.WIKI_DATA_OBJECT_ONE_CLICK_PROPERTY.equals(
+				name)) {
+			
+			WikiDataObject object = (WikiDataObject) evt.getNewValue();
+			long id = object.getId();
+			switch (object.getIndex()) {
+				case WikiDataObject.IMAGE:
+					bus.post(new DataObjectSelectionEvent(ImageData.class, id));
+					break;
+				case WikiDataObject.DATASET:
+					bus.post(new DataObjectSelectionEvent(DatasetData.class, 
+							id));
+					break;
+				case WikiDataObject.PROJECT:
+					bus.post(new DataObjectSelectionEvent(
+							ProjectData.class, id));
+					break;
+				case WikiDataObject.PROTOCOL:
+					bus.post(new DataObjectSelectionEvent(
+							FileData.class, id));
+					break;
 			}
 		}
 	}

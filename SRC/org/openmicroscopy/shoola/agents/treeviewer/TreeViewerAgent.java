@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.ImageProjected;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerCreated;
+import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
@@ -245,6 +246,28 @@ public class TreeViewerAgent
     }
     
     /**
+     * Handles the {@link DataObjectSelectionEvent} event.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleDataObjectSelectionEvent(DataObjectSelectionEvent evt)
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (!env.isServerAvailable()) return;
+    	ExperimenterData exp = (ExperimenterData) registry.lookup(
+			        				LookupNames.CURRENT_USER_DETAILS);
+    	GroupData gp = exp.getDefaultGroup();
+    	long id = -1;
+    	if (gp != null) id = gp.getId();
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
+        if (viewer != null)
+        	viewer.findDataObject(evt.getDataType(), evt.getID());
+        //if (viewer != null)
+        	//viewer.displayViewer(evt.getViewer(), evt.getControls(), 
+        	//		evt.isToAdd(), evt.isToDetach());
+    }
+    
+    /**
      * Handles the {@link UserGroupSwitched} event.
      * 
      * @param evt The event to handle.
@@ -297,6 +320,7 @@ public class TreeViewerAgent
         bus.register(this, ActivityProcessEvent.class);
         bus.register(this, ViewerCreated.class);
         bus.register(this, UserGroupSwitched.class);
+        bus.register(this, DataObjectSelectionEvent.class);
     }
 
     /**
@@ -341,6 +365,8 @@ public class TreeViewerAgent
 			handleViewerCreated((ViewerCreated) e);
 		else if (e instanceof UserGroupSwitched)
 			handleUserGroupSwitched((UserGroupSwitched) e);
+		else if (e instanceof DataObjectSelectionEvent)
+			handleDataObjectSelectionEvent((DataObjectSelectionEvent) e);
 	}
 
 }

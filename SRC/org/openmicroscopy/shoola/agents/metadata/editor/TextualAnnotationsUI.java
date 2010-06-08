@@ -267,7 +267,7 @@ class TextualAnnotationsUI
     	setBorder(new SeparatorOneLineBorder());
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 		double[][] size = {{TableLayout.FILL}, {TableLayout.PREFERRED, 
-			100, 0, 0}};
+			60, 0, 0}};
     	setLayout(new TableLayout(size));
     	JScrollPane pane = new JScrollPane(commentArea);
     	pane.setBorder(null);
@@ -304,20 +304,14 @@ class TextualAnnotationsUI
 	private void layoutPreviousComments()
 	{
 		TableLayout layout = (TableLayout) getLayout();
-		//layout.setRow(2, TableLayout.PREFERRED);
-		//layout.setRow(3, TableLayout.PREFERRED);
 		List l = model.getTextualAnnotationsByDate();
 		if (l != null && l.size() > 2) {
 			remove(moreComponent);
 			layout.setRow(2, TableLayout.PREFERRED);
 			add(hideComponent, "0, 2");
 		}
-		
-		//remove(moreComponent);
-		//add(hideComponent, "0, 2");
 		JPanel p = displayAllPreviousComments();
 		previousComments.getViewport().add(p);
-		//add(previousComments, "0, 3");
 		revalidate();
 		repaint();
 	}
