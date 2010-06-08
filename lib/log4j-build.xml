@@ -25,14 +25,15 @@ omero.home/build.py as well as the ant scripts in omero.home/components/ant/reso
     <param name="Threshold" value="WARN"/>
     <!--
     <errorHandler class="org.apache.log4j.helpers.OnlyOnceErrorHandler"/>
+    -->
     <layout class="org.apache.log4j.PatternLayout">
       <param name="ConversionPattern" value="%d{ISO8601} %-5p [%40.40c] (%10.10t) %m%n"/>
     </layout>
-    -->
   </appender>
 
   <category name="velocity"> <priority value="FATAL"/> </category>
-  <category name="ome"> <priority value="WARN"/> </category>
+  <category name="ome"> <priority value="DEBUG"/> </category>
+  <category name="org"> <priority value="DEBUG"/> </category>
 
   <root>
     <appender-ref ref="PRIMARY"/>
