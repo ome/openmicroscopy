@@ -124,12 +124,14 @@ class PrefsControl(BaseControl):
             if not cfg_xml.exists():
                 self.ctx.die(124, "File not found: %s" % args.source)
         else:
-            cfg_xml = path("etc") / "grid" / "config.xml"
-        if not cfg_xml.exists():
-            userdir = path(get_user_dir())
-            usr_xml = userdir / "omero"/ "config.xml"
-            self.ctx.err("%s not found; using %s" % (cfg_xml, usr_xml))
-            cfg_xml = usr_xml
+            grid_dir = self.ctx.dir / "etc" / "grid"
+            if grid_dir.exists():
+                cfg_xml = grid_dir / "config.xml"
+            else:
+                self.ctx.err("%s not found; using %s" % (grid_dir, usr_xml))
+                userdir = path(get_user_dir())
+                usr_xml = userdir / "omero"/ "config.xml"
+                cfg_xml = usr_xml
         return ConfigXml(str(cfg_xml))
 
     @with_config
