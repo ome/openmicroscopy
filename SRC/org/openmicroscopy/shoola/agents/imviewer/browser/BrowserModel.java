@@ -76,7 +76,7 @@ class BrowserModel
 	private static final String	COMBINED = "Merged";
 	
 	/** Channel prefix. */
-	private static final String PREFIX ="w=";
+	private static final String PREFIX = "";
 	
 	/** Gap between the images. */
 	static final int 			GAP = 0;//2;

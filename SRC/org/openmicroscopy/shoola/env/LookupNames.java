@@ -50,7 +50,7 @@ public class LookupNames
     /** Field to access the <code>Version</code> information. */
 	public static final String VERSION = "Version";	
 	
-	/** Field to access the <code>Name oof the sofware</code>. */
+	/** Field to access the <code>Name of the software</code>. */
 	public static final String SOFTWARE_NAME = "SoftwareName";	
 	
 	/** Field to access the <code>About file</code> information. */

@@ -159,8 +159,8 @@ class ServerDialog
 	private void setProperties()
 	{
 		setTitle(TITLE);
-		//setModal(true);
-		//setAlwaysOnTop(true);
+		setModal(true);
+		setAlwaysOnTop(true);
 	}
 	
 	/** Attaches the various listeners. */
