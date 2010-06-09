@@ -8,84 +8,60 @@
 package ome.system;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
-import org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
+import org.springframework.util.PropertyPlaceholderHelper;
+import org.springframework.util.PropertyPlaceholderHelper.PlaceholderResolver;
 
 /**
  * Central configuration for OMERO properties from (in order):
  * <ul>
  * <li>Any injected {@link Properties} instances</li>
- * <li>Java {@link Preferences}</li>
  * <li>Java {@link System#getProperties()}</li>
  * <li>Any configured property files</li>
  * </ul>
  * 
+ * As of OMERO 4.2, server configurations are not stored in Java's
+ * Preferences API but in an IceGrid xml file under etc/grid of the server
+ * installation. The properties are set in the config file on node startup, for
+ * example in var/master/servers/Blitz-0/config/config. When the Java process
+ * starts, {@link ome.services.blitz.Entry} places the values in
+ * {#link {@link System#getProperties()}.
+ * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  * @see <a href="https://trac.openmicroscopy.org.uk/omero/ticket/800">#800</a>
- * @DEV.TODO Code duplication with prefs.java
  */
-public class PreferenceContext extends PreferencesPlaceholderConfigurer {
+public class PreferenceContext extends PropertyPlaceholderConfigurer {
 
     private final static Log log = LogFactory.getLog(PreferenceContext.class);
 
-    public final static String DEFAULT = "default";
-
-    public final static String ROOT = "/omero/prefs";
-
-    public final static String ENV = "OMERO_CONFIG";
-
     final private Map<String, Preference> preferences = new ConcurrentHashMap<String, Preference>();
 
+    private PropertyPlaceholderHelper helper;
+    
     private String path;
 
     /**
      * By default, configures this instance for
      * {@link PropertyPlaceholderConfigurer#SYSTEM_PROPERTIES_MODE_OVERRIDE} as
-     * well as ignoring unfound resources. The {@link #setUserTreePath(String)}
-     * user-tree is set according to a similar logic as in the {@link prefs}
-     * command-line tool, using first {@link #ENV} from the environment if
-     * present, otherwise the value of "default" under "/omero/prefs". If no
-     * value is found, then the node "/omero/prefs/default" will be used.
+     * well as ignoring unfound resources.
      */
     public PreferenceContext() {
         setSystemPropertiesMode(SYSTEM_PROPERTIES_MODE_OVERRIDE);
         setIgnoreResourceNotFound(true);
-
-        String OMERO = System.getenv(ENV);
-        if (OMERO == null) {
-            OMERO = Preferences.userRoot().node(ROOT).get(DEFAULT, null);
-        }
-        if (OMERO == null) {
-            OMERO = Preferences.systemRoot().node(ROOT).get(DEFAULT, null);
-        }
-
-        // Ok, then if we've found something use it.
-        // otherwise use /omero/prefs/default
-        if (OMERO == null) {
-            OMERO = "default";
-        }
-
-        setUserTreePath(ROOT + "/" + OMERO);
-        log.info("Preferences used: " + ROOT + "/" + OMERO);
-
-    }
-
-    @Override
-    public void setUserTreePath(String userTreePath) {
-        super.setUserTreePath(userTreePath);
-        this.path = userTreePath;
+        helper = new PropertyPlaceholderHelper(
+                PropertyPlaceholderConfigurer.DEFAULT_PLACEHOLDER_PREFIX,
+                PropertyPlaceholderConfigurer.DEFAULT_PLACEHOLDER_SUFFIX,
+                PropertyPlaceholderConfigurer.DEFAULT_VALUE_SEPARATOR,
+                false); // Note, we want the IllegalArgumentThrown for catching.
     }
 
     /**
@@ -94,13 +70,13 @@ public class PreferenceContext extends PreferencesPlaceholderConfigurer {
      */
     public String getProperty(String key) {
         try {
-            try {
-                Preferences.userRoot().node(this.path).sync();
-            } catch (BackingStoreException e) {
-                log.error("Error synchronizing for mergeProperties()");
-            }
-            return parseStringValue("${" + key + "}", mergeProperties(),
-                    new HashSet<String>());
+            //return parseStringValue("${" + key + "}", mergeProperties(),
+            //                            new java.util.HashSet<String>());
+            key = "${" + key + "}";
+            return helper.replacePlaceholders(key,
+                    new PropertyPlaceholderConfigurerResolver(mergeProperties()));
+        } catch (IllegalArgumentException iae) {
+            return null; // From change of helper in Spring 3.0
         } catch (BeanDefinitionStoreException bdse) {
             return null; // Unknown property. Ok
         } catch (IOException e) {
@@ -109,18 +85,12 @@ public class PreferenceContext extends PreferencesPlaceholderConfigurer {
         }
     }
 
+    /**
+     * With ticket:2214, preferences are no longer mutable. For that, we will
+     * need a python server which can update the XML file.
+     */
     public void setProperty(String key, String value) {
-        Preferences prefs = Preferences.userRoot().node(this.path);
-        if (value != null) {
-            prefs.put(key, value);
-        } else {
-            prefs.remove(key);
-        }
-        try {
-            prefs.flush();
-        } catch (BackingStoreException e) {
-            log.error("Error flushing prefs on setProperty: " + key);
-        }
+        throw new UnsupportedOperationException();
     }
 
     public void setPreferences(List<Preference> preferences) {
@@ -179,6 +149,21 @@ public class PreferenceContext extends PreferencesPlaceholderConfigurer {
             preference = new Preference();
         }
         return preference;
+    }
+    
+    // Copied from PropertyPlaceholderConfigurer
+    private class PropertyPlaceholderConfigurerResolver implements PlaceholderResolver {
+
+        private final Properties props;
+
+        private PropertyPlaceholderConfigurerResolver(Properties props) {
+            this.props = props;
+        }
+
+        public String resolvePlaceholder(String placeholderName) {
+            return PreferenceContext.this.resolvePlaceholder(placeholderName,
+                    props, PreferenceContext.SYSTEM_PROPERTIES_MODE_OVERRIDE);
+        }
     }
 
 }

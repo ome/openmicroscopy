@@ -110,7 +110,7 @@ public class ConfigUnitTest extends MockObjectTestCase {
 
         notInDatabase();
         String oldValue = config.getConfigValue(test);
-        assertTrue(oldValue == null || oldValue.length() == 0);
+        assertEquals(null, oldValue);
         
         notInDatabase();
         updateDb(1);
@@ -137,12 +137,21 @@ public class ConfigUnitTest extends MockObjectTestCase {
         assertTrue(config.setConfigValueIfEquals("redirect","new","old"));
     }
     
-    @Test
+    @Test(groups = {"broken", "ticket:2491"})
     public void testThatSetConfigIfEqualsWorksForPrefs() {
         mockAdmin();
         notInDatabase();
         notInDatabase();
         prefs.setProperty("redirect","old");
+        assertTrue(config.setConfigValueIfEquals("redirect","new","old"));
+    }
+
+    @Test(groups = "ticket:2491")
+    public void testThatSetConfigIfEqualsWorksForSystem() {
+        mockAdmin();
+        notInDatabase();
+        notInDatabase();
+        System.setProperty("redirect", "old");
         assertTrue(config.setConfigValueIfEquals("redirect","new","old"));
     }
     

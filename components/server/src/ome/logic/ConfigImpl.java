@@ -279,7 +279,10 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
 
             // Otherwise set it in the preferences.
             if (!set) {
-                prefs.setProperty(key, value);
+                // With #800, we will need to raise some form of event here
+                // to notify consumers. Also, this will be a temporary value
+                // not saved on restart nor shared across JVMs.
+                System.setProperty(key, value);
             }
 
         } finally {
