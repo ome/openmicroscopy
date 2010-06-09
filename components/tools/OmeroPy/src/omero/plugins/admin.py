@@ -229,7 +229,7 @@ class AdminControl(BaseControl):
             __d__ = "default.xml"
             if self._isWindows():
                 __d__ = "windefault.xml"
-            descript = self.dir / "etc" / "grid" / __d__
+            descript = self.ctx.dir / "etc" / "grid" / __d__
             self.ctx.err("No descriptor given. Using %s" % os.path.sep.join(["etc","grid",__d__]))
         return descript
 
@@ -619,8 +619,8 @@ OMERO Diagnostics %s
         Callers are responsible for closing the
         returned ConfigXml object.
         """
-        cfg_xml = self.dir / "etc" / "grid" / "config.xml"
-        cfg_tmp = self.dir / "etc" / "grid" / "config.xml.tmp"
+        cfg_xml = self.ctx.dir / "etc" / "grid" / "config.xml"
+        cfg_tmp = self.ctx.dir / "etc" / "grid" / "config.xml.tmp"
         if not cfg_xml.exists():
             if cfg_tmp.exists():
                 self.ctx.dbg("Removing old config.xml.tmp")
@@ -630,6 +630,7 @@ OMERO Diagnostics %s
                 self.ctx.controls["config"].upgrade(None, config)
             finally:
                 config.save()
+            self.ctx.err("Creating %s" % cfg_xml)
             cfg_tmp.rename(str(cfg_xml))
         else:
             # File exists, but we create it for updating.
