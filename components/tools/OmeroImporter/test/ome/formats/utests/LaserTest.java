@@ -12,6 +12,9 @@ import omero.metadatastore.IObjectContainer;
 import omero.model.Laser;
 import junit.framework.TestCase;
 
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 public class LaserTest extends TestCase
 {
 	private OMEROMetadataStoreClient store;
@@ -20,7 +23,7 @@ public class LaserTest extends TestCase
 	
 	private static final int INSTRUMENT_INDEX = 0;
 	
-	@Override
+	@BeforeMethod
 	protected void setUp() throws Exception
 	{
 		ServiceFactoryPrx sf = new TestServiceFactory();
@@ -31,6 +34,7 @@ public class LaserTest extends TestCase
         		new BlitzInstanceProvider(store.getEnumerationProvider()));
 	}
 	
+	@Test
 	public void testNewLaserAllAttributes()
 	{
 		int i = LIGHTSOURCE_INDEX + 10;
@@ -44,6 +48,7 @@ public class LaserTest extends TestCase
 		store.setLaserTuneable(true, INSTRUMENT_INDEX, i);
 	}
 
+	@Test
 	public void testNewLaserIdFirst()
 	{
 	    int i = LIGHTSOURCE_INDEX + 10;
@@ -58,7 +63,8 @@ public class LaserTest extends TestCase
       assertEquals("LightSource:100", laserContainer.LSID);
       assertEquals(laserContainer.sourceObject, laserContainer.sourceObject);
 	}
-
+	
+	@Test
     public void testNewLaserConcreteAttributeFirst()
     {
         int i = LIGHTSOURCE_INDEX + 10;
@@ -74,6 +80,7 @@ public class LaserTest extends TestCase
         assertEquals(laserContainer.sourceObject, laserContainer.sourceObject);
     }
     
+	@Test
     public void testNewLaserSuperclassAttributeLast()
     {
         int i = LIGHTSOURCE_INDEX + 10;

@@ -7,6 +7,9 @@ import omero.api.ServiceFactoryPrx;
 import omero.model.PlaneInfo;
 import junit.framework.TestCase;
 
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 public class PlaneInfoProcessorTest extends TestCase
 {
     private OMEROMetadataStoreClient store;
@@ -15,7 +18,7 @@ public class PlaneInfoProcessorTest extends TestCase
 
     private static final int PLANE_INFO_INDEX = 1;
 
-    @Override
+    @BeforeMethod
     protected void setUp() throws Exception
     {
         ServiceFactoryPrx sf = new TestServiceFactory();
@@ -36,6 +39,7 @@ public class PlaneInfoProcessorTest extends TestCase
         store.setPlaneDeltaT(1.0, IMAGE_INDEX, PLANE_INFO_INDEX +2);
     }
 
+    @Test
     public void testPlaneInfoExists()
     {
         assertEquals(3, store.countCachedContainers(PlaneInfo.class, null));
@@ -60,6 +64,7 @@ public class PlaneInfoProcessorTest extends TestCase
         assertEquals(1.0, pi3.getDeltaT().getValue());
     }
 
+    @Test
     public void testPlaneInfoCleanup()
     {
         store.postProcess();

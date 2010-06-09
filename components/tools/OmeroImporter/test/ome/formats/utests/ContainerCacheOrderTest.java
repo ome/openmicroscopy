@@ -14,6 +14,9 @@ import omero.api.ServiceFactoryPrx;
 import omero.metadatastore.IObjectContainer;
 import omero.model.Plate;
 
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 public class ContainerCacheOrderTest extends TestCase
 {
 	private OMEROWrapper wrapper;
@@ -30,7 +33,7 @@ public class ContainerCacheOrderTest extends TestCase
 	
 	private static final int OBJECTIVE_INDEX = 0;
 	
-	@Override
+	@BeforeMethod
 	protected void setUp() throws Exception
 	{
 		ServiceFactoryPrx sf = new TestServiceFactory();
@@ -109,6 +112,7 @@ public class ContainerCacheOrderTest extends TestCase
 		store.setPlateName("Plate", 0);
 	}
 	
+	@Test
 	public void testOrder()
 	{
 		Map<LSID, IObjectContainer> containerCache = 
@@ -119,6 +123,7 @@ public class ContainerCacheOrderTest extends TestCase
 		}
 	}
 	
+	@Test
 	public void testPlateLSIDEquivilence()
 	{
 		LSID a = new LSID(Plate.class, 0);
@@ -127,6 +132,7 @@ public class ContainerCacheOrderTest extends TestCase
 		assertEquals(b, a);
 	}
 	
+	@Test
 	public void testGetPlateByString()
 	{
 		Map<LSID, IObjectContainer> containerCache = 
@@ -134,6 +140,7 @@ public class ContainerCacheOrderTest extends TestCase
 		assertNotNull(containerCache.get(new LSID("omero.model.Plate:0", true)));
 	}
 	
+	@Test
 	public void testGetPlateByClassAndIndex()
 	{
 		Map<LSID, IObjectContainer> containerCache = 

@@ -33,6 +33,9 @@ import ome.xml.model.enums.*;
 import ome.xml.model.primitives.*;
 import omero.api.ServiceFactoryPrx;
 
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 /**
  * Tests the creation of channel objects.
  * 
@@ -69,7 +72,7 @@ public class ChannelProcessorTest
     /**
      * Initializes the components and populates the store.
      */
-	@Override
+	@BeforeMethod
 	protected void setUp() throws Exception
 	{
 		ServiceFactoryPrx sf = new TestServiceFactory();
@@ -163,6 +166,7 @@ public class ChannelProcessorTest
 	}
 
 	/** Tests the color of the base channel.  */
+	@Test
 	public void testBaseDataChannelOne()
 	{
 		ChannelProcessor processor = new ChannelProcessor();
@@ -184,6 +188,7 @@ public class ChannelProcessorTest
 	
 	
 	/** Tests the color of the base channel two.  */
+	@Test
 	public void testBaseDataChannelTwo()
 	{
 		ChannelProcessor processor = new ChannelProcessor();
@@ -204,6 +209,7 @@ public class ChannelProcessorTest
 	}
 	
 	/** Tests a graphic image. */
+	@Test
 	public void testGraphicsDomain()
 	{
 		ChannelProcessor processor = new ChannelProcessor();
@@ -226,6 +232,7 @@ public class ChannelProcessorTest
 	}
 	
 	/** Tests an image with a logical channel with emission wavelength. */
+	@Test
 	public void testLogicalChannelGreenEmissionWavelength()
 	{
 		store.setChannelEmissionWavelength(
@@ -249,6 +256,7 @@ public class ChannelProcessorTest
 	}
 	
 	/** Tests an image with a logical channel with emission wavelength. */
+	@Test
 	public void testLogicalChannelBlueEmissionWavelength()
 	{
 		store.setChannelEmissionWavelength(
@@ -272,6 +280,7 @@ public class ChannelProcessorTest
 	}
 	
 	/** Tests an image with a logical channel with emission wavelength. */
+	@Test
 	public void testLogicalChannelRedEmissionWavelength()
 	{
 		store.setChannelEmissionWavelength(
@@ -298,6 +307,7 @@ public class ChannelProcessorTest
 	 * Tests an image with a logical channel with filter set 
 	 * with emission filter. 
 	 */
+	@Test
 	public void testFilterSetEmFilterBlueWavelength()
 	{
 		store.setTransmittanceRangeCutIn(425, INSTRUMENT_INDEX, 0);
@@ -323,6 +333,7 @@ public class ChannelProcessorTest
 	/** 
 	 * Tests an image with a logical channel with a laser.
 	 */
+	@Test
 	public void testLaserBlueWavelength()
 	{
 		store.setLaserWavelength(
@@ -348,6 +359,7 @@ public class ChannelProcessorTest
 	/** 
 	 * Tests an image with a logical channel with excitation wavelength.
 	 */
+	@Test
 	public void testLogicalChannelGreenExcitationWavelength()
 	{
 		store.setChannelExcitationWavelength(
@@ -373,6 +385,7 @@ public class ChannelProcessorTest
 	/** 
 	 * Tests an image with a logical channel with excitation wavelength.
 	 */
+	@Test
 	public void testLogicalChannelBlueExcitationWavelength()
 	{
 		store.setChannelExcitationWavelength(
@@ -398,6 +411,7 @@ public class ChannelProcessorTest
 	/** 
 	 * Tests an image with a logical channel with excitation wavelength.
 	 */
+	@Test
 	public void testLogicalChannelRedExcitationWavelength()
 	{
 		store.setChannelExcitationWavelength(
@@ -424,6 +438,7 @@ public class ChannelProcessorTest
 	 * Tests an image with a logical channel with a filter set with an 
 	 * excitation filter.
 	 */
+	@Test
 	public void testFilterSetExFilterBlueWavelength()
 	{
 		store.setTransmittanceRangeCutIn(425, INSTRUMENT_INDEX, 1);
@@ -449,6 +464,7 @@ public class ChannelProcessorTest
 	/**
 	 * Tests a logical channel with a light path with an emission filter.
 	 */
+	@Test
 	public void testLogicalChannelLightPathEmFilterBlueWavelength()
 	{
 		store.setTransmittanceRangeCutIn(430, INSTRUMENT_INDEX, 2);
@@ -474,6 +490,7 @@ public class ChannelProcessorTest
 	/** 
 	 * Tests a logical channel with a light path with an excitation filter.
 	 */
+	@Test
 	public void testLogicalChannelLightPathExFilterBlueWavelength()
 	{
 		store.setTransmittanceRangeCutIn(430, INSTRUMENT_INDEX, 3);
@@ -502,6 +519,7 @@ public class ChannelProcessorTest
 	 * The value of the emission filter from the light path
 	 * will determine the name and color.
 	 */
+	@Test
 	public void testLogicalChannelLightPathEmFilterBlueAndFilterSetEmFilterRedWavelength()
 	{
 		store.setTransmittanceRangeCutIn(430, INSTRUMENT_INDEX, 2);
@@ -532,6 +550,7 @@ public class ChannelProcessorTest
 	 * The value of the excitation filter from the light path
 	 * will determine the name and color.
 	 */
+	@Test
 	public void testLogicalChannelLightPathExFilterBlueAndFilterSetExFilterRedWavelength()
 	{
 		store.setTransmittanceRangeCutIn(430, INSTRUMENT_INDEX, 3);
@@ -562,6 +581,7 @@ public class ChannelProcessorTest
 	 * The value of the emission filter from the filter set
 	 * will determine the name and color.
 	 */
+	@Test
 	public void testLogicalChannelLightPathExFilterBlueAndFilterSetEmFilterRedWavelength()
 	{
 		store.setTransmittanceRangeCutIn(430, INSTRUMENT_INDEX, 3);
@@ -590,6 +610,7 @@ public class ChannelProcessorTest
 	 * Tests an image with 2 channels, one blue (light path emission filter)
 	 * and another one with a transmitted light.
 	 */
+	@Test
 	public void testChannelsEmFilterLightPathBlueAndTransmittedLight()
 	{
 		ChannelProcessor processor = new ChannelProcessor();
@@ -626,6 +647,7 @@ public class ChannelProcessorTest
 	 * Tests an image with 2 channels, one red (light path emission filter) 
 	 * and another one with a transmitted light.
 	 */
+	@Test
 	public void testChannelsEmFilterLightPathRedAndTransmittedLight()
 	{
 		ChannelProcessor processor = new ChannelProcessor();
@@ -662,6 +684,7 @@ public class ChannelProcessorTest
 	 * Tests an image with 2 channels, one green (light path emission filter) 
 	 * and another one with a transmitted light.
 	 */
+	@Test
 	public void testChannelsEmFilterLightPathGreenAndTransmittedLight()
 	{
 		ChannelProcessor processor = new ChannelProcessor();
@@ -698,6 +721,7 @@ public class ChannelProcessorTest
 	 * Tests an image with 2 channels, one green (filter set emission filter) 
 	 * and another one with a transmitted light.
 	 */
+	@Test
 	public void testChannelsEmFilterFilterSetGreenAndTransmittedLight()
 	{
 		ChannelProcessor processor = new ChannelProcessor();

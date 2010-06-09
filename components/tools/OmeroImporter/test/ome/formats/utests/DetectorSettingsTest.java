@@ -14,6 +14,9 @@ import omero.model.Image;
 import omero.model.Instrument;
 import omero.model.Pixels;
 
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 public class DetectorSettingsTest extends TestCase
 {
 	private OMEROWrapper wrapper;
@@ -30,7 +33,7 @@ public class DetectorSettingsTest extends TestCase
 	
 	private static final String DETECTOR_MODEL = "Model";
 	
-	@Override
+	@BeforeMethod
 	protected void setUp() throws Exception
 	{
 		ServiceFactoryPrx sf = new TestServiceFactory();
@@ -66,6 +69,7 @@ public class DetectorSettingsTest extends TestCase
         		"Detector:0", IMAGE_INDEX + 2, CHANNEL_INDEX);
 	}
 
+	@Test
 	public void testImageDetectorExists()
 	{
 	    for (int i = 0; i < 3; i++)
@@ -77,6 +81,7 @@ public class DetectorSettingsTest extends TestCase
 	    assertNotNull(store.getSourceObject(new LSID(Detector.class, 0, 0)));
 	}
 	
+	@Test
 	public void testDetectorModelPreserved()
 	{
 	    Detector detector = store.getDetector(INSTRUMENT_INDEX,
@@ -84,6 +89,7 @@ public class DetectorSettingsTest extends TestCase
 	    assertEquals(DETECTOR_MODEL, detector.getModel().getValue());
 	}
 	
+	@Test
 	public void testContainerCount()
 	{
 	    assertEquals(1, store.countCachedContainers(Detector.class));
@@ -92,6 +98,7 @@ public class DetectorSettingsTest extends TestCase
 	    assertEquals(5, store.countCachedContainers(null));
 	}
 
+	@Test
 	public void testReferences()
 	{
 	    for (int i = 0; i < 3; i++)

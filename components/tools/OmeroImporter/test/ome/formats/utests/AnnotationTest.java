@@ -11,13 +11,16 @@ import omero.model.OriginalFile;
 import omero.model.Pixels;
 import junit.framework.TestCase;
 
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 public class AnnotationTest extends TestCase
 {
 	private OMEROMetadataStoreClient store;
 	
 	private static final int IMAGE_INDEX = 0;
-	
-	@Override
+
+	@BeforeMethod
 	protected void setUp() throws Exception
 	{
 		ServiceFactoryPrx sf = new TestServiceFactory();
@@ -30,6 +33,7 @@ public class AnnotationTest extends TestCase
         store.setPixelsSizeZ(new PositiveInteger(1), IMAGE_INDEX);
 	}
 	
+	@Test
 	public void testLinkSingleAnnotation()
 	{
         LSID imageKey = new LSID(Image.class, IMAGE_INDEX);
@@ -43,6 +47,7 @@ public class AnnotationTest extends TestCase
         assertTrue(store.hasReference(imageKey, annotationKey));
 	}
 	
+	@Test
 	public void testLinkTwoAnnotations()
 	{
         LSID imageKey = new LSID(Image.class, IMAGE_INDEX);
@@ -60,6 +65,7 @@ public class AnnotationTest extends TestCase
         assertTrue(store.hasReference(imageKey, annotationKey2));
 	}
 	
+	@Test
 	public void testLinkSingleAnnotationAndOriginalFile()
 	{
         LSID imageKey = new LSID(Image.class, IMAGE_INDEX);
@@ -81,6 +87,7 @@ public class AnnotationTest extends TestCase
         assertTrue(store.hasReference(pixelsKey, originalFileKey));
 	}
 	
+	@Test
 	public void testLinkTwoAnnotationsAndOriginalFiles()
 	{
         LSID imageKey = new LSID(Image.class, IMAGE_INDEX);

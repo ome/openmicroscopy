@@ -37,13 +37,15 @@ import omero.api.ServiceFactoryPrx;
 import omero.model.Filament;
 import omero.model.Filter;
 
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 /**
  * Tests the creation of channel objects.
  * 
  * @author Chris Allan <callan at blackcat dot ca>
  */
-public class ChannelDataTest 
-	extends TestCase
+public class ChannelDataTest extends TestCase
 {
 	
 	/** Reference to the wrapper. */
@@ -79,7 +81,7 @@ public class ChannelDataTest
     /**
      * Initializes the components and populates the store.
      */
-	@Override
+	@BeforeMethod
 	protected void setUp() 
 		throws Exception
 	{
@@ -173,6 +175,7 @@ public class ChannelDataTest
 	}
 
 	/** Tests the creation of the first channel. */
+	@Test
 	public void testChannelDataChannelOne()
 	{
 		ChannelData data = ChannelData.fromObjectContainerStore(
@@ -217,6 +220,7 @@ public class ChannelDataTest
 	}
 	
 	/** Tests the creation of the second channel. */
+	@Test
 	public void testChannelDataChannelTwo()
 	{
 		ChannelData data = ChannelData.fromObjectContainerStore(

@@ -13,6 +13,9 @@ import omero.model.Instrument;
 import omero.model.Laser;
 import omero.model.Pixels;
 
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 public class InstrumentTest extends TestCase
 {
 	private OMEROWrapper wrapper;
@@ -27,7 +30,7 @@ public class InstrumentTest extends TestCase
 	
 	private static final String LIGHTSOURCE_MODEL = "Model";
 	
-	@Override
+	@BeforeMethod
 	protected void setUp() throws Exception
 	{
 		ServiceFactoryPrx sf = new TestServiceFactory();
@@ -55,6 +58,7 @@ public class InstrumentTest extends TestCase
         store.setImageInstrumentRef("Instrument:0", IMAGE_INDEX + 2);
 	}
 
+	@Test
 	public void testImageInstrumentExists()
 	{
 	    for (int i = 0; i < 3; i++)
@@ -68,12 +72,14 @@ public class InstrumentTest extends TestCase
 	    assertNotNull(store.getSourceObject(new LSID(Instrument.class, 0)));
 	}
 	
+	@Test
 	public void testImageInstrumentLightSourceModelPreserved()
 	{
         Laser ls = store.getLaser(INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
         assertEquals(LIGHTSOURCE_MODEL, ls.getModel().getValue());
 	}
 	
+	@Test
 	public void testContainerCount()
 	{
 	    assertEquals(1, store.countCachedContainers(Laser.class));
@@ -82,6 +88,7 @@ public class InstrumentTest extends TestCase
 	    assertEquals(5, store.countCachedContainers(null));
 	}
 
+	@Test
     public void testReferences()
     {
         for (int i = 0; i < 3; i++)

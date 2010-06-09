@@ -13,6 +13,9 @@ import omero.model.Arc;
 import omero.model.LightSettings;
 import omero.model.Pixels;
 
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 public class LightSourceSettingsArcTest extends TestCase
 {
 	private OMEROWrapper wrapper;
@@ -27,7 +30,7 @@ public class LightSourceSettingsArcTest extends TestCase
 	
 	private static final int CHANNEL_INDEX = 0;
 	
-	@Override
+	@BeforeMethod
 	protected void setUp() throws Exception
 	{
 		ServiceFactoryPrx sf = new TestServiceFactory();
@@ -61,6 +64,7 @@ public class LightSourceSettingsArcTest extends TestCase
 				new PercentFraction(1f), IMAGE_INDEX, CHANNEL_INDEX + 1);
 	}
 
+	@Test
 	public void testLightSourceCount()
 	{
         LSID lsid = new LSID(Pixels.class, IMAGE_INDEX);
@@ -69,12 +73,14 @@ public class LightSourceSettingsArcTest extends TestCase
         assertEquals(5, store.countCachedContainers(null));
 	}
 	
+	@Test
 	public void testLightSourceSettingsCount()
 	{
         assertEquals(2, store.countCachedContainers(LightSettings.class));
         assertEquals(5, store.countCachedContainers(null));
 	}
 	
+	@Test
 	public void testReferences()
 	{
         for (int i = 0; i < 2; i++)

@@ -131,7 +131,7 @@ public class CommentMessenger extends JDialog implements ActionListener
         commentPanel = GuiCommonElements.addMainPanel(this, commentTable, 10,10,10,10, debug);
 
         String message = "Thank you for taking the time to send us your comments. \n\n" +
-                "Your feedback will be used to futher the developmment of the " +
+                "Your feedback will be used to further the developmment of the " +
                 "importer and improve our software. Any personal details you provide are" +
                 " purely optional, and will only be used for development purposes.";
 

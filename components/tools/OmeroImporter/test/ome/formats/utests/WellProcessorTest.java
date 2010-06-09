@@ -9,6 +9,9 @@ import omero.model.Plate;
 import omero.model.Well;
 import junit.framework.TestCase;
 
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 public class WellProcessorTest extends TestCase
 {
 	private OMEROMetadataStoreClient store;
@@ -17,7 +20,7 @@ public class WellProcessorTest extends TestCase
 	
 	private static final int WELL_INDEX = 1;
 	
-	@Override
+	@BeforeMethod
 	protected void setUp() throws Exception
 	{
 		ServiceFactoryPrx sf = new TestServiceFactory();
@@ -32,6 +35,7 @@ public class WellProcessorTest extends TestCase
         store.setPlateName("setUp Plate", PLATE_INDEX + 1);
 	}
 	
+	@Test
 	public void testWellExists()
 	{
 		assertEquals(3, store.countCachedContainers(Well.class, null));
@@ -54,6 +58,7 @@ public class WellProcessorTest extends TestCase
 		assertEquals("setUp Plate", plate1.getName().getValue());
 	}
 	
+	@Test
 	public void testWellPostProcess()
 	{
 		store.postProcess();

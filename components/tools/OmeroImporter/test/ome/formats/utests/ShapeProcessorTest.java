@@ -8,6 +8,9 @@ import omero.model.Rect;
 import omero.model.Roi;
 import junit.framework.TestCase;
 
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 public class ShapeProcessorTest extends TestCase
 {
 	private OMEROMetadataStoreClient store;
@@ -18,7 +21,7 @@ public class ShapeProcessorTest extends TestCase
 
 	private static final int SHAPE_INDEX = 1;
 
-	@Override
+	@BeforeMethod
 	protected void setUp() throws Exception
 	{
 		ServiceFactoryPrx sf = new TestServiceFactory();
@@ -31,6 +34,7 @@ public class ShapeProcessorTest extends TestCase
         store.setRectangleX(25.0, ROI_INDEX + 1, SHAPE_INDEX);
 	}
 	
+	@Test
 	public void testShapeExists()
 	{
 		assertEquals(1, store.countCachedContainers(Roi.class, null));
@@ -45,6 +49,7 @@ public class ShapeProcessorTest extends TestCase
 		assertEquals(25.0, shape.getX().getValue());
 	}
 	
+	@Test
 	public void testShapePostProcess()
 	{
 		store.postProcess();

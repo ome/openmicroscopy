@@ -15,13 +15,16 @@ import omero.model.Pixels;
 import omero.api.ServiceFactoryPrx;
 import junit.framework.TestCase;
 
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 public class IObjectContainerStoreTest extends TestCase
 {
 	private OMEROMetadataStoreClient store;
 	
 	private static final int IMAGE_INDEX = 0;
 	
-	@Override
+	@BeforeMethod
 	protected void setUp() throws Exception
 	{
 		ServiceFactoryPrx sf = new TestServiceFactory();
@@ -43,6 +46,7 @@ public class IObjectContainerStoreTest extends TestCase
         store.setImageObjectiveSettingsID("Objective:0", IMAGE_INDEX);
 	}
 	
+	@Test
 	public void testGetCaches()
 	{
 		assertNotNull(store.getContainerCache());
@@ -50,6 +54,7 @@ public class IObjectContainerStoreTest extends TestCase
 		assertNull(store.getReferenceStringCache());
 	}
 	
+	@Test
 	public void testSetReferenceStringCache()
 	{
 		Map<String, String[]> a = new HashMap<String, String[]>();
@@ -57,16 +62,19 @@ public class IObjectContainerStoreTest extends TestCase
 		assertEquals(a, store.getReferenceStringCache());
 	}
 	
+	@Test
 	public void testGetSourceObject()
 	{
 		assertNotNull(store.getSourceObject(new LSID(Image.class, 0)));
 	}
 	
+	@Test
 	public void testGetSourceObjects()
 	{
 		assertEquals(2, store.getSourceObjects(Image.class).size());
 	}
 	
+	@Test
 	public void testGetIObjectContainer()
 	{
 		LinkedHashMap<Index, Integer> indexes =
@@ -76,6 +84,7 @@ public class IObjectContainerStoreTest extends TestCase
 		assertEquals(3, store.countCachedContainers(Image.class));
 	}
 	
+	@Test
 	public void testCachedContainers()
 	{
 		assertEquals(2, store.countCachedContainers(Image.class));
@@ -86,12 +95,14 @@ public class IObjectContainerStoreTest extends TestCase
 				Pixels.class, IMAGE_INDEX + 1));
 	}
 	
+	@Test
 	public void testHasReference()
 	{
 		assertTrue(store.hasReference(new LSID(ObjectiveSettings.class,
 				                      IMAGE_INDEX), new LSID("Objective:0")));
 	}
 	
+	@Test
 	public void testCount10000CachedContainers()
 	{
 		for (int i = 0; i < 10000; i++)
@@ -103,6 +114,7 @@ public class IObjectContainerStoreTest extends TestCase
 		assertTrue((System.currentTimeMillis() - t0) < 100);
 	}
 	
+	@Test
 	public void testGet10000ContainersByClass()
 	{
 		for (int i = 0; i < 10000; i++)

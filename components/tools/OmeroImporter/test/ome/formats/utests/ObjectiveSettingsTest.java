@@ -15,6 +15,9 @@ import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.Pixels;
 
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 public class ObjectiveSettingsTest extends TestCase
 {
 	private OMEROWrapper wrapper;
@@ -31,7 +34,7 @@ public class ObjectiveSettingsTest extends TestCase
 	
 	private static final Correction FL = ome.xml.model.enums.Correction.FL;
 	
-	@Override
+	@BeforeMethod
 	protected void setUp() throws Exception
 	{
 		ServiceFactoryPrx sf = new TestServiceFactory();
@@ -64,6 +67,7 @@ public class ObjectiveSettingsTest extends TestCase
         store.setImageObjectiveSettingsID("Objective:0", IMAGE_INDEX + 2);
 	}
 
+	@Test
 	public void testObjectiveCorrectionExists()
 	{
 		Objective o =
@@ -72,6 +76,7 @@ public class ObjectiveSettingsTest extends TestCase
 		assertNotNull(o.getCorrection());
 	}
 	
+	@Test
 	public void testObjectiveCorrectionZeroLength()
 	{
 		store.setObjectiveCorrection(FL, INSTRUMENT_INDEX, OBJECTIVE_INDEX);
@@ -83,6 +88,7 @@ public class ObjectiveSettingsTest extends TestCase
 		assertEquals("Unknown", o.getCorrection().getValue().getValue());
 	}
 	
+	@Test
 	public void testObjectiveCorrectionNull()
 	{
 		store.setObjectiveCorrection(FL, INSTRUMENT_INDEX, OBJECTIVE_INDEX);
@@ -94,6 +100,7 @@ public class ObjectiveSettingsTest extends TestCase
 		assertEquals("Unknown", o.getCorrection().getValue().getValue());
 	}
 	
+	@Test
 	public void testImageObjectiveExists()
 	{
 	    for (int i = 0; i < 3; i++)
@@ -105,6 +112,7 @@ public class ObjectiveSettingsTest extends TestCase
 	    assertNotNull(store.getSourceObject(new LSID(Objective.class, 0, 0)));
 	}
 	
+	@Test
 	public void testObjectiveModelPreserved()
 	{
 	    Objective objective = store.getObjective(INSTRUMENT_INDEX,
@@ -112,6 +120,7 @@ public class ObjectiveSettingsTest extends TestCase
 	    assertEquals(OBJECTIVE_MODEL, objective.getModel().getValue());
 	}
 	
+	@Test
 	public void testContainerCount()
 	{
 	    assertEquals(1, store.countCachedContainers(Objective.class));
@@ -120,6 +129,7 @@ public class ObjectiveSettingsTest extends TestCase
 	    assertEquals(5, store.countCachedContainers(null));
 	}
 	
+	@Test
 	public void testReferences()
 	{
 	    for (int i = 0; i < 3; i++)
