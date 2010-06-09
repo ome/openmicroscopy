@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # blitz_gateway - python bindings and wrappers to access an OMERO blitz server
 # 
@@ -13,6 +14,8 @@
 import os,sys
 THISPATH = os.path.dirname(os.path.abspath(__file__))
 
+import shutil
+import tempfile
 from types import IntType, LongType, UnicodeType, ListType, TupleType, StringType, StringTypes
 from datetime import datetime
 from cStringIO import StringIO
@@ -23,6 +26,7 @@ import omero.clients
 from omero.util.decorators import timeit, TimeIt
 import Ice
 import Glacier2
+import makemovie
 
 import traceback
 import time
@@ -3165,6 +3169,89 @@ class _ImageWrapper (BlitzObjectWrapper):
         else:
             # generator using bufsize
             return (size, self.exportOmeTiff_gen(e, size, bufsize))
+
+    def _wordwrap (self, width, text, font):
+        rv = []
+        tokens = text.split(' ')
+        while len(tokens):
+            p1 = 0
+            p2 = 1
+            while p2 <= len(tokens) and font.getsize(' '.join(tokens[p1:p2]))[0] < width:
+                p2 += 1
+            rv.append(' '.join(tokens[p1:p2-1]))
+            tokens = tokens[p2-1:]
+        logger.debug(rv)
+        return rv
+
+    @assert_re
+    def createMovie (self, outpath, zstart, zend, tstart, tend, opts={}):
+        """
+        Creates a movie file from this image.
+
+        @type outpath: string
+        @type zstart: int
+        @type zend: int
+        @type tstart: int
+        @type tend: int
+        @type opts: dict
+        @param opts: dictionary of extra options. Currently processed options are:
+                     - watermark:string: path to image to use as watermark
+                     - slides:tuple: tuple of tuples with slides to prefix video with
+                       in format (secs:int, topline:text[, middleline:text[, bottomline:text]])
+                     - fps:int: frames per second
+                    - format:string: one of video/mpeg or video/quicktime
+        """
+        slides = opts.get('slides', None)
+        w, h = self.getWidth(), self.getHeight()
+        watermark = opts.get('watermark', None)
+        fps = opts.get('fps', 4)
+        if watermark:
+            watermark = Image.open(watermark)
+            wmpos = 0, self.getHeight() - watermark.size[1]
+        def recb (*args):
+            return self._re
+        def introcb (pixels, commandArgs):
+            fsize = 12
+            font = ImageFont.load('%s/pilfonts/B%0.2d.pil' % (THISPATH, fsize) )
+            for t in slides:
+                slide = Image.new("RGBA", (w,h))
+                for i, line in enumerate(t[1:4]):
+                    line = line.decode('utf8').encode('iso8859-1')
+                    wwline = self._wordwrap(w, line, font)
+                    for j, line in enumerate(wwline):
+                        tsize = font.getsize(line)
+                        draw = ImageDraw.Draw(slide)
+                        if i == 0:
+                            y = 10+j*tsize[1]
+                        elif i == 1:
+                            y = h / 2 - ((len(wwline)-j)*tsize[1]) + (len(wwline)*tsize[1])/2
+                        else:
+                            y = h - (len(wwline) - j)*tsize[1] - 10
+                        draw.text((w/2-tsize[0]/2,y), line, font=font)
+                for i in range(t[0]*fps):
+                    yield slide
+        def imgcb (z, t, pixels, image, commandArgs, frameNo):
+            if watermark:
+                image.paste(watermark, wmpos, watermark)
+        d = tempfile.mkdtemp()
+        orig = os.getcwd()
+        os.chdir(d)
+        ca = makemovie.buildCommandArgs(self.getId())
+        ca['imageCB'] = imgcb
+        if slides:
+            ca['introCB'] = introcb
+        ca['fps'] = fps
+        ca['format'] = opts.get('format', 'video/quicktime')
+        logger.debug(ca)
+        try:
+            fn = os.path.abspath(makemovie.buildMovie(ca, self._conn.c.getSession(), self, self.getPrimaryPixels(), recb))
+        except:
+            logger.error(traceback.format_exc())
+            raise
+        os.chdir(orig)
+        shutil.move(fn, outpath)
+        #shutil.rmtree(d)
+        return os.path.splitext(fn)[-1], ca['format']
 
     def renderImage (self, z, t, compression=0.9):
         rv = self.renderJpeg(z,t,compression)
