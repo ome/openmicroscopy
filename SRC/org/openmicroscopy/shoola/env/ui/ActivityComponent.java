@@ -335,7 +335,7 @@ public abstract class ActivityComponent
 		String[] values = s.split(" ");
 		if (values.length > 1) {
 			String v = values[1];
-			if (values.length >= 2) v +=" "+values[2];
+			if (values.length > 2) v +=" "+values[2];
 			l.setText(v);
 			toolBar.add(Box.createHorizontalStrut(5));
 			toolBar.add(l);
