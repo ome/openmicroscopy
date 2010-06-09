@@ -150,9 +150,6 @@ class DocComponent
 	/** Button to open the delete the file annotation. */
 	private JButton		deleteButton;
 	
-	/** Button to open the delete the file annotation. */
-	private JButton		transparentButton;
-	
 	/** Component displaying the file name. */
 	private JLabel		label;
 	

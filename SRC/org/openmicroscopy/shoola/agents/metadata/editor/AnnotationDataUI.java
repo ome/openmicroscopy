@@ -336,13 +336,13 @@ class AnnotationDataUI
 		addDocsButton.addMouseListener(new MouseAdapter() {
 			
 			public void mouseReleased(MouseEvent e) {
-				Point p = e.getPoint();
-				createDocSelectionMenu().show(addDocsButton, p.x, p.y);
+				if (addDocsButton.isEnabled()) {
+					Point p = e.getPoint();
+					createDocSelectionMenu().show(addDocsButton, p.x, p.y);
+				}
 			}
 		
 		});
-		//addDocsButton.addActionListener(controller);
-		//addDocsButton.setActionCommand(""+EditorControl.ADD_DOCS);
 		UIUtilities.unifiedButtonLookAndFeel(addDocsButton);
 		selectedValue = 0;
 		initialValue = selectedValue;

@@ -847,15 +847,7 @@ class PropertiesUI
         	editName.setEnabled(false);
         	FileData f = (FileData) refObject;
         	if (f.isDirectory()) text = "Folder";
-        	else {
-        		/*
-        		if (f.isImage()) {
-        			b = true;
-        			text = "Image";
-        		} else 
-        		*/
-        		text = "File";
-        	}
+        	else text = "File";
         } else if (refObject instanceof MultiImageData) {
         	editName.setEnabled(false);
         	text = "File";
@@ -881,12 +873,9 @@ class PropertiesUI
         
         if (b) {
         	namePane.getDocument().addDocumentListener(this);
-        	//descriptionPane.getDocument().addDocumentListener(this);
-            //descriptionPane.setEditable(b);
         	descriptionPane.addDocumentListener(this);
-            //descriptionPane.setEnabled(b);
-        	editDescription.setEnabled(b);
         }
+        editDescription.setEnabled(b);
         setParentLabel();
         buildGUI();
 	}
