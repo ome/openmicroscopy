@@ -15,6 +15,7 @@ import omero
 import omero.clients
 from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedirect, Http404
 from django.utils import simplejson
+from django.utils.http import urlquote
 from django.core import template_loader
 from django.core.urlresolvers import reverse
 from django.template import RequestContext as Context
@@ -444,8 +445,35 @@ def render_ome_tiff (request, iid, server_id=None, _conn=None, **kwargs):
             raise Http404
         webgateway_cache.setOmeTiffImage(request, server_id, img, tiff_data)
     rsp = HttpResponse(tiff_data, mimetype='application/x-ome-tiff')
-    from django.utils.http import urlquote
     rsp['Content-Disposition'] = 'attachment; filename="%s.ome.tiff"' % img.getName()
+    rsp['Content-Length'] = len(tiff_data)
+    return rsp
+
+def render_movie (request, iid, axis, pos, server_id=None, _conn=None, **kwargs):
+    """ Renders a movie from the image with id iid """
+    USE_SESSION = False
+    pi = _get_prepared_image(request, iid, server_id=server_id, _conn=_conn, with_session=USE_SESSION)
+    if pi is None:
+        raise Http404
+    img, compress_quality = pi
+    import tempfile
+    fn = tempfile.mkstemp()
+    opts = {}
+    opts['format'] = 'video/' + request.REQUEST.get('format', 'quicktime')
+    opts['fps'] = int(request.REQUEST.get('fps', 4))
+    if kwargs.has_key('optsCB'):
+        opts.update(kwargs['optsCB'](img))
+    opts.update(kwargs.get('opts', {}))
+    logger.debug('rendering movie for img %s with axis %s and opts %s' % (iid, axis, opts))
+    if axis.lower == 'z':
+        ext, mimetype = img.createMovie(fn[1], 0, img.z_count()-1, pos, pos, opts)
+    else:
+        ext, mimetype = img.createMovie(fn[1], pos, pos, 0, img.t_count()-1, opts)
+    movie = open(fn[1]).read()
+    os.close(fn[0])
+    rsp = HttpResponse(movie, mimetype=mimetype)
+    rsp['Content-Disposition'] = 'attachment; filename="%s"' % (img.getName()+ext)
+    rsp['Content-Length'] = len(movie)
     return rsp
     
 def render_split_channel (request, iid, z, t, server_id=None, _conn=None, **kwargs):
