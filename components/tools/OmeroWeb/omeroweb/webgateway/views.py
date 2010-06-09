@@ -686,7 +686,7 @@ def searchOptFromRequest (request):
             opts['search'] += ' author:'+author
         return opts
     except:
-        print traceback.format_exc()
+        logger.error(traceback.format_exc())
         return {}
 
 @TimeIt(logging.INFO)

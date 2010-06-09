@@ -1014,18 +1014,18 @@ def manage_annotation_multi(request, action=None, **kwargs):
     projects = len(request.REQUEST.getlist('project')) > 0 and list(conn.listSelectedProjects(request.REQUEST.getlist('project'))) or list()
     screens = len(request.REQUEST.getlist('screen')) > 0 and list(conn.listSelectedScreens(request.REQUEST.getlist('screen'))) or list()
     plates = len(request.REQUEST.getlist('plate')) > 0 and list(conn.listSelectedPlates(request.REQUEST.getlist('plate'))) or list()
+    wells = len(request.REQUEST.getlist('well')) > 0 and list(conn.listSelectedWells(request.REQUEST.getlist('well'))) or list()
 
     form_multi = None
-    
     if action == "annotatemany":
-        selected = {'images':request.REQUEST.getlist('image'), 'datasets':request.REQUEST.getlist('dataset'), 'projects':request.REQUEST.getlist('project'), 'screens':request.REQUEST.getlist('screen'), 'plates':request.REQUEST.getlist('plate')}
-        form_multi = MultiAnnotationForm(initial={'tags':manager.listTags(), 'files':manager.listFiles(), 'selected':selected, 'images':images,  'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates})
+        selected = {'images':request.REQUEST.getlist('image'), 'datasets':request.REQUEST.getlist('dataset'), 'projects':request.REQUEST.getlist('project'), 'screens':request.REQUEST.getlist('screen'), 'plates':request.REQUEST.getlist('plate'), 'wells':request.REQUEST.getlist('well')}
+        form_multi = MultiAnnotationForm(initial={'tags':manager.listTags(), 'files':manager.listFiles(), 'selected':selected, 'images':images,  'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'wells':wells})
     else:
         if request.method == 'POST':
-            form_multi = MultiAnnotationForm(initial={'tags':manager.listTags(), 'files':manager.listFiles(), 'images':images, 'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates}, data=request.REQUEST.copy(), files=request.FILES)
+            form_multi = MultiAnnotationForm(initial={'tags':manager.listTags(), 'files':manager.listFiles(), 'images':images, 'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'wells':wells}, data=request.REQUEST.copy(), files=request.FILES)
             if form_multi.is_valid():
-                oids = {'image':request.REQUEST.getlist('image'), 'dataset':request.REQUEST.getlist('dataset'), 'project':request.REQUEST.getlist('project'), 'screen':request.REQUEST.getlist('screen'), 'plate':request.REQUEST.getlist('plate')}
-                               
+                oids = {'image':request.REQUEST.getlist('image'), 'dataset':request.REQUEST.getlist('dataset'), 'project':request.REQUEST.getlist('project'), 'screen':request.REQUEST.getlist('screen'), 'plate':request.REQUEST.getlist('plate'), 'well':request.REQUEST.getlist('well')}
+                
                 content = request.REQUEST.get('content')
                 if content is not None and content != "":
                     manager.createCommentAnnotations(content, oids)

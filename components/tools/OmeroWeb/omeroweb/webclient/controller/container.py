@@ -388,6 +388,8 @@ class BaseContainer(BaseController):
             aList = list(self.screen.listAnnotations())
         elif self.plate is not None:
             aList = list(self.plate.listAnnotations())
+        elif self.well is not None:
+            aList = list(self.well.listAnnotations())
         
         for ann in aList:
             if isinstance(ann._obj, omero.model.CommentAnnotationI):
@@ -557,10 +559,10 @@ class BaseContainer(BaseController):
                 listing = getattr(self.conn, "listSelected"+k.lower().title()+"s")
                 for ob in list(listing(oids[k])):
                     l_ann = getattr(omero.model, k.lower().title()+"AnnotationLinkI")()
-                    print type(ob), type(ob._obj)
                     l_ann.setParent(ob._obj)
                     l_ann.setChild(ann._obj)
                     new_links.append(l_ann)
+        
         if len(new_links) > 0 :
             self.conn.saveArray(new_links)
     
@@ -641,7 +643,6 @@ class BaseContainer(BaseController):
         self.conn.saveArray(new_links)
     
     def createAnnotationsLinks(self, atype, tids, oids):
-        print atype, tids, oids
         #TODO: check if link already exist !!!
         atype = str(atype).lower()
         if not atype.lower() in ("tag", "comment", "file"):

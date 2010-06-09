@@ -324,3 +324,4 @@ class ExperimenterModelMultipleChoiceField(ExperimenterModelChoiceField):
                 else:
                     final_values.append(val)
         return final_values
+

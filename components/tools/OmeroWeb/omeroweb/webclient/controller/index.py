@@ -40,8 +40,6 @@ class BaseIndex(BaseController):
     def loadMostRecent(self):
         #shc.extend(list(self.conn.getMostRecentComments()))
         self.mostRecentSharesComments = self.sortByAttr(list(self.conn.getMostRecentSharesCommentLinks()), 'child.details.creationEvent.time', True)
-        for cl in self.mostRecentSharesComments:
-            print (cl.getShare().id)
         shares = list()
         for sh in list(self.conn.getMostRecentShares()):
             flag = True

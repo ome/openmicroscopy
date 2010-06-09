@@ -9,7 +9,7 @@ var calculateCartTotal = function(total)
 };
 
 function manyToAnnotation(){
-    if (!isCheckedById("image") && !isCheckedById("dataset") && !isCheckedById("project") && !isCheckedById("plate") && !isCheckedById("screen")) {
+    if (!isCheckedById("image") && !isCheckedById("dataset") && !isCheckedById("project") && !isCheckedById("well") && !isCheckedById("plate") && !isCheckedById("screen")) {
         alert ("Please select at least one image. Currently you cannot add other objects to basket."); 
     } else { 
         var productListQuery = "/webclient/metadata_details/multiaction/annotatemany/?";

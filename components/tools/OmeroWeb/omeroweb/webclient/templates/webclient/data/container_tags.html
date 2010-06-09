@@ -42,13 +42,13 @@
                             var obj = $(node).attr('id').split("-");
                             var par = $(node).parents('li:first').attr('id')
                             if (obj[0] == 'tag') {
-                                $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/color_line16.png" %}" alt="Edit" title="Edit" onclick="editItem(\'tag\','+obj[1]+');"/>');
+                                $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tree16.png" %}" alt="Data" title="Data" onclick="document.location.href=\'{% url load_template "userdata" %}\'"> <input class="button" type="image" src="{% url webstatic "images/color_line16.png" %}" alt="Edit" title="Edit" onclick="editItem(\'tag\','+obj[1]+');"/>');
                                 $("#right_panel").hide();
                                 $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="expanded-right" id="lhid_trayhandle_icon_right">');
                                 $('div#metadata_details').children().remove();
                                 $("div#content_details").children().remove();
                             } else if (obj[0] == 'pr') {
-                                $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/>');
+                                $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tree16.png" %}" alt="Data" title="Data" onclick="document.location.href=\'{% url load_template "userdata" %}\'">');
                                 
                                 $("#right_panel").show();
                                 $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
@@ -56,7 +56,7 @@
                                 $('iframe#metadata_details').load();
                                 $("div#content_details").children().remove();
                             } else if (obj[0] == 'ds') { 
-                                $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/>');
+                                $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tree16.png" %}" alt="Data" title="Data" onclick="document.location.href=\'{% url load_template "userdata" %}\'">');
                                                                 
                                 $("#right_panel").show();
                                 $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
@@ -69,7 +69,7 @@
                                     $("div#content_details").attr('rel', obj[1]);
                                 }
                             } else if (obj[0] == 'img') {
-                                $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/>');
+                                $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tree16.png" %}" alt="Data" title="Data" onclick="document.location.href=\'{% url load_template "userdata" %}\'">');
                                                                 
                                 $("#right_panel").show();
                                 $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
@@ -87,7 +87,7 @@
                                     $("div#content_details").children().remove();
                                 }                                
                             } else if (obj[0] == 'sc') {
-                                $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/>');
+                                $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tree16.png" %}" alt="Data" title="Data" onclick="document.location.href=\'{% url load_template "userdata" %}\'">');
                                 
                                 $("#right_panel").show();
                                 $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
@@ -95,7 +95,7 @@
                                 $('iframe#metadata_details').load();
                                 $("div#content_details").children().remove();
                             } else if (obj[0] == 'pl') {
-                                $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/>');
+                                $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tree16.png" %}" alt="Data" title="Data" onclick="document.location.href=\'{% url load_template "userdata" %}\'">');
                                                                 
                                 $("#right_panel").show();
                                 $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
@@ -127,7 +127,7 @@
 
     <div class="toolbar">
         <div id="buttons" class="align_left">
-            <input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href='{% url load_template nav.menu %}'">
+            <input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href='{% url load_template nav.menu %}'"> <input class="button" type="image" src="{% url webstatic "images/view_tree16.png" %}" alt="Data" title="Data" onclick="document.location.href='{% url load_template "userdata" %}'">
         </div>
         {% if form_users %}
         <div class="align_right">

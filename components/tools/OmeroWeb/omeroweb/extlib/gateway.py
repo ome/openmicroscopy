@@ -121,14 +121,11 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             who would like to look at these data, is a member of.
             Public data can be only visible by the member of group and owners."""        
         
-        for s in self.c.sf.activeServices():
-            print s
-        
         for k in self._proxies.keys():
             try:
                 self._proxies[k].close()
             except:
-                print traceback.format_exc()
+                logger.error(traceback.format_exc())
         try:
             self.c.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid, False))
             admin_serv = self.getAdminService()
@@ -519,6 +516,16 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         sql = "select pl from Plate pl join fetch pl.details.creationEvent join fetch pl.details.owner join fetch pl.details.group where pl.id in (:ids) order by pl.name"
         for e in q.findAllByQuery(sql, p):
             yield PlateWrapper(self, e)
+    
+    def listSelectedWells(self, ids):
+        """ Retrieves for the given Plate ids."""
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["ids"] = rlist([rlong(a) for a in ids])
+        sql = "select wl from Well wl where wl.id in (:ids)"
+        for e in q.findAllByQuery(sql, p):
+            yield WellWrapper(self, e)
     
     # HIERARCHY RETRIVAL
     def listContainerHierarchy(self, root, eid=None, gid=None):
@@ -1785,7 +1792,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.limit = rint(10)
         p.theFilter = f
         for e in tm.getMostRecentShareCommentLinks(p):
-            print e
             yield SessionAnnotationLinkWrapper(self, e)
     
     def getMostRecentSharesCommentLinks (self):

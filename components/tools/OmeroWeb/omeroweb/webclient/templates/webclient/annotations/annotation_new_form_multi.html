@@ -60,12 +60,15 @@
         <tr><td>{% if form_multi.screen.required %}*{% endif %}{{ form_multi.screen.errors }}</td></tr>{% endif %}        
         {% if form_multi.plate.errors %}<tr><th>{{ form_multi.plate.label_tag }}</th></tr>
         <tr><td>{% if form_multi.plate.required %}*{% endif %}{{ form_multi.plate.errors }}</td></tr>{% endif %}
+        {% if form_multi.well.errors %}<tr><th>{{ form_multi.well.label_tag }}</th></tr>
+        <tr><td>{% if form_multi.well.required %}*{% endif %}{{ form_multi.well.errors }}</td></tr>{% endif %}
         
         <tr class="hiddenField"><td>{{ form_multi.image }}</td></tr>
         <tr class="hiddenField"><td>{{ form_multi.dataset }}</td></tr>
         <tr class="hiddenField"><td>{{ form_multi.project }}</td></tr>
         <tr class="hiddenField"><td>{{ form_multi.screen }}</td></tr>
         <tr class="hiddenField"><td>{{ form_multi.plate }}</td></tr>
+        <tr class="hiddenField"><td>{{ form_multi.well }}</td></tr>
                 
         <tr><td><h1>{% trans "Add new comment" %}:</h1></td></tr>
         

@@ -27,6 +27,10 @@
 #dataIcons .ui-selecting img{ border: 1px dashed #555; padding: 2px; }
 #dataIcons .ui-selected img{ border: 1px dashed #555; padding: 2px; color: white; }
 
+#spw td.ui-selecting { border: 1px solid #da1447;}
+#spw td.ui-selected { border: 1px solid #da1447;}
+
+
 em {
     background-color: #fff;
     border: 1px solid #bbb;
@@ -109,10 +113,9 @@ div.paging input.button_pagination {
     width: 25px;
 }
 #spw table td.full {
-    border: 1px solid #bbb;
-    width: 25px;
     background: #eee;
 }
+
 
 #index table {
     background:#fff none repeat scroll 0 0;

@@ -203,16 +203,13 @@ $.fn.simpleTree = function(opt){
 				var LI = this;
 				var childNode = $('>ul',this);
 				if(childNode.size()>0){
-				    var unknown = 0
 				    var setClassName = 'folder-';
 					
-					if(unknown < 1) {
-					    if(className && className.indexOf('open')>=0){
-    						setClassName=setClassName+'open';
-    						open=true;
-    					}else{
-    						setClassName=setClassName+'close';
-    					}
+					if(className && className.indexOf('open')>=0){
+						setClassName=setClassName+'open';
+						open=true;
+					}else{
+						setClassName=setClassName+'close';
 					}
 					    
 					this.className = setClassName + ($(this).is(':last-child')? '-last':'');
@@ -248,7 +245,7 @@ $.fn.simpleTree = function(opt){
 		        pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/folder_plate16.png" alt="plate"/>';
 		    } else if(node.id.indexOf('tag')>=0){    
 		        pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/knotes16.png" alt="tag"/>'; 
-            } else{
+            } else {
 		        pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/image16.png" alt="image"/>';
 		    }
 			$('>span',node).before(pic);

@@ -31,7 +31,8 @@ from django.forms.widgets import HiddenInput
 from django.core.urlresolvers import reverse
 
 from custom_forms import UrlField, MetadataModelChoiceField, \
-                        AnnotationModelMultipleChoiceField
+                        AnnotationModelMultipleChoiceField, \
+                        ObjectModelMultipleChoiceField
 from omeroweb.webadmin.custom_forms import ExperimenterModelChoiceField, \
                         ExperimenterModelMultipleChoiceField, \
                         GroupModelMultipleChoiceField, GroupModelChoiceField
@@ -142,34 +143,39 @@ class MultiAnnotationForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(MultiAnnotationForm, self).__init__(*args, **kwargs)
         try:
-            self.fields['image'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['images'], initial=kwargs['initial']['selected']['images'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+            self.fields['image'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['images'], initial=kwargs['initial']['selected']['images'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
         except:
-            self.fields['image'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['images'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+            self.fields['image'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['images'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
         
         try:
-            self.fields['dataset'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['datasets'], initial=kwargs['initial']['selected']['datasets'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+            self.fields['dataset'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['datasets'], initial=kwargs['initial']['selected']['datasets'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
         except:
-            self.fields['dataset'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['datasets'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+            self.fields['dataset'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['datasets'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
         
         try:
-            self.fields['project'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['projects'], initial=kwargs['initial']['selected']['projects'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+            self.fields['project'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['projects'], initial=kwargs['initial']['selected']['projects'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
         except:
-            self.fields['project'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['projects'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+            self.fields['project'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['projects'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
         
         try:
-            self.fields['screen'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['screens'], initial=kwargs['initial']['selected']['screens'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+            self.fields['screen'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['screens'], initial=kwargs['initial']['selected']['screens'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
         except:
-            self.fields['screen'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['screens'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+            self.fields['screen'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['screens'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
         
         try:
-            self.fields['plate'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['plates'], initial=kwargs['initial']['selected']['plates'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+            self.fields['plate'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['plates'], initial=kwargs['initial']['selected']['plates'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
         except:
-            self.fields['plate'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['plates'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+            self.fields['plate'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['plates'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
         
+        try:
+            self.fields['well'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['wells'], initial=kwargs['initial']['selected']['wells'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+        except:
+            self.fields['well'] = ObjectModelMultipleChoiceField(queryset=kwargs['initial']['wells'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+            
         self.fields['tags'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['tags'], widget=forms.SelectMultiple(attrs={'size':6, 'class':'existing'}), required=False)
         self.fields['files'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['files'], widget=forms.SelectMultiple(attrs={'size':6, 'class':'existing'}), required=False)
         
-        self.fields.keyOrder = ['content', 'tag', 'description', 'annotation_file', 'tags', 'files', 'image', 'project', 'dataset', 'screen', 'plate']
+        self.fields.keyOrder = ['content', 'tag', 'description', 'annotation_file', 'tags', 'files', 'image', 'project', 'dataset', 'screen', 'plate', 'well']
         
     content = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 39}), required=False)
     tag = forms.CharField(widget=forms.TextInput(attrs={'size':36}), required=False)

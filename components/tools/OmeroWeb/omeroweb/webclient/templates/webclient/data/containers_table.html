@@ -19,9 +19,9 @@
             		var ro = 0;
             		var lo = 0;
             		$("tr.ui-selected td input", this).each(function(){
-            		    if($(this).parents('tr:first').attr('class').indexOf("readonly") == 0) {
+            		    if($(this).parents('tr:first').attr('class').indexOf("readonly")>=0) {
                             ro++;
-                		} else if($(this).parents('tr:first').attr('class').indexOf("linkonly") == 0) {
+                		} else if($(this).parents('tr:first').attr('class').indexOf("linkonly")>=0) {
                             lo++;
                    		}
                    		this.checked = true;
