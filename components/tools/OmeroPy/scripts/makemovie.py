@@ -82,7 +82,9 @@ QT_NS = omero_Constants_ice._M_omero.constants.metadata.NSMOVIEQT;
 WMV_NS = omero_Constants_ice._M_omero.constants.metadata.NSMOVIEWMV;
 
 formatNSMap = {MPEG:MPEG_NS, QT:QT_NS, WMV:WMV_NS};
-formatExtensionMap = {MPEG:"avi", QT:"avi", WMV:"avi"};
+formatExtensionMap = {MPEG:{'ext':"avi", 'out':'-ovc lavc -lavcopts vcodec=mpeg4'},
+                        QT:{'ext':"mov", 'out':'-ovc x264 -x264encopts bitrate=900:vbv_maxrate=1500:vbv_bufsize=2000:nocabac:level_idc=13:global_header'},
+                       WMV:{'ext':"avi", 'out':'-ovc lavc -lavcopts vcodec=wmv2'}};
 OVERLAYCOLOUR = "#666666";
 
 def getFormat(session, fmt):
@@ -167,15 +169,20 @@ def macOSX():
 
 def buildAVI(sizeX, sizeY, filelist, fps, output, format):
 	program = 'mencoder'
-	args = "";
 	formatExtension = formatExtensionMap[format];
-	if(format==WMV):
-		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=jpg -ovc lavc -lavcopts vcodec=wmv2 -o movie.'+formatExtension;
-	elif(format==QT):	
-		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=png -ovc lavc -lavcopts vcodec=mjpeg:vbitrate=800  -o movie.'+formatExtension;
-	else:
-		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=jpg -ovc lavc -lavcopts vcodec=mpeg4 -o movie.'+formatExtension;
+        f = file('movie.lst', 'w')
+        f.write('\n'.join(filelist))
+        f.close()
+        args = (' mf://@movie.lst -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=jpg %(out)s -nosound -noskip -ofps '+str(fps)+' -of lavf -o movie.%(ext)s') % (formatExtension);
+#	if(format==WMV):
+#		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=jpg -ovc lavc -lavcopts vcodec=wmv2 -o movie.'+formatExtension;
+#	elif(format==QT):	
+#		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=png -ovc lavc -lavcopts vcodec=mjpeg:vbitrate=800  -o movie.'+formatExtension;
+#	else:
+#		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=jpg -ovc lavc -lavcopts vcodec=mpeg4 -o movie.'+formatExtension;
+        file('debug.log', 'w').write(program+args)
 	os.system(program+ args);
+        return 'movie.'+formatExtension['ext']
 	
 def rangeToStr(range):
 	first = 1;
@@ -206,13 +213,14 @@ def calculateAquisitionTime(session, pixelsId, cRange, tzList):
 
 	map = {}
 	for info in infoList:
+                deltaT = info.deltaT and info.deltaT.getValue() or 0
 		key = "z:"+str(info.theZ.getValue())+"t:"+str(info.theT.getValue());
 		if(map.has_key(key)):
 			value = map.get(key);
-			value = value+info.deltaT.getValue()
+			value = value+deltaT
 			map[key] = value;
 		else:
-			map[key] = info.deltaT.getValue()
+			map[key] = deltaT
 	for key in map:
 		map[key] = map[key]/len(cRange);
 	return map;	
@@ -351,12 +359,50 @@ def calculateRanges(sizeZ, sizeT, commandArgs):
 		planeMap = unrollPlaneMap(map);
 	return planeMap;
 
-def writeMovie(commandArgs, session):
-	gateway = session.createGateway();
-	scriptService = session.getScriptService();
-	omeroImage = gateway.getImage(commandArgs["image"])
-	pixelsList = gateway.getPixelsFromImage(commandArgs["image"])
-	pixels = pixelsList[0];
+def buildCommandArgs (image,
+                      output='',
+                      zStart=0,
+                      zEnd=1000,
+                      tStart=0,
+                      tEnd=1000,
+                      channels=(),
+                      splitView=0,
+                      fps=10,
+                      showTime=1,
+                      showPlaneInfo=1,
+                      scalebar=1,
+                      format=MPEG,
+                      overlayColour=None,
+                      planeMap={},
+                      fileAnnotation=""):
+
+	if(validColourRange(overlayColour)):
+		overlayColour = RGBToPIL(overlayColour)
+	else:
+		overlayColour = OVERLAYCOLOUR;
+
+	return {
+	"image":image,
+	"output":output,
+	"zStart":zStart,
+	"zEnd":zEnd,
+	"tStart":tStart,
+	"tEnd":tEnd,
+	"channels":channels,
+        "splitView":splitView,
+	"fps":fps,
+	"showTime":showTime,
+	"showPlaneInfo":showPlaneInfo,
+	"scalebar":scalebar,
+	"format":format,
+	"overlayColour":overlayColour,
+	"planeMap":planeMap,
+	"fileAnnotation":fileAnnotation,
+	}
+
+
+
+def buildMovie (commandArgs, session, omeroImage, pixels, renderingEngineCB):
 	pixelsId = pixels.getId().getValue();
 
 	sizeX = pixels.getSizeX().getValue();
@@ -388,9 +434,22 @@ def writeMovie(commandArgs, session):
 	
 	pixelTypeString = pixels.getPixelsType().getValue().getValue();
 	frameNo = 1;
-	filelist='';
-	renderingEngine = getRenderingEngine(session, pixelsId, sizeC, cRange)
+	filelist=[];
 
+        if(commandArgs.get("introCB", False)):
+                for slide in commandArgs["introCB"](pixels, commandArgs):
+                        filename = str(frameNo)+'.jpg';
+                        slide.save(filename,"JPEG")
+#                        if(commandArgs["format"]==QT):
+#                                filename = str(frameNo)+'.png';
+#                                slide.save(filename,"PNG")
+#                        else:
+#                                filename = str(frameNo)+'.jpg';
+#                                slide.save(filename,"JPEG")
+                        filelist.append(filename)
+                        frameNo +=1;
+
+	renderingEngine = renderingEngineCB(session, pixelsId, sizeC, cRange)
 	for tz in tzList:
 		t = tz[0];
 		z = tz[1];
@@ -399,10 +458,11 @@ def writeMovie(commandArgs, session):
 		planeImage = planeImage.byteswap();
 		planeImage = planeImage.reshape(sizeX, sizeY);
 		image = Image.frombuffer('RGBA',(sizeX,sizeY),planeImage.data,'raw','ARGB',0,1)
-		if(commandArgs["format"]==QT):
-			filename = str(frameNo)+'.png';
-		else:
-			filename = str(frameNo)+'.jpg';
+                filename = str(frameNo)+'.jpg';
+		#if(commandArgs["format"]==QT):
+		#	filename = str(frameNo)+'.png';
+		#else:
+		#	filename = str(frameNo)+'.jpg';
 		if(commandArgs["scalebar"]!=0):
 			image = addScalebar(commandArgs["scalebar"], image, pixels, commandArgs);
 		planeInfo = "z:"+str(z)+"t:"+str(t);
@@ -411,17 +471,28 @@ def writeMovie(commandArgs, session):
 			image = addTimePoints(time, pixels, image, commandArgs);
 		if(commandArgs["showPlaneInfo"]==1):
 			image = addPlaneInfo(z, t, pixels, image, commandArgs);
-		if(commandArgs["format"]==QT):
-			image.save(filename,"PNG")
-		else:
-			image.save(filename,"JPEG")
-		if(frameNo==1):
-			filelist = filename
-		else:
-			filelist = filelist+','+filename
+                if(commandArgs.get("imageCB", False)):
+                   commandArgs["imageCB"](z, t, pixels, image, commandArgs, frameNo)
+                image.save(filename,"JPEG")
+#		if(commandArgs["format"]==QT):
+#			image.save(filename,"PNG")
+#		else:
+#			image.save(filename,"JPEG")
+                filelist.append(filename)
 		frameNo +=1;
-	buildAVI(sizeX, sizeY, filelist, commandArgs["fps"], commandArgs["output"], commandArgs["format"]);
-	uploadMovie(client, session, omeroImage, commandArgs["output"], commandArgs["format"])
+
+	return buildAVI(sizeX, sizeY, filelist, commandArgs["fps"], commandArgs["output"], commandArgs["format"]);
+
+def writeMovie(commandArgs, session):
+	gateway = session.createGateway();
+	scriptService = session.getScriptService();
+	omeroImage = gateway.getImage(commandArgs["image"])
+	pixelsList = gateway.getPixelsFromImage(commandArgs["image"])
+	pixels = pixelsList[0];
+
+        buildMovie (commandArgs, session, omeroImage, pixels, getRenderingEngine)
+
+	#uploadMovie(client, session, omeroImage, commandArgs["output"], commandArgs["format"])
 
 if __name__ == "__main__":
 	client = scripts.client('makemovie','MakeMovie creates a movie of the image and attaches it to the originating image.',\
