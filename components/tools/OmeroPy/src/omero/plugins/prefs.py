@@ -171,9 +171,9 @@ class PrefsControl(BaseControl):
     @with_config
     def set(self, args, config):
         if "=" in args.KEY and args.VALUE is None:
-            k, v = args.KEY.split("=")
+            k, v = args.KEY.split("=", 1)
             self.ctx.err(""" "=" in key name. Did you mean "...set %s %s"?""" % (k, v))
-        if args.VALUE is None:
+        elif args.VALUE is None:
             del config[args.KEY]
         else:
             config[args.KEY] = args.VALUE
@@ -276,7 +276,7 @@ class PrefsControl(BaseControl):
         if line.endswith("\\"):
             return line[:-1]
 
-        parts = line.split("=")
+        parts = line.split("=", 1)
         if len(parts[0]) == 0:
             return
         if len(parts) == 1:
