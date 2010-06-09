@@ -879,20 +879,9 @@ class TreeViewerComponent
 		mv.setParentRootObject(parent);
 		if (size > 0) 
 			mv.setRelatedNodes(siblings);
-		
-		/*
-		mv.setParentRootObject(parent);
-		if (size > 0) {
-			mv.setRelatedNodes(siblings);
-		} else {
-			Browser browser = model.getSelectedBrowser();
-			ExperimenterData exp = null;
-			TreeImageDisplay last = browser.getLastSelectedDisplay();
-			if (last != null) exp = browser.getNodeOwner(last);
-			if (exp == null) exp = model.getUserDetails();
-			mv.setRootObject(selected, exp.getId());
-		}*/
-		model.getDataViewer().setApplications(
+
+		if (model.getDataViewer() != null)
+			model.getDataViewer().setApplications(
 				TreeViewerFactory.getApplications(
 						model.getObjectMimeType(selected)));
 		if (!model.isFullScreen()) {
