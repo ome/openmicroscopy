@@ -1351,20 +1351,6 @@ class BrowserUI
     	TreeImageDisplay root = getTreeRoot();
     	TreeImageDisplay child = (TreeImageDisplay) root.getFirstChild();
         treeDisplay.expandPath(new TreePath(child.getPath()));
-        
-        /*
-    	if (model.getBrowserType() == Browser.FILE_SYSTEM_EXPLORER) {
-      		if (chooser == null) chooser = new JFileChooser();
-    		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
-            TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
-    		Set nodes = createFileSystemExplorer();
-    		setExperimenterData(nodes, root);
-    	} else {
-    		TreeImageDisplay root = getTreeRoot();
-        	TreeImageDisplay child = (TreeImageDisplay) root.getFirstChild();
-            treeDisplay.expandPath(new TreePath(child.getPath()));
-    	}
-    	*/
     }
 
     /** 
@@ -1452,9 +1438,8 @@ class BrowserUI
         	 if (model.getBrowserType() == Browser.TAGS_EXPLORER)
             	 createTagsElements(expNode);
         	 else buildEmptyNode(expNode);
-        	
         }
-        i= nodesToReset.iterator();
+        i = nodesToReset.iterator();
         while (i.hasNext()) 
 			setExpandedParent((TreeImageDisplay) i.next(), true);
         TreeImageDisplay root = getTreeRoot();
@@ -1530,7 +1515,8 @@ class BrowserUI
 	void setCountValues(TreeImageDisplay expNode, int index, Object value)
 	{
 		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
-		expNode.setChildrenLoaded(Boolean.TRUE);
+		if (model.getBrowserType() != Browser.TAGS_EXPLORER)
+			expNode.setChildrenLoaded(Boolean.TRUE);
 		expNode.setExpanded(true);
 		int n = expNode.getChildCount();
 		TreeImageSet node;

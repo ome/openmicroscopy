@@ -222,6 +222,7 @@ class BrowserControl
         	model.countExperimenterImages(display);
         	return;
         } 
+        
         if (display.isChildrenLoaded()) {
         	List l = display.getChildrenDisplay();
 			//if (display.getChildCount() != l.size()) {

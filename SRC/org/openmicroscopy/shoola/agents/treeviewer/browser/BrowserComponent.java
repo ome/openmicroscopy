@@ -329,7 +329,6 @@ class BrowserComponent
         int state = model.getState();
         switch (state) {
             case NEW:
-                //view.loadRoot();
             	view.loadExperimenterData();
                 break;
             case DISCARDED:
