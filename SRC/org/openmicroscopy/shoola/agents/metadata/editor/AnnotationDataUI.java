@@ -190,6 +190,8 @@ class AnnotationDataUI
 	/** The selected index. */
 	private int								filter;
 	
+	/** The collection of annotations to replace. */
+	private List<FileAnnotationData> 		toReplace;
 	/**
 	 * Creates and displays the menu 
 	 * @param src The invoker.
@@ -282,6 +284,7 @@ class AnnotationDataUI
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
+		toReplace = new ArrayList<FileAnnotationData>();
 		IconManager icons = IconManager.getInstance();
 		filter = SHOW_ALL;
 		filterButton = new JButton(NAMES[SHOW_ALL]);
@@ -516,28 +519,33 @@ class AnnotationDataUI
 				case SHOW_ALL:
 					while (i.hasNext()) {
 						data = (DataObject) i.next();
-						doc = new DocComponent(data, model);
-						doc.addPropertyChangeListener(controller);
-						if (doc.hasThumbnailToLoad()) {
-							loadThumbnails.put((FileAnnotationData) data, doc);
+						if (!toReplace.contains(data)) {
+							doc = new DocComponent(data, model);
+							doc.addPropertyChangeListener(controller);
+							if (doc.hasThumbnailToLoad()) {
+								loadThumbnails.put((FileAnnotationData) data, 
+										doc);
+							}
+							filesDocList.add(doc);
+							docPane.add(doc);
 						}
-						filesDocList.add(doc);
-						docPane.add(doc);
 					}
 					break;
 				case ADDED_BY_OTHERS:
 					immutable = model.getImmutableAnnotationIds();
 					while (i.hasNext()) {
 						data = (DataObject) i.next();
-						doc = new DocComponent(data, model);
-						doc.addPropertyChangeListener(controller);
-						filesDocList.add(doc);
-						if (immutable.contains(data.getId())) {
-							if (doc.hasThumbnailToLoad()) {
-								loadThumbnails.put((FileAnnotationData) data, 
-										doc);
+						if (!toReplace.contains(data)) {
+							doc = new DocComponent(data, model);
+							doc.addPropertyChangeListener(controller);
+							filesDocList.add(doc);
+							if (immutable.contains(data.getId())) {
+								if (doc.hasThumbnailToLoad()) {
+									loadThumbnails.put(
+											(FileAnnotationData) data, doc);
+								}
+								docPane.add(doc);
 							}
-							docPane.add(doc);
 						}
 					}
 					break;
@@ -545,15 +553,17 @@ class AnnotationDataUI
 					immutable = model.getImmutableAnnotationIds();
 					while (i.hasNext()) {
 						data = (DataObject) i.next();
-						doc = new DocComponent(data, model);
-						doc.addPropertyChangeListener(controller);
-						filesDocList.add(doc);
-						if (!immutable.contains(data.getId())) {
-							if (doc.hasThumbnailToLoad()) {
-								loadThumbnails.put(
-										(FileAnnotationData) data, doc);
+						if (!toReplace.contains(data)) {
+							doc = new DocComponent(data, model);
+							doc.addPropertyChangeListener(controller);
+							filesDocList.add(doc);
+							if (!immutable.contains(data.getId())) {
+								if (doc.hasThumbnailToLoad()) {
+									loadThumbnails.put(
+											(FileAnnotationData) data, doc);
+								}
+								docPane.add(doc);
 							}
-							docPane.add(doc);
 						}
 					}
 			}
@@ -582,7 +592,6 @@ class AnnotationDataUI
 		tagsPane.removeAll();
 		tagsDocList.clear();
 		DocComponent doc;
-		
 		if (list != null && list.size() > 0) {
 			Iterator i = list.iterator();
 			int width = 0;
@@ -740,7 +749,7 @@ class AnnotationDataUI
 		revalidate();
 		repaint();
 	}
-	
+
 	/**
 	 * Attaches the passed file.
 	 * 
@@ -764,6 +773,10 @@ class AnnotationDataUI
 						if (fa.getFilePath().equals(file.getAbsolutePath()))
 							exist = true;
 						list.add(fa);
+					} else {
+						if (fa.getFileName().equals(file.getName())) {
+							toReplace.add(fa);
+						}
 					}
 				}
 			}
@@ -1012,7 +1025,6 @@ class AnnotationDataUI
 						idsToKeep.add(id);
 				}
 			}
-			
 			original = model.getAttachments();
 			j = original.iterator();
 			while (j.hasNext()) {
