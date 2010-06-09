@@ -1579,7 +1579,7 @@ class BrowserComponent
 			parent = node.getParentDisplay();
 			if (parent != null) {
 				parent.removeChildDisplay(node);
-				parent.remove(node);
+				node.removeFromParent();
 				view.reloadNode(parent);
 			}
 		}
