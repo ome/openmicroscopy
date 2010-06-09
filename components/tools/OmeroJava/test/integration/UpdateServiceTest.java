@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 import ome.model.annotations.TagAnnotation;
 import omero.OptimisticLockException;
 import omero.RInt;
+import omero.api.IAdminPrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
@@ -93,10 +94,13 @@ public class UpdateServiceTest
     
     /** Helper reference to the <code>IUpdate</code> service. */
     private IUpdatePrx iUpdate;
-    
+
+    /** Helper reference to the <code>IAdmin</code> service. */
+    private IAdminPrx iAdmin;
+
     /**
      * Creates a default image and returns it.
-     * 
+     *
      * @param time The acquisition time.
      * @return See above.
      */
@@ -122,9 +126,10 @@ public class UpdateServiceTest
         factory = client.createSession();
         iQuery = factory.getQueryService();
         iUpdate = factory.getUpdateService();
+        iAdmin = factory.getAdminService();
 
         // administrator client
-        String rootpass = client.getProperty("omero.rootpas");
+        String rootpass = client.getProperty("omero.rootpass");
         root = new omero.client(new String[]{"--omero.user=root",
                 "--omero.pass=" + rootpass});
         root.createSession();
@@ -749,6 +754,9 @@ public class UpdateServiceTest
     @Test
     public void testUpdateSameTagAnnotationUsedByTwoUsers() throws Exception
     {
+
+        String groupName = iAdmin.getEventContext().groupName;
+
         //create an image.
         Image image = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
 
@@ -764,13 +772,13 @@ public class UpdateServiceTest
 
         IObject o1 = iUpdate.saveAndReturnObject(l);
         assertNotNull(o1);
-        CreatePojosFixture2 fixture = CreatePojosFixture2.withNewUser(root);
+        CreatePojosFixture2 fixture = CreatePojosFixture2.withNewUser(root, groupName);
 
         l = new ImageAnnotationLinkI();
         l.setParent(image);
         l.setChild(data);
-        l.getDetails().setOwner(fixture.e);
-        IObject o2 = iUpdate.saveAndReturnObject(l);
+        // l.getDetails().setOwner(fixture.e);
+        IObject o2 = fixture.iUpdate.saveAndReturnObject(l);
         assertNotNull(o2);
 
         long self = factory.getAdminService().getEventContext().userId;

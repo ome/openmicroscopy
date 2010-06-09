@@ -48,29 +48,42 @@ import Glacier2.PermissionDeniedException;
  * setUp and tearDown must be called properly to make these work.
  * Copied from testing/src/ome/testing/CreatePojosFixture for ticket1106
  */
-public class CreatePojosFixture2 
+public class CreatePojosFixture2
 {
-	
+
     /**
      * creates a new fixture logged in as a newly created user. requires an
      * admin service factory in order to create user and should NOT be used from
      * the server side.
-     * @throws ServerError 
-     * @throws PermissionDeniedException 
-     * @throws CannotCreateSessionException 
+     * @throws ServerError
+     * @throws PermissionDeniedException
+     * @throws CannotCreateSessionException
      */
-    public static CreatePojosFixture2 withNewUser(omero.client root) 
+    public static CreatePojosFixture2 withNewUser(omero.client root)
+    throws ServerError, CannotCreateSessionException, PermissionDeniedException
+    {
+        return withNewUser(root, (String) null);
+    }
+
+    public static CreatePojosFixture2 withNewUser(omero.client root, String groupName)
     throws ServerError, CannotCreateSessionException, PermissionDeniedException
     {
         CreatePojosFixture2 fixture = new CreatePojosFixture2();
 
         ServiceFactoryPrx sf = root.getSession();
         IAdminPrx rootAdmin = sf.getAdminService();
-        String G_NAME = UUID.randomUUID().toString();
-        fixture.g = new ExperimenterGroupI();
-        fixture.g.setName( rstring( G_NAME ));
-        fixture.g = new ExperimenterGroupI(rootAdmin.createGroup(fixture.g),
-                false);
+
+        String G_NAME;
+        if (groupName == null) {
+            G_NAME = UUID.randomUUID().toString();
+            fixture.g = new ExperimenterGroupI();
+            fixture.g.setName( rstring( G_NAME ));
+            fixture.g = new ExperimenterGroupI(rootAdmin.createGroup(fixture.g),
+                    false);
+        } else {
+            G_NAME = groupName;
+            fixture.g = rootAdmin.lookupGroup(groupName);
+        }
 
         fixture.TESTER = "TESTER-" + UUID.randomUUID().toString();
         fixture.e = new ExperimenterI();
@@ -114,11 +127,11 @@ public class CreatePojosFixture2
         iUpdate = factory.getUpdateService();
     }
 
-    protected IAdminPrx iAdmin;
+    public IAdminPrx iAdmin;
 
-    protected IQueryPrx iQuery;
+    public IQueryPrx iQuery;
 
-    protected IUpdatePrx iUpdate;
+    public IUpdatePrx iUpdate;
 
     protected boolean init = false;
 
