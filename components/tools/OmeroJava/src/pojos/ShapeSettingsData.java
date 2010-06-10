@@ -130,6 +130,7 @@ public class ShapeSettingsData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		shape.setFillRule(rtypes.rstring(fillRule));
+		setDirty(true);
 	}
 	
 	/**
@@ -156,6 +157,7 @@ public class ShapeSettingsData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		shape.setFillColor(rtypes.rint(fillColour.getRGB()));
+		setDirty(true);
 	}
 
 	
@@ -183,6 +185,7 @@ public class ShapeSettingsData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		shape.setStrokeColor(rtypes.rint(strokeColour.getRGB()));
+		setDirty(true);
 	}
 	
 	/**
@@ -209,6 +212,7 @@ public class ShapeSettingsData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		shape.setStrokeWidth(rtypes.rint((int)strokeWidth));
+		setDirty(true);
 	}
 	
 	/**
@@ -244,6 +248,7 @@ public class ShapeSettingsData
 			values = values + dashArray[i] + ",";
 		values = values + dashArray[dashArray.length-1];
 		shape.setStrokeDashArray(rtypes.rstring(values));
+		setDirty(true);
 	}
 	
 	/**
@@ -288,6 +293,7 @@ public class ShapeSettingsData
 				shape.setStrokeLineCap(rtypes.rstring(LINE_CAP_BUTT));
 				break;
 		}
+		setDirty(true);
 	}
 	
 	/** 
@@ -332,6 +338,7 @@ public class ShapeSettingsData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		shape.setFontFamily(rtypes.rstring(fontFamily));
+		setDirty(true);
 	}
 	
 	/**
@@ -361,6 +368,7 @@ public class ShapeSettingsData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		shape.setFontSize(rtypes.rint(fontSize));
+		setDirty(true);
 	}
 
 	
@@ -391,6 +399,7 @@ public class ShapeSettingsData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		shape.setFontStyle(rtypes.rstring(fontStyle));
+		setDirty(true);
 	}
 	
 	/**
@@ -420,6 +429,7 @@ public class ShapeSettingsData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		shape.setFontWeight(rtypes.rstring(fontWeight));
+		setDirty(true);
 	}
 	
 	

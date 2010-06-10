@@ -177,6 +177,35 @@ public abstract class ShapeData
 		setDirty(true);
 	}
 
+	/**
+	 * Returns the channel.
+	 * 
+	 * @return See above.
+	 */
+	public int getC()
+	{
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		RInt value = shape.getTheC();
+		if (value == null)
+			throw new IllegalArgumentException("No C Specified.");
+		return value.getValue();
+	}
+
+	/**
+	 * Set the channel
+	 * @param See above.
+	 */
+	public void setC(int theC)
+	{
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setTheC(rtypes.rint(theC));
+		setDirty(true);
+	}
+
 	
 	/**
 	 * Returns the timepoint.
