@@ -22,10 +22,10 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 //Application-internal dependencies
-import ome.model.annotations.TagAnnotation;
 import omero.OptimisticLockException;
 import omero.RInt;
 import omero.api.IAdminPrx;
+import omero.api.IMetadataPrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
@@ -97,7 +97,7 @@ public class UpdateServiceTest
 
     /** Helper reference to the <code>IAdmin</code> service. */
     private IAdminPrx iAdmin;
-
+    
     /**
      * Creates a default image and returns it.
      *
@@ -127,7 +127,6 @@ public class UpdateServiceTest
         iQuery = factory.getQueryService();
         iUpdate = factory.getUpdateService();
         iAdmin = factory.getAdminService();
-
         // administrator client
         String rootpass = client.getProperty("omero.rootpass");
         root = new omero.client(new String[]{"--omero.user=root",
@@ -767,16 +766,17 @@ public class UpdateServiceTest
         Annotation data = (Annotation) iUpdate.saveAndReturnObject(tag);
         //link the image and the tag
         ImageAnnotationLink l = new ImageAnnotationLinkI();
-        l.setParent((Image)image.proxy());
-        l.setChild((Annotation)data.proxy());
+        l.setParent((Image) image.proxy());
+        l.setChild((Annotation) data.proxy());
 
         IObject o1 = iUpdate.saveAndReturnObject(l);
         assertNotNull(o1);
-        CreatePojosFixture2 fixture = CreatePojosFixture2.withNewUser(root, groupName);
+        CreatePojosFixture2 fixture = CreatePojosFixture2.withNewUser(root, 
+        		groupName);
 
         l = new ImageAnnotationLinkI();
-        l.setParent((Image)image.proxy());
-        l.setChild((Annotation)data.proxy());
+        l.setParent((Image) image.proxy());
+        l.setChild((Annotation) data.proxy());
         // l.getDetails().setOwner(fixture.e);
         IObject o2 = fixture.iUpdate.saveAndReturnObject(l);
         assertNotNull(o2);
@@ -788,5 +788,5 @@ public class UpdateServiceTest
         assertTrue(o2.getDetails().getOwner().getId().getValue() ==
             fixture.e.getId().getValue());
     }
-
+    
 }
