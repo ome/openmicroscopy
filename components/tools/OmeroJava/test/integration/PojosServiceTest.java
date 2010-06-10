@@ -1316,4 +1316,58 @@ public class PojosServiceTest
 		assertTrue(result.size() == 0);
     } 
 
+    /**
+     * Test to load container hierarchy with dataset as root and no leaves
+     * flag turned on.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(groups = "ticket:907")
+    public void testLoadContainerHierarchyDatasetLeavesNotLoaded() 
+    	throws Exception 
+    {
+    	
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			simpleDatasetData().asIObject());
+    	Image img = (Image) iUpdate.saveAndReturnObject(simpleImage());
+    	//link the 2
+    	DatasetImageLink link = new DatasetImageLinkI();
+    	link.setParent(d);
+    	link.setChild(img);
+    	iUpdate.saveAndReturnObject(link);
+    	ParametersI param = new ParametersI();
+    	param.noLeaves();
+        List<Long> ids = new ArrayList<Long>();
+        List results = iContainer.loadContainerHierarchy(
+        		Dataset.class.getName(), ids, param);
+        assertTrue(results.size() > 0);
+        Iterator i = results.iterator();
+        DatasetData dataset;
+        Set<ImageData> images;
+        Iterator<ImageData> j;
+        ImageData image;
+        while (i.hasNext()) {
+			dataset = new  DatasetData((Dataset) i.next());
+			if (dataset.getId() == d.getId().getValue()) {
+				images = dataset.getImages();
+				assertNull(images);
+			} 
+		}
+        
+        //now check if the image is correctly loaded
+        param = new ParametersI();
+        param.leaves();
+        results = iContainer.loadContainerHierarchy(
+        		Dataset.class.getName(), ids, param);
+        assertTrue(results.size() > 0);
+        i = results.iterator();
+        while (i.hasNext()) {
+			dataset = new  DatasetData((Dataset) i.next());
+			if (dataset.getId() == d.getId().getValue()) {
+				images = dataset.getImages();
+				assertTrue(images.size() == 1);
+			} 
+		}
+        
+    }
+    
 }
