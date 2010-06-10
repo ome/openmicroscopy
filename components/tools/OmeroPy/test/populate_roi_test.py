@@ -30,13 +30,15 @@ from omero.util.populate_roi import *
 
 import omero.clients
 from omero.rtypes import rdouble, rstring, rint
-from omero.model import OriginalFileI, FormatI, PlateI, WellI, WellSampleI, PlateAnnotationLinkI, ImageI, FileAnnotationI, RoiI, EllipseI
+from omero.model import OriginalFileI, PlateI, WellI, WellSampleI, PlateAnnotationLinkI, ImageI, FileAnnotationI, RoiI, EllipseI
 
 class TestingServiceFactory(object):
     """
     Testing service factory implementation.
     """
     def getUpdateService(self):
+        return None
+    def getQueryService(self):
         return None
 
 class FromFileOriginalFileProvider(object):
@@ -62,7 +64,7 @@ class MIASParseRoiTest(unittest.TestCase):
     def setUp(self):
         AbstractPlateAnalysisCtx.DEFAULT_ORIGINAL_FILE_PROVIDER = \
             FromFileOriginalFileProvider
-        original_files = dict()
+        original_files = list()
         # Create our container images and an original file image map
         images = list()
         n_images = 0
@@ -78,26 +80,25 @@ class MIASParseRoiTest(unittest.TestCase):
                 images.append(image)
         original_file_image_map = dict()
         # Our required original file format
-        format = FormatI()
-        format.value = rstring('Companion/MIAS')
+        format = rstring('Companion/MIAS')
         # Create original file representing the log file
         o = OriginalFileI(1L, True)
         o.name = rstring(self.LOG_FILE)
         o.path = rstring(os.path.join(self.ROOT, self.LOG_FILE))
-        o.format = format
-        original_files[1L] = o
+        o.mimetype = format
+        original_files.append(o) #[1L] = o
         original_file_image_map[1L] = images[0]
         # Create original file representing the result file
         o = OriginalFileI(2L, True)
         o.name = rstring(self.RESULT_FILE)
         o.path = rstring(os.path.join(self.ROOT, self.RESULT_FILE))
-        o.format = format
-        original_files[2L] = o
+        o.mimetype = format
+        original_files.append(o) # [2L] = o
         original_file_image_map[2L] = images[0]
         sf = TestingServiceFactory()
         self.analysis_ctx = MIASPlateAnalysisCtx(
             images, original_files, original_file_image_map, 1L, sf)
-    
+
     def test_get_measurement_ctx(self):
         ctx = self.analysis_ctx.get_measurement_ctx(0)
         self.assertNotEqual(None, ctx)
@@ -130,7 +131,7 @@ class FlexParseRoiTest(unittest.TestCase):
     def setUp(self):
         AbstractPlateAnalysisCtx.DEFAULT_ORIGINAL_FILE_PROVIDER = \
             FromFileOriginalFileProvider
-        original_files = dict()
+        original_files = list()
         # Create our container images and an original file image map
         images = list()
         n_images = 0
@@ -146,14 +147,13 @@ class FlexParseRoiTest(unittest.TestCase):
                 images.append(image)
         original_file_image_map = dict()
         # Our required original file format
-        format = FormatI()
-        format.value = rstring('Companion/Flex')
+        format = rstring('Companion/Flex')
         # Create original file representing the result file
         o = OriginalFileI(1L, True)
         o.name = rstring(self.RESULT_FILE)
         o.path = rstring(os.path.join(self.ROOT, self.RESULT_FILE))
-        o.format = format
-        original_files[1L] = o
+        o.mimetype = format
+        original_files.append(o) # [1L] = o
         original_file_image_map[1L] = images[0]
         sf = TestingServiceFactory()
         self.analysis_ctx = FlexPlateAnalysisCtx(
@@ -180,7 +180,7 @@ class InCellParseRoiTest(unittest.TestCase):
     def setUp(self):
         AbstractPlateAnalysisCtx.DEFAULT_ORIGINAL_FILE_PROVIDER = \
             FromFileOriginalFileProvider
-        original_files = dict()
+        original_files = list()
         # Create our container images and an original file image map
         images = list()
         n_images = 0
@@ -196,14 +196,13 @@ class InCellParseRoiTest(unittest.TestCase):
                 images.append(image)
         original_file_image_map = dict()
         # Our required original file format
-        format = FormatI()
-        format.value = rstring('Companion/InCell')
+        format = rstring('Companion/InCell')
         # Create original file representing the result file
         o = OriginalFileI(1L, True)
         o.name = rstring(self.RESULT_FILE)
         o.path = rstring(os.path.join(self.ROOT, self.RESULT_FILE))
-        o.format = format
-        original_files[1L] = o
+        o.mimetype = format
+        original_files.append(o) #[1L] = o
         original_file_image_map[1L] = image
         sf = TestingServiceFactory()
         self.analysis_ctx = InCellPlateAnalysisCtx(

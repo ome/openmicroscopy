@@ -22,7 +22,6 @@ def _additional_tests():
     suite.addTest(load("scriptstest.ping"))
     suite.addTest(load("scriptstest.proj"))
     suite.addTest(load("scriptstest.rand"))
-    suite.addTest(load("scriptstest.params"))
     return suite
 
 if __name__ == "__main__":

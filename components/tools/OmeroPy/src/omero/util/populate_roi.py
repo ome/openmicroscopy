@@ -220,7 +220,7 @@ class MIASPlateAnalysisCtx(AbstractPlateAnalysisCtx):
         files based on regular expression matching.
         """
         for original_file in self.original_files:
-            if original_file.format.value.val != self.companion_format:
+            if original_file.mimetype.val != self.companion_format:
                 continue
             name = original_file.name.val
             match = self.log_regex.match(name)
@@ -261,7 +261,7 @@ class MIASPlateAnalysisCtx(AbstractPlateAnalysisCtx):
     
     def is_this_type(klass, original_files):
         for original_file in original_files:
-            format = original_file.format.value.val
+            format = original_file.mimetype.val
             if format == klass.companion_format \
                and klass.log_regex.match(original_file.name.val):
                 return True
@@ -301,7 +301,7 @@ class FlexPlateAnalysisCtx(AbstractPlateAnalysisCtx):
         path_original_file_map = dict()
         for original_file in original_files:
             path = original_file.path.val
-            format = original_file.format.value.val
+            format = original_file.mimetype.val
             if format == self.companion_format and path.endswith('.res'):
                 path_original_file_map[path] = original_file
         self.measurements = path_original_file_map.values()
@@ -313,7 +313,7 @@ class FlexPlateAnalysisCtx(AbstractPlateAnalysisCtx):
     def is_this_type(klass, original_files):
         for original_file in original_files:
             path = original_file.path.val
-            format = original_file.format.value.val
+            format = original_file.mimetype.val
             if format == klass.companion_format and path.endswith('.res'):
                 return True
         return False
@@ -351,7 +351,7 @@ class InCellPlateAnalysisCtx(AbstractPlateAnalysisCtx):
         path_original_file_map = dict()
         for original_file in original_files:
             path = original_file.path.val
-            format = original_file.format.value.val
+            format = original_file.mimetype.val
             if format == self.companion_format and path.endswith('.xml'):
                 path_original_file_map[path] = original_file
         self.measurements = path_original_file_map.values()
@@ -363,7 +363,7 @@ class InCellPlateAnalysisCtx(AbstractPlateAnalysisCtx):
     def is_this_type(klass, original_files):
         for original_file in original_files:
             path = original_file.path.val
-            format = original_file.format.value.val
+            format = original_file.mimetype.val
             if format == klass.companion_format and path.endswith('.xml'):
                 return True
         return False
@@ -418,7 +418,6 @@ class PlateAnalysisCtxFactory(object):
             'left outer join fetch img.annotationLinks as ia_links ' \
             'left outer join fetch ia_links.child as ia ' \
             'left outer join fetch ia.file as i_o_file ' \
-            'left outer join fetch i_o_file.format ' \
             'where p.id = %d' % plate_id, None)
         log.debug("Loading plate...")
         plate = self.query_service.findByQuery(
@@ -426,7 +425,6 @@ class PlateAnalysisCtxFactory(object):
             'left outer join fetch p.annotationLinks as pa_links ' \
             'left outer join fetch pa_links.child as pa ' \
             'left outer join fetch pa.file as p_o_file ' \
-            'left outer join fetch p_o_file.format ' \
             'where p.id = %d' % plate_id, None)
         log.debug("Linking plate and images...")
         for image in images:
