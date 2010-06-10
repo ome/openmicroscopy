@@ -3172,14 +3172,16 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     def _wordwrap (self, width, text, font):
         rv = []
-        tokens = text.split(' ')
-        while len(tokens):
+        tokens = filter(None, text.split(' '))
+        while len(tokens) > 1:
             p1 = 0
             p2 = 1
             while p2 <= len(tokens) and font.getsize(' '.join(tokens[p1:p2]))[0] < width:
                 p2 += 1
             rv.append(' '.join(tokens[p1:p2-1]))
             tokens = tokens[p2-1:]
+        if len(tokens):
+            rv.append(' '.join(tokens))
         logger.debug(rv)
         return rv
 
@@ -3242,6 +3244,10 @@ class _ImageWrapper (BlitzObjectWrapper):
             ca['introCB'] = introcb
         ca['fps'] = fps
         ca['format'] = opts.get('format', 'video/quicktime')
+        ca['zStart'] = int(zstart)
+        ca['zEnd'] = int(zend)
+        ca['tStart'] = int(tstart)
+        ca['tEnd'] = int(tend)
         logger.debug(ca)
         try:
             fn = os.path.abspath(makemovie.buildMovie(ca, self._conn.c.getSession(), self, self.getPrimaryPixels(), recb))
