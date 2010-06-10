@@ -23,28 +23,28 @@ table.tablesorter tbody td {
     vertical-align: middle;
 }
 
-td.link {
+td.link, th.link {
     text-align: left;
     padding: 2px 2px 2px 20px;
     border-bottom: 1px dashed #bbbbbb;
 }
 
-td.desc {
+td.desc, th.desc {
     text-align: left;
     padding: 2px 2px 2px 20px;
     border-bottom: 1px dashed #bbbbbb;
 }
 
-td.roles {
+td.roles, th.roles {
     text-align: right;
     width: 70px;
     padding: 2px 20px 2px 20px;
     border-bottom: 1px dashed #bbbbbb;
 }
 
-td.action {
+td.action, th.action {
     text-align: left;
-    width: 100px;
+    width: 70px;
     padding: 2px 20px 2px 20px;
     border-bottom: 1px dashed #bbbbbb;
 }

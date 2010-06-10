@@ -313,13 +313,13 @@ function cleanClipboard (productType, productId) {
 };
 
 function changeView(view) { 
-    var rel = $("div#content_details").attr('rel');
+    var rel = $("div#content_details").attr('rel').split("-");
     if(rel=='orphaned') {
         $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/tree/spinner.gif"/></p>');
         $("div#content_details").load('/webclient/load_data/orphaned/?view='+view);
     } else {
         $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/tree/spinner.gif"/></p>');
-        $("div#content_details").load('/webclient/load_data/dataset/'+rel+'/?view='+view);
+        $("div#content_details").load('/webclient/load_data/dataset/'+rel[1]+'/?view='+view);
     }
     return false;
 };
@@ -363,9 +363,9 @@ function editItem(type, item_id) {
 }
 
 function doPagination(view, page) {
-    var rel = $("div#content_details").attr('rel');
+    var rel = $("div#content_details").attr('rel').split("-");
     $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/tree/spinner.gif"/></p>');
-    $("div#content_details").load('/webclient/load_data/dataset/'+rel+'/?view='+view+'&page='+page);
+    $("div#content_details").load('/webclient/load_data/dataset/'+rel[1]+'/?view='+view+'&page='+page);
     return false;
 }
 

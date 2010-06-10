@@ -63,10 +63,10 @@
                                 $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="/webclient/metadata_details/dataset/'+obj[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
                                 $('iframe#metadata_details').load();
 
-                                if ($("div#content_details").attr('rel') != obj[1]) {
+                                if ($("div#content_details").attr('rel') != obj.join("-")) {
                                     $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
                                     $("div#content_details").load('/webclient/load_data/dataset/'+obj[1]+'/?view=icon');
-                                    $("div#content_details").attr('rel', obj[1]);
+                                    $("div#content_details").attr('rel', obj.join("-"));
                                 }
                             } else if (obj[0] == 'img') {
                                 $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tree16.png" %}" alt="Data" title="Data" onclick="document.location.href=\'{% url load_template "userdata" %}\'">');
@@ -78,10 +78,10 @@
 
                                 var parobj = par.split("-");
                                 if (parobj[0]=='ds') {
-                                    if ($("div#content_details").attr('rel') != parobj[1]) {
+                                    if ($("div#content_details").attr('rel') != par) {
                                         $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
                                         $("div#content_details").load('/webclient/load_data/dataset/'+parobj[1]+'/?view=icon');
-                                        $("div#content_details").attr('rel', parobj[1]);
+                                        $("div#content_details").attr('rel', par);
                                     }
                                 } else {
                                     $("div#content_details").children().remove();

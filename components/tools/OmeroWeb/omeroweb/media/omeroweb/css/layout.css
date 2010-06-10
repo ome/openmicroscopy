@@ -61,6 +61,7 @@ body.zoom {
 table.contentWrapper {
     width: 100%; 
     background: #f3f3f3;
+    table-layout:fixed;
 }
 
 #left_panel {
@@ -241,6 +242,7 @@ iframe {
 
 table {
     text-align: center;
+    table-layout:fixed;
 }
 
 td {
@@ -285,6 +287,7 @@ textarea {
 form table {
     text-align: center;
     border: 0px;
+    table-layout: auto;
 }
 
 form td {
