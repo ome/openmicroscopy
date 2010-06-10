@@ -2894,7 +2894,7 @@ class ImViewerComponent
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#renderOverlays(int, boolean)
 	 */
-	public void onChannelColorChnaged(int index)
+	public void onChannelColorChanged(int index)
 	{
 		switch (model.getState()) {
 			case NEW:

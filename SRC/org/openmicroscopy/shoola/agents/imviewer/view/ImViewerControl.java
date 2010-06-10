@@ -834,7 +834,7 @@ class ImViewerControl
 			model.onRndLoaded(b);
 		} else if (ChannelColorMenuItem.CHANNEL_COLOR_PROPERTY.equals(pName)) {
 			model.showColorPicker(((Integer) pce.getNewValue()).intValue());
-		} else if (ChannelButton.CHANNEL_COLOR_PROPERTY.equals(pName) ||
+		} else if (ChannelButton.CHANNEL_COLOUR_PROPERTY.equals(pName) ||
 			ChannelColorMenuItem.CHANNEL_COLOR_PROPERTY.equals(pName)) {
 			if (view.isSourceDisplayed(pce.getSource()))
 				model.showColorPicker(((Integer) pce.getNewValue()).intValue());
@@ -905,7 +905,7 @@ class ImViewerControl
 		} else if (MetadataViewer.CHANNEL_COLOR_CHANGED_PROPERTY.equals(
 				pName)) {
 			int index = (Integer) pce.getNewValue();
-			model.onChannelColorChnaged(index);
+			model.onChannelColorChanged(index);
 		}
 	}
 

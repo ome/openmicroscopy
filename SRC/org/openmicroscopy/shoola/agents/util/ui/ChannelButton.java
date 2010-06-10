@@ -84,7 +84,7 @@ public class ChannelButton
     /** 
      * Bound property name indicating that the channel is mapped to a new color. 
      */
-    public static final String  	CHANNEL_COLOR_PROPERTY = "channelColor";
+    public static final String  	CHANNEL_COLOUR_PROPERTY = "channelColour";
     
     /** The minimum size of the font. */
 	public static final int			MIN_FONT_SIZE = 10;
@@ -261,7 +261,7 @@ public class ChannelButton
     /** Fires a property change to bring up on screen the color picker. */
     void showColorPicker()
     {
-        firePropertyChange(CHANNEL_COLOR_PROPERTY, null, Integer.valueOf(index));
+        firePropertyChange(CHANNEL_COLOUR_PROPERTY, null, Integer.valueOf(index));
     }
     
     /**

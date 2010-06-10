@@ -1088,7 +1088,7 @@ public interface ImViewer
 	 * 
 	 * @param index The index of the channel.
 	 */
-	public void onChannelColorChnaged(int index);
+	public void onChannelColorChanged(int index);
 	
 	/**
 	 * Returns <code>true</code> if the image is a large image,

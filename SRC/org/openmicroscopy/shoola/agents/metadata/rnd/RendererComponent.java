@@ -453,7 +453,6 @@ class RendererComponent
 				firePropertyChange(RENDER_PLANE_PROPERTY, 
 						Boolean.valueOf(false), Boolean.valueOf(true));
 			}
-				
 		} catch (Exception e) {
 			handleException(e);
 		}
