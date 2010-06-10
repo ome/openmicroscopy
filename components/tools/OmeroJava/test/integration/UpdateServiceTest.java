@@ -767,16 +767,16 @@ public class UpdateServiceTest
         Annotation data = (Annotation) iUpdate.saveAndReturnObject(tag);
         //link the image and the tag
         ImageAnnotationLink l = new ImageAnnotationLinkI();
-        l.setParent(image);
-        l.setChild(data);
+        l.setParent((Image)image.proxy());
+        l.setChild((Annotation)data.proxy());
 
         IObject o1 = iUpdate.saveAndReturnObject(l);
         assertNotNull(o1);
         CreatePojosFixture2 fixture = CreatePojosFixture2.withNewUser(root, groupName);
 
         l = new ImageAnnotationLinkI();
-        l.setParent(image);
-        l.setChild(data);
+        l.setParent((Image)image.proxy());
+        l.setChild((Annotation)data.proxy());
         // l.getDetails().setOwner(fixture.e);
         IObject o2 = fixture.iUpdate.saveAndReturnObject(l);
         assertNotNull(o2);
