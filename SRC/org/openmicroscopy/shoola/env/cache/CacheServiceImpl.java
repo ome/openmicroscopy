@@ -135,7 +135,12 @@ class CacheServiceImpl
 	 */
 	public void removeCache(int cacheID)
 	{
-		Cache cache = manager.getCache(""+cacheID);
+		Cache cache = null;
+		try {
+			cache = manager.getCache(""+cacheID);
+		} catch (Exception e) {
+			//the cache is no longer alive.
+		}
 		if (cache != null) manager.removeCache(""+cacheID);
 	}
 	
@@ -145,7 +150,12 @@ class CacheServiceImpl
 	 */
 	public void addElement(int cacheID, Object key, Object element) 
 	{
-		Cache cache = manager.getCache(""+cacheID);
+		Cache cache = null;
+		try {
+			cache = manager.getCache(""+cacheID);
+		} catch (Exception e) {
+			//the cache is no longer alive.
+		}
 		if (cache == null) return;
 		if (cache.getSize() >= 
 			cache.getCacheConfiguration().getMaxElementsInMemory())
@@ -159,7 +169,12 @@ class CacheServiceImpl
 	 */
 	public Object getElement(int cacheID, Object key)
 	{
-		Cache cache = manager.getCache(""+cacheID);
+		Cache cache = null;
+		try {
+			cache = manager.getCache(""+cacheID);
+		} catch (Exception e) {
+			//the cache is no longer alive.
+		}
 		if (cache == null) return null;
 		Element element = null;
 		try {
@@ -176,7 +191,12 @@ class CacheServiceImpl
 	 */
 	public void clearCache(int cacheID) 
 	{
-		Cache cache = manager.getCache(""+cacheID);
+		Cache cache = null;
+		try {
+			cache = manager.getCache(""+cacheID);
+		} catch (Exception e) {
+			//the cache is no longer alive.
+		}
 		if (cache == null) return;
 		cache.removeAll();
 	}
@@ -202,7 +222,12 @@ class CacheServiceImpl
 	 */
 	public void setCacheEntries(int cacheID, int size)
 	{
-		Cache cache = manager.getCache(""+cacheID);
+		Cache cache = null;
+		try {
+			cache = manager.getCache(""+cacheID);
+		} catch (Exception e) {
+			//the cache is no longer alive.
+		}
 		if (cache == null) return;
 		cache.flush();
 		cache.getCacheConfiguration().setMaxElementsInMemory(size);

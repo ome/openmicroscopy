@@ -100,7 +100,7 @@ public class CacheServiceFactory
 	}
 	
 	/**
-	 * Creates a no-op implementation of {@link CacheService}.
+	 * Creates a no-operation implementation of {@link CacheService}.
 	 * 
 	 * @return See above.
 	 */
@@ -124,7 +124,7 @@ public class CacheServiceFactory
 	 * 
 	 * @param file	Absolute pathname to the file.
 	 * @return	The content of the file as a property object or
-	 * 			<code>null</code> if an error occured.
+	 * 			<code>null</code> if an error occurred.
 	 */
 	private static InputStream loadConfig(String file)
 	{
