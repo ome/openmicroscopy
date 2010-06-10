@@ -353,18 +353,7 @@ class TextualAnnotationsUI
 		TableLayout layout = (TableLayout) getLayout();
 		layout.setRow(2, 0);
 		layout.setRow(3, 0);
-		/*
 		if (hasPreviousTextualAnnotations()) {
-			layout.setRow(2, TableLayout.PREFERRED);
-			add(moreComponent, "0, 2");
-			if (expanded) {
-				layout.setRow(3, TableLayout.PREFERRED);
-				previousComments.getViewport().add(displayAllPreviousComments());
-			}
-		}
-		*/
-		if (hasPreviousTextualAnnotations()) {
-			//layout.setRow(2, TableLayout.PREFERRED);
 			layout.setRow(3, TableLayout.PREFERRED);
 			add(previousComments, "0, 3");
 			List l = model.getTextualAnnotationsByDate();
@@ -372,7 +361,6 @@ class TextualAnnotationsUI
 				layout.setRow(2, TableLayout.PREFERRED);
 				add(moreComponent, "0, 2");
 			}
-			
 			if (expanded) {
 				previousComments.getViewport().add(
 						displayAllPreviousComments());

@@ -198,7 +198,6 @@ class GeneralPaneUI
 	/** Builds and lays out the components. */
 	private void buildGUI()
 	{
-
 		content.setBackground(UIUtilities.BACKGROUND);
 		double[][]	size = {{TableLayout.FILL}, 
 				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5, 
@@ -310,7 +309,6 @@ class GeneralPaneUI
 		this.controller = controller;
 		this.view = view;
 		initComponents();
-        //buildGUI();
 		init = false;
 	}
 

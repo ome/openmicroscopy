@@ -792,7 +792,6 @@ class PropertiesUI
        this.controller = controller;
        title = TITLE;
        initComponents();
-       //buildGUI();
        init = false;
     }   
 

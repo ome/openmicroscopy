@@ -66,10 +66,7 @@ class UserUI
 
 	/** The title of the chart. */
 	private static final String TITLE_DETAILS = "Personal details";
-	
-	/** The title of the chart. */
-	private static final String TITLE_ADMIN_DETAILS = "User details";
-	
+
 	/** The component displaying the user profile. */
 	private UserProfile 	profile;
 	
@@ -93,7 +90,6 @@ class UserUI
 		profile.addPropertyChangeListener(control);
 		
 		JXTaskPane pane = EditorUtil.createTaskPane(TITLE_DETAILS);
-		//pane.setCollapsed(false);
 		pane.add(profile, null, 0);
 		
 		diskSpace = new UserDiskSpace(this);

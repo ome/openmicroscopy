@@ -145,6 +145,9 @@ class AcquisitionDataUI
 	/** Component displaying the original metadata. */
 	private OriginalMetadataComponent			originalMetadata;
 	
+	/** Flag indicating to build the UI once. */
+	private boolean 							init;
+
 	/** Initializes the UI components. */
 	private void initComponents()
 	{  
@@ -193,6 +196,10 @@ class AcquisitionDataUI
 	/** Lays out the channels. */
 	private void layoutUI()
 	{
+		if (!init) {
+			buildGUI();
+			init = true;
+		}
 		int n = container.getComponentCount();
 		if (n == 0) return;
 		Component[] comps = container.getComponents();
@@ -234,7 +241,8 @@ class AcquisitionDataUI
 		this.controller = controller;
 		this.view = view;
 		initComponents();
-		buildGUI();
+		init = false;
+		//buildGUI();
 	}
 	
 	/**

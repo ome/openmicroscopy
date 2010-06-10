@@ -360,7 +360,7 @@ class OmeroMetadataServiceImpl
 				if (ann instanceof FileAnnotationData) {
 					fileAnn = (FileAnnotationData) ann;
 					of = gateway.uploadFile(fileAnn.getAttachedFile(), 
-							fileAnn.getServerFileFormat(), -1);
+							fileAnn.getServerFileMimetype(), -1);
 					fa = new FileAnnotationI();
 					fa.setFile(of);
 					iobject = fa;
@@ -838,7 +838,7 @@ class OmeroMetadataServiceImpl
 			FileAnnotationData ann = (FileAnnotationData) annotation;
 			if (ann.getId() < 0) {
 				OriginalFile of = gateway.uploadFile(ann.getAttachedFile(), 
-						ann.getServerFileFormat(), -1);
+						ann.getServerFileMimetype(), -1);
 				FileAnnotation fa = new FileAnnotationI();
 				fa.setFile(of);
 				link = ModelMapper.linkAnnotation(ho, fa);
@@ -1670,7 +1670,7 @@ class OmeroMetadataServiceImpl
 		long id = fileAnnotation.getId();
 		long originalID = fileAnnotation.getFileID();
 		OriginalFile of = gateway.uploadFile(file, 
-				fileAnnotation.getServerFileFormat(), originalID);
+				fileAnnotation.getServerFileMimetype(), originalID);
 		//Need to relink and delete the previous one.
 		FileAnnotation fa;
 		String desc = fileAnnotation.getDescription();

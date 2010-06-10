@@ -141,7 +141,6 @@ import omero.model.FileAnnotationI;
 import omero.model.GroupExperimenterMap;
 import omero.model.IObject;
 import omero.model.Image;
-import omero.model.ImageAnnotationLink;
 import omero.model.ImageI;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
@@ -229,6 +228,7 @@ class OMEROGateway
 	/** The default MIME type. */
 	private static final String				DEFAULT_MIMETYPE = 
 		"application/octet-stream";
+	
 	/** String used to identify the overlays. */
 	private static final String				OVERLAYS = "Overlays";
 	
@@ -4193,9 +4193,6 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IMetadataPrx service = getMetadataService();
-			List<Annotation> l = service.loadSpecifiedAnnotations(
-					convertPojos(type).getName(), toInclude, 
-					toExclude, options);
 			return PojoMapper.asDataObjects(
 					service.loadSpecifiedAnnotations(
 							convertPojos(type).getName(), toInclude, 
