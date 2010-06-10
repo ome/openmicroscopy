@@ -289,7 +289,7 @@ public class FileAnnotationData extends AnnotationData {
      * 
      * @return See above.
      */
-    public String getOriginalFormat()
+    public String getOriginalMimetype()
     {
     	OriginalFile f = ((FileAnnotation) asAnnotation()).getFile();
         String unknown = UNKNOWN;
@@ -327,7 +327,7 @@ public class FileAnnotationData extends AnnotationData {
      * 
      * @return See above.
      */
-    public String getServerFileFormat() {
+    public String getServerFileMimetype() {
         if (format == null) {
             return SERVER_TEXT;
         }
@@ -374,7 +374,7 @@ public class FileAnnotationData extends AnnotationData {
         if (attachedFile != null) {
             return format;
         }
-        String format = getOriginalFormat();
+        String format = getOriginalMimetype();
         if (SERVER_PDF.equals(format)) {
             return PDF;
         } else if (SERVER_CSV.equals(format)) {
@@ -534,7 +534,7 @@ public class FileAnnotationData extends AnnotationData {
     	if (MOVIE_MPEG_NS.equals(ns) || MOVIE_QUICK_TIME_NS.equals(ns) ||
     			MOVIE_WINDOWS_MEDIA_NS.equals(ns))
     		return true;
-    	String format = getOriginalFormat();
+    	String format = getOriginalMimetype();
     	return (SERVER_MPEG.equals(format) || SERVER_QT.equals(format));
     }
     
