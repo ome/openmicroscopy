@@ -685,26 +685,19 @@ public class OMEROMetadataStoreClient
      */
     public void logout()
     {
+        if (c != null)
+        {
+            log.debug("closing client session.");
+            c.closeSession();
+            c = null;
+            log.debug("client closed.");
+        }
         if (executor != null)
         {
             log.debug("Logout called, shutting keep alive down.");
             executor.shutdown();
             executor = null;
             log.debug("keepalive shut down.");
-        }
-        if (c != null)
-        {
-            try {
-                // Save login screen groups
-                ScreenLogin.registerGroup(mapUserGroups());
-            } catch (Exception e) {
-                log.warn("Exception on ScreenLogin.registerGroup()", e);
-            }
-            
-            log.debug("closing client session.");
-            c.closeSession();
-            c = null;
-            log.debug("client closed.");
         }
     }
 

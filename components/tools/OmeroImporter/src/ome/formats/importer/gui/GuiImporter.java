@@ -443,7 +443,7 @@ WindowStateListener, WindowFocusListener
         waitOnExecutor("Scanning", scanEx, 60);
   
         try {
-            loginHandler.getMetadataStore().logout();
+            loginHandler.logout();
         } catch (Exception e) {
             log.warn("Exception on metadatastore.logout()", e);
         }
@@ -603,8 +603,15 @@ WindowStateListener, WindowFocusListener
         	
             if (GuiCommonElements.quitConfirmed(this, message) == true)
             {
-            	if (loggedIn)
-            		loginHandler.logout();
+                try {
+                    // Save login screen groups
+                    ScreenLogin.registerGroup(loginHandler.getMetadataStore().mapUserGroups());
+                } catch (Exception e) {
+                    log.warn("Exception on ScreenLogin.registerGroup()", e);
+                }
+                
+            	//if (loggedIn)
+            	//	loginHandler.logout();
                 System.exit(0);
             }
         } else if ("options".equals(cmd)) {
@@ -708,6 +715,13 @@ WindowStateListener, WindowFocusListener
         loggedIn = false;
         appendToOutputLn("> Logged out.");
         statusBar.setStatusIcon("gfx/server_disconn16.png", "Logged out.");
+        
+        try {
+            // Save login screen groups
+            ScreenLogin.registerGroup(loginHandler.getMetadataStore().mapUserGroups());
+        } catch (Exception e) {
+            log.warn("Exception on ScreenLogin.registerGroup()", e);
+        }
     }
     
     /**
@@ -991,6 +1005,13 @@ WindowStateListener, WindowFocusListener
     	
         if (GuiCommonElements.quitConfirmed(this, null) == true)
         {
+            try {
+                // Save login screen groups
+                ScreenLogin.registerGroup(loginHandler.getMetadataStore().mapUserGroups());
+            } catch (Exception ex) {
+                log.warn("Exception on ScreenLogin.registerGroup()", ex);
+            }
+            
             System.exit(0);
         }
     }
