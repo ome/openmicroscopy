@@ -54,6 +54,7 @@ from datetime import date
     
 WHITE = (255, 255, 255)
 COLOURS = scriptUtil.COLOURS    # name:(rgba) map
+OVERLAY_COLOURS = dict(COLOURS, **scriptUtil.EXTRA_COLOURS)
 
 JPEG = "image/jpeg"
 PNG = "image/png"
@@ -472,7 +473,7 @@ def movieFigure(session, commandArgs):
     
     overlayColour = (255,255,255)
     if "Scalebar_Colour" in commandArgs:
-        r,g,b,a = COLOURS[commandArgs["Scalebar_Colour"]]
+        r,g,b,a = OVERLAY_COLOURS[commandArgs["Scalebar_Colour"]]
         overlayColour = (r,g,b)
                 
     figure = createMovieFigure(session, pixelIds, tIndexes, zStart, zEnd, width, height, spacer, 
@@ -518,6 +519,7 @@ def runAsScript():
     ckeys = COLOURS.keys()
     ckeys.sort()
     cOptions = wrap(ckeys)
+    oColours = wrap(OVERLAY_COLOURS.keys())
     
     client = scripts.client('Movie_Figure.py', 'Export a figure of a movie. See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport', 
     scripts.List("Image_IDs", grouping="01", 
@@ -543,7 +545,7 @@ def runAsScript():
     scripts.Int("Scalebar_Size", grouping="10.1",
         description="Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
     scripts.String("Scalebar_Colour", grouping="10.2",
-        description="The colour of the scalebar.",default='White',values=cOptions),
+        description="The colour of the scalebar.",default='White',values=oColours),
     scripts.String("Format", grouping="11",
         description="Format to save image.", values=formats),
     scripts.String("Figure_Name", grouping="12",

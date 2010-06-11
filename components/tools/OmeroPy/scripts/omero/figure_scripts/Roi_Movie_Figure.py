@@ -59,6 +59,7 @@ PNG = "image/png"
 WHITE = (255,255,255)
 
 COLOURS = scriptUtil.COLOURS
+OVERLAY_COLOURS = dict(COLOURS, **scriptUtil.EXTRA_COLOURS)
 
 logStrings = []
 def log(text):
@@ -172,8 +173,10 @@ def getROImovieView    (re, queryService, pixels, timeShapeMap, mergedIndexes, m
             channelMismatch = True
         else:
             re.setActive(i, True)
+            print "Turning on channel:", i
             if i in mergedColours:
                 rgba = mergedColours[i]
+                print "Setting rgba", rgba
                 re.setRGBA(i, *rgba)
                 
     # get the combined image, using the existing rendering settings 
@@ -185,7 +188,7 @@ def getROImovieView    (re, queryService, pixels, timeShapeMap, mergedIndexes, m
     
     if showRoiDuration:
         log(" Timepoints shown are ROI duration, not from start of movie")
-    timeLabels = figUtil.getTimeLabels(queryService, pixelsId, timeIndexes, sizeT, "HOURS_MINS", showRoiDuration)
+    timeLabels = figUtil.getTimeLabels(queryService, pixelsId, timeIndexes, sizeT, None, showRoiDuration)
     
     fullFirstFrame = None
     for t, timepoint in enumerate(timeIndexes):
@@ -594,8 +597,8 @@ def roiFigure(session, commandArgs):
     mergedColours = {}    # if no colours added, use existing rendering settings.
     if "Merged_Colours" in commandArgs:
         for i, c in enumerate(commandArgs["Merged_Colours"]):
-            if c in COLOURS: 
-                mergedColours[i] = COLOURS[c]
+            if c.getValue() in COLOURS: 
+                mergedColours[i] = COLOURS[c.getValue()]
     
     algorithm = omero.constants.projection.ProjectionType.MAXIMUMINTENSITY
     if "Algorithm" in commandArgs:
@@ -624,8 +627,8 @@ def roiFigure(session, commandArgs):
     
     overlayColour = (255,255,255)
     if "Scalebar_Colour" in commandArgs:
-        if commandArgs["Scalebar_Colour"] in colours: 
-            r,g,b,a = colours[commandArgs["Scalebar_Colour"]]
+        if commandArgs["Scalebar_Colour"] in OVERLAY_COLOURS: 
+            r,g,b,a = OVERLAY_COLOURS[commandArgs["Scalebar_Colour"]]
             overlayColour = (r,g,b)
     
     roiZoom = None
@@ -694,6 +697,7 @@ def runAsScript():
     ckeys = COLOURS.keys()
     ckeys.sort()
     cOptions = wrap(ckeys)
+    oColours = wrap(OVERLAY_COLOURS.keys())
     
     client = scripts.client('Roi_Movie_Figure.py', """Create a figure of movie frames from ROI region of image.
 See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIMovieFigure""",
@@ -707,7 +711,7 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIMovieFigure"""
     scripts.Int("Scalebar", description="Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
     scripts.String("Format", description="Format to save image.", values=formats, default='JPEG'),
     scripts.String("Figure_Name", description="File name of the figure to save."),
-    scripts.String("Scalebar_Colour", description="The colour of the scalebar.",default='White',values=cOptions),
+    scripts.String("Scalebar_Colour", description="The colour of the scalebar.",default='White',values=oColours),
     scripts.Float("Roi_Zoom", description="How much to zoom the ROI. E.g. x 2. If 0 then zoom roi panel to fit"),
     scripts.Int("Max_Columns", description="The maximum number of columns in the figure, for ROI-movie frames.", min=1),
     scripts.Bool("Show_Roi_Duration", description="If true, times shown are from the start of the ROI frames, otherwise use movie timestamp."),
@@ -725,7 +729,7 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIMovieFigure"""
             if client.getInput(key):
                 commandArgs[key] = client.getInput(key).getValue()
     
-        #print commandArgs
+        print commandArgs
         # call the main script, attaching resulting figure to Image. Returns the id of the originalFileLink child. (ID object, not value)
         fileAnnotation, image = roiFigure(session, commandArgs)
         # return this fileAnnotation to the client. 
