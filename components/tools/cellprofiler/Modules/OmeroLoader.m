@@ -106,7 +106,7 @@ drawnow
 Pathname=['dataset: ',DatasetID];
 
 %%% CREATE OMERO GATEWAY. Note: DO NOT FORGET TO CLOSE IT!
-client = omero.client(java.lang.String(Hostname), 4063)
+client = omero.client(java.lang.String(Hostname))
 session = client.createSession(UserName, Password)
 omeroService = session.createGateway()
 client.enableKeepAlive(30);
