@@ -1,24 +1,8 @@
 /*
- * integration.MetadataServiceTest 
+ * $Id$
  *
- *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
- *
- *
- * 	This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU General Public License for more details.
- *  
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- *------------------------------------------------------------------------------
+ *   Copyright 2006-2010 University of Dundee. All rights reserved.
+ *   Use is subject to license terms supplied in LICENSE.txt
  */
 package integration;
 
@@ -26,39 +10,54 @@ package integration;
 //Java imports
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+
+//Third-party libraries
+import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-//Third-party libraries
-
-import junit.framework.TestCase;
-
 //Application-internal dependencies
+import ome.model.annotations.AnnotationAnnotationLink;
 import omero.api.IAdminPrx;
 import omero.api.IMetadataPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Annotation;
+import omero.model.AnnotationAnnotationLinkI;
+import omero.model.BooleanAnnotation;
+import omero.model.BooleanAnnotationI;
+import omero.model.CommentAnnotation;
+import omero.model.CommentAnnotationI;
+import omero.model.DoubleAnnotation;
+import omero.model.DoubleAnnotationI;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.IObject;
 import omero.model.Image;
-import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
 import omero.model.ImageI;
+import omero.model.LongAnnotation;
+import omero.model.LongAnnotationI;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
+import omero.model.TagAnnotation;
+import omero.model.TagAnnotationI;
 import omero.sys.Parameters;
+import omero.sys.ParametersI;
+import pojos.BooleanAnnotationData;
+import pojos.DoubleAnnotationData;
 import pojos.FileAnnotationData;
+import pojos.LongAnnotationData;
+import pojos.TagAnnotationData;
+import pojos.TextualAnnotationData;
 
 /** 
  * Collections of tests for the <code>IMetadata</code> service.
@@ -103,6 +102,9 @@ public class MetadataServiceTest
 
     /** Helper reference to the <code>IAdmin</code> service. */
     private IMetadataPrx iMetadata;
+    
+    /** Helper reference to the <code>IAdmin</code> service. */
+    private IAdminPrx iAdmin;
     
     /**
      * Creates and returns an original file object.
@@ -149,6 +151,7 @@ public class MetadataServiceTest
         factory = client.createSession();
         iUpdate = factory.getUpdateService();
         iMetadata = factory.getMetadataService();
+        iAdmin = factory.getAdminService();
         // administrator client
         String rootpass = client.getProperty("omero.rootpass");
         root = new omero.client(new String[]{"--omero.user=root",
@@ -285,17 +288,258 @@ public class MetadataServiceTest
         Iterator<Annotation> i = result.iterator();
         Annotation o;
         FileAnnotation r;
+        int count = 0;
         while (i.hasNext()) {
 			o = i.next();
 			if (o != null && o instanceof FileAnnotation) {
 				r = (FileAnnotation) o;
+				count++;
 				if (r.getId().getValue() == data.getId().getValue()) {
 					assertTrue(r.getFile().getId().getValue() 
 							== of.getId().getValue());
 				}
-					
 			}
 		}
+        assertTrue(count == result.size());
+    }
+    
+    /**
+     * Tests the retrieval of annotations using name space constraints.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadSpecifiedAnnotationsFileAnnotationNsConditions() 
+    	throws Exception
+    {
+		OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
+				createOriginalFile());
+		assertNotNull(of);
+
+		String ns = "include";
+		FileAnnotationI fa = new FileAnnotationI();
+		fa.setFile(of);
+		fa.setNs(omero.rtypes.rstring(ns));
+		FileAnnotation data = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
+		assertNotNull(data);
+		
+        Parameters param = new Parameters();
+        List<String> include = new ArrayList<String>();
+        include.add(ns);
+        List<String> exclude = new ArrayList<String>();
+        
+        //First test the include condition
+        List<Annotation> result = iMetadata.loadSpecifiedAnnotations(
+        		FileAnnotation.class.getName(), 
+        		include, exclude, param);
+        assertNotNull(result);
+       
+        Iterator<Annotation> i = result.iterator();
+        Annotation o;
+        FileAnnotation r;
+        while (i.hasNext()) {
+			o = i.next();
+			if (o != null && o instanceof FileAnnotation) {
+				r = (FileAnnotation) o;
+				assertNotNull(r.getNs());
+				assertTrue(ns.equals(r.getNs().getValue()));
+			}
+		}
+        
+        //now test the exclude condition
+        include.clear();
+        exclude.add(ns);
+        result = iMetadata.loadSpecifiedAnnotations(
+        		FileAnnotation.class.getName(), 
+        		include, exclude, param);
+        assertNotNull(result);
+        
+        i = result.iterator();
+        int count = 0;
+        while (i.hasNext()) {
+			o = i.next();
+			if (o != null && o instanceof FileAnnotation) {
+				r = (FileAnnotation) o;
+				if (r.getNs() != null) {
+					if (ns.equals(r.getNs().getValue())) count++;
+				}
+			}
+		}
+        assertTrue(count == 0);
     }
    
+    /**
+     * Tests the retrieval of annotations of different types i.e.
+     * tag, comment, boolean, long and the conversion into the corresponding
+     * <code>POJOS</code> object.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadSpecifiedAnnotationsVariousTypes() 
+    	throws Exception
+    {
+    	TagAnnotationI tag = new TagAnnotationI();
+    	tag.setTextValue(omero.rtypes.rstring("tag"));
+    	TagAnnotation tagReturned = 
+    		(TagAnnotation) iUpdate.saveAndReturnObject(tag);
+    	Parameters param = new Parameters();
+    	List<String> include = new ArrayList<String>();
+    	List<String> exclude = new ArrayList<String>();
+
+    	//First test the include condition
+    	List<Annotation> result = iMetadata.loadSpecifiedAnnotations(
+    			TagAnnotation.class.getName(), include, exclude, param);
+    	assertNotNull(result);
+
+    	Iterator<Annotation> i = result.iterator();
+    	int count = 0;
+    	TagAnnotationData tagData = null;
+    	Annotation annotation;
+    	while (i.hasNext()) {
+    		annotation = i.next();
+    		if (annotation instanceof TagAnnotation) count++;
+    		if (annotation.getId().getValue() == tagReturned.getId().getValue())
+    			tagData = new TagAnnotationData(tagReturned);
+    		
+    	}
+    	assertTrue(result.size() == count);
+    	assertNotNull(tagData);
+    	//comment
+    	CommentAnnotationI comment = new CommentAnnotationI();
+    	comment.setTextValue(omero.rtypes.rstring("comment"));
+    	CommentAnnotation commentReturned = 
+    		(CommentAnnotation) iUpdate.saveAndReturnObject(comment);
+    	result = iMetadata.loadSpecifiedAnnotations(
+    			CommentAnnotation.class.getName(), include, exclude, param);
+    	assertNotNull(result);
+    	count = 0;
+    	TextualAnnotationData commentData = null;
+    	i = result.iterator();
+    	while (i.hasNext()) {
+    		annotation = i.next();
+    		if (annotation instanceof CommentAnnotation) count++;
+    		if (annotation.getId().getValue() == 
+    			commentReturned.getId().getValue())
+    			commentData = new TextualAnnotationData(commentReturned);
+    	}
+    	assertTrue(result.size() == count);
+    	assertNotNull(commentData);
+    	
+    	//boolean
+    	BooleanAnnotationI bool = new BooleanAnnotationI();
+    	bool.setBoolValue(omero.rtypes.rbool(true));
+    	BooleanAnnotation boolReturned = 
+    		(BooleanAnnotation) iUpdate.saveAndReturnObject(bool);
+    	result = iMetadata.loadSpecifiedAnnotations(
+    			BooleanAnnotation.class.getName(), include, exclude, param);
+    	assertNotNull(result);
+    	count = 0;
+    	BooleanAnnotationData boolData = null;
+    	i = result.iterator();
+    	while (i.hasNext()) {
+    		annotation = i.next();
+    		if (annotation instanceof BooleanAnnotation) count++;
+    		if (annotation.getId().getValue() == 
+    			boolReturned.getId().getValue())
+    			boolData = new BooleanAnnotationData(boolReturned);
+    	}
+    	assertTrue(result.size() == count);
+    	assertNotNull(boolData);
+    	
+    	//long
+    	LongAnnotationI l = new LongAnnotationI();
+    	l.setLongValue(omero.rtypes.rlong(1));
+    	LongAnnotation lReturned = 
+    		(LongAnnotation) iUpdate.saveAndReturnObject(l);
+    	result = iMetadata.loadSpecifiedAnnotations(
+    			LongAnnotation.class.getName(), include, exclude, param);
+    	assertNotNull(result);
+    	count = 0;
+    	LongAnnotationData lData = null;
+    	i = result.iterator();
+    	while (i.hasNext()) {
+    		annotation = i.next();
+    		if (annotation instanceof LongAnnotation) count++;
+    		if (annotation.getId().getValue() == 
+    			lReturned.getId().getValue())
+    			lData = new LongAnnotationData(lReturned);
+    	}
+    	assertTrue(result.size() == count);
+    	assertNotNull(lData);
+    	//double
+    	DoubleAnnotationI d = new DoubleAnnotationI();
+    	d.setDoubleValue(omero.rtypes.rdouble(1));
+    	DoubleAnnotation dReturned = 
+    		(DoubleAnnotation) iUpdate.saveAndReturnObject(d);
+    	result = iMetadata.loadSpecifiedAnnotations(
+    			DoubleAnnotation.class.getName(), include, exclude, param);
+    	assertNotNull(result);
+    	count = 0;
+    	DoubleAnnotationData dData = null;
+    	i = result.iterator();
+    	while (i.hasNext()) {
+    		annotation = i.next();
+    		if (annotation instanceof DoubleAnnotation) count++;
+    		if (annotation.getId().getValue() == 
+    			dReturned.getId().getValue())
+    			dData = new DoubleAnnotationData(dReturned);
+    	}
+    	assertTrue(result.size() == count);
+    	assertNotNull(dData);
+    }
+    
+    /**
+     * Tests the retrieval of tag sets
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadTagSetsNoOrphan() 
+    	throws Exception
+    {
+    	long self = iAdmin.getEventContext().userId;
+    	
+    	//Create a tag set.
+    	TagAnnotationI tagSet = new TagAnnotationI();
+    	tagSet.setTextValue(omero.rtypes.rstring("tagSet"));
+    	tagSet.setNs(omero.rtypes.rstring(TagAnnotationData.INSIGHT_TAGSET_NS));
+    	TagAnnotation tagSetReturned = 
+    		(TagAnnotation) iUpdate.saveAndReturnObject(tagSet);
+    	//create a tag and link it to the tag set
+    	TagAnnotationI tag = new TagAnnotationI();
+    	tag.setTextValue(omero.rtypes.rstring("tag"));
+    	TagAnnotation tagReturned = 
+    		(TagAnnotation) iUpdate.saveAndReturnObject(tag);
+    	AnnotationAnnotationLinkI link = new AnnotationAnnotationLinkI();
+    	link.setChild(tagReturned);
+    	link.setParent(tagSetReturned);
+    	//save the link.
+    	AnnotationAnnotationLinkI linkReturned = 
+    		(AnnotationAnnotationLinkI )iUpdate.saveAndReturnObject(link); 
+    	
+    	ParametersI param = new ParametersI();
+    	param.exp(omero.rtypes.rlong(self));
+    	param.noOrphan(); //no tag loaded
+    	
+    	List<IObject> result = iMetadata.loadTagSets(param);
+    	assertNotNull(result);
+    	Iterator<IObject> i = result.iterator();
+    	IObject o;
+    	int count = 0;
+    	TagAnnotation annotation;
+    	AnnotationAnnotationLinkI l;
+    	while (i.hasNext()) {
+			o = i.next();
+			if (o instanceof AnnotationAnnotationLinkI) {
+				l = (AnnotationAnnotationLinkI) o;
+				if (l.getId().getValue() == linkReturned.getId().getValue()) {
+					assertTrue(l.getChild().getId().getValue()
+							== tagReturned.getId().getValue());
+					assertTrue(l.getParent().getId().getValue()
+							== tagSetReturned.getId().getValue());					
+				}
+				count++;
+			}
+		}
+    	assertTrue(count == result.size());
+    }
+    
 }

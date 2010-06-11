@@ -25,11 +25,11 @@ import org.testng.annotations.Test;
 import omero.OptimisticLockException;
 import omero.RInt;
 import omero.api.IAdminPrx;
-import omero.api.IMetadataPrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Annotation;
+import omero.model.AnnotationAnnotationLinkI;
 import omero.model.CommentAnnotation;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
@@ -46,6 +46,7 @@ import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
 import omero.model.Screen;
+import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
@@ -54,6 +55,7 @@ import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.ProjectData;
 import pojos.ScreenData;
+import pojos.TagAnnotationData;
 
 /** 
  * Collections of tests for the <code>IUpdate</code> service.
@@ -751,7 +753,8 @@ public class UpdateServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testUpdateSameTagAnnotationUsedByTwoUsers() throws Exception
+    public void testUpdateSameTagAnnotationUsedByTwoUsers() 
+    	throws Exception
     {
 
         String groupName = iAdmin.getEventContext().groupName;
@@ -787,6 +790,53 @@ public class UpdateServiceTest
         assertTrue(o1.getDetails().getOwner().getId().getValue() == self);
         assertTrue(o2.getDetails().getOwner().getId().getValue() ==
             fixture.e.getId().getValue());
+    }
+    
+    
+    /**
+     * Tests the creation of tag annotation, linked it to an image by a
+     * user and link it to the same image by a different user.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testTagSetTagCreation() 
+    	throws Exception
+    {
+    	//Create a tag set.
+    	TagAnnotationI tagSet = new TagAnnotationI();
+    	tagSet.setTextValue(omero.rtypes.rstring("tagSet"));
+    	tagSet.setNs(omero.rtypes.rstring(TagAnnotationData.INSIGHT_TAGSET_NS));
+    	TagAnnotation tagSetReturned = 
+    		(TagAnnotation) iUpdate.saveAndReturnObject(tagSet);
+    	//create a tag and link it to the tag set
+    	assertNotNull(tagSetReturned);
+    	TagAnnotationI tag = new TagAnnotationI();
+    	tag.setTextValue(omero.rtypes.rstring("tag"));
+    	TagAnnotation tagReturned = 
+    		(TagAnnotation) iUpdate.saveAndReturnObject(tag);
+    	assertNotNull(tagReturned);
+    	AnnotationAnnotationLinkI link = new AnnotationAnnotationLinkI();
+    	link.setChild(tagReturned);
+    	link.setParent(tagSetReturned);
+    	IObject l = iUpdate.saveAndReturnObject(link); //save the link.
+    	assertNotNull(l);
+    	
+    	 ParametersI param = new ParametersI();
+         param.addId(l.getId());
+        
+         StringBuilder sb = new StringBuilder();
+         sb.append("select l from AnnotationAnnotationLink l ");
+         sb.append("left outer join fetch l.child c ");
+         sb.append("left outer join fetch l.parent p ");
+         sb.append("where l.id = :id");
+         AnnotationAnnotationLinkI lReturned = (AnnotationAnnotationLinkI) 
+         iQuery.findByQuery(sb.toString(), param);
+         assertNotNull(lReturned.getChild());
+         assertNotNull(lReturned.getParent());
+         assertTrue(lReturned.getChild().getId().getValue() 
+        		 == tagReturned.getId().getValue());
+         assertTrue(lReturned.getParent().getId().getValue() 
+        		 == tagSetReturned.getId().getValue());
     }
     
 }
