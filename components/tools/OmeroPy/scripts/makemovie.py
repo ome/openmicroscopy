@@ -83,7 +83,7 @@ WMV_NS = omero_Constants_ice._M_omero.constants.metadata.NSMOVIEWMV;
 
 formatNSMap = {MPEG:MPEG_NS, QT:QT_NS, WMV:WMV_NS};
 formatExtensionMap = {MPEG:{'ext':"avi", 'out':'-ovc lavc -lavcopts vcodec=mpeg4'},
-                        QT:{'ext':"mov", 'out':'-ovc x264 -x264encopts bitrate=900:vbv_maxrate=1500:vbv_bufsize=2000:nocabac:level_idc=13:global_header'},
+                        QT:{'ext':"mov", 'out':'-ovc x264 -x264encopts bitrate=900:vbv_maxrate=1500:vbv_bufsize=2000:nocabac:level_idc=13:global_header:bframes=0:threads=auto:frameref=5'},
                        WMV:{'ext':"avi", 'out':'-ovc lavc -lavcopts vcodec=wmv2'}};
 OVERLAYCOLOUR = "#666666";
 
@@ -174,13 +174,7 @@ def buildAVI(sizeX, sizeY, filelist, fps, output, format):
         f.write('\n'.join(filelist))
         f.close()
         args = (' mf://@movie.lst -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=jpg %(out)s -nosound -noskip -ofps '+str(fps)+' -of lavf -o movie.%(ext)s') % (formatExtension);
-#	if(format==WMV):
-#		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=jpg -ovc lavc -lavcopts vcodec=wmv2 -o movie.'+formatExtension;
-#	elif(format==QT):	
-#		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=png -ovc lavc -lavcopts vcodec=mjpeg:vbitrate=800  -o movie.'+formatExtension;
-#	else:
-#		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=jpg -ovc lavc -lavcopts vcodec=mpeg4 -o movie.'+formatExtension;
-        file('debug.log', 'w').write(program+args)
+        file('/tmp/makemovie.debug.log', 'w').write(os.getcwd() + ' ' + program+args)
 	os.system(program+ args);
         return 'movie.'+formatExtension['ext']
 	
@@ -403,6 +397,7 @@ def buildCommandArgs (image,
 
 
 def buildMovie (commandArgs, session, omeroImage, pixels, renderingEngineCB):
+        print "buildMovie: %s" % str(commandArgs)
 	pixelsId = pixels.getId().getValue();
 
 	sizeX = pixels.getSizeX().getValue();
@@ -435,20 +430,16 @@ def buildMovie (commandArgs, session, omeroImage, pixels, renderingEngineCB):
 	pixelTypeString = pixels.getPixelsType().getValue().getValue();
 	frameNo = 1;
 	filelist=[];
-
+        outX = sizeX
+        outY = sizeY
         if(commandArgs.get("introCB", False)):
                 for slide in commandArgs["introCB"](pixels, commandArgs):
-                        filename = str(frameNo)+'.jpg';
+                        filename = '%0.5d.jpg' % (frameNo)
                         slide.save(filename,"JPEG")
-#                        if(commandArgs["format"]==QT):
-#                                filename = str(frameNo)+'.png';
-#                                slide.save(filename,"PNG")
-#                        else:
-#                                filename = str(frameNo)+'.jpg';
-#                                slide.save(filename,"JPEG")
                         filelist.append(filename)
+                        if frameNo == 1:
+                                outX, outY = slide.size
                         frameNo +=1;
-
 	renderingEngine = renderingEngineCB(session, pixelsId, sizeC, cRange)
 	for tz in tzList:
 		t = tz[0];
@@ -458,11 +449,7 @@ def buildMovie (commandArgs, session, omeroImage, pixels, renderingEngineCB):
 		planeImage = planeImage.byteswap();
 		planeImage = planeImage.reshape(sizeX, sizeY);
 		image = Image.frombuffer('RGBA',(sizeX,sizeY),planeImage.data,'raw','ARGB',0,1)
-                filename = str(frameNo)+'.jpg';
-		#if(commandArgs["format"]==QT):
-		#	filename = str(frameNo)+'.png';
-		#else:
-		#	filename = str(frameNo)+'.jpg';
+                filename = '%0.5d.jpg' % (frameNo)
 		if(commandArgs["scalebar"]!=0):
 			image = addScalebar(commandArgs["scalebar"], image, pixels, commandArgs);
 		planeInfo = "z:"+str(z)+"t:"+str(t);
@@ -472,16 +459,11 @@ def buildMovie (commandArgs, session, omeroImage, pixels, renderingEngineCB):
 		if(commandArgs["showPlaneInfo"]==1):
 			image = addPlaneInfo(z, t, pixels, image, commandArgs);
                 if(commandArgs.get("imageCB", False)):
-                   commandArgs["imageCB"](z, t, pixels, image, commandArgs, frameNo)
+                   image = commandArgs["imageCB"](z, t, pixels, image, commandArgs, frameNo)
                 image.save(filename,"JPEG")
-#		if(commandArgs["format"]==QT):
-#			image.save(filename,"PNG")
-#		else:
-#			image.save(filename,"JPEG")
                 filelist.append(filename)
 		frameNo +=1;
-
-	return buildAVI(sizeX, sizeY, filelist, commandArgs["fps"], commandArgs["output"], commandArgs["format"]);
+	return buildAVI(outX, outY, filelist, commandArgs["fps"], commandArgs["output"], commandArgs["format"]);
 
 def writeMovie(commandArgs, session):
 	gateway = session.createGateway();
@@ -492,7 +474,7 @@ def writeMovie(commandArgs, session):
 
         buildMovie (commandArgs, session, omeroImage, pixels, getRenderingEngine)
 
-	#uploadMovie(client, session, omeroImage, commandArgs["output"], commandArgs["format"])
+	uploadMovie(client, session, omeroImage, commandArgs["output"], commandArgs["format"])
 
 if __name__ == "__main__":
 	client = scripts.client('makemovie','MakeMovie creates a movie of the image and attaches it to the originating image.',\
