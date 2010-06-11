@@ -54,7 +54,6 @@ COLOURS = scriptUtil.COLOURS    # name:(rgba) map
 
 JPEG = "image/jpeg"
 PNG = "image/png"
-formatExtensionMap = {JPEG:"jpg", PNG:"png"}
 
 # keep track of log strings. 
 logStrings = []

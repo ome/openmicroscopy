@@ -55,7 +55,6 @@ from datetime import date
     
 JPEG = "image/jpeg"
 PNG = "image/png"
-formatExtensionMap = {JPEG:"jpg", PNG:"png"};
 
 WHITE = (255,255,255)
 
@@ -662,7 +661,7 @@ def roiFigure(session, commandArgs):
     
     format = JPEG
     if "Format" in commandArgs:
-        if commandArgs["Format"] == PNG:
+        if commandArgs["Format"] == "PNG":
             format = PNG
             
     output = "roiFigure"

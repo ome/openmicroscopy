@@ -54,7 +54,6 @@ from datetime import date
     
 JPEG = "image/jpeg"
 PNG = "image/png"
-formatExtensionMap = {JPEG:"jpg", PNG:"png"};
 
 WHITE = (255,255,255)
 COLOURS = scriptUtil.COLOURS    # name:(rgba) map
@@ -167,6 +166,7 @@ def getROIsplitView    (re, pixels, zStart, zEnd, splitIndexes, channelNames, me
                 if index in mergedColours:            # and this channel is in the combined image
                     rgba = tuple(mergedColours[index])
                     re.setRGBA(index, *rgba)        # set coloured 
+                else:   re.setRGBA(index,255,255,255,255)
             else:
                 re.setRGBA(index,255,255,255,255)    # if not colourChannels - channels are white
             info = (channelNames[index], re.getChannelWindowStart(index), re.getChannelWindowEnd(index))
@@ -537,11 +537,11 @@ def roiFigure(session, commandArgs):
         
     # default function for getting labels is getName (or use datasets / tags)
     if "Image_Labels" in commandArgs:
-        if commandArgs["Image_Labels"] == "DATASETS":
+        if commandArgs["Image_Labels"] == "Datasets":
             def getDatasets(name, tagsList, pdList):
                 return [dataset for project, dataset in pdList]
             getLabels = getDatasets
-        elif commandArgs["Image_Labels"] == "TAGS":
+        elif commandArgs["Image_Labels"] == "Tags":
             def getTags(name, tagsList, pdList):
                 return tagsList
             getLabels = getTags
@@ -704,7 +704,7 @@ def roiFigure(session, commandArgs):
     
     format = JPEG
     if "Format" in commandArgs:
-        if commandArgs["Format"] == PNG:
+        if commandArgs["Format"] == "PNG":
             format = PNG
             
     output = "roiFigure"

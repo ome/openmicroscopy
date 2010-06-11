@@ -326,8 +326,6 @@ def runSpf(session, parameterMap):
         spfCommands = [cmd.strip() for cmd in spf.split(";")]
         spfCommands.insert(1, inputName)
         spfCommands.insert(2, outputName)
-        spfCommands.append("")
-        spfCommands.append("EN D") 
         spfText = "\n".join(spfCommands)
         spfFile = open(spfName, "w")
         spfFile.write(spfText) 

@@ -427,6 +427,7 @@ def doAutoBoxing(session, parameterMap):
         
         figLegend = "\n".join(logStrings)
         print figLegend
+    return len(imageIds)
     
 def runAsScript():
     """
@@ -446,7 +447,9 @@ See http://trac.openmicroscopy.org.uk/omero/wiki/EmPreviewFunctionality""",
             if client.getInput(key):
                 parameterMap[key] = client.getInput(key).getValue()
     
-        doAutoBoxing(session, parameterMap)
+        imgCount = doAutoBoxing(session, parameterMap)
+        image = imgCount==1 and "image" or "images"
+        client.setOutput("Message", rstring("Auto-Boxing added boxes to %s %s" (imgCount, image)))
     except: raise
     finally: client.closeSession()
     

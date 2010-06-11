@@ -49,7 +49,6 @@ WHITE = (255, 255, 255)
 
 JPEG = "image/jpeg"
 PNG = "image/png"
-formatExtensionMap = {JPEG:"jpg", PNG:"png"};
 
 logLines = []    # make a log / legend of the figure
 def log(text):

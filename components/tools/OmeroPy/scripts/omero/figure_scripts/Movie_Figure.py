@@ -57,7 +57,6 @@ COLOURS = scriptUtil.COLOURS    # name:(rgba) map
 
 JPEG = "image/jpeg"
 PNG = "image/png"
-formatExtensionMap = {JPEG:"jpg", PNG:"png"};
 
 logLines = []    # make a log / legend of the figure
 def log(text):
@@ -488,7 +487,7 @@ def movieFigure(session, commandArgs):
     
     format = JPEG
     if "Format" in commandArgs:
-        if commandArgs["Format"] == PNG:
+        if commandArgs["Format"] == "PNG":
             format = PNG
             
     output = "movieFigure"
