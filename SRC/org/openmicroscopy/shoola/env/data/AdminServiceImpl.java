@@ -137,7 +137,7 @@ class AdminServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		switch (index) {
-			case USED: return gateway.getUsedSpace();
+			case USED: return gateway.getUsedSpace(userID);
 			case FREE: return gateway.getFreeSpace();
 		}
 		return -1;

@@ -89,8 +89,10 @@ class UserDiskSpace
 			DefaultPieDataset dataset = new DefaultPieDataset();
 			long free = (Long) list.get(0);
 			long used = (Long) list.get(1);
-			dataset.setValue("Free "+UIUtilities.formatFileSize(free), free);
-			dataset.setValue("Used "+UIUtilities.formatFileSize(used), used);
+			dataset.setValue("Free for Users "+
+					UIUtilities.formatFileSize(free), free);
+			dataset.setValue("Used by Me "+UIUtilities.formatFileSize(used), 
+					used);
 			JFreeChart freeChart = ChartFactory.createPieChart("", 
 					dataset, false, true, false);
 			data.add(new ChartPanel(freeChart), BorderLayout.CENTER);

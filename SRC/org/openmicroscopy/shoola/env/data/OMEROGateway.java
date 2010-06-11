@@ -3834,18 +3834,37 @@ class OMEROGateway
 	 * Returns the used space (in Kilobytes) on the file system
 	 * including nested sub-directories.
 	 * 
+	 * @param userID The identifier of the user or <code>-1</code> if not specified.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	long getUsedSpace()
+	long getUsedSpace(long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		try {
-			return getRepositoryService().getUsedSpaceInKilobytes();
+			if (userID < 0)
+				return getRepositoryService().getUsedSpaceInKilobytes();
+			StringBuffer buffer = new StringBuffer();
+			buffer.append("select f from OriginalFile as f ");
+			buffer.append("left outer join fetch f.details.owner as o ");
+			buffer.append("where o.id = :userID");
+			ParametersI param = new ParametersI();
+			param.addLong("userID", userID);
+			List<IObject> result = 
+				getQueryService().findAllByQuery(buffer.toString(), param);
+			if (result == null) return -1;
+			Iterator<IObject> i = result.iterator();
+			OriginalFile f;
+			long count = 0;
+			while (i.hasNext()) {
+				f = (OriginalFile) i.next();
+				if (f.getSize() != null) count += f.getSize().getValue();
+			}
+			return count;
 		} catch (Throwable e) {
 			handleException(e, "Cannot retrieve the free space");
 		}
