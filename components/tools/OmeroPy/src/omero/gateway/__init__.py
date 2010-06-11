@@ -3201,15 +3201,22 @@ class _ImageWrapper (BlitzObjectWrapper):
                      - slides:tuple: tuple of tuples with slides to prefix video with
                        in format (secs:int, topline:text[, middleline:text[, bottomline:text]])
                      - fps:int: frames per second
+                     - minsize: tuple of (minwidth, minheight, bgcolor)
                     - format:string: one of video/mpeg or video/quicktime
         """
         slides = opts.get('slides', None)
+        minsize = opts.get('minsize', None)
         w, h = self.getWidth(), self.getHeight()
+        if minsize is not None and (w < minsize[0] or h < minsize[1]):
+            w = max(w, minsize[0])
+            h = max(h, minsize[1])
+        else:
+            minsize = None
         watermark = opts.get('watermark', None)
         fps = opts.get('fps', 4)
         if watermark:
             watermark = Image.open(watermark)
-            wmpos = 0, self.getHeight() - watermark.size[1]
+            wmpos = 0, h - watermark.size[1]
         def recb (*args):
             return self._re
         def introcb (pixels, commandArgs):
@@ -3232,9 +3239,20 @@ class _ImageWrapper (BlitzObjectWrapper):
                         draw.text((w/2-tsize[0]/2,y), line, font=font)
                 for i in range(t[0]*fps):
                     yield slide
+        if minsize is not None:
+            bg = Image.new("RGBA", (w, h), minsize[2])
+            ovlpos = (w-self.getWidth()) / 2, (h-self.getHeight()) / 2
+            def resize (image):
+                bg.paste(image, ovlpos, image)
+                return bg
+        else:
+            def resize (image):
+                return image
         def imgcb (z, t, pixels, image, commandArgs, frameNo):
+            image = resize(image)
             if watermark:
                 image.paste(watermark, wmpos, watermark)
+            return image
         d = tempfile.mkdtemp()
         orig = os.getcwd()
         os.chdir(d)
