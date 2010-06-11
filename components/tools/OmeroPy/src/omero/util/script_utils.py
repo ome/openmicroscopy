@@ -58,8 +58,12 @@ except:
     import sha 
     hash_sha1 = sha.new 
     
-COLOURS = {'Red': (255,0,0,255), 'Green': (0,255,0,255), 'Blue': (0,0,255,255), 'Yellow': (255,255,0,255), 'White': (255,255,255,255),}
-
+# r,g,b,a colours for use in scripts. 
+COLOURS = {'Red': (255,0,0,255), 'Green': (0,255,0,255), 'Blue': (0,0,255,255), 'Yellow': (255,255,0,255), 
+    'White': (255,255,255,255), }
+    
+EXTRA_COLOURS = {'Violet': (238,133,238,255), 'Indigo': (79,6,132,255),
+    'Black': (0,0,0,255), 'Orange': (254,200,6,255), 'Gray': (130,130,130,255),}
 
 CSV_NS = 'text/csv';
 CSV_FORMAT = 'text/csv';
@@ -616,7 +620,8 @@ def resetRenderingSettings(renderingEngine, pixelsId, cIndex, minValue, maxValue
     renderingEngine.lookupPixels(pixelsId)
     if not renderingEngine.lookupRenderingDef(pixelsId):
         renderingEngine.resetDefaults()  
-        rgba=(255,255,255,255)  # probably don't want E.g. single channel image to be blue!   
+        if rgba == None:
+            rgba=(255,255,255,255)  # probably don't want E.g. single channel image to be blue!   
     
     if not renderingEngine.lookupRenderingDef(pixelsId):
         raise "Still No Rendering Def"
@@ -767,57 +772,3 @@ def findROIByImage(roiService, image, namespace):
     for roi in results.rois:
         roiList.append(ROIData(roi));
     return roiList;
-
-class sessionWrapper():
-    """
-    This is a VERY simple wrapper to try and avoid the problem of passing multiple services in method calls.
-    Simply create a sessionWrapper(session) at the start of a script. Then call the getService methods 
-    within the methods that need these services. 
-    Time will tell if a more elaborate session wrapper is needed. Maybe something more like a 
-    script-util wrapper. 
-    """
-
-    def __init__(self, session):
-        self.session = session
-        self.gateway = None
-        self.queryService = None
-        self.pixelsService = None
-        self.rawPixelStore = None
-        self.renderingEngine = None
-        self.updateService = None
-        self.rawFileStore = None
-        
-    def createGateway(self):
-        if self.gateway == None:
-            self.gateway = self.session.createGateway()
-        return self.gateway
-            
-    def getQueryService(self):
-        if self.queryService == None:
-            self.queryService = self.session.getQueryService()
-        return self.queryService
-    
-    def getPixelsService(self):
-        if self.pixelsService == None:
-            self.pixelsService = self.session.getPixelsService()
-        return self.pixelsService
-            
-    def createRawPixelsStore(self):
-        if self.rawPixelStore == None:
-            self.rawPixelStore = self.session.createRawPixelsStore()
-        return self.rawPixelStore
-        
-    def createRenderingEngine(self):
-        if self.renderingEngine == None:
-            self.renderingEngine = self.session.createRenderingEngine()
-        return self.renderingEngine
-    
-    def getUpdateService(self):
-        if self.updateService == None:
-            self.updateService = self.session.getUpdateService()
-        return self.updateService
-        
-    def createRawFileStore(self):
-        if self.rawFileStore == None:
-            self.rawFileStore = self.session.createRawFileStore()
-        return self.rawFileStore
