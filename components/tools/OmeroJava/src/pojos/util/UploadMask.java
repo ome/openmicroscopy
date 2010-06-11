@@ -32,6 +32,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -41,11 +42,16 @@ import java.util.Set;
 
 import javax.imageio.ImageIO;
 
+
 //Third-party libraries
 
 //Application-internal dependencies
 import pojos.MaskData;
 import pojos.ROIData;
+
+import omero.RList;
+import omero.rtypes;
+import omero.model.RoiI;
 
 /** 
  * 
@@ -61,7 +67,7 @@ import pojos.ROIData;
  * @since OME3.0
  */
 
-class UploadMask
+public class UploadMask
 {
 	
 	/** The ROIComponent. */
@@ -92,6 +98,20 @@ class UploadMask
 	}
 	
 	/**
+	 * Add a Mask Shape to the appropriate ROIClass, creating one if neccessary.
+	 * @param image The Image containing the mask dat.
+	 * @param z The Z Section of the image.
+	 * @param t The Time point of the image.
+	 * @throws IOException 
+	 */
+	public void addArray(int[][] image, int z, int t, int c) throws IOException
+	{
+		Map<Integer, MaskClass> classMap = createMasks(image);
+		Map<Integer, MaskData> maskMap = mapToMaskData(classMap, z, t, c);
+		component.addMasks(maskMap);
+	}
+	
+	/**
 	 * Create Mask Class objects from the bytes stream, This will create a 
 	 * Mask object for each unique colour value in the image.  
 	 * 
@@ -110,6 +130,38 @@ class UploadMask
 			for (int y = 0; y < inputImage.getHeight(); y++)
 			{
 				value = inputImage.getRGB(x, y);
+				if(value==Color.black.getRGB())
+					continue;
+				if (!maskMap.containsKey(value))
+				{
+					mask = new MaskClass(value);
+					maskMap.put(value, mask);
+				}
+				else
+					mask = maskMap.get(value);
+				mask.add(new Point(x, y));
+			}
+		return maskMap;
+	}
+	
+	/**
+	 * Create Mask Class objects from the bytes stream, This will create a 
+	 * Mask object for each unique colour value in the image.  
+	 * 
+	 * @param bytes The bytes representing the image.
+	 * @return A map of <Integer, MaskClass>
+	 * @throws IOException
+	 */
+	private Map<Integer, MaskClass> createMasks(int[][] data) throws IOException
+	{
+		Map<Integer, MaskClass> maskMap = new HashMap<Integer, MaskClass>();
+	
+		int value;
+		MaskClass mask;
+		for (int x = 0; x < data.length; x++)
+			for (int y = 0; y < data[x].length; y++)
+			{
+				value = data[x][y];
 				if(value==Color.black.getRGB())
 					continue;
 				if (!maskMap.containsKey(value))
@@ -151,9 +203,13 @@ class UploadMask
 	 * Get the ROIs created from uploading the images.
 	 * @return See above.
 	 */
-	public List<ROIData> getROI()
+	public List<RoiI> getROI()
 	{
-		return component.getROI();
+		List<ROIData> roiList =  component.getROI();
+		List<RoiI> rList = new ArrayList<RoiI>();
+		for(ROIData roi : roiList)
+			rList.add((RoiI)roi.asIObject());
+		return rList;
 	}
 
 }

@@ -92,6 +92,7 @@ public class ROIComponent
 			{
 				roi = new ROIData();
 				roi.setImage(new ImageI(imageId, false));
+				roiColour.put(colour, roi);
 			}
 			else
 				roi = roiColour.get(colour);

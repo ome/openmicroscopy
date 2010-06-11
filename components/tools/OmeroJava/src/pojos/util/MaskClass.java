@@ -53,7 +53,7 @@ import pojos.MaskData;
  */
 
 
-class MaskClass
+public class MaskClass
 {
 	/** The points in the mask. */
 	Set<Point> points;
