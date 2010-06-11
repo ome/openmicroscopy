@@ -452,6 +452,7 @@ def render_ome_tiff (request, iid, server_id=None, _conn=None, **kwargs):
 def render_movie (request, iid, axis, pos, server_id=None, _conn=None, **kwargs):
     """ Renders a movie from the image with id iid """
     USE_SESSION = False
+    pos = int(pos)
     pi = _get_prepared_image(request, iid, server_id=server_id, _conn=_conn, with_session=USE_SESSION)
     if pi is None:
         raise Http404
@@ -461,19 +462,23 @@ def render_movie (request, iid, axis, pos, server_id=None, _conn=None, **kwargs)
     opts = {}
     opts['format'] = 'video/' + request.REQUEST.get('format', 'quicktime')
     opts['fps'] = int(request.REQUEST.get('fps', 4))
+    opts['minsize'] = (512,512, '#222222')
     if kwargs.has_key('optsCB'):
         opts.update(kwargs['optsCB'](img))
     opts.update(kwargs.get('opts', {}))
-    logger.debug('rendering movie for img %s with axis %s and opts %s' % (iid, axis, opts))
-    if axis.lower == 'z':
-        ext, mimetype = img.createMovie(fn[1], 0, img.z_count()-1, pos, pos, opts)
+    logger.debug('rendering movie for img %s with axis %s, pos %i and opts %s' % (iid, axis, pos, opts))
+    if axis.lower() == 'z':
+        ext, mimetype = img.createMovie(fn[1], 0, img.z_count()-1, pos-1, pos-1, opts)
     else:
-        ext, mimetype = img.createMovie(fn[1], pos, pos, 0, img.t_count()-1, opts)
+        ext, mimetype = img.createMovie(fn[1], pos-1, pos-1, 0, img.t_count()-1, opts)
+    print "Movie done"
     movie = open(fn[1]).read()
     os.close(fn[0])
+    print "%i bytes read" % len(movie)
     rsp = HttpResponse(movie, mimetype=mimetype)
     rsp['Content-Disposition'] = 'attachment; filename="%s"' % (img.getName()+ext)
     rsp['Content-Length'] = len(movie)
+    print "response ready"
     return rsp
     
 def render_split_channel (request, iid, z, t, server_id=None, _conn=None, **kwargs):
