@@ -162,7 +162,7 @@ public class UploadMask
 			for (int y = 0; y < data[x].length; y++)
 			{
 				value = data[x][y];
-				if(value==Color.black.getRGB())
+				if(value==Color.black.getRGB() || value == 0)
 					continue;
 				if (!maskMap.containsKey(value))
 				{
