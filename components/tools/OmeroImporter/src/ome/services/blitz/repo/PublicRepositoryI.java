@@ -140,6 +140,8 @@ public class PublicRepositoryI extends _RepositoryDisp {
     private Map<String,PixelsType> pixelsTypeMap;
     
     private String repoUuid;
+    
+    private Principal currentUser;
 
     public PublicRepositoryI(File root, long repoObjectId, Executor executor,
             SimpleJdbcOperations jdbc, Principal principal, PgArrayHelper helper) throws Exception {
@@ -155,6 +157,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         }
         this.root = root.getAbsoluteFile();
         this.repoUuid = null;
+        this.currentUser = null;
         this.dimensionOrderMap = null;
         this.pixelsTypeMap = null;
     }
@@ -200,102 +203,41 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
     
     /**
-     * Register an IObject object
+     * Register an OriginalFile object
      * 
      * @param obj
-     *            IObject object.
-     * @param params
-     *            Map<String, String>
+     *            OriginalFile object.
      * @param __current
      *            ice context.
-     * @return The IObject with id set
+     * @return The OriginalFile with id set
      *
      */
-    public IObject registerObject(IObject obj, Current __current)
+    public OriginalFile registerOriginalFile(OriginalFile omeroFile, Current __current)
             throws ServerError {
 
-        if (obj == null) {
+        if (omeroFile == null) {
             throw new ValidationException(null, null,
                     "obj is required argument");
         }
-        if (!(obj instanceof OriginalFile)) {
-            throw new ValidationException(null, null,
-                    "obj must be OriginalFile (Image objects can no longer be registered using this method)");
-        }
 
+        currentUser = new Principal(__current.ctx.get(omero.constants.SESSIONUUID.value));
         IceMapper mapper = new IceMapper();
-        final ome.model.IObject omeObj = (ome.model.IObject) mapper.reverse(obj);
-                
+        final ome.model.core.OriginalFile omeFile = (ome.model.core.OriginalFile) mapper
+        		.reverse(omeroFile);
         final String repoId = getRepoUuid();
-
-        Long id = (Long) executor.execute(principal, new Executor.SimpleWork(
-                this, "registerObject", repoId) {
+        
+        Long id = (Long) executor.execute(currentUser, new Executor.SimpleWork(
+                this, "registerOriginalFile", repoId) {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
-                long id = sf.getUpdateService().saveAndReturnObject(omeObj).getId();
+                long id = sf.getUpdateService().saveAndReturnObject(omeFile).getId();
                 jdbc.update("update originalfile set repo = ? where id = ?", repoId, id);
                 return id;
             }
         });
         
-        obj.setId(rlong(id));
-        return obj;
-    }
-
-
-    /**
-     * Register the Images in a list of Images, a single image will be a one-element list
-     * 
-     * @param filename
-     *            The absolute path of the parent file.
-     * @param imageList
-     *            A list of Image objects.
-     * @param params
-     *            Map<String, String>
-     * @param __current
-     *            ice context.
-     * @return A List of Images with ids set
-     *
-     */
-    public List<Image> registerImageList(String filename, List<Image> imageList, Current __current) 
-            throws ServerError {
-        
-        if (imageList == null || imageList.size() == 0) {
-            throw new ValidationException(null, null,
-                    "imageList is a required argument and cannot be empty");
-        }
-        File f = checkPath(filename);
-        final String path = getRelativePath(f);
-        final String name = f.getName(); 
-        final String repoId = getRepoUuid();
-        
-        int imageCount = 0;
-        for (IObject obj : imageList) {
-            Map<String, String> params = new HashMap<String, String>();
-            params.put("image_no", Integer.toString(imageCount));
-            final Map<String, String> paramMap = params;
-            
-            IceMapper mapper = new IceMapper();
-            final ome.model.IObject omeObj = (ome.model.IObject) mapper.reverse(obj);
-
-            Long id = (Long) executor.execute(principal, new Executor.SimpleWork(
-                    this, "registerImageList", repoId) {
-                @Transactional(readOnly = false)
-                public Object doWork(Session session, ServiceFactory sf) {
-                    long id = sf.getUpdateService().saveAndReturnObject(omeObj).getId();
-                    ome.model.IObject result = sf.getQueryService().findByQuery("select p from Pixels p where p.image = " + id, null);
-                    long pixId = result.getId();                  
-                    jdbc.update("update pixels set name = ? where id = ?", name, pixId);
-                    jdbc.update("update pixels set path = ? where id = ?", path, pixId);
-                    jdbc.update("update pixels set repo = ? where id = ?", repoId, pixId);
-                    helper.setPixelsParams(pixId, paramMap);
-                    return id;
-                }
-            });
-            obj.setId(rlong(id));
-            imageCount++;
-        }
-        return imageList;
+        omeroFile.setId(rlong(id));
+        return omeroFile;
     }
 
     /**
@@ -319,16 +261,17 @@ public class PublicRepositoryI extends _RepositoryDisp {
             throw new ValidationException(null, null,
                     "keyFile is a required argument");
         }
+        currentUser = new Principal(__current.ctx.get(omero.constants.SESSIONUUID.value));
         
         List<IObject> objList = new ArrayList<IObject>();
         
-        IceMapper mapper = new IceMapper();
-        
+        IceMapper mapper = new IceMapper();    
         final ome.model.IObject omeFile = (ome.model.IObject) mapper.reverse(keyFile);
         final String repoId = getRepoUuid();
+        final String clientSessionUuid = __current.ctx.get(omero.constants.SESSIONUUID.value);
 
-        Long ofId = (Long) executor.execute(principal, new Executor.SimpleWork(
-                this, "registerObject", repoId) {
+        Long ofId = (Long) executor.execute(currentUser, new Executor.SimpleWork(
+                this, "registerParentFile", repoId) {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
                 long id = sf.getUpdateService().saveAndReturnObject(omeFile).getId();
@@ -343,7 +286,6 @@ public class PublicRepositoryI extends _RepositoryDisp {
             return objList;
         }
         
-        
         final String path = keyFile.getPath().getValue();
         final String name = keyFile.getName().getValue(); 
         
@@ -355,7 +297,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
             final Map<String, String> paramMap = params;
             final ome.model.IObject omeObj = (ome.model.IObject) mapper.reverse(obj);
                           
-            Long id = (Long) executor.execute(principal, new Executor.SimpleWork(
+            Long id = (Long) executor.execute(currentUser, new Executor.SimpleWork(
                     this, "registerImageList", repoId) {
                 @Transactional(readOnly = false)
                 public Object doWork(Session session, ServiceFactory sf) {
@@ -375,100 +317,129 @@ public class PublicRepositoryI extends _RepositoryDisp {
         }
         return objList;
     }
-
     
     /**
-     * Import an image's metadata.
+     * Import an image set's metadata.
      * 
      * @param id
-     *            An Image id.
-     * @param config
-     *            A RepositoryListConfig defining the listing config.
+     *            The id of the parent original file.
      * @param __current
      *            ice context.
      * @return 
      *
      */
-    public Image importImageMetadata(long id, Current __current) throws ServerError {
+    public List<Pixels> importFileSet(OriginalFile keyFile, Current __current) throws ServerError {
         
-        final long pixelsId = id;
-        
-        Integer series = (Integer) executor.execute(principal, new Executor.SimpleWork(this, "importImageMetadata", id) {
-            @Transactional(readOnly = true)
-            public Object doWork(Session session, ServiceFactory sf) {
-                Map<String, String> params = helper.getPixelsParams(pixelsId);
-                Integer result = new Integer(params.get(IMAGE_NO_KEY));
-                return result;
-            }
-        });
-        
-        ome.model.core.Image image = (ome.model.core.Image) executor.execute(principal, new Executor.SimpleWork(this, "importImageMetadata", id) {
+        currentUser = new Principal(__current.ctx.get(omero.constants.SESSIONUUID.value));
+    	final String name = keyFile.getName().getValue();
+    	final String path = keyFile.getPath().getValue();
+    	final File file = new File(new File(root, path), name);
+    	final String repoId = getRepoUuid();
+        final String clientSessionUuid = __current.ctx.get(omero.constants.SESSIONUUID.value);
+
+        Map<Integer, ome.model.core.Image> returnMap = (Map<Integer, ome.model.core.Image>) executor
+        .execute(currentUser, new Executor.SimpleWork(this, "importFileSetMetadata") {
+
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
 
-                BigInteger imageId = (BigInteger) session.createSQLQuery(
-                        "select image from Pixels " +
-                        "where id = ?")
-                        .setParameter(0, pixelsId)
-                        .uniqueResult();
+            	Map<Integer, ome.model.core.Image> iMap = new HashMap<Integer, ome.model.core.Image>();
                 
-                if(imageId == null) return null;
+                List<BigInteger> pixIds = (List<BigInteger>) session.createSQLQuery(
+                        "select id from Pixels " +
+                        "where path = ? and name = ? and repo = ?")
+                        .setParameter(0, path)
+                        .setParameter(1, name)
+                        .setParameter(2, repoId)
+                        .list();
+                if (pixIds == null || pixIds.size() == 0) {
+                    return iMap;
+                }
                 
-                Parameters p = new Parameters();
-                p.addId(new Long(imageId.longValue()));
-                
-                ome.model.core.Image result = sf.getQueryService().findByQuery(
-                    "select i from Image i " +
-                    "join fetch i.pixels as p " +
-                    "join fetch p.pixelsType " +
-                    "join fetch p.dimensionOrder " +
-                    "left outer join fetch p.channels " +
-                    "left outer join fetch p.planeInfo " +
-                    "left outer join fetch p.pixelsFileMaps " +
-                    "left outer join fetch p.settings " +
-                    "left outer join fetch p.thumbnails " +
-                    "left outer join fetch i.instrument " +
-                    "left outer join fetch i.imagingEnvironment " +
-                    "left outer join fetch i.experiment " +
-                    "left outer join fetch i.format " +
-                    "left outer join fetch i.objectiveSettings " +
-                    "left outer join fetch i.stageLabel " +
-                    "left outer join fetch i.annotationLinks " +
-                    "left outer join fetch i.wellSamples " +
-                    "left outer join fetch i.rois " +
-                    "where i.id = :id", p);
-                
-                return result;
+                for (BigInteger pId : pixIds) {
+                	
+                    Map<String, String> params = helper.getPixelsParams(pId.longValue());
+                    
+                    long pixelsId = pId.longValue();
+                    BigInteger imageId = (BigInteger) session.createSQLQuery(
+                            "select image from Pixels " +
+                            "where id = ?")
+                            .setParameter(0, pixelsId)
+                            .uniqueResult();
+                    
+                    Parameters p = new Parameters();
+                    p.addId(new Long(imageId.longValue()));
+                    ome.model.core.Image image = sf.getQueryService().findByQuery(
+                    		"select i from Image i " +
+                    		"join fetch i.pixels as p " +
+                    		"join fetch p.pixelsType " +
+                    		"join fetch p.dimensionOrder " +
+                    		"left outer join fetch p.channels " +
+                    		"left outer join fetch p.planeInfo " +
+                    		"left outer join fetch p.pixelsFileMaps " +
+                    		"left outer join fetch p.settings " +
+                    		"left outer join fetch p.thumbnails " +
+                    		"left outer join fetch i.instrument " +
+                    		"left outer join fetch i.imagingEnvironment " +
+                    		"left outer join fetch i.experiment " +
+                    		"left outer join fetch i.format " +
+                    		"left outer join fetch i.objectiveSettings " +
+                    		"left outer join fetch i.stageLabel " +
+                    		"left outer join fetch i.annotationLinks " +
+                    		"left outer join fetch i.wellSamples " +
+                    		"left outer join fetch i.rois " +
+                    		"where i.id = :id", p);
+  
+                    iMap.put(new Integer(params.get(IMAGE_NO_KEY)),image);
+                }
+                return iMap;
             }
         });
-                
-        if (image == null)
+    
+        if (returnMap == null)
         {
             return null;
         }
+        
         IceMapper mapper = new IceMapper();
-        Image rv = (Image) mapper.map(image);
+        Map<Integer, Image> imageMap = (Map<Integer, Image>) mapper.map(returnMap);
         
-        Map<Integer, Image> imageMap = new HashMap<Integer, Image>();
-        imageMap.put(series, rv);
-        
-
-        OMEROMetadataStoreClient client = new OMEROMetadataStoreClient();
-        
-        // For now!! TODO use the session information.
-        try {
-        	client.initialize("root", "ome", "localhost", 4063, true);
-        } catch (Exception e) {
-            throw new omero.InternalException(stackTraceAsString(e), null, e.getMessage());
+        // Temporary logging
+        for (Map.Entry<Integer, Image> entry : imageMap.entrySet() ) {
+        	log.info("Image: " + entry.getValue().getName().getValue() 
+        			+ ", series=" + entry.getKey().toString() 
+        			+ ", id=" + Long.toString(entry.getValue().getId().getValue()));
         }
-        ImportConfig config = new ImportConfig();
-        OMEROWrapper reader = new OMEROWrapper(config);
-        ImportLibrary library = new ImportLibrary(client, reader);
+        // End logging
+        
+        OMEROMetadataStoreClient store;     
+     	ImportConfig config = new ImportConfig();
+     	// TODO: replace hard-wired host and port
+     	config.hostname.set("localhost");
+     	config.port.set(new Integer(4064));
+     	config.sessionKey.set(clientSessionUuid);
+     	
+     	try {
+     		store = config.createStore();
+        } catch (Exception e) {       	
+            log.error("Faile to create OMEROMetadataStoreClient: ", e);
+            return null;
+        }
+        
+    	OMEROWrapper reader = new OMEROWrapper(config);
+    	ImportLibrary library = new ImportLibrary(store, reader);
+    	library.setMetadataOnly(true);
+    	library.prepare(imageMap);
+         
+        List<Pixels> pix = new ArrayList<Pixels>();
+        try {
+        	 pix = library.importImage(file, 0, 0, 1, null, null, false, false, null, null);
+        } catch (Throwable t) {       	
+        	 log.error("Faled to omportImage: ", t);
+        	 return null;
+        }
 
-        library.setMetadataOnly(true);
-        library.prepare(imageMap);
-
-        return rv;
+        return pix;
     }
     
     
@@ -492,6 +463,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      *
      */
     public List<OriginalFile> listFiles(String path, RepositoryListConfig config, Current __current) throws ServerError {
+        currentUser = new Principal(__current.ctx.get(omero.constants.SESSIONUUID.value));
         File file = checkPath(path);
         List<File> files;
         List<OriginalFile> oFiles;
@@ -527,6 +499,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      */
      public List<FileSet> listFileSets(String path, RepositoryListConfig config, Current __current)
             throws ServerError {
+        currentUser = new Principal(__current.ctx.get(omero.constants.SESSIONUUID.value));
         File file = checkPath(path);
         RepositoryListConfig conf;
         
@@ -574,6 +547,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      *
      */
     public String getThumbnail(String path, Current __current)  throws ServerError {
+        currentUser = new Principal(__current.ctx.get(omero.constants.SESSIONUUID.value));
         File file = checkPath(path);
         String tnPath;
         try {
@@ -597,6 +571,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      *
      */
     public String getThumbnailByIndex(String path, int imageIndex, Current __current)  throws ServerError {
+        currentUser = new Principal(__current.ctx.get(omero.constants.SESSIONUUID.value));
         File file = checkPath(path);
         String tnPath;
         try {
@@ -1080,7 +1055,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
     private OriginalFile getOriginalFile(final String path, final String name)  {
         final String uuid = getRepoUuid();
         ome.model.core.OriginalFile oFile = (ome.model.core.OriginalFile) executor
-                .execute(principal, new Executor.SimpleWork(this, "getOriginalFile", uuid, path, name) {
+                .execute(currentUser, new Executor.SimpleWork(this, "getOriginalFile", uuid, path, name) {
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
                         BigInteger id = (BigInteger) session.createSQLQuery(
@@ -1117,7 +1092,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      */
     private File getFile(final long id) {
         final String uuid = getRepoUuid();
-        return (File) executor.execute(principal, new Executor.SimpleWork(this, "getFile", id) {
+        return (File) executor.execute(currentUser, new Executor.SimpleWork(this, "getFile", id) {
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
                             String path = (String) session.createSQLQuery(
@@ -1152,7 +1127,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         final String name = f.getName();
         
         ome.model.core.Image image = (ome.model.core.Image) executor
-                .execute(principal, new Executor.SimpleWork(this, "getImage") {
+                .execute(currentUser, new Executor.SimpleWork(this, "getImage") {
 
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
@@ -1204,21 +1179,19 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * @return List of Image objects, empty if the query returned no values.
      *
      */
-    private List<Image> getImageList(String fullPath, final int count)  {
+    private Map<Integer, Image> getImageMap(OriginalFile keyFile)  {
 
-        File f = new File(fullPath);
         final String uuid = getRepoUuid();
-        final String path = getRelativePath(f);
-        final String name = f.getName();
+        final String path = keyFile.getPath().getValue();
+        final String name = keyFile.getName().getValue();
         
-        List<ome.model.core.Image> imageList = (List<ome.model.core.Image>) executor
-                .execute(principal, new Executor.SimpleWork(this, "getImageList") {
+        Map<Integer, ome.model.core.Image> imageMap = (Map<Integer, ome.model.core.Image>) executor
+                .execute(currentUser, new Executor.SimpleWork(this, "getImageMap") {
 
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
 
-                        List<ome.model.core.Image> iList = new ArrayList<ome.model.core.Image>();
-                        for(int i=0; i<count; i++) iList.add(null);
+                    	Map<Integer, ome.model.core.Image> iMap = new HashMap<Integer, ome.model.core.Image>();
                         
                         List<BigInteger> pixIds = session.createSQLQuery(
                                 "select id from Pixels " +
@@ -1228,7 +1201,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
                                 .setParameter(2, uuid)
                                 .list();
                         if (pixIds == null || pixIds.size() == 0) {
-                            return iList;
+                            return iMap;
                         }
                         
                         for (BigInteger pId : pixIds) {
@@ -1240,14 +1213,14 @@ public class PublicRepositoryI extends _RepositoryDisp {
                                     .setParameter(0, pixelsId)
                                     .uniqueResult();
                             ome.model.core.Image image = sf.getQueryService().find(ome.model.core.Image.class, imageId.longValue());
-                            iList.set(Integer.parseInt(params.get(IMAGE_NO_KEY)),image);
+                            iMap.put(new Integer(params.get(IMAGE_NO_KEY)),image);
                         }
-                        return iList;
+                        return iMap;
                     }
                 });
             
         IceMapper mapper = new IceMapper();
-        List<Image> rv = (List<Image>) mapper.map(imageList);
+        Map<Integer, Image> rv = (Map<Integer, Image>) mapper.map(imageMap);
         return rv;
     }
 
@@ -1454,9 +1427,9 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
     
     // Utility function for passing stack traces back in exceptions.
-    private String stackTraceAsString(Exception exception) {
+    private String stackTraceAsString(Throwable t) {
         StringWriter sw = new StringWriter();
-        exception.printStackTrace(new PrintWriter(sw));
+        t.printStackTrace(new PrintWriter(sw));
         return sw.toString();
     }
    

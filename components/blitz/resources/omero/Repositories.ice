@@ -84,25 +84,13 @@ module omero {
                     throws ServerError;
 
            /**
-             * Create an entry in the database for the given IObject.
+             * Create an entry in the database for the given OriginalFile.
              *
-             * If the given IObject is null a ValidationException is thrown. 
-             * If the given IObject is not a recognised type ValidationException is thrown. 
+             * If the given OriginalFile is null a ValidationException is thrown. 
              * Otherwise, an entry is added and an unloaded IObject returned with id set.
              *
              **/
-            omero::model::IObject registerObject(omero::model::IObject obj) 
-                    throws ServerError;
-            
-           /**
-             * Create entries in the database for the Images in the imageList for the given file.
-             *
-             * If the given ImageList is null or empty a ValidationException is thrown. 
-             * If the given path does not exist in this repo a ValidationException is thrown. 
-             * Otherwise, objects are added and list of loaded Images is returned with ids set.
-             *
-             **/
-            omero::api::ImageList registerImageList(string filename, omero::api::ImageList imageList) 
+            omero::model::OriginalFile registerOriginalFile(omero::model::OriginalFile omeroFile) 
                     throws ServerError;
             
            /**
@@ -118,14 +106,14 @@ module omero {
                     throws ServerError;
             
            /**
-             * Import image metadata using pixels id.
+             * Import image metadata using the parent orginal file.
              *
              * If the id does not exist a ValidationException is thrown. 
-             * Otherwise, the image with that id will have its metadata imported.
-             * The image id is returned.
+             * Otherwise, the image set linked to that original file will have its metadata imported.
+             * The imported pixels list is returned.
              *
              **/
-            omero::model::Image importImageMetadata(long id) throws ServerError;
+            omero::api::PixelsList importFileSet(omero::model::OriginalFile keyFile) throws ServerError;
             
             /**
              * Load the OriginalFile at the given path with annotations and
