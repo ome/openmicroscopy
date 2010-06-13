@@ -132,7 +132,6 @@ class BaseShare(BaseController):
         sh_list = list(self.conn.getOwnShares())
         sh_list.extend(list(self.conn.getMemberShares()))
         sh_list = self.sortByAttr(sh_list, 'started', True)
-        
         sh_list_with_counters = list()
         
         sh_ids = [sh.id for sh in sh_list]
@@ -170,6 +169,7 @@ class BaseShare(BaseController):
         self.imageInShare = list()
 
         for ex in content:
+            print type(ex._obj)
             if isinstance(ex._obj, omero.model.ImageI):
                 self.imageInShare.append(ex)
 

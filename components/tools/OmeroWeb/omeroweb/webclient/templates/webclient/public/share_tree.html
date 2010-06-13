@@ -4,11 +4,11 @@
 
 {% if share.shSize %}
 <ul class="simpleTree">
-    <li class="root" id='0'><span>{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.getFullName }}{% endif %}</span>
+    <li class="root" id='0'><img class="icon" src="{% url webstatic "images/tree/root.gif" %}" alt="root"/><span>{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.getFullName }}{% endif %}</span>
         <ul>
             {% for s in share.shares %}
             {% if s.isEmpty %}
-            <li id="disc-{{ s.id }}"><span id="readonly">share {{ s.id }}</span> {% if not s.isOwned %}<img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</li>
+            <li id="di-{{ s.id }}"><span id="readonly">share {{ s.id }}</span> {% if not s.isOwned %}<img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</li>
             {% else %}
             <li id="sh-{{ s.id }}"><span id="readonly">share {{ s.id }}</span> {% if not s.isOwned %}<img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}
                 <ul class="ajax">

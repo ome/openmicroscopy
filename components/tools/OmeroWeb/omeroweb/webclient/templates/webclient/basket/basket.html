@@ -47,7 +47,7 @@
                             $('iframe#metadata_details').load();
                         });
             		} else {
-            		    $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url basket_action %}\';"><input class="button" type="image" src="{% url webstatic "images/folder_html16.png" %}" alt="New share" title="New share" onclick="makeShare();"> <input class="button" type="image" src="{% url webstatic "images/wp_protocol16.png" %}" alt="New discussion" title="New discussion" onclick="makeDiscussion();"> <input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Remove" title="Remove" onclick="manyRemoveFromBasket();"> <input class="button" type="image" src="{% url webstatic "images/reset.png" %}" alt="Clean" title="Clean" onclick="document.location.href=\'{% url empty_basket %}\';">');
+            		    $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url basket_action %}\';"> <input class="button" type="image" src="{% url webstatic "images/folder_html16.png" %}" alt="New share" title="New share" onclick="makeShare();"> <input class="button" type="image" src="{% url webstatic "images/wp_protocol16.png" %}" alt="New discussion" title="New discussion" onclick="makeDiscussion();"> <input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Remove" title="Remove" onclick="manyRemoveFromBasket();"> <input class="button" type="image" src="{% url webstatic "images/reset.png" %}" alt="Clean" title="Clean" onclick="document.location.href=\'{% url empty_basket %}\';">');
 
             		    $("#right_panel").show();
             		    $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
@@ -88,20 +88,20 @@
         <table id="dataTable" class="tablesorter">
             <thead> 
                 <tr> 
-                    <th>{% trans "Image" %}</th> 
-                    <th>{% trans "Name" %}</th> 
-                    <th>{% trans "Date" %}</th> 
+                    <th class="action">{% trans "Image" %}</th> 
+                    <th class="desc">{% trans "Name" %}</th> 
+                    <th class="roles">{% trans "Date" %}</th> 
                 </tr> 
             </thead>
             <tbody>
                 {% for c in basket.imageInBasket %}
                     <tr id="{{ c.id }}">
-                        <td class="link">
+                        <td class="action">
                             <img src="{% url render_thumbnail_resize 32 c.id  %}" alt="image" title="{{ c.name }}"/>
                             <input type="checkbox" name="image" id="{{ c.id }}" class="hide">      
                         </td>
                         <td class="desc">{{ c.truncateNameForTable }} {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
-                        <td class="desc">{{ c.getDate }}</td>                    
+                        <td class="roles">{{ c.getDate }}</td>                    
                     </tr>
                 {% endfor %}
             </tbody>

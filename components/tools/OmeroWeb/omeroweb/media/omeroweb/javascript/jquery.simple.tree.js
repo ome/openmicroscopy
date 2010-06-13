@@ -245,6 +245,10 @@ $.fn.simpleTree = function(opt){
 		        pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/folder_plate16.png" alt="plate"/>';
 		    } else if(node.id.indexOf('tag')>=0){    
 		        pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/knotes16.png" alt="tag"/>'; 
+            } else if(node.id.indexOf('sh')>=0){    
+		        pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/folder_html16.png" alt="tag"/>'; 
+            } else if(node.id.indexOf('di')>=0){    
+		        pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/wp_protocol16.png" alt="tag"/>'; 
             } else {
 		        pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/image16.png" alt="image"/>';
 		    }

@@ -191,7 +191,7 @@ function deleteItems (productArray, parent) {
 };
 
 function deleteItem(productType, productId) {
-    if ((productType == 'project' || productType == 'dataset' || productType == 'image' || productType == 'screen' || productType == 'plate') && productId > 0){
+    if ((productType == 'project' || productType == 'dataset' || productType == 'image' || productType == 'screen' || productType == 'plate' || productType == 'share') && productId > 0){
         if (confirm('Delete '+productType+'?')) {
             if ((productType == 'project' || productType == 'dataset' || productType == 'screen') && confirm('Also delete content?')) {
                 all = 'all=on';

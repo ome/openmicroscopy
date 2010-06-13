@@ -823,6 +823,11 @@ class _BlitzGateway (object):
             logger.debug(traceback.format_exc())
             logger.debug("... refused, not reconnecting")
             return False
+        except omero.SessionTimeoutException: #pragma: no cover
+            # The connection is there, but it has been reset, because the proxy no longer exists...
+            logger.debug(traceback.format_exc())
+            logger.debug("... reset, not reconnecting")
+            return False
         except omero.RemovedSessionException: #pragma: no cover
             # Session died on us
             logger.debug(traceback.format_exc())
@@ -834,7 +839,12 @@ class _BlitzGateway (object):
             logger.debug('Ice.UnknownException: %s' % str(x))
             logger.debug("... ice says something bad happened, not reconnecting")
             return False
-
+        except:
+            # Something else happened
+            logger.debug(traceback.format_exc())
+            logger.debug("... error not reconnecting")
+            return False
+        
     def seppuku (self, softclose=False): #pragma: no cover
         """
         Terminates connection. If softclose is False, the session is really
@@ -2294,18 +2304,14 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         """
         
         try:
-            lastName = self.lastName
-            firstName = self.firstName
-            middleName = self.middleName
-            
-            if middleName is not None and middleName != '':
-                name = "%s %s. %s" % (firstName, middleName, lastName)
+            if self.middleName is not None and self.middleName != '':
+                name = "%s %s. %s" % (self.firstName, self.middleName[:1].upper(), self.lastName)
             else:
-                name = "%s %s" % (firstName, lastName)
-            return name
+                name = "%s %s" % (self.firstName, self.lastName)
         except:
             logger.error(traceback.format_exc())
-            return None
+            name = self.omeName
+        return name
     
     def getNameWithInitial(self):
         try:
@@ -2313,10 +2319,10 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
                 name = "%s. %s" % (self.firstName[:1], self.lastName)
             else:
                 name = self.omeName
-            return name
         except:
             logger.error(traceback.format_exc())
-            return _("Unknown name")
+            name = self.omeName
+        return name
     
     def isAdmin(self):
         for ob in self._obj.copyGroupExperimenterMap():

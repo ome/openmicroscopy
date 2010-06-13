@@ -29,6 +29,14 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.Share;
 import ome.model.meta.ShareMember;
 import ome.model.stats.StatsInfo;
+import ome.model.acquisition.Instrument;
+import ome.model.acquisition.Objective;
+import ome.model.acquisition.Detector;
+import ome.model.acquisition.Dichroic;
+import ome.model.acquisition.Filter;
+import ome.model.acquisition.FilterSet;
+import ome.model.acquisition.LightSource;
+import ome.model.acquisition.ObjectiveSettings;
 import ome.services.sharing.data.ShareData;
 import ome.services.sharing.data.ShareItem;
 import ome.system.OmeroContext;
@@ -170,7 +178,7 @@ public class BlobShareStore extends ShareStore implements
     }
 
     boolean imagesContainsPixels(Session s, List<Long> images, Pixels pix, Map<Long, Long> cache) {
-        Long pixID = pix.getId();;
+        Long pixID = pix.getId();
         return imagesContainsPixels(s, images, pixID, cache);
     }
 
@@ -186,7 +194,43 @@ public class BlobShareStore extends ShareStore implements
         }
         return images.contains(imgID);
     }
+    
+    boolean imagesContainsInstrument(Session s, List<Long> images, Instrument instr, Map<Long, Long> cache) {
+        Long instrID = instr.getId();
+        return imagesContainsInstrument(s, images, instrID, cache);
+    }
+    
+    boolean imagesContainsInstrument(Session s, List<Long> images, long instrID, Map<Long, Long> cache) {
+        Long imgID;
+        if (cache.containsKey(instrID)) {
+            imgID = cache.get(instrID);
+        } else {
+            imgID = (Long) s.createQuery(
+                "select id from Image where instrument.id = ?")
+                .setParameter(0, instrID).uniqueResult();
+            cache.put(instrID, imgID);
+        }
+        return images.contains(imgID);
+    }
 
+    boolean imagesContainsObjectiveSettings(Session s, List<Long> images, ObjectiveSettings os, Map<Long, Long> cache) {
+        Long osID = os.getId();
+        return imagesContainsObjectiveSettings(s, images, osID, cache);
+    }
+    
+    boolean imagesContainsObjectiveSettings(Session s, List<Long> images, long osID, Map<Long, Long> cache) {
+        Long imgID;
+        if (cache.containsKey(osID)) {
+            imgID = cache.get(osID);
+        } else {
+            imgID = (Long) s.createQuery(
+                "select id from Image where objectivesettings.id = ?")
+                .setParameter(0, osID).uniqueResult();
+            cache.put(osID, imgID);
+        }
+        return images.contains(imgID);
+    }
+    
     @Override
     public <T extends IObject> boolean doContains(long sessionId, Class<T> kls,
             long objId) {
@@ -256,6 +300,28 @@ public class BlobShareStore extends ShareStore implements
             // user load them if they really want to.
             return true;
         }
+        
+        Map<Long, Long> obToImageCache = new HashMap<Long, Long>();
+        if (Objective.class.isAssignableFrom(kls)) {
+        	Objective obj = (Objective) s.get(Objective.class, objId);
+            return imagesContainsInstrument(s, images, obj.getInstrument(), obToImageCache);
+        } else if (Detector.class.isAssignableFrom(kls)) {
+        	Detector obj = (Detector) s.get(Detector.class, objId);
+            return imagesContainsInstrument(s, images, obj.getInstrument(), obToImageCache);
+        } else if (Dichroic.class.isAssignableFrom(kls)) {
+        	Dichroic obj = (Dichroic) s.get(Dichroic.class, objId);
+            return imagesContainsInstrument(s, images, obj.getInstrument(), obToImageCache);
+        } else if (FilterSet.class.isAssignableFrom(kls)) {
+        	FilterSet obj = (FilterSet) s.get(FilterSet.class, objId);
+            return imagesContainsInstrument(s, images, obj.getInstrument(), obToImageCache);
+        } else if (Filter.class.isAssignableFrom(kls)) {
+        	Filter obj = (Filter) s.get(Filter.class, objId);
+            return imagesContainsInstrument(s, images, obj.getInstrument(), obToImageCache);
+        } else if (LightSource.class.isAssignableFrom(kls)) {
+        	LightSource obj = (LightSource) s.get(LightSource.class, objId);
+        	return imagesContainsInstrument(s, images, obj.getInstrument(), obToImageCache);
+        }
+        
         return false;
     }
 

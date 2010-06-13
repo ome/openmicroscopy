@@ -1676,8 +1676,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                   "where e.id in (:ids) order by e.omeName"
             ms = q.findAllByQuery(sql, p)
         sid = sh.createShare(message, expiration, items, ms, [], enable)
-        for ob in items:
-            sh.addObject(sid, ob)
+        sh.addObjects(sid, items)
         
         #send email if avtive
         if enable:
