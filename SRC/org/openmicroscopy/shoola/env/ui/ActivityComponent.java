@@ -609,7 +609,7 @@ public abstract class ActivityComponent
 	 * 
 	 * @param object The object to open.
 	 */
-	void open(Object object)
+	private void open(Object object)
 	{
 		if (!(object instanceof FileAnnotationData || 
 				object instanceof OriginalFile)) return;
@@ -643,7 +643,9 @@ public abstract class ActivityComponent
 		String path = env.getOmeroFilesHome();
 		if (index != -1) path += File.separator+name;
 		File f = new File(path);
-		//f.deleteOnExit();
+		//Delete the file if it already exists
+		if (f.exists()) f.delete();
+		f.deleteOnExit();
 		DownloadActivityParam activity;
 		if (index != -1) 
 			activity = new DownloadActivityParam(id, index, f, null);
