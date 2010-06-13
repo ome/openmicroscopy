@@ -328,7 +328,8 @@ class UserProfile
 			activeBox.setSelected(active);
 			activeBox.addChangeListener(this);
 			admin = false;
-			passwordNew.getDocument().addDocumentListener(
+		} else {
+			passwordConfirm.getDocument().addDocumentListener(
 					new DocumentListener() {
 				
 			   /**
@@ -359,6 +360,36 @@ class UserProfile
 				public void changedUpdate(DocumentEvent e) {}
 			});
 		}
+		passwordNew.getDocument().addDocumentListener(
+				new DocumentListener() {
+			
+		   /**
+			* Allows the user to interact with the password controls
+			* depending on the value entered.
+			* @see DocumentListener#removeUpdate(DocumentEvent)
+			*/
+			public void removeUpdate(DocumentEvent e)
+			{
+				handlePasswordEntered();
+			}
+			
+			/**
+			 * Allows the user to interact with the password controls
+			 * depending on the value entered.
+			 * @see DocumentListener#insertUpdate(DocumentEvent)
+			 */
+			public void insertUpdate(DocumentEvent e)
+			{
+				handlePasswordEntered();
+			}
+			
+			/**
+			 * Required by the {@link DocumentListener} I/F but 
+			 * no-operation implementation in our case.
+			 * @see DocumentListener#changedUpdate(DocumentEvent)
+			 */
+			public void changedUpdate(DocumentEvent e) {}
+		});
 		
 		ownerBox.setEnabled(owner);
 		ownerBox.addChangeListener(this);
@@ -383,7 +414,17 @@ class UserProfile
     private void handlePasswordEntered()
     {
     	char[] values = passwordNew.getPassword();
-    	passwordButton.setEnabled(values != null && values.length > 0);
+    	if (oldPassword.isVisible()) {
+    		char[] oldValues = oldPassword.getPassword();
+    		char[] confirmValues = passwordConfirm.getPassword();
+    		if (values != null && oldValues != null && confirmValues != null) {
+    			passwordButton.setEnabled(values.length > 0 && 
+    					oldValues.length > 0
+    					&& confirmValues.length == values.length);
+    		}
+    	} else {
+    		passwordButton.setEnabled(values != null && values.length > 0);
+    	}
     }
     
     /** Brings up the dialog to choose the photo to upload. */
