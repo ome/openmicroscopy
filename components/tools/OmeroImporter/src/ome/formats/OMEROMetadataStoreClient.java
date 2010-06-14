@@ -717,17 +717,28 @@ public class OMEROMetadataStoreClient
         for (Entry<Integer, Image> entry : existingMetadata.entrySet())
         {
             Image image = entry.getValue();
+            Integer series = entry.getKey();
             // Reset the image acquisition date as it has been inserted
             // erroneously by the OMERO.fs infrastructure.
             image.setAcquisitionDate(null);
             Pixels pixels = image.getPrimaryPixels();
             LinkedHashMap<Index, Integer> indexes = 
                 new LinkedHashMap<Index, Integer>();
-            indexes.put(Index.IMAGE_INDEX, entry.getKey());
+            indexes.put(Index.IMAGE_INDEX, series);
             container = getIObjectContainer(Image.class, indexes);
             container.sourceObject = image;
+            if (log.isDebugEnabled())
+            {
+                log.debug(String.format("Prepared(%d) == %s,%s",
+                        series, container.sourceObject, container.LSID));
+            }
             container = getIObjectContainer(Pixels.class, indexes);
             container.sourceObject = pixels;
+            if (log.isDebugEnabled())
+            {
+                log.debug(String.format("Prepared(%d) == %s,%s",
+                        series, container.sourceObject, container.LSID));
+            }
         }
     }
 

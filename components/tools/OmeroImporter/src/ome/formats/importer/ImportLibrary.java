@@ -124,6 +124,10 @@ public class ImportLibrary implements IObservable
      */
     public void setMetadataOnly(boolean isMetadataOnly)
     {
+        if (log.isDebugEnabled())
+        {
+            log.debug("Setting metadata only flag: " + isMetadataOnly);
+        }
         this.isMetadataOnly = isMetadataOnly;
     }
 
@@ -240,7 +244,10 @@ public class ImportLibrary implements IObservable
         reader.setId(fileName);
         store.setReader(reader.getImageReader());
         //reset series count
-        log.debug("Image Count: " + reader.getImageCount());
+        if (log.isDebugEnabled())
+        {
+            log.debug("Image Count: " + reader.getImageCount());
+        }
     }
 
     /**
@@ -417,7 +424,11 @@ public class ImportLibrary implements IObservable
         String[] domains = null;
         String[] usedFiles = new String[1];
         boolean isScreeningDomain = false;
-        usedFiles[0] = file.getAbsolutePath();      
+        usedFiles[0] = file.getAbsolutePath();
+        if (log.isInfoEnabled())
+        {
+            log.info("Metadata only import? " + isMetadataOnly);
+        }
 
         try {
             notifyObservers(new ImportEvent.LOADING_IMAGE(
