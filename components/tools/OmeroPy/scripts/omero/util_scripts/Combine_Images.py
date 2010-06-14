@@ -45,13 +45,24 @@ import omero.util.script_utils as scriptUtil
 
 COLOURS = scriptUtil.COLOURS
 
-regex_time = r'T(?P<T>\d+)'
-regex_zslice = r'Z(?P<Z>\d+)'
+DEFAULT_T_REGEX = "-T"
+DEFAULT_Z_REGEX = "-Z"
+DEFAULT_C_REGEX = "-C"
 
-DEFAULT_REGEX = "_Cname_"
-channelRegexes = {DEFAULT_REGEX: r'_C(?P<C>.+?)(_|$)', 
-        "Cname": r'C(?P<C>\w+)', 
-        "None (single channel)": False }
+channelRegexes = {DEFAULT_C_REGEX: r'_C(?P<C>.+?)(_|$)', 
+        "C": r'C(?P<C>\w+?)', 
+        "-w": r'_w(?P<C>\w+?)',
+        "None-(single-channel)": False }
+        
+zRegexes = {DEFAULT_Z_REGEX: r'_Z(?P<Z>\d+)', 
+        "Z": r'Z(?P<Z>\d+)',
+        "-z": r'_z(?P<Z>\d+)',
+        "None-(single-z-section)": False }
+
+timeRegexes = {DEFAULT_T_REGEX: r'_T(?P<T>\d+)', 
+        "T": r'T(?P<T>\d+)',
+        "-t": r'_t(?P<T>\d+)',
+        "None-(single-time-point)": False }
 
 def getPlane(rawPixelStore, pixels, theZ, theC, theT):
     """
@@ -136,15 +147,20 @@ def manuallyAssignImages(parameterMap, imageIds):
     return (sizeZ, sizeC, sizeT, imageMap)
 
 
-def assignImagesByRegex(parameterMap, imageIds, queryService):
+def assignImagesByRegex(parameterMap, imageIds, queryService, idNameMap=None):
     
     c = None
-    cRegex = parameterMap["Channel_Name_Pattern"]
-    regex_channel = channelRegexes[cRegex]
-    if regex_channel: 
-        c = re.compile(regex_channel)
-    t = re.compile(regex_time)
-    z = re.compile(regex_zslice)
+    regex_channel = channelRegexes[parameterMap["Channel_Name_Pattern"]]
+    if regex_channel: c = re.compile(regex_channel)
+    
+    t = None
+    regex_t = timeRegexes[parameterMap["Time_Name_Pattern"]]
+    if regex_t: t = re.compile(regex_t)
+    
+    z = None
+    regex_z = zRegexes[parameterMap["Z_Name_Pattern"]]
+    if regex_z: z = re.compile(regex_z)
+    
     # other parameters we need to determine
     sizeZ = 1
     sizeC = 1
@@ -155,26 +171,22 @@ def assignImagesByRegex(parameterMap, imageIds, queryService):
     imageMap = {}  # map of (z,c,t) : imageId
     channels = []
     
-    idString = ",".join([str(i) for i in imageIds])
-    query_string = "select i from Image i where i.id in (%s)" % idString
-    images = queryService.findAllByQuery(query_string, None)
-    for i in images:
-        iId = i.id.val
-        name = i.name.val
-        print name
-        tSearch = t.search(name)
+    if idNameMap == None:
+        idNameMap = getImageNames(queryService, imageIds)
+    for iId in imageIds:
+        name = idNameMap[iId]
+        if t: tSearch = t.search(name)
         if c: cSearch = c.search(name)
-        zSearch = z.search(name)
+        if z: zSearch = z.search(name)
         
-        if zSearch == None: theZ = 0
+        if z==None or zSearch == None: theZ = 0
         else: theZ = int(zSearch.group('Z'))
         
-        if tSearch == None: theT = 0
+        if t==None or tSearch == None: theT = 0
         else: theT = int(tSearch.group('T'))
         
         if c==None or cSearch == None: cName = "0"
         else: cName = cSearch.group('C')
-        print "cName", cName
         if cName in channels:
             theC = channels.index(cName)
         else:
@@ -187,7 +199,7 @@ def assignImagesByRegex(parameterMap, imageIds, queryService):
         sizeT = max(sizeT, theT)
         if tStart == None: tStart = theT
         else: tStart = min(tStart, theT)
-        print "Image ID: %s Name: %s is Z: %s C: %s T: %s" % (iId, name, theZ, theC, theT)
+        print "Image ID: %s Name: %s is Z: %s C: %s T: %s channelName: %s" % (iId, name, theZ, theC, theT, cName)
         imageMap[(theZ,theC,theT)] = iId 
     
     print "tStart:", tStart, "zStart:", zStart
@@ -208,6 +220,18 @@ def assignImagesByRegex(parameterMap, imageIds, queryService):
     return (sizeZ+1, cNames, sizeT+1, iMap)
 
 
+def getImageNames(queryService, imageIds):
+    idString = ",".join([str(i) for i in imageIds])
+    query_string = "select i from Image i where i.id in (%s)" % idString
+    images = queryService.findAllByQuery(query_string, None)
+    idMap = {}
+    for i in images:
+        iId = i.id.val
+        name = i.name.val
+        idMap[iId] = name
+    return idMap
+    
+
 def makeSingleImage(services, parameterMap, imageIds, dataset, colourMap):
     """
     This takes the images specified by imageIds, sorts them in to Z,C,T dimensions according to parameters
@@ -226,11 +250,31 @@ def makeSingleImage(services, parameterMap, imageIds, dataset, colourMap):
     updateService = services["updateService"]
     rawFileStore = services["rawFileStore"]
     
+    print "imageIds", len(imageIds)
+    idNameMap = None
+    if "Filter_Names" in parameterMap:
+        filterString = parameterMap["Filter_Names"]
+        if len(filterString) > 0:
+            print "Filtering images for names containing '%s'" % filterString
+            idNameMap = getImageNames(queryService, imageIds)
+            #for i in imageIds:
+            #    print idNameMap[i]
+            #    print idNameMap[i].find(filterString)
+            #    if idNameMap[i].find(filterString) > -1:
+            #        print "contains:", filterString
+                     
+            imageIds = [i for i in imageIds if idNameMap[i].find(filterString) > -1]
+            #print len(filtered)
+            #imageIds = filtered
+            
+    print "imageIds", len(imageIds)
+    #return
+    
     if "Manually_Define_Dimensions" in parameterMap and parameterMap["Manually_Define_Dimensions"]:
         sizeZ, sizeC, sizeT, imageMap = manuallyAssignImages(parameterMap, imageIds)
         cNames = {}
     else:
-        sizeZ, cNames, sizeT, imageMap = assignImagesByRegex(parameterMap, imageIds, queryService)
+        sizeZ, cNames, sizeT, imageMap = assignImagesByRegex(parameterMap, imageIds, queryService, idNameMap)
         sizeC = len(cNames)
     
     print "sizeZ: %s  sizeC: %s  sizeT: %s" % (sizeZ, sizeC, sizeT)
@@ -365,6 +409,7 @@ def combineImages(session, parameterMap):
         try:
             s.close()
         except: pass
+        
     return outputImage  # just return the last one
 
 
@@ -380,6 +425,8 @@ def runAsScript():
     firstDim = [rstring('Time'),rstring('Channel'),rstring('Z')]
     extraDims = [rstring(''),rstring('Time'),rstring('Channel'),rstring('Z')]
     channelRegs = [rstring(r) for r in channelRegexes.keys()]
+    zRegs = [rstring(r) for r in zRegexes.keys()]
+    tRegs = [rstring(r) for r in timeRegexes.keys()]
     
     client = scripts.client('Combine_Images.py', """Combine several single-plane images into one with greater Z, C, T dimensions.
 See http://trac.openmicroscopy.org.uk/shoola/wiki/UtilScripts#CombineImages""", 
@@ -389,10 +436,21 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/UtilScripts#CombineImages""",
         
     scripts.List("IDs", optional=False, grouping="2",
         description="List of Dataset IDs or Image IDs to combine.").ofType(rlong(0)),
+        
+    scripts.String("Filter_Names", grouping="2.1",
+        description="Filter the images by names that contain this value"),
     
-    scripts.String("Channel_Name_Pattern", grouping="3", default=DEFAULT_REGEX, values=channelRegs,
-        description="""Auto-pick images by Xnumber, Znumber and channel in the image name. 
-Ignored if you choose to Manually Define Dimensions below"""),
+    scripts.Bool("Auto_Define_Dimensions", grouping="3", default=True,
+        description="""Choose new dimensions with respect to the order of the input images. See URL above."""),
+        
+    scripts.String("Channel_Name_Pattern", grouping="3.1", default=DEFAULT_C_REGEX, values=channelRegs,
+        description="""Auto-pick images by channel in the image name"""),
+
+    scripts.String("Z_Name_Pattern", grouping="3.2", default=DEFAULT_Z_REGEX, values=zRegs,
+        description="""Auto-pick images by channel in the image name"""),
+    
+    scripts.String("Time_Name_Pattern", grouping="3.3", default=DEFAULT_T_REGEX, values=tRegs,
+        description="""Auto-pick images by channel in the image name"""),
     
     scripts.Bool("Manually_Define_Dimensions", grouping="4", default=False,
         description="""Choose new dimensions with respect to the order of the input images. See URL above."""),
