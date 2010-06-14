@@ -198,7 +198,6 @@ import omero.util.TempFileManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
 
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;

@@ -26,7 +26,6 @@ package ome.formats.model;
 import static omero.rtypes.rint;
 import static omero.rtypes.rstring;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
