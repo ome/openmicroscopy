@@ -326,9 +326,9 @@ public class OMEROMetadataStoreClient
         throws ServerError
     {
         // Blitz services
-        iUpdate = serviceFactory.getUpdateService();
-        iQuery = serviceFactory.getQueryService();
         iAdmin = serviceFactory.getAdminService();
+        iQuery = serviceFactory.getQueryService();
+        iUpdate = serviceFactory.getUpdateService();
         rawFileStore = serviceFactory.createRawFileStore();
         rawPixelStore = serviceFactory.createRawPixelsStore();
         thumbnailStore = serviceFactory.createThumbnailStore();
@@ -456,6 +456,48 @@ public class OMEROMetadataStoreClient
         initializeServices();
 	}
     
+    /**
+     * Initializes the MetadataStore taking string parameters to feed to the 
+     * OMERO Blitz client object. Using this method to create either secure
+     * or unsecure sessions and sets the user's group to supplied group.
+     * 
+     * @param username User's omename.
+     * @param password User's password.
+     * @param server Server hostname.
+     * @param port Server port.
+     * @param group User's current group.
+     * @param isSecure is this session secure
+     * @throws CannotCreateSessionException If there is a session error when
+     * creating the OMERO Blitz client object.
+     * @throws PermissionDeniedException If there is a problem logging the user
+     * in.
+     * @throws ServerError If there is a critical error communicating with the
+     * server.
+     */
+	public void initialize(String username, String password,
+            String server, int port, long group, boolean isSecure) 
+	throws CannotCreateSessionException, PermissionDeniedException, ServerError
+	{
+        log.info(String.format(
+                    "Attempting initial SSL connection to %s:%d",
+                    server, port));
+    	c = new client(server, port);
+    	c.setAgent("OMERO.importer");
+    	serviceFactory = c.createSession(username, password);
+    	
+    	if (!isSecure)
+    	{
+                log.info("Insecure connection requested, falling back");
+    		c = c.createClient(false);
+    		serviceFactory = c.getSession();
+    	}
+
+    	iAdmin = serviceFactory.getAdminService();
+    	iQuery = serviceFactory.getQueryService();
+    	setCurrentGroup(group);
+        initializeServices();
+	}
+	
     /**
      * Initializes the MetadataStore by joining an existing session.
      * Use this method only with unsecure sessions.

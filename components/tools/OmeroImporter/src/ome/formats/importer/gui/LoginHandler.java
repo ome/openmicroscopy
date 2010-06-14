@@ -185,6 +185,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                 	config.password.set(lc.getPassword());
                 	config.hostname.set(lc.getHostName());
                 	config.port.set(lc.getPort());
+                	config.group.set(lc.getGroup());
                 	config.encryptedConnection.set(lc.isEncrypted());
                 }
             
@@ -435,6 +436,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     public void logout()
     {
     	store.logout();
+    	viewer.loggedIn = false;
     }
     
     /**

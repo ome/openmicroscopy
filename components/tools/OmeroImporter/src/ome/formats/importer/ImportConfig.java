@@ -100,6 +100,7 @@ public class ImportConfig {
     public final LongValue savedScreen;
 
     public final StrValue sessionKey;
+    public final LongValue group;
     public final StrValue email;
     public final StrValue cliEmail;
     public final StrValue serverList;
@@ -203,6 +204,7 @@ public class ImportConfig {
         };
         
         sessionKey   = new StrValue("session", this);
+        group		 = new LongValue("group", this, 0L);
         email        = new StrValue("email", this);
         cliEmail     = new StrValue("cliEmail", this);
         serverList   = new StrValue("serverList", this);
@@ -303,7 +305,7 @@ public class ImportConfig {
         OMEROMetadataStoreClient client = new OMEROMetadataStoreClient();
         if (sessionKey.empty()) {
             client.initialize(username.get(), password.get(), hostname.get(),
-                    port.get(), encryptedConnection.get());
+                    port.get(), group.get(), encryptedConnection.get());
 
         } else {
             client.initialize(hostname.get(), port.get(), sessionKey.get(), encryptedConnection.get());
