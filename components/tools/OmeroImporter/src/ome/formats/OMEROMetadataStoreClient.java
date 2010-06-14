@@ -712,6 +712,12 @@ public class OMEROMetadataStoreClient
      */
     public void prepare(Map<Integer, Image> existingMetadata)
     {
+        // Sanity check
+        if (existingMetadata == null)
+        {
+            return;
+        }
+
         IObjectContainer container;
         for (Entry<Integer, Image> entry : existingMetadata.entrySet())
         {

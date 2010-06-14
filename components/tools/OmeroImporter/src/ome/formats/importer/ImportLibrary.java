@@ -99,6 +99,13 @@ public class ImportLibrary implements IObservable
     private boolean isMetadataOnly = false;
 
     /**
+     * Map of series vs. populated Image graph as set by <code>prepare</code>.
+     * This map is valid for a single execution of <code>importImage()</code>
+     * only.
+     */
+    private Map<Integer, Image> existingMetadata;
+
+    /**
      * The library will not close the client instance. The reader will be closed
      * between calls to import.
      * 
@@ -154,9 +161,23 @@ public class ImportLibrary implements IObservable
         return store.getInstanceProvider();
     }
 
+    /**
+     * Prepares the metadata store using existing metadata that has been
+     * pre-registered by OMERO.fs. The expected graph should be fully loaded:
+     * <ul>
+     *   <li>Image</li>
+     *   <li>Pixels</li>
+     * </ul>
+     * <b>NOTE:</b> An execution of <code>prepare()</code> is only valid for
+     * a <b>SINGLE</b> <code>importImage()</code> execution. Following
+     * <code>importImage()</code> the existing metadata map will be reset
+     * regardless of success or failure.
+     * @param existingMetadata Map of imageIndex or series vs. populated Image
+     * source graph with the fetched objects defined above.
+     */
     public void prepare(Map<Integer, Image> existingMetadata)
     {
-        store.prepare(existingMetadata);
+        this.existingMetadata = existingMetadata;
     }
 
     //
@@ -241,12 +262,22 @@ public class ImportLibrary implements IObservable
         reader.close();
         reader.setMetadataStore(store);
         reader.setMinMaxStore(store);
-        reader.setId(fileName);
-        store.setReader(reader.getImageReader());
-        //reset series count
-        if (log.isDebugEnabled())
+        try
         {
-            log.debug("Image Count: " + reader.getImageCount());
+            store.prepare(existingMetadata);
+            reader.setId(fileName);
+            store.setReader(reader.getImageReader());
+            //reset series count
+            if (log.isDebugEnabled())
+            {
+                log.debug("Image Count: " + reader.getImageCount());
+            }
+        }
+        finally
+        {
+            // Reset our existing metadata map in accordance with the prepare()
+            // method contract.
+            existingMetadata = null;
         }
     }
 
