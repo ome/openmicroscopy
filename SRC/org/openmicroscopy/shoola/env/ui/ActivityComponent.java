@@ -200,28 +200,61 @@ public abstract class ActivityComponent
     
     /** Loader associated to the activity. */
     protected UserNotifierLoader 		loader;
-
-    /**
-     * Creates a button.
-     * 
-     * @param text The text of the button.
-     * @param actionID The action command id.
-     * @param l The action listener.
-     * @return See above.
-     */
-    JButton createButton(String text, int actionID, ActionListener l)
-    {
-    	JButton b = new JButton(text);
-    	Font f = b.getFont();
-    	b.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
-		b.setActionCommand(""+actionID);
-		b.addActionListener(l);
-		b.setOpaque(false);
-		b.setForeground(UIUtilities.HYPERLINK_COLOR);
-		UIUtilities.unifiedButtonLookAndFeel(b);
-		return b;
-    }
     
+    /**
+	 * Opens the passed object. Downloads it first.
+	 * 
+	 * @param object The object to open.
+	 */
+	private void open(Object object)
+	{
+		if (!(object instanceof FileAnnotationData || 
+				object instanceof OriginalFile)) return;
+		Environment env = (Environment) registry.lookup(LookupNames.ENV);
+		int index = -1;
+		long id = -1;
+		String name = "";
+		OriginalFile of = null;
+		if (object instanceof FileAnnotationData) {
+			FileAnnotationData data = (FileAnnotationData) object;
+			if (data.isLoaded()) {
+				of = (OriginalFile) data.getContent();
+				name = data.getFileName();
+			} else {
+				id = data.getId();
+				index = DownloadActivityParam.FILE_ANNOTATION;
+				name = "Annotation_"+id;
+			}
+		} else {
+			of = (OriginalFile) object;
+			id = of.getId().getValue();
+			if (!of.isLoaded()) {
+				index = DownloadActivityParam.ORIGINAL_FILE;
+				name = "File_"+id;
+			} else {
+				if (of.getName() != null)
+					name = of.getName().getValue();
+				else name = "File_"+id;
+			}
+		}
+		String path = env.getOmeroFilesHome();
+		if (index != -1) path += File.separator+name;
+		File f = new File(path);
+		//Delete the file if it already exists
+		if (f.exists()) {
+			f.delete();
+			f = new File(path);
+		}
+		f.deleteOnExit();
+		DownloadActivityParam activity;
+		if (index != -1) 
+			activity = new DownloadActivityParam(id, index, f, null);
+		else 
+			activity = new DownloadActivityParam(of, f, null);
+		activity.setApplicationData(new ApplicationData(""));
+		viewer.notifyActivity(activity);
+	}
+	
 	/** 
 	 * Initializes the components. 
 	 * 
@@ -427,6 +460,27 @@ public abstract class ActivityComponent
 	 * @param index The value to set.
 	 */
 	void setIndex(int index) { this.index = index; }
+	
+    /**
+     * Creates a button.
+     * 
+     * @param text The text of the button.
+     * @param actionID The action command id.
+     * @param l The action listener.
+     * @return See above.
+     */
+    JButton createButton(String text, int actionID, ActionListener l)
+    {
+    	JButton b = new JButton(text);
+    	Font f = b.getFont();
+    	b.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
+		b.setActionCommand(""+actionID);
+		b.addActionListener(l);
+		b.setOpaque(false);
+		b.setForeground(UIUtilities.HYPERLINK_COLOR);
+		UIUtilities.unifiedButtonLookAndFeel(b);
+		return b;
+    }
 
     /**
 	 * Returns the name to give to the file.
@@ -604,56 +658,6 @@ public abstract class ActivityComponent
 		//}
 	}
 
-	/**
-	 * Opens the passed object. Downloads it first.
-	 * 
-	 * @param object The object to open.
-	 */
-	private void open(Object object)
-	{
-		if (!(object instanceof FileAnnotationData || 
-				object instanceof OriginalFile)) return;
-		Environment env = (Environment) registry.lookup(LookupNames.ENV);
-		int index = -1;
-		long id = -1;
-		String name = "";
-		OriginalFile of = null;
-		if (object instanceof FileAnnotationData) {
-			FileAnnotationData data = (FileAnnotationData) object;
-			if (data.isLoaded()) {
-				of = (OriginalFile) data.getContent();
-				name = data.getFileName();
-			} else {
-				id = data.getId();
-				index = DownloadActivityParam.FILE_ANNOTATION;
-				name = "Annotation_"+id;
-			}
-		} else {
-			of = (OriginalFile) object;
-			id = of.getId().getValue();
-			if (!of.isLoaded()) {
-				index = DownloadActivityParam.ORIGINAL_FILE;
-				name = "File_"+id;
-			} else {
-				if (of.getName() != null)
-					name = of.getName().getValue();
-				else name = "File_"+id;
-			}
-		}
-		String path = env.getOmeroFilesHome();
-		if (index != -1) path += File.separator+name;
-		File f = new File(path);
-		//Delete the file if it already exists
-		if (f.exists()) f.delete();
-		f.deleteOnExit();
-		DownloadActivityParam activity;
-		if (index != -1) 
-			activity = new DownloadActivityParam(id, index, f, null);
-		else 
-			activity = new DownloadActivityParam(of, f, null);
-		activity.setApplicationData(new ApplicationData(""));
-		viewer.notifyActivity(activity);
-	}
 	
 	/** 
 	 * Downloads the passed object is supported.
