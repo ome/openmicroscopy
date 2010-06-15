@@ -3216,11 +3216,18 @@ class _ImageWrapper (BlitzObjectWrapper):
         fps = opts.get('fps', 4)
         if watermark:
             watermark = Image.open(watermark)
-            wmpos = 0, h - watermark.size[1]
+            if minsize is not None:
+                ratio = min(float(w) / minsize[0], float(h) / minsize[1])
+                print ratio
+                if ratio > 1:
+                    watermark = watermark.resize(map(lambda x: x*ratio, watermark.size), Image.ANTIALIAS)
+            ww, wh = watermark.size
+            wmpos = 0, h - wh
         def recb (*args):
             return self._re
         def introcb (pixels, commandArgs):
-            fsize = 12
+            fsizes = (12,18,24,32,32,40,48,56,56,64)
+            fsize = fsizes[max(min(int(w / 256)-1, len(fsizes)), 1) - 1]
             font = ImageFont.load('%s/pilfonts/B%0.2d.pil' % (THISPATH, fsize) )
             for t in slides:
                 slide = Image.new("RGBA", (w,h))
@@ -3243,8 +3250,9 @@ class _ImageWrapper (BlitzObjectWrapper):
             bg = Image.new("RGBA", (w, h), minsize[2])
             ovlpos = (w-self.getWidth()) / 2, (h-self.getHeight()) / 2
             def resize (image):
-                bg.paste(image, ovlpos, image)
-                return bg
+                img = bg.copy()
+                img.paste(image, ovlpos, image)
+                return img
         else:
             def resize (image):
                 return image
@@ -3274,7 +3282,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             raise
         os.chdir(orig)
         shutil.move(fn, outpath)
-        #shutil.rmtree(d)
+        shutil.rmtree(d)
         return os.path.splitext(fn)[-1], ca['format']
 
     def renderImage (self, z, t, compression=0.9):
