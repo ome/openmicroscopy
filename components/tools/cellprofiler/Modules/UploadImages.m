@@ -194,9 +194,9 @@ for i = 1:numImages(ImageName)
     handles.Pipeline.(minField) = minValue;
     handles.Pipeline.(maxField) = maxValue;
         
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%% UPLOAD IMAGE TO OMERO.blitz %%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%% UPLOAD IMAGE TO OMERO %%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     drawnow
     uploadPixelsID = handles.Pipeline.('uploadPixelsID');
     uploadPlane(omeroService, int64(uploadPixelsID), int32(str2num(z)), ...
