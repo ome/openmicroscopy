@@ -1,3 +1,34 @@
+"""
+ components/tools/OmeroPy/src/omero/util/OmeroPopo.py
+
+-----------------------------------------------------------------------------
+  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+
+
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+  
+  You should have received a copy of the GNU General Public License along
+  with this program; if not, write to the Free Software Foundation, Inc.,
+  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+------------------------------------------------------------------------------
+
+@author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+@version 3.0
+<small>
+(<b>Internal version:</b> $Revision: $Date: $)
+</small>
+@since 3.0-Beta4.2
+ 
+"""
 import math;
 import numpy;
 import omero.clients
@@ -299,12 +330,16 @@ def shapeWrapper(serverSideShape):
     @param serverSideShape The shape object to wrap.
     @return See above.
     """    
+    print "ServerSideShape"
+    print  serverSideShape.__class__.__name__
     if serverSideShape.__class__.__name__=='EllipseI':
         return EllipseData(serverSideShape);
     if serverSideShape.__class__.__name__=='RectI':
         return RectData(serverSideShape);
     if serverSideShape.__class__.__name__=='MaskI':
         return MaskData(serverSideShape);
+    if serverSideShape.__class__.__name__=='PolygonI':
+        return PolygonData(serverSideShape);
     return None;     
 
 ##
@@ -814,6 +849,7 @@ class EllipseData(ShapeData):
         cy = self.getCy();
         rx = self.getRx();
         ry = self.getRy();
+        transform = self.transformToMatrix(self.getTransform());
         point = numpy.matrix((cx, cy, 1)).transpose();
         centre = transform*point;
         BL = numpy.matrix((cx-rx, cy+ry, 1)).transpose();
@@ -1028,9 +1064,9 @@ class PolygonData(ShapeData):
     # @param ptsList The list of points.
     # @return See above. 
     def toCoords(self, ptsList):
-        coords = {};
+        coords = [];
         for index in range(len(ptsList)/2):
-            coords.append((ptsList[index*2], ptsList[index*2+1]));
+            coords.append((int(ptsList[index*2]), int(ptsList[index*2+1])));
         return coords;
     
     
@@ -1046,32 +1082,51 @@ class PolygonData(ShapeData):
         for xx in xrange:
             for yy in yrange:
                 if(self.inPolygon((xx,yy))):
-                    points.append((xx,xy));       
-        return points;              
-        
+                    points[(xx,yy)]=1;       
+        return points;             
+ 
     ##
-    # Returns true if the point is in the polygon defined by the points list 
-    # @param point The point to check.
+    # Return true if the point p is inside the polygon, defined by the vertexes in points.
+    # @param p The point (x,y)
     # @return See above.
-    #
-    def inPolygon(self, point):
-        poly = self.getPoints();
-        n = len(poly);
+    # 
+    def inPolygon(self, p):
+        angle = 0.0
+        polypoints = self.getPoints();
+        cnt = 0;
+        polygon = [];
+        for index in range(0,len(polypoints)/2):
+            polygon.append((int(polypoints[index*2]), int(polypoints[index*2+1])));
+ 
+        n = len(polygon)
         
-        inside = False;
-
-        p1x,p1y = poly[0];
-        for i in range(n+1):
-            p2x,p2y = poly[i % n];
-            if y > min(p1y,p2y):
-                if y <= max(p1y,p2y):
-                    if x <= max(p1x,p2x):
-                        if p1y != p2y:
-                            xinters = (y-p1y)*(p2x-p1x)/(p2y-p1y)+p1x;
-                        if p1x == p2x or x <= xinters:
-                            inside = not inside;
-            p1x,p1y = p2x,p2y;
-        return inside;    
+        for i, (h, v) in enumerate(polygon):
+            p1 = (h - p[0], v - p[1])
+            h, v = polygon[(i + 1) % n]
+            p2 = (h - p[0], v - p[1])
+            angle += self.Angle2D(p1[0], p1[1], p2[0], p2[1]);
+ 
+        if abs(angle) < math.pi:
+            return False
+        return True
+ 
+    ##
+    # Return the angle(in radians) between the two vectors (x1,y1), (x2,y2)
+    # @param x1 The x of the first vector
+    # @param y1 The y of the first vector
+    # @param x2 The x of the second vector
+    # @param y2 The y of the second vector
+    # @return see above.
+    # 
+    def Angle2D(self,  x1, y1, x2, y2):
+        theta1 = math.atan2(y1, x1)
+        theta2 = math.atan2(y2, x2)
+        dtheta = theta2 - theta1
+        while dtheta > math.pi:
+            dtheta -= 2.0 * math.pi
+        while dtheta < -math.pi:
+            dtheta += 2.0 * math.pi
+        return dtheta
     
 ##
 # Instance of the Mask Object
@@ -1349,7 +1404,9 @@ class RectData(ShapeData):
                     points[(int(x+cx), int(y+cy))]=1;
         return points;              
 
-        
+##
+# The workflow data object, which wraps the omero.mdoel.NamespaceI class 
+#
 class WorkflowData(DataObject):
     def __init__(self, workflow=None):
         DataObject.__init__(self);

@@ -26,6 +26,8 @@
 #   <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
 # @author   Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
 #   <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+# @author   Will Moore &nbsp;&nbsp;&nbsp;&nbsp;
+#   <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
 # @version 3.0
 # <small>
 # (<b>Internal version:</b> $Revision: $Date: $)
@@ -421,7 +423,7 @@ def createFileFromData(updateService, queryService, filename, data):
     tempFile = omero.model.OriginalFileI();
     tempFile.setName(omero.rtypes.rstring(filename));
     tempFile.setPath(omero.rtypes.rstring(filename));
-    tempFile.setFormat(getFormat(queryService, CSV_FORMAT));
+    tempFile.setMimetype(omero.rtypes.rstring(CSV_FORMAT));
     tempFile.setSize(omero.rtypes.rlong(len(data)));
     tempFile.setSha1(omero.rtypes.rstring(calcSha1FromData(data)));
     return updateService.saveAndReturnObject(tempFile);
