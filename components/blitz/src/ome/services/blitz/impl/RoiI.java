@@ -87,6 +87,7 @@ import omero.util.IceMapper;
 
 import org.apache.commons.collections.MultiMap;
 import org.apache.commons.collections.map.MultiValueMap;
+import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.dao.DataAccessException;
@@ -200,19 +201,18 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
             	if(ns)
             	{
                 	String queryString;
-                	queryString = "select * from roi where image = :imageParam " +
-                			"and :namespaceParam = any (namespace)";
-                	MapSqlParameterSource parameters = new MapSqlParameterSource();
-                	parameters.addValue("imageParam", new Long(imageId));
-                	parameters.addValue("namespaceParam", opts.namespace.getValue());
-
-                	List idList = jdbc.queryForList(queryString,
-                	Long.class, parameters);
+                	queryString = "select id from roi where image = " + imageId+
+                			" and '" + opts.namespace.getValue()+ "'  = any (namespaces)";
+                	List<Map<String, Object>> mapList = jdbc.queryForList(queryString);
+                	List<Long> idList = new ArrayList<Long>();
+                	for(Map<String, Object> idMap : mapList)
+                		 idList.add((Long)idMap.get("id"));
+                	System.err.println("IDLIST " + idList);	
                 	String hqlQuery = "select distinct r from Roi r join " +
-                			"r.image i join fetch r.shapes where r.id in :ids";
+                			"r.image i join fetch r.shapes where r.id in (:ids)";
                 	hqlQuery = hqlQuery + " order by r.id";
         		    Query q = session.createQuery(hqlQuery);
-        		    q.setParameter("ids", idList);
+        		    q.setParameterList("ids", idList);
         		    return q.list();
             	}
             	else
