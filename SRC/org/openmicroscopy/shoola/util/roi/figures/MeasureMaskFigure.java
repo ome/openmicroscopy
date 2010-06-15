@@ -189,9 +189,9 @@ public class MeasureMaskFigure
 		int x, y;
 		for (y = r.y; y < yEnd; ++y) 
 			for (x = r.x; x < xEnd; ++x) 
-				if (hasColour(mask.getRGB(x,y))) 
+				if (hasColour(mask.getRGB(x-r.x,y-r.y))) 
 					vector.add(new Point(x, y));
-		
+						
 		return vector;
 	}
 

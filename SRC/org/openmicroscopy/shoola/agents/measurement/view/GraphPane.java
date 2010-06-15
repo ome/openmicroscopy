@@ -362,7 +362,7 @@ class GraphPane
 			{
 				cData = model.getMetadata(channel);
 				if (cData != null)
-				channelName.add(channel+":"+cData.getChannelLabeling());
+				channelName.add(cData.getChannelLabeling());
 				c = model.getActiveChannelColor(channel);
 				if (c == null) c = Color.WHITE;
 				channelColour.add(c);
