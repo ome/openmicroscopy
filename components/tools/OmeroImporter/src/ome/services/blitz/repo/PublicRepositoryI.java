@@ -323,7 +323,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * @return 
      *
      */
-    public List<Pixels> importFileSet(OriginalFile keyFile, Current __current) throws ServerError {
+    public List<Image> importFileSet(OriginalFile keyFile, Current __current) throws ServerError {
         
         currentUser = new Principal(__current.ctx.get(omero.constants.SESSIONUUID.value));
     	final String name = keyFile.getName().getValue();
@@ -417,7 +417,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      	try {
      		store = config.createStore();
         } catch (Exception e) {       	
-            log.error("Faile to create OMEROMetadataStoreClient: ", e);
+            log.error("Failed to create OMEROMetadataStoreClient: ", e);
             return null;
         }
         
@@ -430,11 +430,20 @@ public class PublicRepositoryI extends _RepositoryDisp {
         try {
         	 pix = library.importImage(file, 0, 0, 1, null, null, false, false, null, null);
         } catch (Throwable t) {       	
-        	 log.error("Faled to omportImage: ", t);
+        	 log.error("Faled to importImage: ", t);
         	 return null;
         }
-
-        return pix;
+        
+        List<Image> images = new ArrayList<Image>();
+        int count = 0;
+        for (Image im : imageMap.values()) {
+        	im.clearPixels(); // Do I need to do this first?
+        	im.addPixels(pix.get(count));
+        	images.add(im);
+        	count++;
+        }
+        	
+        return images;
     }
     
     
@@ -1014,7 +1023,8 @@ public class PublicRepositoryI extends _RepositoryDisp {
      */
     private Image createImage(String imageName, Pixels pix) {
         Image image = new ImageI();
-        image.setName(rstring(imageName));        
+        image.setName(rstring(imageName));
+        // Property must be not-null but will be overwritten on metadat import.
         image.setAcquisitionDate(rtime(java.lang.System.currentTimeMillis()));
         image.addPixels(pix);
         return image;

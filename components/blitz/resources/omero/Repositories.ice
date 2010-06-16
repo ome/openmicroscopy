@@ -113,7 +113,7 @@ module omero {
              * The imported pixels list is returned.
              *
              **/
-            omero::api::PixelsList importFileSet(omero::model::OriginalFile keyFile) throws ServerError;
+            omero::api::ImageList importFileSet(omero::model::OriginalFile keyFile) throws ServerError;
             
             /**
              * Load the OriginalFile at the given path with annotations and
