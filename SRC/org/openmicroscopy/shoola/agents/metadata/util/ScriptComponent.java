@@ -297,10 +297,12 @@ class ScriptComponent
 		} else if (c instanceof JComboBox) {
 			JComboBox box = (JComboBox) c;
 			Object o = box.getSelectedItem();
+			/*
 			if (o instanceof String) {
 				return ((String) o).replace(ScriptObject.PARAMETER_UI_SEPARATOR, 
 						ScriptObject.PARAMETER_SEPARATOR);
 			}
+			*/
 			return o;
 		} else if (c instanceof ComplexParamPane)
 			return ((ComplexParamPane) c).getValue();

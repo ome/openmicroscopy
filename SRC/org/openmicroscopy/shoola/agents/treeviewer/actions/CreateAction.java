@@ -149,10 +149,10 @@ public class CreateAction
         }
         Object ho = selectedDisplay.getUserObject();
         if (ho instanceof String || ho instanceof ExperimenterData) { // root
-                setEnabled(false);
-                name = NAME;  
-                putValue(Action.SHORT_DESCRIPTION, 
-                        UIUtilities.formatToolTipText(DESCRIPTION));
+        	setEnabled(false);
+        	name = NAME;  
+        	putValue(Action.SHORT_DESCRIPTION, 
+        			UIUtilities.formatToolTipText(DESCRIPTION));
         } else if (ho instanceof ProjectData) {
             setEnabled(model.isUserOwner(ho));
             name = NAME_DATASET; 
@@ -160,8 +160,8 @@ public class CreateAction
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_DATASET));
         } else if (ho instanceof ScreenData || ho instanceof DatasetData) {
-        	//setEnabled(model.isUserOwner(ho) && !model.isImporting());
-        	setEnabled(false);
+        	setEnabled(model.isUserOwner(ho) && !model.isImporting());
+        	//setEnabled(false);
             nodeType = CreateCmd.IMAGE;
             putValue(Action.SMALL_ICON, im.getIcon(IconManager.IMPORTER));
             name = NAME_IMAGE;

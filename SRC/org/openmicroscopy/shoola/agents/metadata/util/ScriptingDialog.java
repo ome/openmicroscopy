@@ -280,11 +280,14 @@ public class ScriptingDialog
 		Object value;
 		while (i.hasNext()) {
 			value = i.next();
+			/*
 			if (value instanceof String)
 				v[j] = ((String) value).replace(
 						ScriptObject.PARAMETER_SEPARATOR, 
 						ScriptObject.PARAMETER_UI_SEPARATOR);
 			else v[j] = value;
+			*/
+			v[j] = value;
 			j++;
 		}
 		return new JComboBox(v);
