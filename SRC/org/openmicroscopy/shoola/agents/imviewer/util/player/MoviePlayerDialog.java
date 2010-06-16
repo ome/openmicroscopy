@@ -124,6 +124,7 @@ public class MoviePlayerDialog
         this.model = model;
         player = new MoviePlayer(model, this);
         uiDelegate = new MoviePlayerUI(player);
+        player.setStartT(model.getDefaultT());
         new MoviePlayerControl(player, uiDelegate);
         initListeners();
         buildGUI();

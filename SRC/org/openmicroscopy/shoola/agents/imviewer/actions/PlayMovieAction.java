@@ -54,7 +54,6 @@ public class PlayMovieAction
 	extends ViewerAction
 {
 
-	
 	/** Indicates to play the movie across Z. */
 	public static final int		ACROSS_Z = MoviePlayerDialog.ACROSS_Z;
 	
@@ -134,7 +133,6 @@ public class PlayMovieAction
 			case ACROSS_Z:
 				putValue(Action.SHORT_DESCRIPTION, 
 		                UIUtilities.formatToolTipText(DESCRIPTION_ACROSS_Z));
-			break;
 		}
         
         putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PLAY));

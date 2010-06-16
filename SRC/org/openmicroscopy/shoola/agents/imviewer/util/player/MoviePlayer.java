@@ -120,9 +120,9 @@ class MoviePlayer
         up = true;
         movieType = FORWARD;
         timerDelay = FPS_INIT;
-        startT = getMinT();
+        startT = model.getDefaultT();//getMinT();
         endT = getMaxT();
-        startZ = getMinZ();
+        startZ = model.getDefaultZ();//getMinZ();
         endZ = getMaxZ();
         if (timerDelay > getMaximumTimer()) timerDelay = getMaximumTimer();
         setTimerDelay(timerDelay);
