@@ -3207,13 +3207,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         slides = opts.get('slides', None)
         minsize = opts.get('minsize', None)
         w, h = self.getWidth(), self.getHeight()
-        if minsize is not None and (w < minsize[0] or h < minsize[1]):
-            w = max(w, minsize[0])
-            h = max(h, minsize[1])
-        else:
-            minsize = None
         watermark = opts.get('watermark', None)
-        fps = opts.get('fps', 4)
         if watermark:
             watermark = Image.open(watermark)
             if minsize is not None:
@@ -3222,13 +3216,21 @@ class _ImageWrapper (BlitzObjectWrapper):
                 if ratio > 1:
                     watermark = watermark.resize(map(lambda x: x*ratio, watermark.size), Image.ANTIALIAS)
             ww, wh = watermark.size
-            wmpos = 0, h - wh
+        if minsize is not None and (w < minsize[0] or h < minsize[1]):
+            w = max(w, minsize[0])
+            h = max(h, minsize[1])
+        else:
+            minsize = None
+        wmpos = 0, h - wh
+        fps = opts.get('fps', 4)
         def recb (*args):
             return self._re
+        fsizes = (8,8,12,18,24,32,32,40,48,56,56,64)
+        fsize = fsizes[max(min(int(w / 256)-1, len(fsizes)), 1) - 1]
+        scalebars = (1,1,2,2,5,5,5,5,10,10,10,10)
+        scalebar = scalebars[max(min(int(w / 256)-1, len(scalebars)), 1) - 1]
+        font = ImageFont.load('%s/pilfonts/B%0.2d.pil' % (THISPATH, fsize) )
         def introcb (pixels, commandArgs):
-            fsizes = (12,18,24,32,32,40,48,56,56,64)
-            fsize = fsizes[max(min(int(w / 256)-1, len(fsizes)), 1) - 1]
-            font = ImageFont.load('%s/pilfonts/B%0.2d.pil' % (THISPATH, fsize) )
             for t in slides:
                 slide = Image.new("RGBA", (w,h))
                 for i, line in enumerate(t[1:4]):
@@ -3264,7 +3266,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         d = tempfile.mkdtemp()
         orig = os.getcwd()
         os.chdir(d)
-        ca = makemovie.buildCommandArgs(self.getId())
+        ca = makemovie.buildCommandArgs(self.getId(), scalebar=scalebar)
         ca['imageCB'] = imgcb
         if slides:
             ca['introCB'] = introcb
@@ -3274,6 +3276,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         ca['zEnd'] = int(zend)
         ca['tStart'] = int(tstart)
         ca['tEnd'] = int(tend)
+        ca['font'] = font
         logger.debug(ca)
         try:
             fn = os.path.abspath(makemovie.buildMovie(ca, self._conn.c.getSession(), self, self.getPrimaryPixels(), recb))

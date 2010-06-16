@@ -65,6 +65,7 @@ from omero.rtypes import *
 import PIL
 from PIL import Image
 from PIL import ImageDraw
+from PIL import ImageFont
 import omero_Constants_ice
 
 try: 
@@ -226,33 +227,40 @@ def addScalebar(scalebar, image, pixels, commandArgs):
 	pixelSizeX = pixels.getPhysicalSizeX().getValue()
 	if(pixelSizeX<=0):
 		return image;
-	scaleBarY = pixels.getSizeY().getValue()-30;
-	scaleBarX = pixels.getSizeX().getValue()-scalebar/pixelSizeX-20;
-	scaleBarTextY = scaleBarY-15;
+        w,h = image.size
+        tw,th = commandArgs['font'].getsize('*')
+	scaleBarY = h - (4*th);
+	scaleBarX = w-scalebar/pixelSizeX-(tw*2);
+	scaleBarTextY = scaleBarY-th*1.2;
 	scaleBarX2 = scaleBarX+scalebar/pixelSizeX;
-	if(scaleBarX<=0 or scaleBarX2<=0 or scaleBarY<=0 or scaleBarX2>pixels.getSizeX().getValue()):
+	if(scaleBarX<=0 or scaleBarX2<=0 or scaleBarY<=0 or scaleBarX2>w):
 		return image;
-	draw.line([(scaleBarX,scaleBarY), (scaleBarX2,scaleBarY)], fill=commandArgs["overlayColour"])
-	draw.text(((scaleBarX+scaleBarX2)/2, scaleBarTextY), str(scalebar), fill=commandArgs["overlayColour"])
+	draw.line([(scaleBarX,scaleBarY), (scaleBarX2,scaleBarY)], width=scalebar, fill=commandArgs["overlayColour"])
+	draw.text((scaleBarX+tw/2, scaleBarTextY), str(scalebar),
+                  fill=commandArgs["overlayColour"], font=commandArgs['font'])
 	return image;
 	
 def addPlaneInfo(z, t, pixels, image, commandArgs):
 	draw = ImageDraw.Draw(image)
-	planeInfoTextY = pixels.getSizeY().getValue()-60;
-	textX = 20;
-	if(planeInfoTextY<=0 or textX > pixels.getSizeX().getValue() or planeInfoTextY>pixels.getSizeY().getValue()):
+        w,h = image.size
+        tw,th = commandArgs['font'].getsize('*')
+	planeInfoTextY = h - (5*th)#pixels.getSizeY().getValue()-45;
+	textX = 2*tw;
+	if(planeInfoTextY<=0 or textX > w or planeInfoTextY>h):
 		return image;
 	planeCoord = "z:"+str(z+1)+" t:"+str(t+1);
-	draw.text((textX, planeInfoTextY), planeCoord, fill=commandArgs["overlayColour"])		
+	draw.text((textX, planeInfoTextY), planeCoord, fill=commandArgs["overlayColour"], font=commandArgs['font'])
 	return image;
 
 def addTimePoints(time, pixels, image, commandArgs):
 	draw = ImageDraw.Draw(image)
-	textY = pixels.getSizeY().getValue()-45;
-	textX = 20;
-	if(textY<=0 or textX > pixels.getSizeX().getValue() or textY>pixels.getSizeY().getValue()):
+        w,h = image.size
+        tw,th = commandArgs['font'].getsize('*')
+	textY = h - (4*th)#pixels.getSizeY().getValue()-45;
+	textX = 2*tw;
+	if(textY<=0 or textX > w or textY>h):
 		return image;
-	draw.text((textX, textY), str(time), fill=commandArgs["overlayColour"])
+	draw.text((textX, textY), str(time), fill=commandArgs["overlayColour"], font=commandArgs['font'])
 	return image;
 	
 def getRenderingEngine(session, pixelsId, sizeC, cRange):	
@@ -418,6 +426,8 @@ def buildMovie (commandArgs, session, omeroImage, pixels, renderingEngineCB):
 	if(validChannels(cRange, sizeC)==0):
 		cRange = range(0, sizeC);
 
+        commandArgs['font'] = commandArgs.get('font', ImageFont.load_default())
+
 	tzList = calculateRanges(sizeZ, sizeT, commandArgs);
 
 	timeMap = calculateAquisitionTime(session, pixelsId, cRange, tzList)
@@ -450,6 +460,8 @@ def buildMovie (commandArgs, session, omeroImage, pixels, renderingEngineCB):
 		planeImage = planeImage.reshape(sizeX, sizeY);
 		image = Image.frombuffer('RGBA',(sizeX,sizeY),planeImage.data,'raw','ARGB',0,1)
                 filename = '%0.5d.jpg' % (frameNo)
+                if(commandArgs.get("imageCB", False)):
+                   image = commandArgs["imageCB"](z, t, pixels, image, commandArgs, frameNo)
 		if(commandArgs["scalebar"]!=0):
 			image = addScalebar(commandArgs["scalebar"], image, pixels, commandArgs);
 		planeInfo = "z:"+str(z)+"t:"+str(t);
@@ -458,8 +470,6 @@ def buildMovie (commandArgs, session, omeroImage, pixels, renderingEngineCB):
 			image = addTimePoints(time, pixels, image, commandArgs);
 		if(commandArgs["showPlaneInfo"]==1):
 			image = addPlaneInfo(z, t, pixels, image, commandArgs);
-                if(commandArgs.get("imageCB", False)):
-                   image = commandArgs["imageCB"](z, t, pixels, image, commandArgs, frameNo)
                 image.save(filename,"JPEG")
                 filelist.append(filename)
 		frameNo +=1;
