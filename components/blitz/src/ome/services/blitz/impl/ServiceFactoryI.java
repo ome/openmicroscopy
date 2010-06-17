@@ -555,15 +555,19 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                 + " set callback to " + this.callback);
         try {
             subscribe(HEARTBEAT.value, callback, current);
+            // tickeT:2485. Ignoring any errors on registration
+            // of callbacks to permit login. Other client
+            // callbacks may want to force an exception with ice_isA
+            // or similar.
         } catch (RuntimeException e) {
             log.warn("Failed to subscribe " + callback, e);
-            throw e;
+            // throw e; ticket:2485
         } catch (ServerError e) {
             log.warn("Failed to subscribe " + callback, e);
-            throw e;
+            // throw e; ticket:2485
         } catch (Exception e) {
             log.warn("Failed to subscribe " + callback, e);
-            throw new RuntimeException(e);
+            // throw new RuntimeException(e); ticket:2485
         }
     }
 
