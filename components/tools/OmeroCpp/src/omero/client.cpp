@@ -374,12 +374,12 @@ namespace omero {
 	}
 
 	if ( ! __ic ) {
-	    if ( ! __previous ) {
+	    if ( ! __previous.properties ) {
 		throw new ClientError(__FILE__, __LINE__,
 				      "No previous data to recreate communicator");
 	    }
-	    init(*__previous);
-	    __previous = 0;
+	    init(__previous);
+	    __previous = Ice::InitializationData();
 	}
 
 	// Check the required properties
@@ -514,8 +514,8 @@ namespace omero {
 	    }
 	}
 
-        __previous = new Ice::InitializationData();
-        (*__previous).properties = oldIc->getProperties()->clone();
+        __previous = Ice::InitializationData();
+        __previous.properties = oldIc->getProperties()->clone();
 
 	try {
 	    getRouter(oldIc)->destroySession();

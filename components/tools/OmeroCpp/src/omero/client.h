@@ -107,7 +107,7 @@ namespace omero {
 	 * ic if nulled after closeSession(). A pointer is used since
 	 * ID is a simple struct.
 	 */
-	Ice::InitializationData* __previous;
+	Ice::InitializationData __previous;
 
 	/*
 	 * Ice.ObjectAdapter containing the ClientCallback for
