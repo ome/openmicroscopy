@@ -45,24 +45,24 @@ import omero.util.script_utils as scriptUtil
 
 COLOURS = scriptUtil.COLOURS
 
-DEFAULT_T_REGEX = "-T"
-DEFAULT_Z_REGEX = "-Z"
-DEFAULT_C_REGEX = "-C"
+DEFAULT_T_REGEX = "_T"
+DEFAULT_Z_REGEX = "_Z"
+DEFAULT_C_REGEX = "_C"
 
 channelRegexes = {DEFAULT_C_REGEX: r'_C(?P<C>.+?)(_|$)', 
         "C": r'C(?P<C>\w+?)', 
-        "-w": r'_w(?P<C>\w+?)',
-        "None-(single-channel)": False }
+        "_w": r'_w(?P<C>\w+?)',
+        "None (single channel)": False }
         
 zRegexes = {DEFAULT_Z_REGEX: r'_Z(?P<Z>\d+)', 
         "Z": r'Z(?P<Z>\d+)',
-        "-z": r'_z(?P<Z>\d+)',
-        "None-(single-z-section)": False }
+        "_z": r'_z(?P<Z>\d+)',
+        "None (single z section)": False }
 
 timeRegexes = {DEFAULT_T_REGEX: r'_T(?P<T>\d+)', 
         "T": r'T(?P<T>\d+)',
-        "-t": r'_t(?P<T>\d+)',
-        "None-(single-time-point)": False }
+        "_t": r'_t(?P<T>\d+)',
+        "None (single time point)": False }
 
 def getPlane(rawPixelStore, pixels, theZ, theC, theT):
     """
@@ -193,31 +193,32 @@ def assignImagesByRegex(parameterMap, imageIds, queryService, idNameMap=None):
             theC = len(channels)
             channels.append(cName)
         
-        sizeZ = max(sizeZ, theZ)
+        sizeZ = max(sizeZ, theZ+1)
         if zStart == None: zStart = theZ
         else: zStart = min(zStart, theZ)
-        sizeT = max(sizeT, theT)
+        sizeT = max(sizeT, theT+1)
         if tStart == None: tStart = theT
         else: tStart = min(tStart, theT)
         print "Image ID: %s Name: %s is Z: %s C: %s T: %s channelName: %s" % (iId, name, theZ, theC, theT, cName)
         imageMap[(theZ,theC,theT)] = iId 
     
-    print "tStart:", tStart, "zStart:", zStart
+    print "tStart:", tStart, "zStart:", zStart, "sizeT", sizeT, "sizeZ", sizeZ
     if tStart > 0 or zStart > 0:
         sizeT = sizeT-tStart
         sizeZ = sizeZ-zStart
+        print "sizeT", sizeT, "sizeZ", sizeZ
         iMap = {}
         for key, value in imageMap.items():
             z, c, t = key
-            print z,c,t, value
+            # print z,c,t, value
             iMap[(z-zStart, c, t-tStart)] = value
     else: iMap = imageMap
     
-    print iMap
+    # print iMap
     cNames = {}
     for c, name in enumerate(channels):
         cNames[c] = name
-    return (sizeZ+1, cNames, sizeT+1, iMap)
+    return (sizeZ, cNames, sizeT, iMap)
 
 
 def getImageNames(queryService, imageIds):
