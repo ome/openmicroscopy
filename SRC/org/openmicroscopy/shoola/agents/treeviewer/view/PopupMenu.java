@@ -284,6 +284,7 @@ class PopupMenu
 				initMenuItem(createProject, a.getActionName());
 				a = controller.getAction(
 						TreeViewerControl.CREATE_TOP_DATASET);
+				((CreateTopContainerAction) a).setFromTopMenu(true);
 				createDataset = new JMenuItem(a);
 				initMenuItem(createDataset, a.getActionName());
 				break;

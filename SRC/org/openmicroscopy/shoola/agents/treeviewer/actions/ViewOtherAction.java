@@ -111,10 +111,11 @@ public class ViewOtherAction
             putValue(Action.SHORT_DESCRIPTION, 
 	                UIUtilities.formatToolTipText(DESCRIPTION));
         	putValue(Action.SMALL_ICON, data.getApplicationIcon());
-        	Browser browser = model.getSelectedBrowser();
-        	if (browser != null)
-        		onDisplayChange(browser.getLastSelectedDisplay());
+        	
         }
+        Browser browser = model.getSelectedBrowser();
+    	if (browser != null)
+    		onDisplayChange(browser.getLastSelectedDisplay());
     }
     
     /**
