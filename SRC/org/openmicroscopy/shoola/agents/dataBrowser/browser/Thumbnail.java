@@ -49,7 +49,7 @@ public interface Thumbnail
 {
     
     /** The maximum magnification factor. */
-    public static final double  MAX_SCALING_FACTOR = 1;
+    public static final double  MAX_SCALING_FACTOR = 2.5;//1;
     
     /** The default magnification factor. */
     public static final double  SCALING_FACTOR = 0.5;
