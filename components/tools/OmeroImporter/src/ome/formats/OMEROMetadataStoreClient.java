@@ -307,7 +307,14 @@ public class OMEROMetadataStoreClient
 
     /** Keep alive runnable, pings all services. */
     private ClientKeepAlive keepAlive = new ClientKeepAlive();
-    
+
+    /**
+     * Map of series vs. populated Image graph as set by <code>prepare</code>.
+     * This map is valid for a single execution of <code>importImage()</code>
+     * only.
+     */
+    private Map<Integer, Image> existingMetadata;
+
     /**
      * Returns clientKeepAlive created in store
      * 
@@ -749,10 +756,22 @@ public class OMEROMetadataStoreClient
      *   <li>Image</li>
      *   <li>Pixels</li>
      * </ul>
+     * <b>NOTE:</b> An execution of <code>prepare()</code> is only valid for
+     * a <b>SINGLE</b> <code>importImage()</code> execution. Following
+     * <code>importImage()</code> the existing metadata map will be reset
+     * regardless of success or failure.
      * @param existingMetadata Map of imageIndex or series vs. populated Image
      * source graph with the fetched objects defined above.
      */
     public void prepare(Map<Integer, Image> existingMetadata)
+    {
+        this.existingMetadata = existingMetadata;
+    }
+
+    /**
+     * Actually performs the preparation logic during createRoot().
+     */
+    private void prepare()
     {
         // Sanity check
         if (existingMetadata == null)
@@ -810,10 +829,16 @@ public class OMEROMetadataStoreClient
             userSpecifiedTarget = null;
             userSpecifiedPhysicalPixelSizes = null;
             delegate.createRoot();
+            // Ensures that any prepared objects go into the container cache
+            prepare();
         }
         catch (ServerError e)
         {
             throw new RuntimeException(e);
+        }
+        finally
+        {
+            existingMetadata = null;
         }
     }
 
