@@ -196,7 +196,7 @@ class BrowserComponent
     }
 
     /** Counts the tags used but not owned by the user. */
-    private void countTagsUsedNotOwned()
+    private void countExperimenterDataInFolders()
     {
     	ContainerFinder finder = new ContainerFinder(ExperimenterData.class);
 		accept(finder, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
@@ -225,6 +225,10 @@ class BrowserComponent
 				rootType = TagAnnotationData.class;
 			else if (type == ADMIN_EXPLORER)
 				rootType = GroupData.class;
+		} 
+		if (rootType == null) {
+			countExperimenterDataInFolders();
+			return;
 		}
 		ContainerFinder finder = new ContainerFinder(rootType);
 		accept(finder, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
@@ -1036,7 +1040,7 @@ class BrowserComponent
         model.setState(READY);
         
         countItems(null);
-        countTagsUsedNotOwned();
+        countExperimenterDataInFolders();
         model.getParentModel().setStatus(false, "", true);
         fireStateChange();
 	}
@@ -1200,7 +1204,15 @@ class BrowserComponent
 	public void setRefreshExperimenterData(Map<Long, RefreshExperimenterDef> 
 		nodes, Class type, long id)
 	{
-		if (nodes == null || nodes.size() == 0) return;
+		if (nodes == null || nodes.size() == 0) {
+			model.setSelectedDisplay(null, true);
+			model.setState(READY);
+			countItems(null);
+			if (model.getBrowserType() == TAGS_EXPLORER)
+				countExperimenterDataInFolders();
+			model.getParentModel().setStatus(false, "", true);
+			return;
+		}
 		Iterator i = nodes.keySet().iterator();
 		RefreshExperimenterDef node;
 		TreeImageSet expNode;
@@ -1267,7 +1279,7 @@ class BrowserComponent
 		model.setState(READY);
 		countItems(null);
 		if (model.getBrowserType() == TAGS_EXPLORER)
-			countTagsUsedNotOwned();
+			countExperimenterDataInFolders();
 		model.getParentModel().setStatus(false, "", true);
 		PartialNameVisitor v = new PartialNameVisitor(view.isPartialName());
 		accept(v, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
