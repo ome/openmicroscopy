@@ -449,7 +449,7 @@ def movieFigure(session, commandArgs):
     algorithm = omero.constants.projection.ProjectionType.MAXIMUMINTENSITY
     if "Algorithm" in commandArgs:
         a = commandArgs["Algorithm"]
-        if (a == "Mean_Intensity"):
+        if (a == "Mean Intensity"):
             algorithm = omero.constants.projection.ProjectionType.MEANINTENSITY
     
     stepping = 1
@@ -512,9 +512,9 @@ def runAsScript():
     returns the output to the client. 
     """
         
-    labels = [rstring('Image_Name'), rstring('Datasets'), rstring('Tags')]
-    algorithums = [rstring('Maximum_Intensity'),rstring('Mean_Intensity')]
-    tunits =  [rstring("SECS"), rstring("MINS"), rstring("HOURS"), rstring("MINS_SECS"), rstring("HOURS_MINS")]
+    labels = [rstring('Image Name'), rstring('Datasets'), rstring('Tags')]
+    algorithums = [rstring('Maximum Intensity'),rstring('Mean Intensity')]
+    tunits =  [rstring("SECS"), rstring("MINS"), rstring("HOURS"), rstring("MINS SECS"), rstring("HOURS MINS")]
     formats = [rstring('JPEG'),rstring('PNG')]
     ckeys = COLOURS.keys()
     ckeys.sort()

@@ -652,7 +652,7 @@ def roiFigure(session, commandArgs):
     algorithm = omero.constants.projection.ProjectionType.MAXIMUMINTENSITY
     if "Algorithm" in commandArgs:
         a = commandArgs["Algorithm"]
-        if (a == "Mean_Intensity"):
+        if (a == "Mean Intensity"):
             algorithm = omero.constants.projection.ProjectionType.MEANINTENSITY
     
     stepping = 1
@@ -730,8 +730,8 @@ def runAsScript():
     The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
     """
      
-    labels = [rstring('Image_Name'), rstring('Datasets'), rstring('Tags')]
-    algorithums = [rstring('Maximum_Intensity'),rstring('Mean_Intensity')]
+    labels = [rstring('Image Name'), rstring('Datasets'), rstring('Tags')]
+    algorithums = [rstring('Maximum Intensity'),rstring('Mean Intensity')]
     roiLabel = """Specify an ROI to pick by specifying it's shape label. 'FigureROI' by default,
               (not case sensitive). If matching ROI not found, use any ROI."""
     formats = [rstring('JPEG'),rstring('PNG')]
