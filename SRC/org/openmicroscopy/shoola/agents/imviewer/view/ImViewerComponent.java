@@ -3004,11 +3004,11 @@ class ImViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#setRangeAllChannels()
+	 * @see ImViewer#setRangeAllChannels(boolean)
 	 */
-	public void setRangeAllChannels()
+	public void setRangeAllChannels(boolean absolute)
 	{
-		model.setRangeAllChannels();
+		model.setRangeAllChannels(absolute);
 	}
 	
 	/** 

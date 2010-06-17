@@ -71,6 +71,9 @@ public class ManageRndSettingsAction
 	/** Identified the <code>Undo</code> action. */
 	public static final int 	UNDO = 5;
 	
+	/** Identified the <code>Set Min max</code> action. */
+	public static final int 	SET_ABSOLUTE_MIN_MAX = 6;
+	
 	/** The name of the action if the index is {@link #COPY}. */
     private static final String NAME_COPY = "Copy Settings";
     
@@ -93,7 +96,13 @@ public class ManageRndSettingsAction
     	"Reset the rendering settings created while importing.";
     
     /** The default name of the action if the index is {@link #SET_MIN_MAX}. */
-    private static final String NAME_SET_MIN_MAX = "Set Min/Max";
+    private static final String NAME_SET_MIN_MAX = "Min/Max";
+    
+    /** 
+     * The default name of the action if the index is 
+     * {@link #ABSOLUTE_SET_MIN_MAX}. 
+     */
+    private static final String NAME_SET_ABSOLUTE_MIN_MAX ="Full Range";
     
     /** The description of the action if the index is {@link #SET_MIN_MAX}. */
     private static final String DESCRIPTION_SET_MIN_MAX = 
@@ -115,6 +124,10 @@ public class ManageRndSettingsAction
     /** The description of the action if the index is {@link #UNDO}. */
     private static final String DESCRIPTION_UNDO  = "Undo the changes.";
     
+    /** The description of the action if {@link #SET_ABSOLUTE_MIN_MAX}. */
+	private static final String DESCRIPTION_SET_ABSOLUTE_MIN_MAX = 
+		"Set the Pixels Intensity interval to the full range for all channels.";
+	
 	/** Helper reference to the icons manager. */
 	private IconManager icons;
 	
@@ -152,6 +165,14 @@ public class ManageRndSettingsAction
 				name = NAME_SET_MIN_MAX;
 				putValue(Action.SHORT_DESCRIPTION, 
 					UIUtilities.formatToolTipText(DESCRIPTION_SET_MIN_MAX));
+				putValue(Action.SMALL_ICON, 
+						icons.getIcon(IconManager.RND_MIN_MAX));
+				break;
+			case SET_ABSOLUTE_MIN_MAX:
+				name = NAME_SET_ABSOLUTE_MIN_MAX;
+				putValue(Action.SHORT_DESCRIPTION, 
+					UIUtilities.formatToolTipText(
+							DESCRIPTION_SET_ABSOLUTE_MIN_MAX));
 				putValue(Action.SMALL_ICON, 
 						icons.getIcon(IconManager.RND_MIN_MAX));
 				break;
@@ -250,7 +271,10 @@ public class ManageRndSettingsAction
 				model.resetDefaultRndSettings();
 				break;
 			case SET_MIN_MAX:
-				model.setRangeAllChannels();
+				model.setRangeAllChannels(false);
+				break;
+			case SET_ABSOLUTE_MIN_MAX:
+				model.setRangeAllChannels(true);
 				break;
 			case SET_OWNER:
 				model.setOwnerSettings();

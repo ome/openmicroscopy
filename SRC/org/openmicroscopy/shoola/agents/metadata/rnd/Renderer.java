@@ -555,8 +555,13 @@ public interface Renderer
 	 */
 	void reloadUI(boolean reloadPlane);
 	
-	/** Sets the maximum range for channels. */
-	void setRangeAllChannels();
+	/** 
+	 * Sets the maximum range for channels.
+	 * 
+	 *  @param absolute Pass <code>true</code> to set it to the absolute value,
+	 *  				<code>false</code> to the minimum and maximum.
+	 */
+	void setRangeAllChannels(boolean absolute);
 	
 	/**
 	 * Renders the specified plane.

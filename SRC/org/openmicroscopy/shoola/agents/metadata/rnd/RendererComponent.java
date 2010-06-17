@@ -902,15 +902,21 @@ class RendererComponent
 	
 	/** 
      * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#setRangeAllChannels()
+     * @see Renderer#setRangeAllChannels(boolean)
      */
-	public void setRangeAllChannels()
+	public void setRangeAllChannels(boolean absolute)
 	{
 		try {
 			double min, max;
 			for (int i = 0; i < model.getMaxC(); i++) {
-				min = model.getGlobalMin(i);
-				max = model.getGlobalMax(i);
+				if (absolute) {
+					min = model.getLowestValue(i);
+					max = model.getHighestValue(i);
+				} else {
+					min = model.getGlobalMin(i);
+					max = model.getGlobalMax(i);
+				}
+				
 				model.setInputInterval(i, min, max);
 			}
 			//if (model.isGeneralIndex()) model.saveRndSettings();

@@ -474,7 +474,7 @@ public class TwoKnobsSlider
 				Integer.valueOf(v));
 		repaint();
 	}
-
+	
 	/**
 	 * Sets the end value. The value must be greater than the start value and
 	 * lower than the maximum.
@@ -483,6 +483,12 @@ public class TwoKnobsSlider
 	 */
 	public void setEndValue(int v)
 	{
+		int old = model.getStartValue();
+		model.setEndValue(v);
+		firePropertyChange(END_VALUE_PROPERTY, Integer.valueOf(old), 
+				Integer.valueOf(v));
+		repaint();
+		/*
 		int max = model.getAbsoluteMaximum();
 		if (v > max) return;
 		if (v <= getStartValue()) return;
@@ -490,7 +496,7 @@ public class TwoKnobsSlider
 		model.setEndValue(v);
 		firePropertyChange(END_VALUE_PROPERTY, Integer.valueOf(old), 
 				Integer.valueOf(v));
-		repaint();
+		repaint();*/
 	}
 
 	/**

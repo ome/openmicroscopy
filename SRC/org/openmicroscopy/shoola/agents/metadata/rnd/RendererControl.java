@@ -119,6 +119,9 @@ class RendererControl
     /** Identifies the action to apply settings to all. */
     static final Integer    APPLY_TO_ALL = Integer.valueOf(14);
     
+    /** Identifies the action to set the intensity values to min, max. */
+    static final Integer    RND_ABSOLUTE_MIN_MAX = Integer.valueOf(15);
+    
     /**
      * Reference to the {@link Renderer} component, which, in this context,
      * is regarded as the Model.
@@ -128,7 +131,7 @@ class RendererControl
     /** Reference to the View. */
     private RendererUI  			view;
     
-    /** Maps actions ids onto actual <code>Action</code> object. */
+    /** Maps actions identifier onto actual <code>Action</code> object. */
     private Map<Integer, RndAction>	actionsMap;
     
     /** Index of the channel invoking the color picker. */
@@ -155,6 +158,8 @@ class RendererControl
         		ManageRndSettingsAction.SET_OWNER_SETTING));
         actionsMap.put(APPLY_TO_ALL, new ManageRndSettingsAction(model, 
         		ManageRndSettingsAction.APPLY_TO_ALL));
+        actionsMap.put(RND_ABSOLUTE_MIN_MAX, new ManageRndSettingsAction(model, 
+        		ManageRndSettingsAction.ABSOLUTE_MIN_MAX));
     }
     
     /** 

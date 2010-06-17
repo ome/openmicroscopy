@@ -1961,7 +1961,6 @@ class OMEROGateway
 			else secureClient = new client(hostName);
 			entryEncrypted = secureClient.createSession(userName, password);
 			secureClient.setAgent(AGENT);
-			
 			if (!encrypted) {
 				unsecureClient = secureClient.createClient(false);
 				entryUnencrypted = unsecureClient.getSession();

@@ -1129,8 +1129,13 @@ public interface ImViewer
 	 */
 	boolean isUserOwner();
 	
-	/** Sets the maximum range for channels. */
-	void setRangeAllChannels();
+	/** 
+	 * Sets the maximum range for channels.
+	 * 
+	 *  @param absolute Pass <code>true</code> to set it to the absolute value,
+	 *  				<code>false</code> to the minimum and maximum.
+	 */
+	void setRangeAllChannels(boolean absolute);
 	
 	/** Uses the rendering settings of the owner. */
 	void setOwnerSettings();

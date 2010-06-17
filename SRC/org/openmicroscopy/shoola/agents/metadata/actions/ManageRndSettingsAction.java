@@ -70,8 +70,14 @@ public class ManageRndSettingsAction
 	/** Indicates to the settings of the owner. */
 	public static final int SET_OWNER_SETTING = 4;
 	
+	/** Indicates to set the minimum and maximum for all channels. */
+	public static final int ABSOLUTE_MIN_MAX = 5;
+	
 	/** The description of the action if {@link #APPLY_TO_ALL}. */
 	private static final String NAME_APPLY_TO_ALL = "Apply to All";
+	
+	/** The description of the action if {@link #ABSOLUTE_MIN_MAX}. */
+	private static final String NAME_ABSOLUTE_MIN_MAX = "Full Range";
 	
 	/** The description of the action if {@link #MIN_MAX}. */
 	private static final String NAME_MIN_MAX = "Min/Max";
@@ -88,6 +94,10 @@ public class ManageRndSettingsAction
 	/** The description of the action if {@link #MIN_MAX}. */
 	private static final String DESCRIPTION_MIN_MAX = 
 		"Set the Pixels Intensity interval to min/max for all channels.";
+	
+	/** The description of the action if {@link #ABSOLUTE_MIN_MAX}. */
+	private static final String DESCRIPTION_ABSOLUTE_MIN_MAX = 
+		"Set the Pixels Intensity interval to the full range for all channels.";
 	
 	/** The description of the action if {@link #UNDO}. */
 	private static final String DESCRIPTION_UNDO = "Undo the changes.";
@@ -125,6 +135,16 @@ public class ManageRndSettingsAction
 						Renderer.MAX_CHANNELS);
 				putValue(Action.SHORT_DESCRIPTION, 
 						UIUtilities.formatToolTipText(DESCRIPTION_MIN_MAX));
+				putValue(Action.SMALL_ICON, 
+						icons.getIcon(IconManager.RND_MIN_MAX));
+				break;
+			case ABSOLUTE_MIN_MAX:
+				putValue(Action.NAME, NAME_ABSOLUTE_MIN_MAX);
+				setEnabled(model.getPixelsDimensionsC() < 
+						Renderer.MAX_CHANNELS);
+				putValue(Action.SHORT_DESCRIPTION, 
+						UIUtilities.formatToolTipText(
+								DESCRIPTION_ABSOLUTE_MIN_MAX));
 				putValue(Action.SMALL_ICON, 
 						icons.getIcon(IconManager.RND_MIN_MAX));
 				break;
@@ -185,7 +205,10 @@ public class ManageRndSettingsAction
 	{
 		switch (index) {
 			case MIN_MAX:
-				model.setRangeAllChannels();
+				model.setRangeAllChannels(false);
+				break;
+			case ABSOLUTE_MIN_MAX:
+				model.setRangeAllChannels(true);
 				break;
 			case RESET:
 				model.resetSettings();
