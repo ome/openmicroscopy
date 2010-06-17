@@ -271,6 +271,7 @@ class PropertiesUI
 		editDescription.setToolTipText("Edit the description.");
 		editDescription.addActionListener(this);
 		editDescription.setActionCommand(""+EDIT_DESC);
+		descriptionPane.setEnabled(false);
     }   
     
     /**
@@ -721,11 +722,9 @@ class PropertiesUI
 	private void editField(JPanel panel, JComponent field, JButton button, 
 			boolean editable)
 	{
-		
-		button.setEnabled(editable);
 		if (field == namePane) {
+			button.setEnabled(editable);
 			namePane.setEditable(editable);
-			
 			if (editable) {
 				panel.setBorder(EDIT_BORDER_BLACK);
 				field.requestFocus();
@@ -819,8 +818,6 @@ class PropertiesUI
 		text = "";
 		
 		boolean b = model.isUserOwner(refObject);
-		
-		
         if (refObject instanceof ImageData) text = "Image ";
         else if (refObject instanceof DatasetData) text = "Dataset";
         else if (refObject instanceof ProjectData) text = "Project";
@@ -1103,11 +1100,11 @@ class PropertiesUI
 		int index = Integer.parseInt(e.getActionCommand());
 		switch (index) {
 			case EDIT_NAME:
-				editField(namePanel, namePane, editName, true);
+				editField(namePanel, namePane, editName, !namePane.isEditable());
 				break;
 			case EDIT_DESC:
 				editField(descriptionPanel, descriptionPane, editDescription,
-						true);
+						!descriptionPane.isEnabled());
 		}
 	}
 	
