@@ -66,8 +66,8 @@ class ProjectionBICanvas
     /** Does a preview of the projected image. */
     private void projectionPreview()
     {
-    	model.projectionPreview();
-    	removeMouseListener(listener);
+    	//model.projectionPreview();
+    	//removeMouseListener(listener);
     }
     
     /** Attaches the listener. */
@@ -110,15 +110,15 @@ class ProjectionBICanvas
         if (img == null) {
         	img = model.getDisplayedImage();
         	if (img != null) {
-        		attachListener();
+        		//attachListener();
         		int w = img.getWidth()-1;
         		int h = img.getHeight()-1;
         		g2D.setColor(Color.black);
         		g2D.fillRect(0, 0, w, h);
         		FontMetrics fm = g2D.getFontMetrics();
         		g2D.setColor(Color.white);
-        		int width = fm.stringWidth(DEFAULT_TEXT);
-        		g2D.drawString(DEFAULT_TEXT, (w-width)/2, h/2);
+        		//int width = fm.stringWidth(DEFAULT_TEXT);
+        		//g2D.drawString(DEFAULT_TEXT, (w-width)/2, h/2);
         	}
         	return;
         }

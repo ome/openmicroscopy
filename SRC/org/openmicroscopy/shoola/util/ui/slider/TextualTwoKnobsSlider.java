@@ -657,7 +657,7 @@ public class TextualTwoKnobsSlider
 		this.end = end;
 		attachListeners();
 	}
-
+	
 	/**
 	 * Returns the number of the columns.
 	 * 

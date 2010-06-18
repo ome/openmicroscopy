@@ -171,6 +171,9 @@ class ImViewerComponent
 					view.getProjectionStartZ()+1, view.getProjectionEndZ()+1);
 			projDialog.addPropertyChangeListener(controller);
 			projDialog.pack();
+		} else {
+			projDialog.setProjectionInterval(view.getProjectionStartZ()+1, 
+					view.getProjectionEndZ()+1);
 		}
 		UIUtilities.centerAndShow(projDialog);
 	}
@@ -928,6 +931,7 @@ class ImViewerComponent
 		}
 		//if (stop) return;
 		if (index == PROJECTION_INDEX) {
+			if (stop) return;
 			previewProjection();
 			fireStateChange();
 		} else if (index == GRID_INDEX) {
@@ -2514,12 +2518,13 @@ class ImViewerComponent
 				key = ColorModelAction.GREY_SCALE_MODEL;
 			setColorModel(key);
 		}
+		/*
 		if ((oldIndex == ImViewer.PROJECTION_INDEX && 
 				index == ImViewer.VIEW_INDEX) ||
 				(index == ImViewer.PROJECTION_INDEX && 
 						oldIndex == ImViewer.VIEW_INDEX)) {
 			if (model.getBrowser().hasProjectedPreview()) renderXYPlane();
-		}
+		}*/
 		firePropertyChange(TAB_SELECTION_PROPERTY, Boolean.FALSE, Boolean.TRUE);
 	}
 

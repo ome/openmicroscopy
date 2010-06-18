@@ -72,7 +72,6 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.MetadataAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.MovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PlayMovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PreferencesAction;
-import org.openmicroscopy.shoola.agents.imviewer.actions.ProjectionPreviewAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ProjectionProjectAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ROIToolAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.RefreshAction;
@@ -306,10 +305,7 @@ class ImViewerControl
 	
 	/** Identifies the <code>Undo rendering settings</code> action. */
 	static final Integer     UNDO_RND_SETTINGS = Integer.valueOf(64);
-	
-	/** Identifies the <code>Projection preview</code> action. */
-	static final Integer     PROJECTION_PREVIEW = Integer.valueOf(65);
-	
+
 	/** Identifies the <code>Projection project</code> action. */
 	static final Integer     PROJECTION_PROJECT = Integer.valueOf(66);
 	
@@ -444,7 +440,6 @@ class ImViewerControl
 				ManageRndSettingsAction.SET_MIN_MAX));
 		actionsMap.put(UNDO_RND_SETTINGS, new ManageRndSettingsAction(model, 
 				ManageRndSettingsAction.UNDO));
-		actionsMap.put(PROJECTION_PREVIEW, new ProjectionPreviewAction(model));
 		actionsMap.put(PROJECTION_PROJECT, new ProjectionProjectAction(model));
 		actionsMap.put(COMPRESSION, new CompressionAction(model));
 		actionsMap.put(CLEAR_HISTORY, new ClearHistoryAction(model));

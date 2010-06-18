@@ -541,6 +541,17 @@ public class ProjSavingDialog
 		buildGUI();
 	}
 	
+	/**
+	 * Sets the projection interval value.
+	 * 
+	 * @param startZ The lower bound of the z-section interval.
+	 * @param endZ   The upper bound of the z-section interval.
+	 */
+	public void setProjectionInterval(int startZ, int endZ)
+	{
+		zrangeSelection.setInterval(startZ, endZ);
+	}
+	
 	/** 
 	 * Sets the available datasets.
 	 * 
