@@ -310,8 +310,8 @@ public class ChannelProcessorTest
 	@Test
 	public void testFilterSetEmFilterBlueWavelength()
 	{
-		store.setTransmittanceRangeCutIn(425, INSTRUMENT_INDEX, 0);
-		store.setTransmittanceRangeCutOut(430, INSTRUMENT_INDEX, 0);
+		store.setTransmittanceRangeCutIn(new PositiveInteger(425), INSTRUMENT_INDEX, 0);
+		store.setTransmittanceRangeCutOut(new PositiveInteger(430), INSTRUMENT_INDEX, 0);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
@@ -441,8 +441,8 @@ public class ChannelProcessorTest
 	@Test
 	public void testFilterSetExFilterBlueWavelength()
 	{
-		store.setTransmittanceRangeCutIn(425, INSTRUMENT_INDEX, 1);
-		store.setTransmittanceRangeCutOut(430, INSTRUMENT_INDEX, 1);
+		store.setTransmittanceRangeCutIn(new PositiveInteger(425), INSTRUMENT_INDEX, 1);
+		store.setTransmittanceRangeCutOut(new PositiveInteger(430), INSTRUMENT_INDEX, 1);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
@@ -467,8 +467,8 @@ public class ChannelProcessorTest
 	@Test
 	public void testLogicalChannelLightPathEmFilterBlueWavelength()
 	{
-		store.setTransmittanceRangeCutIn(430, INSTRUMENT_INDEX, 2);
-		store.setTransmittanceRangeCutOut(435, INSTRUMENT_INDEX, 2);
+		store.setTransmittanceRangeCutIn(new PositiveInteger(430), INSTRUMENT_INDEX, 2);
+		store.setTransmittanceRangeCutOut(new PositiveInteger(435), INSTRUMENT_INDEX, 2);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
@@ -493,8 +493,8 @@ public class ChannelProcessorTest
 	@Test
 	public void testLogicalChannelLightPathExFilterBlueWavelength()
 	{
-		store.setTransmittanceRangeCutIn(430, INSTRUMENT_INDEX, 3);
-		store.setTransmittanceRangeCutOut(435, INSTRUMENT_INDEX, 3);
+		store.setTransmittanceRangeCutIn(new PositiveInteger(430), INSTRUMENT_INDEX, 3);
+		store.setTransmittanceRangeCutOut(new PositiveInteger(435), INSTRUMENT_INDEX, 3);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
@@ -522,10 +522,10 @@ public class ChannelProcessorTest
 	@Test
 	public void testLogicalChannelLightPathEmFilterBlueAndFilterSetEmFilterRedWavelength()
 	{
-		store.setTransmittanceRangeCutIn(430, INSTRUMENT_INDEX, 2);
-		store.setTransmittanceRangeCutOut(435, INSTRUMENT_INDEX, 2);
-		store.setTransmittanceRangeCutIn(625, INSTRUMENT_INDEX, 0);
-		store.setTransmittanceRangeCutOut(640, INSTRUMENT_INDEX, 0);
+		store.setTransmittanceRangeCutIn(new PositiveInteger(430), INSTRUMENT_INDEX, 2);
+		store.setTransmittanceRangeCutOut(new PositiveInteger(435), INSTRUMENT_INDEX, 2);
+		store.setTransmittanceRangeCutIn(new PositiveInteger(625), INSTRUMENT_INDEX, 0);
+		store.setTransmittanceRangeCutOut(new PositiveInteger(640), INSTRUMENT_INDEX, 0);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
@@ -553,10 +553,10 @@ public class ChannelProcessorTest
 	@Test
 	public void testLogicalChannelLightPathExFilterBlueAndFilterSetExFilterRedWavelength()
 	{
-		store.setTransmittanceRangeCutIn(430, INSTRUMENT_INDEX, 3);
-		store.setTransmittanceRangeCutOut(435, INSTRUMENT_INDEX, 3);
-		store.setTransmittanceRangeCutIn(625, INSTRUMENT_INDEX, 1);
-		store.setTransmittanceRangeCutOut(640, INSTRUMENT_INDEX, 1);
+		store.setTransmittanceRangeCutIn(new PositiveInteger(430), INSTRUMENT_INDEX, 3);
+		store.setTransmittanceRangeCutOut(new PositiveInteger(435), INSTRUMENT_INDEX, 3);
+		store.setTransmittanceRangeCutIn(new PositiveInteger(625), INSTRUMENT_INDEX, 1);
+		store.setTransmittanceRangeCutOut(new PositiveInteger(640), INSTRUMENT_INDEX, 1);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
@@ -584,10 +584,10 @@ public class ChannelProcessorTest
 	@Test
 	public void testLogicalChannelLightPathExFilterBlueAndFilterSetEmFilterRedWavelength()
 	{
-		store.setTransmittanceRangeCutIn(430, INSTRUMENT_INDEX, 3);
-		store.setTransmittanceRangeCutOut(435, INSTRUMENT_INDEX, 3);
-		store.setTransmittanceRangeCutIn(625, INSTRUMENT_INDEX, 0);
-		store.setTransmittanceRangeCutOut(640, INSTRUMENT_INDEX, 0);
+		store.setTransmittanceRangeCutIn(new PositiveInteger(430), INSTRUMENT_INDEX, 3);
+		store.setTransmittanceRangeCutOut(new PositiveInteger(435), INSTRUMENT_INDEX, 3);
+		store.setTransmittanceRangeCutIn(new PositiveInteger(625), INSTRUMENT_INDEX, 0);
+		store.setTransmittanceRangeCutOut(new PositiveInteger(640), INSTRUMENT_INDEX, 0);
 		ChannelProcessor processor = new ChannelProcessor();
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
@@ -615,8 +615,8 @@ public class ChannelProcessorTest
 	{
 		ChannelProcessor processor = new ChannelProcessor();
 		store.setReader(new TestReader(false));
-		store.setTransmittanceRangeCutIn(430, INSTRUMENT_INDEX, 2);
-		store.setTransmittanceRangeCutOut(435, INSTRUMENT_INDEX, 2);
+		store.setTransmittanceRangeCutIn(new PositiveInteger(430), INSTRUMENT_INDEX, 2);
+		store.setTransmittanceRangeCutOut(new PositiveInteger(435), INSTRUMENT_INDEX, 2);
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
@@ -652,8 +652,8 @@ public class ChannelProcessorTest
 	{
 		ChannelProcessor processor = new ChannelProcessor();
 		store.setReader(new TestReader(false));
-		store.setTransmittanceRangeCutIn(600, INSTRUMENT_INDEX, 2);
-		store.setTransmittanceRangeCutOut(620, INSTRUMENT_INDEX, 2);
+		store.setTransmittanceRangeCutIn(new PositiveInteger(600), INSTRUMENT_INDEX, 2);
+		store.setTransmittanceRangeCutOut(new PositiveInteger(620), INSTRUMENT_INDEX, 2);
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
@@ -689,8 +689,8 @@ public class ChannelProcessorTest
 	{
 		ChannelProcessor processor = new ChannelProcessor();
 		store.setReader(new TestReader(false));
-		store.setTransmittanceRangeCutIn(510, INSTRUMENT_INDEX, 2);
-		store.setTransmittanceRangeCutOut(520, INSTRUMENT_INDEX, 2);
+		store.setTransmittanceRangeCutIn(new PositiveInteger(510), INSTRUMENT_INDEX, 2);
+		store.setTransmittanceRangeCutOut(new PositiveInteger(520), INSTRUMENT_INDEX, 2);
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
@@ -726,8 +726,8 @@ public class ChannelProcessorTest
 	{
 		ChannelProcessor processor = new ChannelProcessor();
 		store.setReader(new TestReader(false));
-		store.setTransmittanceRangeCutIn(510, INSTRUMENT_INDEX, 0);
-		store.setTransmittanceRangeCutOut(520, INSTRUMENT_INDEX, 0);
+		store.setTransmittanceRangeCutIn(new PositiveInteger(510), INSTRUMENT_INDEX, 0);
+		store.setTransmittanceRangeCutOut(new PositiveInteger(520), INSTRUMENT_INDEX, 0);
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);

@@ -74,6 +74,7 @@ import ome.xml.model.enums.NamingConvention;
 import ome.xml.model.enums.PixelType;
 import ome.xml.model.enums.Pulse;
 import ome.xml.model.primitives.NonNegativeInteger;
+import ome.xml.model.primitives.NonNegativeLong;
 import ome.xml.model.primitives.PercentFraction;
 import ome.xml.model.primitives.PositiveInteger;
 import omero.model.Arc;
@@ -495,7 +496,7 @@ public class OmeroMetadata implements MetadataRetrieve {
 	}
 
 
-	public Integer getChannelSamplesPerPixel(int arg0, int arg1) {
+	public PositiveInteger getChannelSamplesPerPixel(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -741,7 +742,7 @@ public class OmeroMetadata implements MetadataRetrieve {
 	}
 
 
-	public Integer getEllipseFontSize(int arg0, int arg1) {
+	public NonNegativeInteger getEllipseFontSize(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -795,19 +796,19 @@ public class OmeroMetadata implements MetadataRetrieve {
 	}
 
 
-	public Integer getEllipseTheC(int arg0, int arg1) {
+	public NonNegativeInteger getEllipseTheC(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 
-	public Integer getEllipseTheT(int arg0, int arg1) {
+	public NonNegativeInteger getEllipseTheT(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 
-	public Integer getEllipseTheZ(int arg0, int arg1) {
+	public NonNegativeInteger getEllipseTheZ(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -993,7 +994,7 @@ public class OmeroMetadata implements MetadataRetrieve {
 	}
 
 
-	public Integer getFileAnnotationBinaryFileSize(int arg0) {
+	public NonNegativeLong getFileAnnotationBinaryFileSize(int arg0) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -1485,7 +1486,7 @@ public class OmeroMetadata implements MetadataRetrieve {
 	}
 
 
-	public Integer getLineFontSize(int arg0, int arg1) {
+	public NonNegativeInteger getLineFontSize(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -1527,19 +1528,19 @@ public class OmeroMetadata implements MetadataRetrieve {
 	}
 
 
-	public Integer getLineTheC(int arg0, int arg1) {
+	public NonNegativeInteger getLineTheC(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 
-	public Integer getLineTheT(int arg0, int arg1) {
+	public NonNegativeInteger getLineTheT(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 
-	public Integer getLineTheZ(int arg0, int arg1) {
+	public NonNegativeInteger getLineTheZ(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -1641,7 +1642,7 @@ public class OmeroMetadata implements MetadataRetrieve {
 	}
 
 
-	public Integer getMaskFontSize(int arg0, int arg1) {
+	public NonNegativeInteger getMaskFontSize(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -1683,19 +1684,19 @@ public class OmeroMetadata implements MetadataRetrieve {
 	}
 
 
-	public Integer getMaskTheC(int arg0, int arg1) {
+	public NonNegativeInteger getMaskTheC(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 
-	public Integer getMaskTheT(int arg0, int arg1) {
+	public NonNegativeInteger getMaskTheT(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 
-	public Integer getMaskTheZ(int arg0, int arg1) {
+	public NonNegativeInteger getMaskTheZ(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -1832,7 +1833,7 @@ public class OmeroMetadata implements MetadataRetrieve {
 	}
 
 
-	public Integer getOTFBinaryFileSize(int arg0, int arg1) {
+	public NonNegativeLong getOTFBinaryFileSize(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -1964,7 +1965,7 @@ public class OmeroMetadata implements MetadataRetrieve {
 	}
 
 
-	public Integer getObjectiveNominalMagnification(int arg0, int arg1) {
+	public PositiveInteger getObjectiveNominalMagnification(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -2000,7 +2001,7 @@ public class OmeroMetadata implements MetadataRetrieve {
 	}
 
 
-	public Integer getPathFontSize(int arg0, int arg1) {
+	public NonNegativeInteger getPathFontSize(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -2042,19 +2043,19 @@ public class OmeroMetadata implements MetadataRetrieve {
 	}
 
 
-	public Integer getPathTheC(int arg0, int arg1) {
+	public NonNegativeInteger getPathTheC(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 
-	public Integer getPathTheT(int arg0, int arg1) {
+	public NonNegativeInteger getPathTheT(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 
-	public Integer getPathTheZ(int arg0, int arg1) {
+	public NonNegativeInteger getPathTheZ(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -2210,19 +2211,19 @@ public class OmeroMetadata implements MetadataRetrieve {
 	}
 
 
-	public Integer getPlaneTheC(int arg0, int arg1) {
+	public NonNegativeInteger getPlaneTheC(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 
-	public Integer getPlaneTheT(int arg0, int arg1) {
+	public NonNegativeInteger getPlaneTheT(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 
-	public Integer getPlaneTheZ(int arg0, int arg1) {
+	public NonNegativeInteger getPlaneTheZ(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -2264,7 +2265,7 @@ public class OmeroMetadata implements MetadataRetrieve {
 	}
 
 
-	public Integer getPlateAcquisitionMaximumFieldCount(int arg0, int arg1) {
+	public PositiveInteger getPlateAcquisitionMaximumFieldCount(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -2306,7 +2307,7 @@ public class OmeroMetadata implements MetadataRetrieve {
 	}
 
 
-	public Integer getPlateColumns(int arg0) {
+	public PositiveInteger getPlateColumns(int arg0) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -2354,7 +2355,7 @@ public class OmeroMetadata implements MetadataRetrieve {
 	}
 
 
-	public Integer getPlateRows(int arg0) {
+	public PositiveInteger getPlateRows(int arg0) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -2396,7 +2397,7 @@ public class OmeroMetadata implements MetadataRetrieve {
 	}
 
 
-	public Integer getPointFontSize(int arg0, int arg1) {
+	public NonNegativeInteger getPointFontSize(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -2438,19 +2439,19 @@ public class OmeroMetadata implements MetadataRetrieve {
 	}
 
 
-	public Integer getPointTheC(int arg0, int arg1) {
+	public NonNegativeInteger getPointTheC(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 
-	public Integer getPointTheT(int arg0, int arg1) {
+	public NonNegativeInteger getPointTheT(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 
-	public Integer getPointTheZ(int arg0, int arg1) {
+	public NonNegativeInteger getPointTheZ(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -2492,7 +2493,7 @@ public class OmeroMetadata implements MetadataRetrieve {
 	}
 
 
-	public Integer getPolylineFontSize(int arg0, int arg1) {
+	public NonNegativeInteger getPolylineFontSize(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -2540,19 +2541,19 @@ public class OmeroMetadata implements MetadataRetrieve {
 	}
 
 
-	public Integer getPolylineTheC(int arg0, int arg1) {
+	public NonNegativeInteger getPolylineTheC(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 
-	public Integer getPolylineTheT(int arg0, int arg1) {
+	public NonNegativeInteger getPolylineTheT(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 
-	public Integer getPolylineTheZ(int arg0, int arg1) {
+	public NonNegativeInteger getPolylineTheZ(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -2714,7 +2715,7 @@ public class OmeroMetadata implements MetadataRetrieve {
 	}
 
 
-	public Integer getRectangleFontSize(int arg0, int arg1) {
+	public NonNegativeInteger getRectangleFontSize(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -2762,19 +2763,19 @@ public class OmeroMetadata implements MetadataRetrieve {
 	}
 
 
-	public Integer getRectangleTheC(int arg0, int arg1) {
+	public NonNegativeInteger getRectangleTheC(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 
-	public Integer getRectangleTheT(int arg0, int arg1) {
+	public NonNegativeInteger getRectangleTheT(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 
-	public Integer getRectangleTheZ(int arg0, int arg1) {
+	public NonNegativeInteger getRectangleTheZ(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -2912,25 +2913,25 @@ public class OmeroMetadata implements MetadataRetrieve {
 	}
 
 
-	public int getStringAnnotationCount() {
+	public int getCommentAnnotationCount() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 
-	public String getStringAnnotationID(int arg0) {
+	public String getCommentAnnotationID(int arg0) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 
-	public String getStringAnnotationNamespace(int arg0) {
+	public String getCommentAnnotationNamespace(int arg0) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 
-	public String getStringAnnotationValue(int arg0) {
+	public String getCommentAnnotationValue(int arg0) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -2948,7 +2949,7 @@ public class OmeroMetadata implements MetadataRetrieve {
 	}
 
 
-	public Integer getTextFontSize(int arg0, int arg1) {
+	public NonNegativeInteger getTextFontSize(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -2990,19 +2991,19 @@ public class OmeroMetadata implements MetadataRetrieve {
 	}
 
 
-	public Integer getTextTheC(int arg0, int arg1) {
+	public NonNegativeInteger getTextTheC(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 
-	public Integer getTextTheT(int arg0, int arg1) {
+	public NonNegativeInteger getTextTheT(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 
-	public Integer getTextTheZ(int arg0, int arg1) {
+	public NonNegativeInteger getTextTheZ(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -3038,31 +3039,31 @@ public class OmeroMetadata implements MetadataRetrieve {
 	}
 
 
-	public Integer getTiffDataFirstC(int arg0, int arg1) {
+	public NonNegativeInteger getTiffDataFirstC(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 
-	public Integer getTiffDataFirstT(int arg0, int arg1) {
+	public NonNegativeInteger getTiffDataFirstT(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 
-	public Integer getTiffDataFirstZ(int arg0, int arg1) {
+	public NonNegativeInteger getTiffDataFirstZ(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 
-	public Integer getTiffDataIFD(int arg0, int arg1) {
+	public NonNegativeInteger getTiffDataIFD(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 
-	public Integer getTiffDataPlaneCount(int arg0, int arg1) {
+	public NonNegativeInteger getTiffDataPlaneCount(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -3092,25 +3093,25 @@ public class OmeroMetadata implements MetadataRetrieve {
 	}
 
 
-	public Integer getTransmittanceRangeCutIn(int arg0, int arg1) {
+	public PositiveInteger getTransmittanceRangeCutIn(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 
-	public Integer getTransmittanceRangeCutInTolerance(int arg0, int arg1) {
+	public NonNegativeInteger getTransmittanceRangeCutInTolerance(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 
-	public Integer getTransmittanceRangeCutOut(int arg0, int arg1) {
+	public PositiveInteger getTransmittanceRangeCutOut(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 
-	public Integer getTransmittanceRangeCutOutTolerance(int arg0, int arg1) {
+	public NonNegativeInteger getTransmittanceRangeCutOutTolerance(int arg0, int arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -3248,7 +3249,7 @@ public class OmeroMetadata implements MetadataRetrieve {
 	}
 
 
-	public Integer getWellSampleTimepoint(int arg0, int arg1, int arg2) {
+	public String getWellSampleTimepoint(int arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -3279,6 +3280,192 @@ public class OmeroMetadata implements MetadataRetrieve {
 
 
 	public String getXMLAnnotationValue(int arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	public String getBooleanAnnotationAnnotationRef(int arg0, int arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	public String getBooleanAnnotationDescription(int arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	public String getCommentAnnotationAnnotationRef(int arg0, int arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	public String getCommentAnnotationDescription(int arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	public String getDoubleAnnotationAnnotationRef(int arg0, int arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	public String getDoubleAnnotationDescription(int arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	public String getFileAnnotationAnnotationRef(int arg0, int arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	public String getFileAnnotationDescription(int arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	public int getLightSourceCount(int arg0) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+
+	public String getListAnnotationDescription(int arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	public String getLongAnnotationAnnotationRef(int arg0, int arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	public String getLongAnnotationDescription(int arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	public Double getMaskHeight(int arg0, int arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	public Double getMaskWidth(int arg0, int arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	public int getShapeCount(int arg0) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+
+	public String getTagAnnotationAnnotationRef(int arg0, int arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	public int getTagAnnotationCount() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+
+	public String getTagAnnotationDescription(int arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	public String getTagAnnotationID(int arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	public String getTagAnnotationNamespace(int arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	public String getTagAnnotationValue(int arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	public String getTermAnnotationAnnotationRef(int arg0, int arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	public int getTermAnnotationCount() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+
+	public String getTermAnnotationDescription(int arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	public String getTermAnnotationID(int arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	public String getTermAnnotationNamespace(int arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	public String getTermAnnotationValue(int arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	public String getTimestampAnnotationAnnotationRef(int arg0, int arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	public String getTimestampAnnotationDescription(int arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	public String getXMLAnnotationAnnotationRef(int arg0, int arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	public String getXMLAnnotationDescription(int arg0) {
 		// TODO Auto-generated method stub
 		return null;
 	}

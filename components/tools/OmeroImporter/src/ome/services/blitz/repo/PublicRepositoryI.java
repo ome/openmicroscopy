@@ -1309,7 +1309,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         meta.setPixelsSizeZ(new PositiveInteger(1), 0);
         meta.setPixelsSizeC(new PositiveInteger(1), 0);
         meta.setPixelsSizeT(new PositiveInteger(1), 0);
-        meta.setChannelSamplesPerPixel(1, 0, 0);
+        meta.setChannelSamplesPerPixel(new PositiveInteger(1), 0, 0);
         
         // Finally try to create the jpeg file abd return the path.  
         IFormatWriter writer = new ImageWriter();

@@ -81,6 +81,7 @@ import ome.xml.model.enums.IlluminationType;
 import ome.xml.model.enums.NamingConvention;
 import ome.xml.model.enums.PixelType;
 import ome.xml.model.primitives.NonNegativeInteger;
+import ome.xml.model.primitives.NonNegativeLong;
 import ome.xml.model.primitives.PercentFraction;
 import ome.xml.model.primitives.PositiveInteger;
 import omero.RBool;
@@ -187,6 +188,8 @@ import omero.model.Roi;
 import omero.model.Screen;
 import omero.model.ScreenI;
 import omero.model.StageLabel;
+import omero.model.TagAnnotation;
+import omero.model.TermAnnotation;
 import omero.model.TimestampAnnotation;
 import omero.model.TransmittanceRange;
 import omero.model.TransmittanceRangeI;
@@ -637,7 +640,19 @@ public class OMEROMetadataStoreClient
     {
         return value == null? null : rint(value.getValue());
     }
-    
+
+    /**
+     * Transforms a Java type into the corresponding OMERO RType.
+     * 
+     * @param value Java concrete type value.
+     * @return RType or <code>null</code> if <code>value</code> is 
+     * <code>null</code>.
+     */
+    public RLong toRType(NonNegativeLong value)
+    {
+        return value == null? null : rlong(value.getValue());
+    }
+
     /**
      * Transforms a Java type into the corresponding OMERO RType.
      * 
@@ -2828,7 +2843,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setChannelSamplesPerPixel(java.lang.Integer, int, int)
      */
-    public void setChannelSamplesPerPixel(Integer samplesPerPixel,
+    public void setChannelSamplesPerPixel(PositiveInteger samplesPerPixel,
             int imageIndex, int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
@@ -3365,7 +3380,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setEllipseFontSize(java.lang.Integer, int, int)
      */
-    public void setEllipseFontSize(Integer fontSize, int ROIIndex,
+    public void setEllipseFontSize(NonNegativeInteger fontSize, int ROIIndex,
             int shapeIndex)
     {
         Ellipse o = getEllipse(ROIIndex, shapeIndex);
@@ -3437,7 +3452,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setEllipseTheC(java.lang.Integer, int, int)
      */
-    public void setEllipseTheC(Integer theC, int ROIIndex, int shapeIndex)
+    public void setEllipseTheC(NonNegativeInteger theC, int ROIIndex, int shapeIndex)
     {
         Ellipse o = getEllipse(ROIIndex, shapeIndex);
         o.setTheC(toRType(theC));
@@ -3446,7 +3461,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setEllipseTheT(java.lang.Integer, int, int)
      */
-    public void setEllipseTheT(Integer theT, int ROIIndex, int shapeIndex)
+    public void setEllipseTheT(NonNegativeInteger theT, int ROIIndex, int shapeIndex)
     {
         Ellipse o = getEllipse(ROIIndex, shapeIndex);
         o.setTheT(toRType(theT));   
@@ -3455,7 +3470,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setEllipseTheZ(java.lang.Integer, int, int)
      */
-    public void setEllipseTheZ(Integer theZ, int ROIIndex, int shapeIndex)
+    public void setEllipseTheZ(NonNegativeInteger theZ, int ROIIndex, int shapeIndex)
     {
         Ellipse o = getEllipse(ROIIndex, shapeIndex);
         o.setTheZ(toRType(theZ));
@@ -3791,7 +3806,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setFileAnnotationBinaryFileSize(java.lang.Integer, int)
      */
-    public void setFileAnnotationBinaryFileSize(Integer size,
+    public void setFileAnnotationBinaryFileSize(NonNegativeLong size,
             int fileAnnotationIndex)
     {
         //TODO: not in OMERO model  
@@ -4082,7 +4097,7 @@ public class OMEROMetadataStoreClient
         o.LSID = id;
         addAuthoritativeContainer(Image.class, id, o);  
     }
-    
+
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setImageAcquiredDate(java.lang.String, int)
      */
@@ -4095,14 +4110,15 @@ public class OMEROMetadataStoreClient
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
             java.util.Date date = sdf.parse(acquiredDate);
-            Timestamp aquiredTimestamp = new Timestamp(date.getTime());
+            Timestamp acquiredTimestamp = new Timestamp(date.getTime());
 
             Image o = getImage(imageIndex);
-            o.setAcquisitionDate(toRType(aquiredTimestamp));
+            o.setAcquisitionDate(toRType(acquiredTimestamp));
         }
         catch (ParseException e)
         {
-            log.error(String.format("Parsing start time failed!"), e);
+            log.error(String.format(
+                    "Parsing Image.AcquiredDate '%s' failed!", acquiredDate), e);
         }
     }
 
@@ -4671,7 +4687,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setLineFontSize(java.lang.Integer, int, int)
      */
-    public void setLineFontSize(Integer fontSize, int ROIIndex, int shapeIndex)
+    public void setLineFontSize(NonNegativeInteger fontSize, int ROIIndex, int shapeIndex)
     {
         Line o = getLine(ROIIndex, shapeIndex);
         o.setFontSize(toRType(fontSize)); 
@@ -4730,7 +4746,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setLineTheC(java.lang.Integer, int, int)
      */
-    public void setLineTheC(Integer theC, int ROIIndex, int shapeIndex)
+    public void setLineTheC(NonNegativeInteger theC, int ROIIndex, int shapeIndex)
     {
         Line o = getLine(ROIIndex, shapeIndex);
         o.setTheC(toRType(theC));
@@ -4739,7 +4755,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setLineTheT(java.lang.Integer, int, int)
      */
-    public void setLineTheT(Integer theT, int ROIIndex, int shapeIndex)
+    public void setLineTheT(NonNegativeInteger theT, int ROIIndex, int shapeIndex)
     {
         Line o = getLine(ROIIndex, shapeIndex);
         o.setTheT(toRType(theT));
@@ -4748,7 +4764,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setLineTheZ(java.lang.Integer, int, int)
      */
-    public void setLineTheZ(Integer theZ, int ROIIndex, int shapeIndex)
+    public void setLineTheZ(NonNegativeInteger theZ, int ROIIndex, int shapeIndex)
     {
         Line o = getLine(ROIIndex, shapeIndex);
         o.setTheZ(toRType(theZ)); 
@@ -4923,7 +4939,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setMaskFontSize(java.lang.Integer, int, int)
      */
-    public void setMaskFontSize(Integer fontSize, int ROIIndex, int shapeIndex)
+    public void setMaskFontSize(NonNegativeInteger fontSize, int ROIIndex, int shapeIndex)
     {
         Mask o = getMask(ROIIndex, shapeIndex);
         o.setFontSize(toRType(fontSize));
@@ -4998,7 +5014,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setMaskTheC(java.lang.Integer, int, int)
      */
-    public void setMaskTheC(Integer theC, int ROIIndex, int shapeIndex)
+    public void setMaskTheC(NonNegativeInteger theC, int ROIIndex, int shapeIndex)
     {
         Mask o = getMask(ROIIndex, shapeIndex);
         o.setTheC(toRType(theC));
@@ -5007,7 +5023,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setMaskTheT(java.lang.Integer, int, int)
      */
-    public void setMaskTheT(Integer theT, int ROIIndex, int shapeIndex)
+    public void setMaskTheT(NonNegativeInteger theT, int ROIIndex, int shapeIndex)
     {
         Mask o = getMask(ROIIndex, shapeIndex);
         o.setTheT(toRType(theT));
@@ -5016,7 +5032,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setMaskTheZ(java.lang.Integer, int, int)
      */
-    public void setMaskTheZ(Integer theZ, int ROIIndex, int shapeIndex)
+    public void setMaskTheZ(NonNegativeInteger theZ, int ROIIndex, int shapeIndex)
     {
         Mask o = getMask(ROIIndex, shapeIndex);
         o.setTheZ(toRType(theZ));
@@ -5047,6 +5063,24 @@ public class OMEROMetadataStoreClient
     {
         Mask o = getMask(ROIIndex, shapeIndex);
         o.setY(toRType(y));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMaskHeight(java.lang.Double, int, int)
+     */
+    public void setMaskHeight(Double height, int ROIIndex, int shapeIndex)
+    {
+        Mask o = getMask(ROIIndex, shapeIndex);
+        o.setHeight(toRType(height));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setMaskWidth(java.lang.Double, int, int)
+     */
+    public void setMaskWidth(Double width, int ROIIndex, int shapeIndex)
+    {
+        Mask o = getMask(ROIIndex, shapeIndex);
+        o.setWidth(toRType(width));
     }
 
     //////// Microbean Manipulation /////////
@@ -5297,11 +5331,11 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setOTFBinaryFileSize(java.lang.Integer, int, int)
      */
-    public void setOTFBinaryFileSize(Integer size, int instrumentIndex,
+    public void setOTFBinaryFileSize(NonNegativeLong size, int instrumentIndex,
             int OTFIndex)
     {
         OriginalFile o = getOriginalFile(instrumentIndex, OTFIndex);
-        o.setSize(toRType(size.longValue()));
+        o.setSize(toRType(size));
     }
 
     /* (non-Javadoc)
@@ -5534,7 +5568,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setObjectiveNominalMagnification(java.lang.Integer, int, int)
      */
-    public void setObjectiveNominalMagnification(Integer nominalMagnification,
+    public void setObjectiveNominalMagnification(PositiveInteger nominalMagnification,
             int instrumentIndex, int objectiveIndex)
     {
         Objective o = getObjective(instrumentIndex, objectiveIndex);
@@ -5607,7 +5641,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPathFontSize(java.lang.Integer, int, int)
      */
-    public void setPathFontSize(Integer fontSize, int ROIIndex, int shapeIndex)
+    public void setPathFontSize(NonNegativeInteger fontSize, int ROIIndex, int shapeIndex)
     {
         Path o = getPath(ROIIndex, shapeIndex);
         o.setFontSize(toRType(fontSize));
@@ -5682,7 +5716,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPathTheC(java.lang.Integer, int, int)
      */
-    public void setPathTheC(Integer theC, int ROIIndex, int shapeIndex)
+    public void setPathTheC(NonNegativeInteger theC, int ROIIndex, int shapeIndex)
     {
         Path o = getPath(ROIIndex, shapeIndex);
         o.setTheC(toRType(theC));
@@ -5691,7 +5725,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPathTheT(java.lang.Integer, int, int)
      */
-    public void setPathTheT(Integer theT, int ROIIndex, int shapeIndex)
+    public void setPathTheT(NonNegativeInteger theT, int ROIIndex, int shapeIndex)
     {
         Path o = getPath(ROIIndex, shapeIndex);
         o.setTheT(toRType(theT));
@@ -5700,7 +5734,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPathTheZ(java.lang.Integer, int, int)
      */
-    public void setPathTheZ(Integer theZ, int ROIIndex, int shapeIndex)
+    public void setPathTheZ(NonNegativeInteger theZ, int ROIIndex, int shapeIndex)
     {
         Path o = getPath(ROIIndex, shapeIndex);
         o.setTheZ(toRType(theZ));
@@ -5945,7 +5979,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPlaneTheC(java.lang.Integer, int, int)
      */
-    public void setPlaneTheC(Integer theC, int imageIndex, int planeIndex)
+    public void setPlaneTheC(NonNegativeInteger theC, int imageIndex, int planeIndex)
     {
         PlaneInfo o = getPlane(imageIndex, planeIndex);
         o.setTheC(toRType(theC));
@@ -5954,7 +5988,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPlaneTheT(java.lang.Integer, int, int)
      */
-    public void setPlaneTheT(Integer theT, int imageIndex, int planeIndex)
+    public void setPlaneTheT(NonNegativeInteger theT, int imageIndex, int planeIndex)
     {
         PlaneInfo o = getPlane(imageIndex, planeIndex);
         o.setTheT(toRType(theT));
@@ -5963,7 +5997,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPlaneTheZ(java.lang.Integer, int, int)
      */
-    public void setPlaneTheZ(Integer theZ, int imageIndex, int planeIndex)
+    public void setPlaneTheZ(NonNegativeInteger theZ, int imageIndex, int planeIndex)
     {
         PlaneInfo o = getPlane(imageIndex, planeIndex);
         o.setTheZ(toRType(theZ));
@@ -6035,7 +6069,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPlateAcquisitionMaximumFieldCount(java.lang.Integer, int, int)
      */
-    public void setPlateAcquisitionMaximumFieldCount(Integer maximumFieldCount,
+    public void setPlateAcquisitionMaximumFieldCount(PositiveInteger maximumFieldCount,
             int plateIndex, int plateAcquisitionIndex)
     {
         PlateAcquisition o =
@@ -6110,7 +6144,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPlateColumns(java.lang.Integer, int)
      */
-    public void setPlateColumns(Integer columns, int plateIndex)
+    public void setPlateColumns(PositiveInteger columns, int plateIndex)
     {
         Plate o = getPlate(plateIndex);
         o.setCols(toRType(columns));
@@ -6171,7 +6205,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPlateRows(java.lang.Integer, int)
      */
-    public void setPlateRows(Integer rows, int plateIndex)
+    public void setPlateRows(PositiveInteger rows, int plateIndex)
     {
         Plate o = getPlate(plateIndex);
         o.setRows(toRType(rows));
@@ -6249,7 +6283,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPointFontSize(java.lang.Integer, int, int)
      */
-    public void setPointFontSize(Integer fontSize, int ROIIndex, int shapeIndex)
+    public void setPointFontSize(NonNegativeInteger fontSize, int ROIIndex, int shapeIndex)
     {
         Point o = getPoint(ROIIndex, shapeIndex);
         o.setFontSize(toRType(fontSize));
@@ -6324,7 +6358,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPointTheC(java.lang.Integer, int, int)
      */
-    public void setPointTheC(Integer theC, int ROIIndex, int shapeIndex)
+    public void setPointTheC(NonNegativeInteger theC, int ROIIndex, int shapeIndex)
     {
         Point o = getPoint(ROIIndex, shapeIndex);
         o.setTheC(toRType(theC));
@@ -6333,7 +6367,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPointTheT(java.lang.Integer, int, int)
      */
-    public void setPointTheT(Integer theT, int ROIIndex, int shapeIndex)
+    public void setPointTheT(NonNegativeInteger theT, int ROIIndex, int shapeIndex)
     {
         Point o = getPoint(ROIIndex, shapeIndex);
         o.setTheT(toRType(theT));
@@ -6342,7 +6376,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPointTheZ(java.lang.Integer, int, int)
      */
-    public void setPointTheZ(Integer theZ, int ROIIndex, int shapeIndex)
+    public void setPointTheZ(NonNegativeInteger theZ, int ROIIndex, int shapeIndex)
     {
         Point o = getPoint(ROIIndex, shapeIndex);
         o.setTheZ(toRType(theZ));
@@ -6435,7 +6469,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPolylineFontSize(java.lang.Integer, int, int)
      */
-    public void setPolylineFontSize(Integer fontSize, int ROIIndex,
+    public void setPolylineFontSize(NonNegativeInteger fontSize, int ROIIndex,
             int shapeIndex)
     {
         Polyline o = getPolyline(ROIIndex, shapeIndex);
@@ -6505,7 +6539,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPolylineTheC(java.lang.Integer, int, int)
      */
-    public void setPolylineTheC(Integer theC, int ROIIndex, int shapeIndex)
+    public void setPolylineTheC(NonNegativeInteger theC, int ROIIndex, int shapeIndex)
     {
         Polyline o = getPolyline(ROIIndex, shapeIndex);
         o.setTheC(toRType(theC));
@@ -6514,7 +6548,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPolylineTheT(java.lang.Integer, int, int)
      */
-    public void setPolylineTheT(Integer theT, int ROIIndex, int shapeIndex)
+    public void setPolylineTheT(NonNegativeInteger theT, int ROIIndex, int shapeIndex)
     {
         Polyline o = getPolyline(ROIIndex, shapeIndex);
         o.setTheT(toRType(theT));
@@ -6523,7 +6557,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPolylineTheZ(java.lang.Integer, int, int)
      */
-    public void setPolylineTheZ(Integer theZ, int ROIIndex, int shapeIndex)
+    public void setPolylineTheZ(NonNegativeInteger theZ, int ROIIndex, int shapeIndex)
     {
         Polyline o = getPolyline(ROIIndex, shapeIndex);
         o.setTheZ(toRType(theZ));
@@ -6803,7 +6837,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setRectangleFontSize(java.lang.Integer, int, int)
      */
-    public void setRectangleFontSize(Integer fontSize, int ROIIndex,
+    public void setRectangleFontSize(NonNegativeInteger fontSize, int ROIIndex,
             int shapeIndex)
     {
         Rect o = getRectangle(ROIIndex, shapeIndex);
@@ -6873,7 +6907,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setRectangleTheC(java.lang.Integer, int, int)
      */
-    public void setRectangleTheC(Integer theC, int ROIIndex, int shapeIndex)
+    public void setRectangleTheC(NonNegativeInteger theC, int ROIIndex, int shapeIndex)
     {
         Rect o = getRectangle(ROIIndex, shapeIndex);
         o.setTheC(toRType(theC));
@@ -6882,7 +6916,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setRectangleTheT(java.lang.Integer, int, int)
      */
-    public void setRectangleTheT(Integer theT, int ROIIndex, int shapeIndex)
+    public void setRectangleTheT(NonNegativeInteger theT, int ROIIndex, int shapeIndex)
     {
         Rect o = getRectangle(ROIIndex, shapeIndex);
         o.setTheT(toRType(theT));
@@ -6891,7 +6925,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setRectangleTheZ(java.lang.Integer, int, int)
      */
-    public void setRectangleTheZ(Integer theZ, int ROIIndex, int shapeIndex)
+    public void setRectangleTheZ(NonNegativeInteger theZ, int ROIIndex, int shapeIndex)
     {
         Rect o = getRectangle(ROIIndex, shapeIndex);
         o.setTheZ(toRType(theZ));
@@ -7113,49 +7147,48 @@ public class OMEROMetadataStoreClient
     //////// String Annotation /////////
 
     /**
-     * Retrieve StringAnnotation object ( as a CommentAnnotation object )
-     * @param XMLAnnotationIndex
+     * Retrieve CommentAnnotation object
+     * @param commentAnnotationIndex
      * @return
      */
-    private CommentAnnotation getStringAnnotation(int stringAnnotationIndex)
+    private CommentAnnotation getCommentAnnotation(int commentAnnotationIndex)
     {
-        // TODO is comment annotation the right place to store string annotations?
         LinkedHashMap<Index, Integer> indexes =
             new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.STRING_ANNOTATION_INDEX, stringAnnotationIndex);
+        indexes.put(Index.COMMENT_ANNOTATION_INDEX, commentAnnotationIndex);
         return getSourceObject(CommentAnnotation.class, indexes);
     }
-    
+
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setStringAnnotationID(java.lang.String, int)
+     * @see loci.formats.meta.MetadataStore#setCommentAnnotationID(java.lang.String, int)
      */
-    public void setStringAnnotationID(String id, int stringAnnotationIndex)
+    public void setCommentAnnotationID(String id, int commentAnnotationIndex)
     {
         checkDuplicateLSID(CommentAnnotation.class, id);
         LinkedHashMap<Index, Integer> indexes =
             new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.STRING_ANNOTATION_INDEX, stringAnnotationIndex);
+        indexes.put(Index.COMMENT_ANNOTATION_INDEX, commentAnnotationIndex);
         IObjectContainer o = getIObjectContainer(CommentAnnotation.class, indexes);
         o.LSID = id;
-        addAuthoritativeContainer(CommentAnnotation.class, id, o);        
+        addAuthoritativeContainer(CommentAnnotation.class, id, o);
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setStringAnnotationNamespace(java.lang.String, int)
+     * @see loci.formats.meta.MetadataStore#setCommentAnnotationNamespace(java.lang.String, int)
      */
-    public void setStringAnnotationNamespace(String namespace,
-            int stringAnnotationIndex)
+    public void setCommentAnnotationNamespace(String namespace,
+            int commentAnnotationIndex)
     {
-        CommentAnnotation o = getStringAnnotation(stringAnnotationIndex);
+        CommentAnnotation o = getCommentAnnotation(commentAnnotationIndex);
         o.setNs(toRType(namespace));
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setStringAnnotationValue(java.lang.String, int)
+     * @see loci.formats.meta.MetadataStore#setCommentAnnotationValue(java.lang.String, int)
      */
-    public void setStringAnnotationValue(String value, int stringAnnotationIndex)
+    public void setCommentAnnotationValue(String value, int commentAnnotationIndex)
     {
-        CommentAnnotation o = getStringAnnotation(stringAnnotationIndex);
+        CommentAnnotation o = getCommentAnnotation(commentAnnotationIndex);
         o.setTextValue(toRType(value));
     }
 
@@ -7216,7 +7249,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTextFontSize(java.lang.Integer, int, int)
      */
-    public void setTextFontSize(Integer fontSize, int ROIIndex, int shapeIndex)
+    public void setTextFontSize(NonNegativeInteger fontSize, int ROIIndex, int shapeIndex)
     {
         Label o = getText(ROIIndex, shapeIndex);
         o.setFontSize(toRType(fontSize));
@@ -7276,7 +7309,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTextTheC(java.lang.Integer, int, int)
      */
-    public void setTextTheC(Integer theC, int ROIIndex, int shapeIndex)
+    public void setTextTheC(NonNegativeInteger theC, int ROIIndex, int shapeIndex)
     {
         Label o = getText(ROIIndex, shapeIndex);
         o.setTheC(toRType(theC));
@@ -7285,7 +7318,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTextTheT(java.lang.Integer, int, int)
      */
-    public void setTextTheT(Integer theT, int ROIIndex, int shapeIndex)
+    public void setTextTheT(NonNegativeInteger theT, int ROIIndex, int shapeIndex)
     {
         Label o = getText(ROIIndex, shapeIndex);
         o.setTheT(toRType(theT));
@@ -7294,7 +7327,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTextTheZ(java.lang.Integer, int, int)
      */
-    public void setTextTheZ(Integer theZ, int ROIIndex, int shapeIndex)
+    public void setTextTheZ(NonNegativeInteger theZ, int ROIIndex, int shapeIndex)
     {
         Label o = getText(ROIIndex, shapeIndex);
         o.setTheZ(toRType(theZ));
@@ -7341,7 +7374,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTiffDataFirstC(java.lang.Integer, int, int)
      */
-    public void setTiffDataFirstC(Integer firstC, int imageIndex,
+    public void setTiffDataFirstC(NonNegativeInteger firstC, int imageIndex,
             int tiffDataIndex)
     {
         // TODO not in OMERO Model 
@@ -7350,7 +7383,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTiffDataFirstT(java.lang.Integer, int, int)
      */
-    public void setTiffDataFirstT(Integer firstT, int imageIndex,
+    public void setTiffDataFirstT(NonNegativeInteger firstT, int imageIndex,
             int tiffDataIndex)
     {
         // TODO not in OMERO Model 
@@ -7359,7 +7392,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTiffDataFirstZ(java.lang.Integer, int, int)
      */
-    public void setTiffDataFirstZ(Integer firstZ, int imageIndex,
+    public void setTiffDataFirstZ(NonNegativeInteger firstZ, int imageIndex,
             int tiffDataIndex)
     {
         // TODO not in OMERO Model 
@@ -7368,7 +7401,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTiffDataIFD(java.lang.Integer, int, int)
      */
-    public void setTiffDataIFD(Integer ifd, int imageIndex, int tiffDataIndex)
+    public void setTiffDataIFD(NonNegativeInteger ifd, int imageIndex, int tiffDataIndex)
     {
         // TODO not in OMERO Model 
     }
@@ -7376,7 +7409,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTiffDataPlaneCount(java.lang.Integer, int, int)
      */
-    public void setTiffDataPlaneCount(Integer planeCount, int imageIndex,
+    public void setTiffDataPlaneCount(NonNegativeInteger planeCount, int imageIndex,
             int tiffDataIndex)
     {
         // TODO not in OMERO Model 
@@ -7467,7 +7500,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTransmittanceRangeCutIn(java.lang.Integer, int, int)
      */
-    public void setTransmittanceRangeCutIn(Integer cutIn, int instrumentIndex,
+    public void setTransmittanceRangeCutIn(PositiveInteger cutIn, int instrumentIndex,
             int filterIndex)
     {
         TransmittanceRange o = getTransmittanceRange(instrumentIndex, filterIndex);
@@ -7477,7 +7510,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTransmittanceRangeCutInTolerance(java.lang.Integer, int, int)
      */
-    public void setTransmittanceRangeCutInTolerance(Integer cutInTolerance,
+    public void setTransmittanceRangeCutInTolerance(NonNegativeInteger cutInTolerance,
             int instrumentIndex, int filterIndex)
     {
         TransmittanceRange o = getTransmittanceRange(instrumentIndex, filterIndex);
@@ -7487,7 +7520,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTransmittanceRangeCutOut(java.lang.Integer, int, int)
      */
-    public void setTransmittanceRangeCutOut(Integer cutOut,
+    public void setTransmittanceRangeCutOut(PositiveInteger cutOut,
             int instrumentIndex, int filterIndex)
     {
         TransmittanceRange o = getTransmittanceRange(instrumentIndex, filterIndex);
@@ -7497,7 +7530,7 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTransmittanceRangeCutOutTolerance(java.lang.Integer, int, int)
      */
-    public void setTransmittanceRangeCutOutTolerance(Integer cutOutTolerance,
+    public void setTransmittanceRangeCutOutTolerance(NonNegativeInteger cutOutTolerance,
             int instrumentIndex, int filterIndex)
     {
         TransmittanceRange o = getTransmittanceRange(instrumentIndex, filterIndex);
@@ -7741,12 +7774,28 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setWellSampleTimepoint(java.lang.Integer, int, int, int)
      */
-    public void setWellSampleTimepoint(Integer timepoint, int plateIndex,
+    public void setWellSampleTimepoint(String timepoint, int plateIndex,
             int wellIndex, int wellSampleIndex)
     {
-        // WellSample o = getWellSample(plateIndex, wellIndex, wellSampleIndex);
-        // o.setTimepoint(toRType(timepoint));
-        // TODO Correct when model has been updated to use time-stamp
+        if (timepoint == null)
+        {
+            return;
+        }
+        try {
+            SimpleDateFormat sdf = 
+                new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
+            java.util.Date date = sdf.parse(timepoint);
+            Timestamp timepointTimestamp = new Timestamp(date.getTime());
+
+            WellSample o = 
+                getWellSample(plateIndex, wellIndex, wellSampleIndex);
+            o.setTimepoint(toRType(timepointTimestamp));
+        }
+        catch (ParseException e)
+        {
+            log.error(String.format(
+                    "Parsing WellSample.Timepoint '%s' failed!", timepoint), e);
+        }
     }
 
     //////// XMLAnnotation /////////
@@ -7796,6 +7845,288 @@ public class OMEROMetadataStoreClient
     {
         XmlAnnotation o = getXMLAnnotation(XMLAnnotationIndex);
         o.setTextValue(toRType(value));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setBooleanAnnotationAnnotationRef(java.lang.String, int, int)
+     */
+    public void setBooleanAnnotationAnnotationRef(String annotation,
+            int booleanAnnotationIndex, int annotationRefIndex)
+    {
+        LSID key = new LSID(BooleanAnnotation.class, booleanAnnotationIndex);
+        addReference(key, new LSID(annotation));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setBooleanAnnotationDescription(java.lang.String, int)
+     */
+    public void setBooleanAnnotationDescription(String description,
+            int booleanAnnotationIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setCommentAnnotationAnnotationRef(java.lang.String, int, int)
+     */
+    public void setCommentAnnotationAnnotationRef(String annotation,
+            int commentAnnotationIndex, int annotationRefIndex)
+    {
+        LSID key = new LSID(CommentAnnotation.class, commentAnnotationIndex);
+        addReference(key, new LSID(annotation));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setCommentAnnotationDescription(java.lang.String, int)
+     */
+    public void setCommentAnnotationDescription(String description,
+            int commentAnnotationIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDoubleAnnotationAnnotationRef(java.lang.String, int, int)
+     */
+    public void setDoubleAnnotationAnnotationRef(String annotation,
+            int doubleAnnotationIndex, int annotationRefIndex)
+    {
+        LSID key = new LSID(DoubleAnnotation.class, doubleAnnotationIndex);
+        addReference(key, new LSID(annotation));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDoubleAnnotationDescription(java.lang.String, int)
+     */
+    public void setDoubleAnnotationDescription(String description,
+            int doubleAnnotationIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFileAnnotationAnnotationRef(java.lang.String, int, int)
+     */
+    public void setFileAnnotationAnnotationRef(String annotation,
+            int fileAnnotationIndex, int annotationRefIndex)
+    {
+        LSID key = new LSID(FileAnnotation.class, fileAnnotationIndex);
+        addReference(key, new LSID(annotation));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFileAnnotationDescription(java.lang.String, int)
+     */
+    public void setFileAnnotationDescription(String description,
+            int fileAnnotationIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setListAnnotationDescription(java.lang.String, int)
+     */
+    public void setListAnnotationDescription(String description,
+            int listAnnotationIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLongAnnotationAnnotationRef(java.lang.String, int, int)
+     */
+    public void setLongAnnotationAnnotationRef(String annotation,
+            int longAnnotationIndex, int annotationRefIndex)
+    {
+        LSID key = new LSID(LongAnnotation.class, longAnnotationIndex);
+        addReference(key, new LSID(annotation));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLongAnnotationDescription(java.lang.String, int)
+     */
+    public void setLongAnnotationDescription(String description,
+            int longAnnotationIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /**
+     * Retrieve TagAnnotation object
+     * @param tagAnnotationIndex
+     * @return
+     */
+    private TagAnnotation getTagAnnotation(int tagAnnotationIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.TAG_ANNOTATION_INDEX, tagAnnotationIndex);
+        return getSourceObject(TagAnnotation.class, indexes);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTagAnnotationAnnotationRef(java.lang.String, int, int)
+     */
+    public void setTagAnnotationAnnotationRef(String annotation,
+            int tagAnnotationIndex, int annotationRefIndex)
+    {
+        LSID key = new LSID(TagAnnotation.class, tagAnnotationIndex);
+        addReference(key, new LSID(annotation));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTagAnnotationDescription(java.lang.String, int)
+     */
+    public void setTagAnnotationDescription(String description,
+            int tagAnnotationIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTagAnnotationID(java.lang.String, int)
+     */
+    public void setTagAnnotationID(String id, int tagAnnotationIndex)
+    {
+        checkDuplicateLSID(TagAnnotation.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.TAG_ANNOTATION_INDEX, tagAnnotationIndex);
+        IObjectContainer o = getIObjectContainer(TagAnnotation.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(TagAnnotation.class, id, o);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTagAnnotationNamespace(java.lang.String, int)
+     */
+    public void setTagAnnotationNamespace(String namespace,
+            int tagAnnotationIndex)
+    {
+        TagAnnotation o = getTagAnnotation(tagAnnotationIndex);
+        o.setNs(toRType(namespace));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTagAnnotationValue(java.lang.String, int)
+     */
+    public void setTagAnnotationValue(String value, int tagAnnotationIndex)
+    {
+        TagAnnotation o = getTagAnnotation(tagAnnotationIndex);
+        o.setTextValue(toRType(value));
+    }
+
+    /**
+     * Retrieve TermAnnotation object
+     * @param termAnnotationIndex
+     * @return
+     */
+    private TermAnnotation getTermAnnotation(int termAnnotationIndex)
+    {
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.TERM_ANNOTATION_INDEX, termAnnotationIndex);
+        return getSourceObject(TermAnnotation.class, indexes);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTermAnnotationAnnotationRef(java.lang.String, int, int)
+     */
+    public void setTermAnnotationAnnotationRef(String annotation,
+            int termAnnotationIndex, int annotationRefIndex)
+    {
+        LSID key = new LSID(TermAnnotation.class, termAnnotationIndex);
+        addReference(key, new LSID(annotation));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTermAnnotationDescription(java.lang.String, int)
+     */
+    public void setTermAnnotationDescription(String description,
+            int termAnnotationIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTermAnnotationID(java.lang.String, int)
+     */
+    public void setTermAnnotationID(String id, int termAnnotationIndex)
+    {
+        checkDuplicateLSID(TermAnnotation.class, id);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.TERM_ANNOTATION_INDEX, termAnnotationIndex);
+        IObjectContainer o = getIObjectContainer(TermAnnotation.class, indexes);
+        o.LSID = id;
+        addAuthoritativeContainer(TermAnnotation.class, id, o);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTermAnnotationNamespace(java.lang.String, int)
+     */
+    public void setTermAnnotationNamespace(String namespace,
+            int termAnnotationIndex)
+    {
+        TermAnnotation o = getTermAnnotation(termAnnotationIndex);
+        o.setNs(toRType(namespace));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTermAnnotationValue(java.lang.String, int)
+     */
+    public void setTermAnnotationValue(String value, int termAnnotationIndex)
+    {
+        TermAnnotation o = getTermAnnotation(termAnnotationIndex);
+        o.setTermValue(toRType(value));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTimestampAnnotationAnnotationRef(java.lang.String, int, int)
+     */
+    public void setTimestampAnnotationAnnotationRef(String annotation,
+            int timestampAnnotationIndex, int annotationRefIndex)
+    {
+        LSID key = new LSID(TimestampAnnotation.class, timestampAnnotationIndex);
+        addReference(key, new LSID(annotation));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTimestampAnnotationDescription(java.lang.String, int)
+     */
+    public void setTimestampAnnotationDescription(String description,
+            int timestampAnnotationIndex)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setXMLAnnotationAnnotationRef(java.lang.String, int, int)
+     */
+    public void setXMLAnnotationAnnotationRef(String annotation,
+            int XMLAnnotationIndex, int annotationRefIndex)
+    {
+        LSID key = new LSID(XmlAnnotation.class, XMLAnnotationIndex);
+        addReference(key, new LSID(annotation));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setXMLAnnotationDescription(java.lang.String, int)
+     */
+    public void setXMLAnnotationDescription(String description,
+            int XMLAnnotationIndex)
+    {
+        // TODO Auto-generated method stub
+        
     }
 
 }

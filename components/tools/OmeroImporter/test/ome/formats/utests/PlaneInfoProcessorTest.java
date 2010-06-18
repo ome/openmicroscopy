@@ -3,6 +3,7 @@ package ome.formats.utests;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.model.BlitzInstanceProvider;
 import ome.util.LSID;
+import ome.xml.model.primitives.NonNegativeInteger;
 import omero.api.ServiceFactoryPrx;
 import omero.model.PlaneInfo;
 import junit.framework.TestCase;
@@ -27,15 +28,15 @@ public class PlaneInfoProcessorTest extends TestCase
         store.setEnumerationProvider(new TestEnumerationProvider());
         store.setInstanceProvider(
                 new BlitzInstanceProvider(store.getEnumerationProvider()));
-        store.setPlaneTheC(0, IMAGE_INDEX, PLANE_INFO_INDEX);
-        store.setPlaneTheZ(0, IMAGE_INDEX, PLANE_INFO_INDEX);
-        store.setPlaneTheT(0, IMAGE_INDEX, PLANE_INFO_INDEX);
-        store.setPlaneTheC(1, IMAGE_INDEX, PLANE_INFO_INDEX + 1);
-        store.setPlaneTheZ(1, IMAGE_INDEX, PLANE_INFO_INDEX + 1);
-        store.setPlaneTheT(1, IMAGE_INDEX, PLANE_INFO_INDEX + 1);
-        store.setPlaneTheC(2, IMAGE_INDEX, PLANE_INFO_INDEX + 2);
-        store.setPlaneTheZ(2, IMAGE_INDEX, PLANE_INFO_INDEX + 2);
-        store.setPlaneTheT(2, IMAGE_INDEX, PLANE_INFO_INDEX + 2);
+        store.setPlaneTheC(new NonNegativeInteger(0), IMAGE_INDEX, PLANE_INFO_INDEX);
+        store.setPlaneTheZ(new NonNegativeInteger(0), IMAGE_INDEX, PLANE_INFO_INDEX);
+        store.setPlaneTheT(new NonNegativeInteger(0), IMAGE_INDEX, PLANE_INFO_INDEX);
+        store.setPlaneTheC(new NonNegativeInteger(1), IMAGE_INDEX, PLANE_INFO_INDEX + 1);
+        store.setPlaneTheZ(new NonNegativeInteger(1), IMAGE_INDEX, PLANE_INFO_INDEX + 1);
+        store.setPlaneTheT(new NonNegativeInteger(1), IMAGE_INDEX, PLANE_INFO_INDEX + 1);
+        store.setPlaneTheC(new NonNegativeInteger(2), IMAGE_INDEX, PLANE_INFO_INDEX + 2);
+        store.setPlaneTheZ(new NonNegativeInteger(2), IMAGE_INDEX, PLANE_INFO_INDEX + 2);
+        store.setPlaneTheT(new NonNegativeInteger(2), IMAGE_INDEX, PLANE_INFO_INDEX + 2);
         store.setPlaneDeltaT(1.0, IMAGE_INDEX, PLANE_INFO_INDEX +2);
     }
 
