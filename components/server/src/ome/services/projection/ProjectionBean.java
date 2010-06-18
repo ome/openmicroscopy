@@ -187,8 +187,13 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         ctx.pixels = iQuery.get(Pixels.class, pixelsId);
         Image image = ctx.pixels.getImage();
         name = name == null? image.getName() + " Projection" : name;
+        //size of the new buffer.
+        Integer sizeT = tEnd-tStart+1;
+        if (tStart > tEnd)
+        	sizeT = tStart-tEnd+1;
+        if (sizeT <= 0) sizeT = null;
         long newImageId = 
-            iPixels.copyAndResizeImage(image.getId(), null, null, 1, null,
+            iPixels.copyAndResizeImage(image.getId(), null, null, 1, sizeT,
                                        channels, name, false);
         Image newImage = iQuery.get(Image.class, newImageId);
         Pixels newPixels = newImage.getPixels(0);
