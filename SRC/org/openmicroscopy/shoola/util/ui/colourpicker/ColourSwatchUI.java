@@ -46,9 +46,9 @@ import javax.swing.event.ListSelectionListener;
 //Application-internal dependencies
 
 /** 
- * This is a UI which represents the colours as a list in the menu, currently it
- * shows the colour as an icon and the colourname, all of which are added from 
- * the constructor. (this may change)
+ * This is a UI which represents the colors as a list in the menu, currently it
+ * shows the color as an icon and the name of the color, 
+ * all of which are added from the constructor. (this may change)
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -64,10 +64,10 @@ public class ColourSwatchUI
 	extends JPanel
 {
 	
-	/** Reference to the Colour model. */
+	/** Reference to the Color model. */
 	private RGBControl		control;
 	
-	/** List of colours. */
+	/** List of colors. */
 	private JList			colourlist;	
 	
 	/** Scroll pane which contains the JList component. */
@@ -79,10 +79,13 @@ public class ColourSwatchUI
 	/** Change listener for alpha slider.  */
 	private ChangeListener	alphaChangeListener;
 	
-	/** The textfield representing the alpha red channel. */
+	/** Listener for the color list.  */
+	private ListSelectionListener	selectionListener;
+	
+	/** The text field representing the alpha red channel. */
 	private JTextField		alphaTextbox;
 	
-	  /** The JLabel representing the colour alpha channel. */
+	  /** The JLabel representing the color alpha channel. */
 	private JLabel			alphaLabel;
 	
 	/** Action listener for alpha TextBox.  */
@@ -94,7 +97,6 @@ public class ColourSwatchUI
 	 * to ignore refresh events.
 	 */
 	private boolean			active;
-	
 
 	/**
 	 * Creates the Alpha slider, and changes listener, attaching the change
@@ -124,8 +126,8 @@ public class ColourSwatchUI
 	}
 	
 	/**
-	 * Creates the Alpha textbox, and action listener, attaching the action
-	 * listener to the textbox. 
+	 * Creates the Alpha text box, and action listener, attaching the action
+	 * listener to the text box. 
 	 */
 	private void createAlphaTextbox()
 	{
@@ -153,16 +155,41 @@ public class ColourSwatchUI
 	}
 	
 	/**
-	 * Create the colours and add the renderer {@link ColourListRenderer} to 
-	 * the JList object. 
+	 * Returns the index of the selected color or 	<code>-1</code>.
+	 *  
+	 * @return See above.
+	 */
+	private int getColorIndex(Color color)
+	{
+		int r = color.getRed();
+		int g = color.getGreen();
+		int b = color.getBlue();
+		//check if we can set the index of the color.
+		//red
+		if (r == 255 && g == 0 && b == 0) return 0;
+		if (r == 0 && g == 255 && b == 0) return 1;
+		if (r == 0 && g == 0 && b == 255) return 2;
+		if (r == 255 && g == 255 && b == 255) return 3;
+		if (r == 0 && g == 0 && b == 0) return 4;
+		if (r == 128 && g == 128 && b == 128) return 5;
+		if (r == 255 && g == 230 && b == 0) return 6;
+		if (r == 255 && g == 255 && b == 0) return 7;
+		if (r == 75 && g == 0 && b == 130) return 8;
+		if (r == 238 && g == 130 && b == 238) return 9;
+		return -1;
+	}
+	
+	/**
+	 * Create the colors and add the renderer {@link ColourListRenderer} to 
+	 * the JList object.
 	 */
 	private void createColours()
 	{
 		colourlist = new JList(
 				new Object[] {	
-						new Object[] {Color.blue, "Blue"},
-						new Object[] {Color.green, "Green"},
 						new Object[] {Color.red, "Red"},
+						new Object[] {Color.green, "Green"},
+						new Object[] {Color.blue, "Blue"},
 						new Object[] {Color.white, "White"},
 						new Object[] {Color.black, "Black"},
 						new Object[] {Color.gray, "Gray"},
@@ -175,9 +202,10 @@ public class ColourSwatchUI
 		colourlist.setCellRenderer(new ColourListRenderer());
 	}
 	
+	
 	/**
-	 * Create the UI which includes adding the colour list (JList) to the 
-	 * scrollpane.
+	 * Create the UI which includes adding the color list (JList) to the 
+	 * scroll pane.
 	 */
 	private void createUI()
 	{
@@ -187,16 +215,19 @@ public class ColourSwatchUI
 		colourlist.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		colourlist.setLayoutOrientation(JList.VERTICAL);
 		colourlist.setVisibleRowCount(-1);
-		colourlist.addListSelectionListener(new ListSelectionListener(){
-				public void valueChanged(ListSelectionEvent e)
-				{
-					Object[] obj = (Object[]) 
-					colourlist.getModel().getElementAt(((JList) e.getSource()).
-							getLeadSelectionIndex());
-					control.setColour((Color) obj[0]);	
-		}
+		int index = getColorIndex(control.getColour());
+		colourlist.setSelectedIndex(index);
+		selectionListener = new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent e)
+			{
+				Object[] obj = (Object[]) 
+				colourlist.getModel().getElementAt(((JList) e.getSource()).
+						getLeadSelectionIndex());
+				control.setColour((Color) obj[0]);	
+			}
 
-		});
+		};
+		colourlist.addListSelectionListener(selectionListener);
 		
 		scrollpane = new JScrollPane(colourlist);
 		this.setLayout(new GridBagLayout());
@@ -237,6 +268,16 @@ public class ColourSwatchUI
 		active = false;
 	}
 
+	/** Resets the selection of the color. */
+	void revert()
+	{
+		int index = getColorIndex(control.getColour());
+		colourlist.removeListSelectionListener(selectionListener);
+		colourlist.clearSelection();
+		colourlist.setSelectedIndex(index);
+		colourlist.addListSelectionListener(selectionListener);
+	}
+	
 	/**
 	 * Sets the current component Active, called from parent control letting 
 	 * this component know it should listen to refresh events. 
@@ -257,12 +298,13 @@ public class ColourSwatchUI
 		removeListeners();
 		updateSliders();
 		updateTextboxes();
+		revert();
 		addListeners();
 		repaint();
 	}
 
 	/**
-	 * Adds change listeners to the components. Used in conjuntion with 
+	 * Adds change listeners to the components. Used in conjunction with 
 	 * {@link #removeListeners()} to get round spurious event 
 	 * triggers when updating components.
 	 */
@@ -273,7 +315,7 @@ public class ColourSwatchUI
 	}
 	
 	/**
-	 * Removes change listeners to the components. Used in conjuntion with 
+	 * Removes change listeners to the components. Used in conjunction with 
 	 * {@link #addListeners()} to get round spurious event 
 	 * triggers when updating components.
 	 */
@@ -284,7 +326,7 @@ public class ColourSwatchUI
 	}
 	
 	/**
-	 * Updates the alpha slider of the UI, including changing the colour 
+	 * Updates the alpha slider of the UI, including changing the color 
      * gradient of the slider tracks.
 	 */
 	void updateAlphaSlider()
@@ -293,19 +335,18 @@ public class ColourSwatchUI
 		alphaSlider.setValue((int) (control.getAlpha()*255));
 		s1 = control.getColour();
 		s = new Color(s1.getRed(), s1.getGreen(), s1.getBlue(), 0);
-		
 		e = new Color(s1.getRed(), s1.getGreen(), s1.getBlue(), 255);
 		alphaSlider.setRGBStart(s);
 		alphaSlider.setRGBEnd(e);
 	}
 	
 	/**
-	 * Updates the sliders of the UI, including changing the colour gradient
+	 * Updates the sliders of the UI, including changing the color gradient
 	 * of the different slider tracks.
 	 */
 	void updateSliders() { updateAlphaSlider(); }
 
-	/** Updates the textboxes of the UI.  */
+	/** Updates the text boxes of the UI.  */
 	void updateTextboxes()
 	{		
 		alphaTextbox.setText(""+(int) (control.getAlpha()*255));

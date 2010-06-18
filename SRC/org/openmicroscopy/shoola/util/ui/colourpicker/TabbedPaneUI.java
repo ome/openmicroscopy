@@ -166,7 +166,7 @@ class TabbedPaneUI
         UIUtilities.unifiedButtonLookAndFeel(colourWheelButton);
         colourWheelButton.setBorderPainted(true);
         colourWheelButton.setToolTipText("Show HSV Colour Wheel");
-        
+
         AbstractAction action = new AbstractAction("HSV Wheel Colour Button") {
             public void actionPerformed(ActionEvent evt) 
             {
@@ -284,7 +284,6 @@ class TabbedPaneUI
         createPanels();
                 
         JPanel container = new JPanel();
-        
         container.setLayout(new BorderLayout());
         container.add(toolbar, BorderLayout.WEST);
           
@@ -359,7 +358,6 @@ class TabbedPaneUI
         RGBSliderPane.setActive(true);
         colourWheelPane.setActive(false);
         swatchPane.setActive(false);
-
         this.doLayout();
         RGBSliderPane.refresh();
     }
@@ -400,7 +398,11 @@ class TabbedPaneUI
 	 * Reverts current colour to the original colour choice passed to 
 	 * Colourpicker.
 	 */
-	void revertAction() { control.revert(); }
+	void revertAction()
+	{ 
+		control.revert(); 
+		swatchPane.revert();
+	}
 
 	/** 
 	 * Returns the description entered if any.
@@ -450,7 +452,7 @@ class TabbedPaneUI
 	}
 
 	/**
-	 * Implemented as specified byt {@link DocumentListener} I/F.
+	 * Implemented as specified by {@link DocumentListener} I/F.
 	 * @see DocumentListener#insertUpdate(DocumentEvent)
 	 */
 	public void insertUpdate(DocumentEvent e)
@@ -462,7 +464,7 @@ class TabbedPaneUI
 	}
 
 	/**
-	 * Implemented as specified byt {@link DocumentListener} I/F.
+	 * Implemented as specified by {@link DocumentListener} I/F.
 	 * @see DocumentListener#removeUpdate(DocumentEvent)
 	 */
 	public void removeUpdate(DocumentEvent e)
@@ -474,8 +476,8 @@ class TabbedPaneUI
 	}
 
 	/**
-	 * Required by the {@link DocumentListener} I/F but no-op implementation
-	 * in our case.
+	 * Required by the {@link DocumentListener} I/F but no-operation
+	 * implementation in our case.
 	 * @see DocumentListener#changedUpdate(DocumentEvent)
 	 */
 	public void changedUpdate(DocumentEvent e) {}

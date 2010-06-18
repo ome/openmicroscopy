@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.util.ui.colourpicker;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.JComponent;
 import javax.swing.event.ChangeListener;
 
@@ -280,7 +279,7 @@ class RGBControl
 	 */
 	void addListener(ChangeListener e) { listeners.add(e); }
 	
-	/** Fires Changed event to all listeners stateing the model has changed. */
+	/** Fires Changed event to all listeners stating the model has changed. */
 	void fireChangeEvent()
 	{
         ChangeListener e;
