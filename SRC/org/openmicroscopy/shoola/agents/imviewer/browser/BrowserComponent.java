@@ -600,6 +600,15 @@ class BrowserComponent
 	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see Browser#getDisplayedProjectedImage()
+	 */
+	public BufferedImage getDisplayedProjectedImage()
+	{
+		return model.getDisplayedProjectedImage();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see Browser#getProjectedImage()
 	 */
 	public BufferedImage getProjectedImage()
@@ -655,11 +664,13 @@ class BrowserComponent
 			case SaveObject.IMAGE:
 				view.activeFileSave(file, value.getFormat());
 				break;
+			case SaveObject.PROJECTED_IMAGE:
+				projectionView.activeFileSave(file, value.getFormat());
+				break;
 			case SaveObject.GRID_IMAGE:
 				if (!model.hasGridImagesAsTexture())
 					model.setGridImages();
 				gridView.activeFileSave(file, value.getFormat());
-				break;
 		}
 	}
 

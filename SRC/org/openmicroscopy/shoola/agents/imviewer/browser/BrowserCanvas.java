@@ -60,24 +60,7 @@ class BrowserCanvas
     {
         super(model, view);
     }
-       
-    /**
-     * Overridden to paint the image.
-     * @see javax.swing.JComponent#paintComponent(Graphics)
-     */
-    /*
-    public void paintComponent(Graphics g)
-    {
-        super.paintComponent(g);
-        BufferedImage img = model.getDisplayedImage();
-        if (img == null) return;
-        Graphics2D g2D = (Graphics2D) g;
-        ImagePaintingFactory.setGraphicRenderingSettings(g2D);
-        g2D.drawImage(img, null, 0, 0); 
-        paintScaleBar(g2D, img.getWidth(), img.getHeight(), view.getViewport());
-        g2D.dispose();
-    }*/
-    
+
     /**
      * Paints the image.
      * @see GLImageCanvas#display(GLAutoDrawable)

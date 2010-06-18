@@ -28,6 +28,8 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.File;
+
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 import javax.swing.JScrollPane;
@@ -122,6 +124,20 @@ class ProjectionUI
 		if (!init) {
 			model.projectionPreview();
 			init = true;
+		}
+	}
+	
+	/**
+	 * Saves the image to the passed file.
+	 * 
+	 * @param file		The file where to save the image.
+	 * @param format	The format to use.
+	 */
+	void activeFileSave(File file, String format)
+	{
+		if (canvas instanceof ProjectionCanvas) {
+			((ProjectionCanvas) canvas).activeSave(file, format);
+			canvas.repaint();
 		}
 	}
 	

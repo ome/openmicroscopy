@@ -51,6 +51,9 @@ public class SaveObject
 
 	/** Save the grid image. */
 	public static final int	GRID_IMAGE = ImgSaver.GRID_IMAGE;
+	
+	/** Save the projected image. */
+	public static final int	PROJECTED_IMAGE = ImgSaver.PROJECTED_IMAGE;
 
 	/** 
 	 * Save the images and an image of each channel composing the rendered 

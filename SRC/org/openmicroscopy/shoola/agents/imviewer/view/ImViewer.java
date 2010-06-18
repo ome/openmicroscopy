@@ -623,7 +623,7 @@ public interface ImViewer
 	public List getGridImages();
 	
 	/**
-	 * Returns the image in color when the cannels are in grey scale.
+	 * Returns the image in color when the channels are in grey scale.
 	 * This method should only be invoked when the color model 
 	 * is <code>GreyScale</code>.
 	 * 
@@ -637,6 +637,13 @@ public interface ImViewer
 	 * @return See above.
 	 */
 	public BufferedImage getGridImage();
+	
+	/**
+	 * Returns a projected version of the image (preview).
+	 * 
+	 * @return See above.
+	 */
+	public BufferedImage getDisplayedProjectedImage();
 
 	/** 
 	 * Returns a list of {@link BufferedImage}s composing the lens' image.

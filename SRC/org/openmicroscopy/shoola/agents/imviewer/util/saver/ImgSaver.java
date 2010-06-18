@@ -85,6 +85,10 @@ public class ImgSaver
     /** Save the grid image. */
     public static final int				GRID_IMAGE = ImgSaverUI.GRID_IMAGE;
     
+    /** Save the projected image. */
+    public static final int				PROJECTED_IMAGE = 
+    	ImgSaverUI.PROJECTED_IMAGE;
+    
     /** 
      * Save the images and an image of each channel composing the rendered 
      * image. 
@@ -187,6 +191,11 @@ public class ImgSaver
             case ImgSaverUI.GRID_IMAGE:
             	type = ImgSaverUI.GRID_IMAGE;
                 mainImage = model.getGridImage();
+                imageComponents = null;
+                break;
+            case ImgSaverUI.PROJECTED_IMAGE:
+            	type = ImgSaverUI.PROJECTED_IMAGE;
+                mainImage = model.getDisplayedProjectedImage();
                 imageComponents = null;
                 break;
             case ImgSaverUI.IMAGE_AND_COMPONENTS:
@@ -295,15 +304,19 @@ public class ImgSaver
      * @param model 		Reference to the Model. 
      * 						Mustn't be <code>null</code>.
      * @param savingType 	One of the constants defined by this class.
+     * @param defaultType   Either, <code>Image</code>, <code>GridImage</code>
+     * 						or <code>Projected Image</code> depending on the 
+     * 						selected tab.
      */
-    public ImgSaver(JFrame owner, ImViewer model, int savingType)
+    public ImgSaver(JFrame owner, ImViewer model, int savingType, 
+    		int defaultType)
     {
         super(owner);
         //if (model == null) throw new IllegalArgumentException("No model.");
         checkSavingType(savingType);
         this.model = model;
         setProperties();
-        uiDelegate = new ImgSaverUI(this);
+        uiDelegate = new ImgSaverUI(this, defaultType);
         pack();
     }
     
@@ -518,14 +531,13 @@ public class ImgSaver
                     if (unitBar && v != null && 
                     	!(type == ImgSaverUI.LENS_IMAGE_AND_COMPONENTS ||
                     	 type == ImgSaverUI.LENS_IMAGE))
-                        ImagePaintingFactory.paintScaleBar(g2, x+width-s-10, h-10, 
-                        									s, v);
+                        ImagePaintingFactory.paintScaleBar(g2, x+width-s-10, 
+                        		h-10, s, v);
                     writeImage(newImage, name);
             	}
             }
 		} catch (Exception e) {
-			e.printStackTrace();
-			 un.notifyInfo("Saving Image", "An error occured while saving " +
+			 un.notifyInfo("Saving Image", "An error occurred while saving " +
 			 		"the image.");
 			 return;
 		}

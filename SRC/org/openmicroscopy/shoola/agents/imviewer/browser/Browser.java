@@ -84,6 +84,13 @@ public interface Browser
     public BufferedImage getDisplayedImage();
     
     /**
+     * Returns the image displayed on screen.
+     * 
+     * @return See above.
+     */
+    public BufferedImage getDisplayedProjectedImage();
+    
+    /**
      * Returns the original image returned by the rendering engine.
      * 
      * @return See above.

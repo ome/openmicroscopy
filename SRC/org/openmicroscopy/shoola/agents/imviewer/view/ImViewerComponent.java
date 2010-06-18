@@ -1379,46 +1379,6 @@ class ImViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#getImageForGrid(int)
-	 */
-	/*
-	public BufferedImage getImageForGrid(int index)
-	{
-		switch (model.getState()) {
-			case NEW:
-			case LOADING_RENDERING_CONTROL:
-			case DISCARDED:
-				throw new IllegalStateException(
-						"This method can't be invoked in the DISCARDED, " +
-				"NEW or LOADING_RENDERING_CONTROL state.");
-		}
-		if (!model.isChannelActive(index)) return null;
-		if (model.getColorModel().equals(GREY_SCALE_MODEL)) return null;
-		BufferedImage image = null;
-
-		try {
-
-			for (int k = 0; k < model.getMaxC(); k++) 
-				model.setChannelActive(k, k == index);
-			
-			image = model.getSplitComponentImage();
-			List active = model.getActiveChannels();
-			Iterator i = active.iterator();
-			while (i.hasNext()) { //reset values.
-				index = ((Integer) i.next()).intValue();
-				//01/02 can be a problem
-				model.setChannelActive(index, true);
-			}
-
-		} catch (Exception ex) {
-			reload(ex);
-		}
-		return image;
-	}
-
-*/
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#getDisplayedImage()
 	 */
 	public BufferedImage getDisplayedImage()
@@ -1433,6 +1393,22 @@ class ImViewerComponent
 		return model.getDisplayedImage();
 	}
 
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#getDisplayedProjectedImage()
+	 */
+	public BufferedImage getDisplayedProjectedImage()
+	{
+		switch (model.getState()) {
+			case NEW:
+				throw new IllegalStateException(
+						"This method can't be invoked in the NEW state.");
+			case DISCARDED:
+				return null;
+		}
+		return model.getBrowser().getDisplayedProjectedImage();
+	}
+	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#getPixelsSizeX()

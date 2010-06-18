@@ -50,6 +50,7 @@ import javax.swing.UIManager;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
+import org.openmicroscopy.shoola.agents.imviewer.actions.SaveAction;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.CreateFolderDialog;
@@ -83,38 +84,38 @@ class ImgSaverUI
     /** Save the grid image. */
     static final int				GRID_IMAGE = 1;
     
+    /** Save the projected image. */
+    static final int				PROJECTED_IMAGE = 2;
+    
     /** 
      * Save the images and an image of each channel composing the rendered 
      * image. 
      */
-    static final int				IMAGE_AND_COMPONENTS = 2;
+    static final int				IMAGE_AND_COMPONENTS = 3;
     
     /** 
      * Save the images and an image of each channel composing the rendered 
      * image.  Each channel rendered in grey scale mode.
      */
-    static final int				IMAGE_AND_COMPONENTS_GREY = 3;
+    static final int				IMAGE_AND_COMPONENTS_GREY = 4;
     
     /** Save the lens image. */
-    static final int				LENS_IMAGE = 4;
+    static final int				LENS_IMAGE = 5;
     
     /** Save the lens image and the split channels. */
-    static final int				LENS_IMAGE_AND_COMPONENTS = 5;
-    
+    static final int				LENS_IMAGE_AND_COMPONENTS = 6;
     
     /** Save the lens image. */
-    static final int				LENS_IMAGE_AND_COMPONENTS_GREY = 6;
-    
+    static final int				LENS_IMAGE_AND_COMPONENTS_GREY = 7;
+
     /** The maximum number of save options. */
-    private static final int		MAX = 6;
+    private static final int		MAX = 7;
     
     /** The maximum number of save options if no lens. */
-    private static final int		MAX_PARTIAL = 3;
+    private static final int		MAX_PARTIAL = 4;
     
     /** Brief description of the action performed by this widget. */
-    private static final String     NOTE = "Save the currrent image in " +
-    										"one of the following formats:" +
-    										" TIFF, JPEG, PNG or BMP.";
+    private static final String     NOTE = SaveAction.DESCRIPTION;
 
     /** The tool tip of the <code>Preview</code> button. */
     private static final String		PREVIEW_TEXT = "Preview the image to save.";
@@ -185,31 +186,45 @@ class ImgSaverUI
     /** Initializes the static fields. */
     static {
         selections = new String[MAX+1];
-        selections[IMAGE] = "image";
-        selections[GRID_IMAGE] = "split view";
-        selections[IMAGE_AND_COMPONENTS] = "image and channels panorama";
+        selections[IMAGE] = "Image";
+        selections[GRID_IMAGE] = "Split View";
+        selections[PROJECTED_IMAGE] = "Projection View";
+        selections[IMAGE_AND_COMPONENTS] = "Image Channels Panorama";
         selections[IMAGE_AND_COMPONENTS_GREY] = 
-        					"image and (grey scale) channels panorama";
-        selections[LENS_IMAGE] = "lens' image";
+        					"Image Channels (grey scale)  Panorama";
+        selections[LENS_IMAGE] = "Lens View";
         selections[LENS_IMAGE_AND_COMPONENTS] = 
-        						"lens' image and channels panorama";
+        						"Lens View And Channels Panorama";
         selections[LENS_IMAGE_AND_COMPONENTS_GREY] = 
-							"lens' image and (grey scale) channels panorama";
+        	"Lens View And Channels (grey scale) Panorama";
         partialSelections = new String[MAX_PARTIAL+1];
-        partialSelections[IMAGE] = "image";
-        partialSelections[GRID_IMAGE] = "split view";
-        partialSelections[IMAGE_AND_COMPONENTS] = "image and channels panorama";
+        partialSelections[IMAGE] = "Image";
+        partialSelections[GRID_IMAGE] = "Split View";
+        partialSelections[PROJECTED_IMAGE] = "Projection View";
+        partialSelections[IMAGE_AND_COMPONENTS] = "Image Channels Panorama";
         partialSelections[IMAGE_AND_COMPONENTS_GREY] = 
-        					"image and (grey scale) channels panorama";
+        					"Image Channels (grey scale)  Panorama";
         basicSelections = new String[1];
-        basicSelections[IMAGE] = "image";
+        basicSelections[IMAGE] = "Image";
     }
     
-    /** Initializes the component composing the display. */
-    private void initComponents()
+    /** 
+     * Initializes the component composing the display. 
+     * 
+     * @param defaultType   Either, <code>Image</code>, <code>GridImage</code>
+     * 						or <code>Projected Image</code> depending on the 
+     * 						selected tab.*/
+    private void initComponents(int defaultType)
     {
+    	int index = 0;
+    	switch (defaultType) {
+			case GRID_IMAGE:
+			case PROJECTED_IMAGE:
+				index = defaultType;
+		}
     	switch (model.getSavingType()) {
     		case ImgSaver.BASIC:
+    			index = 0;
 				savingTypes = new JComboBox(basicSelections);
 				break;
     		case ImgSaver.PARTIAL:
@@ -219,6 +234,7 @@ class ImgSaverUI
 			default:
 				savingTypes = new JComboBox(selections);
 		}
+    	savingTypes.setSelectedIndex(index);
     	savingTypes.addActionListener(this);
     	separateFiles = new JCheckBox("Save each channel in a separate file.");
     	separateFiles.setSelected(true);
@@ -354,12 +370,15 @@ class ImgSaverUI
      * Creates a new instance.
      * 
      * @param model Reference to the Model. Mustn't be <code>null</code>.
+     * @param defaultType   Either, <code>Image</code>, <code>GridImage</code>
+     * 						or <code>Projected Image</code> depending on the 
+     * 						selected tab.
      */
-    ImgSaverUI(ImgSaver model)
+    ImgSaverUI(ImgSaver model, int defaultType)
     { 
         if (model == null) throw new IllegalArgumentException("No model.");
         this.model = model;
-        initComponents();
+        initComponents(defaultType);
         buildGUI();
     }
     

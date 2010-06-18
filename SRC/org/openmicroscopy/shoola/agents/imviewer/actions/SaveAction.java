@@ -64,7 +64,7 @@ public class SaveAction
     private static final String NAME = "Save As...";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Save the image as TIFF, " +
+    public static final String DESCRIPTION = "Save the image as TIFF, " +
                                                 "JPEG, PNG, etc.";
 
     /** 
@@ -73,7 +73,8 @@ public class SaveAction
      */
     protected void onTabSelection()
     {
-    	setEnabled(model.getSelectedIndex() != ImViewer.PROJECTION_INDEX);
+    	setEnabled(true);
+    	//setEnabled(model.getSelectedIndex() != ImViewer.PROJECTION_INDEX);
     }
     
     /**
@@ -84,7 +85,8 @@ public class SaveAction
     protected void onStateChange(ChangeEvent e)
     {
     	if (model.getState() == ImViewer.READY)
-    		setEnabled(model.getSelectedIndex() != ImViewer.PROJECTION_INDEX);
+    		 onTabSelection();
+    	else setEnabled(false);
     }
     
     /**
@@ -108,9 +110,18 @@ public class SaveAction
     public void actionPerformed(ActionEvent e)
     {
     	int index = ImgSaver.BASIC;
-    	if (model.getMaxC() > 1) index = ImgSaver.PARTIAL;
+    	if (model.getMaxC() > 1 && !model.isBigImage()) 
+    		index = ImgSaver.PARTIAL;
     	if (model.hasLens()) index = ImgSaver.FULL;
-        ImgSaver saver = new ImgSaver(model.getUI(), model, index);
+    	int value = 0;
+    	switch (model.getSelectedIndex()) {
+			case ImViewer.PROJECTION_INDEX:
+				value = ImgSaver.PROJECTED_IMAGE;
+				break;
+			case ImViewer.GRID_INDEX:
+				value = ImgSaver.GRID_IMAGE;
+		}
+        ImgSaver saver = new ImgSaver(model.getUI(), model, index, value);
         saver.addPropertyChangeListener(new PropertyChangeListener() {
 			
 			public void propertyChange(PropertyChangeEvent evt) {
