@@ -11,6 +11,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import ome.api.local.LocalShare;
 import ome.conditions.InternalException;
 import ome.model.IAnnotated;
 import ome.model.IGlobal;
@@ -139,8 +140,7 @@ public class FullTextIndexer implements Work {
                     .getFullTextSession(session);
             fullTextSession.setFlushMode(FlushMode.MANUAL);
             fullTextSession.setCacheMode(CacheMode.IGNORE);
-            perbatch = doIndexing(fullTextSession);
-            session.flush();
+            perbatch = doIndexingWithWorldRead(sf, fullTextSession);
             count++;
         } while (doMore(count));
         if (perbatch > 0) {
@@ -150,6 +150,23 @@ public class FullTextIndexer implements Work {
             log.debug("No objects indexed");
         }
         return null;
+    }
+
+    private int doIndexingWithWorldRead(ServiceFactory sf, FullTextSession session) {
+
+        LocalShare share = (LocalShare) sf.getShareService();
+        Long old = share.setShareId(-1L);
+
+        try {
+            share.resetReadFilter(session);
+            int rc = doIndexing(session);
+            session.flush();
+            return rc;
+        } finally {
+            share.setShareId(old);
+        }
+
+
     }
 
     public int doIndexing(FullTextSession session) {

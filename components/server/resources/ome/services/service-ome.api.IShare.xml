@@ -36,6 +36,7 @@
     <property name="proxyInterfaces">
       <list>
         <value>ome.api.IShare</value>
+        <value>ome.api.local.LocalShare</value>
       </list>
     </property>
     <property name="target" ref="internal-ome.api.IShare"/>

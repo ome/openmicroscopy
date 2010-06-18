@@ -409,6 +409,19 @@ public class FullTextTest extends AbstractTest {
         iUpdate.indexObject(new OriginalFile(uploader.getId(), false));
     }
 
+    @Test(groups = {"ticket:2219", "ticket:1434"})
+    public void testSetShareId1AllowsRead() {
+        Experimenter e = loginNewUser();
+        String uuid = uuid();
+        Image i = newImageString(uuid);
+        loginRoot(); // now in a different group
+        iUpdate.indexObject(i);
+        loginUser(e.getOmeName());
+        List<? extends IObject> list;
+        list = iQuery.findAllByFullText(Image.class, uuid, null);
+        assertEquals(1, list.size());
+    }
+
     // Helpers
     // ==========================================================
 

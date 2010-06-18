@@ -111,8 +111,6 @@ class TestTickets2000(lib.ITest):
 
         admin.setDefaultGroup(exp,gr1) # thrown an exception because gr1 is not on the GroupExperimenterMap
 
-        self.root.sf.closeOnDestroy()
-
     def test1027(self):
         uuid = self.client.sf.getAdminService().getEventContext().sessionUuid
         self.client.sf.getAdminService().lookupLdapAuthExperimenters()
@@ -142,7 +140,7 @@ class TestTickets2000(lib.ITest):
         pojos = self.root.sf.getContainerService()
         query = self.root.sf.getQueryService()
         update = self.root.sf.getUpdateService()
-        
+
         #projects
         pr1 = ProjectI()
         pr1.setName(rstring('test1071-pr1-%s' % (uuid)))

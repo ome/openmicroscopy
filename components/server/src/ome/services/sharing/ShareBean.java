@@ -25,6 +25,7 @@ import ome.annotations.RolesAllowed;
 import ome.api.IShare;
 import ome.api.ServiceInterface;
 import ome.api.local.LocalAdmin;
+import ome.api.local.LocalShare;
 import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
 import ome.logic.AbstractLevel2Service;
@@ -41,7 +42,6 @@ import ome.parameters.Parameters;
 import ome.security.AdminAction;
 import ome.security.SecureAction;
 import ome.security.basic.BasicSecuritySystem;
-import ome.security.basic.CurrentDetails;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionManager;
 import ome.services.sharing.data.Obj;
@@ -70,7 +70,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @see IShare
  */
 @Transactional(readOnly = true)
-public class ShareBean extends AbstractLevel2Service implements IShare {
+public class ShareBean extends AbstractLevel2Service implements LocalShare {
 
     public final static Log log = LogFactory.getLog(ShareBean.class);
 
@@ -122,13 +122,33 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         setShareId(null);
     }
 
-    private Long setShareId(Long shareId) {
+    /**
+     * Not in the public interface (since it allows setting to -1 which
+     * makes everything readable, but used internally similar to a
+     * LocalShare interface.
+     *
+     * @see ticket:2219
+     */
+    public Long setShareId(Long shareId) {
         String sessId = admin.getEventContext().getCurrentSessionUuid();
         SessionContext sc = (SessionContext) sessionManager
                 .getEventContext(new Principal(sessId));
         Long old = sc.getCurrentShareId();
         sc.setShareId(shareId);
         return old;
+    }
+
+
+    /**
+     * @see ticket:2219
+     */
+    public void resetReadFilter(org.hibernate.Session s) {
+        // ticket:2397 and ticket:2219
+        // Necessary to update the current filter in order to
+        // have the new shareId be updated
+        BasicSecuritySystem bss = (BasicSecuritySystem) sec;
+        bss.loadEventContext(true);
+        bss.updateReadFilter(s);
     }
 
     // ~ Getting shares and objects (READ)
@@ -985,17 +1005,5 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
      * Exception { sessionManager.update(share, true); return null; } });
      * executor.get(future); }
      */
-
-    /**
-     * @see ticket:2219
-     */
-    private void resetReadFilter(org.hibernate.Session s) {
-        // ticket:2397 and ticket:2219
-        // Necessary to update the current filter in order to
-        // have the new shareId be updated
-        BasicSecuritySystem bss = (BasicSecuritySystem) sec;
-        bss.loadEventContext(true);
-        bss.updateReadFilter(s);
-    }
 
 }
