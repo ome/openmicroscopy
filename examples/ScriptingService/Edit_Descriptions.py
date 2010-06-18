@@ -35,11 +35,19 @@ It defines a name, description and parameter list for the script.
 """
 
 import omero
-import omero.clients
+#import omero.clients
 from omero.rtypes import *
 import omero.scripts as scripts
 
+import time
+startTime = 0
 
+def printDuration():
+    global startTime
+    if startTime == 0:
+        startTime = time.time()
+    print "script time = %s secs" % (time.time() - startTime)
+    
 def editDescriptions(session, parameterMap):
     """
     Does the main work of the script, setting Description for each Image in a Dataset
@@ -72,7 +80,7 @@ if __name__ == "__main__":
     """
     The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
     """
-    
+    printDuration()
     client = scripts.client('Edit_Descriptions.py', 'Edits the descriptions for all the images in a given Dataset.', 
     scripts.Long("Dataset_ID", optional=False, description="Specifiy the Dataset by ID"),
     scripts.String("New_Description", description="The new description to set for each Image in the Dataset"),
@@ -97,4 +105,5 @@ if __name__ == "__main__":
         client.setOutput("Message", rstring(ouputMessage))
     finally:
         client.closeSession()
+        printDuration()
     

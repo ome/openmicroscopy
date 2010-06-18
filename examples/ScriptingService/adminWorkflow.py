@@ -44,6 +44,16 @@ import omero_SharedResources_ice
 from omero.rtypes import rstring, RListI, robject, rint, rlong, rlist, unwrap
 import getpass
 
+import time
+
+startTime = 0
+
+def printDuration(reset=False):
+    global startTime
+    if startTime == 0 or reset:
+        print "Resetting timer:"
+        startTime = time.time()
+    print "time = %s secs" % (time.time() - startTime)
 
 def uploadScript(scriptService, scriptPath):
     """
@@ -245,6 +255,7 @@ def runScript(session, scriptService, scriptPath):
                     print "Invalid entry"
             
     print map
+    printDuration(True)
     
     # The last parameter is how long to wait as an RInt
     proc = scriptService.runScript(scriptId, map, None)
@@ -257,6 +268,7 @@ def runScript(session, scriptService, scriptPath):
     finally:
         proc.close(False)
     
+    printDuration()
     # handle any results from the script 
     #print results.keys()
     if 'Message' in results:
@@ -406,33 +418,41 @@ if __name__ == "__main__":
         else:
             password = getpass.getpass()
         try:
+            printDuration()
             session = client.createSession(commandArgs["username"], password)
             scriptService = session.getScriptService()
-    
+            print "got session"
+            printDuration()
             if len(args) == 0:  print "Choose from these options by adding argument: help, list, upload, params, run, remove, clean"
     
             # list scripts
             if "list" in args:
                 listScripts(scriptService)
+                printDuration()
         
             # upload script.
             if "upload" in args:
                 uploadScript(scriptService, commandArgs["script"])
+                printDuration()
     
             # get params of script
             if "params" in args:
                 getParams(scriptService, commandArgs["script"])
+                printDuration()
     
             # run script
             if "run" in args:
                 runScript(session, scriptService, commandArgs["script"])
+                printDuration()
     
             # disables script by changing the OriginalFile mimetype, from 'text/x-python' to 'text/plain'
             if "remove" in args:
                 disableScript(session, scriptService, commandArgs["script"])
+                printDuration()
             
             if "clean" in args:
                 cleanUpScriptFiles(session, scriptService)
+                printDuration()
         except:
             raise
         finally:
