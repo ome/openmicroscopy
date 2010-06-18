@@ -39,6 +39,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.math.BigInteger;
 
 import javax.activation.MimetypesFileTypeMap;
@@ -130,14 +131,14 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
     private final Principal principal;
 
-    private Map<String,DimensionOrder> dimensionOrderMap;
+    private final Map<String,DimensionOrder> dimensionOrderMap =
+        new ConcurrentHashMap<String, DimensionOrder>();
     
-    private Map<String,PixelsType> pixelsTypeMap;
+    private final Map<String,PixelsType> pixelsTypeMap =
+        new ConcurrentHashMap<String, PixelsType>();
     
     private String repoUuid;
     
-    private Principal currentUser;
-
     public PublicRepositoryI(File root, long repoObjectId, Executor executor,
             SimpleJdbcOperations jdbc, Principal principal, PgArrayHelper helper) throws Exception {
         this.id = repoObjectId;
@@ -152,9 +153,6 @@ public class PublicRepositoryI extends _RepositoryDisp {
         }
         this.root = root.getAbsoluteFile();
         this.repoUuid = null;
-        this.currentUser = null;
-        this.dimensionOrderMap = null;
-        this.pixelsTypeMap = null;
     }
 
     public OriginalFile root(Current __current) throws ServerError {
@@ -215,7 +213,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
                     "obj is required argument");
         }
 
-        currentUser = new Principal(__current.ctx.get(omero.constants.SESSIONUUID.value));
+        Principal currentUser = currentUser(__current);
         IceMapper mapper = new IceMapper();
         final ome.model.core.OriginalFile omeFile = (ome.model.core.OriginalFile) mapper
         		.reverse(omeroFile);
@@ -256,7 +254,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
             throw new ValidationException(null, null,
                     "keyFile is a required argument");
         }
-        currentUser = new Principal(__current.ctx.get(omero.constants.SESSIONUUID.value));
+        Principal currentUser = currentUser(__current);
         
         List<IObject> objList = new ArrayList<IObject>();
         
@@ -312,7 +310,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         }
         return objList;
     }
-    
+
     /**
      * Import an image set's metadata.
      * 
@@ -325,7 +323,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      */
     public List<Image> importFileSet(OriginalFile keyFile, Current __current) throws ServerError {
         
-        currentUser = new Principal(__current.ctx.get(omero.constants.SESSIONUUID.value));
+        Principal currentUser = currentUser(__current);
     	final String name = keyFile.getName().getValue();
     	final String path = keyFile.getPath().getValue();
     	final File file = new File(new File(root, path), name);
@@ -467,7 +465,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      *
      */
     public List<OriginalFile> listFiles(String path, RepositoryListConfig config, Current __current) throws ServerError {
-        currentUser = new Principal(__current.ctx.get(omero.constants.SESSIONUUID.value));
+        Principal currentUser = currentUser(__current);
         File file = checkPath(path);
         List<File> files;
         List<OriginalFile> oFiles;
@@ -481,7 +479,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         files = filteredFiles(file, conf);
         oFiles = filesToOriginalFiles(files);
         if (conf.registered) {
-            oFiles = knownOriginalFiles(oFiles);
+            oFiles = knownOriginalFiles(oFiles, currentUser);
         }
         return oFiles;
     }
@@ -503,7 +501,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      */
      public List<FileSet> listFileSets(String path, RepositoryListConfig config, Current __current)
             throws ServerError {
-        currentUser = new Principal(__current.ctx.get(omero.constants.SESSIONUUID.value));
+        Principal currentUser = currentUser(__current);
         File file = checkPath(path);
         RepositoryListConfig conf;
         
@@ -517,7 +515,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         List<ImportContainer> containers = importableImageFiles(path, conf.depth);
         List<FileSet> rv;
         try {
-            rv = processImportContainers(containers, names, conf.showOriginalFiles);
+            rv = processImportContainers(containers, names, conf.showOriginalFiles, currentUser);
         } catch (InternalException e) {
             throw new omero.InternalException(stackTraceAsString(e), null, e.getMessage());
         }
@@ -551,7 +549,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      *
      */
     public String getThumbnail(String path, Current __current)  throws ServerError {
-        currentUser = new Principal(__current.ctx.get(omero.constants.SESSIONUUID.value));
+        Principal currentUser = currentUser(__current);
         File file = checkPath(path);
         String tnPath;
         try {
@@ -575,7 +573,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      *
      */
     public String getThumbnailByIndex(String path, int imageIndex, Current __current)  throws ServerError {
-        currentUser = new Principal(__current.ctx.get(omero.constants.SESSIONUUID.value));
+        Principal currentUser = currentUser(__current);
         File file = checkPath(path);
         String tnPath;
         try {
@@ -606,7 +604,8 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
 
     public RawFileStorePrx file(long fileId, Current __current) throws ServerError {
-        File file = getFile(fileId);
+        Principal currentUser = currentUser(__current);
+        File file = getFile(fileId, currentUser);
         if (file == null) {
             return null;
         }
@@ -787,8 +786,8 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * TODO: Move that build to constructor?
      */
     private DimensionOrder getDimensionOrder(String dimensionOrder) {
-        if (dimensionOrderMap == null) {
-            dimensionOrderMap = buildDimensionOrderMap();
+        if (dimensionOrderMap.size() == 0) {
+            buildDimensionOrderMap(dimensionOrderMap);
         }
         return dimensionOrderMap.get(dimensionOrder);
     }
@@ -804,8 +803,8 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * TODO: Move that build to constructor?
      */
     private PixelsType getPixelsType(String pixelsType) {
-        if (pixelsTypeMap == null) {
-            pixelsTypeMap = buildPixelsTypeMap();
+        if (pixelsTypeMap.size() == 0) {
+            buildPixelsTypeMap(pixelsTypeMap);
         }
         return pixelsTypeMap.get(pixelsType);
     }
@@ -850,10 +849,10 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * @return A list of registered OriginalFile objects. 
      *
      */
-    private List<OriginalFile> knownOriginalFiles(Collection<OriginalFile> files)  {
+    private List<OriginalFile> knownOriginalFiles(Collection<OriginalFile> files, Principal currentUser)  {
         List<OriginalFile> rv = new ArrayList<OriginalFile>();
         for (OriginalFile f : files) {
-            OriginalFile oFile = getOriginalFile(f.getPath().getValue(), f.getName().getValue());
+            OriginalFile oFile = getOriginalFile(f.getPath().getValue(), f.getName().getValue(), currentUser);
             if (oFile != null) {
                 rv.add(oFile);
             } else {
@@ -872,7 +871,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
 
     private List<FileSet> processImportContainers(List<ImportContainer> containers, 
-            List<String> names, boolean showOriginalFiles) {
+            List<String> names, boolean showOriginalFiles, Principal currentUser) {
         List<FileSet> rv = new ArrayList<FileSet>();
 
         for (ImportContainer ic : containers) {
@@ -882,7 +881,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
             set.importableImage = true;
             set.fileName = ic.getFile().getAbsolutePath();
 
-            set.parentFile = getOriginalFile(getRelativePath(ic.getFile()),ic.getFile().getName());
+            set.parentFile = getOriginalFile(getRelativePath(ic.getFile()),ic.getFile().getName(), currentUser);
             if (set.parentFile == null) {
                 set.parentFile = createOriginalFile(ic.getFile());   
             }
@@ -898,7 +897,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
                 removeNameFromFileList(iFile, names);
                 if (showOriginalFiles) {
                     File f = new File(iFile);
-                    oFile = getOriginalFile(getRelativePath(f),f.getName());
+                    oFile = getOriginalFile(getRelativePath(f),f.getName(), currentUser);
                     if (oFile != null) {
                         set.usedFiles.add(oFile);
                     } else {
@@ -921,7 +920,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
                 else if (imageName.equals("")) {
                     imageName = NO_NAME_SET;
                 }
-                image = getImage(set.fileName, i);
+                image = getImage(set.fileName, i, currentUser);
                 if (image == null) {
                     image = createImage(imageName, pix);   
                 }
@@ -941,7 +940,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
                 set.importableImage = false;
                 set.fileName = iFile;
 
-                set.parentFile = getOriginalFile(getRelativePath(f),f.getName());
+                set.parentFile = getOriginalFile(getRelativePath(f),f.getName(), currentUser);
                 if (set.parentFile == null) {
                     set.parentFile = createOriginalFile(f);   
                 }
@@ -952,7 +951,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
                 set.usedFiles = new ArrayList<IObject>();
                 if (showOriginalFiles) {
-                    oFile = getOriginalFile(getRelativePath(f),f.getName());
+                    oFile = getOriginalFile(getRelativePath(f),f.getName(), currentUser);
                     if (oFile != null) {
                         set.usedFiles.add(oFile);
                     } else {
@@ -1057,7 +1056,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * @return OriginalFile object.
      *
      */
-    private OriginalFile getOriginalFile(final String path, final String name)  {
+    private OriginalFile getOriginalFile(final String path, final String name, final Principal currentUser)  {
         final String uuid = getRepoUuid();
         ome.model.core.OriginalFile oFile = (ome.model.core.OriginalFile) executor
                 .execute(currentUser, new Executor.SimpleWork(this, "getOriginalFile", uuid, path, name) {
@@ -1095,7 +1094,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * @return OriginalFile object.
      *
      */
-    private File getFile(final long id) {
+    private File getFile(final long id, final Principal currentUser) {
         final String uuid = getRepoUuid();
         return (File) executor.execute(currentUser, new Executor.SimpleWork(this, "getFile", id) {
                     @Transactional(readOnly = true)
@@ -1124,7 +1123,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * @return List of Image objects, empty if the query returned no values.
      *
      */
-    private Image getImage(String fullPath, final int count)  {
+    private Image getImage(String fullPath, final int count, final Principal currentUser)  {
 
         File f = new File(fullPath);
         final String uuid = getRepoUuid();
@@ -1184,7 +1183,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * @return List of Image objects, empty if the query returned no values.
      *
      */
-    private Map<Integer, Image> getImageMap(OriginalFile keyFile)  {
+    private Map<Integer, Image> getImageMap(OriginalFile keyFile, Principal currentUser)  {
 
         final String uuid = getRepoUuid();
         final String path = keyFile.getPath().getValue();
@@ -1360,7 +1359,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      *
      * TODO: this should probably be done in the constructor?
      */
-    private Map<String, DimensionOrder> buildDimensionOrderMap() {
+    private Map<String, DimensionOrder> buildDimensionOrderMap(Map<String, DimensionOrder> dimensionOrderMap) {
         List <DimensionOrder> dimensionOrderList;
         List<ome.model.enums.DimensionOrder> dimOrderList = (List<ome.model.enums.DimensionOrder>) executor
                 .execute(principal, new Executor.SimpleWork(this, "buildDimensionOrderMap") {
@@ -1375,7 +1374,6 @@ public class PublicRepositoryI extends _RepositoryDisp {
         IceMapper mapper = new IceMapper();
         dimensionOrderList = (List<DimensionOrder>) mapper.map(dimOrderList);
 
-        Map<String, DimensionOrder> dimensionOrderMap = new HashMap<String, DimensionOrder>();
         for (DimensionOrder dimensionOrder : dimensionOrderList) {
             dimensionOrderMap.put(dimensionOrder.getValue().getValue(), dimensionOrder);
         }
@@ -1389,7 +1387,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      *
      * TODO: this should probably be done in the constructor?
      */
-    private Map<String, PixelsType> buildPixelsTypeMap() {
+    private Map<String, PixelsType> buildPixelsTypeMap(Map<String, PixelsType> pixelsTypeMap) {
         List <PixelsType> pixelsTypeList;
         List<ome.model.enums.PixelsType> pixTypeList = (List<ome.model.enums.PixelsType>) executor
                 .execute(principal, new Executor.SimpleWork(this, "buildPixelsTypeMap") {
@@ -1404,7 +1402,6 @@ public class PublicRepositoryI extends _RepositoryDisp {
         IceMapper mapper = new IceMapper();
         pixelsTypeList = (List<PixelsType>) mapper.map(pixTypeList);
 
-        Map<String, PixelsType> pixelsTypeMap = new HashMap<String, PixelsType>();
         for (PixelsType pixelsType : pixelsTypeList) {
             pixelsTypeMap.put(pixelsType.getValue().getValue(), pixelsType);
         }
@@ -1437,5 +1434,9 @@ public class PublicRepositoryI extends _RepositoryDisp {
         t.printStackTrace(new PrintWriter(sw));
         return sw.toString();
     }
-   
+
+    private Principal currentUser(Current __current) {
+        return new Principal(__current.ctx.get(omero.constants.SESSIONUUID.value));
+    }
+
 }
