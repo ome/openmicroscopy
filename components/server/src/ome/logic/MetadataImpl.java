@@ -40,7 +40,6 @@ import ome.api.IMetadata;
 import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
 import ome.model.IAnnotated;
-import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.annotations.AnnotationAnnotationLink;
 import ome.model.annotations.DatasetAnnotationLink;
