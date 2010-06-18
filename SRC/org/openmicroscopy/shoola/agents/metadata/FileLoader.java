@@ -91,8 +91,9 @@ public class FileLoader
 			throw new IllegalArgumentException("No data set.");
 		this.data = data;
 		this.uiView = uiView;
-		file = new File(MetadataViewerAgent.getOmeroHome()
+		file = new File(MetadataViewerAgent.getOmeroFilesHome() 
 				+File.separator+data.getFileName());
+		file.deleteOnExit();
 	}
 	
 	/**
@@ -138,22 +139,25 @@ public class FileLoader
 	{
 		if (data != null) {
 			OriginalFile f = ((FileAnnotation) data.asAnnotation()).getFile();
-			handle = mhView.loadFile(file, f.getId().getValue(), 
-					f.getSize().getValue(), this);
+			if (f.isLoaded()) {
+				handle = mhView.loadFile(file, f.getId().getValue(), 
+						f.getSize().getValue(), this);
+			}
 		} else {
 			Entry entry;
     		Iterator i = files.entrySet().iterator();
     		FileAnnotationData fa;
     		filesMap = new HashMap<FileAnnotationData, File>(files.size());
     		File f;
-    		int index = 0;
+    		//int index = 0;
     		while (i.hasNext()) {
 				entry = (Entry) i.next();
 				fa = (FileAnnotationData) entry.getKey();
-				f = new File(MetadataViewerAgent.getOmeroHome()
-						+File.separator+index+fa.getFileName());
+				f = new File(MetadataViewerAgent.getOmeroFilesHome() 
+						+File.separator+fa.getFileName());
+				f.deleteOnExit();
 				filesMap.put(fa, f);
-				index++;
+				//index++;
 			}
 			handle = mhView.loadFiles(filesMap, this);
 		}

@@ -202,8 +202,7 @@ public class DownloadActivity
 		File folder = parameters.getFolder();
     	File directory = folder;
     	boolean b = (parameters.getApplicationData() == null);
-    	if (b)
-    		directory = folder.getParentFile();
+    	if (b) directory = folder.getParentFile();
     	file = new File(directory+File.separator+fileName);
     	if (!b) file.deleteOnExit();
     	boolean load = true;

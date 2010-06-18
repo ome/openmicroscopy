@@ -168,6 +168,7 @@ public class FilesLoader
                 	entry = (Entry) i.next();
 					fa = (FileAnnotationData) entry.getKey();
 					f = (File) entry.getValue();
+					System.err.println(f.getAbsolutePath());
 					of = ((FileAnnotation) fa.asAnnotation()).getFile();
 					service.downloadFile(f, of.getId().getValue(), 
 							of.getSize().getValue());
@@ -257,7 +258,7 @@ public class FilesLoader
      * 
      * @return A Map containing the file and file annotation.
      */
-    //protected Object getPartialResult() { return currentFile; }
+    protected Object getPartialResult() { return currentFile; }
     
     /**
      * Creates a new instance.

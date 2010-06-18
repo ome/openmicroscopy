@@ -72,6 +72,8 @@ import org.openmicroscopy.shoola.agents.metadata.rnd.RendererFactory;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.env.Environment;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
@@ -235,8 +237,20 @@ class EditorModel
 			if (o instanceof FileAnnotationData) {
 				fa = (FileAnnotationData) o;
 				f = (OriginalFile) fa.getContent();
-				activity = new DownloadActivityParam(f,
-						folder, icons.getIcon(IconManager.DOWNLOAD_22));
+				if (f.isLoaded()) {
+					activity = new DownloadActivityParam(f,
+							folder, icons.getIcon(IconManager.DOWNLOAD_22));
+				} else {
+					long id = fa.getId();
+					Environment env = (Environment) 
+					MetadataViewerAgent.getRegistry().lookup(LookupNames.ENV);
+					String path = env.getOmeroFilesHome();
+					path += File.separator+fa.getFileName();
+					activity = new DownloadActivityParam(id, 
+							DownloadActivityParam.FILE_ANNOTATION, 
+							new File(path), 
+							icons.getIcon(IconManager.DOWNLOAD_22));
+				}
 				activity.setFileName(fa.getFileName());
 				un.notifyActivity(activity);
 			}

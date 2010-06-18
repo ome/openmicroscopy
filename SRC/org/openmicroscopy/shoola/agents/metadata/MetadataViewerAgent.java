@@ -131,6 +131,20 @@ public class MetadataViewerAgent
 		if (!home.exists()) home.mkdir(); 
 		return omeroDir; 
 	}
+	
+	/** 
+	 * Returns the path of the 'omero home' directory e.g. user/omero.
+	 * 
+	 * @return See above. 
+	 */ 
+	public static String getOmeroFilesHome() 
+	{ 
+		Environment env = (Environment) registry.lookup(LookupNames.ENV); 
+		String omeroDir = env.getOmeroFilesHome();
+		File home = new File(omeroDir); 
+		if (!home.exists()) home.mkdir(); 
+		return omeroDir; 
+	}
  	
 	/**
 	 * Returns the experimenter corresponding to the passed id.

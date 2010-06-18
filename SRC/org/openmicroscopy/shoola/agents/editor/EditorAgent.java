@@ -210,9 +210,19 @@ public class EditorAgent
 				UserNotifier un = getRegistry().getUserNotifier();
 				OriginalFile f = (OriginalFile) data.getContent();
 				Environment env = (Environment) 
-				getRegistry().lookup(LookupNames.ENV);
-				DownloadActivityParam activity = new DownloadActivityParam(f,
-						new File(env.getOmeroFilesHome()), null);
+					getRegistry().lookup(LookupNames.ENV);
+				DownloadActivityParam activity;
+				if (f.isLoaded()) {
+					activity = new DownloadActivityParam(f,
+							new File(env.getOmeroFilesHome()), null);
+				} else {
+					long id = data.getId();
+					String path = env.getOmeroFilesHome();
+					path += File.separator+name;
+					activity = new DownloadActivityParam(id, 
+							DownloadActivityParam.FILE_ANNOTATION, 
+							new File(path), null);
+				}
 				activity.setApplicationData(app);
 				un.notifyActivity(activity);
 				return;
