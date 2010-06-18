@@ -253,7 +253,7 @@ public class TextualTwoKnobsSlider
             val = Double.parseDouble(startField.getText());
             val = val*roundingFactor;
             //if (slider.getPartialMinimum() <= val && val < end) valid = true;
-            if (startField.getMinimum()*roundingFactor <= val && val < end) 
+            if (startField.getMinimum()*roundingFactor <= val && val <= end) 
             	valid = true;
         } catch(NumberFormatException nfe) {}
         if (!valid) {
@@ -268,7 +268,6 @@ public class TextualTwoKnobsSlider
         removeSliderListeners();
         int old = slider.getStartValue();
         slider.setStartValue((int) val);
-       
         firePropertyChange(TwoKnobsSlider.KNOB_RELEASED_PROPERTY, old, val);
         attachSliderListeners();
 	}
@@ -282,7 +281,7 @@ public class TextualTwoKnobsSlider
             val = Double.parseDouble(endField.getText());
             val = val*roundingFactor;
             //if (start < val && val <= slider.getPartialMaximum()) valid = true;
-            if (start < val && val <= endField.getMaximum()*roundingFactor) 
+            if (start <= val && val <= endField.getMaximum()*roundingFactor) 
             	valid = true;
         } catch(NumberFormatException nfe) {}
         if (!valid) {
@@ -294,7 +293,7 @@ public class TextualTwoKnobsSlider
         	val = slider.getPartialMaximum()*roundingFactor;
         }
         removeSliderListeners();
-        //startField.setMaximum(end);
+        System.err.println("end:"+end);
         int old = slider.getEndValue();
         slider.setEndValue((int) val);
         firePropertyChange(TwoKnobsSlider.KNOB_RELEASED_PROPERTY, old, val);
@@ -713,7 +712,7 @@ public class TextualTwoKnobsSlider
 	}
 	
 	/**
-	 * Sets the colour gradient of the slider.
+	 * Sets the color gradient of the slider.
 	 * 
 	 * @param rgbStart The gradient start.
 	 * @param rgbEnd The gradient end.
