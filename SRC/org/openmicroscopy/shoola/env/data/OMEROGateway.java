@@ -5773,7 +5773,7 @@ class OMEROGateway
 					ts.add(omero.rtypes.rint(k.next()));
 				map.put("T_Indexes", omero.rtypes.rlist(ts));
 				map.put("Time_Units", 
-						omero.rtypes.rstring(param.getTimAsString()));
+						omero.rtypes.rstring(param.getTimeAsString()));
 			} else 
 				map.put("Split_Panels_Grey", 
 					omero.rtypes.rbool(param.isSplitGrey()));

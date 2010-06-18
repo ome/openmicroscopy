@@ -401,15 +401,15 @@ public class FigureParam
 	 * 
 	 * @return See above.
 	 */
-	public String getTimAsString()
+	public String getTimeAsString()
 	{
 		switch (time) {
 			default:
 			case TIME_SECS: return "SECS";
 			case TIME_MINS: return "MINS";
 			case TIME_HOURS: return "HOURS";
-			case TIME_MINS_SECS: return "MINS_SECS";
-			case TIME_HOURS_MINS: return "HOURS_MINS";
+			case TIME_MINS_SECS: return "MINS SECS";
+			case TIME_HOURS_MINS: return "HOURS MINS";
 		}
 	}
 	
@@ -630,7 +630,7 @@ public class FigureParam
 	{
 		switch (label) {
 			default:
-			case IMAGE_NAME: return "Image_Name";
+			case IMAGE_NAME: return "Image Name";
 			case DATASET_NAME: return "Datasets";
 			case TAG_NAME: return "Tags";
 		}
@@ -658,9 +658,9 @@ public class FigureParam
 	public String getProjectionTypeAsString()
 	{
 		if (projectionType == ProjectionParam.MAXIMUM_INTENSITY)
-			return "Maximum_Intensity";
+			return "Maximum Intensity";
 		else if (projectionType == ProjectionParam.MEAN_INTENSITY)
-			return "Mean_Intensity";
+			return "Mean Intensity";
 		return "";
 	}
 	
