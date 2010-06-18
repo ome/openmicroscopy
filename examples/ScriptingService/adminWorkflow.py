@@ -323,11 +323,11 @@ def cleanUpScriptFiles(session, scriptService):
     query_string = "select o from OriginalFile o where o.mimetype='text/x-python'"
     scriptFiles = queryService.findAllByQuery(query_string, None)
     
-    print "\n ScriptFiles: "
+    print "\n DISABLING invalid scripts.... "
     for s in scriptFiles:
         #print s.id.val, s.path.val + s.name.val
         if s.id.val not in scriptIds:
-            print s.id.val, s.path.val + s.name.val, "NOT A VALID SCRIPT"
+            print s.id.val, s.path.val + s.name.val,
             s.setMimetype(rstring("text/plain"))
             updateService.saveObject(s)
 
