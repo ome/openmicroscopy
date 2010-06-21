@@ -106,7 +106,7 @@ public class Quantization_8_16_bit extends QuantumStrategy {
         	else lutMax = max;
         }
         int range = lutMax - lutMin;
-        if (range > 0x10000) 
+        if (range > MAX_SIZE_LUT) 
         {
         	// We want to avoid *huge* memory allocations below so if we
         	// couldn't initialize the value above and our lutMax and lutMin
@@ -115,7 +115,7 @@ public class Quantization_8_16_bit extends QuantumStrategy {
         	// *** Ticket #1353 -- Chris Allan <callan@blackcat.ca> ***
         	throw new IllegalArgumentException(String.format(
         			"Lookup table of size %d greater than supported size %d",
-        			range, 0x10000));
+        			range, MAX_SIZE_LUT));
         }
         LUT = new byte[lutMax-lutMin+1];
     }

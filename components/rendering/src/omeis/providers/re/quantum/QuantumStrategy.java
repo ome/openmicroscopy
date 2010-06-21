@@ -18,7 +18,7 @@ import ome.model.enums.PixelsType;
 import omeis.providers.re.data.PlaneFactory;
 
 /**
- * TODO: review javadoc. Subclasses Work on explicit pixel types. Taking into
+ * Subclasses Work on explicit pixel types. Taking into
  * account the pixel types, transform the pixel intensity value passed to
  * {@link #quantize} by delegating to the configured quantum map. Encapsulate a
  * computation strategy for the quantization process i.e. LUT and Approximation.
@@ -54,10 +54,13 @@ public abstract class QuantumStrategy {
      */
     public static final int DECILE = 10;
 
-    /** The minimun value for the pixels type. */
+    /** The maximum size for a lookup table. */
+    static final double MAX_SIZE_LUT = 0x10000;
+    
+    /** The minimum value for the pixels type. */
     private double pixelsTypeMin;
     
-    /** The maximun value for the pixels type. */
+    /** The maximum value for the pixels type. */
     private double pixelsTypeMax;
     
     /** Minimum of all minima. */
@@ -134,7 +137,7 @@ public abstract class QuantumStrategy {
      * Controls if the specified interval is valid depending on the pixel type.
      * 
      * The min value and max value could be out of pixel type range b/c of an
-     * error occured in stats calculations.
+     * error occurred in stats calculations.
      * 
      * @param min
      *            The lower bound of the interval.
@@ -223,9 +226,8 @@ public abstract class QuantumStrategy {
     /**
      * Creates a new instance.
      * 
-     * @param qd
-     *            The {@link QuantumDef} this strategy is for.
-     * @param pt
+     * @param qd The {@link QuantumDef} this strategy is for.
+     * @param pt The pixels type to handle.
      */
     protected QuantumStrategy(QuantumDef qd, PixelsType pt) {
         windowStart = globalMin = 0.0;
@@ -430,7 +432,7 @@ public abstract class QuantumStrategy {
      * 
      * @param value
      *            The pixel intensity value.
-     * @return int The value in the codomain interval i.e. sub-interval of [0,
+     * @return The value in the codomain interval i.e. sub-interval of [0,
      *         255].
      * @throws QuantizationException
      *             If the specified value is not in the interval [globalMin,
