@@ -32,11 +32,10 @@ import javax.swing.JPopupMenu;
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.measurement.util.actions.ROIAction;
-import org.openmicroscopy.shoola.agents.measurement.util.actions.ROIStatsAction;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIActionController;
 
 /** 
- * 
+ * Displays options to manipulate a ROI.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -50,7 +49,8 @@ import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIActionContr
  */
 public class ROIPopupMenu
 {	
-	/** Text for the popup Menu -- not shown. */
+	
+	/** Text for the pop-up Menu -- not shown. */
 	final static String POPUP_MENU_DESCRIPTION = "Manager Options";
 
 	/** 
@@ -92,27 +92,21 @@ public class ROIPopupMenu
 		JMenu roiOptionsParent = new JMenu(ROI_CREATION_OPTIONS);
 		JMenuItem roiOption;
 		
-		for (int indexCnt = 0 ; indexCnt < ROIActionController.CreationActionType.values().length ; indexCnt++)
+		for (int indexCnt = 0 ; indexCnt < 
+		ROIActionController.CreationActionType.values().length ; indexCnt++)
 		{
-			roiOption = new JMenuItem(new ROIAction(controller, ROIActionController.CreationActionType.values()[indexCnt]));
+			roiOption = new JMenuItem(new ROIAction(controller, 
+					ROIActionController.CreationActionType.values()[indexCnt]));
 			roiOptionsParent.add(roiOption);
 		}
 		return roiOptionsParent;
 	}
-	
-	
-	/**
-	 * Create the popup menu;
-	 *
-	 */
+
+	/** Creates the popup menu. */
 	private void createPopupMenu()
 	{
-		JMenuItem 				topOption;
-
 		popupMenu = new JPopupMenu(POPUP_MENU_DESCRIPTION);
-		
-		topOption = new JMenuItem(POPUP_MENU_DESCRIPTION);
-		popupMenu.add(topOption);
+		popupMenu.add(new JMenuItem(POPUP_MENU_DESCRIPTION));
 		popupMenu.addSeparator();
 		popupMenu.add(createROICreationOptions());
 	//	popupMenu.add(createROIStatsOptions());
@@ -122,8 +116,6 @@ public class ROIPopupMenu
 	 * Get the popup menu.
 	 * @return see above.
 	 */
-	public JPopupMenu getPopupMenu()
-	{
-		return popupMenu;
-	}
+	public JPopupMenu getPopupMenu() { return popupMenu; }
+	
 }

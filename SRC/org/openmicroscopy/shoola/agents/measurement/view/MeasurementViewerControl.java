@@ -33,7 +33,6 @@ import java.awt.event.MouseMotionAdapter;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
-import java.awt.geom.AffineTransform;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -54,7 +53,6 @@ import javax.swing.event.MenuKeyListener;
 import javax.swing.event.MenuListener;
 
 //Third-party libraries
-import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.DrawingEvent;
 import org.jhotdraw.draw.DrawingListener;
 import org.jhotdraw.draw.Figure;
@@ -72,6 +70,8 @@ import org.openmicroscopy.shoola.agents.measurement.actions.SaveROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.ShowROIAssistant;
 import org.openmicroscopy.shoola.agents.measurement.actions.UnitsAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.WorkflowAction;
+import org.openmicroscopy.shoola.agents.measurement.util.roimenu.ROIPopupMenu;
+import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIActionController;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasurePointFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
@@ -83,6 +83,7 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
+import org.openmicroscopy.shoola.util.ui.treetable.OMETreeTable;
 
 /** 
  * The MeasurementViewer's Controller.
@@ -100,7 +101,7 @@ import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
 class MeasurementViewerControl 
 	implements ChangeListener, DrawingListener, FigureListener, 
 				FigureSelectionListener, PropertyChangeListener,
-				WindowFocusListener, KeyListener
+				WindowFocusListener, KeyListener, ROIActionController
 {
 
 	/** Identifies the <code>SAVE</code> action in the menu. */
@@ -213,14 +214,16 @@ class MeasurementViewerControl
      */
     private void handleFigureChange(ROIFigure figure)
 	{
-    	if(figure.getROI().hasAnnotation(AnnotationKeys.NAMESPACE))
+    	if (figure.getROI().hasAnnotation(AnnotationKeys.NAMESPACE))
     	{
-    		String namespaceString = (String)figure.getROI().getAnnotation(AnnotationKeys.NAMESPACE);
-    		String keywordsString = (String)figure.getROI().getAnnotation(AnnotationKeys.KEYWORDS);
-    		if(keywordsString!=null)
+    		String namespaceString = (String)figure.getROI().getAnnotation(
+    				AnnotationKeys.NAMESPACE);
+    		String keywordsString = (String)figure.getROI().getAnnotation(
+    				AnnotationKeys.KEYWORDS);
+    		if (keywordsString!=null)
     		{
     			List<String> stringList = new ArrayList<String>();
-        		if(keywordsString!="")
+        		if (keywordsString != "")
     			{
     				String[] splitStrings = keywordsString.split(",");
     			    
@@ -323,8 +326,12 @@ class MeasurementViewerControl
     			
  			public void mouseReleased(MouseEvent e)
  			{
- 				
  				setROIFigureStatus(ROIFigure.IDLE);
+ 				if (OMETreeTable.rightClick(e)) {
+ 					Collection l = view.getDrawingView().getSelectedFigures();
+ 					if (l != null && l.size() == 1)
+ 						view.showROIManagementMenu(e.getX(), e.getY());
+ 				}
  			}
  		
  		});
@@ -351,14 +358,14 @@ class MeasurementViewerControl
 
 			/** 
 			 * Required by I/F but not actually needed in our case, 
-			 * no-op implementation.
+			 * no-operation implementation.
 			 * @see MenuListener#menuCanceled(MenuEvent)
 			 */ 
 			public void menuCanceled(MenuEvent e) {}
 
 			/** 
 			 * Required by I/F but not actually needed in our case, 
-			 * no-op implementation.
+			 * no-operation implementation.
 			 * @see MenuListener#menuDeselected(MenuEvent)
 			 */ 
 			public void menuDeselected(MenuEvent e) {}
@@ -377,14 +384,14 @@ class MeasurementViewerControl
 
 			/** 
 			 * Required by I/F but not actually needed in our case, 
-			 * no-op implementation.
+			 * no-operation implementation.
 			 * @see MenuKeyListener#menuKeyPressed(MenuKeyEvent)
 			 */
 			public void menuKeyPressed(MenuKeyEvent e) {}
 
 			/** 
 			 * Required by I/F but not actually needed in our case, 
-			 * no op implementation.
+			 * no-operation implementation.
 			 * @see MenuKeyListener#menuKeyTyped(MenuKeyEvent)
 			 */
 			public void menuKeyTyped(MenuKeyEvent e) {}
@@ -431,7 +438,7 @@ class MeasurementViewerControl
 		UIUtilities.setLocationRelativeTo(view, colourPicker);
 	}
     
-    /** Analyses the selected figures. */
+    /** Analyzes the selected figures. */
 	void analyseSelectedFigures()
 	{
 		Collection<Figure> figures = model.getSelectedFigures();
@@ -697,5 +704,35 @@ class MeasurementViewerControl
 	 * @see KeyListener#keyReleased(KeyEvent)
 	 */
 	public void keyReleased(KeyEvent e) {}
+
+	public void calculateStats() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void deleteROI() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void duplicateROI() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void mergeROI() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void propagateROI() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void splitROI() {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

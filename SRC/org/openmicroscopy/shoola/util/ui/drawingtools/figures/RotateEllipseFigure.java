@@ -208,9 +208,7 @@ public class RotateEllipseFigure
 		// XXX - This does not take the stroke width into account!
 		return getTransformedShape().contains(p);
 	}
-	
-	
-	
+
 	/**
 	 * Returns the ellipse after the affine transform has been applied to it.
 	 * This will return the ellipse with the correct width and height, but the 
@@ -404,7 +402,7 @@ public class RotateEllipseFigure
 	
 	/**
 	 * Returns the height of the ellipse to the newHieght, the new ellipse will 
-	 * still be centred around the same point as the original ellipse.
+	 * still be centered around the same point as the original ellipse.
 	 * 
 	 * @param newHeight see above.
 	 */
@@ -449,7 +447,7 @@ public class RotateEllipseFigure
 	}
 	
 	/** 
-	 * Returns the x coord of the figure. 
+	 * Returns the x coordinate of the figure. 
 	 * 
 	 * @return See above.
 	 */
@@ -465,7 +463,7 @@ public class RotateEllipseFigure
 	}
 	
 	/** 
-	 * Returns the y coord of the figure. 
+	 * Returns the y coordinate of the figure. 
 	 * 
 	 * @return See above.
 	 */
@@ -635,8 +633,6 @@ public class RotateEllipseFigure
 		return null; 
 	}
 
-	
-	
 }
 
 

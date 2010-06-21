@@ -34,15 +34,12 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.EventListener;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.AttributeKeys;
-import org.jhotdraw.draw.Figure;
 import org.jhotdraw.draw.FigureListener;
 import org.jhotdraw.draw.Handle;
 

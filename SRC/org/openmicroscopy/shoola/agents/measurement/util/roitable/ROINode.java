@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.measurement.util.roitable;
 //Java imports
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.TreeMap;
 
 //Third-party libraries
@@ -83,10 +84,10 @@ public class ROINode
 	private static final int				VISIBLE_COLUMN = 7;
 	
 	/** The map of the children, ROIShapes belonging to the ROINode. */
-	HashMap<ROIShape, ROINode>				childMap;
+	private Map<ROIShape, ROINode>				childMap;
 
 	/** The map of the children, ROIShapes belonging to the ROINode. */
-	TreeMap<Coord3D, ROINode>				childCoordMap;
+	private TreeMap<Coord3D, ROINode>			childCoordMap;
 		
 	/**
 	 * Constructor for parent node. 
@@ -99,7 +100,7 @@ public class ROINode
 	}
 	
 	/**
-	 * Construct a node with ROI tpye.
+	 * Construct a node with ROI type.
 	 * @param nodeName see above.
 	 */
 	public ROINode(ROI nodeName)
@@ -127,20 +128,17 @@ public class ROINode
 	{
 		Iterator<Coord3D> i = childCoordMap.keySet().iterator();
 		int index = 0;
-		while(i.hasNext())
+		while (i.hasNext())
 		{
 			Coord3D nodeCoord = i.next();
-			if(nodeCoord.compare(nodeCoord, coord)!=-1)
+			if (nodeCoord.compare(nodeCoord, coord)!=-1)
 				return index;
 			index++;
 		}
 		return index;
 	}
 	
-	/** 
-	 * Initialise the maps for the child nodes. 
-	 *
-	 */
+	/** Initializes the maps for the child nodes. */
 	private void initMaps()
 	{
 		childMap = new HashMap<ROIShape, ROINode>();
@@ -149,6 +147,7 @@ public class ROINode
 	
 	/**
 	 * Find the shape belonging to the ROINode.
+	 * 
 	 * @param shape see above.
 	 * @return see above.
 	 */
@@ -161,12 +160,13 @@ public class ROINode
 
 	/**
 	 * Find the shape belonging to the shapeCoord.
+	 * 
 	 * @param shapeCoord see above.
 	 * @return see above.
 	 */
 	public ROINode findChild(Coord3D shapeCoord)
 	{
-		if(childCoordMap.containsKey(shapeCoord))
+		if (childCoordMap.containsKey(shapeCoord))
 			return childCoordMap.get(shapeCoord);
 		return null;
 	}
@@ -197,19 +197,19 @@ public class ROINode
 	 {
 		 super.insert(child, index);
 		 Object userObject = child.getUserObject();
-		 if(userObject instanceof ROIShape)
+		 if (userObject instanceof ROIShape)
 		 {
-			 ROIShape shape = (ROIShape)userObject;
+			 ROIShape shape = (ROIShape) userObject;
 			 child.setExpanded(true);
-			 childMap.put(shape, (ROINode)child);
-			 childCoordMap.put(shape.getCoord3D(), (ROINode)child);
+			 childMap.put(shape, (ROINode) child);
+			 childCoordMap.put(shape.getCoord3D(), (ROINode) child);
 		 }
 	 }
 
 	 /**
-	 * Remove a child to the current node.
-	 * @param child see above.
-	 */
+	  * Remove a child to the current node.
+	  * @param child see above.
+	  */
 	 public void remove(ROINode child) 
 	 {
 		 super.remove(child);
@@ -223,16 +223,16 @@ public class ROINode
 	 }
 	 
 	 /**
-	 * Remove a child to the current node.
-	 * @param childCoord see above.
-	 */
+	  * Remove a child to the current node.
+	  * @param childCoord see above.
+	  */
 	 public void remove(Coord3D childCoord) 
 	 {
 		 ROINode childNode = childCoordMap.get(childCoord);
 		 
 		 super.remove(childNode);
 		 Object userObject = childNode.getUserObject();
-		 if(userObject instanceof ROIShape)
+		 if (userObject instanceof ROIShape)
 		 {
 			 ROIShape shape = (ROIShape)userObject;
 			 childMap.remove(shape);
@@ -311,7 +311,7 @@ public class ROINode
 		Object userObject=getUserObject();
 		if (userObject instanceof ROI)
 		{
-			ROI roi=(ROI) userObject;
+			ROI roi = (ROI) userObject;
 			switch (column)
 			{
 				case 0:
@@ -321,11 +321,11 @@ public class ROINode
 				case SHAPE_COLUMN+1:
 					break;
 				case ANNOTATION_COLUMN+1:
-					if(value instanceof String)
+					if (value instanceof String)
 						roi.setAnnotation(AnnotationKeys.TEXT, (String) value);
 					break;
 				case VISIBLE_COLUMN+1:
-					if(value instanceof Boolean)
+					if (value instanceof Boolean)
 					{
 						Iterator<ROIShape> roiIterator = 
 										roi.getShapes().values().iterator();

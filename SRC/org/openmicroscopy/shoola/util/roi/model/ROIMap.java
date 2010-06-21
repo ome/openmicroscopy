@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.util.roi.model;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
 
 //Third-party libraries
@@ -32,7 +33,6 @@ import java.util.TreeMap;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
-import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROICoordMap;
 import org.openmicroscopy.shoola.util.roi.model.ROIIDMap;
@@ -57,12 +57,11 @@ public class ROIMap
 {
 	
 	/** The class to map the Coord3D to the list of ROI on that Coord. */
-	ROICoordMap				roiCoordMap;
+	private ROICoordMap	 roiCoordMap;
 	
 	/** The class to map the ROI ID to a particular ROI. */
-	ROIIDMap				roiIDMap;
-	
-	
+	private ROIIDMap	roiIDMap;
+
 	/** 
 	 * This is the general class to map ROI ID's to ROI, Coord3D to lists
 	 * of ROIs and manage them.
@@ -70,7 +69,7 @@ public class ROIMap
 	public ROIMap()
 	{
 		roiCoordMap = new ROICoordMap();
-		roiIDMap	= new ROIIDMap();
+		roiIDMap = new ROIIDMap();
 	}
 	
 	/**
@@ -100,7 +99,7 @@ public class ROIMap
 	 * Get the ROIID map of the ROIIDMap class. This is used to 
 	 * @return see above. 
 	 */
-	public TreeMap<Long, ROI>  getROIMap()
+	public TreeMap<Long, ROI> getROIMap()
 	{
 		return roiIDMap.getROIMap();
 	}
@@ -111,33 +110,35 @@ public class ROIMap
 	 * @return see above.
 	 * @throws NoSuchROIException
 	 */
-	public ROI getROI(long id) throws NoSuchROIException
+	public ROI getROI(long id) 
+		throws NoSuchROIException
 	{
 		return roiIDMap.getROI(id);
 	}
 
-
 	/**
-	 * Return the ROIShape within ROI with id on plane coord
+	 * Returns the ROIShape within ROI with id on plane coord.
+	 * 
 	 * @param id the id of the ROI you wish returned.
 	 * @param coord the plane on which the ROIShape resides.
 	 * @return see above.
 	 * @throws NoSuchROIException
 	 */
 	public ROIShape getShape(long id, Coord3D coord) 
-												throws 	NoSuchROIException
+		throws NoSuchROIException
 	{
 		return roiIDMap.getShape(id, coord);
 	}
 
 	/**
-	 * Get the Shapelist for the coord plane.
+	 * Gets the Shapelist for the coord plane.
+	 * 
 	 * @param coord see above.
 	 * @return see above.
 	 * @throws NoSuchROIException
 	 */
-	public ShapeList getShapeList(Coord3D coord) throws
-														NoSuchROIException
+	public ShapeList getShapeList(Coord3D coord) 
+		throws NoSuchROIException
 	{	
 		return roiCoordMap.getShapeList(coord);
 	}
@@ -197,13 +198,13 @@ public class ROIMap
 	 * @throws ROICreationException
 	 * @throws NoSuchROIException
 	 */
-	public ArrayList<ROIShape> propagateShape(long id, Coord3D selectedShape, 
+	public List<ROIShape> propagateShape(long id, Coord3D selectedShape, 
 												Coord3D start, Coord3D end) 
 												throws ROICreationException, 
 													   NoSuchROIException
 	{
-		ArrayList<ROIShape> addedList = new ArrayList<ROIShape>();
-		if(!roiIDMap.containsKey(id))
+		List<ROIShape> addedList = new ArrayList<ROIShape>();
+		if (!roiIDMap.containsKey(id))
 			throw new NoSuchROIException("No ROI with id : "+ id);
 		ROI roi = roiIDMap.getROI(id);
 		int mint = Math.min(start.getTimePoint(), end.getTimePoint());
@@ -213,23 +214,25 @@ public class ROIMap
 		maxt = maxt+1;
 		maxz = maxz+1;
 		ROIShape shape = roi.getShape(selectedShape);
+		ROIShape newShape;
+		Coord3D newCoord;
 		//for(int c = start.c; c < end.c ; c++)
-			for(int t = mint; t < maxt ; t++)
-				for(int z = minz; z < maxz ; z++)
-				{
-					Coord3D newCoord = new Coord3D(z, t);
-					if(selectedShape.equals(newCoord))
-						continue;
-					if(roi.containsKey(newCoord))
-						continue;
-						//deleteShape(id, newCoord);
-					ROIShape newShape = new ROIShape(roi, newCoord, shape);
-					newShape.getFigure().setClientObject(true);
-					newShape.getFigure().setObjectDirty(true);
-					addShape(id, newCoord, newShape);
-					addedList.add(newShape);
-				}
-			return addedList;
+		for (int t = mint; t < maxt ; t++)
+			for (int z = minz; z < maxz ; z++)
+			{
+				newCoord = new Coord3D(z, t);
+				if (selectedShape.equals(newCoord))
+					continue;
+				if (roi.containsKey(newCoord))
+					continue;
+				//deleteShape(id, newCoord);
+				newShape = new ROIShape(roi, newCoord, shape);
+				newShape.getFigure().setClientObject(true);
+				newShape.getFigure().setObjectDirty(true);
+				addShape(id, newCoord, newShape);
+				addedList.add(newShape);
+			}
+		return addedList;
 	}
 
 	/** 
@@ -254,12 +257,13 @@ public class ROIMap
 		int maxz = Math.max(start.getZSection(), end.getZSection());
 		maxt = maxt+1;
 		maxz = maxz+1;
+		Coord3D newCoord;
 		//for(int c = start.c; c < end.c ; c++)
-		for(int t = mint; t < maxt ; t++)
-			for(int z = minz; z < maxz ; z++)
+		for (int t = mint; t < maxt ; t++)
+			for (int z = minz; z < maxz ; z++)
 			{
-				Coord3D newCoord = new Coord3D(z, t);
-				if(roi.containsKey(newCoord))
+				newCoord = new Coord3D(z, t);
+				if (roi.containsKey(newCoord))
 					this.deleteShape(id, newCoord);
 			}
 	}	

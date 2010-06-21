@@ -109,6 +109,21 @@ public class OMETreeTable
 	/** The mouse listener. */
 	protected MouseListener			mouseListener;
 	
+	
+	/**
+	 * Return <code>true</code> if the right button was clicked or 
+	 * left button was clicked with control held down,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param e The mouse event to handle.
+	 * @return See above.
+	 */
+	public static boolean rightClick(MouseEvent e)
+	{
+		return (e.getButton() == MouseEvent.BUTTON3 || 
+				(e.getButton() == MouseEvent.BUTTON1 && e.isControlDown()));
+	}
+	
 	/** Initializes the table. */
 	private void initialize()
 	{
@@ -166,20 +181,6 @@ public class OMETreeTable
 	protected boolean leftClick(MouseEvent e)
 	{
 		return (e.getButton() == MouseEvent.BUTTON1);
-	}
-	
-	/**
-	 * Return <code>true</code> if the right button was clicked or 
-	 * left button was clicked with control held down,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @param e The mouse event to handle.
-	 * @return See above.
-	 */
-	protected boolean rightClick(MouseEvent e)
-	{
-		return (e.getButton() == MouseEvent.BUTTON3 || 
-				(e.getButton() == MouseEvent.BUTTON1 && e.isControlDown()));
 	}
 	
 	/**

@@ -28,7 +28,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -60,7 +59,6 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
-
 import pojos.ImageData;
 import pojos.ROIData;
 
@@ -633,8 +631,8 @@ public class ROIComponent
 	 * @throws NoSuchROIException	Thrown if ROI with id does not exist.
 	 * @throws ROICreationException	Thrown if the ROI cannot be created.
 	 */
-	public ArrayList<ROIShape> propagateShape(long id, Coord3D selectedShape, Coord3D start, 
-			Coord3D end) 
+	public List<ROIShape> propagateShape(long id, Coord3D selectedShape, 
+			Coord3D start, Coord3D end) 
 		throws  ROICreationException, NoSuchROIException
 	{
 		return roiCollection.propagateShape(id, selectedShape, start, end);

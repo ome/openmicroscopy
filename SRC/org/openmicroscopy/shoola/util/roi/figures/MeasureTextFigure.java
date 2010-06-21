@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.util.roi.figures;
 
 //Java imports
 import java.awt.Point;
-import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -33,12 +32,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.BoundsOutlineHandle;
-import org.jhotdraw.draw.Figure;
 import org.jhotdraw.draw.FigureListener;
 import org.jhotdraw.draw.Handle;
 import org.jhotdraw.draw.TextFigure;

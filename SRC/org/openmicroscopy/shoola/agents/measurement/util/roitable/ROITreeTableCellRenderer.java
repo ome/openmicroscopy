@@ -22,23 +22,21 @@
  */
 package org.openmicroscopy.shoola.agents.measurement.util.roitable;
 
-import java.awt.Component;
 
+
+//Java imports
+import java.awt.Component;
 import javax.swing.JLabel;
 import javax.swing.JTree;
 import javax.swing.tree.TreeCellRenderer;
 
-import org.openmicroscopy.shoola.agents.measurement.IconManager;
-import org.openmicroscopy.shoola.util.roi.figures.ShapeTypes;
-import org.openmicroscopy.shoola.util.roi.model.ROI;
-import org.openmicroscopy.shoola.util.roi.model.ROIShape;
-import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
-
-//Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.measurement.IconManager;
+import org.openmicroscopy.shoola.util.roi.model.ROI;
+import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
 /** 
  * 
@@ -67,7 +65,8 @@ public class ROITreeTableCellRenderer
 		setOpaque(false);
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * Sets the icon corresponding to the type of Object.
 	 * @see javax.swing.tree.TreeCellRenderer#getTreeCellRendererComponent
 	 * (javax.swing.JTree, java.lang.Object, boolean, boolean, boolean, 
 	 * int, boolean)
@@ -79,14 +78,10 @@ public class ROITreeTableCellRenderer
 
 		Object thisObject = ((ROITreeNode)value).getUserObject();
 
-		if( thisObject instanceof ROI)
-		{
+		if (thisObject instanceof ROI)
 			setIcon(IconManager.getInstance().getIcon(IconManager.ROISTACK));
-		}
-		else if( thisObject instanceof ROIShape)
-		{
+		else if (thisObject instanceof ROIShape)
 			setIcon(IconManager.getInstance().getIcon(IconManager.ROISHAPE));
-		}
 		return this;
 	}
 

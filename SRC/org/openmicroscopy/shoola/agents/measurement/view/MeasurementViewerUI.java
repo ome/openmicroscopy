@@ -456,6 +456,17 @@ class MeasurementViewerUI
         buildGUI();
     }
 
+    /** 
+     * Displays the menu at the specified location if not already visible.
+     * 
+     * @param x The x-coordinate of the mouse click.
+     * @param y The y-coordinate of the mouse click.
+     */
+    void showROIManagementMenu(int x, int y)
+    {
+    	roiManager.showROIManagementMenu(x, y);
+    }
+    
 	/**
 	 * Merge the ROIShapes with ids in the idList and the ROIShapes selected 
 	 * in the shapeList from those ROI.

@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 
 //Java imports
+import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +37,6 @@ import java.util.Vector;
 
 import javax.swing.JPopupMenu;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
 import javax.swing.tree.TreePath;
 
 //Third-party libraries
@@ -141,15 +141,6 @@ public class ROITable
 	}
 	
 	/**
-	 * Creates a popup menu to show different options to act of ROI.
-	 *
-	 */
-	private void createPopupMenu()
-	{
-		popupMenu = new ROIPopupMenu(this);
-	}
-	
-	/**
 	 * The constructor for the ROITable, taking the root node and
 	 * column names as parameters.  
 	 * 
@@ -172,7 +163,7 @@ public class ROITable
 		}
 		setDefaultRenderer(ShapeType.class, new ShapeRenderer());
 		setTreeCellRenderer(new ROITableCellRenderer());
-		createPopupMenu();
+		popupMenu = new ROIPopupMenu(this);
 	}
 	
 	/** 
@@ -213,11 +204,22 @@ public class ROITable
 	 */
 	protected void onMousePressed(MouseEvent e)
 	{
-		JPopupMenu menu = popupMenu.getPopupMenu();
-		if (rightClick(e) && !menu.isVisible())
-			menu.show(this, e.getX(), e.getY());
+		if (rightClick(e)) showROIManagementMenu(this, e.getX(), e.getY());
 	}
 
+    /** 
+     * Displays the menu at the specified location if not already visible.
+     * 
+     * @param x The x-coordinate of the mouse click.
+     * @param y The y-coordinate of the mouse click.
+     */
+    void showROIManagementMenu(Component c, int x, int y)
+    {
+    	JPopupMenu menu = popupMenu.getPopupMenu();
+    	if (menu.isVisible()) return;
+    	menu.show(c, x, y);
+    }
+    
 	/** Refreshes the data in the table.  */
 	void refresh()
 	{

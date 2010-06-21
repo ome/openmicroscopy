@@ -72,6 +72,7 @@ public class MeasureRectangleFigure
 	extends RectangleTextFigure
 	implements ROIFigure
 {
+	
 	/** Is this figure read only. */
 	protected boolean readOnly;
 	

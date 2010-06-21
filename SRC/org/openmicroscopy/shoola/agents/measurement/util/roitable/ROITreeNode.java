@@ -25,12 +25,12 @@ package org.openmicroscopy.shoola.agents.measurement.util.roitable;
 //Java imports
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.TreeMap;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
@@ -55,10 +55,10 @@ public class ROITreeNode
 {
 	
 	/** The map of the children, ROIShapes belonging to the ROITreeNode. */
-	HashMap<ROIShape, ROITreeNode>				childMap;
+	private Map<ROIShape, ROITreeNode>				childMap;
 
 	/** The map of the children, ROIShapes belonging to the ROITreeNode. */
-	TreeMap<Coord3D, ROITreeNode>				childCoordMap;
+	private TreeMap<Coord3D, ROITreeNode>				childCoordMap;
 		
 	/**
 	 * Constructor for parent node. 
@@ -71,7 +71,7 @@ public class ROITreeNode
 	}
 	
 	/**
-	 * Construct a node with ROI tpye.
+	 * Construct a node with ROI type.
 	 * @param nodeName see above.
 	 */
 	public ROITreeNode(ROI nodeName)
@@ -111,7 +111,7 @@ public class ROITreeNode
 		return index;
 	}
 	
-	/** Initialises the maps for the child nodes. */
+	/** Initializes the maps for the child nodes. */
 	private void initMaps()
 	{
 		childMap = new HashMap<ROIShape, ROITreeNode>();
@@ -125,7 +125,7 @@ public class ROITreeNode
 	 */
 	public ROITreeNode findChild(ROIShape shape)
 	{
-		if(childMap.containsKey(shape))
+		if (childMap.containsKey(shape))
 			return childMap.get(shape);
 		return null;
 	}
@@ -137,7 +137,7 @@ public class ROITreeNode
 	 */
 	public ROITreeNode findChild(Coord3D shapeCoord)
 	{
-		if(childCoordMap.containsKey(shapeCoord))
+		if (childCoordMap.containsKey(shapeCoord))
 			return childCoordMap.get(shapeCoord);
 		return null;
 	}
@@ -171,9 +171,9 @@ public class ROITreeNode
 	 }
 
 	 /**
-	 * Remove a child to the current node.
-	 * @param child see above.
-	 */
+	  * Remove a child to the current node.
+	  * @param child see above.
+	  */
 	 public void remove(ROITreeNode child) 
 	 {
 		 super.remove(child);
@@ -187,9 +187,9 @@ public class ROITreeNode
 	 }
 	 
 	 /**
-	 * Remove a child to the current node.
-	 * @param childCoord see above.
-	 */
+	  * Remove a child to the current node.
+	  * @param childCoord see above.
+	  */
 	 public void remove(Coord3D childCoord) 
 	 {
 		 ROITreeNode childNode = childCoordMap.get(childCoord);

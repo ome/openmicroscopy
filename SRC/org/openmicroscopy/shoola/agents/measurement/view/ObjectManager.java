@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -235,6 +234,17 @@ class ObjectManager
 		buildGUI();
 	}
 	
+    /** 
+     * Displays the menu at the specified location if not already visible.
+     * 
+     * @param x The x-coordinate of the mouse click.
+     * @param y The y-coordinate of the mouse click.
+     */
+    void showROIManagementMenu(int x, int y)
+    {
+    	objectsTable.showROIManagementMenu(view.getDrawingView(), x, y);
+    }
+    
 	/** Rebuilds Tree */
 	void rebuildTable()
 	{

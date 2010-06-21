@@ -44,7 +44,7 @@ package org.openmicroscopy.shoola.agents.measurement.util;
 public interface TabPaneInterface
 {	
 	/** 
-	 * Return the idex of the tab pane. 
+	 * Return the index of the tab pane. 
 	 * @return see above.
 	 */
 	public int getIndex();

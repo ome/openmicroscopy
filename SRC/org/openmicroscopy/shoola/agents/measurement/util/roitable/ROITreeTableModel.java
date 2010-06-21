@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.measurement.util.roitable;
 // Java imports
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.tree.TreePath;
@@ -60,7 +61,7 @@ public class ROITreeTableModel
 	private List<AnnotationField>					fields;
 
 	/** Map of annotationkeys to columns. */
-	private HashMap<AnnotationKey, Integer>			keyMap;
+	private Map<AnnotationKey, Integer>			keyMap;
 	
 	/**
 	 * Set the fields of the Table. Each field represents a column in the table
@@ -89,10 +90,7 @@ public class ROITreeTableModel
 		updateKeyMap();
 	}
 	
-	/** 
-	 * Build the keyMap, mapping keys to columns.
-	 *
-	 */
+	/** Build the keyMap, mapping keys to columns. */
 	private void updateKeyMap()
 	{
 		keyMap.clear();
@@ -103,8 +101,7 @@ public class ROITreeTableModel
 	/**
 	 * The node has been updated.
 	 * 
-	 * @param node
-	 *            see above.
+	 * @param node See above.
 	 */
 	public void nodeUpdated(ROITreeNode node)
 	{
@@ -131,12 +128,12 @@ public class ROITreeTableModel
 			Object object = node.getUserObject();
 			AnnotationField objectField = fields.get(column-1);
 				
-			if(object instanceof ROI)
+			if (object instanceof ROI)
 			{
 				ROI roi = (ROI)object;
 				roi.setAnnotation(objectField.getKey(), value);
 			}
-			else if(object instanceof ROIShape)
+			else if (object instanceof ROIShape)
 			{
 				ROIShape shape = (ROIShape)object;
 				shape.setAnnotation(objectField.getKey(), value);
@@ -158,15 +155,15 @@ public class ROITreeTableModel
 		{
 			ROITreeNode ROITreeNode=(ROITreeNode) nodeObject;
 			Object object=ROITreeNode.getUserObject();
-			if(column==0)
+			if (column == 0)
 				return object;
 			AnnotationField objectField = fields.get(column-1);
-			if(object instanceof ROI)
+			if (object instanceof ROI)
 			{
 				ROI roi = (ROI)object;
 				return roi.getAnnotation(objectField.getKey());
 			}
-			else if(object instanceof ROIShape)
+			else if (object instanceof ROIShape)
 			{
 				ROIShape shape = (ROIShape)object;
 				return shape.getAnnotation(objectField.getKey());
@@ -226,4 +223,5 @@ public class ROITreeTableModel
 		return fields.get(modelIndex-1).getName().
 				equals(AnnotationDescription.SHAPE_STRING);
 	}
+	
 }

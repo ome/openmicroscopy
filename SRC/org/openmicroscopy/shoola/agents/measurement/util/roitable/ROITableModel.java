@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeTableModel;
 public class ROITableModel 
 	extends OMETreeTableModel
 {
+	
 	/** ROI ID Column no for the wizard. */
 	public static final int				ROIID_COLUMN = 0;
 
@@ -63,7 +64,10 @@ public class ROITableModel
 	/** Type Column no for the wizard. */
 	public static final int				SHAPE_COLUMN = 3;
 
+	/** Identifies the name space column. */
 	public static final int 			NAMESPACE_COLUMN = 4;
+	
+	/** Identifies the keywords column. */
 	public static final int 			KEYWORDS_COLUMN = 5;
 	
 	/** Annotation Column no for the wizard. */
@@ -103,17 +107,16 @@ public class ROITableModel
 	 */
 	public void setValueAt(Object value, Object nodeObject, int column)
 	{
-		if(nodeObject instanceof ROINode)
+		if (nodeObject instanceof ROINode)
 		{
 			ROINode node = (ROINode)nodeObject;
-			if(column==ANNOTATION_COLUMN+1)
-				if(value == null)
+			if (column == ANNOTATION_COLUMN+1)
+				if (value == null)
 					value = new String("");
 				else
-					if(value.equals(""))
+					if (value.equals(""))
 						value = " ";
 			node.setValueAt(value, column);
-			TreePath path;
 			modelSupport.fireNewRoot();
 		}
 	}
@@ -176,6 +179,7 @@ public class ROITableModel
 				return null;
 		}
 	}
+
 }
 	
 
