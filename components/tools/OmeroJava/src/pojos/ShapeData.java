@@ -53,7 +53,7 @@ public abstract class ShapeData
 	public static boolean READONLY_FLAG = true; 
 	
 	/** The representation of the shape. */
-	private ShapeSettingsData settings;
+	protected ShapeSettingsData settings;
 	
 	/** Has this shape been created client side. */
 	private boolean clientObject;

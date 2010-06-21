@@ -158,8 +158,8 @@ public class UploadMask
 	
 		int value;
 		MaskClass mask;
-		for (int x = 0; x < data.length; x++)
-			for (int y = 0; y < data[x].length; y++)
+		for (int y = 0; y < data.length; y++)
+			for (int x = 0; x < data[y].length; x++)
 			{
 				value = data[x][y];
 				if(value==Color.black.getRGB() || value == 0)

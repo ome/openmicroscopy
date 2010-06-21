@@ -130,13 +130,12 @@ if SetBeingAnalyzed == 1
         if(~isempty(pixelsList))
             for j = 0:pixelsList.size-1;
                 pixels = pixelsList.get(j);
-                %if(isempty(pixels.RELATEDTO))
-                    cnt = cnt +1;
-                    fileIds(cnt)= pixels.getId.getValue;
-                %end;
+                cnt = cnt +1;
+                fileIds(cnt)= pixels.getId.getValue;
             end
         end
     end
+
     %%% Checks whether any files have been found
     if isempty(fileIds)
         error(['Image processing was canceled in the ', ModuleName, ' module because there are no files in the chosen dataset.'])
@@ -166,7 +165,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 drawnow
 
-
+'running load data'
 for n = 1:handles.Pipeline.imagesPerSet
         %%% This try/catch will catch any problems in the load images module.
         try

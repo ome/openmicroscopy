@@ -248,11 +248,35 @@ public class MaskData
 	}
 	
 	/**
+	 * Set the mask from the bufferedImage 
+	 * @param image See above.
+	 */
+	public void setMask(BufferedImage image)
+	{
+		byte[] data = new byte[(int) (getWidth()*getHeight())];
+		boolean colourSet = false;
+		for(int y = 0 ; y < getHeight(); y++)
+			for(int x = 0; x < getWidth(); x++)
+				if(image.getRGB(x,y)==0)
+					setBit(data, (int)(y*getWidth()+x), 0);
+				else
+				{
+					if(!colourSet)
+					{
+						getShapeSettings().setFillColor(new Color(image.getRGB(x,y),true));
+						colourSet = true;
+					}
+					setBit(data, (int)(y*getWidth()+x), 1);
+				}
+
+	}
+	
+	/**
 	 * Returns the mask image.
 	 * 
 	 * @return See above.
 	 */
-	public BufferedImage getMask()
+	public BufferedImage getMaskAsBufferedImage()
 	{
 		Mask shape = (Mask) asIObject();
 		byte[] data = shape.getBytes();
@@ -263,17 +287,64 @@ public class MaskData
 		if(height==0) return null;
 		BufferedImage bufferedImage = new BufferedImage((int)width, (int)height, 
 										BufferedImage.TYPE_INT_ARGB);
-		ByteBuffer stream = ByteBuffer.wrap(data);
-		int colourValue;
-		for(int x = 0 ; x < (int)width ; x++)
+		int offset = 0;
+		int colourValue = getShapeSettings().getFillColor().getRGB();
+		for(int y = 0 ; y < (int)height ; y++)
 		{
-			for(int y = 0 ; y < (int)height ; y++)
+			for(int x = 0 ; x < (int)width ; x++)
 			{
-				colourValue = stream.getInt();
-				bufferedImage.setRGB(x, y, colourValue);
+				int bit = getBit(data, offset);
+				if(bit==1)
+					bufferedImage.setRGB(x, y, colourValue);
+				else
+					bufferedImage.setRGB(x, y, 0);
+				offset++;
 			}
 		}
 		return bufferedImage;
+	}
+	
+	/**
+	 * Get the mask as a byte array.
+	 * @return See above.
+	 */
+	public byte[] getMask()
+	{
+		Mask shape = (Mask) asIObject();
+		byte[] data = shape.getBytes();
+		return data;
+	}
+	
+	
+	/** 
+	 * Set the bit value in a byte array at position bit to be the value
+	 * value.
+	 * @param data See above.
+	 * @param bit See above.
+	 * @param val See above.
+	 */
+	private void setBit(byte[] data, int bit, int val) 
+	{
+		int bytePosition = bit/8;
+		int bitPosition = bit%8;
+		data[bytePosition] = (byte) ((byte)(data[bytePosition]&
+									(~(byte)(0x1<<bitPosition)))|
+									(byte)(val<<bitPosition));
+	}
+
+
+	/** 
+	 * Set the bit value in a byte array at position bit to be the value
+	 * value.
+	 * @param data See above.
+	 * @param bit See above.
+	 * @param val See above.
+	 */
+	private static byte getBit(byte[] data, int bit) 
+	{
+		int bytePosition = bit/8;
+		int bitPosition = bit%8;
+		return (byte) ((byte)(data[bytePosition] & (0x1<<bitPosition))!=0 ? (byte)1 : (byte)0);
 	}
 
 	

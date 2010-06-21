@@ -180,7 +180,7 @@ def runfret(session, commandArgs):
     
     noFretKeywords = {};
     fretKeywords = {};
-    
+    print roi
     for roi in noFretROI:
         shapeList = roi.getShapes(0,0);
         for shape in shapeList:
