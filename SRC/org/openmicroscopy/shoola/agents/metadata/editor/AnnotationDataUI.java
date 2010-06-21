@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Point;
@@ -54,10 +55,12 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 
 //Third-party libraries
@@ -67,6 +70,7 @@ import info.clearthought.layout.TableLayout;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
+import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.SeparatorOneLineBorder;
 import pojos.AnnotationData;
@@ -107,7 +111,9 @@ class AnnotationDataUI
 	/** Indicates to display the annotations linked by others to the object. */
 	private static final int				ADDED_BY_OTHERS = 2;
 	
-
+	/** The maximum number of elements displayed at a time. */
+	private static final int				MAX = 3;
+	
 	/** The names associated to the above constants. */
 	private static final String[]			NAMES;
 	
@@ -192,6 +198,12 @@ class AnnotationDataUI
 	
 	/** The collection of annotations to replace. */
 	private List<FileAnnotationData> 		toReplace;
+	
+	/** The constraints related to the layout of the attachments. */
+	private String							docConstraints;
+	
+	private JComponent docRef;
+	
 	/**
 	 * Creates and displays the menu 
 	 * @param src The invoker.
@@ -403,6 +415,7 @@ class AnnotationDataUI
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
+		content.removeAll();
 		JLabel l = new JLabel();
 		Font f = l.getFont();
 		int size = f.getSize()-1;
@@ -450,7 +463,9 @@ class AnnotationDataUI
 		p.add(UIUtilities.setTextFont("attachment", Font.BOLD, size));
 		p.add(createBar(addDocsButton));
 		content.add(p, "0, "+i+", LEFT, TOP");
-		content.add(docPane, "2, "+i);
+		docConstraints = "2, "+i;
+		docRef = docPane;
+		content.add(docPane, docConstraints);
 		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		setBackground(UIUtilities.BACKGROUND);
 		setBorder(new SeparatorOneLineBorder());
@@ -508,6 +523,7 @@ class AnnotationDataUI
 		docPane.removeAll();
 		filesDocList.clear();
 		DocComponent doc;
+		int h = 0;
 		if (list != null && list.size() > 0) {
 			Iterator i = list.iterator();
 			Map<FileAnnotationData, Object> 
@@ -528,6 +544,7 @@ class AnnotationDataUI
 							}
 							filesDocList.add(doc);
 							docPane.add(doc);
+							h = doc.getPreferredSize().height;
 						}
 					}
 					break;
@@ -545,6 +562,7 @@ class AnnotationDataUI
 											(FileAnnotationData) data, doc);
 								}
 								docPane.add(doc);
+								h = doc.getPreferredSize().height;
 							}
 						}
 					}
@@ -563,6 +581,7 @@ class AnnotationDataUI
 											(FileAnnotationData) data, doc);
 								}
 								docPane.add(doc);
+								h = doc.getPreferredSize().height;
 							}
 						}
 					}
@@ -578,8 +597,20 @@ class AnnotationDataUI
 			filesDocList.add(doc);
 			docPane.add(doc);
 		}
+		int n = docPane.getComponentCount();
+		docRef = docPane;
+		if (n >= MAX) {
+			Dimension d = docPane.getPreferredSize();
+			JScrollPane sp = new JScrollPane(docPane);
+			sp.setPreferredSize(new Dimension(d.width, h*2*MAX));
+			docRef = sp;	
+		}
+		content.add(docRef, docConstraints);
+		
 		docPane.revalidate();
 		docPane.repaint();
+		content.revalidate();
+		content.repaint();
 	}
 	
 	/**
@@ -700,10 +731,10 @@ class AnnotationDataUI
 	protected void buildUI()
 	{
 		//rating
-		if (!init) {
+		//if (!init) {
 			buildGUI();
 			init = true;
-		}
+		//}
 		selectedValue = 0;
 		String text = "";
 		if (!model.isMultiSelection()) {
