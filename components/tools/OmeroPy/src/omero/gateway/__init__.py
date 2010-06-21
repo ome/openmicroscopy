@@ -244,7 +244,7 @@ class BlitzObjectWrapper (object):
         return False
     
     def isEditable(self):
-        if self.isOwned() and not self.isReadOnly():
+        if self.isOwned() or not self.isReadOnly():
             return True
         return False
     
@@ -392,6 +392,7 @@ class BlitzObjectWrapper (object):
 
 
     def _loadAnnotationLinks (self):
+        print type(self)
         if not hasattr(self._obj, 'isAnnotationLinksLoaded'): #pragma: no cover
             raise NotImplementedError
         if not self._obj.isAnnotationLinksLoaded():
@@ -519,9 +520,10 @@ class BlitzObjectWrapper (object):
                     if rk == k:
                         rk = k2
                     k = k2
+                    
                     v = getattr(self, k)
                     if v is not None:
-                        v = getattr(omero.gateway, w)(self._conn, v).simpleMarshal()
+                        v = getattr(omero.gateway, w)(self._conn, v).simpleMarshal()                        
                 else:
                     if k.startswith('#'):
                         v = getattr(self, k[1:])
@@ -545,6 +547,8 @@ class BlitzObjectWrapper (object):
     #    return str(self._obj)
 
     def __getattr__ (self, attr):
+        if attr != 'copy' and attr.startswith('copy'):
+            return getattr(self, attr)()
         if attr != 'get' and attr.startswith('get') and hasattr(self, '_attrs'):
             tattr = attr[3].lower() + attr[4:]
             attrs = filter(lambda x: tattr in x, self._attrs)
@@ -2543,13 +2547,19 @@ class _LightPathWrapper (BlitzObjectWrapper):
     """
     base Light Source class wrapper, extends BlitzObjectWrapper.
     """
-    _attrs = ('secondaryEmissionFilter|FilterWrapper',
-              'secondaryExcitationFilter',
-              'dichroic|DichroicWrapper')
-
+    _attrs = ('dichroic|DichroicWrapper')
+    #       'copyEmissionFilter|FilterWrapper',
+    #       'copyExcitationFilter|FilterWrapper',
+    
     def __bstrap__ (self):
         self.OMERO_CLASS = 'LightPath'
 
+    def copyEmissionFilters(self):
+        pass
+
+    def copyExcitationFilters(self):
+        pass
+        
 LightPathWrapper = _LightPathWrapper
 
 class _ChannelWrapper (BlitzObjectWrapper):

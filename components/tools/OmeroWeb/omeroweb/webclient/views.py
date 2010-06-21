@@ -202,7 +202,7 @@ def sessionHelper(request):
 def login(request):
     request.session.modified = True
     
-    if request.method == 'POST' and request.REQUEST.get('server'):        
+    if request.REQUEST.get('server'):      
         # upgrade check:
         # -------------
         # On each startup OMERO.web checks for possible server upgrades
@@ -878,21 +878,30 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
                                         'illuminations': list(conn.getEnumerationEntries("IlluminationI")), 
                                         'contrastMethods': list(conn.getEnumerationEntries("ContrastMethodI")), 
                                         'modes': list(conn.getEnumerationEntries("AcquisitionModeI"))})
-                if ch.getLogicalChannel().getLightPath()._obj is not None:
-                    if ch.getLogicalChannel().getLightPath().getSecondaryEmissionFilter()._obj is not None:
-                        channel['form_emission_filter'] = MetadataFilterForm(initial={'filter': ch.getLogicalChannel().getLightPath().getSecondaryEmissionFilter(),
-                                        'types':list(conn.getEnumerationEntries("FilterTypeI"))})
+                if ch.getLogicalChannel().getLightPath() is not None:
+                    # one changed to many per one channel
+                    channel['form_emission_filters'] = list()
+                    if ch.getLogicalChannel().getLightPath().copyEmissionFilters():
+                        for f in ch.getLogicalChannel().getLightPath().copyEmissionFilters():
+                            channel['form_filters'].append(MetadataFilterForm(initial={'filter': f,
+                                            'types':list(conn.getEnumerationEntries("FilterTypeI"))}))
+                    channel['form_excitation_filters'] = list()
+                    if ch.getLogicalChannel().getLightPath().copyExcitationFilters():
+                        for f in ch.getLogicalChannel().getLightPath().copyExcitationFilters():
+                            channel['form_excitation_filters'].append(MetadataFilterForm(initial={'filter': f,
+                                            'types':list(conn.getEnumerationEntries("FilterTypeI"))}))
 
-                if ch.getLogicalChannel().getDetectorSettings()._obj is not None:
+
+                if ch.getLogicalChannel().getDetectorSettings() is not None and ch.getLogicalChannel().getDetectorSettings().getDetector():
                     channel['form_detector_settings'] = MetadataDetectorForm(initial={'detectorSettings':ch.getLogicalChannel().getDetectorSettings(), 'detector': ch.getLogicalChannel().getDetectorSettings().getDetector(),
                                         'types':list(conn.getEnumerationEntries("DetectorTypeI"))})
-                if ch.getLogicalChannel().getLightSourceSettings()._obj is not None:      
+                if ch.getLogicalChannel().getLightSourceSettings() is not None:      
                     channel['form_light_source'] = MetadataLightSourceForm(initial={'lightSource': ch.getLogicalChannel().getLightSourceSettings(),
                                         'types':list(conn.getEnumerationEntries("FilterTypeI")), 
                                         'mediums': list(conn.getEnumerationEntries("LaserMediumI")),
                                         'pulses': list(conn.getEnumerationEntries("PulseI"))})
-                if ch.getLogicalChannel().getFilterSet()._obj is not None and ch.getLogicalChannel().getFilterSet().getDichroic()._obj:
-                    channel['form_dichroic'] = MetadataDichroicForm(initial={'logicalchannel': ch.getLogicalChannel().getFilterSet().getDichroic()})
+                if ch.getLogicalChannel().getFilterSet() is not None and ch.getLogicalChannel().getFilterSet().getDichroic() is not None:
+                        channel['form_dichroic'] = MetadataDichroicForm(initial={'logicalchannel': ch.getLogicalChannel().getFilterSet().getDichroic()})
                 channel['name'] = ch.getEmissionWave()
                 channel['color'] = ch.getColor().getHtml()
                 form_channels.append(channel)
@@ -913,7 +922,7 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
             form_stageLabel = MetadataStageLabelForm(initial={'image': image })
 
         if image.getInstrument() is not None:
-            if image.getInstrument().getMicroscope()._obj is not None:
+            if image.getInstrument().getMicroscope() is not None:
                 form_microscope = MetadataMicroscopeForm(initial={'microscopeTypes':list(conn.getEnumerationEntries("MicroscopeTypeI")), 'microscope': image.getInstrument().getMicroscope()})
 
             if len(image.getInstrument().getFilters()) > 0:
@@ -1082,7 +1091,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         logger.error(traceback.format_exc())
     
     manager = None
-    if o_type == "dataset" or o_type == "project" or o_type == "image" or o_type == "screen" or o_type == "plate":
+    if o_type == "dataset" or o_type == "project" or o_type == "image" or o_type == "screen" or o_type == "plate" or o_type == 'well':
         try:
             manager = BaseContainer(conn, o_type, o_id)
         except AttributeError, x:

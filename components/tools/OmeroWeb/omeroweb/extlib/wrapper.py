@@ -290,6 +290,11 @@ omero.gateway.WellWrapper = WellWrapper
 
 class WellSampleWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
     
+    def __bstrap__ (self):
+        self.OMERO_CLASS = 'WellSample'
+        self.CHILD_WRAPPER_CLASS = "ImageWrapper"
+        self.PARENT_WRAPPER_CLASS = 'WellWrapper'
+        
     def image(self):
         return ImageWrapper(self._conn, self._obj.image)
 

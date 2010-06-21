@@ -32,10 +32,15 @@ import ome.model.stats.StatsInfo;
 import ome.model.acquisition.Instrument;
 import ome.model.acquisition.Objective;
 import ome.model.acquisition.Detector;
+import ome.model.acquisition.DetectorSettings;
 import ome.model.acquisition.Dichroic;
+import ome.model.acquisition.LightPath;
+import ome.model.acquisition.LightSettings;
+import ome.model.acquisition.Laser;
 import ome.model.acquisition.Filter;
 import ome.model.acquisition.FilterSet;
 import ome.model.acquisition.LightSource;
+import ome.model.acquisition.Microscope;
 import ome.model.acquisition.ObjectiveSettings;
 import ome.services.sharing.data.ShareData;
 import ome.services.sharing.data.ShareItem;
@@ -295,7 +300,9 @@ public class BlobShareStore extends ShareStore implements
             PlaneInfo obj = (PlaneInfo) s.get(PlaneInfo.class, objId);
             return imagesContainsPixels(s, images, obj.getPixels(), pixToImageCache);
         } else if (StatsInfo.class.isAssignableFrom(kls)
-                || QuantumDef.class.isAssignableFrom(kls)) {
+                || QuantumDef.class.isAssignableFrom(kls) 
+                || LightPath.class.isAssignableFrom(kls) 
+                || Laser.class.isAssignableFrom(kls)) {
             // Objects we just don't care about so let the
             // user load them if they really want to.
             return true;
@@ -320,7 +327,15 @@ public class BlobShareStore extends ShareStore implements
         } else if (LightSource.class.isAssignableFrom(kls)) {
         	LightSource obj = (LightSource) s.get(LightSource.class, objId);
         	return imagesContainsInstrument(s, images, obj.getInstrument(), obToImageCache);
-        }
+        } else if (LightSettings.class.isAssignableFrom(kls)) {
+        	LightSettings obj = (LightSettings) s.get(LightSettings.class, objId);
+        	return imagesContainsInstrument(s, images, obj.getLightSource().getInstrument(), 
+        			obToImageCache);
+        } else if (Microscope.class.isAssignableFrom(kls) 
+        		|| DetectorSettings.class.isAssignableFrom(kls)) {
+        	return true;
+        } 
+        
         
         return false;
     }

@@ -483,7 +483,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p = omero.sys.Parameters()
         p.map = {}
         p.map["ids"] = rlist([rlong(a) for a in ids])
-        sql = "select ds from Dataset ds join fetch ds.details.creationEvent join fetch ds.details.owner join fetch ds.details.group where ds.id in (:ids) order by ds.name"
+        sql = "select ds from Dataset ds join fetch ds.details.owner join fetch ds.details.group where ds.id in (:ids) order by ds.name"
         for e in q.findAllByQuery(sql, p):
             yield DatasetWrapper(self, e)
 
@@ -493,7 +493,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p = omero.sys.Parameters()
         p.map = {}
         p.map["ids"] = rlist([rlong(a) for a in ids])
-        sql = "select pr from Project pr join fetch pr.details.creationEvent join fetch pr.details.owner join fetch pr.details.group where pr.id in (:ids) order by pr.name"
+        sql = "select pr from Project pr join fetch pr.details.owner join fetch pr.details.group where pr.id in (:ids) order by pr.name"
         for e in q.findAllByQuery(sql, p):
             yield ProjectWrapper(self, e)
     
@@ -503,7 +503,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p = omero.sys.Parameters()
         p.map = {}
         p.map["ids"] = rlist([rlong(a) for a in ids])
-        sql = "select sc from Screen sc join fetch sc.details.creationEvent join fetch sc.details.owner join fetch sc.details.group where sc.id in (:ids) order by sc.name"
+        sql = "select sc from Screen sc join fetch sc.details.owner join fetch sc.details.group where sc.id in (:ids) order by sc.name"
         for e in q.findAllByQuery(sql, p):
             yield ScreenWrapper(self, e)
 
@@ -513,7 +513,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p = omero.sys.Parameters()
         p.map = {}
         p.map["ids"] = rlist([rlong(a) for a in ids])
-        sql = "select pl from Plate pl join fetch pl.details.creationEvent join fetch pl.details.owner join fetch pl.details.group where pl.id in (:ids) order by pl.name"
+        sql = "select pl from Plate pl join fetch pl.details.owner join fetch pl.details.group where pl.id in (:ids) order by pl.name"
         for e in q.findAllByQuery(sql, p):
             yield PlateWrapper(self, e)
     
@@ -523,7 +523,12 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p = omero.sys.Parameters()
         p.map = {}
         p.map["ids"] = rlist([rlong(a) for a in ids])
-        sql = "select wl from Well wl where wl.id in (:ids)"
+        sql = "select wl from Well as wl "\
+                "join fetch wl.details.creationEvent "\
+                "join fetch wl.details.owner join fetch wl.details.group " \
+                "left outer join fetch wl.wellSamples as ws " \
+                "left outer join fetch ws.image as im "\
+                "where wl.id in (:ids)"
         for e in q.findAllByQuery(sql, p):
             yield WellWrapper(self, e)
     

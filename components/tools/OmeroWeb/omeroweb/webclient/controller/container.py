@@ -376,7 +376,7 @@ class BaseContainer(BaseController):
         self.long_annotations = {'rate': 0.00 , 'votes': 0}
         self.file_annotations = list()
         self.tag_annotations = list()
-        
+            
         aList = list()
         if self.image is not None:
             aList = list(self.image.listAnnotations())
@@ -389,7 +389,7 @@ class BaseContainer(BaseController):
         elif self.plate is not None:
             aList = list(self.plate.listAnnotations())
         elif self.well is not None:
-            aList = list(self.well.listAnnotations())
+            aList = list(self.well.selectedWellSample().image().listAnnotations())
         
         for ann in aList:
             if isinstance(ann._obj, omero.model.CommentAnnotationI):
@@ -476,10 +476,14 @@ class BaseContainer(BaseController):
     # Comment annotation
     def createCommentAnnotation(self, otype, content):
         otype = str(otype).lower()
-        if not otype.lower() in ("project", "dataset", "image", "screen", "plate"):
-            raise AttributeError("Object type must be: project, dataset, image, screen, plate. ")
-        selfobject = getattr(self, otype)
-                
+        if not otype in ("project", "dataset", "image", "screen", "plate", "well"):
+            raise AttributeError("Object type must be: project, dataset, image, screen, plate, well. ")
+        if otype == 'well':
+            otype = 'image'
+            selfobject = self.well.selectedWellSample().image()
+        else:
+            selfobject = getattr(self, otype)
+
         ann = omero.model.CommentAnnotationI()
         ann.textValue = rstring(str(content))
         l_ann = getattr(omero.model, otype.title()+"AnnotationLinkI")()
@@ -490,9 +494,14 @@ class BaseContainer(BaseController):
     # Tag annotation    
     def createTagAnnotation(self, otype, tag, desc):
         otype = str(otype).lower()
-        if not otype.lower() in ("project", "dataset", "image", "screen", "plate"):
+        if not otype in ("project", "dataset", "image", "screen", "plate", "well"):
             raise AttributeError("Object type must be: project, dataset, image, screen, plate. ")
-        selfobject = getattr(self, otype)
+        if otype == 'well':
+            otype = 'image'
+            selfobject = self.well.selectedWellSample().image()
+        else:
+            selfobject = getattr(self, otype)
+        
         ann = None
         try:
             ann = self.conn.findTag(tag, desc)._obj
@@ -522,9 +531,13 @@ class BaseContainer(BaseController):
     
     def createFileAnnotation(self, otype, newFile):
         otype = str(otype).lower()
-        if not otype.lower() in ("project", "dataset", "image", "screen", "plate"):
+        if not otype in ("project", "dataset", "image", "screen", "plate", "well"):
             raise AttributeError("Object type must be: project, dataset, image, screen, plate. ")
-        selfobject = getattr(self, otype)
+        if otype == 'well':
+            otype = 'image'
+            selfobject = self.well.selectedWellSample().image()
+        else:
+            selfobject = getattr(self, otype)
         
         if newFile.content_type.startswith("image"):
             f = newFile.content_type.split("/") 
@@ -554,12 +567,18 @@ class BaseContainer(BaseController):
         ann = self.conn.saveAndReturnObject(ann)
    
         new_links = list() 
-        for k in oids:
+        for k in oids.keys():                
             if len(oids[k]) > 0:
                 listing = getattr(self.conn, "listSelected"+k.lower().title()+"s")
                 for ob in list(listing(oids[k])):
-                    l_ann = getattr(omero.model, k.lower().title()+"AnnotationLinkI")()
-                    l_ann.setParent(ob._obj)
+                    if isinstance(ob._obj, omero.model.WellI):
+                        t = 'Image'
+                        obj = ob.selectedWellSample().image()
+                    else:
+                        t = k.lower().title()
+                        obj = ob
+                    l_ann = getattr(omero.model, t+"AnnotationLinkI")()
+                    l_ann.setParent(obj._obj)
                     l_ann.setChild(ann._obj)
                     new_links.append(l_ann)
         
@@ -583,8 +602,14 @@ class BaseContainer(BaseController):
             if len(oids[k]) > 0:
                 listing = getattr(self.conn, "listSelected"+k.lower().title()+"s")
                 for ob in list(listing(oids[k])):
-                    l_ann = getattr(omero.model, k.lower().title()+"AnnotationLinkI")()
-                    l_ann.setParent(ob._obj)
+                    if isinstance(ob._obj, omero.model.WellI):
+                        t = 'Image'
+                        obj = ob.selectedWellSample().image()
+                    else:
+                        t = k.lower().title()
+                        obj = ob
+                    l_ann = getattr(omero.model, t+"AnnotationLinkI")()
+                    l_ann.setParent(obj._obj)
                     l_ann.setChild(ann._obj)
                     new_links.append(l_ann)
         if len(new_links) > 0 :
@@ -615,8 +640,14 @@ class BaseContainer(BaseController):
             if len(oids[k]) > 0:
                 listing = getattr(self.conn, "listSelected"+k.lower().title()+"s")
                 for ob in list(listing(oids[k])):                    
-                    l_ann = getattr(omero.model, k.lower().title()+"AnnotationLinkI")()
-                    l_ann.setParent(ob._obj)
+                    if isinstance(ob._obj, omero.model.WellI):
+                        t = 'Image'
+                        obj = ob.selectedWellSample().image()
+                    else:
+                        t = k.lower().title()
+                        obj = ob
+                    l_ann = getattr(omero.model, t+"AnnotationLinkI")()
+                    l_ann.setParent(obj._obj)
                     l_ann.setChild(fa._obj)
                     new_links.append(l_ann)
         if len(new_links) > 0 :
@@ -625,12 +656,17 @@ class BaseContainer(BaseController):
     # Create links
     def createAnnotationLinks(self, otype, atype, ids):
         otype = str(otype).lower()
-        if not otype.lower() in ("project", "dataset", "image", "screen", "plate"):
+        if not otype in ("project", "dataset", "image", "screen", "plate", "well"):
             raise AttributeError("Object type must be: project, dataset, image, screen, plate.")
         atype = str(atype).lower()
-        if not atype.lower() in ("tag", "comment", "file"):
+        if not atype in ("tag", "comment", "file"):
             raise AttributeError("Object type must be: tag, comment, file.")
-        selfobject = getattr(self, otype)
+        if otype == 'well':
+            otype = 'image'
+            selfobject = self.well.selectedWellSample().image()
+        else:
+            selfobject = getattr(self, otype)
+        
         listing = getattr(self.conn, "listSpecified"+atype.title()+"s")
         anns = listing(ids)
         
@@ -655,8 +691,14 @@ class BaseContainer(BaseController):
                 listing = getattr(self.conn, "listSelected"+k.lower().title()+"s")
                 for ob in list(listing(oids[k])):
                     for a in list(alisting(tids)):
-                        l_ann = getattr(omero.model, k.lower().title()+"AnnotationLinkI")()
-                        l_ann.setParent(ob._obj)
+                        if isinstance(ob._obj, omero.model.WellI):
+                            t = 'Image'
+                            obj = ob.selectedWellSample().image()
+                        else:
+                            t = k.lower().title()
+                            obj = ob
+                        l_ann = getattr(omero.model, t+"AnnotationLinkI")()
+                        l_ann.setParent(obj._obj)
                         l_ann.setChild(a._obj)
                         new_links.append(l_ann)
         self.conn.saveArray(new_links)

@@ -7,7 +7,7 @@
 <h1>WebTest login form</h1>
 <form action="." method="POST">
 <select name="server">
-{% for e in gw.objects.all %}
+{% for e in gw.all %}
   <option value="{{ e.id }}">{{ e }}</option>
 {% endfor %}
 </select>

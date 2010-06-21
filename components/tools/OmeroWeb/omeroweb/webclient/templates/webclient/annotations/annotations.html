@@ -327,12 +327,21 @@
                     <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
                 </tr>
                 {% endfor %}
-                {% if ch.form_emission_filter %}
+                {% if ch.form_emission_filter or ch.form_excitation_filter %}
+                {% for f in ch.form_emission_filter %}
                 <tr><th><br/>{% trans "Filter" %}:</th><th colspan="2"></th></tr>
-                {% for field in ch.form_emission_filter %}
+                {% for field in f %}
                 <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
                     <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
                 </tr>
+                {% endfor %}
+                {% endfor %}
+                {% for f in ch.form_excitation_filter %}
+                {% for field in f %}
+                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                </tr>
+                {% endfor %}
                 {% endfor %}
                 {% endif %}
                 {% if ch.form_detector_settings %}

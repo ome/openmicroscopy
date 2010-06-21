@@ -21,7 +21,7 @@ def login (request):
     logger.debug(conn)
     if conn is not None:
         return HttpResponseRedirect(reverse('webtest_index'))
-    return render_to_response('webtest/login.html', {'gw':Gateway})
+    return render_to_response('webtest/login.html', {'gw':settings.SERVER_LIST})
 
 def logout (request):
     _session_logout(request, request.session['server'])
