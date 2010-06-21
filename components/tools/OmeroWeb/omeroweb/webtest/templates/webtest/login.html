@@ -8,7 +8,7 @@
 <form action="." method="POST">
 <select name="server">
 {% for e in gw.all %}
-  <option value="{{ e.id }}">{{ e }}</option>
+  <option value="{{ e.id }}">{{ e.host }}</option>
 {% endfor %}
 </select>
 User Name <input type="text" name="username">

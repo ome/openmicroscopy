@@ -892,15 +892,15 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
                                             'types':list(conn.getEnumerationEntries("FilterTypeI"))}))
 
 
-                if ch.getLogicalChannel().getDetectorSettings() is not None and ch.getLogicalChannel().getDetectorSettings().getDetector():
+                if ch.getLogicalChannel().getDetectorSettings()._obj is not None and ch.getLogicalChannel().getDetectorSettings().getDetector():
                     channel['form_detector_settings'] = MetadataDetectorForm(initial={'detectorSettings':ch.getLogicalChannel().getDetectorSettings(), 'detector': ch.getLogicalChannel().getDetectorSettings().getDetector(),
                                         'types':list(conn.getEnumerationEntries("DetectorTypeI"))})
-                if ch.getLogicalChannel().getLightSourceSettings() is not None:      
+                if ch.getLogicalChannel().getLightSourceSettings()._obj is not None:      
                     channel['form_light_source'] = MetadataLightSourceForm(initial={'lightSource': ch.getLogicalChannel().getLightSourceSettings(),
                                         'types':list(conn.getEnumerationEntries("FilterTypeI")), 
                                         'mediums': list(conn.getEnumerationEntries("LaserMediumI")),
                                         'pulses': list(conn.getEnumerationEntries("PulseI"))})
-                if ch.getLogicalChannel().getFilterSet() is not None and ch.getLogicalChannel().getFilterSet().getDichroic() is not None:
+                if ch.getLogicalChannel().getFilterSet()._obj is not None and ch.getLogicalChannel().getFilterSet().getDichroic() is not None:
                         channel['form_dichroic'] = MetadataDichroicForm(initial={'logicalchannel': ch.getLogicalChannel().getFilterSet().getDichroic()})
                 channel['name'] = ch.getEmissionWave()
                 channel['color'] = ch.getColor().getHtml()
