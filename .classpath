@@ -2,7 +2,11 @@
 <classpath>
 	<classpathentry kind="src" path="SRC"/>
 	<classpathentry kind="src" path="TEST"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Users/jburel/Documents/workspace/InsightTrunkMain/LIB/osx-native"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="LIB/activation.jar"/>
 	<classpathentry kind="lib" path="LIB/axis-1.4.jar"/>
 	<classpathentry kind="lib" path="LIB/backport-util-concurrent.jar"/>

@@ -309,11 +309,14 @@ public class FSFileSystemView
     	if (file instanceof ImageData) {
     		ImageData img = (ImageData) file;
     		try {
+    			/*
     			images = new ArrayList<Image>();
     			images.add(img.asImage());
+    			proxy.re
     			images = proxy.registerImageList(img.getPathToFile(), images);
     			if (images != null && images.size() > 0)
     				img.setRegisteredFile(images.get(0));
+    				*/
     			return img;
 			} catch (Exception e) {
 				new FSAccessException("Cannot register the image: " +
@@ -352,7 +355,7 @@ public class FSFileSystemView
     		FileData f = (FileData) file;
     		of = (OriginalFile) file.asIObject();
     		try {
-    			r = proxy.registerObject(of);
+    			r = proxy.registerOriginalFile(of);
     			f.setRegisteredFile((OriginalFile) r);
     			return f;
 			} catch (Exception e) {
