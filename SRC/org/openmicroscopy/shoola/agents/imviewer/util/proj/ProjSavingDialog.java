@@ -285,10 +285,8 @@ public class ProjSavingDialog
 		if (pixelsType != null) {
 			p.add(new JSeparator());
 			p.add(buildPixelsTypePanel());
-			//p.add(new JSeparator());
 		}
 		
-		//p.add(UIUtilities.buildComponentPanel(rndSettingsBox));
 		JPanel r = UIUtilities.buildComponentPanel(p);
 		r.setBorder(new TitledBorder(""));
 		return r;

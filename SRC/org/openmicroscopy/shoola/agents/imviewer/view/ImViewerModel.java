@@ -694,7 +694,7 @@ class ImViewerModel
 					pDef, isBigImage());
 			loader.load();
 		} else {
-			if (ImViewerAgent.hasOpenGLSupport())
+			if (ImViewerAgent.hasOpenGLSupport()) 
 				component.setImageAsTexture(rnd.renderPlaneAsTexture(pDef));
 			else component.setImage(rnd.renderPlane(pDef));
 		}
@@ -1683,11 +1683,14 @@ class ImViewerModel
 		buf.append("\n");
 		buf.append("z-sections: "+(startZ+1)+"-"+(endZ+1));
 		buf.append("\n");
-		buf.append("timepoints: "+(ref.getStartT()+1)+"-"+(ref.getEndT()+1));
+		int startT = ref.getStartT();
+		int endT = ref.getEndT();
+		if (startT == endT) buf.append("timepoint: "+(startT+1));
+		else buf.append("timepoints: "+(startT+1)+"-"+(endT+1));
 		List<Integer> channels = ref.getChannels();
 		ProjectionParam param = new ProjectionParam(getPixelsID(), 
-				startZ, endZ, stepping, type, ref.getStartT(), ref.getEndT(), 
-				channels, ref.getImageName());
+				startZ, endZ, stepping, type, startT, endT, channels, 
+				ref.getImageName());
 		param.setDescription(buf.toString());
 		param.setDatasets(ref.getDatasets());
 		param.setDatasetParent(getGrandParent());

@@ -24,12 +24,11 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 
 //Java imports
+import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.Map;
-
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 

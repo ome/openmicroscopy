@@ -2959,6 +2959,7 @@ class OMEROGateway
 			service.load();
 			return service;
 		} catch (Throwable t) {
+			t.printStackTrace();
 			handleException(t, "Cannot start the Rendering Engine.");
 		}
 		return null;

@@ -41,8 +41,6 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ImageProjected;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerCreated;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEvent;
-import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
-import org.openmicroscopy.shoola.agents.imviewer.view.ImViewerFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;

@@ -108,6 +108,22 @@ class RendererComponent
 	 */
 	private void handleException(Throwable e)
 	{
+		handleException(e, true);
+	}
+	
+	/**
+	 * Notifies the user than an error occurred while trying to modify the 
+	 * rendering settings and dispose of the viewer 
+	 * if the passed exception is a <code>RenderingServiceException</code>
+	 * or reloads the rendering engine if it is an 
+	 * <code>DSOutOfServiceException</code>.
+	 * 
+	 * @param e The exception to handle.
+	 * @param notify Pass <code>true</code> to notify the user, 
+	 * 				<code>false</code> otherwise.
+	 */
+	private void handleException(Throwable e, boolean notify)
+	{
 		Logger logger = MetadataViewerAgent.getRegistry().getLogger();
 		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
 		if (e instanceof RenderingServiceException) {
@@ -119,28 +135,27 @@ class RendererComponent
 			logger.error(this, logMsg);
 			if (e.getCause() instanceof OutOfMemoryError) {
 				un.notifyInfo("Image", "Due to an out of Memory error, " +
-						"\nit is not possible to render the image.");
+				"\nit is not possible to render the image.");
 			} else {
-				
-				JFrame f = 
+				if (notify) {
+					JFrame f = 
 					MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-				MessageBox box = new MessageBox(f, "Rendering Error", "An " +
-						"error occurred while modifying the settings.\nDo you " +
-						"want to reload the settings?");
-				if (box.centerMsgBox() == MessageBox.YES_OPTION) {
-					logger.debug(this, "Reload rendering Engine.");
-					firePropertyChange(RELOAD_PROPERTY, Boolean.valueOf(false), 
-							Boolean.valueOf(true));
-				} else {
-					firePropertyChange(RELOAD_PROPERTY, Boolean.valueOf(true), 
-							Boolean.valueOf(false));
+					MessageBox box = new MessageBox(f, "Rendering Error", 
+							"An error occurred while modifying the settings." +
+							"\nDo you " +
+					"want to reload the settings?");
+					if (box.centerMsgBox() == MessageBox.YES_OPTION) {
+						logger.debug(this, "Reload rendering Engine.");
+						firePropertyChange(RELOAD_PROPERTY, 
+								Boolean.valueOf(false), 
+								Boolean.valueOf(true));
+					} else {
+						firePropertyChange(RELOAD_PROPERTY, 
+								Boolean.valueOf(true), 
+								Boolean.valueOf(false));
+					}
 				}
-				
-				//un.notifyError(ImViewerAgent.ERROR, logMsg.toString(), 
-				//		e.getCause());
 			}
-			//model.discard();
-			//fireStateChange();
 		} else if (e instanceof DSOutOfServiceException) {
 			logger.debug(this, "Reload rendering Engine.");
 			un.notifyError(ERROR, "Out of service.", e.getCause());
@@ -866,7 +881,7 @@ class RendererComponent
 		try {
 			return model.renderPlane(pDef);
 		} catch (Throwable e) {
-			handleException(e);
+			handleException(e, false);
 		}
 		return null;
 	}
@@ -881,7 +896,7 @@ class RendererComponent
 		try {
 			return model.renderPlaneAsTexture(pDef);
 		} catch (Throwable e) {
-			handleException(e);
+			handleException(e, false);
 		}
 		return null;
 	}
