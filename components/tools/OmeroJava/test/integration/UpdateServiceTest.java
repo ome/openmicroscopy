@@ -716,35 +716,28 @@ public class UpdateServiceTest
     
     //Annotation section
     /**
-     * Tests to update a textual annotation.
+     * Tests to update an annotation.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testUpdateTextualAnnotation() 
+    public void testUpdateAnnotation() 
     	throws Exception 
     {
-    	/* Test: rewrite test
-        DataObject annotatedObject;
-        AnnotationData data;
-
-        Dataset d = new DatasetI();
-        d.setName(rstring("update_annotation"));
-        d = (Dataset) iContainer.createDataObject(d, null);
-        annotatedObject = new DatasetData(d);
-
-        data = new TextualAnnotationData("update_annotation");
-       
-        IObject updated = iContainer.updateDataObject(
-        		annotatedObject.asIObject(), null);
-
-        DatasetAnnotationLink link = 
-        	((Dataset) updated).linkAnnotation(data.asAnnotation());
-        link = (DatasetAnnotationLink) iContainer.updateDataObject(link, null);
-        link.getChild().unload();
-
-        DataObject toReturn = 
-        	new TextualAnnotationData((CommentAnnotation) link.getChild());
-        	*/
+    	CommentAnnotationI annotation = new CommentAnnotationI();
+    	annotation.setTextValue(omero.rtypes.rstring("comment"));
+    	CommentAnnotation data = (CommentAnnotation) 
+    		iUpdate.saveAndReturnObject(annotation);
+    	assertNotNull(data);
+    	//modified the text
+    	String newText = "commentModified";
+    	data.setTextValue(omero.rtypes.rstring(newText));
+    	CommentAnnotation update = (CommentAnnotation) 
+			iUpdate.saveAndReturnObject(data);
+    	assertNotNull(update);
+    	
+    	assertTrue(data.getId().getValue() == update.getId().getValue());
+    	
+    	assertTrue(newText.equals(update.getTextValue().getValue()));
     }
     
     /**
