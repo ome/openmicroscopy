@@ -392,7 +392,6 @@ class BlitzObjectWrapper (object):
 
 
     def _loadAnnotationLinks (self):
-        print type(self)
         if not hasattr(self._obj, 'isAnnotationLinksLoaded'): #pragma: no cover
             raise NotImplementedError
         if not self._obj.isAnnotationLinksLoaded():
@@ -523,7 +522,7 @@ class BlitzObjectWrapper (object):
                     
                     v = getattr(self, k)
                     if v is not None:
-                        v = getattr(omero.gateway, w)(self._conn, v).simpleMarshal()                        
+                        v = getattr(omero.gateway, w)(self._conn, v).simpleMarshal()
                 else:
                     if k.startswith('#'):
                         v = getattr(self, k[1:])
@@ -547,8 +546,6 @@ class BlitzObjectWrapper (object):
     #    return str(self._obj)
 
     def __getattr__ (self, attr):
-        if attr != 'copy' and attr.startswith('copy'):
-            return getattr(self, attr)()
         if attr != 'get' and attr.startswith('get') and hasattr(self, '_attrs'):
             tattr = attr[3].lower() + attr[4:]
             attrs = filter(lambda x: tattr in x, self._attrs)

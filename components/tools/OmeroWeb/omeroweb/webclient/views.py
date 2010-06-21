@@ -895,8 +895,8 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
                 if ch.getLogicalChannel().getDetectorSettings()._obj is not None and ch.getLogicalChannel().getDetectorSettings().getDetector():
                     channel['form_detector_settings'] = MetadataDetectorForm(initial={'detectorSettings':ch.getLogicalChannel().getDetectorSettings(), 'detector': ch.getLogicalChannel().getDetectorSettings().getDetector(),
                                         'types':list(conn.getEnumerationEntries("DetectorTypeI"))})
-                if ch.getLogicalChannel().getLightSourceSettings()._obj is not None:      
-                    channel['form_light_source'] = MetadataLightSourceForm(initial={'lightSource': ch.getLogicalChannel().getLightSourceSettings(),
+                if ch.getLogicalChannel().getLightSourceSettings()._obj is not None and ch.getLogicalChannel().getLightSourceSettings().getLightSource() is not None:      
+                    channel['form_light_source'] = MetadataLightSourceForm(initial={'lightSource': ch.getLogicalChannel().getLightSourceSettings().getLightSource(),
                                         'types':list(conn.getEnumerationEntries("FilterTypeI")), 
                                         'mediums': list(conn.getEnumerationEntries("LaserMediumI")),
                                         'pulses': list(conn.getEnumerationEntries("PulseI"))})
