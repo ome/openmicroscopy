@@ -390,7 +390,7 @@ class InputServerStrategy
 		double y = data.getY();
 		double width = data.getWidth();
 		double height = data.getHeight();
-		BufferedImage mask = data.getMask();
+		BufferedImage mask = data.getMaskAsBufferedImage();
 		MeasureMaskFigure fig = new MeasureMaskFigure(x, y, width, 
 				height, mask, data.isReadOnly(), data.isClientObject());
 		fig.setVisible(true);
