@@ -24,8 +24,8 @@
     padding: 2px; 
 }
 
-#dataIcons .ui-selecting img{ border: 1px dashed #555; padding: 2px; }
-#dataIcons .ui-selected img{ border: 1px dashed #555; padding: 2px; color: white; }
+#dataIcons .ui-selecting img{ border: 1px dashed #555; padding: 2px; background-color:#ccc; }
+#dataIcons .ui-selected img{ border: 1px dashed #555; padding: 2px; background-color:#ccc; }
 
 em {
     background-color: #fff;
@@ -114,8 +114,8 @@ div.paging input.button_pagination {
     background: #eee;
 }
 
-#spw td.ui-selecting { border: 1px dashed #555; padding: 1px;}
-#spw td.ui-selected { border: 1px dashed #555; padding: 1px; color: white;}
+#spw table td.ui-selecting { border: 1px dashed #555; padding: 1px; background-color:#ccc;}
+#spw table td.ui-selected { border: 1px dashed #555; padding: 1px; background-color:#ccc;}
 
 #index table {
     background:#fff none repeat scroll 0 0;

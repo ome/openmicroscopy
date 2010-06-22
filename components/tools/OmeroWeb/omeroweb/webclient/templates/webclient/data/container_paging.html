@@ -16,7 +16,7 @@
             {% ifequal p -1 %}
                 ...
             {% else %}
-                <input onclick="doPagination('{{ nav.view }}',{{ p }});" class="button_pagination" type="button" value="{{ p }}" alt="Change view to table"/>
+                <input onclick="doPagination('{{ nav.view }}',{{ p }});" class="button_pagination" type="button" value="{{ p }}" alt="{{ p }}"/>
             {% endifequal %}
         {% endifequal %}
     {% endfor %}

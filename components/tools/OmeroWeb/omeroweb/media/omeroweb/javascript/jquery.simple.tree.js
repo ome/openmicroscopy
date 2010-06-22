@@ -135,6 +135,18 @@ $.fn.simpleTree = function(opt){
 		};
 		TREE.setTreeNodes = function(obj, useParent){
 			obj = useParent? obj.parent():obj;
+
+			if(obj.attr('id')==0) {
+			    $('span',obj).click(function(){
+			        $('.active',TREE).attr('class','text');
+			        if(typeof TREE.option.afterRootClick == 'function')
+    				{
+    					TREE.option.afterRootClick($(this).parent());
+    				}
+    				return false;
+    			});
+			}
+					
 			$('li>span', obj).addClass('text')
 			.bind('selectstart', function() {
 				return false;

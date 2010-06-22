@@ -169,7 +169,6 @@ class BaseShare(BaseController):
         self.imageInShare = list()
 
         for ex in content:
-            print type(ex._obj)
             if isinstance(ex._obj, omero.model.ImageI):
                 self.imageInShare.append(ex)
 

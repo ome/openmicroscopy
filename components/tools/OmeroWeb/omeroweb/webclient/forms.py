@@ -943,7 +943,6 @@ class MetadataLightSourceForm(forms.Form):
         
         # Manufacturer
         try:
-            print type(kwargs['initial']['lightSource']._obj)
             if kwargs['initial']['lightSource'].manufacturer is not None:
                 self.fields['manufacturer'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'model\', this.value);'}), initial=kwargs['initial']['lightSource'].manufacturer, required=False)
             else:
@@ -951,8 +950,6 @@ class MetadataLightSourceForm(forms.Form):
             self.fields['manufacturer'].widget.attrs['disabled'] = True 
             self.fields['manufacturer'].widget.attrs['class'] = 'disable'
         except:
-            #import traceback
-            #print traceback.format_exc()
             self.fields['manufacturer'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['manufacturer'].widget.attrs['disabled'] = True 
             self.fields['manufacturer'].widget.attrs['class'] = 'disabled'

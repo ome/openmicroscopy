@@ -17,6 +17,7 @@
 	clear: left;
 	white-space: nowrap;
 	padding: 1px;
+	border: 1 solid #fff;
 }
 
 .simpleTree ul
@@ -142,23 +143,27 @@
 .simpleTree .text-select
 {
 	cursor: pointer;
-	background-color: #eee;
+	background-color: #ccc;
 	padding:1px;
+}
+.simpleTree .root span {
+    cursor: pointer;
 }
 .simpleTree .active
 {
 	cursor: pointer;
-	background-color:#eee;
+	background-color:#ccc;
 	padding:1px;
+	border: 1px dashed #555;
 }
 
 #drag_container
 {
-	background-color: #eee;
+	background-color: #ccc;
 	color:#000;
 	font: normal 11px arial, tahoma, helvetica, sans-serif;
 	padding:1px;
-	border: 1px dotted #bbb;
+	border: 1px dashed #555;
 }
 #drag_container ul
 {

@@ -187,7 +187,7 @@ class GroupForm(forms.Form):
 
     name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25}))
     description = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':25}), required=False)
-    access_controll = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True)
+    access_controll = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions")
     readonly = forms.BooleanField(required=False, label="(read-only)")  
     
     def clean_name(self):
