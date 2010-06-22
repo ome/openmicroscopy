@@ -157,10 +157,10 @@ def runfret(session, commandArgs):
     iPixels = session.getPixelsService();
     roiService = session.getRoiService();
         
-    noFretPixelsId = commandArgs['imageIdNoFret'];
-    fretPixelsId = commandArgs['imageIdFret'];
+    noFretPixelsId = commandArgs['Image_ID_No_Fret'];
+    fretPixelsId = commandArgs['Image_ID_Fret'];
    
-    instrumentResponseFileId = commandArgs['irfId'];
+    instrumentResponseFileId = commandArgs['IRF_ID'];
     
     noFretPixels = iPixels.retrievePixDescription(noFretPixelsId);
     fretPixels = iPixels.retrievePixDescription(fretPixelsId);
@@ -408,9 +408,9 @@ def runfret(session, commandArgs):
 def runAsScript():
     client = scripts.client('FLIM.py', """Analysis a set of Lifetime images and perform FRET analysis betweeen control and sample images.
     See http://trac.openmicroscopy.org.uk/shoola/wiki/Analysis_Scripts#FLIM""", 
-    scripts.Long("imageIdNoFret", description="The image to analysis with no fret condition"),
-    scripts.Long("imageIdFret", description="The image to analysis under fret condition"),
-    scripts.Long("irfId", description="The file containing the instrument response function(IRF)"));
+    scripts.Long("Image_ID_No_Fret", description="The image to analysis with no fret condition"),
+    scripts.Long("Image_ID_Fret", description="The image to analysis under fret condition"),
+    scripts.Long("IRF_ID", description="The file containing the instrument response function(IRF)"));
     try:
         session = client.getSession();
         commandArgs = {}
