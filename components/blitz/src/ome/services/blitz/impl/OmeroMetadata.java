@@ -50,66 +50,38 @@ import ome.services.db.DatabaseIdentity;
 import ome.tools.hibernate.ProxyCleanupFilter;
 import ome.tools.hibernate.QueryBuilder;
 import ome.xml.model.enums.AcquisitionMode;
-import ome.xml.model.enums.ArcType;
-import ome.xml.model.enums.Binning;
 import ome.xml.model.enums.ContrastMethod;
-import ome.xml.model.enums.Correction;
-import ome.xml.model.enums.DetectorType;
 import ome.xml.model.enums.DimensionOrder;
-import ome.xml.model.enums.Enumeration;
 import ome.xml.model.enums.EnumerationException;
-import ome.xml.model.enums.ExperimentType;
-import ome.xml.model.enums.FilamentType;
-import ome.xml.model.enums.FilterType;
 import ome.xml.model.enums.IlluminationType;
-import ome.xml.model.enums.Immersion;
-import ome.xml.model.enums.LaserMedium;
-import ome.xml.model.enums.LaserType;
-import ome.xml.model.enums.Medium;
-import ome.xml.model.enums.MicrobeamManipulationType;
-import ome.xml.model.enums.MicroscopeType;
-import ome.xml.model.enums.NamingConvention;
 import ome.xml.model.enums.PixelType;
-import ome.xml.model.enums.Pulse;
-import ome.xml.model.primitives.NonNegativeInteger;
-import ome.xml.model.primitives.NonNegativeLong;
-import ome.xml.model.primitives.PercentFraction;
 import ome.xml.model.primitives.PositiveInteger;
+import omero.RDouble;
 import omero.RInt;
 import omero.RLong;
 import omero.RString;
 import omero.RTime;
 import omero.model.Annotation;
-import omero.model.Arc;
 import omero.model.Channel;
 import omero.model.Dataset;
 import omero.model.Details;
-import omero.model.Ellipse;
 import omero.model.Event;
 import omero.model.Experiment;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExternalInfo;
 import omero.model.ExternalInfoI;
-import omero.model.Filament;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Instrument;
-import omero.model.Laser;
-import omero.model.Line;
 import omero.model.Pixels;
 import omero.model.Plate;
-import omero.model.Point;
-import omero.model.Polygon;
-import omero.model.Polyline;
 import omero.model.Project;
-import omero.model.Rect;
 import omero.model.Screen;
 import omero.util.IceMapper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * An implementation for {@link MetadataStore} and {@link MetadataRetrieve} that
@@ -140,6 +112,12 @@ public class OmeroMetadata extends DummyMetadata {
 
     public OmeroMetadata(DatabaseIdentity db) {
         this.db = db;
+    }
+
+    @Override
+    public Object getRoot()
+    {
+        return "";
     }
 
     public void addImage(Image image) {
@@ -311,6 +289,11 @@ public class OmeroMetadata extends DummyMetadata {
         return v == null? null : v.getValue();
     }
 
+    private Double fromRType(RDouble v)
+    {
+        return v == null? null : v.getValue();
+    }
+
     private Integer fromRType(RInt v)
     {
         return v == null? null : v.getValue();
@@ -384,6 +367,119 @@ public class OmeroMetadata extends DummyMetadata {
     {
         Image o = _getImage(imageIndex);
         return o != null? fromRType(o.getName()) : null;
+    }
+
+    @Override
+    public Boolean getPixelsBinDataBigEndian(int imageIndex, int binDataIndex)
+    {
+        return true;
+    }
+
+    @Override
+    public DimensionOrder getPixelsDimensionOrder(int imageIndex)
+    {
+        return DimensionOrder.XYZCT;
+    }
+
+    @Override
+    public String getPixelsID(int imageIndex)
+    {
+        Image o = _getImage(imageIndex);
+        return o != null? handleLsid(o.getPrimaryPixels()) : null;
+    }
+
+    @Override
+    public Double getPixelsPhysicalSizeX(int imageIndex)
+    {
+        Image o = _getImage(imageIndex);
+        return o != null? fromRType(
+                o.getPrimaryPixels().getPhysicalSizeX()) : null;
+    }
+
+    @Override
+    public Double getPixelsPhysicalSizeY(int imageIndex)
+    {
+        Image o = _getImage(imageIndex);
+        return o != null? fromRType(
+                o.getPrimaryPixels().getPhysicalSizeY()) : null;
+    }
+
+    @Override
+    public Double getPixelsPhysicalSizeZ(int imageIndex)
+    {
+        Image o = _getImage(imageIndex);
+        return o != null? fromRType(
+                o.getPrimaryPixels().getPhysicalSizeZ()) : null;
+    }
+
+    @Override
+    public PositiveInteger getPixelsSizeC(int imageIndex)
+    {
+        Image o = _getImage(imageIndex);
+        return o != null? new PositiveInteger(fromRType(
+                o.getPrimaryPixels().getSizeC())) : null;
+    }
+
+    @Override
+    public PositiveInteger getPixelsSizeT(int imageIndex)
+    {
+        Image o = _getImage(imageIndex);
+        return o != null? new PositiveInteger(fromRType(
+                o.getPrimaryPixels().getSizeT())) : null;
+    }
+
+    @Override
+    public PositiveInteger getPixelsSizeX(int imageIndex)
+    {
+        Image o = _getImage(imageIndex);
+        return o != null? new PositiveInteger(fromRType(
+                o.getPrimaryPixels().getSizeX())) : null;
+    }
+
+    @Override
+    public PositiveInteger getPixelsSizeY(int imageIndex)
+    {
+        Image o = _getImage(imageIndex);
+        return o != null? new PositiveInteger(fromRType(
+                o.getPrimaryPixels().getSizeY())) : null;
+    }
+
+    @Override
+    public PositiveInteger getPixelsSizeZ(int imageIndex)
+    {
+        Image o = _getImage(imageIndex);
+        return o != null? new PositiveInteger(fromRType(
+                o.getPrimaryPixels().getSizeZ())) : null;
+    }
+
+    @Override
+    public Double getPixelsTimeIncrement(int imageIndex)
+    {
+        Image o = _getImage(imageIndex);
+        return o != null? fromRType(
+                o.getPrimaryPixels().getTimeIncrement()) : null;
+    }
+
+    @Override
+    public PixelType getPixelsType(int imageIndex)
+    {
+        Image o = _getImage(imageIndex);
+        if (o == null)
+        {
+            return null;
+        }
+        omero.model.PixelsType e = o.getPrimaryPixels().getPixelsType();
+        try
+        {
+            return e != null? 
+                    PixelType.fromString(fromRType(e.getValue()))
+                    : null;
+        }
+        catch (EnumerationException ex)
+        {
+            log.error("Unable to map enumeration.", ex);
+            return null;
+        }
     }
 
     private Channel getChannel(int imageIndex, int channelIndex)
@@ -478,120 +574,104 @@ public class OmeroMetadata extends DummyMetadata {
     @Override
     public int getChannelCount(int imageIndex)
     {
-        // TODO Auto-generated method stub
-        return super.getChannelCount(imageIndex);
+        Image o = _getImage(imageIndex);
+        if (o == null)
+        {
+            return -1;
+        }
+        return o.getPrimaryPixels().sizeOfChannels();
     }
 
     @Override
     public PositiveInteger getChannelEmissionWavelength(int imageIndex,
             int channelIndex)
     {
-        // TODO Auto-generated method stub
-        return super.getChannelEmissionWavelength(imageIndex, channelIndex);
+        Channel o = getChannel(imageIndex, channelIndex);
+        Integer v = fromRType(o.getLogicalChannel().getEmissionWave());
+        return v != null? new PositiveInteger(v) : null; 
     }
 
     @Override
     public PositiveInteger getChannelExcitationWavelength(int imageIndex,
             int channelIndex)
     {
-        // TODO Auto-generated method stub
-        return super.getChannelExcitationWavelength(imageIndex, channelIndex);
-    }
-
-    @Override
-    public String getChannelFilterSetRef(int imageIndex, int channelIndex)
-    {
-        // TODO Auto-generated method stub
-        return super.getChannelFilterSetRef(imageIndex, channelIndex);
+        Channel o = getChannel(imageIndex, channelIndex);
+        Integer v = fromRType(o.getLogicalChannel().getExcitationWave());
+        return v != null? new PositiveInteger(v) : null; 
     }
 
     @Override
     public String getChannelFluor(int imageIndex, int channelIndex)
     {
-        // TODO Auto-generated method stub
-        return super.getChannelFluor(imageIndex, channelIndex);
+        Channel o = getChannel(imageIndex, channelIndex);
+        return o != null? fromRType(o.getLogicalChannel().getFluor()) : null;
     }
 
     @Override
     public String getChannelID(int imageIndex, int channelIndex)
     {
-        // TODO Auto-generated method stub
-        return super.getChannelID(imageIndex, channelIndex);
+        Channel o = getChannel(imageIndex, channelIndex);
+        return o != null? handleLsid(o) : null;
     }
 
     @Override
     public IlluminationType getChannelIlluminationType(int imageIndex,
             int channelIndex)
     {
-        // TODO Auto-generated method stub
-        return super.getChannelIlluminationType(imageIndex, channelIndex);
-    }
-
-    @Override
-    public PercentFraction getChannelLightSourceSettingsAttenuation(
-            int imageIndex, int channelIndex)
-    {
-        // TODO Auto-generated method stub
-        return super.getChannelLightSourceSettingsAttenuation(imageIndex, channelIndex);
-    }
-
-    @Override
-    public String getChannelLightSourceSettingsID(int imageIndex,
-            int channelIndex)
-    {
-        // TODO Auto-generated method stub
-        return super.getChannelLightSourceSettingsID(imageIndex, channelIndex);
-    }
-
-    @Override
-    public PositiveInteger getChannelLightSourceSettingsWavelength(
-            int imageIndex, int channelIndex)
-    {
-        // TODO Auto-generated method stub
-        return super.getChannelLightSourceSettingsWavelength(imageIndex, channelIndex);
+        Channel o = getChannel(imageIndex, channelIndex);
+        if (o == null)
+        {
+            return null;
+        }
+        omero.model.Illumination e = o.getLogicalChannel().getIllumination();
+        try
+        {
+            return e != null? 
+                    IlluminationType.fromString(fromRType(e.getValue()))
+                    : null;
+        }
+        catch (EnumerationException ex)
+        {
+            log.error("Unable to map enumeration.", ex);
+            return null;
+        }
     }
 
     @Override
     public String getChannelName(int imageIndex, int channelIndex)
     {
-        // TODO Auto-generated method stub
-        return super.getChannelName(imageIndex, channelIndex);
+        Channel o = getChannel(imageIndex, channelIndex);
+        return o != null? fromRType(o.getLogicalChannel().getName()) : null;
     }
 
     @Override
     public Double getChannelNDFilter(int imageIndex, int channelIndex)
     {
-        // TODO Auto-generated method stub
-        return super.getChannelNDFilter(imageIndex, channelIndex);
-    }
-
-    @Override
-    public String getChannelOTFRef(int imageIndex, int channelIndex)
-    {
-        // TODO Auto-generated method stub
-        return super.getChannelOTFRef(imageIndex, channelIndex);
+        Channel o = getChannel(imageIndex, channelIndex);
+        return o != null? fromRType(o.getLogicalChannel().getNdFilter()) : null;
     }
 
     @Override
     public Double getChannelPinholeSize(int imageIndex, int channelIndex)
     {
-        // TODO Auto-generated method stub
-        return super.getChannelPinholeSize(imageIndex, channelIndex);
+        Channel o = getChannel(imageIndex, channelIndex);
+        return o != null? fromRType(
+                o.getLogicalChannel().getPinHoleSize()) : null;
     }
 
     @Override
     public Integer getChannelPockelCellSetting(int imageIndex, int channelIndex)
     {
-        // TODO Auto-generated method stub
-        return super.getChannelPockelCellSetting(imageIndex, channelIndex);
+        Channel o = getChannel(imageIndex, channelIndex);
+        return o != null? fromRType(
+                o.getLogicalChannel().getPockelCellSetting()) : null;
     }
 
     @Override
     public PositiveInteger getChannelSamplesPerPixel(int imageIndex,
             int channelIndex)
     {
-        // TODO Auto-generated method stub
-        return super.getChannelSamplesPerPixel(imageIndex, channelIndex);
+        return new PositiveInteger(1);
     }
 
 }
