@@ -3557,30 +3557,16 @@ public class OMEROMetadataStoreClient
         o.setType((ExperimentType) getEnumeration(ExperimentType.class, type.toString()));
     }
 
-    ////////Experiment/////////
-
-    private Experimenter getExperimenter(int experimenterIndex)
-    {
-        LinkedHashMap<Index, Integer> indexes =
-            new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.EXPERIMENTER_INDEX, experimenterIndex);
-        return getSourceObject(Experimenter.class, indexes);
-    }    
+    ////////Experimenter/////////
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setExperimenterID(java.lang.String, int)
      */
     public void setExperimenterID(String id, int experimenterIndex)
     {
-        checkDuplicateLSID(Experimenter.class, id);
-        LinkedHashMap<Index, Integer> indexes =
-            new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.EXPERIMENTER_INDEX, experimenterIndex);
-        IObjectContainer o = getIObjectContainer(Experimenter.class, indexes);
-        o.LSID = id;
-        addAuthoritativeContainer(Experimenter.class, id, o); 
+        // XXX: Not handled by OMERO.
     }
-    
+
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setExperimenterAnnotationRef(java.lang.String, int, int)
      */
@@ -3597,7 +3583,7 @@ public class OMEROMetadataStoreClient
     public void setExperimenterDisplayName(String displayName,
             int experimenterIndex)
     {
-        // TODO not in OMERO model
+        // XXX: Not handled by OMERO.
     }
 
     /* (non-Javadoc)
@@ -3605,8 +3591,7 @@ public class OMEROMetadataStoreClient
      */
     public void setExperimenterEmail(String email, int experimenterIndex)
     {
-        Experimenter o = getExperimenter(experimenterIndex);
-        o.setEmail(toRType(email));
+        // XXX: Not handled by OMERO.
     }
 
     /* (non-Javadoc)
@@ -3614,8 +3599,7 @@ public class OMEROMetadataStoreClient
      */
     public void setExperimenterFirstName(String firstName, int experimenterIndex)
     {
-        Experimenter o = getExperimenter(experimenterIndex);
-        o.setFirstName(toRType(firstName)); 
+        // XXX: Not handled by OMERO.
     }
 
     /* (non-Javadoc)
@@ -3624,8 +3608,7 @@ public class OMEROMetadataStoreClient
     public void setExperimenterGroupRef(String group, int experimenterIndex,
             int groupRefIndex)
     {
-        //LSID key = new LSID(Experimenter.class, experimenterIndex);
-        //addReference(key, new LSID(group)); 
+        // XXX: Not handled by OMERO.
     }
 
     /* (non-Javadoc)
@@ -3634,8 +3617,7 @@ public class OMEROMetadataStoreClient
     public void setExperimenterInstitution(String institution,
             int experimenterIndex)
     {
-        Experimenter o = getExperimenter(experimenterIndex);
-        o.setInstitution(toRType(institution)); 
+        // XXX: Not handled by OMERO.
     }
 
     /* (non-Javadoc)
@@ -3643,8 +3625,7 @@ public class OMEROMetadataStoreClient
      */
     public void setExperimenterLastName(String lastName, int experimenterIndex)
     {
-        Experimenter o = getExperimenter(experimenterIndex);
-        o.setLastName(toRType(lastName)); 
+        // XXX: Not handled by OMERO.
     }
 
     /* (non-Javadoc)
@@ -3653,8 +3634,7 @@ public class OMEROMetadataStoreClient
     public void setExperimenterMiddleName(String middleName,
             int experimenterIndex)
     {
-        Experimenter o = getExperimenter(experimenterIndex);
-        o.setMiddleName(toRType(middleName)); 
+        // XXX: Not handled by OMERO.
     }
 
     /* (non-Javadoc)
@@ -3662,7 +3642,7 @@ public class OMEROMetadataStoreClient
      */
     public void setExperimenterUserName(String userName, int experimenterIndex)
     {
-        // TODO not in OMERO model
+        // XXX: Not handled by OMERO.
     }
 
     ////////Filament/////////
@@ -4010,37 +3990,21 @@ public class OMEROMetadataStoreClient
     }
 
     ////////Group/////////
-    
-    public ExperimenterGroup getGroup(int groupIndex)
-    {
-        LinkedHashMap<Index, Integer> indexes =
-            new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.GROUP_INDEX, groupIndex);
-        return getSourceObject(ExperimenterGroup.class, indexes);
-    }
-    
+
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setGroupID(java.lang.String, int)
      */
     public void setGroupID(String id, int groupIndex)
     {
-        checkDuplicateLSID(ExperimenterGroup.class, id);
-        LinkedHashMap<Index, Integer> indexes =
-            new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.GROUP_INDEX, groupIndex);
-        IObjectContainer o = getIObjectContainer(ExperimenterGroup.class, indexes);
-        o.LSID = id;
-        addAuthoritativeContainer(ExperimenterGroup.class, id, o); 
+        // XXX: Not handled by OMERO.
     }
-    
+
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setGroupContact(java.lang.String, int)
      */
     public void setGroupContact(String contact, int groupIndex)
     {
-        //ExperimenterGroup o = getFilterSet(groupIndex);
-        //o.set(toRType(model)); 
-        // TODO not in OMERO model
+        // XXX: Not handled by OMERO.
     }
 
     /* (non-Javadoc)
@@ -4048,8 +4012,7 @@ public class OMEROMetadataStoreClient
      */
     public void setGroupDescription(String description, int groupIndex)
     {
-        ExperimenterGroup o = getGroup(groupIndex);
-        o.setDescription(toRType(description)); 
+        // XXX: Not handled by OMERO.
     }
 
     /* (non-Javadoc)
@@ -4057,7 +4020,7 @@ public class OMEROMetadataStoreClient
      */
     public void setGroupLeader(String leader, int groupIndex)
     {
-        // TODO not in OMERO model
+        // XXX: Not handled by OMERO.
     }
 
     /* (non-Javadoc)
@@ -4065,8 +4028,7 @@ public class OMEROMetadataStoreClient
      */
     public void setGroupName(String name, int groupIndex)
     {
-        ExperimenterGroup o = getGroup(groupIndex);
-        o.setName(toRType(name)); 
+        // XXX: Not handled by OMERO.
     }
 
     //////// Image /////////
