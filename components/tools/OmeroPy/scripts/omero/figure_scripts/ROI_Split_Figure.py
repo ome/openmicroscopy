@@ -1,5 +1,5 @@
 """
- components/tools/OmeroPy/scripts/roiMovieFigure.py
+ components/tools/OmeroPy/scripts/omero/figure_scripts/ROI_Split_Figure.py
 
 -----------------------------------------------------------------------------
   Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -41,8 +41,7 @@ import omero.scripts as scripts
 import omero.util.imageUtil as imgUtil
 import omero.util.figureUtil as figUtil
 import omero.util.script_utils as scriptUtil
-from omero.model import ImageI
-from omero.rtypes import *      # includes wrap()
+from omero.rtypes import *
 import omero.gateway
 import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
 import omero_api_IRoi_ice
@@ -57,8 +56,7 @@ JPEG = "image/jpeg"
 PNG = "image/png"
 
 WHITE = (255,255,255)
-
-COLOURS = scriptUtil.COLOURS
+COLOURS = scriptUtil.COLOURS    # name:(rgba) map
 OVERLAY_COLOURS = dict(COLOURS, **scriptUtil.EXTRA_COLOURS)
 
 logStrings = []
@@ -99,37 +97,16 @@ def addScalebar(scalebar, xIndent, yIndent, image, pixels, colour):
     return True
 
 
-def getTimeIndexes(timePoints, maxFrames):
-    """ 
-    If we want to display a number of timepoints (e.g. 11), without exceeding maxFrames (e.g. 5), 
-    need to pick a selection of t-indexes e.g. 0, 2, 4, 7, 10
-    This method returns the list of indexes. NB - Not used at present - but might be needed. """
-    frames = min(maxFrames, timePoints)
-    intervalCount = frames-1
-    smallestInterval = (timePoints-1)/intervalCount
-    # make a list of intervals, making the last intervals bigger if needed
-    intervals = [smallestInterval] * intervalCount
-    extra = (timePoints-1) % intervalCount
-    for e in range(extra):
-        lastIndex = -(e+1)
-        intervals[lastIndex] += 1
-    # convert the list of intervals into indexes. 
-    indexes = []
-    time = 0
-    indexes.append(time)
-    for i in range(frames-1):
-        time += intervals[i]
-        indexes.append(time)
-    return indexes
-        
-    
-def getROImovieView    (re, queryService, pixels, timeShapeMap, mergedIndexes, mergedColours, roiWidth, 
-        roiHeight, roiZoom, spacer = 12, algorithm=None, stepping = 1, fontsize=24, maxColumns=None, showRoiDuration=False):
-
-    """ This takes a ROI rectangle from an image and makes a movie canvas of the region in the ROI, zoomed 
+def getROIsplitView    (re, pixels, zStart, zEnd, splitIndexes, channelNames, mergedNames, colourChannels, mergedIndexes, mergedColours, 
+            roiX, roiY, roiWidth, roiHeight, roiZoom, tIndex, spacer, algorithm, stepping, fontsize, showTopLabels):
+    """ This takes a ROI rectangle from an image and makes a split view canvas of the region in the ROI, zoomed 
         by a defined factor. 
+        
+    @param    re        The OMERO rendering engine. 
     """
     
+    if algorithm is None:    # omero::constants::projection::ProjectionType
+        algorithm = omero.constants.projection.ProjectionType.MAXIMUMINTENSITY
     mode = "RGB"
     white = (255, 255, 255)    
     
@@ -137,7 +114,10 @@ def getROImovieView    (re, queryService, pixels, timeShapeMap, mergedIndexes, m
     sizeY = pixels.getSizeY().getValue()
     sizeZ = pixels.getSizeZ().getValue()
     sizeC = pixels.getSizeC().getValue()
-    sizeT = pixels.getSizeT().getValue()
+    
+    # make sure we have some merged channels
+    if len(mergedIndexes) == 0:
+        mergedIndexes = range(sizeC)
     
     if pixels.getPhysicalSizeX():
         physicalX = pixels.getPhysicalSizeX().getValue()
@@ -147,11 +127,21 @@ def getROImovieView    (re, queryService, pixels, timeShapeMap, mergedIndexes, m
         physicalY = pixels.getPhysicalSizeY().getValue()
     else:
         physicalY = 0
-    log("  Pixel size (um): x: %s  y: %s" % (str(physicalX), str(physicalY)))
+    log("  Pixel size (um): x: %.3f  y: %.3f" % (physicalX, physicalY))
     log("  Image dimensions (pixels): x: %d  y: %d" % (sizeX, sizeY))
     
-    log(" Projecting Movie Frame ROIs...")
-
+    log(" Projecting ROIs...")
+    proStart = zStart
+    proEnd = zEnd
+    # make sure we're within Z range for projection. 
+    if proEnd >= sizeZ:
+        proEnd = sizeZ - 1
+        if proStart > sizeZ:
+            proStart = 0
+        log(" WARNING: Current image has fewer Z-sections than the primary image projection.")
+    if proStart < 0:
+        proStart = 0
+    log("  Projecting z range: %d - %d   (max Z is %d)" % (proStart+1, proEnd+1, sizeZ))
     # set up rendering engine with the pixels
     pixelsId = pixels.getId().getValue()
     re.lookupPixels(pixelsId)
@@ -165,93 +155,116 @@ def getROImovieView    (re, queryService, pixels, timeShapeMap, mergedIndexes, m
     channelMismatch = False
     # first, turn off all channels in pixels
     for i in range(sizeC): 
-        re.setActive(i, False)        
+        re.setActive(i, False)
+        
+    # for each channel in the splitview...
+    for index in splitIndexes:
+        if index >= sizeC:
+            channelMismatch = True        # can't turn channel on - simply render black square! 
+        else:
+            re.setActive(index, True)                # turn channel on
+            if colourChannels:                            # if split channels are coloured...
+                if index in mergedColours:            # and this channel is in the combined image
+                    rgba = tuple(mergedColours[index])
+                    re.setRGBA(index, *rgba)        # set coloured 
+                else:   re.setRGBA(index,255,255,255,255)
+            else:
+                re.setRGBA(index,255,255,255,255)    # if not colourChannels - channels are white
+            info = (channelNames[index], re.getChannelWindowStart(index), re.getChannelWindowEnd(index))
+            log("  Render channel: %s  start: %d  end: %d" % info)
+            projection = re.renderProjectedCompressed(algorithm, tIndex, stepping, proStart, proEnd)
+            fullImage = Image.open(StringIO.StringIO(projection))
+            box = (roiX, roiY, roiX+roiWidth, roiY+roiHeight)
+            roiImage = fullImage.crop(box)
+            roiImage.load()        # hoping that when we zoom, don't zoom fullImage 
+            if roiZoom is not 1:
+                newSize = (int(roiWidth*roiZoom), int(roiHeight*roiZoom))
+                roiImage = roiImage.resize(newSize)
+            renderedImages.append(roiImage)
+            panelWidth = roiImage.size[0]
+            re.setActive(index, False)                # turn the channel off again!
             
-    # turn on channels in mergedIndexes. 
+            
+    # turn on channels in mergedIndexes.
     for i in mergedIndexes: 
         if i >= sizeC:
             channelMismatch = True
         else:
             re.setActive(i, True)
-            print "Turning on channel:", i
             if i in mergedColours:
                 rgba = mergedColours[i]
-                print "Setting rgba", rgba
                 re.setRGBA(i, *rgba)
                 
     # get the combined image, using the existing rendering settings 
     channelsString = ", ".join([str(i) for i in mergedIndexes])
-    log("  Rendering Movie channels: %s" % channelsString)
-
-    timeIndexes = list(timeShapeMap.keys())
-    timeIndexes.sort()
-    
-    if showRoiDuration:
-        log(" Timepoints shown are ROI duration, not from start of movie")
-    timeLabels = figUtil.getTimeLabels(queryService, pixelsId, timeIndexes, sizeT, None, showRoiDuration)
-    
-    fullFirstFrame = None
-    for t, timepoint in enumerate(timeIndexes):
-        roiX, roiY, proStart, proEnd = timeShapeMap[timepoint]
-        box = (roiX, roiY, int(roiX+roiWidth), int(roiY+roiHeight))
-        log("  Time-index: %d Time-label: %s  Projecting z range: %d - %d (max Z is %d)" % (timepoint+1, timeLabels[t], proStart+1, proEnd+1, sizeZ))
-        
-        merged = re.renderProjectedCompressed(algorithm, timepoint, stepping, proStart, proEnd)
-        fullMergedImage = Image.open(StringIO.StringIO(merged))
-        if fullFirstFrame == None:
-            fullFirstFrame = fullMergedImage
-        roiMergedImage = fullMergedImage.crop(box)
-        roiMergedImage.load()    # make sure this is not just a lazy copy of the full image
-        if roiZoom is not 1:
-            newSize = (int(roiWidth*roiZoom), int(roiHeight*roiZoom))
-            roiMergedImage = roiMergedImage.resize(newSize)
-        panelWidth = roiMergedImage.size[0]
-        renderedImages.append(roiMergedImage)
+    log("  Rendering merged channels: %s" % channelsString)
+    merged = re.renderProjectedCompressed(algorithm, tIndex, stepping, proStart, proEnd)
+    fullMergedImage = Image.open(StringIO.StringIO(merged))
+    roiMergedImage = fullMergedImage.crop(box)
+    roiMergedImage.load()    # make sure this is not just a lazy copy of the full image
+    if roiZoom is not 1:
+        newSize = (int(roiWidth*roiZoom), int(roiHeight*roiZoom))
+        roiMergedImage = roiMergedImage.resize(newSize)
         
     if channelMismatch:
         log(" WARNING channel mismatch: The current image has fewer channels than the primary image.")
-
-    # now assemble the roi split-view canvas, with space above for text
-    colCount = len(renderedImages)
-    rowCount = 1
-    if maxColumns:
-        rowCount = colCount / maxColumns
-        if (colCount % maxColumns) > 0: 
-            rowCount += 1
-        colCount = maxColumns
+            
+    # now assemble the roi split-view canvas
     font = imgUtil.getFont(fontsize)
     textHeight = font.getsize("Textq")[1]
-    canvasWidth = ((panelWidth + spacer) * colCount) - spacer    # no spaces around panels
-    rowHeight = renderedImages[0].size[1] + spacer + textHeight
-    canvasHeight = rowHeight * rowCount
+    topSpacer = 0
+    if showTopLabels: 
+        if mergedNames:
+            topSpacer = (textHeight * len(mergedIndexes)) + spacer
+        else:
+            topSpacer = textHeight + spacer
+    imageCount = len(renderedImages) + 1     # extra image for merged image
+    canvasWidth = ((panelWidth + spacer) * imageCount) - spacer    # no spaces around panels
+    canvasHeight = renderedImages[0].size[1] + topSpacer
     size = (canvasWidth, canvasHeight)
     canvas = Image.new(mode, size, white)        # create a canvas of appropriate width, height
     
-    
     px = 0
-    textY = spacer/2
-    panelY = textHeight + spacer
-    # paste the images in, with time labels
+    textY = topSpacer - textHeight - spacer/2
+    panelY = topSpacer
+    # paste the split images in, with channel labels
     draw = ImageDraw.Draw(canvas)
-    
-    col = 0
-    for i, img in enumerate(renderedImages):
-        label = timeLabels[i]
+    for i, index in enumerate(splitIndexes):
+        label = channelNames[index]
         indent = (panelWidth - (font.getsize(label)[0])) / 2
-        draw.text((px+indent, textY), label, font=font, fill=(0,0,0))
-        imgUtil.pasteImage(img, canvas, px, panelY)
-        if col == (colCount - 1):
-            col = 0
-            px = 0
-            textY += rowHeight
-            panelY += rowHeight
+        # text is coloured if channel is grey AND in the merged image
+        rgb = (0,0,0)
+        if index in mergedIndexes:
+            if not colourChannels:
+                rgb = tuple(mergedColours[index])
+                if rgb == (255,255,255,255):    # if white (unreadable), needs to be black! 
+                    rgb = (0,0,0)
+        if showTopLabels: draw.text((px+indent, textY), label, font=font, fill=(0,0,0))
+        if i < len(renderedImages):
+            imgUtil.pasteImage(renderedImages[i], canvas, px, panelY)
+        px = px + panelWidth + spacer
+    # and the merged image
+    if showTopLabels:
+        #indent = (panelWidth - (font.getsize("Merged")[0])) / 2
+        #draw.text((px+indent, textY), "Merged", font=font, fill=(0,0,0))
+        if (mergedNames):
+            for index in mergedIndexes:
+                if index in mergedColours: rgb = tuple(mergedColours[index])
+                else: rgb = (255,255,255) 
+                if index in channelNames: name = channelNames[index]
+                else: name = str(index) 
+                combTextWidth = font.getsize(name)[0]
+                inset = int((panelWidth - combTextWidth) / 2)
+                draw.text((px + inset, textY), name, font=font, fill=rgb)
+                textY = textY - textHeight  
         else:
-            col += 1
-            px = px + panelWidth + spacer
+            combTextWidth = font.getsize("Merged")[0]
+            inset = int((panelWidth - combTextWidth) / 2)
+            draw.text((px + inset, textY), "Merged", font=font, fill=(0,0,0))
+    imgUtil.pasteImage(roiMergedImage, canvas, px, panelY)
     
     # return the roi splitview canvas, as well as the full merged image
-    return (canvas, fullFirstFrame, textHeight + spacer)
-    
+    return (canvas, fullMergedImage, panelY)
 
 def drawRectangle(image, roiX, roiY, roiX2, roiY2, colour, stroke=1):
     roiDraw = ImageDraw.Draw(image)
@@ -264,11 +277,7 @@ def drawRectangle(image, roiX, roiY, roiX2, roiY2, colour, stroke=1):
         roiY2 -=1
 
 def getRectangle(roiService, imageId, roiLabel):
-    """ 
-    Returns (x, y, width, height, timeShapeMap) of the all rectanges in the first ROI of the image where 
-    timeShapeMap is a map of tIndex: (x,y,zMin,zMax) 
-    x, y, Width and Height are from the first rectangle (assumed that all are same size!)
-    """
+    """ Returns (x, y, width, height, zMin, zMax, tMin, tMax) of the first rectange in the image that has @roiLabel as text """
     
     shapes = []        # string set. 
     
@@ -280,45 +289,44 @@ def getRectangle(roiService, imageId, roiLabel):
     foundLabelledRoi = False
     
     for roi in result.rois:
-        timeShapeMap = {} # map of tIndex: (x,y,zMin,zMax) for a single roi
         roiCount += 1
+        # go through all the shapes of the ROI
         for shape in roi.copyShapes():
             if type(shape) == omero.model.RectI:
                 t = shape.getTheT().getValue()
                 z = shape.getTheZ().getValue()
-                x = int(shape.getX().getValue())
-                y = int(shape.getY().getValue())
-                text = shape.getTextValue().getValue()
-                
-                # build a map of tIndex: (x,y,zMin,zMax)
-                if t in timeShapeMap:
-                    xx, yy, minZ, maxZ = timeShapeMap[t]
-                    tzMin = min(minZ, z)
-                    tzMax = max(maxZ, z)
-                    timeShapeMap[t] = (x,y,tzMin,tzMax)
-                else:
-                    timeShapeMap[t] = (x,y,z,z)
+                x = shape.getX().getValue()
+                y = shape.getY().getValue()
+                tv = shape.getTextValue()
+                if tv != None:  text = tv.getValue()
+                else:           text = ""
                     
                 # get ranges for whole ROI
                 if rectCount == 0:
+                    zMin = z
+                    zMax = zMin
+                    tMin = t
+                    tMax = tMin
                     width = shape.getWidth().getValue()
                     height = shape.getHeight().getValue()
-                    x1 = x
-                    y1 = y
+                else:
+                    zMin = min(zMin, z)
+                    zMax = max(zMax, z)
+                    tMin = min(tMin, t)
+                    tMax = max(tMax, t)
                 rectCount += 1
                 if text != None and text.lower() == roiText:
                     foundLabelledRoi = True
-        # will return after the first ROI that matches text
         if foundLabelledRoi:
-            return (int(x1), int(y1), int(width), int(height), timeShapeMap)
+            return (int(x), int(y), int(width), int(height), int(zMin), int(zMax), int(tMin), int(tMax))
         else:
             rectCount = 0    # try another ROI
-    
+            
     # if we got here without finding an ROI that matched, simply return any ROI we have (last one)
     if roiCount > 0:
-        return (int(x1), int(y1), int(width), int(height), timeShapeMap)
-    
-    
+        return (int(x), int(y), int(width), int(height), int(zMin), int(zMax), int(tMin), int(tMax))
+                
+                
 def getVerticalLabels(labels, font, textGap):
     """ Returns an image with the labels written vertically with the given font, black on white background """
     
@@ -340,9 +348,9 @@ def getVerticalLabels(labels, font, textGap):
     return textCanvas.rotate(90)
     
     
-def getSplitView(session, imageIds, pixelIds, mergedIndexes, 
+def getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, mergedNames, colourChannels, mergedIndexes, 
         mergedColours, width, height, imageLabels, spacer, algorithm, stepping, scalebar, 
-        overlayColour, roiZoom, maxColumns, showRoiDuration, roiLabel):
+        overlayColour, roiZoom, roiLabel):
     """ This method makes a figure of a number of images, arranged in rows with each row being the split-view
     of a single image. The channels are arranged left to right, with the combined image added on the right.
     The combined image is rendered according to current settings on the server, but it's channels will be
@@ -352,6 +360,11 @@ def getSplitView(session, imageIds, pixelIds, mergedIndexes,
     
     @ session            session for server access
     @ pixelIds            a list of the Ids for the pixels we want to display
+    @ splitIndexes         a list of the channel indexes to display. Same channels for each image/row
+    @ channelNames         the Map of index:names for all channels
+    @ zStart            the start of Z-range for projection
+    @ zEnd                 the end of Z-range for projection
+    @ colourChannels     the colour to make each column/ channel
     @ mergedIndexes      list or set of channels in the merged image 
     @ mergedColours     index: colour dictionary of channels in the merged image
     @ width            the size in pixels to show each panel
@@ -366,7 +379,10 @@ def getSplitView(session, imageIds, pixelIds, mergedIndexes,
     
     # establish dimensions and roiZoom for the primary image
     # getTheseValues from the server
-    x, y, roiWidth, roiHeight, timeShapeMap = getRectangle(roiService, imageIds[0], roiLabel)
+    rect = getRectangle(roiService, imageIds[0], roiLabel)
+    if rect == None:
+        raise("No ROI found for the first image.")
+    roiX, roiY, roiWidth, roiHeight, yMin, yMax, tMin, tMax = rect
     
     roiOutline = ((max(width, height)) / 200 ) + 1
     
@@ -418,12 +434,14 @@ def getSplitView(session, imageIds, pixelIds, mergedIndexes,
             log("No Rectangle ROI found for this image")
             del imageLabels[row]    # remove the corresponding labels
             continue
-        roiX, roiY, roiWidth, roiHeight, timeShapeMap = roi
+        roiX, roiY, roiWidth, roiHeight, zMin, zMax, tStart, tEnd = roi
         
         pixels = gateway.getPixels(pixelsId)
         sizeX = pixels.getSizeX().getValue()
         sizeY = pixels.getSizeY().getValue()
         
+        zStart = zMin
+        zEnd = zMax
         
         # work out if any additional zoom is needed (if the full-sized image is different size from primary image)
         fullSize =  (sizeX, sizeY)
@@ -431,12 +449,14 @@ def getSplitView(session, imageIds, pixelIds, mergedIndexes,
         if imageZoom != 1.0:
             log("  Scaling down the full-size image by a factor of %F" % imageZoom)
         
-        log("  ROI location (top-left of first frame) x: %d  y: %d  and size width: %d  height: %d" % (roiX, roiY, roiWidth, roiHeight))
+        log("  ROI location (top-left) x: %d  y: %d  and size width: %d  height: %d" % (roiX, roiY, roiWidth, roiHeight))
+        log("  ROI time: %d - %d   zRange: %d - %d" % (tStart+1, tEnd+1, zStart+1, zEnd+1))
         # get the split pane and full merged image
-        roiSplitPane, fullMergedImage, topSpacer = getROImovieView    (re, queryService, pixels, timeShapeMap, mergedIndexes, mergedColours,
-                 roiWidth, roiHeight, roiZoom, spacer, algorithm, stepping, fontsize, maxColumns, showRoiDuration)
-                
+        roiSplitPane, fullMergedImage, topSpacer = getROIsplitView    (re, pixels, zStart, zEnd, splitIndexes, channelNames, 
+            mergedNames, colourChannels, mergedIndexes, mergedColours, roiX, roiY, roiWidth, roiHeight, roiZoom, tStart, spacer, algorithm, 
+            stepping, fontsize, showTopLabels)
             
+        
         # and now zoom the full-sized merged image, add scalebar 
         mergedImage = imgUtil.resizeImage(fullMergedImage, width, height)
         if scalebar:
@@ -531,7 +551,7 @@ def roiFigure(session, commandArgs):
     log("Image details:")
     if "Image_IDs" in commandArgs:
         for idCount, imageId in enumerate(commandArgs["Image_IDs"]):
-            iId = imageId.getValue()
+            iId = long(imageId.getValue())
             imageIds.append(iId)
             image = gateway.getImage(iId)
             if idCount == 0:
@@ -566,6 +586,7 @@ def roiFigure(session, commandArgs):
     sizeY = pixels.getSizeY().getValue();
     sizeZ = pixels.getSizeZ().getValue();
     sizeC = pixels.getSizeC().getValue();
+
     
     width = sizeX
     if "Width" in commandArgs:
@@ -586,19 +607,47 @@ def roiFigure(session, commandArgs):
     log("Image dimensions for all panels (pixels): width: %d  height: %d" % (width, height))
         
                         
-    if "Merged_Channels" in commandArgs:
-        mergedIndexes = []    # the channels in the combined image, 
-        for i in commandArgs["Merged_Channels"]:
-            mergedIndexes.append(int(i.getValue())) # value may be a string - no type checking
-    else:
-        mergedIndexes = range(sizeC) # show all
-    mergedIndexes.reverse()
-        
-    mergedColours = {}    # if no colours added, use existing rendering settings.
+    mergedIndexes = []    # the channels in the combined image, 
+    mergedColours = {}    
     if "Merged_Colours" in commandArgs:
-        for i, c in enumerate(commandArgs["Merged_Colours"]):
-            if c.getValue() in COLOURS: 
-                mergedColours[i] = COLOURS[c.getValue()]
+        cColourMap = commandArgs["Merged_Colours"]
+        for c in cColourMap:
+            rgb = cColourMap[c].getValue()
+            rgba = imgUtil.RGBIntToRGBA(rgb)
+            mergedColours[int(c)] = rgba
+            mergedIndexes.append(int(c))
+        mergedIndexes.sort()
+        mergedIndexes.reverse()
+    
+    mergedNames = False
+    if "Merged_Names" in commandArgs:
+        mergedNames = commandArgs["Merged_Names"]
+        
+    # Make channel-names map. If argument wasn't specified, name by index
+    channelNames = {}
+    if "Channel_Names" in commandArgs:
+        cNameMap = commandArgs["Channel_Names"]
+        for c in range(sizeC):
+            if str(c) in cNameMap:
+                channelNames[c] = cNameMap[str(c)].getValue()
+            else: 
+                channelNames[c] = str(c)
+    else:
+        for c in range(sizeC):
+            channelNames[c] = str(c)
+    
+    # Make split-indexes list. If argument wasn't specified, include them all. 
+    splitIndexes = []
+    if "Split_Indexes" in commandArgs:
+        for index in commandArgs["Split_Indexes"]:
+            splitIndexes.append(index.getValue())
+    else:
+        for c in range(sizeC):
+            splitIndexes = range(sizeC)
+            
+    colourChannels = True
+    if "Split_Panels_Grey" in commandArgs and commandArgs["Split_Panels_Grey"]:
+        colourChannels = False
     
     algorithm = omero.constants.projection.ProjectionType.MAXIMUMINTENSITY
     if "Algorithm" in commandArgs:
@@ -626,35 +675,27 @@ def roiFigure(session, commandArgs):
             scalebar = None
     
     overlayColour = (255,255,255)
-    if "Scalebar_Colour" in commandArgs:
-        if commandArgs["Scalebar_Colour"] in OVERLAY_COLOURS: 
-            r,g,b,a = OVERLAY_COLOURS[commandArgs["Scalebar_Colour"]]
-            overlayColour = (r,g,b)
+    if "Overlay_Colour" in commandArgs:
+        r,g,b,a = OVERLAY_COLOURS[commandArgs["Overlay_Colour"]]
+        overlayColour = (r,g,b)
     
     roiZoom = None
-    if "Roi_Zoom" in commandArgs:
-        roiZoom = float(commandArgs["Roi_Zoom"])
+    if "ROI_Zoom" in commandArgs:
+        roiZoom = float(commandArgs["ROI_Zoom"])
         if roiZoom == 0:
             roiZoom = None
-            
-    maxColumns = None
-    if "Max_Columns" in commandArgs:
-        maxColumns = commandArgs["Max_Columns"]
-        
-    showRoiDuration = False
-    if "Show_Roi_Duration" in commandArgs:
-        showRoiDuration = commandArgs["Show_Roi_Duration"]
     
     roiLabel = "FigureROI"
-    if "Roi_Selection_Label" in commandArgs:
-        roiLabel = commandArgs["Roi_Selection_Label"]
-                
+    if "ROI_Label" in commandArgs:
+        roiLabel = commandArgs["ROI_Label"]
+        
     spacer = (width/50) + 2
     
-    fig = getSplitView(session, imageIds, pixelIds, mergedIndexes, 
-            mergedColours, width, height, imageLabels, spacer, algorithm, stepping, scalebar, overlayColour, roiZoom, 
-            maxColumns, showRoiDuration, roiLabel)
-                                                    
+    fig = getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, mergedNames, colourChannels, mergedIndexes, 
+            mergedColours, width, height, imageLabels, spacer, algorithm, stepping, scalebar, overlayColour, roiZoom, roiLabel)
+    
+    if fig == None:        # e.g. No ROIs found
+        return                                                
     #fig.show()        # bug-fixing only
     
     log("")
@@ -682,47 +723,48 @@ def roiFigure(session, commandArgs):
     # figLegend as the fileAnnotation description. 
     # Returns the id of the originalFileLink child. (ID object, not value)
     fileAnnotation = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, omeroImage, output, format, figLegend)
-    return (fileAnnotation, omeroImage)
+    return fileAnnotation
 
 def runAsScript():
     """
     The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
     """
-    
+     
     labels = [rstring('Image Name'), rstring('Datasets'), rstring('Tags')]
     algorithums = [rstring('Maximum Intensity'),rstring('Mean Intensity')]
     roiLabel = """Specify an ROI to pick by specifying it's shape label. 'FigureROI' by default,
-(not case sensitive). If matching ROI not found, use any ROI."""
+              (not case sensitive). If matching ROI not found, use any ROI."""
     formats = [rstring('JPEG'),rstring('PNG')]
     ckeys = COLOURS.keys()
     ckeys.sort()
     cOptions = wrap(ckeys)
     oColours = wrap(OVERLAY_COLOURS.keys())
     
-    client = scripts.client('Roi_Movie_Figure.py', """Create a figure of movie frames from ROI region of image.
-See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIMovieFigure""",
-    scripts.List("Image_IDs", optional=False, description="List of Images. Figure will be attached to first image").ofType(rlong(0)),
-    scripts.List("Merged_Colours", description="A list of colours to apply to merged channels.", values=cOptions), 
-    scripts.List("Merged_Channels", description="A list of channel indexes to display").ofType(rint(0)),                   
+    client = scripts.client('ROI_Split_Figure.py', """Create a figure of an ROI region as separate zoomed split-channel panels.
+See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIFigure""", 
+    scripts.List("Image_IDs", optional=False, description="List of image IDs. Resulting figure will be attached to first image.").ofType(rlong(0)),
+    scripts.Map("Channel_Names", description="Map of index: channel name for All channels"),
+    scripts.Bool("Merged_Names", description="If true, label the merged panel with channel names. Otherwise label with 'Merged'"),
+    scripts.List("Split_Indexes", description="List of the channels in the split view panels"),
+    scripts.Bool("Split_Panels_Grey", description="If true, all split panels are greyscale"),
+    scripts.Map("Merged_Colours", description="Map of index:int colours for each merged channel. Default: Blue, Green, Red"),
     scripts.Int("Width",description="Max width of each image panel", min=1),   
     scripts.Int("Height",description="The max height of each image panel", min=1),
-    scripts.String("Image_Labels",description="Label images with the Image Name or Datasets or Tags", values=labels),               
+    scripts.String("Image_Labels",description="Label images with the Image's Name or it's Datasets or Tags", values=labels),               
     scripts.String("Algorithm", description="Algorithum for projection.", values=algorithums),
+    scripts.Int("Stepping",description="The Z-plane increment for projection. Default is 1", min=1),
     scripts.Int("Scalebar", description="Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
-    scripts.String("Format", description="Format to save image.", values=formats, default='JPEG'),
+    scripts.String("Format",description="Format to save image. E.g 'PNG'.", values=formats, default='JPEG'),
     scripts.String("Figure_Name", description="File name of the figure to save."),
-    scripts.String("Scalebar_Colour", description="The colour of the scalebar.",default='White',values=oColours),
-    scripts.Float("Roi_Zoom", description="How much to zoom the ROI. E.g. x 2. If 0 then zoom roi panel to fit"),
-    scripts.Int("Max_Columns", description="The maximum number of columns in the figure, for ROI-movie frames.", min=1),
-    scripts.Bool("Show_Roi_Duration", description="If true, times shown are from the start of the ROI frames, otherwise use movie timestamp."),
-    scripts.String("Roi_Selection_Label", description=roiLabel)
-    #scripts.R("File_Annotation", description="Script returns a File Annotation ID of attached Figure").out()
+    scripts.String("Overlay_Colour", description="The colour of the scalebar.",default='White',values=oColours),
+    scripts.Float("ROI_Zoom", description="How much to zoom the ROI. E.g. x 2. If 0 then zoom roi panel to fit", min=0),
+    scripts.String("ROI_Label", description=roiLabel),
+    #scripts.Long("fileAnnotation", "Script returns a File Annotation ID of attached Figure").out()
     )
-    
     try:
         session = client.getSession();
         gateway = session.createGateway();
-        commandArgs = {"Image_IDs":client.getInput("Image_IDs").getValue()}
+        commandArgs = {}
     
         # process the list of args above. 
         for key in client.getInputKeys():
@@ -731,10 +773,10 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIMovieFigure"""
     
         print commandArgs
         # call the main script, attaching resulting figure to Image. Returns the id of the originalFileLink child. (ID object, not value)
-        fileAnnotation, image = roiFigure(session, commandArgs)
+        fileAnnotation = roiFigure(session, commandArgs)
         # return this fileAnnotation to the client. 
         if fileAnnotation:
-            client.setOutput("Message", rstring("ROI Movie Figure Attached to Image: %s" % image.name.val))
+            client.setOutput("Message", rstring("ROI Figure Created"))
             client.setOutput("File_Annotation", robject(fileAnnotation))
     except: raise
     finally: client.closeSession()
