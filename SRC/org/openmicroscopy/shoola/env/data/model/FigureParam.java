@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.env.data.model;
 
 //Java imports
 import java.awt.Color;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -54,7 +53,7 @@ public class FigureParam
 
 	/** Identifies the <code>ROI Figure</code> script. */
 	public static final String ROI_SCRIPT = 
-		ScriptObject.FIGURE_PATH+"Roi_Figure.py";
+		ScriptObject.FIGURE_PATH+"ROI_Figure.py";
 	
 	/** Identifies the <code>Thumbnail Figure</code> script. */
 	public static final String THUMBNAIL_SCRIPT = 
