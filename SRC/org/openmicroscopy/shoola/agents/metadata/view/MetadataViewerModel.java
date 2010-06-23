@@ -40,7 +40,6 @@ import org.openmicroscopy.shoola.agents.metadata.AdminEditor;
 import org.openmicroscopy.shoola.agents.metadata.DataBatchSaver;
 import org.openmicroscopy.shoola.agents.metadata.DataSaver;
 import org.openmicroscopy.shoola.agents.metadata.ExperimenterEditor;
-import org.openmicroscopy.shoola.agents.metadata.FretAnalyser;
 import org.openmicroscopy.shoola.agents.metadata.GroupEditor;
 import org.openmicroscopy.shoola.agents.metadata.MetadataLoader;
 import org.openmicroscopy.shoola.agents.metadata.ContainersLoader;
@@ -693,21 +692,6 @@ class MetadataViewerModel
 				return fa;
 		}
 		return null;
-	}
-	
-	/**
-	 * Starts an asynchronous call to analyze the data.
-	 * 
-	 * @param toAnalyzeID The id of the image to analyze.
-	 */
-	void analyseData(long toAnalyzeID)
-	{
-		if (!(refObject instanceof ImageData)) return;
-		ImageData img = (ImageData) refObject;
-		FileAnnotationData fa = getIRF();
-		FretAnalyser analyser = new FretAnalyser(component, img, toAnalyzeID, 
-				fa);
-		analyser.load();
 	}
 
 	/**

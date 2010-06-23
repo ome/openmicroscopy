@@ -772,23 +772,6 @@ class OmeroImageServiceImpl
 	
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#analyseFretFit(long, long, long)
-	 */
-	public DataObject analyseFretFit(long controlID, long toAnalyzeID, 
-			long irfID)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		if (controlID <= 0)
-			throw new IllegalArgumentException("Control ID not valid.");
-		if (toAnalyzeID <= 0)
-			throw new IllegalArgumentException("No image to analyze.");
-		long id = gateway.analyseFretFit(controlID, toAnalyzeID, irfID);
-		if (id < 0) return null;
-		return context.getMetadataService().loadAnnotation(id);
-	}
-	
-	/** 
-	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#loadROI(long, List, long)
 	 */
 	public List<ROIResult> loadROI(long imageID, List<Long> fileID, long userID)

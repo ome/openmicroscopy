@@ -144,30 +144,7 @@ class MetadataViewerComponent
 		
 		//model.createMovie(parameters);
 	}
-	
-	/**
-	 * Analyzes the data.
-	 * 
-	 * @param n The id of the image.
-	 */
-	private void analyseData(Number n)
-	{
-		UserNotifier un = 
-			MetadataViewerAgent.getRegistry().getUserNotifier();
-		if (n == null) {
-			un.notifyInfo("Analyse", "Please enter a valid ID.");
-			return;
-		}
-		FileAnnotationData fa = model.getIRF();
-		if (fa == null) {
-			un.notifyInfo("Analyse", "No function linked to the image.");
-			return;
-		}
-		model.analyseData(n.longValue());
-		firePropertyChange(ANALYSE_PROPERTY, Boolean.valueOf(false),
-				Boolean.valueOf(true));
-	}
-	
+
 	/**
 	 * Creates a new instance.
 	 * The {@link #initialize() initialize} method should be called straight

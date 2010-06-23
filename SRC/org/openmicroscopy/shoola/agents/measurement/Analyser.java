@@ -54,13 +54,13 @@ public class Analyser
 	extends MeasurementViewerLoader
 {
 
-	/** Indicates to analyse a collection of shapes. */
+	/** Indicates to analyze a collection of shapes. */
 	public static final int	SHAPE = 0;
 	
-	/** Indicates to analyse a collection of rois. */ 
+	/** Indicates to analyze a collection of ROIs. */ 
 	public static final int	ROI = 1;
 	
-	/** The pixels set to analyse. */
+	/** The pixels set to analyze. */
 	private PixelsData 	pixels;
 	
 	/** One of the constants defined by this class. */
@@ -69,10 +69,10 @@ public class Analyser
 	/** Collection of active channels. */
 	private List		channels;
 	
-	/** Collection of shapes to analyse.. */
+	/** Collection of shapes to analyze. */
 	private List		shapes;
 	
-	/** Handle to the async call so that we can cancel it. */
+	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
    
     /**
@@ -83,7 +83,7 @@ public class Analyser
      * @param pixels	The pixels set to analyze.
      * @param channels	Collection of active channels. 
      * 					Mustn't be <code>null</code>.
-     * @param shapes	Collection of shapes to analyse. 
+     * @param shapes	Collection of shapes to analyze. 
      * 					Mustn't be <code>null</code>.
      */
 	public Analyser(MeasurementViewer viewer, PixelsData pixels,
@@ -117,7 +117,7 @@ public class Analyser
     }
     
     /**
-     * Indicates that an error occurred while analysing the data.
+     * Indicates that an error occurred while analyzing the data.
      * @see MeasurementViewerLoader#handleNullResult()
      */
     public void handleNullResult() 

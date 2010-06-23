@@ -5802,41 +5802,6 @@ class OMEROGateway
 		}
 		return null;
 	}
-
-	/**
-	 * Performs a basic fit. Returns the file hosting the results.
-	 * 
-	 * @param controlID   The id of the control image.
-	 * @param toAnalyzeID The id of the image to analyze.
-	 * @param irfID		  The id of the transfer function linked to the control.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	long analyseFretFit(long controlID, long toAnalyzeID, long irfID)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		isSessionAlive();
-		try {
-			IScriptPrx svc = getScripService();
-			long id = svc.getScriptID("fitIrf");
-			if (id <= 0) return -1;
-			Map<String, RType> map = new HashMap<String, RType>();
-			map.put("imageIdNoFret", omero.rtypes.rlong(controlID));
-			map.put("imageIdFret", omero.rtypes.rlong(toAnalyzeID));
-			map.put("irfRecId", omero.rtypes.rlong(irfID));
-			runScript(id, map);
-			//RLong type = (RLong) result.get("fileAnnotation");
-			//if (type == null) return -1;
-			//return type.getValue();
-		} catch (Exception e) {
-			handleException(e, "Cannot analyze the control "+controlID+" and "
-					+" image "+toAnalyzeID);
-		}
-		return -1;
-	}
 	
 	/**
 	 * Imports the specified file. Returns the image.

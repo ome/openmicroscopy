@@ -487,22 +487,6 @@ public interface OmeroImageService
 	public ScriptCallback createMovie(long imageID, long pixelsID, 
 			List<Integer> channels, MovieExportParam param)
 		throws DSOutOfServiceException, DSAccessException;
-	
-	/**
-	 * Performs a basic fit. Returns the file hosting the results.
-	 * 
-	 * @param controlID   The id of the control image.
-	 * @param toAnalyzeID The id of the image to analyze.
-	 * @param irfID		  The id of the function linked to the control.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	public DataObject analyseFretFit(long controlID, long toAnalyzeID, 
-			long irfID)
-		throws DSOutOfServiceException, DSAccessException;
 
 	public Object monitor(String path, DataObject container, 
 			long userID, long groupID);

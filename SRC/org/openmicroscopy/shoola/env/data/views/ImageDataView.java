@@ -46,7 +46,7 @@ import pojos.PixelsData;
 import pojos.ROIData;
 
 /** 
- * Provides methods to support image viewing and analysing.
+ * Provides methods to support image viewing and analyzing.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -307,18 +307,6 @@ public interface ImageDataView
 	 */
 	public CallHandle createFigure(List<Long> ids, Class type, Object param, 
 			AgentEventListener observer);
-	
-	/**
-	 * Performs a basic fit.
-	 * 
-	 * @param controlID   The id of the control image.
-	 * @param toAnalyzeID The id of the image to analyze.
-	 * @param irfID		  The id of the function linked to the control.
-	 * @param observer Call-back handler.
-	 * @return See above.
-	 */
-	public CallHandle analyseFretFit(long controlID, long toAnalyzeID, 
-			long irfID, AgentEventListener observer);
 	
 	/**
 	 * Loads the instrument and its components.
