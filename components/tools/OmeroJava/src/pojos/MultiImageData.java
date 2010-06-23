@@ -28,8 +28,6 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
-import static omero.rtypes.rstring;
-import omero.model.Image;
 import omero.model.OriginalFile;
 
 /** 

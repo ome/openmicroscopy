@@ -31,6 +31,7 @@ import omero.model.ImageAnnotationLink;
 import omero.model.ImageI;
 import omero.model.Instrument;
 import omero.model.LongAnnotation;
+import omero.model.OriginalFile;
 import omero.model.Pixels;
 
 /**
@@ -109,6 +110,9 @@ public class ImageData extends DataObject {
     /** The path to the multi-images file. */
     private String	parentFilePath;
   
+    /** Reference to the original file when the image is not registered. */
+    private OriginalFile reference;
+    
     /** Creates a new instance. */
     public ImageData() {
         setDirty(true);
@@ -144,6 +148,23 @@ public class ImageData extends DataObject {
     	else pathToFile = path;
     }
 
+    /**
+     * Sets the reference to the file to register.
+     * 
+     * @param reference The value to set.
+     */
+    public void setReference(OriginalFile reference)
+    {
+    	this.reference = reference;
+    }
+    
+    /**
+     * Returns the reference to the file to register.
+     * 
+     * @return See above.
+     */
+    public OriginalFile getReference() { return reference; }
+    
     /**
      * Returns the path to the file.
      * 
