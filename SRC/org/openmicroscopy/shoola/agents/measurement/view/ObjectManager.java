@@ -460,7 +460,7 @@ class ObjectManager
 	}
 	
 	/**
-	 * Returns the index.
+	 * Implemented as specified by the I/F {@link TabPaneInterface}
 	 * @see TabPaneInterface#getIndex()
 	 */
 	public int getIndex() { return INDEX; }

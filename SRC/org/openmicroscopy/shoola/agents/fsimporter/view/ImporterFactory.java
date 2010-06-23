@@ -155,7 +155,7 @@ public class ImporterFactory
 	
 	/**
 	 * Sets the {@link #viewer} to <code>null</code> when it is
-	 * {@link TreeViewer#DISCARDED discarded}. 
+	 * {@link Importer#DISCARDED discarded}. 
 	 * @see ChangeListener#stateChanged(ChangeEvent)
 	 */ 
 	public void stateChanged(ChangeEvent ce)

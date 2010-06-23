@@ -234,7 +234,7 @@ public class ROIShapeStats
 	}
 	
 	/**
-     * Required by {@linkPointIteratorObserver} interface, but no-operation
+     * Required by {@link PointIteratorObserver} interface, but no-operation
      * implementation in our case.
      * @see PointIteratorObserver#iterationStarted()
      */

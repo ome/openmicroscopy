@@ -161,7 +161,8 @@ class MeasurementResults
 	private ListSelectionListener			listener;
 
 	/**
-	 * overridden version of {@see TabPaneInterface#getIndex()}
+	 * Implemented as specified by the I/F {@link TabPaneInterface}
+	 * @see TabPaneInterface#getIndex()
 	 */
 	public int getIndex() {return INDEX; }
 	

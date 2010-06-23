@@ -90,11 +90,6 @@ class ObjectInspector
 		columnNames.add("Field");
 		columnNames.add("Value");
 	}
-
-	/**
-	 * overridden version of {@see TabPaneInterface#getIndex(int)}
-	 */
-	public int getIndex() {return INDEX; }
 	
 	/** Initializes the component composing the display. */
 	private void initComponents()

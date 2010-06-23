@@ -59,7 +59,7 @@ import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
 import pojos.ChannelData;
 
 /** 
- * 
+ * Displays the intensities as a graph. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -75,10 +75,11 @@ class GraphPane
 	extends JPanel 
 	implements TabPaneInterface
 {
+	
 	/** Ready state. */
 	final static int 						READY = 1;
 	
-	/** Analysing state. */
+	/** Analyzing state. */
 	final static int 						ANALYSING = 0;
 	
 	/** Index to identify tab */
@@ -103,22 +104,22 @@ class GraphPane
 	/** The main panel holding the graphs. */
 	private JPanel 							mainPanel;
 			
-	/** The map of the shape stats to coord. */
+	/** The map of the shape statistics to coordinates. */
 	private HashMap<Coord3D, Map<StatsType, Map>> shapeStatsList;
 	
-	/** Map of the pixel intensity values to coord. */
+	/** Map of the pixel intensity values to coordinates. */
 	private Map<Coord3D, Map<Integer, double[]>> pixelStats;
 	
-	/** Map of the coord to a shape. */
+	/** Map of the coordinates to a shape. */
 	private Map<Coord3D, ROIShape> 				shapeMap;
 	
 	/** List of channel Names. */
 	private List<String>	channelName ;
 	
-	/** List of channel colours. */
+	/** List of channel colors. */
 	private List<Color>		channelColour;
 	
-	/** The current coord of the ROI being depicted in the slider. */
+	/** The current coordinates of the ROI being depicted in the slider. */
 	private Coord3D			coord;
 		
 	/** The line profile charts. */
@@ -137,8 +138,8 @@ class GraphPane
 	private ROIShape 								shape;
 	
 	/**
-	 * Overridden version of {@see TabPaneInterface#getIndex()}
-	 * @return the index of the tab.
+	 * Implemented as specified by the I/F {@link TabPaneInterface}
+	 * @see TabPaneInterface#getIndex()
 	 */
 	public int getIndex() { return INDEX; }
 		
@@ -203,9 +204,7 @@ class GraphPane
 		return value;
 	}
 	
-	/**
-	 * The slider has changed value and the mouse button released. 
-	 */
+	/** The slider has changed value and the mouse button released. */
 	private void handleSliderReleased()
 	{
 		if (zSlider == null || tSlider == null) return;

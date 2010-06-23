@@ -180,14 +180,11 @@ public class CalculationWizard
 		return icons.getIcon(IconManager.GRAPHPANE);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface#getIndex()
+	/**
+	 * Implemented as specified by the I/F {@link TabPaneInterface}
+	 * @see TabPaneInterface#getIndex()
 	 */
-	public int getIndex()
-	{
-		// TODO Auto-generated method stub
-		return INDEX;
-	}
+	public int getIndex() { return INDEX; }
 
 }
 
