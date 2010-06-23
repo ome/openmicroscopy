@@ -261,9 +261,13 @@ public class ColorsFactory {
     		return toReturn;
     	}
     	switch (channelData.getChannelIndex()) {
-	    	case 0: return newRedColor();
+    		case 0: return newRedColor();
+    		case 1: return newGreenColor();
+    		default: return newBlueColor();
+	    	/*
 	    	case 1: return newBlueColor();
 	    	default: return newGreenColor();
+	    	*/
     	}
     	
     }

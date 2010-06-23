@@ -103,32 +103,21 @@ public class ChannelProcessor implements ModelProcessor
     	if (isGraphicsDomain)
 		{
     	    log.debug("Setting color channel to RGB.");
+    	    setDefaultChannelColor(channel, channelIndex);
     	    switch (channelIndex) {
 				case 0: //red
-					channel.setRed(rint(255));
-	    	        channel.setGreen(rint(0));
-	    	        channel.setBlue(rint(0));
-	    	        channel.setAlpha(rint(255));
 	    	        if (lc.getName() == null) 
 	    	        	lc.setName(rstring(RED_TEXT));
 	    	        break;
 				case 1: //green
-					channel.setRed(rint(0));
-	    	        channel.setGreen(rint(255));
-	    	        channel.setBlue(rint(0));
-	    	        channel.setAlpha(rint(255));
 	    	        if (lc.getName() == null) 
 	    	        	lc.setName(rstring(GREEN_TEXT));
 	    	        break;
 				case 2: //blue
-					channel.setRed(rint(0));
-	    	        channel.setGreen(rint(0));
-	    	        channel.setBlue(rint(255));
-	    	        channel.setAlpha(rint(255));
 	    	        if (lc.getName() == null) 
 	    	        	lc.setName(rstring(BLUE_TEXT));
 	    	        break;
-				case 3: //alpha
+				case 3: //alpha, reset transparent
 					channel.setRed(rint(0));
 	    	        channel.setGreen(rint(0));
 	    	        channel.setBlue(rint(0));
@@ -147,6 +136,7 @@ public class ChannelProcessor implements ModelProcessor
         //color already set by Bio-formats
         if (red != null && green != null && blue != null && alpha != null) {
         	//Try to set the name.
+        	log.debug("Already set in BF.");
         	if (lc.getName() == null) {
         		name = getChannelName(channelData);
         		if (name != null) lc.setName(name);	
@@ -274,25 +264,25 @@ public class ChannelProcessor implements ModelProcessor
     private void setDefaultChannelColor(Channel channel, int index)
     {
     	//not been able to set the color
+    	int[] defaultColor;
     	switch (index) {
 	    	case 0: //red
-	    		channel.setRed(rint(255));
-    	        channel.setGreen(rint(0));
-    	        channel.setBlue(rint(0));
-    	        channel.setAlpha(rint(255));
+	    		defaultColor = ColorsFactory.newRedColor();
     	        break;
-	    	case 1: //blue
-	    		channel.setRed(rint(0));
-    	        channel.setGreen(rint(0));
-    	        channel.setBlue(rint(255));
-    	        channel.setAlpha(rint(255));
+	    	case 1: //green
+	    		defaultColor = ColorsFactory.newGreenColor();
     	        break;
-	    	default: //green
-	    		channel.setRed(rint(0));
-    	        channel.setGreen(rint(255));
-    	        channel.setBlue(rint(0));
-    	        channel.setAlpha(rint(255));
+	    	default: //blue
+	    		defaultColor = ColorsFactory.newBlueColor();
     	}
+    	channel.setRed(
+				rint(defaultColor[ColorsFactory.RED_INDEX]));
+		channel.setGreen(
+				rint(defaultColor[ColorsFactory.GREEN_INDEX]));
+		channel.setBlue(
+				rint(defaultColor[ColorsFactory.BLUE_INDEX]));
+		channel.setAlpha(
+				rint(defaultColor[ColorsFactory.ALPHA_INDEX]));
     }
     
     /**
@@ -453,6 +443,7 @@ public class ChannelProcessor implements ModelProcessor
     			break;
     		}
     	}
+    	log.debug("isGraphicsDomain: "+isGraphicsDomain);
     	int count;
     	boolean v;
     	Map<ChannelData, Boolean> m;
