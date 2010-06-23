@@ -313,8 +313,8 @@ public class FSFileSystemView
     			images = new ArrayList<Image>();
     			images.add(img.asImage());
     			objects = proxy.registerFileSet(img.getReference(), images);
-    			if (objects != null && objects.size() > 0)
-    				img.setRegisteredFile((Image) objects.get(0));
+    			if (objects != null && objects.size() > 1)
+    				img.setRegisteredFile((Image) objects.get(1));
     			return img;
 			} catch (Exception e) {
 				new FSAccessException("Cannot register the image: " +
