@@ -2238,10 +2238,16 @@ class EditorModel
 	 */
 	boolean isNumerousChannel()
 	{
-		if (!(refObject instanceof ImageData)) return false;
+		if (!(refObject instanceof ImageData || 
+				refObject instanceof WellSampleData))
+			return false;
 		if (renderer != null) 
 			return renderer.getPixelsDimensionsC() >= Renderer.MAX_CHANNELS;
-		ImageData img = (ImageData) refObject;
+		ImageData img = null;
+		if (refObject instanceof WellSampleData)
+			img = ((WellSampleData) refObject).getImage();
+		if (refObject instanceof ImageData)
+			img = (ImageData) refObject;
 		PixelsData pixels = null;
 		try {
 			pixels = img.getDefaultPixels();
@@ -2252,6 +2258,36 @@ class EditorModel
 		return pixels.getSizeC() >= Renderer.MAX_CHANNELS;
 	}
 
+	/**
+	 * Returns <code>true</code> if the preview is available, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isPreviewAvailable()
+	{
+		if (!(refObject instanceof ImageData || 
+				refObject instanceof WellSampleData))
+			return false;
+		ImageData img = null;
+		if (refObject instanceof WellSampleData)
+			img = ((WellSampleData) refObject).getImage();
+		if (refObject instanceof ImageData)
+			img = (ImageData) refObject;
+		if (img.getId() < 0) return false;
+		PixelsData pixels = null;
+		try {
+			pixels = img.getDefaultPixels();
+		} catch (Exception e) {
+			//ignore
+		}
+		if (pixels == null) return false;
+		if (pixels.getPixelSizeX() > RenderingControl.MAX_SIZE ||
+				pixels.getPixelSizeY() > RenderingControl.MAX_SIZE)
+				return true;
+		return false;
+	}
+	
 	/**
 	 * Creates a figure.
 	 * 
