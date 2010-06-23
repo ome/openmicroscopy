@@ -121,7 +121,10 @@ class BlitzObjectWrapper (object):
         if hasattr(obj, 'id') and obj.id is not None:
             self._oid = obj.id.val
             if not self._obj.loaded:
-                self._obj = self._conn.getQueryService().get(self._obj.__class__.__name__, self._oid)
+                try:
+                    self._obj = self._conn.getQueryService().get(self._obj.__class__.__name__, self._oid)
+                except:
+                    print traceback.format_exc()
         self.__prepare__ (**kwargs)
 
     def __eq__ (self, a):
@@ -3531,14 +3534,20 @@ class _FilterSetWrapper (BlitzObjectWrapper):
     _attrs = ('manufacturer',
               'model',
               'lotNumber',
-              'exFilter|FilterWrapper',
-              'emFilter|FilterWrapper',
+              #'exFilter|FilterWrapper',
+              #'emFilter|FilterWrapper',
               'dichroic|DichroicWrapper',
               'version')
 
     def __bstrap__ (self):
         self.OMERO_CLASS = 'FilterSet'
+    
+    def copyEmissionFilters(self):
+        pass
 
+    def copyExcitationFilters(self):
+        pass
+    
 FilterSetWrapper = _FilterSetWrapper
 
 class _OTFWrapper (BlitzObjectWrapper):
