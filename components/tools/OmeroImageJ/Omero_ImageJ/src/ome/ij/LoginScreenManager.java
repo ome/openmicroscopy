@@ -72,7 +72,7 @@ class LoginScreenManager
 	private static final String VERSION = "v1.0";
 	
 	/** The default port value. */
-	private static final String PORT = ""+4063;
+	private static final String PORT = ""+4064;
 	
 	/** The title of the dialog if we cannot connect. */
 	private static final String CONNECTION = "Connection";
