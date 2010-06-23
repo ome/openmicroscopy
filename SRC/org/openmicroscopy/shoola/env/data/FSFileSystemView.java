@@ -172,6 +172,7 @@ public class FSFileSystemView
 					if (image.getId() < 0)
 						image.setName(data.getName());
 					image.setPathToFile(data.getAbsolutePath());
+					image.setReference(file);
 					files.addElement(image);
 				} else if (count > 1) {
 					multiImg = new MultiImageData(file);
@@ -309,14 +310,11 @@ public class FSFileSystemView
     	if (file instanceof ImageData) {
     		ImageData img = (ImageData) file;
     		try {
-    			/*
     			images = new ArrayList<Image>();
     			images.add(img.asImage());
-    			proxy.re
-    			images = proxy.registerImageList(img.getPathToFile(), images);
-    			if (images != null && images.size() > 0)
-    				img.setRegisteredFile(images.get(0));
-    				*/
+    			objects = proxy.registerFileSet(img.getReference(), images);
+    			if (objects != null && objects.size() > 0)
+    				img.setRegisteredFile((Image) objects.get(0));
     			return img;
 			} catch (Exception e) {
 				new FSAccessException("Cannot register the image: " +
