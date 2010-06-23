@@ -12,6 +12,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import loci.common.services.DependencyException;
@@ -34,7 +37,9 @@ import ome.services.util.Executor;
 import ome.system.ServiceFactory;
 import ome.util.messages.InternalMessage;
 import ome.xml.DOMUtil;
-import ome.xml.OMEXMLNode;
+import ome.xml.model.OME;
+import ome.xml.model.OMEModel;
+import ome.xml.model.OMEModelImpl;
 import omero.ServerError;
 import omero.api.AMD_Exporter_addImage;
 import omero.api.AMD_Exporter_generateTiff;
@@ -55,6 +60,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import Ice.Current;
 
@@ -258,19 +265,22 @@ public class ExporterI extends AbstractAmdServant implements
                             }
                             if (xmlMetadata != null) {
                                 Object root = xmlMetadata.getRoot();
-                                if (root instanceof OMEXMLNode) {
-                                    OMEXMLNode node = (OMEXMLNode) root;
+                                if (root instanceof OME) {
+                                    OME node = (OME) root;
 
                                     try {
+                                        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                                        DocumentBuilder parser = factory.newDocumentBuilder();
+                                        Document document = parser.newDocument();
+                                        Element element = node.asXMLElement(document);
+                                        document.appendChild(element);
 
                                         file = TempFileManager.create_path(
                                                 "__omero_export__", ".ome.xml");
                                         file.deleteOnExit();
                                         FileOutputStream fos = new FileOutputStream(
                                                 file);
-                                        DOMUtil.writeXML(fos, node
-                                                .getDOMElement()
-                                                .getOwnerDocument());
+                                        DOMUtil.writeXML(fos, document);
                                         fos.close();
                                         retrieve = null;
                                         __cb.ice_response(file.length());
@@ -281,8 +291,10 @@ public class ExporterI extends AbstractAmdServant implements
 
                                     } catch (TransformerException e) {
                                         log.error(e);
-                                    }
 
+                                    } catch (ParserConfigurationException e) {
+                                        log.error(e);
+                                    }
                                 }
                             }
                             return null;
@@ -345,7 +357,6 @@ public class ExporterI extends AbstractAmdServant implements
                                             .saveBytes(plane,
                                                     i == planeCount - 1);
                                 }
-                                retrieve = null;
                                 __cb.ice_response(file.length());
                             } catch (Exception e) {
                                 omero.InternalException ie = new omero.InternalException(
@@ -383,6 +394,7 @@ public class ExporterI extends AbstractAmdServant implements
                             } catch (Exception e) {
                                 log.error("Error closing writer", e);
                             }
+                            retrieve = null;
                         }
                     });
         } catch (Exception e) {

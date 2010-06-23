@@ -41,15 +41,6 @@ public class ExporterITest extends AbstractServantTest {
     // XML Generation
     //
 
-    @Test
-    public void testSimpleXml() throws Exception {
-        OmeroMetadata retrieve = new OmeroMetadata(db);
-        retrieve.addImage(new ImageI());
-        ExporterI exporter = new ExporterI(null, null);
-        String xml = exporter.generateXml(retrieve);
-        assertNotNull(xml);
-    }
-
     //
     // export
     //
@@ -87,7 +78,7 @@ public class ExporterITest extends AbstractServantTest {
         // Now let's compare the XML
         String xml1 = new String(buf);
         OmeroMetadata retrieve = new OmeroMetadata(db);
-        retrieve.addImage(i);
+        retrieve.addImage(new ImageI(i.getId(), false));
         ExporterI exporter = new ExporterI(null, null);
         String xml2 = exporter.generateXml(retrieve);
         System.out.println(xml1);
@@ -150,8 +141,8 @@ public class ExporterITest extends AbstractServantTest {
 
     private long assertGenerateTiff() throws Exception {
         return assertGenerateTiff(user_e);
-    }        
-    
+    }
+
     private long assertGenerateTiff(ExporterI e) throws Exception {
 
         final RV rv = new RV();
