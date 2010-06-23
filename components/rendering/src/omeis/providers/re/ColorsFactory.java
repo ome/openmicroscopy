@@ -422,8 +422,12 @@ public class ColorsFactory {
         if (c != null) return c;
         switch (index) {
             case 0: return newRedColor();
+            case 1: return newGreenColor();
+            default: return newBlueColor();
+            /*
             case 1: return newBlueColor();
             default: return newGreenColor();
+            */
         }
     }
 
