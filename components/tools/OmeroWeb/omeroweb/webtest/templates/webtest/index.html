@@ -1,29 +1,17 @@
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
-<html> <head>
-<title>WebTest</title>
-</head>
+{% extends "webemdb/base/base_main.html" %}
 
-<body>
-<h1>WebTest</h1>
-<hr>
-<ul>
-{% for proj in client.listProjects %}
-  <li>{{ proj.getName }}
+{% block title %} Welcome {% endblock %}
+
+
+{% block content %}
+
+    <h3>Welcome to OMERO EMDB</h3>
+    
+    Most recent entries:
     <ul>
-      {% for ds in proj.listChildren %}
-      <li>{{ ds.getName }}
-        <ul>
-          {% for img in ds.listChildren %}
-          <li><img src="{% url webgateway.views.render_thumbnail img.id %}">{{ img.getName }}</li>
-          {% endfor %}
-        </ul>
-      </li>
-      {% endfor %}
+        {% for p in projects %}
+          <li><a href="{% url webemdb.views.entry p.getName %}">{{ p.getName }}</a> {{ p.description }}</li>
+        {% endfor %}
     </ul>
-  </li>
-{% endfor %}
-</ul>
 
-<a href="{% url webtest_logout %}">logout</a>
-<hr>
-</body> </html>
+{% endblock %}
