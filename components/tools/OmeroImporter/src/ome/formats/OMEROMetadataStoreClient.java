@@ -1368,14 +1368,18 @@ public class OMEROMetadataStoreClient
 				String format = "text/plain";
 				OriginalFile originalFile = 
 					createOriginalFileFromFile(metadataFile, indexes, format);
+				log.debug("originalFile created");
+				//TODO: fix me
 				originalFile.setPath(toRType(String.format("%s%s/",
-					omero.constants.namespaces.NSORIGINALMETADATA.value, image.getId().getValue())));
+					omero.constants.namespaces.NSORIGINALMETADATA.value, series)));//image.getId().getValue())));
 				originalFile.setName(toRType("original_metadata.txt"));
+				log.debug("originalFile path created");
                 indexes = new LinkedHashMap<Index, Integer>();
                 indexes.put(Index.IMAGE_INDEX, series);
                 indexes.put(Index.ORIGINAL_FILE_INDEX, originalFileIndex);
                 addCompanionFileAnnotationTo(imageKey, indexes,
                 		                     originalFileIndex);
+                
 				originalFileIndex++;
     		}
     		
@@ -1495,6 +1499,7 @@ public class OMEROMetadataStoreClient
      * @param target LSID of the target object.
      * @param indexes Indexes of the annotation.
      * @param originalFileIndex Index of the original file.
+     * @return The LSID of the original file.
      */
     private void addCompanionFileAnnotationTo(
     		LSID target, LinkedHashMap<Index, Integer> indexes,
