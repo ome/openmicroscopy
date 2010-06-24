@@ -11,7 +11,8 @@ set constraints all deferred;
 
 --
 -- #1176 : create our own nextval() functionality for more consistent
--- sequence operation in hibernate.
+-- sequence operation in hibernate. This functionality was updated for
+-- OMERO 4.2 (#2508) in order to prevent logging during triggers.
 --
 
 CREATE OR REPLACE FUNCTION ome_nextval(seq VARCHAR) RETURNS INT8 AS '
@@ -19,22 +20,113 @@ BEGIN
       RETURN ome_nextval(seq, 1);
 END;' LANGUAGE plpgsql;
 
+-- These renamings allow us to reuse the Hibernate-generated tables
+-- for sequence generation. Eventually, a method might be found to
+-- make Hibernate generate them for us.
+CREATE SEQUENCE _lock_seq;
+ALTER TABLE seq_table RENAME TO _lock_ids;
+ALTER TABLE _lock_ids RENAME COLUMN sequence_name TO name;
+ALTER TABLE _lock_ids DROP CONSTRAINT seq_table_pkey;
+ALTER TABLE _lock_ids DROP COLUMN next_val;
+ALTER TABLE _lock_ids ADD COLUMN id int PRIMARY KEY DEFAULT nextval('_lock_seq');
+CREATE UNIQUE INDEX _lock_ids_name ON _lock_ids (name);
+
 CREATE OR REPLACE FUNCTION ome_nextval(seq VARCHAR, increment int4) RETURNS INT8 AS '
 DECLARE
+      Lid  int4;
       nv   int8;
       sql  varchar;
 BEGIN
-      SELECT next_val INTO nv FROM seq_table WHERE sequence_name = seq FOR UPDATE OF seq_table;
-      IF nv IS NULL THEN
-          INSERT INTO seq_table (sequence_name, next_val) VALUES (seq, increment + 1);
-          nv = increment;
-      ELSE
-          UPDATE seq_table SET next_val = (nv + increment) WHERE sequence_name = seq;
-	  nv = nv + increment - 1;
+      SELECT id INTO Lid FROM _lock_ids WHERE name = seq;
+      IF Lid IS NULL THEN
+          SELECT INTO Lid nextval(''_lock_seq'');
+          INSERT INTO _lock_ids (id, name) VALUES (Lid, seq);
       END IF;
 
+      PERFORM pg_advisory_lock(1, Lid);
+      PERFORM nextval(seq) FROM generate_series(1, increment);
+      SELECT currval(seq) INTO nv;
+      PERFORM pg_advisory_unlock(1, Lid);
+
       RETURN nv;
+
 END;' LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION ome_nextval(seq unknown) RETURNS INT8 AS '
+DECLARE
+  nv int8;
+BEGIN
+    SELECT ome_nextval(seq::text) INTO nv;
+    RETURN nv;
+END;' LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION ome_nextval(seq unknown, increment int4) RETURNS INT8 AS '
+DECLARE
+  nv int8;
+BEGIN
+    SELECT ome_nextval(seq::text, increment) INTO nv;
+    RETURN nv;
+END;' LANGUAGE plpgsql;
+
+#foreach($type in $types)
+#set($table = ${type.typeToColumn($type.id)} )
+CREATE SEQUENCE seq_${table}; INSERT INTO _lock_ids (name, id) SELECT 'seq_${table}', nextval('_lock_seq');
+#end
+
+
+--
+-- END #1176/#2508
+--
+
+
+--
+-- #1390 : Triggering the addition of an "REINDEX" event on annotation events.
+--
+CREATE OR REPLACE FUNCTION annotation_update_event_trigger() RETURNS "trigger"
+    AS '
+    DECLARE
+        rec RECORD;
+    BEGIN
+
+        FOR rec IN SELECT id, parent FROM imageannotationlink WHERE child = new.id LOOP
+            INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
+                 SELECT ome_nextval(''seq_eventlog''), ''REINDEX'', -35, rec.parent, ''ome.model.core.Image'', 0;
+        END LOOP;
+
+        RETURN new;
+
+    END;'
+LANGUAGE plpgsql;
+
+CREATE TRIGGER annotation_trigger
+        AFTER UPDATE ON annotation
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_update_event_trigger();
+
+
+CREATE OR REPLACE FUNCTION annotation_link_event_trigger() RETURNS "trigger"
+    AS '
+    DECLARE
+    BEGIN
+
+        INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
+                SELECT ome_nextval(''seq_eventlog''), ''REINDEX'', -35, new.parent, ''ome.model.core.Image'', 0;
+
+        RETURN new;
+
+    END;'
+LANGUAGE plpgsql;
+
+CREATE TRIGGER image_annotation_link_event_trigger
+        AFTER UPDATE ON imageannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger();
+
+--
+-- END #1390
+--
+
+
 
 
 -- First, we install a unique constraint so that it is only possible

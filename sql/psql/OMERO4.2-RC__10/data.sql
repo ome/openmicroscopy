@@ -11,7 +11,8 @@ set constraints all deferred;
 
 --
 -- #1176 : create our own nextval() functionality for more consistent
--- sequence operation in hibernate.
+-- sequence operation in hibernate. This functionality was updated for
+-- OMERO 4.2 (#2508) in order to prevent logging during triggers.
 --
 
 CREATE OR REPLACE FUNCTION ome_nextval(seq VARCHAR) RETURNS INT8 AS '
@@ -19,22 +20,252 @@ BEGIN
       RETURN ome_nextval(seq, 1);
 END;' LANGUAGE plpgsql;
 
+-- These renamings allow us to reuse the Hibernate-generated tables
+-- for sequence generation. Eventually, a method might be found to
+-- make Hibernate generate them for us.
+CREATE SEQUENCE _lock_seq;
+ALTER TABLE seq_table RENAME TO _lock_ids;
+ALTER TABLE _lock_ids RENAME COLUMN sequence_name TO name;
+ALTER TABLE _lock_ids DROP CONSTRAINT seq_table_pkey;
+ALTER TABLE _lock_ids DROP COLUMN next_val;
+ALTER TABLE _lock_ids ADD COLUMN id int PRIMARY KEY DEFAULT nextval('_lock_seq');
+CREATE UNIQUE INDEX _lock_ids_name ON _lock_ids (name);
+
 CREATE OR REPLACE FUNCTION ome_nextval(seq VARCHAR, increment int4) RETURNS INT8 AS '
 DECLARE
+      Lid  int4;
       nv   int8;
       sql  varchar;
 BEGIN
-      SELECT next_val INTO nv FROM seq_table WHERE sequence_name = seq FOR UPDATE OF seq_table;
-      IF nv IS NULL THEN
-          INSERT INTO seq_table (sequence_name, next_val) VALUES (seq, increment + 1);
-          nv = increment;
-      ELSE
-          UPDATE seq_table SET next_val = (nv + increment) WHERE sequence_name = seq;
-	  nv = nv + increment - 1;
+      SELECT id INTO Lid FROM _lock_ids WHERE name = seq;
+      IF Lid IS NULL THEN
+          SELECT INTO Lid nextval(''_lock_seq'');
+          INSERT INTO _lock_ids (id, name) VALUES (Lid, seq);
       END IF;
 
+      PERFORM pg_advisory_lock(1, Lid);
+      PERFORM nextval(seq) FROM generate_series(1, increment);
+      SELECT currval(seq) INTO nv;
+      PERFORM pg_advisory_unlock(1, Lid);
+
       RETURN nv;
+
 END;' LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION ome_nextval(seq unknown) RETURNS INT8 AS '
+DECLARE
+  nv int8;
+BEGIN
+    SELECT ome_nextval(seq::text) INTO nv;
+    RETURN nv;
+END;' LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION ome_nextval(seq unknown, increment int4) RETURNS INT8 AS '
+DECLARE
+  nv int8;
+BEGIN
+    SELECT ome_nextval(seq::text, increment) INTO nv;
+    RETURN nv;
+END;' LANGUAGE plpgsql;
+
+CREATE SEQUENCE seq_wellsampleannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_wellsampleannotationlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_polyline; INSERT INTO _lock_ids (name, id) SELECT 'seq_polyline', nextval('_lock_seq');
+CREATE SEQUENCE seq_wellannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_wellannotationlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_filtertype; INSERT INTO _lock_ids (name, id) SELECT 'seq_filtertype', nextval('_lock_seq');
+CREATE SEQUENCE seq_dataset; INSERT INTO _lock_ids (name, id) SELECT 'seq_dataset', nextval('_lock_seq');
+CREATE SEQUENCE seq_plate; INSERT INTO _lock_ids (name, id) SELECT 'seq_plate', nextval('_lock_seq');
+CREATE SEQUENCE seq_thumbnail; INSERT INTO _lock_ids (name, id) SELECT 'seq_thumbnail', nextval('_lock_seq');
+CREATE SEQUENCE seq_immersion; INSERT INTO _lock_ids (name, id) SELECT 'seq_immersion', nextval('_lock_seq');
+CREATE SEQUENCE seq_channel; INSERT INTO _lock_ids (name, id) SELECT 'seq_channel', nextval('_lock_seq');
+CREATE SEQUENCE seq_imageannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_imageannotationlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_link; INSERT INTO _lock_ids (name, id) SELECT 'seq_link', nextval('_lock_seq');
+CREATE SEQUENCE seq_lightpathemissionfilterlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_lightpathemissionfilterlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_arctype; INSERT INTO _lock_ids (name, id) SELECT 'seq_arctype', nextval('_lock_seq');
+CREATE SEQUENCE seq_typeannotation; INSERT INTO _lock_ids (name, id) SELECT 'seq_typeannotation', nextval('_lock_seq');
+CREATE SEQUENCE seq_timestampannotation; INSERT INTO _lock_ids (name, id) SELECT 'seq_timestampannotation', nextval('_lock_seq');
+CREATE SEQUENCE seq_experimenttype; INSERT INTO _lock_ids (name, id) SELECT 'seq_experimenttype', nextval('_lock_seq');
+CREATE SEQUENCE seq_filtersetemissionfilterlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_filtersetemissionfilterlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_filtersetexcitationfilterlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_filtersetexcitationfilterlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_microscope; INSERT INTO _lock_ids (name, id) SELECT 'seq_microscope', nextval('_lock_seq');
+CREATE SEQUENCE seq_commentannotation; INSERT INTO _lock_ids (name, id) SELECT 'seq_commentannotation', nextval('_lock_seq');
+CREATE SEQUENCE seq_originalfileannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_originalfileannotationlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_wellsample; INSERT INTO _lock_ids (name, id) SELECT 'seq_wellsample', nextval('_lock_seq');
+CREATE SEQUENCE seq_point; INSERT INTO _lock_ids (name, id) SELECT 'seq_point', nextval('_lock_seq');
+CREATE SEQUENCE seq_planeinfo; INSERT INTO _lock_ids (name, id) SELECT 'seq_planeinfo', nextval('_lock_seq');
+CREATE SEQUENCE seq_polygon; INSERT INTO _lock_ids (name, id) SELECT 'seq_polygon', nextval('_lock_seq');
+CREATE SEQUENCE seq_lightpathexcitationfilterlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_lightpathexcitationfilterlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_booleanannotation; INSERT INTO _lock_ids (name, id) SELECT 'seq_booleanannotation', nextval('_lock_seq');
+CREATE SEQUENCE seq_groupexperimentermap; INSERT INTO _lock_ids (name, id) SELECT 'seq_groupexperimentermap', nextval('_lock_seq');
+CREATE SEQUENCE seq_planeinfoannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_planeinfoannotationlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_transmittancerange; INSERT INTO _lock_ids (name, id) SELECT 'seq_transmittancerange', nextval('_lock_seq');
+CREATE SEQUENCE seq_wellreagentlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_wellreagentlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_arc; INSERT INTO _lock_ids (name, id) SELECT 'seq_arc', nextval('_lock_seq');
+CREATE SEQUENCE seq_basicannotation; INSERT INTO _lock_ids (name, id) SELECT 'seq_basicannotation', nextval('_lock_seq');
+CREATE SEQUENCE seq_planeslicingcontext; INSERT INTO _lock_ids (name, id) SELECT 'seq_planeslicingcontext', nextval('_lock_seq');
+CREATE SEQUENCE seq_eventlog; INSERT INTO _lock_ids (name, id) SELECT 'seq_eventlog', nextval('_lock_seq');
+CREATE SEQUENCE seq_quantumdef; INSERT INTO _lock_ids (name, id) SELECT 'seq_quantumdef', nextval('_lock_seq');
+CREATE SEQUENCE seq_namespace; INSERT INTO _lock_ids (name, id) SELECT 'seq_namespace', nextval('_lock_seq');
+CREATE SEQUENCE seq_image; INSERT INTO _lock_ids (name, id) SELECT 'seq_image', nextval('_lock_seq');
+CREATE SEQUENCE seq_renderingmodel; INSERT INTO _lock_ids (name, id) SELECT 'seq_renderingmodel', nextval('_lock_seq');
+CREATE SEQUENCE seq_microbeammanipulation; INSERT INTO _lock_ids (name, id) SELECT 'seq_microbeammanipulation', nextval('_lock_seq');
+CREATE SEQUENCE seq_joboriginalfilelink; INSERT INTO _lock_ids (name, id) SELECT 'seq_joboriginalfilelink', nextval('_lock_seq');
+CREATE SEQUENCE seq_experimentergroup; INSERT INTO _lock_ids (name, id) SELECT 'seq_experimentergroup', nextval('_lock_seq');
+CREATE SEQUENCE seq_label; INSERT INTO _lock_ids (name, id) SELECT 'seq_label', nextval('_lock_seq');
+CREATE SEQUENCE seq_renderingdef; INSERT INTO _lock_ids (name, id) SELECT 'seq_renderingdef', nextval('_lock_seq');
+CREATE SEQUENCE seq_datasetimagelink; INSERT INTO _lock_ids (name, id) SELECT 'seq_datasetimagelink', nextval('_lock_seq');
+CREATE SEQUENCE seq_codomainmapcontext; INSERT INTO _lock_ids (name, id) SELECT 'seq_codomainmapcontext', nextval('_lock_seq');
+CREATE SEQUENCE seq_scriptjob; INSERT INTO _lock_ids (name, id) SELECT 'seq_scriptjob', nextval('_lock_seq');
+CREATE SEQUENCE seq_termannotation; INSERT INTO _lock_ids (name, id) SELECT 'seq_termannotation', nextval('_lock_seq');
+CREATE SEQUENCE seq_path; INSERT INTO _lock_ids (name, id) SELECT 'seq_path', nextval('_lock_seq');
+CREATE SEQUENCE seq_eventtype; INSERT INTO _lock_ids (name, id) SELECT 'seq_eventtype', nextval('_lock_seq');
+CREATE SEQUENCE seq_project; INSERT INTO _lock_ids (name, id) SELECT 'seq_project', nextval('_lock_seq');
+CREATE SEQUENCE seq_microscopetype; INSERT INTO _lock_ids (name, id) SELECT 'seq_microscopetype', nextval('_lock_seq');
+CREATE SEQUENCE seq_channelannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_channelannotationlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_filamenttype; INSERT INTO _lock_ids (name, id) SELECT 'seq_filamenttype', nextval('_lock_seq');
+CREATE SEQUENCE seq_stagelabel; INSERT INTO _lock_ids (name, id) SELECT 'seq_stagelabel', nextval('_lock_seq');
+CREATE SEQUENCE seq_photometricinterpretation; INSERT INTO _lock_ids (name, id) SELECT 'seq_photometricinterpretation', nextval('_lock_seq');
+CREATE SEQUENCE seq_lightemittingdiode; INSERT INTO _lock_ids (name, id) SELECT 'seq_lightemittingdiode', nextval('_lock_seq');
+CREATE SEQUENCE seq_experimentergroupannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_experimentergroupannotationlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_pixels; INSERT INTO _lock_ids (name, id) SELECT 'seq_pixels', nextval('_lock_seq');
+CREATE SEQUENCE seq_lightpath; INSERT INTO _lock_ids (name, id) SELECT 'seq_lightpath', nextval('_lock_seq');
+CREATE SEQUENCE seq_roi; INSERT INTO _lock_ids (name, id) SELECT 'seq_roi', nextval('_lock_seq');
+CREATE SEQUENCE seq_roiannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_roiannotationlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_externalinfo; INSERT INTO _lock_ids (name, id) SELECT 'seq_externalinfo', nextval('_lock_seq');
+CREATE SEQUENCE seq_fileannotation; INSERT INTO _lock_ids (name, id) SELECT 'seq_fileannotation', nextval('_lock_seq');
+CREATE SEQUENCE seq_annotationannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_annotationannotationlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_objectivesettings; INSERT INTO _lock_ids (name, id) SELECT 'seq_objectivesettings', nextval('_lock_seq');
+CREATE SEQUENCE seq_lasertype; INSERT INTO _lock_ids (name, id) SELECT 'seq_lasertype', nextval('_lock_seq');
+CREATE SEQUENCE seq_nodeannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_nodeannotationlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_share; INSERT INTO _lock_ids (name, id) SELECT 'seq_share', nextval('_lock_seq');
+CREATE SEQUENCE seq_dimensionorder; INSERT INTO _lock_ids (name, id) SELECT 'seq_dimensionorder', nextval('_lock_seq');
+CREATE SEQUENCE seq_binning; INSERT INTO _lock_ids (name, id) SELECT 'seq_binning', nextval('_lock_seq');
+CREATE SEQUENCE seq_instrument; INSERT INTO _lock_ids (name, id) SELECT 'seq_instrument', nextval('_lock_seq');
+CREATE SEQUENCE seq_namespaceannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_namespaceannotationlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_xmlannotation; INSERT INTO _lock_ids (name, id) SELECT 'seq_xmlannotation', nextval('_lock_seq');
+CREATE SEQUENCE seq_reverseintensitycontext; INSERT INTO _lock_ids (name, id) SELECT 'seq_reverseintensitycontext', nextval('_lock_seq');
+CREATE SEQUENCE seq_well; INSERT INTO _lock_ids (name, id) SELECT 'seq_well', nextval('_lock_seq');
+CREATE SEQUENCE seq_family; INSERT INTO _lock_ids (name, id) SELECT 'seq_family', nextval('_lock_seq');
+CREATE SEQUENCE seq_imagingenvironment; INSERT INTO _lock_ids (name, id) SELECT 'seq_imagingenvironment', nextval('_lock_seq');
+CREATE SEQUENCE seq_illumination; INSERT INTO _lock_ids (name, id) SELECT 'seq_illumination', nextval('_lock_seq');
+CREATE SEQUENCE seq_projectannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_projectannotationlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_detectortype; INSERT INTO _lock_ids (name, id) SELECT 'seq_detectortype', nextval('_lock_seq');
+CREATE SEQUENCE seq_reagent; INSERT INTO _lock_ids (name, id) SELECT 'seq_reagent', nextval('_lock_seq');
+CREATE SEQUENCE seq_pulse; INSERT INTO _lock_ids (name, id) SELECT 'seq_pulse', nextval('_lock_seq');
+CREATE SEQUENCE seq_detector; INSERT INTO _lock_ids (name, id) SELECT 'seq_detector', nextval('_lock_seq');
+CREATE SEQUENCE seq_otf; INSERT INTO _lock_ids (name, id) SELECT 'seq_otf', nextval('_lock_seq');
+CREATE SEQUENCE seq_reagentannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_reagentannotationlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_textannotation; INSERT INTO _lock_ids (name, id) SELECT 'seq_textannotation', nextval('_lock_seq');
+CREATE SEQUENCE seq_lightsettings; INSERT INTO _lock_ids (name, id) SELECT 'seq_lightsettings', nextval('_lock_seq');
+CREATE SEQUENCE seq_originalfile; INSERT INTO _lock_ids (name, id) SELECT 'seq_originalfile', nextval('_lock_seq');
+CREATE SEQUENCE seq_lightsource; INSERT INTO _lock_ids (name, id) SELECT 'seq_lightsource', nextval('_lock_seq');
+CREATE SEQUENCE seq_longannotation; INSERT INTO _lock_ids (name, id) SELECT 'seq_longannotation', nextval('_lock_seq');
+CREATE SEQUENCE seq_annotation; INSERT INTO _lock_ids (name, id) SELECT 'seq_annotation', nextval('_lock_seq');
+CREATE SEQUENCE seq_job; INSERT INTO _lock_ids (name, id) SELECT 'seq_job', nextval('_lock_seq');
+CREATE SEQUENCE seq_rect; INSERT INTO _lock_ids (name, id) SELECT 'seq_rect', nextval('_lock_seq');
+CREATE SEQUENCE seq_mask; INSERT INTO _lock_ids (name, id) SELECT 'seq_mask', nextval('_lock_seq');
+CREATE SEQUENCE seq_sharemember; INSERT INTO _lock_ids (name, id) SELECT 'seq_sharemember', nextval('_lock_seq');
+CREATE SEQUENCE seq_dbpatch; INSERT INTO _lock_ids (name, id) SELECT 'seq_dbpatch', nextval('_lock_seq');
+CREATE SEQUENCE seq_filterset; INSERT INTO _lock_ids (name, id) SELECT 'seq_filterset', nextval('_lock_seq');
+CREATE SEQUENCE seq_projectdatasetlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_projectdatasetlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_experimenterannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_experimenterannotationlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_plateannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_plateannotationlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_ellipse; INSERT INTO _lock_ids (name, id) SELECT 'seq_ellipse', nextval('_lock_seq');
+CREATE SEQUENCE seq_laser; INSERT INTO _lock_ids (name, id) SELECT 'seq_laser', nextval('_lock_seq');
+CREATE SEQUENCE seq_channelbinding; INSERT INTO _lock_ids (name, id) SELECT 'seq_channelbinding', nextval('_lock_seq');
+CREATE SEQUENCE seq_microbeammanipulationtype; INSERT INTO _lock_ids (name, id) SELECT 'seq_microbeammanipulationtype', nextval('_lock_seq');
+CREATE SEQUENCE seq_numericannotation; INSERT INTO _lock_ids (name, id) SELECT 'seq_numericannotation', nextval('_lock_seq');
+CREATE SEQUENCE seq_medium; INSERT INTO _lock_ids (name, id) SELECT 'seq_medium', nextval('_lock_seq');
+CREATE SEQUENCE seq_statsinfo; INSERT INTO _lock_ids (name, id) SELECT 'seq_statsinfo', nextval('_lock_seq');
+CREATE SEQUENCE seq_lasermedium; INSERT INTO _lock_ids (name, id) SELECT 'seq_lasermedium', nextval('_lock_seq');
+CREATE SEQUENCE seq_tagannotation; INSERT INTO _lock_ids (name, id) SELECT 'seq_tagannotation', nextval('_lock_seq');
+CREATE SEQUENCE seq_pixelstype; INSERT INTO _lock_ids (name, id) SELECT 'seq_pixelstype', nextval('_lock_seq');
+CREATE SEQUENCE seq_screen; INSERT INTO _lock_ids (name, id) SELECT 'seq_screen', nextval('_lock_seq');
+CREATE SEQUENCE seq_dichroic; INSERT INTO _lock_ids (name, id) SELECT 'seq_dichroic', nextval('_lock_seq');
+CREATE SEQUENCE seq_session; INSERT INTO _lock_ids (name, id) SELECT 'seq_session', nextval('_lock_seq');
+CREATE SEQUENCE seq_plateacquisition; INSERT INTO _lock_ids (name, id) SELECT 'seq_plateacquisition', nextval('_lock_seq');
+CREATE SEQUENCE seq_filament; INSERT INTO _lock_ids (name, id) SELECT 'seq_filament', nextval('_lock_seq');
+CREATE SEQUENCE seq_screenannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_screenannotationlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_format; INSERT INTO _lock_ids (name, id) SELECT 'seq_format', nextval('_lock_seq');
+CREATE SEQUENCE seq_node; INSERT INTO _lock_ids (name, id) SELECT 'seq_node', nextval('_lock_seq');
+CREATE SEQUENCE seq_contraststretchingcontext; INSERT INTO _lock_ids (name, id) SELECT 'seq_contraststretchingcontext', nextval('_lock_seq');
+CREATE SEQUENCE seq_pixelsannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_pixelsannotationlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_objective; INSERT INTO _lock_ids (name, id) SELECT 'seq_objective', nextval('_lock_seq');
+CREATE SEQUENCE seq_doubleannotation; INSERT INTO _lock_ids (name, id) SELECT 'seq_doubleannotation', nextval('_lock_seq');
+CREATE SEQUENCE seq_datasetannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_datasetannotationlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_experiment; INSERT INTO _lock_ids (name, id) SELECT 'seq_experiment', nextval('_lock_seq');
+CREATE SEQUENCE seq_detectorsettings; INSERT INTO _lock_ids (name, id) SELECT 'seq_detectorsettings', nextval('_lock_seq');
+CREATE SEQUENCE seq_correction; INSERT INTO _lock_ids (name, id) SELECT 'seq_correction', nextval('_lock_seq');
+CREATE SEQUENCE seq_filter; INSERT INTO _lock_ids (name, id) SELECT 'seq_filter', nextval('_lock_seq');
+CREATE SEQUENCE seq_importjob; INSERT INTO _lock_ids (name, id) SELECT 'seq_importjob', nextval('_lock_seq');
+CREATE SEQUENCE seq_plateacquisitionannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_plateacquisitionannotationlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_pixelsoriginalfilemap; INSERT INTO _lock_ids (name, id) SELECT 'seq_pixelsoriginalfilemap', nextval('_lock_seq');
+CREATE SEQUENCE seq_logicalchannel; INSERT INTO _lock_ids (name, id) SELECT 'seq_logicalchannel', nextval('_lock_seq');
+CREATE SEQUENCE seq_sessionannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_sessionannotationlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_screenplatelink; INSERT INTO _lock_ids (name, id) SELECT 'seq_screenplatelink', nextval('_lock_seq');
+CREATE SEQUENCE seq_line; INSERT INTO _lock_ids (name, id) SELECT 'seq_line', nextval('_lock_seq');
+CREATE SEQUENCE seq_listannotation; INSERT INTO _lock_ids (name, id) SELECT 'seq_listannotation', nextval('_lock_seq');
+CREATE SEQUENCE seq_shape; INSERT INTO _lock_ids (name, id) SELECT 'seq_shape', nextval('_lock_seq');
+CREATE SEQUENCE seq_experimenter; INSERT INTO _lock_ids (name, id) SELECT 'seq_experimenter', nextval('_lock_seq');
+CREATE SEQUENCE seq_parsejob; INSERT INTO _lock_ids (name, id) SELECT 'seq_parsejob', nextval('_lock_seq');
+CREATE SEQUENCE seq_acquisitionmode; INSERT INTO _lock_ids (name, id) SELECT 'seq_acquisitionmode', nextval('_lock_seq');
+CREATE SEQUENCE seq_event; INSERT INTO _lock_ids (name, id) SELECT 'seq_event', nextval('_lock_seq');
+CREATE SEQUENCE seq_jobstatus; INSERT INTO _lock_ids (name, id) SELECT 'seq_jobstatus', nextval('_lock_seq');
+CREATE SEQUENCE seq_contrastmethod; INSERT INTO _lock_ids (name, id) SELECT 'seq_contrastmethod', nextval('_lock_seq');
+
+
+--
+-- END #1176/#2508
+--
+
+
+--
+-- #1390 : Triggering the addition of an "REINDEX" event on annotation events.
+--
+CREATE OR REPLACE FUNCTION annotation_update_event_trigger() RETURNS "trigger"
+    AS '
+    DECLARE
+        rec RECORD;
+    BEGIN
+
+        FOR rec IN SELECT id, parent FROM imageannotationlink WHERE child = new.id LOOP
+            INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
+                 SELECT ome_nextval(''seq_eventlog''), ''REINDEX'', -35, rec.parent, ''ome.model.core.Image'', 0;
+        END LOOP;
+
+        RETURN new;
+
+    END;'
+LANGUAGE plpgsql;
+
+CREATE TRIGGER annotation_trigger
+        AFTER UPDATE ON annotation
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_update_event_trigger();
+
+
+CREATE OR REPLACE FUNCTION annotation_link_event_trigger() RETURNS "trigger"
+    AS '
+    DECLARE
+    BEGIN
+
+        INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
+                SELECT ome_nextval(''seq_eventlog''), ''REINDEX'', -35, new.parent, ''ome.model.core.Image'', 0;
+
+        RETURN new;
+
+    END;'
+LANGUAGE plpgsql;
+
+CREATE TRIGGER image_annotation_link_event_trigger
+        AFTER UPDATE ON imageannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger();
+
+--
+-- END #1390
+--
+
+
 
 
 -- First, we install a unique constraint so that it is only possible
