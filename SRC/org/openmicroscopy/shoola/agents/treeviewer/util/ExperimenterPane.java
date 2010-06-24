@@ -40,6 +40,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
@@ -153,7 +154,7 @@ class ExperimenterPane
     	//content.setBackground(UIUtilities.BACKGROUND_COLOR);
     	Entry entry;
     	Iterator i = details.entrySet().iterator();
-        JLabel label;
+        JComponent label;
         JTextField area;
         String key, value;
         content.setLayout(new GridBagLayout());
@@ -170,10 +171,9 @@ class ExperimenterPane
             area = new JTextField(value);
             area.setEditable(true);
             if (EditorUtil.DISPLAY_NAME.equals(key)) {
-            	label = UIUtilities.setTextFont(
-            			key+EditorUtil.MANDATORY_SYMBOL);
+            	label = EditorUtil.getLabel(key, true);
+            	label.setBackground(UIUtilities.BACKGROUND);
             	area.getDocument().addDocumentListener(this);
-            	nameArea = area;
             } else label = UIUtilities.setTextFont(key);
             items.put(key, area);
             c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
@@ -181,7 +181,7 @@ class ExperimenterPane
             c.weightx = 0.0;  
             content.add(label, c);
             
-            label.setLabelFor(area);
+     
             c.gridx++;
             content.add(Box.createHorizontalStrut(5), c); 
             c.gridx++;
@@ -192,10 +192,7 @@ class ExperimenterPane
         }
         c.gridx = 0;
         c.gridy++;
-        if (passwordRequired)
-        	label = UIUtilities.setTextFont("Password"+
-        			EditorUtil.MANDATORY_SYMBOL);
-        else label = UIUtilities.setTextFont("Password");
+        label = EditorUtil.getLabel("Password", passwordRequired); 
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
         c.fill = GridBagConstraints.NONE;      //reset to default
         c.weightx = 0.0;  
@@ -209,7 +206,7 @@ class ExperimenterPane
         content.add(passwordField, c);  
         c.gridx = 0;
         c.gridy++;
-        label = UIUtilities.setTextFont(EditorUtil.GROUP_OWNER);
+        label = EditorUtil.getLabel(EditorUtil.GROUP_OWNER, false); 
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
         c.fill = GridBagConstraints.NONE;      //reset to default
         c.weightx = 0.0;  
@@ -221,26 +218,10 @@ class ExperimenterPane
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1.0;
         content.add(ownerBox, c); 
-        /*
-        c.gridx = 0;
-        c.gridy++;
-        label = UIUtilities.setTextFont("Active");
-        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-        c.fill = GridBagConstraints.NONE;      //reset to default
-        c.weightx = 0.0;  
-        content.add(label, c);
-        c.gridx++;
-        content.add(Box.createHorizontalStrut(5), c); 
-        c.gridx++;
-        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1.0;
-        content.add(activeBox, c);  
-        */
         if (adminBox.isVisible()) {
         	c.gridx = 0;
             c.gridy++;
-            label = UIUtilities.setTextFont(EditorUtil.ADMINISTRATOR);
+            label = EditorUtil.getLabel(EditorUtil.ADMINISTRATOR, false);
             c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
             c.fill = GridBagConstraints.NONE;      //reset to default
             c.weightx = 0.0;  

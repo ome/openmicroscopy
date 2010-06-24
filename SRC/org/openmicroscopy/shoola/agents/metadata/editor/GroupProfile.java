@@ -37,6 +37,7 @@ import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -135,7 +136,7 @@ class GroupProfile
     {
         JPanel content = new JPanel();
     	content.setBackground(UIUtilities.BACKGROUND_COLOR);
-        JLabel label;
+        JComponent label;
         content.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -143,13 +144,13 @@ class GroupProfile
 		c.insets = new Insets(0, 2, 2, 0);
 		c.gridy = 0;
 		c.gridx = 0;
-		label = UIUtilities.setTextFont("Name"+EditorUtil.MANDATORY_SYMBOL);
+		label = EditorUtil.getLabel("Name", true);
+		label.setBackground(UIUtilities.BACKGROUND_COLOR);
         label.setBackground(UIUtilities.BACKGROUND_COLOR);
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
         c.fill = GridBagConstraints.NONE;      //reset to default
         c.weightx = 0.0;  
         content.add(label, c);
-        label.setLabelFor(namePane);
         c.gridx++;
         content.add(Box.createHorizontalStrut(5), c); 
         c.gridx++;
@@ -165,7 +166,6 @@ class GroupProfile
         c.fill = GridBagConstraints.NONE;      //reset to default
         c.weightx = 0.0;  
         content.add(label, c);
-        label.setLabelFor(descriptionPane);
         c.gridx++;
         content.add(Box.createHorizontalStrut(5), c); 
         c.gridx++;
@@ -177,6 +177,7 @@ class GroupProfile
         c.gridy++;
         label = UIUtilities.setTextFont(EditorUtil.MANDATORY_DESCRIPTION,
         		Font.ITALIC);
+        label.setForeground(UIUtilities.REQUIRED_FIELDS_COLOR);
         c.weightx = 0.0;  
         content.add(label, c);
         return content;

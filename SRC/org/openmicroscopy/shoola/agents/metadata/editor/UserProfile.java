@@ -51,6 +51,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
@@ -483,7 +484,7 @@ class UserProfile
     	content.setBackground(UIUtilities.BACKGROUND_COLOR);
     	Entry entry;
     	Iterator i = details.entrySet().iterator();
-        JLabel label;
+        JComponent label;
         JTextField area;
         String key, value;
         content.setLayout(new GridBagLayout());
@@ -500,8 +501,8 @@ class UserProfile
 		content.add(userPicture, c);
         c.gridy++;
         c.gridx = 0;
-        label = UIUtilities.setTextFont(EditorUtil.DISPLAY_NAME+
-        		EditorUtil.MANDATORY_SYMBOL);
+        label = EditorUtil.getLabel(EditorUtil.DISPLAY_NAME, true);
+        label.setBackground(UIUtilities.BACKGROUND_COLOR);
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
         c.fill = GridBagConstraints.NONE;      //reset to default
         c.weightx = 0.0;  
@@ -521,7 +522,7 @@ class UserProfile
             entry = (Entry) i.next();
             key = (String) entry.getKey();
             value = (String) entry.getValue();
-            label = UIUtilities.setTextFont(key);
+            label = EditorUtil.getLabel(key, false);
             area = new JTextField(value);
             area.setBackground(UIUtilities.BACKGROUND_COLOR);
             area.setEditable(editable);
@@ -534,7 +535,6 @@ class UserProfile
             c.fill = GridBagConstraints.NONE;      //reset to default
             c.weightx = 0.0;  
             content.add(label, c);
-            label.setLabelFor(area);
             c.gridx++;
             content.add(Box.createHorizontalStrut(5), c); 
             c.gridx++;
@@ -545,7 +545,7 @@ class UserProfile
         }
         c.gridx = 0;
         c.gridy++;
-        label = UIUtilities.setTextFont(EditorUtil.DEFAULT_GROUP);
+        label = EditorUtil.getLabel(EditorUtil.DEFAULT_GROUP, false); 
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
         c.fill = GridBagConstraints.NONE;      //reset to default
         c.weightx = 0.0;  
@@ -564,7 +564,7 @@ class UserProfile
         
         c.gridx = 0;
         c.gridy++;
-        label = UIUtilities.setTextFont(EditorUtil.GROUP_OWNER);
+        label = EditorUtil.getLabel(EditorUtil.GROUP_OWNER, false);  
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
         c.fill = GridBagConstraints.NONE;      //reset to default
         c.weightx = 0.0;  
@@ -579,7 +579,7 @@ class UserProfile
         if (activeBox.isVisible()) {
         	c.gridx = 0;
             c.gridy++;
-            label = UIUtilities.setTextFont(EditorUtil.ACTIVE);
+            label = EditorUtil.getLabel(EditorUtil.ACTIVE, false);   
             c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
             c.fill = GridBagConstraints.NONE;      //reset to default
             c.weightx = 0.0;  
@@ -595,7 +595,7 @@ class UserProfile
         if (adminBox.isVisible()) {
         	c.gridx = 0;
             c.gridy++;
-            label = UIUtilities.setTextFont(EditorUtil.ADMINISTRATOR);
+            label = EditorUtil.getLabel(EditorUtil.ADMINISTRATOR, false); 
             c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
             c.fill = GridBagConstraints.NONE;      //reset to default
             c.weightx = 0.0;  
@@ -614,6 +614,7 @@ class UserProfile
         c.gridy++;
         label = UIUtilities.setTextFont(EditorUtil.MANDATORY_DESCRIPTION,
         		Font.ITALIC);
+        label.setForeground(UIUtilities.REQUIRED_FIELDS_COLOR);
         c.weightx = 0.0;  
         content.add(label, c);
         return content;

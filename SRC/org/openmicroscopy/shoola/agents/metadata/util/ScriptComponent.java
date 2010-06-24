@@ -44,6 +44,7 @@ import javax.swing.event.ChangeListener;
 import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -65,9 +66,6 @@ class ScriptComponent
 	extends JPanel
 	implements ChangeListener
 {
-	
-	/** Indicates the required field. */
-	static final String REQUIRED = "*";
 
 	/** The number of columns. */
 	static int COLUMNS = 10;
@@ -233,7 +231,7 @@ class ScriptComponent
 	{ 
 		this.required = required; 
 		if (required) {
-			requireLabel = UIUtilities.setTextFont(" "+REQUIRED);
+			requireLabel = UIUtilities.setTextFont(EditorUtil.MANDATORY_SYMBOL);
 			requireLabel.setForeground(UIUtilities.REQUIRED_FIELDS_COLOR);
 			requireLabel.setToolTipText(label.getToolTipText());
 		}

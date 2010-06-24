@@ -69,6 +69,7 @@ import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.model.ParamData;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
@@ -125,7 +126,7 @@ public class ScriptingDialog
 			"selected script: ";
 	
 	/** The text displayed in the header. */
-	private static final String		TEXT_END = ScriptComponent.REQUIRED +
+	private static final String		TEXT_END = EditorUtil.MANDATORY_SYMBOL +
 			" indicates the required parameter.";
 	
 	/** Indicates to close the dialog. */

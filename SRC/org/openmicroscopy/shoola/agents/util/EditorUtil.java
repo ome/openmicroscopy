@@ -36,6 +36,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import javax.swing.BoxLayout;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
 //Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
 
@@ -1954,4 +1959,26 @@ public class EditorUtil
 		return editorFilter.accept(fileName);
 	}
 	
+	/**
+	 * Formats the label for a required field.
+	 * 
+	 * @param value     The value to display.
+	 * @param required  Pass <code>true</code> if the field is required, 
+	 * 					<code>false</code> otherwise.
+	 * @return See above
+	 */
+    public static JComponent getLabel(String value, boolean required)
+    {
+    	if (required) {
+    		JPanel p = new JPanel();
+    		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+    		JLabel l = UIUtilities.setTextFont(value);
+    		p.add(l);
+    		l = UIUtilities.setTextFont(MANDATORY_SYMBOL);
+    		l.setForeground(UIUtilities.REQUIRED_FIELDS_COLOR);
+    		p.add(l);
+    		return p;
+    	}
+    	return UIUtilities.setTextFont(value);
+    }
 }
