@@ -163,7 +163,7 @@ public class TimelineI extends AbstractAmdServant implements
                 + "    obj.entityType in ("
                 + "        'ome.model.containers.Dataset', "
                 + "        'ome.model.containers.Project') "
-                + "    and obj.action in ( 'INSERT', 'UPDATE') "
+                + "    and obj.action in ( 'INSERT', 'UPDATE', 'REINDEX') "
                 + "    and ev.id in (     "
                 + "        select e.id from Event e where "
                 + "        e.time >= :start and e.time <= :end ");

@@ -183,7 +183,7 @@ public class FullTextIndexer implements Work {
                     Action action = null;
                     if ("DELETE".equals(act)) {
                         action = new Purge(type, id);
-                    } else if ("UPDATE".equals(act) || "INSERT".equals(act)) {
+                    } else if ("REINDEX".equals(act) || "UPDATE".equals(act) || "INSERT".equals(act)) {
                         IObject obj = get(session, type, id);
                         if (obj == null) {
                             log.error(String.format("Null returned! Purging "
