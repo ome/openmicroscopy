@@ -26,7 +26,6 @@ def additional_tests():
     load = unittest.defaultTestLoader.loadTestsFromName
     suite = unittest.TestSuite()
     suite.addTest(load("integration.simple"))
-    suite.addTest(load("integration.api"))
     suite.addTest(load("integration.client_ctors"))
     suite.addTest(load("integration.clientusage"))
     suite.addTest(load("integration.counts"))

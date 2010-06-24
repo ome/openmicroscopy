@@ -88,7 +88,8 @@ class TestISession(lib.ITest):
 
         # Now a connection should not be possible
         c4 = omero.client()
-        s4 = c4.createSession(uuid, uuid);
+        import Glacier2
+        self.assertRaises(Glacier2.PermissionDeniedException, c4.createSession, uuid, uuid);
 
     def testSimpleDestruction(self):
         c = omero.client()

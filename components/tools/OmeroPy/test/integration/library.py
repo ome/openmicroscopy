@@ -12,21 +12,46 @@ import os
 import Ice
 import sys
 import time
+import weakref
 import unittest
-import omero
 import tempfile
 import traceback
 import exceptions
 import subprocess
+
+import omero
+
+from omero.util.temp_files import create_path
 from omero.rtypes import rstring, rtime
 from uuid import uuid4 as uuid
 from path import path
 
 
+class Clients(object):
+
+    def __init__(self):
+        self.__clients = set()
+
+    def  __del__(self):
+        try:
+            for client_ref in self.__clients:
+                client = client_ref()
+                if client:
+                    client.__del__()
+        finally:
+            self.__clients = set()
+
+    def add(self, client):
+        self.__clients.add(weakref.ref(client))
+
+
 class ITest(unittest.TestCase):
 
     def setUp(self):
-        self.tmpfiles = []
+
+        self.OmeroPy = self.omeropydir()
+
+        self.__clients = Clients()
 
         p = Ice.createProperties(sys.argv)
         rootpass = p.getProperty("omero.rootpass")
@@ -35,6 +60,7 @@ class ITest(unittest.TestCase):
         pasw = None
         if rootpass:
             self.root = omero.client()
+            self.__clients.add(self.root)
             self.root.setAgent("OMERO.py.root_test")
             self.root.createSession("root", rootpass)
             newuser = self.new_user()
@@ -44,11 +70,29 @@ class ITest(unittest.TestCase):
             self.root = None
 
         self.client = omero.client()
+        self.__clients.add(self.client)
         self.client.setAgent("OMERO.py.test")
         self.sf = self.client.createSession(name, pasw)
 
         self.update = self.sf.getUpdateService()
         self.query = self.sf.getQueryService()
+
+
+    def omeropydir(self):
+        count = 10
+        searched = []
+        p = path(".").abspath()
+        while str(p.basename()) not in ("OmeroPy", ""): # "" means top of directory
+            searched.append(p)
+            p = p / ".." # Walk up, in case test runner entered a subdirectory
+            p = p.abspath()
+            count -= 1
+            if not count:
+                break
+        if str(p.basename()) == "OmeroPy":
+            return p
+        else:
+            self.fail("Could not find OmeroPy/; searched %s" % searched)
 
     def uuid(self):
         return str(uuid())
@@ -60,15 +104,15 @@ class ITest(unittest.TestCase):
         return ["-s", host, "-k", key] # TODO PORT
 
     def tmpfile(self):
-        tmpfile = tempfile.NamedTemporaryFile(mode='w+t')
-        self.tmpfiles.append(tmpfile)
-        return tmpfile
+        return str(create_path())
 
-    def new_group(self, experimenters = None):
+    def new_group(self, experimenters = None, perms = None):
         admin = self.root.sf.getAdminService()
         gname = str(uuid())
         group = omero.model.ExperimenterGroupI()
         group.name = rstring(gname)
+        if perms:
+            group.details.permissions = omero.model.PermissionsI(perms)
         gid = admin.createGroup(group)
         group = admin.getGroup(gid)
         if experimenters:
@@ -90,7 +134,8 @@ class ITest(unittest.TestCase):
         server = self.client.getProperty("omero.host")
         key = self.client.getSessionId()
 
-        dist_dir = path(".") / ".." / ".." / ".." / "dist"
+        # Search up until we find "OmeroPy"
+        dist_dir = self.OmeroPy / ".." / ".." / ".." / "dist"
         args = ["python"]
         args.append(str(path(".") / "bin" / "omero"))
         args.extend(["-s", server, "-k", key, "import", filename])
@@ -105,7 +150,12 @@ class ITest(unittest.TestCase):
                 pix_ids.append(long(x.strip()))
         return pix_ids
 
-    def new_user(self, group = None, perms = "rwr---"):
+    def index(self, *objs):
+        if objs:
+            for obj in objs:
+                self.root.sf.getUpdateService().indexObject(obj)
+
+    def new_user(self, group = None, perms = None):
 
         if not self.root:
             raise exceptions.Exception("No root client. Cannot create user")
@@ -115,12 +165,13 @@ class ITest(unittest.TestCase):
 
         # Create group if necessary
         if not group:
-            group = name
-            g = omero.model.ExperimenterGroupI()
-            g.name = rstring(group)
-            g.details.permissions = omero.model.PermissionsI(perms)
-            gid = admin.createGroup(g)
-            g = omero.model.ExperimenterGroupI(gid, False)
+            g = self.new_group(perms = perms)
+            group = g.name.val
+        elif isinstance(group, omero.model.ExperimenterGroup):
+            g = group
+            group = g.name.val
+        else:
+            pass # Group is already name
 
         # Create user
         e = omero.model.ExperimenterI()
@@ -130,16 +181,17 @@ class ITest(unittest.TestCase):
         uid = admin.createUser(e, group)
         return admin.getExperimenter(uid)
 
-    def new_client(self, group = None, user = None):
+    def new_client(self, group = None, user = None, perms = None):
         """
         Like new_user() but returns an active client.
         """
         if user is None:
-            user = self.new_user(group)
+            user = self.new_user(group, perms)
         props = self.root.getPropertyMap()
         props["omero.user"] = user.omeName.val
         props["omero.pass"] = user.omeName.val
         client = omero.client(props)
+        self.__clients.add(client)
         client.setAgent("OMERO.py.new_client_test")
         client.createSession()
         return client
@@ -158,21 +210,4 @@ class ITest(unittest.TestCase):
 
     def tearDown(self):
         failure = False
-        try:
-            self.client.closeSession()
-        except:
-            traceback.print_exc()
-            failure = True
-        if self.root:
-            try:
-                self.root.closeSession()
-            except:
-                traceback.print_exc()
-                failure = True
-        for tmpfile in self.tmpfiles:
-            try:
-                tmpfile.close()
-            except:
-                print "Error closing:"+tmpfile
-        if failure:
-           raise exceptions.Exception("Exception on client.closeSession")
+        self.__clients.__del__()

@@ -83,7 +83,7 @@ class TestClientConstructors(unittest.TestCase):
         c2.closeSession()
 
     def testPorts(self):
-        c = omero.client("localhost",1111)
+        c = omero.client("localhost", 1111)
         self.assertEquals("1111",c.ic.getProperties().getProperty("omero.port"))
         c = omero.client("localhost",["--omero.port=2222"])
         self.assertEquals("2222",c.ic.getProperties().getProperty("omero.port"))
@@ -91,7 +91,7 @@ class TestClientConstructors(unittest.TestCase):
         self.assertEquals(str(omero.constants.GLACIER2PORT),c.ic.getProperties().getProperty("omero.port"))
 
     def testPythonCtorRepair(self):
-        c = omero.client("localhost", 4063)
+        c = omero.client("localhost", omero.constants.GLACIER2PORT)
         c.createSession("root", "ome")
         c.closeSession()
 

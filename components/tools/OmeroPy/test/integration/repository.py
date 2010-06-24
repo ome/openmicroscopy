@@ -54,7 +54,7 @@ class TestRepository(lib.ITest):
         sha1_local = self.client.sha1(test_file)
 
 
-        HOW ARE WE CHECKING SHA1 HERE
+        self.fail("HOW ARE WE CHECKING SHA1 HERE")
 
 
         read_start = time.time()
@@ -64,6 +64,7 @@ class TestRepository(lib.ITest):
         #
         rawPixelsStore = repoPrx.pixels(remote_file)
         try:
+            pass
         finally:
             rawPixelsStore.close()
 

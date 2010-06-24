@@ -40,7 +40,10 @@ import os
 from PIL import Image
 import numpy
 
-from EMAN2 import *
+try:
+    from EMAN2 import *
+except ImportError:
+    print "Install EMAN2 for tests to pass!!!"
 
 boxerTestImage = "/Users/will/Documents/biology-data/testData/boxerTest.tiff"
 smallTestImage = "/Users/will/Documents/biology-data/testData/smallTest.tiff"

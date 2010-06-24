@@ -26,20 +26,20 @@ class TestAdmin(lib.ITest):
         a = self.client.getSession().getAdminService()
         l = a.lookupGroups()
         g = a.getGroup(l[0].getId().val)
-        d = g.getDetails()
-        o = d.owner
         self.assert_( 0 != g.sizeOfGroupExperimenterMap() )
-        self.assert_( 0 != o.sizeOfGroupExperimenterMap() )
 
     def testSetGroup(self):
         a = self.client.getSession().getAdminService()
-        e = a.getExperimenter(100)
-        g = a.getGroup(200)
-        print g.name
+        ec = a.getEventContext()
+        uid = ec.userId
 
-        a.setDefaultGroup(e,g)
-        a = self.client.sf.getAdminService()
-        self.assert_(a.getEventContext() != None)
+        # Add user to new group to test setting default
+        e = a.getExperimenter(uid)
+        admin = self.root.sf.getAdminService()
+        grp = self.new_group()
+        admin.addGroups(e, [grp])
+
+        a.setDefaultGroup(e, grp)
 
     def testThumbnail(self):
         q = self.client.getSession().getQueryService()

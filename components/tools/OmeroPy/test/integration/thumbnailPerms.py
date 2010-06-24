@@ -29,10 +29,10 @@ import omero.util.script_utils as scriptUtil
 from numpy import arange
 
 
-class TestIShare(lib.ITest):
-    
+class TestThumbnailPerms(lib.ITest):
+
     def testThumbs(self):
-        
+
         # root session is root.sf
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         admin = self.root.sf.getAdminService()

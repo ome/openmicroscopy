@@ -19,8 +19,7 @@ class TestRFS(lib.ITest):
 
     def file(self):
         ofile = omero.model.OriginalFileI()
-        ofile.format = omero.model.FormatI()
-        ofile.format.value = rstring("application/octet-stream")
+        ofile.mimetype = rstring("application/octet-stream")
         ofile.name = rstring("test")
         ofile.path = rstring("/tmp/test")
         ofile.sha1 = rstring("")

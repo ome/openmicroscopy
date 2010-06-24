@@ -31,7 +31,6 @@ class TestIContainer(lib.ITest):
         i.setAcquisitionDate(rtime(0))
         i = ipojo.createDataObject(i,None)
 
-    
     def testFindAndCountAnnotationsForPrivateData(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         query = self.root.sf.getQueryService()
@@ -71,29 +70,23 @@ class TestIContainer(lib.ITest):
         img = ImageI()
         img.setName(rstring('test1154-img-%s' % (uuid)))
         img.setAcquisitionDate(rtime(0))
-        
-        # permission 'rw----':
-        img.details.permissions.setUserRead(True)
-        img.details.permissions.setUserWrite(True)
-        img.details.permissions.setGroupRead(False)
-        img.details.permissions.setGroupWrite(False)
-        img.details.permissions.setWorldRead(False)
-        img.details.permissions.setWorldWrite(False)
+
+        # default permission 'rw----':
         img = update1.saveAndReturnObject(img)
         img.unload()
-        
+
         ann1 = CommentAnnotationI()
         ann1.textValue = rstring("user comment - %s" % uuid)
         l_ann1 = ImageAnnotationLinkI()
         l_ann1.setParent(img)
         l_ann1.setChild(ann1)
         update1.saveObject(l_ann1)
-        
+
         #user retrives the annotations for image
         coll_count = ipojo1.getCollectionCount("Image", "ome.model.containers.Image_annotationLinks", [img.id.val], None)
         self.assertEquals(1, coll_count.get(img.id.val, []))
         #self.assertEquals(1, len(ipojo1.findAnnotations("Image", [img.id.val], None, None).get(img.id.val, [])))
-        
+
         ann = CommentAnnotationI()
         ann.textValue = rstring("root comment - %s" % uuid)
         l_ann = ImageAnnotationLinkI()

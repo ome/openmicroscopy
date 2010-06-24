@@ -14,8 +14,11 @@ import omero
 
 import gatewaytest.library as lib
 
-from django.utils import simplejson
-from django.http import QueryDict
+try:
+    from django.utils import simplejson
+    from django.http import QueryDict
+except ImportError:
+    pass # Oh well. The tests will fail later.
 
 class RDefsTest (lib.GTest):
     TESTIMG_ID = None

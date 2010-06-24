@@ -27,7 +27,7 @@ class TestITimeline(lib.ITest):
         admin = sf.getAdminService()
         update = sf.getUpdateService()
         timeline = sf.getTimelineService()
-        
+
         im_ids = dict()
         for i in range(0,10):
             # create image
@@ -35,25 +35,17 @@ class TestITimeline(lib.ITest):
             img = omero.model.ImageI()
             img.setName(rstring('test-img-%s' % (uuid)))
             img.setAcquisitionDate(rtime(acquired))
-            
-            # permission 'rw----':
-            img.details.permissions.setUserRead(True)
-            img.details.permissions.setUserWrite(True)
-            img.details.permissions.setGroupRead(False)
-            img.details.permissions.setGroupWrite(False)
-            img.details.permissions.setWorldRead(False)
-            img.details.permissions.setWorldWrite(False)
+
+            # default permission 'rw----':
             img = update.saveAndReturnObject(img)
             img.unload()
-            
+
             im_ids[i] = [img.id.val, acquired]
-        
-        
-        
+
         # Here we assume that this test is not run within the last 1 second
         start = acquired - 86400
         end = acquired + 1
-        
+
         p = omero.sys.Parameters()
         p.map = {}
         f = omero.sys.Filter()
@@ -185,7 +177,7 @@ class TestITimeline(lib.ITest):
         # create dataset
         to_save = list()
         for i in range(0,10):
-            ds = DatasetI()
+            ds = omero.model.DatasetI()
             ds.setName(rstring("ds-%i-%s" % (i,uuid)))
             to_save.append(ds)
         

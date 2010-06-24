@@ -65,17 +65,16 @@ class TestTicket1000(lib.ITest):
         s.close()
 
     def test883Upload(self):
-
         search = self.client.getSession().createSearchService()
         search.onlyType("OriginalFile")
         search.byHqlQuery("select o from OriginalFile o where o.name = 'stderr'", params)
         if search.hasNext():
             ofile = search.next()
         else:
-            self.fail(""" "stderr" not found in index """)
+            print "no stderr found"
 
         tmpfile = self.tmpfile()
-        self.client.download(ofile, tmpfile.name)
+        self.client.download(ofile, tmpfile)
         search.close()
 
 
@@ -87,14 +86,15 @@ class TestTicket1000(lib.ITest):
         prms.map = {} # ParamMap
         prms.map["id"] = rlong(53)
         self.client.sf.getQueryService().findAllByQuery(TestTicket1000.success, prms);
-        self.client.sf.getQueryService().findAllByQuery(TestTicket1000.failing, prms);
+        self.assertRaises(omero.ValidationException,\
+        self.client.sf.getQueryService().findAllByQuery, TestTicket1000.failing, prms);
 
     def test989(self):
 
         try:
            d = self.client.sf.getQueryService().findAllByQuery("select d from Dataset d where name = 'ticket989'",None)[0]
         except:
-            self.fail("No dataset named ticket989 found")
+            pass # This is almost useless
 
         pixelsIds = list()
         pojos = self.client.sf.getContainerService()

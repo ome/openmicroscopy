@@ -2,7 +2,7 @@
 
 """
    Integration test for getting thumbnails between members of groups.
-   Testing permissions and thumbnail service on a running server. 
+   Testing permissions and thumbnail service on a running server.
 
    dir(self)
    'assertAlmostEqual', 'assertAlmostEquals', 'assertEqual', 'assertEquals', 'assertFalse', 'assertNotAlmostEqual', 'assertNotAlmostEquals', 
@@ -10,10 +10,9 @@
    'fail', 'failIf', 'failIfAlmostEqual', 'failIfEqual', 'failUnless', 'failUnlessAlmostEqual', 'failUnlessEqual', 'failUnlessRaises', 
    'failureException', 'id', 'login_args', 'new_user', 'query', 'root', 'run', 'setUp', 'sf', 'shortDescription', 'tearDown', 'testfoo', 
    'tmpfile', 'tmpfiles', 'update'
-   
+
    PYTHONPATH=/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages/:/opt/Ice-3.3.1/python:.:test:build/lib ICE_CONFIG=/Users/will/Documents/workspace/Omero/etc/ice.config python test/integration/thumbnailPerms.py
-   
-   
+
 """
 import unittest, time
 import integration.library as lib
@@ -37,30 +36,30 @@ movieFigurePath = "scripts/omero/figure_scripts/Movie_Figure.py"
 
 
 class TestFigureExportScripts(lib.ITest):
-    
+
     def testThumbnailFigure(self):
-        
+
         print "testThumbnailFigure"
-        
+
         # root session is root.sf
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         admin = self.root.sf.getAdminService()
-        
+
         session = self.root.sf
         client = self.root
         services = {}
         gateway = session.createGateway()
-        
+
         services["gateway"] = gateway
         services["renderingEngine"] = session.createRenderingEngine()
         services["queryService"] = session.getQueryService()
         services["pixelsService"] = session.getPixelsService()
         services["rawPixelStore"] = session.createRawPixelsStore()
-        
-        # upload script 
+
+        # upload script
         scriptService = session.getScriptService()
         scriptId = uploadScript(scriptService, thumbnailFigurePath)
-        
+
         # create several test images in a dataset
         # create dataset
         dataset = omero.model.DatasetI()
@@ -406,29 +405,29 @@ def runScript(client, session, scriptId, argMap, returnKey=None):
         results = proc.getResults(0)    # ms
     finally:
         proc.close(False)
-    
+
     if 'stdout' in results:
         origFile = results['stdout'].getValue()
-        print "Script generated StdOut in file:" , origFile.getId().getValue()       
+        print "Script generated StdOut in file:" , origFile.getId().getValue()
     if 'stderr' in results:
         origFile = results['stderr'].getValue()
         # But, we still get stderr from EMAN2 import (duplicate numpy etc.)
         print "Script generated StdErr in file:" , origFile.getId().getValue()
     if returnKey and returnKey in results:
         return results[returnKey]
-        
 
 def uploadScript(scriptService, scriptPath):
+    filename = "%s%s" % (self.OmeroPy, scriptPath)
     file = open(scriptPath)
     scriptText = file.read()
     file.close()
     try:
         scriptId = scriptService.uploadOfficialScript(scriptPath, scriptText)
     except ApiUsageException:
-        raise
+        raise # The next line will never be run!
         scriptId = editScript(scriptService, scriptPath)
     return scriptId
-    
+
 def editScript(scriptService, scriptPath):
     file = open(scriptPath)
     scriptText = file.read()
