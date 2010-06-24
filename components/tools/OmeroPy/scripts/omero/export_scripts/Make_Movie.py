@@ -73,11 +73,8 @@ COLOURS = scriptUtil.COLOURS    # name:(rgba) map
 MPEG = 'MPEG'
 QT = 'Quicktime'
 WMV = 'WMV'
-MPEG_NS = omero_Constants_ice._M_omero.constants.metadata.NSMOVIEMPEG
-QT_NS = omero_Constants_ice._M_omero.constants.metadata.NSMOVIEQT
-WMV_NS = omero_Constants_ice._M_omero.constants.metadata.NSMOVIEWMV
-
-formatNSMap = {MPEG:MPEG_NS, QT:QT_NS, WMV:WMV_NS}
+MOVIE_NS = omero_Constants_ice._M_omero.constants.metadata.NSMOVIE
+formatNSMap = {MPEG:MOVIE_NS, QT:MOVIE_NS, WMV:MOVIE_NS}
 formatExtensionMap = {MPEG:"avi", QT:"avi", WMV:"avi"}
 formatMap = {MPEG:"avi", QT:"avi", WMV:"avi"}
 formatMimetypes = {MPEG:"video/mpeg", QT:"video/quicktime", WMV:"video/wmv"}
