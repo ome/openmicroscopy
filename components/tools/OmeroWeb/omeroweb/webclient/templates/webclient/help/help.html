@@ -18,10 +18,12 @@
         $(document).ready(function() 
             {
                 var h = $(window).height()-200;
-                $("div#help_details").css('height', h+31);
+                $("div#help_details").css('height', h+11);
+                $("div#help_search").html('<iframe width="370" height="'+(h+11)+'" src="{% url help_search %}" id="help_search" name="help_search"></iframe>');
+                $('iframe#help_search').load();
+                
                 $("#right_panel").show();
                 $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
-                
                 
         })
     </script>
@@ -643,6 +645,6 @@
 
 {% block right %}
 
-    <div id="metadata_details"></div>
+    <div id="help_search"></div>
     
 {% endblock %}

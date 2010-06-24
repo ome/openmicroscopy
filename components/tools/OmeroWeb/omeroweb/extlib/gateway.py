@@ -1109,7 +1109,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 left outer join fetch spl.parent as sc where pl.id=:oid"
         for pdl in query_serv.findAllByQuery(sql, p):
             yield BlitzObjectWrapper(self, pdl)
-    
+        
     def getImageAnnotationLink (self, parent, oid):
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
@@ -1119,8 +1119,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         sql = "select ial from ImageAnnotationLink as ial left outer join fetch ial.child as an \
                 left outer join fetch ial.parent as im where im.id=:parent and an.id=:oid"
         dsl = query_serv.findByQuery(sql, p)
-        return BlitzObjectWrapper(self, dsl)
-    
+        if dsl is not None:
+            return BlitzObjectWrapper(self, dsl)
+        return None
+        
     def getDatasetAnnotationLink (self, parent, oid):
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
@@ -1130,7 +1132,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         sql = "select dal from DatasetAnnotationLink as dal left outer join fetch dal.child as an \
                 left outer join fetch dal.parent as ds where ds.id=:parent and an.id=:oid"
         dsl = query_serv.findByQuery(sql, p)
-        return BlitzObjectWrapper(self, dsl)
+        if dsl is not None:
+            return BlitzObjectWrapper(self, dsl)
+        return None
     
     def getPlateAnnotationLink (self, parent, oid):
         query_serv = self.getQueryService()
@@ -1141,7 +1145,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         sql = "select pal from PlateAnnotationLink as pal left outer join fetch pal.child as an \
                 left outer join fetch pal.parent as pl where pl.id=:parent and an.id=:oid"
         dsl = query_serv.findByQuery(sql, p)
-        return BlitzObjectWrapper(self, dsl)
+        if dsl is not None:
+            return BlitzObjectWrapper(self, dsl)
+        return None
     
     def getProjectAnnotationLink (self, parent, oid):
         query_serv = self.getQueryService()
@@ -1152,7 +1158,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         sql = "select pal from ProjectAnnotationLink as pal left outer join fetch pal.child as an \
                 left outer join fetch pal.parent as pr where pr.id=:parent and an.id=:oid"
         dsl = query_serv.findByQuery(sql, p)
-        return BlitzObjectWrapper(self, dsl)
+        if dsl is not None:
+            return BlitzObjectWrapper(self, dsl)
+        return None
     
     def getScreenAnnotationLink (self, parent, oid):
         query_serv = self.getQueryService()
@@ -1163,7 +1171,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         sql = "select sal from ScreenAnnotationLink as sal left outer join fetch sal.child as an \
                 left outer join fetch sal.parent as sc where pr.id=:parent and sc.id=:oid"
         dsl = query_serv.findByQuery(sql, p)
-        return BlitzObjectWrapper(self, dsl)
+        if dsl is not None:
+            return BlitzObjectWrapper(self, dsl)
+        return None
     
     def getSpecifiedImages(self, oids):
         query_serv = self.getQueryService()

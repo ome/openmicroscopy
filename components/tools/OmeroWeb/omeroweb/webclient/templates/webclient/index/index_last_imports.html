@@ -3,14 +3,15 @@
 {% load custom_tags %}
 {% load wikitags %}
 
-
+<script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
+    
 <div class="clear"> </div>
 
 {% if controller.lastAcquiredImages %}
     <ul id="dataIcons">
         {% for c in controller.lastAcquiredImages %}
             <li><em>{{ c.name }}</em>
-                <img id="{{ c.id }}" class="imgzoom" src="{% url render_thumbnail c.id %}" alt="image" title="{{ c.name }}"/>
+                <a href="#" onclick="return openPopup('{% url web_image_viewer c.id %}')"><img id="{{ c.id }}" class="imgzoom" src="{% url render_thumbnail c.id %}" alt="image" title="{{ c.name }}"/></a>
             </li>
         {% endfor %}
     </ul>

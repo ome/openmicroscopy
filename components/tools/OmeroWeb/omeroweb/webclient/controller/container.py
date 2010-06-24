@@ -676,7 +676,17 @@ class BaseContainer(BaseController):
             ann.setParent(selfobject._obj)
             ann.setChild(a._obj)
             new_links.append(ann)
-        self.conn.saveArray(new_links)
+        
+        failed = 0
+        try:
+            self.conn.saveArray(new_links)
+        except omero.ValidationException, x:
+            for l in new_links:
+                try:
+                    self.conn.saveObject(l)
+                except:
+                    failed+=1
+        return failed
     
     def createAnnotationsLinks(self, atype, tids, oids):
         #TODO: check if link already exist !!!
@@ -701,9 +711,17 @@ class BaseContainer(BaseController):
                         l_ann.setParent(obj._obj)
                         l_ann.setChild(a._obj)
                         new_links.append(l_ann)
-        self.conn.saveArray(new_links)
-
-    
+        failed = 0
+        try:
+            self.conn.saveArray(new_links)            
+        except omero.ValidationException, x:
+            for l in new_links:
+                try:
+                    self.conn.saveObject(l)
+                except:
+                    failed+=1
+        return failed
+            
     ################################################################
     # Update
     

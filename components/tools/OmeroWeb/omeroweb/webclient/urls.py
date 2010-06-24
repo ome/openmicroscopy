@@ -29,7 +29,7 @@ from django.views.static import serve
 
 from omeroweb.webclient import views
 
-urlpatterns = patterns('',
+urlpatterns = patterns('django.views.generic.simple',
     
     url( r'^$', views.index, name="webindex" ),
     # render main template
@@ -99,7 +99,7 @@ urlpatterns = patterns('',
     url( r'^import/$', views.importer, name="importer"),
     url( r'^upload/$', views.flash_uploader, name="flash_uploader"), 
     
-    url( r'^help/$', views.help, name="help" ),
+    url( r'^help_search/$', 'direct_to_template', {'template': 'webclient/help/help_search.html'}, name="help_search" ),
     
     url( r'^myphoto/$', views.myphoto, name="myphoto"),
     url( r'^userphoto/(?P<oid>[0-9]+)/$', views.load_photo, name="load_photo"),
