@@ -200,7 +200,7 @@ APPLICATION_HOST='%s'
         return answer
 
     def custom_settings(self, args):
-        location = self.ctx.dir / "lib" / "python" / "omeroweb" / "custom_settings.py"
+        location = self.ctx.dir / "var" / "custom_settings.py"
 
         if location.exists():
             if self._get_yes_or_no("%s" % location) == 'no':
@@ -223,7 +223,7 @@ APPLICATION_HOST='%s'
         if not args.server:
             self.ctx.out("OMERO.web application is served by 'default'")
         else:
-            location = self.ctx.dir / "lib" / "python" / "omeroweb" / "custom_settings.py"
+            location = self.ctx.dir / "var" / "custom_settings.py"
             settings = file(location, 'rb').read().split('\n')
             if settings[-1] == '':
                 settings = settings[:-1]

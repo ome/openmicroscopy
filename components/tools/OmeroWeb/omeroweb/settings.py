@@ -36,10 +36,10 @@ import omero.clients
 try:
     from custom_settings import *
 except ImportError:
-    sys.stderr.write("Error: Can't find the file 'custom_settings.py' in the directory containing %r." \
-        "It appears you've customized things.\nYou'll have to run 'bin/omero web [settings|superuser|syncdb]', " \
+    sys.stderr.write("Error: Can't find the file 'var/custom_settings.py'" \
+        "It appears you've customized things.\nYou'll have to run 'bin/omero web settings', " \
         "passing it your settings module.\n(If the file custom_settings.py does indeed exist, " \
-        "it's causing an ImportError somehow.)\n" % __file__)
+        "it's causing an ImportError somehow.)\n")
     sys.exit(1)
     
 # LOGS
