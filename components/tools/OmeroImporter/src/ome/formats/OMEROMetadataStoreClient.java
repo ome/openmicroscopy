@@ -1368,6 +1368,8 @@ public class OMEROMetadataStoreClient
 				String format = "text/plain";
 				OriginalFile originalFile = 
 					createOriginalFileFromFile(metadataFile, indexes, format);
+				originalFile.setPath(toRType(String.format("%s%s/",
+					omero.constants.namespaces.NSORIGINALMETADATA.value, image.getId().getValue())));
 				originalFile.setName(toRType("original_metadata.txt"));
                 indexes = new LinkedHashMap<Index, Integer>();
                 indexes.put(Index.IMAGE_INDEX, series);

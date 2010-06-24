@@ -131,6 +131,7 @@ module omero {
     module namespaces {
         const string NSMEASUREMENT = "openmicroscopy.org/omero/measurement";
         const string NSCOMPANIONFILE = "openmicroscopy.org/omero/import/companionFile";
+        const string NSORIGINALMETADATA = "/openmicroscopy.org/omero/image_files/";
         const string NSEXPERIMENTERPHOTO = "openmicroscopy.org/omero/experimenter/photo";
 
         //
