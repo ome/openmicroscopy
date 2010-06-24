@@ -284,8 +284,8 @@ class AdminControl(BaseControl):
         if self._isWindows():
             self.checkwindows()
 
-        ##if 0 != self.status(args):
-        ##    self.ctx.err("Server already running")
+        if 0 == self.status(args, node_only=True):
+            self.ctx.die(876, "Server already running")
 
         self._initDir()
         props = self._properties()
@@ -346,12 +346,15 @@ class AdminControl(BaseControl):
         command = ["icegridadmin",self._intcfg(),"-e"," ".join(["application","update", str(descript)] + args.targets)]
         self.ctx.call(command)
 
-    def status(self, args):
+    def status(self, args, node_only = False):
         self.check_node(args)
         command = self._cmd("-e","node ping %s" % args.node)
         self.ctx.rv = self.ctx.popen(command).wait() # popen
 
-        if self.ctx.rv == 0:
+        # node_only implies that "up" need not check for all
+        # of blitz to be accessible but just that if the node
+        # is running.
+        if self.ctx.rv == 0 and not node_only:
             try:
                 import Ice
                 import omero_ServerErrors_ice
@@ -369,6 +372,7 @@ class AdminControl(BaseControl):
             except exceptions.Exception, exc:
                 self.ctx.rv = 1
                 self.ctx.dbg("Server not reachable: "+str(exc))
+
         return self.ctx.rv
 
     def __DISABLED__restart(self, args):
@@ -399,7 +403,7 @@ class AdminControl(BaseControl):
             count = count - 1
             if count == 0:
                 self.ctx.die(44, "Failed to shutdown after 5 minutes")
-            elif 0 != self.status(args):
+            elif 0 != self.status(args, node_only = True):
                 break
             else:
                 self.ctx.out(".", newline = False)
@@ -585,7 +589,35 @@ OMERO Diagnostics %s
         log_dir(self.ctx.dir / "var" / "log", "Log dir", "Log files",\
             ["Blitz-0.log", "Tables-0.log", "Processor-0.log", "Indexer-0.log", "FileServer.log", "MonitorServer.log", "DropBox.log", "TestDropBox.log", "OMEROweb.log"])
 
+        # Parsing well known issues
         self.ctx.out("")
+        ready = re.compile(".*?ome.services.util.ServerVersionCheck.*OMERO.Version.*Ready..*?")
+        db_ready = re.compile(".*?Did.you.create.your.database[?].*?")
+        data_dir = re.compile(".*?Unable.to.initialize:.FullText.*?")
+        pg_password = re.compile(".*?org.postgresql.util.PSQLException:.FATAL:.password.*?authentication.failed.for.user.*?")
+
+        issues = {
+            ready : "=> Server restarted <=",
+            db_ready : "Your database configuration is invalid",
+            data_dir : "Did you create your omero.data.dir? E.g. /OMERO",
+            pg_password : "Your postgres password seems to be invalid"
+        }
+
+        try:
+            for file in ('Blitz-0.log',):
+
+                p = self.ctx.dir / "var" / "log" / file
+                import fileinput
+                for line in fileinput.input([str(p)]):
+                    lno = fileinput.filelineno()
+                    for k, v in issues.items():
+                        if k.match(line):
+                            item('Parsing %s' % file, "[line:%s] %s\n" % (lno, v))
+                            break
+        except:
+            self.ctx.err("Error while parsing logs")
+
+        self.ctx.out("\n")
         def env_val(val):
             item("Environment","%s=%s" % (val, os.environ.get(val, "(unset)")))
             self.ctx.out("")

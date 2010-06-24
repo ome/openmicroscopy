@@ -16,6 +16,8 @@ from omero.cli import BaseControl
 from omero.cli import CLI
 from omero.cli import VERSION
 
+from omero_ext.argparse import FileType
+
 from path import path
 
 import omero.java
@@ -31,6 +33,7 @@ class DatabaseControl(BaseControl):
 
         script = sub.add_parser("script", help="Generates a DB creation script")
         script.set_defaults(func=self.script)
+        script.add_argument("-f", "--file", type=FileType(mode="w"), help="Optional file to save to. Use '-' for stdout.")
         script.add_argument("dbversion", nargs="?")
         script.add_argument("dbpatch", nargs="?")
         script.add_argument("password", nargs="?")
@@ -93,17 +96,19 @@ class DatabaseControl(BaseControl):
             self.ctx.die(2, "Invalid Database version/patch: %s does not exist" % sql_directory)
         return sql_directory
 
-    def _create(self, sql_directory, db_vers, db_patch, password_hash, location = None):
+    def _create(self, sql_directory, db_vers, db_patch, password_hash, args):
         sql_directory = self.ctx.dir / "sql" / "psql" / ("%s__%s" % (db_vers, db_patch))
         if not sql_directory.exists():
             self.ctx.die(2, "Invalid Database version/patch: %s does not exist" % sql_directory)
 
-        script = "%s__%s.sql" % (db_vers, db_patch)
-        if not location:
+        if args and args.file:
+            output = args.file
+            script = "<filename here>"
+        else:
+            script = "%s__%s.sql" % (db_vers, db_patch)
             location = path.getcwd() / script
-
-        output = open(location, 'w')
-        self.ctx.out("Saving to " + location)
+            output = open(location, 'w')
+            self.ctx.out("Saving to " + location)
 
         try:
             output.write("""
@@ -172,7 +177,7 @@ BEGIN;
         self._lookup(data, data2, "patch", map)
         sql = self._sql_directory(map["version"],map["patch"])
         map["pass"] = self._get_password_hash(root_pass)
-        self._create(sql,map["version"],map["patch"],map["pass"])
+        self._create(sql, map["version"], map["patch"], map["pass"], args)
 
 try:
     register("db", DatabaseControl, HELP)
