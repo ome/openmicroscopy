@@ -69,8 +69,10 @@ BEGIN
 END;' LANGUAGE plpgsql;
 
 #foreach($type in $types)
-#set($table = ${type.typeToColumn($type.id)} )
+#if(!$type.superclass)
+#set($table = ${type.table})
 CREATE SEQUENCE seq_${table}; INSERT INTO _lock_ids (name, id) SELECT 'seq_${table}', nextval('_lock_seq');
+#end
 #end
 
 

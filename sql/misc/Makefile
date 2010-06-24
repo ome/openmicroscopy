@@ -1,0 +1,134 @@
+#
+# Copyright 2010 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+
+#
+# PREV:     A database created from the previous db scripts
+# FRESH:    A database created directly from the db script
+# SIMPLE:   The PREV database upgraded with the generated script
+# UPGRADED: The PREV database upgraded with our upgrade script
+#
+
+# Versions
+PREVDBVERS ?= OMERO4.1
+PREVDBPATCH ?= 0
+CURRDBVERS ?= OMERO4.2-RC
+CURRDBPATCH ?= 10
+
+# Tools
+OMERO_SOURCE ?= ../..
+OMERO_HOME ?= $(OMERO_SOURCE)/dist
+OMERO_EXE ?= $(OMERO_HOME)/bin/omero
+DIFF_JAR ?= "apgdiff-1.4.jar"
+DIFF_CMD ?= java -jar $(DIFF_JAR) --ignore-start-with
+PSQL_CMD ?= psql -v 'ON_ERROR_STOP=on'
+
+# Naming
+PREFIX=
+TARGET ?= target
+FRESH ?= FRESH4.2
+SIMPLE ?= SIMPLE4.2
+UPGRADED ?= UPGRADED4.2
+
+# Directories and files
+PREV ?= $(PREVDBVERS)__$(PREVDBPATCH)
+CURR ?= $(CURRDBVERS)__$(CURRDBPATCH)
+DIR ?= $(OMERO_SOURCE)/sql/psql/$(CURR)/
+SCRIPT ?= $(DIR)/$(PREV).sql
+
+# Functions: $(call name,var1,var2) ##############
+
+# Diff tries to produce SQL which can be added to $(SCRIPT)
+# in order to make the two versions approach one another
+MAKE_DIFF = $(DIFF_CMD) $(TARGET)/$(2).schema $(TARGET)/$(1).schema > $(TARGET)/$(2).diff
+
+MAKE_DB = dropdb $(PREFIX)$(1) || echo 'DNE' &&\
+	createdb $(PREFIX)$(1) &&\
+	createlang plpgsql $(PREFIX)$(1) &&\
+	$(PSQL_CMD) $(PREFIX)$(1) -f $(TARGET)/$(1).sql
+
+
+# Upgraded version #######################
+
+$(TARGET)/$(UPGRADED).diff: $(TARGET)/$(FRESH).schema $(TARGET)/$(UPGRADED).schema
+	$(call MAKE_DIFF,$(FRESH),$(UPGRADED))
+
+$(TARGET)/$(UPGRADED).schema: $(TARGET)/$(UPGRADED).db
+	$(PSQL_CMD) $(PREFIX)$(UPGRADED) -f $(SCRIPT)
+	pg_dump -s $(PREFIX)$(UPGRADED) > $(TARGET)/$(UPGRADED).schema
+
+$(TARGET)/$(UPGRADED).db: $(TARGET)/$(UPGRADED).sql
+	$(call MAKE_DB,$(UPGRADED))
+	touch $(TARGET)/$(UPGRADED).db
+
+$(TARGET)/$(UPGRADED).sql: $(TARGET)/$(PREV).sql
+	cp $(TARGET)/$(PREV).sql $(TARGET)/$(UPGRADED).sql
+
+# Fresh version ##########################
+
+$(TARGET)/$(SIMPLE).diff: $(TARGET)/$(FRESH).diff
+	cp $(TARGET)/$(PREV).sql $(TARGET)/$(SIMPLE).sql
+	$(call MAKE_DB,$(SIMPLE))
+	$(call MAKE_DIFF,$(SIMPLE),$(FRESH))
+	$(PSQL_CMD) $(PREFIX)$(UPGRADED) -f $(TARGET)/$(SIMPLE).diff
+
+$(TARGET)/$(FRESH).diff: $(TARGET)/$(PREV).schema $(TARGET)/$(FRESH).schema
+	$(call MAKE_DIFF,$(PREV),$(FRESH))
+
+$(TARGET)/$(FRESH).schema: $(TARGET)/$(FRESH).db
+	pg_dump -s $(PREFIX)$(FRESH) > $(TARGET)/$(FRESH).schema
+
+$(TARGET)/$(FRESH).db: $(TARGET)/$(FRESH).sql
+	$(call MAKE_DB,$(FRESH))
+	touch $(TARGET)/$(FRESH).db
+
+$(TARGET)/$(FRESH).sql:
+	mkdir -p $(TARGET)
+	$(OMERO_EXE) db script -f $(TARGET)/$(FRESH).sql "" "" ome
+
+
+# Previous version ######################
+
+$(TARGET)/$(PREV).schema: $(TARGET)/$(PREV).sql
+	$(call MAKE_DB,$(PREV))
+	pg_dump -s $(PREFIX)$(PREV) > $(TARGET)/$(PREV).schema
+
+$(TARGET)/$(PREV).sql:
+	mkdir -p $(TARGET)
+	$(OMERO_EXE) db script -f $(TARGET)/$(PREV).sql $(PREVDBVERS) $(PREVDBPATCH) ome
+
+
+# PHONY targets #########################
+
+fresh: clean build $(TARGET)/$(FRESH).diff
+
+simple: $(TARGET)/$(SIMPLE).diff
+
+upgraded: clean build $(TARGET)/$(UPGRADED).diff
+
+build:
+	cd $(OMERO_SOURCE) && ./build.py build-schema build-dist
+
+clean:
+	rm -f $(TARGET)/*.sql $(TARGET)/*.schema $(TARGET)/*.diff
+
+rmdb:
+	rm $(TARGET)/$(UPGRADED).db
+
+rmdiff:
+	rm $(TARGET)/$(UPGRADED).diff
+
+diff: $(TARGET)/$(UPGRADED).diff
+	less -G $(TARGET)/$(UPGRADED).diff
+
+vi:
+	vi $(SCRIPT)
+
+schema:
+	vi $(DIR)/schema.sql
+
+data:
+	vi $(DIR)/data.sql
+
+.PHONY: fresh upgraded build clean rmdb rmdiff simple diff vi schema data
