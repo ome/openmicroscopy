@@ -1265,7 +1265,9 @@ class RenderingControlProxy
     { 
     	//DataServicesFactory.isSessionAlive(context);
     	try {
+    		long start = System.currentTimeMillis();
     		servant.saveCurrentSettings();
+			//System.err.println("save in rendering control: "+(System.currentTimeMillis()-start));
     		return rndDef.copy();
 		} catch (Throwable e) {
 			e.printStackTrace();

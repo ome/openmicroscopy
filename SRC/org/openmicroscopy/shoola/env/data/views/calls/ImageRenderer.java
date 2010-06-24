@@ -38,7 +38,7 @@ import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
 /** 
- * 
+ * Renders an image.s
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -76,7 +76,7 @@ public class ImageRenderer
     private BatchCall makeBatchCall(final long pixelsID, final PlaneDef pd, 
     		final boolean asTexture, final boolean largeImage)
     {
-        return new BatchCall("Loading container tree: ") {
+        return new BatchCall("rendering image: ") {
             public void doCall() throws Exception
             {
                 OmeroImageService rds = context.getImageService();

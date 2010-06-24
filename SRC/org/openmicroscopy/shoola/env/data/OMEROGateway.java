@@ -297,6 +297,8 @@ class OMEROGateway
 		SCRIPTS_NOT_AVAILABLE_TO_USER = new ArrayList<String>();
 		SCRIPTS_NOT_AVAILABLE_TO_USER.add(
 				ScriptObject.REGION_PATH+"Populate_Plate_Roi.py");
+		SCRIPTS_NOT_AVAILABLE_TO_USER.add(
+				ScriptObject.SETUP_PATH+"FLIM_initialise.py");
 	}
 	
 	/**
@@ -1982,6 +1984,21 @@ class OMEROGateway
 					*/
 				}
 			}
+			/*
+			int n = 5;
+			long id = 401;
+			IPixelsPrx svc = getPixelsService();
+			long start;
+			for (int i = 0; i < n; i++) {
+				RenderingDef def = svc.loadRndSettings(id);
+				start = System.currentTimeMillis();
+				def.setModel(def.getModel());
+				svc.saveRndSettings(def);
+				svc.retrieveRndSettings(id);
+				System.err.println("save and reload: "+(System.currentTimeMillis()-start));
+				
+			}
+			*/
 			return exp;
 		} catch (Throwable e) {
 			connected = false;

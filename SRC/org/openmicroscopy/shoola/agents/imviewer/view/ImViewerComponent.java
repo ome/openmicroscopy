@@ -671,7 +671,6 @@ class ImViewerComponent
 						"This method can't be invoked in the DISCARDED, " +
 						"NEW or LOADING_RENDERING_CONTROL state.");
 		}
-
 		switch (key) {
 			case ColorModelAction.GREY_SCALE_MODEL:
 				model.setColorModel(GREY_SCALE_MODEL, true);

@@ -57,8 +57,9 @@ class PublishingDialog
 {
 
 	/** The text associated to the movie action. */
-	private static final String MOVIE_TOOLTIP = "Make a movie of the " +
-			"selected image.";
+	private static final String MOVIE_TOOLTIP = 
+		"Creates a movie of the image and attaches it to " +
+		"the originating image.";
 	
 	/** The text associated to the export as OME-TIFF action. */
 	private static final String EXPORT_AS_OME_TIFF_TOOLTIP = 
@@ -66,11 +67,12 @@ class PublishingDialog
 
 	/** The text associated to the SPLIT_VIEW_FIGURE action. */
 	private static final String SPLIT_VIEW_FIGURE_TOOLTIP = "" +
-			"Create a Split View figure.";
+			"Create a figure of split-view images.";
 	
 	/** The text associated to the SPLIT_VIEW_FIGURE action. */
 	private static final String SPLIT_VIEW_ROI_FIGURE_TOOLTIP = "" +
-			"Create a Roi Split View figure.";
+			"Create a figure of an ROI region as separate zoomed " +
+			"split-channel panels.";
 	
 	/** The text associated to the movie action. */
 	private static final String MOVIE_TEXT = "Make Movie...";
@@ -83,11 +85,12 @@ class PublishingDialog
 	private static final String SPLIT_VIEW_FIGURE_TEXT = "Split View Figure...";
 	
 	/** The text associated to the SPLIT_VIEW_FIGURE action. */
-	private static final String SPLIT_VIEW_ROI_FIGURE_TEXT = "Roi Figure...";
+	private static final String SPLIT_VIEW_ROI_FIGURE_TEXT = 
+		"ROI Split Figure...";
 	
 	/** The text associated to the Thumbnails action. */
 	private static final String THUMBNAILS_FIGURE_TOOLTIP = "" +
-			"Create an image of the displayed images.";
+			"Export a figure of thumbnails, optionally sorted by tag.";
 	
 	/** The text associated to the Thumbnails action. */
 	private static final String THUMBNAILS_FIGURE_TEXT = "" +
@@ -95,7 +98,7 @@ class PublishingDialog
 	
 	/** The text associated to the Movie figure action. */
 	private static final String MOVIE_FIGURE_TOOLTIP = "" +
-			"Create a movie of the displayed or selected images.";
+			"Export a figure of a movie.";
 	
 	/** The text associated to the Thumbnails action. */
 	private static final String MOVIE_FIGURE_TEXT = "Movie Figure...";
