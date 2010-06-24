@@ -81,6 +81,9 @@ class ScriptComponent
 	/** The text associated to the component. */
 	private JLabel label;
 	
+	/** The text associated to the component. */
+	private JLabel requireLabel;
+	
 	/** Component indicating the units or other text. */
 	private JLabel unitLabel;
 	
@@ -136,7 +139,14 @@ class ScriptComponent
 	{ 
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		p.add(label);
+		if (requireLabel != null) {
+			JPanel lp = new JPanel();
+			lp.setLayout(new BoxLayout(lp, BoxLayout.X_AXIS));
+			lp.add(label);
+			lp.add(requireLabel);
+			p.add(lp);
+		} else p.add(label);
+
 		if (info != null) p.add(info);
 		return UIUtilities.buildComponentPanel(p, 0, 0); 
 	}
@@ -222,7 +232,11 @@ class ScriptComponent
 	void setRequired(boolean required)
 	{ 
 		this.required = required; 
-		if (required) label = UIUtilities.setTextFont(label.getText()+" *");
+		if (required) {
+			requireLabel = UIUtilities.setTextFont(" "+REQUIRED);
+			requireLabel.setForeground(UIUtilities.REQUIRED_FIELDS_COLOR);
+			requireLabel.setToolTipText(label.getToolTipText());
+		}
 	}
 	
 	/**
