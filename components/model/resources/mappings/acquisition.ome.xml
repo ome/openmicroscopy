@@ -35,7 +35,7 @@
 			<!-- Note: acquiredPixels is missing, and OMERO uses the pixels[0] as defaultPixels -->
 			<onemany name="pixels" type="ome.model.core.Pixels" inverse="image" ordered="true"/>
 			<zeromany name="wellSamples" type="ome.model.screen.WellSample" inverse="image"/>
-                        <zeromany name="rois" type="ome.model.roi.Roi" inverse="image"/>
+			<zeromany name="rois" type="ome.model.roi.Roi" inverse="image"/>
 			<!-- Containers -->
 			<parent name="datasetLinks" type="ome.model.containers.DatasetImageLink" target="ome.model.containers.Dataset"/>
 		</properties>
@@ -215,8 +215,7 @@
 			<optional name="mode" type="ome.model.enums.AcquisitionMode"/>
 			<optional name="pockelCellSetting" type="int"/>
 			<onemany name="channels" type="ome.model.core.Channel" inverse="logicalChannel"/>
-                        <manyzero name="shapes" type="ome.model.roi.Shape" inverse="channels"/>
-                        <optional name="lightPath" type="ome.model.acquisition.LightPath"/>
+			<optional name="lightPath" type="ome.model.acquisition.LightPath"/>
 		</properties>
 	</type>
 	<type id="ome.model.stats.StatsInfo">
@@ -372,8 +371,9 @@
 			<optional name="filterWheel" type="string"/>
 			<optional name="type" type="ome.model.enums.FilterType"/>
 			<optional name="transmittanceRange" type="ome.model.acquisition.TransmittanceRange"/>
-                        <optional name="filterSet" type="ome.model.acquisition.FilterSet"/>
 			<manyone name="instrument" type="ome.model.acquisition.Instrument"/>
+			<parent name="excitationFilterLink" type="ome.model.acquisition.FilterSetExcitationFilterLink" target="ome.model.acquisition.FilterSet"/>
+			<parent name="emissionFilterLink" type="ome.model.acquisition.FilterSetEmissionFilterLink" target="ome.model.acquisition.FilterSet"/>
 		</properties>
 	</type>
 	<type id="ome.model.acquisition.FilterSet" manufactured="true">
@@ -381,10 +381,10 @@
 			<optional name="manufacturer" type="string"/>
 			<optional name="model" type="string"/>
 			<optional name="lotNumber" type="string"/>
-                        <manyone name="instrument" type="ome.model.acquisition.Instrument"/>
-                        <child name="excitationFilterLink" type="ome.model.acquisition.FilterSetExcitationFilterLink" target="ome.model.acquisition.Filter"/>
-                        <optional name="dichroic" type="ome.model.acquisition.Dichroic"/>
-                        <child name="emissionFilterLink" type="ome.model.acquisition.FilterSetEmissionFilterLink" target="ome.model.acquisition.Filter"/>
+			<manyone name="instrument" type="ome.model.acquisition.Instrument"/>
+			<child name="excitationFilterLink" type="ome.model.acquisition.FilterSetExcitationFilterLink" target="ome.model.acquisition.Filter"/>
+			<optional name="dichroic" type="ome.model.acquisition.Dichroic"/>
+			<child name="emissionFilterLink" type="ome.model.acquisition.FilterSetEmissionFilterLink" target="ome.model.acquisition.Filter"/>
 		</properties>
 	</type>
 	<type id="ome.model.acquisition.Dichroic">
@@ -407,7 +407,7 @@
 	<type id="ome.model.acquisition.LightPath">
 		<properties>
 			<child name="excitationFilterLink" type="ome.model.acquisition.LightPathExcitationFilterLink" target="ome.model.acquisition.Filter" ordered="true"/>
-                        <optional name="dichroic" type="ome.model.acquisition.Dichroic"/>
+			<optional name="dichroic" type="ome.model.acquisition.Dichroic"/>
 			<child name="emissionFilterLink" type="ome.model.acquisition.LightPathEmissionFilterLink" target="ome.model.acquisition.Filter"/>
 		</properties>
 	</type>
