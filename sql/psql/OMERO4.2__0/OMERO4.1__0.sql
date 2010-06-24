@@ -3,17 +3,18 @@
 -- Use is subject to license terms supplied in LICENSE.txt
 --
 
---
--- OMERO-Beta4.2 release upgrade from OMERO4.1__0 to OMERO4.2__0
---
+---
+--- OMERO-Beta4.2 release upgrade from OMERO4.1__0 to OMERO4.2__0
+---
 
 BEGIN;
--- TODO make sure (and documentation) that all parent_child keys should be parent_child_owner
 
 -- Requirements:
 --  * Applies only to OMERO4.1__0
---  * wellsample.timepoint must be null
 --  * No annotations of deleted types may exist: query, thumbnail, url
+--  * No Format with the value of a mimetype may be left over after original files are updated.
+--  * No channels point to shapes.
+--  * wellsample.timepoint should be null, and will be ignored.
 --
 -- If any of the requirements are not met, you
 -- will need to contact the OME developers for
@@ -33,19 +34,20 @@ BEGIN
         RAISE EXCEPTION ''ASSERTION ERROR: Wrong database version'';
     END IF;
 
-    SELECT INTO rec count(timepoint) as count
-           FROM wellsample
-          WHERE timepoint IS NOT NULL;
-    IF rec.count > 0 THEN
-        RAISE EXCEPTION ''ASSERTION ERROR: Found wellsample.timepoint data. Count=%'', rec.count;
-    END IF;
-
     SELECT INTO rec count(id) as count
            FROM annotation
           WHERE discriminator in (''/basic/text/uri/'', ''/basic/text/query/'', ''/type/Thumbnail/'');
 
     IF rec.count > 0 THEN
         RAISE EXCEPTION ''ASSERTION ERROR: Found annotations of type: (query, thumbnail, or uri). Count=%'', rec.count;
+    END IF;
+
+    SELECT INTO rec count(id) as count
+           FROM logicalchannel
+          WHERE shapes IS NOT NULL;
+
+    IF rec.count > 0 THEN
+        RAISE EXCEPTION ''ASSERTION ERROR: Found channels pointing to shapes: Count=%'', rec.count;
     END IF;
 
 END;' LANGUAGE plpgsql;
@@ -70,7 +72,11 @@ CREATE OR REPLACE FUNCTION upgrade_sequence(seqname VARCHAR) RETURNS void
     AS '
     BEGIN
 
-        EXECUTE ''CREATE SEQUENCE '' || seqname;
+        PERFORM c.relname AS sequencename FROM pg_class c WHERE (c.relkind = ''S'') AND c.relname = seqname;
+        IF NOT FOUND THEN
+            EXECUTE ''CREATE SEQUENCE '' || seqname;
+        END IF;
+
         PERFORM next_val FROM seq_table WHERE sequence_name = seqname;
         IF FOUND THEN
             PERFORM SETVAL(seqname, next_val) FROM seq_table WHERE sequence_name = seqname;
@@ -109,10 +115,8 @@ DROP FUNCTION upgrade_sequence(VARCHAR);
 -- make Hibernate generate them for us.
 
 CREATE SEQUENCE _lock_seq;
-ALTER TABLE seq_table RENAME TO _lock_ids;
-ALTER TABLE _lock_ids RENAME COLUMN sequence_name TO name;
-ALTER TABLE _lock_ids DROP CONSTRAINT seq_table_pkey;
-ALTER TABLE _lock_ids DROP COLUMN next_val;
+DROP TABLE seq_table;
+CREATE TABLE _lock_ids (name VARCHAR(255) NOT NULL);
 ALTER TABLE _lock_ids ADD COLUMN id int PRIMARY KEY DEFAULT nextval('_lock_seq');
 CREATE UNIQUE INDEX _lock_ids_name ON _lock_ids (name);
 
@@ -227,7 +231,7 @@ ALTER TABLE wellsample
 
 ALTER TABLE plateacquisitionannotationlink
 	ADD CONSTRAINT plateacquisitionannotationlink_external_id_key UNIQUE (external_id),
-	ADD CONSTRAINT plateacquisitionannotationlink_parent_key UNIQUE (parent, child),
+        ADD CONSTRAINT plateacquisitionannotationlink_parent_key UNIQUE (parent, child, owner_id),
 	ADD CONSTRAINT fkplateacquisitionannotationlink_child_annotation FOREIGN KEY (child) REFERENCES annotation(id),
 	ADD CONSTRAINT fkplateacquisitionannotationlink_creation_id_event FOREIGN KEY (creation_id) REFERENCES event(id),
 	ADD CONSTRAINT fkplateacquisitionannotationlink_external_id_externalinfo FOREIGN KEY (external_id) REFERENCES externalinfo(id),
@@ -245,7 +249,6 @@ ALTER TABLE plateacquisition
 	ADD CONSTRAINT fkplateacquisition_owner_id_experimenter FOREIGN KEY (owner_id) REFERENCES experimenter(id),
 	ADD CONSTRAINT fkplateacquisition_update_id_event FOREIGN KEY (update_id) REFERENCES event(id),
         ADD CONSTRAINT fkplateacquisition_plate_plate FOREIGN KEY (plate) REFERENCES plate(id);
-
 
 -- Leaving timepoint null
 
@@ -517,7 +520,7 @@ BEGIN
             ex_count := ex_count + 1;
         END IF;
 
-        UPDATE logicalchannel SET lightpath = lightpath_id;
+        UPDATE logicalchannel SET lightpath = lightpath_id WHERE id = rec.id;
 
     END LOOP;
 
@@ -588,11 +591,38 @@ CREATE TABLE namespaceannotationlink (
 	parent bigint NOT NULL
 );
 
+ALTER TABLE namespace
+	ADD CONSTRAINT namespace_pkey PRIMARY KEY (id),
+	ADD CONSTRAINT namespace_external_id_key UNIQUE (external_id),
+	ADD CONSTRAINT fknamespace_external_id_externalinfo FOREIGN KEY (external_id) REFERENCES externalinfo(id),
+        ADD CONSTRAINT fknamespace_creation_id_event FOREIGN KEY (creation_id) REFERENCES event(id),
+        ADD CONSTRAINT fknamespace_group_id_experimentergroup FOREIGN KEY (group_id) REFERENCES experimentergroup(id),
+        ADD CONSTRAINT fknamespace_owner_id_experimenter FOREIGN KEY (owner_id) REFERENCES experimenter(id),
+        ADD CONSTRAINT fknamespace_update_id_event FOREIGN KEY (update_id) REFERENCES event(id);
+
+ALTER TABLE namespaceannotationlink
+	ADD CONSTRAINT namespaceannotationlink_external_id_key UNIQUE (external_id),
+        ADD CONSTRAINT namespaceannotationlink_parent_key UNIQUE (parent, child, owner_id),
+	ADD CONSTRAINT fknamespaceannotationlink_child_annotation FOREIGN KEY (child) REFERENCES annotation(id),
+	ADD CONSTRAINT fknamespaceannotationlink_creation_id_event FOREIGN KEY (creation_id) REFERENCES event(id),
+	ADD CONSTRAINT fknamespaceannotationlink_external_id_externalinfo FOREIGN KEY (external_id) REFERENCES externalinfo(id),
+	ADD CONSTRAINT fknamespaceannotationlink_group_id_experimentergroup FOREIGN KEY (group_id) REFERENCES experimentergroup(id),
+	ADD CONSTRAINT fknamespaceannotationlink_owner_id_experimenter FOREIGN KEY (owner_id) REFERENCES experimenter(id),
+	ADD CONSTRAINT fknamespaceannotationlink_parent_namespace FOREIGN KEY (parent) REFERENCES namespace(id),
+	ADD CONSTRAINT fknamespaceannotationlink_update_id_event FOREIGN KEY (update_id) REFERENCES event(id),
+        ADD CONSTRAINT namespaceannotationlink_pkey PRIMARY KEY (id);
+
+
+CREATE UNIQUE INDEX namespace_name ON namespace USING btree (name);
+
 CREATE TABLE parsejob (
 	params bytea,
 	job_id bigint NOT NULL
 );
 
+ALTER TABLE parsejob
+	ADD CONSTRAINT fkparsejob_job_id_job FOREIGN KEY (job_id) REFERENCES job(id),
+	ADD CONSTRAINT parsejob_pkey PRIMARY KEY (job_id);
 
 ALTER TABLE session
 	DROP COLUMN defaultpermissions;
@@ -609,12 +639,11 @@ BEGIN
                   AND a.ns = ''openmicroscopy.org/omero/import/companionFile'' LOOP
 
         -- An original_metadata.txt should not be attached to multiple images
-        IF substring(rec.path from 1 for 16) == ''/imported_image/'' THEN
+        IF substring(rec.path from 1 for 16) = ''/imported_image/'' THEN
             RAISE EXCEPTION ''Already modified! Image:%'', rec.image;
         END IF;
 
-        UPDATE originalfile SET path = ''/imported_image/''||rec.image||''/'' WHERE id = rec.file;
-        -- TODO needs work
+        UPDATE originalfile SET path = ''/openmicroscopy.org/omero/image_files/''||rec.image||''/'' WHERE id = rec.file;
     END LOOP;
 
 END;' LANGUAGE plpgsql;
@@ -646,6 +675,8 @@ ALTER TABLE image
 ALTER TABLE image
 	ADD CONSTRAINT fkimage_format_format FOREIGN KEY (format) REFERENCES format(id);
 
+-- Not attempting to fill Image.format
+
 ALTER TABLE pixels
 	DROP COLUMN url,
 	ADD COLUMN path text,
@@ -661,56 +692,114 @@ ALTER TABLE thumbnail DROP COLUMN url;
 --
 -- Modify system types
 --
-
-
-----
---
--- Remove old system types
---
-
-DROP VIEW count_experimentergroup_groupexperimentermap_by_owner;
-DROP VIEW count_experimenter_groupexperimentermap_by_owner;
-
-ALTER TABLE groupexperimentermap ADD COLUMN owner boolean;
 CREATE OR REPLACE FUNCTION upgrade_group_owners() RETURNS void AS '
 DECLARE
+    mid INT8;
     rec RECORD;
 BEGIN
 
-    FOR rec IN SELECT o.id as file, o.path, o.name, i.id as image FROM originalfile o, image i, imageannotationlink l, annotation a
-                WHERE o.id = a.file AND a.id = l.child AND l.parent = i.id
-                  AND o.path LIKE ''%tmp%omero_%metadata%.txt'' AND o.name LIKE ''original_metadata.txt''
-                  AND a.ns = ''openmicroscopy.org/omero/import/companionFile'' LOOP
+    ALTER TABLE groupexperimentermap ADD COLUMN owner boolean;
 
-        -- An original_metadata.txt should not be attached to multiple images
-        IF substring(rec.path from 1 for 16) == ''/imported_image/'' THEN
-            RAISE EXCEPTION ''Already modified! Image:%'', rec.image;
+    -- For every group, if the owner is not in the group, add them
+    -- If they are in the group, set the boolean flag.
+    FOR rec IN SELECT * FROM experimentergroup LOOP
+        SELECT INTO mid id FROM groupexperimentermap WHERE child = rec.owner_id;
+        IF NOT FOUND THEN
+            SELECT INTO mid ome_nextval(''seq_groupexperimentermap'');
+            INSERT INTO groupexperimentermap (id, permissions, version, parent, child, child_index)
+                 SELECT mid, -35, 0, rec.id, rec.owner_id, max(child_index) + 1
+                   FROM groupexperimentermap WHERE child = rec.owner_id;
+        ELSE
+            UPDATE groupexperimentermap SET owner = true WHERE id = mid;
         END IF;
-
-        UPDATE originalfile SET path = ''/imported_image/''||rec.image||''/'' WHERE id = rec.file;
-        -- TODO needs work
     END LOOP;
+
+    UPDATE groupexperimentermap SET owner = FALSE WHERE owner IS NULL;
+
+    ALTER TABLE groupexperimentermap ALTER COLUMN owner SET NOT NULL;
 
 END;' LANGUAGE plpgsql;
 
 SELECT upgrade_group_owners();
 DROP FUNCTION upgrade_group_owners();
 
--- TODO for every owner, if there's no link, insert one with true.
--- if there is one, set true.
--- then set all others to false.
-UPDATE groupexperimentermap SET owner = FALSE WHERE owner IS NULL;
+----
+--
+-- Remove old system types
+--
+DROP VIEW count_experimentergroup_groupexperimentermap_by_owner;
+DROP VIEW count_experimenter_groupexperimentermap_by_owner;
+
 ALTER TABLE groupexperimentermap
 	DROP COLUMN creation_id,
 	DROP COLUMN group_id,
 	DROP COLUMN owner_id,
 	DROP COLUMN update_id;
 
-ALTER TABLE groupexperimentermap ALTER COLUMN owner SET NOT NULL;
 ----
 --
 -- ROI modifications
 --
+
+CREATE OR REPLACE FUNCTION hex_to_dec(t text) RETURNS integer AS $$
+DECLARE
+    r RECORD;
+    sql VARCHAR;
+BEGIN
+    sql := 'SELECT x';
+    sql := sql || E'\'';
+    sql := sql || t;
+    sql := sql || E'\'';
+    sql := sql || '::integer AS hex';
+    FOR r IN EXECUTE sql LOOP
+        RETURN r.hex;
+    END LOOP;
+END;$$ LANGUAGE plpgsql IMMUTABLE STRICT;
+
+CREATE OR REPLACE FUNCTION hex_to_argb(color VARCHAR, opacity FLOAT8) RETURNS INT8 AS '
+DECLARE
+
+    OFFSET INT8 := 4294967296;
+    MAXINT INT8 := 2147483647;
+    MININT INT8 := -2147483648;
+
+    rval INT8;
+    gval INT8;
+    bval INT8;
+    aval INT8;
+    argb INT8;
+BEGIN
+
+    IF opacity < 0.0 or opacity > 1.0 THEN
+        RAISE EXCEPTION ''Opacity out of bounds: %'', opacity;
+    ELSIF substring(color from 1 for 1) = ''#'' THEN
+        aval := cast(round((255.0 * opacity)::numeric) as int8);
+        rval := hex_to_dec(substring(color from 2 for 2));
+        gval := hex_to_dec(substring(color from 4 for 2));
+        bval := hex_to_dec(substring(color from 6 for 2));
+    ELSE
+        RAISE EXCEPTION ''Unknown color format: %'', color;
+    END IF;
+
+    argb := aval << 24;
+    argb := argb + (rval << 16);
+    argb := argb + (gval << 8);
+    argb := argb + bval;
+
+    IF argb < 0 or argb > OFFSET THEN
+        RAISE EXCEPTION ''Overflow: % (color=%, opacity=%, argb=(%,%,%,%))'',
+            argb, color, opacity, aval, rval, gval, bval;
+    ELSIF argb > MAXINT THEN
+        argb := argb - OFFSET;
+    END IF;
+
+    IF argb < MININT or argb > MAXINT THEN
+        RAISE EXCEPTION ''Late overflow: %'', argv;
+    END IF;
+
+    RETURN argb;
+
+END;' LANGUAGE plpgsql IMMUTABLE STRICT;
 
 ALTER TABLE roi
 	ADD COLUMN keywords text[],
@@ -724,14 +813,16 @@ ALTER TABLE shape
 -- r7154
 ALTER TABLE shape ADD COLUMN new_fillcolor integer;
 ALTER TABLE shape ADD COLUMN new_strokecolor integer;
--- TODO parse colors
+UPDATE shape SET new_fillcolor = hex_to_argb(fillcolor, fillopacity);
+UPDATE shape SET new_strokecolor = hex_to_argb(strokecolor, strokeopacity);
 ALTER TABLE shape DROP COLUMN fillopacity;
 ALTER TABLE shape DROP COLUMN strokeopacity;
 ALTER TABLE shape DROP COLUMN fillcolor;
 ALTER TABLE shape DROP COLUMN strokecolor;
-
 ALTER TABLE shape RENAME COLUMN new_fillcolor to fillcolor;
 ALTER TABLE shape RENAME COLUMN new_strokecolor to strokecolor;
+DROP FUNCTION hex_to_dec(text);
+DROP FUNCTION hex_to_argb(VARCHAR, FLOAT8);
 
 ----
 --
@@ -885,7 +976,12 @@ insert into acquisitionmode (id,permissions,value)
 insert into acquisitionmode (id,permissions,value)
     select ome_nextval('seq_acquisitionmode'),-35,'LaserScanningConfocalMicroscopy';
 
--- TODO find all the other two and update them
+update logicalchannel lc set mode = am_new.id
+  from acquisitionmode am_old, acquisitionmode am_new
+ where lc.mode = am_old.id
+   and am_old.value in ('LaserScanningConfocal', 'LaserScanningMicroscopy')
+   and am_new.value = 'LaserScanningConfocalMicroscopy';
+
 delete from acquisitionmode where value in ('LaserScanningConfocal', 'LaserScanningMicroscopy');
 
 insert into detectortype (id,permissions,value)
@@ -901,79 +997,15 @@ insert into microbeammanipulationtype (id,permissions,value)
 insert into microbeammanipulationtype (id,permissions,value)
     select ome_nextval('seq_microbeammanipulationtype'),-35,'InverseFRAP';
 
--- TODO decide whether or not to fix Format
-
-----
---
--- TODO Activate constraints
---
-
-ALTER TABLE namespace
-	ADD CONSTRAINT namespace_pkey PRIMARY KEY (id);
-
-ALTER TABLE namespaceannotationlink
-	ADD CONSTRAINT namespaceannotationlink_pkey PRIMARY KEY (id);
-
-ALTER TABLE parsejob
-	ADD CONSTRAINT parsejob_pkey PRIMARY KEY (job_id);
-
-ALTER TABLE annotationannotationlink
-	DROP CONSTRAINT fkannotationannotationlink_child_annotation;
-
-ALTER TABLE annotationannotationlink
-	DROP CONSTRAINT fkannotationannotationlink_parent_annotation;
-
-ALTER TABLE annotationannotationlink
-	ADD CONSTRAINT fkannotationannotationlink_child_child FOREIGN KEY (child) REFERENCES annotation(id);
-
-ALTER TABLE annotationannotationlink
-	ADD CONSTRAINT fkannotationannotationlink_parent_parent FOREIGN KEY (parent) REFERENCES annotation(id);
-
-
-
--- Unneeded:
--- ALTER TABLE logicalchannel
---	DROP CONSTRAINT fklogicalchannel_secondaryemissionfilter_filter;
--- ALTER TABLE logicalchannel
---	DROP CONSTRAINT fklogicalchannel_secondaryexcitationfilter_filter;
-
-ALTER TABLE namespace
-	ADD CONSTRAINT namespace_external_id_key UNIQUE (external_id);
-
-ALTER TABLE namespace
-	ADD CONSTRAINT fknamespace_external_id_externalinfo FOREIGN KEY (external_id) REFERENCES externalinfo(id);
-
-ALTER TABLE namespaceannotationlink
-	ADD CONSTRAINT namespaceannotationlink_external_id_key UNIQUE (external_id);
-
-ALTER TABLE namespaceannotationlink
-	ADD CONSTRAINT namespaceannotationlink_parent_key UNIQUE (parent, child);
-
-ALTER TABLE namespaceannotationlink
-	ADD CONSTRAINT fknamespaceannotationlink_child_annotation FOREIGN KEY (child) REFERENCES annotation(id);
-
-ALTER TABLE namespaceannotationlink
-	ADD CONSTRAINT fknamespaceannotationlink_creation_id_event FOREIGN KEY (creation_id) REFERENCES event(id);
-
-ALTER TABLE namespaceannotationlink
-	ADD CONSTRAINT fknamespaceannotationlink_external_id_externalinfo FOREIGN KEY (external_id) REFERENCES externalinfo(id);
-
-ALTER TABLE namespaceannotationlink
-	ADD CONSTRAINT fknamespaceannotationlink_group_id_experimentergroup FOREIGN KEY (group_id) REFERENCES experimentergroup(id);
-
-ALTER TABLE namespaceannotationlink
-	ADD CONSTRAINT fknamespaceannotationlink_owner_id_experimenter FOREIGN KEY (owner_id) REFERENCES experimenter(id);
-
-ALTER TABLE namespaceannotationlink
-	ADD CONSTRAINT fknamespaceannotationlink_parent_namespace FOREIGN KEY (parent) REFERENCES namespace(id);
-
-ALTER TABLE namespaceannotationlink
-	ADD CONSTRAINT fknamespaceannotationlink_update_id_event FOREIGN KEY (update_id) REFERENCES event(id);
-
-ALTER TABLE parsejob
-	ADD CONSTRAINT fkparsejob_job_id_job FOREIGN KEY (job_id) REFERENCES job(id);
-
-
+-- Deleting from Format. If any of these have been assigned to an Image
+-- this will fail.
+delete from format where value in
+    ('application/msword', 'application/octet-stream', 'application/pdf', 'application/vnd.ms-excel',
+     'application/vnd.ms-powerpoint', 'audio/basic', 'audio/mpeg', 'audio/wav',
+     'image/bmp', 'image/gif', 'image/jpeg', 'image/png', 'image/tiff',
+     'text/csv', 'text/html', 'text/ini', 'text/plain', 'text/richtext',
+     'text/rtf', 'text/x-python', 'text/xml',
+     'video/jpeg2000', 'video/mp4', 'video/mpeg', 'video/quicktime');
 
 ----
 --
@@ -984,22 +1016,6 @@ ALTER TABLE annotation
 	DROP COLUMN thumbnail,
 	ADD COLUMN termvalue text;
 
--- TODO
--- REMOVE uri, query, thumb (need test framework)
--- ADD term??
-CREATE OR REPLACE FUNCTION upgrade_annotations_42() RETURNS void AS '
-DECLARE
-    rec RECORD;
-BEGIN
-
-    DELETE FROM annotation WHERE discriminator IN
-        (''/basic/text/uri/'', ''/basic/text/query/'', ''/type/Thumbnail/'');
-
-END;' LANGUAGE plpgsql;
-
-SELECT upgrade_annotations_42();
-DROP FUNCTION upgrade_annotations_42();
-
 ----
 --
 -- Fix shares with respect to group permissions (#1434, #2327, r6882)
@@ -1007,6 +1023,9 @@ DROP FUNCTION upgrade_annotations_42();
 
 ALTER TABLE share
         ADD COLUMN "group" bigint;
+
+ALTER TABLE share
+        ADD CONSTRAINT fkshare_group_experimentergroup FOREIGN KEY ("group") REFERENCES experimentergroup(id);
 
 UPDATE share sh
         SET "group" = m.parent
@@ -1021,6 +1040,34 @@ ALTER TABLE sharemember
 	DROP COLUMN group_id,
 	DROP COLUMN owner_id,
 	DROP COLUMN update_id;
+
+----
+--
+-- Other changes for group permissions
+--
+CREATE OR REPLACE FUNCTION ome_perms(p bigint) RETURNS character varying
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    ur CHAR DEFAULT '-';
+    uw CHAR DEFAULT '-';
+    gr CHAR DEFAULT '-';
+    gw CHAR DEFAULT '-';
+    wr CHAR DEFAULT '-';
+    ww CHAR DEFAULT '-';
+BEGIN
+    -- shift 8
+    SELECT INTO ur CASE WHEN (cast(p as bit(64)) & cast(1024 as bit(64))) = cast(1024 as bit(64)) THEN 'r' ELSE '-' END;
+    SELECT INTO uw CASE WHEN (cast(p as bit(64)) & cast( 512 as bit(64))) = cast( 512 as bit(64)) THEN 'w' ELSE '-' END;
+    -- shift 4
+    SELECT INTO gr CASE WHEN (cast(p as bit(64)) & cast(  64 as bit(64))) = cast(  64 as bit(64)) THEN 'r' ELSE '-' END;
+    SELECT INTO gw CASE WHEN (cast(p as bit(64)) & cast(  32 as bit(64))) = cast(  32 as bit(64)) THEN 'w' ELSE '-' END;
+    -- shift 0
+    SELECT INTO wr CASE WHEN (cast(p as bit(64)) & cast(   4 as bit(64))) = cast(   4 as bit(64)) THEN 'r' ELSE '-' END;
+    SELECT INTO ww CASE WHEN (cast(p as bit(64)) & cast(   2 as bit(64))) = cast(   2 as bit(64)) THEN 'w' ELSE '-' END;
+
+    RETURN ur || uw || gr || gw || wr || ww;
+END;$$;
 
 ----
 --
@@ -1066,6 +1113,7 @@ CREATE TRIGGER image_annotation_link_event_trigger
         AFTER UPDATE ON imageannotationlink
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_link_event_trigger();
+
 ----
 --
 -- Create views needed by all other types
@@ -1103,34 +1151,6 @@ DROP VIEW count_node_annotationlinks_by_owner;
 
 DROP VIEW count_session_annotationlinks_by_owner;
 
-----
---
--- Other changes for group permissions
---
-CREATE OR REPLACE FUNCTION ome_perms(p bigint) RETURNS character varying
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-    ur CHAR DEFAULT '-';
-    uw CHAR DEFAULT '-';
-    gr CHAR DEFAULT '-';
-    gw CHAR DEFAULT '-';
-    wr CHAR DEFAULT '-';
-    ww CHAR DEFAULT '-';
-BEGIN
-    -- shift 8
-    SELECT INTO ur CASE WHEN (cast(p as bit(64)) & cast(1024 as bit(64))) = cast(1024 as bit(64)) THEN 'r' ELSE '-' END;
-    SELECT INTO uw CASE WHEN (cast(p as bit(64)) & cast( 512 as bit(64))) = cast( 512 as bit(64)) THEN 'w' ELSE '-' END;
-    -- shift 4
-    SELECT INTO gr CASE WHEN (cast(p as bit(64)) & cast(  64 as bit(64))) = cast(  64 as bit(64)) THEN 'r' ELSE '-' END;
-    SELECT INTO gw CASE WHEN (cast(p as bit(64)) & cast(  32 as bit(64))) = cast(  32 as bit(64)) THEN 'w' ELSE '-' END;
-    -- shift 0
-    SELECT INTO wr CASE WHEN (cast(p as bit(64)) & cast(   4 as bit(64))) = cast(   4 as bit(64)) THEN 'r' ELSE '-' END;
-    SELECT INTO ww CASE WHEN (cast(p as bit(64)) & cast(   2 as bit(64))) = cast(   2 as bit(64)) THEN 'w' ELSE '-' END;
-
-    RETURN ur || uw || gr || gw || wr || ww;
-END;$$;
-
 
 ----
 --
@@ -1141,12 +1161,6 @@ END;$$;
 
 ALTER TABLE annotationannotationlink
         DROP CONSTRAINT annotationannotationlink_parent_key;
-
-ALTER TABLE annotationannotationlink
-        DROP CONSTRAINT fkannotationannotationlink_child_child;
-
-ALTER TABLE annotationannotationlink
-        DROP CONSTRAINT fkannotationannotationlink_parent_parent;
 
 ALTER TABLE channelannotationlink
         DROP CONSTRAINT channelannotationlink_parent_key;
@@ -1166,9 +1180,6 @@ ALTER TABLE imageannotationlink
 ALTER TABLE joboriginalfilelink
         DROP CONSTRAINT joboriginalfilelink_parent_key;
 
-ALTER TABLE namespaceannotationlink
-        DROP CONSTRAINT namespaceannotationlink_parent_key;
-
 ALTER TABLE originalfileannotationlink
         DROP CONSTRAINT originalfileannotationlink_parent_key;
 
@@ -1186,9 +1197,6 @@ ALTER TABLE plateannotationlink
 
 ALTER TABLE screenplatelink
         DROP CONSTRAINT screenplatelink_parent_key;
-
-ALTER TABLE plateacquisitionannotationlink
-        DROP CONSTRAINT plateacquisitionannotationlink_parent_key;
 
 ALTER TABLE projectannotationlink
         DROP CONSTRAINT projectannotationlink_parent_key;
@@ -1223,6 +1231,83 @@ ALTER TABLE nodeannotationlink
 ALTER TABLE sessionannotationlink
         DROP CONSTRAINT sessionannotationlink_parent_key;
 
+ALTER TABLE annotationannotationlink
+        ADD CONSTRAINT annotationannotationlink_parent_key UNIQUE (parent, child, owner_id);
+
+ALTER TABLE channelannotationlink
+        ADD CONSTRAINT channelannotationlink_parent_key UNIQUE (parent, child, owner_id);
+
+ALTER TABLE datasetannotationlink
+        ADD CONSTRAINT datasetannotationlink_parent_key UNIQUE (parent, child, owner_id);
+
+ALTER TABLE datasetimagelink
+        ADD CONSTRAINT datasetimagelink_parent_key UNIQUE (parent, child, owner_id);
+
+ALTER TABLE projectdatasetlink
+        ADD CONSTRAINT projectdatasetlink_parent_key UNIQUE (parent, child, owner_id);
+
+ALTER TABLE imageannotationlink
+        ADD CONSTRAINT imageannotationlink_parent_key UNIQUE (parent, child, owner_id);
+
+ALTER TABLE joboriginalfilelink
+        ADD CONSTRAINT joboriginalfilelink_parent_key UNIQUE (parent, child, owner_id);
+
+ALTER TABLE originalfileannotationlink
+        ADD CONSTRAINT originalfileannotationlink_parent_key UNIQUE (parent, child, owner_id);
+
+ALTER TABLE pixelsoriginalfilemap
+        ADD CONSTRAINT pixelsoriginalfilemap_parent_key UNIQUE (parent, child, owner_id);
+
+ALTER TABLE pixelsannotationlink
+        ADD CONSTRAINT pixelsannotationlink_parent_key UNIQUE (parent, child, owner_id);
+
+ALTER TABLE planeinfoannotationlink
+        ADD CONSTRAINT planeinfoannotationlink_parent_key UNIQUE (parent, child, owner_id);
+
+ALTER TABLE plateannotationlink
+        ADD CONSTRAINT plateannotationlink_parent_key UNIQUE (parent, child, owner_id);
+
+ALTER TABLE screenplatelink
+        ADD CONSTRAINT screenplatelink_parent_key UNIQUE (parent, child, owner_id);
+
+ALTER TABLE projectannotationlink
+        ADD CONSTRAINT projectannotationlink_parent_key UNIQUE (parent, child, owner_id);
+
+ALTER TABLE reagentannotationlink
+        ADD CONSTRAINT reagentannotationlink_parent_key UNIQUE (parent, child, owner_id);
+
+ALTER TABLE wellreagentlink
+        ADD CONSTRAINT wellreagentlink_parent_key UNIQUE (parent, child, owner_id);
+
+ALTER TABLE roiannotationlink
+        ADD CONSTRAINT roiannotationlink_parent_key UNIQUE (parent, child, owner_id);
+
+ALTER TABLE screenannotationlink
+        ADD CONSTRAINT screenannotationlink_parent_key UNIQUE (parent, child, owner_id);
+
+ALTER TABLE wellannotationlink
+        ADD CONSTRAINT wellannotationlink_parent_key UNIQUE (parent, child, owner_id);
+
+ALTER TABLE wellsampleannotationlink
+        ADD CONSTRAINT wellsampleannotationlink_parent_key UNIQUE (parent, child, owner_id);
+
+ALTER TABLE experimenterannotationlink
+        ADD CONSTRAINT experimenterannotationlink_parent_key UNIQUE (parent, child, owner_id);
+
+ALTER TABLE experimentergroupannotationlink
+        ADD CONSTRAINT experimentergroupannotationlink_parent_key UNIQUE (parent, child, owner_id);
+
+ALTER TABLE nodeannotationlink
+        ADD CONSTRAINT nodeannotationlink_parent_key UNIQUE (parent, child, owner_id);
+
+ALTER TABLE sessionannotationlink
+        ADD CONSTRAINT sessionannotationlink_parent_key UNIQUE (parent, child, owner_id);
+
+
+----
+--
+-- Newly annotatable types
+--
 CREATE TABLE count_experimenter_annotationlinks_by_owner (
         experimenter_id bigint NOT NULL,
         count bigint NOT NULL,
@@ -1259,118 +1344,17 @@ ALTER TABLE count_node_annotationlinks_by_owner
 ALTER TABLE count_session_annotationlinks_by_owner
         ADD CONSTRAINT count_session_annotationlinks_by_owner_pkey PRIMARY KEY (session_id, owner_id);
 
-ALTER TABLE annotationannotationlink
-        ADD CONSTRAINT annotationannotationlink_parent_key UNIQUE (parent, child, owner_id);
-
-ALTER TABLE annotationannotationlink
-        ADD CONSTRAINT fkannotationannotationlink_child_annotation FOREIGN KEY (child) REFERENCES annotation(id);
-
-ALTER TABLE annotationannotationlink
-        ADD CONSTRAINT fkannotationannotationlink_parent_annotation FOREIGN KEY (parent) REFERENCES annotation(id);
-
-ALTER TABLE channelannotationlink
-        ADD CONSTRAINT channelannotationlink_parent_key UNIQUE (parent, child, owner_id);
-
-ALTER TABLE datasetannotationlink
-        ADD CONSTRAINT datasetannotationlink_parent_key UNIQUE (parent, child, owner_id);
-
-ALTER TABLE datasetimagelink
-        ADD CONSTRAINT datasetimagelink_parent_key UNIQUE (parent, child, owner_id);
-
-ALTER TABLE projectdatasetlink
-        ADD CONSTRAINT projectdatasetlink_parent_key UNIQUE (parent, child, owner_id);
-
 ALTER TABLE count_experimenter_annotationlinks_by_owner
         ADD CONSTRAINT fk_count_to_experimenter_annotationlinks FOREIGN KEY (experimenter_id) REFERENCES experimenter(id);
 
 ALTER TABLE count_experimentergroup_annotationlinks_by_owner
         ADD CONSTRAINT fk_count_to_experimentergroup_annotationlinks FOREIGN KEY (experimentergroup_id) REFERENCES experimentergroup(id);
 
-ALTER TABLE imageannotationlink
-        ADD CONSTRAINT imageannotationlink_parent_key UNIQUE (parent, child, owner_id);
-
-ALTER TABLE joboriginalfilelink
-        ADD CONSTRAINT joboriginalfilelink_parent_key UNIQUE (parent, child, owner_id);
-
-ALTER TABLE namespaceannotationlink
-        ADD CONSTRAINT namespaceannotationlink_parent_key UNIQUE (parent, child, owner_id);
-
 ALTER TABLE count_node_annotationlinks_by_owner
         ADD CONSTRAINT fk_count_to_node_annotationlinks FOREIGN KEY (node_id) REFERENCES node(id);
 
-ALTER TABLE originalfileannotationlink
-        ADD CONSTRAINT originalfileannotationlink_parent_key UNIQUE (parent, child, owner_id);
-
-ALTER TABLE pixelsoriginalfilemap
-        ADD CONSTRAINT pixelsoriginalfilemap_parent_key UNIQUE (parent, child, owner_id);
-
-ALTER TABLE pixelsannotationlink
-        ADD CONSTRAINT pixelsannotationlink_parent_key UNIQUE (parent, child, owner_id);
-
-ALTER TABLE planeinfoannotationlink
-        ADD CONSTRAINT planeinfoannotationlink_parent_key UNIQUE (parent, child, owner_id);
-
-ALTER TABLE plateannotationlink
-        ADD CONSTRAINT plateannotationlink_parent_key UNIQUE (parent, child, owner_id);
-
-ALTER TABLE screenplatelink
-        ADD CONSTRAINT screenplatelink_parent_key UNIQUE (parent, child, owner_id);
-
-ALTER TABLE plateacquisitionannotationlink
-        ADD CONSTRAINT plateacquisitionannotationlink_parent_key UNIQUE (parent, child, owner_id);
-
-ALTER TABLE projectannotationlink
-        ADD CONSTRAINT projectannotationlink_parent_key UNIQUE (parent, child, owner_id);
-
-ALTER TABLE reagentannotationlink
-        ADD CONSTRAINT reagentannotationlink_parent_key UNIQUE (parent, child, owner_id);
-
-ALTER TABLE wellreagentlink
-        ADD CONSTRAINT wellreagentlink_parent_key UNIQUE (parent, child, owner_id);
-
-ALTER TABLE roiannotationlink
-        ADD CONSTRAINT roiannotationlink_parent_key UNIQUE (parent, child, owner_id);
-
-ALTER TABLE screenannotationlink
-        ADD CONSTRAINT screenannotationlink_parent_key UNIQUE (parent, child, owner_id);
-
 ALTER TABLE count_session_annotationlinks_by_owner
         ADD CONSTRAINT fk_count_to_session_annotationlinks FOREIGN KEY (session_id) REFERENCES session(id);
-
-ALTER TABLE wellannotationlink
-        ADD CONSTRAINT wellannotationlink_parent_key UNIQUE (parent, child, owner_id);
-
-ALTER TABLE wellsampleannotationlink
-        ADD CONSTRAINT wellsampleannotationlink_parent_key UNIQUE (parent, child, owner_id);
-
-ALTER TABLE experimenterannotationlink
-        ADD CONSTRAINT experimenterannotationlink_parent_key UNIQUE (parent, child, owner_id);
-
-ALTER TABLE experimentergroupannotationlink
-        ADD CONSTRAINT experimentergroupannotationlink_parent_key UNIQUE (parent, child, owner_id);
-
-ALTER TABLE namespace
-        ADD CONSTRAINT fknamespace_creation_id_event FOREIGN KEY (creation_id) REFERENCES event(id);
-
-ALTER TABLE namespace
-        ADD CONSTRAINT fknamespace_group_id_experimentergroup FOREIGN KEY (group_id) REFERENCES experimentergroup(id);
-
-ALTER TABLE namespace
-        ADD CONSTRAINT fknamespace_owner_id_experimenter FOREIGN KEY (owner_id) REFERENCES experimenter(id);
-
-ALTER TABLE namespace
-        ADD CONSTRAINT fknamespace_update_id_event FOREIGN KEY (update_id) REFERENCES event(id);
-
-ALTER TABLE nodeannotationlink
-        ADD CONSTRAINT nodeannotationlink_parent_key UNIQUE (parent, child, owner_id);
-
-ALTER TABLE sessionannotationlink
-        ADD CONSTRAINT sessionannotationlink_parent_key UNIQUE (parent, child, owner_id);
-
-ALTER TABLE share
-        ADD CONSTRAINT fkshare_group_experimentergroup FOREIGN KEY ("group") REFERENCES experimentergroup(id);
-
-CREATE UNIQUE INDEX namespace_name ON namespace USING btree (name);
 
 --
 -- FINISHED

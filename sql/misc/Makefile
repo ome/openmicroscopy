@@ -21,8 +21,8 @@
 # Versions
 PREVDBVERS ?= OMERO4.1
 PREVDBPATCH ?= 0
-CURRDBVERS ?= OMERO4.2-RC
-CURRDBPATCH ?= 10
+CURRDBVERS ?= OMERO4.2
+CURRDBPATCH ?= 0
 PREV ?= $(PREVDBVERS)__$(PREVDBPATCH)
 CURR ?= $(CURRDBVERS)__$(CURRDBPATCH)
 
@@ -32,7 +32,7 @@ OMERO_HOME ?= $(OMERO_SOURCE)/dist
 OMERO_EXE ?= $(OMERO_HOME)/bin/omero
 DIFF_JAR ?= "apgdiff-1.4.jar"
 DIFF_CMD ?= java -jar $(DIFF_JAR) --ignore-start-with
-PSQL_CMD ?= psql -v 'ON_ERROR_STOP=on'
+PSQL_CMD ?= env PGOPTIONS=--client-min-messages=warning psql -q -v ON_ERROR_STOP=1 --pset pager=off
 
 # Naming
 PREFIX=
@@ -45,6 +45,12 @@ TESTS ?= TESTS-$(CURR)
 # Directories and files
 DIR ?= $(OMERO_SOURCE)/sql/psql/$(CURR)/
 SCRIPT ?= $(DIR)/$(PREV).sql
+PYSCRIPT ?= $(DIR)/t/$(PREV).py
+FIXTURE ?= $(DIR)/t/$(PREV).sql
+TEST ?= $(DIR)/t/$(PREV).test
+
+HAS_FIXTURE = test -e $(FIXTURE)
+HAS_TEST = test -e $(TEST)
 
 ##################################################
 # Functions: $(call name,var1,var2) ##############
@@ -54,28 +60,24 @@ SCRIPT ?= $(DIR)/$(PREV).sql
 # in order to make the two versions approach one another
 MAKE_DIFF = $(DIFF_CMD) $(TARGET)/$(2).schema $(TARGET)/$(1).schema > $(TARGET)/$(2).diff
 
-MAKE_DB = dropdb $(PREFIX)$(1) || echo 'DNE' &&\
+MAKE_DB = \
+	(dropdb $(PREFIX)$(1) || echo 'DNE') &&\
 	createdb $(PREFIX)$(1) &&\
-	createlang plpgsql $(PREFIX)$(1) &&\
+	(grep "CREATE PROCEDURAL LANGUAGE plpgsql" $(TARGET)/$(1).sql ||\
+	 createlang plpgsql $(PREFIX)$(1)) &&\
 	$(PSQL_CMD) $(PREFIX)$(1) -f $(TARGET)/$(1).sql
-
 
 ##################################################
 # Upgraded version ###############################
 ##################################################
 
-TIN = $(wildcard $(TARGET)/*.tin)
-TOUT = $(TIN:.tin=.tout)
-
 $(TARGET)/$(UPGRADED).diff: $(TARGET)/$(FRESH).schema $(TARGET)/$(UPGRADED).schema
 	$(call MAKE_DIFF,$(FRESH),$(UPGRADED))
 
-$(TARGET)/$(UPGRADED).schema: $(TARGET)/$(UPGRADED).db $(TOUT)
+$(TARGET)/$(UPGRADED).schema: $(TARGET)/$(UPGRADED).db
 	$(PSQL_CMD) $(PREFIX)$(UPGRADED) -f $(SCRIPT)
+	$(HAS_TEST) && $(PSQL_CMD) $(PREFIX)$(UPGRADED) -f $(TEST)
 	pg_dump -s $(PREFIX)$(UPGRADED) > $(TARGET)/$(UPGRADED).schema
-
-$(TARGET)/%.tout: $(TARGET)/%.tin
-	$(PSQL_CMD) $(PREFIX)$(UPGRADED) -f $^ 2>&1 > $@
 
 $(TARGET)/$(UPGRADED).db: $(TARGET)/$(UPGRADED).sql
 	$(call MAKE_DB,$(UPGRADED))
@@ -83,10 +85,7 @@ $(TARGET)/$(UPGRADED).db: $(TARGET)/$(UPGRADED).sql
 
 $(TARGET)/$(UPGRADED).sql: $(TARGET)/$(PREV).sql
 	cp $(TARGET)/$(PREV).sql $(TARGET)/$(UPGRADED).sql
-
-cp-tests:
-	cp -r $(DIR)/t/* $(TARGET)
-	rm $(TARGET)/$(UPGRADED).db
+	$(HAS_FIXTURE) && cp $(DIR)/t/$(PREV).sql $(TARGET)/$(UPGRADED).sql
 
 ##################################################
 # Fresh version ##################################
@@ -130,23 +129,26 @@ $(TARGET)/$(PREV).sql:
 # PHONY targets #########################
 #########################################
 
-fresh: clean build $(TARGET)/$(FRESH).diff
-
 simple: $(TARGET)/$(SIMPLE).diff
 
-upgraded: clean build $(TARGET)/$(UPGRADED).diff
+freshbuild: clean build $(TARGET)/$(FRESH).diff
+
+upgradedbuild: clean build $(TARGET)/$(UPGRADED).diff
 
 build:
 	cd $(OMERO_SOURCE) && ./build.py build-schema build-dist
 
 clean:
-	rm -f $(TARGET)/*.sql $(TARGET)/*.schema $(TARGET)/*.diff $(TARGET)/*.tin $(TARGET)/*.tout
+	rm -f $(TARGET)/*.sql $(TARGET)/*.schema $(TARGET)/*.diff
 
 rmdb:
 	rm $(TARGET)/$(UPGRADED).db
 
 rmdiff:
 	rm $(TARGET)/$(UPGRADED).diff
+
+rmsql:
+	rm $(TARGET)/$(UPGRADED).sql
 
 diff: $(TARGET)/$(UPGRADED).diff
 	less -G $(TARGET)/$(UPGRADED).diff
@@ -160,10 +162,26 @@ schema:
 data:
 	vi $(DIR)/data.sql
 
+fixture:
+	vi $(FIXTURE)
+
+pyscript:
+	vi $(PYSCRIPT)
+
+pyrun:
+	python $(PYSCRIPT)
+	pg_dump $(PREFIX)$(PREV) > $(FIXTURE)
+
+test:
+	vi $(TEST)
+
 psql:
 	psql $(PREFIX)$(UPGRADED)
 
 prev: $(TARGET)/$(PREV).schema
 	psql $(PREFIX)$(PREV)
 
-.PHONY: fresh upgraded build clean rmdb rmdiff simple diff vi schema data cp-tests tests psql prev
+fresh: $(TARGET)/$(FRESH).schema
+	psql $(PREFIX)$(FRESH)
+
+.PHONY: fresh upgraded build clean rmdb rmdiff simple diff vi schema data psql prev test fixture run pyscript

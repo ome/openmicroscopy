@@ -1,0 +1,59 @@
+CREATE FUNCTION TEST() RETURNS VARCHAR
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE
+      rec RECORD;
+    BEGIN
+
+        SELECT * INTO rec FROM share;
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Cannot find share';
+        ELSIF rec.group <> 4 THEN
+            RAISE EXCEPTION 'Share.group <> 4';
+        END IF;
+
+        SELECT * INTO rec FROM plateacquisition;
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Cannot find plateacqusitions';
+        END IF;
+
+        SELECT * INTO REC FROM plate;
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Cannot find plate';
+        END IF;
+        SELECT * INTO REC FROM plate WHERE cols IS NULL OR rows IS NULL;
+        IF FOUND THEN
+            RAISE EXCEPTION 'Plate.rows/cols not mapped';
+        END IF;
+
+        SELECT * INTO rec FROM shape WHERE fillcolor IS NOT NULL AND strokecolor IS NOT NULL;
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Cannot find shapes';
+        END IF;
+
+        SELECT * INTO rec FROM lightpath;
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Cannot find lightpath';
+        END IF;
+
+        SELECT * INTO rec FROM logicalchannel lc, acquisitionmode am WHERE lc.mode = am.id AND am.value in ('LaserScanningConfocal', 'LaserScanningMicroscopy');
+        IF FOUND THEN
+            RAISE EXCEPTION 'mode not parsed!';
+        END IF;
+
+        SELECT * INTO rec FROM logicalchannel lc, acquisitionmode am WHERE lc.mode = am.id AND am.value = 'LaserScanningConfocalMicroscopy';
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'no mode found';
+        END IF;
+
+        SELECT * INTO rec FROM share;
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Cannot find shares';
+        END IF;
+
+        RETURN 'success';
+
+    END;$$;
+
+SELECT TEST();
+DROP FUNCTION TEST();
