@@ -348,7 +348,7 @@ def runAsScript():
     formats = [rstring('JPEG'),rstring('PNG')]
     dataTypes = [rstring('Dataset'),rstring('Image')]
     
-    client = scripts.client('thumbnailFigure.py', """Export a figure of thumbnails, optionally sorted by tag.
+    client = scripts.client('Thumbnail_Figure.py', """Export a figure of thumbnails, optionally sorted by tag.
 See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ThumbnailFigure""",
 
         scripts.String("Data_Type", optional=False, grouping="1",

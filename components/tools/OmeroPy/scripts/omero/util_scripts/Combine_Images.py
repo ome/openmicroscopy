@@ -64,6 +64,17 @@ timeRegexes = {DEFAULT_T_REGEX: r'_T(?P<T>\d+)',
         "_t": r'_t(?P<T>\d+)',
         "None (single time point)": False }
 
+
+import time
+startTime = 0
+
+def printDuration():
+    global startTime
+    if startTime == 0:
+        startTime = time.time()
+    print "script timer = %s secs" % (time.time() - startTime)
+    
+    
 def getPlane(rawPixelStore, pixels, theZ, theC, theT):
     """
     This method downloads the specified plane of the OMERO image and returns it as a numpy array. 
@@ -418,6 +429,7 @@ def runAsScript():
     """
     The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
     """
+    printDuration()
     
     ckeys = COLOURS.keys()
     ckeys.sort()
@@ -499,6 +511,7 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/UtilScripts#CombineImages""",
     except: raise
     finally:
         client.closeSession()
+        printDuration()
     
 if __name__ == "__main__":
     runAsScript()

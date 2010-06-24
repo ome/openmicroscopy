@@ -43,6 +43,14 @@ import omero.util.script_utils as scriptUtil
 import os
 import numpy
 
+import time
+startTime = 0
+
+def printDuration():
+    global startTime
+    if startTime == 0:
+        startTime = time.time()
+    print "script timer = %s secs" % (time.time() - startTime)
 
 def getRectangles(session, imageId):
     """ Returns a list of (x, y, width, height) of each rectange ROI in the image """
@@ -216,6 +224,7 @@ def runAsScript():
     """
     The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
     """
+    printDuration()
     client = scripts.client('Images_From_ROIs.py', """Create new Images from the regions defined by Rectangle ROIs on other Images.
 Designed to work with single-plane images (Z=1 T=1) with multiple ROIs per image. 
 Assumes that all the ROIs on an Image are the same size and that all Images are in the same dataset.""", 
@@ -234,7 +243,9 @@ Assumes that all the ROIs on an Image are the same size and that all Images are 
                 parameterMap[key] = client.getInput(key).getValue()
     
         print parameterMap
+        printDuration()
         message = makeImagesFromRois(session, parameterMap)
+        printDuration()
     
         if message:
             client.setOutput("Message", rstring(message))
@@ -243,5 +254,6 @@ Assumes that all the ROIs on an Image are the same size and that all Images are 
     except: raise
     finally:
         client.closeSession()
+        printDuration()
 if __name__ == "__main__":
     runAsScript()

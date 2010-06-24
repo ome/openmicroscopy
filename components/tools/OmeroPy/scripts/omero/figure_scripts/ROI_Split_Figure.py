@@ -115,10 +115,6 @@ def getROIsplitView    (re, pixels, zStart, zEnd, splitIndexes, channelNames, me
     sizeZ = pixels.getSizeZ().getValue()
     sizeC = pixels.getSizeC().getValue()
     
-    # make sure we have some merged channels
-    if len(mergedIndexes) == 0:
-        mergedIndexes = range(sizeC)
-    
     if pixels.getPhysicalSizeX():
         physicalX = pixels.getPhysicalSizeX().getValue()
     else:
@@ -148,6 +144,13 @@ def getROIsplitView    (re, pixels, zStart, zEnd, splitIndexes, channelNames, me
     re.lookupRenderingDef(pixelsId)
     re.load()
     
+    # if we are missing some merged colours, get them from rendering engine. 
+    for index in mergedIndexes:
+        if index not in mergedColours:
+            color = tuple(re.getRGBA(index))
+            mergedColours[index] = color
+            print "Adding colour to index", color, index 
+    
     # now get each channel in greyscale (or colour)
     # a list of renderedImages (data as Strings) for the split-view row
     renderedImages = []
@@ -167,7 +170,8 @@ def getROIsplitView    (re, pixels, zStart, zEnd, splitIndexes, channelNames, me
                 if index in mergedColours:            # and this channel is in the combined image
                     rgba = tuple(mergedColours[index])
                     re.setRGBA(index, *rgba)        # set coloured 
-                else:   re.setRGBA(index,255,255,255,255)
+                else:
+                    re.setRGBA(index,255,255,255,255)
             else:
                 re.setRGBA(index,255,255,255,255)    # if not colourChannels - channels are white
             info = (channelNames[index], re.getChannelWindowStart(index), re.getChannelWindowEnd(index))
@@ -229,17 +233,21 @@ def getROIsplitView    (re, pixels, zStart, zEnd, splitIndexes, channelNames, me
     panelY = topSpacer
     # paste the split images in, with channel labels
     draw = ImageDraw.Draw(canvas)
+    print "mergedColours", mergedColours
     for i, index in enumerate(splitIndexes):
         label = channelNames[index]
         indent = (panelWidth - (font.getsize(label)[0])) / 2
-        # text is coloured if channel is grey AND in the merged image
+        # text is coloured if channel is not coloured AND in the merged image
         rgb = (0,0,0)
-        if index in mergedIndexes:
+        print index, type(index)
+        if index in mergedColours:
+            print "making label for index:...", index 
             if not colourChannels:
                 rgb = tuple(mergedColours[index])
+                print "..with colour", rgb
                 if rgb == (255,255,255,255):    # if white (unreadable), needs to be black! 
                     rgb = (0,0,0)
-        if showTopLabels: draw.text((px+indent, textY), label, font=font, fill=(0,0,0))
+        if showTopLabels: draw.text((px+indent, textY), label, font=font, fill=rgb)
         if i < len(renderedImages):
             imgUtil.pasteImage(renderedImages[i], canvas, px, panelY)
         px = px + panelWidth + spacer
@@ -249,8 +257,10 @@ def getROIsplitView    (re, pixels, zStart, zEnd, splitIndexes, channelNames, me
         #draw.text((px+indent, textY), "Merged", font=font, fill=(0,0,0))
         if (mergedNames):
             for index in mergedIndexes:
-                if index in mergedColours: rgb = tuple(mergedColours[index])
-                else: rgb = (255,255,255) 
+                if index in mergedColours: 
+                    rgb = tuple(mergedColours[index])
+                    if rgb == (255,255,255,255): rgb = (0,0,0)
+                else: rgb = (0,0,0) 
                 if index in channelNames: name = channelNames[index]
                 else: name = str(index) 
                 combTextWidth = font.getsize(name)[0]
@@ -420,6 +430,7 @@ def getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, merged
     topSpacers = []         # space for labels above each row
     
     showLabelsAboveEveryRow = False
+    invalidImages = []      # note any image row indexes that don't have ROIs. 
     
     for row, pixelsId in enumerate(pixelIds):
         log("Rendering row %d" % (row))
@@ -432,7 +443,7 @@ def getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, merged
         roi = getRectangle(roiService, imageId, roiLabel)
         if roi == None:
             log("No Rectangle ROI found for this image")
-            del imageLabels[row]    # remove the corresponding labels
+            invalidImages.append(row)
             continue
         roiX, roiY, roiWidth, roiHeight, zMin, zMax, tStart, tEnd = roi
         
@@ -482,6 +493,10 @@ def getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, merged
         roiSplitPanes.append(roiSplitPane)
         topSpacers.append(topSpacer)
     
+    # remove the labels for the invalid images (without ROIs)
+    invalidImages.reverse()
+    for row in invalidImages:
+        del imageLabels[row]
         
     # make a figure to combine all split-view rows
     # each row has 1/2 spacer above and below the panels. Need extra 1/2 spacer top and bottom
@@ -617,7 +632,10 @@ def roiFigure(session, commandArgs):
             mergedColours[int(c)] = rgba
             mergedIndexes.append(int(c))
         mergedIndexes.sort()
-        mergedIndexes.reverse()
+    # make sure we have some merged channels
+    if len(mergedIndexes) == 0:
+        mergedIndexes = range(sizeC)
+    mergedIndexes.reverse()
     
     mergedNames = False
     if "Merged_Names" in commandArgs:
@@ -747,7 +765,7 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIFigure""",
     scripts.Bool("Merged_Names", description="If true, label the merged panel with channel names. Otherwise label with 'Merged'"),
     scripts.List("Split_Indexes", description="List of the channels in the split view panels"),
     scripts.Bool("Split_Panels_Grey", description="If true, all split panels are greyscale"),
-    scripts.Map("Merged_Colours", description="Map of index:int colours for each merged channel. Default: Blue, Green, Red"),
+    scripts.Map("Merged_Colours", description="Map of index:int colours for each merged channel. Otherwise use existing colour settings"),
     scripts.Int("Width",description="Max width of each image panel", min=1),   
     scripts.Int("Height",description="The max height of each image panel", min=1),
     scripts.String("Image_Labels",description="Label images with the Image's Name or it's Datasets or Tags", values=labels),               
