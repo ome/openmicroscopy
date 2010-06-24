@@ -4,10 +4,18 @@
 #
 
 #
-# PREV:     A database created from the previous db scripts
-# FRESH:    A database created directly from the db script
-# SIMPLE:   The PREV database upgraded with the generated script
-# UPGRADED: The PREV database upgraded with our upgrade script
+# This makefile is used to test database upgrades. It
+# provides various targets for the upgrade script developer.
+#
+# Several databases will be created via psql:
+#
+#  PREV:     A database created from the previous db scripts
+#  FRESH:    A database created directly from the db script
+#  SIMPLE:   The PREV database upgraded with the generated script
+#  UPGRADED: The PREV database upgraded with our upgrade script
+#
+# The default target ($TARGET/$UPGRADED.diff) will compare the
+# old schema against an upgraded version of itself.
 #
 
 # Versions
@@ -15,6 +23,8 @@ PREVDBVERS ?= OMERO4.1
 PREVDBPATCH ?= 0
 CURRDBVERS ?= OMERO4.2-RC
 CURRDBPATCH ?= 10
+PREV ?= $(PREVDBVERS)__$(PREVDBPATCH)
+CURR ?= $(CURRDBVERS)__$(CURRDBPATCH)
 
 # Tools
 OMERO_SOURCE ?= ../..
@@ -27,17 +37,18 @@ PSQL_CMD ?= psql -v 'ON_ERROR_STOP=on'
 # Naming
 PREFIX=
 TARGET ?= target
-FRESH ?= FRESH4.2
-SIMPLE ?= SIMPLE4.2
-UPGRADED ?= UPGRADED4.2
+FRESH ?= FRESH-$(CURR)
+SIMPLE ?= SIMPLE-$(CURR)
+UPGRADED ?= UPGRADED-$(CURR)
+TESTS ?= TESTS-$(CURR)
 
 # Directories and files
-PREV ?= $(PREVDBVERS)__$(PREVDBPATCH)
-CURR ?= $(CURRDBVERS)__$(CURRDBPATCH)
 DIR ?= $(OMERO_SOURCE)/sql/psql/$(CURR)/
 SCRIPT ?= $(DIR)/$(PREV).sql
 
+##################################################
 # Functions: $(call name,var1,var2) ##############
+##################################################
 
 # Diff tries to produce SQL which can be added to $(SCRIPT)
 # in order to make the two versions approach one another
@@ -49,14 +60,22 @@ MAKE_DB = dropdb $(PREFIX)$(1) || echo 'DNE' &&\
 	$(PSQL_CMD) $(PREFIX)$(1) -f $(TARGET)/$(1).sql
 
 
-# Upgraded version #######################
+##################################################
+# Upgraded version ###############################
+##################################################
+
+TIN = $(wildcard $(TARGET)/*.tin)
+TOUT = $(TIN:.tin=.tout)
 
 $(TARGET)/$(UPGRADED).diff: $(TARGET)/$(FRESH).schema $(TARGET)/$(UPGRADED).schema
 	$(call MAKE_DIFF,$(FRESH),$(UPGRADED))
 
-$(TARGET)/$(UPGRADED).schema: $(TARGET)/$(UPGRADED).db
+$(TARGET)/$(UPGRADED).schema: $(TARGET)/$(UPGRADED).db $(TOUT)
 	$(PSQL_CMD) $(PREFIX)$(UPGRADED) -f $(SCRIPT)
 	pg_dump -s $(PREFIX)$(UPGRADED) > $(TARGET)/$(UPGRADED).schema
+
+$(TARGET)/%.tout: $(TARGET)/%.tin
+	$(PSQL_CMD) $(PREFIX)$(UPGRADED) -f $^ 2>&1 > $@
 
 $(TARGET)/$(UPGRADED).db: $(TARGET)/$(UPGRADED).sql
 	$(call MAKE_DB,$(UPGRADED))
@@ -65,7 +84,13 @@ $(TARGET)/$(UPGRADED).db: $(TARGET)/$(UPGRADED).sql
 $(TARGET)/$(UPGRADED).sql: $(TARGET)/$(PREV).sql
 	cp $(TARGET)/$(PREV).sql $(TARGET)/$(UPGRADED).sql
 
-# Fresh version ##########################
+cp-tests:
+	cp -r $(DIR)/t/* $(TARGET)
+	rm $(TARGET)/$(UPGRADED).db
+
+##################################################
+# Fresh version ##################################
+##################################################
 
 $(TARGET)/$(SIMPLE).diff: $(TARGET)/$(FRESH).diff
 	cp $(TARGET)/$(PREV).sql $(TARGET)/$(SIMPLE).sql
@@ -88,7 +113,9 @@ $(TARGET)/$(FRESH).sql:
 	$(OMERO_EXE) db script -f $(TARGET)/$(FRESH).sql "" "" ome
 
 
-# Previous version ######################
+##################################################
+# Previous version ###############################
+##################################################
 
 $(TARGET)/$(PREV).schema: $(TARGET)/$(PREV).sql
 	$(call MAKE_DB,$(PREV))
@@ -99,7 +126,9 @@ $(TARGET)/$(PREV).sql:
 	$(OMERO_EXE) db script -f $(TARGET)/$(PREV).sql $(PREVDBVERS) $(PREVDBPATCH) ome
 
 
+#########################################
 # PHONY targets #########################
+#########################################
 
 fresh: clean build $(TARGET)/$(FRESH).diff
 
@@ -111,7 +140,7 @@ build:
 	cd $(OMERO_SOURCE) && ./build.py build-schema build-dist
 
 clean:
-	rm -f $(TARGET)/*.sql $(TARGET)/*.schema $(TARGET)/*.diff
+	rm -f $(TARGET)/*.sql $(TARGET)/*.schema $(TARGET)/*.diff $(TARGET)/*.tin $(TARGET)/*.tout
 
 rmdb:
 	rm $(TARGET)/$(UPGRADED).db
@@ -131,4 +160,10 @@ schema:
 data:
 	vi $(DIR)/data.sql
 
-.PHONY: fresh upgraded build clean rmdb rmdiff simple diff vi schema data
+psql:
+	psql $(PREFIX)$(UPGRADED)
+
+prev: $(TARGET)/$(PREV).schema
+	psql $(PREFIX)$(PREV)
+
+.PHONY: fresh upgraded build clean rmdb rmdiff simple diff vi schema data cp-tests tests psql prev
