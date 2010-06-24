@@ -266,7 +266,9 @@ class OmeroEnvironment(SConsEnvironment):
                 if self.iswin32():
                     self.Append(LIBPATH=[os.path.join(ice_home, "lib", "x64")])
                 else:
-                    self.Append(LIBPATH=[os.path.join(ice_home, "lib64")])
+                    lib64 = os.path.join(ice_home, "lib64")
+                    if os.path.exists(lib64):
+                        self.Append(LIBPATH=[lib64])
             self.Append(LIBPATH=[os.path.join(ice_home, "lib")])
 
     def isdebug(self):

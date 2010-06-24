@@ -29,7 +29,7 @@ class UserControl(BaseControl):
         add.add_argument("username", help = "User's login name")
         add.add_argument("firstname", help = "User's given name")
         add.add_argument("lastname", help = "User's surname name")
-        add.add_argument("group", nargs="+", help = "Groups which the user is a member of")
+        add.add_argument("member_of", nargs="+", help = "Groups which the user is to be a member of")
 
         list = parser.add(sub, self.list, help = "List current users")
 
@@ -51,9 +51,24 @@ class UserControl(BaseControl):
     def list(self, args):
         c = self.ctx.conn(args)
         users = c.sf.getAdminService().lookupExperimenters()
-        users = sorted([x.omeName.val for x in users])
-        for u in users:
-            self.ctx.out(u)
+        from omero.util.text import TableBuilder
+        tb = TableBuilder("id", "omeName", "firstName", "lastName", "email", "member of", "leader of")
+        for user in users:
+            row = [user.id.val, user.omeName.val, user.firstName.val, user.lastName.val]
+            row.append(user.email and user.email.val or "")
+            member_of = [str(x.parent.id.val) for x in user.copyGroupExperimenterMap() if not x.owner.val]
+            leader_of = [str(x.parent.id.val) for x in user.copyGroupExperimenterMap() if x.owner.val]
+            if member_of:
+                row.append(",".join(member_of))
+            else:
+                row.append("")
+            if leader_of:
+                row.append(",".join(leader_of))
+            else:
+                row.append("")
+
+            tb.row(*tuple(row))
+        self.ctx.out(str(tb.build()))
 
     def add(self, args):
         email = args.email
@@ -78,7 +93,7 @@ class UserControl(BaseControl):
 	e.institution = rstring(inst)
 	admin = c.getSession().getAdminService()
 
-        groups = [admin.lookupGroup(group) for group in args.group]
+        groups = [admin.lookupGroup(group) for group in args.member_of]
         roles = admin.getSecurityRoles()
         groups.append(Grp(roles.userGroupId, False))
         if args.admin:

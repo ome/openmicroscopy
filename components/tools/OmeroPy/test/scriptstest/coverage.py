@@ -50,7 +50,9 @@ class TestCoverage(lib.ITest):
 
 
     def testUserCantUploadOfficalScript(self):
-        self.us.uploadOfficialScript("/fails.py", """if True:
+        self.assertRaises(omero.SecurityViolation,\
+            self.us.uploadOfficialScript,\
+            "/%s/fails.py" % self.uuid(), """if True:
         import omero
         """)
 

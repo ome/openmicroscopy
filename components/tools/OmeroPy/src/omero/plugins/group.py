@@ -56,21 +56,14 @@ class GroupControl(BaseControl):
     def list(self, args):
         c = self.ctx.conn(args)
         groups = c.sf.getAdminService().lookupGroups()
-        perms_to_groups = {"other":[]}
-        for perms in ("rw----", "rwr---", "rwrw--"):
-            perms_to_groups[perms] = []
-        for g in groups:
-            if g.name.val in ("user"):
-                continue
-            try:
-                perms_to_groups[str(g.details.permissions)].append(g.name.val)
-            except KeyError:
-                perms_to_groups["other"].append("%s (%s)" % (g.name.val, str(g.details.permissions)))
-        for x in ("rw----", "rwr---", "rwrw--", "other"):
-            if perms_to_groups[x]:
-                self.ctx.out("# %s" % x)
-                for g in perms_to_groups[x]:
-                    self.ctx.out(g)
+        from omero.util.text import TableBuilder
+        tb = TableBuilder("id", "name", "perms", "owners", "members")
+        for group in groups:
+            row = [group.id.val, group.name.val, str(group.details.permissions)]
+            row.append(len([x for x in group.copyGroupExperimenterMap() if x.owner.val]))
+            row.append(len([x for x in group.copyGroupExperimenterMap() if not x.owner.val]))
+            tb.row(*tuple(row))
+        self.ctx.out(str(tb.build()))
 
 try:
     register("group", GroupControl, HELP)

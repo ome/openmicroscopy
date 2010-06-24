@@ -934,8 +934,8 @@ class CLI(cmd.Cmd, Context):
                 return self._client
             except KeyboardInterrupt:
                 raise
-            except:
-                self.dbg("Removing client")
+            except exceptions.Exception, e:
+                self.dbg("Removing client: %s" % e)
                 self._client.closeSession()
                 self._client = None
 

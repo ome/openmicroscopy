@@ -17,6 +17,20 @@ omero_version = omero_version.omero_version.split('-')[1].split('.')
 BASEPATH = os.path.dirname(os.path.abspath(__file__))
 TESTIMG_URL = 'http://users.openmicroscopy.org.uk/~cneves-x/'
 
+def get_bin_omero():
+    from path import path
+    exe = path("omero")
+    p = path(".").abspath()
+    for x in range(10):
+        o = p / "dist" / "bin" / "omero"
+        l = p / "dist" / "lib" / "client"
+        if o.exists() and l.exists():
+            exe = o.abspath()
+            break
+        else:
+            p = (p / "..").abspath()
+    return exe.abspath()
+
 #Gateway = omero.gateway.BlitzGateway
 
 def loginAsRoot ():

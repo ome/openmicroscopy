@@ -403,26 +403,20 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     @SuppressWarnings("unchecked")
     @RolesAllowed("user")
     public List<Object[]> projection(final String query, Parameters p) {
-        final QueryBuilder qb = new QueryBuilder();
-        qb.append(query);
-        qb.params(p);
-        return (List<Object[]>) getHibernateTemplate().execute(
-                new HibernateCallback() {
-                    public Object doInHibernate(Session session)
-                            throws HibernateException, SQLException {
-                        List<Object> rv = qb.query(session).list();
-                        int size = rv.size();
-                        Object obj = null;
-                        for (int i = 0; i < size; i++) {
-                            obj = rv.get(i);
-                            if (obj != null) {
-                                if (IObject.class.isAssignableFrom(obj.getClass())) {
-                                    rv.set(i, new Object[]{obj});
-                                }
-                            }
-                        }
-                        return rv;
-                    }});
+        final Parameters params = (p == null ? new Parameters() : p);
+        final Query<List<Object>> q = getQueryFactory().lookup(query, params);
+        final List rv = (List) getHibernateTemplate().execute(q);
+        final int size = rv.size();
+        Object obj = null;
+        for (int i = 0; i < size; i++) {
+            obj = rv.get(i);
+            if (obj != null) {
+                if (IObject.class.isAssignableFrom(obj.getClass())) {
+                    rv.set(i, new Object[]{obj});
+                }
+            }
+        }
+        return (List<Object[]>) rv;
     }
 
     final static Pattern AGGS  = Pattern.compile("(count|sum|max|min)");

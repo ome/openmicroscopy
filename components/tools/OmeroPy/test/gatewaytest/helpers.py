@@ -1,6 +1,7 @@
 import unittest
 
 import omero
+import omero.gateway
 
 class HelperObjectsTest (unittest.TestCase):
     def testColorHolder (self):

@@ -22,6 +22,7 @@ import ome.services.blitz.util.ServiceFactoryAware;
 import ome.services.scripts.RepoFile;
 import ome.services.scripts.ScriptRepoHelper;
 import ome.services.util.Executor;
+import ome.system.EventContext;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.QueryBuilder;
 import ome.util.Utils;
@@ -208,6 +209,10 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
             final String scriptText, final Current __current) throws ServerError {
         safeRunnableCall(__current, __cb, false, new Callable<Long>() {
             public Long call() throws Exception {
+                EventContext ec = factory.getEventContext();
+                if ( ! ec.isCurrentUserAdmin() ) {
+                    throw new omero.SecurityViolation(null, null, "User is not an administrator");
+                }
                 try {
                     // ticket:2356 - should only overwrite non-scripts
                     Long scriptID = scripts.findInDb(path, true);

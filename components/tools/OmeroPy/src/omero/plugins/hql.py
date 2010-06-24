@@ -73,7 +73,7 @@ To quit, enter 'q' or just enter.
             # Stay in loop
             if id.startswith("p"):
                 rv = p.page(p.getOffset().val + p.getLimit().val, p.getLimit())
-                rv = q.findAllByQuery(args.query, p)
+                rv = q.projection(args.query, p)
                 self.display(rv)
             elif id.startswith("r"):
                 self.display(rv)

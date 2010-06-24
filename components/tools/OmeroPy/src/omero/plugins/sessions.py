@@ -78,6 +78,8 @@ class SessionsControl(BaseControl):
         login = parser.add(sub, self.login, "Login to a given server, and store session key locally")
         logout = parser.add(sub, self.logout, "Logout and remove current session key")
         self._configure_login(login, logout)
+        group = parser.add(sub, self.group, "Set the group of the current session by id or name")
+        group.add_argument("target", help="Id or name of the group to switch this session to")
         list = parser.add(sub, self.list, "List all locally stored sessions")
         list.add_argument("--purge", action="store_true", help="Remove inactive sessions")
         keepalive = parser.add(sub, self.keepalive, "Keeps the current session alive")
@@ -86,7 +88,7 @@ class SessionsControl(BaseControl):
         clear.add_argument("--all", action="store_true", help="Remove all locally stored sessions not just inactive ones")
         file = parser.add(sub, self.file, "Print the path to the current session file")
 
-        for x in (file, logout, keepalive, list, clear):
+        for x in (file, logout, keepalive, list, clear, group):
             self._configure_dir(x)
 
     def _configure_login(self, login, logout = None):
@@ -102,6 +104,11 @@ class SessionsControl(BaseControl):
         self.ctx.err(LONGHELP % {"prog":args.prog})
 
     def login(self, args):
+        """
+        Goals:
+        If server and key, then don't ask any questions.
+        Reconnect if possible (assuming parameters are the same)
+        """
 
         if self.ctx.conn():
             self.ctx.err("Active client found")
@@ -110,6 +117,13 @@ class SessionsControl(BaseControl):
         create = getattr(args, "create", None)
         store = self.store(args)
         previous = store.get_current()
+
+        # Basic props, don't get fiddled with
+        props = {}
+        if args.port:
+            props["omero.port"] = args.port
+        if args.group:
+            props["omero.group"] = args.group
 
         #
         # Retrieving the parameters as set by the user
@@ -133,18 +147,44 @@ class SessionsControl(BaseControl):
             else:
                 name = args.user
 
-        server_differs = (server is not None and server != previous[0])
-        name_differs = (name is not None and name != previous[1])
+        #
+        # If a key is provided, then that takes precedence.
+        # Unless the key is bad, there's no reason to ask
+        # the user for any more input.
+        #
+        pasw = args.password
+        if args.key:
+            if name:
+                self.ctx.err("Overriding name since session set")
+            name = args.key
+            if args.password:
+                self.ctx.err("Ignoring password since key set")
+            pasw = args.key
+        #
+        # If no key provided, then we check the last used connection
+        # by default. The only requirement is that the user can't
+        # have requested a differente server / name or conflicting
+        # props (group / port)
+        #
+        elif previous[0] and previous[1]:
 
-        if not create and not server_differs and not name_differs:
-            try:
-                rv = store.attach(*previous)
-                return self.handle(rv, "Using")
-            except exceptions.Exception, e:
-                self.ctx.dbg("Exception on attach: %s" % e)
+                server_differs = (server is not None and server != previous[0])
+                name_differs = (name is not None and name != previous[1])
 
-        if previous[0] and previous[1]:
-            self.ctx.out("Previously logged in to %s as %s" % (previous[0], previous[1]))
+                if not create and not server_differs and not name_differs:
+                    try:
+                        test = list(previous)
+                        test.append(props)
+                        conflicts = store.conflicts(*tuple(test))
+                        if conflicts:
+                            self.ctx.dbg("Not attaching because of conflicts: %s" % conflicts)
+                        else:
+                            rv = store.attach(*previous)
+                            return self.handle(rv, "Using")
+                    except exceptions.Exception, e:
+                        self.ctx.dbg("Exception on attach: %s" % e)
+
+                    self.ctx.out("Previously logged in to %s as %s" % (previous[0], previous[1]))
 
         #
         # If we've reached here, then the user either does not have
@@ -154,27 +194,8 @@ class SessionsControl(BaseControl):
         if not server: server, name = self._get_server(store)
         if not name: name = self._get_username()
 
-        pasw = args.password
-        if args.key:
-
-            if name:
-                self.ctx.err("Overriding name since session set")
-            name = args.key
-
-            if args.password:
-                self.ctx.err("Ignoring password since key set")
-            pasw = args.key
-
-        if not name:
-            name = self._username()
-
-        props = {}
         props["omero.host"] = server
         props["omero.user"] = name
-        if args.port:
-            props["omero.port"] = args.port
-        if args.group:
-            props["omero.group"] = args.group
 
         rv = None
         if not create:
@@ -233,6 +254,28 @@ class SessionsControl(BaseControl):
             self.ctx.dbg("Exception on logout: %s" % e)
         store.set_current("", "", "")
 
+    def group(self, args):
+        store = self.store(args)
+        client = self.ctx.conn(args)
+        sf = client.sf
+        admin = sf.getAdminService()
+
+        try:
+            group_id = long(args.target)
+            group_name = admin.getGroup(group_id).name.val
+        except ValueError, ve:
+            group_name = args.target
+            group_id = admin.lookupGroup(group_name).id.val
+
+        ec = admin.getEventContext()
+        old_id = ec.groupId
+        old_name = ec.groupName
+        if old_id == group_id:
+            self.ctx.err("Group '%s' (id=%s) is already active" % (group_name, group_id))
+        else:
+            sf.setSecurityContext(omero.model.ExperimenterGroupI(group_id, False))
+            self.ctx.out("Group '%s' (id=%s) switched to '%s' (id=%s)" % (old_name, old_id, group_name, group_id))
+
     def list(self, args):
         import Glacier2
         store = self.store(args)
@@ -255,6 +298,7 @@ class SessionsControl(BaseControl):
                         rv = store.attach(server, name, uuid)
                         grp = rv[0].sf.getAdminService().getEventContext().groupName
                         started = rv[0].sf.getSessionService().getSession(uuid).started.val
+                        started = time.ctime(started / 1000.0)
                         rv[0].closeSession()
                     except Glacier2.PermissionDeniedException, pde:
                         msg = pde.reason
@@ -268,7 +312,6 @@ class SessionsControl(BaseControl):
                     if server == previous[0] and name == previous[1] and uuid == previous[2]:
                             msg = "Logged in"
 
-                    started = time.ctime(started / 1000.0)
                     results["Server"].append(server)
                     results["User"].append(name)
                     results["Group"].append(grp)

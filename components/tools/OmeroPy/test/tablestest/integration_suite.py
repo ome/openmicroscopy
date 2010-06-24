@@ -19,3 +19,7 @@ def _additional_tests():
     suite = unittest.TestSuite()
     suite.addTest(load("tablestest.service"))
     return suite
+
+if __name__ == "__main__":
+    suite = _additional_tests()
+    unittest.TextTestRunner(verbosity=2).run(suite)

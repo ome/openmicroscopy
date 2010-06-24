@@ -19,3 +19,6 @@ def _additional_tests():
     suite = unittest.TestSuite()
     suite.addTest(load("clitest.script"))
     return suite
+
+if __name__ == "__main__":
+    unittest.TextTestRunner().run(_additional_tests())

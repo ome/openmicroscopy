@@ -20,7 +20,6 @@ import portalocker
 
 from path import path
 from which import whichall
-from omero_ext.argparse import FileType, RawDescriptionHelpFormatter
 
 import omero
 import omero.config
@@ -128,7 +127,7 @@ class AdminControl(BaseControl):
             """)
 
         for k in ("start", "startasync", "deploy"):
-            self.actions[k].add_argument("file", nargs="?", type=FileType("r"),
+            self.actions[k].add_argument("file", nargs="?",
                 help="""Application descriptor. If not provided, a default will be used""")
             self.actions[k].add_argument("targets", nargs="*",
                 help="""Targets within the application descriptor which should be activated.

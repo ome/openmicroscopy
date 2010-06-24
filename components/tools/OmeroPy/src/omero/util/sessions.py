@@ -141,9 +141,15 @@ class SessionsStore(object):
         if self.host_file().exists():
             host = self.host_file().text().strip()
         if host:
-            name = self.user_file(host).text().strip()
+            try:
+                name = self.user_file(host).text().strip()
+            except IOError:
+                pass
         if name:
-            uuid = self.sess_file(host, name).text().strip()
+            try:
+                uuid = self.sess_file(host, name).text().strip()
+            except IOError:
+                pass
         return (host, name, uuid)
 
     def last_host(self):

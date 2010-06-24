@@ -24,15 +24,15 @@ class TestScript(ITest):
 
     def cli(self):
         cli = CLI()
-        cli.register("upload", UploadControl)
-        cli.register("sessions", SessionsControl)
-        cli.register("s", ScriptControl)
+        cli.register("upload", UploadControl, "TEST")
+        cli.register("sessions", SessionsControl, "TEST")
+        cli.register("s", ScriptControl, "TEST")
         return cli
 
     def test1(self):
         cli = self.cli()
-        cli.invoke("s list -s localhost -u root".split(), strict=True)
-        self.assertEquals(0, cli.rv)
+        cmd = self.login_args() + ["s", "list"]
+        cli.invoke(cmd, strict=True) # Throws NonZeroReturnCode
 
     def testFullSession(self):
         cli = self.cli()
@@ -46,13 +46,11 @@ client.setOutput("a", rlong(0))
 client.setOutput("b", rstring("c"))
 client.closeSession()
 """)
-        args = ["s", "-q"] + self.login_args()
-        #import pdb
-        #pdb.set_trace()
+        args = self.login_args() + ["s"]
         cli.invoke(args + ["upload", str(p)], strict=True) # Sets current script
         cli.invoke(args + ["list", "user"], strict=True)
-        cli.invoke(args + ["serve", "user", "requests=1", "timeout=1", "background=true"], strict=True)
-        cli.invoke(args + ["launch"], strict=True) # Uses current script
+        #cli.invoke(args + ["serve", "user", "requests=1", "timeout=1", "background=true"], strict=True)
+        #cli.invoke(args + ["launch"], strict=True) # Uses current script
 
 if __name__ == '__main__':
     unittest.main()

@@ -272,7 +272,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     public List<IObject> getSecurityContexts(Current __current)
             throws ServerError {
 
-        final EventContext ec = sessionManager.getEventContext(principal);
+        final EventContext ec = getEventContext();
         List<?> objs = (List) executor.execute(principal, new Executor.SimpleWork(this, "getSecurityContext") {
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
@@ -784,11 +784,15 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         return holder.getServantList();
     }
 
+    public EventContext getEventContext() {
+        return sessionManager.getEventContext(this.principal);
+    }
+
     public long keepAllAlive(ServiceInterfacePrx[] proxies, Current __current) throws ServerError {
 
         try {
             // First take measures to keep the session alive
-            sessionManager.getEventContext(this.principal);
+            getEventContext();
             if (log.isInfoEnabled()) {
                 log.info("Keep alive: " + __current.id.name);
             }
@@ -818,7 +822,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
         try {
             // First take measures to keep the session alive
-            sessionManager.getEventContext(this.principal);
+            getEventContext();
             if (log.isInfoEnabled()) {
                 log.info("Keep alive: " + __current.id.name);
             }
