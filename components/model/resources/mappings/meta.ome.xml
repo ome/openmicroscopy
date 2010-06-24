@@ -149,7 +149,7 @@
 			<to_child type="ome.model.meta.Experimenter"/>
 		</properties>
 	</link>
-	<type id="ome.model.meta.Namespace" global="true" annotated="true" named="true" described="true">
+	<type id="ome.model.meta.Namespace" annotated="true" named="true" described="true">
 		<!-- Note: Namespace is not in model-->
 		<properties>
 
