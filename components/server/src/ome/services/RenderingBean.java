@@ -360,6 +360,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
         try {
             errorIfNullPixels();
+            errorIfNullRenderingDef();
             /*
              * TODO we could also allow for setting of the buffer! perhaps
              * better caching, etc.
