@@ -61,6 +61,14 @@ class ShellControl(BaseControl):
         """
         Copied from IPython embed-short example
         """
+        import logging
+        logging.basicConfig()
+        from omero.util.upgrade_check import UpgradeCheck
+        check = UpgradeCheck("shell")
+        check.run()
+        if check.isUpgradeNeeded():
+            self.ctx.out("")
+
         from IPython.Shell import IPShellEmbed
         ipshell = IPShellEmbed(args.arg)
         ipshell()
