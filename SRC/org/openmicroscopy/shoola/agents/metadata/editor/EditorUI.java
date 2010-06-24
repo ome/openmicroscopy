@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
@@ -281,6 +282,8 @@ class EditorUI
 		setDataToSave(false);
 		toolBar.setRootObject();
 		toolBar.buildUI();
+		tabPane.setToolTipTextAt(RND_INDEX, "");
+		boolean preview = false;
 		if (!(uo instanceof DataObject)) {
 			//saved = false;
 			setDataToSave(false);
@@ -305,7 +308,15 @@ class EditorUI
 					load = true;
 					ImageData img = (ImageData) uo;
 					tabPane.setEnabledAt(ACQUISITION_INDEX, img.getId() > 0);
-					tabPane.setEnabledAt(RND_INDEX, model.isPreviewAvailable());
+					preview = model.isPreviewAvailable();
+					tabPane.setEnabledAt(RND_INDEX, preview);
+					if (!preview) {
+						tabPane.setToolTipTextAt(RND_INDEX, 
+								"Only available for image of size <= "+
+								RenderingControl.MAX_SIZE+"x"+
+								RenderingControl.MAX_SIZE);
+					}
+					
 					if (tabPane.getSelectedIndex() == RND_INDEX) {
 						tabPane.setComponentAt(RND_INDEX, dummyPanel);
 						//tabPane.setSelectedIndex(GENERAL_INDEX);
@@ -320,8 +331,15 @@ class EditorUI
 					if (img != null && img.getId() >= 0) {
 						load = true;
 						tabPane.setEnabledAt(ACQUISITION_INDEX, true);
-						tabPane.setEnabledAt(RND_INDEX, 
-								model.isPreviewAvailable());
+						preview = model.isPreviewAvailable();
+						tabPane.setEnabledAt(RND_INDEX, preview);
+						if (!preview) {
+							tabPane.setToolTipTextAt(RND_INDEX, 
+									"Only available for image of size <= "+
+									RenderingControl.MAX_SIZE+"x"+
+									RenderingControl.MAX_SIZE);
+						}
+						
 					} else {
 						tabPane.setSelectedIndex(GENERAL_INDEX);
 						tabPane.setEnabledAt(ACQUISITION_INDEX, false);
@@ -334,6 +352,7 @@ class EditorUI
 				}
 				load = true;
 			}
+			
 			generalPane.setRootObject();
 			acquisitionPane.setRootObject(load);
 		}
