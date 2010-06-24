@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ome.api.IShare;
+import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.model.meta.Share;
 import ome.services.sharing.data.Obj;
@@ -226,6 +227,9 @@ public abstract class ShareStore {
         for (String key : items.keySet()) {
             List<Long> ids = items.get(key);
             for (Long id : ids) {
+                if (id == null) {
+                    throw new ValidationException("Cannot add object with null id!");
+                }
                 Obj obj = new Obj();
                 obj.type = key;
                 obj.id = id; 

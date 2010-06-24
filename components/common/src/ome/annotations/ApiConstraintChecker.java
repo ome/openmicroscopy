@@ -95,6 +95,9 @@ public class ApiConstraintChecker {
                         else if (arg instanceof Collection) {
                             Collection coll = (Collection) arg;
                             for (Object object : coll) {
+                                if (object == null) {
+                                    continue; // ticket:2513. Perhaps should throw AUE
+                                }
                                 if (!validSet.isValid(object.getClass())) {
                                     throw new ApiUsageException(msg);
                                 }
