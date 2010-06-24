@@ -75,24 +75,9 @@ public class FileAnnotationData extends AnnotationData {
     
     /** 
      * The name space used to indicate that the <code>FileAnnotation</code> 
-     * is an <code>MPEG</code> file.
+     * is a movie.
      */
-    public static final String MOVIE_MPEG_NS = 
-    	"openmicroscopy.org/omero/movie/mpeg";
-    
-    /** 
-     * The name space used to indicate that the <code>FileAnnotation</code> 
-     * is an <code>Quick Time</code> file.
-     */
-    public static final String MOVIE_QUICK_TIME_NS = 
-    	"openmicroscopy.org/omero/movie/qt";
-    
-    /** 
-     * The name space used to indicate that the <code>FileAnnotation</code> 
-     * is an <code>Windows Media</code> file.
-     */
-    public static final String MOVIE_WINDOWS_MEDIA_NS = 
-    	"openmicroscopy.org/omero/movie/wmv";
+    public static final String MOVIE_NS = "openmicroscopy.org/omero/movie";
     
     /** 
      * The name space used to indicate that the <code>FileAnnotation</code> 
@@ -531,11 +516,11 @@ public class FileAnnotationData extends AnnotationData {
     public boolean isMovieFile() 
     {
     	String ns = getNameSpace();
-    	if (MOVIE_MPEG_NS.equals(ns) || MOVIE_QUICK_TIME_NS.equals(ns) ||
-    			MOVIE_WINDOWS_MEDIA_NS.equals(ns))
+    	if (MOVIE_NS.equals(ns)) 
     		return true;
     	String format = getOriginalMimetype();
-    	return (SERVER_MPEG.equals(format) || SERVER_QT.equals(format));
+    	return (format.contains("video"));
+    	//return (SERVER_MPEG.equals(format) || SERVER_QT.equals(format));
     }
     
     /**
