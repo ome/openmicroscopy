@@ -411,6 +411,13 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   License File: apache-v2.0.txt
 
 
+  Artifacts:    reportng-*.jar
+  Project:      ReportNG An HTML/XML Reporting Plug-in for TestNG
+  Website:      http://reportng.uncommons.org
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
   Artifacts:    scons-local-*.zip
   Project:      SCons, an Open Source software construction tool
   Web Site:     http://scons.org

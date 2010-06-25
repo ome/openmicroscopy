@@ -241,7 +241,10 @@ java component.
         <mkdir dir="${target.dir}/reports"/>
         <junitreport todir="${target.dir}/reports">
             <fileset dir="${basedir}/components">
-                <include name="*/target/reports/*.xml"/>
+                <include name="*/target/reports/xml/*.xml"/>
+            </fileset>
+            <fileset dir="${basedir}/components/tools/">
+                <include name="*/target/reports/xml/*.xml"/>
             </fileset>
             <report format="frames" todir="${target.dir}/reports/html"/>
         </junitreport>

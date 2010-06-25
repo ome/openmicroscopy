@@ -150,6 +150,8 @@ omero.version=${omero.version}
 			haltonfailure="${test.with.fail}"
 			haltonskipped="${test.with.fail}"
 			verbose="2"
+                        useDefaultListeners="false"
+                        listeners="org.uncommons.reportng.HTMLReporter,org.uncommons.reportng.JUnitXMLReporter"
 			>
 			<classpath>
 				<pathelement location="${emmaclasses.dir}"/>
