@@ -258,8 +258,8 @@ APPLICATION_HOST='%s'
         if not args.type:
             self.ctx.out("Available configuration helpers:\n - nginx\n")
         else:
-            import omeroweb.custom_settings as settings
-            host = settings.APPLICATION_HOST.split(':')
+            from omeroweb.settings import APPLICATION_HOST
+            host = APPLICATION_HOST.split(':')
             try:
                 port = int(host[-1])
             except ValueError:
