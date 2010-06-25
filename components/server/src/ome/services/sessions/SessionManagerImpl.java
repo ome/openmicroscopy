@@ -1054,7 +1054,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                     @Transactional(readOnly = false)
                     public Object doWork(SimpleJdbcOperations jdbcOps) {
                         return jdbcOps
-                                .queryForLong("select ome_nextval('seq_session')");
+                                .queryForLong("select ome_nextval('seq_session'::text)");
                     }
                 });
     }

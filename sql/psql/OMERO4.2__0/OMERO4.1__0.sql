@@ -7,6 +7,15 @@
 --- OMERO-Beta4.2 release upgrade from OMERO4.1__0 to OMERO4.2__0
 ---
 
+CREATE OR REPLACE FUNCTION unnest(anyarray)
+  RETURNS SETOF anyelement AS
+$BODY$
+SELECT $1[i] FROM
+    generate_series(array_lower($1,1),
+                    array_upper($1,1)) i;
+$BODY$
+  LANGUAGE 'sql' IMMUTABLE;
+
 BEGIN;
 
 -- Requirements:
@@ -152,22 +161,6 @@ BEGIN
       RETURN ome_nextval(seq, 1);
 END;' LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION ome_nextval(seq unknown) RETURNS INT8 AS '
-DECLARE
-  nv int8;
-BEGIN
-    SELECT ome_nextval(seq::text) INTO nv;
-    RETURN nv;
-END;' LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION ome_nextval(seq unknown, increment int4) RETURNS INT8 AS '
-DECLARE
-  nv int8;
-BEGIN
-    SELECT ome_nextval(seq::text, increment) INTO nv;
-    RETURN nv;
-END;' LANGUAGE plpgsql;
-
 --
 -- Replace the one table which had a default of nextval
 --
@@ -257,13 +250,13 @@ DECLARE
     rec RECORD;
 BEGIN
 
-    UPDATE plate p SET cols = max.c, rows = max.r
+    UPDATE plate SET cols = max.c, rows = max.r
       FROM
         (SELECT p2.id as plate_id, max("column") as c, max(row) as r
            FROM plate p2, well w
           WHERE p2.id = w.plate
        GROUP BY p2.id) as max
-     WHERE p.id = max.plate_id;
+     WHERE id = max.plate_id;
 
     INSERT INTO plateacquisition (id, permissions, starttime, endtime, version, creation_id, external_id, group_id, owner_id, update_id, plate, maximumfieldcount, name)
     SELECT sa.sa_id, permissions, starttime, endtime, version, creation_id, external_id, group_id, owner_id, update_id, plate.plate_id, count.maxfieldcount, ''''
@@ -282,9 +275,9 @@ BEGIN
        GROUP BY plate_id) as count
      WHERE sa.sa_id = plate.sa_id AND plate.plate_id = count.plate_id;
 
-    UPDATE wellsample ws SET plateacquisition = sa.id
+    UPDATE wellsample SET plateacquisition = sa.id
       FROM screenacquisition sa, screenacquisitionwellsamplelink link
-     WHERE sa.id = link.parent AND link.child = ws.id;
+     WHERE sa.id = link.parent AND link.child = wellsample.id;
 
     INSERT INTO plateacquisitionannotationlink (id, permissions, version, child, creation_id, external_id, group_id, owner_id, update_id, parent)
     SELECT id, permissions, version, child, creation_id, external_id, group_id, owner_id, update_id, parent FROM screenacquisitionannotationlink
@@ -486,7 +479,7 @@ BEGIN
                 WHERE filterset IS NOT NULL OR secondaryemissionfilter IS NOT NULL OR secondaryexcitationfilter IS NOT NULL LOOP
 
         -- If any of the 3 fields is not null, then we will need to generate a light path object to hold them.
-        SELECT INTO lightpath_id ome_nextval(''seq_lightpath'');
+        SELECT INTO lightpath_id nextval(''seq_lightpath'');
         INSERT INTO lightpath (id, permissions, creation_id, group_id, owner_id, update_id)
              SELECT lightpath_id, rec.permissions, rec.creation_id, rec.group_id, rec.owner_id, rec.update_id;
 
@@ -497,12 +490,12 @@ BEGIN
 
             IF fs_rec.emfilter IS NOT NULL THEN
                 INSERT INTO lightpathemissionfilterlink (id, permissions, child, creation_id, group_id, owner_id, update_id, parent)
-                     SELECT ome_nextval(''seq_lightpathemissionfilterlink''), rec.permissions, fs_rec.emfilter, rec.creation_id, rec.group_id, rec.owner_id, rec.update_id, lightpath_id;
+                     SELECT nextval(''seq_lightpathemissionfilterlink''), rec.permissions, fs_rec.emfilter, rec.creation_id, rec.group_id, rec.owner_id, rec.update_id, lightpath_id;
             END IF;
 
             IF fs_rec.exfilter IS NOT NULL THEN
                 INSERT INTO lightpathexcitationfilterlink (id, permissions, child, creation_id, group_id, owner_id, update_id, parent, parent_index)
-                     SELECT ome_nextval(''seq_lightpathexcitationfilterlink''), rec.permissions, fs_rec.exfilter, rec.creation_id, rec.group_id, rec.owner_id, rec.update_id, lightpath_id, ex_count;
+                     SELECT nextval(''seq_lightpathexcitationfilterlink''), rec.permissions, fs_rec.exfilter, rec.creation_id, rec.group_id, rec.owner_id, rec.update_id, lightpath_id, ex_count;
                 ex_count := ex_count + 1;
             END IF;
 
@@ -511,12 +504,12 @@ BEGIN
         -- Now we parse out the secondary filters, which may become primary filters if no filterset was present.
         IF rec.secondaryemissionfilter IS NOT NULL THEN
             INSERT INTO lightpathemissionfilterlink (id, permissions, child, creation_id, group_id, owner_id, update_id, parent)
-                 SELECT ome_nextval(''seq_lightpathemissionfilterlink''), rec.permissions, rec.secondaryemissionfilter, rec.creation_id, rec.group_id, rec.owner_id, rec.update_id, lightpath_id;
+                 SELECT nextval(''seq_lightpathemissionfilterlink''), rec.permissions, rec.secondaryemissionfilter, rec.creation_id, rec.group_id, rec.owner_id, rec.update_id, lightpath_id;
         END IF;
 
         IF rec.secondaryexcitationfilter IS NOT NULL THEN
             INSERT INTO lightpathexcitationfilterlink (id, permissions, child, creation_id, group_id, owner_id, update_id, parent, parent_index)
-                 SELECT ome_nextval(''seq_lightpathexcitationfilterlink''), rec.permissions, rec.secondaryexcitationfilter, rec.creation_id, rec.group_id, rec.owner_id, rec.update_id, lightpath_id, ex_count;
+                 SELECT nextval(''seq_lightpathexcitationfilterlink''), rec.permissions, rec.secondaryexcitationfilter, rec.creation_id, rec.group_id, rec.owner_id, rec.update_id, lightpath_id, ex_count;
             ex_count := ex_count + 1;
         END IF;
 
@@ -531,12 +524,12 @@ BEGIN
 
         IF rec.emfilter IS NOT NULL THEN
             INSERT INTO filtersetemissionfilterlink (id, permissions, child, creation_id, group_id, owner_id, update_id, parent)
-                 SELECT ome_nextval(''seq_filtersetemissionfilterlink''), rec.permissions, rec.emfilter, rec.creation_id, rec.group_id, rec.owner_id, rec.update_id, rec.id;
+                 SELECT nextval(''seq_filtersetemissionfilterlink''), rec.permissions, rec.emfilter, rec.creation_id, rec.group_id, rec.owner_id, rec.update_id, rec.id;
         END IF;
 
         IF rec.exfilter IS NOT NULL THEN
             INSERT INTO filtersetexcitationfilterlink (id, permissions, child, creation_id, group_id, owner_id, update_id, parent)
-                 SELECT ome_nextval(''seq_filtersetexcitationfilterlink''), rec.permissions, rec.exfilter, rec.creation_id, rec.group_id, rec.owner_id, rec.update_id, rec.id;
+                 SELECT nextval(''seq_filtersetexcitationfilterlink''), rec.permissions, rec.exfilter, rec.creation_id, rec.group_id, rec.owner_id, rec.update_id, rec.id;
         END IF;
     END LOOP;
 
@@ -705,7 +698,7 @@ BEGIN
     FOR rec IN SELECT * FROM experimentergroup LOOP
         SELECT INTO mid id FROM groupexperimentermap WHERE child = rec.owner_id;
         IF NOT FOUND THEN
-            SELECT INTO mid ome_nextval(''seq_groupexperimentermap'');
+            SELECT INTO mid nextval(''seq_groupexperimentermap'');
             INSERT INTO groupexperimentermap (id, permissions, version, parent, child, child_index)
                  SELECT mid, -35, 0, rec.id, rec.owner_id, max(child_index) + 1
                    FROM groupexperimentermap WHERE child = rec.owner_id;
@@ -964,38 +957,38 @@ ALTER TABLE renderingmodel
 -- Enumeration values
 --
 insert into acquisitionmode (id,permissions,value)
-    select ome_nextval('seq_acquisitionmode'),-35,'FSM';
+    select nextval('seq_acquisitionmode'),-35,'FSM';
 insert into acquisitionmode (id,permissions,value)
-    select ome_nextval('seq_acquisitionmode'),-35,'PALM';
+    select nextval('seq_acquisitionmode'),-35,'PALM';
 insert into acquisitionmode (id,permissions,value)
-    select ome_nextval('seq_acquisitionmode'),-35,'STED';
+    select nextval('seq_acquisitionmode'),-35,'STED';
 insert into acquisitionmode (id,permissions,value)
-    select ome_nextval('seq_acquisitionmode'),-35,'STORM';
+    select nextval('seq_acquisitionmode'),-35,'STORM';
 insert into acquisitionmode (id,permissions,value)
-    select ome_nextval('seq_acquisitionmode'),-35,'TIRF';
+    select nextval('seq_acquisitionmode'),-35,'TIRF';
 insert into acquisitionmode (id,permissions,value)
-    select ome_nextval('seq_acquisitionmode'),-35,'LaserScanningConfocalMicroscopy';
+    select nextval('seq_acquisitionmode'),-35,'LaserScanningConfocalMicroscopy';
 
-update logicalchannel lc set mode = am_new.id
+update logicalchannel set mode = am_new.id
   from acquisitionmode am_old, acquisitionmode am_new
- where lc.mode = am_old.id
+ where mode = am_old.id
    and am_old.value in ('LaserScanningConfocal', 'LaserScanningMicroscopy')
    and am_new.value = 'LaserScanningConfocalMicroscopy';
 
 delete from acquisitionmode where value in ('LaserScanningConfocal', 'LaserScanningMicroscopy');
 
 insert into detectortype (id,permissions,value)
-    select ome_nextval('seq_detectortype'),-35,'EBCCD';
+    select nextval('seq_detectortype'),-35,'EBCCD';
 
 insert into filtertype (id,permissions,value)
-    select ome_nextval('seq_filtertype'),-35,'Dichroic';
+    select nextval('seq_filtertype'),-35,'Dichroic';
 insert into filtertype (id,permissions,value)
-    select ome_nextval('seq_filtertype'),-35,'NeutralDensity';
+    select nextval('seq_filtertype'),-35,'NeutralDensity';
 
 insert into microbeammanipulationtype (id,permissions,value)
-    select ome_nextval('seq_microbeammanipulationtype'),-35,'FLIP';
+    select nextval('seq_microbeammanipulationtype'),-35,'FLIP';
 insert into microbeammanipulationtype (id,permissions,value)
-    select ome_nextval('seq_microbeammanipulationtype'),-35,'InverseFRAP';
+    select nextval('seq_microbeammanipulationtype'),-35,'InverseFRAP';
 
 -- Deleting from Format. If any of these have been assigned to an Image
 -- this will fail.
@@ -1027,10 +1020,10 @@ ALTER TABLE share
 ALTER TABLE share
         ADD CONSTRAINT fkshare_group_experimentergroup FOREIGN KEY ("group") REFERENCES experimentergroup(id);
 
-UPDATE share sh
+UPDATE share
         SET "group" = m.parent
             FROM session sess, experimenter e, groupexperimentermap m
-           WHERE sess.id = sh.session_id AND sess.owner = e.id AND e.id = m.child AND m.child_index = 0;
+           WHERE sess.id = session_id AND sess.owner = e.id AND e.id = m.child AND m.child_index = 0;
 
 ALTER TABLE share
         ALTER COLUMN "group" SET NOT NULL;
@@ -1082,7 +1075,7 @@ CREATE OR REPLACE FUNCTION annotation_update_event_trigger() RETURNS "trigger"
 
         FOR rec IN SELECT id, parent FROM imageannotationlink WHERE child = new.id LOOP
             INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
-                 SELECT ome_nextval(''seq_eventlog''), ''REINDEX'', -35, rec.parent, ''ome.model.core.Image'', 0;
+                 SELECT nextval(''seq_eventlog''), ''REINDEX'', -35, rec.parent, ''ome.model.core.Image'', 0;
         END LOOP;
 
         RETURN new;
@@ -1102,7 +1095,7 @@ CREATE OR REPLACE FUNCTION annotation_link_event_trigger() RETURNS "trigger"
     BEGIN
 
         INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
-                SELECT ome_nextval(''seq_eventlog''), ''REINDEX'', -35, new.parent, ''ome.model.core.Image'', 0;
+                SELECT nextval(''seq_eventlog''), ''REINDEX'', -35, new.parent, ''ome.model.core.Image'', 0;
 
         RETURN new;
 
