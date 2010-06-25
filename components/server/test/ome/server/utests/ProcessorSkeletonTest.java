@@ -14,7 +14,7 @@ import ome.services.procs.ProcessorSkeleton;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
-import org.testng.annotations.Configuration;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -32,7 +32,7 @@ public class ProcessorSkeletonTest extends MockObjectTestCase {
     private ITypes types;
 
     @Override
-    @Configuration(beforeTestMethod = true)
+    @BeforeMethod
     protected void setUp() throws Exception {
         super.setUp();
         mockQuery = mock(IQuery.class);

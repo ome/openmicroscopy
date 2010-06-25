@@ -6,12 +6,12 @@
  */
 package ome.model.utests;
 
-import org.testng.annotations.*;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import junit.framework.TestCase;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
@@ -20,7 +20,8 @@ import ome.model.display.Thumbnail;
 import ome.model.meta.Event;
 import ome.util.ModelMapper;
 
-import junit.framework.TestCase;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 public class LoadingUnloadingTest extends TestCase {
 
@@ -33,7 +34,7 @@ public class LoadingUnloadingTest extends TestCase {
     Pixels pix;
 
     @Override
-    @Configuration(beforeTestMethod = true)
+    @BeforeMethod
     protected void setUp() throws Exception {
         p = new Project();
         d = new Dataset();
@@ -67,8 +68,7 @@ public class LoadingUnloadingTest extends TestCase {
 
     }
 
-    @Test
-    @ExpectedExceptions(IllegalStateException.class)
+    @Test(expectedExceptions = IllegalStateException.class)
     public void testAddingUnloadedToCollection() throws Exception {
 
         // this needs to be unallowed, because hibernate only saves the

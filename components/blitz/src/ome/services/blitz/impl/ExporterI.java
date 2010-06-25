@@ -353,9 +353,7 @@ public class ExporterI extends AbstractAmdServant implements
                                 byte[] plane = new byte[planeSize];
                                 for (int i = 0; i < planeCount; i++) {
                                     reader.openBytes(i, plane);
-                                    writer
-                                            .saveBytes(plane,
-                                                    i == planeCount - 1);
+                                    writer.saveBytes(i, plane);
                                 }
                                 __cb.ice_response(file.length());
                             } catch (Exception e) {

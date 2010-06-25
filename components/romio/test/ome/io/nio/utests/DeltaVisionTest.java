@@ -14,7 +14,8 @@ import ome.model.core.OriginalFile;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.ResourceUtils;
-import org.testng.annotations.Configuration;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -42,7 +43,7 @@ public class DeltaVisionTest extends TestCase {
     public final static String FILENAME = "tinyTest.d3d.dv";
 
     @Override
-    @Configuration(beforeTestMethod = true)
+    @BeforeMethod
     protected void setUp() {
 
         setupCount++;
@@ -93,7 +94,7 @@ public class DeltaVisionTest extends TestCase {
     }
 
     @Override
-    @Configuration(afterTestMethod = true)
+    @AfterMethod
     protected void tearDown() {
         if (setupCount == 13) {
             originalFile = null;

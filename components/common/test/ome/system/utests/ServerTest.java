@@ -15,14 +15,12 @@ import junit.framework.TestCase;
 
 public class ServerTest extends TestCase {
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void test_null_host() throws Exception {
         new Server(null);
     }
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void test_bad_port() throws Exception {
         new Server("", -100);
     }

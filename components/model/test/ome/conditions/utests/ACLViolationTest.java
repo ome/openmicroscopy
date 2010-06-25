@@ -17,8 +17,7 @@ import junit.framework.TestCase;
 
 public class ACLViolationTest extends TestCase {
 
-    @Test
-    @ExpectedExceptions(CollectedACLViolations.class)
+    @Test(expectedExceptions = CollectedACLViolations.class)
     public void testCollectionACLViolationToStringTest() throws Exception {
         CollectedACLViolations coll = new CollectedACLViolations("test");
         ACLViolation[] array = {

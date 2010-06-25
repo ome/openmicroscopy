@@ -55,6 +55,7 @@ import org.hibernate.Session;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.transaction.annotation.Transactional;
@@ -673,7 +674,7 @@ public class GeomTool implements ApplicationListener {
     public List<Long> getNullShapes() {
         List<Long> l = jdbc.query(
                 "select id from shape where pg_geom is null limit 1000",
-                new ParameterizedRowMapper<Long>() {
+                new RowMapper<Long>() {
                     public Long mapRow(ResultSet rs, int rowNum)
                             throws SQLException {
                         return rs.getLong("id");
@@ -682,8 +683,7 @@ public class GeomTool implements ApplicationListener {
         return l;
     }
 
-    private static final class IdRowMapper implements
-            ParameterizedRowMapper<Long> {
+    private static final class IdRowMapper implements RowMapper<Long> {
         public Long mapRow(ResultSet rs, int rowNum) throws SQLException {
             return (Long) rs.getLong(1);
         }

@@ -8,28 +8,29 @@ package ome.server.utests;
 
 import java.util.Map;
 
+import ome.model.containers.Dataset;
+import ome.model.containers.Project;
+import ome.services.query.Hierarchy;
+
 import org.hibernate.Criteria;
 import org.hibernate.transform.ResultTransformer;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
-import org.testng.annotations.Configuration;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
-import ome.services.query.Hierarchy;
 
 public class HierarchyTest extends MockObjectTestCase {
 
     // ~ Testng Adapter
     // =========================================================================
-    @Configuration(beforeTestMethod = true)
+    @BeforeMethod
     @Override
     protected void setUp() throws Exception {
         mockCriteria = mock(Criteria.class);
     }
 
-    @Configuration(afterTestMethod = true)
+    @AfterMethod
     @Override
     protected void tearDown() throws Exception {
         mockCriteria.reset();

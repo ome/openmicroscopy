@@ -31,7 +31,7 @@ import ome.server.itests.AbstractManagedContextTest;
 import ome.services.query.PojosGetImagesQueryDefinition;
 import ome.testing.ObjectFactory;
 
-import org.testng.annotations.Configuration;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 @Test(groups = "integration")
@@ -133,7 +133,7 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
 
     Parameters noFilter;
 
-    @Configuration(beforeTestClass = true)
+    @BeforeClass
     public void test_createObjects() throws Exception {
         // Forcing setup once now.
         adaptSetUp();

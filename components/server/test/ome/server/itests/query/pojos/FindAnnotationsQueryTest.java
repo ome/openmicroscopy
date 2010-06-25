@@ -24,7 +24,7 @@ import ome.server.itests.AbstractManagedContextTest;
 import ome.services.query.PojosFindAnnotationsQueryDefinition;
 import ome.testing.CreatePojosFixture;
 
-import org.testng.annotations.Configuration;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 @Test(groups = { "ticket:541", "StructuredAnnotations" })
@@ -37,7 +37,7 @@ public class FindAnnotationsQueryTest extends AbstractManagedContextTest {
 
     CreatePojosFixture DATA;
 
-    @Configuration(beforeTestClass = true)
+    @BeforeClass
     public void makePojos() throws Exception {
         try {
             setUp();

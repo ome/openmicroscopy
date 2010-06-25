@@ -8,10 +8,10 @@ package ome.server.utests;
 
 // Java imports
 
-import org.testng.annotations.*;
-
-// Application-internal dependencies
 import ome.model.core.Image;
+
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.Test;
 
 /**
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -31,7 +31,7 @@ public class AbstractChangeDetailsMockTest extends AbstractLoginMockTest {
     // 5. TODO even laterer: allowing changes based on group privileges.
 
     @Override
-    @Configuration(afterTestMethod = true)
+    @AfterMethod
     protected void tearDown() throws Exception {
         super.tearDown();
         i = null;

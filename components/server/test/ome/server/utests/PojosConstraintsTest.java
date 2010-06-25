@@ -8,9 +8,7 @@ package ome.server.utests;
 
 // Java imports
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import ome.api.IContainer;
@@ -28,7 +26,8 @@ import ome.system.Principal;
 
 import org.jmock.MockObjectTestCase;
 import org.springframework.aop.framework.ProxyFactory;
-import org.testng.annotations.Configuration;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -43,7 +42,7 @@ public class PojosConstraintsTest extends MockObjectTestCase {
     protected IContainer manager;
 
     @Override
-    @Configuration(beforeTestMethod = true)
+    @BeforeMethod
     protected void setUp() throws Exception {
         super.setUp();
         impl = new PojosImpl();
@@ -58,7 +57,7 @@ public class PojosConstraintsTest extends MockObjectTestCase {
     }
 
     @Override
-    @Configuration(afterTestMethod = true)
+    @AfterMethod
     protected void tearDown() throws Exception {
         manager = null;
     }

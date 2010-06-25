@@ -35,7 +35,8 @@ import ome.tools.hibernate.SecurityFilter;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
-import org.testng.annotations.Configuration;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 
 public abstract class AbstractBasicSecuritySystemTest extends
         MockObjectTestCase {
@@ -69,7 +70,7 @@ public abstract class AbstractBasicSecuritySystemTest extends
     CurrentDetails cd;
 
     @Override
-    @Configuration(beforeTestMethod = true)
+    @BeforeMethod
     protected void setUp() throws Exception {
         super.setUp();
 
@@ -179,7 +180,7 @@ public abstract class AbstractBasicSecuritySystemTest extends
     }
 
     @Override
-    @Configuration(afterTestMethod = true)
+    @AfterMethod
     protected void tearDown() throws Exception {
         super.verify();
         sec.invalidateEventContext();

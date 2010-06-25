@@ -299,12 +299,12 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
 #set( $order = "this, addition" )
 #set( $next = "parent" )
 #set( $other = "child" )
-#set( $cascadeHibCollection = "org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE_ORPHAN" )
+#set( $cascadeHibCollection = "org.hibernate.annotations.CascadeType.ALL" )
 #elseif($prop.class.name == "ome.dsl.ParentLink")
 #set( $order = "addition, this" )
 #set( $next = "child" )
 #set( $other = "parent" )
-#set( $cascadeHibCollection = "org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE_ORPHAN" )
+#set( $cascadeHibCollection = "org.hibernate.annotations.CascadeType.ALL" )
 #end
 #end##isLink
 ##
@@ -388,12 +388,12 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
     * Values are indexed by the column "index" on ${prop.type}
     */
     @javax.persistence.JoinColumn(name="${prop.inverse}", nullable=false)
-    @javax.persistence.OneToMany(fetch=javax.persistence.FetchType.LAZY, cascade={${cascadeEjb}})
+    @javax.persistence.OneToMany(fetch=javax.persistence.FetchType.LAZY, cascade={${cascadeEjb}}, orphanRemoval=true)
     @org.hibernate.annotations.IndexColumn(name="${prop.inverse}_index", nullable=false)
 #else
     * one-to-many Set ${type.id}.${prop.name} (${prop.type})
     */
-    @javax.persistence.OneToMany(mappedBy="${prop.inverse}", fetch=javax.persistence.FetchType.LAZY, cascade={${cascadeEjb}})
+    @javax.persistence.OneToMany(mappedBy="${prop.inverse}", fetch=javax.persistence.FetchType.LAZY, cascade={${cascadeEjb}}, orphanRemoval=true)
 #end
     @org.hibernate.annotations.Cascade({${cascadeHibCollection}})
 ##

@@ -30,7 +30,7 @@ public class NormalPixelBufferUnitTest extends TestCase {
 	private static final String ROOT = PathUtil.getInstance().getDataFilePath();
 
     @Override
-    @Configuration(beforeTestMethod = true)
+    @BeforeMethod
     protected void setUp() {
     	OriginalFileMetadataProvider provider =
     		new TestingOriginalFileMetadataProvider();

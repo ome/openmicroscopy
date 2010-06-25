@@ -23,8 +23,7 @@ import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.server.itests.AbstractManagedContextTest;
 
-import org.testng.annotations.Configuration;
-import org.testng.annotations.ExpectedExceptions;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 @Test(groups = { "ticket:156", "ticket:157", "security", "filter" })
@@ -34,7 +33,7 @@ public class SystemTypesTest extends AbstractManagedContextTest {
 
     Experimenter e = new Experimenter();
 
-    @Configuration(beforeTestClass = true)
+    @BeforeClass
     public void createData() throws Exception {
         setUp();
 
@@ -58,8 +57,7 @@ public class SystemTypesTest extends AbstractManagedContextTest {
     // ~ Admin types
     // =========================================================================
 
-    @Test
-    @ExpectedExceptions(SecurityViolation.class)
+    @Test(expectedExceptions = SecurityViolation.class)
     public void testCannotCreateExperimenter() throws Exception {
 
         loginUser(e.getOmeName());
@@ -71,8 +69,7 @@ public class SystemTypesTest extends AbstractManagedContextTest {
         factory.getUpdateService().saveObject(test);
     }
 
-    @Test
-    @ExpectedExceptions(SecurityViolation.class)
+    @Test(expectedExceptions = SecurityViolation.class)
     public void testCannotCreateGroup() throws Exception {
 
         loginUser(e.getOmeName());
@@ -85,8 +82,7 @@ public class SystemTypesTest extends AbstractManagedContextTest {
     // ~ Events
     // =========================================================================
 
-    @Test
-    @ExpectedExceptions(SecurityViolation.class)
+    @Test(expectedExceptions = SecurityViolation.class)
     public void testCannotCreateEvents() throws Exception {
 
         loginUser(e.getOmeName());
@@ -104,8 +100,7 @@ public class SystemTypesTest extends AbstractManagedContextTest {
         factory.getUpdateService().saveObject(test);
     }
 
-    @Test
-    @ExpectedExceptions(SecurityViolation.class)
+    @Test(expectedExceptions = SecurityViolation.class)
     public void testCannotCreateEventLogs() throws Exception {
 
         loginUser(e.getOmeName());
@@ -121,8 +116,7 @@ public class SystemTypesTest extends AbstractManagedContextTest {
     // ~ Enums
     // =========================================================================
 
-    @Test
-    @ExpectedExceptions(SecurityViolation.class)
+    @Test(expectedExceptions = SecurityViolation.class)
     public void testCannotCreateEnumsWithIUpdate() throws Exception {
 
         loginUser(e.getOmeName());

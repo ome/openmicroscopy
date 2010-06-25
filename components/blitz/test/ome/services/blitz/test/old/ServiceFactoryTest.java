@@ -24,7 +24,7 @@ public class ServiceFactoryTest extends IceTest {
     public void testProvidesIConfig() throws Exception {
         ice = new omero.client();
         ice.createSession(null, null);
-        Ice.ObjectPrx base = ice.getServiceFactory().getConfigService();
+        Ice.ObjectPrx base = ice.getSession().getConfigService();
         IConfigPrx prx = IConfigPrxHelper.checkedCast(base);
         assertNotNull(prx);
         ice.closeSession();
@@ -34,7 +34,7 @@ public class ServiceFactoryTest extends IceTest {
     public void testProvidesIUpdate() throws Exception {
         ice = new omero.client();
         ice.createSession(null, null);
-        Ice.ObjectPrx base = ice.getServiceFactory().getUpdateService();
+        Ice.ObjectPrx base = ice.getSession().getUpdateService();
         IUpdatePrx prx = IUpdatePrxHelper.checkedCast(base);
         assertNotNull(prx);
         ice.closeSession();
@@ -44,7 +44,7 @@ public class ServiceFactoryTest extends IceTest {
     public void testProvidesRenderingEngine() throws Exception {
         ice = new omero.client();
         ice.createSession(null, null);
-        RenderingEnginePrx prx = ice.getServiceFactory()
+        RenderingEnginePrx prx = ice.getSession()
                 .createRenderingEngine();
         assertNotNull(prx);
         ice.closeSession();
@@ -54,7 +54,7 @@ public class ServiceFactoryTest extends IceTest {
     public void testKeepAliveAndIsAliveWorkOnNewProxy() throws Exception {
         ice = new omero.client();
         ice.createSession(null, null);
-        ServiceFactoryPrx session = ice.getServiceFactory();
+        ServiceFactoryPrx session = ice.getSession();
         RenderingEnginePrx prx = session.createRenderingEngine();
         assertNotNull(prx);
         assertTrue(session.keepAlive(prx));

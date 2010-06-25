@@ -13,6 +13,7 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
+import junit.framework.TestCase;
 import ome.api.IConfig;
 import ome.api.IContainer;
 import ome.api.ILdap;
@@ -45,34 +46,24 @@ import ome.system.ServiceFactory;
 import ome.testing.InterceptingServiceFactory;
 import ome.testing.OMEData;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 import org.springframework.util.ResourceUtils;
-import org.testng.annotations.Configuration;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 @Test(groups = { "integration" })
-public class AbstractManagedContextTest extends
-        AbstractDependencyInjectionSpringContextTests {
-
-    // ~ Testng Adapter
-    // =========================================================================
-    @Configuration(beforeTestMethod = true)
-    public void adaptSetUp() throws Exception {
-        setUp();
-    }
-
-    @Configuration(afterTestMethod = true)
-    public void adaptTearDown() throws Exception {
-        tearDown();
-    }
+public class AbstractManagedContextTest extends TestCase {
 
     // =========================================================================
 
+    protected final Log logger = LogFactory.getLog(getClass());
+    
     protected LoginInterceptor loginAop;
 
     /**
@@ -116,13 +107,16 @@ public class AbstractManagedContextTest extends
     protected SessionManager sessionManager;
 
     protected Executor executor;
+    
+    protected OmeroContext applicationContext;
 
     /**
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#onSetUp()
      */
-    @Override
+    @BeforeClass
     protected void onSetUp() throws Exception {
-        this.applicationContext = createApplicationContext(null);
+        this.applicationContext = OmeroContext.getManagedServerContext();
+        applicationContext.refreshAllIfNecessary();
 
         DataSource dataSource = (DataSource) applicationContext
                 .getBean("dataSource");
@@ -163,7 +157,7 @@ public class AbstractManagedContextTest extends
 
     }
 
-    @Override
+    @AfterClass
     protected void onTearDown() throws Exception {
         sessionManager.closeAll();
     }
@@ -255,14 +249,6 @@ public class AbstractManagedContextTest extends
 
     protected void loginUser(String omeName, String groupName) {
         login(omeName, groupName, "Test");
-    }
-
-    @Override
-    protected ConfigurableApplicationContext createApplicationContext(
-            String[] locations) {
-        OmeroContext ctx = OmeroContext.getManagedServerContext();
-        ctx.refreshAllIfNecessary();
-        return ctx;
     }
 
     protected Principal login(String userName, String groupName,

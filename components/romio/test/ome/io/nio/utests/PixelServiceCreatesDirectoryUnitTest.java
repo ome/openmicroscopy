@@ -12,7 +12,7 @@ import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
 
-import org.testng.annotations.Configuration;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class PixelServiceCreatesDirectoryUnitTest extends TestCase {
@@ -25,7 +25,7 @@ public class PixelServiceCreatesDirectoryUnitTest extends TestCase {
     private static final String ROOT = PathUtil.getInstance().getDataFilePath();
 
     @Override
-    @Configuration(beforeTestMethod = true)
+    @BeforeMethod
     protected void setUp() {
         pixels = new Pixels();
         pixels.setId(1234567890123L);

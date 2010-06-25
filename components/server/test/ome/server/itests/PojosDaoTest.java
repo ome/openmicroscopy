@@ -13,22 +13,19 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-// Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
-import org.testng.annotations.Configuration;
-import org.testng.annotations.Test;
-
-// Application-internal dependencies
+import junit.framework.TestCase;
 import ome.api.IQuery;
 import ome.model.containers.Dataset;
-import ome.model.core.Image;
 import ome.model.containers.Project;
+import ome.model.core.Image;
 import ome.parameters.Parameters;
 import ome.system.OmeroContext;
 import ome.system.ServiceFactory;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 /**
  * tests for an up-and-coming pojos data access TODO rename
@@ -41,26 +38,13 @@ import ome.system.ServiceFactory;
  */
 // FIXME
 @Test(groups = "integration")
-public class PojosDaoTest extends AbstractDependencyInjectionSpringContextTests {
+public class PojosDaoTest extends TestCase {
 
     private static Log log = LogFactory.getLog(PojosDaoTest.class);
 
-    // =========================================================================
-    // ~ Testng Adapter
-    // =========================================================================
-    @Configuration(beforeTestMethod = true)
-    public void adaptSetUp() throws Exception {
-        super.setUp();
-    }
+    protected OmeroContext applicationContext;
 
-    @Configuration(afterTestMethod = true)
-    public void adaptTearDown() throws Exception {
-        super.tearDown();
-    }
-
-    // =========================================================================
-
-    @Override
+    @BeforeClass
     protected void onSetUp() throws Exception {
         this.applicationContext = OmeroContext.getManagedServerContext();
         _q = new ServiceFactory((OmeroContext) applicationContext)

@@ -23,7 +23,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 
 /**
@@ -126,7 +126,7 @@ public class PasswordUtil {
             roles = jdbc.query("select g.name from experimentergroup g, "
                     + "groupexperimentermap m, experimenter e "
                     + "where omeName = ? and " + "e.id = m.child and "
-                    + "m.parent = g.id", new ParameterizedRowMapper<String>() {
+                    + "m.parent = g.id", new RowMapper<String>() {
                 public String mapRow(ResultSet rs, int rowNum)
                         throws SQLException {
                     return rs.getString(1);

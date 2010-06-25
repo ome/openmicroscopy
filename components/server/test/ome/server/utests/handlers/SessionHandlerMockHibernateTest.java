@@ -37,8 +37,8 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.orm.hibernate3.SessionHolder;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
-import org.testng.annotations.Configuration;
-import org.testng.annotations.ExpectedExceptions;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -75,7 +75,7 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase {
     private List<RegisterServiceCleanupMessage> cleanups = new ArrayList<RegisterServiceCleanupMessage>();
 
     @Override
-    @Configuration(beforeTestMethod = true)
+    @BeforeMethod
     protected void setUp() throws Exception {
         super.setUp();
         newDataSource();
@@ -108,7 +108,7 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase {
     }
 
     @Override
-    @Configuration(afterTestMethod = true)
+    @AfterMethod
     protected void tearDown() throws Exception {
         session = null;
         reset(mockStateful, mockStateless, mockSession, mockFactory,
@@ -122,8 +122,7 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase {
     // ~ Tests
     // =========================================================================
 
-    @Test
-    @ExpectedExceptions(InternalException.class)
+    @Test(expectedExceptions = InternalException.class)
     public void testStatelessInvocation() throws Throwable {
         newStatelessInvocation();
         handler = new SessionHandler(factory);
@@ -171,8 +170,7 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase {
         super.verify();
     }
 
-    @Test
-    @ExpectedExceptions(InternalException.class)
+    @Test(expectedExceptions = InternalException.class)
     public void testStatefulInvocationWithExistingSession() throws Throwable {
         prepareThreadWithSession();
 
@@ -217,8 +215,7 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase {
         super.verify();
     }
 
-    @Test
-    @ExpectedExceptions(InternalException.class)
+    @Test(expectedExceptions = InternalException.class)
     public void testStatefulReentrantCallThrows() throws Throwable {
         Method method = RenderingEngine.class.getMethod("getDefaultZ");
         newStatefulInvocation(method, new Stub() {

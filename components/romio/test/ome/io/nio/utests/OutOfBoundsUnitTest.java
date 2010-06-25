@@ -6,7 +6,6 @@
  */
 package ome.io.nio.utests;
 
-import org.testng.annotations.*;
 import junit.framework.TestCase;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.OriginalFileMetadataProvider;
@@ -14,6 +13,9 @@ import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
+
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 /**
  * @author callan
@@ -27,7 +29,7 @@ public class OutOfBoundsUnitTest extends TestCase {
 	private static final String ROOT = PathUtil.getInstance().getDataFilePath();
 
     @Override
-    @Configuration(beforeTestMethod = true)
+    @BeforeMethod
     protected void setUp() {
     	OriginalFileMetadataProvider provider =
     		new TestingOriginalFileMetadataProvider();

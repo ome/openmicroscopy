@@ -38,7 +38,7 @@ import ome.services.db.DatabaseIdentity;
 import ome.system.PreferenceContext;
 
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
@@ -340,7 +340,7 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
         return jdbc.query(
                 "select currentversion, currentpatch from dbpatch "
                         + "order by id desc limit 1",
-                new ParameterizedRowMapper<String>() {
+                new RowMapper<String>() {
                     public String mapRow(ResultSet arg0, int arg1)
                             throws SQLException {
                         String v = arg0.getString("currentversion");

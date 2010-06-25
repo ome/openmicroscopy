@@ -30,6 +30,7 @@ import org.apache.lucene.search.Searcher;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.jmock.MockObjectTestCase;
+import org.springframework.expression.spel.ast.Indexer;
 import org.testng.annotations.Test;
 
 public class TokenizationTest extends MockObjectTestCase {
@@ -38,7 +39,7 @@ public class TokenizationTest extends MockObjectTestCase {
         List<Token> results = tokenize(text);
         assertEquals(tokens.length, results.size());
         for (int i = 0; i < tokens.length; i++) {
-            assertEquals(tokens[i], results.get(i).termText());
+            assertEquals(tokens[i], results.get(i).termBuffer());
         }
     }
 
@@ -71,7 +72,8 @@ public class TokenizationTest extends MockObjectTestCase {
         try {
             Directory directory = new RAMDirectory();
             Analyzer analyzer = new FullTextAnalyzer();
-            IndexWriter writer = new IndexWriter(directory, analyzer);
+            IndexWriter writer = new IndexWriter(directory, analyzer,
+                    IndexWriter.MaxFieldLength.UNLIMITED);
 
             String[] docs = { "GFP-CSFV-abc", "GFP-H2B-123", "GFP_H2B-456" };
             addDocuments(writer, docs);
@@ -110,7 +112,7 @@ public class TokenizationTest extends MockObjectTestCase {
         for (int j = 0; j < docs.length; j++) {
             Document d = new Document();
             d.add(new Field("contents", docs[j], Field.Store.YES,
-                    Field.Index.TOKENIZED));
+                    Field.Index.ANALYZED));
             writer.addDocument(d);
         }
         writer.close();
@@ -122,8 +124,9 @@ public class TokenizationTest extends MockObjectTestCase {
         TokenStream ts = sa.tokenStream("field", new StringReader(a));
         List<Token> tokens = new ArrayList<Token>();
         try {
+            Token t = new Token();
             while (true) {
-                Token t = ts.next();
+                t = ts.next(t);
                 if (t == null) {
                     break;
                 }

@@ -15,26 +15,22 @@ import junit.framework.TestCase;
 
 public class LoginTest extends TestCase {
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void test_null_user() throws Exception {
         new Login(null, "");
     }
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void test_null_password() throws Exception {
         new Login("", null);
     }
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void test_null_user_ext() throws Exception {
         new Login(null, "", null, null);
     }
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void test_null_password_ext() throws Exception {
         new Login("", null, null, null);
     }

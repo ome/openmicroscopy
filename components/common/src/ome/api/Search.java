@@ -59,12 +59,6 @@ public interface Search extends ome.api.StatefulServiceInterface,
     public final static String SCORE = ProjectionConstants.SCORE;
 
     /**
-     * {@link String} constant used to look up the boost value of Lucene queries
-     * returned by this interface. Not all queries will fill this value.
-     */
-    public final static String BOOST = ProjectionConstants.BOOST;
-
-    /**
      * Default {@link #getBatchSize() batch size}
      */
     public final static int DEFAULT_BATCH_SIZE = 1000;

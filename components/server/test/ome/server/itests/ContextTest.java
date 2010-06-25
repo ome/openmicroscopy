@@ -9,18 +9,15 @@ package ome.server.itests;
 import java.util.Arrays;
 
 import junit.framework.TestCase;
-import ome.api.IPixels;
 import ome.api.IQuery;
 import ome.api.local.LocalCompress;
-import ome.services.RenderingBean;
 import ome.services.ThumbnailBean;
 import ome.system.OmeroContext;
 import ome.system.ServiceFactory;
-import omeis.providers.re.RenderingEngine;
 
 import org.springframework.aop.framework.Advised;
 import org.springframework.beans.factory.BeanFactoryUtils;
-import org.testng.annotations.Configuration;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 @Test(groups = "integration")
@@ -42,7 +39,7 @@ public class ContextTest extends TestCase {
     }
 
     @Override
-    @Configuration(beforeTestMethod = true)
+    @BeforeMethod
     protected void setUp() throws Exception {
         rb = new TB();
     }

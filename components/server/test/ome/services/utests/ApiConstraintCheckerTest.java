@@ -10,21 +10,17 @@ package ome.services.utests;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 
-import org.testng.annotations.*;
-
+import junit.framework.TestCase;
 import ome.annotations.ApiConstraintChecker;
 import ome.conditions.ApiUsageException;
 import ome.logic.PojosImpl;
 import ome.model.IObject;
 import ome.model.containers.Project;
-
 import ome.services.RenderingBean;
 
-// Third-party libraries
-import junit.framework.TestCase;
+import org.testng.annotations.Test;
 
 // Application-internal dependencies
 
@@ -74,8 +70,7 @@ public class ApiConstraintCheckerTest extends TestCase {
         ApiConstraintChecker.errorOnViolation(c, m, args);
     }
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void testNullCheck() throws Exception {
         ApiConstraintChecker.errorOnViolation(null, null, null);
     }
@@ -85,8 +80,7 @@ public class ApiConstraintCheckerTest extends TestCase {
      * rootNodeType, @Validate(Long.class) Set<Long> rootNodeIds, Map options);
      */
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void testNullClass() throws Exception {
         loadContainerHierarchy();
         args = new Object[] { null, Collections.EMPTY_SET, null };
@@ -100,8 +94,7 @@ public class ApiConstraintCheckerTest extends TestCase {
         ApiConstraintChecker.errorOnViolation(c, m, args);
     }
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void testIntegersInSet() throws Exception {
         loadContainerHierarchy();
         args = new Object[] { Project.class,
@@ -115,24 +108,21 @@ public class ApiConstraintCheckerTest extends TestCase {
      * imagesIds, Map options);
      */
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void testNullClass_find() throws Exception {
         findContainerHierarchies();
         args = new Object[] { null, Collections.EMPTY_SET, null };
         ApiConstraintChecker.errorOnViolation(c, m, args);
     }
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void testNullSet_find() throws Exception {
         findContainerHierarchies();
         args = new Object[] { Project.class, null, null };
         ApiConstraintChecker.errorOnViolation(c, m, args);
     }
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void testIntegersInSet_find() throws Exception {
         findContainerHierarchies();
         args = new Object[] { Project.class,

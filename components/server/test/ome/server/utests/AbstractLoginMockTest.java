@@ -36,7 +36,8 @@ import ome.tools.hibernate.UpdateFilter;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.jmock.core.Constraint;
-import org.testng.annotations.Configuration;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -89,7 +90,7 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
     protected MockServiceFactory sf;
 
     @Override
-    @Configuration(beforeTestMethod = true)
+    @BeforeMethod
     protected void setUp() throws Exception {
         super.setUp();
 
@@ -165,7 +166,7 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
     }
 
     @Override
-    @Configuration(afterTestMethod = true)
+    @AfterMethod
     protected void tearDown() throws Exception {
         super.verify();
         super.tearDown();

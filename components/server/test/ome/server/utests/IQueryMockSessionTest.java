@@ -29,11 +29,8 @@ import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.jmock.core.stub.DefaultResultStub;
 import org.springframework.aop.framework.ProxyFactory;
-import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Configuration;
-import org.testng.annotations.ExpectedExceptions;
 import org.testng.annotations.Test;
 
 /**
@@ -141,8 +138,7 @@ public class IQueryMockSessionTest extends MockObjectTestCase {
         assertTrue(retVal == blank);
     }
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void test_findByExample_null() throws Exception {
         iQuery.findByExample(null);
     }
@@ -159,14 +155,12 @@ public class IQueryMockSessionTest extends MockObjectTestCase {
         assertTrue(retVal == dummy);
     }
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void test_findAllByExample_null() throws Exception {
         iQuery.findAllByExample(null, null);
     }
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void test_findAllByExample_null2() throws Exception {
         iQuery.findAllByExample(null, new Filter());
     }

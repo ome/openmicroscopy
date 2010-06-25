@@ -33,7 +33,6 @@ import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.util.IdBlock;
 
-import org.testng.annotations.ExpectedExceptions;
 import org.testng.annotations.Test;
 
 public class AdminTest extends AbstractManagedContextTest {
@@ -46,21 +45,18 @@ public class AdminTest extends AbstractManagedContextTest {
     // ~ IAdmin.createUser
     // =========================================================================
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void testUserAccountCreationWithNull() throws Exception {
         iAdmin.createUser(null, null);
     }
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void testUserAccountCreationWithEmpty() throws Exception {
         Experimenter e = new Experimenter();
         iAdmin.createUser(e, null);
     }
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void testUserAccountCreationWithUnknownGroup() throws Exception {
         Experimenter e = new Experimenter();
         iAdmin.createUser(e, uuid()); // uuid won't exist
@@ -83,14 +79,12 @@ public class AdminTest extends AbstractManagedContextTest {
     // ~ IAdmin.createSystemUser
     // =========================================================================
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void testSysUserAccountCreationWithNull() throws Exception {
         iAdmin.createUser(null, null);
     }
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void testSysUserAccountCreationWithEmpty() throws Exception {
         Experimenter e = new Experimenter();
         iAdmin.createSystemUser(e);
@@ -111,14 +105,12 @@ public class AdminTest extends AbstractManagedContextTest {
     // ~ IAdmin.createExperimenter
     // =========================================================================
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void testExperimenterAccountCreationWithAllNulls() throws Exception {
         iAdmin.createExperimenter(null, null, (ome.model.meta.ExperimenterGroup[])null);
     }
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void testExperimenterAccountCreationWithEmpty() throws Exception {
         Experimenter e = new Experimenter();
         iAdmin.createExperimenter(e, null, (ome.model.meta.ExperimenterGroup[])null);

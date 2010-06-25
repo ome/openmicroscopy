@@ -20,8 +20,6 @@ import java.util.UUID;
 import ome.system.Login;
 import ome.testing.ObjectFactory;
 import omero.ServerError;
-import omero.api.IAdminPrx;
-import omero.api.ISessionPrx;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Dataset;
 import omero.model.DatasetI;
@@ -47,10 +45,9 @@ import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
 import omero.model.Thumbnail;
-import omero.sys.EventContext;
 import omero.util.IceMapper;
 
-import org.testng.annotations.Configuration;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -127,7 +124,7 @@ public abstract class AbstractPermissionsTest extends AbstractSecurityTest {
 
     protected ExperimenterGroup groupA, groupB, groupC;
 
-    @Configuration(beforeTestClass = true)
+    @BeforeClass
     public void createUsersAndGroups() throws Exception {
 
         init();

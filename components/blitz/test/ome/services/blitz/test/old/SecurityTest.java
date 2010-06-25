@@ -20,13 +20,13 @@ public class SecurityTest extends IceTest {
     @Test(groups = "ticket:645", expectedExceptions = SecurityViolation.class)
     public void testSynchronizeLoginCacheShouldBeDisallowed() throws Exception {
         omero.client user = createUser();
-        user.getServiceFactory().getAdminService().synchronizeLoginCache();
+        user.getSession().getAdminService().synchronizeLoginCache();
     }
 
     @Test(groups = "ticket:645")
     public void testGetEventContextShouldBeAllowed() throws Exception {
         omero.client user = createUser();
-        user.getServiceFactory().getAdminService().getEventContext();
+        user.getSession().getAdminService().getEventContext();
     }
 
     private omero.client createUser() throws ServerError,
@@ -35,7 +35,7 @@ public class SecurityTest extends IceTest {
         e.setOmeName(rstring(Ice.Util.generateUUID()));
         e.setFirstName(rstring("ticket"));
         e.setLastName(rstring("645"));
-        root.getServiceFactory().getAdminService().createUser(e, "default");
+        root.getSession().getAdminService().createUser(e, "default");
 
         omero.client user = new omero.client();
         user.createSession(e.getOmeName().getValue(), "");

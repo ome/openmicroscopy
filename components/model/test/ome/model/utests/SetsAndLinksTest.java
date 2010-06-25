@@ -25,7 +25,7 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
 
-import org.testng.annotations.Configuration;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class SetsAndLinksTest extends TestCase {
@@ -39,7 +39,7 @@ public class SetsAndLinksTest extends TestCase {
     Pixels pix;
 
     @Override
-    @Configuration(beforeTestMethod = true)
+    @BeforeMethod
     protected void setUp() throws Exception {
         p = new Project();
         d = new Dataset();

@@ -16,7 +16,7 @@ import ome.system.Roles;
 import ome.testing.MockServiceFactory;
 
 import org.jmock.MockObjectTestCase;
-import org.testng.annotations.Configuration;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 @Test
@@ -25,7 +25,7 @@ public class OmeroInterceptorTest extends MockObjectTestCase {
     OmeroInterceptor oi;
 
     @Override
-    @Configuration(beforeTestMethod = true)
+    @BeforeMethod
     protected void setUp() throws Exception {
         super.setUp();
         MockServiceFactory sf = new MockServiceFactory();

@@ -108,7 +108,7 @@ public class FullText extends SearchAction {
 
         final Class<?> cls = values.onlyTypes.get(0);
 
-        FullTextSession session = Search.createFullTextSession(s);
+        FullTextSession session = Search.getFullTextSession(s);
         Criteria criteria = session.createCriteria(cls);
         AnnotationCriteria ann = new AnnotationCriteria(criteria,
                 values.fetchAnnotations);

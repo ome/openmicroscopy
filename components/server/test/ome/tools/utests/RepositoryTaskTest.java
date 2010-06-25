@@ -1,16 +1,6 @@
 package ome.tools.utests;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
 import junit.framework.TestCase;
-import ome.system.OmeroContext;
-import ome.tools.RepositoryTask;
-
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.testng.annotations.Configuration;
-import org.testng.annotations.Test;
 
 /**
  * Simple unit tests of the ome.tools.RepositoryTask utility.

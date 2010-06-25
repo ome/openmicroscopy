@@ -6,15 +6,16 @@
  */
 package ome.server.utests;
 
-import org.testng.annotations.*;
 import java.util.Collections;
 import java.util.Set;
 
+import junit.framework.TestCase;
 import ome.conditions.ApiUsageException;
 import ome.parameters.QueryParameter;
 import ome.services.query.CollectionQueryParameterDef;
 import ome.services.query.QueryParameterDef;
-import junit.framework.TestCase;
+
+import org.testng.annotations.Test;
 
 public class QueryParametersTest extends TestCase {
 
@@ -29,48 +30,42 @@ public class QueryParametersTest extends TestCase {
 
     private QueryParameter param;
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void test_queryParameterWithNullName() throws Exception {
         def = new QueryParameterDef(A, String.class, false);
         param = new QueryParameter(null, String.class, null);
         def.errorIfInvalid(param);
     }
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void test_queryParameterWithDifferentName() throws Exception {
         def = new QueryParameterDef(A, String.class, false);
         param = new QueryParameter(B, String.class, null);
         def.errorIfInvalid(param);
     }
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void test_requiredQueryParameterWithNull() throws Exception {
         def = new QueryParameterDef(A, String.class, false);
         param = new QueryParameter(A, String.class, null);
         def.errorIfInvalid(param);
     }
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void test_queryParameterWithNullType() throws Exception {
         def = new QueryParameterDef(A, String.class, false);
         param = new QueryParameter(A, null, null);
         def.errorIfInvalid(param);
     }
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void test_RequiredNullLongCollection() throws Exception {
         def = new CollectionQueryParameterDef(A, false, Long.class);
         param = new QueryParameter(A, Set.class, null);
         def.errorIfInvalid(param);
     }
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void test_RequiredEmptyLongCollection() throws Exception {
         def = new CollectionQueryParameterDef(A, false, Long.class);
         param = new QueryParameter(A, Set.class, Collections.EMPTY_SET);

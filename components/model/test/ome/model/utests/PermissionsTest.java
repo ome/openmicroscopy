@@ -6,25 +6,27 @@
  */
 package ome.model.utests;
 
+import static ome.model.internal.Permissions.Flag.UNUSED;
+import static ome.model.internal.Permissions.Right.READ;
+import static ome.model.internal.Permissions.Right.WRITE;
+import static ome.model.internal.Permissions.Role.GROUP;
+import static ome.model.internal.Permissions.Role.USER;
+import static ome.model.internal.Permissions.Role.WORLD;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.testng.annotations.*;
-
+import junit.framework.TestCase;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
 
-import junit.framework.TestCase;
-
-import static ome.model.internal.Permissions.Role.*;
-import static ome.model.internal.Permissions.Right.READ;
-import static ome.model.internal.Permissions.Right.WRITE; // not USE
-import static ome.model.internal.Permissions.Flag.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 public class PermissionsTest extends TestCase {
 
@@ -33,7 +35,7 @@ public class PermissionsTest extends TestCase {
     Permissions p;
 
     @Override
-    @Configuration(beforeTestMethod = true)
+    @BeforeMethod
     protected void setUp() throws Exception {
         super.setUp();
         p = new Permissions();
@@ -111,26 +113,22 @@ public class PermissionsTest extends TestCase {
     // ~ Testing immutability
     // =========================================================================
 
-    @Test
-    @ExpectedExceptions(UnsupportedOperationException.class)
+    @Test(expectedExceptions = UnsupportedOperationException.class)
     public void testRevokeOnImmutable() throws Exception {
         Permissions.READ_ONLY.revoke(GROUP, READ);
     }
 
-    @Test
-    @ExpectedExceptions(UnsupportedOperationException.class)
+    @Test(expectedExceptions = UnsupportedOperationException.class)
     public void testGrantOnImmutable() throws Exception {
         Permissions.READ_ONLY.grant(GROUP, WRITE);
     }
 
-    @Test
-    @ExpectedExceptions(UnsupportedOperationException.class)
+    @Test(expectedExceptions = UnsupportedOperationException.class)
     public void testRevokeAllOnImmutable() throws Exception {
         Permissions.READ_ONLY.revokeAll(Permissions.GROUP_PRIVATE);
     }
 
-    @Test
-    @ExpectedExceptions(UnsupportedOperationException.class)
+    @Test(expectedExceptions = UnsupportedOperationException.class)
     public void testGrantAllOnImmutable() throws Exception {
         Permissions.READ_ONLY.grantAll(Permissions.GROUP_PRIVATE);
     }

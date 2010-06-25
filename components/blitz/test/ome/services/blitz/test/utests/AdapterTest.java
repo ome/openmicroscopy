@@ -30,7 +30,6 @@ import java.util.Set;
 import junit.framework.TestCase;
 import ome.model.annotations.AnnotationAnnotationLink;
 import ome.model.annotations.CommentAnnotation;
-import ome.model.annotations.TextAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.containers.ProjectDatasetLink;
@@ -66,7 +65,7 @@ import omero.model.ProjectI;
 import omero.sys.ParametersI;
 import omero.util.IceMapper;
 
-import org.testng.annotations.Configuration;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class AdapterTest extends TestCase {
@@ -80,7 +79,7 @@ public class AdapterTest extends TestCase {
     Pixels pix;
 
     @Override
-    @Configuration(beforeTestMethod = true)
+    @BeforeMethod
     protected void setUp() throws Exception {
         p = new Project();
         d = new Dataset();

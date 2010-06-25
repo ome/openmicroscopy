@@ -83,7 +83,7 @@ import org.jmock.builder.ArgumentsMatchBuilder;
 import org.jmock.core.Constraint;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
-import org.testng.annotations.Configuration;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 @Test
@@ -98,7 +98,7 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
     GlobalMulticaster multicaster;
 
     @Override
-    @Configuration(beforeTestMethod = true)
+    @BeforeMethod
     protected void setUp() throws Exception {
         tb = new Destroyable();
         ctx = new OmeroContext("classpath:ome/services/messaging.xml");

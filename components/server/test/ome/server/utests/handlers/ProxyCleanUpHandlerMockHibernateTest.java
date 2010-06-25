@@ -12,7 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-// Third-party libraries
+import ome.tools.hibernate.ProxyCleanupFilter;
+
 import org.hibernate.collection.PersistentBag;
 import org.hibernate.collection.PersistentIdentifierBag;
 import org.hibernate.collection.PersistentList;
@@ -22,10 +23,9 @@ import org.hibernate.engine.PersistenceContext;
 import org.hibernate.engine.SessionImplementor;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
-import org.testng.annotations.*;
-
-// Application-internal dependencies
-import ome.tools.hibernate.ProxyCleanupFilter;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 /**
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -45,7 +45,7 @@ public class ProxyCleanUpHandlerMockHibernateTest extends MockObjectTestCase {
     Mock mockSession, mockCtx;
 
     @Override
-    @Configuration(beforeTestMethod = true)
+    @BeforeMethod
     protected void setUp() throws Exception {
         super.setUp();
         filter = new ProxyCleanupFilter();
@@ -56,7 +56,7 @@ public class ProxyCleanUpHandlerMockHibernateTest extends MockObjectTestCase {
     }
 
     @Override
-    @Configuration(afterTestMethod = true)
+    @AfterMethod
     protected void tearDown() throws Exception {
         super.verify();
         super.tearDown();

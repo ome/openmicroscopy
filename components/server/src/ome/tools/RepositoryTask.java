@@ -14,6 +14,7 @@ import java.util.List;
 
 import ome.api.IRepositoryInfo;
 
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 
@@ -47,7 +48,7 @@ public class RepositoryTask {
 		String sql = "select entityid from eventlog " + 
 		"where action = 'DELETE' and entitytype = 'ome.model.core.OriginalFile'";
 
-		ParameterizedRowMapper<Long> mapper = new ParameterizedRowMapper<Long>() {
+		RowMapper<Long> mapper = new RowMapper<Long>() {
 			public Long mapRow(ResultSet resultSet, int rowNum)
 					throws SQLException {
 				Long id = new Long(resultSet.getString(1));
@@ -72,7 +73,7 @@ public class RepositoryTask {
 		String sql = "select entityid from eventlog " + 
 		"where action = 'DELETE' and entitytype = 'ome.model.core.Pixels'";
 
-		ParameterizedRowMapper<Long> mapper = new ParameterizedRowMapper<Long>() {
+		RowMapper<Long> mapper = new RowMapper<Long>() {
 			public Long mapRow(ResultSet resultSet, int rowNum)
 					throws SQLException {
 				Long id = new Long(resultSet.getString(1));
@@ -97,7 +98,7 @@ public class RepositoryTask {
 		String sql = "select entityid from eventlog " + 
 			"where action = 'DELETE' and entitytype = 'ome.model.display.Thumbnail'";
 		
-		ParameterizedRowMapper<Long> mapper = new ParameterizedRowMapper<Long>() {
+		RowMapper<Long> mapper = new RowMapper<Long>() {
 			public Long mapRow(ResultSet resultSet, int rowNum)
 					throws SQLException {
 				Long id = new Long(resultSet.getString(1));

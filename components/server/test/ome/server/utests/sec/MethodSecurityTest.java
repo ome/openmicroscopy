@@ -23,7 +23,6 @@ import org.jmock.MockObjectTestCase;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.ExpectedExceptions;
 import org.testng.annotations.Test;
 
 @Test(groups = "mock")
@@ -63,8 +62,7 @@ public class MethodSecurityTest extends MockObjectTestCase {
         assertFalse(new BasicMethodSecurity(false).isActive());
     }
 
-    @Test(groups = "ticket:645")
-    @ExpectedExceptions(SecurityViolation.class)
+    @Test(groups = "ticket:645", expectedExceptions = SecurityViolation.class)
     public void testCheckMethodThrowsException() throws Exception {
 
         Method sync = AdminImpl.class.getMethod("synchronizeLoginCache");

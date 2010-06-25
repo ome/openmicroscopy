@@ -368,6 +368,7 @@ public class MockFixture {
             return null;
         }
 
+        @SuppressWarnings("deprecation")
         public void addProxy(ObjectPrx arg0, Current arg1) {
             log.warn("addProxy called with " + arg0);
         }

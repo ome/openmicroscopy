@@ -26,7 +26,8 @@ import ome.dsl.VelocityHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.ResourceUtils;
-import org.testng.annotations.Configuration;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class ExampleUsageTest extends TestCase {
@@ -36,14 +37,14 @@ public class ExampleUsageTest extends TestCase {
     SaxReader sr;
 
     @Override
-    @Configuration(beforeTestMethod = true)
+    @BeforeMethod
     protected void setUp() throws Exception {
         File f = ResourceUtils.getFile("classpath:type.xml");
         sr = new SaxReader(f);
     }
 
     @Override
-    @Configuration(afterTestMethod = true)
+    @AfterMethod
     protected void tearDown() throws Exception {
         sr = null;
     }

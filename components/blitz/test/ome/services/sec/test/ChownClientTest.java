@@ -21,20 +21,17 @@ public class ChownClientTest extends AbstractChangeDetailClientTest {
     // ~ AS USER TO ROOT
     // =========================================================================
 
-    @Test
-    @ExpectedExceptions(SecurityViolation.class)
+    @Test(expectedExceptions = SecurityViolation.class)
     public void test_NewImageAsUserChownToROOT() throws Exception {
         createAsUserToOwner(asUser, toRoot);
     }
 
-    @Test
-    @ExpectedExceptions(SecurityViolation.class)
+    @Test(expectedExceptions = SecurityViolation.class)
     public void test_UserImageAsUserChownToROOT() throws Exception {
         updateAsUserToOwner(managedImage(asUser), asUser, toRoot);
     }
 
-    @Test
-    @ExpectedExceptions(SecurityViolation.class)
+    @Test(expectedExceptions = SecurityViolation.class)
     public void test_OtherImageAsUserChownToROOT() throws Exception {
         updateAsUserToOwner(managedImage(asOther), asUser, toRoot);
     }
@@ -57,28 +54,24 @@ public class ChownClientTest extends AbstractChangeDetailClientTest {
         updateAsUserToOwner(managedImage(asUser), asUser, toUser);
     }
 
-    @Test
-    @ExpectedExceptions(SecurityViolation.class)
+    @Test(expectedExceptions = SecurityViolation.class)
     public void test_OtherImageAsUserChownToUSER() throws Exception {
         updateAsUserToOwner(managedImage(asOther), asUser, toUser);
     }
 
-    @Test
-    @ExpectedExceptions(SecurityViolation.class)
+    @Test(expectedExceptions = SecurityViolation.class)
     public void test_RootImageAsUserChownToUSER() throws Exception {
         updateAsUserToOwner(managedImage(asRoot), asUser, toUser);
     }
 
     // ~ AS USER TO OTHER
     // =========================================================================
-    @Test
-    @ExpectedExceptions(SecurityViolation.class)
+    @Test(expectedExceptions = SecurityViolation.class)
     public void test_NewImageAsUserChownToOTHER() throws Exception {
         createAsUserToOwner(asUser, toOther);
     }
 
-    @Test
-    @ExpectedExceptions(SecurityViolation.class)
+    @Test(expectedExceptions = SecurityViolation.class)
     public void test_UserImageAsUserChownToOTHER() throws Exception {
         updateAsUserToOwner(managedImage(asUser), asUser, toOther);
     }
@@ -88,8 +81,7 @@ public class ChownClientTest extends AbstractChangeDetailClientTest {
         updateAsUserToOwner(managedImage(asOther), asUser, toOther);
     }
 
-    @Test
-    @ExpectedExceptions(SecurityViolation.class)
+    @Test(expectedExceptions = SecurityViolation.class)
     public void test_RootImageAsUserChownToOTHER() throws Exception {
         updateAsUserToOwner(managedImage(asRoot), asUser, toOther);
     }

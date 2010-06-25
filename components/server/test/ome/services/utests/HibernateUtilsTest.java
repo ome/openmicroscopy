@@ -9,15 +9,14 @@ package ome.services.utests;
 // Java imports
 
 import ome.model.core.Image;
-import ome.model.internal.Details;
-import ome.model.internal.Permissions;
 import ome.model.meta.Event;
 import ome.tools.hibernate.HibernateUtils;
 
 import org.hibernate.persister.entity.EntityPersister;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
-import org.testng.annotations.Configuration;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -29,13 +28,13 @@ import org.testng.annotations.Test;
 public class HibernateUtilsTest extends MockObjectTestCase {
 
     @Override
-    @Configuration(beforeTestMethod = true)
+    @BeforeMethod
     protected void setUp() throws Exception {
         super.setUp();
     }
 
     @Override
-    @Configuration(afterTestMethod = true)
+    @AfterMethod
     protected void tearDown() throws Exception {
         super.verify();
         super.tearDown();

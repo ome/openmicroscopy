@@ -26,7 +26,8 @@ import omeis.providers.re.RenderingEngine;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.testng.annotations.Configuration;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 ;
@@ -45,20 +46,6 @@ public class PixelsServiceTest extends AbstractManagedContextTest {
 
     private IPixels pix;
 
-    // =========================================================================
-    // ~ Testng Adapter
-    // =========================================================================
-    @Override
-    @Configuration(beforeTestMethod = true)
-    public void adaptSetUp() throws Exception {
-        super.setUp();
-    }
-
-    @Override
-    @Configuration(afterTestMethod = true)
-    public void adaptTearDown() throws Exception {
-        super.tearDown();
-    }
 
     // =========================================================================
 

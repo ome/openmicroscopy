@@ -9,10 +9,9 @@ package ome.server.utests;
 // Java imports
 
 // Third-party libraries
-import org.testng.annotations.*;
-
-// Application-internal dependencies
 import ome.conditions.SecurityViolation;
+
+import org.testng.annotations.Test;
 
 /**
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -32,16 +31,14 @@ public class ChownMockTest extends AbstractChangeDetailsMockTest {
     // ~ Nonroot / New Image
     // =========================================================================
 
-    @Test
-    @ExpectedExceptions(SecurityViolation.class)
+    @Test(expectedExceptions = SecurityViolation.class)
     public void test_non_root_new_image_chmod_to_other_user() throws Exception {
         userImageChmod(_USER, _NEW, 2L);
         filter.filter(null, i);
         super.verify();
     }
 
-    @Test
-    @ExpectedExceptions(SecurityViolation.class)
+    @Test(expectedExceptions = SecurityViolation.class)
     public void test_non_root_new_image_chmod_to_root() throws Exception {
         userImageChmod(_USER, _NEW, ROOT_OWNER_ID);
         filter.filter(null, i);
@@ -51,8 +48,7 @@ public class ChownMockTest extends AbstractChangeDetailsMockTest {
     // ~ Nonroot / Managed image
     // =========================================================================
 
-    @Test
-    @ExpectedExceptions(SecurityViolation.class)
+    @Test(expectedExceptions = SecurityViolation.class)
     public void test_managed_image_non_root_chmod_to_other_user()
             throws Exception {
         userImageChmod(_USER, _MANAGED, 2L);
@@ -61,8 +57,7 @@ public class ChownMockTest extends AbstractChangeDetailsMockTest {
         super.verify();
     }
 
-    @Test
-    @ExpectedExceptions(SecurityViolation.class)
+    @Test(expectedExceptions = SecurityViolation.class)
     public void test_managed_image_non_root_chmod_to_root() throws Exception {
         userImageChmod(_USER, _MANAGED, 0L);
         willLoadImage(managedImage());

@@ -31,16 +31,14 @@ public class ChgrpMockTest extends AbstractChangeDetailsMockTest {
     // ~ Nonroot / New Image
     // =========================================================================
 
-    @Test
-    @ExpectedExceptions(SecurityViolation.class)
+    @Test(expectedExceptions = SecurityViolation.class)
     public void test_non_root_new_image_chgrp_to_other_group() throws Exception {
         userImageChgrp(_USER, _NEW, 2L);
         filter.filter(null, i);
         super.verify();
     }
 
-    @Test
-    @ExpectedExceptions(SecurityViolation.class)
+    @Test(expectedExceptions = SecurityViolation.class)
     public void test_non_root_new_image_chgrp_to_system() throws Exception {
         userImageChgrp(_USER, _NEW, SYS_GROUP_ID);
         filter.filter(null, i);
@@ -50,8 +48,7 @@ public class ChgrpMockTest extends AbstractChangeDetailsMockTest {
     // ~ Nonroot / Managed image
     // =========================================================================
 
-    @Test
-    @ExpectedExceptions(SecurityViolation.class)
+    @Test(expectedExceptions = SecurityViolation.class)
     public void test_managed_image_non_root_chgrp_to_other_group()
             throws Exception {
         userImageChgrp(_USER, _MANAGED, 2L);
@@ -60,8 +57,7 @@ public class ChgrpMockTest extends AbstractChangeDetailsMockTest {
         super.verify();
     }
 
-    @Test
-    @ExpectedExceptions(SecurityViolation.class)
+    @Test(expectedExceptions = SecurityViolation.class)
     public void test_managed_image_non_root_chgrp_to_system() throws Exception {
         userImageChgrp(_USER, _MANAGED, SYS_GROUP_ID);
         // willLoadImage( managedImage() );

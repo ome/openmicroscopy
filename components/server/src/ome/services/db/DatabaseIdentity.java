@@ -12,7 +12,7 @@ import java.sql.SQLException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 /**
@@ -45,7 +45,7 @@ public class DatabaseIdentity {
     private static String uuid(SimpleJdbcTemplate jdbc) {
         return jdbc.query(
                 "select value from configuration where name = 'omero.db.uuid' ",
-                new ParameterizedRowMapper<String>() {
+                new RowMapper<String>() {
                     public String mapRow(ResultSet arg0, int arg1)
                             throws SQLException {
                         String s = arg0.getString("value");

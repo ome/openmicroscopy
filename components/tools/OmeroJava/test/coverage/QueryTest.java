@@ -53,8 +53,8 @@ public class QueryTest extends IceTest {
     @Test
     public void testFind() throws Exception {
 
-        IUpdatePrx up = ice.getServiceFactory().getUpdateService();
-        IQueryPrx qu = ice.getServiceFactory().getQueryService();
+        IUpdatePrx up = ice.getSession().getUpdateService();
+        IQueryPrx qu = ice.getSession().getQueryService();
 
         ImageI i = new ImageI();
         i.setName(rstring("foo"));
@@ -73,7 +73,7 @@ public class QueryTest extends IceTest {
     @Test
     public void testFindAll() throws Exception {
 
-        IQueryPrx qu = ice.getServiceFactory().getQueryService();
+        IQueryPrx qu = ice.getSession().getQueryService();
         Filter f = new Filter();
         f.limit = rint(1);
         List<ExperimenterI> l = ExperimenterI.cast(qu
@@ -91,7 +91,7 @@ public class QueryTest extends IceTest {
     @Test
     public void testFindAllByExample() throws Exception {
 
-        IQueryPrx qu = ice.getServiceFactory().getQueryService();
+        IQueryPrx qu = ice.getSession().getQueryService();
         ExperimenterI ex = new ExperimenterI();
         ex.setOmeName(rstring("root"));
         List<ExperimenterI> l = ExperimenterI.cast(qu
@@ -105,7 +105,7 @@ public class QueryTest extends IceTest {
     @Test
     public void testFindAllByQuery() throws Exception {
 
-        IQueryPrx qu = ice.getServiceFactory().getQueryService();
+        IQueryPrx qu = ice.getSession().getQueryService();
         String str = "select e from Experimenter e where e.omeName = :name";
         Parameters p = new Parameters();
         p.theFilter = new Filter();
@@ -122,7 +122,7 @@ public class QueryTest extends IceTest {
     @Test
     public void testFindAllByString() throws Exception {
 
-        IQueryPrx qu = ice.getServiceFactory().getQueryService();
+        IQueryPrx qu = ice.getSession().getQueryService();
         List<ExperimenterI> l = ExperimenterI.cast(qu.findAllByString(
                 "Experimenter", "omeName", "root", true, null));
         assertTrue(l.size() == 1);
@@ -134,7 +134,7 @@ public class QueryTest extends IceTest {
     @Test
     public void testFindExample() throws Exception {
 
-        IQueryPrx qu = ice.getServiceFactory().getQueryService();
+        IQueryPrx qu = ice.getSession().getQueryService();
         List<ExperimenterI> l = ExperimenterI.cast(qu.findAllByString(
                 "Experimenter", "omeName", "root", true, null));
         assertTrue(l.size() == 1);

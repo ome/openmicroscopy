@@ -46,7 +46,7 @@ public class SearchTest extends TestCase {
         HibernateTest ht = new HibernateTest();
         ht.setupSession();
 
-        FullTextSession fullTextSession = Search.createFullTextSession(ht.s);
+        FullTextSession fullTextSession = Search.getFullTextSession(ht.s);
         fullTextSession.setFlushMode(FlushMode.MANUAL);
         fullTextSession.setCacheMode(CacheMode.IGNORE);
         Transaction transaction = fullTextSession.beginTransaction();
@@ -81,7 +81,7 @@ public class SearchTest extends TestCase {
         QueryParser qp = new MultiFieldQueryParser(new String[] { "omeName",
                 "status" }, new StandardAnalyzer());
         org.apache.lucene.search.Query lq = qp.parse(queryStr);
-        FullTextSession fts = Search.createFullTextSession(ht.s);
+        FullTextSession fts = Search.getFullTextSession(ht.s);
         Query q = fts.createFullTextQuery(lq, Event.class, Experimenter.class);
         List list = q.list();
         assertTrue(list.toString(), list.size() > 1);
@@ -97,7 +97,7 @@ public class SearchTest extends TestCase {
         MultiFieldQueryParser parser = new MultiFieldQueryParser(fields,
                 new StandardAnalyzer());
         org.apache.lucene.search.Query luceneQuery = parser.parse(queryStr);
-        FullTextSession fts = Search.createFullTextSession(ht.s);
+        FullTextSession fts = Search.getFullTextSession(ht.s);
         Query q = fts.createFullTextQuery(luceneQuery, k);
         List<T> list = q.list();
         return list;

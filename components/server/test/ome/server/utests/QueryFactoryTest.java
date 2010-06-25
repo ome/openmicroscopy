@@ -6,9 +6,9 @@
  */
 package ome.server.utests;
 
-import org.testng.annotations.*;
 import java.util.Arrays;
 
+import junit.framework.TestCase;
 import ome.conditions.ApiUsageException;
 import ome.model.containers.Project;
 import ome.parameters.Parameters;
@@ -21,7 +21,8 @@ import ome.services.query.QueryFactory;
 import ome.services.query.QuerySource;
 import ome.services.query.StringQuerySource;
 
-import junit.framework.TestCase;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 public class QueryFactoryTest extends TestCase {
 
@@ -32,7 +33,7 @@ public class QueryFactoryTest extends TestCase {
     QuerySource nullQS, stringQS, classQS;
 
     @Override
-    @Configuration(beforeTestMethod = true)
+    @BeforeMethod
     protected void setUp() throws Exception {
         nullQS = new NullQuerySource();
         stringQS = new StringQuerySource();
@@ -45,14 +46,12 @@ public class QueryFactoryTest extends TestCase {
 
     }
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void testQueryFactoryWithNullThrowsException() throws Exception {
         qf = new QueryFactory();
     }
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void testQueryFactoryWithEmptySourcesThrowsOnLookup()
             throws Exception {
         qf = new QueryFactory(new QuerySource[] {});
@@ -87,8 +86,7 @@ public class QueryFactoryTest extends TestCase {
         assertNotNull("We should have a Pojos Query", q);
     }
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void test_StringSourceDoesntTakeNull() throws Exception {
         q = stringQS.lookup(null, null);
     }

@@ -6,27 +6,29 @@
  */
 package ome.services.sec.test;
 
+import static omero.rtypes.rstring;
+
 import java.util.UUID;
 
-import org.testng.annotations.*;
-
-import Glacier2.CannotCreateSessionException;
-import Glacier2.PermissionDeniedException;
-
-import static omero.rtypes.*;
+import ome.conditions.ValidationException;
+import ome.system.Login;
 import omero.ServerError;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
-import ome.conditions.ValidationException;
-import ome.system.Login;
-import omero.model.Image;
 import omero.model.Experimenter;
-import omero.model.ExperimenterI;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
+import omero.model.ExperimenterI;
+import omero.model.Image;
 import omero.model.ImageI;
 import omero.sys.Roles;
+
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+import Glacier2.CannotCreateSessionException;
+import Glacier2.PermissionDeniedException;
 
 @Test(groups = { "client", "integration", "security", "ticket:52", "init" })
 public class AbstractChangeDetailClientTest extends AbstractSecurityTest {
@@ -51,7 +53,7 @@ public class AbstractChangeDetailClientTest extends AbstractSecurityTest {
 
     // ~ Testng Adapter
     // =========================================================================
-    @Configuration(beforeTestClass = true)
+    @BeforeClass
     public void createUsersAndImages() throws Exception {
         init();
 

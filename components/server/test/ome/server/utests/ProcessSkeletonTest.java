@@ -14,7 +14,7 @@ import ome.services.procs.Processor;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
-import org.testng.annotations.Configuration;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -31,7 +31,7 @@ public class ProcessSkeletonTest extends MockObjectTestCase {
     protected Mock mockCallback, mockProcessor;
 
     @Override
-    @Configuration(beforeTestMethod = true)
+    @BeforeMethod
     protected void setUp() throws Exception {
         super.setUp();
         mockProcessor = mock(Processor.class);

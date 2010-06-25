@@ -20,7 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 
 /**
@@ -69,7 +69,7 @@ public class DropBoxDirectoryCheck implements ApplicationListener, Runnable {
                 "groupexperimentermap m, experimentergroup g " +
                 "where e.id = m.child and m.parent = g.id and " +
                 "g.name = 'user'; ",
-                new ParameterizedRowMapper<String>() {
+                new RowMapper<String>() {
                     public String mapRow(ResultSet arg0, int arg1)
                             throws SQLException {
                         return arg0.getString(1); // Bleck

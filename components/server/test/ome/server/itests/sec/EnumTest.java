@@ -6,11 +6,7 @@
  */
 package ome.server.itests.sec;
 
-import java.util.List;
 import java.util.UUID;
-
-import org.testng.annotations.Configuration;
-import org.testng.annotations.Test;
 
 import ome.api.ITypes;
 import ome.model.core.Pixels;
@@ -19,16 +15,18 @@ import ome.model.enums.EventType;
 import ome.model.enums.Format;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import ome.model.meta.GroupExperimenterMap;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.testing.ObjectFactory;
+
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 @Test(groups = { "ticket:140", "ticket:145", "ticket:226", "security", "filter" })
 public class EnumTest extends AbstractManagedContextTest {
 
     Experimenter e = new Experimenter();
 
-    @Configuration(beforeTestClass = true)
+    @BeforeClass
     public void createData() throws Exception {
         setUp();
 
