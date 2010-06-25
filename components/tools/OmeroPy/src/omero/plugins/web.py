@@ -12,6 +12,7 @@ from omero.cli import BaseControl, CLI
 import omero.java
 import time
 import sys
+import os
 
 HELP="""omero web settings
 
@@ -200,7 +201,7 @@ APPLICATION_HOST='%s'
         return answer
 
     def custom_settings(self, args):
-        location = self.ctx.dir / "var" / "custom_settings.py"
+        location = self.ctx.dir / "var" / "lib" / "custom_settings.py"
 
         if location.exists():
             if self._get_yes_or_no("%s" % location) == 'no':
@@ -210,7 +211,9 @@ APPLICATION_HOST='%s'
                     sys.exit()
         else:
             self.ctx.out("You just installed OMERO, which means you didn't have settings configured in OMERO.web.")
-
+        
+        if not os.path.exists(self.ctx.dir / "var" / "lib"):
+            os.mkdir(self.ctx.dir / "var" / "lib")
         settings = self._setup_server()
         self._update_settings(location, settings)
 
@@ -223,7 +226,7 @@ APPLICATION_HOST='%s'
         if not args.server:
             self.ctx.out("OMERO.web application is served by 'default'")
         else:
-            location = self.ctx.dir / "var" / "custom_settings.py"
+            location = self.ctx.dir / "var" / "lib" / "custom_settings.py"
             settings = file(location, 'rb').read().split('\n')
             if settings[-1] == '':
                 settings = settings[:-1]
@@ -272,7 +275,7 @@ APPLICATION_HOST='%s'
                 self.ctx.out(c % d)
 
     def syncmedia(self, args):
-        import os, shutil
+        import shutil
         from glob import glob
         from omeroweb.settings import INSTALLED_APPS
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
