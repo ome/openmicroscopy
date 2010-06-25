@@ -269,7 +269,7 @@ public class ColorsFactory {
 			}
     		sortFilters(filters);
     		while (value == null && j.hasNext()) {
-    			value = getValueFromFilter(j.next());
+    			value = getValueFromFilter(j.next(), true);
     		}
     	}
     	
@@ -282,7 +282,7 @@ public class ColorsFactory {
 			}
     		sortFilters(filters);
     		while (value == null && j.hasNext()) {
-    			value = getValueFromFilter(j.next());
+    			value = getValueFromFilter(j.next(), true);
     		}
     	}
     	
@@ -307,7 +307,7 @@ public class ColorsFactory {
 			}
     		sortFilters(filters);
     		while (value == null && j.hasNext()) {
-    			value = getValueFromFilter(j.next());
+    			value = getValueFromFilter(j.next(), false);
     		}
     	}
     	
@@ -319,7 +319,7 @@ public class ColorsFactory {
 			}
     		sortFilters(filters);
     		while (value == null && j.hasNext()) {
-    			value = getValueFromFilter(j.next());
+    			value = getValueFromFilter(j.next(), false);
     		}
     	}
     	return determineColor(value);
@@ -343,19 +343,28 @@ public class ColorsFactory {
     /**
      * Returns the range of the wavelength or <code>null</code>.
      * 
-     * @param filter The filter to handle.
+     * @param filter   The filter to handle.
+     * @param emission Passed <code>true</code> to indicate that the filter is 
+     * 				   an emission filter, <code>false</code> otherwise.
      * @return See above.
      */
-    private static Integer getValueFromFilter(Filter filter)
+    private static Integer getValueFromFilter(Filter filter, boolean emission)
     {
     	if (filter == null) return null;
     	TransmittanceRange transmittance = filter.getTransmittanceRange();
     	if (transmittance == null) return null;
     	Integer cutIn = transmittance.getCutIn();
+    	
+    	if (emission) {
+    		if (cutIn == null) return null;
+        	return cutIn+5;
+    	}
     	Integer cutOut = transmittance.getCutOut();
-    	if (cutIn == null) return null;
-    	if (cutOut == null || cutOut == 0) cutOut = cutIn+20;
-    	return (cutIn+cutOut)/2;
+    	if (cutOut == null) return null;
+    	if (cutIn == null || cutIn == 0) cutIn = cutOut-10;
+    	Integer v = (cutIn+cutOut)/2;
+    	if (v < 0) return 0;
+    	return v;
     }
     
     /**
