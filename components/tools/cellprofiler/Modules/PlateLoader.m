@@ -34,9 +34,9 @@ drawnow
 
 [CurrentModule, CurrentModuleNum, ModuleName] = CPwhichmodule(handles);
 
-%textVAR01 = Which Dataset do you wish to load from?
+%textVAR01 = Which Plate do you wish to load from?
 %defaultVAR01 = 1
-DatasetID = char(handles.Settings.VariableValues{CurrentModuleNum,1});
+PlateID = char(handles.Settings.VariableValues{CurrentModuleNum,1});
 
 %textVAR02 = Enter Username?
 %defaultVAR02 = root
@@ -103,25 +103,26 @@ SetBeingAnalyzed = handles.Current.SetBeingAnalyzed;
 drawnow
     
 %%% TODO: check what the pathname should be!
-Pathname=['dataset: ',DatasetID];
+Pathname=['plate: ',DatasetID];
 
 %%% CREATE OMERO GATEWAY. Note: DO NOT FORGET TO CLOSE IT!
 client = omero.client(java.lang.String(Hostname))
 session = client.createSession(UserName, Password)
 omeroService = session.createGateway()
 client.enableKeepAlive(30);
+queryService = omeroService.getQueryService();
 handles.Current.session = session;
 %%% Extracting the list of files to be analyzed occurs only the first time
 %%% through this module.
 if SetBeingAnalyzed == 1
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%% Check that the Project, Dataset and images exist in Dataset. %
-    %%% TODO:                                                        %
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-    datasetAsNum = [str2num(DatasetID)];
-    dataset = getDataset(omeroService, datasetAsNum, 1);
-    list = omerojava.util.GatewayUtils.getImagesFromDataset(dataset);
+   
+    plateAsNum = [str2num(PlateID)];
+    WellSampleList = queryService.findAllByQuery(strcat('from WellSample as w left outer join fetch w.image as i left outer join fetch w.well as Well where Well.plate = ',PlateID) , []);
+    
+    list = java.util.ArrayList()
+    for i = 1:WellSampleList.size()
+        list.add(WellSampleList.get(i-1).getImage());
+    end
     
     fileIds=[];
     cnt = 0;
@@ -165,7 +166,6 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 drawnow
 
-'running load data'
 for n = 1:handles.Pipeline.imagesPerSet
         %%% This try/catch will catch any problems in the load images module.
         try

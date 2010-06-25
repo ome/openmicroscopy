@@ -34,9 +34,9 @@ drawnow
 
 [CurrentModule, CurrentModuleNum, ModuleName] = CPwhichmodule(handles);
 
-%textVAR01 = Which Dataset do you wish to load from?
+%textVAR01 = Which Image do you wish to load from?
 %defaultVAR01 = 1
-DatasetID = char(handles.Settings.VariableValues{CurrentModuleNum,1});
+imageID = char(handles.Settings.VariableValues{CurrentModuleNum,1});
 
 %textVAR02 = Enter Username?
 %defaultVAR02 = root
@@ -103,7 +103,7 @@ SetBeingAnalyzed = handles.Current.SetBeingAnalyzed;
 drawnow
     
 %%% TODO: check what the pathname should be!
-Pathname=['dataset: ',DatasetID];
+Pathname=['image: ',imageID];
 
 %%% CREATE OMERO GATEWAY. Note: DO NOT FORGET TO CLOSE IT!
 client = omero.client(java.lang.String(Hostname))
@@ -119,9 +119,8 @@ if SetBeingAnalyzed == 1
     %%% TODO:                                                        %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    datasetAsNum = [str2num(DatasetID)];
-    dataset = getDataset(omeroService, datasetAsNum, 1);
-    list = omerojava.util.GatewayUtils.getImagesFromDataset(dataset);
+    list = java.util.ArrayList();
+    list.add(omeroService.getImage(str2num(imageID)));
     
     fileIds=[];
     cnt = 0;
@@ -194,7 +193,6 @@ for n = 1:handles.Pipeline.imagesPerSet
         end % Goes with: catch
     
         % Create a cell array with the filenames
-%       FileNames{n} = {char(omeroService.getImage(imageId).getName.getValue), ':', num2str(z), ':', num2str(t)};
        FileNames{n} = strcat(char(omeroService.getImage(imageId).getName.getValue), ':', num2str(z), ':', num2str(t));
 end
 %%%%%%%%%%%%%%%%%%%%%%%

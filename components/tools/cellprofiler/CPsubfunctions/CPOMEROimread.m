@@ -35,7 +35,7 @@ elseif nargin == 4,
     handles = varargin{4};
     [pixelsId, z, t] = parseFileDetails(CurrentFileName);
 
-    rawPlane = omeroGateway.getPlane(pixelsId, z, c, t);
+    rawPlane = omeroGateway.getPlane(int32(pixelsId), int32(z), int32(c), int32(t));
     pixels = omeroGateway.getPixels(pixelsId);
 
     pixelType = pixels.getPixelsType.getValue.getValue.toCharArray;
