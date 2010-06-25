@@ -96,7 +96,6 @@ public class ManagedContextFixture {
      * Create a new user in the "default" group
      */
     public String newUser() {
-        // Fix me
         return newUser("default");
     }
 

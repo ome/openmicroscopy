@@ -261,7 +261,7 @@ def runScript(session, scriptService, scriptPath):
     proc = scriptService.runScript(scriptId, map, None)
     try:
         cb = omero.scripts.ProcessCallbackI(client, proc)
-        while not cb.block(1000) and proc.poll() is not None:
+        while not cb.block(1000): # ms.
             pass
         cb.close()
         results = proc.getResults(0)    # ms
