@@ -583,6 +583,7 @@ def validate_inputs(params, inputs, svc = None, session = None):
 def set_input(svc, session, key, value):
     try:
         svc.setInput(session, key, value)
+        return ""
     except exceptions.Exception, e:
         return error_msg("Failed to set intput", key, "%s=%s. Error: %s", key, value, e)
 
