@@ -30,4 +30,4 @@ def _additional_tests():
     return suite
 
 if __name__ == "__main__":
-    xmlrunner.XMLTestRunner(output='target/test-reports').run(_additional_tests())
+    xmlrunner.XMLTestRunner(output='target/reports').run(_additional_tests())
