@@ -75,10 +75,8 @@ class ServerControl(BaseControl):
     def web(self, args):
         sys.stderr.write("Starting django... \n")
         omero_web = self.ctx.dir / "lib" / "python" / "omeroweb"
-        # subprocess.call(["python","manage.py","syncdb","--noinput"], cwd=str(omero_web), env = os.environ)
-        # Now exec
         os.chdir(str(omero_web))
-        from omeroweb import custom_settings as settings
+        import omeroweb.settings as settings
         deploy = getattr(settings, 'APPLICATION_SERVER', 'default')
         if deploy == 'fastcgi':
             cmd = "python manage.py runfcgi workdir=./"
@@ -87,10 +85,7 @@ class ServerControl(BaseControl):
             cmd += " maxchildren=5 minspare=1 maxspare=5 maxrequests=400"
             django = (cmd % {'base': self.ctx.dir}).split()+list(args.arg)
         else:
-            host = settings.APPLICATION_HOST
-            wikifier = re.compile(r'http[s]?://')
-            host = wikifier.sub(r'', host)
-            django = ["python","manage.py","runserver","--noreload", host]+list(args)
+            django = ["python","manage.py","runserver","--noreload"]+list(args.arg)
         sys.stderr.write(str(django) + '\n')
         os.execvpe("python", django, os.environ)
 try:
