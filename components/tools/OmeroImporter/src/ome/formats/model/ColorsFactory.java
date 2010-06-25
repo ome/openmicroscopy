@@ -125,7 +125,22 @@ public class ColorsFactory {
     {
     	return value == null? null : value.getValue();
     }
-
+    
+    /**
+     * Returns <code>true</code> if the channel has emission metadata,
+     * <code>false</code> otherwise.
+     * 
+     * @param f The filter to handle.
+     * @return See above.
+     */
+    private static boolean isFilterHasEmissionData(Filter f)
+    {
+    	if (f == null) return false;
+    	TransmittanceRange transmittance = f.getTransmittanceRange();
+    	if (transmittance == null) return false;
+    	return transmittance.getCutIn() != null;
+    }
+    
     /**
      * Returns <code>true</code> if the channel has emission and/or excitation
      * information, <code>false</code> otherwise.
@@ -184,6 +199,33 @@ public class ColorsFactory {
     }
     
     /**
+     * Returns the range of the wavelength or <code>null</code>.
+     * 
+     * @param filter   The filter to handle.
+     * @param emission Passed <code>true</code> to indicate that the filter is 
+     * 				   an emission filter, <code>false</code> otherwise.
+     * @return See above.
+     */
+    static Integer getValueFromFilter(Filter filter, boolean emission)
+    {
+    	if (filter == null) return null;
+    	TransmittanceRange transmittance = filter.getTransmittanceRange();
+    	if (transmittance == null) return null;
+    	Integer cutIn = getValue(transmittance.getCutIn());
+    	
+    	if (emission) {
+    		if (cutIn == null) return null;
+        	return cutIn+5;
+    	}
+    	Integer cutOut = getValue(transmittance.getCutOut());
+    	if (cutOut == null) return null;
+    	if (cutIn == null || cutIn == 0) cutIn = cutOut-10;
+    	Integer v = (cutIn+cutOut)/2;
+    	if (v < 0) return 0;
+    	return v;
+    }
+    
+    /**
      * Determines the color usually associated to the specified
      * wavelength or explicitly defined for a particular channel.
      * 
@@ -221,13 +263,13 @@ public class ColorsFactory {
         if (filters != null) {
         	i = filters.iterator();
         	while (value == null && i.hasNext()) {
-				value = getValueFromFilter(i.next());
+				value = getValueFromFilter(i.next(), true);
 			}
         }
         
     	if (value == null) 
     		value = getValueFromFilter(
-        			channelData.getFilterSetEmissionFilter());
+        			channelData.getFilterSetEmissionFilter(), true);
     
     	//Laser
     	if (value == null && channelData.getLightSource() != null) {
@@ -247,13 +289,13 @@ public class ColorsFactory {
     		if (filters != null) {
             	i = filters.iterator();
             	while (value == null && i.hasNext()) {
-    				value = getValueFromFilter(i.next());
+    				value = getValueFromFilter(i.next(), false);
     			}
             }
     	}
     	if (value == null)
     		value = getValueFromFilter(
-    				channelData.getFilterSetExcitationFilter());
+    				channelData.getFilterSetExcitationFilter(), false);
 
     	int[] toReturn = determineColor(value);
     	if (toReturn != null)
@@ -285,39 +327,6 @@ public class ColorsFactory {
     	if (rangeGreen(value)) return newGreenColor();
     	if (rangeRed(value)) return newRedColor();
     	return null;
-    }
-    
-    /**
-     * Returns the range of the wavelength or <code>null</code>.
-     * 
-     * @param filter The filter to handle.
-     * @return See above.
-     */
-    private static Integer getValueFromFilter(Filter filter)
-    {
-    	if (filter == null) return null;
-    	TransmittanceRange transmittance = filter.getTransmittanceRange();
-    	if (transmittance == null) return null;
-    	Integer cutIn = getValue(transmittance.getCutIn());
-    	Integer cutOut = getValue(transmittance.getCutOut());
-    	if (cutIn == null) return null;
-    	if (cutOut == null || cutOut == 0) cutOut = cutIn+20;
-    	return (cutIn+cutOut)/2;
-    }
-    
-    /**
-     * Returns <code>true</code> if the channel has emission metadata,
-     * <code>false</code> otherwise.
-     * 
-     * @param f The filter to handle.
-     * @return See above.
-     */
-    private static boolean isFilterHasEmissionData(Filter f)
-    {
-    	if (f == null) return false;
-    	TransmittanceRange transmittance = f.getTransmittanceRange();
-    	if (transmittance == null) return false;
-    	return transmittance.getCutIn() != null;
     }
     
     /**

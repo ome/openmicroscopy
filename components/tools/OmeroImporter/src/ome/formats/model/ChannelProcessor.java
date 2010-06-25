@@ -155,9 +155,10 @@ public class ChannelProcessor implements ModelProcessor
     	
     	//First check the emission filter.
     	//First check if filter
-    	Filter f = getValidFilter(channelData.getLightPathEmissionFilters());
+    	Filter f = getValidFilter(channelData.getLightPathEmissionFilters(), 
+    			true);
     	if (f != null)
-    		value = getValueFromFilter(f);
+    		value = ColorsFactory.getValueFromFilter(f, true);
     	if (value != null) {
     		setChannelColor(channel, channelIndex, 
     				ColorsFactory.determineColor(value));
@@ -168,7 +169,7 @@ public class ChannelProcessor implements ModelProcessor
     		return;
     	} 
     	f = channelData.getFilterSetEmissionFilter();
-    	value = getValueFromFilter(f);
+    	value = ColorsFactory.getValueFromFilter(f, true);
     	
     	if (value != null) {
     		setChannelColor(channel, channelIndex,
@@ -203,9 +204,9 @@ public class ChannelProcessor implements ModelProcessor
     			lc.setName(rstring(value.toString()));
     		return;
     	}
-    	f = getValidFilter(channelData.getLightPathExcitationFilters());
+    	f = getValidFilter(channelData.getLightPathExcitationFilters(), false);
     	if (f != null) 
-    		value = getValueFromFilter(f);
+    		value = ColorsFactory.getValueFromFilter(f, false);
     	
     	if (value != null) {
     		setChannelColor(channel, channelIndex, 
@@ -217,7 +218,7 @@ public class ChannelProcessor implements ModelProcessor
     		return;
     	}
     	f = channelData.getFilterSetExcitationFilter();
-    	value = getValueFromFilter(f);
+    	value = ColorsFactory.getValueFromFilter(f, false);
 
     	if (value != null) {
     		setChannelColor(channel, channelIndex, 
@@ -239,9 +240,11 @@ public class ChannelProcessor implements ModelProcessor
      * value.
      * 
      * @param filters The collection to handle.
+     * @param emission Passed <code>true</code> to indicate that the filter
+     * is an emission filter, <code>false</code> otherwise.
      * @return See above.
      */
-    private Filter getValidFilter(List<Filter> filters)
+    private Filter getValidFilter(List<Filter> filters, boolean emission)
     {
     	if (filters == null) return null;
     	Iterator<Filter> i = filters.iterator();
@@ -249,7 +252,7 @@ public class ChannelProcessor implements ModelProcessor
     	Filter f;
     	while (i.hasNext()) {
     		f = i.next();
-    		value = getValueFromFilter(f);
+    		value = ColorsFactory.getValueFromFilter(f, emission);
 			if (value != null) return f;
 		}
     	return null;
@@ -319,24 +322,6 @@ public class ChannelProcessor implements ModelProcessor
         TransmittanceRange t = filter.getTransmittanceRange();
         return t == null? null : 
         	rstring(String.valueOf(t.getCutIn().getValue()));
-    }
-    
-    /**
-     * Returns the range of the wavelength or <code>null</code>.
-     * 
-     * @param filter The filter to handle.
-     * @return See above.
-     */
-    private Integer getValueFromFilter(Filter filter)
-    {
-    	if (filter == null) return null;
-    	TransmittanceRange transmittance = filter.getTransmittanceRange();
-    	if (transmittance == null) return null;
-    	Integer cutIn = getValue(transmittance.getCutIn());
-    	Integer cutOut = getValue(transmittance.getCutOut());
-    	if (cutIn == null) return null;
-    	if (cutOut == null || cutOut == 0) cutOut = cutIn+20;
-    	return (cutIn+cutOut)/2;
     }
     
     /**
@@ -436,7 +421,7 @@ public class ChannelProcessor implements ModelProcessor
     	boolean isGraphicsDomain = false;
     	for (String domain : domains)
     	{
-    		if (domain.equals(FormatTools.GRAPHICS_DOMAIN))
+    		if (FormatTools.GRAPHICS_DOMAIN.equals(domain))
     		{
     			log.debug("Images are of the grahpics domain.");
     			isGraphicsDomain = true;
