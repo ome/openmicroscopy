@@ -25,13 +25,6 @@ public class RepoFile {
     final private String absPath;
 
     /**
-     * Calls {@link #RepoFile(File, String)} with a null first argument.
-     */
-    public RepoFile(String path) {
-        this(null, path);
-    }
-
-    /**
      * Assumes that path is relative under root, and constructs a new {@link File}
      * and calls {@link #RepoFile(File, File)}
      */
