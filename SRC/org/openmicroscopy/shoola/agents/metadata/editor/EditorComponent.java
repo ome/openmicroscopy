@@ -69,6 +69,7 @@ import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 import pojos.InstrumentData;
 import pojos.PixelsData;
+import pojos.PlateData;
 import pojos.TagAnnotationData;
 import pojos.WellSampleData;
 
@@ -759,6 +760,16 @@ class EditorComponent
 					model.fireROILoading(FigureDialog.SPLIT_ROI);
 					break;
 				case FigureDialog.THUMBNAILS:
+					Object ref = model.getRefObject();
+					if (ref instanceof WellSampleData || 
+							ref instanceof PlateData) {
+						UserNotifier un = 
+							MetadataViewerAgent.getRegistry().getUserNotifier();
+						un.notifyInfo("Figure", "Script not" +
+								" available for Wells or Plate");
+						return;
+					}
+						
 					Collection tags = model.getExistingTags();
 					dialog = controller.createFigureDialog(name, 
 							model.getPixels(),

@@ -37,6 +37,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.PixelsData;
+import pojos.PlateData;
 import pojos.WellSampleData;
 
 /** 
@@ -262,10 +263,12 @@ class PublishingDialog
     	splitViewFigureItem.setEnabled(false);
     	splitViewROIFigureItem.setEnabled(false);
     	movieFigureItem.setEnabled(false);
+    	thumbnailsFigureItem.setEnabled(true);
     	if (refObject instanceof ImageData) {
     		img = (ImageData) refObject;
     	} else if (refObject instanceof WellSampleData) {
     		img = ((WellSampleData) refObject).getImage();
+    		thumbnailsFigureItem.setEnabled(false);
     	}
     	if (img != null) {
     		PixelsData data = null;
@@ -285,6 +288,8 @@ class PublishingDialog
     	} else {
     		if (refObject instanceof DatasetData)
     			thumbnailsFigureItem.setEnabled(true);
+    		else if (refObject instanceof PlateData) 
+    			thumbnailsFigureItem.setEnabled(false);
     	}
 	}
 

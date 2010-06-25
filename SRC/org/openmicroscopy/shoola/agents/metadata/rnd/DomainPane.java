@@ -833,6 +833,7 @@ public class DomainPane
     protected void resetDefaultRndSettings()
     {
         setInputInterval();
+        setInputRange(false);
         setSelectedChannel();
         setCodomainInterval();
         resetBitResolution();
@@ -913,6 +914,17 @@ public class DomainPane
     /** Sets the pixels intensity interval. */
     void setInputInterval() { graphicsPane.setInputInterval(); }
     
+    /** 
+     * Modifies the input range of the channel sliders. 
+     * 
+     *  @param absolute Pass <code>true</code> to set it to the absolute value,
+	 *  				<code>false</code> to the minimum and maximum.
+	 */
+	void setInputRange(boolean booleanValue)
+	{
+		graphicsPane.setInputRange(booleanValue);
+	}
+	
     /** Sets the value of the codomain interval. */
     void setCodomainInterval() { graphicsPane.setCodomainInterval(); }
     

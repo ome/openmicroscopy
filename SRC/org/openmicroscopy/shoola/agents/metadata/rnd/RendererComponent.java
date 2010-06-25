@@ -931,7 +931,6 @@ class RendererComponent
 					min = model.getGlobalMin(i);
 					max = model.getGlobalMax(i);
 				}
-				
 				model.setInputInterval(i, min, max);
 			}
 			//if (model.isGeneralIndex()) model.saveRndSettings();
@@ -939,7 +938,8 @@ class RendererComponent
             		Boolean.valueOf(true));
         	firePropertyChange(INPUT_INTERVAL_PROPERTY, Boolean.valueOf(false), 
             		Boolean.valueOf(true));
-
+        	firePropertyChange(RANGE_INPUT_PROPERTY, 
+        			Boolean.valueOf(!absolute), Boolean.valueOf(absolute));
 		} catch (Throwable e) {
 			handleException(e);
 		}

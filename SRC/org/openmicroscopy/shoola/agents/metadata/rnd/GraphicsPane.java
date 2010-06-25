@@ -426,26 +426,22 @@ class GraphicsPane
             e = (int) (model.getWindowEnd(slider.getIndex())*f);
             slider.setInterval(s, e);
 		}
-    	/*
-    	if (model.isGeneralIndex()) {
-    		Iterator<ChannelSlider> i = sliders.iterator();
-    		ChannelSlider slider;
-    		while (i.hasNext()) {
-    			slider = i.next();
-    			f = model.getRoundFactor(slider.getIndex());
-                s = (int) (model.getWindowStart(slider.getIndex())*f);
-                e = (int) (model.getWindowEnd(slider.getIndex())*f);
-                slider.setInterval(s, e);
-			}
-    	} else {
-    		f = model.getRoundFactor();
-            s = (int) (model.getWindowStart()*f);
-            e = (int) (model.getWindowEnd()*f);
-            domainSlider.setInterval(s, e);
-            onCurveChange();
-    	}
-    	*/
     }
+    
+    /** 
+     * Modifies the input range of the channel sliders. 
+     * 
+     *  @param absolute Pass <code>true</code> to set it to the absolute value,
+	 *  				<code>false</code> to the minimum and maximum.
+	 */
+	void setInputRange(boolean booleanValue)
+	{
+    	Iterator<ChannelSlider> i = sliders.iterator();
+		ChannelSlider slider;
+		while (i.hasNext())
+			i.next().setInputRange(booleanValue);
+	}
+	
     
     /** Sets the value of the codomain interval. */
     void setCodomainInterval()

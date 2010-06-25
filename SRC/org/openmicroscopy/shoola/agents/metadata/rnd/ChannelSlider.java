@@ -31,6 +31,7 @@ import java.awt.Font;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import javax.swing.JPanel;
 
@@ -173,7 +174,7 @@ class ChannelSlider
 		initComponents();
 		buildGUI();
 	}
-
+	
 	/**
 	 * Returns the number of columns.
 	 * 
@@ -205,6 +206,30 @@ class ChannelSlider
 	{
 		slider.setInterval(s, e);
 	}
+	
+    /** 
+     * Modifies the input range of the channel sliders. 
+     * 
+     *  @param absolute Pass <code>true</code> to set it to the absolute value,
+	 *  				<code>false</code> to the minimum and maximum.
+	 */
+	void setInputRange(boolean absolute)
+	{
+		int index = channel.getIndex();
+		int f = model.getRoundFactor(index);
+    	int s = (int) (model.getWindowStart(index)*f);
+        int e = (int) (model.getWindowEnd(index)*f);
+        int min = (int) (channel.getGlobalMin()*f);
+        int max = (int) (channel.getGlobalMax()*f);
+       
+        int absMin = (int) (model.getLowestValue(index)*f);
+        int absMax = (int) (model.getHighestValue(index)*f);
+        if (absolute)
+        	slider.getSlider().setValues(absMax, absMin, absMax, absMin, s, e);
+        else 
+        	slider.getSlider().setValues(max, min, max, min, s, e);
+	}
+	
 	
 	/** Toggles between color model and Greyscale. */
     void setColorModelChanged() 

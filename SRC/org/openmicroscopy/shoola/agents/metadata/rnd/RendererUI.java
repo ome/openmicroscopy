@@ -292,4 +292,17 @@ class RendererUI
 		pane.displayViewedBy(results);
     	
     }
+
+    /** 
+     * Modifies the input range of the channel sliders. 
+     * 
+     *  @param absolute Pass <code>true</code> to set it to the absolute value,
+	 *  				<code>false</code> to the minimum and maximum.
+	 */
+	void setInputRange(boolean absolute)
+	{
+		DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
+		pane.setInputRange(absolute);
+	}
+	
 }

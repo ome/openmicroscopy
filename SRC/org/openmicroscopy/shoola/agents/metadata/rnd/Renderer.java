@@ -107,6 +107,9 @@ public interface Renderer
      */
     public final static String  INPUT_INTERVAL_PROPERTY = "inputInterval";
     
+    /** Bound property indicating that the range to deal with has changed. */
+    public final static String  RANGE_INPUT_PROPERTY = "rangeInput";
+    
     /** Bound property indicating that the color model has changed. */
     public final static String  COLOR_MODEL_PROPERTY = "colorModel";
     
@@ -115,6 +118,7 @@ public interface Renderer
 
 	/** Bound property name indicating that a new time-point is selected. */
 	public final static String  T_SELECTED_PROPERTY = "tSelected";
+	
 	/** 
 	 * Bound property name indicating to apply the rendering settings
 	 * to all selected or displayed images. 

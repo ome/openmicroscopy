@@ -52,6 +52,8 @@ import javax.swing.JPanel;
 import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.actions.MetadataAction;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.JLabelButton;
@@ -499,8 +501,10 @@ class AcquisitionDataUI
 		if (!instrumentPane.isCollapsed() && load)
 			controller.loadInstrumentData();
 		originalMetadataPane.setCollapsed(true);
-		originalMetadataPane.setVisible(!(model.getRefObject() 
-				instanceof WellSampleData));
+		if (MetadataViewerAgent.isBinaryAvailable()) {
+			originalMetadataPane.setVisible(!(model.getRefObject() 
+					instanceof WellSampleData));
+		} else originalMetadataPane.setVisible(false);
 	}
 	
 	/**
@@ -588,12 +592,14 @@ class AcquisitionDataUI
 		} else if (src == instrumentPane) {
 			controller.loadInstrumentData();
 		} else if (src == originalMetadataPane) {
-			FileAnnotationData f = model.getOriginalMetadata();
-			//make sure we only download it once.
-			if (f != null && !originalMetadata.isMetadataLoaded())
-				model.loadFile(f, originalMetadata);
-			else if (f == null)
-				originalMetadataPane.setCollapsed(true);
+			if (MetadataViewerAgent.isBinaryAvailable()) {
+				FileAnnotationData f = model.getOriginalMetadata();
+				//make sure we only download it once.
+				if (f != null && !originalMetadata.isMetadataLoaded())
+					model.loadFile(f, originalMetadata);
+				else if (f == null)
+					originalMetadataPane.setCollapsed(true);
+			}
 		} else {
 			ChannelData channel = channelAcquisitionPanes.get(src);
 			controller.loadChannelAcquisitionData(channel);

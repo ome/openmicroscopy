@@ -637,7 +637,7 @@ public class TextualTwoKnobsSlider
 		int maxValue = Math.max(Math.abs(min), Math.abs(max));
 		if (min < 0 || max < 0) minus = "-";
 		int length = (minus+((double) maxValue/roundingFactor)).length(); 
-		length = length/2+1;
+		length = length/2+2;
 		if (roundingFactor > 1) {
 			startField.setNumberType(Double.class);
 			endField.setNumberType(Double.class);

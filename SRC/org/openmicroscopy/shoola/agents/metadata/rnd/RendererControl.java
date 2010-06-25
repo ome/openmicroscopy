@@ -349,6 +349,9 @@ class RendererControl
         	showColorPicker(((Integer) evt.getNewValue()).intValue());
         } else if (Renderer.INPUT_INTERVAL_PROPERTY.equals(name)) {
             view.setInputInterval();
+        } else if (Renderer.RANGE_INPUT_PROPERTY.equals(name)) {
+        	Boolean b = (Boolean) evt.getNewValue();
+            view.setInputRange(b.booleanValue());
         } else if (ColourPicker.COLOUR_PROPERTY.equals(name)) { 
 			Color c = (Color) evt.getNewValue();
 			if (colorPickerIndex != -1) {
