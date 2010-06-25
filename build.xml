@@ -237,6 +237,16 @@ java component.
         <launchSuite suite="integration"/>
     </target>
 
+    <target name="test-report" description="Joins test results into a single report">
+        <mkdir dir="${target.dir}/reports"/>
+        <junitreport todir="${target.dir}/reports">
+            <fileset dir="${basedir}/components">
+                <include name="*/target/reports/*.xml"/>
+            </fileset>
+            <report format="frames" todir="${target.dir}/reports/html"/>
+        </junitreport>
+    </target>
+
     <target name="test-dist" description="Copy test files into dist for further testing" depends="test-compile">
         <ivy:resolve file="test.xml" type="jar" conf="test" settingsRef="ivy.toplevel" log="quiet"/>
         <ivy:retrieve conf="test" pattern="${dist.dir}/lib/client/[module].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>

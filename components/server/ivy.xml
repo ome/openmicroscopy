@@ -41,9 +41,7 @@
     <!-- spring -->
     <dependency org="org.springframework" name="com.springsource.org.aopalliance" rev="1.0.0"/>
     <dependency org="org.springframework" name="org.springframework.aop" rev="${versions.spring}"/>
-    <dependency org="org.springframework" name="org.springframework.asm" rev="${versions.spring}"/>
     <dependency org="org.springframework" name="org.springframework.context.support" rev="${versions.spring}"/>
-    <dependency org="org.springframework" name="org.springframework.expression" rev="${versions.spring}"/>
     <dependency org="spring" name="spring-security-core" rev="${versions.spring-security}"/>
     <dependency org="spring" name="spring-security-config" rev="${versions.spring-security}"/>
     <dependency org="spring" name="spring-security-ldap" rev="${versions.spring-security}"/>

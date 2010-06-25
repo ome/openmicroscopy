@@ -136,7 +136,7 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
     @BeforeClass
     public void test_createObjects() throws Exception {
         // Forcing setup once now.
-        adaptSetUp();
+        // super adaptSetUp(); will be called by testng
 
         // ~ ALL ROOT OBJECTS
         // =====================================================================
@@ -254,7 +254,7 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
                 i_d2_root, i_d1_user, i_d2_user, p11_user, d11_user, d22_user,
                 i_d11_user, i_d22_user });
 
-        adaptTearDown();
+        // super class adaptTearDown(); will be called by testng
     }
 
     // ~ UNFILTERED

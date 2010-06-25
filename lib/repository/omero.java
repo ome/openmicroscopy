@@ -190,14 +190,15 @@ public class omero
     private File[] locateBuildJars()
         throws Exception
     {
-        File[] jars = new File[7];
+        File[] jars = new File[8];
 	jars[0] = new File("lib/repository/junit-3.8.1.jar");
 	jars[1] = new File("lib/repository/ant-1.8.0.jar");
 	jars[2] = new File("lib/repository/ant-launcher-1.8.0.jar");
 	jars[3] = new File("lib/repository/ant-junit-1.8.0.jar");
-	jars[4] = new File("lib/repository/ant-nodeps-1.8.0.jar");
-	jars[5] = new File("lib/repository/ant-contrib-1.0b3.jar");
-	jars[6] = new File("lib/repository/bsh-2.0b4.jar");
+	jars[4] = new File("lib/repository/ant-trax-1.8.0.jar");
+	jars[5] = new File("lib/repository/ant-nodeps-1.8.0.jar");
+	jars[6] = new File("lib/repository/ant-contrib-1.0b3.jar");
+	jars[7] = new File("lib/repository/bsh-2.0b4.jar");
 
         if (!isJDKToolsAvailable()) {  //Try and grab tools.jar.
             if (jdkTools.exists()) {  //Add it to the other jars.

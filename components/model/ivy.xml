@@ -40,5 +40,8 @@
     <dependency org="org.springframework" name="org.springframework.jdbc" rev="${versions.spring}" conf="build,client,server->default"/>
     <dependency org="org.springframework" name="org.springframework.orm" rev="${versions.spring}" conf="build,client,server->default"/>
     <dependency org="org.springframework" name="org.springframework.transaction" rev="${versions.spring}" conf="build,client,server->default"/>
+    <!-- also spring; added here instead of in server to make tests pass -->
+    <dependency org="org.springframework" name="org.springframework.asm" rev="${versions.spring}"/>
+    <dependency org="org.springframework" name="org.springframework.expression" rev="${versions.spring}"/>
   </dependencies>
 </ivy-module>
