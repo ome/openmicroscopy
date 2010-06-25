@@ -168,6 +168,68 @@ class TestParse(unittest.TestCase):
         l = params.inputs["longParam"]
         self.assertNotEqual(None, l.prototype, str(l))
 
+    def parse_list(self, SCRIPT):
+        params = parse_text(SCRIPT)
+        l = params.inputs["l"]
+        self.assertTrue(l.useDefault, str(l))
+        self.assertEqual(["White"], unwrap(l.prototype))
+
+    def test2405_String(self):
+        SCRIPT = """if True:
+            from omero.scripts import *
+            from omero.rtypes import *
+            cOptions = wrap(["a","b","c"])
+
+            c = client('2405', List("l", default="White", values=cOptions).ofType(rstring("")))"""
+        self.parse_list(SCRIPT)
+
+    def test2405_String(self):
+        SCRIPT = """if True:
+            from omero.scripts import *
+            from omero.rtypes import *
+            cOptions = wrap(["a","b","c"])
+
+            c = client('2405', List("l", default=rstring("White"), values=cOptions).ofType(rstring("")))"""
+        self.parse_list(SCRIPT)
+
+    def test2405_List(self):
+        SCRIPT = """if True:
+            from omero.scripts import *
+            from omero.rtypes import *
+            cOptions = wrap(["a","b","c"])
+
+            c = client('2405', List("l", default=["White"], values=cOptions).ofType(rstring("")))"""
+        self.parse_list(SCRIPT)
+
+    def test2405_RList(self):
+        SCRIPT = """if True:
+            from omero.scripts import *
+            from omero.rtypes import *
+            cOptions = wrap(["a","b","c"])
+
+            c = client('2405', List("l", default=wrap(["White"]), values=cOptions).ofType(rstring("")))"""
+        self.parse_list(SCRIPT)
+
+    def test2405BadMixOfOfType(self):
+        SCRIPT = """if True:
+            from omero.scripts import *
+            from omero.rtypes import *
+
+            c = client('2405', List("Channel_Colours", grouping="7",
+                     description="List of Colours for channels.", default="White").ofType(rint(0))) """
+
+        self.assertRaises(ValueError, parse_text, SCRIPT)
+
+    def test2405BadMixOfValues(self):
+        SCRIPT = """if True:
+            from omero.scripts import *
+            from omero.rtypes import *
+            cOptions = wrap([1,2,3])
+
+            c = client('2405', List("Channel_Colours", grouping="7",
+                     description="List of Colours for channels.", default="White", values=cOptions))"""
+
+        self.assertRaises(ValueError, parse_text, SCRIPT)
 
 if __name__ == '__main__':
     logging.basicConfig()

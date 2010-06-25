@@ -73,11 +73,23 @@ class Type(omero.grid.Param):
         _MIN = self.__get(self.PROTOTYPE_MIN)
         _VAL = self.__get(self.PROTOTYPE_VALUES)
 
-        if default is not None:
-            # Someone specifically set the prototype, then
-            # we assume that useDefault should be True
+        # Someone specifically set the prototype, then
+        # we assume that useDefault should be True
+        if default is not None: # For whatever reason, inheritance isn't working.
+            newfunc = _FUN
+            newdefault = default
+            if isinstance(self, List):
+                if isinstance(default, (list, tuple)):
+                    newdefault = wrap(default).val
+                elif isinstance(default, omero.RCollection):
+                    newfunc = lambda x: x
+                elif isinstance(default, omero.RType):
+                    default = [default]
+                else:
+                    newfunc = lambda x: x
+                    newdefault = rlist([rtype(default)])
             self.useDefault = True
-            self.prototype = _FUN(default)
+            self.prototype = newfunc(newdefault)
         else:
             if not callable(_FUN):
                 raise ValueError("Bad prototype function: %s" % _FUN)
@@ -96,13 +108,13 @@ class Type(omero.grid.Param):
             if _MIN is None:
                 self.min = _FUN(self.min)
             else:
-                _MIN(self.min)
+                self.min = _MIN(self.min)
 
         if self.max is not None:
             if _MAX is None:
                 self.max = _FUN(self.max)
             else:
-                _MAX(self.max)
+                self.max = MAX(self.max)
 
         if self.values is not None:
             if _VAL is None:
@@ -130,6 +142,7 @@ class Type(omero.grid.Param):
                 return val.im_func
             else:
                 return val
+
 
 class Long(Type):
     """
@@ -221,9 +234,16 @@ class __Coll(Type):
     def ofType(self, obj):
         if callable(obj):
             obj = obj() # Ctors, etc.
-        self.prototype.val.append(wrap(obj))
-        return self
 
+        # If someone used default=, then "ofType()" is not necessary
+        # and so we check for their correspondence.
+        if self.useDefault and self.prototype.val:
+            if not isinstance(obj, self.prototype.val[0].__class__):
+                raise ValueError("ofType values doesn't match default value: %s <> %s" % (unwrap(obj), unwrap(self.prototype.val[0])))
+        else:
+            self.prototype.val.append(wrap(obj))
+
+        return self
 
 class Set(__Coll):
     """
