@@ -119,6 +119,8 @@ class AdminControl(BaseControl):
         If not present, the user will enter a console""")
 
         self.actions["status"].add_argument("node", nargs="?", default="master")
+        self.actions["status"].add_argument("--nodeonly", action="store_true",
+            help="""If set, then only tests if the icegridnode is running""")
 
         for name in ("start", "startasync"):
             self.actions[name].add_argument("-u","--user", help="""
@@ -127,8 +129,6 @@ class AdminControl(BaseControl):
             """)
 
         for k in ("start", "startasync", "deploy"):
-            self.actions[k].add_argument("--nodeonly", action="store_true",
-	    	help="""If set, then only tests if the icegridnode is running""")
             self.actions[k].add_argument("file", nargs="?",
                 help="""Application descriptor. If not provided, a default will be used""")
             self.actions[k].add_argument("targets", nargs="*",
@@ -282,6 +282,7 @@ class AdminControl(BaseControl):
         then registers the action: "node HOST start"
         """
 
+        self.check_ice()
         self.check_node(args)
         if self._isWindows():
             self.checkwindows()
@@ -342,6 +343,7 @@ class AdminControl(BaseControl):
 
     @with_config
     def deploy(self, args, config):
+        self.check_ice()
         descript = self._descript(args)
 
         # TODO : Doesn't properly handle whitespace
@@ -416,10 +418,11 @@ class AdminControl(BaseControl):
         self.ctx.rv = 0
 
     def stopasync(self, args):
-        if 0 == self.status(args, node_only=True):
-            self.ctx.err("Server not running")
+
         self.check_node(args)
-        if self._isWindows():
+        if 0 != self.status(args, node_only=True):
+            self.ctx.err("Server not running")
+        elif self._isWindows():
             svc_name = "OMERO.%s" % args.node
             output = self._query_service(svc_name)
             if 0 <= output.find("DOESNOTEXIST"):
@@ -649,6 +652,26 @@ OMERO Diagnostics %s
         """
         if not hasattr(args, "node"):
             args.node = self._node()
+
+    def check_ice(self):
+        """
+        Checks for Ice version 3.3
+
+        See ticket:2514
+        """
+        pattern = "3.3."
+
+        import Ice, sys, re
+        pat = "^3[.]3[.].*"
+        pattern = re.compile(pat)
+        vers = Ice.stringVersion()
+        if pattern.match(vers) is None:
+            self.ctx.die(164, "IcePy Version is not compatible with %s: %s" % (pat, vers))
+
+        popen = self.ctx.popen(["icegridnode", "--version"])
+        vers = popen.communicate()[1]
+        if pattern.match(vers) is None:
+            self.ctx.die(165, "icegridnode version is not compatible with %s: %s" % (pat, vers))
 
     def open_config(self, unused):
         """
