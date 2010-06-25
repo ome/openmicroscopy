@@ -136,11 +136,12 @@ class TestParse(unittest.TestCase):
                 self.fail("%s\n%s" % (script, e))
 
     def testValidateRoiMovieCall(self):
-        script = SCRIPTS / "figure_scripts" / "roiMovieFigure.py"
+        script = SCRIPTS / "figure_scripts" / "Movie_ROI_Figure.py"
         params = parse_file(str(script))
         inputs = {
-            "Merged_Colours": wrap(['red', 'green']),
-            "Image_Labels": wrap("Datasets")
+            "Merged_Colours": wrap(['Red', 'Green']),
+            "Image_Labels": wrap("Datasets"),
+            "Image_IDs": wrap([long(1)])
         }
         errors = validate_inputs(params, inputs)
         self.assertEquals("", errors, errors)
