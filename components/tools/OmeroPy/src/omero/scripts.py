@@ -32,6 +32,7 @@ from omero.rtypes import *
 
 
 TYPE_LOG = logging.getLogger("omero.scripts.Type")
+PROC_LOG = logging.getLogger("omero.scripts.ProcessCallback")
 
 
 class Type(omero.grid.Param):
@@ -614,6 +615,13 @@ class ProcessCallbackI(omero.grid.ProcessCallback):
         in place. If "event.set" does not get called, this method will always
         block for the given milliseconds.
         """
+        try:
+            rc = self.process.poll()
+            if rc is not None:
+                self.processFinished(rc.getValue())
+        except exceptions.Exception, e:
+            PROC_LOG.warn("Error calling poll: %s" % e)
+
         self.event.wait(float(ms) / 1000)
         if self.event.isSet():
             return self.result

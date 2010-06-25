@@ -34,6 +34,8 @@ public class ProcessCallbackI extends _ProcessCallbackDisp {
 
     private final BlockingQueue<Action> q = new LinkedBlockingQueue<Action>();
 
+    private final ProcessPrx process;
+
     public ProcessCallbackI(omero.client client, ProcessPrx process)
     throws ServerError {
         this(client.getAdapter(), process);
@@ -41,6 +43,7 @@ public class ProcessCallbackI extends _ProcessCallbackDisp {
 
     public ProcessCallbackI(Ice.ObjectAdapter adapter, ProcessPrx process)
     throws ServerError {
+        this.process = process;
         this.adapter = adapter;
         this.id = new Ice.Identity(UUID.randomUUID().toString(),
                 "ProcessCallback");
@@ -60,6 +63,14 @@ public class ProcessCallbackI extends _ProcessCallbackDisp {
      * @throws InterruptedException
      */
     public Action block(long ms) throws InterruptedException {
+        try {
+            omero.RInt rc = process.poll();
+            if (rc != null) {
+                processFinished(rc.getValue(), null);
+            }
+        } catch (Exception e) {
+            System.err.println("Error calling poll", e);
+        }
         return q.poll(ms, TimeUnit.MILLISECONDS);
     }
 
