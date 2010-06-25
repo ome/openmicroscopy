@@ -115,12 +115,14 @@ class RenderHSBRegionTask implements RenderingTask {
      *             If an error occurs while quantizing a pixels intensity value.
      */
     public Object call() throws QuantizationException {
+    	log.debug("Buffer type: "+dataBuffer);
         if (dataBuffer instanceof RGBIntBuffer) {
             renderPackedInt();
         } else if (dataBuffer instanceof RGBAIntBuffer){
             renderPackedIntAsRGBA();
         } else {
-	      renderPackedInt();
+	      //renderPackedInt();
+          renderBanded(); // cf. ticket #1646
     	}
         return null;
     }
@@ -148,7 +150,8 @@ class RenderHSBRegionTask implements RenderingTask {
             int gColor = color[ColorsFactory.GREEN_INDEX];
             int bColor = color[ColorsFactory.BLUE_INDEX];
 
-            float alpha = new Float(color[ColorsFactory.ALPHA_INDEX]).floatValue() / 65025;// 255*255
+            float alpha = new Float(
+            		color[ColorsFactory.ALPHA_INDEX]).floatValue() / 65025;// 255*255
             for (int x2 = x2Start; x2 < x2End; ++x2) {
                 for (int x1 = x1Start; x1 < x1End; ++x1) {
                     pix = width * x2 + x1;
@@ -175,7 +178,6 @@ class RenderHSBRegionTask implements RenderingTask {
                     if (bValue > 255) {
                         bValue = 255;
                     }
-
                     r[pix] = (byte) (rValue & 0xFF);
                     g[pix] = (byte) (gValue & 0xFF);
                     b[pix] = (byte) (bValue & 0xFF);
@@ -208,9 +210,12 @@ class RenderHSBRegionTask implements RenderingTask {
             int[] color = colors.get(i);
             QuantumStrategy qs = strategies.get(i);
             boolean isMask = qs instanceof BinaryMaskQuantizer? true : false;
-            redRatio = color[ColorsFactory.RED_INDEX] > 0? color[ColorsFactory.RED_INDEX] / 255.0 : 0.0;
-            greenRatio = color[ColorsFactory.GREEN_INDEX] > 0? color[ColorsFactory.GREEN_INDEX] / 255.0 : 0.0;
-            blueRatio = color[ColorsFactory.BLUE_INDEX] > 0? color[ColorsFactory.BLUE_INDEX] / 255.0 : 0.0;
+            redRatio = color[ColorsFactory.RED_INDEX] > 0 ? 
+            		color[ColorsFactory.RED_INDEX] / 255.0 : 0.0;
+            greenRatio = color[ColorsFactory.GREEN_INDEX] > 0 ? 
+            		color[ColorsFactory.GREEN_INDEX] / 255.0 : 0.0;
+            blueRatio = color[ColorsFactory.BLUE_INDEX] > 0 ? 
+            		color[ColorsFactory.BLUE_INDEX] / 255.0 : 0.0;
             boolean isXYPlanar = plane.isXYPlanar();
             PixelData data = plane.getData();
             int bytesPerPixel = data.bytesPerPixel();
@@ -220,7 +225,8 @@ class RenderHSBRegionTask implements RenderingTask {
             if (isPrimaryColor)
             	colorOffset = getColorOffset(color);
             
-            float alpha = new Integer(color[ColorsFactory.ALPHA_INDEX]).floatValue() / 255;
+            float alpha = new Integer(
+            		color[ColorsFactory.ALPHA_INDEX]).floatValue() / 255;
             for (int x2 = x2Start; x2 < x2End; ++x2) {
                 for (int x1 = x1Start; x1 < x1End; ++x1) {
                     pix = width * x2 + x1;
@@ -299,12 +305,11 @@ class RenderHSBRegionTask implements RenderingTask {
                     buf[pix] = 0xFF000000 | rValue << 16 | gValue << 8 | bValue;
                 }
             }
-
             i++;
         }
     }
 
- /**
+    /**
      * Renders into a packed integer array.
      * 
      * @throws QuantizationException
@@ -325,9 +330,12 @@ class RenderHSBRegionTask implements RenderingTask {
         for (Plane2D plane : wData) {
             int[] color = colors.get(i);
             QuantumStrategy qs = strategies.get(i);
-            redRatio = color[ColorsFactory.RED_INDEX] > 0? color[ColorsFactory.RED_INDEX] / 255.0 : 0.0;
-            greenRatio = color[ColorsFactory.GREEN_INDEX] > 0? color[ColorsFactory.GREEN_INDEX] / 255.0 : 0.0;
-            blueRatio = color[ColorsFactory.BLUE_INDEX] > 0? color[ColorsFactory.BLUE_INDEX] / 255.0 : 0.0;
+            redRatio = color[ColorsFactory.RED_INDEX] > 0 ? 
+            		color[ColorsFactory.RED_INDEX] / 255.0 : 0.0;
+            greenRatio = color[ColorsFactory.GREEN_INDEX] > 0 ? 
+            		color[ColorsFactory.GREEN_INDEX] / 255.0 : 0.0;
+            blueRatio = color[ColorsFactory.BLUE_INDEX] > 0 ? 
+            		color[ColorsFactory.BLUE_INDEX] / 255.0 : 0.0;
             boolean isXYPlanar = plane.isXYPlanar();
             PixelData data = plane.getData();
             int bytesPerPixel = data.bytesPerPixel();
