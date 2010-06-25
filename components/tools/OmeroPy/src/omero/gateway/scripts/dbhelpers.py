@@ -345,28 +345,30 @@ class ImageEntry (ObjectEntry):
             except urllib2.HTTPError:
                 raise IOError('No such file %s' % fpath)
         host = dataset._conn.c.ic.getProperties().getProperty('omero.host') or 'localhost'
-        port = dataset._conn.c.ic.getProperties().getProperty('omero.port') or '4063'
-        if os.path.exists('../bin/omero'):
-            exe = '../bin/omero'
-        else:
-            exe = 'omero'
+        port = dataset._conn.c.ic.getProperties().getProperty('omero.port') or '4064'
+        exe = get_bin_omero()
         newconn = dataset._conn.clone()
         newconn.connect()
         UserEntry.setGroupForSession(newconn, dataset.getDetails().getGroup().getName())
         session = newconn._sessionUuid
         #print session
-        exe += ' import -s %s -k %s -d %i -p %s -n' % (host, session, dataset.getId(), port)
+        exe += ' import -s %s -k %s -- -d %i -p %s -n' % (host, session, dataset.getId(), port)
         exe = exe.split() + [self.name, fpath]
         try:
-            p = subprocess.Popen(exe,  shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            p = subprocess.Popen(exe,  shell=False), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         except OSError:
-            print "!!Please make sure the 'omero' executable is in PATH"
-            return None
+            import exceptions
+            raise exceptions.Exception("!!Please make sure the 'omero' executable is in PATH")
         #print ' '.join(exe)
         pid = p.communicate()#[0].strip() #re.search('Saving pixels id: (\d*)', p.communicate()[0]).group(1)
         #print pid
         try:
-            img = omero.gateway.ImageWrapper(dataset._conn, dataset._conn.getQueryService().find('Pixels', long(pid[0].split('\n')[0].strip())).image)
+            import pdb
+            pdb.set_trace()
+            pid_text = pid[0].split('\n')[0].strip()
+            pid_long = long(pid_text)
+            pixels_obj = dataset._conn.getQueryService().find('Pixels', pid_long)
+            img = omero.gateway.ImageWrapper(dataset._conn, pixels_obj.image)
         except ValueError:
             print pid
             raise
