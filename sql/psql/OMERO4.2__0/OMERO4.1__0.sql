@@ -96,7 +96,14 @@ CREATE OR REPLACE FUNCTION upgrade_sequence(seqname VARCHAR) RETURNS void
     END;'
 LANGUAGE plpgsql;
 
-SELECT count(upgrade_sequence(x)) FROM unnest(string_to_array(
+CREATE OR REPLACE FUNCTION ome_unnest(anyarray)
+  RETURNS SETOF anyelement AS '
+    SELECT $1[i] FROM
+        generate_series(array_lower($1,1),
+                        array_upper($1,1)) i;
+' LANGUAGE 'sql' IMMUTABLE;
+
+SELECT count(upgrade_sequence(x)) FROM ome_unnest(string_to_array(
     'seq_wellsampleannotationlink,seq_wellannotationlink,seq_filtertype,seq_dataset,seq_plate,seq_thumbnail,'||
     'seq_immersion,seq_channel,seq_imageannotationlink,seq_link,seq_lightpathemissionfilterlink,seq_arctype,'||
     'seq_experimenttype,seq_filtersetemissionfilterlink,seq_filtersetexcitationfilterlink,seq_microscope,'||
@@ -118,6 +125,7 @@ SELECT count(upgrade_sequence(x)) FROM unnest(string_to_array(
     'seq_sessionannotationlink,seq_screenplatelink,seq_shape,seq_experimenter,seq_acquisitionmode,seq_event,seq_jobstatus,seq_contrastmethod', ',')) as x;
 
 DROP FUNCTION upgrade_sequence(VARCHAR);
+DROP FUNCTION ome_unnest(anyarray);
 
 -- These renamings allow us to reuse the Hibernate-generated tables
 -- for sequence generation. Eventually, a method might be found to
@@ -298,6 +306,23 @@ DROP TABLE screenacquisitionannotationlink;
 DROP TABLE screenacquisitionwellsamplelink;
 DROP TABLE screenacquisition;
 
+-- #2428 convention namings
+
+UPDATE plate SET rowNamingConvention = 'letter'
+ WHERE rowNamingConvention ~ '[a-zA-Z]';
+
+UPDATE plate SET rowNamingConvention = 'number'
+ WHERE rowNamingConvention ~ '[0-9]';
+
+UPDATE plate SET columnNamingConvention = 'letter'
+ WHERE columnNamingConvention ~ '[a-zA-Z]';
+
+UPDATE plate SET columnNamingConvention = 'number'
+ WHERE columnNamingConvention ~ '[0-9]';
+
+-- #1640
+
+create unique index well_col_row on well(plate, "column", "row");
 
 ----
 --

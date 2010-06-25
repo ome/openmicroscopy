@@ -25,6 +25,22 @@ CREATE FUNCTION TEST() RETURNS VARCHAR
         IF FOUND THEN
             RAISE EXCEPTION 'Plate.rows/cols not mapped';
         END IF;
+        SELECT * INTO REC FROM plate WHERE columnNamingConvention = 'number';
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Plate.columnNamingConvention = number not found.';
+        END IF;
+        SELECT * INTO REC FROM plate WHERE columnNamingConvention = 'letter';
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Plate.columnNamingConvention = letter not found.';
+        END IF;
+        SELECT * INTO REC FROM plate WHERE rowNamingConvention = 'number';
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Plate.rowNamingConvention = number not found.';
+        END IF;
+        SELECT * INTO REC FROM plate WHERE rowNamingConvention = 'letter';
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Plate.rowNamingConvention = letter not found.';
+        END IF;
 
         SELECT * INTO rec FROM shape WHERE fillcolor IS NOT NULL AND strokecolor IS NOT NULL;
         IF NOT FOUND THEN
