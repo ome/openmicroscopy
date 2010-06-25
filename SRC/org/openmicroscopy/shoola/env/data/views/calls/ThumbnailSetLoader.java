@@ -241,7 +241,6 @@ public class ThumbnailSetLoader
     	try {
     		ExperimenterData exp = (ExperimenterData) context.lookup(
 					LookupNames.CURRENT_USER_DETAILS);
-			long id = exp.getId();
     		Map<DataObject, BufferedImage> m = 
     			service.getExperimenterThumbnailSet(experimenters,  
         			maxLength);

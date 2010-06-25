@@ -69,6 +69,7 @@ import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.model.ParamData;
@@ -246,6 +247,8 @@ public class ScriptingDialog
 			}
 		}
 		applyButton.setEnabled(required == valueSet);
+		if (!MetadataViewerAgent.isBinaryAvailable())
+			applyButton.setEnabled(false);
 	}
 	
 	/** Collects the data and fires a property.*/
@@ -348,7 +351,6 @@ public class ScriptingDialog
 				}
 			}
 		});
-		
 		components = new LinkedHashMap<String, ScriptComponent>(); 
 		Map<String, ParamData> types = script.getInputs();
 		if (types == null) return;

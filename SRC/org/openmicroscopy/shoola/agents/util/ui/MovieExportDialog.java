@@ -506,6 +506,16 @@ public class MovieExportDialog
 	}
 
 	/**
+	 * Turns off controls if the binary data are not available.
+	 * 
+	 * @param available Pass <code>false</code> to turn off the control.
+	 */
+	public void setBinaryAvailable(boolean available)
+	{
+		saveButton.setEnabled(available);
+	}
+	
+	/**
 	 * Sets the default value of the scale bar.
 	 * 
 	 * @param value The numerical value.

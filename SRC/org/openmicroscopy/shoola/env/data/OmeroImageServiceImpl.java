@@ -112,6 +112,19 @@ class OmeroImageServiceImpl
 	private OMEROGateway            gateway;
 	
 	/**
+	 * Returns <code>true</code> if the binary data are available, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	private boolean isBinaryAvailable()
+	{
+		Boolean b = (Boolean) context.lookup(LookupNames.BINARY_AVAILABLE);
+		if (b == null) return true;
+		return b.booleanValue();
+	}
+	
+	/**
 	 * Creates a <code>BufferedImage</code> from the passed array of bytes.
 	 * 
 	 * @param values    The array of bytes.
@@ -268,6 +281,7 @@ class OmeroImageServiceImpl
 	{
 		try {
 			if (pixID < 0) return null;
+			if (!isBinaryAvailable()) return null;
 			return createImage(gateway.getThumbnail(pixID, sizeX, sizeY, 
 								userID));
 		} catch (Exception e) {
@@ -287,13 +301,22 @@ class OmeroImageServiceImpl
 		throws RenderingServiceException
 	{
 		Map<Long, BufferedImage> r = new HashMap<Long, BufferedImage>();
+		
 		List<Long> ids = new ArrayList<Long>();
 		Iterator i;
 		try {
 			if (pixelsID == null || pixelsID.size() == 0) return r;
-			//First check if we have a renderer for the pixel
 			Iterator j = pixelsID.iterator();
 			long id;
+			if (!isBinaryAvailable()) {
+				while (j.hasNext()) {
+					id = (Long) j.next();
+					r.put(id, null);
+				}
+				return r;
+			}
+			//First check if we have a renderer for the pixel
+			
 			
 			RenderingControl rnd;
 			PlaneDef pDef = new PlaneDef();
@@ -992,9 +1015,16 @@ class OmeroImageServiceImpl
 		Map<DataObject, BufferedImage> 
 			m = new HashMap<DataObject, BufferedImage>();
 		if (files == null || files.size() == 0) return m;
-		FSFileSystemView view = gateway.getFSRepositories(userID);
 		Iterator<DataObject> i = files.iterator();
 		DataObject file;
+		if (!isBinaryAvailable()) {
+			while (i.hasNext()) {
+				file = i.next();
+				m.put(file, null);
+			}
+			return m;
+		}
+		FSFileSystemView view = gateway.getFSRepositories(userID);
 		String path;
 		while (i.hasNext()) {
 			file = i.next();
@@ -1045,9 +1075,15 @@ class OmeroImageServiceImpl
 			m = new HashMap<DataObject, BufferedImage>();
 		if (experimenters == null || experimenters.size() == 0) return m;
 		List<Long> ids = new ArrayList<Long>();
-		//FSFileSystemView view = gateway.getFSRepositories(userID);
 		Iterator<DataObject> i = experimenters.iterator();
 		DataObject exp;
+		if (!isBinaryAvailable()) {
+			while (i.hasNext()) {
+				m.put(i.next(), null);
+			}
+			return m;
+		}
+		
 		String path;
 		List<Class> types = new ArrayList<Class>();
 		types.add(FileAnnotationData.class);

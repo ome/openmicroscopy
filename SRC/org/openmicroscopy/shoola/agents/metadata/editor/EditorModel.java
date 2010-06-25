@@ -2161,6 +2161,7 @@ class EditorModel
 	 */
 	void loadFiles(Map<FileAnnotationData, Object> files)
 	{
+		if (!MetadataViewerAgent.isBinaryAvailable()) return;
 		FileLoader loader = new FileLoader(component, files);
 		loader.load();
 	}
@@ -2269,6 +2270,8 @@ class EditorModel
 		if (!(refObject instanceof ImageData || 
 				refObject instanceof WellSampleData))
 			return false;
+		if (!MetadataViewerAgent.isBinaryAvailable()) return false;
+
 		ImageData img = null;
 		if (refObject instanceof WellSampleData)
 			img = ((WellSampleData) refObject).getImage();

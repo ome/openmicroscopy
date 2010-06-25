@@ -143,7 +143,7 @@ public class EditorAgent
 	 */
 	public static String getEditorAutosave()
 	{
-		String editorDir = (String)registry.lookup("/services/editor/autosave");
+		String editorDir = (String) registry.lookup("/services/editor/autosave");
 		editorDir = getEditorHome() + File.separator + editorDir;
 		// make sure dir exists. 
 		File home = new File(editorDir);
@@ -191,6 +191,11 @@ public class EditorAgent
 	private void handleFileEdition(EditFileEvent event)
 	{
 		if (event == null) return;
+		Boolean available = (Boolean) 
+			registry.lookup(LookupNames.BINARY_AVAILABLE);
+		if (available != null && !available.booleanValue()) return;
+		
+		
 		Editor editor = null;
 		FileAnnotationData data = event.getFileAnnotation();
 		if (data == null) {

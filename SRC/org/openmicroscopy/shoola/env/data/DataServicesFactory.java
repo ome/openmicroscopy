@@ -470,7 +470,7 @@ public class DataServicesFactory
 		Iterator i = agents.iterator();
 		AgentInfo agentInfo;
 		Registry reg;
-		Boolean b = (Boolean) registry.lookup(LookupNames.SERVER_ROI);
+		Boolean b = (Boolean) registry.lookup(LookupNames.BINARY_AVAILABLE);
 		while (i.hasNext()) {
 			agentInfo = (AgentInfo) i.next();
 			if (agentInfo.isActive()) {
@@ -482,7 +482,7 @@ public class DataServicesFactory
 				reg.bind(LookupNames.USER_ADMINISTRATOR, uc.isAdministrator());
 				reg.bind(LookupNames.CONNECTION_SPEED, 
 						isFastConnection(uc.getSpeedLevel()));
-				reg.bind(LookupNames.SERVER_ROI, b);
+				reg.bind(LookupNames.BINARY_AVAILABLE, b);
 			}
 		}
 	}

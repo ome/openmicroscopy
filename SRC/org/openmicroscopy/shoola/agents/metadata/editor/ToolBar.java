@@ -130,6 +130,16 @@ class ToolBar
 	/** The option dialog. */
 	private AnalysisDialog  	analysisDialog;
 
+    /** Turns off some controls if the binary data are not available. */
+    private void checkBinaryAvailability()
+    {
+    	if (MetadataViewerAgent.isBinaryAvailable()) return;
+    	downloadButton.setEnabled(false); 
+    	rndButton.setEnabled(false);
+    	publishingButton.setEnabled(false);
+		analysisButton.setEnabled(false);
+    }
+    
 	/** Initializes the components. */
 	private void initComponents()
 	{
@@ -404,6 +414,7 @@ class ToolBar
     		downloadButton.setEnabled(true); 
     	} else 
     		downloadButton.setEnabled(model.isArchived()); 
+    	checkBinaryAvailability();
     }
     
     /**
@@ -445,6 +456,7 @@ class ToolBar
     	} else if (refObject instanceof FileAnnotationData) {
     		downloadButton.setEnabled(true);
     	}
+    	checkBinaryAvailability();
     	revalidate();
     	repaint();
     }
@@ -465,6 +477,7 @@ class ToolBar
 		scriptsButton.setEnabled(true);
 		if (publishingDialog != null) publishingDialog.setRootObject();
 		if (analysisDialog != null) analysisDialog.setRootObject();
+		checkBinaryAvailability();
 	}
 
 	/**

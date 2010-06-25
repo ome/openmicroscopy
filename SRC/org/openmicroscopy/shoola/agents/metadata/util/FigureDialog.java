@@ -93,6 +93,7 @@ import org.jhotdraw.draw.Drawing;
 import omero.model.PlaneInfo;
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
@@ -456,6 +457,15 @@ public class FigureDialog
 	
 	/** Menu offering the ability to download or view the script. */
 	private JButton 						menuButton;
+	
+	/**
+	 * Turns off controls if the binary data are not available.
+	 */
+	private void checkBinaryAvailability()
+	{
+		if (!MetadataViewerAgent.isBinaryAvailable())
+			saveButton.setEnabled(false);
+	}
 	
 	/** 
 	 * Creates the option menu.
@@ -946,7 +956,6 @@ public class FigureDialog
 				}
 			}
 		});
-		
 		sorter = new ViewerSorter();
 		closeButton = new JButton("Cancel");
 		closeButton.setToolTipText(UIUtilities.formatToolTipText(
@@ -964,6 +973,7 @@ public class FigureDialog
 		if (s != null) {
 			nameField.setText(s);
 			saveButton.setEnabled(true);
+			checkBinaryAvailability();
 		}
 		nameField.getDocument().addDocumentListener(this);
 		Map<Integer, String> map = FigureParam.FORMATS;
@@ -1046,8 +1056,6 @@ public class FigureDialog
 		numberPerRow = new NumericalTextField(1, 100);
 		numberPerRow.setColumns(3);
 		numberPerRow.setText(""+ITEMS_PER_ROW);
-		
-		
 		projectionBox = new JRadioButton("Z-projection");
 		projectionBox.addChangeListener(this);
 		planeSelection = new JRadioButton("Last-viewed Z-section");
@@ -1816,6 +1824,7 @@ public class FigureDialog
 	{
 		String text = nameField.getText();
 		saveButton.setEnabled(!(text == null || text.trim().length() == 0));
+		checkBinaryAvailability();
 	}
 	
 	/** 
@@ -1991,6 +2000,7 @@ public class FigureDialog
 				initChannelComponents();
 				channelsPane.add(buildChannelsComponent());
 				saveButton.setEnabled(true);
+				checkBinaryAvailability();
 				pack();
 				break;
 		}

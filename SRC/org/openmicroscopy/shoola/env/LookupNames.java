@@ -240,7 +240,8 @@ public class LookupNames
     /** The value to replace in the FS configuration file. */
     public static final String FS_DEFAUL_DIR = "/services/FS/defaultDirectory";
     
-    /** The value indicating that the roi will come from the server. */
-    public static final String	SERVER_ROI = "/roi/location/server";
+    /** Field to access the <code>Binary Available</code> information. */
+    public static final String	BINARY_AVAILABLE = 
+    	"/services/SERVER/BinaryAvailable";
     
 }

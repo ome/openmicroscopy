@@ -1860,6 +1860,8 @@ class ImViewerComponent
 	 */
 	public void showMeasurementTool(Point point)
 	{
+		//TODO: Review for HCS.
+		/*
 		Boolean location = (Boolean) 
 		MeasurementAgent.getRegistry().lookup(
 				LookupNames.SERVER_ROI);
@@ -1867,6 +1869,7 @@ class ImViewerComponent
 			postMeasurementEvent(null);
 			return;
 		}
+		*/
 		Collection measurements = model.getMeasurements();
 		if (measurements == null || measurements.size() == 0) {
 			postMeasurementEvent(null);

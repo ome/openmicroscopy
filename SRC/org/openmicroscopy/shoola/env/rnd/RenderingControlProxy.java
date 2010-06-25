@@ -51,6 +51,9 @@ import omero.model.Pixels;
 import omero.model.QuantumDef;
 import omero.model.RenderingModel;
 import omero.romio.PlaneDef;
+import omero.romio.RGBBuffer;
+import omero.romio.RGBBufferPrx;
+
 import org.openmicroscopy.shoola.env.cache.CacheService;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;

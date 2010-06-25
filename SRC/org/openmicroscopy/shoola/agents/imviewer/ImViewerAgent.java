@@ -134,6 +134,9 @@ public class ImViewerAgent
     private void handleViewImage(ViewImage evt)
     {
         if (evt == null) return;
+        Boolean available = (Boolean) 
+        	registry.lookup(LookupNames.BINARY_AVAILABLE);
+        if (available != null && !available.booleanValue()) return;
         DataObject image = evt.getImage();
         Rectangle r = evt.getRequesterBounds();
         ImViewer view;

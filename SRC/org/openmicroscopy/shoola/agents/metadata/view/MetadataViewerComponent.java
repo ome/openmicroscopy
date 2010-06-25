@@ -678,6 +678,7 @@ class MetadataViewerComponent
     	JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
     	MovieExportDialog dialog = new MovieExportDialog(f, name, 
     			maxT, maxZ, defaultZ, defaultT);
+    	dialog.setBinaryAvailable(MetadataViewerAgent.isBinaryAvailable());
     	dialog.setScaleBarDefault(scaleBar, overlayColor);
     	dialog.addPropertyChangeListener(new PropertyChangeListener() {
 		

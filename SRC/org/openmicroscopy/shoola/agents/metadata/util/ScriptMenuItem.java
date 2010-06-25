@@ -32,6 +32,7 @@ import javax.swing.JMenuItem;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
@@ -120,6 +121,7 @@ public class ScriptMenuItem
 	public int getIndex()
 	{
 		if (!scriptWithUI) return -1;
+		if (!MetadataViewerAgent.isBinaryAvailable()) return -1;
 		String path = script.getScriptLabel();
 		if (FigureParam.ROI_SCRIPT.equals(path))
 			return ROI_FIGURE_SCRIPT;
@@ -140,7 +142,11 @@ public class ScriptMenuItem
 	 * 
 	 * @return See above.
 	 */
-	public boolean isScriptWithUI() { return scriptWithUI; }
+	public boolean isScriptWithUI()
+	{ 
+		if (!MetadataViewerAgent.isBinaryAvailable()) return false;
+		return scriptWithUI;
+	}
 	
 	/**
 	 * Returns the script.
