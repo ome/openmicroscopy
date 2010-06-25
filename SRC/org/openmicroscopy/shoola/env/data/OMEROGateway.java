@@ -67,6 +67,8 @@ import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import Ice.ConnectionRefusedException;
 import ome.conditions.ResourceError;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
@@ -715,6 +717,11 @@ class OMEROGateway
 		} else if (cause instanceof ResourceError) {
 			String s = "Fatal error. Please contact the administrator. \n"; 
 			throw new DSOutOfServiceException(s+message, t);
+		} else if (cause instanceof ConnectionRefusedException || 
+				t instanceof ConnectionRefusedException) {
+			connected = false;
+			dsFactory.sessionExpiredExit(SERVER_OUT_OF_SERVICE);
+			return;
 		}
 		throw new DSAccessException("Cannot access data. \n"+message, t);
 	}
