@@ -16,7 +16,7 @@
         </copy>
     </target>
 
-    <target name="package-test">
+    <target name="package-test"><!-- why isn't this included -->
         <jar update="true"
              destfile="${target.dir}/${ivy.module}-test.jar">
             <fileset dir="${resrc.dir}" includes="tiny*.dv"/>
