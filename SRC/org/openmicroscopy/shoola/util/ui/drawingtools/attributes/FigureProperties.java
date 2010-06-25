@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.util.ui.drawingtools.attributes;
 //Java imports
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
@@ -61,7 +62,7 @@ public class FigureProperties
 	
 	
 	/** Map containing all the default property values of the figures. */
-	private  static HashMap<AttributeKey, Object> defaultProperties;
+	private  static Map<AttributeKey, Object> defaultProperties;
 	static {
 		defaultProperties = new HashMap<AttributeKey, Object>();
 		defaultProperties.put(DrawingAttributes.FILL_COLOR, 
@@ -84,9 +85,11 @@ public class FigureProperties
         }
 
 	
-	/** The map containing the values for the attributes in the propertySet 
-	 * map.*/
-	protected HashMap<AttributeKey, Object> propertyMap;   
+	/** 
+	 * The map containing the values for the attributes in the propertySet 
+	 * map.
+	 */
+	protected Map<AttributeKey, Object> propertyMap;   
 	
 	/**
 	 * Construct the Figure properties object with the default values. The 
@@ -103,10 +106,8 @@ public class FigureProperties
 				break;
 			case DEFAULT:
 					propertyMap.putAll(defaultProperties);
-				break;
 		}
 	}
-		
 
 	/**
 	 * Construct the Figure properties object with the default values. The 
@@ -114,7 +115,7 @@ public class FigureProperties
 	 * put into the map by default. 
 	 * @param initialSet see above.
 	 */
-	public FigureProperties(HashMap<AttributeKey, Object> initialSet)
+	public FigureProperties(Map<AttributeKey, Object> initialSet)
 	{
 		propertyMap = new HashMap<AttributeKey, Object>();
 		addAttribute(initialSet);
@@ -137,32 +138,37 @@ public class FigureProperties
 	
 
 	/**
-	 * Add an attribute and value to the property map.
-	 * @param attributeSet see above.
-	 * the map.
+	 * Adds an attribute and value to the property map.
+	 * 
+	 * @param attributeSet see above. the map.
 	 */
-	public void addAttribute(HashMap<AttributeKey, Object> attributeSet) 
+	public void addAttribute(Map<AttributeKey, Object> attributeSet) 
 	{
-		Iterator<AttributeKey> attributeIterator = attributeSet.keySet().iterator();
-		while(attributeIterator.hasNext())
+		if (attributeSet == null) return;
+		Iterator<AttributeKey> i = attributeSet.keySet().iterator();
+		AttributeKey key;
+		while (i.hasNext())
 		{
-			AttributeKey key = attributeIterator.next();
+			key = i.next();
 			addAttribute(key, attributeSet.get(key));
 		}
 	}		
 	
 	/**
-	 * Add an atrribute and value to the property map.
+	 * Adds an attribute and value to the property map.
+	 * 
 	 * @param key see above.
 	 * @param defaultValue see above.
 	 */
 	public void addAttribute(AttributeKey key, Object defaultValue)
 	{
+		if (key == null) return;
 		propertyMap.put(key, defaultValue);
 	}
 	
 	/**
-	 * Set the value for the property key to the value.
+	 * Sets the value for the property key to the value.
+	 * 
 	 * @param key see above.
 	 * @param value see above.
 	 */
@@ -178,16 +184,19 @@ public class FigureProperties
 	 */
 	public Object getPropertyValue(AttributeKey key)
 	{
+		if (key == null) return null;
 		return propertyMap.get(key);
 	}
 	
 	/**
 	 * Does the key exist in the properties map.
-	 * @param key see above.
+	 * 
+	 * @param key The key to handle.
 	 * @return see above.
 	 */
 	public boolean hasProperty(AttributeKey key)
 	{
+		if (key == null) return false;
 		return propertyMap.containsKey(key);
 	}
 	
@@ -197,17 +206,14 @@ public class FigureProperties
 	 */
 	public void removeAttributes(AttributeKey key)
 	{
-		if(hasProperty(key))
-		{
-			propertyMap.remove(key);
-		}
+		if (hasProperty(key)) propertyMap.remove(key);
 	}
 	
 	/**
 	 * Get the values for the attributes in the map.
 	 * @return see above.
 	 */
-	public HashMap<AttributeKey, Object> getProperties()
+	public Map<AttributeKey, Object> getProperties()
 	{
 		return propertyMap;
 	}

@@ -32,6 +32,8 @@ import java.awt.FlowLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.HashMap;
+import java.util.Map;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -85,7 +87,7 @@ class ToolBar
 {
 
 	/** The defaults attributes of the line connection figure. */
-	private final static HashMap<AttributeKey, Object>	
+	private final static Map<AttributeKey, Object>	
 	defaultConnectionAttributes;
 	
 	/** Add the polyline tool to the toolbar. */
@@ -193,16 +195,23 @@ class ToolBar
 	{
 		lineConnectionProperties = new FigureProperties(
 				defaultConnectionAttributes);
-		ellipseTool = new DrawingObjectCreationTool(new MeasureEllipseFigure(false, true));
-		rectTool = new DrawingObjectCreationTool(new MeasureRectangleFigure(false, true));
-		textTool = new DrawingObjectCreationTool(new MeasureTextFigure(false, true));
-		lineTool = new DrawingObjectCreationTool(new MeasureLineFigure(false, true));
+		ellipseTool = new DrawingObjectCreationTool(new MeasureEllipseFigure(
+				false, true));
+		rectTool = new DrawingObjectCreationTool(new MeasureRectangleFigure(
+				false, true));
+		textTool = new DrawingObjectCreationTool(
+				new MeasureTextFigure(false, true));
+		lineTool = new DrawingObjectCreationTool(
+				new MeasureLineFigure(false, true));
 		connectionTool = new DrawingConnectionTool(
 						new MeasureLineConnectionFigure(), 
 						lineConnectionProperties.getProperties());
-		pointTool = new DrawingPointCreationTool(new MeasurePointFigure(false, true));
-	    polygonTool = new DrawingBezierTool(new MeasureBezierFigure(true, false, true));
-	    polylineTool = new DrawingBezierTool(new MeasureBezierFigure(false, false, true));
+		pointTool = new DrawingPointCreationTool(
+				new MeasurePointFigure(false, true));
+	    polygonTool = new DrawingBezierTool(
+	    		new MeasureBezierFigure(true, false, true));
+	    polylineTool = new DrawingBezierTool(
+	    		new MeasureBezierFigure(false, false, true));
 	    
 	    Component component;
 	    
@@ -246,7 +255,7 @@ class ToolBar
 		if (component instanceof JToggleButton)
 			setUpToggleButton((JToggleButton) component);
 		
-		if(addPolyline)
+		if (addPolyline)
 		{
 			DrawingToolBarButtonFactory.addToolTo(toolBar, editor, polylineTool, 
 				  CREATE_KEY+FigureUtil.SCRIBBLE_TYPE);
@@ -254,22 +263,23 @@ class ToolBar
 			if (component instanceof JToggleButton)
 				setUpToggleButton((JToggleButton) component);
 		}
-		if(addPolygon)
+		if (addPolygon)
 		{
-		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, polygonTool, 
-	    	  CREATE_KEY+FigureUtil.POLYGON_TYPE);
-		component = toolBar.getComponent(toolBar.getComponentCount()-1);
-		if (component instanceof JToggleButton)
-			setUpToggleButton((JToggleButton) component);
+			DrawingToolBarButtonFactory.addToolTo(toolBar, editor, polygonTool, 
+		    	  CREATE_KEY+FigureUtil.POLYGON_TYPE);
+			component = toolBar.getComponent(toolBar.getComponentCount()-1);
+			if (component instanceof JToggleButton)
+				setUpToggleButton((JToggleButton) component);
 		}
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, textTool, 
 			CREATE_KEY+FigureUtil.TEXT_TYPE);
 		component = toolBar.getComponent(toolBar.getComponentCount()-1);
 		if (component instanceof JToggleButton)
 			setUpToggleButton((JToggleButton) component);
-		if(addConnection)
+		if (addConnection)
 		{
-			DrawingToolBarButtonFactory.addToolTo(toolBar, editor, connectionTool, 
+			DrawingToolBarButtonFactory.addToolTo(toolBar, editor, 
+					connectionTool, 
     			CREATE_KEY+FigureUtil.LINE_CONNECTION_TYPE);
 			component = toolBar.getComponent(
 					toolBar.getComponentCount()-1);
@@ -357,14 +367,14 @@ class ToolBar
 	}
 	
 	/**
-	 * Return true if the right button was clicked or left button was clicked with
-	 * control held down.
+	 * Return true if the right button was clicked or left button was clicked 
+	 * with control held down.
 	 * @param e mouse event.
 	 * @return see above.
 	 */
 	protected boolean rightClick(MouseEvent e)
 	{
-		if(e.getButton() == MouseEvent.BUTTON3 || 
+		if (e.getButton() == MouseEvent.BUTTON3 || 
 				(e.getButton() == MouseEvent.BUTTON1 && e.isControlDown()))
 			return true;
 		return false;
@@ -384,9 +394,9 @@ class ToolBar
 		lineTool.setResetToSelect(option); 
 		// TODO : connectionTool.setResetToSelect(option);
 		pointTool.setResetToSelect(option);
-	    if(addPolygon)
+	    if (addPolygon)
 	    	polygonTool.setResetToSelect(option);
-	    if(addPolyline)
+	    if (addPolyline)
 	    	polylineTool.setResetToSelect(option); 
 	}
 	
@@ -396,6 +406,30 @@ class ToolBar
 		int size = view.getDrawingView().getSelectedFigures().size();
 		assistantButton.getAction().setEnabled(size == 1);
 	}
+	
+	/**
+	 * Updates the workflow in the toolbar UI.
+	 */
+	void updateWorkflow()
+	{
+		workflowPanel.updateWorkflow();
+	}
+	
+	/**
+	 * Returns the workflow panel.
+	 * 
+	 * @return See above.
+	 */
+	WorkflowPanel getWorkflowPanel()
+	{
+		return workflowPanel;
+	}
+
+	/** Shows the create workflow menu. */
+	void createWorkflow() { workflowPanel.createWorkflow(); }
+	
+	/** Adds the workflows. */
+	void addedWorkflow() { workflowPanel.addedWorkflow(); }
 	
 	/**
 	 * Sets the selected flag of the source of the event to 
@@ -442,34 +476,4 @@ class ToolBar
 	 */
 	public void mouseReleased(MouseEvent e) {}
 
-	/**
-	 * Update the workflow in the toolbar UI.
-	 */
-	public void updateWorkflow()
-	{
-		workflowPanel.updateWorkflow();
-	}
-	
-	/**
-	 * Get the workflow panel.
-	 * @return See above.
-	 */
-	public WorkflowPanel getWorkflowPanel()
-	{
-		return workflowPanel;
-	}
-
-	/**
-	 * Show the create workflow menu.
-	 */
-	public void createWorkflow()
-	{
-		workflowPanel.createWorkflow();
-	}
-	
-	public void addedWorkflow()
-	{
-		workflowPanel.addedWorkflow();
-		
-	}
 }

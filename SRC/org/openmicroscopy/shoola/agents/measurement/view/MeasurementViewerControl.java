@@ -126,35 +126,35 @@ class MeasurementViewerControl
     static final Integer     IN_PIXELS =  Integer.valueOf(7);
     
     /** 
-     * Identifies the <code>createSingleFigures</code> action in 
+     * Identifies the <code>createSingleFigure</code> action in 
      * the menu.
      */
-    static final Integer     CREATESINGLEFIGURE =  Integer.valueOf(8);
+    static final Integer     CREATE_SINGLE_FIGURE =  Integer.valueOf(8);
     
     /** 
-     * Identifies the <code>showMeasurementinMicrons</code> action in 
+     * Identifies the <code>create multiples figures</code> action in 
      * the menu.
      */
-    static final Integer     CREATEMULTIPLEFIGURE =  Integer.valueOf(9);
+    static final Integer     CREATE_MULTIPLE_FIGURES =  Integer.valueOf(9);
     
 
     /** 
      * Identifies the <code>selectWorkFlow</code> action in 
      * the menu.
      */
-    static final Integer     SELECTWORKFLOW =  Integer.valueOf(9);
+    static final Integer     SELECT_WORKFLOW =  Integer.valueOf(10);
    
     /** 
      * Identifies the <code>createWorkflow</code> action in 
      * the menu.
      */
-    static final Integer     CREATEWORKFLOW =  Integer.valueOf(10);
+    static final Integer     CREATE_WORKFLOW =  Integer.valueOf(11);
     
     /** 
      * Identifies the <code>keywordSelection</code> action in 
      * the keyword combobox.
      */
-    static final Integer     KEYWORDSELECTION =  Integer.valueOf(11);
+    static final Integer     KEYWORD_SELECTION =  Integer.valueOf(12);
     
     /** 
      * Reference to the {@link MeasurementViewer} component, which, 
@@ -176,12 +176,12 @@ class MeasurementViewerControl
     	actionsMap.put(ROI_ASSISTANT, new ShowROIAssistant(model));
     	actionsMap.put(IN_MICRONS, new UnitsAction(model, true));
     	actionsMap.put(IN_PIXELS, new UnitsAction(model, false));
-    	actionsMap.put(CREATESINGLEFIGURE, new CreateFigureAction(model, true));
-    	actionsMap.put(CREATEMULTIPLEFIGURE, new CreateFigureAction(model, 
+    	actionsMap.put(CREATE_SINGLE_FIGURE, new CreateFigureAction(model, true));
+    	actionsMap.put(CREATE_MULTIPLE_FIGURES, new CreateFigureAction(model, 
     												false));
-    	actionsMap.put(SELECTWORKFLOW, new WorkflowAction(model, false));
-    	actionsMap.put(CREATEWORKFLOW, new WorkflowAction(model, true));
-    	actionsMap.put(KEYWORDSELECTION, new KeywordSelectionAction(model));
+    	actionsMap.put(SELECT_WORKFLOW, new WorkflowAction(model, false));
+    	actionsMap.put(CREATE_WORKFLOW, new WorkflowAction(model, true));
+    	actionsMap.put(KEYWORD_SELECTION, new KeywordSelectionAction(model));
     }
 
     /**

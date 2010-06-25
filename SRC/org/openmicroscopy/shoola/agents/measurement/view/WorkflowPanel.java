@@ -28,6 +28,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
@@ -42,26 +43,21 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.border.EtchedBorder;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.jhotdraw.draw.Figure;
 import org.jhotdraw.draw.FigureListener;
-import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.checkboxlist.CheckBoxList;
 import org.openmicroscopy.shoola.util.ui.checkboxlist.CheckBoxModel;
-
 import pojos.WorkflowData;
 
 /**
- *
+ * Displays the worklfows.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -73,8 +69,9 @@ import pojos.WorkflowData;
  * </small>
  * @since 3.0-Beta4
  */
-public class WorkflowPanel
-	extends JDialog implements MouseListener, ComponentListener
+class WorkflowPanel
+	extends JDialog 
+	implements ComponentListener
 {
 	
 	/** Label for the keyword selected. */
@@ -106,26 +103,11 @@ public class WorkflowPanel
 	/** The create workflow Dialog. */
 	private WorkflowDialog workflowDialog;
 	
+	/** Mouse listener. */
+	private MouseAdapter	listener;
+	
 	/**
-	 * The constructor for the workflow panel, allowing the selection of the 
-	 * keyword from the current workflow. 
-	 * @param view The view which will indicate current workflows. 
-	 * @param model The model. 
-	 * @param controller The controller. 
-	 */
-	public WorkflowPanel(MeasurementViewerUI view, MeasurementViewerModel model,
-							MeasurementViewerControl controller)
-	{
-		this.view = view;
-		this.model = model;
-		this.controller = controller;
-		init();
-		buildUI();
-	}
-
-
-	/**
-	 * Initialise the components. Create the label, workflow combobox.
+	 * Initializes the components. Create the label, workflow combobox.
 	 */
 	private void init()
 	{
@@ -133,16 +115,28 @@ public class WorkflowPanel
 		namespaceLabel = new JLabel("Namespace");
 		namespaceCombobox = new JComboBox(model.getWorkflows().toArray());
 		namespaceCombobox.addActionListener(this.controller.getAction(
-				MeasurementViewerControl.SELECTWORKFLOW));
+				MeasurementViewerControl.SELECT_WORKFLOW));
 		checkBoxModel = new CheckBoxModel();
 		keywords = new CheckBoxList(checkBoxModel);
-		keywords.addMouseListener(this);
+		listener = new MouseAdapter() {
+			
+			public void mouseClicked(MouseEvent e) {
+				CheckBoxList checkBoxList = (CheckBoxList) e.getSource();
+			    List<String> keywords = checkBoxList.getTrueValues();
+			    model.setWorkflow((String) namespaceCombobox.getSelectedItem());
+			    model.setKeyword(keywords);
+				applyWorkflowToCollection(
+						view.getDrawingView().getSelectedFigures());
+				view.rebuildManagerTable();
+				view.refreshInspectorTable();
+			}
+		};
+		keywords.addMouseListener(listener);
 		addComponentListener(this);
 		workflowDialog = new WorkflowDialog(view, model);
 	}
-	/**
-	 * Build the UI using the components created in init().
-	 */
+	
+	/** Builds and lays out the UI. */
 	private void buildUI()
 	{
 		JPanel panel = new JPanel();
@@ -161,96 +155,40 @@ public class WorkflowPanel
 		panel.add(k);
 		JPanel bevelPanel = new JPanel();
 		bevelPanel.setLayout(new BorderLayout());
-		bevelPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+		bevelPanel.setBorder(
+				BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 		bevelPanel.add(panel, BorderLayout.CENTER);
 		this.setLayout(new BorderLayout());
 		this.getContentPane().add(bevelPanel, BorderLayout.CENTER);
 		this.setVisible(false);
 		setSize(300,200);
 	}
-
-	/**
-	 * The workflow has changed, update the combobox.
-	 */
-	public void updateWorkflow()
-	{
-		WorkflowData workflow = model.getWorkflow();
-		if(workflow == null)
-		{
-			namespaceCombobox.removeActionListener(this.controller.getAction(
-					MeasurementViewerControl.SELECTWORKFLOW));
-			namespaceCombobox.setSelectedItem(WorkflowData.DEFAULTWORKFLOW);
-			keywords.setModel(new CheckBoxModel(new ArrayList()));
-			namespaceCombobox.addActionListener(this.controller.getAction(
-					MeasurementViewerControl.SELECTWORKFLOW));
-		}
-		else
-		{
-			namespaceCombobox.removeActionListener(this.controller.getAction(
-					MeasurementViewerControl.SELECTWORKFLOW));
-			namespaceCombobox.setSelectedItem(workflow.getNameSpace());
-			namespaceCombobox.addActionListener(this.controller.getAction(
-					MeasurementViewerControl.SELECTWORKFLOW));
-			
-			CheckBoxModel tableModel = new CheckBoxModel(workflow.getKeywordsAsList());
-			keywords.setModel(tableModel);
-			keywords.setTrueValues(model.getKeywords());
-			repaint();
-			if(!isVisible())
-				UIUtilities.setLocationRelativeToAndSizeToWindow(view, this, 
-						new Dimension(this.getWidth(), this.getHeight()));
-		}
-	}
-	
-	public void addedWorkflow()
-	{
-		namespaceCombobox.removeActionListener(this.controller.getAction(
-				MeasurementViewerControl.SELECTWORKFLOW));
-		namespaceCombobox.removeAllItems();
-		for(String workflow : model.getWorkflows())
-			namespaceCombobox.addItem(workflow);
-		//namespaceCombobox.setSelectedItem(model.getWorkflow().getNameSpace());
-		namespaceCombobox.addActionListener(this.controller.getAction(
-				MeasurementViewerControl.SELECTWORKFLOW));
-	}
 	
 	/**
-	 * On mouse click, apply the workflow to the selected figures.
-	 * @param e The mouse click event.
-	 */
-	public void mouseClicked(MouseEvent e)
-	{
-		CheckBoxList checkBoxList = (CheckBoxList)e.getSource();
-	    List<String> keywords = checkBoxList.getTrueValues();
-	    model.setWorkflow((String)this.namespaceCombobox.getSelectedItem());
-	    model.setKeyword(keywords);
-		applyWorkflowToCollection(view.getDrawingView().getSelectedFigures());
-		view.rebuildManagerTable();
-		view.refreshInspectorTable();
-	}
-
-	/**
-	 * Apply the workflow to the collection of selected figures in the 
+	 * Applies the workflow to the collection of selected figures in the 
 	 * drawing view.
+	 * 
  	 * @param figures See above.
 	 */
 	private void applyWorkflowToCollection(Collection<Figure> figures)
 	{
-		for(Figure fig : figures)
+		ROIFigure roiFigure;
+		List<FigureListener> figureListeners;
+		for (Figure fig : figures)
 		{
-			ROIFigure roiFigure = (ROIFigure)fig;
-			List<FigureListener> figureListeners = roiFigure.getFigureListeners();
-			for(FigureListener listener : figureListeners)
+			roiFigure = (ROIFigure) fig;
+			figureListeners = roiFigure.getFigureListeners();
+			for (FigureListener listener : figureListeners)
 				roiFigure.removeFigureListener(listener);
 			applyWorkflow(roiFigure);
-			for(FigureListener listener : figureListeners)
+			for (FigureListener listener : figureListeners)
 				roiFigure.addFigureListener(listener);
-			
 		}
 	}
 
 	/**
-	 * Apply the current workflow to the figure.
+	 * Applies the current workflow to the figure.
+	 * 
 	 * @param fig See above.
 	 */
 	private void applyWorkflow(ROIFigure fig)
@@ -259,78 +197,111 @@ public class WorkflowPanel
 										model.getWorkflow().getNameSpace());
 		List<String> keywordList = model.getKeywords();
 		String keywordString = "";
-		for(int i = 0 ; i < keywordList.size() ; i++)
+		for (int i = 0 ; i < keywordList.size() ; i++)
 		{
 			keywordString = keywordString + keywordList.get(i);
-			if(i<keywordList.size()-1)
+			if (i < keywordList.size()-1)
 				keywordString = keywordString + ",";
 		}
 		fig.getROI().setAnnotation(AnnotationKeys.KEYWORDS, keywordString);
 	}
 	
-	public void mouseEntered(MouseEvent e)
+	/**
+	 * Creates the workflow panel, allowing the selection of the 
+	 * keyword from the current workflow. 
+	 * 
+	 * @param view The view which will indicate current workflows. 
+	 * @param model The model. 
+	 * @param controller The controller. 
+	 */
+	WorkflowPanel(MeasurementViewerUI view, MeasurementViewerModel model,
+							MeasurementViewerControl controller)
 	{
-		// TODO Auto-generated method stub
-		
+		this.view = view;
+		this.model = model;
+		this.controller = controller;
+		init();
+		buildUI();
 	}
 
-
-	public void mouseExited(MouseEvent e)
+	/** Updates the workflow. */
+	void updateWorkflow()
 	{
-		// TODO Auto-generated method stub
-		
+		WorkflowData workflow = model.getWorkflow();
+		if(workflow == null)
+		{
+			namespaceCombobox.removeActionListener(this.controller.getAction(
+					MeasurementViewerControl.SELECT_WORKFLOW));
+			namespaceCombobox.setSelectedItem(WorkflowData.DEFAULTWORKFLOW);
+			keywords.setModel(new CheckBoxModel(new ArrayList()));
+			namespaceCombobox.addActionListener(this.controller.getAction(
+					MeasurementViewerControl.SELECT_WORKFLOW));
+		}
+		else
+		{
+			namespaceCombobox.removeActionListener(this.controller.getAction(
+					MeasurementViewerControl.SELECT_WORKFLOW));
+			namespaceCombobox.setSelectedItem(workflow.getNameSpace());
+			namespaceCombobox.addActionListener(controller.getAction(
+					MeasurementViewerControl.SELECT_WORKFLOW));
+			
+			CheckBoxModel tableModel = new CheckBoxModel(
+					workflow.getKeywordsAsList());
+			keywords.setModel(tableModel);
+			keywords.setTrueValues(model.getKeywords());
+			repaint();
+			if (!isVisible())
+				UIUtilities.setLocationRelativeToAndSizeToWindow(view, this, 
+						new Dimension(this.getWidth(), this.getHeight()));
+		}
+	}
+	
+	/** Adds the workflow to the list. */
+	void addedWorkflow()
+	{
+		namespaceCombobox.removeActionListener(this.controller.getAction(
+				MeasurementViewerControl.SELECT_WORKFLOW));
+		namespaceCombobox.removeAllItems();
+		for (String workflow : model.getWorkflows())
+			namespaceCombobox.addItem(workflow);
+		namespaceCombobox.addActionListener(controller.getAction(
+				MeasurementViewerControl.SELECT_WORKFLOW));
 	}
 
-
-	public void mousePressed(MouseEvent e)
+	/**  Shows the created dialog. */
+	void createWorkflow()
 	{
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	public void mouseReleased(MouseEvent e)
-	{
-		// TODO Auto-generated method stub
-		
+		UIUtilities.centerAndShow(workflowDialog);
 	}
 
 	/**
 	 * Called when the dialog is closed.
-	 * @param e The event, which is ignored. 
+	 * @see ComponentListener#componentHidden(ComponentEvent)
 	 */
 	public void componentHidden(ComponentEvent e)
 	{
 		model.setWorkflow(WorkflowData.DEFAULTWORKFLOW);
 	}
 
-
-	public void componentMoved(ComponentEvent e)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	public void componentResized(ComponentEvent e)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	public void componentShown(ComponentEvent e)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	/** 
-	 * Show the create workflow Dialog.
+	/**
+	 * Implemented as specified by the {@link ComponentListener} I/F, 
+	 * no-operation implementation in our case.
+	 * @see ComponentListener#componentMoved(ComponentEvent)
 	 */
-	public void createWorkflow()
-	{
-		UIUtilities.centerAndShow(workflowDialog);
-	}
+	public void componentMoved(ComponentEvent e) {}
+
+	/**
+	 * Implemented as specified by the {@link ComponentListener} I/F, 
+	 * no-operation implementation in our case.
+	 * @see ComponentListener#componentResized(ComponentEvent)
+	 */
+	public void componentResized(ComponentEvent e) {}
+
+	/**
+	 * Implemented as specified by the {@link ComponentListener} I/F, 
+	 * no-operation implementation in our case.
+	 * @see ComponentListener#componentShown(ComponentEvent)
+	 */
+	public void componentShown(ComponentEvent e) {}
 	
 }

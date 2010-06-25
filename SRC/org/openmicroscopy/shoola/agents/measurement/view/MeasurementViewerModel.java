@@ -998,13 +998,14 @@ class MeasurementViewerModel
 	{
 		List<WorkflowData> workflowList = new ArrayList<WorkflowData>();
 		Iterator<WorkflowData> workflowIterator = workflows.values().iterator();
-		while(workflowIterator.hasNext())
+		while (workflowIterator.hasNext())
 			workflowList.add(workflowIterator.next());
 		try {
 			ExperimenterData exp = 
 				(ExperimenterData) MeasurementAgent.getUserDetails();
 			if (async) {
-				currentSaver = new WorkflowSaver(component, workflowList, exp.getId());
+				currentSaver = new WorkflowSaver(component, 
+						workflowList, exp.getId());
 				currentSaver.load();
 				nofityDataChanged(false);
 			} else {
@@ -1017,7 +1018,6 @@ class MeasurementViewerModel
 			Logger log = MeasurementAgent.getRegistry().getLogger();
 			log.warn(this, "Cannot save workflows to server "+e.getMessage());
 		}
-		
 	}
 	
 	/**
@@ -1353,20 +1353,21 @@ class MeasurementViewerModel
 	boolean isServerROI() { return serverROI; }
 
 	/**
-	 * Set the workflow for the next ROI.
+	 * Sets the workflow for the next ROI.
+	 * 
 	 * @param workflowNamespace  See above.
 	 */
-	public void setWorkflow(String workflowNamespace)
+	void setWorkflow(String workflowNamespace)
 	{
-		if(workflowNamespace.equals(WorkflowData.DEFAULTWORKFLOW))
+		if (workflowNamespace == null) return;
+		if (WorkflowData.DEFAULTWORKFLOW.equals(workflowNamespace))
 		{
 			this.workflowNamespace = workflowNamespace;
 			this.keyword = new ArrayList<String>();
-		}
-		else
-		{
-			if(!workflows.containsKey(workflowNamespace))
-				throw new IllegalArgumentException("Workflow " + workflowNamespace + " does not exist");
+		} else {
+			if (!workflows.containsKey(workflowNamespace))
+				throw new IllegalArgumentException("Workflow " + 
+						workflowNamespace + " does not exist");
 			this.workflowNamespace = workflowNamespace;
 			this.keyword = new ArrayList<String>();
 		}
@@ -1377,64 +1378,64 @@ class MeasurementViewerModel
 	 *  
 	 * @return See above.
 	 */
-	public WorkflowData getWorkflow()
+	WorkflowData getWorkflow()
 	{
-		if(workflowNamespace != WorkflowData.DEFAULTWORKFLOW)
+		if (workflowNamespace != WorkflowData.DEFAULTWORKFLOW)
 			return workflows.get(workflowNamespace);
 		return null;
 	}
 	
 	/** 
-	 * Add a new workflow to the workflow list;
+	 * Adds a new workflow to the workflow list;
 	 * @param workflow See above.
 	 */
-	public void addWorkflow(WorkflowData workflow)
+	void addWorkflow(WorkflowData workflow)
 	{
-		workflows.put(workflow.getNameSpace(), workflow);
-		
+		if (workflow != null)
+			workflows.put(workflow.getNameSpace(), workflow);
 	}
 
 	/** 
 	 * Get all the workflow namespaces in the model, as an array list
 	 * @return See above.
 	 */
-	public List<String> getWorkflows()
+	List<String> getWorkflows()
 	{
 		List<String> workflowList = new ArrayList<String>();
 		Iterator<String> i = workflows.keySet().iterator();
 		workflowList.add(WorkflowData.DEFAULTWORKFLOW);
-		while(i.hasNext())
-		{
+		while (i.hasNext())
 			workflowList.add(i.next());
-		}
 		return workflowList;
 	}
 
 	/**
-	 * Set the keyword of the workflow to keyword, the keyword must exist in 
+	 * Sets the keyword of the workflow to keyword, the keyword must exist in 
 	 * the workflow to be set.
 	 * @param keyword See above.
 	 */
-	public void setKeyword(List<String> keywords)
+	void setKeyword(List<String> keywords)
 	{
-		if(keywords.size()==0)
+		if (keywords == null) return;
+		if (keywords.size() == 0)
 			this.keyword = keywords;
 		else
 		{
 			WorkflowData workflow = getWorkflow();
-			for(String word : keywords)
-				if(!workflow.contains(word) && word != "")
-					throw new IllegalArgumentException("Workflow does not contain keyword '" + keyword +"'");
+			for (String word : keywords)
+				if (!workflow.contains(word) && word != "")
+					throw new IllegalArgumentException(
+							"Workflow does not contain keyword '" +
+							keyword +"'");
 			this.keyword = keywords;
 		}
 	}
 	
 	/**
-	 * Get the keywords associated with the namespace that have been selected.
+	 * Returns the keywords associated with the namespace that have been 
+	 * selected.
 	 * @return See above.
 	 */
-	public List<String> getKeywords()
-	{
-		return keyword;
-	}
+	List<String> getKeywords() { return keyword; }
+	
 }	

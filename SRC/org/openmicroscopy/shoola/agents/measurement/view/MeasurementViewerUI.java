@@ -196,8 +196,11 @@ class MeasurementViewerUI
     /** The collection of components displaying the tables. */
     private List<ServerROITable>		roiTables;
     
-    private JMenuBar mainMenu;
-    private JMenu workflowMenu;
+    /** The main menu bar. */
+    private JMenuBar 					mainMenu;
+    
+    /** The menu bar handling the workflows. */
+    private JMenu 						workflowMenu;
 
     /**
      * Scrolls to the passed figure.
@@ -283,14 +286,13 @@ class MeasurementViewerUI
         ButtonGroup createFigureGroup = new ButtonGroup();
     	JMenu creationMenu = new JMenu("ROI Creation");
         a = controller.getAction(
-    			MeasurementViewerControl.CREATESINGLEFIGURE);
+    			MeasurementViewerControl.CREATE_SINGLE_FIGURE);
         createSingleFigure = new JCheckBoxMenuItem(a);
         createSingleFigure.setText(a.getName());
         createFigureGroup.add(createSingleFigure);
         creationMenu.add(createSingleFigure);
-        
         a = controller.getAction(
-        		MeasurementViewerControl.CREATEMULTIPLEFIGURE);
+        		MeasurementViewerControl.CREATE_MULTIPLE_FIGURES);
         createMultipleFigure = new JCheckBoxMenuItem(a);
         createMultipleFigure.setText(a.getName());
         createFigureGroup.add(createMultipleFigure);
@@ -310,30 +312,26 @@ class MeasurementViewerUI
         JMenu menu = new JMenu("Workflow");
        	JMenu existingWorkflow = new JMenu("Existing Workflows");
        	ButtonGroup workflows = new ButtonGroup();
-    	
         menu.setMnemonic(KeyEvent.VK_W);
         
         List<String> workFlows = model.getWorkflows();
-        
-        for(String workFlow : workFlows)
+        MeasurementViewerAction a;
+        JCheckBoxMenuItem workflowItem;
+        for (String workFlow : workFlows)
         {
-  
-        	MeasurementViewerAction a = controller.getAction(
-    			MeasurementViewerControl.SELECTWORKFLOW);
-        	JCheckBoxMenuItem workflowItem = new JCheckBoxMenuItem(a);
-        	if(workFlow == WorkflowData.DEFAULTWORKFLOW)
-        		workflowItem.setSelected(true);
+        	a = controller.getAction(MeasurementViewerControl.SELECT_WORKFLOW);
+        	workflowItem = new JCheckBoxMenuItem(a);
+        	workflowItem.setSelected(workFlow == WorkflowData.DEFAULTWORKFLOW);
         	workflowItem.setText(workFlow);
         	workflows.add(workflowItem);
         	existingWorkflow.add(workflowItem);
         }
         menu.add(existingWorkflow);    
-       	MeasurementViewerAction a = controller.getAction(
-    			MeasurementViewerControl.CREATEWORKFLOW);
+       	a = controller.getAction(MeasurementViewerControl.CREATE_WORKFLOW);
        	
-       	JMenuItem createWorkflow = new JMenuItem();
-       	createWorkflow.setText(a.getName());
-    	createWorkflow.addActionListener(a);
+       	//JMenuItem createWorkflow = new JMenuItem();
+       	//createWorkflow.setText(a.getName());
+    	//createWorkflow.addActionListener(a);
        	//menu.add(createWorkflow);
         return menu;
     }
@@ -1240,6 +1238,26 @@ class MeasurementViewerUI
 		if (model.getState() != MeasurementViewer.READY) return;
 		model.calculateStats(shapeList);
 	}
+
+    /**
+     * Update the workflow in the toolbar.
+     */
+	void addedWorkflow()
+	{
+		if (workflowMenu != null && mainMenu != null)
+		{
+			mainMenu.remove(workflowMenu);
+			workflowMenu = createWorkFlowMenu(); 
+			mainMenu.add(workflowMenu);
+			toolBar.addedWorkflow();
+		}
+	}
+	
+	/** Updates the workflow list. */
+	void updateWorkflow() { toolBar.updateWorkflow(); }
+	
+ 	/** Adds the workflow to the toolbar.  */
+	void createWorkflow() { toolBar.createWorkflow(); }
 	
     /** 
      * Overridden to the set the location of the {@link MeasurementViewer}.
@@ -1257,26 +1275,7 @@ class MeasurementViewerUI
             UIUtilities.incrementRelativeToAndShow(null, this);
         }
     }
-
-    /**
-     * Update the workflow in the toolbar.
-     */
-	public void addedWorkflow()
-	{
-		if(workflowMenu!=null && mainMenu!=null)
-		{
-			mainMenu.remove(workflowMenu);
-			workflowMenu = createWorkFlowMenu(); 
-			mainMenu.add(workflowMenu);
-			toolBar.addedWorkflow();
-		}
-	}
-	
-	public void updateWorkflow()
-	{
-		toolBar.updateWorkflow();
-	}
-	
+    
 	/** 
      * Overridden to the hide the window'd items of the UI.
      * @see TopWindow#setVisible() 
@@ -1286,14 +1285,6 @@ class MeasurementViewerUI
 		if(value==false)
 			toolBar.getWorkflowPanel().setVisible(false);
 		super.setVisible(value);
-	}
-
- 	/**
- 	 * Show the workflow for the toolbar.
- 	 */
-	public void createWorkflow()
-	{
-		toolBar.createWorkflow();
 	}
     
 }
