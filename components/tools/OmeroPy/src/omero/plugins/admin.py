@@ -127,6 +127,8 @@ class AdminControl(BaseControl):
             """)
 
         for k in ("start", "startasync", "deploy"):
+            self.actions[k].add_argument("--nodeonly", action="store_true",
+	    	help="""If set, then only tests if the icegridnode is running""")
             self.actions[k].add_argument("file", nargs="?",
                 help="""Application descriptor. If not provided, a default will be used""")
             self.actions[k].add_argument("targets", nargs="*",
@@ -354,6 +356,9 @@ class AdminControl(BaseControl):
         # node_only implies that "up" need not check for all
         # of blitz to be accessible but just that if the node
         # is running.
+        if not node_only:
+            node_only = getattr(args, "nodeonly", False)
+
         if self.ctx.rv == 0 and not node_only:
             try:
                 import Ice
@@ -390,7 +395,7 @@ class AdminControl(BaseControl):
             count = count - 1
             if count == 0:
                 self.ctx.die(43, "Failed to startup after 5 minutes")
-            elif 0 == self.status(args):
+            elif 0 == self.status(args, node_only = False):
                 break
             else:
                 self.ctx.out(".", newline = False)
@@ -411,8 +416,8 @@ class AdminControl(BaseControl):
         self.ctx.rv = 0
 
     def stopasync(self, args):
-        ##if 0 == self.status(args):
-        ##    self.ctx.err("Server not running")
+        if 0 == self.status(args, node_only=True):
+            self.ctx.err("Server not running")
         self.check_node(args)
         if self._isWindows():
             svc_name = "OMERO.%s" % args.node
