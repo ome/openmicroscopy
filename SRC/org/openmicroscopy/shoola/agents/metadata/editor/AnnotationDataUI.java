@@ -70,7 +70,6 @@ import info.clearthought.layout.TableLayout;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
-import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.SeparatorOneLineBorder;
 import pojos.AnnotationData;

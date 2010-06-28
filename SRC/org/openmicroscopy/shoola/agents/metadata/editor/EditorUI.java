@@ -522,6 +522,8 @@ class EditorUI
 	{
 		if (tag == null) return;
 		generalPane.removeTag(tag);
+		if (tag.getId() >= 0)
+			saveData(true);
 	}
 	
 	/**
@@ -547,6 +549,10 @@ class EditorUI
 	{
 		if (file == null) return;
 		generalPane.removeAttachedFile(file);
+		if (file instanceof FileAnnotationData) {
+			FileAnnotationData fa = (FileAnnotationData) file;
+			if (fa.getId() >= 0) saveData(true);	
+		}
 	}
 
 	/**
