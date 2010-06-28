@@ -65,6 +65,7 @@
     <property name="repeatInterval" value="60000" /><!-- millis -->
   </bean>
 
+  <!-- Disabling for 4.2 release (#1740)
   <bean id="temporaryRepository" class="ome.services.blitz.repo.TemporaryRepositoryI" destroy-method="close">
       <description>
         Test repository which will make the ${java.io.tmpdir} available for testing.
@@ -84,5 +85,6 @@
     <property name="jobDetail" ref="temporaryTakeoverRun" />
     <property name="repeatInterval" value="60000" /><!-- millis -->
   </bean>
+  -->
 
 </beans>
