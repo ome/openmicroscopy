@@ -41,7 +41,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JSeparator;
@@ -172,8 +171,7 @@ class ExperimenterPane
             area.setEditable(true);
             if (EditorUtil.DISPLAY_NAME.equals(key)) {
             	label = EditorUtil.getLabel(key, true);
-            	label.setBackground(UIUtilities.BACKGROUND);
-            	area.getDocument().addDocumentListener(this);
+            	area = nameArea;//area.getDocument().addDocumentListener(this);
             } else label = UIUtilities.setTextFont(key);
             items.put(key, area);
             c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last

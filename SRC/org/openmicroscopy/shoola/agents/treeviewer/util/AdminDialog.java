@@ -348,7 +348,6 @@ public class AdminDialog
 			body = new GroupPane();
 		}
 		body.addPropertyChangeListener(this);
-			
 		initComponents();
 		buildGUI();
 		pack();
