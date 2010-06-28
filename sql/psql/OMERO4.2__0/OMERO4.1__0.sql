@@ -7,15 +7,6 @@
 --- OMERO-Beta4.2 release upgrade from OMERO4.1__0 to OMERO4.2__0
 ---
 
-CREATE OR REPLACE FUNCTION unnest(anyarray)
-  RETURNS SETOF anyelement AS
-$BODY$
-SELECT $1[i] FROM
-    generate_series(array_lower($1,1),
-                    array_upper($1,1)) i;
-$BODY$
-  LANGUAGE 'sql' IMMUTABLE;
-
 BEGIN;
 
 -- Requirements:
@@ -1061,8 +1052,9 @@ ALTER TABLE sharemember
 
 ----
 --
--- Other changes for group permissions
+-- Other changes for group permissions (#1434)
 --
+
 CREATE OR REPLACE FUNCTION ome_perms(p bigint) RETURNS character varying
     LANGUAGE plpgsql
     AS $$
@@ -1086,6 +1078,17 @@ BEGIN
 
     RETURN ur || uw || gr || gw || wr || ww;
 END;$$;
+
+-- #2204: Various perm changes that can be made globally
+--
+-- Moving scripts from 4.1 into "user" group to keep old jobs readable.
+UPDATE originalfile SET group_id = user_group_id, permissions = user_group_permissions
+  FROM (select id as user_group_id, permissions as user_group_permissions
+          from experimentergroup where name = 'user') AS ug
+ WHERE group_id = 0
+   AND (cast(permissions as bit(64)) & cast(   4 as bit(64))) = cast(   4 as bit(64))
+   AND name in ('populateroi.py', 'makemovie.py');
+
 
 ----
 --
