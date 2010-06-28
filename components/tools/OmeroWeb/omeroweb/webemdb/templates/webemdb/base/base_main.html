@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" class="noscroll">
+
+<head>
+
+    <title>OMERO EMDB {% block title %}{% endblock %}</title>
+    
+    <link rel="stylesheet" href="/appmedia/webemdb/css/base.css" type="text/css" />
+    {% block link %}{% endblock %}
+    
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.3.2.js" %}"></script>
+    {% block jscript %}{% endblock %}
+    {% block script %}{% endblock %}
+
+</head>
+
+<body>
+    
+    <div id="header_top">{% include "webemdb/base/header.html" %}</div>
+    <div id="header_menu"><div id="menu_bar">{% include "webemdb/base/menu.html" %}</div></div>
+    <div id="contentWrapper">{% block content %}{% endblock %}</div>
+    
+    <div id="footer"><a href="{% url webtest_logout %}">logout</a></dir>
+</body>
+
+</html>

@@ -1,0 +1,54 @@
+#entry_header {
+    background: white;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    width: 100%;
+}
+
+.entryImage {
+    width: 200px;
+}
+
+.entryTitle {
+    font-size: 120%;
+    margin: 10px;
+}
+
+.entrySubtitle {
+    margin: 10px;
+}
+
+
+
+#entry_data {
+    background: white;
+    width: 100%;
+}
+
+#entry_menu {
+    background: #adb3b3;
+}
+#entry_menu a:hover, #entry_menu a:link, #entry_menu a:visited {
+    text-decoration:none;
+    color: black;
+    margin: 5px;
+}
+
+
+.content .label {
+    color: gray;
+}
+
+#emdb_data {
+    margin: 15px;
+    font-size: 90%;
+}
+.content_title {
+    font-size: 130%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+#bigImg {
+    border:1px solid gray;
+}

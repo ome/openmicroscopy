@@ -1,0 +1,220 @@
+{% extends "webemdb/base/base_main.html" %}
+
+{% block title %} {{ project.name }} {% endblock %}
+
+{% block link %}
+<link rel="stylesheet" href="/appmedia/webemdb/css/entry.css" type="text/css" />
+{% endblock %}
+
+{% block jscript %}
+<script type="text/javascript">
+$(document).ready(function() {
+    $(".content").hide();
+    $("#SummaryData").show();
+    
+    xmlLink = $("#emdbxml").attr("href");
+    $.get(xmlLink, function(data) {
+        
+        // find these elements in the xml and put their text in corresponding html elements
+        var elementNames=["status","depositionDate","headerReleaseDate","mapReleaseDate","authors",
+            "articleTitle", "journal", "volume", "firstPage", "lastPage", "externalReference", "journalArticle",
+            "resolutionByAuthor", "resolutionMethod", "name", "aggregationState", "molWtTheo"];
+        for(var i=0; i<elementNames.length; i++){
+            name = elementNames[i];
+            $(data).find(name).each(function() {
+                var text = $(this).text();
+                var $target = $("#"+name);
+                $target.text(text);
+                
+                if (name == "externalReference") {      // set this as a link 
+                    link = "http://www.ncbi.nlm.nih.gov/pubmed/" + text + "?dopt=Abstract";
+                    $target.attr("href", link);
+                }
+                // these elements are found twice in the html 
+                if (name == "articleTitle" || name == "authors" || name == "aggregationState") {
+                    var $target2 = $("#"+name + "2");
+                    $target2.text(text);
+                }
+            });
+        }
+        // we have multiple samples in this list. Make a table with a row per sample
+        $(data).find("sampleComponentList").each(function() {
+            var html = "<table border='1'>";
+            html += "<tr><th>ID</th><th>Type</th><th>Name</th><th>Details</th><th>Oligomeric Details</th>" +
+                    "<th>Mutant</th><th>Source</th><tr>";
+            $(this).find("sampleComponent").each(function() {
+                var $sc = $(this);
+                var cols = ["entry", "sciName", "details", "oligomericDetails", "mutantFlag", "natSource"];
+                html += "<tr>";
+                html += "<td>" + $sc.attr('componentID') + "</td>";
+                for (var c=0; c<cols.length; c++) {
+                    t = $sc.find(cols[c]).text();
+                    html += "<td>" + t + "</td>";
+                }
+                html += "</tr>";
+            });
+            html += "</table>";
+            $("#sampleComponentList").append($(html));
+        });
+        
+        // handle this separately because of multiple 'details' in xml (need child of samplePreparation)
+        $(data).find("samplePreparation").each(function() {
+            var $sp = $(this);  // xml 
+            var $samplePreparation = $("#samplePreparation");  // html
+            var elements = ["ph", "sampleConc", "details", "staining", "sampleSupportDetails"];
+            for (var e=0; e<elements.length; e++) {
+                t = $sp.find(elements[e]).text();
+                $samplePreparation.children("#"+ elements[e]).text(t);
+            }
+        });
+        // build html table from the 'vitrification' xml data
+        $(data).find("vitrification").each(function() {
+            var $vit = $(this);  // xml
+            var html = "<table>";
+            var elements = ["cryogenName", "humidity", "temperature", "instrument", "method", "timeResolvedState", "details"];
+            var labels = ["Cryogen Name", "Humidity", "Temp", "Instr", "Method", "Time Resolved", "Details"];
+            for (var e=0; e<elements.length; e++) {
+                t = $vit.find(elements[e]).text();
+                html += "<tr><td align='right' class='label'>" + labels[e] + ":</td><td>" + t + "</td></tr>";
+            }
+            html += "</table>"
+            $("#vitrification").append($(html));
+        });
+        // build html table from the 'imaging' xml data
+        $(data).find("imaging").each(function() {
+            var $img = $(this);  // xml
+            var html = "<table>";
+            var elements = ["microscope", "acceleratingVoltage", "illuminationMode", "imagingMode", "nominalCs", 
+            "nominalDefocusMin", "nominalDefocusMax", "nominalMagnification","calibratedMagnification","electronSource",
+            "detector","detectorDistance", "astigmatism", "specimenHolder","specimenHolderModel", "tiltAngleMin",
+            "tiltAngleMax","energyFilter", "energyWindow", "temperature", "temperatureMin", "temperatureMax", "beamTilt",
+            "electronDose" , "details", "date"];
+            var labels = ["Microscope", "Voltage", "Illumination Mode", "Imaging Mode", "Cs", "Defocus Min", "Defocus Max",
+                "Nominal Mag", "Calibrated Mag", "Electron Source", "Detector", "Detector distance", "Astigmatism",
+                "Specimen Holder", "Holder Model", "Tilt Min", "Tilt Max", "Energy Filter", "Energy Window", "Temp.",
+                "Temp. Min", "Temp. Max", "Beam Tilt", "Electron Dose", "Other Details", "Date"];
+            for (var e=0; e<elements.length; e++) {
+                t = $img.find(elements[e]).text();
+                if ($img.find(elements[e]).attr('units')) { t+= " ("+ $img.find(elements[e]).attr('units') + ")"; }
+                html += "<tr><td align='right' class='label'>" + labels[e] + ":</td><td>" + t + "</td></tr>";
+            }
+            html += "</table>"
+            $("#imaging").append($(html));
+        });
+    });
+    
+    $(".nav").click(function() {
+        $(".content").hide();
+        var name = $(this).attr("id");
+        var contentId = "#" + name + "Data";
+        $(contentId).show();
+        return false;
+    });
+    
+ });
+</script>
+{% endblock %}
+
+{% block content %}
+{% if project %}
+<table id="entry_header">
+<tr>
+    <td valign="top">
+        <div><img id="entryImage" height="200" src="{% url webemdb.views.gif project.name gif.id %}" /></div>
+    </td>
+    <td valign="top">
+        <div class="entryTitle"><span id="articleTitle"></span></div>
+        <div class="entryTitle"><span id="authors"></span></div>
+        <div class="entrySubtitle">
+            Aggregation State: <span id="aggregationState"></span><br />
+            Download <a id="emdbxml" href="{% url webemdb.views.xml project.name xml.id %}">{{ xml.getFileName }}</a>
+        </div>
+    </td>
+</tr>
+</table>
+
+<table id="entry_data">
+<tr><td>
+    <table width="100%" id="entry_menu"><tr>
+            <td align="center"><a href="" class="nav" id="Summary">Summary</a></td>
+            <td align="center"><a href="" class="nav" id="Visualisation">Visualisation</a></td>
+            <td align="center"><a href="" class="nav" id="Sample">Sample</a></td>
+            <td align="center"><a href="" class="nav" id="Experiment">Experiment</a></td>
+            <td align="center"><a href="" class="nav" id="Processing">Processing</a></td>
+            <td align="center"><a href="" class="nav" id="MapInformation">Map Information</a></td>
+    </tr></table>
+</td></tr>
+</tr>
+    <td valign="top">
+        <div id="emdb_data">
+            <div class="content" id="SummaryData">
+                <div class="content_title">Summary:</div>
+                <table>
+                    <tr><td align="right" width="20%" class="label">Status: </td>
+                        <td><span id="status"></span></td></tr>
+                    <tr><td align="right" class="label">Deposition Date: </td>
+                        <td><span id="depositionDate"></span></td></tr>
+                    <tr><td align="right" class="label">Header Release Date: </td>
+                        <td><span id="headerReleaseDate"></span></td></tr>
+                    <tr><td align="right" class="label">Map Release Date: </td>
+                        <td><span id="mapReleaseDate"></span></td></tr>
+                    <tr><td align="right" valign="top" class="label">Primary Citation: </td>
+                        <td><span id="authors2"></span><br>
+                        <span id="articleTitle2"></span>
+                        <span id="journal"></span>(<span id="year"></span>)
+                        <b><span id="volume"></span></b>,
+                        <span id="firstPage"></span>-<span id="lastPage"></span>
+                        [PubMed entry <a id="externalReference"></a>]</td></tr>
+                    <tr><td align="right" class="label">Resolution: </td>
+                        <td><span id="resolutionByAuthor"></span> &Aring;
+                        (Resolution determined by <span id="resolutionMethod"></span>)</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="content" id="VisualisationData">
+                <table><tr>
+                    <td valign="top">
+                    <div class="content_title">Visualisation:</div>
+                    
+                    <img src="{% url webgateway.views.render_thumbnail img.id %}">
+                    <a href="{% url webgateway.views.full_viewer img.id %}" target="new">Open Viewer in new window</a>
+                    </td>
+                    <td valign="top">
+                    <img id="bigImg" src="{% url webemdb.views.gif project.name gif.id %}" />
+                    </td>
+                </tr></table>
+            </div>
+            <div class="content" id="SampleData">
+                <div class="content_title">Sample:</div>
+                
+                <lu>
+                <li>Sample Name: <span id="name"></span></li>
+                <li>Aggregation State: <span id="aggregationState2"></span></li>
+                <li>Theoretical Molecular Weight: <span id="molWtTheo"></span></li>
+                <li>Components: <div id="sampleComponentList"></div>
+                </lu>
+            </div>
+            <div class="content" id="ExperimentData">
+                <div class="content_title">Experiment</div>
+                <div id="expData"></div>
+                {% include "webemdb/entry/experiment.html" %}
+            </div>
+            <div class="content" id="ProcessingData">
+                <div class="content_title">Processing</div>
+                {% include "webemdb/entry/processing.html" %}
+            </div>
+            <div class="content" id="MapInformationData">
+                <div class="content_title">Map Information</div>
+            </div>
+        </div>
+    </td>
+</tr>
+</table>
+    
+{% else %}
+
+    EMDB entry not found
+
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,40 @@
+body {
+    font-family:arial; 
+    padding:0px; 
+    margin:0px;
+    background: #dde3e3;
+}
+
+#header_top {
+    width: 900px;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+#header_menu {
+    background: #666666;
+}
+
+#contentWrapper {
+    width: 900px;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+#menu_bar {
+    width: 900px;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+#menu_bar a:hover, #menu_bar a:link, #menu_bar a:visited {
+    text-decoration:none;
+    color: white;
+    margin: 10px;
+}
+
+#footer {
+    width: 900px;
+    margin-left:auto;
+    margin-right:auto;
+}
