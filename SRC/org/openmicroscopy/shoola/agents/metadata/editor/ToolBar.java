@@ -152,12 +152,14 @@ class ToolBar
 		saveButton.addActionListener(controller);
 		saveButton.setActionCommand(""+EditorControl.SAVE);
 		saveButton.setEnabled(false);
+		saveButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		
 		downloadButton = new JButton(icons.getIcon(IconManager.DOWNLOAD));
 		downloadButton.setToolTipText("Download the Archived File(s).");
 		downloadButton.addActionListener(controller);
 		downloadButton.setActionCommand(""+EditorControl.DOWNLOAD);
 		downloadButton.setEnabled(false);
+		downloadButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		
 		rndButton = new JButton(icons.getIcon(IconManager.RENDERER));
 		rndButton.setToolTipText("Rendering control for the primary selected " +
@@ -165,15 +167,18 @@ class ToolBar
 		rndButton.addActionListener(controller);
 		rndButton.setActionCommand(""+EditorControl.RENDERER);
 		rndButton.setEnabled(false);
+		rndButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		
 		refreshButton = new JButton(icons.getIcon(IconManager.REFRESH));
 		refreshButton.setToolTipText("Refresh the selected tab.");
 		refreshButton.addActionListener(controller);
 		refreshButton.setActionCommand(""+EditorControl.REFRESH);
+		refreshButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		
 		publishingButton = new JButton(icons.getIcon(IconManager.PUBLISHING));
 		publishingButton.setToolTipText("Display the publishing options.");
 		publishingButton.setEnabled(false);
+		publishingButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		publishingButton.addMouseListener(new MouseAdapter() {
 			
 			/**
@@ -189,6 +194,7 @@ class ToolBar
 		analysisButton = new JButton(icons.getIcon(IconManager.ANALYSIS));
 		analysisButton.setToolTipText("Display the analysis options.");
 		analysisButton.setEnabled(false);
+		analysisButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		analysisButton.addMouseListener(new MouseAdapter() {
 			
 			/**
@@ -204,6 +210,7 @@ class ToolBar
 		scriptsButton = new JButton(icons.getIcon(IconManager.ANALYSIS_RUN));
 		scriptsButton.setToolTipText("Display the available scripts.");
 		scriptsButton.setEnabled(false);
+		scriptsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		scriptsButton.addMouseListener(new MouseAdapter() {
 			
 			/**
@@ -228,6 +235,7 @@ class ToolBar
 		uploadScriptButton.setToolTipText("Upload a script to the server.");
 		uploadScriptButton.addActionListener(controller);
 		uploadScriptButton.setActionCommand(""+EditorControl.UPLOAD_SCRIPT);
+		uploadScriptButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		
 		UIUtilities.unifiedButtonLookAndFeel(uploadScriptButton);
 		
@@ -239,6 +247,7 @@ class ToolBar
 		UIUtilities.unifiedButtonLookAndFeel(publishingButton);
 		UIUtilities.unifiedButtonLookAndFeel(analysisButton);
 		UIUtilities.unifiedButtonLookAndFeel(scriptsButton);
+		
 		Dimension d = new Dimension(UIUtilities.DEFAULT_ICON_WIDTH, 
 				UIUtilities.DEFAULT_ICON_HEIGHT);
     	busyLabel = new JXBusyLabel(d);
@@ -291,6 +300,7 @@ class ToolBar
     	pp.setBackground(UIUtilities.BACKGROUND_COLOR);
     	p.add(pp);
     	setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+    	setBackground(UIUtilities.BACKGROUND_COLOR);
     	add(p);
     	add(new JSeparator());
     }

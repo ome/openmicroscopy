@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -224,9 +225,10 @@ class PropertiesUI
     	//descriptionPane = new RegexTextPane(f.getFamily(), f.getSize()-2);
     	//descriptionPane.installDefaultRegEx();
     	//descriptionPane.addPropertyChangeListener(controller);
-    	descriptionPane.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
     	
-    	descriptionPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	//descriptionPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	//descriptionPane.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+    	
     	descriptionPane.addPropertyChangeListener(this);
     	//descriptionPane.setLineWrap(true);
     	//descriptionPane.setColumns(20);
@@ -239,7 +241,6 @@ class PropertiesUI
     		}
 		});
 		*/
-    	descriptionPane.setText(DEFAULT_TEXT);
     	descriptionPane.setEnabled(false);
     	descriptionPane.setAllowOneClick(true);
     	descriptionPane.addFocusListener(this);
@@ -642,7 +643,6 @@ class PropertiesUI
         	(refObject instanceof WellSampleData) |
         	(refObject instanceof PlateData) ||
         	(refObject instanceof ScreenData)) {
-        	//|| (refObject instanceof FolderData)) {
         	 p.add(Box.createVerticalStrut(5));
         	 descriptionPanel = layoutEditablefield(editDescription, 
         			 descriptionPane, 80);
@@ -859,7 +859,10 @@ class PropertiesUI
 		if (originalDescription == null || originalDescription.length() == 0)
 			originalDescription = DEFAULT_DESCRIPTION_TEXT;
 		descriptionPane.setText(originalDescription);
-        
+		descriptionPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	descriptionPane.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+    	
+		
         if ((refObject instanceof WellSampleData) ||
         		(refObject instanceof PlateAcquisitionData)) b = false;
         

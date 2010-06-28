@@ -212,6 +212,7 @@ public class OMEWikiComponent
 	{
 		defaultText = "";
 		pane = new OMEEditPane(this, formatters);
+		pane.setBackground(UIUtilities.BACKGROUND_COLOR);
 		installDefaultAction();
 		if (toolbar) {
 			toolBar = new JToolBar();
@@ -239,6 +240,7 @@ public class OMEWikiComponent
 			p.add(Box.createVerticalStrut(2));
 			add(p, BorderLayout.NORTH);
 		}
+		pane.setBackground(UIUtilities.BACKGROUND_COLOR);
 		add(pane, BorderLayout.CENTER);
 	}
 	
@@ -472,7 +474,7 @@ public class OMEWikiComponent
 	public void setEnabled(boolean enabled)
 	{
 		super.setEnabled(enabled);
-		if (pane != null) pane.setEnabled(enabled);
+		if (pane != null) pane.setEditable(enabled);
 		Iterator<JButton> i = toolBarActions.iterator();
 		while (i.hasNext()) 
 			i.next().setEnabled(enabled);
@@ -493,7 +495,6 @@ public class OMEWikiComponent
 				}
 			}
 		}
-		
 		if (pane != null) pane.setBackground(color);
 		if (toolBar != null) {
 			toolBar.setBackground(color);
