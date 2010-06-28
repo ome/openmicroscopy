@@ -388,12 +388,12 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
     * Values are indexed by the column "index" on ${prop.type}
     */
     @javax.persistence.JoinColumn(name="${prop.inverse}", nullable=false)
-    @javax.persistence.OneToMany(fetch=javax.persistence.FetchType.LAZY, cascade={${cascadeEjb}}, orphanRemoval=true)
+    @javax.persistence.OneToMany(fetch=javax.persistence.FetchType.LAZY, cascade={${cascadeEjb}})
     @org.hibernate.annotations.IndexColumn(name="${prop.inverse}_index", nullable=false)
 #else
     * one-to-many Set ${type.id}.${prop.name} (${prop.type})
     */
-    @javax.persistence.OneToMany(mappedBy="${prop.inverse}", fetch=javax.persistence.FetchType.LAZY, cascade={${cascadeEjb}}, orphanRemoval=true)
+    @javax.persistence.OneToMany(mappedBy="${prop.inverse}", fetch=javax.persistence.FetchType.LAZY, cascade={${cascadeEjb}})
 #end
     @org.hibernate.annotations.Cascade({${cascadeHibCollection}})
 ##
