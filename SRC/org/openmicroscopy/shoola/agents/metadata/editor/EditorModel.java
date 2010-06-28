@@ -667,7 +667,7 @@ class EditorModel
 			o = (DataObject) entry.getKey();
 			if (o.getId() == ann.getId()) {
 				exp = (ExperimenterData) entry.getValue();
-				return id == exp.getId();
+				if (id == exp.getId()) return true;
 			}
 		}
 		return false;
