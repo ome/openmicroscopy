@@ -60,12 +60,15 @@ $(document).ready(function() {
         // handle this separately because of multiple 'details' in xml (need child of samplePreparation)
         $(data).find("samplePreparation").each(function() {
             var $sp = $(this);  // xml 
-            var $samplePreparation = $("#samplePreparation");  // html
+            var html = "<table>";
             var elements = ["ph", "sampleConc", "details", "staining", "sampleSupportDetails"];
+            var labels = ["pH", "Sample Conc", "Details", "Staining", "Sample Support Details"];
             for (var e=0; e<elements.length; e++) {
                 t = $sp.find(elements[e]).text();
-                $samplePreparation.children("#"+ elements[e]).text(t);
+                html += "<tr><td align='right' class='label'>" + labels[e] + ":</td><td>" + t + "</td></tr>";
             }
+            html += "</table>"
+            $("#samplePreparation").append($(html));
         });
         // build html table from the 'vitrification' xml data
         $(data).find("vitrification").each(function() {
@@ -197,11 +200,11 @@ $(document).ready(function() {
             <div class="content" id="ExperimentData">
                 <div class="content_title">Experiment</div>
                 <div id="expData"></div>
-                {% include "webemdb/entry/experiment.html" %}
+                {% include "webemdb/entries/experiment.html" %}
             </div>
             <div class="content" id="ProcessingData">
                 <div class="content_title">Processing</div>
-                {% include "webemdb/entry/processing.html" %}
+                {% include "webemdb/entries/processing.html" %}
             </div>
             <div class="content" id="MapInformationData">
                 <div class="content_title">Map Information</div>

@@ -164,6 +164,7 @@ INSTALLED_APPS = (
     'omeroweb.webclient',
     'omeroweb.webgateway',
     'omeroweb.webtest',
+    'omeroweb.webemdb',
 )
 
 FEEDBACK_URL = "qa.openmicroscopy.org.uk:80"
