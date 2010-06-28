@@ -83,7 +83,7 @@
   </bean>
   <bean id="temporaryTakeoverTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
     <property name="jobDetail" ref="temporaryTakeoverRun" />
-    <property name="repeatInterval" value="60000" /><!-- millis -->
+    <property name="repeatInterval" value="60000" />
   </bean>
   -->
 
