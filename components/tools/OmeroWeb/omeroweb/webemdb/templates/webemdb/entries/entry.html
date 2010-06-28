@@ -7,115 +7,7 @@
 {% endblock %}
 
 {% block jscript %}
-<script type="text/javascript">
-$(document).ready(function() {
-    $(".content").hide();
-    $("#SummaryData").show();
-    
-    xmlLink = $("#emdbxml").attr("href");
-    $.get(xmlLink, function(data) {
-        
-        // find these elements in the xml and put their text in corresponding html elements
-        var elementNames=["status","depositionDate","headerReleaseDate","mapReleaseDate","authors",
-            "articleTitle", "journal", "volume", "firstPage", "lastPage", "externalReference", "journalArticle",
-            "resolutionByAuthor", "resolutionMethod", "name", "aggregationState", "molWtTheo"];
-        for(var i=0; i<elementNames.length; i++){
-            name = elementNames[i];
-            $(data).find(name).each(function() {
-                var text = $(this).text();
-                var $target = $("#"+name);
-                $target.text(text);
-                
-                if (name == "externalReference") {      // set this as a link 
-                    link = "http://www.ncbi.nlm.nih.gov/pubmed/" + text + "?dopt=Abstract";
-                    $target.attr("href", link);
-                }
-                // these elements are found twice in the html 
-                if (name == "articleTitle" || name == "authors" || name == "aggregationState") {
-                    var $target2 = $("#"+name + "2");
-                    $target2.text(text);
-                }
-            });
-        }
-        // we have multiple samples in this list. Make a table with a row per sample
-        $(data).find("sampleComponentList").each(function() {
-            var html = "<table border='1'>";
-            html += "<tr><th>ID</th><th>Type</th><th>Name</th><th>Details</th><th>Oligomeric Details</th>" +
-                    "<th>Mutant</th><th>Source</th><tr>";
-            $(this).find("sampleComponent").each(function() {
-                var $sc = $(this);
-                var cols = ["entry", "sciName", "details", "oligomericDetails", "mutantFlag", "natSource"];
-                html += "<tr>";
-                html += "<td>" + $sc.attr('componentID') + "</td>";
-                for (var c=0; c<cols.length; c++) {
-                    t = $sc.find(cols[c]).text();
-                    html += "<td>" + t + "</td>";
-                }
-                html += "</tr>";
-            });
-            html += "</table>";
-            $("#sampleComponentList").append($(html));
-        });
-        
-        // handle this separately because of multiple 'details' in xml (need child of samplePreparation)
-        $(data).find("samplePreparation").each(function() {
-            var $sp = $(this);  // xml 
-            var html = "<table>";
-            var elements = ["ph", "sampleConc", "details", "staining", "sampleSupportDetails"];
-            var labels = ["pH", "Sample Conc", "Details", "Staining", "Sample Support Details"];
-            for (var e=0; e<elements.length; e++) {
-                t = $sp.find(elements[e]).text();
-                html += "<tr><td align='right' class='label'>" + labels[e] + ":</td><td>" + t + "</td></tr>";
-            }
-            html += "</table>"
-            $("#samplePreparation").append($(html));
-        });
-        // build html table from the 'vitrification' xml data
-        $(data).find("vitrification").each(function() {
-            var $vit = $(this);  // xml
-            var html = "<table>";
-            var elements = ["cryogenName", "humidity", "temperature", "instrument", "method", "timeResolvedState", "details"];
-            var labels = ["Cryogen Name", "Humidity", "Temp", "Instr", "Method", "Time Resolved", "Details"];
-            for (var e=0; e<elements.length; e++) {
-                t = $vit.find(elements[e]).text();
-                html += "<tr><td align='right' class='label'>" + labels[e] + ":</td><td>" + t + "</td></tr>";
-            }
-            html += "</table>"
-            $("#vitrification").append($(html));
-        });
-        // build html table from the 'imaging' xml data
-        $(data).find("imaging").each(function() {
-            var $img = $(this);  // xml
-            var html = "<table>";
-            var elements = ["microscope", "acceleratingVoltage", "illuminationMode", "imagingMode", "nominalCs", 
-            "nominalDefocusMin", "nominalDefocusMax", "nominalMagnification","calibratedMagnification","electronSource",
-            "detector","detectorDistance", "astigmatism", "specimenHolder","specimenHolderModel", "tiltAngleMin",
-            "tiltAngleMax","energyFilter", "energyWindow", "temperature", "temperatureMin", "temperatureMax", "beamTilt",
-            "electronDose" , "details", "date"];
-            var labels = ["Microscope", "Voltage", "Illumination Mode", "Imaging Mode", "Cs", "Defocus Min", "Defocus Max",
-                "Nominal Mag", "Calibrated Mag", "Electron Source", "Detector", "Detector distance", "Astigmatism",
-                "Specimen Holder", "Holder Model", "Tilt Min", "Tilt Max", "Energy Filter", "Energy Window", "Temp.",
-                "Temp. Min", "Temp. Max", "Beam Tilt", "Electron Dose", "Other Details", "Date"];
-            for (var e=0; e<elements.length; e++) {
-                t = $img.find(elements[e]).text();
-                if ($img.find(elements[e]).attr('units')) { t+= " ("+ $img.find(elements[e]).attr('units') + ")"; }
-                html += "<tr><td align='right' class='label'>" + labels[e] + ":</td><td>" + t + "</td></tr>";
-            }
-            html += "</table>"
-            $("#imaging").append($(html));
-        });
-    });
-    
-    $(".nav").click(function() {
-        $(".content").hide();
-        var name = $(this).attr("id");
-        var contentId = "#" + name + "Data";
-        $(contentId).show();
-        return false;
-    });
-    
- });
-</script>
+<script type="text/javascript" src="/appmedia/webemdb/javascript/entry.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -130,7 +22,8 @@ $(document).ready(function() {
         <div class="entryTitle"><span id="authors"></span></div>
         <div class="entrySubtitle">
             Aggregation State: <span id="aggregationState"></span><br />
-            Download <a id="emdbxml" href="{% url webemdb.views.xml project.name xml.id %}">{{ xml.getFileName }}</a>
+            Download: <a id="emdbxml" href="{% url webemdb.views.xml project.name xml.id %}">{{ xml.getFileName }}</a>
+            <a id="emdbxml" href="{% url webemdb.views.map img.id map.id %}">{{ map.getFileName }}</a>
         </div>
     </td>
 </tr>
@@ -178,7 +71,8 @@ $(document).ready(function() {
                 <table><tr>
                     <td valign="top">
                     <div class="content_title">Visualisation:</div>
-                    
+                    <span id="annotationDetails"></span><br />
+                    Suggested contour level for viewing the map <span id="contourLevel"></span><br />
                     <img src="{% url webgateway.views.render_thumbnail img.id %}">
                     <a href="{% url webgateway.views.full_viewer img.id %}" target="new">Open Viewer in new window</a>
                     </td>
@@ -200,7 +94,13 @@ $(document).ready(function() {
             <div class="content" id="ExperimentData">
                 <div class="content_title">Experiment</div>
                 <div id="expData"></div>
-                {% include "webemdb/entries/experiment.html" %}
+                <!-- javascript adds tables with data for these sections -->
+                Sample Preparation
+                <div id="samplePreparation"></div>
+                Vitrification
+                <div id="vitrification"></div>
+                Imaging Conditions
+                <div id="imaging"></div>
             </div>
             <div class="content" id="ProcessingData">
                 <div class="content_title">Processing</div>

@@ -3,10 +3,12 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from omeroweb.webgateway.views import getBlitzConnection, _session_logout
 from omeroweb.webgateway import views as webgateway_views
+from webclient.controller.annotation import BaseAnnotation
 import settings
 import logging
 import traceback
 import omero
+import omero.constants
 
 logger = logging.getLogger('webemdb')
 
@@ -24,34 +26,78 @@ def entry (request, entryId):
         
     # find the mrc map image. E.g emd_1003.map In a dataset named same as project E.g. 1003
     img = None
+    mrcMap = None
+    namespace = omero.constants.namespaces.NSCOMPANIONFILE 
     imgName = "emd_%s.map" % entryName
     for d in project.listChildren():
         if d.getName() == entryName:
             for i in d.listChildren():
                 if i.getName() == imgName:
                     img = i
+                    for a in img.listAnnotations():
+                        if imgName == a.getFileName() and a.getNs() == namespace:
+                            mrcMap = a
                     break
-        
     #print dir(project)
     xml = None
     gif = None
     xmlName = "emd-%s.xml" % entryName
     gifName = "%s.gif" % entryName
     for a in project.listAnnotations():
-        #print dir(a)
-        #print a.getFileName()
         if xmlName == a.getFileName():
             xml = a
-        if gifName == a.getFileName():
+        elif gifName == a.getFileName():
             gif = a
     
     #if xml:
         #print dir(xml)
         #print xml.getFile()
-    return render_to_response('webemdb/entries/entry.html', {'project':project, 'xml': xml, 'gif': gif, 'img': img})
+    return render_to_response('webemdb/entries/entry.html', 
+        {'project':project, 'xml': xml, 'gif': gif, 'img': img, 'map': mrcMap})
         
+        
+
+def map (request, imageId, fileId):
+    """
+    Gets the file by Id and returns it as a mrc map.
+    N.B. We get the file from the Project it is attached to, because the 
+    project.listAnnotations() method returns the original file in a wrapper which provides
+    the file data with getFile(). 
+    see http://djangosnippets.org/snippets/365/  for zip, temp file, etc
+    """
+    conn = getBlitzConnection (request)
+    if conn is None or not conn.isConnected():
+        return HttpResponseRedirect(reverse('webemdb_login'))
+        
+    annotation = BaseAnnotation(conn)
+    annotation.getFileAnnotation(fileId)    
+    rsp = HttpResponse(annotation.originalFile_data)
+    rsp['ContentType'] = 'application/octet-stream'
+    rsp['Content-Disposition'] = 'attachment; filename=%s' % (a.getFileName())
+    return rsp
+    
+    image = conn.getImage(long(imageId))
+    imgName = image.getName()  # map named same as image
+    namespace = omero.constants.namespaces.NSCOMPANIONFILE
+    mrcMap = None
+    for a in image.listAnnotations():
+        if imgName == a.getFileName() and a.getNs() == namespace:
+            print type(a)
+            data = a.getFile()
+            rsp = HttpResponse(annotation.originalFile_data)
+            rsp['ContentType'] = 'application/octet-stream'
+            rsp['Content-Disposition'] = 'attachment; filename=%s' % (a.getFileName())
+            return rsp
+            
+    return HttpResponse()
     
 def gif (request, entryId, fileId):
+    """
+    Gets the file by Id and returns it as a gif image.
+    N.B. We get the file from the Project it is attached to, because the 
+    project.listAnnotations() method returns the original file in a wrapper which provides
+    the file data with getFile(). 
+    """
     conn = getBlitzConnection (request)
     if conn is None or not conn.isConnected():
         return HttpResponseRedirect(reverse('webemdb_login'))
@@ -65,6 +111,7 @@ def gif (request, entryId, fileId):
     for a in project.listAnnotations():
         if a.id == long(fileId):
             gif = a
+            print type(a)
     
     if gif:
         gif_data = gif.getFile()
@@ -73,6 +120,13 @@ def gif (request, entryId, fileId):
 
 
 def xml (request, entryId, fileId):
+    """
+    Gets the file by Id and returns it as an xml for display.
+    N.B. We get the file from the Project it is attached to, because the 
+    project.listAnnotations() method returns the original file in a wrapper which provides
+    the file data with getFile(). 
+    """
+    
     conn = getBlitzConnection (request)
     if conn is None or not conn.isConnected():
         return HttpResponseRedirect(reverse('webemdb_login'))
