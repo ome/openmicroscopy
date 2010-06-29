@@ -254,6 +254,7 @@ class Context:
     def parser_init(self, parser):
         parser.add_argument("-v", "--version", action="version", version="%%(prog)s %s" % VERSION)
         parser.add_argument("-d", "--debug", help="Use 'help debug' for more information", default = SUPPRESS)
+        parser.add_argument("--path", help="Add file or directory to plugin list. Supports globs.", action = "append")
         self.add_login(parser)
         subparsers = parser.add_subparsers(title="Subcommands", description=OMEROSUBS, metavar=OMEROSUBM)
         return subparsers
@@ -666,6 +667,7 @@ class CLI(cmd.Cmd, Context):
         self.rv = 0                         #: Return value to be returned
         self._stack = []                    #: List of commands being processed
         self._client = None                 #: Single client for all activities
+        self._plugin_paths = [OMEROCLI / "plugins"] #: Paths to be loaded; initially official plugins
         self._pluginsLoaded = CLI.PluginsLoaded()
 
     def assertRC(self):
@@ -1018,23 +1020,29 @@ class CLI(cmd.Cmd, Context):
         in the parser
         """
 
+        for plugin_path in self._plugin_paths:
+            self.loadpath(path(plugin_path))
 
-        plugins = OMEROCLI / "plugins"
-        for plugin in plugins.walkfiles("*.py"):
-            if self.isdebug:
-                print "Loading " + plugin
-            if -1 == plugin.find("#"): # Omit emacs files
-                try:
-                    loc = {"register": self.register_only}
-                    execfile( plugin, loc )
-                except KeyboardInterrupt:
-                    raise
-                except:
-                    self.err("Error loading:"+plugin)
-                    traceback.print_exc()
         self.configure_plugins()
         self._pluginsLoaded.set()
         self.post_process()
+
+    def loadpath(self, pathobj):
+        if pathobj.isdir():
+            for plugin in pathobj.walkfiles("*.py"):
+                if -1 == plugin.find("#"): # Omit emacs files
+                    self.loadpath(path(plugin))
+        else:
+            if self.isdebug:
+                print "Loading %s" % pathobj
+            try:
+                loc = {"register": self.register_only}
+                execfile( str(pathobj), loc )
+            except KeyboardInterrupt:
+                raise
+            except:
+                self.err("Error loading: %s" % pathobj)
+                traceback.print_exc()
 
     ## End Cli
     ###########################################################
@@ -1066,7 +1074,18 @@ def argv(args=sys.argv):
                 parts.append(arg)
             args = parts
 
+        # Now load other plugins. After debugging is turned on, but before tracing.
         cli = CLI()
+
+        parser = Parser(add_help = False)
+        #parser.add_argument("-d", "--debug", help="Use 'help debug' for more information", default = SUPPRESS)
+        parser.add_argument("--path", help="Add file or directory to plugin list. Supports globs.", action = "append")
+        ns, args = parser.parse_known_args(args)
+        if getattr(ns, "path"):
+            for p in ns.path:
+                for g in glob.glob(p):
+                    cli._plugin_paths.append(g)
+
         class PluginLoader(Thread):
             def run(self):
                 cli.loadplugins()
