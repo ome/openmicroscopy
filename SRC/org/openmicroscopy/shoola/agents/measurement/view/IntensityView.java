@@ -754,8 +754,8 @@ class IntensityView
 	private void saveResults() 
 	{
 		channelsSelectionForm = new ChannelSelectionForm(channelName);
-		ArrayList<FileFilter> filterList=new ArrayList<FileFilter>();
-		FileFilter filter=new ExcelFilter();
+		List<FileFilter> filterList = new ArrayList<FileFilter>();
+		FileFilter filter = new ExcelFilter();
 		filterList.add(filter);
 		FileChooser chooser=
 				new FileChooser(
@@ -834,16 +834,20 @@ class IntensityView
 					}
 				}
 			writer.close();
-		}
-		catch (IOException e)
+		} catch (Exception e)
 		{
 			Logger logger = MeasurementAgent.getRegistry().getLogger();
 			logger.error(this, "Cannot save ROI results: "+e.toString());
 			
 			UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Save Results", "An error occured while trying to" +
-					" save the data.\n" +
-					"Please try again.");
+			String message = "An error occured while trying to" +
+			" save the data.\nPlease try again.";
+			if (e instanceof NumberFormatException) {
+				message = "We only support the British/American style of " +
+						"representing numbers,\nusing a decimal point rather " +
+						"than a comma.";
+			} 
+			un.notifyInfo("Save Results", message);
 		}
 	}
 	
@@ -882,7 +886,7 @@ class IntensityView
 		List<Integer> channels = new ArrayList<Integer>(channelName.keySet());
 		for (Integer c : channels)
 		{
-			for (int z = start.getZSection() ; z<= end.getZSection(); z++)
+			for (int z = start.getZSection() ; z <= end.getZSection(); z++)
 				for (int t = start.getTimePoint() ; t <= end.getTimePoint(); 
 					t++)
 				{
