@@ -54,7 +54,8 @@ class LoadControl(BaseControl):
 class ShellControl(BaseControl):
 
     def _configure(self, parser):
-        parser.add_argument("arg", nargs="*", help="Arguments for IPython")
+        parser.add_argument("--login", action="store_true", help="Logins in and sets the 'client' variable")
+        parser.add_argument("arg", nargs="*", help="Arguments for IPython.")
         parser.set_defaults(func=self.__call__)
 
     def __call__(self, args):
@@ -69,9 +70,15 @@ class ShellControl(BaseControl):
         if check.isUpgradeNeeded():
             self.ctx.out("")
 
+        ns = {}
+        if args.login:
+            import omero
+            client = self.ctx.conn(args)
+            ns = {"client": client, "omero":omero}
+
         from IPython.Shell import IPShellEmbed
         ipshell = IPShellEmbed(args.arg)
-        ipshell()
+        ipshell(local_ns=ns)
 
 
 class HelpControl(BaseControl):
@@ -143,7 +150,10 @@ Report bugs to <ome-users@openmicroscopy.org.uk>
 controls = {
     "help": (HelpControl, "Syntax help for all commands"),
     "quit": (QuitControl, "Quit application"),
-    "shell": (ShellControl, "Starts an IPython interpreter session"),
+    "shell": (ShellControl, """Starts an IPython interpreter session
+
+All arguments not understood vi %(prog)s will be passed to the shell.
+Use "--" to end parsing, e.g. '%(prog)s -- --help' for IPython help"""),
     "version": (VersionControl, "Version number"),
     "load": (LoadControl, """Load file as if it were sent on standard in.
 

@@ -71,7 +71,7 @@ class ScriptControl(BaseControl):
 
         sub = parser.sub()
 
-        help = parser.add(sub, self.help, "Extended help")
+        ## Disabling for 4.2 release. help = parser.add(sub, self.help, "Extended help")
 
         demo = parser.add(sub, self.demo, "Runs a short demo of the scripting system")
 

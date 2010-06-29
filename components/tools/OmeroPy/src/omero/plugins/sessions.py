@@ -11,7 +11,7 @@
 """
 
 
-import exceptions, subprocess, optparse, os, sys, time
+import exceptions, subprocess, optparse, os, sys, time, traceback, Ice
 import getpass, pickle
 import omero.java
 
@@ -218,7 +218,16 @@ class SessionsControl(BaseControl):
         if not rv:
             if not pasw:
                 pasw = self.ctx.input("Password:", hidden = True, required = True)
-            rv = store.create(name, pasw, props)
+            try:
+                rv = store.create(name, pasw, props)
+            except Ice.ConnectionRefusedException:
+                self.ctx.die(554, "Ice.ConnectionRefusedException: %s isn't running" % server)
+            except Ice.DNSException:
+                self.ctx.die(555, "Ice.DNSException: bad host name: '%s'" % server)
+            except exceptions.Exception, e:
+                exc = traceback.format_exc()
+                self.ctx.dbg(exc)
+                self.ctx.die(556, "InternalException: Failed to connection: %s" % e)
             action = "Created"
 
         return self.handle(rv, action)

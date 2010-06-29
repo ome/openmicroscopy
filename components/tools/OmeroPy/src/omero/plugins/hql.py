@@ -46,7 +46,7 @@ class HqlControl(BaseControl):
         q = c.sf.getQueryService()
         p = ParametersI()
         p.page(args.offset, args.limit)
-        rv = q.projection(args.query, p)
+        rv = self.project(q, args.query, p)
         has_details = self.display(rv)
         if args.quiet:
             return
@@ -72,8 +72,9 @@ To quit, enter 'q' or just enter.
 
             # Stay in loop
             if id.startswith("p"):
-                rv = p.page(p.getOffset().val + p.getLimit().val, p.getLimit())
-                rv = q.projection(args.query, p)
+                p.page(p.getOffset().val + p.getLimit().val, p.getLimit())
+                self.ctx.dbg("\nCurrent page: offset=%s, limit=%s\n" % (p.theFilter.offset.val, p.theFilter.limit.val))
+                rv = self.project(q, args.query, p)
                 self.display(rv)
             elif id.startswith("r"):
                 self.display(rv)
@@ -192,6 +193,16 @@ To quit, enter 'q' or just enter.
             else:
                 rv[k] = v
         return rv
+
+    def project(self, querySvc, queryStr, params):
+        import omero
+        try:
+            rv = querySvc.projection(queryStr, params)
+            self.ctx.set("last.hql.rv", rv)
+            return rv
+        except omero.QueryException, qe:
+            self.ctx.set("last.hql.rv", [])
+            self.ctx.die(52, "Bad query: %s" % qe.message)
 
 try:
     register("hql", HqlControl, HELP)

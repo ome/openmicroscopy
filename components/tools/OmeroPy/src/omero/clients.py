@@ -717,6 +717,8 @@ class BaseClient(object):
                 except Ice.ConnectTimeoutException:
                     # ok. Server probably went down
                     pass
+                # Possible other items to handle/ignore:
+                # * Ice.DNSException
             finally:
                 oldIc.destroy()
                 del oldIc._impl # WORKAROUND ticket:2007
