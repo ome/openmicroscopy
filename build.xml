@@ -256,12 +256,18 @@ java component.
     </target>
 
     <target name="release-zip" description="Zip the dist directory into ${product.name}-${omero.version}.zip">
-        <zip destfile="target/${product.name}-${omero.version}.zip">
+        <zip destfile="${omero.home}/target/${product.name}-${omero.version}.zip">
             <zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"
                 excludes="bin/omero"/>
             <zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"
                 includes="bin/omero"
                 filemode="755"/>
+        </zip>
+        <zip destfile="${omero.home}/target/OMERO.py-${omero.version}.zip">
+            <zipfileset dir="${dist.dir}" prefix="OMERO.py-${omero.version}"
+                includes="bin/**,etc/**,lib/python/**,lib/fallback/**,sql/**" excludes="bin/omero"/>
+            <zipfileset dir="${dist.dir}" prefix="OMERO.py-${omero.version}"
+                includes="bin/omero" filemode="755"/>
         </zip>
         <zip destfile="${omero.home}/target/OMERO.java-${omero.version}.zip">
             <zipfileset dir="${blitz.comp}/src"         prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
