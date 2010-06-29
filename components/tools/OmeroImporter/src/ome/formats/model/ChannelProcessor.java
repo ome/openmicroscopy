@@ -423,7 +423,7 @@ public class ChannelProcessor implements ModelProcessor
     	{
     		if (FormatTools.GRAPHICS_DOMAIN.equals(domain))
     		{
-    			log.debug("Images are of the grahpics domain.");
+    			log.debug("Images are of the graphics domain.");
     			isGraphicsDomain = true;
     			break;
     		}
