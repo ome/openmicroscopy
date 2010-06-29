@@ -52,7 +52,7 @@ class NodeControl(BaseControl):
         myoutput = self.dir / path(props["Ice.StdErr"])
         if not myoutput.exists():
 	        pass
-	else:
+        else:
                 print "from %s:" % str(myoutput)
                 print tail_lines(str(myoutput),2)
 

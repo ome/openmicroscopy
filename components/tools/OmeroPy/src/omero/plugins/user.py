@@ -80,18 +80,18 @@ class UserControl(BaseControl):
         pasw = args.userpassword
 
         from omero.rtypes import rstring
-	from omero_model_ExperimenterI import ExperimenterI as Exp
-	from omero_model_ExperimenterGroupI import ExperimenterGroupI as Grp
+        from omero_model_ExperimenterI import ExperimenterI as Exp
+        from omero_model_ExperimenterGroupI import ExperimenterGroupI as Grp
         c = self.ctx.conn(args)
-	p = c.ic.getProperties()
-	e = Exp()
-	e.omeName = rstring(login)
-	e.firstName = rstring(first)
-	e.lastName = rstring(last)
-	e.middleName = rstring(middle)
-	e.email = rstring(email)
-	e.institution = rstring(inst)
-	admin = c.getSession().getAdminService()
+        p = c.ic.getProperties()
+        e = Exp()
+        e.omeName = rstring(login)
+        e.firstName = rstring(first)
+        e.lastName = rstring(last)
+        e.middleName = rstring(middle)
+        e.email = rstring(email)
+        e.institution = rstring(inst)
+        admin = c.getSession().getAdminService()
 
         groups = [admin.lookupGroup(group) for group in args.member_of]
         roles = admin.getSecurityRoles()

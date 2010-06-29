@@ -25,7 +25,7 @@ class PerfControl(BaseControl):
         parser.set_defaults(func=self.__call__)
 
     def __call__(self, args):
-	import omero.install.perf_test as perf_test
+        import omero.install.perf_test as perf_test
         if args.longhelp:
             self.ctx.out(perf_test.usage(prog = PROG_NAME))
             return

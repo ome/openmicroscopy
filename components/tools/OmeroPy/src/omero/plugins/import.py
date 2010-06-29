@@ -68,7 +68,7 @@ class ImportControl(BaseControl):
         # facilitate the omero.util.import_candidates.as_dictionary
         # call. This may not always be necessary.
         out = args.file
-	err = args.errs
+        err = args.errs
 
         if out:
             args.args.remove(out)
