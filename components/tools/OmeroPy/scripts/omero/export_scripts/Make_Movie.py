@@ -77,7 +77,7 @@ MOVIE_NS = omero.constants.metadata.NSMOVIE
 formatNSMap = {MPEG:MOVIE_NS, QT:MOVIE_NS, WMV:MOVIE_NS}
 formatExtensionMap = {MPEG:"avi", QT:"avi", WMV:"avi"}
 formatMap = {MPEG:"avi", QT:"avi", WMV:"avi"}
-formatMimetypes = {MPEG:"video/mpeg", QT:"video/quicktime", WMV:"video/wmv"}
+formatMimetypes = {MPEG:"MPEG", QT:"QT", WMV:"WMV"}
 OVERLAYCOLOUR = "#666666"
     
 
