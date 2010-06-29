@@ -227,8 +227,8 @@ class TreeViewerWin
    			 	container.add(new TaskPaneBrowser(browser));
     		}
             
-    		browser = (Browser) browsers.get(Browser.FILE_SYSTEM_EXPLORER);
-    		container.add(new TaskPaneBrowser(browser));
+    		//browser = (Browser) browsers.get(Browser.FILE_SYSTEM_EXPLORER);
+    		//container.add(new TaskPaneBrowser(browser));
              
             browser = (Browser) browsers.get(Browser.FILES_EXPLORER);
             container.add(new TaskPaneBrowser(browser));
