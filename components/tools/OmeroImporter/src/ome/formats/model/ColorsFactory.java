@@ -82,6 +82,9 @@ public class ColorsFactory {
      */
     private static final int RED_MAX = 700;
 
+    /** The value to add to the cut-in to determine the color. */
+    private static final int RANGE = 15;
+    
     /**
      * Returns <code>true</code> if the wavelength is in the blue
      * color band, <code>false</code> otherwise.
@@ -215,11 +218,11 @@ public class ColorsFactory {
     	
     	if (emission) {
     		if (cutIn == null) return null;
-        	return cutIn+5;
+        	return cutIn+RANGE;
     	}
     	Integer cutOut = getValue(transmittance.getCutOut());
     	if (cutOut == null) return null;
-    	if (cutIn == null || cutIn == 0) cutIn = cutOut-10;
+    	if (cutIn == null || cutIn == 0) cutIn = cutOut-2*RANGE;
     	Integer v = (cutIn+cutOut)/2;
     	if (v < 0) return 0;
     	return v;
