@@ -35,6 +35,7 @@ import org.springframework.util.ResourceUtils;
 
 public class Main {
 
+    static String[] excludes;
     static OmeroContext context;
     static Executor executor;
     static SessionFactory factory;
@@ -51,6 +52,12 @@ public class Main {
         rawQuery = (IQuery) context.getBean("internal-ome.api.IQuery");
         manager = (SessionManager) context.getBean("sessionManager");
         bridge = (FullTextBridge) context.getBean("fullTextBridge");
+        String excludesStr = context.getProperty("omero.search.excludes");
+        if (excludesStr != null) {
+            excludes = excludesStr.split(",");
+        } else {
+            excludes = new String[]{};
+        }
     }
 
     protected static FullTextThread createFullTextThread(EventLogLoader loader) {
@@ -117,6 +124,7 @@ public class Main {
         init();
         final AllEntitiesPseudoLogLoader loader = new AllEntitiesPseudoLogLoader();
         loader.setQueryService(rawQuery);
+        loader.setExcludes(excludes);
         loader.setClasses(factory.getAllClassMetadata().keySet());
         final FullTextThread ftt = createFullTextThread(loader);
         while (loader.more() > 0) {
@@ -138,6 +146,7 @@ public class Main {
     public static void indexAllEvents() {
         init();
         final AllEventsLogLoader loader = new AllEventsLogLoader();
+        loader.setExcludes(excludes);
         loader.setQueryService(rawQuery);
         final FullTextThread ftt = createFullTextThread(loader);
 

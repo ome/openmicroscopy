@@ -72,7 +72,7 @@ class AdminControl(BaseControl):
 
         class Action(object):
             def __init__(this, name, help):
-                this.parser = sub.add_parser(name, help=help)
+                this.parser = sub.add_parser(name, help=help, description=help)
                 this.parser.set_defaults(func=getattr(self, name))
                 self.actions[name] = this.parser
 
@@ -111,6 +111,32 @@ class AdminControl(BaseControl):
 
         Action("waitdown", """Used by stop after calling stopasync to wait on status!=0""")
 
+        reindex = Action("reindex", """Re-index the Lucene index
+
+Command-line tool for re-index the database. This command must be run on the machine where
+/OMERO/FullText is located.
+
+Examples:
+  bin/omero admin reindex --full                                                # All objects
+  bin/omero admin reindex --reindex ome.model.core.Image                        # Only images
+  JAVA_OPTS="-Dlog4j.configuration=stderr.xml" bin/omero admin reindex --full   # Passing arguments to Java
+
+
+LIMITATION: omero.db.pass values do not currently get passed to the Java process. You will
+            need to all passwordless login to PostgreSQL. In fact, only the following properties
+	    are passed:
+
+	    omero.data.dir
+	    omero.search.*
+	    omero.db.* (excluding pass)
+
+""").parser
+        reindex.add_argument("--jdwp", help = "Activate remote debugging")
+        group = reindex.add_mutually_exclusive_group()
+        group.add_argument("--full", action="store_true", help = "Reindexes all non-excluded tables sequentially")
+        group.add_argument("--events", action="store_true", help = "Reindexes all non-excluded event logs chronologically")
+        group.add_argument("--class", nargs="+", help = "Reindexes the given classes sequentially")
+
         Action("checkwindows", """Run simple check of the local installation (Windows-only)""")
 
         Action("events", """Print event log (Windows-only)""")
@@ -134,7 +160,6 @@ class AdminControl(BaseControl):
             self.actions[k].add_argument("targets", nargs="*",
                 help="""Targets within the application descriptor which should be activated.
                         Common values are: "debug", "trace" """)
-
 
         DISABLED = """ see: http://www.zeroc.com/forums/bug-reports/4237-sporadic-freeze-errors-concurrent-icegridnode-access.html
            restart [filename] [targets]      : Calls stop followed by start args
@@ -699,6 +724,46 @@ OMERO Diagnostics %s
             except portalocker.LockException:
                 self.ctx.die(111, "Could not acquire lock on %s" % cfg_xml)
         return config
+
+    @with_config
+    def reindex(self, args, config):
+        import omero.java
+        server_dir = self.ctx.dir / "lib" / "server"
+        log4j = "-Dlog4j.configuration=log4j-cli.properties"
+        classpath = [ file.abspath() for file in server_dir.files("*.jar") ]
+        xargs = [ log4j, "-Xmx1024M", "-cp", os.pathsep.join(classpath) ]
+
+        cfg = config.as_map()
+        for x in ("name", "user", "host", "port"): # NOT passing password on command-line
+            k = "omero.db.%s" % x
+            if k in cfg:
+                v = cfg[k]
+                xargs.append("-D%s=%s" % (k, v))
+        if "omero.data.dir" in cfg:
+            xargs.append("-Domero.data.dir=%s" % cfg["omero.data.dir"])
+        for k, v in cfg.items():
+            if k.startswith("omero.search"):
+                xargs.append("-D%s=%s" % (k, cfg[k]))
+
+        cmd = ["ome.services.fulltext.Main"]
+
+        if args.full:
+            cmd.append("full")
+        elif args.events:
+            cmd.append("events")
+        elif getattr(args, "class"):
+            cmd.append("reindex")
+            cmd.extend(getattr(args, "class"))
+        else:
+            self.ctx.die(502, "No valid action: %s" % args)
+
+        debug = False
+        if getattr(args, "jdwp"):
+            debug = True
+
+        self.ctx.dbg("Launching Java: %s, debug=%s, xargs=%s" % (cmd, debug, xargs))
+        p = omero.java.popen(cmd, debug=debug, xargs=xargs, stdout=sys.stdout, stderr=sys.stderr) # FIXME. Shouldn't use std{out,err}
+        self.ctx.rv = p.wait()
 
 try:
     register("admin", AdminControl, HELP)

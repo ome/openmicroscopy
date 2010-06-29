@@ -46,6 +46,9 @@ public class AllEventsLogLoader extends EventLogLoader {
 
     @Override
     public long more() {
+        if (max < 0) {
+            return 1; // Not initialized.
+        }
         long diff = max - previous;
         return diff < 0 ? 0 : diff;
     }
