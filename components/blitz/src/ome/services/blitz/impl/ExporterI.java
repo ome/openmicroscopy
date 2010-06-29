@@ -355,6 +355,8 @@ public class ExporterI extends AbstractAmdServant implements
                                     reader.openBytes(i, plane);
                                     writer.saveBytes(i, plane);
                                 }
+                                retrieve = null;
+                                cleanup(null, null, writer);
                                 __cb.ice_response(file.length());
                             } catch (Exception e) {
                                 omero.InternalException ie = new omero.InternalException(
@@ -392,7 +394,6 @@ public class ExporterI extends AbstractAmdServant implements
                             } catch (Exception e) {
                                 log.error("Error closing writer", e);
                             }
-                            retrieve = null;
                         }
                     });
         } catch (Exception e) {
