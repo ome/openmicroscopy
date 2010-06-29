@@ -2488,20 +2488,37 @@ class ImViewerComponent
 		if (oldIndex == index) return;
 		
 		view.setSelectedPane(index);
+		/*
+		//Retrieve the color model of the selected pane
+		String cm = view.getSelectedPaneColorModel();
+		colorModel = model.getColorModel();
+		if (!colorModel.equals(cm)) {
+			int key = ColorModelAction.RGB_MODEL;
+			if (GREY_SCALE_MODEL.equals(cm))
+				key = ColorModelAction.GREY_SCALE_MODEL;
+			setColorModel(key);
+		}
+		firePropertyChange(TAB_SELECTION_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+		renderXYPlane();
+		*/
+		
 		if (oldIndex == ImViewer.GRID_INDEX) {
 			int key = ColorModelAction.RGB_MODEL;
 			if (GREY_SCALE_MODEL.equals(colorModel))
 				key = ColorModelAction.GREY_SCALE_MODEL;
 			setColorModel(key);
 		}
-		/*
+		
+		firePropertyChange(TAB_SELECTION_PROPERTY, Boolean.FALSE, Boolean.TRUE);
 		if ((oldIndex == ImViewer.PROJECTION_INDEX && 
 				index == ImViewer.VIEW_INDEX) ||
 				(index == ImViewer.PROJECTION_INDEX && 
 						oldIndex == ImViewer.VIEW_INDEX)) {
 			if (model.getBrowser().hasProjectedPreview()) renderXYPlane();
-		}*/
-		firePropertyChange(TAB_SELECTION_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+		} else {
+			renderXYPlane();
+		}
+		//firePropertyChange(TAB_SELECTION_PROPERTY, Boolean.FALSE, Boolean.TRUE);
 	}
 
 	/** 

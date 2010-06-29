@@ -74,6 +74,9 @@ import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
+
+import com.sun.media.jai.rmi.ColorModelProxy;
+
 import pojos.ChannelData;
 
 /** 
@@ -380,6 +383,23 @@ class ControlPane
             return icons.getIcon(IconManager.RGB);
         return null;
     }
+    
+    /**
+     * Returns the color model corresponding to the icon hosted by the
+     * passed button.
+     * 
+     * @param button The button to handle.
+     * @return
+     */
+    private String getColorModelFromIcon(JButton button)
+    {
+    	if (button == null) return null;
+    	Icon icon = button.getIcon();
+    	if (icons.getIcon(IconManager.GRAYSCALE).equals(icon))
+    		return ImViewer.GREY_SCALE_MODEL;
+    	return ImViewer.RGB_MODEL;
+    }
+    
 
     /** Initializes the components composing the display. */
     private void initComponents()
@@ -1583,8 +1603,8 @@ class ControlPane
 	void onColorModelChanged() 
 	{
 		String colorModel = model.getColorModel();
+		if (overlays == null) return;
 		if (ImViewer.GREY_SCALE_MODEL.equals(colorModel)) {
-			if (overlays == null) return;
 			overlays.removeActionListener(overlaysListener);
 			overlays.setSelected(false);
 			overlays.addActionListener(overlaysListener);
@@ -1594,7 +1614,6 @@ class ControlPane
 				 i.next().setEnabled(false);
 		} else {
 			boolean ready = model.getState() == ImViewer.READY;
-			if (overlays == null) return;
 			overlays.setEnabled(ready);
 			Iterator<ChannelButton> i = overlayButtons.iterator();
 			while (i.hasNext()) 
@@ -1708,6 +1727,24 @@ class ControlPane
 	 * @return See above.
 	 */
 	boolean isOverlayActive() { return overlays.isSelected(); }
+	
+	/**
+	 * Returns the color model of the pane currently selected.
+	 * 
+	 * @return See above.
+	 */
+	String getSelectedPaneColorModel()
+	{
+		switch (view.getTabbedIndex()) {
+			case ImViewer.GRID_INDEX:
+				return getColorModelFromIcon(colorModelButtonGrid);
+			case ImViewer.PROJECTION_INDEX:
+				return getColorModelFromIcon(colorModelButtonProjection);
+			case ImViewer.VIEW_INDEX:
+				default:
+				return getColorModelFromIcon(colorModelButton);
+		}
+	}
 	
     /**
      * Reacts to the selection of an item in the projection box

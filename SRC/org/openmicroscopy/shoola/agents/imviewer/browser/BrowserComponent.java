@@ -462,7 +462,6 @@ class BrowserComponent
 				break;
 			case ImViewer.VIEW_INDEX:	
 				view.zoomImage();
-				break;
 		}
 	}
 	

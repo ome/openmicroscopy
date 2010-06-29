@@ -1771,6 +1771,16 @@ class ImViewerUI
 		maximizeWindow();
 	}
 	
+	/**
+	 * Returns the color model of the pane currently selected.
+	 * 
+	 * @return See above.
+	 */
+	String getSelectedPaneColorModel()
+	{
+		return controlPane.getSelectedPaneColorModel();
+	}
+	
 	/** Centers the image when the user maximized the viewer. */
 	void maximizeWindow()
 	{
@@ -2414,6 +2424,7 @@ class ImViewerUI
 		c.add(component, BorderLayout.CENTER);
 		
 	}
+	
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 

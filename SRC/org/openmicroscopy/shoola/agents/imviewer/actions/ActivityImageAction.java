@@ -109,21 +109,21 @@ public class ActivityImageAction
 
     /** 
      * Required by {@link MouseListener} I/F but not actually needed in our
-     * case, no-op implementation.
+     * case, no-operation implementation.
      * @see MouseListener#mouseExited(MouseEvent)
      */   
     public void mouseExited(MouseEvent e) {}
     
     /** 
      * Required by {@link MouseListener} I/F but not actually needed in our
-     * case, no-op implementation.
+     * case, no-operation implementation.
      * @see MouseListener#mouseClicked(MouseEvent)
      */   
     public void mouseClicked(MouseEvent e) {}
  
     /** 
      * Required by {@link MouseListener} I/F but not actually needed in our
-     * case, no-op implementation.
+     * case, no-operation implementation.
      * @see MouseListener#mousePressed(MouseEvent)
      */
     public void mousePressed(MouseEvent me) {}

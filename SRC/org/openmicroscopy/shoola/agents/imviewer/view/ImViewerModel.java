@@ -669,6 +669,8 @@ class ImViewerModel
 	void firePlaneInfoRetrieval()
 	{
 		if (planeInfos != null && planeInfos.size() > 0) return;
+		int size = getMaxT()*getMaxC()*getMaxZ();
+		if (size >  OmeroImageService.MAX_PLANE_INFO) return;
 		PlaneInfoLoader loader = new PlaneInfoLoader(component, getPixelsID());
 		loader.load();
 	}
