@@ -130,8 +130,9 @@ end
 rois = maskComponent.getROI();
 for i = 0:rois.size()-1;
     roi = rois.get(i);
-    iUpdate.saveObject(roi);
+    rois.set(i,iUpdate.saveAndReturnObject(roi));
 end
+
 %     
 % for i = 1:numImages(ImageName)
 %     fieldname = strcat('Filename',FileName{i});

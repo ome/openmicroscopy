@@ -184,7 +184,7 @@ public class MaskClass
 	 * @param bit See above.
 	 * @param val See above.
 	 */
-	private static byte getBit(byte[] data, int bit) 
+	private byte getBit(byte[] data, int bit) 
 	{
 		int bytePosition = bit/8;
 		int bitPosition = bit%8;

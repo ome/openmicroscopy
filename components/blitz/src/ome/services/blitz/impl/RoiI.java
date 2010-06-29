@@ -207,7 +207,6 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                 	List<Long> idList = new ArrayList<Long>();
                 	for(Map<String, Object> idMap : mapList)
                 		 idList.add((Long)idMap.get("id"));
-                	System.err.println("IDLIST " + idList);	
                 	String hqlQuery = "select distinct r from Roi r join " +
                 			"r.image i join fetch r.shapes where r.id in (:ids)";
                 	hqlQuery = hqlQuery + " order by r.id";
@@ -493,20 +492,20 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
     	public byte[] asBytes() throws IOException
     	{
     	   		
-    		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-    		DataOutputStream outputStream = new DataOutputStream(byteStream);
-   			for(int x = min.x ; x < max.x + 1 ; x++)
-			{
-   				for(int y = min.y ; y < max.y + 1 ; y++)
-   				{
-     				if(points.contains(new Point(x,y)))
-    					outputStream.writeInt(colour);
+    		byte[] data = new byte[(int) Math.ceil((double)width*(double)height/8.0)];
+    		int offset = 0;
+    		for(int y = min.y ; y < max.y + 1 ; y++)
+    		{
+    			for(int x = min.x ; x < max.x + 1 ; x++)
+    			{
+    				if(points.contains(new Point(x,y)))
+    					setBit(data, offset, 1);
     				else
-						outputStream.writeInt(0);
+    					setBit(data, offset, 0);
+    				offset++;
     			}
     		}
-    		outputStream.close();
-    		return byteStream.toByteArray();
+    		return data;
     	}
     	
     	public void add(Point p)
@@ -544,6 +543,36 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
     		return mask;
     	}
     	
+    	/** 
+    	 * Set the bit value in a byte array at position bit to be the value
+    	 * value.
+    	 * @param data See above.
+    	 * @param bit See above.
+    	 * @param val See above.
+    	 */
+    	private void setBit(byte[] data, int bit, int val) 
+    	{
+    		int bytePosition = bit/8;
+    		int bitPosition = bit%8;
+    		data[bytePosition] = (byte) ((byte)(data[bytePosition]&
+    									(~(byte)(0x1<<bitPosition)))|
+    									(byte)(val<<bitPosition));
+    	}
+
+    	/** 
+    	 * Set the bit value in a byte array at position bit to be the value
+    	 * value.
+    	 * @param data See above.
+    	 * @param bit See above.
+    	 * @param val See above.
+    	 */
+    	private  byte getBit(byte[] data, int bit) 
+    	{
+    		int bytePosition = bit/8;
+    		int bitPosition = bit%8;
+    		return (byte) ((byte)(data[bytePosition] & (0x1<<bitPosition))!=0 ? (byte)1 : (byte)0);
+    	}
+
     }
     
     @SuppressWarnings("unchecked")
