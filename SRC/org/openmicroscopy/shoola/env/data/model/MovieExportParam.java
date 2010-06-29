@@ -339,9 +339,9 @@ public class MovieExportParam
 	public String getFormatAsString()
 	{
 		switch (format) {
-			case MPEG: return "video/mpeg";
-			case QT: return "video/quicktime";
-			case WMV: return "video/wmv";
+			case MPEG: return "MPEG";
+			case QT: return "Quicktime";
+			case WMV: return "WMV";
 			default:
 				return "";
 		}
