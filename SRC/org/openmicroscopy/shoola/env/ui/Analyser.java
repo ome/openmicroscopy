@@ -75,11 +75,11 @@ public class Analyser
     
     /**
      * Notifies that an error occurred.
-     * @see UserNotifierLoader#onException(String)
+     * @see UserNotifierLoader#onException(String, Exception)
      */
-    protected void onException(String message)
+    protected void onException(String message, Throwable ex)
     { 
-    	activity.notifyError("Unable to analyse data", message);
+    	activity.notifyError("Unable to analyse data", message, ex);
     }
     
     /** Notifies the user that an error occurred. */
@@ -154,7 +154,7 @@ public class Analyser
         Object o = fe.getPartialResult();
         if (o != null) {
         	if (o instanceof Boolean) {
-        		onException(MESSAGE_RUN); 
+        		onException(MESSAGE_RUN, null); 
         	} else {
         		callBack = (ScriptCallback) o;
             	callBack.setAdapter(this);
@@ -169,7 +169,7 @@ public class Analyser
      */
     public void handleResult(Object result)
     { 
-    	if (result == null) onException(MESSAGE_RESULT); 
+    	if (result == null) onException(MESSAGE_RESULT, null); 
     	else if (!(result instanceof Boolean)) {
     		activity.endActivity(result);
     	} 

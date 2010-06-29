@@ -56,11 +56,11 @@ public class ScriptUploader
     
     /**
      * Notifies that an error occurred.
-     * @see UserNotifierLoader#onException(String)
+     * @see UserNotifierLoader#onException(String, Throwable)
      */
-    protected void onException(String message)
+    protected void onException(String message, Throwable ex)
     { 
-    	activity.notifyError("Unable to upload the script", message);
+    	activity.notifyError("Unable to upload the script", message, ex);
     }
 
     /**
@@ -102,10 +102,10 @@ public class ScriptUploader
      */
     public void handleResult(Object result)
     { 
-    	if (result == null) onException(MESSAGE_RESULT);
+    	if (result == null) onException(MESSAGE_RESULT, null);
     	else if (result instanceof Long) {
 			Long value = (Long) result;
-			if (value < 0) onException(MESSAGE_RESULT);
+			if (value < 0) onException(MESSAGE_RESULT, null);
 			else activity.endActivity(result); 
 		}
     }

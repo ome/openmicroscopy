@@ -129,6 +129,9 @@ public abstract class ActivityComponent
 	/** ID to display the standard error. */
 	private static final int	ERROR = 6;
 	
+	/** ID to display the standard error. */
+	private static final int	EXCEPTION = 7;
+	
 	/** The key to look for to display the output message. */
 	private static final String MESSAGE = "Message";
 	
@@ -162,11 +165,17 @@ public abstract class ActivityComponent
 	/** The tool bar displaying controls. *. */
 	private JToolBar					toolBar;
 	
+	/** Button to shows the exception. */
+	private JButton						exceptionButton;
+	
 	/** Menu displaying the option to view the standard error. */
 	private ActivityResultMenu			errorMenu;
 	
 	/** Menu displaying the option to view the standard output. */
 	private ActivityResultMenu			infoMenu;
+	
+	/** The exception thrown while running the script. */
+	private Throwable					exception;
 	
 	/** Button to download the result depending on the type of activity. */
 	protected JButton					downloadButton;
@@ -263,6 +272,8 @@ public abstract class ActivityComponent
 	 */
 	private void initComponents(String text, Icon icon)
 	{
+		exceptionButton = createButton("Error", EXCEPTION, this);
+		exceptionButton.setVisible(false);
 		removeButton = createButton("Remove", REMOVE, this);
 		cancelButton = createButton("Cancel", CANCEL, this);
 		//if (index == ADVANCED)
@@ -345,19 +356,21 @@ public abstract class ActivityComponent
 		toolBar.setBorder(null);
 		buttonIndex = 0;
 		//if (index == ADVANCED) {
-			toolBar.add(downloadButton);
-			toolBar.add(Box.createHorizontalStrut(5));
-			toolBar.add(viewButton);
-			toolBar.add(Box.createHorizontalStrut(5));
-			toolBar.add(resultButton);
-			toolBar.add(Box.createHorizontalStrut(5));
-			toolBar.add(errorButton);
-			toolBar.add(Box.createHorizontalStrut(5));
-			toolBar.add(infoButton);
-			toolBar.add(Box.createHorizontalStrut(5));
-			//toolBar.add(infoButton);
-			//toolBar.add(Box.createHorizontalStrut(5));
-			buttonIndex = 10;
+		toolBar.add(exceptionButton);
+		toolBar.add(Box.createHorizontalStrut(5));
+		toolBar.add(downloadButton);
+		toolBar.add(Box.createHorizontalStrut(5));
+		toolBar.add(viewButton);
+		toolBar.add(Box.createHorizontalStrut(5));
+		toolBar.add(resultButton);
+		toolBar.add(Box.createHorizontalStrut(5));
+		toolBar.add(errorButton);
+		toolBar.add(Box.createHorizontalStrut(5));
+		toolBar.add(infoButton);
+		toolBar.add(Box.createHorizontalStrut(5));
+		//toolBar.add(infoButton);
+		//toolBar.add(Box.createHorizontalStrut(5));
+		buttonIndex = 12;
 		//}
 		toolBar.add(cancelButton);
 		JLabel l = new JLabel();
@@ -388,6 +401,7 @@ public abstract class ActivityComponent
 		infoButton.setVisible(false);
 		resultButton.setVisible(false);
 		errorButton.setVisible(false);
+		exceptionButton.setVisible(false);
 		status.setBusy(false);
 		status.setVisible(false);
 		statusPane = iconLabel;
@@ -432,6 +446,14 @@ public abstract class ActivityComponent
 		JFrame f = registry.getTaskBar().getFrame();
 		ActivityResultDialog d = new ActivityResultDialog(f, this, result);
 		UIUtilities.centerAndShow(d);
+	}
+	
+	/** Shows the exception. */
+	private void showException()
+	{
+		if (exception == null) return;
+		viewer.notifyError(type.getText(), messageLabel.getText(), exception);
+		
 	}
 	
 	/**
@@ -770,12 +792,17 @@ public abstract class ActivityComponent
 	 * 
 	 * @param text The text to set.
 	 * @param message The reason of the error.
+	 * @param ex The exception to handle.
 	 */
-	public void notifyError(String text, String message)
+	public void notifyError(String text, String message, Throwable ex)
 	{
 		reset();
 		if (text != null) type.setText(text);
 		if (message != null) messageLabel.setText(message);
+		exception = ex;
+		if (exception != null) {
+			exceptionButton.setVisible(true);
+		}
 		firePropertyChange(UNREGISTER_ACTIVITY_PROPERTY, null, this);
 		EventBus bus = registry.getEventBus();
 		bus.post(new ActivityProcessEvent(this, false));
@@ -822,6 +849,9 @@ public abstract class ActivityComponent
 				break;
 			case RESULT:
 				showResult();
+				break;
+			case EXCEPTION:
+				showException();
 		}
 	}
 	
@@ -839,6 +869,7 @@ public abstract class ActivityComponent
 		if (viewButton != null) viewButton.setBackground(color);
 		if (infoButton != null) infoButton.setBackground(color);
 		if (errorButton != null) errorButton.setBackground(color);
+		if (exceptionButton != null) exceptionButton.setBackground(color);
 	}
 	
 }

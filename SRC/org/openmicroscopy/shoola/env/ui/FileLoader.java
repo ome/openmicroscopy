@@ -78,11 +78,11 @@ public class FileLoader
 
     /**
      * Notifies that an error occurred.
-     * @see UserNotifierLoader#onException(String)
+     * @see UserNotifierLoader#onException(String, Throwable)
      */
-    protected void onException(String message)
+    protected void onException(String message, Throwable ex)
     { 
-    	activity.notifyError("Unable to download the file", message);
+    	activity.notifyError("Unable to download the file", message, ex);
     }
     
     /**
@@ -172,7 +172,7 @@ public class FileLoader
      */
     public void handleResult(Object result)
     { 
-    	if (result == null) onException(MESSAGE_RESULT);
+    	if (result == null) onException(MESSAGE_RESULT, null);
     	else {
     		if (activity != null) activity.endActivity(result); 
     	}

@@ -465,7 +465,6 @@ class OMEROGateway
 	         ScriptProcessPrx prx = svc.runScript(scriptID, parameters, null);
 	         cb = new ScriptCallback(scriptID, secureClient, prx);
 		} catch (Exception e) {
-			e.printStackTrace();
 			if (cb != null) cb.close();
 			throw new ScriptingException("Cannot run script with ID:"+scriptID, 
 					e);

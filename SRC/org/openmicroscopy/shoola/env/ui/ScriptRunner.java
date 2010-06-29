@@ -64,9 +64,9 @@ public class ScriptRunner
      * Notifies that an error occurred.
      * @see UserNotifierLoader#onException(String)
      */
-    protected void onException(String message)
+    protected void onException(String message, Throwable ex)
     { 
-    	activity.notifyError("Unable to run the script", message);
+    	activity.notifyError("Unable to run the script", message, ex);
     }
     
     /**
@@ -122,7 +122,7 @@ public class ScriptRunner
         Object o = fe.getPartialResult();
         if (o != null) {
         	if (o instanceof Boolean) {
-        		onException(MESSAGE_RUN); 
+        		onException(MESSAGE_RUN, null); 
         	} else {
         		callBack = (ScriptCallback) o;
             	callBack.setAdapter(this);
@@ -137,7 +137,7 @@ public class ScriptRunner
      */
     public void handleResult(Object result)
     { 
-    	if (result == null) onException(MESSAGE_RESULT); 
+    	if (result == null) onException(MESSAGE_RESULT, null); 
     	else if (!(result instanceof Boolean)) {
     		activity.endActivity(result);
     	} 

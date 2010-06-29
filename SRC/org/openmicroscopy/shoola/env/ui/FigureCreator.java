@@ -71,11 +71,11 @@ public class FigureCreator
    
     /**
      * Notifies that an error occurred.
-     * @see UserNotifierLoader#onException(String)
+     * @see UserNotifierLoader#onException(String, Throwable)
      */
-    protected void onException(String message)
+    protected void onException(String message, Throwable ex)
     { 
-    	activity.notifyError("Unable to create figure", message);
+    	activity.notifyError("Unable to create figure", message, ex);
     }
     
     /**
@@ -139,7 +139,7 @@ public class FigureCreator
         Object o = fe.getPartialResult();
         if (o != null) {
         	if (o instanceof Boolean) {
-        		onException(MESSAGE_RUN); 
+        		onException(MESSAGE_RUN, null); 
         	} else {
         		callBack = (ScriptCallback) o;
             	callBack.setAdapter(this);
@@ -154,7 +154,7 @@ public class FigureCreator
      */
     public void handleResult(Object result)
     { 
-    	if (result == null) onException(MESSAGE_RESULT); 
+    	if (result == null) onException(MESSAGE_RESULT, null); 
     	else if (!(result instanceof Boolean)) {
     		activity.endActivity(result);
     	} 

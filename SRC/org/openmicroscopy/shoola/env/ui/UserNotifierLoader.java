@@ -131,14 +131,15 @@ abstract class UserNotifierLoader
         msg.print(s);
         msg.print(exc);
         registry.getLogger().error(this, msg);
-        onException(exc.getMessage());
+        onException(exc.getMessage(), exc);
     }
     
     /** Subclasses should override this method.
      * 
      * @param message The message to display.
+     * @param exception The exception to handle.
      */
-    protected void onException(String message) {};
+    protected void onException(String message, Throwable ex) {};
     
     /** Fires an asynchronous data loading. */
     public abstract void load();

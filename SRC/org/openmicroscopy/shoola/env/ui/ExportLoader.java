@@ -70,16 +70,18 @@ public class ExportLoader
     
     /**
      * Notifies that an error occurred.
-     * @see UserNotifierLoader#onException(String)
+     * @see UserNotifierLoader#onException(String, Throwable)
      */
-    protected void onException(String message)
+    protected void onException(String message, Throwable ex)
     { 
     	switch (index) {
 			case EXPORT_AS_OME_TIFF:
-				activity.notifyError("Unable to export as OME-TIFF", message);
+				activity.notifyError("Unable to export as OME-TIFF", 
+						message, ex);
 				break;
 			case EXPORT_AS_OME_XML:
-				activity.notifyError("Unable to export as OME-XML", message);
+				activity.notifyError("Unable to export as OME-XML", message, 
+						ex);
     	}
     }
     
@@ -127,7 +129,7 @@ public class ExportLoader
      */
     public void handleResult(Object result)
     { 
-    	if (result == null) onException(MESSAGE_RESULT);
+    	if (result == null) onException(MESSAGE_RESULT, null);
     	else activity.endActivity(result); 
     }
     

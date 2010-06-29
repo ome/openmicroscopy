@@ -68,6 +68,9 @@ import pojos.WorkflowData;
 public interface OmeroImageService
 {
   
+	/** The maximum number of plane info objects.*/
+	public static final int    MAX_PLANE_INFO = 6000;
+	
 	/** The extension causing a problem in bf lib. TMP solution. */
 	public static final String ZIP_EXTENSION = ".zip";
 	
