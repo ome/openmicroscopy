@@ -68,7 +68,8 @@ from PIL import Image
 from PIL import ImageDraw
 import omero_Constants_ice
 
-COLOURS = scriptUtil.COLOURS.update(scriptUtil.EXTRA_COLOURS)    # name:(rgba) map
+COLOURS = scriptUtil.COLOURS;
+COLOURS.update(scriptUtil.EXTRA_COLOURS)    # name:(rgba) map
 
 MPEG = 'MPEG'
 QT = 'Quicktime'
@@ -134,6 +135,7 @@ def rangeFromList(list, index):
 def calculateAquisitionTime(session, pixelsId, cList, tzList):
     """ Loads the plane information. """
     queryService = session.getQueryService()
+    
     tRange = ",".join([str(i) for i in rangeFromList(tzList, 0)])
     zRange = ",".join([str(i) for i in rangeFromList(tzList, 1)])
     cRange = ",".join([str(i) for i in cList])
@@ -273,7 +275,7 @@ def calculateRanges(sizeZ, sizeT, commandArgs):
     planeMap = {}
     if "Plane_Map" not in commandArgs:
         zStart = 0
-        zEnd = sizeZ-1
+        zEnd = sizeZ
         if "Z_Start" in commandArgs and commandArgs["Z_Start"] > 0 and commandArgs["Z_Start"] < sizeZ:
             zStart = commandArgs["Z_Start"]
         if "Z_End" in commandArgs and commandArgs["Z_End"] > 0 and commandArgs["Z_End"] < sizeZ:
@@ -284,6 +286,10 @@ def calculateRanges(sizeZ, sizeT, commandArgs):
             tStart = commandArgs["T_Start"]
         if "T_End" in commandArgs and commandArgs["T_End"] > 0 and commandArgs["T_End"] < sizeT:
             tEnd = commandArgs["T_End"]+1
+        if(zEnd==zStart):
+            zEnd=zEnd+1;
+        if(tEnd==tStart):
+            tEnd=tEnd+1;
 
         zRange = range(zStart, zEnd)
         tRange = range(tStart, tEnd)
