@@ -55,6 +55,16 @@ END;' LANGUAGE plpgsql;
 SELECT omero_assert_db_version('OMERO4.1',0);
 DROP FUNCTION omero_assert_db_version(varchar, int);
 
+-- ####################################################################################################
+-- This section is a copy of omero-4.1-permissions-report.sql EXCEPT for the actual execute,
+-- "select omero_41_check()". That function is used to calculate any non-updateable structures,
+-- and if present, stop the upgrade.
+
+\set ACTION '''ABORT'''
+\i omero-4.1-permissions-report.sql
+
+-- ####################################################################################################
+
 
 INSERT into dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
              values ('OMERO4.2',     0,              'OMERO4.1',          0);
@@ -1089,6 +1099,17 @@ UPDATE originalfile SET group_id = user_group_id, permissions = user_group_permi
    AND (cast(permissions as bit(64)) & cast(   4 as bit(64))) = cast(   4 as bit(64))
    AND name in ('populateroi.py', 'makemovie.py');
 
+DELETE
+   FROM thumbnail
+  USING pixels
+  WHERE thumbnail.pixels = pixels.id
+    AND pixels.group_id <> thumbnail.group_id;
+
+DELETE
+   FROM renderingdef
+  USING pixels
+  WHERE renderingdef.pixels = pixels.id
+    AND pixels.group_id <> renderingdef.group_id;
 
 ----
 --
