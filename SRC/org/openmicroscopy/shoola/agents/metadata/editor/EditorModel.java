@@ -1250,6 +1250,7 @@ class EditorModel
 	 */
 	void setRootObject(Object refObject)
 	{ 
+		boolean b = isSameObject(refObject);
 		this.refObject = refObject; 
 		parentRefObject = null;
 		if (thumbnails != null) thumbnails.clear();
@@ -1265,26 +1266,29 @@ class EditorModel
 		if (existingAttachments != null) 
 			existingAttachments.clear();
 	    existingAttachments = null;
-	    if (emissionsWavelengths != null) 
-	    	emissionsWavelengths.clear();
-	    emissionsWavelengths = null;
-	    if (channelAcquisitionDataMap != null)
-	    	channelAcquisitionDataMap.clear();
-	    if (channelPlaneInfoMap != null)
-	    	channelPlaneInfoMap.clear();
-	    imageAcquisitionData = null;
-	    instrumentData = null;
-	    originalMetadata = null;
-	    if (refObject instanceof ImageData || 
-	    		refObject instanceof WellSampleData) {
-	    	fireChannelEnumerationsLoading();
-	    	fireImageEnumerationsLoading();
-	    } else if (refObject instanceof ExperimenterData) {
-	    	fireExperimenterPhotoLoading();
-	    }
-	    if (renderer != null) {
-	    	renderer.discard();
-	    	renderer = null;
+	   
+	    if (!b) {
+	    	if (emissionsWavelengths != null) 
+	    		emissionsWavelengths.clear();
+	    	emissionsWavelengths = null;
+	    	if (channelAcquisitionDataMap != null)
+	    		channelAcquisitionDataMap.clear();
+	    	if (channelPlaneInfoMap != null)
+	    		channelPlaneInfoMap.clear();
+	    	imageAcquisitionData = null;
+	    	instrumentData = null;
+	    	originalMetadata = null;
+	    	if (refObject instanceof ImageData || 
+	    			refObject instanceof WellSampleData) {
+	    		fireChannelEnumerationsLoading();
+	    		fireImageEnumerationsLoading();
+	    	} else if (refObject instanceof ExperimenterData) {
+	    		fireExperimenterPhotoLoading();
+	    	}
+	    	if (renderer != null) {
+	    		renderer.discard();
+	    		renderer = null;
+	    	}
 	    }
 	} 
 

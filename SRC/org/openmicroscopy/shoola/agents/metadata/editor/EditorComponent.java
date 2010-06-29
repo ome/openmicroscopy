@@ -197,9 +197,14 @@ class EditorComponent
 		model.setRootObject(refObject);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		view.setRootObject();
-		if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC ||
-			view.getSelectedTab() == EditorUI.RND_INDEX)
-			loadRenderingControl(RenderingControlLoader.LOAD);
+		if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC) {
+			if (!model.isRendererLoaded()) {
+				loadRenderingControl(RenderingControlLoader.LOAD);
+			}
+		} else {
+			if (view.getSelectedTab() == EditorUI.RND_INDEX)
+				loadRenderingControl(RenderingControlLoader.LOAD);
+		}
 	}
 
 	/** 

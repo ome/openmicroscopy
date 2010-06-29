@@ -311,7 +311,6 @@ class EditorUI
 					tabPane.setEnabledAt(ACQUISITION_INDEX, img.getId() > 0);
 					preview = model.isPreviewAvailable();
 					tabPane.setEnabledAt(RND_INDEX, preview);
-					
 					if (!preview) {
 						tabPane.setToolTipTextAt(RND_INDEX, 
 								"Only available for image of size <= "+
@@ -322,7 +321,10 @@ class EditorUI
 					if (selected == RND_INDEX) {
 						tabPane.setComponentAt(RND_INDEX, dummyPanel);
 						//tabPane.setSelectedIndex(GENERAL_INDEX);
-						if (!preview) tabPane.setSelectedIndex(GENERAL_INDEX);
+						if (!preview && 
+								model.getRndIndex() != 
+									MetadataViewer.RND_SPECIFIC) 
+							tabPane.setSelectedIndex(GENERAL_INDEX);
 					}
 				} else if (uo instanceof WellSampleData) {
 					ImageData img = ((WellSampleData) uo).getImage();

@@ -60,7 +60,6 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
-import pojos.ImageData;
 import pojos.ProjectData;
 
 /** 

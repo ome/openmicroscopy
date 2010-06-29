@@ -68,6 +68,7 @@ import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -340,7 +341,11 @@ class MetadataViewerComponent
 					firePropertyChange(RENDER_THUMBNAIL_PROPERTY, -1, imageID);
 				}
 			} catch (Exception e) {
-				
+				String s = "Data Retrieval Failure: ";
+		    	LogMessage msg = new LogMessage();
+		        msg.print(s);
+		        msg.print(e);
+		        MetadataViewerAgent.getRegistry().getLogger().error(this, msg);
 			}
 			
 		}

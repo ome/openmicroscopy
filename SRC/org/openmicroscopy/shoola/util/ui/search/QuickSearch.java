@@ -649,7 +649,8 @@ public class QuickSearch
 	 */
 	public void setSearchEnabled(boolean enabled)
 	{
-		searchArea.setEnabled(enabled);
+		//searchArea.setEnabled(enabled);
+		searchArea.setEditable(enabled);
 	}
 	/**
 	 * Sets the value of the {@link #searchArea}.

@@ -129,7 +129,8 @@ public class QuickFiltering
 		}
     }
     
-	/** Creates a new instance. 
+	/** 
+	 * Creates a new instance. 
 	 * 
 	 * @param text The default context.
 	 * */
