@@ -103,42 +103,7 @@ class OmeroWebObjectWrapper (object):
         except: 
             logger.info(traceback.format_exc()) 
             return self.name
-        
-    def truncateNameForTree(self):
-        try:
-            name = self._obj.name.val
-            l = len(name)
-            if l < 38:
-                return name
-            return "..." + name[l - 35:]
-        except:
-            logger.info(traceback.format_exc())
-            return self._obj.name.val
     
-    def truncateNameForTable(self):
-        try:
-            name = self._obj.name.val
-            l = len(name)
-            if l < 68:
-                return name
-            return "..." + name[l - 65:]
-        except:
-            logger.info(traceback.format_exc())
-            return self._obj.name.val
-    
-    def truncateDescription(self):
-        try:
-            desc = self._obj.description
-            if desc == None or desc.val == "":
-                return None
-            l = len(desc.val)
-            if l <= 28:
-                return desc.val
-            return desc.val[:28] + "..."
-        except:
-            logger.info(traceback.format_exc())
-            return self._obj.description.val
-
 class AnnotationLinkWrapper (omero.gateway.BlitzObjectWrapper):
 
     def getAnnotation(self):

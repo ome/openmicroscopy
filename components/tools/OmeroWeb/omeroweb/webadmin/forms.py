@@ -32,7 +32,8 @@ from django.forms.widgets import HiddenInput
 
 from custom_forms import ServerModelChoiceField, \
         GroupModelChoiceField, GroupModelMultipleChoiceField, \
-        ExperimenterModelChoiceField, ExperimenterModelMultipleChoiceField
+        ExperimenterModelChoiceField, ExperimenterModelMultipleChoiceField, \
+        DefaultGroupField
 
 ##################################################################
 # Fields
@@ -79,7 +80,6 @@ class ForgottonPasswordForm(forms.Form):
     username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':28}))
     email = forms.EmailField(widget=forms.TextInput(attrs={'size':28}))
 
-
 class ExperimenterForm(forms.Form):
 
     def __init__(self, name_check=False, email_check=False, *args, **kwargs):
@@ -88,7 +88,7 @@ class ExperimenterForm(forms.Form):
         self.email_check=email_check 
         
         try:
-            self.fields['default_group'] = forms.ChoiceField(choices=kwargs['initial']['default'], widget=forms.RadioSelect(), required=True, label="Groups")
+            self.fields['default_group'] = DefaultGroupField(choices=kwargs['initial']['default'], widget=forms.RadioSelect(), required=True, label="Groups")
             self.fields['other_groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['others'], initial=kwargs['initial']['others'], required=False, widget=forms.SelectMultiple(attrs={'size':10}))
         except:
             self.fields['default_group'] = forms.ChoiceField(choices=list(), widget=forms.RadioSelect(), required=True, label="Groups")
@@ -109,10 +109,6 @@ class ExperimenterForm(forms.Form):
     
     password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30}), required=False)
     confirmation = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30}), required=False)
-    
-    def clean_default_group(self):
-        if not self.cleaned_data.get('default_group'):
-            raise forms.ValidationError('Default groups was not chosen.')
     
     def clean_omename(self):
         if self.name_check:
@@ -165,8 +161,7 @@ class ExperimenterLdapForm(forms.Form):
     def clean_email(self):
         if self.email_check:
             raise forms.ValidationError('This email already exist.')
-
-
+    
 class GroupForm(forms.Form):
     
     PERMISSION_CHOICES = (

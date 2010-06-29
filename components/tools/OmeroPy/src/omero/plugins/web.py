@@ -42,6 +42,10 @@ class WebControl(BaseControl):
         parser.add(sub, self.settings, "Primary configuration for web")
         parser.add(sub, self.custom_settings, "Advanced use: Creates only a a custom_settings.py")
 
+        start = parser.add(sub, self.start, "Primary start for webserver")
+        start.add_argument("host", nargs="*")
+        start.add_argument("port", nargs="*")
+        
         server = parser.add(sub, self.server, "Advanced use: Set to 'default' for django internal webserver or 'fastcfgi'")
         server.add_argument("server")
 
@@ -358,6 +362,25 @@ APPLICATION_HOST='%s'
         except:
             import traceback
             print traceback.print_exc()
+    
+    def start(self, args):
+        host = args.host is not None and args.host or "0.0.0.0"
+        port = args.port is not None and args.port or "8000"
+        link = ("%s:%s" % (host, port))
+        location = self.ctx.dir / "lib" / "python" / "omeroweb"
+        self.ctx.out("Starting django development webserver... \n")
+        import omeroweb.settings as settings
+        deploy = getattr(settings, 'APPLICATION_SERVER', 'default')
+        if deploy == 'fastcgi':
+            cmd = "python manage.py runfcgi workdir=./"
+            cmd += " method=prefork socket=%(base)s/var/django_fcgi.sock"
+            cmd += " pidfile=%(base)s/var/django.pid daemonize=false"
+            cmd += " maxchildren=5 minspare=1 maxspare=5 maxrequests=400"
+            django = (cmd % {'base': self.ctx.dir}).split()+list(args.arg)
+        else:
+            os.environ['PYTHONPATH'] = os.environ.get('PYTHONPATH', '.') + ':' + self.ctx.dir / "var" / "lib"
+            django = ["python","manage.py","runserver", link, "--noreload"]
+        rv = self.ctx.call(django, cwd = location)
 
 try:
     register("web", WebControl, HELP)

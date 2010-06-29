@@ -3681,9 +3681,11 @@ class _InstrumentWrapper (BlitzObjectWrapper):
 
     def __bstrap__ (self):
         self.OMERO_CLASS = 'Instrument'
-
+    
     def getMicroscope (self):
-        return MicroscopeWrapper(self._conn, self._obj.microscope)
+        if self._obj.microscope is not None:
+            return MicroscopeWrapper(self._conn, self._obj.microscope)
+        return None
 
     def getDetectors (self):
         return [DetectorWrapper(self._conn, x) for x in self._detectorSeq]

@@ -62,7 +62,7 @@
   </bean>
   <bean id="scriptTakeoverTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
     <property name="jobDetail" ref="scriptTakeoverRun" />
-    <property name="repeatInterval" value="60000" /><!-- millis -->
+    <property name="repeatInterval" value="60000" />
   </bean>
 
   <!-- Disabling for 4.2 release (#1740)

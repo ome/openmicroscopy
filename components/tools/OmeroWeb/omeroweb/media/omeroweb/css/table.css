@@ -44,7 +44,7 @@ td.roles, th.roles {
 
 td.action, th.action {
     text-align: left;
-    width: 70px;
+    width: 100px;
     padding: 2px 20px 2px 20px;
     border-bottom: 1px dashed #bbbbbb;
 }

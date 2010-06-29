@@ -50,12 +50,12 @@ input.addAllButton,
 input.removeAllButton{
 	border-color: #ccc;
 	text-align: center;
-	width: 20px;
-	margin: 5px;
+	margin: 2px;
+	padding: 0px;
 }
 input.removeButton,
 input.removeAllButton {
-	margin-top: 5px;
+	margin-top: 2px;
 }
 input.addAllButton {
 	margin-top: 15px;
@@ -65,7 +65,11 @@ input.addAllButton {
     display: none;
 }
 .pickListRadio {
-    vertical-align: top;
+    border:1px solid #bbb;
+    height:168px;
+    max-width:300px;
+    overflow:auto;
+    vertical-align:top;
 }
 .pickListRadio ul{
     list-style: none;

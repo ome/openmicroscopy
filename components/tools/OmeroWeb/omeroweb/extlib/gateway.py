@@ -643,32 +643,33 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         q = self.getQueryService()        
         if o_type == "image":
             sql = "select a from TagAnnotation as a " \
-                "where not exists ( select ial from ImageAnnotationLink as ial where ial.child=a.id and ial.parent.id=:oid ) " \
+                "where not exists ( select ial from ImageAnnotationLink as ial where ial.child=a.id and ial.parent.id=:oid and ial.details.owner.id=:uid) " \
                 "and a.details.group.id=:gid"
         elif o_type == "dataset":
             sql = "select a from TagAnnotation as a " \
-                "where not exists ( select dal from DatasetAnnotationLink as dal where dal.child=a.id and dal.parent.id=:oid ) " \
+                "where not exists ( select dal from DatasetAnnotationLink as dal where dal.child=a.id and dal.parent.id=:oid and dal.details.owner.id=:uid) " \
                 "and a.details.group.id=:gid"
         elif o_type == "project":
             sql = "select a from TagAnnotation as a " \
-                "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid )" \
+                "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid and pal.details.owner.id=:uid) " \
                 "and a.details.group.id=:gid"
         elif o_type == "screen":
             sql = "select a from TagAnnotation as a " \
-                "where not exists ( select sal from ScreenAnnotationLink as sal where sal.child=a.id and sal.parent.id=:oid )" \
+                "where not exists ( select sal from ScreenAnnotationLink as sal where sal.child=a.id and sal.parent.id=:oid and sal.details.owner.id=:uid) " \
                 "and a.details.group.id=:gid"
         elif o_type == "plate":
             sql = "select a from TagAnnotation as a " \
-                "where not exists ( select pal from PlateAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid )" \
+                "where not exists ( select pal from PlateAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid and pal.details.owner.id=:uid) " \
                 "and a.details.group.id=:gid"
         elif o_type == "well":
             sql = "select a from TagAnnotation as a " \
-                "where not exists ( select wal from WellAnnotationLink as wal where wal.child=a.id and wal.parent.id=:oid )" \
+                "where not exists ( select wal from WellAnnotationLink as wal where wal.child=a.id and wal.parent.id=:oid and wal.details.owner.id=:uid) " \
                 "and a.details.group.id=:gid"
         p = omero.sys.Parameters()
         p.map = {}
         p.map["oid"] = rlong(long(oid))
         p.map["gid"] = rlong(self.getEventContext().groupId)
+        p.map["uid"] = rlong(self.getEventContext().userId)
         if self.getGroupFromContext().isReadOnly():
             p.map["eid"] = rlong(self.getEventContext().userId)
             sql += " and a.details.owner.id=:eid"
@@ -779,18 +780,15 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in q.findAllByQuery(sql,p):
             yield FileAnnotationWrapper(self, e)
     
-    def lookupTags(self, eid=None):
+    def lookupTags(self):
         """ Retrieves list of Tags owned by current user.
             This method is used by autocomplite."""
 
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
-        if eid is not None:
-            p.map["eid"] = rlong(long(eid))
-        else:
-            p.map["eid"] = rlong(self.getEventContext().userId)
-        sql = "select tg from TagAnnotation tg where tg.details.owner.id=:eid and tg.ns is null"
+        p.map["gid"] = rlong(self.getEventContext().groupId)
+        sql = "select tg from TagAnnotation tg where tg.details.group.id=:gid and tg.ns is null"
         for e in q.findAllByQuery(sql,p):
             yield AnnotationWrapper(self, e)
     
@@ -1116,8 +1114,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map = {}
         p.map["oid"] = rlong(long(oid))
         p.map["parent"] = rlong(long(parent))
+        p.map["eid"] = rlong(self.getEventContext().userId)
         sql = "select ial from ImageAnnotationLink as ial left outer join fetch ial.child as an \
-                left outer join fetch ial.parent as im where im.id=:parent and an.id=:oid"
+                left outer join fetch ial.parent as im where im.id=:parent and an.id=:oid and ial.details.owner.id=:eid"
         dsl = query_serv.findByQuery(sql, p)
         if dsl is not None:
             return BlitzObjectWrapper(self, dsl)
@@ -1129,8 +1128,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map = {}
         p.map["oid"] = rlong(long(oid))
         p.map["parent"] = rlong(long(parent))
+        p.map["eid"] = rlong(self.getEventContext().userId)
         sql = "select dal from DatasetAnnotationLink as dal left outer join fetch dal.child as an \
-                left outer join fetch dal.parent as ds where ds.id=:parent and an.id=:oid"
+                left outer join fetch dal.parent as ds where ds.id=:parent and an.id=:oid and dal.details.owner.id=:eid"
         dsl = query_serv.findByQuery(sql, p)
         if dsl is not None:
             return BlitzObjectWrapper(self, dsl)
@@ -1142,8 +1142,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map = {}
         p.map["oid"] = rlong(long(oid))
         p.map["parent"] = rlong(long(parent))
+        p.map["eid"] = rlong(self.getEventContext().userId)
         sql = "select pal from PlateAnnotationLink as pal left outer join fetch pal.child as an \
-                left outer join fetch pal.parent as pl where pl.id=:parent and an.id=:oid"
+                left outer join fetch pal.parent as pl where pl.id=:parent and an.id=:oid and pal.details.owner.id=:eid"
         dsl = query_serv.findByQuery(sql, p)
         if dsl is not None:
             return BlitzObjectWrapper(self, dsl)
@@ -1155,8 +1156,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map = {}
         p.map["oid"] = rlong(long(oid))
         p.map["parent"] = rlong(long(parent))
+        p.map["eid"] = rlong(self.getEventContext().userId)
         sql = "select pal from ProjectAnnotationLink as pal left outer join fetch pal.child as an \
-                left outer join fetch pal.parent as pr where pr.id=:parent and an.id=:oid"
+                left outer join fetch pal.parent as pr where pr.id=:parent and an.id=:oid and pal.details.owner.id=:eid"
         dsl = query_serv.findByQuery(sql, p)
         if dsl is not None:
             return BlitzObjectWrapper(self, dsl)
@@ -1168,8 +1170,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map = {}
         p.map["oid"] = rlong(long(oid))
         p.map["parent"] = rlong(long(parent))
+        p.map["eid"] = rlong(self.getEventContext().userId)
         sql = "select sal from ScreenAnnotationLink as sal left outer join fetch sal.child as an \
-                left outer join fetch sal.parent as sc where pr.id=:parent and sc.id=:oid"
+                left outer join fetch sal.parent as sc where pr.id=:parent and sc.id=:oid and sal.details.owner.id=:eid"
         dsl = query_serv.findByQuery(sql, p)
         if dsl is not None:
             return BlitzObjectWrapper(self, dsl)
@@ -1284,17 +1287,17 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map = {} 
         p.map["text"] = rstring(str(name))
         p.map["desc"] = rstring(str(desc))
-        p.map["eid"] = rlong(self.getEventContext().userId)
+        #p.map["eid"] = rlong(self.getEventContext().userId)
         f = omero.sys.Filter()
         f.limit = rint(1)
         p.theFilter = f
         sql = "select tg from TagAnnotation tg " \
-              "where tg.textValue=:text and tg.description=:desc and tg.details.owner.id=:eid and tg.ns is null order by tg.textValue"
-        res = query_serv.findByQuery(sql, p)
-        if res is None:
-            return None
-        return AnnotationWrapper(self, res)
-    
+              "where tg.textValue=:text and tg.description=:desc and tg.ns is null order by tg.textValue"
+        res = query_serv.findAllByQuery(sql, p)
+        if len(res) > 0:
+            return AnnotationWrapper(self, res[0])
+        return None
+        
     def getFileAnnotation (self, oid):
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()

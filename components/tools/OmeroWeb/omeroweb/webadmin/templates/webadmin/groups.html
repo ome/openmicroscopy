@@ -58,7 +58,7 @@
             </td>
             <td class="link">{{ dict.group.name }}</td>
             <td class="link">{{ dict.permissions }} ({{ dict.group.details.permissions }})</td>
-            <td class="desc">{{ dict.group.truncateDescription|default_if_none:"-" }}</td>
+            <td class="desc">{{ dict.group.description|default_if_none:"-"|truncatewords:"5" }}</td>
         </tr>
     {% endfor %}
   </tbody>

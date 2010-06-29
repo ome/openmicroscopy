@@ -22,6 +22,7 @@
 # Version: 1.0
 #
 
+from django import forms
 from django.forms.fields import Field, ChoiceField, EMPTY_VALUES
 from django.forms.widgets import Select, SelectMultiple, MultipleHiddenInput
 from django.forms import ModelChoiceField, ModelMultipleChoiceField, ValidationError
@@ -325,3 +326,14 @@ class ExperimenterModelMultipleChoiceField(ExperimenterModelChoiceField):
                     final_values.append(val)
         return final_values
 
+class DefaultGroupField(ChoiceField):
+    
+    def clean(self, value):
+        """
+        Check that the field was selected.
+        """
+        if not value:
+            raise forms.ValidationError("Choose one of the 'Selected groups' to specify 'Default Group'.")
+
+        # Always return the cleaned data.
+        return value

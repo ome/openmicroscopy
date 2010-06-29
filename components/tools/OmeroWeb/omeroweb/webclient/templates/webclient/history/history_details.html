@@ -77,7 +77,7 @@
                         <img id="{{ c.id }}" src="{% url webstatic "images/folder32.png" %}" alt="project" title="{{ c.name }}"/>
                         <input type="checkbox" name="project" id="{{ c.id }}" class="hide">      
                     </td>
-                    <td class="desc">{{ c.truncateNameForTable }} {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
+                    <td class="desc">{{ c.name|truncatebefor:"65" }} {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
                     <td class="roles">{{ c.getDate }}</td>                    
                 </tr>
             {% endfor %}
@@ -87,7 +87,7 @@
                         <img id="{{ c.id }}" src="{% url webstatic "images/folder_screen32.png" %}" alt="screen" title="{{ c.name }}"/>
                         <input type="checkbox" name="screen" id="{{ c.id }}" class="hide">      
                     </td>
-                    <td class="desc">{{ c.truncateNameForTable }} {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
+                    <td class="desc">{{ c.name|truncatebefor:"65" }} {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
                     <td class="roles">{{ c.getDate }}</td>                    
                 </tr>
             {% endfor %}
@@ -97,7 +97,7 @@
                         <img id="{{ c.id }}" src="{% url webstatic "images/folder_image32.png" %}" alt="dataset" title="{{ c.name }}"/>
                         <input type="checkbox" name="dataset" id="{{ c.id }}" class="hide">      
                     </td>
-                    <td class="desc">{{ c.truncateNameForTable }} {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
+                    <td class="desc">{{ c.name|truncatebefor:"65" }} {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
                     <td class="roles">{{ c.getDate }}</td>                    
                 </tr>
             {% endfor %}
@@ -107,7 +107,7 @@
                         <img id="{{ c.id }}" src="{% url webstatic "images/folder_plate32.png" %}" alt="plate" title="{{ c.name }}"/>
                         <input type="checkbox" name="plate" id="{{ c.id }}" class="hide">      
                     </td>
-                    <td class="desc">{{ c.truncateNameForTable }} {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
+                    <td class="desc">{{ c.name|truncatebefor:"65" }} {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
                     <td class="roles">{{ c.getDate }}</td>                    
                 </tr>
             {% endfor %}
@@ -117,7 +117,7 @@
                         <img id="{{ c.id }}" src="{% url render_thumbnail_resize 32 c.id  %}" alt="image" title="{{ c.name }}"/>
                         <input type="checkbox" name="image" id="{{ c.id }}" class="hide">      
                     </td>
-                    <td class="desc">{{ c.truncateNameForTable }} {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
+                    <td class="desc">{{ c.name|truncatebefor:"65" }} {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
                     <td class="roles">{{ c.getDate }}</td>                    
                 </tr>
             {% endfor %}

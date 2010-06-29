@@ -34,6 +34,61 @@ register = template.Library()
 def hash(h, key):
     return h[key]
 
+@register.filter
+def truncate(value, arg):
+    """
+    Truncates a string after a given number of chars  
+    Argument: Number of chars to truncate after
+    """
+    try:
+        length = int(arg)
+    except ValueError: # invalid literal for int()
+        return value # Fail silently.
+    if not isinstance(value, basestring):
+        value = str(value)
+    if (len(value) > length):
+        return value[:length] + "..."
+    else:
+        return value
+
+@register.filter
+def truncatebefor(value, arg):
+    """
+    Truncates a string after a given number of chars  
+    Argument: Number of chars to truncate befor
+    """
+    try:
+        length = int(arg)
+    except ValueError: # invalid literal for int()
+        return value # Fail silently.
+    if not isinstance(value, basestring):
+        value = str(value)
+    if (len(value) > length):
+        return "..."+value[len(value)-length:]
+    else:
+        return value
+
+@register.filter
+def warphtml(value, arg):
+    try:
+        length = int(arg)
+    except ValueError: # invalid literal for int()
+        return value # Fail silently.
+    
+    if not isinstance(value, basestring):
+        value = str(value)  
+    try: 
+        l = len(value) 
+        if l < length: 
+            return value
+        elif l >= length: 
+            splited = [] 
+            for v in range(0,len(value),length): 
+                splited.append(value[v:v+length]+"\n") 
+            return "".join(splited) 
+    except: 
+        return value
+
 # makes settings available in template
 @register.tag
 def setting ( parser, token ): 

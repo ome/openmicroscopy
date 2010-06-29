@@ -106,7 +106,7 @@
                         <img src="{% url render_thumbnail_resize 32 c.id  %}" alt="image" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}{% if not c.link.isOwned %}, linked by {{ c.link.getOwner.getNameWithInitial }}{% endif %}"/>
                         <input type="checkbox" name="image" id="{{ c.id }}" class="hide">      
                     </td>
-                    <td class="desc">{{ c.truncateNameForTable }}</td>
+                    <td class="desc">{{ c.name|truncatebefor:"65" }}</td>
                     <td class="roles">{{ c.getDate }}</td>                    
                 </tr>
             {% endfor %}

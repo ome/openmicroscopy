@@ -118,7 +118,7 @@ class BaseGroup(BaseController):
     def createGroup(self, name, owners, perm, r=None, description=None):
         new_gr = ExperimenterGroupI()
         new_gr.name = rstring(str(name))
-        new_gr.description = description is not None and rstring(str(description)) or None
+        new_gr.description = (description!="" and description is not None) and rstring(str(description)) or None
         new_gr.details.permissions = self.setActualPermissions(perm, r)
         
         listOfOwners = set()
@@ -132,7 +132,7 @@ class BaseGroup(BaseController):
     def updateGroup(self, name, owners, perm, r=None, description=None):
         up_gr = self.group._obj
         up_gr.name = rstring(str(name))
-        up_gr.description = description is not None and rstring(str(description)) or None
+        up_gr.description = (description!="" and description is not None) and rstring(str(description)) or None
         permissions = None
         perm = int(perm)
         if self.getActualPermissions() != perm or self.isReadOnly()==r:

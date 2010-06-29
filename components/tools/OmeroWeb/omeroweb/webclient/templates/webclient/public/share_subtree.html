@@ -5,7 +5,7 @@
 
 {% if share.imgSize %}
     {% for d in share.imageInShare %}
-        <li id='img-{{ d.id }}' title="{{ d.name }}"><span id="{% if share.share.isOwned %}owner-{% endif %}readonly">{{ d.truncateNameForTree }}</span> {% if not d.isOwned %}<img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</li>
+        <li id='img-{{ d.id }}' title="{{ d.name }}"><span id="{% if share.share.isOwned %}owner-{% endif %}readonly">{{ d.name|truncatebefor:"35" }}</span> {% if not d.isOwned %}<img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</li>
     {% endfor %}
 {% endif %}
 

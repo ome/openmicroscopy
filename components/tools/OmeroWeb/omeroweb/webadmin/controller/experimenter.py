@@ -151,7 +151,7 @@ class BaseExperimenter(BaseController):
         up_exp.middleName = middleName is not None and rstring(str(middleName)) or None
         up_exp.lastName = rstring(str(lastName))
         up_exp.email = rstring(str(email))
-        up_exp.institution = institution is not None and rstring(str(institution)) or None
+        up_exp.institution = (institution!="" and institution is not None) and rstring(str(institution)) or None
         
         defaultGroup = self.conn.getGroup(long(dGroup))._obj
         self.conn.updateMyAccount(up_exp, defaultGroup, password)
@@ -163,7 +163,7 @@ class BaseExperimenter(BaseController):
         new_exp.middleName = middleName is not None and rstring(str(middleName)) or None
         new_exp.lastName = rstring(str(lastName))
         new_exp.email = rstring(str(email))
-        new_exp.institution = institution is not None and rstring(str(institution)) or None
+        new_exp.institution = (institution!="" and institution is not None) and rstring(str(institution)) or None
         
         listOfGroups = set()
         # default group
@@ -202,7 +202,7 @@ class BaseExperimenter(BaseController):
         up_exp.middleName = middleName is not None and rstring(str(middleName)) or None
         up_exp.lastName = rstring(str(lastName))
         up_exp.email = rstring(str(email))
-        up_exp.institution = institution is not None and rstring(str(institution)) or None
+        up_exp.institution = (institution!="" and institution is not None) and rstring(str(institution)) or None
         
         # old list of groups
         old_groups = list()
