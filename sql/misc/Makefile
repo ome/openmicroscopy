@@ -162,6 +162,9 @@ schema:
 data:
 	vi $(DIR)/data.sql
 
+views:
+	vi $(DIR)/views.sql
+
 fixture:
 	vi $(FIXTURE)
 
@@ -184,4 +187,4 @@ prev: $(TARGET)/$(PREV).schema
 fresh: $(TARGET)/$(FRESH).schema
 	psql $(PREFIX)$(FRESH)
 
-.PHONY: fresh upgraded build clean rmdb rmdiff simple diff vi schema data psql prev test fixture run pyscript
+.PHONY: fresh upgraded build clean rmdb rmdiff simple diff vi schema data views psql prev test fixture run pyscript

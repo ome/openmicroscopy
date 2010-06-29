@@ -9,6 +9,34 @@
 --
 
 begin;
+
+create or replace function omero_empty_if_null(txt text)
+    returns text as '
+begin
+        if txt is null then
+            return substr(''empty'', 0, 1);
+        else
+            return txt;
+        end if;
+
+end;' language 'plpgsql' immutable;
+
+create or replace function omero_unnest(anyarray)
+  returns setof anyelement AS '
+    select $1[I] from
+        generate_series(array_lower($1,1),
+                        array_upper($1,1)) i;
+' language 'sql' immutable;
+
+drop aggregate if exists omero_textcat_all(text);
+
+create aggregate omero_textcat_all(
+  basetype    = text,
+  sfunc       = textcat,
+  stype       = text,
+  initcond    = ''
+);
+
 create or replace function omero_41_check(target varchar, tbl varchar, col varchar) returns text as '
 declare
     sql varchar;
@@ -17,8 +45,14 @@ begin
     sql := ''select target.id as target_id, target.group_id as target_group, target.owner_id as target_owner, ome_perms(target.permissions) as target_perms, '' ||
            ''          tbl.id as tbl_id,       tbl.group_id as tbl_group,       tbl.owner_id as tbl_owner,    ome_perms(tbl.permissions) as tbl_perms '' ||
            ''from '' || target || '' target, '' || tbl || '' tbl '' ||
-           ''where target.id = tbl.''||col||'' and target.group_id <> tbl.group_id;'';
+           ''where target.id = tbl.''|| col || -- Base query linking the two tables
+                   '' and ( target.group_id <> tbl.group_id '' || -- groups do not match
+                   --''   or target.owner_id <> tbl.owner_id '' || -- owners do not match
+                   ''   or target.owner_id not in (select child from groupexperimentermap where parent = tbl.group_id) '' || -- target owner not in tbl group
+                   ''   or tbl.owner_id not in (select child from groupexperimentermap where parent = target.group_id)) ''; -- tbl owner not in target group
+
     return omero_41_check(sql, target, tbl, col);
+
 end;' language plpgsql;
 
 create or replace function omero_41_check(sql varchar, target varchar, tbl varchar, col varchar) returns text as '
@@ -26,16 +60,14 @@ declare
     rec record;
     txt text;
 begin
+
+    -- raise notice ''checking % for group'', target;
+
     for rec in execute sql loop
-        if txt is null then
-            txt := chr(10);
-        end if;
 
-        txt := txt || ''Differing groups'';
 
-        if rec.target_group <> rec.tbl_group then
-            txt := txt || '' and owners!'';
-        end if;
+        txt := omero_empty_if_null(txt);
+        txt := txt || ''Warning'';
 
         txt := txt || '': '' || target || ''('';
         txt := txt || ''id=''    || rec.target_id || '', '';
@@ -51,141 +83,265 @@ begin
         txt := txt || chr(10);
     end loop;
 
-    return txt;
+    return omero_empty_if_null(txt);
 
 end;' language plpgsql;
 
-select omero_41_check('Dataset', 'DatasetImageLink','parent');
-select omero_41_check('Dataset', 'ProjectDatasetLink','child');
-select omero_41_check('Dataset', 'DatasetAnnotationLink','parent');
-select omero_41_check('Plate', 'Well','plate');
-select omero_41_check('Plate', 'PlateAnnotationLink','parent');
-select omero_41_check('Plate', 'ScreenPlateLink','child');
-select omero_41_check('Channel', 'ChannelAnnotationLink','parent');
-select omero_41_check('Microscope', 'Instrument','microscope');
-select omero_41_check('WellSample', 'WellSampleAnnotationLink','parent');
-select omero_41_check('WellSample', 'ScreenAcquisitionWellSampleLink','child');
-select omero_41_check('PlaneInfo', 'PlaneInfoAnnotationLink','parent');
-select omero_41_check('TransmittanceRange', 'Filter','transmittanceRange');
-select omero_41_check('QuantumDef', 'RenderingDef','quantization');
-select omero_41_check('Image', 'ImageAnnotationLink','parent');
-select omero_41_check('Image', 'WellSample','image');
-select omero_41_check('Image', 'DatasetImageLink','child');
-select omero_41_check('Image', 'Pixels','image');
-select omero_41_check('Image', 'Roi','image');
-select omero_41_check('MicrobeamManipulation', 'LightSettings','microbeamManipulation');
-select omero_41_check('ExperimenterGroup', 'GroupExperimenterMap','parent');
-select omero_41_check('ExperimenterGroup', 'ExperimenterGroupAnnotationLink','parent');
-select omero_41_check('RenderingDef', 'CodomainMapContext','renderingDef');
-select omero_41_check('RenderingDef', 'ChannelBinding','renderingDef');
-select omero_41_check('Project', 'ProjectAnnotationLink','parent');
-select omero_41_check('Project', 'ProjectDatasetLink','parent');
-select omero_41_check('StageLabel', 'Image','stageLabel');
-select omero_41_check('Pixels', 'Thumbnail','pixels');
-select omero_41_check('Pixels', 'Channel','pixels');
-select omero_41_check('Pixels', 'PlaneInfo','pixels');
-select omero_41_check('Pixels', 'RenderingDef','pixels');
-select omero_41_check('Pixels', 'Pixels','relatedTo');
-select omero_41_check('Pixels', 'Shape','pixels');
-select omero_41_check('Pixels', 'PixelsAnnotationLink','parent');
-select omero_41_check('Pixels', 'PixelsOriginalFileMap','child');
-select omero_41_check('Roi', 'RoiAnnotationLink','parent');
-select omero_41_check('Roi', 'Shape','roi');
-select omero_41_check('ObjectiveSettings', 'Image','objectiveSettings');
-select omero_41_check('Instrument', 'Image','instrument');
-select omero_41_check('Instrument', 'Detector','instrument');
-select omero_41_check('Instrument', 'OTF','instrument');
-select omero_41_check('Instrument', 'FilterSet','instrument');
-select omero_41_check('Instrument', 'LightSource','instrument');
-select omero_41_check('Instrument', 'Dichroic','instrument');
-select omero_41_check('Instrument', 'Objective','instrument');
-select omero_41_check('Instrument', 'Filter','instrument');
-select omero_41_check('ScreenAcquisition', 'ScreenAcquisitionAnnotationLink','parent');
-select omero_41_check('ScreenAcquisition', 'ScreenAcquisitionWellSampleLink','parent');
-select omero_41_check('Well', 'WellAnnotationLink','parent');
-select omero_41_check('Well', 'WellSample','well');
-select omero_41_check('Well', 'WellReagentLink','parent');
-select omero_41_check('ImagingEnvironment', 'Image','imagingEnvironment');
-select omero_41_check('Reagent', 'WellReagentLink','child');
-select omero_41_check('Reagent', 'ReagentAnnotationLink','parent');
-select omero_41_check('Detector', 'DetectorSettings','detector');
-select omero_41_check('OTF', 'LogicalChannel','otf');
-select omero_41_check('LightSettings', 'LogicalChannel','lightSourceSettings');
-select omero_41_check('LightSource', 'LightSettings','lightSource');
-select omero_41_check('OriginalFile', 'OriginalFileAnnotationLink','parent');
-select omero_41_check('OriginalFile', 'JobOriginalFileLink','child');
-select omero_41_check('OriginalFile', 'Roi','source');
-select omero_41_check('OriginalFile', 'PixelsOriginalFileMap','parent');
-select omero_41_check('Job', 'JobOriginalFileLink','parent');
-select omero_41_check('Annotation', 'WellSampleAnnotationLink','child');
-select omero_41_check('Annotation', 'WellAnnotationLink','child');
-select omero_41_check('Annotation', 'ImageAnnotationLink','child');
-select omero_41_check('Annotation', 'OriginalFileAnnotationLink','child');
-select omero_41_check('Annotation', 'PlaneInfoAnnotationLink','child');
-select omero_41_check('Annotation', 'ChannelAnnotationLink','child');
-select omero_41_check('Annotation', 'ExperimenterGroupAnnotationLink','child');
-select omero_41_check('Annotation', 'RoiAnnotationLink','child');
-select omero_41_check('Annotation', 'AnnotationAnnotationLink','child');
-select omero_41_check('Annotation', 'AnnotationAnnotationLink','parent');
-select omero_41_check('Annotation', 'NodeAnnotationLink','child');
-select omero_41_check('Annotation', 'ProjectAnnotationLink','child');
-select omero_41_check('Annotation', 'ReagentAnnotationLink','child');
-select omero_41_check('Annotation', 'PlateAnnotationLink','child');
-select omero_41_check('Annotation', 'ExperimenterAnnotationLink','child');
-select omero_41_check('Annotation', 'ScreenAcquisitionAnnotationLink','child');
-select omero_41_check('Annotation', 'ScreenAnnotationLink','child');
-select omero_41_check('Annotation', 'PixelsAnnotationLink','child');
-select omero_41_check('Annotation', 'DatasetAnnotationLink','child');
-select omero_41_check('Annotation', 'SessionAnnotationLink','child');
-select omero_41_check('FilterSet', 'OTF','filterSet');
-select omero_41_check('FilterSet', 'LogicalChannel','filterSet');
-select omero_41_check('StatsInfo', 'Channel','statsInfo');
-select omero_41_check('Screen', 'ScreenAcquisition','screen');
-select omero_41_check('Screen', 'Reagent','screen');
-select omero_41_check('Screen', 'ScreenAnnotationLink','parent');
-select omero_41_check('Screen', 'ScreenPlateLink','parent');
-select omero_41_check('Dichroic', 'FilterSet','dichroic');
-select omero_41_check('Objective', 'ObjectiveSettings','objective');
-select omero_41_check('Objective', 'OTF','objective');
-select omero_41_check('Experiment', 'Image','experiment');
-select omero_41_check('Experiment', 'MicrobeamManipulation','experiment');
-select omero_41_check('DetectorSettings', 'LogicalChannel','detectorSettings');
-select omero_41_check('Filter', 'FilterSet','emFilter');
-select omero_41_check('Filter', 'FilterSet','exFilter');
-select omero_41_check('Filter', 'LogicalChannel','secondaryEmissionFilter');
-select omero_41_check('Filter', 'LogicalChannel','secondaryExcitationFilter');
-select omero_41_check('LogicalChannel', 'Channel','logicalChannel');
-select omero_41_check('Shape', 'LogicalChannel','shapes');
 
+create or replace function omero_41_perms(tbl text) returns text as '
+declare
+    rec record;
+    sql text;
+    tmp text;
+    txt text;
+    fmt int8;
+begin
+
+    -- Skipped because system types in 4.2 (includes enums)
+    if tbl in (''experimenter'', ''experimentergroup'', ''groupexperimentermap'', ''sharemember'', ''eventtype'',
+        ''immersion'', ''arctype'',  ''renderingmodel'',  ''acquisitionmode'',
+        ''binning'',  ''family'',  ''medium'',  ''pixelstype'',  ''format'',  ''pulse'',
+        ''lasertype'',  ''jobstatus'',  ''detectortype'',  ''microbeammanipulationtype'',
+        ''illumination'',  ''photometricinterpretation'',  ''correction'',  ''eventtype'',
+        ''lasermedium'',  ''microscopetype'',  ''dimensionorder'',  ''experimenttype'',
+        ''contrastmethod'',  ''filamenttype'',  ''filtertype'') then
+
+        return omero_empty_if_null(null);
+    end if;
+
+    sql := ''select id, group_id, owner_id, ome_perms(permissions) from '' || tbl || '' where '' ||
+        ''(cast(permissions as bit(64)) & cast(   4 as bit(64))) = cast(   4 as bit(64))'';
+
+    begin
+
+        -- raise notice ''checking % for perms'', tbl;
+        if tbl = ''originalfile'' then
+            select into fmt id from format where value = ''Directory'';
+        end if;
+
+        for rec in execute sql loop
+
+            if tbl = ''originalfile'' then
+                if rec.group_id = 0 and
+                    (
+                        name in (''makemovie.py'', ''populateroi.py'')
+                        or
+                        format = fmt
+                    ) then
+                    continue;
+                end if;
+            end if;
+
+            tmp := ''Non-private permissions:'' || tbl || ''(id='' || rec.id || '')'' || chr(10);
+            if txt is null then
+                txt := tmp;
+            else
+                txt := txt || tmp;
+            end if;
+        end loop;
+    exception when others then
+        -- do nothing
+    end;
+
+    return omero_empty_if_null(txt);
+
+end;' language plpgsql;
+
+
+-- General information for parsing the rest.
+select * from dbpatch;
+select * from experimentergroup;
+select * from groupexperimentermap;
+-- Not displaying experimenter to protect emails, etc.
+
+create or replace function omero_41_lockchecks() returns setof record stable strict as '
+declare
+    rec record;
+begin
+    for rec in select ''Dataset''::text, ''DatasetImageLink''::text, ''parent''::text loop return next rec; end loop;
+    for rec in select ''Dataset''::text, ''ProjectDatasetLink''::text, ''child''::text loop return next rec; end loop;
+    for rec in select ''Dataset''::text, ''DatasetAnnotationLink''::text, ''parent''::text loop return next rec; end loop;
+    for rec in select ''Plate''::text, ''Well''::text, ''plate''::text loop return next rec; end loop;
+    for rec in select ''Plate''::text, ''PlateAnnotationLink''::text, ''parent''::text loop return next rec; end loop;
+    for rec in select ''Plate''::text, ''ScreenPlateLink''::text, ''child''::text loop return next rec; end loop;
+    for rec in select ''Channel''::text, ''ChannelAnnotationLink''::text, ''parent''::text loop return next rec; end loop;
+    for rec in select ''Microscope''::text, ''Instrument''::text, ''microscope''::text loop return next rec; end loop;
+    for rec in select ''WellSample''::text, ''WellSampleAnnotationLink''::text, ''parent''::text loop return next rec; end loop;
+    for rec in select ''WellSample''::text, ''ScreenAcquisitionWellSampleLink''::text, ''child''::text loop return next rec; end loop;
+    for rec in select ''PlaneInfo''::text, ''PlaneInfoAnnotationLink''::text, ''parent''::text loop return next rec; end loop;
+    for rec in select ''TransmittanceRange''::text, ''Filter''::text, ''transmittanceRange''::text loop return next rec; end loop;
+    for rec in select ''QuantumDef''::text, ''RenderingDef''::text, ''quantization''::text loop return next rec; end loop;
+    for rec in select ''Image''::text, ''ImageAnnotationLink''::text, ''parent''::text loop return next rec; end loop;
+    for rec in select ''Image''::text, ''WellSample''::text, ''image''::text loop return next rec; end loop;
+    for rec in select ''Image''::text, ''DatasetImageLink''::text, ''child''::text loop return next rec; end loop;
+    for rec in select ''Image''::text, ''Pixels''::text, ''image''::text loop return next rec; end loop;
+    for rec in select ''Image''::text, ''Roi''::text, ''image''::text loop return next rec; end loop;
+    for rec in select ''MicrobeamManipulation''::text, ''LightSettings''::text, ''microbeamManipulation''::text loop return next rec; end loop;
+    for rec in select ''RenderingDef''::text, ''CodomainMapContext''::text, ''renderingDef''::text loop return next rec; end loop;
+    for rec in select ''RenderingDef''::text, ''ChannelBinding''::text, ''renderingDef''::text loop return next rec; end loop;
+    for rec in select ''Project''::text, ''ProjectAnnotationLink''::text, ''parent''::text loop return next rec; end loop;
+    for rec in select ''Project''::text, ''ProjectDatasetLink''::text, ''parent''::text loop return next rec; end loop;
+    for rec in select ''StageLabel''::text, ''Image''::text, ''stageLabel''::text loop return next rec; end loop;
+    for rec in select ''Pixels''::text, ''Channel''::text, ''pixels''::text loop return next rec; end loop;
+    for rec in select ''Pixels''::text, ''PlaneInfo''::text, ''pixels''::text loop return next rec; end loop;
+    for rec in select ''Pixels''::text, ''Pixels''::text, ''relatedTo''::text loop return next rec; end loop;
+    for rec in select ''Pixels''::text, ''Shape''::text, ''pixels''::text loop return next rec; end loop;
+    for rec in select ''Pixels''::text, ''PixelsAnnotationLink''::text, ''parent''::text loop return next rec; end loop;
+    for rec in select ''Pixels''::text, ''PixelsOriginalFileMap''::text, ''child''::text loop return next rec; end loop;
+    for rec in select ''Roi''::text, ''RoiAnnotationLink''::text, ''parent''::text loop return next rec; end loop;
+    for rec in select ''Roi''::text, ''Shape''::text, ''roi''::text loop return next rec; end loop;
+    for rec in select ''ObjectiveSettings''::text, ''Image''::text, ''objectiveSettings''::text loop return next rec; end loop;
+    for rec in select ''Instrument''::text, ''Image''::text, ''instrument''::text loop return next rec; end loop;
+    for rec in select ''Instrument''::text, ''Detector''::text, ''instrument''::text loop return next rec; end loop;
+    for rec in select ''Instrument''::text, ''OTF''::text, ''instrument''::text loop return next rec; end loop;
+    for rec in select ''Instrument''::text, ''FilterSet''::text, ''instrument''::text loop return next rec; end loop;
+    for rec in select ''Instrument''::text, ''LightSource''::text, ''instrument''::text loop return next rec; end loop;
+    for rec in select ''Instrument''::text, ''Dichroic''::text, ''instrument''::text loop return next rec; end loop;
+    for rec in select ''Instrument''::text, ''Objective''::text, ''instrument''::text loop return next rec; end loop;
+    for rec in select ''Instrument''::text, ''Filter''::text, ''instrument''::text loop return next rec; end loop;
+    for rec in select ''ScreenAcquisition''::text, ''ScreenAcquisitionAnnotationLink''::text, ''parent''::text loop return next rec; end loop;
+    for rec in select ''ScreenAcquisition''::text, ''ScreenAcquisitionWellSampleLink''::text, ''parent''::text loop return next rec; end loop;
+    for rec in select ''Well''::text, ''WellAnnotationLink''::text, ''parent''::text loop return next rec; end loop;
+    for rec in select ''Well''::text, ''WellSample''::text, ''well''::text loop return next rec; end loop;
+    for rec in select ''Well''::text, ''WellReagentLink''::text, ''parent''::text loop return next rec; end loop;
+    for rec in select ''ImagingEnvironment''::text, ''Image''::text, ''imagingEnvironment''::text loop return next rec; end loop;
+    for rec in select ''Reagent''::text, ''WellReagentLink''::text, ''child''::text loop return next rec; end loop;
+    for rec in select ''Reagent''::text, ''ReagentAnnotationLink''::text, ''parent''::text loop return next rec; end loop;
+    for rec in select ''Detector''::text, ''DetectorSettings''::text, ''detector''::text loop return next rec; end loop;
+    for rec in select ''OTF''::text, ''LogicalChannel''::text, ''otf''::text loop return next rec; end loop;
+    for rec in select ''LightSettings''::text, ''LogicalChannel''::text, ''lightSourceSettings''::text loop return next rec; end loop;
+    for rec in select ''LightSource''::text, ''LightSettings''::text, ''lightSource''::text loop return next rec; end loop;
+    for rec in select ''OriginalFile''::text, ''OriginalFileAnnotationLink''::text, ''parent''::text loop return next rec; end loop;
+    for rec in select ''OriginalFile''::text, ''JobOriginalFileLink''::text, ''child''::text loop return next rec; end loop;
+    for rec in select ''OriginalFile''::text, ''Roi''::text, ''source''::text loop return next rec; end loop;
+    for rec in select ''OriginalFile''::text, ''PixelsOriginalFileMap''::text, ''parent''::text loop return next rec; end loop;
+    for rec in select ''Job''::text, ''JobOriginalFileLink''::text, ''parent''::text loop return next rec; end loop;
+    for rec in select ''Annotation''::text, ''WellSampleAnnotationLink''::text, ''child''::text loop return next rec; end loop;
+    for rec in select ''Annotation''::text, ''WellAnnotationLink''::text, ''child''::text loop return next rec; end loop;
+    for rec in select ''Annotation''::text, ''ImageAnnotationLink''::text, ''child''::text loop return next rec; end loop;
+    for rec in select ''Annotation''::text, ''OriginalFileAnnotationLink''::text, ''child''::text loop return next rec; end loop;
+    for rec in select ''Annotation''::text, ''PlaneInfoAnnotationLink''::text, ''child''::text loop return next rec; end loop;
+    for rec in select ''Annotation''::text, ''ChannelAnnotationLink''::text, ''child''::text loop return next rec; end loop;
+    for rec in select ''Annotation''::text, ''ExperimenterGroupAnnotationLink''::text, ''child''::text loop return next rec; end loop;
+    for rec in select ''Annotation''::text, ''RoiAnnotationLink''::text, ''child''::text loop return next rec; end loop;
+    for rec in select ''Annotation''::text, ''AnnotationAnnotationLink''::text, ''child''::text loop return next rec; end loop;
+    for rec in select ''Annotation''::text, ''AnnotationAnnotationLink''::text, ''parent''::text loop return next rec; end loop;
+    for rec in select ''Annotation''::text, ''NodeAnnotationLink''::text, ''child''::text loop return next rec; end loop;
+    for rec in select ''Annotation''::text, ''ProjectAnnotationLink''::text, ''child''::text loop return next rec; end loop;
+    for rec in select ''Annotation''::text, ''ReagentAnnotationLink''::text, ''child''::text loop return next rec; end loop;
+    for rec in select ''Annotation''::text, ''PlateAnnotationLink''::text, ''child''::text loop return next rec; end loop;
+    for rec in select ''Annotation''::text, ''ExperimenterAnnotationLink''::text, ''child''::text loop return next rec; end loop;
+    for rec in select ''Annotation''::text, ''ScreenAcquisitionAnnotationLink''::text, ''child''::text loop return next rec; end loop;
+    for rec in select ''Annotation''::text, ''ScreenAnnotationLink''::text, ''child''::text loop return next rec; end loop;
+    for rec in select ''Annotation''::text, ''PixelsAnnotationLink''::text, ''child''::text loop return next rec; end loop;
+    for rec in select ''Annotation''::text, ''DatasetAnnotationLink''::text, ''child''::text loop return next rec; end loop;
+    for rec in select ''Annotation''::text, ''SessionAnnotationLink''::text, ''child''::text loop return next rec; end loop;
+    for rec in select ''FilterSet''::text, ''OTF''::text, ''filterSet''::text loop return next rec; end loop;
+    for rec in select ''FilterSet''::text, ''LogicalChannel''::text, ''filterSet''::text loop return next rec; end loop;
+    for rec in select ''StatsInfo''::text, ''Channel''::text, ''statsInfo''::text loop return next rec; end loop;
+    for rec in select ''Screen''::text, ''ScreenAcquisition''::text, ''screen''::text loop return next rec; end loop;
+    for rec in select ''Screen''::text, ''Reagent''::text, ''screen''::text loop return next rec; end loop;
+    for rec in select ''Screen''::text, ''ScreenAnnotationLink''::text, ''parent''::text loop return next rec; end loop;
+    for rec in select ''Screen''::text, ''ScreenPlateLink''::text, ''parent''::text loop return next rec; end loop;
+    for rec in select ''Dichroic''::text, ''FilterSet''::text, ''dichroic''::text loop return next rec; end loop;
+    for rec in select ''Objective''::text, ''ObjectiveSettings''::text, ''objective''::text loop return next rec; end loop;
+    for rec in select ''Objective''::text, ''OTF''::text, ''objective''::text loop return next rec; end loop;
+    for rec in select ''Experiment''::text, ''Image''::text, ''experiment''::text loop return next rec; end loop;
+    for rec in select ''Experiment''::text, ''MicrobeamManipulation''::text, ''experiment''::text loop return next rec; end loop;
+    for rec in select ''DetectorSettings''::text, ''LogicalChannel''::text,''detectorSettings''::text loop return next rec; end loop;
+    for rec in select ''Filter''::text, ''FilterSet''::text, ''emFilter''::text loop return next rec; end loop;
+    for rec in select ''Filter''::text, ''FilterSet''::text, ''exFilter''::text loop return next rec; end loop;
+    for rec in select ''Filter''::text, ''LogicalChannel''::text, ''secondaryEmissionFilter''::text loop return next rec; end loop;
+    for rec in select ''Filter''::text, ''LogicalChannel''::text, ''secondaryExcitationFilter''::text loop return next rec; end loop;
+    for rec in select ''LogicalChannel''::text, ''Channel''::text, ''logicalChannel''::text loop return next rec; end loop;
+    for rec in select ''Shape''::text, ''LogicalChannel''::text, ''shapes''::text loop return next rec; end loop;
+    -- Disabled since deleted by upgrade script
+    -- for rec in select ''Pixels''::text, ''Thumbnail''::text, ''pixels''::text loop return next rec; end loop;
+    -- for rec in select ''Pixels''::text, ''RenderingDef''::text, ''pixels''::text loop return next rec; end loop;
+    return;
+end;' language plpgsql;
+
+
+create or replace function omero_41_check() returns text as '
+declare
+    txt text;
+    sum text;
+begin
+
+    select into sum omero_textcat_all(omero_41_check(target, tbl, col)) from omero_41_lockchecks() as (target text, tbl text, col text);
 
 -- The following are irregular and so must be custom written.
 
+    -- raise notice ''checking irregular tables'';
 
-select omero_41_check(
-           'select target.id as target_id, target.group_id as target_group, target.owner_id as target_owner, ome_perms(target.permissions) as target_perms, ' ||
-           '          tbl.id as tbl_id,       tbl.group_id as tbl_group,       tbl.owner_id as tbl_owner,    ome_perms(tbl.permissions) as tbl_perms ' ||
-           '  from lightsource target, lightsource tbl, laser tbl2 ' ||
-           ' where target.id = tbl2.pump and tbl2.lightsource_id = tbl.id ' ||
-           '   and target.group_id <> tbl.group_id;',
-           'LightSource', 'Laser', 'pump');
+    select into txt omero_41_check(
+        ''select target.id as target_id, target.group_id as target_group, target.owner_id as target_owner, ome_perms(target.permissions) as target_perms, '' ||
+        ''          tbl.id as tbl_id,       tbl.group_id as tbl_group,       tbl.owner_id as tbl_owner,    ome_perms(tbl.permissions) as tbl_perms '' ||
+        ''  from lightsource target, lightsource tbl, laser tbl2 '' ||
+        '' where target.id = tbl2.pump and tbl2.lightsource_id = tbl.id '' ||
+        ''   and target.group_id <> tbl.group_id;'',
+        ''LightSource'', ''Laser'', ''pump'')
 
-select omero_41_check(
-           'select target.id as target_id, target.group_id as target_group, target.owner_id as target_owner, ome_perms(target.permissions) as target_perms, ' ||
-           '          tbl.id as tbl_id,       tbl.group_id as tbl_group,       tbl.owner_id as tbl_owner,    ome_perms(tbl.permissions) as tbl_perms ' ||
-           '  from originalfile target, annotation tbl ' ||
-           ' where target.id = tbl.file ' ||
-           '   and target.group_id <> tbl.group_id;',
-           'OriginalFile', 'FileAnnotation','file');
+    || omero_41_check(
+        ''select target.id as target_id, target.group_id as target_group, target.owner_id as target_owner, ome_perms(target.permissions) as target_perms, '' ||
+        ''          tbl.id as tbl_id,       tbl.group_id as tbl_group,       tbl.owner_id as tbl_owner,    ome_perms(tbl.permissions) as tbl_perms '' ||
+        ''  from originalfile target, annotation tbl '' ||
+        '' where target.id = tbl.file '' ||
+        ''   and target.group_id <> tbl.group_id;'',
+        ''OriginalFile'', ''FileAnnotation'',''file'')
 
-select omero_41_check(
-           'select target.id as target_id, target.group_id as target_group, target.owner_id as target_owner, ome_perms(target.permissions) as target_perms, ' ||
-           '          tbl.id as tbl_id,       tbl.group_id as tbl_group,       tbl.owner_id as tbl_owner,    ome_perms(tbl.permissions) as tbl_perms ' ||
-           '  from thumbnail target, annotation tbl ' ||
-           ' where target.id = tbl.thumbnail ' ||
-           '   and target.group_id <> tbl.group_id;',
-           'Thumbnail', 'ThumbnailAnnotation','thumbnail');
+    || omero_41_check(
+        ''select target.id as target_id, target.group_id as target_group, target.owner_id as target_owner, ome_perms(target.permissions) as target_perms, '' ||
+        ''          tbl.id as tbl_id,       tbl.group_id as tbl_group,       tbl.owner_id as tbl_owner,    ome_perms(tbl.permissions) as tbl_perms '' ||
+        ''  from thumbnail target, annotation tbl '' ||
+        '' where target.id = tbl.thumbnail '' ||
+        ''   and target.group_id <> tbl.group_id;'',
+        ''Thumbnail'', ''ThumbnailAnnotation'',''thumbnail'');
+
+    -- The following are disabled since they are system types in 4.2
+    -- select omero_41_check(''ExperimenterGroup'', ''GroupExperimenterMap'',''parent'');
+    -- select omero_41_check(''ExperimenterGroup'', ''ExperimenterGroupAnnotationLink'',''parent'');
+
+    sum := sum || txt;
+
+    select into txt omero_textcat_all(omero_41_perms(tables)) as "Permissions" from omero_unnest(string_to_array(
+        ''acquisitionmode annotation annotationannotationlink arc arctype binning channel '' ||
+        ''channelannotationlink channelbinding codomainmapcontext contrastmethod '' ||
+        ''contraststretchingcontext correction dataset datasetannotationlink '' ||
+        ''datasetimagelink dbpatch detector detectorsettings detectortype dichroic '' ||
+        ''dimensionorder event eventlog eventtype experiment experimenter '' ||
+        ''experimenterannotationlink experimentergroup experimentergroupannotationlink '' ||
+        ''experimenttype externalinfo family filament filamenttype filter filterset '' ||
+        ''filtertype format groupexperimentermap illumination image imageannotationlink '' ||
+        ''imagingenvironment immersion importjob instrument job joboriginalfilelink '' ||
+        ''jobstatus laser lasermedium lasertype lightemittingdiode lightsettings '' ||
+        ''lightsource link logicalchannel medium microbeammanipulation '' ||
+        ''microbeammanipulationtype microscope microscopetype node nodeannotationlink '' ||
+        ''objective objectivesettings originalfile originalfileannotationlink otf '' ||
+        ''photometricinterpretation pixels pixelsannotationlink pixelsoriginalfilemap '' ||
+        ''pixelstype planeinfo planeinfoannotationlink planeslicingcontext plate '' ||
+        ''plateannotationlink project projectannotationlink projectdatasetlink pulse '' ||
+        ''quantumdef reagent reagentannotationlink renderingdef renderingmodel '' ||
+        ''reverseintensitycontext roi roiannotationlink screen screenacquisition '' ||
+        ''screenacquisitionannotationlink screenacquisitionwellsamplelink '' ||
+        ''screenannotationlink screenplatelink scriptjob session sessionannotationlink '' ||
+        ''shape share sharemember stagelabel statsinfo thumbnail transmittancerange well '' ||
+        ''wellannotationlink wellreagentlink wellsample wellsampleannotationlink'', '' '')) as tables;
+
+    sum := sum || txt;
+
+    return sum;
+
+end;' language plpgsql;
 
 
+
+
+drop function omero_41_check();
+drop function omero_41_perms(text);
 drop function omero_41_check(varchar, varchar, varchar);
 drop function omero_41_check(varchar, varchar, varchar, varchar);
+drop function omero_unnest(anyarray);
+drop function omero_41_lockchecks();
+drop function omero_empty_if_null(text);
 commit;
