@@ -284,6 +284,7 @@ class EditorUI
 		toolBar.buildUI();
 		tabPane.setToolTipTextAt(RND_INDEX, "");
 		boolean preview = false;
+		int selected = getSelectedTab();
 		if (!(uo instanceof DataObject)) {
 			//saved = false;
 			setDataToSave(false);
@@ -310,6 +311,7 @@ class EditorUI
 					tabPane.setEnabledAt(ACQUISITION_INDEX, img.getId() > 0);
 					preview = model.isPreviewAvailable();
 					tabPane.setEnabledAt(RND_INDEX, preview);
+					
 					if (!preview) {
 						tabPane.setToolTipTextAt(RND_INDEX, 
 								"Only available for image of size <= "+
@@ -317,9 +319,10 @@ class EditorUI
 								RenderingControl.MAX_SIZE);
 					}
 					
-					if (tabPane.getSelectedIndex() == RND_INDEX) {
+					if (selected == RND_INDEX) {
 						tabPane.setComponentAt(RND_INDEX, dummyPanel);
 						//tabPane.setSelectedIndex(GENERAL_INDEX);
+						if (!preview) tabPane.setSelectedIndex(GENERAL_INDEX);
 					}
 				} else if (uo instanceof WellSampleData) {
 					ImageData img = ((WellSampleData) uo).getImage();
@@ -339,7 +342,11 @@ class EditorUI
 									RenderingControl.MAX_SIZE+"x"+
 									RenderingControl.MAX_SIZE);
 						}
-						
+						if (selected == RND_INDEX) {
+							tabPane.setComponentAt(RND_INDEX, dummyPanel);
+							//tabPane.setSelectedIndex(GENERAL_INDEX);
+							if (!preview) tabPane.setSelectedIndex(GENERAL_INDEX);
+						}
 					} else {
 						tabPane.setSelectedIndex(GENERAL_INDEX);
 						tabPane.setEnabledAt(ACQUISITION_INDEX, false);

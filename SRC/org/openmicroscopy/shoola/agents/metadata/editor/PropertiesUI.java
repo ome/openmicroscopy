@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridBagConstraints;

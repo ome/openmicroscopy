@@ -2285,8 +2285,8 @@ class EditorModel
 			//ignore
 		}
 		if (pixels == null) return false;
-		if (pixels.getSizeX() <= RenderingControl.MAX_SIZE &&
-				pixels.getSizeY() <= RenderingControl.MAX_SIZE)
+		int size = 1500;
+		if (pixels.getSizeX() <= size && pixels.getSizeY() <= size)
 			return true;
 		return false;
 	}
