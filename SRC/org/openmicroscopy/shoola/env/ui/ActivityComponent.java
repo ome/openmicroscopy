@@ -100,7 +100,7 @@ public abstract class ActivityComponent
 	static final String 	UNREGISTER_ACTIVITY_PROPERTY = "unregisterActivity";
 
 	/** Text indicating to view the object. */
-	private static final String   VIEW_TEXT = "View";
+	static final String   VIEW_TEXT = "View";
 	
 	/** Text indicating to browse the object. */
 	private static final String   BROWSE_TEXT = "Browse";
@@ -773,6 +773,8 @@ public abstract class ActivityComponent
 		if (object instanceof FileAnnotationData || 
 				object instanceof OriginalFile) {
 			open(object);
+		} else if (object instanceof File) {
+			viewer.openApplication(null, ((File) object).getAbsolutePath());
 		} else {
 			EventBus bus = registry.getEventBus();
 			bus.post(new ViewObjectEvent(object));

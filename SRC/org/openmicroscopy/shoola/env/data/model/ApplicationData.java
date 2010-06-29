@@ -107,7 +107,6 @@ public class ApplicationData
 			applicationIcon = convert((String) m.get(Parser.ICON_TAG_MAC));
 			applicationName = (String) m.get(Parser.NAME_TAG_MAC);
 		} catch (Exception e) {
-			e.printStackTrace();
 			applicationName = UIUtilities.removeFileExtension(
 					file.getAbsolutePath());
 			applicationIcon = null;
