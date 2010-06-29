@@ -54,11 +54,14 @@ try:
 except ImportError:
     VERSION="Unknown" # Usually during testing
 
-DEBUG = False
+DEBUG = 0
 if os.environ.has_key("DEBUG"):
-    print "Deprecated warning: use the 'bin/omero debug [args]' to debug"
-    print "Running omero with debugging on"
-    DEBUG = True
+    try:
+        DEBUG = int(os.environ["DEBUG"])
+    except ValueError:
+        DEBUG = 1
+    print "Deprecated warning: use the 'bin/omero --debug=x [args]' to debug"
+    print "Running omero with debugging == 1"
 
 OMERODOC = """
 Command-line tool for local and remote interactions with OMERO.
@@ -216,7 +219,11 @@ class Context:
 
         Example:
 
-            bin/omero --debug=debug,trace admin start
+            bin/omero --debug=debug,trace admin start # Debugs at level 1 and prints tracing
+            bin/omero -d1 admin start                 # Debugs at level 1
+            bin/omero -dp admin start                 # Prints profiling
+            bin/omero -dt,p admin start               # Fails!; can't print tracing and profiling together
+            bin/omero -d0 admin start                 # Disables debugging
         """}
         self.parser = Parser(prog = sys.argv[0],
             description = OMERODOC)
@@ -256,9 +263,6 @@ class Context:
 
     def set(self, key, value = True):
         self.params[key] = value
-
-    def setdebug(self):
-        self.isdebug = True
 
     def safePrint(self, text, stream, newline = True):
         """
@@ -340,11 +344,11 @@ class Context:
         """
         self.safePrint(text, sys.stderr, newline)
 
-    def dbg(self, text, newline = True):
+    def dbg(self, text, newline = True, level = 1):
         """
         Passes text to err() if self.isdebug is set
         """
-        if self.isdebug:
+        if self.isdebug >= level:
             self.err(text, newline)
 
     def die(self, rc, args):
@@ -682,7 +686,7 @@ class CLI(cmd.Cmd, Context):
             if len(self._stack) == 0:
                 self.close()
             else:
-                self.dbg("Delaying close for stack: %s" % len(self._stack))
+                self.dbg("Delaying close for stack: %s" % len(self._stack), level = 2)
 
     def invokeloop(self):
         try:
@@ -716,12 +720,12 @@ class CLI(cmd.Cmd, Context):
             self.rv = 0
             try:
                 self._stack.insert(0, line)
-                self.dbg("Stack+: %s" % len(self._stack))
+                self.dbg("Stack+: %s" % len(self._stack), level=2)
                 self.execute(line, previous_args)
                 return True
             finally:
                 self._stack.pop(0)
-                self.dbg("Stack-: %s" % len(self._stack))
+                self.dbg("Stack-: %s" % len(self._stack), level=2)
         except SystemExit, exc: # Thrown by argparse
             self.dbg("SystemExit raised\n%s" % traceback.format_exc())
             self.rv = exc.code
@@ -782,28 +786,40 @@ class CLI(cmd.Cmd, Context):
         if "" in debug_opts:
             debug_opts.remove("")
 
+        old_debug = self.isdebug
         if "debug" in debug_opts:
-            self.setdebug()
+            self.isdebug = 1
             debug_opts.remove("debug")
+        elif "0" in debug_opts:
+            self.isdebug = 0
+            debug_opts.remove("0")
 
-        if len(debug_opts) == 0:
-            args.func(args)
-        elif len(debug_opts) > 1:
-            self.die(9, "Conflicting debug options: %s" % ", ".join(debug_opts))
-        elif "trace" in debug_opts:
-            import trace
-            tracer = trace.Trace()
-            tracer.runfunc(args.func, args)
-        elif "profile" in debug_opts:
-            import hotshot
-            from hotshot import stats
-            prof = hotshot.Profile("hotshot_edi_stats")
-            rv = prof.runcall( lambda: args.func(args) )
-            prof.close()
-            s = stats.load("hotshot_edi_stats")
-            s.sort_stats("time").print_stats()
-        else:
-            self.die(10, "Unknown debug action: %s" % debug_opts[0])
+        for x in range(1, 9):
+            if str(x) in debug_opts:
+                self.isdebug = x
+                debug_opts.remove(str(x))
+
+        try:
+            if len(debug_opts) == 0:
+                args.func(args)
+            elif len(debug_opts) > 1:
+                self.die(9, "Conflicting debug options: %s" % ", ".join(debug_opts))
+            elif "t" in debug_opts or "trace" in debug_opts:
+                import trace
+                tracer = trace.Trace()
+                tracer.runfunc(args.func, args)
+            elif "p" in debug_opts or "profile" in debug_opts:
+                import hotshot
+                from hotshot import stats
+                prof = hotshot.Profile("hotshot_edi_stats")
+                rv = prof.runcall( lambda: args.func(args) )
+                prof.close()
+                s = stats.load("hotshot_edi_stats")
+                s.sort_stats("time").print_stats()
+            else:
+                self.die(10, "Unknown debug action: %s" % debug_opts)
+        finally:
+            self.isdebug = old_debug
 
     def completedefault(self, *args):
         return []
@@ -823,7 +839,7 @@ class CLI(cmd.Cmd, Context):
     def die(self, rc, text, newline=True):
         self.err(text, newline)
         self.rv = rc
-        self.interrupt_loop = True
+        # self.interrupt_loop = True
         raise NonZeroReturnCode(rc, "die called: %s" % text)
 
     def _env(self):
