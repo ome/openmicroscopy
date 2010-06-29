@@ -68,7 +68,7 @@ from PIL import Image
 from PIL import ImageDraw
 import omero_Constants_ice
 
-COLOURS = scriptUtil.COLOURS    # name:(rgba) map
+COLOURS = scriptUtil.COLOURS.update(scriptUtil.EXTRA_COLOURS)    # name:(rgba) map
 
 MPEG = 'MPEG'
 QT = 'Quicktime'
@@ -400,6 +400,7 @@ def runAsScript():
     """
     formats = wrap(formatMap.keys())    # wrap each key in it's rtype
     ckeys = COLOURS.keys()
+    ckeys = ckeys;
     ckeys.sort()
     cOptions = wrap(ckeys)
     
