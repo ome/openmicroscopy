@@ -1,7 +1,7 @@
 /*
  * org.openmicroscopy.shoola.env.data.views.calls.FileUploader
  *
-Ê*------------------------------------------------------------------------------
+ *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *

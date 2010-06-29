@@ -74,9 +74,6 @@ import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
-
-import com.sun.media.jai.rmi.ColorModelProxy;
-
 import pojos.ChannelData;
 
 /** 
