@@ -55,6 +55,7 @@ omero.blitz.xargs.
   <category name="ome"> <priority value="INFO"/> </category>
   <category name="ome.formats"> <priority value="INFO"/> </category>
   <category name="omero"> <priority value="INFO"/> </category>
+  <category name="omeis"> <priority value="INFO"/> </category>
   <category name="OMERO"> <priority value="INFO"/> </category>
   <!-- Inherit from Spring/etc and so are a bit verbose -->
   <category name="ome.system.OmeroContext"> <priority value="WARN"/> </category>
