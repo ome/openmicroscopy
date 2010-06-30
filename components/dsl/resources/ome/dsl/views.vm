@@ -19,7 +19,54 @@
 #if( $prop.foreignKey && $prop.ordered && ! $prop.one2Many )
 #set( $tbl_name = $prop.actualType.table )
 #set( $col_name = $prop.name )
-  CREATE OR REPLACE FUNCTION ${tbl_name}_${col_name}_index_move() RETURNS "trigger" AS '
+
+
+
+  CREATE OR REPLACE FUNCTION channel_pixels_index_update() RETURNS "trigger" AS '
+    DECLARE
+      duplicate INT8;
+  BEGIN
+      -- Avoids a query if the new and old values of x are the same.
+      IF new.pixels = old.pixels AND new.pixels_index = old.pixels_index THEN
+          RETURN new;
+      END IF;
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM channel
+       WHERE pixels = new.pixels AND pixels_index = new.pixels_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE ''Remapping channel % '', duplicate;
+          UPDATE channel SET pixels_index = -1 - pixels_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+  END;' LANGUAGE plpgsql;
+
+  CREATE OR REPLACE FUNCTION ${tbl_name}_${col_name}_index_insert() RETURNS "trigger" AS '
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM ${tbl_name}
+       WHERE ${col_name} = new.${col_name} AND ${col_name}_index = new.${col_name}_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE ''Remapping ${tbl_name} % via (-1 - oldvalue )'', duplicate;
+          UPDATE ${tbl_name} SET ${col_name}_index = -1 - ${col_name}_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;' LANGUAGE plpgsql;
+
+  CREATE OR REPLACE FUNCTION ${tbl_name}_${col_name}_index_update() RETURNS "trigger" AS '
     DECLARE
       duplicate INT8;
     BEGIN
@@ -44,9 +91,13 @@
       RETURN new;
     END;' LANGUAGE plpgsql;
 
-  CREATE TRIGGER ${tbl_name}_${col_name}_index_trigger
+  CREATE TRIGGER ${tbl_name}_${col_name}_index_trigger_insert
+        BEFORE INSERT ON ${tbl_name}
+        FOR EACH ROW EXECUTE PROCEDURE ${tbl_name}_${col_name}_index_insert ();
+
+  CREATE TRIGGER ${tbl_name}_${col_name}_index_trigger_update
         BEFORE UPDATE ON ${tbl_name}
-        FOR EACH ROW EXECUTE PROCEDURE ${tbl_name}_${col_name}_index_move ();
+        FOR EACH ROW EXECUTE PROCEDURE ${tbl_name}_${col_name}_index_update ();
 
 #end
 #end

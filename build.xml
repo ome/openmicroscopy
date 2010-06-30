@@ -182,6 +182,7 @@ java component.
     </target>
 
     <target name="build-schema" description="Build new DB schema and copy to sql/" depends="init">
+        <iterate buildpathref="dsl.buildpath" target="clean"/>
         <iterate buildpathref="model.buildpath" target="clean"/>
         <iterate buildpathref="dsl.buildpath" target="install"/>
         <iterate buildpathref="model.buildpath" target="install"/>

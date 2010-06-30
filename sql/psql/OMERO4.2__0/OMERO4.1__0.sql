@@ -1398,6 +1398,564 @@ ALTER TABLE count_node_annotationlinks_by_owner
 ALTER TABLE count_session_annotationlinks_by_owner
         ADD CONSTRAINT fk_count_to_session_annotationlinks FOREIGN KEY (session_id) REFERENCES session(id);
 
+
+----
+--
+-- #2574 Fixing triggers for ordered collections
+--
+
+DROP TRIGGER channel_pixels_index_trigger ON channel;
+
+DROP TRIGGER channelbinding_renderingdef_index_trigger ON channelbinding;
+
+DROP TRIGGER codomainmapcontext_renderingdef_index_trigger ON codomainmapcontext;
+
+DROP TRIGGER lightpathexcitationfilterlink_parent_index_trigger ON lightpathexcitationfilterlink;
+
+DROP TRIGGER groupexperimentermap_child_index_trigger ON groupexperimentermap;
+
+DROP TRIGGER pixels_image_index_trigger ON pixels;
+
+DROP TRIGGER shape_roi_index_trigger ON shape;
+
+DROP TRIGGER wellsample_well_index_trigger ON wellsample;
+
+
+DROP FUNCTION channel_pixels_index_move();
+
+DROP FUNCTION channelbinding_renderingdef_index_move();
+
+DROP FUNCTION codomainmapcontext_renderingdef_index_move();
+
+DROP FUNCTION groupexperimentermap_child_index_move();
+
+DROP FUNCTION lightpathexcitationfilterlink_parent_index_move();
+
+DROP FUNCTION pixels_image_index_move();
+
+DROP FUNCTION shape_roi_index_move();
+
+DROP FUNCTION wellsample_well_index_move();
+
+CREATE OR REPLACE FUNCTION annotation_link_event_trigger() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE
+    BEGIN
+
+        INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
+                SELECT ome_nextval('seq_eventlog'), 'REINDEX', -35, new.parent, 'ome.model.core.Image', 0;
+
+        RETURN new;
+
+    END;$$;
+
+
+CREATE OR REPLACE FUNCTION annotation_update_event_trigger() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE
+        rec RECORD;
+    BEGIN
+
+        FOR rec IN SELECT id, parent FROM imageannotationlink WHERE child = new.id LOOP
+            INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
+                 SELECT ome_nextval('seq_eventlog'), 'REINDEX', -35, rec.parent, 'ome.model.core.Image', 0;
+        END LOOP;
+
+        RETURN new;
+
+    END;$$;
+
+
+CREATE OR REPLACE FUNCTION channel_pixels_index_insert() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM channel
+       WHERE pixels = new.pixels AND pixels_index = new.pixels_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE 'Remapping channel % via (-1 - oldvalue )', duplicate;
+          UPDATE channel SET pixels_index = -1 - pixels_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;$$;
+
+
+CREATE OR REPLACE FUNCTION channel_pixels_index_update() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE
+      duplicate INT8;
+  BEGIN
+      -- Avoids a query if the new and old values of x are the same.
+      IF new.pixels = old.pixels AND new.pixels_index = old.pixels_index THEN
+          RETURN new;
+      END IF;
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM channel
+       WHERE pixels = new.pixels AND pixels_index = new.pixels_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE 'Remapping channel % ', duplicate;
+          UPDATE channel SET pixels_index = -1 - pixels_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+  END;$$;
+
+
+CREATE OR REPLACE FUNCTION channelbinding_renderingdef_index_insert() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM channelbinding
+       WHERE renderingDef = new.renderingDef AND renderingDef_index = new.renderingDef_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE 'Remapping channelbinding % via (-1 - oldvalue )', duplicate;
+          UPDATE channelbinding SET renderingDef_index = -1 - renderingDef_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;$$;
+
+
+CREATE OR REPLACE FUNCTION channelbinding_renderingdef_index_update() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- Avoids a query if the new and old values of x are the same.
+      IF new.renderingDef = old.renderingDef AND new.renderingDef_index = old.renderingDef_index THEN
+          RETURN new;
+      END IF;
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM channelbinding
+       WHERE renderingDef = new.renderingDef AND renderingDef_index = new.renderingDef_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE 'Remapping channelbinding % via (-1 - oldvalue )', duplicate;
+          UPDATE channelbinding SET renderingDef_index = -1 - renderingDef_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;$$;
+
+
+CREATE OR REPLACE FUNCTION codomainmapcontext_renderingdef_index_insert() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM codomainmapcontext
+       WHERE renderingDef = new.renderingDef AND renderingDef_index = new.renderingDef_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE 'Remapping codomainmapcontext % via (-1 - oldvalue )', duplicate;
+          UPDATE codomainmapcontext SET renderingDef_index = -1 - renderingDef_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;$$;
+
+
+CREATE OR REPLACE FUNCTION codomainmapcontext_renderingdef_index_update() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- Avoids a query if the new and old values of x are the same.
+      IF new.renderingDef = old.renderingDef AND new.renderingDef_index = old.renderingDef_index THEN
+          RETURN new;
+      END IF;
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM codomainmapcontext
+       WHERE renderingDef = new.renderingDef AND renderingDef_index = new.renderingDef_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE 'Remapping codomainmapcontext % via (-1 - oldvalue )', duplicate;
+          UPDATE codomainmapcontext SET renderingDef_index = -1 - renderingDef_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;$$;
+
+
+CREATE OR REPLACE FUNCTION groupexperimentermap_child_index_insert() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM groupexperimentermap
+       WHERE child = new.child AND child_index = new.child_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE 'Remapping groupexperimentermap % via (-1 - oldvalue )', duplicate;
+          UPDATE groupexperimentermap SET child_index = -1 - child_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;$$;
+
+
+CREATE OR REPLACE FUNCTION groupexperimentermap_child_index_update() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- Avoids a query if the new and old values of x are the same.
+      IF new.child = old.child AND new.child_index = old.child_index THEN
+          RETURN new;
+      END IF;
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM groupexperimentermap
+       WHERE child = new.child AND child_index = new.child_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE 'Remapping groupexperimentermap % via (-1 - oldvalue )', duplicate;
+          UPDATE groupexperimentermap SET child_index = -1 - child_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;$$;
+
+
+CREATE OR REPLACE FUNCTION lightpathexcitationfilterlink_parent_index_insert() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM lightpathexcitationfilterlink
+       WHERE parent = new.parent AND parent_index = new.parent_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE 'Remapping lightpathexcitationfilterlink % via (-1 - oldvalue )', duplicate;
+          UPDATE lightpathexcitationfilterlink SET parent_index = -1 - parent_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;$$;
+
+
+CREATE OR REPLACE FUNCTION lightpathexcitationfilterlink_parent_index_update() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- Avoids a query if the new and old values of x are the same.
+      IF new.parent = old.parent AND new.parent_index = old.parent_index THEN
+          RETURN new;
+      END IF;
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM lightpathexcitationfilterlink
+       WHERE parent = new.parent AND parent_index = new.parent_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE 'Remapping lightpathexcitationfilterlink % via (-1 - oldvalue )', duplicate;
+          UPDATE lightpathexcitationfilterlink SET parent_index = -1 - parent_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;$$;
+
+
+CREATE OR REPLACE FUNCTION pixels_image_index_insert() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM pixels
+       WHERE image = new.image AND image_index = new.image_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE 'Remapping pixels % via (-1 - oldvalue )', duplicate;
+          UPDATE pixels SET image_index = -1 - image_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;$$;
+
+
+CREATE OR REPLACE FUNCTION pixels_image_index_update() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- Avoids a query if the new and old values of x are the same.
+      IF new.image = old.image AND new.image_index = old.image_index THEN
+          RETURN new;
+      END IF;
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM pixels
+       WHERE image = new.image AND image_index = new.image_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE 'Remapping pixels % via (-1 - oldvalue )', duplicate;
+          UPDATE pixels SET image_index = -1 - image_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;$$;
+
+
+CREATE OR REPLACE FUNCTION shape_roi_index_insert() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM shape
+       WHERE roi = new.roi AND roi_index = new.roi_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE 'Remapping shape % via (-1 - oldvalue )', duplicate;
+          UPDATE shape SET roi_index = -1 - roi_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;$$;
+
+
+CREATE OR REPLACE FUNCTION shape_roi_index_update() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- Avoids a query if the new and old values of x are the same.
+      IF new.roi = old.roi AND new.roi_index = old.roi_index THEN
+          RETURN new;
+      END IF;
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM shape
+       WHERE roi = new.roi AND roi_index = new.roi_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE 'Remapping shape % via (-1 - oldvalue )', duplicate;
+          UPDATE shape SET roi_index = -1 - roi_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;$$;
+
+
+CREATE OR REPLACE FUNCTION wellsample_well_index_insert() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM wellsample
+       WHERE well = new.well AND well_index = new.well_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE 'Remapping wellsample % via (-1 - oldvalue )', duplicate;
+          UPDATE wellsample SET well_index = -1 - well_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;$$;
+
+
+CREATE OR REPLACE FUNCTION wellsample_well_index_update() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- Avoids a query if the new and old values of x are the same.
+      IF new.well = old.well AND new.well_index = old.well_index THEN
+          RETURN new;
+      END IF;
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM wellsample
+       WHERE well = new.well AND well_index = new.well_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE 'Remapping wellsample % via (-1 - oldvalue )', duplicate;
+          UPDATE wellsample SET well_index = -1 - well_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;$$;
+
+
+CREATE TRIGGER channel_pixels_index_trigger_insert
+        BEFORE INSERT ON channel
+        FOR EACH ROW
+        EXECUTE PROCEDURE channel_pixels_index_insert();
+
+CREATE TRIGGER channel_pixels_index_trigger_update
+        BEFORE UPDATE ON channel
+        FOR EACH ROW
+        EXECUTE PROCEDURE channel_pixels_index_update();
+
+CREATE TRIGGER channelbinding_renderingdef_index_trigger_insert
+        BEFORE INSERT ON channelbinding
+        FOR EACH ROW
+        EXECUTE PROCEDURE channelbinding_renderingdef_index_insert();
+
+CREATE TRIGGER channelbinding_renderingdef_index_trigger_update
+        BEFORE UPDATE ON channelbinding
+        FOR EACH ROW
+        EXECUTE PROCEDURE channelbinding_renderingdef_index_update();
+
+CREATE TRIGGER codomainmapcontext_renderingdef_index_trigger_insert
+        BEFORE INSERT ON codomainmapcontext
+        FOR EACH ROW
+        EXECUTE PROCEDURE codomainmapcontext_renderingdef_index_insert();
+
+CREATE TRIGGER codomainmapcontext_renderingdef_index_trigger_update
+        BEFORE UPDATE ON codomainmapcontext
+        FOR EACH ROW
+        EXECUTE PROCEDURE codomainmapcontext_renderingdef_index_update();
+
+CREATE TRIGGER lightpathexcitationfilterlink_parent_index_trigger_insert
+        BEFORE INSERT ON lightpathexcitationfilterlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE lightpathexcitationfilterlink_parent_index_insert();
+
+CREATE TRIGGER lightpathexcitationfilterlink_parent_index_trigger_update
+        BEFORE UPDATE ON lightpathexcitationfilterlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE lightpathexcitationfilterlink_parent_index_update();
+
+CREATE TRIGGER groupexperimentermap_child_index_trigger_insert
+        BEFORE INSERT ON groupexperimentermap
+        FOR EACH ROW
+        EXECUTE PROCEDURE groupexperimentermap_child_index_insert();
+
+CREATE TRIGGER groupexperimentermap_child_index_trigger_update
+        BEFORE UPDATE ON groupexperimentermap
+        FOR EACH ROW
+        EXECUTE PROCEDURE groupexperimentermap_child_index_update();
+
+CREATE TRIGGER pixels_image_index_trigger_insert
+        BEFORE INSERT ON pixels
+        FOR EACH ROW
+        EXECUTE PROCEDURE pixels_image_index_insert();
+
+CREATE TRIGGER pixels_image_index_trigger_update
+        BEFORE UPDATE ON pixels
+        FOR EACH ROW
+        EXECUTE PROCEDURE pixels_image_index_update();
+
+CREATE TRIGGER shape_roi_index_trigger_insert
+        BEFORE INSERT ON shape
+        FOR EACH ROW
+        EXECUTE PROCEDURE shape_roi_index_insert();
+
+CREATE TRIGGER shape_roi_index_trigger_update
+        BEFORE UPDATE ON shape
+        FOR EACH ROW
+        EXECUTE PROCEDURE shape_roi_index_update();
+
+CREATE TRIGGER wellsample_well_index_trigger_insert
+        BEFORE INSERT ON wellsample
+        FOR EACH ROW
+        EXECUTE PROCEDURE wellsample_well_index_insert();
+
+CREATE TRIGGER wellsample_well_index_trigger_update
+        BEFORE UPDATE ON wellsample
+        FOR EACH ROW
+        EXECUTE PROCEDURE wellsample_well_index_update();
+
+
 --
 -- FINISHED
 --

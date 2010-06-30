@@ -502,15 +502,20 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
             throwNullCollectionException("${prop.nameCapped}");
         }
         get${prop.nameCapped}().add( target );
-        // If this relationship is not ordered, then we will 
+
+## Copied to add${prop.shortType}Set(elements)
+## Copied to set${prop.shortType}(index, element)
+        // If this relationship is not ordered, then we will
         // "attempt" the setting even if it is loaded.
+        if (target != null) {
 #if(${prop.ordered})
-        if (target.isLoaded()) {
+            if (target.isLoaded()) {
 #end
-            target.set${prop.inverseCapped} ( this );
+                target.set${prop.inverseCapped} ( this );
 #if(${prop.ordered})
-       }
+             }
 #end
+         }
     }
 
     /**
@@ -525,15 +530,19 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
         java.util.Iterator<${prop.type}> it = targets.iterator();
         while ( it.hasNext() ) {
             ${prop.type} target = it.next();
-            // If this relationship is not ordered, then we will 
+
+## Copied from add${prop.shortType}(target)
+            // If this relationship is not ordered, then we will
             // "attempt" the setting even if it is loaded.
+            if (target != null) {
 #if(${prop.ordered})
-            if (target.isLoaded()) {
+                if (target.isLoaded()) {
 #end
-                target.set${prop.inverseCapped} ( this );
+                    target.set${prop.inverseCapped} ( this );
 #if(${prop.ordered})
+                }
+#end
             }
-#end
         }
     }
 
@@ -622,13 +631,29 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
      * contract. To extend the list, use {@link #add${prop.shortType}()}.
      * @see java.util.List\#set(int, E)
      */
-    public void set${prop.shortType}(int index, ${prop.type} element) 
+    public ${prop.type} set${prop.shortType}(int index, ${prop.type} element)
     throws IndexOutOfBoundsException {
         $errorIfUnloaded
         if (get${prop.nameCapped}() == null) {
             throwNullCollectionException("${prop.nameCapped}");
         }
-        get${prop.nameCapped}().set(index, element);
+
+        ${prop.type} old = get${prop.nameCapped}().set(index, element);
+
+## Copied from add${prop.shortType}
+        // If this relationship is not ordered, then we will
+        // "attempt" the setting even if it is loaded.
+        if (element != null) {
+#if(${prop.ordered})
+            if (element.isLoaded()) {
+#end
+                element.set${prop.inverseCapped} ( this );
+#if(${prop.ordered})
+            }
+#end
+        }
+
+        return old;
     }
 
     /**
@@ -647,7 +672,6 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
         }
         return get${prop.nameCapped}().get(0);
     }
-    
 
     /**
      * Swaps the first element of ${prop.name} with the first instance of the 

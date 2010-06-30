@@ -78,18 +78,14 @@ public class ContextFilter implements Filter {
     }
 
     protected void doFilter(String fieldId, Collection c) {
-        List add = new ArrayList();
+        List copy = new ArrayList();
         for (Iterator iter = c.iterator(); iter.hasNext();) {
             Object item = iter.next();
             Object result = filter(fieldId, item);
-            if (null == result) {
-                iter.remove();
-            } else if (result != item) {
-                iter.remove();
-                add.add(result);
-            }
+            copy.add(result);
+            iter.remove();
         }
-        c.addAll(add);
+        c.addAll(copy);
     }
 
     protected void afterFilter(String fieldId, Object o) {

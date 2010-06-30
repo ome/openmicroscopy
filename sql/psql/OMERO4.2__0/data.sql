@@ -52,22 +52,6 @@ BEGIN
 
 END;' LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION ome_nextval(seq unknown) RETURNS INT8 AS '
-DECLARE
-  nv int8;
-BEGIN
-    SELECT ome_nextval(seq::text) INTO nv;
-    RETURN nv;
-END;' LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION ome_nextval(seq unknown, increment int4) RETURNS INT8 AS '
-DECLARE
-  nv int8;
-BEGIN
-    SELECT ome_nextval(seq::text, increment) INTO nv;
-    RETURN nv;
-END;' LANGUAGE plpgsql;
-
 CREATE SEQUENCE seq_wellsampleannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_wellsampleannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_wellannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_wellannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_filtertype; INSERT INTO _lock_ids (name, id) SELECT 'seq_filtertype', nextval('_lock_seq');
@@ -1045,7 +1029,9 @@ create unique index originalfile_repo_path_index on originalfile (repo, path, na
 -- end ticket:2201
 --
 
+-- Indices. See #1640, etc.
 create unique index namespace_name on namespace (name);
+create unique index well_col_row on well(plate, "column", "row");
 
 create table password ( experimenter_id bigint primary key REFERENCES experimenter (id), hash char(24), dn text );
 insert into password values (0,'@ROOTPASS@');

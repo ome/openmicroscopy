@@ -44,7 +44,8 @@ TESTS ?= TESTS-$(CURR)
 
 # Directories and files
 DIR ?= $(OMERO_SOURCE)/sql/psql/$(CURR)/
-SCRIPT ?= $(DIR)/$(PREV).sql
+SCRIPTDIR ?= $(DIR)
+SCRIPT ?= $(PREV).sql
 PYSCRIPT ?= $(DIR)/t/$(PREV).py
 FIXTURE ?= $(DIR)/t/$(PREV).sql
 TEST ?= $(DIR)/t/$(PREV).test
@@ -60,11 +61,13 @@ HAS_TEST = test -e $(TEST)
 # in order to make the two versions approach one another
 MAKE_DIFF = $(DIFF_CMD) $(TARGET)/$(2).schema $(TARGET)/$(1).schema > $(TARGET)/$(2).diff
 
+# Now assuming that users have installed plpgsql centrally
+#   (grep "CREATE PROCEDURAL LANGUAGE plpgsql" $(TARGET)/$(1).sql ||\
+#   createlang plpgsql $(PREFIX)$(1)) &&\
+
 MAKE_DB = \
 	(dropdb $(PREFIX)$(1) || echo 'DNE') &&\
 	createdb $(PREFIX)$(1) &&\
-	(grep "CREATE PROCEDURAL LANGUAGE plpgsql" $(TARGET)/$(1).sql ||\
-	 createlang plpgsql $(PREFIX)$(1)) &&\
 	$(PSQL_CMD) $(PREFIX)$(1) -f $(TARGET)/$(1).sql
 
 ##################################################
@@ -75,8 +78,8 @@ $(TARGET)/$(UPGRADED).diff: $(TARGET)/$(FRESH).schema $(TARGET)/$(UPGRADED).sche
 	$(call MAKE_DIFF,$(FRESH),$(UPGRADED))
 
 $(TARGET)/$(UPGRADED).schema: $(TARGET)/$(UPGRADED).db
-	$(PSQL_CMD) $(PREFIX)$(UPGRADED) -f $(SCRIPT)
-	$(HAS_TEST) && $(PSQL_CMD) $(PREFIX)$(UPGRADED) -f $(TEST)
+	(cd $(SCRIPTDIR) && $(PSQL_CMD) $(PREFIX)$(UPGRADED) -f $(SCRIPT))
+	$(HAS_FIXTURE) && $(HAS_TEST) && $(PSQL_CMD) $(PREFIX)$(UPGRADED) -f $(TEST) || echo No test
 	pg_dump -s $(PREFIX)$(UPGRADED) > $(TARGET)/$(UPGRADED).schema
 
 $(TARGET)/$(UPGRADED).db: $(TARGET)/$(UPGRADED).sql
@@ -84,8 +87,9 @@ $(TARGET)/$(UPGRADED).db: $(TARGET)/$(UPGRADED).sql
 	touch $(TARGET)/$(UPGRADED).db
 
 $(TARGET)/$(UPGRADED).sql: $(TARGET)/$(PREV).sql
+	$(HAS_FIXTURE) &&\
+	cp $(DIR)/t/$(PREV).sql $(TARGET)/$(UPGRADED).sql ||\
 	cp $(TARGET)/$(PREV).sql $(TARGET)/$(UPGRADED).sql
-	$(HAS_FIXTURE) && cp $(DIR)/t/$(PREV).sql $(TARGET)/$(UPGRADED).sql
 
 ##################################################
 # Fresh version ##################################
@@ -154,7 +158,7 @@ diff: $(TARGET)/$(UPGRADED).diff
 	less -G $(TARGET)/$(UPGRADED).diff
 
 vi:
-	vi $(SCRIPT)
+	vi $(SCRIPTDIR)/$(SCRIPT)
 
 schema:
 	vi $(DIR)/schema.sql

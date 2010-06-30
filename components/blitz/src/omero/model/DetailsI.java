@@ -102,9 +102,11 @@ public class DetailsI extends Details implements ome.model.ModelBased {
             this.setExternalInfo((omero.model.ExternalInfoI) mapper
                     .findTarget(source.getExternalInfo()));
             ome.model.internal.Permissions sourceP = source.getPermissions();
-            PermissionsI targetP = new PermissionsI();
-            targetP.setPerm1((Long) ome.util.Utils.internalForm(sourceP));
-            this.setPermissions(targetP);
+            if (sourceP != null) {
+                PermissionsI targetP = new PermissionsI();
+                targetP.setPerm1((Long) ome.util.Utils.internalForm(sourceP));
+                this.setPermissions(targetP);
+            }
         } else {
             throw new IllegalArgumentException("Details cannot copy from "
                     + (model == null ? "null" : model.getClass().getName()));

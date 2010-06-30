@@ -8,7 +8,9 @@ package ome.server.itests.update;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ome.api.ITypes;
 import ome.model.acquisition.Instrument;
@@ -18,6 +20,7 @@ import ome.model.annotations.CommentAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.containers.ProjectDatasetLink;
+import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
@@ -26,7 +29,6 @@ import ome.model.display.CodomainMapContext;
 import ome.model.display.RenderingDef;
 import ome.model.display.Thumbnail;
 import ome.model.enums.Correction;
-import ome.model.enums.Format;
 import ome.model.enums.Immersion;
 import ome.model.enums.Medium;
 import ome.model.jobs.ImportJob;
@@ -437,6 +439,95 @@ public class UpdateTest extends AbstractUpdateTest {
         i.setObjectiveSettings(new ObjectiveSettings(i.getObjectiveSettings().getId(),false));
         i = iUpdate.saveAndReturnObject(i);
     }    
+
+    @Test(groups = "ticket:2547")
+    public void testChannelMoveWithFullArrayGoesToEnd() {
+        Pixels p = ObjectFactory.createPixelGraphWithChannels(null, 3);
+        Image i = p.getImage();
+        i = iUpdate.saveAndReturnObject(i);
+        p = i.getPrimaryPixels();
+
+        Set<Long> ids = new HashSet<Long>();
+        assertEquals(3, p.sizeOfChannels());
+        for (Channel ch : p.unmodifiableChannels()) {
+            assertNotNull(ch);
+            ids.add(ch.getId());
+        }
+
+        // Now add another channel
+        Pixels extra = ObjectFactory.createPixelGraph(null);
+        p.addChannel(extra.getChannel(0));
+
+        i = iUpdate.saveAndReturnObject(i);
+        p = i.getPrimaryPixels();
+
+        assertEquals(4, p.sizeOfChannels());
+        assertFalse(ids.contains(p.getChannel(3).getId()));
+
+    }
+
+    @Test(groups = "ticket:2547")
+    public void testChannelMoveWithSpaceFillsSpace() {
+        Pixels p = ObjectFactory.createPixelGraphWithChannels(null, 3);
+        p.setChannel(1, null);
+        Image i = p.getImage();
+        i = iUpdate.saveAndReturnObject(i);
+        p = i.getPrimaryPixels();
+
+        Set<Long> ids = new HashSet<Long>();
+        assertEquals(3, p.sizeOfChannels());
+        assertNotNull(p.getChannel(0));
+        ids.add(p.getChannel(0).getId());
+
+        // Middle should be empty
+        assertNull(p.getChannel(1));
+
+        assertNotNull(p.getChannel(2));
+        ids.add(p.getChannel(2).getId());
+
+        // Now add a channel to the front
+        Pixels extra = ObjectFactory.createPixelGraph(null);
+        Channel old = p.getChannel(0);
+        p.setChannel(0, extra.getChannel(0));
+        p.setChannel(1, old);
+
+        i = iUpdate.saveAndReturnObject(i);
+        p = i.getPrimaryPixels();
+
+        assertEquals(3, p.sizeOfChannels());
+        assertFalse(ids.contains(p.getChannel(0).getId()));
+    }
+
+    @Test(groups = "ticket:2547")
+    public void testChannelToSpaceChangesNothing() {
+        Pixels p = ObjectFactory.createPixelGraphWithChannels(null, 3);
+        p.setChannel(1, null);
+        Image i = p.getImage();
+        i = iUpdate.saveAndReturnObject(i);
+        p = i.getPrimaryPixels();
+
+        Set<Long> ids = new HashSet<Long>();
+        assertEquals(3, p.sizeOfChannels());
+        assertNotNull(p.getChannel(0));
+        ids.add(p.getChannel(0).getId());
+
+        // Middle should be empty
+        assertNull(p.getChannel(1));
+
+        assertNotNull(p.getChannel(2));
+        ids.add(p.getChannel(2).getId());
+
+        // Now add a channel to the space
+        Pixels extra = ObjectFactory.createPixelGraph(null);
+        p.setChannel(1, extra.getChannel(0));
+
+        i = iUpdate.saveAndReturnObject(i);
+        p = i.getPrimaryPixels();
+
+        assertEquals(3, p.sizeOfChannels());
+        assertFalse(ids.contains(p.getChannel(1).getId()));
+    }
+
 
     protected void assertLink(ProjectDatasetLink link) {
         ProjectDatasetLink test = iUpdate.saveAndReturnObject(link);

@@ -17,6 +17,7 @@ import ome.model.meta.ExperimenterGroup;
 import omero.RFloat;
 import omero.RString;
 import omero.model.ArcI;
+import omero.model.ChannelI;
 import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
 import omero.model.ImageI;
@@ -79,5 +80,18 @@ public class ModelTest extends TestCase {
         Map<Long, Long> countsi = ei.getAnnotationLinksCountPerOwner();
         assertEquals(new Long(1L), countsi.get(1L));
 
+    }
+
+    @Test(groups = "ticket:2547")
+    public void testOrderedCollectionsTicket2547() {
+        PixelsI pixels = new PixelsI();
+        ChannelI channel0 = new ChannelI();
+        ChannelI channel1 = new ChannelI();
+        ChannelI channel2 = new ChannelI();
+        pixels.addChannel(channel0);
+        this.assertEquals(1, pixels.sizeOfChannels());
+        ChannelI old = (ChannelI) pixels.setChannel(0, channel1);
+        this.assertEquals(old, channel0);
+        this.assertEquals(1, pixels.sizeOfChannels());
     }
 }

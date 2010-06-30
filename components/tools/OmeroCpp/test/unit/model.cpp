@@ -13,6 +13,7 @@
 #include <omero/model/DatasetImageLinkI.h>
 #include <omero/model/ImageI.h>
 #include <omero/model/PixelsI.h>
+#include <omero/model/ChannelI.h>
 #include <omero/model/TagAnnotationI.h>
 #include <omero/model/GroupExperimenterMapI.h>
 
@@ -307,4 +308,16 @@ BOOST_AUTO_TEST_CASE( PrimaryPixels ) {
         // ok
     }
 
+}
+
+BOOST_AUTO_TEST_CASE( OrderedCollectionsTicket2547 ) {
+    PixelsPtr pixels = new PixelsI();
+    ChannelPtr channel0 = new ChannelI();
+    ChannelPtr channel1 = new ChannelI();
+    ChannelPtr channel2 = new ChannelI();
+    pixels->addChannel(channel0);
+    BOOST_CHECK_EQUAL(1, pixels->sizeOfChannels());
+    ChannelPtr old = pixels->setChannel(0, channel1);
+    BOOST_CHECK_EQUAL(old, channel0);
+    BOOST_CHECK_EQUAL(1, pixels->sizeOfChannels());
 }

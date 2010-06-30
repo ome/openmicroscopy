@@ -59,6 +59,23 @@ public class ObjectFactory {
     }
 
     public static Pixels createPixelGraph(Pixels example) {
+        return createPixelGraphWithChannels(example, 1);
+    }
+
+    public static Channel createChannel(Channel example) {
+        Channel ch = new Channel();
+        LogicalChannel lc = new LogicalChannel();
+        StatsInfo si = new StatsInfo();
+        PhotometricInterpretation pi = new PhotometricInterpretation("RGB");
+        lc.setPhotometricInterpretation(pi);
+        si.setGlobalMax(0.0);
+        si.setGlobalMin(0.0);
+        ch.setStatsInfo(si);
+        ch.setLogicalChannel(lc);
+        return ch;
+    }
+
+    public static Pixels createPixelGraphWithChannels(Pixels example, int channelCount) {
 
         Pixels p = new Pixels();
         PhotometricInterpretation pi = new PhotometricInterpretation();
@@ -66,10 +83,16 @@ public class ObjectFactory {
         PixelsType pt = new PixelsType();
         DimensionOrder dO = new DimensionOrder();
         Image i = new Image();
-        Channel c = new Channel();
-        LogicalChannel lc = new LogicalChannel();
-        StatsInfo si = new StatsInfo();
-        PlaneInfo pl = new PlaneInfo();
+        Channel[] c = new Channel[channelCount];
+        LogicalChannel[] lc = new LogicalChannel[channelCount];
+        StatsInfo[] si = new StatsInfo[channelCount];
+        PlaneInfo[] pl = new PlaneInfo[channelCount];
+        for (int w = 0; w < channelCount; w++) {
+            c[w] = new Channel();
+            lc[w] = new LogicalChannel();
+            si[w] = new StatsInfo();
+            pl[w] = new PlaneInfo();
+        }
 
         if (example != null) {
             p.setId(example.getId());
@@ -82,8 +105,10 @@ public class ObjectFactory {
             dO.unload();
             i.setId(example.getImage().getId());
             i.unload();
-            c.setId(example.getChannel(0).getId());
-            c.unload();
+            for (int w = 0; w < channelCount; w++) {
+                c[w].setId(example.getChannel(w).getId());
+                c[w].unload();
+            }
             // Not needed but useful
             p.addPlaneInfo(example.iteratePlaneInfo().next());
             (p.iteratePlaneInfo().next()).unload();
@@ -98,19 +123,23 @@ public class ObjectFactory {
 
             dO.setValue("XYZTC");
 
-            c.setPixels(p);
-            lc.setPhotometricInterpretation(pi);
+            for (int w = 0; w < channelCount; w++) {
+                c[w].setPixels(p);
+                lc[w].setPhotometricInterpretation(pi);
 
-            // Not required but useful
-            si.setGlobalMax(new Double(0.0));
-            si.setGlobalMin(new Double(0.0));
-            c.setLogicalChannel(lc);
-            c.setStatsInfo(si);
-            pl.setTheC(new Integer(0));
-            pl.setTheZ(new Integer(0));
-            pl.setTheT(new Integer(0));
-            pl.setDeltaT(new Double(0.0));
-            p.addPlaneInfo(pl);
+                // Not required but useful
+                si[w].setGlobalMax(new Double(0.0));
+                si[w].setGlobalMin(new Double(0.0));
+                c[w].setLogicalChannel(lc[w]);
+                c[w].setStatsInfo(si[w]);
+                pl[w].setTheC(new Integer(w));
+                pl[w].setTheZ(new Integer(0));
+                pl[w].setTheT(new Integer(0));
+                pl[w].setDeltaT(new Double(0.0));
+                p.addPlaneInfo(pl[w]);
+
+            }
+
             i.setName("test");
             i.setAcquisitionDate(new Timestamp(System.currentTimeMillis()));
             i.addPixels(p);
@@ -132,7 +161,9 @@ public class ObjectFactory {
         p.setPhysicalSizeZ(new Double(1.0));
         p.setImage(i);
 
-        p.addChannel(c);
+        for (int w = 0; w < channelCount; w++) {
+            p.addChannel(c[w]);
+        }
 
         return p;
     }
