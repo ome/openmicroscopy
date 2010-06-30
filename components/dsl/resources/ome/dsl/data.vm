@@ -52,22 +52,6 @@ BEGIN
 
 END;' LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION ome_nextval(seq unknown) RETURNS INT8 AS '
-DECLARE
-  nv int8;
-BEGIN
-    SELECT ome_nextval(seq::text) INTO nv;
-    RETURN nv;
-END;' LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION ome_nextval(seq unknown, increment int4) RETURNS INT8 AS '
-DECLARE
-  nv int8;
-BEGIN
-    SELECT ome_nextval(seq::text, increment) INTO nv;
-    RETURN nv;
-END;' LANGUAGE plpgsql;
-
 #foreach($type in $types)
 #if(!$type.superclass)
 #set($table = ${type.table})
