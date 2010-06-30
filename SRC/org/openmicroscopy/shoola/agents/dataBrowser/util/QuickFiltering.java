@@ -184,7 +184,22 @@ public class QuickFiltering
 	{
 		super.propertyChange(evt);
 		String name = evt.getPropertyName();
-		if (VK_UP_SEARCH_PROPERTY.equals(name)) {
+		if (HistoryDialog.SELECTION_PROPERTY.equals(name)) { 
+			Object item = evt.getNewValue(); 
+			if (!(item instanceof TagItem)) return; 
+			DataObject ho = ((TagItem) item).getDataObject(); 
+			if (ho instanceof TagAnnotationData) { 
+				String v = ((TagAnnotationData) ho).getTagValue(); 
+				setSearchValue(v); 
+				FilterContext context = new FilterContext(); 
+				List<String> l = SearchUtil.splitTerms(getSearchValue(),  
+						SearchUtil.COMMA_SEPARATOR); 
+				if (l != null && l.size() > 0) { 
+					context.addAnnotationType(TagAnnotationData.class, l); 
+					firePropertyChange(FILTER_TAGS_PROPERTY, null, context); 
+				} 
+			} 
+		} else if (VK_UP_SEARCH_PROPERTY.equals(name)) {
 			if (tagsDialog != null && tagsDialog.isVisible())
 				tagsDialog.setSelectedIndex(false);
 		} else if (VK_DOWN_SEARCH_PROPERTY.equals(name)) {
