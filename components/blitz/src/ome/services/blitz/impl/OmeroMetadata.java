@@ -55,6 +55,7 @@ import ome.xml.model.enums.DimensionOrder;
 import ome.xml.model.enums.EnumerationException;
 import ome.xml.model.enums.IlluminationType;
 import ome.xml.model.enums.PixelType;
+import ome.xml.model.primitives.NonNegativeInteger;
 import ome.xml.model.primitives.PositiveInteger;
 import omero.RDouble;
 import omero.RInt;
@@ -75,6 +76,7 @@ import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Instrument;
 import omero.model.Pixels;
+import omero.model.PlaneInfo;
 import omero.model.Plate;
 import omero.model.Project;
 import omero.model.Screen;
@@ -210,6 +212,7 @@ public class OmeroMetadata extends DummyMetadata {
                 qb.join("p.pixelsType",      "pt",       false, true);
                 qb.join("p.dimensionOrder",  "do",       false, true);
                 qb.join("p.channels",        "c",        false, true);
+                qb.join("p.planeInfo",       "pinfo",    true, true);
                 qb.join("c.logicalChannel",  "l",        false, true);
                 qb.where();
                 qb.and("i.id = " + id);
@@ -674,4 +677,91 @@ public class OmeroMetadata extends DummyMetadata {
         return new PositiveInteger(1);
     }
 
+    private PlaneInfo getPlane(int imageIndex, int planeIndex)
+    {
+        Image i = _getImage(imageIndex);
+        if (i == null)
+        {
+            return null;
+        }
+        Pixels p = i.getPrimaryPixels();
+        if (p == null)
+        {
+            return null;
+        }
+        try
+        {
+            return p.copyPlaneInfo().get(planeIndex);
+        }
+        catch (ArrayIndexOutOfBoundsException e)
+        {
+            return null;
+        }
+    }
+
+    @Override
+    public int getPlaneCount(int imageIndex)
+    {
+        Image o = _getImage(imageIndex);
+        return o == null? 0 : o.getPrimaryPixels().sizeOfPlaneInfo();
+    }
+
+    @Override
+    public Double getPlaneDeltaT(int imageIndex, int planeIndex)
+    {
+        PlaneInfo o = getPlane(imageIndex, planeIndex);
+        return o != null? fromRType(o.getDeltaT()) : null;
+    }
+
+    @Override
+    public Double getPlaneExposureTime(int imageIndex, int planeIndex)
+    {
+        PlaneInfo o = getPlane(imageIndex, planeIndex);
+        return o != null? fromRType(o.getExposureTime()) : null;
+    }
+
+    @Override
+    public Double getPlanePositionX(int imageIndex, int planeIndex)
+    {
+        PlaneInfo o = getPlane(imageIndex, planeIndex);
+        return o != null? fromRType(o.getPositionX()) : null;
+    }
+
+    @Override
+    public Double getPlanePositionY(int imageIndex, int planeIndex)
+    {
+        PlaneInfo o = getPlane(imageIndex, planeIndex);
+        return o != null? fromRType(o.getPositionY()) : null;
+    }
+
+    @Override
+    public Double getPlanePositionZ(int imageIndex, int planeIndex)
+    {
+        PlaneInfo o = getPlane(imageIndex, planeIndex);
+        return o != null? fromRType(o.getPositionZ()) : null;
+    }
+
+    @Override
+    public NonNegativeInteger getPlaneTheC(int imageIndex, int planeIndex)
+    {
+        PlaneInfo o = getPlane(imageIndex, planeIndex);
+        Integer v = fromRType(o.getTheC());
+        return v != null? new NonNegativeInteger(v) : null;
+    }
+
+    @Override
+    public NonNegativeInteger getPlaneTheT(int imageIndex, int planeIndex)
+    {
+        PlaneInfo o = getPlane(imageIndex, planeIndex);
+        Integer v = fromRType(o.getTheT());
+        return v != null? new NonNegativeInteger(v) : null;
+    }
+
+    @Override
+    public NonNegativeInteger getPlaneTheZ(int imageIndex, int planeIndex)
+    {
+        PlaneInfo o = getPlane(imageIndex, planeIndex);
+        Integer v = fromRType(o.getTheZ());
+        return v != null? new NonNegativeInteger(v) : null;
+    }
 }
