@@ -152,7 +152,7 @@ public class RateFilter
 	 */
 	public void load()
 	{
-		long userID = DataBrowserAgent.getUserDetails().getId();
+		long userID = -1;//DataBrowserAgent.getUserDetails().getId();
 		handle = mhView.loadRatings(nodeType, nodeIds, userID, this);
 	}
 	

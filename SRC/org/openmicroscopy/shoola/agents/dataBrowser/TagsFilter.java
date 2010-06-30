@@ -115,7 +115,7 @@ public class TagsFilter
 	 */
 	public void load()
 	{
-		long userID = DataBrowserAgent.getUserDetails().getId();
+		long userID = -1;//DataBrowserAgent.getUserDetails().getId();
 		handle = mhView.filterByAnnotation(nodeType, nodeIds, 
 							TagAnnotationData.class, tags, userID, this);
 	}

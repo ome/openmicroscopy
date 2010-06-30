@@ -138,7 +138,7 @@ public class AnnotatedFilter
 	 */
 	public void load()
 	{
-		long userID = DataBrowserAgent.getUserDetails().getId();
+		long userID = -1;//DataBrowserAgent.getUserDetails().getId();
 		handle = mhView.filterByAnnotated(nodeType, nodeIds, annotationType, 
 				                        annotated, userID, this);
 	}

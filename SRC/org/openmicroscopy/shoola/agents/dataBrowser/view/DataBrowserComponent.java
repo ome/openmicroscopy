@@ -419,7 +419,7 @@ class DataBrowserComponent
 	{
 		if (model.getState() == FILTERING) {
 			UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Filtering", "Currenlty filering data. Please wait.");
+			un.notifyInfo("Filtering", "Currenlty filtering data. Please wait.");
 			return;
 		}		
 		Browser browser = model.getBrowser();

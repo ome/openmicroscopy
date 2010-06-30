@@ -115,7 +115,7 @@ public class DataFilter
 	 */
 	public void load()
 	{
-		long userID = DataBrowserAgent.getUserDetails().getId();
+		long userID = -1;//DataBrowserAgent.getUserDetails().getId();
 		handle = mhView.filterData(nodeType, nodeIds, context, userID, this);
 	}
 	
