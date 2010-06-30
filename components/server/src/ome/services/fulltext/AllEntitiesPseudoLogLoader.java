@@ -67,7 +67,7 @@ public class AllEntitiesPseudoLogLoader<T extends IObject> extends
      */
     @Override
     public long more() {
-        return classes.size();
+        return classes.size() + (current == null ? 0 : 1);
     }
 
     protected EventLog wrap(String cls, IObject obj) {
