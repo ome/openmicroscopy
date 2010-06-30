@@ -1280,19 +1280,23 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         tg = query_serv.findByQuery(sql, p)
         return AnnotationWrapper(self, tg)
     
-    def findTag (self, name, desc):
+    def findTag (self, name, desc=None):
         query_serv = self.getQueryService()
         res = list()
         p = omero.sys.Parameters()
         p.map = {} 
         p.map["text"] = rstring(str(name))
-        p.map["desc"] = rstring(str(desc))
+        if desc is not None:
+            p.map["desc"] = rstring(str(desc))
         #p.map["eid"] = rlong(self.getEventContext().userId)
         f = omero.sys.Filter()
         f.limit = rint(1)
         p.theFilter = f
         sql = "select tg from TagAnnotation tg " \
-              "where tg.textValue=:text and tg.description=:desc and tg.ns is null order by tg.textValue"
+              "where tg.textValue=:text"
+        if desc is not None:
+            sql+= " and tg.description=:desc"
+        sql+=" and tg.ns is null order by tg.textValue"
         res = query_serv.findAllByQuery(sql, p)
         if len(res) > 0:
             return AnnotationWrapper(self, res[0])
