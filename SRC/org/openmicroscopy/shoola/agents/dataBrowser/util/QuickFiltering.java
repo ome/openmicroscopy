@@ -25,8 +25,10 @@ package org.openmicroscopy.shoola.agents.dataBrowser.util;
 
 //Java imports
 import java.awt.Rectangle;
+import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -35,10 +37,12 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.tagging.util.TagCellRenderer;
 import org.openmicroscopy.shoola.agents.util.tagging.util.TagItem;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.util.ui.HistoryDialog;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
 import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
@@ -83,21 +87,23 @@ public class QuickFiltering
 	private void handleTagInsert()
 	{
 		if (tags == null) {
-    		firePropertyChange(TAG_LOADING_PROPERTY, Boolean.FALSE, 
-    							Boolean.TRUE);
+    		firePropertyChange(TAG_LOADING_PROPERTY, Boolean.valueOf(false), 
+    				Boolean.valueOf(true));
     		return;
     	}
 		codeCompletion();
 		
 		if (tagsDialog == null) return;
 		String name = getSearchValue();
+		
 		List<String> l = SearchUtil.splitTerms(name, 
 				SearchUtil.COMMA_SEPARATOR);
 		if (l.size() > 0) {
 			if (tagsDialog.setSelectedTextValue(l.get(l.size()-1).trim())) {
         		Rectangle r = getSelectionArea().getBounds();
+        		tagsDialog.setFocusable(false);
         		tagsDialog.show(getSelectionArea(), 0, r.height);
-        		setFocusOnArea();
+        		//setFocusOnArea();
         	} else tagsDialog.setVisible(false);
 		}
 	}
@@ -109,8 +115,10 @@ public class QuickFiltering
     	Rectangle r = getSelectionArea().getBounds();
 		Object[] data = null;
 		if (tags != null && tags.size() > 0) {
-			data = new Object[tags.size()];
-			Iterator j = tags.iterator();
+			ViewerSorter sorter = new ViewerSorter();
+			List l = sorter.sort(tags);
+			data = new Object[l.size()];
+			Iterator j = l.iterator();
 			DataObject object;
 
 			TagItem item;
@@ -176,22 +184,7 @@ public class QuickFiltering
 	{
 		super.propertyChange(evt);
 		String name = evt.getPropertyName();
-		if (HistoryDialog.SELECTION_PROPERTY.equals(name)) {
-			Object item = evt.getNewValue();
-			if (!(item instanceof TagItem)) return;
-			DataObject ho = ((TagItem) item).getDataObject();
-			if (ho instanceof TagAnnotationData) {
-				String v = ((TagAnnotationData) ho).getTagValue();
-				setSearchValue(v);
-				FilterContext context = new FilterContext();
-				List<String> l = SearchUtil.splitTerms(getSearchValue(), 
-						SearchUtil.COMMA_SEPARATOR);
-				if (l != null && l.size() > 0) {
-					context.addAnnotationType(TagAnnotationData.class, l);
-					firePropertyChange(FILTER_TAGS_PROPERTY, null, context);
-				}
-			}
-		} else if (VK_UP_SEARCH_PROPERTY.equals(name)) {
+		if (VK_UP_SEARCH_PROPERTY.equals(name)) {
 			if (tagsDialog != null && tagsDialog.isVisible())
 				tagsDialog.setSelectedIndex(false);
 		} else if (VK_DOWN_SEARCH_PROPERTY.equals(name)) {

@@ -30,10 +30,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -226,7 +228,6 @@ public class QuickSearch
 		searchArea.setText(SHOW_ALL_DESCRIPTION+defaultText);
         UIUtilities.setTextAreaDefault(searchArea);
         searchArea.setBorder(null);
-        
         searchArea.getDocument().addDocumentListener(this);
         searchArea.addKeyListener(new KeyAdapter() {
 
@@ -241,11 +242,11 @@ public class QuickSearch
 						break;
 					case KeyEvent.VK_UP:
 						firePropertyChange(VK_UP_SEARCH_PROPERTY, 
-											Boolean.FALSE, Boolean.TRUE);
+								Boolean.valueOf(false), Boolean.valueOf(true));
 						break;
 					case KeyEvent.VK_DOWN:
 						firePropertyChange(VK_DOWN_SEARCH_PROPERTY, 
-											Boolean.FALSE, Boolean.TRUE);
+								Boolean.valueOf(false), Boolean.valueOf(true));
 				}
             }
         });
@@ -610,15 +611,12 @@ public class QuickSearch
 	public void setFocusOnArea()
 	{ 
 		searchArea.requestFocusInWindow();
-		int n = searchArea.getCaretPosition();
-		searchArea.select(0, 0);
-		
-		searchArea.setSelectionStart(0);
-		searchArea.setSelectionEnd(1);
-		searchArea.setHighlighter(null);
-		searchArea.setCaretPosition(n);
+		String v = getSearchValue();
+		int l = v.length();
+		searchArea.setCaretPosition(l);
+		searchArea.moveCaretPosition(l);
 	}
-	
+
 	/**
 	 * Returns the text of the {@link #searchArea}.
 	 * 
@@ -790,6 +788,7 @@ public class QuickSearch
 		String text = searchArea.getText();
 		if (text == null || text.trim().length() == 0)
 			cleanBar.setVisible(false);
+		else handleTextInsert();
 	}
 	
 	/** Subclasses should override this method to handle the search. */

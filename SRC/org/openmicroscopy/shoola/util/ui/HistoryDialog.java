@@ -368,8 +368,11 @@ public class HistoryDialog
     	ListSelectionModel model = history.getSelectionModel();
     	int m = data.length;
     	if (secondaryHistory == null) {
-    		if (!model.isSelectionEmpty() && m > 0) {
-        		int index = history.getSelectedIndex();
+    		//if (!model.isSelectionEmpty() && m > 0) {
+    		if (m > 0) {
+        		int index;
+        		if (model.isSelectionEmpty()) index = 0;
+        		else index = history.getSelectedIndex();
             	Object r = null;
             	int l = m-1;
             	if (increase) {
