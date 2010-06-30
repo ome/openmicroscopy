@@ -65,18 +65,6 @@ namespace omero {
 	    set(2,0, value);
 	}
 
-	// bit 18
-	bool PermissionsI::isLocked(const Ice::Current& c) {
-	    return !granted(1,18); // Here we use the granted
-	    // logic but without a shift. The not is because
-	    // flags are stored with reverse semantics.
-	}
-	void PermissionsI::setLocked(bool value, const Ice::Current& c) {
-	    set(1,18,!value); // Here we use the set
-	    // logic but without a shift. The not is because
-	    // flags are stored with reverse semantics.
-	}
-
 	bool PermissionsI::granted(int mask, int shift) {
 	    return (perm1 & (mask<<shift) ) == (mask<<shift);
 	}

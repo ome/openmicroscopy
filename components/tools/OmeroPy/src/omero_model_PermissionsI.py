@@ -88,15 +88,6 @@ class PermissionsI(_omero_model.Permissions):
       def setWorldWrite(self, value):
             self.set(2,0,value)
 
-      # bit 18
-      def isLocked(self):
-            ## Here we use the granted logic but without a shift. The not
-            ## is because flags are stored with reverse semantics
-            return not self.granted(1,18)
-      def setLocked(self, value):
-            ## See above
-            self.set(1,18,not value)
-
       # Accessors; do not use
 
       def getPerm1(self):
@@ -120,7 +111,6 @@ class PermissionsI(_omero_model.Permissions):
           gw = match.group(5)
           wr = match.group(6)
           ww = match.group(7)
-          self.setLocked(l.lower() == "L")
           self.setUserRead(ur.lower() == "r")
           self.setUserWrite(uw.lower() == "w")
           self.setGroupRead(gr.lower() == "r")

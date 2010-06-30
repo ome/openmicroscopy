@@ -48,16 +48,7 @@ public:
 
     /*
      * Central methods. The optional argument is a requirement
-     * of the Ice runtime and can safely be omitted. The only
-     * methods which are not self-explanatory are isLocked
-     * and setLocked. These relate to whether or not the server
-     * will allow certain actions on the holding type. This
-     * would be of interest to know if the owner of a given
-     * entity can be changed, or if it can have its read
-     * permissions revoked. Doing so can cause strange
-     * behavior for other users. It is always best to start
-     * with the most strict permissions for objects, and
-     * later elevate them.
+     * of the Ice runtime and can safely be omitted.
      */
     bool isUserRead(const Ice::Current& c = Ice::Current());
     bool isUserWrite(const Ice::Current& c = Ice::Current());
@@ -65,14 +56,12 @@ public:
     bool isGroupWrite(const Ice::Current& c = Ice::Current());
     bool isWorldRead(const Ice::Current& c = Ice::Current());
     bool isWorldWrite(const Ice::Current& c = Ice::Current());
-    bool isLocked(const Ice::Current& c = Ice::Current());
     void setUserRead(bool value, const Ice::Current& c = Ice::Current());
     void setUserWrite(bool value, const Ice::Current& c = Ice::Current());
     void setGroupRead(bool value, const Ice::Current& c = Ice::Current());
     void setGroupWrite(bool value, const Ice::Current& c = Ice::Current());
     void setWorldRead(bool value, const Ice::Current& c = Ice::Current());
     void setWorldWrite(bool value, const Ice::Current& c = Ice::Current());
-    void setLocked(bool value, const Ice::Current& c = Ice::Current());
 
     // Do not use !
     Ice::Long getPerm1(const Ice::Current& current = Ice::Current()) {

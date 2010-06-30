@@ -17,11 +17,10 @@ BOOST_AUTO_TEST_CASE( Perm1 )
   // The default
   BOOST_CHECK( p->isUserRead() );
   BOOST_CHECK( p->isUserWrite() );
-  BOOST_CHECK( ! p->isGroupRead() );
-  BOOST_CHECK( ! p->isGroupWrite() );
-  BOOST_CHECK( ! p->isWorldRead() );
-  BOOST_CHECK( ! p->isWorldWrite() );
-  BOOST_CHECK( ! p->isLocked() ); // flags reversed
+  BOOST_CHECK( p->isGroupRead() );
+  BOOST_CHECK( p->isGroupWrite() );
+  BOOST_CHECK( p->isWorldRead() );
+  BOOST_CHECK( p->isWorldWrite() );
 
   // All off
   p->setPerm1( 0L );
@@ -31,7 +30,6 @@ BOOST_AUTO_TEST_CASE( Perm1 )
   BOOST_CHECK( ! p->isGroupWrite() );
   BOOST_CHECK( ! p->isWorldRead() );
   BOOST_CHECK( ! p->isWorldWrite() );
-  BOOST_CHECK( p->isLocked() ); // flags reversed
   
   // All on
   p->setPerm1( -1L );
@@ -41,22 +39,17 @@ BOOST_AUTO_TEST_CASE( Perm1 )
   BOOST_CHECK( p->isGroupWrite() );
   BOOST_CHECK( p->isWorldRead() );
   BOOST_CHECK( p->isWorldWrite() );
-  BOOST_CHECK( ! p->isLocked() ); // flags reversed
   
   // Various swaps
   p->setUserRead(false);
   BOOST_CHECK( !p->isUserRead() );
   p->setGroupWrite(true);
   BOOST_CHECK( p->isGroupWrite() );
-  p->setLocked(true);
-  BOOST_CHECK( p->isLocked() );
 
   // Now reverse each of the above
   p->setUserRead(true);
   BOOST_CHECK( p->isUserRead() );
   p->setGroupWrite(false);
   BOOST_CHECK( !p->isGroupWrite() );
-  p->setLocked(false);
-  BOOST_CHECK( !p->isLocked() );
 
 }

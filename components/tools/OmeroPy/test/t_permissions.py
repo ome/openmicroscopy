@@ -24,7 +24,6 @@ class TestPermissions(unittest.TestCase):
         self.assert_( self.p.isGroupWrite() )
         self.assert_( self.p.isWorldRead() )
         self.assert_( self.p.isWorldWrite() )
-        self.assert_( not self.p.isLocked() ) # flags reversed
 
         # All off
         self.p._perm1 = 0L
@@ -34,7 +33,6 @@ class TestPermissions(unittest.TestCase):
         self.assert_( not  self.p.isGroupWrite() )
         self.assert_( not  self.p.isWorldRead() )
         self.assert_( not  self.p.isWorldWrite() )
-        self.assert_( self.p.isLocked() ) # flags reversed
 
         # All on
         self.p._perm1 = -1L
@@ -44,23 +42,18 @@ class TestPermissions(unittest.TestCase):
         self.assert_( self.p.isGroupWrite() )
         self.assert_( self.p.isWorldRead() )
         self.assert_( self.p.isWorldWrite() )
-        self.assert_( not  self.p.isLocked() ) # flags reversed
 
         # Various swaps
         self.p.setUserRead(False)
         self.assert_( not self.p.isUserRead() )
         self.p.setGroupWrite(True)
         self.assert_( self.p.isGroupWrite() )
-        self.p.setLocked(True)
-        self.assert_( self.p.isLocked() )
 
         # Now reverse each of the above
         self.p.setUserRead(True)
         self.assert_( self.p.isUserRead() )
         self.p.setGroupWrite(False)
         self.assert_( not self.p.isGroupWrite() )
-        self.p.setLocked(False)
-        self.assert_( not self.p.isLocked() )
 
 if __name__ == '__main__':
     unittest.main()
