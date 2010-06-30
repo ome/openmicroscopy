@@ -376,7 +376,7 @@ class MeasurementViewerUI
 			// This method is called whenever the selected tab changes
 			public void stateChanged(ChangeEvent evt)
 			{
-				if (model.isServerROI()) {
+				if (model.isHCSData()) {
 					updateDrawingArea();
 				} else {
 					if (inDataView())
@@ -801,7 +801,7 @@ class MeasurementViewerUI
 		List<ROIShape> roiShapeList = new ArrayList<ROIShape>();
 		roiShapeList.add(figure.getROIShape());
 		dv.grabFocus();
-		if (model.isServerROI()) {
+		if (model.isHCSData()) {
 			List<Long> ids = new ArrayList<Long>();
 			Iterator<ROIShape> j = roiShapeList.iterator();
 			ROIShape roiShape;
@@ -845,7 +845,7 @@ class MeasurementViewerUI
 		} catch (Exception e) {
 			handleROIException(e, RETRIEVE_MSG);
 		}
-		if (model.isServerROI()) {
+		if (model.isHCSData()) {
 			List<Long> ids = new ArrayList<Long>();
 			Iterator<ROIShape> j = shapeList.iterator();
 			while (j.hasNext()) {
@@ -902,7 +902,7 @@ class MeasurementViewerUI
     	if (figure == null) return;
     	try {
     		model.removeROIShape(figure.getROI().getID());
-    		if (!model.isServerROI()) {
+    		if (!model.isHCSData()) {
     			roiManager.removeFigure(figure);
     			roiResults.refreshResults();
     		}
@@ -930,7 +930,7 @@ class MeasurementViewerUI
     	if (roi == null) return;
     	List<ROI> roiList = new ArrayList<ROI>();
     	roiList.add(roi);
-    	if (!model.isServerROI()) {
+    	if (!model.isHCSData()) {
     		roiManager.addFigures(roiList);
         	roiResults.refreshResults();
     	}
@@ -946,7 +946,7 @@ class MeasurementViewerUI
     	if (model.getState() != MeasurementViewer.READY) return;
     	if (figure == null) return;
     	getDrawingView().repaint();
-    	if (!model.isServerROI()) {
+    	if (!model.isHCSData()) {
     		roiInspector.setModelData(figure);
         	//roiManager.update();
         	roiResults.refreshResults();
@@ -970,20 +970,20 @@ class MeasurementViewerUI
     /** Rebuilds the ROI table. */
     void rebuildManagerTable()
     { 
-    	if (!model.isServerROI()) roiManager.rebuildTable(); 
+    	if (!model.isHCSData()) roiManager.rebuildTable(); 
     }
     
     /** Rebuilds the results table. */
     void refreshResultsTable()
     { 
-    	if (!model.isServerROI())
+    	if (!model.isHCSData())
     		roiResults.refreshResults();
     }
     
     /** Rebuild the inspector table. */
     void refreshInspectorTable()
     { 
-    	if (!model.isServerROI())
+    	if (!model.isHCSData())
     		roiInspector.repaint();
     } 
 
@@ -1014,7 +1014,7 @@ class MeasurementViewerUI
     /** Lays out the UI. */
     void layoutUI()
     {
-    	if (model.isServerROI()) {
+    	if (model.isHCSData()) {
     		tabs.removeAll();
     		Collection l = model.getMeasurementResults();
     		Iterator i = l.iterator();
@@ -1042,7 +1042,7 @@ class MeasurementViewerUI
 		drawing.clear();
 		ShapeList list = null;
 		ROIFigure figure;
-		if (model.isServerROI()) {
+		if (model.isHCSData()) {
 			Component comp = tabs.getSelectedComponent();
 			if (comp instanceof ServerROITable) {
 				ServerROITable table = (ServerROITable) comp;
@@ -1134,7 +1134,7 @@ class MeasurementViewerUI
 				}
 				newShape.getFigure().calculateMeasurements();
 			}
-			if (!model.isServerROI()) roiManager.addROIShapes(addedShapes);
+			if (!model.isHCSData()) roiManager.addROIShapes(addedShapes);
 		}
 		catch (ROICreationException e)
 		{

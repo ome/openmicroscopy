@@ -24,12 +24,11 @@ package org.openmicroscopy.shoola.agents.measurement;
 
 
 //Java imports
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.List;
-
 import org.openmicroscopy.shoola.agents.events.FocusGainedEvent;
 import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.events.iviewer.ChannelSelection;
@@ -93,7 +92,7 @@ public class MeasurementAgent
     		viewer.setIconImage(evt.getThumbnail());
     		viewer.setRndImage(evt.getRenderedImage());
     		MeasurementViewerFactory.addRequest(evt);
-    		viewer.activate(evt.getMeasurements());
+    		viewer.activate(evt.getMeasurements(), evt.isHCSData());
     	}
     }
 

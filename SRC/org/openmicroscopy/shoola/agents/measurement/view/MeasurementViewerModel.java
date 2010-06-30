@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.measurement.Analyser;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementViewerLoader;
+import org.openmicroscopy.shoola.agents.measurement.ROILoader;
 import org.openmicroscopy.shoola.agents.measurement.ROISaver;
 import org.openmicroscopy.shoola.agents.measurement.ServerSideROILoader;
 import org.openmicroscopy.shoola.agents.measurement.WorkflowLoader;
@@ -191,6 +192,9 @@ class MeasurementViewerModel
 	/** The keyword of the current workflow. */
 	private List<String>			keyword;
 	
+	/** Flag indicating if the tool is for HCS data. */
+	private boolean					HCSData;
+	
     /** 
 	 * Sorts the passed nodes by row.
 	 * 
@@ -212,6 +216,23 @@ class MeasurementViewerModel
         };
         Collections.sort(nodes, c);
 		return nodes;
+	}
+	
+	/**
+	 * Map figure attributes to ROI and ROIShape annotations where necessary. 
+	 * @param attribute see above.
+	 * @param figure see above.
+	 */
+	private void mapFigureAttributeToROIAnnotation(AttributeKey attribute, 
+													ROIFigure figure)
+	{
+
+		if (MeasurementAttributes.TEXT.getKey().equals(attribute.getKey())) 
+		{
+			ROIShape shape = figure.getROIShape();
+			AnnotationKeys.TEXT.set(shape, 
+				MeasurementAttributes.TEXT.get(figure));
+		}
 	}
 	
 	/**
@@ -818,21 +839,28 @@ class MeasurementViewerModel
 		mapFigureAttributeToROIAnnotation(attribute, figure);
 	}
 	
-	/**
-	 * Map figure attributes to ROI and ROIShape annotations where necessary. 
-	 * @param attribute see above.
-	 * @param figure see above.
+	/** 
+	 * Loads the ROI associated to the image. 
+	 * 
+	 * @param measurements The measurements if any.
 	 */
-	private void mapFigureAttributeToROIAnnotation(AttributeKey attribute, 
-													ROIFigure figure)
+	void fireLoadROIFromServer(List<FileAnnotationData> measurements)
 	{
-
-		if (MeasurementAttributes.TEXT.getKey().equals(attribute.getKey())) 
-		{
-			ROIShape shape = figure.getROIShape();
-			AnnotationKeys.TEXT.set(shape, 
-				MeasurementAttributes.TEXT.get(figure));
+		this.measurements = measurements;
+		List<Long> files = null;
+		if (measurements != null) {
+			files = new ArrayList<Long>();
+			Iterator<FileAnnotationData> i = measurements.iterator();
+			while (i.hasNext())
+				files.add(i.next().getId());
 		}
+		
+		state = MeasurementViewer.LOADING_ROI;
+		ExperimenterData exp = 
+			(ExperimenterData) MeasurementAgent.getUserDetails();
+		currentLoader = new ROILoader(component, getImageID(), files,
+				exp.getId());
+		currentLoader.load();
 	}
 	
 	/** 
@@ -1340,17 +1368,9 @@ class MeasurementViewerModel
 	 */
 	boolean hasROIToSave()
 	{ 
-		if (isServerROI()) return false;
+		if (isHCSData()) return false;
 		return event != null;
 	}
-	
-	/** 
-	 * Returns <code>true</code> if the tool hosts server ROIs,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean isServerROI() { return serverROI; }
 
 	/**
 	 * Sets the workflow for the next ROI.
@@ -1437,5 +1457,20 @@ class MeasurementViewerModel
 	 * @return See above.
 	 */
 	List<String> getKeywords() { return keyword; }
+	
+	/**
+	 * Returns <code>true</code> if the tool is for HCS data, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isHCSData() { return HCSData; }
+	
+	/**
+     * Sets the flag indicating if the tool is for HCS data.
+     * 
+     * @param value The value to set.
+     */
+    void setHCSData(boolean value) { HCSData = value; }
 	
 }	

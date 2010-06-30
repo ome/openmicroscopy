@@ -569,7 +569,7 @@ class MeasurementResults
 		int index = Integer.parseInt(e.getActionCommand());
 		switch (index) {
 			case REFRESH:
-				if (!model.isServerROI())
+				if (!model.isHCSData())
 		    		refreshResults();
 				break;
 			case SAVE:

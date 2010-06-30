@@ -442,6 +442,7 @@ class ImViewerComponent
 		request.setThumbnail(model.getImageIcon());
 		request.setRenderedImage(model.getBrowser().getRenderedImage());
 		request.setMeasurements(measurements);
+		request.setHCSData(model.isHCSImage());
 		bus.post(request);
 		int tabbedIndex = model.getTabbedIndex();
 		if (tabbedIndex != ImViewer.VIEW_INDEX) {
@@ -1859,15 +1860,10 @@ class ImViewerComponent
 	public void showMeasurementTool(Point point)
 	{
 		//TODO: Review for HCS.
-		/*
-		Boolean location = (Boolean) 
-		MeasurementAgent.getRegistry().lookup(
-				LookupNames.SERVER_ROI);
-		if (!location) {
+		if (!model.isHCSImage()) {
 			postMeasurementEvent(null);
 			return;
 		}
-		*/
 		Collection measurements = model.getMeasurements();
 		if (measurements == null || measurements.size() == 0) {
 			postMeasurementEvent(null);
@@ -2776,7 +2772,9 @@ class ImViewerComponent
 			Action a = controller.getAction(ImViewerControl.MEASUREMENT_TOOL);
 			a.setEnabled(false);
 		}
-		model.setMeasurements(result);
+		//Notify UI to build overlays 
+		view.buildOverlays();
+		
 	}
 
 	/** 

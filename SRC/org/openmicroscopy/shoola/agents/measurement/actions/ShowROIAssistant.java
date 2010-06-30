@@ -66,7 +66,7 @@ public class ShowROIAssistant
 	 */
 	protected void onStateChange()
 	{
-		if (model.isServerROI()) setEnabled(false);
+		if (model.isHCSData()) setEnabled(false);
 		else {
 			if (model.getState() == ImViewer.READY) {
 				Collection values = model.getSelectedFigures();

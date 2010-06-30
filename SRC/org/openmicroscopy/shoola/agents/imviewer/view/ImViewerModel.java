@@ -1755,7 +1755,7 @@ class ImViewerModel
 		this.grandParent = grandParent;
 		if (metadataViewer != null)
 			metadataViewer.setParentRootObject(parent);
-		fireMeasurementsLoading();
+		if (isHCSImage()) fireMeasurementsLoading();
 	}
 	
 	/**
@@ -2260,6 +2260,17 @@ class ImViewerModel
 	void setRangeAllChannels(boolean absolute)
 	{
 		metadataViewer.getRenderer().setRangeAllChannels(absolute);
+	}
+	
+	/**
+	 * Returns <code>true</code> if the data object is a well sample, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isHCSImage()
+	{
+		return (image instanceof WellSampleData);
 	}
 	
 }

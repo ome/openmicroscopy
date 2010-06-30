@@ -93,9 +93,10 @@ public interface MeasurementViewer
      * window to front.
      * 
      * @param measurements The measurements to load if any.
+     * @param HCSData Flag indicating if the tool is for HCS data.
      * @throws IllegalStateException If the current state is {@link #DISCARDED}.  
      */
-    public void activate(List<FileAnnotationData> measurements);
+    public void activate(List<FileAnnotationData> measurements, boolean HCSData);
     
     /**
      * Starts the data loading process when the current state is {@link #NEW} 
@@ -292,7 +293,7 @@ public interface MeasurementViewer
 	 * 
 	 * @return See above.
 	 */
-	public boolean isServerROI();
+	public boolean isHCSData();
 
 	/** 
 	 * Returns the title of the window.

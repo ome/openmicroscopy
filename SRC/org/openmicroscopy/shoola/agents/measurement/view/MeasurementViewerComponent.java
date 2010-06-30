@@ -211,13 +211,16 @@ class MeasurementViewerComponent
      * Implemented as specified by the {@link MeasurementViewer} interface.
      * @see MeasurementViewer#activate()
      */
-    public void activate() { activate(model.getMeasurements()); }
+    public void activate()
+    { 
+    	activate(model.getMeasurements(), model.isHCSData()); 
+    }
     
     /** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#activate(List)
+     * @see MeasurementViewer#activate(List, boolean)
      */
-	public void activate(List<FileAnnotationData> measurements)
+	public void activate(List<FileAnnotationData> measurements, boolean HCSData)
 	{
 		int state = model.getState();
         switch (state) {
@@ -236,8 +239,13 @@ class MeasurementViewerComponent
         		if (location) model.fireLoadROIFromServer(measurements);
         		else
         		*/	
-        		model.fireLoadWorkflow();
-        		model.fireLoadROIServerOrClient(false);
+        		model.setHCSData(HCSData);
+        		if (HCSData) {
+        			
+        		} else {
+        			model.fireLoadWorkflow();
+            		model.fireLoadROIServerOrClient(false);
+        		}
         		//model.fireROILoading(null);
         		//fireStateChange();
                 break;
@@ -789,9 +797,9 @@ class MeasurementViewerComponent
 
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#isServerROI()
+     * @see MeasurementViewer#isHCSData()
      */
-	public boolean isServerROI() { return model.isServerROI(); }
+	public boolean isHCSData() { return model.isHCSData(); }
 
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.

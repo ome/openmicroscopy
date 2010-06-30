@@ -91,6 +91,9 @@ public class MeasurementTool
     /** The measurements if any. */
     private List<FileAnnotationData> measurements;
     
+    /** Flag indicating that the tool is for HCS data. */
+    private boolean HCSData;
+    
     /**
      * Creates a new instance.
      * 
@@ -125,7 +128,23 @@ public class MeasurementTool
         this.activeChannels = activeChannels;
         this.magnification = magnification;
         requesterBounds = bounds;
+        HCSData = false;
     }
+    
+    /**
+     * Sets the flag indicating if the tool is for HCS data.
+     * 
+     * @param value The value to set.
+     */
+    public void setHCSData(boolean value) { HCSData = value; }
+    
+    /**
+     * Returns <code>true</code> if HCS data, <code>false</code>
+     * otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isHCSData() { return HCSData; }
     
     /**
      * Sets the measurements.

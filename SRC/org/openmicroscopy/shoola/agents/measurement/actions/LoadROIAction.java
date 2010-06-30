@@ -64,7 +64,7 @@ public class LoadROIAction
 	 */
 	protected void onStateChange()
 	{
-		if (model.isServerROI()) setEnabled(false);
+		if (model.isHCSData()) setEnabled(false);
 	}
 	
 	/**
