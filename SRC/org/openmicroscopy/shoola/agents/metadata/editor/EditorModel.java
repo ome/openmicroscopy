@@ -44,6 +44,7 @@ import java.util.Map.Entry;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.Image;
 import omero.model.OriginalFile;
 import omero.model.PlaneInfo;
 import org.openmicroscopy.shoola.agents.metadata.AcquisitionDataLoader;
@@ -56,7 +57,6 @@ import org.openmicroscopy.shoola.agents.metadata.FileLoader;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.InstrumentDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
-import org.openmicroscopy.shoola.agents.metadata.OriginalFileLoader;
 import org.openmicroscopy.shoola.agents.metadata.PasswordEditor;
 import org.openmicroscopy.shoola.agents.metadata.PlaneInfoLoader;
 import org.openmicroscopy.shoola.agents.metadata.ROILoader;
@@ -78,6 +78,7 @@ import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
+import org.openmicroscopy.shoola.env.data.model.DownloadArchivedActivityParam;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
@@ -264,10 +265,9 @@ class EditorModel
 	 */
 	private void downloadImages(File folder)
 	{
-		Set<Long> ids = new HashSet<Long>();
+		List<ImageData> images = new ArrayList<ImageData>();
 		Collection l = parent.getRelatedNodes();
 		ImageData img;
-		PixelsData data;
 		if (l != null) {
 			Iterator i = l.iterator();
 			Object o;
@@ -275,23 +275,29 @@ class EditorModel
 				o = (Object) i.next();
 				if (o instanceof ImageData) {
 					img = (ImageData) o;
-					if (img.isArchived()) {
-						data = img.getDefaultPixels();
-						ids.add(data.getId());
-					}
+					if (img.isArchived()) 
+						images.add(img);
 				}
 			}
 		}
 		img = (ImageData) getRefObject();
-		if (img.isArchived()) {
-			data = img.getDefaultPixels();
-			ids.add(data.getId());
-		}
+		if (img.isArchived()) images.add(img);
 		
-		OriginalFileLoader loader = new OriginalFileLoader(component, ids, 
-				folder);
-		loader.load();
-		loaders.add(loader);
+		if (images.size() > 0) {
+			Iterator<ImageData> i = images.iterator();
+			DownloadArchivedActivityParam p;
+			UserNotifier un =
+				MetadataViewerAgent.getRegistry().getUserNotifier();
+			IconManager icons = IconManager.getInstance();
+			String path = folder.getAbsolutePath();
+			if (!path.endsWith(File.separator)) path += File.separator;
+			while (i.hasNext()) {
+				img = i.next();
+				p = new DownloadArchivedActivityParam(path, img, 
+						icons.getIcon(IconManager.DOWNLOAD_22));
+				un.notifyActivity(p);
+			}
+		}
 	}
 	
     /** 

@@ -186,7 +186,7 @@ public class NullOmeroPojoService
      * No-op implementation
      * @see OmeroDataService#getArchivedFiles(String, long)
      */
-	public Map getArchivedFiles(String location, long pixelsID) 
+	public Map getArchivedImage(String location, long pixelsID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;

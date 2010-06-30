@@ -272,6 +272,17 @@ public interface MetadataHandlerView
 							AgentEventListener observer);
 	
 	/**
+	 * Loads the archived files related to the specified image.
+	 * 
+	 * @param pixelsID The id of the pixels set related to the image.
+	 * @param location The location where to store the archived files
+	 * @param observer	Call-back handler.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadArchivedImage(long pixelsID, String location,
+							AgentEventListener observer);
+	
+	/**
 	 * Filters by annotation.
 	 * 
 	 * @param nodeType			The type of node.

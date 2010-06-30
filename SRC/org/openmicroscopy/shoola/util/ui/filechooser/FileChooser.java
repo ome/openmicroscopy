@@ -319,8 +319,13 @@ public class FileChooser
     {
     	option = JFileChooser.APPROVE_OPTION;
     	if (getChooserType() == FOLDER_CHOOSER) {
-    		firePropertyChange(APPROVE_SELECTION_PROPERTY, 
-    				Boolean.valueOf(false), getFolderPath());
+    		File f = uiDelegate.getCurrentDirectory();
+    		if (f != null) {
+    			String path = f.getAbsolutePath();
+    			if (!path.endsWith(File.separator))
+    				path += File.separator;
+    			firePropertyChange(APPROVE_SELECTION_PROPERTY, null, path);
+    		}
     	} else {
     		firePropertyChange(APPROVE_SELECTION_PROPERTY, 
     				Boolean.valueOf(false), getSelectedFile());
@@ -330,14 +335,16 @@ public class FileChooser
         	&& getChooserType() != FileChooser.FOLDER_CHOOSER)
         	UIUtilities.setDefaultFolder(
         			uiDelegate.getCurrentDirectory().toString());
-        if(this.getSelectedFile().exists() && checkOverwrite)
-        {
-        	MessageBox msg = new MessageBox(this, "Overwrite existing file.", 
-        	"Do you wish to overwrite the existing file?");
-        	int option = msg.centerMsgBox();
-        	if (option == MessageBox.NO_OPTION) 
-        		return;
-		}
+        if (getChooserType() != FileChooser.FOLDER_CHOOSER) {
+        	if (getSelectedFile().exists() && checkOverwrite)
+            {
+            	MessageBox msg = new MessageBox(this, "Overwrite existing file.", 
+            	"Do you wish to overwrite the existing file?");
+            	int option = msg.centerMsgBox();
+            	if (option == MessageBox.NO_OPTION) 
+            		return;
+    		}
+        }
     	setVisible(false);
     	dispose();
     }
@@ -352,7 +359,6 @@ public class FileChooser
 		if (path == null) return;
 		char separator = File.separatorChar;
     	File[] l = uiDelegate.getCurrentDirectory().listFiles();
-       
         boolean exist = false;
         for (int i = 0; i < l.length; i++) {
             if ((l[i].getAbsolutePath()).equals(path)) {
@@ -360,7 +366,6 @@ public class FileChooser
                 break;
             }
         }
-    	//if (!exist) new File(path).mkdir();
     	folderPath = path;
 		firePropertyChange(LOCATION_PROPERTY, null, path+separator);
 		//if (uiDelegate.isSetDefaultFolder()) 

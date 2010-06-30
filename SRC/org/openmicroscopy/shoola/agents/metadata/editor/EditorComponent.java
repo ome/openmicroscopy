@@ -290,27 +290,6 @@ class EditorComponent
 	{
 		return view.hasDataToSave();
 	}
-	
-	/** 
-	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#setDownloadedFiles(File, Collection)
-	 */
-	public void setDownloadedFiles(File folder, Collection files)
-	{
-		setStatus(false);
-		if (files == null || files.size() == 0) return;
-		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
-		IconManager icons = IconManager.getInstance();
-		Iterator i = files.iterator();
-		OriginalFile file;
-		DownloadActivityParam activity;
-		while (i.hasNext()) {
-			file = (OriginalFile) i.next();
-			activity = new DownloadActivityParam(file,
-					folder, icons.getIcon(IconManager.DOWNLOAD_22));
-			un.notifyActivity(activity);
-		}
-	}
 
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.

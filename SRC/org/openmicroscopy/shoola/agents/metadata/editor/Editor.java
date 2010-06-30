@@ -176,15 +176,7 @@ public interface Editor
 	 * @return See above.
 	 */
 	public boolean hasDataToSave();
-
-	/**
-	 * Sets the collection of archived files.
-	 * 
-	 * @param folder The folder where to save the files.
-	 * @param files The collection of files to handle.
-	 */
-	public void setDownloadedFiles(File folder, Collection files);
-
+	
 	/**
 	 * Sets the used and free disk space.
 	 * 

@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.calls.ChannelMetadataLoader
+ * org.openmicroscopy.shoola.env.data.views.calls.ArchivedImageLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -11,7 +11,7 @@
  *  (at your option) any later version.
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
  *  
  *  You should have received a copy of the GNU General Public License along
@@ -22,44 +22,44 @@
  */
 package org.openmicroscopy.shoola.env.data.views.calls;
 
-
-//Java imports
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+
 import pojos.ChannelData;
 
+//Java imports
+
+//Third-party libraries
+
+//Application-internal dependencies
+
 /** 
- * Command to retrieve the channels medatada.
+ * Command to load the archived image.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
+ * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME2.2
+ * @since 3.0-Beta4
  */
-public class ChannelMetadataLoader
-    extends BatchCallTree
+public class ArchivedImageLoader 
+	extends BatchCallTree
 {
 
 	/** The result of the query. */
-    private Object      results;
+    private Object      result;
     
     /** Loads the specified tree. */
     private BatchCall   loadCall;
@@ -73,33 +73,13 @@ public class ChannelMetadataLoader
      * 				   <code>false</code> otherwise.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeBatchCall(final long pixelsID, final long userID) 
+    private BatchCall makeBatchCall(final long pixelsID, final String folder) 
     {
-        return new BatchCall("Loading channel Metadata: ") {
+        return new BatchCall("Download the archived files. ") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                List l = os.getChannelsMetadata(pixelsID);
-                if (userID >= 0) { //load the rendering settings.
-                	OmeroImageService svc = context.getImageService();
-                	List rnd = svc.getRenderingSettingsFor(pixelsID, userID);
-                	Map channels = new HashMap();
-                	Iterator i = l.iterator();
-                	if (rnd != null && rnd.size() > 0) {
-                		RndProxyDef ref = (RndProxyDef) rnd.get(0);
-                		ChannelData channel;
-                		while (i.hasNext()) {
-                			channel = (ChannelData) i.next();
-                			channels.put(channel, 
-                					ref.getChannelColor(channel.getIndex()));
-						}
-                	} else {
-                		while (i.hasNext())
-                			channels.put(i.next(), null);
-                	}
-                	
-                	results = channels;
-                } else results = l;
+                result = os.getArchivedImage(folder, pixelsID);
             }
         };
     }
@@ -114,23 +94,20 @@ public class ChannelMetadataLoader
      * Returns the root node of the requested tree.
      * @see BatchCallTree#getResult()
      */
-    protected Object getResult() { return results; }
+    protected Object getResult() { return result; }
 
     /**
-     * Loads the channel metadata linked to pixels set to render.
+     * Loads the archived images.
      * If bad arguments are passed, we throw a runtime
 	 * exception so to fail early and in the caller's thread.
 	 * 
-     * @param pixelsID The Id of the pixels set.
-     * @param userID   If the id is specified i.e. not <code>-1</code>, 
-     * 				   load the color associated to the channel, 
-     * 				   <code>false</code> otherwise.
+     * @param pixelsID  The Id of the pixels set.
+     * @param folderPath The location where to download the archived image.
      */
-    public ChannelMetadataLoader(long pixelsID, long userID)
+    public ArchivedImageLoader(long pixelsID, String folderPath)
     {
     	if (pixelsID < 0)
     		 throw new IllegalArgumentException("Pixels ID not valid.");
-        loadCall = makeBatchCall(pixelsID, userID);
+        loadCall = makeBatchCall(pixelsID, folderPath);
     }
-    
 }

@@ -54,9 +54,8 @@ public class ArchivedFilesLoader
 	
     /** The result of the call. */
     private Object		result;
-    
-    private String				location;
-    
+
+    /** The collection of files to download. */
     private Collection<Long> 	pixelsID;
     
     /**
@@ -68,8 +67,7 @@ public class ArchivedFilesLoader
     {
     	try {
     		OmeroDataService os = context.getDataService();
-    		if (location == null) result = os.getOriginalFiles(id);
-    		else result = os.getArchivedFiles(location, id);
+    		result = os.getOriginalFiles(id);
         } catch (Exception e) {
         	context.getLogger().error(this, 
         			"Cannot retrieve download the file: "+e.getMessage());
@@ -115,24 +113,11 @@ public class ArchivedFilesLoader
     /**
      * Creates a new instance.
      * 
-     * @param location	The location where to save the file.
-     * @param pixelsID	The collection of the pixels set.
-     */
-    public ArchivedFilesLoader(String location, Collection<Long> pixelsID)
-    {
-    	//loadCall = makeBatchCall(location, pixelsID);
-    	this.location = location;
-    	this.pixelsID = pixelsID;
-    }
-    
-    /**
-     * Creates a new instance.
-     * 
      * @param pixelsID	The collection of the pixels set.
      */
     public ArchivedFilesLoader(Collection<Long> pixelsID)
     {
-    	this(null, pixelsID);
+    	this.pixelsID = pixelsID;
     }
     
 }

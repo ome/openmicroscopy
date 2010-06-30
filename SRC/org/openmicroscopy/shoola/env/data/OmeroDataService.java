@@ -276,9 +276,7 @@ public interface OmeroDataService
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
-	 * Retrieves and saves the archived files.
-	 * Returns a map whose keys are the number of archived files retrieves
-	 * and the values are the number of files actually saved.
+	 * Retrieves and saves locally the archived files.
 	 * 
 	 * @param location	The location where to save the files.
 	 * @param pixelsID	The ID of the pixels set.
@@ -287,7 +285,7 @@ public interface OmeroDataService
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	public Map getArchivedFiles(String location, long pixelsID)
+	public Map<Boolean, Object> getArchivedImage(String location, long pixelsID)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**

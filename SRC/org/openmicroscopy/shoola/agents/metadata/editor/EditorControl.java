@@ -254,7 +254,7 @@ class EditorControl
 	private void download()
 	{
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
+		FileChooser chooser = new FileChooser(f, FileChooser.FOLDER_CHOOSER, 
 				"Download", "Select where to download the file.", null, true);
 		chooser.setSelectedFileFull(view.getRefObjectName());
 		IconManager icons = IconManager.getInstance();
@@ -265,10 +265,13 @@ class EditorControl
 			public void propertyChange(PropertyChangeEvent evt) {
 				String name = evt.getPropertyName();
 				if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-					File folder = (File) evt.getNewValue();
-					if (folder == null)
-						folder = UIUtilities.getDefaultFolder();
-					model.download(folder);
+					String path = (String) evt.getNewValue();
+					if (path == null) {
+						path = UIUtilities.getDefaultFolderAsString();
+					}
+					if (!path.endsWith(File.separator))
+						path += File.separator;
+					model.download(new File(path));
 				}
 			}
 		});

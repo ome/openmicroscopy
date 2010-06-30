@@ -36,6 +36,7 @@ import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesSaver;
+import org.openmicroscopy.shoola.env.data.views.calls.ArchivedImageLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.DataFilter;
 import org.openmicroscopy.shoola.env.data.views.calls.DataObjectSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.FileUploader;
@@ -216,6 +217,18 @@ class MetadataHandlerViewImpl
 		return cmd.exec(observer);
 	}
 
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see MetadataHandlerView#loadOriginalImage(long, String, 
+	 * AgentEventListener)
+	 */
+	public CallHandle loadArchivedImage(long pixelsID, String path,
+										AgentEventListener observer) 
+	{
+		BatchCallTree cmd = new ArchivedImageLoader(pixelsID, path); 
+		return cmd.exec(observer);
+	}
+	
 	/**
 	 * Implemented as specified by the view interface.
 	 * @see MetadataHandlerView#loadRatings(Class, List, long, 

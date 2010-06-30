@@ -390,12 +390,9 @@ class CustomizedFileChooser
 				//if (name != null) name = name.trim();
 				if (f != null) {
 					setSelectedFile(null);
-					model.setFolderPath(f.getPath());
+					//model.setFolderPath(f.getPath());
 					model.acceptSelection();
 				}
-			//}
-			//File file = getSelectedFile();
-	        //if (file != null) model.setFolderPath(file.getAbsolutePath()); 
 		} else {
 
 			//Boolean exist = setSelection();
@@ -405,8 +402,6 @@ class CustomizedFileChooser
 			}
 		}
 		super.approveSelection();
-		//previewSelection();
-		
 	}
 	
 	/**

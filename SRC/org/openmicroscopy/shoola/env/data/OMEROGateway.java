@@ -3357,7 +3357,7 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.  
 	 */
-	synchronized Map<Integer, List> getArchivedFiles(String path, long pixelsID) 
+	synchronized Map<Boolean, Object> getArchivedFiles(String path, long pixelsID) 
 		throws DSAccessException, DSOutOfServiceException
 	{
 		isSessionAlive();
@@ -3374,12 +3374,11 @@ class OMEROGateway
 			throw new DSAccessException("Cannot retrieve original file", e);
 		}
 
-		Map<Integer, List> result = new HashMap<Integer, List>();
+		Map<Boolean, Object> result = new HashMap<Boolean, Object>();
 		if (files == null || files.size() == 0) return result;
 		RawFileStorePrx store;
 		Iterator i = files.iterator();
 		OriginalFile of;
-
 		long size;	
 		FileOutputStream stream = null;
 		long offset = 0;
@@ -3394,8 +3393,7 @@ class OMEROGateway
 			} catch (Exception e) {
 				handleException(e, "Cannot set the file's id.");
 			}
-			
-			fullPath = path+of.getName();
+			fullPath = path+of.getName().getValue();
 			f = new File(fullPath);
 			try {
 				stream = new FileOutputStream(f);
@@ -3425,8 +3423,8 @@ class OMEROGateway
 			}
 			closeService(store);
 		}
-		
-		result.put(files.size(), notDownloaded);
+		result.put(Boolean.valueOf(true), files);
+		result.put(Boolean.valueOf(false), notDownloaded);
 		return result;
 	}
 

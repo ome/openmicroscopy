@@ -53,10 +53,10 @@ abstract class UserNotifierLoader
 {
 
 	/** Message indicating that no results were returned. */
-	static final String MESSAGE_RESULT ="No result returned.";
+	static final String MESSAGE_RESULT = "No result returned.";
 	
 	/** Message indicating that no results were returned. */
-	static final String MESSAGE_RUN ="Unable to start the script.";
+	static final String MESSAGE_RUN = "Unable to start the script.";
 	
 	/** Convenience reference for subclasses. */
     protected final Registry			registry;

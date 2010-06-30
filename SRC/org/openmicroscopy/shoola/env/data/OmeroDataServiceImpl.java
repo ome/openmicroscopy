@@ -946,7 +946,7 @@ class OmeroDataServiceImpl
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#getArchivedFiles(String, long)
 	 */
-	public Map<Integer, List> getArchivedFiles(String path, long pixelsID) 
+	public Map<Boolean, Object> getArchivedImage(String path, long pixelsID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		context.getLogger().debug(this, path);
