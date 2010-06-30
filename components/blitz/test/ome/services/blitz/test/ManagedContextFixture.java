@@ -63,8 +63,7 @@ public class ManagedContextFixture {
         managedSf = new InterceptingServiceFactory(managedSf, login);
         internalSf = new InternalServiceFactory(ctx);
         setCurrentUser("root");
-        String user = newUser();
-        setCurrentUser(user);
+        loginNewUserNewGroup();;
     }
 
     public ServiceFactoryI createServiceFactoryI()
@@ -93,13 +92,6 @@ public class ManagedContextFixture {
     // =========================================================================
 
     /**
-     * Create a new user in the "default" group
-     */
-    public String newUser() {
-        return newUser("default");
-    }
-
-    /**
      * Create a new user in the given group
      */
     public String newUser(String group) {
@@ -112,15 +104,6 @@ public class ManagedContextFixture {
         e.setLastName("test");
         admin.createUser(e, group);
         return uuid;
-    }
-
-    /**
-     * Create a new user in the "default" group and login.
-     */
-    public String loginNewUserDefaultGroup() {
-        String user = newUser();
-        setCurrentUser(user);
-        return user;
     }
 
     /**
