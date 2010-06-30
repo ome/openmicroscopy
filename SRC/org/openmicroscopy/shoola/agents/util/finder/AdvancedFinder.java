@@ -112,6 +112,8 @@ public class AdvancedFinder
 				return SearchDataContext.NAME;
 			case SearchContext.DESCRIPTION:
 				return SearchDataContext.DESCRIPTION;
+			case SearchContext.CUSTOMIZED:
+				return SearchDataContext.CUSTOMIZED;
 			default:
 				return null;
 		}
@@ -161,6 +163,8 @@ public class AdvancedFinder
 				return NAME_ATTACHMENT;
 			case SearchDataContext.TIME:
 				return NAME_TIME;
+			case SearchDataContext.CUSTOMIZED:
+				return NAME_CUSTOMIZED;
 			default:
 				return null;
 		}
@@ -252,12 +256,11 @@ public class AdvancedFinder
 		}
 		List<Integer> context = ctx.getContext();
 		if (context == null || context.size() == 0) {
-			un.notifyInfo(TITLE, "Please enter a context.");
-			return;
+			//un.notifyInfo(TITLE, "Please enter a context.");
+			//return;
+			context = new ArrayList<Integer>();
+			context.add(SearchContext.CUSTOMIZED);
 		}
-		
-		
-		
 		List<Integer> scope = new ArrayList<Integer>(context.size());
 		Iterator i = context.iterator();
 		Integer v;

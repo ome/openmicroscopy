@@ -973,6 +973,7 @@ class SearchPanel
 		sep.setBackground(UIUtilities.BACKGROUND_COLOR);
 		add(sep, "0, 1");
 		JXTaskPane pane = UIUtilities.createTaskPane(SCOPE_TITLE, null); 
+		pane.setCollapsed(false);
 		pane.add(buildScope());
 		add(pane, "0, 2");
 		//add(UIUtilities.buildTaskPane(buildUsers(), USER_TITLE, true), "0, 3");

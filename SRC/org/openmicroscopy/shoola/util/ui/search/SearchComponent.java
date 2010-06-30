@@ -102,6 +102,9 @@ public class SearchComponent
 	/** Identifies the text for searching for time. */
 	public static final String		NAME_TIME = "Time"; 
 	
+	/** Identifies the text for searching for time. */
+	public static final String		NAME_CUSTOMIZED = "Custom"; 
+	
 	/** Bound property indicating to search. */
 	public static final String 		SEARCH_PROPERTY = "search";
 	

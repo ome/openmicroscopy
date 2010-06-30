@@ -1111,6 +1111,7 @@ class OmeroDataServiceImpl
 						case SearchDataContext.TEXT_ANNOTATION:
 						case SearchDataContext.FILE_ANNOTATION:
 						case SearchDataContext.URL_ANNOTATION:
+						case SearchDataContext.CUSTOMIZED:
 							images = gateway.getContainerImages(ImageData.class, 
 									value, new Parameters());
 							k = images.iterator();

@@ -812,6 +812,7 @@ class OMEROGateway
 	private List<String> formatText(List<String> terms, String field)
 	{
 		if (terms == null || terms.size() == 0) return null;
+		if (field == null || field.length() == 0) return terms;
 		List<String> formatted = new ArrayList<String>(terms.size());
 		Iterator<String> j = terms.iterator();
 		while (j.hasNext()) 
@@ -4431,16 +4432,14 @@ class OMEROGateway
 		List<Class> types = context.getTypes();
 		List<Integer> scopes = context.getScope();
 		if (types == null || types.size() == 0) return new HashMap();
-		if (scopes == null || scopes.size() == 0) return new HashMap();
+		//if (scopes == null || scopes.size() == 0) return new HashMap();
 		isSessionAlive();
 		SearchPrx service = getSearchService();
 		try {
 			//service.clearQueries();
 			//service.resetDefaults();
 			service.setAllowLeadingWildcard(false);
-			
 			service.setCaseSentivice(context.isCaseSensitive());
-			
 			Timestamp start = context.getStart();
 			Timestamp end = context.getEnd();
 			//Sets the time
@@ -4532,6 +4531,14 @@ class OMEROGateway
 					fSome = formatText(some, "url");
 					fMust = formatText(must, "url");
 					fNone = formatText(none, "url");
+				} else if (key == SearchDataContext.CUSTOMIZED) {
+					fSome = formatText(some, "");
+					fMust = formatText(must, "");
+					fNone = formatText(none, "");
+				} else {
+					fSome = formatText(some, "");
+					fMust = formatText(must, "");
+					fNone = formatText(none, "");
 				}
 				owner = owners.iterator();
 				//if (fSome != null) {

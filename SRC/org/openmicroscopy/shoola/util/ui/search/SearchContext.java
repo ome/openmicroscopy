@@ -89,6 +89,9 @@ public class SearchContext
 	/** Identifying the <code>Description</code> context. */
 	public static final int			DESCRIPTION = 9;
 	
+	/** Identifying the <code>Description</code> context. */
+	public static final int			CUSTOMIZED = 10;
+	
 	/** Indicates not to take into account the time criteria. */
 	static final int				ANY_DATE = 0;
 	

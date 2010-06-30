@@ -68,8 +68,11 @@ public class SearchDataContext
 	/** Identifying the <code>Description</code> context. */
 	public static final int			DESCRIPTION = 5;
 	
-	/** Identifying the <code>URL annotation</code> context. */
+	/** Identifying the <code>Time</code> context. */
 	public static final int			TIME = 6;
+	
+	/** Identifying the <code>Name</code> context. */
+	public static final int			CUSTOMIZED = 7;
 	
 	/** Indicates to set the creation time interval. */
 	public static final int			CREATION_TIME = 0;
