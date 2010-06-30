@@ -1473,9 +1473,9 @@ def download_annotation(request, action, iid, **kwargs):
         rsp = HttpResponse(annotation.originalFile_data)
         if annotation.originalFile_data is None:
             return handlerInternalError("Cannot download annotation (id:%s)." % (iid))
-        #if action == 'download':
-            #rsp['ContentType'] = 'application/octet-stream'
-            #rsp['Content-Disposition'] = 'attachment; filename=%s' % (annotation.annotation.file.name.val)
+        if action == 'download':
+            rsp['ContentType'] = 'application/octet-stream'
+            rsp['Content-Disposition'] = 'attachment; filename=%s' % (annotation.annotation.file.name.val)
     else:
         return handlerInternalError("%s is not available." % action.title())
     return rsp
