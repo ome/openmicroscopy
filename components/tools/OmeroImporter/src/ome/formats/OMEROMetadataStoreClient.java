@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -304,7 +305,11 @@ public class OMEROMetadataStoreClient
     /** Companion file namespace */
     private static final String NS_COMPANION =
     	"openmicroscopy.org/omero/import/companionFile";
-    
+
+    /** Original metadata text file key */
+    private static final String ORIGINAL_METADATA_KEY =
+        "ORIGINAL_METADATA_TXT";
+
     /** The default longest side of a thumbnail in OMERO.insight. */
     private static final int DEFAULT_INSIGHT_THUMBNAIL_LONGEST_SIDE = 96;
 
@@ -1186,9 +1191,11 @@ public class OMEROMetadataStoreClient
     /**
      * Creates a temporary file on disk containing all metadata in the
      * Bio-Formats metadata hash table for the current series.
+     * @param suffix String that will be appended to the end of the temporary
+     * file path. 
      * @return Temporary file created.
      */
-    private File createSeriesMetadataFile()
+    private File createSeriesMetadataFile(String suffix)
     {
     	Hashtable<?,?> globalMetadata = reader.getGlobalMetadata();
     	Hashtable<?,?> seriesMetadata = reader.getSeriesMetadata();
@@ -1196,7 +1203,8 @@ public class OMEROMetadataStoreClient
     	OutputStreamWriter writer= null;
     	try
     	{
-    		File metadataFile = TempFileManager.createTempFile("metadata", ".txt");
+    		File metadataFile = TempFileManager.createTempFile(
+    		        ORIGINAL_METADATA_KEY, suffix);
     		stream = new FileOutputStream(metadataFile);
     		writer = new OutputStreamWriter(stream);
     		metadataFile.deleteOnExit();
@@ -1360,7 +1368,8 @@ public class OMEROMetadataStoreClient
     		// set itself. This increments the original file count if enabled.
     		if (useMetadataFile)
     		{
-    			File metadataFile = createSeriesMetadataFile();
+    		    String uuid = UUID.randomUUID().toString();
+    			File metadataFile = createSeriesMetadataFile(uuid);
     			metadataFiles.add(metadataFile);
 				LinkedHashMap<Index, Integer> indexes = 
 					new LinkedHashMap<Index, Integer>();
@@ -1371,7 +1380,7 @@ public class OMEROMetadataStoreClient
 				log.debug("originalFile created");
 				//TODO: fix me
 				originalFile.setPath(toRType(String.format("%s%s/",
-					omero.constants.namespaces.NSORIGINALMETADATA.value, series)));//image.getId().getValue())));
+					omero.constants.namespaces.NSORIGINALMETADATA.value, uuid)));
 				originalFile.setName(toRType("original_metadata.txt"));
 				log.debug("originalFile path created");
                 indexes = new LinkedHashMap<Index, Integer>();
@@ -1523,7 +1532,32 @@ public class OMEROMetadataStoreClient
     	addReference(target, annotationKey);
     	addReference(annotationKey, originalFileKey);
     }
-    
+
+    /**
+     * Looks up an original file by UUID if the requested path contains the
+     * <code>ORIGINAL_METADATA_KEY</code>.
+     * @param path Absolute path to locate an original file for.
+     * @param originalFileMap Original file path vs. original file map.
+     * @return An original file if one can be looked up by UUID and
+     * <code>null</code> otherwise.
+     */
+    private OriginalFile byUUID(
+            String path, Map<String, OriginalFile> originalFileMap)
+    {
+        for (Entry<String, OriginalFile> entry : originalFileMap.entrySet())
+        {
+            if (path.contains(ORIGINAL_METADATA_KEY))
+            {
+                String[] tokens = entry.getKey().split("/");
+                if (path.endsWith(tokens[tokens.length - 1]))
+                {
+                    return entry.getValue();
+                }
+            }
+        }
+        return null;
+    }
+
     /**
      * Writes binary original file data to the OMERO server.
      * @param files Files to populate against an original file list.
@@ -1538,8 +1572,10 @@ public class OMEROMetadataStoreClient
         byte[] buf = new byte[1048576];  // 1 MB buffer
         for (File file : files)
         {
-            OriginalFile originalFile = 
-            	originalFileMap.get(file.getAbsolutePath());
+            String path = file.getAbsolutePath();
+            OriginalFile originalFile = originalFileMap.get(path);
+            originalFile = 
+                originalFile == null? byUUID(path, originalFileMap) : null;
             if (originalFile == null)
             {
                 log.warn("Cannot lookup original file with path: "
