@@ -25,10 +25,8 @@ package org.openmicroscopy.shoola.agents.dataBrowser.util;
 
 //Java imports
 import java.awt.Rectangle;
-import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -42,7 +40,6 @@ import org.openmicroscopy.shoola.agents.util.tagging.util.TagCellRenderer;
 import org.openmicroscopy.shoola.agents.util.tagging.util.TagItem;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.util.ui.HistoryDialog;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
 import org.openmicroscopy.shoola.util.ui.search.SearchUtil;

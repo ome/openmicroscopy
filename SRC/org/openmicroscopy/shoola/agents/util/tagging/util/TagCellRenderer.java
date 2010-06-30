@@ -30,10 +30,10 @@ import java.awt.Component;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
 
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.IconManager;
 
 /** 
  * Basic renderer used to display the icon corresponding to a tag 
@@ -56,6 +56,9 @@ public class TagCellRenderer
 	/** The id of the currently logged in user. */
 	private long		userID;
 	
+	/** Helper reference to the icon manager. */
+	private IconManager icons;
+	
 	/** Creates a new instance. */
 	public TagCellRenderer()
 	{
@@ -70,6 +73,7 @@ public class TagCellRenderer
 	public TagCellRenderer(long userID)
 	{
 		this.userID = userID;
+		icons = IconManager.getInstance();
 	}
 	
 	/**
@@ -86,6 +90,9 @@ public class TagCellRenderer
 		if (value instanceof TagItem) {
 			TagItem v = (TagItem) value;
 			setText(v.getObjectName());
+			if (userID == v.getOwnerID())
+				setIcon(icons.getIcon(IconManager.TAG));
+			else setIcon(icons.getIcon(IconManager.TAG_OTHER_OWNER));
 		}
 		
 		return this;
