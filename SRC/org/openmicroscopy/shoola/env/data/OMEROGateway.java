@@ -4542,9 +4542,9 @@ class OMEROGateway
 				}
 				owner = owners.iterator();
 				//if (fSome != null) {
-				while (owner.hasNext()) {
-					d = owner.next();
-					service.onlyOwnedBy(d);
+				//while (owner.hasNext()) {
+					//d = owner.next();
+					//service.onlyOwnedBy(d);
 					service.bySomeMustNone(fSome, fMust, fNone);
 					size = handleSearchResult(
 							convertTypeForSearch(Image.class), rType, 
@@ -4561,7 +4561,7 @@ class OMEROGateway
 							results.put(key, size);
 						service.clearQueries();
 					}
-				}
+				//}
 				//}
 			}
 			service.close();
