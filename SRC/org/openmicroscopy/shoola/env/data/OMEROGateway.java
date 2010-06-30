@@ -1991,21 +1991,6 @@ class OMEROGateway
 					*/
 				}
 			}
-			/*
-			int n = 5;
-			long id = 401;
-			IPixelsPrx svc = getPixelsService();
-			long start;
-			for (int i = 0; i < n; i++) {
-				RenderingDef def = svc.loadRndSettings(id);
-				start = System.currentTimeMillis();
-				def.setModel(def.getModel());
-				svc.saveRndSettings(def);
-				svc.retrieveRndSettings(id);
-				System.err.println("save and reload: "+(System.currentTimeMillis()-start));
-				
-			}
-			*/
 			return exp;
 		} catch (Throwable e) {
 			connected = false;

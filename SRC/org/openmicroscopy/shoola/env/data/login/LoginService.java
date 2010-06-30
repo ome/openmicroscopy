@@ -207,6 +207,12 @@ public interface LoginService
 	 */
 	public static final int		ACTIVE_INDEX = 103;
 	
+	/** 
+	 * Indicates that the client couldn't connect b/c a 
+	 * <code>Ice.FileException</code> was thrown by the server.
+	 */
+	public static final int		CONFIGURATION_INDEX = 104;
+	
     /**
      * Flag to denote the Idle state.
      * While in this state, the Login Service is waiting for a login request.

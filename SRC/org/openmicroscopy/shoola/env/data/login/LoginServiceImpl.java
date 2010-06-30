@@ -175,6 +175,8 @@ public class LoginServiceImpl
             		failureIndex = DNS_INDEX;
             	} else if (cause instanceof PermissionDeniedException) {
             		failureIndex = PERMISSION_INDEX;
+            	} else if (cause instanceof Ice.FileException) {
+            		failureIndex = CONFIGURATION_INDEX;
             	} else if (cause instanceof DSOutOfServiceException) {
             		if (cause.getCause() instanceof SecurityViolation)
             			failureIndex = ACTIVE_INDEX;
@@ -309,6 +311,9 @@ public class LoginServiceImpl
 			case LoginService.ACTIVE_INDEX:
 				text = "Your user account is no longer active.\nPlease" +
 				" contact your administrator.";
+				break;
+			case LoginService.CONFIGURATION_INDEX:
+				text = "Please unset ICE_CONFIG.";
 				break;
 			case LoginService.PERMISSION_INDEX:
 				default:
