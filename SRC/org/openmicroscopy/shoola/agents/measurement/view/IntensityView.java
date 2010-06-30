@@ -892,7 +892,7 @@ class IntensityView
 				{
 					coord = new Coord3D(z, t);
 					populateData(coord, c);
-					outputSummaryRow(writer,rowIndex, c, z, t);
+					outputSummaryRow(writer, rowIndex, c, z, t);
 					rowIndex++;
 				}
 		}
@@ -916,13 +916,18 @@ class IntensityView
 		writer.writeElement(rowIndex, 1, z+"");
 		writer.writeElement(rowIndex, 2, t+"");
 		int col;
-		for(int y = 0 ; y < channelSummaryTable.getRowCount() ; y++)
+		String v;
+		for (int y = 0 ; y < channelSummaryTable.getRowCount() ; y++)
 		{
 			col = getColumn(channelName.get(channel));
 			if (col == -1)
 				continue;
-			writer.writeElement(rowIndex, 3+y, 
-					new Double((String)channelSummaryTable.getValueAt(y, col)));
+			v = (String) channelSummaryTable.getValueAt(y, col);
+			if (v.contains(".") && v.contains(",")) {
+				v = v.replace(".", "");
+				v = v.replace(",", ".");
+			}
+			writer.writeElement(rowIndex, 3+y, new Double(v));
 		}
 	}
 	
