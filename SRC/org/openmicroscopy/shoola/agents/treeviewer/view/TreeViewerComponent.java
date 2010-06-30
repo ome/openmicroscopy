@@ -872,7 +872,8 @@ class TreeViewerComponent
 		mv.setSelectionMode(size == 0);
 		Browser browser = model.getSelectedBrowser();
 		ExperimenterData exp = null;
-		TreeImageDisplay last = browser.getLastSelectedDisplay();
+		TreeImageDisplay last = null;
+		if (browser != null) last = browser.getLastSelectedDisplay();
 		if (last != null) exp = browser.getNodeOwner(last);
 		if (exp == null) exp = model.getUserDetails();
 		mv.setRootObject(selected, exp.getId());
@@ -997,7 +998,7 @@ class TreeViewerComponent
 		}
 		browser = model.getSelectedBrowser();
 		//browser.refreshEdition(data, parent, operation);
-		browser.refreshTree();
+		if (browser != null) browser.refreshTree();
 		if (operation == REMOVE_OBJECT || operation == CREATE_OBJECT) {
 			DataBrowserFactory.discardAll();
 			view.removeAllFromWorkingPane();
