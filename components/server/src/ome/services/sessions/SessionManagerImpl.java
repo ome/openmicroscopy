@@ -906,13 +906,9 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
     private boolean executeCheckPassword(final Principal _principal,
             final String credentials) {
-        boolean ok = false;
-        try {
-            ok = executeCheckPasswordRO(_principal, credentials);
-            // WORKAROUND: If this throws a Spring exception then most likely
-            // it's because the previous block was read-only. So try again with
-            // read-write
-        } catch (InternalException ie) {
+        Boolean ok = false;
+        ok = executeCheckPasswordRO(_principal, credentials);
+        if (ok == null) {
             ok = executeCheckPasswordRW(_principal, credentials);
         }
         return ok;
@@ -925,8 +921,13 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             @Transactional(readOnly = true)
             public Object doWork(org.hibernate.Session session,
                     ServiceFactory sf) {
-                return ((LocalAdmin) sf.getAdminService()).checkPassword(
-                        _principal.getName(), credentials);
+                try {
+                    return ((LocalAdmin) sf.getAdminService()).checkPassword(
+                            _principal.getName(), credentials);
+                } catch (IllegalStateException e) {
+                    // thrown if ldap is trying to create a user. 
+                    return null;
+                }
             }
         });
     }
