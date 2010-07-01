@@ -983,6 +983,8 @@ ALTER TABLE renderingmodel
 -- Enumeration values
 --
 insert into acquisitionmode (id,permissions,value)
+    select nextval('seq_acquisitionmode'),-35,'LCM';
+insert into acquisitionmode (id,permissions,value)
     select nextval('seq_acquisitionmode'),-35,'FSM';
 insert into acquisitionmode (id,permissions,value)
     select nextval('seq_acquisitionmode'),-35,'PALM';
@@ -1088,6 +1090,15 @@ BEGIN
 
     RETURN ur || uw || gr || gw || wr || ww;
 END;$$;
+
+-- Moving user photos to "user"
+UPDATE annotation SET group_id = 1
+ WHERE annotation.ns = 'openmicroscopy.org/omero/experimenter/photo';
+
+UPDATE originalfile SET group_id = 1
+  FROM annotation
+ WHERE annotation.ns = 'openmicroscopy.org/omero/experimenter/photo'
+   AND annotation.file = originalfile.id;
 
 -- #2204: Various perm changes that can be made globally
 --
