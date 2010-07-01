@@ -70,7 +70,7 @@ class ComplexParamPane
 	static final int LIST = 1;
 	
 	/** The default value. */
-	private Object			defaultValue;
+	private int			defaultIndex;
 	
 	/** The values to use or <code>null</code>. */
 	private Object[] 		values;
@@ -151,8 +151,7 @@ class ComplexParamPane
 					row = new RowPane(keyType, values);
 		}
 		if (row != null) {
-			if (defaultValue != null)
-				row.setDefaultValue(defaultValue);
+			row.setDefaultValue(defaultIndex);
 			row.setToolTipText(getToolTipText());
 			rows.add(row);
 			row.addPropertyChangeListener(RowPane.REMOVE_ROW_PROPERTY, this);
@@ -270,7 +269,7 @@ class ComplexParamPane
 					"Map Type.");
 		this.index = index;
 		if (values != null) {
-			defaultValue = values.getSelectedItem();
+			defaultIndex = values.getSelectedIndex();
 			Object[] v = new Object[values.getItemCount()];
 			for (int i = 0; i < v.length; i++) 
 				v[i] = values.getItemAt(i);

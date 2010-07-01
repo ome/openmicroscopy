@@ -177,13 +177,17 @@ class RowPane
 	/**
 	 * Sets the default value.
 	 * 
-	 * @param value The value to set.
+	 * @param index The selected index.
 	 */
-	void setDefaultValue(Object value)
+	void setDefaultValue(int index)
 	{
 		if (valueComponent instanceof JComboBox) {
 			JComboBox box = (JComboBox) valueComponent;
-			box.setSelectedItem(value);
+			box.setSelectedIndex(index);
+		}
+		if (keyComponent instanceof JComboBox) {
+			JComboBox box = (JComboBox) keyComponent;
+			box.setSelectedIndex(index);
 		}
 	}
 	

@@ -273,28 +273,23 @@ public class ScriptingDialog
 	 * Creates a component displaying the various options.
 	 * 
 	 * @param values The values to display.
+	 * @param defValue The default value.
 	 * @return See above.
 	 */
-	private JComboBox createValuesBox(List<Object> values)
+	private JComboBox createValuesBox(List<Object> values, Object defValue)
 	{
 		if (values == null) return null;
 		Object[] v = new Object[values.size()];
 		Iterator<Object> i = values.iterator();
 		int j = 0;
-		Object value;
 		while (i.hasNext()) {
-			value = i.next();
-			/*
-			if (value instanceof String)
-				v[j] = ((String) value).replace(
-						ScriptObject.PARAMETER_SEPARATOR, 
-						ScriptObject.PARAMETER_UI_SEPARATOR);
-			else v[j] = value;
-			*/
-			v[j] = value;
+			v[j] = i.next();;
 			j++;
 		}
-		return new JComboBox(v);
+		JComboBox box = new JComboBox(v);
+		if (defValue != null)
+			box.setSelectedItem(defValue);
+		return box;
 	}
 	
 	/** Initializes the components. */
@@ -384,10 +379,7 @@ public class ScriptingDialog
 			values = param.getValues();
 			defValue = param.getDefaultValue();
 			if (values != null && values.size() > 0) {
-				comp = createValuesBox(values);
-				if (defValue != null) {
-					((JComboBox) comp).setSelectedItem(defValue);
-				}
+				comp = createValuesBox(values, defValue);
 			}
 			if (Long.class.equals(type) || Integer.class.equals(type) ||
 					Float.class.equals(type) || Double.class.equals(type)) {

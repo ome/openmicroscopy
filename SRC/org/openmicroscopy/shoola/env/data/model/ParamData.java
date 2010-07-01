@@ -137,6 +137,10 @@ public class ParamData
 				}
 			}
 		}
+		if (defaultValue instanceof List) {
+			List l = (List) defaultValue;
+			if (l.size() > 0) defaultValue = l.get(0);
+		}
 	}
 	
 	/**
