@@ -385,7 +385,7 @@ class BrowserModel
 	public void setPopupPoint(Point p, boolean fireProperty)
 	{
 	    thumbSelected = false;
-	    Object oldValue = popupPoint;
+	    Object oldValue = null;//popupPoint;
 	    popupPoint = p;
 	    if (fireProperty) firePropertyChange(POPUP_POINT_PROPERTY, oldValue, p);
 	}

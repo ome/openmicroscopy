@@ -277,36 +277,36 @@ class BrowserControl
     	
     	boolean macOS = UIUtilities.isMacOS();
     	Point p = me.getPoint();
+    	boolean b;
     	model.setPopupPoint(p, false);
-    	boolean b = me.isShiftDown();
-    	//if (macOS) b = b || me.isMetaDown();
-    	//else  
-    	//b = b || me.isControlDown();
+    	b = me.isShiftDown();
+    	if (macOS) b = me.isShiftDown() || me.isMetaDown();
+    	else b = me.isShiftDown() || me.isControlDown();
+    	me.consume();
     	if ((me.isControlDown() && SwingUtilities.isLeftMouseButton(me) &&
 				macOS)) {
 			if (!(d.equals(previousDisplay)) && isSelectionValid(d)) {
 				//if (isSelectionValid(d)) {
-					if (d instanceof CellDisplay) {
-						setSelectedCell(me.getPoint(), (CellDisplay) d);
-					} else model.setSelectedDisplay(d, false, true);
-				}
+				if (d instanceof CellDisplay) {
+					setSelectedCell(me.getPoint(), (CellDisplay) d);
+				} else model.setSelectedDisplay(d, false, true);
+			}
 			model.setPopupPoint(p, true);
 			return;
     	}
-    	if (me.isPopupTrigger() && b && //me.isPopupTrigger()
-    			previousDisplay != null && 
-    			previousDisplay.getBounds().contains(p)) {
-    		model.setPopupPoint(p, true);
-    		return;
-    	}
-    	boolean rightClick = SwingUtilities.isRightMouseButton(me);
-    	if (b && rightClick) {
+    	if (me.isPopupTrigger() && b) { //&& //me.isPopupTrigger()
+    			//previousDisplay != null && 
+    			//previousDisplay.getBounds().contains(p)) {
     		model.setPopupPoint(p, true);
     		return;
     	}
     	if (b) { //multi selection
+    		
     		ImageDisplay previous = model.getLastSelectedDisplay();
-    		if (previous == null) return;
+    		if (previous == null) {
+    			model.setSelectedDisplay(d, true, true);
+    			return;
+    		}
     		Object object = previous.getHierarchyObject();
     		Class ref = object.getClass();
     		if (!ref.equals(d.getHierarchyObject().getClass())) return;
@@ -330,9 +330,6 @@ class BrowserControl
     				setSelectedCell(me.getPoint(), (CellDisplay) d);
     			} else model.setSelectedDisplay(d, false, true);
     		}
-    		if (rightClick) {
-        		model.setPopupPoint(p, true);
-        	}
     	}
     	/*
     	ImageDisplay d = findParentDisplay(me.getSource());
@@ -423,6 +420,10 @@ class BrowserControl
                 	model.viewDisplay(d);
                 }   
         	}
+    	} else if (count == 1) {
+    		//if (SwingUtilities.isRightMouseButton(me)) {
+    		//	model.setPopupPoint(me.getPoint(), true);
+    		//}
     	}
     }
 
