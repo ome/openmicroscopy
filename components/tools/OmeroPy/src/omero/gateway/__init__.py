@@ -193,7 +193,9 @@ class BlitzObjectWrapper (object):
         return None
 
     def getDetails (self):
-        return omero.gateway.DetailsWrapper (self._conn, self._obj.getDetails())
+        if self._obj.loaded:
+            return omero.gateway.DetailsWrapper (self._conn, self._obj.getDetails())
+        return None
     
     def getDate(self):
         try:

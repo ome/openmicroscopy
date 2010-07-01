@@ -62,7 +62,11 @@ def metadata (request, iid):
     form_lasers = list()
     
     image = conn.getImage(iid)
-    original_metadata = image.loadOriginalMetadata()
+    om = image.loadOriginalMetadata()
+    global_metadata = sorted(om[1])
+    series_metadata = sorted(om[2])
+        
+        
     for ch in image.getChannels():
         if ch.getLogicalChannel() is not None:
             channel = dict()
@@ -70,9 +74,17 @@ def metadata (request, iid):
                                     'illuminations': list(conn.getEnumerationEntries("IlluminationI")), 
                                     'contrastMethods': list(conn.getEnumerationEntries("ContrastMethodI")), 
                                     'modes': list(conn.getEnumerationEntries("AcquisitionModeI"))})
-            if ch.getLogicalChannel().getSecondaryEmissionFilter()._obj is not None:
-                channel['form_emission_filter'] = MetadataFilterForm(initial={'filter': ch.getLogicalChannel().getSecondaryEmissionFilter(),
-                                    'types':list(conn.getEnumerationEntries("FilterTypeI"))})
+            channel['form_emission_filters'] = list()
+            if ch.getLogicalChannel().getLightPath().copyEmissionFilters():
+                for f in ch.getLogicalChannel().getLightPath().copyEmissionFilters():
+                    channel['form_filters'].append(MetadataFilterForm(initial={'filter': f,
+                                    'types':list(conn.getEnumerationEntries("FilterTypeI"))}))
+            channel['form_excitation_filters'] = list()
+            if ch.getLogicalChannel().getLightPath().copyExcitationFilters():
+                for f in ch.getLogicalChannel().getLightPath().copyExcitationFilters():
+                    channel['form_excitation_filters'].append(MetadataFilterForm(initial={'filter': f,
+                                    'types':list(conn.getEnumerationEntries("FilterTypeI"))}))
+                                    
             if ch.getLogicalChannel().getDetectorSettings()._obj is not None:
                 channel['form_detector_settings'] = MetadataDetectorForm(initial={'detectorSettings':ch.getLogicalChannel().getDetectorSettings(), 'detector': ch.getLogicalChannel().getDetectorSettings().getDetector(),
                                     'types':list(conn.getEnumerationEntries("DetectorTypeI"))})
@@ -149,7 +161,7 @@ def metadata (request, iid):
     if long_annotations['votes'] > 0:
         long_annotations['rate'] /= long_annotations['votes']
     
-    return render_to_response('webtest/metadata.html', {'image': image, 'text_annotations': text_annotations, 'txannSize':txannSize, 'long_annotations': long_annotations, 'url_annotations': url_annotations, 'urlannSize':urlannSize, 'file_annotations': file_annotations, 'fileannSize':fileannSize, 'tag_annotations': tag_annotations, 'tgannSize':tgannSize, 'global_metadata':original_metadata[0], 'serial_metadata':original_metadata[1], 'form_channels':form_channels, 'form_environment':form_environment, 'form_objective':form_objective, 'form_microscope':form_microscope, 'form_filters':form_filters, 'form_detectors':form_detectors, 'form_lasers':form_lasers, 'form_stageLabel':form_stageLabel})
+    return render_to_response('webtest/metadata.html', {'image': image, 'text_annotations': text_annotations, 'txannSize':txannSize, 'long_annotations': long_annotations, 'url_annotations': url_annotations, 'urlannSize':urlannSize, 'file_annotations': file_annotations, 'fileannSize':fileannSize, 'tag_annotations': tag_annotations, 'tgannSize':tgannSize, 'global_metadata':global_metadata, 'serial_metadata':series_metadata, 'form_channels':form_channels, 'form_environment':form_environment, 'form_objective':form_objective, 'form_microscope':form_microscope, 'form_filters':form_filters, 'form_detectors':form_detectors, 'form_lasers':form_lasers, 'form_stageLabel':form_stageLabel})
     
 
 def image_viewer (request, iid, **kwargs):

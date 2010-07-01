@@ -103,7 +103,7 @@ class OmeroWebObjectWrapper (object):
         except: 
             logger.info(traceback.format_exc()) 
             return self.name
-    
+
 class AnnotationLinkWrapper (omero.gateway.BlitzObjectWrapper):
 
     def getAnnotation(self):
@@ -145,22 +145,11 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
         rv = super(omero.gateway.ImageWrapper, self).getThumbnail(size=size)
         if rv is None:
             try:
-                rv = self.defaultThumbnail(size)
+                rv = self._conn.defaultThumbnail(size)
             except Exception, e:
                 logger.info(traceback.format_exc())
                 raise e
         return rv
-    
-    def defaultThumbnail(self, size=(120,120)):
-        if isinstance(size, int):
-            size = (size,size)
-        img = Image.open(settings.DEFAULT_IMG)
-        img.thumbnail(size, Image.ANTIALIAS)
-        draw = ImageDraw.Draw(img)
-        f = cStringIO.StringIO()
-        img.save(f, "PNG")
-        f.seek(0)
-        return f.read()
 
 omero.gateway.ImageWrapper = ImageWrapper
 

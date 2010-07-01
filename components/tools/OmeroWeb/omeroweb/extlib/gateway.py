@@ -1464,6 +1464,17 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         else:
             return False
     
+    def defaultThumbnail(self, size=(120,120)):
+        if isinstance(size, int):
+            size = (size,size)
+        img = Image.open(settings.DEFAULT_IMG)
+        img.thumbnail(size, Image.ANTIALIAS)
+        draw = ImageDraw.Draw(img)
+        f = cStringIO.StringIO()
+        img.save(f, "PNG")
+        f.seek(0)
+        return f.read()
+    
     ##############################################
     ##   Sets methods                           ##
     
@@ -1472,6 +1483,16 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         admin_serv.createExperimenterWithPassword(experimenter, rstring(str(password)), defaultGroup, otherGroups)
     
     def updateExperimenter(self, experimenter, defaultGroup, addGroups, rmGroups, password=None):
+        
+        print len(addGroups), len(rmGroups)
+        for g in addGroups:
+            print 'add', g.id, g.name
+        for g in rmGroups:
+            print 'rm', g.id, g.name
+        print 'df', defaultGroup.id, defaultGroup.name
+        
+        
+        
         admin_serv = self.getAdminService()
         if password is not None and password!="":
             admin_serv.updateExperimenterWithPassword(experimenter, rstring(str(password)))

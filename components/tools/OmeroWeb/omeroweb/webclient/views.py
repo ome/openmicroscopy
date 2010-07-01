@@ -245,6 +245,8 @@ def login(request):
         error = x.__class__.__name__
     
     if conn is not None:
+        if request.REQUEST.get('noredirect'):
+            return HttpResponse('OK')
         url = request.REQUEST.get("url")
         if url is not None:
             return HttpResponseRedirect(url)
@@ -890,7 +892,6 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
                             channel['form_excitation_filters'].append(MetadataFilterForm(initial={'filter': f,
                                             'types':list(conn.getEnumerationEntries("FilterTypeI"))}))
 
-
                 if ch.getLogicalChannel().getDetectorSettings()._obj is not None and ch.getLogicalChannel().getDetectorSettings().getDetector():
                     channel['form_detector_settings'] = MetadataDetectorForm(initial={'detectorSettings':ch.getLogicalChannel().getDetectorSettings(), 'detector': ch.getLogicalChannel().getDetectorSettings().getDetector(),
                                         'types':list(conn.getEnumerationEntries("DetectorTypeI"))})
@@ -921,7 +922,6 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
             form_stageLabel = MetadataStageLabelForm(initial={'image': image })
 
         if image.getInstrument() is not None:
-            print image.getInstrument().getMicroscope()
             if image.getInstrument().getMicroscope() is not None:
                 form_microscope = MetadataMicroscopeForm(initial={'microscopeTypes':list(conn.getEnumerationEntries("MicroscopeTypeI")), 'microscope': image.getInstrument().getMicroscope()})
 
@@ -2158,12 +2158,13 @@ def render_thumbnail (request, iid, share_id=None, **kwargs):
     if conn is None:
         raise Exception("Share connection not available")
     img = conn.getImage(iid)
-    
+
     if img is None:
+        jpeg_data = conn.defaultThumbnail(80)
         logger.error("Image %s not found..." % (str(iid)))
-        return handlerInternalError("Image %s not found..." % (str(iid)))
-    
-    jpeg_data = img.getThumbnailOrDefault(size=80)
+        #return handlerInternalError("Image %s not found..." % (str(iid)))
+    else:
+        jpeg_data = img.getThumbnailOrDefault(size=80)
     return HttpResponse(jpeg_data, mimetype='image/jpeg')
 
 @isUserConnected
@@ -2187,10 +2188,11 @@ def render_thumbnail_resize (request, size, iid, share_id=None, **kwargs):
     img = conn.getImage(iid)
     
     if img is None:
+        jpeg_data = conn.defaultThumbnail(size=int(size))
         logger.error("Image %s not found..." % (str(iid)))
-        return handlerInternalError("Image %s not found..." % (str(iid)))
-    
-    jpeg_data = img.getThumbnailOrDefault(size=int(size))
+        #return handlerInternalError("Image %s not found..." % (str(iid)))
+    else:
+        jpeg_data = img.getThumbnailOrDefault(size=int(size))
     return HttpResponse(jpeg_data, mimetype='image/jpeg')
 
 @isUserConnected
@@ -2204,10 +2206,6 @@ def render_big_thumbnail (request, iid, **kwargs):
 
     img = conn.getImage(iid)
     
-    if img is None:
-        logger.error("Image %s not found..." % (str(iid)))
-        return handlerInternalError("Image %s not found..." % (str(iid)))
-    
     size = 0
     if img.getWidth() >= 200:
         size = img.getWidth()
@@ -2217,9 +2215,14 @@ def render_big_thumbnail (request, iid, **kwargs):
     if size <=750:
         size = size
     else:
-        size = 750 
-    
-    jpeg_data = img.getThumbnailOrDefault(size=int(size))
+        size = 750
+        
+    if img is None:
+        jpeg_data = conn.defaultThumbnail(size=int(size))
+        logger.error("Image %s not found..." % (str(iid)))
+        #return handlerInternalError("Image %s not found..." % (str(iid)))
+    else:
+        jpeg_data = img.getThumbnailOrDefault(size=int(size))
     return HttpResponse(jpeg_data, mimetype='image/jpeg')
 
 
