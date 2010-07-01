@@ -249,7 +249,9 @@ class BlitzObjectWrapper (object):
         return False
     
     def isEditable(self):
-        if self.isOwned() or not self.isReadOnly():
+        if self.isOwned():
+            return True
+        elif not self.isPrivate() and not self.isReadOnly():
             return True
         return False
     
@@ -257,10 +259,14 @@ class BlitzObjectWrapper (object):
         return self._obj.details.permissions.isWorldRead()
     
     def isShared(self):
-        return self._obj.details.permissions.isGroupRead()
+        if not self.isPublic():
+            return self._obj.details.permissions.isGroupRead()
+        return False
     
     def isPrivate(self):
-        return self._obj.details.permissions.isUserRead()
+        if not self.isPublic() and not self.isShared():
+            return self._obj.details.permissions.isUserRead()
+        return False
     
     def isReadOnly(self):
         if self.isPublic() and not self._obj.details.permissions.isWorldWrite():

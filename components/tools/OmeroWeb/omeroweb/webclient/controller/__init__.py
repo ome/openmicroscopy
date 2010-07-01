@@ -73,7 +73,12 @@ class BaseController(object):
     def __init__(self, conn, **kw):
         self.conn = conn
         self.eContext['context'] = self.conn.getEventContext()
-        self.eContext['isReadOnly'] = self.conn.getGroup(self.conn.getEventContext().groupId).isReadOnly()
+        gr = self.conn.getGroup(self.conn.getEventContext().groupId)
+        self.eContext['isReadOnly'] = gr.isReadOnly()
+        if not gr.isPrivate() and not gr.isReadOnly():
+            self.eContext['isEditable'] = True
+        else:
+            self.eContext['isEditable'] = False
         self.eContext['user'] = self.conn.getUser()
         
         grs = list(self.conn.getGroupsMemberOf())
