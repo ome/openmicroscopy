@@ -774,6 +774,7 @@ class TreeViewerComponent
 
         MetadataViewer metadata = model.getMetadataViewer();
         TreeImageDisplay[] selection = browser.getSelectedDisplays();
+       
         boolean single = selection.length == 1;
        //Need to review. that
         if (display instanceof TreeImageTimeSet) {
@@ -1916,13 +1917,17 @@ class TreeViewerComponent
 		MetadataViewer mv = model.getMetadataViewer();
 		//Check siblings first.
 
-		boolean multi = (Boolean) multiSelection;
+		//boolean multi = (Boolean) multiSelection;
 
 		browser.onDeselectedNode(parent, selected, (Boolean) multiSelection);
+		/*
 		ExperimenterData exp = null;
 		TreeImageDisplay last = browser.getLastSelectedDisplay();
 		if (last != null) exp = browser.getNodeOwner(last);
 		if (exp == null) exp = model.getUserDetails();
+		*/
+		onSelectedDisplay();
+		/*
 		if (!multi) {
 			mv.setRootObject(selected, exp.getId());
 			mv.setSelectionMode(true);
@@ -1939,6 +1944,7 @@ class TreeViewerComponent
 		}
 		firePropertyChange(SELECTION_PROPERTY, Boolean.valueOf(false), 
 				Boolean.valueOf(true));
+				*/
 	}
 
 	/**

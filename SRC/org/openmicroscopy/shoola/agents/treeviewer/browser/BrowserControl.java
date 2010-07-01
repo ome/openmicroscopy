@@ -298,7 +298,8 @@ class BrowserControl
         		paths = tree.getSelectionPaths();
             	nodes = new TreeImageDisplay[paths.length];
             	for (int j = 0; j < paths.length; j++) {
-        			nodes[j] = (TreeImageDisplay) paths[j].getLastPathComponent();
+        			nodes[j] = 
+        				(TreeImageDisplay) paths[j].getLastPathComponent();
         		}
             	model.setSelectedDisplays(nodes);
         	}

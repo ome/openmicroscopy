@@ -754,7 +754,7 @@ class BrowserModel
 	{
 		if (node instanceof CellDisplay) return;
 	    thumbSelected = false;
-	    popupPoint = null;
+	    //popupPoint = null; //TEST mouse click
 	    this.multiSelection = multiSelection;
 	    Set<ImageDisplay> oldValue = 
 	    					new HashSet<ImageDisplay>(selectedDisplays.size());

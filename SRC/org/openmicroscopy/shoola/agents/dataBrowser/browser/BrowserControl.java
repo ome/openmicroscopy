@@ -330,7 +330,6 @@ class BrowserControl
         		}
         	}
     	}
-    	
     }
 
     /**
