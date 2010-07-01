@@ -549,7 +549,7 @@ omero.pass=%(omero.sess)s
         Parses a list of scripts to self.ctx.out
         """
         from omero.util.text import TableBuilder
-        tb = TableBuilder("id", "official scripts")
+        tb = TableBuilder("id", msg)
         for x in scripts:
             tb.row(x.id.val, x.path.val + x.name.val)
         self.ctx.out(str(tb.build()))
