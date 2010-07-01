@@ -319,7 +319,9 @@ class BrowserUI
             if (me.getClickCount() == 1) {
                 model.setClickPoint(p);
                //if (released) {
-            	   if ((me.isPopupTrigger() && !released) ||
+            	   if ((me.isPopupTrigger() && !released) || 
+            			   (me.isPopupTrigger() && released && 
+            					   !UIUtilities.isMacOS()) ||
                 		(UIUtilities.isMacOS() && 
                 			SwingUtilities.isLeftMouseButton(me)
                 				&& me.isControlDown())) { //(me.isPopupTrigger()) {
