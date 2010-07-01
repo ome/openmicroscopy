@@ -1,1 +1,0 @@
-This directory contains scripts that are used by the server, not intended to be run by clients. 
