@@ -120,7 +120,9 @@ def uploadBdbAsDataset(infile, dataset):
     else:
         print "Using pixels type ", pixelsType.getValue().getValue()
     
+    # identify the original metadata file with these values
     namespace = omero.constants.namespaces.NSCOMPANIONFILE 
+    origFilePath = omero.constants.namespaces.NSORIGINALMETADATA  #"/openmicroscopy.org/omero/image_files/"
     fileName = "original_metadata.txt"
     
     # loop through all the images.
@@ -240,7 +242,9 @@ def uploadBdbAsDataset(infile, dataset):
             f.write("%s=%s\n" % (k, attributes[k]))
         f.close()
         
-        scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, image, fileName, "text/plain", None, namespace)
+        filePath = "%s%s/%s" % (origFilePath, imageId, fileName)
+        print "Uploading %s to Image: %s with path: %s" % (fileName, imageId, filePath)
+        scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, image, fileName, "text/plain", None, namespace, filePath)
     # delete temp file
     if os.path.exists(fileName):    os.remove(fileName)
     
@@ -354,6 +358,13 @@ def emanToOmero(commandArgs):
     project = omero.model.ProjectI()
     project.name = rstring(projectName)
     project = gateway.saveAndReturnObject(project)
+    
+    if projectName.find("#") > -1:
+        if path.lower()[:4]!="bdb:" : path="bdb:"+path
+        print projectName, "has #. Importing from", path
+        dataset = createDataset(projectName, project)
+        uploadBdbAsDataset(path, dataset)
+        return
     
     # import the micrographs in the root folder  
     importMicrographs(path, project=project)
