@@ -187,6 +187,20 @@ class NewFileType(FileType):
         return FileType.__call__(self, string)
 
 
+class DirectoryType(FileType):
+    """
+    Extension of the argparse.FileType to only allow
+    existing directories.
+    """
+    def __call__(self, string):
+        p = path(string)
+        if not p.exists():
+            raise ValueError("Directory does not exist: %s" % string)
+        elif not p.isdir():
+            raise ValueError("Path is not a directory: %s" % string)
+        return str(p.abspath())
+
+
 class Context:
     """Simple context used for default logic. The CLI registry which registers
     the plugins installs itself as a fully functional Context.

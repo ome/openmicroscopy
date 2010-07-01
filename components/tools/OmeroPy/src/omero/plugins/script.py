@@ -98,6 +98,10 @@ class ScriptControl(BaseControl):
         upload = parser.add(sub, self.upload, help = "Upload a non-official script")
         upload.add_argument("file", help = "Local script file to upload to OMERO")
 
+        replace = parser.add(sub, self.replace, help = "Replace an existing script with a new value")
+        replace.add_argument("id", type=long, help = "Id of the original file which is to be replaced")
+        replace.add_argument("file", help = "Local script which should overwrite the existing one")
+
         run = parser.add(sub, self.run, help = "Run a script with the OMERO libraries loaded and current login")
         run.add_argument("file", help = "Local script file to run")
         run.add_argument("input", nargs="*", help="Inputs for the script of the form 'param=value'")
@@ -449,12 +453,8 @@ class ScriptControl(BaseControl):
         self.ctx.set("script.file.id", id)
 
     def replace(self, args):
-
-        if len(args) != 2:
-            self.ctx.die(111, "Usage: <original file id> <path to file")
-
-        ofile = long(args.args[0])
-        fpath = str(args.args[1])
+        ofile = args.id
+        fpath = args.file
 
         client = self.ctx.conn(args)
         ofile = client.sf.getQueryService().get("OriginalFile", ofile)

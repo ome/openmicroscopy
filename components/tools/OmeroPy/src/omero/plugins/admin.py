@@ -26,6 +26,7 @@ import omero.config
 
 from omero.cli import CLI
 from omero.cli import BaseControl
+from omero.cli import DirectoryType
 from omero.cli import NonZeroReturnCode
 from omero.cli import VERSION
 
@@ -154,6 +155,25 @@ Examples:
         ports.add_argument("--tcp", help = "The tcp port to be used by Glacier2 (default: %(default)s)", default = "4063")
         ports.add_argument("--ssl", help = "The ssl port to be used by Glacier2 (default: %(default)s", default = "4064")
         ports.add_argument("--revert", action="store_true", help = "Used to rollback from the given settings to the defaults")
+
+        cleanse = Action("cleanse", """Remove binary data files from OMERO.
+
+Deleting an object from OMERO currently does not remove the binary data. Use this
+command either manually or in a cron job periodically to remove Pixels and other data.
+
+This is done by checking that for all the files in the given directory, a matching entry
+exists on the server. THE /OMERO DIRECTORY MUST MATCH THE DATABASE YOU ARE RUNNING AGAINST.
+
+This command must be run on the machine where, for example, /OMERO/ is located.
+
+Examples:
+  bin/omero admin cleanse --dry-run /OMERO                                         # Lists files that will be deleted
+  bin/omero admin cleanse /OMERO                                                   # Actually delete them.
+  bin/omero admin cleanse /volumes/data/OMERO                                      # Delete from a standard location.
+
+""").parser
+        cleanse.add_argument("--dry-run", action = "store_true", help = "Print out which files would be deleted")
+        cleanse.add_argument("data_dir", type=DirectoryType(), help = "omero.data.dir directory value (e.g. /OMERO")
 
         Action("checkwindows", """Run simple check of the local installation (Windows-only)""")
 
@@ -794,6 +814,12 @@ OMERO Diagnostics %s
             for x in ("registry", "tcp", "ssl"):
                 setattr(args, x, "%s%s" % (args.prefix, getattr(args, x)))
         change_ports(args.ssl, args.tcp, args.registry, args.revert)
+
+    def cleanse(self, args):
+        from omero.util.cleanse import cleanse
+        client = self.ctx.conn(args)
+        key = client.getSessionId()
+        cleanse(data_dir=args.data_dir, dry_run=args.dry_run, query_service=client.sf.getQueryService())
 
 try:
     register("admin", AdminControl, HELP)

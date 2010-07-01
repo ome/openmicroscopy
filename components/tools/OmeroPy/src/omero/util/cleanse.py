@@ -154,6 +154,22 @@ class Cleanser(object):
 		return "Cleansing context: %d files (%d bytes)" % \
 			(len(self.cleansed), self.bytes_cleansed)
 
+def cleanse(data_dir, query_service, dry_run = False):
+   try:
+       cleanser = ""
+       for directory in SEARCH_DIRECTORIES:
+           full_path = os.path.join(data_dir, directory)
+           if dry_run:
+               print "Reconciling OMERO data directory...\n %s" % full_path
+           object_type = SEARCH_DIRECTORIES[directory]
+           cleanser = Cleanser(query_service, object_type)
+           cleanser.dry_run = dry_run
+           cleanser.cleanse(full_path)
+           cleanser.finalize()
+   finally:
+       if dry_run:
+           print cleanser
+
 def main():
 	"""
 	Default main() that performs OMERO data directory cleansing.
@@ -167,7 +183,7 @@ def main():
 		data_dir, = args
 	except:
 		usage('Expecting single OMERO data directory!')
-	
+
 	username = getpass.getuser()
 	session_key = None
 	dry_run = False
@@ -185,7 +201,7 @@ def main():
 			password = getpass.getpass()
 		except KeyboardInterrupt:
 			sys.exit(2)
-	
+
 	try:
 		client = omero.client('localhost')
 		client.setAgent("OMERO.cleanse")
@@ -200,20 +216,10 @@ def main():
 		sys.exit(1)
 	query_service = session.getQueryService()
 	try:
-		for directory in SEARCH_DIRECTORIES:
-			full_path = os.path.join(data_dir, directory)
-			if dry_run:
-				print "Reconciling OMERO data directory...\n %s" % full_path
-			object_type = SEARCH_DIRECTORIES[directory]
-			cleanser = Cleanser(query_service, object_type)
-			cleanser.dry_run = dry_run
-			cleanser.cleanse(full_path)
-			cleanser.finalize()
+		cleanse(data_dir, query_service, dry_run)
 	finally:
-		if dry_run:
-			print cleanser
 		if session_key is None:
 			client.closeSession()
-	
+
 if __name__ == '__main__':
 	main()
