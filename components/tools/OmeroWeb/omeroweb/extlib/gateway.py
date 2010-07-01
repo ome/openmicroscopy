@@ -1483,16 +1483,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         admin_serv.createExperimenterWithPassword(experimenter, rstring(str(password)), defaultGroup, otherGroups)
     
     def updateExperimenter(self, experimenter, defaultGroup, addGroups, rmGroups, password=None):
-        
-        print len(addGroups), len(rmGroups)
-        for g in addGroups:
-            print 'add', g.id, g.name
-        for g in rmGroups:
-            print 'rm', g.id, g.name
-        print 'df', defaultGroup.id, defaultGroup.name
-        
-        
-        
         admin_serv = self.getAdminService()
         if password is not None and password!="":
             admin_serv.updateExperimenterWithPassword(experimenter, rstring(str(password)))
