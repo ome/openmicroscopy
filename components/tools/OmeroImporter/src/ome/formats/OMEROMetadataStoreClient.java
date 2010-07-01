@@ -4920,6 +4920,15 @@ public class OMEROMetadataStoreClient
         return getSourceObject(Mask.class, indexes);
     }
 
+    public void setMaskBinData(byte[] binData, int roiIndex, int shapeIndex)
+    {
+        Mask o = getMask(roiIndex, shapeIndex);
+        if (o != null)
+        {
+            o.setBytes(binData);
+        }
+    }
+
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setMaskDescription(java.lang.String, int, int)
      */
