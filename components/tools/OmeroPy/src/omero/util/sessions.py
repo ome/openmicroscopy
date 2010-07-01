@@ -90,17 +90,23 @@ class SessionsStore(object):
         (dhn / id).write_lines(lines)
         self.set_current(host, name, id)
 
-    def conflicts(self, host, name, id, new_props):
+    def conflicts(self, host, name, id, new_props, ignore_nulls = False):
         """
         Compares if the passed properties are compatible with
         with those for the host, name, id tuple
+
+        If ignore_nulls is True, then a null in new_props means matches
+        anything.
         """
         conflicts = ""
         old_props = self.get(host, name, id)
         for key in ("omero.group", "omero.port"):
-            vals = [x.get(key, None) for x in (old_props, new_props)]
-            if vals[0] != vals[1]:
-                conflicts += (key + (":%s!=%s;" % tuple(vals)))
+            old = old_props.get(key, None)
+            new = new_props.get(key, None)
+            if ignore_nulls and new is None:
+                continue
+            elif old != new:
+                conflicts += (key + (":%s!=%s;" % (old, new)))
         return conflicts
 
     def remove(self, host, name, uuid):

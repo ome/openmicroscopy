@@ -45,12 +45,12 @@ class WebControl(BaseControl):
         start = parser.add(sub, self.start, "Primary start for webserver")
         start.add_argument("host", nargs="*")
         start.add_argument("port", nargs="*")
-        
+
         server = parser.add(sub, self.server, "Advanced use: Set to 'default' for django internal webserver or 'fastcfgi'")
         server.add_argument("server")
 
         config = parser.add(sub, self.config, "Advanced use: Output a config template for server (only 'nginx' for the moment")
-        config.add_argument("type", choices=("nginx"))
+        config.add_argument("type", choices=("nginx",))
 
         parser.add(sub, self.syncmedia, "Advanced use: Creates needed symlinks for static media files")
 

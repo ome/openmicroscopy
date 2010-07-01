@@ -86,6 +86,9 @@ class MyCLI(CLI):
         self.controls["s"].FACTORY = lambda ignore: self.STORE
         assert self.STORE.count(testhost, testuser) == 0
 
+    def __del__(self):
+        del self.STORE
+
     def creates_client(self, name="testuser", host="testhost", sess="sess_id", port=None, group=None, new=True):
         props = dict()
         if port: props["omero.port"] = port
@@ -271,6 +274,19 @@ class TestSessions(unittest.TestCase):
         cli.invoke("-s testhost -u testuser -w testpass s login")
         cli.invoke("s login") # Should work. No conflict
         cli.invoke("-p 4444 s login")
+
+    def testPortThenNothingShouldReuse(self):
+        cli = MyCLI()
+        cli.creates_client(port="4444")
+        cli.requests_host()
+        cli.requests_user()
+        cli.requests_pass()
+        cli.invoke("-p 4444 s login")
+        cli.assertReqSize(self, 0) # All were requested
+        cli._client = None # Forcing new instance
+        cli.creates_client(port="4444", new=False)
+        cli.invoke("s login") # Should work. No conflict
+        del cli
 
 if __name__ == '__main__':
     unittest.main()

@@ -161,7 +161,7 @@ class Parser(ArgumentParser):
     def _check_value(self, action, value):
         # converted value must be one of the choices (if specified)
         if action.choices is not None and value not in action.choices:
-            msg = 'invalid choice: %r\nchoose from:\n' % value
+            msg = 'invalid choice: %r\n\nchoose from:\n' % value
             choices = sorted(action.choices)
             msg += self._format_list(choices)
             raise ArgumentError(action, msg)

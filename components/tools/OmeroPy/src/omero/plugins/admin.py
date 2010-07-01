@@ -137,6 +137,24 @@ LIMITATION: omero.db.pass values do not currently get passed to the Java process
         group.add_argument("--events", action="store_true", help = "Reindexes all non-excluded event logs chronologically")
         group.add_argument("--class", nargs="+", help = "Reindexes the given classes sequentially")
 
+        ports = Action("ports", """Allows modifying the ports from a standard OMERO install
+
+To have two OMERO's running on the same machine, several ports must be modified from their default values.
+Internally, this command uses the omero.install.change_ports module.
+
+Examples:
+
+    %(prog)s --prefix=1                             # sets ports to: 14061, 14063, 14064
+    %(prog)s --prefix=1 --revert                    # sets ports back to: 4061, 4063, 4064
+    %(prog)s --registry=4444 --tcp=5555 --ssl=6666  # sets ports to: 4444 5555 6666
+
+""").parser
+        ports.add_argument("--prefix", help = "Adds a prefix to each port ON TOP OF any other settings")
+        ports.add_argument("--registry", help = "Registry port. (default: %(default)s)", default = "4061")
+        ports.add_argument("--tcp", help = "The tcp port to be used by Glacier2 (default: %(default)s)", default = "4063")
+        ports.add_argument("--ssl", help = "The ssl port to be used by Glacier2 (default: %(default)s", default = "4064")
+        ports.add_argument("--revert", action="store_true", help = "Used to rollback from the given settings to the defaults")
+
         Action("checkwindows", """Run simple check of the local installation (Windows-only)""")
 
         Action("events", """Print event log (Windows-only)""")
@@ -628,12 +646,15 @@ OMERO Diagnostics %s
         db_ready = re.compile(".*?Did.you.create.your.database[?].*?")
         data_dir = re.compile(".*?Unable.to.initialize:.FullText.*?")
         pg_password = re.compile(".*?org.postgresql.util.PSQLException:.FATAL:.password.*?authentication.failed.for.user.*?")
+        pg_user = re.compile(""".*?org.postgresql.util.PSQLException:.FATAL:.role.".*?".does.not.exist.*?""")
+
 
         issues = {
             ready : "=> Server restarted <=",
             db_ready : "Your database configuration is invalid",
             data_dir : "Did you create your omero.data.dir? E.g. /OMERO",
-            pg_password : "Your postgres password seems to be invalid"
+            pg_password : "Your postgres password seems to be invalid",
+            pg_user: "Your postgres user is invalid"
         }
 
         try:
@@ -645,12 +666,14 @@ OMERO Diagnostics %s
                     lno = fileinput.filelineno()
                     for k, v in issues.items():
                         if k.match(line):
-                            item('Parsing %s' % file, "[line:%s] %s\n" % (lno, v))
+                            item('Parsing %s' % file, "[line:%s] %s" % (lno, v))
+                            self.ctx.out("")
                             break
         except:
             self.ctx.err("Error while parsing logs")
 
-        self.ctx.out("\n")
+        self.ctx.out("")
+
         def env_val(val):
             item("Environment","%s=%s" % (val, os.environ.get(val, "(unset)")))
             self.ctx.out("")
@@ -764,6 +787,13 @@ OMERO Diagnostics %s
         self.ctx.dbg("Launching Java: %s, debug=%s, xargs=%s" % (cmd, debug, xargs))
         p = omero.java.popen(cmd, debug=debug, xargs=xargs, stdout=sys.stdout, stderr=sys.stderr) # FIXME. Shouldn't use std{out,err}
         self.ctx.rv = p.wait()
+
+    def ports(self, args):
+        from omero.install.change_ports import change_ports
+        if args.prefix:
+            for x in ("registry", "tcp", "ssl"):
+                setattr(args, x, "%s%s" % (args.prefix, getattr(args, x)))
+        change_ports(args.ssl, args.tcp, args.registry, args.revert)
 
 try:
     register("admin", AdminControl, HELP)

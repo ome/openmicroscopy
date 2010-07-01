@@ -18,9 +18,9 @@ import re, sys, exceptions
 import fileinput
 from path import path
 
-dir = path(".")
-etc = dir / "etc"
-grid = etc / "grid"
+DIR = path(".")
+ETC = DIR / "etc"
+GRID = ETC / "grid"
 
 def line_has_port(line, port):
     m = re.match("^.*?\D%s\D.*?$" % port, line)
@@ -72,33 +72,33 @@ def change_ports(glacier2, glacier2insecure, registry, revert = False):
             return True
         return False
 
-    cfgs = [ str(x) for x in etc.files("*.cfg") ]
-    done = set()
+    cfgs = [ str(x) for x in ETC.files("*.cfg") ]
+    found_reg = set()
     for line in fileinput.input(cfgs, inplace=1):
-        if check_line(line, "Ice.Default.Locator", f_registry, t_registry, done):
+        if check_line(line, "Ice.Default.Locator", f_registry, t_registry, found_reg):
             continue
-        elif check_line(line, "IceGrid.Registry.Client.Endpoints", f_registry, t_registry, done):
+        elif check_line(line, "IceGrid.Registry.Client.Endpoints", f_registry, t_registry, found_reg):
             continue
         print line,
     fileinput.close()
-    if done:
-        print "Converted: %s=>%s in %s" % (f_registry, t_registry, ", ".join(done))
-    else:
-        print "No values found for %s" % f_registry
 
-    xmls = [ str(x) for x in grid.files("*.xml") ]
-    done = set()
+    xmls = [ str(x) for x in GRID.files("*.xml") ]
+
+    found_ssl = set()
+    found_tcp = set()
     for line in fileinput.input(xmls, inplace=1):
-        if check_line(line, "ROUTERPORT", f_glacier2, t_glacier2, done):
+        if check_line(line, "ROUTERPORT", f_glacier2, t_glacier2, found_ssl):
             continue
-        elif check_line(line, "ROUTER", f_glacier2insecure, t_glacier2insecure, done):
+        elif check_line(line, "ROUTER", f_glacier2insecure, t_glacier2insecure, found_tcp):
             continue
         print line,
     fileinput.close()
-    if done:
-        print "Converted: %s=>%s in %s" % (f_glacier2, t_glacier2, ", ".join(done))
-    else:
-        print "No values found for %s" % f_glacier2
+
+    for x in ((found_reg, f_registry, t_registry), (found_tcp, f_glacier2insecure, t_glacier2insecure), (found_ssl, f_glacier2, t_glacier2)):
+        if x[0]:
+            print "Converted: %s=>%s in %s" % (x[1], x[2], ", ".join(x[0]))
+        else:
+            print "No values found for %s" % x[1]
 
 if __name__ == "__main__":
     try:

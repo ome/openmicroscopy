@@ -107,6 +107,7 @@ class SessionsControl(BaseControl):
         """
         Goals:
         If server and key, then don't ask any questions.
+        If nothing requested, and something's active, use it. (i.e. don't require port number)
         Reconnect if possible (assuming parameters are the same)
         """
 
@@ -173,15 +174,15 @@ class SessionsControl(BaseControl):
 
                 if not create and not server_differs and not name_differs:
                     try:
-                        test = list(previous)
-                        test.append(props)
-                        conflicts = store.conflicts(*tuple(test))
+                        conflicts = store.conflicts(previous[0], previous[1], previous[2], props, True)
                         if conflicts:
                             self.ctx.dbg("Not attaching because of conflicts: %s" % conflicts)
                         else:
                             rv = store.attach(*previous)
                             return self.handle(rv, "Using")
                     except exceptions.Exception, e:
+                        import traceback
+                        self.ctx.dbg("Exception on attach: %s" % traceback.format_exc(e))
                         self.ctx.dbg("Exception on attach: %s" % e)
 
                     self.ctx.out("Previously logged in to %s as %s" % (previous[0], previous[1]))
