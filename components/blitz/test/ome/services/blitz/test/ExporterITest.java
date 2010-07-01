@@ -5,6 +5,8 @@
 
 package ome.services.blitz.test;
 
+import static omero.rtypes.rstring;
+
 import ome.services.blitz.impl.ExporterI;
 import ome.services.blitz.impl.OmeroMetadata;
 import ome.services.db.DatabaseIdentity;
@@ -13,6 +15,7 @@ import omero.api.AMD_Exporter_generateTiff;
 import omero.api.AMD_Exporter_generateXml;
 import omero.api.AMD_Exporter_read;
 import omero.api.AMD_IConfig_getDatabaseUuid;
+import omero.model.CommentAnnotationI;
 import omero.model.Image;
 import omero.model.ImageI;
 
@@ -112,8 +115,16 @@ public class ExporterITest extends AbstractServantTest {
     private Image assertNewImage() throws Exception {
         long id = this.makePixels();
         Image i = (Image) assertFindByQuery(
-                "select i from Image i join fetch i.pixels p where p.id = "
-                        + id, null).get(0);
+                "select i from Image i " +
+                "join fetch i.pixels p " +
+                "left outer join fetch i.annotationLinks " +
+                "where p.id = " + id, null).get(0);
+        CommentAnnotationI annotation = new CommentAnnotationI();
+        annotation.setNs(rstring("a_namespace"));
+        annotation.setDescription(rstring("a_description"));
+        annotation.setTextValue(rstring("a_textValue"));
+        i.linkAnnotation(annotation);
+        i = assertSaveAndReturn(i);
         // Image i = new ImageI();
         // i.setAcquisitionDate(rtime(0));
         // i.setName(rstring("basic export"));
