@@ -318,19 +318,19 @@ class BrowserUI
         if (row != -1) {
             if (me.getClickCount() == 1) {
                 model.setClickPoint(p);
-                if (!released) {
-                	if ((SwingUtilities.isRightMouseButton(me) && 
-                			!UIUtilities.isMacOS()) ||
+               //if (released) {
+            	   if ((me.isPopupTrigger() && !released) ||
                 		(UIUtilities.isMacOS() && 
-                				SwingUtilities.isLeftMouseButton(me)
+                			SwingUtilities.isLeftMouseButton(me)
                 				&& me.isControlDown())) { //(me.isPopupTrigger()) {
+   
                     	if (model.getBrowserType() == Browser.ADMIN_EXPLORER) 
                     		controller.showPopupMenu(TreeViewer.ADMIN_MENU);
                     	else 
                     		controller.showPopupMenu(TreeViewer.FULL_POP_UP_MENU);
+                    		
                     } 
-                }
-                
+               // }
             } else if (me.getClickCount() == 2 && released && !(me.isMetaDown()
             		|| me.isControlDown() || me.isShiftDown())) {
             	//controller.cancel();
