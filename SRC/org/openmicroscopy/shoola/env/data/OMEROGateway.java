@@ -2215,7 +2215,6 @@ class OMEROGateway
 		try {
 			clear();
 			secureClient.closeSession();
-			//entryEncrypted.destroy();
 			secureClient = null;
 			entryEncrypted = null;
 		} catch (Exception e) {
@@ -2226,7 +2225,6 @@ class OMEROGateway
 		}
 		try {
 			if (unsecureClient != null) secureClient.closeSession();
-			//if (entryUnencrypted != null) entryUnencrypted.destroy();
 			unsecureClient = null;
 			entryUnencrypted = null;
 		} catch (Exception e) {

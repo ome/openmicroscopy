@@ -38,7 +38,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.ui.ROIAssistantCellRend
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
 /** 
- * 
+ * Displays all possible planes as a grid.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

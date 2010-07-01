@@ -112,7 +112,7 @@ class IntensityResultsView
 	
 	/** Tooltip for the add button. */
 	private final static String ADDALL_DESCRIPTION = "Add Intensities for " +
-							"all ROIShapes of the selected ROI to results table.";
+						"all ROIShapes of the selected ROI to results table.";
 	
 	/** The remove button name. */
 	private final static String REMOVE_NAME = "Remove";

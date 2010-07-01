@@ -49,7 +49,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationField;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 
 /** 
- * 
+ * Displays the fields to add to the results view.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -101,10 +101,14 @@ class ResultsWizard
 	/** The list box showing the remaining fields */
 	private JList					remainingFieldsListbox;
 	
-	/** The button to move a field from the remaining fields to current fields. */
+	/** 
+	 * The button to move a field from the remaining fields to current fields. 
+	 */
 	private JButton 				addFieldButton;
 	
-	/** The button to move a field from the current fields to remaining fields. */
+	/** 
+	 * The button to move a field from the current fields to remaining fields. 
+	 */
 	private JButton 				removeFieldButton;
 	
 	/** The button to move all fields to the current fields. */

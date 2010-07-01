@@ -38,6 +38,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -1843,4 +1844,5 @@ public class UIUtilities
 				list.add(value);
 		return list;
 	}
+	
 }

@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Vector;
-
 import javax.swing.JPopupMenu;
 import javax.swing.table.TableColumn;
 import javax.swing.tree.TreePath;
@@ -52,6 +51,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.ui.ShapeRenderer;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.graphutils.ShapeType;
 import org.openmicroscopy.shoola.util.ui.treetable.OMETreeTable;
 
@@ -204,7 +204,8 @@ public class ROITable
 	 */
 	protected void onMousePressed(MouseEvent e)
 	{
-		if (rightClick(e)) showROIManagementMenu(this, e.getX(), e.getY());
+		if (MeasurementViewerControl.isRightClick(e)) 
+			showROIManagementMenu(this, e.getX(), e.getY());
 	}
 
     /** 

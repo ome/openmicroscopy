@@ -44,6 +44,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import javax.swing.JMenu;
+import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -70,7 +71,6 @@ import org.openmicroscopy.shoola.agents.measurement.actions.SaveROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.ShowROIAssistant;
 import org.openmicroscopy.shoola.agents.measurement.actions.UnitsAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.WorkflowAction;
-import org.openmicroscopy.shoola.agents.measurement.util.roimenu.ROIPopupMenu;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIActionController;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasurePointFigure;
@@ -84,6 +84,8 @@ import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
 import org.openmicroscopy.shoola.util.ui.treetable.OMETreeTable;
+
+import com.sun.java.swing.SwingUtilities2;
 
 /** 
  * The MeasurementViewer's Controller.
@@ -165,7 +167,7 @@ class MeasurementViewerControl
     /** Reference to the View. */
     private MeasurementViewerUI						view;
 
-    /** Maps actions ids onto actual <code>Action</code> object. */
+    /** Maps actions identifiers onto actual <code>Action</code> object. */
     private Map<Integer, MeasurementViewerAction>	actionsMap;
     
     /** Helper method to create all the UI actions. */
@@ -176,7 +178,8 @@ class MeasurementViewerControl
     	actionsMap.put(ROI_ASSISTANT, new ShowROIAssistant(model));
     	actionsMap.put(IN_MICRONS, new UnitsAction(model, true));
     	actionsMap.put(IN_PIXELS, new UnitsAction(model, false));
-    	actionsMap.put(CREATE_SINGLE_FIGURE, new CreateFigureAction(model, true));
+    	actionsMap.put(CREATE_SINGLE_FIGURE, 
+    			new CreateFigureAction(model, true));
     	actionsMap.put(CREATE_MULTIPLE_FIGURES, new CreateFigureAction(model, 
     												false));
     	actionsMap.put(SELECT_WORKFLOW, new WorkflowAction(model, false));
@@ -184,6 +187,23 @@ class MeasurementViewerControl
     	actionsMap.put(KEYWORD_SELECTION, new KeywordSelectionAction(model));
     }
 
+	/**
+	 * Return <code>true</code> if the right button was clicked or 
+	 * left button was clicked with control held down,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param e The mouse event to handle.
+	 * @return See above.
+	 */
+	public static boolean isRightClick(MouseEvent e)
+	{
+		/*
+		return (e.getButton() == MouseEvent.BUTTON3 ||
+				(e.getButton() == MouseEvent.BUTTON1 && e.isControlDown()));
+				*/
+		return SwingUtilities.isRightMouseButton(e);
+	}
+	
     /**
      * Sets the status of the currently selected Region of Interest.
      * 
@@ -327,7 +347,7 @@ class MeasurementViewerControl
  			public void mouseReleased(MouseEvent e)
  			{
  				setROIFigureStatus(ROIFigure.IDLE);
- 				if (OMETreeTable.rightClick(e)) {
+ 				if (isRightClick(e)) {
  					Collection l = view.getDrawingView().getSelectedFigures();
  					if (l != null && l.size() == 1)
  						view.showROIManagementMenu(e.getX(), e.getY());

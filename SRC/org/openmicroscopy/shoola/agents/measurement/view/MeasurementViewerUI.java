@@ -353,9 +353,10 @@ class MeasurementViewerUI
 		tabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
 		DrawingCanvasView canvasView = model.getDrawingView();
 		canvasView.addMouseListener(new MouseAdapter() {
+			
 		    /**
 		     * Sets the cursor.
-			 * @see MouseListener#mouseEntered(java.awt.event.MouseEvent)
+			 * @see MouseListener#mouseEntered(MouseEvent)
 			 */
 			public void mouseEntered(MouseEvent e)
 			{

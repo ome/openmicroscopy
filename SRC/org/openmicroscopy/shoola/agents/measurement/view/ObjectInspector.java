@@ -67,6 +67,7 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes
 class ObjectInspector 
 	extends JPanel
 {
+	
 	/** Index to identify tab */
 	public final static int		INDEX = MeasurementViewerUI.INSPECTOR_INDEX;
 

@@ -83,6 +83,8 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -168,13 +170,10 @@ class BrowserUI
      * Handles the mouse pressed and released.
      * 
      * @param loc			The location of the mouse click.
-     * @param popupTrigger	Pass <code>true</code> if the mouse event is the 
-     * 						pop-up menu trigger event for the platform,
-     * 						<code>false</code> otherwise.
      */
-    private void handleMouseClick(Point loc, boolean popupTrigger)
+    private void handleRightClick(Point loc)
     {
-    	if (treeDisplay.getRowForLocation(loc.x, loc.y) == -1 && popupTrigger) {
+    	if (treeDisplay.getRowForLocation(loc.x, loc.y) == -1) {
     		model.setClickPoint(loc);
     		if (model.getBrowserType() != Browser.ADMIN_EXPLORER)
     			controller.showPopupMenu(TreeViewer.PARTIAL_POP_UP_MENU);
@@ -214,28 +213,24 @@ class BrowserUI
     	add(buildToolBar(), BorderLayout.NORTH);
     	add(new JScrollPane(treeDisplay), BorderLayout.CENTER);
     	//add(treeDisplay, BorderLayout.CENTER);
+    	/*
         treeDisplay.addMouseListener(new MouseAdapter() {
     		
-        	/**
-        	 * Pops up a menu if the mouse click occurs on the tree
-        	 * but not on the a node composing the tree
-        	 * @see MouseAdapter#mousePressed(MouseEvent)
-        	 */
 			public void mousePressed(MouseEvent e)
 			{
-				handleMouseClick(e.getPoint(), e.isPopupTrigger());
+				//check if right click
+				
+				if (SwingUtilities.isRightMouseButton(e)) {
+					handleRightClick(e.getPoint()); //e.isPopupTrigger()
+				}
 			}
-		
-			/**
-        	 * Pops up a menu if the mouse click occurs on the tree
-        	 * but not on the a node composing the tree
-        	 * @see MouseAdapter#mouseReleased(MouseEvent)
-        	 */
+
 			public void mouseReleased(MouseEvent e)
 			{
-				handleMouseClick(e.getPoint(), e.isPopupTrigger());
+				//handleMouseClick(e.getPoint(), e.isPopupTrigger());
 			}
 		});
+		*/
     }
     
     /** Helper method to create the menu bar. */
@@ -357,10 +352,15 @@ class BrowserUI
         if (row != -1) {
             if (me.getClickCount() == 1) {
                 model.setClickPoint(p);
-                if (me.isPopupTrigger()) {
+                if (SwingUtilities.isRightMouseButton(me) && !released) { //(me.isPopupTrigger()) {
                 	if (model.getBrowserType() == Browser.ADMIN_EXPLORER) 
                 		controller.showPopupMenu(TreeViewer.ADMIN_MENU);
                 	else controller.showPopupMenu(TreeViewer.FULL_POP_UP_MENU);
+                } else {
+                	if (!released) {
+                		//TreePath path = treeDisplay.getPathForLocation(p.x, p.y);
+                		//treeDisplay.addSelectionPath(path);
+                	}
                 }
             } else if (me.getClickCount() == 2 && released) {
             	//controller.cancel();
@@ -660,8 +660,23 @@ class BrowserUI
             public void valueChanged(TreeSelectionEvent e)
             {
             	if (ctrl && leftMouseButton) {
+            		TreePath[] paths = treeDisplay.getSelectionPaths();
             		TreeImageDisplay[] nodes = model.getSelectedDisplays();
-            		setFoundNode(nodes);
+            		List<TreePath> added = new ArrayList<TreePath>();
+            		TreePath[] all = new TreePath[nodes.length+paths.length];
+            		for (int i = 0; i < nodes.length; i++) {
+            			all[i] = new TreePath(nodes[i].getPath());
+					}
+            		for (int i = 0; i < paths.length; i++) {
+            			all[i+nodes.length] = new TreePath(paths[i].getPath());
+					}
+            		treeDisplay.removeTreeSelectionListener(selectionListener);
+            		treeDisplay.setSelectionPaths(all);
+            		treeDisplay.addTreeSelectionListener(selectionListener);
+                	for (int i = 0; i < all.length; i++)
+                		added.add(all[i]);
+                	controller.onClick(added);
+
             		return;
             	}
             	TreePath[] paths = e.getPaths();
@@ -1706,7 +1721,6 @@ class BrowserUI
 			TreePath[] paths = new TreePath[newSelection.length];
 			for (int i = 0; i < newSelection.length; i++) 
 				paths[i] = new TreePath(newSelection[i].getPath());
-
 			treeDisplay.setSelectionPaths(paths);
 		}
 		
