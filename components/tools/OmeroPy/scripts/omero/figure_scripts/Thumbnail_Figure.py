@@ -248,7 +248,9 @@ def makeThumbnailFigure(client, session, commandArgs):
             parent = gateway.getDataset(datasetIds[0], False)
             if parent:
                 log("Figure will be linked to Dataset: %s" % parent.getName().getValue())
-                
+    
+    if len(imageIds) == 0 and len(datasetIds) == 0:
+        print "No image IDs or dataset IDs found"       
     
     tagIds = []
     if "Tag_IDs" in commandArgs:

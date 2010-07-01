@@ -46,11 +46,12 @@ import numpy
 import time
 startTime = 0
 
-def printDuration():
+def printDuration(output=True):
     global startTime
     if startTime == 0:
         startTime = time.time()
-    print "script timer = %s secs" % (time.time() - startTime)
+    if output:
+        print "Script timer = %s secs" % (time.time() - startTime)
 
 def getRectangles(session, imageId):
     """ Returns a list of (x, y, width, height) of each rectange ROI in the image """
@@ -133,6 +134,8 @@ def makeImagesFromRois(session, parameterMap):
                 print " Project", project.name.val
                 break # only use 1st Project
             break    # only use 1st
+    else:
+        print "No Project and Dataset found for Image ID: %s" % imageId
     
     containerName = 'From_ROIs'
     if "Container_Name" in parameterMap:
@@ -142,7 +145,11 @@ def makeImagesFromRois(session, parameterMap):
     newIds = []
     for imageId in imageIds:
     
-        imageName = gateway.getImage(imageId).getName().getValue()
+        image = gateway.getImage(imageId)
+        if image == None:
+            print "Image ID: %s not found." % imageId
+            continue
+        imageName = image.getName().getValue()
     
         pixels = gateway.getPixelsFromImage(imageId)[0]
         physicalSizeX = pixels.getPhysicalSizeX().getValue()
@@ -224,10 +231,12 @@ def runAsScript():
     """
     The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
     """
-    printDuration()
+    printDuration(False)    # start timer
+    
     client = scripts.client('Images_From_ROIs.py', """Create new Images from the regions defined by Rectangle ROIs on other Images.
 Designed to work with single-plane images (Z=1 T=1) with multiple ROIs per image. 
-Assumes that all the ROIs on an Image are the same size and that all Images are in the same dataset.""", 
+If you choose to make an image stack from all the ROIs, this script
+assumes that all the ROIs on an Image are the same size.""", 
     scripts.List("Image_IDs", optional=False, description="List the images to work with").ofType(rlong(0)),
     scripts.String("Container_Name", description="New Dataset name or Image name (if 'Make_Image_Stack')", default="From_ROIs"),
     scripts.Bool("Make_Image_Stack", description="If true, make a single Image (stack) from all the ROIs of each parent Image")
@@ -243,9 +252,8 @@ Assumes that all the ROIs on an Image are the same size and that all Images are 
                 parameterMap[key] = client.getInput(key).getValue()
     
         print parameterMap
-        printDuration()
+        
         message = makeImagesFromRois(session, parameterMap)
-        printDuration()
     
         if message:
             client.setOutput("Message", rstring(message))

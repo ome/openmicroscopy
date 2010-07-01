@@ -567,13 +567,18 @@ def roiFigure(session, commandArgs):
     if "Image_IDs" in commandArgs:
         for idCount, imageId in enumerate(commandArgs["Image_IDs"]):
             iId = long(imageId.getValue())
-            imageIds.append(iId)
             image = gateway.getImage(iId)
+            if image == None:
+                print "Image not found for ID:", iId
+                continue
+            imageIds.append(iId)
             if idCount == 0:
                 omeroImage = image        # remember the first image to attach figure to
             pixelIds.append(image.getPrimaryPixels().getId().getValue())
             imageNames[iId] = image.getName().getValue()
-        
+    
+    if len(imageIds) == 0:
+        print "No image IDs specified."    
             
     pdMap = figUtil.getDatasetsProjectsFromImages(queryService, imageIds)    # a map of imageId : list of (project, dataset) names. 
     tagMap = figUtil.getTagsFromImages(metadataService, imageIds)

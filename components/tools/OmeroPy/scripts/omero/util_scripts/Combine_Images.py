@@ -68,11 +68,12 @@ timeRegexes = {DEFAULT_T_REGEX: r'_T(?P<T>\d+)',
 import time
 startTime = 0
 
-def printDuration():
+def printDuration(output=True):
     global startTime
     if startTime == 0:
         startTime = time.time()
-    print "script timer = %s secs" % (time.time() - startTime)
+    if output:
+        print "Script timer = %s secs" % (time.time() - startTime)
     
     
 def getPlane(rawPixelStore, pixels, theZ, theC, theT):
@@ -402,6 +403,8 @@ def combineImages(session, parameterMap):
                 dataset = gateway.getDataset(ds.id.val, True)
                 print "Dataset", dataset.name.val
                 break    # only use 1st dataset
+        else:
+            print "No Dataset found for Image ID: %s  Combined Image will not be put into dataset." % imageIds[0]
         outputImage = makeSingleImage(services, parameterMap, imageIds, dataset, colourMap)
     
     else:
@@ -410,9 +413,11 @@ def combineImages(session, parameterMap):
             datasetId = long(dId.getValue())
             
             images = gateway.getImages(omero.api.ContainerClass.Dataset, [datasetId])
+            if images == None or len(images) == 0:
+                print "No images found for Dataset ID: %s" % datasetId
+                continue
             images.sort(key=lambda x:(x.getName().getValue()))
-            for i in images:
-                imageIds.append(i.getId().getValue())
+            imageIds = [i.getId().getValue() for i in images]
             dataset = gateway.getDataset(datasetId, False)
             outputImage = makeSingleImage(services, parameterMap, imageIds, dataset, colourMap)
             
@@ -429,7 +434,7 @@ def runAsScript():
     """
     The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
     """
-    printDuration()
+    printDuration(False)    # start timer
     
     ckeys = COLOURS.keys()
     ckeys.sort()
@@ -487,7 +492,7 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/UtilScripts#CombineImages""",
         description="Number of time-points in new image", min=1),
     
     scripts.List("Channel_Colours", grouping="7",
-        description="List of Colours for channels.", default=rstring("White"), values=cOptions).ofType(rstring("")),
+        description="List of Colours for channels.", default="White", values=cOptions).ofType(rstring("")),
     
     scripts.List("Channel_Names", grouping="8",
         description="List of Names for channels in the new image.")
@@ -502,12 +507,16 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/UtilScripts#CombineImages""",
             if client.getInput(key):
                 parameterMap[key] = client.getInput(key).getValue()
     
-        # print parameterMap
+        print parameterMap
+        
+        # create the combined image
         image = combineImages(session, parameterMap)        
         
         if image:
             client.setOutput("Message", rstring("Script Ran OK. New Image created ID: %s" % image.id.val))
             client.setOutput("Combined_Image",robject(image))
+        else:
+            print "No image created."
     except: raise
     finally:
         client.closeSession()
