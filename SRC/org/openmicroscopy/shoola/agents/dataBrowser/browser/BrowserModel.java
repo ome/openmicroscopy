@@ -553,7 +553,17 @@ class BrowserModel
 	 */
 	public void setSelectedNodes(List<DataObject> nodes)
 	{
-		if (nodes == null || nodes.size() == 0) return;
+		if (nodes == null || nodes.size() == 0) {
+			if (selectedDisplays == null) return;
+			List<ImageDisplay> l = new ArrayList<ImageDisplay>();
+			Iterator<ImageDisplay> i = selectedDisplays.iterator();
+			while (i.hasNext()) {
+				l.add(i.next());
+			}
+			selectedDisplays.clear();
+			setNodesColor(new ArrayList<ImageDisplay>(0), l);
+			return;
+		}
 		NodesFinder finder = new NodesFinder(nodes);
 		rootDisplay.accept(finder);
 		List<ImageDisplay> found = finder.getFoundNodes();

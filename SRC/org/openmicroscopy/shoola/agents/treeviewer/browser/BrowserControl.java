@@ -274,20 +274,33 @@ class BrowserControl
     {
     	JTree tree = view.getTreeDisplay();
         TreePath[] paths = tree.getSelectionPaths();
-        if (paths == null) return;
+        if (paths == null) {
+        	model.setSelectedDisplay(null);
+        	return;
+        }
         TreeImageDisplay node;
         TreePath path;
         List<TreePath> toRemove = new ArrayList<TreePath>();
+        TreeImageDisplay[] nodes;
         if (paths.length == 1) {
         	Object p = paths[0].getLastPathComponent();
         	if (!(p instanceof TreeImageDisplay))
         		return;
         	node = (TreeImageDisplay) p;
-        	if (node.isSelectable())
-        		model.setSelectedDisplay(node);
-        	else {
+        	if (node.isSelectable()) {
+        		nodes = new TreeImageDisplay[1];
+        		nodes[0] = node;
+            	model.setSelectedDisplays(nodes);
+        		//model.setSelectedDisplay(node);
+        	} else {
         		toRemove.add(paths[0]);
         		view.removeTreePaths(toRemove);
+        		paths = tree.getSelectionPaths();
+            	nodes = new TreeImageDisplay[paths.length];
+            	for (int j = 0; j < paths.length; j++) {
+        			nodes[j] = (TreeImageDisplay) paths[j].getLastPathComponent();
+        		}
+            	model.setSelectedDisplays(nodes);
         	}
     		return;
         }
@@ -354,7 +367,7 @@ class BrowserControl
     	}
     	paths = tree.getSelectionPaths();
     	
-    	TreeImageDisplay[] nodes = new TreeImageDisplay[paths.length];
+    	nodes = new TreeImageDisplay[paths.length];
     	for (int j = 0; j < paths.length; j++) {
 			nodes[j] = (TreeImageDisplay) paths[j].getLastPathComponent();
 		}

@@ -167,21 +167,6 @@ class BrowserUI
     private boolean					leftMouseButton;
     
     /**
-     * Handles the mouse pressed and released.
-     * 
-     * @param loc			The location of the mouse click.
-     */
-    private void handleRightClick(Point loc)
-    {
-    	if (treeDisplay.getRowForLocation(loc.x, loc.y) == -1) {
-    		model.setClickPoint(loc);
-    		if (model.getBrowserType() != Browser.ADMIN_EXPLORER)
-    			controller.showPopupMenu(TreeViewer.PARTIAL_POP_UP_MENU);
-    		else controller.showPopupMenu(TreeViewer.CREATE_MENU_ADMIN);
-		}
-    }
-    
-    /**
      * Builds the tool bar.
      * 
      * @return See above.
@@ -330,7 +315,6 @@ class BrowserUI
     {
         Point p = me.getPoint();
         int row = treeDisplay.getRowForLocation(p.x, p.y);
-        
         if (row != -1) {
             if (me.getClickCount() == 1) {
                 model.setClickPoint(p);
@@ -342,11 +326,13 @@ class BrowserUI
                 				&& me.isControlDown())) { //(me.isPopupTrigger()) {
                     	if (model.getBrowserType() == Browser.ADMIN_EXPLORER) 
                     		controller.showPopupMenu(TreeViewer.ADMIN_MENU);
-                    	else controller.showPopupMenu(TreeViewer.FULL_POP_UP_MENU);
+                    	else 
+                    		controller.showPopupMenu(TreeViewer.FULL_POP_UP_MENU);
                     } 
                 }
                 
-            } else if (me.getClickCount() == 2 && released) {
+            } else if (me.getClickCount() == 2 && released && !(me.isMetaDown()
+            		|| me.isControlDown() || me.isShiftDown())) {
             	//controller.cancel();
                 //model.viewDataObject();
             	TreeImageDisplay d  = model.getLastSelectedDisplay();
@@ -646,29 +632,21 @@ class BrowserUI
             {
             	if (ctrl && leftMouseButton) {
             		TreePath[] paths = treeDisplay.getSelectionPaths();
-            		TreeImageDisplay[] nodes = model.getSelectedDisplays();
             		List<TreePath> added = new ArrayList<TreePath>();
-            		TreePath[] all;
-            		if (UIUtilities.isMacOS()) {
+            		TreePath[] all = null;
+            		if (paths != null) {
             			all = new TreePath[paths.length];
                 		for (int i = 0; i < paths.length; i++) {
                 			all[i] = new TreePath(paths[i].getPath());
     					}
-            		} else {
-            			all = new TreePath[nodes.length+paths.length];
-                		for (int i = 0; i < nodes.length; i++) {
-                			all[i] = new TreePath(nodes[i].getPath());
-    					}
-                		for (int i = 0; i < paths.length; i++) {
-                			all[i+nodes.length] = new TreePath(
-                					paths[i].getPath());
-    					}
             		}
             		treeDisplay.removeTreeSelectionListener(selectionListener);
-            		treeDisplay.setSelectionPaths(all);
+            		if (all != null) treeDisplay.setSelectionPaths(all);
             		treeDisplay.addTreeSelectionListener(selectionListener);
-                	for (int i = 0; i < all.length; i++)
-                		added.add(all[i]);
+            		if (all != null) {
+            			for (int i = 0; i < all.length; i++)
+                    		added.add(all[i]);
+            		}
                 	controller.onClick(added);
             		return;
             	}
@@ -702,7 +680,10 @@ class BrowserUI
 						}
 						break;
 					case KeyEvent.VK_CONTROL:
-						ctrl = true;
+						if (!UIUtilities.isMacOS()) ctrl = true;
+						break;
+					case KeyEvent.VK_META:
+						if (UIUtilities.isMacOS()) ctrl = true;
 				}
 			}
 			

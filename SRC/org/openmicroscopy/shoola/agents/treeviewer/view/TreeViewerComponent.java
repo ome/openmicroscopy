@@ -775,8 +775,7 @@ class TreeViewerComponent
         MetadataViewer metadata = model.getMetadataViewer();
         TreeImageDisplay[] selection = browser.getSelectedDisplays();
         boolean single = selection.length == 1;
-       
-        //Need to review. that
+       //Need to review. that
         if (display instanceof TreeImageTimeSet) {
         	 single = false;
         	 TreeImageTimeSet time = (TreeImageTimeSet) display;
@@ -812,6 +811,8 @@ class TreeViewerComponent
         		  browse(display, true);
         	  } else showDataBrowser(object, display, true);
         } else {
+        	DataBrowser db = model.getDataViewer();
+        	if (db != null) db.setSelectedNodes(new ArrayList(), null);
         	metadata.setRootObject(null, -1);
         }
 	}
