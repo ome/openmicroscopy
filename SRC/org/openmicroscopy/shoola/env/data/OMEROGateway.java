@@ -297,8 +297,8 @@ class OMEROGateway
 		SCRIPTS_UI_AVAILABLE.add(MovieExportParam.MOVIE_SCRIPT);
 		*/
 		SCRIPTS_NOT_AVAILABLE_TO_USER = new ArrayList<String>();
-		SCRIPTS_NOT_AVAILABLE_TO_USER.add(
-				ScriptObject.REGION_PATH+"Populate_Plate_Roi.py");
+		//SCRIPTS_NOT_AVAILABLE_TO_USER.add(
+		//		ScriptObject.REGION_PATH+"Populate_ROI.py");
 		SCRIPTS_NOT_AVAILABLE_TO_USER.add(
 				ScriptObject.SETUP_PATH+"FLIM_initialise.py");
 	}

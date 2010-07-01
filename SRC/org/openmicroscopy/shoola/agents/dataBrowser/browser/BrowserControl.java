@@ -278,8 +278,6 @@ class BrowserControl
     	boolean macOS = UIUtilities.isMacOS();
     	Point p = me.getPoint();
     	boolean b;
-    	model.setPopupPoint(p, false);
-    	b = me.isShiftDown();
     	if (macOS) b = me.isShiftDown() || me.isMetaDown();
     	else b = me.isShiftDown() || me.isControlDown();
     	me.consume();
@@ -300,97 +298,39 @@ class BrowserControl
     		model.setPopupPoint(p, true);
     		return;
     	}
-    	if (b) { //multi selection
-    		
-    		ImageDisplay previous = model.getLastSelectedDisplay();
-    		if (previous == null) {
-    			model.setSelectedDisplay(d, true, true);
-    			return;
-    		}
-    		Object object = previous.getHierarchyObject();
-    		Class ref = object.getClass();
-    		if (!ref.equals(d.getHierarchyObject().getClass())) return;
-    		
-    		Collection nodes = model.getSelectedDisplays();
-    		Iterator i = nodes.iterator();
-    		ImageDisplay node;
-    		boolean remove = false;
-    		while (i.hasNext()) {
-    			node = (ImageDisplay) i.next();
-				if (node.equals(d)) {
-					remove = true;
-					break;
-				}
-			}
-    		if (remove) model.removeSelectedDisplay(d);
-    		else model.setSelectedDisplay(d, true, true);
-    	} else {
-    		if (!(d.equals(previousDisplay)) && isSelectionValid(d)) {
-    			if (d instanceof CellDisplay) {
-    				setSelectedCell(me.getPoint(), (CellDisplay) d);
-    			} else model.setSelectedDisplay(d, false, true);
-    		}
-    	}
-    	/*
-    	ImageDisplay d = findParentDisplay(me.getSource());
-    	d.moveToFront();
-    	ImageDisplay previousDisplay = model.getLastSelectedDisplay();
-    	
-    	boolean macOS = UIUtilities.isMacOS();
-    	boolean b = me.isShiftDown(); //me.isMetaDown()
-    	if (!macOS) b = b || me.isControlDown();
-    	else b = b || me.isMetaDown();
-    	
-    	Point p = me.getPoint();
-    	if (me.isPopupTrigger() && b && //me.isPopupTrigger()
-    			previousDisplay != null && 
-    			previousDisplay.getBounds().contains(p)) {
-    		model.setPopupPoint(p, true);
-    		return;
-    	}
-    	if (me.isPopupTrigger() && !macOS) {
-    		model.setPopupPoint(p, true);
-    		return;
-    	}
-    	if ((me.isControlDown() && SwingUtilities.isLeftMouseButton(me) &&
-    					macOS)) {
-    		if (!(d.equals(previousDisplay)) && isSelectionValid(d)) {
-        		//if (isSelectionValid(d)) {
+    	if (macOS) {
+    		if (b) { //multi selection
+        		ImageDisplay previous = model.getLastSelectedDisplay();
+        		if (previous == null) {
+        			model.setSelectedDisplay(d, true, true);
+        			return;
+        		}
+        		Object object = previous.getHierarchyObject();
+        		Class ref = object.getClass();
+        		if (!ref.equals(d.getHierarchyObject().getClass())) return;
+        		
+        		Collection nodes = model.getSelectedDisplays();
+        		Iterator i = nodes.iterator();
+        		ImageDisplay node;
+        		boolean remove = false;
+        		while (i.hasNext()) {
+        			node = (ImageDisplay) i.next();
+    				if (node.equals(d)) {
+    					remove = true;
+    					break;
+    				}
+    			}
+        		if (remove) model.removeSelectedDisplay(d);
+        		else model.setSelectedDisplay(d, true, true);
+        	} else {
+        		if (!(d.equals(previousDisplay)) && isSelectionValid(d)) {
         			if (d instanceof CellDisplay) {
         				setSelectedCell(me.getPoint(), (CellDisplay) d);
         			} else model.setSelectedDisplay(d, false, true);
         		}
-    		model.setPopupPoint(p, true);
-    		return;
+        	}
     	}
-    	if (b) { //multi selection
-    		ImageDisplay previous = model.getLastSelectedDisplay();
-    		if (previous == null) return;
-    		Object object = previous.getHierarchyObject();
-    		Class ref = object.getClass();
-    		if (!ref.equals(d.getHierarchyObject().getClass())) return;
-    		
-    		Collection nodes = model.getSelectedDisplays();
-    		Iterator i = nodes.iterator();
-    		ImageDisplay node;
-    		boolean remove = false;
-    		while (i.hasNext()) {
-    			node = (ImageDisplay) i.next();
-				if (node.equals(d)) {
-					remove = true;
-					break;
-				}
-			}
-    		if (remove) model.removeSelectedDisplay(d);
-    		else model.setSelectedDisplay(d, true, true);
-    	} else {
-    		if (!(d.equals(previousDisplay)) && isSelectionValid(d)) {
-    			if (d instanceof CellDisplay) {
-    				setSelectedCell(me.getPoint(), (CellDisplay) d);
-    			} else model.setSelectedDisplay(d, false, true);
-    		}
-    	}
-    	*/
+    	
     }
 
     /**
@@ -421,10 +361,48 @@ class BrowserControl
                 }   
         	}
     	} else if (count == 1) {
-    		//if (SwingUtilities.isRightMouseButton(me)) {
-    		//	model.setPopupPoint(me.getPoint(), true);
-    		//}
-    	}
+    		boolean b;
+    		boolean macOS = UIUtilities.isMacOS();
+    		if (macOS) return;
+        	b = me.isShiftDown() || me.isControlDown();
+    		if (SwingUtilities.isRightMouseButton(me) || 
+    				(me.isPopupTrigger() && b)) {
+    			model.setPopupPoint(me.getPoint(), true);
+    		}
+    		ImageDisplay d = findParentDisplay(me.getSource());
+	    	d.moveToFront();
+	    	ImageDisplay previousDisplay = model.getLastSelectedDisplay();
+    		if (b) { //multi selection
+        		ImageDisplay previous = model.getLastSelectedDisplay();
+        		if (previous == null) {
+        			model.setSelectedDisplay(d, true, true);
+        			return;
+        		}
+        		Object object = previous.getHierarchyObject();
+        		Class ref = object.getClass();
+        		if (!ref.equals(d.getHierarchyObject().getClass())) return;
+        		
+        		Collection nodes = model.getSelectedDisplays();
+        		Iterator i = nodes.iterator();
+        		ImageDisplay node;
+        		boolean remove = false;
+        		while (i.hasNext()) {
+        			node = (ImageDisplay) i.next();
+    				if (node.equals(d)) {
+    					remove = true;
+    					break;
+    				}
+    			}
+        		if (remove) model.removeSelectedDisplay(d);
+        		else model.setSelectedDisplay(d, true, true);
+        	} else {
+        		if (!(d.equals(previousDisplay)) && isSelectionValid(d)) {
+        			if (d instanceof CellDisplay) {
+        				setSelectedCell(me.getPoint(), (CellDisplay) d);
+        			} else model.setSelectedDisplay(d, false, true);
+        		}
+        	}
+    	}	
     }
 
     /**
