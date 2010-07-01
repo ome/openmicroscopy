@@ -556,6 +556,23 @@ public class UpdateTest extends AbstractUpdateTest {
         iQuery.findAllByQuery("select r from Roi r join fetch r.shapes", null);
     }
 
+    @Test(groups = "ticket:2547")
+    public void testRemoveGroups() {
+        Experimenter e = loginNewUser(); // Just used to create the group
+        Experimenter e2 = loginNewUserInOtherUsersGroup(e);
+        loginRoot();
+        ExperimenterGroup[] groups = iAdmin.containedGroups(e2.getId());
+        int j = -1;
+        for (int i = 0; i < groups.length; i++) {
+            if (groups[i].getId().equals(1)) {
+                continue;
+            }
+            j = i;
+        }
+        iAdmin.removeGroups(e2, groups[j]);
+        iAdmin.lookupGroups();
+    }
+
     protected void assertLink(ProjectDatasetLink link) {
         ProjectDatasetLink test = iUpdate.saveAndReturnObject(link);
         ProjectDatasetLink copy = iQuery.get(test.getClass(), test.getId());

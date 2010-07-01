@@ -64,5 +64,16 @@ class TestTickets3000(lib.ITest):
         l_ia.setChild(fa)
         self.update.saveObject(l_ia)
 
+    def test2547(self):
+        admin = self.root.sf.getAdminService()
+        user = self.new_user()
+        grps = admin.containedGroups(user.id.val)
+        self.assertEquals(2, len(grps))
+        non_user = [x for x in grps if x.id.val != 1][0]
+        grp = self.new_group()
+        admin.addGroups(user, [grp])
+        admin.removeGroups(user, [non_user])
+        admin.lookupExperimenters()
+
 if __name__ == '__main__':
     unittest.main()
