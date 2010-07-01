@@ -42,9 +42,9 @@ import org.openmicroscopy.shoola.svc.transport.TransportException;
  * Prepares a request to post a file.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- *     <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- *     <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)

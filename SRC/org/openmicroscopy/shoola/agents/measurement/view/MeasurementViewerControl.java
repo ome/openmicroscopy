@@ -83,9 +83,6 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
-import org.openmicroscopy.shoola.util.ui.treetable.OMETreeTable;
-
-import com.sun.java.swing.SwingUtilities2;
 
 /** 
  * The MeasurementViewer's Controller.
