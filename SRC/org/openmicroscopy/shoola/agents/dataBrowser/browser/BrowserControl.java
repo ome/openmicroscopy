@@ -81,6 +81,7 @@ class BrowserControl
     /** The selected cell, only used when displaying Plate. */
     private CellDisplay		selectedCell;
     
+     
     /**
      * Brings up the color picker to set the color of the node.
      * 
@@ -275,27 +276,82 @@ class BrowserControl
     	ImageDisplay previousDisplay = model.getLastSelectedDisplay();
     	
     	boolean macOS = UIUtilities.isMacOS();
-    	boolean b = (me.isMetaDown() || me.isShiftDown());
-
-    	if (!macOS) b = b || me.isControlDown();
-
     	Point p = me.getPoint();
-    	if (SwingUtilities.isRightMouseButton(me) && b && //me.isPopupTrigger()
+    	model.setPopupPoint(p, false);
+    	boolean b = me.isShiftDown();
+    	//if (macOS) b = b || me.isMetaDown();
+    	//else  
+    	//b = b || me.isControlDown();
+    	if ((me.isControlDown() && SwingUtilities.isLeftMouseButton(me) &&
+				macOS)) {
+			if (!(d.equals(previousDisplay)) && isSelectionValid(d)) {
+				//if (isSelectionValid(d)) {
+					if (d instanceof CellDisplay) {
+						setSelectedCell(me.getPoint(), (CellDisplay) d);
+					} else model.setSelectedDisplay(d, false, true);
+				}
+			model.setPopupPoint(p, true);
+			return;
+    	}
+    	if (me.isPopupTrigger() && b && //me.isPopupTrigger()
     			previousDisplay != null && 
     			previousDisplay.getBounds().contains(p)) {
     		model.setPopupPoint(p, true);
     		return;
     	}
-    	//(me.isPopupTrigger() ||
-    	/*
-    	if ((SwingUtilities.isRightMouseButton(me) && !macOS) ||
-    			(me.isControlDown() && SwingUtilities.isLeftMouseButton(me) &&
-    					macOS)) {
+    	boolean rightClick = SwingUtilities.isRightMouseButton(me);
+    	if (b && rightClick) {
     		model.setPopupPoint(p, true);
     		return;
     	}
-    	*/
-    	if (SwingUtilities.isRightMouseButton(me) && !macOS) {
+    	if (b) { //multi selection
+    		ImageDisplay previous = model.getLastSelectedDisplay();
+    		if (previous == null) return;
+    		Object object = previous.getHierarchyObject();
+    		Class ref = object.getClass();
+    		if (!ref.equals(d.getHierarchyObject().getClass())) return;
+    		
+    		Collection nodes = model.getSelectedDisplays();
+    		Iterator i = nodes.iterator();
+    		ImageDisplay node;
+    		boolean remove = false;
+    		while (i.hasNext()) {
+    			node = (ImageDisplay) i.next();
+				if (node.equals(d)) {
+					remove = true;
+					break;
+				}
+			}
+    		if (remove) model.removeSelectedDisplay(d);
+    		else model.setSelectedDisplay(d, true, true);
+    	} else {
+    		if (!(d.equals(previousDisplay)) && isSelectionValid(d)) {
+    			if (d instanceof CellDisplay) {
+    				setSelectedCell(me.getPoint(), (CellDisplay) d);
+    			} else model.setSelectedDisplay(d, false, true);
+    		}
+    		if (rightClick) {
+        		model.setPopupPoint(p, true);
+        	}
+    	}
+    	/*
+    	ImageDisplay d = findParentDisplay(me.getSource());
+    	d.moveToFront();
+    	ImageDisplay previousDisplay = model.getLastSelectedDisplay();
+    	
+    	boolean macOS = UIUtilities.isMacOS();
+    	boolean b = me.isShiftDown(); //me.isMetaDown()
+    	if (!macOS) b = b || me.isControlDown();
+    	else b = b || me.isMetaDown();
+    	
+    	Point p = me.getPoint();
+    	if (me.isPopupTrigger() && b && //me.isPopupTrigger()
+    			previousDisplay != null && 
+    			previousDisplay.getBounds().contains(p)) {
+    		model.setPopupPoint(p, true);
+    		return;
+    	}
+    	if (me.isPopupTrigger() && !macOS) {
     		model.setPopupPoint(p, true);
     		return;
     	}
@@ -332,12 +388,12 @@ class BrowserControl
     		else model.setSelectedDisplay(d, true, true);
     	} else {
     		if (!(d.equals(previousDisplay)) && isSelectionValid(d)) {
-    		//if (isSelectionValid(d)) {
     			if (d instanceof CellDisplay) {
     				setSelectedCell(me.getPoint(), (CellDisplay) d);
     			} else model.setSelectedDisplay(d, false, true);
     		}
     	}
+    	*/
     }
 
     /**
@@ -348,7 +404,8 @@ class BrowserControl
     public void mouseReleased(MouseEvent me) 
     {
     	int count = me.getClickCount();
-    	if (count == 2) {
+    	if (count == 2 && !(me.isShiftDown() 
+    			|| me.isControlDown() || me.isMetaDown())) {
     		if (UIUtilities.isMacOS()) {
         		if (!me.isControlDown()) {
         			Object src = me.getSource();
@@ -424,5 +481,5 @@ class BrowserControl
      * @see MouseListener#mouseClicked(MouseEvent)
      */
     public void mouseClicked(MouseEvent me) {}
-   
+    
 }
