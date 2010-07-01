@@ -9,6 +9,8 @@
 #set($gfilter = "${type.table}_group_filter")
 #set($efilter = "${type.table}_event_filter")
 #set($pfilter = "${type.table}_perms_filter")
+
+## See #1679, #2142 and various others
 #set($cascadeEjb = "javax.persistence.CascadeType.MERGE,")
 #set($cascadeEjb = "$cascadeEjb javax.persistence.CascadeType.PERSIST,")
 #set($cascadeEjb = "$cascadeEjb javax.persistence.CascadeType.REFRESH")
@@ -17,9 +19,8 @@
 #set($cascadeHib = "$cascadeHib org.hibernate.annotations.CascadeType.PERSIST,")
 #set($cascadeHib = "$cascadeHib org.hibernate.annotations.CascadeType.REPLICATE,")
 #set($cascadeHib = "$cascadeHib org.hibernate.annotations.CascadeType.REFRESH,")
-#set($cascadeHib = "$cascadeHib org.hibernate.annotations.CascadeType.SAVE_UPDATE")
-## Deprecated in 3.5+
-## #set($cascadeHib = "$cascadeHib org.hibernate.annotations.CascadeType.EVICT")
+#set($cascadeHib = "$cascadeHib org.hibernate.annotations.CascadeType.SAVE_UPDATE,")
+#set($cascadeHib = "$cascadeHib org.hibernate.annotations.CascadeType.EVICT")
 
 #set($errorIfUnloaded = "if (! _loaded ) errorIfUnloaded();" )
 ##
@@ -306,7 +307,9 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
 #set( $other = "parent" )
 #set( $cascadeHibCollection = "org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE_ORPHAN" )
 #end
-#end##isLink
+#elseif($prop.ordered)
+#set( $cascadeHibCollection = "org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE_ORPHAN" )
+#end
 ##
     protected ${prop.fieldType} ${prop.name} = ${prop.fieldInitializer};
 

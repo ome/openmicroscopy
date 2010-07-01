@@ -35,6 +35,9 @@ import ome.model.jobs.ImportJob;
 import ome.model.jobs.JobStatus;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.roi.Rect;
+import ome.model.roi.Roi;
+import ome.model.roi.Shape;
 import ome.parameters.Parameters;
 import ome.testing.ObjectFactory;
 
@@ -528,6 +531,30 @@ public class UpdateTest extends AbstractUpdateTest {
         assertFalse(ids.contains(p.getChannel(1).getId()));
     }
 
+    @Test(groups = {"ticket:1679", "ticket:2547"})
+    public void testRoiShapeIndexIssue() {
+        Image image = iUpdate.saveAndReturnObject(new_Image(""));
+        Roi roi = new Roi();
+        roi.setImage(image);
+
+        roi = iUpdate.saveAndReturnObject(roi);
+        for (int i = 0; i < 3; i++) {
+            Rect rect = new Rect();
+            rect.setX(19.0);
+            rect.setY(21.0);
+            rect.setWidth(10.0);
+            rect.setHeight(10.0);
+            rect.setTheZ(i);
+            rect.setTheT(0);
+            roi.addShape(rect);
+        }
+
+        roi = iUpdate.saveAndReturnObject(roi);
+        Shape shape = roi.getShape(0);
+        roi.removeShape(shape);
+        roi = iUpdate.saveAndReturnObject(roi);
+        iQuery.findAllByQuery("select r from Roi r join fetch r.shapes", null);
+    }
 
     protected void assertLink(ProjectDatasetLink link) {
         ProjectDatasetLink test = iUpdate.saveAndReturnObject(link);

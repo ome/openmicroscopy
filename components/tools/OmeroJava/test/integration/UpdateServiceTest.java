@@ -84,108 +84,8 @@ import pojos.TagAnnotationData;
  */
 @Test(groups = { "client", "integration", "blitz" })
 public class UpdateServiceTest 
-	extends TestCase 
+	extends AbstractTest
 {
-
-	/** Reference to the log. */
-    protected static Log log = LogFactory.getLog(UpdateServiceTest.class);
-
-	/** 
-	 * The client object, this is the entry point to the Server. 
-	 */
-    private omero.client client;
-    
-    /**
-     * A root-client object.
-     */
-    private omero.client root;
-
-    /** Helper reference to the <code>Service factory</code>. */
-    private ServiceFactoryPrx factory;
-    
-    /** Helper reference to the <code>IQuery</code> service. */
-    private IQueryPrx iQuery;
-    
-    /** Helper reference to the <code>IUpdate</code> service. */
-    private IUpdatePrx iUpdate;
-
-    /** Helper reference to the <code>IAdmin</code> service. */
-    private IAdminPrx iAdmin;
-    
-    /**
-     * Creates a default image and returns it.
-     *
-     * @param time The acquisition time.
-     * @return See above.
-     */
-    private Image simpleImage(long time)
-    {
-        // prepare data
-        Image img = new ImageI();
-        img.setName(rstring("image1"));
-        img.setDescription(rstring("descriptionImage1"));
-        img.setAcquisitionDate(rtime(time));
-        return img;
-    }
-    
-	/**
-     * Initializes the various services.
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Override
-    @BeforeClass
-    protected void setUp() throws Exception
-    {
-        // administrator client
-        omero.client tmp = new omero.client();
-        String rootpass = tmp.getProperty("omero.rootpass");
-        root = new omero.client();
-        root.createSession("root", rootpass);
-        tmp.__del__();
-
-        newUserAndGroup("rw----");
-    }
-
-    protected EventContext newUserAndGroup(String perms) throws Exception {
-        return newUserAndGroup(new PermissionsI(perms));
-    }
-
-    protected EventContext newUserAndGroup(Permissions perms) throws Exception {
-        IAdminPrx rootAdmin = root.getSession().getAdminService();
-        String uuid = UUID.randomUUID().toString();
-        Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
-        e.setFirstName(omero.rtypes.rstring("integeration"));
-        e.setLastName(omero.rtypes.rstring("tester"));
-        ExperimenterGroup g = new ExperimenterGroupI();
-        g.setName(omero.rtypes.rstring(uuid));
-        g.getDetails().setPermissions(perms);
-        rootAdmin.createGroup(g);
-        rootAdmin.createUser(e, uuid);
-
-        if (client != null) {
-            client.__del__();
-        }
-
-        client = new omero.client();
-        factory = client.createSession(uuid, uuid);
-        iQuery = factory.getQueryService();
-        iUpdate = factory.getUpdateService();
-        iAdmin = factory.getAdminService();
-        return iAdmin.getEventContext();
-    }
-
-    /**
-     * Closes the session.
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Override
-    @AfterClass
-    public void tearDown() throws Exception
-    {
-        client.__del__();
-        root.__del__();
-    }
 
     /**
      * Test to create an image and make sure the version is correct.
@@ -963,20 +863,4 @@ public class UpdateServiceTest
         assertFalse(ids.contains(p.getChannel(1).getId().getValue()));
     }
 
-
-    private Pixels createPixels() throws Exception {
-        return createPixels(null);
-    }
-
-    private Pixels createPixels(Pixels example) throws Exception {
-        IceMapper mapper = new IceMapper();
-        ome.model.core.Pixels p = (ome.model.core.Pixels) mapper.reverse(example);
-        p = ObjectFactory.createPixelGraphWithChannels(p, 3);
-        return (Pixels) mapper.map(p);
-    }
-
-    private Channel createChannel() throws Exception {
-        IceMapper mapper = new IceMapper();
-        return (Channel) mapper.map(ObjectFactory.createChannel(null));
-    }
 }
