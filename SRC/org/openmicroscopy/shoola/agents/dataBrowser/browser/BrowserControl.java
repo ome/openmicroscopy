@@ -280,21 +280,36 @@ class BrowserControl
     	if (!macOS) b = b || me.isControlDown();
 
     	Point p = me.getPoint();
-    	if (me.isPopupTrigger() && b &&
+    	if (SwingUtilities.isRightMouseButton(me) && b && //me.isPopupTrigger()
     			previousDisplay != null && 
-    			previousDisplay.getBounds().contains(p))
-    	{
+    			previousDisplay.getBounds().contains(p)) {
     		model.setPopupPoint(p, true);
     		return;
     	}
-    	if (me.isPopupTrigger() ||
-    			(SwingUtilities.isRightMouseButton(me) && !macOS) ||
+    	//(me.isPopupTrigger() ||
+    	/*
+    	if ((SwingUtilities.isRightMouseButton(me) && !macOS) ||
     			(me.isControlDown() && SwingUtilities.isLeftMouseButton(me) &&
     					macOS)) {
     		model.setPopupPoint(p, true);
     		return;
     	}
-    	
+    	*/
+    	if (SwingUtilities.isRightMouseButton(me) && !macOS) {
+    		model.setPopupPoint(p, true);
+    		return;
+    	}
+    	if ((me.isControlDown() && SwingUtilities.isLeftMouseButton(me) &&
+    					macOS)) {
+    		if (!(d.equals(previousDisplay)) && isSelectionValid(d)) {
+        		//if (isSelectionValid(d)) {
+        			if (d instanceof CellDisplay) {
+        				setSelectedCell(me.getPoint(), (CellDisplay) d);
+        			} else model.setSelectedDisplay(d, false, true);
+        		}
+    		model.setPopupPoint(p, true);
+    		return;
+    	}
     	if (b) { //multi selection
     		ImageDisplay previous = model.getLastSelectedDisplay();
     		if (previous == null) return;

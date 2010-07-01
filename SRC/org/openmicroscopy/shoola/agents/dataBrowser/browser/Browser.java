@@ -112,7 +112,7 @@ public interface Browser
 	/** Bound property indicating a classification visualization. */
 	public static final String  CLASSIFIED_NODE_PROPERTY = "classifiedNode";
 	
-	/** Bound property indicating to magnify the node when moused over. */
+	/** Bound property indicating to magnify the node when roll over. */
 	public static final String  ROLL_OVER_PROPERTY = "rollOver";
 
 	/**
