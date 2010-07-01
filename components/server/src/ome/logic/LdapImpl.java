@@ -49,6 +49,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
+import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapOperations;
 import org.springframework.ldap.core.LdapRdn;
@@ -56,10 +57,7 @@ import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.ldap.filter.AndFilter;
 import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.ldap.filter.Filter;
-import org.springframework.ldap.filter.HardcodedFilter;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.PropertyPlaceholderHelper;
-import org.springframework.util.PropertyPlaceholderHelper.PlaceholderResolver;
 
 /**
  * Provides methods for administering user accounts, passwords, as well as
@@ -86,7 +84,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
 
     private final RoleProvider provider;
 
-    private final LdapContextSource ctx;
+    private final ContextSource ctx;
 
     private final LdapOperations ldap;
 

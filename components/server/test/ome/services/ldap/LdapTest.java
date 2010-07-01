@@ -40,7 +40,7 @@ import org.testng.annotations.Test;
  */
 public class LdapTest extends MockObjectTestCase {
 
-    class Fixture {
+    protected class Fixture {
         ConfigurableApplicationContext ctx;
         File file;
         Mock role;
@@ -49,7 +49,7 @@ public class LdapTest extends MockObjectTestCase {
         LdapConfig config;
         LdapTemplate template;
 
-        void createUserWithGroup(MockObjectTestCase t, final String dn, String group) {
+        protected void createUserWithGroup(LdapTest t, final String dn, String group) {
             role.expects(atLeastOnce()).method("createGroup")
                 .with(t.eq(group), t.NULL, t.eq(false))
                 .will(returnValue(101L));
@@ -68,6 +68,15 @@ public class LdapTest extends MockObjectTestCase {
                         arg0.append("updates " + dn);
                         return arg0;
                     }}).will(returnValue(1));
+        }
+
+        protected boolean createUserFromLdap(String user, String string) {
+            return ldap.createUserFromLdap(user, "password");
+        }
+
+
+        protected void login(String username, String group) {
+            // no-op here.
         }
 
         void close() {
@@ -189,12 +198,13 @@ public class LdapTest extends MockObjectTestCase {
 
             // addMemberOf(fixture, template, user);
 
-            assertEquals(1, users.get(user).size());
+            assertTrue(1 <= users.get(user).size());
             String dn = ldap.findDN(user);
             assertNotNull(dn);
             assertEquals(user, ldap.findExperimenter(user).getOmeName());
             fixture.createUserWithGroup(this, dn, users.get(user).get(0));
-            assertTrue(ldap.createUserFromLdap(user, "password"));
+            assertTrue(fixture.createUserFromLdap(user, "password"));
+            fixture.login(user, users.get(user).get(0));
 
             // Check that proper dn is passed to setDN
             // Check password
@@ -214,7 +224,7 @@ public class LdapTest extends MockObjectTestCase {
                 assertNotNull(dn);
                 assertEquals(user, ldap.findExperimenter(user).getOmeName());
                 fixture.createUserWithGroup(this, dn, users.get(user).get(0));
-                assertTrue(ldap.createUserFromLdap(user, "password"));
+                assertTrue(fixture.createUserFromLdap(user, "password"));
             } catch (Exception e) {
                 // good
             }

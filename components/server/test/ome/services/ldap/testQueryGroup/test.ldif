@@ -12,5 +12,6 @@ member: cn=test1,ou=testQueryGroup,o=eg
 dn: cn=test1,ou=testQueryGroup,o=eg
 objectClass: person
 cn: test1
+givenName: Testy
 sn: Tester
 userPassword: password

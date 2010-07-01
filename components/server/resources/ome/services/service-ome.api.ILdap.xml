@@ -58,7 +58,17 @@
 		<constructor-arg ref="contextSource" />
 	</bean>
 
-	<bean id="contextSource"
+	<bean id="contextSource" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="targetSource" ref="contextSourceSwapper"/>
+	</bean>
+
+
+	<bean id="contextSourceSwapper"
+		class="org.springframework.aop.target.HotSwappableTargetSource">
+		<constructor-arg ref="defaultContextSource"/>
+	</bean>
+
+	<bean id="defaultContextSource"
 		class="org.springframework.security.ldap.DefaultSpringSecurityContextSource">
 		<constructor-arg value="${omero.ldap.urls}"/>
 		<property name="userDn" value="${omero.ldap.username}" />

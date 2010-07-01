@@ -1,12 +1,11 @@
-dn: ou=People,dc=nonCn,dc=eg
+dn: ou=People,dc=cnonly,dc=eg
 objectclass: organizationalUnit
 objectClass: top
 ou: People
 
-dn: uid=testuid,ou=People,dc=nonCn,dc=eg
-cn: test1
+dn: cn=cnonly,ou=People,dc=cnonly,dc=eg
+cn: cnonly
 givenName: Testy
 sn: Tester
-uid: testuid
 objectClass: person
 userPassword: password

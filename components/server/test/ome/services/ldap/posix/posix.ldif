@@ -5,6 +5,7 @@ ou: posix
 
 dn: uid=test_user,ou=posix,o=eg
 uid: test_user
+givenName: Testy
 sn: User
 cn: Test User
 objectClass: person

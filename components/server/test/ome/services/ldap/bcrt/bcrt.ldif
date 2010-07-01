@@ -41,6 +41,7 @@ member: uid=stachelscheidh,ou=kurtz,ou=d,ou=research,ou=bcrt,dc=charite
 
 dn: uid=damaschuna,ou=kurtz,ou=d,ou=research,ou=bcrt,dc=charite
 uid: damaschuna
+givenName: Test
 sn: User
 cn: Test User
 objectClass: person
@@ -51,6 +52,7 @@ userPassword: password
 
 dn: uid=kurtza,ou=kurtz,ou=d,ou=research,ou=bcrt,dc=charite
 uid: kurtza
+givenName: Test
 sn: User
 cn: Test User
 objectClass: person
@@ -61,6 +63,7 @@ userPassword: password
 
 dn: uid=lekschasf,ou=kurtz,ou=d,ou=research,ou=bcrt,dc=charite
 uid: lekschasf
+givenName: Test
 sn: User
 cn: Test User
 objectClass: person
@@ -71,6 +74,7 @@ userPassword: password
 
 dn: uid=stachelscheidh,ou=kurtz,ou=d,ou=research,ou=bcrt,dc=charite
 uid: stachelscheidh
+givenName: Test
 sn: User
 cn: Test User
 objectClass: person

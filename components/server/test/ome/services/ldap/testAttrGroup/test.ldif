@@ -12,6 +12,7 @@ ou: testAttrGroup
 
 dn: cn=test1attr,ou=testAttrGroup,ou=attrGroup
 cn: test1attr
+givenName: Testy
 sn: Tester
 objectClass: person
 roleOccupant: Group1
@@ -19,6 +20,7 @@ userPassword: password
 
 dn: cn=test2attr,ou=testAttrGroup,ou=attrGroup
 cn: test2attr
+givenName: Testy
 sn: Tester
 objectClass: person
 roleOccupant: Group2
