@@ -1204,6 +1204,7 @@ class BrowserComponent
 	public void setRefreshExperimenterData(Map<Long, RefreshExperimenterDef> 
 		nodes, Class type, long id)
 	{
+		//TODO: Should reselect the node previously selected.
 		if (nodes == null || nodes.size() == 0) {
 			model.setSelectedDisplay(null, true);
 			model.setState(READY);
