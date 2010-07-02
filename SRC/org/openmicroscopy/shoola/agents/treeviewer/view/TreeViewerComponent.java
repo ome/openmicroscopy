@@ -2252,6 +2252,7 @@ class TreeViewerComponent
 		if (uo instanceof ProjectData) {
 			model.browseProject(node);
 		} else if (uo instanceof DatasetData) {
+			//if (node.isChildrenLoaded()) return; //do not reload if already loaded
 			model.getSelectedBrowser().loadExperimenterData(
 					BrowserFactory.getDataOwner(node), 
         			node);
