@@ -134,7 +134,7 @@ Other help topics:
 %(topics)s
 
 For additional information, see http://trac.openmicroscopy.org.uk/omero/wiki/OmeroCli
-Report bugs to <ome-users@openmicroscopy.org.uk>
+Report bugs to <ome-users@lists.openmicroscopy.org.uk>
 """ % {"program_name":sys.argv[0],"version":VERSION, "commands":commands, "topics":topics}
 
         else:

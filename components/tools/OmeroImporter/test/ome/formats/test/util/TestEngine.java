@@ -271,7 +271,7 @@ public class TestEngine
                 "\n" +
                 "ex. %s -s localhost -u bart -w simpson ShortRunImages\n" +
                 "\n" +
-                "Report bugs to <ome-users@openmicroscopy.org.uk>",
+                "Report bugs to <ome-users@lists.openmicroscopy.org.uk>",
                 APP_NAME, TestEngineConfig.DEFAULT_FEEDBACK, APP_NAME));
         System.exit(1);
     }

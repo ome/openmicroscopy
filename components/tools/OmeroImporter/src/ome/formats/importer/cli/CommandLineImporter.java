@@ -199,7 +199,7 @@ public class CommandLineImporter {
                                         + "\n"
                                         + "ex. %s -s localhost -u bart -w simpson -d 50 foo.tiff\n"
                                         + "\n"
-                                        + "Report bugs to <ome-users@openmicroscopy.org.uk>",
+                                        + "Report bugs to <ome-users@lists.openmicroscopy.org.uk>",
                                 APP_NAME, APP_NAME, APP_NAME));
         System.exit(1);
     }
