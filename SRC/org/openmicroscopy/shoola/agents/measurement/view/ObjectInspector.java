@@ -113,10 +113,10 @@ class ObjectInspector
 //				true, fontRange(), ValueType.ENUM));
 //		l.add(new AttributeField(MeasurementAttributes.TEXT_COLOR, "Font Colour", 
 //				false));
-		l.add(new AttributeField(MeasurementAttributes.FILL_COLOR, "Fill Colour", 
-				false));
-		l.add(new AttributeField(MeasurementAttributes.STROKE_COLOR, "Line Colour", 
-				false));
+		l.add(new AttributeField(MeasurementAttributes.FILL_COLOR, 
+				"Fill Colour", false));
+		l.add(new AttributeField(MeasurementAttributes.STROKE_COLOR, 
+				"Line Colour", false));
 //		l.add(new AttributeField(MeasurementAttributes.MEASUREMENTTEXT_COLOUR, 
 //				"Measurement Colour", false));
 		
@@ -192,7 +192,7 @@ class ObjectInspector
 	{
 		int col = fieldTable.getSelectedColumn();
 		int row = fieldTable.getSelectedRow();
-		Boolean value = (Boolean)fieldTable.getModel().getValueAt(row, col);
+		Boolean value = (Boolean) fieldTable.getModel().getValueAt(row, col);
 		boolean newValue = !(value.booleanValue()); 
 		fieldTable.getModel().setValueAt(Boolean.valueOf(newValue), row, col);
 	}

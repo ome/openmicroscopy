@@ -27,20 +27,22 @@ package org.openmicroscopy.shoola.agents.measurement.util.ui;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
-
-import org.openmicroscopy.shoola.agents.measurement.util.model.AttributeField;
-import org.openmicroscopy.shoola.agents.measurement.util.model.FigureTableModel;
-import org.openmicroscopy.shoola.agents.measurement.util.model.ValueType;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.measurement.util.model.AttributeField;
+import org.openmicroscopy.shoola.agents.measurement.util.model.FigureTableModel;
+import org.openmicroscopy.shoola.agents.measurement.util.model.ValueType;
+import org.openmicroscopy.shoola.util.ui.PaintPot;
 
 /** 
- * 
+ * Displays the figures in a table.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -55,6 +57,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.model.ValueType;
 public class FigureTable
 	extends JTable
 {
+	
 	/** The model for the table. */
 	private FigureTableModel tableModel;
 	
@@ -68,37 +71,18 @@ public class FigureTable
 		super(model);
 		tableModel = model;
 	}
-	
-	public DefaultCellEditor getCellEditor(int row, int col)
-	{
-		AttributeField field = tableModel.getFieldAt(row);
-		InspectorCellRenderer renderer = (InspectorCellRenderer) 
-		getCellRenderer(row, col);
-		if(field.getValueType()==ValueType.ENUM)
-		{
-			return new DefaultCellEditor((JComboBox)
-				renderer.getTableCellRendererComponent(this,
-					getValueAt(row, col), false, false, row, col));
-		}
-		else if(tableModel.getValueAt(row, col) instanceof Double)
-		{
-			return new DefaultCellEditor((JTextField)renderer.
-				getTableCellRendererComponent(this,
-					getValueAt(row, col), false, false, row, col));
-		}
-		else if(tableModel.getValueAt(row, col) instanceof String)
-		{
-			return new DefaultCellEditor((JTextField)renderer.
-				getTableCellRendererComponent(this,
-					getValueAt(row, col), false, false, row, col));
-		}
-		else
-		{
-			return new DefaultCellEditor((JCheckBox)renderer.
-				getTableCellRendererComponent(this,
-					getValueAt(row, col), false, false, row, col));}
-		}
 		
+	/**
+	 * Returns the Field at the specified row.
+	 * 
+	 * @param row The selected row.
+	 * @return See above.
+	 */
+	public AttributeField getFieldAt(int row)
+	{
+		return tableModel.getFieldAt(row);
+	}
+	
 	/**
 	 * Overridden to return a customized cell renderer.
 	 * @see JTable#getCellRenderer(int, int)
@@ -109,13 +93,31 @@ public class FigureTable
     }
 
 	/**
-	 * Get the Field at row.
-	 * @param row see above.
-	 * @return see above.
+	 * Overridden to return the editor corresponding to the specified cell.
+	 * @see JTable#getCellEditor(int, int)
 	 */
-	public AttributeField getFieldAt(int row)
+	public TableCellEditor getCellEditor(int row, int col)
 	{
-		return tableModel.getFieldAt(row);
+		AttributeField field = tableModel.getFieldAt(row);
+		InspectorCellRenderer 
+			renderer = (InspectorCellRenderer) getCellRenderer(row, col);
+		Object v = tableModel.getValueAt(row, col);
+		if (field.getValueType() == ValueType.ENUM)
+		{
+			return new DefaultCellEditor((JComboBox)
+				renderer.getTableCellRendererComponent(this,
+					getValueAt(row, col), false, false, row, col));
+		} else if (v instanceof Double || v instanceof Integer || 
+				v instanceof Long || v instanceof String) {
+			return new DefaultCellEditor((JTextField) renderer.
+				getTableCellRendererComponent(this,
+					getValueAt(row, col), false, false, row, col));
+		} else if (v instanceof Boolean) {
+			return new DefaultCellEditor((JCheckBox) renderer.
+				getTableCellRendererComponent(this,
+					getValueAt(row, col), false, false, row, col));
+		} else return super.getCellEditor(row, col);
 	}
+	
 }
 

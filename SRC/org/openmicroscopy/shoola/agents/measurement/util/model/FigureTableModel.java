@@ -26,20 +26,19 @@ package org.openmicroscopy.shoola.agents.measurement.util.model;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.table.AbstractTableModel;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.Figure;
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
 
-//Application-internal dependencies
-
 /** 
- * 
+ * The model associated to the table displaying the figures.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -51,8 +50,8 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
  * </small>
  * @since OME3.0
  */
-public 	class FigureTableModel 
-		extends AbstractTableModel
+public class FigureTableModel 
+	extends AbstractTableModel
 {
 	
 	/** Identifies the <code>N/A</code> string. */
@@ -76,34 +75,32 @@ public 	class FigureTableModel
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param fieldList
-	 *            The collection of fields. Mustn't be <code>null</code>.
-	 * @param columnNames
-	 *            The collection of column's names. Mustn't be <code>null</code>.
+	 * @param fieldList The collection of fields. Mustn't be <code>null</code>.
+	 * @param columnNames The collection of column's names. 
+	 * 	Mustn't be <code>null</code>.
 	 */
 	public FigureTableModel(List<AttributeField> fieldList,
 			List<String> columnNames)
 	{
-		if (fieldList==null) throw new IllegalArgumentException(
-			"No fields specified.");
-		if (columnNames==null) throw new IllegalArgumentException(
-			"No column's names "+"specified.");
-		this.fieldList=fieldList;
-		this.columnNames=columnNames;
-		keys=new ArrayList<AttributeKey>();
-		values=new ArrayList<Object>();
+		if (fieldList == null) 
+			throw new IllegalArgumentException("No fields specified.");
+		if (columnNames == null) 
+			throw new IllegalArgumentException("No column's names specified.");
+		this.fieldList = fieldList;
+		this.columnNames = columnNames;
+		keys = new ArrayList<AttributeKey>();
+		values = new ArrayList<Object>();
 	}
 	
 	/**
 	 * Sets the figure handled by this model.
 	 * 
-	 * @param figure
-	 *            The figure data.
+	 * @param figure The figure data.
 	 */
 	public void setData(ROIFigure figure)
 	{
-		if (figure==null) throw new IllegalArgumentException("No figure.");
-		this.figure=figure;
+		if (figure == null) throw new IllegalArgumentException("No figure.");
+		this.figure = figure;
 		keys.clear();
 		values.clear();
 		boolean found;
@@ -111,29 +108,30 @@ public 	class FigureTableModel
 		AttributeKey key;
 		for (AttributeField fieldName : fieldList)
 		{
-			found=false;
-			i=figure.getAttributes().keySet().iterator();
+			found = false;
+			i = figure.getAttributes().keySet().iterator();
 			while (i.hasNext())
 			{
-				key=(AttributeKey) i.next();
+				key = (AttributeKey) i.next();
 				if (key.equals(fieldName.getKey()))
 				{
 					keys.add(key);
 					values.add(figure.getAttribute(key));
-					found=true;
+					found = true;
 					break;
 				}
 			}
 			if (!found)
 			{
-				if(figure.getROI().hasAnnotation(fieldName.getKey().getKey()))
+				key = fieldName.getKey();
+				if (figure.getROI().hasAnnotation(key.getKey()))
 				{
-					keys.add(fieldName.getKey());
-					values.add(figure.getROI().getAnnotation((AnnotationKey)fieldName.getKey()));
-				}
-				else
+					keys.add(key);
+					values.add(figure.getROI().getAnnotation(
+							(AnnotationKey) key));
+				} else
 				{
-					keys.add(fieldName.getKey());
+					keys.add(key);
 					values.add(NA);
 				}
 			}
@@ -178,7 +176,7 @@ public 	class FigureTableModel
 	 */
 	public Object getValueAt(int rowIndex, int columnIndex)
 	{
-		if (columnIndex==0) return fieldList.get(rowIndex).getName();
+		if (columnIndex == 0) return fieldList.get(rowIndex).getName();
 		return values.get(rowIndex);
 	}
 	
@@ -201,17 +199,18 @@ public 	class FigureTableModel
 	 */
 	public void setValueAt(Object value, int row, int col)
 	{
-		if (col==0) return;
-		AttributeKey key=keys.get(row);
+		if (col == 0) return;
+		AttributeKey key = keys.get(row);
 		if (figure.getAttribute(key) instanceof Double) 
 		{
-			if(value instanceof Double)
-				figure.setAttribute(keys.get(row), (Double)value);
-			if(value instanceof String)
+			if (value instanceof Double)
+				figure.setAttribute(keys.get(row), (Double) value);
+			if (value instanceof String)
 			{
 				try
 				{
-					figure.setAttribute(keys.get(row), new Double((String)value));
+					figure.setAttribute(keys.get(row), 
+							new Double((String) value));
 				}
 				catch(Exception e)
 				{
@@ -235,8 +234,10 @@ public 	class FigureTableModel
 	 */
 	public boolean isCellEditable(int row, int col)
 	{
-		if (col==0) return false;
-		if (values.get(row) instanceof String) if (values.get(row).equals(NA)) return false;
+		if (col == 0) return false;
+		if (values.get(row) instanceof String) 
+			if (values.get(row).equals(NA)) return false;
 		return fieldList.get(row).isEditable();
 	}
+	
 }

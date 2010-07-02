@@ -23,12 +23,9 @@
 package org.openmicroscopy.shoola.agents.measurement.util.ui;
 
 //Java imports
-
 import java.awt.Color;
 import java.awt.Component;
-import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -48,7 +45,7 @@ import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
 import org.openmicroscopy.shoola.util.ui.PaintPot;
 
 /** 
- * 
+ * The renderer for the table displayed in the inspector.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -78,6 +75,7 @@ public class InspectorCellRenderer
 	}
 	
 	/**
+	 * Overridden to set the correct component depending on the type.
 	 * @see TableCellRenderer#getTableCellRendererComponent(JTable, Object,
 	 *      boolean, boolean, int, int)
 	 */
@@ -93,28 +91,23 @@ public class InspectorCellRenderer
 			label.setOpaque(true);
 			label.setText(value+"");
 			label.setFont(label.getFont().deriveFont(FONTSIZE));
-			thisComponent=label;
-		}
-		else
-		if (field.getValueType() == ValueType.DEFAULT)
-		{
-			if ((value instanceof Double) || (value instanceof String)
-				|| (value instanceof FigureType) || value instanceof Integer
+			thisComponent = label;
+		} else if (field.getValueType() == ValueType.DEFAULT) {
+			if (value instanceof Double || value instanceof String
+				|| value instanceof FigureType || value instanceof Integer
 				|| value instanceof Long)
 			{
-			JTextField text = new JTextField();
-			text.setOpaque(false);
-			text.setBorder(BorderFactory.createEmptyBorder());
-			text.setText(value+"");
-			text.setFont(text.getFont().deriveFont(FONTSIZE));
-			thisComponent=text;
-			}
-			else if (value instanceof Color)
+				JTextField text = new JTextField();
+				text.setOpaque(false);
+				text.setBorder(BorderFactory.createEmptyBorder());
+				text.setText(value+"");
+				text.setFont(text.getFont().deriveFont(FONTSIZE));
+				thisComponent = text;
+			} else if (value instanceof Color)
 			{
 				PaintPot paintPot = new PaintPot((Color) value);
 				thisComponent = paintPot;
-			}
-			else if (value instanceof Boolean)
+			} else if (value instanceof Boolean)
 			{
 				JCheckBox checkBox = new JCheckBox();
 				checkBox.setSelected((Boolean) value);
@@ -125,9 +118,7 @@ public class InspectorCellRenderer
 				RendererUtils.setRowColor(thisComponent, table.getSelectedRow(),
 				row);
 			}
-		}
-		else if (field.getValueType() == ValueType.ENUM)
-		{
+		} else if (field.getValueType() == ValueType.ENUM) {
 			JComboBox comboBox = new JComboBox();
 			comboBox.setFont(comboBox.getFont().deriveFont(FONTSIZE));
 			List valueRange = field.getValueRange();
