@@ -223,7 +223,7 @@ public class ROIMap
 				newCoord = new Coord3D(z, t);
 				if (selectedShape.equals(newCoord))
 					continue;
-				if (roi.containsKey(newCoord))
+				if (roi.containsShape(newCoord))
 					continue;
 				//deleteShape(id, newCoord);
 				newShape = new ROIShape(roi, newCoord, shape);
@@ -263,7 +263,7 @@ public class ROIMap
 			for (int z = minz; z < maxz ; z++)
 			{
 				newCoord = new Coord3D(z, t);
-				if (roi.containsKey(newCoord))
+				if (roi.containsShape(newCoord))
 					this.deleteShape(id, newCoord);
 			}
 	}	

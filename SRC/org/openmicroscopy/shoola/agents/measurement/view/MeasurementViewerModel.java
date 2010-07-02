@@ -174,9 +174,6 @@ class MeasurementViewerModel
     /** The roi file previously saved if any. */
     private String					fileSaved;
     
-    /** Boolean indicating that the tool is dealing with server ROI. */
-    private boolean					serverROI;
-    
     /** The measurements associated to the image. */
     private List<FileAnnotationData> measurements;
     
@@ -547,7 +544,7 @@ class MeasurementViewerModel
 	 * @throws ROICreationException
 	 * @throws NoSuchROIException
 	 */
-	boolean setServerROI(Collection rois, boolean readOnly, boolean SPW)
+	boolean setServerROI(Collection rois, boolean readOnly)
 		throws ROICreationException, NoSuchROIException
 	{
 		measurementResults = rois;
@@ -561,7 +558,6 @@ class MeasurementViewerModel
 			roiList.addAll(roiComponent.loadROI(result.getROIs(), readOnly));
 		}
 		if (roiList == null) return false;
-		serverROI = SPW;
 		Iterator<ROI> i = roiList.iterator();
 		ROI roi;
 		TreeMap<Coord3D, ROIShape> shapeList;
@@ -660,7 +656,7 @@ class MeasurementViewerModel
 	}
 	
 	/** 
-	 * Get the ROI of the currently selected figure in the drawingview. 
+	 * Returns the ROI of the currently selected figure in the drawing view. 
 	 * 
 	 * @return see above.
 	 */
@@ -1253,7 +1249,7 @@ class MeasurementViewerModel
 	 */
 	void nofityDataChanged(boolean toSave)
 	{
-		if (serverROI) return;
+		if (isHCSData()) return;
 		if (event != null && toSave) return;
 		EventBus bus = MeasurementAgent.getRegistry().getEventBus();
 		event = new SaveRelatedData(getPixelsID(), 

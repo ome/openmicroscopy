@@ -1048,23 +1048,48 @@ class MeasurementViewerUI
 			if (comp instanceof ServerROITable) {
 				ServerROITable table = (ServerROITable) comp;
 				try {
-					List<ROI> rois = model.getROIList(table.getFileID());
-					Iterator<ROI> k = rois.iterator();
-					ROI roi;
-					TreeMap<Coord3D, ROIShape> shapes;
-					Iterator<ROIShape> j;
-					ROIShape shape;
-					while (k.hasNext()) {
-						roi = k.next();
-						shapes = roi.getShapes();
-						j = shapes.values().iterator();
-						while (j.hasNext()) {
-							shape = j.next();
-							figure = shape.getFigure();
-							drawing.add(figure);
-							figure.addFigureListener(controller);
+					long fileID = table.getFileID();
+					List<ROI> rois;
+					if (fileID >= 0) {
+						 rois = model.getROIList(fileID);
+						 Iterator<ROI> k = rois.iterator();
+							ROI roi;
+							TreeMap<Coord3D, ROIShape> shapes;
+							Iterator<ROIShape> j;
+							ROIShape shape;
+							while (k.hasNext()) {
+								roi = k.next();
+								shapes = roi.getShapes();
+								j = shapes.values().iterator();
+								while (j.hasNext()) {
+									shape = j.next();
+									figure = shape.getFigure();
+									drawing.add(figure);
+									figure.addFigureListener(controller);
+								}
+							}
+					} else {
+						try {
+							list = model.getShapeList();
+						} catch (Exception e) {
+							handleROIException(e, RETRIEVE_MSG);
+						}
+						if (list != null) {
+							TreeMap map = list.getList();
+							Iterator i = map.values().iterator();
+							ROIShape shape;
+							while (i.hasNext()) {
+								shape = (ROIShape) i.next();
+								if (shape != null) 
+								{
+									figure = shape.getFigure();
+									drawing.add(figure);
+									figure.addFigureListener(controller);
+								}
+							}
 						}
 					}
+					
 				} catch (Exception e) {
 					handleROIException(e, RETRIEVE_MSG);
 				}

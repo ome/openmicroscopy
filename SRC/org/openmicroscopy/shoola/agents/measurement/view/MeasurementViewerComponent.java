@@ -241,7 +241,12 @@ class MeasurementViewerComponent
         		*/	
         		model.setHCSData(HCSData);
         		if (HCSData) {
-        			model.fireLoadROIFromServer(measurements);
+        			if (measurements == null) {
+        				model.setHCSData(false);
+        				model.fireLoadWorkflow();
+                		model.fireLoadROIServerOrClient(false);
+        			} else 
+        				model.fireLoadROIFromServer(measurements);
         		} else {
         			model.fireLoadWorkflow();
             		model.fireLoadROIServerOrClient(false);
@@ -777,9 +782,10 @@ class MeasurementViewerComponent
 					"be invoked in the LOADING_ROI state.");
 		try {
 			if (result != null) { //some ROI previously saved.
-				model.setServerROI(result, true, true);
+				model.setServerROI(result, true);
 			} 	
 		} catch (Exception e) {
+			e.printStackTrace();
 			String s = "Cannot convert server ROI into UI objects:";
 			MeasurementAgent.getRegistry().getLogger().error(this, s+e);
 		}
@@ -828,7 +834,7 @@ class MeasurementViewerComponent
 					hasResult = true;
 			}
 			if (hasResult) //some ROI previously saved.
-				model.setServerROI(result, false, false);	
+				model.setServerROI(result, false);	
 			else {
 				model.fireROILoading(null);
 				return;

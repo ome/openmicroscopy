@@ -84,39 +84,34 @@ public class ROIComponent
 {
 		
 	/** The default color of the text. */
-	private static final Color			TEXT_COLOR = 
-										IOConstants.DEFAULT_TEXT_COLOUR;
+	private static final Color	TEXT_COLOR = IOConstants.DEFAULT_TEXT_COLOUR;
 
 	
 	/** The default color of the measurement text. */
-	private static final Color			MEASUREMENT_COLOR = 
-										IOConstants.DEFAULT_MEASUREMENT_TEXT_COLOUR;
+	private static final Color	MEASUREMENT_COLOR = 
+									IOConstants.DEFAULT_MEASUREMENT_TEXT_COLOUR;
 	
 	/** The default color used to fill area. */
-	private static final Color			FILL_COLOR = 
-										IOConstants.DEFAULT_FILL_COLOUR;
+	private static final Color	FILL_COLOR = IOConstants.DEFAULT_FILL_COLOUR;
 
-	/** The default color used to fill area alpha'ed <sp>. */
-	private static final Color			FILL_COLOR_ALPHA = 
-										IOConstants.DEFAULT_FILL_COLOUR_ALPHA;
+	/** The default color used to fill area alpha'ed. */
+	private static final Color	FILL_COLOR_ALPHA = 
+									IOConstants.DEFAULT_FILL_COLOUR_ALPHA;
 	
 	/** The default color of the text. */
-	private static final double			FONT_SIZE = 
-										IOConstants.DEFAULT_FONT_SIZE;
+	private static final double	FONT_SIZE = IOConstants.DEFAULT_FONT_SIZE;
 
 	
 	/** The default width of the stroke. */
-	private static final double			STROKE_WIDTH = 
-										IOConstants.DEFAULT_STROKE_WIDTH;
+	private static final double	STROKE_WIDTH = IOConstants.DEFAULT_STROKE_WIDTH;
 
-	
 	/** The default color of the stroke. */
-	private static final Color			STROKE_COLOR = 
-										IOConstants.DEFAULT_STROKE_COLOUR;
+	private static final Color	STROKE_COLOR = 
+		IOConstants.DEFAULT_STROKE_COLOUR;
 
 	
-	/** The default color of the stroke alpha'ed <sp> to transparent. */
-	private static final Color			STROKE_COLOR_ALPHA = 
+	/** The default color of the stroke alpha'ed  to transparent. */
+	private static final Color	STROKE_COLOR_ALPHA = 
 										IOConstants.DEFAULT_STROKE_COLOUR_ALPHA;
 
 	/** The main object for storing and manipulating ROIs. */
@@ -131,7 +126,7 @@ public class ROIComponent
 	/** Show the measurement units. */
 	private MeasurementUnits			units;
 	
-	/** The map whose key is a file result ID and value a list of rois. */
+	/** The map whose key is a file result ID and value a list of ROIs. */
 	private Map<Long, List<ROI>>		roiResult;
 	
 	/**
@@ -167,11 +162,11 @@ public class ROIComponent
      */
     private void setShapeAnnotations(ROIShape shape)
 	{
-    	ROIFigure fig = shape.getFigure();
+    	//ROIFigure fig = shape.getFigure();
 	//	String type = fig.getType();
 	//	if (type != null) AnnotationKeys.FIGURETYPE.set(shape, type);
 		
-		ROIShape s = fig.getROIShape();
+		//ROIShape s = fig.getROIShape();
 	}
     
 	/** 
@@ -299,7 +294,7 @@ public class ROIComponent
     {
     	if (figure == null) throw new NullPointerException("Figure param null.");
       	figure.setMeasurementUnits(units);
-        if(addAttribs)
+        if (addAttribs)
         	setFigureAttributes(figure);
     	ROI roi = null;
     	roi = createROI(figure, currentPlane);
@@ -326,7 +321,8 @@ public class ROIComponent
 	}
 	
 	/** 
-	 * Convert the ROI in the component to ROIData and return. 
+	 * Converts the ROI in the component to ROIData and return. 
+	 * 
 	 * @param image The image the ROI are on.
 	 * @return See above.
 	 * @throws Exception 
@@ -528,7 +524,7 @@ public class ROIComponent
 	}
 
 	/**
-	 * Returns true if the roiComponent contains the roi with id.
+	 * Returns true if the roiComponent contains the ROI with id.
 	 * @param id see above.
 	 * @return see above.
 	 */
@@ -538,9 +534,10 @@ public class ROIComponent
 	}
 	
 	/**
-	 * Returns the RIOShape which is part of the ROI id, and exists on the plane
-	 * coord. This method looks up the ROIIDMap (TreeMap) for the ROI with id 
-	 * and then looks up that ROIs TreeMap for the ROIShape on the plane coord.
+	 * Returns the ROIShape which is part of the ROI id, and exists on the plane
+	 * coordinates. 
+	 * This method looks up the ROIIDMap (TreeMap) for the ROI with id 
+	 * and then looks up that ROIs TreeMap for the ROIShape on the plane coordinates.
 	 * 
 	 * @param id 	The id of the ROI the ROIShape is a member of.
 	 * @param coord The plane where the ROIShape sits.
@@ -548,13 +545,32 @@ public class ROIComponent
 	 * @throws NoSuchROIException	Thrown if a ROI.id does not exist.
 	 */
 	public ROIShape getShape(long id, Coord3D coord) 
-	throws 	NoSuchROIException
+		throws NoSuchROIException
 	{
 		return roiCollection.getShape(id, coord);
 	}
 
+	/**
+	 * Returns the <code>true</code> if a shape is already associated to the 
+	 * specified ROI at the passed coordinates.
+	 * 
+	 * @param id 	The id of the ROI the ROIShape is a member of.
+	 * @param coord The plane where the ROIShape sits.
+	 * @return See Above.
+	 * @throws NoSuchROIException	Thrown if a ROI.id does not exist.
+	 */
+	public boolean containsShape(long id, Coord3D coord)
+	{
+		if (!containsROI(id)) return false;
+		try {
+			ROI roi = getROI(id);
+			return roi.containsShape(coord);
+		} catch (Exception e) {}
+		return false;
+	}
+	
 	/** 
-	 * Returns the list of ROIShapes which reside on the plane coord. 
+	 * Returns the list of ROIShapes which reside on the plane coordinates. 
 	 * The ShapeList is an object which contains a TreeMap of the 
 	 * ROIShapes and ROIId of those shapes.
 	 * 

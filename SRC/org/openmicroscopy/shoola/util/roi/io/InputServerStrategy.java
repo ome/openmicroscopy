@@ -166,15 +166,24 @@ class InputServerStrategy
 	{
 		long id = roi.getId();
 		ROI newROI = component.createROI(id, readOnly);
-		if(roi.getNamespaces().size() != 0)
-			newROI.setAnnotation(AnnotationKeys.NAMESPACE, roi.getNamespaces().get(0));
-		if(roi.getNamespaceKeywords().size() != 0)
-			newROI.setAnnotation(AnnotationKeys.KEYWORDS, UIUtilities.listToCSV(roi.getNamespaceKeywords(roi.getNamespaces().get(0))));
+		if (roi.getNamespaces().size() != 0) {
+			String s = roi.getNamespaces().get(0);
+			newROI.setAnnotation(AnnotationKeys.NAMESPACE, s);
+			if (roi.getNamespaceKeywords().size() != 0)
+				newROI.setAnnotation(AnnotationKeys.KEYWORDS, 
+						UIUtilities.listToCSV(roi.getNamespaceKeywords(s)));
+		}
+			
+		if (roi.getNamespaceKeywords().size() != 0)
+			newROI.setAnnotation(AnnotationKeys.KEYWORDS, 
+					UIUtilities.listToCSV(roi.getNamespaceKeywords(
+							roi.getNamespaces().get(0))));
 		ROIShape shape;
 		ShapeData shapeData;
 		Iterator<List<ShapeData>> i = roi.getIterator();
 		List<ShapeData> list;
 		Iterator<ShapeData> j;
+		Coord3D c;
 		while (i.hasNext()) {
 			list = (List<ShapeData>) i.next();
 			j = list.iterator();
@@ -184,8 +193,12 @@ class InputServerStrategy
 				if (shape != null) {
 					shape.getFigure().setMeasurementUnits(
 							component.getMeasurementUnits());
-					component.addShape(newROI.getID(), shape.getCoord3D(), 
-							shape);
+					c = shape.getCoord3D();
+					if (c != null) {
+						if (!component.containsShape(newROI.getID(), c)) {
+							component.addShape(newROI.getID(), c, shape);
+						}
+					}
 				}
 			}
 		}
