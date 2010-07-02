@@ -122,6 +122,8 @@ public class OverlayMetadataStore extends DummyMetadata
                 return null;
             }
             o = new MaskI();
+            o.setTheZ(rint(0));
+            o.setTheT(rint(0));
             roi.addShape(o);
         }
         return o;
