@@ -241,7 +241,7 @@ class MeasurementViewerComponent
         		*/	
         		model.setHCSData(HCSData);
         		if (HCSData) {
-        			
+        			model.fireLoadROIFromServer(measurements);
         		} else {
         			model.fireLoadWorkflow();
             		model.fireLoadROIServerOrClient(false);
