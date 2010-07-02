@@ -26,9 +26,11 @@ public class PopulateRoiJob extends ScriptFinder {
     private static File production() {
         File cwd = new File(".");
         File lib = new File(cwd, "lib");
-        File py = new File(lib, "python");
-        File populate = new File(py, "populateroi.py");
-        return populate;
+        File scripts = new File(lib, "scripts");
+        File omero = new File(lib, "omero");
+        File import_scripts = new File(lib, "import_scripts");
+        File Populate_ROI = new File(lib, "Populate_ROI.py");
+        return Populate_ROI;
     }
 
     public PopulateRoiJob(Roles roles, String uuid, Executor executor) {

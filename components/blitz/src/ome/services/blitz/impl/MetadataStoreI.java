@@ -250,7 +250,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             
                             for (Long id : copy) {
                                 
-                                RMap inputs = omero.rtypes.rmap("plate_id",
+                                RMap inputs = omero.rtypes.rmap("Plate_ID",
                                         omero.rtypes.rlong(id));
                                 
                                 ScriptJob job = popRoi.createJob();
