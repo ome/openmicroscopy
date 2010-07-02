@@ -84,6 +84,8 @@ public class ShapeRenderer
 			label.setIcon(icons.getIcon(IconManager.ELLIPSE_16));
 		else if (FigureUtil.TEXT_TYPE.equals(shape)) 
 			label.setIcon(icons.getIcon(IconManager.TEXT_16));
+		else if (FigureUtil.MASK_TYPE.equals(shape)) 
+			label.setIcon(icons.getIcon(IconManager.MASK_16));
 	}
 	
 	/**

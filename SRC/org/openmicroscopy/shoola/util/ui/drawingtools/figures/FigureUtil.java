@@ -74,12 +74,16 @@ public class FigureUtil
 	
 	/** Identifies the <code>Scribble</code> type. */
 	public static final String SCRIBBLE_TYPE = "Scribble";
+
+	/** Identifies the <code>Mask</code> type. */
+	public static final String MASK_TYPE = "Mask";
 	
 	/** The default number of columns for text. */
 	static final int 			TEXT_COLUMNS = 4;
 	
 	/** The default tab size. */
 	static final int 			TAB_SIZE = 8;
+
 
 	/**
 	 * Creates a layout for the text.

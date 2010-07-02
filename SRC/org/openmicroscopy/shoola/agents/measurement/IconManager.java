@@ -174,12 +174,15 @@ public class IconManager
     
     /** The <code>Measurement tool</code> icon. */
     public static final int		MEASUREMENT_TOOL = 41;
-    
+
+    /** The <code>Measurement tool</code> icon. */
+	public static final int MASK_16 = 42;
+
 	/** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int    MAX_ID = 41;
+    private static final int    MAX_ID = 42;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -229,6 +232,7 @@ public class IconManager
         relPaths[CORNERICON] = "cornericon.png";
         relPaths[LOAD] = "nuvola_revert16.png";
         relPaths[MEASUREMENT_TOOL] = "nuvola_designer16.png";//"crystal_roi16.png";//"nuvola_designer16.png";
+        relPaths[MASK_16] = "mask16.png";//"crystal_roi16.png";//"nuvola_designer16.png";
     }
     
     /** 

@@ -36,6 +36,7 @@ import java.util.List;
 
 //Third-party libraries
 import org.jhotdraw.draw.FigureListener;
+import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 
 //Application-internal dependencies
 
@@ -139,7 +140,12 @@ public class MeasureMaskFigure
     	return this.mask;
     }
     
-    
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getType()
+	 */
+	public String getType() { return FigureUtil.MASK_TYPE; }
     
 	public void draw(Graphics2D g)
 	{

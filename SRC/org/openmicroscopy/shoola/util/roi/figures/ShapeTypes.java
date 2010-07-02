@@ -63,6 +63,7 @@ public class ShapeTypes
 		SHAPE_LIST.add("Scribble");
 		SHAPE_LIST.add("Point");
 		SHAPE_LIST.add("Text");
+		SHAPE_LIST.add("Mask");
 		
 	};
 }
