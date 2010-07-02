@@ -51,6 +51,8 @@ import loci.formats.FormatException;
 
 //Application-internal dependencies
 
+import org.apache.commons.collections.ListUtils;
+import org.apache.commons.collections.SetUtils;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
@@ -4576,7 +4578,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Set filterBy(Class annotationType, List<String> terms,
+	List filterBy(Class annotationType, List<String> terms,
 				Timestamp start, Timestamp end, ExperimenterData exp)
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -4591,19 +4593,20 @@ class OMEROGateway
 				Details d = new DetailsI();
 				d.setOwner(exp.asExperimenter());
 			}
-			List<String> t = prepareTextSearch(terms, service);
 
+			List<String> t = prepareTextSearch(terms, service);
 			service.onlyType(convertPojos(annotationType).getName());
-			Set rType = new HashSet();
+			List rType = new ArrayList();
+			//service.bySomeMustNone(fSome, fMust, fNone);
 			service.bySomeMustNone(t, null, null);
 			Object size = handleSearchResult(
 					convertTypeForSearch(annotationType), rType, service);
-			if (size instanceof Integer) new HashSet();
+			if (size instanceof Integer) rType = new ArrayList();
 			return rType;
 		} catch (Exception e) {
 			handleException(e, "Filtering by annotation not valid");
 		}
-		return new HashSet();
+		return new ArrayList();
 	}
 	
 	/**

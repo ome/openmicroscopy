@@ -114,7 +114,7 @@ class DataBrowserComponent
 	/** Displays the existing datasets. */
 	private void showExistingDatasets()
 	{
-		Collection datasets = model.getExisitingDatasets();
+		Collection datasets = model.getExistingDatasets();
 		if (datasets == null || datasets.size() == 0) {
 			UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Existing datasets", "No Datasets already created.");
@@ -491,6 +491,9 @@ class DataBrowserComponent
 		if (context.isNameOnly()) {
 			view.filterByContext(context);
 			filterByFullText(context.getNames()); 
+		} else if (context.isTagsOnly()) {
+			view.filterByContext(context);
+			filterByTags(context.getAnnotation(TagAnnotationData.class)); 
 		} else {
 			Browser browser = model.getBrowser();
 			Set<DataObject> nodes = browser.getOriginal();
@@ -518,7 +521,7 @@ class DataBrowserComponent
 	public void setExistingTags(Collection tags)
 	{
 		model.setTags(tags);
-		view.setTags(tags);
+		view.setTags(model.getExistingTags());
 	}
 
 	/**
@@ -1250,7 +1253,7 @@ class DataBrowserComponent
 	 */
 	public void loadExistingDatasets()
 	{
-		if (model.getExisitingDatasets() == null) {
+		if (model.getExistingDatasets() == null) {
 			model.fireExisitingDatasetsLoading();
 		} else showExistingDatasets();
 	}

@@ -578,7 +578,7 @@ abstract class DataBrowserModel
 	 */
 	void setTags(Collection tags)
 	{ 
-		existingTags = tags; 
+		existingTags = sorter.sort(tags); 
 	}
 	
 	/**
@@ -596,7 +596,7 @@ abstract class DataBrowserModel
 	 * 
 	 * @return See above.
 	 */
-	Collection getExisitingDatasets() { return existingDatasets; }
+	Collection getExistingDatasets() { return existingDatasets; }
 	
 	/**
 	 * Returns <code>true</code> if the model is of type

@@ -680,6 +680,7 @@ public class QuickSearch
 				term += SearchUtil.COMMA_SEPARATOR+SearchUtil.SPACE_SEPARATOR;
 			index++;
 		}
+    	setSearchValue(term);
 	}
 	
 	/**

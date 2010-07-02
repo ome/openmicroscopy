@@ -35,7 +35,6 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
-import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.tagging.util.TagCellRenderer;
 import org.openmicroscopy.shoola.agents.util.tagging.util.TagItem;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
@@ -112,10 +111,9 @@ public class QuickFiltering
     	Rectangle r = getSelectionArea().getBounds();
 		Object[] data = null;
 		if (tags != null && tags.size() > 0) {
-			ViewerSorter sorter = new ViewerSorter();
-			List l = sorter.sort(tags);
-			data = new Object[l.size()];
-			Iterator j = l.iterator();
+
+			data = new Object[tags.size()];
+			Iterator j = tags.iterator();
 			DataObject object;
 
 			TagItem item;

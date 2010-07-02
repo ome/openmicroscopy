@@ -1259,9 +1259,13 @@ class OmeroMetadataServiceImpl
 		AnnotationData data;
 		Iterator i, j;
 		Entry entry;
+		Map<Long, List<Long>> m = new HashMap<Long, List<Long>>();
+		List<Long> nodes;
 		if (terms != null && terms.size() > 0) {
-			Set annotations = gateway.filterBy(annotationType, terms,
+			//retrieve the annotations corresponding to the specified terms.
+			List annotations = gateway.filterBy(annotationType, terms,
 					                           null, null, exp);
+			
 			i = map.entrySet().iterator();
 			while (i.hasNext()) {
 				entry = (Entry) i.next();
@@ -1273,16 +1277,28 @@ class OmeroMetadataServiceImpl
 					if (annotationType.equals(TagAnnotationData.class)) {
 						if (data instanceof TagAnnotationData) {
 							if (annotations.contains(data.getId())) {
-								if (!results.contains(id))
-									results.add(id);
+								nodes = m.get(data.getId());
+								if (nodes == null) {
+									nodes = new ArrayList<Long>();
+									nodes.add(id);
+								}
+								if (!nodes.contains(id))
+									nodes.add(id);
+								m.put(data.getId(), nodes);
 							}
 						}
 					} else if (annotationType.equals(
 							 TextualAnnotationData.class)) {
 						if (!(data instanceof TagAnnotationData)) {
 							if (annotations.contains(data.getId())) {
-								if (!results.contains(id))
-									results.add(id);
+								nodes = m.get(data.getId());
+								if (nodes == null) {
+									nodes = new ArrayList<Long>();
+									nodes.add(id);
+								}
+								if (!nodes.contains(id))
+									nodes.add(id);
+								m.put(data.getId(), nodes);
 							}
 						}
 					}
@@ -1291,6 +1307,15 @@ class OmeroMetadataServiceImpl
 		} else
 			return filterByAnnotated(nodeType, nodeIds, annotationType, true, 
 					    userID);
+		
+		i = m.entrySet().iterator();
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			id = (Long) entry.getKey();
+			nodes = (List) entry.getValue();
+			if (results.size() == 0) results.addAll(nodes);
+			else results = ListUtils.intersection(results, nodes);
+		}
 		return results;
 	}
 
@@ -1416,7 +1441,7 @@ class OmeroMetadataServiceImpl
 		Iterator i, j, k;
 		Long id;
 		Collection l;
-		Set annotations;
+		List annotations;
 		int resultType = filter.getResultType();
 		Map<Class, List<String>> types = filter.getAnnotationType();
 		
@@ -1426,10 +1451,10 @@ class OmeroMetadataServiceImpl
 		Entry entry;
 		if (types != null && types.size() > 0) {
 			i = types.entrySet().iterator();
-			
+			Map<Long, List<Long>> m = new HashMap<Long, List<Long>>();
+			List<Long> nodes;
 			AnnotationData data;
 			if (resultType == FilterContext.INTERSECTION) {
-				
 				while (i.hasNext()) {
 					entry = (Entry) i.next();
 					type = (Class) entry.getKey();
@@ -1439,7 +1464,7 @@ class OmeroMetadataServiceImpl
 					j = annotations.iterator();
 					while (j.hasNext()) 
 						annotationsIds.add((Long) j.next());
-						
+					
 					j = map.entrySet().iterator();
 					while (j.hasNext()) {
 						entry = (Entry) j.next();
@@ -1449,12 +1474,26 @@ class OmeroMetadataServiceImpl
 							k = l.iterator();
 							while (k.hasNext()) {
 								data = (AnnotationData) k.next();
-								if (annotationsIds.contains(data.getId()) &&
-										!found.contains(id)) {
-									found.add(id);
+								if (annotations.contains(data.getId())) {
+									nodes = m.get(data.getId());
+									if (nodes == null) {
+										nodes = new ArrayList<Long>();
+										nodes.add(id);
+									}
+									if (!nodes.contains(id))
+										nodes.add(id);
+									m.put(data.getId(), nodes);
 								}
 							}
 						}
+					}
+					j = m.entrySet().iterator();
+					while (j.hasNext()) {
+						entry = (Entry) j.next();
+						id = (Long) entry.getKey();
+						nodes = (List) entry.getValue();
+						if (found.size() == 0) found.addAll(nodes);
+						else found = ListUtils.intersection(found, nodes);
 					}
 					r.put(type, found);
 				}
@@ -1566,6 +1605,7 @@ class OmeroMetadataServiceImpl
 		i = r.keySet().iterator();
 		int index = 0;
 		type = null;
+		/*
 		while (i.hasNext()) {
 			type = (Class) i.next();
 			if (index == 0) {
@@ -1575,10 +1615,12 @@ class OmeroMetadataServiceImpl
 			index++;
 		}
 		r.remove(type);
+		*/
 		i = r.keySet().iterator();
 		while (i.hasNext()) {
 			type = (Class) i.next();
-			filteredNodes = ListUtils.intersection(filteredNodes, r.get(type));
+			if (filteredNodes.size() == 0) filteredNodes.addAll(r.get(type));
+			else filteredNodes = ListUtils.intersection(filteredNodes, r.get(type));
 		}
 		return filteredNodes;
 	}

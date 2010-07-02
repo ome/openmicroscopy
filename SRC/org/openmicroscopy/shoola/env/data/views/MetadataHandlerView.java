@@ -327,7 +327,7 @@ public interface MetadataHandlerView
 			FilterContext context, long userID, AgentEventListener observer);
 
 	/** 
-	 * Creates a new <code>Dataobject</code> and adds the children to the
+	 * Creates a new <code>DataObject</code> and adds the children to the
 	 * newly created node.
 	 * 
 	 * @param parent	The parent of the <code>DataObject</code> to create

@@ -134,6 +134,20 @@ public class FilterContext
 	}
 	
 	/**
+	 * Returns <code>true</code> if it is only filtered by name, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isTagsOnly()
+	{
+		int size = type.size();
+		if (size > 1) return false;
+		return type.contains(TAG);
+	}
+	
+	
+	/**
 	 * Returns one of the following constants: {@link #RATE}, {@link #TAG} or
 	 * {@link #COMMENT}, {@link #NAME} or 
 	 * <code>-1</code> when more than one type is selected.
