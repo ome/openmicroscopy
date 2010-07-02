@@ -247,14 +247,23 @@ public abstract class ActivityComponent
 			}
 		}
 		String path = env.getOmeroFilesHome();
-		if (index != -1) path += File.separator+name;
-		File f = new File(path);
-		//Delete the file if it already exists
-		if (f.exists()) {
-			f.delete();
+		File f;
+		if (index != -1) {
+			path += File.separator+name;
+			f = new File(path);
+			//Delete the file if it already exists
+			if (f.exists()) {
+				f.delete();
+				f = new File(path);
+			}
+			f.deleteOnExit();
+		} else {
+			String v = path + File.separator+name;
+			File ff = new File(v);
+			if (ff.exists()) 
+				ff.delete();
 			f = new File(path);
 		}
-		f.deleteOnExit();
 		DownloadActivityParam activity;
 		if (index != -1) 
 			activity = new DownloadActivityParam(id, index, f, null);
