@@ -159,18 +159,11 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
     @RolesAllowed("system")
     @SuppressWarnings("unchecked")
     public String findDN(String username) {
-        PersonContextMapper mapper = getContextMapper();
-        Filter filter = config.usernameFilter(username);
-        List<Experimenter> p = ldap.search("", filter.encode(), mapper);
 
-        if (p.size() == 1) {
-            Experimenter exp = p.get(0);
-            return mapper.getDn(exp);
-        } else {
-            throw new ApiUsageException(
-                    "Cannot find unique DistinguishedName: " + filter.encode()
-                    + " (found=" + p.size() + ")");
-        }
+        PersonContextMapper mapper = getContextMapper();
+        Experimenter exp = mapUserName(username, mapper);
+        return mapper.getDn(exp);
+
     }
 
 
@@ -178,16 +171,35 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
     @SuppressWarnings("unchecked")
     public Experimenter findExperimenter(String username) {
 
-        Filter filter = config.usernameFilter(username);
-        List<Experimenter> p = ldap.search(
-                "", filter.encode(), getContextMapper());
+        PersonContextMapper mapper = getContextMapper();
+        return mapUserName(username, mapper);
 
-        if (p.size() == 1) {
-            return p.get(0);
-        } else {
-            throw new ApiUsageException(
-                    "Cannot find unique DistinguishedName: found=" + p.size());
+    }
+
+    /**
+     * Mapping a username to an {@link Experimenter}. This handles checking the
+     * username for case exactness. This should be done at the LDAP level, but
+     * Apache DS (the testing framework used) does not yet support :caseExactMatch:.
+     *
+     * When it does, the check here can be removed.
+     *
+     * @param username
+     * @param mapper
+     * @return a non null Experimenter.
+     * @see ticket:2557
+     */
+    private Experimenter mapUserName(String username, PersonContextMapper mapper) {
+        Filter filter = config.usernameFilter(username);
+        List<Experimenter> p = ldap.search("", filter.encode(), mapper);
+
+        if (p.size() == 1 && p.get(0) != null) {
+            Experimenter e = p.get(0);
+            if (e.getOmeName().equals(username)) {
+                return p.get(0);
+            }
         }
+        throw new ApiUsageException(
+                    "Cannot find unique DistinguishedName: found=" + p.size());
 
     }
 
@@ -348,9 +360,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
     @SuppressWarnings("unchecked")
     private AttributeSet getAttributeSet(String username) {
         PersonContextMapper mapper = getContextMapper();
-        Experimenter exp = ((List<Experimenter>)
-                ldap.search("", config.usernameFilter(username).encode(),
-                        mapper)).get(0);
+        Experimenter exp = mapUserName(username, mapper);
         String dn = mapper.getDn(exp);
         AttributeSet attrSet = mapper.getAttributeSet(exp);
         attrSet.put("dn", dn); // For queries

@@ -9,7 +9,7 @@ objectClass: top
 ou: groups
 
 dn: cn=jrslab,ou=groups,ou=multipleGroups,o=eg
-objectClass: posixgroup
+objectClass: posixGroup
 objectClass: top
 objectClass: groupManagers
 cn: jrslab

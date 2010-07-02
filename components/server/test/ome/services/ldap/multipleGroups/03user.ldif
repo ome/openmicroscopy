@@ -1,15 +1,14 @@
 version: 1
 dn: cn=test1,ou=notedir,ou=people,ou=multipleGroups,o=eg
 objectClass: person
-objectClass: organizationalperson
-objectClass: inetorgperson
-objectClass: posixaccount
-objectClass: sambasamaccount
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: sambaAccount
 objectClass: top
-objectClass: radiusprofile
+objectClass: radiusProfile
 cn: test1
 gecos: Josh Moore (JS) j.moore@example.com
-gidNumber: 1614
 givenName: Josh
 homeDirectory: /homes/jmoore
 loginShell: /bin/bash

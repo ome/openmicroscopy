@@ -1,0 +1,16 @@
+dn: ou=site,dc=caseSensitive,dc=eg
+objectclass: organizationalUnit
+objectClass: top
+ou: site
+
+dn: ou=People,ou=site,dc=caseSensitive,dc=eg
+objectclass: organizationalUnit
+objectClass: top
+ou: People
+
+dn: cn=caseSensitive,ou=People,ou=site,dc=caseSensitive,dc=eg
+cn: caseSensitive
+givenName: Testy
+sn: Tester
+objectClass: person
+userPassword: password

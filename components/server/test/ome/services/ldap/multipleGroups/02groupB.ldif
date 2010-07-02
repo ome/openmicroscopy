@@ -28,7 +28,7 @@ sambaGroupType: 2
 sambaSID: S-1-5-21-1279830386-3947966166-4038294555-4003
 member: cn=atarkowska,ou=edir,ou=people,ou=multipleGroups,o=eg
 member: cn=cxallan,ou=edir,ou=people,ou=multipleGroups,o=eg
-member: uidnumber=5226,ou=notedir,ou=people,ou=multipleGroups,o=eg
+member: cn=test1,ou=notedir,ou=people,ou=multipleGroups,o=eg
 member: cn=wmoore,ou=edir,ou=people,ou=multipleGroups,o=eg
 member: cn=ajpatterson,ou=edir,ou=people,ou=multipleGroups,o=eg
 member: cn=dzmacdonald,ou=edir,ou=people,ou=multipleGroups,o=eg
@@ -43,10 +43,10 @@ member: cn=bjones-x,ou=other,ou=people,ou=multipleGroups,o=eg
 
 dn: ou=people,ou=multipleGroups,o=eg
 objectClass: top
-objectClass: organizationalunit
+objectClass: organizationalUnit
 ou: people
 
 dn: ou=notedir,ou=people,ou=multipleGroups,o=eg
 objectClass: top
-objectClass: organizationalunit
+objectClass: organizationalUnit
 ou: notedir

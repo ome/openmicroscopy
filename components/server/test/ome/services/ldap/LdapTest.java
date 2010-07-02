@@ -12,6 +12,8 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
+import ome.conditions.ApiUsageException;
+import ome.conditions.ValidationException;
 import ome.logic.LdapImpl;
 import ome.security.auth.LdapConfig;
 import ome.security.auth.RoleProvider;
@@ -198,8 +200,16 @@ public class LdapTest extends MockObjectTestCase {
 
             // addMemberOf(fixture, template, user);
 
+            String dn = null;
             assertTrue(1 <= users.get(user).size());
-            String dn = ldap.findDN(user);
+            try {
+                dn = ldap.findDN(user);
+            } catch (ApiUsageException aue) {
+                // This will be one of the major errors: when we can't find a user
+                // that we expect to find. Adding a try/catch block for debugging
+                // purposes.
+                throw aue;
+            }
             assertNotNull(dn);
             assertEquals(user, ldap.findExperimenter(user).getOmeName());
             fixture.createUserWithGroup(this, dn, users.get(user).get(0));
@@ -222,11 +232,17 @@ public class LdapTest extends MockObjectTestCase {
             try {
                 String dn = ldap.findDN(user);
                 assertNotNull(dn);
-                assertEquals(user, ldap.findExperimenter(user).getOmeName());
                 fixture.createUserWithGroup(this, dn, users.get(user).get(0));
                 assertTrue(fixture.createUserFromLdap(user, "password"));
-            } catch (Exception e) {
-                // good
+                // Parsing afterwards to force an explosion to reproduce #2557
+                assertEquals(user, ldap.findExperimenter(user).getOmeName());
+            } catch (ValidationException e) {
+                throw e; // This means that we couldn't insert.
+                // See the thread on case-senitivty in #2557
+            } catch (ApiUsageException e) {
+                // if not a ValidationException, but otherwise an ApiUsageException,
+                // then this will be the "Cannot find unique DN" which we are
+                // looking for.
             }
         }
     }
