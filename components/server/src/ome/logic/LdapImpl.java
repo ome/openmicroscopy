@@ -53,7 +53,6 @@ import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapOperations;
 import org.springframework.ldap.core.LdapRdn;
-import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.ldap.filter.AndFilter;
 import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.ldap.filter.Filter;
@@ -95,7 +94,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
     private OmeroContext appContext;
 
     public LdapImpl(
-            LdapContextSource ctx,
+            ContextSource ctx,
             LdapOperations ldap, Roles roles,
             LdapConfig config,
             RoleProvider roleProvider,
