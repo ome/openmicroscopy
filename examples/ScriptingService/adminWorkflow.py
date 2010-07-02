@@ -49,11 +49,12 @@ import time
 startTime = 0
 
 def printDuration(reset=False):
+    """ Method for timing the running of scripts. For performance testing only """
     global startTime
     if startTime == 0 or reset:
-        print "Resetting timer:"
         startTime = time.time()
-    print "time = %s secs" % (time.time() - startTime)
+    print "timer = %s secs" % (time.time() - startTime)
+
 
 def uploadScript(scriptService, scriptPath):
     """
@@ -255,7 +256,6 @@ def runScript(session, scriptService, scriptPath):
                     print "Invalid entry"
             
     print map
-    printDuration(True)
     
     # The last parameter is how long to wait as an RInt
     proc = scriptService.runScript(scriptId, map, None)
@@ -268,7 +268,6 @@ def runScript(session, scriptService, scriptPath):
     finally:
         proc.close(False)
     
-    printDuration()
     # handle any results from the script 
     #print results.keys()
     if 'Message' in results:
@@ -404,55 +403,62 @@ def readCommandArgs():
     return returnMap, args
     
     
+def doWorkflow(client, commandArgs):
+    """
+    The main workflow is performed here, creating a connection to the server,
+    processing the user commands and calling the appropriate methods. 
+    """
+    
+    session = client.createSession(commandArgs["username"], commandArgs["password"])
+    scriptService = session.getScriptService()
+    print "got session..."
+    if len(args) == 0:  print "Choose from these options by adding argument: help, list, upload, params, run, remove, clean"
+
+    # list scripts
+    if "list" in args:
+        listScripts(scriptService)
+
+    # upload script.
+    if "upload" in args:
+        uploadScript(scriptService, commandArgs["script"])
+
+    # get params of script
+    if "params" in args:
+        getParams(scriptService, commandArgs["script"])
+
+    # run script
+    if "run" in args:
+        runScript(session, scriptService, commandArgs["script"])
+
+    # disables script by changing the OriginalFile mimetype, from 'text/x-python' to 'text/plain'
+    if "remove" in args:
+        disableScript(session, scriptService, commandArgs["script"])
+    
+    if "clean" in args:
+        cleanUpScriptFiles(session, scriptService)
+        
+    
 if __name__ == "__main__":
     commandArgs, args = readCommandArgs()
     
     if "help" in args:
         printHelp(args)
         
+    elif "host" not in commandArgs:
+        print "No server specified. Use -s serverName"
+        print "For more info, use:   python adminWorkflow help"
+    elif "username" not in commandArgs:
+        print "No user specified. Use -u userName"
+        print "For more info, use:   python adminWorkflow help"
     else:
-        # log on to the server, create client and session and scripting service
         client = omero.client(commandArgs["host"])
-        if "password" in commandArgs:
-            password = commandArgs["password"]
-        else:
-            password = getpass.getpass()
         try:
-            printDuration()
-            session = client.createSession(commandArgs["username"], password)
-            scriptService = session.getScriptService()
-            print "got session"
-            printDuration()
-            if len(args) == 0:  print "Choose from these options by adding argument: help, list, upload, params, run, remove, clean"
-    
-            # list scripts
-            if "list" in args:
-                listScripts(scriptService)
-                printDuration()
-        
-            # upload script.
-            if "upload" in args:
-                uploadScript(scriptService, commandArgs["script"])
-                printDuration()
-    
-            # get params of script
-            if "params" in args:
-                getParams(scriptService, commandArgs["script"])
-                printDuration()
-    
-            # run script
-            if "run" in args:
-                runScript(session, scriptService, commandArgs["script"])
-                printDuration()
-    
-            # disables script by changing the OriginalFile mimetype, from 'text/x-python' to 'text/plain'
-            if "remove" in args:
-                disableScript(session, scriptService, commandArgs["script"])
-                printDuration()
-            
-            if "clean" in args:
-                cleanUpScriptFiles(session, scriptService)
-                printDuration()
+            # log on to the server, create client and session and scripting service
+            if "password" not in commandArgs:
+                print "NB: you can also run script with -p yourPassword"
+                commandArgs["password"] = getpass.getpass()
+                
+            doWorkflow(client, commandArgs)
         except:
             raise
         finally:
