@@ -178,10 +178,13 @@ def formatTime(seconds, timeUnits):
         label = "%.2f sec" % seconds
     return neg and "-%s"%label or label
     
+
 def getTimeLabels(queryService, pixelsId, tIndexes, sizeT, timeUnits = None, showRoiDuration = False):
     """
-    Returns a list of time labels e.g. "10 min", "20 min" for the first plane at 
+    Returns a list of time labels e.g. "10", "20" for the first plane at 
     each t-index (C=0 and Z=0). If no planeInfo is available, returns plane number/total e.g "3/10"
+    If time units are not specified, the most suitable units are chosen based on the max time. 
+    The list of label returned includes the timeUnits as the last string in the list, in case you didn't specify it. 
     
     @param queryService:        The Omero query service
     @param pixelsId:            The ID of the pixels you want info for
@@ -193,8 +196,8 @@ def getTimeLabels(queryService, pixelsId, tIndexes, sizeT, timeUnits = None, sho
     """
     secondsMap = getTimes(queryService, pixelsId, tIndexes)
     
-    if timeUnits == None:
-        maxSecs = secondsMap[max(tIndexes)]
+    if timeUnits == None and len(secondsMap) > 0:
+        maxSecs = max(secondsMap.values())
         if maxSecs > 3600: timeUnits = HOURS_MINS
         elif maxSecs > 60: timeUnits = MINS_SECS
         else: timeUnits = SECS_MILLIS
@@ -208,5 +211,7 @@ def getTimeLabels(queryService, pixelsId, tIndexes, sizeT, timeUnits = None, sho
             labels.append(formatTime(seconds,timeUnits))
         else:
             labels.append("%d/%d" % (t+1, sizeT))
+            
+    labels.append(timeUnits)
     return labels
 
