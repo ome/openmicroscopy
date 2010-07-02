@@ -207,6 +207,7 @@ public class ManageObjectAction
 	 */
 	protected void onDisplayChange(TreeImageDisplay selectedDisplay)
 	{
+		//System.err.println("selectedDisplay: "+selectedDisplay);
 		if (selectedDisplay == null) {
 			setEnabled(false);
 			return;
@@ -219,6 +220,9 @@ public class ManageObjectAction
         Object ho = selectedDisplay.getUserObject(); 
         TreeImageDisplay[] selected;
         int count = 0;
+        TreeImageDisplay parentDisplay = selectedDisplay.getParentDisplay();
+        Object parent = null;
+        if (parentDisplay != null) parent = parentDisplay.getUserObject();
         switch (index) {
 			case PASTE:
 				Class klass = model.hasDataToCopy();
@@ -292,6 +296,25 @@ public class ManageObjectAction
 						if (model.isUserOwner(selected[i].getUserObject())) 
 							count++;
 					}
+		    		if (index == CUT) {
+		    			if (ho instanceof DatasetData) {
+		    				if (!(parent instanceof ProjectData)) {
+		    					setEnabled(false);
+		    					return;
+		    				}
+		    			} else if (ho instanceof ImageData) {
+		    				if (!(parent instanceof DatasetData || 
+		    						parent instanceof TagAnnotationData)) {
+		    					setEnabled(false);
+		    					return;
+		    				}
+		    			} else if (ho instanceof PlateData) {
+		    				if (!(parent instanceof ScreenData)) {
+		    					setEnabled(false);
+		    					return;
+		    				}
+		    			}
+		    		}
 		    		setEnabled(count == selected.length);
 				} else if (ho instanceof ExperimenterData) {
 					setEnabled(browser.getBrowserType() == 
@@ -307,12 +330,16 @@ public class ManageObjectAction
 			    			if (model.isUserOwner(selected[i].getUserObject())) 
 			    				count++;
 						}
+			    		if (index == CUT) {
+			    			if (!(parent instanceof TagAnnotationData)) {
+			    				setEnabled(false);
+			    				return;
+				    		}
+			    		}
 			    		setEnabled(count == selected.length);
 					}
 				} else setEnabled(false);
-				break;
 		}
-        
 	}
 	
 	/**

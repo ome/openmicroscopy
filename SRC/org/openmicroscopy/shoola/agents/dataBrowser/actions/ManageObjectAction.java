@@ -46,6 +46,7 @@ import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
+import pojos.TagAnnotationData;
 
 /** 
  * Manages the object i.e. either copy, paste, cut or remove. 
@@ -180,6 +181,9 @@ public class ManageObjectAction
         Iterator i;
         int count = 0;
         Object obj;
+        ImageDisplay parentDisplay = node.getParentDisplay();
+        Object parent = null;
+        if (parentDisplay != null) parent = parentDisplay.getHierarchyObject();
         switch (index) {
 			case COPY:
 				if (ho instanceof DatasetData || ho instanceof ImageData || 
@@ -242,8 +246,12 @@ public class ManageObjectAction
 				} else setEnabled(false);
 				break;
 			case CUT:
-				if (ho instanceof DatasetData || ho instanceof ImageData || 
-				       ho instanceof PlateData) {
+				if ((ho instanceof DatasetData && parent instanceof ProjectData)
+					|| (ho instanceof ImageData && 
+							(parent instanceof DatasetData || 
+							parent instanceof TagAnnotationData))
+					|| (ho instanceof PlateData && 
+							parent instanceof ScreenData)) {
 					i = selected.iterator();
 					while (i.hasNext()) {
 						obj = i.next();
