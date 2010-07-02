@@ -319,14 +319,21 @@ public class Quantization_8_16_bit extends QuantumStrategy {
         */
         int diff;
         if (x < lutMin) {
-        	diff = lutMin-x;
-        	x = lutMin+diff;
-        	if (x > lutMax) x = lutMax;
+        	double r = getOriginalGlobalMax()-getOriginalGlobalMin();
+        	if (r != 0) {
+        		double f = (lutMax-lutMin)/r;
+        		x = (int) (f*(x-lutMin));
+        		if (x < lutMin) x = lutMin;
+        	} else x = lutMin;
+ 
         }
         if (x > lutMax) {
-        	diff = x-lutMax;
-        	x = lutMax-diff;
-        	if (x < lutMin) x = lutMin;
+        	double r = getOriginalGlobalMax()-getOriginalGlobalMin();
+        	if (r != 0) {
+        		double f = (lutMax-lutMin)/r;
+        		x = (int) (f*(x-lutMin));
+        		if (x > lutMax) x = lutMax;
+        	} else x = lutMax;
         }
         int i = LUT[x - lutMin];
         return i & 0xFF; // assumed x in [min, max]

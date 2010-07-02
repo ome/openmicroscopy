@@ -69,6 +69,12 @@ public abstract class QuantumStrategy {
     /** Maximum of all maxima. */
     private double globalMax;
 
+    /** The original Minimum of all minima. */
+    private double originalGlobalMin;
+
+    /** The original Maximum of all maxima. */
+    private double originalGlobalMax;
+    
     /** The lower limit of the input Interval i.e. pixel intensity interval. */
     private double windowStart;
 
@@ -278,6 +284,8 @@ public abstract class QuantumStrategy {
      */
     public void setExtent(double globalMin, double globalMax)
     {
+    	originalGlobalMin = globalMin;
+    	originalGlobalMax = globalMax;
     	initPixelsRange(false);
     	if (Double.isInfinite(globalMax)) globalMax = pixelsTypeMax;
     	if (Double.isInfinite(globalMin)) globalMin = pixelsTypeMin;
@@ -382,9 +390,7 @@ public abstract class QuantumStrategy {
      * 
      * @return See above.
      */
-    public boolean getNoiseReduction() {
-        return noiseReduction;
-    }
+    public boolean getNoiseReduction() { return noiseReduction; }
 
     /**
      * Returns the minimum of all minima.
@@ -405,10 +411,23 @@ public abstract class QuantumStrategy {
      * 
      * @return See above.
      */
-    public double getGlobalMax() {
-        return globalMax;
-    }
+    public double getGlobalMax() { return globalMax; }
 
+    /**
+     * Returns the original minimum of all minima.
+     * 
+     * @return See above.
+     */
+    public double getOriginalGlobalMin() { return originalGlobalMin; }
+    
+    /**
+     * Returns the original maximum of all minima.
+     * 
+     * @return See above.
+     */
+    public double getOriginalGlobalMax() { return originalGlobalMax; }
+    
+    
     /**
      * Returns the lower bound of the pixels range or <code>0</code>
      * if the value couldn't be set.
