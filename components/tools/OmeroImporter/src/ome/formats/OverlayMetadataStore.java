@@ -112,7 +112,7 @@ public class OverlayMetadataStore extends DummyMetadata
         {
             o = (Mask) roi.getShape(shapeIndex);
         }
-        catch (ArrayIndexOutOfBoundsException e)
+        catch (IndexOutOfBoundsException e)
         {
             if (roi.sizeOfShapes() != shapeIndex)
             {
