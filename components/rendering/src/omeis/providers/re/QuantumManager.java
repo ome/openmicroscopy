@@ -100,6 +100,8 @@ class QuantumManager {
             stg = factory.getStrategy(qd, type);
             gMin = channel.getStatsInfo().getGlobalMin().doubleValue();
             gMax = channel.getStatsInfo().getGlobalMax().doubleValue();
+            
+            
             stg.setExtent(gMin, gMax);
             stg
                     .setMapping(waves[w].getFamily(), waves[w].getCoefficient()

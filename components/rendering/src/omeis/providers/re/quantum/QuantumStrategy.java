@@ -180,8 +180,12 @@ public abstract class QuantumStrategy {
     /** 
      * Initializes the minimum (resp. value) used to 
      * build a LUT depending on the pixels type.
+     * 
+     * @param withRange Pass <code>true</code> to indicate that the range
+     * 			        has to be taken into account, 
+     *                  <code>false</code> otherwise.
      */
-    private void initPixelsRange()
+    private void initPixelsRange(boolean withRange)
     {
     	double range;
     	String typeAsString = type.getValue();
@@ -198,28 +202,46 @@ public abstract class QuantumStrategy {
     		pixelsTypeMin = 0;
     		pixelsTypeMax = 65535;
     	} else if (PlaneFactory.INT32.equals(typeAsString)) {
-    		range = globalMax - globalMin;
-    		if (range < 0x10000) { 
+    		if (withRange) {
+    			range = globalMax - globalMin;
+        		if (range < 0x10000) { 
+        			pixelsTypeMin = -32768;
+            		pixelsTypeMax = 32767;
+                }
+    		} else {
     			pixelsTypeMin = -32768;
         		pixelsTypeMax = 32767;
-            }
+    		}
     	} else if (PlaneFactory.UINT32.equals(typeAsString)) {
-    		range = globalMax - globalMin;
-    		if (range < 0x10000) { 
+    		if (withRange) {
+    			range = globalMax - globalMin;
+        		if (range < 0x10000) { 
+        			pixelsTypeMin = 0;
+            		pixelsTypeMax = 65535;
+                }
+    		} else {
     			pixelsTypeMin = 0;
         		pixelsTypeMax = 65535;
-            }
+    		}
+    		
     	} else if (PlaneFactory.FLOAT_TYPE.equals(typeAsString) ||
     			PlaneFactory.DOUBLE_TYPE.equals(typeAsString)) {
-    		range = globalMax - globalMin;
-    		if (range < 0x10000 && globalMin > -1) { 
+    		if (withRange) {
+    			range = globalMax - globalMin;
+        		if (range < 0x10000 && globalMin > -1) { 
+        			pixelsTypeMin = 0;
+            		pixelsTypeMax = 65535;
+                }
+        		if (range < 0x10000 && globalMin < 0) { 
+        			pixelsTypeMin = -32768;
+            		pixelsTypeMax = 32767;
+                }
+    		} else {
+    			//b/c we don't know if it is signed or not
     			pixelsTypeMin = 0;
-        		pixelsTypeMax = 65535;
-            }
-    		if (range < 0x10000 && globalMin < 0) { 
-    			pixelsTypeMin = -32768;
-        		pixelsTypeMax = 32767;
-            }
+        		pixelsTypeMax = 32767; 
+    		}
+    		
     	} 
     }
     
@@ -229,7 +251,8 @@ public abstract class QuantumStrategy {
      * @param qd The {@link QuantumDef} this strategy is for.
      * @param pt The pixels type to handle.
      */
-    protected QuantumStrategy(QuantumDef qd, PixelsType pt) {
+    protected QuantumStrategy(QuantumDef qd, PixelsType pt)
+    {
         windowStart = globalMin = 0.0;
         windowEnd = globalMax = 1.0;
         curveCoefficient = 1.0;
@@ -253,13 +276,17 @@ public abstract class QuantumStrategy {
      * @param globalMax
      *            The maximum of all maxima for a specified stack.
      */
-    public void setExtent(double globalMin, double globalMax) {
+    public void setExtent(double globalMin, double globalMax)
+    {
+    	initPixelsRange(false);
+    	if (Double.isInfinite(globalMax)) globalMax = pixelsTypeMax;
+    	if (Double.isInfinite(globalMin)) globalMin = pixelsTypeMin;
         verifyInterval(globalMin, globalMax);
         this.globalMin = globalMin;
         this.globalMax = globalMax;
         this.windowStart = globalMin;
         this.windowEnd = globalMax;
-        initPixelsRange();
+        initPixelsRange(true);
     }
 
     /**

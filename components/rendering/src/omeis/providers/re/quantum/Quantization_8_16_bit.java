@@ -311,9 +311,22 @@ public class Quantization_8_16_bit extends QuantumStrategy {
         int i = LUT[x - min];
         return i & 0xFF; // assumed x in [min, max]
         */
+        /*
         if (x < lutMin || x > lutMax) {
             throw new QuantizationException("The value " + x
                    + " is not in the interval [" + lutMin + "," + lutMax + "]");
+        }
+        */
+        int diff;
+        if (x < lutMin) {
+        	diff = lutMin-x;
+        	x = lutMin+diff;
+        	if (x > lutMax) x = lutMax;
+        }
+        if (x > lutMax) {
+        	diff = x-lutMax;
+        	x = lutMax-diff;
+        	if (x < lutMin) x = lutMin;
         }
         int i = LUT[x - lutMin];
         return i & 0xFF; // assumed x in [min, max]
