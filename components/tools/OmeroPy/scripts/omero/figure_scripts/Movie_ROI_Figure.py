@@ -189,7 +189,8 @@ def getROImovieView    (re, queryService, pixels, timeShapeMap, mergedIndexes, m
     if showRoiDuration:
         log(" Timepoints shown are ROI duration, not from start of movie")
     timeLabels = figUtil.getTimeLabels(queryService, pixelsId, timeIndexes, sizeT, None, showRoiDuration)
-    print timeLabels[-1]
+    # The last value of the list will be the Units used to display time
+    print "Time label units are:", timeLabels[-1]
     
     fullFirstFrame = None
     for t, timepoint in enumerate(timeIndexes):
