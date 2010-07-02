@@ -31,6 +31,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -41,9 +42,12 @@ import java.util.List;
 import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
@@ -118,6 +122,9 @@ class DocComponent
 	/** Action id to open the annotation. */
 	private static final int DELETE = 4;
 	
+	/** Action id to open the annotation. */
+	private static final int MENU = 5;
+	
 	/** Collection of filters supported. */
 	private static final List<CustomizedFileFilter> FILTERS;
 		
@@ -136,19 +143,19 @@ class DocComponent
 	private EditorModel	model;
 	
 	/** Button to unlink the annotation. */
-	private JButton		unlinkButton;
+	private JMenuItem	unlinkButton;
 	
 	/** Button to edit the annotation. */
-	private JButton		editButton;
+	private JMenuItem		editButton;
 	
 	/** Button to download the file linked to the annotation. */
-	private JButton		downloadButton;
+	private JMenuItem		downloadButton;
 	
 	/** Button to open the file linked to the annotation. */
-	private JButton		openButton;
+	private JMenuItem		openButton;
 	
-	/** Button to open the delete the file annotation. */
-	private JButton		deleteButton;
+	/** Button to delete the file annotation. */
+	private JMenuItem		deleteButton;
 	
 	/** Component displaying the file name. */
 	private JLabel		label;
@@ -162,6 +169,9 @@ class DocComponent
 	/** The original description of the tag. */
 	private String		originalName;
 	
+	/** The Button used to display the managing option. */
+	private JButton		menuButton;
+	
 	/** 
 	 * Index indicating that the attachment is an image that
 	 * can be displayed as a thumbnail e.g. TIFF, JPEG, PNG, etc.
@@ -173,6 +183,9 @@ class DocComponent
 	 * if the attachment is not a supported image.
 	 */
 	private Icon 		thumbnail;
+	
+	/** The pop-up menu. */
+	private JPopupMenu	popMenu;
 	
 	/**
 	 * Enables or disables the various buttons depending on the passed value.
@@ -227,6 +240,25 @@ class DocComponent
 		if (!(data instanceof FileAnnotationData)) return;
 		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
 		bus.post(new EditFileEvent((FileAnnotationData) data));
+	}
+	
+	/** 
+	 * Brings up the menu. 
+	 * 
+	 * @param invoker The component where the clicks occurred.
+	 * @param p The location of the mouse pressed.
+	 */
+	private void showMenu(JComponent invoker, Point p)
+	{
+		if (popMenu == null) {
+			popMenu = new JPopupMenu();
+			if (editButton != null) popMenu.add(editButton);
+			if (unlinkButton != null) popMenu.add(unlinkButton);
+			if (downloadButton != null) popMenu.add(downloadButton);
+			if (openButton != null) popMenu.add(openButton);
+			if (deleteButton != null) popMenu.add(deleteButton);
+		}
+		popMenu.show(invoker, p.x, p.y);
 	}
 	
 	/**
@@ -332,9 +364,21 @@ class DocComponent
 	private void initButtons()
 	{
 		IconManager icons = IconManager.getInstance();
-		unlinkButton = new JButton(icons.getIcon(IconManager.MINUS_12));
-		UIUtilities.unifiedButtonLookAndFeel(unlinkButton);
-		unlinkButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+		menuButton = new JButton(icons.getIcon(IconManager.UP_DOWN_9_12));
+		UIUtilities.unifiedButtonLookAndFeel(menuButton);
+		menuButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+		menuButton.addMouseListener(new MouseAdapter() {
+			
+			public void mousePressed(MouseEvent e)
+			{
+				Point p = e.getPoint();
+				showMenu(menuButton, p);
+			}
+		});
+		unlinkButton = new JMenuItem(icons.getIcon(IconManager.MINUS_12));
+		unlinkButton.setText("Unlink");
+		//UIUtilities.unifiedButtonLookAndFeel(unlinkButton);
+		//unlinkButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		unlinkButton.addActionListener(this);
 		unlinkButton.setActionCommand(""+UNLINK);
 		if (data instanceof FileAnnotationData) {
@@ -342,18 +386,20 @@ class DocComponent
 			unlinkButton.setToolTipText("Remove the attachment.");
 			
 			if (fa.getId() > 0) {
-				deleteButton = new JButton(icons.getIcon(
+				deleteButton = new JMenuItem(icons.getIcon(
 						IconManager.DELETE_12));
-				UIUtilities.unifiedButtonLookAndFeel(deleteButton);
-				deleteButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+				deleteButton.setText("Delete");
+				//UIUtilities.unifiedButtonLookAndFeel(deleteButton);
+				//deleteButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 				deleteButton.addActionListener(this);
 				deleteButton.setActionCommand(""+DELETE);
 				
-				downloadButton = new JButton(icons.getIcon(
+				downloadButton = new JMenuItem(icons.getIcon(
 						IconManager.DOWNLOAD_12));
+				downloadButton.setText("Download...");
 				downloadButton.setOpaque(false);
-				UIUtilities.unifiedButtonLookAndFeel(downloadButton);
-				downloadButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+				//UIUtilities.unifiedButtonLookAndFeel(downloadButton);
+				//downloadButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 				downloadButton.setToolTipText("Download the selected file.");
 				downloadButton.setActionCommand(""+DOWNLOAD);
 				downloadButton.addActionListener(this);
@@ -362,11 +408,12 @@ class DocComponent
 				if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(ns) ||
 						FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns) ||
 						FileAnnotationData.COMPANION_FILE_NS.equals(ns)) {
-					openButton = new JButton(icons.getIcon(
+					openButton = new JMenuItem(icons.getIcon(
 							IconManager.EDITOR_12));
+					openButton.setText("Open");
 					openButton.setOpaque(false);
-					UIUtilities.unifiedButtonLookAndFeel(openButton);
-					openButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+					//UIUtilities.unifiedButtonLookAndFeel(openButton);
+					//openButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 					openButton.setToolTipText("Open the file in the editor.");
 					openButton.setActionCommand(""+OPEN);
 					openButton.addActionListener(this);
@@ -377,11 +424,12 @@ class DocComponent
 			}
 		} else if (data instanceof TagAnnotationData) {
 			unlinkButton.setToolTipText("Remove the Tag.");
-			editButton = new JButton(icons.getIcon(IconManager.EDIT_12));
-			editButton.setOpaque(false);
-			UIUtilities.unifiedButtonLookAndFeel(editButton);
-			editButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-			editButton.setToolTipText("Add or Edit the description.");
+			editButton = new JMenuItem(icons.getIcon(IconManager.EDIT_12));
+			editButton.setText("Edit");
+			//editButton.setOpaque(false);
+			//UIUtilities.unifiedButtonLookAndFeel(editButton);
+			//editButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+			//editButton.setToolTipText("Add or Edit the description.");
 			
 			editButton.setActionCommand(""+EDIT);
 			editButton.addActionListener(this);
@@ -468,7 +516,18 @@ class DocComponent
 			 */
 			public void mouseReleased(MouseEvent e)
 			{
-				if (e.getClickCount() == 2) postFileClicked();
+				if (e.getClickCount() == 1) {
+					if (e.isPopupTrigger()) showMenu(label, e.getPoint());
+				} else if (e.getClickCount() == 2) postFileClicked();
+			}
+			
+			/** 
+			 * Shows menu
+			 * @see MouseAdapter#mouseReleased(MouseEvent)
+			 */
+			public void mousePressed(MouseEvent e)
+			{
+				if (e.isPopupTrigger()) showMenu(label, e.getPoint());
 			}
 		});
 	}
@@ -485,6 +544,19 @@ class DocComponent
 		bar.setRollover(true);
 		bar.setBorder(null);
 		bar.setOpaque(true);
+		boolean b = setControlsEnabled(data != null);
+		int count = 0;
+		if (editButton != null) count++;
+		if (unlinkButton != null) count++;
+		if (downloadButton != null) count++;
+		if (openButton != null) count++;
+		if (deleteButton != null) count++;
+		if (count > 0) {
+			bar.add(menuButton);
+			if (!b) bar.add(Box.createHorizontalStrut(8));
+			add(bar);
+		}
+		/*
 		if (editButton != null) bar.add(editButton);
 		if (unlinkButton != null) bar.add(unlinkButton);
 		if (downloadButton != null) bar.add(downloadButton);
@@ -495,6 +567,7 @@ class DocComponent
 			if (!b) bar.add(Box.createHorizontalStrut(8));
 			add(bar);
 		}
+		*/
 	}
 	
 	/** Adds or edits the description of the tag. */
