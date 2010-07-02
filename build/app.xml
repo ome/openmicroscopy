@@ -177,7 +177,7 @@
 	  <target name="run-editor"
 	          depends="compile" 
 	          description="Run the app in its own JVM."> 
-	    <echo message="Launching OMERO.insight ..."/>
+	    <echo message="Launching OMERO.editor ..."/>
 	    <java classname="${app.mainclass}"
 	          classpathref="app.run.classpath" 
 	          fork="yes"
