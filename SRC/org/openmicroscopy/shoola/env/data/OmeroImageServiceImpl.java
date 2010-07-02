@@ -384,8 +384,6 @@ class OmeroImageServiceImpl
 			}
 			return r;
 		} catch (Exception e) {
-			//TODO: handle exception
-			e.printStackTrace();
 			context.getLogger().error(this, e.getMessage());
 			if (ids.size() > 0) { 
 				i = ids.iterator();

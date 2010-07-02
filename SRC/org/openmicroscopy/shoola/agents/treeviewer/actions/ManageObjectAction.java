@@ -207,7 +207,6 @@ public class ManageObjectAction
 	 */
 	protected void onDisplayChange(TreeImageDisplay selectedDisplay)
 	{
-		//System.err.println("selectedDisplay: "+selectedDisplay);
 		if (selectedDisplay == null) {
 			setEnabled(false);
 			return;

@@ -657,7 +657,8 @@ class BrowserUI
             	for (int i = 0; i < paths.length; i++) {
             		if (e.isAddedPath(paths[i])) added.add(paths[i]);
 				}
-            	if (!ctrl) controller.onClick(added);
+            	//if (!ctrl) 
+            	controller.onClick(added);
             }
         };
         treeDisplay.addTreeSelectionListener(selectionListener);
