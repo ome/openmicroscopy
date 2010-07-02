@@ -906,8 +906,15 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
     private boolean executeCheckPassword(final Principal _principal,
             final String credentials) {
-        Boolean ok = false;
-        ok = executeCheckPasswordRO(_principal, credentials);
+
+        Boolean ok = null;
+
+        try {
+            ok = executeCheckPasswordRO(_principal, credentials);
+        } catch (ApiUsageException aue) {
+            // ok. Read-write required.
+        }
+
         if (ok == null) {
             ok = executeCheckPasswordRW(_principal, credentials);
         }
@@ -926,7 +933,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                             _principal.getName(), credentials);
                 } catch (IllegalStateException e) {
                     // thrown if ldap is trying to create a user. 
-                    return null;
+                    throw new ApiUsageException("Read-write required.");
                 }
             }
         });
