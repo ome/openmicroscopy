@@ -80,8 +80,51 @@ class BrowserControl
         
     /** The selected cell, only used when displaying Plate. */
     private CellDisplay		selectedCell;
+
+    /**
+     * Handles the selection.
+     * 
+     * @param d The selected node.
+     * @param multiSelection Passed <code>true</code> if multiple selection is 
+     * 						 on, <code>false</code> otherwise.
+     * @param p The point where the mouse is clicked.
+     */
+    private void handleSelection(ImageDisplay d, 
+    		boolean multiSelection, Point p)
+    {
+    	ImageDisplay previousDisplay = model.getLastSelectedDisplay();
+		if (multiSelection) { //multi selection
+    		ImageDisplay previous = model.getLastSelectedDisplay();
+    		if (previous == null) {
+    			model.setSelectedDisplay(d, true, true);
+    			return;
+    		}
+    		Object object = previous.getHierarchyObject();
+    		Class ref = object.getClass();
+    		if (!ref.equals(d.getHierarchyObject().getClass())) return;
+    		
+    		Collection nodes = model.getSelectedDisplays();
+    		Iterator i = nodes.iterator();
+    		ImageDisplay node;
+    		boolean remove = false;
+    		while (i.hasNext()) {
+    			node = (ImageDisplay) i.next();
+				if (node.equals(d)) {
+					remove = true;
+					break;
+				}
+			}
+    		if (remove) model.removeSelectedDisplay(d);
+    		else model.setSelectedDisplay(d, true, true);
+    	} else {
+    		if (!(d.equals(previousDisplay)) && isSelectionValid(d)) {
+    			if (d instanceof CellDisplay) {
+    				setSelectedCell(p, (CellDisplay) d);
+    			} else model.setSelectedDisplay(d, false, true);
+    		}
+    	}
+    }
     
-     
     /**
      * Brings up the color picker to set the color of the node.
      * 
@@ -298,40 +341,9 @@ class BrowserControl
     		model.setPopupPoint(p, true);
     		return;
     	}
-    	if (macOS) {
-    		if (b) { //multi selection
-        		ImageDisplay previous = model.getLastSelectedDisplay();
-        		if (previous == null) {
-        			model.setSelectedDisplay(d, true, true);
-        			return;
-        		}
-        		Object object = previous.getHierarchyObject();
-        		Class ref = object.getClass();
-        		if (!ref.equals(d.getHierarchyObject().getClass())) return;
-        		
-        		Collection nodes = model.getSelectedDisplays();
-        		Iterator i = nodes.iterator();
-        		ImageDisplay node;
-        		boolean remove = false;
-        		while (i.hasNext()) {
-        			node = (ImageDisplay) i.next();
-    				if (node.equals(d)) {
-    					remove = true;
-    					break;
-    				}
-    			}
-        		if (remove) model.removeSelectedDisplay(d);
-        		else model.setSelectedDisplay(d, true, true);
-        	} else {
-        		if (!(d.equals(previousDisplay)) && isSelectionValid(d)) {
-        			if (d instanceof CellDisplay) {
-        				setSelectedCell(me.getPoint(), (CellDisplay) d);
-        			} else model.setSelectedDisplay(d, false, true);
-        		}
-        	}
-    	}
+    	if (macOS) handleSelection(d, b, me.getPoint());
     }
-
+    
     /**
      * Tells the model that either a popup point or a thumbnail selection
      * was detected.
@@ -364,43 +376,14 @@ class BrowserControl
     		boolean macOS = UIUtilities.isMacOS();
     		if (macOS) return;
         	b = me.isShiftDown() || me.isControlDown();
-    		if (SwingUtilities.isRightMouseButton(me) || 
+        	if (SwingUtilities.isRightMouseButton(me) || 
     				(me.isPopupTrigger() && b)) {
     			model.setPopupPoint(me.getPoint(), true);
+    			return;
     		}
     		ImageDisplay d = findParentDisplay(me.getSource());
-	    	d.moveToFront();
-	    	ImageDisplay previousDisplay = model.getLastSelectedDisplay();
-    		if (b) { //multi selection
-        		ImageDisplay previous = model.getLastSelectedDisplay();
-        		if (previous == null) {
-        			model.setSelectedDisplay(d, true, true);
-        			return;
-        		}
-        		Object object = previous.getHierarchyObject();
-        		Class ref = object.getClass();
-        		if (!ref.equals(d.getHierarchyObject().getClass())) return;
-        		
-        		Collection nodes = model.getSelectedDisplays();
-        		Iterator i = nodes.iterator();
-        		ImageDisplay node;
-        		boolean remove = false;
-        		while (i.hasNext()) {
-        			node = (ImageDisplay) i.next();
-    				if (node.equals(d)) {
-    					remove = true;
-    					break;
-    				}
-    			}
-        		if (remove) model.removeSelectedDisplay(d);
-        		else model.setSelectedDisplay(d, true, true);
-        	} else {
-        		if (!(d.equals(previousDisplay)) && isSelectionValid(d)) {
-        			if (d instanceof CellDisplay) {
-        				setSelectedCell(me.getPoint(), (CellDisplay) d);
-        			} else model.setSelectedDisplay(d, false, true);
-        		}
-        	}
+    		d.moveToFront();
+    		handleSelection(d, b, me.getPoint());
     	}	
     }
 
