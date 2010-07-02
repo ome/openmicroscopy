@@ -189,6 +189,7 @@ def getROImovieView    (re, queryService, pixels, timeShapeMap, mergedIndexes, m
     if showRoiDuration:
         log(" Timepoints shown are ROI duration, not from start of movie")
     timeLabels = figUtil.getTimeLabels(queryService, pixelsId, timeIndexes, sizeT, None, showRoiDuration)
+    print timeLabels[-1]
     
     fullFirstFrame = None
     for t, timepoint in enumerate(timeIndexes):
@@ -672,7 +673,7 @@ def roiFigure(session, commandArgs):
         if commandArgs["Format"] == "PNG":
             format = PNG
             
-    output = "roiFigure"
+    output = "movieROIFigure"
     if "Figure_Name" in commandArgs:
         output = str(commandArgs["Figure_Name"])
         
@@ -706,22 +707,55 @@ def runAsScript():
     
     client = scripts.client('Movie_ROI_Figure.py', """Create a figure of movie frames from ROI region of image.
 See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIMovieFigure""",
-    scripts.List("Image_IDs", optional=False, description="List of Images. Figure will be attached to first image").ofType(rlong(0)),
-    scripts.List("Merged_Colours", description="A list of colours to apply to merged channels.", values=cOptions), 
-    scripts.List("Merged_Channels", description="A list of channel indexes to display").ofType(rint(0)),                   
-    scripts.Int("Width",description="Max width of each image panel", min=1),   
-    scripts.Int("Height",description="The max height of each image panel", min=1),
-    scripts.String("Image_Labels",description="Label images with the Image Name or Datasets or Tags", values=labels),               
-    scripts.String("Algorithm", description="Algorithum for projection.", values=algorithums),
-    scripts.Int("Scalebar", description="Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
-    scripts.String("Format", description="Format to save image.", values=formats, default='JPEG'),
-    scripts.String("Figure_Name", description="File name of the figure to save."),
-    scripts.String("Scalebar_Colour", description="The colour of the scalebar.",default='White',values=oColours),
-    scripts.Float("Roi_Zoom", description="How much to zoom the ROI. E.g. x 2. If 0 then zoom roi panel to fit"),
-    scripts.Int("Max_Columns", description="The maximum number of columns in the figure, for ROI-movie frames.", min=1),
-    scripts.Bool("Show_Roi_Duration", description="If true, times shown are from the start of the ROI frames, otherwise use movie timestamp."),
-    scripts.String("Roi_Selection_Label", description=roiLabel)
-    #scripts.R("File_Annotation", description="Script returns a File Annotation ID of attached Figure").out()
+
+    scripts.List("Image_IDs", optional=False, grouping="1",
+        description="List of Images. Figure will be attached to first image").ofType(rlong(0)),
+    
+    scripts.List("Merged_Colours", grouping="2",
+        description="A list of colours to apply to merged channels.", values=cOptions),
+         
+    scripts.List("Merged_Channels", grouping="3",
+        description="A list of channel indexes to display").ofType(rint(0)), 
+        
+    scripts.Float("Roi_Zoom", grouping="4", default=1,
+        description="How much to zoom the ROI. E.g. x 2. If 0 then ROI panel will zoom to same size as main image"),
+    
+    scripts.Int("Max_Columns", grouping="4.1", default=10,
+        description="The maximum number of columns in the figure, for ROI-movie frames.", min=1),
+    
+    scripts.Bool("Resize_Images", grouping="5", default=False,
+        description="Images are shown full-size by default, but can be resized below"),
+        
+    scripts.Int("Width", grouping="5.1",
+        description="Max width of each image panel in pixels", min=1), 
+          
+    scripts.Int("Height", grouping="5.2",
+        description="The max height of each image panel in pixels", min=1),
+             
+    scripts.String("Image_Labels", grouping="6",
+        description="Label images with the Image Name or Datasets or Tags", values=labels), 
+    
+    scripts.Bool("Show_ROI_Duration", grouping="6.1",
+        description="If true, times shown as duration from first timepoint of the ROI, otherwise use movie timestamp."),
+        
+    scripts.Int("Scalebar", grouping="7",
+        description="Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
+        
+    scripts.String("Scalebar_Colour", grouping="7.1",
+        description="The colour of the scalebar and ROI outline.",default='White',values=oColours),
+    
+    scripts.String("Roi_Selection_Label", grouping="8",
+        description=roiLabel),
+        
+    scripts.String("Algorithm", grouping="9",
+        description="Algorithum for projection, if ROI spans several Z sections.", values=algorithums),
+
+    scripts.String("Figure_Name", grouping="10",
+        description="File name of the figure to save.", default='movieROIFigure'),
+
+    scripts.String("Format", grouping="10.1",
+        description="Format to save figure.", values=formats, default='JPEG'),
+    
     )
     
     try:

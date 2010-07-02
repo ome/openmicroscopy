@@ -239,12 +239,9 @@ def getROIsplitView    (re, pixels, zStart, zEnd, splitIndexes, channelNames, me
         indent = (panelWidth - (font.getsize(label)[0])) / 2
         # text is coloured if channel is not coloured AND in the merged image
         rgb = (0,0,0)
-        print index, type(index)
         if index in mergedColours:
-            print "making label for index:...", index 
             if not colourChannels:
                 rgb = tuple(mergedColours[index])
-                print "..with colour", rgb
                 if rgb == (255,255,255,255):    # if white (unreadable), needs to be black! 
                     rgb = (0,0,0)
         if showTopLabels: draw.text((px+indent, textY), label, font=font, fill=rgb)
@@ -770,7 +767,7 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIFigure""",
     scripts.Bool("Merged_Names", description="If true, label the merged panel with channel names. Otherwise label with 'Merged'"),
     scripts.List("Split_Indexes", description="List of the channels in the split view panels"),
     scripts.Bool("Split_Panels_Grey", description="If true, all split panels are greyscale"),
-    scripts.Map("Merged_Colours", description="Map of index:int colours for each merged channel. Otherwise use existing colour settings"),
+    scripts.Map("Merged_Colours", description="Map of index:int colours for each merged channel. Otherwise use existing colour settings").ofType(rint(0)),
     scripts.Int("Width",description="Max width of each image panel", min=1),   
     scripts.Int("Height",description="The max height of each image panel", min=1),
     scripts.String("Image_Labels",description="Label images with the Image's Name or it's Datasets or Tags", values=labels),               
@@ -799,7 +796,7 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIFigure""",
         fileAnnotation = roiFigure(session, commandArgs)
         # return this fileAnnotation to the client. 
         if fileAnnotation:
-            client.setOutput("Message", rstring("ROI Figure Created"))
+            client.setOutput("Message", rstring("ROI Split Figure Created"))
             client.setOutput("File_Annotation", robject(fileAnnotation))
     except: raise
     finally: client.closeSession()

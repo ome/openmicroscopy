@@ -679,7 +679,7 @@ def runAsScript():
      
     client = scripts.client('Split_View_Figure.py', """Create a figure of split-view images.
 See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#Split-viewFigure""", 
-    scripts.List("Image_IDs", description="List of image IDs. Resulting figure will be attached to first image.").ofType(rlong(0)),
+    scripts.List("Image_IDs", optional=False, description="List of image IDs. Resulting figure will be attached to first image.").ofType(rlong(0)),
     scripts.Int("Z_Start", description="Projection range (if not specified, use defaultZ only - no projection)", min=0),
     scripts.Int("Z_End", description="Projection range (if not specified, use defaultZ only - no projection)", min=0),
     scripts.Map("Channel_Names", description="Map of index: channel name for all channels"),
