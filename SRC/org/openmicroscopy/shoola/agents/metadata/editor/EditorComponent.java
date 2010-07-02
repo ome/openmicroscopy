@@ -40,7 +40,6 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.model.OriginalFile;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
@@ -51,7 +50,6 @@ import org.openmicroscopy.shoola.agents.metadata.util.ScriptingDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
@@ -570,8 +568,12 @@ class EditorComponent
 	public void setRenderingControl(RenderingControl rndControl)
 	{
 		boolean loaded = model.isRendererLoaded();
-		model.setRenderingControl(rndControl);
 		setStatus(false);
+		if (rndControl == null) { //exception
+			setSelectedTab(GENERAL_TAB);
+			return;
+		}
+		model.setRenderingControl(rndControl);
 		if (loaded) view.onSettingsApplied(false);
 		//if (model.isNumerousChannel()) return;
 		FigureDialog d = controller.getFigureDialog();

@@ -131,15 +131,16 @@ public class RenderingControlLoader
      */
     public void handleException(Throwable exc) 
     {
-        String s = "Data Retrieval Failure: ";
-        LogMessage msg = new LogMessage();
-        msg.print(s);
-        msg.print(exc);
-        registry.getLogger().error(this, msg);
-        registry.getUserNotifier().notifyInfo("Loading Rendering data", 
-        		"The image could not be opened. \n" +
-        		"The image is not a valid image.");
-       registry.getEventBus().post(new RendererUnloadedEvent(pixelsID));
+    	String s = "Data Retrieval Failure: ";
+    	LogMessage msg = new LogMessage();
+    	msg.print(s);
+    	msg.print(exc);
+    	registry.getLogger().error(this, msg);
+    	registry.getUserNotifier().notifyInfo("Loading Rendering data", 
+    			"The image could not be opened. \n" +
+    	"The image is not a valid image.");
+    	viewer.setRenderingControl(null);
+    	registry.getEventBus().post(new RendererUnloadedEvent(pixelsID));
     }
     
     /** 

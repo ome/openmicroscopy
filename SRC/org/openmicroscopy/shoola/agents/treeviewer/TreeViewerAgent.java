@@ -394,8 +394,9 @@ public class TreeViewerAgent
 			handleUserGroupSwitched((UserGroupSwitched) e);
 		else if (e instanceof DataObjectSelectionEvent)
 			handleDataObjectSelectionEvent((DataObjectSelectionEvent) e);
-		 else if (e instanceof ViewObjectEvent)
+		else if (e instanceof ViewObjectEvent)
 	        	handleViewObjectEvent((ViewObjectEvent) e);
+		
 	}
 
 }

@@ -133,7 +133,7 @@ public interface Renderer
 	
 	/** Bound property indicating to load the rendering settings. */
 	public static final String	VIEWED_BY_PROPERTY = "ViewedBy";
-	
+
     /** 
      * Sets the pixels intensity interval for the
      * currently selected channel.
@@ -648,5 +648,5 @@ public interface Renderer
 	 * 				  and the associated images.
 	 */
 	void loadRndSettings(boolean loading, List results);
-
+	
 }
