@@ -60,10 +60,10 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 /** 
  * A modal dialog to save the currently rendered image.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @authorAndrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
@@ -181,11 +181,12 @@ public class ImgSaver
      */
     private void createImages(int savingType)
     {
+    	boolean b = uiDelegate.includeROI();
         switch (savingType) {
             default:
             case ImgSaverUI.IMAGE:
             	type = ImgSaverUI.IMAGE;
-                mainImage = model.getDisplayedImage();
+                mainImage = model.getDisplayedImage(b);
                 imageComponents = null;
                 break;
             case ImgSaverUI.GRID_IMAGE:
@@ -200,15 +201,15 @@ public class ImgSaver
                 break;
             case ImgSaverUI.IMAGE_AND_COMPONENTS:
             	type = ImgSaverUI.IMAGE_AND_COMPONENTS;
-                mainImage = model.getDisplayedImage();
+                mainImage = model.getDisplayedImage(b);
                 imageComponents = model.getImageComponents(
-                						ImViewer.RGB_MODEL);
+                						ImViewer.RGB_MODEL, b);
                 break;
             case ImgSaverUI.IMAGE_AND_COMPONENTS_GREY:
             	type = ImgSaverUI.IMAGE_AND_COMPONENTS;
-                mainImage = model.getDisplayedImage();
+                mainImage = model.getDisplayedImage(b);
                 imageComponents = model.getImageComponents(
-                							ImViewer.GREY_SCALE_MODEL);
+                							ImViewer.GREY_SCALE_MODEL, b);
                 break;
             case ImgSaverUI.LENS_IMAGE:
             	type = ImgSaverUI.LENS_IMAGE;
@@ -226,7 +227,6 @@ public class ImgSaver
             	mainImage = model.getZoomedLensImage();
             	imageComponents = model.getLensImageComponents(
             								ImViewer.GREY_SCALE_MODEL);
-                break;
         }
     }
     
@@ -288,13 +288,34 @@ public class ImgSaver
     /** Invokes when the openGL flag is turned on. */
     private void saveAsTexture()
     {
+    	boolean unitBar = model.isUnitBar();
+    	String v = getUnitBarValue(); 
+    	int s = (int) getUnitBarSize();
+    	UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+    	try {
+    		BufferedImage img = model.createImageFromTexture(
+    				uiDelegate.getSavingType(), uiDelegate.includeROI());
+    		writeSingleImage(img, false, name);
+    	} catch (Exception e) {
+    		un.notifyInfo("Saving Image", "An error occurred while saving " +
+    		"the image.");
+    		return;
+    	}
+    	un.notifyInfo("Saving Image", saveMessage);
+    	if (uiDelegate.isSetDefaultFolder())
+    		UIUtilities.setDefaultFolder(uiDelegate.getCurrentDirectory());
+   
+        
+    	/*
     	String extendedName = getExtendedName(name, format);
         SaveObject object = new SaveObject(extendedName, format, 
         		uiDelegate.getSavingType());
+        object.setIncludeROI(uiDelegate.includeROI());
         if (uiDelegate.isSetDefaultFolder())
         	UIUtilities.setDefaultFolder(uiDelegate.getCurrentDirectory());
         firePropertyChange(SAVE_IMAGE_PROPERTY, null, object);
         close();
+        */
     }
     
     /**
@@ -307,16 +328,18 @@ public class ImgSaver
      * @param defaultType   Either, <code>Image</code>, <code>GridImage</code>
      * 						or <code>Projected Image</code> depending on the 
      * 						selected tab.
+     * @param withROI		Passed <code>true</code> to turn on the option to 
+     * 						include ROI, <code>false</code> otherwise.
      */
     public ImgSaver(JFrame owner, ImViewer model, int savingType, 
-    		int defaultType)
+    		int defaultType, boolean withROI)
     {
         super(owner);
         //if (model == null) throw new IllegalArgumentException("No model.");
         checkSavingType(savingType);
         this.model = model;
         setProperties();
-        uiDelegate = new ImgSaverUI(this, defaultType);
+        uiDelegate = new ImgSaverUI(this, defaultType, withROI);
         pack();
     }
     
@@ -467,6 +490,13 @@ public class ImgSaver
     void saveImage(boolean init)
     {
     	if (ImViewerAgent.hasOpenGLSupport()) {
+    		
+    		
+    		
+    		
+    		
+    		
+    		
     		saveAsTexture();
     		return;
     	}

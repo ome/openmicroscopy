@@ -29,22 +29,20 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.io.File;
-
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
 //Third-party libraries
+import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
-import org.openmicroscopy.shoola.agents.imviewer.util.saver.SaveObject;
+import org.openmicroscopy.shoola.agents.imviewer.util.saver.ImgSaver;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
-import com.sun.opengl.util.texture.TextureData;
 
 
 /** 
@@ -647,30 +645,21 @@ class BrowserComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see Browser#saveImage(SaveObject)
+	 * @see Browser#createImageFromTexture(int)
 	 */
-	public void saveImage(SaveObject value)
+	public BufferedImage createImageFromTexture(int type)
 	{
-		if (value == null) return;
-		UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-		String name = value.getFileName();
-		if (name == null || name.trim().length() == 0) {
-			un.notifyInfo("Save Image", "Please specify a file name.");
-			return;
-		}
-		File file = new File(name);
-		switch (value.getType()) {
-			case SaveObject.IMAGE:
-				view.activeFileSave(file, value.getFormat());
-				break;
-			case SaveObject.PROJECTED_IMAGE:
-				projectionView.activeFileSave(file, value.getFormat());
-				break;
-			case SaveObject.GRID_IMAGE:
+		switch (type) {
+			case ImgSaver.IMAGE:
+				return view.activeFileSave();
+			case ImgSaver.PROJECTED_IMAGE:
+				return projectionView.activeFileSave();
+			case ImgSaver.GRID_IMAGE:
 				if (!model.hasGridImagesAsTexture())
 					model.setGridImages();
-				gridView.activeFileSave(file, value.getFormat());
+				return gridView.activeFileSave();
 		}
+		return null;
 	}
 
 	/** 

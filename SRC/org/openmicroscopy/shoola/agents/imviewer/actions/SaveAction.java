@@ -26,9 +26,6 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-
 import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 
@@ -37,19 +34,18 @@ import javax.swing.event.ChangeEvent;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.util.saver.ImgSaver;
-import org.openmicroscopy.shoola.agents.imviewer.util.saver.SaveObject;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Brings up the widget to save the displayed image.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
  * (<b>Internal version:</b> $Revision: $ $Date: $)
@@ -121,16 +117,8 @@ public class SaveAction
 			case ImViewer.GRID_INDEX:
 				value = ImgSaver.GRID_IMAGE;
 		}
-        ImgSaver saver = new ImgSaver(model.getUI(), model, index, value);
-        saver.addPropertyChangeListener(new PropertyChangeListener() {
-			
-			public void propertyChange(PropertyChangeEvent evt) {
-				String name = evt.getPropertyName();
-				if (ImgSaver.SAVE_IMAGE_PROPERTY.equals(name)) {
-					model.saveImage((SaveObject) evt.getNewValue());
-				}
-			}
-		});
+        ImgSaver saver = new ImgSaver(model.getUI(), model, index, value,
+        		model.includeROI());
         UIUtilities.setLocationRelativeToAndShow(model.getUI(), saver);
     }
     

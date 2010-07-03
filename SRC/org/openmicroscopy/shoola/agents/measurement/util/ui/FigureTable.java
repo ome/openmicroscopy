@@ -116,7 +116,8 @@ public class FigureTable
 			return new DefaultCellEditor((JCheckBox) renderer.
 				getTableCellRendererComponent(this,
 					getValueAt(row, col), false, false, row, col));
-		} else return super.getCellEditor(row, col);
+		} 
+		return super.getCellEditor(row, col);
 	}
 	
 }

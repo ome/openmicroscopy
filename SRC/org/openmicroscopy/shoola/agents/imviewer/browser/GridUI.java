@@ -111,19 +111,16 @@ class GridUI
 		buildGUI();
 	}
 	
-	/**
-	 * Saves the image to the passed file.
-	 * 
-	 * @param file		The file where to save the image.
-	 * @param format	The format to use.
-	 */
-	void activeFileSave(File file, String format)
+	/** Creates the image to save. */
+	BufferedImage activeFileSave()
 	{
 		if (canvas instanceof GridCanvas) {
-			((GridCanvas) canvas).activeSave(file, format);
+			GridCanvas gc = (GridCanvas) canvas;
+			gc.activeSave();
 			canvas.repaint();
+			return gc.getImageToSave();
 		}
-		
+		return null;
 	}
 	
 	/** Sets the dimension of the UI components. */

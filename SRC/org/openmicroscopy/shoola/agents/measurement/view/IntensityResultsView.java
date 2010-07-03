@@ -400,11 +400,9 @@ class IntensityResultsView
 			writer.writeTableToSheet(0, 0, resultsModel);
 			BufferedImage originalImage = model.getRenderedImage();
 			BufferedImage image = Factory.copyBufferedImage(originalImage);
-			
 			// Add the ROI for the current plane to the image.
 			//TODO: Need to check that.
 			model.setAttributes(MeasurementAttributes.SHOWID, true);
-			
 			model.setAttributes(MeasurementAttributes.SHOWID, false);
 			try {
 				if (image != null) {
@@ -694,8 +692,6 @@ class IntensityResultsView
 		}
 	}
 
-
-	
 	/** 
 	 * The table model for the results table, only overridden to make it read 
 	 * only.
@@ -705,10 +701,11 @@ class IntensityResultsView
 	{
 		
 		/**
-		 * Overridden to make sure that the cell is not editable.
+		 * Overridden to make sure that the cell cannot be edited.s
 		 * @see DefaultTableModel#isCellEditable(int, int)
 		 */
 		public boolean isCellEditable(int row, int col) { return false; }
 	}
+	
 }
 

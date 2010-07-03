@@ -183,6 +183,9 @@ class ImgSaverUI
     /** Check box indicating to the save each channel in a separated file. */
     private JCheckBox					separateFiles;
     
+    /** Include the ROI is available. */
+    private JCheckBox					withROI;
+    
     /** Initializes the static fields. */
     static {
         selections = new String[MAX+1];
@@ -213,8 +216,11 @@ class ImgSaverUI
      * 
      * @param defaultType   Either, <code>Image</code>, <code>GridImage</code>
      * 						or <code>Projected Image</code> depending on the 
-     * 						selected tab.*/
-    private void initComponents(int defaultType)
+     * 						selected tab.
+     * @param includeROI	Passed <code>true</code> to turn on the option to 
+     * 						include ROI, <code>false</code> otherwise.
+     */
+    private void initComponents(int defaultType, boolean includeROI)
     {
     	int index = 0;
     	switch (defaultType) {
@@ -263,6 +269,12 @@ class ImgSaverUI
     	newFolderButton.setToolTipText(
     			UIUtilities.formatToolTipText("Create a new folder"));
     	model.getRootPane().setDefaultButton(saveButton);
+    	withROI = new JCheckBox("Include ROI");
+    	withROI.setVisible(false);
+    	if (includeROI) {
+    		withROI.setVisible(true);
+    		withROI.setSelected(true);
+    	}
     }
     
     /**
@@ -312,6 +324,8 @@ class ImgSaverUI
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         p.add(UIUtilities.buildComponentPanelCenter(result));
+        if (withROI.isVisible()) 
+        	p.add(UIUtilities.buildComponentPanel(withROI));
         p.add(UIUtilities.buildComponentPanel(separateFiles));
         return UIUtilities.buildComponentPanelCenter(p);
     }
@@ -352,17 +366,24 @@ class ImgSaverUI
      */
     private void handleSavingTypesSelection()
 	{
+    	withROI.setEnabled(false);
 		switch (savingTypes.getSelectedIndex()) {
 			case IMAGE_AND_COMPONENTS:
 			case IMAGE_AND_COMPONENTS_GREY:
+				withROI.setEnabled(true);
+				separateFiles.setVisible(true);
+				break;
 			case LENS_IMAGE_AND_COMPONENTS:
 			case LENS_IMAGE_AND_COMPONENTS_GREY:
 				separateFiles.setVisible(true);
 				break;
-	
-			default:
+			case IMAGE:
+				withROI.setEnabled(true);
 				separateFiles.setVisible(false);
 				break;
+			case GRID_IMAGE:
+			case PROJECTED_IMAGE:
+				separateFiles.setVisible(false);
 		}
 	}
     
@@ -372,13 +393,15 @@ class ImgSaverUI
      * @param model Reference to the Model. Mustn't be <code>null</code>.
      * @param defaultType   Either, <code>Image</code>, <code>GridImage</code>
      * 						or <code>Projected Image</code> depending on the 
-     * 						selected tab.
+     * 						selected tab. 
+     * @param withROI		Passed <code>true</code> to turn on the option to 
+     * 						include ROI, <code>false</code> otherwise.
      */
-    ImgSaverUI(ImgSaver model, int defaultType)
+    ImgSaverUI(ImgSaver model, int defaultType, boolean withROI)
     { 
         if (model == null) throw new IllegalArgumentException("No model.");
         this.model = model;
-        initComponents(defaultType);
+        initComponents(defaultType, withROI);
         buildGUI();
     }
     
@@ -401,11 +424,22 @@ class ImgSaverUI
     
     /**
      * Returns <code>true</code> if the default folder is set when
-     * saving the image, <code>false</code> toherwise.
+     * saving the image, <code>false</code> otherwise.
      * 
      * @return See above.
      */
     boolean isSetDefaultFolder() { return settings.isSelected(); }
+    
+    /**
+     * Returns <code>true</code> if the ROI are included, <code>false</code>
+     * otherwise.
+     * 
+     * @return See above.
+     */
+    boolean includeROI()
+    { 
+    	return withROI.isSelected() && withROI.isEnabled(); 
+    }
     
     /**
      * Sets the <code>enabled</code> flag of not the <code>Save</code> and

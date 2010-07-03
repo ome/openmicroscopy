@@ -24,7 +24,6 @@
 package org.openmicroscopy.shoola.agents.imviewer.view;
 
 
-
 //Java imports
 import java.awt.Color;
 import java.awt.Component;
@@ -72,7 +71,6 @@ import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjSavingDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
-import org.openmicroscopy.shoola.agents.imviewer.util.saver.SaveObject;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
@@ -87,11 +85,13 @@ import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
+
 
 /** 
  * Implements the {@link ImViewer} interface to provide the functionality
@@ -155,6 +155,31 @@ class ImViewerComponent
     /** The projection dialog. */
     private ProjSavingDialog 				projDialog;
     
+    /** The list of component added to the main viewer. */
+    private List<JComponent>				layers;
+    
+	/**
+	 * Creates and returns an image including the ROI
+	 * 
+	 * @param image The image to handle.
+	 * @return See above.
+	 */
+	private BufferedImage createImageWithROI(BufferedImage image)
+	{
+		Iterator<JComponent> i = layers.iterator();
+		JComponent c;
+		BufferedImage img = Factory.copyBufferedImage(image);
+		DrawingCanvasView canvas;
+		while (i.hasNext()) {
+			c = i.next();
+			if (c instanceof DrawingCanvasView) {
+				canvas = (DrawingCanvasView) c;
+				canvas.print(img.getGraphics());
+			}
+		}
+		return img;
+	}
+	
 	/** 
 	 * Brings up the dialog used to set the parameters required for the
 	 * projection.
@@ -1148,7 +1173,7 @@ class ImViewerComponent
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#getImageComponents(String)
 	 */
-	public List getImageComponents(String colorModel)
+	public List getImageComponents(String colorModel, boolean includeROI)
 	{
 		switch (model.getState()) {
 		case NEW:
@@ -1163,7 +1188,7 @@ class ImViewerComponent
 		List<BufferedImage> images = new ArrayList<BufferedImage>(n);
 		if (n == 0) return images;
 		else if (n == 1) {
-			images.add(model.getDisplayedImage());
+			images.add(getDisplayedImage(includeROI));
 			return images;
 		}
 		Iterator i = l.iterator();
@@ -1181,6 +1206,9 @@ class ImViewerComponent
 			if (splitImage != null)
 				img = Factory.magnifyImage(splitImage, 
 						model.getZoomFactor(), 0);
+			if (includeROI && layers != null) {
+				img = createImageWithROI(img);
+			}
 			map.put(index, img);
 		}
 		model.setColorModel(oldColorModel, false);
@@ -1377,9 +1405,9 @@ class ImViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#getDisplayedImage()
+	 * @see ImViewer#getDisplayedImage(boolean)
 	 */
-	public BufferedImage getDisplayedImage()
+	public BufferedImage getDisplayedImage(boolean includeROI)
 	{
 		switch (model.getState()) {
 			case NEW:
@@ -1388,9 +1416,13 @@ class ImViewerComponent
 			case DISCARDED:
 				return null;
 		}
+		if (includeROI) {
+			if (layers == null) return model.getDisplayedImage();
+			return createImageWithROI(model.getDisplayedImage());//model.getBrowser().getRenderedImage());
+		}
 		return model.getDisplayedImage();
 	}
-
+	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#getDisplayedProjectedImage()
@@ -1926,6 +1958,8 @@ class ImViewerComponent
 	{
 		if (model.getState() != READY) return;
 		if (comp == null) return;
+		if (layers == null) layers = new ArrayList<JComponent>();
+		layers.add(comp);
 		view.setMeasurementLaunchingStatus(false);
 		model.getBrowser().addComponent(comp, ImViewer.VIEW_INDEX);
 		comp.setVisible(true);
@@ -1940,6 +1974,7 @@ class ImViewerComponent
 	{
 		if (model.getState() != READY) return;
 		if (comp == null) return;
+		if (layers != null) layers.remove(comp);
 		model.getBrowser().removeComponent(comp, ImViewer.VIEW_INDEX);
 		view.repaint();
 	}
@@ -2838,17 +2873,24 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#saveImage(SaveObject)
+	 * @see ImViewer#createImageFromTexture(int, boolean includeROI)
 	 */
-	public void saveImage(SaveObject value)
+	public BufferedImage createImageFromTexture(int type, boolean includeROI)
 	{
 		switch (model.getState()) {
 			case LOADING_IMAGE:
 			case DISCARDED:
-				return;
+				return null;
 		}
-		if (value == null) return;
-		model.getBrowser().saveImage(value);
+		if (!ImViewerAgent.hasOpenGLSupport()) return null;
+
+		BufferedImage img = model.getBrowser().createImageFromTexture(type);
+		if (img == null) return null;
+        
+		if (includeROI) {
+			createImageWithROI(img);
+		}
+		return img;
 	}
 
 	/** 
@@ -3016,6 +3058,21 @@ class ImViewerComponent
 		Map m = model.getRenderingSettings();
 		if (m == null) model.fireOwnerSettingsRetrieval();
 		else setRenderingSettings(m, model.getOwnerID());
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#includeROI()
+	 */
+	public boolean includeROI()
+	{
+		if (layers == null) return false;
+		if (ImViewerAgent.hasOpenGLSupport()) return false;
+		Iterator<JComponent> i = layers.iterator();
+		while (i.hasNext()) {
+			if (i.next() instanceof DrawingCanvasView) return true;
+		}
+		return false;
 	}
 	
 	/** 

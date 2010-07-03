@@ -27,9 +27,6 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
 
 //Third-party libraries
@@ -48,11 +45,6 @@ import com.sun.opengl.util.texture.TextureData;
 import com.sun.opengl.util.texture.TextureIO;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
-import org.openmicroscopy.shoola.util.image.geom.Factory;
-import org.openmicroscopy.shoola.util.image.io.Encoder;
-import org.openmicroscopy.shoola.util.image.io.TIFFEncoder;
-import org.openmicroscopy.shoola.util.image.io.WriterImage;
 
 
 /**
@@ -106,10 +98,10 @@ class GLImageCanvas
     protected String		paintedString;
 
     /** The file where to save the image. */
-    protected File			savedFile;
+    protected boolean		savedFile;
     
-    /** The format to use. */
-    protected String		format;
+    /** The image to save. */
+    protected BufferedImage image;
     
     /**
      * Copies the frame to an array.
@@ -155,14 +147,15 @@ class GLImageCanvas
      */
     protected void saveDisplayedImage(GL gl)
     {
-    	if (gl == null || savedFile == null) return;
+    	if (gl == null || savedFile) return;
     	Dimension s = getSize();
     	int w = s.width; 
     	int h = s.height;
-    	BufferedImage img = new BufferedImage(w, h, 
+    	image = new BufferedImage(w, h, 
     			BufferedImage.TYPE_INT_ARGB);
-    	img.setRGB(0, 0, w, h, copyFrame(gl), 0, w);
+    	image.setRGB(0, 0, w, h, copyFrame(gl), 0, w);
     	// write the file.
+    	/*
     	try {
     		if (TIFFFilter.TIF.equals(format)) {
     			Encoder encoder = new TIFFEncoder(Factory.createImage(img), 
@@ -175,8 +168,8 @@ class GLImageCanvas
     	} catch (Exception e) {
     		savedFile.delete();
     	}
-    	savedFile = null;
-    	format = null;
+    	*/
+    	savedFile = false;
     }
     
     /**
@@ -290,15 +283,16 @@ class GLImageCanvas
 	}
 	
 	/**
-	 * Saves the image to the passed file.
+	 * Returns the image to save.
 	 * 
-	 * @param file		The file where to save the image.
-	 * @param format	The format to use.
+	 * @return See above.
 	 */
-	void activeSave(File file, String format)
+	BufferedImage getImageToSave() { return image; }
+	
+	/** Creates a buffered image. */
+	void activeSave()
 	{
-		savedFile = file;
-		this.format = format;
+		savedFile = true;
 	}
 	
     /**

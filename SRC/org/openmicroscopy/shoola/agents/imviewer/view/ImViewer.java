@@ -41,7 +41,6 @@ import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
-import org.openmicroscopy.shoola.agents.imviewer.util.saver.SaveObject;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -60,12 +59,12 @@ import pojos.ImageData;
  * At which point, all clients should de-reference the component to allow for
  * garbage collection.
  * 
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
  * (<b>Internal version:</b> $Revision: $ $Date: $)
@@ -426,18 +425,22 @@ public interface ImViewer
 	 * {@link #GREY_SCALE_MODEL} or if the image isn't the combination of at 
 	 * least two channels.
 	 * 
-	 * @param colorModel 	The index of the color model either 
-	 * 						{@link #GREY_SCALE_MODEL} or {@link #RGB_MODEL}.
+	 * @param colorModel The index of the color model either 
+	 * 					 {@link #GREY_SCALE_MODEL} or {@link #RGB_MODEL}.
+	 * @param includeROI Passed <code>true</code> to add ROI, 
+	 * 					 <code>false</code> otherwise.
 	 * @return See above.
 	 */
-	public List getImageComponents(String colorModel);
+	public List getImageComponents(String colorModel, boolean includROI);
 
 	/**
 	 * Returns the image currently displayed.
 	 * 
+	 * @param includeROI Passed <code>true</code> to add ROI, 
+	 * 					 <code>false</code> otherwise.
 	 * @return See above.
 	 */
-	public BufferedImage getDisplayedImage();
+	public BufferedImage getDisplayedImage(boolean includeROI);
 
 	/**
 	 * Returns the default timepoint.
@@ -1066,11 +1069,13 @@ public interface ImViewer
 	public Map<Integer, TextureData> getGridImagesAsTexture();
 
 	/**
-	 * Saves the image.
+	 * Creates an image from the texture
 	 * 
-	 * @param value The object hosting the information about the file to save.
+	 * @param type 		 The selected view.
+	 * @param includeROI Passed <code>true</code> to add ROI, 
+	 * 					 <code>false</code> otherwise.
 	 */
-	public void saveImage(SaveObject value);
+	public BufferedImage createImageFromTexture(int type, boolean includeROI);
 
     /**
      * Returns <code>true</code> if the passed channels compose an RGB image, 
@@ -1147,4 +1152,12 @@ public interface ImViewer
 	/** Uses the rendering settings of the owner. */
 	void setOwnerSettings();
 
+	/**
+	 * Returns <code>true</code> to include the ROI in the saving option,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean includeROI();
+	
 }

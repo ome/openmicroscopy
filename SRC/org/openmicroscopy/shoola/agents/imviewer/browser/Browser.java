@@ -34,24 +34,21 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 
 //Third-party libraries
-
-//Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.util.saver.SaveObject;
-import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
-
 import com.sun.opengl.util.texture.TextureData;
 
+//Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
 /** 
  * Defines the interface provided by the browser component.
  * The Viewer provides a UI component to display the rendered image.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
  * (<b>Internal version:</b> $Revision: $ $Date: $)
@@ -376,11 +373,11 @@ public interface Browser
 	void setRenderedImageAsTexture(TextureData image);
 	
 	/**
-	 * Saves the image.
+	 * Creates an image to save.
 	 * 
-	 * @param value The object hosting the information about the file to save.
+	 * @param type The type of image to save.
 	 */
-	public void saveImage(SaveObject value);
+	public BufferedImage createImageFromTexture(int type);
 
 	/**
 	 * Returns the main image as a texture data.

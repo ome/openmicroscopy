@@ -160,18 +160,16 @@ class BrowserUI
         buildGUI();
     }
 
-	/**
-	 * Saves the image to the passed file.
-	 * 
-	 * @param file		The file where to save the image.
-	 * @param format	The format to use.
-	 */
-	void activeFileSave(File file, String format)
+	/** Creates the image to save. */
+	BufferedImage activeFileSave()
 	{
 		if (canvas instanceof BrowserCanvas) {
-			((BrowserCanvas) canvas).activeSave(file, format);
+			BrowserCanvas bc = (BrowserCanvas) canvas;
+			bc.activeSave();
 			canvas.repaint();
+			return bc.getImageToSave();
 		}
+		return null;
 	}
 	
     /** 

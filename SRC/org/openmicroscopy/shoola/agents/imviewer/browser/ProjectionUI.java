@@ -127,18 +127,16 @@ class ProjectionUI
 		}
 	}
 	
-	/**
-	 * Saves the image to the passed file.
-	 * 
-	 * @param file		The file where to save the image.
-	 * @param format	The format to use.
-	 */
-	void activeFileSave(File file, String format)
+	/** Creates the image to save. */
+	BufferedImage activeFileSave()
 	{
 		if (canvas instanceof ProjectionCanvas) {
-			((ProjectionCanvas) canvas).activeSave(file, format);
+			ProjectionCanvas pc = (ProjectionCanvas) canvas;
+			pc.activeSave();
 			canvas.repaint();
+			return pc.getImageToSave();
 		}
+		return null;
 	}
 	
     /** 
