@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.events.fsimporter.LoadFSImporter 
+ * org.openmicroscopy.shoola.agents.events.importer.LoadImporter 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.events.fsimporter;
+package org.openmicroscopy.shoola.agents.events.importer;
 
 
 //Java imports
@@ -45,7 +45,7 @@ import pojos.DataObject;
  * </small>
  * @since 3.0-Beta4
  */
-public class LoadFSImporter 
+public class LoadImporter 
 	extends RequestEvent
 {
 
@@ -57,7 +57,7 @@ public class LoadFSImporter
 	 * 
 	 * @param container The container where to load the image.
 	 */
-	public LoadFSImporter(DataObject container)
+	public LoadImporter(DataObject container)
 	{
 		this.container = container;
 	}

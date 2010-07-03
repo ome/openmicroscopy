@@ -24,13 +24,12 @@ package org.openmicroscopy.shoola.agents.fsimporter;
 
 
 //Java imports
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.List;
-
-import org.openmicroscopy.shoola.agents.events.fsimporter.LoadFSImporter;
+import org.openmicroscopy.shoola.agents.events.importer.LoadImporter;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.fsimporter.view.ImporterFactory;
 import org.openmicroscopy.shoola.env.Agent;
@@ -43,7 +42,7 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import pojos.ExperimenterData;
 
 /** 
- * The FS agent. This agent interacts with OMERO.fs.
+ * This agent interacts is used to import images.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -81,11 +80,11 @@ public class ImporterAgent
 	}
 	
 	 /**
-     * Handles the {@link LoadFSImporter} event.
+     * Handles the {@link LoadImporter} event.
      * 
      * @param evt The event to handle.
      */
-    private void handleLoadFS(LoadFSImporter evt)
+    private void handleLoadFS(LoadImporter evt)
     {
     	if (evt == null) return;
     	Importer importer = ImporterFactory.getImporter(evt.getContainer());
@@ -115,7 +114,7 @@ public class ImporterAgent
     {
         registry = ctx;
         EventBus bus = registry.getEventBus();
-        bus.register(this, LoadFSImporter.class);
+        bus.register(this, LoadImporter.class);
     }
 
     /**
@@ -143,8 +142,8 @@ public class ImporterAgent
      */
     public void eventFired(AgentEvent e)
     {
-    	if (e instanceof LoadFSImporter)
-			handleLoadFS((LoadFSImporter) e);
+    	if (e instanceof LoadImporter)
+			handleLoadFS((LoadImporter) e);
     }
 
 }
