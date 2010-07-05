@@ -18,6 +18,8 @@ import omero.api.AMD_IConfig_getDatabaseUuid;
 import omero.model.CommentAnnotationI;
 import omero.model.Image;
 import omero.model.ImageI;
+import omero.model.TagAnnotationI;
+import omero.model.TermAnnotationI;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -119,11 +121,21 @@ public class ExporterITest extends AbstractServantTest {
                 "join fetch i.pixels p " +
                 "left outer join fetch i.annotationLinks " +
                 "where p.id = " + id, null).get(0);
-        CommentAnnotationI annotation = new CommentAnnotationI();
-        annotation.setNs(rstring("a_namespace"));
-        annotation.setDescription(rstring("a_description"));
-        annotation.setTextValue(rstring("a_textValue"));
-        i.linkAnnotation(annotation);
+        CommentAnnotationI ca = new CommentAnnotationI();
+        ca.setNs(rstring("a_namespace"));
+        ca.setDescription(rstring("a_description"));
+        ca.setTextValue(rstring("a_textValue"));
+        TagAnnotationI ta = new TagAnnotationI();
+        ta.setNs(rstring("a_tag_namespace"));
+        ta.setDescription(rstring("a_tag_description"));
+        ta.setTextValue(rstring("a_tag_textValue"));
+        TermAnnotationI terma = new TermAnnotationI();
+        terma.setNs(rstring("a_term_namespace"));
+        terma.setDescription(rstring("a_term_description"));
+        terma.setTermValue(rstring("a_term_textValue"));
+        i.linkAnnotation(ca);
+        i.linkAnnotation(ta);
+        i.linkAnnotation(terma);
         i = assertSaveAndReturn(i);
         // Image i = new ImageI();
         // i.setAcquisitionDate(rtime(0));
