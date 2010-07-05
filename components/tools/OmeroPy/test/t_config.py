@@ -79,6 +79,39 @@ class TestConfig(unittest.TestCase):
         config.close()
         self.assertXml(self.initial("FOO"), XML(p.text()))
 
+    def testWithEnvThenWithoutEnv(self):
+        """
+        This test shows that if you create the config using an env
+        setting, then without, the __ACTIVE__ block should reflect
+        "default" and not the intermediate "env" setting.
+        """
+        def get_profile_name(p):
+            """
+            Takes a path object to the config xml
+            """
+            xml = XML(p.text())
+            props = xml.findall("./properties")
+            for x in props:
+                id = x.attrib["id"]
+                if id == "__ACTIVE__":
+                    for y in x.getchildren():
+                        if y.attrib["name"] == "omero.config.profile":
+                            return y.attrib["value"]
+
+        p = create_path()
+
+        config = ConfigXml(filename=str(p))
+        config.close()
+        self.assertEquals("default", get_profile_name(p))
+
+        config = ConfigXml(filename=str(p), env_config="FOO")
+        config.close()
+        self.assertEquals("FOO", get_profile_name(p))
+
+        config = ConfigXml(filename=str(p))
+        config.close()
+        self.assertEquals("default", get_profile_name(p))
+
     def testAsDict(self):
         p = create_path()
         config = ConfigXml(filename=str(p), env_config="DICT")
@@ -106,8 +139,9 @@ class TestConfig(unittest.TestCase):
         """
         p = create_path()
         config = ConfigXml(filename=str(p))
-        for k, v in config:
-            self.assertEquals("4.2.0", config.version(k))
+        m = config.as_map()
+        for k, v in m.items():
+            self.assertEquals("4.2.0", v)
 
     def testOldVersionDetected(self):
         p = create_path()

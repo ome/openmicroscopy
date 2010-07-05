@@ -79,9 +79,10 @@ class ConfigXml(object):
         if id is None:
             id = self.default()
         properties = self.properties(id)
-        for x in properties.getchildren():
-            if x.get("name") == self.KEY:
-                return x.get("value")
+        if properties:
+            for x in properties.getchildren():
+                if x.get("name") == self.KEY:
+                    return x.get("value")
 
     def version_check(self):
         for k, v in self.properties(None, True):
@@ -119,6 +120,7 @@ class ConfigXml(object):
         for p in props:
             if "id" in p.attrib and p.attrib["id"] == id:
                 return p
+
     def remove(self, id = None):
         if id is None:
             id = self.default()
@@ -135,8 +137,13 @@ class ConfigXml(object):
         elif "OMERO_CONFIG" in os.environ:
             return os.environ["OMERO_CONFIG"]
         else:
-            props = self.props_to_dict(self.internal())
-            return props.get(self.DEFAULT, "default")
+            # Previously we were calling here:
+            #   props = self.props_to_dict(self.internal())
+            #   return props.get(self.DEFAULT, "default")
+            # but we don't want to take the previous default
+            # because then a user would have to explicitly
+            # set: "OMERO_CONFIG=default"
+            return "default"
 
     def dump(self):
         prop_list = self.properties()
