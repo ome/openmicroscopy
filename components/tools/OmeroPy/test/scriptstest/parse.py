@@ -17,6 +17,7 @@ import unittest
 from path import path
 
 import omero
+from omero.grid import *
 from omero.scripts import *
 from omero.util.temp_files import create_path
 
@@ -172,7 +173,7 @@ class TestParse(unittest.TestCase):
         params = parse_text(SCRIPT)
         l = params.inputs["l"]
         self.assertTrue(l.useDefault, str(l))
-        self.assertEqual(["White"], unwrap(l.prototype))
+        self.assertEqual(["a"], unwrap(l.prototype))
 
     def test2405_String(self):
         SCRIPT = """if True:
@@ -189,7 +190,7 @@ class TestParse(unittest.TestCase):
             from omero.rtypes import *
             cOptions = wrap(["a","b","c"])
 
-            c = client('2405', List("l", default=rstring("White"), values=cOptions).ofType(rstring("")))"""
+            c = client('2405', List("l", default=rstring("a"), values=cOptions).ofType(rstring("")))"""
         self.parse_list(SCRIPT)
 
     def test2405_List(self):
@@ -198,7 +199,7 @@ class TestParse(unittest.TestCase):
             from omero.rtypes import *
             cOptions = wrap(["a","b","c"])
 
-            c = client('2405', List("l", default=["White"], values=cOptions).ofType(rstring("")))"""
+            c = client('2405', List("l", default=["a"], values=cOptions).ofType(rstring("")))"""
         self.parse_list(SCRIPT)
 
     def test2405_RList(self):
@@ -207,7 +208,7 @@ class TestParse(unittest.TestCase):
             from omero.rtypes import *
             cOptions = wrap(["a","b","c"])
 
-            c = client('2405', List("l", default=wrap(["White"]), values=cOptions).ofType(rstring("")))"""
+            c = client('2405', List("l", default=wrap(["a"]), values=cOptions).ofType(rstring("")))"""
         self.parse_list(SCRIPT)
 
     def test2405BadMixOfOfType(self):
@@ -230,6 +231,37 @@ class TestParse(unittest.TestCase):
                      description="List of Colours for channels.", default="White", values=cOptions))"""
 
         self.assertRaises(ValueError, parse_text, SCRIPT)
+
+    def testParseInputsSimple(self):
+        params = JobParams()
+        params.inputs = {"a": Long("a", optional=False)}
+        rv = parse_inputs(["a=1"], params)
+        self.assertTrue(isinstance(rv["a"], omero.RLong))
+        self.assertEquals(1, rv["a"].val)
+        try:
+            parse_inputs(["b=1"], params)
+        except MissingInput, mi:
+            self.assertEquals(["a"], mi.keys)
+
+    def testParseInputsLongList(self):
+        params = JobParams()
+        params.inputs = {"a": List("a", optional=False).ofType(rlong(0))}
+        # List of one
+        rv = parse_inputs(["a=1"], params)
+        self.assertTrue(isinstance(rv["a"], omero.RList))
+        self.assertEquals(1, rv["a"].val[0].val)
+        # List of two
+        rv = parse_inputs(["a=1,2"], params)
+        self.assertTrue(isinstance(rv["a"], omero.RList))
+        self.assertEquals(1, rv["a"].val[0].val)
+        self.assertEquals(2, rv["a"].val[1].val)
+
+    def testParseInputsStringListIsDefault(self):
+        params = JobParams()
+        params.inputs = {"a": List("a", optional=False)}
+        rv = parse_inputs(["a=1"], params)
+        self.assertTrue(isinstance(rv["a"], omero.RList))
+        self.assertEquals("1", rv["a"].val[0].val)
 
 if __name__ == '__main__':
     logging.basicConfig()

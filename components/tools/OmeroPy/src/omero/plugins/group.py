@@ -33,6 +33,14 @@ class GroupControl(BaseControl):
         list = parser.add(sub, self.list, "List current groups")
         list.add_argument("--long", action="store_true", help = "Print comma-separated list of all groups, not just counts")
 
+        copy = parser.add(sub, self.copy, "Copy the members of one group to another group")
+        copy.add_argument("from_group", type=long, help = "Source group ID whose members will be copied")
+        copy.add_argument("to_group", type=long, help = "Target group ID which will have new members added")
+
+        insert = parser.add(sub, self.insert, "Insert one or more users into a group")
+        insert.add_argument("group", type=long, help = "ID of the group which is to have users added")
+        insert.add_argument("user", type=long, nargs="+", help = "ID of user to be inserted")
+
     def parse_perms(self, args):
         perms = getattr(args, "perms", None)
         if not perms:
@@ -108,13 +116,44 @@ class GroupControl(BaseControl):
         for group in groups:
             row = [group.id.val, group.name.val, str(group.details.permissions)]
             if args.long:
-                row.append(",".join([str(x.child.id.val) for x in group.copyGroupExperimenterMap() if x.owner.val]))
-                row.append(",".join([str(x.child.id.val) for x in group.copyGroupExperimenterMap() if not x.owner.val]))
+                row.append(",".join(sorted([str(x.child.id.val) for x in group.copyGroupExperimenterMap() if x.owner.val])))
+                row.append(",".join(sorted([str(x.child.id.val) for x in group.copyGroupExperimenterMap() if not x.owner.val])))
             else:
                 row.append(len([x for x in group.copyGroupExperimenterMap() if x.owner.val]))
                 row.append(len([x for x in group.copyGroupExperimenterMap() if not x.owner.val]))
             tb.row(*tuple(row))
         self.ctx.out(str(tb.build()))
+
+    def copy(self, args):
+        import omero
+        c = self.ctx.conn(args)
+        a = c.sf.getAdminService()
+        f_grp = a.getGroup(args.from_group)
+        t_grp = a.getGroup(args.to_group)
+
+        to_add = [(x.child.id.val, x.child.omeName.val) for x in f_grp.copyGroupExperimenterMap()]
+        already = [x.child.id.val for x in t_grp.copyGroupExperimenterMap()]
+        for add in list(to_add):
+            if add[0] in already:
+                self.ctx.out("%s already in group %s" % (add[1], args.to_group))
+                to_add.remove(add)
+        self.addusersbyid(c, t_grp, [x[0] for x in to_add])
+        self.ctx.out("%s coped to %s" % (args.from_group, args.to_group))
+
+    def insert(self, args):
+        import omero
+        c = self.ctx.conn(args)
+        a = c.sf.getAdminService()
+        grp = a.getGroup(args.group)
+        self.addusersbyid(c, grp, args.user)
+        self.ctx.out("Added %s users to %s" % (len(args.user), args.group))
+
+    def addusersbyid(self, c, group, users):
+        import omero
+        a = c.sf.getAdminService()
+        for add in list(users):
+            a.addGroups(omero.model.ExperimenterI(add, False), [group])
+            self.ctx.out("Added %s" % add)
 
 try:
     register("group", GroupControl, HELP)

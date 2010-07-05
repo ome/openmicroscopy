@@ -123,6 +123,19 @@ class Type(omero.grid.Param):
             else:
                 self.values = _VAL(self.values)
 
+        # Now if useDefault has been set, either manually, or
+        # via setting default="..." we check that the default
+        # value matches a value if present
+        if self.values is not None and self.values and self.useDefault:
+            if isinstance(self.prototype, omero.RCollection):
+                test = unwrap(self.prototype.val[0])
+            else:
+                test = unwrap(self.prototype)
+            values = unwrap(self.values)
+            if test not in values:
+                raise ValueError("%s is not in %s" % (test, values))
+
+
     def out(self):
         self._in = False
         self._out = True
@@ -411,6 +424,73 @@ def parse_file(filename):
     from path import path
     scriptText = path(filename).text()
     return parse_text(scriptText)
+
+
+class MissingInputs(exceptions.Exception):
+    def __init__(self):
+        exceptions.Exception.__init__(self)
+        self.keys = []
+
+
+def parse_inputs(inputs_strings, params):
+    """
+    Parses a command-line like string representation of input parameters
+    into an RDict (a map from string to RType). The input should be an
+    iterable of arguments of the form "key=value".
+
+    For example, "a=1" gets mapped to {"a":1}
+    """
+    inputs = {}
+    for input_string in inputs_strings:
+        rv = parse_input(input_string, params)
+        inputs.update(rv)
+
+    missing = MissingInputs()
+    for key, param in params.inputs.items():
+        a = inputs.get(key, None)
+        if not a:
+            if param.useDefault:
+                inputs[key] = param.prototype
+            elif not param.optional:
+                missing.keys.append(key)
+
+    if missing.keys:
+        missing.inputs = inputs
+        raise missing
+
+    return inputs
+
+
+def parse_input(input_string, params):
+    """
+    Parse a single input_string. The params
+    """
+    parts = input_string.split("=")
+    if len(parts) == 1:
+        parts.append("")
+    key = parts[0]
+    val = parts[1]
+
+    param = params.inputs.get(key)
+    if param is None:
+        return {}
+    elif isinstance(param.prototype,\
+        (omero.RLong, omero.RString, omero.RInt,\
+            omero.RTime, omero.RDouble, omero.RFloat)):
+        val = param.prototype.__class__(val)
+    elif isinstance(param.prototype, omero.RList):
+        items = val.split(",")
+        if len(param.prototype.val) == 0:
+            # Don't know what needs to be added here, so calling wrap
+            # which will produce an rlist of rstrings.
+            val = omero.rtypes.wrap(items)
+        else:
+            p = param.prototype.val[0]
+            val = omero.rtypes.rlist([p.__class__(x) for x in items])
+    else:
+        raise ValueError("No converter for: %s (type=%s)" % (key, param.prototype.__class__))
+
+    return {key:val}
 
 
 def group_params(params):

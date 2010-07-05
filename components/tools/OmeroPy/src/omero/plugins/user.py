@@ -79,6 +79,7 @@ class UserControl(BaseControl):
         inst = args.institution
         pasw = args.userpassword
 
+        import omero
         from omero.rtypes import rstring
         from omero_model_ExperimenterI import ExperimenterI as Exp
         from omero_model_ExperimenterGroupI import ExperimenterGroupI as Grp
@@ -101,12 +102,18 @@ class UserControl(BaseControl):
 
         group = groups.pop(0)
 
-        if pasw is None:
-            id = admin.createExperimenter(e, group, groups)
-            self.ctx.out("Added user %s" % id)
-        else:
-            id = admin.createExperimenterWithPassword(e, rstring(pasw), group, groups)
-            self.ctx.out("Added user %s with password" % id)
+        try:
+            if pasw is None:
+                id = admin.createExperimenter(e, group, groups)
+                self.ctx.out("Added user %s" % id)
+            else:
+                id = admin.createExperimenterWithPassword(e, rstring(pasw), group, groups)
+                self.ctx.out("Added user %s with password" % id)
+        except omero.ValidationException, ve:
+            if "org.hibernate.exception.ConstraintViolationException: could not insert" in str(ve):
+                self.ctx.die(66, "User already exists: %s" % login)
+            else:
+                self.ctx.die(67, "Unknown ValidationException: %s" % ve.message)
 
 try:
     register("user", UserControl, HELP)

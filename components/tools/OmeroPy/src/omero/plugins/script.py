@@ -67,7 +67,7 @@ class ScriptControl(BaseControl):
 
     def _configure(self, parser):
         def _who(parser):
-            return parser.add_argument("who", nargs="*", help="Who to search for: user, group, user=1, group=5 (default=%(default)s)", default=["user"])
+            return parser.add_argument("who", nargs="*", help="Who to execute for: user, group, user=1, group=5 (default=official)")
 
         sub = parser.sub()
 
@@ -81,7 +81,12 @@ class ScriptControl(BaseControl):
         cat = parser.add(sub, self.cat, "Prints a script to standard out")
         params = parser.add(sub, self.params, help="Print the parameters for a given script")
         launch = parser.add(sub, self.launch, help = "Launch a script with parameters")
-        for x in (launch, params, cat):
+        disable = parser.add(sub, self.disable, help = "Makes script non-executable by setting the mimetype")
+        disable.add_argument("--mimetype", default="text/plain", help="Use a mimetype other than the default (%(default)s)")
+        enable = parser.add(sub, self.enable, help = "Makes a script non-executable (sets mimetype to text/x-python)")
+        enable.add_argument("--mimetype", default="text/x-python", help="Use a mimetype other than the default (%(default)s)")
+
+        for x in (launch, params, cat, disable, enable):
             x.add_argument("original_file", help="Id or path of a script file stored in OMERO")
         launch.add_argument("input", nargs="*", help="Inputs for the script of the form 'param=value'")
 
@@ -95,7 +100,8 @@ class ScriptControl(BaseControl):
         serve.add_argument("-t", "--timeout", default=0, type=long, help="Seconds that the processor should run. 0 means no timeout")
         _who(serve)
 
-        upload = parser.add(sub, self.upload, help = "Upload a non-official script")
+        upload = parser.add(sub, self.upload, help = "Upload a script")
+        upload.add_argument("--official", action="store_true", help = "If set, creates a system script. Must be an admin")
         upload.add_argument("file", help = "Local script file to upload to OMERO")
 
         replace = parser.add(sub, self.replace, help = "Replace an existing script with a new value")
@@ -345,7 +351,7 @@ class ScriptControl(BaseControl):
             banner = "Scripts for %s" % ", ".join(args.who)
         else:
             scripts = svc.getScripts()
-            banner = "Primary scripts"
+            banner = "Official scripts"
         self._parse_scripts(scripts, banner)
 
     def log(self, args):
@@ -399,7 +405,7 @@ class ScriptControl(BaseControl):
         sf = client.sf
         who = [self._parse_who(sf, w) for w in args.who]
         if not who:
-            who = [self._parse_who(sf, "user")]
+            who = [] # Official scripts only
 
         # Similar to omero.util.Server starting here
         import logging
@@ -447,10 +453,14 @@ class ScriptControl(BaseControl):
 
 
     def upload(self, args):
-        self.ctx.conn(args)
-        self.ctx.invoke(["upload", args.file], strict = True)
-        id = self.ctx.get("last.upload.id")
-        self.ctx.set("script.file.id", id)
+        c = self.ctx.conn(args)
+        if args.official:
+            scriptSvc = c.sf.getScriptService()
+            scriptSvc
+        else:
+            self.ctx.invoke(["upload", args.file], strict = True)
+            id = self.ctx.get("last.upload.id")
+            self.ctx.set("script.file.id", id)
 
     def replace(self, args):
         ofile = args.id
@@ -471,6 +481,21 @@ class ScriptControl(BaseControl):
             client.sf.getScriptService().deleteScript(ofile)
         except exceptions.Exception, e:
             self.ctx.err("Failed to delete script: %s (%s)" % (ofile, e))
+
+    def disable(self, args):
+        ofile = self.setmimetype(args)
+        self.ctx.out("Disabled %s by setting mimetype to %s" % (ofile.id.val, args.mimetype))
+
+    def enable(self, args):
+        ofile = self.setmimetype(args)
+        self.ctx.out("Enabled %s by setting mimetype to %s" % (ofile.id.val, args.mimetype))
+
+    def setmimetype(self, args):
+        from omero.rtypes import rstring
+        client = self.ctx.conn(args)
+        script_id, ofile = self._file(args, client)
+        ofile.setMimetype(rstring(args.mimetype))
+        return client.sf.getUpdateService().saveAndReturnObject(ofile)
 
     #
     # Other
@@ -509,40 +534,16 @@ omero.pass=%(omero.sess)s
     #
     # Helpers
     #
-
     def _parse_inputs(self, args, params):
-        import omero.rtypes
-        inputs = {}
-        for input in args.input:
-            parts = input.split("=")
-            if len(parts) == 1:
-                parts.append("")
-            inputs[parts[0]] = parts[1]
-
-        m = {}
-        for key, param in params.inputs.items():
-            a = inputs.get(key, None)
-            if not a and not param.optional:
-                self.ctx.die(321, "Missing input: %s" % key)
-            else:
-                if a is None:
-                    m[key] = None
-                elif isinstance(param.prototype,\
-                    (omero.RLong, omero.RString, omero.RInt,\
-                     omero.RTime, omero.RDouble, omero.RFloat)):
-                    m[key] = param.prototype.__class__(a)
-                elif isinstance(param.prototype, omero.RList):
-                    items = a.split(",")
-                    if len(param.prototype.val) == 0:
-                        # Don't know what needs to be added here, so calling wrap
-                        # which will produce an rlist of rstrings.
-                        items = omero.rtypes.wrap(items)
-                    else:
-                        p = param.prototype.val[0]
-                        m[key] = omero.rtypes.rlist([p.__class__(x) for x in items])
-                else:
-                    self.ctx.die(146, "No converter for: %s" % param.prototype)
-        return m
+        from omero.scripts import parse_inputs, parse_input, MissingInputs
+        try:
+            rv = parse_inputs(args.input, params)
+        except MissingInputs, mi:
+            rv = mi.inputs
+            for key in mi.keys:
+                value = self.ctx.input("""Enter value for "%s": """ % key, required = True)
+                rv.update(parse_input("%s=%s" % (key, value), params))
+        return rv
 
     def _parse_scripts(self, scripts, msg):
         """
