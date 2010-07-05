@@ -550,24 +550,26 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     }
 
     public void setCallback(ClientCallbackPrx callback, Ice.Current current) throws ServerError {
-        this.callback = callback;
-        log.info(Ice.Util.identityToString(this.sessionId())
-                + " set callback to " + this.callback);
-        try {
-            subscribe(HEARTBEAT.value, callback, current);
-            // tickeT:2485. Ignoring any errors on registration
-            // of callbacks to permit login. Other client
-            // callbacks may want to force an exception with ice_isA
-            // or similar.
-        } catch (RuntimeException e) {
-            log.warn("Failed to subscribe " + callback, e);
-            // throw e; ticket:2485
-        } catch (ServerError e) {
-            log.warn("Failed to subscribe " + callback, e);
-            // throw e; ticket:2485
-        } catch (Exception e) {
-            log.warn("Failed to subscribe " + callback, e);
-            // throw new RuntimeException(e); ticket:2485
+        if (false) { // ticket:2558, disabling because of long logins. See also #2485
+            this.callback = callback;
+            log.info(Ice.Util.identityToString(this.sessionId())
+                    + " set callback to " + this.callback);
+            try {
+                subscribe(HEARTBEAT.value, callback, current);
+                // ticket:2485. Ignoring any errors on registration
+                // of callbacks to permit login. Other client
+                // callbacks may want to force an exception with ice_isA
+                // or similar.
+            } catch (RuntimeException e) {
+                log.warn("Failed to subscribe " + callback, e);
+                // throw e; ticket:2485
+            } catch (ServerError e) {
+                log.warn("Failed to subscribe " + callback, e);
+                // throw e; ticket:2485
+            } catch (Exception e) {
+                log.warn("Failed to subscribe " + callback, e);
+                // throw new RuntimeException(e); ticket:2485
+            }
         }
     }
 
