@@ -35,6 +35,12 @@ public interface RawPixelsStore extends StatefulServiceInterface {
     public void setPixelsId(long pixelsId, boolean bypassOriginalFile);
     
     /**
+     * Returns the current Pixels set identifier.
+     * @return See above.
+     */
+    public long getPixelsId();
+
+    /**
      * Prepares the stateful service with a cache of loaded Pixels objects.
      * This method is designed to combat query overhead, where many sets of
      * Pixels are to be read from or written to, by loading all the Pixels

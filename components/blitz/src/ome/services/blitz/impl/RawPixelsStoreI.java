@@ -15,6 +15,7 @@ import omero.ServerError;
 import omero.api.AMD_RawPixelsStore_calculateMessageDigest;
 import omero.api.AMD_RawPixelsStore_getByteWidth;
 import omero.api.AMD_RawPixelsStore_getCol;
+import omero.api.AMD_RawPixelsStore_getPixelsId;
 import omero.api.AMD_RawPixelsStore_getPlane;
 import omero.api.AMD_RawPixelsStore_getPlaneOffset;
 import omero.api.AMD_RawPixelsStore_getPlaneRegion;
@@ -184,6 +185,12 @@ public class RawPixelsStoreI extends AbstractAmdServant implements
     public void setPixelsId_async(AMD_RawPixelsStore_setPixelsId __cb,
             long pixelsId, boolean bypassOriginalFile, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, pixelsId, bypassOriginalFile);
+
+    }
+
+    public void getPixelsId_async(AMD_RawPixelsStore_getPixelsId __cb, Current __current)
+            throws ServerError {
+        callInvokerOnRawArgs(__cb, __current);
 
     }
     

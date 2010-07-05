@@ -191,6 +191,13 @@ public class RawPixelsBean extends AbstractStatefulBean implements
             		pixelsInstance, metadataProvider, bypassOriginalFile);
         }
     }
+
+    @RolesAllowed("user")
+    public long getPixelsId() {
+        errorIfNotLoaded();
+
+        return id.longValue();
+    }
     
     @RolesAllowed("user")
     public void prepare(Set<Long> pixelsIds)

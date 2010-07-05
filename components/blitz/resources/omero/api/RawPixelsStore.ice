@@ -41,6 +41,12 @@ module omero {
                 void setPixelsId(long pixelsId, bool bypassOriginalFile) throws ServerError;
 
                 /**
+                 * Returns the current Pixels set identifier.
+                 * @return See above.
+                 **/
+                idempotent long getPixelsId() throws ServerError;
+
+                /**
                  * Prepares the stateful service with a cache of loaded Pixels objects.
                  * This method is designed to combat query overhead, where many sets of
                  * Pixels are to be read from or written to, by loading all the Pixels
