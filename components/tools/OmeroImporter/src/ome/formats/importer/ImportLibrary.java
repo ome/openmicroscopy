@@ -549,12 +549,16 @@ public class ImportLibrary implements IObservable
                     {
                         FileAnnotation fa = (FileAnnotation) annotation;
                         OriginalFile of = fa.getFile();
-                        originalFileMap.put(of.getPath().getValue(), of);
+                        String fullPath = 
+                            of.getPath().getValue() + of.getName().getValue();
+                        originalFileMap.put(fullPath, of);
                     }
                 }
                 for (OriginalFile of : pixels.linkedOriginalFileList())
                 {
-                    originalFileMap.put(of.getPath().getValue(), of);
+                    String fullPath = 
+                        of.getPath().getValue() + of.getName().getValue();
+                    originalFileMap.put(fullPath, of);
                 }
                 for (WellSample ws : i.copyWellSamples())
                 {
@@ -565,7 +569,9 @@ public class ImportLibrary implements IObservable
                         {
                             FileAnnotation fa = (FileAnnotation) annotation;
                             OriginalFile of = fa.getFile();
-                            originalFileMap.put(of.getPath().getValue(), of);
+                            String fullPath = 
+                                of.getPath().getValue() + of.getName().getValue();
+                            originalFileMap.put(fullPath, of);
                         }
                     }
                 }

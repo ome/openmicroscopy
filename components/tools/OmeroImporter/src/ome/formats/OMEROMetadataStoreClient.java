@@ -1382,7 +1382,6 @@ public class OMEROMetadataStoreClient
 				OriginalFile originalFile = 
 					createOriginalFileFromFile(metadataFile, indexes, format);
 				log.debug("originalFile created");
-				//TODO: fix me
 				originalFile.setPath(toRType(String.format("%s%s/",
 					omero.constants.namespaces.NSORIGINALMETADATA.value, uuid)));
 				originalFile.setName(toRType("original_metadata.txt"));
@@ -1443,24 +1442,27 @@ public class OMEROMetadataStoreClient
     				
     				if (isCompanionFile)
     				{
+                        // Add a companion file annotation to the Image.
                         indexes = new LinkedHashMap<Index, Integer>();
                         indexes.put(Index.IMAGE_INDEX, series);
                         indexes.put(Index.ORIGINAL_FILE_INDEX, usedFileIndex);
                         addCompanionFileAnnotationTo(imageKey, indexes,
-                        		                     usedFileIndex);
-    				}
-    				else
-    				{
-        				LSID originalFileKey = 
-        					new LSID(OriginalFile.class, usedFileIndex);
-        				addReference(pixelsKey, originalFileKey);
-    				}
-    			}
-    		}
-    	}
-    	return metadataFiles;
+                                                     usedFileIndex);
+                    }
+                    if (archive)
+                    {
+                        // Always link the original file to the Image even if
+                        // it is a companion file when we are archiving.
+                        LSID originalFileKey = 
+                            new LSID(OriginalFile.class, usedFileIndex);
+                        addReference(pixelsKey, originalFileKey);
+                    }
+                }
+            }
+        }
+        return metadataFiles;
     }
-    
+
     /**
      * Filters a set of filenames.
      * @param files An array of the files to filter.
@@ -1553,7 +1555,7 @@ public class OMEROMetadataStoreClient
             if (path.contains(ORIGINAL_METADATA_KEY))
             {
                 String[] tokens = entry.getKey().split("/");
-                if (path.endsWith(tokens[tokens.length - 1]))
+                if (path.endsWith(tokens[tokens.length - 2]))
                 {
                     return entry.getValue();
                 }
@@ -1578,8 +1580,10 @@ public class OMEROMetadataStoreClient
         {
             String path = file.getAbsolutePath();
             OriginalFile originalFile = originalFileMap.get(path);
-            originalFile = 
-                originalFile == null? byUUID(path, originalFileMap) : null;
+            if (originalFile == null)
+            {
+                originalFile = byUUID(path, originalFileMap);
+            }
             if (originalFile == null)
             {
                 log.warn("Cannot lookup original file with path: "
@@ -1982,7 +1986,7 @@ public class OMEROMetadataStoreClient
             throw new RuntimeException(e);
         }
     }
-    
+
     /**
      * Creates an original file object from a Java file object along with some
      * metadata specific to OMERO in the container cache or returns the
@@ -2002,13 +2006,11 @@ public class OMEROMetadataStoreClient
 		o.setName(toRType(file.getName()));
 		o.setSize(toRType(file.length()));
 		o.setMimetype(toRType(formatString));
-		o.setPath(toRType(file.getAbsolutePath()));
+		o.setPath(toRType(file.getParent() + File.separator));
 		o.setSha1(toRType("Pending"));
 		return o;
     }
 
-
-    
     /**
      * @return
      */
