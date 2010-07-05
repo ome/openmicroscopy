@@ -28,6 +28,7 @@ from omero_ext.argparse import Action
 from omero_ext.strings import shlex
 from omero_ext.functional import wraps
 
+from path import path
 
 HELP = """Support for launching, uploading and otherwise managing OMERO.scripts"""
 
@@ -94,7 +95,7 @@ class ScriptControl(BaseControl):
         jobs.add_argument("--all", action="store_true", help="Show all jobs, not just running ones")
         _who(jobs)
 
-        serve = parser.add(sub, self.serve, help = "Start a usermode processor for non-official scripts")
+        serve = parser.add(sub, self.serve, help = "Start a usermode processor for scripts")
         serve.add_argument("--verbose", action="store_true", help="Enable debug logging on processor")
         serve.add_argument("-b", "--background", action="store_true", help="Run processor in background. Used in demo")
         serve.add_argument("-t", "--timeout", default=0, type=long, help="Seconds that the processor should run. 0 means no timeout")
@@ -453,14 +454,25 @@ class ScriptControl(BaseControl):
 
 
     def upload(self, args):
+
+        p = path(args.file)
+        if not p.exists():
+            self.ctx.die(502, "File does not exist: %s" % p.abspath())
+
+        import omero
         c = self.ctx.conn(args)
+        scriptSvc = c.sf.getScriptService()
+
         if args.official:
-            scriptSvc = c.sf.getScriptService()
-            scriptSvc
+            try:
+                id = scriptSvc.uploadOfficialScript(args.file, p.text())
+            except omero.SecurityViolation, sv:
+                self.ctx.die(503, "SecurityViolation: %s" % sv.message)
         else:
-            self.ctx.invoke(["upload", args.file], strict = True)
-            id = self.ctx.get("last.upload.id")
-            self.ctx.set("script.file.id", id)
+            id = scriptSvc.uploadScript(args.file, p.text())
+
+        self.ctx.out("Uploaded %sscript as original file #%s" % ((args.official and "official " or ""), id))
+        self.ctx.set("script.file.id", id)
 
     def replace(self, args):
         ofile = args.id
