@@ -251,8 +251,8 @@ public class ImportLibrary implements IObservable
         reader.close();
         reader.setMetadataStore(store);
         reader.setMinMaxStore(store);
-        reader.setId(fileName);
         store.setReader(reader.getImageReader());
+        reader.setId(fileName);
         //reset series count
         if (log.isDebugEnabled())
         {

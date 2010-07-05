@@ -140,6 +140,7 @@ import omero.model.FileAnnotation;
 import omero.model.Filter;
 import omero.model.FilterSet;
 import omero.model.FilterType;
+import omero.model.Format;
 import omero.model.IObject;
 import omero.model.Illumination;
 import omero.model.Image;
@@ -911,17 +912,20 @@ public class OMEROMetadataStoreClient
     {
         return reader;
     }
-    
-    
-    public String getReaderType()
+
+    /**
+     * Retrieves a Format enumeration for the current reader's type.
+     * @return See above.
+     */
+    private Format getImageFormat()
     {
         ImageReader imageReader = (ImageReader) reader;
-        String formatString = imageReader.getReader().getClass().toString();
-        formatString = formatString.replace("class loci.formats.in.", "");
-        formatString = formatString.replace("Reader", "");
-        return formatString;
+        String value = imageReader.getFormat();
+        value = value.replace("class loci.formats.in.", "");
+        value = value.replace("Reader", "");
+        return (Format) getEnumeration(Format.class, value);
     }
-    
+
     /* (non-Javadoc)
      * @see ome.formats.model.IObjectContainerStore#setReader(loci.formats.IFormatReader)
      */
@@ -4075,7 +4079,7 @@ public class OMEROMetadataStoreClient
     }
 
     //////// Image /////////
-    
+
     /**
      * Retrieve Image
      * @param imageIndex
@@ -4086,9 +4090,11 @@ public class OMEROMetadataStoreClient
         LinkedHashMap<Index, Integer> indexes =
             new LinkedHashMap<Index, Integer>();
         indexes.put(Index.IMAGE_INDEX, imageIndex);
-        return getSourceObject(Image.class, indexes);
-    }    
-    
+        Image o = getSourceObject(Image.class, indexes);
+        o.setFormat(getImageFormat());
+        return o;
+    }
+
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setImageID(java.lang.String, int)
      */
