@@ -103,6 +103,12 @@ class ITest(unittest.TestCase):
         key = self.sf.ice_getIdentity().name
         return ["-s", host, "-k", key] # TODO PORT
 
+    def root_login_args(self):
+        p = self.root.ic.getProperties()
+        host = p.getProperty("omero.host")
+        key = self.root.sf.ice_getIdentity().name
+        return ["-s", host, "-k", key] # TODO PORT
+
     def tmpfile(self):
         return str(create_path())
 

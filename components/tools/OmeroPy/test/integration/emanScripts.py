@@ -502,7 +502,6 @@ def uploadScript(scriptService, scriptPath):
     scriptText = file.read()
     file.close()
     path = scriptPath.replace("scripts/EMAN2", "/EMAN2")  # convert scripts/EMAN2/script.py to /EMAN2/scripts.py
-    print "uploading scriptPath",scriptPath
     try:
         scriptId = scriptService.uploadOfficialScript(path, scriptText)
     except ApiUsageException:
@@ -519,7 +518,7 @@ def editScript(scriptService, scriptPath):
     if not scriptPath.startswith("/"): scriptPath =  "/" + scriptPath
     namedScripts = [s for s in scripts if s.path.val + s.name.val == scriptPath]
     script = namedScripts[-1]
-    print "Editing script:", scriptPath
+    #print "Editing script:", scriptPath
     scriptService.editScript(script, scriptText)
     return script.id.val
 
