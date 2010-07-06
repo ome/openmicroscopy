@@ -85,6 +85,7 @@ public class ScriptRepoHelper {
     public ScriptRepoHelper(Executor ex, String sessionUuid, Roles roles) {
         this(new File(getDefaultScriptDir()), ex, new Principal(sessionUuid),
                 roles);
+        loadAll(true);
     }
 
     /**
