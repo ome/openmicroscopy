@@ -183,7 +183,20 @@ class TestScripts(lib.ITest):
         namedScripts = [s for s in scripts if s.path.val + s.name.val == scriptPath]
         scriptFile = namedScripts[0]
 
-        scriptService.editScript(scriptFile, script)
+        editedScript = """
+import omero, omero.scripts as s
+from omero.rtypes import *
+
+client = s.client("HelloWorld.py", "edited script", s.Long("a").inout(), s.String("b").inout())
+client.setOutput("a", rlong(0))
+client.setOutput("b", rstring("c"))
+client.closeSession()
+"""
+        scriptService.editScript(scriptFile, editedScript)
+        
+        editedText = scriptService.getScriptText(scriptId)
+        self.assertEquals(editedScript, editedText)
+        
 
     def testScriptValidation(self):
         scriptService = self.root.sf.getScriptService()
