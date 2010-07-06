@@ -624,9 +624,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
         if (itemFiles.isEmpty())     
         {
             if (DEBUG) log.debug("Creating new " + itemDBNAME);
-            itemTable = sf.sharedResources().newTable(1, itemDBNAME);
-            if (itemTable == null)
-            	if (DEBUG) System.err.println("itemTable is null");
+            itemTable = sf.sharedResources().newTable(1, itemDBNAME);           
             itemTable.initialize(itemColumns);
             
         	// Prime item table with 2 blank rows to address bug.
