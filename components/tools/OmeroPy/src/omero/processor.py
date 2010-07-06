@@ -852,7 +852,11 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
 
             process = ProcessI(self.ctx, "python", properties, params, iskill)
             self.resources.add(process)
-            client.download(file, str(process.script_path))
+
+            # client.download(file, str(process.script_path))
+            scriptTxt = sf.getScriptService().getScriptText(file.id.val)
+            process.script_path.write_text(scriptText)
+
             self.logger.info("Downloaded file: %s" % file.id.val)
             s = client.sha1(str(process.script_path))
             if not s == file.sha1.val:

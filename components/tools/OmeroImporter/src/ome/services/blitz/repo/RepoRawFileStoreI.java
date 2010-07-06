@@ -54,6 +54,7 @@ _RawFileStoreOperations {
         this.file = file;
         try {
             this.rafile = new RandomAccessFile(file, "r");
+            log.info("Opened " + rafile);
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -144,6 +145,7 @@ _RawFileStoreOperations {
 
     @Override
     protected void preClose() {
+        log.info("Closing " + rafile);
         try {
             this.rafile.close();
         } catch (Exception e) {

@@ -270,7 +270,7 @@ class ScriptControl(BaseControl):
         try:
             self.ctx.out(client.sf.getScriptService().getScriptText(script_id))
         except exceptions.Exception, e:
-            self.ctx.err("Failed to find script: %s (%s)" % (ofile, e))
+            self.ctx.err("Failed to find script: %s (%s)" % (script_id, e))
 
     def edit(self, args):
         client = self.ctx.conn(args)
@@ -284,7 +284,7 @@ class ScriptControl(BaseControl):
             edit_path(p, txt)
             scriptSvc.editScript(ofile, p.text())
         except exceptions.Exception, e:
-            self.ctx.err("Failed to find script: %s (%s)" % (ofile, e))
+            self.ctx.err("Failed to find script: %s (%s)" % (script_id, e))
 
     def jobs(self, args):
         client = self.ctx.conn(args)
