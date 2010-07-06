@@ -985,8 +985,10 @@ def piechart(request, **kwargs):
         import numpy as np
         import matplotlib.pyplot as plt
         from pylab import * 
-    except:
+    except Exception, x:
         logger.error(traceback.format_exc())
+        rv = "Error: %s" % x.message
+        return HttpResponse(rv)
     
     controller = BaseDriveSpace(conn)
     controller.pieChartData() 

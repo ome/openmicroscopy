@@ -260,11 +260,12 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 for gem in group.copyGroupExperimenterMap():
                     exp = gem.child
                     res = query_serv.projection("""
-                    select o.id, sum(p.sizeX * p.sizeY * p.sizeZ * p.sizeT * p.sizeC), p.pixelsType.value 
+                    select o.id, sum(p.sizeX * p.sizeY * p.sizeZ), p.pixelsType.value 
                     from Pixels p join p.details.owner o 
                     group by o.id, p.pixelsType.value
                     """, None, {"omero.group":str(group.id.val)})
-                    rv = unwrap(res)        
+                    rv = unwrap(res)
+                    print rv
                     for r in rv:
                         if usage.has_key(r[0]):
                             usage[r[0]] += r[1]*self.bytesPerPixel(r[2])
@@ -275,19 +276,18 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             groups.extend(self.getEventContext().leaderOfGroups)
             groups = set(groups)
             for gid in groups:
-                p = omero.sys.Parameters()
-                p.map = {}
-                p.map["eid"] = rlong(self.getEventContext().userId)
                 res = query_serv.projection("""
-                select p.pixelsType.value, sum(p.sizeX * p.sizeY * p.sizeZ * p.sizeT * p.sizeC)
-                from Pixels p group by p.pixelsType.value
+                select o.id, sum(p.sizeX * p.sizeY * p.sizeZ), p.pixelsType.value 
+                from Pixels p join p.details.owner o 
+                group by o.id, p.pixelsType.value
                 """, None, {"omero.group":str(gid)})
                 rv = unwrap(res)
+                print rv
                 for r in rv:
                     if usage.has_key(gid):
-                        usage[gid] += r[1]*self.bytesPerPixel(r[0])
+                        usage[gid] += r[1]*self.bytesPerPixel(r[2])
                     else:
-                        usage[gid] = r[1]*self.bytesPerPixel(r[0])
+                        usage[gid] = r[1]*self.bytesPerPixel(r[2])
         return usage
         
     # DATA RETRIVAL
@@ -2050,9 +2050,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         elif pixel_type == "double":
             return 8;
         else:
-            logger.error("Error: Unknown pixel type: %s" %s (pixel_type))
+            logger.error("Error: Unknown pixel type: %s" % (pixel_type))
             logger.error(traceback.format_exc())
-            raise AttributeError("Unknown pixel type: %s" %s (pixel_type))
+            raise AttributeError("Unknown pixel type: %s" % (pixel_type))
     
 
 omero.gateway.BlitzGateway = OmeroWebGateway
