@@ -88,9 +88,13 @@
 <div id="annotation_form" >
     <div id="annotation_tabs" class="ui-tabs">
         <ul>
-            {% if manager.image or manager.well %}<li>|&nbsp;<a href="#preview_tab">{% trans "Preview" %}</a>&nbsp;</li>{% endif %}
-            <li>|&nbsp;<a href="#metadata_tab">{% trans "Metadata" %}</a>&nbsp;</li>
-            <li>|&nbsp;<a href="#annotation_tab">{% trans "Annotation" %}</a>&nbsp;</li>
+            {% if manager.tag %}
+                <li><a href="#metadata_tab">{% trans "Metadata" %}</a>&nbsp;</li>
+            {% else %}
+                {% if manager.image or manager.well %}<li>|&nbsp;<a href="#preview_tab">{% trans "Preview" %}</a>&nbsp;</li>{% endif %}
+                <li>|&nbsp;<a href="#metadata_tab">{% trans "Metadata" %}</a>&nbsp;</li>
+                <li>|&nbsp;<a href="#annotation_tab">{% trans "Annotation" %}</a>&nbsp;</li>
+            {% endif %}
         </ul>
         <div class="clear"></div>        
         
@@ -131,7 +135,7 @@
                 <table>
                     <tr><td rowspan="2"><img src="{% url webstatic "images/folder_image64.png" %}" alt="dataset" title="dataset"/></td>
                         <td><label>{{ manager.dataset.name|warphtml:"30"|linebreaks }}</label>{% if manager.dataset.isOwned %} <a href="{% url manage_action_containers "edit" "dataset" manager.dataset.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %} (id: {{ manager.dataset.id }})</td></tr>
-                    <tr><td>Includes {{ manager.dataset.countChildren }} image(s)</td></tr>
+                    <tr><td>Includes {{ manager.dataset.countChildren }} {% plural manager.dataset.countChildren 'image' 'images' %}</td></tr>
                     <tr><td colspan="2">Created on: {{ manager.dataset.getDate|date:"Y-m-d H:i:s" }}</td></tr>
                     <tr><td colspan="2">
                         {% if manager.dataset.countAnnotations %}<img src="{% url webstatic "images/knotes12.png" %}" alt="annotations" title="Annotations"/> [{{ manager.dataset.countAnnotations }}]{% endif %}
@@ -146,7 +150,7 @@
                     <table>
                         <tr><td rowspan="2"><img src="{% url webstatic "images/folder64.png" %}" alt="project" title="project"/></td>
                             <td><label>{{ manager.project.name|warphtml:"30"|linebreaks }}</label>{% if manager.project.isOwned %} <a href="{% url manage_action_containers "edit" "project" manager.project.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %} (id: {{ manager.project.id }})</td></tr>
-                        <tr><td>Includes {{ manager.project.countChildren }} dataset(s)</td></tr>
+                        <tr><td>Includes {{ manager.project.countChildren }} {% plural manager.project.countChildren 'dataset' 'datasets' %}</td></tr>
                         <tr><td colspan="2">Created on: {{ manager.project.getDate|date:"Y-m-d H:i:s" }}</td></tr>
                         <tr><td colspan="2">
                             {% if manager.project.countAnnotations %}<img src="{% url webstatic "images/knotes12.png" %}" alt="annotations" title="Annotations"/> [{{ manager.project.countAnnotations }}]{% endif %}                            
@@ -187,7 +191,7 @@
                     <table>
                         <tr><td rowspan="2"><img src="{% url webstatic "images/folder_screen64.png" %}" alt="plate" title="plate"/></td>
                             <td><label>{{ manager.screen.name|warphtml:"30"|linebreaks }}</label>{% if manager.screen.isOwned %} <a href="{% url manage_action_containers "edit" "screen" manager.screen.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %} (id: {{ manager.screen.id }})</td></tr>
-                        <tr><td>Includes {{ manager.screen.countChildren }} plate(s)</td></tr>
+                        <tr><td>Includes {{ manager.screen.countChildren }} {% plural manager.screen.countChildren 'plate' 'plates' %}</td></tr>
                         <tr><td colspan="2">Created on: {{ manager.screen.getDate|date:"Y-m-d H:i:s" }}</td></tr>
                         <tr><td colspan="2">
                             {% if manager.screen.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="annotations" title="Annotations"/>{% endif %}{% if not manager.screen.isOwned %} <img src="{% url webstatic "images/personal16.png" %}" alt="owner by" title="Owner"/>{% endif %}
@@ -199,6 +203,21 @@
                     </table>
                     {% endif %}
                 {% endif %}
+            {% endif %}
+            
+            {% if manager.tag %}
+            <table>
+                <tr><td rowspan="2"><img src="{% url webstatic "images/knotes64.png" %}" alt="tag" title="tag"/></td>
+                    <td><label>{{ manager.tag.textValue|warphtml:"30"|linebreaks }}</label>{% if manager.tag.isOwned %} <a href="{% url manage_action_containers "edit" "tag" manager.tag.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %} (id: {{ manager.tag.id }})</td></tr>
+                <tr><td colspan="2">Created on: {{ manager.tag.getDate|date:"Y-m-d H:i:s" }}</td></tr>
+                <tr><td colspan="2">
+                    {% if not manager.tag.isOwned %} <img src="{% url webstatic "images/personal16.png" %}" alt="owner by" title="Owner"/>{% endif %}
+                    {% if manager.tag.isPublic %}<img src="{% url webstatic "images/network16.png" %}" alt="p" title="{{ manager.screen.details.permissions }}"/>Public{% else %}{% if manager.tag.isShared %}<img src="{% url webstatic "images/kuser16.png" %}" alt="s" title="{{ manager.screen.details.permissions }}"/>Shared{% else %}{% if manager.tag.isPrivate %}Private{% endif %}{% endif %}{% endif %}
+                    {% if manager.tag.isReadOnly %} (read-only){% endif %}
+                    {% if not manager.tag.isOwned %} <img src="{% url webstatic "images/personal16.png" %}" alt="owner by" title="Owner"/>{{ manager.tag.getOwner.getFullName }}{% endif %}
+                    </td></tr>
+                <tr><td colspan="2"><label>{{ manager.tag.description|default_if_none:""|linebreaks }}</label></td></tr>
+            </table>
             {% endif %}
             
             {% if manager.well or manager.image%}
@@ -377,6 +396,7 @@
             <div class="clear"></div>
         </div>        
         
+        {% if not manager.tag %}
         <!-- ANNOTATIONS -->
         <div id="annotation_tab">
             <h1>{% trans "Comments" %}:
@@ -415,7 +435,7 @@
             {% if manager.tgannSize %}
             <div class="lntags"> <h1> 
             {% for tag in manager.tag_annotations %}
-                <a href="{% url load_template "usertags" %}{% if not tag.isOwned %}?experimenter={{ tag.getOwner.id }}{% endif %}" target="_top" title="Linked by {{ tag.link.getDetails.getOwner.getNameWithInitial }}. {{ tag.description|default_if_none:""  }}"> {{ tag.textValue }}</a></span> {% if tag.link.isOwned %}<a href="{% url manage_action_containers "remove" %}?parent={% if manager.image %}img-{{ manager.image.id}}{% else %}{% if manager.dataset %}ds-{{ manager.dataset.id}}{% else %}{% if manager.project %}pr-{{ manager.project.id}}{% endif %}{% endif %}{% endif %}&source=tann-{{ tag.id }}&url={{ url }}#annotation_tab" onClick="return confirm('Unlink tag?');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>{% endif %}, 
+                <a href="{% url load_template "usertags" %}{% if not tag.isOwned %}?experimenter={{ tag.getOwner.id }}{% endif %}" target="_top" title="Linked by {{ tag.link.getDetails.getOwner.getNameWithInitial }}. {{ tag.description|default_if_none:""  }}"> {{ tag.textValue }}</a></span> {% if tag.link.isOwned %}<a href="{% url manage_action_containers "remove" %}?parent={% if manager.image %}img-{{ manager.image.id}}{% else %}{% if manager.dataset %}ds-{{ manager.dataset.id}}{% else %}{% if manager.project %}pr-{{ manager.project.id}}{% endif %}{% endif %}{% endif %}&source=tann-{{ tag.id }}&url={{ url }}" onClick="return confirm('Unlink tag?');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>{% endif %}, 
             {% endfor %}
             </h1></div>
             {% else %}
@@ -436,7 +456,7 @@
             {% if manager.fileannSize %}
             <div class="lnfiles">
                 {% for fileann in manager.file_annotations %}
-                <p><a href="#" onClick="document.location.href='{% url download_annotation "download" fileann.id %}';">{{ fileann.getFileName }}</a> ({{ fileann.getFileSize|default_if_none:0|filesizeformat }}) {% trans "by" %} {{ fileann.getDetails.getOwner.getNameWithInitial }} {% trans "at" %} {{ fileann.creationEventDate|date:"Y-m-d H:i:s" }} {% if fileann.isOwned and not fileann.isOriginalMetadata %}<a href="{% url manage_action_containers "remove" %}?parent={% if manager.image %}img-{{ manager.image.id}}{% else %}{% if manager.dataset %}ds-{{ manager.dataset.id}}{% else %}{% if manager.project %}pr-{{ manager.project.id}}{% endif %}{% endif %}{% endif %}&source=fann-{{ fileann.id }}&url={{ url }}#annotation_tab" onClick="return confirm('Unlink file?');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>{% endif %}</p>
+                <p><a href="#" onClick="document.location.href='{% url download_annotation "download" fileann.id %}';">{{ fileann.getFileName }}</a> ({{ fileann.getFileSize|default_if_none:0|filesizeformat }}) {% trans "by" %} {{ fileann.getDetails.getOwner.getNameWithInitial }} {% trans "at" %} {{ fileann.creationEventDate|date:"Y-m-d H:i:s" }} {% if fileann.isOwned and not fileann.isOriginalMetadata %}<a href="{% url manage_action_containers "remove" %}?parent={% if manager.image %}img-{{ manager.image.id}}{% else %}{% if manager.dataset %}ds-{{ manager.dataset.id}}{% else %}{% if manager.project %}pr-{{ manager.project.id}}{% endif %}{% endif %}{% endif %}&source=fann-{{ fileann.id }}&url={{ url }}" onClick="return confirm('Unlink file?');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>{% endif %}</p>
                 {% endfor %}
             </ol>
             </div>
@@ -446,7 +466,7 @@
             
             <div class="clear"></div>
         </div>
-
+        {% endif %}
     </div>
     
 </div>

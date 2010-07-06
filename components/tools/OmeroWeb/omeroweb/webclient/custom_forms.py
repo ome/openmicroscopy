@@ -116,21 +116,16 @@ class AnnotationQuerySetIterator(object):
                 textValue = obj.file.name.val
             elif isinstance(obj._obj, TagAnnotationI):
                 if obj.textValue is not None:
-                    if obj.description is not None and obj.description is not "":
-                        textValue = "%s (%s)" % ((obj.textValue[:37]+"...", obj.textValue)[ len(obj.textValue)<40 ], \
-                            (obj.description[:32]+"...", obj.description)[ len(obj.description)<35 ])
+                    if obj.ns is not None and obj.ns!="":
+                        textValue = (len(obj.textValue) < 45) and ("%s (tagset)" % obj.textValue) or ("%s (tagset)" % obj.textValue[:42]+"...")
                     else:
-                        if len(obj.textValue) < 75:
-                            textValue = obj.textValue
-                        else:
-                            textValue = obj.textValue[:72]+"..."
+                        textValue = (len(obj.textValue) < 45) and (obj.textValue) or (obj.textValue[:42]+"...")
             else:
                 textValue = obj.textValue
             
             l = len(textValue)
-            if l > 80:
-                textValue = "%s..." % textValue[:80]
-            
+            if l > 55:
+                textValue = "%s..." % textValue[:55]            
             oid = obj.id
             yield (oid, smart_unicode(textValue))
         # Clear the QuerySet cache if required.

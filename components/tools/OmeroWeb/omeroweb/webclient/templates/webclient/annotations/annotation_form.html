@@ -20,7 +20,7 @@
 
     {% if manager.comment %}
     <h1>{% trans "Edit comment" %}</h1>
-    <form action="{% url manage_action_containers "save" "comment" manager.comment.id %}?url={{url}}#annotation_tab" method="post">
+    <form action="{% url manage_action_containers "save" "comment" manager.comment.id %}?url={{url}}" method="post">
     <table>
         {% for field in form %}
             <tr>
@@ -38,7 +38,7 @@
     
     {% if manager.tag %}
     <h1>{% trans "Edit tag" %}</h1>
-    <form action="{% url manage_action_containers "save" "tag" manager.tag.id %}?url={{url}}?url={{url}}#annotation_tab" method="post">
+    <form action="{% url manage_action_containers "save" "tag" manager.tag.id %}?url={{url}}?url={{url}}" method="post">
     <table>
         {% for field in form %}
             <tr>

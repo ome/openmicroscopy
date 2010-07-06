@@ -56,6 +56,7 @@ from omero.model import FileAnnotationI, TagAnnotationI, \
 from omero.sys import ParametersI
 from omeroweb.extlib.wrapper import *
 from omero.gateway import AnnotationWrapper, FileAnnotationWrapper, \
+                        TagAnnotationWrapper, CommentAnnotationWrapper, \
                         ExperimenterGroupWrapper, ExperimenterWrapper, \
                         EnumerationWrapper, BlitzObjectWrapper
 
@@ -579,7 +580,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
               "left outer join fetch pal.child tag " \
               "where tag.id in (:tids)"
         for e in q.findAllByQuery(sql,p):
-            yield ProjectWrapper(self, e)
+            #yield ProjectWrapper(self, e)
+            kwargs = {'link': BlitzObjectWrapper(self, e.copyAnnotationLinks()[0])}
+            yield ProjectWrapper(self, e, None, **kwargs)
     
     def listDatasetsByTag(self, tids):
         """ Retrieves Datasets linked to the for the given tag ids."""
@@ -593,7 +596,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
               "left outer join fetch dal.child tag " \
               "where tag.id in (:tids) "
         for e in q.findAllByQuery(sql,p):
-            yield DatasetWrapper(self, e)
+            #yield DatasetWrapper(self, e)
+            kwargs = {'link': BlitzObjectWrapper(self, e.copyAnnotationLinks()[0])}
+            yield DatasetWrapper(self, e, None, **kwargs)
     
     def listImagesByTag(self, tids):
         """ Retrieves Images linked to the for the given tag ids."""
@@ -607,8 +612,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
               "left outer join fetch ial.child tag " \
               "where tag.id in (:tids)"
         for e in q.findAllByQuery(sql,p):
-            yield ImageWrapper(self, e)
-    
+            #yield ImageWrapper(self, e)
+            kwargs = {'link': BlitzObjectWrapper(self, e.copyAnnotationLinks()[0])}
+            yield ImageWrapper(self, e, None, **kwargs)
+                
     def listScreensByTag(self, tids):
         """ Retrieves Datasets linked to the for the given tag ids."""
         
@@ -621,7 +628,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
               "left outer join fetch sal.child tag " \
               "where tag.id in (:tids)"
         for e in q.findAllByQuery(sql,p):
-            yield ScreenWrapper(self, e)
+            #yield ScreenWrapper(self, e)
+            kwargs = {'link': BlitzObjectWrapper(self, e.copyAnnotationLinks()[0])}
+            yield ScreenWrapper(self, e, None, **kwargs)
     
     def listPlatesByTag(self, tids):
         """ Retrieves Datasets linked to the for the given tag ids."""
@@ -635,7 +644,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
               "left outer join fetch pal.child tag " \
               "where tag.id in (:tids) "
         for e in q.findAllByQuery(sql,p):
-            yield PlateWrapper(self, e)
+            #yield PlateWrapper(self, e)
+            kwargs = {'link': BlitzObjectWrapper(self, e.copyAnnotationLinks()[0])}
+            yield PlateWrapper(self, e, None, **kwargs)
     
     def listTags(self, o_type, oid):
         """ Retrieves list of Tags not linked to the for the given Project/Dataset/Image id."""
@@ -672,9 +683,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map["uid"] = rlong(self.getEventContext().userId)
         if self.getGroupFromContext().isReadOnly():
             p.map["eid"] = rlong(self.getEventContext().userId)
-            sql += " and a.details.owner.id=:eid"
+            sql += "and a.ns is null and a.details.owner.id=:eid"
         for e in q.findAllByQuery(sql,p):
-            yield AnnotationWrapper(self, e)
+            yield TagAnnotationWrapper(self, e)
     
     def listComments(self, o_type, oid):
         """ Retrieves list of Comments not linked to the for the given Project/Dataset/Image id."""
@@ -709,7 +720,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 "where not exists ( select wal from WellAnnotationLink as wal where wal.child=a.id and wal.parent.id=:oid ) " \
                 "and a.details.owner.id=:eid and a.ns is null"
         for e in q.findAllByQuery(sql,p):
-            yield AnnotationWrapper(self, e)
+            yield CommentAnnotationWrapper(self, e)
     
     def listFiles(self, o_type, oid):
         """ Retrieves list of Files not linked to the for the given Project/Dataset/Image id."""
@@ -756,7 +767,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map["ids"] = rlist([rlong(a) for a in set(ids)])
         sql = "select a from TagAnnotation a where a.id in (:ids) "
         for e in q.findAllByQuery(sql,p):
-            yield AnnotationWrapper(self, e)
+            yield TagAnnotationWrapper(self, e)
     
     def listSpecifiedComments(self, ids):
         """ Retrieves list of for the given Comment ids."""
@@ -767,7 +778,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map["ids"] = rlist([rlong(a) for a in set(ids)])
         sql = "select a from CommentAnnotation a where a.id in (:ids) "
         for e in q.findAllByQuery(sql,p):
-            yield AnnotationWrapper(self, e)
+            yield CommentAnnotationWrapper(self, e)
     
     def listSpecifiedFiles(self, ids):
         """ Retrieves list of for the given Fiel ids."""
@@ -780,7 +791,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in q.findAllByQuery(sql,p):
             yield FileAnnotationWrapper(self, e)
     
-    def lookupTags(self):
+    def lookupTags(self, eid=None):
         """ Retrieves list of Tags owned by current user.
             This method is used by autocomplite."""
 
@@ -788,9 +799,21 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p = omero.sys.Parameters()
         p.map = {}
         p.map["gid"] = rlong(self.getEventContext().groupId)
-        sql = "select tg from TagAnnotation tg where tg.details.group.id=:gid and tg.ns is null"
+        
+        #sql = "select tg from TagAnnotation tg " \
+        #        "where not exists ( select aal from AnnotationAnnotationLink as aal where aal.child=tg.id) and " \
+        #        "tg.details.group.id=:gid "
+        sql = "select tg from TagAnnotation tg " \
+                "where tg.ns is null and " \
+                "tg.details.group.id=:gid "
+        if eid is not None:
+            p.map["eid"] = rlong(long(eid))
+            sql += "and tg.details.owner.id=:eid"
+        elif self.getGroupFromContext().isReadOnly():
+            p.map["eid"] = rlong(self.getEventContext().userId)
+            sql += "and tg.details.owner.id=:eid"
         for e in q.findAllByQuery(sql,p):
-            yield AnnotationWrapper(self, e)
+            yield TagAnnotationWrapper(self, e)
     
     def lookupFiles(self, eid=None):
         """ Retrieves list of Tags owned by current user.

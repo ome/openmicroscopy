@@ -136,16 +136,14 @@ $.fn.simpleTree = function(opt){
 		TREE.setTreeNodes = function(obj, useParent){
 			obj = useParent? obj.parent():obj;
 
-			if(obj.attr('id')==0) {
-			    $('span',obj).click(function(){
-			        $('.active',TREE).attr('class','text');
-			        if(typeof TREE.option.afterRootClick == 'function')
-    				{
-    					TREE.option.afterRootClick($(this).parent());
-    				}
-    				return false;
-    			});
-			}
+			$('li.root>span').click(function(){
+		        $('.active',TREE).attr('class','text');
+		        if(typeof TREE.option.afterRootClick == 'function')
+				{
+					TREE.option.afterRootClick($(this).parent());
+				}
+				return false;
+			});
 					
 			$('li>span', obj).addClass('text')
 			.bind('selectstart', function() {
@@ -184,7 +182,7 @@ $.fn.simpleTree = function(opt){
 				return false;
 			}).mousedown(function(event){
 			    //if elemnt is static don't drag it
-			    if($(this).parent().get(0).id.indexOf('pr')>=0 || $(this).parent().get(0).id.indexOf('sc')>=0 || $(this).parent().get(0).id=='orphaned' || $(this).attr('id').indexOf('readonly')>=0) {
+			    if($(this).parent().get(0).id.indexOf('pr')>=0 || $(this).parent().get(0).id.indexOf('sc')>=0 || $(this).parent().get(0).id=='orphaned' || $(this).attr('id').indexOf('readonly')>=0 || $(this).attr('id').indexOf('editonly')>=0) {
 			        return false;
 				} else {
 				    mousePressed = true;
@@ -255,14 +253,16 @@ $.fn.simpleTree = function(opt){
 		        pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/folder_screen16.png" alt="screen"/>';
             } else if(node.id.indexOf('pl')>=0){    
 		        pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/folder_plate16.png" alt="plate"/>';
-		    } else if(node.id.indexOf('tag')>=0){    
+		    } else if(node.id.indexOf('tset')>=0){    
+		        pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/knotesred16.png" alt="tagset"/>'; 
+            } else if(node.id.indexOf('tag')>=0){    
 		        pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/knotes16.png" alt="tag"/>'; 
             } else if(node.id.indexOf('sh')>=0){    
-		        pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/folder_html16.png" alt="tag"/>'; 
+		        pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/folder_html16.png" alt="share"/>'; 
             } else if(node.id.indexOf('di')>=0){    
-		        pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/wp_protocol16.png" alt="tag"/>'; 
+		        pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/wp_protocol16.png" alt="discussion"/>'; 
             } else {
-		        pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/image16.png" alt="image"/>';
+		        pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/unknown16.png" alt="image"/>';
 		    }
 			$('>span',node).before(pic);
 			var icon = $('>.icon', node);

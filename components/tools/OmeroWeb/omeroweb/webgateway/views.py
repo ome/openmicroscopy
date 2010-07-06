@@ -713,7 +713,7 @@ def search_json (request, server_id=None, _conn=None, **kwargs):
             sr = _conn.simpleSearch(opts['search'])
     except ApiUsageException:
         return HttpResponseServerError('"parse exception"', mimetype='application/javascript')
-    print opts
+    logger.debug(opts)
     def marshal ():
         rv = []
         if (opts['grabData'] and opts['ctx'] == 'imgs'):

@@ -30,12 +30,14 @@ from django import template
 
 register = template.Library()
 
-@register.filter
-def hash(h, key):
-    return h[key]
+NAMESPACE_PROTECTION = settings.DEBUG
 
 @register.filter
-def truncate(value, arg):
+def hash(value, key):
+    return value[key]
+
+@register.filter
+def truncateafter(value, arg):
     """
     Truncates a string after a given number of chars  
     Argument: Number of chars to truncate after
@@ -108,3 +110,31 @@ class SettingNode ( template.Node ):
             return str(settings.__getattr__(self.option))
         except:
             return ""
+
+class PluralNode(template.Node):
+    def __init__(self, quantity, single, plural):
+        self.quantity = template.Variable(quantity)
+        self.single = template.Variable(single)
+        self.plural = template.Variable(plural)
+
+    def render(self, context):
+        if self.quantity.resolve(context) == 1:
+            return u'%s' % self.single.resolve(context)
+        else:
+            return u'%s' % self.plural.resolve(context)
+
+@register.tag(name="plural")
+def do_plural(parser, token):
+    """
+    Usage: {% plural quantity name_singular name_plural %}
+
+    This simple version only works with template variable since we will use blocktrans for strings.
+    """
+    
+    try:
+        # split_contents() knows not to split quoted strings.
+        tag_name, quantity, single, plural = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError, "%r tag requires exactly three arguments" % token.contents.split()[0]
+
+    return PluralNode(quantity, single, plural)

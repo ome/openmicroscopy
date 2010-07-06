@@ -27,11 +27,8 @@
                             $('iframe#metadata_details').load();
                         });
             		} else {
-                        $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/knotes16.png" %}" onclick="manyToAnnotation();" alt="Annotate" title="Annotate"/>');
-
-            		    $("#right_panel").show();
-            		    $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
-            		    $("div#metadata_details").html('<p>'+ l +' elements selected.</p>');
+                        $("#toolbar").html('');
+                        manyToAnnotation();
             		}
             	},
             	start: function(){

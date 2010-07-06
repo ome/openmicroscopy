@@ -412,6 +412,12 @@ def change_active_group(request, **kwargs):
     
     active_group = request.REQUEST['active_group']
     if conn.changeActiveGroup(active_group):
+        request.session.modified = True
+        try:
+            del request.session['imageInBasket']
+            request.session['nav']["basket"] = 0
+        except KeyError:
+            logger.error(traceback.format_exc())
         return HttpResponseRedirect(url)
     else:
         error = 'You cannot change your group becuase other session is on.'
@@ -781,15 +787,19 @@ def load_data_by_tag(request, o_type=None, o_id=None, **kwargs):
     if o_id is not None:
         if o_type == "tag":
             manager.loadDataByTag()
-            template = "webclient/data/container_tags_containers.html"
+            if view == "tree":
+                template = "webclient/data/container_tags_containers.html"
+            elif view == "icon":
+                template = "webclient/data/containers_icon.html"
+            elif view == "table":
+                template = "webclient/data/containers_table.html"
+            
         elif o_type == "dataset":
             manager.listImagesInDataset(o_id, filter_user_id)
             template = "webclient/data/container_tags_subtree.html"
     else:
         manager.loadTags(filter_user_id)
-        template = "webclient/data/container_tags_tree.html"
-        
-        
+        template = "webclient/data/container_tags_tree.html"    
     # load data  
     form_well_index = None    
     
@@ -810,7 +820,7 @@ def autocomplete_tags(request, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
-    tags = [{'tag': t.textValue,'id':t.id, 'desc':t.description} for t in conn.lookupTags()]  
+    tags = [{'tag': t.textValue,'id':t.id, 'desc':t.description} for t in conn.lookupTags()]
     json_data = simplejson.dumps(tags)
     return HttpResponse(json_data, mimetype='application/javascript')
 
@@ -946,11 +956,11 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
                                     'pulses': list(conn.getEnumerationEntries("PulseI"))})
                     form_lasers.append(form_laser)
     
-    if c_type in ("share", "discussion"):
+    if c_type in ("share", "discussion", "tag"):
         context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager}
     else:
         context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_channels':form_channels, 'form_environment':form_environment, 'form_objective':form_objective, 'form_microscope':form_microscope, 'form_filters':form_filters, 'form_detectors':form_detectors, 'form_lasers':form_lasers, 'form_stageLabel':form_stageLabel}
-            
+
     t = template_loader.get_template(template)
     c = Context(request,context)
     logger.debug('TEMPLATE: '+template)
@@ -1025,6 +1035,8 @@ def manage_annotation_multi(request, action=None, **kwargs):
     plates = len(request.REQUEST.getlist('plate')) > 0 and list(conn.listSelectedPlates(request.REQUEST.getlist('plate'))) or list()
     wells = len(request.REQUEST.getlist('well')) > 0 and list(conn.listSelectedWells(request.REQUEST.getlist('well'))) or list()
 
+    count = {'images':len(images), 'datasets':len(datasets), 'projects':len(projects), 'screens':len(screens), 'plates':len(plates), 'wells':len(wells)}
+    
     form_multi = None
     if action == "annotatemany":
         selected = {'images':request.REQUEST.getlist('image'), 'datasets':request.REQUEST.getlist('dataset'), 'projects':request.REQUEST.getlist('project'), 'screens':request.REQUEST.getlist('screen'), 'plates':request.REQUEST.getlist('plate'), 'wells':request.REQUEST.getlist('well')}
@@ -1058,7 +1070,7 @@ def manage_annotation_multi(request, action=None, **kwargs):
 
                 return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse(viewname="load_template", args=[menu]))
             
-    context = {'url':url, 'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form_multi':form_multi}
+    context = {'url':url, 'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form_multi':form_multi, 'count':count}
             
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -1193,7 +1205,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             manager.remove(parent,source)
         except Exception, x:
             logger.error(traceback.format_exc())
-            raise x
+            rv = "Error: %s" % x.message
+            return HttpResponse(rv)
         return HttpResponseRedirect(url)
     elif action == 'removemany':
         parent = request.REQUEST.get('parent')
@@ -1204,7 +1217,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 manager.removemany(parent,source)
             except Exception, x:
                 logger.error(traceback.format_exc())
-                raise x
+                rv = "Error: %s" % x.message
+                return HttpResponse(rv)
             return HttpResponse()
         else:
             raise AttributeError('Operation not supported.')
@@ -1214,7 +1228,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             manager.removeImage(image_id)
         except Exception, x:
             logger.error(traceback.format_exc())
-            raise x
+            rv = "Error: %s" % x.message
+            return HttpResponse(rv)
         return HttpResponseRedirect(url)    
     elif action == 'save':
         if not request.method == 'POST':
@@ -1437,7 +1452,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             manager.deleteItem(allitems)
         except Exception, x:
             logger.error(traceback.format_exc())
-            raise x
+            rv = "Error: %s" % x.message
+            return HttpResponse(rv)
         return HttpResponse()
     elif action == 'deletemany':
         ids = request.REQUEST.getlist('image')
@@ -1445,7 +1461,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             manager.deleteImages(ids)
         except Exception, x:
             logger.error(traceback.format_exc())
-            raise x
+            rv = "Error: %s" % x.message
+            return HttpResponse(rv)
         return HttpResponse()
     
     t = template_loader.get_template(template)

@@ -13,12 +13,15 @@
             		var l = $('li.ui-selected img', this).length;
             		var ro = 0;
             		var lo = 0;
+            		var eo = 0;
             		$("li.ui-selected input", this).each(function(){
             		    if($(this).parents('li:first').attr('class').indexOf("readonly") == 0) {
                             ro++;
                 		} else if($(this).parents('li:first').attr('class').indexOf("linkonly") == 0) {
                             lo++;
-                   		} 
+                   		} else if($(this).parents('li:first').attr('class').indexOf("editonly") == 0) {
+                            eo++;
+                   		}
                    		this.checked = true;
             		});
             		if (l == 1) { 
@@ -27,9 +30,11 @@
                             $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="manyCopyToClipboard();"> <input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="manyDelete();" /> <input class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket" title="Add to basket" onclick="manyAddToBasket();"> <input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
                         } else {
                             if(ro > 0) {
-                		        $("#toolbar").html('{% if not eContext.isReadOnly %}<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="manyCopyToClipboard();">{% endif %}<input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
+                		        $("#toolbar").html('<input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
                 		    } else if(lo > 0) {
                                 $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="manyCopyToClipboard();"> <input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Unlink" title="Unlink" onclick="manyUnlink(\'ds-{{ manager.dataset.id }}\');"> <input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
+                    		} else if(eo > 0) {
+                                $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="manyCopyToClipboard();"> {% if not eContext.isReadOnly %}<input class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket" title="Add to basket" onclick="manyAddToBasket();">{% endif %} <input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
                     		} else {
                 		        $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="manyCopyToClipboard();"> <input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Unlink" title="Unlink" onclick="manyUnlink(\'ds-{{ manager.dataset.id }}\');"> <input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="manyDelete();" /> <input class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket" title="Add to basket" onclick="manyAddToBasket();"> <input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
                 		    }
@@ -45,20 +50,19 @@
             		} else {
             		    var rel = $("div#content_details").attr('rel');
                         if(rel=='orphaned') {
-                            $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="manyCopyToClipboard();"> <input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="manyDelete();" /> <input class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket" title="Add to basket" onclick="manyAddToBasket();"> <input class="button" type="image" src="{% url webstatic "images/knotes16.png" %}" onclick="manyToAnnotation();" alt="Annotate" title="Annotate"/> <input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
+                            $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="manyCopyToClipboard();"> <input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="manyDelete();" /> <input class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket" title="Add to basket" onclick="manyAddToBasket();"> <input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
                         } else {
                             if(ro > 0) {
-                                $("#toolbar").html('{% if not eContext.isReadOnly %}<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="manyCopyToClipboard();">{% endif %} <input class="button" type="image" src="{% url webstatic "images/knotes16.png" %}" onclick="manyToAnnotation();" alt="Annotate" title="Annotate"/> <input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
+                                $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="manyCopyToClipboard();"> <input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
                             } else if (lo > 0){
-                                $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="manyCopyToClipboard();"> <input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Unlink" title="Unlink" onclick="manyUnlink(\'ds-{{ manager.dataset.id }}\');"> <input class="button" type="image" src="{% url webstatic "images/knotes16.png" %}" onclick="manyToAnnotation();" alt="Annotate" title="Annotate"/> <input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
+                                $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="manyCopyToClipboard();"> <input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Unlink" title="Unlink" onclick="manyUnlink(\'ds-{{ manager.dataset.id }}\');"> <input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
+                            } else if (eo > 0){
+                                $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="manyCopyToClipboard();"> <input class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket" title="Add to basket" onclick="manyAddToBasket();"> <input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
                             } else {
-                                $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="manyCopyToClipboard();"> <input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Unlink" title="Unlink" onclick="manyUnlink(\'ds-{{ manager.dataset.id }}\');"> <input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="manyDelete();" /> <input class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket" title="Add to basket" onclick="manyAddToBasket();"> <input class="button" type="image" src="{% url webstatic "images/knotes16.png" %}" onclick="manyToAnnotation();" alt="Annotate" title="Annotate"/> <input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
+                                $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="manyCopyToClipboard();"> <input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Unlink" title="Unlink" onclick="manyUnlink(\'ds-{{ manager.dataset.id }}\');"> <input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="manyDelete();" /> <input class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket" title="Add to basket" onclick="manyAddToBasket();"> <input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
                             }
                         }            		    
-            		    
-            		    $("#right_panel").show();
-            		    $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
-            		    $("div#metadata_details").html('<p>'+ l +' elements selected.</p>');
+        		        manyToAnnotation();
             		}
             	},
             	start: function(){
@@ -71,7 +75,7 @@
         
     </script>
 
-{% if manager.c_size %}
+{% if manager.containers.images %}
 
     <div id="toolbar" class="toolbar_noborder">
         <input onclick="changeView('table');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">
@@ -80,7 +84,7 @@
         
     <ul id="dataIcons">
         {% for c in manager.containers.images %}
-        <li id="{{ c.id }}" title="{{ c.name }}" {% if not c.link.isOwned %}class="readonly"{% else %}{% if not c.isOwned %}class="linkonly"{% endif %}{% endif %}><em {% if not c.link.isOwned %}id="readonly"{% endif %}>{{ c.name }}</em>
+        <li id="{{ c.id }}" title="{{ c.name }}" {% if c.isOwned %}{% if c.link.isOwned %}{% else %}class="editonly"{% endif %}{% else %}{% if c.link.isOwned %}class="linkonly"{% else %}class="editonly"{% endif %}{% endif %}><em>{{ c.name }}</em>
             <img id="{{ c.id }}" src="{% url render_thumbnail c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}{% if not c.link.isOwned %}, linked by {{ c.link.getOwner.getNameWithInitial }}{% endif %}"/>
             <!--{% if c.countAnnotations %}<img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation" class="over"/>{% endif %} 
             {% if not c.link.isOwned %}{% if not c.isOwned %}<img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="owned by {{ c.getOwner.getNameWithInitial }}, linked by {{ c.link.getOwner.getNameWithInitial }}" class="over"/>{% else %}<img src="{% url webstatic "images/kgpg_key16.png" %}" alt="l" title="linked by {{ c.link.getOwner.getNameWithInitial }}" class="over"/>{% endif %}{% else %}{% if not c.isOwned %}<img src="{% url webstatic "images/personal12.png" %}" alt="l" title="owned by {{ c.getOwner.getNameWithInitial }}" class="over"/>{% endif %}{% endif %}-->

@@ -8,11 +8,21 @@
     <li class="root" id='0'><img class="icon" src="{% url webstatic "images/tree/root.gif" %}" alt="root"/><span>{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.getFullName }}{% endif %}</span>
         <ul>
             {% for t in manager.tags %}
-            <li id="tag-{{ t.id }}"><span id="readonly">{{ t.textValue }}</span>
+            {% if t.ns %}
+            
+            <li id="tset-{{ t.id }}"><span id="readonly">{{ t.textValue|truncateafter:"35" }}</span>
                 <ul class="ajax">
                     <li id='{{ t.id }}'>{url:{% url load_data_by_tag "tag" t.id %}?view=tree}</li>
                 </ul>
             </li>
+            
+            {% else %}
+            <li id="tag-{{ t.id }}"><span id="readonly">{{ t.textValue|truncateafter:"35" }}</span>
+                <ul class="ajax">
+                    <li id='{{ t.id }}'>{url:{% url load_data_by_tag "tag" t.id %}?view=tree}</li>
+                </ul>
+            </li>
+            {% endif %}
             {% endfor %}
         </ul>
     </li>

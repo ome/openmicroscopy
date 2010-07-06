@@ -50,7 +50,7 @@
                     <td><label>{{ image.name }}</label></td></tr>
                 <tr><td>Created on: {{ image.getDate|date:"Y-m-d H:i:s" }}</td></tr>                
                 <tr><td colspan="2">
-                    {% if image.countAnnotations %}{{ image.countAnnotations }} annotations(s){% endif %}
+                    {% if image.countAnnotations %}{{ image.countAnnotations }} annotations{% endif %}
                     {% if image.isPublic %} Public{% else %}{% if image.isShared %} Shared{% else %}{% if image.isPrivate %} Private{% endif %}{% endif %}{% endif %}
                     {% if image.isReadOnly %} (read-only){% endif %}                    
                     {% if not image.isOwned %} Owned by {{ image.getOwner.getFullName }}{% endif %}

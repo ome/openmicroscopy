@@ -5,7 +5,7 @@ function isCheckedById(name) {
 
 var calculateCartTotal = function(total)
 {
-    $('#cartTotal').html(total);
+    $('#cartTotal').html(total); 
 };
 
 function manyToAnnotation(){
@@ -45,14 +45,13 @@ function toBasket (productType, productId) {
             data: "action=add&productId="+productId+"&productType="+productType,
             contentType:'html',
             success: function(responce){
-                if(responce.match(/(Error: ([a-z][A-Z]+))/gi)) {
+                if(responce.match(/(Error: ([A-z]+))/gi)) {
                     alert(responce)
                 } else {
                     calculateCartTotal(responce);
                 }
             },
             error: function(responce) {
-                alert(responce)
                 alert("Internal server error. Cannot add to basket.")
             }
         });
@@ -60,29 +59,33 @@ function toBasket (productType, productId) {
 };
 
 function manyToBasket (productArray) { 
-    var productListQuery = "action=addmany";
-    productArray.each(function() {
-        if(this.checked) {
-            productListQuery += "&"+this.name+"="+this.id;
-        }
-    });
-    
-    $.ajax({
-        type: "POST",
-        url: "/webclient/basket/update/", //this.href,
-        data: productListQuery,
-        contentType:'html',
-        success: function(responce){
-            if(responce.match(/(Error: ([a-z][A-Z]+))/gi)) {
-                alert(responce)
-            } else {
-                calculateCartTotal(responce);
+    if(productArray.length==1) {
+        toBasket(productArray[0].name, productArray[0].id);
+    } else {
+        var productListQuery = "action=addmany";
+        productArray.each(function() {
+            if(this.checked) {
+                productListQuery += "&"+this.name+"="+this.id;
             }
-        },
-        error: function(responce) {
-            alert("Internal server error. Cannot add to basket.")
-        }
-    });
+        });
+
+        $.ajax({
+            type: "POST",
+            url: "/webclient/basket/update/", //this.href,
+            data: productListQuery,
+            contentType:'html',
+            success: function(responce){
+                if(responce.match(/(Error: ([A-z]+))/gi)) {
+                    alert(responce)
+                } else {
+                    calculateCartTotal(responce);
+                }
+            },
+            error: function(responce) {
+                alert("Internal server error. Cannot add to basket.")
+            }
+        });
+    }
 };
 
 function manyRemoveFromBasket() {     
@@ -108,7 +111,7 @@ function manyFromBasket(productArray) {
         contentType:'html',
         cache:false,
         success: function(responce){
-            if(responce.match(/(Error: ([a-z][A-Z]+))/gi)) {
+            if(responce.match(/(Error: ([A-z]+))/gi)) {
                 alert(responce)
             } else {
                 window.location = "/webclient/basket/";
@@ -145,7 +148,7 @@ function unlink (productArray, parent) {
         data: productListQuery,
         contentType:'html',
         success: function(responce){
-            if(responce.match(/(Error: ([a-z][A-Z]+))/gi)) {
+            if(responce.match(/(Error: ([A-z]+))/gi)) {
                 alert(responce)
             } else {
                 window.location.replace("");
@@ -178,14 +181,14 @@ function deleteItems (productArray, parent) {
         data: productListQuery,
         contentType:'html',
         success: function(responce){
-            if(responce.match(/(Error: ([a-z][A-Z]+))/gi)) {
+            if(responce.match(/(Error: ([A-z]+))/gi)) {
                 alert(responce)
             } else {
                 window.location.replace("");
             }
         },
         error: function(responce) {
-            alert("Internal server error. Cannot add to basket.");
+            alert("Internal server error. Cannot delete objects.");
         }
     });
 };
@@ -204,14 +207,14 @@ function deleteItem(productType, productId) {
                 data: all,
                 contentType:'html',
                 success: function(responce){
-                    if(responce.match(/(Error: ([a-z][A-Z]+))/gi)) {
+                    if(responce.match(/(Error: ([A-z]+))/gi)) {
                         alert(responce)
                     } else {
                         window.location.replace("");
                     }
                 },
                 error: function(responce) {
-                    alert("Internal server error. Cannot add to basket.");
+                    alert("Internal server error. Cannot delete object.");
                 }
             });
             
@@ -248,14 +251,14 @@ function copyToClipboard (productArray) {
         data: productListQuery,
         contentType:'html',
         success: function(responce) {
-            if(responce.match(/(Error: ([a-z][A-Z]+))/gi)) {
+            if(responce.match(/(Error: ([A-z]+))/gi)) {
                 alert(responce)
             } else {
                 alert(responce)
             }
         },
         error: function(responce) {
-            alert("Internal server error. Cannot add to basket.")
+            alert("Internal server error. Cannot copy to clipboard.")
         }
     });
 };
@@ -279,14 +282,14 @@ function pasteFromClipboard (destinationType, destinationId, url) {
             data: "action=paste&destinationId="+destinationId+"&destinationType="+destinationType,
             contentType:'html',
             success: function(responce){
-                if(responce.match(/(Error: ([a-z][A-Z]+))/gi)) {
+                if(responce.match(/(Error: ([A-z]+))/gi)) {
                     alert(responce)
                 } else {
                     window.location = url
                 }
             },
             error: function(responce) {
-                alert("Internal server error. Could not be pasted.")
+                alert("Internal server error. Cannot paste from clipboard.")
             }
         });
     }
@@ -306,7 +309,7 @@ function cleanClipboard (productType, productId) {
                 alert(responce);
             },
             error: function(responce) {
-                alert(responce)
+                alert("Internal server error. Cannot clean clipboard.")
             }
         });
     }
@@ -314,9 +317,12 @@ function cleanClipboard (productType, productId) {
 
 function changeView(view) { 
     var rel = $("div#content_details").attr('rel').split("-");
-    if(rel=='orphaned') {
+    if(rel.indexOf('orphaned')>=0) {
         $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/tree/spinner.gif"/></p>');
         $("div#content_details").load('/webclient/load_data/orphaned/?view='+view);
+    } else if(rel.indexOf('tag')>=0) {
+        $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/tree/spinner.gif"/></p>');
+        $("div#content_details").load('/webclient/load_tags/tag/'+rel[1]+'/?view='+view);
     } else {
         $("div#content_details").html('<p>Loading data... please wait <img src="/appmedia/omeroweb/images/tree/spinner.gif"/></p>');
         $("div#content_details").load('/webclient/load_data/dataset/'+rel[1]+'/?view='+view);

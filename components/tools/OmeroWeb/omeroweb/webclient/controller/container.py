@@ -137,7 +137,7 @@ class BaseContainer(BaseController):
     def loadTags(self, eid=None):
         if eid is not None:
             self.experimenter = self.conn.getExperimenter(eid)
-        self.tags = list(self.conn.lookupTags())
+        self.tags = list(self.conn.lookupTags(eid))
         self.t_size = len(self.tags)
     
     def loadDataByTag(self):
