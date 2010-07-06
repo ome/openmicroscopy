@@ -44,7 +44,7 @@ public class PopulateRoiJob extends ScriptFinder {
     public PopulateRoiJob(Roles roles, Principal principal, Executor executor, File source) {
         super(roles, principal, executor, source);
     }
-    
+
     @Override
     public String getName() {
         return "populateroi.py";

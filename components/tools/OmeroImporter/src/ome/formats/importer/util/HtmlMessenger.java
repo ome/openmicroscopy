@@ -28,6 +28,7 @@ import java.io.Reader;
 import java.util.List;
 
 import ome.formats.importer.util.FileUploadCounter.ProgressListener;
+import ome.util.Utils;
 
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
@@ -133,11 +134,12 @@ public class HtmlMessenger
 	 public String executePost() throws HtmlMessengerException
 	 {
 		String serverReply = "";
+		Reader reader = null;
 		try {
 			// Execute the POST method
 			int statusCode = client.executeMethod( method );
 			if( statusCode != -1 ) {
-				Reader reader = new InputStreamReader(
+				reader = new InputStreamReader(
 						method.getResponseBodyAsStream(), 
 						method.getRequestCharSet());
 				char[] buf = new char[32678];
@@ -150,6 +152,8 @@ public class HtmlMessenger
 			return serverReply;
 		} catch( Exception e ) {
 			throw new HtmlMessengerException("Cannot Connect", e);
+		} finally {
+		    Utils.closeQuietly(reader);
 		}
 	 }
 
@@ -172,6 +176,8 @@ public class HtmlMessenger
 	 */
 	public String login(String url, String username, String password) throws HtmlMessengerException {
 		 String serverReply = "";
+         Reader reader = null;
+
 		 try {
 			 // Execute the POST method
 			 PostMethod loginMethod = new PostMethod( url );
@@ -200,7 +206,7 @@ public class HtmlMessenger
 
 			 int statusCode = client.executeMethod( loginMethod );
 			 if( statusCode != -1 ) {
-				 Reader reader = new InputStreamReader(
+				 reader = new InputStreamReader(
 						 loginMethod.getResponseBodyAsStream(), 
 						 loginMethod.getRequestCharSet());
 				 char[] buf = new char[32678];
@@ -213,6 +219,8 @@ public class HtmlMessenger
 			 return serverReply;
 		 } catch( Exception e ) {
 			 throw new HtmlMessengerException("Cannot Connect", e);
+		 } finally {
+		     Utils.closeQuietly(reader);
 		 }
 	 }
 }

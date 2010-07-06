@@ -19,6 +19,7 @@ import ome.conditions.ResourceError;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
+import ome.util.Utils;
 
 /**
  * @author <br>
@@ -121,14 +122,17 @@ public class PixelsService extends AbstractFileSystemService {
 		createSubpath(path);
 		byte[] padding = new byte[pixbuf.getPlaneSize() - NULL_PLANE_SIZE];
 		FileOutputStream stream = new FileOutputStream(path);
-
-		for (int z = 0; z < pixbuf.getSizeZ(); z++) {
-			for (int c = 0; c < pixbuf.getSizeC(); c++) {
-				for (int t = 0; t < pixbuf.getSizeT(); t++) {
-					stream.write(nullPlane);
-					stream.write(padding);
+		try {
+			for (int z = 0; z < pixbuf.getSizeZ(); z++) {
+				for (int c = 0; c < pixbuf.getSizeC(); c++) {
+					for (int t = 0; t < pixbuf.getSizeT(); t++) {
+						stream.write(nullPlane);
+						stream.write(padding);
+					}
 				}
 			}
+		} finally {
+			Utils.closeQuietly(stream);
 		}
 	}
 

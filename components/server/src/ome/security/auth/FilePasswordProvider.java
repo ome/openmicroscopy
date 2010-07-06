@@ -13,6 +13,7 @@ import java.security.Permissions;
 import java.util.Properties;
 
 import ome.security.SecuritySystem;
+import ome.util.Utils;
 
 import org.springframework.util.Assert;
 
@@ -75,14 +76,9 @@ public class FilePasswordProvider extends ConfigurablePasswordProvider {
             p.load(fis);
             return p;
         } catch (Exception e) {
-            if (fis != null) {
-                try {
-                    fis.close();
-                } catch (Exception e2) {
-                    log.error("Ignoring exception on fis.close()", e2);
-                }
-            }
             throw new RuntimeException("Could not read file: " + file);
+        } finally {
+            Utils.closeQuietly(fis);
         }
 
     }

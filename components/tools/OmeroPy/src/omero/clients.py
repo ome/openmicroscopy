@@ -616,16 +616,18 @@ class BaseClient(object):
             ofile = up.saveAndReturnObject(ofile)
 
             prx = self.__sf.createRawFileStore()
-            prx.setFileId(ofile.id.val)
-            prx.truncate(size) # ticket:2337
-            offset = 0
-            while True:
-                block = file.read(block_size)
-                if not block:
-                    break
-                prx.write(block, offset, len(block))
-                offset += len(block)
-            prx.close()
+            try:
+                prx.setFileId(ofile.id.val)
+                prx.truncate(size) # ticket:2337
+                offset = 0
+                while True:
+                    block = file.read(block_size)
+                    if not block:
+                        break
+                    prx.write(block, offset, len(block))
+                    offset += len(block)
+            finally:
+                prx.close()
         finally:
             file.close()
 

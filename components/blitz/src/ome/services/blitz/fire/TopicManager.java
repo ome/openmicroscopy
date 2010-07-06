@@ -99,8 +99,9 @@ public interface TopicManager extends ApplicationListener {
                     if (m == null) {
                         log.error(String.format("No method named \"%s\" "
                                 + "with %s arguments", msg.method, msg.args));
+                    } else {
+                        m.invoke(msg.base, msg.args);
                     }
-                    m.invoke(msg.base, msg.args);
                 } catch (Exception e) {
                     log.error("Error publishing to topic:" + msg.topic, e);
                 }

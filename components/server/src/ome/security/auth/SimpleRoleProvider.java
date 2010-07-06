@@ -165,6 +165,7 @@ public class SimpleRoleProvider implements RoleProvider {
 
         Experimenter foundUser = (Experimenter) session.load(
                 Experimenter.class, user.getId());
+
         List<Long> toRemove = new ArrayList<Long>();
         List<String> removed = new ArrayList<String>();
 

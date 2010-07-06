@@ -566,13 +566,11 @@ public class OmeroInterceptor implements Interceptor {
         // And is so uninteresting for all of our checks. The object can't be
         // locked and nothing can be edited. Just return null.
         if (previousDetails == null) {
-            if (currentDetails != null) {
-                newDetails = null;
-                altered = true;
-                if (log.isDebugEnabled()) {
-                    log.debug("Setting details on " + iobj
-                            + " to null like original");
-                }
+            newDetails = null;
+            altered = true;
+            if (log.isDebugEnabled()) {
+                log.debug("Setting details on " + iobj
+                        + " to null like original");
             }
         }
 

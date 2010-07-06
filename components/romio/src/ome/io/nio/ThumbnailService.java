@@ -17,6 +17,7 @@ import org.apache.commons.logging.LogFactory;
 
 import ome.conditions.ResourceError;
 import ome.model.display.Thumbnail;
+import ome.util.Utils;
 
 /**
  * @author callan
@@ -88,8 +89,11 @@ public class ThumbnailService extends AbstractFileSystemService {
 			throws IOException {
 		String path = getThumbnailPath(thumbnail.getId());
 		FileInputStream stream = new FileInputStream(path);
-		stream.read(buf, 0, buf.length);
-		stream.close();
+		try {
+		    stream.read(buf, 0, buf.length);
+		} finally {
+		    Utils.closeQuietly(stream);
+		}
 		return buf;
 	}
 

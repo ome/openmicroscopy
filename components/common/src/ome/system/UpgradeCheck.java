@@ -16,6 +16,8 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
 
+import ome.util.Utils;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -188,13 +190,7 @@ public class UpgradeCheck implements Runnable {
             log.error("Unknown exception thrown on UpgradeCheck", ex);
             set(null, ex);
         } finally {
-            if (bufIn != null) {
-                try {
-                    bufIn.close();
-                } catch (Exception e) {
-                    // Really not much that can be done, eh?
-                }
-            }
+            Utils.closeQuietly(bufIn);
         }
     }
 }
