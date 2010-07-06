@@ -1102,7 +1102,7 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
 
 if __name__ == "__main__":
     try:
-        options, args = getopt(sys.argv[1:], "h:p:u:m:k:id")
+        options, args = getopt(sys.argv[1:], "s:p:u:m:k:id")
     except GetoptError, (msg, opt):
         usage(msg)
 
@@ -1114,7 +1114,7 @@ if __name__ == "__main__":
     
     username = None
     hostname = None
-    port = 4063
+    port = 4064  # SSL
     measurement = None
     info = False
     session_key = None
