@@ -46,7 +46,7 @@ import Ice.TieBase;
  * @see ome.api.RawFileStore
  */
 public class RawFileStoreI extends AbstractAmdServant implements
-        _RawFileStoreOperations, ServiceFactoryAware, TieAware {
+_RawFileStoreOperations, ServiceFactoryAware, TieAware {
 
     private ServiceFactoryI sf;
 

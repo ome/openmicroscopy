@@ -9,6 +9,7 @@ package ome.util;
 
 // Java imports
 import java.io.BufferedInputStream;
+import java.io.Closeable;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -21,6 +22,9 @@ import java.util.Set;
 
 import ome.model.IObject;
 import ome.model.internal.Permissions;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 // Third-party libraries
 
@@ -36,6 +40,8 @@ import ome.model.internal.Permissions;
  * @DEV.TODO Grinder issues should be moved to test component to reduce deps.
  */
 public class Utils {
+
+    private final static Log log = LogFactory.getLog(Utils.class);
 
     protected final static String CGLIB_IDENTIFIER = "$$EnhancerByCGLIB$$";
 
@@ -127,7 +133,7 @@ public class Utils {
      */
     public static Object internalForm(Permissions p) {
         P pp = new P(p);
-        return new Long(pp.toLong());
+        return Long.valueOf(pp.toLong());
     }
 
     /**
@@ -190,15 +196,22 @@ public class Utils {
      * is thrown if anything occurs during reading.
      */
     public static byte[] pathToSha1(String fileName) {
+        FileInputStream fis = null;
+        BufferedInputStream bis = null;
+        DigestInputStream dis = null;
         try {
             MessageDigest sha1 = newSha1MessageDigest();
-            FileInputStream     fis = new FileInputStream(fileName);
-            BufferedInputStream bis = new BufferedInputStream(fis);
-            DigestInputStream   dis = new DigestInputStream(bis,sha1);
+            fis = new FileInputStream(fileName);
+            bis = new BufferedInputStream(fis);
+            dis = new DigestInputStream(bis,sha1);
             while (dis.read() != -1);
             return sha1.digest();
         } catch (IOException io) {
             throw new RuntimeException(io);
+        } finally {
+            closeQuietly(dis);
+            closeQuietly(bis);
+            closeQuietly(fis);
         }
     }
     /**
@@ -257,6 +270,18 @@ public class Utils {
 
     // Helpers
     // =========================================================================
+
+    public static void closeQuietly(Closeable is) {
+        if (is == null) {
+            log.debug("Closeable is null");
+        } else {
+            try {
+                is.close();
+            } catch (Exception e) {
+                log.info("Exception on closing closeable " + is + ":" + e);
+            }
+        }
+    }
 
     private static MessageDigest newMd5MessageDigest() {
         MessageDigest md;

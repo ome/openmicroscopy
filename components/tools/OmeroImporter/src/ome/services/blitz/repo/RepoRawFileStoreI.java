@@ -15,6 +15,7 @@ import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
+import ome.services.blitz.impl.AbstractAmdServant;
 import omero.ServerError;
 import omero.api.AMD_RawFileStore_exists;
 import omero.api.AMD_RawFileStore_read;
@@ -23,11 +24,7 @@ import omero.api.AMD_RawFileStore_setFileId;
 import omero.api.AMD_RawFileStore_size;
 import omero.api.AMD_RawFileStore_truncate;
 import omero.api.AMD_RawFileStore_write;
-import omero.api.AMD_StatefulServiceInterface_activate;
-import omero.api.AMD_StatefulServiceInterface_close;
-import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
-import omero.api.AMD_StatefulServiceInterface_passivate;
-import omero.api._RawFileStoreDisp;
+import omero.api._RawFileStoreOperations;
 import omero.util.IceMapper;
 
 import org.apache.commons.logging.Log;
@@ -40,7 +37,8 @@ import Ice.Current;
  *
  * @author Josh Moore, josh at glencoesoftware.com
  */
-public class RepoRawFileStoreI extends _RawFileStoreDisp {
+public class RepoRawFileStoreI extends AbstractAmdServant implements
+_RawFileStoreOperations {
 
     private final static Log log = LogFactory.getLog(RepoRawFileStoreI.class);
 
@@ -51,6 +49,7 @@ public class RepoRawFileStoreI extends _RawFileStoreDisp {
     private final RandomAccessFile rafile;
 
     public RepoRawFileStoreI(long fileId, File file) {
+        super(null, null);
         this.fileId = fileId;
         this.file = file;
         try {
@@ -58,6 +57,14 @@ public class RepoRawFileStoreI extends _RawFileStoreDisp {
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+
+
+    public void setFileId_async(AMD_RawFileStore_setFileId __cb, long fileId,
+            Current __current) throws ServerError {
+        omero.ApiUsageException aue = new omero.ApiUsageException();
+        aue.message = "Cannot reset id from " + this.fileId + " to " + fileId;
+        __cb.ice_exception(aue);
     }
 
     public void exists_async(AMD_RawFileStore_exists __cb, Current __current)
@@ -118,8 +125,6 @@ public class RepoRawFileStoreI extends _RawFileStoreDisp {
     public void write_async(AMD_RawFileStore_write __cb, byte[] buf,
             long position, int length, Current __current) throws ServerError {
 
-        __cb.ice_exception(new omero.InternalException(null, null, "TBD"));
-        if (false) {
         ByteBuffer buffer = MappedByteBuffer.wrap(buf);
         buffer.limit(length);
 
@@ -129,7 +134,7 @@ public class RepoRawFileStoreI extends _RawFileStoreDisp {
         } catch (Throwable t) {
             __cb.ice_exception(convert(t));
         }
-        }
+
     }
 
     public void save_async(AMD_RawFileStore_save __cb, Current __current)
@@ -137,47 +142,13 @@ public class RepoRawFileStoreI extends _RawFileStoreDisp {
         __cb.ice_response(null); // DO NOTHING
     }
 
-    public void close_async(AMD_StatefulServiceInterface_close __cb,
-            Current __current) throws ServerError {
+    @Override
+    protected void preClose() {
         try {
-            // FIXME
-            __cb.ice_response();
+            this.rafile.close();
         } catch (Exception e) {
-            __cb.ice_exception(e);
+            log.error("Failed to close rafile", e);
         }
-    }
-
-    //
-    // Not implemented
-    //
-
-    public void setFileId_async(AMD_RawFileStore_setFileId __cb, long fileId,
-            Current __current) throws ServerError {
-        omero.ApiUsageException aue = new omero.ApiUsageException();
-        aue.message = "Cannot reset id from " + this.fileId + " to " + fileId;
-        __cb.ice_exception(aue);
-    }
-
-    public void activate_async(AMD_StatefulServiceInterface_activate __cb,
-            Current __current) throws ServerError {
-        __cb.ice_exception(tbd());
-    }
-
-    public void getCurrentEventContext_async(
-            AMD_StatefulServiceInterface_getCurrentEventContext __cb,
-            Current __current) throws ServerError {
-        __cb.ice_exception(tbd());
-    }
-
-    public void passivate_async(AMD_StatefulServiceInterface_passivate __cb,
-            Current __current) throws ServerError {
-        __cb.ice_exception(tbd());
-    }
-
-    private omero.ServerError tbd() {
-        omero.ServerError se = new omero.InternalException();
-        se.message = "TBD";
-        return se;
     }
 
     //

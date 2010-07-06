@@ -73,6 +73,7 @@ import omero.api.RawFileStorePrxHelper;
 import omero.api.RawPixelsStorePrx;
 import omero.api.RenderingEnginePrx;
 import omero.api.ThumbnailStorePrx;
+import omero.api._RawFileStoreTie;
 import omero.grid.FileSet;
 import omero.grid.RepositoryListConfig;
 import omero.grid.RepositoryPrx;
@@ -624,7 +625,8 @@ public class PublicRepositoryI extends _RepositoryDisp {
         // If there is no listener available who will take responsibility
         // for this servant, then we bail.
         RepoRawFileStoreI rfs = new RepoRawFileStoreI(fileId, file);
-        RegisterServantMessage msg = new RegisterServantMessage(this, rfs, adjustedCurr);
+        _RawFileStoreTie tie = new _RawFileStoreTie(rfs);
+        RegisterServantMessage msg = new RegisterServantMessage(this, tie, adjustedCurr);
         try {
             this.executor.getContext().publishMessage(msg);
         } catch (Throwable t) {
