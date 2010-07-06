@@ -42,7 +42,7 @@
         </bean>
     </constructor-arg>
   </bean>
-  <bean id="populateRoiJob" class="ome.services.roi.PopulateRoiJob">
+  <bean id="populateRoiJob" class="ome.services.roi.PopulateRoiJob" depends-on="scriptRepoHelper">
       <constructor-arg ref="roles"/>
       <constructor-arg ref="uuid"/>
       <constructor-arg ref="executor"/>

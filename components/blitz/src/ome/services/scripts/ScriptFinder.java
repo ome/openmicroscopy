@@ -130,7 +130,7 @@ public abstract class ScriptFinder {
                 "select f from OriginalFile f where f.sha1 = :sha1 "
                         + "and f.details.group.id = :gid "
                         + "and f.name = :name "
-                        + "and f.format.value = 'text/x-python'", p);
+                        + "and f.mimetype = 'text/x-python'", p);
         return files;
     }
 

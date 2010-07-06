@@ -47,6 +47,6 @@ public class PopulateRoiJob extends ScriptFinder {
 
     @Override
     public String getName() {
-        return "populateroi.py";
+        return "Populate_ROI.py";
     }
 }
