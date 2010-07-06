@@ -354,7 +354,7 @@ public class MaskData
 	public void setBit(byte[] data, int bit, int val) 
 	{
 		int bytePosition = bit/8;
-		int bitPosition = bit%8;
+		int bitPosition = 7-bit%8;
 		data[bytePosition] = (byte) ((byte)(data[bytePosition]&
 									(~(byte)(0x1<<bitPosition)))|
 									(byte)(val<<bitPosition));
@@ -371,7 +371,7 @@ public class MaskData
 	public byte getBit(byte[] data, int bit) 
 	{
 		int bytePosition = bit/8;
-		int bitPosition = bit%8;
+		int bitPosition = 7-bit%8;
 		return (byte) ((byte)(data[bytePosition] & (0x1<<bitPosition))!=0 ? (byte)1 : (byte)0);
 	}
 
