@@ -80,6 +80,7 @@ class ScriptControl(BaseControl):
         _who(list)
 
         cat = parser.add(sub, self.cat, "Prints a script to standard out")
+        edit = parser.add(sub, self.edit, "Opens a script in $EDITOR and saves it back to the server")
         params = parser.add(sub, self.params, help="Print the parameters for a given script")
         launch = parser.add(sub, self.launch, help = "Launch a script with parameters")
         disable = parser.add(sub, self.disable, help = "Makes script non-executable by setting the mimetype")
@@ -87,7 +88,7 @@ class ScriptControl(BaseControl):
         enable = parser.add(sub, self.enable, help = "Makes a script non-executable (sets mimetype to text/x-python)")
         enable.add_argument("--mimetype", default="text/x-python", help="Use a mimetype other than the default (%(default)s)")
 
-        for x in (launch, params, cat, disable, enable):
+        for x in (launch, params, cat, disable, enable, edit):
             x.add_argument("original_file", help="Id or path of a script file stored in OMERO")
         launch.add_argument("input", nargs="*", help="Inputs for the script of the form 'param=value'")
 
@@ -268,6 +269,20 @@ class ScriptControl(BaseControl):
         script_id, ofile = self._file(args, client)
         try:
             self.ctx.out(client.sf.getScriptService().getScriptText(script_id))
+        except exceptions.Exception, e:
+            self.ctx.err("Failed to find script: %s (%s)" % (ofile, e))
+
+    def edit(self, args):
+        client = self.ctx.conn(args)
+        scriptSvc = client.sf.getScriptService()
+        script_id, ofile = self._file(args, client)
+        try:
+            txt = client.sf.getScriptService().getScriptText(script_id)
+            from omero.util.temp_files import create_path
+            from omero.util import edit_path
+            p = create_path()
+            edit_path(p, txt)
+            scriptSvc.editScript(ofile, p.text())
         except exceptions.Exception, e:
             self.ctx.err("Failed to find script: %s (%s)" % (ofile, e))
 
@@ -466,6 +481,11 @@ class ScriptControl(BaseControl):
         if args.official:
             try:
                 id = scriptSvc.uploadOfficialScript(args.file, p.text())
+            except omero.ApiUsageException, aue:
+                if "editScript" in aue.message:
+                    self.ctx.die(502, "%s already exists; use 'replace' instead" % args.file)
+                else:
+                    self.ctx.die(504, "ApiUsageException: %s" % aue.message)
             except omero.SecurityViolation, sv:
                 self.ctx.die(503, "SecurityViolation: %s" % sv.message)
         else:
@@ -514,7 +534,7 @@ class ScriptControl(BaseControl):
     #
     def run(self, args):
         if not os.path.exists(args.file):
-            self.ctx.error("No such file: %s" % args.file)
+            self.ctx.die(670, "No such file: %s" % args.file)
         else:
             client = self.ctx.conn(args)
             store = SessionsStore()
