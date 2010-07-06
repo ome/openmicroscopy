@@ -152,7 +152,7 @@ class MaskClass():
                 position = position + 1;
                     
         byteSwappedArray = bytesArray.byteswap();
-        bytesString = byteSwappedArray.tostring();
+        bytesString = bytesArray.tostring();
         return bytesString;
 
 
@@ -182,10 +182,11 @@ class MaskClass():
     #
     def asMaskData(self, z, t):
         mask = MaskData();
-        mask.setX(min.x);
-        mask.setY(min.y);
-        mask.setWidth(width);
-        mask.setHeight(height);
+        mask.setX(self.min.x);
+        mask.setY(self.min.y);
+        mask.setWidth(self.width);
+        mask.setHeight(self.height);
+        mask.setFill(self.colour);
         mask.setT(t);
         mask.setZ(z);
         mask.setMask(self.asBytes());

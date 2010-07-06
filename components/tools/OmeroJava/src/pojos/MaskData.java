@@ -305,6 +305,34 @@ public class MaskData
 	}
 	
 	/**
+	 * Returns the mask image.
+	 * 
+	 * @return See above.
+	 */
+	public int[][] getMaskAsBinaryArray()
+	{
+		Mask shape = (Mask) asIObject();
+		byte[] data = shape.getBytes();
+		if(data == null) return null;
+		double width = getWidth();
+		if(width==0) return null;
+		double height = getHeight();
+		if(height==0) return null;
+		int[][] returnArray = new int[(int)width][(int)height];
+		int offset = 0;
+		int colourValue = getShapeSettings().getFillColor().getRGB();
+				for(int y = (int)height-1 ; y > 0 ; y--)
+				{
+					for(int x = 0 ; x < (int)width ; x++)
+					{
+					returnArray[x][y] = getBit(data, offset);
+					offset++;
+				}
+		}
+		return returnArray;
+	}
+	
+	/**
 	 * Get the mask as a byte array.
 	 * @return See above.
 	 */
@@ -323,7 +351,7 @@ public class MaskData
 	 * @param bit See above.
 	 * @param val See above.
 	 */
-	private void setBit(byte[] data, int bit, int val) 
+	public void setBit(byte[] data, int bit, int val) 
 	{
 		int bytePosition = bit/8;
 		int bitPosition = bit%8;
@@ -340,7 +368,7 @@ public class MaskData
 	 * @param bit See above.
 	 * @param val See above.
 	 */
-	private static byte getBit(byte[] data, int bit) 
+	public byte getBit(byte[] data, int bit) 
 	{
 		int bytePosition = bit/8;
 		int bitPosition = bit%8;
