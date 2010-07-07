@@ -1360,12 +1360,16 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         meta = self.getMetadataService()
         try:
             if oid is None:
-                ann = meta.loadAnnotations("Experimenter", [self.getEventContext().userId], None, None, None).get(self.getEventContext().userId, [])[0]
+                ann = meta.loadAnnotations("Experimenter", [self.getEventContext().userId], None, None, None).get(self.getEventContext().userId, [])
             else:
-                ann = meta.loadAnnotations("Experimenter", [long(oid)], None, None, None).get(long(oid), [])[0]
-            store = self.createRawFileStore()
-            store.setFileId(ann.file.id.val)
-            photo = store.read(0,long(ann.file.size.val))
+                ann = meta.loadAnnotations("Experimenter", [long(oid)], None, None, None).get(long(oid), [])
+            if ann is not None:
+                ann = ann[0]
+                store = self.createRawFileStore()
+                store.setFileId(ann.file.id.val)
+                photo = store.read(0,long(ann.file.size.val))
+            else:
+                photo = self.getExperimenterDefaultPhoto()
         except:
             logger.error(traceback.format_exc())
             photo = self.getExperimenterDefaultPhoto()
@@ -1688,21 +1692,20 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                         logger.error(traceback.format_exc())
                 recipients = self.prepareRecipients(members)
             except Exception, x:
-                logger.error(x)
                 logger.error(traceback.format_exc())
             else:
                 blitz = settings.SERVER_LIST.get(pk=blitz_id)
                 t = settings.EMAIL_TEMPLATES["add_comment_to_share"]
-                message = t['text_content'] % (settings.APPLICATION_HOST, share_id, blitz_id)
-                message_html = t['html_content'] % (settings.APPLICATION_HOST, share_id, blitz_id, settings.APPLICATION_HOST, share_id, blitz_id)
-                
+                message = t['text_content'] % (settings.APPLICATION_HOST, blitz_id)
+                message_html = t['html_content'] % (settings.APPLICATION_HOST, blitz_id, settings.APPLICATION_HOST, blitz_id)
                 try:
-                    title = 'OMERO.web - new comment'
+                    title = 'OMERO.web - new comment for share %i' % share_id
                     text_content = message
                     html_content = message_html
                     msg = EmailMultiAlternatives(title, text_content, settings.SERVER_EMAIL, recipients)
                     msg.attach_alternative(html_content, "text/html")
                     msg.send()
+                    logger.error("Email was sent")
                 except:
                     logger.error(traceback.format_exc())
                 
@@ -1739,20 +1742,20 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             try:
                 recipients = self.prepareRecipients(ms)
             except Exception, x:
-                logger.error(x)
                 logger.error(traceback.format_exc())
             else:
                 t = settings.EMAIL_TEMPLATES["create_share"]
-                message = t['text_content'] % (settings.APPLICATION_HOST, sid, blitz_id, self.getUser().getFullName())
-                message_html = t['html_content'] % (settings.APPLICATION_HOST, sid, blitz_id, settings.APPLICATION_HOST, sid, blitz_id, self.getUser().getFullName())
+                message = t['text_content'] % (settings.APPLICATION_HOST, blitz_id, self.getUser().getFullName())
+                message_html = t['html_content'] % (settings.APPLICATION_HOST, blitz_id, settings.APPLICATION_HOST, blitz_id, self.getUser().getFullName())
                 
                 try:
-                    title = 'OMERO.web - new share'
+                    title = 'OMERO.web - new share %i' % sid
                     text_content = message
                     html_content = message_html
                     msg = EmailMultiAlternatives(title, text_content, settings.SERVER_EMAIL, recipients)
                     msg.attach_alternative(html_content, "text/html")
                     msg.send()
+                    logger.error("Email was sent")
                 except:
                     logger.error(traceback.format_exc())                
     
@@ -1771,20 +1774,20 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             try:
                 recipients = self.prepareRecipients(add_members)
             except Exception, x:
-                logger.error(x)
                 logger.error(traceback.format_exc())
             else:
                 blitz = settings.SERVER_LIST.get(pk=blitz_id)
                 t = settings.EMAIL_TEMPLATES["add_member_to_share"]
-                message = t['text_content'] % (settings.APPLICATION_HOST, share_id, blitz_id, self.getUser().getFullName())
-                message_html = t['html_content'] % (settings.APPLICATION_HOST, share_id, blitz_id, settings.APPLICATION_HOST, share_id, blitz_id, self.getUser().getFullName())
+                message = t['text_content'] % (settings.APPLICATION_HOST, blitz_id, self.getUser().getFullName())
+                message_html = t['html_content'] % (settings.APPLICATION_HOST, blitz_id, settings.APPLICATION_HOST, blitz_id, self.getUser().getFullName())
                 try:
-                    title = 'OMERO.web - update share'
+                    title = 'OMERO.web - update share %i' % share_id
                     text_content = message
                     html_content = message_html
                     msg = EmailMultiAlternatives(title, text_content, settings.SERVER_EMAIL, recipients)
                     msg.attach_alternative(html_content, "text/html")
                     msg.send()
+                    logger.error("Email was sent")
                 except:
                     logger.error(traceback.format_exc())
 			
@@ -1792,21 +1795,21 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             try:
                 recipients = self.prepareRecipients(rm_members)
             except Exception, x:
-                logger.error(x)
                 logger.error(traceback.format_exc())
             else:
                 blitz = settings.SERVER_LIST.get(pk=blitz_id)
                 t = settings.EMAIL_TEMPLATES["remove_member_from_share"]
-                message = t['text_content'] % (settings.APPLICATION_HOST, share_id, blitz_id)
-                message_html = t['html_content'] % (settings.APPLICATION_HOST, share_id, blitz_id, settings.APPLICATION_HOST, share_id, blitz_id)
+                message = t['text_content'] % (settings.APPLICATION_HOST, blitz_id)
+                message_html = t['html_content'] % (settings.APPLICATION_HOST, blitz_id, settings.APPLICATION_HOST, blitz_id)
                 
                 try:
-                    title = 'OMERO.web - update share'
+                    title = 'OMERO.web - update share %i' % share_id
                     text_content = message
                     html_content = message_html
                     msg = EmailMultiAlternatives(title, text_content, settings.SERVER_EMAIL, recipients)
                     msg.attach_alternative(html_content, "text/html")
                     msg.send()
+                    logger.error("Email was sent")
                 except:
                     logger.error(traceback.format_exc())
     

@@ -46,11 +46,6 @@
                 <untar compression="gzip" src="${lib.dir}/repository/django-lib-1.1.1.tar.gz" dest="${basedir}/../target/lib/python"/>
             </then>
         </if>
-        <if><not><available file="${basedir}/../target/lib/python/djangologging"/></not>
-            <then>
-                <untar compression="gzip" src="${lib.dir}/repository/django-logging.tar.gz" dest="${basedir}/../target/lib/python"/>
-            </then>
-        </if>
         <if><not><available file="${basedir}/../target/lib/python/flup"/></not>
             <then>
                 <untar compression="gzip" src="${lib.dir}/repository/flup-lib-1.0.2.tar.gz" dest="${basedir}/../target/lib/python"/>

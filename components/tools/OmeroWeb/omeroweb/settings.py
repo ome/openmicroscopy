@@ -36,10 +36,10 @@ import omero.clients
 try:
     from custom_settings import *
 except ImportError:
-    sys.stderr.write("Error: Can't find the file 'var/lib/custom_settings.py'" \
+    sys.stderr.write("Error: Can't find the file '%s/var/lib/custom_settings.py'" \
         "It appears you haven't customized things.\nYou'll have to run 'bin/omero web settings', " \
         "passing it your settings module.\n(If the file custom_settings.py does indeed exist, " \
-        "it's causing an ImportError somehow.)\n")
+        "it's causing an ImportError somehow.)\n") % str(os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), '../'), '../'), '../'))
     sys.exit(1)
     
 # LOGS
@@ -138,7 +138,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.doc.XViewMiddleware',
-    'djangologging.middleware.LoggingMiddleware',
 )
 
 ROOT_URLCONF = 'omeroweb.urls'
@@ -190,6 +189,7 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 2621440 #default 2621440
 DEFAULT_IMG = os.path.join(os.path.dirname(__file__), 'media', 'omeroweb', "images", 'image128.png').replace('\\','/')
 DEFAULT_USER = os.path.join(os.path.dirname(__file__), 'media', 'omeroweb', "images", 'personal32.png').replace('\\','/')
 
+# Pagination
 try:
     PAGE
 except:
@@ -251,19 +251,19 @@ except:
 
 EMAIL_TEMPLATES = {
     'create_share': {
-        'html_content':'<p>Hi,</p><p>I would like to share some of my data with you.<br/>Please find it on the <a href=""%swebclient/share/view/%i/?server=%i"">%swebclient/share/view/%i/?server=%i</a>.</p><p>%s</p>', 
-        'text_content':'Hi, I would like to share some of my data with you. Please find it on the %swebclient/share/view/%i/?server=%i. /n %s'
+        'html_content':'<p>Hi,</p><p>I would like to share some of my data with you.<br/>Please find it on the <a href="%swebclient/public/?server=%i">%swebclient/public/?server=%i</a>.</p><p>%s</p>', 
+        'text_content':'Hi, I would like to share some of my data with you. Please find it on the %swebclient/public/?server=%i. /n %s'
     },
     'add_member_to_share': {
-        'html_content':'<p>Hi,</p><p>I would like to share some of my data with you.<br/>Please find it on the <a href=""%swebclient/share/view/%i/?server=%i"">%swebclient/share/view/%i/?server=%i</a>.</p><p>%s</p>', 
-        'text_content':'Hi, I would like to share some of my data with you. Please find it on the %swebclient/share/view/%i/?server=%i. /n %s'
+        'html_content':'<p>Hi,</p><p>I would like to share some of my data with you.<br/>Please find it on the <a href="%swebclient/public/?server=%i">%swebclient/public/?server=%i</a>.</p><p>%s</p>', 
+        'text_content':'Hi, I would like to share some of my data with you. Please find it on the %swebclient/public/?server=%i. /n %s'
     },
     'remove_member_from_share': {
-        'html_content':'<p>You were removed from the share <a href=""%swebclient/share/view/%i/?server=%i"">%swebclient/share/view/%i/?server=%i</a>. This share is no longer available for you.</p>',
-        'text_content':'You were removed from the share %swebclient/share/view/%i/?server=%i. This share is no longer available for you.'
+        'html_content':'<p>You were removed from the share <a href="%swebclient/public/?server=%i">%swebclient/public/?server=%i</a>. This share is no longer available for you.</p>',
+        'text_content':'You were removed from the share %swebclient/public/?server=%i. This share is no longer available for you.'
     },
     'add_comment_to_share': {
-        'html_content':'<p>New comment is available on share <a href=""%swebclient/share/view/%i/?server=%i"">%swebclient/share/view/%i/?server=%i</a>.</p>',
-        'text_content':'New comment is available on share %swebclient/share/view/%i/?server=%i.'
+        'html_content':'<p>New comment is available on share <a href="%swebclient/public/?server=%i">%swebclient/public/?server=%i</a>.</p>',
+        'text_content':'New comment is available on share %swebclient/public/?server=%i.'
     }
 }
