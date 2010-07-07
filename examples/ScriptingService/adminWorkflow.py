@@ -56,7 +56,7 @@ def printDuration(reset=False):
     print "timer = %s secs" % (time.time() - startTime)
 
 
-def uploadScript(scriptService, scriptPath):
+def uploadScript(session, scriptService, scriptPath):
     """
     Tries to upload the specified script as an official script.
     *WARNING* 
@@ -71,8 +71,8 @@ def uploadScript(scriptService, scriptPath):
     #print scriptText
     
     # first check if the script has already been uploaded
-    existingScript = getScript(scriptService, scriptPath)
-    if existingScript == None:
+    scriptId = scriptService.getScriptID(scriptPath)
+    if scriptId == None or scriptId < 0:
         print "Uploading script:", scriptPath
         # try upload new script
         scriptId = scriptService.uploadOfficialScript(scriptPath, scriptText)
@@ -80,9 +80,12 @@ def uploadScript(scriptService, scriptPath):
     else:
         print "Editing script:", scriptPath
         # if it has, edit the existing script
-        scriptService.editScript(existingScript, scriptText)
-        print "Script ID: %s was edited" % existingScript.id.val
+        scriptFile = session.getQueryService().get("OriginalFile", scriptId)
+        scriptService.editScript(scriptFile, scriptText)
+        print "Script ID: %s was edited" % scriptFile.id.val
         
+    return scriptId
+    
         
 def listScripts(scriptService):
     """
@@ -101,94 +104,52 @@ def listScripts(scriptService):
     scripts = scriptService.getUserScripts(userGroups)
     for s in scripts:
         print s.id.val, s.path.val + s.name.val
-        
-
-def getScript(scriptService, scriptPath):
-    """
-    This method first tries to get the named script as an 'Official' script using getScripts()
-    If this fails, then it calls getUserScripts() in case the named script is a user script. 
-    """
-    
-    print "getScript:", scriptPath
-    scripts = scriptService.getScripts()     # returns list of OriginalFiles     
-        
-    for s in scripts:
-        print s.id.val, s.path.val + s.name.val
-        
-    # make sure path starts with a slash. 
-    # ** If you are a Windows client - will need to convert all path separators to "/" since server stores /path/to/script.py **
-    if not scriptPath.startswith("/"):
-        scriptPath =  "/" + scriptPath
-        
-    namedScripts = [s for s in scripts if s.path.val + s.name.val == scriptPath]
-    
-    if len(namedScripts) == 0:
-        print "Didn't find any Official scripts with specified path: %s" % scriptPath
-        return getUserScript(scriptService, scriptPath)
-    
-    if len(namedScripts) > 1:
-        print "Found more than one script with specified path: %s" % scriptPath
-        
-    return namedScripts[-1]
-    
-
-def getUserScript(scriptService, scriptPath):
-    """ 
-    Looks up a user script by name. 
-    Since many user scripts may have the same path/name (user scripts not unique),
-    this returns the matching script with the highest ID (most recent)
-    """
-    
-    print "getUserScript:", scriptPath
-    scripts = scriptService.getUserScripts([])     # returns list of OriginalFiles     
-           
-    # make sure path starts with a slash. 
-    # ** If you are a Windows client - will need to convert all path separators to "/" since server stores /path/to/script.py **
-    if not scriptPath.startswith("/"):
-        scriptPath =  "/" + scriptPath
-        
-    script = None
-    for s in scripts:
-        # look for the script that has matching paths and highest ID
-        if s.path.val + s.name.val == scriptPath:
-            if script == None or script.id.val < s.id.val:
-                script = s
-                
-    if script == None:
-        print "Didn't find any User scripts with specified path: %s" % scriptPath
-    return script
     
     
 def getParams(scriptService, scriptPath):
     """
-    This simply queries the parameters of the script and prints them out, 
-    including various attributes such as descriptions, default values etc. 
+    This simply queries the parameters of the script and prints them out.
+    Script can be specified by it's path or ID. 
+    Prints various parameter attributes such as descriptions, default values etc. 
     Useful for checking that parameters are being defined correctly.
     """
     
-    scriptFile = getScript(scriptService, scriptPath)
-    scriptId = scriptFile.id.val
+    try:
+        scriptId = long(scriptPath)
+    except:
+        scriptId = scriptService.getScriptID(scriptPath)
     
     params = scriptService.getParams(scriptId)
     
+    print "\nScript Name:", params.name
+    print "Authors:", ", ".join([a for a in params.authors])
+    print "Contact:", params.contact
+    print "Version:", params.version
+    print "Institutions:", ", ".join([i for i in params.institutions])
+    
+    print "Inputs:"
     for key, param in params.inputs.items():
-        print key
+        print " ", key
+        if not param.optional: print "    * Required"
         if param.description: print "   ", param.description
-        if param.min: print "   min:", param.min.getValue()
-        if param.max: print "   max:", param.max.getValue()
-        if param.values: print ", ".join([v.getValue() for v in param.values.getValue()])
-        if param.useDefault: print "   default:", param.prototype.val
+        if param.min: print "    min:", param.min.getValue()
+        if param.max: print "    max:", param.max.getValue()
+        if param.values: print "   ", ", ".join([v.getValue() for v in param.values.getValue()])
+        if param.useDefault: print "    default:", param.prototype.val
       
     
 def runScript(session, scriptService, scriptPath):
     """
-    This will attempt to run the specified script, asking the user
+    This will attempt to run the script (scriptPath can be path or ID), asking the user
     for inputs for all the script parameters, and printing out the 
     results when the script completes. 
     """
     
-    scriptFile = getScript(scriptService, scriptPath)
-    scriptId = scriptFile.id.val
+    try:
+        scriptId = long(scriptPath)
+    except:
+        scriptFile = getScript(scriptService, scriptPath)
+        scriptId = scriptFile.id.val
     
     # Identify the script we want to run: Get all 'official' scripts and filter by path.  
     print "Running script: %s with ID: %s" % (scriptPath, scriptId)
@@ -221,7 +182,7 @@ def runScript(session, scriptService, scriptPath):
             valueList = []
             listClass = omero.rtypes.rstring
             l = prototype.val     # list
-            if len(l) > 0:       # we have a prototype
+            if len(l) > 0:       # check if a value type has been set (first item of prototype list)
                 listClass = l[0].getValue().__class__
                 if listClass == int(1).__class__:
                     listClass = omero.rtypes.rint
@@ -243,6 +204,13 @@ def runScript(session, scriptService, scriptPath):
                     valueList.append(obj)
             if len(valueList) > 0:
                 map[key] = omero.rtypes.rlist(valueList)
+                
+        elif pclass == omero.rtypes.RMapI:
+            print "MAP!"
+            valueMap = {}
+            m = prototype.val   # check if a value type has been set for the map
+            print m
+            
         else:
             value = raw_input(prompt)
             while(True):
@@ -293,11 +261,14 @@ def runScript(session, scriptService, scriptPath):
             print scriptUtil.readFromOriginalFile(rawFileService, queryService, fileId)
 
 
-def disableScript(session, scriptService, scriptPath):
-    """ This will simply stop a defined script from being returned by getScripts()"""
+def disableScript(session, scriptId):
+    """ 
+    This will simply stop a script, defined by ID, from being returned by getScripts()
+    by editing it's mime-type to 'text/plain'
+    """
     
     updateService = session.getUpdateService()
-    scriptFile = getScript(scriptService, scriptPath)
+    scriptFile = session.getQueryService().get("OriginalFile", long(scriptId))
     
     print "Disabling script:", scriptFile.id.val, scriptFile.path.val + scriptFile.name.val
     scriptFile.setMimetype(rstring("text/plain"))
@@ -338,7 +309,7 @@ def cleanUpScriptFiles(session, scriptService):
     for s in scriptFiles:
         #print s.id.val, s.path.val + s.name.val
         if s.id.val not in scriptIds:
-            print s.id.val, s.path.val + s.name.val,
+            print s.id.val, s.path.val + s.name.val
             s.setMimetype(rstring("text/plain"))
             updateService.saveObject(s)
 
@@ -351,8 +322,8 @@ def printHelp(args):
     print ""
     usage()
     
-    print "\nThe -f argument to specifiy a script file is only required for some options below"
-    print "Admin permissions are required for upload, remove and clean options"
+    print "\nThe -f argument to specifiy a script file (by path or ID) is only required for some options below"
+    print "Admin permissions are required for upload, disable and clean options"
     print "\nOPTIONS:"
     
     print "\n list"
@@ -370,7 +341,7 @@ def printHelp(args):
     print "\n clean" 
     print cleanUpScriptFiles.__doc__
     
-    print "\n remove" 
+    print "\n disable" 
     print disableScript.__doc__
 
 
@@ -412,15 +383,15 @@ def doWorkflow(client, commandArgs):
     session = client.createSession(commandArgs["username"], commandArgs["password"])
     scriptService = session.getScriptService()
     print "got session..."
-    if len(args) == 0:  print "Choose from these options by adding argument: help, list, upload, params, run, remove, clean"
+    if len(args) == 0:  print "Choose from these options by adding argument: help, list, upload, params, run, disable, clean"
 
     # list scripts
     if "list" in args:
         listScripts(scriptService)
 
-    # upload script.
+    # upload script, assigning the script ID to commandArgs(for running etc without looking up ID)
     if "upload" in args:
-        uploadScript(scriptService, commandArgs["script"])
+        commandArgs["script"] = uploadScript(session, scriptService, commandArgs["script"])
 
     # get params of script
     if "params" in args:
@@ -431,8 +402,8 @@ def doWorkflow(client, commandArgs):
         runScript(session, scriptService, commandArgs["script"])
 
     # disables script by changing the OriginalFile mimetype, from 'text/x-python' to 'text/plain'
-    if "remove" in args:
-        disableScript(session, scriptService, commandArgs["script"])
+    if "disable" in args:
+        disableScript(session, commandArgs["script"])
     
     if "clean" in args:
         cleanUpScriptFiles(session, scriptService)
