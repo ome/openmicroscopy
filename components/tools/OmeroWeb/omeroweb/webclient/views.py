@@ -712,7 +712,7 @@ def load_searching(request, form=None, **kwargs):
         if request.REQUEST.get('screens') is not None and request.REQUEST.get('screens').encode('utf-8') == 'on':
             onlyTypes.append('screens')
         
-        period = request.REQUEST.get('dateperiodinput')
+        period = request.REQUEST.get('dateperiodinput', None)
         if period is not None:
             period = period.encode('utf-8')
         
