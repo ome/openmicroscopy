@@ -265,7 +265,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                     group by o.id, p.pixelsType.value
                     """, None, {"omero.group":str(group.id.val)})
                     rv = unwrap(res)
-                    print rv
                     for r in rv:
                         if usage.has_key(r[0]):
                             usage[r[0]] += r[1]*self.bytesPerPixel(r[2])
@@ -282,7 +281,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 group by o.id, p.pixelsType.value
                 """, None, {"omero.group":str(gid)})
                 rv = unwrap(res)
-                print rv
                 for r in rv:
                     if usage.has_key(gid):
                         usage[gid] += r[1]*self.bytesPerPixel(r[2])
