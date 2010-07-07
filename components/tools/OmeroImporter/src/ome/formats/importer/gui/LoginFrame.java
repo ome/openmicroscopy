@@ -235,7 +235,7 @@ public class LoginFrame extends JFrame implements ActionListener, PropertyChange
 
             public void windowOpened(WindowEvent e)
             {
-                if (uname.getText().isEmpty()) 
+                if (uname.getText().length()==0) 
                 	uname.requestFocus();
                 else
                     pswd.requestFocus();
