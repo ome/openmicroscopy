@@ -756,11 +756,10 @@ public class OmeroInterceptor implements Interceptor {
             // if we need to filter any permissions, do it here!
 
             newDetails.setPermissions(currentP);
-            Permissions tmpPreviousP = new Permissions(previousP);
 
             // see https://trac.openmicroscopy.org.uk/omero/ticket/1434
             // and https://trac.openmicroscopy.org.uk/omero/ticket/1731
-            if (!currentP.identical(tmpPreviousP) &&
+            if (!currentP.identical(previousP) &&
                     obj instanceof ExperimenterGroup) {
                 throw new PermissionMismatchGroupSecurityViolation(
                         "Group permissions must be changed via IAdmin");
@@ -771,13 +770,14 @@ public class OmeroInterceptor implements Interceptor {
                 .getCurrentGroupPermissions();
             if ( !(sysType || sysTypes.isInUserGroup(newDetails)) // ticket:1791
                 && !groupPerms.sameRights(currentP)) { // ticket:1779
-                throw new GroupSecurityViolation(String.format(
-                        "Cannot change permissions for %s(group=%s) to %s ",
-                        obj, groupPerms, currentP));
+                // ticket:2204. After work on permissions upgrade, it was
+                // decide to just ignore all incorrect permissions for the
+                // moment.
+                newDetails.setPermissions(previousP);
             }
 
             // finally, check isOwnerOrSupervisor.
-            if (!currentP.identical(tmpPreviousP)) {
+            if (!currentP.identical(previousP)) {
                 if (!currentUser.isOwnerOrSupervisor(obj)) {
                     // remove from below??
                     throw new SecurityViolation(String.format(
