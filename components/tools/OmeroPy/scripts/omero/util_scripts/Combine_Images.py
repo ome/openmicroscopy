@@ -495,7 +495,12 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/UtilScripts#CombineImages""",
         description="List of Colours for channels.", default="White", values=cOptions).ofType(rstring("")),
     
     scripts.List("Channel_Names", grouping="8",
-        description="List of Names for channels in the new image.")
+        description="List of Names for channels in the new image."),
+        
+    version = "4.2.0",
+    authors = ["William Moore", "OME Team"],
+    institutions = ["University of Dundee"],
+    contact = "ome-users@lists.openmicroscopy.org.uk",
     )
     
     try:

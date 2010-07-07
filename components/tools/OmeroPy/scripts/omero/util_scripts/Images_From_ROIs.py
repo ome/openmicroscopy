@@ -239,7 +239,11 @@ If you choose to make an image stack from all the ROIs, this script
 assumes that all the ROIs on an Image are the same size.""", 
     scripts.List("Image_IDs", optional=False, description="List the images to work with").ofType(rlong(0)),
     scripts.String("Container_Name", description="New Dataset name or Image name (if 'Make_Image_Stack')", default="From_ROIs"),
-    scripts.Bool("Make_Image_Stack", description="If true, make a single Image (stack) from all the ROIs of each parent Image")
+    scripts.Bool("Make_Image_Stack", description="If true, make a single Image (stack) from all the ROIs of each parent Image"),
+    version = "4.2.0",
+    authors = ["William Moore", "OME Team"],
+    institutions = ["University of Dundee"],
+    contact = "ome-users@lists.openmicroscopy.org.uk",
     )
     
     try:

@@ -410,7 +410,11 @@ def runAsScript():
     See http://trac.openmicroscopy.org.uk/shoola/wiki/Analysis_Scripts#FLIM""", 
     scripts.Long("Image_ID_No_Fret", description="The image to analysis with no fret condition"),
     scripts.Long("Image_ID_Fret", description="The image to analysis under fret condition"),
-    scripts.Long("IRF_ID", description="The file containing the instrument response function(IRF)"));
+    scripts.Long("IRF_ID", description="The file containing the instrument response function(IRF)"),
+    version = "4.2.0",
+    authors = ["Donald MacDonald", "OME Team"],
+    institutions = ["University of Dundee"],
+    contact = "ome-users@lists.openmicroscopy.org.uk",)
     try:
         session = client.getSession();
         commandArgs = {}

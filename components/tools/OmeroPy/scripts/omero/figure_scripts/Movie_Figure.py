@@ -558,8 +558,12 @@ def runAsScript():
         description="File name of the figure to save."),
     scripts.String("Time_Units", grouping="13",
         description="The units to use for time display", values=tunits),
-    #scripts.Long("File_Annotation").out()
-    )  # script returns a file annotation
+    
+    version = "4.2.0",
+    authors = ["William Moore", "OME Team"],
+    institutions = ["University of Dundee"],
+    contact = "ome-users@lists.openmicroscopy.org.uk",
+    ) 
     
     try:
         session = client.getSession();

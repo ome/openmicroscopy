@@ -424,7 +424,12 @@ def runAsScript():
     scripts.Int("Scalebar", description="Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
     scripts.String("Format", description="Format to save movie", values=formats, default=QT),
     scripts.String("Overlay_Colour", description="The colour of the scalebar.",default='White',values=cOptions),
-    scripts.Map("Plane_Map", description="Specify the individual planes (instead of using T_Start, T_End, Z_Start and Z_End)"))
+    scripts.Map("Plane_Map", description="Specify the individual planes (instead of using T_Start, T_End, Z_Start and Z_End)"),
+    version = "4.2.0",
+    authors = ["Donald MacDonald", "OME Team"],
+    institutions = ["University of Dundee"],
+    contact = "ome-users@lists.openmicroscopy.org.uk",
+    )
 
     try:
         session = client.getSession()

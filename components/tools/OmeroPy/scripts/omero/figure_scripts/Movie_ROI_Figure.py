@@ -757,6 +757,10 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIMovieFigure"""
     scripts.String("Format", grouping="10.1",
         description="Format to save figure.", values=formats, default='JPEG'),
     
+    version = "4.2.0",
+    authors = ["William Moore", "OME Team"],
+    institutions = ["University of Dundee"],
+    contact = "ome-users@lists.openmicroscopy.org.uk",
     )
     
     try:

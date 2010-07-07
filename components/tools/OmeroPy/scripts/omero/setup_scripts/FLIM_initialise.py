@@ -66,7 +66,11 @@ def initialise(session):
 
 def runAsScript():
     client = scripts.client('FLIM_initialise.py', """Setup the namespaces, keywords and tags for the FLIM script.
-    See http://trac.openmicroscopy.org.uk/shoola/wiki/Analysis_Scripts#FLIM""");
+    See http://trac.openmicroscopy.org.uk/shoola/wiki/Analysis_Scripts#FLIM""",
+    version = "4.2.0",
+    authors = ["Donald MacDonald", "OME Team"],
+    institutions = ["University of Dundee"],
+    contact = "ome-users@lists.openmicroscopy.org.uk",)
     try:
         session = client.getSession();
         initialise(session)

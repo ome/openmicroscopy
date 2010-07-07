@@ -696,8 +696,12 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#Split-viewFigure"
     scripts.String("Format", description="Format to save image", values=formats, default='JPEG'),
     scripts.String("Figure_Name", description="File name of the figure to save."),
     scripts.String("Overlay_Colour", description="The colour of the scalebar.",default='White',values=oColours),
-    #scripts.Long("fileAnnotation").out()
-    )  # script returns a file annotation
+    
+    version = "4.2.0",
+    authors = ["William Moore", "OME Team"],
+    institutions = ["University of Dundee"],
+    contact = "ome-users@lists.openmicroscopy.org.uk",
+    ) 
     
     try:
         session = client.getSession();

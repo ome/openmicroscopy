@@ -280,7 +280,11 @@ def makeThumbnailFigure(client, session, commandArgs):
     
 
     for datasetId in datasetIds:
-        datasetName = gateway.getDataset(datasetId, False).getName().getValue()
+        dataset = gateway.getDataset(datasetId, False)
+        if dataset == None: 
+            print "No dataset found for ID: %s" % datasetId
+            continue
+        datasetName = dataset.getName().getValue()
         images = gateway.getImages(omero.api.ContainerClass.Dataset, [datasetId])
         log("Dataset: %s     ID: %d     Images: %d" % (datasetName, datasetId, len(images)))
         dsCanvas = paintDatasetCanvas(session, images, datasetName, tagIds, showUntagged, length=thumbSize, colCount=maxColumns)
@@ -299,6 +303,8 @@ def makeThumbnailFigure(client, session, commandArgs):
         figHeight += imageCanvas.size[1]
         figWidth = max(figWidth, imageCanvas.size[0])
     
+    if len(dsCanvases) == 0:
+        return None
     figure = Image.new("RGB", (figWidth, figHeight), WHITE)
     y = 0
     for ds in dsCanvases:
@@ -380,9 +386,11 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ThumbnailFigure""
         scripts.String("Figure_Name", grouping="6.2",
             description="File name of figure to create"),
 
-        #scripts.Long("File_Annotation",
-        #    description="Script returns a file annotation").out()
-            )
+        version = "4.2.0",
+        authors = ["William Moore", "OME Team"],
+        institutions = ["University of Dundee"],
+        contact = "ome-users@lists.openmicroscopy.org.uk",
+        )
 
     try:
         session = client.getSession()
@@ -397,6 +405,8 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ThumbnailFigure""
         if fileAnnotation:
             client.setOutput("Message", rstring("Thumbnail-Figure Created"))
             client.setOutput("File_Annotation", robject(fileAnnotation))
+        else: 
+            client.setOutput("Message", rstring("Thumbnail-Figure Failed. See error or info"))
     except: raise
     finally: client.closeSession() 
 

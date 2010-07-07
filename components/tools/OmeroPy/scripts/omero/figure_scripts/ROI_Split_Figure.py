@@ -767,7 +767,7 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIFigure""",
     scripts.Bool("Merged_Names", description="If true, label the merged panel with channel names. Otherwise label with 'Merged'"),
     scripts.List("Split_Indexes", description="List of the channels in the split view panels"),
     scripts.Bool("Split_Panels_Grey", description="If true, all split panels are greyscale"),
-    scripts.Map("Merged_Colours", description="Map of index:int colours for each merged channel. Otherwise use existing colour settings").ofType(rint(0)),
+    scripts.Map("Merged_Colours", description="Map of index:int colours for each merged channel. Otherwise use existing colour settings"),
     scripts.Int("Width",description="Max width of each image panel", min=1),   
     scripts.Int("Height",description="The max height of each image panel", min=1),
     scripts.String("Image_Labels",description="Label images with the Image's Name or it's Datasets or Tags", values=labels),               
@@ -779,7 +779,11 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIFigure""",
     scripts.String("Overlay_Colour", description="The colour of the scalebar.",default='White',values=oColours),
     scripts.Float("ROI_Zoom", description="How much to zoom the ROI. E.g. x 2. If 0 then zoom roi panel to fit", min=0),
     scripts.String("ROI_Label", description=roiLabel),
-    #scripts.Long("fileAnnotation", "Script returns a File Annotation ID of attached Figure").out()
+    
+    version = "4.2.0",
+    authors = ["William Moore", "OME Team"],
+    institutions = ["University of Dundee"],
+    contact = "ome-users@lists.openmicroscopy.org.uk",
     )
     try:
         session = client.getSession();
