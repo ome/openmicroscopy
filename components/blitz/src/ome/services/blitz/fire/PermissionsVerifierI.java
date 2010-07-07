@@ -9,7 +9,7 @@ package ome.services.blitz.fire;
 
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
-import ome.conditions.RemovedSessionException;
+import ome.conditions.SessionException;
 import ome.model.meta.Session;
 import ome.services.sessions.SessionManager;
 
@@ -53,9 +53,10 @@ public class PermissionsVerifierI extends _PermissionsVerifierDisp {
             Session session;
             try {
                 session = manager.find(password);
-            } catch (RemovedSessionException e) {
+            } catch (SessionException e) {
                 session = null;
             }
+
             if (session != null) {
                 if (userId.equals(password)) {
                     return true;
