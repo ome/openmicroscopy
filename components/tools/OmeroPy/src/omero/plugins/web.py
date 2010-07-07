@@ -220,11 +220,6 @@ APPLICATION_HOST='%s'
         
         if not os.path.exists(self.ctx.dir / "var" / "lib"):
             os.mkdir(self.ctx.dir / "var" / "lib")
-            f = open(self.ctx.dir / "var" / "lib" / "__init__.py",'w')
-            f.close()
-        elif not os.path.exists(self.ctx.dir / "var" / "lib" / "__init__.py"):
-            f = open(self.ctx.dir / "var" / "lib" / "__init__.py",'w')
-            f.close()
             
         settings = self._setup_server()
         self._update_settings(location, settings)
