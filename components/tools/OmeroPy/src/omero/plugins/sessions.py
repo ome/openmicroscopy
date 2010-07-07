@@ -11,8 +11,14 @@
 """
 
 
-import exceptions, subprocess, optparse, os, sys, time, traceback, Ice
-import getpass, pickle
+import os
+import sys
+import Ice
+import time
+import traceback
+import exceptions
+import subprocess
+import getpass
 import omero.java
 
 from omero.util.sessions import SessionsStore
@@ -181,7 +187,6 @@ class SessionsControl(BaseControl):
                             rv = store.attach(*previous)
                             return self.handle(rv, "Using")
                     except exceptions.Exception, e:
-                        import traceback
                         self.ctx.dbg("Exception on attach: %s" % traceback.format_exc(e))
                         self.ctx.dbg("Exception on attach: %s" % e)
 
@@ -228,7 +233,7 @@ class SessionsControl(BaseControl):
             except exceptions.Exception, e:
                 exc = traceback.format_exc()
                 self.ctx.dbg(exc)
-                self.ctx.die(556, "InternalException: Failed to connection: %s" % e)
+                self.ctx.die(556, "InternalException: Failed to connect: %s" % e)
             action = "Created"
 
         return self.handle(rv, action)

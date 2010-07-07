@@ -11,7 +11,10 @@
 """
 
 from omero.cli import BaseControl, CLI
-import cmd, sys, exceptions
+import exceptions
+import cmd
+import time
+import cmd
 import sys
 
 HELP = """Executes an HQL statement with the given parameters.
@@ -122,7 +125,7 @@ To quit, enter 'q' or just enter.
                 has_details.append(idx)
                 o = object_list[0].val
                 if o:
-                    tb.cols(["Class", "Name"])
+                    tb.cols(["Class", "Id"])
                     klass = o.__class__.__name__
                     id = o.id.val
                     for k, v in o.__dict__.items():
@@ -152,6 +155,7 @@ To quit, enter 'q' or just enter.
         from omero.model import IObject
         from omero.model import Details
         from omero.rtypes import RObjectI
+        from omero.rtypes import RTimeI
         #if isinstance(object, list):
         #    return [self.unwrap(x, cache) for x in object]
         #elif isinstance(object, RObject):
@@ -159,6 +163,8 @@ To quit, enter 'q' or just enter.
         unwrapped = unwrap(object, cache)
         if isinstance(unwrapped, IObject):
             rv = "%s:%s" % (unwrapped.__class__.__name__, unwrapped.id.val)
+        elif isinstance(object, RTimeI):
+            rv = time.ctime(unwrapped/1000.0)
         elif isinstance(object, Details):
             owner = None
             group = None

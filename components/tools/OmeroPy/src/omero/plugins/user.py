@@ -94,7 +94,11 @@ class UserControl(BaseControl):
         e.institution = rstring(inst)
         admin = c.getSession().getAdminService()
 
-        groups = [admin.lookupGroup(group) for group in args.member_of]
+        try:
+            groups = [admin.lookupGroup(group) for group in args.member_of]
+        except omero.ApiUsageException, aue:
+            self.ctx.die(68, aue.message)
+
         roles = admin.getSecurityRoles()
         groups.append(Grp(roles.userGroupId, False))
         if args.admin:
