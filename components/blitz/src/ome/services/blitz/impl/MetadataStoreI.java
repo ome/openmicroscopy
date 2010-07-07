@@ -253,7 +253,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                                 RMap inputs = omero.rtypes.rmap("Plate_ID",
                                         omero.rtypes.rlong(id));
                                 
-                                ScriptJob job = popRoi.createJob();
+                                ScriptJob job = popRoi.createJob(_sf);
                                 InteractiveProcessorPrx prx;
                                 try {
                                     SharedResourcesPrx sr = sf.sharedResources();

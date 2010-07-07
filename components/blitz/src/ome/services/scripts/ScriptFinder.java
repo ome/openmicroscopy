@@ -25,8 +25,6 @@ import omero.model.ScriptJobI;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Looks up an official script based on path for internal use.
@@ -81,34 +79,27 @@ public abstract class ScriptFinder {
      */
     public abstract String getName();
 
-    public OriginalFileI getFile() {
+    public OriginalFileI getFile(ServiceFactory sf) {
         OriginalFile file = null;
         try {
             final byte[] buf = FileUtils.readFileToByteArray(source);
             final String sha1 = Utils.bufferToSha1(buf);
             log.debug("Loading script: " + sha1);
 
-            file = (OriginalFile) ex.execute(principal,
-                    new Executor.SimpleWork(this, getName()) {
-                        @Transactional(readOnly = false)
-                        public Object doWork(Session session,
-                                ServiceFactory sf) {
-                            Parameters p = new Parameters();
-                            p.addString("sha1", sha1);
-                            p.addString("name", getName());
-                            List<OriginalFile> files = loadScripts(sf, p);
+            Parameters p = new Parameters();
+            p.addString("sha1", sha1);
+            p.addString("name", getName());
+            List<OriginalFile> files = loadScripts(sf, p);
 
-                            if (files.size() < 1) {
-                                return null;
-                            } else {
-                                if (files.size() > 1) {
-                                    log.warn("Multiple scripts found: " + files);
-                                }
-                                return files.get(0);
-                            }
-                        }
+            if (files.size() < 1) {
+                return null;
+            } else {
+                if (files.size() > 1) {
+                    log.warn("Multiple scripts found: " + files);
+                }
+                file = files.get(0);
+            }
 
-                    });
         } catch (Exception e) {
             // pass in order to throw
             log.warn(e);
@@ -138,9 +129,9 @@ public abstract class ScriptFinder {
      * Returns a fresh (unsaved) {@link ScriptJob} which can be passed to
      * acquireProcessor for background processing.
      */
-    public ScriptJob createJob() {
+    public ScriptJob createJob(ServiceFactory sf) {
         ScriptJob job = new ScriptJobI();
-        job.linkOriginalFile(getFile());
+        job.linkOriginalFile(getFile(sf));
         job.setDescription(omero.rtypes.rstring(getName()));
         return job;
     }
