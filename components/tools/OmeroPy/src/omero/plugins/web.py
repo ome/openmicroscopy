@@ -194,6 +194,8 @@ APPLICATION_HOST='%s'
             output.close()
 
         self.ctx.out("Saved to " + location)
+        sys.path_importer_cache.pop(self.ctx.dir / "var" / "lib", None)
+        self.ctx.out("PYTHONPATH updated.")
 
     def _get_yes_or_no(self, file_name, answer=None):
         while answer != "yes" and answer != "no":
