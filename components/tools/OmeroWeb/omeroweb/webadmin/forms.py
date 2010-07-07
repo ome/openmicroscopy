@@ -70,15 +70,15 @@ class LoginForm(forms.Form):
         
         self.fields.keyOrder = ['server', 'username', 'password', 'ssl']
             
-    username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':22}))
-    password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':22}))
+    username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':22, 'autocomplete': 'off'}))
+    password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':22, 'autocomplete': 'off'}))
     ssl = forms.BooleanField(required=False, label="SSL")  
 
 class ForgottonPasswordForm(forms.Form):
     
     server = ServerModelChoiceField(settings.SERVER_LIST.all(), empty_label=u"---------")
-    username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':28}))
-    email = forms.EmailField(widget=forms.TextInput(attrs={'size':28}))
+    username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size':28, 'autocomplete': 'off'}))
+    email = forms.EmailField(widget=forms.TextInput(attrs={'size':28, 'autocomplete': 'off'}))
 
 class ExperimenterForm(forms.Form):
 
@@ -98,17 +98,17 @@ class ExperimenterForm(forms.Form):
         
         self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'password', 'confirmation', 'default_group', 'other_groups', 'available_groups']
 
-    omename = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
-    first_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
-    middle_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), required=False)
-    last_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
-    email = forms.EmailField(widget=forms.TextInput(attrs={'size':30}), required=False)
-    institution = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), required=False)
+    omename = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
+    first_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
+    middle_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
+    last_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
+    email = forms.EmailField(widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
+    institution = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
     administrator = forms.CharField(widget=forms.CheckboxInput(), required=False)
     active = forms.CharField(widget=forms.CheckboxInput(), required=False)
     
-    password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30}), required=False)
-    confirmation = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30}), required=False)
+    password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
+    confirmation = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
     
     def clean_omename(self):
         if self.name_check:
@@ -145,12 +145,12 @@ class ExperimenterLdapForm(forms.Form):
         
         self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'default_group', 'other_groups', 'available_groups']
     
-    omename = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
-    first_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
-    middle_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), required=False)
-    last_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
-    email = forms.EmailField(widget=forms.TextInput(attrs={'size':30}), required=False)
-    institution = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), required=False)
+    omename = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
+    first_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
+    middle_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
+    last_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
+    email = forms.EmailField(widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
+    institution = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
     administrator = forms.CharField(widget=forms.CheckboxInput(), required=False)
     active = forms.CharField(widget=forms.CheckboxInput(), required=False)
     
@@ -180,8 +180,8 @@ class GroupForm(forms.Form):
             self.fields['owners'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False)
         self.fields.keyOrder = ['name', 'description', 'owners', 'access_controll', 'readonly']
 
-    name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25}))
-    description = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':25}), required=False)
+    name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'autocomplete': 'off'}))
+    description = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':25, 'autocomplete': 'off'}), required=False)
     access_controll = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions")
     readonly = forms.BooleanField(required=False, label="(read-only)")  
     
@@ -219,15 +219,15 @@ class MyAccountForm(forms.Form):
             self.fields['default_group'] = GroupModelChoiceField(queryset=kwargs['initial']['groups'], empty_label=None)
         self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'default_group', 'password', 'confirmation']
 
-    omename = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'onfocus':'this.blur()', 'size':30}))
-    first_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
-    middle_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), required=False)
-    last_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
-    email = forms.EmailField(widget=forms.TextInput(attrs={'size':30}), required=False)
-    institution = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), required=False)
+    omename = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'onfocus':'this.blur()', 'size':30, 'autocomplete': 'off'}))
+    first_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
+    middle_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
+    last_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
+    email = forms.EmailField(widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
+    institution = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
 
-    password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30}), required=False)
-    confirmation = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30}), required=False)
+    password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
+    confirmation = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
     
     def clean_email(self):
         if self.email_check:
@@ -255,12 +255,12 @@ class MyAccountLdapForm(forms.Form):
             self.fields['default_group'] = GroupModelChoiceField(queryset=kwargs['initial']['groups'], empty_label=None)
         self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'default_group']
 
-    omename = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'onfocus':'this.blur()', 'size':30}))
-    first_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
-    middle_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), required=False)
-    last_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
-    email = forms.EmailField(widget=forms.TextInput(attrs={'size':30}), required=False)
-    institution = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), required=False)
+    omename = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'onfocus':'this.blur()', 'size':30, 'autocomplete': 'off'}))
+    first_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
+    middle_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
+    last_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
+    email = forms.EmailField(widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
+    institution = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
 
     def clean_email(self):
         if self.email_check:
