@@ -23,8 +23,10 @@
 <div id="header">
     <div id="banner">
         <div id="hello">
-            <h1>{{ info.today }}</h1><br/><br/><br/>
-            <h1>{% trans "Hello" %} {{ eventContext.userName }}! ({% if eventContext.isAdmin %}admin{% else %}user{% endif %}) <a href="{% url walogout %}">{% trans "Logout" %}</a></h1>
+            <h1>{% trans "Hello" %} {{ eventContext.userName }}! <a href="{% url walogout %}">{% trans "Logout" %}</a>
+            <br/>{{ info.today }}</h1>
+            <br/><br/>
+            <div> Version: <strong>OMERO Beta {{ eventContext.version }}.</strong> Role: <strong>{% if eventContext.isAdmin %}admin{% else %}user{% endif %}</strong></div>
         </div>
     </div>
     <div class="nav">

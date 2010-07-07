@@ -232,6 +232,14 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         script_serv = self.getScriptService()
         return script_serv.getScripts()
     
+    def getServerVersion(self):
+        conf = self.getConfigService()
+        try:
+            return conf.getVersion()
+        except:
+            logger.error(traceback.format_exc())
+            return "Version is not available"
+        
     
     # Repository info
     def getUsedSpace(self):

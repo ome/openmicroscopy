@@ -123,12 +123,9 @@
             {% if manager.image %}
             <table>
                 <tr><td><a href="#" onclick="return openPopup('{% if manager.getShareId %}{% url web_image_viewer manager.getShareId manager.image.id %}{% else %}{% url web_image_viewer manager.image.id %}{% endif %}')"><img id="{{ manager.image.id }}" src="{% url render_thumbnail_resize 64 manager.image.id manager.getShareId %}" alt="View" title="Open full viewer" class="thumbnail"/></a></td>
-                    <td><label>{{ manager.image.name|warphtml:"30"|linebreaks }}</label>{% if manager.image.isOwned %} <a href="{% url manage_action_containers "edit" "image" manager.image.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %} (id: {{ manager.image.id }})</td></tr>
+                    <td><label>{{ manager.image.name|warphtml:"30"|linebreaks }}</label>(id: {{ manager.image.id }})</td></tr>
                 <tr><td colspan="2">Created on: {{ manager.image.getDate|date:"Y-m-d H:i:s" }}</td></tr>                
-                <tr><td colspan="2">
-                    {% if manager.image.countAnnotations %}<img src="{% url webstatic "images/knotes12.png" %}" alt="annotations" title="Annotations"/> [{{ manager.image.countAnnotations }}]{% endif %}
-                    {% if manager.image.isPublic %}<img src="{% url webstatic "images/network16.png" %}" alt="p" title="{{ manager.image.details.permissions }}"/> Public{% else %}{% if manager.image.isShared %}<img src="{% url webstatic "images/kuser16.png" %}" alt="s" title="{{ manager.image.details.permissions }}"/> Shared{% else %}{% if manager.image.isPrivate %} Private{% endif %}{% endif %}{% endif %}
-                    {% if manager.image.isReadOnly %} (read-only){% endif %}                    
+                <tr><td colspan="2">         
                     {% if not manager.image.isOwned %} <img src="{% url webstatic "images/personal16.png" %}" alt="owner by" title="Owner"/>{{ manager.image.getOwner.getFullName }}{% endif %}
                     </td></tr>
                 <tr><td colspan="2"><label>{{ manager.image.description|default_if_none:""|linebreaks }}</label></td></tr>
@@ -138,7 +135,7 @@
             {% if manager.well %}
             <table>
                 <tr><td><a href="#" onclick="return openPopup('{% url web_image_viewer manager.well.selectedWellSample.image.id %}')" alt="View" title="Open full viewer"><img id="{{ manager.well.selectedWellSample.image.id }}" src="{% url render_thumbnail_resize 64 manager.well.selectedWellSample.image.id %}" alt="image" title="image" class="thumbnail"/></a></td>
-                    <td><label>{{ manager.well.selectedWellSample.image.name|warphtml:"30"|linebreaks }}</label>{% if manager.well.selectedWellSample.image.isOwned %} <a href="{% url manage_action_containers "edit" "image" manager.well.selectedWellSample.image.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %} (id: {{ manager.well.selectedWellSample.image.id }})</td></tr>
+                    <td><label>{{ manager.well.selectedWellSample.image.name|warphtml:"30"|linebreaks }}</label>(id: {{ manager.well.selectedWellSample.image.id }})</td></tr>
                 <tr><td colspan="2">Created on:{{ manager.well.selectedWellSample.image.getDate|date:"Y-m-d H:i:s" }}</td></tr>
                 <tr><td colspan="2">{% if manager.well.selectedWellSample.image.countAnnotations %}<img src="{% url webstatic "images/knotes12.png" %}" alt="annotations" title="Annotations"/> [{{ manager.well.selectedWellSample.image.countAnnotations }}]{% endif %}</td></tr>
                 <tr><td colspan="2"><label>{{ manager.well.selectedWellSample.image.description|default_if_none:""|linebreaks }}</label></td></tr>
@@ -147,12 +144,9 @@
                 {% if manager.plate %}
                 <table>
                     <tr><td><img src="{% url webstatic "images/folder_plate64.png" %}" alt="plate" title="plate"/></td>
-                        <td><label>{{ manager.plate.name|warphtml:"30"|linebreaks }}</label>{% if manager.plate.isOwned %} <a href="{% url manage_action_containers "edit" "plate" manager.plate.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %} (id: {{ manager.plate.id }})</td></tr>
+                        <td><label>{{ manager.plate.name|warphtml:"30"|linebreaks }}</label>(id: {{ manager.plate.id }})</td></tr>
                     <tr><td colspan="2">Created on: {{ manager.plate.getDate|date:"Y-m-d H:i:s" }}</td></tr>
                     <tr><td colspan="2">
-                        {% if manager.plate.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="annotations" title="Annotations"/>{% endif %}{% if not manager.plate.isOwned %} <img src="{% url webstatic "images/personal16.png" %}" alt="owner by" title="Owner"/>{% endif %}
-                        {% if manager.plate.isPublic %}<img src="{% url webstatic "images/network16.png" %}" alt="p" title="{{ manager.plate.details.permissions }}"/>Public{% else %}{% if manager.plate.isShared %}<img src="{% url webstatic "images/kuser16.png" %}" alt="s" title="{{ manager.plate.details.permissions }}"/>Shared{% else %}{% if manager.plate.isPrivate %}Private{% endif %}{% endif %}{% endif %}
-                        {% if manager.plate.isReadOnly %} (read-only){% endif %}
                         {% if not manager.plate.isOwned %} <img src="{% url webstatic "images/personal16.png" %}" alt="owner by" title="Owner"/>{{ manager.project.getOwner.getFullName }}{% endif %}
                         </td></tr>
                     <tr><td colspan="2"><label>{{ manager.plate.description|default_if_none:""|linebreaks }}</label></td></tr>
@@ -161,6 +155,7 @@
             {% endif %}
             
             {% if manager.share %}
+
             <table>
                 <tr><td rowspan="3">{% if manager.share.isEmpty %}<img src="{% url webstatic "images/wp_protocol64.png" %}" alt="discussion" title="discussion"/>{% else %}<img src="{% url webstatic "images/folder_html64.png" %}" alt="share" title="share"/>{% endif %}</td>
                     <td><p><label>{{ manager.share.getShareType|lower }} {{ manager.share.id }}</label></p>
@@ -186,12 +181,12 @@
                 {% if manager.image %}
                 <tr><td><label>{% trans "Dimensions" %} (XYZT): </label></td><td>{{ manager.image.getWidth }} x {{ manager.image.getHeight }} x {{ manager.image.z_count }} x {{ manager.image.t_count }}</td></tr>
                 <tr><td><label>{% trans "Pixel size" %} (XYZ) [&micro;m]: </label></td><td>{{ manager.image.getPixelSizeX|default_if_none:"-" }} x {{ manager.image.getPixelSizeY|default_if_none:"-" }} x {{ manager.image.getPixelSizeZ|default_if_none:"-" }}</td></tr>
-                <tr><th colspan="3"><br/></th></tr>
+                <tr><th colspan="2"><br/></th></tr>
                 {% endif %}
                 {% if manager.well %}
                 <tr><td><label>{% trans "Dimensions" %} (XYZT): </label></td><td>{{ manager.well.selectedWellSample.image.getWidth }} x {{ manager.well.selectedWellSample.image.getHeight }} x {{ manager.well.selectedWellSample.image.z_count }} x {{ manager.well.selectedWellSample.image.t_count }}</td></tr>
                 <tr><td><label>{% trans "Pixel size" %} (XYZ) [&micro;m]: </label></td><td>{{ manager.well.selectedWellSample.image.getPixelSizeX|default_if_none:"-" }} x {{ manager.well.selectedWellSample.image.getPixelSizeY|default_if_none:"-" }} x {{ manager.well.selectedWellSample.image.getPixelSizeZ|default_if_none:"-" }}</td></tr>
-                <tr><th colspan="3"><br/></th></tr>
+                <tr><th colspan="2"><br/></th></tr>
                 {% endif %}
             </table>
 

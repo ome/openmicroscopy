@@ -93,6 +93,28 @@ def getGuestConnection(host, port):
         logger.info("Have connection as Guest")
     return conn
 
+def checkVersion(host, port):
+    import re
+    try:
+        conn = getGuestConnection(host, port)
+        agent = conn.getServerVersion()
+            
+        regex = re.compile("^.*?[-]?(\\d+[.]\\d+([.]\\d+)?)[-]?.*?$")
+
+        agent_cleaned = regex.match(agent).group(1)
+        agent_split = agent_cleaned.split(".")
+
+        local_cleaned = regex.match(omero_version).group(1)
+        local_split = local_cleaned.split(".")
+
+        rv = (agent_split == local_split)
+        logger.debug("Client version: '%s'; Server version: '%s'"% (omero_version, agent))
+    except Exception, x:
+        rv = False
+        logger.error(traceback.format_exc())
+        error = str(x)
+    return rv
+
 ################################################################################
 # decorators
 
@@ -271,21 +293,26 @@ def login(request):
         request.session['username'] = request.REQUEST.get('username').encode('utf-8').strip()
         request.session['password'] = request.REQUEST.get('password').encode('utf-8').strip()
         request.session['ssl'] = request.REQUEST.get('ssl') is None and True or False
-        
+    
     error = request.REQUEST.get('error')
     
     conn = None
     try:
         conn = getBlitzConnection(request)
     except Exception, x:
-        logger.debug(traceback.format_exc())
+        logger.error(traceback.format_exc())
         error = str(x)
-    
+            
     if conn is not None:
+        request.session['version'] = conn.getServerVersion()
         return HttpResponseRedirect(reverse("waindex"))
     else:
         if request.method == 'POST' and request.REQUEST.get('server'):
-            error = "Connection not available, please check your user name and password."
+            if not checkVersion(request.REQUEST.get('host'), request.REQUEST.get('port')):
+                error = "Client version does not match server, please contact administrator."
+            else:
+                error = "Connection not available, please check your user name and password."
+
         request.session['server'] = request.REQUEST.get('server')
         
         template = "webadmin/login.html"
@@ -371,7 +398,7 @@ def experimenters(request, **kwargs):
     if kwargs['firsttime']:
         info['message'] = kwargs["msg"]
     
-    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
+    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
     controller = BaseExperimenters(conn)
     
     context = {'info':info, 'eventContext':eventContext, 'controller':controller}
@@ -397,7 +424,7 @@ def manage_experimenter(request, action, eid=None, **kwargs):
     if kwargs['firsttime']:
         info['message'] = kwargs["msg"]
     
-    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
+    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
     
     controller = BaseExperimenter(conn, eid)
     
@@ -557,7 +584,7 @@ def groups(request, **kwargs):
     if kwargs['firsttime']:
         info['message'] = kwargs["msg"]
     
-    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
+    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
     controller = BaseGroups(conn)
     
     context = {'info':info, 'eventContext':eventContext, 'controller':controller}
@@ -583,7 +610,7 @@ def manage_group(request, action, gid=None, **kwargs):
     if kwargs['firsttime']:
         info['message'] = kwargs["msg"]
     
-    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
+    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
     
     controller = BaseGroup(conn, gid)
     
@@ -661,7 +688,7 @@ def manage_group_owner(request, action, gid, **kwargs):
         logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'myaccount':myaccount}
-    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
+    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
     
     controller = BaseGroup(conn, gid)
     
@@ -700,7 +727,7 @@ def ldap(request, **kwargs):
         logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'scripts':scripts}
-    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
+    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
     controller = None
     
     context = {'info':info, 'eventContext':eventContext, 'controller':controller}
@@ -722,7 +749,7 @@ def scripts(request, **kwargs):
         logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'scripts':scripts}
-    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
+    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
     controller = BaseScripts(conn)
     
     context = {'info':info, 'eventContext':eventContext, 'controller':controller}
@@ -744,7 +771,7 @@ def manage_script(request, action, sc_id=None, **kwargs):
         logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'scripts':scripts}
-    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
+    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
     controller = BaseScript(conn)
     
     if action == 'new':
@@ -781,7 +808,7 @@ def enums(request, **kwargs):
         logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'enums':enums, 'error':error}
-    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
+    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
     
     controller = BaseEnums(conn)
     
@@ -803,7 +830,7 @@ def manage_enum(request, action, klass, eid=None, **kwargs):
         logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'enums':enums}
-    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
+    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
     
     controller = BaseEnums(conn, klass)
     if action == "save":
@@ -856,7 +883,7 @@ def my_account(request, action=None, **kwargs):
         logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'myaccount':myaccount}
-    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
+    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
     
     myaccount = BaseExperimenter(conn)
     myaccount.getMyDetails()
@@ -959,7 +986,7 @@ def drivespace(request, **kwargs):
         logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'drivespace':drivespace}
-    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
+    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
     controller = BaseDriveSpace(conn)
     controller.usersData()
     

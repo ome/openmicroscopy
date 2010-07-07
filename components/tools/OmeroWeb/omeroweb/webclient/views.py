@@ -254,7 +254,10 @@ def login(request):
             return HttpResponseRedirect(reverse("webindex"))
     else:
         if request.method == 'POST' and request.REQUEST.get('server'):
-            error = "Connection not available, please check your user name and password."
+            if not checkVersion(request.REQUEST.get('host'), request.REQUEST.get('port')):
+                error = "Client version does not match server, please contact administrator."
+            else:
+                error = "Connection not available, please check your user name and password."
         url = request.REQUEST.get("url")
         request.session['server'] = request.REQUEST.get('server')
         
