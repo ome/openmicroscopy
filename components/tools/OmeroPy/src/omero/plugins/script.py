@@ -382,14 +382,15 @@ class ScriptControl(BaseControl):
         job_params = svc.getParams(script_id)
         if job_params:
             self.ctx.out("")
-            self.ctx.out("id=%s" % script_id)
-            self.ctx.out("authors=%s" % ", ".join(job_params.authors))
-            self.ctx.out("institutions=%s" % ", ".join(job_params.institutions))
-            self.ctx.out("name=%s" % job_params.name)
-            self.ctx.out("description=%s" % job_params.description)
-            self.ctx.out("namespaces=%s" % ", ".join(job_params.namespaces))
-            self.ctx.out("stdout=%s" % job_params.stdoutFormat)
-            self.ctx.out("stderr=%s" % job_params.stderrFormat)
+            self.ctx.out("id:  %s" % script_id)
+            self.ctx.out("name:  %s" % job_params.name)
+            self.ctx.out("version:  %s" % job_params.version)
+            self.ctx.out("authors:  %s" % ", ".join(job_params.authors))
+            self.ctx.out("institutions:  %s" % ", ".join(job_params.institutions))
+            self.ctx.out("description:  %s" % job_params.description)
+            self.ctx.out("namespaces:  %s" % ", ".join(job_params.namespaces))
+            self.ctx.out("stdout:  %s" % job_params.stdoutFormat)
+            self.ctx.out("stderr:  %s" % job_params.stderrFormat)
             def print_params(which, params):
                 import omero
                 self.ctx.out(which)
@@ -500,7 +501,13 @@ class ScriptControl(BaseControl):
 
         client = self.ctx.conn(args)
         ofile = client.sf.getQueryService().get("OriginalFile", ofile)
-        client.upload(fpath, ofile=ofile)
+        #client.upload(fpath, ofile=ofile)
+        
+        file = open(fpath)
+        scriptText = file.read()
+        file.close()
+        scriptSvc = client.sf.getScriptService()
+        scriptSvc.editScript(ofile, scriptText)
 
     def delete(self, args):
         if len(args) != 1:
