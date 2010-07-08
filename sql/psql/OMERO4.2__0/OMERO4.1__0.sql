@@ -221,10 +221,11 @@ DROP FUNCTION ome_unnest(anyarray);
 -- make Hibernate generate them for us.
 
 CREATE SEQUENCE _lock_seq;
-DROP TABLE seq_table;
 CREATE TABLE _lock_ids (name VARCHAR(255) NOT NULL);
 ALTER TABLE _lock_ids ADD COLUMN id int PRIMARY KEY DEFAULT nextval('_lock_seq');
 CREATE UNIQUE INDEX _lock_ids_name ON _lock_ids (name);
+INSERT INTO _lock_ids (name) SELECT sequence_name FROM seq_table;
+DROP TABLE seq_table;
 
 -- The primary nextval function used by OMERO. Acquires an advisory lock
 -- then generates a sequence of ids as quickly as possible using generate_series.
