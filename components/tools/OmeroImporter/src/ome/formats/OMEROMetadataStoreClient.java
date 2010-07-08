@@ -6753,14 +6753,14 @@ public class OMEROMetadataStoreClient
      */
     public void setReagentID(String id, int screenIndex, int reagentIndex)
     {
-        checkDuplicateLSID(Arc.class, id);
+        checkDuplicateLSID(Reagent.class, id);
         LinkedHashMap<Index, Integer> indexes =
             new LinkedHashMap<Index, Integer>();
         indexes.put(Index.SCREEN_INDEX, screenIndex);
         indexes.put(Index.REAGENT_INDEX, reagentIndex);
-        IObjectContainer o = getIObjectContainer(Arc.class, indexes);
+        IObjectContainer o = getIObjectContainer(Reagent.class, indexes);
         o.LSID = id;
-        addAuthoritativeContainer(Arc.class, id, o);
+        addAuthoritativeContainer(Reagent.class, id, o);
     }
 
     /* (non-Javadoc)

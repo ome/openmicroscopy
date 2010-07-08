@@ -422,13 +422,16 @@ public class OMEROMetadataStore
     							(Image) referenceObject);
     					continue;
     				}
-    				if (referenceObject instanceof PlateAcquisition)
-    				{
-    					handleReference((WellSample) targetObject,
-    							(PlateAcquisition) referenceObject);
-    					continue;
-    				}
     			}
+    			else if (targetObject instanceof PlateAcquisition)
+                {
+                    if (referenceObject instanceof WellSample)
+                    {
+                        handleReference((PlateAcquisition) targetObject,
+                                (WellSample) referenceObject);
+                        continue;
+                    }
+                }
     			else if (targetObject instanceof Pixels)
     			{
     				if (referenceObject instanceof OriginalFile)
@@ -466,6 +469,12 @@ public class OMEROMetadataStore
     							(Screen) referenceObject);
     					continue;
     				}
+    				if (referenceObject instanceof Screen)
+    				{
+                        handleReference((Plate) targetObject,
+                                (Screen) referenceObject);
+                        continue;
+    				}
     				if (referenceObject instanceof Annotation)
     				{
     					handleReference((Plate) targetObject,
@@ -473,6 +482,15 @@ public class OMEROMetadataStore
     					continue;
     				}
     			}
+                else if (targetObject instanceof Screen)
+                {
+                    if (referenceObject instanceof Plate)
+                    {
+                        handleReference((Screen) targetObject,
+                                        (Plate) referenceObject);
+                        continue;
+                    }
+                }
     			else if (targetObject instanceof Well)
     			{
     				if (referenceObject instanceof Reagent)
@@ -1130,11 +1148,11 @@ public class OMEROMetadataStore
      * @param target Target model object.
      * @param reference Reference model object.
      */
-    private void handleReference(WellSample target, PlateAcquisition reference)
+    private void handleReference(PlateAcquisition target, WellSample reference)
     {
-        target.setPlateAcquisition(reference);
+        target.addWellSample(reference);
     }
-    
+
     /**
      * Handles linking a specific reference object to a target object in our
      * object graph.
@@ -1145,7 +1163,7 @@ public class OMEROMetadataStore
     {
         target.linkOriginalFile(reference);
     }
-    
+
     /**
      * Handles linking a specific reference object to a target object in our
      * object graph.
@@ -1213,8 +1231,19 @@ public class OMEROMetadataStore
     private void handleReference(Image target, Experiment reference)
     {
         target.setExperiment(reference);
-    }    
-    
+    }
+
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(Screen target, Plate reference)
+    {
+        target.linkPlate(reference);
+    }
+
     /**
      * Handles linking a specific reference object to a target object in our
      * object graph.
@@ -1225,7 +1254,7 @@ public class OMEROMetadataStore
     {
         target.linkAnnotation(reference);
     }
-    
+
     /**
      * Handles linking a specific reference object to a target object in our
      * object graph.

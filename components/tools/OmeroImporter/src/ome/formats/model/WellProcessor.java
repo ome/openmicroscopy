@@ -30,8 +30,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import ome.formats.Index;
+import ome.util.LSID;
 import omero.metadatastore.IObjectContainer;
 import omero.model.Plate;
+import omero.model.PlateAcquisition;
 import omero.model.Well;
 
 import org.apache.commons.logging.Log;
@@ -39,7 +41,8 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * Processes the Wells of an IObjectContainerStore and ensures that the Plate 
- * has been populated and that it is validated.
+ * has been populated and that it is validated and that if any PlateAcquisition
+ * objects are in the hierarchy that they have a name.
  * 
  * @author Chris Allan <callan at blackcat dot ca>
  *
@@ -67,6 +70,7 @@ public class WellProcessor implements ModelProcessor
         {
             Integer plateIndex = 
                 container.indexes.get(Index.PLATE_INDEX.getValue());
+            // Validate Plate
             Plate plate = validatePlate(plateIndex);
             Well well = (Well) container.sourceObject;
             if (well.getColumn() != null
@@ -79,6 +83,12 @@ public class WellProcessor implements ModelProcessor
             {
                 plate.setRows(rint(well.getRow().getValue() + 1));
             }
+        }
+        // Validate PlateAcquisitions
+        containers = store.getIObjectContainers(PlateAcquisition.class);
+        for (IObjectContainer container : containers)
+        {
+            validatePlateAcquisition(container);
         }
     }
 
@@ -110,5 +120,25 @@ public class WellProcessor implements ModelProcessor
             plate.setCols(rint(1));
         }
         return plate;
+    }
+
+    /**
+     * Validates that a PlateAcquisition has a name.
+     * @param container IObjectContainer with the PlateAcquisition source
+     * object to validate.
+     */
+    private void validatePlateAcquisition(IObjectContainer container)
+    {
+        PlateAcquisition o = (PlateAcquisition) container.sourceObject;
+        if (o.getName() == null)
+        {
+            Integer plateIndex = 
+                container.indexes.get(Index.PLATE_INDEX.getValue());
+            Integer plateAcquisitionIndex =
+                container.indexes.get(Index.PLATE_ACQUISITION_INDEX.getValue());
+            o.setName(rstring(new LSID(
+                    PlateAcquisition.class, plateIndex,
+                    plateAcquisitionIndex).toString()));
+        }
     }
 }
