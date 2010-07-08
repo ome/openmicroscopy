@@ -21,6 +21,9 @@ import ome.api.StatefulServiceInterface;
 import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.meta.Node;
+import ome.model.meta.Session;
+import ome.security.basic.CurrentDetails;
+import ome.system.EventContext;
 import ome.util.ContextFilter;
 import ome.util.Filterable;
 import ome.util.Utils;
@@ -47,6 +50,24 @@ import org.hibernate.collection.AbstractPersistentCollection;
 public class ProxyCleanupFilter extends ContextFilter {
 
     protected Map unloadedObjectCache = new IdentityHashMap();
+
+    protected final CurrentDetails currentDetails;
+
+    /**
+     * Passes null to {@link ProxyCleanupFilter#ProxyCleanupFilter(CurrentDetails)}
+     * such that all restricted objects will be unloaded.
+     */
+    public ProxyCleanupFilter() {
+        this(null);
+    }
+
+    /**
+     * Constructor take a {@link CurrentDetails} object in order to check
+     * the security restrictions on certain objects.
+     */
+    public ProxyCleanupFilter(CurrentDetails cd) {
+        this.currentDetails = cd;
+    }
 
     @Override
     public Filterable filter(String fieldId, Filterable f) {
@@ -84,6 +105,26 @@ public class ProxyCleanupFilter extends ContextFilter {
 
             // Not a proxy; it will be serialized and sent over the wire.
         } else {
+
+            // Also for security reasons, we're now checking ownership
+            // of sessions.
+            if (f instanceof Session) {
+
+                Session session = (Session) f;
+                if ( ! session.isLoaded()) {
+                    return session;
+                } else if (currentDetails == null) {
+                    return new Session(session.getId(), false);
+                } else {
+                    EventContext ec = currentDetails.getCurrentEventContext();
+                    if (!ec.isCurrentUserAdmin()) {
+                        Long uid = session.getOwner().getId();
+                        if (!ec.getCurrentUserId().equals(uid)) {
+                            return new Session(session.getId(), false);
+                        }
+                    }
+                }
+            }
 
             // Any clean up here.
             return super.filter(fieldId, f);
@@ -149,6 +190,12 @@ public class ProxyCleanupFilter extends ContextFilter {
 
         private SessionHandler sessions;
 
+        private CurrentDetails currentDetails = null;
+
+        public void setCurrentDetails(CurrentDetails cd) {
+            this.currentDetails = cd;
+        }
+
         public void setSessionHandler(SessionHandler handler) {
             this.sessions = handler;
         }
@@ -175,7 +222,8 @@ public class ProxyCleanupFilter extends ContextFilter {
                 result = arg0.proceed();
                 if (!StatefulServiceInterface.class.isAssignableFrom(arg0
                         .getThis().getClass())) {
-                    result = new ProxyCleanupFilter().filter(null, result);
+                    result = new ProxyCleanupFilter(currentDetails)
+                        .filter(null, result);
                 }
             } finally {
                 d--;
