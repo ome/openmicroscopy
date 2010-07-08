@@ -1,0 +1,39 @@
+{% extends "webmobile/base/base.html" %}
+
+{% block title %} OMERO mobile: {{ client.user.getName }} {% endblock %}
+
+{% block link %} 
+    <link rel="stylesheet" href="/appmedia/webmobile/css/index.css" type="text/css" />
+{% endblock %}
+
+{% block jscript %}
+    <script type="text/javascript" src="/appmedia/webmobile/js/index.js"></script>
+{% endblock %}
+
+
+{% block body %}
+<div class="header">
+    <div class="title">OMERO mobile</div>  
+    <div class="details">User: {{ client.user.getName }} Group: {{ client.getGroupFromContext.getName }} </div>
+</div>
+
+<div class="projects">
+{% for proj in client.listProjects %}
+    <div class="project"> 
+        <div class="project-name">{{ proj.getName|slice:":20" }}</div>
+    </div>
+    <div class="datasets">
+    {% for ds in proj.listChildren %}
+        <div class="dataset" href="{% url webmobile.views.dataset ds.id %}">
+            <div class="dataset-name"> {{ ds.getName|slice:":20" }} </div>
+        </div>
+        <div class="thumbs"></div>
+    {% endfor %}
+    </div>
+    
+{% endfor %}
+</div>
+<hr>
+<a href="{% url webmobile_logout %}">logout</a>
+
+{% endblock %}

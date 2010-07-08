@@ -1,0 +1,22 @@
+body {font-family:arial; font-size:22px; padding:0px; margin:0px;}
+.header {padding: 12px;}
+.title {font-size: 24px;}
+.details {font-size: 16px;}
+.projects {border-color:gray; border-width:1px 0px 0px 0px; border-style:solid; clear:both;}
+.project {border-color:gray; border-width:0px 0px 1px 0px; border-style:solid; 
+    background-color:#ccc; clear:both;}
+.project-name {padding: 12px;}
+.datasets {border-color:gray; border-width:1px 0px 0px 0px; border-style:solid; clear:both;}
+.dataset {border-color:#cccccc; border-width:1px 0px 0px 0px; border-style:solid; 
+    background-color:#ddd; clear:both;}
+.dataset-name {padding: 12px; }
+.dataset-name a {text-decoration:none; color:black;}
+.thumbs {margin-left:2px; position: relative; border-color:white; border-width:1px; border-style:solid;}
+.thumbs a {float: left;}
+.thumbs img {margin:0px; padding:2px; }
+
+img.enlarged {
+  position: absolute;
+  z-index: 5;
+  cursor: pointer;
+}

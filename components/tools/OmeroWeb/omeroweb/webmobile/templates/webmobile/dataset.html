@@ -1,0 +1,4 @@
+
+{% for img in ds.listChildren %}
+<a class="thumbnail" href="{% url webgateway.views.render_thumbnail img.id 320 %}"><img width="75" height="75" border="0" src="{% url webgateway.views.render_thumbnail img.id 75 %}" /></a>
+{% endfor %}
