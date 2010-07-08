@@ -373,7 +373,7 @@ public class OmeroInterceptor implements Interceptor {
 
                 Details d = object.getDetails();
                 if (d != null) {
-                    if (d.getGroup() != null &&
+                    if (d != null && d.getGroup() != null &&
                             !HibernateUtils.idEqual(d.getGroup(),
                             currentUser.getGroup())) {
                         throw new GroupSecurityViolation(String.format(
