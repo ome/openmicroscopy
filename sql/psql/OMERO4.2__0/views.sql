@@ -846,6 +846,7 @@ BEGIN
       BEGIN
         PERFORM pg_advisory_lock(1, 1);
         PERFORM pg_advisory_unlock(1, 1);
+        RETURN ''ok'';
       EXCEPTION
         WHEN undefined_function THEN
          txt := chr(10) ||
