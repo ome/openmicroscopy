@@ -86,6 +86,10 @@ class AdminControl(BaseControl):
 
         Action("startasync", """The same as start but returns immediately.""",)
 
+        Action("restart", """stop && start""",)
+
+        Action("restartasync", """The same as restart but returns as soon as starting has begun.""",)
+
         Action("status", """Status of server.
              Returns with 0 status if a node ping is successful
              and if some SessionManager returns an OMERO-specific exception on
@@ -192,7 +196,7 @@ Examples:
             value for omero.windows.user will be taken. (Windows-only)
             """)
 
-        for k in ("start", "startasync", "deploy"):
+        for k in ("start", "startasync", "deploy", "restart", "restartasync"):
             self.actions[k].add_argument("file", nargs="?",
                 help="""Application descriptor. If not provided, a default will be used""")
             self.actions[k].add_argument("targets", nargs="*",
@@ -400,8 +404,9 @@ Examples:
             command = ["icegridnode","--daemon","--pidfile",str(self._pid()),"--nochdir",self._icecfg(),"--deploy",str(descript)] + args.targets
             self.ctx.call(command)
 
-    def start(self, args):
-        self.startasync(args)
+    @with_config
+    def start(self, args, config):
+        self.startasync(args, config)
         self.waitup(args)
 
     @with_config
@@ -445,13 +450,16 @@ Examples:
 
         return self.ctx.rv
 
-    def __DISABLED__restart(self, args):
-        self.stop(args)
-        self.start(args)
+    @with_config
+    def restart(self, args, config):
+        if not self.stop(args, config):
+            self.ctx.die(54, "Failed to shutdown")
+        self.start(args, config)
 
-    def __DISABLED__restartasync(self, args):
-        self.stop(args)
-        self.startasync(args)
+    @with_config
+    def restartasync(self, args, config):
+        self.stop(args, config)
+        self.startasync(args, config)
 
     def waitup(self, args):
         self.ctx.out("Waiting on startup. Use CTRL-C to exit")
@@ -467,24 +475,33 @@ Examples:
                 self.ctx.sleep(10)
 
     def waitdown(self, args):
+        """
+        Returns true if the server went down
+        """
         self.ctx.out("Waiting on shutdown. Use CTRL-C to exit")
         count = 30
         while True:
             count = count - 1
             if count == 0:
                 self.ctx.die(44, "Failed to shutdown after 5 minutes")
+                return False
             elif 0 != self.status(args, node_only = True):
                 break
             else:
                 self.ctx.out(".", newline = False)
                 self.ctx.sleep(10)
         self.ctx.rv = 0
+        return True
 
-    def stopasync(self, args):
-
+    @with_config
+    def stopasync(self, args, config):
+        """
+        Returns true if the server was already stopped
+        """
         self.check_node(args)
         if 0 != self.status(args, node_only=True):
             self.ctx.err("Server not running")
+            return True
         elif self._isWindows():
             svc_name = "OMERO.%s" % args.node
             output = self._query_service(svc_name)
@@ -500,9 +517,11 @@ Examples:
                 self.ctx.rv = nzrc.rv
                 self.ctx.out("Was the server already stopped?")
 
-    def stop(self, args):
-        self.stopasync(args)
-        self.waitdown(args)
+    @with_config
+    def stop(self, args, config):
+        if not self.stopasync(args, config):
+            return self.waitdown(args)
+        return True
 
     def check(self, args):
         # print "Check db. Have a way to load the db control"
