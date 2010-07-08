@@ -1987,7 +1987,7 @@ CREATE INDEX planeinfo_pixels ON planeinfo (pixels);
 
 -- #2565
 
-CREATE OR REPLACE FUNCTION omero_42_check_pg_advisory_lock() RETURNS VOID AS '
+CREATE OR REPLACE FUNCTION omero_42_check_pg_advisory_lock() RETURNS text AS '
 DECLARE
     txt text;
 BEGIN
@@ -2002,7 +2002,8 @@ BEGIN
             ''You should consider upgrading to PostgreSQL 8.2 or above'' || chr(10) ||
             ''Until then, you may experience infrequent key constraint issues on insert.'' || chr(10) ||
             ''====================================================================================='' || chr(10) || chr(10);
-          RAISE NOTICE ''%'', txt;
+          RAISE WARNING ''%'', txt;
+          RETURN txt;
       END;
 
 END;' LANGUAGE plpgsql;

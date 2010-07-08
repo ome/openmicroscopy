@@ -25,10 +25,10 @@ create or replace function omero_unnest(anyarray)
 -- Check methods
 --
 
-create or replace function omero_41_check(target varchar, tbl varchar, col varchar, ACTION text) returns setof text as '
+create or replace function omero_41_check4(target text, tbl text, col text, ACTION text) returns setof text as '
 declare
-    sql varchar;
-    txt text;
+    sql text;
+    rec record;
 begin
 
     sql := ''select target.id as target_id, target.group_id as target_group, target.owner_id as target_owner, ome_perms(target.permissions) as target_perms, '' ||
@@ -39,17 +39,18 @@ begin
                 ''   or  ( target.owner_id <> 0 and target.owner_id not in (select child from groupexperimentermap where parent = tbl.group_id) ) '' || -- target owner not in tbl group (non-root)
                 ''   or  ( tbl.owner_id <> 0    and tbl.owner_id not in (select child from groupexperimentermap where parent = target.group_id) ) ) ''; -- tbl owner not in target group (non-root)
 
-    for txt in select omero_41_check(sql, target, tbl, col, ACTION) loop
-        return next txt;
+    for rec in select * from omero_41_check5(sql, target, tbl, col, ACTION) as txt loop
+        return next rec.txt;
     end loop;
 
     return;
 
 end;' language plpgsql;
 
-create or replace function omero_41_check(sql varchar, target varchar, tbl varchar, col varchar, ACTION text) returns setof text as $$
+create or replace function omero_41_check5(sql text, target text, tbl text, col text, ACTION text) returns setof text as $$
 declare
     rec record;
+    rec2 record;
     txt text;
     mod text;
 begin
@@ -76,16 +77,16 @@ begin
 
         if ACTION = 'DELETE' then
 
-            mod := 'delete from ' || tbl || ' where id = '|| rec.tbl_id || ' returning ''Check:deleted '|| tbl ||'(id='||rec.tbl_id||')'' ';
-            for txt in execute mod loop
-                return next txt;
+            mod := 'delete from ' || tbl || ' where id = '|| rec.tbl_id || ' returning ''Check:deleted '|| tbl ||'(id='||rec.tbl_id||')'' as txt';
+            for rec2 in execute mod loop
+                return next rec2.txt;
             end loop;
 
         elsif ACTION = 'FIX' then
 
-            mod := 'update ' || tbl || ' set group_id = ' || rec.target_group ||' where id = '|| rec.tbl_id || ' returning ''Check:changed group '|| tbl ||'(id='||rec.tbl_id||')'' ';
-            for txt in execute mod loop
-                return next txt;
+            mod := 'update ' || tbl || ' set group_id = ' || rec.target_group ||' where id = '|| rec.tbl_id || ' returning ''Check:changed group '|| tbl ||'(id='||rec.tbl_id||')'' as txt';
+            for rec2 in execute mod loop
+                return next rec2.txt;
             end loop;
 
         else
@@ -148,16 +149,16 @@ begin
 
             if ACTION = 'DELETE' then
 
-                mod := 'delete from ' || tbl || ' where id = '|| rec.id || ' returning ''Permissions:deleted '' '|| tbl ||' ''(id='' ||  id::text || '')'' ';
-                for txt in execute mod loop
-                    return next txt;
+                mod := 'delete from ' || tbl || ' where id = '|| rec.id || ' returning ''Permissions:deleted '' '|| tbl ||' ''(id='' ||  id::text || '')'' as txt';
+                for rec2 in execute mod loop
+                    return next rec2.txt;
                 end loop;
 
             elsif ACTION = 'FIX' then
 
-                mod := 'update ' || tbl || ' set permissions = g.permissions from experimenter group g where g.id = group_id and id = '|| rec.id || ' returning ''Permissions:modified '' '|| tbl ||' ''(id='' ||  id::text || '')'' ';
-                for txt in execute mod loop
-                    return next txt;
+                mod := 'update ' || tbl || ' set permissions = g.permissions from experimenter group g where g.id = group_id and id = '|| rec.id || ' returning ''Permissions:modified '' '|| tbl ||' ''(id='' ||  id::text || '')'' as txt';
+                for rec2 in execute mod loop
+                    return next rec2.txt;
                 end loop;
             else
 
@@ -288,89 +289,95 @@ begin
 end;' language plpgsql;
 
 
-create or replace function omero_41_check(ACTION text) returns setof text as $$
+create or replace function omero_41_check1(ACTION text) returns setof text as $$
 declare
     sum text = '';
-    txt text;
+    msg text;
+    rec record;
+    rec2 record;
 begin
 
-    for txt in select omero_41_check(target, tbl, col, ACTION) from omero_41_lockchecks() as (target text, tbl text, col text) loop
-        sum := sum || txt || chr(10);
-        return next txt;
+    for rec in select * from omero_41_lockchecks() as (target text, tbl text, col text) loop
+        for rec2 in select * from omero_41_check4(rec.target, rec.tbl, rec.col, ACTION) as txt loop
+            sum := sum || rec2.txt || chr(10);
+            return next rec2.txt;
+        end loop;
     end loop;
 
     -- The following are irregular and so must be custom written.
 
-    for txt in select omero_41_check(
+    for rec in select * from omero_41_check5(
         'select target.id as target_id, target.group_id as target_group, target.owner_id as target_owner, ome_perms(target.permissions) as target_perms, ' ||
         '          tbl.id as tbl_id,       tbl.group_id as tbl_group,       tbl.owner_id as tbl_owner,    ome_perms(tbl.permissions) as tbl_perms ' ||
         '  from lightsource target, lightsource tbl, laser tbl2 ' ||
         ' where target.id = tbl2.pump and tbl2.lightsource_id = tbl.id ' ||
         '   and target.group_id <> tbl.group_id;',
-        'LightSource', 'Laser', 'pump', ACTION) loop
-        sum := sum || txt || chr(10);
-        return next txt;
+        'LightSource', 'Laser', 'pump', ACTION) as txt loop
+        sum := sum || rec.txt || chr(10);
+        return next rec.txt;
     end loop;
 
-    for txt in select omero_41_check(
+    for rec in select * from omero_41_check5(
         'select target.id as target_id, target.group_id as target_group, target.owner_id as target_owner, ome_perms(target.permissions) as target_perms, ' ||
         '          tbl.id as tbl_id,       tbl.group_id as tbl_group,       tbl.owner_id as tbl_owner,    ome_perms(tbl.permissions) as tbl_perms ' ||
         '  from originalfile target, annotation tbl ' ||
         ' where target.id = tbl.file ' ||
         '   and target.group_id <> tbl.group_id;',
-        'OriginalFile', 'FileAnnotation','file', ACTION) loop
-        sum := sum || txt || chr(10);
-        return next txt;
+        'OriginalFile', 'FileAnnotation','file', ACTION) as txt loop
+        sum := sum || rec.txt || chr(10);
+        return next rec.txt;
     end loop;
 
-    for txt in select omero_41_check(
+    for rec in select * from omero_41_check5(
         'select target.id as target_id, target.group_id as target_group, target.owner_id as target_owner, ome_perms(target.permissions) as target_perms, ' ||
         '          tbl.id as tbl_id,       tbl.group_id as tbl_group,       tbl.owner_id as tbl_owner,    ome_perms(tbl.permissions) as tbl_perms ' ||
         '  from thumbnail target, annotation tbl ' ||
         ' where target.id = tbl.thumbnail ' ||
         '   and target.group_id <> tbl.group_id;',
-        'Thumbnail', 'ThumbnailAnnotation','thumbnail', ACTION) loop
-        sum := sum || txt || chr(10);
-        return next txt;
+        'Thumbnail', 'ThumbnailAnnotation','thumbnail', ACTION) as txt loop
+        sum := sum || rec.txt || chr(10);
+        return next rec.txt;
     end loop;
 
     -- The following are disabled since they are system types in 4.2
-    -- select omero_41_check('ExperimenterGroup', 'GroupExperimenterMap','parent');
-    -- select omero_41_check('ExperimenterGroup', 'ExperimenterGroupAnnotationLink','parent');
+    -- select * from omero_41_check('ExperimenterGroup', 'GroupExperimenterMap','parent');
+    -- select * from omero_41_check('ExperimenterGroup', 'ExperimenterGroupAnnotationLink','parent');
 
-    for txt in select omero_41_perms(tables, ACTION) as "Permissions" from omero_unnest(string_to_array(
-        'acquisitionmode annotation annotationannotationlink arc arctype binning channel ' ||
-        'channelannotationlink channelbinding codomainmapcontext contrastmethod ' ||
-        'contraststretchingcontext correction dataset datasetannotationlink ' ||
-        'datasetimagelink dbpatch detector detectorsettings detectortype dichroic ' ||
-        'dimensionorder event eventlog eventtype experiment experimenter ' ||
-        'experimenterannotationlink experimentergroup experimentergroupannotationlink ' ||
-        'experimenttype externalinfo family filament filamenttype filter filterset ' ||
-        'filtertype format groupexperimentermap illumination image imageannotationlink ' ||
-        'imagingenvironment immersion importjob instrument job joboriginalfilelink ' ||
-        'jobstatus laser lasermedium lasertype lightemittingdiode lightsettings ' ||
-        'lightsource link logicalchannel medium microbeammanipulation ' ||
-        'microbeammanipulationtype microscope microscopetype node nodeannotationlink ' ||
-        'objective objectivesettings originalfile originalfileannotationlink otf ' ||
-        'photometricinterpretation pixels pixelsannotationlink pixelsoriginalfilemap ' ||
-        'pixelstype planeinfo planeinfoannotationlink planeslicingcontext plate ' ||
-        'plateannotationlink project projectannotationlink projectdatasetlink pulse ' ||
-        'quantumdef reagent reagentannotationlink renderingdef renderingmodel ' ||
-        'reverseintensitycontext roi roiannotationlink screen screenacquisition ' ||
-        'screenacquisitionannotationlink screenacquisitionwellsamplelink ' ||
-        'screenannotationlink screenplatelink scriptjob session sessionannotationlink ' ||
-        'shape share sharemember stagelabel statsinfo thumbnail transmittancerange well ' ||
-        'wellannotationlink wellreagentlink wellsample wellsampleannotationlink', ' ')) as tables loop
-        sum := sum || txt || chr(10);
-        return next txt;
+    for rec2 in select * from omero_unnest(string_to_array(
+                'acquisitionmode annotation annotationannotationlink arc arctype binning channel ' ||
+                'channelannotationlink channelbinding codomainmapcontext contrastmethod ' ||
+                'contraststretchingcontext correction dataset datasetannotationlink ' ||
+                'datasetimagelink dbpatch detector detectorsettings detectortype dichroic ' ||
+                'dimensionorder event eventlog eventtype experiment experimenter ' ||
+                'experimenterannotationlink experimentergroup experimentergroupannotationlink ' ||
+                'experimenttype externalinfo family filament filamenttype filter filterset ' ||
+                'filtertype format groupexperimentermap illumination image imageannotationlink ' ||
+                'imagingenvironment immersion importjob instrument job joboriginalfilelink ' ||
+                'jobstatus laser lasermedium lasertype lightemittingdiode lightsettings ' ||
+                'lightsource link logicalchannel medium microbeammanipulation ' ||
+                'microbeammanipulationtype microscope microscopetype node nodeannotationlink ' ||
+                'objective objectivesettings originalfile originalfileannotationlink otf ' ||
+                'photometricinterpretation pixels pixelsannotationlink pixelsoriginalfilemap ' ||
+                'pixelstype planeinfo planeinfoannotationlink planeslicingcontext plate ' ||
+                'plateannotationlink project projectannotationlink projectdatasetlink pulse ' ||
+                'quantumdef reagent reagentannotationlink renderingdef renderingmodel ' ||
+                'reverseintensitycontext roi roiannotationlink screen screenacquisition ' ||
+                'screenacquisitionannotationlink screenacquisitionwellsamplelink ' ||
+                'screenannotationlink screenplatelink scriptjob session sessionannotationlink ' ||
+                'shape share sharemember stagelabel statsinfo thumbnail transmittancerange well ' ||
+                'wellannotationlink wellreagentlink wellsample wellsampleannotationlink', ' ')) as txt loop
+        for rec in select * from omero_41_perms(rec2.txt, ACTION) as txt loop
+            sum := sum || rec.txt || chr(10);
+            return next rec.txt;
+        end loop;
     end loop;
 
     if ACTION = 'ABORT' and char_length(sum) > 0 then
-        txt := chr(10) || sum || chr(10);
-        txt := txt || 'ERROR ON omero_41_check:' || chr(10);
-        txt := txt || 'Your database has data which is incompatible with 4.2 and will need to be manually updated' || chr(10);
-        txt := txt || 'Contact ome-users@lists.openmicroscopy.org.uk for help adjusting your data.' || chr(10) || chr(10);
-        raise exception '%', txt;
+        msg := chr(10) || sum || chr(10);
+        msg := msg || 'ERROR ON omero_41_check:' || chr(10);
+        msg := msg || 'Your database has data which is incompatible with 4.2 and will need to be manually updated' || chr(10);
+        msg := msg || 'Contact ome-users@lists.openmicroscopy.org.uk for help adjusting your data.' || chr(10) || chr(10);
+        raise exception '%', msg;
     end if;
 
     return;
@@ -380,14 +387,14 @@ end;$$ language plpgsql;
 
 -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-select * from omero_41_check(:ACTION);
+select * from omero_41_check1(cast(:ACTION as text));
 
 -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-drop function omero_41_check(text);
+drop function omero_41_check1(text);
 drop function omero_41_perms(text, text);
-drop function omero_41_check(varchar, varchar, varchar, text);
-drop function omero_41_check(varchar, varchar, varchar, varchar, text);
+drop function omero_41_check4(text, text, text, text);
+drop function omero_41_check5(text, text, text, text, text);
 drop function omero_unnest(anyarray);
 drop function omero_41_lockchecks();
