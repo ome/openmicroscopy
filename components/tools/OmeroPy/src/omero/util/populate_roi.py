@@ -301,8 +301,9 @@ class FlexPlateAnalysisCtx(AbstractPlateAnalysisCtx):
         path_original_file_map = dict()
         for original_file in original_files:
             path = original_file.path.val
+            name = original_file.name.val
             format = original_file.mimetype.val
-            if format == self.companion_format and path.endswith('.res'):
+            if format == self.companion_format and name.endswith('.res'):
                 path_original_file_map[path] = original_file
         self.measurements = path_original_file_map.values()
     
@@ -314,7 +315,8 @@ class FlexPlateAnalysisCtx(AbstractPlateAnalysisCtx):
         for original_file in original_files:
             path = original_file.path.val
             format = original_file.mimetype.val
-            if format == klass.companion_format and path.endswith('.res'):
+            name = original_file.name.val
+            if format == klass.companion_format and name.endswith('.res'):
                 return True
         return False
     is_this_type = classmethod(is_this_type)
@@ -351,8 +353,9 @@ class InCellPlateAnalysisCtx(AbstractPlateAnalysisCtx):
         path_original_file_map = dict()
         for original_file in original_files:
             path = original_file.path.val
+            name = original_file.name.val
             format = original_file.mimetype.val
-            if format == self.companion_format and path.endswith('.xml'):
+            if format == self.companion_format and name.endswith('.xml'):
                 path_original_file_map[path] = original_file
         self.measurements = path_original_file_map.values()
 
@@ -364,7 +367,8 @@ class InCellPlateAnalysisCtx(AbstractPlateAnalysisCtx):
         for original_file in original_files:
             path = original_file.path.val
             format = original_file.mimetype.val
-            if format == klass.companion_format and path.endswith('.xml'):
+            name = original_file.name.val
+            if format == klass.companion_format and name.endswith('.xml'):
                 return True
         return False
     is_this_type = classmethod(is_this_type)
