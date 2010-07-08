@@ -373,7 +373,8 @@ public class OmeroInterceptor implements Interceptor {
 
                 Details d = object.getDetails();
                 if (d != null) {
-                    if (!HibernateUtils.idEqual(d.getGroup(),
+                    if (d.getGroup() != null &&
+                            !HibernateUtils.idEqual(d.getGroup(),
                             currentUser.getGroup())) {
                         throw new GroupSecurityViolation(String.format(
                                 "MIXED GROUP: " +
@@ -774,6 +775,7 @@ public class OmeroInterceptor implements Interceptor {
                 // decide to just ignore all incorrect permissions for the
                 // moment.
                 newDetails.setPermissions(previousP);
+                altered = true;
             }
 
             // finally, check isOwnerOrSupervisor.
@@ -785,8 +787,6 @@ public class OmeroInterceptor implements Interceptor {
                                     + "the permissions for %s from %s to %s",
                             obj, previousP, currentP));
                 }
-
-                altered = true;
             }
         }
 
