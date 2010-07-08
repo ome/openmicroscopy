@@ -8,20 +8,11 @@
 -- OMERO4.1__0 databases. See ticket #2204 for more information.
 --
 
+\timing
+
 --
 -- Helper methods
 --
-
-create or replace function omero_empty_if_null(txt text)
-    returns text as '
-begin
-        if txt is null then
-            return substr(''empty'', 0, 1);
-        else
-            return txt;
-        end if;
-
-end;' language 'plpgsql' immutable;
 
 create or replace function omero_unnest(anyarray)
   returns setof anyelement AS '
@@ -29,16 +20,6 @@ create or replace function omero_unnest(anyarray)
         generate_series(array_lower($1,1),
                         array_upper($1,1)) i;
 ' language 'sql' immutable;
-
-drop aggregate if exists omero_textcat_all(text);
-
-create aggregate omero_textcat_all(
-  basetype    = text,
-  sfunc       = textcat,
-  stype       = text,
-  initcond    = ''
-);
-
 
 --
 -- Check methods
@@ -54,9 +35,9 @@ begin
         ''          tbl.id as tbl_id,       tbl.group_id as tbl_group,       tbl.owner_id as tbl_owner,    ome_perms(tbl.permissions) as tbl_perms '' ||
         ''from '' || target || '' target, '' || tbl || '' tbl '' ||
         ''where target.id = tbl.''|| col || -- Base query linking the two tables
-                '' and ( target.group_id <> tbl.group_id '' || -- groups do not match
-                ''   or target.owner_id not in (select child from groupexperimentermap where parent = tbl.group_id) '' || -- target owner not in tbl group
-                ''   or tbl.owner_id not in (select child from groupexperimentermap where parent = target.group_id)) ''; -- tbl owner not in target group
+                '' and ( ( target.group_id <> 1 and target.group_id <> tbl.group_id )'' || -- groups do not match
+                ''   or  ( target.owner_id <> 0 and target.owner_id not in (select child from groupexperimentermap where parent = tbl.group_id) ) '' || -- target owner not in tbl group (non-root)
+                ''   or  ( tbl.owner_id <> 0    and tbl.owner_id not in (select child from groupexperimentermap where parent = target.group_id) ) ) ''; -- tbl owner not in target group (non-root)
 
     for txt in select omero_41_check(sql, target, tbl, col, ACTION) loop
         return next txt;
@@ -75,7 +56,12 @@ begin
 
     for rec in execute sql loop
 
-        txt := 'Warning';
+        if rec.target_group <> rec.tbl_group then
+            txt := 'Different groups';
+        else
+            txt := 'User removed from group';
+        end if;
+
         txt := txt || ': ' || target || '(';
         txt := txt || 'id='    || rec.target_id || ', ';
         txt := txt || 'group=' || rec.target_group || ', ';
@@ -117,6 +103,7 @@ end;$$ language plpgsql;
 create or replace function omero_41_perms(tbl text, ACTION text) returns setof text as $$
 declare
     rec record;
+    rec2 record;
     sql text;
     mod text;
     txt text;
@@ -135,8 +122,9 @@ begin
         return;
     end if;
 
-    sql := 'select id, group_id, owner_id, ome_perms(permissions) from ' || tbl || ' where ' ||
-        '(cast(permissions as bit(64)) & cast(   4 as bit(64))) = cast(   4 as bit(64))';
+    sql := 'select id, group_id, owner_id, ome_perms(permissions) from ' || tbl ||
+        ' where group_id <> 1 and ' ||
+        ' (cast(permissions as bit(64)) & cast(   4 as bit(64))) = cast(   4 as bit(64))';
 
     begin
 
@@ -147,11 +135,12 @@ begin
         for rec in execute sql loop
 
             if tbl = 'originalfile' then
+                select into rec2 name, format from originalfile where id = rec.id;
                 if rec.group_id = 0 and
                     (
-                        name in ('makemovie.py', 'populateroi.py')
+                        rec2.name in ('makemovie.py', 'populateroi.py')
                         or
-                        format = fmt
+                        rec2.format = fmt
                     ) then
                     continue;
                 end if;
@@ -172,7 +161,7 @@ begin
                 end loop;
             else
 
-                return next 'Non-private permissions:' || tbl || '(id=' || rec.id || ')' || chr(10);
+                return next 'Non-private permissions:' || tbl || '(id=' || rec.id || ')';
 
             end if;
         end loop;
@@ -293,8 +282,8 @@ begin
     for rec in select ''LogicalChannel''::text, ''Channel''::text, ''logicalChannel''::text loop return next rec; end loop;
     for rec in select ''Shape''::text, ''LogicalChannel''::text, ''shapes''::text loop return next rec; end loop;
     -- Disabled since deleted by upgrade script
-    -- for rec in select ''Pixels''::text, ''Thumbnail''::text, ''pixels''::text loop return next rec; end loop;
-    -- for rec in select ''Pixels''::text, ''RenderingDef''::text, ''pixels''::text loop return next rec; end loop;
+    --for rec in select ''Pixels''::text, ''Thumbnail''::text, ''pixels''::text loop return next rec; end loop;
+    --for rec in select ''Pixels''::text, ''RenderingDef''::text, ''pixels''::text loop return next rec; end loop;
     return;
 end;' language plpgsql;
 
@@ -380,8 +369,7 @@ begin
         txt := chr(10) || sum || chr(10);
         txt := txt || 'ERROR ON omero_41_check:' || chr(10);
         txt := txt || 'Your database has data which is incompatible with 4.2 and will need to be manually updated' || chr(10);
-        txt := txt || 'Contact ome-users@openmicroscopy.org.uk for help adjusting your data.' || chr(10) || chr(10);
-        raise exception '%', txt;
+        txt := txt || 'Contact ome-users@lists.openmicroscopy.org.uk for help adjusting your data.' || chr(10) || chr(10);
     end if;
 
     return;
@@ -391,7 +379,7 @@ end;$$ language plpgsql;
 
 -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-select omero_41_check(:ACTION);
+select * from omero_41_check(:ACTION);
 
 -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -402,4 +390,3 @@ drop function omero_41_check(varchar, varchar, varchar, text);
 drop function omero_41_check(varchar, varchar, varchar, varchar, text);
 drop function omero_unnest(anyarray);
 drop function omero_41_lockchecks();
-drop function omero_empty_if_null(text);

@@ -35,7 +35,6 @@ CREATE OR REPLACE FUNCTION ome_nextval(seq VARCHAR, increment int4) RETURNS INT8
 DECLARE
       Lid  int4;
       nv   int8;
-      sql  varchar;
 BEGIN
       SELECT id INTO Lid FROM _lock_ids WHERE name = seq;
       IF Lid IS NULL THEN
@@ -43,10 +42,20 @@ BEGIN
           INSERT INTO _lock_ids (id, name) VALUES (Lid, seq);
       END IF;
 
-      PERFORM pg_advisory_lock(1, Lid);
+      BEGIN
+        PERFORM pg_advisory_lock(1, Lid);
+      EXCEPTION
+        WHEN undefined_function THEN
+          RAISE DEBUG ''No function pg_advisory_lock'';
+      END;
       PERFORM nextval(seq) FROM generate_series(1, increment);
       SELECT currval(seq) INTO nv;
-      PERFORM pg_advisory_unlock(1, Lid);
+      BEGIN
+        PERFORM pg_advisory_unlock(1, Lid);
+      EXCEPTION
+        WHEN undefined_function THEN
+          RAISE DEBUG ''No function pg_advisory_unlock'';
+      END;
 
       RETURN nv;
 
@@ -72,11 +81,15 @@ CREATE OR REPLACE FUNCTION annotation_update_event_trigger() RETURNS "trigger"
     AS '
     DECLARE
         rec RECORD;
+        eid int8;
     BEGIN
 
         FOR rec IN SELECT id, parent FROM imageannotationlink WHERE child = new.id LOOP
+            SELECT into eid ome_nextval(''seq_event'');
+            INSERT INTO event (id, permissions, status, time, experimenter, experimentergroup, session, type)
+                 SELECT eid, -35, ''TRIGGERED'', now(), 0, 0, 0, 0;
             INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
-                 SELECT ome_nextval(''seq_eventlog''), ''REINDEX'', -35, rec.parent, ''ome.model.core.Image'', 0;
+                 SELECT ome_nextval(''seq_eventlog''), ''REINDEX'', -35, rec.parent, ''ome.model.core.Image'', eid;
         END LOOP;
 
         RETURN new;
@@ -93,10 +106,14 @@ CREATE TRIGGER annotation_trigger
 CREATE OR REPLACE FUNCTION annotation_link_event_trigger() RETURNS "trigger"
     AS '
     DECLARE
+        eid int8;
     BEGIN
 
+        SELECT into eid ome_nextval(''seq_event'');
+        INSERT INTO event (id, permissions, status, time, experimenter, experimentergroup, session, type)
+                SELECT eid, -35, ''TRIGGERED'', now(), 0, 0, 0, 0;
         INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
-                SELECT ome_nextval(''seq_eventlog''), ''REINDEX'', -35, new.parent, ''ome.model.core.Image'', 0;
+                SELECT ome_nextval(''seq_eventlog''), ''REINDEX'', -35, new.parent, ''ome.model.core.Image'', eid;
 
         RETURN new;
 
@@ -107,6 +124,7 @@ CREATE TRIGGER image_annotation_link_event_trigger
         AFTER UPDATE ON imageannotationlink
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_link_event_trigger();
+
 
 --
 -- END #1390
@@ -242,9 +260,10 @@ create unique index originalfile_repo_path_index on originalfile (repo, path, na
 -- end ticket:2201
 --
 
--- Indices. See #1640, etc.
+-- Indices. See #1640, #2573, etc.
 create unique index namespace_name on namespace (name);
-create unique index well_col_row on well(plate, "column", "row");
+create unique index well_col_row on well (plate, "column", "row");
+create index planeinfo_pixels on planeinfo (pixels);
 
 create table password ( experimenter_id bigint primary key REFERENCES experimenter (id), hash char(24), dn text );
 insert into password values (0,'@ROOTPASS@');

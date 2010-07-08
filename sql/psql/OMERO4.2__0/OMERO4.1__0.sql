@@ -6,8 +6,21 @@
 ---
 --- OMERO-Beta4.2 release upgrade from OMERO4.1__0 to OMERO4.2__0
 ---
+--- The following setting is used in the omero-4.1-permissions-report.sql
+--- file to decide how issues should be handled.
+---
+--- Valid values are: '''ABORT''', '''FIX''', '''DELETE'''
+---
+--- ABORT causes this script to exit and prints out a list of all the
+--- issues which must be resolved before upgrade can complete.
+---
+
+\set ACTION '''ABORT'''
+
 
 BEGIN;
+
+\timing
 
 -- Requirements:
 --  * Applies only to OMERO4.1__0
@@ -55,19 +68,94 @@ END;' LANGUAGE plpgsql;
 SELECT omero_assert_db_version('OMERO4.1',0);
 DROP FUNCTION omero_assert_db_version(varchar, int);
 
--- ####################################################################################################
+
+INSERT into dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
+             values ('OMERO4.2',     0,              'OMERO4.1',          0);
+
+
+----
+--
+-- Before anything else make changes for group permissions (#1434)
+-- These are the maximal changes that can be made without user intervention.
+-- Afterwards, a report is run and any discrepancies will have to be handled
+-- manually.
+--
+
+CREATE OR REPLACE FUNCTION ome_perms(p bigint) RETURNS character varying
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    ur CHAR DEFAULT '-';
+    uw CHAR DEFAULT '-';
+    gr CHAR DEFAULT '-';
+    gw CHAR DEFAULT '-';
+    wr CHAR DEFAULT '-';
+    ww CHAR DEFAULT '-';
+BEGIN
+    -- shift 8
+    SELECT INTO ur CASE WHEN (cast(p as bit(64)) & cast(1024 as bit(64))) = cast(1024 as bit(64)) THEN 'r' ELSE '-' END;
+    SELECT INTO uw CASE WHEN (cast(p as bit(64)) & cast( 512 as bit(64))) = cast( 512 as bit(64)) THEN 'w' ELSE '-' END;
+    -- shift 4
+    SELECT INTO gr CASE WHEN (cast(p as bit(64)) & cast(  64 as bit(64))) = cast(  64 as bit(64)) THEN 'r' ELSE '-' END;
+    SELECT INTO gw CASE WHEN (cast(p as bit(64)) & cast(  32 as bit(64))) = cast(  32 as bit(64)) THEN 'w' ELSE '-' END;
+    -- shift 0
+    SELECT INTO wr CASE WHEN (cast(p as bit(64)) & cast(   4 as bit(64))) = cast(   4 as bit(64)) THEN 'r' ELSE '-' END;
+    SELECT INTO ww CASE WHEN (cast(p as bit(64)) & cast(   2 as bit(64))) = cast(   2 as bit(64)) THEN 'w' ELSE '-' END;
+
+    RETURN ur || uw || gr || gw || wr || ww;
+END;$$;
+
+-- Moving user photos to "user"
+
+UPDATE experimenterannotationlink SET group_id = 1
+  FROM annotation
+ WHERE annotation.ns = 'openmicroscopy.org/omero/experimenter/photo'
+   AND annotation.id = experimenterannotationlink.child;
+
+UPDATE annotation SET group_id = 1
+ WHERE annotation.ns = 'openmicroscopy.org/omero/experimenter/photo';
+
+UPDATE originalfile SET group_id = 1
+  FROM annotation
+ WHERE annotation.ns = 'openmicroscopy.org/omero/experimenter/photo'
+   AND annotation.file = originalfile.id;
+
+-- #2204: Various perm changes that can be made globally
+--
+-- Moving scripts from 4.1 into "user" group to keep old jobs readable.
+UPDATE originalfile SET group_id = user_group_id, permissions = user_group_permissions
+  FROM (select id as user_group_id, permissions as user_group_permissions
+          from experimentergroup where name = 'user') AS ug
+ WHERE group_id = 0
+   AND (cast(permissions as bit(64)) & cast(   4 as bit(64))) = cast(   4 as bit(64))
+   AND name in ('populateroi.py', 'makemovie.py');
+
+DELETE
+   FROM thumbnail
+  USING pixels
+  WHERE thumbnail.pixels = pixels.id
+    AND pixels.group_id <> thumbnail.group_id;
+
+DELETE
+   FROM channelbinding
+  USING pixels, renderingdef
+  WHERE channelbinding.renderingdef = renderingdef.id
+    AND renderingdef.pixels = pixels.id
+    AND pixels.group_id <> renderingdef.group_id;
+
+DELETE
+   FROM renderingdef
+  USING pixels
+  WHERE renderingdef.pixels = pixels.id
+    AND pixels.group_id <> renderingdef.group_id;
+
+
+----
 -- This section is a copy of omero-4.1-permissions-report.sql EXCEPT for the actual execute,
 -- "select omero_41_check()". That function is used to calculate any non-updateable structures,
 -- and if present, stop the upgrade.
 
-\set ACTION '''ABORT'''
 \i omero-4.1-permissions-report.sql
-
--- ####################################################################################################
-
-
-INSERT into dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
-             values ('OMERO4.2',     0,              'OMERO4.1',          0);
 
 
 ----
@@ -144,7 +232,6 @@ CREATE OR REPLACE FUNCTION ome_nextval(seq VARCHAR, increment int4) RETURNS INT8
 DECLARE
       Lid  int4;
       nv   int8;
-      sql  varchar;
 BEGIN
       SELECT id INTO Lid FROM _lock_ids WHERE name = seq;
       IF Lid IS NULL THEN
@@ -152,10 +239,20 @@ BEGIN
           INSERT INTO _lock_ids (id, name) VALUES (Lid, seq);
       END IF;
 
-      PERFORM pg_advisory_lock(1, Lid);
+      BEGIN
+        PERFORM pg_advisory_lock(1, Lid);
+      EXCEPTION
+        WHEN undefined_function THEN
+          RAISE DEBUG ''No function pg_advisory_lock'';
+      END;
       PERFORM nextval(seq) FROM generate_series(1, increment);
       SELECT currval(seq) INTO nv;
-      PERFORM pg_advisory_unlock(1, Lid);
+      BEGIN
+        PERFORM pg_advisory_unlock(1, Lid);
+      EXCEPTION
+        WHEN undefined_function THEN
+          RAISE DEBUG ''No function pg_advisory_unlock'';
+      END;
 
       RETURN nv;
 
@@ -1064,66 +1161,6 @@ ALTER TABLE sharemember
 
 ----
 --
--- Other changes for group permissions (#1434)
---
-
-CREATE OR REPLACE FUNCTION ome_perms(p bigint) RETURNS character varying
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-    ur CHAR DEFAULT '-';
-    uw CHAR DEFAULT '-';
-    gr CHAR DEFAULT '-';
-    gw CHAR DEFAULT '-';
-    wr CHAR DEFAULT '-';
-    ww CHAR DEFAULT '-';
-BEGIN
-    -- shift 8
-    SELECT INTO ur CASE WHEN (cast(p as bit(64)) & cast(1024 as bit(64))) = cast(1024 as bit(64)) THEN 'r' ELSE '-' END;
-    SELECT INTO uw CASE WHEN (cast(p as bit(64)) & cast( 512 as bit(64))) = cast( 512 as bit(64)) THEN 'w' ELSE '-' END;
-    -- shift 4
-    SELECT INTO gr CASE WHEN (cast(p as bit(64)) & cast(  64 as bit(64))) = cast(  64 as bit(64)) THEN 'r' ELSE '-' END;
-    SELECT INTO gw CASE WHEN (cast(p as bit(64)) & cast(  32 as bit(64))) = cast(  32 as bit(64)) THEN 'w' ELSE '-' END;
-    -- shift 0
-    SELECT INTO wr CASE WHEN (cast(p as bit(64)) & cast(   4 as bit(64))) = cast(   4 as bit(64)) THEN 'r' ELSE '-' END;
-    SELECT INTO ww CASE WHEN (cast(p as bit(64)) & cast(   2 as bit(64))) = cast(   2 as bit(64)) THEN 'w' ELSE '-' END;
-
-    RETURN ur || uw || gr || gw || wr || ww;
-END;$$;
-
--- Moving user photos to "user"
-UPDATE annotation SET group_id = 1
- WHERE annotation.ns = 'openmicroscopy.org/omero/experimenter/photo';
-
-UPDATE originalfile SET group_id = 1
-  FROM annotation
- WHERE annotation.ns = 'openmicroscopy.org/omero/experimenter/photo'
-   AND annotation.file = originalfile.id;
-
--- #2204: Various perm changes that can be made globally
---
--- Moving scripts from 4.1 into "user" group to keep old jobs readable.
-UPDATE originalfile SET group_id = user_group_id, permissions = user_group_permissions
-  FROM (select id as user_group_id, permissions as user_group_permissions
-          from experimentergroup where name = 'user') AS ug
- WHERE group_id = 0
-   AND (cast(permissions as bit(64)) & cast(   4 as bit(64))) = cast(   4 as bit(64))
-   AND name in ('populateroi.py', 'makemovie.py');
-
-DELETE
-   FROM thumbnail
-  USING pixels
-  WHERE thumbnail.pixels = pixels.id
-    AND pixels.group_id <> thumbnail.group_id;
-
-DELETE
-   FROM renderingdef
-  USING pixels
-  WHERE renderingdef.pixels = pixels.id
-    AND pixels.group_id <> renderingdef.group_id;
-
-----
---
 -- #1390 Triggers for keeping the search index up-to-date.
 --
 
@@ -1131,11 +1168,15 @@ CREATE OR REPLACE FUNCTION annotation_update_event_trigger() RETURNS "trigger"
     AS '
     DECLARE
         rec RECORD;
+        eid int8;
     BEGIN
 
         FOR rec IN SELECT id, parent FROM imageannotationlink WHERE child = new.id LOOP
+            SELECT into eid ome_nextval(''seq_event'');
+            INSERT INTO event (id, permissions, status, time, experimenter, experimentergroup, session, type)
+                 SELECT eid, -35, ''TRIGGERED'', now(), 0, 0, 0, 0;
             INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
-                 SELECT nextval(''seq_eventlog''), ''REINDEX'', -35, rec.parent, ''ome.model.core.Image'', 0;
+                 SELECT ome_nextval(''seq_eventlog''), ''REINDEX'', -35, rec.parent, ''ome.model.core.Image'', eid;
         END LOOP;
 
         RETURN new;
@@ -1152,10 +1193,14 @@ CREATE TRIGGER annotation_trigger
 CREATE OR REPLACE FUNCTION annotation_link_event_trigger() RETURNS "trigger"
     AS '
     DECLARE
+        eid int8;
     BEGIN
 
+        SELECT into eid ome_nextval(''seq_event'');
+        INSERT INTO event (id, permissions, status, time, experimenter, experimentergroup, session, type)
+                SELECT eid, -35, ''TRIGGERED'', now(), 0, 0, 0, 0;
         INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
-                SELECT nextval(''seq_eventlog''), ''REINDEX'', -35, new.parent, ''ome.model.core.Image'', 0;
+                SELECT ome_nextval(''seq_eventlog''), ''REINDEX'', -35, new.parent, ''ome.model.core.Image'', eid;
 
         RETURN new;
 
@@ -1166,6 +1211,7 @@ CREATE TRIGGER image_annotation_link_event_trigger
         AFTER UPDATE ON imageannotationlink
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_link_event_trigger();
+
 
 ----
 --
@@ -1447,37 +1493,6 @@ DROP FUNCTION pixels_image_index_move();
 DROP FUNCTION shape_roi_index_move();
 
 DROP FUNCTION wellsample_well_index_move();
-
-CREATE OR REPLACE FUNCTION annotation_link_event_trigger() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-    DECLARE
-    BEGIN
-
-        INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
-                SELECT ome_nextval('seq_eventlog'), 'REINDEX', -35, new.parent, 'ome.model.core.Image', 0;
-
-        RETURN new;
-
-    END;$$;
-
-
-CREATE OR REPLACE FUNCTION annotation_update_event_trigger() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-    DECLARE
-        rec RECORD;
-    BEGIN
-
-        FOR rec IN SELECT id, parent FROM imageannotationlink WHERE child = new.id LOOP
-            INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
-                 SELECT ome_nextval('seq_eventlog'), 'REINDEX', -35, rec.parent, 'ome.model.core.Image', 0;
-        END LOOP;
-
-        RETURN new;
-
-    END;$$;
-
 
 CREATE OR REPLACE FUNCTION channel_pixels_index_insert() RETURNS trigger
     LANGUAGE plpgsql
@@ -1966,6 +1981,33 @@ CREATE TRIGGER wellsample_well_index_trigger_update
         FOR EACH ROW
         EXECUTE PROCEDURE wellsample_well_index_update();
 
+-- #2573
+
+CREATE INDEX planeinfo_pixels ON planeinfo (pixels);
+
+-- #2565
+
+CREATE OR REPLACE FUNCTION omero_42_check_pg_advisory_lock() RETURNS VOID AS '
+DECLARE
+    txt text;
+BEGIN
+      BEGIN
+        PERFORM pg_advisory_lock(1, 1);
+        PERFORM pg_advisory_unlock(1, 1);
+      EXCEPTION
+        WHEN undefined_function THEN
+         txt := chr(10) ||
+            ''====================================================================================='' || chr(10) ||
+            ''pg_advisory_lock does not exist!'' || chr(10) || chr(10) ||
+            ''You should consider upgrading to PostgreSQL 8.2 or above'' || chr(10) ||
+            ''Until then, you may experience infrequent key constraint issues on insert.'' || chr(10) ||
+            ''====================================================================================='' || chr(10) || chr(10);
+          RAISE NOTICE ''%'', txt;
+      END;
+
+END;' LANGUAGE plpgsql;
+SELECT omero_42_check_pg_advisory_lock();
+DROP FUNCTION omero_42_check_pg_advisory_lock();
 
 --
 -- FINISHED

@@ -128,3 +128,25 @@ BEGIN
 
     RETURN ur || uw || gr || gw || wr || ww;
 END;' LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION omero_42_check_pg_advisory_lock() RETURNS VOID AS '
+DECLARE
+    txt text;
+BEGIN
+      BEGIN
+        PERFORM pg_advisory_lock(1, 1);
+        PERFORM pg_advisory_unlock(1, 1);
+      EXCEPTION
+        WHEN undefined_function THEN
+         txt := chr(10) ||
+            ''====================================================================================='' || chr(10) ||
+            ''pg_advisory_lock does not exist!'' || chr(10) || chr(10) ||
+            ''You should consider upgrading to PostgreSQL 8.2 or above'' || chr(10) ||
+            ''Until then, you may experience infrequent key constraint issues on insert.'' || chr(10) ||
+            ''====================================================================================='' || chr(10) || chr(10);
+          RAISE NOTICE ''%'', txt;
+      END;
+
+END;' LANGUAGE plpgsql;
+SELECT omero_42_check_pg_advisory_lock();
+DROP FUNCTION omero_42_check_pg_advisory_lock();
