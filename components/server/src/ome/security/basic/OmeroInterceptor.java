@@ -34,6 +34,7 @@ import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Flag;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
+import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.ExternalInfo;
 import ome.security.SecuritySystem;
@@ -372,16 +373,23 @@ public class OmeroInterceptor implements Interceptor {
                     !sysTypes.isInUserGroup(object.getDetails())) {
 
                 Details d = object.getDetails();
-                if (d != null) {
-                    if (d != null && d.getGroup() != null &&
-                            !HibernateUtils.idEqual(d.getGroup(),
-                            currentUser.getGroup())) {
-                        throw new GroupSecurityViolation(String.format(
-                                "MIXED GROUP: " +
-                                "%s(group=%s) and %s(group=%s) cannot be linked.",
-                                iObject, currentUser.getGroup(),
-                                object, d.getGroup()));
-                    }
+                if (d == null) {
+                    // ticket:2575. Previously, the details of the candidates
+                    // were never null. the addition of the reagent linkages
+                    // *somehow* led to NPEs here. for the moment, we're assuming
+                    // if null, then the object can't be mis-linked. (i.e. it's
+                    // probably new)
+                    continue;
+                }
+
+                if (d != null && d.getGroup() != null &&
+                        !HibernateUtils.idEqual(d.getGroup(),
+                        currentUser.getGroup())) {
+                    throw new GroupSecurityViolation(String.format(
+                            "MIXED GROUP: " +
+                            "%s(group=%s) and %s(group=%s) cannot be linked.",
+                            iObject, currentUser.getGroup(),
+                            object, d.getGroup()));
                 }
 
                 // Rather than as in <=4.1 in which objects were scheduled
@@ -389,7 +397,11 @@ public class OmeroInterceptor implements Interceptor {
                 // whether or not we're graph critical and if so, and if
                 // the objects do not belong the current user, then we abort.
 
-                Long oid = object.getDetails().getOwner().getId();
+                Experimenter owner = object.getDetails().getOwner();
+                if (owner == null) {
+                    continue;
+                }
+                Long oid = owner.getId();
                 Long uid = currentUser.getOwner().getId();
                 if (oid != null && !uid.equals(oid)) {
                     if (currentUser.isGraphCritical()) {  // ticket:1769
