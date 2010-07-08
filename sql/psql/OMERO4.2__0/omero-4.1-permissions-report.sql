@@ -370,6 +370,7 @@ begin
         txt := txt || 'ERROR ON omero_41_check:' || chr(10);
         txt := txt || 'Your database has data which is incompatible with 4.2 and will need to be manually updated' || chr(10);
         txt := txt || 'Contact ome-users@lists.openmicroscopy.org.uk for help adjusting your data.' || chr(10) || chr(10);
+        raise exception '%', txt;
     end if;
 
     return;
