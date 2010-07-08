@@ -258,6 +258,7 @@ class Context:
         logout.set_defaults(func=lambda args:self.controls["sessions"].logout(args))
 
     def add_login(self, parser):
+        parser.add_argument("-C", "--create", action="store_true", help="Create a new session regardless of existing ones")
         parser.add_argument("-s", "--server")
         parser.add_argument("-p", "--port")
         parser.add_argument("-g", "--group")

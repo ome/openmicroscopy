@@ -99,7 +99,6 @@ class SessionsControl(BaseControl):
 
     def _configure_login(self, login, logout = None):
         login.add_argument("-t", "--timeout", help="Timeout for session. After this many inactive seconds, the session will be closed")
-        login.add_argument("-C", "--create", action="store_true", help="Create a new session regardless of existing ones")
         login.add_argument("connection", nargs="?", help="Connection string. See extended help for examples")
         self._configure_dir(login)
 

@@ -206,7 +206,7 @@ class PrefsControl(BaseControl):
     def edit(self, args, config, edit_path = edit_path):
         from omero.util.temp_files import create_path, remove_path
         start_text = "# Edit your preferences below. Comments are ignored\n"
-        for k in config.keys():
+        for k in sorted(config.keys()):
             start_text += ("%s=%s\n" % (k, config[k]))
         temp_file = create_path()
         try:
