@@ -22,7 +22,7 @@
 	<classpathentry kind="lib" path="LIB/commons-validator-1.3.1.jar"/>
 	<classpathentry kind="lib" path="LIB/ehcache-1.5.0.jar"/>
 	<classpathentry kind="lib" path="LIB/gluegen-rt.jar"/>
-	<classpathentry kind="lib" path="LIB/ini4j.jar"/>
+	<classpathentry kind="lib" path="LIB/ini4j-0.3.2.jar"/>
 	<classpathentry kind="lib" path="LIB/jai_imageio.jar"/>
 	<classpathentry kind="lib" path="LIB/jaxrpc-1.1.jar"/>
 	<classpathentry kind="lib" path="LIB/jcommon-1.0.14.jar"/>
