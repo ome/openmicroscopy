@@ -105,6 +105,11 @@ BEGIN
     RETURN ur || uw || gr || gw || wr || ww;
 END;$$;
 
+-- Change all groups to private; groups were set to rwr-r-
+-- by default in previous versions making everything readable.
+
+UPDATE experimentergroup SET permissions = -103;
+
 -- Moving user photos to "user"
 
 UPDATE experimenterannotationlink SET group_id = 1
