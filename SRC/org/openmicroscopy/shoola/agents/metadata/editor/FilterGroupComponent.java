@@ -31,6 +31,7 @@ import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -182,6 +183,7 @@ class FilterGroupComponent
 		dichroic.setVisible(false);
 		emissionfilters = new ArrayList<FilterComponent>();
 		excitationfilters = new ArrayList<FilterComponent>();
+		fieldsFilterSet = new HashMap<String, DataComponent>();
 		List<FilterData> l;
 		Iterator<FilterData> i;
 		if (object instanceof FilterSetData) {
