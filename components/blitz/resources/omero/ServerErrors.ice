@@ -11,12 +11,27 @@
 
 #include <Glacier2/Session.ice>
 
-/*
+/**
  * Exceptions thrown by OMERO server components. Exceptions thrown client side
- * are available defined in each language binding separately. For more
- * information, see:
+ * are available defined in each language binding separately, but will usually
+ * subclass from "ClientError" For more information, see:
  *
- *   http://trac.openmicroscopy.org.uk/omero/wiki/ExceptionHandling
+ *   <a href="http://trac.openmicroscopy.org.uk/omero/wiki/ExceptionHandling">
+ *      http://trac.openmicroscopy.org.uk/omero/wiki/ExceptionHandling
+ *   </a>
+ *
+ * including examples of what a appropriate try/catch block would look like.
+ *
+ * <p>
+ * All exceptions that are thrown by a remote call (any call on a *Prx instance)
+ * will be either a subclass of [Ice::UserException] or [Ice::LocalException].
+ * <a href="http://zeroc.com/doc/Ice-3.3.1/manual/Slice.5.10.html#50592"> Figure 4.4 </a>
+ * from the Ice manual shows the entire exception hierarchy. The exceptions described in
+ * this file will subclass from [Ice::UserException]. Other Ice-runtime exceptions subclass
+ * from [Ice::LocalException].
+ * </p>
+ *
+ * <pre>
  *
  * OMERO Specific:
  * ===============
@@ -36,7 +51,7 @@
  *   |
  *   |_ ApiUsageException (misuse of services)
  *   |   |_ OverUsageException (too much)
- *   |   |_ QueryException
+ *   |   |_ QueryException (bad query string)
  *   |   \_ ValidationException (bad data)
  *   |
  *   |_ SecurityViolation (some no-no)
@@ -48,14 +63,19 @@
  *      |_ RemovedSessionException (accessing a non-extant session)
  *      |_ SessionTimeoutException (session timed out; not yet removed)
  *      \_ ShutdownInProgress      (session on this server will most likely be destroyed)
+ * </pre>
  *
  *
- * However, the Ice runtime also has its own hierarchy (which we subclass in
- * some cases). The shown subclasses below are not exhaustive, but show those
+ * <p>
+ * However, in addition to [Ice::LocalException] subclasses, the Ice runtime also
+ * defines subclasses of [Ice::UserException]. In some cases, OMERO subclasses
+ * from these exceptions. The subclasses shown below are not exhaustive, but show those
  * which an application's exception handler may want to deal with.
+ * </p>
  *
  *
- *  Ice::Exception
+ * <pre>
+ *  Ice::Exception (root of all Ice exceptions)
  *   |
  *   |_ Ice::UserException (super class of all application exceptions)
  *   |  |
@@ -80,8 +100,9 @@
  *       \_ Ice::TimeoutException
  *           \_ Ice::ConnectTimeoutException (Couldn't establish a connection. Retry?)
  *
+ * </pre>
  *
- */
+ **/
 
 module omero
 {
@@ -213,7 +234,7 @@ module omero
     };
 
   /**
-   * Too many simultaneous database users.
+   * Currently unused.
    */
   exception ConcurrentModification extends ConcurrencyException
     {
@@ -254,6 +275,9 @@ module omero
     {
     };
 
+  /**
+   *
+   */
   exception QueryException extends ApiUsageException
     {
     };
