@@ -148,8 +148,7 @@ def runScript(session, scriptService, scriptPath):
     try:
         scriptId = long(scriptPath)
     except:
-        scriptFile = getScript(scriptService, scriptPath)
-        scriptId = scriptFile.id.val
+        scriptId = scriptService.getScriptID(scriptPath)
     
     # Identify the script we want to run: Get all 'official' scripts and filter by path.  
     print "Running script: %s with ID: %s" % (scriptPath, scriptId)
