@@ -30,7 +30,6 @@
     <dependency org="perf4j" name="perf4j" rev="${versions.perf4j}"/>
     <!-- Gui -->
     <dependency org="gui" name="TableLayout" rev="${versions.tablelayout}"/>
-    <dependency org="gui" name="hsqldb" rev="1.8.0.9"/>
     <dependency org="gui" name="swingx" rev="${versions.swingx}"/>
     <dependency org="gui" name="omero-clients-util" rev="${versions.clients-util}"/>
     <dependency org="gui" name="ini4j" rev="0.3.2"/>
@@ -38,7 +37,6 @@
     <dependency org="gui" name="commons-httpclient" rev="${versions.commons-httpclient}"/>
     <dependency org="gui" name="commons-codec" rev="${versions.commons-codec}"/>
     <dependency org="gui" name="commons-io" rev="${versions.commons-io}"/>
-    <dependency org="OME" name="ome-java" rev="${versions.ome-java}"/>
     <!-- Loci -->
     <dependency org="OME" name="bio-formats" rev="${versions.bio-formats}"/>
     <dependency org="OME" name="loci-common" rev="${versions.bio-formats}"/>
