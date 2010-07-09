@@ -15,11 +15,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import ome.conditions.InternalException;
-import ome.conditions.OptimisticLockException;
 import ome.model.core.OriginalFile;
 import ome.model.meta.ExperimenterGroup;
 import ome.services.util.Executor;
@@ -42,6 +43,7 @@ import org.hibernate.type.StringType;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -183,7 +185,7 @@ public class ScriptRepoHelper {
 
     public int countInDb(SimpleJdbcOperations jdbc) {
         return jdbc.queryForInt("select count(id) from originalfile "
-                + "where repo = ? and mimetype = 'text/x-python", uuid);
+                + "where repo = ? and mimetype = 'text/x-python'", uuid);
     }
 
     @SuppressWarnings("unchecked")
@@ -200,7 +202,7 @@ public class ScriptRepoHelper {
 
     public List<Long> idsInDb(SimpleJdbcOperations jdbc) {
         try {
-            return (List<Long>) jdbc.query("select id from originalfile "
+            return jdbc.query("select id from originalfile "
                     + "where repo = ? and mimetype = 'text/x-python'", new RowMapper<Long>() {
                 public Long mapRow(ResultSet arg0, int arg1)
                         throws SQLException {
@@ -277,54 +279,116 @@ public class ScriptRepoHelper {
      * @param modificationCheck
      * @return
      */
-    public List<OriginalFile> loadAll(boolean modificationCheck) {
+    @SuppressWarnings("unchecked")
+    public List<OriginalFile> loadAll(final boolean modificationCheck) {
         final Iterator<File> it = iterate();
         final List<OriginalFile> rv = new ArrayList<OriginalFile>();
-        File f = null;
-        RepoFile file = null;
-        while (it.hasNext()) {
-            f = it.next();
-            file = new RepoFile(dir, f);
-            Long id = findInDb(file, false); // non-scripts count
-            String sha1 = null;
-            OriginalFile ofile = null;
-            if (id == null) {
-                ofile = addOrReplace(file, null);
-            } else {
+        return (List<OriginalFile>) ex.execute(p, new Executor.SimpleWork(this,
+                "loadAll", modificationCheck) {
+            @Transactional(readOnly = false)
+            public Object doWork(Session session, ServiceFactory sf) {
 
-                ofile = load(id, true); // checks for type & repo
-                if (ofile == null) {
-                    continue; // wrong type or similar
-                }
+                SimpleJdbcTemplate jdbc = (SimpleJdbcTemplate) sf.getContext().getBean("simpleJdbcTemplate");
 
-                if (modificationCheck) {
-                    sha1 = file.sha1();
-                    if (!sha1.equals(ofile.getSha1())) {
-                        ofile = addOrReplace(file, id);
+                File f = null;
+                RepoFile file = null;
+
+                while (it.hasNext()) {
+                    f = it.next();
+                    file = new RepoFile(dir, f);
+                    Long id = findInDb(jdbc, file, false); // non-scripts count
+                    String sha1 = null;
+                    OriginalFile ofile = null;
+                    if (id == null) {
+                        ofile = addOrReplace(session, sf, file, null);
+                    } else {
+
+                        ofile = load(id, session, true); // checks for type & repo
+                        if (ofile == null) {
+                            continue; // wrong type or similar
+                        }
+
+                        if (modificationCheck) {
+                            sha1 = file.sha1();
+                            if (!sha1.equals(ofile.getSha1())) {
+                                ofile = addOrReplace(session, sf, file, id);
+                            }
+                        }
                     }
+                    rv.add(ofile);
                 }
-            }
-            rv.add(ofile);
-        }
-        return rv;
+                removeMissingFilesFromDb(jdbc, session, rv);
+                return rv;
+            }});
     }
 
+    /**
+     *
+     * @param repoFile
+     * @param old
+     * @return
+     */
     public OriginalFile addOrReplace(final RepoFile repoFile, final Long old) {
         return (OriginalFile) ex.execute(p, new Executor.SimpleWork(this,
                 "addOrReplace", repoFile, old) {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
-                if (old != null) {
-                    session.createSQLQuery(
-                            "update originalfile set repo = ? where id = ?")
-                            .setParameter(0, null, new StringType())
-                            .setParameter(1, old).executeUpdate();
-                }
-
-                OriginalFile ofile = new OriginalFile();
-                return update(repoFile, session, sf, ofile);
+                return addOrReplace(session, sf, repoFile, old);
             }
         });
+    }
+
+    protected OriginalFile addOrReplace(Session session, ServiceFactory sf,
+            final RepoFile repoFile, final Long old) {
+
+        if (old != null) {
+            unregister(old, session);
+            log.info("Unregistered " + old);
+        }
+
+        OriginalFile ofile = new OriginalFile();
+        return update(repoFile, session, sf, ofile);
+    }
+
+    /**
+     * Given the current files on disk, {@link #unregister(Long, Session)}
+     * all files which have been removed from disk.
+     */
+    public long removeMissingFilesFromDb(SimpleJdbcOperations jdbc, Session session, List<OriginalFile> filesOnDisk) {
+        List<Long> idsInDb = idsInDb(jdbc);
+        if (idsInDb.size() != filesOnDisk.size()) {
+            log.info(String.format(
+                    "Script missing from disk: %s in db, %s on disk!",
+                    idsInDb.size(), filesOnDisk.size()));
+        }
+
+        Set<Long> setInDb = new HashSet<Long>();
+        Set<Long> setOnDisk = new HashSet<Long>();
+
+        setInDb.addAll(idsInDb);
+        for (OriginalFile f : filesOnDisk) {
+            setOnDisk.add(f.getId());
+        }
+
+        // Now contains only those which are missing
+        setInDb.removeAll(setOnDisk);
+
+        for (Long l : setInDb) {
+            unregister(l, session);
+        }
+
+        return setInDb.size();
+    }
+
+    /**
+     * Unregisters a given file from the script repository by setting its
+     * Repo uuid to null.
+     */
+    protected void unregister(final Long old, Session session) {
+        session.createSQLQuery(
+                "update originalfile set repo = ? where id = ?")
+                .setParameter(0, null, new StringType())
+                .setParameter(1, old).executeUpdate();
     }
 
     public OriginalFile update(final RepoFile repoFile, final Long id) {

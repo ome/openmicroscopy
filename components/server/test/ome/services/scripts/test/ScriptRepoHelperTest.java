@@ -153,6 +153,14 @@ public class ScriptRepoHelperTest extends AbstractManagedContextTest {
         assertFalse(path.file().exists());
     }
 
+    public void testFilesRemovedFromDiskAreRemovedFromDb() throws Exception {
+        path = generateFile();
+        int before = helper.loadAll(true).size();
+        path.file().delete();
+        int after = helper.loadAll(true).size();
+        assertEquals(before - 1, after);
+    }
+
     // Helpers
     // =========================================================================
 
