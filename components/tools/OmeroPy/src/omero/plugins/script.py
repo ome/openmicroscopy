@@ -17,7 +17,7 @@
 
 """
 
-import exceptions, subprocess, os, sys, signal, time, atexit
+import exceptions, subprocess, re, os, sys, signal, time, atexit
 
 from omero.cli import CLI
 from omero.cli import BaseControl
@@ -64,7 +64,30 @@ finally:
 print "Finished script"
 """
 
+RE0 = re.compile("\s*script\s+upload\s*")
+RE1 = re.compile("\s*script\s+upload\s+--official\s*")
+
 class ScriptControl(BaseControl):
+
+    def _complete(self, text, line, begidx, endidx):
+        """
+        Returns a file after "upload" and otherwise delegates to the BaseControl
+        """
+        for RE in (RE1, RE0):
+            m = RE.match(line)
+            if m:
+                replaced = RE.sub('', line)
+                suggestions = self._complete_file(replaced, os.getcwd())
+                if False: #line.find("--official") < 0:
+                    add = "--official"
+                    parts = line.split(" ")
+                    if "--official".startswith(parts[-1]):
+                        new = add[len(parts[-1]):]
+                        if new:
+                            add = new
+                    suggestions.insert(0, add)
+                return suggestions
+        return BaseControl._complete(self, text, line, begidx, endidx)
 
     def _configure(self, parser):
         def _who(parser):

@@ -39,8 +39,7 @@ class UploadControl(BaseControl):
 
     def _complete(self, text, line, begidx, endidx):
         """
-        Returns a file after "deploy", "start", or "startasync"
-        and otherwise delegates to the BaseControl
+        Returns a file after "upload" and otherwise delegates to the BaseControl
         """
         m = RE.match(line)
         if m:

@@ -587,17 +587,21 @@ class BaseControl:
     # Methods likely to be implemented by subclasses
     #
 
-    def _complete_file(self, f):
+    def _complete_file(self, f, dir = None):
         """
         f: path part
         """
+        if dir is None:
+            dir = self.dir
+        else:
+            dir = path(dir)
         p = path(f)
         if p.exists() and p.isdir():
             if not f.endswith(os.sep):
                 return [p.basename()+os.sep]
             return [ str(x)[len(f):] for x in p.listdir() ]
         else:
-            results = [ str(x.basename()) for x in self.dir.glob(f+"*")  ]
+            results = [ str(x.basename()) for x in dir.glob(f+"*")  ]
             if len(results) == 1:
                 # Relative to cwd
                 maybe_dir = path(results[0])
@@ -706,6 +710,32 @@ class CLI(cmd.Cmd, Context):
                 self.dbg("Delaying close for stack: %s" % len(self._stack), level = 2)
 
     def invokeloop(self):
+        # First we add a few special commands to the loop
+        class PWD(BaseControl):
+            def __call__(self, args):
+                    self.ctx.out(os.getcwd())
+        class LS(BaseControl):
+            def __call__(self, args):
+                for p in sorted(path(os.getcwd()).listdir()):
+                    self.ctx.out(str(p.basename()))
+        class CD(BaseControl):
+            def _complete(self, text, line, begidx, endidx):
+                RE = re.compile("\s*cd\s*")
+                m = RE.match(line)
+                if m:
+                    replaced = RE.sub('', line)
+                    return self._complete_file(replaced, path(os.getcwd()))
+                return []
+            def _configure(self, parser):
+                parser.set_defaults(func=self.__call__)
+                parser.add_argument("dir", help = "Target directory")
+            def __call__(self, args):
+                os.chdir(args.dir)
+        self.register("pwd", PWD, "Print the current directory")
+        self.register("ls", LS, "Print files in the current directory")
+        self.register("dir", LS, "Alias for 'ls'")
+        self.register("cd", CD, "Change the current directory")
+
         try:
             self.selfintro = "\n".join([OMEROSHELL, OMEROHELP])
             if not self.stdin.isatty():
