@@ -183,12 +183,7 @@ public class Utils {
         md.reset();
         md.update(buffer);
         byte[] digest = md.digest();
-
-        StringBuffer buf = new StringBuffer();
-        for (int i = 0; i < digest.length; i++) {
-            buf.append(byteToHex(digest[i]));
-        }
-        return buf.toString();
+        return bytesToHex(digest);
     }
 
     /**

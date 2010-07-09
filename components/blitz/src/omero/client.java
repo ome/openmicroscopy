@@ -6,7 +6,15 @@
  */
 package omero;
 
+import static omero.rtypes.rlong;
+import static omero.rtypes.rstring;
+
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -17,16 +25,20 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
+import ome.util.Utils;
 import omero.api.ClientCallback;
 import omero.api.ClientCallbackPrxHelper;
 import omero.api.IAdminPrx;
 import omero.api.ISessionPrx;
+import omero.api.IUpdatePrx;
+import omero.api.RawFileStorePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceFactoryPrxHelper;
 import omero.api._ClientCallbackDisp;
 import omero.constants.AGENT;
 import omero.model.DetailsI;
 import omero.model.OriginalFile;
+import omero.model.OriginalFileI;
 import omero.model.PermissionsI;
 import omero.util.ObjectFactoryRegistrar;
 import omero.util.Resources;
@@ -837,8 +849,17 @@ public class client {
      * Calculates the local sha1 for a file.
      */
     public String sha1(File file) {
-        throw new RuntimeException("NYI");
-        // return Utils.fileToSha1(file);
+        return Utils.bytesToHex(
+                Utils.pathToSha1(
+                        file.getAbsolutePath()));
+    }
+
+    public OriginalFile upload(File file) throws ServerError, IOException {
+        return upload(file, null);
+    }
+
+    public OriginalFile upload(File file, OriginalFile fileObject) throws ServerError, IOException {
+        return upload(file, fileObject, 262144);
     }
 
     /**
@@ -850,10 +871,104 @@ public class client {
      *            Can be null.
      * @param blockSize
      *            Can be null.
+     * @throws IOException
      */
-    public void upload(File file, OriginalFile fileObject, Integer blockSize) {
+    public OriginalFile upload(File file, OriginalFile fileObject, Integer blockSize) throws ServerError, IOException {
+        ServiceFactoryPrx sf = getSession();
+        if (file == null) {
+            throw new ClientError("Non-null file must be provided");
+        }
+
+        if (!file.exists() || ! file.canRead()) {
+            throw new ClientError("File does not exist or is not readable: " + file.getAbsolutePath());
+        }
+
+        if (blockSize == null) {
+            blockSize = 262144;
+        }
+
+        long size = file.length();
+        if (blockSize > size) {
+            blockSize = (int) size;
+        }
+
+        if (fileObject == null) {
+            fileObject = new OriginalFileI();
+        }
+
+        fileObject.setSize(rlong(size));
+        fileObject.setSha1(rstring(sha1(file)));
+
+        if (fileObject.getName() == null) {
+            fileObject.setName(rstring(file.getName()));
+        }
+
+        if (fileObject.getPath() == null) {
+            String path = file.getParent() == null ?
+                    File.separator : (file.getParent() + File.separator);
+            fileObject.setPath(rstring(path));
+        }
+
+        if (fileObject.getMimetype() == null) {
+            fileObject.setMimetype(rstring("application/octet-stream"));
+        }
+
+        IUpdatePrx up = sf.getUpdateService();
+        fileObject = (OriginalFile) up.saveAndReturnObject(fileObject);
+
+        byte[] buf = new byte[blockSize];
+        RawFileStorePrx rfs = sf.createRawFileStore();
+        FileInputStream stream = null;
+        try {
+            rfs.setFileId(fileObject.getId().getValue());
+            stream = new FileInputStream(file);
+            long pos = 0;
+            int rlen;
+            ByteBuffer bbuf;
+            while ((rlen = stream.read(buf)) > 0) {
+                rfs.write(buf, pos, rlen);
+                pos += rlen;
+                bbuf = ByteBuffer.wrap(buf);
+                bbuf.limit(rlen);
+            }
+            return rfs.save();
+        } finally {
+            Utils.closeQuietly(stream);
+            if (rfs != null) {
+                rfs.close();
+            }
+        }
+    }
+
+    public void download(long fileId, File file) throws ServerError, IOException {
+        download(fileId, file, 262144);
+    }
+
+    public void download(long fileId, File file, int blockSize) throws ServerError, IOException  {
+        final ServiceFactoryPrx sf = getSession();
+        final OriginalFile obj = (OriginalFile) sf.getQueryService().get("OriginalFile", fileId);
+        final RawFileStorePrx store = sf.createRawFileStore();
+        final FileOutputStream stream = new FileOutputStream(file);
+
+        final long size = obj.getSize().getValue();
+
+        int offset = 0;
+        int length = (int) size;
+
+        store.setFileId(fileId);
+        try {
+            for (offset = 0; (offset+blockSize) < size;) {
+                stream.write(store.read(offset, blockSize));
+                offset += blockSize;
+            }
+            stream.write(store.read(offset, length-offset));
+        } finally {
+            Utils.closeQuietly(stream);
+            store.close();
+        }
 
     }
+
 
     // Environment methods
     // =========================================================================
