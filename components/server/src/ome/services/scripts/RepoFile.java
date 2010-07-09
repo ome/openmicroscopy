@@ -7,6 +7,12 @@
 
 package ome.services.scripts;
 
+import static org.apache.commons.io.FilenameUtils.getBaseName;
+import static org.apache.commons.io.FilenameUtils.getExtension;
+import static org.apache.commons.io.FilenameUtils.getPath;
+import static org.apache.commons.io.FilenameUtils.normalizeNoEndSeparator;
+import static org.apache.commons.io.FilenameUtils.separatorsToUnix;
+
 import java.io.File;
 
 import ome.util.Utils;
@@ -19,6 +25,28 @@ import org.apache.commons.io.FilenameUtils;
  */
 public class RepoFile {
 
+    /**
+     * Somewhat complicated method to turn any path into a unique like path
+     * rooted at "/".
+     *
+     * @param path Non-null;
+     * @return
+     */
+    public static String norm(String path) {
+        String s2u = separatorsToUnix(path);
+        String tmp = normalizeNoEndSeparator(getPath(s2u));
+        if (tmp == null) {
+            tmp = "";
+        }
+        else if (tmp.equals("")) {
+            // pass
+        }
+        else {
+            tmp = "/" + tmp;
+        }
+        return String.format("%s/%s.%s", tmp, getBaseName(s2u), getExtension(s2u));
+    }
+
     final private FsFile fs;
     final private String rel;
     final private String root;
@@ -29,7 +57,7 @@ public class RepoFile {
      * and calls {@link #RepoFile(File, File)}
      */
     public RepoFile(File root, String path) {
-        this(root, new File(root, path));
+        this(root, new File(root, norm(path)));
     }
 
     /**

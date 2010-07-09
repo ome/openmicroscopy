@@ -12,7 +12,6 @@ import os
 import time
 import unittest
 import integration.library as lib
-import tempfile
 import omero
 import omero.all
 
@@ -32,6 +31,16 @@ if "DEBUG" in os.environ:
 
 class TestScripts(lib.ITest):
 
+    def pingfile(self):
+        pingfile = create_path()
+        pingfile.write_text("""if True:
+        import omero
+        import omero.scripts as OS
+        import omero.grid as OG
+        OS.client("ping")
+        """)
+        return pingfile
+
     def testBasicUsage(self):
         svc = self.client.sf.getScriptService()
         return svc
@@ -41,18 +50,7 @@ class TestScripts(lib.ITest):
         self.client.getInput("a");
 
     def testUploadAndPing(self):
-        pingfile = tempfile.NamedTemporaryFile(mode='w+t')
-        pingfile.close();
-        name = pingfile.name
-        pingfile = open(name, "w")
-        pingfile.write("""if True:
-        import omero
-        import omero.scripts as OS
-        import omero.grid as OG
-        OS.client("ping")
-        """)
-        pingfile.flush()
-        pingfile.close()
+        name = str(self.pingfile())
         file = self.client.upload(name, type="text/x-python")
 
         impl = omero.processor.usermode_processor(self.client)
@@ -62,6 +60,21 @@ class TestScripts(lib.ITest):
             self.assert_(jp, "Non-zero params")
         finally:
             impl.cleanup()
+
+    def testUpload2562(self):
+        uuid = self.uuid()
+        f = self.pingfile()
+        svc = self.root.sf.getScriptService()
+        id = svc.uploadOfficialScript("../%s.py" % uuid, f.text())
+        ofile = self.query.get("OriginalFile", id)
+        self.assertEquals("/", ofile.path.val)
+        self.assertEquals("%s.py" % uuid, ofile.name.val)
+
+        uuid = self.uuid() # New uuid is need because /test/../ --> /
+        id = svc.uploadOfficialScript("/test/../%s.py" % uuid, f.text())
+        ofile = self.query.get("OriginalFile", id)
+        self.assertEquals("/", ofile.path.val)
+        self.assertEquals("%s.py" % uuid, ofile.name.val)
 
     def testParseErrorTicket2185(self):
         svc = self.root.sf.getScriptService()
