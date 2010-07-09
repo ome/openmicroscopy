@@ -5933,7 +5933,7 @@ class OMEROGateway
 	String getReaderType()
 	{
 		try {
-			String reader = getImportStore().getReaderType();
+			String reader = getImportStore().getReader().getFormat();
 			if (reader != null) return reader;
 	        return "";
 		} catch (Exception e) {
