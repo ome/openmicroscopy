@@ -13,6 +13,7 @@
   <dependencies defaultconfmapping="build,client->default">
     <!-- Internal -->
     <dependency org="omero" name="omero_client" rev="${omero.version}" changing="true" conf="build->build;client->client" transitive="false"/>
+    <dependency org="commons-logging" name="commons-logging" rev="${versions.commons-logging}"/>
     <!-- dependency org="OME" name="bio-formats" rev="${versions.bio-formats}"/ -->
     <!-- dependency org="OME" name="loci-common" rev="${versions.bio-formats}"/ -->
     <!-- dependency org="gui" name="forms" rev="${versions.forms}"/ -->
