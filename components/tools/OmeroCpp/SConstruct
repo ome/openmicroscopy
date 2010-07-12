@@ -139,17 +139,19 @@ env.Alias('lib', library)
 #
 
 if target.endswith("dll"):
-    msproj = env.MSVSProject(target = 'omero_client' + env['MSVSPROJECTSUFFIX'],
-        srcs = [ str(x) for x in srcs ],
-        buildtarget = library[0],
-        variant = 'Release')
-    env.Alias('msproj', msproj)
+    if not hasattr(env, "MSVSProject") and env.GetOption('clean'):
+        pass # Allow cleaning even without Visual Studio installed
+    else:
+        msproj = env.MSVSProject(target = 'omero_client' + env['MSVSPROJECTSUFFIX'],
+            srcs = [ str(x) for x in srcs ],
+            buildtarget = library[0],
+            variant = 'Release')
+        env.Alias('msproj', msproj)
 
-    install = env.Install('target/lib', library[0])
-    install2 = env.Install('target/lib', library[1])
-    env.Depends(install, install2)
-    env.Alias('install', install)
-
+        install = env.Install('target/lib', library[0])
+        install2 = env.Install('target/lib', library[1])
+        env.Depends(install, install2)
+        env.Alias('install', install)
 else:
     install = env.Install('target/lib', library)
     env.Alias('install', install)
