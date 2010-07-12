@@ -9,7 +9,12 @@ Copyright (c) 2007, Glencoe Software, Inc.
 See LICENSE for details.
 
 """
-import sys, os, stat
+
+import os
+import platform
+import stat
+import sys
+
 
 def not_root():
     """
@@ -75,7 +80,12 @@ def can_access(path):
     """
     Check that the given path belongs to
     or is accessible by the current user
+    on Linux systems.
     """
+
+    if "Windows" == platform.system():
+        return
+
     owner = os.stat(path)[stat.ST_UID]
     if owner == 0:
         print "FATAL: OMERO directory which needs to be writeable belongs to root: %s" % path
