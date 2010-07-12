@@ -10,6 +10,7 @@
 #include <boost_fixture.h>
 #include <time.h>
 #include <omero/Collections.h>
+#include <omero/api/IAdmin.h>
 #include <omero/model/ImageI.h>
 #include <omero/model/ImageAnnotationLinkI.h>
 #include <omero/model/BooleanAnnotationI.h>
@@ -19,6 +20,8 @@
 #include <omero/model/OriginalFileI.h>
 #include <omero/model/TagAnnotationI.h>
 #include <omero/model/CommentAnnotationI.h>
+#include <omero/model/ExperimenterGroupI.h>
+#include <omero/model/ExperimenterI.h>
 
 using namespace std;
 using namespace omero;
@@ -76,6 +79,16 @@ public:
 	    sf = (*client).getSession();
 	}
     }
+    SearchFixture root() {
+    	SearchFixture root("root");
+	root.init();
+	root.sf->setSecurityContext(group());
+	return root;
+    }
+    ExperimenterGroupPtr group() {
+    	init();
+	return new ExperimenterGroupI(admin()->getEventContext()->groupId, false);
+    }
     SearchPrx search() {
 	init();
 	return sf->createSearchService();
@@ -97,15 +110,14 @@ public:
     }
     OriginalFileIPtr createFile() {
 	OriginalFileIPtr file = new OriginalFileI();
+	file->setSize(rlong(0));
+	file->setName(rstring(""));
+	file->setPath(rstring("/"));
+	file->setSha1(rstring(""));
 	return file;
     }
-    ExperimenterIPtr newUser() {
-	ExperimenterIPtr e = new ExperimenterI();
-	e->setOmeName( rstring(uuid()) );
-	e->setFirstName( rstring("name") );
-	e->setLastName( rstring("name") );
-	long id = admin()->createUser(e, "default");
-	return ExperimenterIPtr::dynamicCast(query()->get("Experimenter",id));
+    ExperimenterPtr newUser(const ExperimenterGroupPtr& g = ExperimenterGroupPtr()) {
+	return f.newUser(admin(), g);
     }
 };
 
@@ -162,7 +174,7 @@ BOOST_AUTO_TEST_CASE( IQuerySearch )
 {
     try {
         SearchFixture f;
-	SearchFixture root("root");
+	SearchFixture root = f.root();
         IUpdatePrx update = f.update();
 
 	string uuid = f.uuid();
@@ -200,7 +212,7 @@ BOOST_AUTO_TEST_CASE( Filtering )
 {
     try {
         SearchFixture f;
-	SearchFixture root;
+	SearchFixture root = f.root();
 
 	string uuid = f.uuid();
 	ImagePtr i = new_ImageI();
@@ -266,7 +278,7 @@ BOOST_AUTO_TEST_CASE( Filtering )
 
 BOOST_AUTO_TEST_CASE ( testByGroupForTags ) {
     SearchFixture f;
-    SearchFixture root("root");
+    SearchFixture root = f.root();
     string groupStr = f.uuid();
     string tagStr = f.uuid();;
 
@@ -305,7 +317,7 @@ BOOST_AUTO_TEST_CASE ( testByGroupForTags ) {
     DetailsIPtr d = new DetailsI();
     d->setOwner(new ExperimenterI(rlong(oldUser), false));
 
-    ExperimenterIPtr e = root.newUser();
+    ExperimenterPtr e = root.newUser(f.group());
     SearchFixture f2(e->getOmeName()->getValue());
     grp = new TagAnnotationI();
     groupStr = f2.uuid();;
@@ -371,8 +383,8 @@ BOOST_AUTO_TEST_CASE( testByTagForGroup ) {
     DetailsIPtr d = new DetailsI();
     d->setOwner(new ExperimenterI(rlong(oldUser), false));
 
-    SearchFixture root("root");
-    ExperimenterIPtr e = root.newUser();
+    SearchFixture root = f.root();
+    ExperimenterPtr e = root.newUser();
     SearchFixture f2(e->getOmeName()->getValue());
     tag = new TagAnnotationI();
     tagStr = f2.uuid();;
@@ -402,7 +414,7 @@ BOOST_AUTO_TEST_CASE( testByTagForGroup ) {
 BOOST_AUTO_TEST_CASE( testSimpleFullTextSearch ) {
     
     SearchFixture f;
-    SearchFixture root("root");
+    SearchFixture root = f.root();
     ImagePtr i = new_ImageI();
     i->setName(rstring(f.uuid()));
     i = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i));
@@ -420,7 +432,6 @@ BOOST_AUTO_TEST_CASE( testSimpleFullTextSearch ) {
 	BOOST_CHECK( obj );
     }
     BOOST_CHECK(count == 1);
-    search->close();
 
     search->onlyType("Image");
     search->byFullText(i->getName()->getValue());
@@ -445,7 +456,7 @@ BOOST_AUTO_TEST_CASE( testSomeMustNone ) {
     string missing[] =  { "jkl", "mno", "pqr", "456" };
 
     SearchFixture f;
-    SearchFixture root("root");
+    SearchFixture root = f.root();
 
     ImagePtr i = new_ImageI();
     i->setName(rstring("abc def ghi"));
@@ -574,7 +585,7 @@ BOOST_AUTO_TEST_CASE( testSomeMustNone ) {
 
 BOOST_AUTO_TEST_CASE( testAnnotatedWith ) {
     SearchFixture f;
-    SearchFixture root("root");
+    SearchFixture root = f.root();
     string uuid = f.uuid();;
     ImagePtr i = new_ImageI();
     i->setName(rstring(uuid));
@@ -678,7 +689,7 @@ BOOST_AUTO_TEST_CASE( testOnlyIds ) {
     // byTagForGroups, byGroupForTags
 
     SearchFixture f;
-    SearchFixture root("root");
+    SearchFixture root = f.root();
     string uuid = f.uuid();;
     ImagePtr i1 = new_ImageI();
     i1->setName( rstring(uuid) );
@@ -746,7 +757,7 @@ BOOST_AUTO_TEST_CASE( testOnlyIds ) {
 BOOST_AUTO_TEST_CASE( testOnlyOwnedByOwner ) {
 
     SearchFixture root("root");
-    ExperimenterIPtr e = root.newUser();
+    ExperimenterPtr e = root.newUser();
     SearchFixture f(e->getOmeName()->getValue());
     DetailsIPtr user = new DetailsI();
     user->setOwner(e);
@@ -767,7 +778,7 @@ BOOST_AUTO_TEST_CASE( testOnlyOwnedByOwner ) {
     root.update()->indexObject(i);
 
     long id = f.admin()->getEventContext()->userId;
-    ExperimenterIPtr self = new ExperimenterI(rlong(id), false);
+    ExperimenterPtr self = new ExperimenterI(rlong(id), false);
     DetailsIPtr rootd = new DetailsI();
     rootd->setOwner(self);
 
@@ -856,7 +867,7 @@ BOOST_AUTO_TEST_CASE( testOnlyOwnedByOwner ) {
 BOOST_AUTO_TEST_CASE( testOnlyOwnedByGroup ) {
     
     SearchFixture root("root");
-    ExperimenterIPtr e = root.newUser();
+    ExperimenterPtr e = root.newUser();
     SearchFixture f(e->getOmeName()->getValue());
     ExperimenterGroupIPtr g = new ExperimenterGroupI
 	(rlong(f.admin()->getEventContext()->groupId), false);
@@ -991,7 +1002,7 @@ omero::RTimePtr now() {
 
 BOOST_AUTO_TEST_CASE( testOnlyCreateBetween ) {
     SearchFixture f;
-    SearchFixture root("root");
+    SearchFixture root = f.root();
     string name = f.uuid();;
     ImagePtr i = new_ImageI();
     i->setName(rstring(name));
@@ -1105,7 +1116,7 @@ BOOST_AUTO_TEST_CASE( testOnlyModifiedBetween ) {
     // byTagForGroups, byGroupForTags (tags are immutable) results always 1
 
     SearchFixture f;
-    SearchFixture root("root");
+    SearchFixture root = f.root();
     string name = f.uuid();;
     ImagePtr i = new_ImageI();
     i->setName(rstring(name));
@@ -1216,7 +1227,7 @@ BOOST_AUTO_TEST_CASE( testOnlyModifiedBetween ) {
 BOOST_AUTO_TEST_CASE( testOnlyAnnotatedBetween ) {
 
     SearchFixture f;
-    SearchFixture root("root");
+    SearchFixture root = f.root();
     string name = f.uuid();;
     ImagePtr i = new_ImageI();
     i->setName(rstring(name));
@@ -1327,7 +1338,7 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedBetween ) {
 BOOST_AUTO_TEST_CASE( testOnlyAnnotatedBy ) {
 
     SearchFixture f;
-    SearchFixture root("root");
+    SearchFixture root = f.root();
     string name = f.uuid();
     string tag = f.uuid();
     ImagePtr i = new_ImageI();
@@ -1361,7 +1372,7 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedBy ) {
     assertResults(1, search);
 
     // But if we restrict it to another user, there should be none
-    ExperimenterIPtr e = root.newUser();
+    ExperimenterPtr e = root.newUser();
     DetailsIPtr d = new DetailsI();
     d->setOwner(e);
     search->onlyAnnotatedBy(d);
@@ -1402,7 +1413,7 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedWith ) {
     // ignored by byTagForGroups, byGroupForTags
 
     SearchFixture f;
-    SearchFixture root("root");
+    SearchFixture root = f.root();
     string name = f.uuid();
     ImagePtr i = new_ImageI();
     i->setName(rstring(name));
@@ -1449,7 +1460,7 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedWith ) {
 BOOST_AUTO_TEST_CASE( testOnlyAnnotatedWithMultiple ) {
 
     SearchFixture f;
-    SearchFixture root("root");
+    SearchFixture root = f.root();
     
     string name = f.uuid();;
     ImagePtr onlyTag = new_ImageI();
@@ -1502,7 +1513,7 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedWithMultiple ) {
 BOOST_AUTO_TEST_CASE( testMergedBatches ) {
 
     SearchFixture f;
-    SearchFixture root("root");
+    SearchFixture root = f.root();
     string uuid1 = f.uuid();
     string uuid2 = f.uuid();
     ImagePtr i1 = new_ImageI();
@@ -1536,7 +1547,7 @@ BOOST_AUTO_TEST_CASE( testMergedBatches ) {
 BOOST_AUTO_TEST_CASE ( testOrderBy ) {
 
     SearchFixture f;
-    SearchFixture root("root");
+    SearchFixture root = f.root();
     string uuid = f.uuid();
     TagAnnotationIPtr tag = new TagAnnotationI();
     tag->setTextValue(rstring(uuid));
@@ -1705,7 +1716,7 @@ BOOST_AUTO_TEST_CASE ( testOrderBy ) {
 
 BOOST_AUTO_TEST_CASE( testFetchAnnotations ) {
     SearchFixture f;
-    SearchFixture root("root");
+    SearchFixture root = f.root();
     string uuid = f.uuid();;
     ImagePtr i = new_ImageI();
     i->setName(rstring(uuid));
@@ -1802,7 +1813,7 @@ BOOST_AUTO_TEST_CASE( testFetchAnnotations ) {
 
 BOOST_AUTO_TEST_CASE( testCommentAnnotationDoesntTryToLoadUpdateEvent ) {
     SearchFixture f;
-    SearchFixture root("root");
+    SearchFixture root = f.root();
     string uuid = f.uuid();;
     CommentAnnotationIPtr ta = new CommentAnnotationI();
     ta->setTextValue(rstring(uuid));
@@ -1830,12 +1841,12 @@ BOOST_AUTO_TEST_CASE( testLookingForExperimenterWithOwner ) {
     
     // Just root should work
     search->byFullText("root");
-    search->next();
+    assertAtLeastResults(1, search);
 
     // And filtered on "owner" (experimenter has none) should work, too.
     DetailsIPtr d = new DetailsI();
     d->setOwner(new ExperimenterI(0L, false));
     search->onlyOwnedBy(d);
     search->byFullText("root");
-    search->next();
+    assertAtLeastResults(1, search);
 }

@@ -59,6 +59,7 @@ struct Fixture
                 const std::string& username = std::string(),
                 const std::string& password = std::string());
         omero::client_ptr root_login();
+	omero::model::ExperimenterPtr newUser(const omero::api::IAdminPrx& admin, const omero::model::ExperimenterGroupPtr& g = omero::model::ExperimenterGroupPtr());
 };
 
 //

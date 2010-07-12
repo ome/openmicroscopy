@@ -142,12 +142,13 @@ namespace omero {
 	 */
 	void init(const Ice::InitializationData& id);
 
-        /*
-         * Protected constructor for use with createClient
-         */
-	client(const std::map<std::string, std::string>& props, bool secure);
-
     public:
+
+        /*
+         * Sets all the values in props as configuration properties.
+         * Primarily for use with createClient
+         */
+	client(const std::map<std::string, std::string>& props, bool secure = true);
 
 	/*
 	 * Creates an Ice::Communicator from command-line arguments. These

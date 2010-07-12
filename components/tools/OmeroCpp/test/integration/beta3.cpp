@@ -59,6 +59,7 @@ BOOST_AUTO_TEST_CASE( SavingPixels )
     pix->setPhysicalSizeZ( rdouble(1.0) );
 
     pix->addChannel( c );
+    c->setLogicalChannel( lc) ;
 
     // At this point trying to save throws a ValidationException
     try {
@@ -71,6 +72,11 @@ BOOST_AUTO_TEST_CASE( SavingPixels )
     i->addPixels( pix );
     i->setName( rstring("test1") );
 
-    sf->getUpdateService()->saveObject(i);
+    try {
+    	sf->getUpdateService()->saveObject(i);
+    } catch (const omero::ValidationException& ve) {
+        // ok
+        BOOST_ERROR(ve.serverStackTrace);
+    }
 
 }
