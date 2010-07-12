@@ -362,7 +362,7 @@ public class ImportConfig {
      * @return ini version note
      */
     public String getVersionNumber() {
-        return this.omeroVersion + " " + ini.getVersionNote();
+        return this.omeroVersion; // + " " + ini.getVersionNote();
     }
 
     /**
