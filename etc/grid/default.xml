@@ -25,14 +25,13 @@
         This can be used to keep all your settings in one place, since templates.xml
         is more likely to change between releases.
 
-        Non-Windows:
         Also, any properties beginning with "omero" set here will
         be passed to the servers launched via bin/omero as if via
         "-Domero.example=value" were set on the command line.
         These values may be overwritten by `bin/omero config` values.
       -->
       <properties refid="__ACTIVE__"/><!-- Created in config.xml by bin/omero -->
-      <property name="omero.example"  value="my_value"/>
+      <property name="omero.example" value="my_value"/>
     </properties>
 
     <!--

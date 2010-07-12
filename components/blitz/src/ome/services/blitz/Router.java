@@ -34,7 +34,7 @@ public class Router {
     private final Map<String, String> map = new HashMap<String, String>();
     {
         map.put("Glacier2.InstanceName", "OMERO.Glacier2");
-        setClientEndpoints(LOCALHOST, 4063);
+        setClientEndpoints(LOCALHOST, 4064);
         setSessionManager(LOCALHOST, 9999);
         setPermissionsVerifier(LOCALHOST, 9999);
         setTimeout(600);

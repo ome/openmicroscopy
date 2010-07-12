@@ -199,7 +199,7 @@ public class BlitzServerFixture extends MockObjectTestCase {
         p.setProperty("omero.user", "user");
         p.setProperty("omero.pass", "pass");
         p.setProperty("Ice.Default.Router",
-                "OMERO.Glacier2/router:tcp -p 4063 -h 127.0.0.1");
+                "OMERO.Glacier2/router:tcp -p 4064 -h 127.0.0.1");
         p.setProperty("Ice.ImplicitContext", "Shared");
         ice = new omero.client(p);
         ServiceFactoryPrx session = ice.createSession(null, null);

@@ -16,7 +16,7 @@ class MyResource(Resource):
     def read(self, request):
         if os.path.exists('etc/ice.config'):
             blitz_connector.BlitzConnector.ICE_CONFIG='etc/ice.config'
-        c = blitz_connector.BlitzConnector('root','ome','127.0.0.1',4063)
+        c = blitz_connector.BlitzConnector('root','ome','127.0.0.1',4064)
         c.allow_thread_timeout = False
         if not c.connect():
             return "Can not connect"

@@ -59,7 +59,7 @@ Runs measurement population code for a given plate.
 
 Options:
   -s    OMERO hostname to use
-  -p    OMERO port to use [defaults to 4063]
+  -p    OMERO port to use [defaults to 4064]
   -u    OMERO username to use
   -k    OMERO session key to use
   -m    Measurement index to populate

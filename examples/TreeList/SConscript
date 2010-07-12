@@ -14,7 +14,7 @@ targets = []
 #
 # Configuration
 #
-m = {"omero.host":"localhost", "omero.port":4063}
+m = {"omero.host":"localhost", "omero.port":4064}
 f = open(ice_config)
 for line in f:
     parts = line.split("=")

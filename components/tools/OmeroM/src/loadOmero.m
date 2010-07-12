@@ -22,7 +22,7 @@ function [client,session,gateway]=loadOmero(varargin)
 %   c = loadOmero('localhost');
 %
 %   % Host string and port
-%   c = loadOmero('localhost,'14063');
+%   c = loadOmero('localhost,'14064');
 %
 %   % Via a Properties object
 %   p = java.util.Properties();
