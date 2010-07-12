@@ -304,7 +304,7 @@ class DropBox(Ice.Application):
 
         """
         host = props.getPropertyWithDefault("omero.fs.host","localhost")
-        port = int(props.getPropertyWithDefault("omero.fs.port","4063"))
+        port = int(props.getPropertyWithDefault("omero.fs.port","4064"))
 
         return host, port
 

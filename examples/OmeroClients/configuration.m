@@ -8,7 +8,7 @@ client1.createSession();
 client1.closeSession();
 
 % Most basic configuration.
-% Uses default port 4063
+% Uses default port 4064
 % createSession needs username and password
 client2 = omero.client('localhost');
 client2.createSession('root', 'ome');

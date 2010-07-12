@@ -59,7 +59,7 @@ Contents of fixture database text file: testdb.json
     "fields": {
       "server": "omero",
       "host": "localhost"
-      "port": 4063
+      "port": 4064
     }
   }
 ]

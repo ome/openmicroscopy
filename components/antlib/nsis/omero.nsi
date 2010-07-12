@@ -803,7 +803,7 @@ Function ConfigServer
   !insertmacro MUI_HEADER_TEXT "Server configuration" "If the directory does not exist or is empty, a selection dialog will be created"
   !insertmacro CreateDialog srv "Server configuration : If the directory does not exist or is empty, a selection dialog will be created"
   !insertmacro DialogRow srv data "Data directory" "$INSTDIR\DATA" Text
-  !insertmacro DialogRow srv port "Router port" "4063" Number
+  !insertmacro DialogRow srv port "Router port" "4064" Number
 
   !insertmacro assert_section ${SECSRV}
   nsDialogs::Show

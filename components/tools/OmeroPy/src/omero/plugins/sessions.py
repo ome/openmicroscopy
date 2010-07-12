@@ -60,7 +60,7 @@ LONGHELP = """
         Username:
         Password:
         $ bin/omero sessions logout
-        $ bin/omero -p 24063 sessions login
+        $ bin/omero -p 24064 sessions login
         Server:
         Username:
         Password:

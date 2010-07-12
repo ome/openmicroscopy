@@ -20,7 +20,7 @@ echo.
 
 if "x%PASSWORD%" == "x" (SET /P PASSWORD=Password:)
 REM Other defaults
-if "x%ROUTER%" == "x" (SET ROUTER=4063)
+if "x%ROUTER%" == "x" (SET ROUTER=4064)
 if "x%REGISTRY%" == "x" (SET REGISTRY=4061)
 
 cd "%~dp0\.."

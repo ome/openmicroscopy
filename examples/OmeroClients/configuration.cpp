@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
     client1.closeSession();
 
     // Most basic configuration.
-    // Uses default port 4063
+    // Uses default port 4064
     // createSession needs username and password
     omero::client client2("localhost");
     client2.createSession("root", "ome");

@@ -26,7 +26,7 @@ class TestPythonOnly(unittest.TestCase):
         id = Ice.InitializationData()
         pm = { 'A':1 }
         ho = "host"
-        po = 4063
+        po = 4064
         no = None
         self.assertEquals([no, no, no, no, no], t._repair(no, no, no, no, no))
         self.assertEquals([ar, no, no, no, no], t._repair(ar, no, no, no, no))
