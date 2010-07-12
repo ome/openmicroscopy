@@ -31,7 +31,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -634,7 +633,7 @@ class DocComponent
 	 */
 	boolean hasThumbnailToLoad()
 	{
-		return (imageToLoad == LOAD_FROM_SERVER && thumbnail == null);
+		return false;//(imageToLoad == LOAD_FROM_SERVER && thumbnail == null);
 	}
 	
 	/**

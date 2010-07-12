@@ -586,10 +586,12 @@ class AnnotationDataUI
 					}
 			}
 			//load the thumbnails 
+			/*
 			if (loadThumbnails.size() > 0  
 					&& MetadataViewerAgent.isFastConnection()) {
 				model.loadFiles(loadThumbnails);
 			}
+			*/
 		}
 		if (filesDocList.size() == 0 || docPane.getComponentCount() == 0) {
 			doc = new DocComponent(null, model);
