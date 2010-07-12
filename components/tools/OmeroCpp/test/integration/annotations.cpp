@@ -76,13 +76,12 @@ BOOST_AUTO_TEST_CASE( fileAnnotation )
 	IUpdatePrx u = sf->getUpdateService();
 
 	// Create temp file
+	char pointer[]="tmpXXXXXX";
 #ifdef _WIN32
-	char * pointer = "testXXXXXX";
         int err;
-        err = _mktemp_s(pointer, 11); // Length plus one for null
+        err = _mktemp_s(pointer, 10); // Length plus one for null
         BOOST_CHECK( ! err );
 #else
-	char pointer[]="/tmp/cmguiXXXXXX";
 	mkstemp(pointer);
 #endif
 
