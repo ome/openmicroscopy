@@ -65,7 +65,7 @@ public abstract class About
             else
             	title = "About";
             
-            msg = "Version: " + config.getVersionNumber();
+            msg = "Version: " + config.getIniVersionNumber();
             msg = msg + "\n Bio-Formats " + FormatTools.VERSION + 
             " (SVN " + FormatTools.SVN_REVISION + ", " + FormatTools.DATE + ")";
             JOptionPane.showMessageDialog(parent, msg, title,
