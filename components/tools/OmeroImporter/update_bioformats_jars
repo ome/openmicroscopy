@@ -54,10 +54,12 @@ Examples:
 Report bugs to ome-devel@lists.openmicroscopy.org.uk""" % (error, cmd, cmd)
     sys.exit(2)
 
+JOB="LOCI-Beta4.2"
+
 def download():
     # JARs to ignore from download
     ignore = ["loci_tools.jar"]
-    url = urllib.urlopen("http://hudson.openmicroscopy.org.uk/job/LOCI/lastBuild/api/xml")
+    url = urllib.urlopen("http://hudson.openmicroscopy.org.uk/job/%s/lastBuild/api/xml" % JOB)
     hudson_xml = url.read()
     url.close()
     root = XML(hudson_xml)
@@ -65,7 +67,7 @@ def download():
     revision = root.find("./changeSet/revision/revision").text
     artifacts = root.findall("./artifact")
     print "Updating Bio-Formats JARs from revision: %s" % revision
-    base_url = "http://hudson.openmicroscopy.org.uk/job/LOCI/lastBuild/artifact/"
+    base_url = "http://hudson.openmicroscopy.org.uk/job/%s/lastBuild/artifact/" % JOB
     new_jars = list()
     for artifact in artifacts:
         filename = artifact.find("fileName").text
@@ -100,15 +102,6 @@ def update(revision, new_jars):
     f.write(properties)
     f.close()
     
-    f = open("../../.classpath")
-    classpath = f.read()
-    f.close()
-    regex = re.compile('r%s.jar' % old_revision)
-    classpath = regex.sub('r%s.jar' % revision, classpath)
-    f = open("../../.classpath", "w")
-    f.write(classpath)
-    f.close()
-
 if __name__ == "__main__":
     try:
         options, args = getopt(sys.argv[1:], "", ['subversion'])
