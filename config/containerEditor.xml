@@ -64,6 +64,10 @@
            type="integer">120000</entry>     
     <!-- Location of the omero folder. -->
     <entry name="/services/OMERO/home">omero</entry>
+
+    <!-- Name of the omero folder. -->
+    <entry name="/services/OMERO/files/home">filesOmero</entry>
+
     <!-- Log Service configuration.
     -->
     <!-- Enables/disables the Log Service. -->
