@@ -88,7 +88,7 @@ public class ScriptSubMenu
 		if (path == null) return NAME;
 		String[] values = UIUtilities.splitString(path);
 		String sep = UIUtilities.getStringSeparator(path);
-		if (values == null) return path;
+		if (values == null || sep == null) return path;
 		int index = 0;
 		if (path.endsWith(sep)) index = 1;
 		String value = getValue(values, index, sep, names, 

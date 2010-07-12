@@ -123,7 +123,7 @@ public class ScriptingDialog
 	private static final String		TITLE = "Run Script";
 	
 	/** The text displayed in the header. */
-	private static final String		TEXT = "Set the parameters for the " +
+	private static final String		TEXT = "Set the parameters of the " +
 			"selected script: ";
 	
 	/** The text displayed in the header. */
@@ -615,22 +615,26 @@ public class ScriptingDialog
 		Entry entry;
 		Iterator i = components.entrySet().iterator();
 		ScriptComponent comp;
+		int required = 0;
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			comp = (ScriptComponent) entry.getValue();
 			layout.insertRow(row, TableLayout.PREFERRED);
 			//p.add(comp.getLabel(), "0,"+row);
 			comp.buildUI();
+			if (comp.isRequired()) required++;
 			p.add(comp, "0,"+row+", 2, "+row);
 			row++;
 		}
+		if (required > 0) {
+			JLabel label = new JLabel(TEXT_END);
+			Font font = label.getFont();
+			label.setFont(font.deriveFont(font.getStyle(), font.getSize()-2));
+			label.setForeground(UIUtilities.REQUIRED_FIELDS_COLOR);
+			layout.insertRow(row, TableLayout.PREFERRED);
+			p.add(UIUtilities.buildComponentPanel(label), "0,"+row+",2, "+row);
+		}
 		
-		JLabel label = new JLabel(TEXT_END);
-		Font font = label.getFont();
-		label.setFont(font.deriveFont(font.getStyle(), font.getSize()-2));
-		label.setForeground(UIUtilities.REQUIRED_FIELDS_COLOR);
-		layout.insertRow(row, TableLayout.PREFERRED);
-		p.add(UIUtilities.buildComponentPanel(label), "0,"+row+",2, "+row);
 		JXTaskPane pane = null;
 		if (script.hasDetails()) {
 			pane = new JXTaskPane();
