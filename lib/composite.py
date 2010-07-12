@@ -24,6 +24,7 @@ composite builds.
 
 
 import urllib
+import time
 import sys
 import re
 import os
@@ -39,6 +40,7 @@ try:
 except ImportError:
     from elementtree.ElementTree import XML, ElementTree, tostring
 
+NOW = time.ctime()
 
 HUDSON_ROOT = 'http://hudson.openmicroscopy.org.uk/job'
 
@@ -53,6 +55,18 @@ TARGET_PREFIX = 'OMERO.clients-Beta4.2.0'
 if "BUILD_NUMBER" in os.environ:
     TARGET_PREFIX = '%s-b%s' % (TARGET_PREFIX, os.environ["BUILD_NUMBER"])
 
+def version():
+	omero_properties = os.path.join(os.path.dirname(os.path.dirname(__file__)), "etc", "omero.properties")
+	f = open(omero_properties, "r")
+	try:
+		for line in f:
+			if line.startswith("omero.version"):
+				return line.replace("omero.version=", "")
+	finally:
+		f.close()
+	return "Unknown"
+
+VERSION = version()
 
 def download(job, regex):
     """Grabs platform specific distribution targets from Hudson"""
@@ -101,7 +115,12 @@ def extract(artifact, target, ignore):
                     continue
                 print "Extracting: %s" % path
                 out = open(path, 'w')
-                out.write(zip_file.read(name))
+                txt = zip_file.read(name)
+                if path.endswith("about.xml"):
+                    print "Filtering: %s" % path
+                    txt = txt.replace("@DATE@", NOW)
+                    txt = txt.replace("@VERSION@", VERSION)
+                out.write(txt)
                 os.chmod(path, zip_info.external_attr >> 16L)
             finally:
                 if out is not None:
