@@ -76,12 +76,13 @@ BOOST_AUTO_TEST_CASE( fileAnnotation )
 	IUpdatePrx u = sf->getUpdateService();
 
 	// Create temp file
-	char * pointer = "testXXXXXX";
 #ifdef _WIN32
+	char * pointer = "testXXXXXX";
         int err;
         err = _mktemp_s(pointer, 11); // Length plus one for null
         BOOST_CHECK( ! err );
 #else
+	char pointer[]="/tmp/cmguiXXXXXX";
 	mkstemp(pointer);
 #endif
 
@@ -112,21 +113,22 @@ BOOST_AUTO_TEST_CASE( fileAnnotation )
 	}
 
 	// Create file object
-	OriginalFileIPtr file = new OriginalFileI();
+	OriginalFilePtr file = new OriginalFileI();
 	file->setMimetype(rstring("text/xml"));
 	file->setName(rstring("my-file.xml"));
 	file->setPath(rstring("/tmp"));
 	file->setSha1(rstring("foo"));
 	file->setSize(rlong(size));
-	file = OriginalFileIPtr::dynamicCast(u->saveAndReturnObject(file));
+	file = OriginalFilePtr::dynamicCast(u->saveAndReturnObject(file));
 
 	// Upload file
 	RawFileStorePrx rfs = sf->createRawFileStore();
 	rfs->setFileId(file->getId()->getValue());
 	rfs->write(buf, 0, buf.size());
+	file = rfs->save(); // Updates the event to prevent OptimisticLockExceptions
 	rfs->close();
 
-	FileAnnotationIPtr attachment = new FileAnnotationI();
+	FileAnnotationPtr attachment = new FileAnnotationI();
 	attachment->setFile(file);
 
 	string uuid = IceUtil::generateUUID();
@@ -140,52 +142,15 @@ BOOST_AUTO_TEST_CASE( fileAnnotation )
 						  "select i from Image i "
 						  "join fetch i.annotationLinks l "
 						  "join fetch l.child where i.name = '" + uuid +"'", 0));
-	ImageAnnotationLinkIPtr link = ImageAnnotationLinkIPtr::dynamicCast(i->beginAnnotationLinks()[0]);
+	ImageAnnotationLinkPtr link = ImageAnnotationLinkPtr::dynamicCast(i->beginAnnotationLinks()[0]);
 	AnnotationPtr a = link->getChild();
-	attachment = FileAnnotationIPtr::dynamicCast(a);
+	attachment = FileAnnotationPtr::dynamicCast(a);
 
+    } catch (omero::OptimisticLockException& ole) {
+	BOOST_ERROR( ole.message );
     } catch (omero::ApiUsageException& aue) {
 	cout << aue.message << endl;
 	cout << aue.serverStackTrace << endl;
 	BOOST_ERROR( "api usage exception");
-    }
-}
-
-BOOST_AUTO_TEST_CASE( annotationImmutability )
-{
-    try {
-
-	Fixture f;
-	const omero::client_ptr client = f.login();
-	ServiceFactoryPrx sf = client->getSession();
-	IQueryPrx q = sf->getQueryService();
-	IUpdatePrx u = sf->getUpdateService();
-
-	TagAnnotationIPtr tag = new TagAnnotationI();
-	tag->setTextValue(rstring("immutable-tag"));
-
-	ImageIPtr i = ImageIPtr::dynamicCast(new_ImageI());
-	i->setName(rstring("tagged-image"));
-	i->linkAnnotation(tag);
-	i = ImageIPtr::dynamicCast( u->saveAndReturnObject(i) );
-	tag = TagAnnotationIPtr::dynamicCast( i->copyAnnotationLinks()[0]->getChild() );
-
-	tag->setTextValue( rstring("modified-tag") );
-	tag = TagAnnotationIPtr::dynamicCast( u->saveAndReturnObject( tag ) );
-	tag = TagAnnotationIPtr::dynamicCast( q->get("TagAnnotation", tag->getId()->getValue()) );
-
-	BOOST_CHECK_MESSAGE( tag->getTextValue()->getValue() == "immutable-tag", tag->getTextValue()->getValue() );
-
-	// See #878
-        // Annotation.ns is currently modifiable.
-	tag->setNs( rstring("modified-name") );
-	tag = TagAnnotationIPtr::dynamicCast( u->saveAndReturnObject( tag ) );
-	tag = TagAnnotationIPtr::dynamicCast( q->get("TagAnnotation", tag->getId()->getValue()) );
-
-	BOOST_CHECK_MESSAGE( tag->getNs()->getValue() == "modified-name", tag->getNs() );
-
-    } catch (omero::ApiUsageException& aue) {
-	cout << aue.message <<endl;
-	throw;
     }
 }

@@ -109,3 +109,22 @@ omero::client_ptr Fixture::root_login() {
     std::string rootpass = tmp->getProperty("omero.rootpass");
     return login("root", rootpass);
 }
+
+omero::model::ExperimenterPtr Fixture::newUser(const omero::api::IAdminPrx& admin, const omero::model::ExperimenterGroupPtr& _g) {
+	omero::model::ExperimenterGroupPtr g(_g);
+	omero::RStringPtr name = omero::rtypes::rstring(uuid());
+	long gid = -1;
+	if (!g) {
+		g = new omero::model::ExperimenterGroupI();
+		g->setName( name );
+		gid = admin->createGroup(g);
+	} else {
+		gid = g->getId()->getValue();
+	}
+	omero::model::ExperimenterPtr e = new omero::model::ExperimenterI();
+	e->setOmeName( name );
+	e->setFirstName( name );
+	e->setLastName( name );
+	long id = admin->createUser(e, name->getValue());
+	return admin->getExperimenter(id);
+}
