@@ -352,7 +352,7 @@ Examples:
         self.check_ice()
         self.check_node(args)
         if self._isWindows():
-            self.checkwindows()
+            self.checkwindows(args)
 
         if 0 == self.status(args, node_only=True):
             self.ctx.die(876, "Server already running")
@@ -775,16 +775,16 @@ OMERO Diagnostics %s
             try:
                 self.ctx.controls["config"].upgrade(None, config)
             finally:
-                config.save()
+                config.close()
             self.ctx.err("Creating %s" % cfg_xml)
             cfg_tmp.rename(str(cfg_xml))
-        else:
-            # File exists, but we create it for updating.
-            try:
-                config = omero.config.ConfigXml(str(cfg_xml))
-                config.save()
-            except portalocker.LockException:
-                self.ctx.die(111, "Could not acquire lock on %s" % cfg_xml)
+
+        try:
+            config = omero.config.ConfigXml(str(cfg_xml))
+            config.save()
+        except portalocker.LockException:
+            self.ctx.die(111, "Could not acquire lock on %s" % cfg_xml)
+
         return config
 
     @with_config
