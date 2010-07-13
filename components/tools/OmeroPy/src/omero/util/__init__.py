@@ -16,6 +16,7 @@ import omero
 import IcePy
 import IceGrid
 import logging
+import platform
 import Glacier2
 import threading
 import exceptions
@@ -667,12 +668,14 @@ def edit_path(path_or_obj, start_text):
     f = path.path(path_or_obj)
     editor = os.getenv("VISUAL") or os.getenv("EDITOR")
     if not editor:
-        if sys.platform == "windows":
+        if platform.system() == "Windows":
             editor = "Notepad.exe"
         else:
             editor = "vi"
     f.write_text(start_text)
-    pid = os.spawnlp(os.P_WAIT, editor, editor, f)
+    from which import which
+    editor_path = which(editor)
+    pid = os.spawnl(os.P_WAIT, editor_path, editor_path, f)
     if pid:
         re = RuntimeError("Couldn't spawn editor: %s" % editor)
         re.pid = pid

@@ -71,20 +71,20 @@ class ShapeSettingsData:
     # Stroke has default colour of darkGrey
     # StrokeWidth defaults to 1
     #
-    def __init__(self):   
-		self.WHITE = 16777215;
-		self.BLACK = 0;
-		self.GREY = 11184810;
-        self.strokeColour = rint(GREY);
-        self.strokeWidth = rint(1);
-        self.strokeDashArray = rstring('');
-        self.strokeDashOffset = rint(0);
-        self.strokeLineCap = rstring('');
-        self.strokeLineJoin = rstring('');
-        self.strokeMiterLimit = rint(0);
-        self.fillColour = rint(GREY);
-        self.fillRule = rstring('');
-        
+    def __init__(self):
+        self.WHITE = 16777215
+        self.BLACK = 0
+        self.GREY = 11184810
+        self.strokeColour = rint(GREY)
+        self.strokeWidth = rint(1)
+        self.strokeDashArray = rstring('')
+        self.strokeDashOffset = rint(0)
+        self.strokeLineCap = rstring('')
+        self.strokeLineJoin = rstring('')
+        self.strokeMiterLimit = rint(0)
+        self.fillColour = rint(GREY)
+        self.fillRule = rstring('')
+
     ##
     # Applies the settings in the ShapeSettingsData to the ROITypeI
     # @param shape the omero.model.ROITypeI that these settings will be applied to
