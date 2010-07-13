@@ -1,3 +1,22 @@
+.cal_nav {
+    position:relative;
+    margin-bottom: 5px;
+}
+.calendar input.cal_nav_prev {
+    width: 200px;
+    position:absolute;
+    top:0;
+    left:0;
+    font-weight: bold;
+}
+.calendar input.cal_nav_next {
+    width: 200px;
+    position:absolute;
+    top:0;
+    right:0; 
+    font-weight: bold;
+}
+
 .calendar input {
     border: 0;
     background-color: transparent;
@@ -47,27 +66,9 @@
 .calendar_numerical_day a {
     font-weight: bold;
 	text-decoration: none;
-
+}
 .calendar_numerical_day a:hover,a:link,a:visited {
 	font-weight: bold;
 	color: #555;
 	text-decoration: none;
-}
-
-.cal_nav {
-    position:relative;
-}
-.cal_nav_prev {
-    width: 200px;
-    position:absolute;
-    top:0;
-    left:0;
-    font-weight: bold;
-}
-.cal_nav_next {
-    width: 200px;
-    position:absolute;
-    top:0;
-    right:0; 
-    font-weight: bold;
 }

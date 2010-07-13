@@ -23,10 +23,10 @@
 <div class="calendar">
 	<div class="cal_nav">
 		<div style="float: left; width: 20%; text-align:left; font-weight: bold;">
-		    <input id="prevMonth" class="button" type="image" alt="{{ controller.last_month_name }}" >
+		    <input id="prevMonth" class="button" type="button" alt="{{ controller.last_month_name }}" value="{{ controller.last_month_name }}" >
 		</div>
 		<div style="float: right;width: 20%; text-align: right; font-weight: bold;">
-			<input id="nextMonth" class="button" type="image" alt="{{ controller.next_month_name }}">
+			<input id="nextMonth" class="button" type="button" alt="{{ controller.next_month_name }}" value="{{ controller.next_month_name }}">
 		</div>
 		<div style="text-align: center;">{{ controller.month_name }} {{ controller.year }}</div>
 	</div>
