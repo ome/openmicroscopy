@@ -11,14 +11,25 @@ import omero
 logger = logging.getLogger('webmobilewebmobile')
 
 
+def viewer(request, imageId):
+    conn = getBlitzConnection (request)
+    if conn is None or not conn.isConnected():
+        return HttpResponseRedirect(reverse('webmobile_login'))
+        
+    image = conn.getImage(imageId)
+    w = image.getWidth()
+    h = image.getHeight()
+    print dir(image)
+    
+    return render_to_response('webmobile/viewer.html', {'image': image})
+
+
 def dataset(request, id):
     conn = getBlitzConnection (request)
     if conn is None or not conn.isConnected():
         return HttpResponseRedirect(reverse('webmobile_login'))
         
     ds = conn.getDataset(id)
-    for d in ds.listChildren():
-        print d.name, d.id
     return render_to_response('webmobile/dataset.html', {'ds': ds})
 
 

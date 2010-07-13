@@ -1,0 +1,97 @@
+{% extends "webmobile/base/base.html" %}
+
+{% block title %} OMERO mobile Viewer {% endblock %}
+
+{% block link %}
+<style type="text/css">
+
+body {
+    background-color: #666;
+    font-family:arial; 
+    padding:0px; 
+    margin:0px;}
+
+img#imagePlane {
+  position: absolute;
+  z-index: 2;
+}
+
+#imageContainer {
+    position:absolute;
+    z-index: 1;
+    left:0px;
+    top:0px;
+}
+
+.controls {
+    position:fixed;
+    z-index: 3;
+    color: white;
+    border:1px solid white;
+    padding:0px;
+    margin:0px;
+}
+
+#zControls {
+    bottom:33px;
+    left:0px;
+    width: 32px;
+    height: 80px;
+}
+
+#tControls {
+    bottom: 0px;
+    left: 33px;
+    height: 32px;
+    width: 80px;
+}
+
+.arrow {
+    position: absolute;
+}
+
+#zUp {
+    top: 0px;
+}
+
+#zDown {
+    bottom: 0px;
+}
+#tRight {
+    right: 0px;
+}
+#imageId{
+    display:none;
+}
+
+</style>
+
+{% block meta %}
+    <meta name="viewport" content="width=device-width; initial-scale=1; maximum-scale=3.0; user-scalable=1;">
+{% endblock %}
+
+{% endblock %}
+
+{% block jscript %}
+    <script type="text/javascript" src="/appmedia/webmobile/js/viewer.js"></script>
+{% endblock %}
+
+{% block body %}
+
+<div id="imageId">{{image.id}}</div>
+
+<!-- simply makes the page the right size -->
+<div id="imageContainer"></div>
+
+<div class='controls' id="zControls">
+    <img class="arrow" id="zUp" src="/appmedia/webmobile/img/up.png"/>
+    <img class="arrow" id="zDown" src="/appmedia/webmobile/img/down.png"/>
+</div>
+<div class='controls' id="tControls">
+    <img class="arrow" id="tLeft" src="/appmedia/webmobile/img/left.png"/>
+    <img class="arrow" id="tRight" src="/appmedia/webmobile/img/right.png"/>
+</div>
+
+<img id="imagePlane" width="{{ image.getWidth }}" height="{{ image.getHeight }}" src="{% url webgateway.views.render_image image.id image.getZ image.getT %}"/>
+    
+{% endblock %}
