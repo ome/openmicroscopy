@@ -245,6 +245,7 @@ def login(request):
         error = x.__class__.__name__
     
     if conn is not None:
+        request.session['version'] = conn.getServerVersion()
         if request.REQUEST.get('noredirect'):
             return HttpResponse('OK')
         url = request.REQUEST.get("url")
