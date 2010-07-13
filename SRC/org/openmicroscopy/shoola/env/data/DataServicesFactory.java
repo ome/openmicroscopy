@@ -247,7 +247,7 @@ public class DataServicesFactory
     		server = server.split("-")[0];
     	if (client.contains("-"))
     		client = client.split("-")[0];
-    	if (client.startsWith("Beta"));
+    	if (client.startsWith("Beta"))
     		client = client.substring(4);
     	String[] values = server.split("\\.");
     	String[] valuesClient = client.split("\\.");
