@@ -13,6 +13,7 @@
 """
 
 import sys, os
+import portalocker
 
 from exceptions import Exception
 from path import path
@@ -132,7 +133,10 @@ class PrefsControl(BaseControl):
                 userdir = path(get_user_dir())
                 usr_xml = userdir / "omero"/ "config.xml"
                 cfg_xml = usr_xml
-        return ConfigXml(str(cfg_xml))
+        try:
+            return ConfigXml(str(cfg_xml))
+        except portalocker.LockException:
+            self.ctx.die(112, "Could not acquire lock on %s" % cfg_xml)
 
     @with_config
     def all(self, args, config):

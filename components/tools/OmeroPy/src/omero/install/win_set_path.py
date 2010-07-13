@@ -36,6 +36,9 @@ def win_set_path(new_name = dir.abspath(), old_name = r"c:\omero_dist"):
     if new_name.find(" ") >= 0:
         raise exceptions.Exception("Contains whitespace: '%s'" % new_name)
 
+    new_name = path(new_name).abspath()
+    old_name = path(old_name).abspath()
+
     print "Converting from %s to %s" % (old_name, new_name)
 
     new_name2 = new_name.replace("\\","\\\\")

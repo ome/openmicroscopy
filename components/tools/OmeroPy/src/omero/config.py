@@ -46,10 +46,11 @@ class ConfigXml(object):
         self.env_config = env_config                                #: Environment override
         self.filename = filename                                    #: Path to the file to be read and written
         self.source = open(filename, "a+")                          #: Open file handle
+        self.lock = open("%s.lock" % filename, "a+")                #: Open file handle for lock
         self.exclusive = exclusive                                  #: Whether or not an exclusive lock should be acquired
         if exclusive:
             try:
-                portalocker.lock(self.source, portalocker.LOCK_NB|portalocker.LOCK_EX)
+                portalocker.lock(self.lock, portalocker.LOCK_NB|portalocker.LOCK_EX)
             except portalocker.LockException, le:
                 self.close()
                 raise
@@ -198,7 +199,10 @@ class ConfigXml(object):
             if self.XML:
                 self.save()
         finally:
-            self.source.close()
+            try:
+                self.source.close()
+            finally:
+                self.lock.close()
 
     def props_to_dict(self, c):
 
