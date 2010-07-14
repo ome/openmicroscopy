@@ -42,7 +42,10 @@ from omero.rtypes import *
 import omero.gateway
 import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
 import omero.util.imageUtil as imgUtil
-import Image, ImageDraw, ImageFont
+try:
+    import Image, ImageDraw, ImageFont
+except ImportError:
+    from PIL import Image, ImageDraw, ImageFont
 from datetime import date
 
 WHITE = (255, 255, 255)
