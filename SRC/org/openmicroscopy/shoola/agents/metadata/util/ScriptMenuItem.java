@@ -104,7 +104,8 @@ public class ScriptMenuItem
 		text += script.getName();
 		setText(script.getDisplayedName()+"...");
 		setToolTipText(text);
-		scriptWithUI = SCRIPTS_UI_AVAILABLE.contains(script.getScriptLabel());
+		String path = UIUtilities.toUnix(script.getScriptLabel());
+		scriptWithUI = SCRIPTS_UI_AVAILABLE.contains(path);
 		if (scriptWithUI) {//reset the icon associated the script.
 			IconManager icons = IconManager.getInstance();
 			script.setIcon(icons.getIcon(IconManager.SCRIPT_WITH_UI));
