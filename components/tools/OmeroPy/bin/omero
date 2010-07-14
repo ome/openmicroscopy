@@ -66,6 +66,9 @@ else:
     exe = readlink()
     top = os.path.join(exe, os.pardir, os.pardir)
 
+#
+# This list needs to be kept in line with omero.cli.CLI._env
+#
 top = os.path.normpath(top)
 lib = os.path.join(top, "lib")
 lpy = os.path.join(top, "lib","python")
