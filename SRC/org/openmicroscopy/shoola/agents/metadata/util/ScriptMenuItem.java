@@ -36,6 +36,7 @@ import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Displays the script.
@@ -122,7 +123,7 @@ public class ScriptMenuItem
 	{
 		if (!scriptWithUI) return -1;
 		if (!MetadataViewerAgent.isBinaryAvailable()) return -1;
-		String path = script.getScriptLabel();
+		String path = UIUtilities.toUnix(script.getScriptLabel());
 		if (FigureParam.ROI_SCRIPT.equals(path))
 			return ROI_FIGURE_SCRIPT;
 		else if (FigureParam.THUMBNAIL_SCRIPT.equals(path))

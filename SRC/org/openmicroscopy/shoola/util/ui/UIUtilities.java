@@ -1845,4 +1845,15 @@ public class UIUtilities
 		return list;
 	}
 	
+	/**
+	 * Makes sure the paths for the script are platform agnostic.
+	 * 
+	 * @param path The path
+	 * @return The corrected path
+	 */
+	public static String toUnix(String path)
+	{
+		return path.replace('\\', '/');
+	}
+	
 }

@@ -29,7 +29,6 @@
 	<classpathentry kind="lib" path="LIB/jfreechart-1.0.11.jar"/>
 	<classpathentry kind="lib" path="LIB/JHotDraw-7.0.9.jar"/>
 	<classpathentry kind="lib" path="LIB/jogl.jar"/>
-	<classpathentry kind="lib" path="LIB/loci_tools.jar"/>
 	<classpathentry kind="lib" path="LIB/loci-common.jar"/>
 	<classpathentry kind="lib" path="LIB/log4j-1.2.14.jar"/>
 	<classpathentry kind="lib" path="LIB/mdbtools-java.jar"/>
