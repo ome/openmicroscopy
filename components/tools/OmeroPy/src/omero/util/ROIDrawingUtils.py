@@ -54,8 +54,12 @@ d.image.show()
 
 
 Example code to draw a polyline on an image an display it in PIL.
-from PIL import Image
-from PIL import ImageDraw
+
+try:
+    from PIL import Image, ImageDraw # see ticket:2597
+except ImportError:
+    import Image, ImageDraw # see ticket:2597
+
 import ROI_utils
 import ROIDrawingUtils
 
@@ -69,8 +73,11 @@ drawingCanvas.image.show()
 
 """
 
-from PIL import ImageDraw;
-from PIL import Image;
+
+try:
+    from PIL import Image, ImageDraw # see ticket:2597
+except ImportError:
+    import Image, ImageDraw # see ticket:2597
 
 
 ##

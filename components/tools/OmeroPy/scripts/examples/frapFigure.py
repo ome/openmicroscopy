@@ -43,14 +43,18 @@ import omero.gateway
 import omero_api_Gateway_ice	# see http://tinyurl.com/icebuserror
 import omero_api_IRoi_ice
 import omero.util.imageUtil as imgUtil
-import Image as pilImage
-import ImageDraw, ImageFont
 import StringIO
 import omero.clients
 from omero.romio import PlaneDef
 from datetime import date
 # imports for making the chart and saving as PDF
 reportLab = False
+
+try:
+    from PIL import Image, ImageDraw # see ticket:2597
+except ImportError:
+    import Image, ImageDraw # see ticket:2597
+
 try:
 	from reportlab.pdfgen import canvas
 	from reportlab.graphics.shapes import *
@@ -199,7 +203,7 @@ def getPlaneImage(re, pixelsId, theZ, theT):
 	re.load()
 	
 	imageData = re.renderCompressed(pDef)
-	imagePlane = pilImage.open(StringIO.StringIO(imageData))
+	imagePlane = Image.open(StringIO.StringIO(imageData))
 	
 	return imagePlane
 	
@@ -409,7 +413,7 @@ def makeFrapFigure(session, commandArgs):
 	smallImages = [imgUtil.resizeImage(img, imgW, img.size[1]) for img in frames]
 	zoomOut = 1/imgUtil.getZoomFactor(img.size, imgW, img.size[1])
 	figH = smallImages[0].size[1] + spacer + fontH 
-	frapCanvas = pilImage.new("RGB", (figW, figH), (255,255,255))
+	frapCanvas = Image.new("RGB", (figW, figH), (255,255,255))
 	draw = ImageDraw.Draw(frapCanvas)
 	y = spacer + fontH
 	x = 0

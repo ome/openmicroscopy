@@ -37,8 +37,12 @@ import omero_SharedResources_ice
 import omero_api_IScript_ice
 
 import os
-from PIL import Image
 import numpy
+
+try:
+    from PIL import Image, ImageDraw # see ticket:2597
+except ImportError:
+    import Image, ImageDraw # see ticket:2597
 
 try:
     from EMAN2 import *

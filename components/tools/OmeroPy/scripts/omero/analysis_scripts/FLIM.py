@@ -64,9 +64,11 @@ import omero.util.script_utils as script_utils
 
 # Image saving and loading Imports 
 from struct import *
-import PIL
-from PIL import Image
-import ImageDraw
+
+try:
+    from PIL import Image, ImageDraw # see ticket:2597
+except ImportError:
+    import Image, ImageDraw # see ticket:2597
 
 CELL = "Cell";
 NAMESPACE = "openmicroscopy.org.uk/ROI/FLIM";

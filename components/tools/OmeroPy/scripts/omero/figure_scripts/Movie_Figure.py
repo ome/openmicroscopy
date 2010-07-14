@@ -47,14 +47,15 @@ import omero.gateway
 import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
 # import util.figureUtil as figUtil    # need to comment out for upload to work. But need import for script to work!!
 import getopt, sys, os, subprocess
-try:
-    import Image, ImageDraw, ImageFont
-except ImportError:
-    from PIL import Image, ImageDraw, ImageFont
 import StringIO
 from omero_sys_ParametersI import ParametersI
 from datetime import date
-    
+
+try:
+    from PIL import Image, ImageDraw # see ticket:2597
+except ImportError:
+    import Image, ImageDraw # see ticket:2597
+
 WHITE = (255, 255, 255)
 COLOURS = scriptUtil.COLOURS    # name:(rgba) map
 OVERLAY_COLOURS = dict(COLOURS, **scriptUtil.EXTRA_COLOURS)

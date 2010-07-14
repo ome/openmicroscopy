@@ -63,11 +63,12 @@ import numpy
 import omero.util.pixelstypetopython as pixelstypetopython
 from struct import *
 from omero.rtypes import wrap, rstring, rlong, rint, robject
+
 try:
-    import PIL
-    from PIL import Image, ImageDraw
+    from PIL import Image, ImageDraw # see ticket:2597
 except ImportError:
-    import Image, ImageDraw
+    import Image, ImageDraw # see ticket:2597
+
 import omero_Constants_ice
 
 COLOURS = scriptUtil.COLOURS;
