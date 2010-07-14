@@ -31,7 +31,9 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.ScriptCallback;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
+import org.openmicroscopy.shoola.env.data.views.ScriptBatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
 /** 
@@ -68,13 +70,17 @@ public class FigureCreator
     private BatchCall makeBatchCall(final List<Long> ids, final Class type,
     		final Object param)
     {
-        return new BatchCall("Creating figure: ") {
-            public void doCall() throws Exception
+        return new ScriptBatchCall("Creating figure: ") {
+            public ScriptCallback initialize() throws Exception
             {
                 OmeroImageService os = context.getImageService();
                 scriptCallBack = os.createFigure(ids, type, param);
-                if (scriptCallBack == null) 
+                if (scriptCallBack == null) {
                 	scriptCallBack = Boolean.valueOf(false);
+			return null;
+                } else {
+                    return (ScriptCallback) scriptCallBack;
+                }
             }
         };
     }
