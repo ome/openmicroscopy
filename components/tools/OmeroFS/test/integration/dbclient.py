@@ -24,8 +24,6 @@ import Glacier2
 from omero.grid import monitors
 from drivers import MockMonitor
 
-import fsConfig as config
-
 class MockDropBox(Ice.Application):
 
     def run(self, args):
