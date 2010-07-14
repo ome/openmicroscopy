@@ -31,9 +31,13 @@ import logging
 logger = logging.getLogger('blitz_gateway')
 
 try:
-    import Image, ImageDraw, ImageFont
-except:
-    logger.error('No PIL installed, line plots and split channel will fail!')
+    from PIL import Image, ImageDraw, ImageFont # see ticket:2597
+except ImportError:
+    try:
+        import Image, ImageDraw, ImageFont
+    except:
+        logger.error('No PIL installed, line plots and split channel will fail!')
+
 from cStringIO import StringIO
 from math import sqrt
 

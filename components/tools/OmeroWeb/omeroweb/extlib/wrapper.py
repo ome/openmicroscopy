@@ -30,10 +30,14 @@ import logging
 logger = logging.getLogger('wrapper')
 
 try:
-    import Image,ImageDraw
-except:
-    logger.error("You need to install the Python Imaging Library. Get it at http://www.pythonware.com/products/pil/")
-    logger.error(traceback.format_exc())
+    from PIL import Image, ImageDraw # see ticket:2597
+except ImportError;
+    try:
+        import Image, ImageDraw # see ticket:2597
+    except:
+        logger.error("You need to install the Python Imaging Library. Get it at http://www.pythonware.com/products/pil/")
+        logger.error(traceback.format_exc())
+
 from StringIO import StringIO
 
 import time

@@ -11,10 +11,14 @@
 import unittest
 from cStringIO import StringIO
 import omero
+
 try:
-    import Image
+    from PIL import Image, ImageDraw # see ticket:2597
 except ImportError:
-    print "PIL not installed"
+    try:
+        import Image, ImageDraw # see ticket:2597
+    except ImportError:
+        print "PIL not installed"
 
 import gatewaytest.library as lib
 

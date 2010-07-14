@@ -39,9 +39,10 @@ used for making figures.
 
 
 try:
-    import Image, ImageDraw, ImageFont
+    from PIL import Image, ImageDraw, ImageFont # see ticket:2597
 except ImportError:
-    from PIL import Image, ImageDraw, ImageFont
+    import Image, ImageDraw, ImageFont # see ticket:2597
+
 import os.path
 import omero.gateway
 import StringIO

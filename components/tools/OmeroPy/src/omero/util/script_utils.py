@@ -38,10 +38,6 @@ import getopt, sys, os, subprocess
 import numpy;
 from struct import *
 
-#import PIL
-#from PIL import Image
-#import ImageDraw
-
 import omero.clients
 import omero_Constants_ice
 from omero.rtypes import *
