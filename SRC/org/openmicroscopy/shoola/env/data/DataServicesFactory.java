@@ -379,11 +379,12 @@ public class DataServicesFactory
         	return;
         } 
        
+        /*
         if (!checkClientServerCompatibility(version, clientVersion)) {
         	notifyIncompatibility(clientVersion, uc.getHostName());
         	return;
         }
-        
+        */
         
         KeepClientAlive kca = new KeepClientAlive(container, omeroGateway);
         executor = new ScheduledThreadPoolExecutor(1);
