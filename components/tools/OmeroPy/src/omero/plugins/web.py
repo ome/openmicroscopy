@@ -375,10 +375,6 @@ APPLICATION_HOST='%s'
         link = ("%s:%s" % (host, port))
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
         self.ctx.out("Starting django development webserver... \n")
-        try:
-            sys.getwindowsversion()
-        except:
-            os.environ['PYTHONPATH'] = os.environ.get('PYTHONPATH', '.') + ':' + self.ctx.dir / "var" / "lib"
         import omeroweb.settings as settings
         deploy = getattr(settings, 'APPLICATION_SERVER', 'default')
         if deploy == 'fastcgi':
