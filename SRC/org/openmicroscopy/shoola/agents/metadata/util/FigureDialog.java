@@ -1912,7 +1912,7 @@ public class FigureDialog
 	public FigureDialog(JFrame owner, String name, PixelsData pixels,
 			int index, Class type)
 	{
-		super(owner, true);
+		super(owner);
 		this.type = type;
 		this.pixels = pixels;
 		this.dialogType = index;

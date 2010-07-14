@@ -387,6 +387,7 @@ public class ScriptObject
 		int lastDotIndex = name.lastIndexOf('.');
 		if (lastDotIndex < 0) return name;
 		String value = name.substring(0, lastDotIndex);
+		if (!value.contains(PARAMETER_SEPARATOR)) return value;
 		return value.replace(PARAMETER_SEPARATOR, PARAMETER_UI_SEPARATOR);
 	}
 	

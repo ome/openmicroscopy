@@ -291,6 +291,11 @@ class OMEROGateway
 		
 		//script w/ a UI.
 		SCRIPTS_UI_AVAILABLE = new ArrayList<String>();
+		SCRIPTS_UI_AVAILABLE.add(FigureParam.ROI_SCRIPT);
+		SCRIPTS_UI_AVAILABLE.add(FigureParam.THUMBNAIL_SCRIPT);
+		SCRIPTS_UI_AVAILABLE.add(FigureParam.MOVIE_SCRIPT);
+		SCRIPTS_UI_AVAILABLE.add(FigureParam.SPLIT_VIEW_SCRIPT);
+		SCRIPTS_UI_AVAILABLE.add(MovieExportParam.MOVIE_SCRIPT);
 		/*
 		SCRIPTS_UI_AVAILABLE.add(FigureParam.ROI_SCRIPT);
 		SCRIPTS_UI_AVAILABLE.add(FigureParam.THUMBNAIL_SCRIPT);
@@ -5493,8 +5498,8 @@ class OMEROGateway
 				of = j.next();
 				value = of.getName();
 				v = of.getPath().getValue()+ value.getValue();
-				if (!SCRIPTS_NOT_AVAILABLE_TO_USER.contains(v) &&
-					!SCRIPTS_UI_AVAILABLE.contains(v)) {
+				if (!SCRIPTS_NOT_AVAILABLE_TO_USER.contains(v)) {// &&
+					//!SCRIPTS_UI_AVAILABLE.contains(v)) {
 					script = new ScriptObject(of.getId().getValue(), 
 							of.getPath().getValue(), of.getName().getValue());
 					value = of.getMimetype();
