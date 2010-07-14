@@ -834,7 +834,7 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
             if not file:
                 raise omero.ApiUsageException(\
                     None, None, "Job should have one executable file attached.")
-            
+
             sf = self.internal_session()
             if params:
                 self.logger.debug("Checking params for job %s" % job.id.val)
@@ -855,7 +855,7 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
 
             # client.download(file, str(process.script_path))
             scriptText = sf.getScriptService().getScriptText(file.id.val)
-            process.script_path.write_text(scriptText)
+            process.script_path.write_bytes(scriptText)
 
             self.logger.info("Downloaded file: %s" % file.id.val)
             s = client.sha1(str(process.script_path))
