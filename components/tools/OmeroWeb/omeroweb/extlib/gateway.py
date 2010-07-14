@@ -32,7 +32,7 @@ logger = logging.getLogger('gateway')
 
 try:
     from PIL import Image, ImageDraw # see ticket:2597
-except ImportError;
+except ImportError:
     try:
         import Image, ImageDraw # see ticket:2597
     except:
