@@ -240,7 +240,7 @@ class TestParse(unittest.TestCase):
         self.assertEquals(1, rv["a"].val)
         try:
             parse_inputs(["b=1"], params)
-        except MissingInput, mi:
+        except MissingInputs, mi:
             self.assertEquals(["a"], mi.keys)
 
     def testParseInputsLongList(self):
