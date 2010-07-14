@@ -24,19 +24,16 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.model.ParamData;
-import org.openmicroscopy.shoola.env.data.model.ScriptObject;
-
 import Ice.Current;
 import omero.RString;
 import omero.RType;
