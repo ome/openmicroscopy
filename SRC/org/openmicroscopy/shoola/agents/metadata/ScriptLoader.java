@@ -113,13 +113,20 @@ public class ScriptLoader
         msg.print(exc);
         registry.getLogger().error(this, msg);
         if (exc instanceof ScriptingException) {
-        	ScriptingException e = (ScriptingException) exc;
-        	if (e.getCause() != null) s = e.getCause().getMessage();
-        	else s = e.getMessage();
-        	registry.getUserNotifier().notifyInfo("Running Script", 
-        			s+".\nPlease contact your administrator.");
+            ScriptingException se = (ScriptingException) exc;
+            s = se.getMessage();
+
+            Throwable cause = se.getCause();
+            if (cause instanceof omero.ResourceError) {
+                omero.ResourceError re = (omero.ResourceError) cause;
+                s += String.format("\nError: \"%s\"", re.message);
+            } else if (cause != null && cause.getMessage() != null) {
+                s += (":" + cause.getMessage());
+            }
+            registry.getUserNotifier().notifyInfo("Running Script",
+                    s+"\nPlease contact your administrator.");
         } else {
-        	registry.getUserNotifier().notifyError("Data Retrieval Failure", 
+            registry.getUserNotifier().notifyError("Data Retrieval Failure",
                     s, exc);
         }
     }
