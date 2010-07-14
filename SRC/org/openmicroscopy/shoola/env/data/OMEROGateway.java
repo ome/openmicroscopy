@@ -50,9 +50,6 @@ import java.util.Map.Entry;
 import loci.formats.FormatException;
 
 //Application-internal dependencies
-
-import org.apache.commons.collections.ListUtils;
-import org.apache.commons.collections.SetUtils;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
