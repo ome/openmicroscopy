@@ -45,7 +45,10 @@ import omero.gateway
 import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
 #import omero.util.figureUtil as figUtil    # need to comment out for upload to work. But need import for script to work!!
 import getopt, sys, os, subprocess
-import Image, ImageDraw, ImageFont
+try:
+    import Image, ImageDraw, ImageFont
+except ImportError:
+    from PIL import Image, ImageDraw, ImageFont
 import StringIO
 from omero_sys_ParametersI import ParametersI
 from datetime import date
