@@ -93,7 +93,7 @@ def getGuestConnection(host, port):
         logger.info("Have connection as Guest")
     return conn
 
-def checkVersion(host, port):
+def _checkVersion(host, port):
     import re
     try:
         conn = getGuestConnection(host, port)
@@ -308,7 +308,7 @@ def login(request):
         return HttpResponseRedirect(reverse("waindex"))
     else:
         if request.method == 'POST' and request.REQUEST.get('server'):
-            if not checkVersion(request.REQUEST.get('host'), request.REQUEST.get('port')):
+            if not _checkVersion(request.REQUEST.get('host'), request.REQUEST.get('port')):
                 error = "Client version does not match server, please contact administrator."
             else:
                 error = "Connection not available, please check your user name and password."
