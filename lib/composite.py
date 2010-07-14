@@ -52,6 +52,11 @@ IMPORTER_JOB_NAME = 'OMERO-Beta4.2'
 
 TARGET_PREFIX = 'OMERO.clients-Beta4.2.0'
 
+# The following libraries are duplicated in Insight and Importer:
+# IGNORE = "bio-formats.jar jai_imageio.jar loci-common.jar mdbtools-java.jar ome-xml.jar poi-loci.jar".split()
+# IGNORE'ing them, however, causes Insight to not start.
+IGNORE = []
+
 if "BUILD_NUMBER" in os.environ:
     TARGET_PREFIX = '%s-b%s' % (TARGET_PREFIX, os.environ["BUILD_NUMBER"])
 
@@ -104,8 +109,19 @@ def extract(artifact, target, ignore):
         for zip_info in zip_file.infolist():
             name = zip_info.filename
             out_name = name[name.find('/') + 1:]
-            if len(out_name) == 0 or os.path.split(name)[1] in ignore:
+
+	    skip = 0
+            if len(out_name) == 0:
+                skip += 1
+	    if os.path.split(name)[1] in ignore:
+                skip += 1
+	    for pattern in ignore:
+	        if re.match(pattern, os.path.split(name)[1]):
+                    skip += 1
+	    if skip:
+                print "Skipping %s" % name
                 continue
+
             out = None
             try:
                 path = "/".join([target, out_name])
@@ -152,7 +168,7 @@ revision, artifacts = download(IMPORTER_JOB_NAME, regex)
 target_artifacts += artifacts
 target = '%s.win' % TARGET_PREFIX
 ignore = ['omero_client.jar', 'OmeroImporter-Beta-4.2.0-DEV.jar',
-          'omero-clients-util-r6779-b12.jar']
+          'omero-clients-util-r\d+-b\d+.jar'] + IGNORE
 
 for artifact in target_artifacts:
     extract(artifact, target, ignore)
@@ -169,7 +185,7 @@ target_artifacts += artifacts
 target = '%s.mac' % TARGET_PREFIX
 
 for artifact in target_artifacts:
-    extract(artifact, target, [])
+    extract(artifact, target, IGNORE)
 compress('%s.zip' % target, target)
 
 #
@@ -185,7 +201,7 @@ target_artifacts += artifacts
 target = '%s.linux' % TARGET_PREFIX
 # Since Insight relies on its MANIFEST to start via the JAR, we're leaving
 # libs/OmeroImporter-Beta-4.1.0-DEV.jar in the ZIP.
-ignore = ['omero_client.jar', 'omero-clients-util-r7223-b1483.jar']
+ignore = ['omero_client.jar', 'omero-clients-util-r\d+-b\d+.jar'] + IGNORE
 
 for artifact in target_artifacts:
     extract(artifact, target, ignore)
