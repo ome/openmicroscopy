@@ -1844,5 +1844,14 @@ public class UIUtilities
 				list.add(value);
 		return list;
 	}
-	
+
+	/**
+	 * Make sure the paths for the script are platform agnostic.
+	 * @param path The path
+	 * @return The corrected path
+	 */
+	public static String toUnix(String path)
+	{
+		return path.replace('\\','/');
+	}
 }

@@ -122,7 +122,7 @@ public class ScriptMenuItem
 	{
 		if (!scriptWithUI) return -1;
 		if (!MetadataViewerAgent.isBinaryAvailable()) return -1;
-		String path = toUnix(script.getScriptLabel());
+		String path = script.getScriptLabel();
 		if (FigureParam.ROI_SCRIPT.equals(path))
 			return ROI_FIGURE_SCRIPT;
 		else if (FigureParam.THUMBNAIL_SCRIPT.equals(path))
@@ -136,15 +136,6 @@ public class ScriptMenuItem
 		return -1;
 	}
 	
-	/**
-	 * Make sure the paths for the script are platform agnostic.
-	 * @param path The path
-	 * @return The corrected path
-	 */
-	private String toUnix(String path)
-	{
-		return path.replace('\\','/');
-	}
 	
 	/**
 	 * Returns <code>true</code> if the script has already a UI.
