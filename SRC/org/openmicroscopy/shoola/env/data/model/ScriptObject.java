@@ -33,6 +33,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import javax.swing.Icon;
 
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -253,7 +255,7 @@ public class ScriptObject
 	 * 
 	 * @return See above.
 	 */
-	public String getScriptLabel() { return path+name; }
+	public String getScriptLabel() { return UIUtilities.toUnix(path+name); }
 	
 	/**
 	 * Returns the absolute path to the script.

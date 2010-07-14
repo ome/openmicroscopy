@@ -104,7 +104,7 @@ public class ScriptMenuItem
 		text += script.getName();
 		setText(script.getDisplayedName()+"...");
 		setToolTipText(text);
-		String path = UIUtilities.toUnix(script.getScriptLabel());
+		String path = script.getScriptLabel();
 		scriptWithUI = SCRIPTS_UI_AVAILABLE.contains(path);
 		if (scriptWithUI) {//reset the icon associated the script.
 			IconManager icons = IconManager.getInstance();
@@ -124,7 +124,7 @@ public class ScriptMenuItem
 	{
 		if (!scriptWithUI) return -1;
 		if (!MetadataViewerAgent.isBinaryAvailable()) return -1;
-		String path = UIUtilities.toUnix(script.getScriptLabel());
+		String path = script.getScriptLabel();
 		if (FigureParam.ROI_SCRIPT.equals(path))
 			return ROI_FIGURE_SCRIPT;
 		else if (FigureParam.THUMBNAIL_SCRIPT.equals(path))
