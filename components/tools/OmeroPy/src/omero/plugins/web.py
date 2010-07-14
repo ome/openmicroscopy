@@ -227,7 +227,10 @@ APPLICATION_HOST='%s'
     def settings(self, args):
         args.no_exit = True
         self.custom_settings(args)
-        self.syncmedia(args)
+        try:
+            sys.getwindowsversion()
+        except:
+            self.syncmedia(args)
 
     def server(self, args):
         if not args.server:
@@ -372,6 +375,10 @@ APPLICATION_HOST='%s'
         link = ("%s:%s" % (host, port))
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
         self.ctx.out("Starting django development webserver... \n")
+        try:
+            sys.getwindowsversion()
+        except:
+            os.environ['PYTHONPATH'] = os.environ.get('PYTHONPATH', '.') + ':' + self.ctx.dir / "var" / "lib"
         import omeroweb.settings as settings
         deploy = getattr(settings, 'APPLICATION_SERVER', 'default')
         if deploy == 'fastcgi':
@@ -381,7 +388,6 @@ APPLICATION_HOST='%s'
             cmd += " maxchildren=5 minspare=1 maxspare=5 maxrequests=400"
             django = (cmd % {'base': self.ctx.dir}).split()+list(args.arg)
         else:
-            os.environ['PYTHONPATH'] = os.environ.get('PYTHONPATH', '.') + ':' + self.ctx.dir / "var" / "lib"
             django = ["python","manage.py","runserver", link, "--noreload"]
         rv = self.ctx.call(django, cwd = location)
 
