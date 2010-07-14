@@ -26,14 +26,12 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Java imports
 import java.util.List;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.ScriptCallback;
-import org.openmicroscopy.shoola.env.data.model.MovieExportParam;  
+import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import org.openmicroscopy.shoola.env.data.views.ScriptBatchCall;
 
 /** 
  * Command to create a movie.
@@ -73,14 +71,15 @@ public class MovieCreator
     private BatchCall makeBatchCall(final long imageID, final long pixelsID, 
     		final List<Integer> channels, final MovieExportParam param)
     {
-        return new BatchCall("Creating movie: ") {
-            public void doCall() throws Exception
+        return new ScriptBatchCall("Creating movie: ") {
+            public ScriptCallback initialize() throws Exception
             {
                 OmeroImageService os = context.getImageService();
                 scriptCallBack = os.createMovie(imageID, pixelsID, channels, 
                 		param);
                 System.err.println("callback: "+scriptCallBack);
                 result = Boolean.TRUE;
+                return scriptCallBack;
             }
         };
     }

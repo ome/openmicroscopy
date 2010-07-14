@@ -33,6 +33,7 @@ import org.openmicroscopy.shoola.env.data.ScriptCallback;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import org.openmicroscopy.shoola.env.data.views.ScriptBatchCall;
 
 /** 
  * Creates a batch call to run a script.
@@ -65,11 +66,12 @@ public class ScriptRunner
      */
     private BatchCall makeCall(final ScriptObject script)
     {
-    	return new BatchCall("Run the script") {
-    		public void doCall() throws Exception
+	return new ScriptBatchCall("Run the script") {
+		public ScriptCallback initialize() throws Exception
     		{
     			OmeroImageService os = context.getImageService();
     			scriptCallBack = os.runScript(script);
+			return scriptCallBack;
     		}
         };
     }

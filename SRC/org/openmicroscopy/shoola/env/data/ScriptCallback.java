@@ -79,7 +79,7 @@ public class ScriptCallback
 	 * @throws ServerError Thrown if an error occurred while initializing the
 	 * 					   call-back.
 	 */
-	ScriptCallback(long scriptID, client client, ScriptProcessPrx process) 
+	ScriptCallback(long scriptID, client client, final ScriptProcessPrx process)
 		throws ServerError
 	{
 		super(client, process);
@@ -153,7 +153,7 @@ public class ScriptCallback
 				}
 			}
 		} catch (Exception e) {
-			if (adapter != null) adapter.handleResult(null);
+		    if (adapter != null) adapter.handleResult(null);
 		}
 		
 		try {
@@ -170,6 +170,7 @@ public class ScriptCallback
 	public void processCancelled(boolean value, Current current)
 	{
 		super.processCancelled(value, current);
+		if (adapter != null) adapter.handleResult(null);
 	}
 	
 
@@ -179,7 +180,8 @@ public class ScriptCallback
 	 */
 	public void processKilled(boolean value, Current current)
 	{
-		
+		super.processKilled(value, current);
+		if (adapter != null) adapter.handleResult(null);
 	}
 	
 }
