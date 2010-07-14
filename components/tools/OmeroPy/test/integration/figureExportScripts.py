@@ -31,7 +31,7 @@ from numpy import *
 
 thumbnailFigurePath = "scripts/omero/figure_scripts/Thumbnail_Figure.py"
 splitViewFigurePath = "scripts/omero/figure_scripts/Split_View_Figure.py"
-roiFigurePath = "scripts/omero/figure_scripts/Roi_Figure.py"
+roiFigurePath = "scripts/omero/figure_scripts/ROI_Split_Figure.py"
 movieFigurePath = "scripts/omero/figure_scripts/Movie_Figure.py"
 
 
@@ -192,7 +192,7 @@ class TestFigureExportScripts(lib.ITest):
            "Width": omero.rtypes.rint(200),
            "Height": omero.rtypes.rint(200),
            "Image_Labels": omero.rtypes.rstring("Datasets"),
-           "Algorithm": omero.rtypes.rstring("Mean_Intensity"),
+           "Algorithm": omero.rtypes.rstring("Mean Intensity"),
            "Stepping": omero.rtypes.rint(1),
            "Scalebar": omero.rtypes.rint(10), # will be ignored since no pixelsize set
            "Format": omero.rtypes.rstring("PNG"),
@@ -284,7 +284,7 @@ class TestFigureExportScripts(lib.ITest):
            "Width": omero.rtypes.rint(200),
            "Height": omero.rtypes.rint(200),
            "Image_Labels": omero.rtypes.rstring("Datasets"),
-           "Algorithm": omero.rtypes.rstring("Mean_Intensity"),
+           "Algorithm": omero.rtypes.rstring("Mean Intensity"),
            "Stepping": omero.rtypes.rint(1),
            "Scalebar": omero.rtypes.rint(10), # will be ignored since no pixelsize set
            "Format": omero.rtypes.rstring("PNG"),
@@ -373,7 +373,7 @@ class TestFigureExportScripts(lib.ITest):
            "Width": omero.rtypes.rint(150),
            "Height": omero.rtypes.rint(150),
            "Image_Labels": omero.rtypes.rstring("Datasets"),
-           "Algorithm": omero.rtypes.rstring("Mean_Intensity"),
+           "Algorithm": omero.rtypes.rstring("Mean Intensity"),
            "Stepping": omero.rtypes.rint(1),
            "Scalebar": omero.rtypes.rint(10), 
            "Format": omero.rtypes.rstring("PNG"),
@@ -417,12 +417,14 @@ def runScript(client, session, scriptId, argMap, returnKey=None):
         return results[returnKey]
 
 def uploadScript(scriptService, scriptPath):
-    filename = "%s%s" % (self.OmeroPy, scriptPath)
+    from uuid import uuid4
+    uuid = str(uuid4())
+
     file = open(scriptPath)
     scriptText = file.read()
     file.close()
     try:
-        scriptId = scriptService.uploadOfficialScript(scriptPath, scriptText)
+        scriptId = scriptService.uploadOfficialScript("/%s/%s" % (uuid, scriptPath), scriptText)
     except ApiUsageException:
         raise # The next line will never be run!
         scriptId = editScript(scriptService, scriptPath)
