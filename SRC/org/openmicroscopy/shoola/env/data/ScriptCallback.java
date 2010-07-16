@@ -76,7 +76,7 @@ public class ScriptCallback
 	 * @throws ServerError Thrown if an error occurred while initializing the
 	 * 					   call-back.
 	 */
-	ScriptCallback(long scriptID, client client, final ScriptProcessPrx process)
+	public ScriptCallback(long scriptID, client client, final ScriptProcessPrx process)
 		throws ServerError
 	{
 		super(client, process);
