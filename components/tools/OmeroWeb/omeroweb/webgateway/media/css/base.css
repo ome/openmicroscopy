@@ -189,10 +189,13 @@ a, .a-like {
   display: none;
   width: 405px;
   margin: 15px auto;
+  border: 1px solid;
 }
 
 .image-viewer {
+/*
   width: 400px;
+*/
   height: 300px;
 }
 
@@ -268,9 +271,8 @@ tr.image-thumb td p {
 
 .toolbox { 
   font-size: 0.8em;
-/*  float: left; */
-/*  margin-left: 1em; */
   text-align: right;
+  line-height: 16px;
 }
 
 .toolbox * {
@@ -285,7 +287,7 @@ tr.image-thumb td p {
 
 .toolbox a img {
   position: relative;
-  top: 2px;
+  /* top: 2px; */
   right: 2px;
 }
 

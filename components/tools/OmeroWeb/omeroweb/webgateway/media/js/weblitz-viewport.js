@@ -152,6 +152,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
     } else {
       _this.zslider.get(0).setSliderRange(1, _this.loadedImg.size.z, _this.loadedImg.current.z+1, false);
     }
+    _this.tslider.get(0).setSliderRange(1, _this.loadedImg.size.t, _this.loadedImg.current.t+1, false);
     if (callback) {
       callback();
     }
@@ -177,8 +178,9 @@ jQuery._WeblitzViewport = function (container, server, options) {
     if (_this.loadedImg.current.query) {
       _this.setQuery(_this.loadedImg.current.query);
     }
+    _this.refresh();
     _load(function () {
-      _this.refresh();
+      //_this.refresh();
       if (!_this.loadedImg.current.query.zm) {
         var size = getSizeDict();
         _this.viewportimg.get(0).setZoomToFit(true, size.width, size.height);
@@ -188,7 +190,6 @@ jQuery._WeblitzViewport = function (container, server, options) {
       }
       _this.self.trigger('imageLoad', [_this]);
     });
-    _this.tslider.get(0).setSliderRange(1, _this.loadedImg.size.t, _this.loadedImg.current.t+1, false);
     channels_undo_stack = [];
     channels_undo_stack_ptr = -1;
     channels_bookmark = null;
@@ -384,10 +385,10 @@ jQuery._WeblitzViewport = function (container, server, options) {
       remember_allow_resize = true;
     }
     _this.tslider.css('width', _this.viewport.width());
-    sli.css('width', _this.tslider.width() - (btn.width()*2) - _this.bottom.position().left);
+    sli.css('width', _this.tslider.width() - (parseInt(sli.css('left')) *2) - 2);
     sli = jQuery('.slider-line', _this.zslider);
     btn = jQuery('.slider-btn-up', _this.zslider);
-    sli.css('height', _this.top.height() - (btn.height()*2));
+    sli.css('height', _this.top.height() - (parseInt(sli.css('top')) *2) - 2);
     _this.viewport.css('height', _this.top.height() -3);
     _this.viewportimg.get(0).refresh();
   };
