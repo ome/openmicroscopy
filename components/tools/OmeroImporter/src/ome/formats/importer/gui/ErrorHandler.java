@@ -293,7 +293,7 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
             row.add(null); // full error for tooltip
             errorTable.addRow(row);
             errorTable.fireTableDataChanged();
-            notifyObservers(new ImportEvent.ERRORS_PENDING());
+            this.notifyObservers(new ImportEvent.ERRORS_PENDING());
         }
 
     }

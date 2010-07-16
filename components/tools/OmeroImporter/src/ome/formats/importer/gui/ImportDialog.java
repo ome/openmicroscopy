@@ -607,29 +607,6 @@ public class ImportDialog extends JDialog implements ActionListener
         }
     }
 
-    /**
-     * Main for testing (debugging only)
-     * 
-     * @param args
-     * @throws Exception 
-     */
-    public static void main (String[] args) {
-
-        String laf = UIManager.getSystemLookAndFeelClassName() ;
-        //laf = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
-        //laf = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
-        //laf = "javax.swing.plaf.metal.MetalLookAndFeel";
-        //laf = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
-
-        try {
-            UIManager.setLookAndFeel(laf);
-        } catch (Exception e) 
-        { System.err.println(laf + " not supported."); }
-
-        ImportDialog dialog = new ImportDialog(null, null, "Import Dialog", true, null);
-        if (dialog != null) System.exit(0);
-    }
-
     public void stateChanged(ChangeEvent e)
     {
         System.err.println("Test");
