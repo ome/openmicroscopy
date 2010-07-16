@@ -319,41 +319,4 @@ public class LoginDialog extends JDialog implements ActionListener, PropertyChan
                 config.hostname.set(DEFAULT_SERVER_TEXT);
         }
     }
-    
-    /**
-     * Main for testing (debugging only)
-     * 
-     * @param args
-     * @throws Exception 
-     */
-    public static void main(String[] args)
-    {
-        String laf = UIManager.getSystemLookAndFeelClassName() ;
-        //laf = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
-        //laf = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
-        laf = "javax.swing.plaf.metal.MetalLookAndFeel";
-        //laf = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
-        
-        if (laf.equals("apple.laf.AquaLookAndFeel"))
-        {
-            System.setProperty("Quaqua.design", "panther");
-            
-            try {
-                UIManager.setLookAndFeel(
-                    "ch.randelshofer.quaqua.QuaquaLookAndFeel"
-                );
-           } catch (Exception e) { System.err.println(laf + " not supported.");}
-        } else {
-            try {
-                UIManager.setLookAndFeel(laf);
-            } catch (Exception e) 
-            { System.err.println(laf + " not supported."); }
-        }
-        
-        JFrame f = new JFrame();   
-        new LoginDialog(null, f, f, "", false, true); 
-        f.setVisible(false);
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        f.pack();
-    }
 }

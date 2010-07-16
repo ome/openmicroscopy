@@ -290,7 +290,7 @@ public class GuiCommonElements
         JPanel panel = new JPanel();
         panel.setOpaque(false);
         
-        if (suffix == "")
+        if (suffix.equals(""))
             size = new double[][]{{labelWidth,TableLayout.FILL},{30}};
         else
             size = new double[][] 
@@ -351,7 +351,7 @@ public class GuiCommonElements
         JPanel panel = new JPanel();
         panel.setOpaque(false);
         
-        if (suffix == "")
+        if (suffix.equals(""))
             size = new double[][]{{labelWidth,TableLayout.FILL},{30}};
         else
             size = new double[][] 
@@ -423,7 +423,7 @@ public class GuiCommonElements
                 BorderFactory.createLineBorder(Color.red),
                 panel.getBorder()));
         
-        if (name != "")
+        if (!name.equals(""))
         {
             JLabel label = new JLabel(name);
             label.setOpaque(false);
