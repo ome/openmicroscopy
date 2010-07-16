@@ -756,13 +756,18 @@ def registerNamespace(iQuery, iUpdate, namespace, keywords):
     @param keywords The keywords associated with the workflow.
     @return see above.
     """
-    workflow = iQuery.findByQuery("from Namespace as n where n.name = '" + namespace+"'", None);
-    workflowData = None;
-    if(workflow!=None):
-        return;
+    workflow = iQuery.findByQuery("from Namespace as n where n.name = '" + namespace.val+"'", None);
     workflowData = WorkflowData();
-    workflowData.setNamespace(namespace);
-    workflowData.setKeywords(keywords);
+    if(workflow!=None):
+        workflowData = WorkflowData(workflow);
+    else:
+        workflowData.setNamespace(namespace.val);
+    splitKeywords = keywords.val.split(',');
+    print 
+    print workflowData.asIObject()
+    for keyword in splitKeywords:
+        workflowData.addKeyword(keyword);
+    print workflowData.asIObject()
     workflow = iUpdate.saveAndReturnObject(workflowData.asIObject());
     return WorkflowData(workflow);
 

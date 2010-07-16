@@ -46,7 +46,8 @@ from omero.model import NamespaceI
 from omero.rtypes import rdouble 
 from omero.rtypes import rstring 
 from omero.rtypes import rint 
-from omero.rtypes import rfloat 
+from omero.rtypes import rfloat
+from omero.rtypes import rlist 
 
 ## Popo helpers ##
   
@@ -1413,7 +1414,8 @@ class WorkflowData(DataObject):
         if(workflow==None):
             self.setValue(NamespaceI());
             self.setNamespace("");
-            self.setKeywords("");
+            self.setKeywords([]);
+            self.setDirty(True);
         else:
             self.setValue(workflow);
 
@@ -1446,6 +1448,16 @@ class WorkflowData(DataObject):
         workflow = self.asIObject();
         if(workflow==None):
             raise Exception("No workflow specified.");
+        workflow.setKeywords(keywords);
+        self.setDirty(True);    
+    
+    ## 
+    # Set the keywords of the workflow.
+    # @param namespace See above.
+    def setKeywordsFromString(self, keywords):
+        workflow = self.asIObject();
+        if(workflow==None):
+            raise Exception("No workflow specified.");
         workflow.setKeywords(toList(keywords));
         self.setDirty(True);
 
@@ -1458,8 +1470,8 @@ class WorkflowData(DataObject):
             raise Exception("No Workflow specified.");
         keywords = workflow.getKeywords();
         if(keywords==None):
-            return "";
-        return keywords.getValue();
+            return [];
+        return keywords;
         
     ## 
     # Add a keyword to the workflow
@@ -1467,7 +1479,7 @@ class WorkflowData(DataObject):
     def addKeyword(self, keyword):
         if(self.containsKeyword(keyword)):
             return;
-        keywords = toList(self.getKeywords());
+        keywords = self.getKeywords();
         keywords.append(keyword);
         self.setKeywords(keywords);       
 
@@ -1475,7 +1487,7 @@ class WorkflowData(DataObject):
     # Return <code>True</code> if the keyword is part of workflow
     # @return See Above. 
     def containsKeyword(self, keyword):
-        keywords = toList(self.getKeywords);
+        keywords = self.getKeywords();
         return (keyword in keywords);
         
     ## 
@@ -1484,7 +1496,7 @@ class WorkflowData(DataObject):
     def removeKeyword(self, keyword):
         if(not self.containsKeyword()):
             return;
-        newList = toList(self.getKeywords());
+        newList = self.getKeywords();
         newList.remove(keyword);
-        self.setKeywords(toCSV(newList));
+        self.setKeywords(newList);
         
