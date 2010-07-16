@@ -83,9 +83,15 @@ public class ContextFilter implements Filter {
             Object item = iter.next();
             Object result = filter(fieldId, item);
             copy.add(result);
-            iter.remove();
         }
-        c.addAll(copy);
+        try {
+            c.clear();
+            c.addAll(copy);
+        } catch (UnsupportedOperationException uoe) {
+            // This should only happen for the primitive
+            // array types like Namespace.keywords.
+            // Do nothing.
+        }
     }
 
     protected void afterFilter(String fieldId, Object o) {
