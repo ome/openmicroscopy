@@ -90,16 +90,17 @@ public abstract class ScriptBatchCall
         if (!initialized) {
             try {
                 cb = initialize();
-                if (cb == null) {
-                    done = true;
-                    return null; // EARLY EXIT!
-                }
             } catch (Exception e) {
                 e.printStackTrace();
                 // Sorry, not sure what to do here.
             } finally {
                 initialized = true;
             }
+        }
+
+        if (cb == null) {
+            done = true;
+            return null; // EARLY EXIT!
         }
 
         //
@@ -113,8 +114,11 @@ public abstract class ScriptBatchCall
                 if (action != null) {
                     done = true;
                 }
-            } catch (InterruptedException e) {
-                // ignore.
+            } catch (Exception e) {
+                // Also not sure what to do here in terms of logging
+                // exceptions. InterruptedException is fairly harmless.
+                // Other exceptions may say that the process has died.
+                done = true;
             }
         } else {
             if (cb != null) {
