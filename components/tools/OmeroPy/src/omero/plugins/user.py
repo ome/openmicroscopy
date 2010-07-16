@@ -25,7 +25,7 @@ class UserControl(BaseControl):
         add.add_argument("-i", "--institution")
         # Capitalized since conflict with main values
         add.add_argument("-P", "--userpassword", help = "Password for user")
-        add.add_argument("-a", "--admin", help = "Whether the user should be an admin")
+        add.add_argument("-a", "--admin", action="store_true", help = "Whether the user should be an admin")
         add.add_argument("username", help = "User's login name")
         add.add_argument("firstname", help = "User's given name")
         add.add_argument("lastname", help = "User's surname name")
