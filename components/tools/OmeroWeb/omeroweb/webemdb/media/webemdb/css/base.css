@@ -5,7 +5,8 @@ body {
     background: #dde3e3;
 }
 
-#header_top {
+#header_top h2{
+    color: red;
     width: 900px;
     margin-left:auto;
     margin-right:auto;

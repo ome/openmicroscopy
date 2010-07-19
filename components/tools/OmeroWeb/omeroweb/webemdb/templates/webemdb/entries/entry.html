@@ -15,14 +15,14 @@
 <table id="entry_header">
 <tr>
     <td valign="top">
-        <div><img id="entryImage" height="200" src="{% url webemdb.views.gif project.name gif.id %}" /></div>
+        <div><img id="entryImage" height="200" src="{% url webemdb.views.file project.name gif.id %}" /></div>
     </td>
     <td valign="top">
         <div class="entryTitle"><span id="articleTitle"></span></div>
         <div class="entryTitle"><span id="authors"></span></div>
         <div class="entrySubtitle">
             Aggregation State: <span id="aggregationState"></span><br />
-            Download: <a id="emdbxml" href="{% url webemdb.views.xml project.name xml.id %}">{{ xml.getFileName }}</a>
+            Download: <a id="emdbxml" href="{% url webemdb.views.file project.name xml.id %}">{{ xml.getFileName }}</a>
             <a id="emdbxml" href="{% url webemdb.views.map img.id map.id %}">{{ map.getFileName }}</a>
         </div>
     </td>
@@ -74,10 +74,11 @@
                     <span id="annotationDetails"></span><br />
                     Suggested contour level for viewing the map <span id="contourLevel"></span><br />
                     <img src="{% url webgateway.views.render_thumbnail img.id %}">
-                    <a href="{% url webgateway.views.full_viewer img.id %}" target="new">Open Viewer in new window</a>
+                    <a href="{% url webgateway.views.full_viewer img.id %}" target="new">OMERO Viewer in new window</a><br>
+                    <a href="{% url webemdb.views.oa_viewer project.name bit.id %}" target="new">Open Astex Viewer in new window</a>
                     </td>
                     <td valign="top">
-                    <img id="bigImg" src="{% url webemdb.views.gif project.name gif.id %}" />
+                    <img id="bigImg" src="{% url webemdb.views.file project.name gif.id %}" />
                     </td>
                 </tr></table>
             </div>
