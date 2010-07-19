@@ -170,8 +170,8 @@ def getConnection(request):
         request.session['server'] = blitz.id
         request.session['host'] = blitz.host
         request.session['port'] = blitz.port
-        request.session['password'] = "ome"
-        request.session['username'] = "emdb"
+        request.session['password'] = "ola"
+        request.session['username'] = "ome"
         request.session['server'] = 'localhost'
         conn = getBlitzConnection (request)
         logger.debug(conn)
