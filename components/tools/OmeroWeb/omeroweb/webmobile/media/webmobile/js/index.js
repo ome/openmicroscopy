@@ -13,6 +13,15 @@ $(document).ready(function() {
         .addClass('control')
         .css('z-index', 4)
         .hide();
+    var $linkButton = $('<div>View</div>')
+        .addClass('linkClass')
+        .css('opacity', 0.6)
+        .css('display', 'none')
+        .appendTo('body');
+    
+    var followLink = function(event) {
+        
+    }
     
     $(".thumbs").hide();
     $(".dataset").click(function(){
@@ -24,15 +33,19 @@ $(document).ready(function() {
            
            $(this).find(".thumbnail").click(function(event) {
                
+               var imgId = event.target.id;     // target is the image clicked (not <a>)
+               
+               var finalW = 310;
+               var finalH = 310;    // TODO: - calculate for non-square images. 
                var startPos = $(this).offset();
                startPos.width = $(this).width();
                startPos.height = $(this).height();
                var endPos = {};
                var w = $('body').width();
-               endPos.width = Math.min(w, 310);
-               endPos.height = Math.min(w, 310);
+               endPos.width = Math.min(w, finalW);
+               endPos.height = Math.min(w, finalH);
                endPos.top = startPos.top - 78;
-               endPos.left = 5;
+               endPos.left = (w-endPos.width)/2;    // align middle
                
                $enlargedCover.attr('src', $(this).attr('href'))
                     .hide()
@@ -47,8 +60,20 @@ $(document).ready(function() {
                      function() {
                    $enlargedCover.one('click', function() {
                      $enlargedCover.fadeOut();
+                     $linkButton.hide();
+                     $linkButton.unbind('click');
                    });
-                   
+                   $linkButton
+                     .css({
+                       'right': endPos.left,    // left and right are equal
+                       'top' : endPos.top
+                     })
+                     .show()
+                     .click(function() {
+                         theUrl = "viewer/" + imgId + "/";
+                       // follow link to viewer....
+                        location.href = theUrl ;
+                     });
                  });
                };
                //if ($enlargedCover[0].complete) {

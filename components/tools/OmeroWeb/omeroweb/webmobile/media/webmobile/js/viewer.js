@@ -4,11 +4,16 @@ $(document).ready(function() {
     
     var z = 0;
     var t = 0;
+    var sizeZ = 1;
+    var sizeT = 1;
+    var pixelSize = 0;
     
     // elements we need repeatedly
     var imageId = $("#imageId").text();
     var $imagePlane = $("#imagePlane");
     var $imageContainer = $("#imageContainer");
+    var $zSlider = $("#zSlider");
+    var $tSlider = $("#tSlider");
     
     // --- functions ---
     
@@ -16,6 +21,15 @@ $(document).ready(function() {
     var refreshImage = function() {
         var imgSrc = "/webgateway/render_image/"+ imageId + "/" + z + "/" + t + "/";
         $("#imagePlane").attr('src', imgSrc);
+        // find the slider positions
+        if (sizeZ > 1) {
+            $(".zPoint").css('background', 'none');
+            $("#z"+z).css('background', 'red');
+        }
+        if (sizeT > 1) {
+            $(".tPoint").css('background', 'none');
+            $("#t"+t).css('background', 'red');
+        }
     };
     
     // call this periodiclly to check whether the viewport has moved. If so, hide 
@@ -38,12 +52,33 @@ $(document).ready(function() {
         var scrollH = window.innerHeight;
         
         var w = scrollW / 8;
-        var zHeight = scrollH - w - 2
-        var tWidth = scrollW - w - 2
+        var zHeight = scrollH - w
+        var tWidth = scrollW - w
         
+        // sliders
         $("#zControls").css('top', scrollY).css('left', scrollX).css('width', w).css('height', zHeight);
-        $("#tControls").css('top', scrollY+zHeight+1).css('left', scrollX+w+1).css('height', w).css('width', tWidth);
+        $("#zBg").css('width', w).css('height', zHeight);
+        $("#tControls").css('top', scrollY+zHeight).css('left', scrollX+w).css('height', w).css('width', tWidth);
+        $("#tBg").css('height', w).css('width', tWidth);
         $(".arrow").css('width', w).css('height', w);
+        $zSlider.css('top', w).css('height',zHeight-w-w-2 ).css('width',w-2);
+        $tSlider.css('height', w-2 ).css('width',tWidth-w-w-2).css('left',w).css('top',1);
+        
+        // scalebar 
+        if (pixelSize == 0) {
+            $("#scalebar").css('opacity', 0.0); // hide so it won't be shown
+        } else {
+            var scaleW = scrollW / 3;
+            var scaleMicrons = (scaleW * pixelSize);
+            var barMicrons = parseInt(scaleMicrons / 5) * 5;
+            if (barMicrons == 0) barMicrons = parseInt(scaleMicrons);
+            scaleW = barMicrons /pixelSize;
+            alert(scaleMicrons + " " + barMicrons + " " + scaleW);
+            var scaleH = scrollH / 100;
+            var indent = w/3;
+            $("#scalebar").css('height', scaleH).css('width', scaleW)
+            .css('top', scrollY+scrollH-w-scaleH-indent).css('left',scrollX+scrollW-scaleW-indent);
+        }
         $(".controls").show();
         $imagePlane.one('click', hideControls);
     };
@@ -51,19 +86,37 @@ $(document).ready(function() {
     // hides the controls
     var hideControls = function() {
         $imagePlane.unbind('click', hideControls);  // in case hideControls wasn't called from imagePlane
-        $(".controls").hide();
+        $(".controls").fadeOut();
         $imagePlane.one('click', showControls);
     };
     
     
     // -- bind various functions to controls --
     
+    // When a slider is clicked, try to identify the actual increment that was clicked, set z or t and refresh
+    $zSlider.click(function(event) {
+        var zId = event.target.id;      // E.g. 'z10'
+        var zIndex = parseFloat(zId.replace("z",""), 10 );
+        if (!isNaN(zIndex)) {
+            z = zIndex;
+            refreshImage();
+        }
+    });
+    $tSlider.click(function(event) {
+        var tId = event.target.id;      // E.g. 't10'
+        var tIndex = parseFloat(tId.replace("t",""), 10 );
+        if (!isNaN(tIndex)) {
+            t = tIndex;
+            refreshImage();
+        }
+    });
+    
     // The Z arrows and T arrows increment Z or T and refresh the image
     $(".arrow").click(function(event) {
-        if (this.id == 'zUp') z += 1;
-        if (this.id == 'zDown') z -= 1;
-        if (this.id == 'tRight') t += 1;
-        if (this.id == 'tLeft') t -= 1;
+        if ((this.id == 'zUp') && (z < sizeZ-1)) z += 1;
+        if ((this.id == 'zDown') && (z>0)) z -= 1;
+        if ((this.id == 'tRight') && (t < sizeT-1)) t += 1;
+        if ((this.id == 'tLeft') && (t>0)) t -= 1;
         refreshImage();
     })
     
@@ -73,14 +126,6 @@ $(document).ready(function() {
     
     // -- stuff that happens when the page loads --
     
-    // when the page loads, first need to get the default Z and T from imgData JSON, then load image
-    var json;
-    $.getJSON("/webgateway/imgData/" + imageId + "/", function(data) {
-        json = data;
-        z = json['rdefs']['defaultZ'];
-        refreshImage();
-    });
-    
     // make the 'image container' bigger that the image according to viewport so that all image is within
     var scrollW = window.innerWidth;
     var scrollH = window.innerHeight;
@@ -89,21 +134,53 @@ $(document).ready(function() {
     var imgH = parseFloat( $imagePlane.css('height'), 10 );
     var imageWH = imgW/imgH;
     
+    // when the page loads, first need to get the default Z and T from imgData JSON, then load image
+    var json;
+    $.getJSON("/webgateway/imgData/" + imageId + "/", function(data) {
+        json = data;
+        z = json['rdefs']['defaultZ'];
+        t = json['rdefs']['defaultT'];
+        pixelSize = json['pixel_size']['x'];
+
+        // build z and t sliders
+        sizeZ = json['size']['z'];
+        sizeT = json['size']['t'];
+        var html = "<table height='100%' width='100%' cellspacing='0' border='0'>";
+        for (var zz=sizeZ-1; zz>=0; zz--) {
+            html += "<tr><td id='z" + zz +"' class='zPoint'></td></tr>";    // each table row is a z-increment
+        }
+        html += "</table>";
+        $zSlider.append($(html));
+        
+        html = "<table height='100%' width='100%' cellspacing='0' border='0'><tr>";
+        for (var tt=0; tt<sizeT; tt++) {
+            html += "<td id='t" + tt +"' class='tPoint'></td>";    // each table col is a t-increment
+        }
+        html += "</tr></table>";
+        $tSlider.append($(html));
+        
+        // update sliders and image plane
+        refreshImage();
+    });
+    
+    // set opacity via jquery (browser consistency)
+    $(".controlBg").css('opacity', 0.5);
+    $(".controls").hide();
+    
+    // start a timer to check for viewport movement every half sec 
+    setInterval(checkHideControls, 500);
+    
     // if imageWH > portWH, image container is same width as image, height is bigger
     if (imageWH > portWH) {
         var containerW = imgW;
         var containerH = containerW / portWH;
         //alert(containerW + " " + containerH);
-        $imageContainer.css('height', containerH + "px").css('width', containerW + "px");
-        var cont = 'device-width = '+ imgW + ', width = '+ imgW + ', minimum-scale = 1, maximum-scale = 5';
+        //$imageContainer.css('height', containerH + "px").css('width', containerW + "px");
+        var cont = 'device-width = '+ imgW + ', width = '+ imgW + ', minimum-scale = 1, maximum-scale = 1, initial-scale = 1';
         //alert(cont);
-        $("#viewport").attr('content', cont);
+        // $("#viewport").attr('content', cont);
         
         var topSpacer = (containerH - imgH) / 2;
         $imagePlane.css('top', topSpacer + "px");
     }
-    
-    // start a timer to check for viewport movement every half sec 
-    setInterval(checkHideControls, 500);
-    
 });

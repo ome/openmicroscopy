@@ -15,6 +15,19 @@ body {font-family:arial; font-size:22px; padding:0px; margin:0px;}
 .thumbs a {float: left;}
 .thumbs img {margin:0px; padding:2px; }
 
+.linkClass {
+  background-color: #373c40;
+  color: #fff;
+  width: 80px;
+  padding: 5px;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: right;
+  position: absolute;
+  z-index: 6;
+  cursor: pointer;
+}
+
 img.enlarged {
   position: absolute;
   z-index: 5;

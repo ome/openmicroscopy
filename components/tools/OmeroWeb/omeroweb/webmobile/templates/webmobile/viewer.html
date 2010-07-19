@@ -14,6 +14,8 @@ body {
 img#imagePlane {
   position: absolute;
   z-index: 2;
+  background-image:url('/appmedia/webmobile/img/loading.gif');
+  background-repeat:no-repeat;
 }
 
 #imageContainer {
@@ -27,7 +29,6 @@ img#imagePlane {
     position:fixed;
     z-index: 3;
     color: white;
-    border:1px solid white;
     padding:0px;
     margin:0px;
 }
@@ -46,8 +47,19 @@ img#imagePlane {
     width: 80px;
 }
 
+.controlBg {
+    position: absolute;
+    z-index: 4;
+}
+
 .arrow {
     position: absolute;
+    z-index: 5;
+}
+.slider{
+    position: absolute;
+    border: solid white 1px;
+    z-index: 5;
 }
 
 #zUp {
@@ -64,10 +76,15 @@ img#imagePlane {
     display:none;
 }
 
+#scalebar{
+    background: white;
+    border: solid black 1px;
+}
+
 </style>
 
 {% block meta %}
-    <meta name="viewport" content="width=device-width; initial-scale=1; maximum-scale=3.0; user-scalable=1;">
+    <meta name="viewport" content="width={{ image.getWidth }}; initial-scale=1; maximum-scale=5.0; user-scalable=1;">
 {% endblock %}
 
 {% endblock %}
@@ -84,14 +101,22 @@ img#imagePlane {
 <div id="imageContainer"></div>
 
 <div class='controls' id="zControls">
+    <img class='controlBg' id="zBg" src="/appmedia/webmobile/img/bg-vertical.png"/>
     <img class="arrow" id="zUp" src="/appmedia/webmobile/img/up.png"/>
     <img class="arrow" id="zDown" src="/appmedia/webmobile/img/down.png"/>
+    <div class="slider" id="zSlider"></div>
 </div>
 <div class='controls' id="tControls">
+    <img class='controlBg' id="tBg" src="/appmedia/webmobile/img/bg-horizontal.png"/>
     <img class="arrow" id="tLeft" src="/appmedia/webmobile/img/left.png"/>
     <img class="arrow" id="tRight" src="/appmedia/webmobile/img/right.png"/>
+    <div class="slider" id="tSlider"></div>
 </div>
 
-<img id="imagePlane" width="{{ image.getWidth }}" height="{{ image.getHeight }}" src="{% url webgateway.views.render_image image.id image.getZ image.getT %}"/>
+<div class="controls" id="scalebar">
+    
+</div>
+
+<img id="imagePlane" width="{{ image.getWidth }}" height="{{ image.getHeight }}" src="/appmedia/webmobile/img/spacer.gif"/>
     
 {% endblock %}
