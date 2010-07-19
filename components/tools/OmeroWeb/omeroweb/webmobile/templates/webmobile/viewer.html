@@ -84,13 +84,13 @@ img#imagePlane {
 </style>
 
 {% block meta %}
-    <meta name="viewport" content="width={{ image.getWidth }}; initial-scale=1; maximum-scale=5.0; user-scalable=1;">
+    <meta name="viewport" content="width={{ image.getWidth }}; maximum-scale=5.0; user-scalable=1;">
 {% endblock %}
 
 {% endblock %}
 
 {% block jscript %}
-    <script type="text/javascript" src="/appmedia/webmobile/js/viewer.js"></script>
+    <script type="text/javascript" src="{% url webmobile 'js/viewer.js' %}"></script>
 {% endblock %}
 
 {% block body %}
@@ -101,15 +101,15 @@ img#imagePlane {
 <div id="imageContainer"></div>
 
 <div class='controls' id="zControls">
-    <img class='controlBg' id="zBg" src="/appmedia/webmobile/img/bg-vertical.png"/>
-    <img class="arrow" id="zUp" src="/appmedia/webmobile/img/up.png"/>
-    <img class="arrow" id="zDown" src="/appmedia/webmobile/img/down.png"/>
+    <img class='controlBg' id="zBg" src="{% url webmobile 'img/bg-vertical.png' %}"/>
+    <img class="arrow" id="zUp" src="{% url webmobile 'img/up.png' %}"/>
+    <img class="arrow" id="zDown" src="{% url webmobile 'img/down.png' %}"/>
     <div class="slider" id="zSlider"></div>
 </div>
 <div class='controls' id="tControls">
-    <img class='controlBg' id="tBg" src="/appmedia/webmobile/img/bg-horizontal.png"/>
-    <img class="arrow" id="tLeft" src="/appmedia/webmobile/img/left.png"/>
-    <img class="arrow" id="tRight" src="/appmedia/webmobile/img/right.png"/>
+    <img class='controlBg' id="tBg" src="{% url webmobile 'img/bg-horizontal.png' %}"/>
+    <img class="arrow" id="tLeft" src="{% url webmobile 'img/left.png' %}"/>
+    <img class="arrow" id="tRight" src="{% url webmobile 'img/right.png' %}"/>
     <div class="slider" id="tSlider"></div>
 </div>
 
@@ -117,6 +117,6 @@ img#imagePlane {
     
 </div>
 
-<img id="imagePlane" width="{{ image.getWidth }}" height="{{ image.getHeight }}" src="/appmedia/webmobile/img/spacer.gif"/>
+<img id="imagePlane" width="{{ image.getWidth }}" height="{{ image.getHeight }}" src="{% url webmobile 'img/spacer.gif' %}"/>
     
 {% endblock %}

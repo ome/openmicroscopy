@@ -15,6 +15,7 @@ urlpatterns = patterns('',
     # page for OpenAstex Viewer. Project name and bit mask fileId
     url( r'^oa_viewer/(?P<entryId>[0-9]+)/file/(?P<fileId>[0-9]+)/$', views.oa_viewer, name='webemdb_oa_viewer' ),
     
+    # define the sym link for media. 
     url( r'appmedia/webemdb/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.dirname(__file__), 'media', 'webemdb').replace('\\','/') }, name="webemdb" ),
     
 )

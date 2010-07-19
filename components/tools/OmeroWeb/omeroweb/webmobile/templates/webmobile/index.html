@@ -5,11 +5,11 @@
 {% block meta %}<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">{% endblock %}
 
 {% block link %} 
-    <link rel="stylesheet" href="/appmedia/webmobile/css/index.css" type="text/css" />
+    <link rel="stylesheet" href="{% url webmobile 'css/index.css' %}" type="text/css" />
 {% endblock %}
 
 {% block jscript %}
-    <script type="text/javascript" src="/appmedia/webmobile/js/index.js"></script>
+    <script type="text/javascript" src="{% url webmobile 'js/index.js' %}"></script>
 {% endblock %}
 
 

@@ -3,11 +3,11 @@
 {% block title %} {{ project.name }} {% endblock %}
 
 {% block link %}
-<link rel="stylesheet" href="/appmedia/webemdb/css/entry.css" type="text/css" />
+<link rel="stylesheet" href="{% url webemdb 'css/entry.css' %}" type="text/css" />
 {% endblock %}
 
 {% block jscript %}
-<script type="text/javascript" src="/appmedia/webemdb/javascript/entry.js"></script>
+<script type="text/javascript" src="{% url webemdb 'javascript/entry.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -75,7 +75,9 @@
                     Suggested contour level for viewing the map <span id="contourLevel"></span><br />
                     <img src="{% url webgateway.views.render_thumbnail img.id %}">
                     <a href="{% url webgateway.views.full_viewer img.id %}" target="new">OMERO Viewer in new window</a><br>
+                    {% if bit %}
                     <a href="{% url webemdb.views.oa_viewer project.name bit.id %}" target="new">Open Astex Viewer in new window</a>
+                    {% endif %}
                     </td>
                     <td valign="top">
                     <img id="bigImg" src="{% url webemdb.views.file project.name gif.id %}" />
