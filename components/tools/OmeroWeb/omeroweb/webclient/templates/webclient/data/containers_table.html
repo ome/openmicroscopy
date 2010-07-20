@@ -24,7 +24,7 @@
                             ro++;
                 		} else if($(this).parents('tr:first').attr('class').indexOf("linkonly")>=0) {
                             lo++;
-                   		} else if($(this).parents('li:first').attr('class').indexOf("editonly") == 0) {
+                   		} else if($(this).parents('tr:first').attr('class').indexOf("editonly")>=0) {
                             eo++;
                    		}
                    		this.checked = true;

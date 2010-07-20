@@ -83,36 +83,36 @@ def getGuestConnection(host, port):
     conn = None
     guest = ["guest", "guest"]
     try:
-        conn = _createConnection('', host=host, port=port, username=guest[0], passwd=guest[1], secure=True)
-        #conn.connectAsGuest()
-    except:
-        logger.error(traceback.format_exc())
-        raise sys.exc_info()[1]
-    else:
         # do not store connection on connectors
-        logger.info("Have connection as Guest")
+        conn = _createConnection('', host=host, port=port, username=guest[0], passwd=guest[1], secure=True)
+        if conn is not None:
+            logger.info("Have connection as Guest")
+        else:
+            logger.info("Open connection is not available")
+    except Exception, x:
+        logger.error(traceback.format_exc())
     return conn
 
 def _checkVersion(host, port):
     import re
-    try:
-        conn = getGuestConnection(host, port)
-        agent = conn.getServerVersion()
-            
-        regex = re.compile("^.*?[-]?(\\d+[.]\\d+([.]\\d+)?)[-]?.*?$")
+    rv = False
+    conn = getGuestConnection(host, port)
+    if conn is not None:
+        try:
+            agent = conn.getServerVersion()
+            regex = re.compile("^.*?[-]?(\\d+[.]\\d+([.]\\d+)?)[-]?.*?$")
 
-        agent_cleaned = regex.match(agent).group(1)
-        agent_split = agent_cleaned.split(".")
+            agent_cleaned = regex.match(agent).group(1)
+            agent_split = agent_cleaned.split(".")
 
-        local_cleaned = regex.match(omero_version).group(1)
-        local_split = local_cleaned.split(".")
+            local_cleaned = regex.match(omero_version).group(1)
+            local_split = local_cleaned.split(".")
 
-        rv = (agent_split == local_split)
-        logger.debug("Client version: '%s'; Server version: '%s'"% (omero_version, agent))
-    except Exception, x:
-        rv = False
-        logger.error(traceback.format_exc())
-        error = str(x)
+            rv = (agent_split == local_split)
+            logger.debug("Client version: '%s'; Server version: '%s'"% (omero_version, agent))
+        except Exception, x:
+            logger.error(traceback.format_exc())
+            error = str(x)
     return rv
 
 ################################################################################
@@ -308,7 +308,7 @@ def login(request):
         return HttpResponseRedirect(reverse("waindex"))
     else:
         if request.method == 'POST' and request.REQUEST.get('server'):
-            if not _checkVersion(request.REQUEST.get('host'), request.REQUEST.get('port')):
+            if not _checkVersion(request.session.get('host'), request.session.get('port')):
                 error = "Client version does not match server, please contact administrator."
             else:
                 error = "Connection not available, please check your user name and password."
