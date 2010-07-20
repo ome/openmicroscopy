@@ -1674,8 +1674,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         recps = list()
         for m in recipients:
             try:
-                e = hasattr(m.email, 'val') and m.email.val or m.email
-                if e is not None:
+                e = (m.email, m.email.val)[isinstance(m.email, omero.RString)]
+                if e is not None and e!="":
                     recps.append(e)
             except:
                 logger.error(traceback.format_exc())
