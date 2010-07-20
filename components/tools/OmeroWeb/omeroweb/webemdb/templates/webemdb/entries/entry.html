@@ -86,13 +86,9 @@
             </div>
             <div class="content" id="SampleData">
                 <div class="content_title">Sample:</div>
-                
-                <lu>
-                <li>Sample Name: <span id="name"></span></li>
-                <li>Aggregation State: <span id="aggregationState2"></span></li>
-                <li>Theoretical Molecular Weight: <span id="molWtTheo"></span></li>
-                <li>Components: <div id="sampleComponentList"></div>
-                </lu>
+                <div id="sample"></div>
+                Components
+                <div id="sampleComponentList"></div>
             </div>
             <div class="content" id="ExperimentData">
                 <div class="content_title">Experiment</div>
@@ -107,10 +103,25 @@
             </div>
             <div class="content" id="ProcessingData">
                 <div class="content_title">Processing</div>
-                {% include "webemdb/entries/processing.html" %}
+                 Reconstruction
+                <div id="reconstruction"></div>
+                <table width='100%'><tr><td valign='top'>
+                Image Scans
+                <div id="imageScans"></div>
+                </td><td valign='top'>
+                Fitting
+                <div id="fitting"></div>
+                </tr></table>
             </div>
             <div class="content" id="MapInformationData">
                 <div class="content_title">Map Information</div>
+                <table width='100%'><tr><td valign='top'>
+                Statistics
+                <div id="statistics"></div>
+                </td><td valign='top'>
+                Map
+                <div id="map"></div>
+                </tr></table>
             </div>
         </div>
     </td>
