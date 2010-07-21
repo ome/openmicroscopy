@@ -73,11 +73,19 @@ $(document).ready(function() {
             var barMicrons = parseInt(scaleMicrons / 5) * 5;
             if (barMicrons == 0) barMicrons = parseInt(scaleMicrons);
             scaleW = barMicrons /pixelSize;
-            alert(scaleMicrons + " " + barMicrons + " " + scaleW);
             var scaleH = scrollH / 100;
             var indent = w/3;
             $("#scalebar").css('height', scaleH).css('width', scaleW)
             .css('top', scrollY+scrollH-w-scaleH-indent).css('left',scrollX+scrollW-scaleW-indent);
+            
+            var $scaleNumber = $("#scaleNumber");
+            var numW = scaleW/4;
+            var numH = scrollW/480 * 40;
+            var font = 200 * scrollW/480 + "%";
+            var top = scrollY+scrollH-w-scaleH-indent-numH;
+            $("#scaleNumber").text(barMicrons)
+                .css('width', numW).css('height', numH).css('font-size', font)
+                .css('top', top).css('left', scrollX+scrollW-indent-numW);
         }
         $(".controls").show();
         $imagePlane.one('click', hideControls);
@@ -176,7 +184,7 @@ $(document).ready(function() {
         var containerH = containerW / portWH;
         //alert(containerW + " " + containerH);
         //$imageContainer.css('height', containerH + "px").css('width', containerW + "px");
-        var cont = 'device-width = '+ imgW + ', width = '+ imgW + ', minimum-scale = 1, maximum-scale = 1, initial-scale = 1';
+        //var cont = 'device-width = '+ imgW + ', width = '+ imgW + ', minimum-scale = 1, maximum-scale = 1, initial-scale = 1';
         //alert(cont);
         // $("#viewport").attr('content', cont);
         
