@@ -45,6 +45,7 @@ import loci.formats.FormatException;
 import loci.formats.in.DefaultMetadataOptions;
 import loci.formats.in.MetadataLevel;
 
+import ome.formats.Index;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
@@ -356,469 +357,469 @@ public class MetadataValidatorTest
             throw new RuntimeException(e);
         }
     }
-	
-	/**
-	 * Examines the container cache and returns whether or not an LSID is
-	 * present.
-	 * @param klass Instance class of the source object container.
-	 * @param lsid LSID to compare against.
-	 * @return <code>true</code> if the object exists in the container cache,
-	 * and <code>false</code> otherwise.
-	 */
-	private boolean authoritativeLSIDExists(Class<? extends IObject> klass,
-			                                LSID lsid)
-	{
-		List<IObjectContainer> containers = 
-			store.getIObjectContainers(klass);
-		for (IObjectContainer container : containers)
-		{
-			LSID containerLSID = new LSID(container.LSID);
-			if (containerLSID.equals(lsid))
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	/**
-	 * Examines the container cache and returns whether or not an LSID is
-	 * present.
-	 * @param klasses Instance classes of potential source object containers.
-	 * @param lsid LSID to compare against.
-	 * @return <code>true</code> if an object exists in the container cache,
-	 * for one of <code>klasses</code> and <code>false</code> otherwise.
-	 */
-	private boolean authoritativeLSIDExists(List<Class<? extends IObject>> klasses,
-			                                LSID lsid)
-	{
-		for (Class<? extends IObject> klass : klasses)
-		{
-			List<IObjectContainer> containers = 
-				store.getIObjectContainers(klass);
+    
+    /**
+     * Examines the container cache and returns whether or not an LSID is
+     * present.
+     * @param klass Instance class of the source object container.
+     * @param lsid LSID to compare against.
+     * @return <code>true</code> if the object exists in the container cache,
+     * and <code>false</code> otherwise.
+     */
+    private boolean authoritativeLSIDExists(Class<? extends IObject> klass,
+                                            LSID lsid)
+    {
+        List<IObjectContainer> containers = 
+            store.getIObjectContainers(klass);
+        for (IObjectContainer container : containers)
+        {
+            LSID containerLSID = new LSID(container.LSID);
+            if (containerLSID.equals(lsid))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Examines the container cache and returns whether or not an LSID is
+     * present.
+     * @param klasses Instance classes of potential source object containers.
+     * @param lsid LSID to compare against.
+     * @return <code>true</code> if an object exists in the container cache,
+     * for one of <code>klasses</code> and <code>false</code> otherwise.
+     */
+    private boolean authoritativeLSIDExists(List<Class<? extends IObject>> klasses,
+                                            LSID lsid)
+    {
+        for (Class<? extends IObject> klass : klasses)
+        {
+            List<IObjectContainer> containers = 
+                store.getIObjectContainers(klass);
 
-			for (IObjectContainer container : containers)
-			{
-				LSID containerLSID = new LSID(container.LSID);
-				if (containerLSID.equals(lsid))
-				{
-					return true;
-				}
-			}
-		}
-		return false;
-	}
+            for (IObjectContainer container : containers)
+            {
+                LSID containerLSID = new LSID(container.LSID);
+                if (containerLSID.equals(lsid))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
-	@Test(dependsOnMethods={"testMetadataLevel"})
-	public void testCreationDateIsReasonable()
-	{
-		List<IObjectContainer> containers = 
-			store.getIObjectContainers(Image.class);
-		for (IObjectContainer container : containers)
-		{
-			Image image = (Image) container.sourceObject;
-			assertNotNull(image.getAcquisitionDate());
-			Date acquisitionDate = 
-				new Date(image.getAcquisitionDate().getValue());
-			Date now = new Date(System.currentTimeMillis());
-			Date january1st1995 = new GregorianCalendar(1995, 1, 1).getTime();
-			if (acquisitionDate.after(now))
-			{
-				fail(String.format("%s after %s", acquisitionDate, now));
-			}
-			if (acquisitionDate.before(january1st1995))
-			{
-				fail(String.format("%s before %s", acquisitionDate,
-						           january1st1995));
-			}
-		}
-	}
+    @Test(dependsOnMethods={"testMetadataLevel"})
+    public void testCreationDateIsReasonable()
+    {
+        List<IObjectContainer> containers = 
+            store.getIObjectContainers(Image.class);
+        for (IObjectContainer container : containers)
+        {
+            Image image = (Image) container.sourceObject;
+            assertNotNull(image.getAcquisitionDate());
+            Date acquisitionDate = 
+                new Date(image.getAcquisitionDate().getValue());
+            Date now = new Date(System.currentTimeMillis());
+            Date january1st1995 = new GregorianCalendar(1995, 1, 1).getTime();
+            if (acquisitionDate.after(now))
+            {
+                fail(String.format("%s after %s", acquisitionDate, now));
+            }
+            if (acquisitionDate.before(january1st1995))
+            {
+                fail(String.format("%s before %s", acquisitionDate,
+                                   january1st1995));
+            }
+        }
+    }
 
-	@Test(dependsOnMethods={"testMetadataLevel"})
-	public void testPlaneInfoZCT()
-	{
-		List<IObjectContainer> containers = 
-			store.getIObjectContainers(PlaneInfo.class);
-		for (IObjectContainer container : containers)
-		{
-			PlaneInfo planeInfo = (PlaneInfo) container.sourceObject;
-			assertNotNull("theZ is null", planeInfo.getTheZ());
-			assertNotNull("theC is null", planeInfo.getTheC());
-			assertNotNull("theT is null", planeInfo.getTheT());
-		}
-	}
+    @Test(dependsOnMethods={"testMetadataLevel"})
+    public void testPlaneInfoZCT()
+    {
+        List<IObjectContainer> containers = 
+            store.getIObjectContainers(PlaneInfo.class);
+        for (IObjectContainer container : containers)
+        {
+            PlaneInfo planeInfo = (PlaneInfo) container.sourceObject;
+            assertNotNull("theZ is null", planeInfo.getTheZ());
+            assertNotNull("theC is null", planeInfo.getTheC());
+            assertNotNull("theT is null", planeInfo.getTheT());
+        }
+    }
 
-	@Test(dependsOnMethods={"testMetadataLevel"})
-	public void testChannelCount()
-	{
-		List<IObjectContainer> containers = 
-			store.getIObjectContainers(Pixels.class);
-		for (IObjectContainer container : containers)
-		{
-			Pixels pixels = (Pixels) container.sourceObject;
-			assertNotNull(pixels.getSizeC());
-			int sizeC = pixels.getSizeC().getValue();
-			Integer imageIndex = container.indexes.get("imageIndex");
-			int count = store.countCachedContainers(Channel.class, imageIndex);
-			String e = String.format(
-					"Pixels sizeC %d != channel object count %d",
-					sizeC, count);
-			for (int c = 0; c < sizeC; c++)
-			{
-				count = store.countCachedContainers(
-						Channel.class, imageIndex, c); 
-				e = String.format(
-						"Missing channel object; imageIndex=%d " +
-						"logicalChannelIndex=%d", imageIndex, c);
-				assertEquals(e, 1, count);
-			}
-		}
-	}
+    @Test(dependsOnMethods={"testMetadataLevel"})
+    public void testChannelCount()
+    {
+        List<IObjectContainer> containers = 
+            store.getIObjectContainers(Pixels.class);
+        for (IObjectContainer container : containers)
+        {
+            Pixels pixels = (Pixels) container.sourceObject;
+            assertNotNull(pixels.getSizeC());
+            int sizeC = pixels.getSizeC().getValue();
+            Integer imageIndex =
+                    container.indexes.get(Index.IMAGE_INDEX.getValue());
+            int count = store.countCachedContainers(Channel.class, imageIndex);
+            String e = String.format(
+                    "Pixels sizeC %d != channel object count %d",
+                    sizeC, count);
+            for (int c = 0; c < sizeC; c++)
+            {
+                count = store.countCachedContainers(
+                        Channel.class, imageIndex, c); 
+                e = String.format(
+                        "Missing channel object; imageIndex=%d " +
+                        "channelIndex=%d", imageIndex, c);
+                assertEquals(e, 1, count);
+            }
+        }
+    }
 
-	@Test(dependsOnMethods={"testMetadataLevel"})
-	public void testLogicalChannelCount()
-	{
-		List<IObjectContainer> containers = 
-			store.getIObjectContainers(Pixels.class);
-		for (IObjectContainer container : containers)
-		{
-			Pixels pixels = (Pixels) container.sourceObject;
-			assertNotNull(pixels.getSizeC());
-			int sizeC = pixels.getSizeC().getValue();
-			Integer imageIndex = container.indexes.get("imageIndex");
-			int count = store.countCachedContainers(LogicalChannel.class,
-					                                imageIndex);
-			String e = String.format(
-					"Pixels sizeC %d != logical channel object count %d",
-					sizeC, count);
-			assertEquals(e, sizeC, count);
-			for (int c = 0; c < sizeC; c++)
-			{
-				count = store.countCachedContainers(
-				    LogicalChannel.class, imageIndex, c);
-				e = String.format(
-						"Missing logical channel object; imageIndex=%d " +
-						"logicalChannelIndex=%d", imageIndex, c);
-				assertEquals(e, 1, count);
-			}
-		}
-	}
+    @Test(dependsOnMethods={"testMetadataLevel"})
+    public void testLogicalChannelCount()
+    {
+        List<IObjectContainer> containers = 
+            store.getIObjectContainers(Pixels.class);
+        for (IObjectContainer container : containers)
+        {
+            Pixels pixels = (Pixels) container.sourceObject;
+            assertNotNull(pixels.getSizeC());
+            int sizeC = pixels.getSizeC().getValue();
+            Integer imageIndex =
+                    container.indexes.get(Index.IMAGE_INDEX.getValue());
+            int count = store.countCachedContainers(LogicalChannel.class,
+                                                    imageIndex);
+            String e = String.format(
+                    "Pixels sizeC %d != logical channel object count %d",
+                    sizeC, count);
+            assertEquals(e, sizeC, count);
+            for (int c = 0; c < sizeC; c++)
+            {
+                count = store.countCachedContainers(
+                    LogicalChannel.class, imageIndex, c);
+                e = String.format(
+                        "Missing logical channel object; imageIndex=%d " +
+                        "channelIndex=%d", imageIndex, c);
+                assertEquals(e, 1, count);
+            }
+        }
+    }
 
-	@Test(dependsOnMethods={"testMetadataLevel"})
-	public void testPlatesExist()
-	{
-		List<IObjectContainer> containers = 
-			store.getIObjectContainers(WellSample.class);
-		for (IObjectContainer container : containers)
-		{
-			Map<String, Integer> indexes = container.indexes;
-			Integer plateIndex = indexes.get("plateIndex");
-			String e = String.format(
-					"Plate %d not found in container cache", plateIndex);
-			assertTrue(e, 
-					store.countCachedContainers(Plate.class, plateIndex) > 0);
-		}
-	}
+    @Test(dependsOnMethods={"testMetadataLevel"})
+    public void testPlatesExist()
+    {
+        List<IObjectContainer> containers = 
+            store.getIObjectContainers(WellSample.class);
+        for (IObjectContainer container : containers)
+        {
+            Map<String, Integer> indexes = container.indexes;
+            Integer plateIndex = indexes.get(Index.PLATE_INDEX.getValue());
+            String e = String.format(
+                    "Plate %d not found in container cache", plateIndex);
+            assertTrue(e, 
+                    store.countCachedContainers(Plate.class, plateIndex) > 0);
+        }
+    }
 
-	@Test(dependsOnMethods={"testMetadataLevel"})
-	public void testWellsExist()
-	{
-		List<IObjectContainer> containers = 
-			store.getIObjectContainers(WellSample.class);
-		for (IObjectContainer container : containers)
-		{
-			Map<String, Integer> indexes = container.indexes;
-			Integer plateIndex = indexes.get("plateIndex");
-			Integer wellIndex = indexes.get("wellIndex");
-			String e = String.format(
-					"Well %d not found in container cache", wellIndex);
-			int count = store.countCachedContainers(Well.class, plateIndex, 
+    @Test(dependsOnMethods={"testMetadataLevel"})
+    public void testWellsExist()
+    {
+        List<IObjectContainer> containers = 
+            store.getIObjectContainers(WellSample.class);
+        for (IObjectContainer container : containers)
+        {
+            Map<String, Integer> indexes = container.indexes;
+            Integer plateIndex = indexes.get(Index.PLATE_INDEX.getValue());
+            Integer wellIndex = indexes.get(Index.WELL_INDEX.getValue());
+            String e = String.format(
+                    "Well %d not found in container cache", wellIndex);
+            int count = store.countCachedContainers(Well.class, plateIndex, 
                     wellIndex);
-			assertTrue(e, count == 1);
-		}
-	}
+            assertTrue(e, count == 1);
+        }
+    }
 
-	@Test(dependsOnMethods={"testMetadataLevel"})
-	public void testAuthoritativeLSIDsAreUnique()
-	{
-		Set<String> authoritativeLSIDs = new HashSet<String>();
-		Set<IObjectContainer> containers = 
-			new HashSet<IObjectContainer>(containerCache.values());
-		for (IObjectContainer container : containers)
-		{
-			if (!authoritativeLSIDs.add(container.LSID))
-			{
-				String e = String.format(
-						"LSID from %s,%s not unique.",
-						container.sourceObject, container.LSID);
-				fail(e);
-			}
-		}
-	}
+    @Test(dependsOnMethods={"testMetadataLevel"})
+    public void testAuthoritativeLSIDsAreUnique()
+    {
+        Set<String> authoritativeLSIDs = new HashSet<String>();
+        Set<IObjectContainer> containers = 
+            new HashSet<IObjectContainer>(containerCache.values());
+        for (IObjectContainer container : containers)
+        {
+            if (!authoritativeLSIDs.add(container.LSID))
+            {
+                String e = String.format(
+                        "LSID from %s,%s not unique.",
+                        container.sourceObject, container.LSID);
+                fail(e);
+            }
+        }
+    }
 
-	@Test(dependsOnMethods={"testMetadataLevel"})
-	public void testDetectorSettingsIndexes()
-	{
-		Class<? extends IObject> klass = DetectorSettings.class;
-		List<IObjectContainer> containers = 
-			store.getIObjectContainers(klass);
-		for (IObjectContainer container : containers)
-		{
-			Map<String, Integer> indexes = container.indexes;
-			Integer imageIndex = indexes.get("imageIndex");
-			Integer logicalChannelIndex = 
-				indexes.get("logicalChannelIndex");
-			int imageCount = store.countCachedContainers(Image.class, null);
-			String e = String.format("imageIndex %d >= imageCount %d", 
-					imageIndex, imageCount);
-			assertFalse(e, imageIndex >= imageCount);
-			int logicalChannelCount = store.countCachedContainers(
-					LogicalChannel.class, imageIndex);
-			e = String.format(
-					"logicalChannelIndex %d >= logicalChannelCount %d",
-					logicalChannelIndex, logicalChannelCount);
-			assertFalse(e, logicalChannelIndex >= logicalChannelCount);
-		}
-	}
+    @Test(dependsOnMethods={"testMetadataLevel"})
+    public void testDetectorSettingsIndexes()
+    {
+        Class<? extends IObject> klass = DetectorSettings.class;
+        List<IObjectContainer> containers = 
+            store.getIObjectContainers(klass);
+        for (IObjectContainer container : containers)
+        {
+            Map<String, Integer> indexes = container.indexes;
+            Integer imageIndex = indexes.get(Index.IMAGE_INDEX.getValue());
+            Integer channelIndex = indexes.get(Index.CHANNEL_INDEX.getValue());
+            int imageCount = store.countCachedContainers(Image.class, null);
+            String e = String.format("imageIndex %d >= imageCount %d", 
+                    imageIndex, imageCount);
+            assertFalse(e, imageIndex >= imageCount);
+            int logicalChannelCount = store.countCachedContainers(
+                    LogicalChannel.class, imageIndex);
+            e = String.format(
+                    "channelIndex %d >= logicalChannelCount %d",
+                    channelIndex, logicalChannelCount);
+            assertFalse(e, channelIndex >= logicalChannelCount);
+        }
+    }
 
-	@Test(dependsOnMethods={"testMetadataLevel"})
-	public void testDetectorSettingsDetectorRef()
-	{
-		Class<? extends IObject> klass = DetectorSettings.class;
-		List<IObjectContainer> containers = 
-			store.getIObjectContainers(klass);
-		referenceCache = store.getReferenceCache();
-		for (IObjectContainer container : containers)
-		{
-			LSID lsid = new LSID(container.LSID);
-			String e = String.format(
-					"%s %s not found in reference cache",
-					klass, lsid);
-			assertTrue(e, referenceCache.containsKey(lsid));
-			List<LSID> references = referenceCache.get(lsid);
-			assertTrue(references.size() > 0);
-			for (LSID referenceLSID : references)
-			{
-				assertNotNull(referenceLSID);
-				klass = Detector.class;
-				e = String.format(
-						"%s with LSID %s not found in container cache",
-						klass, referenceLSID);
-				assertTrue(e, authoritativeLSIDExists(klass, referenceLSID));
-			}
-		}
-	}
+    @Test(dependsOnMethods={"testMetadataLevel"})
+    public void testDetectorSettingsDetectorRef()
+    {
+        Class<? extends IObject> klass = DetectorSettings.class;
+        List<IObjectContainer> containers = 
+            store.getIObjectContainers(klass);
+        referenceCache = store.getReferenceCache();
+        for (IObjectContainer container : containers)
+        {
+            LSID lsid = new LSID(container.LSID);
+            String e = String.format(
+                    "%s %s not found in reference cache",
+                    klass, lsid);
+            assertTrue(e, referenceCache.containsKey(lsid));
+            List<LSID> references = referenceCache.get(lsid);
+            assertTrue(references.size() > 0);
+            for (LSID referenceLSID : references)
+            {
+                assertNotNull(referenceLSID);
+                klass = Detector.class;
+                e = String.format(
+                        "%s with LSID %s not found in container cache",
+                        klass, referenceLSID);
+                assertTrue(e, authoritativeLSIDExists(klass, referenceLSID));
+            }
+        }
+    }
 
-	@Test(dependsOnMethods={"testMetadataLevel"})
-	public void testObjectiveSettingsIndexes()
-	{
-		Class<? extends IObject> klass = ObjectiveSettings.class;
-		List<IObjectContainer> containers = 
-			store.getIObjectContainers(klass);
-		for (IObjectContainer container : containers)
-		{
-			Map<String, Integer> indexes = container.indexes;
-			Integer imageIndex = indexes.get("imageIndex");
-			int imageCount = store.countCachedContainers(Image.class, null);
-			String e = String.format("imageIndex %d >= imageCount %d", 
-					imageIndex, imageCount);
-			assertFalse(e, imageIndex >= imageCount);
-		}
-	}
+    @Test(dependsOnMethods={"testMetadataLevel"})
+    public void testObjectiveSettingsIndexes()
+    {
+        Class<? extends IObject> klass = ObjectiveSettings.class;
+        List<IObjectContainer> containers = 
+            store.getIObjectContainers(klass);
+        for (IObjectContainer container : containers)
+        {
+            Map<String, Integer> indexes = container.indexes;
+            Integer imageIndex = indexes.get(Index.IMAGE_INDEX.getValue());
+            int imageCount = store.countCachedContainers(Image.class, null);
+            String e = String.format("imageIndex %d >= imageCount %d", 
+                    imageIndex, imageCount);
+            assertFalse(e, imageIndex >= imageCount);
+        }
+    }
 
-	@Test(dependsOnMethods={"testMetadataLevel"})
-	public void testObjectiveSettingsObjectiveRef()
-	{
-		Class<? extends IObject> klass = ObjectiveSettings.class;
-		List<IObjectContainer> containers = 
-			store.getIObjectContainers(klass);
-		referenceCache = store.getReferenceCache();
-		for (IObjectContainer container : containers)
-		{
-			LSID lsid = new LSID(container.LSID);
-			String e = String.format(
-					"%s %s not found in reference cache", klass, lsid);
-			assertTrue(e, referenceCache.containsKey(lsid));
-			List<LSID> references = referenceCache.get(lsid);
-			assertTrue(references.size() > 0);
-			for (LSID referenceLSID : references)
-			{
-				assertNotNull(referenceLSID);
-				klass = Objective.class;
-				e = String.format(
-						"%s with LSID %s not found in container cache",
-						klass, referenceLSID);
-				assertTrue(e, authoritativeLSIDExists(klass, referenceLSID));
-			}
-		}
-	}
+    @Test(dependsOnMethods={"testMetadataLevel"})
+    public void testObjectiveSettingsObjectiveRef()
+    {
+        Class<? extends IObject> klass = ObjectiveSettings.class;
+        List<IObjectContainer> containers = 
+            store.getIObjectContainers(klass);
+        referenceCache = store.getReferenceCache();
+        for (IObjectContainer container : containers)
+        {
+            LSID lsid = new LSID(container.LSID);
+            String e = String.format(
+                    "%s %s not found in reference cache", klass, lsid);
+            assertTrue(e, referenceCache.containsKey(lsid));
+            List<LSID> references = referenceCache.get(lsid);
+            assertTrue(references.size() > 0);
+            for (LSID referenceLSID : references)
+            {
+                assertNotNull(referenceLSID);
+                klass = Objective.class;
+                e = String.format(
+                        "%s with LSID %s not found in container cache",
+                        klass, referenceLSID);
+                assertTrue(e, authoritativeLSIDExists(klass, referenceLSID));
+            }
+        }
+    }
 
-	@Test(dependsOnMethods={"testMetadataLevel"})
-	public void testLightSourceSettingsIndexes()
-	{
-		Class<? extends IObject> klass = LightSettings.class;
-		List<IObjectContainer> containers = 
-			store.getIObjectContainers(klass);
-		for (IObjectContainer container : containers)
-		{
-			Map<String, Integer> indexes = container.indexes;
-			Integer imageIndex = indexes.get("imageIndex");
-			Integer logicalChannelIndex = 
-				indexes.get("logicalChannelIndex");
-			int imageCount = store.countCachedContainers(Image.class, null);
-			String e = String.format("imageIndex %d >= imageCount %d", 
-					imageIndex, imageCount);
-			assertFalse(e, imageIndex >= imageCount);
-			int logicalChannelCount = store.countCachedContainers(
-					LogicalChannel.class, imageIndex);
-			e = String.format(
-					"logicalChannelIndex %d >= logicalChannelCount %d",
-					logicalChannelIndex, logicalChannelCount);
-			assertFalse(e, logicalChannelIndex >= logicalChannelCount);
-		}
-	}
+    @Test(dependsOnMethods={"testMetadataLevel"})
+    public void testLightSourceSettingsIndexes()
+    {
+        Class<? extends IObject> klass = LightSettings.class;
+        List<IObjectContainer> containers = 
+            store.getIObjectContainers(klass);
+        for (IObjectContainer container : containers)
+        {
+            Map<String, Integer> indexes = container.indexes;
+            Integer imageIndex = indexes.get(Index.IMAGE_INDEX.getValue());
+            Integer channelIndex = indexes.get(Index.CHANNEL_INDEX.getValue());
+            int imageCount = store.countCachedContainers(Image.class, null);
+            String e = String.format("imageIndex %d >= imageCount %d", 
+                    imageIndex, imageCount);
+            assertFalse(e, imageIndex >= imageCount);
+            int logicalChannelCount = store.countCachedContainers(
+                    LogicalChannel.class, imageIndex);
+            e = String.format(
+                    "channelIndex %d >= logicalChannelCount %d",
+                    channelIndex, logicalChannelCount);
+            assertFalse(e, channelIndex >= logicalChannelCount);
+        }
+    }
 
-	@Test(dependsOnMethods={"testMetadataLevel"})
-	public void testLightSourceSettingsLightSourceRef()
-	{
-		Class<? extends IObject> klass = LightSettings.class;
-		List<IObjectContainer> containers = 
-			store.getIObjectContainers(klass);
-		referenceCache = store.getReferenceCache();
-		for (IObjectContainer container : containers)
-		{
-			LSID lsid = new LSID(container.LSID);
-			String e = String.format(
-					"%s %s not found in reference cache", klass, container.LSID);
-			assertTrue(e, referenceCache.containsKey(lsid));
-			List<LSID> references = referenceCache.get(lsid);
-			assertTrue(references.size() > 0);
-			for (LSID referenceLSID : references)
-			{
-				assertNotNull(referenceLSID);
-				klass = LightSource.class;
-				e = String.format(
-						"%s with LSID %s not found in container cache",
-						klass, referenceLSID);
-				assertTrue(e, authoritativeLSIDExists(klass, referenceLSID));
-			}
-		}
-	}
+    @Test(dependsOnMethods={"testMetadataLevel"})
+    public void testLightSourceSettingsLightSourceRef()
+    {
+        Class<? extends IObject> klass = LightSettings.class;
+        List<IObjectContainer> containers = 
+            store.getIObjectContainers(klass);
+        referenceCache = store.getReferenceCache();
+        for (IObjectContainer container : containers)
+        {
+            LSID lsid = new LSID(container.LSID);
+            String e = String.format(
+                    "%s %s not found in reference cache", klass, container.LSID);
+            assertTrue(e, referenceCache.containsKey(lsid));
+            List<LSID> references = referenceCache.get(lsid);
+            assertTrue(references.size() > 0);
+            for (LSID referenceLSID : references)
+            {
+                assertNotNull(referenceLSID);
+                klass = LightSource.class;
+                e = String.format(
+                        "%s with LSID %s not found in container cache",
+                        klass, referenceLSID);
+                assertTrue(e, authoritativeLSIDExists(klass, referenceLSID));
+            }
+        }
+    }
 
-	@Test(dependsOnMethods={"testMetadataLevel"})
-	public void testLogicalChannelRefs()
-	{
-		Class<? extends IObject> klass = LogicalChannel.class;
-		List<IObjectContainer> containers = 
-			store.getIObjectContainers(klass);
-		referenceCache = store.getReferenceCache();
-		for (IObjectContainer container : containers)
-		{
-			LSID lsid = new LSID(container.LSID);
-			if (!referenceCache.containsKey(lsid))
-			{
-				continue;
-			}
-			List<LSID> references = referenceCache.get(lsid);
-			assertTrue(references.size() > 0);
-			for (LSID referenceLSID : references)
-			{
-				String asString = referenceLSID.toString();
-				if (asString.endsWith("OMERO_EMISSION_FILTER")
-					|| asString.endsWith("OMERO_EXCITATION_FILTER"))
-				{
-					int index = asString.lastIndexOf(':');
-					referenceLSID = new LSID(asString.substring(0, index));
-				}
-				assertNotNull(referenceLSID);
-				List<Class<? extends IObject>> klasses = 
-					new ArrayList<Class<? extends IObject>>();
-				klasses.add(Filter.class);
-				klasses.add(FilterSet.class);
-				String e = String.format(
-						"LSID %s not found in container cache", referenceLSID);
-				assertTrue(e, authoritativeLSIDExists(klasses, referenceLSID));
-			}
-		}
-	}
+    @Test(dependsOnMethods={"testMetadataLevel"})
+    public void testLogicalChannelRefs()
+    {
+        Class<? extends IObject> klass = LogicalChannel.class;
+        List<IObjectContainer> containers = 
+            store.getIObjectContainers(klass);
+        referenceCache = store.getReferenceCache();
+        for (IObjectContainer container : containers)
+        {
+            LSID lsid = new LSID(container.LSID);
+            if (!referenceCache.containsKey(lsid))
+            {
+                continue;
+            }
+            List<LSID> references = referenceCache.get(lsid);
+            assertTrue(references.size() > 0);
+            for (LSID referenceLSID : references)
+            {
+                String asString = referenceLSID.toString();
+                if (asString.endsWith(OMEROMetadataStoreClient.OMERO_EMISSION_FILTER_SUFFIX)
+                    || asString.endsWith(OMEROMetadataStoreClient.OMERO_EXCITATION_FILTER_SUFFIX))
+                {
+                    int index = asString.lastIndexOf(':');
+                    referenceLSID = new LSID(asString.substring(0, index));
+                }
+                assertNotNull(referenceLSID);
+                List<Class<? extends IObject>> klasses = 
+                    new ArrayList<Class<? extends IObject>>();
+                klasses.add(Filter.class);
+                klasses.add(FilterSet.class);
+                String e = String.format(
+                        "LSID %s not found in container cache", referenceLSID);
+                assertTrue(e, authoritativeLSIDExists(klasses, referenceLSID));
+            }
+        }
+    }
 
-	@Test(dependsOnMethods={"testMetadataLevel"})
-	public void testInstrumentImageRef()
-	{
-		Class<? extends IObject> klass = Instrument.class;
-		List<IObjectContainer> containers = 
-			store.getIObjectContainers(klass);
-		referenceCache = store.getReferenceCache();
-		for (IObjectContainer container : containers)
-		{
-			LSID lsid = new LSID(container.LSID);
-			for (LSID target : referenceCache.keySet())
-			{
-				for (LSID reference : referenceCache.get(target))
-				{
-					if (reference.equals(lsid))
-					{
-						return;
-					}
-				}
-			}
-			fail(String.format(
-					"%s %s not referenced by any image.", klass, lsid));
-		}
-	}
+    @Test(dependsOnMethods={"testMetadataLevel"})
+    public void testInstrumentImageRef()
+    {
+        Class<? extends IObject> klass = Instrument.class;
+        List<IObjectContainer> containers = 
+            store.getIObjectContainers(klass);
+        referenceCache = store.getReferenceCache();
+        for (IObjectContainer container : containers)
+        {
+            LSID lsid = new LSID(container.LSID);
+            for (LSID target : referenceCache.keySet())
+            {
+                for (LSID reference : referenceCache.get(target))
+                {
+                    if (reference.equals(lsid))
+                    {
+                        return;
+                    }
+                }
+            }
+            fail(String.format(
+                    "%s %s not referenced by any image.", klass, lsid));
+        }
+    }
 
-	@Test(dependsOnMethods={"testMetadataLevel"})
-	public void testFilterSetRefs()
-	{
-		Class<? extends IObject> klass = FilterSet.class;
-		List<IObjectContainer> containers = 
-			store.getIObjectContainers(klass);
-		referenceCache = store.getReferenceCache();
-		for (IObjectContainer container : containers)
-		{
-			LSID lsid = new LSID(container.LSID);
-			if (!referenceCache.containsKey(lsid))
-			{
-				continue;
-			}
-			List<LSID> references = referenceCache.get(lsid);
-			assertTrue(references.size() > 0);
-			for (LSID referenceLSID : references)
-			{
-				assertNotNull(referenceLSID);
-				List<Class<? extends IObject>> klasses = 
-					new ArrayList<Class<? extends IObject>>();
-				klasses.add(Filter.class);
-				klasses.add(Dichroic.class);
-				String e = String.format(
-						"LSID %s not found in container cache", referenceLSID);
-				assertTrue(e, authoritativeLSIDExists(klasses, referenceLSID));
-			}
-		}
-	}
+    @Test(dependsOnMethods={"testMetadataLevel"})
+    public void testFilterSetRefs()
+    {
+        Class<? extends IObject> klass = FilterSet.class;
+        List<IObjectContainer> containers = 
+            store.getIObjectContainers(klass);
+        referenceCache = store.getReferenceCache();
+        for (IObjectContainer container : containers)
+        {
+            LSID lsid = new LSID(container.LSID);
+            if (!referenceCache.containsKey(lsid))
+            {
+                continue;
+            }
+            List<LSID> references = referenceCache.get(lsid);
+            assertTrue(references.size() > 0);
+            for (LSID referenceLSID : references)
+            {
+                assertNotNull(referenceLSID);
+                List<Class<? extends IObject>> klasses = 
+                    new ArrayList<Class<? extends IObject>>();
+                klasses.add(Filter.class);
+                klasses.add(Dichroic.class);
+                String e = String.format(
+                        "LSID %s not found in container cache", referenceLSID);
+                assertTrue(e, authoritativeLSIDExists(klasses, referenceLSID));
+            }
+        }
+    }
 
-	@Test(dependsOnMethods={"testMetadataLevel"})
-	public void testOTFIsReferenced()
-	{
-		Class<? extends IObject> klass = OTF.class;
-		List<IObjectContainer> containers = 
-			store.getIObjectContainers(klass);
-		referenceCache = store.getReferenceCache();
-		for (IObjectContainer container : containers)
-		{
-			LSID lsid = new LSID(container.LSID);
-			for (LSID target : referenceCache.keySet())
-			{
-				for (LSID reference : referenceCache.get(target))
-				{
-					if (reference.equals(lsid))
-					{
-						return;
-					}
-				}
-			}
-			fail(String.format(
-					"%s %s not referenced by any object.", klass, lsid));
-		}
-	}
+    @Test(dependsOnMethods={"testMetadataLevel"})
+    public void testOTFIsReferenced()
+    {
+        Class<? extends IObject> klass = OTF.class;
+        List<IObjectContainer> containers = 
+            store.getIObjectContainers(klass);
+        referenceCache = store.getReferenceCache();
+        for (IObjectContainer container : containers)
+        {
+            LSID lsid = new LSID(container.LSID);
+            for (LSID target : referenceCache.keySet())
+            {
+                for (LSID reference : referenceCache.get(target))
+                {
+                    if (reference.equals(lsid))
+                    {
+                        return;
+                    }
+                }
+            }
+            fail(String.format(
+                    "%s %s not referenced by any object.", klass, lsid));
+        }
+    }
 }
