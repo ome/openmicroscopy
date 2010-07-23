@@ -196,8 +196,10 @@ public class ServerEditor
 		int m = model.getRowCount()-1;
 		String newValue = null;
 		if (m > -1 && table.getColumnCount() > 1) {
+			table.setManual(true);
 			table.changeSelection(m, 1, false, false);
 			newValue = (String) model.getValueAt(m, 1);
+			table.setManual(false);
 			requestFocusInWindow();
 		}
 		editor = table.getCellEditor();
