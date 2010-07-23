@@ -724,17 +724,25 @@ class EditorComponent
 
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#createSplitViewFigure()
+	 * @see Editor#createFigure()
 	 */
 	public void createFigure(int index)
 	{
 		if (controller.getFigureDialog() == null) {
 			String name = model.getRefObjectName();
+			UserNotifier un = 
+				MetadataViewerAgent.getRegistry().getUserNotifier();
 			FigureDialog dialog;
+			PixelsData pixels = model.getPixels();
 			switch (index) {
 				case FigureDialog.SPLIT:
-					dialog = controller.createFigureDialog(name, 
-							model.getPixels(), FigureDialog.SPLIT);
+					if (pixels == null) {
+						un.notifyInfo("Split View Figure", 
+								"Image not valid. Cannot create figure.");
+						return;
+					}
+					dialog = controller.createFigureDialog(name, pixels, 
+							FigureDialog.SPLIT);
 					if (!model.isRendererLoaded()) {
 						loadRenderingControl(RenderingControlLoader.LOAD);
 					} else {
@@ -749,27 +757,29 @@ class EditorComponent
 					Object ref = model.getRefObject();
 					if (ref instanceof WellSampleData || 
 							ref instanceof PlateData) {
-						UserNotifier un = 
-							MetadataViewerAgent.getRegistry().getUserNotifier();
-						un.notifyInfo("Figure", "Script not" +
+						un.notifyInfo("Thumbnails Figure", "Script not" +
 								" available for Wells or Plate");
 						return;
 					}
 						
 					Collection tags = model.getExistingTags();
 					dialog = controller.createFigureDialog(name, 
-							model.getPixels(),
-							FigureDialog.THUMBNAILS);
+							pixels, FigureDialog.THUMBNAILS);
 					dialog.setParentRef(model.getParentRootObject());
 					if (tags != null) dialog.setTags(tags);
 					else model.loadExistingTags();
 					dialog.centerDialog();
 					break;
 				case FigureDialog.MOVIE:
+					if (pixels == null) {
+						un.notifyInfo("Movie Figure", 
+								"Image not valid. Cannot create figure.");
+						return;
+					}
 					Collection planes = model.getChannelPlaneInfo(
 							EditorModel.DEFAULT_CHANNEL);
-					dialog = controller.createFigureDialog(name, 
-							model.getPixels(), FigureDialog.MOVIE);
+					dialog = controller.createFigureDialog(name, pixels, 
+							FigureDialog.MOVIE);
 					if (planes != null) dialog.setPlaneInfo(planes);
 					else model.firePlaneInfoLoading(EditorModel.DEFAULT_CHANNEL, 
 							0);
@@ -778,7 +788,6 @@ class EditorComponent
 				case FigureDialog.ROI_MOVIE:
 					model.fireROILoading(FigureDialog.ROI_MOVIE);
 					break;
-					
 			}
 		}
 	}
@@ -796,8 +805,8 @@ class EditorComponent
 		UserNotifier un = 
 			MetadataViewerAgent.getRegistry().getUserNotifier();
 		if (rois == null || rois.size() == 0) {	
-			un.notifyInfo("ROI Figure", "The primary select does not have " +
-					"Region of Interests.");
+			un.notifyInfo("ROI Split Figure", 
+			"The primary select does not have Region of Interests.");
 			return;
 		}
 		Iterator r = rois.iterator();
@@ -812,14 +821,21 @@ class EditorComponent
 			}
 		} catch (Exception e) {}
 		if (count == 0) {
-			un.notifyInfo("ROI Figure", "The primary select does not have " +
-			"Region of Interests.");
+			un.notifyInfo("ROI Split Figure", 
+					"The primary select does not have Region of Interests.");
 			return;
 		}
+		
 		if (controller.getFigureDialog() == null) {
+			PixelsData pixels = model.getPixels();
+			if (pixels == null) {
+				un.notifyInfo("ROI Split Figure", 
+						"Image not valid. Cannot create figure.");
+				return;
+			}
 			String name = model.getRefObjectName();
 			FigureDialog dialog = controller.createFigureDialog(name, 
-					model.getPixels(), index);
+					pixels, index);
 			dialog.setROIs(rois);
 			if (!model.isRendererLoaded()) {
 				loadRenderingControl(RenderingControlLoader.LOAD);
