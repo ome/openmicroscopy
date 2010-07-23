@@ -196,8 +196,10 @@ public class ServerEditor
 		int m = model.getRowCount()-1;
 		String newValue = null;
 		if (m > -1 && table.getColumnCount() > 1) {
+			table.setManual(true);
 			table.changeSelection(m, 1, false, false);
 			newValue = (String) model.getValueAt(m, 1);
+			table.setManual(false);
 			requestFocusInWindow();
 		}
 		editor = table.getCellEditor();
@@ -515,9 +517,7 @@ public class ServerEditor
 	void changeSelection(int row, int previousRow, String text)
 	{
 		fireEditProperty(row != -1);
-		//if (previousRow == row) return;
 		if (previousRow == -1 || previousRow == row) return;
-		//if (!editing) return;
 		editing = false;
 		List<String> values = new ArrayList<String>();
 		for (int i = 0; i < table.getRowCount(); i++) {
@@ -540,7 +540,6 @@ public class ServerEditor
 		handleServers(activeServer, activePort);
 		if (found || text == null || text.trim().length() == 0) {
 			if (previousRow != -1) removeRow(previousRow);
-			//showMessagePanel(false);
 		}
 		TableCellEditor editor = table.getCellEditor();
 		if (editor != null) editor.stopCellEditing();

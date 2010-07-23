@@ -79,6 +79,9 @@ class ServerTable
 	/** Reference to the parent. */
 	private ServerEditor 	parent;
 
+	/** Flag indicating a selection not done by a user. */
+	private boolean			manual;
+	
 	/** Handles the mouse pressed event. */
 	private void handleClickCount()
 	{
@@ -184,6 +187,7 @@ class ServerTable
 			throw new IllegalArgumentException("No model");
 		this.parent = parent;
 		previousRow = -1;
+		manual = false;
 		initComponents(servers, icon);
 	}
 	
@@ -247,6 +251,16 @@ class ServerTable
 		previousRow = row-1;
 	}
 	
+	/**
+	 * Sets the flag indicating that the selection does not 
+	 * corresponds to a user's action.
+	 * 
+	 * @param manual Pass <code>true</code> to indicate that it does not 
+	 * 				 correspond to a user's action, <code>false</code>
+	 * 				 otherwise.
+	 */
+	void setManual(boolean manual) { this.manual = manual; }
+	
 	/** 
 	 * Overridden to set the focus on the edited cell.
 	 * @see JTable#changeSelection(int, int, boolean, boolean)
@@ -255,6 +269,7 @@ class ServerTable
 								boolean extend)
 	{
 		super.changeSelection(row, column, toggle, extend);
+		if (manual) return;
 		String v = null;
 		DefaultTableModel model = ((DefaultTableModel) getModel());
 		if (row != previousRow && row >= 0 && previousRow != -1) {
