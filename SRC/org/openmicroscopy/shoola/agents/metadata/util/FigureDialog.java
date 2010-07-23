@@ -1837,15 +1837,13 @@ public class FigureDialog
 		Integer n = (Integer) field.getValueAsNumber();
 		if (n == null) return;
 		Document doc;
-		int v;
+		int v = (int) ((n*pixels.getSizeX())/pixels.getSizeY());
 		if (field == widthField) {
-			v = (int) ((n*pixels.getSizeX())/pixels.getSizeY());
 			doc = heightField.getDocument();
 			doc.removeDocumentListener(this);
 			heightField.setText(""+v);
 			doc.addDocumentListener(this);
 		} else {
-			v = (int) ((n*pixels.getSizeX())/pixels.getSizeY());
 			doc = widthField.getDocument();
 			doc.removeDocumentListener(this);
 			widthField.setText(""+v);
