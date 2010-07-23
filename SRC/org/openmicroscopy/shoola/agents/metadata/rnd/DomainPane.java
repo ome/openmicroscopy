@@ -837,6 +837,10 @@ public class DomainPane
         setSelectedChannel();
         setCodomainInterval();
         resetBitResolution();
+        int n = model.getMaxC();
+        for (int i = 0; i < n; i++) {
+        	setChannelColor(i);
+		}
         resetGamma(model.getCurveCoefficient());
         setZSection(model.getDefaultZ());
         setTimepoint(model.getDefaultT());

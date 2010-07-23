@@ -30,15 +30,14 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
-import org.openmicroscopy.shoola.agents.metadata.IconManager;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.IconManager;
 
 /** 
  * Component displaying the plane histogram.
