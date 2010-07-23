@@ -738,6 +738,11 @@ public class ServerEditor
 		if (list.length() != 0) prefs.put(OMERO_SERVER, list);
 	}
 
+	/**
+	 * Sets the focus on the row corresponding to the passed server.
+	 * 
+	 * @param server The server to handle.
+	 */
 	void setFocus(String server)
 	{
 		if (server == null || server.equals(ScreenLogin.DEFAULT_SERVER)) {
@@ -794,6 +799,7 @@ public class ServerEditor
 	boolean isOriginal(String value)
 	{ 
 		DefaultTableModel model = ((DefaultTableModel) table.getModel());
+		if (table.getSelectedRow() < 0) return false;
 		String v = (String) model.getValueAt(table.getSelectedRow(), 1);
 		if (value == null) return false;
 		return (value.equals(v));
