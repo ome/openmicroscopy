@@ -31,7 +31,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -56,7 +55,6 @@ import javax.swing.SwingUtilities;
 
 //Application-internal dependencies
 import omero.model.OriginalFile;
-
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
@@ -76,7 +74,6 @@ import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
-
 import pojos.AnnotationData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
@@ -397,7 +394,7 @@ class DocComponent
 				downloadButton = new JMenuItem(icons.getIcon(
 						IconManager.DOWNLOAD_12));
 				downloadButton.setText("Download...");
-				downloadButton.setOpaque(false);
+				//downloadButton.setOpaque(false);
 				//UIUtilities.unifiedButtonLookAndFeel(downloadButton);
 				//downloadButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 				downloadButton.setToolTipText("Download the selected file.");
@@ -411,7 +408,7 @@ class DocComponent
 					openButton = new JMenuItem(icons.getIcon(
 							IconManager.EDITOR_12));
 					openButton.setText("Open");
-					openButton.setOpaque(false);
+					//openButton.setOpaque(false);
 					//UIUtilities.unifiedButtonLookAndFeel(openButton);
 					//openButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 					openButton.setToolTipText("Open the file in the editor.");
