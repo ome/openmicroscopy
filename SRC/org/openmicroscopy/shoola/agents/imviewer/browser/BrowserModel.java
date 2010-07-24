@@ -554,7 +554,7 @@ class BrowserModel
         	BufferedImage img = null;
         	try {
 				img = Factory.magnifyImage(renderedImage, zoomFactor, 0);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
 				un.notifyInfo("Magnification", 
 						"An error occurs while magnifying the image.");
@@ -574,7 +574,7 @@ class BrowserModel
         	BufferedImage img = null;
         	try {
 				img = Factory.magnifyImage(projectedImage, zoomFactor, 0);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
 				un.notifyInfo("Magnification", 
 						"An error occurs while magnifying the image.");
