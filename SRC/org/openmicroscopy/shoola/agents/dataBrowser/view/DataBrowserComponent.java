@@ -74,6 +74,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
@@ -578,28 +579,25 @@ class DataBrowserComponent
 			un.notifyInfo("Dataset Creation", "No images selected");
 			return;
 		}
-		model.fireDataSaving(data, images);
-		/*
-		Collection images;
-		if (visible) images = browser.getVisibleImages();
-		else {
-			images = new HashSet();
-			Collection set = browser.getSelectedDisplays();
-			if (set != null) {
-				Iterator i = set.iterator();
-				ImageDisplay display;
-				Object ho;
-				while (i.hasNext()) {
-					display = (ImageDisplay) i.next();
-					ho = display.getHierarchyObject();
-					if (ho instanceof DataObject) {
-						images.add(ho);
-					}
-				}
+		//Check if we can use the image
+		if (model.getParent() == null && model.getExperimenter() != null) {
+			Iterator i = images.iterator();
+			ImageData img;
+			Collection list = new HashSet();
+			while (i.hasNext()) {
+				img = (ImageData) i.next();
+				if (isUserOwner(img)) list.add(img);
 			}
+			if (list.size() == 0) {
+				UserNotifier un = 
+					DataBrowserAgent.getRegistry().getUserNotifier();
+				un.notifyInfo("Dataset Creation", "The images " +
+						"cannot be added to the dataset. \n ");
+				return;
+			}
+			images = list;
 		}
 		model.fireDataSaving(data, images);
-		*/
 	}
 
 	/**
@@ -1395,6 +1393,16 @@ class DataBrowserComponent
 	{
 		firePropertyChange(OPEN_EXTERNAL_APPLICATION_PROPERTY, new Object(), 
 				data);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#setExperimenter(ExperimenterData)
+	 */
+	public void setExperimenter(ExperimenterData exp)
+	{
+		model.setExperimenter(exp);
+		view.onExperimenterSet();
 	}
 	
 	/** 

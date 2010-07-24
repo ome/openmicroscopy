@@ -1738,10 +1738,14 @@ class TreeViewerComponent
 					db = DataBrowserFactory.getFSFolderBrowser(
 							(FileData) parentObject, leaves);
 			}
-		} else 
+		} else {
 			db = DataBrowserFactory.getDataBrowser(grandParentObject, 
 					parentObject, leaves);
-		if (db == null) return;
+			if (parent instanceof TreeImageTimeSet) {
+				ExperimenterData exp = getSelectedBrowser().getNodeOwner(parent);
+				db.setExperimenter(exp);
+			}
+		}
 		db.addPropertyChangeListener(controller);
 		db.activate();
 		view.displayBrowser(db);
@@ -2077,6 +2081,7 @@ class TreeViewerComponent
 		//Need to recycle the search browser.
 		DataBrowser db = DataBrowserFactory.getSearchBrowser(results);
 		if (db != null && view.getDisplayMode() == SEARCH_MODE) {
+			db.setExperimenter(TreeViewerAgent.getUserDetails());
 			db.addPropertyChangeListener(controller);
 			db.activate();
 			view.removeAllFromWorkingPane();
@@ -2179,6 +2184,11 @@ class TreeViewerComponent
 		if (display != null) grandParentObject =  display.getUserObject();
 		DataBrowser db = DataBrowserFactory.getDataBrowser(grandParentObject,
 				parentObject, leaves);
+		//Set the userID of the owner of the time interval.
+		if (parent != null) {
+			ExperimenterData exp = getSelectedBrowser().getNodeOwner(parent);
+			db.setExperimenter(exp);
+		}
 		db.addPropertyChangeListener(controller);
 		db.activate();
 		view.removeAllFromWorkingPane();

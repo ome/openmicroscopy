@@ -65,6 +65,7 @@ import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.ProjectData;
 import pojos.TagAnnotationData;
@@ -149,6 +150,9 @@ abstract class DataBrowserModel
     /** The collection of external applications if any. */
     private List<ApplicationData> applications;
     
+    /** Sets the experimenter. */
+    private ExperimenterData	  experimenter;
+    
 	/** Flag indicating that the thumbnails are loaded or not. */
 	protected boolean			thumbnailLoaded;
 	
@@ -187,7 +191,14 @@ abstract class DataBrowserModel
      */
     Object getParent() { return parent; }
     
-     /**
+    /**
+     * Returns the experimenter.
+     * 
+     * @return See above.
+     */
+    Object getExperimenter() { return experimenter; }
+    
+    /**
      * Returns the number of images.
      * 
      * @return See above.
@@ -639,9 +650,15 @@ abstract class DataBrowserModel
 	 */
 	boolean isParentWritable()
 	{
-		if (parent == null) return false;
 		long userID = DataBrowserAgent.getUserDetails().getId();
-		if (!(parent instanceof DataObject)) return false;
+		if (parent == null) {
+			if (experimenter == null) return false;
+			return experimenter.getId() == userID;
+		}
+		if (!(parent instanceof DataObject)) {
+			if (experimenter == null) return false;
+			return experimenter.getId() == userID;
+		}
 		boolean b = EditorUtil.isUserOwner(parent, userID);
 		if (b) return b;
 		int level = 
@@ -673,6 +690,16 @@ abstract class DataBrowserModel
 	void setApplicationData(List<ApplicationData> applications)
 	{
 		this.applications = applications;
+	}
+	
+	/**
+	 * Sets the experimenter.
+	 * 
+	 * @param experimenter The value to set.
+	 */
+	void setExperimenter(ExperimenterData experimenter)
+	{
+		this.experimenter = experimenter;
 	}
 	
 	/**
