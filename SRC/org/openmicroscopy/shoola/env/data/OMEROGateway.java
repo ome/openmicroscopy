@@ -3567,13 +3567,19 @@ class OMEROGateway
 			OriginalFile oFile;
 			if (originalFileID <= 0) {
 				oFile = new OriginalFileI();
-				oFile.setName(omero.rtypes.rstring(file.getName()));
-				oFile.setPath(omero.rtypes.rstring(file.getAbsolutePath()));
+				String name = file.getName();
+				oFile.setName(omero.rtypes.rstring(name));
+				String absolutePath = file.getAbsolutePath();
+				String path = absolutePath.substring(0, 
+						absolutePath.length()-name.length());
+				oFile.setPath(omero.rtypes.rstring(path));
 				oFile.setSize(omero.rtypes.rlong(file.length()));
 				//Need to be modified
 				oFile.setSha1(omero.rtypes.rstring("pending"));
 				oFile.setMimetype(omero.rtypes.rstring(mimeType));
-				save = (OriginalFile) saveAndReturnObject(oFile, null);
+				
+				save = (OriginalFile) 
+					getUpdateService().saveAndReturnObject(oFile);
 				store.setFileId(save.getId().getValue());
 				fileCreated = true;
 			} else {
@@ -3585,8 +3591,9 @@ class OMEROGateway
 				newFile.setPath(omero.rtypes.rstring(file.getAbsolutePath()));
 				newFile.setSize(omero.rtypes.rlong(file.length()));
 				newFile.setSha1(omero.rtypes.rstring("pending"));
-				oFile.setMimetype(oFile.getMimetype());
-				save = (OriginalFile) saveAndReturnObject(newFile, null);
+				newFile.setMimetype(oFile.getMimetype());
+				save = (OriginalFile) 
+					getUpdateService().saveAndReturnObject(newFile);
 				store.setFileId(save.getId().getValue());
 			}
 		} catch (Exception e) {
