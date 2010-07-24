@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
+import pojos.ExperimenterData;
 
 
 /** 
@@ -654,5 +655,12 @@ public interface DataBrowser
 	 */
 	public void openWith(ApplicationData data);
 	
+	/**
+	 * Sets the experimenter currently selected. This method should
+	 * only be invoked when browsing time interval.
+	 * 
+	 * @param exp The user currently selected.
+	 */
+	public void setExperimenter(ExperimenterData exp);
 	
 }

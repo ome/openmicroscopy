@@ -662,6 +662,12 @@ class DataBrowserToolBar
 		search.setTags(tags);
 	}
 
+	/** Invokes when the parent has been set. */
+	void onExperimenterSet()
+	{
+		createDatasetButton.setEnabled(model.isParentWritable());
+	}
+	
 	/**
 	 * Sets the number of images.
 	 * 

@@ -620,4 +620,7 @@ class DataBrowserUI
 			fieldsView.displayFields(fieldsView.getNodes());
 	}
 	
+	/** Invokes when the parent has been set. */
+	void onExperimenterSet() { toolBar.onExperimenterSet(); }
+	
 }
