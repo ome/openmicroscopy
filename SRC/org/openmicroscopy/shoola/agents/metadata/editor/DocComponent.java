@@ -396,7 +396,7 @@ class DocComponent
 				downloadButton = new JMenuItem(icons.getIcon(
 						IconManager.DOWNLOAD_12));
 				downloadButton.setText("Download...");
-				downloadButton.setOpaque(false);
+				//downloadButton.setOpaque(false);
 				//UIUtilities.unifiedButtonLookAndFeel(downloadButton);
 				//downloadButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 				downloadButton.setToolTipText("Download the selected file.");
@@ -410,7 +410,7 @@ class DocComponent
 					openButton = new JMenuItem(icons.getIcon(
 							IconManager.EDITOR_12));
 					openButton.setText("Open");
-					openButton.setOpaque(false);
+					//openButton.setOpaque(false);
 					//UIUtilities.unifiedButtonLookAndFeel(openButton);
 					//openButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 					openButton.setToolTipText("Open the file in the editor.");
