@@ -251,7 +251,7 @@ public class DataServicesFactory
     		client = client.substring(4);
     	String[] values = server.split("\\.");
     	String[] valuesClient = client.split("\\.");
-    	Integer.parseInt(values[0]);
+    	//Integer.parseInt(values[0]);
     	if (values.length < 2 || valuesClient.length < 2) return false;
     	int s1 = Integer.parseInt(values[0]);
     	int s2 = Integer.parseInt(values[1]);
@@ -379,12 +379,10 @@ public class DataServicesFactory
         	return;
         } 
        
-        /*
         if (!checkClientServerCompatibility(version, clientVersion)) {
         	notifyIncompatibility(clientVersion, uc.getHostName());
         	return;
         }
-        */
         
         KeepClientAlive kca = new KeepClientAlive(container, omeroGateway);
         executor = new ScheduledThreadPoolExecutor(1);
