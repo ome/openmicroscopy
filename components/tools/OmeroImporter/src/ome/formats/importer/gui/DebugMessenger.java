@@ -68,34 +68,34 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
 
     private final ImportConfig config;
     
-    boolean debug = false;
+    private static final boolean debug = false;
     
     private static final String ICON = "gfx/nuvola_mail_send64.png";
     
-    ArrayList<IObserver> observers = new ArrayList<IObserver>();
+    private ArrayList<IObserver> observers = new ArrayList<IObserver>();
 
-    JFrame                  owner;
+    private JFrame                  owner;
     
-    JPanel                  mainPanel;
-    JPanel                  commentPanel;
-    JPanel                  debugPanel;
+    private JPanel                  mainPanel;
+    private JPanel                  commentPanel;
+    private JPanel                  debugPanel;
 
-    JButton                 quitBtn;
-    JButton                 cancelBtn;
-    JButton                 sendBtn;
-    JButton                 sendWithFilesBtn;
-    JButton                 ignoreBtn;
-    JButton                 copyBtn;
+    private JButton                 quitBtn;
+    private JButton                 cancelBtn;
+    private JButton                 sendBtn;
+    private JButton                 sendWithFilesBtn;
+    private JButton                 ignoreBtn;
+    private JButton                 copyBtn;
     
-    JTextField              emailTextField;
-    String                  emailText           = "";          
+    private JTextField              emailTextField;
+    private String                  emailText           = "";          
     
-    JTextArea               commentTextArea;
-    String                  commentText         = "";
+    private JTextArea               commentTextArea;
+    private String                  commentText         = "";
     
-    JTextPane               debugTextPane;
-    StyledDocument          debugDocument;
-    Style                   debugStyle;
+    private JTextPane               debugTextPane;
+    private StyledDocument          debugDocument;
+    private Style                   debugStyle;
 
 	private ArrayList<ErrorContainer> errorsArrayList;
 
@@ -105,7 +105,7 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
 	
 	private FileSizeChecker checker;
 
-    private String file_info; 
+    private String file_info;
     
     /**
      * @param owner - parent JFrame
