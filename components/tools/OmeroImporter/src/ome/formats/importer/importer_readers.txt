@@ -76,6 +76,12 @@ loci.formats.in.WATOPReader           # wat
 loci.formats.in.SeikoReader           # xqd, xqf
 loci.formats.in.TopometrixReader      # tfr, ffr, zfr, zfp, 2fl
 loci.formats.in.UBMReader             # pr3
+loci.formats.in.QuesantReader         # afm
+loci.formats.in.BioRadGelReader       # 1sc
+loci.formats.in.RHKReader             # sm2, sm3
+loci.formats.in.MolecularImagingReader # stp
+loci.formats.in.CellWorxReader        # pnl, htd
+loci.formats.in.CRIReader             # im3
 loci.formats.in.FakeReader            # fake
 
 # multi-extension messes
@@ -113,6 +119,7 @@ loci.formats.in.FlexReader            # flex [LuraWave]
 loci.formats.in.SVSReader             # svs
 loci.formats.in.ImaconReader          # fff
 loci.formats.in.LEOReader             # sxm
+loci.formats.in.JPKReader             # jpk
 
 # TIFF-based readers with slow isThisType
 loci.formats.in.MIASReader            # tif
@@ -131,7 +138,12 @@ loci.formats.in.PhotoshopTiffReader   # tif
 # standard TIFF reader must go last (it accepts any TIFF)
 loci.formats.in.TiffDelegateReader    # tif, tiff
 
+# standard text reader must go last (it accepts any plaintext)
+loci.formats.in.TextReader            # txt, csv
+
 # non-TIFF readers with slow isThisType
+loci.formats.in.BurleighReader        # img
 loci.formats.in.OpenlabReader         # liff
 loci.formats.in.DicomReader           # dcm, dicom
 loci.formats.in.SMCameraReader        # (no extension)
+loci.formats.in.SBIGReader            # (no extension)
