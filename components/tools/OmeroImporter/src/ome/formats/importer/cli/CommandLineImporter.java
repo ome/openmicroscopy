@@ -331,6 +331,10 @@ public class CommandLineImporter {
                 "Log levels -- Bio-Formats: %s OMERO.importer: %s",
                 Logger.getLogger("loci").getLevel(),
                 Logger.getLogger("ome.formats").getLevel()));
+        System.out.println(String.format(                
+        		"Log levels -- Bio-Formats: %s OMERO.importer: %s",
+                Logger.getLogger("loci").getLevel(),
+                Logger.getLogger("ome.formats").getLevel()));
 
         // Start the importer and import the image we've been given
         String[] rest = new String[args.length - g.getOptind()];

@@ -353,7 +353,7 @@ public class FileQueueChooser extends JFileChooser implements ActionListener
      * @author Brian Loranger brain at lifesci.dundee.ac.uk
      *
      */
-    class DashFileFilter extends javax.swing.filechooser.FileFilter
+    static class DashFileFilter extends javax.swing.filechooser.FileFilter
     {
         /* (non-Javadoc)
          * @see javax.swing.filechooser.FileFilter#accept(java.io.File)
@@ -379,7 +379,7 @@ public class FileQueueChooser extends JFileChooser implements ActionListener
      * @author Brian Loranger brain at lifesci.dundee.ac.uk
      *
      */
-    class R3DNewFileFilter extends javax.swing.filechooser.FileFilter
+    static class R3DNewFileFilter extends javax.swing.filechooser.FileFilter
     {
         /* (non-Javadoc)
          * @see javax.swing.filechooser.FileFilter#accept(java.io.File)
@@ -404,7 +404,7 @@ public class FileQueueChooser extends JFileChooser implements ActionListener
      * @author Brian Loranger brain at lifesci.dundee.ac.uk
      *
      */
-    class D3DNewFileFilter extends javax.swing.filechooser.FileFilter
+    static class D3DNewFileFilter extends javax.swing.filechooser.FileFilter
     {
         /* (non-Javadoc)
          * @see javax.swing.filechooser.FileFilter#accept(java.io.File)
@@ -429,7 +429,7 @@ public class FileQueueChooser extends JFileChooser implements ActionListener
      * @author Brian Loranger brain at lifesci.dundee.ac.uk
      *
      */
-    class R3DOldFileFilter extends javax.swing.filechooser.FileFilter
+    static class R3DOldFileFilter extends javax.swing.filechooser.FileFilter
     {
         /* (non-Javadoc)
          * @see javax.swing.filechooser.FileFilter#accept(java.io.File)
@@ -454,7 +454,7 @@ public class FileQueueChooser extends JFileChooser implements ActionListener
      * @author Brian Loranger brain at lifesci.dundee.ac.uk
      *
      */
-    class D3DOldFileFilter extends javax.swing.filechooser.FileFilter
+    static class D3DOldFileFilter extends javax.swing.filechooser.FileFilter
     {
         /* (non-Javadoc)
          * @see javax.swing.filechooser.FileFilter#accept(java.io.File)
@@ -479,7 +479,7 @@ public class FileQueueChooser extends JFileChooser implements ActionListener
      * @author Brian Loranger brain at lifesci.dundee.ac.uk
      *
      */
-    class D3DNPrjFileFilter extends javax.swing.filechooser.FileFilter
+    static class D3DNPrjFileFilter extends javax.swing.filechooser.FileFilter
     {
         /* (non-Javadoc)
          * @see javax.swing.filechooser.FileFilter#accept(java.io.File)
