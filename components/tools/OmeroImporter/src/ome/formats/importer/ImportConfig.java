@@ -600,6 +600,7 @@ public class ImportConfig {
                 }
                 value.set(value.fromString(input));
             } catch (IOException e) {
+            	log.error("IGNORING: ", e);
                 continue;
             }
         }

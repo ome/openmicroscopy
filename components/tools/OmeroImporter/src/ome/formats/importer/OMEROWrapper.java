@@ -285,7 +285,7 @@ class ReaderInvocationHandler implements InvocationHandler {
         if ("equals".equals(method.getName())) {
             throw new UnsupportedOperationException();
         } else if ("hashCode".equals(method.getName())) {
-            return new Integer(reader.hashCode());
+            return Integer.valueOf(reader.hashCode());
         } else if ("toString".equals(method.getName())) {
             return "ReaderHandler [" + reader + "]";
         } else {

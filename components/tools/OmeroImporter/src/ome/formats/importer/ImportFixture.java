@@ -41,8 +41,7 @@ public class ImportFixture
     Log                        log = LogFactory.getLog(ImportFixture.class);
 
     @SuppressWarnings("unused")
-    private String             user, pass, host, port;
-
+    
     private OMEROMetadataStoreClient store;
 
     private OMEROWrapper       reader;

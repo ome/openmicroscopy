@@ -154,11 +154,6 @@ public class ImportCandidates extends DirectoryWalker
     int total = -1;
 
     /**
-     * Current directory during a walk.
-     */
-    File dir = null;
-    
-    /**
      * Whether or not one of the {@link SCANNING} events had {@link SCANNING#cancel()}
      * called.
      */

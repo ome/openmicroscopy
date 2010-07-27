@@ -94,22 +94,22 @@ public class OptionsDialog extends JDialog implements ActionListener
     @SuppressWarnings("unused")
 	private static Log          log     = LogFactory.getLog(OptionsDialog.class);
     
-    final String allDescription = "This level of debugging turns on all logging. Use this option if you want to see all messages, " +
+    private final static String allDescription = "This level of debugging turns on all logging. Use this option if you want to see all messages, " +
     		"but be mindful of the fact this can produce some very large log files.";
 
-    final String debugDescription = "This level of debugging is useful when debugging the importer, and is primarily of interest " +
+    private final static String debugDescription = "This level of debugging is useful when debugging the importer, and is primarily of interest " +
     		" to developers. This can also produce very large files.";
 
-    final String errorDescription = "This level of debugging captures 'minor' bugs which are unlikely to cause the importer to " +
+    private final static String errorDescription = "This level of debugging captures 'minor' bugs which are unlikely to cause the importer to " +
     		"fail or fatally crash. This is the default setting.";
     
-    final String fatalDescription = "This level of debugging only captures 'fatal' bugs which are likely to cause the importer to " +
+    private final static String fatalDescription = "This level of debugging only captures 'fatal' bugs which are likely to cause the importer to " +
     		"crash and fail.";
 
-    final String infoDescription = "This level of debugging captures messages provided by the developer. Most metadata " +
+    private final static String infoDescription = "This level of debugging captures messages provided by the developer. Most metadata " +
     		"messages are provided to the log file through this level of debugging information.";
     
-    final String offDescription = "This option turns off almost all debugging information, and any information that appears " +
+    private final static String offDescription = "This option turns off almost all debugging information, and any information that appears " +
     		"should be very brief.";
     
     final DebugItem[] debugItems = {
