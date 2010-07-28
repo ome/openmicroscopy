@@ -75,5 +75,36 @@ class TestTickets3000(lib.ITest):
         admin.removeGroups(user, [non_user])
         admin.lookupExperimenters()
 
+    def test2628(self):
+        q = self.root.sf.getQueryService()
+        sql = "select s.uuid "\
+              "from EventLog evl join evl.event ev join ev.session s"
+        
+        """
+          File "/Users/ola/Dev/omero/dist/lib/python/omero_api_IQuery_ice.py", line 138, in findAllByQuery
+            return _M_omero.api.IQuery._op_findAllByQuery.invoke(self, ((query, params), _ctx))
+        Ice.UnmarshalOutOfBoundsException: exception ::Ice::UnmarshalOutOfBoundsException
+        {
+            reason = 
+        }        
+        """
+        q.findAllByQuery(sql, None)
+        
+        
+        """
+          File "/Users/ola/Dev/omero/dist/lib/python/omero_api_IQuery_ice.py", line 138, in findAllByQuery
+            return _M_omero.api.IQuery._op_findAllByQuery.invoke(self, ((query, params), _ctx))
+        Ice.UnknownUserException: exception ::Ice::UnknownUserException
+        {
+            unknown = unknown exception type `'
+        }
+        """
+        p1 = omero.sys.Parameters()
+        f1 = omero.sys.Filter() 
+        f1.limit = rint(100) 
+        p1.theFilter = f1
+        q.findAllByQuery(sql, p1)
+        
+    
 if __name__ == '__main__':
     unittest.main()
