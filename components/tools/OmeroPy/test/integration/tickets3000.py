@@ -79,18 +79,18 @@ class TestTickets3000(lib.ITest):
         q = self.root.sf.getQueryService()
         sql = "select s.uuid "\
               "from EventLog evl join evl.event ev join ev.session s"
-        
+
         """
           File "/Users/ola/Dev/omero/dist/lib/python/omero_api_IQuery_ice.py", line 138, in findAllByQuery
             return _M_omero.api.IQuery._op_findAllByQuery.invoke(self, ((query, params), _ctx))
         Ice.UnmarshalOutOfBoundsException: exception ::Ice::UnmarshalOutOfBoundsException
         {
-            reason = 
-        }        
+            reason =
+        }
         """
-        q.findAllByQuery(sql, None)
-        
-        
+        # This was never supported
+        self.assertRaises(Ice.UnmarshalOutOfBoundsException, q.findAllByQuery, sql, None)
+
         """
           File "/Users/ola/Dev/omero/dist/lib/python/omero_api_IQuery_ice.py", line 138, in findAllByQuery
             return _M_omero.api.IQuery._op_findAllByQuery.invoke(self, ((query, params), _ctx))
@@ -100,11 +100,16 @@ class TestTickets3000(lib.ITest):
         }
         """
         p1 = omero.sys.Parameters()
-        f1 = omero.sys.Filter() 
-        f1.limit = rint(100) 
+        f1 = omero.sys.Filter()
+        f1.limit = rint(100)
         p1.theFilter = f1
-        q.findAllByQuery(sql, p1)
-        
-    
+
+        # Nor was this
+        self.assertRaises(Ice.UnknownUserException, q.findAllByQuery, sql, p1)
+
+        # Only IQuery.projection can return non-IObject types
+        q.projection(sql, p1)
+
+
 if __name__ == '__main__':
     unittest.main()

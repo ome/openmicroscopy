@@ -405,18 +405,20 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     public List<Object[]> projection(final String query, Parameters p) {
         final Parameters params = (p == null ? new Parameters() : p);
         final Query<List<Object>> q = getQueryFactory().lookup(query, params);
+
+        @SuppressWarnings("rawtypes")
         final List rv = (List) getHibernateTemplate().execute(q);
         final int size = rv.size();
         Object obj = null;
         for (int i = 0; i < size; i++) {
             obj = rv.get(i);
             if (obj != null) {
-                if (IObject.class.isAssignableFrom(obj.getClass())) {
+                if (!Object[].class.isAssignableFrom(obj.getClass())) {
                     rv.set(i, new Object[]{obj});
                 }
             }
         }
-        return (List<Object[]>) rv;
+        return rv;
     }
 
     final static Pattern AGGS  = Pattern.compile("(count|sum|max|min)");
