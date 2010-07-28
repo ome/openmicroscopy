@@ -113,7 +113,7 @@ public class ImportCandidatesTest extends TestCase {
     public void testOrderedReturns() {
         c = new ImportCandidates(w, new String[]{"a","b"}, o) {
             @Override
-            protected ImportContainer singleFile(File file) {
+            protected ImportContainer singleFile(File file, ImportConfig config) {
                 return container(file.getName());
             }
         };
