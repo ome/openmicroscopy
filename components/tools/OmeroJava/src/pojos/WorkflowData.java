@@ -141,9 +141,12 @@ public class WorkflowData
 	{
 		List<String> list = new ArrayList<String>();
 		String[] valueString = str.split(",");
-		for(String value : valueString)
-			if(!value.equals("[]"))
-				list.add(value);
+		for(String keyword : valueString)
+			if(!keyword.equals("[]"))
+			{
+                System.err.println(keyword);
+                list.add(keyword);
+            }
 		return list;
 	}
 
@@ -230,7 +233,12 @@ public class WorkflowData
 		if (workflow == null) 
 			throw new IllegalArgumentException("No workflow specified.");
 		setDirty(true);
-		workflow.setKeywords((String[])CSVToList(keywords).toArray());
+		Object keywordObject =  CSVToList(keywords);
+		List<String> keywordsList = (List<String>)keywordObject;
+		String[] keywordsArray = new String[keywordsList.size()];
+		for(int i = 0; i < keywordsList.size(); i++)
+			keywordsArray[i]=keywordsList.get(i);
+		workflow.setKeywords(keywordsArray);
 	}
 	
 	/**
@@ -244,7 +252,10 @@ public class WorkflowData
 		if (workflow == null) 
 			throw new IllegalArgumentException("No workflow specified.");
 		setDirty(true);
-		workflow.setKeywords((String[])keywords.toArray());
+		String[] keywordString = new String[keywords.size()];
+		for(int i = 0; i < keywords.size(); i++)
+		  keywordString[i] = keywords.get(i);
+		workflow.setKeywords(keywordString);
 	}
 	
 	/**
