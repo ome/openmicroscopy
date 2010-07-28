@@ -43,6 +43,8 @@ class DeleteControl(BaseControl):
         plates = []
         objects = []
         for arg in args.obj:
+            if 0 > arg.find(":"):
+                self.ctx.die(5, "Format: 'Image:<id>'")
             klass, id = arg.split(":")
             if klass == "Image":
                 images.append(long(id))

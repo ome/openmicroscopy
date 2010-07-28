@@ -25,8 +25,8 @@ with a "--".
 
 Examples:
 
-  bin/omero login ~/Data/my_file.dv                    # Use current login
-  bin/omero login -- --debug=ALL ~/Data/my_file2.png   # Set Java debug
+  bin/omero import ~/Data/my_file.dv                    # Use current login
+  bin/omero import -- --debug=ALL ~/Data/my_file2.png   # Set Java debug
 
 """
 TESTHELP = """Run the Importer TestEngine suite (devs-only)"""
