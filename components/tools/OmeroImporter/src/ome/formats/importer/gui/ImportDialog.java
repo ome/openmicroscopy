@@ -275,7 +275,7 @@ public class ImportDialog extends JDialog implements ActionListener
         		"Archive the original imported file(s) to the server.", "0,4,4,4", debug);
         archiveImage.addActionListener(this);
         
-        archiveImage.setSelected(config.getArchiveImage());
+        archiveImage.setSelected(config.archiveImage.get());
         if (ARCHIVE_ENABLED)
         {
         	archiveImage.setVisible(true);
@@ -550,9 +550,9 @@ public class ImportDialog extends JDialog implements ActionListener
             config.setCustomImageNaming(useCustomNamingChkBox.isSelected());
             config.useCustomImageNaming.set(useCustomNamingChkBox.isSelected());
             config.useFullPath.set(fullPathButton.isSelected());
-            config.setUserFullPath(fullPathButton.isSelected());
-            config.setArchiveImage(archiveImage.isSelected());
+            config.archiveImage.set(archiveImage.isSelected());
             config.numOfDirectories.set(numOfDirectoriesField.getValue());
+            config.setUserFullPath(fullPathButton.isSelected());
             config.setNumOfDirectories(numOfDirectoriesField.getValue());
             
             dataset = ((DatasetItem) dbox.getSelectedItem()).getDataset();

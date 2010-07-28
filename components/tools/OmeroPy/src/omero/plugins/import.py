@@ -40,6 +40,7 @@ class ImportControl(BaseControl):
         parser.add_argument("---file", nargs="?", help="File for storing the standard out of the Java process")
         parser.add_argument("---errs", nargs="?", help="File for storing the standard err of the Java process")
         # The following arguments are strictly passed to Java
+        parser.add_argument("-a", dest="java_a", action="store_true", help="Archive original files (**)")
         parser.add_argument("-f", dest="java_f", action="store_true", help="Display used files (**)")
         parser.add_argument("-c", dest="java_c", action="store_true", help="Continue importing after errors (**)")
         parser.add_argument("-l", dest="java_l", help="Use the list of readers rather than the default (**)", metavar="READER_FILE")
@@ -91,6 +92,7 @@ class ImportControl(BaseControl):
         # will never be filled out. But for completeness
         # sake, we include them here.
         java_args = {
+                "java_a": "-a",
                 "java_f": "-f",
                 "java_c": "-c",
                 "java_l": "-l",
