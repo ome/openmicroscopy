@@ -384,7 +384,7 @@ public class ImportCandidates extends DirectoryWalker
      * @param file - single file
      * @return importer container
      */
-    protected ImportContainer singleFile(File file) 
+    protected ImportContainer singleFile(File file, ImportConfig config)
     {
 
         if (file == null) {
@@ -414,6 +414,7 @@ public class ImportCandidates extends DirectoryWalker
                 ic.setBfImageCount(reader.getSeriesCount());
                 ic.setBfPixels(getPixelsWithDimensions());
                 ic.setBfImageNames(getImageNames());
+                ic.setArchive(config.archiveImage.get());
                 return ic;
             } finally 
             {
@@ -563,7 +564,7 @@ public class ImportCandidates extends DirectoryWalker
             return;
         }
 
-        ImportContainer info = singleFile(file);
+        ImportContainer info = singleFile(file, reader.getConfig());
         if (info == null) {
             return;
         }

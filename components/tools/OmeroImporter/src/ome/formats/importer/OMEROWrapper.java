@@ -71,6 +71,9 @@ public class OMEROWrapper extends MinMaxCalculator {
      */
     private ImageReader iReader;
 
+
+    private ImportConfig config;
+
     /**
      * Wrapper for bio-formats
      * 
@@ -82,6 +85,8 @@ public class OMEROWrapper extends MinMaxCalculator {
             throw new IllegalArgumentException("An ImportConfig must be instantitated \n " +
             		"in order to properly configure all readers.");
         }
+
+        this.config = config;
         try
         {
             String readers = config.readersPath.get();
@@ -111,6 +116,10 @@ public class OMEROWrapper extends MinMaxCalculator {
         filler.setMetadataFiltered(true);
         separator.setMetadataFiltered(true);
     };
+
+    public ImportConfig getConfig() {
+        return this.config;
+    }
 
     /**
      * Obtains an object which represents a given sub-image of a plane within

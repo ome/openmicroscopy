@@ -370,16 +370,6 @@ public class IniFileLoader {
     	userPrefs.node("UI").putBoolean("customImageNaming", b);
     }
 
-    public boolean getArchiveImage()
-    {
-    	return userPrefs.node("UI").getBoolean("archiveImage", false);	
-    }
-    
-    public void setArchiveImage(boolean b)
-    {
-    	userPrefs.node("UI").putBoolean("archiveImage", b);
-    }
-
     public int getNumOfDirectories()
     {
     	return userPrefs.node("UI").getInt("numOfDirectories", 0);	

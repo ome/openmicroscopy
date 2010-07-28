@@ -183,6 +183,7 @@ public class CommandLineImporter {
                                         + "\n"
                                         + "Optional arguments:\n"
                                         + "  -c\tContinue importing after errors\n"
+                                        + "  -a\tArchive the original file on the server\n"
                                         + "  -l\tUse the list of readers rather than the default\n"
                                         + "  -d\tOMERO dataset Id to import image into\n"
                                         + "  -r\tOMERO screen Id to import plate into\n"
@@ -239,7 +240,7 @@ public class CommandLineImporter {
         LongOpt upload = new LongOpt("upload", LongOpt.NO_ARGUMENT, null, 3);
         LongOpt logs = new LongOpt("logs", LongOpt.NO_ARGUMENT, null, 4);
         LongOpt email = new LongOpt("email", LongOpt.REQUIRED_ARGUMENT, null, 5);
-        Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:h",
+        Getopt g = new Getopt(APP_NAME, args, "acfl:s:u:w:d:r:k:x:n:p:h",
                 new LongOpt[] { debug, report, upload, email });
         int a;
 
@@ -312,6 +313,9 @@ public class CommandLineImporter {
             case 'c': {
                 config.contOnError.set(true);
                 break;
+            }
+            case 'a': {
+                config.archiveImage.set(true);
             }
             case 'l': {
                 config.readersPath.set(g.getOptarg());
