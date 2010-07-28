@@ -25,7 +25,6 @@ package ome.formats.importer.util;
 
 import java.awt.Rectangle;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +35,6 @@ import java.util.prefs.Preferences;
 import loci.formats.in.FlexReader;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.Version;
-import omero.util.TempFileManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -86,13 +84,7 @@ public class IniFileLoader {
         staticConfigFile = staticConfigDirectory + File.separator
                 + "importer.config";
 
-        File staticFile = staticFileOrTempDummy();
-        try {
-            staticPrefs = new IniFile(staticFile, Mode.RO);
-        } catch (BackingStoreException e) {
-            log.error(e);
-            throw new RuntimeException(e);
-        }
+        staticPrefs = staticPrefsOrNull();
 
         // Set up user config file
         userSettingsDirectory = System.getProperty("user.home")
@@ -146,7 +138,7 @@ public class IniFileLoader {
      * @return location of log file
      */
     public String getLogFile() {
-        return staticPrefs.node("General").get("logfile", LOGFILE);
+        return staticPref("General", "logfile", LOGFILE);
     }
     
     /**
@@ -154,7 +146,7 @@ public class IniFileLoader {
      */
     public String getHomeUrl() 
     {
-        return staticPrefs.node("General").get("url", "https://www.openmicroscopy.org/site/support/omero4/products/feature-list");
+        return staticPref("General", "url", "https://www.openmicroscopy.org/site/support/omero4/products/feature-list");
     }
     
     /**
@@ -162,7 +154,7 @@ public class IniFileLoader {
      */
     public String getForumUrl() 
     {
-        return staticPrefs.node("General").get("forumUrl", "https://www.openmicroscopy.org/community/");
+        return staticPref("General", "forumUrl", "https://www.openmicroscopy.org/community/");
     }
     
     /**
@@ -170,7 +162,7 @@ public class IniFileLoader {
      */
     public String getAppTitle() 
     {
-        return staticPrefs.node("General").get("appTitle", "OMERO.importer");
+        return staticPref("General", "appTitle", "OMERO.importer");
     }
 
     /**
@@ -199,8 +191,7 @@ public class IniFileLoader {
     public String getVersionNote() 
     {
         // return Main.versionNumber;
-        return staticPrefs.node("General").get("appVersionNote",
-                Version.versionNote);
+        return staticPref("General", "appVersionNote", Version.versionNote);
     }
 
     /**
@@ -209,8 +200,7 @@ public class IniFileLoader {
     public String getVersionNumber() 
     {
         // return Main.versionNumber;
-        return staticPrefs.node("General").get("appVersionNumber",
-                "Dev Build");
+        return staticPref("General", "appVersionNumber", "Dev Build");
     }    
     
     /**
@@ -218,8 +208,7 @@ public class IniFileLoader {
      */
     public Boolean isDebugConsole() 
     {
-        return staticPrefs.node("General").getBoolean("displayDebugConsole",
-                true);
+        return staticBoolPref("General", "displayDebugConsole", true);
     }
 
     /**
@@ -227,7 +216,7 @@ public class IniFileLoader {
      */
     public String getServerPort() 
     {
-        return staticPrefs.node("General").get("port", "4064");
+        return staticPref("General", "port", "4064");
     }
 
     /**
@@ -307,7 +296,7 @@ public class IniFileLoader {
      * @return is debug ui present
      */
     public Boolean isDebugUI() {
-        return staticPrefs.node("UI").getBoolean("displayRedBorders", false);
+        return staticBoolPref("UI", "displayRedBorders", false);
     }
 
     // TODO: UI locations should handled multiple monitors
@@ -385,7 +374,7 @@ public class IniFileLoader {
      */
     public String getUploaderTokenURL() 
     {
-        return staticPrefs.node("Uploader").get("TokenURL",
+        return staticPref("Uploader", "TokenURL",
                 "http://qa.openmicroscopy.org.uk/qa/initial/");
     }
 
@@ -394,7 +383,7 @@ public class IniFileLoader {
      */
     public String getUploaderURL() 
     {
-        return staticPrefs.node("Uploader").get("URL",
+        return staticPref("Uploader", "URL",
                 "http://qa.openmicroscopy.org.uk/qa/upload_processing/");
     }
 
@@ -403,7 +392,7 @@ public class IniFileLoader {
      */
     public String getBugTrackerURL() 
     {
-        return staticPrefs.node("Uploader").get("BugTrackerURL",
+        return staticPref("Uploader", "BugTrackerURL",
                 "http://qa.openmicroscopy.org.uk/qa/upload_processing/");
     }
 
@@ -415,25 +404,34 @@ public class IniFileLoader {
         return userSettingsDirectory;
     }
 
-    /**
-     * To prevent exceptions when the configuration directory is not present we
-     * create a temporary file with no values in it.
-     */
-    private File staticFileOrTempDummy() 
+    private Preferences staticPrefsOrNull()
     {
         File staticFile = new File(staticConfigFile);
         if (!staticFile.exists() || !staticFile.canRead()) 
         {
-            try {
-                staticFile = TempFileManager.createTempFile(".omero.importer", "ini");
-                log.warn("Creating temporary ini file: "
-                        + staticFile.getAbsolutePath());
-            } catch (IOException e) 
-            {
-                throw new RuntimeException(e);
-            }
-            staticFile.deleteOnExit();
+            return null;
         }
-        return staticFile;
+
+        try {
+            Preferences prefs = new IniFile(staticFile, Mode.RO);
+            return prefs;
+        } catch (BackingStoreException e) {
+            log.error(e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String staticPref(String node, String key, String def) {
+        if (staticPrefs == null) {
+            return def;
+        }
+        return staticPrefs.node(node).get(key, def);
+    }
+
+    private Boolean staticBoolPref(String node, String key, Boolean def) {
+        if (staticPrefs == null) {
+            return def;
+        }
+        return staticPrefs.node(node).getBoolean(key, def);
     }
 }
