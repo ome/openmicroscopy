@@ -968,5 +968,6 @@ class MeasurementViewerComponent
 			model.addWorkflow(workflow);
 		view.addedWorkflow();
 	}
+
 	
 }

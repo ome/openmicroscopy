@@ -1411,6 +1411,16 @@ class MeasurementViewerModel
 			workflows.put(workflow.getNameSpace(), workflow);
 	}
 
+	/**
+	 * Set the Workflows of the system.
+	 * @param workflowList See above.
+	 */
+	void resetWorkflows(List<WorkflowData> workflowList)
+	{
+		workflows.clear();
+		for(WorkflowData workflow : workflowList)
+			workflows.put(workflow.getNameSpace(), workflow);
+	}
 	/** 
 	 * Get all the workflow namespaces in the model, as an array list
 	 * @return See above.
@@ -1420,6 +1430,19 @@ class MeasurementViewerModel
 		List<String> workflowList = new ArrayList<String>();
 		Iterator<String> i = workflows.keySet().iterator();
 		workflowList.add(WorkflowData.DEFAULTWORKFLOW);
+		while (i.hasNext())
+			workflowList.add(i.next());
+		return workflowList;
+	}
+	
+	/** 
+	 * Get all the workflow namespaces in the model, as an array list
+	 * @return See above.
+	 */
+	List<WorkflowData> getWorkflowDataList()
+	{
+		List<WorkflowData> workflowList = new ArrayList<WorkflowData>();
+		Iterator<WorkflowData> i = workflows.values().iterator();
 		while (i.hasNext())
 			workflowList.add(i.next());
 		return workflowList;

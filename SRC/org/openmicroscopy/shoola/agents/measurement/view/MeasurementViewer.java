@@ -357,5 +357,6 @@ public interface MeasurementViewer
 	 * @param workflows See above.
 	 */
 	public void setWorkflowList(List<WorkflowData> workflows);
+
 	
 }

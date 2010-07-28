@@ -139,13 +139,16 @@ public class WorkflowDialog
 		panel.add(createInfoPanel());
 		panel.add(namespaceLabel);
 		panel.add(Box.createVerticalGlue());
-		namespace.setMaximumSize(new Dimension(500,30));
-		panel.add(wrap(namespace));
+		Dimension d = new Dimension(300,30);
+		namespace.setSize(d);
+		namespace.setMaximumSize(d);
+		namespace.setMinimumSize(d);
+		panel.add(wrap(namespace, d));
 		panel.add(Box.createVerticalGlue());
 		panel.add(keywordsLabel);
 		panel.add(Box.createVerticalGlue());
-		panel.add(wrap(keywords));
-		keywords.setMaximumSize(new Dimension(500,30));
+		d = new Dimension(300,80);
+		panel.add(wrap(keywords, d));
 		panel.add(Box.createVerticalGlue());
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout());
@@ -157,13 +160,16 @@ public class WorkflowDialog
 		
 	}
 	
-	private JPanel wrap(JComponent comp)
+	private JPanel wrap(JComponent comp, Dimension d)
 	{
 		JPanel panel= new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 		panel.add(Box.createHorizontalStrut(10));
 		panel.add(comp);
 		panel.add(Box.createHorizontalStrut(10));
+		panel.setMaximumSize(d);
+		panel.setSize(d);
+		panel.setMinimumSize(d);
 		return panel;
 	}
 	

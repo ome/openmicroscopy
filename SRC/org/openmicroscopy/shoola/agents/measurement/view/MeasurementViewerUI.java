@@ -329,10 +329,10 @@ class MeasurementViewerUI
         menu.add(existingWorkflow);    
        	a = controller.getAction(MeasurementViewerControl.CREATE_WORKFLOW);
        	
-       	//JMenuItem createWorkflow = new JMenuItem();
-       	//createWorkflow.setText(a.getName());
-    	//createWorkflow.addActionListener(a);
-       	//menu.add(createWorkflow);
+       	JMenuItem createWorkflow = new JMenuItem();
+        createWorkflow.setText(a.getName());
+    	createWorkflow.addActionListener(a);
+       	menu.add(createWorkflow);
         return menu;
     }
     

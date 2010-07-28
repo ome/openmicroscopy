@@ -144,6 +144,11 @@ class WorkflowPanel
 		JPanel j = new JPanel();
 		j.setLayout(new BoxLayout(j, BoxLayout.X_AXIS));
 		j.add(namespaceLabel);
+		Dimension d = new Dimension(200,30);
+		namespaceCombobox.setSize(d);
+		namespaceCombobox.setMinimumSize(d);
+		namespaceCombobox.setMaximumSize(d);
+		namespaceCombobox.setPreferredSize(d);
 		j.add(namespaceCombobox);
 		panel.add(j);
 		JPanel k = new JPanel();
