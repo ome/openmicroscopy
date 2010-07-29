@@ -106,4 +106,8 @@ urlpatterns = patterns('django.views.generic.simple',
     
     url( r'^spellchecker/$', views.spellchecker, name="spellchecker"), 
     
+    
+    url( r'^applet/$', views.testApplet, name="testApplet"),
+    url( r'^binary/(?P<name>[^/]+)$', views.getBinary, name="testBinary"), 
+    
 )

@@ -74,10 +74,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
 
     def connect (self, *args, **kwargs):
         rv = super(OmeroWebGateway, self).connect(*args,**kwargs)
-        try:
+        if self._ctx.userName!="guest":
             self.removeGroupFromContext()
-        except omero.SecurityViolation:
-            pass
         return rv
 
     def attachToShare (self, share_id):
@@ -260,6 +258,46 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         
         rep_serv = self.getRepositoryInfoService()
         return rep_serv.getFreeSpaceInKilobytes() * 1024
+    
+    def getUsage(self):
+        """ Returns list of users and how much space each of them use."""
+       
+        query_serv = self.getQueryService()
+        usage = dict()
+        if self.getUser().isAdmin():
+            admin_serv = self.getAdminService()
+            groups = admin_serv.lookupGroups()
+            for group in groups:
+                for gem in group.copyGroupExperimenterMap():
+                    exp = gem.child
+                    res = query_serv.projection("""
+                    select o.id, sum(p.sizeX * p.sizeY * p.sizeZ), p.pixelsType.value 
+                    from Pixels p join p.details.owner o 
+                    group by o.id, p.pixelsType.value
+                    """, None, {"omero.group":str(group.id.val)})
+                    rv = unwrap(res)
+                    for r in rv:
+                        if usage.has_key(r[0]):
+                            usage[r[0]] += r[1]*self.bytesPerPixel(r[2])
+                        else:
+                            usage[r[0]] = r[1]*self.bytesPerPixel(r[2])
+        else:
+            groups = self.getEventContext().memberOfGroups
+            groups.extend(self.getEventContext().leaderOfGroups)
+            groups = set(groups)
+            for gid in groups:
+                res = query_serv.projection("""
+                select o.id, sum(p.sizeX * p.sizeY * p.sizeZ), p.pixelsType.value 
+                from Pixels p join p.details.owner o 
+                group by o.id, p.pixelsType.value
+                """, None, {"omero.group":str(gid)})
+                rv = unwrap(res)
+                for r in rv:
+                    if usage.has_key(gid):
+                        usage[gid] += r[1]*self.bytesPerPixel(r[2])
+                    else:
+                        usage[gid] = r[1]*self.bytesPerPixel(r[2])
+        return usage
     
     def getUsage(self):
         """ Returns list of users and how much space each of them use."""
@@ -1374,7 +1412,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 ann = meta.loadAnnotations("Experimenter", [self.getEventContext().userId], None, None, None).get(self.getEventContext().userId, [])
             else:
                 ann = meta.loadAnnotations("Experimenter", [long(oid)], None, None, None).get(long(oid), [])
-            if ann is not None:
+            if len(ann) > 0:
                 ann = ann[0]
                 store = self.createRawFileStore()
                 store.setFileId(ann.file.id.val)
