@@ -3,7 +3,7 @@
 {% block title %} Welcome {% endblock %}
 
 {% block link %}
-<link rel="stylesheet" href="/appmedia/webemdb/css/index.css" type="text/css" />
+<link rel="stylesheet" href="{% url webemdb 'css/index.css' %}" type="text/css" />
 {% endblock %}
 
 {% block content %}
@@ -11,6 +11,7 @@
     <div id="welcome">
     <h3>Welcome to OMERO EMDB</h3>
     
+    Total EMDB entries: {{ entryCount }} <br>
     Most recent entries:
     <ul>
         {% for p in projects %}

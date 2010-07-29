@@ -166,12 +166,84 @@ $(document).ready(function() {
         });
     });
     
-    $(".nav").click(function() {
+    // handle navigation between the main page sections. 
+    $(".nav").click(function(event) {
+        // hide all content sections, then show appropriate one
         $(".content").hide();
         var name = $(this).attr("id");
         var contentId = "#" + name + "Data";
         $(contentId).show();
+        
+        // change the way that the header is displayed. Bigger when Summary page is displayed. 
+        $("#articleTitle").removeClass();
+        $("#authors").removeClass();
+        if (event.target.id == "Summary") {
+            $("#entryImage").attr('height', 200);
+            $("#articleTitle").addClass('entryTitle');
+            $("#authors").addClass('entryTitle');
+            $("#entrySub").show();
+        } else {
+            $("#entryImage").attr('height', 80);
+            $("#articleTitle").addClass('entryTitleSmall');
+            $("#authors").addClass('entryTitleSmall');
+            $("#entrySub").hide();
+        }
         return false;
+    });
+    
+    // toggle between various visualisation views, E.g. Preview, OMERO, OpenAstex
+    $(".visOption").click(function(event) {
+        var optionId = $(this).attr("id");
+        // hide current view & show new one
+        $(".visViewer").hide();
+        var viewerId = optionId + "Pane";
+        $("#"+viewerId).show();
+        // show which option is selected
+        $(".visOption").removeClass('visSelected');
+        $(this).addClass('visSelected');
+    });
+    // start with preview selected
+    $("#visPreview").click();
+    
+    // on first click of OMERO view option, load viewer
+    $("#imageId").hide(); // simply somewhere to store ID - always hidden
+    var omeroLoaded = false;
+    $("#visOmero").click(function() {
+        if (omeroLoaded)   return;
+        //$visViewer.load("http://localhost:8000/webemdb/viewport/16/");   // one option - load separate page
+        var imageId = $("#imageId").text();
+        var viewport = $.WeblitzViewport($("#viewport"), "/webclient" );
+        viewport.load(imageId);
+        omeroLoaded = true;
+    });
+    
+    var oaLoaded = false;
+    // on first click of Astex view option, load OA-viewer
+    $("#oavLink").hide();   // somewhere to store href to load OAV. - always hidden
+    $("#visAstex").click(function() {
+        if (oaLoaded)   return;
+        $("#contentTable").attr('height', '100%');
+        var oavHref = $("#oavLink").attr('href');
+        $("#oav").load(oavHref);
+        oaLoaded = true;
+    });
+    
+    var execute_oav_command = function(command) {
+        document.av.execute(command);
+        window.status = command;
+    };
+    
+    $(".oavControl").click(function(event) {
+        var eId = event.target.id;
+        var command = "map mapA contour 0 '" + eId + "';";
+        execute_oav_command(command);
+    });
+    $(".oavLoadPdb").click(function(event) {
+        var pdbUrl = event.target.id;
+        var pdbId = event.target.text;
+        //var command = "molecule load '" + pdbId + "' " + pdbUrl + ";";
+        var command = "molecule load mol1 'http://localhost:8000/webemdb/entry/1006/file/66/';"
+        execute_oav_command(command);
     });
     
  });

@@ -1,0 +1,68 @@
+{% extends "webemdb/base/base_main.html" %}
+
+{% block title %} Welcome {% endblock %}
+
+{% block jscript %}
+<script type="text/javascript" src="{% url webemdb 'javascript/publications.js' %}"></script>
+{% endblock %}
+
+{% block link %}
+<link rel="stylesheet" href="{% url webemdb 'css/publications.css' %}" type="text/css" />
+{% endblock %}
+
+{% block content %}
+{% if publications %}
+<div id="welcome">
+    <h3>EMDB Publications</h3>
+
+    
+<div id="content">
+    <table class="sortable paginated">
+        <thead>
+        <tr class="tableHeader">
+            <th class="commentId">ID</th>
+            <th> </td>
+            <th class='sort-alpha'>Authors <input type="text" id="author_filter" class="filter_field" value="filter"/> 
+                <span class="sort">sort</span></th>
+            <th class='sort-alpha'>Title <input type="text" id="title_filter" class="filter_field" value="filter"/></th>
+            <th>Journal</th>
+            <th>Volume</th>
+            <th>Pages</th>
+            <th class="sort-numeric">Year</th>
+            <th>Pubmed</th>
+        </tr>
+        </thead>
+        <tbody>
+    {% for p in publications %}
+      <tr class="publication">
+          <td class="commentId">{{ p.commentId }}</td>
+          <td class="gif">
+              <!-- image only gets displayed when each row of the table is shown -->
+              <a href="{% url webemdb.views.getEntriesByPub p.commentId %}">
+                  <img id="{% url webemdb.views.gif p.entryId %}" class="previewGif"/>
+              </a>
+          </td> 
+          <td class="authors">{{ p.authors }} </td>
+          <td class="title">{{ p.title }} </td>
+          <td class="journal">{{ p.journal }} </td>
+          <td class="volume">{{ p.volume }} </td>
+          <td class="pages">{{ p.pages }} </td>
+          <td class="year">{{ p.year }} </td>
+          <td class="externalReference">
+              {% if p.externalReference %}
+              <a href="http://www.ncbi.nlm.nih.gov/pubmed/{{ p.externalReference }}?dopt=Abstract">pubmed</a>
+              {% endif %}
+          </td>
+      </tr>
+    {% endfor %}
+        </tbody>
+    </table>
+</div>
+    
+</div>
+
+{% else %}
+    No publications!
+{% endif %}
+
+{% endblock %}

@@ -1,6 +1,7 @@
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
+from django.utils import simplejson
 from omeroweb.webgateway.views import getBlitzConnection, _session_logout
 from omeroweb.webgateway import views as webgateway_views
 from webclient.controller.annotation import BaseAnnotation
@@ -9,12 +10,21 @@ import logging
 import traceback
 import omero
 import omero.constants
+from omero.rtypes import rstring
 
 logger = logging.getLogger('webemdb')
-    
+
+PUBLICATION_NAMESPACE = "openmicroscopy.org/omero/emdb/publication"
+
+# for wrapping the bit mask 
+import os, tempfile, zipfile
+from django.core.servers.basehttp import FileWrapper
+
 
 def entry (request, entryId):
     conn = getConnection(request)
+    
+    print dir(conn)
         
     entryName = str(entryId)
     project = conn.findProject(entryName)
@@ -41,28 +51,36 @@ def entry (request, entryId):
     xml = None
     gif = None
     bit = None
+    pdbs = []
     xmlName = "emd-%s.xml" % entryName
     gifName = "%s.gif" % entryName
     bitName = "%s.bit" % entryName
     
     for a in project.listAnnotations():
-        if a.getFileName == None: continue
-        if xmlName == a.getFileName():
-            xml = a
-        elif gifName == a.getFileName():
-            gif = a
-        elif bitName == a.getFileName():
-            bit = a
+        try:    # not all annotations have getFileName() E.g. comment annotations
+            if xmlName == a.getFileName():
+                xml = a
+            elif gifName == a.getFileName():
+                gif = a
+            elif bitName == a.getFileName():
+                bit = a
+            elif a.getFileName().endswith(".pdb.gz"):
+                pdbs.append(a)
+        except:
+            pass
     
     return render_to_response('webemdb/entries/entry.html', 
-        {'project':project, 'xml': xml, 'gif': gif, 'img': img, 'map': mrcMap, 'bit': bit})
+        {'project':project, 'xml': xml, 'gif': gif, 'img': img, 'map': mrcMap, 'bit': bit, 'pdbs': pdbs})
         
         
 def oa_viewer(request, entryId, fileId): 
     conn = getConnection(request)
-    
     return render_to_response('webemdb/entries/oa_viewer.html', {'entryId': entryId, 'fileId': fileId})
     
+def viewport(request, imageId):
+    conn = getConnection(request)
+    return render_to_response('webemdb/entries/viewport.html', {'imageId': imageId})
+
 
 def map (request, imageId, fileId):
     """
@@ -97,6 +115,36 @@ def map (request, imageId, fileId):
     return HttpResponse()
 
 
+def gif (request, entryId):
+    """
+    Looks up the preview gif E.g. "80_1001.gif"  for the specified entry, based on name of originalfile.
+    
+    TODO: This method gets the file via it's project, because it's wrapped nicely. Same as  def file() below...
+    """
+    conn = getConnection(request)
+        
+    entryName = str(entryId)
+    project = conn.findProject(entryName)
+    
+    if project == None: return HttpResponse()
+        
+    # get the file by name
+    gif = None
+    gifName = "80_%s.gif" % entryId
+    for a in project.listAnnotations():
+        try:
+            if a.getFileName() == gifName:
+                gif = a
+        except:
+            pass
+    
+    if gif:
+        file_data = gif.getFile()
+        return HttpResponse(file_data, mimetype='image/gif')
+    else:
+        return HttpResponse()
+
+
 def file (request, entryId, fileId):
     """
     Gets the file by Id and returns it according to mime type for display.
@@ -112,25 +160,40 @@ def file (request, entryId, fileId):
     
     if project == None: return HttpResponse()
         
+    # get the file by ID
     oFile = None
     for a in project.listAnnotations():
         if a.id == long(fileId):
             oFile = a
     
+    # determine mime type to assign
     if oFile:
         file_data = oFile.getFile()
         fileName = oFile.getFileName()
         mimetype = "text/plain"
-        if fileName.endswith(".bit"): mimetype='application/oav'
+        """
+        if fileName.endswith(".bit"):
+            #mimetype='application/oav'
+            f = open("tempFile", 'w')
+            f.write(file_data)
+            f.close
+            filename = "tempFile"                               
+            #wrapper = FileWrapper(file(filename, None, None))
+            wrapper = FileWrapper(f)
+            response = HttpResponse(wrapper, content_type='text/plain')
+            response['Content-Length'] = os.path.getsize(filename)
+            return response
+            """
         if fileName.endswith(".xml"): mimetype='text/xml'
         if fileName.endswith(".gif"): mimetype='image/gif'
+        if fileName.endswith(".gz"): mimetype='application/x-gzip'
         return HttpResponse(file_data, mimetype=mimetype)
     return HttpResponse()
     
 
 def logout (request):
     """ Shouldn't ever be used (public db)"""
-    
+    print "logging out...."
     _session_logout(request, request.session['server'])
     try:
         del request.session['username']
@@ -140,10 +203,15 @@ def logout (request):
         del request.session['password']
     except KeyError:
         logger.error(traceback.format_exc())
-    return HttpResponseRedirect(reverse('webemdb_index'))
+    return HttpResponseRedirect(reverse('webemdb_loggedout'))
+
+def loggedout (request):
+    print "logged out"
+    return render_to_response('webemdb/loggedout.html', {})
 
 
 def index (request):
+    """ Show a selection of the latest EMDB entries """
     conn = getConnection(request)
 
     entryIds = [] # names of projects
@@ -160,8 +228,57 @@ def index (request):
     for entryName in lastIds:
         projects.append(conn.findProject(str(entryName)))
     
-    return render_to_response('webemdb/index.html', {'projects': projects})
+    return render_to_response('webemdb/index.html', {'projects': projects, 'entryCount': len(entryIds)})
 
+
+def publications (request):
+    """ List all the publications, which are stored as CommentAnnotations with namespace """
+                    
+    conn = getConnection(request)
+    qs = conn.getQueryService()
+    
+    namespace = PUBLICATION_NAMESPACE
+    comments = qs.findAllByQuery("select a from CommentAnnotation a where a.ns='%s'" % namespace, None)
+    
+    pubs = []
+    # entryId is the first EMDB entry for this publication
+    pubAttributes = ["entryId", "authors", "title", "journal", "volume", "pages", "year", "externalReference"] 
+    
+    for c in comments:
+        txt = c.getTextValue().getValue()
+        values = txt.split('\n')
+        pub = {}
+        for a in zip(pubAttributes, values):
+            pub[a[0]] = a[1]
+        pub["commentId"] = c.getId().getValue()
+        pubs.append(pub)
+        
+    pubs.sort(key=lambda p: p['entryId'])
+    pubs.reverse()
+    
+    return render_to_response('webemdb/browse/publications.html', {'publications': pubs})
+    
+
+def getEntriesByPub (request, publicationId):
+    
+    conn = getConnection(request)
+    qs = conn.getQueryService()
+    
+    projects = qs.findAllByQuery("select p from Project as p " \
+                    "left outer join fetch p.annotationLinks as a_link " \
+                    "left outer join fetch a_link.child " \
+                    "where a_link.child.id = %s" % publicationId, None)
+                    
+    pData = {}
+    
+    for p in projects:
+        entryId = p.getName().getValue()
+        desc = p.getDescription().getValue()
+        pData[entryId] = desc
+    print pData
+    
+    return HttpResponse(simplejson.dumps(pData), mimetype='application/javascript')
+    
 
 def getConnection(request):
     conn = getBlitzConnection (request)
@@ -172,7 +289,7 @@ def getConnection(request):
         request.session['port'] = blitz.port
         request.session['password'] = "ola"
         request.session['username'] = "ome"
-        request.session['server'] = 'localhost'
+        #request.session['server'] = 'localhost'
         conn = getBlitzConnection (request)
         logger.debug(conn)
     return conn

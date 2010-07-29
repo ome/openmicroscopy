@@ -4,47 +4,61 @@
 
 {% block link %}
 <link rel="stylesheet" href="{% url webemdb 'css/entry.css' %}" type="text/css" />
+<!-- for viewport -->
+<link rel="stylesheet" href="/appmedia/webgateway/css/jquery-plugin-gs_slider.css" type="text/css" media="screen"/>
+<link rel="stylesheet" href="/appmedia/webgateway/css/weblitz-viewport.css" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block jscript %}
 <script type="text/javascript" src="{% url webemdb 'javascript/entry.js' %}"></script>
+<!-- for viewport -->
+<script type="text/javascript" src="/appmedia/webgateway/js/weblitz-viewport.js"></script>
+<script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-viewportImage.js"></script>
+<script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-gs_slider.js"></script>
+<script type="text/javascript" src="/appmedia/webgateway/js/gs_utils.js"></script>
 {% endblock %}
 
 {% block content %}
 {% if project %}
-<table id="entry_header">
-<tr>
-    <td valign="top">
-        <div><img id="entryImage" height="200" src="{% url webemdb.views.file project.name gif.id %}" /></div>
-    </td>
-    <td valign="top">
-        <div class="entryTitle"><span id="articleTitle"></span></div>
-        <div class="entryTitle"><span id="authors"></span></div>
-        <div class="entrySubtitle">
-            Aggregation State: <span id="aggregationState"></span><br />
-            Download: <a id="emdbxml" href="{% url webemdb.views.file project.name xml.id %}">{{ xml.getFileName }}</a>
-            <a id="emdbxml" href="{% url webemdb.views.map img.id map.id %}">{{ map.getFileName }}</a>
-        </div>
-    </td>
-</tr>
-</table>
 
-<table id="entry_data">
+<table class="pageTable">
 <tr><td>
     <table width="100%" id="entry_menu"><tr>
-            <td align="center"><a href="" class="nav" id="Summary">Summary</a></td>
-            <td align="center"><a href="" class="nav" id="Visualisation">Visualisation</a></td>
-            <td align="center"><a href="" class="nav" id="Sample">Sample</a></td>
-            <td align="center"><a href="" class="nav" id="Experiment">Experiment</a></td>
-            <td align="center"><a href="" class="nav" id="Processing">Processing</a></td>
-            <td align="center"><a href="" class="nav" id="MapInformation">Map Information</a></td>
+            <td align="center"><span class="nav" id="Summary">Summary</span></td>
+            <td align="center"><span class="nav" id="Visualisation">Visualisation</span></td>
+            <td align="center"><span class="nav" id="Sample">Sample</span></td>
+            <td align="center"><span class="nav" id="Experiment">Experiment</span></td>
+            <td align="center"><span class="nav" id="Processing">Processing</span></td>
+            <td align="center"><span class="nav" id="MapInformation">Map Information</span></td>
     </tr></table>
 </td></tr>
 </tr>
     <td valign="top">
+        <table id="entry_header">
+        <tr>
+            <td valign="top">
+                <div>{% if gif %}<img id="entryImage" height="200" src="{% url webemdb.views.file project.name gif.id %}" />{% endif %}</div>
+            </td>
+            <td valign="top">
+                <div class="entryTitle" id="articleTitle"></div>
+                <div class="entryTitle" id="authors"></div>
+                <div class="entrySubtitle">
+                    <div id="entrySub">Aggregation State: <span id="aggregationState"></span></div>
+                    Download: 
+                    {% if xml %}<a id="emdbxml" href="{% url webemdb.views.file project.name xml.id %}">{{ xml.getFileName }}</a> {% endif %}
+                    {% if img and map %}<a id="emdbmap" href="{% url webemdb.views.map img.id map.id %}">{{ map.getFileName }}</a> {% endif %}
+                </div>
+            </td>
+        </tr>
+        </table>
+    </td>
+</table>
+
+<table class="pageTable" id="contentTable"><tr><td>
         <div id="emdb_data">
+            
             <div class="content" id="SummaryData">
-                <div class="content_title">Summary:</div>
+                
                 <table>
                     <tr><td align="right" width="20%" class="label">Status: </td>
                         <td><span id="status"></span></td></tr>
@@ -68,21 +82,55 @@
                 </table>
             </div>
             <div class="content" id="VisualisationData">
-                <table><tr>
-                    <td valign="top">
-                    <div class="content_title">Visualisation:</div>
-                    <span id="annotationDetails"></span><br />
-                    Suggested contour level for viewing the map <span id="contourLevel"></span><br />
-                    <img src="{% url webgateway.views.render_thumbnail img.id %}">
-                    <a href="{% url webgateway.views.full_viewer img.id %}" target="new">OMERO Viewer in new window</a><br>
-                    {% if bit %}
-                    <a href="{% url webemdb.views.oa_viewer project.name bit.id %}" target="new">Open Astex Viewer in new window</a>
+                <div class="content_title">Visualisation:</div>
+                <span id="annotationDetails"></span> Suggested Viewing Contour: <span id="contourLevel"></span>
+                <table width='100%'><tr>
+                    <td valign='top'>
+                    
+                    {% if gif %}
+                    <div class="visOption" id='visPreview'>
+                        <img width='75' src="{% url webemdb.views.file project.name gif.id %}" />Preview
+                    </div>
                     {% endif %}
+                    {% if img %}
+                    <div class="visOption" id='visOmero' href="{% url webemdb.views.viewport img.id %}">
+                        <img src="{% url webgateway.views.render_thumbnail img.id 75 %}">OMERO Image Viewer
+                    </div>
+                    {% endif %}
+                    <div class="visOption" id='visAstex'>
+                        Open Astex Viewer
+                    </div>
+                    {% if bit %}
+                    <a id="oavLink" href="{% url webemdb.views.oa_viewer project.name bit.id %}">OA Viewer</a>
+                    {% endif %}
+                    <div id="oavControls">
+                        <div class="oavControl" id='red'>Red</div>
+                        {% for pdb in pdbs %}
+                            <div class="oavLoadPdb" id="{% url webemdb.views.file project.name pdb.id %}">
+                                {{ pdb.getFileName }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    
                     </td>
-                    <td valign="top">
-                    <img id="bigImg" src="{% url webemdb.views.file project.name gif.id %}" />
+                    <td valign="top" align="left" width="100%">
+                        <!-- various viewers, shown and hidden as required -->
+                        <div class="visViewer" id="visPreviewPane">
+                            {% if gif %}
+                            <img id="bigImg" src="{% url webemdb.views.file project.name gif.id %}" />
+                            {% endif %}
+                        </div>
+                        <div class="visViewer" id="visOmeroPane">
+                            <div class="miniview" id="viewport"></div>
+                        </div>
+                        <div class="visViewer" id="visAstexPane">
+                            <div id="oav" height='500px'>
+                                <!-- AJAX loads the OpenAstexViewer here as needed -->
+                            </div>
+                        </div>
                     </td>
                 </tr></table>
+                <div id="imageId">{{ img.id }}</div>
             </div>
             <div class="content" id="SampleData">
                 <div class="content_title">Sample:</div>
