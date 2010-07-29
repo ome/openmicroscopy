@@ -57,7 +57,7 @@ public class PasswordProviders implements PasswordProvider {
                 return;
             }
         }
-        throw new PasswordChangeException("No provider found");
+        throw new PasswordChangeException("No provider found: " + user);
     }
 
     public void changeDistinguisedName(String user, String dn)
@@ -70,7 +70,7 @@ public class PasswordProviders implements PasswordProvider {
                 return;
             }
         }
-        throw new PasswordChangeException("No provider found");
+        throw new PasswordChangeException("No provider found:" + user);
     }
 
 }
