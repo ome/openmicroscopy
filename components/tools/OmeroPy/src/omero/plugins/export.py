@@ -18,8 +18,8 @@ HELP="""Support for exporting data in XML and TIFF formats"""
 class ExportControl(BaseControl):
 
     def _configure(self, parser):
-        parser.add_argument("-f", "--file", type=NewFileType("wb"), required=True)
-        parser.add_argument("-t", "--type", default="TIFF", choices=("TIFF", "XML"))
+        parser.add_argument("-f", "--file", type=NewFileType("wb"), required=True, help="Filename to export to or '-' for stdout. File may not exist")
+        parser.add_argument("-t", "--type", default="TIFF", choices=("TIFF", "XML"), help="Type of export. Default: %(default)s")
         parser.add_argument("obj", help="Format: Image:<id>")
         parser.set_defaults(func=self.export)
 

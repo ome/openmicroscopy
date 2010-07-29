@@ -662,7 +662,8 @@ class BaseClient(object):
                     offset += block_size
                 filehandle.write(prx.read(offset, (size-offset)))
             finally:
-                filehandle.close()
+                if filename:
+                    filehandle.close()
         finally:
             prx.close()
 

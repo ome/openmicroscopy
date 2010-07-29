@@ -111,7 +111,7 @@ class HelpFormatter(RawTextHelpFormatter):
     lines in subcommands.
     """
 
-    def __init__(self, prog, indent_increment=2, max_help_position=32, width=None):
+    def __init__(self, prog, indent_increment=2, max_help_position=40, width=None):
         RawTextHelpFormatter.__init__(self, prog, indent_increment, max_help_position, width)
         self._action_max_length = 20
 
