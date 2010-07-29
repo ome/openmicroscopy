@@ -657,6 +657,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                     log.debug(clientId + "'s connection lost as expected");
                 } catch (ConnectTimeoutException cte) {
                     log.warn("ConnectTimeoutException on callback:" + clientId);
+                } catch (Ice.SocketException se) {
+                    log.warn("SocketException on callback: " + clientId);
                 } catch (Exception e) {
                     log.error("Unknown error on oneway "
                             + "ClientCallback.sessionClosed to "
