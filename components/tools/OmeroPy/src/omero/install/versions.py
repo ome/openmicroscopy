@@ -11,7 +11,7 @@ import re
 import logging
 
 # Regex copied from http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/constant-values.html#ome.api.IConfig.VERSION_REGEX
-REGEX = re.compile("^.*?[-]?(\\d+[.]\\d+[.]\\d+)[-]?.*?$")
+REGEX = re.compile("^.*?[-]?(\\d+[.]\\d+([.]\\d+)?)[-]?.*?$")
 LOG = logging.getLogger("omero.version")
 
 def needs_upgrade(client_version, server_version, verbose = False):
@@ -64,16 +64,23 @@ if __name__ == "__main__":
 
     if "--test" in args:
         print "="*10, "Test", "="*72
+        needs_upgrade("4.0", "4.1.1", True)
+        needs_upgrade("4.1", "4.1.1", True)
         needs_upgrade("4.1.0", "4.1.1", True)
         needs_upgrade("4.1.0", "4.1.1-Dev", True)
         needs_upgrade("4.1.0-Dev", "4.1.1", True)
         needs_upgrade("4.1.1", "4.1.1", True)
+        needs_upgrade("Beta-4.1", "4.1.1", True)
+        needs_upgrade("Beta-4.1.0", "4.1.1", True)
         needs_upgrade("Beta-4.1.1", "4.1.1", True)
         needs_upgrade("4.1.1", "Beta-4.1.1", True)
+        needs_upgrade("Beta-4.1.0", "Beta-4.1.1", True)
         needs_upgrade("4.1.1-Foo", "4.1.1", True)
         needs_upgrade("4.1.1-Foo", "4.1.1-Dev", True)
         needs_upgrade("4.1.1-Foo", "4.1.2-Dev", True)
         needs_upgrade("4.1.1-Foo", "4.2.0-Dev", True)
+        needs_upgrade("4.1.1-Foo", "4.2", True)
+        needs_upgrade("4.1.1-Foo", "5.0", True)
     else:
         try:
 	    rv = int(needs_upgrade(args[0], args[1], True))
