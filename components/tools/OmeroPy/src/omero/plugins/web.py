@@ -43,8 +43,8 @@ class WebControl(BaseControl):
         parser.add(sub, self.custom_settings, "Advanced use: Creates only a a custom_settings.py")
 
         start = parser.add(sub, self.start, "Primary start for webserver")
-        start.add_argument("host", nargs="*")
-        start.add_argument("port", nargs="*")
+        start.add_argument("host", nargs="?")
+        start.add_argument("port", nargs="?")
 
         server = parser.add(sub, self.server, "Advanced use: Set to 'default' for django internal webserver or 'fastcfgi'")
         server.add_argument("server")
