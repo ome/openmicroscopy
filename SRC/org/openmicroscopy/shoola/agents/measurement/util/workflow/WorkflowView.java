@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.measurement.util.workflow;
 
 
 //Java imports
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -163,7 +164,7 @@ public class WorkflowView
 	{
 		dialog = new JDialog();
 		dialog.setTitle(DIALOGTITLE);
-		dialog.setSize(400,650);
+		dialog.setSize(650,400);
 		dialog.setModal(true);
 		dialog.getContentPane().add(createContent());
 	}
@@ -249,6 +250,7 @@ public class WorkflowView
 		JLabel keywordsLabel = new JLabel("Keywords");
 		namespaceText = new JTextField();
 		keywordsText = new JTextArea();
+		keywordsText.setBorder(BorderFactory.createLoweredBevelBorder());
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		panel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 		JPanel namespacePanel = new JPanel();
@@ -259,12 +261,18 @@ public class WorkflowView
 		keywordsPanel.setLayout(new BoxLayout(keywordsPanel, BoxLayout.X_AXIS));
 		keywordsPanel.add(keywordsLabel);
 		keywordsPanel.add(Box.createHorizontalGlue());
+		JPanel nsPanel = new JPanel();
+		//nsPanel.setLayout(new BoxLayout(nsPanel, BoxLayout.Y_AXIS));
+		nsPanel.setLayout(new BorderLayout());
+		nsPanel.add(namespaceText, BorderLayout.CENTER);
+		JPanel keyPanel = new JPanel();
+		keyPanel.setLayout(new BoxLayout(keyPanel, BoxLayout.X_AXIS));
+		keyPanel.add(keywordsText);
 		panel.add(namespacePanel);
-		panel.add(namespaceText);
+		panel.add(nsPanel);
 		panel.add(Box.createVerticalGlue());
 		panel.add(keywordsPanel);
-		keywordsText.setBorder(BorderFactory.createLoweredBevelBorder());
-		panel.add(keywordsText);
+		panel.add(keyPanel);
 		return panel;
 	}
 	

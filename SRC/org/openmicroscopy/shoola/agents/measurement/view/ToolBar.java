@@ -439,13 +439,13 @@ class ToolBar
 		{
 			model.resetWorkflows(newWorkflows);
 			model.saveWorkflowToServer(false);
-			model.fireLoadWorkflow();
+			model.getWorkflowsFromServer();
 		}
 	}
 		
 	
 	/** Adds the workflows. */
-	void addedWorkflow() { workflowPanel.addedWorkflow(); }
+	public void addedWorkflow() { workflowPanel.addedWorkflow(); }
 	
 	/**
 	 * Sets the selected flag of the source of the event to 

@@ -110,7 +110,7 @@ public class WorkflowAction
      */
 	public void stateChanged(ChangeEvent e)
 	{
-		setEnabled(model.getState() == MeasurementViewer.READY);
+		//setEnabled(model.getState() == MeasurementViewer.READY);
 		onStateChange();
 	}
 }

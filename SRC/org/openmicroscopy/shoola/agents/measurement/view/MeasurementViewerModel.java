@@ -63,6 +63,9 @@ import org.openmicroscopy.shoola.agents.measurement.WorkflowSaver;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import pojos.WorkflowData;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.env.data.DSAccessException;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -885,6 +888,28 @@ class MeasurementViewerModel
 			(ExperimenterData) MeasurementAgent.getUserDetails();
 		currentLoader = new WorkflowLoader(component, exp.getId());
 		currentLoader.load();
+	}
+	
+	void getWorkflowsFromServer()
+	{
+		ExperimenterData exp = 
+			(ExperimenterData) MeasurementAgent.getUserDetails();
+		OmeroImageService svc = 
+			MeasurementAgent.getRegistry().getImageService();
+		try
+		{
+			List<WorkflowData> result = svc.retrieveWorkflows(exp.getId());
+			workflows.clear();
+			component.setWorkflowList(result);
+		} catch (DSAccessException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (DSOutOfServiceException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	/** 
 	 * Fires an asynchronous retrieval of the ROI related to the pixels set. 

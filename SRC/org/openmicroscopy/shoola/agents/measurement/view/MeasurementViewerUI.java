@@ -30,6 +30,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
@@ -37,9 +38,12 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
+
+import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
@@ -201,7 +205,13 @@ class MeasurementViewerUI
     
     /** The menu bar handling the workflows. */
     private JMenu 						workflowMenu;
-
+   
+    /** The existing workflow menu. */
+    private JMenu 						existingWorkflow;
+    
+    /** Buttong group of exisitng workflows. */
+    private ButtonGroup					workflows;
+    
     /**
      * Scrolls to the passed figure.
      * 
@@ -310,8 +320,8 @@ class MeasurementViewerUI
     private JMenu createWorkFlowMenu()
     {
         JMenu menu = new JMenu("Workflow");
-       	JMenu existingWorkflow = new JMenu("Existing Workflows");
-       	ButtonGroup workflows = new ButtonGroup();
+        existingWorkflow = new JMenu("Existing Workflows");
+       	workflows = new ButtonGroup();
         menu.setMnemonic(KeyEvent.VK_W);
         
         List<String> workFlows = model.getWorkflows();
@@ -1270,12 +1280,35 @@ class MeasurementViewerUI
      */
 	void addedWorkflow()
 	{
-		if (workflowMenu != null && mainMenu != null)
+		if (workflowMenu != null && mainMenu != null && existingWorkflow != null)
 		{
-			mainMenu.remove(workflowMenu);
-			workflowMenu = createWorkFlowMenu(); 
-			mainMenu.add(workflowMenu);
-			toolBar.addedWorkflow();
+			 Enumeration<AbstractButton> buttons = workflows.getElements();
+			 List<AbstractButton> buttonList = new ArrayList<AbstractButton>();
+			 while(buttons.hasMoreElements())
+				 buttonList.add(buttons.nextElement());
+			 
+			ActionListener[] l = existingWorkflow.getActionListeners();
+			for(ActionListener a :l )
+				existingWorkflow.removeActionListener(a);
+			for(AbstractButton button : buttonList)
+				workflows.remove(button);
+			existingWorkflow.removeAll();
+			workflows = new ButtonGroup();
+			List<String> workFlows = model.getWorkflows();
+		    JCheckBoxMenuItem workflowItem;
+		    for (String workFlow : workFlows)
+		    {
+		    	MeasurementViewerAction a = controller.getAction(MeasurementViewerControl.SELECT_WORKFLOW);
+		    	workflowItem = new JCheckBoxMenuItem(a);
+		    	workflowItem.setSelected(workFlow == WorkflowData.DEFAULTWORKFLOW);
+		    	workflowItem.setText(workFlow);
+		    	workflows.add(workflowItem);
+		    	existingWorkflow.add(workflowItem);
+		    	workflowItem.setEnabled(true);
+		    }
+		    for(ActionListener a :l )
+				existingWorkflow.addActionListener(a);
+		    toolBar.addedWorkflow();
 		}
 	}
 	
