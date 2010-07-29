@@ -19,7 +19,7 @@ class DownloadControl(BaseControl):
 
     def _configure(self, parser):
         parser.add_argument("id", help="OriginalFile id")
-        parser.add_argument("filename", help="Local filename to be saved to")
+        parser.add_argument("filename", help="Local filename to be saved to. '-' for stdout")
         parser.set_defaults(func=self.__call__)
 
     def __call__(self, args):
@@ -27,9 +27,12 @@ class DownloadControl(BaseControl):
 
         orig_file = OFile(long(args.id))
         target_file = str(args.filename)
-
         client = self.ctx.conn(args)
-        client.download(orig_file, target_file)
+        if target_file == "-":
+            client.download(orig_file, filehandle = sys.stdout)
+            sys.stdout.flush()
+        else:
+            client.download(orig_file, target_file)
 
 try:
     register("download", DownloadControl, HELP)
