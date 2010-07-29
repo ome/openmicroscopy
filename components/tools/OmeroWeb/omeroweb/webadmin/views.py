@@ -81,10 +81,10 @@ logger.info("INIT '%s'" % os.getpid())
 
 def getGuestConnection(host, port):
     conn = None
-    guest = ["guest", "guest"]
+    guest = "guest"
     try:
         # do not store connection on connectors
-        conn = _createConnection('', host=host, port=port, username=guest[0], passwd=guest[1], secure=True)
+        conn = _createConnection('', host=host, port=port, username=guest, passwd=guest, secure=True)
         if conn is not None:
             logger.info("Have connection as Guest")
         else:

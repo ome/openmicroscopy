@@ -938,8 +938,14 @@ class _BlitzGateway (object):
             self._proxies['update'] = ProxyObjectWrapper(self, 'getUpdateService')
             
         self._ctx = self._proxies['admin'].getEventContext()
-        self._userid = self._ctx.userId
-        self._user = self.getExperimenter(self._userid)
+        if self._ctx is not None:
+            self._userid = self._ctx.userId
+            # "guest" user has no access that method.
+            self._user = self._ctx.userName!="guest" and self.getExperimenter(self._userid) or None
+        else:
+            self._userid = None
+            self._user = None
+        
         if self._session_cb: #pragma: no cover
             if self._was_join:
                 self._session_cb.join(self)

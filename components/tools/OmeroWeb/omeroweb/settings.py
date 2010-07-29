@@ -31,7 +31,7 @@ import datetime
 import logging
 import omero
 import omero.clients
-
+import tempfile 
 
 # CUSTOM CONFIG
 try:
@@ -174,12 +174,13 @@ FEEDBACK_URL = "qa.openmicroscopy.org.uk:80"
 
 IGNORABLE_404_ENDS = ('*.ico')
 
-# Cache
-CACHE_BACKEND = 'file:///var/tmp/django_cache'
-CACHE_TIMEOUT = 86400
+# Other option: "django.contrib.sessions.backends.cache_db"; "django.contrib.sessions.backends.cache"; "django.contrib.sessions.backends.file"
+SESSION_ENGINE = "django.contrib.sessions.backends.file" 
+SESSION_FILE_PATH = tempfile.gettempdir()
 
-SESSION_ENGINE = "django.contrib.sessions.backends.cache" # Other option: "django.contrib.sessions.backends.cache_db"; "django.contrib.sessions.backends.cache"; "django.contrib.sessions.backends.file"
-#SESSION_FILE_PATH = tempfile.gettempdir()
+# Cache
+#CACHE_BACKEND = 'file:///var/tmp/django_cache'
+#CACHE_TIMEOUT = 86400
 
 # Cookies config
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True # False
