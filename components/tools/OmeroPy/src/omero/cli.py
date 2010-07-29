@@ -213,7 +213,7 @@ class Context:
 
     """
 
-    def __init__(self, controls = {}, params = {}):
+    def __init__(self, controls = {}, params = {}, prog = sys.argv[0]):
         self.event = get_event()
         self.params = {}
         self.controls = controls
@@ -239,8 +239,7 @@ class Context:
             bin/omero -dt,p admin start               # Fails!; can't print tracing and profiling together
             bin/omero -d0 admin start                 # Disables debugging
         """}
-        self.parser = Parser(prog = sys.argv[0],
-            description = OMERODOC)
+        self.parser = Parser(prog = prog, description = OMERODOC)
         self.subparsers = self.parser_init(self.parser)
 
     def post_process(self):
@@ -673,14 +672,14 @@ class CLI(cmd.Cmd, Context):
             finally:
                 self.lock.release()
 
-    def __init__(self):
+    def __init__(self, prog = sys.argv[0]):
         """
         Also sets the "_client" field for this instance to None. Each cli
         maintains a single active client. The "session" plugin is responsible
         for the loading of the client object.
         """
         cmd.Cmd.__init__(self)
-        Context.__init__(self)
+        Context.__init__(self, prog = prog)
         self.prompt = 'omero> '
         self.interrupt_loop = False
         self.rv = 0                         #: Return value to be returned
@@ -1118,16 +1117,16 @@ def argv(args=sys.argv):
 
         # Modifying the args list if the name of the file
         # has arguments encoded in it
-        executable = path(args[0])
-        executable = str(executable.basename())
-        if executable.find("-") >= 0:
-            parts = executable.split("-")
+        original_executable = path(args[0])
+        base_executable = str(original_executable.basename())
+        if base_executable.find("-") >= 0:
+            parts = base_executable.split("-")
             for arg in args[1:]:
                 parts.append(arg)
             args = parts
 
         # Now load other plugins. After debugging is turned on, but before tracing.
-        cli = CLI()
+        cli = CLI(prog = original_executable.split("-")[0])
 
         parser = Parser(add_help = False)
         #parser.add_argument("-d", "--debug", help="Use 'help debug' for more information", default = SUPPRESS)
