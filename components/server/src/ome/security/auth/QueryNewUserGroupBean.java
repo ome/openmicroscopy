@@ -44,14 +44,14 @@ public class QueryNewUserGroupBean implements NewUserGroupBean {
             final AttributeSet attrSet) {
 
         final String grpQuery = grpSpec.substring(7);
-        PropertyPlaceholderHelper helper = new PropertyPlaceholderHelper("${",
+        PropertyPlaceholderHelper helper = new PropertyPlaceholderHelper("@{",
                 "}", null, false);
         String query = helper.replacePlaceholders(grpQuery,
                 new PlaceholderResolver() {
                     public String resolvePlaceholder(String arg0) {
                         if (attrSet.size(arg0) > 1) {
                             throw new ValidationException(
-                                    "Multivalued property used in ${} format:"
+                                    "Multivalued property used in @{} format:"
                                             + grpQuery + "="
                                             + attrSet.getAll(arg0).toString());
                         }

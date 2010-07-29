@@ -141,7 +141,7 @@ class TestConfig(unittest.TestCase):
         config = ConfigXml(filename=str(p))
         m = config.as_map()
         for k, v in m.items():
-            self.assertEquals("4.2.0", v)
+            self.assertEquals("4.2.1", v)
 
     def testOldVersionDetected(self):
         p = create_path()
@@ -157,6 +157,33 @@ class TestConfig(unittest.TestCase):
         except:
             pass
 
+    def test421Upgrade(self):
+        """
+        When upgraded 4.2.0 properties to 4.2.1,
+        ${dn} items in omero.ldap.* properties are
+        changed to @{dn}
+        """
+        p = create_path()
+
+        # How config was written in 4.2.0
+        XML = Element("icegrid")
+        active = SubElement(XML, "properties", id="__ACTIVE__")
+        default = SubElement(XML, "properties", id="default")
+        for properties in (active, default):
+            SubElement(properties, "property", name="omero.config.version", value="4.2.0")
+            SubElement(properties, "property", name="omero.ldap.new_user_group", value="member=${dn}")
+            SubElement(properties, "property", name="omero.ldap.new_user_group_2", value="member=$${omero.dollar}{dn}")
+        string = tostring(XML, 'utf-8')
+        txt = xml.dom.minidom.parseString(string).toprettyxml("  ", "\n", None)
+        p.write_text(txt)
+
+        config = ConfigXml(filename=str(p), env_config="default")
+        try:
+            m = config.as_map()
+            self.assertEquals("member=@{dn}", m["omero.ldap.new_user_group"])
+            self.assertEquals("member=@{dn}", m["omero.ldap.new_user_group_2"])
+        finally:
+            config.close()
 
 if __name__ == '__main__':
     logging.basicConfig()

@@ -15,6 +15,7 @@ see ticket:800
 see ticket:2213 - Replacing Java Preferences API
 """
 
+import re
 import os
 import path
 import time
@@ -35,7 +36,7 @@ class ConfigXml(object):
 
     """
     KEY = "omero.config.version"
-    VERSION = "4.2.0"
+    VERSION = "4.2.1"
     INTERNAL = "__ACTIVE__"
     DEFAULT = "omero.config.profile"
     IGNORE = (KEY, DEFAULT)
@@ -98,7 +99,20 @@ class ConfigXml(object):
         config.xml will use prefs.class to parse the existing values and
         immediately do the upgrade.
         """
-        raise exceptions.Exception("Version mismatch: %s has %s" % (props.get("id"), version))
+        if version == "4.2.0":
+            # http://trac.openmicroscopy.org.uk/omero/ticket/2613
+            # Remove any reference to the ${omero.dollar} workaround
+            # then map anything of the form: ${...} to @{...}
+            if props:
+                for x in props.getchildren():
+                    if x.get("name", "").startswith("omero.ldap"):
+                        orig = x.get("value", "")
+                        val = orig.replace("${omero.dollar}", "")
+                        val = val.replace("${", "@{")
+                        x.set("value", val)
+                        self.logger.info("Upgraded 4.2.0 property:  %s => %s", orig, val)
+        else:
+            raise exceptions.Exception("Version mismatch: %s has %s" % (props.get("id"), version))
 
     def internal(self):
         return self.properties(self.INTERNAL)
