@@ -23,7 +23,7 @@ OMERO.web tools:
 For advance use:
      custom_settings    - Creates only custom_settings.py
      server             - Set to 'default' for django internal webserver
-                          or 'fastcgi'
+                          'fastcgi' (UNIX socket) or 'fastcgi-tcp'
      config             - output a config template for server (only 'nginx'
                           for the moment)
      syncmedia          - creates needed symlinks for static media files
@@ -247,7 +247,7 @@ APPLICATION_HOST='%s'
             server = args.server
             if server == cserver:
                 self.ctx.out("OMERO.web was already configured to be served by '%s'" % server)
-            elif server in ('default', 'fastcgi'):
+            elif server in ('default', 'fastcgi', 'fastcgi-tcp'):
                 if server == 'fastcgi':
                     import flup
                 out = file(location, 'wb')
@@ -382,7 +382,14 @@ APPLICATION_HOST='%s'
             cmd += " method=prefork socket=%(base)s/var/django_fcgi.sock"
             cmd += " pidfile=%(base)s/var/django.pid daemonize=false"
             cmd += " maxchildren=5 minspare=1 maxspare=5 maxrequests=400"
-            django = (cmd % {'base': self.ctx.dir}).split()+list(args.arg)
+            django = (cmd % {'base': self.ctx.dir}).split()
+        elif deploy == 'fastcgi-tcp':
+            cmd = "python manage.py runfcgi workdir=./"
+            cmd += " method=prefork host=%(host)s port=%(port)s"
+            cmd += " pidfile=%(base)s/var/django.pid daemonize=false"
+            cmd += " maxchildren=5 minspare=1 maxspare=5 maxrequests=400"
+            django = (cmd % {'base': self.ctx.dir, 'host': host,
+                             'port':port}).split()
         else:
             django = ["python","manage.py","runserver", link, "--noreload"]
         rv = self.ctx.call(django, cwd = location)
