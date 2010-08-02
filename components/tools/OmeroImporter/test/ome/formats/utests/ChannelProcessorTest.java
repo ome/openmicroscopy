@@ -23,6 +23,7 @@
 package ome.formats.utests;
 
 import junit.framework.TestCase;
+import loci.formats.IFormatReader;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
@@ -164,7 +165,7 @@ public class ChannelProcessorTest
 		store.setLightPathExcitationFilterRef("Filter:5", IMAGE_INDEX,
         CHANNEL_INDEX + 1, CHANNEL_INDEX + 1);
 	}
-
+	
 	/** Tests the color of the base channel.  */
 	@Test
 	public void testBaseDataChannelOne()

@@ -10,6 +10,7 @@ import omero.model.Image;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
 import junit.framework.TestCase;
+import loci.formats.IFormatReader;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -26,11 +27,21 @@ public class AnnotationTest extends TestCase
 		ServiceFactoryPrx sf = new TestServiceFactory();
         store = new OMEROMetadataStoreClient();
         store.initialize(sf);
+        store.setReader(new FakeReader());
         store.setEnumerationProvider(new TestEnumerationProvider());
         store.setInstanceProvider(
         		new BlitzInstanceProvider(store.getEnumerationProvider()));
         store.setImageName("An Image", IMAGE_INDEX);
         store.setPixelsSizeZ(new PositiveInteger(1), IMAGE_INDEX);
+	}
+	
+	/** Fake ImageReader overriding getReader to return somethings **/
+	private class FakeReader extends loci.formats.ImageReader 
+	{
+		public IFormatReader getReader()
+		{
+			return new loci.formats.in.MinimalTiffReader();
+		}
 	}
 	
 	@Test
@@ -105,10 +116,10 @@ public class AnnotationTest extends TestCase
         		                            CommentAnnotation.class);
         assertEquals(2, c);
         c = store.countCachedReferences(Pixels.class, OriginalFile.class);
-        assertEquals(2, c);
+        assertEquals(1, c);
         assertEquals(2, store.getReferenceCache().size());
         assertEquals(2, store.getReferenceCache().get(imageKey).size());
-        assertEquals(2, store.getReferenceCache().get(pixelsKey).size());
+        assertEquals(1, store.getReferenceCache().get(pixelsKey).size());
         assertTrue(store.hasReference(imageKey, annotationKey1));
         assertTrue(store.hasReference(imageKey, annotationKey2));
         assertTrue(store.hasReference(pixelsKey, originalFileKey1));
