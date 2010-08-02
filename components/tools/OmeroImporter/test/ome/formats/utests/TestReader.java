@@ -40,6 +40,11 @@ public class TestReader implements IFormatReader {
 		this(false);
 	}
 	
+	public IFormatReader getReader()
+	{
+		return new loci.formats.in.MinimalTiffReader();
+	}
+	
 	public void close(boolean arg0) throws IOException {
 		// TODO Auto-generated method stub
 

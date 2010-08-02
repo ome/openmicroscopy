@@ -40,6 +40,7 @@ public class ContainerCacheOrderTest extends TestCase
         wrapper = new OMEROWrapper(new ImportConfig());
         store = new OMEROMetadataStoreClient();
         store.initialize(sf);
+        store.setReader(new TestReader());
         store.setEnumerationProvider(new TestEnumerationProvider());
         store.setInstanceProvider(
         		new BlitzInstanceProvider(store.getEnumerationProvider()));
