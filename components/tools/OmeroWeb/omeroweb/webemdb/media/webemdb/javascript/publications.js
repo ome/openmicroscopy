@@ -16,55 +16,55 @@ $(document).ready(function() {
     var $table = $('table.sortable');
     var filter_values = {};
     var filter_cols = [];
-    // for each column (header)
+    
+    var doFiltering = function() {
+        // iterate through all data rows...
+        $('tr:not(:has(th))', $table).each(function() {
+            // for each column we have a filter value for...
+            var showRow = true;
+            for (var c=0; c< filter_cols.length; c++) {
+                var cIndex = filter_cols[c];
+                if (filter_values[cIndex].length > 0) {
+                    var value = $('td', this).eq(cIndex).text();
+                    var f = filter_values[cIndex].toLowerCase();
+                    // check if the td text contains our filter value
+                    if (value.toLowerCase().indexOf(f) == -1) {
+                        showRow = false;
+                    }
+                }
+            }
+            if (showRow) {
+                $(this).removeClass('filtered');
+            } else {
+                $(this).addClass('filtered');
+            }
+          });
+        
+        $table.trigger('page_controls');    // reset controls for pagination - set page = 0;
+        $table.trigger('repaginate');
+        $table.alternateRowColors();
+    }
+    
+    // populate the list of filter_columns 
+    // for each column (header)...
     $('th', $table).each(function(column) {
         var $field = $(this).children(".filter_field");
-        // if we have any 'filter fields'...
+        // if we have any 'filter fields', save their values.
         if ($field.length > 0) {
             filter_cols.push(column);
-            filter_values[column] = "";
+            filter_values[column] = $field.attr('value');
+            
+            // bind the filtering to keyup of each filter field
             $field.keyup(function(event) {
                 if (filter_values[column] != this.value) {
                     filter_values[column] = this.value;
-                    // iterate through all data rows...
-                    $('tr:not(:has(th))', $table).each(function() {
-                        // for each column we have a filter value for...
-                        var showRow = true;
-                        for (var c=0; c< filter_cols.length; c++) {
-                            var cIndex = filter_cols[c];
-                            if (filter_values[cIndex].length > 0) {
-                                var value = $('td', this).eq(cIndex).text();
-                                var f = filter_values[cIndex].toLowerCase();
-                                // check if the td text contains our filter value
-                                if (value.toLowerCase().indexOf(f) == -1) {
-                                    showRow = false;
-                                }
-                            }
-                        }
-                        if (showRow) {
-                            $(this).removeClass('filtered');
-                        } else {
-                            $(this).addClass('filtered');
-                        }
-                      });
-                    
-                    $table.trigger('page_controls');    // reset controls for pagination - set page = 0;
-                    $table.trigger('repaginate');
-                    $table.alternateRowColors();
+                    doFiltering();
                 }
             });
         }
     });
-    
-    // switch between table layout and 'flow layout' where everything in each row floats left. 
-    $("#flowLayout").click(function() {
-        $(".publication td").css('float', 'left');
-        $(".tableHeader th").css('float', 'left');
-    });
-    $("#tableLayout").click(function() {
-        $(".publication td").css('float', 'none');
-        $(".tableHeader th").css('float', 'none');
-    });
+    // do filtering when page has loaded - in case there was any text. 
+    doFiltering();
     
     
     // for our sortable table...
@@ -190,4 +190,25 @@ $(document).ready(function() {
     $pager.insertBefore($table)
         .find('span.page-number:first').click();
   });
+  
+  // load the EMDB entry details for a publication when the link is clicked
+    $(".emdb_link").click(function(event) {
+        var $link = $(this);
+        var jsonLink = $link.attr('href');
+        // Django will generate a link for the first entry - use this as template for other links
+        var exampleLink = $link.siblings(".entry_link").attr('href');
+        var exampleId = $link.siblings(".entry_link").text();
+        var $entries_pane = $link.siblings(".entries_pane");     // we will display links here
+        
+        $.getJSON(jsonLink, function(data) {
+            var html = "<table width='100%'>";
+            $.each(data, function(entryId) {
+                var eLink = exampleLink.replace(exampleId, entryId);
+                html += "<tr><td><a href='"+ eLink + "'>" + entryId + "</a></td><td>" + data[entryId] + "</td></tr>";
+            });
+            html += "</table>";
+            $entries_pane.append(html);
+        });
+        return false;
+    })
 });
