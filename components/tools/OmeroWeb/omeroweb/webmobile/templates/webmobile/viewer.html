@@ -33,6 +33,18 @@ img#imagePlane {
     margin:0px;
 }
 
+#infoPanel {
+    position:fixed;
+    z-index: 4;
+    color: white;
+    background: black;
+    opacity: 0.7;
+}
+#infoPanel h2 {
+    margin-top: 0px;
+    white-space:nowrap;
+}
+
 #zControls {
     bottom:33px;
     left:0px;
@@ -85,14 +97,18 @@ img#imagePlane {
     color: #fff;
     text-align: right;
 }
+.hidden {
+    display:none;
+}
 
 </style>
+
+{% endblock %}
 
 {% block meta %}
     <meta name="viewport" content="width={{ image.getWidth }}; maximum-scale=5.0; user-scalable=1;">
 {% endblock %}
 
-{% endblock %}
 
 {% block jscript %}
     <script type="text/javascript" src="{% url webmobile 'js/viewer.js' %}"></script>
@@ -117,6 +133,9 @@ img#imagePlane {
     <img class="arrow" id="tRight" src="{% url webmobile 'img/right.png' %}"/>
     <div class="slider" id="tSlider"></div>
 </div>
+
+<img class="controls" id="infoIcon" src="{% url webmobile 'img/info.png' %}"/>
+<div id="infoPanel"></div>
 
 <div class="controls" id="scaleNumber"></div>
 <div class="controls" id="scalebar">

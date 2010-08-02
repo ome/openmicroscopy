@@ -7,6 +7,7 @@ $(document).ready(function() {
     var sizeZ = 1;
     var sizeT = 1;
     var pixelSize = 0;
+    var json;
     
     // elements we need repeatedly
     var imageId = $("#imageId").text();
@@ -14,8 +15,72 @@ $(document).ready(function() {
     var $imageContainer = $("#imageContainer");
     var $zSlider = $("#zSlider");
     var $tSlider = $("#tSlider");
+    var $infoIcon = $("#infoIcon");
+    var $infoPanel = $("#infoPanel");
     
     // --- functions ---
+    
+    var showInfoPanel = function() {
+        
+        var iHtml = buildImageInfo(json);
+        $infoPanel.empty();
+        $infoPanel.append($(iHtml));
+        
+        var scrollX = window.pageXOffset; 
+        var scrollY = window.pageYOffset; 
+        var scrollW = window.innerWidth;
+        var scrollH = window.innerHeight;
+        
+        var font = 150 * scrollW/480 + "%";
+        var w = scrollW / 8;
+        
+        $infoPanel.css('top', scrollY).css('left', scrollX).css('font-size', font)
+            .css('padding', scrollW/50);
+            
+        $infoPanel.show();
+        hideControls();
+    }
+    
+    var buildImageInfo = function(jsonData) {
+        // html of image metadata. Start with name...
+        var infoHtml = "<h2>"+ jsonData["meta"]["imageName"] + "</h2>";
+        
+        // table of metadata...
+        infoHtml += "<table>";
+        var labels = ["ID", "Owner", "Description", "Project", "Dataset"];
+        var metaKeys = ["imageId", "imageAuthor", "imageDescription", "projectName", "datasetName"];
+        for (var i=0; i<labels.length; i++) {
+            infoHtml += "<tr><td>" + labels[i] + "</td><td>" + jsonData["meta"][metaKeys[i]] + "</td></tr>";
+        }
+        // ..pixel sizes...
+        try {
+            var x = parseFloat(jsonData["pixel_size"]["x"]).toFixed(2)
+            var y = parseFloat(jsonData["pixel_size"]["y"]).toFixed(2)
+            var z = parseFloat(jsonData["pixel_size"]["z"]).toFixed(2)
+            infoHtml += "<tr><td>Pixel Sizes (x,y,z)</td><td>" + x + ", " + y + ", " + z + " &micro;m</td></tr>";
+        }
+        catch(err) {}
+        
+        // ..image dimensions...
+        var width = jsonData["size"]["width"];
+        var height = jsonData["size"]["height"];
+        infoHtml += "<tr><td>Image size (x,y)</td><td>" + width + ", " + height + "</td></tr>";
+        var z = jsonData["size"]["z"];
+        var t = jsonData["size"]["t"];
+        infoHtml += "<tr><td>Image size (z,time)</td><td>" + z + ", " + t + "</td></tr>";
+        infoHtml += "<table>";
+        
+        // Channels table...
+        infoHtml += "<table>";
+        var clist = jsonData["channels"];
+        for (var c=0; c<clist.length; c++) {
+            var cdata = clist[c];
+            var colour = cdata["color"];
+            infoHtml += "<tr><td bgcolor='#" + colour + "'>&nbsp &nbsp&nbsp</td><td>" + cdata["label"] + "</td></tr>";
+        }
+        
+        return infoHtml;
+    };
     
     // update the image with the current z and t indexes
     var refreshImage = function() {
@@ -64,6 +129,11 @@ $(document).ready(function() {
         $zSlider.css('top', w).css('height',zHeight-w-w-2 ).css('width',w-2);
         $tSlider.css('height', w-2 ).css('width',tWidth-w-w-2).css('left',w).css('top',1);
         
+        // info icon - top right corner
+        var iconW = scrollW / 10;
+        var margin = scrollW/70;
+        $infoIcon.css('top', scrollY+margin).css('left', scrollX+scrollW-iconW-margin).css('width', iconW).css('height', iconW);
+        
         // scalebar 
         if (pixelSize == 0) {
             $("#scalebar").css('opacity', 0.0); // hide so it won't be shown
@@ -95,11 +165,15 @@ $(document).ready(function() {
     var hideControls = function() {
         $imagePlane.unbind('click', hideControls);  // in case hideControls wasn't called from imagePlane
         $(".controls").fadeOut();
+        //$infoPanel.fadeOut(); 
         $imagePlane.one('click', showControls);
     };
     
     
     // -- bind various functions to controls --
+    
+    // Show info
+    $infoIcon.click(showInfoPanel);
     
     // When a slider is clicked, try to identify the actual increment that was clicked, set z or t and refresh
     $zSlider.click(function(event) {
@@ -126,10 +200,16 @@ $(document).ready(function() {
         if ((this.id == 'tRight') && (t < sizeT-1)) t += 1;
         if ((this.id == 'tLeft') && (t>0)) t -= 1;
         refreshImage();
-    })
+    });
     
     // Show controls when the iamge is clicked - next click will hide controls - etc 
     $imagePlane.one('click', showControls);
+    
+    // Hide info panel when it's clicked
+    $infoPanel.click(function() {
+        $infoPanel.hide();
+        return false;
+    });
     
     
     // -- stuff that happens when the page loads --
@@ -143,7 +223,6 @@ $(document).ready(function() {
     var imageWH = imgW/imgH;
     
     // when the page loads, first need to get the default Z and T from imgData JSON, then load image
-    var json;
     $.getJSON("/webgateway/imgData/" + imageId + "/", function(data) {
         json = data;
         z = json['rdefs']['defaultZ'];
