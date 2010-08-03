@@ -260,7 +260,7 @@ public class ETable extends JTable {
 				return;
 		}
 		
-		if (c.getToolTipText() != getValueAt(row, column).toString())
+		if (!c.getToolTipText().equals(getValueAt(row, column).toString()))
 			return;
 		
 		// if tooltip is shorter than column width, don't set

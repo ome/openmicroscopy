@@ -112,7 +112,7 @@ public class ImportHandler implements IObservable
             this.qTable = qTable;
             library.addObserver(qTable);
             library.addObserver(viewer);
-            library.addObserver(viewer.errorHandler.delegate);
+            library.addObserver(viewer.errorHandler);
             library.addObserver(new IObserver()
             {
                 public void update(IObservable importLibrary, ImportEvent event) 

@@ -51,7 +51,7 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
     @SuppressWarnings("unused")
     private static Log log = LogFactory.getLog(ErrorHandler.class);
 
-    public final MyErrorHandler delegate; // THIS SHOULD NOT BE PUBLIC
+    private final MyErrorHandler delegate;
     private final ScheduledExecutorService ex;
     private final ErrorTable errorTable;
 
@@ -293,7 +293,7 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
             row.add(null); // full error for tooltip
             errorTable.addRow(row);
             errorTable.fireTableDataChanged();
-            this.notifyObservers(new ImportEvent.ERRORS_PENDING());
+            super.notifyObservers(new ImportEvent.ERRORS_PENDING());
         }
 
     }

@@ -39,8 +39,8 @@ import org.apache.log4j.spi.LoggingEvent;
  */
 public class LogAppenderProxy extends AppenderSkeleton implements Appender
 {
+    private Layout layout;
     private static boolean configured;
-    private static Layout layout;
     private static LogAppender delegate;
     private static RollingFileAppender logfile_delegate;
    
@@ -56,9 +56,6 @@ public class LogAppenderProxy extends AppenderSkeleton implements Appender
         delegate = LogAppender.getInstance();
         logfile_delegate = new RollingFileAppender();
         logfile_delegate.setFile(logFile.getAbsolutePath());
-        if (layout != null) {
-            logfile_delegate.setLayout(layout);
-        }
         // 10MB is the default size
         logfile_delegate.setMaxBackupIndex(10);
         logfile_delegate.activateOptions();
@@ -103,7 +100,6 @@ public class LogAppenderProxy extends AppenderSkeleton implements Appender
     public void setLayout(Layout layout)
     {
         super.setLayout(layout);
-        this.layout = layout;
         if (logfile_delegate != null) {
             logfile_delegate.setLayout(layout);
         }
