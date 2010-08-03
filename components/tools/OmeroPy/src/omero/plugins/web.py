@@ -390,13 +390,15 @@ APPLICATION_HOST='%s'
     def gateway(self, *args):
         if len (args[0]) > 0:
             appbase = self.ctx.dir / args[0][0]
+            settings = 'settings'
         else:
             appbase = self.ctx.dir
+            settings = 'omeroweb.settings'
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
         args = ["python", "-i", location / "../omero/gateway/scripts/dbhelpers.py"]
         os.environ['ICE_CONFIG'] = appbase / "etc" / "ice.config"
         os.environ['PATH'] = os.environ.get('PATH', '.') + ':' + self.ctx.dir / 'bin'
-        os.environ['DJANGO_SETTINGS_MODULE'] = os.environ.get('DJANGO_SETTINGS_MODULE', 'omeroweb.settings')
+        os.environ['DJANGO_SETTINGS_MODULE'] = os.environ.get('DJANGO_SETTINGS_MODULE', settings)
         rv = self.ctx.call(args, cwd = appbase)
 
     def test(self, *args):
