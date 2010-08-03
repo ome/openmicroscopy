@@ -74,9 +74,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class FileQueueHandler extends JPanel 
     implements ActionListener, PropertyChangeListener, IObserver
-{
-	private static final long serialVersionUID = 1L;
-	
+{	
     /** Logger for this class */
     private static final Log log = LogFactory.getLog(FileQueueHandler.class);
 
@@ -698,11 +696,9 @@ public class FileQueueHandler extends JPanel
     {
         //viewer.appendToDebugLn(path);
         String[] fields = path.split("/");
-        @SuppressWarnings("unused")
-        Integer length = fields.length;
+        //Integer length = fields.length;
         //viewer.appendToDebugLn(length.toString());
-       
-        
+
         return fields;
     }
     

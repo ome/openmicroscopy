@@ -64,8 +64,6 @@ import org.apache.commons.io.FileUtils;
  */
 public class DebugMessenger extends JDialog implements ActionListener, IObservable, IObserver
 {
-    private static final long serialVersionUID = -1026712513033611084L;
-
     private final ImportConfig config;
     
     private static final boolean debug = false;
@@ -86,6 +84,8 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
     private JButton                 sendWithFilesBtn;
     private JButton                 ignoreBtn;
     private JButton                 copyBtn;
+    
+    private JTextPane 				instructions;
     
     private JTextField              emailTextField;
     private String                  emailText           = "";          
@@ -178,9 +178,7 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
         JLabel iconLabel = new JLabel(icon);
         commentPanel.add(iconLabel, "0,0, l, c");
         
-        @SuppressWarnings("unused")
-        JTextPane instructions = 
-                GuiCommonElements.addTextPane(commentPanel, message, "1,0,2,0", debug);
+        instructions = GuiCommonElements.addTextPane(commentPanel, message, "1,0,2,0", debug);
 
         emailTextField = GuiCommonElements.addTextField(commentPanel, "Email: ", emailText, 'E',
         "Input your email address here.", "(Optional)", TableLayout.PREFERRED, "0, 1, 2, 1", debug);

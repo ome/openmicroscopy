@@ -89,8 +89,7 @@ public class HistoryTable
 	private static Log log = LogFactory.getLog(HistoryTable.class);
 	
     final ArrayList<IObserver> observers = new ArrayList<IObserver>();
-    
-    private static final long serialVersionUID = 1L;
+
     public HistoryTableModel table = new HistoryTableModel();
     public ETable eTable = new ETable(table);
     
@@ -698,7 +697,7 @@ public class HistoryTable
      * @author Brian W. Loranger
      *
      */
-    class HistoryTableModel extends DefaultTableModel implements TableModelListener 
+    static class HistoryTableModel extends DefaultTableModel implements TableModelListener 
     {
         
         private static final long serialVersionUID = 1L;

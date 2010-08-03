@@ -95,9 +95,6 @@ public class GuiImporter extends JFrame
 implements  ActionListener, WindowListener, IObserver, PropertyChangeListener, 
 WindowStateListener, WindowFocusListener
 {
-
-    private static final long   serialVersionUID = 1228000122345370913L;
-
     private static final String show_log_file = "show_log_file_location";
 
     /**
@@ -615,9 +612,7 @@ WindowStateListener, WindowFocusListener
                 System.exit(0);
             }
         } else if ("options".equals(cmd)) {
-            @SuppressWarnings("unused")
-            final OptionsDialog dialog = 
-                new OptionsDialog(config, this, "Import", true);
+           //final OptionsDialog dialog = new OptionsDialog(config, this, "Import", true);
         }
         else if ("about".equals(cmd))
         {

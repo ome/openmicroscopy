@@ -86,7 +86,6 @@ public class ErrorTable
 
     ArrayList<IObserver> observers = new ArrayList<IObserver>();
     
-    private static final long serialVersionUID = 1L;
     public ErrorTableModel table = new ErrorTableModel();
     public ETable eTable = new ETable(table);
     
@@ -517,7 +516,7 @@ public class ErrorTable
 	 * @author Brian Loranger brain at lifesci.dundee.ac.uk
 	 *
 	 */
-	class ErrorTableModel extends DefaultTableModel implements TableModelListener 
+	static class ErrorTableModel extends DefaultTableModel implements TableModelListener 
     {
         
         private static final long serialVersionUID = 1L;
@@ -544,7 +543,7 @@ public class ErrorTable
 	 * @author Brian Loranger brain at lifesci.dundee.ac.uk
 	 *
 	 */
-    class MyTableHeaderRenderer extends DefaultTableCellRenderer 
+    static class MyTableHeaderRenderer extends DefaultTableCellRenderer 
     {
         // This method is called each time a column header
         // using this renderer needs to be rendered.
