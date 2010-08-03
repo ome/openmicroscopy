@@ -89,6 +89,7 @@ import org.testng.annotations.Test;
  * @author Chris Allan <callan at blackcat dot ca>
  *
  */
+@Test(groups={"manual"})
 public class MetadataValidatorTest
 {
     /** Logger for this class */
@@ -236,7 +237,7 @@ public class MetadataValidatorTest
         }
     }
 
-    @Test(dependsOnMethods={"testMetadataLevel"}, groups={"disabled"})
+    @Test(dependsOnMethods={"testMetadataLevel"})
     public void testMetadataLevelEquivilentPlaneData()
         throws FormatException, IOException
     {
@@ -263,7 +264,7 @@ public class MetadataValidatorTest
         }
     }
 
-    @Test(dependsOnMethods={"testMetadataLevel"}, groups={"disabled"})
+    @Test(dependsOnMethods={"testMetadataLevel"})
     public void testEquivilentBlockRetrievalPlaneData()
         throws FormatException, IOException
     {
