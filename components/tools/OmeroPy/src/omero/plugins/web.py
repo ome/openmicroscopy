@@ -450,9 +450,11 @@ APPLICATION_HOST='%s'
                 appbase = appname[0]
                 location = self.ctx.dir / appbase
                 appname = '.'.join(appname[1:])
+                settings = 'settings'
             else:
                 appbase = "omeroweb"
                 location = self.ctx.dir / "lib" / "python" / "omeroweb"
+                settings = 'omeroweb.settings'
 
             cargs = []
             scriptname = args[0][1].split(' ')
@@ -463,7 +465,7 @@ APPLICATION_HOST='%s'
                 scriptname = scriptname[0]
             cargs.extend([location / appname / "scripts" / scriptname] + args[0][2:])
             print cargs, location
-            os.environ['DJANGO_SETTINGS_MODULE'] = '%s.settings' % appbase
+            os.environ['DJANGO_SETTINGS_MODULE'] = os.environ.get('DJANGO_SETTINGS_MODULE', settings)
             os.environ['ICE_CONFIG'] = self.ctx.dir / "etc" / "ice.config"
             os.environ['PATH'] = os.environ.get('PATH', '.') + ':' + self.ctx.dir / 'bin'
             rv = self.ctx.call(cargs, cwd = location)

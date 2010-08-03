@@ -431,6 +431,8 @@ class BlitzObjectWrapper (object):
                     #newConn.connect(sUuid=newConnId.getUuid().val)
                 clone = self.__class__(newConn, self._obj)
                 ann = clone._linkAnnotation(ann)
+                if newConn != self._conn:
+                    newConn.seppuku()
             elif d.getGroup():
                 # Try to match group
                 self._conn.setGroupForSession(d.getGroup().getId())
