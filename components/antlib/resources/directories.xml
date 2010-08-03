@@ -155,6 +155,7 @@
 		<fileset dir="@{fromdir}">
 			<include name="**/*.properties"/>
 			<include name="**/*.vm"/>
+			<include name="**/*.dv"/>
 			<include name="**/*.xml"/>
 			<include name="**/*.ldif"/>
 			<exclude name="**/.svn"/>
