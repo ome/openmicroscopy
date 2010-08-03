@@ -32,7 +32,7 @@
             <td align="center"><span class="nav" id="MapInformation">Map Information</span></td>
     </tr></table>
 </td></tr>
-</tr>
+<tr>
     <td valign="top">
         <table id="entry_header">
         <tr>
@@ -47,11 +47,14 @@
                     Download: 
                     {% if xml %}<a id="emdbxml" href="{% url webemdb.views.file project.name xml.id %}">{{ xml.getFileName }}</a> {% endif %}
                     {% if img and map %}<a id="emdbmap" href="{% url webemdb.views.map img.id map.id %}">{{ map.getFileName }}</a> {% endif %}
+                    
+                    View: <a href="{% url webemdb_data project.name %}">data</a>
                 </div>
             </td>
         </tr>
         </table>
     </td>
+</tr>
 </table>
 
 <table class="pageTable" id="contentTable"><tr><td>
@@ -97,20 +100,27 @@
                         <img src="{% url webgateway.views.render_thumbnail img.id 75 %}">OMERO Image Viewer
                     </div>
                     {% endif %}
+                    
+                    {% if bit %}
                     <div class="visOption" id='visAstex'>
                         Open Astex Viewer
                     </div>
-                    {% if bit %}
                     <a id="oavLink" href="{% url webemdb.views.oa_viewer project.name bit.id %}">OA Viewer</a>
-                    {% endif %}
+                    
                     <div id="oavControls">
-                        <div class="oavControl" id='red'>Red</div>
+                        <!-- <div class="oavControl" id='red'>Red</div> -->
+                        <lu>
+                            <li>Rotate: Click + Drag</li>
+                            <li>Zoom: Shift + Drag Up/Down</li>
+                        </lu>
                         {% for pdb in pdbs %}
                             <div class="oavLoadPdb" id="{% url webemdb.views.file project.name pdb.id %}">
                                 {{ pdb.getFileName }}
                             </div>
                         {% endfor %}
                     </div>
+                    {% endif %}
+                    
                     
                     </td>
                     <td valign="top" align="left" width="100%">

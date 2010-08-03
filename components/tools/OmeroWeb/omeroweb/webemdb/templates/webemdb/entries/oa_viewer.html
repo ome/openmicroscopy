@@ -9,7 +9,10 @@
          map mapA contour 0 'solid';
          map mapA contour 0 'green'; -->
          <param name="script" value="
-         molecule load mol '/webemdb/entry/1006/file/66/';
-         background '0xFFFFFF';
+         map load mapA '{% url webemdb_bit entryId fileId %}'; 
+         map mapA contour 0 on;
+         background '0xEEEEEE';
+         map mapA contour 0 'solid';
+         map mapA contour 0 'green';
          ">
 </applet>

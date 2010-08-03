@@ -12,6 +12,7 @@ urlpatterns = patterns('',
     url( r'^entry/(?P<entryId>[0-9]+)/$', views.entry, name='webemdb_entry' ),
     # bit of a hack - should only need fileId - see views.file for info
     url( r'^entry/(?P<entryId>[0-9]+)/file/(?P<fileId>[0-9]+)/$', views.file, name='webemdb_file' ),
+    url( r'^entry/(?P<entryId>[0-9]+)/file/(?P<fileId>[0-9]+)\.bit$', views.file, name='webemdb_bit' ),
     # look up the preview gif file for an entry based on name
     url( r'^entry/(?P<entryId>[0-9]+)/gif/$', views.gif, name='webemdb_gif' ),
     # for downloading whole mrc.map    not working (not used currently)
@@ -21,6 +22,9 @@ urlpatterns = patterns('',
     url( r'^oa_viewer/(?P<entryId>[0-9]+)/file/(?P<fileId>[0-9]+)/$', views.oa_viewer, name='webemdb_oa_viewer' ),
     
     url( r'^viewport/(?P<imageId>[0-9]+)/$', views.viewport, name='webemdb_viewport' ),
+    
+    # view the associated data for an entry
+    url( r'^data/(?P<entryId>[0-9]+)/$', views.data, name='webemdb_data' ),
     
     # browse by annotations. E.g. publications
     url( r'^publications/$', views.publications, name='webemdb_publications' ),

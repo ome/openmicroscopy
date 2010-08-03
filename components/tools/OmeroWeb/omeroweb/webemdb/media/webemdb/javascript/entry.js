@@ -196,8 +196,12 @@ $(document).ready(function() {
         var optionId = $(this).attr("id");
         // hide current view & show new one
         $(".visViewer").hide();
+        $("#oavControls").hide();
         var viewerId = optionId + "Pane";
         $("#"+viewerId).show();
+        if (event.target.id == "visAstex") {
+            $("#oavControls").show();
+        }
         // show which option is selected
         $(".visOption").removeClass('visSelected');
         $(this).addClass('visSelected');
@@ -220,6 +224,7 @@ $(document).ready(function() {
     var oaLoaded = false;
     // on first click of Astex view option, load OA-viewer
     $("#oavLink").hide();   // somewhere to store href to load OAV. - always hidden
+    $("#oavControls").hide();   // show these when OAV is displayed 
     $("#visAstex").click(function() {
         if (oaLoaded)   return;
         $("#contentTable").attr('height', '100%');

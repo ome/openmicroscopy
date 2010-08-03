@@ -21,10 +21,32 @@ import os, tempfile, zipfile
 from django.core.servers.basehttp import FileWrapper
 
 
+def data(request, entryId):
+    conn = getConnection(request)
+
+    entryName = str(entryId)
+    project = conn.findProject(entryName)
+    
+    #print dir(project)
+    
+    datasets = []
+    for d in project.listChildren():
+        ds = {}
+        ds["name"] = d.getName()
+        ds["images"] = d.listChildren()[:5]
+        datasets.append(ds)
+    
+    if project == None:
+        # project not found (None) handled by template
+        return render_to_response('webemdb/data/data.html', {'project':project, 'datasets': datasets})
+
+    return render_to_response('webemdb/data/data.html', {'project':project })
+    
+    
 def entry (request, entryId):
     conn = getConnection(request)
     
-    print dir(conn)
+    #print dir(conn)
         
     entryName = str(entryId)
     project = conn.findProject(entryName)
@@ -171,19 +193,20 @@ def file (request, entryId, fileId):
         file_data = oFile.getFile()
         fileName = oFile.getFileName()
         mimetype = "text/plain"
-        """
+        
         if fileName.endswith(".bit"):
-            #mimetype='application/oav'
+            mimetype='application/octet-stream'
+            """
             f = open("tempFile", 'w')
             f.write(file_data)
             f.close
             filename = "tempFile"                               
-            #wrapper = FileWrapper(file(filename, None, None))
+            wrapper = FileWrapper(file(filename, None, None))
             wrapper = FileWrapper(f)
             response = HttpResponse(wrapper, content_type='text/plain')
             response['Content-Length'] = os.path.getsize(filename)
-            return response
-            """
+            return response """
+            
         if fileName.endswith(".xml"): mimetype='text/xml'
         if fileName.endswith(".gif"): mimetype='image/gif'
         if fileName.endswith(".gz"): mimetype='application/x-gzip'
