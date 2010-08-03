@@ -23,6 +23,7 @@
 package ome.formats.utests;
 
 import junit.framework.TestCase;
+import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
@@ -69,6 +70,10 @@ public class ChannelProcessorTest
 
 	/** Identifies the index of the channel. */
 	private static final int CHANNEL_INDEX = 0;
+	
+        /** The LOCI graphics domain. */
+        private static final String[] GRAPHICS_DOMAIN =
+            new String[] { FormatTools.GRAPHICS_DOMAIN };
 	
     /**
      * Initializes the components and populates the store.
@@ -200,9 +205,9 @@ public class ChannelProcessorTest
 		assertNotNull(data.getChannel().getRed());
 		assertEquals(0, data.getChannel().getRed().getValue());
 		assertNotNull(data.getChannel().getGreen());
-		assertEquals(0, data.getChannel().getGreen().getValue());
+		assertEquals(255, data.getChannel().getGreen().getValue());
 		assertNotNull(data.getChannel().getBlue());
-		assertEquals(255, data.getChannel().getBlue().getValue());
+		assertEquals(0, data.getChannel().getBlue().getValue());
 		assertNotNull(data.getChannel().getAlpha());
 		assertEquals(255, data.getChannel().getAlpha().getValue());
 		assertNotNull(data.getLogicalChannel());
@@ -214,7 +219,9 @@ public class ChannelProcessorTest
 	public void testGraphicsDomain()
 	{
 		ChannelProcessor processor = new ChannelProcessor();
-		store.setReader(new TestReader(true));
+                TestReader reader = new TestReader();
+                reader.setDomains(GRAPHICS_DOMAIN);
+                store.setReader(reader);
 		processor.process(store);
 		ChannelData data = ChannelData.fromObjectContainerStore(
 				store, IMAGE_INDEX, CHANNEL_INDEX);
@@ -615,7 +622,7 @@ public class ChannelProcessorTest
 	public void testChannelsEmFilterLightPathBlueAndTransmittedLight()
 	{
 		ChannelProcessor processor = new ChannelProcessor();
-		store.setReader(new TestReader(false));
+		store.setReader(new TestReader());
 		store.setTransmittanceRangeCutIn(new PositiveInteger(430), INSTRUMENT_INDEX, 2);
 		store.setTransmittanceRangeCutOut(new PositiveInteger(435), INSTRUMENT_INDEX, 2);
 		processor.process(store);
@@ -652,7 +659,7 @@ public class ChannelProcessorTest
 	public void testChannelsEmFilterLightPathRedAndTransmittedLight()
 	{
 		ChannelProcessor processor = new ChannelProcessor();
-		store.setReader(new TestReader(false));
+		store.setReader(new TestReader());
 		store.setTransmittanceRangeCutIn(new PositiveInteger(600), INSTRUMENT_INDEX, 2);
 		store.setTransmittanceRangeCutOut(new PositiveInteger(620), INSTRUMENT_INDEX, 2);
 		processor.process(store);
@@ -689,7 +696,7 @@ public class ChannelProcessorTest
 	public void testChannelsEmFilterLightPathGreenAndTransmittedLight()
 	{
 		ChannelProcessor processor = new ChannelProcessor();
-		store.setReader(new TestReader(false));
+		store.setReader(new TestReader());
 		store.setTransmittanceRangeCutIn(new PositiveInteger(510), INSTRUMENT_INDEX, 2);
 		store.setTransmittanceRangeCutOut(new PositiveInteger(520), INSTRUMENT_INDEX, 2);
 		processor.process(store);
@@ -726,7 +733,7 @@ public class ChannelProcessorTest
 	public void testChannelsEmFilterFilterSetGreenAndTransmittedLight()
 	{
 		ChannelProcessor processor = new ChannelProcessor();
-		store.setReader(new TestReader(false));
+		store.setReader(new TestReader());
 		store.setTransmittanceRangeCutIn(new PositiveInteger(510), INSTRUMENT_INDEX, 0);
 		store.setTransmittanceRangeCutOut(new PositiveInteger(520), INSTRUMENT_INDEX, 0);
 		processor.process(store);
