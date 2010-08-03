@@ -7,22 +7,30 @@
 package ome.io.nio.utests;
 
 import java.io.File;
+import java.io.IOException;
 
+import static org.testng.AssertJUnit.*;
+
+import org.apache.commons.io.FileUtils;
 import org.testng.annotations.*;
-import junit.framework.TestCase;
 import ome.io.nio.PixelsService;
 
-public class HelperUnitTest extends TestCase {
+public class HelperUnitTest {
 
+    /** Temporary root for testing */
+    private static String ROOT = 
+        PathUtil.getInstance().getTemporaryDataFilePath();
 
-    /** Default root for testing "/OMERO/" */
-	private static String ROOT = PathUtil.getInstance().getDataFilePath();
-
-	private String p(String path) {
+    private String p(String path) {
         if (File.separator.equals("\\")) {
             return path.replace("/", "\\");
         }
         return path;
+    }
+
+    @AfterClass
+    public void tearDown() throws IOException {
+        FileUtils.deleteDirectory(new File(ROOT));
     }
 
     //
@@ -30,10 +38,10 @@ public class HelperUnitTest extends TestCase {
     //
     @Test
     public void testMissingTrailingSlash() {
-        String path = new PixelsService("/OMERO").getPixelsPath(new Long(1));
-        assertEquals("/OMERO/Pixels/1", path);
+        String path = new PixelsService(ROOT).getPixelsPath(new Long(1));
+        assertEquals(ROOT + "Pixels/1", path);
     }
-    
+
     //
     // SINGLE DIRECTORY TESTS
     //

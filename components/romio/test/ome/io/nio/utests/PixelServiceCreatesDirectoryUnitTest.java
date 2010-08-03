@@ -6,27 +6,36 @@
  */
 package ome.io.nio.utests;
 
-import junit.framework.TestCase;
+import static org.testng.AssertJUnit.*;
+
+import java.io.File;
+import java.io.IOException;
+
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
 
+import org.apache.commons.io.FileUtils;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class PixelServiceCreatesDirectoryUnitTest extends TestCase {
+public class PixelServiceCreatesDirectoryUnitTest {
     private Pixels pixels;
-
-    private PixelBuffer pixelBuffer;
 
     private PixelsService service;
 
-    private static final String ROOT = PathUtil.getInstance().getDataFilePath();
+    private static final String ROOT = 
+        PathUtil.getInstance().getTemporaryDataFilePath();
 
-    @Override
+    @AfterClass
+    public void tearDown() throws IOException {
+        FileUtils.deleteDirectory(new File(ROOT));
+    }
+
     @BeforeMethod
-    protected void setUp() {
+    public void setUp() {
         pixels = new Pixels();
         pixels.setId(1234567890123L);
         pixels.setSizeX(8);
@@ -43,7 +52,8 @@ public class PixelServiceCreatesDirectoryUnitTest extends TestCase {
 
     @Test
     public void testLargeId() throws Exception {
-        pixelBuffer = service.createPixelBuffer(pixels);
+        PixelBuffer pixelBuffer = service.createPixelBuffer(pixels);
+        assertNotNull(pixelBuffer);
     }
 
 }

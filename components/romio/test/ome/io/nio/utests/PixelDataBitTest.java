@@ -1,8 +1,8 @@
 package ome.io.nio.utests;
 
-import java.nio.ByteBuffer;
+import static org.testng.AssertJUnit.*;
 
-import junit.framework.TestCase;
+import java.nio.ByteBuffer;
 
 import ome.io.nio.PixelData;
 import ome.model.enums.PixelsType;
@@ -11,7 +11,7 @@ import ome.model.enums.PixelsType;
  * Integration tests of the PixelData implementation for the bit pixel type.
  * @author Chris Allan <callan at blackcat dot ca>
  */
-public class PixelDataBitTest extends TestCase
+public class PixelDataBitTest
 {
 	private PixelData data;
 

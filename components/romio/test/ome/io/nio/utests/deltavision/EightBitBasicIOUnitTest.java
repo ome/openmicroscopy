@@ -1,16 +1,16 @@
 package ome.io.nio.utests.deltavision;
 
+import static org.testng.AssertJUnit.*;
+
 import java.nio.ByteBuffer;
 
 import org.testng.annotations.Test;
-
-import junit.framework.TestCase;
 
 import ome.io.nio.DeltaVision;
 import ome.model.core.OriginalFile;
 import ome.util.Utils;
 
-public class EightBitBasicIOUnitTest extends TestCase
+public class EightBitBasicIOUnitTest
 {
 	private static final String path = 
 		"/Users/callan/testimages/22jul05_rhum_start01_02_R3D_D3D_VOL.dv";
