@@ -2105,7 +2105,13 @@ class FileAnnotationWrapper (AnnotationWrapper):
         if size <= buf:
             return store.read(0,long(size))
         else:
-            temp = "%s/%i-%s.download" % (settings.FILE_UPLOAD_TEMP_DIR, size, self._sessionUuid)
+            try:
+                from django.conf import settings
+                temp_path = settings.FILE_UPLOAD_TEMP_DIR    
+            except ImportError:
+                import tempfile
+                temp_path = tempfile.gettempprefix()
+            temp = "%s/%i-%s.download" % (settings.FILE_UPLOAD_TEMP_DIR, size, self._conn._sessionUuid)            
             outfile = open (temp, "wb")
             for pos in range(0,long(size),buf):
                 data = None
