@@ -241,7 +241,7 @@ public class CommandLineImporter {
         LongOpt logs = new LongOpt("logs", LongOpt.NO_ARGUMENT, null, 4);
         LongOpt email = new LongOpt("email", LongOpt.REQUIRED_ARGUMENT, null, 5);
         Getopt g = new Getopt(APP_NAME, args, "acfl:s:u:w:d:r:k:x:n:p:h",
-                new LongOpt[] { debug, report, upload, email });
+                new LongOpt[] { debug, report, upload, logs, email });
         int a;
 
         boolean getUsedFiles = false;
@@ -316,6 +316,7 @@ public class CommandLineImporter {
             }
             case 'a': {
                 config.archiveImage.set(true);
+                break;
             }
             case 'l': {
                 config.readersPath.set(g.getOptarg());
