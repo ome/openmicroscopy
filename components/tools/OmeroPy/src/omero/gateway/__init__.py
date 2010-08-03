@@ -2111,7 +2111,7 @@ class FileAnnotationWrapper (AnnotationWrapper):
             except ImportError:
                 import tempfile
                 temp_path = tempfile.gettempprefix()
-            temp = "%s/%i-%s.download" % (settings.FILE_UPLOAD_TEMP_DIR, size, self._conn._sessionUuid)            
+            temp = "%s/%i-%s.download" % (temp_path, size, self._conn._sessionUuid)            
             outfile = open (temp, "wb")
             for pos in range(0,long(size),buf):
                 data = None
