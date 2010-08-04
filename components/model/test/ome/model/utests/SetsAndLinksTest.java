@@ -180,11 +180,13 @@ public class SetsAndLinksTest extends TestCase {
         }
     }
     
-    @Test(expectedExceptions = NullPointerException.class)
+    // This is now allowed? (ticket:2067)
+    // Wed Aug  4 09:04:28 BST 2010 <callan@blackcat.ca>
+    @Test(groups={"broken"}, expectedExceptions = NullPointerException.class)
     public void testNullArentAddableToOrderedCollections() {
-        Image i = new Image();
-        i.addPixels(null);
-        assertEquals(1, i.sizeOfPixels());
+        Pixels p = new Pixels();
+        p.addChannel(null);
+        assertEquals(1, p.sizeOfChannels());
     }
 
     // ~ Private helpers

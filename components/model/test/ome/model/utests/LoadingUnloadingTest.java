@@ -49,7 +49,6 @@ public class LoadingUnloadingTest extends TestCase {
         p.getId();
         p.setId(null);
         try_and_fail(p.fields());
-/* ajp - Why should this throw an exception? */
 
     }
 
@@ -87,6 +86,13 @@ public class LoadingUnloadingTest extends TestCase {
     private void try_and_fail(Set strings) {
         for (Iterator it = strings.iterator(); it.hasNext();) {
             String field = (String) it.next();
+            // The counts are always available, skip them
+            if ("ome.model.containers.Project_annotationLinksCountPerOwner".equals(field)) {
+                continue;
+            }
+            if ("ome.model.containers.Project_datasetLinksCountPerOwner".equals(field)) {
+                continue;
+            }
             try {
                 p.retrieve(field);
                 if (!Project.ID.equals(field)) {
