@@ -11,8 +11,7 @@
       </run>        
     </groups>
     <packages>
-      <package name="ome.*"/>
-      <package name="omeis.*"/>
+      <package name="ome.services.licenses.*"/>
     </packages>
   </test>
 

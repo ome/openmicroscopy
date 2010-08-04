@@ -11,7 +11,8 @@
       </run>        
     </groups>
     <packages>
-      <package name="ome.*"/>
+      <package name="ome.rnd.*"/>
+      <package name="ome.util.*"/>
     </packages>
   </test>
 
