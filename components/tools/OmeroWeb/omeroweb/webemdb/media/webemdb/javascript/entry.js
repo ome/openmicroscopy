@@ -7,7 +7,7 @@ $(document).ready(function() {
         
         // find these elements in the xml and put their text in corresponding html elements
         var elementNames=["status","depositionDate","headerReleaseDate","mapReleaseDate","authors", "articleTitle", 
-            "journal", "volume", "firstPage", "lastPage", "externalReference", "journalArticle", "resolutionByAuthor", 
+            "journal", "year", "volume", "firstPage", "lastPage", "externalReference", "journalArticle", "resolutionByAuthor", 
             "resolutionMethod", "name", "aggregationState", "molWtTheo","annotationDetails", "contourLevel"];
         for(var i=0; i<elementNames.length; i++){
             name = elementNames[i];
@@ -244,11 +244,14 @@ $(document).ready(function() {
         execute_oav_command(command);
     });
     $(".oavLoadPdb").click(function(event) {
-        var pdbUrl = event.target.id;
-        var pdbId = event.target.text;
-        //var command = "molecule load '" + pdbId + "' " + pdbUrl + ";";
-        var command = "molecule load mol1 'http://localhost:8000/webemdb/entry/1006/file/66/';"
+        var $a = $(this);
+        //var pdbId = $a.text; 
+        var pdbId = $a.text();
+        var pdbUrl = $a.attr('href');
+        var command = "molecule load " + pdbId + " '" + pdbUrl + "';";
+        alert(command);
         execute_oav_command(command);
+        return false;
     });
     
  });

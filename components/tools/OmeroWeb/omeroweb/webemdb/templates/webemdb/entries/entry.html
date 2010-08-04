@@ -74,7 +74,7 @@
                     <tr><td align="right" valign="top" class="label">Primary Citation: </td>
                         <td><span id="authors2"></span><br>
                         <span id="articleTitle2"></span>
-                        <span id="journal"></span>(<span id="year"></span>)
+                        <span id="journal"></span> (<span id="year"></span>)
                         <b><span id="volume"></span></b>,
                         <span id="firstPage"></span>-<span id="lastPage"></span>
                         [PubMed entry <a id="externalReference"></a>]</td></tr>
@@ -114,8 +114,8 @@
                             <li>Zoom: Shift + Drag Up/Down</li>
                         </lu>
                         {% for pdb in pdbs %}
-                            <div class="oavLoadPdb" id="{% url webemdb.views.file project.name pdb.id %}">
-                                {{ pdb.getFileName }}
+                            <div>
+                            Load pdb:<a href="{% url webemdb_pdb project.name pdb.id %}" class="oavLoadPdb">{{ pdb.getFileName }}</a>
                             </div>
                         {% endfor %}
                     </div>

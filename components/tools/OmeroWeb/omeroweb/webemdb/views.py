@@ -211,31 +211,21 @@ def file (request, entryId, fileId):
     
     # determine mime type to assign
     if oFile:
-        # if the file data is large, we will have a temp file
-        if oFile.startswith(settings.FILE_UPLOAD_TEMP_DIR):
-            from django.core.servers.basehttp import FileWrapper
-            self.originalFile_data = FileWrapper(file(temp))
-            
         file_data = oFile.getFile()
+        
+        # if the file data is large, we will have a temp file
+        if file_data.startswith(settings.FILE_UPLOAD_TEMP_DIR):
+            from django.core.servers.basehttp import FileWrapper
+            temp = FileWrapper(file(file_data))
+            return HttpResponse(temp)
+            
         fileName = oFile.getFileName()
         mimetype = "text/plain"
         
-        if fileName.endswith(".bit"):
-            mimetype='application/octet-stream'
-            """
-            f = open("tempFile", 'w')
-            f.write(file_data)
-            f.close
-            filename = "tempFile"                               
-            wrapper = FileWrapper(file(filename, None, None))
-            wrapper = FileWrapper(f)
-            response = HttpResponse(wrapper, content_type='text/plain')
-            response['Content-Length'] = os.path.getsize(filename)
-            return response """
-            
+        if fileName.endswith(".bit") or fileName.endswith(".pdb.gz"): mimetype='application/octet-stream'
         if fileName.endswith(".xml"): mimetype='text/xml'
         if fileName.endswith(".gif"): mimetype='image/gif'
-        if fileName.endswith(".gz"): mimetype='application/x-gzip'
+        #if fileName.endswith("pdb.gz"): mimetype='application/x-gzip'
         return HttpResponse(file_data, mimetype=mimetype)
     return HttpResponse()
     
