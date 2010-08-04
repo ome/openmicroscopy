@@ -33,11 +33,12 @@ import org.testng.annotations.Test;
  * 
  * @since Beta4.1
  */
+@Test(groups={"manual"})
 public class BasicImporterClientTest extends TestCase {
 
     Log log = LogFactory.getLog(BasicImporterClientTest.class);
 
-     @Test
+    @Test
     public void testSimpleClientWthErrorHandling() throws Exception {
 
         final ImportConfig config = new ImportConfig();
