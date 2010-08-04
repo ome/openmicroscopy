@@ -71,10 +71,10 @@ import org.openmicroscopy.shoola.util.ui.IconManager;
 public class FileQueueTable extends JPanel implements ActionListener, IObserver
 {
 	/** Logger for this class */
-	private Log log = LogFactory.getLog(FileQueueTable.class);
+	private static Log log = LogFactory.getLog(FileQueueTable.class);
 	
-    public QueueTableModel table = new QueueTableModel();
-    public ETable queue = new ETable(table);
+    private static QueueTableModel table = new QueueTableModel();
+    private static ETable queue = new ETable(getTable());
     
     private static final long serialVersionUID = -4239932269937114120L;
 
@@ -188,7 +188,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
         queuePanel.add(labelPanel);
         queuePanel.add(Box.createRigidArea(new Dimension(0,5)));
         
-        TableColumnModel cModel =  queue.getColumnModel();
+        TableColumnModel cModel =  getQueue().getColumnModel();
         
         headerCellRenderer = new MyTableHeaderRenderer();
         fileCellRenderer = new LeftDotRenderer();
@@ -204,19 +204,19 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
         cModel.getColumn(2).setCellRenderer(statusCellRenderer);            
         
         // Set the width of the status column
-        TableColumn statusColumn = queue.getColumnModel().getColumn(2);
+        TableColumn statusColumn = getQueue().getColumnModel().getColumn(2);
         statusColumn.setPreferredWidth(statusWidth);
         statusColumn.setMaxWidth(statusWidth);
         statusColumn.setMinWidth(statusWidth);
               
 
-        SelectionListener listener = new SelectionListener(queue);
-        queue.getSelectionModel().addListSelectionListener(listener);
+        SelectionListener listener = new SelectionListener(getQueue());
+        getQueue().getSelectionModel().addListSelectionListener(listener);
         //queue.getColumnModel().getSelectionModel()
         //    .addListSelectionListener(listener);
         
         // Hide 3rd to 6th columns
-        TableColumnModel tcm = queue.getColumnModel();
+        TableColumnModel tcm = getQueue().getColumnModel();
         TableColumn projectColumn = tcm.getColumn(6);
         tcm.removeColumn(projectColumn);
         TableColumn userPixelColumn = tcm.getColumn(6);
@@ -231,7 +231,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
         tcm.removeColumn(archiveColumn);
         
         // Add the table to the scollpane
-        JScrollPane scrollPane = new JScrollPane(queue);
+        JScrollPane scrollPane = new JScrollPane(getQueue());
 
         queuePanel.add(scrollPane);
                         
@@ -284,9 +284,9 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
      */
     public boolean setProgressPending(int row)
     {
-        if (table.getValueAt(row, 2).equals("added"))
+        if (getTable().getValueAt(row, 2).equals("added"))
         {
-            table.setValueAt("pending", row, 2); 
+            getTable().setValueAt("pending", row, 2); 
             return true;
         }
         return false;
@@ -300,8 +300,8 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
      */
     public void setProgressInvalid(int row)
     {
-        if (table.getValueAt(row, 2).equals("added"))
-            table.setValueAt("invalid format", row, 2);    
+        if (getTable().getValueAt(row, 2).equals("added"))
+            getTable().setValueAt("invalid format", row, 2);    
     }
     
     /**
@@ -318,7 +318,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
             text = series + 1 + "/" + count + ": " + step + "/" + maxPlanes;
         else
             text = step + "/" + maxPlanes;
-        table.setValueAt(text, row, 2);   
+        getTable().setValueAt(text, row, 2);   
     }
 
     /**
@@ -328,9 +328,9 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
      */
     public void setProgressFailed(int row)
     {
-     	table.setValueAt("failed", row, 2);
+     	getTable().setValueAt("failed", row, 2);
         failedFiles = true;
-        table.fireTableDataChanged();
+        getTable().fireTableDataChanged();
     }
     
     /**
@@ -340,9 +340,9 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
      */
     public void setProgressUnknown(int row)
     {
-        table.setValueAt("unreadable", row, 2);
+        getTable().setValueAt("unreadable", row, 2);
         failedFiles = true;
-        table.fireTableDataChanged();
+        getTable().fireTableDataChanged();
     }    
         
     /**
@@ -352,7 +352,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
      */
     public void setProgressPrepping(int row)
     {
-        table.setValueAt("prepping", row, 2); 
+        getTable().setValueAt("prepping", row, 2); 
     }
 
     /**
@@ -362,9 +362,9 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
      */
     public void setProgressDone(int row)
     {
-        table.setValueAt("done", row, 2);
+        getTable().setValueAt("done", row, 2);
         doneFiles = true;
-        table.fireTableDataChanged();
+        getTable().fireTableDataChanged();
     }
 
     /**
@@ -374,7 +374,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
      */
     public void setProgressSaveToDb(int row)
     {
-        table.setValueAt("updating db", row, 2);       
+        getTable().setValueAt("updating db", row, 2);       
     }
     
     /**
@@ -384,7 +384,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
      */
     public void setProgressOverlays(int row)
     {
-        table.setValueAt("overlays", row, 2);       
+        getTable().setValueAt("overlays", row, 2);       
     }
     
     /**
@@ -394,7 +394,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
      */
     public void setProgressArchiving(int row)
     {
-        table.setValueAt("archiving", row, 2);       
+        getTable().setValueAt("archiving", row, 2);       
     }
     
     /**
@@ -404,7 +404,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
      */
     public void setProgressResettingDefaults(int row)
     {
-        table.setValueAt("thumbnailing", row, 2);       
+        getTable().setValueAt("thumbnailing", row, 2);       
     }
 
     /**
@@ -414,7 +414,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
      */
     public void setProgressAnalyzing(int row)
     {
-        table.setValueAt("analyzing", row, 2); 
+        getTable().setValueAt("analyzing", row, 2); 
     }
         
     public int getMaximumPlanes()
@@ -429,12 +429,12 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
      */
     public ImportContainer[] getImportContainersFromTable() {
 
-        int num = table.getRowCount();     
+        int num = getTable().getRowCount();     
         ImportContainer[] importContainer = new ImportContainer[num];
 
         for (int i = 0; i < num; i++)
         {
-            importContainer[i] = (ImportContainer) table.getValueAt(i, 3);
+            importContainer[i] = (ImportContainer) getTable().getValueAt(i, 3);
         }
         return importContainer;
     }
@@ -457,7 +457,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
             firePropertyChange(FileQueueHandler.CLEARFAILED, false, true);
         if (src == importBtn)
         {
-            queue.clearSelection();
+            getQueue().clearSelection();
             firePropertyChange(FileQueueHandler.IMPORT, false, true);
         }
         //if (src == refreshBtn)
@@ -470,10 +470,10 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
      */
     public void centerOnRow(int row)
     {
-        queue.getSelectionModel().setSelectionInterval(row, row);
-        Rectangle visibleRect = queue.getVisibleRect();
+        getQueue().getSelectionModel().setSelectionInterval(row, row);
+        Rectangle visibleRect = getQueue().getVisibleRect();
         int centerY = visibleRect.y + visibleRect.height/2;
-        Rectangle cellRect = queue.getCellRect(row, 0, true);
+        Rectangle cellRect = getQueue().getCellRect(row, 0, true);
         if (centerY < cellRect.y)
         {
             // need to scroll up
@@ -484,7 +484,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
             // need to scroll down
             cellRect.y = cellRect.y + visibleRect.y - centerY;                    
         }
-        queue.scrollRectToVisible(cellRect);
+        getQueue().scrollRectToVisible(cellRect);
     }
         
     public void update(IObservable importLibrary, ImportEvent event)
@@ -547,7 +547,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
             // addBtn.setEnabled(true);
             importBtn.setText("Import");
             importBtn.setEnabled(true);
-            queue.setRowSelectionAllowed(true);
+            getQueue().setRowSelectionAllowed(true);
             removeBtn.setEnabled(true);
             if (failedFiles == true)
                 clearFailedBtn.setEnabled(true);
@@ -636,7 +636,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
      * @author Brian Loranger brain at lifesci.dundee.ac.uk
      *
      */
-    class QueueTableModel extends DefaultTableModel implements TableModelListener {
+    protected static class QueueTableModel extends DefaultTableModel implements TableModelListener {
         
         private static final long serialVersionUID = 1L;
         
@@ -678,7 +678,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
      * @author Brian Loranger brain at lifesci.dundee.ac.uk
      *
      */
-    public class MyTableHeaderRenderer extends DefaultTableCellRenderer 
+    private static class MyTableHeaderRenderer extends DefaultTableCellRenderer 
     {
         // This method is called each time a column header
         // using this renderer needs to be rendered.
@@ -745,7 +745,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
      * @author Brian Loranger brain at lifesci.dundee.ac.uk
      *
      */
-    class LeftDotRenderer extends DefaultTableCellRenderer
+    private static class LeftDotRenderer extends DefaultTableCellRenderer
     {   
     	private static final long serialVersionUID = 1L;
     	
@@ -765,7 +765,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
             String cellText = getText();
             FontMetrics fm = getFontMetrics( getFont() );
             // Set tool tip if desired
-            ImportContainer ic = (ImportContainer) queue.getModel().getValueAt(row, 3);
+            ImportContainer ic = (ImportContainer) getQueue().getModel().getValueAt(row, 3);
             setToolTipText(ic.getFile().getAbsolutePath());
             
             if (fm.stringWidth(cellText) > availableWidth)
@@ -788,14 +788,14 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
 
             setFont(UIManager.getFont("TableCell.font"));
             
-            if (queue.getValueAt(row, 2).equals("done"))
+            if (getQueue().getValueAt(row, 2).equals("done"))
             { this.setEnabled(false); } 
             else
             { this.setEnabled(true); }
 
-            if (queue.getValueAt(row, 2).equals("failed"))
+            if (getQueue().getValueAt(row, 2).equals("failed"))
             { setForeground(Color.red);} 
-            else if (queue.getValueAt(row, 2).equals("unreadable"))
+            else if (getQueue().getValueAt(row, 2).equals("unreadable"))
             { setForeground(ETable.DARK_ORANGE);} 
             else
             { setForeground(null);}
@@ -810,7 +810,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
      * @author Brian Loranger brain at lifesci.dundee.ac.uk
      *
      */
-    public class CenterTextRenderer extends DefaultTableCellRenderer 
+    private static class CenterTextRenderer extends DefaultTableCellRenderer 
     {
         // This method is called each time a column header
         // using this renderer needs to be rendered.
@@ -831,14 +831,14 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
             // Set tool tip if desired
             setToolTipText((String)value);
             
-            if (queue.getValueAt(row, 2).equals("done"))
+            if (getQueue().getValueAt(row, 2).equals("done"))
             { this.setEnabled(false); } 
             else
             { this.setEnabled(true); }
 
-            if (queue.getValueAt(row, 2).equals("failed"))
+            if (getQueue().getValueAt(row, 2).equals("failed"))
             { setForeground(Color.red);} 
-            else if (queue.getValueAt(row, 2).equals("unreadable"))
+            else if (getQueue().getValueAt(row, 2).equals("unreadable"))
             { setForeground(ETable.DARK_ORANGE);} 
             else
             { setForeground(null);}
@@ -854,7 +854,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
      * @author Brian Loranger brain at lifesci.dundee.ac.uk
      *
      */
-    public class SelectionListener implements ListSelectionListener {
+    private static class SelectionListener implements ListSelectionListener {
     	
         JTable table;
         
@@ -887,14 +887,14 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
         private void dselectRows()
         {
             // Column selection changed
-            int rows = queue.getRowCount();
+            int rows = getQueue().getRowCount();
 
             for (int i = 0; i < rows; i++ )
             {
                 try
                 {
-                    if (!(queue.getValueAt(i, 2).equals("added") ||
-                            queue.getValueAt(i, 2).equals("pending")) 
+                    if (!(getQueue().getValueAt(i, 2).equals("added") ||
+                            getQueue().getValueAt(i, 2).equals("pending")) 
                             && table.getSelectionModel().isSelectedIndex(i))
                     {
                         table.getSelectionModel().removeSelectionInterval(i, i);
@@ -936,4 +936,32 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         f.pack();
     }
+
+	/**
+	 * @param table the table to set
+	 */
+	public static void setTable(QueueTableModel table) {
+		FileQueueTable.table = table;
+	}
+
+	/**
+	 * @return the table
+	 */
+	public static QueueTableModel getTable() {
+		return table;
+	}
+
+	/**
+	 * @param queue the queue to set
+	 */
+	public static void setQueue(ETable queue) {
+		FileQueueTable.queue = queue;
+	}
+
+	/**
+	 * @return the queue
+	 */
+	public static ETable getQueue() {
+		return queue;
+	}
 }

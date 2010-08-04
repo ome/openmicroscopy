@@ -734,7 +734,7 @@ public class HistoryTable
      * @author Brian W. Loranger
      *
      */
-    public class MyTableHeaderRenderer extends DefaultTableCellRenderer 
+    private static class MyTableHeaderRenderer extends DefaultTableCellRenderer 
     {
         // This method is called each time a column header
         // using this renderer needs to be rendered.
@@ -743,6 +743,8 @@ public class HistoryTable
         public Component getTableCellRendererComponent(JTable table, Object value,
                 boolean isSelected, boolean hasFocus, int row, int column) {
     
+        	if (table == null) return null;
+        	
            // setBorder(UIManager.getBorder("TableHeader.cellBorder"));
             setBorder(BorderFactory.createLineBorder(new Color(0xe0e0e0)));
             setForeground(UIManager.getColor("TableHeader.foreground"));
@@ -758,7 +760,7 @@ public class HistoryTable
             // Set tool tip if desired
             setToolTipText((String)value);
             
-            setEnabled(table == null || table.isEnabled());
+            setEnabled(table.isEnabled());
                         
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
     
@@ -795,7 +797,7 @@ public class HistoryTable
      * @author Brian W. Loranger
      *
      */
-    class LeftDotRenderer extends DefaultTableCellRenderer
+    private static class LeftDotRenderer extends DefaultTableCellRenderer
     {
         private static final long serialVersionUID = 1L;
         public Component getTableCellRendererComponent(
@@ -847,7 +849,7 @@ public class HistoryTable
      * @author Brian W. Loranger
      *
      */
-    public class TextCellCenter extends DefaultTableCellRenderer 
+    private static class TextCellCenter extends DefaultTableCellRenderer 
     {
         // This method is called each time a column header
         // using this renderer needs to be rendered.

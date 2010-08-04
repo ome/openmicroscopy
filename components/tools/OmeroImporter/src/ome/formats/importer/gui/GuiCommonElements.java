@@ -673,17 +673,21 @@ public class GuiCommonElements
      */
     public static ImageIcon getImageIcon(String path)
     {
+    	if (path == null) 
+    	{
+    		log.error("Icon path is null");
+    		return null;
+    	}
+    	
         java.net.URL imgURL = GuiImporter.class.getResource(path);
         
-        if (imgURL != null) 
+        if (imgURL == null) 
         { 
-        	return new ImageIcon(imgURL); 
-        } 
-        else 
-        { 
-        	log.error("Couldn't find icon: " + imgURL); 
+        	log.error("Couldn't find icon: " + imgURL);
+        	return null;
         }
-        return null;
+        else
+        	return new ImageIcon(imgURL); 
     }
 
     /**

@@ -202,7 +202,7 @@ public class ImportHandler implements IObservable
         numOfDone = 0;
         for (int j = 0; j < importContainer.length; j++) {
             ImportContainer container = importContainer[j];
-            if (qTable.table.getValueAt(j, 2).equals("pending")
+            if (qTable.getTable().getValueAt(j, 2).equals("pending")
                     && qTable.cancel == false) {
                 numOfDone++;
                 String filename = container.getFile().getAbsolutePath();

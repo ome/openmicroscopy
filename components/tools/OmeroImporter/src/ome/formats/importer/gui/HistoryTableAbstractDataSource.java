@@ -96,11 +96,6 @@ public abstract class HistoryTableAbstractDataSource implements IObservable, IHi
     {  
     	String good =
     		" .-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    	String result = "";
-    	for ( int i = 0; i < queryString.length(); i++ ) {
-    		if ( good.indexOf(queryString.charAt(i)) >= 0 )
-    			result += queryString.charAt(i);
-    	}
 
     	StringBuffer buf = new StringBuffer();
     	for ( int i = 0; i < queryString.length(); i++ ) {

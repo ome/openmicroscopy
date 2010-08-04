@@ -80,8 +80,6 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     private final ArrayList<IObserver> observers = new ArrayList<IObserver>();
     
     public volatile JFrame      f;
-    
-    private boolean            center;
 
     private GuiImporter        viewer;
 
@@ -98,7 +96,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     private final ImportConfig config;
 
     
-    /**
+    /**8
      * Initialize the login handler
      * 
      * @param viewer - parent viewer
@@ -121,7 +119,6 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     public LoginHandler(GuiImporter viewer, HistoryTable table, boolean modal, boolean center, boolean displayTop)
     {
         this.viewer = viewer;
-        this.center = center;
         this.modal = modal;
         this.config = viewer.getConfig();
         

@@ -382,7 +382,7 @@ public class FileQueueHandler extends JPanel
                 addFileToQueue(ic, title, false, 0);
             }
             
-            qTable.centerOnRow(qTable.queue.getRowCount()-1);
+            qTable.centerOnRow(qTable.getQueue().getRowCount()-1);
             qTable.importBtn.requestFocus();
 
         }
@@ -413,7 +413,7 @@ public class FileQueueHandler extends JPanel
                 addFileToQueue(ic, title, useFullPath, config.numOfDirectories.get());
             }
             
-            qTable.centerOnRow(qTable.queue.getRowCount()-1);
+            qTable.centerOnRow(qTable.getQueue().getRowCount()-1);
             qTable.importBtn.requestFocus();
         } else {
         	addEnabled(true);
@@ -449,7 +449,7 @@ public class FileQueueHandler extends JPanel
         
         else if (prop.equals(REMOVE))
         {
-                int[] rows = qTable.queue.getSelectedRows();   
+                int[] rows = qTable.getQueue().getSelectedRows();   
 
                 if (rows.length == 0)
                 {
@@ -462,22 +462,22 @@ public class FileQueueHandler extends JPanel
 
                 while (rows.length > 0)
                 {
-                    if (qTable.queue.getValueAt(rows[0], 2) == "added"
-                        || qTable.queue.getValueAt(rows[0], 2) == "pending")
+                    if (qTable.getQueue().getValueAt(rows[0], 2) == "added"
+                        || qTable.getQueue().getValueAt(rows[0], 2) == "pending")
                     {
                         removeFileFromQueue(rows[0]);
-                        rows = qTable.queue.getSelectedRows();                    
+                        rows = qTable.getQueue().getSelectedRows();                    
                     }
                 }                
         }
         
         else if (prop.equals(CLEARDONE))
         {
-                int numRows = qTable.queue.getRowCount();
+                int numRows = qTable.getQueue().getRowCount();
 
                 for (int i = (numRows - 1); i >= 0; i--)
                 {
-                    if (qTable.queue.getValueAt(i, 2) == "done")
+                    if (qTable.getQueue().getValueAt(i, 2) == "done")
                     {
                         removeFileFromQueue(i);                    
                     }
@@ -487,11 +487,11 @@ public class FileQueueHandler extends JPanel
         
         else if (prop.equals(CLEARFAILED))
         {
-                int numRows = qTable.queue.getRowCount();
+                int numRows = qTable.getQueue().getRowCount();
 
                 for (int i = (numRows - 1); i >= 0; i--)
                 {
-                    if (qTable.queue.getValueAt(i, 2) == "failed")
+                    if (qTable.getQueue().getValueAt(i, 2) == "failed")
                     {
                         removeFileFromQueue(i);                    
                     }
@@ -527,7 +527,7 @@ public class FileQueueHandler extends JPanel
                         }
                     }
                     qTable.importing = true;
-                    qTable.queue.setRowSelectionAllowed(false);
+                    qTable.getQueue().setRowSelectionAllowed(false);
                     qTable.removeBtn.setEnabled(false);
                 } else {
                     qTable.importBtn.setText("Wait...");
@@ -572,7 +572,7 @@ public class FileQueueHandler extends JPanel
 	{
 		qTable.addBtn.setEnabled(b);
 		qTable.removeBtn.setEnabled(b);
-		if (b==true && qTable.table.getRowCount() > 0)
+		if (b==true && qTable.getTable().getRowCount() > 0)
 			qTable.importBtn.setEnabled(true);
 		else if (b==false)
 			qTable.importBtn.setEnabled(false);
@@ -709,9 +709,9 @@ public class FileQueueHandler extends JPanel
      */
     private void removeFileFromQueue(int row)
     {
-        qTable.table.removeRow(row);
+        qTable.getTable().removeRow(row);
         //qTable.table.fireTableRowsDeleted(row, row);
-        if (qTable.table.getRowCount() == 0)
+        if (qTable.getTable().getRowCount() == 0)
             qTable.importBtn.setEnabled(false);
     }
 
@@ -902,7 +902,7 @@ public class FileQueueHandler extends JPanel
                 row.add(false);
                 row.add(projectID);
                 row.add(pixelSizes);
-                qTable.table.addRow(row);
+                qTable.getTable().addRow(row);
             }
             
             if (finalCount == 0)
@@ -923,7 +923,7 @@ public class FileQueueHandler extends JPanel
             }
 
             
-            if (qTable.table.getRowCount() >  0)
+            if (qTable.getTable().getRowCount() >  0)
                 qTable.importBtn.setEnabled(true);
         }
     }
@@ -953,8 +953,8 @@ public class FileQueueHandler extends JPanel
         row.add(pdsString);
         row.add("added");
         row.add(container);
-        qTable.table.addRow(row);
-        if (qTable.table.getRowCount() == 1)
+        qTable.getTable().addRow(row);
+        if (qTable.getTable().getRowCount() == 1)
             qTable.importBtn.setEnabled(true);
     }
     
