@@ -10,7 +10,7 @@ import logging
 import traceback
 import omero
 import omero.constants
-from omero.rtypes import rstring
+from omero.rtypes import rstring, rint
 
 logger = logging.getLogger('webemdb')
 
@@ -20,6 +20,16 @@ PUBLICATION_NAMESPACE = "openmicroscopy.org/omero/emdb/publication"
 import os, tempfile, zipfile
 from django.core.servers.basehttp import FileWrapper
 
+from omero.sys import Parameters, Filter
+
+
+def dataset(request, entryId, datasetId):
+    conn = getConnection(request)
+
+    dataset = conn.getDataset(datasetId)
+
+    return render_to_response('webemdb/data/dataset.html', {'dataset': dataset, 'entryId': entryId})
+
 
 def data(request, entryId):
     conn = getConnection(request)
@@ -27,20 +37,30 @@ def data(request, entryId):
     entryName = str(entryId)
     project = conn.findProject(entryName)
     
-    #print dir(project)
+    # only want the first few images from each dataset
+    p = omero.sys.Parameters()
+    p.map = {}
+    f = omero.sys.Filter()
+    f.limit = rint(5)
+    f.offset = rint(0)
+    p.theFilter = f
     
     datasets = []
     for d in project.listChildren():
         ds = {}
-        ds["name"] = d.getName()
-        ds["images"] = d.listChildren()[:5]
+        ds["getId"] = str(d.getId())
+        print "ID", d.getId()
+        ds["getName"] = d.getName()
+        ds["getDescription"] = d.getDescription()
+        ds["countChildren"] = d.countChildren()
+        ds["listChildren"] = d.listChildren(params=p)
         datasets.append(ds)
     
     if project == None:
         # project not found (None) handled by template
-        return render_to_response('webemdb/data/data.html', {'project':project, 'datasets': datasets})
+        return render_to_response('webemdb/data/data.html', {'project':project})
 
-    return render_to_response('webemdb/data/data.html', {'project':project })
+    return render_to_response('webemdb/data/data.html', {'project':project, 'datasets': datasets})
     
     
 def entry (request, entryId):
@@ -188,8 +208,14 @@ def file (request, entryId, fileId):
         if a.id == long(fileId):
             oFile = a
     
+    
     # determine mime type to assign
     if oFile:
+        # if the file data is large, we will have a temp file
+        if oFile.startswith(settings.FILE_UPLOAD_TEMP_DIR):
+            from django.core.servers.basehttp import FileWrapper
+            self.originalFile_data = FileWrapper(file(temp))
+            
         file_data = oFile.getFile()
         fileName = oFile.getFileName()
         mimetype = "text/plain"
@@ -310,8 +336,8 @@ def getConnection(request):
         request.session['server'] = blitz.id
         request.session['host'] = blitz.host
         request.session['port'] = blitz.port
-        request.session['password'] = "ola"
-        request.session['username'] = "ome"
+        request.session['password'] = "ome"
+        request.session['username'] = "emdb"
         #request.session['server'] = 'localhost'
         conn = getBlitzConnection (request)
         logger.debug(conn)
