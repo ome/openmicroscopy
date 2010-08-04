@@ -94,16 +94,22 @@ public abstract class HistoryTableAbstractDataSource implements IObservable, IHi
      */
     public String stripIllegalSearchCharacters(String queryString) 
     {  
-        String good =
-            " .-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        String result = "";
-        for ( int i = 0; i < queryString.length(); i++ ) {
-            if ( good.indexOf(queryString.charAt(i)) >= 0 )
-                result += queryString.charAt(i);
-        }
-        return result;
+    	String good =
+    		" .-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    	String result = "";
+    	for ( int i = 0; i < queryString.length(); i++ ) {
+    		if ( good.indexOf(queryString.charAt(i)) >= 0 )
+    			result += queryString.charAt(i);
+    	}
+
+    	StringBuffer buf = new StringBuffer();
+    	for ( int i = 0; i < queryString.length(); i++ ) {
+    		if ( good.indexOf(queryString.charAt(i)) >= 0 )
+    			buf.append(queryString.charAt(i));
+    	}
+    	return buf.toString();
     }
-    
+
     // Observable methods
     
     /* (non-Javadoc)

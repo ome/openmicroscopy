@@ -430,7 +430,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
      */
     public Integer updateBaseStatus(int baseUid, String newStatus) throws ServerError
     {
-    	Long uid = new Long(baseUid);
+    	Long uid = Long.valueOf(baseUid);
     	String searchString = "(Uid==" + uid.longValue() + ")";
     	long[] ids = baseTable.getWhereList(searchString, null, 0, baseTable.getNumberOfRows(), 1);
     	
@@ -727,7 +727,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
      */
     public Integer updateItemStatus(int baseUid, int index, String newStatus) throws ServerError
     {
-    	Long uid = new Long(baseUid);
+    	Long uid = Long.valueOf(baseUid);
     	String searchString = "(BaseUid==" + uid.longValue() + ")";
     	long[] ids = itemTable.getWhereList(searchString, null, 0, itemTable.getNumberOfRows(), 1);
     	

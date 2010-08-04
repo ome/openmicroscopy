@@ -86,11 +86,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     private GuiImporter        viewer;
 
     private OMEROMetadataStoreClient store;
-    
-    public LoginDialog         dialog;
-    
-    public LoginFrame          frame;
-    
+
     public ScreenLogin          view;
     public ScreenLogo           viewTop;
 
@@ -310,31 +306,6 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         viewer.enableMenus(true);
         //SplashWindow.disposeSplash();
         viewer.setVisible(true);
-    }
-    
-    /**
-     * Display the login dialog
-     * 
-     * @param viewer - parent
-     * @param modal - modal yes/no
-     * @return true if login successful
-     */
-    @SuppressWarnings("unused")
-    private boolean displayLoginDialog(GuiImporter viewer, boolean modal)
-    {
-        if (modal == true)
-        {
-            dialog = new LoginDialog(config, viewer, viewer, "Login", modal, center);
-            dialog.setAlwaysOnTop(true);
-            if (dialog.cancelled == true) return true;
-        } else {
-
-            frame = new LoginFrame(config, viewer, viewer, "Login", modal, center);
-            frame.addPropertyChangeListener(this);    
-            
-        }
-
-        return false;
     }
 
     /**

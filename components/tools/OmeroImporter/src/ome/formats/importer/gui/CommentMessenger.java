@@ -44,6 +44,7 @@ import javax.swing.JTextPane;
 
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.util.HtmlMessenger;
+import ome.formats.importer.util.HtmlMessengerException;
 
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.methods.multipart.StringPart;
@@ -58,22 +59,26 @@ public class CommentMessenger extends JDialog implements ActionListener
     
     private static final String ICON = "gfx/nuvola_mail_send64.png";
 
-    ImportConfig            config;
+    private ImportConfig            config;
     
-    JPanel                  mainPanel;
-    JPanel                  commentPanel;
-    JPanel                  debugPanel;
+    private JPanel                  mainPanel;
+    private JPanel                  commentPanel;
+    private JPanel                  debugPanel;
+    
+    private JTextPane 				instructions;
 
     //JButton                 quitBtn;
-    JButton                 sendBtn;
-    JButton                 cancelBtn;
-    JButton                 copyBtn;
+    private JButton                 sendBtn;
+    private JButton                 cancelBtn;
+    private JButton                 copyBtn;
     
-    JTextField              emailTextField;
-    String                  emailText           = "";          
+    private JTextField              emailTextField;
+    private String                  emailText           = "";          
     
-    JTextArea               commentTextArea;
-    String                  commentText         = "";
+    private JTextArea               commentTextArea;
+    private String                  commentText         = "";
+
+	private String message;
     
     /**
      * @param owner - owner JFrame
@@ -130,7 +135,7 @@ public class CommentMessenger extends JDialog implements ActionListener
         
         commentPanel = GuiCommonElements.addMainPanel(this, commentTable, 10,10,10,10, debug);
 
-        String message = "Thank you for taking the time to send us your comments. \n\n" +
+        message = "Thank you for taking the time to send us your comments. \n\n" +
                 "Your feedback will be used to further the developmment of the " +
                 "importer and improve our software. Any personal details you provide are" +
                 " purely optional, and will only be used for development purposes.";
@@ -138,9 +143,7 @@ public class CommentMessenger extends JDialog implements ActionListener
         JLabel iconLabel = new JLabel(icon);
         commentPanel.add(iconLabel, "0,0, l, c");
         
-        @SuppressWarnings("unused")
-        JTextPane instructions = 
-        	GuiCommonElements.addTextPane(commentPanel, message, "1,0,2,0", debug);
+        instructions = GuiCommonElements.addTextPane(commentPanel, message, "1,0,2,0", debug);
 
         emailTextField = GuiCommonElements.addTextField(commentPanel, "Email: ", emailText, 'E',
         "Input tyour email address here.", "(Optional)", TableLayout.PREFERRED, "0, 1, 2, 1", debug);
@@ -214,25 +217,26 @@ public class CommentMessenger extends JDialog implements ActionListener
         postList.add(new StringPart("app_name", "1"));
         postList.add(new StringPart("import_session", "test"));
 
+        HtmlMessenger messenger;
         try {
-            HtmlMessenger messenger = new HtmlMessenger(config.getTokenUrl(), postList);
-            String serverReply = messenger.executePost();
-            System.err.println(serverReply);
-            if (serverReply != null)
-                JOptionPane.showMessageDialog(this, "Thank you for your feedback.\n\n" +
-                		"If you included your email address, you\n" +
-                		"should receive a confirmation shortly.\n" +
-                		"\n");
-            this.dispose();
+        	messenger = new HtmlMessenger(config.getTokenUrl(), postList);
+        	String serverReply = messenger.executePost();
+        	System.err.println(serverReply);
+        	if (serverReply != null)
+        		JOptionPane.showMessageDialog(this, "Thank you for your feedback.\n\n" +
+        				"If you included your email address, you\n" +
+        				"should receive a confirmation shortly.");
+        	this.dispose();
+        } catch (HtmlMessengerException e) {
+        	JOptionPane.showMessageDialog(this, 
+        			"Sorry, but due to an error we were not able to automatically \n" +
+        			"send your comment information. \n\n" +
+        			"You can still send us your comments by emailing us at \n" +
+        	"comments@openmicroscopy.org.uk.");
+        	sendBtn.setEnabled(true);
         }
-        catch( Exception e ) {
-            JOptionPane.showMessageDialog(this, 
-                    "Sorry, but due to an error we were not able to automatically \n" +
-                    "send your comment information. \n\n" +
-                    "You can still send us your comments by emailing us at \n" +
-                    "comments@openmicroscopy.org.uk.");
-            sendBtn.setEnabled(true);
-        }
+
+
     }
     
     /**
