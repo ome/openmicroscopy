@@ -16,18 +16,26 @@ here = os.path.abspath( os.path.dirname(__file__) )
 
 class TestClientConstructors(unittest.TestCase):
 
+    def setUp(self):
+        c = omero.client(pmap=['--Ice.Config='+(os.environ.get("ICE_CONFIG"))])
+        self.host = c.ic.getProperties().getProperty('omero.host')
+        self.port = int(c.ic.getProperties().getProperty('omero.port'))
+        self.rootpasswd = c.ic.getProperties().getProperty('omero.rootpass')
+        self.user = c.ic.getProperties().getProperty('omero.user')
+        self.passwd = c.ic.getProperties().getProperty('omero.pass')
+        
     def testHostConstructor(self):
-        c = omero.client( host = "localhost")
-        c.createSession("root", "ome")
+        c = omero.client(host=self.host, port=self.port)
+        c.createSession("root", self.rootpasswd)
         c.closeSession()
-        c.createSession("root", "ome")
+        c.createSession("root", self.rootpasswd)
 
     def testInitializationDataConstructor(self):
         id = Ice.InitializationData()
         id.properties = Ice.createProperties()
-        id.properties.setProperty("omero.host", "localhost")
+        id.properties.setProperty("omero.host", self.host)
         id.properties.setProperty("omero.user", "root")
-        id.properties.setProperty("omero.pass", "ome")
+        id.properties.setProperty("omero.pass", self.rootpasswd)
         c = omero.client(id = id)
         c.createSession()
         c.closeSession()
@@ -35,7 +43,7 @@ class TestClientConstructors(unittest.TestCase):
         c.closeSession()
 
     def testMainArgsConstructor(self):
-        args = ["--omero.host=localhost","--omero.user=root", "--omero.pass=ome"]
+        args = ["--omero.host="+self.host,"--omero.user=root", "--omero.pass="+self.rootpasswd]
         c = omero.client(args)
         c.createSession()
         c.closeSession()
@@ -44,9 +52,9 @@ class TestClientConstructors(unittest.TestCase):
 
     def testMapConstructor(self):
         p = {}
-        p["omero.host"] = "localhost"
+        p["omero.host"] = self.host
         p["omero.user"] = "root"
-        p["omero.pass"] = "ome"
+        p["omero.pass"] = self.rootpasswd
         c = omero.client(pmap = p)
         c.createSession()
         c.closeSession()
@@ -54,7 +62,7 @@ class TestClientConstructors(unittest.TestCase):
         c.closeSession()
 
     def testMainArgsGetsIcePrefix(self):
-        args = ["--omero.host=localhost","--omero.user=root", "--omero.pass=ome"]
+        args = ["--omero.host="+self.host,"--omero.user=root", "--omero.pass="+self.rootpasswd]
         args.append("--Ice.MessageSizeMax=10")
         c = omero.client(args)
         c.createSession()
@@ -78,8 +86,8 @@ class TestClientConstructors(unittest.TestCase):
             c1.closeSession()
         except:
             print "foo failed appropriately"
-        c2 = omero.client(host="localhost")
-        c2.createSession()
+        c2 = omero.client(host=self.host, port=self.port)
+        c2.createSession(self.user, self.passwd)
         c2.closeSession()
 
     def testPorts(self):
@@ -91,8 +99,8 @@ class TestClientConstructors(unittest.TestCase):
         self.assertEquals(str(omero.constants.GLACIER2PORT),c.ic.getProperties().getProperty("omero.port"))
 
     def testPythonCtorRepair(self):
-        c = omero.client("localhost", omero.constants.GLACIER2PORT)
-        c.createSession("root", "ome")
+        c = omero.client(self.host, omero.constants.GLACIER2PORT)
+        c.createSession("root", self.rootpasswd)
         c.closeSession()
 
 if __name__ == '__main__':
