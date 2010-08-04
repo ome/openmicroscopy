@@ -84,8 +84,6 @@ public class ImportConfigTest extends TestCase {
     public void testDefaultGetsLoaded() {
         basic();
         ImportConfig.IntValue port = new ImportConfig.IntValue("port", config, 1111);
-        assertNull(port.get());
-        port.load();
         assertEquals(1111, port.get().intValue());
     }
     
