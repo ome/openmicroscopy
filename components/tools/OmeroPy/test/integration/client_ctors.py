@@ -17,12 +17,14 @@ here = os.path.abspath( os.path.dirname(__file__) )
 class TestClientConstructors(unittest.TestCase):
 
     def setUp(self):
+        print os.environ.get("ICE_CONFIG")
         c = omero.client(pmap=['--Ice.Config='+(os.environ.get("ICE_CONFIG"))])
         self.host = c.ic.getProperties().getProperty('omero.host')
         self.port = int(c.ic.getProperties().getProperty('omero.port'))
         self.rootpasswd = c.ic.getProperties().getProperty('omero.rootpass')
         self.user = c.ic.getProperties().getProperty('omero.user')
         self.passwd = c.ic.getProperties().getProperty('omero.pass')
+        print self.host, self.port, self.rootpasswd, self.user, self.passwd
         
     def testHostConstructor(self):
         c = omero.client(host=self.host, port=self.port)
