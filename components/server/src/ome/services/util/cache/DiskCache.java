@@ -44,6 +44,12 @@ public class DiskCache<K extends IObject, V extends Serializable> implements
 
     public DiskCache(LocalQuery query, CacheManager manager, String name,
             File dataDir, Class<K> objectType) {
+        /* is this complete? I do not think it is used anywhere.
+         * Note Variable this.name is being used before it is set
+         * Also this.cache should perhaps be assigned the result of 
+         * the new net.sf.ehcache.Cache not null - check they are compatible types
+         * - ajp
+         */
         net.sf.ehcache.Cache cache = new net.sf.ehcache.Cache(name,
                 100 /* inmemory */, MemoryStoreEvictionPolicy.LRU, true,
                 dataDir.getPath() + this.name, true /* eternal */, 0, 0

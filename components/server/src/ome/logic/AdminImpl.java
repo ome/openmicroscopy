@@ -937,12 +937,13 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     /**
-     * Helpers which unconditonally moves the object to the common space. This
+     * Helpers which unconditionally moves the object to the common space. This
      * can be used by other methods like {@link #uploadMyUserPhoto(String, String, byte[])}
      *
      * @param not null object. Should be linked to the current session.
      */
     private void internalMoveToCommonSpace(IObject obj) {
+        /* Can this next line be removed? - ajp */
         final Session session = osf.getSession();
         obj.getDetails().setGroup(
                 groupProxy(getSecurityRoles().getUserGroupId()));
@@ -1181,6 +1182,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                     Query.LEFT_JOIN);
             Criteria g = m.createCriteria("parent", Query.LEFT_JOIN);
 
+            /* Should these calls be using g not c? - ajp */
             if (value("name") != null) {
                 c.add(Restrictions.eq("omeName", value("name")));
             }
@@ -1310,11 +1312,12 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         Role g = Role.GROUP;
         Role a = Role.WORLD;
         Right r = Right.READ;
+        /* Can this next line be removed? - ajp */
         Right w = Right.WRITE;
 
-        if (!newPerms.isGranted(u,r)) {
+        if (!newPerms.isGranted(u, r)) {
             throw new GroupSecurityViolation("Cannot remove user read: "+group);
-        } else if (oldPerms.isGranted(g,r) && ! newPerms.isGranted(g, r)) {
+        } else if (oldPerms.isGranted(g, r) && ! newPerms.isGranted(g, r)) {
             throw new GroupSecurityViolation("Cannot remove group read: "+group);
         } else if (oldPerms.isGranted(a, r) && ! newPerms.isGranted(a, r)) {
             throw new GroupSecurityViolation("Cannot remove world read: "+group);
