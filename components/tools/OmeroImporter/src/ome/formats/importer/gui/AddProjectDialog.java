@@ -44,6 +44,7 @@ import javax.swing.event.DocumentListener;
 
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
+import omero.model.Dataset;
 import omero.model.Project;
 
 
@@ -54,27 +55,30 @@ import omero.model.Project;
 @SuppressWarnings("serial")
 public class AddProjectDialog extends JDialog implements ActionListener
 {
-    boolean debug = false;
+	private boolean debug = false;
 
-    ImportConfig       		config;
+    private ImportConfig	config;
     
-    Window                  owner;
+    private Window          owner;
     
-    JPanel                  mainPanel;
-    JPanel                  internalPanel;
+    private JPanel          mainPanel;
+    private JPanel          internalPanel;
 
-    JButton                 OKBtn;
-    JButton                 cancelBtn;
-
-    JTextField              nameField;
-    JTextArea               descriptionArea;
-
-    String                  projectName;
-    String                  projectDescription;
+    private JTextPane 		instructions;
+    private String			message;
     
-    Project                project;
+    private JButton         OKBtn;
+    private JButton         cancelBtn;
+
+    private JTextField      nameField;
+    private JTextArea       descriptionArea;
+
+    private String          projectName;
+    private String          projectDescription;
+
+    private Project                 project;
     
-    OMEROMetadataStoreClient      store;
+    private OMEROMetadataStoreClient	store;
     
     /**
      * @param config - ImportConfig
@@ -124,12 +128,9 @@ public class AddProjectDialog extends JDialog implements ActionListener
         
         internalPanel = GuiCommonElements.addMainPanel(this, internalTable, 10,10,10,10, debug);
 
-        String message = "Please enter your project name and an optional " +
-                "description below.";
+        message = "Please enter your project name and an optional description below.";
 
-        @SuppressWarnings("unused")
-        JTextPane instructions = 
-        	GuiCommonElements.addTextPane(internalPanel, message, "0,0,1,0", debug);
+        instructions = GuiCommonElements.addTextPane(internalPanel, message, "0,0,1,0", debug);
 
         nameField = GuiCommonElements.addTextField(internalPanel, "Project Name: ", "", 'E',
         "Input your project name here.", "", TableLayout.PREFERRED, "0, 1, 1, 1", debug);

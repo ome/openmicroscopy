@@ -117,7 +117,7 @@ public class FileQueueHandler extends JPanel
         this.importEx = importEx;
         this.config = config;
         this.viewer = viewer;
-        this.historyTable = viewer.historyTable;
+        this.historyTable = viewer.getHistoryTable();
         this.importReader = new OMEROWrapper(config);
         this.scanReader = new OMEROWrapper(config);
 
@@ -157,7 +157,7 @@ public class FileQueueHandler extends JPanel
      * @return OMEROMetadataStoreClient
      */
     protected OMEROMetadataStoreClient getOMEROMetadataStoreClient() {
-        return viewer.loginHandler.getMetadataStore();
+        return viewer.getLoginHandler().getMetadataStore();
     }
 
     /* (non-Javadoc)
@@ -501,7 +501,7 @@ public class FileQueueHandler extends JPanel
        
         else if (prop.equals(IMPORT))
         {
-            if (viewer.loggedIn == false)
+            if (viewer.getLoggedIn() == false)
             {
                 JOptionPane.showMessageDialog(viewer, 
                         "You must be logged in before you can import.");
@@ -532,7 +532,7 @@ public class FileQueueHandler extends JPanel
                 } else {
                     qTable.importBtn.setText("Wait...");
                     qTable.importBtn.setEnabled(false);
-                    viewer.statusBar.setStatusIcon("gfx/import_cancelling_16.png",
+                    viewer.getStatusBar().setStatusIcon("gfx/import_cancelling_16.png",
                     "Cancelling import... please wait.");
                     //JOptionPane.showMessageDialog(viewer, 
                     //        "You import will be cancelled after the " +
@@ -721,11 +721,11 @@ public class FileQueueHandler extends JPanel
     @SuppressWarnings("unchecked")
     public void update(IObservable observable, ImportEvent event)
     {
-        final OMEROMetadataStoreClient store = viewer.loginHandler.getMetadataStore();  
+        final OMEROMetadataStoreClient store = viewer.getLoginHandler().getMetadataStore();  
 
         if (event instanceof ome.formats.importer.util.ErrorHandler.EXCEPTION_EVENT)
         {
-            viewer.errorHandler.update(observable, event);
+            viewer.getErrorHandler().update(observable, event);
             
             if (event instanceof ome.formats.importer.util.ErrorHandler.UNKNOWN_FORMAT 
                     && fileChooser.getSelectedFiles().length == 1 && fileChooser.getSelectedFile().isFile())

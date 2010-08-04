@@ -638,7 +638,7 @@ public class HistoryTable
      * @return - OMEROMetadataStore
      */
     private OMEROMetadataStoreClient getStore() {
-        return viewer.loginHandler.getMetadataStore();
+        return viewer.getLoginHandler().getMetadataStore();
     }
     
     /**

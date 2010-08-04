@@ -127,14 +127,14 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         this.viewer = viewer;
         this.center = center;
         this.modal = modal;
-        this.config = viewer.config;
+        this.config = viewer.getConfig();
         
         historyTable = table;
         if (historyTable != null)
             addObserver(historyTable);
         
-        if (viewer.fileQueueHandler.getTable() != null)
-        	addObserver(viewer.fileQueueHandler.getTable());
+        if (viewer.getFileQueueHandler().getTable() != null)
+        	addObserver(viewer.getFileQueueHandler().getTable());
         
         viewer.enableMenus(false);
         
@@ -189,9 +189,9 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                 	config.encryptedConnection.set(lc.isEncrypted());
                 }
             
-                viewer.statusBar.setStatusIcon("gfx/server_trying16.png",
+                viewer.getStatusBar().setStatusIcon("gfx/server_trying16.png",
                 "Trying to connect to " + config.hostname.get());
-                viewer.statusBar.setProgress(true, -1, "connecting....");
+                viewer.getStatusBar().setProgress(true, -1, "connecting....");
                 
                 try
                 {
@@ -211,12 +211,12 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                             viewer.setVisible(true);
                         }
                         
-                        viewer.statusBar.setProgress(false, 0, "");
+                        viewer.getStatusBar().setProgress(false, 0, "");
                         viewer.appendToOutput("> Login Successful.\n");
                         log.info("Login successful!");
                         viewer.enableMenus(true);
                         viewer.setImportEnabled(true);
-                        viewer.loggedIn = true;
+                        viewer.setLoggedIn(true);
                         notifyObservers(new ImportEvent.LOGGED_IN());
                                                 
                         String group = store.getDefaultGroupName();
@@ -229,14 +229,14 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                             long freeSpace = store.getRepositorySpace();
                             NumberFormat formatter = NumberFormat.getInstance(Locale.US);
                             String freeMB = formatter.format(freeSpace/1000);                
-                            viewer.statusBar.setStatusIcon("gfx/server_connect16.png",
+                            viewer.getStatusBar().setStatusIcon("gfx/server_connect16.png",
                                     "Connected to " + config.hostname.get() + " (" + 
                                     group + "). Free space: " + freeMB + " MB.");
                             return;
                         } catch (Exception e) 
                         {
                         	log.error("Exception retrieving repository free space.", e);
-                            viewer.statusBar.setStatusIcon("gfx/server_connect16.png", "Connected to " + 
+                            viewer.getStatusBar().setStatusIcon("gfx/server_connect16.png", "Connected to " + 
                             		config.hostname.get() + " (" + group + ").");
                             return;
                         }
@@ -245,8 +245,8 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                         if (NEW_LOGIN)
                             view.setAlwaysOnTop(false);
                         log.info("Login failed!");
-                        viewer.statusBar.setProgress(false, 0, "");
-                        viewer.statusBar.setStatusIcon("gfx/error_msg16.png",
+                        viewer.getStatusBar().setProgress(false, 0, "");
+                        viewer.getStatusBar().setStatusIcon("gfx/error_msg16.png",
                                 "Incorrect username/password. Server login failed, please try to "
                                 + "log in again.");
 
@@ -255,7 +255,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                                 + "try to log in again.");
                         viewer.appendToOutput("> Login failed. Try to relog.\n");
                         viewer.enableMenus(true);
-                        viewer.loggedIn = false;
+                        viewer.setLoggedIn(false);
                         
                         if (NEW_LOGIN)
                             refreshNewLogin();
@@ -266,8 +266,8 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                 {                   
                     log.error("Exception in LoginHandler.", e);
                     
-                    viewer.statusBar.setProgress(false, 0, "");
-                    viewer.statusBar.setStatusIcon("gfx/error_msg16.png",
+                    viewer.getStatusBar().setProgress(false, 0, "");
+                    viewer.getStatusBar().setStatusIcon("gfx/error_msg16.png",
                     "Server connection to " + config.hostname.get() +" failed. " +
                             "Please try again.");
                     
@@ -282,7 +282,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                             "\n\nPlease try again.");
                     viewer.appendToOutput("> Login failed. Try to relog.\n");
                     viewer.enableMenus(true);
-                    viewer.loggedIn = false;
+                    viewer.setLoggedIn(false);
                     
                     if (NEW_LOGIN)
                         refreshNewLogin();
@@ -306,7 +306,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
      * cancel login
      */
     void loginCancelled() {
-        viewer.loggedIn = false;
+        viewer.setLoggedIn(false);
         viewer.enableMenus(true);
         //SplashWindow.disposeSplash();
         viewer.setVisible(true);
@@ -417,8 +417,8 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         	{
         		try
         		{
-        			viewer.historyTable.db.initialize(store);
-        			viewer.historyTable.db.initializeDataSource();
+        			viewer.getHistoryTable().db.initialize(store);
+        			viewer.getHistoryTable().db.initializeDataSource();
         		}
         		catch (Exception e)
         		{
@@ -436,7 +436,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     public void logout()
     {
     	store.logout();
-    	viewer.loggedIn = false;
+    	viewer.setLoggedIn(false);
     }
     
     /**

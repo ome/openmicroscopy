@@ -54,25 +54,29 @@ import omero.model.Screen;
 @SuppressWarnings("serial")
 public class AddScreenDialog extends JDialog implements ActionListener
 {
-    boolean debug = false;
+	private boolean debug = false;
 
-    Window                  owner;
+    private Window              owner;
     
-    JPanel                  mainPanel;
-    JPanel                  internalPanel;
+    private JPanel              mainPanel;
+    private JPanel              internalPanel;
 
-    JButton                 OKBtn;
-    JButton                 cancelBtn;
-
-    JTextField              nameField;
-    JTextArea               descriptionArea;
-
-    String                  screenName;
-    String                  screenDescription;
+    private JTextPane 			instructions;
+    private String				message;
     
-    Screen                  screen;
-    ImportConfig	      	config;
-    OMEROMetadataStoreClient      store;
+    private JButton             OKBtn;
+    private JButton             cancelBtn;
+
+    private JTextField          nameField;
+    private JTextArea           descriptionArea;
+
+    private String              screenName;
+    private String              screenDescription;
+    
+    private Screen              screen;
+    private ImportConfig	    config;
+    
+    OMEROMetadataStoreClient	store;
     
     /**
      * @param config - ImportConfig
@@ -121,12 +125,9 @@ public class AddScreenDialog extends JDialog implements ActionListener
         
         internalPanel = GuiCommonElements.addMainPanel(this, internalTable, 10,10,10,10, debug);
 
-        String message = "Please enter your screen name and an optional " +
-                "description below.";
+        message = "Please enter your screen name and an optional description below.";
 
-        @SuppressWarnings("unused")
-        JTextPane instructions = 
-        	GuiCommonElements.addTextPane(internalPanel, message, "0,0,1,0", debug);
+        instructions =  GuiCommonElements.addTextPane(internalPanel, message, "0,0,1,0", debug);
 
         nameField = GuiCommonElements.addTextField(internalPanel, "Screen Name: ", "", 'E',
         "Input your screen name here.", "", TableLayout.PREFERRED, "0, 1, 1, 1", debug);

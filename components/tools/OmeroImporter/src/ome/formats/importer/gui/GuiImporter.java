@@ -128,14 +128,14 @@ WindowStateListener, WindowFocusListener
     public static final String LOGFILE_ICON = "gfx/nuvola_output16.png";
     public static final String FORUM_ICON = "gfx/nuvola_chat16.png";
 
-    public final ImportConfig         config;
-    public final ErrorHandler         errorHandler;
-    public final FileQueueHandler     fileQueueHandler;
-    public final StatusBar            statusBar;
+    private ImportConfig         config;
+    private ErrorHandler         errorHandler;
+    private FileQueueHandler     fileQueueHandler;
+    private StatusBar            statusBar;
 
-    public LoginHandler         loginHandler;
-    public HistoryHandler       historyHandler;
-    public HistoryTable         historyTable;
+    private LoginHandler         loginHandler;
+    private HistoryHandler       historyHandler;
+    private HistoryTable         historyTable;
 
     private JMenuBar            menubar;
     private JMenu               fileMenu;
@@ -148,7 +148,7 @@ WindowStateListener, WindowFocusListener
     private JMenuItem           helpHome;
     private JMenuItem           helpAbout;
 
-    public Boolean              loggedIn;
+    private Boolean              loggedIn;
 
     private JTextPane           outputTextPane;
     private JTextPane           debugTextPane;
@@ -164,7 +164,7 @@ WindowStateListener, WindowFocusListener
     private ScheduledExecutorService scanEx = Executors.newScheduledThreadPool(1);
     private ScheduledExecutorService importEx = Executors.newScheduledThreadPool(1);
     
-    public Rectangle bounds;
+    private Rectangle bounds;
 
     /**
      * Main entry class for the application
@@ -177,14 +177,14 @@ WindowStateListener, WindowFocusListener
     	
         //javax.swing.ToolTipManager.sharedInstance().setDismissDelay(0);
 
-        this.config = config;
+        this.setConfig(config);
         this.bounds = config.getUIBounds();
         
         Level level = org.apache.log4j.Level.toLevel(config.getDebugLevel());
         LogAppender.setLoggingLevel(level);
 
         historyHandler = new HistoryHandler(this);
-        historyTable = historyHandler.table;
+        setHistoryTable(historyHandler.table);
 
         // Add a shutdown hook for when app closes
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -275,17 +275,17 @@ WindowStateListener, WindowFocusListener
         // file chooser pane
         JPanel filePanel = new JPanel(new BorderLayout());
 
-        statusBar = new StatusBar();
-        statusBar.setStatusIcon("gfx/server_disconn16.png",
+        setStatusBar(new StatusBar());
+        getStatusBar().setStatusIcon("gfx/server_disconn16.png",
         "Server disconnected.");
-        statusBar.setProgress(false, 0, "");
-        this.getContentPane().add(statusBar, BorderLayout.SOUTH);
+        getStatusBar().setProgress(false, 0, "");
+        this.getContentPane().add(getStatusBar(), BorderLayout.SOUTH);
 
         // The file chooser sub-pane
-        fileQueueHandler = new FileQueueHandler(scanEx, importEx, this, config);
+        setFileQueueHandler(new FileQueueHandler(scanEx, importEx, this, config));
         //splitPane.setResizeWeight(0.5);
 
-        filePanel.add(fileQueueHandler, BorderLayout.CENTER);
+        filePanel.add(getFileQueueHandler(), BorderLayout.CENTER);
         tPane.addTab("File Chooser", GuiCommonElements.getImageIcon(CHOOSER_ICON), filePanel,
         "Add and delete images here to the import queue.");
         tPane.setMnemonicAt(0, KeyEvent.VK_1);
@@ -363,7 +363,7 @@ WindowStateListener, WindowFocusListener
 
         tPane.setSelectedIndex(0);
 
-        if (historyTable.db.historyEnabled == false)
+        if (getHistoryTable().db.historyEnabled == false)
         	tPane.setEnabledAt(historyTabIndex,false);
         
         checkHistoryEnable();
@@ -375,7 +375,7 @@ WindowStateListener, WindowFocusListener
 
         historyPanel.add(historyHandler, BorderLayout.CENTER);
 
-        loginHandler = new LoginHandler(this, historyTable);
+        setLoginHandler(new LoginHandler(this, getHistoryTable()));
 
         LogAppender.getInstance().setTextArea(debugTextPane);
         appendToOutputLn("> Starting the importer (revision "
@@ -384,9 +384,9 @@ WindowStateListener, WindowFocusListener
         appendToOutputLn("> Release date: " + Version.releaseDate);
 
         // TODO : should this be a third executor?
-        errorHandler = new ErrorHandler(importEx, config);
-        errorHandler.addObserver(this);
-        errorPanel.add(errorHandler, BorderLayout.CENTER);
+        setErrorHandler(new ErrorHandler(importEx, config));
+        getErrorHandler().addObserver(this);
+        errorPanel.add(getErrorHandler(), BorderLayout.CENTER);
 
         macMenuFix();
 
@@ -405,7 +405,7 @@ WindowStateListener, WindowFocusListener
             	JTabbedPane pane = (JTabbedPane) e.getSource();
         		
         		if (pane.indexAtLocation(e.getX(), e.getY()) == historyTabIndex 
-        				&& historyTable.db.historyEnabled == false)
+        				&& getHistoryTable().db.historyEnabled == false)
 				{
 					log.error("Could not start history DB.");
 					if (HistoryDB.alertOnce == false)
@@ -440,17 +440,17 @@ WindowStateListener, WindowFocusListener
         waitOnExecutor("Scanning", scanEx, 60);
   
         try {
-            loginHandler.logout();
+            getLoginHandler().logout();
         } catch (Exception e) {
             log.warn("Exception on metadatastore.logout()", e);
         }
 
         // Get and save the UI window placement
         try {
-            config.setUIBounds(bounds);
+            getConfig().setUIBounds(bounds);
         } finally {
-            config.saveAll();
-            config.saveGui();
+            getConfig().saveAll();
+            getConfig().saveGui();
         }
     }
 
@@ -575,20 +575,20 @@ WindowStateListener, WindowFocusListener
 
         if ("login".equals(cmd))
         {
-            if (loggedIn == true)
+            if (getLoggedIn() == true)
             {
                 logout();
-                loginHandler.logout();
-                loginHandler = null;
-                fileQueueHandler.enableImports(false);
+                getLoginHandler().logout();
+                setLoginHandler(null);
+                getFileQueueHandler().enableImports(false);
             } else 
             {
                 HistoryTable table = null;
                 if (historyHandler != null) {
                     table = historyHandler.table;
                 }
-                loginHandler = new LoginHandler(this, table, true, true, false);
-                fileQueueHandler.enableImports(true);
+                setLoginHandler(new LoginHandler(this, table, true, true, false));
+                getFileQueueHandler().enableImports(true);
                 //loginHandler.displayLogin(false);
             }
         } else if ("quit".equals(cmd)) {
@@ -602,7 +602,7 @@ WindowStateListener, WindowFocusListener
             {
                 try {
                     // Save login screen groups
-                    ScreenLogin.registerGroup(loginHandler.getMetadataStore().mapUserGroups());
+                    ScreenLogin.registerGroup(getLoginHandler().getMetadataStore().mapUserGroups());
                 } catch (Exception e) {
                     log.warn("Exception on ScreenLogin.registerGroup()", e);
                 }
@@ -618,23 +618,23 @@ WindowStateListener, WindowFocusListener
         {
             // HACK - JOptionPane prevents shutdown on dispose
             setDefaultCloseOperation(EXIT_ON_CLOSE);
-            About.show(this, config, useSplashScreenAbout);
+            About.show(this, getConfig(), useSplashScreenAbout);
         }
         else if ("comment".equals(cmd))
         {
-            new CommentMessenger(this, "OMERO.importer Comment Dialog", config, true, false);
+            new CommentMessenger(this, "OMERO.importer Comment Dialog", getConfig(), true, false);
         }
         else if ("home".equals(cmd))
         {
-            BareBonesBrowserLaunch.openURL(config.getHomeUrl());
+            BareBonesBrowserLaunch.openURL(getConfig().getHomeUrl());
         }
         else if ("forums".equals(cmd))
         {
-            BareBonesBrowserLaunch.openURL(config.getForumUrl());
+            BareBonesBrowserLaunch.openURL(getConfig().getForumUrl());
         }
         else if (show_log_file.equals(cmd))
         {
-            File path = new File(config.getUserSettingsDirectory());
+            File path = new File(getConfig().getUserSettingsDirectory());
             try
             {
                 String url = path.toURI().toURL().toString();
@@ -707,13 +707,13 @@ WindowStateListener, WindowFocusListener
     private void logout()
     {
     	setImportEnabled(false);
-        loggedIn = false;
+        setLoggedIn(false);
         appendToOutputLn("> Logged out.");
-        statusBar.setStatusIcon("gfx/server_disconn16.png", "Logged out.");
+        getStatusBar().setStatusIcon("gfx/server_disconn16.png", "Logged out.");
         
         try {
             // Save login screen groups
-            ScreenLogin.registerGroup(loginHandler.getMetadataStore().mapUserGroups());
+            ScreenLogin.registerGroup(getLoginHandler().getMetadataStore().mapUserGroups());
         } catch (Exception e) {
             log.warn("Exception on ScreenLogin.registerGroup()", e);
         }
@@ -743,19 +743,19 @@ WindowStateListener, WindowFocusListener
         {
             ImportEvent.LOADING_IMAGE ev = (ImportEvent.LOADING_IMAGE) event;
 
-            statusBar.setProgress(true, -1, "Loading file " + ev.numDone + " of " + ev.total);
+            getStatusBar().setProgress(true, -1, "Loading file " + ev.numDone + " of " + ev.total);
             appendToOutput("> [" + ev.index + "] Loading image \"" + ev.shortName + "\"...\n");
-            statusBar.setStatusIcon("gfx/import_icon_16.png", "Prepping file \"" + ev.shortName);
+            getStatusBar().setStatusIcon("gfx/import_icon_16.png", "Prepping file \"" + ev.shortName);
         }
 
         else if (event instanceof ImportEvent.LOADED_IMAGE)
         {
             ImportEvent.LOADED_IMAGE ev = (ImportEvent.LOADED_IMAGE) event;
 
-            statusBar.setProgress(true, -1, "Analyzing file " + ev.numDone + " of " + ev.total);
+            getStatusBar().setProgress(true, -1, "Analyzing file " + ev.numDone + " of " + ev.total);
             appendToOutput(" Succesfully loaded.\n");
             appendToOutput("> [" + ev.index + "] Importing metadata for " + "image \"" + ev.shortName + "\"... ");
-            statusBar.setStatusIcon("gfx/import_icon_16.png", "Analyzing the metadata for file \"" + ev.shortName);            
+            getStatusBar().setStatusIcon("gfx/import_icon_16.png", "Analyzing the metadata for file \"" + ev.shortName);            
         }
 
         else if (event instanceof ImportEvent.DATASET_STORED)
@@ -768,9 +768,9 @@ WindowStateListener, WindowFocusListener
             appendToOutputLn("Successfully stored to "+ev.target.getClass().getSimpleName()+" \"" + 
                     ev.filename + "\" with id \"" + ev.target.getId().getValue() + "\".");
             appendToOutputLn("> [" + ev.series + "] Importing pixel data for " + "image \"" + ev.filename + "\"... ");
-            statusBar.setProgress(true, 0, "Importing file " + num + " of " + tot);
-            statusBar.setProgressValue(pro);
-            statusBar.setStatusIcon("gfx/import_icon_16.png", "Importing the plane data for file \"" + ev.filename);
+            getStatusBar().setProgress(true, 0, "Importing file " + num + " of " + tot);
+            getStatusBar().setProgressValue(pro);
+            getStatusBar().setStatusIcon("gfx/import_icon_16.png", "Importing the plane data for file \"" + ev.filename);
             appendToOutput("> Importing plane: ");
         }
 
@@ -975,7 +975,7 @@ WindowStateListener, WindowFocusListener
         {
             // HACK - JOptionPane prevents shutdown on dispose
             setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-            About.show(this, config, useSplashScreenAbout);
+            About.show(this, getConfig(), useSplashScreenAbout);
         }
 
 
@@ -1002,7 +1002,7 @@ WindowStateListener, WindowFocusListener
         {
             try {
                 // Save login screen groups
-                ScreenLogin.registerGroup(loginHandler.getMetadataStore().mapUserGroups());
+                ScreenLogin.registerGroup(getLoginHandler().getMetadataStore().mapUserGroups());
             } catch (Exception ex) {
                 log.warn("Exception on ScreenLogin.registerGroup()", ex);
             }
@@ -1095,4 +1095,102 @@ WindowStateListener, WindowFocusListener
 
         new GuiImporter(config);
     }
+
+	/**
+	 * @param historyTable the historyTable to set
+	 */
+	public void setHistoryTable(HistoryTable historyTable) {
+		this.historyTable = historyTable;
+	}
+
+	/**
+	 * @return the historyTable
+	 */
+	public HistoryTable getHistoryTable() {
+		return historyTable;
+	}
+
+	/**
+	 * @param loginHandler the loginHandler to set
+	 */
+	public void setLoginHandler(LoginHandler loginHandler) {
+		this.loginHandler = loginHandler;
+	}
+
+	/**
+	 * @return the loginHandler
+	 */
+	public LoginHandler getLoginHandler() {
+		return loginHandler;
+	}
+
+	/**
+	 * @param loggedIn the loggedIn to set
+	 */
+	public void setLoggedIn(Boolean loggedIn) {
+		this.loggedIn = loggedIn;
+	}
+
+	/**
+	 * @return the loggedIn
+	 */
+	public Boolean getLoggedIn() {
+		return loggedIn;
+	}
+
+	/**
+	 * @param statusBar the statusBar to set
+	 */
+	public void setStatusBar(StatusBar statusBar) {
+		this.statusBar = statusBar;
+	}
+
+	/**
+	 * @return the statusBar
+	 */
+	public StatusBar getStatusBar() {
+		return statusBar;
+	}
+
+	/**
+	 * @param errorHandler the errorHandler to set
+	 */
+	public void setErrorHandler(ErrorHandler errorHandler) {
+		this.errorHandler = errorHandler;
+	}
+
+	/**
+	 * @return the errorHandler
+	 */
+	public ErrorHandler getErrorHandler() {
+		return errorHandler;
+	}
+
+	/**
+	 * @param config the config to set
+	 */
+	public void setConfig(ImportConfig config) {
+		this.config = config;
+	}
+
+	/**
+	 * @return the config
+	 */
+	public ImportConfig getConfig() {
+		return config;
+	}
+
+	/**
+	 * @param fileQueueHandler the fileQueueHandler to set
+	 */
+	public void setFileQueueHandler(FileQueueHandler fileQueueHandler) {
+		this.fileQueueHandler = fileQueueHandler;
+	}
+
+	/**
+	 * @return the fileQueueHandler
+	 */
+	public FileQueueHandler getFileQueueHandler() {
+		return fileQueueHandler;
+	}
 }
