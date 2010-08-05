@@ -89,8 +89,7 @@ class TestIShare(lib.ITest):
 
         share_guest = client_guest.sf.getShareService()
         share_guest.addComment(self.share_id,"comment for share %i" % self.share_id)
-
-        self.assert_(len(share_guest.getComments(self.share_id)) == 1)
+        self.assertEquals(1,len(share_guest.getComments(self.share_id)))
 
         # get share key and join directly
         s = share.getShare(self.share_id)
@@ -98,7 +97,7 @@ class TestIShare(lib.ITest):
         client_share = omero.client()
         client_share.createSession(s.uuid,s.uuid)
         share1 = client_share.sf.getShareService()
-        self.assertEquals(0, len(share1.getOwnShares(True)))
+        self.assertEquals(1, len(share1.getOwnShares(True)))
 
         # guest looks in to the share
         guest_email = "ident@emaildomain.com"
@@ -110,46 +109,15 @@ class TestIShare(lib.ITest):
         # Doesn't exist # share2.getAllGuestShares(guest_email)
         # Doesn't exist # self.assert_(share2.getGuestShare(token) > 0)
         share2.addComment(self.share_id,"guest comment for share %i" % self.share_id)
-        self.assert_(len(share2.getComments(self.share_id)) == 1)
+        self.assertEquals(1,len(share2.getComments(self.share_id)))
 
     def test1154(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
-        share = self.root.sf.getShareService()
-        query = self.root.sf.getQueryService()
-        update = self.root.sf.getUpdateService()
-        admin = self.root.sf.getAdminService()
+
         
         ### create two users in one group
-        #group1
-        new_gr1 = ExperimenterGroupI()
-        new_gr1.name = rstring("group1_%s" % uuid)
-        gid = admin.createGroup(new_gr1)
-        
-        #new user1
-        new_exp = ExperimenterI()
-        new_exp.omeName = rstring("user1_%s" % uuid)
-        new_exp.firstName = rstring("New")
-        new_exp.lastName = rstring("Test")
-        new_exp.email = rstring("newtest@emaildomain.com")
-        
-        defaultGroup = admin.getGroup(gid)
-        listOfGroups = list()
-        listOfGroups.append(admin.lookupGroup("user"))
-        
-        eid = admin.createExperimenterWithPassword(new_exp, rstring("ome"), defaultGroup, listOfGroups)
-        
-        #new user2
-        new_exp2 = ExperimenterI()
-        new_exp2.omeName = rstring("user2_%s" % uuid)
-        new_exp2.firstName = rstring("New2")
-        new_exp2.lastName = rstring("Test2")
-        new_exp2.email = rstring("newtest2@emaildomain.com")
-        
-        eid2 = admin.createExperimenterWithPassword(new_exp2, rstring("ome"), defaultGroup, listOfGroups)
-        
-        ## get users
-        user1 = admin.getExperimenter(eid)
-        user2 = admin.getExperimenter(eid2)
+        user1 = self.new_user()
+        user2 = self.new_user()
         
         ## login as user1 
         client_share1 = omero.client()
@@ -173,7 +141,7 @@ class TestIShare(lib.ITest):
         enabled = True
         sid = share1.createShare(description, timeout, objects,experimenters, guests, enabled)
         
-        self.assert_(len(share1.getContents(sid)) == 1)
+        self.assertEquals(1,len(share1.getContents(sid)))
         
         ## login as user2
         client_share2 = omero.client()
@@ -181,9 +149,8 @@ class TestIShare(lib.ITest):
         share2 = client_share2.sf.getShareService()
         query2 = client_share2.sf.getQueryService()
         
-        sh = share2.getShare(sid)
         content = share2.getContents(sid)
-        self.assert_(len(share2.getContents(sid)) == 1)
+        self.assertEquals(1,len(share2.getContents(sid)))
         
         # get shared image when share is activated
         share2.activate(sid)
@@ -193,48 +160,17 @@ class TestIShare(lib.ITest):
         p.map["ids"] = rlist([rlong(img.id.val)])
         sql = "select im from Image im where im.id in (:ids) order by im.name"
         res = query2.findAllByQuery(sql, p)
-        self.assert_(len(res) == 1)
+        self.assertEquals(1,len(res))
         for e in res:
             self.assert_(e.id.val == img.id.val)
 
     def test1157(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         share = self.root.sf.getShareService()
-        query = self.root.sf.getQueryService()
-        update = self.root.sf.getUpdateService()
-        admin = self.root.sf.getAdminService()
         
         ### create two users in one group
-        #group1
-        new_gr1 = ExperimenterGroupI()
-        new_gr1.name = rstring("group1_%s" % uuid)
-        gid = admin.createGroup(new_gr1)
-        
-        #new user1
-        new_exp = ExperimenterI()
-        new_exp.omeName = rstring("user1_%s" % uuid)
-        new_exp.firstName = rstring("New")
-        new_exp.lastName = rstring("Test")
-        new_exp.email = rstring("newtest@emaildomain.com")
-        
-        defaultGroup = admin.getGroup(gid)
-        listOfGroups = list()
-        listOfGroups.append(admin.lookupGroup("user"))
-        
-        eid = admin.createExperimenterWithPassword(new_exp, rstring("ome"), defaultGroup, listOfGroups)
-        
-        #new user2
-        new_exp2 = ExperimenterI()
-        new_exp2.omeName = rstring("user2_%s" % uuid)
-        new_exp2.firstName = rstring("New2")
-        new_exp2.lastName = rstring("Test2")
-        new_exp2.email = rstring("newtest2@emaildomain.com")
-        
-        eid2 = admin.createExperimenterWithPassword(new_exp2, rstring("ome"), defaultGroup, listOfGroups)
-        
-        ## get users
-        user1 = admin.getExperimenter(eid)
-        user2 = admin.getExperimenter(eid2)
+        user1 = self.new_user()
+        user2 = self.new_user()
         
         ## login as user1 
         client_share1 = omero.client()
@@ -267,7 +203,6 @@ class TestIShare(lib.ITest):
         share2 = client_share2.sf.getShareService()
         query2 = client_share2.sf.getQueryService()
         
-        sh = share2.getShare(sid)
         # add comment by the member
         share2.addComment(sid, 'test comment by the member %s' % (uuid))
 
@@ -286,30 +221,9 @@ class TestIShare(lib.ITest):
         share = self.root.sf.getShareService()
         query = self.root.sf.getQueryService()
         update = self.root.sf.getUpdateService()
-        admin = self.root.sf.getAdminService()
-        cntar = self.root.sf.getContainerService()
         
         ### create user
-        #group1
-        new_gr1 = ExperimenterGroupI()
-        new_gr1.name = rstring("group1_%s" % uuid)
-        gid = admin.createGroup(new_gr1)
-        
-        #new user1
-        new_exp = ExperimenterI()
-        new_exp.omeName = rstring("user1_%s" % uuid)
-        new_exp.firstName = rstring("New")
-        new_exp.lastName = rstring("Test")
-        new_exp.email = rstring("newtest@emaildomain.com")
-        
-        defaultGroup = admin.getGroup(gid)
-        listOfGroups = list()
-        listOfGroups.append(admin.lookupGroup("user"))
-        
-        eid = admin.createExperimenterWithPassword(new_exp, rstring("ome"), defaultGroup, listOfGroups)
-        
-        ## get user
-        user1 = admin.getExperimenter(eid)
+        user1 = self.new_user()
         
         #create dataset with image
         #dataset with image
@@ -345,7 +259,7 @@ class TestIShare(lib.ITest):
         self.assertEquals(1, len(items))
         
         #members
-        p.map["eid"] = rlong(eid)
+        p.map["eid"] = rlong(user1.id.val)
         sql = "select e from Experimenter e where e.id =:eid order by e.omeName"
         ms = query.findAllByQuery(sql, p)
         sid = share.createShare(("test-share-%s" % uuid), rtime(long(time.time()*1000 + 86400)) , items, ms, [], True)
@@ -358,7 +272,6 @@ class TestIShare(lib.ITest):
         query1 = client_share1.sf.getQueryService()
         cntar1 = client_share1.sf.getContainerService()
         
-        sh = share1.getShare(sid)
         content = share1.getContents(sid)
         # Content now contains just the dataset with nothing loaded
         self.assertEquals(1, len(content))
@@ -376,7 +289,7 @@ class TestIShare(lib.ITest):
         try:
             res1 = query1.findAllByQuery(sql, p)
             self.fail("This should throw an exception")
-        except omero.SecurityViolation:
+        except:
             pass
 
         #
@@ -428,25 +341,7 @@ class TestIShare(lib.ITest):
         admin = self.root.sf.getAdminService()
         
         ### create two users in one group
-        #group1
-        new_gr1 = ExperimenterGroupI()
-        new_gr1.name = rstring("group1_%s" % uuid)
-        gid = admin.createGroup(new_gr1)
-        
-        #new user1
-        new_exp = ExperimenterI()
-        new_exp.omeName = rstring("user1_%s" % uuid)
-        new_exp.firstName = rstring("New")
-        new_exp.lastName = rstring("Test")
-        new_exp.email = rstring("newtest@emaildomain.com")
-        
-        defaultGroup = admin.getGroup(gid)
-        listOfGroups = list()
-        listOfGroups.append(admin.lookupGroup("user"))
-        
-        eid = admin.createExperimenterWithPassword(new_exp, rstring("ome"), defaultGroup, listOfGroups)
-        ## get user
-        user1 = admin.getExperimenter(eid)
+        user1 = self.new_user()
         ## login as user1
         client_share1 = omero.client()
         client_share1.createSession(user1.omeName.val,"ome")
@@ -529,7 +424,7 @@ class TestIShare(lib.ITest):
         try:
             share = share3.getShare(sid)
             self.fail("Share returned to non-member")
-        except omero.ValidationException, ve:
+        except:
             pass
 
     def test1227(self):
@@ -601,7 +496,6 @@ class TestIShare(lib.ITest):
         l = share2.getMemberShares(False)
         self.assertEquals(1, len(l))
 
-        sh = share2.getShare(sid)
         # add comment by the member
         share2.addComment(sid, 'test comment by the member %s' % (user2.id.val))
 

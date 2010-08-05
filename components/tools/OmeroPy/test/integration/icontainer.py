@@ -32,7 +32,6 @@ class TestIContainer(lib.ITest):
         i = ipojo.createDataObject(i,None)
 
     def testFindAndCountAnnotationsForSharedData(self):
-        user1 = admin.getExperimenter(eid)
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         query = self.root.sf.getQueryService()
         update = self.root.sf.getUpdateService()
