@@ -1,0 +1,79 @@
+{% extends "webemdb/base/base_main.html" %}
+
+{% block title %} {{ project.name }} Associated Data {% endblock %}
+
+{% block link %}
+<link rel="stylesheet" href="{% url webemdb 'css/entry.css' %}" type="text/css" />
+
+<style type="text/css">
+#gif {
+    float: left;
+}
+#dataHeader {
+    clear: both;
+}
+
+.ds {
+    padding: 10px;
+}
+.dsData {
+    float: left;
+    width: 400px;
+}
+.dsDescription {
+    font-size: 80%;
+}
+</style>
+{% endblock %}
+
+{% block jscript %}
+<script type="text/javascript" src="{% url webemdb 'javascript/entry.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+{% if project %}
+
+<div class="pageTable">
+    <a href="{% url webemdb_entry project.getName %}">
+        <img id="gif" border='0' src="{% url webemdb.views.gif project.getName %}" />
+    </a>
+    <div class="entryTitle">Data associated with EMDB {{ project.getName }}</div>
+    <div>{{ project.getDescription }}</div>
+    <div> <a href="{% url webemdb_entry project.getName %}">EMDB {{ project.getName }}</a> </div>
+    <div id="dataHeader"></div>
+</div>
+      
+<div class="pageTable">  
+    <div>
+        {% for d in datasets %}
+            {% ifnotequal d.getName project.getName %}
+            
+              <div class="ds">
+                  <div class="dsData">
+                      <div class="dsName">{{ d.getName }}</div>
+                      <div class="dsDescription">
+                          [ {{ d.countChildren }} images ] 
+                          <a href="{% url webemdb_dataset project.getName d.getId %}"> View all...</a>
+                      </div>
+                      <div class="dsDescription">{{ d.getDescription }} </div>
+                  </div>
+                    {% for img in d.listChildren %}
+                        <img src="{% url webgateway.views.render_thumbnail img.id %}">
+                    {% endfor %}
+                    
+              </div>
+              
+            {% endifnotequal %}
+        {% endfor %}
+        
+    </div>
+</div>
+
+    
+{% else %}
+
+    EMDB entry not found
+
+{% endif %}
+
+{% endblock %}

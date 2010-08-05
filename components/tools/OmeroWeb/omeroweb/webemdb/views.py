@@ -124,39 +124,6 @@ def viewport(request, imageId):
     return render_to_response('webemdb/entries/viewport.html', {'imageId': imageId})
 
 
-def map (request, imageId, fileId):
-    """
-    Gets the file by Id and returns it as a mrc map.
-    N.B. We get the file from the Image it is attached to, because the 
-    project.listAnnotations() method returns the original file in a wrapper which provides
-    the file data with getFile(). 
-    see http://djangosnippets.org/snippets/365/  for zip, temp file, etc
-    """
-    conn = getConnection(request)
-    
-    image = conn.getImage(long(imageId))
-    imgName = image.getName()  # map named same as image
-    namespace = omero.constants.namespaces.NSCOMPANIONFILE
-    mrcMap = None
-    for a in image.listAnnotations():
-        if imgName == a.getFileName() and a.getNs() == namespace:
-            file_data = a.getFile()
-            
-            # if the file data is large, we will have a temp file
-            if file_data.startswith(settings.FILE_UPLOAD_TEMP_DIR):
-                from django.core.servers.basehttp import FileWrapper
-                temp = FileWrapper(file(file_data))
-                rsp = HttpResponse(temp, content_type='text/plain')
-                rsp['Content-Type'] = 'application/octet-stream'
-                rsp['Content-Disposition'] = 'attachment; filename=%s' % (a.getFileName())
-                rsp['Content-Length'] = os.path.getsize(file_data)
-                print "File Size", os.path.getsize(file_data)
-                
-                return rsp
-            
-    return HttpResponse()
-
-
 def gif (request, entryId):
     """
     Looks up the preview gif E.g. "80_1001.gif"  for the specified entry, based on name of originalfile.
@@ -193,6 +160,7 @@ def getFile (request, entryId, fileId):
     N.B. We get the file from the Project it is attached to, because the 
     project.listAnnotations() method returns the original file in a wrapper which provides
     the file data with getFile(). 
+    see http://djangosnippets.org/snippets/365/  for zip, temp file, etc
     """
     
     conn = getConnection(request)
@@ -207,8 +175,7 @@ def getFile (request, entryId, fileId):
     for a in project.listAnnotations():
         if a.id == long(fileId):
             oFile = a
-    
-    
+
     # determine mime type to assign
     if oFile:
         file_data = oFile.getFile()

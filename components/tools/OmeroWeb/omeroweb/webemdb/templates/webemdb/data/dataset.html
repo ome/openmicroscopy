@@ -1,0 +1,69 @@
+{% extends "webemdb/base/base_main.html" %}
+
+{% block title %} {{ dataset.name }} {% endblock %}
+
+{% block link %}
+<link rel="stylesheet" href="{% url webemdb 'css/entry.css' %}" type="text/css" />
+
+<style type="text/css">
+#gif {
+    float: left;
+}
+#dataHeader {
+    clear: both;
+}
+
+.ds {
+    padding: 10px;
+}
+.dsData {
+    float: left;
+    width: 400px;
+}
+.dsDescription {
+    font-size: 80%;
+}
+</style>
+{% endblock %}
+
+{% block jscript %}
+<script type="text/javascript" src="{% url webemdb 'javascript/entry.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+{% if dataset %}
+
+{% if entryId %}
+<div class="pageTable">
+    <a href="{% url webemdb_entry entryId %}">
+        <img id="gif" border='0' src="{% url webemdb.views.gif entryId %}" />
+    </a>
+    <div class="entryTitle">Dataset associated with EMDB {{ entryId }}</div>
+    <div> 
+        <a href="{% url webemdb_entry entryId %}">Entry {{ entryId }}</a> |
+        <a href="{% url webemdb_data entryId %}">Data {{ entryId }}</a>
+    </div>
+    <div id="dataHeader"></div>
+</div>
+{% endif %}
+      
+<div class="pageTable">  
+    <div class="entryTitle">{{ dataset.getName }}</div>
+    
+    <div>
+       
+    {% for img in dataset.listChildren %}
+        <img src="{% url webgateway.views.render_thumbnail img.id %}">
+    {% endfor %}
+        
+    </div>
+</div>
+
+    
+{% else %}
+
+    Dataset not found
+
+{% endif %}
+
+{% endblock %}
