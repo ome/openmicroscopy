@@ -17,7 +17,7 @@ urlpatterns = patterns('',
     # look up the preview gif file for an entry based on name
     url( r'^entry/(?P<entryId>[0-9]+)/gif/$', views.gif, name='webemdb_gif' ),
     # for downloading whole mrc.map   
-    url( r'^img/(?P<imageId>[0-9]+)/map/(?P<fileId>[0-9]+)/$', views.map, name='webemdb_map' ),
+    #url( r'^img/(?P<imageId>[0-9]+)/map/(?P<fileId>[0-9]+)/$', views.map, name='webemdb_map' ),
     
     # page for OpenAstex Viewer. Project name and bit mask fileId
     url( r'^oa_viewer/(?P<entryId>[0-9]+)/file/(?P<fileId>[0-9]+)/$', views.oa_viewer, name='webemdb_oa_viewer' ),
