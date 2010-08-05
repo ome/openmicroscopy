@@ -1495,7 +1495,7 @@ def download_annotation(request, action, iid, **kwargs):
         if annotation.originalFile_data is None:
             return handlerInternalError("Cannot download annotation (id:%s)." % (iid))
         if action == 'download':
-            rsp['ContentType'] = 'application/octet-stream'
+            rsp['Content-Type'] = 'application/octet-stream'
             rsp['Content-Disposition'] = 'attachment; filename=%s' % (annotation.annotation.file.name.val)
     else:
         return handlerInternalError("%s is not available." % action.title())
@@ -2389,37 +2389,6 @@ def render_split_channel (request, iid, z, t, share_id=None, **kwargs):
     img = conn.getImage(iid)
 
     return webgateway_views.render_split_channel(request, iid, z, t, _conn=conn, **kwargs)
-
-
-####################################################################################
-# em
-@isUserConnected
-def testApplet(request, **kwargs):
-    template = "webclient/oav.html"
-            
-    context = {}
-    t = template_loader.get_template(template)
-    c = Context(request, context)
-    rsp = t.render(c)
-    return HttpResponse(rsp)
-
-@isUserConnected
-def getBinary(request, name, **kwargs):
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-
-    shortpath = os.path.join("/Users/ola/Dev/omero/components/tools/OmeroWeb/omeroweb/test", name)
-    from django.core.servers.basehttp import FileWrapper
-    a = FileWrapper(file(shortpath))
-    
-    rsp = HttpResponse(a)
-    
-    return rsp
-
 
 ####################################################################################
 # utils

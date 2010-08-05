@@ -20,23 +20,52 @@ from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
 from omero.rtypes import *
+import omero.util.script_utils as scriptUtil
 
-# Common bits
-params = omero.sys.Parameters()
-params.theFilter = omero.sys.Filter()
-params.theFilter.offset = rint(0)
-params.theFilter.limit = rint(1)
+from numpy import arange
 
+def createTestImage(session):
+    
+    gateway = session.createGateway()
+    renderingEngine = session.createRenderingEngine()
+    queryService = session.getQueryService()
+    pixelsService = session.getPixelsService()
+    rawPixelStore = session.createRawPixelsStore()
+    
+    plane2D = arange(256).reshape(16,16)
+    pType = plane2D.dtype.name
+    pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
+    
+    image = scriptUtil.createNewImage(pixelsService, rawPixelStore, renderingEngine, pixelsType, gateway, [plane2D], "imageName", "description", dataset=None)
+    
+    gateway.close()
+    renderingEngine.close()
+    rawPixelStore.close()
+    
+    return image.getId().getValue()
+    
 class TestGateway(lib.ITest):
 
     def testBasicUsage(self):
         gateway = self.client.sf.createGateway()
         gateway.getProjects([0],False)
-        query = self.client.sf.getQueryService()
-        thumb = query.findByQuery("select t from Thumbnail t join fetch t.pixels", params)
-        pixid = thumb.pixels.id.val
-        imgid = thumb.pixels.image.id.val
-        gateway.getRenderedImage(pixid, 0, 0)
 
+        iid = createTestImage(self.client.sf)
+        
+        query = self.client.sf.getQueryService()
+
+        params = omero.sys.Parameters()
+        params.map = {}
+        params.map["oid"] = rlong(iid)
+        params.theFilter = omero.sys.Filter()
+        params.theFilter.offset = rint(0)
+        params.theFilter.limit = rint(1)
+        pixel = query.findByQuery("select p from Pixels as p left outer join fetch p.image i where i.id=:oid", params)
+        imgid = pixel.image.id.val
+        gateway.getRenderedImage(pixel.id.val, 0, 0)
+
+        gateway.close()
+        
+        
 if __name__ == '__main__':
     unittest.main()

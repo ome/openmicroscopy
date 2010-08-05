@@ -81,7 +81,7 @@ def toList(csvString):
 ##
 # Create instance of data object this object wraps the basic OMERO types.
 #
-class DataObject():
+class DataObject(object):
     
     ##
     # Create instance.
