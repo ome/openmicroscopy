@@ -14,6 +14,7 @@ th .filter_field {
 img.previewGif {
     max-width: 75px;
     max-height: 75px;
+    border-width: 0px;
 }
 
 .commentId {

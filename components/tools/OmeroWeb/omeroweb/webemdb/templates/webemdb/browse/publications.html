@@ -17,6 +17,7 @@
 
     
 <div id="content">
+    <!-- Header of the publications table -->
     <table class="sortable paginated">
         <thead>
         <tr class="tableHeader">
@@ -35,13 +36,15 @@
         </tr>
         </thead>
         <tbody>
+         
+    <!-- Data of the publications table -->   
     {% for p in publications %}
       <tr class="publication">
           <td class="commentId">{{ p.commentId }}</td>
           <td class="gif">
               <a href="{% url webemdb.views.entry p.entryId %}">
                 <!-- image only gets displayed when each row of the table is shown -->
-                <img id="{% url webemdb.views.gif p.entryId %}" class="previewGif" border='0' />
+                <img id="{% url webemdb_gif p.entryId %}" class="previewGif" border='0' />
               </a>
           </td> 
           <td class="authors">{{ p.authors }} </td>
@@ -55,6 +58,8 @@
           <td class="year">{{ p.year }} </td>
           <td class="entries">EMDB: 
               <a class="entry_link" href="{% url webemdb.views.entry p.entryId %}">{{ p.entryId }}</a>
+              <!-- The following link to image is hidden. Used for jquery to get the dynamic django link pattern -->
+              <a class="image_link" href="{% url webemdb_gif p.entryId %}" style="display:none;">gif</a>
               <a class="emdb_link" href="{% url webemdb.views.getEntriesByPub p.commentId %}">show all...</a>
               <dir class="entries_pane"></dir> 
           </td>

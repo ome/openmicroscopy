@@ -133,14 +133,6 @@ def map (request, imageId, fileId):
     see http://djangosnippets.org/snippets/365/  for zip, temp file, etc
     """
     conn = getConnection(request)
-        
-    """
-    annotation = BaseAnnotation(conn)
-    annotation.getFileAnnotation(fileId)    
-    rsp = HttpResponse(annotation.originalFile_data)
-    rsp['ContentType'] = 'application/octet-stream'
-    rsp['Content-Disposition'] = 'attachment; filename=%s' % (a.getFileName())
-    return rsp"""
     
     image = conn.getImage(long(imageId))
     imgName = image.getName()  # map named same as image
@@ -148,11 +140,19 @@ def map (request, imageId, fileId):
     mrcMap = None
     for a in image.listAnnotations():
         if imgName == a.getFileName() and a.getNs() == namespace:
-            data = a.getFile()
-            rsp = HttpResponse(annotation.originalFile_data)
-            rsp['ContentType'] = 'application/octet-stream'
-            rsp['Content-Disposition'] = 'attachment; filename=%s' % (a.getFileName())
-            return rsp
+            file_data = a.getFile()
+            
+            # if the file data is large, we will have a temp file
+            if file_data.startswith(settings.FILE_UPLOAD_TEMP_DIR):
+                from django.core.servers.basehttp import FileWrapper
+                temp = FileWrapper(file(file_data))
+                rsp = HttpResponse(temp, content_type='text/plain')
+                rsp['Content-Type'] = 'application/octet-stream'
+                rsp['Content-Disposition'] = 'attachment; filename=%s' % (a.getFileName())
+                rsp['Content-Length'] = os.path.getsize(file_data)
+                print "File Size", os.path.getsize(file_data)
+                
+                return rsp
             
     return HttpResponse()
 
@@ -187,7 +187,7 @@ def gif (request, entryId):
         return HttpResponse()
 
 
-def file (request, entryId, fileId):
+def getFile (request, entryId, fileId):
     """
     Gets the file by Id and returns it according to mime type for display.
     N.B. We get the file from the Project it is attached to, because the 

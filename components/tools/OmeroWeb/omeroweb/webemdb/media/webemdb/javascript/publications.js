@@ -197,14 +197,18 @@ $(document).ready(function() {
         var jsonLink = $link.attr('href');
         // Django will generate a link for the first entry - use this as template for other links
         var exampleLink = $link.siblings(".entry_link").attr('href');
+        var exampleImageLink = $link.siblings(".image_link").attr('href');
         var exampleId = $link.siblings(".entry_link").text();
         var $entries_pane = $link.siblings(".entries_pane");     // we will display links here
         
+        // json format is {"entryId": "Description", "1006": "Virus Molecule"}
         $.getJSON(jsonLink, function(data) {
             var html = "<table width='100%'>";
             $.each(data, function(entryId) {
                 var eLink = exampleLink.replace(exampleId, entryId);
-                html += "<tr><td><a href='"+ eLink + "'>" + entryId + "</a></td><td>" + data[entryId] + "</td></tr>";
+                var imgLink = exampleImageLink.replace(exampleId, entryId);
+                html += "<tr><td><a href='"+ eLink + "'><img src='" + imgLink + "' class='previewGif' /></a></td>" + 
+                        "<td><a href='"+ eLink + "'>" + entryId + "</a> " + data[entryId] + "</td></tr>";
             });
             html += "</table>";
             $entries_pane.append(html);
