@@ -24,7 +24,7 @@ import org.apache.commons.logging.LogFactory;
 public class DelegatingCache<K extends IObject, V extends Serializable>
         implements Cache<K, V> {
 
-    private static final Log logger = LogFactory.getLog(DelegatingCache.class);
+    private static final Log log = LogFactory.getLog(DelegatingCache.class);
 
     protected final Cache<K, V> cache;
 

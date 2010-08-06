@@ -31,7 +31,7 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 public class IdBackedCache<K extends IObject, V extends Serializable> extends
         DelegatingCache<K, V> {
 
-    private static final Log logger = LogFactory.getLog(IdBackedCache.class);
+    private static final Log log = LogFactory.getLog(IdBackedCache.class);
 
     private final LocalQuery query;
 

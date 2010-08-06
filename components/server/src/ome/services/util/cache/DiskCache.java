@@ -32,7 +32,7 @@ import org.apache.commons.logging.LogFactory;
 public class DiskCache<K extends IObject, V extends Serializable> implements
         Cache<K, V> {
 
-    private static final Log logger = LogFactory.getLog(DiskCache.class);
+    private static final Log log = LogFactory.getLog(DiskCache.class);
 
     private final Ehcache cache;
 

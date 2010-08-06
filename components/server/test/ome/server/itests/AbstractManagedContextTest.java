@@ -62,7 +62,7 @@ public class AbstractManagedContextTest extends TestCase {
 
     // =========================================================================
 
-    protected final Log logger = LogFactory.getLog(getClass());
+    protected final Log log = LogFactory.getLog(getClass());
     
     protected LoginInterceptor loginAop;
 

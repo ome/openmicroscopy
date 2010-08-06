@@ -18,7 +18,7 @@ import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
  */
 public class ShutdownSafeEhcacheManagerFactoryBean extends EhCacheManagerFactoryBean {
 
-    private static final Log logger = LogFactory
+    private static final Log log = LogFactory
             .getLog(ShutdownSafeEhcacheManagerFactoryBean.class);
 
     @Override
@@ -29,8 +29,8 @@ public class ShutdownSafeEhcacheManagerFactoryBean extends EhCacheManagerFactory
             if (e.getMessage().contains("Shutdown in progress")) {
                 // ignore. It's because we're closing the application context
                 // during shutdown.
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Ignoring \"Shutdown in progress\" error.");
+                if (log.isDebugEnabled()) {
+                    log.debug("Ignoring \"Shutdown in progress\" error.");
                 }
             } else {
                 throw e;
