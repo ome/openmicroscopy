@@ -45,6 +45,7 @@
   <Match>
     <Bug pattern="URF_UNREAD_FIELD" />
     <Local name="log" />
+  </Match>
 </FindBugsFilter>
 
 
