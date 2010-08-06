@@ -46,11 +46,14 @@ def data(request, entryId):
     p.theFilter = f
     
     datasets = []
+    entryId = project.getName()
     for d in project.listChildren():
         ds = {}
         ds["getId"] = str(d.getId())
         print "ID", d.getId()
-        ds["getName"] = d.getName()
+        name = d.getName()
+        if name == entryId: continue    # this dataset contains the map, not associated data. 
+        ds["getName"] = name
         ds["getDescription"] = d.getDescription()
         ds["countChildren"] = d.countChildren()
         ds["listChildren"] = d.listChildren(params=p)
@@ -157,10 +160,6 @@ def gif (request, entryId):
 def getFile (request, entryId, fileId):
     """
     Gets the file by Id and returns it according to mime type for display.
-    N.B. We get the file from the Project it is attached to, because the 
-    project.listAnnotations() method returns the original file in a wrapper which provides
-    the file data with getFile(). 
-    see http://djangosnippets.org/snippets/365/  for zip, temp file, etc
     """
     
     conn = getConnection(request)
@@ -169,31 +168,66 @@ def getFile (request, entryId, fileId):
     project = conn.findProject(entryName)
     
     if project == None: return HttpResponse()
+    print "Project", project
         
     # get the file by ID
-    oFile = None
-    for a in project.listAnnotations():
-        if a.id == long(fileId):
-            oFile = a
+    ann = None
+    ann = conn.getFileAnnotation(long(fileId))
+    print "getFileAnnotation", ann
+    #for a in project.listAnnotations():
+    #    if a.id == long(fileId):
+    #        ann = a
+    #print "Annotation", ann
 
     # determine mime type to assign
-    if oFile:
-        file_data = oFile.getFile()
+    if ann:
         
-        # if the file data is large, we will have a temp file
-        if file_data.startswith(settings.FILE_UPLOAD_TEMP_DIR):
-            from django.core.servers.basehttp import FileWrapper
-            temp = FileWrapper(file(file_data))
-            return HttpResponse(temp)
-            
-        fileName = oFile.getFileName()
+        fileName = ann.getFileName()
         mimetype = "text/plain"
         
         if fileName.endswith(".bit") or fileName.endswith(".pdb.gz"): mimetype='application/octet-stream'
         if fileName.endswith(".xml"): mimetype='text/xml'
         if fileName.endswith(".gif"): mimetype='image/gif'
-        #if fileName.endswith("pdb.gz"): mimetype='application/x-gzip'
-        return HttpResponse(file_data, mimetype=mimetype)
+        
+        # file_data = ann.getFile()
+        # return HttpResponse(file_data, mimetype=mimetype)
+        
+        # if the file data is large, we will have a temp file
+        from django.conf import settings 
+        tempdir = settings.FILE_UPLOAD_TEMP_DIR
+        temp = os.path.join(tempdir, ('%i-%s.download' % (ann.file.id.val, conn._sessionUuid))).replace('\\','/')
+        logger.info("temp path: %s" % str(temp))
+        f = open(str(temp),"wb")
+        for piece in ann.getFileInChunks():
+            f.write(piece)
+        f.seek(0)
+        f.close()
+        print "temp file created at", temp
+        
+        from django.core.servers.basehttp import FileWrapper
+        originalFile_data = FileWrapper(file(temp))
+            
+        rsp = HttpResponse(originalFile_data)
+               
+        rsp['Content-Type'] = mimetype
+        rsp['Content-Length'] = ann.getFileSize()
+        # this tells the browser to give the user a 'download' dialog
+        #rsp['Content-Disposition'] = 'attachment; filename=%s' % (ann.getFileName().replace(" ","_"))
+            
+        return rsp
+        """
+        if file_data.startswith(settings.FILE_UPLOAD_TEMP_DIR):
+            from django.core.servers.basehttp import FileWrapper
+            temp = FileWrapper(file(file_data))
+            rsp = HttpResponse(temp, content_type=mimetype)
+            rsp['Content-Type'] = 'application/octet-stream'
+            rsp['Content-Disposition'] = 'attachment; filename=%s' % (a.getFileName())
+            rsp['Content-Length'] = os.path.getsize(file_data)
+            print "File Size", os.path.getsize(file_data)
+            
+            return rsp
+          """  
+        #return HttpResponse(file_data, mimetype=mimetype)
     return HttpResponse()
     
 

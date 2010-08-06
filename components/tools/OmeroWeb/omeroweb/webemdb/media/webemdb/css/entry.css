@@ -71,10 +71,15 @@
 .visOption {
     background: #dfe5e5;
     padding: 6px;
+    border:solid #cdd3d3 1px;
 }
 
 .visSelected {
     border:solid black 1px;
+}
+.visHover {
+    border:solid gray 1px;
+    background: #dde3e3;
 }
 
 #viewport {

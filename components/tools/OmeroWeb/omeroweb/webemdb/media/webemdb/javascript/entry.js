@@ -209,6 +209,9 @@ $(document).ready(function() {
     // start with preview selected
     $("#visPreview").click();
     
+    $(".visOption").hover(function() { $(this).addClass('visHover') } ,
+        function() { $(this).removeClass('visHover') } );
+    
     // on first click of OMERO view option, load viewer
     $("#imageId").hide(); // simply somewhere to store ID - always hidden
     var omeroLoaded = false;

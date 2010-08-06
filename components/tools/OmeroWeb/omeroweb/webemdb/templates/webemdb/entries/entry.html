@@ -46,9 +46,9 @@
                     <div id="entrySub">Aggregation State: <span id="aggregationState"></span></div>
                     Download: 
                     {% if xml %}<a id="emdbxml" href="{% url webemdb_file project.name xml.id %}">{{ xml.getFileName }}</a> {% endif %}
-                    {% if img and map %}<a id="emdbmap" href="{% url webemdb_map img.id map.id %}">{{ map.getFileName }}</a> {% endif %}
+                    {% if img and map %}<a id="emdbmap" href="{% url webemdb_file img.id map.id %}">{{ map.getFileName }}</a> {% endif %}
                     
-                    View: <a href="{% url webemdb_data project.name %}">data</a>
+                    View: <a href="{% url webemdb_data project.name %}">Associated data</a>
                 </div>
             </td>
         </tr>
@@ -92,33 +92,33 @@
                     
                     {% if gif %}
                     <div class="visOption" id='visPreview'>
-                        <img width='75' src="{% url webemdb_file project.name gif.id %}" />Preview
+                        <img width='75' src="{% url webemdb_file project.name gif.id %}" /> Preview
                     </div>
                     {% endif %}
                     {% if img %}
                     <div class="visOption" id='visOmero' href="{% url webemdb.views.viewport img.id %}">
-                        <img src="{% url webgateway.views.render_thumbnail img.id 75 %}">OMERO Image Viewer
+                        <img src="{% url webgateway.views.render_thumbnail img.id 75 %}"> OMERO Image Viewer
                     </div>
                     {% endif %}
                     
                     {% if bit %}
                     <div class="visOption" id='visAstex'>
-                        Open Astex Viewer
+                        <img width='75' src="{% url webemdb_file project.name gif.id %}" /> Open Astex Viewer
+                        
+                        <div id="oavControls">
+                            <!-- <div class="oavControl" id='red'>Red</div> -->
+                            Rotate: Click + Drag<br />
+                            Zoom: Shift + Drag Up/Down
+                            {% for pdb in pdbs %}
+                                <div>
+                                Load pdb:<a href="{% url webemdb_pdb project.name pdb.id %}" class="oavLoadPdb">{{ pdb.getFileName }}</a>
+                                </div>
+                            {% endfor %}
+                        </div>
                     </div>
                     <a id="oavLink" href="{% url webemdb.views.oa_viewer project.name bit.id %}">OA Viewer</a>
                     
-                    <div id="oavControls">
-                        <!-- <div class="oavControl" id='red'>Red</div> -->
-                        <lu>
-                            <li>Rotate: Click + Drag</li>
-                            <li>Zoom: Shift + Drag Up/Down</li>
-                        </lu>
-                        {% for pdb in pdbs %}
-                            <div>
-                            Load pdb:<a href="{% url webemdb_pdb project.name pdb.id %}" class="oavLoadPdb">{{ pdb.getFileName }}</a>
-                            </div>
-                        {% endfor %}
-                    </div>
+                    
                     {% endif %}
                     
                     

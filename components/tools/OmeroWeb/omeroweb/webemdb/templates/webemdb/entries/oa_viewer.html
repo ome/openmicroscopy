@@ -2,12 +2,7 @@
       width="100%" height="100%" name="av"
       code="MoleculeViewerApplet.class"
       archive="{% url webemdb 'applet/OpenAstexViewer.jar' %} ">
-         <!--<param name="scriptFile" value="{% url webstatic "applet/test.script" %}">-->
          
-         <!-- map load mapA '{% url webemdb.views.file entryId fileId %}';  -->
-         <!-- map load mapA '/webemdb/appmedia/webemdb/applet/{{ entryId }}.bit'; map mapA contour 0 on;
-         map mapA contour 0 'solid';
-         map mapA contour 0 'green'; -->
          <param name="script" value="
          map load mapA '{% url webemdb_bit entryId fileId %}'; 
          map mapA contour 0 on;
