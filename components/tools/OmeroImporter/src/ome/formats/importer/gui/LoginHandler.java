@@ -104,7 +104,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
      */
     public LoginHandler(GuiImporter viewer, HistoryTable table) // TODO fix this history table shouldn't be here
     {
-        this(viewer, table, false, false, true);
+        this(viewer, table, false, true);
     }    
     
     /**
@@ -116,7 +116,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
      * @param center - center yes/no
      * @param displayTop - display the top 
      */
-    public LoginHandler(GuiImporter viewer, HistoryTable table, boolean modal, boolean center, boolean displayTop)
+    public LoginHandler(GuiImporter viewer, HistoryTable table, boolean modal, boolean displayTop)
     {
         this.viewer = viewer;
         this.modal = modal;

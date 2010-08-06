@@ -587,7 +587,7 @@ WindowStateListener, WindowFocusListener
                 if (historyHandler != null) {
                     table = historyHandler.table;
                 }
-                setLoginHandler(new LoginHandler(this, table, true, true, false));
+                setLoginHandler(new LoginHandler(this, table, true, false));
                 getFileQueueHandler().enableImports(true);
                 //loginHandler.displayLogin(false);
             }
@@ -1056,46 +1056,6 @@ WindowStateListener, WindowFocusListener
      */
     public void windowLostFocus(WindowEvent arg0) {}
     
-    /**
-     * Start up the application, display the main window and the login dialog.
-     *            
-     * @param args 
-     */
-    public static void main(String[] args)
-    {  
-        LogAppenderProxy.configure(new File(IniFileLoader.LOGFILE));
-        ImportConfig config = new ImportConfig(args.length > 0 ? new File(args[0]) : null);
-        config.configureDebug(null); // Uses ini
-        
-        config.loadAll();
-        config.loadGui();
-        USE_QUAQUA = config.getUseQuaqua();
-        
-        String laf = UIManager.getSystemLookAndFeelClassName() ;
-
-        //laf = "ch.randelshofer.quaqua.QuaquaLookAndFeel";
-        //laf = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
-        //laf = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
-        //laf = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
-        //laf = "javax.swing.plaf.metal.MetalLookAndFeel";
-
-        if (laf.equals("apple.laf.AquaLookAndFeel") && USE_QUAQUA)
-        {
-            System.setProperty("Quaqua.design", "panther");
-
-            try {
-                UIManager.setLookAndFeel("ch.randelshofer.quaqua.QuaquaLookAndFeel");
-            } catch (Exception e) { System.err.println(laf + " not supported.");}
-        } else {
-            try {
-                UIManager.setLookAndFeel(laf);
-            } catch (Exception e) 
-            { System.err.println(laf + " not supported."); }
-        }
-
-        new GuiImporter(config);
-    }
-
 	/**
 	 * @param historyTable the historyTable to set
 	 */
@@ -1193,4 +1153,50 @@ WindowStateListener, WindowFocusListener
 	public FileQueueHandler getFileQueueHandler() {
 		return fileQueueHandler;
 	}
+    
+    /**
+     * Start up the application, display the main window and the login dialog.
+     *            
+     * @param args 
+     */
+    public static void main(String[] args)
+    {  
+        LogAppenderProxy.configure(new File(IniFileLoader.LOGFILE));
+        ImportConfig config = new ImportConfig(args.length > 0 ? new File(args[0]) : null);
+        config.configureDebug(null); // Uses ini
+        
+        config.loadAll();
+        config.loadGui();
+        USE_QUAQUA = config.getUseQuaqua();
+        
+        String laf = UIManager.getSystemLookAndFeelClassName() ;
+
+        //laf = "ch.randelshofer.quaqua.QuaquaLookAndFeel";
+        //laf = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
+        //laf = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
+        //laf = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
+        //laf = "javax.swing.plaf.metal.MetalLookAndFeel";
+
+        if (laf.equals("apple.laf.AquaLookAndFeel") && USE_QUAQUA)
+        {
+            System.setProperty("Quaqua.design", "panther");
+
+            try {
+                UIManager.setLookAndFeel("ch.randelshofer.quaqua.QuaquaLookAndFeel");
+            } catch (Exception e) { System.err.println(laf + " not supported.");}
+        } else {
+            try {
+                UIManager.setLookAndFeel(laf);
+            } catch (Exception e) 
+            { System.err.println(laf + " not supported."); }
+        }
+        
+        /*
+        if ("GTK look and feel".equals(UIManager.getLookAndFeel().getName())) {
+            UIManager.put("FileChooserUI", "eu.kostia.gtkjfilechooser.ui.GtkFileChooserUI");
+          }
+        */
+
+        new GuiImporter(config);
+    }
 }

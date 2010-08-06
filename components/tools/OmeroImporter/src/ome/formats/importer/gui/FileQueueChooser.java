@@ -150,6 +150,7 @@ public class FileQueueChooser extends JFileChooser implements ActionListener
                 	tb.add(refreshBtn,8);
                 } catch (Exception e) {}
             }
+        	/* Disabled temporarily */
             else if (laf.contains("MetalLookAndFeel"))
             {
                 //Do Metal implimentation
@@ -165,6 +166,7 @@ public class FileQueueChooser extends JFileChooser implements ActionListener
                 fp.add(Box.createRigidArea(new Dimension(5,0)));
                 fp.add(refreshBtn);
             }
+
             else if (laf.contains("GTKLookAndFeel"))
             {
                 //do GTK implimentation
@@ -178,7 +180,7 @@ public class FileQueueChooser extends JFileChooser implements ActionListener
                 fp = (JPanel) this.getComponent(0);
                 fp.add(refreshBtn);
             }
-            
+
             if (fp != null && DEBUG == true)
             {
             fp.setBorder(BorderFactory.createCompoundBorder(
