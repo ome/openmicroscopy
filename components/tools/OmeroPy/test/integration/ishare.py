@@ -21,6 +21,8 @@ from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
 from omero.rtypes import rtime, rlong, rstring, rlist
 
+from integration.helpers import createTestImage
+    
 class TestIShare(lib.ITest):
 
     def testThatPermissionsAreDefaultPrivate(self):
@@ -322,6 +324,7 @@ class TestIShare(lib.ITest):
         self.assert_(res2.id.val == img.id.val)
 
     def test1179(self):
+        createTestImage(self.root.sf)
         rdefs = self.root.sf.getQueryService().findAll("RenderingDef", None)
         if len(rdefs) == 0:
             raise "Must have at least one rendering def"

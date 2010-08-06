@@ -1483,22 +1483,30 @@ def download_annotation(request, action, iid, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
-    annotation = BaseAnnotation(conn)
-    
+    try:
+        ann = conn.getFileAnnotation(iid)
+        
+        from django.conf import settings 
+        tempdir = settings.FILE_UPLOAD_TEMP_DIR
+        temp = os.path.join(tempdir, ('%i-%s.download' % (ann.file.id.val, conn._sessionUuid))).replace('\\','/')
+        logger.info("temp path: %s" % str(temp))
+        f = open(str(temp),"wb")
+        for piece in ann.getFileInChunks():
+            f.write(piece)
+        f.seek(0)
+                
+        from django.core.servers.basehttp import FileWrapper
+        originalFile_data = FileWrapper(file(temp))
+    except Exception, x:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Cannot download annotation (id:%s)." % (iid))
+    rsp = HttpResponse(originalFile_data)
+    if originalFile_data is None:
+        return handlerInternalError("Cannot download annotation (id:%s)." % (iid))
     if action == 'download':
-        try:
-            annotation.getFileAnnotation(iid)
-        except Exception, x:
-            logger.error(traceback.format_exc())
-            return handlerInternalError("Cannot download annotation (id:%s)." % (iid))
-        rsp = HttpResponse(annotation.originalFile_data)
-        if annotation.originalFile_data is None:
-            return handlerInternalError("Cannot download annotation (id:%s)." % (iid))
-        if action == 'download':
-            rsp['Content-Type'] = 'application/octet-stream'
-            rsp['Content-Disposition'] = 'attachment; filename=%s' % (annotation.annotation.file.name.val)
-    else:
-        return handlerInternalError("%s is not available." % action.title())
+        rsp['Content-Type'] = 'application/force-download'
+        rsp['Content-Length'] = ann.getFileSize()
+        rsp['Content-Disposition'] = 'attachment; filename=%s' % (ann.getFileName().replace(" ","_"))
     return rsp
 
 @isUserConnected

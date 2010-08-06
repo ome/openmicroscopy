@@ -13,14 +13,17 @@ import omero, tempfile, unittest
 from omero_sys_ParametersI import ParametersI
 from omero.rtypes import *
 
+from integration.helpers import createTestImage
+
 # Reused bits
 params = omero.sys.Parameters()
 params.theFilter = omero.sys.Filter()
 params.theFilter.limit = rint(1)
 params.theFilter.offset = rint(1)
 
-class TestTicket1000(lib.ITest):
 
+class TestTicket1000(lib.ITest):
+        
     def test711(self):
         exp = omero.model.ExperimenterI()
         exp.omeName = rstring("root")
@@ -43,6 +46,7 @@ class TestTicket1000(lib.ITest):
         self.client.sf.getQueryService().findAllByQuery("""select i from Image i where i.name ilike '%h%' """, prms);
 
     def test880(self):
+        createTestImage(self.client.sf)
         i = self.client.sf.getQueryService().findAll("Image", params.theFilter)[0]
         self.assert_(i != None)
         self.assert_(i.id != None)

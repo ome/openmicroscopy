@@ -24,10 +24,8 @@ from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_PermissionsI import PermissionsI
 import omero_api_Gateway_ice
-import omero.util.script_utils as scriptUtil
 
-from numpy import arange
-
+from integration.helpers import createTestImage
 
 class TestThumbnailPerms(lib.ITest):
 
@@ -271,25 +269,5 @@ class TestThumbnailPerms(lib.ITest):
         gateway.close()
         return t
         
-def createTestImage(session):
-    
-    gateway = session.createGateway()
-    renderingEngine = session.createRenderingEngine()
-    queryService = session.getQueryService()
-    pixelsService = session.getPixelsService()
-    rawPixelStore = session.createRawPixelsStore()
-    
-    plane2D = arange(256).reshape(16,16)
-    pType = plane2D.dtype.name
-    pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
-    
-    image = scriptUtil.createNewImage(pixelsService, rawPixelStore, renderingEngine, pixelsType, gateway, [plane2D], "imageName", "description", dataset=None)
-    
-    gateway.close()
-    renderingEngine.close()
-    rawPixelStore.close()
-    
-    return image.getId().getValue()
-
 if __name__ == '__main__':
     unittest.main()
