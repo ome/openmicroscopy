@@ -8,6 +8,8 @@
  */
 """
 
+import sys
+
 import Ice
 import omero
 import omero_System_ice
@@ -27,14 +29,21 @@ class ParametersI(omero.sys.Parameters):
         """
         If no argument is provided, creates an instance to prevent later
         NoneType exceptions. To save memory, it is possible to pass None
-        as the first argument.
+        as the first argument. 
+        
+        In order to prevent a single dict being referenced by several
+        instances of ParametersI a new dict is created if an empty one is
+        passed in either implicitly or explicitly.
 
         Uses (and does not copy) the given dict as the named parameter
         store in this instance. Be careful if either null is passed in
         or if this instance is being used in a multi-threaded environment.
         No synchronization takes place.
         """
-        self.map = parammap
+        if len(parammap) == 0:
+            self.map = {}
+        else:
+            self.map = parammap
         self.theFilter = None
         self.theOptions = None
 

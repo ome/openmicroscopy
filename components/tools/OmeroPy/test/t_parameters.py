@@ -155,6 +155,17 @@ class TestParameters(unittest.TestCase):
     # Parameters.map
     #
 
+    def testDistinctMaps(self):
+        p1 = ParametersI()
+        p2 = ParametersI()
+        self.assertFalse(p1.map is p2.map)
+        
+    def testSameMap(self):
+        m = {'key':0}
+        p1 = ParametersI(parammap=m)
+        p2 = ParametersI(parammap=m)
+        self.assertTrue(p1.map is p2.map)
+        
     def testAddBasicString(self):
         p = ParametersI()
         p.add("string", rstring("a"))
