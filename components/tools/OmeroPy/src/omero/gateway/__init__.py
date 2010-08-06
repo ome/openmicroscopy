@@ -2096,31 +2096,23 @@ class FileAnnotationWrapper (AnnotationWrapper):
             return name
         return name[:16] + "..." + name[l - 16:] 
     
-    def getFile(self):
+    def getFileInChunks(self):
         self.__loadedHotSwap__()
         store = self._conn.createRawFileStore()
         store.setFileId(self._obj.file.id.val)
         size = self.getFileSize()
-        buf = 1048576
+        buf = 2621440
         if size <= buf:
-            return store.read(0,long(size))
+            yield store.read(0,long(size))
         else:
-            temp = "%s/%i-%s.download" % (settings.FILE_UPLOAD_TEMP_DIR, size, self._sessionUuid)
-            outfile = open (temp, "wb")
             for pos in range(0,long(size),buf):
                 data = None
                 if size-pos < buf:
-                    data = store.read(pos+1, size-pos)
+                    data = store.read(pos, size-pos)
                 else:
-                    if pos == 0:
-                        data = store.read(pos, buf)
-                    else:
-                        data = store.read(pos+1, buf)
-                outfile.write(data)
-            outfile.close()
-            store.close()
-            return temp
-        return None
+                    data = store.read(pos, buf)
+                yield data
+        store.close()
     
 #    def shortTag(self):
 #        if isinstance(self._obj, TagAnnotationI):
