@@ -323,7 +323,7 @@ class CustomizedFileChooser
 	/** Resets the selection. */
 	void resetSelection()
 	{
-		super.setSelectedFile(new File(originalName));
+		//super.setSelectedFile(new File(originalName));
 	}
 	
 	/**
