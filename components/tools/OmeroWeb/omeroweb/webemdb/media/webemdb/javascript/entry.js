@@ -199,7 +199,7 @@ $(document).ready(function() {
         $("#oavControls").hide();
         var viewerId = optionId + "Pane";
         $("#"+viewerId).show();
-        if (event.target.id == "visAstex") {
+        if (optionId == "visAstex") {
             $("#oavControls").show();
         }
         // show which option is selected
@@ -214,13 +214,12 @@ $(document).ready(function() {
     
     // on first click of OMERO view option, load viewer
     $("#imageId").hide(); // simply somewhere to store ID - always hidden
+    $("#viewportLink").hide();  // simply somewhere to store link - always hidden
     var omeroLoaded = false;
     $("#visOmero").click(function() {
         if (omeroLoaded)   return;
-        //$visViewer.load("http://localhost:8000/webemdb/viewport/16/");   // one option - load separate page
-        var imageId = $("#imageId").text();
-        var viewport = $.WeblitzViewport($("#viewport"), "/webclient" );
-        viewport.load(imageId);
+        var viewportLink = $("#viewportLink").attr('href');
+        $("#visOmeroIframe").attr('src', viewportLink);     // load the viewport page into the iframe
         omeroLoaded = true;
     });
     

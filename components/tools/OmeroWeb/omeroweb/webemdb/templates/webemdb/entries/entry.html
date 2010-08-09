@@ -92,21 +92,27 @@
                 <table width='100%'><tr>
                     <td valign='top'> 
                 <!-- <div class="visMenu"> -->
-                    {% if gif %}
                     <div class="visOption" id='visPreview'>
+                        {% if gif %}
                         <div class="visIcon"><img width='75' src="{% url webemdb_file project.name gif.id %}" /></div>
                         <div class="visText">Preview</div>
+                        {% else %}
+                            <div> Preview image not available </div>
+                        {% endif %}
                         <div class="clean"></div>
                     </div>
                     <div class="clean"></div>
-                    {% endif %}
                     {% if img %}
-                    <div class="visOption" id='visOmero' href="{% url webemdb.views.viewport img.id %}">
+                    <div class="visOption" id='visOmero'>
                         <div class="visIcon"><img src="{% url webgateway.views.render_thumbnail img.id 75 %}"> </div>
-                        <div class="visText">OMERO Image Viewer</div>
+                        <div class="visText">OMERO Image Viewer </div>
                         <div class="clean"></div>
+                        <!-- This is a hidden link, used by javascript to load the viewport if/when the option is chosen -->
+                        <a id="viewportLink" href="{% url webemdb.views.viewport img.id %}">Open viewport</a>
                     </div>
                     <div class="clean"></div>
+                    {% else %}
+                        <div class="visOption"> OMERO image not available </div>
                     {% endif %}
                     
                     {% if bit %}
@@ -141,7 +147,8 @@
                     <!-- This is a hidden link that is used by javascript to load the OA-viewer if/when the visAstex is clicked -->
                     <a id="oavLink" href="{% url webemdb.views.oa_viewer project.name bit.id %}">OA Viewer</a>
                     
-                    
+                    {% else %}
+                        <div class="visOption"> Volume viewer not available </div>
                     {% endif %}
                     
                     
@@ -156,7 +163,7 @@
                         {% endif %}
                     </div>
                     <div class="visViewer" id="visOmeroPane">
-                        <div class="miniview" id="viewport"></div>
+                        <iframe id="visOmeroIframe" scrolling="no" height="100%" width="100%"></iframe>
                     </div>
                     <div class="visViewer" id="visAstexPane">
                         <div id="oav" height='500px'>
