@@ -696,7 +696,7 @@ class TreeViewerWin
 	}
     
 	/** 
-	 * Displays the renderer.
+	 * Displays the data browser.
 	 * 
 	 * @param db The data browser.
 	 */

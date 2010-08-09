@@ -578,6 +578,26 @@ class WellsModel
 	}
 	
 	/**
+	 * Returns the well corresponding to the passed location.
+	 * 
+	 * @param row 	 The row identifying the well.
+	 * @param column The column identifying the well.
+	 * @return See above.
+	 */
+	WellImageSet getWell(int row, int column)
+	{
+		List l = getNodes();
+		Iterator i = l.iterator();
+		WellImageSet well;
+		while (i.hasNext()) {
+			well = (WellImageSet) i.next();
+			if (well.getColumn() == column && well.getRow() == row) 
+				return well;
+		}
+		return null;
+	}
+	
+	/**
 	 * Creates a concrete loader.
 	 * 
 	 * @param row The row identifying the well.

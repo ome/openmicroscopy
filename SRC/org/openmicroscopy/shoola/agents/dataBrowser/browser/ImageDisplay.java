@@ -36,11 +36,9 @@ import javax.swing.JLabel;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
-import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
@@ -55,11 +53,11 @@ import pojos.ProjectData;
  * composite structure.  This is a tree whose leaf nodes are {@link ImageNode}
  * objects and internal nodes are {@link ImageSet} objects.</p>
  * <p>So we have a general purpose, set-based structure we can use to visualize 
- * any image hierarchy: Project/Dataset/Image, Category Group/Category/Image, 
- * or Screen/Plate/Well/Image. The original data hierarchy translates into
- * a visualization tree as follows. Each image object corresponds to an
- * {@link ImageNode} and an image container, such as Dataset or Category, 
- * corresponds to an {@link ImageSet}. All {@link ImageNode} objects that are
+ * any image hierarchy: Project/Dataset/Image, Screen/Plate/Well/Image, etc.
+ * The original data hierarchy translates into a visualization tree as follows.
+ * Each image object corresponds to an {@link ImageNode} and an image container, 
+ * such as Dataset, corresponds to an {@link ImageSet}. 
+ * All {@link ImageNode} objects that are
  * created for the images in a given image container are added to the 
  * {@link ImageSet} object created for that image container.  Nested containers
  * translate into nested {@link ImageSet}s. For example, say you have a 

@@ -429,6 +429,11 @@ class TreeViewerComponent
         	}
         }
 		model.setDataViewer(db);
+		if (db != null) {
+			Browser b = getSelectedBrowser();
+			if (b != null && b.getBrowserType() == Browser.SCREENS_EXPLORER)
+				b.addComponent(db.getGridUI());
+		}
 	}
 	
 	/**
@@ -2248,6 +2253,7 @@ class TreeViewerComponent
 			view.removeAllFromWorkingPane();
 			view.displayBrowser(db);
 			model.setDataViewer(db);
+			getSelectedBrowser().addComponent(db.getGridUI());
 		}
 		model.setState(READY);
 		fireStateChange();

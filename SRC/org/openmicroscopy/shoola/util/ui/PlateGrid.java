@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.util.ui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -139,10 +138,13 @@ public class PlateGrid
 				int row = getSelectedRow();
 				int column = getSelectedColumn();
 				if (isCellValid(row, column)) {
-					Point p = new Point(row, column);
 					selectedColumn = column;
 					selectedRow = row;
-					firePropertyChange(WELL_FIELDS_PROPERTY, null, p);
+					boolean b = e.isShiftDown() || e.isControlDown();
+					if (UIUtilities.isMacOS()) 
+						b = e.isShiftDown() || e.isMetaDown();
+					firePropertyChange(WELL_FIELDS_PROPERTY, null, 
+							new PlateGridObject(row, column, b));
 				}
 			}
 		});

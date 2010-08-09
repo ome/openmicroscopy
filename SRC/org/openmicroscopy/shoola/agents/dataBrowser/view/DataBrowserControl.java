@@ -66,6 +66,7 @@ import org.openmicroscopy.shoola.agents.util.ui.RollOverThumbnailManager;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.util.ui.PlateGrid;
+import org.openmicroscopy.shoola.util.ui.PlateGridObject;
 import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
 import org.openmicroscopy.shoola.util.ui.search.SearchComponent;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
@@ -406,9 +407,10 @@ class DataBrowserControl
 				}
 			}
 		} else if (PlateGrid.WELL_FIELDS_PROPERTY.equals(name)) {
-			Point p = (Point) evt.getNewValue();
+			PlateGridObject p = (PlateGridObject) evt.getNewValue();
 			if (p == null) return;
-			model.viewFieldsFor(p.x, p.y);
+			model.viewFieldsFor(p.getRow(), p.getColumn(), 
+					p.isMultipleSelection());
 		}
 	}
 	

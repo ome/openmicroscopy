@@ -270,6 +270,7 @@ class BrowserComponent
     			}
     		}
     	}
+    	addComponent(null);
     	if (exp != null) model.setSelectedDisplay(exp, single);
     	else model.setSelectedDisplay(display, single);
     	if (display == null) view.setNullSelectedNode();
@@ -1796,7 +1797,16 @@ class BrowserComponent
 		    model.loadRefreshExperimenterData(m, type, id);
 			fireStateChange();
 		}
-		
+	}
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#addComponent(JComponent)
+	 */
+	public void addComponent(JComponent component)
+	{
+		if (getBrowserType() != SCREENS_EXPLORER) return;
+		view.addComponent(component);
 	}
 	
 }

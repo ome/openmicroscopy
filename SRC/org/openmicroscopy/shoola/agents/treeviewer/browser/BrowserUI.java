@@ -47,6 +47,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
@@ -84,7 +85,6 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -166,6 +166,9 @@ class BrowserUI
     /** Flag indicating if the left mouse button is pressed. */
     private boolean					leftMouseButton;
     
+    /** The component displayed at the bottom of the UI. */
+    private JComponent				bottomComponent;
+
     /**
      * Builds the tool bar.
      * 
@@ -1808,7 +1811,6 @@ class BrowserUI
     	        treeDisplay.expandPath(new TreePath(node.getPath()));
     	        treeDisplay.addTreeExpansionListener(listener);
     	}
-       
     }
 	
     /**
@@ -1822,4 +1824,18 @@ class BrowserUI
     	expandNode(node, false);
     }
 	
+    /**
+     * Adds the component under the tree.
+     * 
+     * @param component The component to add.
+     */
+    void addComponent(JComponent component)
+    {
+    	if (bottomComponent != null) remove(bottomComponent);
+    	bottomComponent = component;
+    	if (component != null) add(bottomComponent, BorderLayout.SOUTH);
+    	revalidate();
+    	repaint();
+    }
+    
 }

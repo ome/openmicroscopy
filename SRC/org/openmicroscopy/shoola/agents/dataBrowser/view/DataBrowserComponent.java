@@ -264,16 +264,19 @@ class DataBrowserComponent
 			objects.add(model.parent);
 		} else objects.add(object);
 		if (object instanceof DataObject) {
-			Object parent;
+			Object parent = null;
 			if (object instanceof WellSampleData) {
 				WellSampleNode wsn = (WellSampleNode) node;
 				parent = wsn.getParentObject();
 				((WellsModel) model).setSelectedWell(wsn.getParentWell());
+				view.onSelectedWell();
 			} else {
 				ImageDisplay p = node.getParentDisplay();
-				parent = p.getHierarchyObject();
-				if (!(parent instanceof DataObject))
-					parent = model.getParent();
+				if (p != null) {
+					parent = p.getHierarchyObject();
+					if (!(parent instanceof DataObject))
+						parent = model.getParent();
+				}
 			}
 			if (parent != null)
 				objects.add(parent);
@@ -1327,23 +1330,36 @@ class DataBrowserComponent
 			WellsModel wm = (WellsModel) model;
 			WellImageSet node = wm.getSelectedWell();
 			if (node != null) 
-				viewFieldsFor(node.getRow(), node.getColumn());
+				viewFieldsFor(node.getRow(), node.getColumn(), false);
 		}
 	}
 
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
-	 * @see DataBrowser#viewFieldsFor(int, int)
+	 * @see DataBrowser#viewFieldsFor(int, int, boolean)
 	 */
-	public void viewFieldsFor(int row, int column)
+	public void viewFieldsFor(int row, int column, boolean multiSelection)
 	{
 		if (!(model instanceof WellsModel)) return;
+		//depends on the view.
 		WellsModel wm = (WellsModel) model;
-		if (!model.loadFields(row, column)) {
-			view.displayFields(wm.getSelectedWell().getWellSamples());
-		} else {
-			view.setFieldsStatus(true);
-			fireStateChange();
+		
+		int index = view.getSelectedView();
+		
+		if (index == DataBrowserUI.FIELDS_VIEW) {
+			if (!model.loadFields(row, column)) {
+				view.displayFields(wm.getSelectedWell().getWellSamples());
+			} else {
+				view.setFieldsStatus(true);
+				fireStateChange();
+			}
+		} else if (index == DataBrowserUI.THUMB_VIEW) {
+			WellImageSet well = wm.getWell(row, column);
+			if (well != null) {
+				model.getBrowser().setSelectedDisplay(
+						well.getSelectedWellSample(), multiSelection, false);
+				setSelectedDisplay(well.getSelectedWellSample());
+			}
 		}
 	}
 	
@@ -1404,6 +1420,12 @@ class DataBrowserComponent
 		model.setExperimenter(exp);
 		view.onExperimenterSet();
 	}
+	
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#getGridUI()
+	 */
+	public PlateGridUI getGridUI() { return view.getGridUI(); }
 	
 	/** 
 	 * Overridden to return the name of the instance to save. 

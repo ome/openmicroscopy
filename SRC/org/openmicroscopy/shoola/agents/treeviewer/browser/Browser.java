@@ -758,4 +758,12 @@ public interface Browser
 	 */
 	void refreshBrowser(Class type, long id);
 	
+    /**
+     * Adds the component under the tree. This method should only be invoked
+     * if the browser is displayed Screening data.
+     * 
+     * @param component The component to add.
+     */
+	void addComponent(JComponent component);
+	
 }
