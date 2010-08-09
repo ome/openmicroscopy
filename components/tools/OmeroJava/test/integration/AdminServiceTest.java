@@ -11,6 +11,7 @@ package integration;
 import static omero.rtypes.rstring;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -699,7 +700,7 @@ public class AdminServiceTest
         long userID = prx.createUser(e, rwrw.getName().getValue());
         e = prx.getExperimenter(userID);
 
-        prx.addGroups(e, java.util.Arrays.asList(rwr));
+        prx.addGroups(e, Arrays.asList(rwr));
 
         omero.client client = new omero.client(root.getPropertyMap());
         try {

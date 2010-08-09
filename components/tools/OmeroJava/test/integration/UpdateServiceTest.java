@@ -776,7 +776,9 @@ public class UpdateServiceTest
     //
     
     @Test(groups = "ticket:2547")
-    public void testChannelMoveWithFullArrayGoesToEnd() throws Exception {
+    public void testChannelMoveWithFullArrayGoesToEnd() 
+    	throws Exception
+    {
         Pixels p = createPixels();
         Image i = p.getImage();
         i = (Image) iUpdate.saveAndReturnObject(i);
@@ -802,7 +804,9 @@ public class UpdateServiceTest
     }
 
     @Test(groups = "ticket:2547")
-    public void testChannelMoveWithSpaceFillsSpace() throws Exception {
+    public void testChannelMoveWithSpaceFillsSpace() 
+    	throws Exception
+    {
         Pixels p = createPixels();
         p.setChannel(1, null);
         Image i = p.getImage();
@@ -836,7 +840,9 @@ public class UpdateServiceTest
     }
 
     @Test(groups = "ticket:2547")
-    public void testChannelToSpaceChangesNothing() throws Exception {
+    public void testChannelToSpaceChangesNothing() 
+    	throws Exception
+    {
         Pixels p = createPixels();
         p.setChannel(1, null);
         Image i = p.getImage();

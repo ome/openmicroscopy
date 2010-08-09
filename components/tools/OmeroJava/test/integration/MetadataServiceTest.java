@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 
 //Third-party libraries
@@ -47,6 +48,10 @@ import omero.model.Dichroic;
 import omero.model.DichroicI;
 import omero.model.DoubleAnnotation;
 import omero.model.DoubleAnnotationI;
+import omero.model.Experimenter;
+import omero.model.ExperimenterGroup;
+import omero.model.ExperimenterGroupI;
+import omero.model.ExperimenterI;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.Filter;
@@ -71,6 +76,7 @@ import omero.model.Objective;
 import omero.model.ObjectiveI;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
+import omero.model.PermissionsI;
 import omero.model.Project;
 import omero.model.ProjectAnnotationLinkI;
 import omero.model.ProjectI;
@@ -522,32 +528,49 @@ public class MetadataServiceTest
     public void testLoadAnnotationsUsedNotOwned() 
     	throws Exception
     {
-    	String groupName = iAdmin.getEventContext().groupName;
-    	CreatePojosFixture2 fixture = CreatePojosFixture2.withNewUser(root, 
-        		groupName);
+    	//
+    	IAdminPrx svc = root.getSession().getAdminService();
+    	String uuid = UUID.randomUUID().toString();
+    	String uuid2 = UUID.randomUUID().toString();
+    	Experimenter e1 = new ExperimenterI();
+    	e1.setOmeName(omero.rtypes.rstring(uuid));
+    	e1.setFirstName(omero.rtypes.rstring("integeration"));
+    	e1.setLastName(omero.rtypes.rstring("tester"));
+    	Experimenter e2 = new ExperimenterI();
+    	e2.setOmeName(omero.rtypes.rstring(uuid2));
+    	e2.setFirstName(omero.rtypes.rstring("integeration"));
+    	e2.setLastName(omero.rtypes.rstring("tester"));
     	
+    	ExperimenterGroup g = new ExperimenterGroupI();
+    	g.setName(omero.rtypes.rstring(uuid));
+    	g.getDetails().setPermissions(new PermissionsI("rwrw--"));
+    	svc.createGroup(g);
+    	long id1 = svc.createUser(e1, uuid);
+    	long id2 = svc.createUser(e2, uuid);
+    	client = new omero.client();
+        ServiceFactoryPrx f = client.createSession(uuid2, uuid2);
     	//Create a tag annotation as another user.
         TagAnnotationI tag = new TagAnnotationI();
         tag.setTextValue(omero.rtypes.rstring("tag1"));
-        IObject tagData = fixture.iUpdate.saveAndReturnObject(tag);
+        IObject tagData = f.getUpdateService().saveAndReturnObject(tag);
         assertNotNull(tagData);
         //make sure we are not the owner of the tag.
-        assertTrue(tagData.getDetails().getOwner().getId().getValue() ==
-            fixture.e.getId().getValue());
+        assertTrue(tagData.getDetails().getOwner().getId().getValue() == id2);
+    	client.closeSession();
     	
+        f = client.createSession(uuid, uuid);
         //Create an image.
-       Image img = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
+       Image img = (Image) f.getUpdateService().saveAndReturnObject(
+    		   simpleImage(0));
        //Link the tag and the image.
        ImageAnnotationLinkI link = new ImageAnnotationLinkI();
        link.setChild((Annotation) tagData);
        link.setParent(img);
        //Save the link
-       iUpdate.saveAndReturnObject(link);
-       long self = iAdmin.getEventContext().userId;
-   	
-       List<IObject> result = iMetadata.loadAnnotationsUsedNotOwned(
-    		   TagAnnotation.class.getName(), self);
-       assertNotNull(tagData);
+       f.getUpdateService().saveAndReturnObject(link);
+
+       List<IObject> result = f.getMetadataService().loadAnnotationsUsedNotOwned(
+    		   TagAnnotation.class.getName(), id1);
        assertTrue(result.size() > 0);
        Iterator<IObject> i = result.iterator();
        IObject o;
@@ -563,6 +586,7 @@ public class MetadataServiceTest
        }
        assertTrue(found);
        assertTrue(result.size() == count);
+       client.closeSession();
     }
     
     /**
