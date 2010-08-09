@@ -68,10 +68,36 @@
     border:1px solid gray;
 }
 
+.visMenu {
+    width: 300px;
+    float: left;
+}
+
 .visOption {
     background: #dfe5e5;
     padding: 6px;
     border:solid #cdd3d3 1px;
+    width: 300px;
+}
+
+.visText {
+    
+}
+
+.visIcon {
+    float: left;
+    margin-right: 5px;
+}
+.visIcon img {
+    max-width:75px;
+    max-height:75px;
+}
+.clean {
+    clear: both;
+}
+
+#sizeWarning {
+    color: red;
 }
 
 .visSelected {
@@ -88,9 +114,6 @@
     border: solid red 1px;
 }
 
-.visOption {
-    width: 300px;
-}
 #oav {
     border: solid gray 1px;
     height: 500px;

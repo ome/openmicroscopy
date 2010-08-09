@@ -100,6 +100,7 @@ def entry (request, entryId):
     xmlName = "emd-%s.xml" % entryName
     gifName = "%s.gif" % entryName
     bitName = "%s.bit" % entryName
+    sizeWarning = False
     
     for a in project.listAnnotations():
         try:    # not all annotations have getFileName() E.g. comment annotations
@@ -109,13 +110,15 @@ def entry (request, entryId):
                 gif = a
             elif bitName == a.getFileName():
                 bit = a
+                if bit.getFileSize() > 2000000:
+                    sizeWarning = True
             elif a.getFileName().endswith(".pdb.gz"):
                 pdbs.append(a)
         except:
             pass
     
     return render_to_response('webemdb/entries/entry.html', 
-        {'project':project, 'xml': xml, 'gif': gif, 'img': img, 'map': mrcMap, 'bit': bit, 'pdbs': pdbs})
+        {'project':project, 'xml': xml, 'gif': gif, 'img': img, 'map': mrcMap, 'bit': bit, 'pdbs': pdbs, 'sizeWarning':sizeWarning})
         
         
 def oa_viewer(request, entryId, fileId): 
