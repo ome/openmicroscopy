@@ -70,6 +70,51 @@ def omero_type(val):
     else:
         return val
 
+def fileread (fin, fsize, bufsize):
+    """
+    Reads everything from fin, in chunks of bufsize.
+
+    
+    @type fin: file
+    @param fin: filelike readable object
+    @type fsize: int
+    @param fsize: total number of bytes to read
+    @type bufsize: int
+    @param fsize: size of each chunk of data read from fin
+    @rtype: string
+    @return: string buffer holding the contents read from the file
+    """
+    # Read it all in one go
+    p = 0
+    rv = ''
+    while p < fsize:
+        s = min(bufsize, fsize-p)
+        rv += timeit(lambda: fin.read(p,s))()
+        p += s
+    fin.close()
+    return rv
+    
+
+def fileread_gen (fin, fsize, bufsize):
+    """
+    Generator helper function.
+
+    @type fin: file
+    @param fin: filelike readable object
+    @type fsize: int
+    @param fsize: total number of bytes to read
+    @type bufsize: int
+    @param fsize: size of each chunk of data read from fin that gets yielded
+    @rtype: generator
+    @return: generator of string buffers of size up to bufsize read from fin
+    """
+    p = 0
+    while p < fsize:
+        s = min(bufsize, fsize-p)
+        yield timeit(lambda: fin.read(p,s))()
+        p += s
+    fin.close()
+
 class BlitzObjectWrapper (object):
     """
     Object wrapper class.
@@ -2340,6 +2385,26 @@ class _DatasetWrapper (BlitzObjectWrapper):
             self._obj._imageLinksLoaded = True
             self._obj._imageLinksSeq = links
 
+    def exportOmeTiff (self, bufsize=0):
+        """
+        Exports the OME-TIFF representation of all images in this dataset.
+
+        @type bufsize: int or tuple
+        @param bufsize: if 0 return a single string buffer with the whole OME-TIFF
+                        if >0 return a tuple holding total size and generator of chunks
+                        (string buffers) of bufsize bytes each
+        """
+        e = self._conn.createExporter()
+        for img in self.listChildren():
+            timeit(lambda: e.addImage(img.getId()))()
+        size = timeit(lambda: e.generateTiff())()
+        if bufsize==0:
+            # Read it all in one go
+            return fileread(e, size, 65536)
+        else:
+            # generator using bufsize
+            return (size, fileread_gen(e, size, bufsize))
+
 DatasetWrapper = _DatasetWrapper
 
 class _ProjectWrapper (BlitzObjectWrapper):
@@ -2352,6 +2417,27 @@ class _ProjectWrapper (BlitzObjectWrapper):
         self.LINK_CLASS = "ProjectDatasetLink"
         self.CHILD_WRAPPER_CLASS = 'DatasetWrapper'
         self.PARENT_WRAPPER_CLASS = None
+
+    def exportOmeTiff (self, bufsize=0):
+        """
+        Exports the OME-TIFF representation of all images in this project.
+
+        @type bufsize: int or tuple
+        @param bufsize: if 0 return a single string buffer with the whole OME-TIFF
+                        if >0 return a tuple holding total size and generator of chunks
+                        (string buffers) of bufsize bytes each
+        """
+        e = self._conn.createExporter()
+        for ds in self.listChildren():
+            for img in ds.listChildren():
+                timeit(lambda: e.addImage(img.getId()))()
+        size = timeit(lambda: e.generateTiff())()
+        if bufsize==0:
+            # Read it all in one go
+            return fileread(e, size, 65536)
+        else:
+            # generator using bufsize
+            return (size, fileread_gen(e, size, bufsize))
 
 ProjectWrapper = _ProjectWrapper
 
@@ -3137,14 +3223,6 @@ class _ImageWrapper (BlitzObjectWrapper):
             self._re = None
             raise
 
-    def exportOmeTiff_gen (self, fin, fsize, bufsize):
-        p = 0
-        while p < fsize:
-            s = min(bufsize, fsize-p)
-            yield timeit(lambda: fin.read(p,s))()
-            p += s
-        fin.close()
-    
     def exportOmeTiff (self, bufsize=0):
         """
         Exports the OME-TIFF representation of this image.
@@ -3159,17 +3237,10 @@ class _ImageWrapper (BlitzObjectWrapper):
         size = timeit(lambda: e.generateTiff())()
         if bufsize==0:
             # Read it all in one go
-            p = 0
-            rv = ''
-            while p < size:
-                s = min(65536, size-p)
-                rv += timeit(lambda: e.read(p,s))()
-                p += s
-            e.close()
-            return rv
+            return fileread(e, size, 65536)
         else:
             # generator using bufsize
-            return (size, self.exportOmeTiff_gen(e, size, bufsize))
+            return (size, fileread_gen(e, size, bufsize))
 
     def _wordwrap (self, width, text, font):
         rv = []

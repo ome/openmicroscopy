@@ -428,24 +428,36 @@ def render_image (request, iid, z, t, server_id=None, _conn=None, **kwargs):
     rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
     return rsp
 
-def render_ome_tiff (request, iid, server_id=None, _conn=None, **kwargs):
-    """ Renders the OME-TIFF representation of the image with id iid """
+def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
+    """
+    Renders the OME-TIFF representation of the image(s) with id cid in ctx (i)mage,
+    (d)ataset, or (p)roject.
+    """
     USE_SESSION = False
     if _conn is None:
         _conn = getBlitzConnection(request, server_id=server_id, with_session=USE_SESSION)
     if _conn is None or not _conn.isConnected():
         return HttpResponseServerError('""', mimetype='application/javascript')
-    img = _conn.getImage(iid)
-    if img is None:
+    if ctx == 'p':
+        obj = _conn.getProject(cid)
+    elif ctx == 'd':
+        obj = _conn.getDataset(cid)
+    else:
+        obj = _conn.getImage(cid)
+    if obj is None:
         raise Http404
-    tiff_data = webgateway_cache.getOmeTiffImage(request, server_id, img)
+    if ctx == 'i':
+        tiff_data = webgateway_cache.getOmeTiffImage(request, server_id, obj)
+    else:
+        tiff_data = None
     if tiff_data is None:
-        tiff_data = img.exportOmeTiff()
+        tiff_data = obj.exportOmeTiff()
         if tiff_data is None:
             raise Http404
-        webgateway_cache.setOmeTiffImage(request, server_id, img, tiff_data)
+        if ctx == 'i':
+            webgateway_cache.setOmeTiffImage(request, server_id, obj, tiff_data)
     rsp = HttpResponse(tiff_data, mimetype='application/x-ome-tiff')
-    rsp['Content-Disposition'] = 'attachment; filename="%s.ome.tiff"' % img.getName()
+    rsp['Content-Disposition'] = 'attachment; filename="%s.ome.tiff"' % obj.getName()
     rsp['Content-Length'] = len(tiff_data)
     return rsp
 
