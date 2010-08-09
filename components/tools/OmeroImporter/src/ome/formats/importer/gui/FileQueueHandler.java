@@ -664,7 +664,7 @@ public class FileQueueHandler extends JPanel
            
            int start = directories.length - numOfDirectories - 1;
            
-           String fileName = "";
+           StringBuffer buf = new StringBuffer();
                
            for (int i = start; i < directories.length - 1; i++)
            {
@@ -673,17 +673,18 @@ public class FileQueueHandler extends JPanel
                {
                    if (i == start)
                    {
-                       fileName = directories[i];
+                       buf.append(directories[i]);
                    } else
                    {
-                       fileName = fileName + "/" + directories[i];                       
+                       buf.append("/");
+                       buf.append(directories[i]);                     
                    }
                }
            }
 
-           fileName = fileName + "/" + file.getName();  
-           
-           return fileName;
+           buf.append("/");
+           buf.append(file.getName());
+           return buf.toString();
        }
     }
 

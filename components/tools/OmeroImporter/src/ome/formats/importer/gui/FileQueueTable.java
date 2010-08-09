@@ -691,6 +691,8 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
         public Component getTableCellRendererComponent(JTable table, Object value,
                 boolean isSelected, boolean hasFocus, int row, int column) {
 
+        	if (table == null) return null;
+        	
            // setBorder(UIManager.getBorder("TableHeader.cellBorder"));
             setBorder(BorderFactory.createLineBorder(new Color(0xe0e0e0)));
             setForeground(UIManager.getColor("TableHeader.foreground"));

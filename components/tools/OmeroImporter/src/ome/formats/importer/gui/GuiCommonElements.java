@@ -683,7 +683,7 @@ public class GuiCommonElements
         
         if (imgURL == null) 
         { 
-        	log.error("Couldn't find icon: " + imgURL);
+        	log.error("Couldn't find icon: " + path);
         	return null;
         }
         else

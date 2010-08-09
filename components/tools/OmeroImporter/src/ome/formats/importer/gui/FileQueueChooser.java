@@ -122,7 +122,7 @@ public class FileQueueChooser extends JFileChooser implements ActionListener
                         component = components[i];
                         System.err.println("Component " + i + " = " + component.getClass());
                     }
-                } catch (Exception e) {}
+                } catch (Exception e) { log.info("component exception ignore");}
             }
             
             if (laf.contains("AquaLookAndFeel"))
@@ -148,7 +148,7 @@ public class FileQueueChooser extends JFileChooser implements ActionListener
                     refreshBtn.setToolTipText("Refresh");
                     refreshBtn.setText(null);
                 	tb.add(refreshBtn,8);
-                } catch (Exception e) {}
+                } catch (Exception e) { log.info("Exception ignored.");}
             }
         	/* Disabled temporarily */
             else if (laf.contains("MetalLookAndFeel"))

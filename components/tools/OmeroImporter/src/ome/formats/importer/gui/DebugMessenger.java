@@ -78,12 +78,12 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
     private JPanel                  commentPanel;
     private JPanel                  debugPanel;
 
-    private JButton                 quitBtn;
-    private JButton                 cancelBtn;
-    private JButton                 sendBtn;
-    private JButton                 sendWithFilesBtn;
-    private JButton                 ignoreBtn;
-    private JButton                 copyBtn;
+    private static JButton                 quitBtn;
+    private static JButton                 cancelBtn;
+    private static JButton                 sendBtn;
+    private static JButton                 sendWithFilesBtn;
+    private static JButton                 ignoreBtn;
+    private static JButton                 copyBtn;
     
     private JTextPane 				instructions;
     
@@ -216,7 +216,7 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
         Object source = event.getSource();
         
         
-        if (source == quitBtn)
+        if (quitBtn != null && source == quitBtn)
         {
             if (GuiCommonElements.quitConfirmed(this, "Abandon your import and quit the application?") == true)
             {
@@ -225,12 +225,12 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
         }
         
         
-        if (source == cancelBtn)
+        if (cancelBtn != null && source == cancelBtn)
         {
             dispose();
         }
         
-        if (source == sendBtn)
+        if (sendBtn != null && source == sendBtn)
         {           
             emailText = emailTextField.getText();
             commentText = commentTextArea.getText();
@@ -252,15 +252,18 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
             }
         }
         
-        if (source == ignoreBtn)
+        if (ignoreBtn != null && source == ignoreBtn)
         {
             dispose();
         }
         
-        if (source == copyBtn)
+        if (copyBtn != null && source == copyBtn)
         {
-            debugTextPane.selectAll();
-            debugTextPane.copy();
+        	if (debugTextPane != null)
+        	{
+        		debugTextPane.selectAll();
+        		debugTextPane.copy();
+        	}
         }
     }
     
