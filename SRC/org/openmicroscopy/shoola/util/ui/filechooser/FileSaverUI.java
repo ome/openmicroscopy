@@ -537,9 +537,7 @@ class FileSaverUI
 			File f = (File) evt.getNewValue();
 			if (f == null) return;
 			//if (!f.getName().equals(original))
-			chooser.removePropertyChangeListener(this);
 			chooser.resetSelection();
-			chooser.addPropertyChangeListener(this);
 		}
 	}
 
