@@ -18,17 +18,23 @@ import omero.model.Shape;
 import org.testng.annotations.Test;
 
 /**
- *
+ * Collections of tests for the handling ROIs.
  */
 @Test(groups = { "client", "integration", "blitz" })
-public class RoisTest extends AbstractTest {
+public class RoisTest 
+	extends AbstractTest 
+{
 
+	/**
+	 * Tests the creation of ROIs with rectangular shapes and removes one shape.
+	 * @throws Exception  Thrown if an error occurred.
+	 */
     @Test(groups = "ticket:1679")
-    public void testTicket1679() throws Exception {
+    public void testRemoveShape() 
+    	throws Exception
+    {
 
         IRoiPrx roiService = factory.getRoiService();
-        RoiResult serverReturn;
-
         ImageI image = (ImageI) iUpdate.saveAndReturnObject(simpleImage(0));
         RoiI roi = new RoiI();
         RectI rect = new RectI();
@@ -52,8 +58,7 @@ public class RoisTest extends AbstractTest {
         Shape shape = serverROI.getShape(0);
         serverROI.removeShape(shape);
         serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
-        serverReturn = roiService.findByImage(image.getId().getValue(),
-                new RoiOptions());
+        roiService.findByImage(image.getId().getValue(), new RoiOptions());
     }
 
 }

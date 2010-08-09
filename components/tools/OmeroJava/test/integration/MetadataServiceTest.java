@@ -8,7 +8,6 @@ package integration;
 
 
 //Java imports
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -26,7 +25,6 @@ import org.testng.annotations.Test;
 //Application-internal dependencies
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
-import ome.model.annotations.ProjectAnnotationLink;
 import omero.api.IAdminPrx;
 import omero.api.IMetadataPrx;
 import omero.api.IPixelsPrx;
@@ -53,7 +51,6 @@ import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.Filter;
 import omero.model.FilterI;
-import omero.model.FilterSet;
 import omero.model.FilterType;
 import omero.model.IObject;
 import omero.model.Image;
@@ -104,7 +101,7 @@ import pojos.TextualAnnotationData;
  * @since 3.0-Beta4
  */
 public class MetadataServiceTest 
-	extends TestCase 
+	extends AbstractTest//TestCase 
 {
 
 	/** Identifies the file annotation. */
@@ -117,25 +114,25 @@ public class MetadataServiceTest
 	/** 
 	 * The client object, this is the entry point to the Server. 
 	 */
-    private omero.client client;
+    //private omero.client client;
     
     /**
      * A root-client object.
      */
-    private omero.client root;
+    //private omero.client root;
 
     /** Helper reference to the <code>Service factory</code>. */
-    private ServiceFactoryPrx factory;
+    //private ServiceFactoryPrx factory;
     
     
     /** Helper reference to the <code>IUpdate</code> service. */
-    private IUpdatePrx iUpdate;
+    //private IUpdatePrx iUpdate;
 
     /** Helper reference to the <code>IAdmin</code> service. */
     private IMetadataPrx iMetadata;
     
     /** Helper reference to the <code>IAdmin</code> service. */
-    private IAdminPrx iAdmin;
+    //private IAdminPrx iAdmin;
     
     /**
      * Creates and returns an original file object.
@@ -154,52 +151,23 @@ public class MetadataServiceTest
     }
     
     /**
-     * Creates a default image and returns it.
-     *
-     * @param time The acquisition time.
-     * @return See above.
-     */
-    private Image simpleImage(long time)
-    {
-        // prepare data
-        Image img = new ImageI();
-        img.setName(rstring("image1"));
-        img.setDescription(rstring("descriptionImage1"));
-        img.setAcquisitionDate(rtime(time));
-        return img;
-    }
-    
-    
-    /**
      * Initializes the various services.
      * @throws Exception Thrown if an error occurred.
      */
     @Override
     @BeforeClass
-    protected void setUp() throws Exception
+    protected void setUp() 
+    	throws Exception
     {
-        client = new omero.client();
-        factory = client.createSession();
-        iUpdate = factory.getUpdateService();
+        super.setUp();
         iMetadata = factory.getMetadataService();
-        iAdmin = factory.getAdminService();
         // administrator client
+        /*
         String rootpass = client.getProperty("omero.rootpass");
         root = new omero.client(new String[]{"--omero.user=root",
                 "--omero.pass=" + rootpass});
         root.createSession();
-    }
-
-    /**
-     * Closes the session.
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Override
-    @AfterClass
-    public void tearDown() throws Exception
-    {
-        client.__del__();
-        root.__del__();
+        */
     }
     
     /**

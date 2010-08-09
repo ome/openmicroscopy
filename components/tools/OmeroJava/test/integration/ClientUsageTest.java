@@ -7,10 +7,10 @@
 package integration;
 
 import static omero.rtypes.*;
-import junit.framework.TestCase;
-import omero.RString;
-import omero.api.ServiceFactoryPrx;
 
+import java.util.UUID;
+
+import omero.RString;
 import org.testng.annotations.Test;
 
 /**
@@ -19,7 +19,7 @@ import org.testng.annotations.Test;
  * environment variable.
  */
 public class ClientUsageTest 
-	extends TestCase
+	extends AbstractTest
 {
  
     /**
@@ -30,8 +30,9 @@ public class ClientUsageTest
     public void testClientClosedAutomatically() 
     	throws Exception
     {
-        omero.client client = new omero.client();
-        client.createSession();
+    	client = new omero.client(root.getPropertyMap());
+        String uuid = UUID.randomUUID().toString();
+        client.createSession(uuid, uuid);
         client.getSession().closeOnDestroy();
     }
 
@@ -44,7 +45,8 @@ public class ClientUsageTest
     	throws Exception
     {
         omero.client client = new omero.client();
-        client.createSession();
+        String uuid = UUID.randomUUID().toString();
+        client.createSession(uuid, uuid);
         client.getSession().closeOnDestroy();
         client.closeSession();
     }

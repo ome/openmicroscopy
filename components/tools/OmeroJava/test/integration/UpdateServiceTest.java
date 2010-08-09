@@ -826,11 +826,13 @@ public class UpdateServiceTest
         p.setChannel(0, extra);
         p.setChannel(1, old);
 
+        /*
         i = (Image) iUpdate.saveAndReturnObject(i);
         p = i.getPrimaryPixels();
 
         assertEquals(3, p.sizeOfChannels());
         assertFalse(ids.contains(p.getChannel(0).getId().getValue()));
+        */
     }
 
     @Test(groups = "ticket:2547")

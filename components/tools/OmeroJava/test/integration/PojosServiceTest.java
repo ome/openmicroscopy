@@ -77,35 +77,17 @@ import pojos.TextualAnnotationData;
  */
 @Test(groups = { "client", "integration", "blitz" })
 public class PojosServiceTest 
-	extends TestCase 
+	extends AbstractTest//TestCase 
 {
 
 	/** Reference to the log. */
     protected static Log log = LogFactory.getLog(PojosServiceTest.class);
 
-	/** 
-	 * The client object, this is the entry point to the Server. 
-	 */
-    private omero.client client;
-
-    private omero.client root;
-    
-    /** Helper reference to the <code>Service factory</code>. */
-    private ServiceFactoryPrx factory;
-    
     /** Reference to class used to create data object. */
     CreatePojosFixture2 fixture;
 
-    //OMEData data;
-
     /** Helper reference to the <code>IContainer</code> service. */
     private IContainerPrx iContainer;
-
-    /** Helper reference to the <code>IQuery</code> service. */
-    private IQueryPrx iQuery;
-
-    /** Helper reference to the <code>IUpdate</code> service. */
-    private IUpdatePrx iUpdate;
     
     /** Used to filter by group. */
     private Parameters GROUP_FILTER;
@@ -174,23 +156,7 @@ public class PojosServiceTest
      * @return See above.
      */
     private Image simpleImage() { return simpleImage(0); }
-
-    /**
-     * Creates a default image and returns it.
-     * 
-     * @param time The acquisition time.
-     * @return See above.
-     */
-    private Image simpleImage(long time)
-    {
-        // prepare data
-        Image img = new ImageI();
-        img.setName(rstring("image1"));
-        img.setDescription(rstring("descriptionImage1"));
-        img.setAcquisitionDate(rtime(time));
-        return img;
-    }
-
+    
     /**
      * Creates a default dataset and returns it.
      * 
@@ -344,6 +310,7 @@ public class PojosServiceTest
     protected void setUp() 
     	throws Exception 
     {   
+    	/*
         client = new omero.client();
         factory = client.createSession();
         iContainer = factory.getContainerService();
@@ -352,6 +319,9 @@ public class PojosServiceTest
 
         root = new omero.client();
         root.createSession("root", client.getProperty("omero.rootpass"));
+        */
+    	super.setUp();
+    	iContainer = factory.getContainerService();
         fixture = CreatePojosFixture2.withNewUser(root);
         fixture.createAllPojos();
 
@@ -363,14 +333,16 @@ public class PojosServiceTest
      * Closes the session.
      * @throws Exception Thrown if an error occurred.
      */
-    @Override
+   
+    /*
+     *  @Override
     @AfterClass
     public void tearDown() 
     	throws Exception 
     {
         client.__del__();
         root.__del__();
-    }
+    }*/
 
     /**
      * Test to delete an newly created image.
