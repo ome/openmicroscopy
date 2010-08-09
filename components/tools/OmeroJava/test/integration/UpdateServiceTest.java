@@ -814,8 +814,9 @@ public class UpdateServiceTest
         p = i.getPrimaryPixels();
 
         Set<Long> ids = new HashSet<Long>();
+        Channel old = p.getChannel(0);
         assertEquals(3, p.sizeOfChannels());
-        assertNotNull(p.getChannel(0));
+        assertNotNull(old);
         ids.add(p.getChannel(0).getId().getValue());
 
         // Middle should be empty
@@ -826,17 +827,21 @@ public class UpdateServiceTest
 
         // Now add a channel to the front
         Channel extra = createChannel();
-        Channel old = p.getChannel(0);
-        p.setChannel(0, extra);
+        
+        //p.setChannel(0, extra);
         p.setChannel(1, old);
-
-        /*
+        
         i = (Image) iUpdate.saveAndReturnObject(i);
+        p = i.getPrimaryPixels();
+        
+        
+        p.setChannel(0, extra);
+        i = (Image) iUpdate.saveAndReturnObject(i);
+        
         p = i.getPrimaryPixels();
 
         assertEquals(3, p.sizeOfChannels());
         assertFalse(ids.contains(p.getChannel(0).getId().getValue()));
-        */
     }
 
     @Test(groups = "ticket:2547")
