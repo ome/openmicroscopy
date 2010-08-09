@@ -5,19 +5,22 @@
 {% block meta %}<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">{% endblock %}
 
 {% block link %} 
-    <link rel="stylesheet" href="{% url webmobile 'css/index.css' %}" type="text/css" />
+    <link rel="stylesheet" href="{% url mobile_static 'css/index.css' %}" type="text/css" />
 {% endblock %}
 
 {% block jscript %}
-    <script type="text/javascript" src="{% url webmobile 'js/index.js' %}"></script>
+    <script type="text/javascript" src="{% url mobile_static 'js/index.js' %}"></script>
 {% endblock %}
 
 
 {% block body %}
 <div class="header">
     <div class="title">OMERO mobile</div>  
-    <div class="details">User: {{ client.user.getName }} Group: {{ client.getGroupFromContext.getName }} </div>
+    <div class="logout"><a href="{% url webmobile_logout %}">logout</a></div>
+    <div class="details">User: {{ client.user.getName }} Group: {{ client.getEventContext.groupName }} </div>
+    
 </div>
+<div class="clear"></div>
 
 <div class="projects">
 {% for proj in client.listProjects %}
@@ -29,13 +32,14 @@
         <div class="dataset" href="{% url webmobile.views.dataset ds.id %}">
             <div class="dataset-name"> {{ ds.getName|slice:":20" }} </div>
         </div>
-        <div class="thumbs"></div>
+        <ul class="thumbs"></ul>
+        <div class="clear"></div>
     {% endfor %}
+    
     </div>
     
 {% endfor %}
 </div>
-<hr>
-<a href="{% url webmobile_logout %}">logout</a>
+<div class="clear"></div>
 
 {% endblock %}

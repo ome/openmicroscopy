@@ -13,8 +13,6 @@ urlpatterns = patterns('',
     url( r'^dataset/(?P<id>[0-9]+)/$', views.dataset, name='webmobile_dataset' ),
     url( r'^viewer/(?P<imageId>[0-9]+)/$', views.viewer, name='webmobile_viewer' ),
     
-    # define the sym link for media. 
-    url( r'appmedia/webmobile/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.dirname(__file__), 'media', 'webmobile').replace('\\','/') }, name="webmobile" ),
-    
+    url(r'^appmedia/(?P<path>.*)$', 'django.views.static.serve', {'document_root': 'webmobile/media'}, name="mobile_static"),
 )
 

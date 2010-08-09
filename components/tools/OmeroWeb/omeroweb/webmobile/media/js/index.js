@@ -9,7 +9,7 @@ $(document).ready(function() {
            .hide()
            .appendTo('body');
     var $waitThrobber = $('<img/>')
-        .attr('src', 'images/wait.gif')
+        .attr('src', '/webmobile/appmedia/img/wait.gif')
         .addClass('control')
         .css('z-index', 4)
         .hide();
@@ -47,7 +47,7 @@ $(document).ready(function() {
                endPos.top = startPos.top - 78;
                endPos.left = (w-endPos.width)/2;    // align middle
                
-               $enlargedCover.attr('src', $(this).attr('href'))
+               $enlargedCover.attr('src',$(this).children().filter('img').attr('src'))
                     .hide()
                     .css(startPos);
                  //.show();

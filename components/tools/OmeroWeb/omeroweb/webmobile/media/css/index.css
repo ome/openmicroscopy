@@ -1,0 +1,100 @@
+body {
+    font-family:Helvetica;
+    font-size:20px;
+    font-weight:bold;
+    color:#666;
+    padding:0px;
+    margin:0px;
+    background:url(/webmobile/appmedia/img/pinstripes.png) repeat scroll 0 0 #C5CCD3;
+}
+.header {
+    padding: 12px;
+    background:url(/webmobile/appmedia/img/toolbar.png) repeat-x scroll 0 0 #6D84A2;
+    color:#fff;
+}
+.logout {
+    margin:10px;
+    position: absolute;
+    top:0;
+    right:0;
+    
+}
+.details {
+    font-size: 16px;
+}
+.projects {
+    border: 1px 0 solid gray;
+}
+.project {
+    border: 1px solid gray;
+    background-color:#fff;
+    margin: 10px;
+}
+.project-name {padding: 12px;}
+.datasets {
+    margin-left: 10px;
+}
+.dataset {
+    border: 1px solid gray;
+    background-color:#fff; 
+    margin: 0 10px;
+}
+.dataset-name {padding: 12px; }
+
+.thumbs {
+    list-style-type: none;
+    margin: 0; 
+    padding: 2px; 
+    top: 0; 
+    left: 0;
+    position: relative;
+}
+
+.thumbs li {
+    border: 0px;
+    float: left;
+    text-align: center;
+    height: 90px;
+    width: 90px;
+    margin: 5px; 
+}
+
+.thumbnail img {
+    display:inline;
+    border:1px solid gray;
+    height:auto; 
+    width: auto;
+}
+
+.linkClass {
+  background-color: #373c40;
+  color: #fff;
+  width: 80px;
+  padding: 5px;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: right;
+  position: absolute;
+  z-index: 6;
+  cursor: pointer;
+}
+
+img.enlarged {
+  position: absolute;
+  z-index: 5;
+  cursor: pointer;
+}
+
+.clear {
+    clear: both;
+}
+a {
+    color: #333;
+    text-decoration: none;
+    border: none;
+}
+a:hover,a:link,a:visited {
+    color: #333;
+    text-decoration: none;
+    border: none;
+}
