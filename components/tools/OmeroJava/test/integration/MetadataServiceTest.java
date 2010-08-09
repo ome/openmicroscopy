@@ -111,32 +111,13 @@ public class MetadataServiceTest
 	/** Reference to the log. */
     protected static Log log = LogFactory.getLog(MetadataServiceTest.class);
 
-	/** 
-	 * The client object, this is the entry point to the Server. 
-	 */
-    //private omero.client client;
-    
-    /**
-     * A root-client object.
-     */
-    //private omero.client root;
-
-    /** Helper reference to the <code>Service factory</code>. */
-    //private ServiceFactoryPrx factory;
-    
-    
-    /** Helper reference to the <code>IUpdate</code> service. */
-    //private IUpdatePrx iUpdate;
-
     /** Helper reference to the <code>IAdmin</code> service. */
     private IMetadataPrx iMetadata;
     
-    /** Helper reference to the <code>IAdmin</code> service. */
-    //private IAdminPrx iAdmin;
-    
     /**
      * Creates and returns an original file object.
-     * @return
+     * 
+     * @return See above.
      */
     private OriginalFileI createOriginalFile()
     {
@@ -161,13 +142,6 @@ public class MetadataServiceTest
     {
         super.setUp();
         iMetadata = factory.getMetadataService();
-        // administrator client
-        /*
-        String rootpass = client.getProperty("omero.rootpass");
-        root = new omero.client(new String[]{"--omero.user=root",
-                "--omero.pass=" + rootpass});
-        root.createSession();
-        */
     }
     
     /**

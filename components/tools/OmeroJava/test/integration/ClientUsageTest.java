@@ -11,6 +11,15 @@ import static omero.rtypes.*;
 import java.util.UUID;
 
 import omero.RString;
+import omero.client;
+import omero.api.IAdminPrx;
+import omero.api.ServiceFactoryPrx;
+import omero.model.Experimenter;
+import omero.model.ExperimenterGroup;
+import omero.model.ExperimenterGroupI;
+import omero.model.ExperimenterI;
+import omero.model.PermissionsI;
+
 import org.testng.annotations.Test;
 
 /**
@@ -30,24 +39,19 @@ public class ClientUsageTest
     public void testClientClosedAutomatically() 
     	throws Exception
     {
-    	client = new omero.client(root.getPropertyMap());
-        String uuid = UUID.randomUUID().toString();
+    	IAdminPrx svc = root.getSession().getAdminService();
+    	String uuid = UUID.randomUUID().toString();
+    	Experimenter e = new ExperimenterI();
+    	e.setOmeName(omero.rtypes.rstring(uuid));
+    	e.setFirstName(omero.rtypes.rstring("integeration"));
+    	e.setLastName(omero.rtypes.rstring("tester"));
+    	ExperimenterGroup g = new ExperimenterGroupI();
+    	g.setName(omero.rtypes.rstring(uuid));
+    	g.getDetails().setPermissions(new PermissionsI("rw----"));
+    	svc.createGroup(g);
+    	svc.createUser(e, uuid);
+    	client = new omero.client();
         client.createSession(uuid, uuid);
-        client.getSession().closeOnDestroy();
-    }
-
-    /**
-     * Closes manually the session.
-     * @throws Exception If an error occurred.
-     */
-    @Test
-    public void testClientClosedManually() 
-    	throws Exception
-    {
-        omero.client client = new omero.client();
-        String uuid = UUID.randomUUID().toString();
-        client.createSession(uuid, uuid);
-        client.getSession().closeOnDestroy();
         client.closeSession();
     }
 
@@ -58,9 +62,20 @@ public class ClientUsageTest
     @Test
     public void testUseSharedMemory()
     	throws Exception
-    	{
-        omero.client client = new omero.client();
-        client.createSession();
+    {
+    	IAdminPrx svc = root.getSession().getAdminService();
+    	String uuid = UUID.randomUUID().toString();
+    	Experimenter e = new ExperimenterI();
+    	e.setOmeName(omero.rtypes.rstring(uuid));
+    	e.setFirstName(omero.rtypes.rstring("integeration"));
+    	e.setLastName(omero.rtypes.rstring("tester"));
+    	ExperimenterGroup g = new ExperimenterGroupI();
+    	g.setName(omero.rtypes.rstring(uuid));
+    	g.getDetails().setPermissions(new PermissionsI("rw----"));
+    	svc.createGroup(g);
+    	svc.createUser(e, uuid);
+    	client = new omero.client();
+        client.createSession(uuid, uuid);
 
         assertEquals(0, client.getInputKeys().size());
         client.setInput("a", rstring("b"));
@@ -79,10 +94,22 @@ public class ClientUsageTest
     public void testCreateInsecureClientTicket2099()
     	throws Exception
     {
-        omero.client secure = new omero.client();
+        IAdminPrx svc = root.getSession().getAdminService();
+    	String uuid = UUID.randomUUID().toString();
+    	Experimenter e = new ExperimenterI();
+    	e.setOmeName(omero.rtypes.rstring(uuid));
+    	e.setFirstName(omero.rtypes.rstring("integeration"));
+    	e.setLastName(omero.rtypes.rstring("tester"));
+    	ExperimenterGroup g = new ExperimenterGroupI();
+    	g.setName(omero.rtypes.rstring(uuid));
+    	g.getDetails().setPermissions(new PermissionsI("rw----"));
+    	svc.createGroup(g);
+    	svc.createUser(e, uuid);
+    	client secure = new omero.client();
+    	ServiceFactoryPrx factory = secure.createSession(uuid, uuid);
         assertTrue(secure.isSecure());
         try {
-            secure.createSession().getAdminService().getEventContext();
+        	factory.getAdminService().getEventContext();
             omero.client insecure = secure.createClient(false);
             try {
                 insecure.getSession().getAdminService().getEventContext();
