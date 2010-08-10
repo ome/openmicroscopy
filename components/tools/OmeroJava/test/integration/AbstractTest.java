@@ -46,6 +46,8 @@ import omero.model.OriginalFileI;
 import omero.model.Permissions;
 import omero.model.PermissionsI;
 import omero.model.Pixels;
+import omero.model.PlaneInfo;
+import omero.model.PlaneInfoI;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
@@ -109,6 +111,7 @@ public class AbstractTest
 
     /** Helper reference to the <code>IAdmin</code> service. */
     protected IAdminPrx iAdmin;
+    
     
     // ~ Helpers
     // =========================================================================
@@ -317,4 +320,19 @@ public class AbstractTest
         return (Channel) mapper.map(ObjectFactory.createChannel(null));
     }
     
+    /**
+     * Creates a plane info object.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected PlaneInfo createPlaneInfo()
+   		throws Exception
+    {
+        PlaneInfo planeInfo = new PlaneInfoI();
+        planeInfo.setTheZ(omero.rtypes.rint(0));
+        planeInfo.setTheC(omero.rtypes.rint(0));
+        planeInfo.setTheT(omero.rtypes.rint(0));
+        planeInfo.setDeltaT(omero.rtypes.rdouble(0.5));
+        return planeInfo;
+    }
 }

@@ -22,11 +22,14 @@ import junit.framework.TestCase;
 import ome.testing.ObjectFactory;
 import omero.OptimisticLockException;
 import omero.RInt;
+import omero.RLong;
+import omero.RString;
 import omero.RType;
 import omero.api.IAdminPrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
+import omero.grid.Param;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLinkI;
 import omero.model.BooleanAnnotation;
@@ -40,6 +43,8 @@ import omero.model.DatasetAnnotationLinkI;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
+import omero.model.Details;
+import omero.model.DimensionOrder;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
@@ -57,6 +62,7 @@ import omero.model.OriginalFile;
 import omero.model.Permissions;
 import omero.model.PermissionsI;
 import omero.model.Pixels;
+import omero.model.PlaneInfo;
 import omero.model.Plate;
 import omero.model.PlateAnnotationLink;
 import omero.model.PlateAnnotationLinkI;
@@ -81,6 +87,8 @@ import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import Ice.Current;
 
 import pojos.DatasetData;
 import pojos.ImageData;
@@ -359,18 +367,42 @@ public class UpdateServiceTest
     public void testEmptyImage() 
     	throws Exception
     {
-    	Image data = new ImageI();
-        data.setName(rstring("image1"));
-        data.setDescription(rstring("descriptionImage1"));
-        data.setAcquisitionDate(rtime(0));
         Image p = (Image) 
-        	factory.getUpdateService().saveAndReturnObject(data);
+        	factory.getUpdateService().saveAndReturnObject(simpleImage(0));
         ImageData img = new ImageData(p);
     	assertNotNull(p);
     	assertTrue(p.getId().getValue() > 0);
     	assertTrue(p.getId().getValue() == img.getId());
     	assertTrue(p.getName().getValue() == img.getName());
     	assertTrue(p.getDescription().getValue() == img.getDescription());
+    }
+    
+    /**
+     * Tests the creation of an image with a set of pixels.
+     * @throws Exception Thrown if an error occurred.
+     */
+    public void testCreateImageWithPixels()
+    	throws Exception 
+    {
+    	Image img = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
+    	assertNotNull(img);
+    	Pixels pixels = createPixels();
+    	img.addPixels(pixels);
+    	img = (Image) iUpdate.saveAndReturnObject(img);
+    	
+    	ParametersI param = new ParametersI();
+    	param.addId(img.getId().getValue());
+
+    	StringBuilder sb = new StringBuilder();
+    	sb.append("select i from Image i ");
+    	sb.append("left outer join fetch i.pixels as pix ");
+        sb.append("left outer join fetch pix.pixelsType as pt ");
+    	sb.append("where i.id = :id");
+    	img = (Image) iQuery.findByQuery(sb.toString(), param);
+    	assertNotNull(img);
+    	//Make sure we have a pixels set.
+    	pixels = img.getPixels(0);
+    	assertNotNull(pixels);
     }
     
     /**
@@ -945,29 +977,33 @@ public class UpdateServiceTest
     	link.setParent(tagSetReturned);
     	IObject l = iUpdate.saveAndReturnObject(link); //save the link.
     	assertNotNull(l);
-    	
-    	 ParametersI param = new ParametersI();
-         param.addId(l.getId());
-        
-         StringBuilder sb = new StringBuilder();
-         sb.append("select l from AnnotationAnnotationLink l ");
-         sb.append("left outer join fetch l.child c ");
-         sb.append("left outer join fetch l.parent p ");
-         sb.append("where l.id = :id");
-         AnnotationAnnotationLinkI lReturned = (AnnotationAnnotationLinkI) 
-         iQuery.findByQuery(sb.toString(), param);
-         assertNotNull(lReturned.getChild());
-         assertNotNull(lReturned.getParent());
-         assertTrue(lReturned.getChild().getId().getValue() 
-        		 == tagReturned.getId().getValue());
-         assertTrue(lReturned.getParent().getId().getValue() 
-        		 == tagSetReturned.getId().getValue());
+
+    	ParametersI param = new ParametersI();
+    	param.addId(l.getId());
+
+    	StringBuilder sb = new StringBuilder();
+    	sb.append("select l from AnnotationAnnotationLink l ");
+    	sb.append("left outer join fetch l.child c ");
+    	sb.append("left outer join fetch l.parent p ");
+    	sb.append("where l.id = :id");
+    	AnnotationAnnotationLinkI lReturned = (AnnotationAnnotationLinkI) 
+    	iQuery.findByQuery(sb.toString(), param);
+    	assertNotNull(lReturned.getChild());
+    	assertNotNull(lReturned.getParent());
+    	assertTrue(lReturned.getChild().getId().getValue() 
+    			== tagReturned.getId().getValue());
+    	assertTrue(lReturned.getParent().getId().getValue() 
+    			== tagSetReturned.getId().getValue());
     }
 
     //
     // The following are duplicated in ome.server.itests.update.UpdateTest
     //
     
+    /**
+     * Test the creation and handling of channels.
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test(groups = "ticket:2547")
     public void testChannelMoveWithFullArrayGoesToEnd() 
     	throws Exception
@@ -993,9 +1029,12 @@ public class UpdateServiceTest
 
         assertEquals(4, p.sizeOfChannels());
         assertFalse(ids.contains(p.getChannel(3).getId().getValue()));
-
     }
 
+    /**
+     * Test the creation and handling of channels.
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test(groups = "ticket:2547")
     public void testChannelMoveWithSpaceFillsSpace() 
     	throws Exception
@@ -1037,6 +1076,10 @@ public class UpdateServiceTest
         assertFalse(ids.contains(p.getChannel(0).getId().getValue()));
     }
 
+    /**
+     * Test the creation and handling of channels.
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test(groups = "ticket:2547")
     public void testChannelToSpaceChangesNothing() 
     	throws Exception
@@ -1069,4 +1112,27 @@ public class UpdateServiceTest
         assertFalse(ids.contains(p.getChannel(1).getId().getValue()));
     }
 
+    /**
+     * Tests the creation of plane information objects.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(groups = "ticket:168")
+    public void testPlaneInfoSetPixelsSavePixels() 
+    	throws Exception 
+    {
+    	/*
+    	Pixels p = createPixels();
+        p.clearPlaneInfo();
+        PlaneInfo planeInfo = createPlaneInfo();
+        planeInfo.setPixels(p);
+        p = (Pixels) iUpdate.saveAndReturnObject(p);
+        ParametersI param = new ParametersI();
+    	param.addId(p.getId());
+        PlaneInfo test = (PlaneInfo) iQuery.findByQuery(
+                "select pi from PlaneInfo pi " + "where pi.pixels.id = :id",
+                param);
+        assertNull(test);
+        */
+    }
+    
 }

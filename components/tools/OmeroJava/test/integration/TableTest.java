@@ -52,24 +52,7 @@ public class TableTest
     protected int STRING_COLUMN = 2;
     
     protected long[] ColNumbers = {UID_COLUMN, LONG_COLUMN, STRING_COLUMN};
-    
-	/** 
-	 * The client object, this is the entry point to the Server. 
-	 */
-    //protected omero.client client = null;
-    
-    /** Helper reference to the <code>Service factory</code>. */
-    //protected ServiceFactoryPrx  sf;
-    
-    /** Helper reference to the <code>IQuery</code> service. */
-    //protected IQueryPrx iQuery;
-    
-    /** Helper reference to the <code>IAdmin</code> service. */
-    //protected IAdminPrx iAdmin;
-    
-    /** Helper reference to the <code>IUpdate</code> service. */
-    //protected IUpdatePrx iUpdate;
-    
+
     /** Reference to the columns. */
     protected Column[] myColumns;
     

@@ -14,7 +14,6 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -29,17 +28,12 @@ import org.testng.annotations.Test;
 
 //Application-internal dependencies
 import omero.RType;
-import omero.ServerError;
 import omero.api.IAdminPrx;
 import omero.api.IContainerPrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
-import omero.model.Annotation;
-import omero.model.CommentAnnotation;
-import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
-import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.Experimenter;
@@ -49,6 +43,7 @@ import omero.model.ExperimenterI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.PermissionsI;
+import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
@@ -61,6 +56,7 @@ import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.PixelsData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -87,7 +83,29 @@ public class PojosServiceTest
     /** Helper reference to the <code>IContainer</code> service. */
     private IContainerPrx iContainer;
 
-   
+    /**
+     * Makes sure that the pixels set is loaded.
+     * 
+     * @param pixels The pixels to handle.
+     * @throws Exception Thrown if an error occurred.
+     */
+    private void checkPixels(PixelsData pixels)
+    	throws Exception 
+    {
+    	assertNotNull(pixels);
+		assertNotNull(pixels.getPixelSizeX());
+        assertNotNull(pixels.getPixelSizeY());
+        assertNotNull(pixels.getPixelSizeZ());
+        assertNotNull(pixels.getPixelType());
+        assertNotNull(pixels.getImage());
+        assertNotNull(pixels.getOwner());
+        assertNotNull(pixels.getSizeC());
+        assertNotNull(pixels.getSizeT());
+        assertNotNull(pixels.getSizeZ());
+        assertNotNull(pixels.getSizeY());
+        assertNotNull(pixels.getSizeX());
+    }
+    
     /**
      * Initializes the various services.
      * 
@@ -104,47 +122,6 @@ public class PojosServiceTest
         fixture.createAllPojos();
     }
 
-    /**
-     * Test to delete an newly created image.
-     * 
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testCreateAndDeleteBasicImage() 
-    	throws Exception 
-    {
-    	/*
-        ImageData imgData = simpleImageData();
-        Image img = (Image) imgData.asIObject();
-
-        assertNull("Image doesn't have an id.", img.getId());
-        
-        img = (Image) iContainer.createDataObject(img, null);
-        assertNotNull("Presto change-o, now it does.", img.getId());
-        
-        //Delete the image.
-        iContainer.deleteDataObject(img, null);
-
-        //Retrieve the image.
-        img = (Image) iQuery.find(Image.class.getName(), 
-        		img.getId().getValue());
-        assertNull("we should have deleted it ", img);
-        */
-    }
-    
-    /**
-     * Test to delete an newly created image.
-     * 
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testCreateAndDeleteBasicImageWithPixels() 
-    	throws Exception 
-    {
-        //TODO
-
-    }
-    
     /**
      * Test to load container hierarchy with project specified.
      * @throws Exception Thrown if an error occurred.
@@ -417,12 +394,59 @@ public class PojosServiceTest
 			} 
 		}
     }
-
+    
+    /**
+     * Test to load container hierarchy with dataset specified
+     * and loads the images. We then make sure that the default pixels
+     * are loaded.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(groups = {"ticket:401", "ticket:221"})
+    public void testLoadContainerHierarchyDatasetSpecifiedAndLeavesWithDefaultPixels() 
+    	throws Exception 
+    {
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			simpleDatasetData().asIObject());
+    	Image img = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
+    	Pixels pixels = createPixels();
+    	img.addPixels(pixels);
+    	img = (Image) iUpdate.saveAndReturnObject(img);
+    	//link the 2
+    	DatasetImageLink link = new DatasetImageLinkI();
+    	link.setParent(d);
+    	link.setChild(img);
+    	iUpdate.saveAndReturnObject(link);
+    	ParametersI param = new ParametersI();
+    	param.leaves();
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(d.getId().getValue());
+        List results = iContainer.loadContainerHierarchy(
+        		Dataset.class.getName(), ids, param);
+        assertTrue(results.size() == 1);
+        Iterator i = results.iterator();
+        DatasetData dataset;
+        Set<ImageData> images;
+        Iterator<ImageData> j;
+        ImageData image;
+        PixelsData pixelsData;
+        while (i.hasNext()) {
+			dataset = new  DatasetData((Dataset) i.next());
+			if (dataset.getId() == d.getId().getValue()) {
+				images = dataset.getImages();
+				assertTrue(images.size() == 1);
+				j = images.iterator();
+				while (j.hasNext()) {
+					image = j.next();
+					checkPixels(image.getDefaultPixels());
+				}
+			} 
+		}
+    }
+    
     /**
      * Test to the collection count method.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
     public void testCollectionCountForDataset() 
     	throws Exception 
     {
@@ -602,6 +626,52 @@ public class PojosServiceTest
 			if (img.getId().getValue() == i1.getId().getValue())
 				count++;
 				
+		}
+    	assertTrue(count == 1);
+    	param = new ParametersI();
+    	param.exp(rlong(fixture.e.getId().getValue()));
+    	images = iContainer.getImages(Dataset.class.getName(), ids, 
+    			param);
+    	assertTrue(images.size() == 0);
+    }
+
+    /**
+     * Tests the retrieval of images filtering by owners. Those images
+     * will have a pixels set.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(groups = "ticket:318")
+    public void testGetImagesByOwnerWithPixels() 
+    	throws Exception
+    {
+    	Image i1 = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
+    	Pixels pixels = createPixels();
+    	i1.addPixels(pixels);
+    	i1 = (Image) iUpdate.saveAndReturnObject(i1);
+    	
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			simpleDatasetData().asIObject());
+    	DatasetImageLink link = new DatasetImageLinkI();
+    	link.setParent(d);
+    	link.setChild(i1);
+    	iUpdate.saveAndReturnObject(link);
+    	ParametersI param = new ParametersI();
+    	List<Long> ids = new ArrayList<Long>(1);
+    	ids.add(d.getId().getValue());
+    	List<Image> images = iContainer.getImages(Dataset.class.getName(), ids, 
+    			param);
+    	assertTrue(images.size() > 0);
+    	Iterator<Image> i = images.iterator();
+    	Image img;
+    	int count = 0;
+    	PixelsData pixelsData;
+    	while (i.hasNext()) {
+			img = i.next();
+			if (img.getId().getValue() == i1.getId().getValue()) {
+				pixelsData = new PixelsData(img.getPixels(0));
+				checkPixels(pixelsData);
+				count++;
+			}	
 		}
     	assertTrue(count == 1);
     	param = new ParametersI();
