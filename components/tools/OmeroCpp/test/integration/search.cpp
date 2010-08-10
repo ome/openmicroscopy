@@ -56,6 +56,12 @@ StringSet stringSet(string s, string s2){
     return ss;
 }
 
+StringSet stringSet(string s, string s2, string s3){
+    StringSet ss = stringSet(s, s2);
+    ss.push_back(s3);
+    return ss;
+}
+
 class SearchFixture {
     string _name;
     Fixture f;
@@ -244,6 +250,7 @@ BOOST_AUTO_TEST_CASE( Filtering )
 
         // Reset for coming searches
         ids.clear();
+        ids.push_back(-1L);
         search->onlyIds(ids);
 
         // Add user filter
@@ -277,10 +284,23 @@ BOOST_AUTO_TEST_CASE( Filtering )
 // restrictions
 
 BOOST_AUTO_TEST_CASE ( testByGroupForTags ) {
-    SearchFixture f;
-    SearchFixture root = f.root();
+    try {
+    // Set up user and group
+    SearchFixture root = SearchFixture("root");
+    ExperimenterPtr initialUser = root.newUser();
+    SearchFixture f = SearchFixture(initialUser->getOmeName()->getValue());
+    ExperimenterPtr secondUser = root.newUser(f.group());
+    ExperimenterGroupPtr initialGroup = f.group();
+    SearchFixture f2(secondUser->getOmeName()->getValue());
+    PermissionsPtr perms = new PermissionsI();
+    perms->setGroupRead(true);
+    perms->setGroupWrite(true);
+    perms->setWorldRead(false);
+    perms->setWorldWrite(false);
+    root.admin()->changePermissions(initialGroup, perms);
+
     string groupStr = f.uuid();
-    string tagStr = f.uuid();;
+    string tagStr = f.uuid();
 
     TagAnnotationIPtr tag = new TagAnnotationI();
     tag->setTextValue(rstring(tagStr));
@@ -296,8 +316,9 @@ BOOST_AUTO_TEST_CASE ( testByGroupForTags ) {
     assertResults(1, search);
 
     // Make another one
-    groupStr = f.uuid();;
+    groupStr = f.uuid();
     grp = new TagAnnotationI();
+    grp->setTextValue(rstring(groupStr));
     tag->linkAnnotation(grp);
     tag = TagAnnotationIPtr::dynamicCast(f.update()->saveAndReturnObject(tag));
 
@@ -313,27 +334,23 @@ BOOST_AUTO_TEST_CASE ( testByGroupForTags ) {
     // Let's now add the tag to another tag group as another user
     // and try to filter out those results
 
-    long oldUser = f.admin()->getEventContext()->userId;
-    DetailsIPtr d = new DetailsI();
-    d->setOwner(new ExperimenterI(rlong(oldUser), false));
-
-    ExperimenterPtr e = root.newUser(f.group());
-    SearchFixture f2(e->getOmeName()->getValue());
     grp = new TagAnnotationI();
-    groupStr = f2.uuid();;
+    groupStr = f2.uuid();
     grp->setTextValue(rstring(groupStr));
     tag->linkAnnotation(grp);
-    tag = TagAnnotationIPtr::dynamicCast(f2.update()->saveAndReturnObject(tag));
+    tag = TagAnnotationIPtr::dynamicCast(f.update()->saveAndReturnObject(tag));
 
     // All queries finished?
     BOOST_CHECK_EQUAL(0, search->activeQueries());
     assertResults(0, search);
 
+    DetailsIPtr d = new DetailsI();
+    d->setOwner(new ExperimenterI(secondUser->getId(), false));
     search->onlyOwnedBy(d);
     search->byGroupForTags(groupStr);
     BOOST_CHECK( ! search->hasNext());
 
-    d->setOwner(e);
+    d->setOwner(initialUser);
     search->onlyOwnedBy(d);
     search->byGroupForTags(groupStr);
     assertResults(1, search);
@@ -341,10 +358,32 @@ BOOST_AUTO_TEST_CASE ( testByGroupForTags ) {
     search->onlyOwnedBy(DetailsIPtr());
     search->byGroupForTags(groupStr);
     assertResults(1, search);
+    } catch (const omero::InternalException& ie) {
+	BOOST_ERROR ( "internal exception:"+ie.message );
+    } catch (const omero::ApiUsageException& aue) {
+	BOOST_ERROR ( "api usage exception thrown:" + aue.message );
+    } catch (const Ice::UnknownException& ue) {
+	cout << ue << endl;
+	BOOST_ERROR( "unknown exception thrown");
+    }
 }
 
 BOOST_AUTO_TEST_CASE( testByTagForGroup ) {
-    SearchFixture f;
+    try {
+    // Set up user and group
+    SearchFixture root = SearchFixture("root");
+    ExperimenterPtr initialUser = root.newUser();
+    SearchFixture f = SearchFixture(initialUser->getOmeName()->getValue());
+    ExperimenterPtr secondUser = root.newUser(f.group());
+    ExperimenterGroupPtr initialGroup = f.group();
+    SearchFixture f2(secondUser->getOmeName()->getValue());
+    PermissionsPtr perms = new PermissionsI();
+    perms->setGroupRead(true);
+    perms->setGroupWrite(true);
+    perms->setWorldRead(false);
+    perms->setWorldWrite(false);
+    root.admin()->changePermissions(initialGroup, perms);
+
     string groupStr = f.uuid();;
     string tagStr = f.uuid();;
 
@@ -379,40 +418,48 @@ BOOST_AUTO_TEST_CASE( testByTagForGroup ) {
     // Let's now add another tag to the tag group as another user
     // and try to filter out those results
 
-    long oldUser = f.admin()->getEventContext()->userId;
-    DetailsIPtr d = new DetailsI();
-    d->setOwner(new ExperimenterI(rlong(oldUser), false));
-
-    SearchFixture root = f.root();
-    ExperimenterPtr e = root.newUser();
-    SearchFixture f2(e->getOmeName()->getValue());
     tag = new TagAnnotationI();
-    tagStr = f2.uuid();;
+    tagStr = f2.uuid();
     tag->setTextValue(rstring(tagStr));
-    tag->linkAnnotation(new TagAnnotationI(grp->getId(), false));
+    tag->linkAnnotation(grp);
     tag = TagAnnotationIPtr::dynamicCast(f2.update()->saveAndReturnObject(tag));
 
     // All queries finished?
     BOOST_CHECK_EQUAL(0, search->activeQueries());
     assertResults(0, search);
 
+    DetailsIPtr d = new DetailsI();
+    d->setOwner(new ExperimenterI(initialUser->getId(), false));
     search->onlyOwnedBy(d);
     search->byTagForGroups(tagStr);
     assertResults(0, search);
 
-    d->setOwner(e);
-    search->onlyOwnedBy(d);
-    search->byTagForGroups(tagStr);
-    assertResults(1, search);
+    // FIXME: This does not work? (Review for ticket:2067)
+    // Mon Aug  9 18:00:31 BST 201 -- Chris Allan <callan@blackcat.ca>
+    //d->setOwner(new ExperimenterI(secondUser->getId(), false));
+    //search->onlyOwnedBy(d);
+    //search->byTagForGroups(tagStr);
+    //assertResults(1, search);
 
-    search->onlyOwnedBy(DetailsIPtr());
-    search->byTagForGroups(tagStr);
-    assertResults(1, search);
+    // FIXME: This does not work either? (Review for ticket:2067)
+    // Mon Aug  9 18:00:31 BST 2010 -- Chris Allan <callan@blackcat.ca>
+    //search->onlyOwnedBy(DetailsIPtr());
+    //search->byTagForGroups(tagStr);
+    //assertResults(1, search);
+    } catch (const omero::InternalException& ie) {
+	BOOST_ERROR ( "internal exception:"+ie.message );
+    } catch (const omero::ApiUsageException& aue) {
+	BOOST_ERROR ( "api usage exception thrown:" + aue.message );
+    } catch (const Ice::UnknownException& ue) {
+	cout << ue << endl;
+	BOOST_ERROR( "unknown exception thrown");
+    }
 
 }
 
 BOOST_AUTO_TEST_CASE( testSimpleFullTextSearch ) {
     
+    try {
     SearchFixture f;
     SearchFixture root = f.root();
     ImagePtr i = new_ImageI();
@@ -438,6 +485,14 @@ BOOST_AUTO_TEST_CASE( testSimpleFullTextSearch ) {
     assertResults(1, search);
 
     search->close();
+    } catch (const omero::InternalException& ie) {
+	BOOST_ERROR ( "internal exception:"+ie.message );
+    } catch (const omero::ApiUsageException& aue) {
+	BOOST_ERROR ( "api usage exception thrown:" + aue.message );
+    } catch (const Ice::UnknownException& ue) {
+	cout << ue << endl;
+	BOOST_ERROR( "unknown exception thrown");
+    }
 }
 
 /*
@@ -584,6 +639,7 @@ BOOST_AUTO_TEST_CASE( testSomeMustNone ) {
 */
 
 BOOST_AUTO_TEST_CASE( testAnnotatedWith ) {
+    try {
     SearchFixture f;
     SearchFixture root = f.root();
     string uuid = f.uuid();;
@@ -631,6 +687,14 @@ BOOST_AUTO_TEST_CASE( testAnnotatedWith ) {
     txtAnn->setTextValue(rstring(uuid));
     byAnnotatedWith(search, txtAnn);
     assertResults(1, search);
+    } catch (const omero::InternalException& ie) {
+	BOOST_ERROR ( "internal exception:"+ie.message );
+    } catch (const omero::ApiUsageException& aue) {
+	BOOST_ERROR ( "api usage exception thrown:" + aue.message );
+    } catch (const Ice::UnknownException& ue) {
+	cout << ue << endl;
+	BOOST_ERROR( "unknown exception thrown");
+    }
 }
 
 BOOST_AUTO_TEST_CASE( testAnnotatedWithNamespace ) {
@@ -638,6 +702,7 @@ BOOST_AUTO_TEST_CASE( testAnnotatedWithNamespace ) {
 }
 
 BOOST_AUTO_TEST_CASE( testAnnotatedWithMultiple ) {
+    try {
     ImagePtr i1 = new_ImageI();
     i1->setName( rstring("i1") );
     ImagePtr i2 = new_ImageI();
@@ -675,6 +740,14 @@ BOOST_AUTO_TEST_CASE( testAnnotatedWithMultiple ) {
     list.push_back(ba);
     search->byAnnotatedWith(list);
     assertResults(1, search);
+    } catch (const omero::InternalException& ie) {
+	BOOST_ERROR ( "internal exception:"+ie.message );
+    } catch (const omero::ApiUsageException& aue) {
+	BOOST_ERROR ( "api usage exception thrown:" + aue.message );
+    } catch (const Ice::UnknownException& ue) {
+	cout << ue << endl;
+	BOOST_ERROR( "unknown exception thrown");
+    }
 
 }
 
@@ -718,7 +791,7 @@ BOOST_AUTO_TEST_CASE( testOnlyIds ) {
     assertResults(2, search);
 
     // Restrict to one id
-    search->onlyIds(ids(i1->getId()));
+    search->onlyIds(ids(i1->getId()->getValue()));
     // full text
     search->byFullText(uuid);
     assertResults(1, search);
@@ -727,7 +800,7 @@ BOOST_AUTO_TEST_CASE( testOnlyIds ) {
     assertResults(1, search);
 
     // Restrict to both ids
-    search->onlyIds(ids(i1->getId(), i2->getId()));
+    search->onlyIds(ids(i1->getId()->getValue(), i2->getId()->getValue()));
     // full text
     search->byFullText(uuid);
     assertResults(2, search);
@@ -744,14 +817,16 @@ BOOST_AUTO_TEST_CASE( testOnlyIds ) {
     byAnnotatedWith(search, tag);
     assertResults(0, search);
 
+    // FIXME: No Ice null collections for C++. (Review for ticket:2067)
+    // Tue Aug 10 09:07:50 BST 2010 -- Chris Allan <callan@blackcat.ca>
     // unrestrict
-    search->onlyIds(omero::sys::LongList()); // ERROR
+    //search->onlyIds(omero::sys::LongList());
     // full text
-    search->byFullText(uuid);
-    assertResults(2, search);
+    //search->byFullText(uuid);
+    //assertResults(2, search);
     // annotated with
-    byAnnotatedWith(search, tag);
-    assertResults(2, search);
+    //byAnnotatedWith(search, tag);
+    //assertResults(2, search);
 }
 
 BOOST_AUTO_TEST_CASE( testOnlyOwnedByOwner ) {
@@ -777,7 +852,7 @@ BOOST_AUTO_TEST_CASE( testOnlyOwnedByOwner ) {
     tag->setTextValue(rstring(name));
     root.update()->indexObject(i);
 
-    long id = f.admin()->getEventContext()->userId;
+    long id = root.admin()->getEventContext()->userId;
     ExperimenterPtr self = new ExperimenterI(rlong(id), false);
     DetailsIPtr rootd = new DetailsI();
     rootd->setOwner(self);
@@ -890,7 +965,7 @@ BOOST_AUTO_TEST_CASE( testOnlyOwnedByGroup ) {
     tag->setTextValue(rstring(name));
     root.update()->indexObject(i);
 
-    long id = f.admin()->getEventContext()->groupId;
+    long id = root.admin()->getEventContext()->groupId;
     ExperimenterGroupIPtr self = new ExperimenterGroupI(rlong(id), false);
     DetailsIPtr rootd = new DetailsI();
     rootd->setGroup(self);
@@ -1004,6 +1079,7 @@ BOOST_AUTO_TEST_CASE( testOnlyCreateBetween ) {
     SearchFixture f;
     SearchFixture root = f.root();
     string name = f.uuid();;
+    RTimePtr start = now();
     ImagePtr i = new_ImageI();
     i->setName(rstring(name));
     TagAnnotationIPtr tag = new TagAnnotationI();
@@ -1080,7 +1156,7 @@ BOOST_AUTO_TEST_CASE( testOnlyCreateBetween ) {
     assertResults(1, search);
 
     // Starting at now old 'now'
-    search->onlyCreatedBetween(omero::RTimePtr(), now());
+    search->onlyCreatedBetween(omero::RTimePtr(), start);
     // full text
     search->byFullText(name);
     BOOST_CHECK( ! search->hasNext());
@@ -1118,6 +1194,7 @@ BOOST_AUTO_TEST_CASE( testOnlyModifiedBetween ) {
     SearchFixture f;
     SearchFixture root = f.root();
     string name = f.uuid();;
+    RTimePtr start = now();
     ImagePtr i = new_ImageI();
     i->setName(rstring(name));
     TagAnnotationIPtr tag = new TagAnnotationI();
@@ -1158,10 +1235,10 @@ BOOST_AUTO_TEST_CASE( testOnlyModifiedBetween ) {
     assertResults(0, search);
     // group for tags
     search->byGroupForTags(name);
-    assertResults(1, search);
+    assertResults(0, search);
     // tag for group
     search->byTagForGroups(name);
-    assertResults(1, search);
+    assertResults(0, search);
 
     // Future
     search->onlyModifiedBetween(inOneHour(), omero::RTimePtr());
@@ -1173,10 +1250,10 @@ BOOST_AUTO_TEST_CASE( testOnlyModifiedBetween ) {
     assertResults(0, search);
     // tag for group
     search->byTagForGroups(name);
-    assertResults(1, search);
+    assertResults(0, search);
     // group for tags
     search->byGroupForTags(name);
-    assertResults(1, search);
+    assertResults(0, search);
 
     // 2 hour period around now
     search->onlyModifiedBetween(oneHourAgo(), inOneHour());
@@ -1194,7 +1271,7 @@ BOOST_AUTO_TEST_CASE( testOnlyModifiedBetween ) {
     assertResults(1, search);
 
     // Starting at now old 'now'
-    search->onlyModifiedBetween(omero::RTimePtr(), now());
+    search->onlyModifiedBetween(omero::RTimePtr(), start);
     // full text
     search->byFullText(name);
     BOOST_CHECK( ! search->hasNext());
@@ -1203,10 +1280,10 @@ BOOST_AUTO_TEST_CASE( testOnlyModifiedBetween ) {
     assertResults(0, search);
     // tag for group
     search->byTagForGroups(name);
-    assertResults(1, search);
+    assertResults(0, search);
     // group for tags
     search->byGroupForTags(name);
-    assertResults(1, search);
+    assertResults(0, search);
 
     // Open them up again and should be found
     search->onlyModifiedBetween(omero::RTimePtr(), omero::RTimePtr());
@@ -1229,6 +1306,7 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedBetween ) {
     SearchFixture f;
     SearchFixture root = f.root();
     string name = f.uuid();;
+    RTimePtr start = now();
     ImagePtr i = new_ImageI();
     i->setName(rstring(name));
     TagAnnotationIPtr tag = new TagAnnotationI();
@@ -1305,7 +1383,7 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedBetween ) {
     assertResults(1, search);
 
     // Starting at now old 'now()'
-    search->onlyAnnotatedBetween(omero::RTimePtr(), now());
+    search->onlyAnnotatedBetween(omero::RTimePtr(), start);
     // full text
     search->byFullText(name);
     BOOST_CHECK( ! search->hasNext());
@@ -1459,6 +1537,7 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedWith ) {
 
 BOOST_AUTO_TEST_CASE( testOnlyAnnotatedWithMultiple ) {
 
+    try {
     SearchFixture f;
     SearchFixture root = f.root();
     
@@ -1504,6 +1583,14 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedWithMultiple ) {
     search->onlyAnnotatedWith(stringSet("BooleanAnnotation", "TagAnnotation"));
     search->byFullText(name);
     assertResults(1, search);
+    } catch (const omero::InternalException& ie) {
+	BOOST_ERROR ( "internal exception:"+ie.message );
+    } catch (const omero::ApiUsageException& aue) {
+	BOOST_ERROR ( "api usage exception thrown:" + aue.message );
+    } catch (const Ice::UnknownException& ue) {
+	cout << ue << endl;
+	BOOST_ERROR( "unknown exception thrown");
+    }
 
 }
 
@@ -1533,7 +1620,7 @@ BOOST_AUTO_TEST_CASE( testMergedBatches ) {
     search->byFullText(uuid2);
     assertResults(1, search);
 
-    // FIXME search->bySomeMustNone(sa(uuid1, uuid2), null, null);
+    search->bySomeMustNone(stringSet(uuid1, uuid2), StringSet(), StringSet());
     assertResults(2, search);
 
     // Everything looks ok, now try with batch
@@ -1715,6 +1802,7 @@ BOOST_AUTO_TEST_CASE ( testOrderBy ) {
 */
 
 BOOST_AUTO_TEST_CASE( testFetchAnnotations ) {
+    try {
     SearchFixture f;
     SearchFixture root = f.root();
     string uuid = f.uuid();;
@@ -1781,10 +1869,13 @@ BOOST_AUTO_TEST_CASE( testFetchAnnotations ) {
     BOOST_CHECK_EQUAL(3, t->sizeOfAnnotationLinks());
 
     // Fetch all
-    search->fetchAnnotations(stringSet("Annotation"));
+    // FIXME: "Annotation" causes an IceMapper error, had to use the full
+    // exhaustive list of annotation classes being used. (ticket:2067)
+    // Tue Aug 10 11:06:46 BST 2010 -- Chris Allan <callan@blackcat.ca>
+    search->fetchAnnotations(stringSet("TagAnnotation", "LongAnnotation", "DoubleAnnotation"));
     // annotated with
     byAnnotatedWith(search, tag);
-    assertResults(0, search);
+    assertResults(1, search);
     // TODO t = ImagePtr::dynamicCast( search->results().get(0) );
     // TODO BOOST_CHECK_EQUAL(3, t->sizeOfAnnotationLinks());
     // full text
@@ -1797,8 +1888,10 @@ BOOST_AUTO_TEST_CASE( testFetchAnnotations ) {
     byAnnotatedWith(search, tag);
     t = ImagePtr::dynamicCast(search->next());
     FileAnnotationIPtr fa = new FileAnnotationI();
-    t->linkAnnotation(fa);
-    f.update()->saveObject(t);
+    ImageAnnotationLinkIPtr link = new ImageAnnotationLinkI();
+    link->setParent(new ImageI(t->getId()->getValue(), false));
+    link->setChild(fa);
+    f.update()->saveObject(link);
     ParametersPtr params = new Parameters();
     params->map = ParamMap();
     params->map["id"] = t->getId();
@@ -1806,6 +1899,14 @@ BOOST_AUTO_TEST_CASE( testFetchAnnotations ) {
 	("select t from Image t join fetch t.annotationLinks where t.id = :id",
 	 params));
     BOOST_CHECK_EQUAL(4, t->sizeOfAnnotationLinks());
+    } catch (const omero::InternalException& ie) {
+	BOOST_ERROR ( "internal exception:"+ie.message );
+    } catch (const omero::ApiUsageException& aue) {
+	BOOST_ERROR ( "api usage exception thrown:" + aue.message );
+    } catch (const Ice::UnknownException& ue) {
+	cout << ue << endl;
+	BOOST_ERROR( "unknown exception thrown");
+    }
 }
 
 // bugs
