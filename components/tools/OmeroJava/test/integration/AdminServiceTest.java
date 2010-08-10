@@ -27,7 +27,6 @@ import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
 import omero.model.GroupExperimenterMap;
-import omero.model.OriginalFile;
 import omero.model.Permissions;
 import omero.model.PermissionsI;
 import omero.sys.ParametersI;
@@ -505,11 +504,74 @@ public class AdminServiceTest
         svc.createUser(e, uuid);
 		e = svc.lookupExperimenter(uuid);
 		try {
-			svc.changeUserPassword(uuid, rstring("foo"));
+			svc.changeUserPassword(uuid, rstring(PASSWORD_MODIFIED));
 		} catch (Exception ex) {
 			fail("Not possible to modify the experimenter's password.");
 		}
     }
+	
+	/**
+	 * Tests the default group of an experimenter.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test
+	public void testChangeDefaultGroup()
+		throws Exception
+	{
+		//Create 2 groups and add a user 
+    	String uuid1 = UUID.randomUUID().toString();
+		ExperimenterGroup g1 = new ExperimenterGroupI();
+		g1.setName(omero.rtypes.rstring(uuid1));
+		g1.getDetails().setPermissions(new PermissionsI("rw----"));
+		
+		String uuid2 = UUID.randomUUID().toString();
+		ExperimenterGroup g2 = new ExperimenterGroupI();
+		g2.setName(omero.rtypes.rstring(uuid2));
+		g2.getDetails().setPermissions(new PermissionsI("rw----"));
+			
+		IAdminPrx svc = root.getSession().getAdminService();
+		IQueryPrx query = root.getSession().getQueryService();
+		long id1 = svc.createGroup(g1);
+		long id2 = svc.createGroup(g2);
+		
+		ParametersI p = new ParametersI();
+		p.addId(id1);
+		
+		ExperimenterGroup eg1 = (ExperimenterGroup) query.findByQuery(
+				"select distinct g from ExperimenterGroup g where g.id = :id", 
+				p);
+		p = new ParametersI();
+		p.addId(id2);
+		
+		ExperimenterGroup eg2 = (ExperimenterGroup) query.findByQuery(
+				"select distinct g from ExperimenterGroup g where g.id = :id", 
+				p);
+		Experimenter e = new ExperimenterI();
+		e.setOmeName(omero.rtypes.rstring(uuid1));
+		e.setFirstName(omero.rtypes.rstring("user"));
+		e.setLastName(omero.rtypes.rstring("user"));
+		
+		List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
+		//method tested elsewhere
+		ExperimenterGroup userGroup = svc.lookupGroup(USER_GROUP);
+		groups.add(eg1);
+		groups.add(eg2);
+		groups.add(userGroup);
+		
+		long id = svc.createExperimenter(e, eg1, groups);
+		e = svc.lookupExperimenter(uuid1);
+		List<GroupExperimenterMap> links = e.copyGroupExperimenterMap();
+		assertTrue(groups.get(0).getId().getValue() == eg1.getId().getValue());
+		svc.setDefaultGroup(e, eg2);
+		
+		e = svc.lookupExperimenter(uuid1);
+		links = e.copyGroupExperimenterMap();
+		groups = new ArrayList<ExperimenterGroup>();
+		for (GroupExperimenterMap link : links) {
+            groups.add(link.getParent());
+        }
+		assertTrue(groups.get(0).getId().getValue() == eg2.getId().getValue());
+	}
 	
 	/**
 	 * Tests the deletion of an experimenter.
