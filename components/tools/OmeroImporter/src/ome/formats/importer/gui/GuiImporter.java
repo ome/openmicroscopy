@@ -1191,11 +1191,11 @@ WindowStateListener, WindowFocusListener
             { System.err.println(laf + " not supported."); }
         }
         
-        /*
+        /* Alternative GTK file chooser
         if ("GTK look and feel".equals(UIManager.getLookAndFeel().getName())) {
             UIManager.put("FileChooserUI", "eu.kostia.gtkjfilechooser.ui.GtkFileChooserUI");
           }
-        */
+         */
 
         new GuiImporter(config);
     }

@@ -202,6 +202,7 @@ public class ImportHandler implements IObservable
         numOfDone = 0;
         for (int j = 0; j < importContainer.length; j++) {
             ImportContainer container = importContainer[j];
+            
             if (qTable.getTable().getValueAt(j, 2).equals("pending")
                     && qTable.cancel == false) {
                 numOfDone++;
@@ -429,6 +430,5 @@ public class ImportHandler implements IObservable
         {
             observer.update(this, event);
         }
-    }
-    
+    }    
 }

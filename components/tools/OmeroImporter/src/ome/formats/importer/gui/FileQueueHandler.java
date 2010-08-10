@@ -491,7 +491,8 @@ public class FileQueueHandler extends JPanel
 
                 for (int i = (numRows - 1); i >= 0; i--)
                 {
-                    if (qTable.getQueue().getValueAt(i, 2) == "failed")
+                    if (qTable.getQueue().getValueAt(i, 2) == "failed" || 
+                    		qTable.getQueue().getValueAt(i, 2) == "unreadable")
                     {
                         removeFileFromQueue(i);                    
                     }
