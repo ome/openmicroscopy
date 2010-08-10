@@ -9,7 +9,6 @@ package integration;
 import static omero.rtypes.*;
 import omero.api.IRoiPrx;
 import omero.api.RoiOptions;
-import omero.api.RoiResult;
 import omero.model.ImageI;
 import omero.model.RectI;
 import omero.model.RoiI;

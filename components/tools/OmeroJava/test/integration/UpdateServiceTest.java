@@ -11,6 +11,7 @@ import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -21,16 +22,21 @@ import junit.framework.TestCase;
 import ome.testing.ObjectFactory;
 import omero.OptimisticLockException;
 import omero.RInt;
+import omero.RType;
 import omero.api.IAdminPrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLinkI;
+import omero.model.BooleanAnnotation;
+import omero.model.BooleanAnnotationI;
 import omero.model.Channel;
 import omero.model.CommentAnnotation;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
+import omero.model.DatasetAnnotationLink;
+import omero.model.DatasetAnnotationLinkI;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
@@ -38,22 +44,35 @@ import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
+import omero.model.FileAnnotation;
+import omero.model.FileAnnotationI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
 import omero.model.ImageI;
+import omero.model.LongAnnotation;
+import omero.model.LongAnnotationI;
+import omero.model.OriginalFile;
 import omero.model.Permissions;
 import omero.model.PermissionsI;
 import omero.model.Pixels;
+import omero.model.Plate;
+import omero.model.PlateAnnotationLink;
+import omero.model.PlateAnnotationLinkI;
 import omero.model.Project;
+import omero.model.ProjectAnnotationLink;
+import omero.model.ProjectAnnotationLinkI;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
 import omero.model.Screen;
+import omero.model.ScreenAnnotationLink;
+import omero.model.ScreenAnnotationLinkI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.sys.EventContext;
+import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import omero.util.IceMapper;
 
@@ -651,9 +670,185 @@ public class UpdateServiceTest
         assertTrue(orig_ids.containsAll(updt_ids));
         */
     }
-    
-    
+
     //Annotation section
+    
+    /**
+     * Links the passed annotation and test if correctly linked.
+     * @throws Exception Thrown if an error occurred.
+     */
+    private void linkAnnotationAndObjects(Annotation data)
+    	throws Exception 
+    {
+    	//Image
+        Image i = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
+        ImageAnnotationLink l = new ImageAnnotationLinkI();
+        l.setParent((Image) i.proxy());
+        l.setChild((Annotation) data.proxy());
+        IObject o1 = iUpdate.saveAndReturnObject(l);
+        assertNotNull(o1);
+        l  = (ImageAnnotationLink) o1;
+        assertTrue(l.getChild().getId().getValue() == data.getId().getValue());
+        assertTrue(l.getParent().getId().getValue() == i.getId().getValue());
+        
+        //Project
+        Project p = (Project) iUpdate.saveAndReturnObject(
+    			simpleProjectData().asIObject());
+        ProjectAnnotationLink pl = new ProjectAnnotationLinkI();
+        pl.setParent((Project) p.proxy());
+        pl.setChild((Annotation) data.proxy());
+        o1 = iUpdate.saveAndReturnObject(pl);
+        assertNotNull(o1);
+        pl  = (ProjectAnnotationLink) o1;
+        assertTrue(pl.getChild().getId().getValue() == data.getId().getValue());
+        assertTrue(pl.getParent().getId().getValue() == p.getId().getValue());
+        
+        //Dataset
+        Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			simpleDatasetData().asIObject());
+        DatasetAnnotationLink dl = new DatasetAnnotationLinkI();
+        dl.setParent((Dataset) d.proxy());
+        dl.setChild((Annotation) data.proxy());
+        o1 = iUpdate.saveAndReturnObject(dl);
+        assertNotNull(o1);
+        dl  = (DatasetAnnotationLink) o1;
+        assertTrue(dl.getChild().getId().getValue() == data.getId().getValue());
+        assertTrue(dl.getParent().getId().getValue() == d.getId().getValue());
+        
+        //Screen
+        Screen s = (Screen) iUpdate.saveAndReturnObject(
+    			simpleScreenData().asIObject());
+        ScreenAnnotationLink sl = new ScreenAnnotationLinkI();
+        sl.setParent((Screen) s.proxy());
+        sl.setChild((Annotation) data.proxy());
+        o1 = iUpdate.saveAndReturnObject(sl);
+        assertNotNull(o1);
+        sl  = (ScreenAnnotationLink) o1;
+        assertTrue(sl.getChild().getId().getValue() == data.getId().getValue());
+        assertTrue(sl.getParent().getId().getValue() == s.getId().getValue());
+        
+        //Plate
+        Plate pp = (Plate) iUpdate.saveAndReturnObject(
+    			simplePlateData().asIObject());
+        PlateAnnotationLink ppl = new PlateAnnotationLinkI();
+        ppl.setParent((Plate) pp.proxy());
+        ppl.setChild((Annotation) data.proxy());
+        o1 = iUpdate.saveAndReturnObject(ppl);
+        assertNotNull(o1);
+        ppl  = (PlateAnnotationLink) o1;
+        assertTrue(ppl.getChild().getId().getValue() == data.getId().getValue());
+        assertTrue(ppl.getParent().getId().getValue() == pp.getId().getValue());
+    }
+    
+    /**
+     * Tests to create a comment annotation and link it to various objects.
+     * @throws Exception Thrown if an error occurred.
+     */
+    public void testCreateCommnentAnnotation()
+    	throws Exception 
+    {
+    	CommentAnnotationI annotation = new CommentAnnotationI();
+    	annotation.setTextValue(omero.rtypes.rstring("comment"));
+    	CommentAnnotation data = (CommentAnnotation) 
+    		iUpdate.saveAndReturnObject(annotation);
+    	assertNotNull(data);
+    	linkAnnotationAndObjects(data);
+    }
+    
+    /**
+     * Tests to create a tag annotation and link it to various objects.
+     * @throws Exception Thrown if an error occurred.
+     */
+    public void testCreateTagAnnotation()
+    	throws Exception 
+    {
+    	TagAnnotationI annotation = new TagAnnotationI();
+    	annotation.setTextValue(omero.rtypes.rstring("tag"));
+    	TagAnnotation data = (TagAnnotation) 
+    		iUpdate.saveAndReturnObject(annotation);
+    	assertNotNull(data);
+    	linkAnnotationAndObjects(data);
+    }
+    
+    /**
+     * Tests to create a boolean annotation and link it to various objects.
+     * @throws Exception Thrown if an error occurred.
+     */
+    public void testCreateBooleanAnnotation()
+    	throws Exception 
+    {
+    	BooleanAnnotationI annotation = new BooleanAnnotationI();
+    	annotation.setBoolValue(omero.rtypes.rbool(true));
+    	BooleanAnnotation data = (BooleanAnnotation) 
+    		iUpdate.saveAndReturnObject(annotation);
+    	assertNotNull(data);
+    	linkAnnotationAndObjects(data);
+    }
+    
+    /**
+     * Tests to create a long annotation and link it to various objects.
+     * @throws Exception Thrown if an error occurred.
+     */
+    public void testCreateLongAnnotation()
+    	throws Exception 
+    {
+    	LongAnnotationI annotation = new LongAnnotationI();
+    	annotation.setLongValue(omero.rtypes.rlong(1L));
+    	LongAnnotation data = (LongAnnotation) 
+    		iUpdate.saveAndReturnObject(annotation);
+    	assertNotNull(data);
+    	linkAnnotationAndObjects(data);
+    }
+    
+    /**
+     * Tests to create a file annotation and link it to various objects.
+     * @throws Exception Thrown if an error occurred.
+     */
+    public void testCreateFileAnnotation()
+    	throws Exception 
+    {
+    	OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
+				createOriginalFile());
+		assertNotNull(of);
+		FileAnnotationI fa = new FileAnnotationI();
+		fa.setFile(of);
+		FileAnnotation data = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
+		assertNotNull(data);
+    	linkAnnotationAndObjects(data);
+    }
+    
+    /**
+     * Tests to unlink of an annotation. Creates only one type of annotation.
+     * @throws Exception Thrown if an error occurred.
+     */
+    public void testRemoveAnnotation()
+    	throws Exception 
+    {
+    	LongAnnotationI annotation = new LongAnnotationI();
+    	annotation.setLongValue(omero.rtypes.rlong(1L));
+    	LongAnnotation data = (LongAnnotation) 
+    		iUpdate.saveAndReturnObject(annotation);
+    	assertNotNull(data);
+    	//Image
+        Image i = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
+        ImageAnnotationLink l = new ImageAnnotationLinkI();
+        l.setParent((Image) i.proxy());
+        l.setChild((Annotation) data.proxy());
+        IObject o1 = iUpdate.saveAndReturnObject(l);
+        assertNotNull(o1);
+        long id = o1.getId().getValue();
+        //annotation and image are linked. Remove the link.
+        iUpdate.deleteObject(o1);
+        //now check that the image is no longer linked to the annotation
+        String sql = "select link from ImageAnnotationLink as link";
+		sql +=" left outer join link.child as child";
+		sql += " where child.id = :cid";
+		ParametersI p = new ParametersI();
+		p.addLong("cid", id);
+		IObject object = iQuery.findByQuery(sql, p);
+		assertNull(object);
+    }
+    
     /**
      * Tests to update an annotation.
      * @throws Exception Thrown if an error occurred.
@@ -688,7 +883,6 @@ public class UpdateServiceTest
     public void testUpdateSameTagAnnotationUsedByTwoUsers() 
     	throws Exception
     {
-
         String groupName = newUserAndGroup("rwrw--").groupName;
 
         //create an image.
@@ -723,7 +917,6 @@ public class UpdateServiceTest
         assertTrue(o2.getDetails().getOwner().getId().getValue() ==
             fixture.e.getId().getValue());
     }
-    
     
     /**
      * Tests the creation of tag annotation, linked it to an image by a

@@ -16,20 +16,15 @@ import java.util.UUID;
 
 
 //Third-party libraries
-import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 //Application-internal dependencies
-import static omero.rtypes.rstring;
-import static omero.rtypes.rtime;
 import omero.api.IAdminPrx;
 import omero.api.IMetadataPrx;
 import omero.api.IPixelsPrx;
-import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLinkI;
@@ -60,7 +55,6 @@ import omero.model.FilterType;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLinkI;
-import omero.model.ImageI;
 import omero.model.Immersion;
 import omero.model.Instrument;
 import omero.model.InstrumentI;
@@ -119,23 +113,6 @@ public class MetadataServiceTest
 
     /** Helper reference to the <code>IAdmin</code> service. */
     private IMetadataPrx iMetadata;
-    
-    /**
-     * Creates and returns an original file object.
-     * 
-     * @return See above.
-     */
-    private OriginalFileI createOriginalFile()
-    {
-    	OriginalFileI oFile = new OriginalFileI();
-		oFile.setName(omero.rtypes.rstring("of1"));
-		oFile.setPath(omero.rtypes.rstring("/omero"));
-		oFile.setSize(omero.rtypes.rlong(0));
-		//Need to be modified
-		oFile.setSha1(omero.rtypes.rstring("pending"));
-		oFile.setMimetype(omero.rtypes.rstring("application/octet-stream"));
-		return oFile;
-    }
     
     /**
      * Initializes the various services.
@@ -650,7 +627,7 @@ public class MetadataServiceTest
     }
     
     /**
-     * Tests the retrieval of an instrument
+     * Tests the retrieval of an instrument.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -829,7 +806,7 @@ public class MetadataServiceTest
     }
     
     /**
-     * Tests the retrieval of an instrument
+     * Tests the retrieval of channel acquisition data.
      * @throws Exception Thrown if an error occurred.
      */
     @Test

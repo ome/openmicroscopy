@@ -42,6 +42,7 @@ import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
 import omero.model.ImageI;
+import omero.model.OriginalFileI;
 import omero.model.Permissions;
 import omero.model.PermissionsI;
 import omero.model.Pixels;
@@ -64,6 +65,7 @@ import org.testng.annotations.Test;
 
 import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
@@ -78,16 +80,22 @@ public class AbstractTest
 	extends TestCase
 {
 
+	/** Identifies the <code>system</code> group. */
+	public String SYSTEM_GROUP = "system";
+	
+	/** Identifies the <code>user</code> group. */
+	public String USER_GROUP = "user";
+	
+	/** Identifies the <code>guest</code> group. */
+	public String GUEST_GROUP = "guest";
+	
+	/** Holds the error, info, warning. */
     protected Log log = LogFactory.getLog(getClass());
 
-	/**
-	 * The client object, this is the entry point to the Server.
-	 */
+	/** The client object, this is the entry point to the Server. */
     protected omero.client client;
 
-    /**
-     * A root-client object.
-     */
+    /** A root-client object. */
     protected omero.client root;
 
     /** Helper reference to the <code>Service factory</code>. */
@@ -101,7 +109,9 @@ public class AbstractTest
 
     /** Helper reference to the <code>IAdmin</code> service. */
     protected IAdminPrx iAdmin;
-
+    
+    // ~ Helpers
+    // =========================================================================
     /**
      * Creates a default image and returns it.
      *
@@ -117,14 +127,84 @@ public class AbstractTest
         img.setAcquisitionDate(rtime(time));
         return img;
     }
+    
+    /**
+     * Creates a default dataset and returns it.
+     * 
+     * @return See above.
+     */
+    protected DatasetData simpleDatasetData()
+    {
+        DatasetData dd = new DatasetData();
+        dd.setName("t1");
+        dd.setDescription("t1");
+        return dd;
+    }
+    
+    /**
+     * Creates a default project and returns it.
+     * 
+     * @return See above.
+     */
+    protected ProjectData simpleProjectData()
+    {
+        ProjectData data = new ProjectData();
+        data.setName("project1");
+        data.setDescription("project1");
+        return data;
+    }
 
+    /**
+     * Creates a default screen and returns it.
+     * 
+     * @return See above.
+     */
+    protected ScreenData simpleScreenData()
+    {
+    	ScreenData data = new ScreenData();
+        data.setName("screen1");
+        data.setDescription("screen1");
+        return data;
+    }
+    
+    /**
+     * Creates a default project and returns it.
+     * 
+     * @return See above.
+     */
+    protected PlateData simplePlateData()
+    {
+    	PlateData data = new PlateData();
+        data.setName("plate1");
+        data.setDescription("plate1");
+        return data;
+    }
+
+    /**
+     * Creates and returns an original file object.
+     * 
+     * @return See above.
+     */
+    protected OriginalFileI createOriginalFile()
+    {
+    	OriginalFileI oFile = new OriginalFileI();
+		oFile.setName(omero.rtypes.rstring("of1"));
+		oFile.setPath(omero.rtypes.rstring("/omero"));
+		oFile.setSize(omero.rtypes.rlong(0));
+		//Need to be modified
+		oFile.setSha1(omero.rtypes.rstring("pending"));
+		oFile.setMimetype(omero.rtypes.rstring("application/octet-stream"));
+		return oFile;
+    }
+    
 	/**
      * Initializes the various services.
      * @throws Exception Thrown if an error occurred.
      */
     @Override
     @BeforeClass
-    protected void setUp() throws Exception
+    protected void setUp() 
+    	throws Exception
     {
         // administrator client
         omero.client tmp = new omero.client();
@@ -142,17 +222,36 @@ public class AbstractTest
      */
     @Override
     @AfterClass
-    public void tearDown() throws Exception
+    public void tearDown() 
+    	throws Exception
     {
         client.__del__();
         root.__del__();
     }
 
-    protected EventContext newUserAndGroup(String perms) throws Exception {
+    /**
+     * Creates a new group and experimenter and returns the event context.
+     * 
+     * @param perms The permissions level.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected EventContext newUserAndGroup(String perms) 
+    	throws Exception
+    {
         return newUserAndGroup(new PermissionsI(perms));
     }
 
-    protected EventContext newUserAndGroup(Permissions perms) throws Exception {
+    /**
+     * Creates a new group and experimenter and returns the event context.
+     * 
+     * @param perms The permissions level.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected EventContext newUserAndGroup(Permissions perms) 
+    	throws Exception
+    {
         IAdminPrx rootAdmin = root.getSession().getAdminService();
         String uuid = UUID.randomUUID().toString();
         Experimenter e = new ExperimenterI();
@@ -177,19 +276,45 @@ public class AbstractTest
         return iAdmin.getEventContext();
     }
 
-    protected Pixels createPixels() throws Exception {
+    /**
+     * Creates a pixels set.
+     * 
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected Pixels createPixels() 
+    	throws Exception
+    {
         return createPixels(null);
     }
 
-    protected Pixels createPixels(Pixels example) throws Exception {
+    /**
+     * Creates a pixels set.
+     * 
+     * @param example The pixels set of reference.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected Pixels createPixels(Pixels example) 
+    	throws Exception {
         IceMapper mapper = new IceMapper();
-        ome.model.core.Pixels p = (ome.model.core.Pixels) mapper.reverse(example);
+        ome.model.core.Pixels p = 
+        	(ome.model.core.Pixels) mapper.reverse(example);
         p = ObjectFactory.createPixelGraphWithChannels(p, 3);
         return (Pixels) mapper.map(p);
     }
 
-    protected Channel createChannel() throws Exception {
+    /**
+     * Creates a channel.
+     * 
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected Channel createChannel() 
+    	throws Exception
+    {
         IceMapper mapper = new IceMapper();
         return (Channel) mapper.map(ObjectFactory.createChannel(null));
     }
+    
 }

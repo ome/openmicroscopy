@@ -51,15 +51,6 @@ import pojos.GroupData;
 public class AdminServiceTest 
 	extends AbstractTest
 {
-
-	/** Identifies the <code>system</code> group. */
-	private String SYSTEM_GROUP = "system";
-	
-	/** Identifies the <code>user</code> group. */
-	private String USER_GROUP = "user";
-	
-	/** Identifies the <code>guest</code> group. */
-	private String GUEST_GROUP = "guest";
 	
 	/** The password of the user. */
 	private String PASSWORD = "password";
