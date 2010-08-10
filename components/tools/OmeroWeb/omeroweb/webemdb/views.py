@@ -117,8 +117,11 @@ def entry (request, entryId):
         except:
             pass
     
+    data = project.countChildren() > 1
+    
     return render_to_response('webemdb/entries/entry.html', 
-        {'project':project, 'xml': xml, 'gif': gif, 'img': img, 'map': mrcMap, 'bit': bit, 'pdbs': pdbs, 'sizeWarning':sizeWarning})
+        {'project':project, 'xml': xml, 'gif': gif, 'img': img, 'map': mrcMap, 'bit': bit, 'pdbs': pdbs, 
+            'sizeWarning':sizeWarning, 'data': data})
         
         
 def oa_viewer(request, entryId, fileId): 

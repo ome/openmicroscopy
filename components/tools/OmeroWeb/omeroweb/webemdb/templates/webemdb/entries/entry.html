@@ -48,7 +48,7 @@
                     {% if xml %}<a id="emdbxml" href="{% url webemdb_file project.name xml.id %}">{{ xml.getFileName }}</a> {% endif %}
                     {% if img and map %}<a id="emdbmap" href="{% url webemdb_file img.id map.id %}">{{ map.getFileName }}</a> {% endif %}
                     
-                    View: <a href="{% url webemdb_data project.name %}">Associated data</a>
+                    {% if data %} View: <a href="{% url webemdb_data project.name %}">Associated data</a>{% endif %}
                 </div>
             </td>
         </tr>

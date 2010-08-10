@@ -57,7 +57,9 @@
                       <div class="dsDescription">{{ d.getDescription }} </div>
                   </div>
                     {% for img in d.listChildren %}
-                        <img src="{% url webgateway.views.render_thumbnail img.id %}">
+                        <a href="{% url webemdb.views.viewport img.id %}">
+                            <img src="{% url webgateway.views.render_thumbnail img.id %}" border='0' />
+                        </a>
                     {% endfor %}
                     
               </div>
