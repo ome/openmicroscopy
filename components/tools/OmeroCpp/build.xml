@@ -52,7 +52,8 @@
         <!-- http://forums.sun.com/thread.jspa?threadID=416069 -->
         <mkdir dir="${basedir}/target/reports"/>
         <exec dir="${basedir}" executable="${basedir}/test/integration.exe" failonerror="${test.with.fail}"
-            output="${basedir}/target/reports/boost-integration.xml">
+            output="${basedir}/target/reports/boost-integration.err"
+            error="${basedir}/target/reports/boost-integration.xml">
             <env key="ICE_HOME" value="${ice.home}"/>
 	    <env key="LD_LIBRARY_PATH" value="${env.LD_LIBRARY_PATH}:${basedir}"/>
 	    <env key="DYLD_LIBRARY_PATH" value="${env.DYLD_LIBRARY_PATH}:${basedir}"/>
