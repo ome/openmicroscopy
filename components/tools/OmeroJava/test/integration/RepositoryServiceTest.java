@@ -43,6 +43,7 @@ public class RepositoryServiceTest
     {
 		IRepositoryInfoPrx svc = root.getSession().getRepositoryInfoService();
 		assertTrue(svc.getFreeSpaceInKilobytes() > 0);
+		
     }
 	
 	/**
