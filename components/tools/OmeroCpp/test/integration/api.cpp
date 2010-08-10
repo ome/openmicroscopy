@@ -16,14 +16,13 @@ using namespace omero::rtypes;
 
 // DISABLED
 
-BOOST_AUTO_TEST_CASE( vector_args )
+BOOST_AUTO_TEST_CASE( VectorArgs )
 {
   Ice::Long ids[] = {1L, 2L, 3L};
   omero::sys::LongList idList(ids,ids+3);
   copy(idList.begin(), idList.end(), std::ostream_iterator<Ice::Long>(std::cout, "\n"));
   omero::sys::ParamMap pm;
   pm["user"] = rlong(1L);
-  BOOST_CHECK_EQUAL(1, 1);
 
   // Need a way to mock
   //omero::api::IPojosPrx pojoPrx();
