@@ -98,7 +98,7 @@ def entry (request, entryId):
     bit = None
     pdbs = []
     xmlName = "emd-%s.xml" % entryName
-    gifName = "%s.gif" % entryName
+    gifName = "400_%s.gif" % entryName
     bitName = "%s.bit" % entryName
     sizeWarning = False
     
