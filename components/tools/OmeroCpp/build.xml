@@ -57,7 +57,7 @@
             <env key="ICE_HOME" value="${ice.home}"/>
 	    <env key="LD_LIBRARY_PATH" value="${env.LD_LIBRARY_PATH}:${basedir}"/>
 	    <env key="DYLD_LIBRARY_PATH" value="${env.DYLD_LIBRARY_PATH}:${basedir}"/>
-	    <arg line="--output_format=XML --log_level=all --report_level=no"/><!-- for hudson xunit -->
+	    <arg line="--output_format=XML --log_level=message --report_level=detailed"/><!-- for hudson xunit -->
         </exec>
     </target>
 
