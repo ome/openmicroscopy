@@ -25,13 +25,11 @@ package pojos;
 //Java imports
 import java.util.List;
 import java.util.ArrayList;
-import java.util.StringTokenizer;
 import java.awt.geom.Point2D;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.RDouble;
 import omero.RString;
 import omero.rtypes;
 import omero.model.PolylineI;
@@ -55,9 +53,6 @@ public class PolylineData
 	extends ShapeData
 {
 
-	/** Regex for a data in block. */
-	private static final String NUMREGEX = "\\[.*\\]";
-
 	/** The points in the polyline as list. */
 	private List<Point2D.Double> points;
 
@@ -78,11 +73,11 @@ public class PolylineData
 	public PolylineData(Shape shape)
 	{
 		super(shape);
-		parseShapeStringToPointsList();
+		//parseShapeStringToPointsList();
 	}
 	
 	/**
-	 * Create a new instance of polyline, creating a new PolylineI Object.
+	 * Creates a new instance of polyline, creating a new PolylineI Object.
 	 */
 	public PolylineData()
 	{
@@ -207,100 +202,6 @@ public class PolylineData
 		this.points2 = points2;
 		this.mask = maskList;
 		shape.setPoints(rtypes.rstring(pts));
-	}
-	
-	/**
-	 * Parse out the type from the points string.
-	 * @param type The value in the list to parse.
-	 * @return See above.
-	 */
-	private String fromPoints(String type)
-	{
-		Polyline shape = (Polyline) asIObject();
-		if (shape == null) 
-			throw new IllegalArgumentException("No shape specified.");
-		String pts = shape.getPoints().getValue();
-		if (pts.length() == 0)
-			return "";
-		String exp = type+'[';
-		int typeStr = pts.indexOf(exp,0);
-		int start = pts.indexOf('[',typeStr);
-		int end = pts.indexOf(']',start);
-		return pts.substring(start+1,end);
-	}
-	
-	
-	/** 
-	* Parse the points list from the string to a list of point2d objects.
-	* @param str the string to convert to points.
-	*/
-	private List<Point2D.Double> parsePointsToPoint2DList(String str)
-	{
-		List<Point2D.Double> points = new ArrayList<Point2D.Double>();
-	
-		StringTokenizer tt=new StringTokenizer(str, ",");
-		int numTokens = tt.countTokens()/2;
-		for (int i=0; i< numTokens; i++)
-			points.add(
-					new Point2D.Double(new Double(tt.nextToken()), new Double(
-						tt.nextToken())));
-		return points;
-	}
-	
-	/** 
-	* Parse the points list from the string to a list of integer objects.
-	* @param str the string to convert to points.
-	*/
-	private List<Integer> parsePointsToIntegerList(String str)
-	{
-		List<Integer> points = new ArrayList<Integer>();
-	
-		StringTokenizer tt=new StringTokenizer(str, ",");
-		int numTokens = tt.countTokens();
-		for (int i=0; i< numTokens; i++)
-			points.add(new Integer(tt.nextToken()));
-		return points;
-	}
-	
-	/**
-	 * Returns a Point2D.Double array as a Points attribute value. as specified
-	 * in http://www.w3.org/TR/SVGMobile12/shapes.html#PointsBNF
-	 */
-	private static String toPoints(Point2D.Double[] points)
-	{
-		StringBuilder buf=new StringBuilder();
-		for (int i=0; i<points.length; i++)
-		{
-			if (i != 0)
-			{
-				buf.append(", ");
-			}
-			buf.append(toNumber(points[i].x));
-			buf.append(',');
-			buf.append(toNumber(points[i].y));
-		}
-		return buf.toString();
-	}
-	
-	private void parseShapeStringToPointsList()
-	{
-		points = getPoints();
-		points1 = getPoints();
-		points2 = getPoints();
-		mask = getMaskPoints();
-	}
-	
-	/**
-	 * Returns a double array as a number attribute value.
-	 */
-	private static String toNumber(double number)
-	{
-		String str=Double.toString(number);
-		if (str.endsWith(".0"))
-		{
-			str=str.substring(0, str.length()-2);
-		}
-		return str;
 	}
 
 }

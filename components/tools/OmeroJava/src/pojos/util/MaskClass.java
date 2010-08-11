@@ -27,8 +27,6 @@ package pojos.util;
 //Java imports
 import java.awt.Color;
 import java.awt.Point;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -39,7 +37,7 @@ import java.util.Set;
 import pojos.MaskData;
 
 /** 
- * 
+ * The mask.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -51,28 +49,28 @@ import pojos.MaskData;
  * </small>
  * @since OME3.0
  */
-
-
-public class MaskClass
+class MaskClass
 {
+	
 	/** The points in the mask. */
-	Set<Point> points;
+	private Set<Point> points;
 	
 	/** The colour of the mask. */
-	int colour;
+	private int colour;
 	
-	/** The min and max (x,y) coords of the mask. */
-	Point min, max;
+	/** The min and max (x,y) coordinates of the mask. */
+	private Point min, max;
 	
 	/** The mask Width. */
-	int width;
+	private int width;
 	
 	/** The mask Height. */
-	int height;
+	private int height;
 
 	/**
-	 * Instantiate the maskClass with the colour value.
-	 * @param value See above.
+	 * Creates a new instance. 
+	 * 
+	 * @param value The color value.
 	 */
 	MaskClass(int value)
 	{
@@ -81,27 +79,29 @@ public class MaskClass
 	}
 
 	/**
-	 * Return the colour of the mask.
+	 * Returns the colour of the mask.
+	 * 
 	 * @return See above.
 	 */
 	public Color getColour()
 	{
 		return new Color(colour);
 	}
-
-
+	
 	/**
-	 * Convert the mask data to a byte array.
+	 * Converts the mask data to a byte array.
 	 * @return See above.
 	 * @throws IOException
 	 */
-	public byte[] asBytes() throws IOException
+	byte[] asBytes() 
+		throws IOException
 	{
-		byte[] data = new byte[(int) Math.ceil((double)width*(double)height/8.0)];
+		byte[] data = new byte[(int) Math.ceil(
+				(double) width*(double) height/8.0)];
 		int offset = 0;
-		for(int y = min.y ; y < max.y + 1 ; y++)
+		for (int y = min.y ; y < max.y + 1 ; y++)
 		{
-			for(int x = min.x ; x < max.x + 1 ; x++)
+			for (int x = min.x ; x < max.x + 1 ; x++)
 			{
 				if(points.contains(new Point(x,y)))
 					setBit(data, offset, 1);
@@ -114,12 +114,12 @@ public class MaskClass
 	}
 
 	/**
-	 * Add the point to the Mask.
+	 * Adds the point to the Mask.
 	 * @param p See above.
 	 */
-	public void add(Point p)
+	void add(Point p)
 	{
-		if(points.size()==0)
+		if (points.size() == 0)
 		{
 			min = new Point(p);
 			max = new Point(p);
@@ -137,21 +137,23 @@ public class MaskClass
 	}
 
 	/**
-	 * Return the MaskClass as a MaskData object, and assign it to 
-	 * The coords provided.
-	 * @param z See above.
-	 * @param t See above.
-	 * @param c See above.
+	 * Returns the MaskClass as a MaskData object, and assign it to 
+	 * the coordinates provided.
+	 * 
+	 * @param z The selected z-section.
+	 * @param t The selected time point.
+	 * @param c The selected z-channel.
 	 * @return See above.
-	 * @throws IOException
+	 * @throws IOException Thrown if an error occurred while creating the mask.
 	 */
-	public MaskData asMaskData(int z, int t, int c) throws IOException
+	MaskData asMaskData(int z, int t, int c) 
+		throws IOException
 	{
 		MaskData mask = new MaskData();
-		mask.setX((double)min.x);
-		mask.setY((double)min.y);
-		mask.setWidth((double)width);
-		mask.setHeight((double)height);
+		mask.setX((double) min.x);
+		mask.setY((double) min.y);
+		mask.setWidth((double) width);
+		mask.setHeight((double) height);
 		mask.setReadOnly(true);
 		mask.setT(t);
 		mask.setZ(z);
@@ -162,13 +164,13 @@ public class MaskClass
 	}
 	
 	/** 
-	 * Set the bit value in a byte array at position bit to be the value
+	 * Sets the bit value in a byte array at position bit to be the value
 	 * value.
 	 * @param data See above.
 	 * @param bit See above.
 	 * @param val See above.
 	 */
-	public void setBit(byte[] data, int bit, int val) 
+	void setBit(byte[] data, int bit, int val) 
 	{
 		int bytePosition = bit/8;
 		int bitPosition = 7-bit%8;
@@ -177,19 +179,19 @@ public class MaskClass
 									(byte)(val<<bitPosition));
 	}
 
-
 	/** 
-	 * Set the bit value in a byte array at position bit to be the value
+	 * Returns the bit value in a byte array at position bit to be the value
 	 * value.
 	 * @param data See above.
 	 * @param bit See above.
 	 * @param val See above.
 	 */
-	public byte getBit(byte[] data, int bit) 
+	byte getBit(byte[] data, int bit) 
 	{
 		int bytePosition = bit/8;
 		int bitPosition = 7-bit%8;
-		return (byte) ((byte)(data[bytePosition] & (0x1<<bitPosition))!=0 ? (byte)1 : (byte)0);
-	}
+		return (byte) ((byte)(data[bytePosition] & (0x1<<bitPosition)) !=0 ? 
+				(byte)1 : (byte)0);
+	} 
 
 }

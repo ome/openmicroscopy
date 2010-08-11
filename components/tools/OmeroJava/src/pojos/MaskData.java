@@ -25,9 +25,6 @@ package pojos;
 //Java imports
 import java.awt.image.BufferedImage;
 import java.awt.Color;
-import java.io.DataInputStream;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 
 
 //Third-party libraries
@@ -36,8 +33,6 @@ import java.nio.IntBuffer;
 import omero.RDouble;
 import omero.RString;
 import omero.rtypes;
-import omero.model.Line;
-import omero.model.LineI;
 import omero.model.Mask;
 import omero.model.MaskI;
 import omero.model.Shape;
@@ -70,16 +65,15 @@ public class MaskData
 		super(shape);
 	}
 	
-	/**
-	 * Create a new instance of MaskData, creating a new MaskI Object.
-	 */
+	/** Creates a new instance of MaskData, creating a new MaskI Object. */
 	public MaskData()
 	{
 		this(0.0, 0.0, 0.0, 0.0, null);
 	}
 	
 	/**
-	 * Create a new instance of the MaskData, 
+	 * Creates a new instance of the MaskData.
+	 *  
 	 * @param x x-coordinate of the shape.
 	 * @param y y-coordinate of the shape.
 	 * @param widht width of the shape.
@@ -139,7 +133,7 @@ public class MaskData
 	}
 	
 	/**
-	 * set the x-coordinate top-left corner of an untransformed mask.
+	 * Sets the x-coordinate top-left corner of an untransformed mask.
 	 * 
 	 * @param x See above.
 	 */
@@ -167,7 +161,7 @@ public class MaskData
 	}
 	
 	/**
-	 * set the y-coordinate top-left corner of an untransformed mask.
+	 * Sets the y-coordinate top-left corner of an untransformed mask.
 	 * 
 	 * @param y See above.
 	 */
@@ -195,13 +189,13 @@ public class MaskData
 	}
 	
 	/**
-	 * set width of an untransformed mask.
+	 * Sets the width of an untransformed mask.
 	 * 
 	 * @param width See above.
 	 */
 	public void setWidth(double width)
 	{
-		if(isReadOnly())
+		if (isReadOnly())
 			throw new IllegalArgumentException("Shape ReadOnly");
 		Mask shape = (Mask) asIObject();
 		if (shape == null) 
@@ -223,7 +217,7 @@ public class MaskData
 	}
 
 	/**
-	 * set height of an untransformed mask.
+	 * Sets the height of an untransformed mask.
 	 * 
 	 * @param height See above.
 	 */
@@ -238,7 +232,8 @@ public class MaskData
 	}
 	
 	/**
-	 * Set the mask image.
+	 * Sets the mask image.
+	 * 
 	 * @param mask See above.
 	 */
 	public void setMask(byte[] mask)
@@ -248,22 +243,24 @@ public class MaskData
 	}
 	
 	/**
-	 * Set the mask from the bufferedImage 
+	 * Sets the mask from the bufferedImage.
+	 * 
 	 * @param image See above.
 	 */
 	public void setMask(BufferedImage image)
 	{
 		byte[] data = new byte[(int) (getWidth()*getHeight())];
 		boolean colourSet = false;
-		for(int y = 0 ; y < getHeight(); y++)
-			for(int x = 0; x < getWidth(); x++)
-				if(image.getRGB(x,y)==0)
-					setBit(data, (int)(y*getWidth()+x), 0);
+		for (int y = 0 ; y < getHeight(); y++)
+			for (int x = 0; x < getWidth(); x++)
+				if (image.getRGB(x,y) == 0)
+					setBit(data, (int) (y*getWidth()+x), 0);
 				else
 				{
-					if(!colourSet)
+					if (!colourSet)
 					{
-						getShapeSettings().setFillColor(new Color(image.getRGB(x,y),true));
+						getShapeSettings().setFillColor(
+								new Color(image.getRGB(x,y), true));
 						colourSet = true;
 					}
 					setBit(data, (int)(y*getWidth()+x), 1);
@@ -280,21 +277,21 @@ public class MaskData
 	{
 		Mask shape = (Mask) asIObject();
 		byte[] data = shape.getBytes();
-		if(data == null) return null;
+		if (data == null) return null;
 		double width = getWidth();
-		if(width==0) return null;
+		if (width == 0) return null;
 		double height = getHeight();
-		if(height==0) return null;
-		BufferedImage bufferedImage = new BufferedImage((int)width, (int)height, 
-										BufferedImage.TYPE_INT_ARGB);
+		if (height == 0) return null;
+		BufferedImage bufferedImage = new BufferedImage((int) width, 
+				(int) height, BufferedImage.TYPE_INT_ARGB);
 		int offset = 0;
 		int colourValue = getShapeSettings().getFillColor().getRGB();
-		for(int y = 0 ; y < (int)height ; y++)
+		for (int y = 0 ; y < (int)height ; y++)
 		{
-			for(int x = 0 ; x < (int)width ; x++)
+			for (int x = 0 ; x < (int)width ; x++)
 			{
 				int bit = getBit(data, offset);
-				if(bit==1)
+				if (bit == 1)
 					bufferedImage.setRGB(x, y, colourValue);
 				else
 					bufferedImage.setRGB(x, y, 0);
@@ -313,27 +310,26 @@ public class MaskData
 	{
 		Mask shape = (Mask) asIObject();
 		byte[] data = shape.getBytes();
-		if(data == null) return null;
+		if (data == null) return null;
 		double width = getWidth();
-		if(width==0) return null;
+		if (width == 0) return null;
 		double height = getHeight();
-		if(height==0) return null;
+		if (height == 0) return null;
 		int[][] returnArray = new int[(int)width][(int)height];
 		int offset = 0;
-		int colourValue = getShapeSettings().getFillColor().getRGB();
-				for(int y = (int)height-1 ; y > 0 ; y--)
-				{
-					for(int x = 0 ; x < (int)width ; x++)
-					{
-					returnArray[x][y] = getBit(data, offset);
-					offset++;
-				}
+		for (int y = (int) height-1 ; y > 0 ; y--)
+		{
+			for (int x = 0 ; x < (int)width ; x++)
+			{
+				returnArray[x][y] = getBit(data, offset);
+				offset++;
+			}
 		}
 		return returnArray;
 	}
 	
 	/**
-	 * Get the mask as a byte array.
+	 * Returns the mask as a byte array.
 	 * @return See above.
 	 */
 	public byte[] getMask()
@@ -343,10 +339,10 @@ public class MaskData
 		return data;
 	}
 	
-	
 	/** 
-	 * Set the bit value in a byte array at position bit to be the value
+	 * Sets the bit value in a byte array at position bit to be the value
 	 * value.
+	 * 
 	 * @param data See above.
 	 * @param bit See above.
 	 * @param val See above.
@@ -359,11 +355,11 @@ public class MaskData
 									(~(byte)(0x1<<bitPosition)))|
 									(byte)(val<<bitPosition));
 	}
-
-
+	
 	/** 
-	 * Set the bit value in a byte array at position bit to be the value
+	 * Sets the bit value in a byte array at position bit to be the value
 	 * value.
+	 * 
 	 * @param data See above.
 	 * @param bit See above.
 	 * @param val See above.
@@ -372,7 +368,8 @@ public class MaskData
 	{
 		int bytePosition = bit/8;
 		int bitPosition = 7-bit%8;
-		return (byte) ((byte)(data[bytePosition] & (0x1<<bitPosition))!=0 ? (byte)1 : (byte)0);
+		return (byte) ((byte)(data[bytePosition] & (0x1<<bitPosition)) != 0 ? 
+				(byte)1 : (byte)0);
 	}
 
 	

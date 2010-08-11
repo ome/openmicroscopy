@@ -27,9 +27,16 @@ package pojos;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
+
 import omero.rtypes;
 import omero.RInt;
 import omero.RString;
+import omero.model.Polygon;
+import omero.model.Polyline;
 import omero.model.Shape;
 
 /**
@@ -58,6 +65,103 @@ public abstract class ShapeData
 	/** Has this shape been created client side. */
 	private boolean clientObject;
 
+	/**
+	 * Parses out the type from the points string.
+	 * 
+	 * @param type The value in the list to parse.
+	 * @return See above.
+	 */
+	protected String fromPoints(String type)
+	{
+		Polygon shape = (Polygon) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		String pts = shape.getPoints().getValue();
+		if (pts.length() == 0)
+			return "";
+		String exp = type+'[';
+		int typeStr = pts.indexOf(exp, 0);
+		int start = pts.indexOf('[', typeStr);
+		int end = pts.indexOf(']', start);
+		return pts.substring(start+1,end);
+	}
+
+	/** 
+	 * Parses the points list from the string to a list of point2d objects.
+	 * 
+	 * @param str the string to convert to points.
+	 */
+	protected List<Point2D.Double> parsePointsToPoint2DList(String str)
+	{
+		List<Point2D.Double> points = new ArrayList<Point2D.Double>();
+		StringTokenizer tt = new StringTokenizer(str, ",");
+		int numTokens = tt.countTokens()/2;
+		for (int i = 0; i < numTokens; i++)
+			points.add(
+					new Point2D.Double(new Double(tt.nextToken()), new Double(
+						tt.nextToken())));
+		return points;
+	}
+	
+	/** 
+	 * Parses the points list from the string to a list of integer objects.
+	 * 
+	 * @param str the string to convert to points.
+	 */
+	protected List<Integer> parsePointsToIntegerList(String str)
+	{
+		List<Integer> points = new ArrayList<Integer>();
+
+		StringTokenizer tt = new StringTokenizer(str, ",");
+		int numTokens = tt.countTokens();
+		for (int i = 0; i< numTokens; i++)
+			points.add(new Integer(tt.nextToken()));
+		return points;
+	}
+	
+	/**
+	 * Returns a Point2D.Double array as a Points attribute value. as specified
+	 * in http://www.w3.org/TR/SVGMobile12/shapes.html#PointsBNF
+	 */
+	protected static String toPoints(Point2D.Double[] points)
+	{
+		StringBuilder buf = new StringBuilder();
+		for (int i = 0; i < points.length; i++)
+		{
+			if (i != 0)
+			{
+				buf.append(", ");
+			}
+			buf.append(toNumber(points[i].x));
+			buf.append(',');
+			buf.append(toNumber(points[i].y));
+		}
+		return buf.toString();
+	}
+	
+	/**
+	 * Populates the collections.
+	 */
+	private void parseShapeStringToPointsList()
+	{
+		/*
+		points = getPoints();
+		points1 = getPoints();
+		points2 = getPoints();
+		mask = getMaskPoints();
+		*/
+	}
+	
+	/** Returns a double array as a number attribute value. */
+	protected static String toNumber(double number)
+	{
+		String str = Double.toString(number);
+		if (str.endsWith(".0"))
+			str = str.substring(0, str.length()-2);
+		return str;
+	}
+	
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -279,7 +383,7 @@ public abstract class ShapeData
 	}
 	
 	/**
-	 * Set the Affine transform of the shape.
+	 * Sets the Affine transform of the shape.
 	 * 
 	 * @param See above.
 	 */
@@ -300,4 +404,5 @@ public abstract class ShapeData
 	{
 		super.setDirty(dirty);
 	}
+	
 }

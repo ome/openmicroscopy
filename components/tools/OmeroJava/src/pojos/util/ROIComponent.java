@@ -23,19 +23,11 @@
 package pojos.util;
 
 //Java imports
-
-import java.awt.Color;
-import java.awt.Point;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 
 //Third-party libraries
@@ -46,7 +38,7 @@ import pojos.ROIData;
 import omero.model.ImageI;
 
 /** 
- * 
+ * Component hosting the ROI.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -61,11 +53,12 @@ import omero.model.ImageI;
 
 public class ROIComponent
 {
+	
 	/** The map of Colour to ROI.*/
-	HashMap<Integer, ROIData> roiColour;
+	private Map<Integer, ROIData> roiColour;
 	
 	/** The Image Id of the component. */
-	long imageId;
+	private long imageId;
 	
 	/**
 	 * Instantiate the ROIComponent. 
@@ -78,17 +71,19 @@ public class ROIComponent
 	}
 	
 	/**
-	 * Add the Masks in the maskSet to the component.
+	 * Adds the Masks in the maskSet to the component.
+	 * 
 	 * @param maskSet See above.
 	 */
 	public void addMasks(Map<Integer, MaskData> maskSet)
 	{
 		Iterator<Integer> colourIterator = maskSet.keySet().iterator();
-		while(colourIterator.hasNext())
+		ROIData roi;
+		int colour;
+		while (colourIterator.hasNext())
 		{
-			ROIData roi;
-			int colour = colourIterator.next();
-			if(!roiColour.containsKey(colour))
+			colour = colourIterator.next();
+			if (!roiColour.containsKey(colour))
 			{
 				roi = new ROIData();
 				roi.setImage(new ImageI(imageId, false));
@@ -96,24 +91,21 @@ public class ROIComponent
 			}
 			else
 				roi = roiColour.get(colour);
-			MaskData shape = maskSet.get(colour);
-			roi.addShapeData(shape);
+			roi.addShapeData(maskSet.get(colour));
 		}	
 	}
 	
 	/**
-	 * Return all the roi in the component as a list.
+	 * Returns all the ROI in the component as a list.
 	 * @return Sea above.
 	 */
 	public List<ROIData> getROI()
 	{
-		int colour;
 		List<ROIData> roiList = new ArrayList<ROIData>();
 		Iterator<Integer> colourIterator = roiColour.keySet().iterator();
-		while(colourIterator.hasNext())
+		while (colourIterator.hasNext())
 		{
-			colour = colourIterator.next();
-			roiList.add(roiColour.get(colour));
+			roiList.add(roiColour.get(colourIterator.next()));
 		}
 		return roiList;
 	}

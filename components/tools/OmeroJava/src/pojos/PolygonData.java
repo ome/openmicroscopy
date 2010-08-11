@@ -25,15 +25,11 @@ package pojos;
 //Java imports
 import java.util.List;
 import java.util.ArrayList;
-import java.util.StringTokenizer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.awt.geom.Point2D;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.RDouble;
 import omero.RString;
 import omero.rtypes;
 import omero.model.PolygonI;
@@ -56,22 +52,7 @@ import omero.model.Polygon;
 public class PolygonData 
 	extends ShapeData
 {
-	/** Regex for a data in block. */
-	private static final String NUMREGEX = "\\[.*\\]";
-	
-	/** The points in the polygon as list. */
-	List<Point2D.Double> points;
 
-	/** The points in the polygon as list. */
-	List<Point2D.Double> points1;
-
-	/** The points in the polygon as list. */
-	List<Point2D.Double> points2;
-	
-	/** The points in the polygon as list. */
-	List<Integer> mask;
-
-	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -80,21 +61,22 @@ public class PolygonData
 	public PolygonData(Shape shape)
 	{
 		super(shape);
-		parseShapeStringToPointsList();
+		//parseShapeStringToPointsList();
 	}
 	
 	/**
-	 * Create a new instance of PolygonData, creating a new PolygonI Object.
+	 * Creates a new instance of PolygonData, creating a new PolygonI Object.
 	 */
 	public PolygonData()
 	{
-		this(new ArrayList<Point2D.Double>(),new ArrayList<Point2D.Double>(),
+		this(new ArrayList<Point2D.Double>(), new ArrayList<Point2D.Double>(),
 				new ArrayList<Point2D.Double>(), new ArrayList<Integer>());
 	}
 	
 	/**
-	 * Create a new instance of the PolygonData, set the points in the polygon.
-	 * @param points See Above.
+	 * Creates a new instance of the PolygonData, set the points in the polygon.
+	 * 
+	 * @param points The points in the polygon.
 	 */
 	public PolygonData(List<Point2D.Double> points, List<Point2D.Double> points1, 
 			List<Point2D.Double> points2, List<Integer> maskList)
@@ -123,7 +105,7 @@ public class PolygonData
 	 */
 	public void setText(String text)
 	{
-		if(isReadOnly())
+		if (isReadOnly())
 			throw new IllegalArgumentException("Shape ReadOnly");
 		Polygon shape = (Polygon) asIObject();
 		if (shape == null) 
@@ -138,7 +120,7 @@ public class PolygonData
 	 */
 	public List<Point2D.Double> getPoints()
 	{
-		String pts =  fromPoints("points");
+		String pts = fromPoints("points");
 		return parsePointsToPoint2DList(pts);
 	}
 	
@@ -149,7 +131,7 @@ public class PolygonData
 	 */
 	public List<Point2D.Double> getPoints1()
 	{
-		String pts =  fromPoints("points1");
+		String pts = fromPoints("points1");
 		return parsePointsToPoint2DList(pts);
 	}
 
@@ -171,7 +153,7 @@ public class PolygonData
 	 */
 	public List<Integer> getMaskPoints()
 	{
-		String pts =  fromPoints("mask");
+		String pts = fromPoints("mask");
 		return parsePointsToIntegerList(pts);
 	}
 	
@@ -180,10 +162,11 @@ public class PolygonData
 	 * 
 	 * @param points See above.
 	 */
-	public void setPoints(List<Point2D.Double> points, List<Point2D.Double> points1, 
+	public void setPoints(List<Point2D.Double> points, 
+			List<Point2D.Double> points1, 
 			List<Point2D.Double> points2, List<Integer> maskList)
 	{
-		if(isReadOnly())
+		if (isReadOnly())
 			throw new IllegalArgumentException("Shape ReadOnly");
 		Polygon shape = (Polygon) asIObject();
 		if (shape == null) 
@@ -196,9 +179,9 @@ public class PolygonData
 		String points2Values=
 			toPoints(points2.toArray(new Point2D.Double[points2.size()]));
 		String maskValues = "";
-		for( int i = 0 ; i < maskList.size()-1; i++)
+		for (int i = 0 ; i < maskList.size()-1; i++)
 			maskValues = maskValues + maskList.get(i)+",";
-		if(maskList.size()!=0)
+		if (maskList.size() != 0)
 			maskValues = maskValues+maskList.get(maskList.size()-1)+"";
 		String pts = "points["+pointsValues+"] ";
 		pts = pts + "points1["+points1Values+"] ";
@@ -207,100 +190,5 @@ public class PolygonData
 		
 		shape.setPoints(rtypes.rstring(pts));
 	}
-	
-	/**
-	 * Parse out the type from the points string.
-	 * @param type The value in the list to parse.
-	 * @return See above.
-	 */
-	private String fromPoints(String type)
-	{
-		Polygon shape = (Polygon) asIObject();
-		if (shape == null) 
-			throw new IllegalArgumentException("No shape specified.");
-		String pts = shape.getPoints().getValue();
-		if (pts.length() == 0)
-			return "";
-		String exp = type+'[';
-		int typeStr = pts.indexOf(exp,0);
-		int start = pts.indexOf('[',typeStr);
-		int end = pts.indexOf(']',start);
-		return pts.substring(start+1,end);
-	}
-	
-	
-	/** 
-	* Parse the points list from the string to a list of point2d objects.
-	* @param str the string to convert to points.
-	*/
-	private List<Point2D.Double> parsePointsToPoint2DList(String str)
-	{
-		List<Point2D.Double> points = new ArrayList<Point2D.Double>();
-	
-		StringTokenizer tt=new StringTokenizer(str, ",");
-		int numTokens = tt.countTokens()/2;
-		for (int i=0; i< numTokens; i++)
-			points.add(
-					new Point2D.Double(new Double(tt.nextToken()), new Double(
-						tt.nextToken())));
-		return points;
-	}
-	
-	/** 
-	* Parse the points list from the string to a list of integer objects.
-	* @param str the string to convert to points.
-	*/
-	private List<Integer> parsePointsToIntegerList(String str)
-	{
-		List<Integer> points = new ArrayList<Integer>();
-
-		StringTokenizer tt=new StringTokenizer(str, ",");
-		int numTokens = tt.countTokens();
-		for (int i=0; i< numTokens; i++)
-			points.add(new Integer(tt.nextToken()));
-		return points;
-	}
-	
-	/**
-	 * Returns a Point2D.Double array as a Points attribute value. as specified
-	 * in http://www.w3.org/TR/SVGMobile12/shapes.html#PointsBNF
-	 */
-	private static String toPoints(Point2D.Double[] points)
-	{
-		StringBuilder buf=new StringBuilder();
-		for (int i=0; i<points.length; i++)
-		{
-			if (i!=0)
-			{
-				buf.append(", ");
-			}
-			buf.append(toNumber(points[i].x));
-			buf.append(',');
-			buf.append(toNumber(points[i].y));
-		}
-		return buf.toString();
-	}
-	
-	private void parseShapeStringToPointsList()
-	{
-		points = getPoints();
-		points1 = getPoints();
-		points2 = getPoints();
-		mask = getMaskPoints();
-	}
-	
-	/**
-	 * Returns a double array as a number attribute value.
-	 */
-	private static String toNumber(double number)
-	{
-		String str=Double.toString(number);
-		if (str.endsWith(".0"))
-		{
-			str=str.substring(0, str.length()-2);
-		}
-		return str;
-	}
-	
 	
 }
