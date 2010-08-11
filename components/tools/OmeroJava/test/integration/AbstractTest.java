@@ -270,7 +270,7 @@ public class AbstractTest
         if (client != null) {
             client.__del__();
         }
-
+        
         client = new omero.client();
         factory = client.createSession(uuid, uuid);
         iQuery = factory.getQueryService();
