@@ -137,7 +137,7 @@
                                 
                             {% for pdb in pdbs %}
                                 <div>
-                                Load pdb:<a href="{% url webemdb_pdb project.name pdb.id %}" class="oavLoadPdb">{{ pdb.getFileName }}</a>
+                                Load pdb:<a href="{% url webemdb_pdb pdb.id %}" class="oavLoadPdb">{{ pdb.getFileName }}</a>
                                 </div>
                             {% endfor %}
                         </div>
@@ -145,7 +145,7 @@
                     </div>
                     
                     <!-- This is a hidden link that is used by javascript to load the OA-viewer if/when the visAstex is clicked -->
-                    <a id="oavLink" href="{% url webemdb.views.oa_viewer project.name bit.id %}">OA Viewer</a>
+                    <a id="oavLink" href="{% url webemdb_oa_viewer bit.id %}">OA Viewer</a>
                     
                     {% else %}
                         <div class="visOption"> Volume viewer not available </div>

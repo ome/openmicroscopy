@@ -126,9 +126,13 @@ def entry (request, entryId):
             'sizeWarning':sizeWarning, 'data': data})
         
         
-def oa_viewer(request, entryId, fileId): 
+def oa_viewer(request, fileId): 
+    """ Returns simply the <applet> element of Open Astex Viewer, for loading into another page. 
+        The <applet> contains a script that will load a bit mask, identified by fileId """
+        
     conn = getConnection(request)
-    return render_to_response('webemdb/entries/oa_viewer.html', {'entryId': entryId, 'fileId': fileId})
+    return render_to_response('webemdb/entries/oa_viewer.html', {'fileId': fileId})
+    
     
 def viewport(request, imageId):
     conn = getConnection(request)
