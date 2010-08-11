@@ -437,7 +437,7 @@ public class AdminServiceTest
 	 * @throws Exception Thrown if an error occurred.
 	 */
 	@Test
-    public void testUpdateExperimenter() 
+    public void testUpdateExperimenterByAdmin() 
     	throws Exception
     {
 		//First create a new user.
@@ -479,11 +479,57 @@ public class AdminServiceTest
     }
 	
 	/**
-	 * Tests the update an existing user.
+	 * Tests the update of the details of the user currently logged in.
 	 * @throws Exception Thrown if an error occurred.
 	 */
 	@Test
-    public void testChangePassword() 
+    public void testUpdateExperimenterByUser() 
+    	throws Exception
+    {
+		//First create a new user.
+		String uuid = UUID.randomUUID().toString();
+        Experimenter e = new ExperimenterI();
+        e.setOmeName(omero.rtypes.rstring(uuid));
+        e.setFirstName(omero.rtypes.rstring("user"));
+        e.setLastName(omero.rtypes.rstring("user"));
+        IAdminPrx svc = root.getSession().getAdminService();
+        
+        //already tested
+        ExperimenterGroup g = new ExperimenterGroupI();
+        g.setName(omero.rtypes.rstring(uuid));
+        g.getDetails().setPermissions(new PermissionsI("rw----"));
+
+        //create group.
+        svc.createGroup(g);
+        
+		long id = svc.createUser(e, uuid);
+		IQueryPrx query = root.getSession().getQueryService();
+		ParametersI p = new ParametersI();
+		p.addId(id);
+		e = (Experimenter) query.findByQuery(
+				"select distinct e from Experimenter e where e.id = :id", p);
+		assertNotNull(e);
+		
+		String name = "userModified";
+		uuid = UUID.randomUUID().toString();
+		e.setOmeName(omero.rtypes.rstring(uuid));
+		e.setFirstName(omero.rtypes.rstring(name));
+        e.setLastName(omero.rtypes.rstring(name));
+		svc.updateExperimenter(e);
+		e = (Experimenter) query.findByQuery(
+				"select distinct e from Experimenter e where e.id = :id", p);
+		assertNotNull(e);
+		assertTrue(e.getOmeName().getValue().equals(uuid));
+		assertTrue(e.getFirstName().getValue().equals(name));
+		assertTrue(e.getLastName().getValue().equals(name));
+    }
+	
+	/**
+	 * Tests the update of the user password by the administrator
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test
+    public void testChangePasswordByAdmin() 
     	throws Exception
     {
 		//First create a new user.
@@ -767,5 +813,37 @@ public class AdminServiceTest
             client.closeSession();
         }
     }
+    
+    /**
+	 * Tests the modification of the password by the user currently logged in.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test
+    public void testChangePasswordByUser() 
+    	throws Exception
+    {
+    }
+	
+    /**
+	 * Tests the attempt to modify the password by another user than the one
+	 * currently logged in.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test
+    public void testChangePasswordByOtherUser() 
+    	throws Exception
+    {
+    }
+	
+    /**
+	 * Tests turning an experimenter not active.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test
+    public void testDeactivateUser() 
+    	throws Exception
+    {
+    }
+	
 	
 }

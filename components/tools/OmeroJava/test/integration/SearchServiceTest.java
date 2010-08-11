@@ -9,13 +9,17 @@ package integration;
 
 //Java imports
 
+
 //Third-party libraries
 import org.testng.annotations.Test;
 
 //Application-internal dependencies
+import omero.api.SearchPrx;
+import omero.model.Image;
+import omero.model.Project;
 
 /** 
- * 
+ * Collection of tests for the <code>Search</code> service.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -32,4 +36,40 @@ public class SearchServiceTest
 	extends AbstractTest
 {
 
+	/**
+	 * Tests the <code>byFullText</code> method for image.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test
+	public void testByFullTextImageType()
+		throws Exception
+	{
+		Image p = (Image) 
+    	factory.getUpdateService().saveAndReturnObject(simpleImage(0));
+		String name = p.getName().getValue();
+		SearchPrx svc = factory.createSearchService();
+		svc.onlyType(Image.class.getName());
+		svc.byFullText(name);
+		//assertTrue(svc.hasNext());
+		svc.close();
+	}
+	
+	/**
+	 * Tests the <code>byFullText</code> method for project.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test
+	public void testByFullTextProjectType()
+		throws Exception
+	{
+		Image p = (Image) 
+    	factory.getUpdateService().saveAndReturnObject(simpleImage(0));
+		String name = p.getName().getValue();
+		SearchPrx svc = factory.createSearchService();
+		svc.onlyType(Project.class.getName());
+		svc.byFullText(name);
+		assertFalse(svc.hasNext());
+		svc.close();
+	}
+	
 }

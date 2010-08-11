@@ -82,6 +82,9 @@ public class AbstractTest
 	extends TestCase
 {
 
+	/** The default number of channels. */
+	public static final int DEFAULT_CHANNELS_NUMBER = 3;
+	
 	/** Identifies the <code>system</code> group. */
 	public String SYSTEM_GROUP = "system";
 	
@@ -303,7 +306,8 @@ public class AbstractTest
         IceMapper mapper = new IceMapper();
         ome.model.core.Pixels p = 
         	(ome.model.core.Pixels) mapper.reverse(example);
-        p = ObjectFactory.createPixelGraphWithChannels(p, 3);
+        p = ObjectFactory.createPixelGraphWithChannels(p, 
+        		DEFAULT_CHANNELS_NUMBER);
         return (Pixels) mapper.map(p);
     }
 
@@ -335,4 +339,5 @@ public class AbstractTest
         planeInfo.setDeltaT(omero.rtypes.rdouble(0.5));
         return planeInfo;
     }
+    
 }

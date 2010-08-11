@@ -28,6 +28,7 @@ import omero.RType;
 import omero.api.IAdminPrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
+import omero.api.RenderingEnginePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.grid.Param;
 import omero.model.Annotation;
@@ -1104,7 +1105,7 @@ public class UpdateServiceTest
         p = i.getPrimaryPixels();
 
         Set<Long> ids = new HashSet<Long>();
-        assertEquals(3, p.sizeOfChannels());
+        assertEquals(DEFAULT_CHANNELS_NUMBER, p.sizeOfChannels());
         assertNotNull(p.getChannel(0));
         ids.add(p.getChannel(0).getId().getValue());
 
@@ -1121,31 +1122,58 @@ public class UpdateServiceTest
         i = (Image) iUpdate.saveAndReturnObject(i);
         p = i.getPrimaryPixels();
 
-        assertEquals(3, p.sizeOfChannels());
+        assertEquals(DEFAULT_CHANNELS_NUMBER, p.sizeOfChannels());
         assertFalse(ids.contains(p.getChannel(1).getId().getValue()));
     }
-
+    
     /**
      * Tests the creation of plane information objects.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(groups = "ticket:168")
-    public void testPlaneInfoSetPixelsSavePixels() 
-    	throws Exception 
+    @Test(groups = { "ticket:168", "ticket:767" })
+    public void testPlaneInfoSetPixelsSavePlaneInfo() 
+    	throws Exception
     {
-    	/*
-    	Pixels p = createPixels();
-        p.clearPlaneInfo();
+    	Pixels pixels = createPixels();
+		Image i = pixels.getImage();
+        i = (Image) iUpdate.saveAndReturnObject(i);
+        pixels = i.getPrimaryPixels();
+        pixels.clearPlaneInfo();
         PlaneInfo planeInfo = createPlaneInfo();
-        planeInfo.setPixels(p);
-        p = (Pixels) iUpdate.saveAndReturnObject(p);
+        planeInfo.setPixels(pixels);
+        planeInfo = (PlaneInfo) iUpdate.saveAndReturnObject(planeInfo);
         ParametersI param = new ParametersI();
-    	param.addId(p.getId());
-        PlaneInfo test = (PlaneInfo) iQuery.findByQuery(
-                "select pi from PlaneInfo pi " + "where pi.pixels.id = :id",
+    	param.addId(planeInfo.getId());
+        Pixels test = (Pixels) iQuery.findByQuery(
+                "select pi.pixels from PlaneInfo pi where pi.id = :id",
                 param);
-        assertNull(test);
-        */
+        assertNotNull(test);
+    }
+
+    /**
+     * Tests the creation of plane information objects. This time the plane info
+     * object is directly added to the pixels set. The plane info should be
+     * saved.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(groups = "ticket:168")
+    public void testPixelsAddToPlaneInfoSavePixels() 
+    	throws Exception
+    {
+    	Pixels pixels = createPixels();
+		Image i = pixels.getImage();
+        i = (Image) iUpdate.saveAndReturnObject(i);
+        pixels = i.getPrimaryPixels();
+    	pixels.clearPlaneInfo();
+    	PlaneInfo planeInfo = createPlaneInfo();
+    	pixels.addPlaneInfo(planeInfo);
+    	pixels = (Pixels) iUpdate.saveAndReturnObject(pixels);
+    	ParametersI param = new ParametersI();
+    	param.addId(pixels.getId());
+    	List<IObject> test = (List<IObject>) iQuery.findAllByQuery(
+    			"select pi from PlaneInfo pi where pi.pixels.id = :id",
+    			param);
+    	assertNotNull(test);
     }
     
     /**
