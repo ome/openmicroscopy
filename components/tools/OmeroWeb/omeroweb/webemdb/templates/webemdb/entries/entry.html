@@ -37,7 +37,7 @@
         <table id="entry_header">
         <tr>
             <td valign="top">
-                <div>{% if gif %}<img id="entryImage" height="200" src="{% url webemdb_file project.name gif.id %}" />{% endif %}</div>
+                <div>{% if gif %}<img id="entryImage" height="200" src="{% url webemdb_file gif.id %}" />{% endif %}</div>
             </td>
             <td valign="top">
                 <div class="entryTitle" id="articleTitle"></div>
@@ -45,8 +45,8 @@
                 <div class="entrySubtitle">
                     <div id="entrySub">Aggregation State: <span id="aggregationState"></span></div>
                     Download: 
-                    {% if xml %}<a id="emdbxml" href="{% url webemdb_file project.name xml.id %}">{{ xml.getFileName }}</a> {% endif %}
-                    {% if img and map %}<a id="emdbmap" href="{% url webemdb_file img.id map.id %}">{{ map.getFileName }}</a> {% endif %}
+                    {% if xml %}<a id="emdbxml" href="{% url webemdb_file xml.id %}">{{ xml.getFileName }}</a> {% endif %}
+                    {% if img and map %}<a id="emdbmap" href="{% url webemdb_file map.id %}">{{ map.getFileName }}</a> {% endif %}
                     
                     {% if data %} View: <a href="{% url webemdb_data project.name %}">Associated data</a>{% endif %}
                 </div>
@@ -94,7 +94,7 @@
                 <!-- <div class="visMenu"> -->
                     <div class="visOption" id='visPreview'>
                         {% if gif %}
-                        <div class="visIcon"><img width='75' src="{% url webemdb_file project.name gif.id %}" /></div>
+                        <div class="visIcon"><img width='75' src="{% url webemdb_file gif.id %}" /></div>
                         <div class="visText">Preview</div>
                         {% else %}
                             <div> Preview image not available </div>
@@ -118,7 +118,7 @@
                     {% if bit %}
                     <div class="visOption" id='visAstex'>
                         <div>
-                            <div class="visIcon"><img width='75' src="{% url webemdb_file project.name gif.id %}" /> </div>
+                            <div class="visIcon"><img width='75' src="{% url webemdb_file gif.id %}" /> </div>
                             <div class="visText">
                                 Open Astex Viewer
                                 {% if sizeWarning %} <!-- display warning if necessary -->
@@ -159,7 +159,7 @@
                     <!-- various viewers, shown and hidden as required -->
                     <div class="visViewer" id="visPreviewPane">
                         {% if gif %}
-                        <img id="bigImg" src="{% url webemdb_file project.name gif.id %}" />
+                        <img id="bigImg" src="{% url webemdb_file gif.id %}" />
                         {% endif %}
                     </div>
                     <div class="visViewer" id="visOmeroPane">

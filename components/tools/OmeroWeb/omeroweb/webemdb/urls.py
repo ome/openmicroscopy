@@ -11,9 +11,9 @@ urlpatterns = patterns('',
     
     url( r'^entry/(?P<entryId>[0-9]+)/$', views.entry, name='webemdb_entry' ),
     # bit of a hack - should only need fileId - see views.file for info
-    url( r'^entry/(?P<entryId>[0-9]+)/file/(?P<fileId>[0-9]+)/$', views.getFile, name='webemdb_file' ),
-    url( r'^entry/(?P<entryId>[0-9]+)/file/(?P<fileId>[0-9]+)\.bit$', views.getFile, name='webemdb_bit' ),
-    url( r'^entry/(?P<entryId>[0-9]+)/file/(?P<fileId>[0-9]+)\.pdb\.gz$', views.getFile, name='webemdb_pdb' ),
+    url( r'^file/(?P<fileId>[0-9]+)/$', views.getFile, name='webemdb_file' ),
+    url( r'^file/(?P<fileId>[0-9]+)\.bit$', views.getFile, name='webemdb_bit' ),
+    url( r'^file/(?P<fileId>[0-9]+)\.pdb\.gz$', views.getFile, name='webemdb_pdb' ),
     # look up the preview gif file for an entry based on name
     url( r'^entry/(?P<entryId>[0-9]+)/gif/$', views.gif, name='webemdb_gif' ),
     # for downloading whole mrc.map   

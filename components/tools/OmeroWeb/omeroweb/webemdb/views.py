@@ -2,6 +2,8 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from django.utils import simplejson
+from django.core.servers.basehttp import FileWrapper
+
 from omeroweb.webgateway.views import getBlitzConnection, _session_logout
 from omeroweb.webgateway import views as webgateway_views
 from webclient.controller.annotation import BaseAnnotation
@@ -157,33 +159,20 @@ def gif (request, entryId):
             pass
     
     if gif:
-        file_data = gif.getFile()
-        return HttpResponse(file_data, mimetype='image/gif')
+        return getFile(request, gif.getId())
     else:
         return HttpResponse()
 
 
-def getFile (request, entryId, fileId):
+def getFile (request, fileId):
     """
     Gets the file by Id and returns it according to mime type for display.
     """
-    
     conn = getConnection(request)
-        
-    entryName = str(entryId)
-    project = conn.findProject(entryName)
-    
-    if project == None: return HttpResponse()
-    print "Project", project
         
     # get the file by ID
     ann = None
     ann = conn.getFileAnnotation(long(fileId))
-    print "getFileAnnotation", ann
-    #for a in project.listAnnotations():
-    #    if a.id == long(fileId):
-    #        ann = a
-    #print "Annotation", ann
 
     # determine mime type to assign
     if ann:
@@ -210,7 +199,6 @@ def getFile (request, entryId, fileId):
         f.close()
         print "temp file created at", temp
         
-        from django.core.servers.basehttp import FileWrapper
         originalFile_data = FileWrapper(file(temp))
             
         rsp = HttpResponse(originalFile_data)
@@ -221,19 +209,7 @@ def getFile (request, entryId, fileId):
         #rsp['Content-Disposition'] = 'attachment; filename=%s' % (ann.getFileName().replace(" ","_"))
             
         return rsp
-        """
-        if file_data.startswith(settings.FILE_UPLOAD_TEMP_DIR):
-            from django.core.servers.basehttp import FileWrapper
-            temp = FileWrapper(file(file_data))
-            rsp = HttpResponse(temp, content_type=mimetype)
-            rsp['Content-Type'] = 'application/octet-stream'
-            rsp['Content-Disposition'] = 'attachment; filename=%s' % (a.getFileName())
-            rsp['Content-Length'] = os.path.getsize(file_data)
-            print "File Size", os.path.getsize(file_data)
-            
-            return rsp
-          """  
-        #return HttpResponse(file_data, mimetype=mimetype)
+        
     return HttpResponse()
     
 
