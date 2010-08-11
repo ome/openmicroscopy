@@ -153,7 +153,10 @@ class ITest(unittest.TestCase):
         pix_ids = []
         for x in out.split("\n"):
             if x and x.find("Created") < 0 and x.find("#") < 0:
-                pix_ids.append(long(x.strip()))
+                try:    # if the line has an image ID...
+                    imageId = long(x.strip())
+                    pix_ids.append(imageId)
+                except: pass
         return pix_ids
 
     def index(self, *objs):
