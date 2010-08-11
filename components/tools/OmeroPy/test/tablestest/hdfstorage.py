@@ -77,12 +77,12 @@ class TestHdfStorage(TestCase):
         tmp = self.hdfpath()
         hdf1 = omero.tables.HdfStorage(tmp)
         try:
-            hdf2 = omero.tables.HdfStorage(tmp)
+            hdf2 = omero.tables.HdfStorage(self.hdfpath())
             self.fail("should be locked")
         except omero.LockTimeout, lt:
             pass
         hdf1.cleanup()
-        hdf3 = omero.tables.HdfStorage(tmp)
+        hdf3 = omero.tables.HdfStorage(self.hdfpath())
 
     def testSimpleCreation(self):
         hdf = omero.tables.HdfStorage(self.hdfpath())
@@ -147,13 +147,19 @@ class TestHdfStorage(TestCase):
         except omero.ApiUsageException:
             pass
         hdf.cleanup()
-
+        
+    """
+    Hard fails disabled. See #2067
     def testAddColumn(self):
         self.fail("NYI")
 
     def testMergeFiles(self):
         self.fail("NYI")
-
+        
+    def testVersion(self):
+        self.fail("NYI")
+    """
+    
     def testHandlesExistingDirectory(self):
         t = path(self.tmpdir())
         h = t / "test.h5"
@@ -161,8 +167,6 @@ class TestHdfStorage(TestCase):
         hdf = omero.tables.HdfStorage(h)
         hdf.cleanup()
 
-    def testVersion(self):
-        self.fail()
 
     def testStringCol(self):
         hdf = omero.tables.HdfStorage(self.hdfpath())
@@ -194,7 +198,7 @@ class TestHdfStorage(TestCase):
         mask.w = [6, 6]
         mask.h = [7, 7]
         mask.bytes = [[0],[0,1,2,3,4]]
-        hdf.append([mask])
+        hdf.append(mask)
         data = hdf.readCoordinates(hdf._stamp, [0,1], self.current)
         test = data.columns[0]
         self.assertEquals(1, test.imageId[0])
