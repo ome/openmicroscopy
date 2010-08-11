@@ -45,6 +45,7 @@ import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.Details;
 import omero.model.DimensionOrder;
+import omero.model.EllipseI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
@@ -58,6 +59,7 @@ import omero.model.ImageAnnotationLinkI;
 import omero.model.ImageI;
 import omero.model.LongAnnotation;
 import omero.model.LongAnnotationI;
+import omero.model.MaskI;
 import omero.model.OriginalFile;
 import omero.model.Permissions;
 import omero.model.PermissionsI;
@@ -66,12 +68,16 @@ import omero.model.PlaneInfo;
 import omero.model.Plate;
 import omero.model.PlateAnnotationLink;
 import omero.model.PlateAnnotationLinkI;
+import omero.model.PointI;
+import omero.model.PolygonI;
 import omero.model.Project;
 import omero.model.ProjectAnnotationLink;
 import omero.model.ProjectAnnotationLinkI;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
+import omero.model.RectI;
+import omero.model.RoiI;
 import omero.model.Screen;
 import omero.model.ScreenAnnotationLink;
 import omero.model.ScreenAnnotationLinkI;
@@ -91,9 +97,16 @@ import org.testng.annotations.Test;
 import Ice.Current;
 
 import pojos.DatasetData;
+import pojos.EllipseData;
 import pojos.ImageData;
+import pojos.MaskData;
+import pojos.PointData;
+import pojos.PolygonData;
 import pojos.ProjectData;
+import pojos.ROIData;
+import pojos.RectangleData;
 import pojos.ScreenData;
+import pojos.ShapeData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -1133,6 +1146,320 @@ public class UpdateServiceTest
                 param);
         assertNull(test);
         */
+    }
+    
+    /**
+	 * Tests the creation of ROIs whose shapes are Ellipses and converts them 
+	 * into the corresponding <code>POJO</code> objects.
+	 * @throws Exception  Thrown if an error occurred.
+	 */
+    @Test
+    public void testCreateEllipse() 
+    	throws Exception
+    {
+    	ImageI image = (ImageI) iUpdate.saveAndReturnObject(simpleImage(0));
+        RoiI roi = new RoiI();
+        roi.setImage(image);
+        RoiI serverROI = (RoiI) iUpdate.saveAndReturnObject(roi);
+        assertNotNull(serverROI);
+        double v = 10;
+        int z = 0;
+        int t = 0;
+        int c = 0;
+        EllipseI rect = new EllipseI();
+        rect.setCx(omero.rtypes.rdouble(v));
+        rect.setCy(omero.rtypes.rdouble(v));
+        rect.setRx(omero.rtypes.rdouble(v));
+        rect.setRy(omero.rtypes.rdouble(v));
+        rect.setTheZ(omero.rtypes.rint(z));
+        rect.setTheT(omero.rtypes.rint(t));
+        rect.setTheC(omero.rtypes.rint(c));
+        serverROI.addShape(rect);
+        
+        serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
+        
+        ROIData data = new ROIData(serverROI);
+        assertTrue(data.getId() == serverROI.getId().getValue());
+        assertTrue(data.getShapeCount() == 1);
+        
+        List<ShapeData> shapes = data.getShapes(z, t);
+        assertNotNull(shapes);
+        assertTrue(shapes.size() == 1);
+        EllipseData shape;
+        Iterator<ShapeData> i = shapes.iterator();
+        while (i.hasNext()) {
+        	shape = (EllipseData) i.next();
+        	assertTrue(shape.getT() == t);
+        	assertTrue(shape.getZ() == z);
+        	assertTrue(shape.getC() == c);
+        	assertTrue(shape.getX() == v);
+        	assertTrue(shape.getY() == v);
+        	assertTrue(shape.getRadiusX() == v);
+        	assertTrue(shape.getRadiusY() == v);
+		}
+    }
+    
+    /**
+	 * Tests the creation of ROIs whose shapes are Points and converts them 
+	 * into the corresponding <code>POJO</code> objects.
+	 * @throws Exception  Thrown if an error occurred.
+	 */
+    @Test
+    public void testCreatePoint() 
+    	throws Exception
+    {
+        ImageI image = (ImageI) iUpdate.saveAndReturnObject(simpleImage(0));
+        RoiI roi = new RoiI();
+        roi.setImage(image);
+        RoiI serverROI = (RoiI) iUpdate.saveAndReturnObject(roi);
+        assertNotNull(serverROI);
+        double v = 10;
+        int z = 0;
+        int t = 0;
+        int c = 0;
+        PointI rect = new PointI();
+        rect.setCx(omero.rtypes.rdouble(v));
+        rect.setCy(omero.rtypes.rdouble(v));
+        rect.setTheZ(omero.rtypes.rint(z));
+        rect.setTheT(omero.rtypes.rint(t));
+        rect.setTheC(omero.rtypes.rint(c));
+        serverROI.addShape(rect);
+        
+        serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
+        
+        ROIData data = new ROIData(serverROI);
+        assertTrue(data.getId() == serverROI.getId().getValue());
+        assertTrue(data.getShapeCount() == 1);
+        
+        List<ShapeData> shapes = data.getShapes(z, t);
+        assertNotNull(shapes);
+        assertTrue(shapes.size() == 1);
+        PointData shape;
+        Iterator<ShapeData> i = shapes.iterator();
+        while (i.hasNext()) {
+        	shape = (PointData) i.next();
+        	assertTrue(shape.getT() == t);
+        	assertTrue(shape.getZ() == z);
+        	assertTrue(shape.getC() == c);
+        	assertTrue(shape.getX() == v);
+        	assertTrue(shape.getY() == v);
+		}
+    }
+    
+    /**
+	 * Tests the creation of ROIs whose shapes are Points and converts them 
+	 * into the corresponding <code>POJO</code> objects.
+	 * @throws Exception  Thrown if an error occurred.
+	 */
+    @Test
+    public void testCreateRectangle() 
+    	throws Exception
+    {
+        ImageI image = (ImageI) iUpdate.saveAndReturnObject(simpleImage(0));
+        RoiI roi = new RoiI();
+        roi.setImage(image);
+        RoiI serverROI = (RoiI) iUpdate.saveAndReturnObject(roi);
+        assertNotNull(serverROI);
+        double v = 10;
+        int z = 0;
+        int t = 0;
+        int c = 0;
+        RectI rect = new RectI();
+        rect.setX(omero.rtypes.rdouble(v));
+        rect.setY(omero.rtypes.rdouble(v));
+        rect.setWidth(omero.rtypes.rdouble(v));
+        rect.setHeight(omero.rtypes.rdouble(v));
+        rect.setTheZ(omero.rtypes.rint(z));
+        rect.setTheT(omero.rtypes.rint(t));
+        rect.setTheC(omero.rtypes.rint(c));
+        serverROI.addShape(rect);
+        
+        serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
+        
+        ROIData data = new ROIData(serverROI);
+        assertTrue(data.getId() == serverROI.getId().getValue());
+        assertTrue(data.getShapeCount() == 1);
+        
+        List<ShapeData> shapes = data.getShapes(z, t);
+        assertNotNull(shapes);
+        assertTrue(shapes.size() == 1);
+        RectangleData shape;
+        Iterator<ShapeData> i = shapes.iterator();
+        while (i.hasNext()) {
+        	shape = (RectangleData) i.next();
+        	assertTrue(shape.getT() == t);
+        	assertTrue(shape.getZ() == z);
+        	assertTrue(shape.getC() == c);
+        	assertTrue(shape.getX() == v);
+        	assertTrue(shape.getY() == v);
+        	assertTrue(shape.getWidth() == v);
+        	assertTrue(shape.getHeight() == v);
+		}
+    }
+    
+    /**
+	 * Tests the creation of ROIs whose shapes are Polygons and converts them 
+	 * into the corresponding <code>POJO</code> objects.
+	 * @throws Exception  Thrown if an error occurred.
+	 */
+    @Test
+    public void testCreatePolygon() 
+    	throws Exception
+    {
+    	
+    }
+    
+    /**
+	 * Tests the creation of ROIs whose shapes are Polylines and converts them 
+	 * into the corresponding <code>POJO</code> objects.
+	 * @throws Exception  Thrown if an error occurred.
+	 */
+    @Test
+    public void testCreatePolyline() 
+    	throws Exception
+    {
+        ImageI image = (ImageI) iUpdate.saveAndReturnObject(simpleImage(0));
+        RoiI roi = new RoiI();
+        roi.setImage(image);
+        RoiI serverROI = (RoiI) iUpdate.saveAndReturnObject(roi);
+        assertNotNull(serverROI);
+        double v = 10;
+        int z = 0;
+        int t = 0;
+        int c = 0;
+        RectI rect = new RectI();
+        rect.setX(omero.rtypes.rdouble(v));
+        rect.setY(omero.rtypes.rdouble(v));
+        rect.setWidth(omero.rtypes.rdouble(v));
+        rect.setHeight(omero.rtypes.rdouble(v));
+        rect.setTheZ(omero.rtypes.rint(z));
+        rect.setTheT(omero.rtypes.rint(t));
+        rect.setTheC(omero.rtypes.rint(c));
+        serverROI.addShape(rect);
+        
+        serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
+        
+        ROIData data = new ROIData(serverROI);
+        assertTrue(data.getId() == serverROI.getId().getValue());
+        assertTrue(data.getShapeCount() == 1);
+        
+        List<ShapeData> shapes = data.getShapes(z, t);
+        assertNotNull(shapes);
+        assertTrue(shapes.size() == 1);
+        RectangleData shape;
+        Iterator<ShapeData> i = shapes.iterator();
+        while (i.hasNext()) {
+        	shape = (RectangleData) i.next();
+        	assertTrue(shape.getT() == t);
+        	assertTrue(shape.getZ() == z);
+        	assertTrue(shape.getC() == c);
+        	assertTrue(shape.getX() == v);
+        	assertTrue(shape.getY() == v);
+        	assertTrue(shape.getWidth() == v);
+        	assertTrue(shape.getHeight() == v);
+		}
+    }
+    
+    /**
+	 * Tests the creation of ROIs whose shapes are Lines and converts them 
+	 * into the corresponding <code>POJO</code> objects.
+	 * @throws Exception  Thrown if an error occurred.
+	 */
+    @Test
+    public void testCreateLine() 
+    	throws Exception
+    {
+        ImageI image = (ImageI) iUpdate.saveAndReturnObject(simpleImage(0));
+        RoiI roi = new RoiI();
+        roi.setImage(image);
+        RoiI serverROI = (RoiI) iUpdate.saveAndReturnObject(roi);
+        assertNotNull(serverROI);
+        double v = 10;
+        int z = 0;
+        int t = 0;
+        int c = 0;
+        RectI rect = new RectI();
+        rect.setX(omero.rtypes.rdouble(v));
+        rect.setY(omero.rtypes.rdouble(v));
+        rect.setWidth(omero.rtypes.rdouble(v));
+        rect.setHeight(omero.rtypes.rdouble(v));
+        rect.setTheZ(omero.rtypes.rint(z));
+        rect.setTheT(omero.rtypes.rint(t));
+        rect.setTheC(omero.rtypes.rint(c));
+        serverROI.addShape(rect);
+        
+        serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
+        
+        ROIData data = new ROIData(serverROI);
+        assertTrue(data.getId() == serverROI.getId().getValue());
+        assertTrue(data.getShapeCount() == 1);
+        
+        List<ShapeData> shapes = data.getShapes(z, t);
+        assertNotNull(shapes);
+        assertTrue(shapes.size() == 1);
+        RectangleData shape;
+        Iterator<ShapeData> i = shapes.iterator();
+        while (i.hasNext()) {
+        	shape = (RectangleData) i.next();
+        	assertTrue(shape.getT() == t);
+        	assertTrue(shape.getZ() == z);
+        	assertTrue(shape.getC() == c);
+        	assertTrue(shape.getX() == v);
+        	assertTrue(shape.getY() == v);
+        	assertTrue(shape.getWidth() == v);
+        	assertTrue(shape.getHeight() == v);
+		}
+    }
+    
+    /**
+	 * Tests the creation of ROIs whose shapes are Masks and converts them 
+	 * into the corresponding <code>POJO</code> objects.
+	 * @throws Exception  Thrown if an error occurred.
+	 */
+    @Test
+    public void testCreateMask() 
+    	throws Exception
+    {
+        ImageI image = (ImageI) iUpdate.saveAndReturnObject(simpleImage(0));
+        RoiI roi = new RoiI();
+        roi.setImage(image);
+        RoiI serverROI = (RoiI) iUpdate.saveAndReturnObject(roi);
+        assertNotNull(serverROI);
+        double v = 10;
+        int z = 0;
+        int t = 0;
+        int c = 0;
+        MaskI rect = new MaskI();
+        rect.setX(omero.rtypes.rdouble(v));
+        rect.setY(omero.rtypes.rdouble(v));
+        rect.setWidth(omero.rtypes.rdouble(v));
+        rect.setHeight(omero.rtypes.rdouble(v));
+        rect.setTheZ(omero.rtypes.rint(z));
+        rect.setTheT(omero.rtypes.rint(t));
+        rect.setTheC(omero.rtypes.rint(c));
+        serverROI.addShape(rect);
+        
+        serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
+        
+        ROIData data = new ROIData(serverROI);
+        assertTrue(data.getId() == serverROI.getId().getValue());
+        assertTrue(data.getShapeCount() == 1);
+        
+        List<ShapeData> shapes = data.getShapes(z, t);
+        assertNotNull(shapes);
+        assertTrue(shapes.size() == 1);
+        MaskData shape;
+        Iterator<ShapeData> i = shapes.iterator();
+        while (i.hasNext()) {
+        	shape = (MaskData) i.next();
+        	assertTrue(shape.getT() == t);
+        	assertTrue(shape.getZ() == z);
+        	assertTrue(shape.getC() == c);
+        	assertTrue(shape.getX() == v);
+        	assertTrue(shape.getY() == v);
+        	assertTrue(shape.getWidth() == v);
+        	assertTrue(shape.getHeight() == v);
+		}
     }
     
 }

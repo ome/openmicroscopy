@@ -62,49 +62,5 @@ public class RoiServiceTest
         roiService.findByImage(image.getId().getValue(), new RoiOptions());
     }
 
-	/**
-	 * Tests the creation of ROIs whose shapes are ellipses and converts them 
-	 * into the corresponding <code>POJO</code> objects.
-	 * @throws Exception  Thrown if an error occurred.
-	 */
-    @Test
-    public void testCreateEllipse() 
-    	throws Exception
-    {
-        
-    }
-    
-    /**
-	 * Tests the creation of ROIs whose shapes are rectangles and converts them 
-	 * into the corresponding <code>POJO</code> objects.
-	 * @throws Exception  Thrown if an error occurred.
-	 */
-    @Test
-    public void testCreateRectangle() 
-    	throws Exception
-    {
-    	/*
-        ImageI image = (ImageI) iUpdate.saveAndReturnObject(simpleImage(0));
-        RoiI roi = new RoiI();
-        roi.setImage(image);
-        RectI rect;
-        RoiI serverROI = (RoiI) iUpdate.saveAndReturnObject(roi);
-        rect = new RectI();
-        rect.setX(rdouble(10));
-        rect.setY(rdouble(10));
-        rect.setWidth(rdouble(10));
-        rect.setHeight(rdouble(10));
-        rect.setTheZ(rint(0));
-        rect.setTheT(rint(0));
-        serverROI.addShape(rect);
-        
-        serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
-        ROIData data = new ROIData(serverROI);
-        assertTrue(data.getId() == serverROI.getId().getValue());
-        assertTrue(data.getShapeCount() == 1);
-        List<ShapeData> shapes = data.getShapes(0, 0);
-        assertNotNull(shapes);
-        */
-    }
-    
+	
 }
