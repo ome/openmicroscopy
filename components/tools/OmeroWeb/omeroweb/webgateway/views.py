@@ -405,11 +405,20 @@ def _get_prepared_image (request, iid, server_id=None, _conn=None, with_session=
         r.has_key('t') and img._re.setDefaultT(long(r['t'])-1)
         try:
             img.saveDefaults()
-        except:
-            # retry once, to get around "Session is dirty" exceptions
-            if retry:
-                return _get_prepared_image(request, iid=iid, server_id=server_id, _conn=_conn, with_session=with_session, saveDefs=saveDefs, retry=False)
-            raise
+        except Ice.Exception, x:
+            if x.serverExceptionClass == 'ome.conditions.InternalException':
+                if x.message.find('java.lang.NullPointerException') > 0:
+                    # This actually happens when saving rdefs owned by someone else, even
+                    # if we have permissions to write
+                    logger.debug("NullPointerException, ignoring")
+                elif x.message.find('Session is dirty') >= 0:
+                    if retry:
+                        # retry once, to get around "Session is dirty" exceptions
+                        return _get_prepared_image(request, iid=iid, server_id=server_id, _conn=_conn, with_session=with_session, saveDefs=saveDefs, retry=False)
+                    logger.debug("Session is dirty, bailing out")
+                    raise
+            else:
+                raise
     return (img, compress_quality)
 
 def render_image (request, iid, z, t, server_id=None, _conn=None, **kwargs):
