@@ -25,6 +25,7 @@ from cStringIO import StringIO
 from omero import client_wrapper, ApiUsageException
 from omero.gateway import timeit, TimeIt
 
+import Ice
 
 #from models import StoredConnection
 
