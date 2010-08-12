@@ -1548,22 +1548,28 @@ public class OMEROMetadataStoreClient
      * <code>null</code> otherwise.
      */
     private OriginalFile byUUID(
-            String path, Map<String, OriginalFile> originalFileMap)
+    		String path, Map<String, OriginalFile> originalFileMap)
     {
-        for (Entry<String, OriginalFile> entry : originalFileMap.entrySet())
-        {
-            if (path.contains(ORIGINAL_METADATA_KEY))
-            {
-                String[] tokens = entry.getKey().split("/");
-                if (path.endsWith(tokens[tokens.length - 2]))
-                {
-                    return entry.getValue();
-                }
-            }
-        }
-        return null;
-    }
+    	for (Entry<String, OriginalFile> entry : originalFileMap.entrySet())
+    	{
+    		try {
+    			if (path.contains(ORIGINAL_METADATA_KEY))
+    			{
+    				String[] tokens = entry.getKey().split("/");
+    				if (path.endsWith(tokens[tokens.length - 2]))
+    				{
+    					return entry.getValue();
+    				}
+    			}
+    		} catch (ArrayIndexOutOfBoundsException e)
+    		{
+    			log.error("byUUID error, path: " + path + ", entry: " + entry);
+    		}
+    	}
 
+    	return null;
+    }
+    
     /**
      * Writes binary original file data to the OMERO server.
      * @param files Files to populate against an original file list.
