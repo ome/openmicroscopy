@@ -492,13 +492,16 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IAdminPrx svc = getAdminService();
-			Map<String, String> m = new HashMap<String, String>();
-			Iterator<String> i = SYSTEM_GROUPS.iterator();
-			
+			List<ExperimenterGroup> groups = svc.lookupGroups();
+			Iterator<ExperimenterGroup> i = groups.iterator();
+			ExperimenterGroup group;
+			String name;
 			while (i.hasNext()) {
-				m.put("name", i.next());
+				group =  i.next();
+				name = group.getName().getValue();
+				if (SYSTEM_GROUPS.contains(name))
+					systemGroups.add(group);
 			}
-			systemGroups = svc.lookupGroups(m);
 		} catch (Exception e) {
 			handleException(e, "Cannot retrieve the system groups.");
 		}
@@ -2970,7 +2973,6 @@ class OMEROGateway
 			service.load();
 			return service;
 		} catch (Throwable t) {
-			t.printStackTrace();
 			handleException(t, "Cannot start the Rendering Engine.");
 		}
 		return null;
