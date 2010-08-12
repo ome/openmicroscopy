@@ -1,4 +1,5 @@
 import static omero.rtypes.*;
+import omero.RInt;
 import omero.api.*;
 import omero.model.*;
 
@@ -47,7 +48,7 @@ public class Main {
 
     public static Roi createRoi() {
 
-		RInt GREY = rtypes.rint(11184810);
+		RInt GREY = rint(11184810);
         CommentAnnotation comment = new CommentAnnotationI();
         comment.setTextValue(rstring("Wow. Take a look at this!"));
 
