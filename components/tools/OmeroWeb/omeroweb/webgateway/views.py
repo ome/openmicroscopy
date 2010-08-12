@@ -20,13 +20,15 @@ from django.core import template_loader
 from django.core.urlresolvers import reverse
 from django.template import RequestContext as Context
 
+from cStringIO import StringIO
+
 from omero import client_wrapper, ApiUsageException
 from omero.gateway import timeit, TimeIt
 
 
 #from models import StoredConnection
 
-from webgateway_cache import webgateway_cache, CacheBase
+from webgateway_cache import webgateway_cache, CacheBase, webgateway_tempfile
 
 cache = CacheBase()
 
@@ -34,7 +36,7 @@ connectors = {}
 CONNECTOR_POOL_SIZE = 70
 CONNECTOR_POOL_KEEP = 0.75 # keep only SIZE-SIZE*KEEP of the connectors if POOL_SIZE is reached
 
-import logging, os, traceback, time
+import logging, os, traceback, time, zipfile, shutil
 
 #omero.gateway.BlitzGateway.ICE_CONFIG = os.environ.get('ICE_CONFIG', 'etc/ice.config')
 
@@ -438,60 +440,103 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
         _conn = getBlitzConnection(request, server_id=server_id, with_session=USE_SESSION)
     if _conn is None or not _conn.isConnected():
         return HttpResponseServerError('""', mimetype='application/javascript')
+    imgs = []
     if ctx == 'p':
         obj = _conn.getProject(cid)
+        if obj is None:
+            raise Http404
+        for d in obj.listChildren():
+            imgs.extend(list(d.listChildren()))
+        name = obj.getName()
     elif ctx == 'd':
         obj = _conn.getDataset(cid)
+        if obj is None:
+            raise Http404
+        imgs.extend(list(obj.listChildren()))
+        name = '%s-%s' % (obj.listParents().getName(), obj.getName())
     else:
         obj = _conn.getImage(cid)
-    if obj is None:
-        raise Http404
-    if ctx == 'i':
-        tiff_data = webgateway_cache.getOmeTiffImage(request, server_id, obj)
-    else:
-        tiff_data = None
-    if tiff_data is None:
-        tiff_data = obj.exportOmeTiff()
-        if tiff_data is None:
+        if obj is None:
             raise Http404
-        if ctx == 'i':
-            webgateway_cache.setOmeTiffImage(request, server_id, obj, tiff_data)
-    rsp = HttpResponse(tiff_data, mimetype='application/x-ome-tiff')
-    rsp['Content-Disposition'] = 'attachment; filename="%s.ome.tiff"' % obj.getName()
-    rsp['Content-Length'] = len(tiff_data)
-    return rsp
+        imgs.append(obj)
+
+    if len(imgs) == 1:
+        tiff_data = webgateway_cache.getOmeTiffImage(request, server_id, imgs[0])
+        if tiff_data is None:
+            tiff_data = imgs[0].exportOmeTiff()
+            if tiff_data is None:
+                raise Http404
+            webgateway_cache.setOmeTiffImage(request, server_id, imgs[0], tiff_data)
+        rsp = HttpResponse(tiff_data, mimetype='application/x-ome-tiff')
+        rsp['Content-Disposition'] = 'attachment; filename="%s.ome.tiff"' % obj.getName()
+        rsp['Content-Length'] = len(tiff_data)
+        return rsp
+    else:
+        try:
+            fpath, rpath, fobj = webgateway_tempfile.new(name + '.zip')
+            logger.debug(fpath)
+            if fobj is None:
+                fobj = StringIO()
+            zobj = zipfile.ZipFile(fobj, 'w')
+            for obj in imgs:
+                tiff_data = webgateway_cache.getOmeTiffImage(request, server_id, obj)
+                if tiff_data is None:
+                    tiff_data = obj.exportOmeTiff()
+                    webgateway_cache.setOmeTiffImage(request, server_id, obj, tiff_data)
+                zobj.writestr(obj.getName() + '.ome.tiff', tiff_data)
+            zobj.close()
+            if fpath is None:
+                zip_data = fobj.getvalue()
+                rsp = HttpResponse(zip_data, mimetype='application/zip')
+                rsp['Content-Disposition'] = 'attachment; filename="%s.zip"' % name
+                rsp['Content-Length'] = len(zip_data)
+                return rsp
+        except:
+            logger.debug(traceback.format_exc())
+            raise
+        return HttpResponseRedirect('/appmedia/tfiles/' + rpath)
 
 def render_movie (request, iid, axis, pos, server_id=None, _conn=None, **kwargs):
     """ Renders a movie from the image with id iid """
-    USE_SESSION = False
-    pos = int(pos)
-    pi = _get_prepared_image(request, iid, server_id=server_id, _conn=_conn, with_session=USE_SESSION)
-    if pi is None:
-        raise Http404
-    img, compress_quality = pi
-    import tempfile
-    fn = tempfile.mkstemp()
-    opts = {}
-    opts['format'] = 'video/' + request.REQUEST.get('format', 'quicktime')
-    opts['fps'] = int(request.REQUEST.get('fps', 4))
-    opts['minsize'] = (512,512, '#222222')
-    if kwargs.has_key('optsCB'):
-        opts.update(kwargs['optsCB'](img))
-    opts.update(kwargs.get('opts', {}))
-    logger.debug('rendering movie for img %s with axis %s, pos %i and opts %s' % (iid, axis, pos, opts))
-    if axis.lower() == 'z':
-        ext, mimetype = img.createMovie(fn[1], 0, img.z_count()-1, pos-1, pos-1, opts)
-    else:
-        ext, mimetype = img.createMovie(fn[1], pos-1, pos-1, 0, img.t_count()-1, opts)
-    print "Movie done"
-    movie = open(fn[1]).read()
-    os.close(fn[0])
-    print "%i bytes read" % len(movie)
-    rsp = HttpResponse(movie, mimetype=mimetype)
-    rsp['Content-Disposition'] = 'attachment; filename="%s"' % (img.getName()+ext)
-    rsp['Content-Length'] = len(movie)
-    print "response ready"
-    return rsp
+    try:
+        USE_SESSION = False
+        pos = int(pos)
+        pi = _get_prepared_image(request, iid, server_id=server_id, _conn=_conn, with_session=USE_SESSION)
+        if pi is None:
+            raise Http404
+        img, compress_quality = pi
+        opts = {}
+        opts['format'] = 'video/' + request.REQUEST.get('format', 'quicktime')
+        opts['fps'] = int(request.REQUEST.get('fps', 4))
+        opts['minsize'] = (512,512, '#222222')
+        if kwargs.has_key('optsCB'):
+            opts.update(kwargs['optsCB'](img))
+        opts.update(kwargs.get('opts', {}))
+        logger.debug('rendering movie for img %s with axis %s, pos %i and opts %s' % (iid, axis, pos, opts))
+        fpath, rpath = webgateway_tempfile.newdir()
+        if fpath is None:
+            import tempfile
+            fo, fn = tempfile.mkstemp()
+        else:
+            fn = os.path.join(fpath, img.getName())
+        if axis.lower() == 'z':
+            ext, mimetype = img.createMovie(fn, 0, img.z_count()-1, pos-1, pos-1, opts)
+        else:
+            ext, mimetype = img.createMovie(fn, pos-1, pos-1, 0, img.t_count()-1, opts)
+        if fpath is None:
+            movie = open(fn).read()
+            os.close(fo)
+            rsp = HttpResponse(movie, mimetype=mimetype)
+            rsp['Content-Disposition'] = 'attachment; filename="%s"' % (img.getName()+ext)
+            rsp['Content-Length'] = len(movie)
+            return rsp
+        else:
+            shutil.move(fn, fn + ext)
+            return HttpResponseRedirect('/appmedia/tfiles/' + os.path.join(rpath, img.getName() + ext))
+    except:
+        logger.debug(traceback.format_exc())
+        raise
+        
     
 def render_split_channel (request, iid, z, t, server_id=None, _conn=None, **kwargs):
     """ Renders a split channel view of the image with id {{iid}} at {{z}} and {{t}} as jpeg.

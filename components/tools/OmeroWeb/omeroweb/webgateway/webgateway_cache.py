@@ -25,12 +25,14 @@ size_of_double = len(struct.pack('d',0))
 string_type = type('')
 
 CACHE=getattr(settings, 'WEBGATEWAY_CACHE', None)
+TMPROOT=getattr(settings, 'WEBGATEWAY_TMPROOT', None)
 THUMB_CACHE_TIME = 3600 # 1 hour
 THUMB_CACHE_SIZE = 20*1024 # KB == 20MB
 IMG_CACHE_TIME= 3600 # 1 hour
 IMG_CACHE_SIZE = 512*1024 # KB == 512MB
 JSON_CACHE_TIME= 3600 # 1 hour
 JSON_CACHE_SIZE = 1*1024 # KB == 1MB
+TMPDIR_TIME = 3600 * 12 # 12 hours
 
 class CacheBase (object): #pragma: nocover
     def __init__ (self):
@@ -460,3 +462,47 @@ class WebGatewayCache (object):
         return True
 
 webgateway_cache = WebGatewayCache(FileCache)
+
+class WebGatewayTempFile (object):
+    def __init__ (self, tdir=TMPROOT):
+        self._dir = tdir
+        if tdir and not os.path.exists(self._dir):
+            self._createdir()
+
+    def _createdir(self):
+        try:
+            os.makedirs(self._dir)
+        except OSError: #pragma: nocover
+            raise EnvironmentError, "Cache directory '%s' does not exist and could not be created'" % self._dir
+
+    def _cleanup (self):
+        now = time.time()
+        for f in os.listdir(self._dir):
+            try:
+                ft = float(f) + TMPDIR_TIME
+                if ft < now:
+                    shutil.rmtree(os.path.join(self._dir, f), ignore_errors=True)
+            except ValueError:
+                continue
+
+    def newdir (self):
+        if not self._dir:
+            return None, None
+        self._cleanup()
+        stamp = str(time.time())
+        dn = os.path.join(self._dir, stamp)
+        while os.path.exists(dn):
+            stamp = str(time.time())
+            dn = os.path.join(self._dir, stamp)
+        os.makedirs(dn)
+        return dn, stamp
+
+    def new (self, name):
+        if not self._dir:
+            return None, None, None
+        dn, stamp = self.newdir()
+        fn = os.path.join(dn, name)
+        rn = os.path.join(stamp, name)
+        return fn, rn, file(fn, 'wb')
+
+webgateway_tempfile = WebGatewayTempFile()

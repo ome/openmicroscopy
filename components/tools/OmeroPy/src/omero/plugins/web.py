@@ -412,12 +412,7 @@ APPLICATION_HOST='%s'
             appbase = "omeroweb"
             location = self.ctx.dir / "lib" / "python" / "omeroweb"
 
-        if len(args[0]) > 1:
-            cargs = args[0][1:]
-        else:
-            cargs = ["python"]
-
-        cargs.extend(["manage.py", "test"])
+        cargs = ["coverage","-x", "manage.py", "test"]
         if appname:
             cargs.append(appname)
         os.environ['ICE_CONFIG'] = self.ctx.dir / "etc" / "ice.config"

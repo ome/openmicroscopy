@@ -38,7 +38,10 @@ logger = logging.getLogger('blitz_gateway')
 try:
     import Image, ImageDraw, ImageFont
 except: #pragma: nocover
-    logger.error('No PIL installed, line plots and split channel will fail!')
+    try:
+        from PIL import Image, ImageDraw, ImageFont
+    except:
+        logger.error('No PIL installed, line plots and split channel will fail!')
 from cStringIO import StringIO
 from math import sqrt
 
@@ -89,7 +92,7 @@ def fileread (fin, fsize, bufsize):
     rv = ''
     while p < fsize:
         s = min(bufsize, fsize-p)
-        rv += timeit(lambda: fin.read(p,s))()
+        rv += fin.read(p,s)
         p += s
     fin.close()
     return rv
@@ -111,7 +114,7 @@ def fileread_gen (fin, fsize, bufsize):
     p = 0
     while p < fsize:
         s = min(bufsize, fsize-p)
-        yield timeit(lambda: fin.read(p,s))()
+        yield fin.read(p,s)
         p += s
     fin.close()
 
@@ -2385,26 +2388,6 @@ class _DatasetWrapper (BlitzObjectWrapper):
             self._obj._imageLinksLoaded = True
             self._obj._imageLinksSeq = links
 
-    def exportOmeTiff (self, bufsize=0):
-        """
-        Exports the OME-TIFF representation of all images in this dataset.
-
-        @type bufsize: int or tuple
-        @param bufsize: if 0 return a single string buffer with the whole OME-TIFF
-                        if >0 return a tuple holding total size and generator of chunks
-                        (string buffers) of bufsize bytes each
-        """
-        e = self._conn.createExporter()
-        for img in self.listChildren():
-            timeit(lambda: e.addImage(img.getId()))()
-        size = timeit(lambda: e.generateTiff())()
-        if bufsize==0:
-            # Read it all in one go
-            return fileread(e, size, 65536)
-        else:
-            # generator using bufsize
-            return (size, fileread_gen(e, size, bufsize))
-
 DatasetWrapper = _DatasetWrapper
 
 class _ProjectWrapper (BlitzObjectWrapper):
@@ -2417,27 +2400,6 @@ class _ProjectWrapper (BlitzObjectWrapper):
         self.LINK_CLASS = "ProjectDatasetLink"
         self.CHILD_WRAPPER_CLASS = 'DatasetWrapper'
         self.PARENT_WRAPPER_CLASS = None
-
-    def exportOmeTiff (self, bufsize=0):
-        """
-        Exports the OME-TIFF representation of all images in this project.
-
-        @type bufsize: int or tuple
-        @param bufsize: if 0 return a single string buffer with the whole OME-TIFF
-                        if >0 return a tuple holding total size and generator of chunks
-                        (string buffers) of bufsize bytes each
-        """
-        e = self._conn.createExporter()
-        for ds in self.listChildren():
-            for img in ds.listChildren():
-                timeit(lambda: e.addImage(img.getId()))()
-        size = timeit(lambda: e.generateTiff())()
-        if bufsize==0:
-            # Read it all in one go
-            return fileread(e, size, 65536)
-        else:
-            # generator using bufsize
-            return (size, fileread_gen(e, size, bufsize))
 
 ProjectWrapper = _ProjectWrapper
 
@@ -2918,6 +2880,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         pid, rdid = self._getRDef(forcenew=forcenew)
         if pid is None:
             return None
+        print '#%s, %s' % (str(pid),str(rdid))
         logger.debug('#%s, %s' % (str(pid),str(rdid)))
         tb = self._conn.createThumbnailStore()
         tb.setPixelsId(pid)
@@ -3233,8 +3196,8 @@ class _ImageWrapper (BlitzObjectWrapper):
                         (string buffers) of bufsize bytes each
         """
         e = self._conn.createExporter()
-        timeit(lambda: e.addImage(self.getId()))()
-        size = timeit(lambda: e.generateTiff())()
+        e.addImage(self.getId())
+        size = e.generateTiff()
         if bufsize==0:
             # Read it all in one go
             return fileread(e, size, 65536)
@@ -3284,6 +3247,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             watermark = Image.open(watermark)
             if minsize is not None:
                 ratio = min(float(w) / minsize[0], float(h) / minsize[1])
+                print ratio
                 if ratio > 1:
                     watermark = watermark.resize(map(lambda x: x*ratio, watermark.size), Image.ANTIALIAS)
             ww, wh = watermark.size
@@ -3656,6 +3620,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         if not self.canWrite():
             return False
         ns = self._conn.CONFIG.get('IMG_ROPTSNS', None)
+        print ns
         if ns:
             opts = self._collectRenderOptions()
             self.removeAnnotations(ns)
@@ -3663,6 +3628,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             ann.setNs(ns)
             ann.setValue('&'.join(['='.join(map(str, x)) for x in opts.items()]))
             self.linkAnnotation(ann)
+            print ann
         self._re.saveCurrentSettings()
         return True
 
