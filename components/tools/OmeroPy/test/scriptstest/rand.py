@@ -11,6 +11,8 @@
 
 import integration.library as lib
 import omero, tempfile, unittest
+import omero.processor
+import omero.scripts
 from omero.rtypes import *
 
 SENDFILE = """
@@ -63,13 +65,19 @@ class TestRand(lib.ITest):
         scripts = self.root.getSession().getScriptService()
         id = scripts.uploadScript("/tests/rand_py/%s.py" % self.uuid(), SENDFILE)
         input = {"x":rlong(3), "y":rlong(3)}
-        process = scripts.runScript(id, input, None)
-
-        cb = omero.grid.ProcessCallbackI(self.root, process)
-        cb.block(2000) # ms
-        cb.close()
-        output = process.getResults(None)
-        self.assert_( output.val["x"].val == 3)
+        impl = omero.processor.usermode_processor(self.root)
+        try:
+            process = scripts.runScript(id, input, None)
+            cb = omero.scripts.ProcessCallbackI(self.root, process)
+            cb.block(2000) # ms
+            cb.close()
+            try:
+                output = process.getResults(0)
+                self.assert_( output["x"].val == 3)
+            except KeyError:
+                print "Key is not in returned dictionary. Is this a fail?"
+        finally:
+            impl.cleanup()
 
 if __name__ == '__main__':
     unittest.main()
