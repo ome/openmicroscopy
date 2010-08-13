@@ -69,7 +69,6 @@ import omero.model.MicroscopeType;
 import omero.model.Objective;
 import omero.model.ObjectiveI;
 import omero.model.OriginalFile;
-import omero.model.OriginalFileI;
 import omero.model.PermissionsI;
 import omero.model.Project;
 import omero.model.ProjectAnnotationLinkI;
@@ -511,11 +510,11 @@ public class MetadataServiceTest
     	String uuid2 = UUID.randomUUID().toString();
     	Experimenter e1 = new ExperimenterI();
     	e1.setOmeName(omero.rtypes.rstring(uuid));
-    	e1.setFirstName(omero.rtypes.rstring("integeration"));
+    	e1.setFirstName(omero.rtypes.rstring("integration"));
     	e1.setLastName(omero.rtypes.rstring("tester"));
     	Experimenter e2 = new ExperimenterI();
     	e2.setOmeName(omero.rtypes.rstring(uuid2));
-    	e2.setFirstName(omero.rtypes.rstring("integeration"));
+    	e2.setFirstName(omero.rtypes.rstring("integration"));
     	e2.setLastName(omero.rtypes.rstring("tester"));
     	
     	ExperimenterGroup g = new ExperimenterGroupI();
@@ -537,33 +536,33 @@ public class MetadataServiceTest
     	
         f = client.createSession(uuid, uuid);
         //Create an image.
-       Image img = (Image) f.getUpdateService().saveAndReturnObject(
-    		   simpleImage(0));
-       //Link the tag and the image.
-       ImageAnnotationLinkI link = new ImageAnnotationLinkI();
-       link.setChild((Annotation) tagData);
-       link.setParent(img);
-       //Save the link
-       f.getUpdateService().saveAndReturnObject(link);
+        Image img = (Image) f.getUpdateService().saveAndReturnObject(
+        		simpleImage(0));
+        //Link the tag and the image.
+        ImageAnnotationLinkI link = new ImageAnnotationLinkI();
+        link.setChild((Annotation) tagData);
+        link.setParent(img);
+        //Save the link
+        f.getUpdateService().saveAndReturnObject(link);
 
-       List<IObject> result = f.getMetadataService().loadAnnotationsUsedNotOwned(
-    		   TagAnnotation.class.getName(), id1);
-       assertTrue(result.size() > 0);
-       Iterator<IObject> i = result.iterator();
-       IObject o;
-       int count = 0;
-       boolean found = false;
-       while (i.hasNext()) {
-    	   o = i.next();
-    	   if (o instanceof Annotation) { //make sure only retrieve annotations
-    		   count++;
-    		   if (o.getId().getValue() == tagData.getId().getValue())
-    			   found = true;
-    	   }
-       }
-       assertTrue(found);
-       assertTrue(result.size() == count);
-       client.closeSession();
+        List<IObject> result = f.getMetadataService().loadAnnotationsUsedNotOwned(
+        		TagAnnotation.class.getName(), id1);
+        assertTrue(result.size() > 0);
+        Iterator<IObject> i = result.iterator();
+        IObject o;
+        int count = 0;
+        boolean found = false;
+        while (i.hasNext()) {
+        	o = i.next();
+        	if (o instanceof Annotation) { //make sure only retrieve annotations
+        		count++;
+        		if (o.getId().getValue() == tagData.getId().getValue())
+        			found = true;
+        	}
+        }
+        assertTrue(found);
+        assertTrue(result.size() == count);
+        client.closeSession();
     }
     
     /**

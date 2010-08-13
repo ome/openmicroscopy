@@ -758,7 +758,7 @@ public class AdminServiceTest
         svc.createUser(e, uuid);
         omero.client client = new omero.client(root.getPropertyMap());
         try {
-            client.createSession(uuid, "foo");
+            client.createSession(uuid, uuid);
             IAdminPrx prx = client.getSession().getAdminService();
             long id = prx.uploadMyUserPhoto("/tmp/foto.jpg", "image/jpeg", 
             		new byte[]{1});
@@ -822,28 +822,150 @@ public class AdminServiceTest
     public void testChangePasswordByUser() 
     	throws Exception
     {
+		//current user change the password.
+		iAdmin.changePassword(rstring(PASSWORD_MODIFIED));
     }
 	
     /**
-	 * Tests the attempt to modify the password by another user than the one
-	 * currently logged in.
+	 * Tests the attempt to modify the password by another user (non admin)
+	 * than the one currently logged in.
 	 * @throws Exception Thrown if an error occurred.
 	 */
 	@Test
     public void testChangePasswordByOtherUser() 
     	throws Exception
     {
+		IAdminPrx prx = root.getSession().getAdminService();
+		//add a new user
+		String groupName = iAdmin.getEventContext().groupName;
+		String userName = iAdmin.getEventContext().userName;
+		String uuid = UUID.randomUUID().toString();
+        Experimenter e = new ExperimenterI();
+        e.setOmeName(omero.rtypes.rstring(uuid));
+        e.setFirstName(omero.rtypes.rstring("user"));
+        e.setLastName(omero.rtypes.rstring("user"));
+        //create the user.
+        long userID = prx.createUser(e, groupName);
+        //now the new user is going to try to modify the password
+        omero.client client = new omero.client(root.getPropertyMap());
+        try {
+        	 client.createSession(uuid, groupName);
+        	 client.getSession().getAdminService().changeUserPassword(userName, 
+        			 rstring(PASSWORD_MODIFIED));
+        	 fail("The user should not have been able to modify the password.");
+		} catch (Exception ex) {
+			
+		}
+        client.closeSession();
     }
 	
     /**
-	 * Tests turning an experimenter not active.
+	 * Tests to modify the permissions of a group. Creates a <code>rwr---</code>
+	 * group and increases the permissions to <code>rwrw--</code>
+	 * then back again to <code>rwr--</code>. This tests the 
+	 * <code>ChangePermissions</code> method.
 	 * @throws Exception Thrown if an error occurred.
 	 */
 	@Test
-    public void testDeactivateUser() 
+    public void testChangePermissions()
     	throws Exception
     {
+		IAdminPrx prx = root.getSession().getAdminService();
+		String uuid = UUID.randomUUID().toString();
+        // First group rwr---
+        ExperimenterGroup g = new ExperimenterGroupI();
+        g.setName(rstring(uuid));
+        g.getDetails().setPermissions(new PermissionsI("rwr---"));
+        long id = prx.createGroup(g);
+        g = prx.getGroup(id);
+        Permissions permissions = g.getDetails().getPermissions();
+        assertTrue(permissions.isGroupRead());
+        assertFalse(permissions.isGroupWrite());
+        
+        //change permissions
+        permissions.setGroupWrite(true);
+        prx.changePermissions(g, permissions);
+        g = prx.getGroup(id);
+        permissions = g.getDetails().getPermissions();
+        assertTrue(permissions.isGroupRead());
+        assertTrue(permissions.isGroupWrite());
+        
+        //now reduce the permissions.
+        permissions.setGroupWrite(false);
+        prx.changePermissions(g, permissions);
+        g = prx.getGroup(id);
+        permissions = g.getDetails().getPermissions();
+        assertTrue(permissions.isGroupRead());
+        assertFalse(permissions.isGroupWrite());
     }
 	
+    /**
+	 * Tests to promote a group. The permissions of the group are initially
+	 * <code>rw---</code> then upgrade to <code>rwr--</code>. This tests the 
+	 * <code>ChangePermissions</code> method.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test
+    public void testPromoteGroup()
+    	throws Exception
+    {
+		IAdminPrx prx = root.getSession().getAdminService();
+		String uuid = UUID.randomUUID().toString();
+        // First create a user in two groups, one rwrw-- and one rwr---
+        ExperimenterGroup g = new ExperimenterGroupI();
+        g.setName(rstring(uuid));
+        g.getDetails().setPermissions(new PermissionsI("rw----"));
+        long id = prx.createGroup(g);
+        g = prx.getGroup(id);
+        Permissions permissions = g.getDetails().getPermissions();
+        
+        //change permissions and promote the group
+        permissions.setGroupRead(true);
+        prx.changePermissions(g, permissions);
+        g = prx.getGroup(id);
+        permissions = g.getDetails().getPermissions();
+        assertTrue(permissions.isGroupRead());
+        assertFalse(permissions.isGroupWrite());
+    }
+	
+    /**
+	 * Tests to promote a group and try to reduce the permission. 
+	 * The permissions of the group are initially
+	 * <code>rw---</code> then upgrade to <code>rwr--</code>
+	 * then back to a <code>rw---</code>. The latest change should return
+	 * an exception. This tests the <code>ChangePermissions</code> method.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test
+    public void testPromoteAndDowngradeGroup()
+    	throws Exception
+    {
+		IAdminPrx prx = root.getSession().getAdminService();
+		String uuid = UUID.randomUUID().toString();
+        // First create a user in two groups, one rwrw-- and one rwr---
+        ExperimenterGroup g = new ExperimenterGroupI();
+        g.setName(rstring(uuid));
+        g.getDetails().setPermissions(new PermissionsI("rw----"));
+        long id = prx.createGroup(g);
+        g = prx.getGroup(id);
+        Permissions permissions = g.getDetails().getPermissions();
+        
+        //change permissions and promote the group
+        permissions.setGroupRead(true);
+        prx.changePermissions(g, permissions);
+        g = prx.getGroup(id);
+        permissions = g.getDetails().getPermissions();
+        assertTrue(permissions.isGroupRead());
+        assertFalse(permissions.isGroupWrite());
+        g = prx.getGroup(id);
+        //now try to turn it back to rw----
+        try {
+        	permissions = g.getDetails().getPermissions();
+        	permissions.setGroupRead(false);
+        	prx.changePermissions(g, permissions);
+        	fail("Not possible to turn group back to private");
+		} catch (Exception e) {
+		}
+    }
 	
 }

@@ -27,6 +27,7 @@ import omero.api.ServiceFactoryPrx;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLinkI;
 import omero.model.Channel;
+import omero.model.ChannelBinding;
 import omero.model.CommentAnnotation;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
@@ -52,6 +53,8 @@ import omero.model.Project;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
+import omero.model.QuantumDef;
+import omero.model.RenderingDef;
 import omero.model.Screen;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
@@ -83,7 +86,19 @@ public class AbstractTest
 {
 
 	/** The default number of channels. */
-	public static final int DEFAULT_CHANNELS_NUMBER = 3;
+	public int DEFAULT_CHANNELS_NUMBER = 3;
+	
+	/** The default size along the X-axis. */
+	public int SIZE_X = 10;
+	
+	/** The default size along the Y-axis. */
+	public int SIXE_Y = 10;
+	
+	/** The number of z-sections. */
+	public int SIXE_Z = 10;
+	
+	/** The number of time points. */
+	public int SIXE_T = 10;
 	
 	/** Identifies the <code>system</code> group. */
 	public String SYSTEM_GROUP = "system";
@@ -339,5 +354,65 @@ public class AbstractTest
         planeInfo.setDeltaT(omero.rtypes.rdouble(0.5));
         return planeInfo;
     }
+    
+    /**
+     * Compares the passed rendering definitions.
+     * 
+     * @param def1 The first rendering definition to handle.
+     * @param def2 The second rendering definition to handle.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected void compareRenderingDef(RenderingDef def1, RenderingDef def2)
+		throws Exception 
+	{
+		assertNotNull(def1);
+		assertNotNull(def2);
+		assertTrue(def1.getDefaultZ().getValue() == 
+				def2.getDefaultZ().getValue());
+		assertTrue(def1.getDefaultT().getValue() == 
+			def2.getDefaultT().getValue());
+		assertTrue(def1.getModel().getValue().getValue().equals( 
+			def2.getModel().getValue().getValue()));
+		QuantumDef q1 = def1.getQuantization();
+		QuantumDef q2 = def2.getQuantization();
+		assertNotNull(q1);
+		assertNotNull(q2);
+		assertTrue(q1.getBitResolution().getValue() == 
+			q2.getBitResolution().getValue());
+		assertTrue(q1.getCdStart().getValue() == 
+			q2.getCdStart().getValue());
+		assertTrue(q1.getCdEnd().getValue() == 
+			q2.getCdEnd().getValue());
+		List<ChannelBinding> channels1 = def1.copyWaveRendering();
+		List<ChannelBinding> channels2 = def2.copyWaveRendering();
+		assertNotNull(channels1);
+		assertNotNull(channels2);
+		assertTrue(channels1.size() == channels2.size());
+		Iterator<ChannelBinding> i = channels1.iterator();
+		ChannelBinding c1, c2;
+		int index = 0;
+		while (i.hasNext()) {
+			c1 = i.next();
+			c2 = channels2.get(index);
+			assertTrue(c1.getAlpha().getValue() == c2.getAlpha().getValue());
+			assertTrue(c1.getRed().getValue() == c2.getRed().getValue());
+			assertTrue(c1.getGreen().getValue() == c2.getGreen().getValue());
+			assertTrue(c1.getBlue().getValue() == c2.getBlue().getValue());
+			assertTrue(c1.getCoefficient().getValue() 
+					== c2.getCoefficient().getValue());
+			assertTrue(c1.getFamily().getValue().getValue().equals(
+					c2.getFamily().getValue().getValue()) );
+			assertTrue(c1.getInputStart().getValue() == 
+				c2.getInputStart().getValue());
+			assertTrue(c1.getInputEnd().getValue() == 
+				c2.getInputEnd().getValue());
+			Boolean b1 = Boolean.valueOf(c1.getActive().getValue());
+			Boolean b2 = Boolean.valueOf(c2.getActive().getValue());
+			assertTrue(b1.equals(b2));
+			b1 = Boolean.valueOf(c1.getNoiseReduction().getValue());
+			b2 = Boolean.valueOf(c2.getNoiseReduction().getValue());
+			assertTrue(b1.equals(b2));
+		}
+	}
     
 }

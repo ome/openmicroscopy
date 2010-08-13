@@ -340,10 +340,8 @@ public class UpdateServiceTest
     public void testEmptyProject() 
     	throws Exception
     {
-    	Project data = new ProjectI();
-        data.setName(rstring("project1"));
-        data.setDescription(rstring("descriptionProject1"));
-        Project p = (Project) iUpdate.saveAndReturnObject(data);
+        Project p = (Project) iUpdate.saveAndReturnObject(
+        		simpleProjectData().asIObject());
         assertNotNull(p);
         ProjectData pd = new ProjectData(p);
     	assertTrue(p.getId().getValue() > 0);
@@ -360,11 +358,8 @@ public class UpdateServiceTest
     public void testEmptyDataset() 
     	throws Exception
     {
-    	DatasetData data = new DatasetData();
-        data.setName("dataset1");
-        data.setDescription("descriptionDataset1");
-        Dataset p = (Dataset) 
-        	factory.getUpdateService().saveAndReturnObject(data.asIObject());
+        Dataset p = (Dataset) iUpdate.saveAndReturnObject(
+        			simpleDatasetData().asIObject());
         assertNotNull(p);
         DatasetData d = new DatasetData(p);
     	assertTrue(p.getId().getValue() > 0);
@@ -381,8 +376,7 @@ public class UpdateServiceTest
     public void testEmptyImage() 
     	throws Exception
     {
-        Image p = (Image) 
-        	factory.getUpdateService().saveAndReturnObject(simpleImage(0));
+        Image p = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
         ImageData img = new ImageData(p);
     	assertNotNull(p);
     	assertTrue(p.getId().getValue() > 0);
@@ -428,12 +422,10 @@ public class UpdateServiceTest
     public void testEmptyScreen() 
     	throws Exception
     {
-    	ScreenData data = new ScreenData();
-        data.setName("screen1");
-        data.setDescription("screen1");
         Screen p = (Screen) 
-        	factory.getUpdateService().saveAndReturnObject(data.asIObject());
-        data = new ScreenData(p);
+        	factory.getUpdateService().saveAndReturnObject(
+        			simpleScreenData().asIObject());
+        ScreenData data = new ScreenData(p);
     	assertNotNull(p);
     	assertTrue(p.getId().getValue() > 0);
     	assertTrue(p.getId().getValue() == data.getId());

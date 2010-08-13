@@ -1,24 +1,8 @@
 /*
- * integration.PixelsServiceTest 
+ * $Id$
  *
- *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
- *
- *
- * 	This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU General Public License for more details.
- *  
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- *------------------------------------------------------------------------------
+ *   Copyright 2006-2010 University of Dundee. All rights reserved.
+ *   Use is subject to license terms supplied in LICENSE.txt
  */
 package integration;
 
@@ -32,7 +16,9 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 //Application-internal dependencies
+import omero.RLong;
 import omero.api.IPixelsPrx;
+import omero.api.IRenderingSettingsPrx;
 import omero.model.AcquisitionMode;
 import omero.model.ArcType;
 import omero.model.Binning;
@@ -56,6 +42,9 @@ import omero.model.PhotometricInterpretation;
 import omero.model.Pixels;
 import omero.model.PixelsType;
 import omero.model.Pulse;
+import omero.model.RenderingDef;
+import omero.model.RenderingModel;
+import omero.sys.ParametersI;
 
 /** 
  * Collections of tests for the <code>Pixels</code> service.
@@ -70,6 +59,7 @@ import omero.model.Pulse;
  * </small>
  * @since 3.0-Beta4
  */
+@Test(groups = { "client", "integration", "blitz" })
 public class PixelsServiceTest 
 	extends AbstractTest
 {
@@ -188,6 +178,12 @@ public class PixelsServiceTest
 	 */
 	private static final int MAX_PIXELS_TYPE = 11;
 	
+	/** 
+	 * The maximum number of elements for the <code>Rendering Model</code>
+	 * enumeration.
+	 */
+	private static final int MAX_RENDERING_MODEL = 2;
+	
 	/**
      * Tests if the objects returned are of the specified type.
      * 
@@ -213,6 +209,34 @@ public class PixelsServiceTest
     	assertTrue(values.size() == count);
     }
     
+    /**
+	 * Creates an image. This method has been tested in 
+	 * <code>PixelsServiceTest</code>.
+	 * 
+	 * @return See above.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	private Image createImage()
+		throws Exception
+	{
+		IPixelsPrx svc = factory.getPixelsService();
+    	List<IObject> types = 
+    		svc.getAllEnumerations(PixelsType.class.getName());
+    	List<Integer> channels = new ArrayList<Integer>();
+    	for (int i = 0; i < DEFAULT_CHANNELS_NUMBER; i++) {
+			channels.add(i);
+		}
+    	RLong id = svc.createImage(SIZE_X, SIXE_Y, SIXE_Z, SIXE_T, channels, 
+    			(PixelsType) types.get(1),
+    			"test", "");
+    	//Retrieve the image.
+    	ParametersI param = new ParametersI();
+    	param.addId(id.getValue());
+    	Image img = (Image) iQuery.findByQuery(
+    			"select i from Image i where i.id = :id", param);
+    	return (Image) iUpdate.saveAndReturnObject(img);
+	}
+	
     /**
      * Tests the retrieval of the pixels description.
      * @throws Exception Thrown if an error occurred.
@@ -292,6 +316,88 @@ public class PixelsServiceTest
     	//for rendering engine
     	checkEnumeration(Family.class.getName(), MAX_FAMILY);
     	checkEnumeration(PixelsType.class.getName(), MAX_PIXELS_TYPE);
+    	checkEnumeration(RenderingModel.class.getName(), MAX_RENDERING_MODEL);
+    }
+    
+    /**
+     * Tests the retrieval of a specified rendering settings for a given set 
+     * of pixels.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testRetrieveRenderingSettings() 
+    	throws Exception 
+    {
+    	//Create some rendering settings.
+    	Image image = createImage();
+    	Pixels pixels = image.getPrimaryPixels();
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	//Pixels first
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(pixels.getId().getValue());
+    	prx.resetDefaultsInSet(Pixels.class.getName(), ids);
+    	IPixelsPrx svc = factory.getPixelsService();
+    	RenderingDef def = svc.retrieveRndSettings(pixels.getId().getValue());
+    	assertNotNull(def);
+    	long id = iAdmin.getEventContext().userId;
+    	RenderingDef def1 = svc.retrieveRndSettingsFor(
+    			pixels.getId().getValue(), id);
+    	assertNotNull(def1);
+    	assertTrue(def1.getId().getValue() == def.getId().getValue());
+    	def1 = svc.retrieveRndSettingsFor(pixels.getId().getValue(), 
+    			id+1);
+    	assertNull(def1);
+    }
+    
+    /**
+     * Tests the retrieval of rendering settings for a given set of pixels.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testRetrieveAllRenderingSettings() 
+    	throws Exception 
+    {
+    	//Create some rendering settings.
+    	Image image = createImage();
+    	Pixels pixels = image.getPrimaryPixels();
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	//Pixels first
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(pixels.getId().getValue());
+    	prx.resetDefaultsInSet(Pixels.class.getName(), ids);
+    	IPixelsPrx svc = factory.getPixelsService();
+    	long id = iAdmin.getEventContext().userId;
+    	List<IObject> defs = svc.retrieveAllRndSettings(
+    			pixels.getId().getValue(), id);
+    	assertNotNull(defs);
+    	assertTrue(defs.size() == 1);
+    }
+    
+    /**
+     * Tests the creation of an image.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testCreateImage() 
+    	throws Exception 
+    {
+    	IPixelsPrx svc = factory.getPixelsService();
+    	List<IObject> types = 
+    		svc.getAllEnumerations(PixelsType.class.getName());
+    	List<Integer> channels = new ArrayList<Integer>();
+    	for (int i = 0; i < 3; i++) {
+			channels.add(i);
+		}
+    	RLong id = svc.createImage(10, 10, 10, 10, channels, 
+    			(PixelsType) types.get(1),
+    			"test", "");
+    	assertNotNull(id);
+    	//Retrieve the image.
+    	ParametersI param = new ParametersI();
+    	param.addId(id.getValue());
+    	Image img = (Image) iQuery.findByQuery(
+    			"select i from Image i where i.id = :id", param);
+    	assertNotNull(img);
     }
     
 }
