@@ -10,21 +10,12 @@ package integration;
 //Java imports
 
 //Third-party libraries
-import java.util.Iterator;
-import java.util.List;
-
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 //Application-internal dependencies
 import omero.api.IDeletePrx;
-import omero.model.Annotation;
-import omero.model.CommentAnnotation;
-import omero.model.CommentAnnotationI;
-import omero.model.IObject;
 import omero.model.Image;
-import omero.model.ImageAnnotationLink;
-import omero.model.ImageAnnotationLinkI;
 import omero.model.Pixels;
 import omero.model.Plate;
 import omero.sys.ParametersI;

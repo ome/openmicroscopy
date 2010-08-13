@@ -74,9 +74,6 @@ public class PojosServiceTest
 	extends AbstractTest
 {
 
-	/** Reference to the log. */
-    protected static Log log = LogFactory.getLog(PojosServiceTest.class);
-
     /** Reference to class used to create data object. */
     CreatePojosFixture2 fixture;
 

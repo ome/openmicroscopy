@@ -100,16 +100,13 @@ import pojos.TextualAnnotationData;
  * @since 3.0-Beta4
  */
 public class MetadataServiceTest 
-	extends AbstractTest//TestCase 
+	extends AbstractTest 
 {
 
 	/** Identifies the file annotation. */
 	private static final String FILE_ANNOTATION = 
 		"ome.model.annotations.FileAnnotation";
 	
-	/** Reference to the log. */
-    protected static Log log = LogFactory.getLog(MetadataServiceTest.class);
-
     /** Helper reference to the <code>IAdmin</code> service. */
     private IMetadataPrx iMetadata;
     

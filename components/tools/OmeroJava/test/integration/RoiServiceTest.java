@@ -8,20 +8,18 @@ package integration;
 
 import static omero.rtypes.*;
 
-import java.util.List;
+//Java imports
 
+//Third-party libraries
+import org.testng.annotations.Test;
+
+//Application-internal dependencies
 import omero.api.IRoiPrx;
 import omero.api.RoiOptions;
-import omero.model.EllipseI;
 import omero.model.ImageI;
 import omero.model.RectI;
 import omero.model.RoiI;
 import omero.model.Shape;
-
-import org.testng.annotations.Test;
-
-import pojos.ROIData;
-import pojos.ShapeData;
 
 /**
  * Collections of tests for the handling ROIs.

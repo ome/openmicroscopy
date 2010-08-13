@@ -10,13 +10,11 @@ package integration;
 //Java imports
 
 //Third-party libraries
-import omero.api.IConfigPrx;
-import omero.api.IContainerPrx;
-
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 //Application-internal dependencies
+import omero.api.IConfigPrx;
 
 /** 
  * Collections of tests for the <code>IConfig</code> service.
