@@ -10,14 +10,15 @@ urlpatterns = patterns('',
     url( r'^loggedout/$', views.loggedout, name='webemdb_loggedout' ),
     
     url( r'^entry/(?P<entryId>[0-9]+)/$', views.entry, name='webemdb_entry' ),
-    # bit of a hack - should only need fileId - see views.file for info
+    
+    # serve original files, identified by annotation ID. Additional urls for defined ext (.bit, .pdb.gz, .map etc) for OA-viewer
     url( r'^file/(?P<fileId>[0-9]+)/$', views.getFile, name='webemdb_file' ),
     url( r'^file/(?P<fileId>[0-9]+)\.bit$', views.getFile, name='webemdb_bit' ),
     url( r'^file/(?P<fileId>[0-9]+)\.pdb\.gz$', views.getFile, name='webemdb_pdb' ),
+    url( r'^file/(?P<fileId>[0-9]+)\.map$', views.getFile, name='webemdb_map' ),
+    
     # look up the preview gif file for an entry based on name
     url( r'^entry/(?P<entryId>[0-9]+)/gif/$', views.gif, name='webemdb_gif' ),
-    # for downloading whole mrc.map   
-    #url( r'^img/(?P<imageId>[0-9]+)/map/(?P<fileId>[0-9]+)/$', views.map, name='webemdb_map' ),
     
     # page for OpenAstex Viewer. Project name and bit mask fileId
     url( r'^oa_viewer/file/(?P<fileId>[0-9]+)/$', views.oa_viewer, name='webemdb_oa_viewer' ),

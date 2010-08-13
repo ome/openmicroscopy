@@ -3,6 +3,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from django.utils import simplejson
 from django.core.servers.basehttp import FileWrapper
+from django.conf import settings 
 
 from omeroweb.webgateway.views import getBlitzConnection, _session_logout
 from omeroweb.webgateway import views as webgateway_views
@@ -83,8 +84,10 @@ def entry (request, entryId):
     # find the mrc map image. E.g emd_1003.map In a dataset named same as project E.g. 1003
     img = None
     mrcMap = None
+    smallMap = None
     namespace = omero.constants.namespaces.NSCOMPANIONFILE 
     imgName = "emd_%s.map" % entryName
+    smallMapName = "small_%s.map" % entryName
     for d in project.listChildren():
         if d.getName() == entryName:
             for i in d.listChildren():
@@ -93,6 +96,8 @@ def entry (request, entryId):
                     for a in img.listAnnotations():
                         if imgName == a.getFileName() and a.getNs() == namespace:
                             mrcMap = a
+                        elif smallMapName == a.getFileName():
+                            smallMap = a
                     break
     
     xml = None
@@ -122,7 +127,7 @@ def entry (request, entryId):
     data = project.countChildren() > 1
     
     return render_to_response('webemdb/entries/entry.html', 
-        {'project':project, 'xml': xml, 'gif': gif, 'img': img, 'map': mrcMap, 'bit': bit, 'pdbs': pdbs, 
+        {'project':project, 'xml': xml, 'gif': gif, 'img': img, 'map': mrcMap, 'smallMap': smallMap, 'bit': bit, 'pdbs': pdbs, 
             'sizeWarning':sizeWarning, 'data': data})
         
         
@@ -131,7 +136,16 @@ def oa_viewer(request, fileId):
         The <applet> contains a script that will load a bit mask, identified by fileId """
         
     conn = getConnection(request)
-    return render_to_response('webemdb/entries/oa_viewer.html', {'fileId': fileId})
+    
+    ann = conn.getFileAnnotation(long(fileId))
+    # determine mapType by name
+    mapType = "map"
+    if ann:
+        fileName = ann.getFileName()
+        if fileName.endswith(".bit"):
+            mapType = "bit"
+            
+    return render_to_response('webemdb/entries/oa_viewer.html', {'fileId': fileId, 'mapType': mapType})
     
     
 def viewport(request, imageId):
@@ -184,7 +198,8 @@ def getFile (request, fileId):
         fileName = ann.getFileName()
         mimetype = "text/plain"
         
-        if fileName.endswith(".bit") or fileName.endswith(".pdb.gz"): mimetype='application/octet-stream'
+        if fileName.endswith(".bit") or fileName.endswith(".pdb.gz") or fileName.endswith(".map"): 
+            mimetype='application/octet-stream'
         if fileName.endswith(".xml"): mimetype='text/xml'
         if fileName.endswith(".gif"): mimetype='image/gif'
         
@@ -192,7 +207,6 @@ def getFile (request, fileId):
         # return HttpResponse(file_data, mimetype=mimetype)
         
         # if the file data is large, we will have a temp file
-        from django.conf import settings 
         tempdir = settings.FILE_UPLOAD_TEMP_DIR
         temp = os.path.join(tempdir, ('%i-%s.download' % (ann.file.id.val, conn._sessionUuid))).replace('\\','/')
         logger.info("temp path: %s" % str(temp))
@@ -201,7 +215,6 @@ def getFile (request, fileId):
             f.write(piece)
         f.seek(0)
         f.close()
-        print "temp file created at", temp
         
         originalFile_data = FileWrapper(file(temp))
             

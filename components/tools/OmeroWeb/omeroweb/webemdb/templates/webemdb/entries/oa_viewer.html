@@ -4,7 +4,11 @@
       archive="{% url webemdb 'applet/OpenAstexViewer.jar' %} ">
          
          <param name="script" value="
+         {% ifequal mapType 'bit' %}
          map load mapA '{% url webemdb_bit fileId %}'; 
+         {% else %}
+         map load mapA '{% url webemdb_map fileId %}'; 
+         {% endifequal %}
          map mapA contour 0 on;
          background '0xDDDDDD';
          map mapA contour 0 'solid';

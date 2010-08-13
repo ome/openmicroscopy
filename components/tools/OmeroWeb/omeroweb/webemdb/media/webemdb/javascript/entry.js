@@ -197,11 +197,15 @@ $(document).ready(function() {
         // hide current view & show new one
         $(".visViewer").hide();
         $("#oavControls").hide();
-        var viewerId = optionId + "Pane";
-        $("#"+viewerId).show();
-        if (optionId == "visAstex") {
+        if (optionId == "visAstexBit" || optionId == "visAstexMap" || optionId == "visAstexSmallMap") {
             $("#oavControls").show();
+            $("#visAstexPane").show();
         }
+        else {
+            var viewerId = optionId + "Pane";
+            $("#"+viewerId).show();
+        }
+        
         // show which option is selected
         $(".visOption").removeClass('visSelected');
         $(this).addClass('visSelected');
@@ -223,22 +227,63 @@ $(document).ready(function() {
         omeroLoaded = true;
     });
     
-    var oaLoaded = false;
-    // on first click of Astex view option, load OA-viewer
-    $("#oavLink").hide();   // somewhere to store href to load OAV. - always hidden
-    $("#oavControls").hide();   // show these when OAV is displayed 
-    $("#visAstex").click(function() {
-        if (oaLoaded)   return;
-        $("#contentTable").attr('height', '100%');
-        var oavHref = $("#oavLink").attr('href');
-        $("#oav").load(oavHref);
-        oaLoaded = true;
-    });
-    
+    // pass javascript commands to the open astex viewer applet. 
     var execute_oav_command = function(command) {
         document.av.execute(command);
         window.status = command;
     };
+    
+    $("#contentTable").attr('height', '100%');
+    $("#oavLink").hide();   // somewhere to store href to load OAV. - always hidden
+    $("#oavControls").hide();   // show these when OAV is displayed 
+    
+    // map load mapA '{% url webemdb_bit fileId %}'; 
+    // on first click of Astex view option, load OA-viewer
+    var oavLoaded = false;
+    $("#visAstexBit").click(function() {
+        if (oavLoaded) {
+            // just get the url of the map we want to view, and load it. 
+            // TODO: Don't do this if we're already looking at it! 
+            var bitUrl = $("#oavBitLink").attr('href');
+            //command = "map replace mapB '"+ bitUrl +"';"; 
+            var command = "map mapA contour 0 'red';";
+            execute_oav_command(command);
+        } else {
+            var oavHref = $("#oavLink").attr('href');
+            $("#oav").load(oavHref);
+            oavLoaded = true;
+        }
+    });
+    
+    $("#visAstexMap").click(function() {
+        if (oavLoaded) {
+            // just get the url of the map we want to view, and load it. 
+            // TODO: Don't do this if we're already looking at it! 
+            var bitUrl = $("#oavMapLink").attr('href');
+            var command = "map replace mapB '"+ bitUrl +"';"; 
+            command = "map mapA contour 0 'blue';";
+            execute_oav_command(command);
+        } else {
+            var oavHref = $("#oavLinkMap").attr('href');
+            $("#oav").load(oavHref);
+            oavLoaded = true;
+        }
+    });
+    $("#visAstexSmallMap").click(function() {
+        if (oavLoaded) {
+            // just get the url of the map we want to view, and load it. 
+            // TODO: Don't do this if we're already looking at it! 
+            var bitUrl = $("#oavSmallMapLink").attr('href');
+            var command = "map replace mapB '"+ bitUrl +"';"; 
+            command = "map mapA contour 0 'blue';";
+            execute_oav_command(command);
+        } else {
+            var oavHref = $("#oavLinkSmallMap").attr('href');
+            $("#oav").load(oavHref);
+            oavLoaded = true;
+        }
+    });
+    
     
     $(".oavControl").click(function(event) {
         var eId = event.target.id;

@@ -95,7 +95,7 @@
                     <div class="visOption" id='visPreview'>
                         {% if gif %}
                         <div class="visIcon"><img width='75' src="{% url webemdb_file gif.id %}" /></div>
-                        <div class="visText">Preview</div>
+                        <div class="visText">Snapshot</div>
                         {% else %}
                             <div> Preview image not available </div>
                         {% endif %}
@@ -116,42 +116,70 @@
                     {% endif %}
                     
                     {% if bit %}
-                    <div class="visOption" id='visAstex'>
+                    <div class="visOption" id='visAstexBit'>
                         <div>
                             <div class="visIcon"><img width='75' src="{% url webemdb_file gif.id %}" /> </div>
                             <div class="visText">
-                                Open Astex Viewer
+                                Open Astex Viewer - Preview
                                 {% if sizeWarning %} <!-- display warning if necessary -->
                                 <div id="sizeWarning">This is a large/complex map. The viewer may not have enough memory to view it</div>
                                 {% endif %}
                             </div>
                         </div>
-                        <div class="clean"></div>
-                        <div id="oavControls">
-                            <!-- <div class="oavControl" id='red'>Red</div> -->
-                            Rotate: Click + Drag<br />
-                            Zoom: Shift + Drag Up/Down<br />
-                            {% if not sizeWarning %} <!-- should be viewable -->
-                            <p>If the map fails to display, try restarting your browser</p>
-                            {% endif %}
-                                
-                            {% for pdb in pdbs %}
-                                <div>
-                                Load pdb:<a href="{% url webemdb_pdb pdb.id %}" class="oavLoadPdb">{{ pdb.getFileName }}</a>
-                                </div>
-                            {% endfor %}
-                        </div>
+                        <!-- following links will be hidden - used by javascript to load applet (and map) or replace map -->
+                        <a id="oavLink" href="{% url webemdb_oa_viewer bit.id %}">OA Viewer</a>
+                        <a id="oavBitLink" href="{% url webemdb_bit bit.id %}">bit mask link</a>
                         <div class="clean"></div>
                     </div>
                     
-                    <!-- This is a hidden link that is used by javascript to load the OA-viewer if/when the visAstex is clicked -->
-                    <a id="oavLink" href="{% url webemdb_oa_viewer bit.id %}">OA Viewer</a>
+                    {% endif %}
                     
-                    {% else %}
-                        <div class="visOption"> Volume viewer not available </div>
+                    {% if map %}
+                    <div class="visOption" id='visAstexMap'>
+                        <div>
+                            <div class="visIcon"><img width='75' src="{% url webemdb_file gif.id %}" /> </div>
+                            <div class="visText">
+                                Open Astex Viewer - Full Map
+                            </div>
+                        </div>
+                        <!-- following links will be hidden - used by javascript to load applet (and map) or replace map -->
+                        <a id="oavLinkMap" href="{% url webemdb_oa_viewer map.id %}">OA Viewer Full Map</a>
+                        <a id="oavMapLink" href="{% url webemdb_map map.id %}">map link</a>
+                        <div class="clean"></div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if smallMap %}
+                    <div class="visOption" id='visAstexSmallMap'>
+                        <div>
+                            <div class="visIcon"><img width='75' src="{% url webemdb_file gif.id %}" /> </div>
+                            <div class="visText">
+                                Open Astex Viewer - Small Map (resized to allow viewing in web browser)
+                            </div>
+                        </div>
+                        <!-- following links will be hidden - used by javascript to load applet (and map) or replace map -->
+                        <a id="oavLinkSmallMap" href="{% url webemdb_oa_viewer smallMap.id %}">OA Viewer Small Map</a>
+                        <a id="oavSmallMapLink" href="{% url webemdb_map smallMap.id %}">small map link</a>
+                        <div class="clean"></div>
+                    </div>
                     {% endif %}
                     
                     
+                    <div id="oavControls">
+                        <!-- <div class="oavControl" id='red'>Red</div> -->
+                        Rotate: Click + Drag<br />
+                        Zoom: Shift + Drag Up/Down<br />
+                        {% if not sizeWarning %} <!-- should be viewable -->
+                        <p>If the map fails to display, try restarting your browser</p>
+                        {% endif %}
+                            
+                        {% for pdb in pdbs %}
+                            <div>
+                            Load pdb:<a href="{% url webemdb_pdb pdb.id %}" class="oavLoadPdb">{{ pdb.getFileName }}</a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="clean"></div>
                 </td>
                 <td valign="top" align="left" width="100%">
                 <!-- </div>
