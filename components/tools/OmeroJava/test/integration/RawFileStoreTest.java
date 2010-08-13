@@ -17,7 +17,7 @@ import omero.api.RawFileStorePrx;
 import omero.model.OriginalFile;
 
 /** 
- * Collections of tests for the <code>IContainer</code> service.
+ * Collections of tests for the <code>RawFileStore</code> service.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -84,5 +84,5 @@ public class RawFileStoreTest
 		}
     	svc.close();
     }
-	
+
 }

@@ -49,6 +49,7 @@ import omero.model.PermissionsI;
 import omero.model.Pixels;
 import omero.model.PlaneInfo;
 import omero.model.PlaneInfoI;
+import omero.model.PlateI;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
