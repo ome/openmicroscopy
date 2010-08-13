@@ -16,11 +16,11 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 //Application-internal dependencies
-import ome.model.enums.Family;
 import omero.RLong;
 import omero.api.IPixelsPrx;
 import omero.api.RenderingEnginePrx;
 import omero.model.ChannelBinding;
+import omero.model.Family;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
@@ -179,12 +179,13 @@ public class RenderingEngineTest
 			b1 = Boolean.valueOf(c1.getNoiseReduction().getValue());
 			b2 = Boolean.valueOf(re.getChannelNoiseReduction(index));
 			assertTrue(b1.equals(b2));
+			index++;
 		}
 		re.close();
 	}
 	
 	/**
-	 * Tests to modify the rendering settings using the rendering engine
+	 * Tests to modify the rendering settings using the rendering engine.
 	 * @throws Exception Thrown if an error occurred.
 	 */
 	@Test
@@ -225,8 +226,155 @@ public class RenderingEngineTest
 		}
     	re.setModel(model);
     	assertTrue(re.getModel().getId().getValue() == model.getId().getValue());
+    	QuantumDef qdef = def.getQuantization();
+    	int start = qdef.getCdStart().getValue()+10;
+    	int end = qdef.getCdEnd().getValue()-10;
+    	re.setCodomainInterval(start, end);
+    	assertTrue(re.getQuantumDef().getCdStart().getValue() == start);
+    	assertTrue(re.getQuantumDef().getCdEnd().getValue() == end);
+    	List<ChannelBinding> channels1 = def.copyWaveRendering();
+		assertNotNull(channels1);
+		Iterator<ChannelBinding> j = channels1.iterator();
+		ChannelBinding c1;
+		int index = 0;
+		boolean b;
+		double s, e;
+		int[] RGBA = {255, 0, 10, 200};
+		int[] rgba;
+		double coefficient = 0.5;
+		Family f = (Family) families.get(families.size()-1);
+		while (j.hasNext()) {
+			c1 = j.next();
+			b = !c1.getActive().getValue();
+			re.setActive(index, b);
+			assertTrue(Boolean.valueOf(b).equals(
+					Boolean.valueOf(re.isActive(index))));
+			s = c1.getInputStart().getValue()+1;
+			e = c1.getInputEnd().getValue()+1;
+			re.setChannelWindow(index, s, e);
+			assertTrue(re.getChannelWindowStart(index) == s);
+			assertTrue(re.getChannelWindowEnd(index) == e);
+			b = !c1.getNoiseReduction().getValue();
+			re.setRGBA(index, RGBA[0], RGBA[1], RGBA[2], RGBA[3]);
+			rgba = re.getRGBA(index);
+			for (int k = 0; k < rgba.length; k++) {
+				assertTrue(rgba[k] == RGBA[k]);
+			}
+			b = !c1.getNoiseReduction().getValue();
+			re.setQuantizationMap(index, f, coefficient, b);
+			assertTrue(Boolean.valueOf(
+					re.getChannelNoiseReduction(index)).equals(
+							Boolean.valueOf(b)));
+			assertTrue(re.getChannelCurveCoefficient(index) == coefficient);
+			assertTrue(re.getChannelFamily(index).getId().getValue() == 
+				f.getId().getValue());
+		}
 		re.close();
 	}
 	
+	/**
+	 * Tests to reset the default settings but do not save them back to the 
+	 * database using the <code>resetDefaultsNoSave</code> method.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test
+	public void testResetDefaultsNoSave()
+		throws Exception
+	{
+		Image image = createImage();
+		Pixels pixels = image.getPrimaryPixels();
+		long id = pixels.getId().getValue();
+		
+		//create rendering settings and modify it
+		List<Long> ids = new ArrayList<Long>();
+		ids.add(image.getId().getValue());
+		factory.getRenderingSettingsService().resetDefaultsInSet(
+				Image.class.getName(), ids);
+		RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+		int t = def.getDefaultT().getValue();
+		int v = t+1;
+		def.setDefaultT(omero.rtypes.rint(v));
+		//update
+		def = (RenderingDef) iUpdate.saveAndReturnObject(def);
+		
+		RenderingEnginePrx re = factory.createRenderingEngine();
+		re.lookupPixels(id);
+		if (!re.lookupRenderingDef(id)) {
+			re.resetDefaults();
+			re.lookupRenderingDef(id);
+		}
+		re.load();
+		assertTrue(re.getDefaultT() == def.getDefaultT().getValue());
+		re.resetDefaultsNoSave();
+		assertTrue(re.getDefaultT() == t);
+		//reload from db
+		def = factory.getPixelsService().retrieveRndSettings(id);
+		assertTrue(def.getDefaultT().getValue() == v);
+	}
+	
+	/**
+	 * Tests to reset the default settings and save them back to the database
+	 * using the <code>resetDefaults</code> method.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test
+	public void testResetDefaults()
+		throws Exception
+	{
+		Image image = createImage();
+		Pixels pixels = image.getPrimaryPixels();
+		long id = pixels.getId().getValue();
+		
+		//create rendering settings and modify it
+		List<Long> ids = new ArrayList<Long>();
+		ids.add(image.getId().getValue());
+		factory.getRenderingSettingsService().resetDefaultsInSet(
+				Image.class.getName(), ids);
+		RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+		int t = def.getDefaultT().getValue();
+		int v = t+1;
+		def.setDefaultT(omero.rtypes.rint(v));
+		//update
+		def = (RenderingDef) iUpdate.saveAndReturnObject(def);
+		
+		RenderingEnginePrx re = factory.createRenderingEngine();
+		re.lookupPixels(id);
+		if (!re.lookupRenderingDef(id)) {
+			re.resetDefaults();
+			re.lookupRenderingDef(id);
+		}
+		re.load();
+		assertTrue(re.getDefaultT() == def.getDefaultT().getValue());
+		re.resetDefaults();
+		assertTrue(re.getDefaultT() == t);
+	}
+	
+	/**
+	 * Tests to modify the rendering settings using the rendering engine 
+	 * and save the current settings using the <code>saveCurrentSettings</code>
+	 * method.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test
+	public void testSaveCurrentSettings()
+		throws Exception
+	{
+		Image image = createImage();
+		Pixels pixels = image.getPrimaryPixels();
+		long id = pixels.getId().getValue();
+		RenderingEnginePrx re = factory.createRenderingEngine();
+		re.lookupPixels(id);
+		re.resetDefaults();
+		re.lookupRenderingDef(id);
+		re.load();
+		int t = re.getDefaultT();
+		int v = t+1;
+		re.setDefaultT(v);
+		re.saveCurrentSettings();
+		
+		assertTrue(re.getDefaultT() == v);
+		RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+		assertTrue(def.getDefaultT().getValue() == v);
+	}
 	
 }
