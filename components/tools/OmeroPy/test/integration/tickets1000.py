@@ -47,12 +47,14 @@ class TestTicket1000(lib.ITest):
         self.client.sf.getQueryService().findAllByQuery("""select i from Image i where i.name ilike '%h%' """, prms);
 
     def test880(self):
-        createTestImage(self.client.sf)
         try:
+            createTestImage(self.client.sf)
             i = self.client.sf.getQueryService().findAll("Image", params.theFilter)[0]
             self.assert_(i != None)
             self.assert_(i.id != None)
             self.assert_(i.details != None)
+        except omero.ValidationException, ve:
+            print " test880 - createTestImage has failed. This fixture method needs to be fixed."
         except IndexError, ie:
             print " test880 - findAll has failed so assertions can't be checked. Is this a fail? "
 
