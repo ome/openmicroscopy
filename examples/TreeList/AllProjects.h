@@ -1,5 +1,6 @@
 #include <string>
 #include <omero/API.h>
+#include <omero/api/IQuery.h>
 #include <omero/System.h>
 #include <omero/RTypesI.h>
 #include <omero/Collections.h>

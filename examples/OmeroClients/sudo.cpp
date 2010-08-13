@@ -1,4 +1,6 @@
 #include <iostream>
+#include <omero/api/IAdmin.h>
+#include <omero/api/ISession.h>
 #include <omero/client.h>
 #include <omero/model/Session.h>
 
