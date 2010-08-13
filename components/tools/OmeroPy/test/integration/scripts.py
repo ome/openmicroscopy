@@ -104,16 +104,21 @@ class TestScripts(lib.ITest):
         script = "\n".join(scriptLines)
 
         id = scriptService.uploadOfficialScript("/testUploadOfficialScript%s.py" % uuid, script)
-        # force the server to parse the file enough to get params (checks syntax etc)
-        params = scriptService.getParams(id)
-        for key, param in params.inputs.items():
-            self.assertEquals("longParam", key)
-            self.assertNotEqual(param.prototype, None, "Parameter prototype is 'None'")
-            self.assertEquals("theDesc", param.description)
-            self.assertEquals(1, param.min.getValue(), "Min value not correct")
-            self.assertEquals(10, param.max.getValue(), "Max value not correct")
-            self.assertEquals(5, param.values.getValue()[0].getValue(), "First option value not correct")
-
+        impl = omero.processor.usermode_processor(self.root)
+        try:
+            # force the server to parse the file enough to get params (checks syntax etc)
+            params = scriptService.getParams(id)
+            for key, param in params.inputs.items():
+                self.assertEquals("longParam", key)
+                self.assertNotEqual(param.prototype, None, "Parameter prototype is 'None'")
+                self.assertEquals("theDesc", param.description)
+                self.assertEquals(1, param.min.getValue(), "Min value not correct")
+                self.assertEquals(10, param.max.getValue(), "Max value not correct")
+                self.assertEquals(5, param.values.getValue()[0].getValue(), "First option value not correct")
+        finally:
+            impl.cleanup()
+        
+        
     def testRunScript(self):
         # Trying to run script as described:
         #http://trac.openmicroscopy.org.uk/omero/browser/trunk/components/blitz/resources/omero/api/IScript.ice#L40
@@ -136,15 +141,20 @@ class TestScripts(lib.ITest):
         # should be OK for root to upload as official script (unique path) and run
         officialScriptId = scriptService.uploadOfficialScript("offical/test/script%s.py" % uuid, script)
         self.assertTrue(scriptService.canRunScript(officialScriptId)) # ticket:2341
-        proc = scriptService.runScript(officialScriptId, map, None)
+
+        impl = omero.processor.usermode_processor(self.root)
         try:
-            cb = omero.scripts.ProcessCallbackI(client, proc)
-            while not cb.block(1000): # ms.
-                pass
-            cb.close()
-            results = proc.getResults(0)    # ms
+            proc = scriptService.runScript(officialScriptId, map, None)
+            try:
+                cb = omero.scripts.ProcessCallbackI(client, proc)
+                while not cb.block(1000): # ms.
+                    pass
+                cb.close()
+                results = proc.getResults(0)    # ms
+            finally:
+                proc.close(False)
         finally:
-            proc.close(False)
+            impl.cleanup()
 
         self.assertTrue("returnMessage" in results, "Script should have run as Official script")
 
@@ -306,19 +316,23 @@ client.closeSession()
             OS.List("c").ofType(OM.ImageI))
         """
         upload_time, scriptID = self.timeit(svc.uploadOfficialScript, "/test/perf%s.py" % self.uuid(), SCRIPT)
-        params_time, params = self.timeit(svc.getParams, scriptID)
-        self.assertTrue(params_time < (upload_time/10), "upload_time(%s) <= 10 * params_time(%s)!" % (upload_time, params_time))
-        self.assertTrue(params_time < 0.1, "params_time(%s) >= 0.01 !" % params_time)
-
-        run_time, process = self.timeit(svc.runScript, scriptID, wrap({"a":long(5)}).val, None)
-        def wait():
-            cb = omero.scripts.ProcessCallbackI(self.root, process)
-            while cb.block(500) is None:
-                #process.poll() # This seems to make things much faster
-                pass
-        wait_time, ignore = self.timeit(wait)
-        results_time, ignore = self.timeit(process.getResults, 0)
-        self.assertTrue(5 > (run_time+results_time+wait_time), "run(%s)+wait(%s)+results(%s) > 5" % (run_time, wait_time, results_time))
+        impl = omero.processor.usermode_processor(self.root)
+        try:
+            params_time, params = self.timeit(svc.getParams, scriptID)
+            self.assertTrue(params_time < (upload_time/10), "upload_time(%s) <= 10 * params_time(%s)!" % (upload_time, params_time))
+            self.assertTrue(params_time < 0.1, "params_time(%s) >= 0.01 !" % params_time)
+    
+            run_time, process = self.timeit(svc.runScript, scriptID, wrap({"a":long(5)}).val, None)
+            def wait():
+                cb = omero.scripts.ProcessCallbackI(self.root, process)
+                while cb.block(500) is None:
+                    #process.poll() # This seems to make things much faster
+                    pass
+            wait_time, ignore = self.timeit(wait)
+            results_time, ignore = self.timeit(process.getResults, 0)
+            self.assertTrue(5 > (run_time+results_time+wait_time), "run(%s)+wait(%s)+results(%s) > 5" % (run_time, wait_time, results_time))
+        finally:
+            impl.cleanup()
 
     def testSpeedOfThumbnailFigure(self):
         svc = self.client.sf.getScriptService()
