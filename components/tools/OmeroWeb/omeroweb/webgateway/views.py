@@ -477,10 +477,16 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
             if tiff_data is None:
                 raise Http404
             webgateway_cache.setOmeTiffImage(request, server_id, imgs[0], tiff_data)
-        rsp = HttpResponse(tiff_data, mimetype='application/x-ome-tiff')
-        rsp['Content-Disposition'] = 'attachment; filename="%s.ome.tiff"' % obj.getName()
-        rsp['Content-Length'] = len(tiff_data)
-        return rsp
+        fpath, rpath, fobj = webgateway_tempfile.new(obj.getName() + '.ome.tiff')
+        if fobj is None:
+            rsp = HttpResponse(tiff_data, mimetype='application/x-ome-tiff')
+            rsp['Content-Disposition'] = 'attachment; filename="%s.ome.tiff"' % obj.getName()
+            rsp['Content-Length'] = len(tiff_data)
+            return rsp
+        else:
+            fobj.write(tiff_data)
+            fobj.close()
+            return HttpResponseRedirect('/appmedia/tfiles/' + rpath)
     else:
         try:
             fpath, rpath, fobj = webgateway_tempfile.new(name + '.zip')
