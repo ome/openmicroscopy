@@ -329,4 +329,19 @@ shown = 0;
     });
   }
 }
-              
+
+function downloadLandingDialog (anchor, msg) {
+    if (!msg) {
+	msg = "<h2>Your download will start in a few moments</h2>";
+    }
+    gs_choiceModalDialog(msg,
+                         [{label: 'dismiss'}],
+			 null,
+			 {css: {width: '50%', left: '25%'}}
+			); 
+    if (anchor) {
+	location.href = $(anchor).attr('href');
+    }
+    return false;
+}
+
