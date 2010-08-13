@@ -134,7 +134,7 @@ class ITest(unittest.TestCase):
 
     def import_image(self, filename = None):
         if filename is None:
-            filename = (path(".") / ".." / ".." / "common" / "test" / "tinyTest.d3d.dv").abspath()
+            filename = self.OmeroPy / ".." / ".." / ".." / "components" / "common" / "test" / "tinyTest.d3d.dv"
 
 
         server = self.client.getProperty("omero.host")
@@ -154,7 +154,7 @@ class ITest(unittest.TestCase):
         for x in out.split("\n"):
             if x and x.find("Created") < 0 and x.find("#") < 0:
                 try:    # if the line has an image ID...
-                    imageId = long(x.strip())
+                    imageId = str(long(x.strip()))
                     pix_ids.append(imageId)
                 except: pass
         return pix_ids

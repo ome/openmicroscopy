@@ -10,7 +10,7 @@
 
 import integration.library as lib
 import unittest, os, sys, uuid
-
+import omero.processor
 
 class TestMakeMovie(lib.ITest):
     """
@@ -24,9 +24,13 @@ class TestMakeMovie(lib.ITest):
     def testNoParams(self):
         makeMovieID = self.svc.getScriptID("/omero/export_scripts/Make_Movie.py")
         imported_pix = ",".join(self.import_image())
-        imported_img = self.query.findByQuery("select i from Image i where i.pixels.id in (%s" % imported_pix, None)
-        inputs = {"Image_ID": imported_img.id.val}
-        process = self.svc.runScript(makeMovieID, {}, None)
+        imported_img = self.query.findByQuery("select i from Image i join fetch i.pixels pixels where pixels.id in (%s)" % imported_pix, None)
+        inputs = {"Image_ID": imported_img.id}
+        impl = omero.processor.usermode_processor(self.root)
+        try:
+            process = self.svc.runScript(makeMovieID, inputs, None)
+        finally:
+            impl.cleanup()
 
 if __name__ == '__main__':
     unittest.main()
