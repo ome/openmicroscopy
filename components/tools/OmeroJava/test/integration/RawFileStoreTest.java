@@ -10,8 +10,6 @@ package integration;
 //Java imports
 
 //Third-party libraries
-import java.io.File;
-
 import org.testng.annotations.Test;
 
 //Application-internal dependencies
@@ -84,6 +82,7 @@ public class RawFileStoreTest
     	for (int i = 0; i < values.length; i++) {
     		assertTrue(values[i] == data[i]);
 		}
+    	svc.close();
     }
 	
 }
