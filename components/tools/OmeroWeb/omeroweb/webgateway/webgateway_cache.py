@@ -350,7 +350,10 @@ class WebGatewayCache (object):
     # Thumb
 
     def _thumbKey (self, r, client_base, iid, size):
-        return 'thumb_%s/%s-%s' % (client_base, str(iid), 'x'.join([str(x) for x in size]))
+        if size is not None:
+            return 'thumb_%s/%s/%s' % (client_base, str(iid), 'x'.join([str(x) for x in size]))
+        else:
+            return 'thumb_%s/%s' % (client_base, str(iid))
 
     def setThumb (self, r, client_base, iid, obj, size=()):
         k = self._thumbKey(r, client_base, iid, size)
@@ -366,7 +369,7 @@ class WebGatewayCache (object):
             logger.debug('cached: %s' % k)
         return r
 
-    def clearThumb (self, r, client_base, iid, size=()):
+    def clearThumb (self, r, client_base, iid, size=None):
         k = self._thumbKey(r, client_base, iid, size)
         self._cache_clear(self._thumb_cache, k)
         return True

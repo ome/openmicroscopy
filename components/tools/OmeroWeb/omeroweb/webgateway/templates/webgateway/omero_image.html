@@ -520,7 +520,7 @@
   function setImageDefaults (obj, callback, skip_apply) {
     if (!skip_apply) applyRDCW();
     var old = $(obj).html();
-    gs_modalJson('/webgateway/saveImgRDef/'+viewport.loadedImg.id+'/?'+viewport.getQuery(true),
+    gs_modalJson('/{{ blitzcon.server_id|default:"webgateway" }}/saveImgRDef/'+viewport.loadedImg.id+'/?'+viewport.getQuery(true),
                  {},
                  function(success, rv) {
                     $(obj).html(old).attr('disabled', false);
