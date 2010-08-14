@@ -6,15 +6,19 @@
  */
 package integration;
 
+
+//Java imports
 import java.util.ArrayList;
 import java.util.List;
 
-import omero.RInt;
+//Third-party libraries
+import org.testng.annotations.Test;
+
+//Application-internal dependencies
 import omero.RLong;
 import omero.api.ExporterPrx;
 import omero.api.IPixelsPrx;
 import omero.api.RawFileStorePrx;
-import omero.model.Details;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.IObject;
@@ -25,13 +29,6 @@ import omero.model.Pixels;
 import omero.model.PixelsOriginalFileMapI;
 import omero.model.PixelsType;
 import omero.sys.ParametersI;
-
-//Java imports
-
-//Third-party libraries
-import org.testng.annotations.Test;
-
-//Application-internal dependencies
 
 /** 
  * Collections of tests for the <code>Exporter</code> service.
@@ -50,34 +47,6 @@ import org.testng.annotations.Test;
 public class ExporterTest 
 	extends AbstractTest
 {
-
-	/**
-	 * Creates an image. This method has been tested in 
-	 * <code>PixelsServiceTest</code>.
-	 * 
-	 * @return See above.
-	 * @throws Exception Thrown if an error occurred.
-	 */
-	private Image createImage()
-		throws Exception
-	{
-		IPixelsPrx svc = factory.getPixelsService();
-    	List<IObject> types = 
-    		svc.getAllEnumerations(PixelsType.class.getName());
-    	List<Integer> channels = new ArrayList<Integer>();
-    	for (int i = 0; i < 1; i++) {
-			channels.add(i);
-		}
-    	
-    	RLong id = svc.createImage(1, 1, 1, 1, channels, 
-    			(PixelsType) types.get(1), "test", "");
-    	//Retrieve the image.
-    	ParametersI param = new ParametersI();
-    	param.addId(id.getValue());
-    	Image img = (Image) iQuery.findByQuery(
-    			"select i from Image i where i.id = :id", param);
-    	return (Image) iUpdate.saveAndReturnObject(img);
-	}
 	
     /**
      * Tests to export an image as OME-TIFF.
@@ -90,7 +59,10 @@ public class ExporterTest
     	throws Exception 
     {
     	//First create an image
-    	Image image = createImage();
+    	Image image = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
+    	Pixels pixels = createPixels();
+    	image.addPixels(pixels);
+    	image = (Image) iUpdate.saveAndReturnObject(image);
     	
     	//Need to have an annotation otherwise does not work
     	FileAnnotationI fa = new FileAnnotationI();
@@ -100,7 +72,7 @@ public class ExporterTest
     	l.setChild(a);
     	l.setParent(image);
     	iUpdate.saveAndReturnObject(l);
-    	Pixels pixels = image.getPrimaryPixels();
+    	pixels = image.getPrimaryPixels();
     	OriginalFile f = createOriginalFile();
     	f = (OriginalFile) iUpdate.saveAndReturnObject(f);
     	

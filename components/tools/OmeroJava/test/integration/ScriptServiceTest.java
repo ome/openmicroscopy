@@ -24,11 +24,10 @@ package integration;
 
 
 //Java imports
-
-//Third-party libraries
 import java.util.Iterator;
 import java.util.List;
 
+//Third-party libraries
 import org.testng.annotations.Test;
 
 //Application-internal dependencies
