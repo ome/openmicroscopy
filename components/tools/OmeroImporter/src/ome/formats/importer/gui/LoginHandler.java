@@ -46,6 +46,7 @@ import java.beans.PropertyChangeListener;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.ResourceBundle;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -348,10 +349,14 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     public boolean displayLoginDialog(Object viewer, boolean modal, boolean displayTop)
     {   
         Image img = Toolkit.getDefaultToolkit().createImage(GuiImporter.ICON);
+        
+        ResourceBundle bundle = ResourceBundle.getBundle("omero");
+        String omeroVersion = bundle.getString("omero.version");
+        
         view = new ScreenLogin(config.getAppTitle(),
                 GuiCommonElements.getImageIcon("gfx/login_background.png"),
                 img,
-                config.getIniVersionNumber(), 
+                omeroVersion, 
                 Integer.toString(config.port.get()));
         view.showConnectionSpeed(false);
         viewTop = new ScreenLogo(config.getAppTitle(), GuiCommonElements.getImageIcon(GuiImporter.splash), img);
