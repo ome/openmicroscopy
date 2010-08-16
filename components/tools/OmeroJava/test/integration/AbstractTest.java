@@ -20,7 +20,9 @@ import junit.framework.TestCase;
 import ome.testing.ObjectFactory;
 import omero.OptimisticLockException;
 import omero.RInt;
+import omero.RLong;
 import omero.api.IAdminPrx;
+import omero.api.IPixelsPrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
@@ -47,6 +49,7 @@ import omero.model.OriginalFileI;
 import omero.model.Permissions;
 import omero.model.PermissionsI;
 import omero.model.Pixels;
+import omero.model.PixelsType;
 import omero.model.PlaneInfo;
 import omero.model.PlaneInfoI;
 import omero.model.PlateI;
@@ -415,5 +418,33 @@ public class AbstractTest
 			assertTrue(b1.equals(b2));
 		}
 	}
-    
+ 
+	/**
+	 * Creates an image. This method has been tested in 
+	 * <code>PixelsServiceTest</code>.
+	 * 
+	 * @return See above.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	protected Image createImage()
+		throws Exception
+	{
+		IPixelsPrx svc = factory.getPixelsService();
+
+    	List<IObject> types = 
+    		svc.getAllEnumerations(PixelsType.class.getName());
+    	List<Integer> channels = new ArrayList<Integer>();
+    	for (int i = 0; i < 1; i++) {
+			channels.add(i);
+		}
+    	
+    	RLong id = svc.createImage(1, 1, 1, 1, channels, 
+    			(PixelsType) types.get(1), "test", "");
+    	//Retrieve the image.
+    	ParametersI param = new ParametersI();
+    	param.addId(id.getValue());
+    	Image img = (Image) iQuery.findByQuery(
+    			"select i from Image i where i.id = :id", param);
+    	return (Image) iUpdate.saveAndReturnObject(img);
+	}
 }

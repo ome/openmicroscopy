@@ -59,35 +59,6 @@ import org.testng.annotations.Test;
 public class RawPixelsStoreTest 
 	extends AbstractTest
 {
-
-	/**
-	 * Creates an image. This method has been tested in 
-	 * <code>PixelsServiceTest</code>.
-	 * 
-	 * @return See above.
-	 * @throws Exception Thrown if an error occurred.
-	 */
-	private Image createImage()
-		throws Exception
-	{
-		IPixelsPrx svc = factory.getPixelsService();
-
-    	List<IObject> types = 
-    		svc.getAllEnumerations(PixelsType.class.getName());
-    	List<Integer> channels = new ArrayList<Integer>();
-    	for (int i = 0; i < 1; i++) {
-			channels.add(i);
-		}
-    	
-    	RLong id = svc.createImage(1, 1, 1, 1, channels, 
-    			(PixelsType) types.get(1), "test", "");
-    	//Retrieve the image.
-    	ParametersI param = new ParametersI();
-    	param.addId(id.getValue());
-    	Image img = (Image) iQuery.findByQuery(
-    			"select i from Image i where i.id = :id", param);
-    	return (Image) iUpdate.saveAndReturnObject(img);
-	}
 	
     /**
      * Tests to set a plane and retrieve it, this method will test the 

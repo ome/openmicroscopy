@@ -49,34 +49,6 @@ public class RenderingEngineTest
 {
 	
 	/**
-	 * Creates an image. This method has been tested in 
-	 * <code>PixelsServiceTest</code>.
-	 * 
-	 * @return See above.
-	 * @throws Exception Thrown if an error occurred.
-	 */
-	private Image createImage()
-		throws Exception
-	{
-		IPixelsPrx svc = factory.getPixelsService();
-    	List<IObject> types = 
-    		svc.getAllEnumerations(PixelsType.class.getName());
-    	List<Integer> channels = new ArrayList<Integer>();
-    	for (int i = 0; i < DEFAULT_CHANNELS_NUMBER; i++) {
-			channels.add(i);
-		}
-    	RLong id = svc.createImage(SIZE_X, SIXE_Y, SIXE_Z, SIXE_T, channels, 
-    			(PixelsType) types.get(1),
-    			"test", "");
-    	//Retrieve the image.
-    	ParametersI param = new ParametersI();
-    	param.addId(id.getValue());
-    	Image img = (Image) iQuery.findByQuery(
-    			"select i from Image i where i.id = :id", param);
-    	return (Image) iUpdate.saveAndReturnObject(img);
-	}
-	
-	/**
 	 * Tests the creation of the rendering engine for a given pixels set w/o
 	 * looking up for rendering settings.
 	 * @throws Exception Thrown if an error occurred.
