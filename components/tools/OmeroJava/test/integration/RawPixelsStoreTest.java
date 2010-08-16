@@ -26,21 +26,12 @@ package integration;
 //Java imports
 
 //Third-party libraries
-import java.util.ArrayList;
-import java.util.List;
-
-import omero.RLong;
-import omero.api.IPixelsPrx;
-import omero.api.RawPixelsStorePrx;
-import omero.model.IObject;
-import omero.model.Image;
-import omero.model.Pixels;
-import omero.model.PixelsType;
-import omero.sys.ParametersI;
-
 import org.testng.annotations.Test;
 
 //Application-internal dependencies
+import omero.api.RawPixelsStorePrx;
+import omero.model.Image;
+import omero.model.Pixels;
 
 /** 
  * Collections of tests for the <code>RawPixelsStore</code> service.

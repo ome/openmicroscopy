@@ -16,7 +16,6 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 //Application-internal dependencies
-import omero.RLong;
 import omero.api.IPixelsPrx;
 import omero.api.RenderingEnginePrx;
 import omero.model.ChannelBinding;
@@ -24,11 +23,9 @@ import omero.model.Family;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
-import omero.model.PixelsType;
 import omero.model.QuantumDef;
 import omero.model.RenderingDef;
 import omero.model.RenderingModel;
-import omero.sys.ParametersI;
 
 /** 
  * Collection of tests for the <code>RenderingEngine</code>.

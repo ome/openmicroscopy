@@ -26,6 +26,7 @@ import omero.model.Channel;
 import omero.model.ContrastMethod;
 import omero.model.Correction;
 import omero.model.DetectorType;
+import omero.model.DimensionOrder;
 import omero.model.Family;
 import omero.model.FilamentType;
 import omero.model.FilterType;
@@ -184,6 +185,13 @@ public class PixelsServiceTest
 	 */
 	private static final int MAX_RENDERING_MODEL = 2;
 	
+	/** 
+	 * The maximum number of elements for the <code>Dimension order</code>
+	 * enumeration.
+	 */
+	private static final int MAX_DIMENSION_ORDER = 6;
+	
+	
 	/**
      * Tests if the objects returned are of the specified type.
      * 
@@ -208,34 +216,6 @@ public class PixelsServiceTest
 		}
     	assertTrue(values.size() == count);
     }
-    
-    /**
-	 * Creates an image. This method has been tested in 
-	 * <code>PixelsServiceTest</code>.
-	 * 
-	 * @return See above.
-	 * @throws Exception Thrown if an error occurred.
-	 */
-	private Image createImage()
-		throws Exception
-	{
-		IPixelsPrx svc = factory.getPixelsService();
-    	List<IObject> types = 
-    		svc.getAllEnumerations(PixelsType.class.getName());
-    	List<Integer> channels = new ArrayList<Integer>();
-    	for (int i = 0; i < DEFAULT_CHANNELS_NUMBER; i++) {
-			channels.add(i);
-		}
-    	RLong id = svc.createImage(SIZE_X, SIXE_Y, SIXE_Z, SIXE_T, channels, 
-    			(PixelsType) types.get(1),
-    			"test", "");
-    	//Retrieve the image.
-    	ParametersI param = new ParametersI();
-    	param.addId(id.getValue());
-    	Image img = (Image) iQuery.findByQuery(
-    			"select i from Image i where i.id = :id", param);
-    	return (Image) iUpdate.saveAndReturnObject(img);
-	}
 	
     /**
      * Tests the retrieval of the pixels description.
@@ -313,6 +293,8 @@ public class PixelsServiceTest
     	checkEnumeration(FilamentType.class.getName(), MAX_FILAMENT_TYPE);
     	checkEnumeration(Format.class.getName(), MAX_FORMAT);
     	
+
+    	checkEnumeration(DimensionOrder.class.getName(), MAX_DIMENSION_ORDER);
     	//for rendering engine
     	checkEnumeration(Family.class.getName(), MAX_FAMILY);
     	checkEnumeration(PixelsType.class.getName(), MAX_PIXELS_TYPE);
@@ -329,7 +311,8 @@ public class PixelsServiceTest
     	throws Exception 
     {
     	//Create some rendering settings.
-    	Image image = createImage();
+    	Image image = createImage(DEFAULT_CHANNELS_NUMBER, SIZE_X, SIXE_Y, 
+    			SIXE_Z, SIXE_T);
     	Pixels pixels = image.getPrimaryPixels();
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	//Pixels first
@@ -358,7 +341,7 @@ public class PixelsServiceTest
     	throws Exception 
     {
     	//Create some rendering settings.
-    	Image image = createImage();
+    	Image image = createImage(DEFAULT_CHANNELS_NUMBER, SIZE_X, SIXE_Y, SIXE_Z, SIXE_T);
     	Pixels pixels = image.getPrimaryPixels();
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	//Pixels first

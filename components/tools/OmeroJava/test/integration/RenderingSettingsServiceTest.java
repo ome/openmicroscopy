@@ -50,27 +50,6 @@ public class RenderingSettingsServiceTest
 {
 	
     /**
-     * Tests the creation of rendering settings for a given pixels set.
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testCreateRenderingSettings() 
-    	throws Exception 
-    {
-    	/* TODO: broken
-		Image i = createImage();
-        Pixels pixels = i.getPrimaryPixels();
-        IPixelsPrx proxy = factory.getPixelsService();
-		pixels = proxy.retrievePixDescription(pixels.getId().getValue());
-        IRenderingSettingsPrx svc = factory.getRenderingSettingsService();
-        RenderingDef def = svc.createNewRenderingDef(pixels);
-        long id = iAdmin.getEventContext().userId;
-        assertNotNull(def);
-        assertTrue(def.getDetails().getOwner().getId().getValue() == id);
-        */
-    }
-    
-    /**
      * Tests to set the default rendering settings for a set.
      * @throws Exception Thrown if an error occurred.
      */

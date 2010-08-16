@@ -21,8 +21,6 @@ import java.util.Set;
 import java.util.UUID;
 
 //Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 

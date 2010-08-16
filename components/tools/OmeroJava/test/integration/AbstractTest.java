@@ -429,16 +429,30 @@ public class AbstractTest
 	protected Image createImage()
 		throws Exception
 	{
+		return createImage(1, 1, 1, 1, 1);
+	}
+	
+	/**
+	 * Creates an image. This method has been tested in 
+	 * <code>PixelsServiceTest</code>.
+	 * 
+	 * @return See above.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	protected Image createImage(int sizeC, int sizeX, int sizeY, int sizeZ, 
+			int sizeT)
+		throws Exception
+	{
 		IPixelsPrx svc = factory.getPixelsService();
 
     	List<IObject> types = 
     		svc.getAllEnumerations(PixelsType.class.getName());
     	List<Integer> channels = new ArrayList<Integer>();
-    	for (int i = 0; i < 1; i++) {
+    	for (int i = 0; i < sizeC; i++) {
 			channels.add(i);
 		}
     	
-    	RLong id = svc.createImage(1, 1, 1, 1, channels, 
+    	RLong id = svc.createImage(sizeX, sizeY, sizeZ, sizeT, channels, 
     			(PixelsType) types.get(1), "test", "");
     	//Retrieve the image.
     	ParametersI param = new ParametersI();
@@ -447,4 +461,5 @@ public class AbstractTest
     			"select i from Image i where i.id = :id", param);
     	return (Image) iUpdate.saveAndReturnObject(img);
 	}
+	
 }
