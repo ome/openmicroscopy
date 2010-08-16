@@ -732,8 +732,9 @@ public class RenderingBean implements RenderingEngine, Serializable {
                         @Transactional(readOnly = false)
                         public Object doWork(Session session, ServiceFactory sf) {
                             IPixels pixMetaSrv = sf.getPixelsService();
+			    long rendDefId = rendDefObj.getId();
                             pixMetaSrv.saveRndSettings(rendDefObj);
-                            return pixMetaSrv.retrieveRndSettings(pixelsObj.getId());
+                            return pixMetaSrv.loadRndSettings(rendDefId);
                         }});
             
             // Unload the linked pixels set to avoid transactional headaches on
