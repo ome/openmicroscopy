@@ -52,7 +52,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
-import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 
 import ome.formats.OMEROMetadataStoreClient;
