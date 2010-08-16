@@ -17,8 +17,10 @@ import omero.clients
 import omero.model
 import omero.api
 import omero_api_IScript_ice
-from omero.rtypes import *
+
 from omero.util.temp_files import create_path, remove_path
+from omero.rtypes import *
+from omero.scripts import wait
 
 PINGFILE = """
 #!/usr/bin/env python
@@ -55,7 +57,7 @@ f.close()
 from omero.rtypes import *
 
 import Ice
-ic = Ice.initialize()
+ic = Ice.initialize(["--Ice.Plugin.IceSSL=IceSSL:createIceSSL"])
 print ic.getProperties().getPropertiesForPrefix("Ice")
 print ic.getProperties().getPropertiesForPrefix("omero")
 
@@ -96,51 +98,61 @@ class CallbackI(omero.grid.ProcessCallback):
         self.kill.append(rv)
 
 class TestPing(lib.ITest):
+    """
+    Tests which use the trivial script defined by PINGFILE to
+    test the scripts API.
+    """
 
-    def testUploadAndPing(self):
-        pingpath = create_path("pingtest")
-        try:
-            name = str(pingpath)
-            pingfile = open(name, "w")
-            pingfile.write(PINGFILE)
-            pingfile.flush()
-            pingfile.close()
-            file = self.root.upload(name, type="text/x-python")
-            j = omero.model.ScriptJobI()
-            j.linkOriginalFile(file)
-
-            p = self.client.sf.sharedResources().acquireProcessor(j, 100)
-            jp = p.params()
-            self.assert_(jp, "Non-zero params")
-
-            input = rmap({})
-            input.val["a"] = rint(1)
-            input.val["b"] = rstring("c")
-            process = p.execute(input)
-            rc = process.wait()
-            if rc:
-                self.assert_(rc == 0, "Non-zero return code")
-            output = p.getResults(process)
-            self.assert_( 1 == output.val["a"].val )
-        finally:
-            remove_path(pingpath)
+    #
+    # Helper methods
+    #
 
     def _getProcessor(self):
         scripts = self.root.getSession().getScriptService()
-        id = scripts.uploadScript("/tests/ping_py/%s.py" % self.uuid(), PINGFILE)
+        id = scripts.uploadOfficialScript("/tests/ping_py/%s.py" % self.uuid(), PINGFILE)
         j = omero.model.ScriptJobI()
         j.linkOriginalFile(omero.model.OriginalFileI(rlong(id),False))
         p = self.client.sf.sharedResources().acquireProcessor(j, 100)
         return p
 
+    def _checkstd(self, output, which):
+        rfile = output.val[which]
+        ofile = rfile.val
+        self.assert_( ofile )
+
+        tmppath = create_path("pingtest")
+        try:
+            self.client.download(ofile, str(tmppath))
+            self.assert_( os.path.getsize(str(tmppath)))
+            return tmppath.text()
+        finally:
+            remove_path(tmppath)
+
+    def assertIO(self, output):
+        stdout = self._checkstd(output, "stdout")
+        stderr = self._checkstd(output, "stderr")
+        return stdout, stderr
+
+    def assertSuccess(self, processor, process):
+        wait(self.client, process)
+        rc = process.poll()
+        output = processor.getResults(process)
+        stdout, stderr = self.assertIO(output)
+        if rc is None or rc.val != 0:
+            self.fail("STDOUT:\n%s\nSTDERR:\n%s\n" % (stdout, stderr))
+        return output
+
+    #
+    # Test methods
+    #
+
     def testPingViaISCript(self):
         p = self._getProcessor()
         input = rmap({})
-        input.val["a"] = rint(2)
+        input.val["a"] = rlong(2)
         input.val["b"] = rstring("d")
         process = p.execute(input)
-        process.wait()
-        output = p.getResults(process)
+        output = self.assertSuccess(p, process)
         self.assert_( 2 == output.val["a"].val )
 
     def testPingParametersViaISCript(self):
@@ -152,32 +164,13 @@ class TestPing(lib.ITest):
         self.assert_( params.outputs["a"] )
         self.assert_( params.outputs["b"] )
 
-    def _checkstd(self, output, which):
-        rfile = output.val[which]
-        ofile = rfile.val
-        self.assert_( ofile )
-
-        tmppath = create_path("pingtest")
-        try:
-            self.client.download(ofile, str(tmppath))
-            self.assert_( os.path.getsize(str(tmppath)))
-        finally:
-            remove_path(tmppath)
-
-    def assertIO(self, output):
-        self._checkstd(output, "stdout")
-        self._checkstd(output, "stderr")
-
     def testPingStdout(self):
         p = self._getProcessor()
         params = p.params()
         self.assert_( params.stdoutFormat )
 
         process = p.execute(rmap({}))
-        process.wait()
-
-        output = p.getResults(process)
-        self.assertIO(output)
+        output = self.assertSuccess(p, process)
 
     def testProcessCallback(self):
 
@@ -192,9 +185,7 @@ class TestPing(lib.ITest):
 
         process = p.execute(rmap({}))
         process.registerCallback(cb)
-        process.wait()
-        output = p.getResults(process)
-        self.assertIO(output)
+        output = self.assertSuccess(p, process)
 
         self.assertTrue( len(callback.finish) > 0 )
 
@@ -227,10 +218,7 @@ class TestPing(lib.ITest):
         p = self._getProcessor()
         process = p.execute(None)
         self.assertRaises(omero.ServerError, p.getResults, process)
-        process.wait()
-
-        output = p.getResults(process)
-        self.assertIO(output)
+        output = self.assertSuccess(p, process)
 
     #
     # Execution-less tests
