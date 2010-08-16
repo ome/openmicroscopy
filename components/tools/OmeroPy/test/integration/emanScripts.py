@@ -75,7 +75,7 @@ class TestEmanScripts(lib.ITest):
         
         # upload script
         scriptService = session.getScriptService()
-        scriptId = uploadScript(scriptService, emanFiltersScript)
+        scriptId = self.uploadScript(scriptService, emanFiltersScript)
         
         try:
             a=test_image()
@@ -163,7 +163,7 @@ class TestEmanScripts(lib.ITest):
         admin = self.root.sf.getAdminService()
         # upload script as root
         scriptService = self.root.sf.getScriptService()
-        scriptId = uploadScript(scriptService, imagesFromRoisPath)
+        scriptId = self.uploadScript(scriptService, imagesFromRoisPath)
         
         # run as root
         session = self.root.sf
@@ -279,7 +279,7 @@ class TestEmanScripts(lib.ITest):
         
         # upload (as root) and run the boxer.py script as user 
         scriptService = self.root.sf.getScriptService()
-        scriptId = uploadScript(scriptService, boxerScriptPath)
+        scriptId = self.uploadScript(scriptService, boxerScriptPath)
         ids = [omero.rtypes.rlong(iId), ]
         argMap = {"Image_IDs": omero.rtypes.rlist(ids),}
         runScript(scriptService, client, scriptId, argMap)
@@ -313,7 +313,7 @@ class TestEmanScripts(lib.ITest):
         
         # upload saveImageAs.py script as root
         scriptService = self.root.sf.getScriptService()
-        scriptId = uploadScript(scriptService, saveImageAsScriptPath)
+        scriptId = self.uploadScript(scriptService, saveImageAsScriptPath)
         
         # upload image as root, since only root has only root has permission to run 
         # export2em.py because it uses the scripting service to look up the 'saveImageAs.py'
@@ -399,7 +399,7 @@ class TestEmanScripts(lib.ITest):
         
         # upload saveImageAs.py script as root
         scriptService = self.root.sf.getScriptService()
-        scriptId = uploadScript(scriptService, runSpiderScriptPath)
+        scriptId = self.uploadScript(scriptService, runSpiderScriptPath)
         
         session = self.root.sf      # do everything as root for now 
         
@@ -462,7 +462,7 @@ class TestEmanScripts(lib.ITest):
         ids = [omero.rtypes.rlong(iId), ]
         argMap = {"IDs":omero.rtypes.rlist(ids),       # process these images
                 "Data_Type": omero.rtypes.rstring("Image"),
-                "Spf_File_Id": fileAnnot.id,
+                "Spf": omero.rtypes.rstring(str(fileAnnot.id.val)),
                 "New_Dataset_Name": omero.rtypes.rstring(newDatasetName),
                 "Input_Name": omero.rtypes.rstring("test001"),
                 "Output_Name": omero.rtypes.rstring("win001")}
@@ -482,6 +482,17 @@ class TestEmanScripts(lib.ITest):
         self.assertTrue(datasetFound, "No dataset found with images from ROIs")
         
         
+    def uploadScript(self, scriptService, scriptPath):
+        file = open(scriptPath)
+        scriptText = file.read()
+        file.close()
+        #try:
+        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        path = "%s/%s" % (uuid, scriptPath)
+        scriptId = scriptService.uploadOfficialScript(path, scriptText)
+        return scriptId
+       
+        
 def runScript(scriptService, client, scriptId, argMap, returnKey=None): 
     # The last parameter is how long to wait as an RInt
     proc = scriptService.runScript(scriptId, argMap, None)
@@ -500,17 +511,6 @@ def runScript(scriptService, client, scriptId, argMap, returnKey=None):
         print "Script generated StdErr in file:" , origFile.getId().getValue()
     if returnKey and returnKey in results:
         return results[returnKey]
-
-def uploadScript(scriptService, scriptPath):
-    file = open(scriptPath)
-    scriptText = file.read()
-    file.close()
-    path = scriptPath.replace("scripts/EMAN2", "/EMAN2")  # convert scripts/EMAN2/script.py to /EMAN2/scripts.py
-    try:
-        scriptId = scriptService.uploadOfficialScript(path, scriptText)
-    except ApiUsageException:
-        scriptId = editScript(scriptService, scriptPath)
-    return scriptId
     
 def editScript(scriptService, scriptPath):
     file = open(scriptPath)

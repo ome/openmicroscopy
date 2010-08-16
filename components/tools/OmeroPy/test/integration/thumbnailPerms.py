@@ -42,24 +42,9 @@ class TestThumbnailPerms(lib.ITest):
         user1name = "user1_%s" % uuid
         user2name = "user2_%s" % uuid
         
-        setup = False    # if we have a new DB and want to set-up groups & users for testing...
-        try:
-            admin.lookupGroup("JRS-private")    # if this fails, setup this and other groups.
-        except:
-            setup = True
-            
-        if (setup):
-            group1name = "JRS-private"
-            group2name = "JRS-read-only"
-            group3name = "JRS-collaborative"
-            ownerName = "jason"
-            user1name = "will"
-            user2name = "user"
-        
         ### create three users in 3 groups
         listOfGroups = list()
         listOfGroups.append(admin.lookupGroup("user"))  # all users need to be in 'user' group to do anything! 
-        
         
         #group1 - private
         new_gr1 = ExperimenterGroupI()
@@ -153,8 +138,8 @@ class TestThumbnailPerms(lib.ITest):
         # create image in private group
         privateImageId = createTestImage(client_share1.sf)
         print len(client_share1.sf.activeServices())
-        self.getThumbnail(client_share1.sf, privateImageId)    # if we don't get thumbnail, test fails when another user does
         
+        self.getThumbnail(client_share1.sf, privateImageId)    # if we don't get thumbnail, test fails when another user does
         print len(client_share1.sf.activeServices())
         
         # change user into read-only group. Use object Ids for this, NOT objects from a different context
