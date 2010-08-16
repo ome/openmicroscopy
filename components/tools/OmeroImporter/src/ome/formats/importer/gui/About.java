@@ -27,6 +27,8 @@
 
 package ome.formats.importer.gui;
 
+import java.util.ResourceBundle;
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -65,7 +67,10 @@ public abstract class About
             else
             	title = "About";
             
-            msg = "Version: " + config.getIniVersionNumber();
+            ResourceBundle bundle = ResourceBundle.getBundle("omero");
+            String omeroVersion = bundle.getString("omero.version");
+            
+            msg = "Version: " + omeroVersion;
             msg = msg + "\n Bio-Formats " + FormatTools.VERSION + 
             " (SVN " + FormatTools.SVN_REVISION + ", " + FormatTools.DATE + ")";
             JOptionPane.showMessageDialog(parent, msg, title,
