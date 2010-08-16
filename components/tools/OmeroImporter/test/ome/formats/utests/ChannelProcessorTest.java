@@ -24,7 +24,6 @@ package ome.formats.utests;
 
 import junit.framework.TestCase;
 import loci.formats.FormatTools;
-import loci.formats.IFormatReader;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;

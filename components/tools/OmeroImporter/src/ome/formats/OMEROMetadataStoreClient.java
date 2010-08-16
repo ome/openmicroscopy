@@ -1563,7 +1563,8 @@ public class OMEROMetadataStoreClient
     			}
     		} catch (ArrayIndexOutOfBoundsException e)
     		{
-    			log.error("byUUID error, path: " + path + ", entry: " + entry);
+    			log.error("byUUID error, path: " + path + ", entry: " + entry, e);
+    			throw e;
     		}
     	}
 
