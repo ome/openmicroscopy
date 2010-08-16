@@ -1556,14 +1556,14 @@ public class OMEROMetadataStoreClient
     			if (path.contains(ORIGINAL_METADATA_KEY))
     			{
     				String[] tokens = entry.getKey().split("/");
-    				if (path.endsWith(tokens[tokens.length - 2]))
+    				if (tokens.length > 1 && path.endsWith(tokens[tokens.length - 2]))
     				{
     					return entry.getValue();
     				}
     			}
     		} catch (ArrayIndexOutOfBoundsException e)
     		{
-    			log.error("byUUID error, path: " + path + ", entry: " + entry, e);
+    			log.error("byUUID error, path: " + path + ", entry.key: " + entry.getKey(), e);
     			throw e;
     		}
     	}
