@@ -330,13 +330,13 @@ shown = 0;
   }
 }
 
-function downloadLandingDialog (anchor, msg) {
+function downloadLandingDialog (anchor, msg, cb) {
     if (!msg) {
 	msg = "<h2>Your download will start in a few moments</h2>";
     }
     gs_choiceModalDialog(msg,
-                         [{label: 'dismiss'}],
-			 null,
+                         [{label: 'dismiss', data: 1}],
+			 cb,
 			 {css: {width: '50%', left: '25%'}}
 			); 
     if (anchor) {

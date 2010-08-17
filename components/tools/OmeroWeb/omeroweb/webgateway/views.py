@@ -463,6 +463,14 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
         if obj is None:
             raise Http404
         imgs.extend(list(obj.listChildren()))
+        selection = filter(None, request.REQUEST.get('selection', '').split(','))
+        if len(selection):
+            logger.debug(selection)
+            logger.debug(imgs)
+            imgs = filter(lambda x: str(x.getId()) in selection, imgs)
+            logger.debug(imgs)
+            if len(imgs) == 0:
+                raise Http404
         name = '%s-%s' % (obj.listParents().getName(), obj.getName())
     else:
         obj = _conn.getImage(cid)
@@ -499,7 +507,7 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
                 if tiff_data is None:
                     tiff_data = obj.exportOmeTiff()
                     webgateway_cache.setOmeTiffImage(request, server_id, obj, tiff_data)
-                zobj.writestr(obj.getName() + '.ome.tiff', tiff_data)
+                zobj.writestr(str(obj.getId()) + '-'+obj.getName() + '.ome.tiff', tiff_data)
             zobj.close()
             if fpath is None:
                 zip_data = fobj.getvalue()
