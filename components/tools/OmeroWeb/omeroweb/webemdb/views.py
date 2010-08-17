@@ -26,10 +26,96 @@ from django.core.servers.basehttp import FileWrapper
 from omero.sys import Parameters, Filter
 
 
-def dataset(request, entryId, datasetId):
+def eman(request, imageId, **kwargs):
+    
+    import omero.util.script_utils as scriptUtil
+    try:
+        from EMAN2 import * 
+    except:
+        logger.info("EMAN2 failed to import. This can be fixed by adding try/catch to EMAN2.py, line 56: 'import EMAN2db.py' ")
+    
+    
+    conn = getConnection(request)
+    
+    rawPixelStore = conn.createRawPixelsStore()
+    queryService = conn.getQueryService()
+    
+    query_string = "select p from Pixels p join fetch p.image as i join fetch p.pixelsType where i.id='%s'" % imageId
+    pixels = queryService.findByQuery(query_string, None)
+    
+    theZ, theC, theT = (0,0,0)
+    bypassOriginalFile = True
+    rawPixelStore.setPixelsId(pixels.getId().getValue(), bypassOriginalFile)
+    plane2D = scriptUtil.downloadPlane(rawPixelStore, pixels, theZ, theC, theT)
+    
+    sizeX = pixels.getSizeX().getValue()
+    sizeY = pixels.getSizeY().getValue()
+    sizeZ = 1
+    #em = EMData()
+    
+    em = EMNumPy.numpy2em(plane2D)
+    
+    f = kwargs['filter']
+    if f == "fft":
+        filterName = "basis.fft"
+        filterParamMap = {"dir": 1, }
+        em.process_inplace(filterName, filterParamMap)
+    elif f == "median":
+        if 'radius' in kwargs:
+            filterParamMap = {"radius": int(kwargs['radius'])}
+            em.process_inplace("eman1.filter.median", filterParamMap) 
+        else:     em.process_inplace("eman1.filter.median") 
+    elif f == "log":
+        em.process_inplace("math.log")
+    
+    tempdir = settings.FILE_UPLOAD_TEMP_DIR
+    tempJpg = os.path.join(tempdir, ('%s.emanFilter.jpg' % (conn._sessionUuid))).replace('\\','/')
+    
+    em.write_image(tempJpg)
+    
+    originalFile_data = FileWrapper(file(tempJpg))
+        
+    rsp = HttpResponse(originalFile_data)
+           
+    rsp['Content-Type'] = "image/jpg"
+    
+    return rsp
+
+
+def image(request, imageId):
+    """
+    Shows an image preview (single plane), Name, Description etc. links to datasets.  
+    """
+    conn = getConnection(request)
+
+    image = conn.getImage(imageId)
+    
+    # enable the django template to access all parents of the image
+    image.showAllParents = image.listParents(single=False)
+    
+    entryId = None
+
+    return render_to_response('webemdb/data/image.html', {'image': image})
+    
+
+def dataset(request, datasetId):
+    """
+    Shows the thumbnails in a dataset, provides a link back to EMDB entry (project)
+    """
     conn = getConnection(request)
 
     dataset = conn.getDataset(datasetId)
+    
+    entryId = None
+    
+    # look for parent project that has EMDB entry name (EMDB ID)
+    for p in dataset.listParents(single = False):
+        try:
+            emdbId = long(p.getName())
+            entryId = str(emdbId)
+            break
+        except:
+            pass
 
     return render_to_response('webemdb/data/dataset.html', {'dataset': dataset, 'entryId': entryId})
 

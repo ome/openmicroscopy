@@ -27,11 +27,18 @@ urlpatterns = patterns('',
     
     # view the associated data for an entry
     url( r'^data/(?P<entryId>[0-9]+)/$', views.data, name='webemdb_data' ),
-    url( r'^dataset/(?P<entryId>[0-9]+)/(?P<datasetId>[0-9]+)/$', views.dataset, name='webemdb_dataset' ),
+    url( r'^dataset/(?P<datasetId>[0-9]+)/$', views.dataset, name='webemdb_dataset' ),
+    url( r'^image/(?P<imageId>[0-9]+)/$', views.image, name='webemdb_image' ),
     
     # browse by annotations. E.g. publications
     url( r'^publications/$', views.publications, name='webemdb_publications' ),
     url( r'^getEntriesByPub/(?P<publicationId>[0-9]+)/$', views.getEntriesByPub, name='webemdb_getEntriesByPub' ),
+    
+    # view an EMAN2 filter on an image
+    url( r'^eman2_filter/(?P<imageId>[0-9]+)/fft/$', views.eman, {"filter": "fft"}, name='webemdb_eman_fft' ),
+    url( r'^eman2_filter/(?P<imageId>[0-9]+)/median/$', views.eman, {"filter": "median"}, name='webemdb_eman_median' ),
+    url( r'^eman2_filter/(?P<imageId>[0-9]+)/median/(?P<radius>[0-9]+)/$', views.eman, {"filter": "median"}, name='webemdb_eman_median' ),
+    url( r'^eman2_filter/(?P<imageId>[0-9]+)/log/$', views.eman, {"filter": "log"}, name='webemdb_eman_log' ),
     
     # define the sym link for media. 
     url( r'appmedia/webemdb/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.dirname(__file__), 'media', 'webemdb').replace('\\','/') }, name="webemdb" ),

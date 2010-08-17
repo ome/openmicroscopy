@@ -27,7 +27,6 @@
 {% endblock %}
 
 {% block jscript %}
-<script type="text/javascript" src="{% url webemdb 'javascript/entry.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -53,7 +52,7 @@
     <div>
        
     {% for img in dataset.listChildren %}
-        <a href="{% url webemdb.views.viewport img.id %}">
+        <a href="{% url webemdb_image img.id %}">
             <img src="{% url webgateway.views.render_thumbnail img.id %}" border='0' />
         </a>
     {% endfor %}

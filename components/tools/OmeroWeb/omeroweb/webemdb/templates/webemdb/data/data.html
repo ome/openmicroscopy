@@ -27,7 +27,6 @@
 {% endblock %}
 
 {% block jscript %}
-<script type="text/javascript" src="{% url webemdb 'javascript/entry.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -52,12 +51,12 @@
                       <div class="dsName">{{ d.getName }}</div>
                       <div class="dsDescription">
                           [ {{ d.countChildren }} images ] 
-                          <a href="{% url webemdb_dataset project.getName d.getId %}"> View all...</a>
+                          <a href="{% url webemdb_dataset d.getId %}"> View all...</a>
                       </div>
                       <div class="dsDescription">{{ d.getDescription }} </div>
                   </div>
                     {% for img in d.listChildren %}
-                        <a href="{% url webemdb.views.viewport img.id %}">
+                        <a href="{% url webemdb_image img.id %}">
                             <img src="{% url webgateway.views.render_thumbnail img.id %}" border='0' />
                         </a>
                     {% endfor %}
