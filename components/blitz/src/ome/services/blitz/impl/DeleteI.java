@@ -8,21 +8,28 @@
 package ome.services.blitz.impl;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import ome.api.IDelete;
 import ome.services.blitz.util.BlitzExecutor;
+import ome.services.blitz.util.BlitzOnly;
+import ome.services.blitz.util.ServiceFactoryAware;
 import omero.ApiUsageException;
 import omero.SecurityViolation;
 import omero.ServerError;
 import omero.ValidationException;
 import omero.api.AMD_IDelete_checkImageDelete;
 import omero.api.AMD_IDelete_deleteImage;
-import omero.api.AMD_IDelete_deleteImagesByDataset;
 import omero.api.AMD_IDelete_deleteImages;
-import omero.api.AMD_IDelete_deleteSettings;
+import omero.api.AMD_IDelete_deleteImagesByDataset;
 import omero.api.AMD_IDelete_deletePlate;
+import omero.api.AMD_IDelete_deleteSettings;
 import omero.api.AMD_IDelete_previewImageDelete;
+import omero.api.AMD_IDelete_queueDelete;
 import omero.api._IDeleteOperations;
+import omero.api.delete.DeleteCommand;
+import omero.api.delete.DeleteHandlePrx;
+import omero.api.delete.DeleteHandlePrxHelper;
 import Ice.Current;
 
 /**
@@ -32,10 +39,17 @@ import Ice.Current;
  * @since 3.0-Beta4
  * @see ome.api.IDelete
  */
-public class DeleteI extends AbstractAmdServant implements _IDeleteOperations {
+public class DeleteI extends AbstractAmdServant implements _IDeleteOperations,
+    ServiceFactoryAware, BlitzOnly {
+
+    private /*final*/ ServiceFactoryI sf;
 
     public DeleteI(IDelete service, BlitzExecutor be) {
         super(service, be);
+    }
+
+    public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
+        this.sf = sf;
     }
 
     // Interface methods
@@ -79,5 +93,18 @@ public class DeleteI extends AbstractAmdServant implements _IDeleteOperations {
     public void deletePlate_async(AMD_IDelete_deletePlate __cb,
             long plateId, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, plateId);
+    }
+
+    public void queueDelete_async(final AMD_IDelete_queueDelete __cb,
+            final DeleteCommand[] commands, final Current __current)
+            throws ApiUsageException, ServerError {
+        safeRunnableCall(__current, __cb, false, new Callable<DeleteHandlePrx>() {
+            public DeleteHandlePrx call() throws Exception {
+                Ice.Identity id = sf.getIdentity("DeleteHandle");
+                DeleteHandleI handle = new DeleteHandleI(commands);
+                DeleteHandlePrx prx = DeleteHandlePrxHelper.
+                    uncheckedCast(sf.registerServant(id, handle));
+                return prx;
+            }});
     }
 }
