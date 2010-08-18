@@ -212,10 +212,11 @@ java component.
 
     <macrodef name="launchSuite">
         <attribute name="suite"/>
+        <attribute name="excludes" default="**/tools/build.xml"/>
         <sequential>
         <ivy:settings id="ivy.@{suite}"  file="${etc.dir}/ivysettings.xml"/>
         <ivy:buildlist reference="@{suite}.buildpath" settingsRef="ivy.@{suite}" ivyfilepath="test.xml">
-            <fileset dir="${omero.home}/components" includes="**/build.xml" excludes="**/tools/build.xml"/>
+            <fileset dir="${omero.home}/components" includes="**/build.xml" excludes="@{excludes}"/>
         </ivy:buildlist>
         <iterate buildpathref="@{suite}.buildpath" target="@{suite}"/>
         </sequential>
@@ -236,6 +237,10 @@ java component.
 
     <target name="test-integration" description="Run all integration tests" depends="init">
         <launchSuite suite="integration"/>
+    </target>
+
+    <target name="test-server" description="Run all non-tools/ tests" depends="init">
+        <launchSuite suite="integration" excludes="**/tools/build.xml,**/tools/**/build.xml"/>
     </target>
 
     <target name="test-report" description="Joins test results into a single report">
