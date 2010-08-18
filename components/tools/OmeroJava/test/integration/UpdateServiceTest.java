@@ -33,6 +33,7 @@ import omero.api.ServiceFactoryPrx;
 import omero.grid.Param;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLinkI;
+import omero.model.Arc;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
 import omero.model.Channel;
@@ -45,22 +46,29 @@ import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.Details;
+import omero.model.Detector;
+import omero.model.Dichroic;
 import omero.model.DimensionOrder;
 import omero.model.EllipseI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
+import omero.model.Filament;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
+import omero.model.Filter;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
 import omero.model.ImageI;
+import omero.model.Instrument;
+import omero.model.Laser;
 import omero.model.LongAnnotation;
 import omero.model.LongAnnotationI;
 import omero.model.MaskI;
+import omero.model.Objective;
 import omero.model.OriginalFile;
 import omero.model.Permissions;
 import omero.model.PermissionsI;
@@ -127,7 +135,7 @@ import pojos.TagAnnotationData;
 public class UpdateServiceTest 
 	extends AbstractTest
 {
-
+	
     /**
      * Test to create an image and make sure the version is correct.
      * @throws Exception Thrown if an error occurred.
@@ -1480,6 +1488,120 @@ public class UpdateServiceTest
         	assertTrue(shape.getWidth() == v);
         	assertTrue(shape.getHeight() == v);
 		}
+    }
+    
+    /**
+	 * Tests the creation of an instrument using the <code>Add</code> methods
+	 * associated to an instrument.
+	 * @throws Exception  Thrown if an error occurred.
+	 */
+    @Test
+    public void testCreateInstrumentUsingAdd() 
+    	throws Exception
+    {
+    	Instrument instrument;
+    	ParametersI param;
+    	String sql;
+    	IObject test;
+    	for (int i = 0; i < LIGHT_SOURCES.length; i++) {
+    		instrument = createInstrument(LIGHT_SOURCES[i]);
+        	instrument = (Instrument) iUpdate.saveAndReturnObject(instrument);
+        	assertNotNull(instrument);
+    		param = new ParametersI();
+        	param.addLong("iid", instrument.getId().getValue());
+        	sql = "select d from Detector as d where d.instrument.id = :iid";
+            test = iQuery.findByQuery(sql, param);
+            assertNotNull(test);
+            sql = "select d from Dichroic as d where d.instrument.id = :iid";
+            test = iQuery.findByQuery(sql, param);
+            assertNotNull(test);
+            sql = "select d from Filter as d where d.instrument.id = :iid";
+            test = iQuery.findByQuery(sql, param);
+            assertNotNull(test);
+            sql = "select d from Objective as d where d.instrument.id = :iid";
+            test = iQuery.findByQuery(sql, param);
+            assertNotNull(test);
+            sql = "select d from LightSource as d where d.instrument.id = :iid";
+            test = iQuery.findByQuery(sql, param);
+            assertNotNull(test);
+            param = new ParametersI();
+        	param.addLong("iid", test.getId().getValue());
+            if (LASER.equals(i)) {
+            	sql = "select d from Laser as d where d.lightSource.id = :iid";
+            	test = iQuery.findByQuery(sql, param);
+            	assertNotNull(test);
+            } else if (FILAMENT.equals(i)) {
+            	sql = "select d from Filament as d where d.lightSource.id = :iid";
+            	test = iQuery.findByQuery(sql, param);
+            	assertNotNull(test);
+            } else if (ARC.equals(i)) {
+            	sql = "select d from Arc as d where d.lightSource.id = :iid";
+            	test = iQuery.findByQuery(sql, param);
+            	assertNotNull(test);
+            }
+		}
+    }
+    
+    /**
+	 * Tests the creation of an instrument using the <code>setInstrument</code> 
+	 * method on the entities composing the instrument.
+	 * @throws Exception  Thrown if an error occurred.
+	 */
+    @Test
+    public void testCreateInstrumentUsingSet() 
+    	throws Exception
+    {
+    	Instrument instrument = (Instrument) iUpdate.saveAndReturnObject(
+    			createInstrument());
+    	assertNotNull(instrument);
+    	
+    	Detector d = createDetector();
+    	d.setInstrument((Instrument) instrument.proxy());
+    	d = (Detector) iUpdate.saveAndReturnObject(d);
+    	assertNotNull(d);
+    	
+    	Filter f = createFilter(500, 560);
+    	f.setInstrument((Instrument) instrument.proxy());
+    	f = (Filter) iUpdate.saveAndReturnObject(f);
+    	assertNotNull(f);
+    	
+    	Dichroic di = createDichroic();
+    	di.setInstrument((Instrument) instrument.proxy());
+    	di = (Dichroic) iUpdate.saveAndReturnObject(di);
+    	assertNotNull(di);
+    	
+    	Objective o = createObjective();
+    	o.setInstrument((Instrument) instrument.proxy());
+    	o = (Objective) iUpdate.saveAndReturnObject(o);
+    	assertNotNull(o);
+    	
+    	Laser l = createLaser();
+    	l.setInstrument((Instrument) instrument.proxy());
+    	l = (Laser) iUpdate.saveAndReturnObject(l);
+    	assertNotNull(l);
+    	
+    	ParametersI param = new ParametersI();
+    	param.addLong("iid", instrument.getId().getValue());
+    	//Now check that we have a detector.
+    	String sql = "select d from Detector as d where d.instrument.id = :iid";
+        IObject test = iQuery.findByQuery(sql, param);
+        assertNotNull(test);
+        assertNotNull(test.getId().getValue() == d.getId().getValue());
+        sql = "select d from Dichroic as d where d.instrument.id = :iid";
+        test = iQuery.findByQuery(sql, param);
+        assertNotNull(test);
+        assertNotNull(test.getId().getValue() == di.getId().getValue());
+        sql = "select d from Filter as d where d.instrument.id = :iid";
+        test = iQuery.findByQuery(sql, param);
+        assertNotNull(test);
+        assertNotNull(test.getId().getValue() == f.getId().getValue());
+        sql = "select d from Objective as d where d.instrument.id = :iid";
+        test = iQuery.findByQuery(sql, param);
+        assertNotNull(test);
+        assertNotNull(test.getId().getValue() == o.getId().getValue());
+        sql = "select d from LightSource as d where d.instrument.id = :iid";
+        test = iQuery.findByQuery(sql, param);
+        assertNotNull(test);
     }
     
 }

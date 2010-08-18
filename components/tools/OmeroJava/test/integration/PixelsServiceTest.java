@@ -341,7 +341,8 @@ public class PixelsServiceTest
     	throws Exception 
     {
     	//Create some rendering settings.
-    	Image image = createImage(DEFAULT_CHANNELS_NUMBER, SIZE_X, SIXE_Y, SIXE_Z, SIXE_T);
+    	Image image = createImage(DEFAULT_CHANNELS_NUMBER, SIZE_X, SIXE_Y, 
+    			SIXE_Z, SIXE_T);
     	Pixels pixels = image.getPrimaryPixels();
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	//Pixels first

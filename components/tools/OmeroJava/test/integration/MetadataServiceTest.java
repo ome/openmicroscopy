@@ -26,6 +26,7 @@ import omero.api.IPixelsPrx;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLinkI;
+import omero.model.Arc;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
 import omero.model.CommentAnnotation;
@@ -33,7 +34,6 @@ import omero.model.CommentAnnotationI;
 import omero.model.Correction;
 import omero.model.Dataset;
 import omero.model.DatasetAnnotationLinkI;
-import omero.model.DatasetI;
 import omero.model.Detector;
 import omero.model.DetectorI;
 import omero.model.DetectorType;
@@ -45,6 +45,7 @@ import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
+import omero.model.Filament;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.Filter;
@@ -60,6 +61,7 @@ import omero.model.Laser;
 import omero.model.LaserI;
 import omero.model.LaserMedium;
 import omero.model.LaserType;
+import omero.model.LightEmittingDiode;
 import omero.model.LongAnnotation;
 import omero.model.LongAnnotationI;
 import omero.model.MicroscopeI;
@@ -571,7 +573,6 @@ public class MetadataServiceTest
     	TagAnnotationI tag = new TagAnnotationI();
         tag.setTextValue(omero.rtypes.rstring("tag1"));
         Annotation tagData = (Annotation) iUpdate.saveAndReturnObject(tag);
-    	
         Image img = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
         //Link the tag and the image.
         ImageAnnotationLinkI link = new ImageAnnotationLinkI();
@@ -579,20 +580,18 @@ public class MetadataServiceTest
         link.setParent(img);
         iUpdate.saveAndReturnObject(link);
         
-        Project p = new ProjectI();
-        p.setName(omero.rtypes.rstring("project1"));
-        Project pData = (Project) iUpdate.saveAndReturnObject(p);
+        Project pData = (Project) iUpdate.saveAndReturnObject(
+        		simpleProjectData().asIObject());
         ProjectAnnotationLinkI lp = new ProjectAnnotationLinkI();
         lp.setChild((Annotation) tagData.proxy());
-        lp.setParent(p);
+        lp.setParent(pData);
         iUpdate.saveAndReturnObject(lp);
         
-        Dataset d = new DatasetI();
-        d.setName(omero.rtypes.rstring("datatset"));
-        Dataset dData = (Dataset) iUpdate.saveAndReturnObject(d);
+        Dataset dData = (Dataset) iUpdate.saveAndReturnObject(
+        		simpleDatasetData().asIObject());
         DatasetAnnotationLinkI dp = new DatasetAnnotationLinkI();
         dp.setChild((Annotation) tagData.proxy());
-        dp.setParent(d);
+        dp.setParent(dData);
         iUpdate.saveAndReturnObject(dp);
         
         long self = iAdmin.getEventContext().userId;
@@ -621,182 +620,123 @@ public class MetadataServiceTest
     }
     
     /**
-     * Tests the retrieval of an instrument.
+     * Tests the retrieval of an instrument with a laser as light source.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
     public void testLoadInstrument() 
     	throws Exception
     {
-    	//retrieve the microscope type
-    	IPixelsPrx svc = factory.getPixelsService();
-    	List<IObject> types = svc.getAllEnumerations(
-    			MicroscopeType.class.getName());
-    	assertNotNull(types);
-    	assertTrue(types.size() > 0);
-    	//create an instrument
-    	InstrumentI instrument = new InstrumentI();
-    	MicroscopeI microscope = new MicroscopeI();
-    	microscope.setManufacturer(omero.rtypes.rstring("manufacturer"));
-    	microscope.setModel(omero.rtypes.rstring("model"));
-    	microscope.setSerialNumber(omero.rtypes.rstring("number"));
-    	microscope.setType((MicroscopeType) types.get(0));
-    	instrument.setMicroscope(microscope);
-    	Instrument instrumentReturned = (Instrument) 
-    		iUpdate.saveAndReturnObject(instrument);
-    	assertNotNull(instrumentReturned);
-    	//Detector
-    	types = svc.getAllEnumerations(DetectorType.class.getName());
-    	assertNotNull(types);
-    	assertTrue(types.size() > 0);
-    	DetectorI detector = new DetectorI();
-    	detector.setAmplificationGain(omero.rtypes.rdouble(0));
-    	detector.setGain(omero.rtypes.rdouble(1));
-    	detector.setInstrument((Instrument) instrumentReturned.proxy());
-    	detector.setManufacturer(omero.rtypes.rstring("manufacturer"));
-    	detector.setModel(omero.rtypes.rstring("model"));
-    	detector.setSerialNumber(omero.rtypes.rstring("number"));
-    	detector.setOffsetValue(omero.rtypes.rdouble(0));
-    	detector.setType((DetectorType) types.get(0));
-    	
-    	Detector detectorReturned = 
-    		(Detector) iUpdate.saveAndReturnObject(detector);
-    	assertNotNull(detectorReturned);
-    	
-    	//Filter
-    	types = svc.getAllEnumerations(FilterType.class.getName());
-    	assertNotNull(types);
-    	assertTrue(types.size() > 0);
-    	FilterI filter = new FilterI();
-    	filter.setLotNumber(omero.rtypes.rstring("lot number"));
-    	filter.setInstrument((Instrument) instrumentReturned.proxy());
-    	filter.setManufacturer(omero.rtypes.rstring("manufacturer"));
-    	filter.setModel(omero.rtypes.rstring("model"));
-    	filter.setType((FilterType) types.get(0));
-    	TransmittanceRangeI transmittance = new TransmittanceRangeI();
-    	transmittance.setCutIn(omero.rtypes.rint(500));
-    	transmittance.setCutOut(omero.rtypes.rint(560));
-    	filter.setTransmittanceRange(transmittance);
-    	Filter filterReturned = (Filter) iUpdate.saveAndReturnObject(filter);
-    	assertNotNull(filterReturned);
-    	
-    	//Dichroic
-    	DichroicI dichroic = new DichroicI();
-    	dichroic.setInstrument((Instrument) instrumentReturned.proxy());
-    	dichroic.setManufacturer(omero.rtypes.rstring("manufacturer"));
-    	dichroic.setModel(omero.rtypes.rstring("model"));
-    	dichroic.setLotNumber(omero.rtypes.rstring("lot number"));
-    	
-    	Dichroic dichroicReturned = 
-    		(Dichroic) iUpdate.saveAndReturnObject(dichroic);
-    	assertNotNull(dichroicReturned);
-    	
-    	//Objectives
-    	ObjectiveI objective = new ObjectiveI();
-    	objective.setInstrument((Instrument) instrumentReturned.proxy());
-    	objective.setManufacturer(omero.rtypes.rstring("manufacturer"));
-    	objective.setModel(omero.rtypes.rstring("model"));
-    	objective.setCalibratedMagnification(omero.rtypes.rdouble(1));
-    	
-    	//correction
-    	types = svc.getAllEnumerations(Correction.class.getName());
-    	assertNotNull(types);
-    	assertTrue(types.size() > 0);
-    	objective.setCorrection((Correction) types.get(0));
-    	//immersion
-    	types = svc.getAllEnumerations(Immersion.class.getName());
-    	assertNotNull(types);
-    	assertTrue(types.size() > 0);
-    	objective.setImmersion((Immersion) types.get(0));
-    	
-    	objective.setIris(omero.rtypes.rbool(true));
-    	objective.setLensNA(omero.rtypes.rdouble(0.5));
-    	objective.setNominalMagnification(omero.rtypes.rint(1));
-    	objective.setWorkingDistance(omero.rtypes.rdouble(1));
-    	
-    	Objective objectiveReturned = 
-    		(Objective) iUpdate.saveAndReturnObject(objective);
-    	assertNotNull(objectiveReturned);
-    	
-    	//light source
-    	//laser
-    	LaserI laser = new LaserI();
-    	laser.setInstrument((Instrument) instrumentReturned.proxy());
-    	laser.setManufacturer(omero.rtypes.rstring("manufacturer"));
-    	laser.setModel(omero.rtypes.rstring("model"));
-    	laser.setFrequencyMultiplication(omero.rtypes.rint(1));
-    	// type
-    	types = svc.getAllEnumerations(LaserType.class.getName());
-    	assertNotNull(types);
-    	assertTrue(types.size() > 0);
-    	laser.setType((LaserType) types.get(0));
-    	//laser medium
-    	types = svc.getAllEnumerations(LaserMedium.class.getName());
-    	assertNotNull(types);
-    	assertTrue(types.size() > 0);
-    	laser.setLaserMedium((LaserMedium) types.get(0));
-    	
-    	//pulse
-    	types = svc.getAllEnumerations(Pulse.class.getName());
-    	assertNotNull(types);
-    	assertTrue(types.size() > 0);
-    	laser.setPulse((Pulse) types.get(0));
-    	
-    	laser.setFrequencyMultiplication(omero.rtypes.rint(0));
-    	laser.setPockelCell(omero.rtypes.rbool(false));
-    	laser.setPower(omero.rtypes.rdouble(0));
-    	laser.setRepetitionRate(omero.rtypes.rdouble(1));
-    	
-    	Laser laserReturned = (Laser) iUpdate.saveAndReturnObject(laser);
-    	assertNotNull(laserReturned);
-    	
-    	//Load the instrument
-    	List<IObject> result = iMetadata.loadInstrument(
-    			instrumentReturned.getId().getValue());
-    	assertNotNull(result);
-    	assertTrue(result.size() > 0);
-    	Iterator<IObject> i = result.iterator();
-    	IObject o;
+    	Instrument instrument;
+    	Detector detector;
+    	Dichroic dichroic;
+    	Filter filter;
+    	Laser laser = null;
+    	Filament filament = null;
+    	Arc arc = null;
+    	LightEmittingDiode light = null;
+    	Objective objective;
+    	ParametersI param;
+    	String sql;
+    	IObject test;
+    	List<IObject> result;
     	boolean instrumentFound = false;
     	boolean objectiveFound = false;
     	boolean detectorFound = false;
     	boolean filterFound = false;
     	boolean dichroicFound = false;
-    	boolean laserFound = false;
-    	while (i.hasNext()) {
-			o = i.next();
-			if (o instanceof Instrument) {
-				instrumentFound = true;
-				assertTrue(o.getId().getValue() == 
-					instrumentReturned.getId().getValue());
-			} else if (o instanceof Detector) {
-				detectorFound = true;
-				assertTrue(o.getId().getValue() == 
-					detectorReturned.getId().getValue());
-			} else if (o instanceof Filter) {
-				filterFound = true;
-				assertTrue(o.getId().getValue() == 
-					filterReturned.getId().getValue());
-			} else if (o instanceof Dichroic) {
-				dichroicFound = true;
-				assertTrue(o.getId().getValue() == 
-					dichroicReturned.getId().getValue());
-			} else if (o instanceof Objective) {
-				objectiveFound = true;
-				assertTrue(o.getId().getValue() == 
-					objectiveReturned.getId().getValue());
-			} else if (o instanceof Laser) {
-				laserFound = true;
-				assertTrue(o.getId().getValue() == 
-					laserReturned.getId().getValue());
-			}
+    	boolean lightFound = false;
+    	Iterator<IObject> j;
+    	IObject o;
+    	for (int i = 0; i < LIGHT_SOURCES.length; i++) {
+    		instrument = createInstrument(LIGHT_SOURCES[i]);
+        	instrument = (Instrument) iUpdate.saveAndReturnObject(instrument);
+        	assertNotNull(instrument);
+    		param = new ParametersI();
+        	param.addLong("iid", instrument.getId().getValue());
+        	sql = "select d from Detector as d where d.instrument.id = :iid";
+        	detector = (Detector) iQuery.findByQuery(sql, param);
+            sql = "select d from Dichroic as d where d.instrument.id = :iid";
+            dichroic = (Dichroic) iQuery.findByQuery(sql, param);
+            sql = "select d from Filter as d where d.instrument.id = :iid";
+            filter = (Filter) iQuery.findByQuery(sql, param);
+            sql = "select d from Objective as d where d.instrument.id = :iid";
+            objective = (Objective) iQuery.findByQuery(sql, param);
+            sql = "select d from LightSource as d where d.instrument.id = :iid";
+            test = iQuery.findByQuery(sql, param);
+            assertNotNull(test);
+            param = new ParametersI();
+        	param.addLong("iid", test.getId().getValue());
+            if (LASER.equals(i)) {
+            	sql = "select d from Laser as d where d.lightSource.id = :iid";
+            	laser = (Laser) iQuery.findByQuery(sql, param);
+            } else if (FILAMENT.equals(i)) {
+            	sql = "select d from Filament as d where d.lightSource.id = :iid";
+            	filament = (Filament) iQuery.findByQuery(sql, param);
+            } else if (ARC.equals(i)) {
+            	sql = "select d from Arc as d where d.lightSource.id = :iid";
+            	arc = (Arc) iQuery.findByQuery(sql, param);
+            } else if (LIGHT_EMITTING_DIODE.equals(i)) {
+            	sql = "select d from LightEmittingDiode as d where d.lightSource.id = :iid";
+            	light = (LightEmittingDiode) iQuery.findByQuery(sql, param);
+            }
+            result = iMetadata.loadInstrument(
+        			instrument.getId().getValue());
+        	assertNotNull(result);
+        	assertTrue(result.size() > 0);
+        	j = result.iterator();
+        	while (j.hasNext()) {
+    			o = j.next();
+    			if (o instanceof Instrument) {
+    				instrumentFound = true;
+    				assertTrue(o.getId().getValue() == 
+    					instrument.getId().getValue());
+    			} else if (o instanceof Detector) {
+    				detectorFound = true;
+    				assertTrue(o.getId().getValue() == 
+    					detector.getId().getValue());
+    			} else if (o instanceof Filter) {
+    				filterFound = true;
+    				assertTrue(o.getId().getValue() == 
+    					filter.getId().getValue());
+    			} else if (o instanceof Dichroic) {
+    				dichroicFound = true;
+    				assertTrue(o.getId().getValue() == 
+    					dichroic.getId().getValue());
+    			} else if (o instanceof Objective) {
+    				objectiveFound = true;
+    				assertTrue(o.getId().getValue() == 
+    					objective.getId().getValue());
+    			} else if (o instanceof Laser && LASER.equals(i)) {
+    				assertNotNull(laser);
+    				lightFound = true;
+    				assertTrue(o.getId().getValue() == 
+    					laser.getId().getValue());
+    			} else if (o instanceof Filament && FILAMENT.equals(i)) {
+    				assertNotNull(filament);
+    				lightFound = true;
+    				assertTrue(o.getId().getValue() == 
+    					filament.getId().getValue());
+    			} else if (o instanceof Arc && ARC.equals(i)) {
+    				assertNotNull(arc);
+    				lightFound = true;
+    				assertTrue(o.getId().getValue() == 
+    					arc.getId().getValue());
+    			} else if (o instanceof LightEmittingDiode 
+    					&& LIGHT_EMITTING_DIODE.equals(i)) {
+    				assertNotNull(light);
+    				lightFound = true;
+    				assertTrue(o.getId().getValue() == 
+    					light.getId().getValue());
+    			}
+    		}
+        	assertTrue(instrumentFound);
+        	assertTrue(objectiveFound);
+        	assertTrue(detectorFound);
+        	assertTrue(filterFound);
+        	assertTrue(dichroicFound);
+        	//assertTrue(lightFound);
 		}
-    	assertTrue(instrumentFound);
-    	assertTrue(objectiveFound);
-    	assertTrue(detectorFound);
-    	assertTrue(filterFound);
-    	assertTrue(dichroicFound);
-    	assertTrue(laserFound);
     }
     
     /**

@@ -16,17 +16,12 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 //Application-internal dependencies
-import omero.RLong;
-import omero.api.IPixelsPrx;
 import omero.api.IRenderingSettingsPrx;
 import omero.model.Dataset;
 import omero.model.DatasetImageLinkI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
-import omero.model.PixelsType;
-import omero.model.Project;
-import omero.model.ProjectDatasetLinkI;
 import omero.model.RenderingDef;
 import omero.sys.ParametersI;
 

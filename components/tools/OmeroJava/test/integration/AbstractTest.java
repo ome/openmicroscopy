@@ -28,23 +28,51 @@ import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLinkI;
+import omero.model.Arc;
+import omero.model.ArcI;
+import omero.model.ArcType;
 import omero.model.Channel;
 import omero.model.ChannelBinding;
 import omero.model.CommentAnnotation;
 import omero.model.CommentAnnotationI;
+import omero.model.Correction;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
+import omero.model.Detector;
+import omero.model.DetectorI;
+import omero.model.DetectorType;
+import omero.model.Dichroic;
+import omero.model.DichroicI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
+import omero.model.Filament;
+import omero.model.FilamentI;
+import omero.model.FilamentType;
+import omero.model.Filter;
+import omero.model.FilterI;
+import omero.model.FilterType;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
 import omero.model.ImageI;
+import omero.model.Immersion;
+import omero.model.Instrument;
+import omero.model.InstrumentI;
+import omero.model.Laser;
+import omero.model.LaserI;
+import omero.model.LaserMedium;
+import omero.model.LaserType;
+import omero.model.LightEmittingDiode;
+import omero.model.LightEmittingDiodeI;
+import omero.model.MicroscopeI;
+import omero.model.MicroscopeType;
+import omero.model.Objective;
+import omero.model.ObjectiveI;
 import omero.model.OriginalFileI;
 import omero.model.Permissions;
 import omero.model.PermissionsI;
@@ -57,11 +85,13 @@ import omero.model.Project;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
+import omero.model.Pulse;
 import omero.model.QuantumDef;
 import omero.model.RenderingDef;
 import omero.model.Screen;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
+import omero.model.TransmittanceRangeI;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 import omero.util.IceMapper;
@@ -89,6 +119,23 @@ public class AbstractTest
 	extends TestCase
 {
 
+
+	/** Identifies the laser light source. */
+	protected String LASER = Laser.class.getName();
+	
+	/** Identifies the filament light source. */
+	protected String FILAMENT = Filament.class.getName();
+	
+	/** Identifies the arc light source. */
+	protected String ARC = Arc.class.getName();
+	
+	/** Identifies the arc light source. */
+	protected String LIGHT_EMITTING_DIODE = LightEmittingDiode.class.getName();
+	
+	/** The possible sources of light. */
+	protected String[] LIGHT_SOURCES = {
+			LASER, FILAMENT, ARC, LIGHT_EMITTING_DIODE};
+	
 	/** The default number of channels. */
 	public int DEFAULT_CHANNELS_NUMBER = 3;
 	
@@ -211,15 +258,254 @@ public class AbstractTest
      * @return See above.
      */
     protected OriginalFileI createOriginalFile()
+    	throws Exception
     {
     	OriginalFileI oFile = new OriginalFileI();
 		oFile.setName(omero.rtypes.rstring("of1"));
 		oFile.setPath(omero.rtypes.rstring("/omero"));
 		oFile.setSize(omero.rtypes.rlong(0));
-		//Need to be modified
 		oFile.setSha1(omero.rtypes.rstring("pending"));
 		oFile.setMimetype(omero.rtypes.rstring("application/octet-stream"));
 		return oFile;
+    }
+    
+    /**
+     * Creates and returns a detector. 
+     * This will have to be linked to an instrument.
+     * 
+     * @return See above.
+     */
+    protected Detector createDetector()
+    	throws Exception
+    {
+    	IPixelsPrx svc = factory.getPixelsService();
+    	//already tested see PixelsService enumeration.
+    	List<IObject> types = svc.getAllEnumerations(
+    			DetectorType.class.getName());
+    	Detector detector = new DetectorI();
+    	detector.setAmplificationGain(omero.rtypes.rdouble(0));
+    	detector.setGain(omero.rtypes.rdouble(1));
+    	detector.setManufacturer(omero.rtypes.rstring("manufacturer"));
+    	detector.setModel(omero.rtypes.rstring("model"));
+    	detector.setSerialNumber(omero.rtypes.rstring("number"));
+    	detector.setOffsetValue(omero.rtypes.rdouble(0));
+    	detector.setType((DetectorType) types.get(0));
+    	return detector;
+    }
+    
+    /**
+     * Creates and returns a filter. 
+     * This will have to be linked to an instrument.
+     * 
+     * @param cutIn The cut in value.
+     * @param cutIn The cut out value.
+     * @return See above.
+     */
+    protected Filter createFilter(int cutIn, int cutOut)
+    	throws Exception
+    {
+    	IPixelsPrx svc = factory.getPixelsService();
+    	//already tested see PixelsService enumeration.
+    	List<IObject> types = svc.getAllEnumerations(
+    			FilterType.class.getName());
+    	Filter filter = new FilterI();
+    	filter.setLotNumber(omero.rtypes.rstring("lot number"));
+    	filter.setManufacturer(omero.rtypes.rstring("manufacturer"));
+    	filter.setModel(omero.rtypes.rstring("model"));
+    	filter.setType((FilterType) types.get(0));
+    	
+    	TransmittanceRangeI transmittance = new TransmittanceRangeI();
+    	transmittance.setCutIn(omero.rtypes.rint(cutIn));
+    	transmittance.setCutOut(omero.rtypes.rint(cutOut));
+    	filter.setTransmittanceRange(transmittance);
+    	return filter;
+    }
+   
+    /**
+     * Creates and returns a dichroic. 
+     * This will have to be linked to an instrument.
+
+     * @return See above.
+     */
+    protected Dichroic createDichroic()
+    	throws Exception
+    {
+    	Dichroic dichroic = new DichroicI();
+    	dichroic.setManufacturer(omero.rtypes.rstring("manufacturer"));
+    	dichroic.setModel(omero.rtypes.rstring("model"));
+    	dichroic.setLotNumber(omero.rtypes.rstring("lot number"));
+    	return dichroic;
+    }
+    
+    /**
+     * Creates and returns an objective. 
+     * This will have to be linked to an instrument.
+
+     * @return See above.
+     */
+    protected Objective createObjective()
+    	throws Exception
+    {
+    	IPixelsPrx svc = factory.getPixelsService();
+    	
+    	Objective objective = new ObjectiveI();
+    	objective.setManufacturer(omero.rtypes.rstring("manufacturer"));
+    	objective.setModel(omero.rtypes.rstring("model"));
+    	objective.setCalibratedMagnification(omero.rtypes.rdouble(1));
+    	//correction
+    	//already tested see PixelsService enumeration.
+    	List<IObject> types = svc.getAllEnumerations(
+    			Correction.class.getName());
+    	objective.setCorrection((Correction) types.get(0));
+    	//immersion
+    	types = svc.getAllEnumerations(Immersion.class.getName());
+    	objective.setImmersion((Immersion) types.get(0));
+    	
+    	objective.setIris(omero.rtypes.rbool(true));
+    	objective.setLensNA(omero.rtypes.rdouble(0.5));
+    	objective.setNominalMagnification(omero.rtypes.rint(1));
+    	objective.setWorkingDistance(omero.rtypes.rdouble(1));
+    	return objective;
+    }
+
+    /**
+     * Creates and returns a filament. 
+     * This will have to be linked to an instrument.
+     * 
+     * @return See above.
+     */
+    protected Filament createFilament()
+    	throws Exception
+    {
+    	IPixelsPrx svc = factory.getPixelsService();
+    	List<IObject> types = 
+    		svc.getAllEnumerations(FilamentType.class.getName());
+    	Filament filament = new FilamentI();
+    	filament.setManufacturer(omero.rtypes.rstring("manufacturer"));
+    	filament.setModel(omero.rtypes.rstring("model"));
+    	filament.setPower(omero.rtypes.rdouble(1));
+    	filament.setSerialNumber(omero.rtypes.rstring("serial number"));
+    	filament.setType((FilamentType) types.get(0));
+    	return filament;
+    }
+    
+    /**
+     * Creates and returns a filament. 
+     * This will have to be linked to an instrument.
+     * 
+     * @return See above.
+     */
+    protected Arc createArc()
+    	throws Exception
+    {
+    	IPixelsPrx svc = factory.getPixelsService();
+    	List<IObject> types = svc.getAllEnumerations(ArcType.class.getName());
+    	Arc arc = new ArcI();
+    	arc.setManufacturer(omero.rtypes.rstring("manufacturer"));
+    	arc.setModel(omero.rtypes.rstring("model"));
+    	arc.setPower(omero.rtypes.rdouble(1));
+    	arc.setSerialNumber(omero.rtypes.rstring("serial number"));
+    	arc.setType((ArcType) types.get(0));
+    	return arc;
+    }
+    
+    /**
+     * Creates and returns a filament. 
+     * This will have to be linked to an instrument.
+     * 
+     * @return See above.
+     */
+    protected LightEmittingDiode createLightEmittingDiode()
+    	throws Exception
+    {
+    	IPixelsPrx svc = factory.getPixelsService();
+    	List<IObject> types = svc.getAllEnumerations(
+    			LightEmittingDiode.class.getName());
+    	LightEmittingDiode light = new LightEmittingDiodeI();
+    	light.setManufacturer(omero.rtypes.rstring("manufacturer"));
+    	light.setModel(omero.rtypes.rstring("model"));
+    	light.setPower(omero.rtypes.rdouble(1));
+    	light.setSerialNumber(omero.rtypes.rstring("serial number"));
+    	return light;
+    }
+
+    /**
+     * Creates and returns a laser. 
+     * This will have to be linked to an instrument.
+     * 
+     * @return See above.
+     */
+    protected Laser createLaser()
+    	throws Exception
+    {
+    	IPixelsPrx svc = factory.getPixelsService();
+    	Laser laser = new LaserI();
+    	laser.setManufacturer(omero.rtypes.rstring("manufacturer"));
+    	laser.setModel(omero.rtypes.rstring("model"));
+    	laser.setFrequencyMultiplication(omero.rtypes.rint(1));
+    	// type
+    	List<IObject> types = svc.getAllEnumerations(LaserType.class.getName());
+    	laser.setType((LaserType) types.get(0));
+    	//laser medium
+    	types = svc.getAllEnumerations(LaserMedium.class.getName());
+    	laser.setLaserMedium((LaserMedium) types.get(0));
+    	
+    	//pulse
+    	types = svc.getAllEnumerations(Pulse.class.getName());
+    	laser.setPulse((Pulse) types.get(0));
+    	
+    	laser.setFrequencyMultiplication(omero.rtypes.rint(0));
+    	laser.setPockelCell(omero.rtypes.rbool(false));
+    	laser.setPower(omero.rtypes.rdouble(0));
+    	laser.setRepetitionRate(omero.rtypes.rdouble(1));
+    	return laser;
+    }
+    
+    /**
+     * Creates and returns an instrument. 
+     * 
+     * @return See above.
+     */
+    protected Instrument createInstrument()
+    	throws Exception
+    {
+    	IPixelsPrx svc = factory.getPixelsService();
+    	List<IObject> types = svc.getAllEnumerations(
+    			MicroscopeType.class.getName());
+    	Instrument instrument = new InstrumentI();
+    	MicroscopeI microscope = new MicroscopeI();
+    	microscope.setManufacturer(omero.rtypes.rstring("manufacturer"));
+    	microscope.setModel(omero.rtypes.rstring("model"));
+    	microscope.setSerialNumber(omero.rtypes.rstring("number"));
+    	microscope.setType((MicroscopeType) types.get(0));
+    	instrument.setMicroscope(microscope);
+    	return instrument;
+    }
+    
+    /**
+     * Creates and returns an instrument. The creation using the 
+     * <code>add*</code> methods has been tested i.e. addDectector, etc.
+     * 
+     * @param light The type of light source.
+     * @return See above.
+     */
+    protected Instrument createInstrument(String light)
+    	throws Exception
+    {
+    	Instrument instrument = createInstrument();
+    	instrument.addDetector(createDetector());
+    	instrument.addFilter(createFilter(500, 560));
+    	instrument.addDichroic(createDichroic());
+    	instrument.addObjective(createObjective());
+    	if (LASER.equals(light))
+    		instrument.addLightSource(createLaser());
+    	else if (FILAMENT.equals(light))
+    		instrument.addLightSource(createFilament());
+    	else if (ARC.equals(light))
+    		instrument.addLightSource(createArc());
+    	else if (LIGHT_EMITTING_DIODE.equals(light))
+    		instrument.addLightSource(createLightEmittingDiode());
+    	return instrument;
     }
     
 	/**
