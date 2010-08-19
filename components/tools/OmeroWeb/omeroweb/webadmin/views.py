@@ -66,7 +66,7 @@ from forms import LoginForm, ForgottonPasswordForm, ExperimenterForm, \
                    MyAccountLdapForm, ContainedExperimentersForm, UploadPhotoForm, \
                    EnumerationEntry, EnumerationEntries, ScriptForm
 
-from extlib import gateway
+from webclient.webclient_gateway import OmeroWebGateway
 
 #from extlib.gateway import _session_logout, timeit, getBlitzConnection, _createConnection
 from webgateway.views import getBlitzConnection, timeit, _session_logout, _createConnection

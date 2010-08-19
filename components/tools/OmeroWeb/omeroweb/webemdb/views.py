@@ -404,9 +404,10 @@ def getEntriesByPub (request, publicationId):
     
     return HttpResponse(simplejson.dumps(pData), mimetype='application/javascript')
     
-
 def getConnection(request):
-    conn = getBlitzConnection (request)
+    print request.session.session_key
+    #emdb_conn_key = "S:emdb#%s" % (request.session.get('server'))
+    conn = getBlitzConnection(request)    
     if conn is None or not conn.isConnected() and request.REQUEST['server']:
         blitz = settings.SERVER_LIST.get(pk=1)
         request.session['server'] = blitz.id
@@ -415,8 +416,10 @@ def getConnection(request):
         request.session['password'] = "ome"
         request.session['username'] = "emdb"
         #request.session['server'] = 'localhost'
+        request.session.modified = True
         conn = getBlitzConnection (request)
-        logger.debug(conn)
+    logger.debug('emdb connection: %s' % (conn._sessionUuid))
+    print type(conn), conn._sessionUuid #, emdb_conn_key
     return conn
 
 def image_viewer (request, iid, **kwargs):

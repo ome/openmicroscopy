@@ -56,7 +56,8 @@ from django.views import debug
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from omeroweb.extlib.http import HttpJavascriptRedirect, HttpJavascriptResponse
+from webclient_http import HttpJavascriptRedirect, HttpJavascriptResponse
+from webclient.webclient_gateway import OmeroWebGateway
 
 from controller import sortByAttr
 from controller.index import BaseIndex
@@ -82,6 +83,7 @@ from forms import ShareForm, BasketShareForm, ShareCommentForm, \
                     TagListForm, FileListForm, TagFilterForm, \
                     MultiAnnotationForm, \
                     WellIndexForm
+
 from omeroweb.webadmin.forms import MyAccountForm, MyAccountLdapForm, UploadPhotoForm, LoginForm
 
 from omeroweb.webadmin.views import _session_logout, _checkVersion

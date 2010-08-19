@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # 
-# Gateway
+# webclient_gateway
 # 
 # Copyright (c) 2008 University of Dundee. 
 # 
@@ -27,9 +27,6 @@ import cStringIO
 import traceback
 import logging
 
-logger = logging.getLogger('gateway')
-
-
 try:
     from PIL import Image, ImageDraw # see ticket:2597
 except ImportError:
@@ -45,29 +42,35 @@ import time
 from datetime import datetime
 from types import IntType, ListType, TupleType, UnicodeType, StringType
 
+import Ice
+import Glacier2
+import omero.gateway
+
+import omero_api_IScript_ice
+
+from omero.rtypes import *
+from omero.model import FileAnnotationI, TagAnnotationI, \
+                        DatasetI, ProjectI, ImageI, ScreenI, PlateI, \
+                        DetectorI, FilterI, ObjectiveI, InstrumentI, \
+                        LaserI
+from omero.sys import ParametersI
+from omero.gateway import AnnotationWrapper, FileAnnotationWrapper, \
+                        TagAnnotationWrapper, CommentAnnotationWrapper, \
+                        ExperimenterGroupWrapper, ExperimenterWrapper, \
+                        EnumerationWrapper, BlitzObjectWrapper, \
+                        ShareCommentWrapper, ShareWrapper
+
 from django.utils.translation import ugettext as _
 from django.conf import settings
 from django.core.mail import send_mail
 from django.core.mail import EmailMultiAlternatives
 
-import Ice
-import Glacier2
-
-import omero_api_IScript_ice
-from omero.rtypes import *
-from omero.model import FileAnnotationI, TagAnnotationI, \
-                        DatasetI, ProjectI, ImageI, ScreenI, PlateI, \
-                        DetectorI, FilterI, ObjectiveI, InstrumentI
-from omero.sys import ParametersI
-from omeroweb.extlib.wrapper import *
-from omero.gateway import AnnotationWrapper, FileAnnotationWrapper, \
-                        TagAnnotationWrapper, CommentAnnotationWrapper, \
-                        ExperimenterGroupWrapper, ExperimenterWrapper, \
-                        EnumerationWrapper, BlitzObjectWrapper
-
 PAGE = settings.PAGE
 
+logger = logging.getLogger('webclient_gateway')
+
 class OmeroWebGateway (omero.gateway.BlitzGateway):
+    
     def __init__ (self, *args, **kwargs):
         super(OmeroWebGateway, self).__init__(*args, **kwargs)
         self._shareId = None
@@ -100,9 +103,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         except:
             logger.error(traceback.format_exc())
             return False
-
-    def getUserWrapped(self):
-        return ExperimenterWrapper(self, self._user)
     
     def removeGroupFromContext (self):
         """ Removes group "User" from the current context."""
@@ -155,7 +155,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         return admin_serv.reportForgottenPassword(username, email)
     
     ##############################################
-    ##   Gets methods                           ##
+    ##   IAdmin                                 ##
     
     def isAnythingCreated(self):
         """ Checks if any of the experimenter was created before"""
@@ -171,14 +171,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if len(q.findAllByQuery(sql, p)) > 0:
             return False
         return True
-            
-    def lookupExperimenters(self):
-        """ Look up all experimenters all related groups.
-            The experimenters are also loaded."""
-        
-        admin_serv = self.getAdminService()
-        for exp in admin_serv.lookupExperimenters():
-            yield ExperimenterWrapper(self, exp)
     
     def getExperimenters(self, ids=None):
         """ Get experimenters for the given user ids. If ID is not set, return current user. """
@@ -196,29 +188,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in q.findAllByQuery(sql, p):
             yield ExperimenterWrapper(self, e)
     
-    def lookupLdapAuthExperimenters(self):
-        """ Looks up all IDs of experimenters who are authenticated by LDAP
-            (has set dn on password table). """
-        
-        admin_serv = self.getAdminService()
-        return admin_serv.lookupLdapAuthExperimenters()
-    
-    def lookupGroups(self):
-        """ Looks up all groups and all related experimenters. 
-            The experimenters' groups are also loaded."""
-            
-        admin_serv = self.getAdminService()
-        for gr in admin_serv.lookupGroups():
-            yield ExperimenterGroupWrapper(self, gr)
-    
-    def lookupOwnedGroups(self):
-        """ Get group for for the logged user. """
-            
-        exp = self.getUser()
-        for gem in exp.copyGroupExperimenterMap():
-            if gem.owner.val:
-                yield ExperimenterGroupWrapper(self, gem.parent)
-    
     def getExperimenterGroups(self, ids):
         """ Get group for for the given group ids. """
             
@@ -231,6 +200,55 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             if e.name.val != 'user':
                 yield ExperimenterGroupWrapper(self, e)
     
+    def lookupLdapAuthExperimenters(self):
+        """ Looks up all IDs of experimenters who are authenticated by LDAP
+            (has set dn on password table). """
+        
+        admin_serv = self.getAdminService()
+        return admin_serv.lookupLdapAuthExperimenters()
+    
+    def lookupLdapAuthExperimenter(self, eid):
+        """ Looks up all id of experimenters who uses LDAP authentication (has set dn on password table)."""
+        
+        admin_serv = self.getAdminService()
+        return admin_serv.lookupLdapAuthExperimenter(long(eid))
+            
+    def listExperimenters (self, start=''):
+        """
+        Return a generator for all Experimenters whose omeName starts with 'start'.
+        The generated values follow the alphabetic order on omeName.
+        
+        @param start:   Only if omero_model_ExperimenterI.omeName starts with. String.
+        @return:        Generator yielding _ExperimenterWrapper
+        """
+        
+        if isinstance(start, UnicodeType):
+            start = start.encode('utf8')
+        params = omero.sys.Parameters()
+        params.map = {'start': rstring('%s%%' % start.lower())}
+        q = self.getQueryService()
+        rv = q.findAllByQuery("from Experimenter e where lower(e.omeName) like :start", params)
+        rv.sort(lambda x,y: cmp(x.omeName.val,y.omeName.val))
+        for e in rv:
+            yield ExperimenterWrapper(self, e)
+
+    def getCurrentSupervisor(self):
+        """ Gets the owner of a group for current user."""
+        p = omero.sys.ParametersI()
+        p.map = {}
+        p.map["id"] = rlong(self.getEventContext().groupId)
+
+        # TODO: there can now be multiple supervisors
+        p.page(0,1)
+        supervisor = self.getQueryService().findByQuery(\
+            """select e from ExperimenterGroup as g join g.groupExperimenterMap as m join m.child as e
+               where m.owner = true and g.id = :id""", p)
+        return ExperimenterWrapper(self, supervisor)
+    
+    def getScriptwithDetails(self, sid):
+        script_serv = self.getScriptService()
+        return script_serv.getScriptWithDetails(long(sid))
+    
     def lookupScripts(self):
         script_serv = self.getScriptService()
         return script_serv.getScripts()
@@ -242,104 +260,11 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         except:
             logger.error(traceback.format_exc())
             return "Version is not available"
-        
-    
-    # Repository info
-    def getUsedSpace(self):
-        """ Returns the total space in bytes for this file system
-            including nested subdirectories. """
-        
-        rep_serv = self.getRepositoryInfoService()
-        return rep_serv.getUsedSpaceInKilobytes() * 1024
-    
-    def getFreeSpace(self):
-        """ Returns the free or available space on this file system
-            including nested subdirectories. """
-        
-        rep_serv = self.getRepositoryInfoService()
-        return rep_serv.getFreeSpaceInKilobytes() * 1024
-    
-    def getUsage(self):
-        """ Returns list of users and how much space each of them use."""
-       
-        query_serv = self.getQueryService()
-        usage = dict()
-        if self.getUser().isAdmin():
-            admin_serv = self.getAdminService()
-            groups = admin_serv.lookupGroups()
-            for group in groups:
-                for gem in group.copyGroupExperimenterMap():
-                    exp = gem.child
-                    res = query_serv.projection("""
-                    select o.id, sum(p.sizeX * p.sizeY * p.sizeZ), p.pixelsType.value 
-                    from Pixels p join p.details.owner o 
-                    group by o.id, p.pixelsType.value
-                    """, None, {"omero.group":str(group.id.val)})
-                    rv = unwrap(res)
-                    for r in rv:
-                        if usage.has_key(r[0]):
-                            usage[r[0]] += r[1]*self.bytesPerPixel(r[2])
-                        else:
-                            usage[r[0]] = r[1]*self.bytesPerPixel(r[2])
-        else:
-            groups = self.getEventContext().memberOfGroups
-            groups.extend(self.getEventContext().leaderOfGroups)
-            groups = set(groups)
-            for gid in groups:
-                res = query_serv.projection("""
-                select o.id, sum(p.sizeX * p.sizeY * p.sizeZ), p.pixelsType.value 
-                from Pixels p join p.details.owner o 
-                group by o.id, p.pixelsType.value
-                """, None, {"omero.group":str(gid)})
-                rv = unwrap(res)
-                for r in rv:
-                    if usage.has_key(gid):
-                        usage[gid] += r[1]*self.bytesPerPixel(r[2])
-                    else:
-                        usage[gid] = r[1]*self.bytesPerPixel(r[2])
-        return usage
-    
-    def getUsage(self):
-        """ Returns list of users and how much space each of them use."""
-       
-        query_serv = self.getQueryService()
-        usage = dict()
-        if self.getUser().isAdmin():
-            admin_serv = self.getAdminService()
-            groups = admin_serv.lookupGroups()
-            for group in groups:
-                for gem in group.copyGroupExperimenterMap():
-                    exp = gem.child
-                    res = query_serv.projection("""
-                    select o.id, sum(p.sizeX * p.sizeY * p.sizeZ), p.pixelsType.value 
-                    from Pixels p join p.details.owner o 
-                    group by o.id, p.pixelsType.value
-                    """, None, {"omero.group":str(group.id.val)})
-                    rv = unwrap(res)
-                    for r in rv:
-                        if usage.has_key(r[0]):
-                            usage[r[0]] += r[1]*self.bytesPerPixel(r[2])
-                        else:
-                            usage[r[0]] = r[1]*self.bytesPerPixel(r[2])
-        else:
-            groups = self.getEventContext().memberOfGroups
-            groups.extend(self.getEventContext().leaderOfGroups)
-            groups = set(groups)
-            for gid in groups:
-                res = query_serv.projection("""
-                select o.id, sum(p.sizeX * p.sizeY * p.sizeZ), p.pixelsType.value 
-                from Pixels p join p.details.owner o 
-                group by o.id, p.pixelsType.value
-                """, None, {"omero.group":str(gid)})
-                rv = unwrap(res)
-                for r in rv:
-                    if usage.has_key(gid):
-                        usage[gid] += r[1]*self.bytesPerPixel(r[2])
-                    else:
-                        usage[gid] = r[1]*self.bytesPerPixel(r[2])
-        return usage
-        
-    # DATA RETRIVAL
+
+
+    ##############################################
+    ##   DATA RETRIVAL                          ##
+
     def lookupProjects (self, eid=None, page=None):
         """ Retrieves every Projects. If user id not set, owned by 
             the current user."""
@@ -880,243 +805,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             yield FileAnnotationWrapper(self, e)
     
     ##############################################
-    ##   Share methods
-    
-    # SHARE
-    def getOwnShares(self):
-        """ Gets all owned shares for the current user. """
-        
-        sh = self.getShareService()
-        for e in sh.getOwnShares(False):
-            yield ShareWrapper(self, e)
-    
-    def getMemberShares(self):
-        """ Gets all shares where current user is a member. """
-        
-        sh = self.getShareService()
-        for e in sh.getMemberShares(False):
-            yield ShareWrapper(self, e)
-    
-    def getMemberCount(self, share_ids):
-        """ Returns a map from share id to the count of total members (including the
-            owner). This is represented by ome.model.meta.ShareMember links."""
-        
-        sh = self.getShareService()
-        return sh.getMemberCount(share_ids)
-    
-    def getCommentCount(self, share_ids):
-        """ Returns a map from share id to comment count. """
-        
-        sh = self.getShareService()
-        return sh.getCommentCount(share_ids)
-    
-    def getContents(self, share_id):
-        """ Looks up all items belong to the share."""
-        
-        sh = self.getShareService()
-        for e in sh.getContents(long(share_id)):
-            yield ShareContentWrapper(self, e)
-    
-    def getComments(self, share_id):
-        """ Looks up all comments which belong to the share."""
-        
-        sh = self.getShareService()
-        for e in sh.getComments(long(share_id)):
-            yield ShareCommentWrapper(self, e)
-    
-    def getAllMembers(self, share_id):
-        """ Get all {@link Experimenter users} who are a member of the share."""
-        
-        sh = self.getShareService()
-        for e in sh.getAllMembers(long(share_id)):
-            yield ExperimenterWrapper(self, e)
-
-    def getAllGuests(self, share_id):
-        """ Get the email addresses for all share guests."""
-        
-        sh = self.getShareService()
-        return sh.getAllGuests(long(share_id))
-
-    def getAllUsers(self, share_id):
-        """ Get a single set containing the login names of the users as well email addresses for guests."""
-        
-        sh = self.getShareService()
-        return sh.getAllUsers(long(share_id))
-    
-    ##############################################
     ##  Specific Object Getters                 ##
     
-    def getGroupFromContext(self):
-        """ Fetch an Group and all contained users."""
-        
-        admin_service = self.getAdminService()
-        group = admin_service.getGroup(self.getEventContext().groupId)
-        return ExperimenterGroupWrapper(self, group)
-    
-    def getGroup(self, gid):
-        """ Fetch an Group and all contained users."""
-        
-        admin_service = self.getAdminService()
-        group = admin_service.getGroup(long(gid))
-        return ExperimenterGroupWrapper(self, group)
-    
-    def lookupGroup(self, name):
-        """ Look up an Group and all contained users by name."""
-        
-        admin_service = self.getAdminService()
-        group = admin_service.lookupGroup(str(name))
-        return ExperimenterGroupWrapper(self, group)
-    
-    def lookupLdapAuthExperimenter(self, eid):
-        """ Looks up all id of experimenters who uses LDAP authentication (has set dn on password table)."""
-        
-        admin_serv = self.getAdminService()
-        return admin_serv.lookupLdapAuthExperimenter(long(eid))
-    
-    def getDefaultGroup(self, eid):
-        """ Retrieve the default group for the given user id."""
-        
-        admin_serv = self.getAdminService()
-        dgr = admin_serv.getDefaultGroup(long(eid))
-        return ExperimenterGroupWrapper(self, dgr)
-    
-    def getOtherGroups(self, eid):
-        """ Fetch all groups of which the given user is a member. 
-            The returned groups will have all fields filled in and all collections unloaded."""
-        
-        admin_serv = self.getAdminService()
-        for gr in admin_serv.containedGroups(long(eid)):
-            yield ExperimenterGroupWrapper(self, gr)
-    
-    def containedExperimenters(self, gid):
-        """ Fetch all users contained in this group. 
-            The returned users will have all fields filled in and all collections unloaded."""
-        
-        admin_serv = self.getAdminService()
-        for exp in admin_serv.containedExperimenters(long(gid)):
-            yield ExperimenterWrapper(self, exp)
-    
-    def getGroupsLeaderOf(self):
-        """ Look up Groups where current user is a leader of."""
-        
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["ids"] = rlist([rlong(a) for a in self.getEventContext().leaderOfGroups])
-        sql = "select e from ExperimenterGroup as e where e.id in (:ids)"
-        for e in q.findAllByQuery(sql, p):
-            yield ExperimenterGroupWrapper(self, e)
-
-    def getGroupsMemberOf(self):
-        """ Look up Groups where current user is a member of (except "user")."""
-        
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["ids"] = rlist([rlong(a) for a in self.getEventContext().memberOfGroups])
-        sql = "select e from ExperimenterGroup as e where e.id in (:ids)"
-        for e in q.findAllByQuery(sql, p):
-            if e.name.val == "user":
-                pass
-            else:
-                yield ExperimenterGroupWrapper(self, e)
-
-    def getCurrentSupervisor(self):
-        """ Gets the owner of a group for current user."""
-        #default = self.getAdminService().getGroup(self.getEventContext().groupId)
-        p = omero.sys.ParametersI()
-        p.map = {}
-        p.map["id"] = rlong(self.getEventContext().groupId)
-
-        # TODO: there can now be multiple supervisors
-        p.page(0,1)
-        supervisor = self.getQueryService().findByQuery(\
-            """select e from ExperimenterGroup as g join g.groupExperimenterMap as m join m.child as e
-               where m.owner = true and g.id = :id""", p)
-        return ExperimenterWrapper(self, supervisor)
-
-    def getColleagues(self):
-        """ Look up users who are a member of the current user active group."""
-        
-        a = self.getAdminService()
-        default = self.getAdminService().getGroup(self.getEventContext().groupId)
-        for d in default.copyGroupExperimenterMap():
-            if d.child.id.val != self.getEventContext().userId:
-                yield ExperimenterWrapper(self, d.child)
-
-    def getStaffs(self):
-        """ Look up users who are a member of the group owned by the current user."""
-        
-        q = self.getQueryService()
-        gr_list = list()
-        gr_list.extend(self.getEventContext().leaderOfGroups)
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["gids"] = rlist([rlong(a) for a in set(gr_list)])
-        sql = "select e from Experimenter as e where " \
-                "exists ( select gem from GroupExperimenterMap as gem where gem.child = e.id and gem.parent.id in (:gids)) order by e.omeName"
-        for e in q.findAllByQuery(sql, p):
-            if e.id.val != self.getEventContext().userId:
-                yield ExperimenterWrapper(self, e)
-
-    def getColleaguesAndStaffs(self):
-        """ Look up users who are a member of the current user active group 
-            and users who are a member of the group owned by the current user."""
-        
-        q = self.getQueryService()
-        gr_list = list()
-        gr_list.extend(self.getEventContext().memberOfGroups)
-        gr_list.extend(self.getEventContext().leaderOfGroups)
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["gids"] = rlist([rlong(a) for a in set(gr_list)])
-        sql = "select e from Experimenter as e where " \
-                "exists ( select gem from GroupExperimenterMap as gem where gem.child = e.id and gem.parent.id in (:gids)) order by e.omeName"
-        for e in q.findAllByQuery(sql, p):
-            if e.id.val != self.getEventContext().userId:
-                yield ExperimenterWrapper(self, e)
-    
-    def getScriptwithDetails(self, sid):
-        script_serv = self.getScriptService()
-        return script_serv.getScriptWithDetails(long(sid))
-    
     # GETTERs
-    def getShare (self, oid):
-        """ Gets share for the given share id. """
         
-        sh_serv = self.getShareService()
-        sh = sh_serv.getShare(long(oid))
-        if sh is not None:
-            return ShareWrapper(self, sh)
-        else:
-            return None
-    
-    def getScreen (self, oid):
-        query_serv = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["oid"] = rlong(long(oid))
-        sql = "select sc from Screen sc join fetch sc.details.owner join fetch sc.details.group where sc.id=:oid "
-        sc = query_serv.findByQuery(sql,p)
-        if sc is not None:
-            return ScreenWrapper(self, sc)
-        else:
-            return None
-    
-    def getPlate (self, oid):
-        query_serv = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["oid"] = rlong(long(oid))
-        sql = "select pl from Plate pl join fetch pl.details.owner join fetch pl.details.group " \
-              "left outer join fetch pl.screenLinks spl " \
-              "left outer join fetch spl.parent sc where pl.id=:oid "
-        pl = query_serv.findByQuery(sql,p)
-        if pl is not None:
-            return PlateWrapper(self, pl)
-        else:
-            return None
-    
     def getDatasetImageLink (self, parent, oid):
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
@@ -1250,24 +942,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             return BlitzObjectWrapper(self, dsl)
         return None
     
-    def getSpecifiedImages(self, oids):
-        query_serv = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {} 
-        p.map["ids"] = rlist([rlong(a) for a in oids])
-        sql = "select im from Image im join fetch im.details.owner join fetch im.details.group where im.id in (:ids) order by im.name"
-        for e in query_serv.findAllByQuery(sql, p):
-            yield ImageWrapper(self, e)
-
-    def getSpecifiedDatasets(self, oids):
-        query_serv = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {} 
-        p.map["ids"] = rlist([rlong(a) for a in oids])
-        sql = "select ds from Dataset ds join fetch ds.details.owner join fetch ds.details.group where ds.id in (:ids) order by ds.name"
-        for e in query_serv.findAllByQuery(sql, p):
-            yield DatasetWrapper(self, e)
-    
     def getSpecifiedDatasetsWithImages(self, oids):
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
@@ -1278,79 +952,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 "where ds.id in (:ids) order by ds.name"
         for e in query_serv.findAllByQuery(sql, p):
             yield DatasetWrapper(self, e)
-    
-    def getSpecifiedProjects(self, oids):
-        query_serv = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {} 
-        p.map["ids"] = rlist([rlong(a) for a in oids])
-        sql = "select pr from Project pr join fetch pr.details.owner join fetch pr.details.group where pr.id in (:ids) order by pr.name"
-        for e in query_serv.findAllByQuery(sql, p):
-            yield ProjectWrapper(self, e)
-    
-    def getSpecifiedProjectsWithDatasets(self, oids):
-        query_serv = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {} 
-        p.map["ids"] = rlist([rlong(a) for a in oids])
-        sql = "select pr from Project pr join fetch pr.details.owner join fetch pr.details.group " \
-            "left outer join fetch pr.datasetLinks pdl left outer join fetch pdl.child ds " \
-            "where pr.id in (:ids) order by pr.name"
-        for e in query_serv.findAllByQuery(sql, p):
-            yield ProjectWrapper(self, e)
-    
-    def getSpecifiedProjectsWithLeaves(self, oids):
-        query_serv = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {} 
-        p.map["ids"] = rlist([rlong(a) for a in oids])
-        sql = "select pr from Project pr join fetch pr.details.owner join fetch pr.details.group " \
-            "left outer join fetch pr.datasetLinks pdl left outer join fetch pdl.child ds " \
-            "left outer join fetch ds.imageLinks dil left outer join fetch dil.child im " \
-            "where pr.id in (:ids) order by pr.name"
-        for e in query_serv.findAllByQuery(sql, p):
-            yield ProjectWrapper(self, e)
-    
-    def getSpecifiedPlates(self, oids):
-        query_serv = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {} 
-        p.map["ids"] = rlist([rlong(a) for a in oids])
-        sql = "select pl from Plate pl join fetch pl.details.owner join fetch pl.details.group where pl.id in (:ids) order by pl.name"
-        for e in query_serv.findAllByQuery(sql, p):
-            yield DatasetWrapper(self, e)
-    
-    def getCommentAnnotation (self, oid):
-        query_serv = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {} 
-        p.map["oid"] = rlong(long(oid))
-        sql = "select ca from CommentAnnotation ca where ca.id = :oid"
-        ta = query_serv.findByQuery(sql, p)
-        return AnnotationWrapper(self, ta)
-    
-    def getTagAnnotation (self, oid):
-        query_serv = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {} 
-        p.map["oid"] = rlong(long(oid))
-        sql = "select tg from TagAnnotation tg where tg.id = :oid"
-        tg = query_serv.findByQuery(sql, p)
-        return AnnotationWrapper(self, tg)
-    
-    def lookupTagAnnotation (self, name):
-        query_serv = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {} 
-        p.map["text"] = rstring(str(name))
-        p.map["eid"] = rlong(self.getEventContext().userId)
-        f = omero.sys.Filter()
-        f.limit = rint(1)
-        p.theFilter = f
-        sql = "select tg from TagAnnotation tg " \
-              "where tg.textValue=:text and tg.details.owner.id=:eid and tg.ns is null order by tg.textValue"
-        tg = query_serv.findByQuery(sql, p)
-        return AnnotationWrapper(self, tg)
     
     def findTag (self, name, desc=None):
         query_serv = self.getQueryService()
@@ -1373,16 +974,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if len(res) > 0:
             return AnnotationWrapper(self, res[0])
         return None
-        
-    def getFileAnnotation (self, oid):
-        query_serv = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {} 
-        p.map["oid"] = rlong(long(oid))
-        sql = "select f from FileAnnotation f join fetch f.file where f.id = :oid"
-        of = query_serv.findByQuery(sql, p)
-        return FileAnnotationWrapper(self, of)
     
+    # AVATAR #
     def uploadMyUserPhoto(self, filename, format, data):
         admin_serv = self.getAdminService()
         pid = admin_serv.uploadMyUserPhoto(filename, format, data)
@@ -2108,3 +1701,160 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     
 
 omero.gateway.BlitzGateway = OmeroWebGateway
+
+class OmeroWebObjectWrapper (object):
+    
+    def listChildrenWithLinks (self):
+        """
+        Lists available child objects.
+
+        @return: Generator yielding child objects and link to parent.
+        """
+
+        childw = self._getChildWrapper()
+        klass = childw().OMERO_CLASS
+        params = omero.sys.Parameters()
+        params.map = {}
+        params.map["dsid"] = rlong(self._oid)
+        query = "select c from %s as c " \
+                "join fetch c.child as ch " \
+                "where c.parent.id=:dsid " \
+                "order by c.child.name" % self.LINK_CLASS
+        for link in self._conn.getQueryService().findAllByQuery(query, params):
+            kwargs = {'link': BlitzObjectWrapper(self._conn, link)}
+            yield childw(self._conn, link.child, None, **kwargs)
+    
+    def countAnnotations (self):
+        if self.annotation_counter is not None:
+            return self.annotation_counter
+        else:
+            container = self._conn.getContainerService()
+            m = container.getCollectionCount(self._obj.__class__.__name__, type(self._obj).ANNOTATIONLINKS, [self._oid], None)
+            if m[self._oid] > 0:
+                self.annotation_counter = m[self._oid]
+                return self.annotation_counter
+            else:
+                return None
+    
+    def warpName(self):
+        try: 
+            l = len(self.name) 
+            if l < 30: 
+                return self.name 
+            elif l >= 30: 
+                splited = [] 
+                for v in range(0,len(self.name),30): 
+                    splited.append(self.name[v:v+30]+"\n") 
+                return "".join(splited) 
+        except: 
+            logger.info(traceback.format_exc()) 
+            return self.name
+
+class AnnotationLinkWrapper (omero.gateway.BlitzObjectWrapper):
+
+    def getAnnotation(self):
+        return AnnotationWrapper(self, self.child)
+
+class ProjectWrapper (OmeroWebObjectWrapper, omero.gateway.ProjectWrapper): 
+
+    annotation_counter = None
+    
+    def __prepare__ (self, **kwargs):
+        if kwargs.has_key('annotation_counter'):
+            self.annotation_counter = kwargs['annotation_counter']
+ 	 
+omero.gateway.ProjectWrapper = ProjectWrapper 
+ 	 
+class DatasetWrapper (OmeroWebObjectWrapper, omero.gateway.DatasetWrapper): 
+    
+    annotation_counter = None
+    
+    def __prepare__ (self, **kwargs):
+        if kwargs.has_key('annotation_counter'):
+            self.annotation_counter = kwargs['annotation_counter']
+        if kwargs.has_key('link'):
+            self.link = kwargs.has_key('link') and kwargs['link'] or None    
+	 
+omero.gateway.DatasetWrapper = DatasetWrapper
+
+class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
+    
+    annotation_counter = None
+    
+    def __prepare__ (self, **kwargs):
+        if kwargs.has_key('annotation_counter'):
+            self.annotation_counter = kwargs['annotation_counter']
+        if kwargs.has_key('link'):
+            self.link = kwargs.has_key('link') and kwargs['link'] or None
+    
+    def getThumbnailOrDefault (self, size=(120,120)):
+        rv = super(ImageWrapper, self).getThumbnail(size=size)
+        if rv is None:
+            try:
+                rv = self._conn.defaultThumbnail(size)
+            except Exception, e:
+                logger.info(traceback.format_exc())
+                raise e
+        return rv
+
+omero.gateway.ImageWrapper = ImageWrapper
+
+class PlateWrapper (OmeroWebObjectWrapper, omero.gateway.PlateWrapper):
+    
+    annotation_counter = None
+
+    def __prepare__ (self, **kwargs):
+        if kwargs.has_key('annotation_counter'):
+            self.annotation_counter = kwargs['annotation_counter']
+        if kwargs.has_key('link'):
+            self.link = kwargs.has_key('link') and kwargs['link'] or None
+
+omero.gateway.PlateWrapper = PlateWrapper
+
+class ScreenWrapper (OmeroWebObjectWrapper, omero.gateway.ScreenWrapper):
+    
+    annotation_counter = None
+
+    def __prepare__ (self, **kwargs):
+        if kwargs.has_key('annotation_counter'):
+            self.annotation_counter = kwargs['annotation_counter']
+
+omero.gateway.ScreenWrapper = ScreenWrapper
+
+class ShareWrapper (OmeroWebObjectWrapper, omero.gateway.ShareWrapper):
+                
+    def truncateMessageForTree(self):
+        try:
+            msg = self.getMessage().val
+            l = len(msg)
+            if l < 38:
+                return msg
+            return "..." + msg[l - 35:]
+        except:
+            logger.info(traceback.format_exc())
+            return self.getMessage().val
+    
+    def getShareType(self):
+        if self.itemCount == 0:
+            return "Discussion"
+        else:
+            return "Share"
+    
+    def isEmpty(self):
+        if self.itemCount == 0:
+            return True
+        return False
+
+omero.gateway.ShareWrapper = ShareWrapper
+
+class SessionAnnotationLinkWrapper (omero.gateway.BlitzObjectWrapper):
+    
+    def getComment(self):
+        return ShareCommentWrapper(self._conn, self.child)
+    
+    def getShare(self):
+        return ShareWrapper(self._conn, self.parent)
+    
+class EventLogWrapper (omero.gateway.BlitzObjectWrapper):
+    LINK_CLASS = "EventLog"
+

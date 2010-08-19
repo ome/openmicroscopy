@@ -19,7 +19,6 @@ def viewer(request, imageId):
     image = conn.getImage(imageId)
     w = image.getWidth()
     h = image.getHeight()
-    print dir(image)
     
     return render_to_response('webmobile/viewer.html', {'image': image})
 
