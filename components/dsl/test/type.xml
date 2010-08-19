@@ -119,7 +119,7 @@
             <manyone name="renderingDef" type="ic.RenderingDef" ordered="true"/>
         </properties>
     </type>
-    
+
     <type id="ome.model.annotations.Example" annotated="true"/>
     <abstract id="ome.model.annotations.Annotation" annotated="true">
         <properties>
@@ -132,7 +132,7 @@
             <required name="boo" type="int"/>
         </properties>
     </type>
-    
+
     <enum id="ome.model.enums.FrequencyMultiplication">
         <entry name="x1"/>
         <entry name="x2"/>

@@ -1,4 +1,4 @@
-package ome.model.itests;
+package ome.services.db;
 
 import java.io.File;
 import java.io.FileInputStream;

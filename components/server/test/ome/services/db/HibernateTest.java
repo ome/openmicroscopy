@@ -1,4 +1,4 @@
-package ome.model.itests;
+package ome.services.db;
 
 import java.sql.Timestamp;
 import java.util.UUID;
@@ -8,7 +8,6 @@ import ome.model.IObject;
 import ome.model.annotations.CommentAnnotation;
 import ome.model.enums.EventType;
 import ome.model.internal.Details;
-import ome.model.internal.Permissions;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
