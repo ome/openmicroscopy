@@ -13,7 +13,8 @@ import logging
 import traceback
 import omero
 import omero.constants
-from omero.rtypes import rstring, rint
+import omero.scripts
+from omero.rtypes import rstring, rint, rlong, robject, unwrap
 
 logger = logging.getLogger('webemdb')
 
@@ -82,6 +83,127 @@ def eman(request, imageId, **kwargs):
     return rsp
 
 
+def script_run(request, scriptId):
+    """
+    Runs a script using values in a POST
+    """
+    conn = getConnection(request)
+    #print dir(conn)
+    scriptService = conn.getScriptService()
+    
+    inputMap = {}
+    
+    sId = long(scriptId)
+    
+    params = scriptService.getParams(sId)
+    
+    for key, param in params.inputs.items():
+        if key in request.POST:
+            value = request.POST[key]
+            print "\n%s: %s" % (key, value)
+            prototype = param.prototype
+            pclass = prototype.__class__
+            if pclass == omero.rtypes.RListI:
+                valueList = []
+                listClass = omero.rtypes.rstring
+                l = prototype.val     # list
+                if len(l) > 0:       # check if a value type has been set (first item of prototype list)
+                    listClass = l[0].getValue().__class__
+                    if listClass == int(1).__class__:
+                        listClass = omero.rtypes.rint
+                    if listClass == long(1).__class__:
+                        listClass = omero.rtypes.rlong
+                print "listClass", listClass
+                for v in value.split(","):
+                    try:
+                        obj = listClass(str(v.strip())) # seem to need the str() for some reason
+                    except:
+                        print "Invalid entry for '%s' : %s" % (key, v)
+                        continue
+                    if isinstance(obj, omero.model.IObject):
+                        valueList.append(omero.rtypes.robject(obj))
+                    else:
+                        valueList.append(obj)
+                inputMap[key] = omero.rtypes.rlist(valueList)
+            
+            elif pclass == omero.rtypes.RMapI:
+                print "MAP!"    # TODO: Handle maps same way as lists. 
+                valueMap = {}
+                m = prototype.val   # check if a value type has been set for the map
+                print m
+
+            else:
+                try:
+                    inputMap[key] = pclass(value)
+                except:
+                    print "Invalid entry for '%s' : %s" % (key, value)
+                    continue
+                
+    #print inputMap
+    
+
+    client = conn.c
+   
+    proc = scriptService.runScript(sId, inputMap, None)
+    try:
+        cb = omero.scripts.ProcessCallbackI(client, proc)
+        while not cb.block(1000): # ms.
+            pass
+        cb.close()
+        results = proc.getResults(0)    # ms
+    finally:
+        proc.close(False)
+    
+    print results
+    #return HttpResponse(simplejson.dumps(pData), mimetype='application/javascript')
+    return HttpResponse()
+    
+def script_form(request, scriptId):
+    """
+    Generates an html form for the parameters of a defined script. 
+    """
+    conn = getConnection(request)
+    scriptService = conn.getScriptService()
+    
+    params = scriptService.getParams(long(scriptId))
+    if params == None:
+        return HttpResponse()
+    
+    paramData = {}
+    
+    paramData["id"] = long(scriptId)
+    paramData["name"] = params.name.replace("_", " ")
+    paramData["authors"] = ", ".join([a for a in params.authors])
+    paramData["contact"] = params.contact
+    paramData["version"] = params.version
+    paramData["institutions"] = ", ".join([i for i in params.institutions])
+    
+    inputs = []     # use a list so we can sort by 'grouping'
+    for key, param in params.inputs.items():
+        i = {}
+        i["name"] = key.replace("_", " ")
+        i["key"] = key
+        i["optional"] = param.optional
+        i["description"] = param.description
+        if param.min:
+            i["min"] = param.min.getValue()
+        if param.max:
+            i["max"] = param.max.getValue()
+        if param.values:
+            i["options"] = [v.getValue() for v in param.values.getValue()]
+        pt = unwrap(param.prototype)
+        if pt.__class__ == type(True):
+            print key, pt
+            i["boolean"] = True
+        i["prototype"] = unwrap(param.prototype)    # E.g  ""  (string) or [0] (int list) or 0.0 (float)
+        i["grouping"] = param.grouping
+        inputs.append(i)
+    inputs.sort(key=lambda i: i["grouping"])
+    paramData["inputs"] = inputs
+        
+    return render_to_response('webemdb/scripts/script_form.html', {'paramData': paramData})
+
+
 def image(request, imageId):
     """
     Shows an image preview (single plane), Name, Description etc. links to datasets.  
@@ -94,8 +216,21 @@ def image(request, imageId):
     image.showAllParents = image.listParents(single=False)
     
     entryId = None
+    
+    scriptService = conn.getScriptService()
+    scripts = []
+    scriptNames = {"/EMAN2/Nonlinear_Anisotropic_Diffusion.py": "Nonlinear Anisotropic Diffusion",
+            "/omero/figure_scripts/Movie_ROI_Figure.py": "Movie_ROI_Figure"}
+    for path, display in scriptNames.items():
+         scriptId = scriptService.getScriptID(path)
+         if scriptId and scriptId > 0:
+             s = {}
+             s["name"] = display
+             s["id"] = scriptId
+             scripts.append(s)
 
-    return render_to_response('webemdb/data/image.html', {'image': image})
+    print scripts
+    return render_to_response('webemdb/data/image.html', {'image': image, "scripts": scripts})
     
 
 def dataset(request, datasetId):
@@ -158,7 +293,7 @@ def data(request, entryId):
 def entry (request, entryId):
     conn = getConnection(request)
     
-    #print dir(conn)
+    print dir(conn)
         
     entryName = str(entryId)
     project = conn.findProject(entryName)
@@ -400,7 +535,6 @@ def getEntriesByPub (request, publicationId):
         entryId = p.getName().getValue()
         desc = p.getDescription().getValue()
         pData[entryId] = desc
-    print pData
     
     return HttpResponse(simplejson.dumps(pData), mimetype='application/javascript')
     

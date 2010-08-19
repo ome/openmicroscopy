@@ -77,6 +77,14 @@ function openPopup(url) {
     <div class="clear"></div>
 </div>
 
+<div class="pageTable">  
+    
+    {% for s in scripts %}
+        <a class="script" href="{% url webemdb_script_form s.id %}">{{ s.name }}</a> <br />
+    {% endfor %}
+    
+</div>
+
     
 {% else %}
 

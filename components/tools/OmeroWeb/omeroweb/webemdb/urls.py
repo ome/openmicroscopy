@@ -43,4 +43,7 @@ urlpatterns = patterns('',
     # define the sym link for media. 
     url( r'appmedia/webemdb/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.dirname(__file__), 'media', 'webemdb').replace('\\','/') }, name="webemdb" ),
     
+    # urls for scripting service
+    url( r'^script_form/(?P<scriptId>[0-9]+)/$', views.script_form, name='webemdb_script_form' ),
+    url( r'^script_run/(?P<scriptId>[0-9]+)/$', views.script_run, name='webemdb_script_run' ),
 )
