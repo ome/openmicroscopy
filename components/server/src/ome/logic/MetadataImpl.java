@@ -114,17 +114,15 @@ public class MetadataImpl
 			sb.append("left outer join fetch laser.laserMedium as " +
 					"medium ");
 			sb.append("left outer join fetch laser.pulse as pulse ");
-	        sb.append("where laser.id = :id");
+	        sb.append("where laser.instrument.id = :instrumentId");
 		} else if (src instanceof Filament) {
 			sb.append("select filament from Filament as filament ");
 			sb.append("left outer join fetch filament.type as type ");
-	        sb.append("where filament.id = :id");
+	        sb.append("where filament.instrument.id = :instrumentId");
 		} else if (src instanceof Arc) {
 			sb.append("select arc from Arc as arc ");
 			sb.append("left outer join fetch arc.type as type ");
-	        sb.append("where arc.id = :id");
-		} else if (src instanceof LightEmittingDiode) {
-			sb = null;
+	        sb.append("where arc.instrument.id = :instrumentId");
 		}
     	return sb;
     }
@@ -399,21 +397,23 @@ public class MetadataImpl
     	//light sources
     	sb = new StringBuilder();
     	sb.append("select light from LightSource as light ");
-    	sb.append("left outer join fetch light.type as t ");
     	sb.append("where light.instrument.id = :instrumentId");
     	list = iQuery.findAllByQuery(sb.toString(), params);
-    	if (list != null) results.addAll(list);
+    	//if (list != null) results.addAll(list);
     	if (list != null) {
     		IObject object;
     		Iterator i = list.iterator();
     		LightSource src;
     		while (i.hasNext()) {
             	src = (LightSource) i.next();
-            	sb = createLightQuery(src);
-				if (sb != null) {
-					object = iQuery.findByQuery(sb.toString(), 
-			        		new Parameters().addId(src.getId()));
-					if (object != null) results.add(object);
+				if (src instanceof LightEmittingDiode) {
+					results.add(src);
+				} else {
+					sb = createLightQuery(src);
+					if (sb != null) {
+						object = iQuery.findByQuery(sb.toString(), params);
+						if (object != null) results.add(object);
+					}
 				}
     		}
     	}
@@ -476,16 +476,22 @@ public class MetadataImpl
         LightSettings light;
         LightSource src;
         IObject object;
+		Parameters params;
         while (i.hasNext()) {
         	channel = i.next();
 			light = channel.getLightSourceSettings();
 			if (light != null) {
 				src = light.getLightSource();
-				sb = createLightQuery(src);
-				if (sb != null) {
-					object = iQuery.findByQuery(sb.toString(), 
-			        		new Parameters().addId(src.getId()));
-					light.setLightSource((LightSource) object);
+				if (src instanceof LightEmittingDiode) {
+					light.setLightSource(src);
+				} else {
+					sb = createLightQuery(src);
+					if (sb != null) {
+						params = new Parameters(); 
+						params.addLong("instrumentId", src.getInstrument().getId());
+						object = iQuery.findByQuery(sb.toString(), params);
+						light.setLightSource((LightSource) object);
+					}	
 				}
 			}
 		}
