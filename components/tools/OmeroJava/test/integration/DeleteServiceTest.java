@@ -19,7 +19,9 @@ import org.testng.annotations.Test;
 
 //Application-internal dependencies
 import omero.api.IDeletePrx;
+import omero.api.IRenderingSettingsPrx;
 import omero.model.Channel;
+import omero.model.IObject;
 import omero.model.Image;
 import omero.model.LogicalChannel;
 import omero.model.Pixels;
@@ -128,8 +130,7 @@ public class DeleteServiceTest
     	p = (Plate) iQuery.findByQuery(sb.toString(), param);
     	assertNull(p);
     }
-    
-    
+
     /**
      * Test to delete an image with pixels, channels, logical channels 
      * and statistics.
@@ -142,7 +143,8 @@ public class DeleteServiceTest
     	Image img = createImage();
     	Pixels pixels = img.getPrimaryPixels();
     	long pixId = pixels.getId().getValue();
-    	//method already tested, make sure objects are loaded.
+    	//method already tested in PixelsServiceTest
+    	//make sure objects are loaded.
     	pixels = factory.getPixelsService().retrievePixDescription(pixId);
     	//channels.
     	long id = img.getId().getValue();
@@ -186,25 +188,83 @@ public class DeleteServiceTest
 			id =  i.next();
 			param = new ParametersI();
 	    	param.addId(id);
-	    	sb.append("select i from Channels i ");
+	    	sb = new StringBuilder();
+	    	sb.append("select i from Channel i ");
 	    	sb.append("where i.id = :id");
+	    	channel = (Channel) iQuery.findByQuery(sb.toString(), param);
+	    	assertNull(channel);
 		}
     	i = infos.iterator();
     	while (i.hasNext()) {
 			id =  i.next();
 			param = new ParametersI();
 	    	param.addId(id);
+	    	sb = new StringBuilder();
 	    	sb.append("select i from StatsInfo i ");
 	    	sb.append("where i.id = :id");
+	    	info = (StatsInfo) iQuery.findByQuery(sb.toString(), param);
+	    	assertNull(info);
 		}
     	i = logicalChannels.iterator();
     	while (i.hasNext()) {
 			id =  i.next();
 			param = new ParametersI();
 	    	param.addId(id);
+	    	sb = new StringBuilder();
 	    	sb.append("select i from LogicalChannel i ");
 	    	sb.append("where i.id = :id");
+	    	lc = (LogicalChannel) iQuery.findByQuery(sb.toString(), param);
+	    	assertNull(lc);
 		}
     }
 
+    /**
+     * Test to delete an image with rendering settings.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteImageWithRenderingSettings() 
+    	throws Exception
+    {
+    	Image image = createImage();
+    	Pixels pixels = image.getPrimaryPixels();
+    	//method already tested in RenderingSettingsServiceTest
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(pixels.getId().getValue());
+    	prx.resetDefaultsInSet(Pixels.class.getName(), ids);
+    	//check if we have settings now.
+    	ParametersI param = new ParametersI();
+    	param.addLong("pid", pixels.getId().getValue());
+    	String sql = "select rdef from RenderingDef as rdef " +
+    			"where rdef.pixels.id = :pid";
+    	List<IObject> settings = iQuery.findAllByQuery(sql, param);
+    	//now delete the image
+    	assertTrue(settings.size() > 0);
+    	iDelete.deleteImage(image.getId().getValue(), false); //do not force.
+    	//check if the settings have been deleted.
+    	Iterator<IObject> i = settings.iterator();
+    	IObject o;
+    	while (i.hasNext()) {
+			o = i.next();
+			param = new ParametersI();
+			param.addId(o.getId().getValue());
+			sql = "select rdef from RenderingDef as rdef " +
+			"where rdef.id = :id";
+			o = iQuery.findByQuery(sql, param);
+			assertNull(o);
+		}
+    }
+    
+    /**
+     * Test to delete an image with rendering settings.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteImageNonSharableAnnotations() 
+    	throws Exception
+    {
+    	
+    }
+    
 }

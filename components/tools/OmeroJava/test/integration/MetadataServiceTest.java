@@ -29,16 +29,13 @@ import omero.model.AnnotationAnnotationLinkI;
 import omero.model.Arc;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
+import omero.model.Channel;
 import omero.model.CommentAnnotation;
 import omero.model.CommentAnnotationI;
-import omero.model.Correction;
 import omero.model.Dataset;
 import omero.model.DatasetAnnotationLinkI;
 import omero.model.Detector;
-import omero.model.DetectorI;
-import omero.model.DetectorType;
 import omero.model.Dichroic;
-import omero.model.DichroicI;
 import omero.model.DoubleAnnotation;
 import omero.model.DoubleAnnotationI;
 import omero.model.Experimenter;
@@ -49,37 +46,29 @@ import omero.model.Filament;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.Filter;
-import omero.model.FilterI;
-import omero.model.FilterType;
+import omero.model.FilterSet;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLinkI;
-import omero.model.Immersion;
 import omero.model.Instrument;
-import omero.model.InstrumentI;
 import omero.model.Laser;
-import omero.model.LaserI;
-import omero.model.LaserMedium;
-import omero.model.LaserType;
 import omero.model.LightEmittingDiode;
+import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
 import omero.model.LongAnnotationI;
-import omero.model.MicroscopeI;
-import omero.model.MicroscopeType;
 import omero.model.Objective;
-import omero.model.ObjectiveI;
 import omero.model.OriginalFile;
 import omero.model.PermissionsI;
+import omero.model.Pixels;
 import omero.model.Project;
 import omero.model.ProjectAnnotationLinkI;
-import omero.model.ProjectI;
-import omero.model.Pulse;
+import omero.model.StatsInfo;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
-import omero.model.TransmittanceRangeI;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import pojos.BooleanAnnotationData;
+import pojos.ChannelAcquisitionData;
 import pojos.DoubleAnnotationData;
 import pojos.FileAnnotationData;
 import pojos.LongAnnotationData;
@@ -631,6 +620,7 @@ public class MetadataServiceTest
     	Detector detector;
     	Dichroic dichroic;
     	Filter filter;
+    	FilterSet filterSet;
     	Laser laser = null;
     	Filament filament = null;
     	Arc arc = null;
@@ -646,6 +636,7 @@ public class MetadataServiceTest
     	boolean filterFound = false;
     	boolean dichroicFound = false;
     	boolean lightFound = false;
+    	boolean filterSetFound = false;
     	Iterator<IObject> j;
     	IObject o;
     	for (int i = 0; i < LIGHT_SOURCES.length; i++) {
@@ -662,24 +653,23 @@ public class MetadataServiceTest
             filter = (Filter) iQuery.findByQuery(sql, param);
             sql = "select d from Objective as d where d.instrument.id = :iid";
             objective = (Objective) iQuery.findByQuery(sql, param);
-            sql = "select d from LightSource as d where d.instrument.id = :iid";
-            test = iQuery.findByQuery(sql, param);
-            assertNotNull(test);
-            param = new ParametersI();
-        	param.addLong("iid", test.getId().getValue());
-            if (LASER.equals(i)) {
-            	sql = "select d from Laser as d where d.lightSource.id = :iid";
+            sql = "select d from FilterSet as d where d.instrument.id = :iid";
+            filterSet = (FilterSet) iQuery.findByQuery(sql, param);
+            if (LASER.equals(LIGHT_SOURCES[i])) {
+            	sql = "select d from Laser as d where d.instrument.id = :iid";
             	laser = (Laser) iQuery.findByQuery(sql, param);
-            } else if (FILAMENT.equals(i)) {
-            	sql = "select d from Filament as d where d.lightSource.id = :iid";
+            } else if (FILAMENT.equals(LIGHT_SOURCES[i])) {
+            	sql = "select d from Filament as d where d.instrument.id = :iid";
             	filament = (Filament) iQuery.findByQuery(sql, param);
-            } else if (ARC.equals(i)) {
-            	sql = "select d from Arc as d where d.lightSource.id = :iid";
+            } else if (ARC.equals(LIGHT_SOURCES[i])) {
+            	sql = "select d from Arc as d where d.instrument.id = :iid";
             	arc = (Arc) iQuery.findByQuery(sql, param);
-            } else if (LIGHT_EMITTING_DIODE.equals(i)) {
-            	sql = "select d from LightEmittingDiode as d where d.lightSource.id = :iid";
+            } else if (LIGHT_EMITTING_DIODE.equals(LIGHT_SOURCES[i])) {
+            	sql = "select d from LightEmittingDiode as d where " +
+            			"d.instrument.id = :iid";
             	light = (LightEmittingDiode) iQuery.findByQuery(sql, param);
             }
+
             result = iMetadata.loadInstrument(
         			instrument.getId().getValue());
         	assertNotNull(result);
@@ -699,6 +689,11 @@ public class MetadataServiceTest
     				filterFound = true;
     				assertTrue(o.getId().getValue() == 
     					filter.getId().getValue());
+    				filter = (Filter) o; 
+    			} else if (o instanceof FilterSet) {
+    				filterSetFound = true;
+    				assertTrue(o.getId().getValue() == 
+    					filterSet.getId().getValue());
     			} else if (o instanceof Dichroic) {
     				dichroicFound = true;
     				assertTrue(o.getId().getValue() == 
@@ -707,23 +702,26 @@ public class MetadataServiceTest
     				objectiveFound = true;
     				assertTrue(o.getId().getValue() == 
     					objective.getId().getValue());
-    			} else if (o instanceof Laser && LASER.equals(i)) {
+    				objective = (Objective) o;
+    			} else if (o instanceof Laser) {
     				assertNotNull(laser);
     				lightFound = true;
     				assertTrue(o.getId().getValue() == 
     					laser.getId().getValue());
-    			} else if (o instanceof Filament && FILAMENT.equals(i)) {
+    				laser = (Laser) o;
+    			} else if (o instanceof Filament) {
     				assertNotNull(filament);
     				lightFound = true;
     				assertTrue(o.getId().getValue() == 
     					filament.getId().getValue());
-    			} else if (o instanceof Arc && ARC.equals(i)) {
+    				filament = (Filament) o;
+    			} else if (o instanceof Arc) {
     				assertNotNull(arc);
     				lightFound = true;
     				assertTrue(o.getId().getValue() == 
     					arc.getId().getValue());
-    			} else if (o instanceof LightEmittingDiode 
-    					&& LIGHT_EMITTING_DIODE.equals(i)) {
+    				arc = (Arc) o;
+    			} else if (o instanceof LightEmittingDiode) {
     				assertNotNull(light);
     				lightFound = true;
     				assertTrue(o.getId().getValue() == 
@@ -735,7 +733,28 @@ public class MetadataServiceTest
         	assertTrue(detectorFound);
         	assertTrue(filterFound);
         	assertTrue(dichroicFound);
-        	//assertTrue(lightFound);
+        	assertTrue(lightFound);
+        	assertTrue(filterSetFound);
+        	//make sure everything is loaded properly
+        	//objective
+        	assertNotNull(objective.getCorrection());
+        	assertNotNull(objective.getImmersion());
+        	//filter
+        	assertNotNull(filter.getType());
+        	assertNotNull(filter.getTransmittanceRange());
+        	
+        	//light source
+        	if (laser != null) {
+        		assertNotNull(laser.getType());
+        		assertNotNull(laser.getLaserMedium());
+        		assertNotNull(laser.getPulse());
+        	}
+        	if (filament != null) {
+        		assertNotNull(filament.getType());
+        	}
+        	if (arc != null) {
+        		assertNotNull(arc.getType());
+        	}
 		}
     }
     
@@ -747,7 +766,56 @@ public class MetadataServiceTest
     public void testLoadChannelAcquisitionData() 
     	throws Exception
     {
+    	Image img = createImage();
+    	Pixels pixels = img.getPrimaryPixels();
+    	long pixId = pixels.getId().getValue();
+    	//method already tested in PixelsServiceTest
+    	//make sure objects are loaded.
+    	pixels = factory.getPixelsService().retrievePixDescription(pixId);
+    	//first channel
+    	Channel channel = pixels.getChannel(0);
+    	LogicalChannel lc = channel.getLogicalChannel();
+    	//create an instrument.
+    	Instrument instrument = createInstrument(LASER);
+    	instrument = (Instrument) iUpdate.saveAndReturnObject(instrument);
+    	assertNotNull(instrument);
+    	//retrieve the detector.
+    	ParametersI param = new ParametersI();
+    	param.addLong("iid", instrument.getId().getValue());
+    	String sql = "select d from Detector as d where d.instrument.id = :iid";
+    	Detector detector = (Detector) iQuery.findByQuery(sql, param);
+    	sql = "select d from FilterSet as d where d.instrument.id = :iid";
+    	FilterSet filterSet = (FilterSet) iQuery.findByQuery(sql, param);
+    	sql = "select d from Laser as d where d.instrument.id = :iid";
+    	Laser laser = (Laser) iQuery.findByQuery(sql, param);
+    	sql = "select d from Dichroic as d where d.instrument.id = :iid";
+    	Dichroic dichroic = (Dichroic) iQuery.findByQuery(sql, param);
     	
+    	lc.setDetectorSettings(createDetectorSettings(detector));
+    	lc.setFilterSet(filterSet);
+    	lc.setLightSourceSettings(createLightSettings(laser));
+    	lc.setLightPath(createLightPath(null, dichroic, null));
+    	lc = (LogicalChannel) iUpdate.saveAndReturnObject(lc);
+    	assertNotNull(lc);
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(lc.getId().getValue());
+    	List<LogicalChannel> channels = iMetadata.loadChannelAcquisitionData(
+    			ids);
+    	assertTrue(channels.size() == 1);
+    	LogicalChannel loaded = channels.get(0);
+    	assertNotNull(loaded);
+    	ChannelAcquisitionData data = new ChannelAcquisitionData(loaded);
+    	assertTrue(data.getDetector().getId() == detector.getId().getValue());
+    	assertTrue(data.getFilterSet().getId() == filterSet.getId().getValue());
+    	assertTrue(data.getLightSource().getId() == laser.getId().getValue());
+    	assertNotNull(loaded.getDetectorSettings());
+    	assertNotNull(loaded.getLightSourceSettings());
+    	assertNotNull(loaded.getDetectorSettings().getBinning());
+    	assertNotNull(loaded.getDetectorSettings().getDetector());
+    	assertNotNull(loaded.getDetectorSettings().getDetector().getType());
+    	assertNotNull(loaded.getLightPath());
+    	assertNotNull(data.getLightPath().getDichroic().getId() 
+    			== dichroic.getId().getValue());
     }
     
 }

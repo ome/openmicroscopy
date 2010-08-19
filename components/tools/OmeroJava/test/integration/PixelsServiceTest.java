@@ -27,6 +27,7 @@ import omero.model.ContrastMethod;
 import omero.model.Correction;
 import omero.model.DetectorType;
 import omero.model.DimensionOrder;
+import omero.model.ExperimentType;
 import omero.model.Family;
 import omero.model.FilamentType;
 import omero.model.FilterType;
@@ -38,6 +39,7 @@ import omero.model.Immersion;
 import omero.model.LaserMedium;
 import omero.model.LaserType;
 import omero.model.Medium;
+import omero.model.MicrobeamManipulationType;
 import omero.model.MicroscopeType;
 import omero.model.PhotometricInterpretation;
 import omero.model.Pixels;
@@ -191,6 +193,17 @@ public class PixelsServiceTest
 	 */
 	private static final int MAX_DIMENSION_ORDER = 6;
 	
+	/** 
+	 * The maximum number of elements for the <code>Microbeam manipulation
+	 * type</code> enumeration.
+	 */
+	private static final int MAX_MICROBEAM_MANIPULATION_TYPE = 9;
+	
+	/** 
+	 * The maximum number of elements for the <code>Experiment type</code>
+	 * enumeration.
+	 */
+	private static final int MAX_EXPERIMENT_TYPE = 17;
 	
 	/**
      * Tests if the objects returned are of the specified type.
@@ -256,6 +269,7 @@ public class PixelsServiceTest
 			assertNotNull(channel);
 			ids.add(channel.getId().getValue());
 			assertNotNull(channel.getStatsInfo());
+			assertNotNull(channel.getLogicalChannel());
 		}
         for (int j = 0; j < pixels.sizeOfChannels(); j++) {
 			channel = pixels.getChannel(j);
@@ -295,6 +309,9 @@ public class PixelsServiceTest
     	
 
     	checkEnumeration(DimensionOrder.class.getName(), MAX_DIMENSION_ORDER);
+    	checkEnumeration(MicrobeamManipulationType.class.getName(), 
+    			MAX_MICROBEAM_MANIPULATION_TYPE);
+    	checkEnumeration(ExperimentType.class.getName(), MAX_EXPERIMENT_TYPE);
     	//for rendering engine
     	checkEnumeration(Family.class.getName(), MAX_FAMILY);
     	checkEnumeration(PixelsType.class.getName(), MAX_PIXELS_TYPE);

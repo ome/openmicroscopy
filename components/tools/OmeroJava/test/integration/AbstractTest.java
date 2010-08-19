@@ -31,6 +31,7 @@ import omero.model.AnnotationAnnotationLinkI;
 import omero.model.Arc;
 import omero.model.ArcI;
 import omero.model.ArcType;
+import omero.model.Binning;
 import omero.model.Channel;
 import omero.model.ChannelBinding;
 import omero.model.CommentAnnotation;
@@ -42,9 +43,14 @@ import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.Detector;
 import omero.model.DetectorI;
+import omero.model.DetectorSettings;
+import omero.model.DetectorSettingsI;
 import omero.model.DetectorType;
 import omero.model.Dichroic;
 import omero.model.DichroicI;
+import omero.model.Experiment;
+import omero.model.ExperimentI;
+import omero.model.ExperimentType;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
@@ -54,6 +60,8 @@ import omero.model.FilamentI;
 import omero.model.FilamentType;
 import omero.model.Filter;
 import omero.model.FilterI;
+import omero.model.FilterSet;
+import omero.model.FilterSetI;
 import omero.model.FilterType;
 import omero.model.IObject;
 import omero.model.Image;
@@ -69,10 +77,22 @@ import omero.model.LaserMedium;
 import omero.model.LaserType;
 import omero.model.LightEmittingDiode;
 import omero.model.LightEmittingDiodeI;
+import omero.model.LightPath;
+import omero.model.LightPathEmissionFilterLinkI;
+import omero.model.LightPathI;
+import omero.model.LightSettings;
+import omero.model.LightSettingsI;
+import omero.model.LightSource;
+import omero.model.Medium;
+import omero.model.MicrobeamManipulation;
+import omero.model.MicrobeamManipulationI;
+import omero.model.MicrobeamManipulationType;
 import omero.model.MicroscopeI;
 import omero.model.MicroscopeType;
 import omero.model.Objective;
 import omero.model.ObjectiveI;
+import omero.model.ObjectiveSettings;
+import omero.model.ObjectiveSettingsI;
 import omero.model.OriginalFileI;
 import omero.model.Permissions;
 import omero.model.PermissionsI;
@@ -80,6 +100,7 @@ import omero.model.Pixels;
 import omero.model.PixelsType;
 import omero.model.PlaneInfo;
 import omero.model.PlaneInfoI;
+import omero.model.Plate;
 import omero.model.PlateI;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
@@ -133,8 +154,8 @@ public class AbstractTest
 	protected String LIGHT_EMITTING_DIODE = LightEmittingDiode.class.getName();
 	
 	/** The possible sources of light. */
-	protected String[] LIGHT_SOURCES = {
-			LASER, FILAMENT, ARC, LIGHT_EMITTING_DIODE};
+	protected String[] LIGHT_SOURCES = {LASER, FILAMENT, ARC, 
+			LIGHT_EMITTING_DIODE};
 	
 	/** The default number of channels. */
 	public int DEFAULT_CHANNELS_NUMBER = 3;
@@ -298,7 +319,7 @@ public class AbstractTest
      * This will have to be linked to an instrument.
      * 
      * @param cutIn The cut in value.
-     * @param cutIn The cut out value.
+     * @param cutOut The cut out value.
      * @return See above.
      */
     protected Filter createFilter(int cutIn, int cutOut)
@@ -321,6 +342,20 @@ public class AbstractTest
     	return filter;
     }
    
+    /**
+     * Creates a basic filter set.
+     * 
+     * @return See above.
+     */
+    protected FilterSet createFilterSet()
+    {
+    	FilterSet set = new FilterSetI();
+    	set.setLotNumber(omero.rtypes.rstring("lot number"));
+    	set.setManufacturer(omero.rtypes.rstring("manufacturer"));
+    	set.setModel(omero.rtypes.rstring("model"));
+    	return set;
+    }
+    
     /**
      * Creates and returns a dichroic. 
      * This will have to be linked to an instrument.
@@ -368,6 +403,94 @@ public class AbstractTest
     	return objective;
     }
 
+    /**
+     * Creates and returns the settings of the specified objective. 
+     * 
+     * @param objective The objective to link the settings to.
+     * @return See above.
+     */
+    protected ObjectiveSettings createObjectiveSettings(Objective objective)
+    	throws Exception
+    {
+    	IPixelsPrx svc = factory.getPixelsService();
+    	//already tested see PixelsService enumeration.
+    	List<IObject> types = svc.getAllEnumerations(
+    			Medium.class.getName());
+    	ObjectiveSettings settings = new ObjectiveSettingsI();
+    	settings.setCorrectionCollar(omero.rtypes.rdouble(1));
+    	settings.setRefractiveIndex(omero.rtypes.rdouble(1));
+    	settings.setMedium((Medium) types.get(0));
+    	settings.setObjective(objective);
+    	return settings;
+    }
+    
+    /**
+     * Creates and returns the settings of the specified detector. 
+     * 
+     * @param detector The detector to link the settings to.
+     * @return See above.
+     */
+    protected DetectorSettings createDetectorSettings(Detector detector)
+    	throws Exception
+    {
+    	IPixelsPrx svc = factory.getPixelsService();
+    	//already tested see PixelsService enumeration.
+    	List<IObject> types = svc.getAllEnumerations(
+    			Binning.class.getName());
+    	DetectorSettings settings = new DetectorSettingsI();
+    	settings.setBinning((Binning) types.get(0));
+    	settings.setDetector(detector);
+    	settings.setGain(omero.rtypes.rdouble(1));
+    	settings.setOffsetValue(omero.rtypes.rdouble(1));
+    	settings.setReadOutRate(omero.rtypes.rdouble(1));
+    	settings.setVoltage(omero.rtypes.rdouble(1));
+    	return settings;
+    }
+    
+    /**
+     * Creates and returns the settings of the specified source of light. 
+     * 
+     * @param light The light to link the settings to.
+     * @return See above.
+     */
+    protected LightSettings createLightSettings(LightSource light)
+    	throws Exception
+    {
+    	IPixelsPrx svc = factory.getPixelsService();
+    	//already tested see PixelsService enumeration.
+    	List<IObject> types = svc.getAllEnumerations(
+    			MicrobeamManipulationType.class.getName());
+    	LightSettings settings = new LightSettingsI();
+    	settings.setLightSource(light);
+    	settings.setAttenuation(omero.rtypes.rdouble(1));
+    	MicrobeamManipulation mm = new MicrobeamManipulationI();
+    	mm.setType((MicrobeamManipulationType) types.get(0));
+    	Experiment exp = new ExperimentI();
+    	types = svc.getAllEnumerations(
+    			ExperimentType.class.getName());
+    	exp.setType((ExperimentType) types.get(0));
+    	mm.setExperiment(exp);
+    	settings.setMicrobeamManipulation(mm);
+    	settings.setWavelength(omero.rtypes.rint(500));
+    	return settings;
+    }
+    
+    /**
+     * Creates a light path.
+     * 
+     * @param emissionFilter The emission filter or <code>null</code>.
+     * @param dichroic       The dichroic or <code>null</code>.
+     * @param excitationFilter The excitation filter or <code>null</code>.
+     * @return
+     */
+    protected LightPath createLightPath(Filter emissionFilter, 
+    		Dichroic dichroic, Filter excitationFilter)
+    {
+    	LightPath path = new LightPathI();
+    	if (dichroic != null) path.setDichroic(dichroic);
+    	return path;
+    }
+    
     /**
      * Creates and returns a filament. 
      * This will have to be linked to an instrument.
@@ -497,6 +620,7 @@ public class AbstractTest
     	instrument.addFilter(createFilter(500, 560));
     	instrument.addDichroic(createDichroic());
     	instrument.addObjective(createObjective());
+    	instrument.addFilterSet(createFilterSet());
     	if (LASER.equals(light))
     		instrument.addLightSource(createLaser());
     	else if (FILAMENT.equals(light))
@@ -746,6 +870,16 @@ public class AbstractTest
     	Image img = (Image) iQuery.findByQuery(
     			"select i from Image i where i.id = :id", param);
     	return (Image) iUpdate.saveAndReturnObject(img);
+	}
+	
+	/**
+	 * Creates a plate.
+	 * 
+	 * @return See above.
+	 */
+	protected Plate createPlate()
+	{
+		return null;
 	}
 	
 }

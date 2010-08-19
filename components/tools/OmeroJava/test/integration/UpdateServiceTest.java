@@ -790,7 +790,7 @@ public class UpdateServiceTest
      * Tests to create a comment annotation and link it to various objects.
      * @throws Exception Thrown if an error occurred.
      */
-    public void testCreateCommnentAnnotation()
+    public void testCreateCommentAnnotation()
     	throws Exception 
     {
     	CommentAnnotationI annotation = new CommentAnnotationI();
@@ -865,6 +865,7 @@ public class UpdateServiceTest
     
     /**
      * Tests to unlink of an annotation. Creates only one type of annotation.
+     * This method uses the <code>deleteObject</code> method.
      * @throws Exception Thrown if an error occurred.
      */
     public void testRemoveAnnotation()
@@ -1527,15 +1528,19 @@ public class UpdateServiceTest
             param = new ParametersI();
         	param.addLong("iid", test.getId().getValue());
             if (LASER.equals(i)) {
-            	sql = "select d from Laser as d where d.lightSource.id = :iid";
+            	sql = "select d from Laser as d where d.id = :iid";
             	test = iQuery.findByQuery(sql, param);
             	assertNotNull(test);
             } else if (FILAMENT.equals(i)) {
-            	sql = "select d from Filament as d where d.lightSource.id = :iid";
+            	sql = "select d from Filament as d where d.id = :iid";
             	test = iQuery.findByQuery(sql, param);
             	assertNotNull(test);
             } else if (ARC.equals(i)) {
-            	sql = "select d from Arc as d where d.lightSource.id = :iid";
+            	sql = "select d from Arc as d where d.id = :iid";
+            	test = iQuery.findByQuery(sql, param);
+            	assertNotNull(test);
+            } else if (LIGHT_EMITTING_DIODE.equals(i)) {
+            	sql = "select d from LightEmittingDiode as d where d.id = :iid";
             	test = iQuery.findByQuery(sql, param);
             	assertNotNull(test);
             }
@@ -1602,6 +1607,78 @@ public class UpdateServiceTest
         sql = "select d from LightSource as d where d.instrument.id = :iid";
         test = iQuery.findByQuery(sql, param);
         assertNotNull(test);
+    }
+    
+    /**
+	 * Tests to delete various types of annotations i.e. 
+	 * Boolean, comment, long, tag, file annotation. 
+	 * This method the <code>deleteObject</code> method. 
+	 * 
+	 * @throws Exception  Thrown if an error occurred.
+	 */
+    @Test
+    public void testDeleteAnnotation() 
+    	throws Exception
+    {
+    	//creation and linkage have already been tested
+    	//boolean
+    	BooleanAnnotationI b = new BooleanAnnotationI();
+    	b.setBoolValue(omero.rtypes.rbool(true));
+    	Annotation data = (Annotation) iUpdate.saveAndReturnObject(b);
+    	//delete and check
+    	long id = data.getId().getValue();
+    	iUpdate.deleteObject(data);
+    	ParametersI param = new ParametersI();
+    	param.addId(id);
+    	String sql = "select a from Annotation as a where a.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	//long
+    	LongAnnotationI l = new LongAnnotationI();
+    	l.setLongValue(omero.rtypes.rlong(1L));
+    	data = (Annotation) iUpdate.saveAndReturnObject(l);
+    	id = data.getId().getValue();
+    	iUpdate.deleteObject(data);
+    	param = new ParametersI();
+    	param.addId(id);
+    	sql = "select a from Annotation as a where a.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	//comment
+    	CommentAnnotationI c = new CommentAnnotationI();
+    	c.setTextValue(omero.rtypes.rstring("comment"));
+    	data = (Annotation) iUpdate.saveAndReturnObject(c);
+    	id = data.getId().getValue();
+    	iUpdate.deleteObject(data);
+    	param = new ParametersI();
+    	param.addId(id);
+    	sql = "select a from Annotation as a where a.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	//tag
+    	TagAnnotationI t = new TagAnnotationI();
+    	t.setTextValue(omero.rtypes.rstring("tag"));
+    	data = (Annotation) iUpdate.saveAndReturnObject(t);
+    	id = data.getId().getValue();
+    	iUpdate.deleteObject(data);
+    	param = new ParametersI();
+    	param.addId(id);
+    	sql = "select a from Annotation as a where a.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	//File 
+    	OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
+				createOriginalFile());
+		FileAnnotationI fa = new FileAnnotationI();
+		fa.setFile(of);
+		long ofId = of.getId().getValue();
+		data = (Annotation) iUpdate.saveAndReturnObject(fa);
+		id = data.getId().getValue();
+    	iUpdate.deleteObject(data);
+    	param = new ParametersI();
+    	param.addId(id);
+    	sql = "select a from Annotation as a where a.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	param = new ParametersI();
+    	param.addId(id);
+    	sql = "select a from OriginalFile as a where a.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
     }
     
 }
