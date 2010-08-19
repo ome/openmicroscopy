@@ -22,7 +22,6 @@ import org.testng.annotations.Test;
 //Application-internal dependencies
 import omero.api.IAdminPrx;
 import omero.api.IMetadataPrx;
-import omero.api.IPixelsPrx;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLinkI;

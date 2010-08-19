@@ -544,54 +544,7 @@ public class PojosServiceTest
         }
 */
     }
-
-    // /
-    // ========================================================================
-    // / ~ Various bug-like checks
-    // /
-    // ========================================================================
-    /**
-     * Test to update an uploaded object using the <code>Pojo</code> object.
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test(groups = { "version"})
-    public void testUnloadedDataset() 
-    	throws Exception 
-    {
-    	Image i = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
-    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
-    			simpleDatasetData().asIObject());
-    	Project p = (Project) iUpdate.saveAndReturnObject(
-    			simpleProjectData().asIObject());
-    	//link dataset and image
-    	DatasetImageLink link = new DatasetImageLinkI();
-    	link.setParent(d);
-    	link.setChild(i);
-    	iUpdate.saveAndReturnObject(link);
-    	//link project and dataset
-    	ProjectDatasetLink l = new ProjectDatasetLinkI();
-    	l.setParent(p);
-    	l.setChild(d);
-    	iUpdate.saveAndReturnObject(l);
-    	
-        p = (Project) iContainer.loadContainerHierarchy(
-                Project.class.getName(), 
-                Collections.singletonList(p.getId().getValue()), 
-                null).iterator().next();
-        ProjectData pData = new ProjectData(p);
-        
-        DatasetData dData = pData.getDatasets().iterator().next();
-        pData.setDescription("new value:ui");
-
-        iContainer.updateDataObject(pData.asIObject(), null);
-        try {
-        	dData.getName();
-            fail(" this should blow up ");
-        } catch (Exception e) { // TODO which exception?
-            // good.
-        }
-    }
-
+    
     /**
      * Tests the retrieval of images filtering by owners.
      * @throws Exception Thrown if an error occurred.

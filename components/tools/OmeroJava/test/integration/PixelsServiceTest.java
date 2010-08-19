@@ -27,7 +27,6 @@ import omero.model.ContrastMethod;
 import omero.model.Correction;
 import omero.model.DetectorType;
 import omero.model.DimensionOrder;
-import omero.model.ExperimentType;
 import omero.model.Family;
 import omero.model.FilamentType;
 import omero.model.FilterType;
@@ -199,12 +198,6 @@ public class PixelsServiceTest
 	 */
 	private static final int MAX_MICROBEAM_MANIPULATION_TYPE = 9;
 	
-	/** 
-	 * The maximum number of elements for the <code>Experiment type</code>
-	 * enumeration.
-	 */
-	private static final int MAX_EXPERIMENT_TYPE = 17;
-	
 	/**
      * Tests if the objects returned are of the specified type.
      * 
@@ -309,7 +302,7 @@ public class PixelsServiceTest
     	checkEnumeration(DimensionOrder.class.getName(), MAX_DIMENSION_ORDER);
     	checkEnumeration(MicrobeamManipulationType.class.getName(), 
     			MAX_MICROBEAM_MANIPULATION_TYPE);
-    	checkEnumeration(ExperimentType.class.getName(), MAX_EXPERIMENT_TYPE);
+    	
     	//for rendering engine
     	checkEnumeration(Family.class.getName(), MAX_FAMILY);
     	checkEnumeration(PixelsType.class.getName(), MAX_PIXELS_TYPE);
