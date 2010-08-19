@@ -77,9 +77,13 @@ def uploadImageToDataset(services, localImage, dataset=None, description="", ima
     em = EMData()
     em.read_image(localImage)
     
-    plane2Dlist = EMNumPy.em2numpy(em)
+    npArray = EMNumPy.em2numpy(em)
+    if len(npArray.shape) < 3:
+        plane2Dlist = [npArray]
+    else:
+        plane2Dlist = npArray
     
-    pType = plane2Dlist.dtype.name
+    pType = npArray.dtype.name
     pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
     
     if pixelsType == None and pType.startswith("float"):
