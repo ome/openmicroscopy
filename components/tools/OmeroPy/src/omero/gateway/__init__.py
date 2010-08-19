@@ -1327,6 +1327,15 @@ class _BlitzGateway (object):
         
         return self._proxies['metadata']
     
+    def getScriptService (self):
+        """
+        Gets script service.
+        
+        @return:    omero.gateway.ProxyObjectWrapper
+        """
+        
+        return self._proxies['script']
+        
     def createRawFileStore (self):
         """
         Creates a new raw file store.
@@ -2406,6 +2415,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
         target.linkAnnotation(this)
 
     def getNs (self):
+        if self._obj.ns == None: return
         return self._obj.ns.val
 
     def setNs (self, val):
