@@ -306,8 +306,6 @@ public class PixelsServiceTest
     	checkEnumeration(ArcType.class.getName(), MAX_ARC_TYPE);
     	checkEnumeration(FilamentType.class.getName(), MAX_FILAMENT_TYPE);
     	checkEnumeration(Format.class.getName(), MAX_FORMAT);
-    	
-
     	checkEnumeration(DimensionOrder.class.getName(), MAX_DIMENSION_ORDER);
     	checkEnumeration(MicrobeamManipulationType.class.getName(), 
     			MAX_MICROBEAM_MANIPULATION_TYPE);
