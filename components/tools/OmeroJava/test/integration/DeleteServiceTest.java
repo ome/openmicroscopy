@@ -21,9 +21,16 @@ import org.testng.annotations.Test;
 import omero.api.IDeletePrx;
 import omero.api.IRenderingSettingsPrx;
 import omero.model.Channel;
+import omero.model.Detector;
+import omero.model.Dichroic;
+import omero.model.FilterSet;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.Instrument;
+import omero.model.Laser;
 import omero.model.LogicalChannel;
+import omero.model.OTF;
+import omero.model.Objective;
 import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.StatsInfo;
@@ -257,7 +264,8 @@ public class DeleteServiceTest
     }
     
     /**
-     * Test to delete an image with rendering settings.
+     * Test to delete an image with annotations that cannot be shared
+     * e.g. boolean, comments.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -265,6 +273,104 @@ public class DeleteServiceTest
     	throws Exception
     {
     	
+    }
+    
+    /**
+     * Test to delete an image with acquisition data.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteImageWithAcquisitionData() 
+    	throws Exception
+    {
+    	Image img = createImage();
+    	Pixels pixels = img.getPrimaryPixels();
+    	long pixId = pixels.getId().getValue();
+    	//method already tested in PixelsServiceTest
+    	//make sure objects are loaded.
+    	pixels = factory.getPixelsService().retrievePixDescription(pixId);
+    	//create an instrument.
+    	Instrument instrument = createInstrument(LASER);
+    	instrument = (Instrument) iUpdate.saveAndReturnObject(instrument);
+    	assertNotNull(instrument);
+    	//retrieve the elements we need for the settings.
+    	//retrieve the detector.
+    	ParametersI param = new ParametersI();
+    	param.addLong("iid", instrument.getId().getValue());
+    	String sql = "select d from Detector as d where d.instrument.id = :iid";
+    	Detector detector = (Detector) iQuery.findByQuery(sql, param);
+    	sql = "select d from FilterSet as d where d.instrument.id = :iid";
+    	FilterSet filterSet = (FilterSet) iQuery.findByQuery(sql, param);
+    	sql = "select d from Laser as d where d.instrument.id = :iid";
+    	Laser laser = (Laser) iQuery.findByQuery(sql, param);
+    	sql = "select d from Dichroic as d where d.instrument.id = :iid";
+    	Dichroic dichroic = (Dichroic) iQuery.findByQuery(sql, param);
+    	sql = "select d from OTF as d where d.instrument.id = :iid";
+    	OTF otf = (OTF) iQuery.findByQuery(sql, param);
+    	sql = "select d from Objective as d where d.instrument.id = :iid";
+    	Objective objective = (Objective) iQuery.findByQuery(sql, param);
+    	LogicalChannel lc;
+    	Channel channel;
+    	List<Long> ids = new ArrayList<Long>();
+    	long detectorSettingsID = 0;
+    	long lightSourceSettingsID = 0;
+    	long ligthPathID = 0;
+    	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
+			channel = pixels.getChannel(i);
+			lc = channel.getLogicalChannel();
+			lc.setOtf(otf);
+	    	lc.setDetectorSettings(createDetectorSettings(detector));
+	    	lc.setFilterSet(filterSet);
+	    	lc.setLightSourceSettings(createLightSettings(laser));
+	    	lc.setLightPath(createLightPath(null, dichroic, null));
+	    	lc = (LogicalChannel) iUpdate.saveAndReturnObject(lc);
+	    	assertNotNull(lc);
+	    	ids.add(lc.getId().getValue());
+	    	detectorSettingsID = lc.getDetectorSettings().getId().getValue();
+	    	lightSourceSettingsID = 
+	    		lc.getLightSourceSettings().getId().getValue();
+	    	ligthPathID = lc.getLightPath().getId().getValue();
+		}
+    	
+    	//Now we try to delete the image.
+    	iDelete.deleteImage(img.getId().getValue(), true);
+    	/*
+    	//Now check if the settings are still there.
+    	param = new ParametersI();
+    	param.addId(detectorSettingsID);
+    	sql = "select d from DetectorSettings as d where d.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	param.addId(lightSourceSettingsID);
+    	sql = "select d from LightSourceSettings as d where d.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	param.addId(ligthPathID);
+    	sql = "select d from LightPath as d where d.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	
+    	//instrument
+    	param.addId(instrument.getId().getValue());
+    	sql = "select d from Instrument as d where d.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	param.addId(detector.getId().getValue());
+    	sql = "select d from Detector as d where d.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	
+    	param.addId(otf.getId().getValue());
+    	sql = "select d from OTF as d where d.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	param.addId(objective.getId().getValue());
+    	sql = "select d from Objective as d where d.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	param.addId(dichroic.getId().getValue());
+    	sql = "select d from Dichroic as d where d.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	param.addId(filterSet.getId().getValue());
+    	sql = "select d from FilterSet as d where d.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	param.addId(laser.getId().getValue());
+    	sql = "select d from Laser as d where d.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	*/
     }
     
 }

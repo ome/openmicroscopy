@@ -140,10 +140,11 @@ public class UpdateServiceTest
      * Test to create an image and make sure the version is correct.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(groups = { "versions", "broken" })
+    @Test(groups = { "versions"})
     public void testVersionHandling() 
     	throws Exception
     {
+    	//, "broken" 
         Image img = simpleImage(0);
         img.setName(rstring("version handling"));
         Image sent = (Image) iUpdate.saveAndReturnObject(img);
@@ -283,7 +284,7 @@ public class UpdateServiceTest
      * Test to make sure that the version does not increase after an update.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(groups = { "versions", "broken", "ticket:118" })
+    @Test(groups = { "versions", "ticket:118" })
     public void tesVersionNotIncreasingAfterUpdate()
             throws Exception 
     {
@@ -322,7 +323,7 @@ public class UpdateServiceTest
      * not modified.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(groups = { "versions", "broken", "ticket:118" })
+    @Test(groups = { "versions", "ticket:118" })
     public void testVersionNotIncreasingOnUnmodifiedObject() 
     	throws Exception 
     {
@@ -338,7 +339,6 @@ public class UpdateServiceTest
 
         assertTrue(img.getVersion().equals(test.getVersion()));
     }
-    
 
     /**
      * Tests the creation of a project without datasets.
@@ -397,6 +397,7 @@ public class UpdateServiceTest
      * Tests the creation of an image with a set of pixels.
      * @throws Exception Thrown if an error occurred.
      */
+    @Test
     public void testCreateImageWithPixels()
     	throws Exception 
     {
@@ -569,11 +570,12 @@ public class UpdateServiceTest
      * Test to unlink projects and datasets from just one side.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(groups = { "broken", "ticket:541" })
+    @Test(groups = { "ticket:541" })
     public void testUnlinkProjectAndDatasetFromJustOneSide() 
     	throws Exception 
     {
     	/*
+    	 *broken
         Image img = saveImage(true);
         DatasetImageLink link = img.copyDatasetLinks().get(0);
         img.removeDatasetImageLinkFromBoth(link, false);
@@ -587,14 +589,13 @@ public class UpdateServiceTest
         assertNull(test);
         */
     }
-    
 
     /**
      * Test to unlink datasets and images.
      * 
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(groups = { "broken", "ticket:541" })
+    @Test(groups = { "ticket:541" })
     public void testUnlinkDatasetAndImage() 
     	throws Exception
     {
@@ -651,7 +652,7 @@ public class UpdateServiceTest
      * Test to unlink datasets and images from just one side.
      * @throws Exception
      */
-    @Test(groups = { "broken", "ticket:541" })
+    @Test(groups = { "ticket:541" })
     public void testUnlinkDatasetAndImageFromJustOneSide() 
     	throws Exception 
     {
@@ -790,6 +791,7 @@ public class UpdateServiceTest
      * Tests to create a comment annotation and link it to various objects.
      * @throws Exception Thrown if an error occurred.
      */
+    @Test
     public void testCreateCommentAnnotation()
     	throws Exception 
     {
@@ -805,6 +807,7 @@ public class UpdateServiceTest
      * Tests to create a tag annotation and link it to various objects.
      * @throws Exception Thrown if an error occurred.
      */
+    @Test
     public void testCreateTagAnnotation()
     	throws Exception 
     {
@@ -820,6 +823,7 @@ public class UpdateServiceTest
      * Tests to create a boolean annotation and link it to various objects.
      * @throws Exception Thrown if an error occurred.
      */
+    @Test
     public void testCreateBooleanAnnotation()
     	throws Exception 
     {
@@ -835,6 +839,7 @@ public class UpdateServiceTest
      * Tests to create a long annotation and link it to various objects.
      * @throws Exception Thrown if an error occurred.
      */
+    @Test
     public void testCreateLongAnnotation()
     	throws Exception 
     {
@@ -850,6 +855,7 @@ public class UpdateServiceTest
      * Tests to create a file annotation and link it to various objects.
      * @throws Exception Thrown if an error occurred.
      */
+    @Test
     public void testCreateFileAnnotation()
     	throws Exception 
     {
@@ -868,6 +874,7 @@ public class UpdateServiceTest
      * This method uses the <code>deleteObject</code> method.
      * @throws Exception Thrown if an error occurred.
      */
+    @Test
     public void testRemoveAnnotation()
     	throws Exception 
     {

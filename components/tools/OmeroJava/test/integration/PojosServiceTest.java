@@ -554,7 +554,7 @@ public class PojosServiceTest
      * Test to update an uploaded object using the <code>Pojo</code> object.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(groups = { "version", "broken" })
+    @Test(groups = { "version"})
     public void testUnloadedDataset() 
     	throws Exception 
     {

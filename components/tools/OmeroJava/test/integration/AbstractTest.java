@@ -89,6 +89,8 @@ import omero.model.MicrobeamManipulationI;
 import omero.model.MicrobeamManipulationType;
 import omero.model.MicroscopeI;
 import omero.model.MicroscopeType;
+import omero.model.OTF;
+import omero.model.OTFI;
 import omero.model.Objective;
 import omero.model.ObjectiveI;
 import omero.model.ObjectiveSettings;
@@ -277,6 +279,7 @@ public class AbstractTest
      * Creates and returns an original file object.
      * 
      * @return See above.
+     * @throws Exception Thrown if an error occurred.
      */
     protected OriginalFileI createOriginalFile()
     	throws Exception
@@ -295,6 +298,7 @@ public class AbstractTest
      * This will have to be linked to an instrument.
      * 
      * @return See above.
+     * @throws Exception Thrown if an error occurred.
      */
     protected Detector createDetector()
     	throws Exception
@@ -315,12 +319,39 @@ public class AbstractTest
     }
     
     /**
+     * Creates an Optical Transfer Function object.
+     * 
+     * @param filterSet The filter set linked to it.
+     * @param objective The objective linked to it.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected OTF createOTF(FilterSet filterSet, Objective objective)
+    	throws Exception
+    {
+    	IPixelsPrx svc = factory.getPixelsService();
+    	//already tested see PixelsService enumeration.
+    	List<IObject> types = svc.getAllEnumerations(
+    			PixelsType.class.getName());
+    	OTF otf = new OTFI();
+    	otf.setFilterSet(filterSet);
+    	otf.setObjective(objective);
+    	otf.setPath(omero.rtypes.rstring("/OMERO"));
+    	otf.setOpticalAxisAveraged(omero.rtypes.rbool(true));
+    	otf.setPixelsType((PixelsType) types.get(0));
+    	otf.setSizeX(omero.rtypes.rint(10));
+    	otf.setSizeY(omero.rtypes.rint(10));
+    	return otf;
+    }
+    
+    /**
      * Creates and returns a filter. 
      * This will have to be linked to an instrument.
      * 
      * @param cutIn The cut in value.
      * @param cutOut The cut out value.
      * @return See above.
+     * @throws Exception Thrown if an error occurred.
      */
     protected Filter createFilter(int cutIn, int cutOut)
     	throws Exception
@@ -359,8 +390,9 @@ public class AbstractTest
     /**
      * Creates and returns a dichroic. 
      * This will have to be linked to an instrument.
-
+     * 
      * @return See above.
+     * @throws Exception Thrown if an error occurred.
      */
     protected Dichroic createDichroic()
     	throws Exception
@@ -375,8 +407,9 @@ public class AbstractTest
     /**
      * Creates and returns an objective. 
      * This will have to be linked to an instrument.
-
+     * 
      * @return See above.
+     * @throws Exception Thrown if an error occurred.
      */
     protected Objective createObjective()
     	throws Exception
@@ -408,6 +441,7 @@ public class AbstractTest
      * 
      * @param objective The objective to link the settings to.
      * @return See above.
+     * @throws Exception Thrown if an error occurred.
      */
     protected ObjectiveSettings createObjectiveSettings(Objective objective)
     	throws Exception
@@ -429,6 +463,7 @@ public class AbstractTest
      * 
      * @param detector The detector to link the settings to.
      * @return See above.
+     * @throws Exception Thrown if an error occurred.
      */
     protected DetectorSettings createDetectorSettings(Detector detector)
     	throws Exception
@@ -452,6 +487,7 @@ public class AbstractTest
      * 
      * @param light The light to link the settings to.
      * @return See above.
+     * @throws Exception Thrown if an error occurred.
      */
     protected LightSettings createLightSettings(LightSource light)
     	throws Exception
@@ -481,7 +517,8 @@ public class AbstractTest
      * @param emissionFilter The emission filter or <code>null</code>.
      * @param dichroic       The dichroic or <code>null</code>.
      * @param excitationFilter The excitation filter or <code>null</code>.
-     * @return
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
      */
     protected LightPath createLightPath(Filter emissionFilter, 
     		Dichroic dichroic, Filter excitationFilter)
@@ -496,6 +533,7 @@ public class AbstractTest
      * This will have to be linked to an instrument.
      * 
      * @return See above.
+     * @throws Exception Thrown if an error occurred.
      */
     protected Filament createFilament()
     	throws Exception
@@ -517,6 +555,7 @@ public class AbstractTest
      * This will have to be linked to an instrument.
      * 
      * @return See above.
+     * @throws Exception Thrown if an error occurred.
      */
     protected Arc createArc()
     	throws Exception
@@ -537,6 +576,7 @@ public class AbstractTest
      * This will have to be linked to an instrument.
      * 
      * @return See above.
+     * @throws Exception Thrown if an error occurred.
      */
     protected LightEmittingDiode createLightEmittingDiode()
     	throws Exception
@@ -557,6 +597,7 @@ public class AbstractTest
      * This will have to be linked to an instrument.
      * 
      * @return See above.
+     * @throws Exception Thrown if an error occurred.
      */
     protected Laser createLaser()
     	throws Exception
@@ -588,6 +629,7 @@ public class AbstractTest
      * Creates and returns an instrument. 
      * 
      * @return See above.
+     * @throws Exception Thrown if an error occurred.
      */
     protected Instrument createInstrument()
     	throws Exception
@@ -611,6 +653,7 @@ public class AbstractTest
      * 
      * @param light The type of light source.
      * @return See above.
+     * @throws Exception Thrown if an error occurred.
      */
     protected Instrument createInstrument(String light)
     	throws Exception
@@ -619,8 +662,11 @@ public class AbstractTest
     	instrument.addDetector(createDetector());
     	instrument.addFilter(createFilter(500, 560));
     	instrument.addDichroic(createDichroic());
-    	instrument.addObjective(createObjective());
-    	instrument.addFilterSet(createFilterSet());
+    	Objective objective = createObjective();
+    	FilterSet filterSet = createFilterSet();
+    	instrument.addObjective(objective);
+    	instrument.addFilterSet(filterSet);
+    	instrument.addOTF(createOTF(filterSet, objective));
     	if (LASER.equals(light))
     		instrument.addLightSource(createLaser());
     	else if (FILAMENT.equals(light))
