@@ -2881,7 +2881,10 @@ class _ImageWrapper (BlitzObjectWrapper):
         if self is not None:
             for a in self.listAnnotations():
                 if isinstance(a._obj, FileAnnotationI) and a.isOriginalMetadata():
-                    temp_file = a.getFile().split('\n')
+                    t_file = list()
+                    for piece in a.getFileInChunks():
+                        t_file.append(piece)
+                    temp_file = "".join(t_file).split('\n')
                     flag = None
                     for l in temp_file:
                         if l.startswith("[GlobalMetadata]"):
