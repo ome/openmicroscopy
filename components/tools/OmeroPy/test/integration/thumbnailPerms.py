@@ -233,7 +233,9 @@ class TestThumbnailPerms(lib.ITest):
         #gateway = session.createGateway()
         thumbnailStore = session.createThumbnailStore()
     
-        image = session.getQueryService().get("Image", imageId)
+        image = session.getQueryService().findByQuery(
+            "select i from Image as i " \
+            "join fetch i.pixels where i.id = '%d'" % imageId)
         if image is None:
             return None
         pId = image.getPrimaryPixels().getId().getValue()
