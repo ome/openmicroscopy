@@ -12,7 +12,7 @@ logger = logging.getLogger('webmobilewebmobile')
 
 
 def viewer(request, imageId):
-    conn = getBlitzConnection (request)
+    conn = getBlitzConnection (request, useragent="OMERO.webmobile")
     if conn is None or not conn.isConnected():
         return HttpResponseRedirect(reverse('webmobile_login'))
         
@@ -24,7 +24,7 @@ def viewer(request, imageId):
 
 
 def dataset(request, id):
-    conn = getBlitzConnection (request)
+    conn = getBlitzConnection (request, useragent="OMERO.webmobile")
     if conn is None or not conn.isConnected():
         return HttpResponseRedirect(reverse('webmobile_login'))
         
@@ -39,7 +39,7 @@ def login (request):
         request.session['host'] = blitz.host
         request.session['port'] = blitz.port
     
-    conn = getBlitzConnection (request)
+    conn = getBlitzConnection (request, useragent="OMERO.webmobile")
     logger.debug(conn)
     if conn is not None:
         return HttpResponseRedirect(reverse('webmobile_index'))
@@ -60,7 +60,7 @@ def logout (request):
 
 
 def index (request):
-    conn = getBlitzConnection (request)
+    conn = getBlitzConnection (request, useragent="OMERO.webmobile")
     if conn is None or not conn.isConnected():
         return HttpResponseRedirect(reverse('webmobile_login'))
 
@@ -70,7 +70,7 @@ def index (request):
 def image_viewer (request, iid, **kwargs):
     """ This view is responsible for showing pixel data as images """
     
-    conn = getBlitzConnection (request)
+    conn = getBlitzConnection (request, useragent="OMERO.webmobile")
     if conn is None or not conn.isConnected():
         return HttpResponseRedirect(reverse('webmobile_login'))
     

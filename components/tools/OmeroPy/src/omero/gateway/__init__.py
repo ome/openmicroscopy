@@ -716,7 +716,7 @@ class _BlitzGateway (object):
     ICE_CONFIG = None#os.path.join(p,'etc/ice.config')
 #    def __init__ (self, username, passwd, server, port, client_obj=None, group=None, clone=False):
     
-    def __init__ (self, username=None, passwd=None, client_obj=None, group=None, clone=False, try_super=False, host=None, port=None, extra_config=[], secure=False):
+    def __init__ (self, username=None, passwd=None, client_obj=None, group=None, clone=False, try_super=False, host=None, port=None, extra_config=[], secure=False, useragent=None):
         """
         TODO: Constructor
         
@@ -744,7 +744,8 @@ class _BlitzGateway (object):
         self.host = host
         self.port = port
         self.secure = secure
-
+        self.useragent = useragent
+        
         self._resetOmeroClient()
         if not username:
             username = self.c.ic.getProperties().getProperty('omero.gateway.anon_user')
@@ -1018,8 +1019,11 @@ class _BlitzGateway (object):
             self.c = omero.client(pmap=['--Ice.Config='+','.join(self.ice_config)])
 
         if hasattr(self.c, "setAgent"):
-            self.c.setAgent("OMERO.py.gateway")
-
+            if self.useragent is not None:
+                self.c.setAgent(self.useragent)
+            else:
+                self.c.setAgent("OMERO.py.gateway")
+                
     def connect (self, sUuid=None):
         """
         Creates or retrieves connection for the given sessionUuid.

@@ -102,9 +102,9 @@ class UserProxy (object):
 #        self._log('close',c)
 #_session_cb = SessionCB()
 
-def _createConnection (server_id, sUuid=None, username=None, passwd=None, host=None, port=None, retry=True, group=None, try_super=False, secure=False):
+def _createConnection (server_id, sUuid=None, username=None, passwd=None, host=None, port=None, retry=True, group=None, try_super=False, secure=False, useragent=None):
     try:
-        blitzcon = client_wrapper(username, passwd, host=host, port=port, group=None, try_super=try_super, secure=secure)
+        blitzcon = client_wrapper(username, passwd, host=host, port=port, group=None, try_super=try_super, secure=secure, useragent=useragent)
         blitzcon.connect(sUuid=sUuid)
         blitzcon.server_id = server_id
         blitzcon.user = UserProxy(blitzcon)
@@ -121,7 +121,7 @@ def _createConnection (server_id, sUuid=None, username=None, passwd=None, host=N
         logger.error("Critical error during connect, retrying after _purge")
         logger.debug(traceback.format_exc())
         _purge(force=True)
-        return _createConnection(server_id, sUuid, username, passwd, retry=False, host=host, port=port, group=None, try_super=try_super)
+        return _createConnection(server_id, sUuid, username, passwd, retry=False, host=host, port=port, group=None, try_super=try_super, useragent=useragent)
 
 def _purge (force=False):
     if force or len(connectors) > CONNECTOR_POOL_SIZE:
@@ -135,7 +135,7 @@ def _purge (force=False):
         logger.info('reached connector_pool_size (%d), size after purge: (%d)' %
                     (CONNECTOR_POOL_SIZE, len(connectors)))
 
-def getBlitzConnection (request, server_id=None, with_session=False, retry=True, force_key=None, group=None, try_super=False):
+def getBlitzConnection (request, server_id=None, with_session=False, retry=True, force_key=None, group=None, try_super=False, useragent=None):
     """
     Grab a connection to the Ice server, trying hard to reuse connections as possible.
     A per-process dictionary of StoredConnection based connections (key = "C:$base") is kept.
@@ -220,12 +220,12 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
             sUuid = request.session.get(browsersession_connection_key, None)
         blitzcon = _createConnection(server_id, sUuid=sUuid,
                                      username=username, passwd=passwd,
-                                     host=host, port=port, group=group, try_super=try_super, secure=secure)
+                                     host=host, port=port, group=group, try_super=try_super, secure=secure, useragent=useragent)
         if blitzcon is None:
             if not retry or username:
                 logger.debug('connection failed with provided login information, bail out')
                 return None
-            return getBlitzConnection(request, server_id, with_session, retry=False, group=group, try_super=try_super)
+            return getBlitzConnection(request, server_id, with_session, retry=False, group=group, try_super=try_super, useragent=useragent)
         else:
             logger.debug('created new connection %s' % str(blitzcon))
             if not blitzcon.isConnected():
@@ -237,7 +237,7 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
                 logger.debug('Failed connection, logging out')
                 _session_logout(request, server_id)
                 return blitzcon
-                #return getBlitzConnection(request, server_id, with_session, force_anon=True, skip_stored=skip_stored)
+                #return getBlitzConnection(request, server_id, with_session, force_anon=True, skip_stored=skip_stored, useragent=useragent)
             else:
                 ####
                 # Success, new connection created
@@ -261,17 +261,17 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
         logger.info("Failed keepalive")
         _session_logout(request, server_id)
         return blitzcon
-        #return getBlitzConnection(request, server_id, with_session, force_anon=True, skip_stored=skip_stored)
+        #return getBlitzConnection(request, server_id, with_session, force_anon=True, skip_stored=skip_stored, useragent=useragent)
     if blitzcon and ckey.startswith('C:') and not blitzcon.isConnected():
         logger.info("Something killed the base connection, recreating")
         del connectors[ckey]
         return None
-        #return getBlitzConnection(request, server_id, with_session, force_anon=True, skip_stored=skip_stored)
+        #return getBlitzConnection(request, server_id, with_session, force_anon=True, skip_stored=skip_stored, useragent=useragent)
     if r.has_key('logout') and not ckey.startswith('C:'):
         logger.debug('logout required by HTTP GET or POST : killing current connection')
         _session_logout(request, server_id)
         return None
-        #return getBlitzConnection(request, server_id, with_session, force_anon=True, skip_stored=skip_stored)
+        #return getBlitzConnection(request, server_id, with_session, force_anon=True, skip_stored=skip_stored, useragent=useragent)
 #    # After keepalive the user session may have been replaced with an 'anonymous' one...
 #    if not force_key and blitzcon and request.session.get(browsersession_connection_key, None) != blitzcon._sessionUuid:
 #        logger.debug('Cleaning the user proxy %s!=%s' % (str(request.session.get(browsersession_connection_key, None)), str(blitzcon._sessionUuid)))
@@ -354,7 +354,7 @@ def render_thumbnail (request, iid, server_id=None, w=None, h=None, **kwargs):
             size = (int(w), int(h))
     jpeg_data = webgateway_cache.getThumb(request, server_id, iid, size)
     if jpeg_data is None:
-        blitzcon = getBlitzConnection(request, server_id)
+        blitzcon = getBlitzConnection(request, server_id, useragent="OMERO.webgateway")
         if blitzcon is None or not blitzcon.isConnected():
             logger.debug("failed connect, HTTP404")
             raise Http404
@@ -379,10 +379,10 @@ def _get_prepared_image (request, iid, server_id=None, _conn=None, with_session=
     """
     r = request.REQUEST
     if _conn is None:
-        _conn = getBlitzConnection(request, server_id=server_id, with_session=with_session)
+        _conn = getBlitzConnection(request, server_id=server_id, with_session=with_session, useragent="OMERO.webgateway")
     if _conn is None or not _conn.isConnected():
         return HttpResponseServerError('""', mimetype='application/javascript')
-    #blitzcon = getBlitzConnection(request, server_id=server_id,with_session=with_session)
+    #blitzcon = getBlitzConnection(request, server_id=server_id,with_session=with_session, useragent="OMERO.webgateway")
     if _conn is None or not _conn.isConnected():
         return None
     img = _conn.getImage(iid)
@@ -466,7 +466,7 @@ def jsonp (f):
             kwargs['server_id'] = server_id
             _conn = kwargs.get('_conn', None)
             if _conn is None:
-                blitzcon = getBlitzConnection(request, server_id)
+                blitzcon = getBlitzConnection(request, server_id, useragent="OMERO.webgateway")
                 kwargs['_conn'] = blitzcon
             if kwargs['_conn'] is None or not kwargs['_conn'].isConnected():
                 return HttpResponseServerError('"failed connection"', mimetype='application/javascript')
@@ -760,7 +760,7 @@ def list_compatible_imgs_json (request, server_id, iid, _conn=None, **kwargs):
     json_data = 'false'
     r = request.REQUEST
     if _conn is None:
-        blitzcon = getBlitzConnection(request, server_id, with_session=True)
+        blitzcon = getBlitzConnection(request, server_id, with_session=True, useragent="OMERO.webgateway")
     else:
         blitzcon = _conn
     if blitzcon is None or not blitzcon.isConnected():
@@ -811,7 +811,7 @@ def copy_image_rdef_json (request, server_id, _conn=None, **kwargs):
         fromid = None
     if fromid is not None and len(toids) > 0:
         if _conn is None:
-            blitzcon = getBlitzConnection(request, server_id, with_session=True)
+            blitzcon = getBlitzConnection(request, server_id, with_session=True, useragent="OMERO.webgateway")
         else:
             blitzcon = _conn
 
@@ -849,7 +849,7 @@ def copy_image_rdef_json (request, server_id, _conn=None, **kwargs):
 def reset_image_rdef_json (request, server_id, iid, _conn=None, **kwargs):
     """ Try to remove all rendering defs the logged in user has for this image. """
     if _conn is None:
-        blitzcon = getBlitzConnection(request, server_id, with_session=True)
+        blitzcon = getBlitzConnection(request, server_id, with_session=True, useragent="OMERO.webgateway")
     else:
         blitzcon = _conn
     r = request.REQUEST
@@ -879,7 +879,7 @@ def full_viewer (request, iid, server_id=None, _conn=None, **kwargs):
     rid = getImgDetailsFromReq(request)
     try:
         if _conn is None:
-            _conn = getBlitzConnection(request, server_id=server_id)
+            _conn = getBlitzConnection(request, server_id=server_id, useragent="OMERO.webgateway")
         if _conn is None or not _conn.isConnected():
             raise Http404
         image = _conn.getImage(iid)

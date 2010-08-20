@@ -104,7 +104,7 @@ logger.info("INIT '%s'" % os.getpid())
 def getShareConnection (request, share_id):
     browsersession_key = request.session.session_key
     share_conn_key = "S:%s#%s#%s" % (browsersession_key, request.session.get('server'), share_id)
-    share = getBlitzConnection(request, force_key=share_conn_key)
+    share = getBlitzConnection(request, force_key=share_conn_key, useragent="OMERO.web")
     share.attachToShare(share_id)
     request.session['shares'][share_id] = share._sessionUuid
     request.session.modified = True
@@ -153,7 +153,7 @@ def isUserConnected (f):
         
         conn = None
         try:
-            conn = getBlitzConnection(request)
+            conn = getBlitzConnection(request, useragent="OMERO.web")
         except KeyError:
             return HttpResponseRedirect(reverse("weblogin")+(("?url=%s") % (url)))
         except Exception, x:
@@ -242,7 +242,7 @@ def login(request):
     
     conn = None
     try:
-        conn = getBlitzConnection(request)
+        conn = getBlitzConnection(request, useragent="OMERO.web")
     except Exception, x:
         error = x.__class__.__name__
     

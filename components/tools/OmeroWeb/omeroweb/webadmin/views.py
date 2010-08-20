@@ -84,7 +84,7 @@ def getGuestConnection(host, port):
     guest = "guest"
     try:
         # do not store connection on connectors
-        conn = _createConnection('', host=host, port=port, username=guest, passwd=guest, secure=True)
+        conn = _createConnection('', host=host, port=port, username=guest, passwd=guest, secure=True, useragent="OMERO.web")
         if conn is not None:
             logger.info("Have connection as Guest")
         else:
@@ -130,7 +130,7 @@ def isAdminConnected (f):
         
         conn = None
         try:
-            conn = getBlitzConnection(request)
+            conn = getBlitzConnection(request, useragent="OMERO.webadmin")
         except KeyError:
             return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))
         except Exception, x:
@@ -158,7 +158,7 @@ def isOwnerConnected (f):
         
         conn = None
         try:
-            conn = getBlitzConnection(request)
+            conn = getBlitzConnection(request, useragent="OMERO.webadmin")
         except KeyError:
             return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))
         except Exception, x:
@@ -190,7 +190,7 @@ def isUserConnected (f):
         
         conn = None
         try:
-            conn = getBlitzConnection(request)
+            conn = getBlitzConnection(request, useragent="OMERO.webadmin")
         except KeyError:
             return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))
         except Exception, x:
@@ -298,7 +298,7 @@ def login(request):
     
     conn = None
     try:
-        conn = getBlitzConnection(request)
+        conn = getBlitzConnection(request, useragent="OMERO.webadmin")
     except Exception, x:
         logger.error(traceback.format_exc())
         error = str(x)

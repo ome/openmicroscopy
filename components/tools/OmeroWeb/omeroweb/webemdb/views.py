@@ -541,7 +541,7 @@ def getEntriesByPub (request, publicationId):
 def getConnection(request):
     print request.session.session_key
     #emdb_conn_key = "S:emdb#%s" % (request.session.get('server'))
-    conn = getBlitzConnection(request)    
+    conn = getBlitzConnection(request, useragent="OMERO.webemdb")    
     if conn is None or not conn.isConnected() and request.REQUEST['server']:
         blitz = settings.SERVER_LIST.get(pk=1)
         request.session['server'] = blitz.id
@@ -551,7 +551,7 @@ def getConnection(request):
         request.session['username'] = "emdb"
         #request.session['server'] = 'localhost'
         request.session.modified = True
-        conn = getBlitzConnection (request)
+        conn = getBlitzConnection (request, useragent="OMERO.webemdb")
     logger.debug('emdb connection: %s' % (conn._sessionUuid))
     print type(conn), conn._sessionUuid #, emdb_conn_key
     return conn
@@ -559,7 +559,7 @@ def getConnection(request):
 def image_viewer (request, iid, **kwargs):
     """ This view is responsible for showing pixel data as images """
     
-    conn = getBlitzConnection (request)
+    conn = getBlitzConnection (request, useragent="OMERO.webemdb")
     if conn is None or not conn.isConnected():
         return HttpResponseRedirect(reverse('webemdb_login'))
     
