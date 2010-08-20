@@ -65,7 +65,7 @@ public class MaskData
 		super(shape);
 	}
 	
-	/** Creates a new instance of MaskData, creating a new MaskI Object. */
+	/** Creates a new instance of MaskData. */
 	public MaskData()
 	{
 		this(0.0, 0.0, 0.0, 0.0, null);
@@ -74,10 +74,10 @@ public class MaskData
 	/**
 	 * Creates a new instance of the MaskData.
 	 *  
-	 * @param x x-coordinate of the shape.
-	 * @param y y-coordinate of the shape.
-	 * @param widht width of the shape.
-	 * @param height height of the shape.
+	 * @param x The x-coordinate of the top-left corner of the image.
+	 * @param y The y-coordinate of the top-left corner of the image.
+	 * @param widht The width of the image.
+	 * @param height The height of the image.
 	 * @param mask The mask image.
 	 */
 	public MaskData(double x, double y, double width, double height,
@@ -111,7 +111,7 @@ public class MaskData
 	 */
 	public void setText(String text)
 	{
-		if(isReadOnly())
+		if (isReadOnly())
 			throw new IllegalArgumentException("Shape ReadOnly");
 		Mask shape = (Mask) asIObject();
 		if (shape == null) 
@@ -120,7 +120,7 @@ public class MaskData
 	}
 	
 	/**
-	 * Returns the x-coordinate of the top left corner of the mask.
+	 * Returns the x-coordinate of the top-left corner of the mask.
 	 * 
 	 * @return See above.
 	 */
@@ -135,11 +135,11 @@ public class MaskData
 	/**
 	 * Sets the x-coordinate top-left corner of an untransformed mask.
 	 * 
-	 * @param x See above.
+	 * @param x The value to set.
 	 */
 	public void setX(double x)
 	{
-		if(isReadOnly())
+		if (isReadOnly())
 			throw new IllegalArgumentException("Shape ReadOnly");
 		Mask shape = (Mask) asIObject();
 		if (shape == null) 
@@ -148,7 +148,7 @@ public class MaskData
 	}
 	
 	/**
-	 * Returns the y-coordinate of the top left corner of the mask.
+	 * Returns the y-coordinate of the top-left corner of the mask.
 	 * 
 	 * @return See above.
 	 */

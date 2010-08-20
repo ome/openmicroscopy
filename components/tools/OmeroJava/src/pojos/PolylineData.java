@@ -131,7 +131,7 @@ public class PolylineData
 	 */
 	public List<Point2D.Double> getPoints()
 	{
-		String pts =  fromPoints("points");
+		String pts = fromPoints("points");
 		return parsePointsToPoint2DList(pts);
 	}
 	
@@ -142,7 +142,7 @@ public class PolylineData
 	 */
 	public List<Point2D.Double> getPoints1()
 	{
-		String pts =  fromPoints("points1");
+		String pts = fromPoints("points1");
 		return parsePointsToPoint2DList(pts);
 	}
 
@@ -164,34 +164,39 @@ public class PolylineData
 	 */
 	public List<Integer> getMaskPoints()
 	{
-		String pts =  fromPoints("mask");
+		String pts = fromPoints("mask");
 		return parsePointsToIntegerList(pts);
 	}
 	
 	/**
-	 * Set the points in the polyline.
+	 * Sets the points in the polyline.
 	 * 
+	 * @param points The points to set.
+	 * @param ponts1 The points to set.
+	 * @param ponts2 The points to set.
+	 * @param maskList The points to set.
 	 * @param points See above.
 	 */
-	public void setPoints(List<Point2D.Double> points, List<Point2D.Double> points1, 
+	public void setPoints(List<Point2D.Double> points, 
+			List<Point2D.Double> points1, 
 			List<Point2D.Double> points2, List<Integer> maskList)
 	{
-		if(isReadOnly())
+		if (isReadOnly())
 			throw new IllegalArgumentException("Shape ReadOnly");
 		Polyline shape = (Polyline) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		
-		String pointsValues=
+		String pointsValues =
 			toPoints(points.toArray(new Point2D.Double[points.size()]));
-		String points1Values=
+		String points1Values =
 			toPoints(points1.toArray(new Point2D.Double[points1.size()]));
-		String points2Values=
+		String points2Values =
 			toPoints(points2.toArray(new Point2D.Double[points2.size()]));
 		String maskValues = "";
-		for( int i = 0 ; i < maskList.size()-1; i++)
+		for (int i = 0 ; i < maskList.size()-1; i++)
 			maskValues = maskValues + maskList.get(i)+",";
-		if(maskList.size()!=0)
+		if (maskList.size()!=0)
 			maskValues = maskValues+maskList.get(maskList.size()-1)+"";
 		String pts = "points["+pointsValues+"] ";
 		pts = pts + "points1["+points1Values+"] ";

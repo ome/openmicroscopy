@@ -64,9 +64,7 @@ public class PolygonData
 		//parseShapeStringToPointsList();
 	}
 	
-	/**
-	 * Creates a new instance of PolygonData, creating a new PolygonI Object.
-	 */
+	/** Creates a new instance of PolygonData. */
 	public PolygonData()
 	{
 		this(new ArrayList<Point2D.Double>(), new ArrayList<Point2D.Double>(),
@@ -77,8 +75,12 @@ public class PolygonData
 	 * Creates a new instance of the PolygonData, set the points in the polygon.
 	 * 
 	 * @param points The points in the polygon.
+	 * @param points1 The points in the polygon.
+	 * @param points2 The points in the polygon.
+	 * @param maskList The points in the polygon.
 	 */
-	public PolygonData(List<Point2D.Double> points, List<Point2D.Double> points1, 
+	public PolygonData(List<Point2D.Double> points, 
+			List<Point2D.Double> points1, 
 			List<Point2D.Double> points2, List<Integer> maskList)
 	{
 		super(new PolygonI(), true);
@@ -158,9 +160,12 @@ public class PolygonData
 	}
 	
 	/**
-	 * Set the points in the polygon.
+	 * Sets the points in the polygon.
 	 * 
-	 * @param points See above.
+	 * @param points The points in the polygon.
+	 * @param points1 The points in the polygon.
+	 * @param points2 The points in the polygon.
+	 * @param maskList The points in the polygon.
 	 */
 	public void setPoints(List<Point2D.Double> points, 
 			List<Point2D.Double> points1, 
@@ -172,11 +177,11 @@ public class PolygonData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		
-		String pointsValues=
+		String pointsValues =
 			toPoints(points.toArray(new Point2D.Double[points.size()]));
-		String points1Values=
+		String points1Values =
 			toPoints(points1.toArray(new Point2D.Double[points1.size()]));
-		String points2Values=
+		String points2Values =
 			toPoints(points2.toArray(new Point2D.Double[points2.size()]));
 		String maskValues = "";
 		for (int i = 0 ; i < maskList.size()-1; i++)

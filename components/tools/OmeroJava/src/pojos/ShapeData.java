@@ -35,6 +35,7 @@ import java.util.StringTokenizer;
 import omero.rtypes;
 import omero.RInt;
 import omero.RString;
+import omero.model.IObject;
 import omero.model.Polygon;
 import omero.model.Polyline;
 import omero.model.Shape;
@@ -62,9 +63,26 @@ public abstract class ShapeData
 	/** The representation of the shape. */
 	protected ShapeSettingsData settings;
 	
-	/** Has this shape been created client side. */
+	/** Flag indicating that the shape been created client side. */
 	private boolean clientObject;
 
+	/**
+	 * Converts the passed collection of points.
+	 * 
+	 * @param pts  The points to convert.
+	 * @param type The value in the list to parse.
+	 * @return See above.
+	 */
+	private String convertPoints(String pts, String type)
+	{
+		if (pts.length() == 0) return "";
+		String exp = type+'[';
+		int typeStr = pts.indexOf(exp, 0);
+		int start = pts.indexOf('[', typeStr);
+		int end = pts.indexOf(']', start);
+		return pts.substring(start+1,end);
+	}
+	
 	/**
 	 * Parses out the type from the points string.
 	 * 
@@ -73,17 +91,15 @@ public abstract class ShapeData
 	 */
 	protected String fromPoints(String type)
 	{
-		Polygon shape = (Polygon) asIObject();
-		if (shape == null) 
-			throw new IllegalArgumentException("No shape specified.");
-		String pts = shape.getPoints().getValue();
-		if (pts.length() == 0)
-			return "";
-		String exp = type+'[';
-		int typeStr = pts.indexOf(exp, 0);
-		int start = pts.indexOf('[', typeStr);
-		int end = pts.indexOf(']', start);
-		return pts.substring(start+1,end);
+		IObject o = asIObject();
+		if (o instanceof Polygon) {
+			Polygon shape = (Polygon) asIObject();
+			return convertPoints(shape.getPoints().getValue(), type);
+		} else if (o instanceof Polyline) {
+			Polyline shape = (Polyline) asIObject();
+			return convertPoints(shape.getPoints().getValue(), type);
+		}
+		throw new IllegalArgumentException("No shape specified.");
 	}
 
 	/** 

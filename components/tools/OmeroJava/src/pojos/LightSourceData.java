@@ -37,13 +37,11 @@ import omero.model.Arc;
 import omero.model.ArcType;
 import omero.model.Filament;
 import omero.model.FilamentType;
-import omero.model.Filter;
 import omero.model.Laser;
 import omero.model.LaserMedium;
 import omero.model.LaserType;
 import omero.model.LightEmittingDiode;
 import omero.model.LightSource;
-import omero.model.LogicalChannel;
 import omero.model.Pulse;
 
 /** 
@@ -271,7 +269,6 @@ public class LightSourceData
 		if (value == null) return -1;
 		return value.getValue();
 	}
-	
 
 	/**
 	 * Returns the pulse of the laser.

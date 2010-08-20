@@ -62,7 +62,7 @@ public class EllipseData
 	}
 	
 	/**
-	 * Create a new instance of EllipseData, creating a new EllipseI Object.
+	 * Creates a new instance of EllipseData.
 	 */
 	public EllipseData()
 	{
@@ -70,12 +70,12 @@ public class EllipseData
 	}
 	
 	/**
-	 * Create a new instance of the EllipseData, set the centre and major, minor
-	 * axes.
-	 * @param cx Centre x.
-	 * @param cy Centre y.
-	 * @param rx Radius x.
-	 * @param ry Radius y.
+	 * Creates a new instance of the EllipseData.
+	 * 
+	 * @param cx The x-coordinate of the center of the Ellipse.
+	 * @param cy The y-coordinate of the center of the Ellipse.
+	 * @param rx The radius along the X-axis.
+	 * @param ry The radius along the Y-axis.
 	 */
 	public EllipseData(double cx, double cy, double rx, double ry)
 	{
@@ -106,7 +106,7 @@ public class EllipseData
 	 */
 	public void setText(String text)
 	{
-		if(isReadOnly())
+		if (isReadOnly())
 			throw new IllegalArgumentException("Shape ReadOnly");
 		Ellipse shape = (Ellipse) asIObject();
 		if (shape == null) 
@@ -129,13 +129,13 @@ public class EllipseData
 	}
 	
 	/**
-	 * Sets the x-coordinate of the centre of the ellipse.
+	 * Sets the x-coordinate of the center of the ellipse.
 	 * 
 	 * @param x See above.
 	 */
 	public void setX(double x)
 	{
-		if(isReadOnly())
+		if (isReadOnly())
 			throw new IllegalArgumentException("Shape ReadOnly");
 		Ellipse shape = (Ellipse) asIObject();
 		if (shape == null) 
@@ -144,9 +144,8 @@ public class EllipseData
 		setDirty(true);
 	}
 
-	
 	/**
-	 * Returns the x-coordinate of the center of the ellipse.
+	 * Returns the y-coordinate of the center of the ellipse.
 	 * 
 	 * @return See above.
 	 */
@@ -159,13 +158,13 @@ public class EllipseData
 	}
 	
 	/**
-	 * Sets the y-coordinate of the centre of the ellipse.
+	 * Sets the y-coordinate of the center of the ellipse.
 	 * 
 	 * @param y See above.
 	 */
 	public void setY(double y)
 	{
-		if(isReadOnly())
+		if (isReadOnly())
 			throw new IllegalArgumentException("Shape ReadOnly");
 		Ellipse shape = (Ellipse) asIObject();
 		if (shape == null) 
@@ -181,7 +180,7 @@ public class EllipseData
 	 */
 	public double getRadiusX()
 	{
-		if(isReadOnly())
+		if (isReadOnly())
 			throw new IllegalArgumentException("Shape ReadOnly");
 		Ellipse shape = (Ellipse) asIObject();
 		RDouble value = shape.getRx();
@@ -192,11 +191,11 @@ public class EllipseData
 	/**
 	 * Sets the radius along the X-axis.
 	 * 
-	 * @param x See above.
+	 * @param x the value to set.
 	 */
 	public void setRadiusX(double x)
 	{
-		if(isReadOnly())
+		if (isReadOnly())
 			throw new IllegalArgumentException("Shape ReadOnly");
 		Ellipse shape = (Ellipse) asIObject();
 		if (shape == null) 
@@ -221,11 +220,11 @@ public class EllipseData
 	/**
 	 * Sets the radius along the Y-axis.
 	 * 
-	 * @param y See above.
+	 * @param y The value to set.
 	 */
 	public void setRadiusY(double y)
 	{
-		if(isReadOnly())
+		if (isReadOnly())
 			throw new IllegalArgumentException("Shape ReadOnly");
 		Ellipse shape = (Ellipse) asIObject();
 		if (shape == null) 
