@@ -46,4 +46,5 @@ urlpatterns = patterns('',
     # urls for scripting service
     url( r'^script_form/(?P<scriptId>[0-9]+)/$', views.script_form, name='webemdb_script_form' ),
     url( r'^script_run/(?P<scriptId>[0-9]+)/$', views.script_run, name='webemdb_script_run' ),
+    url( r'^script_results/(?P<jobId>[0-9]+)/$', views.script_results, name='webemdb_script_results' ),
 )

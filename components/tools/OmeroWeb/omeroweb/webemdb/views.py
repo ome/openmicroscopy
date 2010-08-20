@@ -27,6 +27,8 @@ from django.core.servers.basehttp import FileWrapper
 from omero.sys import Parameters, Filter
 import omero.util.script_utils as scriptUtil
 
+# temp solution for job-ID : str(processor)
+jobMap = {}
 
 def eman(request, imageId, **kwargs):
     
@@ -142,10 +144,30 @@ def script_run(request, scriptId):
                 
     #print inputMap
     
-
-    client = conn.c
-   
     proc = scriptService.runScript(sId, inputMap, None)
+    
+    i = 0
+    while str(i) in jobMap:
+        i += 1
+    key = str(i)
+    jobMap[key] = str(proc)
+    
+    return render_to_response('webemdb/scripts/script_running.html', {'jobId': key})
+    
+    
+def script_results(request, jobId):
+    
+    if jobId not in jobMap:
+        return HttpResponse("Results not found (may have already been returned)")
+        
+    procString = jobMap[jobId]
+    del jobMap[jobId]   # delete this, since we cannot use it again to get the results
+    
+    conn = getConnection(request)
+    client = conn.c
+    
+    proc = omero.grid.ScriptProcessPrx.checkedCast(client.ic.stringToProxy(procString))
+    
     try:
         cb = omero.scripts.ProcessCallbackI(client, proc)
         while not cb.block(1000): # ms.
@@ -153,7 +175,7 @@ def script_run(request, scriptId):
         cb.close()
         results = proc.getResults(0)    # ms
     finally:
-        proc.close(False)
+        proc.close(False) 
     
     message = None
     # Handle the expected 'Message' in results. 
@@ -193,7 +215,7 @@ def script_run(request, scriptId):
     
     # html will give users links to any Image, stdout, stderr and any strings returned in results
     return render_to_response('webemdb/scripts/script_results.html', 
-            {'scriptName': scriptName, 'message': message, 'resultMap': resultMap, 'stdout': stdout, 'stderr': stderr})
+            {'message': message, 'resultMap': resultMap, 'stdout': stdout, 'stderr': stderr})
     
     
 def script_form(request, scriptId):

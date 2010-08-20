@@ -1,6 +1,6 @@
 {% extends "webemdb/base/base_main.html" %}
 
-{% block title %} Script '{{ scriptName }}' Completed {% endblock %}
+{% block title %} Script Completed {% endblock %}
 
 {% block link %}
 <style type="text/css">
@@ -52,7 +52,7 @@ $(document).ready(function() {
 {% block content %}
 <div class="pageTable">
     
-<h3>Script '{{ scriptName }}' Completed</h3>
+<h3>Script Completed</h3>
 
 {% if message %}
     <p>{{ message }}</p>
@@ -86,7 +86,6 @@ $(document).ready(function() {
     </div>
 {% endif %}
 
-<div class="clear"></div>
 
 {% if resultMap.strings %}
     <p>
@@ -95,6 +94,8 @@ $(document).ready(function() {
     {% endfor %}
     </p>
 {% endif %}
+
+<div class="clear"></div>
 
 </div>
 {% endblock %}
