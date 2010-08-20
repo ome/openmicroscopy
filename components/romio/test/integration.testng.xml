@@ -8,10 +8,10 @@
         <exclude name="broken"/>
         <exclude name="manual"/>
         <exclude name="ignore"/>
-      </run>        
+      </run>
     </groups>
     <packages>
-      <package name="ome.*"/>
+      <package name="ome.io.*"/>
     </packages>
   </test>
 
