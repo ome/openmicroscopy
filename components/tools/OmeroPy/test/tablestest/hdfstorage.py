@@ -198,7 +198,7 @@ class TestHdfStorage(TestCase):
         mask.w = [6, 6]
         mask.h = [7, 7]
         mask.bytes = [[0],[0,1,2,3,4]]
-        hdf.append(mask)
+        hdf.append([mask])
         data = hdf.readCoordinates(hdf._stamp, [0,1], self.current)
         test = data.columns[0]
         self.assertEquals(1, test.imageId[0])
