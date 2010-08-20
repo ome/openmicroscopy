@@ -100,14 +100,16 @@ class ITest(unittest.TestCase):
     def login_args(self):
         p = self.client.ic.getProperties()
         host = p.getProperty("omero.host")
+        port = p.getProperty("omero.port")
         key = self.sf.ice_getIdentity().name
-        return ["-s", host, "-k", key] # TODO PORT
+        return ["-s", host, "-k", key, "-p", port]
 
     def root_login_args(self):
         p = self.root.ic.getProperties()
         host = p.getProperty("omero.host")
+        host = p.getProperty("omero.port")
         key = self.root.sf.ice_getIdentity().name
-        return ["-s", host, "-k", key] # TODO PORT
+        return ["-s", host, "-k", key, "-p", port]
 
     def tmpfile(self):
         return str(create_path())
@@ -136,20 +138,20 @@ class ITest(unittest.TestCase):
         if filename is None:
             filename = self.OmeroPy / ".." / ".." / ".." / "components" / "common" / "test" / "tinyTest.d3d.dv"
 
-
         server = self.client.getProperty("omero.host")
+        port = self.client.getProperty("omero.port")
         key = self.client.getSessionId()
 
         # Search up until we find "OmeroPy"
         dist_dir = self.OmeroPy / ".." / ".." / ".." / "dist"
         args = ["python"]
         args.append(str(path(".") / "bin" / "omero"))
-        args.extend(["-s", server, "-k", key, "import", filename])
+        args.extend(["-s", server, "-k", key, "-p", port, "import", filename])
         popen = subprocess.Popen(args, cwd=str(dist_dir), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = popen.communicate()
         rc = popen.wait()
         if rc != 0:
-            raise exceptions.Exception("import failed: %s\n%s" % (rc, err))
+            raise exceptions.Exception("import failed: [%r] %s\n%s" % (args, rc, err))
         pix_ids = []
         for x in out.split("\n"):
             if x and x.find("Created") < 0 and x.find("#") < 0:
