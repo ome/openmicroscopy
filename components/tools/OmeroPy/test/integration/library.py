@@ -107,7 +107,7 @@ class ITest(unittest.TestCase):
     def root_login_args(self):
         p = self.root.ic.getProperties()
         host = p.getProperty("omero.host")
-        host = p.getProperty("omero.port")
+        port = p.getProperty("omero.port")
         key = self.root.sf.ice_getIdentity().name
         return ["-s", host, "-k", key, "-p", port]
 
