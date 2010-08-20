@@ -1,0 +1,31 @@
+
+<h3>{{ paramData.name }}</h3>
+<p>{{ paramData.description }}</p>
+
+<form method="post" action="{% url webemdb_script_run paramData.id %}">
+    {% for i in paramData.inputs %}
+        <dir {% if i.required %}class="required"{% endif %}>
+        {{ i.name }}:
+        
+        {% if i.required %}<span style='color:red'>*</span>{% endif %} 
+        
+        {% if i.options %}
+            
+            <select name="{{ i.key }}">
+                {% for v in i.options %}
+                    <option value="{{ v }}" {% ifequal i.prototype v %} selected="True" {% endifequal %} >{{ v }}</option>
+                {% endfor %}
+            </select>
+        {% else %}
+        
+            {% if i.boolean %}
+                <input type="checkbox" name="{{ i.key }}" {% if i.prototype %} checked="True" {% endif %} />
+            {% else %}
+                <input type="text" name="{{ i.key }}" {% if i.prototype %} value="{{ i.prototype }}" {% endif %} />
+            {% endif %}
+            
+        {% endif %}
+        </dir>
+    {% endfor %}
+    <input type="submit" value="Run Script" />
+</form>

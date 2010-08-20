@@ -17,6 +17,15 @@
     padding: 5px;
     margin: 5px;
 }
+#scriptMenu {
+    float: left;
+    padding: 5px;
+    margin: 5px;
+}
+#scriptForm {
+    padding: 5px;
+    margin: 5px;
+}
 </style>
 {% endblock %}
 
@@ -40,9 +49,9 @@ function openPopup(url) {
 <div class="pageTable">
     
     <div class="entryTitle">Image: {{ image.getName }}</div>
-    
+    <div>ID: {{ image.getId }}</div>
     <p>
-        {{ image.getDescription }}
+        {{ image.getDescription|linebreaks }}
     </p>
         
     <p>
@@ -63,11 +72,18 @@ function openPopup(url) {
     <img class="original" src="{% url webgateway.views.render_image image.getId 0 0 %}" />
 
     <div class="eman_menu">
-        Process with EMAN2: <br />
+        Quick filter with EMAN2: <br />
     <a class="eman" href="{% url webemdb_eman_fft image.getId %}">fft</a> <br />
     <a class="eman" href="{% url webemdb_eman_median image.getId %}">median</a> <br />
     <a class="eman" href="{% url webemdb_eman_median image.getId 2 %}">median 2</a> <br />
     <a class="eman" href="{% url webemdb_eman_log image.getId %}">log</a> <br />
+    </div>
+    
+    <div id="scriptMenu">
+        Process with IMOD: <br />
+    {% for s in scripts %}
+        <a class="script" href="{% url webemdb_script_form s.id %}">{{ s.name }}</a> <br />
+    {% endfor %}
     </div>
     
     <div>
@@ -79,9 +95,8 @@ function openPopup(url) {
 
 <div class="pageTable">  
     
-    {% for s in scripts %}
-        <a class="script" href="{% url webemdb_script_form s.id %}">{{ s.name }}</a> <br />
-    {% endfor %}
+    <div id="scriptForm">
+    </div>
     
 </div>
 

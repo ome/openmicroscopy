@@ -1,4 +1,7 @@
 
+#contentWrapper {
+    width:100%;
+}
 th .filter_field {
     float: right;
 }

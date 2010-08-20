@@ -1,0 +1,100 @@
+{% extends "webemdb/base/base_main.html" %}
+
+{% block title %} Script '{{ scriptName }}' Completed {% endblock %}
+
+{% block link %}
+<style type="text/css">
+p {
+    float:left;
+    padding: 5px;
+    margin: 5px;
+}
+.class {
+    clear: both;
+}
+#stdout {
+    display: none;
+}
+#stderr {
+    display: none;
+}
+</style>
+{% endblock %}
+
+{% block jscript %}
+<script type="text/javascript">
+$(document).ready(function() {
+    $("#info").click(function() {
+        var html = $("#stdout").html();
+        var newWindow=window.open('','name','height=600,width=500,scrollbars=yes');
+        newWindow.document.write('<html><title>Stdout</title>');
+        newWindow.document.write('<p><a href="javascript:self.close()">Close window</a> </p>');
+        newWindow.document.write(html + '</html>');
+        newWindow.document.close();
+        return false;
+    });
+    $("#error").click(function() {
+        var html = $("#stderr").html();
+        var newWindow=window.open('','name','height=600,width=500,scrollbars=yes');
+        newWindow.document.write('<html><title>Stderr</title>');
+        newWindow.document.write('<p><a href="javascript:self.close()">Close window</a> </p>');
+        newWindow.document.write(html + '</html>');
+        newWindow.document.close();
+        
+        return false;
+    });
+});    
+</script>
+{% endblock %}
+
+
+
+{% block content %}
+<div class="pageTable">
+    
+<h3>Script '{{ scriptName }}' Completed</h3>
+
+{% if message %}
+    <p>{{ message }}</p>
+{% endif %}
+
+
+{% if resultMap.dataset %}
+    <p>Dataset: <a href="{% url webemdb_dataset resultMap.dataset.id %}"> {{ resultMap.dataset.name }} </a> <p>
+{% endif %}
+
+{% if resultMap.images %}
+    <p>
+    {% for id in resultMap.images %}
+        <a href="{% url webemdb_image id %}">
+            <img src="{% url webgateway.views.render_thumbnail id %}" border='0' />
+        </a>
+    {% endfor %}
+    </p>
+{% endif %}
+
+{% if stdout %}
+    <p><a href="#" id="info">Info</a></p>
+    <div id="stdout">
+    {{ stdout|linebreaks }}
+    </div>
+{% endif %}
+{% if stderr %}
+    <p><a href="#" id="error">Error</a></p>
+    <div id="stderr">
+    {{ stderr|linebreaks }}
+    </div>
+{% endif %}
+
+<div class="clear"></div>
+
+{% if resultMap.strings %}
+    <p>
+    {% for s in resultMap.strings %}
+        <div>{{ s.key }}: {{ s.value }}</div>
+    {% endfor %}
+    </p>
+{% endif %}
+
+</div>
+{% endblock %}

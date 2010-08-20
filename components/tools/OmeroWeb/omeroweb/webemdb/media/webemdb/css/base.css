@@ -5,6 +5,12 @@ body {
     background: #dde3e3;
 }
 
+#contentWrapper {
+    margin-left:auto;
+    margin-right:auto;
+    width: 900px;
+}
+
 #header_top h2{
     width: 900px;
     margin-left:auto;
@@ -25,6 +31,13 @@ body {
     text-decoration:none;
     color: white;
     margin: 10px;
+}
+
+.pageTable {
+    background: white;
+    width: 100%;
+    margin-top: 5px;
+    margin-bottom: 0px;
 }
 
 #footer {

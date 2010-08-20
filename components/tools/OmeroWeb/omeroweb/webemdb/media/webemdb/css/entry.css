@@ -1,8 +1,3 @@
-#contentWrapper {
-    margin-left:auto;
-    margin-right:auto;
-    width: 900px;
-}
 
 #entry_header {
     background: white;
@@ -32,13 +27,6 @@
     cursor: pointer;
 }
 
-
-.pageTable {
-    background: white;
-    width: 100%;
-    margin-top: 5px;
-    margin-bottom: 0px;
-}
 
 #entry_menu {
     background: #adb3b3;

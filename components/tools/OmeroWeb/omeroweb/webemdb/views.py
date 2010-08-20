@@ -25,11 +25,11 @@ import os, tempfile, zipfile
 from django.core.servers.basehttp import FileWrapper
 
 from omero.sys import Parameters, Filter
+import omero.util.script_utils as scriptUtil
 
 
 def eman(request, imageId, **kwargs):
     
-    import omero.util.script_utils as scriptUtil
     try:
         from EMAN2 import * 
     except:
@@ -96,6 +96,7 @@ def script_run(request, scriptId):
     sId = long(scriptId)
     
     params = scriptService.getParams(sId)
+    scriptName = params.name.replace("_", " ")
     
     for key, param in params.inputs.items():
         if key in request.POST:
@@ -154,9 +155,46 @@ def script_run(request, scriptId):
     finally:
         proc.close(False)
     
-    print results
-    #return HttpResponse(simplejson.dumps(pData), mimetype='application/javascript')
-    return HttpResponse()
+    message = None
+    # Handle the expected 'Message' in results. 
+    if 'Message' in results:
+        message = results['Message'].getValue()
+    
+    # if we have stdout or stderr, download the file and return it.
+    rawFileService = conn.createRawFileStore()
+    queryService = conn.getQueryService()
+    stdout = None
+    stderr = None
+    if 'stdout' in results:
+        origFile = results['stdout'].getValue()
+        fileId = origFile.getId().getValue()
+        stdout = scriptUtil.readFromOriginalFile(rawFileService, queryService, fileId)
+    if 'stderr' in results:
+        origFile = results['stderr'].getValue()
+        fileId = origFile.getId().getValue()
+        stderr = scriptUtil.readFromOriginalFile(rawFileService, queryService, fileId)
+        
+    # look for any other string values and images in results...  
+    resultMap = {}
+    strings = []  
+    images = []
+    for key, value in results.items():
+        if key not in ["Message", "stdout", "stderr"]:
+            obj = value.getValue()
+            # if rstring, value is "string"
+            if type(obj) == type(""):
+                strings.append({"key":key, "value": value.getValue() })
+            elif type(obj) == omero.model.ImageI:
+                images.append(obj.getId().getValue())
+            elif type(obj) == omero.model.DatasetI:
+                resultMap['dataset'] = {"name": obj.getName().getValue(), "id": obj.getId().getValue()}
+    resultMap['strings'] = strings
+    resultMap['images'] = images
+    
+    # html will give users links to any Image, stdout, stderr and any strings returned in results
+    return render_to_response('webemdb/scripts/script_results.html', 
+            {'scriptName': scriptName, 'message': message, 'resultMap': resultMap, 'stdout': stdout, 'stderr': stderr})
+    
     
 def script_form(request, scriptId):
     """
@@ -183,7 +221,8 @@ def script_form(request, scriptId):
         i = {}
         i["name"] = key.replace("_", " ")
         i["key"] = key
-        i["optional"] = param.optional
+        if not param.optional:
+            i["required"] = True
         i["description"] = param.description
         if param.min:
             i["min"] = param.min.getValue()
