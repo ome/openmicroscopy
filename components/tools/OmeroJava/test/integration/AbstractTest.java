@@ -26,99 +26,7 @@ import omero.api.IPixelsPrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
-import omero.model.Annotation;
-import omero.model.AnnotationAnnotationLinkI;
-import omero.model.Arc;
-import omero.model.ArcI;
-import omero.model.ArcType;
-import omero.model.Binning;
-import omero.model.Channel;
-import omero.model.ChannelBinding;
-import omero.model.CommentAnnotation;
-import omero.model.CommentAnnotationI;
-import omero.model.Correction;
-import omero.model.Dataset;
-import omero.model.DatasetI;
-import omero.model.DatasetImageLink;
-import omero.model.DatasetImageLinkI;
-import omero.model.Detector;
-import omero.model.DetectorI;
-import omero.model.DetectorSettings;
-import omero.model.DetectorSettingsI;
-import omero.model.DetectorType;
-import omero.model.Dichroic;
-import omero.model.DichroicI;
-import omero.model.Experiment;
-import omero.model.ExperimentI;
-import omero.model.ExperimentType;
-import omero.model.Experimenter;
-import omero.model.ExperimenterGroup;
-import omero.model.ExperimenterGroupI;
-import omero.model.ExperimenterI;
-import omero.model.Filament;
-import omero.model.FilamentI;
-import omero.model.FilamentType;
-import omero.model.Filter;
-import omero.model.FilterI;
-import omero.model.FilterSet;
-import omero.model.FilterSetI;
-import omero.model.FilterType;
-import omero.model.IObject;
-import omero.model.Image;
-import omero.model.ImageAnnotationLink;
-import omero.model.ImageAnnotationLinkI;
-import omero.model.ImageI;
-import omero.model.ImagingEnvironment;
-import omero.model.ImagingEnvironmentI;
-import omero.model.Immersion;
-import omero.model.Instrument;
-import omero.model.InstrumentI;
-import omero.model.Laser;
-import omero.model.LaserI;
-import omero.model.LaserMedium;
-import omero.model.LaserType;
-import omero.model.LightEmittingDiode;
-import omero.model.LightEmittingDiodeI;
-import omero.model.LightPath;
-import omero.model.LightPathEmissionFilterLinkI;
-import omero.model.LightPathI;
-import omero.model.LightSettings;
-import omero.model.LightSettingsI;
-import omero.model.LightSource;
-import omero.model.Medium;
-import omero.model.MicrobeamManipulation;
-import omero.model.MicrobeamManipulationI;
-import omero.model.MicrobeamManipulationType;
-import omero.model.MicroscopeI;
-import omero.model.MicroscopeType;
-import omero.model.OTF;
-import omero.model.OTFI;
-import omero.model.Objective;
-import omero.model.ObjectiveI;
-import omero.model.ObjectiveSettings;
-import omero.model.ObjectiveSettingsI;
-import omero.model.OriginalFileI;
-import omero.model.Permissions;
-import omero.model.PermissionsI;
-import omero.model.Pixels;
-import omero.model.PixelsType;
-import omero.model.PlaneInfo;
-import omero.model.PlaneInfoI;
-import omero.model.Plate;
-import omero.model.PlateI;
-import omero.model.Project;
-import omero.model.ProjectDatasetLink;
-import omero.model.ProjectDatasetLinkI;
-import omero.model.ProjectI;
-import omero.model.Pulse;
-import omero.model.QuantumDef;
-import omero.model.RenderingDef;
-import omero.model.Screen;
-import omero.model.StageLabel;
-import omero.model.StageLabelI;
-import omero.model.TagAnnotation;
-import omero.model.TagAnnotationI;
-import omero.model.TransmittanceRangeI;
+import omero.model.*;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 import omero.util.IceMapper;
@@ -957,9 +865,38 @@ public class AbstractTest
 	 * 
 	 * @return See above.
 	 */
-	protected Plate createPlate()
+	protected Plate createPlate(int rows, int columns, int fields, boolean
+			plateAcquisition)
 	{
-		return null;
+    	Plate p = new PlateI();
+    	p.setRows(omero.rtypes.rint(rows));
+    	p.setCols(omero.rtypes.rint(columns));
+    	p.setName(omero.rtypes.rstring("plate"));
+    	//now make wells
+    	Well well;
+    	WellSample sample;
+    	PlateAcquisition pa = null;
+    	if (plateAcquisition) {
+    		pa = new PlateAcquisitionI();
+        	pa.setName(omero.rtypes.rstring("plate acquisition"));
+        	pa.setPlate(p);
+    	}
+    	
+    	for (int row = 0; row < rows; row++) {
+			for (int column = 0; column < columns; column++) {
+				well = new WellI();
+				well.setRow(omero.rtypes.rint(row));
+				well.setColumn(omero.rtypes.rint(column));
+				for (int field = 0; field < fields; field++) {
+					sample = new WellSampleI();
+					sample.setImage(simpleImage(0));
+					well.addWellSample(sample);
+					if (plateAcquisition) pa.addWellSample(sample);
+				}
+				p.addWell(well);
+			}
+		}
+		return p;
 	}
 	
 }

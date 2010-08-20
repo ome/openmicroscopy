@@ -38,8 +38,11 @@ import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.Pixels;
 import omero.model.Plate;
+import omero.model.PlateAcquisition;
 import omero.model.StageLabel;
 import omero.model.StatsInfo;
+import omero.model.Well;
+import omero.model.WellSample;
 import omero.sys.ParametersI;
 
 /** 
@@ -103,7 +106,7 @@ public class DeleteServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testDeletePlate() 
+    public void testDeleteEmptyPlate() 
     	throws Exception
     {
     	Plate p = (Plate) iUpdate.saveAndReturnObject(
@@ -123,25 +126,101 @@ public class DeleteServiceTest
     
     /**
      * Test to delete a populated plate.
+     * The boolean flag indicates to create or no plate acquisition.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testDeleteFullPlate() 
+    public void testDeletePopulatedPlate() 
     	throws Exception
     {
-    	Plate p = (Plate) iUpdate.saveAndReturnObject(
-    			simplePlateData().asIObject());
-    	assertNotNull(p);
-    	long id = p.getId().getValue();
-    	iDelete.deletePlate(id);
-    	ParametersI param = new ParametersI();
-    	param.addId(id);
-
-    	StringBuilder sb = new StringBuilder();
-    	sb.append("select i from Plate i ");
-    	sb.append("where i.id = :id");
-    	p = (Plate) iQuery.findByQuery(sb.toString(), param);
-    	assertNull(p);
+    	Boolean[] values = {Boolean.valueOf(false)};//, Boolean.valueOf(true)};
+    	Boolean b;
+    	Plate p;
+    	List results;
+    	PlateAcquisition pa = null;
+    	StringBuilder sb;
+    	Well well;
+    	WellSample field;
+    	Iterator j;
+		ParametersI param;
+		List<Long> wellSampleIds;
+		List<Long> imageIds;
+    	for (int i = 0; i < values.length; i++) {
+			b = values[i];
+			p = (Plate) iUpdate.saveAndReturnObject(
+	    			createPlate(1, 1, 1, b));
+			param = new ParametersI();
+			param.addLong("plateID", p.getId().getValue());
+			sb = new StringBuilder();
+			sb.append("select well from Well as well ");
+			sb.append("left outer join fetch well.plate as pt ");
+			sb.append("left outer join fetch well.wellSamples as ws ");
+			sb.append("left outer join fetch ws.image as img ");
+	        sb.append("where pt.id = :plateID");
+	        results = iQuery.findAllByQuery(sb.toString(), param);
+	        
+	        sb = new StringBuilder();
+	        sb.append("select pa from PlateAcquisition as pa " +
+	        		"where pa.plate.id = :plateID"); 
+	        pa = (PlateAcquisition) iQuery.findByQuery(sb.toString(), param);
+	        
+	        j = results.iterator();
+	        wellSampleIds = new ArrayList<Long>();
+	        imageIds = new ArrayList<Long>();
+	        while (j.hasNext()) {
+				well = (Well) j.next();
+				for (int k = 0; k < well.sizeOfWellSamples(); k++) {
+					field = well.getWellSample(k);
+					wellSampleIds.add(field.getId().getValue());
+					assertNotNull(field.getImage());
+					imageIds.add(field.getImage().getId().getValue());
+				}
+			}
+	        //Now delete the plate
+	        iDelete.deletePlate(p.getId().getValue());
+	        
+	        param = new ParametersI();
+	        param.addId(p.getId().getValue());
+	        sb = new StringBuilder();
+	        //check the plate
+	        sb.append("select p from Plate as p where p.id = :id");
+	        assertNull(iQuery.findByQuery(sb.toString(), param));
+	        
+	        //check the well
+	        param = new ParametersI();
+	        param.addLong("plateID", p.getId().getValue());
+	        sb = new StringBuilder();
+			sb.append("select well from Well as well ");
+			sb.append("left outer join fetch well.plate as pt ");
+			sb.append("where pt.id = :plateID");
+			results = iQuery.findAllByQuery(sb.toString(), param);
+	        assertTrue(results.size() == 0);
+	        
+	        //check the well samples.
+	        sb = new StringBuilder();
+	        param = new ParametersI();
+	        param.addIds(wellSampleIds);
+	        sb.append("select p from WellSample as p where p.id in (:ids)");
+	        results = iQuery.findAllByQuery(sb.toString(), param);
+	        assertTrue(results.size() == 0);
+	        
+	        //check the image.
+	        sb = new StringBuilder();
+	        param = new ParametersI();
+	        param.addIds(imageIds);
+	        sb.append("select p from Image as p where p.id in (:ids)");
+	        results = iQuery.findAllByQuery(sb.toString(), param);
+	        assertTrue(results.size() == 0);
+	        if (pa != null && b) {
+	        	param = new ParametersI();
+		        param.addId(pa.getId().getValue());
+		        sb = new StringBuilder();
+		        //check the plate
+		        sb.append("select p from PlateAcquisition as p " +
+		        		"where p.id = :id");
+		        assertNull(iQuery.findByQuery(sb.toString(), param));
+	        }
+		}
     }
 
     /**
@@ -275,7 +354,7 @@ public class DeleteServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testDeleteImageNonSharableAnnotations() 
+    public void testDeleteImageWithNonSharableAnnotations() 
     	throws Exception
     {
     	Image img = createImage();

@@ -77,6 +77,7 @@ import omero.model.PlaneInfo;
 import omero.model.Plate;
 import omero.model.PlateAnnotationLink;
 import omero.model.PlateAnnotationLinkI;
+import omero.model.PlateI;
 import omero.model.PointI;
 import omero.model.PolygonI;
 import omero.model.Project;
@@ -92,6 +93,10 @@ import omero.model.ScreenAnnotationLink;
 import omero.model.ScreenAnnotationLinkI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
+import omero.model.Well;
+import omero.model.WellI;
+import omero.model.WellSample;
+import omero.model.WellSampleI;
 import omero.sys.EventContext;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
@@ -109,6 +114,7 @@ import pojos.DatasetData;
 import pojos.EllipseData;
 import pojos.ImageData;
 import pojos.MaskData;
+import pojos.PlateData;
 import pojos.PointData;
 import pojos.PolygonData;
 import pojos.ProjectData;
@@ -394,7 +400,7 @@ public class UpdateServiceTest
     }
     
     /**
-     * Tests the creation of a screen
+     * Tests the creation of a screen.
      * 
      * @throws Exception Thrown if an error occurred.
      */
@@ -411,6 +417,41 @@ public class UpdateServiceTest
     	assertTrue(p.getId().getValue() == data.getId());
     	assertTrue(p.getName().getValue() == data.getName());
     	assertTrue(p.getDescription().getValue() == data.getDescription());
+    }
+    
+    /**
+     * Tests the creation of a screen.
+     * 
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testEmptyPlate() 
+    	throws Exception
+    {
+        Plate p = (Plate) 
+        	factory.getUpdateService().saveAndReturnObject(
+        			simplePlateData().asIObject());
+        PlateData data = new PlateData(p);
+    	assertNotNull(p);
+    	assertTrue(p.getId().getValue() > 0);
+    	assertTrue(p.getId().getValue() == data.getId());
+    	assertTrue(p.getName().getValue() == data.getName());
+    	assertTrue(p.getDescription().getValue() == data.getDescription());
+    }
+    
+    /**
+     * Tests the creation of a plate with wells, wells sample and 
+     * plate acquisition.
+     * 
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testPopulatedPlate()
+		throws Exception
+    {
+    	Plate p = createPlate(1, 1, 1, true);
+    	p = (Plate) iUpdate.saveAndReturnObject(p);
+    	assertNotNull(p);
     }
     
     /**
