@@ -16,8 +16,10 @@ import org.testng.annotations.Test;
 //Application-internal dependencies
 import omero.api.IRoiPrx;
 import omero.api.RoiOptions;
-import omero.model.ImageI;
+import omero.model.Image;
+import omero.model.Rect;
 import omero.model.RectI;
+import omero.model.Roi;
 import omero.model.RoiI;
 import omero.model.Shape;
 
@@ -28,6 +30,7 @@ import omero.model.Shape;
 public class RoiServiceTest 
 	extends AbstractTest 
 {
+	
 	/**
 	 * Tests the creation of ROIs with rectangular shapes and removes one shape.
 	 * @throws Exception  Thrown if an error occurred.
@@ -37,11 +40,11 @@ public class RoiServiceTest
     	throws Exception
     {
         IRoiPrx roiService = factory.getRoiService();
-        ImageI image = (ImageI) iUpdate.saveAndReturnObject(simpleImage(0));
-        RoiI roi = new RoiI();
+        Image image = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
+        Roi roi = new RoiI();
         roi.setImage(image);
-        RectI rect;
-        RoiI serverROI = (RoiI) iUpdate.saveAndReturnObject(roi);
+        Rect rect;
+        Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
             rect = new RectI();
             rect.setX(rdouble(10));

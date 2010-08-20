@@ -8,6 +8,9 @@ package integration;
 
 
 //Java imports
+import static omero.rtypes.rdouble;
+import static omero.rtypes.rint;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -22,6 +25,9 @@ import omero.api.IRenderingSettingsPrx;
 import omero.model.Channel;
 import omero.model.CommentAnnotation;
 import omero.model.CommentAnnotationI;
+import omero.model.Dataset;
+import omero.model.DatasetImageLink;
+import omero.model.DatasetImageLinkI;
 import omero.model.Detector;
 import omero.model.Dichroic;
 import omero.model.FilterSet;
@@ -39,6 +45,17 @@ import omero.model.ObjectiveSettings;
 import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
+import omero.model.Project;
+import omero.model.ProjectDatasetLink;
+import omero.model.ProjectDatasetLinkI;
+import omero.model.Rect;
+import omero.model.RectI;
+import omero.model.Roi;
+import omero.model.RoiI;
+import omero.model.Screen;
+import omero.model.ScreenPlateLink;
+import omero.model.ScreenPlateLinkI;
+import omero.model.Shape;
 import omero.model.StageLabel;
 import omero.model.StatsInfo;
 import omero.model.Well;
@@ -130,7 +147,7 @@ public class DeleteServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testDeletePopulatedPlate() 
+    public void testDeletePlate() 
     	throws Exception
     {
     	Boolean[] values = {Boolean.valueOf(false)};//, Boolean.valueOf(true)};
@@ -223,6 +240,154 @@ public class DeleteServiceTest
 		}
     }
 
+    /**
+     * Tests to delete a dataset with images.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteDataset() 
+    	throws Exception
+    {
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			simpleDatasetData().asIObject());
+    	Image image1 = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
+    	Image image2 = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
+    	List<IObject> links = new ArrayList<IObject>();
+    	DatasetImageLink link = new DatasetImageLinkI();
+    	link.setChild(image1);
+    	link.setParent(d);
+    	links.add(link);
+    	
+    	link = new DatasetImageLinkI();
+    	link.setChild(image2);
+    	link.setParent(d);
+    	links.add(link);
+    	
+    	iUpdate.saveAndReturnArray(links);
+    	
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(image1.getId().getValue());
+    	ids.add(image2.getId().getValue());
+    	//new call to delete the dataset
+    	
+    	//Check if objects have been deleted
+    	/*
+    	ParametersI param = new ParametersI();
+    	param.addIds(ids);
+    	String sql = "select i from Image as i where i.id in (:ids)";
+    	List results = iQuery.findAllByQuery(sql, param);
+    	assertTrue(results.size() == 0);
+    	
+    	param = new ParametersI();
+    	param.addId(d.getId().getValue());
+    	sql = "select i from Dataset as i where i.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	*/
+    }
+    
+    /**
+     * Tests to delete a project containing a dataset with images.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteProject() 
+    	throws Exception
+    {
+    	Project p = (Project) iUpdate.saveAndReturnObject(
+    			simpleProjectData().asIObject());
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			simpleDatasetData().asIObject());
+    	Image image1 = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
+    	Image image2 = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
+    	List<IObject> links = new ArrayList<IObject>();
+    	DatasetImageLink link = new DatasetImageLinkI();
+    	link.setChild(image1);
+    	link.setParent(d);
+    	links.add(link);
+    	
+    	link = new DatasetImageLinkI();
+    	link.setChild(image2);
+    	link.setParent(d);
+    	links.add(link);
+    	
+    	ProjectDatasetLink l = new ProjectDatasetLinkI();
+    	l.setChild(d);
+    	l.setParent(p);
+    	links.add(l);
+    	iUpdate.saveAndReturnArray(links);
+    	
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(image1.getId().getValue());
+    	ids.add(image2.getId().getValue());
+    	//new call to delete the project
+    	
+    	//Check if objects have been deleted
+    	/*
+    	ParametersI param = new ParametersI();
+    	param.addIds(ids);
+    	String sql = "select i from Image as i where i.id in (:ids)";
+    	List results = iQuery.findAllByQuery(sql, param);
+    	assertTrue(results.size() == 0);
+    	
+    	param = new ParametersI();
+    	param.addId(d.getId().getValue());
+    	sql = "select i from Dataset as i where i.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	
+    	param = new ParametersI();
+    	param.addId(p.getId().getValue());
+    	sql = "select i from Project as i where i.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	*/
+    }
+    
+    /**
+     * Tests to delete a screen containing 2 plates, one w/o plate acquisition
+     * and one with plate acquisition.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteScreen() 
+    	throws Exception
+    {
+    	Screen screen = (Screen) iUpdate.saveAndReturnObject(
+    			simpleScreenData().asIObject());
+    	Plate p1 = (Plate) iUpdate.saveAndReturnObject(
+    			createPlate(1, 1, 1, false)); //w/o plate acquisition
+    	Plate p2 = (Plate) iUpdate.saveAndReturnObject(
+    			createPlate(1, 1, 1, true)); //with plate acquisition
+    	List<IObject> links = new ArrayList<IObject>();
+    	ScreenPlateLink link = new ScreenPlateLinkI();
+    	link.setChild(p1);
+    	link.setParent(screen);
+    	links.add(link);
+    	link = new ScreenPlateLinkI();
+    	link.setChild(p2);
+    	link.setParent(screen);
+    	links.add(link);
+    	iUpdate.saveAndReturnArray(links);
+    	
+    	//Delete the screen
+    	
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(p1.getId().getValue());
+    	ids.add(p2.getId().getValue());
+    	
+    	//Check if the plates exist.
+    	/*
+    	ParametersI param = new ParametersI();
+    	param.addIds(ids);
+    	String sql = "select i from Plate as i where i.id in (:ids)";
+    	List results = iQuery.findAllByQuery(sql, param);
+    	assertTrue(results.size() == 0);
+    	
+    	param = new ParametersI();
+    	param.addId(screen.getId().getValue());
+    	sql = "select i from Screen as i where i.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	*/
+    }
+    
     /**
      * Test to delete an image with pixels, channels, logical channels 
      * and statistics.
@@ -511,6 +676,109 @@ public class DeleteServiceTest
     	param.addId(env.getId().getValue());
     	sql = "select d from StageLabel as d where d.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));
+    	*/
+    }
+    
+    /**
+     * Test to delete an image with ROis.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteImageWithROIs() 
+    	throws Exception
+    {
+    	Image image = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
+    	Roi roi = new RoiI();
+    	roi.setImage(image);
+    	Rect rect;
+    	Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
+    	for (int i = 0; i < 3; i++) {
+    		rect = new RectI();
+    		rect.setX(rdouble(10));
+    		rect.setY(rdouble(10));
+    		rect.setWidth(rdouble(10));
+    		rect.setHeight(rdouble(10));
+    		rect.setTheZ(rint(i));
+    		rect.setTheT(rint(0));
+    		serverROI.addShape(rect);
+    	}
+    	serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
+    	List<Long> shapeIds = new ArrayList<Long>();
+    	Shape shape;
+    	for (int i = 0; i < serverROI.sizeOfShapes(); i++) {
+    		shape = serverROI.getShape(i);
+    		shapeIds.add(shape.getId().getValue());
+    	}
+    	//Delete the image.
+    	iDelete.deleteImage(image.getId().getValue(), true);
+    	//check if the objects have been delete.
+    	/*
+    	ParametersI param = new ParametersI();
+    	param.addId(serverROI.getId().getValue());
+    	String sql = "select d from Roi as d where d.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));  
+    	
+    	//shapes
+    	param = new ParametersI();
+    	param.addIds(shapeIds);
+    	sql = "select d from Shape as d where d.id in (:ids)";
+    	List results = iQuery.findAllByQuery(sql, param);
+    	assertTrue(results.size() == 0);
+    	*/
+    }
+    
+    /**
+     * Test to deletes rois.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteROIs() 
+    	throws Exception
+    {
+    	Image image = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
+    	Roi roi = new RoiI();
+    	roi.setImage(image);
+    	Rect rect;
+    	Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
+    	for (int i = 0; i < 3; i++) {
+    		rect = new RectI();
+    		rect.setX(rdouble(10));
+    		rect.setY(rdouble(10));
+    		rect.setWidth(rdouble(10));
+    		rect.setHeight(rdouble(10));
+    		rect.setTheZ(rint(i));
+    		rect.setTheT(rint(0));
+    		serverROI.addShape(rect);
+    	}
+    	serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
+    	List<Long> shapeIds = new ArrayList<Long>();
+    	Shape shape;
+    	for (int i = 0; i < serverROI.sizeOfShapes(); i++) {
+    		shape = serverROI.getShape(i);
+    		shapeIds.add(shape.getId().getValue());
+    	}
+    	
+    	//delete the rois.
+    	
+    	//make sure we still have the image
+    	/*
+    	ParametersI param = new ParametersI();
+    	param.addId(image.getId().getValue());
+    	String sql = "select d from Image as d where d.id = :id";
+    	assertNotNull(iQuery.findByQuery(sql, param));  
+    	
+    	//check if the objects have been delete.
+    	ParametersI param = new ParametersI();
+    	param.addId(serverROI.getId().getValue());
+    	sql = "select d from Roi as d where d.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));  
+    	
+    	//shapes
+    	param = new ParametersI();
+    	param.addIds(shapeIds);
+    	sql = "select d from Shape as d where d.id in (:ids)";
+    	List results = iQuery.findAllByQuery(sql, param);
+    	assertTrue(results.size() == 0);
     	*/
     }
     
