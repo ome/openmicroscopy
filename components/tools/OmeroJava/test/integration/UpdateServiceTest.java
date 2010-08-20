@@ -65,8 +65,11 @@ import omero.model.ImageAnnotationLinkI;
 import omero.model.ImageI;
 import omero.model.Instrument;
 import omero.model.Laser;
+import omero.model.Line;
+import omero.model.LineI;
 import omero.model.LongAnnotation;
 import omero.model.LongAnnotationI;
+import omero.model.Mask;
 import omero.model.MaskI;
 import omero.model.Objective;
 import omero.model.OriginalFile;
@@ -78,15 +81,21 @@ import omero.model.Plate;
 import omero.model.PlateAnnotationLink;
 import omero.model.PlateAnnotationLinkI;
 import omero.model.PlateI;
+import omero.model.Point;
 import omero.model.PointI;
+import omero.model.Polygon;
 import omero.model.PolygonI;
+import omero.model.Polyline;
+import omero.model.PolylineI;
 import omero.model.Project;
 import omero.model.ProjectAnnotationLink;
 import omero.model.ProjectAnnotationLinkI;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
+import omero.model.Rect;
 import omero.model.RectI;
+import omero.model.Roi;
 import omero.model.RoiI;
 import omero.model.Screen;
 import omero.model.ScreenAnnotationLink;
@@ -113,10 +122,12 @@ import Ice.Current;
 import pojos.DatasetData;
 import pojos.EllipseData;
 import pojos.ImageData;
+import pojos.LineData;
 import pojos.MaskData;
 import pojos.PlateData;
 import pojos.PointData;
 import pojos.PolygonData;
+import pojos.PolylineData;
 import pojos.ProjectData;
 import pojos.ROIData;
 import pojos.RectangleData;
@@ -1253,19 +1264,19 @@ public class UpdateServiceTest
 	 * @throws Exception  Thrown if an error occurred.
 	 */
     @Test
-    public void testCreatePoint() 
+    public void testCreateROIWithPoint() 
     	throws Exception
     {
-        ImageI image = (ImageI) iUpdate.saveAndReturnObject(simpleImage(0));
-        RoiI roi = new RoiI();
+        Image image = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
+        Roi roi = new RoiI();
         roi.setImage(image);
-        RoiI serverROI = (RoiI) iUpdate.saveAndReturnObject(roi);
+        Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
         assertNotNull(serverROI);
         double v = 10;
         int z = 0;
         int t = 0;
         int c = 0;
-        PointI rect = new PointI();
+        Point rect = new PointI();
         rect.setCx(omero.rtypes.rdouble(v));
         rect.setCy(omero.rtypes.rdouble(v));
         rect.setTheZ(omero.rtypes.rint(z));
@@ -1300,19 +1311,19 @@ public class UpdateServiceTest
 	 * @throws Exception  Thrown if an error occurred.
 	 */
     @Test
-    public void testCreateRectangle() 
+    public void testCreateROIWithRectangle() 
     	throws Exception
     {
-        ImageI image = (ImageI) iUpdate.saveAndReturnObject(simpleImage(0));
-        RoiI roi = new RoiI();
+        Image image = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
+        Roi roi = new RoiI();
         roi.setImage(image);
-        RoiI serverROI = (RoiI) iUpdate.saveAndReturnObject(roi);
+        Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
         assertNotNull(serverROI);
         double v = 10;
         int z = 0;
         int t = 0;
         int c = 0;
-        RectI rect = new RectI();
+        Rect rect = new RectI();
         rect.setX(omero.rtypes.rdouble(v));
         rect.setY(omero.rtypes.rdouble(v));
         rect.setWidth(omero.rtypes.rdouble(v));
@@ -1346,40 +1357,42 @@ public class UpdateServiceTest
     }
     
     /**
+     * Tests the creation of an ROI not linked to an image.
+     * @throws Exception  Thrown if an error occurred.
+     */
+    @Test
+    public void testCreateROIWithoutImage()
+    	throws Exception
+    {
+    	/*
+    	 Roi roi = new RoiI();
+         roi.setDescription(omero.rtypes.rstring("roi w/o image"));
+         Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
+    	 */
+    }
+    
+    /**
 	 * Tests the creation of ROIs whose shapes are Polygons and converts them 
 	 * into the corresponding <code>POJO</code> objects.
 	 * @throws Exception  Thrown if an error occurred.
 	 */
     @Test
-    public void testCreatePolygon() 
+    public void testCreateROIWithPolygon() 
     	throws Exception
     {
-    	
-    }
-    
-    /**
-	 * Tests the creation of ROIs whose shapes are Polylines and converts them 
-	 * into the corresponding <code>POJO</code> objects.
-	 * @throws Exception  Thrown if an error occurred.
-	 */
-    @Test
-    public void testCreatePolyline() 
-    	throws Exception
-    {
-        ImageI image = (ImageI) iUpdate.saveAndReturnObject(simpleImage(0));
-        RoiI roi = new RoiI();
+       	Image image = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
+        Roi roi = new RoiI();
         roi.setImage(image);
-        RoiI serverROI = (RoiI) iUpdate.saveAndReturnObject(roi);
+        Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
         assertNotNull(serverROI);
         double v = 10;
+        double w = 11;
         int z = 0;
         int t = 0;
         int c = 0;
-        RectI rect = new RectI();
-        rect.setX(omero.rtypes.rdouble(v));
-        rect.setY(omero.rtypes.rdouble(v));
-        rect.setWidth(omero.rtypes.rdouble(v));
-        rect.setHeight(omero.rtypes.rdouble(v));
+        String points = "points[10, 10] points1[10, 10] points2[10, 10]";
+        Polygon rect = new PolygonI();
+        rect.setPoints(omero.rtypes.rstring(points));
         rect.setTheZ(omero.rtypes.rint(z));
         rect.setTheT(omero.rtypes.rint(t));
         rect.setTheC(omero.rtypes.rint(c));
@@ -1394,17 +1407,64 @@ public class UpdateServiceTest
         List<ShapeData> shapes = data.getShapes(z, t);
         assertNotNull(shapes);
         assertTrue(shapes.size() == 1);
-        RectangleData shape;
+        PolygonData shape;
         Iterator<ShapeData> i = shapes.iterator();
         while (i.hasNext()) {
-        	shape = (RectangleData) i.next();
+        	shape = (PolygonData) i.next();
         	assertTrue(shape.getT() == t);
         	assertTrue(shape.getZ() == z);
         	assertTrue(shape.getC() == c);
-        	assertTrue(shape.getX() == v);
-        	assertTrue(shape.getY() == v);
-        	assertTrue(shape.getWidth() == v);
-        	assertTrue(shape.getHeight() == v);
+        	assertTrue(shape.getPoints().size() == 1);
+        	assertTrue(shape.getPoints1().size() == 1);
+        	assertTrue(shape.getPoints2().size() == 1);
+		}
+    }
+    
+    /**
+	 * Tests the creation of ROIs whose shapes are Polylines and converts them 
+	 * into the corresponding <code>POJO</code> objects.
+	 * @throws Exception  Thrown if an error occurred.
+	 */
+    @Test
+    public void testCreateROIWithPolyline() 
+    	throws Exception
+    {
+    	Image image = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
+        Roi roi = new RoiI();
+        roi.setImage(image);
+        Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
+        assertNotNull(serverROI);
+        double v = 10;
+        String points = "points[10, 10] points1[10, 10] points2[10, 10]";
+        int z = 0;
+        int t = 0;
+        int c = 0;
+        Polyline rect = new PolylineI();
+        rect.setPoints(omero.rtypes.rstring(points));
+        rect.setTheZ(omero.rtypes.rint(z));
+        rect.setTheT(omero.rtypes.rint(t));
+        rect.setTheC(omero.rtypes.rint(c));
+        serverROI.addShape(rect);
+        
+        serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
+        
+        ROIData data = new ROIData(serverROI);
+        assertTrue(data.getId() == serverROI.getId().getValue());
+        assertTrue(data.getShapeCount() == 1);
+        
+        List<ShapeData> shapes = data.getShapes(z, t);
+        assertNotNull(shapes);
+        assertTrue(shapes.size() == 1);
+        PolylineData shape;
+        Iterator<ShapeData> i = shapes.iterator();
+        while (i.hasNext()) {
+        	shape = (PolylineData) i.next();
+        	assertTrue(shape.getT() == t);
+        	assertTrue(shape.getZ() == z);
+        	assertTrue(shape.getC() == c);
+        	assertTrue(shape.getPoints().size() == 1);
+        	assertTrue(shape.getPoints1().size() == 1);
+        	assertTrue(shape.getPoints2().size() == 1);
 		}
     }
     
@@ -1414,23 +1474,24 @@ public class UpdateServiceTest
 	 * @throws Exception  Thrown if an error occurred.
 	 */
     @Test
-    public void testCreateLine() 
+    public void testCreateROIWithLine() 
     	throws Exception
     {
-        ImageI image = (ImageI) iUpdate.saveAndReturnObject(simpleImage(0));
-        RoiI roi = new RoiI();
+        Image image = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
+        Roi roi = new RoiI();
         roi.setImage(image);
-        RoiI serverROI = (RoiI) iUpdate.saveAndReturnObject(roi);
+        Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
         assertNotNull(serverROI);
         double v = 10;
+        double w = 11;
         int z = 0;
         int t = 0;
         int c = 0;
-        RectI rect = new RectI();
-        rect.setX(omero.rtypes.rdouble(v));
-        rect.setY(omero.rtypes.rdouble(v));
-        rect.setWidth(omero.rtypes.rdouble(v));
-        rect.setHeight(omero.rtypes.rdouble(v));
+        Line rect = new LineI();
+        rect.setX1(omero.rtypes.rdouble(v));
+        rect.setY1(omero.rtypes.rdouble(v));
+        rect.setX2(omero.rtypes.rdouble(w));
+        rect.setY2(omero.rtypes.rdouble(w));
         rect.setTheZ(omero.rtypes.rint(z));
         rect.setTheT(omero.rtypes.rint(t));
         rect.setTheC(omero.rtypes.rint(c));
@@ -1445,17 +1506,17 @@ public class UpdateServiceTest
         List<ShapeData> shapes = data.getShapes(z, t);
         assertNotNull(shapes);
         assertTrue(shapes.size() == 1);
-        RectangleData shape;
+        LineData shape;
         Iterator<ShapeData> i = shapes.iterator();
         while (i.hasNext()) {
-        	shape = (RectangleData) i.next();
+        	shape = (LineData) i.next();
         	assertTrue(shape.getT() == t);
         	assertTrue(shape.getZ() == z);
         	assertTrue(shape.getC() == c);
-        	assertTrue(shape.getX() == v);
-        	assertTrue(shape.getY() == v);
-        	assertTrue(shape.getWidth() == v);
-        	assertTrue(shape.getHeight() == v);
+        	assertTrue(shape.getX1() == v);
+        	assertTrue(shape.getY1() == v);
+        	assertTrue(shape.getX2() == w);
+        	assertTrue(shape.getY2() == w);
 		}
     }
     
@@ -1465,19 +1526,19 @@ public class UpdateServiceTest
 	 * @throws Exception  Thrown if an error occurred.
 	 */
     @Test
-    public void testCreateMask() 
+    public void testCreateROIWithMask() 
     	throws Exception
     {
-        ImageI image = (ImageI) iUpdate.saveAndReturnObject(simpleImage(0));
-        RoiI roi = new RoiI();
+        Image image = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
+        Roi roi = new RoiI();
         roi.setImage(image);
-        RoiI serverROI = (RoiI) iUpdate.saveAndReturnObject(roi);
+        Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
         assertNotNull(serverROI);
         double v = 10;
         int z = 0;
         int t = 0;
         int c = 0;
-        MaskI rect = new MaskI();
+        Mask rect = new MaskI();
         rect.setX(omero.rtypes.rdouble(v));
         rect.setY(omero.rtypes.rdouble(v));
         rect.setWidth(omero.rtypes.rdouble(v));
@@ -1699,5 +1760,5 @@ public class UpdateServiceTest
     	sql = "select a from OriginalFile as a where a.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));
     }
-    
+
 }
