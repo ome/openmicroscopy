@@ -140,7 +140,7 @@ public class UpdateServiceTest
      * Test to create an image and make sure the version is correct.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(groups = { "versions",  "broken"})
+    @Test(groups = { "versions"})
     public void testVersionHandling() 
     	throws Exception
     {
@@ -148,30 +148,13 @@ public class UpdateServiceTest
         Image img = simpleImage(0);
         img.setName(rstring("version handling"));
         Image sent = (Image) iUpdate.saveAndReturnObject(img);
+        long version = sent.getDetails().getUpdateEvent().getId().getValue();
+        
         sent.setDescription(rstring("version handling update"));
-        RInt version = sent.getVersion();
-
-        // Version incremented
+        // Update event should be created
         Image sent2 = (Image) iUpdate.saveAndReturnObject(sent);
-        RInt version2 = sent2.getVersion();
-        assertTrue(version.getValue() != version2.getValue());
-
-        // Resetting; should get error
-        sent2.setVersion(version);
-        CommentAnnotation iann = new CommentAnnotationI();
-        iann.setTextValue( rstring(" version handling "));
-        try {
-            iUpdate.saveAndReturnObject(sent2);
-            fail("Need optmistic lock exception.");
-        } catch (OptimisticLockException e) {
-            // ok.
-        }
-
-        // Fixing the change;
-        // now it should work.
-        sent2.setVersion(version2);
-        iUpdate.saveAndReturnObject(iann);
-
+        long version2 = sent2.getDetails().getUpdateEvent().getId().getValue();
+        assertTrue(version != version2);
     }
     
     /**
@@ -281,65 +264,51 @@ public class UpdateServiceTest
     }
     
     /**
-     * Test to make sure that the version does not increase after an update.
+     * Test to make sure that an update event is created for an object
+     * after updating an annotation linked to the image.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(groups = { "versions", "broken", "ticket:118" })
+    @Test(groups = { "versions", "ticket:118" })
     public void tesVersionNotIncreasingAfterUpdate()
             throws Exception 
     {
         CommentAnnotation ann = new CommentAnnotationI();
         Image img = simpleImage(0);
-
         img.setName(rstring("version_test"));
-        img.setAcquisitionDate( rtime(0) );
+        img = (Image) iUpdate.saveAndReturnObject(img);
+        
         ann.setTextValue(rstring("version_test"));
         img.linkAnnotation(ann);
 
         img = (Image) iUpdate.saveAndReturnObject(img);
         ann = (CommentAnnotation) img.linkedAnnotationList().get(0);
-
         assertNotNull(img.getId());
         assertNotNull(ann.getId());
-
-        int origVersion = img.getVersion().getValue();
-        // No longer exists int orig_ann_version = ann.getVersion().intValue();
-
+        long oldId = img.getDetails().getUpdateEvent().getId().getValue();
         ann.setTextValue(rstring("updated version_test"));
-
         ann = (CommentAnnotation) iUpdate.saveAndReturnObject(ann);
         img = (Image) iQuery.get(Image.class.getName(), img.getId().getValue()); 
 
-        // No longer existsint new_ann_version = ann.getVersion().intValue();
-        int newVersion = img.getVersion().getValue();
-
-        assertFalse(ann.getTextValue().getValue().contains("updated"));
-        assertTrue(origVersion == newVersion);
+        long newId = img.getDetails().getUpdateEvent().getId().getValue();
+        assertTrue(newId == oldId);
     }
     
     /**
-     * Test to make sure that the version number does not increase 
-     * when invoking the <code>SaveAndReturnObject</code> on an Object 
-     * not modified.
+     * Test to make sure that an update event is not created when
+     * when invoking the <code>SaveAndReturnObject</code> on an unmodified 
+     * Object.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(groups = { "versions", "broken", "ticket:118" })
+    @Test(groups = { "versions", "ticket:118" })
     public void testVersionNotIncreasingOnUnmodifiedObject() 
     	throws Exception 
     {
-    	/*
-        Image img = new ImageI();
-        img.setName(rstring("no vers. increment")) ;
-        img.setAcquisitionDate(rtime(0));
-        img = (Image) iUpdate.saveAndReturnObject(img);
-
+        Image img = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
+        assertNotNull(img.getDetails().getUpdateEvent());
+        long id = img.getDetails().getUpdateEvent().getId().getValue();
         Image test = (Image) iUpdate.saveAndReturnObject(img);
-
-        fail("must move details correction to the merge event listener "
-                + "or version will always be incremented. ");
-
-        assertTrue(img.getVersion().equals(test.getVersion()));
-        */
+        assertNotNull(test.getDetails().getUpdateEvent());
+        assertTrue(id == test.getDetails().getUpdateEvent().getId().getValue());
     }
 
     /**
