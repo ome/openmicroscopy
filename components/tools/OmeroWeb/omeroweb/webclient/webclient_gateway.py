@@ -65,7 +65,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.core.mail import EmailMultiAlternatives
 
-#PAGE = settings.PAGE
+PAGE = settings.PAGE
 
 logger = logging.getLogger('webclient_gateway')
 
