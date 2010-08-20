@@ -23,7 +23,7 @@ from omero.rtypes import rtime, rlong, rstring, rlist, rint
 from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_PermissionsI import PermissionsI
-import omero_api_Gateway_ice
+#import omero_api_Gateway_ice
 
 from integration.helpers import createTestImage
 
@@ -230,10 +230,10 @@ class TestThumbnailPerms(lib.ITest):
         
     def getThumbnail(self, session, imageId):
     
-        gateway = session.createGateway()
+        #gateway = session.createGateway()
         thumbnailStore = session.createThumbnailStore()
     
-        image = gateway.getImage(imageId)
+        image = session.getQueryService().get("Image", imageId)
         if image is None:
             return None
         pId = image.getPrimaryPixels().getId().getValue()
@@ -251,7 +251,7 @@ class TestThumbnailPerms(lib.ITest):
         self.assertNotEqual(None, t)
     
         thumbnailStore.close()
-        gateway.close()
+        #gateway.close()
         return t
         
 if __name__ == '__main__':
