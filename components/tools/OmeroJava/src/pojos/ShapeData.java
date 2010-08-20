@@ -55,23 +55,43 @@ public abstract class ShapeData
 	/** The representation of the shape. */
 	protected ShapeSettingsData settings;
 	
-	/** Has this shape been created client side. */
+	/** Flag indicating that the shape been created client side. */
 	private boolean clientObject;
 
 	/**
-	 * Creates a new instance.
+	 * Converts the passed collection of points.
 	 * 
-	 * @param shape       The shape to host.
-	 * @param clientObject Pass <code>true</code> if it is a client object, 
-	 * 						<code>false</code> otherwise.
+	 * @param pts  The points to convert.
+	 * @param type The value in the list to parse.
+	 * @return See above.
 	 */
-	protected ShapeData(Shape shape, boolean clientObject)
+	private String convertPoints(String pts, String type)
 	{
-		super();
-		setClientObject(clientObject);
-		setValue(shape);
-		shape.setLocked(rtypes.rbool(false));
-		settings = new ShapeSettingsData(shape);
+		if (pts.length() == 0) return "";
+		String exp = type+'[';
+		int typeStr = pts.indexOf(exp, 0);
+		int start = pts.indexOf('[', typeStr);
+		int end = pts.indexOf(']', start);
+		return pts.substring(start+1,end);
+	}
+	
+	/**
+	 * Parses out the type from the points string.
+	 * 
+	 * @param type The value in the list to parse.
+	 * @return See above.
+	 */
+	protected String fromPoints(String type)
+	{
+		IObject o = asIObject();
+		if (o instanceof Polygon) {
+			Polygon shape = (Polygon) asIObject();
+			return convertPoints(shape.getPoints().getValue(), type);
+		} else if (o instanceof Polyline) {
+			Polyline shape = (Polyline) asIObject();
+			return convertPoints(shape.getPoints().getValue(), type);
+		}
+		throw new IllegalArgumentException("No shape specified.");
 	}
 	
 	/**
