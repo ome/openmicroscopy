@@ -68,6 +68,8 @@ import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
 import omero.model.ImageI;
+import omero.model.ImagingEnvironment;
+import omero.model.ImagingEnvironmentI;
 import omero.model.Immersion;
 import omero.model.Instrument;
 import omero.model.InstrumentI;
@@ -112,6 +114,8 @@ import omero.model.Pulse;
 import omero.model.QuantumDef;
 import omero.model.RenderingDef;
 import omero.model.Screen;
+import omero.model.StageLabel;
+import omero.model.StageLabelI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.TransmittanceRangeI;
@@ -456,6 +460,36 @@ public class AbstractTest
     	settings.setMedium((Medium) types.get(0));
     	settings.setObjective(objective);
     	return settings;
+    }
+    
+    /**
+     * Creates and returns the stage label.
+     * 
+     * @return See above.
+     */
+    protected StageLabel createStageLabel()
+    {
+    	StageLabel label = new StageLabelI();
+    	label.setName(omero.rtypes.rstring("label"));
+    	label.setPositionX(omero.rtypes.rdouble(1));
+    	label.setPositionY(omero.rtypes.rdouble(1));
+    	label.setPositionZ(omero.rtypes.rdouble(1));
+    	return label;
+    }
+    
+    /**
+     * Creates and returns the environment.
+     * 
+     * @return See above.
+     */
+    protected ImagingEnvironment createImageEnvironment()
+    {
+    	ImagingEnvironment env = new ImagingEnvironmentI();
+    	env.setAirPressure(omero.rtypes.rdouble(1));
+    	env.setCo2percent(omero.rtypes.rdouble(10));
+    	env.setHumidity(omero.rtypes.rdouble(1));
+    	env.setTemperature(omero.rtypes.rdouble(1));
+    	return env;
     }
     
     /**

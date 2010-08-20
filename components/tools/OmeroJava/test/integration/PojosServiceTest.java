@@ -11,7 +11,6 @@ package integration;
 //Java imports
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -40,6 +39,10 @@ import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.ImagingEnvironment;
+import omero.model.Instrument;
+import omero.model.Objective;
+import omero.model.ObjectiveSettings;
 import omero.model.PermissionsI;
 import omero.model.Pixels;
 import omero.model.Plate;
@@ -49,6 +52,7 @@ import omero.model.ProjectDatasetLinkI;
 import omero.model.Screen;
 import omero.model.ScreenPlateLink;
 import omero.model.ScreenPlateLinkI;
+import omero.model.StageLabel;
 import static omero.rtypes.rlong;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
@@ -442,6 +446,7 @@ public class PojosServiceTest
      * Test to the collection count method.
      * @throws Exception Thrown if an error occurred.
      */
+    @Test
     public void testCollectionCountForDataset() 
     	throws Exception 
     {
@@ -979,6 +984,58 @@ public class PojosServiceTest
 				assertTrue(images.size() == 1);
 			} 
 		}
+    }
+    
+    /**
+     * Test to load an image with its acquisition data. This method
+     * invoked the <code>getImages</code>.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadImageWithAcquisitionData() 
+    	throws Exception 
+    {
+    	//First create an image 
+    	Image image = createImage();
+    	//create an instrument
+    	Instrument instrument = (Instrument) iUpdate.saveAndReturnObject(
+    			createInstrument(LASER));
+    	ParametersI param = new ParametersI();
+    	param.addLong("iid", instrument.getId().getValue());
+    	String sql = "select d from Objective as d where d.instrument.id = :iid";
+    	Objective objective = (Objective) iQuery.findByQuery(sql, param);
+    	//create so settings.
+    	ObjectiveSettings settings = (ObjectiveSettings) 
+    		iUpdate.saveAndReturnObject(createObjectiveSettings(objective));
+    	assertNotNull(settings);
+    	image.setObjectiveSettings(settings);
+    	StageLabel label = (StageLabel)
+    		iUpdate.saveAndReturnObject(createStageLabel());
+    	image.setStageLabel(label);
+    	ImagingEnvironment env = (ImagingEnvironment)
+			iUpdate.saveAndReturnObject(createImageEnvironment());
+    	image.setImagingEnvironment(env);
+    	iUpdate.saveAndReturnObject(image);
+    	ParametersI po = new ParametersI();
+		po.acquisitionData();
+		List<Long> ids = new ArrayList<Long>(1);
+		ids.add(image.getId().getValue());
+		List results = iContainer.getImages(Image.class.getName(), ids, param);
+		assertNotNull(results);
+		assertTrue(results.size() == 1);
+		//Check if acquisition data are loaded.
+		Image test = (Image) results.get(0);
+		assertNotNull(test);
+		assertTrue(test.getId().getValue() == image.getId().getValue());
+		assertNotNull(test.getObjectiveSettings());
+		assertNotNull(test.getImagingEnvironment());
+		assertNotNull(test.getStageLabel());
+		assertTrue(test.getObjectiveSettings().getId().getValue() == 
+			settings.getId().getValue());
+		assertTrue(test.getImagingEnvironment().getId().getValue() == 
+			env.getId().getValue());
+		assertTrue(test.getStageLabel().getId().getValue() == 
+			label.getId().getValue());
     }
     
 }

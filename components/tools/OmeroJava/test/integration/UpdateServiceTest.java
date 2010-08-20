@@ -1655,7 +1655,6 @@ public class UpdateServiceTest
     	assertNull(iQuery.findByQuery(sql, param));
     	param = new ParametersI();
     	param.addId(id);
-    	//The file should have been deleted.TODO
     	sql = "select a from OriginalFile as a where a.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));
     }

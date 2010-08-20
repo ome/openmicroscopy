@@ -8,12 +8,11 @@ package integration;
 
 
 //Java imports
-
-//Third-party libraries
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+//Third-party libraries
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -21,18 +20,25 @@ import org.testng.annotations.Test;
 import omero.api.IDeletePrx;
 import omero.api.IRenderingSettingsPrx;
 import omero.model.Channel;
+import omero.model.CommentAnnotation;
+import omero.model.CommentAnnotationI;
 import omero.model.Detector;
 import omero.model.Dichroic;
 import omero.model.FilterSet;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.ImageAnnotationLink;
+import omero.model.ImageAnnotationLinkI;
+import omero.model.ImagingEnvironment;
 import omero.model.Instrument;
 import omero.model.Laser;
 import omero.model.LogicalChannel;
 import omero.model.OTF;
 import omero.model.Objective;
+import omero.model.ObjectiveSettings;
 import omero.model.Pixels;
 import omero.model.Plate;
+import omero.model.StageLabel;
 import omero.model.StatsInfo;
 import omero.sys.ParametersI;
 
@@ -116,7 +122,7 @@ public class DeleteServiceTest
     }
     
     /**
-     * Test to delete populated plate.
+     * Test to delete a populated plate.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -272,7 +278,28 @@ public class DeleteServiceTest
     public void testDeleteImageNonSharableAnnotations() 
     	throws Exception
     {
-    	
+    	Image img = createImage();
+    	long imageId = img.getId().getValue();
+    	CommentAnnotation annotation = new CommentAnnotationI();
+    	annotation.setTextValue(omero.rtypes.rstring("comment"));
+    	annotation = (CommentAnnotation) iUpdate.saveAndReturnObject(annotation);
+    	long annotationId = annotation.getId().getValue();
+    	ImageAnnotationLink link = new ImageAnnotationLinkI();
+    	link.setChild(annotation);
+    	link.setParent(img);
+    	link = (ImageAnnotationLink) iUpdate.saveAndReturnObject(link);
+    	iDelete.deleteImage(imageId, true);
+    	//check the annotation linked has been removed.
+    	ParametersI param = new ParametersI();
+    	param.addId(link.getId().getValue());
+    	String sql = "select l from ImageAnnotationLink as l where l.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	//annotation should be deleted but not in this version
+    	/*
+    	param.addId(annotationId);
+    	sql = "select l from Annotation as l where l.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	*/
     }
     
     /**
@@ -293,6 +320,7 @@ public class DeleteServiceTest
     	Instrument instrument = createInstrument(LASER);
     	instrument = (Instrument) iUpdate.saveAndReturnObject(instrument);
     	assertNotNull(instrument);
+
     	//retrieve the elements we need for the settings.
     	//retrieve the detector.
     	ParametersI param = new ParametersI();
@@ -309,9 +337,26 @@ public class DeleteServiceTest
     	OTF otf = (OTF) iQuery.findByQuery(sql, param);
     	sql = "select d from Objective as d where d.instrument.id = :iid";
     	Objective objective = (Objective) iQuery.findByQuery(sql, param);
+    	
+    	img.setImagingEnvironment(createImageEnvironment());
+    	img.setObjectiveSettings(createObjectiveSettings(objective));
+    	img.setStageLabel(createStageLabel());
+    	iUpdate.saveAndReturnObject(img);
+    	param = new ParametersI();
+    	param.acquisitionData();
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(img.getId().getValue());
+    	//method already tested in PojosService test
+    	List results = factory.getContainerService().getImages(
+    			Image.class.getName(), ids, param);
+    	img = (Image) results.get(0);
+    	ObjectiveSettings settings = img.getObjectiveSettings();
+    	StageLabel label = img.getStageLabel();
+    	ImagingEnvironment env = img.getImagingEnvironment();
+    	
     	LogicalChannel lc;
     	Channel channel;
-    	List<Long> ids = new ArrayList<Long>();
+    	ids = new ArrayList<Long>();
     	long detectorSettingsID = 0;
     	long lightSourceSettingsID = 0;
     	long ligthPathID = 0;
@@ -334,8 +379,9 @@ public class DeleteServiceTest
     	
     	//Now we try to delete the image.
     	iDelete.deleteImage(img.getId().getValue(), true);
-    	/*
+    	//Follow the section with acquisition data.
     	//Now check if the settings are still there.
+    	/*
     	param = new ParametersI();
     	param.addId(detectorSettingsID);
     	sql = "select d from DetectorSettings as d where d.id = :id";
@@ -358,17 +404,33 @@ public class DeleteServiceTest
     	param.addId(otf.getId().getValue());
     	sql = "select d from OTF as d where d.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));
+    	
     	param.addId(objective.getId().getValue());
     	sql = "select d from Objective as d where d.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));
+    	
     	param.addId(dichroic.getId().getValue());
     	sql = "select d from Dichroic as d where d.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));
+    	
     	param.addId(filterSet.getId().getValue());
     	sql = "select d from FilterSet as d where d.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));
+    	
     	param.addId(laser.getId().getValue());
     	sql = "select d from Laser as d where d.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	
+    	param.addId(settings.getId().getValue());
+    	sql = "select d from ObjectiveSettings as d where d.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	
+    	param.addId(env.getId().getValue());
+    	sql = "select d from ImagingEnvironment as d where d.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	
+    	param.addId(env.getId().getValue());
+    	sql = "select d from StageLabel as d where d.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));
     	*/
     }
