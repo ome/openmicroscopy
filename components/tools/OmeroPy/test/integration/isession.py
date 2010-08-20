@@ -57,16 +57,18 @@ class TestISession(lib.ITest):
         client = omero.client()
         sf = client.createSession(test_user.omeName.val,"ome")
         a = sf.getAdminService()
-        return a.getEventContext().sessionUuid
+        suuid = a.getEventContext().sessionUuid
+        sf.detachOnDestroy()
+        return suuid
         
     def testJoinSession(self):
         suuid = self.testJoinSession_Helper()
-        
         c1 = omero.client()
         sf1 = c1.joinSession(suuid)
         a1 = sf1.getAdminService()
-        print a1.getEventContext().sessionUuid
-            
+        s1uuid = a1.getEventContext().sessionUuid
+        self.assert_( s1uuid == suuid )
+        
         
 ## Removing test for 'guest' user. 
 ## This currently fails but there is some question
