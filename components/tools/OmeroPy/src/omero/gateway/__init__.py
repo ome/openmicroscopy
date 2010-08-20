@@ -762,6 +762,9 @@ class _BlitzGateway (object):
         self._userid = None
         self._proxies = NoProxies()
 
+    def isAnonymous (self):
+        return not not self._anonymous
+
     def getProperty(self, k):
         return self.c.getProperty(k)
 
