@@ -2102,12 +2102,78 @@ class _BlitzGateway (object):
     # Searching stuff #
 
 
-    def searchImages (self, text):
-        """
-        Fulltext search for images
-        """
-        return self.simpleSearch(text,(ImageWrapper,))
+    #def searchImages (self, text):
+    #    """
+    #    Fulltext search for images
+    #    """
+    #    return self.simpleSearch(text,(ImageWrapper,))
+    
+    def searchImages (self, text=None, created=None):
+        search = self.createSearchService()
+        search.onlyType('Image')
+        search.addOrderByAsc("name")
+        if created:
+            search.onlyCreatedBetween(created[0], created[1]);
+        if text:
+           search.setAllowLeadingWildcard(True)
+           search.byFullText(str(text))
+        if search.hasNext():
+            for e in search.results():
+                yield ImageWrapper(self, e)
 
+    def searchDatasets (self, text=None, created=None):
+        search = self.createSearchService()
+        search.onlyType('Dataset')
+        search.addOrderByAsc("name")
+        if created:
+            search.onlyCreatedBetween(created[0], created[1]);
+        if text:
+           search.setAllowLeadingWildcard(True)
+           search.byFullText(str(text))
+        
+        if search.hasNext():
+            for e in search.results():
+                yield DatasetWrapper(self, e)
+        
+
+    def searchProjects (self, text=None, created=None):
+        search = self.createSearchService()
+        search.onlyType('Project')
+        search.addOrderByAsc("name")
+        if created:
+            search.onlyCreatedBetween(created[0], created[1]);
+        if text:
+           search.setAllowLeadingWildcard(True)
+           search.byFullText(str(text))
+        if search.hasNext():
+            for e in search.results():
+                yield ProjectWrapper(self, e)
+    
+    def searchScreens (self, text=None, created=None):
+        search = self.createSearchService()
+        search.onlyType('Screen')
+        search.addOrderByAsc("name")
+        if created:
+            search.onlyCreatedBetween(created[0], created[1]);
+        if text:
+           search.setAllowLeadingWildcard(True)
+           search.byFullText(str(text))
+        if search.hasNext():
+            for e in search.results():
+                yield ScreenWrapper(self, e)
+    
+    def searchPlates (self, text=None, created=None):
+        search = self.createSearchService()
+        search.onlyType('Plate')
+        search.addOrderByAsc("name")
+        if created:
+            search.onlyCreatedBetween(created[0], created[1]);
+        if text:
+           search.setAllowLeadingWildcard(True)
+           search.byFullText(str(text))
+        if search.hasNext():
+            for e in search.results():
+                yield PlateWrapper(self, e)
 
     def simpleSearch (self, text, types=None):
         """

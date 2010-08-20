@@ -26,7 +26,7 @@ class TestISession(lib.ITest):
     def testBasicUsage(self):
         isess = self.client.sf.getSessionService()
         admin = self.client.sf.getAdminService()
-        sid   = admin.getEventContext().sessionUuid
+        sid = admin.getEventContext().sessionUuid
 
     def testManuallyClosingOwnSession(self):
         client = self.new_client()
@@ -51,6 +51,23 @@ class TestISession(lib.ITest):
         self.assert_( sess.uuid.val == new_uuid )
         client.closeSession()
 
+    def testJoinSession_Helper(self):
+        test_user = self.new_user()
+        
+        client = omero.client()
+        sf = client.createSession(test_user.omeName.val,"ome")
+        a = sf.getAdminService()
+        return a.getEventContext().sessionUuid
+        
+    def testJoinSession(self):
+        suuid = self.testJoinSession_Helper()
+        
+        c1 = omero.client()
+        sf1 = c1.joinSession(suuid)
+        a1 = sf1.getAdminService()
+        print a1.getEventContext().sessionUuid
+            
+        
 ## Removing test for 'guest' user. 
 ## This currently fails but there is some question
 ## as to whether we should have a guest user.

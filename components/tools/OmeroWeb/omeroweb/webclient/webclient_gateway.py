@@ -65,7 +65,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.core.mail import EmailMultiAlternatives
 
-PAGE = settings.PAGE
+#PAGE = settings.PAGE
 
 logger = logging.getLogger('webclient_gateway')
 
@@ -92,17 +92,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             if self.getEventContext().shareId != self._shareId and self._shareId > 0:
                 self._shareId = self.getEventContext().shareId
         return self._shareId
-    
-    def isForgottenPasswordSet(self):
-        """ Retrieves a configuration value "omero.resetpassword.config" for
-            Forgotten password form from the backend store. """
-        
-        conf = self.getConfigService()
-        try:
-            return bool(conf.getConfigValue("omero.resetpassword.config").title())
-        except:
-            logger.error(traceback.format_exc())
-            return False
     
     def removeGroupFromContext (self):
         """ Removes group "User" from the current context."""
@@ -145,6 +134,17 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     
     ##############################################
     ##   Forgotten password                     ##
+    
+    def isForgottenPasswordSet(self):
+        """ Retrieves a configuration value "omero.resetpassword.config" for
+            Forgotten password form from the backend store. """
+        
+        conf = self.getConfigService()
+        try:
+            return bool(conf.getConfigValue("omero.resetpassword.config").title())
+        except:
+            logger.error(traceback.format_exc())
+            return False
     
     def reportForgottenPassword(self, username, email):
         """ Allows to reset the password (temporary password is sent). The
@@ -1611,76 +1611,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.theFilter = f
         return tm.getEventLogsByPeriod(rtime(start), rtime(end), p)
         #yield EventLogWrapper(self, e)
-    
-    ##############################################
-    ##  Search methods                          ##
-
-    def searchImages (self, query=None, created=None):
-        search = self.createSearchService()
-        search.onlyType('Image')
-        search.addOrderByAsc("name")
-        if created:
-            search.onlyCreatedBetween(created[0], created[1]);
-        if query:
-           search.setAllowLeadingWildcard(True)
-           search.byFullText(str(query))
-        if search.hasNext():
-            for e in search.results():
-                yield ImageWrapper(self, e)
-
-    def searchDatasets (self, query=None, created=None):
-        search = self.createSearchService()
-        search.onlyType('Dataset')
-        search.addOrderByAsc("name")
-        if created:
-            search.onlyCreatedBetween(created[0], created[1]);
-        if query:
-           search.setAllowLeadingWildcard(True)
-           search.byFullText(str(query))
-        
-        if search.hasNext():
-            for e in search.results():
-                yield DatasetWrapper(self, e)
-        
-
-    def searchProjects (self, query=None, created=None):
-        search = self.createSearchService()
-        search.onlyType('Project')
-        search.addOrderByAsc("name")
-        if created:
-            search.onlyCreatedBetween(created[0], created[1]);
-        if query:
-           search.setAllowLeadingWildcard(True)
-           search.byFullText(str(query))
-        if search.hasNext():
-            for e in search.results():
-                yield ProjectWrapper(self, e)
-    
-    def searchScreens (self, query=None, created=None):
-        search = self.createSearchService()
-        search.onlyType('Screen')
-        search.addOrderByAsc("name")
-        if created:
-            search.onlyCreatedBetween(created[0], created[1]);
-        if query:
-           search.setAllowLeadingWildcard(True)
-           search.byFullText(str(query))
-        if search.hasNext():
-            for e in search.results():
-                yield ScreenWrapper(self, e)
-    
-    def searchPlates (self, query=None, created=None):
-        search = self.createSearchService()
-        search.onlyType('Plate')
-        search.addOrderByAsc("name")
-        if created:
-            search.onlyCreatedBetween(created[0], created[1]);
-        if query:
-           search.setAllowLeadingWildcard(True)
-           search.byFullText(str(query))
-        if search.hasNext():
-            for e in search.results():
-                yield PlateWrapper(self, e)
     
     ##############################################
     ##  helpers                                 ##
