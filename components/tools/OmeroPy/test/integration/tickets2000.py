@@ -483,8 +483,8 @@ class TestTickets2000(lib.ITest):
         self.assertEquals(24, len(res))
         end = time.time()
         elapsed = end - start
-        if elapsed < 3.0:
-            self.fail("Expected the test to complete in < 3 seconds, took: %f" % elapsed)
+        self.assertTrue(elapsed < 3.0,
+            "Expected the test to complete in < 3 seconds, took: %f" % elapsed)
 
     def test1183(self):
         # Annotation added before
