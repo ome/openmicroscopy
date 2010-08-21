@@ -168,6 +168,7 @@ omero.version=${omero.version}
 			<jvmarg value="-Domero.db.port=${omero.db.port}"/>
 			<jvmarg value="-Domero.db.user=${omero.db.user}"/>
 			<jvmarg value="-Domero.db.pass=${omero.db.pass}"/>
+			<jvmarg value="-Domero.data.dir=${omero.data.dir}"/>
 		</testng>
 		</sequential>
 	</macrodef>
