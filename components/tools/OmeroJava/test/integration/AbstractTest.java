@@ -648,8 +648,13 @@ public class AbstractTest
     public void tearDown() 
     	throws Exception
     {
-        client.__del__();
-        root.__del__();
+        if (client != null) {
+            client.__del__();
+        }
+
+        if (root != null) {
+            root.__del__();
+        }
     }
 
     /**
