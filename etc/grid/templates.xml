@@ -150,6 +150,10 @@
             <option>-Xrunjdwp:server=y,transport=dt_socket,address=8787,suspend=y</option>
         </target>
         <option>-Xmx512M</option>
+        <target name="memcfg">
+            <option>${omero.blitz.maxmemory}</option>
+            <option>${omero.blitz.permgen}</option>
+        </target>
         <option>-Djava.awt.headless=true</option>
         <option>-Dlog4j.configuration=${OMERO_ETC}log4j.xml</option>
         <option>-Domero.logfile=${OMERO_LOGFILE}</option>
