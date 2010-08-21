@@ -78,19 +78,40 @@ class HdfList(object):
     """
 
     def __init__(self):
+        self.logger = logging.getLogger("omero.tables.HdfList")
         self._lock = threading.RLock()
         self.__filenos = {}
         self.__paths = {}
+        self.__locks = {}
 
     @locked
-    def addOrThrow(self, hdfpath, hdffile, hdfstorage, action):
+    def addOrThrow(self, hdfpath, hdfstorage):
+
+        if hdfpath in self.__locks:
+            raise omero.LockTimeout(None, None, "Path already in HdfList: %s" % hdfpath)
+
+        parent = path(hdfpath).parent
+        if not parent.exists():
+            raise omero.ApiUsageException(None, None, "Parent directory does not exist: %s" % parent)
+
+        try:
+            lock = open(hdfpath, "a+")
+            portalocker.lock(lock, portalocker.LOCK_NB|portalocker.LOCK_EX)
+            self.__locks[hdfpath] = lock
+        except portalocker.LockException, le:
+            lock.close()
+            raise omero.LockTimeout(None, None, "Cannot acquire exclusive lock on: %s" % self.__hdf_path, 0)
+
+        hdffile = hdfstorage.openfile("a")
         fileno = hdffile.fileno()
         if fileno in self.__filenos.keys():
+            hdffile.close()
             raise omero.LockTimeout(None, None, "File already opened by process: %s" % hdfpath, 0)
         else:
             self.__filenos[fileno] = hdfstorage
             self.__paths[hdfpath] = hdfstorage
-            action()
+
+        return hdffile
 
     @locked
     def getOrCreate(self, hdfpath):
@@ -103,6 +124,15 @@ class HdfList(object):
     def remove(self, hdfpath, hdffile):
         del self.__filenos[hdffile.fileno()]
         del self.__paths[hdfpath]
+        try:
+            if hdfpath in self.__locks:
+                try:
+                    lock = self.__locks[hdfpath]
+                    lock.close()
+                finally:
+                    del self.__locks[hdfpath]
+        except exceptions.Exception, e:
+            self.logger.warn("Exception on remove(%s)" % hdfpath, exc_info=True)
 
 # Global object for maintaining files
 HDFLIST = HdfList()
@@ -127,8 +157,11 @@ class HdfStorage(object):
             raise omero.ValidationException(None, None, "Invalid file_path")
 
         self.logger = logging.getLogger("omero.tables.HdfStorage")
+
         self.__hdf_path = path(file_path)
-        self.__hdf_file = self.__openfile("a")
+        # Locking first as described at:
+        # http://www.pytables.org/trac/ticket/185
+        self.__hdf_file = HDFLIST.addOrThrow(file_path, self)
         self.__tables = []
 
         self._lock = threading.RLock()
@@ -137,16 +170,6 @@ class HdfStorage(object):
         # These are what we'd like to have
         self.__mea = None
         self.__ome = None
-
-        # Now we try to lock the file, if this fails, we rollback
-        # any previous initialization (opening the file)
-        try:
-            fileno = self.__hdf_file.fileno()
-            HDFLIST.addOrThrow(self.__hdf_path, self.__hdf_file, self,\
-                lambda: portalocker.lock(self.__hdf_file, portalocker.LOCK_NB|portalocker.LOCK_EX))
-        except portalocker.LockException, le:
-            self.cleanup()
-            raise omero.LockTimeout(None, None, "Cannot acquire exclusive lock on: %s" % self.__hdf_path, 0)
 
         try:
             self.__ome = self.__hdf_file.root.OME
@@ -161,11 +184,12 @@ class HdfStorage(object):
     # Non-locked methods
     #
 
-    def __openfile(self, mode):
+    def openfile(self, mode):
         try:
             if self.__hdf_path.exists() and self.__hdf_path.size == 0:
                 mode = "w"
-            return tables.openFile(self.__hdf_path, mode=mode, title="OMERO HDF Measurement Storage", rootUEP="/")
+            return tables.openFile(self.__hdf_path, mode=mode,\
+                title="OMERO HDF Measurement Storage", rootUEP="/")
         except IOError, io:
             msg = "HDFStorage initialized with bad path: %s" % self.__hdf_path
             self.logger.error(msg)

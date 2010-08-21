@@ -74,15 +74,15 @@ class TestHdfStorage(TestCase):
         omero.tables.HdfStorage(self.hdfpath())
 
     def testLocking(self):
-        tmp = self.hdfpath()
+        tmp = str(self.hdfpath())
         hdf1 = omero.tables.HdfStorage(tmp)
         try:
-            hdf2 = omero.tables.HdfStorage(self.hdfpath())
+            hdf2 = omero.tables.HdfStorage(tmp)
             self.fail("should be locked")
         except omero.LockTimeout, lt:
             pass
         hdf1.cleanup()
-        hdf3 = omero.tables.HdfStorage(self.hdfpath())
+        hdf3 = omero.tables.HdfStorage(tmp)
 
     def testSimpleCreation(self):
         hdf = omero.tables.HdfStorage(self.hdfpath())
