@@ -22,14 +22,20 @@ import org.testng.annotations.Test;
 //Application-internal dependencies
 import omero.api.IDeletePrx;
 import omero.api.IRenderingSettingsPrx;
+import omero.model.BooleanAnnotation;
+import omero.model.BooleanAnnotationI;
 import omero.model.Channel;
 import omero.model.CommentAnnotation;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
+import omero.model.DatasetAnnotationLink;
+import omero.model.DatasetAnnotationLinkI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.Detector;
 import omero.model.Dichroic;
+import omero.model.FileAnnotation;
+import omero.model.FileAnnotationI;
 import omero.model.FilterSet;
 import omero.model.IObject;
 import omero.model.Image;
@@ -39,13 +45,19 @@ import omero.model.ImagingEnvironment;
 import omero.model.Instrument;
 import omero.model.Laser;
 import omero.model.LogicalChannel;
+import omero.model.LongAnnotation;
+import omero.model.LongAnnotationI;
 import omero.model.OTF;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
+import omero.model.PlateAnnotationLink;
+import omero.model.PlateAnnotationLinkI;
 import omero.model.Project;
+import omero.model.ProjectAnnotationLink;
+import omero.model.ProjectAnnotationLinkI;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.Rect;
@@ -53,11 +65,15 @@ import omero.model.RectI;
 import omero.model.Roi;
 import omero.model.RoiI;
 import omero.model.Screen;
+import omero.model.ScreenAnnotationLink;
+import omero.model.ScreenAnnotationLinkI;
 import omero.model.ScreenPlateLink;
 import omero.model.ScreenPlateLinkI;
 import omero.model.Shape;
 import omero.model.StageLabel;
 import omero.model.StatsInfo;
+import omero.model.TagAnnotation;
+import omero.model.TagAnnotationI;
 import omero.model.Well;
 import omero.model.WellSample;
 import omero.sys.ParametersI;
@@ -81,6 +97,205 @@ public class DeleteServiceTest
 
     /** Helper reference to the <code>IDelete</code> service. */
     private IDeletePrx iDelete;
+    
+    /**
+     * Creates a basic query to check if the object has been deleted.
+     * 
+     * @param i The string identifying the class.
+     * @return See above.
+     */
+    private String createBasicContainerQuery(String i)
+    {
+		if (Image.class.getName().equals(i)) {
+			return "select i from Image as i where i.id = :id";
+		} else if (Dataset.class.getName().equals(i)) {
+			return "select i from Dataset as i where i.id = :id";
+		} else if (Project.class.getName().equals(i)) {
+			return "select i from Project as i where i.id = :id";
+		} else if (Plate.class.getName().equals(i)) {
+			return "select i from Plate as i where i.id = :id";
+		} else if (Screen.class.getName().equals(i)) {
+			return "select i from Screen as i where i.id = :id";
+		}
+		return null;
+    }
+    
+    /**
+     * Creates the object corresponding to the passed string.
+     * 
+     * @param i The string identifying the class.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    private IObject createIObject(String i)
+    	throws Exception
+    {
+    	if (Image.class.getName().equals(i)) {
+			return createImage();
+		} else if (Dataset.class.getName().equals(i)) {
+			return iUpdate.saveAndReturnObject(
+					simpleDatasetData().asIObject());
+		} else if (Project.class.getName().equals(i)) {
+			return iUpdate.saveAndReturnObject(
+					simpleProjectData().asIObject());
+		} else if (Plate.class.getName().equals(i)) {
+			return iUpdate.saveAndReturnObject(
+					simplePlateData().asIObject());
+		} else if (Screen.class.getName().equals(i)) {
+			return iUpdate.saveAndReturnObject(
+					simpleScreenData().asIObject());
+		}
+    	return null;
+    }
+    
+    /**
+     * Creates various non sharable annotations.
+     * 
+     * @param parent The object to link the annotation to.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    private List<Long> createNonSharableAnnotation(IObject parent)
+    	throws Exception 
+    {
+    	//creation already tested in UpdateServiceTest
+    	List<Long> ids = new ArrayList<Long>();
+    	CommentAnnotation c = new CommentAnnotationI();
+    	c.setTextValue(omero.rtypes.rstring("comment"));
+    	c = (CommentAnnotation) iUpdate.saveAndReturnObject(c);
+    	
+    	LongAnnotation l = new LongAnnotationI();
+    	l.setLongValue(omero.rtypes.rlong(1L));
+    	l = (LongAnnotation) iUpdate.saveAndReturnObject(l);
+    	
+    	BooleanAnnotation b = new BooleanAnnotationI();
+    	b.setBoolValue(omero.rtypes.rbool(true));
+    	b = (BooleanAnnotation) iUpdate.saveAndReturnObject(b);
+    	
+    	ids.add(c.getId().getValue());
+    	ids.add(l.getId().getValue());
+    	ids.add(b.getId().getValue());
+    	
+    	List<IObject> links = new ArrayList<IObject>();
+    	if (parent instanceof Image) {
+    		ImageAnnotationLink link = new ImageAnnotationLinkI();
+    		link.setChild(c);
+    		link.setParent((Image) parent);
+    		links.add(link);
+    		link = new ImageAnnotationLinkI();
+    		link.setChild(l);
+    		link.setParent((Image) parent);
+    		links.add(link);
+    		link = new ImageAnnotationLinkI();
+    		link.setChild(b);
+    		link.setParent((Image) parent);
+    		links.add(link);
+    	} else if (parent instanceof Project) {
+    		ProjectAnnotationLink link = new ProjectAnnotationLinkI();
+    		link.setChild(c);
+    		link.setParent((Project) parent);
+    		links.add(link);
+    		link = new ProjectAnnotationLinkI();
+    		link.setChild(l);
+    		link.setParent((Project) parent);
+    		links.add(link);
+    		link = new ProjectAnnotationLinkI();
+    		link.setChild(b);
+    		link.setParent((Project) parent);
+    		links.add(link);
+    	} else if (parent instanceof Dataset) {
+    		DatasetAnnotationLink link = new DatasetAnnotationLinkI();
+    		link.setChild(c);
+    		link.setParent((Dataset) parent);
+    		links.add(link);
+    		link = new DatasetAnnotationLinkI();
+    		link.setChild(l);
+    		link.setParent((Dataset) parent);
+    		links.add(link);
+    		link = new DatasetAnnotationLinkI();
+    		link.setChild(b);
+    		link.setParent((Dataset) parent);
+    		links.add(link);
+    	} else if (parent instanceof Plate) {
+    		PlateAnnotationLink link = new PlateAnnotationLinkI();
+    		link.setChild(c);
+    		link.setParent((Plate) parent);
+    		links.add(link);
+    		link = new PlateAnnotationLinkI();
+    		link.setChild(l);
+    		link.setParent((Plate) parent);
+    		links.add(link);
+    		link = new PlateAnnotationLinkI();
+    		link.setChild(b);
+    		link.setParent((Plate) parent);
+    		links.add(link);
+    	} else if (parent instanceof Screen) {
+    		ScreenAnnotationLink link = new ScreenAnnotationLinkI();
+    		link.setChild(c);
+    		link.setParent((Screen) parent);
+    		links.add(link);
+    		link = new ScreenAnnotationLinkI();
+    		link.setChild(l);
+    		link.setParent((Screen) parent);
+    		links.add(link);
+    		link = new ScreenAnnotationLinkI();
+    		link.setChild(b);
+    		link.setParent((Screen) parent);
+    		links.add(link);
+    	} 
+    	if (links.size() > 0) iUpdate.saveAndReturnArray(links);
+    	return ids;
+    }
+    
+    /**
+     * Creates various non sharable annotations.
+     * 
+     * @param parent The object to link the annotation to.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    private List<Long> createSharableAnnotation(IObject parent)
+    	throws Exception 
+    {
+    	//creation already tested in UpdateServiceTest
+    	List<Long> ids = new ArrayList<Long>();
+    	TagAnnotation c = new TagAnnotationI();
+    	c.setTextValue(omero.rtypes.rstring("tag"));
+    	c = (TagAnnotation) iUpdate.saveAndReturnObject(c);
+    	
+    	
+    	ids.add(c.getId().getValue());
+    	
+    	List<IObject> links = new ArrayList<IObject>();
+    	if (parent instanceof Image) {
+    		ImageAnnotationLink link = new ImageAnnotationLinkI();
+    		link.setChild(c);
+    		link.setParent((Image) parent);
+    		links.add(link);
+    	} else if (parent instanceof Project) {
+    		ProjectAnnotationLink link = new ProjectAnnotationLinkI();
+    		link.setChild(c);
+    		link.setParent((Project) parent);
+    		links.add(link);
+    	} else if (parent instanceof Dataset) {
+    		DatasetAnnotationLink link = new DatasetAnnotationLinkI();
+    		link.setChild(c);
+    		link.setParent((Dataset) parent);
+    		links.add(link);
+    	} else if (parent instanceof Plate) {
+    		PlateAnnotationLink link = new PlateAnnotationLinkI();
+    		link.setChild(c);
+    		link.setParent((Plate) parent);
+    		links.add(link);
+    	} else if (parent instanceof Screen) {
+    		ScreenAnnotationLink link = new ScreenAnnotationLinkI();
+    		link.setChild(c);
+    		link.setParent((Screen) parent);
+    		links.add(link);
+    	} 
+    	if (links.size() > 0) iUpdate.saveAndReturnArray(links);
+    	return ids;
+    }
     
     /**
      * Initializes the various services.
@@ -514,39 +729,6 @@ public class DeleteServiceTest
     }
     
     /**
-     * Test to delete an image with annotations that cannot be shared
-     * e.g. boolean, comments.
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testDeleteImageWithNonSharableAnnotations() 
-    	throws Exception
-    {
-    	Image img = createImage();
-    	long imageId = img.getId().getValue();
-    	CommentAnnotation annotation = new CommentAnnotationI();
-    	annotation.setTextValue(omero.rtypes.rstring("comment"));
-    	annotation = (CommentAnnotation) iUpdate.saveAndReturnObject(annotation);
-    	long annotationId = annotation.getId().getValue();
-    	ImageAnnotationLink link = new ImageAnnotationLinkI();
-    	link.setChild(annotation);
-    	link.setParent(img);
-    	link = (ImageAnnotationLink) iUpdate.saveAndReturnObject(link);
-    	iDelete.deleteImage(imageId, true);
-    	//check the annotation linked has been removed.
-    	ParametersI param = new ParametersI();
-    	param.addId(link.getId().getValue());
-    	String sql = "select l from ImageAnnotationLink as l where l.id = :id";
-    	assertNull(iQuery.findByQuery(sql, param));
-    	//annotation should be deleted but not in this version
-    	/*
-    	param.addId(annotationId);
-    	sql = "select l from Annotation as l where l.id = :id";
-    	assertNull(iQuery.findByQuery(sql, param));
-    	*/
-    }
-    
-    /**
      * Test to delete an image with acquisition data.
      * @throws Exception Thrown if an error occurred.
      */
@@ -780,6 +962,76 @@ public class DeleteServiceTest
     	List results = iQuery.findAllByQuery(sql, param);
     	assertTrue(results.size() == 0);
     	*/
+    }
+    
+    
+    /**
+     * Test to delete object with annotations that cannot be shared
+     * e.g. boolean, comments.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteObjectWithNonSharableAnnotations() 
+    	throws Exception
+    {
+    	String[] objects = {Image.class.getName(), Dataset.class.getName(),
+    			Project.class.getName(), Plate.class.getName(), 
+    			Screen.class.getName() };
+    	IObject obj = null;
+    	List<Long> annotationIds;
+    	ParametersI param;
+    	String sql;
+    	/*
+    	for (int i = 0; i < objects.length; i++) {
+			obj = createIObject(objects[i]);
+			annotationIds = createNonSharableAnnotation(obj);	
+			//delete the object. 
+			param = new ParametersI();
+	    	param.addId(obj.getId().getValue());
+	    	sql = createBasicContainerQuery(objects[i]);
+			assertNull(iQuery.findByQuery(sql, param));
+			//annotations should be deleted to
+			param = new ParametersI();
+	    	param.addIds(annotationIds);
+	    	sql = "select i from Annotation as i where i.id in (:ids)";
+	    	assertTrue(iQuery.findAllByQuery(sql, param).size() == 0);	
+		}
+		*/
+    }
+    
+    /**
+     * Test to delete object with annotations that cannot be shared
+     * e.g. boolean, comments.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteObjectWithSharableAnnotations() 
+    	throws Exception
+    {
+    	String[] objects = {Image.class.getName(), Dataset.class.getName(),
+    			Project.class.getName(), Plate.class.getName(), 
+    			Screen.class.getName() };
+    	Boolean[] values = {Boolean.valueOf(false), Boolean.valueOf(true)};
+    	IObject obj = null;
+    	List<Long> annotationIds;
+    	ParametersI param;
+    	String sql;
+    	/*
+    	for (int i = 0; i < objects.length; i++) {
+			obj = createIObject(objects[i]);
+			annotationIds = createSharableAnnotation(obj);	
+			//delete the object. 
+			param = new ParametersI();
+	    	param.addId(obj.getId().getValue());
+	    	sql = createBasicContainerQuery(objects[i]);
+			assertNull(iQuery.findByQuery(sql, param));
+			//annotations should be deleted to
+			param = new ParametersI();
+	    	param.addIds(annotationIds);
+	    	sql = "select i from Annotation as i where i.id in (:ids)";
+	    	assertTrue(iQuery.findAllByQuery(sql, param).size() == 0);	
+		}
+		*/
     }
     
 }

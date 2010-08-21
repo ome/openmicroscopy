@@ -850,7 +850,7 @@ public class UpdateServiceTest
     public void testCreateBooleanAnnotation()
     	throws Exception 
     {
-    	BooleanAnnotationI annotation = new BooleanAnnotationI();
+    	BooleanAnnotation annotation = new BooleanAnnotationI();
     	annotation.setBoolValue(omero.rtypes.rbool(true));
     	BooleanAnnotation data = (BooleanAnnotation) 
     		iUpdate.saveAndReturnObject(annotation);
@@ -866,7 +866,7 @@ public class UpdateServiceTest
     public void testCreateLongAnnotation()
     	throws Exception 
     {
-    	LongAnnotationI annotation = new LongAnnotationI();
+    	LongAnnotation annotation = new LongAnnotationI();
     	annotation.setLongValue(omero.rtypes.rlong(1L));
     	LongAnnotation data = (LongAnnotation) 
     		iUpdate.saveAndReturnObject(annotation);
@@ -885,7 +885,7 @@ public class UpdateServiceTest
     	OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
 				createOriginalFile());
 		assertNotNull(of);
-		FileAnnotationI fa = new FileAnnotationI();
+		FileAnnotation fa = new FileAnnotationI();
 		fa.setFile(of);
 		FileAnnotation data = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
 		assertNotNull(data);
