@@ -497,7 +497,15 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     }
 
     public ServiceInterfacePrx getByName(String blankname, Current dontUse)
-            throws ServerError {
+    throws ServerError {
+
+        // First try to get the blankname as is in case a value from
+        // activeServices is being passed back in.
+        Ice.Identity immediateId = getIdentity(blankname);
+        if (holder.get(immediateId) != null) {
+            return ServiceInterfacePrxHelper.uncheckedCast(
+                    adapter.createDirectProxy(immediateId));
+        }
 
         // ticket:911 - in order to use a different initializer
         // for each stateless service, we need to attach modify the id.
@@ -687,8 +695,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
      * NB: Much of the logic here is similar to {@link #doClose} and should
      * be pushed down.
      */
-    public int getStatefulServiceCount() {
-        int count = 0;
+    public String getStatefulServiceCount() {
+        String list = "";
         final List<String> servants = holder.getServantList();
         for (final String idName : servants) {
             final Ice.Identity id = getIdentity(idName);
@@ -696,14 +704,14 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
             if (servant != null) {
                 try {
                     if (servant instanceof _StatefulServiceInterfaceOperations) {
-                        count++;
+                        list += "\n" + idName;
                     }
                 } catch (Exception e) {
                     // oh well
                 }
             }
         }
-        return count;
+        return list;
     }
 
     /**

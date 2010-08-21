@@ -11,10 +11,10 @@ import static omero.rtypes.rstring;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -34,6 +34,9 @@ import omero.api.IUpdatePrx;
 import omero.api.RawFileStorePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceFactoryPrxHelper;
+import omero.api.ServiceInterfacePrx;
+import omero.api.StatefulServiceInterface;
+import omero.api.StatefulServiceInterfacePrx;
 import omero.api._ClientCallbackDisp;
 import omero.constants.AGENT;
 import omero.model.DetailsI;
@@ -730,6 +733,30 @@ public class client {
                 }
             });
         }
+    }
+
+    /**
+     * Returns all active {@link StatefulServiceInterface} proxies. This can
+     * be used to call close before calling setSecurityContext.
+     */
+    public List<StatefulServiceInterfacePrx> getStatefulServices() throws ServerError {
+        List<StatefulServiceInterfacePrx> rv = new ArrayList<StatefulServiceInterfacePrx>();
+        ServiceFactoryPrx sf = getSession();
+        List<String> services = sf.activeServices();
+        for (String srv : services) {
+            try {
+                ServiceInterfacePrx prx = sf.getByName(srv);
+                StatefulServiceInterfacePrx sPrx =
+                    omero.api.StatefulServiceInterfacePrxHelper.checkedCast(prx);
+                if (sPrx != null) {
+                    rv.add(sPrx);
+                }
+            } catch (Exception e) {
+                getCommunicator().getLogger().warning(
+                        "Error looking up proxy: " + srv);
+            }
+        }
+        return rv;
     }
 
     /**

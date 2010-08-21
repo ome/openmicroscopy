@@ -309,10 +309,10 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             try {
                 ServiceFactoryI sf = getServiceFactory(clientId, uuid);
                 if (sf != null) {
-                    int count = sf.getStatefulServiceCount();
-                    if (count > 0) {
+                    String servants = sf.getStatefulServiceCount();
+                    if (servants.length() > 0) {
                         csce.cancel("Client " + clientId +
-                                " has active stateful services: count=" + count);
+                                " has active stateful services:\n" + servants);
                     }
                 }
             } catch (Exception e) {

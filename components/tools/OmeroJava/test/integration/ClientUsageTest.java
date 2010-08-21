@@ -8,12 +8,15 @@ package integration;
 
 import static omero.rtypes.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import omero.RString;
 import omero.client;
 import omero.api.IAdminPrx;
 import omero.api.ServiceFactoryPrx;
+import omero.api.StatefulServiceInterfacePrx;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
@@ -27,6 +30,7 @@ import org.testng.annotations.Test;
  * All configuration comes from the ICE_CONFIG
  * environment variable.
  */
+@Test(groups = "integration")
 public class ClientUsageTest 
 	extends AbstractTest
 {
@@ -122,4 +126,31 @@ public class ClientUsageTest
         }
     }
 
+    /**
+     * Test the {@link omero.client#getStatefulServices()} method.
+     * All stateful services should be returned. Calling close on
+     * them should remove them from future calls, which will allow
+     * {@link ServiceFactoryPrx#setSecurityContext} to be called.
+     *
+     * @throws Exception If an error occurred.
+     */
+    @Test
+    public void testGetStatefulServices() throws Exception
+    {
+        ServiceFactoryPrx sf = root.getSession();
+        sf.setSecurityContext(new omero.model.ExperimenterGroupI(0L, false));
+        sf.createRenderingEngine();
+        List<StatefulServiceInterfacePrx> srvs = root.getStatefulServices();
+        assertEquals(1, srvs.size());
+        try {
+            sf.setSecurityContext(new omero.model.ExperimenterGroupI(1L, false));
+            fail("Should not be allowed");
+        } catch (omero.SecurityViolation sv) {
+            // good
+        }
+        srvs.get(0).close();
+        srvs = root.getStatefulServices();
+        assertEquals(0, srvs.size());
+        sf.setSecurityContext(new omero.model.ExperimenterGroupI(1L, false));
+    }
 }

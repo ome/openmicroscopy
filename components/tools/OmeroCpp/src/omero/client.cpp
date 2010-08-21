@@ -486,6 +486,31 @@ namespace omero {
 
     // --------------------------------------------------------------------
 
+    std::vector<omero::api::StatefulServiceInterfacePrx> client::getStatefulServices() {
+            vector<omero::api::StatefulServiceInterfacePrx> rv;
+            omero::api::ServiceFactoryPrx sf = getSession();
+            vector<string> services = sf->activeServices();
+            vector<string>::const_iterator srv = services.begin();
+            vector<string>::const_iterator end = services.end();
+            while (srv != end) {
+                try {
+                    omero::api::ServiceInterfacePrx prx = sf->getByName(*srv);
+                    omero::api::StatefulServiceInterfacePrx sPrx =
+                        omero::api::StatefulServiceInterfacePrx::checkedCast(prx);
+                    if (sPrx) {
+                        rv.push_back(sPrx);
+                    }
+                } catch (...) {
+                    getCommunicator()->getLogger()->warning(
+                            "Error looking up proxy: " + *srv);
+                }
+                srv++;
+            }
+
+            return rv;
+        }
+    // --------------------------------------------------------------------
+
     void client::closeSession() {
 
 	IceUtil::RecMutex::Lock lock(mutex);

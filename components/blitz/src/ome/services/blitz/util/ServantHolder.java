@@ -10,12 +10,14 @@ package ome.services.blitz.util;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import ome.services.blitz.impl.ServiceFactoryI;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Manager for all active servants in a single {@link ServiceFactoryI}.
@@ -28,6 +30,8 @@ import ome.services.blitz.impl.ServiceFactoryI;
  * @since 3.0-Beta4
  */
 public class ServantHolder {
+
+    private final static Log log = LogFactory.getLog(ServantHolder.class);
 
     /**
      * Note: servants are stored by String since {@link Ice.Identity} does not
@@ -98,11 +102,18 @@ public class ServantHolder {
     //
 
     private void put(String key, Ice.Object servant) {
-        servants.put(key, servant);
+        Object old = servants.put(key, servant);
+        if (old == null) {
+            log.debug(String.format("Added %s to %s as %s", servant, this, key));
+        } else {
+            log.debug(String.format("Replaced %s with %s to %s as %s", old, servant, this, key));
+        }
     }
 
     private Ice.Object remove(String key) {
-        return servants.remove(key);
+        Ice.Object servant = servants.remove(key);
+        log.debug(String.format("Removed %s from %s as %s", servant, this, key));
+        return servant;
     }
 
     private Ice.Object get(String key) {

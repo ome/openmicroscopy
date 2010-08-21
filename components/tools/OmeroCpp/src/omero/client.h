@@ -286,6 +286,12 @@ namespace omero {
 		    const omero::model::OriginalFilePtr& ofile,
 		    int blockSize);
 
+        /**
+         * Returns all active StatefulServiceInterface proxies. This can
+         * be used to call close before calling setSecurityContext.
+         */
+        std::vector<omero::api::StatefulServiceInterfacePrx> getStatefulServices();
+
 	/*
 	 * Closes the Router connection created by createSession(). Due to a bug in Ice,
 	 * only one connection is allowed per communicator, so we also destroy the

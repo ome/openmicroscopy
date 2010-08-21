@@ -29,12 +29,18 @@ from integration.helpers import createTestImage
 
 class TestThumbnailPerms(lib.ITest):
 
+    def set_context(self, client, gid):
+        rv = client.getStatefulServices()
+        for prx in rv:
+            prx.close()
+        client.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid, False))
+
     def testThumbs(self):
 
         # root session is root.sf
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         admin = self.root.sf.getAdminService()
-        
+
         group1name = "private_%s" % uuid
         group2name = "read-only_%s" % uuid
         group3name = "collaborative_%s" % uuid
@@ -146,7 +152,8 @@ class TestThumbnailPerms(lib.ITest):
         a = client_share1.sf.getAdminService()
         me = a.getExperimenter(a.getEventContext().userId)
         a.setDefaultGroup(me, omero.model.ExperimenterGroupI(gid2, False))
-        client_share1.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid2, False))
+
+        self.set_context(client_share1, gid2)
         #print a.getEventContext()
         
         # create image and get thumbnail (in read-only group)
@@ -155,7 +162,7 @@ class TestThumbnailPerms(lib.ITest):
         
         # change user into collaborative group. Use object Ids for this, NOT objects from a different context
         a.setDefaultGroup(me, omero.model.ExperimenterGroupI(gid3, False))
-        client_share1.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid3, False))
+        self.set_context(client_share1, gid3)
         
         # create image and get thumbnail (in collaborative group)
         collaborativeImageId = createTestImage(client_share1.sf)
@@ -180,7 +187,7 @@ class TestThumbnailPerms(lib.ITest):
         o = client_share1.sf.getAdminService()
         me = o.getExperimenter(o.getEventContext().userId)
         o.setDefaultGroup(me, omero.model.ExperimenterGroupI(gid2, False))
-        owner_client.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid2, False))
+        self.set_context(owner_client, gid2)
 
         self.getThumbnail(owner_client.sf, readOnlyImageId)
         # check that we can't get thumbnails for images in other groups
@@ -189,7 +196,7 @@ class TestThumbnailPerms(lib.ITest):
         
         # change owner into collaborative group.
         o.setDefaultGroup(me, omero.model.ExperimenterGroupI(gid3, False))
-        owner_client.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid3, False))
+        self.set_context(owner_client, gid3)
         
         self.getThumbnail(owner_client.sf, collaborativeImageId)
         # check that we can't get thumbnails for images in other groups
@@ -211,7 +218,7 @@ class TestThumbnailPerms(lib.ITest):
         u = user2_client.sf.getAdminService()
         me = u.getExperimenter(u.getEventContext().userId)
         u.setDefaultGroup(me, omero.model.ExperimenterGroupI(gid2, False))
-        user2_client.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid2, False))
+        self.set_context(user2_client, gid2)
 
         self.getThumbnail(user2_client.sf, readOnlyImageId)
         # check that we can't get thumbnails for images in other groups
@@ -220,7 +227,7 @@ class TestThumbnailPerms(lib.ITest):
         
         # change owner into collaborative group.
         u.setDefaultGroup(me, omero.model.ExperimenterGroupI(gid3, False))
-        user2_client.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid3, False))
+        self.set_context(user2_client, gid3)
         
         self.getThumbnail(user2_client.sf, collaborativeImageId)
         # check that we can't get thumbnails for images in other groups
