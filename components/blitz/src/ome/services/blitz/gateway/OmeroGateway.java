@@ -23,27 +23,24 @@
 package ome.services.blitz.gateway;
 
 
-//Java imports
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
-import Ice.Current;
-
-//Application-internal dependencies
 import ome.services.blitz.gateway.services.DataService;
 import ome.services.blitz.gateway.services.GatewayFactory;
 import ome.services.blitz.gateway.services.ImageService;
+import ome.services.blitz.impl.AbstractAmdServant;
 import ome.services.blitz.impl.ServiceFactoryI;
+import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
 import omero.RInt;
 import omero.ServerError;
 import omero.api.AMD_StatefulServiceInterface_activate;
 import omero.api.AMD_StatefulServiceInterface_close;
-import omero.api.AMD_StatefulServiceInterface_passivate;
 import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
+import omero.api.AMD_StatefulServiceInterface_passivate;
 import omero.api.ContainerClass;
 import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceFactoryPrxHelper;
@@ -54,6 +51,7 @@ import omero.model.Image;
 import omero.model.Pixels;
 import omero.model.PixelsType;
 import omero.model.Project;
+import Ice.Current;
 
 /** 
  * 
@@ -68,7 +66,7 @@ import omero.model.Project;
  * </small>
  * @since OME3.0
  */
-public class OmeroGateway
+public class OmeroGateway extends AbstractAmdServant
 	implements ServiceFactoryAware, _GatewayOperations, BlitzOnly
 {
 	
@@ -84,6 +82,10 @@ public class OmeroGateway
 	/** The gateway factory which controls access to the basic services. */
 	private GatewayFactory		gatewayFactory;
 	
+	public OmeroGateway(BlitzExecutor be) {
+	    super(null, be);
+	}
+
 	/**
 	 * Initialize the service factory which creates the gateway and services
 	 * and links the different services together.  
@@ -434,37 +436,12 @@ public class OmeroGateway
 		return imageService.getRawPlane(pixelsId, z, c, t);
 	}
 
-        // Stateful interface methods
-        // =========================================================================
-
-        public void activate_async(AMD_StatefulServiceInterface_activate __cb, Current __current)
-        {
-                 __cb.ice_exception(new omero.InternalException(null,null,"NYI"));
-        }
-
-        public void passivate_async(AMD_StatefulServiceInterface_passivate __cb, Current __current)
-        {
-	         __cb.ice_exception(new omero.InternalException(null,null,"NYI"));
-        }
-
-	/* (non-Javadoc)
-	 * @see omero.api._StatefulServiceInterfaceOperations#close_async(omero.api.AMD_StatefulServiceInterface_close, Ice.Current)
-	 */
-	public void close_async(AMD_StatefulServiceInterface_close __cb,
-			Current __current) throws ServerError
-	{
-		  close();
-		  __cb.ice_response();
+	@Override
+	protected void preClose() {
+	    try {
+	        close();
+	    } catch (Exception e) {
+	        log.error("Error on OmeroGateway.close()", e);
+	    }
 	}
-
-	/* (non-Javadoc)
-	 * @see omero.api._StatefulServiceInterfaceOperations#getCurrentEventContext_async(omero.api.AMD_StatefulServiceInterface_getCurrentEventContext, Ice.Current)
-	 */
-	public void getCurrentEventContext_async(
-			AMD_StatefulServiceInterface_getCurrentEventContext __cb,
-			Current __current) throws ServerError
-	{
-		__cb.ice_exception(new omero.InternalException(null,null,"NYI"));
-	}	
-
 }

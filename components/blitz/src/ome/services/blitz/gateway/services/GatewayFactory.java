@@ -214,7 +214,6 @@ public class GatewayFactory
 	 */
 	public void closeService() throws ServerError
 	{
-		serviceFactory.closeOnDestroy();
 		serviceFactory = null;
 	}
 
