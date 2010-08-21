@@ -163,6 +163,11 @@ omero.version=${omero.version}
 			<jvmarg value="-Xmx${javac.maxmem}"/>
 			<jvmarg value="-Demma.coverage.out.file=${target.dir}/coverage.emma" />
 			<jvmarg value="-Dlog4j.configuration=log4j-build.xml"/>
+			<jvmarg value="-Domero.db.name=${omero.db.name}"/>
+			<jvmarg value="-Domero.db.host=${omero.db.host}"/>
+			<jvmarg value="-Domero.db.port=${omero.db.port}"/>
+			<jvmarg value="-Domero.db.user=${omero.db.user}"/>
+			<jvmarg value="-Domero.db.pass=${omero.db.pass}"/>
 		</testng>
 		</sequential>
 	</macrodef>
