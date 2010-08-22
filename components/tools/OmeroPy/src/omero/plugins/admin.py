@@ -364,9 +364,9 @@ Examples:
         self.check([])
 
         user = args.user
-        descript = self._descript(args)
 
         if self._isWindows():
+            descript = self._descript(args)
             svc_name = "OMERO.%s" % args.node
             output = self._query_service(svc_name)
 
@@ -401,8 +401,9 @@ Examples:
             output = self.ctx.popen(["sc","start",svc_name]).communicate()[0] # popen
             self.ctx.out(output)
         else:
-            command = ["icegridnode","--daemon","--pidfile",str(self._pid()),"--nochdir",self._icecfg(),"--deploy",str(descript)] + args.targets
+            command = ["icegridnode","--daemon","--pidfile",str(self._pid()),"--nochdir",self._icecfg()]
             self.ctx.call(command)
+            self.deploy(args, command)
 
     @with_config
     def start(self, args, config):
