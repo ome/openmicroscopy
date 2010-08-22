@@ -460,7 +460,13 @@ public class UpdateServiceTest
     public void testPopulatedPlate()
 		throws Exception
     {
-    	Plate p = createPlate(1, 1, 1, true);
+    	Plate p = createPlate(1, 1, 1, true, false);
+    	p = (Plate) iUpdate.saveAndReturnObject(p);
+    	assertNotNull(p);
+    	p = createPlate(1, 1, 1, false, false);
+    	p = (Plate) iUpdate.saveAndReturnObject(p);
+    	assertNotNull(p);
+    	p = createPlate(1, 1, 1, true, true);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	assertNotNull(p);
     }

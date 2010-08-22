@@ -381,7 +381,7 @@ public class DeleteServiceTest
     	for (int i = 0; i < values.length; i++) {
 			b = values[i];
 			p = (Plate) iUpdate.saveAndReturnObject(
-	    			createPlate(1, 1, 1, b));
+	    			createPlate(1, 1, 1, b, false));
 			param = new ParametersI();
 			param.addLong("plateID", p.getId().getValue());
 			sb = new StringBuilder();
@@ -569,9 +569,9 @@ public class DeleteServiceTest
     	Screen screen = (Screen) iUpdate.saveAndReturnObject(
     			simpleScreenData().asIObject());
     	Plate p1 = (Plate) iUpdate.saveAndReturnObject(
-    			createPlate(1, 1, 1, false)); //w/o plate acquisition
+    			createPlate(1, 1, 1, false, false)); //w/o plate acquisition
     	Plate p2 = (Plate) iUpdate.saveAndReturnObject(
-    			createPlate(1, 1, 1, true)); //with plate acquisition
+    			createPlate(1, 1, 1, true, false)); //with plate acquisition
     	List<IObject> links = new ArrayList<IObject>();
     	ScreenPlateLink link = new ScreenPlateLinkI();
     	link.setChild(p1);

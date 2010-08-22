@@ -22,7 +22,9 @@ import omero.model.DatasetImageLinkI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
+import omero.model.Plate;
 import omero.model.RenderingDef;
+import omero.model.Well;
 import omero.sys.ParametersI;
 
 /** 
@@ -43,6 +45,28 @@ import omero.sys.ParametersI;
 public class RenderingSettingsServiceTest 
 	extends AbstractTest
 {
+	
+	/**
+	 * Loads the wells.
+	 * 
+	 * @param plateID The identifier of the plate.
+	 * @return See above.
+	 */
+	private List<IObject> loadWells(long plateID)
+		throws Exception 
+	{
+		StringBuilder sb = new StringBuilder();
+		ParametersI param = new ParametersI();
+		param.addLong("plateID", plateID);
+		sb.append("select well from Well as well ");
+		sb.append("left outer join fetch well.plate as pt ");
+		sb.append("left outer join fetch well.wellSamples as ws ");
+		sb.append("left outer join fetch ws.image as img ");
+		sb.append("left outer join fetch img.pixels as pix ");
+        sb.append("left outer join fetch pix.pixelsType as pt ");
+        sb.append("where well.plate.id = :plateID");
+        return iQuery.findAllByQuery(sb.toString(), param);
+	}
 	
     /**
      * Tests to set the default rendering settings for a set.
@@ -185,7 +209,7 @@ public class RenderingSettingsServiceTest
     }
     
     /**
-     * Tests to set the default rendering settings for a project.
+     * Tests to set the default rendering settings for a empty dataset.
      * Tests the <code>resetDefaultsInSet</code> method.
      * @throws Exception Thrown if an error occurred.
      */
@@ -301,6 +325,17 @@ public class RenderingSettingsServiceTest
     }
     
     /**
+     * Tests to apply the rendering settings to an empty dataset.
+     * Tests the <code>ApplySettingsToSet</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetForEmptyDataset() 
+    	throws Exception 
+    {
+    	
+    }
+    /**
      * Tests to apply the rendering settings to a collection of images contained
      * in a project.
      * Tests the <code>ApplySettingsToSet</code> method.
@@ -359,5 +394,92 @@ public class RenderingSettingsServiceTest
     	compareRenderingDef(def, def2);
     	*/
     }
+    
+    /**
+     * Tests to apply the rendering settings to a plate.
+     * Tests the <code>ApplySettingsToSet</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetForPlate() 
+    	throws Exception 
+    {
+    	Plate p = createPlate(1, 1, 1, false, true);
+    	p = (Plate) iUpdate.saveAndReturnObject(p);
+    	//load the well
+    	List<IObject> results = loadWells(p.getId().getValue());
+    	Well well = (Well) results.get(0);
+    	
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	Image image = well.getWellSample(0).getImage();
+    	Pixels pixels = image.getPrimaryPixels();
+    	long id = pixels.getId().getValue();
+    	//Image
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(p.getId().getValue());
+    	//method already tested 
+    	 prx.resetDefaultsInSet(Plate.class.getName(), ids);
+    
+    	//method already tested 
+    	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+    	
+    	
+    	
+    	//Create a second plate
+    	p = createPlate(1, 1, 1, false, true);
+    	p = (Plate) iUpdate.saveAndReturnObject(p);
+    	results = loadWells(p.getId().getValue());
+    	well = (Well) results.get(0);
+    	Image image2 = well.getWellSample(0).getImage();
+    	ids = new ArrayList<Long>();
+    	ids.add(p.getId().getValue());
+    	Map<Boolean, List<Long>> m = 
+    		prx.applySettingsToSet(id, Plate.class.getName(), ids);
+    	assertNotNull(m);
+    	List<Long> success = (List<Long>) m.get(Boolean.valueOf(true));
+    	List<Long> failure = (List<Long>) m.get(Boolean.valueOf(false));
+    	assertNotNull(success);
+    	assertNotNull(failure);
+    	assertTrue(success.size() == 1);
+    	assertTrue(failure.size() == 0);
+    	id = success.get(0); //image id.
+    	assertTrue(id == image2.getId().getValue());
+    	RenderingDef def2 = factory.getPixelsService().retrieveRndSettings(
+    			image2.getPrimaryPixels().getId().getValue());
+    	compareRenderingDef(def, def2);
+    }
+    
+    /**
+     * Tests to reset the default rendering settings to a plate.
+     * Tests the <code>ResetDefaultInSet</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testResetDefaultInSetForPlate() 
+    	throws Exception 
+    {
+    	Plate p = createPlate(1, 1, 1, false, true);
+    	p = (Plate) iUpdate.saveAndReturnObject(p);
+    	//load the well
+    	List<IObject> results = loadWells(p.getId().getValue());
+    	Well well = (Well) results.get(0);
+    	Image image = well.getWellSample(0).getImage();
+    	Pixels pixels = image.getPrimaryPixels();
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	//Image
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(p.getId().getValue());
+    	List<Long> v = prx.resetDefaultsInSet(Plate.class.getName(), ids);
+    	assertNotNull(v);
+    	assertTrue(v.size() > 0);
+    	ParametersI param = new ParametersI();
+    	param.addLong("pid", pixels.getId().getValue());
+    	String sql = "select rdef from RenderingDef as rdef " +
+    			"where rdef.pixels.id = :pid";
+    	List<IObject> values = iQuery.findAllByQuery(sql, param);
+    	assertNotNull(values);
+    	assertTrue(values.size() == 1);
+    }
+    
     
 }

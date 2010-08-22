@@ -868,10 +868,18 @@ public class AbstractTest
 	/**
 	 * Creates a plate.
 	 * 
+	 * @param rows The number of rows.
+	 * @param columns The number of columns.
+	 * @param fields The number of fields.
+	 * @param plateAcquisition Pass <code>true</code> to add a plate acquisition,
+	 * 					       <code>false</code> otherwise.
+	 * @param fullImage Pass <code>true</code> to add image with pixels, 
+	 * 					<code>false</code> to create a simple image.
 	 * @return See above.
 	 */
 	protected Plate createPlate(int rows, int columns, int fields, boolean
-			plateAcquisition)
+			plateAcquisition, boolean fullImage)
+		throws Exception
 	{
     	Plate p = new PlateI();
     	p.setRows(omero.rtypes.rint(rows));
@@ -894,7 +902,8 @@ public class AbstractTest
 				well.setColumn(omero.rtypes.rint(column));
 				for (int field = 0; field < fields; field++) {
 					sample = new WellSampleI();
-					sample.setImage(simpleImage(0));
+					if (fullImage) sample.setImage(createImage());
+					else sample.setImage(simpleImage(0));
 					well.addWellSample(sample);
 					if (plateAcquisition) pa.addWellSample(sample);
 				}
