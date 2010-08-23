@@ -11,9 +11,11 @@ package integration;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 import org.testng.annotations.Test;
@@ -22,6 +24,7 @@ import org.testng.annotations.Test;
 import omero.api.IRenderingSettingsPrx;
 import omero.model.ChannelBinding;
 import omero.model.Dataset;
+import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.IObject;
@@ -32,8 +35,14 @@ import omero.model.Project;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.RenderingDef;
+import omero.model.Screen;
+import omero.model.ScreenPlateLink;
+import omero.model.ScreenPlateLinkI;
 import omero.model.Well;
 import omero.sys.ParametersI;
+import pojos.DatasetData;
+import pojos.ImageData;
+import pojos.ProjectData;
 
 /** 
  * Collections of tests for the <code>RenderingSettingsService</code> service.
@@ -127,6 +136,7 @@ public class RenderingSettingsServiceTest
     	ids.add(image.getId().getValue());
     	List<Long> v = prx.resetDefaultsInSet(Image.class.getName(), ids);
     	assertNotNull(v);
+    	assertNotNull(v.size() == 1);
     	ParametersI param = new ParametersI();
     	param.addLong("pid", pixels.getId().getValue());
     	String sql = "select rdef from RenderingDef as rdef " +
@@ -161,6 +171,7 @@ public class RenderingSettingsServiceTest
     	ids.add(d.getId().getValue());
     	List<Long> v = prx.resetDefaultsInSet(Dataset.class.getName(), ids);
     	assertNotNull(v);
+    	assertNotNull(v.size() == 1);
     	ParametersI param = new ParametersI();
     	param.addLong("pid", pixels.getId().getValue());
     	String sql = "select rdef from RenderingDef as rdef " +
@@ -178,34 +189,95 @@ public class RenderingSettingsServiceTest
     public void testResetDefaultInSetForProject() 
     	throws Exception 
     {
-    	/*
-    	Image image = createImage();
-    	Pixels pixels = image.getPrimaryPixels();
-    	
+    	//create a project.
+    	Project p = (Project) iUpdate.saveAndReturnObject(
+    			simpleProjectData().asIObject());
     	//create a dataset
 
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			simpleDatasetData().asIObject());
+    	
+    	
 
-    	//create a project.
-    	Project p = (Project) iUpdate.saveAndReturnObject(
-    			simpleProjectData().asIObject());
-    	ProjectDatasetLink link = new ProjectDatasetLinkI();
-    	link.setChild(d);
-    	link.setParent(p);
-    	iUpdate.saveAndReturnObject(link);
+    	Image image = createImage();
+    	Pixels pixels = image.getPrimaryPixels();
+    	
+    	
+        
+        ProjectDatasetLink link = new ProjectDatasetLinkI();
+        link.link(p, d);
+    	link = (ProjectDatasetLink) iUpdate.saveAndReturnObject(link);
     	
     	DatasetImageLink l = new DatasetImageLinkI();
-    	l.setChild(image);
-    	l.setParent(d);
-    	iUpdate.saveAndReturnObject(l);
-    	    	
+    	l.link(new DatasetI(d.getId().getValue(), false), image);
+    	l = (DatasetImageLink) iUpdate.saveAndReturnObject(l);
+      
+    	
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-
+    	
+    	
     	List<Long> ids = new ArrayList<Long>();
-    	ids.add(p.getId().getValue());
+        ids.add(p.getId().getValue());
     	List<Long> v = prx.resetDefaultsInSet(Project.class.getName(), ids);
+    	ParametersI param;
+    	String sql;
+    	param = new ParametersI();
+    	ids.clear();
+    	ids.add(p.getId().getValue());
+    	param.addIds(ids);
+    	sql = "select pix from Pixels as pix " +
+		"join fetch pix.image as i " +
+		"join fetch pix.pixelsType " +
+		"join fetch pix.channels as c " +
+		"join fetch c.logicalChannel " +
+		"join i.datasetLinks as dil " +
+		"join dil.parent as d " +
+		"left outer join d.projectLinks as pdl " +
+		"left outer join pdl.parent as p " +
+		"where p.id in (:ids)";
+    	assertTrue(iQuery.findAllByQuery(sql, param).size() == 1);
+
     	assertNotNull(v);
+    	assertNotNull(v.size() == 1);
+    	param = new ParametersI();
+    	param.addLong("pid", pixels.getId().getValue());
+    	sql = "select rdef from RenderingDef as rdef " +
+    			"where rdef.pixels.id = :pid";
+    	List<IObject> values = iQuery.findAllByQuery(sql, param);
+    	assertNotNull(values);
+    	assertTrue(values.size() == 1);
+    }
+    
+    /**
+     * Tests to set the default rendering settings for a screen.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testResetDefaultInSetForScreen() 
+    	throws Exception 
+    {
+    	Screen screen = (Screen) iUpdate.saveAndReturnObject(
+    			simpleScreenData().asIObject());
+    	Plate p = createPlate(1, 1, 1, false, true);
+    	p = (Plate) iUpdate.saveAndReturnObject(p);
+    	
+    	ScreenPlateLink link = new ScreenPlateLinkI();
+    	link.setChild(p);
+    	link.setParent(screen);
+    	iUpdate.saveAndReturnObject(link);
+    	
+    	//load the well
+    	List<IObject> results = loadWells(p.getId().getValue());
+    	Well well = (Well) results.get(0);
+    	Image image = well.getWellSample(0).getImage();
+    	Pixels pixels = image.getPrimaryPixels();
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	//Image
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(screen.getId().getValue());
+    	List<Long> v = prx.resetDefaultsInSet(Screen.class.getName(), ids);
+    	assertNotNull(v);
+    	assertTrue(v.size() == 1);
     	ParametersI param = new ParametersI();
     	param.addLong("pid", pixels.getId().getValue());
     	String sql = "select rdef from RenderingDef as rdef " +
@@ -213,7 +285,6 @@ public class RenderingSettingsServiceTest
     	List<IObject> values = iQuery.findAllByQuery(sql, param);
     	assertNotNull(values);
     	assertTrue(values.size() == 1);
-    	*/
     }
     
     /**
@@ -226,7 +297,6 @@ public class RenderingSettingsServiceTest
     	throws Exception 
     {
     	//create a dataset
-    	/*
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			simpleDatasetData().asIObject());
     	
@@ -237,7 +307,6 @@ public class RenderingSettingsServiceTest
     	List<Long> v = prx.resetDefaultsInSet(Dataset.class.getName(), ids);
     	assertNotNull(v);
     	assertTrue(v.size() == 0);
-    	*/
     }
     
     /**
@@ -341,8 +410,33 @@ public class RenderingSettingsServiceTest
     public void testApplySettingsToSetForEmptyDataset() 
     	throws Exception 
     {
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	Image image = createImage();
+    	Pixels pixels = image.getPrimaryPixels();
+    	long id = pixels.getId().getValue();
+    	//Image
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(image.getId().getValue());
+    	//method already tested 
+    	prx.resetDefaultsInSet(Image.class.getName(), ids);
+    	 
+    	//create a dataset
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			simpleDatasetData().asIObject());
     	
+    	//Dataset
+    	ids = new ArrayList<Long>();
+    	ids.add(d.getId().getValue());
+    	Map<Boolean, List<Long>> m = 
+    		prx.applySettingsToSet(id, Dataset.class.getName(), 
+    			ids);
+    	assertNotNull(m);
+    	List<Long> success = (List<Long>) m.get(Boolean.valueOf(true));
+    	List<Long> failure = (List<Long>) m.get(Boolean.valueOf(false));
+    	assertTrue(success.size() == 0);
+    	assertTrue(failure.size() == 0);
     }
+    
     /**
      * Tests to apply the rendering settings to a collection of images contained
      * in a project.
@@ -353,7 +447,6 @@ public class RenderingSettingsServiceTest
     public void testApplySettingsToSetForProject() 
     	throws Exception 
     {
-    	/*
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	Image image = createImage();
     	Pixels pixels = image.getPrimaryPixels();
@@ -369,23 +462,23 @@ public class RenderingSettingsServiceTest
     	//Create a second image.
     	Image image2 = createImage();
     	//Create a dataset
-    	
+    	//Link image and dataset
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			simpleDatasetData().asIObject());
-    	DatasetImageLink l = new DatasetImageLinkI();
-    	l.setChild(image2);
-    	l.setParent(d);
-    	iUpdate.saveAndReturnObject(l);
     	
-    	Project p = (Project) iUpdate.saveAndReturnObject(
+    	Project project = (Project) iUpdate.saveAndReturnObject(
     			simpleProjectData().asIObject());
-    	ProjectDatasetLink link = new ProjectDatasetLinkI();
-    	link.setChild(d);
-    	link.setParent(p);
+    	
+    	ProjectDatasetLink pLink = new ProjectDatasetLinkI();
+    	pLink.link(project, d);
+    	iUpdate.saveAndReturnObject(pLink);
+
+    	DatasetImageLink link = new DatasetImageLinkI();
+    	link.link(new DatasetI(d.getId().getValue(), false), image2);
     	iUpdate.saveAndReturnObject(link);
     	
     	ids = new ArrayList<Long>();
-    	ids.add(p.getId().getValue());
+    	ids.add(project.getId().getValue());
     	Map<Boolean, List<Long>> m = 
     		prx.applySettingsToSet(id, Project.class.getName(), ids);
     	assertNotNull(m);
@@ -400,7 +493,6 @@ public class RenderingSettingsServiceTest
     	RenderingDef def2 = factory.getPixelsService().retrieveRndSettings(
     			image2.getPrimaryPixels().getId().getValue());
     	compareRenderingDef(def, def2);
-    	*/
     }
     
     /**
@@ -458,6 +550,75 @@ public class RenderingSettingsServiceTest
     }
     
     /**
+     * Tests to apply the rendering settings to a screen.
+     * Tests the <code>ApplySettingsToSet</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testApplySettingsToSetForScreen() 
+    	throws Exception 
+    {
+    	Screen screen = (Screen) iUpdate.saveAndReturnObject(
+    			simpleScreenData().asIObject());
+    	Plate p = createPlate(1, 1, 1, false, true);
+    	p = (Plate) iUpdate.saveAndReturnObject(p);
+    	
+    	ScreenPlateLink link = new ScreenPlateLinkI();
+    	link.setChild(p);
+    	link.setParent(screen);
+    	link = (ScreenPlateLink) iUpdate.saveAndReturnObject(link);
+    	screen = link.getParent();
+    	//load the well
+    	List<IObject> results = loadWells(p.getId().getValue());
+    	Well well = (Well) results.get(0);
+    	
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	Image image = well.getWellSample(0).getImage();
+    	Pixels pixels = image.getPrimaryPixels();
+    	long id = pixels.getId().getValue();
+    	//Image
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(p.getId().getValue());
+    	//method already tested 
+    	 prx.resetDefaultsInSet(Plate.class.getName(), ids);
+    
+    	//method already tested 
+    	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+    	
+    	
+    	
+    	//Create a second plate
+    	p = createPlate(1, 1, 1, false, true);
+    	p = (Plate) iUpdate.saveAndReturnObject(p);
+    	
+    	link = new ScreenPlateLinkI();
+    	link.setChild(p);
+    	link.setParent(screen);
+    	link = (ScreenPlateLink) iUpdate.saveAndReturnObject(link);
+    	
+    	results = loadWells(p.getId().getValue());
+    	well = (Well) results.get(0);
+    	Image image2 = well.getWellSample(0).getImage();
+    	ids = new ArrayList<Long>();
+    	ids.add(screen.getId().getValue());
+    	Map<Boolean, List<Long>> m = 
+    		prx.applySettingsToSet(id, Screen.class.getName(), ids);
+    	assertNotNull(m);
+    	List<Long> success = (List<Long>) m.get(Boolean.valueOf(true));
+    	List<Long> failure = (List<Long>) m.get(Boolean.valueOf(false));
+    	assertNotNull(success);
+    	assertNotNull(failure);
+    	assertTrue(success.size() == 1);
+    	assertTrue(failure.size() == 0);
+    	id = success.get(0); //image id.
+    	assertTrue(id == image2.getId().getValue());
+    	RenderingDef def2 = factory.getPixelsService().retrieveRndSettings(
+    			image2.getPrimaryPixels().getId().getValue());
+    	compareRenderingDef(def, def2);
+    	
+    }
+    
+    /**
      * Tests to reset the default rendering settings to a plate.
      * Tests the <code>ResetDefaultInSet</code> method.
      * @throws Exception Thrown if an error occurred.
@@ -479,7 +640,7 @@ public class RenderingSettingsServiceTest
     	ids.add(p.getId().getValue());
     	List<Long> v = prx.resetDefaultsInSet(Plate.class.getName(), ids);
     	assertNotNull(v);
-    	assertTrue(v.size() > 0);
+    	assertTrue(v.size() == 1);
     	ParametersI param = new ParametersI();
     	param.addLong("pid", pixels.getId().getValue());
     	String sql = "select rdef from RenderingDef as rdef " +
@@ -629,7 +790,6 @@ public class RenderingSettingsServiceTest
     public void testResetMinMaxForSetForProject() 
     	throws Exception 
     {
-    	/*
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	Image image = createImage();
     	Pixels pixels = image.getPrimaryPixels();
@@ -661,22 +821,20 @@ public class RenderingSettingsServiceTest
 		}
     	iUpdate.saveAndReturnArray(toUpdate);
     	//Link image and dataset
-    	List<IObject> links = new ArrayList<IObject>();
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			simpleDatasetData().asIObject());
-    	DatasetImageLink link = new DatasetImageLinkI();
-    	link.setChild(image);
-    	link.setParent(d);
-    	links.add(link);
     	
     	Project project = (Project) iUpdate.saveAndReturnObject(
     			simpleProjectData().asIObject());
-    	ProjectDatasetLink pLink = new ProjectDatasetLinkI();
-    	pLink.setChild(d);
-    	pLink.setParent(project);
-    	links.add(pLink);
     	
-    	iUpdate.saveAndReturnArray(links);
+    	ProjectDatasetLink pLink = new ProjectDatasetLinkI();
+    	pLink.link(project, d);
+    	iUpdate.saveAndReturnObject(pLink);
+
+    	DatasetImageLink link = new DatasetImageLinkI();
+    	link.link(new DatasetI(d.getId().getValue(), false), image);
+    	iUpdate.saveAndReturnObject(link);
+    	
     	ids.clear();
     	ids.add(project.getId().getValue());
     	List<Long> m = prx.resetMinMaxInSet(Project.class.getName(), ids);
@@ -689,7 +847,7 @@ public class RenderingSettingsServiceTest
 			assertTrue(channel.getInputStart().getValue() == p.getX());
 			assertTrue(channel.getInputEnd().getValue() == p.getY());
 		}
-		*/
+		
     }
 
     /**
@@ -749,4 +907,68 @@ public class RenderingSettingsServiceTest
 		}
     }
     
+    /**
+     * Tests to apply reset the min/max values for a screen.s
+     * Tests the <code>ResetMinMaxForSet</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testResetMinMaxForSetForScreen() 
+    	throws Exception 
+    {
+    	Screen screen = (Screen) iUpdate.saveAndReturnObject(
+    			simpleScreenData().asIObject());
+    	Plate plate = createPlate(1, 1, 1, false, true);
+    	plate = (Plate) iUpdate.saveAndReturnObject(plate);
+    	
+    	ScreenPlateLink link = new ScreenPlateLinkI();
+    	link.setChild(plate);
+    	link.setParent(screen);
+    	link = (ScreenPlateLink) iUpdate.saveAndReturnObject(link);
+    	screen = link.getParent();
+    	//load the well
+    	List<IObject> results = loadWells(plate.getId().getValue());
+    	Well well = (Well) results.get(0);
+    	
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	Image image = well.getWellSample(0).getImage();
+    	Pixels pixels = image.getPrimaryPixels();
+    	long id = pixels.getId().getValue();
+    	//Image
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(plate.getId().getValue());
+    	//method already tested 
+    	 prx.resetDefaultsInSet(Plate.class.getName(), ids);
+    
+    	//method already tested 
+    	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+    	//Modified the settings.
+    	ChannelBinding channel;
+    	List<Point> list = new ArrayList<Point>();
+    	
+    	Point p;
+    	List<IObject> toUpdate = new ArrayList<IObject>();
+    	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
+			channel = def.getChannelBinding(0);
+			p = new Point();
+			p.setLocation(channel.getInputStart().getValue(), 
+					channel.getInputEnd().getValue());
+			list.add(p);
+			channel.setInputStart(omero.rtypes.rdouble(1));
+			channel.setInputEnd(omero.rtypes.rdouble(2));
+			toUpdate.add(channel);
+		}
+    	iUpdate.saveAndReturnArray(toUpdate);
+    	
+    	List<Long> m = prx.resetMinMaxInSet(Plate.class.getName(), ids);
+    	assertNotNull(m);
+    	assertTrue(m.size() == 1);
+    	def = factory.getPixelsService().retrieveRndSettings(id);
+    	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
+			channel = def.getChannelBinding(i);
+			p = list.get(i);
+			assertTrue(channel.getInputStart().getValue() == p.getX());
+			assertTrue(channel.getInputEnd().getValue() == p.getY());
+		}
+    }
 }

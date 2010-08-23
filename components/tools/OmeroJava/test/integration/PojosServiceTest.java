@@ -154,15 +154,14 @@ public class PojosServiceTest
         DatasetData dataset;
         while (i.hasNext()) {
 			project = new  ProjectData((Project) i.next());
-			if (project.getId() == p.getId().getValue()) {
-				datasets = project.getDatasets();
-				assertTrue(datasets.size() == 1);
-				j = datasets.iterator();
-				while (j.hasNext()) {
-					dataset = j.next();
-					assertTrue(dataset.getId() == d.getId().getValue());
-				}
-			} 
+			assertTrue(project.getId() == p.getId().getValue());
+			datasets = project.getDatasets();
+			assertTrue(datasets.size() == 1);
+			j = datasets.iterator();
+			while (j.hasNext()) {
+				dataset = j.next();
+				assertTrue(dataset.getId() == d.getId().getValue());
+			}
 		}
     }
     
@@ -199,15 +198,14 @@ public class PojosServiceTest
         PlateData plate;
         while (i.hasNext()) {
 			screen = new  ScreenData((Screen) i.next());
-			if (screen.getId() == p.getId().getValue()) {
-				plates = screen.getPlates();
-				assertTrue(plates.size() == 1);
-				j = plates.iterator();
-				while (j.hasNext()) {
-					plate = j.next();
-					assertTrue(plate.getId() == d.getId().getValue());
-				}
-			} 
+			assertTrue(screen.getId() == p.getId().getValue());
+			plates = screen.getPlates();
+			assertTrue(plates.size() == 1);
+			j = plates.iterator();
+			while (j.hasNext()) {
+				plate = j.next();
+				assertTrue(plate.getId() == d.getId().getValue());
+			}
 		}
     }
     

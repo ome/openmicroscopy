@@ -62,7 +62,6 @@ import omero.model.PermissionsI;
 import omero.model.Pixels;
 import omero.model.Project;
 import omero.model.ProjectAnnotationLinkI;
-import omero.model.StatsInfo;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.sys.Parameters;
@@ -318,7 +317,7 @@ public class MetadataServiceTest
     public void testLoadSpecifiedAnnotationsVariousTypes() 
     	throws Exception
     {
-    	TagAnnotationI tag = new TagAnnotationI();
+    	TagAnnotation tag = new TagAnnotationI();
     	tag.setTextValue(omero.rtypes.rstring("tag"));
     	TagAnnotation tagReturned = 
     		(TagAnnotation) iUpdate.saveAndReturnObject(tag);
@@ -345,7 +344,7 @@ public class MetadataServiceTest
     	assertTrue(result.size() == count);
     	assertNotNull(tagData);
     	//comment
-    	CommentAnnotationI comment = new CommentAnnotationI();
+    	CommentAnnotation comment = new CommentAnnotationI();
     	comment.setTextValue(omero.rtypes.rstring("comment"));
     	CommentAnnotation commentReturned = 
     		(CommentAnnotation) iUpdate.saveAndReturnObject(comment);
@@ -366,7 +365,7 @@ public class MetadataServiceTest
     	assertNotNull(commentData);
     	
     	//boolean
-    	BooleanAnnotationI bool = new BooleanAnnotationI();
+    	BooleanAnnotation bool = new BooleanAnnotationI();
     	bool.setBoolValue(omero.rtypes.rbool(true));
     	BooleanAnnotation boolReturned = 
     		(BooleanAnnotation) iUpdate.saveAndReturnObject(bool);
@@ -387,7 +386,7 @@ public class MetadataServiceTest
     	assertNotNull(boolData);
     	
     	//long
-    	LongAnnotationI l = new LongAnnotationI();
+    	LongAnnotation l = new LongAnnotationI();
     	l.setLongValue(omero.rtypes.rlong(1));
     	LongAnnotation lReturned = 
     		(LongAnnotation) iUpdate.saveAndReturnObject(l);
@@ -407,7 +406,7 @@ public class MetadataServiceTest
     	assertTrue(result.size() == count);
     	assertNotNull(lData);
     	//double
-    	DoubleAnnotationI d = new DoubleAnnotationI();
+    	DoubleAnnotation d = new DoubleAnnotationI();
     	d.setDoubleValue(omero.rtypes.rdouble(1));
     	DoubleAnnotation dReturned = 
     		(DoubleAnnotation) iUpdate.saveAndReturnObject(d);
@@ -439,13 +438,13 @@ public class MetadataServiceTest
     	long self = iAdmin.getEventContext().userId;
     	
     	//Create a tag set.
-    	TagAnnotationI tagSet = new TagAnnotationI();
+    	TagAnnotation tagSet = new TagAnnotationI();
     	tagSet.setTextValue(omero.rtypes.rstring("tagSet"));
     	tagSet.setNs(omero.rtypes.rstring(TagAnnotationData.INSIGHT_TAGSET_NS));
     	TagAnnotation tagSetReturned = 
     		(TagAnnotation) iUpdate.saveAndReturnObject(tagSet);
     	//create a tag and link it to the tag set
-    	TagAnnotationI tag = new TagAnnotationI();
+    	TagAnnotation tag = new TagAnnotationI();
     	tag.setTextValue(omero.rtypes.rstring("tag"));
     	TagAnnotation tagReturned = 
     		(TagAnnotation) iUpdate.saveAndReturnObject(tag);
@@ -512,7 +511,7 @@ public class MetadataServiceTest
     	client = new omero.client();
         ServiceFactoryPrx f = client.createSession(uuid2, uuid2);
     	//Create a tag annotation as another user.
-        TagAnnotationI tag = new TagAnnotationI();
+        TagAnnotation tag = new TagAnnotationI();
         tag.setTextValue(omero.rtypes.rstring("tag1"));
         IObject tagData = f.getUpdateService().saveAndReturnObject(tag);
         assertNotNull(tagData);
@@ -559,7 +558,7 @@ public class MetadataServiceTest
     public void testLoadTagContent() 
     	throws Exception
     {
-    	TagAnnotationI tag = new TagAnnotationI();
+    	TagAnnotation tag = new TagAnnotationI();
         tag.setTextValue(omero.rtypes.rstring("tag1"));
         Annotation tagData = (Annotation) iUpdate.saveAndReturnObject(tag);
         Image img = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
