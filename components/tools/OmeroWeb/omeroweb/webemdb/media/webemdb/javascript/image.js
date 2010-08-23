@@ -11,6 +11,7 @@ $(document).ready(function() {
     });
     
     
+    // when the form is displayed, we bind the runScript function to the form submission. 
     var displayForm = function() {
         var href = $(this).attr('href');
         var $scriptForm = $("#scriptForm");
@@ -20,14 +21,18 @@ $(document).ready(function() {
         });
         return false;
     };
+    
+    // function to handle submission of the form and opening results window...
     var runScript = function() {
         var scriptName = $("#scriptForm .scriptName").text();
-        var newWindow=window.open('','results-page','height=250,width=700,left=50');
+        var newWindow=window.open('','','height=250,width=700,left=50');
           newWindow.document.write('<html><title>Results</title>');
           newWindow.document.write('<h3>Running ' + scriptName + '</h3>');
           newWindow.document.write('<p>Waiting for results...</p>');
           newWindow.document.write('</html>');
           newWindow.document.close();
+          if (window.focus) {newWindow.focus()}
+          
 
           
         var postData = $(this).serialize() + '&op=Save';

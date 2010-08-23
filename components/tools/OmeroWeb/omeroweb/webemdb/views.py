@@ -34,8 +34,6 @@ try:
 except:
     logger.warning("Failed to import EMAN2. Some features of webemdb will not be supported.")
 
-# temp solution for job-ID : str(processor)
-jobMap = {}
 
 def eman(request, imageId, **kwargs):
     
@@ -148,11 +146,13 @@ def script_run(request, scriptId):
     
     proc = scriptService.runScript(sId, inputMap, None)
     
+    # E.g. ProcessCallback/4ab13b23-22c9-4b5f-9318-40f9a1acc4e9 -t:tcp -h 10.37.129.2 -p 53154:tcp -h 10.211.55.2 -p 53154:tcp -h 10.12.1.230 -p 53154
+    request.session.modified = True     # allows us to modify session...
     i = 0
-    while str(i) in jobMap:
+    while str(i) in request.session['processors']:
         i += 1
     key = str(i)
-    jobMap[key] = str(proc)
+    request.session['processors'][key] = str(proc)
     
     # TODO - return the input map, to display what the user entered. 
     return render_to_response('webemdb/scripts/script_running.html', {'scriptName': scriptName, 'jobId': key})
@@ -160,11 +160,12 @@ def script_run(request, scriptId):
     
 def script_results(request, jobId):
     
-    if jobId not in jobMap:
+    if jobId not in request.session['processors']:
         return HttpResponse("Results not found (may have already been returned)")
         
-    procString = jobMap[jobId]
-    del jobMap[jobId]   # delete this, since we cannot use it again to get the results
+    request.session.modified = True     # allows us to modify session...
+    procString = request.session['processors'][jobId]
+    del request.session['processors'][jobId]   # delete this, since we cannot use it again to get the results
     
     conn = getConnection(request)
     client = conn.c
@@ -607,9 +608,13 @@ def getConnection(request):
         request.session['port'] = blitz.port
         request.session['password'] = "ome"
         request.session['username'] = "emdb"
+        request.session['processors'] = {}
         #request.session['server'] = 'localhost'
         request.session.modified = True
         conn = getBlitzConnection (request, useragent="OMERO.webemdb")
+    else:
+        if not request.session.has_key('processors'):
+            request.session['processors'] = {}
     logger.debug('emdb connection: %s' % (conn._sessionUuid))
     #print type(conn), conn._sessionUuid #, emdb_conn_key
     return conn
