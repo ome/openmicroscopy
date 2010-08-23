@@ -8,7 +8,10 @@ package integration;
 
 
 //Java imports
+import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,12 +20,17 @@ import org.testng.annotations.Test;
 
 //Application-internal dependencies
 import omero.api.IRenderingSettingsPrx;
+import omero.model.ChannelBinding;
 import omero.model.Dataset;
+import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
 import omero.model.Plate;
+import omero.model.Project;
+import omero.model.ProjectDatasetLink;
+import omero.model.ProjectDatasetLinkI;
 import omero.model.RenderingDef;
 import omero.model.Well;
 import omero.sys.ParametersI;
@@ -142,7 +150,7 @@ public class RenderingSettingsServiceTest
     	//create a dataset
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			simpleDatasetData().asIObject());
-    	DatasetImageLinkI l = new DatasetImageLinkI();
+    	DatasetImageLink l = new DatasetImageLinkI();
     	l.setChild(image);
     	l.setParent(d);
     	iUpdate.saveAndReturnObject(l);
@@ -182,12 +190,12 @@ public class RenderingSettingsServiceTest
     	//create a project.
     	Project p = (Project) iUpdate.saveAndReturnObject(
     			simpleProjectData().asIObject());
-    	ProjectDatasetLinkI link = new ProjectDatasetLinkI();
+    	ProjectDatasetLink link = new ProjectDatasetLinkI();
     	link.setChild(d);
     	link.setParent(p);
     	iUpdate.saveAndReturnObject(link);
     	
-    	DatasetImageLinkI l = new DatasetImageLinkI();
+    	DatasetImageLink l = new DatasetImageLinkI();
     	l.setChild(image);
     	l.setParent(d);
     	iUpdate.saveAndReturnObject(l);
@@ -301,7 +309,7 @@ public class RenderingSettingsServiceTest
     	
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			simpleDatasetData().asIObject());
-    	DatasetImageLinkI l = new DatasetImageLinkI();
+    	DatasetImageLink l = new DatasetImageLinkI();
     	l.setChild(image2);
     	l.setParent(d);
     	iUpdate.saveAndReturnObject(l);
@@ -364,20 +372,20 @@ public class RenderingSettingsServiceTest
     	
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			simpleDatasetData().asIObject());
-    	DatasetImageLinkI l = new DatasetImageLinkI();
+    	DatasetImageLink l = new DatasetImageLinkI();
     	l.setChild(image2);
     	l.setParent(d);
     	iUpdate.saveAndReturnObject(l);
     	
     	Project p = (Project) iUpdate.saveAndReturnObject(
     			simpleProjectData().asIObject());
-    	ProjectDatasetLinkI link = new ProjectDatasetLinkI();
+    	ProjectDatasetLink link = new ProjectDatasetLinkI();
     	link.setChild(d);
     	link.setParent(p);
     	iUpdate.saveAndReturnObject(link);
     	
     	ids = new ArrayList<Long>();
-    	ids.add(d.getId().getValue());
+    	ids.add(p.getId().getValue());
     	Map<Boolean, List<Long>> m = 
     		prx.applySettingsToSet(id, Project.class.getName(), ids);
     	assertNotNull(m);
@@ -480,6 +488,265 @@ public class RenderingSettingsServiceTest
     	assertNotNull(values);
     	assertTrue(values.size() == 1);
     }
+ 
+    /**
+     * Tests to apply the rendering settings to a collection of images.
+     * Tests the <code>ResetMinMaxForSet</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testResetMinMaxForSetForImage() 
+    	throws Exception 
+    {
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	Image image = createImage();
+    	Pixels pixels = image.getPrimaryPixels();
+    	long id = pixels.getId().getValue();
+    	//Image
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(image.getId().getValue());
+    	//method already tested 
+    	 prx.resetDefaultsInSet(Image.class.getName(), ids);
     
+    	//method already tested 
+    	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+    	
+    	//Modified the settings.
+    	ChannelBinding channel;
+    	List<Point> list = new ArrayList<Point>();
+    	
+    	Point p;
+    	List<IObject> toUpdate = new ArrayList<IObject>();
+    	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
+			channel = def.getChannelBinding(0);
+			p = new Point();
+			p.setLocation(channel.getInputStart().getValue(), 
+					channel.getInputEnd().getValue());
+			list.add(p);
+			channel.setInputStart(omero.rtypes.rdouble(1));
+			channel.setInputEnd(omero.rtypes.rdouble(2));
+			toUpdate.add(channel);
+		}
+    	iUpdate.saveAndReturnArray(toUpdate);
+    	List<Long> m = prx.resetMinMaxInSet(Image.class.getName(), ids);
+    	assertNotNull(m);
+    	assertTrue(m.size() == 1);
+    	def = factory.getPixelsService().retrieveRndSettings(id);
+    	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
+			channel = def.getChannelBinding(i);
+			p = list.get(i);
+			assertTrue(channel.getInputStart().getValue() == p.getX());
+			assertTrue(channel.getInputEnd().getValue() == p.getY());
+		}
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images.
+     * Tests the <code>ResetMinMaxForSet</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testResetMinMaxForSetForDataset() 
+    	throws Exception 
+    {
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	Image image = createImage();
+    	Pixels pixels = image.getPrimaryPixels();
+    	long id = pixels.getId().getValue();
+    	//Image
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(image.getId().getValue());
+    	//method already tested 
+    	 prx.resetDefaultsInSet(Image.class.getName(), ids);
+    
+    	//method already tested 
+    	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+    	
+    	//Modified the settings.
+    	ChannelBinding channel;
+    	List<Point> list = new ArrayList<Point>();
+    	
+    	Point p;
+    	List<IObject> toUpdate = new ArrayList<IObject>();
+    	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
+			channel = def.getChannelBinding(0);
+			p = new Point();
+			p.setLocation(channel.getInputStart().getValue(), 
+					channel.getInputEnd().getValue());
+			list.add(p);
+			channel.setInputStart(omero.rtypes.rdouble(1));
+			channel.setInputEnd(omero.rtypes.rdouble(2));
+			toUpdate.add(channel);
+		}
+    	iUpdate.saveAndReturnArray(toUpdate);
+    	//Link image and dataset
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			simpleDatasetData().asIObject());
+    	DatasetImageLink link = new DatasetImageLinkI();
+    	link.setChild(image);
+    	link.setParent(d);
+    	iUpdate.saveAndReturnObject(link);
+    	ids.clear();
+    	ids.add(d.getId().getValue());
+    	List<Long> m = prx.resetMinMaxInSet(Dataset.class.getName(), ids);
+    	assertNotNull(m);
+    	assertTrue(m.size() == 1);
+    	def = factory.getPixelsService().retrieveRndSettings(id);
+    	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
+			channel = def.getChannelBinding(i);
+			p = list.get(i);
+			assertTrue(channel.getInputStart().getValue() == p.getX());
+			assertTrue(channel.getInputEnd().getValue() == p.getY());
+		}
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images.
+     * Tests the <code>ResetMinMaxForSet</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testResetMinMaxForSetForEmptyDataset() 
+    	throws Exception 
+    {
+    	/*
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			simpleDatasetData().asIObject());
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(d.getId().getValue());
+    	
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	List<Long> m = prx.resetMinMaxInSet(Dataset.class.getName(), ids);
+    	*/
+    }
+    
+    /**
+     * Tests to apply the rendering settings to a collection of images.
+     * Tests the <code>ResetMinMaxForSet</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testResetMinMaxForSetForProject() 
+    	throws Exception 
+    {
+    	/*
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	Image image = createImage();
+    	Pixels pixels = image.getPrimaryPixels();
+    	long id = pixels.getId().getValue();
+    	//Image
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(image.getId().getValue());
+    	//method already tested 
+    	 prx.resetDefaultsInSet(Image.class.getName(), ids);
+    
+    	//method already tested 
+    	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+    	
+    	//Modified the settings.
+    	ChannelBinding channel;
+    	List<Point> list = new ArrayList<Point>();
+    	
+    	Point p;
+    	List<IObject> toUpdate = new ArrayList<IObject>();
+    	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
+			channel = def.getChannelBinding(0);
+			p = new Point();
+			p.setLocation(channel.getInputStart().getValue(), 
+					channel.getInputEnd().getValue());
+			list.add(p);
+			channel.setInputStart(omero.rtypes.rdouble(1));
+			channel.setInputEnd(omero.rtypes.rdouble(2));
+			toUpdate.add(channel);
+		}
+    	iUpdate.saveAndReturnArray(toUpdate);
+    	//Link image and dataset
+    	List<IObject> links = new ArrayList<IObject>();
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			simpleDatasetData().asIObject());
+    	DatasetImageLink link = new DatasetImageLinkI();
+    	link.setChild(image);
+    	link.setParent(d);
+    	links.add(link);
+    	
+    	Project project = (Project) iUpdate.saveAndReturnObject(
+    			simpleProjectData().asIObject());
+    	ProjectDatasetLink pLink = new ProjectDatasetLinkI();
+    	pLink.setChild(d);
+    	pLink.setParent(project);
+    	links.add(pLink);
+    	
+    	iUpdate.saveAndReturnArray(links);
+    	ids.clear();
+    	ids.add(project.getId().getValue());
+    	List<Long> m = prx.resetMinMaxInSet(Project.class.getName(), ids);
+    	assertNotNull(m);
+    	assertTrue(m.size() == 1);
+    	def = factory.getPixelsService().retrieveRndSettings(id);
+    	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
+			channel = def.getChannelBinding(i);
+			p = list.get(i);
+			assertTrue(channel.getInputStart().getValue() == p.getX());
+			assertTrue(channel.getInputEnd().getValue() == p.getY());
+		}
+		*/
+    }
+
+    /**
+     * Tests to apply the rendering settings to a plate.
+     * Tests the <code>ResetMinMaxForSet</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testResetMinMaxForSetForPlate() 
+    	throws Exception 
+    {
+    	Plate plate = createPlate(1, 1, 1, false, true);
+    	plate = (Plate) iUpdate.saveAndReturnObject(plate);
+    	//load the well
+    	List<IObject> results = loadWells(plate.getId().getValue());
+    	Well well = (Well) results.get(0);
+    	
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	Image image = well.getWellSample(0).getImage();
+    	Pixels pixels = image.getPrimaryPixels();
+    	long id = pixels.getId().getValue();
+    	//Image
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(plate.getId().getValue());
+    	//method already tested 
+    	 prx.resetDefaultsInSet(Plate.class.getName(), ids);
+    
+    	//method already tested 
+    	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+    	//Modified the settings.
+    	ChannelBinding channel;
+    	List<Point> list = new ArrayList<Point>();
+    	
+    	Point p;
+    	List<IObject> toUpdate = new ArrayList<IObject>();
+    	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
+			channel = def.getChannelBinding(0);
+			p = new Point();
+			p.setLocation(channel.getInputStart().getValue(), 
+					channel.getInputEnd().getValue());
+			list.add(p);
+			channel.setInputStart(omero.rtypes.rdouble(1));
+			channel.setInputEnd(omero.rtypes.rdouble(2));
+			toUpdate.add(channel);
+		}
+    	iUpdate.saveAndReturnArray(toUpdate);
+    	
+    	List<Long> m = prx.resetMinMaxInSet(Plate.class.getName(), ids);
+    	assertNotNull(m);
+    	assertTrue(m.size() == 1);
+    	def = factory.getPixelsService().retrieveRndSettings(id);
+    	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
+			channel = def.getChannelBinding(i);
+			p = list.get(i);
+			assertTrue(channel.getInputStart().getValue() == p.getX());
+			assertTrue(channel.getInputEnd().getValue() == p.getY());
+		}
+    }
     
 }
