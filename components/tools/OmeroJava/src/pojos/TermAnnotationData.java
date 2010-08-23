@@ -29,6 +29,7 @@ package pojos;
 
 //Application-internal dependencies
 import static omero.rtypes.rstring;
+import omero.RString;
 import omero.model.TermAnnotation;
 import omero.model.TermAnnotationI;
 
@@ -67,12 +68,12 @@ public class TermAnnotationData extends AnnotationData {
     }
 
     /**
-     * Sets the term
+     * Sets the term.
      *
-     * @param term
-     *            The value to set.
+     * @param term The value to set.
      */
     public void setTerm(String term) {
+    	if (term == null) return;
         ((TermAnnotation) asAnnotation()).setTermValue(rstring(term));
     }
 
@@ -85,6 +86,41 @@ public class TermAnnotationData extends AnnotationData {
         return getContentAsString();
     }
 
+    /**
+     * Returns the description of the term.
+     * 
+     * @return See above.
+     */
+    public String getTermDescription()
+    {
+    	RString value = asAnnotation().getDescription();
+    	if (value == null) return "";
+        return value.getValue();
+    }
+    
+    /**
+     * Returns the namespace of the term.
+     * 
+     * @return See above.
+     */
+    public String getNameSpace()
+    {
+    	RString value = asAnnotation().getNs();
+    	if (value == null) return "";
+        return value.getValue();
+    }
+    
+    /**
+     * Returns the namespace of the term.
+     * 
+     * @param The value to set. 
+     */
+    public void setNameSpace(String name)
+    {
+    	asAnnotation().setNs(rstring(name));
+    }
+    
+    
     /**
      * Returns the textual content of the annotation.
      *
