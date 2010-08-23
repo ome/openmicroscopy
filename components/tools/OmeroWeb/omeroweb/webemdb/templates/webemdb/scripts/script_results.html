@@ -30,7 +30,7 @@
             return false;
         });
         
-        // try to open all the links
+        // try to open all the links in the parent window. 
         $("a").click(function() {
             var href = $(this).attr('href');
             if (href != "#") {

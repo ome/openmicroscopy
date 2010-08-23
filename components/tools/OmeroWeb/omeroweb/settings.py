@@ -43,6 +43,7 @@ except ImportError:
         "it's causing an ImportError somehow.)\n") 
     sys.exit(1)
 
+    
 # LOGS
 # NEVER DEPLOY a site into production with DEBUG turned on.
 
@@ -84,7 +85,8 @@ if not os.path.isdir(LOGDIR):
 
 import logconfig
 logger = logconfig.get_logger(os.path.join(LOGDIR, LOGFILE), LOGLEVEL)
-
+    
+    
 try:
     ADMINS
 except:
@@ -169,6 +171,15 @@ INSTALLED_APPS = (
     'omeroweb.webemdb',
     'omeroweb.webmobile',
 )
+
+# EMAN2 functionality is used in some features of the webemdb application. E.g. see webemdb.views.py eman()
+# Do the import here since EMAN2 import fails if it happens for the first time in views.py "signal only works in main thread"
+try:
+    #from EMAN2 import *
+    pass
+except:
+    logger.warning("Failed to import EMAN2. Some features of webemdb will not be supported.")
+    
 
 FEEDBACK_URL = "qa.openmicroscopy.org.uk:80"
 

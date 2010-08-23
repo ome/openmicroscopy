@@ -27,17 +27,21 @@ from django.core.servers.basehttp import FileWrapper
 from omero.sys import Parameters, Filter
 import omero.util.script_utils as scriptUtil
 
+EMAN2_IMPORTED = False
+try:
+    from EMAN2 import *
+    EMAN2_IMPORTED = True
+except:
+    logger.warning("Failed to import EMAN2. Some features of webemdb will not be supported.")
+
 # temp solution for job-ID : str(processor)
 jobMap = {}
 
 def eman(request, imageId, **kwargs):
     
-    try:
-        from EMAN2 import * 
-    except:
-        logger.info("EMAN2 failed to import. This can be fixed by adding try/catch to EMAN2.py, line 56: 'import EMAN2db.py' ")
-    
-    
+    if not EMAN2_IMPORTED:
+        return HttpResponse("EMAN2 not found")
+        
     conn = getConnection(request)
     
     rawPixelStore = conn.createRawPixelsStore()
