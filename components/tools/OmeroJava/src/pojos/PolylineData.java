@@ -55,252 +55,160 @@ public class PolylineData
 	extends ShapeData
 {
 
-	/** Regex for a data in block. */
-	private static final String NUMREGEX = "\\[.*\\]";
-
 	/** The points in the polyline as list. */
-	private List<Point2D.Double> points;
+		private List<Point2D.Double> points;
 
-	/** The points in the polyline as list. */
-	private List<Point2D.Double> points1;
+		/** The points in the polyline as list. */
+		private List<Point2D.Double> points1;
 
-	/** The points in the polyline as list. */
-	private List<Point2D.Double> points2;
-	
-	/** The points in the polyline as list. */
-	private List<Integer> mask;
+		/** The points in the polyline as list. */
+		private List<Point2D.Double> points2;
 
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param shape The shape this object represents.
-	 */
-	public PolylineData(Shape shape)
-	{
-		super(shape);
-		parseShapeStringToPointsList();
-	}
-	
-	/**
-	 * Create a new instance of polyline, creating a new PolylineI Object.
-	 */
-	public PolylineData()
-	{
-		this(new ArrayList<Point2D.Double>(),new ArrayList<Point2D.Double>(),
-				new ArrayList<Point2D.Double>(), new ArrayList<Integer>());
-	}
-	
-	/**
-	 * Create a new instance of the PolylineData, set the points in the polyline.
-	 * @param points See Above.
-	 */
-	public PolylineData(List<Point2D.Double> points, List<Point2D.Double> points1, 
-			List<Point2D.Double> points2, List<Integer> maskList)
-	{
-		super(new PolylineI(), true);
-		setPoints(points, points1, points2, maskList);
-	}
-		
-	/**
-	 * Returns the text of the shape.
-	 * 
-	 * @return See above.
-	 */
-	public String getText()
-	{
-		Polyline shape = (Polyline) asIObject();
-		RString value = shape.getTextValue();
-		if (value == null) return "";
-		return value.getValue();
-	}
-	
-	/**
-	 * Sets the text of the shape.
-	 * 
-	 * @param text See above.
-	 */
-	public void setText(String text)
-	{
-		if(isReadOnly())
-			throw new IllegalArgumentException("Shape ReadOnly");
-		Polyline shape = (Polyline) asIObject();
-		if (shape == null) 
-			throw new IllegalArgumentException("No shape specified.");
-		shape.setTextValue(rtypes.rstring(text));
-	}
+		/** The points in the polyline as list. */
+		private List<Integer> mask;
 
-	/**
-	 * Returns the points in the Polyline.
-	 * 
-	 * @return See above.
-	 */
-	public List<Point2D.Double> getPoints()
-	{
-		String pts =  fromPoints("points");
-		return parsePointsToPoint2DList(pts);
-	}
-	
-	/**
-	 * Returns the points in the Polyline.
-	 * 
-	 * @return See above.
-	 */
-	public List<Point2D.Double> getPoints1()
-	{
-		String pts =  fromPoints("points1");
-		return parsePointsToPoint2DList(pts);
-	}
-
-	/**
-	 * Returns the points in the Polyline.
-	 * 
-	 * @return See above.
-	 */
-	public List<Point2D.Double> getPoints2()
-	{
-		String pts = fromPoints("points2");
-		return parsePointsToPoint2DList(pts);
-	}
-	
-	/**
-	 * Returns the points in the Polyline.
-	 * 
-	 * @return See above.
-	 */
-	public List<Integer> getMaskPoints()
-	{
-		String pts =  fromPoints("mask");
-		return parsePointsToIntegerList(pts);
-	}
-	
-	/**
-	 * Set the points in the polyline.
-	 * 
-	 * @param points See above.
-	 */
-	public void setPoints(List<Point2D.Double> points, List<Point2D.Double> points1, 
-			List<Point2D.Double> points2, List<Integer> maskList)
-	{
-		if(isReadOnly())
-			throw new IllegalArgumentException("Shape ReadOnly");
-		Polyline shape = (Polyline) asIObject();
-		if (shape == null) 
-			throw new IllegalArgumentException("No shape specified.");
-		
-		String pointsValues=
-			toPoints(points.toArray(new Point2D.Double[points.size()]));
-		String points1Values=
-			toPoints(points1.toArray(new Point2D.Double[points1.size()]));
-		String points2Values=
-			toPoints(points2.toArray(new Point2D.Double[points2.size()]));
-		String maskValues = "";
-		for( int i = 0 ; i < maskList.size()-1; i++)
-			maskValues = maskValues + maskList.get(i)+",";
-		if(maskList.size()!=0)
-			maskValues = maskValues+maskList.get(maskList.size()-1)+"";
-		String pts = "points["+pointsValues+"] ";
-		pts = pts + "points1["+points1Values+"] ";
-		pts = pts + "points2["+points2Values+"] ";
-		pts = pts + "mask["+maskValues+"] ";
-		this.points = points;
-		this.points1 = points1;
-		this.points2 = points2;
-		this.mask = maskList;
-		shape.setPoints(rtypes.rstring(pts));
-	}
-	
-	/**
-	 * Parse out the type from the points string.
-	 * @param type The value in the list to parse.
-	 * @return See above.
-	 */
-	private String fromPoints(String type)
-	{
-		Polyline shape = (Polyline) asIObject();
-		if (shape == null) 
-			throw new IllegalArgumentException("No shape specified.");
-		String pts = shape.getPoints().getValue();
-		if (pts.length() == 0)
-			return "";
-		String exp = type+'[';
-		int typeStr = pts.indexOf(exp,0);
-		int start = pts.indexOf('[',typeStr);
-		int end = pts.indexOf(']',start);
-		return pts.substring(start+1,end);
-	}
-	
-	
-	/** 
-	* Parse the points list from the string to a list of point2d objects.
-	* @param str the string to convert to points.
-	*/
-	private List<Point2D.Double> parsePointsToPoint2DList(String str)
-	{
-		List<Point2D.Double> points = new ArrayList<Point2D.Double>();
-	
-		StringTokenizer tt=new StringTokenizer(str, ",");
-		int numTokens = tt.countTokens()/2;
-		for (int i=0; i< numTokens; i++)
-			points.add(
-					new Point2D.Double(new Double(tt.nextToken()), new Double(
-						tt.nextToken())));
-		return points;
-	}
-	
-	/** 
-	* Parse the points list from the string to a list of integer objects.
-	* @param str the string to convert to points.
-	*/
-	private List<Integer> parsePointsToIntegerList(String str)
-	{
-		List<Integer> points = new ArrayList<Integer>();
-	
-		StringTokenizer tt=new StringTokenizer(str, ",");
-		int numTokens = tt.countTokens();
-		for (int i=0; i< numTokens; i++)
-			points.add(new Integer(tt.nextToken()));
-		return points;
-	}
-	
-	/**
-	 * Returns a Point2D.Double array as a Points attribute value. as specified
-	 * in http://www.w3.org/TR/SVGMobile12/shapes.html#PointsBNF
-	 */
-	private static String toPoints(Point2D.Double[] points)
-	{
-		StringBuilder buf=new StringBuilder();
-		for (int i=0; i<points.length; i++)
+		/**
+		 * Creates a new instance.
+		 * 
+		 * @param shape The shape this object represents.
+		 */
+		public PolylineData(Shape shape)
 		{
-			if (i != 0)
-			{
-				buf.append(", ");
-			}
-			buf.append(toNumber(points[i].x));
-			buf.append(',');
-			buf.append(toNumber(points[i].y));
+			super(shape);
+			//parseShapeStringToPointsList();
 		}
-		return buf.toString();
-	}
-	
-	private void parseShapeStringToPointsList()
-	{
-		points = getPoints();
-		points1 = getPoints();
-		points2 = getPoints();
-		mask = getMaskPoints();
-	}
-	
-	/**
-	 * Returns a double array as a number attribute value.
-	 */
-	private static String toNumber(double number)
-	{
-		String str=Double.toString(number);
-		if (str.endsWith(".0"))
+
+		/**
+		 * Creates a new instance of polyline, creating a new PolylineI Object.
+		 */
+		public PolylineData()
 		{
-			str=str.substring(0, str.length()-2);
+			this(new ArrayList<Point2D.Double>(),new ArrayList<Point2D.Double>(),
+					new ArrayList<Point2D.Double>(), new ArrayList<Integer>());
 		}
-		return str;
-	}
+
+		/**
+		 * Create a new instance of the PolylineData, set the points in the polyline.
+		 * @param points See Above.
+		 */
+		public PolylineData(List<Point2D.Double> points, List<Point2D.Double> points1, 
+				List<Point2D.Double> points2, List<Integer> maskList)
+		{
+			super(new PolylineI(), true);
+			setPoints(points, points1, points2, maskList);
+		}
+
+		/**
+		 * Returns the text of the shape.
+		 * 
+		 * @return See above.
+		 */
+		public String getText()
+		{
+			Polyline shape = (Polyline) asIObject();
+			RString value = shape.getTextValue();
+			if (value == null) return "";
+			return value.getValue();
+		}
+
+		/**
+		 * Sets the text of the shape.
+		 * 
+		 * @param text See above.
+		 */
+		public void setText(String text)
+		{
+			if(isReadOnly())
+				throw new IllegalArgumentException("Shape ReadOnly");
+			Polyline shape = (Polyline) asIObject();
+			if (shape == null) 
+				throw new IllegalArgumentException("No shape specified.");
+			shape.setTextValue(rtypes.rstring(text));
+		}
+
+		/**
+		 * Returns the points in the Polyline.
+		 * 
+		 * @return See above.
+		 */
+		public List<Point2D.Double> getPoints()
+		{
+			String pts = fromPoints("points");
+			return parsePointsToPoint2DList(pts);
+		}
+
+		/**
+		 * Returns the points in the Polyline.
+		 * 
+		 * @return See above.
+		 */
+		public List<Point2D.Double> getPoints1()
+		{
+			String pts = fromPoints("points1");
+			return parsePointsToPoint2DList(pts);
+		}
+
+		/**
+		 * Returns the points in the Polyline.
+		 * 
+		 * @return See above.
+		 */
+		public List<Point2D.Double> getPoints2()
+		{
+			String pts = fromPoints("points2");
+			return parsePointsToPoint2DList(pts);
+		}
+
+		/**
+		 * Returns the points in the Polyline.
+		 * 
+		 * @return See above.
+		 */
+		public List<Integer> getMaskPoints()
+		{
+			String pts = fromPoints("mask");
+			return parsePointsToIntegerList(pts);
+		}
+
+		/**
+		 * Sets the points in the polyline.
+		 * 
+		 * @param points The points to set.
+		 * @param ponts1 The points to set.
+		 * @param ponts2 The points to set.
+		 * @param maskList The points to set.
+		 * @param points See above.
+		 */
+		public void setPoints(List<Point2D.Double> points, 
+				List<Point2D.Double> points1, 
+				List<Point2D.Double> points2, List<Integer> maskList)
+		{
+			if (isReadOnly())
+				throw new IllegalArgumentException("Shape ReadOnly");
+			Polyline shape = (Polyline) asIObject();
+			if (shape == null) 
+				throw new IllegalArgumentException("No shape specified.");
+
+			String pointsValues =
+				toPoints(points.toArray(new Point2D.Double[points.size()]));
+			String points1Values =
+				toPoints(points1.toArray(new Point2D.Double[points1.size()]));
+			String points2Values =
+				toPoints(points2.toArray(new Point2D.Double[points2.size()]));
+			String maskValues = "";
+			for (int i = 0 ; i < maskList.size()-1; i++)
+				maskValues = maskValues + maskList.get(i)+",";
+			if (maskList.size()!=0)
+				maskValues = maskValues+maskList.get(maskList.size()-1)+"";
+			String pts = "points["+pointsValues+"] ";
+			pts = pts + "points1["+points1Values+"] ";
+			pts = pts + "points2["+points2Values+"] ";
+			pts = pts + "mask["+maskValues+"] ";
+			this.points = points;
+			this.points1 = points1;
+			this.points2 = points2;
+			this.mask = maskList;
+			shape.setPoints(rtypes.rstring(pts));
+		}
 
 }

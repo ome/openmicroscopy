@@ -23,6 +23,10 @@
 package pojos;
 
 //Java imports
+import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
 
 //Third-party libraries
 
@@ -30,6 +34,9 @@ package pojos;
 import omero.rtypes;
 import omero.RInt;
 import omero.RString;
+import omero.model.IObject;
+import omero.model.Polygon;
+import omero.model.Polyline;
 import omero.model.Shape;
 
 /**
@@ -94,6 +101,84 @@ public abstract class ShapeData
 		throw new IllegalArgumentException("No shape specified.");
 	}
 	
+	/** 
+     * Parses the points list from the string to a list of point2d objects.
+	 * 
+	 * @param str the string to convert to points.
+	 */
+	protected List<Point2D.Double> parsePointsToPoint2DList(String str)
+	{
+		List<Point2D.Double> points = new ArrayList<Point2D.Double>();
+		StringTokenizer tt = new StringTokenizer(str, ",");
+		int numTokens = tt.countTokens()/2;
+		for (int i = 0; i < numTokens; i++)
+			points.add(
+					new Point2D.Double(new Double(tt.nextToken()), new Double(
+						tt.nextToken())));
+		 return points;
+	}
+
+	/** 
+	* Parses the points list from the string to a list of integer objects.
+	* 
+	* @param str the string to convert to points.
+	*/
+	protected List<Integer> parsePointsToIntegerList(String str)
+	{
+		List<Integer> points = new ArrayList<Integer>();
+
+		StringTokenizer tt = new StringTokenizer(str, ",");
+		int numTokens = tt.countTokens();
+		for (int i = 0; i< numTokens; i++)
+			points.add(new Integer(tt.nextToken()));
+		return points;
+	}
+
+   /**
+	* Returns a Point2D.Double array as a Points attribute value. as specified
+	* in http://www.w3.org/TR/SVGMobile12/shapes.html#PointsBNF
+	*/
+	protected static String toPoints(Point2D.Double[] points)
+	{
+		StringBuilder buf = new StringBuilder();
+		for (int i = 0; i < points.length; i++)
+		{
+			if (i != 0)
+			{
+				buf.append(", ");
+			}
+			buf.append(toNumber(points[i].x));
+			buf.append(',');
+			buf.append(toNumber(points[i].y));
+		}
+		return buf.toString();
+	}
+	
+	/** Returns a double array as a number attribute value. */
+	protected static String toNumber(double number)
+	{
+		String str = Double.toString(number);
+		if (str.endsWith(".0"))
+			str = str.substring(0, str.length()-2);
+		return str;
+	}
+
+	/**
+	* Creates a new instance.
+	* 
+	* @param shape       The shape to host.
+	* @param clientObject Pass <code>true</code> if it is a client object, 
+	* 						<code>false</code> otherwise.
+	*/
+	protected ShapeData(Shape shape, boolean clientObject)
+	{
+		super();
+		setClientObject(clientObject);
+		setValue(shape);
+		shape.setLocked(rtypes.rbool(false));
+		settings = new ShapeSettingsData(shape);
+	}
+			
 	/**
 	 * Creates a new instance.
 	 * 
