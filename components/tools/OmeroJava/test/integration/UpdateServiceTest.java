@@ -102,6 +102,8 @@ import omero.model.ScreenAnnotationLink;
 import omero.model.ScreenAnnotationLinkI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
+import omero.model.TermAnnotation;
+import omero.model.TermAnnotationI;
 import omero.model.Well;
 import omero.model.WellI;
 import omero.model.WellSample;
@@ -119,10 +121,12 @@ import org.testng.annotations.Test;
 
 import Ice.Current;
 
+import pojos.BooleanAnnotationData;
 import pojos.DatasetData;
 import pojos.EllipseData;
 import pojos.ImageData;
 import pojos.LineData;
+import pojos.LongAnnotationData;
 import pojos.MaskData;
 import pojos.PlateData;
 import pojos.PointData;
@@ -130,10 +134,13 @@ import pojos.PolygonData;
 import pojos.PolylineData;
 import pojos.ProjectData;
 import pojos.ROIData;
+import pojos.RatingAnnotationData;
 import pojos.RectangleData;
 import pojos.ScreenData;
 import pojos.ShapeData;
 import pojos.TagAnnotationData;
+import pojos.TermAnnotationData;
+import pojos.TextualAnnotationData;
 
 /** 
  * Collections of tests for the <code>IUpdate</code> service.
@@ -824,12 +831,15 @@ public class UpdateServiceTest
     public void testCreateCommentAnnotation()
     	throws Exception 
     {
-    	CommentAnnotationI annotation = new CommentAnnotationI();
+    	CommentAnnotation annotation = new CommentAnnotationI();
     	annotation.setTextValue(omero.rtypes.rstring("comment"));
-    	CommentAnnotation data = (CommentAnnotation) 
-    		iUpdate.saveAndReturnObject(annotation);
+    	annotation = (CommentAnnotation) 
+    	iUpdate.saveAndReturnObject(annotation);
+    	assertNotNull(annotation);
+    	linkAnnotationAndObjects(annotation);
+    	TextualAnnotationData data = new TextualAnnotationData(annotation);
     	assertNotNull(data);
-    	linkAnnotationAndObjects(data);
+    	assertTrue(data.getText().equals(annotation.getTextValue().getValue()));
     }
     
     /**
@@ -840,12 +850,16 @@ public class UpdateServiceTest
     public void testCreateTagAnnotation()
     	throws Exception 
     {
-    	TagAnnotationI annotation = new TagAnnotationI();
+    	TagAnnotation annotation = new TagAnnotationI();
     	annotation.setTextValue(omero.rtypes.rstring("tag"));
-    	TagAnnotation data = (TagAnnotation) 
+    	annotation = (TagAnnotation) 
     		iUpdate.saveAndReturnObject(annotation);
+    	assertNotNull(annotation);
+    	linkAnnotationAndObjects(annotation);
+    	TagAnnotationData data = new TagAnnotationData(annotation);
     	assertNotNull(data);
-    	linkAnnotationAndObjects(data);
+    	assertTrue(data.getTagValue().equals(
+    			annotation.getTextValue().getValue()));
     }
     
     /**
@@ -858,10 +872,12 @@ public class UpdateServiceTest
     {
     	BooleanAnnotation annotation = new BooleanAnnotationI();
     	annotation.setBoolValue(omero.rtypes.rbool(true));
-    	BooleanAnnotation data = (BooleanAnnotation) 
+    	annotation = (BooleanAnnotation) 
     		iUpdate.saveAndReturnObject(annotation);
+    	assertNotNull(annotation);
+    	linkAnnotationAndObjects(annotation);
+    	BooleanAnnotationData data = new BooleanAnnotationData(annotation);
     	assertNotNull(data);
-    	linkAnnotationAndObjects(data);
     }
     
     /**
@@ -874,10 +890,13 @@ public class UpdateServiceTest
     {
     	LongAnnotation annotation = new LongAnnotationI();
     	annotation.setLongValue(omero.rtypes.rlong(1L));
-    	LongAnnotation data = (LongAnnotation) 
+    	annotation = (LongAnnotation) 
     		iUpdate.saveAndReturnObject(annotation);
+    	assertNotNull(annotation);
+    	linkAnnotationAndObjects(annotation);
+    	LongAnnotationData data = new LongAnnotationData(annotation);
     	assertNotNull(data);
-    	linkAnnotationAndObjects(data);
+    	assertTrue(data.getDataValue() == annotation.getLongValue().getValue());
     }
     
     /**
@@ -896,6 +915,24 @@ public class UpdateServiceTest
 		FileAnnotation data = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
 		assertNotNull(data);
     	linkAnnotationAndObjects(data);
+    }
+    
+    /**
+     * Tests to create a term and link it to various objects.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testCreateTermAnnotation()
+    	throws Exception 
+    {
+		TermAnnotation term = new TermAnnotationI();
+		term.setTermValue(omero.rtypes.rstring("term"));
+		term = (TermAnnotation) iUpdate.saveAndReturnObject(term);
+		assertNotNull(term);
+    	linkAnnotationAndObjects(term);
+    	TermAnnotationData data = new TermAnnotationData(term);
+    	assertNotNull(data);
+    	assertTrue(data.getTerm().equals(term.getTermValue().getValue()));
     }
     
     /**
@@ -1708,7 +1745,7 @@ public class UpdateServiceTest
     {
     	//creation and linkage have already been tested
     	//boolean
-    	BooleanAnnotationI b = new BooleanAnnotationI();
+    	BooleanAnnotation b = new BooleanAnnotationI();
     	b.setBoolValue(omero.rtypes.rbool(true));
     	Annotation data = (Annotation) iUpdate.saveAndReturnObject(b);
     	//delete and check
@@ -1719,7 +1756,7 @@ public class UpdateServiceTest
     	String sql = "select a from Annotation as a where a.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));
     	//long
-    	LongAnnotationI l = new LongAnnotationI();
+    	LongAnnotation l = new LongAnnotationI();
     	l.setLongValue(omero.rtypes.rlong(1L));
     	data = (Annotation) iUpdate.saveAndReturnObject(l);
     	id = data.getId().getValue();
@@ -1729,7 +1766,7 @@ public class UpdateServiceTest
     	sql = "select a from Annotation as a where a.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));
     	//comment
-    	CommentAnnotationI c = new CommentAnnotationI();
+    	CommentAnnotation c = new CommentAnnotationI();
     	c.setTextValue(omero.rtypes.rstring("comment"));
     	data = (Annotation) iUpdate.saveAndReturnObject(c);
     	id = data.getId().getValue();
@@ -1739,7 +1776,7 @@ public class UpdateServiceTest
     	sql = "select a from Annotation as a where a.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));
     	//tag
-    	TagAnnotationI t = new TagAnnotationI();
+    	TagAnnotation t = new TagAnnotationI();
     	t.setTextValue(omero.rtypes.rstring("tag"));
     	data = (Annotation) iUpdate.saveAndReturnObject(t);
     	id = data.getId().getValue();
@@ -1751,7 +1788,7 @@ public class UpdateServiceTest
     	//File 
     	OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
 				createOriginalFile());
-		FileAnnotationI fa = new FileAnnotationI();
+		FileAnnotation fa = new FileAnnotationI();
 		fa.setFile(of);
 		long ofId = of.getId().getValue();
 		data = (Annotation) iUpdate.saveAndReturnObject(fa);
@@ -1764,6 +1801,17 @@ public class UpdateServiceTest
     	param = new ParametersI();
     	param.addId(id);
     	sql = "select a from OriginalFile as a where a.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	
+    	//Term
+    	TermAnnotation term = new TermAnnotationI();
+    	term.setTermValue(omero.rtypes.rstring("term"));
+    	data = (Annotation) iUpdate.saveAndReturnObject(t);
+    	id = data.getId().getValue();
+    	iUpdate.deleteObject(data);
+    	param = new ParametersI();
+    	param.addId(id);
+    	sql = "select a from Annotation as a where a.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));
     }
 
