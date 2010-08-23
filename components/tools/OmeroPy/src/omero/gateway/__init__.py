@@ -1705,7 +1705,7 @@ class _BlitzGateway (object):
                 for gem in group.copyGroupExperimenterMap():
                     exp = gem.child
                     res = query_serv.projection("""
-                    select o.id, sum(p.sizeX * p.sizeY * p.sizeZ), p.pixelsType.value 
+                    select o.id, sum(p.sizeX * p.sizeY * p.sizeZ * p.sizeC * p.sizeT), p.pixelsType.value 
                     from Pixels p join p.details.owner o 
                     group by o.id, p.pixelsType.value
                     """, None, {"omero.group":str(group.id.val)})
@@ -1721,7 +1721,7 @@ class _BlitzGateway (object):
             groups = set(groups)
             for gid in groups:
                 res = query_serv.projection("""
-                select o.id, sum(p.sizeX * p.sizeY * p.sizeZ), p.pixelsType.value 
+                select o.id, sum(p.sizeX * p.sizeY * p.sizeZ * p.sizeC * p.sizeT), p.pixelsType.value 
                 from Pixels p join p.details.owner o 
                 group by o.id, p.pixelsType.value
                 """, None, {"omero.group":str(gid)})
@@ -1733,6 +1733,19 @@ class _BlitzGateway (object):
                         usage[gid] = r[1]*self.bytesPerPixel(r[2])
         return usage
     
+    def bytesPerPixel(self, pixel_type):
+        if pixel_type == "int8" or pixel_type == "uint8":
+            return 1
+        elif pixel_type == "int16" or pixel_type == "uint16":
+            return 2
+        elif pixel_type == "int32" or pixel_type == "uint32" or pixel_type == "float":
+            return 4
+        elif pixel_type == "double":
+            return 8;
+        else:
+            logger.error("Error: Unknown pixel type: %s" % (pixel_type))
+            logger.error(traceback.format_exc())
+            raise AttributeError("Unknown pixel type: %s" % (pixel_type))
     
     ##############################################
     ##   IShare

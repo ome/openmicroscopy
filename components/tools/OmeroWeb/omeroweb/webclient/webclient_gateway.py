@@ -65,7 +65,10 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.core.mail import EmailMultiAlternatives
 
-PAGE = settings.PAGE
+try:
+    PAGE = settings.PAGE
+except:
+    PAGE = 24
 
 logger = logging.getLogger('webclient_gateway')
 
@@ -1610,25 +1613,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.groupId = rlong(self.getEventContext().groupId)
         p.theFilter = f
         return tm.getEventLogsByPeriod(rtime(start), rtime(end), p)
-        #yield EventLogWrapper(self, e)
-    
-    ##############################################
-    ##  helpers                                 ##
-    
-    def bytesPerPixel(self, pixel_type):
-        if pixel_type == "int8" or pixel_type == "uint8":
-            return 1
-        elif pixel_type == "int16" or pixel_type == "uint16":
-            return 2
-        elif pixel_type == "int32" or pixel_type == "uint32" or pixel_type == "float":
-            return 4
-        elif pixel_type == "double":
-            return 8;
-        else:
-            logger.error("Error: Unknown pixel type: %s" % (pixel_type))
-            logger.error(traceback.format_exc())
-            raise AttributeError("Unknown pixel type: %s" % (pixel_type))
-    
+        #yield EventLogWrapper(self, e)    
 
 omero.gateway.BlitzGateway = OmeroWebGateway
 
