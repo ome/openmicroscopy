@@ -103,7 +103,6 @@ def script_run(request, scriptId):
     for key, param in params.inputs.items():
         if key in request.POST:
             value = request.POST[key]
-            print "\n%s: %s" % (key, value)
             prototype = param.prototype
             pclass = prototype.__class__
             if pclass == omero.rtypes.RListI:
@@ -116,12 +115,12 @@ def script_run(request, scriptId):
                         listClass = omero.rtypes.rint
                     if listClass == long(1).__class__:
                         listClass = omero.rtypes.rlong
-                print "listClass", listClass
+                
                 for v in value.split(","):
                     try:
                         obj = listClass(str(v.strip())) # seem to need the str() for some reason
                     except:
-                        print "Invalid entry for '%s' : %s" % (key, v)
+                        # print "Invalid entry for '%s' : %s" % (key, v)
                         continue
                     if isinstance(obj, omero.model.IObject):
                         valueList.append(omero.rtypes.robject(obj))
@@ -130,16 +129,15 @@ def script_run(request, scriptId):
                 inputMap[key] = omero.rtypes.rlist(valueList)
             
             elif pclass == omero.rtypes.RMapI:
-                print "MAP!"    # TODO: Handle maps same way as lists. 
+                # TODO: Handle maps same way as lists. 
                 valueMap = {}
                 m = prototype.val   # check if a value type has been set for the map
-                print m
 
             else:
                 try:
                     inputMap[key] = pclass(value)
                 except:
-                    print "Invalid entry for '%s' : %s" % (key, value)
+                    # print "Invalid entry for '%s' : %s" % (key, value)
                     continue
                 
     #print inputMap
@@ -152,7 +150,8 @@ def script_run(request, scriptId):
     key = str(i)
     jobMap[key] = str(proc)
     
-    return render_to_response('webemdb/scripts/script_running.html', {'jobId': key})
+    # TODO - return the input map, to display what the user entered. 
+    return render_to_response('webemdb/scripts/script_running.html', {'scriptName': scriptName, 'jobId': key})
     
     
 def script_results(request, jobId):
@@ -205,12 +204,13 @@ def script_results(request, jobId):
             obj = value.getValue()
             # if rstring, value is "string"
             if type(obj) == type(""):
-                strings.append({"key":key, "value": value.getValue() })
+                strings.append({"key":key, "value": obj })
             elif type(obj) == omero.model.ImageI:
-                images.append(obj.getId().getValue())
+                images.append({"key":key, "name": obj.getName().getValue(), "id": obj.getId().getValue() })
             elif type(obj) == omero.model.DatasetI:
                 resultMap['dataset'] = {"name": obj.getName().getValue(), "id": obj.getId().getValue()}
     resultMap['strings'] = strings
+    images.sort(key=lambda i: i["id"])
     resultMap['images'] = images
     
     # html will give users links to any Image, stdout, stderr and any strings returned in results
@@ -254,7 +254,6 @@ def script_form(request, scriptId):
             i["options"] = [v.getValue() for v in param.values.getValue()]
         pt = unwrap(param.prototype)
         if pt.__class__ == type(True):
-            print key, pt
             i["boolean"] = True
         i["prototype"] = unwrap(param.prototype)    # E.g  ""  (string) or [0] (int list) or 0.0 (float)
         i["grouping"] = param.grouping
@@ -290,7 +289,6 @@ def image(request, imageId):
              s["id"] = scriptId
              scripts.append(s)
 
-    print scripts
     return render_to_response('webemdb/data/image.html', {'image': image, "scripts": scripts})
     
 
@@ -335,7 +333,6 @@ def data(request, entryId):
     for d in project.listChildren():
         ds = {}
         ds["getId"] = str(d.getId())
-        print "ID", d.getId()
         name = d.getName()
         if name == entryId: continue    # this dataset contains the map, not associated data. 
         ds["getName"] = name
@@ -353,8 +350,6 @@ def data(request, entryId):
     
 def entry (request, entryId):
     conn = getConnection(request)
-    
-    print dir(conn)
         
     entryName = str(entryId)
     project = conn.findProject(entryName)
@@ -514,7 +509,6 @@ def getFile (request, fileId):
 
 def logout (request):
     """ Shouldn't ever be used (public db)"""
-    print "logging out...."
     _session_logout(request, request.session['server'])
     try:
         del request.session['username']
@@ -527,7 +521,6 @@ def logout (request):
     return HttpResponseRedirect(reverse('webemdb_loggedout'))
 
 def loggedout (request):
-    print "logged out"
     return render_to_response('webemdb/loggedout.html', {})
 
 
@@ -600,7 +593,7 @@ def getEntriesByPub (request, publicationId):
     return HttpResponse(simplejson.dumps(pData), mimetype='application/javascript')
     
 def getConnection(request):
-    print request.session.session_key
+    #print request.session.session_key
     #emdb_conn_key = "S:emdb#%s" % (request.session.get('server'))
     conn = getBlitzConnection(request, useragent="OMERO.webemdb")    
     if conn is None or not conn.isConnected() and request.REQUEST['server']:
@@ -614,7 +607,7 @@ def getConnection(request):
         request.session.modified = True
         conn = getBlitzConnection (request, useragent="OMERO.webemdb")
     logger.debug('emdb connection: %s' % (conn._sessionUuid))
-    print type(conn), conn._sessionUuid #, emdb_conn_key
+    #print type(conn), conn._sessionUuid #, emdb_conn_key
     return conn
 
 def image_viewer (request, iid, **kwargs):
