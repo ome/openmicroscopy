@@ -1806,7 +1806,7 @@ public class UpdateServiceTest
     	//Term
     	TermAnnotation term = new TermAnnotationI();
     	term.setTermValue(omero.rtypes.rstring("term"));
-    	data = (Annotation) iUpdate.saveAndReturnObject(t);
+    	data = (Annotation) iUpdate.saveAndReturnObject(term);
     	id = data.getId().getValue();
     	iUpdate.deleteObject(data);
     	param = new ParametersI();
