@@ -30,6 +30,7 @@ import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetAnnotationLink;
 import omero.model.DatasetAnnotationLinkI;
+import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.Detector;
@@ -63,6 +64,7 @@ import omero.model.ProjectAnnotationLink;
 import omero.model.ProjectAnnotationLinkI;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
+import omero.model.ProjectI;
 import omero.model.Rect;
 import omero.model.RectI;
 import omero.model.Roi;
@@ -1433,5 +1435,146 @@ public class DeleteServiceTest
 		}
     }
 
+    /**
+     * Tests to delete a dataset with images.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testCascadingDeleteDatasetAsRoot() 
+    	throws Exception
+    {
+    	/*
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			simpleDatasetData().asIObject());
+    	Image img1 = createImage();
+    	Image img2 = createImage();
+    	DatasetImageLink l = new DatasetImageLinkI();
+    	l.link(new DatasetI(d.getId().getValue(), false), img1);
+    	iUpdate.saveAndReturnObject(l);
+    	l = new DatasetImageLinkI();
+    	l.link(new DatasetI(d.getId().getValue(), false), img2);
+    	iUpdate.saveAndReturnObject(l);
+    	
+    	//delete from dataset
+    	ParametersI param = new ParametersI();
+    	param.addId(d.getId().getValue());
+    	String sql = "select d from Dataset where d.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(img1.getId().getValue());
+    	ids.add(img2.getId().getValue());
+    	param = new ParametersI();
+    	param.addIds(ids);
+    	sql = "select d from Image where d.id in (:ids)";
+    	assertTrue(iQuery.findAllByQuery(sql, param).size() == 0);
+    	*/
+    }
+    
+    /**
+     * Tests to delete a project with dataset and images.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testCascadingDeleteProjectAsRoot() 
+    	throws Exception
+    {
+    	/*
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			simpleDatasetData().asIObject());
+    	Dataset d2 = (Dataset) iUpdate.saveAndReturnObject(
+    			simpleDatasetData().asIObject());
+    	Image img1 = createImage();
+    	Image img2 = createImage();
+    	DatasetImageLink l = new DatasetImageLinkI();
+    	l.link(new DatasetI(d.getId().getValue(), false), img1);
+    	iUpdate.saveAndReturnObject(l);
+    	l = new DatasetImageLinkI();
+    	l.link(new DatasetI(d.getId().getValue(), false), img2);
+    	iUpdate.saveAndReturnObject(l);
+    	
+    	Project p = (Project) iUpdate.saveAndReturnObject(
+    			simpleProjectData().asIObject());
+    	ProjectDatasetLink pl = new ProjectDatasetLinkI();
+    	pl.link(new ProjectI(p.getId().getValue(), false), 
+    			new DatasetI(d.getId().getValue(), false));
+    	
+    	iUpdate.saveAndReturnObject(pl);
+    	pl = new ProjectDatasetLinkI();
+    	pl.link(new ProjectI(p.getId().getValue(), false), d2);
+    	iUpdate.saveAndReturnObject(pl);
+    	
+    	//delete from dataset
+    	ParametersI param = new ParametersI();
+    	param.addId(p.getId().getValue());
+    	String sql = "select d from Project where d.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(d.getId().getValue());
+    	ids.add(d2.getId().getValue());
+    	param = new ParametersI();
+    	param.addIds(ids);
+    	sql = "select d from Dataset where d.id in (:ids)";
+    	assertTrue(iQuery.findAllByQuery(sql, param).size() == 0);
+    	
+    	
+    	ids.clear();
+    	ids.add(img1.getId().getValue());
+    	ids.add(img2.getId().getValue());
+    	param = new ParametersI();
+    	param.addIds(ids);
+    	sql = "select d from Image where d.id in (:ids)";
+    	assertTrue(iQuery.findAllByQuery(sql, param).size() == 0);
+    	*/
+    }
+    
+    /**
+     * Tests to delete a dataset with images.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testCascadingDeleteScreenAsRoot() 
+    	throws Exception
+    {
+    	/*
+    	Boolean[] values = {Boolean.valueOf(false), Boolean.valueOf(true)};
+    	Plate plate;
+    	String sql;
+    	PlateAcquisition pa = null;
+    	ParametersI param;
+    	Screen screen;
+    	ScreenPlateLink link;
+    	for (int i = 0; i < values.length; i++) {
+    		param = new ParametersI();
+			plate = createPlate(1, 1, 1, values[i], false);
+			sql = "select pa from PlateAcquisition as pa " +
+    		 "where pa.plate.id = :plateID"; 
+			param.addId(plate.getId().getValue());
+			pa = (PlateAcquisition) iQuery.findByQuery(sql, param);
+			screen = (Screen) iUpdate.saveAndReturnObject(
+					simpleScreenData().asIObject());
+			link = new ScreenPlateLinkI();
+			link.link(screen, plate);
+			iUpdate.saveAndReturnObject(link);
+			//delete
+			param = new ParametersI();
+			sql = "select s from Screen as as where s.id = :id";
+			param.addId(screen.getId().getValue());
+			assertNull(iQuery.findByQuery(sql, param));
+			param = new ParametersI();
+			sql = "select s from Plate as as where s.id = :id";
+			param.addId(plate.getId().getValue());
+			assertNull(iQuery.findByQuery(sql, param));
+			if (values[i] && pa != null) {
+				param = new ParametersI();
+				sql = "select pa from PlateAcquisition as pa " +
+	    		 "where pa.plate.id = :plateID"; 
+				param.addId(plate.getId().getValue());
+				assertNull(iQuery.findByQuery(sql, param));
+			}
+		}
+		*/
+    }
     
 }
