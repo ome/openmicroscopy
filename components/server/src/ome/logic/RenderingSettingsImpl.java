@@ -1,23 +1,7 @@
 /*
  *   $Id$
- *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
- *
- *
- * 	This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *  
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- *------------------------------------------------------------------------------
+ *  Copyright 2006-2010 University of Dundee. All rights reserved.
+ *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package ome.logic;
@@ -154,37 +138,25 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	// to a list of Pixels objects for us to work on.
     	if (Project.class.equals(klass))
     	{
-    		for (Long projectId : nodeIds)
-    		{
-    			pixels.addAll(loadProjectPixels(projectId));
-    		}
+    		pixels.addAll(loadProjectPixels(nodeIds));
     	}
-    	if (Dataset.class.equals(klass))
+    	else if (Dataset.class.equals(klass))
     	{
-    		for (Long datasetId : nodeIds)
-    		{
-    			pixels.addAll(loadDatasetPixels(datasetId));
-    		}
+    		pixels.addAll(loadDatasetPixels(nodeIds));
     	}
-    	if (Plate.class.equals(klass))
+    	else if (Plate.class.equals(klass))
     	{
-    		for (Long plateId : nodeIds)
-    		{
-    			pixels.addAll(loadPlatePixels(plateId));
-    		}
+    		pixels.addAll(loadPlatePixels(nodeIds));
     	}
-    	if (Screen.class.equals(klass))
+    	else if (Screen.class.equals(klass))
     	{
-    		for (Long screenId : nodeIds)
-    		{
-    			pixels.addAll(loadScreenPixels(screenId));
-    		}
+    		pixels.addAll(loadScreenPixels(nodeIds));
     	}
-    	if (Image.class.equals(klass))
+    	else if (Image.class.equals(klass))
     	{
     		pixels.addAll(loadPixelsByImage(nodeIds));
     	}
-    	if (Pixels.class.equals(klass))
+    	else if (Pixels.class.equals(klass))
     	{
     		pixels.addAll(loadPixels(nodeIds));
     	}
@@ -235,15 +207,16 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     }
     
     /**
-     * Retrieves all Pixels associated with a Plate from the database.
-     * @param plateId Plate ID to retrieve Pixels for.
+     * Retrieves all Pixels associated with the specified <code>Plate</code>s.
+     * 
+     * @param plateIds The identifiers of the plate to retrieve Pixels for.
      * @return List of Pixels associated with the Plate.
      */
-    private List<Pixels> loadPlatePixels(Long plateId)
+    private List<Pixels> loadPlatePixels(Set<Long> plateIds)
     {
 		StopWatch s1 = new CommonsLogStopWatch("omero.loadPlatePixels");
 		Parameters p = new Parameters();
-		p.addId(plateId);
+		p.addIds(plateIds);
 		String sql = "select pix from Pixels as pix " +
 			"join fetch pix.image as i " +
 			"join fetch pix.pixelsType " +
@@ -252,22 +225,23 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 			"left outer join i.wellSamples as s " +
 			"left outer join s.well as w " +
 			"left outer join w.plate as p " +
-			"where p.id = :id";
+			"where p.id in (:ids)";
 		List<Pixels> pixels = iQuery.findAllByQuery(sql, p);
 		s1.stop();
 		return pixels;
     }
     
     /**
-     * Retrieves all Pixels associated with a Screen from the database.
-     * @param plateId Plate ID to retrieve Pixels for.
-     * @return List of Pixels associated with the Plate.
+     * Retrieves all Pixels associated with the specified <code>Screen</code>.
+     * 
+     * @param screenIds The identifiers of the Screen to retrieve Pixels for.
+     * @return List of Pixels associated with the Screen.
      */
-    private List<Pixels> loadScreenPixels(Long plateId)
+    private List<Pixels> loadScreenPixels(Set<Long> screenIds)
     {
 		StopWatch s1 = new CommonsLogStopWatch("omero.loadScreenPixels");
 		Parameters p = new Parameters();
-		p.addId(plateId);
+		p.addIds(screenIds);
 		String sql = "select pix from Pixels as pix " +
 			"join fetch pix.image as i " +
 			"join fetch pix.pixelsType " +
@@ -278,23 +252,23 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 			"left outer join w.plate as p " +
 			"left outer join p.screenLinks as spl " +
 			"left outer join spl.parent as s " +
-			"where s.id = :id";
+			"where s.id in (:ids)";
 		List<Pixels> pixels = iQuery.findAllByQuery(sql, p);
 		s1.stop();
 		return pixels;
     }
     
     /**
-     * Retrieves all Pixels associated with a Dataset from the database.
+     * Retrieves all Pixels associated with the specified <code>Dataset</code>s.
      * 
-     * @param datasetId Dataset ID to retrieve Pixels for.
+     * @param datasetIds Dataset ID to retrieve Pixels for.
      * @return List of Pixels associated with the Dataset.
      */
-    private List<Pixels> loadDatasetPixels(Long datasetId)
+    private List<Pixels> loadDatasetPixels(Set<Long> datasetIds)
     {
 		StopWatch s1 = new CommonsLogStopWatch("omero.loadDatasetPixels");
 		Parameters p = new Parameters();
-		p.addId(datasetId);
+		p.addIds(datasetIds);
     	String sql = "select pix from Pixels as pix " +
     		"join fetch pix.image as i " +
 			"join fetch pix.pixelsType " +
@@ -302,23 +276,23 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 			"join fetch c.logicalChannel " +
 			"left outer join i.datasetLinks dil " +
 			"left outer join dil.parent d " +
-			"where d.id = :id";
+			"where d.id in (:ids)";
 		List<Pixels> pixels = iQuery.findAllByQuery(sql, p);
 		s1.stop();
 		return pixels;
     }
-    
+
     /**
      * Retrieves all Pixels associated with a Project from the database.
      * 
      * @param projectIds Project ID to retrieve Pixels for.
      * @return List of Pixels associated with the Project.
      */
-    private List<Pixels> loadProjectPixels(Long projectIds)
+    private List<Pixels> loadProjectPixels(Set<Long> projectIds)
     {
 		StopWatch s1 = new CommonsLogStopWatch("omero.loadProjectPixels");
 		Parameters p = new Parameters();
-		p.addId(projectIds);
+		p.addIds(projectIds);
     	String sql = "select pix from Pixels as pix " +
     		"join fetch pix.image as i " +
 			"join fetch pix.pixelsType " +
@@ -328,12 +302,12 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 			"left outer join dil.parent as d " +
 			"left outer join d.projectLinks as pdl " +
 			"left outer join pdl.parent as p " +
-			"where p.id = :id";
+			"where p.id in (:ids)";
 		List<Pixels> pixels = iQuery.findAllByQuery(sql, p);
 		s1.stop();
 		return pixels;
     }
-
+    
     /**
      * Loads the logical channel to determine the color correctly.
      * 
@@ -585,6 +559,8 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	// the settings that need to be saved and saving the newly modified or
     	// created rendering settings in the database.
     	Set<Long> imageIds = new HashSet<Long>();
+    	if (pixels.size() == 0) return imageIds; //nothing retrieve.
+    	
     	List<RenderingDef> toSave = new ArrayList<RenderingDef>(pixels.size());
     	Map<Long, RenderingDef> settingsMap = loadRenderingSettings(pixels);
     	RenderingDef settings;
@@ -1138,7 +1114,15 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	// created rendering settings in the database.
     	List<Long> toReturnTrue = new ArrayList<Long>();
     	List<Long> toReturnFalse = new ArrayList<Long>();
+    	Map<Boolean, List<Long>> toReturn = new HashMap<Boolean, List<Long>>();
+    	if (pixels.size() == 0) {
+    		toReturn.put(Boolean.valueOf(true), toReturnTrue);
+        	toReturn.put(Boolean.valueOf(false), toReturnFalse);
+        	return toReturn;
+    	}
+    	
     	List<RenderingDef> toSave = new ArrayList<RenderingDef>(pixels.size());
+    	
     	Map<Long, RenderingDef> settingsMap = loadRenderingSettings(pixels);
     	RenderingDef settingsFrom = settingsMap.get(from);
     	if (pixelsFrom != null) {
@@ -1161,6 +1145,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     		}
     	}
     		
+
     	RenderingDef settingsTo;
     	for (Pixels p : pixels)
     	{
@@ -1183,9 +1168,9 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         iUpdate.saveAndReturnArray(toSaveArray);
         s2.stop();
         s1.stop();
-    	Map<Boolean, List<Long>> toReturn = new HashMap<Boolean, List<Long>>();
-    	toReturn.put(Boolean.TRUE, toReturnTrue);
-    	toReturn.put(Boolean.FALSE, toReturnFalse);
+        
+    	toReturn.put(Boolean.valueOf(true), toReturnTrue);
+    	toReturn.put(Boolean.valueOf(false), toReturnFalse);
         return toReturn;
     }
 
@@ -1432,13 +1417,20 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         // to a list of Pixels objects for us to work on.
         List<Pixels> pixelsList = new ArrayList<Pixels>();
         updatePixelsForNodes(pixelsList, klass, nodeIds);
+        Set<Long> toReturn = new HashSet<Long>();
+        if (pixelsList.size() == 0) return toReturn; 
         Map<Long, RenderingDef> mySettings =
             loadRenderingSettings(pixelsList);
         Set<IObject> toSave = new HashSet<IObject>();
-        Set<Long> toReturn = new HashSet<Long>();
+       
+        
+
+        RenderingDef settings;
+        ChannelBinding cb;
+        StatsInfo stats;
         for (Pixels pixels : pixelsList)
         {
-            RenderingDef settings = mySettings.get(pixels.getId());
+            settings = mySettings.get(pixels.getId());
             if (settings == null)
             {
                 try
@@ -1457,8 +1449,8 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             {
                 for (int i = 0; i < pixels.sizeOfChannels(); i++)
                 {
-                    ChannelBinding cb = settings.getChannelBinding(i);
-                    StatsInfo stats = pixels.getChannel(i).getStatsInfo();
+                    cb = settings.getChannelBinding(i);
+                    stats = pixels.getChannel(i).getStatsInfo();
                     cb.setInputStart(stats.getGlobalMin());
                     cb.setInputEnd(stats.getGlobalMax());
                 }
