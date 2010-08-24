@@ -261,7 +261,8 @@ public class PojoMapper
      * @throws IllegalArgumentException 
      * @throws IllegalArgumentException If the map is <code>null</code> 
      * or if the type {@link IObject} is unknown.
-     */public static <K, V extends DataObject>  Map<K, V> 
+     */
+    public static <K, V extends DataObject>  Map<K, V> 
     								asDataObjectMap(Class<K> keyKlass, 
     										Class<V> valueKlass, 
     								String method, List objects) throws 

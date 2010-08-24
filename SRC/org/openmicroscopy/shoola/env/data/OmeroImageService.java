@@ -720,7 +720,8 @@ public interface OmeroImageService
 		throws DSAccessException, DSOutOfServiceException;
 	
 	/**
-	 * Add the workflows to the server for the user.
+	 * Adds the workflows to the server for the user.
+	 * 
 	 * @param workflows See above.
 	 * @param userID The id of the user.
 	 * @throws DSAccessException

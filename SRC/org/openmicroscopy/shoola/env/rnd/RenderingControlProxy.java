@@ -802,7 +802,6 @@ class RenderingControlProxy
             tmpSolutionForNoiseReduction();
             
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
     }
 

@@ -51,7 +51,7 @@ public class DeletableObject
 	
 	/** 
 	 * Flag indicating to delete the objects contained in the object to delete,
-	 * the flag will be taken into account when the objec to delete is a 
+	 * the flag will be taken into account when the object to delete is a 
 	 * container e.g. <code>Project</code>.
 	 */
 	private boolean				content;

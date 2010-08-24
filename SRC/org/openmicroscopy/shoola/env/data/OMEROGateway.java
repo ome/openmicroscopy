@@ -459,7 +459,7 @@ class OMEROGateway
 	{
 		ScriptCallback cb = null;
 		try {
-	         IScriptPrx svc = getScripService();
+	         IScriptPrx svc = getScriptService();
 	         //scriptID, parameters, timeout (5s if null)
 	         ScriptProcessPrx prx = svc.runScript(scriptID, parameters, null);
 	         cb = new ScriptCallback(scriptID, secureClient, prx);
@@ -1096,7 +1096,8 @@ class OMEROGateway
 	{
 		try {
 			if (rndSettingsService == null) {
-				rndSettingsService = entryEncrypted.getRenderingSettingsService(); 
+				rndSettingsService = 
+					entryEncrypted.getRenderingSettingsService(); 
 				services.add(rndSettingsService);
 			}
 			return rndSettingsService;
@@ -1160,7 +1161,7 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	private IScriptPrx getScripService()
+	private IScriptPrx getScriptService()
 		throws DSAccessException, DSOutOfServiceException
 	{ 
 		try {
@@ -1993,8 +1994,17 @@ class OMEROGateway
 					*/
 				}
 			}
+			IPixelsPrx svc = getPixelsService();
+
+	    	List<IObject> types = 
+	    		svc.getAllEnumerations(PixelsType.class.getName());
+	    	List<Integer> channels = new ArrayList<Integer>();
+	    	for (int i = 0; i < 1; i++) {
+				channels.add(i);
+			}
 			return exp;
 		} catch (Throwable e) {
+			e.printStackTrace();
 			connected = false;
 			String s = "Can't connect to OMERO. OMERO info not valid.\n\n";
 			s += printErrorText(e);
@@ -2968,7 +2978,6 @@ class OMEROGateway
 			service.load();
 			return service;
 		} catch (Throwable t) {
-			t.printStackTrace();
 			handleException(t, "Cannot start the Rendering Engine.");
 		}
 		return null;
@@ -4076,31 +4085,25 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IRenderingSettingsPrx service = getRenderingSettingsService();
-			//String klass = convertPojos(rootNodeType).getName();
 			Iterator i = nodes.iterator();
 			long id;
-			if (ImageData.class.equals(rootNodeType)) {
-				//Map m = service.applySettingsToImages(pixelsID, nodes);
-				Map m = service.applySettingsToSet(pixelsID, 
-						convertPojos(rootNodeType).getName(), nodes);
-				success = (List<Long>) m.get(Boolean.TRUE);
-				failure = (List<Long>) m.get(Boolean.FALSE);
-			} else if (DatasetData.class.equals(rootNodeType) ||
+			if (DatasetData.class.equals(rootNodeType) ||
 					PlateData.class.equals(rootNodeType) ||
 					ProjectData.class.equals(rootNodeType) ||
-					ScreenData.class.equals(rootNodeType)) {
+					ScreenData.class.equals(rootNodeType) || 
+					ImageData.class.equals(rootNodeType)) {
 				Map m  = service.applySettingsToSet(pixelsID, 
 						convertPojos(rootNodeType).getName(),
 						nodes);
-				success = (List) m.get(Boolean.TRUE);
-				failure = (List) m.get(Boolean.FALSE);
+				success = (List) m.get(Boolean.valueOf(true));
+				failure = (List) m.get(Boolean.valueOf(false));
 			} 
 		} catch (Exception e) {
 			handleException(e, "Cannot paste the rendering settings.");
 		}
 		Map<Boolean, List> result = new HashMap<Boolean, List>(2);
-		result.put(Boolean.TRUE, success);
-		result.put(Boolean.FALSE, failure);
+		result.put(Boolean.valueOf(true), success);
+		result.put(Boolean.valueOf(false), failure);
 		return result;
 	}
 
@@ -4201,7 +4204,6 @@ class OMEROGateway
 		} catch (Exception e) {
 			handleException(e, "Cannot retrieve the rendering settings");
 		}
-		
 		return null;
 	}
 
@@ -4982,32 +4984,6 @@ class OMEROGateway
             	 sb.append(" and ws.plateAcquisition.id = :acquisitionID");
             	 param.addLong("acquisitionID", plateID);
             }
-            //TODO: to be modified
-            /*
-			if (acquisitionID > 0) {
-				//Get the id of the well samples.
-				List<Long> ids = new ArrayList<Long>();
-				//i = results.iterator();
-				PlateAcquisitionWellSampleLink link;
-				IObject child;
-				StringBuilder sb2 = new StringBuilder();
-				sb2.append("select distinct l " +
-				"from PlateAcquisitionWellSampleLink as l");
-				sb2.append(" where l.parent.id = :said");
-				ParametersI p = new ParametersI();
-				p.addLong("said", acquisitionID);
-				results = service.findAllByQuery(sb2.toString(), p);
-				i = results.iterator();
-				while (i.hasNext()) {
-					link = (PlateAcquisitionWellSampleLink) i.next();
-					child = link.getChild();
-					if (child != null) ids.add(child.getId().getValue());
-				}
-				if (ids.size() == 0) return wells;
-				param.addLongs("wsids", ids);
-				sb.append(" and ws.id in (:wsids)");
-			}
-			*/
             results = service.findAllByQuery(sb.toString(), param);
 
 			i = results.iterator();
@@ -5419,7 +5395,7 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			IScriptPrx svc = getScripService();
+			IScriptPrx svc = getScriptService();
 			List<RType> set = new ArrayList<RType>(channels.size());
 			Iterator<Integer> i = channels.iterator();
 			while (i.hasNext()) 
@@ -5484,7 +5460,7 @@ class OMEROGateway
 		isSessionAlive();
 		List<ScriptObject> scripts = new ArrayList<ScriptObject>();
 		try {
-			IScriptPrx svc = getScripService();
+			IScriptPrx svc = getScriptService();
 			List<OriginalFile> storedScripts = svc.getScripts();
 		
 			if (storedScripts == null || storedScripts.size() == 0) 
@@ -5541,7 +5517,7 @@ class OMEROGateway
 		isSessionAlive();
 		List<ScriptObject> scripts = new ArrayList<ScriptObject>();
 		try {
-			IScriptPrx svc = getScripService();
+			IScriptPrx svc = getScriptService();
 			List<OriginalFile> storedScripts = svc.getScripts();
 		
 			if (storedScripts == null || storedScripts.size() == 0) 
@@ -5584,7 +5560,7 @@ class OMEROGateway
 		isSessionAlive();
 		ScriptObject script = null;
 		try {
-			IScriptPrx svc = getScripService();
+			IScriptPrx svc = getScriptService();
 			script = new ScriptObject(scriptID, "", "");
 			script.setJobParams(svc.getParams(scriptID));
 		} catch (Exception e) {
@@ -5609,7 +5585,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 
-			IScriptPrx svc = getScripService();
+			IScriptPrx svc = getScriptService();
 			List<OriginalFile> scripts = svc.getScripts();
 			Map<Long, String> m = new HashMap<Long, String>();
 			if (scripts != null) {
@@ -5695,7 +5671,7 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			IScriptPrx svc = getScripService();
+			IScriptPrx svc = getScriptService();
 			String scriptName = param.getScriptName();
 			int scriptIndex = param.getIndex();
 			long id = svc.getScriptID(scriptName);
@@ -6498,7 +6474,7 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			IScriptPrx svc = getScripService(); 
+			IScriptPrx svc = getScriptService(); 
 			FileInputStream stream = null;
 			StringBuffer buf = new StringBuffer("");
 			try {
@@ -6638,7 +6614,6 @@ class OMEROGateway
 				setPermissionsLevel(p, level);
 				getAdminService().changePermissions(g, p);
 			}
-			
 			
 			List<ExperimenterGroup> list = new ArrayList<ExperimenterGroup>();
 			list.add(g);

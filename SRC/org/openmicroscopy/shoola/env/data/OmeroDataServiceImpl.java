@@ -202,6 +202,9 @@ class OmeroDataServiceImpl
 				result.add(object);
 				return result;
 			} 
+			 
+			
+			
 			//Nobody else annotated it.
 			if (!attachment) //want to keep the annotation.
 				gateway.deleteObjects(annotations);
