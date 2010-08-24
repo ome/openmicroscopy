@@ -322,19 +322,19 @@ class BrowserUI
             if (me.getClickCount() == 1) {
                 model.setClickPoint(p);
                //if (released) {
-            	   if ((me.isPopupTrigger() && !released) || 
-            			   (me.isPopupTrigger() && released && 
-            					   !UIUtilities.isMacOS()) ||
-                		(UIUtilities.isMacOS() && 
-                			SwingUtilities.isLeftMouseButton(me)
-                				&& me.isControlDown())) { //(me.isPopupTrigger()) {
-   
-                    	if (model.getBrowserType() == Browser.ADMIN_EXPLORER) 
-                    		controller.showPopupMenu(TreeViewer.ADMIN_MENU);
-                    	else 
-                    		controller.showPopupMenu(TreeViewer.FULL_POP_UP_MENU);
-                    		
-                    } 
+                if ((me.isPopupTrigger() && !released) || 
+                		(me.isPopupTrigger() && released && 
+                				!UIUtilities.isMacOS()) ||
+                				(UIUtilities.isMacOS() && 
+                						SwingUtilities.isLeftMouseButton(me)
+                						&& me.isControlDown())) { //(me.isPopupTrigger()) {
+
+                	if (model.getBrowserType() == Browser.ADMIN_EXPLORER) 
+                		controller.showPopupMenu(TreeViewer.ADMIN_MENU);
+                	else 
+                		controller.showPopupMenu(TreeViewer.FULL_POP_UP_MENU);
+
+                } 
                // }
             } else if (me.getClickCount() == 2 && released && !(me.isMetaDown()
             		|| me.isControlDown() || me.isShiftDown())) {
