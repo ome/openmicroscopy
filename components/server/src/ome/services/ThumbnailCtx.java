@@ -328,8 +328,8 @@ public class ThumbnailCtx
                 "select t from Thumbnail as t " +
                 "join t.pixels " +
                 "join fetch t.details.updateEvent " +
-                "and t.details.owner.id = :o_id " +
-                "and t.pixels.id in (:id)", params);
+                "where t.details.owner.id = :o_id " +
+                "and t.pixels.id = :id", params);
         s1.stop();
         return toReturn;
     }

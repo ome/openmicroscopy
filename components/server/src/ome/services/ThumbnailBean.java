@@ -216,6 +216,10 @@ public class ThumbnailBean extends AbstractLevel2Service
             if (renderer != null) {
                 renderer.close();
             }
+            ctx = null;
+            settings = null;
+            pixels = null;
+            thumbnailMetadata = null;
             renderer = null;
             iScale = null;
             ioService = null;
