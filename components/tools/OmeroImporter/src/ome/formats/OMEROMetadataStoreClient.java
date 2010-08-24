@@ -411,6 +411,20 @@ public class OMEROMetadataStoreClient
     }
     
     /**
+     * Initializes the MetadataStore with an already logged in, ready to go
+     * service factory.
+     * @param c The client. Mustn't be <code>null</code>.
+     */
+    public void initialize(omero.client c)
+        throws ServerError
+    {
+        this.c = c;
+        c.setAgent("OMERO.importer");
+        serviceFactory = c.getSession();
+        initializeServices();
+    }
+
+    /**
      * Initializes the MetadataStore taking string parameters to feed to the 
      * OMERO Blitz client object. Using this method creates an unsecure
      * session.

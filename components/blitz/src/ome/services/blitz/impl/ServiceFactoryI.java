@@ -816,6 +816,9 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
             long retVal = 0;
             for (int i = 0; i < proxies.length; i++) {
                 ServiceInterfacePrx prx = proxies[i];
+                if (prx == null) {
+                    continue;
+                }
                 Ice.Identity id = prx.ice_getIdentity();
                 if (null == holder.get(id)) {
                     retVal |= 1 << i;

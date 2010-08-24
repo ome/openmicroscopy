@@ -825,7 +825,11 @@ public class client {
         } catch (Ice.SocketException se) {
             // ok. client is having network issues
         } finally {
-            oldIc.destroy();
+            try {
+                oldIc.destroy();
+            } finally {
+                CLIENTS.remove(this);
+            }
         }
     }
 

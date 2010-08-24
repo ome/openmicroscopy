@@ -43,6 +43,8 @@ public class MockedOMEROImportFixture extends OMEROImportFixture {
 
     Log log = LogFactory.getLog(MockedOMEROImportFixture.class);
 
+    omero.client client;
+
     /**
      * Constructor for use when no blitz is available, like from server-side
      * tests.
@@ -70,10 +72,18 @@ public class MockedOMEROImportFixture extends OMEROImportFixture {
         MockFixture fixture = new MockFixture(new MockObjectTestCase() {
         }, outer);
         omero.client client = fixture.newClient();
-        ServiceFactoryPrx factory = client.createSession(username, password);
+        client.createSession(username, password);
         OMEROMetadataStoreClient store = new OMEROMetadataStoreClient();
-        store.initialize(factory);
+        store.initialize(client);
         return store;
     }
 
+    @Override
+    public void tearDown() {
+        try {
+            super.tearDown();
+        } catch (Exception e) {
+            log.error("Error on tearDown in store.logout()", e);
+        }
+    }
 }

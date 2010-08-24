@@ -189,8 +189,6 @@ public class MockFixture {
     public omero.client newClient() {
         Properties p = new Properties();
         p.setProperty("Ice.Default.Router", router);
-        p.setProperty("Ice.ImplicitContext", "Shared"); // Unneeded in Beta4
-        p.setProperty("omero.client.Endpoints", "default"); // Unneeded in Beta4
         omero.client client = new omero.client(p);
         return client;
     }

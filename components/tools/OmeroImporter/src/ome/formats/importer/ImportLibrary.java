@@ -656,7 +656,7 @@ public class ImportLibrary implements IObservable
         } finally {
             store.createRoot(); // CLEAR MetadataStore
         }
-            }
+    }
 
     /**
      * saves the binary data to the server. After each successful save,
