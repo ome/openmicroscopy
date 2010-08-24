@@ -33,6 +33,7 @@ import org.jmock.MockObjectTestCase;
 import org.springframework.expression.spel.ast.Indexer;
 import org.testng.annotations.Test;
 
+@Test(timeOut = 1000) // Lucene initialization takes longer than default 200ms.
 public class TokenizationTest extends MockObjectTestCase {
 
     void assertTokenizes(String text, String... tokens) {
