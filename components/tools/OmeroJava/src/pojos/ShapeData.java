@@ -23,15 +23,14 @@
 package pojos;
 
 //Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import omero.rtypes;
 import omero.RInt;
 import omero.RString;
