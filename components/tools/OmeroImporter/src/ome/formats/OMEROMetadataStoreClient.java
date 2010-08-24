@@ -763,11 +763,27 @@ public class OMEROMetadataStoreClient
         return value == null ? null : rstring(value.getValue());
     }
 
+    private void closeQuietly(omero.api.StatefulServiceInterfacePrx prx)
+    {
+        if (prx != null) {
+            try {
+                prx.close();
+            } catch (Exception e) {
+                log.warn("Exception closing " + prx);
+                log.debug(e);
+            }
+        }
+    }
+
     /**
      * Destroys the sessionFactory and closes the client.
      */
     public void logout()
     {
+        closeQuietly(rawFileStore);
+        closeQuietly(rawPixelStore);
+        closeQuietly(thumbnailStore);
+        closeQuietly(delegate);
         if (c != null)
         {
             log.debug("closing client session.");
