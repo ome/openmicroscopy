@@ -9,13 +9,9 @@ package integration;
 
 //Java imports
 import java.awt.Point;
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 //Third-party libraries
 import org.testng.annotations.Test;
