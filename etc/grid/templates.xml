@@ -149,6 +149,21 @@
             <option>-Xdebug</option>
             <option>-Xrunjdwp:server=y,transport=dt_socket,address=8787,suspend=y</option>
         </target>
+        <target name="jprofiler">
+            <!-- In order to successfully startup with the "jprofiler" target,
+            you will need to have set DYLD_LIBRARY_PATH, LD_LIBRARY_PATH, or PATH
+            (dependending on your operating system) to include the JProfiler
+            libraries and have JPROFILER_AGENT and JPROFILER_CONFIG set. E.g.:
+
+                export DYLD_LIBRARY_PATH=/Applications/jprofiler5/bin/macos/
+                export JPROFILER_AGENT=/Applications/jprofiler5
+                export JPROFILER_CONFIG=$HOME/.jprofiler5/config.xml
+
+            -->
+            <option>-Xint</option><!-- Interpreted-mode only -->
+            <option>-agentlib:jprofilerti=port=8849,id=108,config=${JPROFILER_CONFIG}</home>
+            <option>-Xbootclasspath/a:${JPROFILER_AGENT}</option>
+        </target>
         <option>-Xmx512M</option>
         <target name="memcfg">
             <option>${omero.blitz.maxmemory}</option>

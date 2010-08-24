@@ -7,8 +7,6 @@
 
 package ome.services.delete;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,7 +27,6 @@ import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
-import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.internal.Details;
 import ome.model.screen.Plate;
@@ -42,10 +39,8 @@ import ome.util.CBlock;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -80,12 +75,18 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
             + "left outer join fetch p.settings as setting "
             + "where i.id = :id";
 
-    public final static String SETTINGS_QUERY = "select r from RenderingDef r "
-            + "left outer join fetch r.waveRendering "
-            + "left outer join fetch r.quantization "
-            + "join r.pixels pix join pix.image img " + "where img.id = :id";
+    public final static String SETTINGSID_QUERY = "select r.id, q.id from RenderingDef r "
+        + "join r.quantization q "
+        + "join r.pixels pix "
+        + "join pix.image img where img.id = :id";
 
-    public final static String PLATEIMAGES_QUERY = "select i from Image i "
+    public final static String CHANNELID_QUERY = "select ch.id, si.id, lc.id "
+        + "from Channel ch "
+        + "join ch.statsInfo si "
+        + "join ch.logicalChannel lc "
+        + "join ch.pixels.image img where img.id = :id";
+
+    public final static String PLATEIMAGES_QUERY = "select i.id from Image i "
             + "join i.wellSamples ws join ws.well w "
             + "join w.plate p where p.id = :id";
 
@@ -140,57 +141,89 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
                             + "non-empty constraints list via checkImageDelete.");
         }
 
-        final UnloadedCollector delete = new UnloadedCollector(iQuery, admin,
-                false);
-        final Image[] holder = new Image[1];
-        getImageAndCount(holder, id, delete);
-        final Image i = holder[0];
+        final Image i = iQuery.get(Image.class, id);
 
         throwSecurityViolationIfNotAllowed(i);
-
-        iQuery.execute(new HibernateCallback() {
-
-            public Object doInHibernate(Session session)
-                    throws HibernateException, SQLException {
-                session.clear();
-                return null;
-            }
-
-        });
+        final Session session = sf.getSession();
+        session.clear();
 
         sec.runAsAdmin(new AdminAction() {
             public void runAsAdmin() {
-                clearPixelsRelatedTo(i);
+                clearRois(session, i);
             }
         });
 
-        sec.runAsAdmin(new AdminAction() {
-            public void runAsAdmin() {
-                clearRois(i);
-            }
-        });
+        /*
+        Previously, the IMAGE_QUERY query was used to load all the objects
+        attached to an Image for deletion. This, unfortunately, led to memory
+        issues (ticket:1708). Now, instead, we are deleting the objects in
+        the same order, but without loading them.
+         */
 
-        for (final IObject object : delete.list) {
-            try {
-                sec.runAsAdmin(new AdminAction() {
-                    public void runAsAdmin() {
-                        iUpdate.deleteObject(object);
-                    }
+        List<Long> ids;
 
-                });
-            } catch (ValidationException ve) {
-                // TODO could collect these and throw at once; on the other
-                // hand once one fails, there's probably going to be
-                // interrelated
-                // issues
-                // TODO Could use another exception here
-                ValidationException div = new ValidationException(
-                        "Delete failed since related object could not be deleted: "
-                                + object);
-                throw div;
-            }
+        ids = executeIdList(session, id, "select p.id from Pixels p where p.relatedTo.image.id = :id");
+        executeUpdate(session, ids, "Pixels", "relatedTo = null");
+
+        ids = executeIdList(session, id, "select m.id from PixelsOriginalFileMap m where m.child.image.id = :id");
+        executeDelete(session, ids, "PixelsOriginalFileMap");
+
+        ids = executeIdList(session, id, "select pi.id from PlaneInfo pi where pi.pixels.image.id = :id");
+        executeDelete(session, ids, "PlaneInfo");
+
+        deleteSettings(id);
+
+        deleteChannels(id);
+
+        ids = executeIdList(session, id, "select tb.id from Thumbnail tb where tb.pixels.image.id = :id");
+        executeDelete(session, ids, "Thumbnail");
+
+        ids = executeIdList(session, id, "select pix.id from Pixels pix where pix.image.id = :id");
+        executeDelete(session, ids, "Pixels");
+
+        ids = executeIdList(session, id, "select link.id from ImageAnnotationLink link where link.parent.id = :id");
+        executeDelete(session, ids, "ImageAnnotationLink");
+
+        ids = executeIdList(session, id, "select link.id from DatasetImageLink link where link.child.id = :id");
+        executeDelete(session, ids, "DatasetImageLink");
+
+        executeDelete(session, id,
+                "delete Image img where img.id = :id");
+
+        session.clear(); // ticket:1708
+
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Long> executeIdList(final Session session, final long id, String str) {
+        Query q;
+        q = session.createQuery(str);
+        q.setParameter("id", id);
+        return q.list();
+    }
+
+    private void executeUpdate(final Session session, final List<Long> ids, String klass, String set) {
+        if (ids != null && ids.size() > 0) {
+            Query q = session.createQuery("update " + klass + " set " + set + " where id in (:ids)");
+            q.setParameterList("ids", ids);
+            q.executeUpdate();
         }
+    }
 
+    private int executeDelete(final Session session, final List<Long> ids, String klass) {
+        if (ids != null && ids.size() > 0) {
+            Query q = session.createQuery("delete " + klass + " where id in (:ids)");
+            q.setParameterList("ids", ids);
+            return q.executeUpdate();
+        }
+        return 0;
+    }
+
+    private int executeDelete(final Session session, final long id, String str) {
+        Query q;
+        q = session.createQuery(str);
+        q.setParameter("id", id);
+        return q.executeUpdate();
     }
 
     @RolesAllowed("user")
@@ -222,17 +255,16 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
     public void deleteImagesByDataset(long datasetId, boolean force)
             throws SecurityViolation, ValidationException, ApiUsageException {
 
-        List<DatasetImageLink> links = iQuery.findAllByQuery(
-                "select link from DatasetImageLink link "
-                        + "left outer join fetch link.parent "
-                        + "left outer join fetch link.child "
-                        + "where link.parent.id = :id", new Parameters()
+        List<Object[]> links = iQuery.projection(
+                "select link.id, c.id from DatasetImageLink link "
+                        + "join link.parent p "
+                        + "join link.child c "
+                        + "where p.id = :id", new Parameters()
                         .addId(datasetId));
         Set<Long> ids = new HashSet<Long>();
-        for (DatasetImageLink link : links) {
-            ids.add(link.child().getId());
-            link.child().unlinkDataset(link.parent());
-            iUpdate.deleteObject(link);
+        for (Object[] link_child : links) {
+            ids.add((Long)link_child[1]);
+            iUpdate.deleteObject(new DatasetImageLink((Long)link_child[0], false));
         }
         deleteImages(ids, force);
     };
@@ -242,28 +274,62 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
 
         Image i = iQuery.get(Image.class, imageId);
         throwSecurityViolationIfNotAllowed(i);
+        final Session session = sf.getSession();
 
         sec.runAsAdmin(new AdminAction() {
             public void runAsAdmin() {
-                List<RenderingDef> rdefs = iQuery.findAllByQuery(
-                        SETTINGS_QUERY, new Parameters().addId(imageId));
-                for (RenderingDef renderingDef : rdefs) {
-                    QuantumDef quantumDef = renderingDef.getQuantization();
-                    iQuery.evict(renderingDef);
-                    iQuery.evict(quantumDef);
-                    for (ChannelBinding cb : new ArrayList<ChannelBinding>(
-                            renderingDef.unmodifiableWaveRendering())) {
-                        iQuery.evict(cb);
-                        renderingDef.removeChannelBinding(cb);
-                        iUpdate.deleteObject(cb);
-                    }
-                    iUpdate.deleteObject(renderingDef);
-                    iUpdate.deleteObject(renderingDef.getQuantization());
+                List<Object[]> rdefs = iQuery.projection(
+                        SETTINGSID_QUERY, new Parameters().addId(imageId));
+                for (Object[] rv: rdefs) {
+                    Long rid = (Long) rv[0];
+                    Long qid = (Long) rv[1];
+
+                    Query q = session.createQuery("delete ChannelBinding cb where cb.renderingDef.id = :rid");
+                    q.setParameter("rid", rid);
+                    q.executeUpdate();
+
+                    q = session.createQuery("delete RenderingDef r where r.id = :rid");
+                    q.setParameter("rid", rid);
+                    q.executeUpdate();
+
+                    q = session.createQuery("delete QuantumDef q where q.id = :qid");
+                    q.setParameter("qid", qid);
+                    q.executeUpdate();
                 }
-                iUpdate.flush();
             }
         });
+    }
 
+    @RolesAllowed("user")
+    public void deleteChannels(final long imageId) {
+
+        Image i = iQuery.get(Image.class, imageId);
+        throwSecurityViolationIfNotAllowed(i);
+        final Session session = sf.getSession();
+
+        sec.runAsAdmin(new AdminAction() {
+            public void runAsAdmin() {
+                List<Object[]> channels = iQuery.projection(
+                        CHANNELID_QUERY, new Parameters().addId(imageId));
+                for (Object[] rv: channels) {
+                    Long chid = (Long) rv[0];
+                    Long siid = (Long) rv[1];
+                    Long lcid = (Long) rv[2];
+
+                    executeDelete(session, chid, "delete Channel ch where ch.id = :id");
+                    executeDelete(session, siid, "delete StatsInfo si where si.id = :id");
+
+                    List<Object[]> remainingChannels = iQuery.projection(
+                            "select ch.id from LogicalChannel lc join lc.channels ch " +
+                            "where lc.id = :id",  new Parameters().addId(lcid));
+
+                    if (remainingChannels.size() == 0) {
+                        executeDelete(session, lcid, "delete LogicalChannel lc where lc.id = :id");
+                    }
+
+                }
+            }
+        });
     }
 
     @RolesAllowed("user")
@@ -275,7 +341,7 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
         sec.runAsAdmin(new AdminAction() {
             public void runAsAdmin() {
 
-                final List<Image> imagesOnPlate = iQuery.findAllByQuery(
+                final List<Object[]> imagesOnPlate = iQuery.projection(
                         PLATEIMAGES_QUERY, new Parameters().addId(plateId));
 
                 final Session session = sf.getSession();
@@ -289,8 +355,8 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
 
                 if (imagesOnPlate.size() > 0) {
                     Set<Long> imageIdsForPlate = new HashSet<Long>();
-                    for (Image img : imagesOnPlate) {
-                        imageIdsForPlate.add(img.getId());
+                    for (Object[] objs: imagesOnPlate) {
+                        imageIdsForPlate.add((Long)objs[0]);
                     }
                     sb.append(imageIdsForPlate.size());
                     sb.append(" Image(s); ");
@@ -488,47 +554,22 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
         }
     }
 
-    /**
-     * Finds all Pixels whose {@link Pixels#getRelatedTo()} field points to a
-     * {@link Pixels} which is contained in the given {@link Image} and nulls
-     * the relatedTo field.
-     *
-     * @param i
-     */
-    private void clearPixelsRelatedTo(Image i) {
-        List<Long> ids = new ArrayList<Long>();
-        for (Pixels pixels : i.unmodifiablePixels()) {
-            ids.add(pixels.getId());
-        }
-        if (ids != null && ids.size() > 0) {
-            List<Pixels> relatedTo = iQuery.findAllByQuery(
-                    "select p from Pixels p "
-                            + "where p.relatedTo.id in (:ids)",
-                    new Parameters().addIds(ids));
-            for (Pixels pixels : relatedTo) {
-                pixels.setRelatedTo(null);
-                iUpdate.flush();
-            }
-        }
-    }
 
     /**
      * Uses bulk update
      * @see <a href="https://trac.openmicroscopy.org.uk/omero/ticket/1654">ticket:1654</a>
      */
-    private void clearRois(Image i) {
-        Session session = sf.getSession();
-        Query q = session.createQuery("delete from Shape where roi.id in " +
-            "(select id from Roi roi where roi.image.id = :id)");
-        q.setParameter("id", i.getId());
-        int shapeCount = q.executeUpdate();
-        q = session.createQuery("delete from RoiAnnotationLink where parent.id in " +
-            "(select id from Roi roi where roi.image.id = :id)");
-        q.setParameter("id", i.getId());
-        int roiAnnCount = q.executeUpdate();
-        q = session.createQuery("delete from Roi where image.id = :id");
-        q.setParameter("id", i.getId());
-        int roiCount = q.executeUpdate();
+    private void clearRois(Session session, Image i) {
+
+        int shapeCount = executeDelete(session, i.getId(),
+                "delete from Shape where roi.id in " +
+                "(select id from Roi roi where roi.image.id = :id)");
+        int roiAnnCount = executeDelete(session, i.getId(),
+                "delete from RoiAnnotationLink where parent.id in " +
+                "(select id from Roi roi where roi.image.id = :id)");
+        int roiCount = executeDelete(session, i.getId(),
+                "delete from Roi where image.id = :id");
+
         if (shapeCount > 0 || roiAnnCount > 0 || roiCount > 0) {
             log.info(String.format("Roi delete for image %s :" +
                     " %s rois, %s shapes, %s annotations",
