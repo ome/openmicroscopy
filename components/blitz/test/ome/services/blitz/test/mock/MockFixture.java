@@ -8,13 +8,11 @@ package ome.services.blitz.test.mock;
 
 import java.sql.Timestamp;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
 import net.sf.ehcache.Cache;
-import ome.model.meta.Node;
 import ome.model.meta.Session;
 import ome.security.SecuritySystem;
 import ome.services.blitz.fire.Ring;
@@ -37,9 +35,7 @@ import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.quartz.JobDetail;
 import org.quartz.Trigger;
-import org.springframework.aop.target.HotSwappableTargetSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.springframework.mock.web.MockExpressionEvaluator;
 import org.springframework.scheduling.quartz.CronTriggerBean;
 import org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean;
 
@@ -140,6 +136,7 @@ public class MockFixture {
         blitz = new BlitzConfiguration(id, ring, mgr, ss, ex);
         this.sm = (SessionManagerI) blitz.getBlitzManager();
         this.sm.setApplicationContext(ctx);
+        this.ctx.addApplicationListener(this.sm);
 
         /* UNUSED
         // The following is a bit of spring magic so that we can configure

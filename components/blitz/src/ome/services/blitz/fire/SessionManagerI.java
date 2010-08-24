@@ -304,6 +304,9 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
     void checkStatefulServices(ChangeSecurityContextEvent csce) {
         String uuid = csce.getUuid();
         Set<String> clientIds = sessionToClientIds.get(uuid);
+        if (clientIds == null) {
+            return; // nothing to be done. should only happen during testing.
+        }
         clientIds = new HashSet<String>(clientIds);
         for (String clientId : clientIds) {
             try {
