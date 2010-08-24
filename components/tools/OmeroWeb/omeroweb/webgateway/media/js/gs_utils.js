@@ -338,7 +338,7 @@ function downloadLandingDialog (anchor, msg, cb) {
 	cb && cb(e);
     }
     gs_choiceModalDialog(msg,
-                         [{label: 'dismiss', data: 1}],
+                         [{label: 'close', data: 1}],
 			 ccb,
 			 {css: {width: '50%', left: '25%'}}
 			); 
