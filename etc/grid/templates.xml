@@ -161,7 +161,7 @@
 
             -->
             <option>-Xint</option><!-- Interpreted-mode only -->
-            <option>-agentlib:jprofilerti=port=8849,id=108,config=${JPROFILER_CONFIG}</home>
+            <option>-agentlib:jprofilerti=port=8849,id=108,config=${JPROFILER_CONFIG}</option>
             <option>-Xbootclasspath/a:${JPROFILER_AGENT}</option>
         </target>
         <option>-Xmx512M</option>
