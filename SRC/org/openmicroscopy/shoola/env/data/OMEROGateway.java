@@ -4987,32 +4987,6 @@ class OMEROGateway
             	 sb.append(" and ws.plateAcquisition.id = :acquisitionID");
             	 param.addLong("acquisitionID", plateID);
             }
-            //TODO: to be modified
-            /*
-			if (acquisitionID > 0) {
-				//Get the id of the well samples.
-				List<Long> ids = new ArrayList<Long>();
-				//i = results.iterator();
-				PlateAcquisitionWellSampleLink link;
-				IObject child;
-				StringBuilder sb2 = new StringBuilder();
-				sb2.append("select distinct l " +
-				"from PlateAcquisitionWellSampleLink as l");
-				sb2.append(" where l.parent.id = :said");
-				ParametersI p = new ParametersI();
-				p.addLong("said", acquisitionID);
-				results = service.findAllByQuery(sb2.toString(), p);
-				i = results.iterator();
-				while (i.hasNext()) {
-					link = (PlateAcquisitionWellSampleLink) i.next();
-					child = link.getChild();
-					if (child != null) ids.add(child.getId().getValue());
-				}
-				if (ids.size() == 0) return wells;
-				param.addLongs("wsids", ids);
-				sb.append(" and ws.id in (:wsids)");
-			}
-			*/
             results = service.findAllByQuery(sb.toString(), param);
 
 			i = results.iterator();
@@ -6366,26 +6340,6 @@ class OMEROGateway
 				if (stream != null) stream.close();
 				if (f != null) f.delete();
 			}
-			/*
-			int offset = 0;
-			int length = (int) size;
-			int read = 0;
-			while (read < length) {
-				offset = INC;
-				if (read+offset > length) {
-					offset = length-read;
-					read = length;
-				} else read += offset;
-				stream.write(service.getBytes(offset));
-			}
-			try {
-				if (stream != null) stream.close();
-				//exporterService.close();
-				exporterService = null;
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			*/
 			try {
 				exporterService.close();
 				exporterService = null;
@@ -6393,16 +6347,6 @@ class OMEROGateway
 			}
 			return f;
 		} catch (Throwable t) {
-			
-			/*
-			if (exporterService != null) {
-				try {
-					exporterService.close();
-				} catch (Exception e) {
-					handleException(t, "Cannot export the image");
-				}
-			}
-			*/
 			exporterService = null;
 			if (f != null) f.delete();
 			try {
@@ -6410,7 +6354,6 @@ class OMEROGateway
 				exporterService = null;
 				//if (stream != null) stream.close();
 			} catch (Exception e) {}
-			t.printStackTrace();
 			handleException(t, "Cannot export the image as an OME-TIFF");
 			return null;
 		}

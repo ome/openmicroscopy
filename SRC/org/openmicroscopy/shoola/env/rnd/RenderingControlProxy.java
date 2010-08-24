@@ -1270,7 +1270,6 @@ class RenderingControlProxy
 			//System.err.println("save in rendering control: "+(System.currentTimeMillis()-start));
     		return rndDef.copy();
 		} catch (Throwable e) {
-			e.printStackTrace();
 			handleException(e, ERROR+"save current settings.");
 		}
 		return null;

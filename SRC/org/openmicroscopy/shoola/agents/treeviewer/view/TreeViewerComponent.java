@@ -2371,6 +2371,7 @@ class TreeViewerComponent
 				ns = ((TagAnnotationData) uo).getNameSpace();
 			break;
 		}
+		ann = true;
 		DeleteBox dialog = new DeleteBox(type, ann, content, nodes.size(), ns, 
 										view);
 		if (dialog.centerMsgBox() == DeleteBox.YES_OPTION) {
