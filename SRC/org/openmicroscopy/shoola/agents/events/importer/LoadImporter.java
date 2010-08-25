@@ -33,7 +33,7 @@ import pojos.DataObject;
 
 
 /** 
- * Event to bring the FS Importer.
+ * Event to bring the Importer.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -49,17 +49,37 @@ public class LoadImporter
 	extends RequestEvent
 {
 
+	/** Indicates that the type is for project. */
+	public static final int		PROJECT_TYPE = 0;
+	
+	/** Indicates that the type is for Screening data. */
+	public static final int		SCREEN_TYPE = 1;
+	
 	/** The container where to load the image. */
 	private DataObject container;
+	
+	/** The type of the import to handle. */
+	private int type;
+	
+	/** 
+	 * Creates a new instance.
+	 * 
+	 * @param type The type of importer.
+	 */
+	public LoadImporter(int type)
+	{
+		this.type = type;
+	}
 	
 	/**
 	 *  Creates a new instance. 
 	 * 
-	 * @param container The container where to load the image.
+	 * @param container The container where import the image.
 	 */
 	public LoadImporter(DataObject container)
 	{
 		this.container = container;
+		type = -1;
 	}
 	
 	/**
@@ -68,5 +88,13 @@ public class LoadImporter
 	 * @return See above.
 	 */
 	public DataObject getContainer() { return container; }
+	
+	/**
+	 * Returns the type of import.
+	 * 
+	 * @return See above.
+	 */
+	public int getType() { return type; }
+	
 	
 }

@@ -26,6 +26,14 @@ package org.openmicroscopy.shoola.env.data.model;
 //Java imports
 import java.util.List;
 
+import pojos.DatasetData;
+import pojos.ImageData;
+import pojos.ProjectData;
+import pojos.ROIData;
+import pojos.ScreenData;
+import pojos.TagAnnotationData;
+import pojos.TermAnnotationData;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -56,13 +64,10 @@ public class DeletableObject
 	 */
 	private boolean				content;
 	
-	/** Flag indicating to delete the annotations. */
-	private boolean				attachment;
-	
 	/** 
-	 * Sets to <code>null</code> or <code>empty</code>
-	 * if all annotations have to be deleted,
-	 * otherwise contains the types of annotation to delete.
+	 * Sets to <code>null</code> or <code>empty</code> if sharable
+	 * annotations have to be kept, otherwise contains the types of 
+	 * annotation to delete e.g. TagAnnotationData
 	 */
 	private List<Class> 		attachmentTypes;
 	
@@ -76,17 +81,13 @@ public class DeletableObject
 	 * @param content			Pass <code>true</code> to delete the objects
 	 * 							contained in the object to delete, 
 	 * 							<code>false</code> otherwise.
-	 * @param attachment		Pass <code>true</code> to delete the 
-	 * 							annotations, <code>false</code> otherwise.
 	 */
-	public DeletableObject(pojos.DataObject objectToDelete, 
-			boolean content, boolean attachment)
+	public DeletableObject(pojos.DataObject objectToDelete, boolean content)
 	{
 		if (objectToDelete == null) 
 			throw new IllegalArgumentException("No object to delete.");
 		this.objectToDelete = objectToDelete;
 		this.content = content;
-		this.attachment = attachment;
 		blocker = null;
 	}
 	
@@ -97,7 +98,7 @@ public class DeletableObject
 	 */
 	public DeletableObject(pojos.DataObject objectToDelete)
 	{
-		this(objectToDelete, false, false);
+		this(objectToDelete, false);
 	}
 	
 	/** 
@@ -107,14 +108,6 @@ public class DeletableObject
 	 * @return See above.
 	 */
 	public boolean deleteContent() { return content; }
-	
-	/** 
-	 * Returns <code>true</code> if the related annotations have to be deleted,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean deleteAttachment() { return attachment; }
 	
 	/**
 	 * Returns the types of attachments to delete or <code>null</code>
@@ -154,5 +147,31 @@ public class DeletableObject
 	 * @return See above.
 	 */
 	public List getBlocker() { return blocker; }
+
+	/**
+	 * Returns the type of object to delete as a string.
+	 * 
+	 * @return See above.
+	 */
+	public String getMessage()
+	{
+		if (objectToDelete instanceof ProjectData) {
+			return ((ProjectData) objectToDelete).getName();
+		} else if (objectToDelete instanceof DatasetData) {
+			return ((DatasetData) objectToDelete).getName();
+		} else if (objectToDelete instanceof ImageData) {
+			return ((ImageData) objectToDelete).getName();
+		} else if (objectToDelete instanceof ScreenData) {
+			return ((ScreenData) objectToDelete).getName();
+		} else if (objectToDelete instanceof ROIData) {
+			return "ROI for:"+
+			((ROIData) objectToDelete).getImage().getName().getValue();
+		} else if (objectToDelete instanceof TagAnnotationData) {
+			return ((TagAnnotationData) objectToDelete).getTagValue();
+		} else if (objectToDelete instanceof TermAnnotationData) {
+			return ((TermAnnotationData) objectToDelete).getTerm();
+		}
+		return "";
+	}
 
 }

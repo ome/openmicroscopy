@@ -33,7 +33,8 @@ import org.openmicroscopy.shoola.env.data.ScriptCallback;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-import org.openmicroscopy.shoola.env.data.views.ScriptBatchCall;
+import org.openmicroscopy.shoola.env.data.views.ProcessBatchCall;
+import org.openmicroscopy.shoola.env.data.views.ProcessCallback;
 
 /** 
  * Creates a batch call to run a script.
@@ -53,10 +54,10 @@ public class ScriptRunner
 {
     
     /** The server call-handle to the computation. */
-    private ScriptCallback		scriptCallBack;
+    private Object		callBack;
     
-    /** Loads the specified experimenter groups. */
-    private BatchCall   		loadCall;
+    /** Calls to run the script. */
+    private BatchCall   loadCall;
     
     /**
      * Creates a {@link BatchCall} to run the script.
@@ -66,14 +67,20 @@ public class ScriptRunner
      */
     private BatchCall makeCall(final ScriptObject script)
     {
-	return new ScriptBatchCall("Run the script") {
-		public ScriptCallback initialize() throws Exception
+    	return new ProcessBatchCall("Run the script") {
+    		public ProcessCallback initialize() throws Exception
     		{
     			OmeroImageService os = context.getImageService();
-    			scriptCallBack = os.runScript(script);
-			return scriptCallBack;
+    			ScriptCallback cb = os.runScript(script);
+    			if (cb == null) {
+                	callBack = Boolean.valueOf(false);
+                	return null;
+                } else {
+                	callBack = new ProcessCallback(cb);
+                    return (ProcessCallback) callBack;
+                }
     		}
-        };
+    	};
     }
     
     /**
@@ -81,7 +88,7 @@ public class ScriptRunner
      * 
      * @return See above.
      */
-    protected Object getPartialResult() { return scriptCallBack; }
+    protected Object getPartialResult() { return callBack; }
     
     /**
      * Adds the {@link #loadCall} to the computation tree.
@@ -90,7 +97,7 @@ public class ScriptRunner
     protected void buildTree() { add(loadCall); }
 
     /**
-     * Returns, in a <code>Map</code>.
+     * Returns the result.
      * 
      * @see BatchCallTree#getResult()
      */

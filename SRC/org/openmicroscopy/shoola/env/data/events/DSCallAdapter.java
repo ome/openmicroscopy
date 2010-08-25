@@ -64,7 +64,7 @@ public abstract class DSCallAdapter
 {
 
     /**
-     * Invokes one of the methods in this class accoding to the received 
+     * Invokes one of the methods in this class according to the received 
      * <code>DSCall</code> event.
      * 
      * @see AgentEventListener#eventFired(AgentEvent)

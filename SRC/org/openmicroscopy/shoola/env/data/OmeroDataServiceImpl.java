@@ -39,6 +39,8 @@ import java.util.Set;
 
 //Application-internal dependencies
 import omero.RString;
+import omero.api.delete.DeleteCommand;
+import omero.api.delete.DeleteHandlePrx;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.Channel;
@@ -176,7 +178,6 @@ class OmeroDataServiceImpl
 		long userID = exp.getId();
 		long groupID = exp.getDefaultGroup().getId();
 		DataObject data = object.getObjectToDelete();
-		boolean attachment = object.deleteAttachment();
 		boolean content = object.deleteContent();
 		long id = data.getId();
 		List<IObject> list;
@@ -206,8 +207,8 @@ class OmeroDataServiceImpl
 			
 			
 			//Nobody else annotated it.
-			if (!attachment) //want to keep the annotation.
-				gateway.deleteObjects(annotations);
+			//if (!attachment) //want to keep the annotation.
+				//gateway.deleteObjects(annotations);
 			else { //check if we need to keep some object
 				List<IObject> toDelete = 
 					annotationsLinkToDelete(object.getAttachmentTypes(), 
@@ -236,8 +237,7 @@ class OmeroDataServiceImpl
 					k = images.iterator();
 					while (k.hasNext()) {
 						img = (ImageData) k.next();
-						notDeleted = delete(new DeletableObject(img, false, 
-											attachment));
+						notDeleted = delete(new DeletableObject(img, false));
 						if (notDeleted.size() > 0)
 							result.addAll(notDeleted);
 					}
@@ -294,23 +294,15 @@ class OmeroDataServiceImpl
 						k = images.iterator();
 						while (k.hasNext()) {
 							img = (ImageData) k.next();
-							notDeleted = delete(new DeletableObject(img, false, 
-												attachment));
+							notDeleted = delete(new DeletableObject(img, false));
 							if (notDeleted.size() > 0)
 								result.addAll(notDeleted);
 						}
 					}
 					//Now delete the dataset.
-					notDeleted = deleteDataset(
-							new DeletableObject(d, false, attachment));
+					notDeleted = deleteDataset(new DeletableObject(d, false));
 					if (notDeleted.size() > 0)
 						result.addAll(notDeleted);
-					/*
-					notDeleted = deleteDataset(
-							new DeletableObject(d, false, attachment));
-					if (notDeleted.size() > 0)
-						result.addAll(notDeleted);
-						*/
 				}
 			}
 			notDeleted = deleteTopContainer(object);
@@ -536,7 +528,7 @@ class OmeroDataServiceImpl
 		if (klass == null) 
 			throw new omero.IllegalArgumentException("Method can only be" +
 					"invoked to delete Project or Screen");
-		boolean attachment = object.deleteAttachment();
+		boolean attachment = false;//object.deleteAttachment();
 		long id = data.getId();
 		List<IObject> list;
 		List<IObject> annotations;
@@ -591,7 +583,7 @@ class OmeroDataServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		DataObject data = object.getObjectToDelete();
-		boolean attachment = object.deleteAttachment();
+		boolean attachment = false;//object.deleteAttachment();
 		long id = data.getId();
 		List<IObject> list;
 		List<IObject> annotations;
@@ -1230,11 +1222,29 @@ class OmeroDataServiceImpl
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#delete(Collection)
 	 */
-	public Collection<DeletableObject> delete(
-			Collection<DeletableObject> objects) 
-		throws DSOutOfServiceException, DSAccessException
+	public DeleteCallback delete(Collection<DeletableObject> objects) 
+		throws DSOutOfServiceException, DSAccessException, ProcessException
 	{
-		if (objects == null) return null;
+		if (objects == null || objects.size() == 0) return null;
+		Iterator<DeletableObject> i = objects.iterator();
+		DeletableObject object;
+		DeleteCommand[] commands = new DeleteCommand[objects.size()];
+		DeleteCommand cmd;
+		Map<String, String> options;
+		DataObject data;
+		int index = 0;
+		while (i.hasNext()) {
+			object = i.next();
+			data = object.getObjectToDelete();
+			options = new HashMap<String, String>();
+			data = object.getObjectToDelete();
+			cmd = new DeleteCommand(data.asIObject().getClass().getName(), 
+					data.getId(), options);
+			commands[index] = cmd;
+			index++;
+		}
+		
+		/*
 		List<DeletableObject> l = new ArrayList<DeletableObject>();
 		Iterator<DeletableObject> i = objects.iterator();
 		List<DeletableObject> r; 
@@ -1243,9 +1253,10 @@ class OmeroDataServiceImpl
 			if (r.size() != 0)
 				l.addAll(r);
 		}
-		
 		//Clean repository.
 		return l;
+		*/
+		return gateway.deleteObject(commands);
 	}
 
 	/**

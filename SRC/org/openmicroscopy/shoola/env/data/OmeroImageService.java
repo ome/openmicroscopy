@@ -652,10 +652,10 @@ public interface OmeroImageService
 	 * 
 	 * @param scriptID The id of the script.
 	 * @return See above.
-	 * @throws ScriptingException  If the script could not be loaded.
+	 * @throws ProcessException  If the script could not be loaded.
 	 */
 	public ScriptObject loadScript(long scriptID)
-		throws ScriptingException;
+		throws ProcessException;
 	
 	/**
 	 * Returns all the scripts currently stored into the system.

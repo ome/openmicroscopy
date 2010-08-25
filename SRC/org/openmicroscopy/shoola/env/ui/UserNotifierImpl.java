@@ -40,6 +40,7 @@ import javax.swing.JFrame;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.data.model.AnalysisActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
+import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadArchivedActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
@@ -347,6 +348,11 @@ public class UserNotifierImpl
 				(DownloadArchivedActivityParam) activity;
 			comp = new DownloadArchivedActivity(this, manager.getRegistry(),
 					p);
+		} else if (activity instanceof DeleteActivityParam) {
+			DeleteActivityParam p = (DeleteActivityParam) activity;
+			comp = new DeleteActivity(this, manager.getRegistry(),
+					p);
+			
 		}
 		if (comp != null) {
 			UserNotifierLoader loader = comp.createLoader();

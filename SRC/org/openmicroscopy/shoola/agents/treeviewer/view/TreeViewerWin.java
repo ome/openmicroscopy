@@ -620,6 +620,7 @@ class TreeViewerWin
     void showPopup(int index, Component c, Point p)
     { 
     	if (c == null) return;
+    	if (p == null) p = new Point(0, 0);
     	switch (index) {
 			case TreeViewer.FULL_POP_UP_MENU:
 			case TreeViewer.PARTIAL_POP_UP_MENU:

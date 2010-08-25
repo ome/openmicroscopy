@@ -68,15 +68,14 @@ public abstract class BatchCall
     private String      description;
     
     /** 
-     * Tells whether or not this call has been completey performed.
+     * Tells whether or not this call has been completely performed.
      * Latches to <code>true</code> after the first call to {@link #doStep()}
      * &#151; which, in turns, invokes {@link #doCall()}.  If a subclass decides
      * to implement the {@link MultiStepTask} interface, this semantics is 
      * likely to require changes.
      */
     protected boolean   done;
-    
-    
+
     /**
      * Creates a new instance with no textual description.
      */

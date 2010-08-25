@@ -65,6 +65,7 @@ public class ScriptCallback
 	/** Helper reference to the process. */
 	private ScriptProcessPrx  process;
 	
+	/** Helper reference to the adapter to notify. */
 	private DSCallAdapter adapter;
 	
 	/**
@@ -113,13 +114,13 @@ public class ScriptCallback
 	
 	/** Cancels the on-going process. */
 	public void cancel()
-		throws ScriptingException
+		throws ProcessException
 	{
 		try {
 			process.cancel();
 			close();
 		} catch (Exception e) {
-			throw new ScriptingException("Cannot cancel the following " +
+			throw new ProcessException("Cannot cancel the following " +
 					"script:"+getName());
 		}
 	}

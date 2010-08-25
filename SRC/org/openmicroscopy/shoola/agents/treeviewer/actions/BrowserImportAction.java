@@ -30,9 +30,12 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.importer.LoadImporter;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
 import pojos.ScreenData;
@@ -90,8 +93,13 @@ public class BrowserImportAction
         	if (selected.length > 1) setEnabled(false);
         	else setEnabled(model.isUserOwner(ho));
         } else setEnabled(false);
-        */
         setEnabled(false);
+        */
+        if (selectedDisplay == null) {
+        	setEnabled(false);
+            return;
+        }
+        setEnabled(true);
     }
     
     /**
@@ -114,7 +122,18 @@ public class BrowserImportAction
      */
     public void actionPerformed(ActionEvent e)
     {
-        model.showImporter();
+    	//No container specified in that case
+        //model.showImporter();
+    	int type = -1;
+    	switch (model.getBrowserType()) {
+			case Browser.PROJECT_EXPLORER:
+				type = LoadImporter.PROJECT_TYPE;
+				break;
+			case Browser.SCREENS_EXPLORER:
+				type = LoadImporter.SCREEN_TYPE;
+		}
+    	EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+    	bus.post(new LoadImporter(type));
     }
     
 }

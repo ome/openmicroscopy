@@ -52,6 +52,7 @@ import loci.formats.FormatException;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
@@ -110,6 +111,8 @@ import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceInterfacePrx;
 import omero.api.StatefulServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
+import omero.api.delete.DeleteCommand;
+import omero.api.delete.DeleteHandlePrx;
 import omero.constants.projection.ProjectionType;
 import omero.grid.BoolColumn;
 import omero.grid.Column;
@@ -451,11 +454,11 @@ class OMEROGateway
 	 * @param scriptID The identifier of the script to run.
 	 * @param parameters The parameters to pass to the script.
 	 * @return See above.
-	 * @throws ScriptingException If an error occurred while running the script.
+	 * @throws ProcessException If an error occurred while running the script.
 	 */
 	private ScriptCallback runScript(long scriptID, 
 			Map<String, RType> parameters)
-		throws ScriptingException
+		throws ProcessException
 	{
 		ScriptCallback cb = null;
 		try {
@@ -465,7 +468,7 @@ class OMEROGateway
 	         cb = new ScriptCallback(scriptID, secureClient, prx);
 		} catch (Exception e) {
 			if (cb != null) cb.close();
-			throw new ScriptingException("Cannot run script with ID:"+scriptID, 
+			throw new ProcessException("Cannot run script with ID:"+scriptID, 
 					e);
 		}
 		return cb;
@@ -5345,6 +5348,7 @@ class OMEROGateway
 		try {
 			IDeletePrx service = getDeleteService();
 			service.deleteImage(object.getId().getValue(), true);
+			
 		} catch (Exception e) {
 			handleException(e, "Cannot delete the image: "+object.getId());
 		}
@@ -5552,10 +5556,10 @@ class OMEROGateway
 	 * 
 	 * @param scriptID The id of the script.
 	 * @return See above.
-	 * @throws ScriptingException  If the script could not be loaded.
+	 * @throws ProcessException  If the script could not be loaded.
 	 */
 	ScriptObject loadScript(long scriptID)
-		throws ScriptingException
+		throws ProcessException
 	{
 		isSessionAlive();
 		ScriptObject script = null;
@@ -5564,7 +5568,7 @@ class OMEROGateway
 			script = new ScriptObject(scriptID, "", "");
 			script.setJobParams(svc.getParams(scriptID));
 		} catch (Exception e) {
-			throw new ScriptingException("Cannot load the script: "+scriptID, 
+			throw new ProcessException("Cannot load the script: "+scriptID, 
 					e);
 		}
 		return script;
@@ -7216,5 +7220,28 @@ class OMEROGateway
 		return -1;
 	}
 	
+	/**
+	 * Returns the specified script.
+	 * 
+	 * @param commands The object to delete.
+	 * @return See above.
+	 * @throws ProcessException If an error occurred while running the script.
+	 */
+	DeleteCallback deleteObject(DeleteCommand[] commands)
+		throws ProcessException
+	{
+		DeleteCallback cb = null;
+		try {
+	         IDeletePrx svc = getDeleteService();
+	         //scriptID, parameters, timeout (5s if null)
+	         DeleteHandlePrx prx = svc.queueDelete(commands);
+	         cb = new DeleteCallback(secureClient, prx);
+		} catch (Exception e) {
+			if (cb != null) cb.close();
+			throw new ProcessException("Cannot delete the speficied objects.", 
+					e);
+		}
+		return cb;
+	}
 	
 }

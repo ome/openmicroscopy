@@ -56,6 +56,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
@@ -92,6 +93,7 @@ import org.openmicroscopy.shoola.env.data.events.SwitchUserGroup;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
+import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ImportObject;
@@ -2351,17 +2353,6 @@ class TreeViewerComponent
 	 */
 	public void deleteObjects(List nodes)
 	{
-		/*
-      switch (model.getState()) {
-          case READY:
-          case NEW:  
-          case LOADING_THUMBNAIL:
-              break;
-          default:
-              throw new IllegalStateException("This method should only be " +
-              "invoked in the READY or NEW state.");
-      }
-		 */
 		if (nodes == null) return;
 		Iterator i = nodes.iterator();
 		TreeImageDisplay node;
@@ -2379,11 +2370,9 @@ class TreeViewerComponent
 				ns = ((TagAnnotationData) uo).getNameSpace();
 			break;
 		}
-		ann = true;
 		DeleteBox dialog = new DeleteBox(type, ann, content, nodes.size(), ns, 
 										view);
 		if (dialog.centerMsgBox() == DeleteBox.YES_OPTION) {
-			ann = dialog.deleteAnnotations();
 			content = dialog.deleteContents();
 			List<Class> types = dialog.getAnnotationTypes();
 			i = nodes.iterator();
@@ -2395,20 +2384,26 @@ class TreeViewerComponent
 				node = (TreeImageDisplay) i.next();
 				obj = node.getUserObject();
 				if (obj instanceof DataObject) {
-					d = new DeletableObject((DataObject) obj, content, ann);
+					d = new DeletableObject((DataObject) obj, content);
 					d.setAttachmentTypes(types);
 					l.add(d);
 					toRemove.add(node);
 				}
 			}
-			
+			//TODO: decide of strategy during delete.
 			if (l.size() > 0) {
 				model.getSelectedBrowser().removeTreeNodes(toRemove);
 				view.removeAllFromWorkingPane();
 				DataBrowserFactory.discardAll();
 				model.getMetadataViewer().setRootObject(null, -1);
-				model.fireObjectsDeletion(l);
-				fireStateChange();
+				//model.fireObjectsDeletion(l);
+				//fireStateChange();
+				IconManager icons = IconManager.getInstance();
+				DeleteActivityParam p = new DeleteActivityParam(
+						icons.getIcon(IconManager.DELETE_22), l);
+				UserNotifier un = 
+					TreeViewerAgent.getRegistry().getUserNotifier();
+				un.notifyActivity(p);
 			}
 		}
 	}
@@ -2705,6 +2700,7 @@ class TreeViewerComponent
 		if (finished) {
 			view.onActivityTerminated(activity);
 		} 
+		//TODO: IF DELETE ACTIVITY NEED TO CLEAN THE BROWSER.
 		firePropertyChange(IMPORTED_PROPERTY, Boolean.valueOf(!finished), 
 				Boolean.valueOf(finished));
 	}

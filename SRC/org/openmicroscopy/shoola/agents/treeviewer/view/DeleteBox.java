@@ -338,14 +338,6 @@ public class DeleteBox
     }
     
     /**
-     * Returns <code>true</code> if the annotations related to the objects
-     * to delete have to be deleted.
-     * 
-     * @return See above.
-     */
-    public boolean deleteAnnotations() { return withAnnotation.isSelected(); }
-    
-    /**
      * Returns the types of annotations to delete.
      * 
      * @return See above.
@@ -353,6 +345,7 @@ public class DeleteBox
     public List<Class> getAnnotationTypes()
     {
     	List<Class> types = new ArrayList<Class>();
+    	if (!withAnnotation.isSelected()) return types;
     	Iterator<JCheckBox> i = annotationTypes.keySet().iterator();
     	JCheckBox box;
     	while (i.hasNext()) {
