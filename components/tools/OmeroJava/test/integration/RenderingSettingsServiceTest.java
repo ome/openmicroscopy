@@ -36,9 +36,6 @@ import omero.model.ScreenPlateLink;
 import omero.model.ScreenPlateLinkI;
 import omero.model.Well;
 import omero.sys.ParametersI;
-import pojos.DatasetData;
-import pojos.ImageData;
-import pojos.ProjectData;
 
 /** 
  * Collections of tests for the <code>RenderingSettingsService</code> service.
@@ -967,4 +964,5 @@ public class RenderingSettingsServiceTest
 			assertTrue(channel.getInputEnd().getValue() == p.getY());
 		}
     }
+    
 }

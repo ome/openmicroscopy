@@ -53,7 +53,7 @@ public class ConfigurationServiceTest
     
 	/**
 	 * Tests the <code>getServerTime</code> method. Access the method as 
-	 * a non admin user.
+	 * a non administrator.
 	 * @throws Exception Thrown if an error occurred.
 	 */
 	@Test
@@ -65,7 +65,7 @@ public class ConfigurationServiceTest
 	
 	/**
 	 * Tests the <code>getDatabaseTime</code> method. Access the method as 
-	 * a non admin user.
+	 * a non administrator.s
 	 * @throws Exception Thrown if an error occurred.
 	 */
 	@Test
@@ -77,7 +77,7 @@ public class ConfigurationServiceTest
 	
 	/**
 	 * Tests the <code>getServerTime</code> method. Access the method as 
-	 * an admin user.
+	 * an administrator
 	 * @throws Exception Thrown if an error occurred.
 	 */
 	@Test
@@ -90,7 +90,7 @@ public class ConfigurationServiceTest
 	
 	/**
 	 * Tests the <code>getDatabaseTime</code> method. Access the method as 
-	 * an admin user.
+	 * an administrator
 	 * @throws Exception Thrown if an error occurred.
 	 */
 	@Test
@@ -103,7 +103,7 @@ public class ConfigurationServiceTest
 	
 	/**
 	 * Tests the <code>getDatabaseTime</code> method. Access the method as 
-	 * an admin user.
+	 * an administrator.
 	 * @throws Exception Thrown if an error occurred.
 	 */
 	@Test
@@ -116,7 +116,7 @@ public class ConfigurationServiceTest
 	
 	/**
 	 * Tests the <code>getDatabaseUuid</code> method. Access the method as 
-	 * a non admin user.
+	 * a non administrator.
 	 * @throws Exception Thrown if an error occurred.
 	 */
 	@Test
@@ -128,7 +128,7 @@ public class ConfigurationServiceTest
 	
 	/**
 	 * Tests the <code>setConfigValue</code> method. Access the method as 
-	 * an admin user.
+	 * an administrator
 	 * @throws Exception Thrown if an error occurred.
 	 */
 	@Test
