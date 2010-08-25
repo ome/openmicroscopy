@@ -3,8 +3,6 @@
 # /etc/init.d/omero
 # Subsystem file for "omero" server
 #
-# source function library
-. /etc/rc.d/init.d/functions
 
 RETVAL=0
 prog="omero"

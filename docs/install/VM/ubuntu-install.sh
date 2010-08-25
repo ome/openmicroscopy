@@ -3,8 +3,10 @@ export OMERO_VERSION="OMERO4.2"
 export OMERO_PATCH="0"
 export OMERO_DB_USER="omero"
 export OMERO_DB_NAME="omero"
-export PGPASSWORD="ome"
+export PASSWORD="ome"
+export PGPASSWORD=$PASSWORD
 export OMERODIR="/OMERO"
+export REVISION="HEAD"
 echo "deb http://archive.canonical.com/ubuntu lucid partner" | sudo tee -a /etc/apt/sources.list
 echo "deb-src http://archive.canonical.com/ubuntu lucid partner" | sudo tee -a /etc/apt/sources.list
 aptitude --assume-yes update
