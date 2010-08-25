@@ -48,3 +48,27 @@ sudo -u omero bin/omero db script $OMERO_VERSION $OMERO_PATCH $PGPASSWORD
 psql -h localhost -U omero omero < $OMERO_VERSION"__"$OMERO_PATCH".sql"
 echo "# OMERODIR /OMERO vboxsf user=omero,rw" | sudo tee -a /etc/fstab
 
+#webclient
+cd var
+mkdir lib
+FILE=custom_settings.py
+cat > ${FILE} << EOF
+# custom_settings.py
+
+SERVER_LIST = (
+    ('localhost', 4064, 'omero'),
+)
+
+#ADMINS = (
+#    ('Aleksandra Tarkowska', 'A.Tarkowska@dundee.ac.uk'),
+#)
+
+SERVER_EMAIL = 'omero@localhost'
+EMAIL_HOST = 'localhost'
+
+APPLICATION_HOST='http://localhost:8000/' 
+
+EMDB_USER = ('emdb', 'ome')
+EOF
+
+sudo -u omero bin/omero web syncmedia
