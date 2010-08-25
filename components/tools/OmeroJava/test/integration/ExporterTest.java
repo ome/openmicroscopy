@@ -8,26 +8,19 @@ package integration;
 
 
 //Java imports
-import java.util.ArrayList;
-import java.util.List;
-
 //Third-party libraries
 import org.testng.annotations.Test;
 
 //Application-internal dependencies
-import omero.RLong;
 import omero.api.ExporterPrx;
-import omero.api.IPixelsPrx;
 import omero.api.RawFileStorePrx;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
-import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLinkI;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.PixelsOriginalFileMapI;
-import omero.model.PixelsType;
 import omero.sys.ParametersI;
 
 /** 
