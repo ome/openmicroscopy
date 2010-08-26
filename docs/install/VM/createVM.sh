@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # install VM from snapshot
 if [ -n $VMNAME ]
 then 
