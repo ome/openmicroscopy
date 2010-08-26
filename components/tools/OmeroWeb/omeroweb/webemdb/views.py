@@ -14,11 +14,12 @@ import traceback
 import omero
 import omero.constants
 import omero.scripts
-from omero.rtypes import rstring, rint, rlong, robject, unwrap
+from omero.rtypes import rstring, rint, rlong, robject, unwrap, rdouble
 
 logger = logging.getLogger('webemdb')
 
 PUBLICATION_NAMESPACE = "openmicroscopy.org/omero/emdb/publication"
+RESOLUTION_NAMESPACE = "openmicroscopy.org/omero/emdb/resolutionByAuthor"  
 
 # for wrapping the bit mask 
 import os, tempfile, zipfile
@@ -258,8 +259,15 @@ def script_form(request, scriptId):
         if param.values:
             i["options"] = [v.getValue() for v in param.values.getValue()]
         pt = unwrap(param.prototype)
+        print key, pt.__class__
         if pt.__class__ == type(True):
             i["boolean"] = True
+        elif pt.__class__ == type(0) or pt.__class__ == type(long(0)):
+            print "Number!"
+            i["number"] = "number"  # will stop the user entering anything other than numbers. 
+        elif pt.__class__ == type(float(0.0)):
+            print "Float!"
+            i["number"] = "float"
         i["prototype"] = unwrap(param.prototype)    # E.g  ""  (string) or [0] (int list) or 0.0 (float)
         i["grouping"] = param.grouping
         inputs.append(i)
@@ -269,18 +277,45 @@ def script_form(request, scriptId):
     return render_to_response('webemdb/scripts/script_form.html', {'paramData': paramData})
 
 
+def projection(request, imageId, projkey):
+    """ Simply add the projkey (intmean, intsum or intmax) to the request and delegate to webgateway render_image() """
+    
+    """ NB: Not sure if we should be modifying request.REQUEST since http://docs.djangoproject.com/en/1.1/ref/request-response/ 
+    says 'All attributes except session should be considered read-only.'   """
+    
+    conn = getConnection(request)
+    request.REQUEST.dicts += ({'p': projkey},)
+    print type(request.REQUEST.dicts)
+    
+    #from django.http import QueryDict
+    #q = QueryDict('', mutable=True)
+    #q.update({'p': projkey})
+    #request.REQUEST.dicts += (q,)
+    
+    return webgateway_views.render_image(request, imageId, 0, 0)
+    
+    
+def mapmodel(request, imageId):
+    """
+       Shows an image projections, slices etc. 
+    """
+    
+    conn = getConnection(request)
+    
+    image = conn.getImage(imageId)
+    
+    z = image.z_count()/2
+    
+    return render_to_response('webemdb/data/mapmodel.html', {'image': image, 'z':z})
+    
+
 def image(request, imageId):
     """
     Shows an image preview (single plane), Name, Description etc. links to datasets.  
     """
     conn = getConnection(request)
-
+    
     image = conn.getImage(imageId)
-    
-    # enable the django template to access all parents of the image
-    image.showAllParents = image.listParents(single=False)
-    
-    entryId = None
     
     scriptService = conn.getScriptService()
     scripts = []
@@ -294,6 +329,11 @@ def image(request, imageId):
              s["id"] = scriptId
              scripts.append(s)
 
+    if not image:
+        return render_to_response('webemdb/data/image.html', {'image': image, "scripts": scripts})
+    # enable the django template to access all parents of the image
+    image.showAllParents = image.listParents(single=False)
+    
     return render_to_response('webemdb/data/image.html', {'image': image, "scripts": scripts})
     
 
@@ -549,6 +589,40 @@ def index (request):
     
     return render_to_response('webemdb/index.html', {'projects': projects, 'entryCount': len(entryIds)})
 
+
+def resolutionByAuthor (request, min=0, max=100):
+    
+    conn = getConnection(request)
+    qs = conn.getQueryService()
+    
+    namespace = RESOLUTION_NAMESPACE
+    query = "select p from Project as p " \
+                    "left outer join fetch p.annotationLinks as a_link " \
+                    "left outer join fetch a_link.child as a " \
+                    "where a.ns='%s' and a.doubleValue >= %s and a.doubleValue <= %s" % (namespace, min, max)
+    #query = "select a from Annotation a where a.ns='%s' and a.doubleValue >= %s and a.doubleValue <= %s" % (namespace, min, max)
+    print query
+    projects = qs.findAllByQuery(query, None)
+    #res = qs.findAllByQuery("select a from DoubleAnnotation a", None)
+    
+    resolutions = []
+    
+    resData = []
+    
+    for p in projects:
+        entryId = p.getName().getValue()
+        desc = p.getDescription().getValue()
+        print "Project", entryId
+        for a in p.copyAnnotationLinks():
+            print "Annotation", a.id.val
+            r = a.child.getDoubleValue().getValue()
+            break
+        resData.append({"entryId":entryId, "desc": desc, "resolution": r})
+    
+    resData.sort(key=lambda p: p['resolution'])
+    
+    return render_to_response('webemdb/browse/resolutionByAuthor.html', {'resolutions': resData})
+    
 
 def publications (request):
     """ List all the publications, which are stored as CommentAnnotations with namespace """

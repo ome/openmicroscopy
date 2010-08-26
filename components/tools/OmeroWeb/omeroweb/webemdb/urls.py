@@ -29,10 +29,18 @@ urlpatterns = patterns('',
     url( r'^data/(?P<entryId>[0-9]+)/$', views.data, name='webemdb_data' ),
     url( r'^dataset/(?P<datasetId>[0-9]+)/$', views.dataset, name='webemdb_dataset' ),
     url( r'^image/(?P<imageId>[0-9]+)/$', views.image, name='webemdb_image' ),
+    url( r'^mapmodel/(?P<imageId>[0-9]+)/$', views.mapmodel, name='webemdb_mapmodel' ),
+    
+    # render the image as a projection jpeg, maximum-intensity (default), mean or sum. 
+    url( r'^projection/(?P<imageId>[0-9]+)/$', views.projection, {"projkey": "intmax"}, name='webemdb_projection' ),
+    url( r'^projection/(?P<imageId>[0-9]+)/mean/$', views.projection, {"projkey": "intmean"}, name='webemdb_meanprojection' ),
+    url( r'^projection/(?P<imageId>[0-9]+)/max/$', views.projection, {"projkey": "intmax"}, name='webemdb_maxprojection' ),
+    url( r'^projection/(?P<imageId>[0-9]+)/sum/$', views.projection, {"projkey": "intsum"}, name='webemdb_sumprojection' ),
     
     # browse by annotations. E.g. publications
     url( r'^publications/$', views.publications, name='webemdb_publications' ),
     url( r'^getEntriesByPub/(?P<publicationId>[0-9]+)/$', views.getEntriesByPub, name='webemdb_getEntriesByPub' ),
+    url( r'^resolutionByAuthor/(?P<min>[0-9]+)/(?P<max>[0-9]+)/$', views.resolutionByAuthor, name='webemdb_resolutionByAuthor' ),
     
     # view an EMAN2 filter on an image
     url( r'^eman2_filter/(?P<imageId>[0-9]+)/fft/$', views.eman, {"filter": "fft"}, name='webemdb_eman_fft' ),

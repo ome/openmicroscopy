@@ -1,0 +1,53 @@
+{% extends "webemdb/base/base_main.html" %}
+
+{% block title %} Resolutions by author {% endblock %}
+
+
+{% block link %}
+<link rel="stylesheet" href="{% url webemdb 'css/publications.css' %}" type="text/css" />
+{% endblock %}
+
+{% block content %}
+{% if resolutions %}
+<div id="welcome">
+    <h3>EMDB Resolutions</h3>
+
+    
+<div id="content">
+    <!-- Header of the publications table -->
+    <table>
+        <thead>
+        <tr class="tableHeader">
+            <th></th>
+            <th>entry</th>
+            <th>title</th>
+            <th>resolution</th>
+        </tr>
+        </thead>
+        <tbody>
+         
+    <!-- Data of the publications table -->   
+    {% for r in resolutions %}
+      <tr>
+          <td class="gif">
+                <a href="{% url webemdb.views.entry r.entryId %}">
+                  <!-- image only gets displayed when each row of the table is shown -->
+                  <img src="{% url webemdb_gif r.entryId %}" border='0' />
+                </a>
+            </td>
+          <td><a href="{% url webemdb_entry r.entryId %}">{{ r.entryId }}</a></td>
+          <td>{{ r.desc }}</td>
+          <td>{{ r.resolution }}</td>
+      </tr>
+    {% endfor %}
+        </tbody>
+    </table>
+</div>
+    
+</div>
+
+{% else %}
+    No resolutions!
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends "webemdb/base/base_main.html" %}
+
+{% block title %} {{ image.name }} {% endblock %}
+
+{% block link %}
+<link rel="stylesheet" href="{% url webemdb 'css/entry.css' %}" type="text/css" />
+
+<style type="text/css">
+
+.plane {
+    max-width: 256px;
+    max-height: 256px;
+    border-width: 0px;
+}
+.caption {
+    text-align: center
+}
+</style>
+{% endblock %}
+
+{% block jscript %}
+
+<script type="text/javascript">
+function openPopup(url) {
+    owindow = window.open(url, 'anew', config='height=600,width=850,left=50,top=50,toolbar=no,menubar=no,scrollbars=yes,resizable=yes,location=no,directories=no,status=no');
+    if(!owindow.closed) owindow.focus();
+    return false;
+}
+</script>
+
+{% endblock %}
+
+{% block content %}
+
+{% if image %}
+
+
+<div class="pageTable">
+    
+    <div class="entryTitle">Image: {{ image.getName }}</div>
+    <div>ID: {{ image.getId }}</div>
+    <p>
+        {{ image.getDescription|linebreaks }}
+    </p>
+        
+    <p>
+        Open <a href="#" onclick="return openPopup('{% url web_image_viewer image.getId %}')"> Full viewer </a>
+    </p>
+    <div id="dataHeader"></div>
+</div>
+
+      
+<div class="pageTable">  
+    
+    <table>
+        <tr>
+            <td>
+                <img class="plane" src="{% url webgateway.views.render_image image.getId z 0 %}" />
+                <div class='caption'>Single plane: z = {{ z }}/{{ image.z_count }}</div>
+            </td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>
+                <img class="plane" src="{% url webemdb_maxprojection image.getId %}" />
+                <div class='caption'>Maximum Intensity Projection</div>
+            </td>
+            <td>
+                <img class="plane" src="{% url webemdb_meanprojection image.getId %}" />
+                <div class='caption'>Mean Intensity Projection</div>
+            </td>
+            <td>
+                <img class="plane" src="{% url webemdb_sumprojection image.getId %}" />
+                <div class='caption'>Sum Intensity Projection</div>
+            </td>
+        </tr>
+    </table>
+    
+    <div class="clear"></div>
+</div>
+
+    
+{% else %}
+
+    Dataset not found
+
+{% endif %}
+
+{% endblock %}

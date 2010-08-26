@@ -239,14 +239,15 @@ $(document).ready(function() {
     
     // map load mapA '{% url webemdb_bit fileId %}'; 
     // on first click of Astex view option, load OA-viewer
+    $("#oavBitLink").hide();
     var oavLoaded = false;
     $("#visAstexBit").click(function() {
         if (oavLoaded) {
             // just get the url of the map we want to view, and load it. 
             // TODO: Don't do this if we're already looking at it! 
             var bitUrl = $("#oavBitLink").attr('href');
-            //command = "map replace mapB '"+ bitUrl +"';"; 
-            var command = "map mapA contour 0 'red';";
+            var command = "map replace mapA '"+ bitUrl +"';"; 
+            // command = "map mapA contour 0 'red';";   // bug-fixing
             execute_oav_command(command);
         } else {
             var oavHref = $("#oavLink").attr('href');
@@ -255,13 +256,14 @@ $(document).ready(function() {
         }
     });
     
+    $("#oavMapLink").hide();
     $("#visAstexMap").click(function() {
         if (oavLoaded) {
             // just get the url of the map we want to view, and load it. 
             // TODO: Don't do this if we're already looking at it! 
             var bitUrl = $("#oavMapLink").attr('href');
-            var command = "map replace mapB '"+ bitUrl +"';"; 
-            command = "map mapA contour 0 'blue';";
+            var command = "map replace mapA '"+ bitUrl +"';"; 
+            // command = "map mapA contour 0 'blue';";   // bug-fixing
             execute_oav_command(command);
         } else {
             var oavHref = $("#oavLinkMap").attr('href');
@@ -269,13 +271,15 @@ $(document).ready(function() {
             oavLoaded = true;
         }
     });
+    $("#oavSmallMapLink").hide();
+    $("#oavLinkSmallMap").hide();
     $("#visAstexSmallMap").click(function() {
         if (oavLoaded) {
             // just get the url of the map we want to view, and load it. 
             // TODO: Don't do this if we're already looking at it! 
             var bitUrl = $("#oavSmallMapLink").attr('href');
-            var command = "map replace mapB '"+ bitUrl +"';"; 
-            command = "map mapA contour 0 'blue';";
+            var command = "map replace mapA '"+ bitUrl +"';"; 
+            //command = "map mapA contour 0 'blue';";   // bug-fixing
             execute_oav_command(command);
         } else {
             var oavHref = $("#oavLinkSmallMap").attr('href');
@@ -296,7 +300,6 @@ $(document).ready(function() {
         var pdbId = $a.text();
         var pdbUrl = $a.attr('href');
         var command = "molecule load " + pdbId + " '" + pdbUrl + "';";
-        alert(command);
         execute_oav_command(command);
         return false;
     });
