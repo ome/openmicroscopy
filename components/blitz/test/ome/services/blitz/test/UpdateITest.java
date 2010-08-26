@@ -38,10 +38,17 @@ import omero.sys.ParametersI;
 
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 @Test(groups = "integration")
 public class UpdateITest extends AbstractServantTest {
+
+    @Override
+    @BeforeMethod
+    protected void setUp() throws Exception {
+        super.setUp();
+    }
 
     @Test(groups = "ticket:1183")
     public void testProjectWithAnnotationCausesError() throws Exception {

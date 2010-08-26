@@ -20,6 +20,7 @@ import ome.api.RawFileStore;
 import ome.model.core.OriginalFile;
 import ome.model.meta.Session;
 import ome.parameters.Parameters;
+import ome.services.blitz.impl.CloseableServant;
 import ome.services.procs.Processor;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
@@ -53,7 +54,8 @@ import Ice.Current;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public class InteractiveProcessorI extends _InteractiveProcessorDisp {
+public class InteractiveProcessorI extends _InteractiveProcessorDisp
+    implements CloseableServant {
 
     private static Session UNINITIALIZED = new Session();
 
@@ -479,6 +481,10 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
                     "No script for job :" + job.getId().getValue());
         }
         return f.getId();
+    }
+
+    public void close(Current current) throws Exception {
+        stop();
     }
 
 }

@@ -118,7 +118,8 @@ public class SharedResourcesI extends AbstractAmdServant implements
         this.sf = sf;
     }
 
-    public void close() {
+    @Override
+    protected void preClose() {
         synchronized (tableIds) {
             for (String id : tableIds) {
                 TablePrx table = 

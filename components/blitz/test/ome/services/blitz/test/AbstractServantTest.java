@@ -11,12 +11,14 @@ import java.util.List;
 import junit.framework.TestCase;
 import ome.formats.MockedOMEROImportFixture;
 import ome.logic.HardWiredInterceptor;
+import ome.model.core.Image;
 import ome.security.SecuritySystem;
 import ome.security.basic.CurrentDetails;
 import ome.services.blitz.fire.AopContextInitializer;
 import ome.services.blitz.impl.AbstractAmdServant;
 import ome.services.blitz.impl.AdminI;
 import ome.services.blitz.impl.ConfigI;
+import ome.services.blitz.impl.DeleteI;
 import ome.services.blitz.impl.QueryI;
 import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.blitz.impl.UpdateI;
@@ -49,6 +51,7 @@ public abstract class AbstractServantTest extends TestCase {
     protected List<HardWiredInterceptor> cptors;
     protected ServiceFactoryI user_sf, root_sf;
     protected AopContextInitializer user_initializer, root_initializer;
+    protected DeleteI user_delete, root_delete;
     protected UpdateI user_update, root_update;
     protected QueryI user_query, root_query;
     protected AdminI user_admin, root_admin;
@@ -73,13 +76,16 @@ public abstract class AbstractServantTest extends TestCase {
         OmeroContext inner = OmeroContext.getManagedServerContext();
         ctx = new OmeroContext(new String[] { "classpath:omero/test2.xml",
                 "classpath:ome/services/blitz-servantDefinitions.xml", // geomTool
-                "classpath:ome/services/messaging.xml" // Notify geomTool
+                "classpath:ome/services/messaging.xml", // Notify geomTool
+                "classpath:ome/services/delete/spec.xml", // for DeleteI
+                "classpath:ome/config.xml", // for ${} in servantDefs.
+                "classpath:ome/services/throttling/throttling.xml"
         }, false);
         ctx.setParent(inner);
         ctx.afterPropertiesSet();
 
         sf = new ServiceFactory(ctx);
-        be = new InThreadThrottlingStrategy((CurrentDetails)ctx.getBean("currentDetails"));
+        be = (BlitzExecutor) ctx.getBean("throttlingStrategy");
         sm = (SessionManager) ctx.getBean("sessionManager");
         ss = (SecuritySystem) ctx.getBean("securitySystem");
 
@@ -92,10 +98,13 @@ public abstract class AbstractServantTest extends TestCase {
         user_initializer = new AopContextInitializer(
                 new ServiceFactory(ctx), user.login.p, false);
 
+        user_delete = (DeleteI) ctx.getBean("DeleteI");
+        user_delete.setServiceFactory(user_sf);
         user_update = new UpdateI(sf.getUpdateService(), be);
         user_query = new QueryI(sf.getQueryService(), be);
         user_admin = new AdminI(sf.getAdminService(), be);
         user_config = new ConfigI(sf.getConfigService(), be);
+        configure(user_delete, user_initializer);
         configure(user_update, user_initializer);
         configure(user_query, user_initializer);
         configure(user_admin, user_initializer);
@@ -107,10 +116,13 @@ public abstract class AbstractServantTest extends TestCase {
         root_initializer = new AopContextInitializer(
                 new ServiceFactory(ctx), root.login.p, false);
 
+        root_delete = (DeleteI) ctx.getBean("DeleteI");
+        root_delete.setServiceFactory(root_sf);
         root_update = new UpdateI(sf.getUpdateService(), be);
         root_query = new QueryI(sf.getQueryService(), be);
         root_admin = new AdminI(sf.getAdminService(), be);
         root_config = new ConfigI(sf.getConfigService(), be);
+        configure(root_delete, root_initializer);
         configure(root_update, root_initializer);
         configure(root_query, root_initializer);
         configure(root_admin, root_initializer);
@@ -221,6 +233,12 @@ public abstract class AbstractServantTest extends TestCase {
             pixels = list.get(0).getId().getValue();
             return pixels;
         }
-	
+    }
+
+    protected long makeImage() throws Exception, FileNotFoundException {
+        long pixels = makePixels();
+        ServiceFactory _sf = new InterceptingServiceFactory(this.sf, user.login);
+        return _sf.getQueryService().findByQuery("select i from Image i join i.pixels p " +
+			"where p.id = " + pixels, null).getId();
     }
 }

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# $Id$
+#
+# Copyright 2010 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<beans>
+
+    <description>
+
+    Describes delete specifications which map a single string to a graph of
+    objects which will be deleted. Each specification takes some number of parameters
+    which describe which roots of the graph will be chosen.
+
+    </description>
+
+
+   <!-- SETUP ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+    <bean id="deleteSpecFactory" class="ome.services.delete.DeleteSpecFactory" singleton="false"/>
+
+    <bean id="delSpec"  abstract="true" class="ome.services.delete.BaseDeleteSpec" singleton="false">
+        <description>
+        Delete specification which takes a single id as the identifier for where
+        the graph of objects to be deleted starts.
+        </description>
+    </bean>
+
+   <!-- SPECIFCATIONS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+    <bean parent="delSpec" name="/Image/Roi">
+        <description>
+        Deletes a
+        </description>
+        <constructor-arg>
+            <list>
+                <value>/Image/Roi/Shape</value>
+                <value>/Image/Roi/Annotation</value>
+                <value>/Image/Roi</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+<!--
+TODO:
+/Roi/FileAnnotation;REAP
+/Roi/RoiAnnotationLink;ORPHAN
+-->
+
+    <bean parent="delSpec" name="/Image/Pixels/RenderingDef">
+        <description>
+        Deletes a rendering def based on the image id from where it comes.
+        </description>
+        <constructor-arg>
+            <list>
+                <value>/Image/Pixels/RenderingDef/ChannelBinding</value>
+                <value>/Image/Pixels/RenderingDef</value>
+                <value>/Image/Pixels/RenderingDef/Quantization"</value>
+            </list>
+        </constructor-arg>
+
+    </bean>
+
+    <bean parent="delSpec" name="/Image/Pixels/Channels">
+        <description>
+        Deletes a Channel
+        </description>
+        <constructor-arg>
+            <list>
+                <value>/Image/Pixels/Channel</value>
+                <value>/Image/Pixels/Channel/StatsInfo</value>
+                <value>/Image/Pixels/Channel/LogicalChannel;REAP</value>
+            </list>
+        </constructor-arg>
+
+    </bean>
+
+    <bean parent="delSpec" name="/Image">
+        <description>
+        The /Image specification is equivalent to the original
+        deleteImage method as specified in ome.api.IDelete.
+        </description>
+        <constructor-arg>
+            <list>
+                <value>/Image/Roi;ORPHAN</value>
+                <value>/Image/Pixels/RelatedTo;NULL</value>
+                <value>/Image/Pixels/OriginalFile;REAP</value>
+                <value>/Image/Pixels/PlaneInfo</value>
+                <value>/Image/Pixels/RenderingDef;</value><!-- FORCE, for admins? -->
+                <value>/Image/Pixels/Channel</value>
+                <value>/Image/Pixels/Thumbnail;REAP</value><!-- HARD -->
+                <value>/Image/Pixels</value>
+                <value>/Image/Annotations;REAP</value>
+                <value>/Image/DatasetImageLinks</value>
+                <value>/Image</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean parent="delSpec" name="/Dataset">
+        <constructor-arg>
+            <list>
+                <value>/Image</value><!-- assumes you can get in one jump with a link -->
+                <value>/Image/Annotations;REAP</value>
+                <value>/Dataset/ProjectDatasetLink</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean parent="delSpec" name="/Project">
+        <constructor-arg>
+            <list>
+                <value>/Dataset</value>
+                <value>/Project</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+
+</beans>

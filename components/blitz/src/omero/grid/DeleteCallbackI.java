@@ -102,6 +102,12 @@ public class DeleteCallbackI {
         if (poll) {
             try {
                 if (handle.finished()) {
+                    try {
+                        finished();
+                    } catch (Exception e) {
+                        System.err.println("Error calling DeleteCallbackI.finished:" + handle);
+                        e.printStackTrace();
+                    }
                     return handle.errors();
                 }
             } catch (Exception e) {
@@ -110,6 +116,13 @@ public class DeleteCallbackI {
             }
         }
         return null; // q.poll(ms, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * Client method to be overwritten when block is returning a non-null.
+     */
+    public void finished() {
+        // no-op
     }
 
     public void close() {

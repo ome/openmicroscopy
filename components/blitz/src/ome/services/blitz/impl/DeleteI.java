@@ -14,6 +14,8 @@ import ome.api.IDelete;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
+import ome.services.delete.DeleteSpecFactory;
+import ome.services.scheduler.ThreadPool;
 import omero.ApiUsageException;
 import omero.SecurityViolation;
 import omero.ServerError;
@@ -42,10 +44,19 @@ import Ice.Current;
 public class DeleteI extends AbstractAmdServant implements _IDeleteOperations,
     ServiceFactoryAware, BlitzOnly {
 
-    private /*final*/ ServiceFactoryI sf;
+    private final ThreadPool threadPool;
 
-    public DeleteI(IDelete service, BlitzExecutor be) {
+    private final int cancelTimeoutMs;
+
+    private final DeleteSpecFactory factory;
+
+    private/* final */ServiceFactoryI sf;
+
+    public DeleteI(IDelete service, BlitzExecutor be, ThreadPool threadPool, DeleteSpecFactory factory, int cancelTimeoutMs) {
         super(service, be);
+        this.factory = factory;
+        this.threadPool = threadPool;
+        this.cancelTimeoutMs = cancelTimeoutMs;
     }
 
     public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
@@ -98,10 +109,12 @@ public class DeleteI extends AbstractAmdServant implements _IDeleteOperations,
     public void queueDelete_async(final AMD_IDelete_queueDelete __cb,
             final DeleteCommand[] commands, final Current __current)
             throws ApiUsageException, ServerError {
+
         safeRunnableCall(__current, __cb, false, new Callable<DeleteHandlePrx>() {
             public DeleteHandlePrx call() throws Exception {
                 Ice.Identity id = sf.getIdentity("DeleteHandle");
-                DeleteHandleI handle = new DeleteHandleI(commands);
+                DeleteHandleI handle = new DeleteHandleI(id, sf, factory, commands, cancelTimeoutMs);
+                threadPool.getExecutor().execute(handle);
                 DeleteHandlePrx prx = DeleteHandlePrxHelper.
                     uncheckedCast(sf.registerServant(id, handle));
                 return prx;

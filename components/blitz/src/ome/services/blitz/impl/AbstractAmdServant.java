@@ -50,7 +50,8 @@ import Ice.Current;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta4
  */
-public abstract class AbstractAmdServant implements ApplicationContextAware {
+public abstract class AbstractAmdServant implements ApplicationContextAware,
+    CloseableServant {
 
     final protected Log log = LogFactory.getLog(getClass());
 

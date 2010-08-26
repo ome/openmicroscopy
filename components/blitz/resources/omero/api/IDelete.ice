@@ -116,6 +116,14 @@ module omero {
                  * as any warnings, such as "Tag was orphaned" when using the "SOFT" option.
                  **/
                 StringSet report() throws ServerError;
+
+                /**
+                 * Starts further [DeleteCommand]s from being processed and rolls back any
+                 * changes already made by the transaction. If all commands were already
+                 * processed, this method returns false to signal that the rollback was not
+                 * possible.
+                 **/
+                bool cancel() throws ServerError;
             };
 
         };

@@ -755,24 +755,15 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                     // be stopped and unregistered. Stateless must only be
                     // unregistered.
                     //
-                    if (servant instanceof AbstractAmdServant) {
+                    if (servant instanceof CloseableServant) {
                         final Ice.Current __curr = new Ice.Current();
                         __curr.id = id;
                         __curr.adapter = adapter;
                         __curr.operation = "close";
                         __curr.ctx = new HashMap<String, String>();
                         __curr.ctx.put(CLIENTUUID.value, clientId);
-                        AbstractAmdServant amd = (AbstractAmdServant) servant;
-                        amd.close(__curr);
-                    } else if (servant instanceof InteractiveProcessorI) {
-                        // Cleanup interactive processors
-                        // ------------------------------
-                        InteractiveProcessorI ip = (InteractiveProcessorI) servant;
-                        ip.stop();
-                    } else if (servant instanceof SharedResourcesI) {
-                        // Not currently doing anything.
-                        // But will eventually need to cleanup cache.
-                        ((SharedResourcesI)servant).close();
+                        CloseableServant cs = (CloseableServant) servant;
+                        cs.close(__curr);
                     } else {
                         log.error("Unknown servant type: " + servant);
                     }

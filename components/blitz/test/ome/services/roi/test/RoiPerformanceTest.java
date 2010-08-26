@@ -58,7 +58,7 @@ public class RoiPerformanceTest extends AbstractRoiITest {
 
         while (count > 0) {
             count--;
-            makeImage();
+            setupImage();
 
             watch.lap("create.image");
 
@@ -75,7 +75,7 @@ public class RoiPerformanceTest extends AbstractRoiITest {
 
     }
 
-    private void makeImage() throws Exception {
+    private void setupImage() throws Exception {
         i = new ImageI();
         i.setName(rstring("RoiPerformanceTest"));
         i.setAcquisitionDate(rtime(0));
@@ -91,7 +91,7 @@ public class RoiPerformanceTest extends AbstractRoiITest {
     
     @Test
     public void testMeasurements() throws Exception {
-        makeImage();
+        setupImage();
         Roi roi = createRoi(i, "meas", geomTool.random(1).toArray(new Shape[0]));
 
         FileAnnotation fa = new FileAnnotationI();

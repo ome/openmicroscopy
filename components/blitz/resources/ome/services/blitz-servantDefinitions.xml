@@ -151,13 +151,17 @@
   </bean>
 
   <bean id="omero.api.IDelete" class="omero.api._IDeleteTie" singleton="false">
-    <constructor-arg>
-        <bean class="ome.services.blitz.impl.DeleteI">
-            <constructor-arg ref="managed-ome.api.IDelete"/>
-            <constructor-arg ref="throttlingStrategy"/>
-        </bean>
-    </constructor-arg>
+    <constructor-arg ref="DeleteI"/>
   </bean>
+  <!-- External for use as a factory method during testing. -->
+  <bean id="DeleteI" class="ome.services.blitz.impl.DeleteI">
+      <constructor-arg ref="managed-ome.api.IDelete"/>
+      <constructor-arg ref="throttlingStrategy"/>
+      <constructor-arg ref="threadPool"/>
+      <constructor-arg ref="deleteSpecFactory"/>
+      <constructor-arg value="${omero.threads.cancel_timeout}"/>
+  </bean>
+
 
   <bean id="omero.api.ILdap" class="omero.api._ILdapTie" singleton="false">
     <constructor-arg>

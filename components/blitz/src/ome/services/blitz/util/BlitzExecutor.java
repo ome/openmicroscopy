@@ -21,7 +21,7 @@ import omero.util.IceMapper;
  * @since 3.0-Beta4
  */
 public interface BlitzExecutor {
-    
+
     /**
      * Uses the given {@link IceMethodInvoker} to make the method call. All
      * arguments are passed directly into the invoker, and the return value from

@@ -160,66 +160,38 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
         the same order, but without loading them.
          */
 
-        List<Long> ids;
+        execute(session, id, "update Pixels set relatedTo = null where id in" +
+			"(select p.id from Pixels p where p.relatedTo.image.id = :id)");
 
-        ids = executeIdList(session, id, "select p.id from Pixels p where p.relatedTo.image.id = :id");
-        executeUpdate(session, ids, "Pixels", "relatedTo = null");
+        execute(session, id, "delete PixelsOriginalFileMap where id in" +
+			"(select m.id from PixelsOriginalFileMap m where m.child.image.id = :id)");
 
-        ids = executeIdList(session, id, "select m.id from PixelsOriginalFileMap m where m.child.image.id = :id");
-        executeDelete(session, ids, "PixelsOriginalFileMap");
-
-        ids = executeIdList(session, id, "select pi.id from PlaneInfo pi where pi.pixels.image.id = :id");
-        executeDelete(session, ids, "PlaneInfo");
+        execute(session, id, "delete PlaneInfo where id in " +
+			"(select pi.id from PlaneInfo pi where pi.pixels.image.id = :id)");
 
         deleteSettings(id);
-
         deleteChannels(id);
 
-        ids = executeIdList(session, id, "select tb.id from Thumbnail tb where tb.pixels.image.id = :id");
-        executeDelete(session, ids, "Thumbnail");
+        execute(session, id, "delete Thumbnail where id in " +
+			"(select tb.id from Thumbnail tb where tb.pixels.image.id = :id)");
 
-        ids = executeIdList(session, id, "select pix.id from Pixels pix where pix.image.id = :id");
-        executeDelete(session, ids, "Pixels");
+        execute(session, id, "delete Pixels where id in " +
+			"(select pix.id from Pixels pix where pix.image.id = :id)");
 
-        ids = executeIdList(session, id, "select link.id from ImageAnnotationLink link where link.parent.id = :id");
-        executeDelete(session, ids, "ImageAnnotationLink");
+        execute(session, id, "delete ImageAnnotationLink where id in " +
+			"(select link.id from ImageAnnotationLink link where link.parent.id = :id)");
 
-        ids = executeIdList(session, id, "select link.id from DatasetImageLink link where link.child.id = :id");
-        executeDelete(session, ids, "DatasetImageLink");
+        execute(session, id, "delete DatasetImageLink where id in " +
+			"(select link.id from DatasetImageLink link where link.child.id = :id)");
 
-        executeDelete(session, id,
+        execute(session, id,
                 "delete Image img where img.id = :id");
 
         session.clear(); // ticket:1708
 
     }
 
-    @SuppressWarnings("unchecked")
-    private List<Long> executeIdList(final Session session, final long id, String str) {
-        Query q;
-        q = session.createQuery(str);
-        q.setParameter("id", id);
-        return q.list();
-    }
-
-    private void executeUpdate(final Session session, final List<Long> ids, String klass, String set) {
-        if (ids != null && ids.size() > 0) {
-            Query q = session.createQuery("update " + klass + " set " + set + " where id in (:ids)");
-            q.setParameterList("ids", ids);
-            q.executeUpdate();
-        }
-    }
-
-    private int executeDelete(final Session session, final List<Long> ids, String klass) {
-        if (ids != null && ids.size() > 0) {
-            Query q = session.createQuery("delete " + klass + " where id in (:ids)");
-            q.setParameterList("ids", ids);
-            return q.executeUpdate();
-        }
-        return 0;
-    }
-
-    private int executeDelete(final Session session, final long id, String str) {
+    private int execute(final Session session, final long id, String str) {
         Query q;
         q = session.createQuery(str);
         q.setParameter("id", id);
@@ -316,15 +288,15 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
                     Long siid = (Long) rv[1];
                     Long lcid = (Long) rv[2];
 
-                    executeDelete(session, chid, "delete Channel ch where ch.id = :id");
-                    executeDelete(session, siid, "delete StatsInfo si where si.id = :id");
+                    execute(session, chid, "delete Channel ch where ch.id = :id");
+                    execute(session, siid, "delete StatsInfo si where si.id = :id");
 
                     List<Object[]> remainingChannels = iQuery.projection(
                             "select ch.id from LogicalChannel lc join lc.channels ch " +
                             "where lc.id = :id",  new Parameters().addId(lcid));
 
                     if (remainingChannels.size() == 0) {
-                        executeDelete(session, lcid, "delete LogicalChannel lc where lc.id = :id");
+                        execute(session, lcid, "delete LogicalChannel lc where lc.id = :id");
                     }
 
                 }
@@ -561,13 +533,13 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
      */
     private void clearRois(Session session, Image i) {
 
-        int shapeCount = executeDelete(session, i.getId(),
+        int shapeCount = execute(session, i.getId(),
                 "delete from Shape where roi.id in " +
                 "(select id from Roi roi where roi.image.id = :id)");
-        int roiAnnCount = executeDelete(session, i.getId(),
+        int roiAnnCount = execute(session, i.getId(),
                 "delete from RoiAnnotationLink where parent.id in " +
                 "(select id from Roi roi where roi.image.id = :id)");
-        int roiCount = executeDelete(session, i.getId(),
+        int roiCount = execute(session, i.getId(),
                 "delete from Roi where image.id = :id");
 
         if (shapeCount > 0 || roiAnnCount > 0 || roiCount > 0) {
