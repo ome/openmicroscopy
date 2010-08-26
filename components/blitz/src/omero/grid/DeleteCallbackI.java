@@ -44,9 +44,13 @@ public class DeleteCallbackI {
     @SuppressWarnings("unused")
     private final BlockingQueue<Integer> q = new LinkedBlockingQueue<Integer>();
 
-    private final DeleteHandlePrx handle;
-
     private final boolean poll;
+
+    /**
+     * Proxy passed to this instance on creation. Can be used by subclasses
+     * freely. The object will not be nulled, but may be closed server-side.
+     */
+    protected final DeleteHandlePrx handle;
 
     public DeleteCallbackI(omero.client client, DeleteHandlePrx handle)
             throws ServerError {
