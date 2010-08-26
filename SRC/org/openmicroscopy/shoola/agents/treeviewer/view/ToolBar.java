@@ -249,7 +249,7 @@ class ToolBar
         bars.setLayout(new BoxLayout(bars, BoxLayout.X_AXIS));
         bars.add(createManagementBar());
         //bars.add(createEditBar());
-        if (!view.getLayoutType().equals(TreeViewerWin.JXTASKPANE_TYPE)) {
+        if (!TreeViewerWin.JXTASKPANE_TYPE.equals(view.getLayoutType())) {
         	bars.add(createSearchBar());
         }
         	
