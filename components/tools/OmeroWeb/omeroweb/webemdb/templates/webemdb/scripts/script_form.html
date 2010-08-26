@@ -22,7 +22,11 @@
                 {% if i.boolean %}
                     <input type="checkbox" name="{{ i.key }}" {% if i.prototype %} checked="True" {% endif %} />
                 {% else %}
-                    <input type="text" name="{{ i.key }}" {% if i.prototype %} value="{{ i.prototype }}" {% endif %} />
+                    {% if i.number %}
+                        <input type="text" name="{{ i.key }}" class="{{ i.number }}" {% if i.prototype %} value="{{ i.prototype }}" {% endif %} />
+                    {% else %}
+                        <input type="text" name="{{ i.key }}" {% if i.prototype %} value="{{ i.prototype }}" {% endif %} />
+                    {% endif %}
                 {% endif %}
             
             {% endif %}
