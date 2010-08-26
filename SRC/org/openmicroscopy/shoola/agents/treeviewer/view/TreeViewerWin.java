@@ -526,11 +526,13 @@ class TreeViewerWin
     /** Expands the first pane. */
     void selectPane()
     { 
-    	if (firstPane != null) firstPane.setCollapsed(false);
-    	if (!UIUtilities.isLinuxOS()) {
-    		List<JXTaskPane> list = container.getTaskPanes();
-    		for(JXTaskPane pane: list) 
-        		pane.setAnimated(true);
+    	if (TreeViewerWin.JXTASKPANE_TYPE.equals(getLayoutType())) {
+    		if (firstPane != null) firstPane.setCollapsed(false);
+        	if (!UIUtilities.isLinuxOS()) {
+        		List<JXTaskPane> list = container.getTaskPanes();
+        		for(JXTaskPane pane: list) 
+            		pane.setAnimated(true);
+        	}
     	}
     }
     
