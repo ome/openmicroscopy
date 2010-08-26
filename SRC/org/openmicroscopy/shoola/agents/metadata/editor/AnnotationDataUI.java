@@ -68,7 +68,6 @@ import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.SeparatorOneLineBorder;
@@ -201,7 +200,9 @@ class AnnotationDataUI
 	/** The constraints related to the layout of the attachments. */
 	private String							docConstraints;
 	
+	/** The document of reference. */
 	private JComponent docRef;
+	
 	
 	/**
 	 * Creates and displays the menu 
@@ -481,34 +482,6 @@ class AnnotationDataUI
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		return p;
-	}
-	
-	/** 
-	 * Lays out the passed row. 
-	 * 
-	 * @param row The row to lay out.
-	 * @return See above.
-	 */
-	private JPanel layoutRow(JPanel row)
-	{
-		JPanel p = new JPanel(); 
-		p.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		Component[] comps = row.getComponents();
-		row.removeAll();
-		JLabel l;
-		for (int i = 0; i < comps.length; i++) {
-			row.add(comps[i]);
-			if (i < comps.length-1) {
-				l = new JLabel();
-				l.setBackground(UIUtilities.BACKGROUND_COLOR);
-				l.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
-				l.setText(", ");
-				row.add(l);
-			}
-		}
-		p.add(row);
 		return p;
 	}
   
