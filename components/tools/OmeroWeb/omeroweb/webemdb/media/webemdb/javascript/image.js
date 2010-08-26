@@ -18,6 +18,18 @@ $(document).ready(function() {
         $.get(href, function(data) {
           $(data).appendTo($scriptForm);
           $('#scriptForm form').submit(runScript);
+          $('#scriptForm .number').keypress(function(event) {
+              // prevent-default unless key pressed is a number, or backspace
+              if (event.which && event.which < 48 || event.which > 57) {
+                  if (event.which != 8)   event.preventDefault();
+              }
+          })
+          $('#scriptForm .float').keypress(function(event) {
+                //alert(event.which);
+                if (event.which && event.which < 48 || event.which > 57) {
+                    if (event.which != 8 && event.which != 46)   event.preventDefault();
+                }
+            })
         });
         return false;
     };
@@ -25,7 +37,7 @@ $(document).ready(function() {
     // function to handle submission of the form and opening results window...
     var runScript = function() {
         var scriptName = $("#scriptForm .scriptName").text();
-        var newWindow=window.open('','','height=250,width=700,left=50');
+        var newWindow=window.open('','','height=250,width=700,right=50');
           newWindow.document.write('<html><title>Results</title>');
           newWindow.document.write('<h3>Running ' + scriptName + '</h3>');
           newWindow.document.write('<p>Waiting for results...</p>');
@@ -41,7 +53,7 @@ $(document).ready(function() {
             // replace the form with a "script running" page
           $('#scriptForm form').remove();
           $(data).appendTo('#scriptForm');
-          // 
+          // set the url of the results window - will only update when script completes
           var resultsUrl = $('#resultsLink').attr('href');
           newWindow.location = resultsUrl;
         });
