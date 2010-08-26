@@ -516,6 +516,7 @@ public class IconManager
         relPaths[SCRIPT_WITH_UI] = "nuvola_script_ui16.png";
         relPaths[SCRIPT_WITH_UI_22] = "nuvola_script_ui22.png";
         relPaths[PREVIEW_THUMBNAILS_32] = "preview_thumbs32.png";
+        relPaths[TAGS_48] = "nuvola_knotes48.png";
 	}
    
 	/** The sole instance. */
