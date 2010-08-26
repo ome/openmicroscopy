@@ -35,6 +35,7 @@
         <value>classpath:ome/services/hibernate.xml</value>
         <value>classpath:ome/services/services.xml</value>
         <value>classpath*:ome/services/service-*.xml</value>
+        <value>classpath:ome/services/delete/spec.xml</value>
         <value>classpath:ome/services/sec-system.xml</value>
         <value>classpath:ome/services/startup.xml</value>
       </list>
