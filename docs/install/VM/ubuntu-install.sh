@@ -1,12 +1,71 @@
 #!/bin/bash
-export OMERO_VERSION="OMERO4.2"
-export OMERO_PATCH="0"
-export OMERO_DB_USER="omero"
-export OMERO_DB_NAME="omero"
-export PASSWORD="ome"
-export PGPASSWORD=$PASSWORD
-export OMERODIR="/OMERO"
-export REVISION="HEAD"
+if [ -n $OMERO_VERSION ]
+then
+    if [ -n $1 ] 
+    then
+        export OMERO_VERSION="OMERO4.2"
+    else
+        export OMERO_VERSION=$1
+    fi
+fi
+if [ -n $OMERO_PATCH ]
+then 
+    if [ -n $2 ] 
+    then
+        export OMERO_PATCH="0"
+    else
+        export OMERO_PATCH=$2
+    fi
+fi
+if [ -n $OMERO_DB_USER ]
+then 
+    if [ -n $3 ] 
+    then
+        export OMERO_DB_USER="omero"
+    else
+        export OMERO_DB_USER=$3
+    fi
+fi
+if [ -n $OMERO_DB_NAME ]
+then 
+    if [ -n $4 ] 
+    then
+        export OMERO_DB_NAME="omero"
+    else
+        export OMERO_DB_NAME=$4
+    fi
+fi
+if [ -n $PASSWORD ]
+then 
+    if [ -n $5 ] 
+    then
+        export PASSWORD="ome"
+    else
+        export PASSWORD=$5
+    fi
+fi
+if [ -n $PGPASSWORD ]
+then 
+    export PGPASSWORD=$PASSWORD
+fi
+if [ -n $OMERODIR ]
+then 
+    if [ -n $6 ] 
+    then
+        export OMERODIR="/OMERO"
+    else
+        export OMERODIR=$6
+    fi
+fi
+if [ -n $REVISION ]
+then 
+    if [ -n $6 ] 
+    then
+        export REVISION="HEAD"
+    else
+        export REVISION=$6
+    fi
+fi
 echo "deb http://archive.canonical.com/ubuntu lucid partner" | sudo tee -a /etc/apt/sources.list
 echo "deb-src http://archive.canonical.com/ubuntu lucid partner" | sudo tee -a /etc/apt/sources.list
 aptitude --assume-yes update
