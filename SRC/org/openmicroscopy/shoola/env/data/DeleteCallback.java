@@ -56,9 +56,6 @@ public class DeleteCallback
 	/** Helper reference to the adapter to notify. */
 	private DSCallAdapter adapter;
 	
-	/** Helper reference to the process. */
-	private DeleteHandlePrx  process;
-	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -93,7 +90,7 @@ public class DeleteCallback
 		if (adapter == null) return;
 		try {
 			if (adapter != null) {
-				adapter.handleResult(process.finished());
+				adapter.handleResult(handle.finished());
 			}
 		} catch (Exception e) {
 		    if (adapter != null) adapter.handleResult(null);

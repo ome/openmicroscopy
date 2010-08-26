@@ -62,9 +62,6 @@ public class ScriptCallback
 	/** The identifier of the script. */
 	private long              scriptID;
 	
-	/** Helper reference to the process. */
-	private ScriptProcessPrx  process;
-	
 	/** Helper reference to the adapter to notify. */
 	private DSCallAdapter adapter;
 	
@@ -83,7 +80,6 @@ public class ScriptCallback
 	{
 		super(client, process);
 		this.scriptID = scriptID;
-		this.process = process;
 	}
 	
 	/**
@@ -105,7 +101,8 @@ public class ScriptCallback
 	{
 		String value = "";
 		try {
-			RString desc = process.getJob().getDescription();
+			RString desc = 
+				((ScriptProcessPrx) process).getJob().getDescription();
 			if (desc != null) value = desc.getValue();
 		} catch (Exception e) {
 		}
@@ -135,7 +132,8 @@ public class ScriptCallback
 		if (adapter == null) return;
 		try {
 			if (adapter != null) {
-				Map<String, RType> results = process.getResults(0);
+				Map<String, RType> 
+				results = ((ScriptProcessPrx) process).getResults(0);
 				if (results == null)
 					adapter.handleResult(null);
 				else {
