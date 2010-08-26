@@ -22,13 +22,14 @@ if [ -n $SSH_PF ]
 then
     if [ -n $3 ] 
     then
-        export SSH_PF="2222""
+        export SSH_PF="2222"
     else
         export SSH_PF=$3
     fi
 fi
+VBoxManage controlvm "$VMNAME" poweroff
 VBoxManage startvm "$VMNAME" --type headless
 scp -P $SSH_PF ubuntu-install.sh omero@localhost:~/
 export DISPLAY=:0
 export SSH_ASKPASS=`pwd`/fakepass.sh
-ssh -l omero -p $SSH_PF localhost 'echo "$PASSWORD" | sudo -S sh /home/omero/ubuntuinstall.sh'
+ssh -l omero -p $SSH_PF localhost 'echo "$PASSWORD" | sudo -S sh /home/omero/ubuntu-install.sh'
