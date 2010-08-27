@@ -61,7 +61,8 @@ function openPopup(url) {
     {% endfor %}
     </p>
     <p>
-        Open <a href="#" onclick="return openPopup('{% url web_image_viewer image.getId %}')"> Full viewer </a>
+        Open <a href="#" onclick="return openPopup('{% url web_image_viewer image.getId %}')"> Full viewer </a> |
+        <a href="{% url webemdb_mapmodel image.getId %}">Map Model</a>
     </p>
     <div id="dataHeader"></div>
 </div>
@@ -69,7 +70,7 @@ function openPopup(url) {
       
 <div class="pageTable">  
     
-    <img class="original" src="{% url webgateway.views.render_image image.getId 0 0 %}" />
+    <img class="original" src="{% url webgateway.views.render_image image.getId default_z 0 %}" />
 
     <div class="eman_menu">
         Quick filter with EMAN2: <br />
@@ -103,10 +104,8 @@ function openPopup(url) {
     
 {% else %}
 
-    Dataset not found
+    Image not found
 
 {% endif %}
-
- Image not found
  
 {% endblock %}

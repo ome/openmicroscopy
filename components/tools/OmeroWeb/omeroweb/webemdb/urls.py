@@ -31,7 +31,6 @@ urlpatterns = patterns('',
     url( r'^image/(?P<imageId>[0-9]+)/$', views.image, name='webemdb_image' ),
     url( r'^mapmodel/(?P<imageId>[0-9]+)/$', views.mapmodel, name='webemdb_mapmodel' ),     # uses OMERO Image-Id
     url( r'^mapmodelemdb/(?P<entryId>[0-9]+)/$', views.mapmodelemdb, name='webemdb_mapmodelemdb' ), # uses EMDB entry-Id
-    url( r'^mapmodel/(?P<imageId>[0-9]+)/(?P<entryId>[0-9]+)/$', views.mapmodel, name='webemdb_mapmodel' ), # uses both Ids!
     
     # render the image as a projection jpeg, maximum-intensity (default), mean or sum. 
     url( r'^projection/(?P<imageId>[0-9]+)/$', views.projection, {"projkey": "intmax"}, name='webemdb_projection' ),

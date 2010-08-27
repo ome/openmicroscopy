@@ -12,3 +12,9 @@
     margin-right:auto;
     width: 900px;
 }
+
+img.previewGif {
+    max-width: 75px;
+    max-height: 75px;
+    border-width: 0px;
+}

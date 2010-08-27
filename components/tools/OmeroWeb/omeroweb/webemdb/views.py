@@ -25,6 +25,7 @@ RESOLUTION_NAMESPACE = "openmicroscopy.org/omero/emdb/resolutionByAuthor"
 # for wrapping the bit mask 
 import os, tempfile, zipfile
 from django.core.servers.basehttp import FileWrapper
+import random
 
 from omero.sys import Parameters, Filter
 import omero.util.script_utils as scriptUtil
@@ -484,10 +485,11 @@ def image(request, imageId):
 
     if not image:
         return render_to_response('webemdb/data/image.html', {'image': image, "scripts": scripts})
+    default_z = image.z_count()/2
     # enable the django template to access all parents of the image
     image.showAllParents = image.listParents(single=False)
     
-    return render_to_response('webemdb/data/image.html', {'image': image, "scripts": scripts})
+    return render_to_response('webemdb/data/image.html', {'image': image, "scripts": scripts, "default_z": default_z})
     
 
 def dataset(request, datasetId):
@@ -562,8 +564,8 @@ def entry (request, entryId):
     smallMap = None
     namespace = omero.constants.namespaces.NSCOMPANIONFILE 
     smallMapName = "small_%s.map" % entryName
-    imgName = img.getName()
     if img:
+        imgName = img.getName()
         for a in img.listAnnotations():
             if imgName == a.getFileName() and a.getNs() == namespace:
                 mrcMap = a
@@ -726,18 +728,26 @@ def index (request):
     entryIds = [] # names of projects
     for p in conn.listProjects():
         try:
+            # make sure we only list projects that are emdb entries "1001" etc
             entryIds.append(int(p.getName()))
         except: pass
     entryIds.sort()
     entryIds.reverse()
     # truncate. 
-    lastIds = entryIds[:10]
+    lastIds = entryIds[:5]
+    
+    randomIds = [random.choice(entryIds) for i in range(10)]
+    print randomIds
     
     projects = []
     for entryName in lastIds:
-        projects.append(conn.findProject(str(entryName)))
+        p = conn.findProject(str(entryName))
+        title, sample = p.getDescription().split("\n")
+        e = {"id": entryName, "title": title, "sample": sample }
+        print e
+        projects.append(e)
     
-    return render_to_response('webemdb/index.html', {'projects': projects, 'entryCount': len(entryIds)})
+    return render_to_response('webemdb/index.html', {'projects': projects, 'entryCount': len(entryIds), 'randomIds': randomIds})
 
 
 def resolutionByAuthor (request, min=0, max=100):
@@ -762,12 +772,13 @@ def resolutionByAuthor (request, min=0, max=100):
     for p in projects:
         entryId = p.getName().getValue()
         desc = p.getDescription().getValue()
+        title, sample = desc.split("\n")
         print "Project", entryId
         for a in p.copyAnnotationLinks():
             print "Annotation", a.id.val
             r = a.child.getDoubleValue().getValue()
             break
-        resData.append({"entryId":entryId, "desc": desc, "resolution": r})
+        resData.append({"entryId":entryId, "title": title, "resolution": r, "sample": sample})
     
     resData.sort(key=lambda p: p['resolution'])
     
@@ -817,9 +828,11 @@ def getEntriesByPub (request, publicationId):
     for p in projects:
         entryId = p.getName().getValue()
         desc = p.getDescription().getValue()
-        pData[entryId] = desc
+        title, sample = desc.split("\n")
+        pData[entryId] = sample
     
     return HttpResponse(simplejson.dumps(pData), mimetype='application/javascript')
+    
     
 def getConnection(request):
     #print request.session.session_key

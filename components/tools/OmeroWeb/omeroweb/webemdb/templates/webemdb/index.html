@@ -4,6 +4,12 @@
 
 {% block link %}
 <link rel="stylesheet" href="{% url webemdb 'css/index.css' %}" type="text/css" />
+<style type="text/css">
+.randomGifs {
+    text-align:center;
+}
+</style>
+
 {% endblock %}
 
 {% block content %}
@@ -13,11 +19,22 @@
     
     Total EMDB entries: {{ entryCount }} <br>
     Most recent entries:
-    <ul>
+    <table>
         {% for p in projects %}
-          <li><a href="{% url webemdb.views.entry p.getName %}">{{ p.getName }}</a> {{ p.description }}</li>
+            <tr><td><a href="{% url webemdb.views.entry p.id %}">
+                    <img src="{% url webemdb_gif p.id %}" border='0' class="previewGif" />
+                </a></td>
+                <td><a href="{% url webemdb.views.entry p.id %}">{{ p.id }}</a> {{ p.title }} </td>
+                <td> {{ p.sample }} </td>
         {% endfor %}
-    </ul>
+    </table>
+    
+    <div class="randomGifs">
+        {% for rnd in randomIds %}
+            <a href="{% url webemdb.views.entry rnd %}">
+                <img src="{% url webemdb_gif rnd %}" border='0' class="previewGif" />
+            </a>
+        {% endfor %}
     </div>
 
 {% endblock %}

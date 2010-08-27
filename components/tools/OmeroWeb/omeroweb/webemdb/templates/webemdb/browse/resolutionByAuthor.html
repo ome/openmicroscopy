@@ -22,6 +22,7 @@
             <th>entry</th>
             <th>title</th>
             <th>resolution</th>
+            <th>sample</td>
         </tr>
         </thead>
         <tbody>
@@ -36,8 +37,9 @@
                 </a>
             </td>
           <td><a href="{% url webemdb_entry r.entryId %}">{{ r.entryId }}</a></td>
-          <td>{{ r.desc }}</td>
+          <td>{{ r.title }}</td>
           <td>{{ r.resolution }}</td>
+          <td>{{ r.sample }}</td>
       </tr>
     {% endfor %}
         </tbody>
