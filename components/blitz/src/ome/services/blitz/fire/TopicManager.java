@@ -69,14 +69,15 @@ public interface TopicManager extends ApplicationListener {
         public void onApplicationEvent(ApplicationEvent event) {
             if (event instanceof TopicMessage) {
 
-                IceStorm.TopicManagerPrx topicManager = managerOrNull();
-                if (topicManager == null) {
-                    log.warn("No topic manager");
-                    return; // EARLY EXIT
-                }
-
                 TopicMessage msg = (TopicMessage) event;
                 try {
+
+                    IceStorm.TopicManagerPrx topicManager = managerOrNull();
+                    if (topicManager == null) {
+                        log.warn("No topic manager");
+                        return; // EARLY EXIT
+                    }
+
                     Ice.ObjectPrx obj = publisherOrNull(msg.topic);
                     msg.base.__copyFrom(obj);
                     Method m = null;
@@ -102,6 +103,9 @@ public interface TopicManager extends ApplicationListener {
                     } else {
                         m.invoke(msg.base, msg.args);
                     }
+                } catch (Ice.NoEndpointException nee) {
+                    // Most likely caused during testing.
+                    log.debug("Ice.NoEndpointException");
                 } catch (Exception e) {
                     log.error("Error publishing to topic:" + msg.topic, e);
                 }
@@ -175,6 +179,9 @@ public interface TopicManager extends ApplicationListener {
             } catch (Ice.CommunicatorDestroyedException cde) {
                 // Nothing we can do. Return null;
                 return null;
+            } catch (Ice.NoEndpointException nee) {
+                // Most likely caused during testing.
+                log.debug("Ice.NoEndpointException");
             } catch (Exception e) {
                 log.warn("Error querying for topic manager", e);
             }
