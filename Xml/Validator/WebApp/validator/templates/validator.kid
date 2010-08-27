@@ -14,7 +14,7 @@
 		<br/>
 		<div><form action="upload" method="post" enctype="multipart/form-data" id="validator">
 			<label>Choose the file you would like validated (OME, TIFF, XML files only).</label><br/><br/>
-			<label for="upload_file">Local file:</label>
+			<label for="upload_file">Local file (max 500 MB):</label>
 			<input type="file" name="upload_file" id="upload_file"/> 
 			<input type="submit" name="submit_upload" value="Upload"/>
 			<div><br/>Files are removed from the server at the end of the session.</div>
