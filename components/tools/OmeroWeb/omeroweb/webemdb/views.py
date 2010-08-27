@@ -750,17 +750,29 @@ def index (request):
     return render_to_response('webemdb/index.html', {'projects': projects, 'entryCount': len(entryIds), 'randomIds': randomIds})
 
 
-def resolutionByAuthor (request, min=0, max=100):
+def entries (request):
     
     conn = getConnection(request)
     qs = conn.getQueryService()
+    
+    sortBy = request.REQUEST.get('sort', 'resolution')
+    if sortBy == 'resolution':
+        order = "a.doubleValue"
+    elif sortBy == 'title':
+        order = "p.description"
+    elif sortBy == 'entry':
+        order = "p.name"
+        
+    desc = ""
+    if "reverse" == request.REQUEST.get('order'):
+        desc = "desc"
     
     namespace = RESOLUTION_NAMESPACE
     query = "select p from Project as p " \
                     "left outer join fetch p.annotationLinks as a_link " \
                     "left outer join fetch a_link.child as a " \
-                    "where a.ns='%s' and a.doubleValue >= %s and a.doubleValue <= %s" % (namespace, min, max)
-    #query = "select a from Annotation a where a.ns='%s' and a.doubleValue >= %s and a.doubleValue <= %s" % (namespace, min, max)
+                    "where a.ns='%s' order by %s %s" % (namespace, order, desc)
+                    #and a.doubleValue >= %s and a.doubleValue <= %s 
     print query
     projects = qs.findAllByQuery(query, None)
     #res = qs.findAllByQuery("select a from DoubleAnnotation a", None)
@@ -780,9 +792,9 @@ def resolutionByAuthor (request, min=0, max=100):
             break
         resData.append({"entryId":entryId, "title": title, "resolution": r, "sample": sample})
     
-    resData.sort(key=lambda p: p['resolution'])
+    #resData.sort(key=lambda p: p['resolution'])
     
-    return render_to_response('webemdb/browse/resolutionByAuthor.html', {'resolutions': resData})
+    return render_to_response('webemdb/browse/resolutionByAuthor.html', {'resolutions': resData, 'sorted': sortBy})
     
 
 def publications (request):

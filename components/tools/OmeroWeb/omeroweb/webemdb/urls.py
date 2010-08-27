@@ -44,7 +44,7 @@ urlpatterns = patterns('',
     # browse by annotations. E.g. publications
     url( r'^publications/$', views.publications, name='webemdb_publications' ),
     url( r'^getEntriesByPub/(?P<publicationId>[0-9]+)/$', views.getEntriesByPub, name='webemdb_getEntriesByPub' ),
-    url( r'^resolutionByAuthor/(?P<min>[0-9]+)/(?P<max>[0-9]+)/$', views.resolutionByAuthor, name='webemdb_resolutionByAuthor' ),
+    url( r'^entries/$', views.entries, name='webemdb_entries' ),
     
     # view an EMAN2 filter on an image
     url( r'^eman2_filter/(?P<imageId>[0-9]+)/fft/$', views.eman, {"filter": "fft"}, name='webemdb_eman_fft' ),
