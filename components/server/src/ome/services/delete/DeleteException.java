@@ -25,7 +25,18 @@ public class DeleteException extends Exception {
 
     public final String message;
 
-    public DeleteException(String msg) {
+    public final boolean cancel;
+
+    public DeleteException(boolean cancel, String msg) {
+        this.cancel = cancel;
         this.message = msg;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(super.toString());
+        sb.append("(cancel=" + cancel + ", message=" + message);
+        return sb.toString();
     }
 }

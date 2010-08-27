@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
+import ome.conditions.InternalException;
 import ome.services.delete.DeleteException;
 import ome.services.delete.DeleteSpec;
 import ome.services.delete.DeleteSpecFactory;
@@ -158,25 +159,27 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                 Report report = new Report();
                 reports.put(idx, report);
 
-                DeleteCommand command = commands[i];
-                if (command == null) {
+                report.command = commands[i];
+                if (report.command == null) {
                     report.error = "Command is null";
                     continue;
                 }
-                report.command = command;
 
-                DeleteSpec spec = null;
                 try {
-                    spec = factory.get(command.type);
+                    report.spec = factory.get(report.command.type);
+                    if (report.spec == null) {
+                        throw new NullPointerException(); // handled in catch
+                    }
                 } catch (Exception e) {
-                    report.error = ("Specification not found: " + command.type);
+                    report.error = ("Specification not found: " + report.command.type);
                     continue;
                 }
-                report.spec = spec;
 
                 try {
-                    report.steps = report.spec.initialize(command.id,
-                            command.options);
+                    report.steps = report.spec.initialize(
+                            report.command.id,
+                            null,
+                            report.command.options);
                     report.stepStarts = new long[report.steps];
                     report.stepStops = new long[report.steps];
                 } catch (DeleteException de) {
@@ -322,6 +325,7 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                     doRun(session);
                 } catch (Cancel c) {
                     state.set(State.CANCELLED);
+                    throw c;
                 }
                 return null;
             }
@@ -354,14 +358,24 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
             try {
 
                 if (!state.compareAndSet(State.READY, State.RUNNING)) {
-                    throw new Cancel();
+                    throw new Cancel("Not ready");
                 }
 
                 report.spec.delete(session, j);
             } catch (DeleteException de) {
                 report.error = de.message;
+                if (de.cancel) {
+                    Cancel cancel = new Cancel("Cancelled by DeleteException");
+                    cancel.initCause(de);
+                    throw cancel;
+                }
             } catch (Throwable t) {
-                report.error = ("InternalException:" + t);
+                String msg = "Failure during DeleteHandle.steps :";
+                report.error = (msg + t);
+                log.error(msg, t);
+                Cancel cancel = new Cancel("Cancelled by " + t.getClass().getName());
+                cancel.initCause(t);
+                throw cancel;
             } finally {
                 report.stepStops[j] = System.currentTimeMillis();
                 // If cancel was thrown, then this value will be overwritten
@@ -376,7 +390,10 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
      * Signals that {@link DeleteHandleI#run()} has noticed that
      * {@link DeleteHandleI#state} wants a cancallation.
      */
-    private static class Cancel extends Exception {
+    private static class Cancel extends InternalException {
+        public Cancel(String message) {
+            super(message);
+        }
 
     };
 }

@@ -26,10 +26,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.EntityMode;
 import org.hibernate.SessionFactory;
+import org.hibernate.engine.SessionFactoryImplementor;
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.persister.entity.EntityPersister;
+import org.hibernate.type.CollectionType;
 import org.hibernate.type.ComponentType;
 import org.hibernate.type.EmbeddedComponentType;
+import org.hibernate.type.EntityType;
 import org.hibernate.type.Type;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
@@ -61,6 +64,8 @@ public class ExtendedMetadata implements ApplicationListener {
     private final Map<String, Class<IObject>> targetHolder = new HashMap<String, Class<IObject>>();
 
     private final Set<Class<IAnnotated>> annotationTypes = new HashSet<Class<IAnnotated>>();
+
+    private final Map<String, Map<String, String>> relationships = new HashMap<String, Map<String, String>>();
 
     private boolean initialized = false;
 
@@ -110,6 +115,7 @@ public class ExtendedMetadata implements ApplicationListener {
 
         log.info("Calculating ExtendedMetadata...");
 
+        SessionFactoryImplementor sfi = (SessionFactoryImplementor) sessionFactory;
         Map<String, ClassMetadata> m = sessionFactory.getAllClassMetadata();
 
         // do Locks() first because they are used during the
@@ -129,6 +135,20 @@ public class ExtendedMetadata implements ApplicationListener {
             immutablesHolder.put(key, new Immutables(cm));
         }
 
+        for (String key : m.keySet()) {
+            Map<String, String> value = new HashMap<String, String>();
+            Locks locks = locksHolder.get(key);
+            locks.fillRelationships(sfi, value);
+            // FIXME: using simple name rather than FQN
+            Map<String, String> value2 = new HashMap<String, String>();
+            for (Map.Entry<String, String> i : value.entrySet()) {
+                String k = i.getKey();
+                k = k.substring(k.lastIndexOf(".")+1);
+                value2.put(k, i.getValue());
+            }
+            relationships.put(key.substring(key.lastIndexOf(".")+1), value2);
+        }
+
         Set<Class<IAnnotated>> anns = new HashSet<Class<IAnnotated>>();
         for (String key : m.keySet()) {
             ClassMetadata cm = m.get(key);
@@ -144,6 +164,19 @@ public class ExtendedMetadata implements ApplicationListener {
         }
         annotationTypes.addAll(anns);
         initialized = true;
+    }
+
+    /**
+     * Walks both the {@link #locksHolder} and the {@link #lockedByHolder} data
+     * for "from" argument to see if there is any direct relationship to th
+     * "to" argument. If there is, the name will be returned. Otherwise, null.
+     */
+    public String getRelationship(String from, String to) {
+        Map<String, String> m = relationships.get(from);
+        if (m != null) {
+            return m.get(to);
+        }
+        return null;
     }
 
     /**
@@ -428,6 +461,40 @@ class Locks {
 
     // ~ Main method
     // =========================================================================
+
+    public void fillRelationships(SessionFactoryImplementor sfi,
+            Map<String, String> value) {
+
+        final Type[] types = cm.getPropertyTypes();
+        for (int t = 0; t < types.length; t++) {
+
+            final Type type = types[t];
+            final String name = type.getName();
+
+            if (type instanceof EntityType) {
+                final EntityType entType = (EntityType) type;
+                final String to = entType.getAssociatedEntityName();
+
+                value.put(to, cm.getPropertyNames()[t]);
+
+            } else if (types[t] instanceof CollectionType) {
+                final CollectionType colType = (CollectionType)types[t];
+                final Type elemType = colType.getElementType(sfi);
+                if (!elemType.isEntityType()) {
+                    continue; // The case for count maps and other primitives.
+                }
+                final String to = elemType.getName();
+
+                int open = name.indexOf("(");
+                int close = name.lastIndexOf(")");
+                String role = name.substring(open + 1, close);
+                int dot = role.lastIndexOf(".");
+                String field = role.substring(dot+1);
+
+                value.put(to, field);
+            }
+        }
+    }
 
     public IObject[] getLockCandidates(IObject o) {
         int idx = 0;

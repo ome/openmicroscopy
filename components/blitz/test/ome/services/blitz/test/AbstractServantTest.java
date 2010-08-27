@@ -11,9 +11,7 @@ import java.util.List;
 import junit.framework.TestCase;
 import ome.formats.MockedOMEROImportFixture;
 import ome.logic.HardWiredInterceptor;
-import ome.model.core.Image;
 import ome.security.SecuritySystem;
-import ome.security.basic.CurrentDetails;
 import ome.services.blitz.fire.AopContextInitializer;
 import ome.services.blitz.impl.AbstractAmdServant;
 import ome.services.blitz.impl.AdminI;
@@ -24,12 +22,13 @@ import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.blitz.impl.UpdateI;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.sessions.SessionManager;
-import ome.services.throttling.InThreadThrottlingStrategy;
 import ome.system.OmeroContext;
 import ome.system.ServiceFactory;
 import ome.testing.InterceptingServiceFactory;
+import omero.RType;
 import omero.api.AMD_IAdmin_getEventContext;
 import omero.api.AMD_IQuery_findAllByQuery;
+import omero.api.AMD_IQuery_projection;
 import omero.api.AMD_IUpdate_saveAndReturnObject;
 import omero.model.IObject;
 import omero.model.Pixels;
@@ -148,6 +147,12 @@ public abstract class AbstractServantTest extends TestCase {
     }
 
     @SuppressWarnings("unchecked")
+    protected List<List<RType>> assertProjection(String q, omero.sys.Parameters p)
+            throws Exception {
+        return assertProjection(user_query, q, p);
+    }
+
+    @SuppressWarnings("unchecked")
     protected List<IObject> assertFindByQuery(QueryI query, String q,
             omero.sys.Parameters p) throws Exception {
 
@@ -171,6 +176,26 @@ public abstract class AbstractServantTest extends TestCase {
             assertTrue(status[0]);
         }
         return rv[0];
+    }
+
+    @SuppressWarnings("unchecked")
+    protected List<List<RType>> assertProjection(QueryI query, String q,
+            omero.sys.Parameters p) throws Exception {
+
+        final RV rv = new RV();
+        query.projection_async(new AMD_IQuery_projection() {
+
+            public void ice_exception(Exception exc) {
+                rv.ex = exc;
+            }
+
+            @SuppressWarnings("rawtypes")
+            public void ice_response(List __ret) {
+                rv.rv = __ret;
+            }
+        }, q, p, current("projection"));
+        rv.assertPassed();
+        return (List<List<RType>>) rv.rv;
     }
 
     protected <T extends IObject> T assertSaveAndReturn(T t) throws Exception {

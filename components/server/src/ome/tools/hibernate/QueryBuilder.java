@@ -334,6 +334,13 @@ public class QueryBuilder {
     // State methods
     // Used in case the standard workflow is not optimal
 
+    public void delete(String table) {
+        sb.append("delete ");
+        sb.append(table);
+        appendSpace();
+        skipFrom();
+    }
+
     public void skipFrom() {
         select = true;
         from = true;
@@ -362,4 +369,5 @@ public class QueryBuilder {
         }
 
     }
+
 }

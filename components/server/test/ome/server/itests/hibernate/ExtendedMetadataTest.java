@@ -43,11 +43,23 @@ public class ExtendedMetadataTest extends AbstractManagedContextTest {
     @Test
     public void testAnnotatedAreFound() throws Exception {
         Set<Class<IAnnotated>> anns = metadata.getAnnotationTypes();
+        assertTrue(anns.contains(Image.class.getSimpleName()));
+        assertTrue(anns.contains(Project.class.getSimpleName()));
+        // And several others
+    }
+
+    /**
+     * For simplicity, the relationship map currently holds only the short
+     * class names. Here we are adding a test which checks for the full ones
+     * under "broken" to remember to re-evaluate.
+     */
+    @Test(groups = {"broken","fixme"})
+    public void testAnnotatedAreFoundByFQN() throws Exception {
+        Set<Class<IAnnotated>> anns = metadata.getAnnotationTypes();
         assertTrue(anns.contains(Image.class));
         assertTrue(anns.contains(Project.class));
         // And several others
     }
-
     // ~ Locking
     // =========================================================================
 
@@ -164,6 +176,18 @@ public class ExtendedMetadataTest extends AbstractManagedContextTest {
         assertEquals(metadata.getTargetType(Pixels.IMAGE), Image.class);
         assertEquals(metadata.getTargetType(DatasetImageLink.CHILD),
                 Image.class);
+    }
+
+    // ~ Relationships
+    // =========================================================================
+
+    @Test(groups = "ticket:2665")
+    public void testRelationships() {
+        String rel;
+        rel = metadata.getRelationship(Pixels.class.getName(), Image.class.getName());
+        assertEquals("image", rel);
+        rel = metadata.getRelationship(Image.class.getName(), Pixels.class.getName());
+        assertEquals("pixels", rel);
     }
 
     // ~ Helpers

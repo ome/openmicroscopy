@@ -113,11 +113,16 @@ public class DeleteI extends AbstractAmdServant implements _IDeleteOperations,
         safeRunnableCall(__current, __cb, false, new Callable<DeleteHandlePrx>() {
             public DeleteHandlePrx call() throws Exception {
                 Ice.Identity id = sf.getIdentity("DeleteHandle");
-                DeleteHandleI handle = new DeleteHandleI(id, sf, factory, commands, cancelTimeoutMs);
-                threadPool.getExecutor().execute(handle);
+                DeleteHandleI handle = makeAndLaunchHandle(id, commands);
                 DeleteHandlePrx prx = DeleteHandlePrxHelper.
                     uncheckedCast(sf.registerServant(id, handle));
                 return prx;
             }});
+    }
+
+    public DeleteHandleI makeAndLaunchHandle(final Ice.Identity id, final DeleteCommand...commands) {
+        DeleteHandleI handle = new DeleteHandleI(id, sf, factory, commands, cancelTimeoutMs);
+        threadPool.getExecutor().execute(handle);
+        return handle;
     }
 }

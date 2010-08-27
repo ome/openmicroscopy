@@ -46,7 +46,7 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
     @Test
     public void testDeleteEntry() throws Exception {
 
-        DeleteSpec spec = new BaseDeleteSpec("/Image", "/Image", "/Image/Roi");
+        DeleteSpec spec = new BaseDeleteSpec(null, "/Image", "/Image", "/Image/Roi");
         assertValidEntry(spec, "/Image", "/Image", DEFAULT, false);
         assertValidEntry(spec, "/Image;REAP", "/Image", REAP, false);
         assertValidEntry(spec, "/Image/Roi;SOFT", "/Image/Roi", SOFT, true);
@@ -99,7 +99,7 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
                 .getBean("/Image/Roi", BaseDeleteSpec.class);
         Mock mock = mock(Session.class);
         Session session = (Session) mock.proxy();
-        roi.initialize(1, null);
+        roi.initialize(1, null, null);
         roi.delete(session, 0);
     }
 }
