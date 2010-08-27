@@ -5,17 +5,17 @@
 {% block link %}
 <link rel="stylesheet" href="{% url webemdb 'css/entry.css' %}" type="text/css" />
 <!-- for viewport -->
-<link rel="stylesheet" href="/appmedia/webgateway/css/jquery-plugin-gs_slider.css" type="text/css" media="screen"/>
-<link rel="stylesheet" href="/appmedia/webgateway/css/weblitz-viewport.css" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block jscript %}
 <script type="text/javascript" src="{% url webemdb 'javascript/entry.js' %}"></script>
-<!-- for viewport -->
-<script type="text/javascript" src="/appmedia/webgateway/js/weblitz-viewport.js"></script>
-<script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-viewportImage.js"></script>
-<script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-gs_slider.js"></script>
-<script type="text/javascript" src="/appmedia/webgateway/js/gs_utils.js"></script>
+<script type="text/javascript">
+function openPopup(url) {
+    owindow = window.open(url, 'anew', config='height=600,width=850,left=50,top=50,toolbar=no,menubar=no,scrollbars=yes,resizable=yes,location=no,directories=no,status=no');
+    if(!owindow.closed) owindow.focus();
+    return false;
+}
+</script>
 {% endblock %}
 
 {% block content %}
@@ -45,9 +45,13 @@
                 <div class="entrySubtitle">
                     <div id="entrySub">Aggregation State: <span id="aggregationState"></span></div>
                     Download: 
-                    {% if xml %}<a id="emdbxml" href="{% url webemdb_file xml.id %}">{{ xml.getFileName }}</a> {% endif %}
-                    {% if img and map %}<a id="emdbmap" href="{% url webemdb_file map.id %}">{{ map.getFileName }}</a> {% endif %}
-                    
+                    {% if xml %}<a id="emdbxml" href="{% url webemdb_file xml.id %}">{{ xml.getFileName }}</a> | {% endif %}
+                    {% if img and map %}<a id="emdbmap" href="{% url webemdb_file map.id %}">{{ map.getFileName }}</a> | {% endif %}
+                    {% if img %}
+                        <a href="#" onclick="return openPopup('{% url web_image_viewer img.id %}')">Viewer</a> |
+                        <a href="{% url webemdb_image img.id %}">Map</a> |
+                        <a href="{% url webemdb_mapmodelemdb project.name %}">Map Model</a> |
+                    {% endif %}
                     {% if data %} View: <a href="{% url webemdb_data project.name %}">Associated data</a>{% endif %}
                 </div>
             </td>

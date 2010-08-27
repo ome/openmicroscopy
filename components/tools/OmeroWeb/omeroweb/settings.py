@@ -189,6 +189,7 @@ SESSION_ENGINE = "django.contrib.sessions.backends.file"
 SESSION_FILE_PATH = tempfile.gettempdir()
 
 # Cache
+CACHE_BACKEND = 'locmem://'
 #CACHE_BACKEND = 'file:///var/tmp/django_cache'
 #CACHE_TIMEOUT = 86400
 

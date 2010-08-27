@@ -29,13 +29,18 @@ urlpatterns = patterns('',
     url( r'^data/(?P<entryId>[0-9]+)/$', views.data, name='webemdb_data' ),
     url( r'^dataset/(?P<datasetId>[0-9]+)/$', views.dataset, name='webemdb_dataset' ),
     url( r'^image/(?P<imageId>[0-9]+)/$', views.image, name='webemdb_image' ),
-    url( r'^mapmodel/(?P<imageId>[0-9]+)/$', views.mapmodel, name='webemdb_mapmodel' ),
+    url( r'^mapmodel/(?P<imageId>[0-9]+)/$', views.mapmodel, name='webemdb_mapmodel' ),     # uses OMERO Image-Id
+    url( r'^mapmodelemdb/(?P<entryId>[0-9]+)/$', views.mapmodelemdb, name='webemdb_mapmodelemdb' ), # uses EMDB entry-Id
+    url( r'^mapmodel/(?P<imageId>[0-9]+)/(?P<entryId>[0-9]+)/$', views.mapmodel, name='webemdb_mapmodel' ), # uses both Ids!
     
     # render the image as a projection jpeg, maximum-intensity (default), mean or sum. 
     url( r'^projection/(?P<imageId>[0-9]+)/$', views.projection, {"projkey": "intmax"}, name='webemdb_projection' ),
     url( r'^projection/(?P<imageId>[0-9]+)/mean/$', views.projection, {"projkey": "intmean"}, name='webemdb_meanprojection' ),
     url( r'^projection/(?P<imageId>[0-9]+)/max/$', views.projection, {"projkey": "intmax"}, name='webemdb_maxprojection' ),
     url( r'^projection/(?P<imageId>[0-9]+)/sum/$', views.projection, {"projkey": "intsum"}, name='webemdb_sumprojection' ),
+    # sum projection of x,y,z axes. Uses numpy and EMAN2
+    url( r'^projection_axis/(?P<imageId>[0-9]+)/(?P<axis>[xyz])/$', views.projection_axis, name='webemdb_projection_axis' ),
+    url( r'^slice_axis/(?P<imageId>[0-9]+)/(?P<axis>[xyz])/$', views.projection_axis, {"get_slice": True}, name='webemdb_slice_axis' ),
     
     # browse by annotations. E.g. publications
     url( r'^publications/$', views.publications, name='webemdb_publications' ),

@@ -1,9 +1,10 @@
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from django.utils import simplejson
 from django.core.servers.basehttp import FileWrapper
-from django.conf import settings 
+from django.conf import settings
+from django.core.cache import cache 
 
 from omeroweb.webgateway.views import getBlitzConnection, _session_logout
 from omeroweb.webgateway import views as webgateway_views
@@ -27,6 +28,7 @@ from django.core.servers.basehttp import FileWrapper
 
 from omero.sys import Parameters, Filter
 import omero.util.script_utils as scriptUtil
+from numpy import zeros     # numpy for doing local projections
 
 EMAN2_IMPORTED = False
 try:
@@ -285,7 +287,6 @@ def projection(request, imageId, projkey):
     
     conn = getConnection(request)
     request.REQUEST.dicts += ({'p': projkey},)
-    print type(request.REQUEST.dicts)
     
     #from django.http import QueryDict
     #q = QueryDict('', mutable=True)
@@ -294,8 +295,158 @@ def projection(request, imageId, projkey):
     
     return webgateway_views.render_image(request, imageId, 0, 0)
     
+
+def projection_axis(request, imageId, axis, get_slice=False):
     
-def mapmodel(request, imageId):
+    conn = getConnection(request)
+    import time
+
+    startTime = time.time()
+    
+    x_proj_key = "x_proj_%s" % imageId
+    y_proj_key = "y_proj_%s" % imageId
+    z_proj_key = "z_proj_%s" % imageId
+    x_slice_key = "x_slice_%s" % imageId
+    y_slice_key = "y_slice_%s" % imageId
+    z_slice_key = "z_slice_%s" % imageId
+    
+    # see if we have cached the projection we need
+    key = "%s_proj_%s" % (axis, imageId)
+    if get_slice:
+        key = "%s_slice_%s" % (axis, imageId)
+    print "\n\nchecking cache for array: %s" % key
+    print "    %s secs" % (time.time() - startTime)
+    proj = cache.get(key)
+    
+    if proj == None:
+        
+        print "creating cube of data..."
+        print "    %s secs" % (time.time() - startTime)
+        rawPixelStore = conn.createRawPixelsStore()
+        queryService = conn.getQueryService()
+
+        query_string = "select p from Pixels p join fetch p.image as i join fetch p.pixelsType where i.id='%s'" % imageId
+        pixels = queryService.findByQuery(query_string, None)
+
+        theZ, theC, theT = (0,0,0)
+        bypassOriginalFile = True
+        rawPixelStore.setPixelsId(pixels.getId().getValue(), bypassOriginalFile)
+
+        sizeX = pixels.getSizeX().getValue()
+        sizeY = pixels.getSizeY().getValue()
+        sizeZ = pixels.getSizeZ().getValue()
+        
+        # create a 3D numpy array, and populate it with data
+        cube = zeros( (sizeZ,sizeY,sizeX) )
+        theC, theT = (0,0)
+        for theZ in range(sizeZ):
+            plane2D = scriptUtil.downloadPlane(rawPixelStore, pixels, theZ, theC, theT)
+            cube[sizeZ-theZ-1] = plane2D
+            
+        # do the 3 projections and 3 central slices while we have the cube - save projections, not cube
+        print "doing projection"
+        print "    %s secs" % (time.time() - startTime)
+        
+        proj_z = zeros( (sizeX,sizeY) )
+        for z in range(sizeZ):
+            zPlane = cube[z, :, :]
+            proj_z += zPlane
+        slice_z = cube[sizeZ/2, :, :]
+        
+        proj_x = zeros( (sizeZ,sizeY) )
+        for x in range(sizeX):
+            xPlane = cube[:, :, x]
+            proj_x += xPlane
+        slice_x = cube[:, :, sizeX/2]
+        
+        proj_y = zeros( (sizeZ,sizeX) )
+        for y in range(sizeY):
+            yPlane = cube[:, y, :]
+            proj_y += yPlane
+        slice_y = cube[:, sizeY/2, :]
+            
+        print "setting cache"
+        print "    %s secs" % (time.time() - startTime)
+        # save arrays to cache
+        cache.set(x_proj_key, proj_x)
+        cache.set(x_slice_key, slice_x)
+        cache.set(y_proj_key, proj_y)
+        cache.set(y_slice_key, slice_y)
+        cache.set(z_proj_key, proj_z)
+        cache.set(z_slice_key, slice_z)
+    
+        if axis == "z":
+            if get_slice:
+                proj = slice_z
+            else:
+                proj = proj_z
+
+        elif axis == "x":
+            if get_slice:
+                proj = slice_x
+            else:
+                proj = proj_x
+
+        elif axis == "y":
+            if get_slice:
+                proj = slice_y
+            else:
+                proj = proj_y
+    
+    print "got 2D plane...", proj.shape
+    print "    %s secs" % (time.time() - startTime)
+        
+    tempdir = settings.FILE_UPLOAD_TEMP_DIR
+    tempJpg = os.path.join(tempdir, ('%s.projection.jpg' % (conn._sessionUuid))).replace('\\','/')
+    
+    #import matplotlib.pyplot as plt
+    #plt.savefig(tempJpg)
+    
+    #import scipy
+    #scipy.misc.imsave(tempJpg, proj)
+    
+    em = EMNumPy.numpy2em(proj)
+    em.write_image(tempJpg)
+    
+    originalFile_data = FileWrapper(file(tempJpg))
+    rsp = HttpResponse(originalFile_data)
+    rsp['Content-Type'] = "image/jpg"
+    
+    return rsp
+    
+    
+def mapmodelemdb(request, entryId):
+    """ 
+    We need to work out the OMERO imageId for the emd_map for this entryId, then call mapmodel().
+    Do this via project, named entryId etc...
+    """
+    conn = getConnection(request)
+    
+    entryName = str(entryId)
+    project = conn.findProject(entryName)
+    
+    if project == None:
+        raise Http404
+        
+    # find the mrc map image. E.g emd_1003.map In a dataset named same as project E.g. 1003
+    imageMap = get_entry_map(project)
+    return mapmodel(request, imageMap.getId(), entryId)
+    
+    
+def get_entry_map(project):
+    """
+    For a project, named by entryId (E.g. "1003") this returns the image named "emd_1003.map" in a dataset named "1003"
+    """
+    entryName = project.getName()
+    imgName = "emd_%s.map" % entryName
+    for d in project.listChildren():
+        if d.getName() == entryName:
+            for i in d.listChildren():
+                if i.getName() == imgName:
+                    return i
+               
+                    
+def mapmodel(request, imageId, entryId=None):
     """
        Shows an image projections, slices etc. 
     """
@@ -304,9 +455,11 @@ def mapmodel(request, imageId):
     
     image = conn.getImage(imageId)
     
+    print dir(image)
+    
     z = image.z_count()/2
     
-    return render_to_response('webemdb/data/mapmodel.html', {'image': image, 'z':z})
+    return render_to_response('webemdb/data/mapmodel.html', {'image': image, 'z':z, 'entryId': entryId})
     
 
 def image(request, imageId):
@@ -404,23 +557,20 @@ def entry (request, entryId):
         return render_to_response('webemdb/entries/entry.html', {'project':project})
         
     # find the mrc map image. E.g emd_1003.map In a dataset named same as project E.g. 1003
-    img = None
+    img = get_entry_map(project)
     mrcMap = None
     smallMap = None
     namespace = omero.constants.namespaces.NSCOMPANIONFILE 
-    imgName = "emd_%s.map" % entryName
     smallMapName = "small_%s.map" % entryName
-    for d in project.listChildren():
-        if d.getName() == entryName:
-            for i in d.listChildren():
-                if i.getName() == imgName:
-                    img = i
-                    for a in img.listAnnotations():
-                        if imgName == a.getFileName() and a.getNs() == namespace:
-                            mrcMap = a
-                        elif smallMapName == a.getFileName():
-                            smallMap = a
-                    break
+    imgName = img.getName()
+    if img:
+        for a in img.listAnnotations():
+            if imgName == a.getFileName() and a.getNs() == namespace:
+                mrcMap = a
+                break
+            elif smallMapName == a.getFileName():
+                smallMap = a
+                break
     
     xml = None
     gif = None
