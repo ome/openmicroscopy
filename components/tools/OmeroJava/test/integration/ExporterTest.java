@@ -9,6 +9,9 @@ package integration;
 
 //Java imports
 //Third-party libraries
+import java.util.Iterator;
+import java.util.List;
+
 import org.testng.annotations.Test;
 
 //Application-internal dependencies
@@ -16,11 +19,15 @@ import omero.api.ExporterPrx;
 import omero.api.RawFileStorePrx;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
+import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLinkI;
+import omero.model.ImageI;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
+import omero.model.PixelsI;
 import omero.model.PixelsOriginalFileMapI;
+import omero.model.PixelsType;
 import omero.sys.ParametersI;
 
 /** 
@@ -52,10 +59,9 @@ public class ExporterTest
     	throws Exception 
     {
     	//First create an image
-    	Image image = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
-    	Pixels pixels = createPixels();
-    	image.addPixels(pixels);
+    	Image image = mmFactory.createImage();
     	image = (Image) iUpdate.saveAndReturnObject(image);
+    	Pixels pixels = image.getPrimaryPixels();
     	
     	//Need to have an annotation otherwise does not work
     	FileAnnotationI fa = new FileAnnotationI();
@@ -63,10 +69,9 @@ public class ExporterTest
     	FileAnnotation a = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
     	ImageAnnotationLinkI l = new ImageAnnotationLinkI();
     	l.setChild(a);
-    	l.setParent(image);
+    	l.setParent(new ImageI(image.getId().getValue(), false));
     	iUpdate.saveAndReturnObject(l);
-    	pixels = image.getPrimaryPixels();
-    	OriginalFile f = createOriginalFile();
+    	OriginalFile f = mmFactory.createOriginalFile();
     	f = (OriginalFile) iUpdate.saveAndReturnObject(f);
     	
     	RawFileStorePrx svc = factory.createRawFileStore();
@@ -79,18 +84,12 @@ public class ExporterTest
     	param.addId(f.getId().getValue());
     	f = (OriginalFile) iQuery.findByQuery(
     			"select i from OriginalFile i where i.id = :id", param);
-    	param = new ParametersI();
-    	param.addId(pixels.getId().getValue());
-    	pixels = (Pixels) iQuery.findByQuery(
-    			"select i from Pixels i where i.id = :id", param);
     	//upload file, method tested in RawFileStore
     	
     	PixelsOriginalFileMapI m = new PixelsOriginalFileMapI();
-    	m.setChild(pixels);
+    	m.setChild(new PixelsI(pixels.getId().getValue(), false));
     	m.setParent(f);
     	m = (PixelsOriginalFileMapI) iUpdate.saveAndReturnObject(m);
-    	
-    	image = m.getChild().getImage();
     	
     	//now export
     	ExporterPrx exporter = factory.createExporter();

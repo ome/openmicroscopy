@@ -45,7 +45,7 @@ public class RawFileStoreTest
     {
     	RawFileStorePrx svc = factory.createRawFileStore();
     	//create an original file
-    	OriginalFile f = createOriginalFile();
+    	OriginalFile f = mmFactory.createOriginalFile();
     	f = (OriginalFile) iUpdate.saveAndReturnObject(f);
     	svc.setFileId(f.getId().getValue());
     	byte[] data = new byte[]{1};
@@ -68,7 +68,7 @@ public class RawFileStoreTest
     	//first write the file. See 
     	RawFileStorePrx svc = factory.createRawFileStore();
     	//create an original file
-    	OriginalFile f = createOriginalFile();
+    	OriginalFile f = mmFactory.createOriginalFile();
     	f = (OriginalFile) iUpdate.saveAndReturnObject(f);
     	svc.setFileId(f.getId().getValue());
     	byte[] data = new byte[]{1};

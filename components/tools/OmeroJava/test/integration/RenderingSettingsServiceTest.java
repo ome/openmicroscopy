@@ -86,7 +86,8 @@ public class RenderingSettingsServiceTest
     public void testResetDefaultInSetForPixels() 
     	throws Exception 
     {
-    	Image image = createImage();
+    	Image image = mmFactory.createImage();
+    	image = (Image) iUpdate.saveAndReturnObject(image);
     	Pixels pixels = image.getPrimaryPixels();
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	//Pixels first
@@ -121,7 +122,8 @@ public class RenderingSettingsServiceTest
     public void testResetDefaultInSetForImage() 
     	throws Exception 
     {
-    	Image image = createImage();
+    	Image image = mmFactory.createImage();
+    	image = (Image) iUpdate.saveAndReturnObject(image);
     	Pixels pixels = image.getPrimaryPixels();
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	//Image
@@ -147,12 +149,13 @@ public class RenderingSettingsServiceTest
     public void testResetDefaultInSetForDataset() 
     	throws Exception 
     {
-    	Image image = createImage();
+    	Image image = mmFactory.createImage();
+    	image = (Image) iUpdate.saveAndReturnObject(image);
     	Pixels pixels = image.getPrimaryPixels();
     	
     	//create a dataset
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
-    			simpleDatasetData().asIObject());
+    			mmFactory.simpleDatasetData().asIObject());
     	DatasetImageLink l = new DatasetImageLinkI();
     	l.setChild(image);
     	l.setParent(d);
@@ -184,19 +187,16 @@ public class RenderingSettingsServiceTest
     {
     	//create a project.
     	Project p = (Project) iUpdate.saveAndReturnObject(
-    			simpleProjectData().asIObject());
+    			mmFactory.simpleProjectData().asIObject());
     	//create a dataset
 
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
-    			simpleDatasetData().asIObject());
+    			mmFactory.simpleDatasetData().asIObject());
     	
-    	
-
-    	Image image = createImage();
+    	Image image = mmFactory.createImage();
+    	image = (Image) iUpdate.saveAndReturnObject(image);
     	Pixels pixels = image.getPrimaryPixels();
     	
-    	
-        
         ProjectDatasetLink link = new ProjectDatasetLinkI();
         link.link(p, d);
     	link = (ProjectDatasetLink) iUpdate.saveAndReturnObject(link);
@@ -250,8 +250,8 @@ public class RenderingSettingsServiceTest
     	throws Exception 
     {
     	Screen screen = (Screen) iUpdate.saveAndReturnObject(
-    			simpleScreenData().asIObject());
-    	Plate p = createPlate(1, 1, 1, false, true);
+    			mmFactory.simpleScreenData().asIObject());
+    	Plate p = mmFactory.createPlate(1, 1, 1, false, true);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	
     	ScreenPlateLink link = new ScreenPlateLinkI();
@@ -291,7 +291,7 @@ public class RenderingSettingsServiceTest
     {
     	//create a dataset
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
-    			simpleDatasetData().asIObject());
+    			mmFactory.simpleDatasetData().asIObject());
     	
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	//Dataset
@@ -312,7 +312,8 @@ public class RenderingSettingsServiceTest
     	throws Exception 
     {
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-    	Image image = createImage();
+    	Image image = mmFactory.createImage();
+    	image = (Image) iUpdate.saveAndReturnObject(image);
     	Pixels pixels = image.getPrimaryPixels();
     	long id = pixels.getId().getValue();
     	//Image
@@ -324,7 +325,8 @@ public class RenderingSettingsServiceTest
     	//method already tested 
     	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
     	//Create a second image.
-    	Image image2 = createImage();
+    	Image image2 = mmFactory.createImage();
+    	image2 = (Image) iUpdate.saveAndReturnObject(image2);
     	ids = new ArrayList<Long>();
     	ids.add(image2.getId().getValue());
     	Map<Boolean, List<Long>> m = 
@@ -354,7 +356,8 @@ public class RenderingSettingsServiceTest
     	throws Exception 
     {
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-    	Image image = createImage();
+    	Image image = mmFactory.createImage();
+    	image = (Image) iUpdate.saveAndReturnObject(image);
     	Pixels pixels = image.getPrimaryPixels();
     	long id = pixels.getId().getValue();
     	//Image
@@ -366,11 +369,13 @@ public class RenderingSettingsServiceTest
     	//method already tested 
     	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
     	//Create a second image.
-    	Image image2 = createImage();
+    	Image image2 = mmFactory.createImage();
+
+    	image2 = (Image) iUpdate.saveAndReturnObject(image2);
     	//Create a dataset
     	
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
-    			simpleDatasetData().asIObject());
+    			mmFactory.simpleDatasetData().asIObject());
     	DatasetImageLink l = new DatasetImageLinkI();
     	l.setChild(image2);
     	l.setParent(d);
@@ -404,7 +409,8 @@ public class RenderingSettingsServiceTest
     	throws Exception 
     {
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-    	Image image = createImage();
+    	Image image = mmFactory.createImage();
+    	image = (Image) iUpdate.saveAndReturnObject(image);
     	Pixels pixels = image.getPrimaryPixels();
     	long id = pixels.getId().getValue();
     	//Image
@@ -415,7 +421,7 @@ public class RenderingSettingsServiceTest
     	 
     	//create a dataset
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
-    			simpleDatasetData().asIObject());
+    			mmFactory.simpleDatasetData().asIObject());
     	
     	//Dataset
     	ids = new ArrayList<Long>();
@@ -441,7 +447,9 @@ public class RenderingSettingsServiceTest
     	throws Exception 
     {
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-    	Image image = createImage();
+    	Image image = mmFactory.createImage();
+
+    	image = (Image) iUpdate.saveAndReturnObject(image);
     	Pixels pixels = image.getPrimaryPixels();
     	long id = pixels.getId().getValue();
     	//Image
@@ -453,14 +461,16 @@ public class RenderingSettingsServiceTest
     	//method already tested 
     	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
     	//Create a second image.
-    	Image image2 = createImage();
+    	Image image2 = mmFactory.createImage();
+
+    	image2 = (Image) iUpdate.saveAndReturnObject(image2);
     	//Create a dataset
     	//Link image and dataset
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
-    			simpleDatasetData().asIObject());
+    			mmFactory.simpleDatasetData().asIObject());
     	
     	Project project = (Project) iUpdate.saveAndReturnObject(
-    			simpleProjectData().asIObject());
+    			mmFactory.simpleProjectData().asIObject());
     	
     	ProjectDatasetLink pLink = new ProjectDatasetLinkI();
     	pLink.link(project, d);
@@ -497,7 +507,7 @@ public class RenderingSettingsServiceTest
     public void testApplySettingsToSetForPlate() 
     	throws Exception 
     {
-    	Plate p = createPlate(1, 1, 1, false, true);
+    	Plate p = mmFactory.createPlate(1, 1, 1, false, true);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	//load the well
     	List<IObject> results = loadWells(p.getId().getValue());
@@ -519,7 +529,7 @@ public class RenderingSettingsServiceTest
     	
     	
     	//Create a second plate
-    	p = createPlate(1, 1, 1, false, true);
+    	p = mmFactory.createPlate(1, 1, 1, false, true);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	results = loadWells(p.getId().getValue());
     	well = (Well) results.get(0);
@@ -552,8 +562,8 @@ public class RenderingSettingsServiceTest
     	throws Exception 
     {
     	Screen screen = (Screen) iUpdate.saveAndReturnObject(
-    			simpleScreenData().asIObject());
-    	Plate p = createPlate(1, 1, 1, false, true);
+    			mmFactory.simpleScreenData().asIObject());
+    	Plate p = mmFactory.createPlate(1, 1, 1, false, true);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	
     	ScreenPlateLink link = new ScreenPlateLinkI();
@@ -581,7 +591,7 @@ public class RenderingSettingsServiceTest
     	
     	
     	//Create a second plate
-    	p = createPlate(1, 1, 1, false, true);
+    	p = mmFactory.createPlate(1, 1, 1, false, true);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	
     	link = new ScreenPlateLinkI();
@@ -620,7 +630,7 @@ public class RenderingSettingsServiceTest
     public void testResetDefaultInSetForPlate() 
     	throws Exception 
     {
-    	Plate p = createPlate(1, 1, 1, false, true);
+    	Plate p = mmFactory.createPlate(1, 1, 1, false, true);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	//load the well
     	List<IObject> results = loadWells(p.getId().getValue());
@@ -653,7 +663,8 @@ public class RenderingSettingsServiceTest
     	throws Exception 
     {
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-    	Image image = createImage();
+    	Image image = mmFactory.createImage();
+    	image = (Image) iUpdate.saveAndReturnObject(image);
     	Pixels pixels = image.getPrimaryPixels();
     	long id = pixels.getId().getValue();
     	//Image
@@ -704,7 +715,8 @@ public class RenderingSettingsServiceTest
     	throws Exception 
     {
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-    	Image image = createImage();
+    	Image image = mmFactory.createImage();
+    	image = (Image) iUpdate.saveAndReturnObject(image);
     	Pixels pixels = image.getPrimaryPixels();
     	long id = pixels.getId().getValue();
     	//Image
@@ -735,7 +747,7 @@ public class RenderingSettingsServiceTest
     	iUpdate.saveAndReturnArray(toUpdate);
     	//Link image and dataset
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
-    			simpleDatasetData().asIObject());
+    			mmFactory.simpleDatasetData().asIObject());
     	DatasetImageLink link = new DatasetImageLinkI();
     	link.setChild(image);
     	link.setParent(d);
@@ -763,15 +775,13 @@ public class RenderingSettingsServiceTest
     public void testResetMinMaxForSetForEmptyDataset() 
     	throws Exception 
     {
-    	/*
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
-    			simpleDatasetData().asIObject());
+    			mmFactory.simpleDatasetData().asIObject());
     	List<Long> ids = new ArrayList<Long>();
     	ids.add(d.getId().getValue());
-    	
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	List<Long> m = prx.resetMinMaxInSet(Dataset.class.getName(), ids);
-    	*/
+    	assertTrue(m.size() == 0);
     }
     
     /**
@@ -784,7 +794,8 @@ public class RenderingSettingsServiceTest
     	throws Exception 
     {
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-    	Image image = createImage();
+    	Image image = mmFactory.createImage();
+    	image = (Image) iUpdate.saveAndReturnObject(image);
     	Pixels pixels = image.getPrimaryPixels();
     	long id = pixels.getId().getValue();
     	//Image
@@ -815,10 +826,10 @@ public class RenderingSettingsServiceTest
     	iUpdate.saveAndReturnArray(toUpdate);
     	//Link image and dataset
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
-    			simpleDatasetData().asIObject());
+    			mmFactory.simpleDatasetData().asIObject());
     	
     	Project project = (Project) iUpdate.saveAndReturnObject(
-    			simpleProjectData().asIObject());
+    			mmFactory.simpleProjectData().asIObject());
     	
     	ProjectDatasetLink pLink = new ProjectDatasetLinkI();
     	pLink.link(project, d);
@@ -852,7 +863,7 @@ public class RenderingSettingsServiceTest
     public void testResetMinMaxForSetForPlate() 
     	throws Exception 
     {
-    	Plate plate = createPlate(1, 1, 1, false, true);
+    	Plate plate = mmFactory.createPlate(1, 1, 1, false, true);
     	plate = (Plate) iUpdate.saveAndReturnObject(plate);
     	//load the well
     	List<IObject> results = loadWells(plate.getId().getValue());
@@ -910,8 +921,8 @@ public class RenderingSettingsServiceTest
     	throws Exception 
     {
     	Screen screen = (Screen) iUpdate.saveAndReturnObject(
-    			simpleScreenData().asIObject());
-    	Plate plate = createPlate(1, 1, 1, false, true);
+    			mmFactory.simpleScreenData().asIObject());
+    	Plate plate = mmFactory.createPlate(1, 1, 1, false, true);
     	plate = (Plate) iUpdate.saveAndReturnObject(plate);
     	
     	ScreenPlateLink link = new ScreenPlateLinkI();

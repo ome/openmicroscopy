@@ -122,7 +122,7 @@ public class MetadataServiceTest
     	throws Exception
     {
 		OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
-				createOriginalFile());
+				mmFactory.createOriginalFile());
 		assertNotNull(of);
 		
 		FileAnnotationI fa = new FileAnnotationI();
@@ -158,7 +158,7 @@ public class MetadataServiceTest
     	throws Exception
     {
 		OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
-				createOriginalFile());
+				mmFactory.createOriginalFile());
 		assertNotNull(of);
 
 		FileAnnotationI fa = new FileAnnotationI();
@@ -167,7 +167,8 @@ public class MetadataServiceTest
 		assertNotNull(data);
 		//link the image 
 		  //create an image and link the annotation
-        Image image = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
+        Image image = (Image) iUpdate.saveAndReturnObject(
+        		mmFactory.simpleImage(0));
         ImageAnnotationLinkI link = new ImageAnnotationLinkI();
         link.setParent(image);
         link.setChild(data);
@@ -209,7 +210,7 @@ public class MetadataServiceTest
     	throws Exception
     {
 		OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
-				createOriginalFile());
+				mmFactory.createOriginalFile());
 		assertNotNull(of);
 
 		FileAnnotationI fa = new FileAnnotationI();
@@ -252,7 +253,7 @@ public class MetadataServiceTest
     	throws Exception
     {
 		OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
-				createOriginalFile());
+				mmFactory.createOriginalFile());
 		assertNotNull(of);
 
 		String ns = "include";
@@ -522,7 +523,7 @@ public class MetadataServiceTest
         f = client.createSession(uuid, uuid);
         //Create an image.
         Image img = (Image) f.getUpdateService().saveAndReturnObject(
-        		simpleImage(0));
+        		mmFactory.simpleImage(0));
         //Link the tag and the image.
         ImageAnnotationLinkI link = new ImageAnnotationLinkI();
         link.setChild((Annotation) tagData);
@@ -561,7 +562,8 @@ public class MetadataServiceTest
     	TagAnnotation tag = new TagAnnotationI();
         tag.setTextValue(omero.rtypes.rstring("tag1"));
         Annotation tagData = (Annotation) iUpdate.saveAndReturnObject(tag);
-        Image img = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
+        Image img = (Image) iUpdate.saveAndReturnObject(
+        		mmFactory.simpleImage(0));
         //Link the tag and the image.
         ImageAnnotationLinkI link = new ImageAnnotationLinkI();
         link.setChild(tagData);
@@ -569,14 +571,14 @@ public class MetadataServiceTest
         iUpdate.saveAndReturnObject(link);
         
         Project pData = (Project) iUpdate.saveAndReturnObject(
-        		simpleProjectData().asIObject());
+        		mmFactory.simpleProjectData().asIObject());
         ProjectAnnotationLinkI lp = new ProjectAnnotationLinkI();
         lp.setChild((Annotation) tagData.proxy());
         lp.setParent(pData);
         iUpdate.saveAndReturnObject(lp);
         
         Dataset dData = (Dataset) iUpdate.saveAndReturnObject(
-        		simpleDatasetData().asIObject());
+        		mmFactory.simpleDatasetData().asIObject());
         DatasetAnnotationLinkI dp = new DatasetAnnotationLinkI();
         dp.setChild((Annotation) tagData.proxy());
         dp.setParent(dData);
@@ -640,8 +642,9 @@ public class MetadataServiceTest
     	boolean otfFound = false;
     	Iterator<IObject> j;
     	IObject o;
-    	for (int i = 0; i < LIGHT_SOURCES.length; i++) {
-    		instrument = createInstrument(LIGHT_SOURCES[i]);
+    	for (int i = 0; i < ModelMockFactory.LIGHT_SOURCES.length; i++) {
+    		instrument = mmFactory.createInstrument(
+    				ModelMockFactory.LIGHT_SOURCES[i]);
         	instrument = (Instrument) iUpdate.saveAndReturnObject(instrument);
         	assertNotNull(instrument);
     		param = new ParametersI();
@@ -658,16 +661,20 @@ public class MetadataServiceTest
             filterSet = (FilterSet) iQuery.findByQuery(sql, param);
             sql = "select d from OTF as d where d.instrument.id = :iid";
             otf = (OTF) iQuery.findByQuery(sql, param);
-            if (LASER.equals(LIGHT_SOURCES[i])) {
+            if (ModelMockFactory.LASER.equals(
+            		ModelMockFactory.LIGHT_SOURCES[i])) {
             	sql = "select d from Laser as d where d.instrument.id = :iid";
             	laser = (Laser) iQuery.findByQuery(sql, param);
-            } else if (FILAMENT.equals(LIGHT_SOURCES[i])) {
+            } else if (ModelMockFactory.FILAMENT.equals(
+            		ModelMockFactory.LIGHT_SOURCES[i])) {
             	sql = "select d from Filament as d where d.instrument.id = :iid";
             	filament = (Filament) iQuery.findByQuery(sql, param);
-            } else if (ARC.equals(LIGHT_SOURCES[i])) {
+            } else if (ModelMockFactory.ARC.equals(
+            		ModelMockFactory.LIGHT_SOURCES[i])) {
             	sql = "select d from Arc as d where d.instrument.id = :iid";
             	arc = (Arc) iQuery.findByQuery(sql, param);
-            } else if (LIGHT_EMITTING_DIODE.equals(LIGHT_SOURCES[i])) {
+            } else if (ModelMockFactory.LIGHT_EMITTING_DIODE.equals(
+            		ModelMockFactory.LIGHT_SOURCES[i])) {
             	sql = "select d from LightEmittingDiode as d where " +
             			"d.instrument.id = :iid";
             	light = (LightEmittingDiode) iQuery.findByQuery(sql, param);
@@ -785,14 +792,16 @@ public class MetadataServiceTest
     public void testLoadChannelAcquisitionData() 
     	throws Exception
     {
-    	Image img = createImage();
+    	Image img = mmFactory.createImage();
+    	img = (Image) iUpdate.saveAndReturnObject(img);
     	Pixels pixels = img.getPrimaryPixels();
     	long pixId = pixels.getId().getValue();
     	//method already tested in PixelsServiceTest
     	//make sure objects are loaded.
     	pixels = factory.getPixelsService().retrievePixDescription(pixId);
     	//create an instrument.
-    	Instrument instrument = createInstrument(LASER);
+    	Instrument instrument = mmFactory.createInstrument(
+    			ModelMockFactory.LASER);
     	instrument = (Instrument) iUpdate.saveAndReturnObject(instrument);
     	assertNotNull(instrument);
     	//retrieve the detector.
@@ -818,10 +827,10 @@ public class MetadataServiceTest
 			channel = pixels.getChannel(i);
 			lc = channel.getLogicalChannel();
 			lc.setOtf(otf);
-	    	lc.setDetectorSettings(createDetectorSettings(detector));
+	    	lc.setDetectorSettings(mmFactory.createDetectorSettings(detector));
 	    	lc.setFilterSet(filterSet);
-	    	lc.setLightSourceSettings(createLightSettings(laser));
-	    	lc.setLightPath(createLightPath(null, dichroic, null));
+	    	lc.setLightSourceSettings(mmFactory.createLightSettings(laser));
+	    	lc.setLightPath(mmFactory.createLightPath(null, dichroic, null));
 	    	lc = (LogicalChannel) iUpdate.saveAndReturnObject(lc);
 	    	assertNotNull(lc);
 	    	ids.add(lc.getId().getValue());

@@ -54,10 +54,9 @@ public class RenderingEngineTest
 	public void testCreateRenderingEngineNoSettings()
 		throws Exception
 	{
-		Pixels pixels = createPixels();
-		Image i = pixels.getImage();
-        i = (Image) iUpdate.saveAndReturnObject(i);
-        pixels = i.getPrimaryPixels();
+		Image image = mmFactory.createImage();
+    	image = (Image) iUpdate.saveAndReturnObject(image);
+        Pixels pixels = image.getPrimaryPixels();
 		RenderingEnginePrx svc = factory.createRenderingEngine();
 		try {
 			svc.lookupPixels(pixels.getId().getValue());
@@ -77,7 +76,8 @@ public class RenderingEngineTest
 	public void testCreateRenderingEngine()
 		throws Exception
 	{
-		Image image = createImage();
+		Image image = mmFactory.createImage();
+    	image = (Image) iUpdate.saveAndReturnObject(image);
 		RenderingEnginePrx svc = factory.createRenderingEngine();
 		Pixels pixels = image.getPrimaryPixels();
 		long id = pixels.getId().getValue();
@@ -97,7 +97,8 @@ public class RenderingEngineTest
 	public void testRenderingEngineGetters()
 		throws Exception
 	{
-		Image image = createImage();
+		Image image = mmFactory.createImage();
+    	image = (Image) iUpdate.saveAndReturnObject(image);
 		RenderingEnginePrx re = factory.createRenderingEngine();
 		Pixels pixels = image.getPrimaryPixels();
 		long id = pixels.getId().getValue();
@@ -161,7 +162,8 @@ public class RenderingEngineTest
 	public void testRenderingEngineSetters()
 		throws Exception
 	{
-		Image image = createImage();
+		Image image = mmFactory.createImage();
+    	image = (Image) iUpdate.saveAndReturnObject(image);
 		RenderingEnginePrx re = factory.createRenderingEngine();
 		Pixels pixels = image.getPrimaryPixels();
 		long id = pixels.getId().getValue();
@@ -250,7 +252,8 @@ public class RenderingEngineTest
 	public void testResetDefaultsNoSave()
 		throws Exception
 	{
-		Image image = createImage();
+		Image image = mmFactory.createImage();
+    	image = (Image) iUpdate.saveAndReturnObject(image);
 		Pixels pixels = image.getPrimaryPixels();
 		long id = pixels.getId().getValue();
 		
@@ -290,7 +293,8 @@ public class RenderingEngineTest
 	public void testResetDefaults()
 		throws Exception
 	{
-		Image image = createImage();
+		Image image = mmFactory.createImage();
+    	image = (Image) iUpdate.saveAndReturnObject(image);
 		Pixels pixels = image.getPrimaryPixels();
 		long id = pixels.getId().getValue();
 		
@@ -328,7 +332,8 @@ public class RenderingEngineTest
 	public void testSaveCurrentSettings()
 		throws Exception
 	{
-		Image image = createImage();
+		Image image = mmFactory.createImage();
+    	image = (Image) iUpdate.saveAndReturnObject(image);
 		Pixels pixels = image.getPrimaryPixels();
 		long id = pixels.getId().getValue();
 		RenderingEnginePrx re = factory.createRenderingEngine();

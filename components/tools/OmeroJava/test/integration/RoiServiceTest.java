@@ -40,7 +40,8 @@ public class RoiServiceTest
     	throws Exception
     {
         IRoiPrx roiService = factory.getRoiService();
-        Image image = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
+        Image image = (Image) iUpdate.saveAndReturnObject(
+        		mmFactory.simpleImage(0));
         Roi roi = new RoiI();
         roi.setImage(image);
         Rect rect;

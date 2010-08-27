@@ -45,7 +45,8 @@ public class SearchServiceTest
 		throws Exception
 	{
 		Image p = (Image) 
-    	factory.getUpdateService().saveAndReturnObject(simpleImage(0));
+    	factory.getUpdateService().saveAndReturnObject(
+    			mmFactory.simpleImage(0));
 		String name = p.getName().getValue();
 		SearchPrx svc = factory.createSearchService();
 		svc.onlyType(Image.class.getName());
@@ -63,7 +64,8 @@ public class SearchServiceTest
 		throws Exception
 	{
 		Image p = (Image) 
-    	factory.getUpdateService().saveAndReturnObject(simpleImage(0));
+    	factory.getUpdateService().saveAndReturnObject(
+    			mmFactory.simpleImage(0));
 		String name = p.getName().getValue();
 		SearchPrx svc = factory.createSearchService();
 		svc.onlyType(Project.class.getName());

@@ -238,10 +238,12 @@ public class PixelsServiceTest
     public void testRetrievePixelsDescription() 
     	throws Exception 
     {
-    	Pixels pixels = createPixels();
-		Image i = pixels.getImage();
-        i = (Image) iUpdate.saveAndReturnObject(i);
-        pixels = i.getPrimaryPixels();
+    	Image image = mmFactory.createImage(ModelMockFactory.SIZE_X, 
+    			ModelMockFactory.SIZE_Y, ModelMockFactory.SIZE_Z,
+    			ModelMockFactory.SIZE_T, 
+    			ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
+		image = (Image) iUpdate.saveAndReturnObject(image);
+        Pixels pixels = image.getPrimaryPixels();
         long id = pixels.getId().getValue();
         Pixels p = factory.getPixelsService().retrievePixDescription(id);
         assertNotNull(p);
@@ -250,8 +252,9 @@ public class PixelsServiceTest
         assertTrue(pixels.getSizeT().getValue() == p.getSizeT().getValue());
         assertTrue(pixels.getSizeZ().getValue() == p.getSizeZ().getValue());
         assertTrue(pixels.getSizeC().getValue() == p.getSizeC().getValue());
-        assertTrue(pixels.sizeOfChannels() == DEFAULT_CHANNELS_NUMBER);
-        assertTrue(p.sizeOfChannels() == DEFAULT_CHANNELS_NUMBER);
+        assertTrue(pixels.sizeOfChannels() == 
+        	ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
+        assertTrue(p.sizeOfChannels() == pixels.sizeOfChannels());
         assertTrue(pixels.getPhysicalSizeX().getValue() == 
         	p.getPhysicalSizeX().getValue());
         assertTrue(pixels.getPhysicalSizeY().getValue() == 
@@ -327,8 +330,11 @@ public class PixelsServiceTest
     	throws Exception 
     {
     	//Create some rendering settings.
-    	Image image = createImage(DEFAULT_CHANNELS_NUMBER, SIZE_X, SIXE_Y, 
-    			SIXE_Z, SIXE_T);
+    	Image image = mmFactory.createImage(
+    			ModelMockFactory.SIZE_X, ModelMockFactory.SIZE_Y, 
+    			ModelMockFactory.SIZE_Z, ModelMockFactory.SIZE_T,
+    			ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
+    	image = (Image) iUpdate.saveAndReturnObject(image);
     	Pixels pixels = image.getPrimaryPixels();
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	//Pixels first
@@ -357,8 +363,11 @@ public class PixelsServiceTest
     	throws Exception 
     {
     	//Create some rendering settings.
-    	Image image = createImage(DEFAULT_CHANNELS_NUMBER, SIZE_X, SIXE_Y, 
-    			SIXE_Z, SIXE_T);
+    	Image image = mmFactory.createImage( 
+    			ModelMockFactory.SIZE_X, ModelMockFactory.SIZE_Y, 
+    			ModelMockFactory.SIZE_Z, ModelMockFactory.SIZE_T,
+    			ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
+    	image = (Image) iUpdate.saveAndReturnObject(image);
     	Pixels pixels = image.getPrimaryPixels();
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	//Pixels first

@@ -62,20 +62,16 @@ public class RawPixelsStoreTest
     public void testSetGetPlane() 
     	throws Exception 
     {
-    	Image image = createImage();
-    	int v = 16;
+    	Image image = mmFactory.createImage(ModelMockFactory.SIZE_X, 
+    			ModelMockFactory.SIZE_Y, ModelMockFactory.SIZE_Z, 
+    			ModelMockFactory.SIZE_T, 1);
+    	image = (Image) iUpdate.saveAndReturnObject(image);
     	Pixels pixels = image.getPrimaryPixels();
-    	pixels.setSizeX(omero.rtypes.rint(v));
-    	pixels.setSizeY(omero.rtypes.rint(v));
-    	pixels.setSizeZ(omero.rtypes.rint(1));
-    	pixels.setSizeT(omero.rtypes.rint(1));
-    	pixels.setSizeC(omero.rtypes.rint(1));
-    	pixels = (Pixels) iUpdate.saveAndReturnObject(pixels);
-    	
+    	int v = pixels.getSizeX().getValue()*pixels.getSizeY().getValue(); 
     	RawPixelsStorePrx svc = factory.createRawPixelsStore();
     	svc.setPixelsId(pixels.getId().getValue(), false);
     	int size = svc.getPlaneSize();
-    	assertTrue(size >= v*v);
+    	assertTrue(size >= v);
     	byte[] data = new byte[size];
     	svc.setPlane(data, 0, 0, 0);
     	
