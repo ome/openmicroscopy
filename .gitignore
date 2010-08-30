@@ -1,3 +1,4 @@
+.classpath
 .hg
 .hgignore
 .DS_Store
@@ -46,3 +47,5 @@ temp-testng-customsuite.xml
 *.dylib
 *.os
 omero_version.py
+eclipse.log
+velocity.log*
