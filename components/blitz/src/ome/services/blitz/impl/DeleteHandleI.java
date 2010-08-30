@@ -242,7 +242,7 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
         }
 
         long start = System.currentTimeMillis();
-        while (cancelTimeoutMs < (System.currentTimeMillis() - start)) {
+        while (cancelTimeoutMs >= (System.currentTimeMillis() - start)) {
 
             // This is the most important case. If things are running, then
             // we want to set "CANCELLING" as quickly as possible.
@@ -323,6 +323,7 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
             public Object doWork(Session session, ServiceFactory sf) {
                 try {
                     doRun(session);
+                    state.compareAndSet(State.READY, State.FINISHED);
                 } catch (Cancel c) {
                     state.set(State.CANCELLED);
                     throw c;
