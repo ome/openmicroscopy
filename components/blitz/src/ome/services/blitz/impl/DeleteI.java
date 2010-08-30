@@ -8,6 +8,7 @@
 package ome.services.blitz.impl;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import ome.api.IDelete;
@@ -112,7 +113,7 @@ public class DeleteI extends AbstractAmdServant implements _IDeleteOperations,
 
         safeRunnableCall(__current, __cb, false, new Callable<DeleteHandlePrx>() {
             public DeleteHandlePrx call() throws Exception {
-                Ice.Identity id = sf.getIdentity("DeleteHandle");
+                Ice.Identity id = sf.getIdentity("DeleteHandle"+UUID.randomUUID().toString());
                 DeleteHandleI handle = makeAndLaunchHandle(id, commands);
                 DeleteHandlePrx prx = DeleteHandlePrxHelper.
                     uncheckedCast(sf.registerServant(id, handle));

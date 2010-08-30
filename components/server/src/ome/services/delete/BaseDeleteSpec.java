@@ -19,6 +19,9 @@ import ome.api.IDelete;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.QueryBuilder;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.beans.factory.BeanNameAware;
@@ -31,6 +34,8 @@ import org.springframework.beans.factory.BeanNameAware;
  * @see IDelete
  */
 public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
+
+    private final static Log log = LogFactory.getLog(BaseDeleteSpec.class);
 
     /**
      * The paths which make up this delete specification. These count as the
@@ -394,19 +399,26 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
         Query q;
         final String[] path = entry.path(superspec);
         final String table = path[path.length-1];
+        final String str = StringUtils.join(path, "/");
 
         if (ids == null) {
             q = buildQuery(entry).query(session);
             q.setParameter("id", id);
         } else {
             if (ids.size() == 0) {
-                return 0;
+                log.info("No ids found for " + str);
+                return 0; // Early exit!
             }
             q = session.createQuery("delete " + table + " where id in (:ids)");
             q.setParameterList("ids", ids);
 
         }
-        return q.executeUpdate();
+
+        int count = q.executeUpdate();
+        log.info(String.format("Deleted %s from %s: %s",
+                count, str,
+                ids != null ? ids : (": root id=" + id)));
+        return count;
     }
 
 }

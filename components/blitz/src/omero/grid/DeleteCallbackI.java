@@ -10,6 +10,7 @@ package omero.grid;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import omero.ServerError;
 import omero.api.delete.DeleteHandlePrx;
@@ -115,7 +116,7 @@ public class DeleteCallbackI {
                 e.printStackTrace();
             }
         }
-        return null; // q.poll(ms, TimeUnit.MILLISECONDS);
+        return q.poll(ms, TimeUnit.MILLISECONDS);
     }
 
     /**

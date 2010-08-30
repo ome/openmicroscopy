@@ -29,8 +29,6 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicInteger;
-
 import Ice.Current;
 
 /**
@@ -297,8 +295,10 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
     // CloseableServant. See documentation in interface.
     //
 
-    public void close(Ice.Current current) {
-        throw new UnsupportedOperationException("NYI");
+    public void close(Ice.Current current) throws ServerError {
+        if (!finished(current)) {
+            log.warn("Handle closed before finished! State=" + state.get());
+        }
     }
 
     //
