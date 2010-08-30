@@ -710,7 +710,7 @@ class _BlitzGateway (object):
     ICE_CONFIG = None
 #    def __init__ (self, username, passwd, server, port, client_obj=None, group=None, clone=False):
     
-    def __init__ (self, username=None, passwd=None, client_obj=None, group=None, clone=False, try_super=False, host=None, port=None, extra_config=[], secure=False):
+    def __init__ (self, username=None, passwd=None, client_obj=None, group=None, clone=False, try_super=False, host=None, port=None, extra_config=[], secure=False, anonymous=True):
         """
         TODO: Constructor
         
@@ -752,7 +752,7 @@ class _BlitzGateway (object):
         self._session_cb = None
         self._session = None
         self._lastGroupId = None
-        self._anonymous = True
+        self._anonymous = anonymous
 
         # The properties we are setting through the interface
         self.setIdentity(username, passwd, not clone)
@@ -789,7 +789,8 @@ class _BlitzGateway (object):
         
         self._ic_props = {omero.constants.USERNAME: username,
                           omero.constants.PASSWORD: passwd}
-        self._anonymous = _internal
+        if not _internal:
+            self._anonymous = False
     
     def suConn (self, username, group=None, ttl=60000):
         """ If current user isAdmin, return new connection owned by 'username' """

@@ -108,9 +108,9 @@ class UserProxy (object):
 #        self._log('close',c)
 #_session_cb = SessionCB()
 
-def _createConnection (server_id, sUuid=None, username=None, passwd=None, host=None, port=None, retry=True, group=None, try_super=False, secure=False):
+def _createConnection (server_id, sUuid=None, username=None, passwd=None, host=None, port=None, retry=True, group=None, try_super=False, secure=False, anonymous=False):
     try:
-        blitzcon = client_wrapper(username, passwd, host=host, port=port, group=None, try_super=try_super, secure=secure)
+        blitzcon = client_wrapper(username, passwd, host=host, port=port, group=None, try_super=try_super, secure=secure, anonymous=anonymous)
         blitzcon.connect(sUuid=sUuid)
         blitzcon.server_id = server_id
         blitzcon.user = UserProxy(blitzcon)
@@ -127,7 +127,7 @@ def _createConnection (server_id, sUuid=None, username=None, passwd=None, host=N
         logger.error("Critical error during connect, retrying after _purge")
         logger.debug(traceback.format_exc())
         _purge(force=True)
-        return _createConnection(server_id, sUuid, username, passwd, retry=False, host=host, port=port, group=None, try_super=try_super)
+        return _createConnection(server_id, sUuid, username, passwd, retry=False, host=host, port=port, group=None, try_super=try_super, anonymous=anonymous)
 
 def _purge (force=False):
     if force or len(connectors) > CONNECTOR_POOL_SIZE:
@@ -226,7 +226,8 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
             sUuid = request.session.get(browsersession_connection_key, None)
         blitzcon = _createConnection(server_id, sUuid=sUuid,
                                      username=username, passwd=passwd,
-                                     host=host, port=port, group=group, try_super=try_super, secure=secure)
+                                     host=host, port=port, group=group, try_super=try_super, secure=secure,
+                                     anonymous=ckey.startswith('C:'))
         if blitzcon is None:
             if not retry or username:
                 logger.debug('connection failed with provided login information, bail out')
