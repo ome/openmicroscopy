@@ -85,7 +85,9 @@ class ImportControl(BaseControl):
         if "-h" not in login_args and "-f" not in login_args:
             client = self.ctx.conn(args)
             srv = client.getProperty("omero.host")
+            prt = client.getProperty("omero.port")
             login_args.extend(["-s", srv])
+            login_args.extend(["-p", prt])
             login_args.extend(["-k", client.getSessionId()])
 
         # Due to the use of "--" some of these like debug

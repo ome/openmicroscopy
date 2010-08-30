@@ -159,7 +159,7 @@ class TestScripts(lib.ITest):
         self.assertTrue("returnMessage" in results, "Script should have run as Official script")
 
         # should fail if we try to upload as 'user' script and run (no user processor)
-        userScriptId = scriptService.uploadScript("user/test/script.py", script)
+        userScriptId = scriptService.uploadScript("/user/test/script%s.py" % (self.uuid()), script)
         self.assertFalse(scriptService.canRunScript(userScriptId)) # ticket:2341
         results = {}
         try:
