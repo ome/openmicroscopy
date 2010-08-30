@@ -6,22 +6,22 @@
  */
 package integration;
 
-
-//Java imports
 import static omero.rtypes.rdouble;
 import static omero.rtypes.rint;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
-//Third-party libraries
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
-//Application-internal dependencies
+import omero.ApiUsageException;
+import omero.ServerError;
 import omero.api.IDeletePrx;
 import omero.api.IRenderingSettingsPrx;
+import omero.api.delete.DeleteCommand;
+import omero.api.delete.DeleteHandlePrx;
+import omero.grid.DeleteCallbackI;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
 import omero.model.Channel;
@@ -89,6 +89,9 @@ import omero.model.WellSampleAnnotationLink;
 import omero.model.WellSampleAnnotationLinkI;
 import omero.sys.ParametersI;
 
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 /** 
  * Collections of tests for the <code>Delete</code> service.
  *
@@ -109,27 +112,80 @@ public class DeleteServiceTest
 
     /** Helper reference to the <code>IDelete</code> service. */
     private IDeletePrx iDelete;
-    
+
+    /**
+     * Since so many tests rely on counting the number of objects present
+     * globally, we're going to start each method with a new user in a new
+     * group.
+     */
+    @BeforeMethod
+    public void createNewUser() throws Exception {
+        newUserAndGroup("rw----");
+        iDelete = factory.getDeleteService();
+    }
+
+    /**
+     * Basic asychronous delete command. Used in order to reduce the number
+     * of places that we do the same thing in case the API changes.
+     * @param dc
+     * @throws ApiUsageException
+     * @throws ServerError
+     * @throws InterruptedException
+     */
+    private void delete(DeleteCommand...dc) throws ApiUsageException, ServerError,
+        InterruptedException {
+        DeleteHandlePrx handle = iDelete.queueDelete(dc);
+        DeleteCallbackI cb = new DeleteCallbackI(client, handle);
+        int count = 10;
+        while (null == cb.block(500)) {
+            count--;
+            if (count == 0) {
+                throw new RuntimeException("Waiting on delete timed out");
+            }
+        }
+        String report = handle.report().toString();
+        assertEquals(report, 0, handle.errors());
+    }
+
+    /**
+     * Returns a map from IObject instance saved to the DB to delete
+     * command need to remove it. E.g.
+     * <pre>
+     * {
+     *   new ProjectI() : "/Project"
+     * }
+     * </pre>
+     */
+    private Map<IObject, String> createIObjects() throws Exception {
+        Map<IObject, String> objects = new HashMap<IObject, String>();
+        objects.put(iUpdate.saveAndReturnObject(mmFactory.createImage()), "/Image");
+        objects.put(iUpdate.saveAndReturnObject(mmFactory.simpleDatasetData().asIObject()), "/Dataset");
+        objects.put(iUpdate.saveAndReturnObject(mmFactory.simpleProjectData().asIObject()), "/Project");
+        objects.put(iUpdate.saveAndReturnObject(mmFactory.simplePlateData().asIObject()), "/Plate");
+        objects.put(iUpdate.saveAndReturnObject(mmFactory.simpleScreenData().asIObject()), "/Screen");
+        return objects;
+    }
+
     /**
      * Creates a basic query to check if the object has been deleted.
      * 
      * @param i The string identifying the class.
      * @return See above.
      */
-    private String createBasicContainerQuery(String i)
+    private String createBasicContainerQuery(Class<? extends IObject> k)
     {
-		if (Image.class.getName().equals(i)) {
+		if (Image.class.isAssignableFrom(k)) {
 			return "select i from Image as i where i.id = :id";
-		} else if (Dataset.class.getName().equals(i)) {
-			return "select i from Dataset as i where i.id = :id";
-		} else if (Project.class.getName().equals(i)) {
-			return "select i from Project as i where i.id = :id";
-		} else if (Plate.class.getName().equals(i)) {
-			return "select i from Plate as i where i.id = :id";
-		} else if (Screen.class.getName().equals(i)) {
-			return "select i from Screen as i where i.id = :id";
+		} else if (Dataset.class.isAssignableFrom(k)) {
+			return "select d from Dataset as d where d.id = :id";
+		} else if (Project.class.isAssignableFrom(k)) {
+			return "select p from Project as p where p.id = :id";
+		} else if (Plate.class.isAssignableFrom(k)) {
+			return "select p from Plate as p where p.id = :id";
+		} else if (Screen.class.isAssignableFrom(k)) {
+			return "select s from Screen as s where s.id = :id";
 		}
-		return null;
+		throw new UnsupportedOperationException("Unknown type: " + k);
     }
     
     /**
@@ -413,20 +469,6 @@ public class DeleteServiceTest
     }
     
     /**
-     * Initializes the various services.
-     * 
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Override
-    @BeforeClass
-    protected void setUp() 
-    	throws Exception 
-    {   
-    	super.setUp();
-    	iDelete = factory.getDeleteService();
-    }
-    
-    /**
      * Test to delete an image w/o pixels.
      * @throws Exception Thrown if an error occurred.
      */
@@ -434,7 +476,6 @@ public class DeleteServiceTest
     public void testDeleteBasicImage() 
     	throws Exception
     {
-    	/*
     	Image img = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.simpleImage(0));
     	assertNotNull(img);
@@ -448,7 +489,6 @@ public class DeleteServiceTest
     	sb.append("where i.id = :id");
     	img = (Image) iQuery.findByQuery(sb.toString(), param);
     	assertNull(img);
-    	*/
     }
     
     /**
@@ -459,7 +499,6 @@ public class DeleteServiceTest
     public void testDeleteEmptyPlate() 
     	throws Exception
     {
-    	/*
     	Plate p = (Plate) iUpdate.saveAndReturnObject(
     			mmFactory.simplePlateData().asIObject());
     	assertNotNull(p);
@@ -473,7 +512,6 @@ public class DeleteServiceTest
     	sb.append("where i.id = :id");
     	p = (Plate) iQuery.findByQuery(sb.toString(), param);
     	assertNull(p);
-    	*/
     }
     
     /**
@@ -481,11 +519,10 @@ public class DeleteServiceTest
      * The boolean flag indicates to create or no plate acquisition.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(enabled = false)
     public void testDeletePlate() 
     	throws Exception
     {
-    	/*
     	Boolean[] values = {Boolean.valueOf(false)};//, Boolean.valueOf(true)};
     	Boolean b;
     	Plate p;
@@ -574,7 +611,6 @@ public class DeleteServiceTest
 		        assertNull(iQuery.findByQuery(sb.toString(), param));
 	        }
 		}
-		*/
     }
 
     /**
@@ -585,7 +621,6 @@ public class DeleteServiceTest
     public void testDeleteDataset() 
     	throws Exception
     {
-    	/*
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
     	Image image1 = (Image) iUpdate.saveAndReturnObject(
@@ -608,10 +643,13 @@ public class DeleteServiceTest
     	List<Long> ids = new ArrayList<Long>();
     	ids.add(image1.getId().getValue());
     	ids.add(image2.getId().getValue());
-    	//new call to delete the dataset
+
+
+        DeleteCommand dc = new DeleteCommand("/Dataset", d.getId().getValue(), null);
+        delete(dc);
+
     	
     	//Check if objects have been deleted
-    	/*
     	ParametersI param = new ParametersI();
     	param.addIds(ids);
     	String sql = "select i from Image as i where i.id in (:ids)";
@@ -622,9 +660,8 @@ public class DeleteServiceTest
     	param.addId(d.getId().getValue());
     	sql = "select i from Dataset as i where i.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));
-    	*/
     }
-    
+
     /**
      * Tests to delete a project containing a dataset with images.
      * @throws Exception Thrown if an error occurred.
@@ -633,7 +670,6 @@ public class DeleteServiceTest
     public void testDeleteProject() 
     	throws Exception
     {
-    	/*
     	Project p = (Project) iUpdate.saveAndReturnObject(
     			mmFactory.simpleProjectData().asIObject());
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
@@ -662,10 +698,13 @@ public class DeleteServiceTest
     	List<Long> ids = new ArrayList<Long>();
     	ids.add(image1.getId().getValue());
     	ids.add(image2.getId().getValue());
-    	//new call to delete the project
+
+
+        DeleteCommand dc = new DeleteCommand("/Project", p.getId().getValue(), null);
+        delete(dc);
+
     	
     	//Check if objects have been deleted
-    	/*
     	ParametersI param = new ParametersI();
     	param.addIds(ids);
     	String sql = "select i from Image as i where i.id in (:ids)";
@@ -681,7 +720,6 @@ public class DeleteServiceTest
     	param.addId(p.getId().getValue());
     	sql = "select i from Project as i where i.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));
-    	*/
     }
     
     /**
@@ -689,11 +727,10 @@ public class DeleteServiceTest
      * and one with plate acquisition.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(enabled = false) // SPW not implemented
     public void testDeleteScreen() 
     	throws Exception
     {
-    	/*
     	Screen screen = (Screen) iUpdate.saveAndReturnObject(
     			mmFactory.simpleScreenData().asIObject());
     	//Plate w/o plate acquisition
@@ -712,15 +749,17 @@ public class DeleteServiceTest
     	link.setParent(screen);
     	links.add(link);
     	iUpdate.saveAndReturnArray(links);
+
     	
-    	//Delete the screen
+        DeleteCommand dc = new DeleteCommand("/Screen", screen.getId().getValue(), null);
+        delete(dc);
+
     	
     	List<Long> ids = new ArrayList<Long>();
     	ids.add(p1.getId().getValue());
     	ids.add(p2.getId().getValue());
     	
     	//Check if the plates exist.
-    	/*
     	ParametersI param = new ParametersI();
     	param.addIds(ids);
     	String sql = "select i from Plate as i where i.id in (:ids)";
@@ -731,7 +770,6 @@ public class DeleteServiceTest
     	param.addId(screen.getId().getValue());
     	sql = "select i from Screen as i where i.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));
-    	*/
     }
     
     /**
@@ -743,7 +781,6 @@ public class DeleteServiceTest
     public void testDeleteImage() 
     	throws Exception
     {
-    	/*
     	Image img = mmFactory.createImage();
     	img = (Image) iUpdate.saveAndReturnObject(img);
     	Pixels pixels = img.getPrimaryPixels();
@@ -821,7 +858,6 @@ public class DeleteServiceTest
 	    	lc = (LogicalChannel) iQuery.findByQuery(sb.toString(), param);
 	    	assertNull(lc);
 		}
-    	*/
     }
 
     /**
@@ -832,7 +868,6 @@ public class DeleteServiceTest
     public void testDeleteImageWithRenderingSettings() 
     	throws Exception
     {
-    	/*
     	Image img = mmFactory.createImage();
     	img = (Image) iUpdate.saveAndReturnObject(img);
     	Pixels pixels = img.getPrimaryPixels();
@@ -862,7 +897,6 @@ public class DeleteServiceTest
 			o = iQuery.findByQuery(sql, param);
 			assertNull(o);
 		}
-		*/
     }
     
     /**
@@ -873,7 +907,6 @@ public class DeleteServiceTest
     public void testDeleteImageWithAcquisitionData() 
     	throws Exception
     {
-    	/*
     	Image img = mmFactory.createImage();
     	img = (Image) iUpdate.saveAndReturnObject(img);
     	Pixels pixels = img.getPrimaryPixels();
@@ -947,7 +980,7 @@ public class DeleteServiceTest
     	iDelete.deleteImage(img.getId().getValue(), true);
     	//Follow the section with acquisition data.
     	//Now check if the settings are still there.
-    	/*
+
     	param = new ParametersI();
     	param.addId(detectorSettingsID);
     	sql = "select d from DetectorSettings as d where d.id = :id";
@@ -998,7 +1031,6 @@ public class DeleteServiceTest
     	param.addId(env.getId().getValue());
     	sql = "select d from StageLabel as d where d.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));
-    	*/
     }
     
     /**
@@ -1009,7 +1041,6 @@ public class DeleteServiceTest
     public void testDeleteImageWithROIs() 
     	throws Exception
     {
-    	/*
     	Image image = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.simpleImage(0));
     	Roi roi = new RoiI();
@@ -1036,7 +1067,7 @@ public class DeleteServiceTest
     	//Delete the image.
     	iDelete.deleteImage(image.getId().getValue(), true);
     	//check if the objects have been delete.
-    	/*
+
     	ParametersI param = new ParametersI();
     	param.addId(serverROI.getId().getValue());
     	String sql = "select d from Roi as d where d.id = :id";
@@ -1048,7 +1079,7 @@ public class DeleteServiceTest
     	sql = "select d from Shape as d where d.id in (:ids)";
     	List results = iQuery.findAllByQuery(sql, param);
     	assertTrue(results.size() == 0);
-    	*/
+
     }
     
     /**
@@ -1059,7 +1090,6 @@ public class DeleteServiceTest
     public void testDeleteROIs() 
     	throws Exception
     {
-    	/*
     	Image image = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.simpleImage(0));
     	Roi roi = new RoiI();
@@ -1083,18 +1113,20 @@ public class DeleteServiceTest
     		shape = serverROI.getShape(i);
     		shapeIds.add(shape.getId().getValue());
     	}
+
     	
-    	//delete the rois.
+	DeleteCommand dc = new DeleteCommand("/Roi", serverROI.getId().getValue(), null);
+	delete(dc);
+
     	
     	//make sure we still have the image
-    	/*
     	ParametersI param = new ParametersI();
     	param.addId(image.getId().getValue());
     	String sql = "select d from Image as d where d.id = :id";
     	assertNotNull(iQuery.findByQuery(sql, param));  
     	
     	//check if the objects have been delete.
-    	ParametersI param = new ParametersI();
+	param = new ParametersI();
     	param.addId(serverROI.getId().getValue());
     	sql = "select d from Roi as d where d.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));  
@@ -1105,7 +1137,6 @@ public class DeleteServiceTest
     	sql = "select d from Shape as d where d.id in (:ids)";
     	List results = iQuery.findAllByQuery(sql, param);
     	assertTrue(results.size() == 0);
-    	*/
     }
 
     /**
@@ -1113,26 +1144,30 @@ public class DeleteServiceTest
      * e.g. tags terms. The test will 
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(enabled = false)
     public void testDeleteObjectWithNonSharableAnnotations() 
     	throws Exception
     {
-    	
-    	String[] objects = {Image.class.getName(), Dataset.class.getName(),
-    			Project.class.getName(), Plate.class.getName(), 
-    			Screen.class.getName() };
+	Map<IObject, String> objects = createIObjects();
     	IObject obj = null;
+	Long id = null;
+	String type = null;
     	List<Long> annotationIds;
     	ParametersI param;
     	String sql;
-    	/*
-    	for (int i = 0; i < objects.length; i++) {
-    		obj = createIObject(objects[i]);
+	for (Map.Entry<IObject, String> entry : objects.entrySet()) {
+		obj = entry.getKey();
+	    type = entry.getValue();
+	    id = obj.getId().getValue();
 			annotationIds = createNonSharableAnnotation(obj);	
-			//delete the object. 
+
+			DeleteCommand dc =
+			    new DeleteCommand(type, id, null);
+			delete(dc);
+
 			param = new ParametersI();
 	    	param.addId(obj.getId().getValue());
-	    	sql = createBasicContainerQuery(objects[i]);
+		sql = createBasicContainerQuery(obj.getClass());
 			assertNull(iQuery.findByQuery(sql, param));
 			param = new ParametersI();
 	    	param.addIds(annotationIds);
@@ -1140,7 +1175,6 @@ public class DeleteServiceTest
 	    	sql = "select i from Annotation as i where i.id in (:ids)";
 	    	assertTrue(iQuery.findAllByQuery(sql, param).size() == 0);	
 		}
-		*/
     }
     
     /**
@@ -1149,28 +1183,32 @@ public class DeleteServiceTest
      * will be them.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(enabled = false)
     public void testDeleteObjectWithSharableAnnotations() 
     	throws Exception
     {
-    	String[] objects = {Image.class.getName(), Dataset.class.getName(),
-    			Project.class.getName(), Plate.class.getName(), 
-    			Screen.class.getName() };
+	Map<IObject, String> objects = createIObjects();
     	Boolean[] values = {Boolean.valueOf(false), Boolean.valueOf(true)};
     	IObject obj = null;
+	String type = null;
+	Long id = null;
     	List<Long> annotationIds;
     	ParametersI param;
     	String sql;
     	List l;
-    	/*
-    	for (int i = 0; i < objects.length; i++) {
+	for (Map.Entry<IObject, String> entry : objects.entrySet()) {
     		for (int j = 0; j < values.length; j++) {
-    			obj = createIObject(objects[i]);
+			obj = entry.getKey();
+			type = entry.getValue();
+			id = obj.getId().getValue();
     			annotationIds = createSharableAnnotation(obj);	
-    			//delete the object. 
+
+			DeleteCommand dc = new DeleteCommand(type, id, null);
+			delete(dc);
+
     			param = new ParametersI();
     	    	param.addId(obj.getId().getValue());
-    	    	sql = createBasicContainerQuery(objects[i]);
+		sql = createBasicContainerQuery(obj.getClass());
     			assertNull(iQuery.findByQuery(sql, param));
     			//annotations should be deleted to
     			param = new ParametersI();
@@ -1185,7 +1223,6 @@ public class DeleteServiceTest
     	    	}
 			}
 		}
-		*/
     }
     
     /**
@@ -1193,7 +1230,7 @@ public class DeleteServiceTest
      * and well samples and plate with Plate acquisition and annotation.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(enabled = false) // SPW not implemented
     public void testPlateWithNonSharableAnnotations() 
     	throws Exception
     {
@@ -1213,7 +1250,6 @@ public class DeleteServiceTest
 		List<Long> annotationIds = new ArrayList<Long>();
 		List<Long> r;
 		List l;
-		/*
     	for (int i = 0; i < values.length; i++) {
     		b = values[i];
 			p = (Plate) iUpdate.saveAndReturnObject(
@@ -1297,9 +1333,7 @@ public class DeleteServiceTest
 		        		"where p.id = :id");
 		        assertNull(iQuery.findByQuery(sb.toString(), param));
 	        }
-	        */
 	        //Check if annotations have been deleted.
-	        /*
 	        param = new ParametersI();
 	    	param.addIds(annotationIds);
 	    	assertTrue(annotationIds.size() > 0);
@@ -1307,8 +1341,7 @@ public class DeleteServiceTest
 	    	sb.append("select i from Annotation as i where i.id in (:ids)");
 	    	l = iQuery.findAllByQuery(sb.toString(), param);
 	    	assertTrue(l.size() == 0);
-	    	*/
-		//}
+		}
     }
     
     /**
@@ -1316,7 +1349,7 @@ public class DeleteServiceTest
      * well samples and plate with Plate acquisition and annotation.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(enabled = false)
     public void testPlateWithSharableAnnotations() 
     	throws Exception
     {
@@ -1336,7 +1369,6 @@ public class DeleteServiceTest
 		List<Long> annotationIds = new ArrayList<Long>();
 		List<Long> r;
 		List l;
-		/*
     	for (int i = 0; i < values.length; i++) {
     		for (int k = 0; k < annotations.length; k++) {
     			b = values[i];
@@ -1421,9 +1453,8 @@ public class DeleteServiceTest
     		        		"where p.id = :id");
     		        assertNull(iQuery.findByQuery(sb.toString(), param));
     	        }
-    	        */
+
     	        //Check if annotations have been deleted.
-    	        /*
     	        param = new ParametersI();
     	    	param.addIds(annotationIds);
     	    	assertTrue(annotationIds.size() > 0);
@@ -1435,10 +1466,8 @@ public class DeleteServiceTest
     	    	} else {
     	    		assertTrue(l.size() == 0);
     	    	}
-
-    	    	*/	
-			//}
-		//}
+		}
+	}
     }
 
     /**
@@ -1449,11 +1478,10 @@ public class DeleteServiceTest
     public void testCascadingDeleteDatasetAsRoot() 
     	throws Exception
     {
-    	/*
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
-    			simpleDatasetData().asIObject());
-    	Image img1 = createImage();
-    	Image img2 = createImage();
+			mmFactory.simpleDatasetData().asIObject());
+	Image img1 = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage());
+	Image img2 = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage());
     	DatasetImageLink l = new DatasetImageLinkI();
     	l.link(new DatasetI(d.getId().getValue(), false), img1);
     	iUpdate.saveAndReturnObject(l);
@@ -1461,10 +1489,14 @@ public class DeleteServiceTest
     	l.link(new DatasetI(d.getId().getValue(), false), img2);
     	iUpdate.saveAndReturnObject(l);
     	
-    	//delete from dataset
+
+	DeleteCommand dc = new DeleteCommand("/Dataset", d.getId().getValue(), null);
+	delete(dc);
+
+
     	ParametersI param = new ParametersI();
     	param.addId(d.getId().getValue());
-    	String sql = "select d from Dataset where d.id = :id";
+	String sql = "select d from Dataset d where d.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));
     	
     	List<Long> ids = new ArrayList<Long>();
@@ -1472,9 +1504,8 @@ public class DeleteServiceTest
     	ids.add(img2.getId().getValue());
     	param = new ParametersI();
     	param.addIds(ids);
-    	sql = "select d from Image where d.id in (:ids)";
-    	assertTrue(iQuery.findAllByQuery(sql, param).size() == 0);
-    	*/
+	sql = "select i from Image i where i.id in (:ids)";
+	assertEquals(0, iQuery.findAllByQuery(sql, param).size());
     }
     
     /**
@@ -1485,13 +1516,12 @@ public class DeleteServiceTest
     public void testCascadingDeleteProjectAsRoot() 
     	throws Exception
     {
-    	/*
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
-    			simpleDatasetData().asIObject());
+	        mmFactory.simpleDatasetData().asIObject());
     	Dataset d2 = (Dataset) iUpdate.saveAndReturnObject(
-    			simpleDatasetData().asIObject());
-    	Image img1 = createImage();
-    	Image img2 = createImage();
+	        mmFactory.simpleDatasetData().asIObject());
+	Image img1 = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage());
+	Image img2 = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage());
     	DatasetImageLink l = new DatasetImageLinkI();
     	l.link(new DatasetI(d.getId().getValue(), false), img1);
     	iUpdate.saveAndReturnObject(l);
@@ -1500,7 +1530,7 @@ public class DeleteServiceTest
     	iUpdate.saveAndReturnObject(l);
     	
     	Project p = (Project) iUpdate.saveAndReturnObject(
-    			simpleProjectData().asIObject());
+	        mmFactory.simpleProjectData().asIObject());
     	ProjectDatasetLink pl = new ProjectDatasetLinkI();
     	pl.link(new ProjectI(p.getId().getValue(), false), 
     			new DatasetI(d.getId().getValue(), false));
@@ -1510,10 +1540,12 @@ public class DeleteServiceTest
     	pl.link(new ProjectI(p.getId().getValue(), false), d2);
     	iUpdate.saveAndReturnObject(pl);
     	
-    	//delete from dataset
+	DeleteCommand dc = new DeleteCommand("/Project", p.getId().getValue(), null);
+	delete(dc);
+
     	ParametersI param = new ParametersI();
     	param.addId(p.getId().getValue());
-    	String sql = "select d from Project where d.id = :id";
+	String sql = "select p from Project p where p.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));
     	
     	List<Long> ids = new ArrayList<Long>();
@@ -1521,7 +1553,7 @@ public class DeleteServiceTest
     	ids.add(d2.getId().getValue());
     	param = new ParametersI();
     	param.addIds(ids);
-    	sql = "select d from Dataset where d.id in (:ids)";
+	sql = "select d from Dataset d where d.id in (:ids)";
     	assertTrue(iQuery.findAllByQuery(sql, param).size() == 0);
     	
     	
@@ -1530,21 +1562,18 @@ public class DeleteServiceTest
     	ids.add(img2.getId().getValue());
     	param = new ParametersI();
     	param.addIds(ids);
-    	sql = "select d from Image where d.id in (:ids)";
+	sql = "select i from Image i where i.id in (:ids)";
     	assertTrue(iQuery.findAllByQuery(sql, param).size() == 0);
-    	*/
     }
     
     /**
      * Tests to delete a dataset with images.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(enabled = false)
     public void testCascadingDeleteScreenAsRoot() 
     	throws Exception
     {
-    	
-    	/*
     	Boolean[] values = {Boolean.valueOf(false), Boolean.valueOf(true)};
     	Plate plate;
     	String sql;
@@ -1554,19 +1583,25 @@ public class DeleteServiceTest
     	ScreenPlateLink link;
     	for (int i = 0; i < values.length; i++) {
     		param = new ParametersI();
-			plate = createPlate(1, 1, 1, values[i], false);
+			plate = mmFactory.createPlate(1, 1, 1, values[i], false);
+			plate = (Plate) iUpdate.saveAndReturnObject(plate);
 			sql = "select pa from PlateAcquisition as pa " +
     		 "where pa.plate.id = :plateID"; 
-			param.addId(plate.getId().getValue());
+			param.addLong("plateID", plate.getId().getValue());
 			pa = (PlateAcquisition) iQuery.findByQuery(sql, param);
 			screen = (Screen) iUpdate.saveAndReturnObject(
-					simpleScreenData().asIObject());
+			        mmFactory.simpleScreenData().asIObject());
 			link = new ScreenPlateLinkI();
 			link.link(screen, plate);
 			iUpdate.saveAndReturnObject(link);
-			//delete
+
+
+			DeleteCommand dc = new DeleteCommand("/Screen", screen.getId().getValue(), null);
+			delete(dc);
+
+
 			param = new ParametersI();
-			sql = "select s from Screen as as where s.id = :id";
+			sql = "select s from Screen as s where s.id = :id";
 			param.addId(screen.getId().getValue());
 			assertNull(iQuery.findByQuery(sql, param));
 			param = new ParametersI();
@@ -1581,7 +1616,6 @@ public class DeleteServiceTest
 				assertNull(iQuery.findByQuery(sql, param));
 			}
 		}
-		*/
     }
-    
+
 }

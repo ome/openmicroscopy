@@ -190,10 +190,13 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
     }
 
     /**
-     * If a given path is deleted before it's a subpath, this points to a
+     * If a given path is deleted before its subpath, this points to a
      * one-to-one relationship. If the first object is deleted without having
      * loaded the later one, then there will be no way to find the dangling
      * object. Therefore, we load those objects first.
+     *
+     * In the case of superspecs, we also store the root ids for the subspec
+     * to handle cases such as links, etc.
      */
     public List<List<Long>> backupIds(Session session)
             throws DeleteException {
@@ -208,6 +211,17 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
         for (int s = 0; s < entries.size(); s++) {
             DeleteEntry current = entries.get(s);
             Map<DeleteEntry, Integer> subpaths = new HashMap<DeleteEntry, Integer>();
+
+            // This is a subspec, and there will be handled in a separate loop.
+            if (current.getSubSpec() != null) {
+                continue;
+            }
+
+            // Handling the superspec case
+            if (superspec != null && current.path(null).length == 1) {
+                subpaths.put(current, s);
+            }
+            // Then go on to parse all the following items.
             for (int i = s + 1; i < entries.size(); i++) { // won't check self
                 DeleteEntry possSubPath = entries.get(i);
                 if (possSubPath.name.startsWith(current.name)) {
@@ -294,20 +308,29 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
             final String[] sub = subpath.path(superspec);
 
             final QueryBuilder qb = new QueryBuilder();
-            qb.select("SUB.id");
-            walk(qb, entry);
 
-            if ((path.length + 1) != sub.length) {
-                throw new DeleteException(true,
+            if (subpath == entry) { // superspec case
+
+                qb.select("ROOT"+(sub.length-1)+".id");
+                walk(qb, entry);
+
+            } else {
+
+                qb.select("SUB.id");
+                walk(qb, entry);
+
+                if ((path.length + 1) != sub.length) {
+                    throw new DeleteException(true,
                         "Currently only a single subpath step is supported: "
                                 + subpath);
+                }
+
+                int which = path.length - 1;
+                String last = path[which];
+                String lastsub = sub[sub.length-1];
+
+                join(qb, last, "ROOT" + which, lastsub, "SUB");
             }
-
-            int which = path.length - 1;
-            String last = path[which];
-            String lastsub = sub[sub.length-1];
-
-            join(qb, last, "ROOT" + which, lastsub, "SUB");
 
             qb.where();
             qb.and("ROOT0.id = :id");
@@ -417,7 +440,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
         int count = q.executeUpdate();
         log.info(String.format("Deleted %s from %s: %s",
                 count, str,
-                ids != null ? ids : (": root id=" + id)));
+                ids != null ? ids : ("root id=" + id)));
         return count;
     }
 

@@ -23,6 +23,7 @@ import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteHandlePrx;
 import omero.model.Dataset;
 import omero.model.DatasetI;
+import omero.model.ImageI;
 import omero.model.Project;
 import omero.model.ProjectI;
 
@@ -155,9 +156,53 @@ public class DeleteITest extends AbstractServantTest {
         doDelete(dc);
 
         // Make sure its come
-        List l = assertProjection("select p.id from Project p where p.id = "
-                + id, null);
+        List l;
+        l = assertProjection("select p.id from Project p where p.id = " + id,
+                null);
         assertEquals(0, l.size());
+        l = assertProjection("select d.id from Dataset d where d.id = " + id,
+                null);
+        assertEquals(0, l.size());
+    }
+
+
+    /**
+     * Deletes a project and all its datasets which have images.
+     */
+    @SuppressWarnings("rawtypes")
+    public void testProject() throws Exception {
+
+        long iid = makeImage();
+
+        // Create test data
+        Project p = new ProjectI();
+        p.setName(omero.rtypes.rstring("name"));
+        Dataset d = new DatasetI();
+        d.setName(p.getName());
+
+        p.linkDataset(d);
+        d.linkImage(new ImageI(iid, false));
+        p = assertSaveAndReturn(p);
+        d = p.linkedDatasetList().get(0);
+        long pid = p.getId().getValue();
+        long did = d.getId().getValue();
+
+        // Do Delete
+        DeleteCommand dc = new DeleteCommand("/Project", pid, null);
+        doDelete(dc);
+
+        // Make sure its come
+        List l;
+        l = assertProjection("select p.id from Project p where p.id = " + pid,
+                null);
+        assertEquals(0, l.size());
+        l = assertProjection("select d.id from Dataset d where d.id = " + did,
+                null);
+        assertEquals(0, l.size());
+        l = assertProjection("select i.id from Image i where i.id = " + iid,
+                null);
+        assertEquals(0, l.size());
+
     }
 
     //
@@ -198,8 +243,8 @@ public class DeleteITest extends AbstractServantTest {
                             public Object doWork(Session session,
                                     ServiceFactory sf) {
                                 try {
-                                    List<List<Long>> backupIds = ch.backupIds(
-                                            session);
+                                    List<List<Long>> backupIds = ch
+                                            .backupIds(session);
                                     return backupIds;
                                 } catch (Exception e) {
                                     throw new RuntimeException(e);

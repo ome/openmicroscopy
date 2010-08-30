@@ -36,15 +36,15 @@
 
    <!-- SPECIFCATIONS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
-    <bean parent="delSpec" name="/Image/Roi">
+    <bean parent="delSpec" name="/Roi">
         <description>
         Deletes a
         </description>
         <constructor-arg>
             <list>
-                <value>/Image/Roi/Shape</value>
-                <value>/Image/Roi/RoiAnnotationLink</value>
-                <value>/Image/Roi</value>
+                <value>/Roi/Shape</value>
+                <value>/Roi/RoiAnnotationLink</value>
+                <value>/Roi</value>
             </list>
         </constructor-arg>
     </bean>
@@ -102,7 +102,7 @@ How to handle more than one path:
         </description>
         <constructor-arg>
             <list>
-                <value>/Image/Roi;ORPHAN</value>
+                <value>/Roi;ORPHAN;/Image</value>
     <!--
 TODO:
                 <value>/Image/Pixels/RelatedTo;NULL</value>

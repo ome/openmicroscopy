@@ -64,15 +64,17 @@ public class DeleteEntry {
         return parts1;
     }
 
-    private static String[] prepend(String superspec, String[] parts1) {
+    private static String[] prepend(String superspec, String path, String[] ownParts) {
         if (superspec == null || superspec.length() == 0) {
-            return parts1;
+            return ownParts;
         }
-        String[] parts0 = split(superspec);
-        String[] parts2 = new String[parts0.length + parts1.length];
-        System.arraycopy(parts0, 0, parts2, 0, parts0.length);
-        System.arraycopy(parts1, 0, parts2, parts0.length, parts1.length);
-        return parts2;
+        String[] superParts = split(superspec);
+        String[] pathParts = split(path);
+        String[] totalParts = new String[superParts.length + pathParts.length + ownParts.length];
+        System.arraycopy(superParts, 0, totalParts, 0, superParts.length);
+        System.arraycopy(pathParts, 0, totalParts, superParts.length, pathParts.length);
+        System.arraycopy(ownParts, 0, totalParts, superParts.length + pathParts.length, ownParts.length);
+        return totalParts;
     }
 
     public DeleteSpec getSubSpec() {
@@ -80,7 +82,7 @@ public class DeleteEntry {
     }
 
     public String[] path(String superspec) {
-        return prepend(superspec, parts);
+        return prepend(superspec, path, parts);
     }
 
     //
