@@ -45,6 +45,8 @@ urlpatterns = patterns('',
     url( r'^publications/$', views.publications, name='webemdb_publications' ),
     url( r'^getEntriesByPub/(?P<publicationId>[0-9]+)/$', views.getEntriesByPub, name='webemdb_getEntriesByPub' ),
     url( r'^entries/$', views.entries, name='webemdb_entries' ),
+    # auto-complete search - json methods
+    url( r'^autocompleteQuery/$', views.autocompleteQuery, name='webemdb_autocompleteQuery' ), # returns list of ("1024", "Title")
     
     # view an EMAN2 filter on an image
     url( r'^eman2_filter/(?P<imageId>[0-9]+)/fft/$', views.eman, {"filter": "fft"}, name='webemdb_eman_fft' ),

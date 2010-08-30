@@ -2,9 +2,33 @@
 
 {% block title %} Resolutions by author {% endblock %}
 
+{% block jscript %}
+<script type="text/javascript" src="{% url webemdb 'javascript/publications.js' %}"></script>
+<script type="text/javascript">
+
+</script>
+{% endblock %}
 
 {% block link %}
 <link rel="stylesheet" href="{% url webemdb 'css/publications.css' %}" type="text/css" />
+<style type="text/css">
+th {
+    white-space: nowrap;
+}
+th .sort {
+    border-width:0px;
+    width: 16px;
+    height: 16px;
+    padding: 0px;
+    margin: 0px;
+}
+th .sortButtons {
+    float: right;
+}
+th .colHeader {
+    float: left;
+}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -12,20 +36,51 @@
 <div id="welcome">
     <h3>EMDB Resolutions</h3>
 
-    Sort by: 
-    Entry <a href="?sort=entry">sort</a> <a href="?sort=entry&order=reverse">rev</a> |
-    Title <a href="?sort=title">sort</a> <a href="?sort=title&order=reverse">rev</a> |
-    Resolution <a href="?sort=resolution">sort</a> <a href="?sort=resolution&order=reverse">rev</a>
-    
+    <form class="nowrap" method='get' action="">
+    <label>Title</label>
+    <input type="text" name="title" {% if title %} value="{{ title }}" {% endif %} />
+    <input type="submit" value='go' />
+    </form>
+    <form class="nowrap" method='get' action="">
+    <label>Resolution</label>
+    <input type="text" name="min" size='2' {% if minRes %} value="{{ minRes }}" {% endif %} /> -
+    <input type="text" name="max" size='2' {% if maxRes %} value="{{ maxRes }}" {% endif %} />
+    <input type="submit" value='go' />
+    </form>
+
+    <div>
+        {% for page in pageLinks %}
+            <a href="?{{ searchString }}{{ sortString }}&page={{ page }}">Page {{ page }}</a> |
+        {% endfor %}
+        Total results: {{ totalResults }}
+    </div>
 <div id="content">
-    <!-- Header of the publications table -->
-    <table>
+    <!-- Header of the entries table -->
+    <table class="alternateRows">
         <thead>
         <tr class="tableHeader">
             <th></th>
-            <th>entry</th>
-            <th>title</th>
-            <th>resolution</th>
+            <th width="75">    
+                <div class="colHeader">entry</div>
+                <div class="sortButtons">
+                    <a href="?{{ searchString }}&sort=entry"><img class="sort" src="{% url webemdb 'images/uparrow.png' %}"></a>
+                    <a href="?{{ searchString }}&sort=entry&order=reverse"><img class="sort" src="{% url webemdb 'images/downarrow.png' %}"></a>
+                </div>
+            </th>
+            <th>
+                <div class="colHeader">title</div>
+                <div class="sortButtons">
+                    <a href="?{{ searchString }}&sort=title"><img class="sort" src="{% url webemdb 'images/uparrow.png' %}"></a> 
+                    <a href="?{{ searchString }}&sort=title&order=reverse"><img class="sort" src="{% url webemdb 'images/downarrow.png' %}"></a>
+                </div>
+            </th>
+            <th width="120">
+                <div class="colHeader">resolution</div>
+                <div class="sortButtons">
+                    <a href="?{{ searchString }}&sort=resolution"><img class="sort" src="{% url webemdb 'images/uparrow.png' %}"></a> 
+                    <a href="?{{ searchString }}&sort=resolution&order=reverse"><img class="sort" src="{% url webemdb 'images/downarrow.png' %}"></a>
+                </div>
+            </th>
             <th>sample</td>
         </tr>
         </thead>
@@ -36,8 +91,7 @@
       <tr>
           <td class="gif">
                 <a href="{% url webemdb.views.entry r.entryId %}">
-                  <!-- image only gets displayed when each row of the table is shown -->
-                  <img src="{% url webemdb_gif r.entryId %}" border='0' />
+                  <img src="{% url webemdb_gif r.entryId %}" border='0' class="previewGif"/>
                 </a>
             </td>
           <td><a href="{% url webemdb_entry r.entryId %}">{{ r.entryId }}</a></td>

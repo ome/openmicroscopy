@@ -16,20 +16,20 @@ import omero
 import omero.constants
 import omero.scripts
 from omero.rtypes import rstring, rint, rlong, robject, unwrap, rdouble
+from omero.sys import Parameters, Filter
+import omero.util.script_utils as scriptUtil
+
+import os
+from django.core.servers.basehttp import FileWrapper
+import random
+import math
+from numpy import zeros     # numpy for doing local projections
 
 logger = logging.getLogger('webemdb')
 
 PUBLICATION_NAMESPACE = "openmicroscopy.org/omero/emdb/publication"
 RESOLUTION_NAMESPACE = "openmicroscopy.org/omero/emdb/resolutionByAuthor"  
 
-# for wrapping the bit mask 
-import os, tempfile, zipfile
-from django.core.servers.basehttp import FileWrapper
-import random
-
-from omero.sys import Parameters, Filter
-import omero.util.script_utils as scriptUtil
-from numpy import zeros     # numpy for doing local projections
 
 EMAN2_IMPORTED = False
 try:
@@ -750,32 +750,112 @@ def index (request):
     return render_to_response('webemdb/index.html', {'projects': projects, 'entryCount': len(entryIds), 'randomIds': randomIds})
 
 
+def autocompleteQuery(request):
+    """
+    Returns json data for autocomplete. Search terms must be provided in the request "GET". 
+    E.g. returns a list of ("1003": "Title") results for entries that start with numbers specified. 
+    """
+    conn = getConnection(request)
+    qs = conn.getQueryService()
+    
+    # limit the number of results we return
+    p = omero.sys.Parameters()
+    p.map = {}
+    f = omero.sys.Filter()
+    f.limit = rint(15)
+    f.offset = rint(0)
+    p.theFilter = f
+    
+    projects = []
+    
+    entryText = request.REQUEST.get('entry')
+    if entryText:
+        query = "select p from Project as p where p.name like '%s%s' order by p.name" % (entryText, "%")    # like '123%'
+        projects = qs.findAllByQuery(query, p)
+    
+    results = []
+    
+    for p in projects:
+        entryId = p.getName().getValue()
+        desc = p.getDescription().getValue()
+        title, sample = desc.split("\n")
+        results.append((entryId, title))
+    
+    return HttpResponse(simplejson.dumps(results), mimetype='application/javascript')
+
+
 def entries (request):
     
     conn = getConnection(request)
     qs = conn.getQueryService()
     
-    sortBy = request.REQUEST.get('sort', 'resolution')
+    sortString = ""     # make a string of the current sort, to use in pagination links. E.g. &sort=entry&order=reverse
+    sortBy = request.REQUEST.get('sort', 'entry')
     if sortBy == 'resolution':
         order = "a.doubleValue"
+        sortString += "&sort=resolution"
     elif sortBy == 'title':
         order = "p.description"
+        sortString += "&sort=title"
     elif sortBy == 'entry':
         order = "p.name"
+        sortString += "&sort=entry"
         
     desc = ""
     if "reverse" == request.REQUEST.get('order'):
         desc = "desc"
+        sortString += "&order=reverse"
     
     namespace = RESOLUTION_NAMESPACE
-    query = "select p from Project as p " \
-                    "left outer join fetch p.annotationLinks as a_link " \
-                    "left outer join fetch a_link.child as a " \
-                    "where a.ns='%s' order by %s %s" % (namespace, order, desc)
-                    #and a.doubleValue >= %s and a.doubleValue <= %s 
-    print query
-    projects = qs.findAllByQuery(query, None)
-    #res = qs.findAllByQuery("select a from DoubleAnnotation a", None)
+    # If I don't need to get Projects when there is no child annotation,
+    # then you don't need "outer join" which is intended to return rows (here projects) where a joined table (annotations) are null.
+    #"left outer join fetch p.annotationLinks as a_link " \
+    query = "Project as p " \
+                    "join fetch p.annotationLinks as a_link " \
+                    "join fetch a_link.child as a " \
+                    "where a.ns='%s'" % namespace
+                    
+    searchString = ""      # build up a query and search string (for sort-links in the results page)
+    minRes = request.REQUEST.get('min')
+    maxRes = request.REQUEST.get('max')
+    entryText = request.REQUEST.get('entry')
+    titleText = request.REQUEST.get('title')
+    if minRes:
+        query += " and a.doubleValue >= %s" % minRes
+        searchString += '&min=%s' % minRes
+    if maxRes:
+        query += " and a.doubleValue <= %s" % maxRes
+        searchString += '&max=%s' % maxRes
+    if entryText:
+        query += " and p.name like '%s%s'" % (entryText, "%")
+        searchString += '&entry=%s' % entryText
+    if titleText:
+        query += " and p.description like '%s%s%s'" % ("%", titleText, "%")
+        searchString += '&title=%s' % titleText
+        
+    page = int(request.REQUEST.get('page', 1))  # 1-based
+    resultsPerPage = 20
+        
+    p = omero.sys.Parameters()
+    p.map = {}
+    f = omero.sys.Filter()
+    f.limit = rint(resultsPerPage * page)
+    f.offset = rint(resultsPerPage * (page-1))
+    p.theFilter = f
+    
+    # get the total number of results with no pagination. Returns a list of lists 
+    # the inner list is of len==1 because you only asked for one column ("count(p.id)") and 
+    # the outer list is of size one because you're just asking for the size of one thing.
+    countQuery = "select count(p.id) from "+ query.replace("fetch ", "")    # don't fetch, since we don't want to load data
+    tr = qs.projection(countQuery, None)[0][0]
+    totalResults = tr.getValue()
+    
+    if order:
+        query += " order by %s %s" % (order, desc)
+    # do the search
+    projectsQuery = "select p from " + query
+    #totalResults = len(qs.findAllByQuery(projectsQuery, None))
+    projects = qs.findAllByQuery(projectsQuery, p)
     
     resolutions = []
     
@@ -785,16 +865,20 @@ def entries (request):
         entryId = p.getName().getValue()
         desc = p.getDescription().getValue()
         title, sample = desc.split("\n")
-        print "Project", entryId
         for a in p.copyAnnotationLinks():
-            print "Annotation", a.id.val
             r = a.child.getDoubleValue().getValue()
             break
         resData.append({"entryId":entryId, "title": title, "resolution": r, "sample": sample})
     
-    #resData.sort(key=lambda p: p['resolution'])
+    print float(totalResults)/resultsPerPage
+    pcount = int(math.ceil(float(totalResults)/resultsPerPage))
+    print pcount
+    pageLinks = range(1, pcount+1)
+    print pageLinks
     
-    return render_to_response('webemdb/browse/resolutionByAuthor.html', {'resolutions': resData, 'sorted': sortBy})
+    return render_to_response('webemdb/browse/resolutionByAuthor.html', {'totalResults': totalResults, 'pageLinks': pageLinks, 
+        'sortString':sortString, 'resolutions': resData, 'sorted': sortBy, 'searchString': searchString, 
+        "minRes": minRes, "maxRes": maxRes, "title": titleText})
     
 
 def publications (request):

@@ -1,19 +1,22 @@
 
-// Finished code: Sorting and Paging
+// This script is used by the publications page for pagination, filtering, alternateRowColour
+// and by 'entries' page for alternateRowColors only. 
 
 jQuery.fn.alternateRowColors = function() {
   $('tbody tr', this).not('.filtered').filter(':odd')
     .removeClass('even').addClass('odd');
     $('tbody tr', this).not('.filtered').filter(':even')
         .removeClass('odd').addClass('even');
-  //$('tbody tr:even', this)
-  //  .removeClass('odd').addClass('even');
   return this;
 };
 
 $(document).ready(function() {
     
-    var $table = $('table.sortable');
+    // this is the only code for entries page
+    $('table.alternateRows').alternateRowColors();
+    
+    // now for publications page....
+    var $table = $('table.paginated');
     var filter_values = {};
     var filter_cols = [];
     
@@ -66,82 +69,6 @@ $(document).ready(function() {
     // do filtering when page has loaded - in case there was any text. 
     doFiltering();
     
-    
-    // for our sortable table...
-  $('table.sortable').each(function() {
-    var $table = $(this);
-    $table.alternateRowColors();
-    // for each column (header)
-    $('th', $table).each(function(column) {
-      var $header = $(this);
-      var findSortKey;
-      // decide what we're going to sort on, based on class of th
-      if ($header.is('.sort-alpha')) {
-        findSortKey = function($cell) {
-            // sort by the sort-key text within each cell, or text()
-          return $cell.find('.sort-key').text().toUpperCase()
-            + ' ' + $cell.text().toUpperCase();
-        };
-      }
-      else if ($header.is('.sort-numeric')) {
-        findSortKey = function($cell) {
-          var key = $cell.text().replace(/^[^\d.]*/, '');
-          key = parseFloat(key);
-          return isNaN(key) ? 0 : key;
-        };
-      }
-       
-       // we've got a sort key - now for sorting...   
-      if (findSortKey) {
-        $header.addClass('clickable').hover(function() {
-          $header.addClass('hover');
-        }, function() {
-          $header.removeClass('hover');
-        }).children(".sort").click(function() {               // bind sorting to click of th
-          var sortDirection = 1;
-          if ($header.is('.sorted-asc')) {
-            sortDirection = -1;
-          }
-          // get all the jquery rows as DOM objects...
-          var rows = $table.find('tbody > tr').get();
-          $.each(rows, function(index, row) {
-            var $cell = $(row).children('td').eq(column);
-            row.sortKey = findSortKey($cell);
-          });
-          // sort them
-          rows.sort(function(a, b) {
-            if (a.sortKey < b.sortKey) return -sortDirection;
-            if (a.sortKey > b.sortKey) return sortDirection;
-            return 0;
-          });
-          // add them back to table in order
-          $.each(rows, function(index, row) {
-            $table.children('tbody').append(row);
-            row.sortKey = null;     // remove to prevent memory leaks
-          });
-          // set the class of the header wrt sort order
-          $table.find('th').removeClass('sorted-asc')
-            .removeClass('sorted-desc');
-          if (sortDirection == 1) {
-            $header.addClass('sorted-asc');
-          }
-          else {
-            $header.addClass('sorted-desc');
-          }
-          // for each cell in the sorted col, add sorted class
-          $table.find('td').removeClass('sorted')
-            .filter(':nth-child(' + (column + 1) + ')')
-            .addClass('sorted');
-        // repaint the rows alternate colours and re-paginate 
-          $table.alternateRowColors();
-          $table.trigger('repaginate');
-        });
-      }
-    });
-  });
-});
-
-$(document).ready(function() {
     
     var loadThumbs = function($tr) {
         var $img = $tr.find(".previewGif");
