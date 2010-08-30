@@ -814,7 +814,10 @@ def entries (request):
                     "join fetch p.annotationLinks as a_link " \
                     "join fetch a_link.child as a " \
                     "where a.ns='%s'" % namespace
-                    
+    
+    # do a query for total count before we add restrictions. 
+    totalEntries = qs.projection("select count(p.id) from " + query.replace(" fetch", ""), None)[0][0].getValue()
+    
     searchString = ""      # build up a query and search string (for sort-links in the results page)
     minRes = request.REQUEST.get('min')
     maxRes = request.REQUEST.get('max')
@@ -876,9 +879,9 @@ def entries (request):
     pageLinks = range(1, pcount+1)
     print pageLinks
     
-    return render_to_response('webemdb/browse/resolutionByAuthor.html', {'totalResults': totalResults, 'pageLinks': pageLinks, 
-        'sortString':sortString, 'resolutions': resData, 'sorted': sortBy, 'searchString': searchString, 
-        "minRes": minRes, "maxRes": maxRes, "title": titleText})
+    return render_to_response('webemdb/browse/entries.html', {'totalResults': totalResults, 'pageLinks': pageLinks, 
+        'totalEntries': totalEntries, 'sortString':sortString, 'resolutions': resData, 'sorted': sortBy,
+        'searchString': searchString, "minRes": minRes, "maxRes": maxRes, "title": titleText})
     
 
 def publications (request):

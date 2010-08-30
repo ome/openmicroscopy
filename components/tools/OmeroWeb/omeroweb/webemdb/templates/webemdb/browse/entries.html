@@ -1,6 +1,6 @@
 {% extends "webemdb/base/base_main.html" %}
 
-{% block title %} Resolutions by author {% endblock %}
+{% block title %} EMDB Entries {% endblock %}
 
 {% block jscript %}
 <script type="text/javascript" src="{% url webemdb 'javascript/publications.js' %}"></script>
@@ -34,26 +34,29 @@ th .colHeader {
 {% block content %}
 {% if resolutions %}
 <div id="welcome">
-    <h3>EMDB Resolutions</h3>
+    <div style="padding-left:10px; margin-left:10px">
+        <h3>EMDB Entries</h3>
 
-    <form class="nowrap" method='get' action="">
-    <label>Title</label>
-    <input type="text" name="title" {% if title %} value="{{ title }}" {% endif %} />
-    <input type="submit" value='go' />
-    </form>
-    <form class="nowrap" method='get' action="">
-    <label>Resolution</label>
-    <input type="text" name="min" size='2' {% if minRes %} value="{{ minRes }}" {% endif %} /> -
-    <input type="text" name="max" size='2' {% if maxRes %} value="{{ maxRes }}" {% endif %} />
-    <input type="submit" value='go' />
-    </form>
+        <form class="nowrap" method='get' action="">
+        <label>Title</label>
+        <input type="text" name="title" {% if title %} value="{{ title }}" {% endif %} />
+        <input type="submit" value='go' />
+        </form>
+        <form class="nowrap" method='get' action="">
+        <label>Resolution</label>
+        <input type="text" name="min" size='2' {% if minRes %} value="{{ minRes }}" {% endif %} /> -
+        <input type="text" name="max" size='2' {% if maxRes %} value="{{ maxRes }}" {% endif %} />
+        <input type="submit" value='go' />
+        </form>
 
-    <div>
-        {% for page in pageLinks %}
-            <a href="?{{ searchString }}{{ sortString }}&page={{ page }}">Page {{ page }}</a> |
-        {% endfor %}
-        Total results: {{ totalResults }}
+        <div>
+            {% for page in pageLinks %}
+                <a href="?{{ searchString }}{{ sortString }}&page={{ page }}">Page {{ page }}</a> |
+            {% endfor %}
+            Total results: {{ totalResults }} / {{ totalEntries }} <a href="?">Show All</a>
+        </div>
     </div>
+    
 <div id="content">
     <!-- Header of the entries table -->
     <table class="alternateRows">
