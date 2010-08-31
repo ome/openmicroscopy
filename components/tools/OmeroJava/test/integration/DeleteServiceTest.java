@@ -521,7 +521,7 @@ public class DeleteServiceTest
      * The <code>deletePlate</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(enabled = false)
     public void testDeleteEmptyPlate() 
     	throws Exception
     {
