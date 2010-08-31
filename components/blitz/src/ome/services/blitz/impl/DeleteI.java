@@ -72,10 +72,17 @@ public class DeleteI extends AbstractAmdServant implements _IDeleteOperations,
         callInvokerOnRawArgs(__cb, __current, id, force);
     }
 
-    public void deleteImage_async(AMD_IDelete_deleteImage __cb, long id,
+    public void deleteImage_async(AMD_IDelete_deleteImage __cb, final long imageId,
             boolean force, Current __current) throws ApiUsageException,
             SecurityViolation, ServerError, ValidationException {
-        callInvokerOnRawArgs(__cb, __current, id, force);
+
+        safeRunnableCall(__current, __cb, true, new Callable<Object>() {
+            public Object call() throws Exception {
+                DeleteCommand dc = new DeleteCommand("/Image", imageId, null);
+                makeAndRun(handleId(), dc);
+                return null;
+            }});
+
     }
 
     public void previewImageDelete_async(AMD_IDelete_previewImageDelete __cb,
@@ -84,10 +91,23 @@ public class DeleteI extends AbstractAmdServant implements _IDeleteOperations,
     }
 
     public void deleteImages_async(AMD_IDelete_deleteImages __cb,
-            List<Long> ids, boolean force, Current __current)
+            final List<Long> ids, boolean force, Current __current)
             throws ApiUsageException, SecurityViolation, ServerError,
             ValidationException {
-        callInvokerOnRawArgs(__cb, __current, ids, force);
+
+        safeRunnableCall(__current, __cb, true, new Callable<Object>() {
+            public Object call() throws Exception {
+                if (ids == null || ids.size() == 0) {
+                    return null;
+                }
+                DeleteCommand[] commands = new DeleteCommand[ids.size()];
+                for (int i = 0; i < ids.size(); i++) {
+                    commands[i] = new DeleteCommand("/Image", ids.get(i), null);
+                }
+                makeAndRun(handleId(), commands);
+                return null;
+            }});
+
     }
 
     public void deleteImagesByDataset_async(
@@ -98,13 +118,26 @@ public class DeleteI extends AbstractAmdServant implements _IDeleteOperations,
     }
 
     public void deleteSettings_async(AMD_IDelete_deleteSettings __cb,
-            long imageId, Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, imageId);
+            final long imageId, Current __current) throws ServerError {
+
+        safeRunnableCall(__current, __cb, true, new Callable<Object>() {
+            public Object call() throws Exception {
+                DeleteCommand dc = new DeleteCommand("/Image/Pixels/RenderingDef", imageId, null);
+                makeAndRun(handleId(), dc);
+                return null;
+            }});
     }
 
     public void deletePlate_async(AMD_IDelete_deletePlate __cb,
-            long plateId, Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, plateId);
+            final long plateId, Current __current) throws ServerError {
+
+        safeRunnableCall(__current, __cb, true, new Callable<Object>() {
+            public Object call() throws Exception {
+                DeleteCommand dc = new DeleteCommand("/Plate", plateId, null);
+                makeAndRun(handleId(), dc);
+                return null;
+            }});
+
     }
 
     public void queueDelete_async(final AMD_IDelete_queueDelete __cb,
@@ -113,12 +146,13 @@ public class DeleteI extends AbstractAmdServant implements _IDeleteOperations,
 
         safeRunnableCall(__current, __cb, false, new Callable<DeleteHandlePrx>() {
             public DeleteHandlePrx call() throws Exception {
-                Ice.Identity id = sf.getIdentity("DeleteHandle"+UUID.randomUUID().toString());
+                Ice.Identity id = handleId();
                 DeleteHandleI handle = makeAndLaunchHandle(id, commands);
                 DeleteHandlePrx prx = DeleteHandlePrxHelper.
                     uncheckedCast(sf.registerServant(id, handle));
                 return prx;
             }});
+
     }
 
     public DeleteHandleI makeAndLaunchHandle(final Ice.Identity id, final DeleteCommand...commands) {
@@ -126,4 +160,15 @@ public class DeleteI extends AbstractAmdServant implements _IDeleteOperations,
         threadPool.getExecutor().execute(handle);
         return handle;
     }
+
+    public void makeAndRun(final Ice.Identity id, final DeleteCommand...commands) {
+        DeleteHandleI handle = new DeleteHandleI(id, sf, factory, commands, cancelTimeoutMs);
+        handle.run();
+    }
+
+    private Ice.Identity handleId() {
+        Ice.Identity id = sf.getIdentity("DeleteHandle"+UUID.randomUUID().toString());
+        return id;
+    }
+
 }

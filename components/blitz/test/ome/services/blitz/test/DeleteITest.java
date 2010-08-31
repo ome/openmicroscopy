@@ -34,7 +34,7 @@ import org.jmock.core.InvocationMatcher;
 import org.jmock.core.Stub;
 import org.jmock.core.matcher.InvokeOnceMatcher;
 import org.springframework.transaction.annotation.Transactional;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -48,7 +48,7 @@ public class DeleteITest extends AbstractServantTest {
     Mock adapterMock;
 
     @Override
-    @BeforeMethod
+    @BeforeClass
     protected void setUp() throws Exception {
         super.setUp();
         adapterMock = (Mock) user.ctx.getBean("adapterMock");

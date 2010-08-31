@@ -1161,7 +1161,7 @@ public class DeleteServiceTest
      * Test to delete an image with acquisition data.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(enabled = false)
     public void testDeleteImageWithAcquisitionData() 
     	throws Exception
     {
