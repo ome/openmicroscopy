@@ -112,6 +112,7 @@ echo "# OMERODIR /OMERO vboxsf user=omero,rw" | sudo tee -a /etc/fstab
 #webclient
 cd var
 mkdir lib
+cd lib
 FILE=custom_settings.py
 cat > ${FILE} << EOF
 # custom_settings.py
