@@ -4,13 +4,14 @@
 
 {% block link %}
 <link rel="stylesheet" href="{% url webemdb 'css/entry.css' %}" type="text/css" />
-<!-- for viewport -->
+<!-- for slider -->
+<link rel="stylesheet" href="{% url webstatic 'css/ui-1.7.2.css' %}" type="text/css" />
 {% endblock %}
 
 {% block jscript %}
 <script type="text/javascript" src="{% url webemdb 'javascript/entry.js' %}"></script>
-<script type="text/javascript" src="{% url webstatic 'javascript/slider.js' %}"></script>
 <script type="text/javascript" src="{% url webstatic 'javascript/ui/ui.core.js' %}"></script>
+<script type="text/javascript" src="{% url webstatic 'javascript/ui/ui.slider.js' %}"></script>
 <script type="text/javascript">
 function openPopup(url) {
     owindow = window.open(url, 'anew', config='height=600,width=850,left=50,top=50,toolbar=no,menubar=no,scrollbars=yes,resizable=yes,location=no,directories=no,status=no');
@@ -18,17 +19,8 @@ function openPopup(url) {
     return false;
 }
 
-$(function() {
-    $("#slider").slider({
-        value:100,
-        min: 0,
-        max: 500,
-        step: 50,
-        slide: function(event, ui) {
-            $("#amount").val('$' + ui.value);
-        }
-    });
-    $("#amount").val('$' + $("#slider").slider("value"));
+$(document).ready(function() {
+    
 });
 </script>
 
@@ -189,7 +181,11 @@ $(function() {
                         <!-- <div class="oavControl" id='red'>Red</div> -->
                         Rotate: Click + Drag<br />
                         Zoom: Shift + Drag Up/Down<br />
-                        <div id="slider"></div>
+                        <div id="contourLevelSlider">
+                            <div>Contour Level</div>
+                            <div id="slider"></div>
+                            <span id="sliderValue"></span> | <a href="#" id="setContourLevel">Update</a>
+                        </div>
                         {% if not sizeWarning %} <!-- should be viewable -->
                         <p>If the map fails to display, try restarting your browser</p>
                         {% endif %}

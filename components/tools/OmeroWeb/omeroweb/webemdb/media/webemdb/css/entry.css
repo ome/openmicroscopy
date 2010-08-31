@@ -105,3 +105,6 @@
     border: solid gray 1px;
     height: 500px;
 }
+#contourLevelSlider {
+    padding: 10px;
+}

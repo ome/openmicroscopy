@@ -158,11 +158,41 @@ $(document).ready(function() {
             $("#map").append($(html));
         });
         // build html table from the 'statistics' xml data
+        var minMapValue = 0;
+        var maxMapValue = 100;
+        var avgMapValue = 0;
+        var stdMapValue = 0;
         $(data).find("statistics").each(function() {
+            minMapValue = parseFloat($(this).find("minimum").text());
+            maxMapValue = parseFloat($(this).find("maximum").text());
+            avgMapValue = parseFloat($(this).find("average").text());
+            stdMapValue = parseFloat($(this).find("std").text());
             var elements = ["minimum", "maximum", "average", "std"];
             var labels = ["Minimum", "Maximum", "Average", "Standard Deviation"];
             var html = buildTable($(this), elements, labels);
             $("#statistics").append($(html));
+        });
+        
+        // now we have the variables we need to create the contour-level slider. 
+        $("#slider").slider({
+            value:50,
+            min: 0,
+            max: 100,
+            slide: function(event, ui) {
+                var v = ui.value;
+                var val = minMapValue + ((maxMapValue - minMapValue) * (v / 100));
+                // var val = avgMapValue - (stdMapValue/2) + ((v / 100) * stdMapValue);
+                $("#sliderValue").text(val.toFixed(2));
+            }
+        });
+        $("#setContourLevel").click(function() {
+            var v = $("#slider").slider("value");
+            var val = minMapValue + ((maxMapValue - minMapValue) * (v / 100));
+            //var val = avgMapValue - (stdMapValue/2) + ((v / 100) * stdMapValue);
+            var command = "map mapA contour 0 "+ val.toFixed(2) +";"; 
+            execute_oav_command(command);
+            
+            return false;
         });
     });
     
