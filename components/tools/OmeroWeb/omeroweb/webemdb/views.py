@@ -784,6 +784,43 @@ def autocompleteQuery(request):
     return HttpResponse(simplejson.dumps(results), mimetype='application/javascript')
 
 
+def search(request):
+    
+    conn = getConnection(request)
+    
+    qs = conn.getQueryService()
+    import omero.model
+    searchTerm = request.REQUEST.get('search')
+    
+    # set up pagination
+    page = int(request.REQUEST.get('page', 1))  # 1-based
+    resultsPerPage = 20
+    #f.limit = rint(resultsPerPage * page)
+    #f.offset = rint(resultsPerPage * (page-1))
+    
+    p = omero.sys.Parameters()
+    p.map = {}
+    f = omero.sys.Filter()
+    f.limit = rint(5)
+    f.offset = rint(0)
+    p.theFilter = f
+    
+    results = []
+    if searchTerm:
+        projects = qs.findAllByFullText('Project', "file.contents:%s" % searchTerm, p)
+        print "projects", len(projects)
+        for p in projects:
+            entryId = p.getName().getValue()
+            desc = p.getDescription().getValue()
+            title, sample = desc.split("\n")
+            results.append({"entryId":entryId, "title": title, "sample": sample})
+    else:
+        print "no search term"
+    
+    
+    return render_to_response('webemdb/browse/search.html', {'searchString': searchTerm, 'results': results, 'nextPage': page+1 })
+    
+
 def entries (request):
     
     conn = getConnection(request)
@@ -873,11 +910,8 @@ def entries (request):
             break
         resData.append({"entryId":entryId, "title": title, "resolution": r, "sample": sample})
     
-    print float(totalResults)/resultsPerPage
     pcount = int(math.ceil(float(totalResults)/resultsPerPage))
-    print pcount
     pageLinks = range(1, pcount+1)
-    print pageLinks
     
     return render_to_response('webemdb/browse/entries.html', {'totalResults': totalResults, 'pageLinks': pageLinks, 
         'totalEntries': totalEntries, 'sortString':sortString, 'resolutions': resData, 'sorted': sortBy,

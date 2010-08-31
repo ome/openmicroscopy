@@ -37,23 +37,27 @@ th .colHeader {
     <div style="padding-left:10px; margin-left:10px">
         <h3>EMDB Entries</h3>
 
-        <form class="nowrap" method='get' action="">
-        <label>Title</label>
-        <input type="text" name="title" {% if title %} value="{{ title }}" {% endif %} />
-        <input type="submit" value='go' />
-        </form>
-        <form class="nowrap" method='get' action="">
-        <label>Resolution</label>
-        <input type="text" name="min" size='2' {% if minRes %} value="{{ minRes }}" {% endif %} /> -
-        <input type="text" name="max" size='2' {% if maxRes %} value="{{ maxRes }}" {% endif %} />
-        <input type="submit" value='go' />
+        <form method='get' action="">
+            <div class="nowrap">
+                <label>Title</label>
+                <input type="text" name="title" {% if title %} value="{{ title }}" {% endif %} />
+            </div>
+            <div class="nowrap">
+                <label>Resolution</label>
+                    <input type="text" name="min" size='2' {% if minRes %} value="{{ minRes }}" {% endif %} /> -
+                    <input type="text" name="max" size='2' {% if maxRes %} value="{{ maxRes }}" {% endif %} />
+                <input type="submit" value='search' />
+            </div>
         </form>
 
         <div>
             {% for page in pageLinks %}
                 <a href="?{{ searchString }}{{ sortString }}&page={{ page }}">Page {{ page }}</a> |
             {% endfor %}
-            Total results: {{ totalResults }} / {{ totalEntries }} <a href="?">Show All</a>
+            Total results: {{ totalResults }} / {{ totalEntries }} 
+                {% ifnotequal totalResults totalEntries %}
+                    <a href="?">Show All</a>
+                {% endifnotequal %}
         </div>
     </div>
     

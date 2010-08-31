@@ -31,6 +31,13 @@
             <input type="submit" value='go' />
             </form>
         </div>
+        <div style="float:right; padding:5px">
+            <form class="nowrap" method='get' action="{% url webemdb_search %}">
+            <label>Search</label>
+            <input type="text" name="search" />
+            <input type="submit" value='go' />
+            </form>
+        </div>
     </div>
     <div class="clear"></div>
     <div id="header_menu"><div id="menu_bar">{% include "webemdb/base/menu.html" %}</div></div>
