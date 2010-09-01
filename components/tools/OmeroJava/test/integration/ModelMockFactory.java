@@ -88,6 +88,7 @@ import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionI;
 import omero.model.PlateI;
 import omero.model.Pulse;
+import omero.model.Shape;
 import omero.model.StageLabel;
 import omero.model.StageLabelI;
 import omero.model.StatsInfo;
@@ -379,6 +380,7 @@ class ModelMockFactory
     	Objective objective = new ObjectiveI();
     	objective.setManufacturer(omero.rtypes.rstring("manufacturer"));
     	objective.setModel(omero.rtypes.rstring("model"));
+    	objective.setSerialNumber(omero.rtypes.rstring("0123456"));
     	objective.setCalibratedMagnification(omero.rtypes.rdouble(1));
     	//correction
     	//already tested see PixelsService enumeration.

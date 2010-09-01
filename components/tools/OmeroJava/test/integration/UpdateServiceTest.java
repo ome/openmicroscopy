@@ -1270,7 +1270,7 @@ public class UpdateServiceTest
 	 * @throws Exception  Thrown if an error occurred.
 	 */
     @Test
-    public void testCreateEllipse() 
+    public void testCreateROIWithEllipse() 
     	throws Exception
     {
     	ImageI image = (ImageI) iUpdate.saveAndReturnObject(
