@@ -33,8 +33,8 @@ RESOLUTION_NAMESPACE = "openmicroscopy.org/omero/emdb/resolutionByAuthor"
 
 EMAN2_IMPORTED = False
 try:
-    from EMAN2 import *
-    EMAN2_IMPORTED = True
+    #from EMAN2 import *
+    EMAN2_IMPORTED = False
 except:
     logger.warning("Failed to import EMAN2. Some features of webemdb will not be supported.")
 
@@ -315,14 +315,14 @@ def projection_axis(request, imageId, axis, get_slice=False):
     key = "%s_proj_%s" % (axis, imageId)
     if get_slice:
         key = "%s_slice_%s" % (axis, imageId)
-    print "\n\nchecking cache for array: %s" % key
-    print "    %s secs" % (time.time() - startTime)
+    #print "\n\nchecking cache for array: %s" % key
+    #print "    %s secs" % (time.time() - startTime)
     proj = cache.get(key)
     
     if proj == None:
         
-        print "creating cube of data..."
-        print "    %s secs" % (time.time() - startTime)
+        #print "creating cube of data..."
+        #print "    %s secs" % (time.time() - startTime)
         rawPixelStore = conn.createRawPixelsStore()
         queryService = conn.getQueryService()
 
@@ -345,8 +345,8 @@ def projection_axis(request, imageId, axis, get_slice=False):
             cube[sizeZ-theZ-1] = plane2D
             
         # do the 3 projections and 3 central slices while we have the cube - save projections, not cube
-        print "doing projection"
-        print "    %s secs" % (time.time() - startTime)
+        #print "doing projection"
+        #print "    %s secs" % (time.time() - startTime)
         
         proj_z = zeros( (sizeX,sizeY) )
         for z in range(sizeZ):
@@ -366,8 +366,8 @@ def projection_axis(request, imageId, axis, get_slice=False):
             proj_y += yPlane
         slice_y = cube[:, sizeY/2, :]
             
-        print "setting cache"
-        print "    %s secs" % (time.time() - startTime)
+        #print "setting cache"
+        #print "    %s secs" % (time.time() - startTime)
         # save arrays to cache
         cache.set(x_proj_key, proj_x)
         cache.set(x_slice_key, slice_x)
@@ -394,8 +394,8 @@ def projection_axis(request, imageId, axis, get_slice=False):
             else:
                 proj = proj_y
     
-    print "got 2D plane...", proj.shape
-    print "    %s secs" % (time.time() - startTime)
+    #print "got 2D plane...", proj.shape
+    #print "    %s secs" % (time.time() - startTime)
         
     tempdir = settings.FILE_UPLOAD_TEMP_DIR
     tempJpg = os.path.join(tempdir, ('%s.projection.jpg' % (conn._sessionUuid))).replace('\\','/')
@@ -403,11 +403,11 @@ def projection_axis(request, imageId, axis, get_slice=False):
     #import matplotlib.pyplot as plt
     #plt.savefig(tempJpg)
     
-    #import scipy
-    #scipy.misc.imsave(tempJpg, proj)
+    import scipy
+    scipy.misc.imsave(tempJpg, proj)
     
-    em = EMNumPy.numpy2em(proj)
-    em.write_image(tempJpg)
+    #em = EMNumPy.numpy2em(proj)
+    #em.write_image(tempJpg)
     
     originalFile_data = FileWrapper(file(tempJpg))
     rsp = HttpResponse(originalFile_data)

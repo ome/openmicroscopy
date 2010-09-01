@@ -174,10 +174,10 @@ INSTALLED_APPS = (
 
 # EMAN2 functionality is used in some features of the webemdb application. E.g. see webemdb.views.py eman()
 # Do the import here since EMAN2 import fails if it happens for the first time in views.py "signal only works in main thread"
-try:
-    from EMAN2 import *
-except:
-    logger.warning("Failed to import EMAN2. Some features of webemdb will not be supported.")
+#try:
+#    from EMAN2 import *
+#except:
+#    logger.warning("Failed to import EMAN2. Some features of webemdb will not be supported.")
     
 
 FEEDBACK_URL = "qa.openmicroscopy.org.uk:80"
