@@ -52,6 +52,7 @@ import omero.model.ImageAnnotationLinkI;
 import omero.model.Instrument;
 import omero.model.Laser;
 import omero.model.LightEmittingDiode;
+import omero.model.LightSource;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
 import omero.model.LongAnnotationI;
@@ -610,7 +611,7 @@ public class MetadataServiceTest
     }
     
     /**
-     * Tests the retrieval of an instrument with a laser as light source.
+     * Tests the retrieval of an instrument light sources of different types.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -785,6 +786,43 @@ public class MetadataServiceTest
     }
     
     /**
+     * Tests the retrieval of an instrument several light sources.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadInstrumentWithSimilarLightSources() 
+    	throws Exception
+    {
+    	Instrument instrument;
+    	String light;
+    	instrument = mmFactory.createInstrument(
+    			ModelMockFactory.LIGHT_SOURCES[0]);
+    	for (int i = 0; i < ModelMockFactory.LIGHT_SOURCES.length; i++) {
+    		light = ModelMockFactory.LIGHT_SOURCES[i];
+    		if (ModelMockFactory.LASER.equals(light))
+        		instrument.addLightSource(mmFactory.createLaser());
+        	else if (ModelMockFactory.FILAMENT.equals(light))
+        		instrument.addLightSource(mmFactory.createFilament());
+        	else if (ModelMockFactory.ARC.equals(light))
+        		instrument.addLightSource(mmFactory.createArc());
+        	else if (ModelMockFactory.LIGHT_EMITTING_DIODE.equals(light))
+        		instrument.addLightSource(mmFactory.createLightEmittingDiode());
+    	}
+    	instrument = (Instrument) iUpdate.saveAndReturnObject(instrument);
+    	assertNotNull(instrument);
+    	List<IObject> result = iMetadata.loadInstrument(
+    			instrument.getId().getValue());
+    	Iterator<IObject> i = result.iterator();
+    	IObject object;
+    	int count = 0;
+    	while (i.hasNext()) {
+    		object = i.next();
+			if (object instanceof LightSource) count++;
+		}
+    	assertTrue(count == (ModelMockFactory.LIGHT_SOURCES.length+1));
+    }
+    
+    /**
      * Tests the retrieval of channel acquisition data.
      * @throws Exception Thrown if an error occurred.
      */
@@ -802,6 +840,8 @@ public class MetadataServiceTest
     	//create an instrument.
     	Instrument instrument = mmFactory.createInstrument(
     			ModelMockFactory.LASER);
+    	//add second laser
+    	instrument.addLightSource(mmFactory.createLaser());
     	instrument = (Instrument) iUpdate.saveAndReturnObject(instrument);
     	assertNotNull(instrument);
     	//retrieve the detector.
@@ -812,7 +852,11 @@ public class MetadataServiceTest
     	sql = "select d from FilterSet as d where d.instrument.id = :iid";
     	FilterSet filterSet = (FilterSet) iQuery.findByQuery(sql, param);
     	sql = "select d from Laser as d where d.instrument.id = :iid";
-    	Laser laser = (Laser) iQuery.findByQuery(sql, param);
+    	List<IObject> lasers =  iQuery.findAllByQuery(sql, param);
+    	assertTrue(lasers.size() == 2);
+    	Laser laser = (Laser) lasers.get(0);
+    	
+    	
     	sql = "select d from Dichroic as d where d.instrument.id = :iid";
     	Dichroic dichroic = (Dichroic) iQuery.findByQuery(sql, param);
     	sql = "select d from Objective as d where d.instrument.id = :iid";
