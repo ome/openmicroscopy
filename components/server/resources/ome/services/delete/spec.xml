@@ -142,5 +142,38 @@ plus test REAP
         </constructor-arg>
     </bean>
 
+    <bean parent="delSpec" name="/Well">
+        <constructor-arg>
+            <list>
+                <value>/Well/WellSample/WellSampleAnnotationLink</value>
+                <value>/Well/WellSample</value>
+                <value>/Image;;/Well/WellSample</value>
+                <value>/Well/WellAnnotationLink</value>
+                <value>/Well</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean parent="delSpec" name="/Plate">
+        <constructor-arg>
+            <list>
+                <value>/Well;;/Plate</value>
+                <value>/Plate/PlateAcquisition</value>
+                <value>/Plate/PlateAnnotationLink</value>
+                <value>/Plate/ScreenPlateLink</value><!-- TODO: or do we need Plate+SPL -->
+                <value>/Plate</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean parent="delSpec" name="/Screen">
+        <constructor-arg>
+            <list>
+                <value>/Plate;;/Screen/ScreenPlateLink</value>
+                <value>/Screen/ScreenAnnotationLink</value>
+                <value>/Screen</value>
+            </list>
+        </constructor-arg>
+    </bean>
 
 </beans>

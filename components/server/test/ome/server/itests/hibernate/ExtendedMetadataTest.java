@@ -30,12 +30,12 @@ import org.testng.annotations.Test;
 
 public class ExtendedMetadataTest extends AbstractManagedContextTest {
 
-    ExtendedMetadata metadata;
+    ExtendedMetadata.Impl metadata;
 
     @BeforeClass
     public void init() throws Exception {
         setUp();
-        metadata = new ExtendedMetadata();
+        metadata = new ExtendedMetadata.Impl();
         metadata.setSessionFactory((SessionFactory)applicationContext.getBean("sessionFactory"));
         tearDown();
     }

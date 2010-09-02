@@ -158,7 +158,6 @@
       <constructor-arg ref="managed-ome.api.IDelete"/>
       <constructor-arg ref="throttlingStrategy"/>
       <constructor-arg ref="threadPool"/>
-      <constructor-arg ref="deleteSpecFactory"/>
       <constructor-arg value="${omero.threads.cancel_timeout}"/>
   </bean>
 

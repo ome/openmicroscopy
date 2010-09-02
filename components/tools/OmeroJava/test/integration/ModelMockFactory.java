@@ -836,40 +836,40 @@ class ModelMockFactory
 	 * 					<code>false</code> to create a simple image.
 	 * @return See above.
 	 */
-	Plate createPlate(int rows, int columns, int fields, boolean
-			plateAcquisition, boolean fullImage)
-		throws Exception
-	{
-    	Plate p = new PlateI();
-    	p.setRows(omero.rtypes.rint(rows));
-    	p.setCols(omero.rtypes.rint(columns));
-    	p.setName(omero.rtypes.rstring("plate"));
-    	//now make wells
-    	Well well;
-    	WellSample sample;
-    	PlateAcquisition pa = null;
-    	if (plateAcquisition) {
-    		pa = new PlateAcquisitionI();
-        	pa.setName(omero.rtypes.rstring("plate acquisition"));
-        	pa.setPlate(p);
-    	}
-    	
-    	for (int row = 0; row < rows; row++) {
-			for (int column = 0; column < columns; column++) {
-				well = new WellI();
-				well.setRow(omero.rtypes.rint(row));
-				well.setColumn(omero.rtypes.rint(column));
-				for (int field = 0; field < fields; field++) {
-					sample = new WellSampleI();
-					if (fullImage) sample.setImage(createImage());
-					else sample.setImage(simpleImage(0));
-					well.addWellSample(sample);
-					if (plateAcquisition) pa.addWellSample(sample);
-				}
-				p.addWell(well);
-			}
-		}
-		return p;
-	}
+    Plate createPlate(int rows, int columns, int fields, boolean
+            plateAcquisition, boolean fullImage)
+        throws Exception
+    {
+        Plate p = new PlateI();
+        p.setRows(omero.rtypes.rint(rows));
+        p.setCols(omero.rtypes.rint(columns));
+        p.setName(omero.rtypes.rstring("plate"));
+        //now make wells
+        Well well;
+        WellSample sample;
+        PlateAcquisition pa = null;
+        if (plateAcquisition) {
+            pa = new PlateAcquisitionI();
+            pa.setName(omero.rtypes.rstring("plate acquisition"));
+            pa.setPlate(p);
+        }
+
+        for (int row = 0; row < rows; row++) {
+            for (int column = 0; column < columns; column++) {
+                well = new WellI();
+                well.setRow(omero.rtypes.rint(row));
+                well.setColumn(omero.rtypes.rint(column));
+                for (int field = 0; field < fields; field++) {
+                    sample = new WellSampleI();
+                    if (fullImage) sample.setImage(createImage());
+                    else sample.setImage(simpleImage(0));
+                    well.addWellSample(sample);
+                    if (plateAcquisition) pa.addWellSample(sample);
+                }
+                p.addWell(well);
+            }
+        }
+        return p;
+    }
 	
 }

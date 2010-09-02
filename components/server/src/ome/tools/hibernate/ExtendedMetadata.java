@@ -49,7 +49,66 @@ import org.springframework.context.event.ContextRefreshedEvent;
  */
 @RevisionDate("$Date$")
 @RevisionNumber("$Revision$")
-public class ExtendedMetadata implements ApplicationListener {
+public interface ExtendedMetadata {
+
+    /**
+     * Returns all the classes which implement {@link IAnnotated}
+     */
+    Set<Class<IAnnotated>> getAnnotationTypes();
+
+    /**
+     * Returns the query for obtaining the number of collection items to a
+     * particular instance. All such queries will return a ResultSet with rows
+     * of the form: 0 (Long) id of the locked class 1 (Long) count of the
+     * instances locking that class
+     *
+     * @param field
+     *            Field name as specified in the class.
+     * @return String query. Never null.
+     * @throws ApiUsageException
+     *             if return value would be null.
+     */
+    String getCountQuery(String field) throws ApiUsageException;
+
+    /**
+     * walks the {@link IObject} argument <em>non-</em>recursively and gathers
+     * all {@link IObject} instances which will be linkd to by the
+     * creation or updating of the argument. (Previously this was called "locking"
+     * since a flag was set on the object to mark it as linked, but this was
+     * removed in 4.2)
+     *
+     * @param iObject
+     *            A newly created or updated {@link IObject} instance which
+     *            might possibly lock other {@link IObject IObjects}. A null
+     *            argument will return an empty array to be checked.
+     * @return A non-null array of {@link IObject IObjects} which will be linked to.
+     */
+    IObject[] getLockCandidates(IObject iObject);
+
+    /**
+     * returns all class/field name pairs which may possibly link to an object
+     * of type <code>klass</code>.
+     *
+     * @param klass
+     *            Non-null {@link Class subclass} of {@link IObject}
+     * @return A non-null array of {@link String} queries which can be used to
+     *         determine if an {@link IObject} instance can be unlocked.
+     * @see Permissions.Flag#LOCKED
+     */
+    String[][] getLockChecks(Class<? extends IObject> klass);
+
+    /**
+     * Walks both the {@link #locksHolder} and the {@link #lockedByHolder} data
+     * for "from" argument to see if there is any direct relationship to th
+     * "to" argument. If there is, the name will be returned. Otherwise, null.
+     */
+    String getRelationship(String from, String to);
+
+/**
+ * Sole implementatino of ExtendedMetadata. The separation is intended to make
+ * unit testing without a full {@link ExtendedMetadata} possible.
+ */
+public static class Impl implements ExtendedMetadata, ApplicationListener {
 
     private final static Log log = LogFactory.getLog(ExtendedMetadata.class);
 
@@ -650,5 +709,5 @@ class Immutables {
     public String[] getImmutableFields() {
         return immutableFields;
     }
-
+}
 }

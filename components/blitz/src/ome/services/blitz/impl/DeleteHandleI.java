@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import ome.conditions.InternalException;
 import ome.services.delete.DeleteException;
+import ome.services.delete.DeleteIds;
 import ome.services.delete.DeleteSpec;
 import ome.services.delete.DeleteSpecFactory;
 import ome.services.util.Executor;
@@ -354,6 +355,7 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
     }
 
     public void steps(Session session, Report report) throws Cancel {
+        DeleteIds ids = null;
         for (int j = 0; j < report.steps; j++) {
             report.stepStarts[j] = System.currentTimeMillis();
             try {
@@ -362,7 +364,12 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                     throw new Cancel("Not ready");
                 }
 
-                report.spec.delete(session, j);
+                // Initialize on the first. Any exceptions should
+                // cancel the whole process.
+                if (ids == null) {
+                    ids = new DeleteIds(session, report.spec);
+                }
+                report.spec.delete(session, j, ids);
             } catch (DeleteException de) {
                 report.error = de.message;
                 if (de.cancel) {

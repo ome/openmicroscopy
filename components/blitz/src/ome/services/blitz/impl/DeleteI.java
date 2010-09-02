@@ -49,13 +49,10 @@ public class DeleteI extends AbstractAmdServant implements _IDeleteOperations,
 
     private final int cancelTimeoutMs;
 
-    private final DeleteSpecFactory factory;
-
     private/* final */ServiceFactoryI sf;
 
-    public DeleteI(IDelete service, BlitzExecutor be, ThreadPool threadPool, DeleteSpecFactory factory, int cancelTimeoutMs) {
+    public DeleteI(IDelete service, BlitzExecutor be, ThreadPool threadPool, int cancelTimeoutMs) {
         super(service, be);
-        this.factory = factory;
         this.threadPool = threadPool;
         this.cancelTimeoutMs = cancelTimeoutMs;
     }
@@ -156,12 +153,14 @@ public class DeleteI extends AbstractAmdServant implements _IDeleteOperations,
     }
 
     public DeleteHandleI makeAndLaunchHandle(final Ice.Identity id, final DeleteCommand...commands) {
+        DeleteSpecFactory factory = sf.context.getBean("deleteSpecFactory", DeleteSpecFactory.class);
         DeleteHandleI handle = new DeleteHandleI(id, sf, factory, commands, cancelTimeoutMs);
         threadPool.getExecutor().execute(handle);
         return handle;
     }
 
     public void makeAndRun(final Ice.Identity id, final DeleteCommand...commands) {
+        DeleteSpecFactory factory = sf.context.getBean("deleteSpecFactory", DeleteSpecFactory.class);
         DeleteHandleI handle = new DeleteHandleI(id, sf, factory, commands, cancelTimeoutMs);
         handle.run();
     }

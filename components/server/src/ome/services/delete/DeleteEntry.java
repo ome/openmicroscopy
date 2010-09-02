@@ -7,6 +7,7 @@
 
 package ome.services.delete;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -57,23 +58,39 @@ public class DeleteEntry {
         this.parts = split(name);
     }
 
+    /**
+     * Splits the name of the entry into the path components. Any suffixes
+     * prefixed with a "+" are stripped.
+     */
     private static String[] split(String name) {
         String[] parts0 = name.split("/");
-        String[] parts1 = new String[parts0.length-1];
+        String part = null;
+        for (int i = 0; i < parts0.length; i++) {
+            part = parts0[i];
+            int idx = part.indexOf("+");
+            if (idx > 0) {
+                parts0[i] = part.substring(0, idx);
+            }
+        }
+        String[] parts1 = new String[parts0.length - 1];
         System.arraycopy(parts0, 1, parts1, 0, parts1.length);
         return parts1;
     }
 
-    private static String[] prepend(String superspec, String path, String[] ownParts) {
+    private static String[] prepend(String superspec, String path,
+            String[] ownParts) {
         if (superspec == null || superspec.length() == 0) {
             return ownParts;
         }
         String[] superParts = split(superspec);
         String[] pathParts = split(path);
-        String[] totalParts = new String[superParts.length + pathParts.length + ownParts.length];
+        String[] totalParts = new String[superParts.length + pathParts.length
+                + ownParts.length];
         System.arraycopy(superParts, 0, totalParts, 0, superParts.length);
-        System.arraycopy(pathParts, 0, totalParts, superParts.length, pathParts.length);
-        System.arraycopy(ownParts, 0, totalParts, superParts.length + pathParts.length, ownParts.length);
+        System.arraycopy(pathParts, 0, totalParts, superParts.length,
+                pathParts.length);
+        System.arraycopy(ownParts, 0, totalParts, superParts.length
+                + pathParts.length, ownParts.length);
         return totalParts;
     }
 
@@ -89,7 +106,7 @@ public class DeleteEntry {
     // Helpers
     //
 
-    protected void checkArgs(Object...values) {
+    protected void checkArgs(Object... values) {
         for (Object value : values) {
             if (value == null) {
                 throw new FatalBeanException("Null argument");
@@ -131,16 +148,16 @@ public class DeleteEntry {
     }
 
     protected String getPath(Matcher m) {
-            String path = m.group(5);
-            if (path == null) {
-                return "";
-            }
-            return path;
+        String path = m.group(5);
+        if (path == null) {
+            return "";
+        }
+        return path;
     }
 
     /**
-     * Load the spec which has the same name as this entry, but do not load
-     * the spec if the name matches {@link #name}
+     * Load the spec which has the same name as this entry, but do not load the
+     * spec if the name matches {@link #name}
      */
     protected void postProcess(Map<String, DeleteSpec> specs) {
         if (name.equals(self.getName())) {
@@ -149,4 +166,11 @@ public class DeleteEntry {
         this.subSpec = specs.get(name);
     }
 
+    @Override
+    public String toString() {
+        return "DeleteEntry [name=" + name + ", parts="
+                + Arrays.toString(parts) + ", op=" + op + ", path=" + path
+                + (subSpec == null ? "" : ", subSpec=" + subSpec.getName())
+                + "]";
+    }
 }

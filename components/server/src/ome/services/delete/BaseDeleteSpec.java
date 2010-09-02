@@ -11,8 +11,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import ome.api.IDelete;
@@ -37,6 +39,10 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
 
     private final static Log log = LogFactory.getLog(BaseDeleteSpec.class);
 
+    //
+    // Bean-creation time values
+    //
+
     /**
      * The paths which make up this delete specification. These count as the
      * steps which will be performed by multiple calls to
@@ -48,50 +54,34 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
 
     private/* final */String beanName = null;
 
+    //
+    // Initialization-time values
+    //
+
     /**
-     * The id of the root type which will be deleted. Note: if this delete
-     * comes from a subspec, then the id points to the type of the supertype
-     * not the type for this entry itself. For example, if this is "/Dataset"
-     * but it is being deleted as a part of "/Project" then the id refers to the
-     * project and not the dataset.
+     * The id of the root type which will be deleted. Note: if this delete comes
+     * from a subspec, then the id points to the type of the supertype not the
+     * type for this entry itself. For example, if this is "/Dataset" but it is
+     * being deleted as a part of "/Project" then the id refers to the project
+     * and not the dataset.
      */
-    private/* final */long id;
+    private long id = -1;
 
     /**
      * Path of the superspec.
      */
-    private/* final */String superspec;
+    private String superspec;
 
     /**
      * Options passed to the {@link #initialize(long, Map)} method, which may be
      * used during {@link #delete(Session, int)} to alter behavior.
      */
-    private/* final */Map<String, String> options;
+    private Map<String, String> options;
 
     /**
-     * A list of ids per step which should be deleted. These are precalculated
-     * on {@link #initialize(long, Map)} so that foreign key constraints which
-     * require a higher level object to be deleted first, can be removed.
-     *
-     * For example,
-     *
-     * <pre>
-     * /Channel
-     * /Channel/StatsInfo
-     * </pre>
-     *
-     * requires the Channel to be deleted first, but without the Channel,
-     * there's no way to detect which StatsInfo should be removed. Therefore,
-     * {@link #backupIds} in this case would contain:
-     *
-     * <pre>
-     * [
-     *  null,      # Nothing for Channel.
-     *  [1,2,3],   # The ids of all StatsInfo object which should be removed.
-     * ]
-     * </pre>
+     * Map of step numbers to the number of substeps for that step.
      */
-    private/* final */List<List<Long>> backupIds;
+    private Map<Integer, Integer> substeps = new HashMap<Integer, Integer>();
 
     /**
      * Simplified constructor, primarily used for testing.
@@ -121,6 +111,10 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
         return this.beanName;
     }
 
+    public String getSuperSpec() {
+        return this.superspec;
+    }
+
     public void postProcess(Map<String, DeleteSpec> specs) {
         for (DeleteEntry entry : entries) {
             entry.postProcess(specs);
@@ -129,44 +123,61 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
 
     public int initialize(long id, String superspec, Map<String, String> options)
             throws DeleteException {
+
+        if (this.id >= 0) {
+            throw new IllegalStateException("Currently initialized!: " + this);
+        }
+
+        for (int i = 0; i < entries.size(); i++) {
+            DeleteEntry entry = entries.get(i);
+            DeleteSpec subSpec = entry.getSubSpec();
+            int subStepCount = 0;
+            if (subSpec != null) {
+                if (subSpec == this) {
+                    throw new DeleteException(true, "Self-reference subspec:"
+                            + this);
+                }
+                subStepCount = subSpec.initialize(id, superspec + entry.path,
+                        options);
+            }
+            substeps.put(i, subStepCount);
+        }
+
         this.id = id;
         this.options = options;
         this.superspec = superspec == null ? "" : superspec;
         return entries.size();
     }
 
-    public String delete(Session session, int step) throws DeleteException {
+    public Iterator<DeleteSpec> walk() {
+        return new SubSpecIterator(this);
+    }
 
-        if (step == 0) {
-            this.backupIds = backupIds(session);
-        }
+    public List<DeleteEntry> entries() {
+        return new ArrayList<DeleteEntry>(entries);
+    }
+
+    public String delete(Session session, int step, DeleteIds deleteIds)
+            throws DeleteException {
 
         try {
             DeleteEntry entry = entries.get(step);
             DeleteSpec subSpec = entry.getSubSpec();
+            int subStep = substeps.get(step);
             if (subSpec != null) {
-                if (subSpec == this) {
-                    throw new DeleteException(true, "Self-reference subspec:" + this);
-                }
-
-                int subStep = subSpec.initialize(id, superspec + entry.path, options);
                 for (int i = 0; i < subStep; i++) {
-                    subSpec.delete(session, i);
+                    subSpec.delete(session, i, deleteIds);
                 }
             } else {
-                List<Long> ids = backupIds.get(step);
+                List<Long> ids = deleteIds.get(this, step);
                 execute(session, entry, ids);
             }
 
-            return null; // No warning
+            return null; // TODO No warnings yet.
         } finally {
-
-            // Free the backupIds value after this step.
-            backupIds.set(step, null);
 
             // If this is the final step, free memory.
             if (step == entries.size()) {
-                this.backupIds = null;
                 this.superspec = null;
                 this.options = null;
                 this.id = -1;
@@ -190,64 +201,79 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
     }
 
     /**
-     * If a given path is deleted before its subpath, this points to a
-     * one-to-one relationship. If the first object is deleted without having
-     * loaded the later one, then there will be no way to find the dangling
-     * object. Therefore, we load those objects first.
-     *
-     * In the case of superspecs, we also store the root ids for the subspec
-     * to handle cases such as links, etc.
+     * See interface for documentation.
      */
-    public List<List<Long>> backupIds(Session session)
+    public List<List<Long>> backupIds(Session session, List<String[]> paths)
             throws DeleteException {
 
         List<List<Long>> rv = new ArrayList<List<Long>>();
 
         for (int s = 0; s < entries.size(); s++) {
+
             // initially set to null
             rv.add(null);
-        }
 
-        for (int s = 0; s < entries.size(); s++) {
-            DeleteEntry current = entries.get(s);
-            Map<DeleteEntry, Integer> subpaths = new HashMap<DeleteEntry, Integer>();
+            // currentPath is the value which if it starts testPath (below),
+            // we should store its ids. In the example above, /Well/Image
+            // and /Well.
+            final DeleteEntry current = entries.get(s);
+            final List<Long> allIds = queryBackupIds(session, current);
+            rv.set(s, allIds);
 
-            // This is a subspec, and there will be handled in a separate loop.
-            if (current.getSubSpec() != null) {
-                continue;
-            }
+            /*
+            // DISABLED
+            final String[] currentPath = current.path(superspec);
+            for (int i = 0; i < 0; i++) {
 
-            // Handling the superspec case
-            if (superspec != null && current.path(null).length == 1) {
-                subpaths.put(current, s);
-            }
-            // Then go on to parse all the following items.
-            for (int i = s + 1; i < entries.size(); i++) { // won't check self
-                DeleteEntry possSubPath = entries.get(i);
-                if (possSubPath.name.startsWith(current.name)) {
-                    subpaths.put(possSubPath, i);
+                // the test path is the longer of the two entries, i.e.
+                // the entry which will detach the next one. for example,
+                // /Well/Image/WellSample will detach /Well/Image and /Well
+                String[] testPath = paths.get(i);
+                boolean cmp = startsWith(currentPath, testPath);
+                if (!cmp) {
+                    continue;
+                } else if (currentPath.length == testPath.length) {
+                    throw new DeleteException(true,
+                            "Two should never be equals " +
+				"since the loop only goes to s!");
+                } else {
+                    final List<Long> ids = queryBackupIds(session, current);
+                    rv.set(s, ids);
+                    break;
                 }
             }
-
-            // if we've found something replace the null.
-            if (subpaths.size() > 0) {
-                Map<DeleteEntry, List<Long>> m = queryBackupIds(session,
-                        current, subpaths.keySet());
-                for (Map.Entry<DeleteEntry, List<Long>> x : m.entrySet()) {
-                    final DeleteEntry subpath = x.getKey();
-                    final List<Long> ids = x.getValue();
-                    final int idx = subpaths.get(subpath).intValue();
-                    if (rv.get(idx) != null) {
-                        throw new DeleteException(true,
-                                "Found multiple routes to path:" + subpath);
-                    } else {
-                        rv.set(idx, ids);
-                    }
-                }
-            }
+            */
         }
 
         return rv;
+    }
+
+    /**
+     * Returns true iff lhs[i] == rhs[i] for all i in rhs. For example,
+     *
+     * <pre>
+     * startsWith(new String[]{"a","b"}, new String[]{"a"}) == true;
+     * startsWith(new String[]{"a","b"}, new String[]{"a", "c"}) == false;
+     * </pre>
+     *
+     * Note: if this method returns true, and the arrays are of equal length
+     * then the two arrays are equals.
+     *
+     * @param lhs
+     *            not null array of all not null Strings
+     * @param rhs
+     *            not null array of all not null Strings
+     */
+    boolean startsWith(String[] lhs, String[] rhs) {
+        if (rhs.length > lhs.length) {
+            return false;
+        }
+        for (int i = 0; i < rhs.length; i++) {
+            if (!rhs[i].equals(lhs[i])) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -287,6 +313,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
      * </pre>
      *
      * If a superspec of "/Dataset" was the query would be of the form:
+     *
      * <pre>
      * select SUB.id from Channel ROOT4
      * join ROOT4.statsInfo SUB
@@ -297,52 +324,30 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
      * where ROOT0.id = :id
      * </pre>
      */
-    protected Map<DeleteEntry, List<Long>> queryBackupIds(Session session,
-            DeleteEntry entry, Set<DeleteEntry> subpaths)
+    protected List<Long> queryBackupIds(Session session, DeleteEntry subpath)
             throws DeleteException {
 
-        final Map<DeleteEntry, List<Long>> rv = new HashMap<DeleteEntry, List<Long>>();
-        final String[] path = entry.path(superspec);
+        final String[] sub = subpath.path(superspec);
+        final QueryBuilder qb = new QueryBuilder();
 
-        for (DeleteEntry subpath : subpaths) {
-            final String[] sub = subpath.path(superspec);
+        int which = sub.length - 1;
+        qb.select("ROOT" + which + ".id");
+        walk(qb, subpath);
 
-            final QueryBuilder qb = new QueryBuilder();
+        qb.where();
+        qb.and("ROOT0.id = :id");
+        qb.param("id", id);
 
-            if (subpath == entry) { // superspec case
+        Query q = qb.query(session);
+        @SuppressWarnings("unchecked")
+        List<Long> results = q.list();
 
-                qb.select("ROOT"+(sub.length-1)+".id");
-                walk(qb, entry);
+        log.info(String.format("Found %s id(s) for %s",
+                (results == null ? "null" : results.size()),
+                Arrays.asList(subpath.path(superspec))));
 
-            } else {
+        return results;
 
-                qb.select("SUB.id");
-                walk(qb, entry);
-
-                if ((path.length + 1) != sub.length) {
-                    throw new DeleteException(true,
-                        "Currently only a single subpath step is supported: "
-                                + subpath);
-                }
-
-                int which = path.length - 1;
-                String last = path[which];
-                String lastsub = sub[sub.length-1];
-
-                join(qb, last, "ROOT" + which, lastsub, "SUB");
-            }
-
-            qb.where();
-            qb.and("ROOT0.id = :id");
-            qb.param("id", id);
-
-            Query q = qb.query(session);
-            @SuppressWarnings("unchecked")
-            List<Long> results = q.list();
-            rv.put(subpath, results);
-
-        }
-        return rv;
     }
 
     /**
@@ -353,9 +358,9 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
         String[] path = entry.path(superspec);
         qb.from(path[0], "ROOT0");
         for (int p = 1; p < path.length; p++) {
-            String p_1 = path[p-1];
+            String p_1 = path[p - 1];
             String p_0 = path[p];
-            join(qb, p_1, "ROOT" + (p - 1), p_0, "ROOT"+ p);
+            join(qb, p_1, "ROOT" + (p - 1), p_0, "ROOT" + p);
         }
     }
 
@@ -402,7 +407,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
         sub.and("ROOT0.id = :id");
 
         final QueryBuilder qb = new QueryBuilder();
-        qb.delete(path[path.length-1]);
+        qb.delete(path[path.length - 1]);
         qb.where();
         qb.and("id in ");
         qb.subselect(sub);
@@ -416,12 +421,12 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
      *
      * Originally copied from DeleteBean.
      */
-    private int execute(final Session session,
-            DeleteEntry entry, List<Long> ids) throws DeleteException {
+    private int execute(final Session session, DeleteEntry entry, List<Long> ids)
+            throws DeleteException {
 
         Query q;
         final String[] path = entry.path(superspec);
-        final String table = path[path.length-1];
+        final String table = path[path.length - 1];
         final String str = StringUtils.join(path, "/");
 
         if (ids == null) {
@@ -438,10 +443,92 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
         }
 
         int count = q.executeUpdate();
-        log.info(String.format("Deleted %s from %s: %s",
-                count, str,
+        log.info(String.format("Deleted %s from %s: %s", count, str,
                 ids != null ? ids : ("root id=" + id)));
         return count;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("BaseDeleteSpec [" + beanName + ", id=" + id
+                + (superspec == null ? "" : ", superspec=" + superspec));
+        sb.append("]");
+        return sb.toString();
+    }
+
+    /**
+     * {@link Iterator} which walks returns all {@link DeleteSpec}s which are
+     * reachable from the given spec, depth first including the spec itself. A
+     * {@link DeleteSpec} is "reachable" if it is the subspec of a
+     * {@link DeleteEntry} for a spec.
+     */
+    public static class SubSpecIterator implements Iterator<DeleteSpec> {
+
+        final DeleteSpec spec;
+
+        final List<DeleteEntry> entries;
+
+        SubSpecIterator sub;
+
+        DeleteSpec subSpec;
+
+        int step = 0;
+
+        boolean done = false;
+
+        public SubSpecIterator(DeleteSpec spec) {
+            this.spec = spec;
+            this.entries = spec.entries();
+            nextIterator();
+        }
+
+        private void nextIterator() {
+            sub = null;
+            subSpec = null;
+            for (int i = step; i < entries.size(); i++) {
+                step = i + 1;
+                DeleteEntry entry = entries.get(i);
+                subSpec = entry.getSubSpec();
+                if (subSpec != null) {
+                    sub = new SubSpecIterator(subSpec);
+                    break;
+                }
+            }
+        }
+
+        public boolean hasNext() {
+            // If we curerntly have a sub, then we test it.
+            if (sub != null) {
+                return true;
+            } else if (step < entries.size() - 1) {
+                return true;
+            } else {
+                return !done;
+            }
+        }
+
+        public DeleteSpec next() {
+            if (sub != null) {
+                if (sub.hasNext()) {
+                    return sub.next();
+                } else {
+                    nextIterator();
+                    return next();
+                }
+            } else {
+                if (!done) {
+                    done = true;
+                    return spec;
+                }
+            }
+            throw new NoSuchElementException();
+        }
+
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+
     }
 
 }

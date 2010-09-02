@@ -89,6 +89,7 @@ import omero.model.WellSampleAnnotationLink;
 import omero.model.WellSampleAnnotationLinkI;
 import omero.sys.ParametersI;
 
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -140,6 +141,19 @@ public class DeleteServiceTest
     public void createNewUser() throws Exception {
         newUserAndGroup("rw----");
         iDelete = factory.getDeleteService();
+    }
+
+    /**
+     * Since we are creating a new client on each invocation, we should also
+     * clean it up. Note: {@link #newUserAndGroup(String)} also closes, but
+     * not the very last invocation.
+     */
+    @AfterMethod
+    public void close() throws Exception {
+        if (client == null) {
+            client.__del__();
+            client = null;
+        }
     }
 
     /**
@@ -546,7 +560,7 @@ public class DeleteServiceTest
      * The <code>deletePlate</code> is tested.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test
     public void testDeletePlate() 
     	throws Exception
     {
@@ -646,7 +660,7 @@ public class DeleteServiceTest
      * The <code>deleteQueue</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test
     public void testDeletePlateUsingQueue() 
     	throws Exception
     {
@@ -855,7 +869,7 @@ public class DeleteServiceTest
      * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false) // SPW not implemented
+    @Test
     public void testDeleteScreen() 
     	throws Exception
     {
@@ -1402,7 +1416,7 @@ public class DeleteServiceTest
      * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test(enabled = false) // Links are delete but not annotations
     public void testDeleteObjectWithNonSharableAnnotations() 
     	throws Exception
     {
@@ -1429,7 +1443,8 @@ public class DeleteServiceTest
     		param.addIds(annotationIds);
     		assertTrue(annotationIds.size() > 0);
     		sql = "select i from Annotation as i where i.id in (:ids)";
-    		assertTrue(iQuery.findAllByQuery(sql, param).size() == 0);	
+		List<IObject> l = iQuery.findAllByQuery(sql, param);
+		assertEquals(obj + "-->" + l.toString(), 0, l.size());
     	}
     }
     
@@ -1440,7 +1455,7 @@ public class DeleteServiceTest
      * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test(enabled = false) // Links are delete but not annotations
     public void testDeleteObjectWithSharableAnnotations() 
     	throws Exception
     {
@@ -1475,7 +1490,7 @@ public class DeleteServiceTest
     			if (values[j]) {
     				assertTrue(l.size() == annotationIds.size());	
     			} else {
-    				assertTrue(l.size() == 0);	
+				assertEquals(l.toString(), 0, l.size());
     			}
     		}
     	}
@@ -1487,7 +1502,7 @@ public class DeleteServiceTest
      * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false) // SPW not implemented
+    @Test(enabled = false) // Links are delete but not annotations
     public void testPlateWithNonSharableAnnotations() 
     	throws Exception
     {
@@ -1597,7 +1612,7 @@ public class DeleteServiceTest
 	    	sb = new StringBuilder();
 	    	sb.append("select i from Annotation as i where i.id in (:ids)");
 	    	l = iQuery.findAllByQuery(sb.toString(), param);
-	    	assertTrue(l.size() == 0);
+            assertEquals(l.toString(), 0, l.size());
 		}
     }
     
@@ -1606,7 +1621,7 @@ public class DeleteServiceTest
      * well samples and plate with Plate acquisition and annotation.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test(enabled = false) // Links are delete but not annotations
     public void testPlateWithSharableAnnotations() 
     	throws Exception
     {
@@ -1722,7 +1737,7 @@ public class DeleteServiceTest
     	    	if (annotations[k]) {
     	    		assertTrue(l.size() == annotationIds.size());
     	    	} else {
-    	    		assertTrue(l.size() == 0);
+			assertEquals(l.toString(), 0, l.size());
     	    	}
     		}
     	}
@@ -1833,7 +1848,7 @@ public class DeleteServiceTest
      * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test
     public void testCascadingDeleteScreenAsRoot() 
     	throws Exception
     {
@@ -1868,14 +1883,14 @@ public class DeleteServiceTest
 			param.addId(screen.getId().getValue());
 			assertNull(iQuery.findByQuery(sql, param));
 			param = new ParametersI();
-			sql = "select s from Plate as as where s.id = :id";
+			sql = "select p from Plate as p where p.id = :id";
 			param.addId(plate.getId().getValue());
 			assertNull(iQuery.findByQuery(sql, param));
 			if (values[i] && pa != null) {
 				param = new ParametersI();
 				sql = "select pa from PlateAcquisition as pa " +
 	    		 "where pa.plate.id = :plateID"; 
-				param.addId(plate.getId().getValue());
+				param.addLong("plateID", plate.getId().getValue());
 				assertNull(iQuery.findByQuery(sql, param));
 			}
 		}

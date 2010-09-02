@@ -5,12 +5,14 @@
 
 package ome.services.blitz.test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import ome.services.blitz.impl.DeleteHandleI;
 import ome.services.delete.BaseDeleteSpec;
+import ome.services.delete.DeleteIds;
 import ome.services.delete.DeleteSpecFactory;
 import ome.services.util.Executor;
 import ome.system.ServiceFactory;
@@ -24,8 +26,14 @@ import omero.api.delete.DeleteHandlePrx;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.ImageI;
+import omero.model.Plate;
+import omero.model.PlateI;
 import omero.model.Project;
 import omero.model.ProjectI;
+import omero.model.Well;
+import omero.model.WellI;
+import omero.model.WellSample;
+import omero.model.WellSampleI;
 
 import org.hibernate.Session;
 import org.jmock.Mock;
@@ -165,7 +173,6 @@ public class DeleteITest extends AbstractServantTest {
         assertEquals(0, l.size());
     }
 
-
     /**
      * Deletes a project and all its datasets which have images.
      */
@@ -205,6 +212,48 @@ public class DeleteITest extends AbstractServantTest {
 
     }
 
+    /**
+     * Deletes a very simple plate to ensure that the "/Image+WS" spec is
+     * working.
+     */
+    @SuppressWarnings("rawtypes")
+    public void testSimplePlate() throws Exception {
+
+        long iid = makeImage();
+
+        // Create test data
+        Plate p = createPlate(iid);
+        p = assertSaveAndReturn(p);
+
+        long pid = p.getId().getValue();
+
+        Well w = p.copyWells().get(0);
+        long wid = w.getId().getValue();
+
+        WellSample ws = w.getWellSample(0);
+        long wsid = ws.getId().getValue();
+
+        // Do Delete
+        DeleteCommand dc = new DeleteCommand("/Plate", pid, null);
+        doDelete(dc);
+
+        // Make sure its deleted
+        List l;
+        l = assertProjection("select p.id from Plate p where p.id = " + pid,
+                null);
+        assertEquals(0, l.size());
+        l = assertProjection("select w.id from Well w where w.id = " + wid,
+                null);
+        assertEquals(0, l.size());
+        l = assertProjection("select ws.id from WellSample ws where ws.id = "
+                + wsid, null);
+        assertEquals(0, l.size());
+        l = assertProjection("select i.id from Image i where i.id = " + iid,
+                null);
+        assertEquals(0, l.size());
+
+    }
+
     //
     // Specs
     //
@@ -223,18 +272,25 @@ public class DeleteITest extends AbstractServantTest {
         String siQuery = "select si.id from Channel ch join ch.statsInfo si join ch.pixels pix join pix.image img where img.id = "
                 + imageId;
         String lcQuery = "select lc.id from Channel ch join ch.logicalChannel lc join ch.pixels pix join pix.image img where img.id = "
-                + imageId;
-        RLong statsInfo = (RLong) assertProjection(siQuery, null).get(0).get(0);
-        RLong logicalInfo = (RLong) assertProjection(lcQuery, null).get(0).get(
+            + imageId;
+        String chQuery = "select ch.id from Channel ch join ch.pixels pix join pix.image img where img.id = "
+            + imageId;
+
+        RLong statsInfoId = (RLong) assertProjection(siQuery, null).get(0).get(0);
+        RLong logicalId = (RLong) assertProjection(lcQuery, null).get(0).get(
                 0);
-        Long si = statsInfo.getValue();
-        Long lc = logicalInfo.getValue();
+        RLong channelId = (RLong) assertProjection(chQuery, null).get(0).get(
+                0);
+
+        Long si = statsInfoId.getValue();
+        Long lc = logicalId.getValue();
+        Long ch = channelId.getValue();
 
         // Run test
         final DeleteSpecFactory dsf = specFactory();
-        final BaseDeleteSpec ch = (BaseDeleteSpec) dsf
+        final BaseDeleteSpec spec = (BaseDeleteSpec) dsf
                 .get("/Image/Pixels/Channel");
-        ch.initialize(imageId, null, null);
+        spec.initialize(imageId, null, null);
 
         List<List<Long>> backupIds = (List<List<Long>>) user_sf.getExecutor()
                 .execute(user_sf.getPrincipal(),
@@ -242,10 +298,14 @@ public class DeleteITest extends AbstractServantTest {
                             @Transactional(readOnly = true)
                             public Object doWork(Session session,
                                     ServiceFactory sf) {
+
                                 try {
-                                    List<List<Long>> backupIds = ch
-                                            .backupIds(session);
-                                    return backupIds;
+                                    DeleteIds ids = new DeleteIds(session, spec);
+                                    List<List<Long>> rv = new ArrayList<List<Long>>();
+                                    rv.add(ids.get(spec, 0));
+                                    rv.add(ids.get(spec, 1));
+                                    rv.add(ids.get(spec, 2));
+                                    return rv;
                                 } catch (Exception e) {
                                     throw new RuntimeException(e);
                                 }
@@ -254,7 +314,12 @@ public class DeleteITest extends AbstractServantTest {
 
         // Check
         // This relies on the ordering of the description.
-        assertEquals(null, backupIds.get(0));
+
+        // Previously we were loading nothing if the path didn't require it
+        // But do to the complexity of the SPW model (#2777) and the upcoming
+        // need to log the ids that are deleted (#1423) we're storing all the ids
+        // assertEquals(null, backupIds.get(0));
+        assertEquals(ch, backupIds.get(0).get(0));
         assertEquals(si, backupIds.get(1).get(0));
         assertEquals(lc, backupIds.get(2).get(0));
 
@@ -356,5 +421,21 @@ public class DeleteITest extends AbstractServantTest {
             String key = Ice.Util.identityToString(id);
             return servants.get(key);
         }
+    }
+
+    Plate createPlate(long imageId) throws Exception {
+        Plate p = new PlateI();
+        p.setRows(omero.rtypes.rint(1));
+        p.setCols(omero.rtypes.rint(1));
+        p.setName(omero.rtypes.rstring("plate"));
+        // now make wells
+        Well well = new WellI();
+        well.setRow(omero.rtypes.rint(0));
+        well.setColumn(omero.rtypes.rint(0));
+        WellSample sample = new WellSampleI();
+        sample.setImage(new ImageI(imageId, false));
+        well.addWellSample(sample);
+        p.addWell(well);
+        return p;
     }
 }
