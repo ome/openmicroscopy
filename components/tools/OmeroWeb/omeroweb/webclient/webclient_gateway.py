@@ -58,7 +58,7 @@ from omero.gateway import AnnotationWrapper, FileAnnotationWrapper, \
                         TagAnnotationWrapper, CommentAnnotationWrapper, \
                         ExperimenterGroupWrapper, ExperimenterWrapper, \
                         EnumerationWrapper, BlitzObjectWrapper, \
-                        ShareCommentWrapper, ShareWrapper
+                        ShareCommentWrapper, ShareWrapper, WellWrapper
 
 from django.utils.translation import ugettext as _
 from django.conf import settings
