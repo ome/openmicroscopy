@@ -262,14 +262,14 @@ def script_form(request, scriptId):
         if param.values:
             i["options"] = [v.getValue() for v in param.values.getValue()]
         pt = unwrap(param.prototype)
-        print key, pt.__class__
+        #print key, pt.__class__
         if pt.__class__ == type(True):
             i["boolean"] = True
         elif pt.__class__ == type(0) or pt.__class__ == type(long(0)):
             print "Number!"
             i["number"] = "number"  # will stop the user entering anything other than numbers. 
         elif pt.__class__ == type(float(0.0)):
-            print "Float!"
+            #print "Float!"
             i["number"] = "float"
         i["prototype"] = unwrap(param.prototype)    # E.g  ""  (string) or [0] (int list) or 0.0 (float)
         i["grouping"] = param.grouping
@@ -455,8 +455,6 @@ def mapmodel(request, imageId, entryId=None):
     conn = getConnection(request)
     
     image = conn.getImage(imageId)
-    
-    print dir(image)
     
     z = image.z_count()/2
     
@@ -737,14 +735,12 @@ def index (request):
     lastIds = entryIds[:5]
     
     randomIds = [random.choice(entryIds) for i in range(10)]
-    print randomIds
     
     projects = []
     for entryName in lastIds:
         p = conn.findProject(str(entryName))
         title, sample = p.getDescription().split("\n")
         e = {"id": entryName, "title": title, "sample": sample }
-        print e
         projects.append(e)
     
     return render_to_response('webemdb/index.html', {'projects': projects, 'entryCount': len(entryIds), 'randomIds': randomIds})
@@ -808,14 +804,11 @@ def search(request):
     results = []
     if searchTerm:
         projects = qs.findAllByFullText('Project', "file.contents:%s" % searchTerm, p)
-        print "projects", len(projects)
         for p in projects:
             entryId = p.getName().getValue()
             desc = p.getDescription().getValue()
             title, sample = desc.split("\n")
             results.append({"entryId":entryId, "title": title, "sample": sample})
-    else:
-        print "no search term"
     
     
     return render_to_response('webemdb/browse/search.html', {'searchString': searchTerm, 'results': results, 'nextPage': page+1 })
@@ -860,16 +853,16 @@ def entries (request):
     maxRes = request.REQUEST.get('max')
     entryText = request.REQUEST.get('entry')
     titleText = request.REQUEST.get('title')
-    if minRes:
+    if minRes and len(minRes) > 0:
         query += " and a.doubleValue >= %s" % minRes
         searchString += '&min=%s' % minRes
-    if maxRes:
+    if maxRes and len(maxRes) > 0:
         query += " and a.doubleValue <= %s" % maxRes
         searchString += '&max=%s' % maxRes
-    if entryText:
+    if entryText and len(entryText) > 0:
         query += " and p.name like '%s%s'" % (entryText, "%")
         searchString += '&entry=%s' % entryText
-    if titleText:
+    if titleText and len(titleText) > 0:
         query += " and p.description like '%s%s%s'" % ("%", titleText, "%")
         searchString += '&title=%s' % titleText
         
@@ -895,6 +888,7 @@ def entries (request):
     # do the search
     projectsQuery = "select p from " + query
     #totalResults = len(qs.findAllByQuery(projectsQuery, None))
+    #print projectsQuery
     projects = qs.findAllByQuery(projectsQuery, p)
     
     resolutions = []
