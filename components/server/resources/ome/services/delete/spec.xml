@@ -11,6 +11,28 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
 
+
+<!--
+TODO:
+/Roi/FileAnnotation;REAP
+/Roi/RoiAnnotationLink;ORPHAN
+How to handle more than one path:
+
+ * how to handle backupids of sub items.
+
+ * would subitems ever take a diferent ID??
+
+ * introduce breaks between substeps? (iterator perhaps)
+
+/Image:
+ /Image does this even exist?
+
+ * delete project with cross-linked dataset!
+
+                 <value>/Image/Pixels/RelatedTo;NULL</value>
+plus test REAP
+-->
+
 <beans>
 
     <description>
@@ -50,24 +72,6 @@
         </constructor-arg>
     </bean>
 
-<!--
-TODO:
-/Roi/FileAnnotation;REAP
-/Roi/RoiAnnotationLink;ORPHAN
-How to handle more than one path:
-
- * how to handle backupids of sub items.
-
- * would subitems ever take a diferent ID??
-
- * introduce breaks between substeps? (iterator perhaps)
-
-/Image:
- /Image does this even exist?
-
- * delete project with cross-linked dataset!
--->
-
     <bean parent="delSpec" name="/Image/Pixels/RenderingDef">
         <description>
         Deletes a rendering def based on the image id from where it comes.
@@ -75,6 +79,7 @@ How to handle more than one path:
         <constructor-arg>
             <list>
                 <value>/Image/Pixels/RenderingDef/ChannelBinding</value>
+                <value>/Image/Pixels/RenderingDef/CodomainMapContext</value>
                 <value>/Image/Pixels/RenderingDef</value>
                 <value>/Image/Pixels/RenderingDef/QuantumDef</value>
             </list>
@@ -91,9 +96,35 @@ How to handle more than one path:
                 <value>/Image/Pixels/Channel</value>
                 <value>/Image/Pixels/Channel/StatsInfo</value>
                 <value>/Image/Pixels/Channel/LogicalChannel;REAP</value>
+                <value>/Image/Pixels/Channel/LogicalChannel/OTF;REAP</value>
+                <value>/Image/Pixels/Channel/LogicalChannel/LightSettings</value>
+                <value>/Image/Pixels/Channel/LogicalChannel/LightSettings/LightSource</value>
+                <value>/Image/Pixels/Channel/LogicalChannel/LightSettings/MicrobeamManipulation</value>
+                <value>/Image/Pixels/Channel/LogicalChannel/DetectorSettings</value>
+                <value>/Image/Pixels/Channel/LogicalChannel/DetectorSettings/Detector</value>
+                <value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathEmissionFilterLink</value>
+                <value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathEmissionFilterLink/Filter</value>
+                <value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathExcitationFilterLink</value>
+                <value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathExcitationFilterLink/Filter</value>
+                <value>/Image/Pixels/Channel/LogicalChannel/LightPath</value>
+                <value>/Image/Pixels/Channel/LogicalChannel/LightPath/Dichroic</value>
             </list>
         </constructor-arg>
+    </bean>
 
+    <bean parent="delSpec" name="/Instrument">
+        <constructor-arg>
+            <list>
+                <value>/Instrument/Detector</value>
+                <value>/Instrument/Dichroic</value>
+                <value>/Instrument/Filter</value>
+                <value>/Instrument/FilterSet</value>
+                <value>/Instrument/LightSource</value>
+                <!-- value>/Instrument/Objective</value-->
+                <value>/Instrument</value>
+                <value>/Instrument/Microscope</value>
+            </list>
+        </constructor-arg>
     </bean>
 
     <bean parent="delSpec" name="/Image">
@@ -104,11 +135,6 @@ How to handle more than one path:
         <constructor-arg>
             <list>
                 <value>/Roi;ORPHAN;/Image</value>
-    <!--
-TODO:
-                <value>/Image/Pixels/RelatedTo;NULL</value>
-plus test REAP
-    -->
                 <value>/Image/Pixels/PixelsOriginalFileMap;REAP</value>
                 <value>/Image/Pixels/PlaneInfo</value>
                 <value>/Image/Pixels/RenderingDef</value><!-- FORCE, for admins? -->
@@ -119,6 +145,12 @@ plus test REAP
                 <value>/Image/ImageAnnotationLink/Annotation;SOFT</value>
                 <value>/Image/DatasetImageLink</value>
                 <value>/Image</value>
+                <value>/Image/ImagingEnvironment</value>
+                <value>/Image/ObjectiveSettings</value>
+                <value>/Image/ObjectiveSettings/Objective</value>
+                <value>/Image/StageLabel</value>
+                <value>/Image/Experiment</value><!--  used by microbeam also -->
+                <value>/Instrument;;/Image</value>
             </list>
         </constructor-arg>
     </bean>

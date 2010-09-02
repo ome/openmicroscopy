@@ -1209,6 +1209,7 @@ public class DeleteServiceTest
     	sql = "select d from Objective as d where d.instrument.id = :iid";
     	Objective objective = (Objective) iQuery.findByQuery(sql, param);
     	
+	img.setInstrument(instrument);
     	img.setImagingEnvironment(mmFactory.createImageEnvironment());
     	img.setObjectiveSettings(mmFactory.createObjectiveSettings(objective));
     	img.setStageLabel(mmFactory.createStageLabel());
@@ -1258,7 +1259,7 @@ public class DeleteServiceTest
     	sql = "select d from DetectorSettings as d where d.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));
     	param.addId(lightSourceSettingsID);
-    	sql = "select d from LightSourceSettings as d where d.id = :id";
+	sql = "select d from LightSettings as d where d.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));
     	param.addId(ligthPathID);
     	sql = "select d from LightPath as d where d.id = :id";

@@ -168,6 +168,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
             int subStep = substeps.get(step);
             if (subSpec != null) {
                 for (int i = 0; i < subStep; i++) {
+                    // TODO handle the application of Entry.Op to the whole subgraph!
                     sb.append(subSpec.delete(session, i, deleteIds));
                 }
             } else {
