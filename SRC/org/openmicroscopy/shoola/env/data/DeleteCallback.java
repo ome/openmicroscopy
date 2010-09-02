@@ -28,12 +28,12 @@ package org.openmicroscopy.shoola.env.data;
 //Third-party libraries
 
 //Application-internal dependencies
-import Ice.Current;
+import java.util.List;
+
 import omero.ServerError;
 import omero.client;
 import omero.api.delete.DeleteHandlePrx;
 import omero.grid.DeleteCallbackI;
-import omero.grid.ProcessCallbackI;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 
 /** 
@@ -82,15 +82,17 @@ public class DeleteCallback
 	
 	/**
 	 * Overridden to handle the end of the process.
-	 * @see ProcessCallbackI#processFinished(int, Current)
+	 * @see DeleteCallbackI#finished()
 	 */
-	public void processFinished(int value, Current current)
+	public void finished()
 	{
-		//super.processFinished(value, current);
+		super.finished();
 		if (adapter == null) return;
 		try {
 			if (adapter != null) {
-				adapter.handleResult(handle.finished());
+				List<String> l = handle.report();
+				if (handle.errors() == 0) l.clear();
+				adapter.handleResult(l);
 			}
 		} catch (Exception e) {
 		    if (adapter != null) adapter.handleResult(null);

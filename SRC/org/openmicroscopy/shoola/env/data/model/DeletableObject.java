@@ -26,6 +26,9 @@ package org.openmicroscopy.shoola.env.data.model;
 //Java imports
 import java.util.List;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.ProjectData;
@@ -33,10 +36,6 @@ import pojos.ROIData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * Hosts the parameters to delete. 
@@ -71,8 +70,11 @@ public class DeletableObject
 	 */
 	private List<Class> 		attachmentTypes;
 	
-	/** Collection of entities that blocked the delete action. */
-	private List				blocker;
+	/** The report of the delete action. */
+	private List<String>		report;
+	
+	/** The number of errors. */
+	private int		            numberOfErrors;
 	
 	/**
 	 * Creates a new instance.
@@ -88,7 +90,6 @@ public class DeletableObject
 			throw new IllegalArgumentException("No object to delete.");
 		this.objectToDelete = objectToDelete;
 		this.content = content;
-		blocker = null;
 	}
 	
 	/**
@@ -135,19 +136,26 @@ public class DeletableObject
 	public pojos.DataObject getObjectToDelete() { return objectToDelete; }
 	
 	/**
-	 * Sets the collection of objects that prevent the delete action.
+	 * Sets the report of the delete action.
 	 * 
-	 * @param blocker The value to set.
+	 * @param report The value to set.
 	 */
-	public void setBlocker(List blocker) { this.blocker = blocker; }
+	public void setReport(List<String> report) { this.report = report; }
 	
 	/**
-	 * Returns the collection of objects that prevent the delete action.
+	 * Returns the report of the delete action.
 	 * 
 	 * @return See above.
 	 */
-	public List getBlocker() { return blocker; }
+	public List<String> getReport() { return report; }
 
+	/**
+	 * Returns the number of reports.
+	 * 
+	 * @return See above.
+	 */
+	public int getNumberOfErrors() { return numberOfErrors; }
+	
 	/**
 	 * Returns the type of object to delete as a string.
 	 * 

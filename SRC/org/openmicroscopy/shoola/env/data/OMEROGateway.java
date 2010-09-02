@@ -52,7 +52,6 @@ import loci.formats.FormatException;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
-import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
@@ -209,11 +208,10 @@ import pojos.WorkflowData;
 /** 
  * Unified access point to the various <i>OMERO</i> services.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- *              <a href="mailto:a.falconi@dundee.ac.uk">
- *                  a.falconi@dundee.ac.uk</a>
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
  * @version 2.2
  * <small>
  * (<b>Internal version:</b> $Revision$ $Date$)
@@ -228,6 +226,24 @@ class OMEROGateway
 	
 	/** Indicates that the server is out of service.. */
 	static final int SERVER_OUT_OF_SERVICE = 1;
+	 
+	/** Identifies the image as root. */
+	private static final String REF_IMAGE = "/Image";
+	
+	/** Identifies the dataset as root. */
+	private static final String REF_DATASET = "/Dataset";
+	
+	/** Identifies the project as root. */
+	private static final String REF_PROJECT = "/Project";
+	
+	/** Identifies the screen as root. */
+	private static final String REF_SCREEN = "/Screen";
+	
+	/** Identifies the plate as root. */
+	private static final String REF_PLATE = "/Plate";
+	
+	/** Identifies the ROI as root. */
+	private static final String REF_ROI = "/Roi";
 	
 	/** The default MIME type. */
 	private static final String				DEFAULT_MIMETYPE = 
@@ -1897,6 +1913,22 @@ class OMEROGateway
 		throw new IllegalArgumentException("NodeType not supported");
 	}
 
+	/**
+	 * Creates the string corresponding to the object to delete.
+	 * 
+	 * @param data The object to handle.
+	 * @return See above.
+	 */
+	String createDeleteCommand(DataObject data)
+	{
+		if (data instanceof ImageData) return REF_IMAGE;
+		else if (data instanceof DatasetData) return REF_DATASET;
+		else if (data instanceof ProjectData) return REF_PROJECT;
+		else if (data instanceof ScreenData) return REF_SCREEN;
+		else if (data instanceof PlateData) return REF_PLATE;
+		else if (data instanceof ROIData) return REF_ROI;
+		throw new IllegalArgumentException("Cannot delete the speficied type.");
+	}
 	
 	/**
 	 * Tells whether the communication channel to <i>OMERO</i> is currently
@@ -2247,55 +2279,6 @@ class OMEROGateway
 		} finally {
 			unsecureClient = null;
 			entryUnencrypted = null;
-		}
-	}
-
-	/**
-	 * Links the plate to the screen acquisition if any.
-	 * 
-	 * @param set The collection of plate acquisition linked to the screen.
-	 * @param plate The plate to link the screen acquisition to.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in.
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	private void linkScreenAcquisitionPlate(Set<PlateAcquisitionData> set, 
-			PlateData plate)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		if (set == null || set.size() == 0) return;
-		PlateAcquisitionData sa;
-		Iterator<PlateAcquisitionData> i = set.iterator();
-		List<PlateAcquisitionData> l = new ArrayList<PlateAcquisitionData>();
-		StringBuffer sb;
-		ParametersI param = new ParametersI();
-		param.addLong("pid", plate.getId());
-		IQueryPrx svc = getQueryService();
-		try {
-			List<IObject> r;
-			sb = new StringBuffer();
-			sb.append("select distinct l.parent " +
-					"from PlateAcquisitionWellSampleLink as l");
-			sb.append(" where l.child.well.plate.id = :pid");
-			r = svc.findAllByQuery(sb.toString(), param);
-			List<Long> ids = new ArrayList<Long>();
-			Iterator<IObject> j = r.iterator();
-			while (j.hasNext()) {
-				ids.add(j.next().getId().getValue());
-			}
-			long plateID = plate.getId();
-			while (i.hasNext()) {
-				sa = i.next();
-				if (ids.contains(sa.getId())) {
-					sa.setRefPlateId(plateID);
-					l.add(sa);
-				}
-			}
-
-			set.removeAll(l);
-		} catch (Exception e) {
-			e.printStackTrace();
-			handleException(e, "Cannot find Screen Acquisiton.");
 		}
 	}
 	
@@ -6016,6 +5999,7 @@ class OMEROGateway
 			if (list == null || list.size() < 1) return null;
 			return new InstrumentData(list);
 		} catch (Exception e) {
+			e.printStackTrace();
 			handleException(e, "Cannot load the instrument: "+id);
 		}
 		return null;
@@ -6185,7 +6169,7 @@ class OMEROGateway
 				 * in the client.
 				 */
 				serverIterator = serverCoordMap.keySet().iterator();
-				while(serverIterator.hasNext())
+				while (serverIterator.hasNext())
 				{
 					coord = serverIterator.next();
 					if (!clientCoordMap.containsKey(coord))
@@ -6229,7 +6213,7 @@ class OMEROGateway
 								break;
 							}
 						}
-						if (shapeIndex==-1)
+						if (shapeIndex == -1)
 							throw new Exception("serverRoi.shapeList is " +
 									"corrupted");
 						serverRoi.setShape(shapeIndex,(Shape) shape.asIObject());
