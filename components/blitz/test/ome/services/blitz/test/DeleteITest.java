@@ -25,15 +25,20 @@ import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteHandlePrx;
 import omero.model.Dataset;
 import omero.model.DatasetI;
+import omero.model.ImageAnnotationLink;
+import omero.model.ImageAnnotationLinkI;
 import omero.model.ImageI;
 import omero.model.Plate;
 import omero.model.PlateI;
 import omero.model.Project;
 import omero.model.ProjectI;
+import omero.model.TagAnnotation;
+import omero.model.TagAnnotationI;
 import omero.model.Well;
 import omero.model.WellI;
 import omero.model.WellSample;
 import omero.model.WellSampleI;
+import omero.sys.ParametersI;
 
 import org.hibernate.Session;
 import org.jmock.Mock;
@@ -141,6 +146,79 @@ public class DeleteITest extends AbstractServantTest {
         List l = assertProjection("select i.id from Image i where i.id = "
                 + imageId, null);
         assertEquals(0, l.size());
+    }
+
+    /**
+     * Uses the /Image delete specification to remove an Image and its
+     * annotations simply linked annotation. This is the most basic case.
+     */
+    @Test(groups = "ticket:2769")
+    public void testImageWithAnnotations() throws Exception {
+
+        // Create test data
+        long imageId = makeImage();
+        ImageAnnotationLink link = new ImageAnnotationLinkI();
+        link.link(new ImageI(imageId, false), new TagAnnotationI());
+        link = assertSaveAndReturn(link);
+        long annId = link.getChild().getId().getValue();
+
+        // Perform delete
+        DeleteCommand dc = new DeleteCommand("/Image", imageId, null);
+        doDelete(dc);
+
+        // Check that data is gone
+        List<List<RType>> ids = assertProjection(
+                "select ann.id from Annotation ann where ann.id = :id",
+                new ParametersI().addId(annId));
+
+        assertEquals(0, ids.size());
+    }
+
+    /**
+     * Uses the /Image delete specification to remove an Image and attempts to
+     * remove its annotations. If those annotations are mutiply linked,
+     * however, the attempted delete is rolled back (via a savepoint)
+     */
+    @Test(groups = {"ticket:2769", "ticket:2780"})
+    public void testImageWithSharedAnnotations() throws Exception {
+
+        // Create test data
+        long imageId1 = makeImage();
+        long imageId2 = makeImage();
+
+        TagAnnotation tag = new TagAnnotationI();
+        tag = assertSaveAndReturn(tag);
+
+        ImageAnnotationLink link1 = new ImageAnnotationLinkI();
+        link1.link(new ImageI(imageId1, false), tag);
+        link1 = assertSaveAndReturn(link1);
+
+        ImageAnnotationLink link2 = new ImageAnnotationLinkI();
+        link2.link(new ImageI(imageId2, false), tag);
+        link2 = assertSaveAndReturn(link2);
+
+        // Perform delete
+        DeleteCommand dc = new DeleteCommand("/Image", imageId1, null);
+        DeleteHandleI handle = doDelete(dc);
+        List<String> reports = handle.report();
+        boolean found = false;
+        for (String report : reports) {
+            found |= report.contains("ConstraintViolation");
+        }
+        assertTrue(reports.toString(), true);
+
+        // Check that data is gone
+        List<List<RType>> ids = assertProjection(
+                "select img.id from Image img where img.id = :id",
+                new ParametersI().addId(imageId1));
+
+        assertEquals(0, ids.size());
+
+        ids = assertProjection(
+                "select ann.id from Annotation ann where ann.id = :id",
+                new ParametersI().addId(tag.getId().getValue()));
+
+        assertEquals(1, ids.size());
     }
 
     /**
@@ -272,15 +350,14 @@ public class DeleteITest extends AbstractServantTest {
         String siQuery = "select si.id from Channel ch join ch.statsInfo si join ch.pixels pix join pix.image img where img.id = "
                 + imageId;
         String lcQuery = "select lc.id from Channel ch join ch.logicalChannel lc join ch.pixels pix join pix.image img where img.id = "
-            + imageId;
+                + imageId;
         String chQuery = "select ch.id from Channel ch join ch.pixels pix join pix.image img where img.id = "
-            + imageId;
+                + imageId;
 
-        RLong statsInfoId = (RLong) assertProjection(siQuery, null).get(0).get(0);
-        RLong logicalId = (RLong) assertProjection(lcQuery, null).get(0).get(
+        RLong statsInfoId = (RLong) assertProjection(siQuery, null).get(0).get(
                 0);
-        RLong channelId = (RLong) assertProjection(chQuery, null).get(0).get(
-                0);
+        RLong logicalId = (RLong) assertProjection(lcQuery, null).get(0).get(0);
+        RLong channelId = (RLong) assertProjection(chQuery, null).get(0).get(0);
 
         Long si = statsInfoId.getValue();
         Long lc = logicalId.getValue();
@@ -317,7 +394,8 @@ public class DeleteITest extends AbstractServantTest {
 
         // Previously we were loading nothing if the path didn't require it
         // But do to the complexity of the SPW model (#2777) and the upcoming
-        // need to log the ids that are deleted (#1423) we're storing all the ids
+        // need to log the ids that are deleted (#1423) we're storing all the
+        // ids
         // assertEquals(null, backupIds.get(0));
         assertEquals(ch, backupIds.get(0).get(0));
         assertEquals(si, backupIds.get(1).get(0));
@@ -344,6 +422,7 @@ public class DeleteITest extends AbstractServantTest {
         DeleteSpecFactory factory = specFactory();
         DeleteHandleI handle = new DeleteHandleI(id, user_sf, factory, dc, 1000);
         handle.run();
+        assertEquals(handle.report().toString(), 0, handle.errors());
         return handle;
     }
 

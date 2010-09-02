@@ -44,6 +44,7 @@
             <list>
                 <value>/Roi/Shape</value>
                 <value>/Roi/RoiAnnotationLink</value>
+                <value>/Roi/RoiAnnotationLink/Annotation;SOFT</value>
                 <value>/Roi</value>
             </list>
         </constructor-arg>
@@ -115,6 +116,7 @@ plus test REAP
                 <value>/Image/Pixels/Thumbnail;REAP</value><!-- HARD -->
                 <value>/Image/Pixels</value>
                 <value>/Image/ImageAnnotationLink;REAP</value>
+                <value>/Image/ImageAnnotationLink/Annotation;SOFT</value>
                 <value>/Image/DatasetImageLink</value>
                 <value>/Image</value>
             </list>
@@ -127,6 +129,7 @@ plus test REAP
                 <value>/Image;;/Dataset/DatasetImageLink</value><!-- assumes you can get in one jump with a link -->
                 <value>/Dataset/ProjectDatasetLink</value>
                 <value>/Dataset/DatasetAnnotationLink;REAP</value>
+                <value>/Dataset/DatasetAnnotationLink/Annotation;SOFT</value>
                 <value>/Dataset</value>
             </list>
         </constructor-arg>
@@ -137,6 +140,7 @@ plus test REAP
             <list>
                 <value>/Dataset;;/Project/ProjectDatasetLink</value>
                 <value>/Project/ProjectAnnotationLink</value>
+                <value>/Project/ProjectAnnotationLink/Annotation;SOFT</value>
                 <value>/Project</value>
             </list>
         </constructor-arg>
@@ -146,9 +150,11 @@ plus test REAP
         <constructor-arg>
             <list>
                 <value>/Well/WellSample/WellSampleAnnotationLink</value>
+                <value>/Well/WellSample/WellSampleAnnotationLink/Annotation;SOFT</value>
                 <value>/Well/WellSample</value>
                 <value>/Image;;/Well/WellSample</value>
                 <value>/Well/WellAnnotationLink</value>
+                <value>/Well/WellAnnotationLink/Annotation;SOFT</value>
                 <value>/Well</value>
             </list>
         </constructor-arg>
@@ -158,8 +164,11 @@ plus test REAP
         <constructor-arg>
             <list>
                 <value>/Well;;/Plate</value>
+                <value>/Plate/PlateAcquisition/PlateAcquisitionAnnotationLink</value>
+                <value>/Plate/PlateAcquisition/PlateAcquisitionAnnotationLink/Annotation;SOFT</value>
                 <value>/Plate/PlateAcquisition</value>
                 <value>/Plate/PlateAnnotationLink</value>
+                <value>/Plate/PlateAnnotationLink/Annotation;SOFT</value>
                 <value>/Plate/ScreenPlateLink</value><!-- TODO: or do we need Plate+SPL -->
                 <value>/Plate</value>
             </list>
@@ -171,6 +180,7 @@ plus test REAP
             <list>
                 <value>/Plate;;/Screen/ScreenPlateLink</value>
                 <value>/Screen/ScreenAnnotationLink</value>
+                <value>/Screen/ScreenAnnotationLink/Annotation;SOFT</value>
                 <value>/Screen</value>
             </list>
         </constructor-arg>

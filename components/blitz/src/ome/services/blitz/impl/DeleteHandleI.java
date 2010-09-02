@@ -28,6 +28,7 @@ import omero.api.delete._DeleteHandleDisp;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
@@ -369,7 +370,7 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                 if (ids == null) {
                     ids = new DeleteIds(session, report.spec);
                 }
-                report.spec.delete(session, j, ids);
+                report.warning = report.spec.delete(session, j, ids);
             } catch (DeleteException de) {
                 report.error = de.message;
                 if (de.cancel) {
@@ -377,6 +378,8 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                     cancel.initCause(de);
                     throw cancel;
                 }
+            } catch (ConstraintViolationException cve) {
+                report.error = "ConstraintViolation: " + cve.getConstraintName();
             } catch (Throwable t) {
                 String msg = "Failure during DeleteHandle.steps :";
                 report.error = (msg + t);

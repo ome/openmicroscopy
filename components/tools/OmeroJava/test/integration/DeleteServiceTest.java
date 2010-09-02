@@ -535,7 +535,7 @@ public class DeleteServiceTest
      * The <code>deletePlate</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test
     public void testDeleteEmptyPlate() 
     	throws Exception
     {
@@ -1175,7 +1175,7 @@ public class DeleteServiceTest
      * Test to delete an image with acquisition data.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test
     public void testDeleteImageWithAcquisitionData() 
     	throws Exception
     {
@@ -1416,7 +1416,7 @@ public class DeleteServiceTest
      * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false) // Links are delete but not annotations
+    @Test
     public void testDeleteObjectWithNonSharableAnnotations() 
     	throws Exception
     {
@@ -1455,7 +1455,7 @@ public class DeleteServiceTest
      * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false) // Links are delete but not annotations
+    @Test
     public void testDeleteObjectWithSharableAnnotations() 
     	throws Exception
     {
@@ -1502,7 +1502,7 @@ public class DeleteServiceTest
      * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false) // Links are delete but not annotations
+    @Test
     public void testPlateWithNonSharableAnnotations() 
     	throws Exception
     {
@@ -1621,7 +1621,7 @@ public class DeleteServiceTest
      * well samples and plate with Plate acquisition and annotation.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false) // Links are delete but not annotations
+    @Test(enabled = false) // Don't understand how this should work.
     public void testPlateWithSharableAnnotations() 
     	throws Exception
     {
@@ -1735,7 +1735,7 @@ public class DeleteServiceTest
     	    	sb.append("select i from Annotation as i where i.id in (:ids)");
     	    	l = iQuery.findAllByQuery(sb.toString(), param);
     	    	if (annotations[k]) {
-    	    		assertTrue(l.size() == annotationIds.size());
+			assertEquals(l.toString(), annotationIds.size(), l.size());
     	    	} else {
 			assertEquals(l.toString(), 0, l.size());
     	    	}

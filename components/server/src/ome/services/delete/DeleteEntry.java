@@ -28,7 +28,26 @@ import org.springframework.beans.FatalBeanException;
 public class DeleteEntry {
 
     public enum Op {
-        HARD, SOFT, REAP, ORPHAN, NULL;
+
+        /**
+         * Default operation. If a delete is not possible, i.e. it fails with a
+         * {@link org.hibernate.exception.ConstraintViolationException} or
+         * similar, then the failure will cause the entire command to fail as an
+         * error.
+         */
+        HARD,
+
+        /**
+         * Delete is attempted, but the exceptions which would make a
+         * {@link #HARD} operation fail lead only to warnings.
+         */
+        SOFT,
+
+        REAP,
+
+        ORPHAN,
+
+        NULL;
     }
 
     final public static Op DEFAULT = Op.HARD;

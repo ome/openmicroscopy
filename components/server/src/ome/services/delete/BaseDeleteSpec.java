@@ -15,7 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.UUID;
 
 import ome.api.IDelete;
 import ome.tools.hibernate.ExtendedMetadata;
@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.BeanNameAware;
 
 /**
@@ -161,19 +162,20 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
             throws DeleteException {
 
         try {
+            StringBuilder sb = new StringBuilder();
             DeleteEntry entry = entries.get(step);
             DeleteSpec subSpec = entry.getSubSpec();
             int subStep = substeps.get(step);
             if (subSpec != null) {
                 for (int i = 0; i < subStep; i++) {
-                    subSpec.delete(session, i, deleteIds);
+                    sb.append(subSpec.delete(session, i, deleteIds));
                 }
             } else {
                 List<Long> ids = deleteIds.get(this, step);
-                execute(session, entry, ids);
+                sb.append(execute(session, entry, ids));
             }
 
-            return null; // TODO No warnings yet.
+            return sb.toString();
         } finally {
 
             // If this is the final step, free memory.
@@ -221,28 +223,19 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
             rv.set(s, allIds);
 
             /*
-            // DISABLED
-            final String[] currentPath = current.path(superspec);
-            for (int i = 0; i < 0; i++) {
-
-                // the test path is the longer of the two entries, i.e.
-                // the entry which will detach the next one. for example,
-                // /Well/Image/WellSample will detach /Well/Image and /Well
-                String[] testPath = paths.get(i);
-                boolean cmp = startsWith(currentPath, testPath);
-                if (!cmp) {
-                    continue;
-                } else if (currentPath.length == testPath.length) {
-                    throw new DeleteException(true,
-                            "Two should never be equals " +
-				"since the loop only goes to s!");
-                } else {
-                    final List<Long> ids = queryBackupIds(session, current);
-                    rv.set(s, ids);
-                    break;
-                }
-            }
-            */
+             * // DISABLED final String[] currentPath = current.path(superspec);
+             * for (int i = 0; i < 0; i++) {
+             *
+             * // the test path is the longer of the two entries, i.e. // the
+             * entry which will detach the next one. for example, //
+             * /Well/Image/WellSample will detach /Well/Image and /Well String[]
+             * testPath = paths.get(i); boolean cmp = startsWith(currentPath,
+             * testPath); if (!cmp) { continue; } else if (currentPath.length ==
+             * testPath.length) { throw new DeleteException(true,
+             * "Two should never be equals " +
+             * "since the loop only goes to s!"); } else { final List<Long> ids
+             * = queryBackupIds(session, current); rv.set(s, ids); break; } }
+             */
         }
 
         return rv;
@@ -342,12 +335,27 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
         @SuppressWarnings("unchecked")
         List<Long> results = q.list();
 
-        log.info(String.format("Found %s id(s) for %s",
-                (results == null ? "null" : results.size()),
-                Arrays.asList(subpath.path(superspec))));
+        if (results == null) {
+            log.warn(logmsg(subpath, results));
+        } else if (results.size() == 0) {
+            if (log.isDebugEnabled()) {
+                log.debug(logmsg(subpath, results));
+            }
+        } else {
+            if (log.isInfoEnabled()) {
+                log.info(logmsg(subpath, results));
+            }
+        }
 
         return results;
 
+    }
+
+    private String logmsg(DeleteEntry subpath, List<Long> results) {
+        String msg = String.format("Found %s id(s) for %s",
+                (results == null ? "null" : results.size()),
+                Arrays.asList(subpath.path(superspec)));
+        return msg;
     }
 
     /**
@@ -421,31 +429,74 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
      *
      * Originally copied from DeleteBean.
      */
-    private int execute(final Session session, DeleteEntry entry, List<Long> ids)
+    private String execute(final Session session, DeleteEntry entry, List<Long> ids)
             throws DeleteException {
 
         Query q;
         final String[] path = entry.path(superspec);
         final String table = path[path.length - 1];
         final String str = StringUtils.join(path, "/");
+        final String which = ids != null ? ids.toString() : ("root id=" + id);
 
         if (ids == null) {
             q = buildQuery(entry).query(session);
             q.setParameter("id", id);
         } else {
             if (ids.size() == 0) {
-                log.info("No ids found for " + str);
-                return 0; // Early exit!
+                log.debug("No ids found for " + str);
+                return ""; // Early exit!
             }
             q = session.createQuery("delete " + table + " where id in (:ids)");
             q.setParameterList("ids", ids);
 
         }
 
-        int count = q.executeUpdate();
-        log.info(String.format("Deleted %s from %s: %s", count, str,
-                ids != null ? ids : ("root id=" + id)));
-        return count;
+        String sp = savepoint(session);
+        try {
+            int count = q.executeUpdate();
+            release(session, sp);
+
+            log.info(String.format("Deleted %s from %s: %s", count, str, which));
+
+            return "";
+        } catch (ConstraintViolationException cve) {
+            rollback(session, sp);
+            String cause = "ConstraintViolation: " + cve.getConstraintName();
+            log.info(String.format("Failed to delete %s: %s due to %s",
+                    str, which, cause));
+            if (DeleteEntry.Op.SOFT.equals(entry.op)) {
+                return cause;
+            } else {
+                throw cve;
+            }
+        }
+
+    }
+
+    void call(Session session, String call, String savepoint) {
+        try {
+            session.connection().prepareCall(call + savepoint).execute();
+        } catch (Exception e) {
+            RuntimeException re = new RuntimeException("Failed to '" + call
+                    + savepoint + "'");
+            re.initCause(e);
+            throw re;
+        }
+    }
+
+    String savepoint(Session session) {
+        String savepoint = UUID.randomUUID().toString();
+        savepoint = savepoint.replaceAll("-", "");
+        call(session, "SAVEPOINT DEL", savepoint);
+        return savepoint;
+    }
+
+    void release(Session session, String savepoint) {
+        call(session, "RELEASE SAVEPOINT DEL", savepoint);
+    }
+
+    void rollback(Session session, String savepoint) {
+        call(session, "ROLLBACK TO SAVEPOINT DEL", savepoint);
     }
 
     @Override
