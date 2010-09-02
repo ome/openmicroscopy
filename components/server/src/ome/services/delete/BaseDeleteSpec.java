@@ -18,6 +18,9 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import ome.api.IDelete;
+import ome.model.IObject;
+import ome.services.messages.EventLogMessage;
+import ome.system.OmeroContext;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.QueryBuilder;
 
@@ -27,7 +30,10 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanNameAware;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 /**
  * {@link DeleteSpec} which takes the id of an image as the root of deletion.
@@ -36,7 +42,7 @@ import org.springframework.beans.factory.BeanNameAware;
  * @since Beta4.2.1
  * @see IDelete
  */
-public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
+public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationContextAware {
 
     private final static Log log = LogFactory.getLog(BaseDeleteSpec.class);
 
@@ -50,6 +56,8 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
      * {@link #delete(Session, int)}
      */
     protected final List<DeleteEntry> entries;
+
+    private/* final */OmeroContext ctx;
 
     private/* final */ExtendedMetadata em;
 
@@ -102,6 +110,11 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
 
     public void setExtendedMetadata(ExtendedMetadata em) {
         this.em = em;
+    }
+
+    public void setApplicationContext(ApplicationContext ctx)
+            throws BeansException {
+        this.ctx = (OmeroContext) ctx;
     }
 
     //
@@ -338,13 +351,9 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
 
         if (results == null) {
             log.warn(logmsg(subpath, results));
-        } else if (results.size() == 0) {
+        } else {
             if (log.isDebugEnabled()) {
                 log.debug(logmsg(subpath, results));
-            }
-        } else {
-            if (log.isInfoEnabled()) {
-                log.info(logmsg(subpath, results));
             }
         }
 
@@ -439,25 +448,24 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
         final String str = StringUtils.join(path, "/");
         final String which = ids != null ? ids.toString() : ("root id=" + id);
 
-        if (ids == null) {
-            q = buildQuery(entry).query(session);
-            q.setParameter("id", id);
-        } else {
-            if (ids.size() == 0) {
+        if (ids.size() == 0) {
+            if (log.isDebugEnabled()) {
                 log.debug("No ids found for " + str);
-                return ""; // Early exit!
             }
-            q = session.createQuery("delete " + table + " where id in (:ids)");
-            q.setParameterList("ids", ids);
-
+            return ""; // Early exit!
         }
+        q = session.createQuery("delete " + table + " where id in (:ids)");
+        q.setParameterList("ids", ids);
 
         String sp = savepoint(session);
         try {
             int count = q.executeUpdate();
+            saveLogs(table, ids);
             release(session, sp);
 
-            log.info(String.format("Deleted %s from %s: %s", count, str, which));
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Deleted %s from %s: %s", count, str, which));
+            }
 
             return "";
         } catch (ConstraintViolationException cve) {
@@ -472,6 +480,18 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
             }
         }
 
+    }
+
+    void saveLogs(String table, List<Long> ids) throws DeleteException {
+        Class<IObject> k = em.getHibernateClass(table);
+        EventLogMessage elm = new EventLogMessage(this, "DELETE", k, ids);
+        try {
+            ctx.publishMessage(elm);
+        } catch (Throwable t) {
+            DeleteException de = new DeleteException(true, "EventLogMessage failed.");
+            de.initCause(t);
+            throw de;
+        }
     }
 
     void call(Session session, String call, String savepoint) {

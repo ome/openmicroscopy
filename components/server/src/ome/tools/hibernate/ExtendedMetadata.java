@@ -71,6 +71,13 @@ public interface ExtendedMetadata {
     String getCountQuery(String field) throws ApiUsageException;
 
     /**
+     * Given the name of a database table or alternatively the simple class name
+     * (non-fully qualified) of an IObject, this method returns the class which
+     * Hibernate will map that table to.
+     */
+    Class<IObject> getHibernateClass(String table);
+
+    /**
      * walks the {@link IObject} argument <em>non-</em>recursively and gathers
      * all {@link IObject} instances which will be linkd to by the
      * creation or updating of the argument. (Previously this was called "locking"
@@ -125,6 +132,8 @@ public static class Impl implements ExtendedMetadata, ApplicationListener {
     private final Set<Class<IAnnotated>> annotationTypes = new HashSet<Class<IAnnotated>>();
 
     private final Map<String, Map<String, String>> relationships = new HashMap<String, Map<String, String>>();
+
+    private final Map<String, Class<IObject>> hibernateClasses = new HashMap<String, Class<IObject>>();
 
     private boolean initialized = false;
 
@@ -194,6 +203,16 @@ public static class Impl implements ExtendedMetadata, ApplicationListener {
             immutablesHolder.put(key, new Immutables(cm));
         }
 
+        for (Map.Entry<String, ClassMetadata> entry : m.entrySet()) {
+            String key = entry.getKey();
+            ClassMetadata cm = entry.getValue();
+            key = key.substring(key.lastIndexOf(".") + 1).toLowerCase();
+            if (hibernateClasses.containsKey(key)) {
+                throw new RuntimeException("Duplicate keys!: " + key);
+            }
+            hibernateClasses.put(key, cm.getMappedClass(EntityMode.POJO));
+        }
+
         for (String key : m.keySet()) {
             Map<String, String> value = new HashMap<String, String>();
             Locks locks = locksHolder.get(key);
@@ -223,6 +242,15 @@ public static class Impl implements ExtendedMetadata, ApplicationListener {
         }
         annotationTypes.addAll(anns);
         initialized = true;
+    }
+
+    public Class<IObject> getHibernateClass(String table) {
+        int idx = table.lastIndexOf(".");
+        if (idx > 0) {
+            table = table.substring(idx+1);
+        }
+        table = table.toLowerCase();
+        return hibernateClasses.get(table);
     }
 
     /**
