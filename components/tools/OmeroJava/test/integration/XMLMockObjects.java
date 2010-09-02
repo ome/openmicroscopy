@@ -111,114 +111,120 @@ import ome.xml.model.primitives.PositiveInteger;
  * </small>
  * @since 3.0-Beta4
  */
-class XMLMockObjects 
+public class XMLMockObjects 
 {
 
 	/** The default power of a light source. */
-	static final Double LIGHTSOURCE_POWER = 200.0;
+	public static final Double LIGHTSOURCE_POWER = 200.0;
 
 	/** The default model of a component of a microscope. */
-	static final String COMPONENT_MODEL = "Model";
+	public static final String COMPONENT_MODEL = "Model";
 	
 	/** The default manufacturer of a component of a microscope. */
-	static final String COMPONENT_MANUFACTURER = "Manufacturer";
+	public static final String COMPONENT_MANUFACTURER = "Manufacturer";
 	
 	/** The default serial number of a component of a microscope. */
-	static final String COMPONENT_SERIAL_NUMBER = "0123456789";
+	public static final String COMPONENT_SERIAL_NUMBER = "0123456789";
 	
 	/** The default lot number of a component of a microscope. */
-	static final String COMPONENT_LOT_NUMBER = "9876543210";
+	public static final String COMPONENT_LOT_NUMBER = "9876543210";
 	
 	/** The default type of a laser. */
-	static final LaserType LASER_TYPE = LaserType.DYE;
+	public static final LaserType LASER_TYPE = LaserType.DYE;
 	
 	/** The default type of an arc. */
-	static final ArcType ARC_TYPE = ArcType.HGXE;
+	public static final ArcType ARC_TYPE = ArcType.HGXE;
 	
 	/** The default type of a filament. */
-	static final FilamentType FILAMENT_TYPE = FilamentType.HALOGEN;
+	public static final FilamentType FILAMENT_TYPE = FilamentType.HALOGEN;
 	
 	/** The default type of a detector. */
-	static final DetectorType DETECTOR_TYPE = DetectorType.CCD;
+	public static final DetectorType DETECTOR_TYPE = DetectorType.CCD;
 	
 	/** The default objective's correction. */
-	static final Correction CORRECTION = Correction.UV;
+	public static final Correction CORRECTION = Correction.UV;
 	
 	/** The default objective's immersion. */
-	static final Immersion IMMERSION = Immersion.OIL;
+	public static final Immersion IMMERSION = Immersion.OIL;
 	
 	/** The default objective's immersion. */
-	static final FilterType FILTER_TYPE = FilterType.LONGPASS;
+	public static final FilterType FILTER_TYPE = FilterType.LONGPASS;
 	
 	/** The default type of a microscope. */
-	static final MicroscopeType MICROSCOPE_TYPE = MicroscopeType.UPRIGHT;
+	public static final MicroscopeType MICROSCOPE_TYPE = MicroscopeType.UPRIGHT;
 	
 	/** The default binning value. */
-	static final Binning BINNING = Binning.TWOXTWO;
+	public static final Binning BINNING = Binning.TWOXTWO;
 	
 	/** The default medium for the objective. */
-	static final Medium MEDIUM = Medium.AIR;
+	public static final Medium MEDIUM = Medium.AIR;
 	
 	/** The default number of pixels along the X-axis. */
-	static final Integer SIZE_X = 24;
+	public static final Integer SIZE_X = 24;
 	
 	/** The default number of pixels along the Y-axis. */
-	static final Integer SIZE_Y = 24;
+	public static final Integer SIZE_Y = 24;
 	
 	/** The default number of z-sections. */
-	static final Integer SIZE_Z = 1;
+	public static final Integer SIZE_Z = 1;
 	
 	/** The default number of channels. */
-	static final Integer SIZE_C = 3;
+	public static final Integer SIZE_C = 3;
 	
 	/** The default number of time-points. */
-	static final Integer SIZE_T = 1;
+	public static final Integer SIZE_T = 1;
 	
 	/** The number of bytes per pixels. */
-	static final Integer BYTES_PER_PIXEL = 2;
+	public static final Integer BYTES_PER_PIXEL = 2;
 	
 	/** The default number of rows for a plate. */
-	static final int    ROWS = 16;
+	public static final int    ROWS = 16;
 	
 	/** The default number of columns for a plate. */
-	static final int    COLUMNS = 24;
+	public static final int    COLUMNS = 24;
 	
 	/** The default number of fields for a well. */
-	static final int    FIELDS = 3;
+	public static final int    FIELDS = 3;
 	
 	/** The light sources to handle. */
-	static final String[] LIGHT_SOURCES = {Laser.class.getName(), 
+	public static final String[] LIGHT_SOURCES = {Laser.class.getName(), 
 		Arc.class.getName(), Filament.class.getName(), 
 		LightEmittingDiode.class.getName()};
 	
 	/** The shapes to handle. */
-	static final String[] SHAPES = {Line.class.getName(), 
+	public static final String[] SHAPES = {Line.class.getName(), 
 		Point.class.getName(), Rectangle.class.getName(), 
 		Ellipse.class.getName(), Polyline.class.getName(),
 		Mask.class.getName()};
+	 
+	/** The supported types of annotations. */
+	public static final String[] ANNOTATIONS = {
+		BooleanAnnotation.class.getName(), CommentAnnotation.class.getName(),
+		LongAnnotation.class.getName(), TermAnnotation.class.getName(),
+		TagAnnotation.class.getName() };
 	
 	/** The default naming convention for rows. */
-	private static final NamingConvention ROW_NAMING_CONVENTION = 
+	public static final NamingConvention ROW_NAMING_CONVENTION = 
 		NamingConvention.LETTER;
 	
 	/** The default naming convention for columns. */
-	private static final NamingConvention COLUMN_NAMING_CONVENTION = 
+	public static final NamingConvention COLUMN_NAMING_CONVENTION = 
 		NamingConvention.NUMBER;
 	
 	/** The default dimension order. */
-	private static final DimensionOrder DIMENSION_ORDER = DimensionOrder.XYZCT;
+	public static final DimensionOrder DIMENSION_ORDER = DimensionOrder.XYZCT;
 	
 	/** The default pixels type. */
-	private static final PixelType PIXEL_TYPE = PixelType.UINT16;
+	public static final PixelType PIXEL_TYPE = PixelType.UINT16;
 
 	/** The number of filters created. */
-	private static final int NUMBER_OF_FILTERS = 2;
+	public static final int NUMBER_OF_FILTERS = 2;
 	
 	/** The number of dichroics created. */
-	private static final int NUMBER_OF_DICHROICS = 1;
+	public static final int NUMBER_OF_DICHROICS = 1;
 	
 	/** Points used to create Polyline and Polygon shape. */
-	private static final String POINTS = "0,0 10,10";
+	public static final String POINTS = "0,0 10,10";
 	
 	/** Root of the file. */
 	private OME ome;
@@ -240,7 +246,7 @@ class XMLMockObjects
 	 * @param index The index of the detector in the file.
 	 * @return See above.
 	 */
-	private Detector createDetector(int index)
+	protected Detector createDetector(int index)
 	{
 		Detector detector = new Detector();
 		detector.setID("Detector:"+index);
@@ -258,7 +264,7 @@ class XMLMockObjects
 	 * @param index The index of the filter set in the file.
 	 * @return See above.
 	 */
-	private FilterSet createFilterSet(int index)
+	protected FilterSet createFilterSet(int index)
 	{
 		FilterSet set = new FilterSet();
 		set.setID("FilterSet:"+index);
@@ -273,7 +279,7 @@ class XMLMockObjects
 	 * 
 	 * @return See above.
 	 */
-	private Microscope createMicroscope()
+	protected Microscope createMicroscope()
 	{
 		Microscope microscope = new Microscope();
 		microscope.setManufacturer(COMPONENT_MANUFACTURER);
@@ -289,7 +295,7 @@ class XMLMockObjects
 	 * @param index The index of the dichroic in the file.
 	 * @return See above.
 	 */
-	private Dichroic createDichroic(int index)
+	protected Dichroic createDichroic(int index)
 	{
 		Dichroic dichroic = new Dichroic();
 		dichroic.setID("Dichroic:"+index);
@@ -305,7 +311,7 @@ class XMLMockObjects
 	 * @param index The index of the objective in the file.
 	 * @return See above.
 	 */
-	private Objective createObjective(int index)
+	protected Objective createObjective(int index)
 	{
 		Objective objective = new Objective();
 		objective.setID("Objective:"+index);
@@ -330,7 +336,7 @@ class XMLMockObjects
      * @param cutOut The cut out value.
 	 * @return See above.
 	 */
-	private Filter createFilter(int index, int cutIn, int cutOut)
+	protected Filter createFilter(int index, int cutIn, int cutOut)
 	{
 		Filter filter = new Filter();
 		filter.setID("Filter:"+index);
@@ -353,7 +359,7 @@ class XMLMockObjects
 	 * @param index The index of the light source in the file.
 	 * @return See above.
 	 */
-	private LightSource createLightSource(String type, int index)
+	protected LightSource createLightSource(String type, int index)
 	{
 		if (Laser.class.getName().equals(type)) {
 			Laser laser = new Laser();
@@ -398,7 +404,7 @@ class XMLMockObjects
 	 * @param bpp   The number of bytes per pixels.
 	 * @return See above.
 	 */
-	private BinData createBinData(int sizeX, int sizeY, int bpp)
+	protected BinData createBinData(int sizeX, int sizeY, int bpp)
 	{
 		BinData data = new BinData();
 		data.setBigEndian(false);
@@ -412,7 +418,7 @@ class XMLMockObjects
 	 * 
 	 * @return See above.
 	 */
-	private LightPath createLightPath()
+	protected LightPath createLightPath()
 	{
 		LightPath lp = new LightPath();
 		if (NUMBER_OF_DICHROICS > 0) 
@@ -423,7 +429,6 @@ class XMLMockObjects
 			lp.linkEmissionFilter(instrument.getFilter(0));
 			lp.linkExcitationFilter(instrument.getFilter(1));
 		}
-		
 		return lp;
 	}
 	
@@ -432,7 +437,7 @@ class XMLMockObjects
 	 * 
 	 * @return See above.
 	 */
-	private ImagingEnvironment createImageEnvironment()
+	protected ImagingEnvironment createImageEnvironment()
 	{
 		ImagingEnvironment env = new ImagingEnvironment();
 		env.setAirPressure(1.0);
@@ -448,7 +453,7 @@ class XMLMockObjects
 	 * @param index The index of the environment in the file.
 	 * @return See above.
 	 */
-	private StageLabel createStageLabel()
+	protected StageLabel createStageLabel()
 	{
 		StageLabel label = new StageLabel();
 		label.setName("StageLabel");
@@ -464,7 +469,7 @@ class XMLMockObjects
 	 * @param ref Reference to the light source.
 	 * @return See above.
 	 */
-	private LightSourceSettings createLightSourceSettings(int ref)
+	protected LightSourceSettings createLightSourceSettings(int ref)
 	{
 		LightSourceSettings settings = new LightSourceSettings();
 		settings.setID("LigthSource:"+ref);
@@ -479,7 +484,7 @@ class XMLMockObjects
 	 * @param ref Reference to the detector.
 	 * @return See above.
 	 */
-	private DetectorSettings createDetectorSettings(int ref)
+	protected DetectorSettings createDetectorSettings(int ref)
 	{
 		DetectorSettings settings = new DetectorSettings();
 		settings.setID("Detector:"+ref);
@@ -497,7 +502,7 @@ class XMLMockObjects
 	 * @param ref Reference to the objective.
 	 * @return See above.
 	 */
-	private ObjectiveSettings createObjectiveSettings(int ref)
+	protected ObjectiveSettings createObjectiveSettings(int ref)
 	{
 		ObjectiveSettings settings = new ObjectiveSettings();
 		settings.setID("Objective:"+ref);
@@ -515,7 +520,7 @@ class XMLMockObjects
 	 * @param settings The related settings.
 	 * @return See above.
 	 */
-	private OTF createOTF(int index, FilterSet set, ObjectiveSettings settings)
+	protected OTF createOTF(int index, FilterSet set, ObjectiveSettings settings)
 	{
 		OTF otf = new OTF();
 		otf.setID("OTF:"+index);
@@ -534,7 +539,7 @@ class XMLMockObjects
 	 * 
 	 * @return See above.
 	 */
-	private BinaryFile createBinaryFile()
+	protected BinaryFile createBinaryFile()
 	{
 		BinaryFile bf = new BinaryFile();
 		bf.setBinData(createBinData(SIZE_X, SIZE_Y, BYTES_PER_PIXEL));
@@ -551,7 +556,7 @@ class XMLMockObjects
 	 * @param t    The selected time-point.
 	 * @return See above.
 	 */
-	private Shape createShape(int index, String type, int z, int c, int t)
+	protected Shape createShape(int index, String type, int z, int c, int t)
 	{
 		Shape shape = null;
 		if (Line.class.getName().equals(type)) {
@@ -613,7 +618,7 @@ class XMLMockObjects
 	 * @param c The selected channel.
 	 * @param t The selected time-point.
 	 */
-	private ROI createROI(int index, int z, int c, int t)
+	protected ROI createROI(int index, int z, int c, int t)
 	{
 		ROI roi = new ROI();
 		roi.setID("ROI:"+index);
@@ -631,17 +636,10 @@ class XMLMockObjects
 	}
 	
 	/** Creates a new instance. */
-	XMLMockObjects()
+	public XMLMockObjects()
 	{
 		ome = new OME();
 	}
-
-	/** 
-	 * Returns the root of the XML file.
-	 * 
-	 * @return See above.
-	 */
-	OME getRoot() { return ome; }
 	
 	/**
 	 * Creates a project.
@@ -649,7 +647,7 @@ class XMLMockObjects
 	 * @param index The index of the project.
 	 * @return See above.
 	 */
-	Project createProject(int index)
+	protected Project createProject(int index)
 	{
 		Project project = new Project();
 		project.setID("Project:"+index);
@@ -664,7 +662,7 @@ class XMLMockObjects
 	 * @param index The index of the dataset.
 	 * @return See above.
 	 */
-	Dataset createDataset(int index)
+	protected Dataset createDataset(int index)
 	{
 		Dataset dataset = new Dataset();
 		dataset.setID("Dataset:"+index);
@@ -679,7 +677,7 @@ class XMLMockObjects
 	 * @param index The index of the screen.
 	 * @return See above.
 	 */
-	Screen createScreen(int index)
+	protected Screen createScreen(int index)
 	{
 		Screen screen = new Screen();
 		screen.setID("Screen:"+index);
@@ -694,7 +692,7 @@ class XMLMockObjects
 	 * @param index The index of the plate.
 	 * @return See above.
 	 */
-	Plate createBasicPlate(int index)
+	protected Plate createBasicPlate(int index)
 	{
 		Plate plate = new Plate();
 		plate.setID("Plate:"+index);
@@ -711,7 +709,7 @@ class XMLMockObjects
 	 * plate acquisition, <code>false</code> otherwise.
 	 * @return See above.
 	 */
-	Plate createPlate(int index, boolean plateAcquisition)
+	protected Plate createPlate(int index, boolean plateAcquisition)
 	{
 		return createPlate(index, ROWS, COLUMNS, FIELDS, plateAcquisition);
 	}
@@ -727,8 +725,8 @@ class XMLMockObjects
 	 * plate acquisition, <code>false</code> otherwise.
 	 * @return See above.
 	 */
-	Plate createPlate(int index, int rows, int columns, int fields, boolean 
-			plateAcquisition)
+	protected Plate createPlate(int index, int rows, int columns, int fields, 
+			boolean plateAcquisition)
 	{
 		Plate plate = new Plate();
 		plate.setID("Plate:"+index);
@@ -785,7 +783,7 @@ class XMLMockObjects
 	 * 	               metadata, <code>false</code> otherwise.
 	 * @return See above.
 	 */
-	Image createImage(int index, boolean metadata)
+	protected Image createImage(int index, boolean metadata)
 	{
 		if (metadata && instrument == null)
 			populateInstrument();
@@ -847,7 +845,7 @@ class XMLMockObjects
 	 * @param index The identifier of the image.
 	 * @return See above.
 	 */
-	Image createImage(int index)
+	protected Image createImage(int index)
 	{
 		return createImage(index, false);
 	}
@@ -859,7 +857,7 @@ class XMLMockObjects
 	 *                 <code>false</code> otherwise.
 	 * @return See above.
 	 */
-	Instrument createInstrument(boolean populate)
+	protected Instrument createInstrument(boolean populate)
 	{
 		int index = 0;
 		Instrument instrument = new Instrument();
@@ -892,7 +890,7 @@ class XMLMockObjects
 	 * @param index The index of the annotation.
 	 * @return See above.
 	 */
-	Annotation createAnnotation(String type, String rootType, int index)
+	public Annotation createAnnotation(String type, String rootType, int index)
 	{
 		if (Image.class.getName().equals(rootType)) {
 			if (CommentAnnotation.class.getName().equals(type)) {
@@ -1026,6 +1024,13 @@ class XMLMockObjects
 		return null;
 	}
 	
+	/** 
+	 * Returns the root of the XML file.
+	 * 
+	 * @return See above.
+	 */
+	public OME getRoot() { return ome; }
+	
 	//Collection of helper methods.
 	
 	/**
@@ -1033,7 +1038,7 @@ class XMLMockObjects
 	 * 
 	 * @return See above.
 	 */
-	OME createImage()
+	public OME createImage()
 	{
 		ome.addImage(createImage(0));
 		return ome;
@@ -1047,7 +1052,7 @@ class XMLMockObjects
 	 * 
 	 * @return See above.
 	 */
-	OME createAnnotatedImage()
+	public OME createAnnotatedImage()
 	{
 		StructuredAnnotations annotations = new StructuredAnnotations();
 		int index = 0;
@@ -1056,15 +1061,19 @@ class XMLMockObjects
 		String type = Image.class.getName();
 		annotations.addCommentAnnotation((CommentAnnotation) createAnnotation(
 				CommentAnnotation.class.getName(), type, index));
+		index++;
 		annotations.addBooleanAnnotation((BooleanAnnotation) createAnnotation(
 				BooleanAnnotation.class.getName(), type, index));
+		index++;
 		annotations.addLongAnnotation((LongAnnotation) createAnnotation(
 				LongAnnotation.class.getName(), type, index));
+		index++;
 		annotations.addTagAnnotation((TagAnnotation) createAnnotation(
 				TagAnnotation.class.getName(), type, index));
+		index++;
 		annotations.addTermAnnotation((TermAnnotation) createAnnotation(
 				TermAnnotation.class.getName(), type, index));
-		
+
 		ome.setStructuredAnnotations(annotations);
 		return ome;
 	}
@@ -1074,7 +1083,7 @@ class XMLMockObjects
 	 * 
 	 * @return See above.
 	 */
-	OME createImageWithAcquisitionData()
+	public OME createImageWithAcquisitionData()
 	{
 		populateInstrument();
 		ome.addImage(createImage(0, true));
@@ -1086,7 +1095,7 @@ class XMLMockObjects
 	 * 
 	 * @return See above.
 	 */
-	OME createImageWithROI()
+	public OME createImageWithROI()
 	{
 		int index = 0;
 		Image image = createImage(index, true);
