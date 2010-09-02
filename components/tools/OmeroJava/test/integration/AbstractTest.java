@@ -241,4 +241,27 @@ public class AbstractTest
 		}
 	}
 
+	/**
+	 * Helper method to the wells the wells.
+	 * 
+	 * @param plateID The identifier of the plate.
+	 * @return See above.
+	 * @throws Exception  Thrown if an error occurred.
+	 */
+	List<IObject> loadWells(long plateID)
+		throws Exception 
+	{
+		StringBuilder sb = new StringBuilder();
+		ParametersI param = new ParametersI();
+		param.addLong("plateID", plateID);
+		sb.append("select well from Well as well ");
+		sb.append("left outer join fetch well.plate as pt ");
+		sb.append("left outer join fetch well.wellSamples as ws ");
+		sb.append("left outer join fetch ws.image as img ");
+		sb.append("left outer join fetch img.pixels as pix ");
+        sb.append("left outer join fetch pix.pixelsType as pt ");
+        sb.append("where well.plate.id = :plateID");
+        return iQuery.findAllByQuery(sb.toString(), param);
+	}
+	
 }

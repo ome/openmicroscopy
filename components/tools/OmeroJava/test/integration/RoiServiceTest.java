@@ -60,30 +60,7 @@ import pojos.FileAnnotationData;
 public class RoiServiceTest 
 	extends AbstractTest 
 {
-	
-	/**
-	 * Loads the wells.
-	 * 
-	 * @param plateID The identifier of the plate.
-	 * @return See above.
-	 * @throws Exception  Thrown if an error occurred.
-	 */
-	private List<IObject> loadWells(long plateID)
-		throws Exception 
-	{
-		StringBuilder sb = new StringBuilder();
-		ParametersI param = new ParametersI();
-		param.addLong("plateID", plateID);
-		sb.append("select well from Well as well ");
-		sb.append("left outer join fetch well.plate as pt ");
-		sb.append("left outer join fetch well.wellSamples as ws ");
-		sb.append("left outer join fetch ws.image as img ");
-		sb.append("left outer join fetch img.pixels as pix ");
-        sb.append("left outer join fetch pix.pixelsType as pt ");
-        sb.append("where well.plate.id = :plateID");
-        return iQuery.findAllByQuery(sb.toString(), param);
-	}
-	
+
 	/**
 	 * Tests the creation of ROIs with rectangular shapes and removes one shape.
 	 * @throws Exception  Thrown if an error occurred.

@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import omero.ApiUsageException;
 import omero.ServerError;
@@ -21,7 +22,10 @@ import omero.api.IDeletePrx;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteHandlePrx;
+import omero.grid.Column;
 import omero.grid.DeleteCallbackI;
+import omero.grid.LongColumn;
+import omero.grid.TablePrx;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
 import omero.model.Channel;
@@ -59,6 +63,7 @@ import omero.model.PlateAcquisitionAnnotationLink;
 import omero.model.PlateAcquisitionAnnotationLinkI;
 import omero.model.PlateAnnotationLink;
 import omero.model.PlateAnnotationLinkI;
+import omero.model.PlateI;
 import omero.model.Project;
 import omero.model.ProjectAnnotationLink;
 import omero.model.ProjectAnnotationLinkI;
@@ -68,6 +73,8 @@ import omero.model.ProjectI;
 import omero.model.Rect;
 import omero.model.RectI;
 import omero.model.Roi;
+import omero.model.RoiAnnotationLink;
+import omero.model.RoiAnnotationLinkI;
 import omero.model.RoiI;
 import omero.model.Screen;
 import omero.model.ScreenAnnotationLink;
@@ -92,6 +99,8 @@ import omero.sys.ParametersI;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import pojos.FileAnnotationData;
 
 /** 
  * Collections of tests for the <code>Delete</code> service.
@@ -1618,6 +1627,72 @@ public class DeleteServiceTest
     }
     
     /**
+     * Test to delete a plate with ROI on images. The ROI will have
+     * measurements.
+     * @throws Exception Thrown if an error occurred.
+     */
+    public void testPlateWithROIMeasurements() 
+		throws Exception
+	{
+    	Plate p = (Plate) iUpdate.saveAndReturnObject(
+				mmFactory.createPlate(1, 1, 1, false, false));
+    	List<IObject> results = loadWells(p.getId().getValue());
+    	Well well = (Well) results.get(0);
+    	//create the roi.
+    	Image image = well.getWellSample(0).getImage();
+        Roi roi = new RoiI();
+        roi.setImage(image);
+        Rect rect;
+        roi = (Roi) iUpdate.saveAndReturnObject(roi);
+        for (int i = 0; i < 3; i++) {
+            rect = new RectI();
+            rect.setX(rdouble(10));
+            rect.setY(rdouble(10));
+            rect.setWidth(rdouble(10));
+            rect.setHeight(rdouble(10));
+            rect.setTheZ(rint(i));
+            rect.setTheT(rint(0));
+            roi.addShape(rect);
+        }
+        //First create a table
+		String uuid = "Measurement_"+UUID.randomUUID().toString();
+		TablePrx table = factory.sharedResources().newTable(1, uuid);
+		Column[] columns = new Column[1];
+		columns[0] = new LongColumn("Uid", "", new long[1]);
+        table.initialize(columns);
+		assertNotNull(table);
+		OriginalFile of = table.getOriginalFile();
+		assertTrue(of.getId().getValue() > 0);
+		FileAnnotation fa = new FileAnnotationI();
+		fa.setNs(omero.rtypes.rstring(FileAnnotationData.MEASUREMENT_NS)); 
+		fa.setFile(of);
+		fa = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
+		long id = fa.getId().getValue();
+		//link fa to ROI
+		List<IObject> links = new ArrayList<IObject>();
+		RoiAnnotationLink rl = new RoiAnnotationLinkI();
+		rl.setChild(new FileAnnotationI(id, false));
+		rl.setParent(new RoiI(roi.getId().getValue(), false));
+		links.add(rl);
+		PlateAnnotationLink il = new PlateAnnotationLinkI();
+		il.setChild(new FileAnnotationI(id, false));
+		il.setParent(new PlateI(p.getId().getValue(), false));
+		links.add(il);
+		iUpdate.saveAndReturnArray(links);
+		
+		delete(new DeleteCommand(REF_PLATE, p.getId().getValue(), 
+        		null));
+		//Shouldn't have measurements
+		ParametersI param = new ParametersI();
+        param.addId(id);
+        StringBuilder sb = new StringBuilder();
+		sb.append("select a from Annotation as a ");
+		sb.append("where a.id = :id");
+		results = iQuery.findAllByQuery(sb.toString(), param);
+		assertTrue(results.size() == 0);
+	}
+    
+    /**
      * Test to delete a plate with sharable annotations linked to the well and 
      * well samples and plate with Plate acquisition and annotation.
      * @throws Exception Thrown if an error occurred.
@@ -1643,21 +1718,14 @@ public class DeleteServiceTest
 		List<Long> r;
 		List l;
     	for (int i = 0; i < values.length; i++) {
+    		b = values[i];
     		for (int k = 0; k < annotations.length; k++) {
-    			b = values[i];
     			p = (Plate) iUpdate.saveAndReturnObject(
     					mmFactory.createPlate(1, 1, 1, b, false));
-    			param = new ParametersI();
-    			param.addLong("plateID", p.getId().getValue());
-    			sb = new StringBuilder();
-    			sb.append("select well from Well as well ");
-    			sb.append("left outer join fetch well.plate as pt ");
-    			sb.append("left outer join fetch well.wellSamples as ws ");
-    			sb.append("left outer join fetch ws.image as img ");
-    	        sb.append("where pt.id = :plateID");
-    	        results = iQuery.findAllByQuery(sb.toString(), param);
-    	        
+    	        results = loadWells(p.getId().getValue());
     	        sb = new StringBuilder();
+    	        param = new ParametersI();
+    			param.addLong("plateID", p.getId().getValue());
     	        sb.append("select pa from PlateAcquisition as pa " +
     	        		"where pa.plate.id = :plateID"); 
     	        pa = (PlateAcquisition) iQuery.findByQuery(sb.toString(), param);
@@ -1736,9 +1804,9 @@ public class DeleteServiceTest
     	    	sb.append("select i from Annotation as i where i.id in (:ids)");
     	    	l = iQuery.findAllByQuery(sb.toString(), param);
     	    	if (annotations[k]) {
-			assertEquals(l.toString(), annotationIds.size(), l.size());
+    	    		assertEquals(l.toString(), annotationIds.size(), l.size());
     	    	} else {
-			assertEquals(l.toString(), 0, l.size());
+    	    		assertEquals(l.toString(), 0, l.size());
     	    	}
     		}
     	}
