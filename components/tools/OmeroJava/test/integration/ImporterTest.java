@@ -130,17 +130,36 @@ public class ImporterTest
 	 * 
 	 * @param file The file to import.
 	 * @param format The format of the file to import.
-	 * @return 
+	 * @return The collection of imported pixels set.
 	 * @throws Exception Thrown if an error occurred while encoding the image.
 	 */
 	private List<Pixels> importFile(File file, String format)
 		throws Throwable
 	{
-		ImportLibrary importLibrary = new ImportLibrary(importer, 
+		return importFile(file, format, false);
+	}
+	
+	/**
+	 * Imports the specified OME-XML file and returns the pixels set
+	 * if successfully imported.
+	 * 
+	 * @param file The file to import.
+	 * @param format The format of the file to import.
+	 * @param metadata Pass <code>true</code> to only import the metadata,
+	 *                 <code>false</code> otherwise.
+	 * @return The collection of imported pixels set.
+	 * @throws Exception Thrown if an error occurred while encoding the image.
+	 */
+	private List<Pixels> importFile(File file, String format, boolean
+			metadata)
+		throws Throwable
+	{
+		ImportLibrary library = new ImportLibrary(importer, 
 				new OMEROWrapper(new ImportConfig()));
+		library.setMetadataOnly(metadata);
 		List<Pixels> pixels = null;
 		//try to import the file
-		pixels = importLibrary.importImage(file, 0, 0, 1, format, null, 
+		pixels = library.importImage(file, 0, 0, 1, format, null, 
 				false, true, null, null);
 		assertNotNull(pixels);
 		assertTrue(pixels.size() > 0);
@@ -216,7 +235,7 @@ public class ImporterTest
      * Tests the import of an OME-XML file with one image.
      * @throws Exception Thrown if an error occurred.
      */
-	@Test(enabled = false)
+	@Test
 	public void testImportSimpleImage()
 		throws Exception
 	{
@@ -224,9 +243,30 @@ public class ImporterTest
 		files.add(f);
 		XMLMockObjects xml = new XMLMockObjects();
 		XMLWriter writer = new XMLWriter();
-		writer.writeFile(f, xml.createImage(), false);
+		writer.writeFile(f, xml.createImage(), true);
 		try {
 			importFile(f, OME_FORMAT);
+		} catch (Throwable e) {
+			throw new Exception("cannot import image", e);
+		}
+	}
+	
+	/**
+     * Tests the import of an OME-XML file with one image, only import the
+     * metadata
+     * @throws Exception Thrown if an error occurred.
+     */
+	@Test
+	public void testImportSimpleImageMetadataOnly()
+		throws Exception
+	{
+		File f = File.createTempFile("testImportSimpleImage", "."+OME_FORMAT);
+		files.add(f);
+		XMLMockObjects xml = new XMLMockObjects();
+		XMLWriter writer = new XMLWriter();
+		writer.writeFile(f, xml.createImage(), true);
+		try {
+			importFile(f, OME_FORMAT, true);
 		} catch (Throwable e) {
 			throw new Exception("cannot import image", e);
 		}
@@ -244,7 +284,7 @@ public class ImporterTest
 		files.add(f);
 		XMLMockObjects xml = new XMLMockObjects();
 		XMLWriter writer = new XMLWriter();
-		writer.writeFile(f, xml.createAnnotatedImage(), false);
+		writer.writeFile(f, xml.createAnnotatedImage(), true);
 		List<Pixels> pixels = null;
 		try {
 			pixels = importFile(f, OME_FORMAT);
@@ -254,13 +294,13 @@ public class ImporterTest
 		Pixels p = pixels.get(0);
 		long id = p.getImage().getId().getValue();
 		String sql = "select l from ImageAnnotationLink as l ";
-		sql += "left outer join fetch l.parent as p";
+		sql += "left outer join fetch l.parent as p ";
 		sql += "where p.id = :id";
 		ParametersI param = new ParametersI();
 		param.addId(id);
 		List<IObject> l = iQuery.findAllByQuery(sql, param);
-		int numberOfAnnotations = 5;
-		assertTrue(l.size() >= numberOfAnnotations); //always companion file.
+		 //always companion file.
+		assertTrue(l.size() >= XMLMockObjects.ANNOTATIONS.length);
 		int count = 0;
 		Iterator<IObject> i = l.iterator();
 		IObject object;
@@ -272,7 +312,7 @@ public class ImporterTest
 			else if (object instanceof BooleanAnnotation) count++;
 			else if (object instanceof LongAnnotation) count++;
 		}
-		assertTrue(count == numberOfAnnotations);
+		assertTrue(count == XMLMockObjects.ANNOTATIONS.length);
 	}
 	
 	/**
