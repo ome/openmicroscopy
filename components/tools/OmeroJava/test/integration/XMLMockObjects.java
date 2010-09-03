@@ -1073,7 +1073,6 @@ public class XMLMockObjects
 		index++;
 		annotations.addTermAnnotation((TermAnnotation) createAnnotation(
 				TermAnnotation.class.getName(), type, index));
-
 		ome.setStructuredAnnotations(annotations);
 		return ome;
 	}
