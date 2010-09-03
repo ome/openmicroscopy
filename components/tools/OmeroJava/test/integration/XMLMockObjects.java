@@ -1061,16 +1061,12 @@ public class XMLMockObjects
 		String type = Image.class.getName();
 		annotations.addCommentAnnotation((CommentAnnotation) createAnnotation(
 				CommentAnnotation.class.getName(), type, index));
-		index++;
 		annotations.addBooleanAnnotation((BooleanAnnotation) createAnnotation(
 				BooleanAnnotation.class.getName(), type, index));
-		index++;
 		annotations.addLongAnnotation((LongAnnotation) createAnnotation(
 				LongAnnotation.class.getName(), type, index));
-		index++;
 		annotations.addTagAnnotation((TagAnnotation) createAnnotation(
 				TagAnnotation.class.getName(), type, index));
-		index++;
 		annotations.addTermAnnotation((TermAnnotation) createAnnotation(
 				TermAnnotation.class.getName(), type, index));
 		ome.setStructuredAnnotations(annotations);
