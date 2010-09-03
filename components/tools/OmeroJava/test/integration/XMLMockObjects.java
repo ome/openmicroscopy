@@ -761,6 +761,7 @@ public class XMLMockObjects
 			pa.setID("PlateAcquistion:"+index);
 			pa.setName("PlateAcquistion Name "+index);
 			pa.setDescription("PlateAcquistion Description "+index);
+			plate.addPlateAcquisition(pa);
 		}
 		//now populate the plate
 		Well well;
@@ -782,7 +783,7 @@ public class XMLMockObjects
 					ome.addImage(image);
 					sample.linkImage(image);
 					if (pa != null) {
-						pa.setLinkedWellSample(i, sample);
+						pa.linkWellSample(sample);
 					}
 					well.addWellSample(sample);
 					i++;
@@ -1192,31 +1193,46 @@ public class XMLMockObjects
 	}
 	
 	/**
-	 * Creates a plate with {@link #ROWS} rows, {@link #COLUMNS} columns
-	 * and {@link #FIELDS} fields. 
+	 * Creates a plate with <code>1</code> row, <code>1</code> column
+	 * and <code>1</code>field. 
 	 * The plate will have images with acquisition data but no plate acquisition
 	 * data.
 	 * 
 	 * @return See above
 	 */
-	OME createPlate()
+	OME createBasicPlate()
 	{
 		populateInstrument();
-		ome.addPlate(createPlate(0, false));
+		ome.addPlate(createPlate(0, 1, 1, 1, false));
 		return ome;
 	}
 	
 	/**
-	 * Creates a plate with {@link #ROWS} rows and {@link #COLUMNS}
-	 * and {@link #FIELDS}. The plate will have images with acquisition data.
+	 * Creates a plate with <code>1</code> row, <code>1</code> column
+	 * and <code>1</code> field.  The plate will have images with acquisition data.
 	 * This plate will have one plate acquisition.
 	 * 
 	 * @return See above
 	 */
-	OME createPlateWithPlateAcquistion()
+	OME createBasicPlateWithPlateAcquistion()
 	{
 		populateInstrument();
-		ome.addPlate(createPlate(0, true));
+		ome.addPlate(createPlate(1, 1, 1, 1, true));
+		return ome;
+	}
+	
+	/**
+	 * Creates a plate with {@link #ROWS} rows, {@link #COLUMNS} columns
+	 * and {@link #FIELDS} field. 
+	 * The plate will have images with acquisition data but no plate acquisition
+	 * data.
+	 * 
+	 * @return See above
+	 */
+	OME createFullPlate()
+	{
+		populateInstrument();
+		ome.addPlate(createPlate(0, false));
 		return ome;
 	}
 	

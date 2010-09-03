@@ -74,12 +74,14 @@ import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.Pixels;
 import omero.model.PlaneInfo;
+import omero.model.Plate;
 import omero.model.Roi;
 import omero.model.Shape;
 import omero.model.StageLabel;
 import omero.model.TagAnnotation;
 import omero.model.TermAnnotation;
 import omero.model.TransmittanceRange;
+import omero.model.WellSample;
 import omero.sys.ParametersI;
 
 /** 
@@ -896,7 +898,7 @@ public class ImporterTest
      * Tests the import of an OME-XML file with a fully populated plate.
      * @throws Exception Thrown if an error occurred.
      */
-	@Test(enabled = false)
+	@Test
 	public void testImportPlate()
 		throws Exception
 	{
@@ -904,13 +906,26 @@ public class ImporterTest
 		files.add(f);
 		XMLMockObjects xml = new XMLMockObjects();
 		XMLWriter writer = new XMLWriter();
-		writer.writeFile(f, xml.createPlate(), true);
+		writer.writeFile(f, xml.createBasicPlate(), true);
 		List<Pixels> pixels = null;
 		try {
 			pixels = importFile(f, OME_FORMAT);
 		} catch (Throwable e) {
 			throw new Exception("cannot import the plate", e);
 		}
+		Pixels p = pixels.get(0);
+		long id = p.getImage().getId().getValue();
+		String sql = "select ws from WellSample as ws ";
+		sql += "join fetch ws.well as w ";
+		sql += "join fetch w.plate as p ";
+		sql += "where ws.image.id = :id";
+		ParametersI param = new ParametersI();
+		param.addId(id);
+		List<IObject> results = iQuery.findAllByQuery(sql, param);
+		assertTrue(results.size() == 1);
+		WellSample ws = (WellSample) results.get(0);
+		assertNotNull(ws.getWell());
+		assertNotNull(ws.getWell().getPlate());
 	}
 	
 	/**
@@ -918,22 +933,36 @@ public class ImporterTest
      * with a plate acquisition.
      * @throws Exception Thrown if an error occurred.
      */
-	@Test(enabled = false)
+	@Test
 	public void testImportPlateWithPlateAcquisition()
 		throws Exception
 	{
 		File f = File.createTempFile("testImportPlateWithPlateAcquisition", 
 				"."+OME_FORMAT);
-		files.add(f);
 		XMLMockObjects xml = new XMLMockObjects();
 		XMLWriter writer = new XMLWriter();
-		writer.writeFile(f, xml.createPlateWithPlateAcquistion(), true);
+		writer.writeFile(f, xml.createBasicPlateWithPlateAcquistion(), true);
 		List<Pixels> pixels = null;
 		try {
 			pixels = importFile(f, OME_FORMAT);
 		} catch (Throwable e) {
 			throw new Exception("cannot import the plate", e);
 		}
+		Pixels p = pixels.get(0);
+		long id = p.getImage().getId().getValue();
+		String sql = "select ws from WellSample as ws ";
+		sql += "join fetch ws.plateAcquisition as pa ";
+		sql += "join fetch ws.well as w ";
+		sql += "join fetch w.plate as p ";
+		sql += "where ws.image.id = :id";
+		ParametersI param = new ParametersI();
+		param.addId(id);
+		List<IObject> results = iQuery.findAllByQuery(sql, param);
+		assertTrue(results.size() == 1);
+		WellSample ws = (WellSample) results.get(0);
+		//assertNotNull(ws.getPlateAcquisition());
+		assertNotNull(ws.getWell());
+		assertNotNull(ws.getWell().getPlate());
 	}
 	
 }
