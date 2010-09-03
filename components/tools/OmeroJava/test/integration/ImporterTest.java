@@ -654,9 +654,9 @@ public class ImporterTest
 	public void testImportImageWithAcquisitionData()
 		throws Exception
 	{
-		File f = new File("/OMERO/testImportImageWithAcquisitionData.ome");
-		//File.createTempFile("testImportImageWithAcquisitionData", "."+OME_FORMAT);
-		//files.add(f);
+		File f = File.createTempFile("testImportImageWithAcquisitionData", 
+				"."+OME_FORMAT);
+		files.add(f);
 		XMLMockObjects xml = new XMLMockObjects();
 		XMLWriter writer = new XMLWriter();
 		writer.writeFile(f, xml.createImageWithAcquisitionData(), true);
