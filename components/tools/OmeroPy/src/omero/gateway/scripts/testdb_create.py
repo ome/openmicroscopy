@@ -38,6 +38,7 @@ dbhelpers.IMAGES = {
     'tinyimg3' : dbhelpers.ImageEntry('weblitz_test_priv_image_tiny3', 'imgs/tinyTest.d3d.dv', 'testds3'),
 }
 
+
 class GTest(unittest.TestCase):
 
     def setUp(self, skipTestDB=False):
@@ -70,6 +71,7 @@ class GTest(unittest.TestCase):
         self._has_connected = False
 
     def doLogin (self, user):
+        self.doDisconnect()
         self.gateway = dbhelpers.login(user)
 
     def loginAsAdmin (self):

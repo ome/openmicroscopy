@@ -14,7 +14,7 @@ from django.http import QueryDict
 
 CLIENT_BASE='test'
 
-def fakeRequest ():
+def fakeRequest (**kwargs):
     def bogus_request(self, **request):
         """
         The master request method. Composes the environment dictionary
@@ -55,7 +55,7 @@ def fakeRequest ():
         return r
     Client.bogus_request = bogus_request
     c = Client()
-    return c.bogus_request()
+    return c.bogus_request(**kwargs)
 
 class WGTest (GTest):
     def doLogin (self, user):

@@ -156,6 +156,7 @@ class UserEntry (object):
             admin = client
         g = UserEntry._getOrCreateGroup(client, groupname, groupperms)
         a.addGroups(a.getExperimenter(client._userid), (g,))
+        a.seppuku()
 
     @staticmethod
     def setGroupForSession (client, groupname):
@@ -202,6 +203,7 @@ class ProjectEntry (ObjectEntry):
                 groupname = 'project_test'
             s = loginAsRoot()
             UserEntry.addGroupToUser (s, groupname)
+            s.seppuku()
             UserEntry.setGroupForSession(client, groupname)
         p = omero.gateway.ProjectWrapper(client, client.getUpdateService().saveAndReturnObject(p))
         return self.get(client, True)
@@ -372,12 +374,16 @@ def bootstrap ():
         if not u.create(client):
             u.changePassword(client, u.passwd)
     for k, p in PROJECTS.items():
-        p.create()
+        p = p.create()
+        p._conn.seppuku()
         #print p.get(client).getDetails().getPermissions().isUserWrite()
     for k, d in DATASETS.items():
-        d.create()
+        d = d.create()
+        d._conn.seppuku()
     for k, i in IMAGES.items():
-        i.create()
+        i = i.create()
+        i._conn.seppuku()
+    client.seppuku()
 
 NEWSTYLEPERMS = omero_version >= ['4','2','0']
 def cleanup ():
@@ -405,6 +411,7 @@ def cleanup ():
     admin = client.getAdminService()
     for k, u in USERS.items():
         u.changePassword(client, None)
+    client.seppuku()
         
 
 
