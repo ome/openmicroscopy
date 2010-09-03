@@ -2212,12 +2212,257 @@ public class DeleteServiceTest
     	Plate plate2 = (Plate) iUpdate.saveAndReturnObject(
     			mmFactory.simplePlateData().asIObject());
     	ids = createSharableAnnotation(plate1, plate2);
-    	//now delete the screen 1.
+    	//now delete the plate 1.
     	delete(new DeleteCommand(REF_PLATE, plate1.getId().getValue(), null));
     	param = new ParametersI();
     	param.addIds(ids);
     	results = iQuery.findAllByQuery(sql, param);
     	assertEquals(n, results.size());
+    }
+    
+    /**
+     * Tests to delete a shared tag as root.
+     * The tag should be deleted but no the objects linked to it.
+     * The <code>queueDelete</code> method is tested.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = false)
+    public void testDeleteSharableTagAsRoot() 
+    	throws Exception
+    { 
+    	Image img1 = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(0));
+    	Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	Project p1 = (Project) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleProjectData().asIObject());
+    	Screen screen1 = (Screen) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleScreenData().asIObject());
+    	Plate plate1 = (Plate) iUpdate.saveAndReturnObject(
+    			mmFactory.simplePlateData().asIObject());
+    	
+    	TagAnnotation tag = new TagAnnotationI();
+    	tag.setTextValue(omero.rtypes.rstring("tag shared"));
+    	tag = (TagAnnotation) iUpdate.saveAndReturnObject(tag);
+    	long tagId = tag.getId().getValue();
+    	List<IObject> links = new ArrayList<IObject>();
+    	ImageAnnotationLink link = new ImageAnnotationLinkI();
+		link.setChild(tag);
+		link.setParent(img1);
+		links.add(link);
+		DatasetAnnotationLink dl = new DatasetAnnotationLinkI();
+		dl.setChild(new TagAnnotationI(tagId, false));
+		dl.setParent(d1);
+		links.add(dl);
+		ProjectAnnotationLink pl = new ProjectAnnotationLinkI();
+		pl.setChild(new TagAnnotationI(tagId, false));
+		pl.setParent(p1);
+		links.add(pl);
+		ScreenAnnotationLink sl = new ScreenAnnotationLinkI();
+		sl.setChild(new TagAnnotationI(tagId, false));
+		sl.setParent(screen1);
+		links.add(sl);
+		PlateAnnotationLink platel = new PlateAnnotationLinkI();
+		platel.setChild(new TagAnnotationI(tagId, false));
+		platel.setParent(plate1);
+		links.add(platel);
+		iUpdate.saveAndReturnArray(links);
+		//delete the tag
+		delete(new DeleteCommand(REF_TAG, tagId, null));
+		ParametersI param = new ParametersI();
+    	param.addId(tagId);
+		String sql = "select a from Annotation as a where a.id = :id";
+		assertNull(iQuery.findByQuery(sql, param));
+		
+		//We should still have the objects.
+		param = new ParametersI();
+    	param.addId(img1.getId().getValue());
+    	sql = "select a from Image as a where a.id = :id";
+		assertNotNull(iQuery.findByQuery(sql, param));
+		
+		param = new ParametersI();
+    	param.addId(d1.getId().getValue());
+    	sql = "select a from Dataset as a where a.id = :id";
+		assertNotNull(iQuery.findByQuery(sql, param));
+		
+		param = new ParametersI();
+    	param.addId(p1.getId().getValue());
+    	sql = "select a from Project as a where a.id = :id";
+		assertNotNull(iQuery.findByQuery(sql, param));
+		
+		param = new ParametersI();
+    	param.addId(screen1.getId().getValue());
+    	sql = "select a from Screen as a where a.id = :id";
+		assertNotNull(iQuery.findByQuery(sql, param));
+		
+		param = new ParametersI();
+    	param.addId(plate1.getId().getValue());
+    	sql = "select a from Plate as a where a.id = :id";
+		assertNotNull(iQuery.findByQuery(sql, param));
+    }
+    
+    /**
+     * Tests to delete a shared term as root.
+     * The tag should be deleted but no the objects linked to it.
+     * The <code>queueDelete</code> method is tested.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = false)
+    public void testDeleteSharableTermAsRoot() 
+    	throws Exception
+    { 
+    	Image img1 = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(0));
+    	Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	Project p1 = (Project) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleProjectData().asIObject());
+    	Screen screen1 = (Screen) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleScreenData().asIObject());
+    	Plate plate1 = (Plate) iUpdate.saveAndReturnObject(
+    			mmFactory.simplePlateData().asIObject());
+    	
+    	TermAnnotation tag = new TermAnnotationI();
+    	tag.setTermValue(omero.rtypes.rstring("term shared"));
+    	tag = (TermAnnotation) iUpdate.saveAndReturnObject(tag);
+    	long tagId = tag.getId().getValue();
+    	List<IObject> links = new ArrayList<IObject>();
+    	ImageAnnotationLink link = new ImageAnnotationLinkI();
+		link.setChild(tag);
+		link.setParent(img1);
+		links.add(link);
+		DatasetAnnotationLink dl = new DatasetAnnotationLinkI();
+		dl.setChild(new TagAnnotationI(tagId, false));
+		dl.setParent(d1);
+		links.add(dl);
+		ProjectAnnotationLink pl = new ProjectAnnotationLinkI();
+		pl.setChild(new TermAnnotationI(tagId, false));
+		pl.setParent(p1);
+		links.add(pl);
+		ScreenAnnotationLink sl = new ScreenAnnotationLinkI();
+		sl.setChild(new TermAnnotationI(tagId, false));
+		sl.setParent(screen1);
+		links.add(sl);
+		PlateAnnotationLink platel = new PlateAnnotationLinkI();
+		platel.setChild(new TermAnnotationI(tagId, false));
+		platel.setParent(plate1);
+		links.add(platel);
+		iUpdate.saveAndReturnArray(links);
+		//delete the tag
+		delete(new DeleteCommand(REF_TERM, tagId, null));
+		ParametersI param = new ParametersI();
+    	param.addId(tagId);
+		String sql = "select a from Annotation as a where a.id = :id";
+		assertNull(iQuery.findByQuery(sql, param));
+		
+		//We should still have the objects.
+		param = new ParametersI();
+    	param.addId(img1.getId().getValue());
+    	sql = "select a from Image as a where a.id = :id";
+		assertNotNull(iQuery.findByQuery(sql, param));
+		
+		param = new ParametersI();
+    	param.addId(d1.getId().getValue());
+    	sql = "select a from Dataset as a where a.id = :id";
+		assertNotNull(iQuery.findByQuery(sql, param));
+		
+		param = new ParametersI();
+    	param.addId(p1.getId().getValue());
+    	sql = "select a from Project as a where a.id = :id";
+		assertNotNull(iQuery.findByQuery(sql, param));
+		
+		param = new ParametersI();
+    	param.addId(screen1.getId().getValue());
+    	sql = "select a from Screen as a where a.id = :id";
+		assertNotNull(iQuery.findByQuery(sql, param));
+		
+		param = new ParametersI();
+    	param.addId(plate1.getId().getValue());
+    	sql = "select a from Plate as a where a.id = :id";
+		assertNotNull(iQuery.findByQuery(sql, param));
+    }
+    
+    /**
+     * Tests to delete a shared file annotation as root.
+     * The tag should be deleted but no the objects linked to it.
+     * The <code>queueDelete</code> method is tested.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = false)
+    public void testDeleteSharableFileAsRoot() 
+    	throws Exception
+    { 
+    	Image img1 = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(0));
+    	Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	Project p1 = (Project) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleProjectData().asIObject());
+    	Screen screen1 = (Screen) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleScreenData().asIObject());
+    	Plate plate1 = (Plate) iUpdate.saveAndReturnObject(
+    			mmFactory.simplePlateData().asIObject());
+    	
+    	FileAnnotation tag = new FileAnnotationI();
+    	OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
+				mmFactory.createOriginalFile());
+    	tag.setFile(of);
+    	tag = (FileAnnotation) iUpdate.saveAndReturnObject(tag);
+    	long tagId = tag.getId().getValue();
+    	List<IObject> links = new ArrayList<IObject>();
+    	ImageAnnotationLink link = new ImageAnnotationLinkI();
+		link.setChild(tag);
+		link.setParent(img1);
+		links.add(link);
+		DatasetAnnotationLink dl = new DatasetAnnotationLinkI();
+		dl.setChild(new TagAnnotationI(tagId, false));
+		dl.setParent(d1);
+		links.add(dl);
+		ProjectAnnotationLink pl = new ProjectAnnotationLinkI();
+		pl.setChild(new TermAnnotationI(tagId, false));
+		pl.setParent(p1);
+		links.add(pl);
+		ScreenAnnotationLink sl = new ScreenAnnotationLinkI();
+		sl.setChild(new TermAnnotationI(tagId, false));
+		sl.setParent(screen1);
+		links.add(sl);
+		PlateAnnotationLink platel = new PlateAnnotationLinkI();
+		platel.setChild(new TermAnnotationI(tagId, false));
+		platel.setParent(plate1);
+		links.add(platel);
+		iUpdate.saveAndReturnArray(links);
+		//delete the tag
+		delete(new DeleteCommand(REF_FILE, tagId, null));
+		ParametersI param = new ParametersI();
+    	param.addId(tagId);
+		String sql = "select a from Annotation as a where a.id = :id";
+		assertNull(iQuery.findByQuery(sql, param));
+		
+		//We should still have the objects.
+		param = new ParametersI();
+    	param.addId(img1.getId().getValue());
+    	sql = "select a from Image as a where a.id = :id";
+		assertNotNull(iQuery.findByQuery(sql, param));
+		
+		param = new ParametersI();
+    	param.addId(d1.getId().getValue());
+    	sql = "select a from Dataset as a where a.id = :id";
+		assertNotNull(iQuery.findByQuery(sql, param));
+		
+		param = new ParametersI();
+    	param.addId(p1.getId().getValue());
+    	sql = "select a from Project as a where a.id = :id";
+		assertNotNull(iQuery.findByQuery(sql, param));
+		
+		param = new ParametersI();
+    	param.addId(screen1.getId().getValue());
+    	sql = "select a from Screen as a where a.id = :id";
+		assertNotNull(iQuery.findByQuery(sql, param));
+		
+		param = new ParametersI();
+    	param.addId(plate1.getId().getValue());
+    	sql = "select a from Plate as a where a.id = :id";
+		assertNotNull(iQuery.findByQuery(sql, param));
     }
     
 }

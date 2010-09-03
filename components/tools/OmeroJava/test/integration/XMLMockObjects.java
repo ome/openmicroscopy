@@ -927,7 +927,8 @@ public class XMLMockObjects
 				f.setBinaryFile(createBinaryFile());
 				annotation = f;
 			}
-			((Image) object).linkAnnotation(annotation);
+			if (annotation != null)
+				((Image) object).linkAnnotation(annotation);
 		} else if (object instanceof Plate) {
 			if (CommentAnnotation.class.getName().equals(type)) {
 				CommentAnnotation c = new CommentAnnotation();
@@ -960,7 +961,8 @@ public class XMLMockObjects
 				f.setBinaryFile(createBinaryFile());
 				annotation = f;
 			}
-			((Plate) object).linkAnnotation(annotation);
+			if (annotation != null)
+				((Plate) object).linkAnnotation(annotation);
 		} else if (object instanceof Well) {
 			if (CommentAnnotation.class.getName().equals(type)) {
 				CommentAnnotation c = new CommentAnnotation();
@@ -993,7 +995,8 @@ public class XMLMockObjects
 				f.setBinaryFile(createBinaryFile());
 				annotation = f;
 			}
-			((Well) object).linkAnnotation(annotation);
+			if (annotation != null)
+				((Well) object).linkAnnotation(annotation);
 		} else if (object instanceof WellSample) {
 			if (CommentAnnotation.class.getName().equals(type)) {
 				CommentAnnotation c = new CommentAnnotation();
@@ -1026,7 +1029,8 @@ public class XMLMockObjects
 				f.setBinaryFile(createBinaryFile());
 				annotation = f;
 			}
-			((WellSample) object).linkAnnotation(annotation);
+			if (annotation != null)
+				((WellSample) object).linkAnnotation(annotation);
 		}
 		return annotation;
 	}
