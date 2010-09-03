@@ -158,6 +158,11 @@ $(document).ready(function() {
                         <a id="oavLinkMap" href="{% url webemdb_oa_viewer map.id %}">OA Viewer Full Map</a>
                         <a id="oavMapLink" href="{% url webemdb_map map.id %}">map link</a>
                         <div class="clean"></div>
+                        <div id="contourLevelSlider">
+                            <div>Contour Level:</div>
+                            <div id="slider"></div>
+                            <span id="sliderValue"></span> | <a href="#" id="setContourLevel">Update</a>
+                        </div>
                     </div>
                     {% endif %}
                     
@@ -173,6 +178,11 @@ $(document).ready(function() {
                         <a id="oavLinkSmallMap" href="{% url webemdb_oa_viewer smallMap.id %}">OA Viewer Small Map</a>
                         <a id="oavSmallMapLink" href="{% url webemdb_map smallMap.id %}">small map link</a>
                         <div class="clean"></div>
+                        <div id="contourLevelSlider">
+                            <div>Contour Level</div>
+                            <div id="slider"></div>
+                            <span id="sliderValue"></span> | <a href="#" id="setContourLevel">Update</a>
+                        </div>
                     </div>
                     {% endif %}
                     
@@ -181,11 +191,7 @@ $(document).ready(function() {
                         <!-- <div class="oavControl" id='red'>Red</div> -->
                         Rotate: Click + Drag<br />
                         Zoom: Shift + Drag Up/Down<br />
-                        <div id="contourLevelSlider">
-                            <div>Contour Level</div>
-                            <div id="slider"></div>
-                            <span id="sliderValue"></span> | <a href="#" id="setContourLevel">Update</a>
-                        </div>
+                        
                         {% if not sizeWarning %} <!-- should be viewable -->
                         <p>If the map fails to display, try restarting your browser</p>
                         {% endif %}

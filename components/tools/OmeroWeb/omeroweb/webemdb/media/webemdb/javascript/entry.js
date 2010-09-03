@@ -162,7 +162,7 @@ $(document).ready(function() {
         var maxMapValue = 100;
         var avgMapValue = 0;
         var stdMapValue = 0;
-        $(data).find("statistics").each(function() {
+        $(data).find("map").find("statistics").each(function() {
             minMapValue = parseFloat($(this).find("minimum").text());
             maxMapValue = parseFloat($(this).find("maximum").text());
             avgMapValue = parseFloat($(this).find("average").text());
@@ -225,11 +225,15 @@ $(document).ready(function() {
     $(".visOption").click(function(event) {
         var optionId = $(this).attr("id");
         // hide current view & show new one
+        $("#contourLevelSlider").hide();
         $(".visViewer").hide();
         $("#oavControls").hide();
         if (optionId == "visAstexBit" || optionId == "visAstexMap" || optionId == "visAstexSmallMap") {
             $("#oavControls").show();
             $("#visAstexPane").show();
+            if (!(optionId == "visAstexBit")) {
+                 $("#contourLevelSlider").show();
+             }
         }
         else {
             var viewerId = optionId + "Pane";
@@ -287,6 +291,7 @@ $(document).ready(function() {
     });
     
     $("#oavMapLink").hide();
+    $("#oavLinkMap").hide();
     $("#visAstexMap").click(function() {
         if (oavLoaded) {
             // just get the url of the map we want to view, and load it. 
