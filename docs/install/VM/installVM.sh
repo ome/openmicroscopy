@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+SCP="scp -o StrictHostKeyChecking=no -i omerokey"
+SSH="ssh -o StrictHostKeyChecking=no -i omerokey"
 if [ -n $VMNAME ]
 then 
     if [ -n $1 ]
@@ -25,13 +27,13 @@ echo "Starting VM "
 VBoxManage startvm "$VMNAME" --type headless
 sleep 30
 echo "Copying ubuntu-install" 
-scp -P $SSH_PF ubuntu-install.sh omero@localhost:~/
+$SCP -P $SSH_PF ubuntu-install.sh omero@localhost:~/
 echo "Copying omero.sh" 
-scp -P $SSH_PF omero.sh omero@localhost:~/omero
+$SCP -P $SSH_PF omero.sh omero@localhost:~/omero
 echo "Copying installDaemon.sh" 
-scp -P $SSH_PF installDaemon.sh omero@localhost:~/
+$SCP -P $SSH_PF installDaemon.sh omero@localhost:~/
 echo "Copying ubuntu-install" 
 echo "ssh : exec ubuntu-install.sh"
-ssh -l omero -p $SSH_PF localhost 'yes ome | sudo -S sh /home/omero/ubuntu-install.sh'
+$SSH -l omero -p $SSH_PF localhost 'yes ome | sudo -S sh /home/omero/ubuntu-install.sh'
 echo "ssh : exec installDaemon.sh"
-ssh -l omero -p $SSH_PF localhost 'yes ome | sudo -S sh /home/omero/installDaemon.sh'
+$SSH -l omero -p $SSH_PF localhost 'yes ome | sudo -S sh /home/omero/installDaemon.sh'

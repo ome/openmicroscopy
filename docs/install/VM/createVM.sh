@@ -1,5 +1,7 @@
 #!/bin/bash
 # install VM from snapshot
+set -e
+set -x
 if [ -n $VMNAME ]
 then 
     if [ -n $1 ]
@@ -9,23 +11,23 @@ then
         export VMNAME=$1
     fi
 fi
-if [ -n $MEMORY ]
+if [ -z $MEMORY ]
 then
     export MEMORY="1024"
 fi
-if [ -n $SSH_PF ]
+if [ -z $SSH_PF ]
 then
     export SSH_PF="2222"
 fi
-if [ -n $OMERO_PORT ]
+if [ -z $OMERO_PORT ]
 then
     export OMERO_PORT="4064"
 fi
-if [ -n $OMERO_PF ]
+if [ -z $OMERO_PF ]
 then
     export OMERO_PF="4064"
 fi
-if [ -n $HARDDISKS ]
+if [ -z $HARDDISKS ]
 then
     export HARDDISKS="/Users/donald/Library/VirtualBox/HardDisks/"
 fi
@@ -41,6 +43,6 @@ VBoxManage modifyvm "$VMNAME" --memory $MEMORY --acpi on
 VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/ssh/HostPort" $SSH_PF
 VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/ssh/GuestPort" 22
 VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/ssh/Protocol" TCP
-#VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/omeroserver/HostPort" $OMERO_PF
-#VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/omeroserver/GuestPort" $OMERO_PORT
-#VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/omeroserver/Protocol" TCP
+VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/omeroserver/HostPort" $OMERO_PF
+VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/omeroserver/GuestPort" $OMERO_PORT
+VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/omeroserver/Protocol" TCP
