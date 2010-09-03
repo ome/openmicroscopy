@@ -1,36 +1,19 @@
 #!/bin/bash
 # install VM from snapshot
+
+export VMNAME=${VMNAME:-"$1"}
+export VMNAME=${VMNAME:-"SEPT1"}
+
+export MEMORY=${MEMORY:-"1024"}
+export SSH_PF=${SSH_PF:-"2222"}
+export OMERO_PORT=${OMERO_PORT:-"4064"}
+export OMERO_PF=${OMERO_PF:-"4064"}
+
+export HARDDISKS=${HARDDISKS:-"$HOME/Library/VirtualBox/HardDisks/"}
+
 set -e
+set -u
 set -x
-if [ -n $VMNAME ]
-then 
-    if [ -n $1 ]
-    then
-        export VMNAME="SEPT1"
-    else
-        export VMNAME=$1
-    fi
-fi
-if [ -z $MEMORY ]
-then
-    export MEMORY="1024"
-fi
-if [ -z $SSH_PF ]
-then
-    export SSH_PF="2222"
-fi
-if [ -z $OMERO_PORT ]
-then
-    export OMERO_PORT="4064"
-fi
-if [ -z $OMERO_PF ]
-then
-    export OMERO_PF="4064"
-fi
-if [ -z $HARDDISKS ]
-then
-    export HARDDISKS="/Users/donald/Library/VirtualBox/HardDisks/"
-fi
 
 VBoxManage clonehd "$HARDDISKS"OMERO-SSH.vdi"" "$HARDDISKS$VMNAME.vdi"
 VBoxManage createvm --name "$VMNAME" --register --ostype "Ubuntu_64"

@@ -1,76 +1,40 @@
 #!/bin/bash
-if [ -n $OMERO_VERSION ]
-then
-    if [ -n $1 ] 
-    then
-        export OMERO_VERSION="OMERO4.2"
-    else
-        export OMERO_VERSION=$1
-    fi
-fi
-if [ -n $OMERO_PATCH ]
-then 
-    if [ -n $2 ] 
-    then
-        export OMERO_PATCH="0"
-    else
-        export OMERO_PATCH=$2
-    fi
-fi
-if [ -n $OMERO_DB_USER ]
-then 
-    if [ -n $3 ] 
-    then
-        export OMERO_DB_USER="omero"
-    else
-        export OMERO_DB_USER=$3
-    fi
-fi
-if [ -n $OMERO_DB_NAME ]
-then 
-    if [ -n $4 ] 
-    then
-        export OMERO_DB_NAME="omero"
-    else
-        export OMERO_DB_NAME=$4
-    fi
-fi
-if [ -n $PASSWORD ]
-then 
-    if [ -n $5 ] 
-    then
-        export PASSWORD="ome"
-    else
-        export PASSWORD=$5
-    fi
-fi
-if [ -n $PGPASSWORD ]
-then 
-    export PGPASSWORD=$PASSWORD
-fi
-if [ -n $OMERODIR ]
-then 
-    if [ -n $6 ] 
-    then
-        export OMERODIR="/OMERO"
-    else
-        export OMERODIR=$6
-    fi
-fi
-if [ -n $REVISION ]
-then 
-    if [ -n $6 ] 
-    then
-        export REVISION="HEAD"
-    else
-        export REVISION=$6
-    fi
-fi
+
+OMERO_VERSION=${OMERO_VERSION:-"$1"}
+OMERO_VERSION=${OMERO_VERSION:-"OMERO4.2"}
+
+OMERO_PATH=${OMERO_PATCH:-"$2"}
+OMERO_PATH=${OMERO_PATCH:-"0"}
+
+OMERO_DB_USER=${OMERO_DB_USER:-"$3"}
+OMERO_DB_USER=${OMERO_DB_USER:-"omero"}
+
+OMERO_DB_NAME=${OMERO_DB_NAME:-"$4"}
+OMERO_DB_NAME=${OMERO_DB_NAME:-"omero"}
+
+PASSWORD=${PASSWORD:-"$5"}
+PASSWORD=${PASSWORD:-"ome"}
+
+PGPASSWORD=${PGPASSWORD:-"$PASSWORD"}
+
+OMERODIR=${OMERODIR:-"$6"}
+OMERODIR=${OMERODIR:-"/OMERO"}
+
+REVISION=${REVISION:-"$7"}
+REVISION=${REVISION:-"HEAD"}
+
+set -e
+set -u
+set -x
+
 ##
 # Setup Java sources in Ubuntu
 #
-echo "deb http://archive.canonical.com/ubuntu lucid partner" | sudo tee -a /etc/apt/sources.list
-echo "deb-src http://archive.canonical.com/ubuntu lucid partner" | sudo tee -a /etc/apt/sources.list
+add_sources(){
+    echo "$1" | sudo tee -a /etc/apt/sources.list
+}
+add_sources "deb http://archive.canonical.com/ubuntu lucid partner"
+add_sources "deb-src http://archive.canonical.com/ubuntu lucid partner"
 
 ##
 # Update core system and apt-cache
@@ -97,7 +61,7 @@ echo "export LD_LIBRARY_PATH" | sudo tee -a /etc/bash.bashrc
 
 ##
 # Install Python
-# 
+#
 aptitude --assume-yes install cython python-numpy python-scipy python-setuptools python-numeric python-matplotlib python-wxgtk2.8 python-decorator python-mysqldb python-nose python-dev
 apt-get --assume-yes install python-distutils-extra
 apt-get --assume-yes install python-tables
@@ -134,77 +98,117 @@ apt-get --assume-yes install libapache2-mod-python
 ##
 # Set up omero
 #
-mkdir /OMERO
-mkdir /Client
-mkdir /Server
-
-##
-# Checkout Insight
-#
-svn co http://svn.openmicroscopy.org.uk/svn/shoola/trunk /Client/Insight
-
-##
-# Check out OMERO
-#
-svn co http://svn.openmicroscopy.org.uk/svn/omero/trunk /Server/omero
+mkdir -p $OMERODIR
+mkdir -p /Client
+mkdir -p /Server
 
 chown -R omero $OMERODIR
 chown -R omero /Client
 chown -R omero /Server
 
-##
-# Build OMERO Server
-# 
-cd /Server/omero
-sudo -u omero python build.py
-sleep 10
+# If NOBUILD exists, then we don't refresh
+# the OMERO installations in the guest,
+# assuming they are still valid.
+if test ! -e "$HOME/NOBUILD";
+then
+
+    ##
+    # Checkout Insight
+    #
+    if test -e /Client/Insight;
+    then
+        cd /Client/Insight
+        sudo -u omero svn up
+        cd build
+        sudo -u omero java build clean
+    else
+        sudo -u omero svn co http://svn.openmicroscopy.org.uk/svn/shoola/trunk /Client/Insight
+        sudo -u omero java build
+    fi
+    cd $HOME
+
+    ##
+    # Check out OMERO
+    #
+    if test -e /Server/omero;
+    then
+        cd /Server/omero
+        if test -e dist;
+        then
+            sudo -u omero dist/bin/omero admin stop
+        fi
+        sudo -u omero svn up
+        sudo -u omero ./build.py clean
+    else
+        sudo -u omero svn co http://svn.openmicroscopy.org.uk/svn/omero/trunk /Server/omero
+    fi
+    cd /Server/omero
+    sudo -u omero python build.py
+    cd $HOME
+
+    ##
+    # Install CellProfiler
+    #
+
+    if test -e /Client/cellprofiler;
+    then
+        cd /Client/cellprofiler
+        sudo -u omero svn up
+    else
+        yes "p" | sudo -u omero svn co https://svnrepos.broadinstitute.org/CellProfiler/trunk/CellProfiler/ /Client/cellprofiler
+    fi
+
+fi
+
 
 ##
 # Set up server
 #
-cd dist
-echo "CREATE USER $OMERO_DB_USER PASSWORD '$PGPASSWORD'" | sudo -u postgres psql 
-sleep 10
-###
-### FREEZES SOMEWHERE HERE 
-###
-sudo -u postgres createdb -O  $OMERO_DB_USER $OMERO_DB_NAME
-sudo -u postgres createlang plpgsql $OMERO_DB_NAME
-sudo -u omero bin/omero config set omero.db.name $OMERO_DB_NAME
-sudo -u omero bin/omero config set omero.db.user $OMERO_DB_USER
-sudo -u omero bin/omero config set omero.db.pass $PGPASSWORD
+cd /Server/omero/dist
+
 sudo -u omero bin/omero config set omero.data.dir $OMERODIR
-sudo -u omero bin/omero db script $OMERO_VERSION $OMERO_PATCH $PGPASSWORD
-sleep 20
-psql -h localhost -U omero omero < $OMERO_VERSION"__"$OMERO_PATCH".sql"
-echo "# OMERODIR /OMERO vboxsf user=omero,rw" | sudo tee -a /etc/fstab
+echo "# OMERODIR $OMERODIR vboxsf user=omero,rw" | sudo tee -a /etc/fstab
+
+echo "CREATE USER $OMERO_DB_USER PASSWORD '$PGPASSWORD'" | sudo -u postgres psql
+###
+### FREEZES SOMEWHERE HERE
+###
+sudo -u postgres createdb -O  $OMERO_DB_USER $OMERO_DB_NAME && {
+    sudo -u postgres createlang plpgsql $OMERO_DB_NAME
+    sudo -u omero bin/omero config set omero.db.name $OMERO_DB_NAME
+    sudo -u omero bin/omero config set omero.db.user $OMERO_DB_USER
+    sudo -u omero bin/omero config set omero.db.pass $PGPASSWORD
+    sudo -u omero bin/omero db script -f DB.sql $OMERO_VERSION $OMERO_PATCH $PGPASSWORD
+    psql -h localhost -U $OMERO_DB_USER $OMERO_DB_NAME < DB.sql
+} || echo DB Exists
 
 
-## 
+##
 # Set up apache
 #
-mkdir /Server/omero/logs/weblog
-sudo chown -R www-data:www-data /Server/logs/weblog/
+mkdir -p /Server/logs/weblog
+chown -R www-data:www-data /Server/logs/weblog/
+chmod -R 770 /Server/logs/weblog
 cd /etc/apache2/sites-available
 sudo sed 's/<\/VirtualHost>/\t<Location \/> \n\t\tSetHandler python-program\n\t\tPythonHandler django.core.handlers.modpython\n\t\tSetEnv DJANGO_SETTINGS_MODULE omeroweb.setting\n\t\tSetEnv MPLCONFIGDIR \/Server\/logs\/matplotlib \n\t\tPythonDebug On\n\t\tPythonPath "['\''\/Server\/omero\/dist\/lib\/python'\'', '\''\/Server\/omero\/dist\/var\/lib'\'', '\''\/Server\/omero\/dist\/lib\/python\/omeroweb'\''] + sys.path"\n\t<\/Location>\n<\/VirtualHost>/' < default > default
 
 ##
-# Setup Matplotlib 
+# Setup Matplotlib
 #
-mkdir /Server/logs/matplotlib
+mkdir -p /Server/logs/matplotlib
 sudo echo "backend: Agg" > /Server/logs/matplotlib/matplotlibrc
 sudo chown -R www-data:www-data /Server/logs/matplotlib/
 
 ##
 # Setup Webclient
 #
-mkdir /Server/omero/dist/var
-mkdir /Server/omero/dist/var/lib
-chmod +rx /Server/omero/dist/var/
+sudo -u omero mkdir -p /Server/omero/dist/var
+sudo -u omero mkdir -p /Server/omero/dist/var/lib
+sudo -u omero chmod +rx /Server/omero/dist/var/
 cd /Server/omero/dist/var/lib
 
 FILE=custom_settings.py
-cat > ${FILE} << EOF
+sudo -u omero cat > ${FILE} << EOF
 # custom_settings.py
 LOGDIR = '/Server/logs/weblog/'
 SERVER_LIST = (
@@ -218,7 +222,7 @@ SERVER_LIST = (
 SERVER_EMAIL = 'omero@localhost'
 EMAIL_HOST = 'localhost'
 
-APPLICATION_HOST='http://localhost:8000/' 
+APPLICATION_HOST='http://localhost:8000/'
 
 EMDB_USER = ('emdb', 'ome')
 EOF
@@ -226,9 +230,4 @@ EOF
 cd /Server/omero/dist
 sudo -u omero bin/omero web syncmedia
 sudo /etc/init.d/apache2 restart
-
-##
-# Install CellProfiler
-#
-yes "p" | sudo svn co https://svnrepos.broadinstitute.org/CellProfiler/trunk/CellProfiler/ /Client/cellprofiler
 
