@@ -26,8 +26,6 @@ package integration;
 //Java imports
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -45,13 +43,14 @@ import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
-import ome.xml.model.OME;
 import omero.api.IRoiPrx;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
+import omero.model.Annotation;
 import omero.model.BooleanAnnotation;
 import omero.model.CommentAnnotation;
 import omero.model.IObject;
+import omero.model.ImageAnnotationLink;
 import omero.model.LongAnnotation;
 import omero.model.Pixels;
 import omero.model.Roi;
@@ -271,12 +270,12 @@ public class ImporterTest
 			throw new Exception("cannot import image", e);
 		}
 	}
-	
+
 	/**
      * Tests the import of an OME-XML file with an annotated image.
      * @throws Exception Thrown if an error occurred.
      */
-	@Test(enabled = false)
+	@Test(enabled = true)
 	public void testImportAnnotatedImage()
 		throws Exception
 	{
@@ -295,26 +294,29 @@ public class ImporterTest
 		long id = p.getImage().getId().getValue();
 		String sql = "select l from ImageAnnotationLink as l ";
 		sql += "left outer join fetch l.parent as p ";
+		sql += "join fetch l.child ";
 		sql += "where p.id = :id";
 		ParametersI param = new ParametersI();
 		param.addId(id);
 		List<IObject> l = iQuery.findAllByQuery(sql, param);
-		 //always companion file.
-		assertTrue(l.size() >= XMLMockObjects.ANNOTATIONS.length);
-		int count = 0;
-		Iterator<IObject> i = l.iterator();
-		IObject object;
-		while (i.hasNext()) {
-			object = i.next();
-			if (object instanceof CommentAnnotation) count++;
-			else if (object instanceof TagAnnotation) count++;
-			else if (object instanceof TermAnnotation) count++;
-			else if (object instanceof BooleanAnnotation) count++;
-			else if (object instanceof LongAnnotation) count++;
+		//always companion file.
+		if (l.size() < XMLMockObjects.ANNOTATIONS.length) {
+			fail(String.format("%d < ANNOTATION count %d",
+					l.size(), XMLMockObjects.ANNOTATIONS.length));
 		}
-		assertTrue(count == XMLMockObjects.ANNOTATIONS.length);
+		int count = 0;
+		Annotation a;
+		for (IObject object : l) {
+			a = ((ImageAnnotationLink) object).getChild();
+			if (a instanceof CommentAnnotation) count++;
+			else if (a instanceof TagAnnotation) count++;
+			else if (a instanceof TermAnnotation) count++;
+			else if (a instanceof BooleanAnnotation) count++;
+			else if (a instanceof LongAnnotation) count++;
+		}
+		assertEquals(XMLMockObjects.ANNOTATIONS.length, count);
 	}
-	
+
 	/**
      * Tests the import of an OME-XML file with an image with acquisition data.
      * @throws Exception Thrown if an error occurred.

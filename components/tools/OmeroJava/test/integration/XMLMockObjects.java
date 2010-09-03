@@ -56,6 +56,7 @@ import ome.xml.model.Line;
 import ome.xml.model.LongAnnotation;
 import ome.xml.model.Mask;
 import ome.xml.model.Microscope;
+import ome.xml.model.OMEModelObject;
 import ome.xml.model.Objective;
 import ome.xml.model.ObjectiveSettings;
 import ome.xml.model.OME;
@@ -886,142 +887,148 @@ public class XMLMockObjects
 	 * Create a comment annotation for the specified object.
 	 * 
 	 * @param type The type of annotation to create.
-	 * @param rootType The type of object to attach the annotation to.
+	 * @param object The object to link the annotation to.
 	 * @param index The index of the annotation.
 	 * @return See above.
 	 */
-	public Annotation createAnnotation(String type, String rootType, int index)
+	public Annotation createAnnotation(String type, OMEModelObject object,
+			int index)
 	{
-		if (Image.class.getName().equals(rootType)) {
+		Annotation annotation = null;
+		if (object instanceof Image) {
 			if (CommentAnnotation.class.getName().equals(type)) {
 				CommentAnnotation c = new CommentAnnotation();
 				c.setID("ImageCommentAnnotation:" + index);
 				c.setValue("Image:"+index+" CommentAnnotation.");
-				return c;
+				annotation = c;
 			} else if (BooleanAnnotation.class.getName().equals(type)) {
 				BooleanAnnotation b = new BooleanAnnotation();
 				b.setID("ImageBooleanAnnotation:" + index);
 				b.setValue(true);
-				return b;
+				annotation = b;
 			} else if (LongAnnotation.class.getName().equals(type)) {
 				LongAnnotation l = new LongAnnotation();
 				l.setID("ImageLongAnnotation:" + index);
 				l.setValue(1L);
-				return l;
+				annotation = l;
 			} else if (TagAnnotation.class.getName().equals(type)) {
 				TagAnnotation tag = new TagAnnotation();
 				tag.setID("ImageTagAnnotation:" + index);
 				tag.setValue("Image:"+index+" TagAnnotation.");
-				return tag;
+				annotation = tag;
 			} else if (TermAnnotation.class.getName().equals(type)) {
 				TermAnnotation term = new TermAnnotation();
 				term.setID("ImageTermAnnotation:" + index);
 				term.setValue("Image:"+index+" TermAnnotation.");
-				return term;
+				annotation = term;
 			} else if (FileAnnotation.class.getName().equals(type)) {
 				FileAnnotation f = new FileAnnotation();
 				f.setID("ImageFileAnnotation:" + index);
 				f.setBinaryFile(createBinaryFile());
-				return f;
+				annotation = f;
 			}
-		} else if (Plate.class.getName().equals(rootType)) {
+			((Image) object).linkAnnotation(annotation);
+		} else if (object instanceof Plate) {
 			if (CommentAnnotation.class.getName().equals(type)) {
 				CommentAnnotation c = new CommentAnnotation();
 				c.setID("PlateCommentAnnotation:" + index);
 				c.setValue("Plate:"+index+" CommentAnnotation.");
-				return c;
+				annotation = c;
 			} else if (BooleanAnnotation.class.getName().equals(type)) {
 				BooleanAnnotation b = new BooleanAnnotation();
 				b.setID("PlateBooleanAnnotation:" + index);
 				b.setValue(true);
-				return b;
+				annotation = b;
 			} else if (LongAnnotation.class.getName().equals(type)) {
 				LongAnnotation l = new LongAnnotation();
 				l.setID("PlateLongAnnotation:" + index);
 				l.setValue(1L);
-				return l;
+				annotation = l;
 			} else if (TagAnnotation.class.getName().equals(type)) {
 				TagAnnotation tag = new TagAnnotation();
 				tag.setID("PlateTagAnnotation:" + index);
 				tag.setValue("Plate:"+index+" TagAnnotation.");
-				return tag;
+				annotation = tag;
 			} else if (TermAnnotation.class.getName().equals(type)) {
 				TermAnnotation term = new TermAnnotation();
 				term.setID("PlateTermAnnotation:" + index);
 				term.setValue("Plate:"+index+" TermAnnotation.");
-				return term;
+				annotation = term;
 			} else if (FileAnnotation.class.getName().equals(type)) {
 				FileAnnotation f = new FileAnnotation();
 				f.setID("PlateFileAnnotation:" + index);
 				f.setBinaryFile(createBinaryFile());
-				return f;
+				annotation = f;
 			}
-		} else if (Well.class.getName().equals(rootType)) {
+			((Plate) object).linkAnnotation(annotation);
+		} else if (object instanceof Well) {
 			if (CommentAnnotation.class.getName().equals(type)) {
 				CommentAnnotation c = new CommentAnnotation();
 				c.setID("WellCommentAnnotation:" + index);
 				c.setValue("Well:"+index+" CommentAnnotation.");
-				return c;
+				annotation = c;
 			} else if (BooleanAnnotation.class.getName().equals(type)) {
 				BooleanAnnotation b = new BooleanAnnotation();
 				b.setID("WellBooleanAnnotation:" + index);
 				b.setValue(true);
-				return b;
+				annotation = b;
 			} else if (LongAnnotation.class.getName().equals(type)) {
 				LongAnnotation l = new LongAnnotation();
 				l.setID("WellLongAnnotation:" + index);
 				l.setValue(1L);
-				return l;
+				annotation = l;
 			} else if (TagAnnotation.class.getName().equals(type)) {
 				TagAnnotation tag = new TagAnnotation();
 				tag.setID("WellTagAnnotation:" + index);
 				tag.setValue("Well:"+index+" TagAnnotation.");
-				return tag;
+				annotation = tag;
 			} else if (TermAnnotation.class.getName().equals(type)) {
 				TermAnnotation term = new TermAnnotation();
 				term.setID("WellTermAnnotation:" + index);
 				term.setValue("Well:"+index+" TermAnnotation.");
-				return term;
+				annotation = term;
 			} else if (FileAnnotation.class.getName().equals(type)) {
 				FileAnnotation f = new FileAnnotation();
 				f.setID("WellFileAnnotation:" + index);
 				f.setBinaryFile(createBinaryFile());
-				return f;
+				annotation = f;
 			}
-		} else if (WellSample.class.getName().equals(rootType)) {
+			((Well) object).linkAnnotation(annotation);
+		} else if (object instanceof WellSample) {
 			if (CommentAnnotation.class.getName().equals(type)) {
 				CommentAnnotation c = new CommentAnnotation();
 				c.setID("WellSampleCommentAnnotation:" + index);
 				c.setValue("WellSample:"+index+" CommentAnnotation.");
-				return c;
+				annotation = c;
 			} else if (BooleanAnnotation.class.getName().equals(type)) {
 				BooleanAnnotation b = new BooleanAnnotation();
 				b.setID("WellSampleBooleanAnnotation:" + index);
 				b.setValue(true);
-				return b;
+				annotation = b;
 			} else if (LongAnnotation.class.getName().equals(type)) {
 				LongAnnotation l = new LongAnnotation();
 				l.setID("WellSampleLongAnnotation:" + index);
 				l.setValue(1L);
-				return l;
+				annotation = l;
 			} else if (TagAnnotation.class.getName().equals(type)) {
 				TagAnnotation tag = new TagAnnotation();
 				tag.setID("WellSampleTagAnnotation:" + index);
 				tag.setValue("WellSample:"+index+" TagAnnotation.");
-				return tag;
+				annotation = tag;
 			} else if (TermAnnotation.class.getName().equals(type)) {
 				TermAnnotation term = new TermAnnotation();
 				term.setID("WellSampleTermAnnotation:" + index);
 				term.setValue("WellSample:"+index+" TermAnnotation.");
-				return term;
+				annotation = term;
 			} else if (FileAnnotation.class.getName().equals(type)) {
 				FileAnnotation f = new FileAnnotation();
 				f.setID("WellSampleFileAnnotation:" + index);
 				f.setBinaryFile(createBinaryFile());
-				return f;
+				annotation = f;
 			}
+			((WellSample) object).linkAnnotation(annotation);
 		}
-		return null;
+		return annotation;
 	}
 	
 	/** 
@@ -1056,23 +1063,23 @@ public class XMLMockObjects
 	{
 		StructuredAnnotations annotations = new StructuredAnnotations();
 		int index = 0;
-		ome.addImage(createImage(index));
-		
-		String type = Image.class.getName();
+		Image image = createImage(index);
+		ome.addImage(image);
+
 		annotations.addCommentAnnotation((CommentAnnotation) createAnnotation(
-				CommentAnnotation.class.getName(), type, index));
+				CommentAnnotation.class.getName(), image, index));
 		annotations.addBooleanAnnotation((BooleanAnnotation) createAnnotation(
-				BooleanAnnotation.class.getName(), type, index));
+				BooleanAnnotation.class.getName(), image, index));
 		annotations.addLongAnnotation((LongAnnotation) createAnnotation(
-				LongAnnotation.class.getName(), type, index));
+				LongAnnotation.class.getName(), image, index));
 		annotations.addTagAnnotation((TagAnnotation) createAnnotation(
-				TagAnnotation.class.getName(), type, index));
+				TagAnnotation.class.getName(), image, index));
 		annotations.addTermAnnotation((TermAnnotation) createAnnotation(
-				TermAnnotation.class.getName(), type, index));
+				TermAnnotation.class.getName(), image, index));
 		ome.setStructuredAnnotations(annotations);
 		return ome;
 	}
-	
+
 	/**
 	 * Creates an image with acquisition data.
 	 * 
