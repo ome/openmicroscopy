@@ -15,7 +15,6 @@ import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import ome.annotations.PermitAll;
 import ome.annotations.RolesAllowed;
 import ome.api.IPixels;
 import ome.api.ServiceInterface;
