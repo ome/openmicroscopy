@@ -469,20 +469,12 @@ public class OMEROMetadataStoreClient
             String server, int port, boolean isSecure) 
 	throws CannotCreateSessionException, PermissionDeniedException, ServerError
 	{
-        log.info(String.format(
-                    "Attempting initial SSL connection to %s:%d",
-                    server, port));
-    	c = new client(server, port);
-    	c.setAgent("OMERO.importer");
-    	serviceFactory = c.createSession(username, password);
-    	
+        secure(server, port);
+        c.createSession(username, password);
     	if (!isSecure)
     	{
-                log.info("Insecure connection requested, falling back");
-    		c = c.createClient(false);
-    		serviceFactory = c.getSession();
+	    unsecure();
     	}
-
         initializeServices();
 	}
     
@@ -508,18 +500,11 @@ public class OMEROMetadataStoreClient
             String server, int port, long group, boolean isSecure) 
 	throws CannotCreateSessionException, PermissionDeniedException, ServerError
 	{
-        log.info(String.format(
-                    "Attempting initial SSL connection to %s:%d",
-                    server, port));
-    	c = new client(server, port);
-    	c.setAgent("OMERO.importer");
-    	serviceFactory = c.createSession(username, password);
-    	
+        secure(server, port);
+        serviceFactory = c.createSession(username, password);
     	if (!isSecure)
     	{
-                log.info("Insecure connection requested, falling back");
-    		c = c.createClient(false);
-    		serviceFactory = c.getSession();
+	    unsecure();
     	}
 
     	iAdmin = serviceFactory.getAdminService();
@@ -554,20 +539,49 @@ public class OMEROMetadataStoreClient
     public void initialize(String server, int port, String sessionKey, boolean isSecure)
         throws CannotCreateSessionException, PermissionDeniedException, ServerError
     {
+        secure(server, port);
+        serviceFactory = c.joinSession(sessionKey);
+    	if (!isSecure)
+    	{
+            unsecure();
+    	}
+        initializeServices();
+    }
+
+    /**
+     * First phase of login is to make an SSL connection. Creates an
+     * {@link omero.client} instance and calls {@link omero.client#setAgent(String)}
+     * @param server
+     * @param port
+     * @throws CannotCreateSessionException
+     * @throws PermissionDeniedException
+     * @throws ServerError
+     */
+    private void secure(String server, int port) throws CannotCreateSessionException,
+            PermissionDeniedException, ServerError {
         log.info(String.format(
                     "Attempting initial SSL connection to %s:%d",
                     server, port));
-    	c = new client(server, port);
-    	c.setAgent("OMERO.importer");
-        serviceFactory = c.joinSession(sessionKey);
-   	
-    	if (!isSecure)
-    	{
-                log.info("Insecure connection requested, falling back");
-    		c = c.createClient(false);
-    	}
-    	
-        initializeServices();
+        c = new client(server, port);
+        c.setAgent("OMERO.importer");
+    }
+
+    /**
+     * Second phase of login is to drop down to a non-SSL connection. Uses
+     * {@link omero.client#createClient(boolean)} to create a new instance and
+     * closes the old.
+     *
+     * @throws ServerError
+     * @throws CannotCreateSessionException
+     * @throws PermissionDeniedException
+     */
+    private void unsecure() throws ServerError, CannotCreateSessionException,
+            PermissionDeniedException {
+        log.info("Insecure connection requested, falling back");
+        omero.client tmp = c.createClient(false);
+        c.closeSession();
+        c = tmp;
+        serviceFactory = c.getSession();
     }
     
     /**

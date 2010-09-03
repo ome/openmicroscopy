@@ -242,9 +242,13 @@ class SessionsControl(BaseControl):
         Handles a new connection
         """
         client, uuid, idle, live = rv
-        self.ctx._client = client
-        ec = self.ctx._client.sf.getAdminService().getEventContext()
+        sf = client.sf
+
+        # detachOnDestroy called by omero.util.sessions
+        client.enableKeepAlive(300)
+        ec = sf.getAdminService().getEventContext()
         self.ctx._event_context = ec
+        self.ctx._client = client
 
         msg = "%s session %s (%s@%s)." % (action, uuid, ec.userName, client.getProperty("omero.host"))
         if idle:
@@ -252,7 +256,7 @@ class SessionsControl(BaseControl):
         if live:
             msg = msg + " Expires in %s min." % (float(live)/60/1000)
 
-        msg += (" Current group: %s" % self.ctx._client.sf.getAdminService().getEventContext().groupName)
+        msg += (" Current group: %s" % sf.getAdminService().getEventContext().groupName)
 
         self.ctx.err(msg)
 
