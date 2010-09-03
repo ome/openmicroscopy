@@ -795,9 +795,17 @@ public class OMEROMetadataStoreClient
     public void logout()
     {
         closeQuietly(rawFileStore);
+        rawFileStore = null;
+
         closeQuietly(rawPixelStore);
+        rawPixelStore = null;
+
         closeQuietly(thumbnailStore);
+        thumbnailStore = null;
+
         closeQuietly(delegate);
+        delegate = null;
+
         if (c != null)
         {
             log.debug("closing client session.");
