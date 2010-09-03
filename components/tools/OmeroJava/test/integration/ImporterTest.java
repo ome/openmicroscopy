@@ -390,6 +390,33 @@ public class ImporterTest
 	}
 	
 	/**
+	 * Validates if the inserted object corresponds to the XML object.
+	 * 
+	 * @param lc The logical channel to check.
+	 * @param xml The XML version.
+	 */
+	private void validateChannel(LogicalChannel lc, 
+			ome.xml.model.Channel xml)
+	{
+		assertEquals(lc.getName().getValue(), xml.getName());
+		assertEquals(lc.getIllumination().getValue().getValue(), 
+				xml.getIlluminationType().getValue());
+		assertEquals(lc.getMode().getValue().getValue(), 
+				xml.getAcquisitionMode().getValue());
+		assertEquals(lc.getContrastMethod().getValue().getValue(), 
+				xml.getContrastMethod().getValue());
+		assertEquals(lc.getEmissionWave().getValue(), 
+				xml.getEmissionWavelength().getValue().intValue());
+		assertEquals(lc.getExcitationWave().getValue(), 
+				xml.getExcitationWavelength().getValue().intValue());
+		assertEquals(lc.getFluor().getValue(), xml.getFluor());
+		assertEquals(lc.getNdFilter().getValue(), xml.getNDFilter());
+		assertEquals(lc.getPockelCellSetting().getValue(), 
+				xml.getPockelCellSetting().intValue());
+		
+	}
+	
+	/**
 	 * Creates a basic buffered image.
 	 * 
 	 * @return See above.
@@ -728,6 +755,7 @@ public class ImporterTest
     	ome.xml.model.Filter xmlFilter = xml.createFilter(0, 
     			XMLMockObjects.CUT_IN, XMLMockObjects.CUT_OUT);
     	ome.xml.model.Dichroic xmlDichroic = xml.createDichroic(0);
+    	
     	while (j.hasNext()) {
 			o = j.next();
 			if (o instanceof Detector) {
@@ -782,6 +810,7 @@ public class ImporterTest
     	
     	ids.clear();
     	
+    	ome.xml.model.Channel xmlChannel = xml.createChannel(0);
     	Channel channel;
     	List<Channel> channels = p.copyChannels();
     	Iterator<Channel> i = channels.iterator();
@@ -800,10 +829,12 @@ public class ImporterTest
     	ome.xml.model.DetectorSettings xmlDs = xml.createDetectorSettings(0);
     	ome.xml.model.LightSourceSettings xmlLs = 
     		xml.createLightSourceSettings(0);
+    	
     	LightPath path;
     	Iterator<LogicalChannel> k = l.iterator();
     	while (k.hasNext()) {
 			lc = k.next();
+			validateChannel(lc, xmlChannel);
 			ds = lc.getDetectorSettings();
 			assertNotNull(ds);
 			assertNotNull(ds.getDetector());
@@ -826,7 +857,6 @@ public class ImporterTest
      * Tests the import of an OME-XML file with an image with ROI.
      * @throws Exception Thrown if an error occurred.
      */
-	@Test(enabled = false)
 	public void testImportImageWithROI()
 		throws Exception
 	{
@@ -850,7 +880,7 @@ public class ImporterTest
 		assertNotNull(r);
 		List<Roi> rois = r.rois;
 		assertNotNull(rois);
-		assertTrue(rois.size() == 1);
+		assertTrue(rois.size() == XMLMockObjects.SIZE_C);
 		Iterator<Roi> i = rois.iterator();
 		Roi roi;
 		List<Shape> shapes;

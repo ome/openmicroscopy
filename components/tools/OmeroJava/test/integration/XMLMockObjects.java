@@ -79,14 +79,17 @@ import ome.xml.model.TransmittanceRange;
 import ome.xml.model.ROI;
 import ome.xml.model.Well;
 import ome.xml.model.WellSample;
+import ome.xml.model.enums.AcquisitionMode;
 import ome.xml.model.enums.ArcType;
 import ome.xml.model.enums.Binning;
 import ome.xml.model.enums.Compression;
+import ome.xml.model.enums.ContrastMethod;
 import ome.xml.model.enums.Correction;
 import ome.xml.model.enums.DetectorType;
 import ome.xml.model.enums.DimensionOrder;
 import ome.xml.model.enums.FilamentType;
 import ome.xml.model.enums.FilterType;
+import ome.xml.model.enums.IlluminationType;
 import ome.xml.model.enums.Medium;
 import ome.xml.model.enums.Immersion;
 import ome.xml.model.enums.LaserType;
@@ -639,7 +642,6 @@ public class XMLMockObjects
 		ROI roi = new ROI();
 		roi.setID("ROI:"+index);
 		int n = SHAPES.length;
-		Shape shape;
 		int j = index;
 		if (index > 0) j += n;
 		Union union = new Union();
@@ -866,8 +868,7 @@ public class XMLMockObjects
 		int n = LIGHT_SOURCES.length-1;
 		DetectorSettings ds = createDetectorSettings(0);
 		for (int i = 0; i < SIZE_C; i++) {
-			channel = new Channel();
-			channel.setID("Channel:"+i);
+			channel = createChannel(i);
 			if (metadata) {
 				if (j == n) j = 0;
 				channel.setLightSourceSettings(createLightSourceSettings(j));
@@ -883,6 +884,31 @@ public class XMLMockObjects
 		image.setPixels(pixels);
 		return image;
 	}
+	
+	/**
+	 * Creates a channel.
+	 * 
+	 * @param index The index in the file.
+	 * @return See above.
+	 */
+	protected Channel createChannel(int index)
+	{
+		Channel channel = new Channel();
+		channel.setID("Channel:"+index);
+		channel.setAcquisitionMode(AcquisitionMode.FLUORESCENCELIFETIME);
+		channel.setColor(255);
+		channel.setName("Name");
+		channel.setIlluminationType(IlluminationType.OBLIQUE);
+		channel.setPinholeSize(0.5);
+		channel.setContrastMethod(ContrastMethod.BRIGHTFIELD);
+		channel.setEmissionWavelength(new PositiveInteger(300));
+		channel.setExcitationWavelength(new PositiveInteger(400));
+		channel.setFluor("Fluor");
+		channel.setNDFilter(1.0);
+		channel.setPockelCellSetting(0);
+		return channel;
+	}
+	
 	
 	/** 
 	 * Creates a new image.
@@ -1154,11 +1180,12 @@ public class XMLMockObjects
 	public OME createImageWithROI()
 	{
 		int index = 0;
-		Image image = createImage(index, true);
+		Image image = createImage(index, false);
+		ome.addImage(image);
 		ROI roi;
 		for (int i = 0; i < SIZE_C; i++) {
-			roi = createROI(i, 0, 0, i);
-			roi.linkImage(image);
+			roi = createROI(i, 0, i, 0);
+			image.linkROI(roi);
 			ome.addROI(roi);
 		}
 		return ome;
