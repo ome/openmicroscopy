@@ -66,8 +66,15 @@ then
         export REVISION=$6
     fi
 fi
+##
+# Setup Java sources in Ubuntu
+#
 echo "deb http://archive.canonical.com/ubuntu lucid partner" | sudo tee -a /etc/apt/sources.list
 echo "deb-src http://archive.canonical.com/ubuntu lucid partner" | sudo tee -a /etc/apt/sources.list
+
+##
+# Update 
+#
 aptitude --assume-yes update
 aptitude --assume-yes dist-upgrade
 aptitude --assume-yes install build-essential
@@ -80,10 +87,15 @@ echo 'LD_LIBRARY_PATH="/usr/lib/jvm/java-6-sun/jre/lib/amd64/server"' | sudo tee
 echo "export LD_LIBRARY_PATH" | sudo tee -a /etc/bash.bashrc
 aptitude --assume-yes install cython python-numpy python-scipy python-setuptools python-numeric python-matplotlib python-wxgtk2.8 python-decorator python-mysqldb python-nose python-dev
 apt-get --assume-yes install python-distutils-extra
+apt-get --assume-yes install python-tables
+apt-get --assume-yes install python-imaging
 apt-get --assume-yes install zeroc-ice33
 apt-get --assume-yes install postgresql
 apt-get --assume-yes install gdm
 apt-get --assume-yes install xinit
+apt-get --assume-yes install apache2
+apt-get --assume-yes install python-django
+apt-get --assume-yes install libapache2-mod-python
 mkdir /OMERO
 mkdir /Client
 mkdir /Server
@@ -99,6 +111,9 @@ sleep 10
 cd dist
 echo "CREATE USER $OMERO_DB_USER PASSWORD '$PGPASSWORD'" | sudo -u postgres psql 
 sleep 10
+###
+### FREEZES SOMEWHERE HERE 
+###
 sudo -u postgres createdb -O  $OMERO_DB_USER $OMERO_DB_NAME
 sudo -u postgres createlang plpgsql $OMERO_DB_NAME
 sudo -u omero bin/omero config set omero.db.name $OMERO_DB_NAME
@@ -106,23 +121,34 @@ sudo -u omero bin/omero config set omero.db.user $OMERO_DB_USER
 sudo -u omero bin/omero config set omero.db.pass $PGPASSWORD
 sudo -u omero bin/omero config set omero.data.dir $OMERODIR
 sudo -u omero bin/omero db script $OMERO_VERSION $OMERO_PATCH $PGPASSWORD
+sleep 20
 psql -h localhost -U omero omero < $OMERO_VERSION"__"$OMERO_PATCH".sql"
 echo "# OMERODIR /OMERO vboxsf user=omero,rw" | sudo tee -a /etc/fstab
 
 #webclient
-cd var
-mkdir lib
-cd lib
+mkdir /Server/omero/logs/weblog
+mkdir /Server/logs/matplotlib
+sudo chown -R www-data:www-data /Server/logs/weblog/
+
+
+sudo echo "backend: Agg" > /Server/logs/matplotlib/matplotlibrc
+cd /etc/apache2/sites-available
+sudo sed 's/<\/VirtualHost>/\t<Location \/> \n\t\tSetHandler python-program\n\t\tPythonHandler django.core.handlers.modpython\n\t\tSetEnv DJANGO_SETTINGS_MODULE omeroweb.setting\n\t\tSetEnv MPLCONFIGDIR \/Server\/logs\/matplotlib \n\t\tPythonDebug On\n\t\tPythonPath "['\''\/Server\/omero\/dist\/lib\/python'\'', '\''\/Server\/omero\/dist\/var\/lib'\'', '\''\/Server\/omero\/dist\/lib\/python\/omeroweb'\''] + sys.path"\n\t<\/Location>\n<\/VirtualHost>/' < default > default
+
+mkdir /Server/omero/dist/var
+mkdir /Server/omero/dist/var/lib
+chmod +rx /Server/omero/dist/var/
+cd /Server/omero/dist/var/lib
 FILE=custom_settings.py
 cat > ${FILE} << EOF
 # custom_settings.py
-
+LOGDIR = '/Server/logs/weblog/'
 SERVER_LIST = (
     ('localhost', 4064, 'omero'),
 )
 
 #ADMINS = (
-#    ('Aleksandra Tarkowska', 'A.Tarkowska@dundee.ac.uk'),
+#    ('username', 'emailaddress'),
 #)
 
 SERVER_EMAIL = 'omero@localhost'
