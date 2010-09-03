@@ -138,6 +138,33 @@ public class DeleteServiceTest
 	/** Identifies the ROI as root. */
 	private static final String REF_ROI = "/Roi";
 	
+	/** Identifies the Tag. */
+	private static final String REF_TAG = "/TagAnnotation";
+	
+	/** Identifies the Term. */
+	private static final String REF_TERM = "/TermAnnotation";
+	
+	/** Identifies the File. */
+	private static final String REF_FILE= "/FileAnnotation";
+	
+	/** Indicates to keep a certain type of annotations. */
+	private static final String KEEP = "KEEP";
+	
+	/** 
+	 * Indicates to delete the annotation even if it is linked
+	 * to another object. */
+	private static final String HARD = "HARD";
+	
+	/** The options to keep the sharable annotations. */
+	private static final Map<String, String> SHARABLE_TO_KEEP;
+	
+	static {
+		SHARABLE_TO_KEEP = new HashMap<String, String>();
+		SHARABLE_TO_KEEP.put(REF_TAG, KEEP);
+		SHARABLE_TO_KEEP.put(REF_TERM, KEEP);
+		SHARABLE_TO_KEEP.put(REF_FILE, KEEP);
+	}
+	
     /** Helper reference to the <code>IDelete</code> service. */
     private IDeletePrx iDelete;
 
@@ -376,13 +403,16 @@ public class DeleteServiceTest
     }
     
     /**
-     * Creates various non sharable annotations.
+     * Creates various sharable annotations i.e. TagAnnotation, TermAnnotation,
+     * FileAnnotation
      * 
-     * @param parent The object to link the annotation to.
+     * @param parent1 The object to link the annotation to.
+     * @param parent2 The object to link the annotation to if not null.
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
-    private List<Long> createSharableAnnotation(IObject parent)
+    private List<Long> createSharableAnnotation(IObject parent1, 
+    		IObject parent2)
     	throws Exception 
     {
     	//creation already tested in UpdateServiceTest
@@ -406,111 +436,215 @@ public class DeleteServiceTest
 		ids.add(f.getId().getValue());
 		
     	List<IObject> links = new ArrayList<IObject>();
-    	if (parent instanceof Image) {
+    	if (parent1 instanceof Image) {
     		ImageAnnotationLink link = new ImageAnnotationLinkI();
     		link.setChild(c);
-    		link.setParent((Image) parent);
+    		link.setParent((Image) parent1);
     		links.add(link);
     		link = new ImageAnnotationLinkI();
     		link.setChild(t);
-    		link.setParent((Image) parent);
+    		link.setParent((Image) parent1);
     		links.add(link);
     		link = new ImageAnnotationLinkI();
     		link.setChild(f);
-    		link.setParent((Image) parent);
+    		link.setParent((Image) parent1);
     		links.add(link);
-    	} else if (parent instanceof Project) {
+    		if (parent2 != null) {
+    			link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+        		link.setParent((Image) parent2);
+        		links.add(link);
+        		link = new ImageAnnotationLinkI();
+        		link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+        		link.setParent((Image) parent2);
+        		links.add(link);
+        		link = new ImageAnnotationLinkI();
+        		link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+        		link.setParent((Image) parent2);
+        		links.add(link);
+    		}
+    	} else if (parent1 instanceof Project) {
     		ProjectAnnotationLink link = new ProjectAnnotationLinkI();
     		link.setChild(c);
-    		link.setParent((Project) parent);
+    		link.setParent((Project) parent1);
     		links.add(link);
     		link = new ProjectAnnotationLinkI();
     		link.setChild(t);
-    		link.setParent((Project) parent);
+    		link.setParent((Project) parent1);
     		links.add(link);
     		link = new ProjectAnnotationLinkI();
     		link.setChild(f);
-    		link.setParent((Project) parent);
+    		link.setParent((Project) parent1);
     		links.add(link);
-    	} else if (parent instanceof Dataset) {
+    		if (parent2 != null) {
+    			link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+        		link.setParent((Project) parent2);
+        		links.add(link);
+        		link = new ProjectAnnotationLinkI();
+        		link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+        		link.setParent((Project) parent2);
+        		links.add(link);
+        		link = new ProjectAnnotationLinkI();
+        		link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+        		link.setParent((Project) parent2);
+        		links.add(link);
+    		}
+    	} else if (parent1 instanceof Dataset) {
     		DatasetAnnotationLink link = new DatasetAnnotationLinkI();
     		link.setChild(c);
-    		link.setParent((Dataset) parent);
+    		link.setParent((Dataset) parent1);
     		links.add(link);
     		link = new DatasetAnnotationLinkI();
     		link.setChild(t);
-    		link.setParent((Dataset) parent);
+    		link.setParent((Dataset) parent1);
     		links.add(link);
     		link = new DatasetAnnotationLinkI();
     		link.setChild(f);
-    		link.setParent((Dataset) parent);
+    		link.setParent((Dataset) parent1);
     		links.add(link);
-    	} else if (parent instanceof Plate) {
+    		if (parent2 != null) {
+    			link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+        		link.setParent((Dataset) parent2);
+        		links.add(link);
+        		link = new DatasetAnnotationLinkI();
+        		link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+        		link.setParent((Dataset) parent2);
+        		links.add(link);
+        		link = new DatasetAnnotationLinkI();
+        		link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+        		link.setParent((Dataset) parent2);
+        		links.add(link);
+    		}
+    	} else if (parent1 instanceof Plate) {
     		PlateAnnotationLink link = new PlateAnnotationLinkI();
     		link.setChild(c);
-    		link.setParent((Plate) parent);
+    		link.setParent((Plate) parent1);
     		links.add(link);
     		link = new PlateAnnotationLinkI();
     		link.setChild(t);
-    		link.setParent((Plate) parent);
+    		link.setParent((Plate) parent1);
     		links.add(link);
     		link = new PlateAnnotationLinkI();
     		link.setChild(f);
-    		link.setParent((Plate) parent);
+    		link.setParent((Plate) parent1);
     		links.add(link);
-    	} else if (parent instanceof Screen) {
+    		if (parent2 != null) {
+    			link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+        		link.setParent((Plate) parent2);
+        		links.add(link);
+        		link = new PlateAnnotationLinkI();
+        		link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+        		link.setParent((Plate) parent2);
+        		links.add(link);
+        		link = new PlateAnnotationLinkI();
+        		link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+        		link.setParent((Plate) parent2);
+        		links.add(link);
+    		}
+    	} else if (parent1 instanceof Screen) {
     		ScreenAnnotationLink link = new ScreenAnnotationLinkI();
     		link.setChild(c);
-    		link.setParent((Screen) parent);
+    		link.setParent((Screen) parent1);
     		links.add(link);
     		link = new ScreenAnnotationLinkI();
     		link.setChild(t);
-    		link.setParent((Screen) parent);
+    		link.setParent((Screen) parent1);
     		links.add(link);
     		link = new ScreenAnnotationLinkI();
     		link.setChild(f);
-    		link.setParent((Screen) parent);
+    		link.setParent((Screen) parent1);
     		links.add(link);
-    	} else if (parent instanceof Well) {
+    		if (parent2 != null) {
+    			link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+        		link.setParent((Screen) parent2);
+        		links.add(link);
+        		link = new ScreenAnnotationLinkI();
+        		link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+        		link.setParent((Screen) parent2);
+        		links.add(link);
+        		link = new ScreenAnnotationLinkI();
+        		link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+        		link.setParent((Screen) parent2);
+        		links.add(link);
+    		}
+    	} else if (parent1 instanceof Well) {
     		WellAnnotationLink link = new WellAnnotationLinkI();
     		link.setChild(c);
-    		link.setParent((Well) parent);
+    		link.setParent((Well) parent1);
     		links.add(link);
     		link = new WellAnnotationLinkI();
     		link.setChild(t);
-    		link.setParent((Well) parent);
+    		link.setParent((Well) parent1);
     		links.add(link);
     		link = new WellAnnotationLinkI();
     		link.setChild(f);
-    		link.setParent((Well) parent);
+    		link.setParent((Well) parent1);
     		links.add(link);
-    	} else if (parent instanceof WellSample) {
+    		if (parent2 != null) {
+    			link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+        		link.setParent((Well) parent2);
+        		links.add(link);
+        		link = new WellAnnotationLinkI();
+        		link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+        		link.setParent((Well) parent2);
+        		links.add(link);
+        		link = new WellAnnotationLinkI();
+        		link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+        		link.setParent((Well) parent2);
+        		links.add(link);
+    		}
+    	} else if (parent1 instanceof WellSample) {
     		WellSampleAnnotationLink link = new WellSampleAnnotationLinkI();
     		link.setChild(c);
-    		link.setParent((WellSample) parent);
+    		link.setParent((WellSample) parent1);
     		links.add(link);
     		link = new WellSampleAnnotationLinkI();
     		link.setChild(t);
-    		link.setParent((WellSample) parent);
+    		link.setParent((WellSample) parent1);
     		links.add(link);
     		link = new WellSampleAnnotationLinkI();
     		link.setChild(f);
-    		link.setParent((WellSample) parent);
+    		link.setParent((WellSample) parent1);
     		links.add(link);
-    	} else if (parent instanceof PlateAcquisition) {
+    		if (parent2 != null) {
+    			link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+        		link.setParent((WellSample) parent2);
+        		links.add(link);
+        		link = new WellSampleAnnotationLinkI();
+        		link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+        		link.setParent((WellSample) parent2);
+        		links.add(link);
+        		link = new WellSampleAnnotationLinkI();
+        		link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+        		link.setParent((WellSample) parent2);
+        		links.add(link);
+    		}
+    	} else if (parent1 instanceof PlateAcquisition) {
     		PlateAcquisitionAnnotationLink link = 
     			new PlateAcquisitionAnnotationLinkI();
     		link.setChild(c);
-    		link.setParent((PlateAcquisition) parent);
+    		link.setParent((PlateAcquisition) parent1);
     		links.add(link);
     		link = new PlateAcquisitionAnnotationLinkI();
     		link.setChild(t);
-    		link.setParent((PlateAcquisition) parent);
+    		link.setParent((PlateAcquisition) parent1);
     		links.add(link);
     		link = new PlateAcquisitionAnnotationLinkI();
     		link.setChild(f);
-    		link.setParent((PlateAcquisition) parent);
+    		link.setParent((PlateAcquisition) parent1);
     		links.add(link);
+    		if (parent2 != null) {
+    			link.setChild(new TagAnnotationI(c.getId().getValue(), false));
+        		link.setParent((PlateAcquisition) parent2);
+        		links.add(link);
+        		link = new PlateAcquisitionAnnotationLinkI();
+        		link.setChild(new TermAnnotationI(t.getId().getValue(), false));
+        		link.setParent((PlateAcquisition) parent2);
+        		links.add(link);
+        		link = new PlateAcquisitionAnnotationLinkI();
+        		link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+        		link.setParent((PlateAcquisition) parent2);
+        		links.add(link);
+    		}
     	} 
     	if (links.size() > 0) iUpdate.saveAndReturnArray(links);
     	return ids;
@@ -518,6 +652,7 @@ public class DeleteServiceTest
     
     /**
      * Test to delete an image w/o pixels.
+     * The <code>deleteImage</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -1461,11 +1596,11 @@ public class DeleteServiceTest
     /**
      * Test to delete object with annotations that cannot be shared
      * e.g. tags, terms. One run will delete the annotations, a second 
-     * will keep them.
+     * will keep them. This will test the usage of the option parameters.
      * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(enabled = false)
     public void testDeleteObjectWithSharableAnnotations() 
     	throws Exception
     {
@@ -1483,9 +1618,10 @@ public class DeleteServiceTest
     			obj = entry.getKey();
     			type = entry.getValue();
     			id = obj.getId().getValue();
-    			annotationIds = createSharableAnnotation(obj);	
-    			//TO REVIEW
-    			delete(new DeleteCommand(type, id, null));
+    			annotationIds = createSharableAnnotation(obj, null);	
+    			if (values[j])
+    				delete(new DeleteCommand(type, id, SHARABLE_TO_KEEP));
+    			else delete(new DeleteCommand(type, id, null));
 
     			param = new ParametersI();
     			param.addId(obj.getId().getValue());
@@ -1498,9 +1634,9 @@ public class DeleteServiceTest
     			sql = "select i from Annotation as i where i.id in (:ids)";
     			l = iQuery.findAllByQuery(sql, param);
     			if (values[j]) {
-    				assertTrue(l.size() == annotationIds.size());	
+    				assertEquals(l.size(), annotationIds.size(), l.size());
     			} else {
-				assertEquals(l.toString(), 0, l.size());
+    				assertEquals(l.toString(), 0, l.size());
     			}
     		}
     	}
@@ -1560,7 +1696,7 @@ public class DeleteServiceTest
 				if (r.size() > 0) annotationIds.addAll(r);
 				for (int f = 0; f < well.sizeOfWellSamples(); f++) {
 					field = well.getWellSample(f);
-					r = createSharableAnnotation(field);
+					r = createSharableAnnotation(field, null);
 					if (r.size() > 0) annotationIds.addAll(r);
 					wellSampleIds.add(field.getId().getValue());
 					assertNotNull(field.getImage());
@@ -1631,6 +1767,7 @@ public class DeleteServiceTest
      * measurements.
      * @throws Exception Thrown if an error occurred.
      */
+    @Test(enabled = false)
     public void testPlateWithROIMeasurements() 
 		throws Exception
 	{
@@ -1680,8 +1817,9 @@ public class DeleteServiceTest
 		links.add(il);
 		iUpdate.saveAndReturnArray(links);
 		
-		delete(new DeleteCommand(REF_PLATE, p.getId().getValue(), 
-        		null));
+		Map<String, String> options = new HashMap<String, String>();
+		options.put(REF_FILE, KEEP);
+		delete(new DeleteCommand(REF_PLATE, p.getId().getValue(), options));
 		//Shouldn't have measurements
 		ParametersI param = new ParametersI();
         param.addId(id);
@@ -1697,7 +1835,7 @@ public class DeleteServiceTest
      * well samples and plate with Plate acquisition and annotation.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false) // Don't understand how this should work.
+    @Test(enabled = false) 
     public void testPlateWithSharableAnnotations() 
     	throws Exception
     {
@@ -1717,6 +1855,7 @@ public class DeleteServiceTest
 		List<Long> annotationIds = new ArrayList<Long>();
 		List<Long> r;
 		List l;
+
     	for (int i = 0; i < values.length; i++) {
     		b = values[i];
     		for (int k = 0; k < annotations.length; k++) {
@@ -1735,11 +1874,11 @@ public class DeleteServiceTest
     	        imageIds = new ArrayList<Long>();
     	        while (j.hasNext()) {
     				well = (Well) j.next();
-    				r = createSharableAnnotation(well);
+    				r = createSharableAnnotation(well, null);
     				if (r.size() > 0) annotationIds.addAll(r);
     				for (int f = 0; f < well.sizeOfWellSamples(); f++) {
     					field = well.getWellSample(f);
-    					r = createSharableAnnotation(field);
+    					r = createSharableAnnotation(field, null);
     					if (r.size() > 0) annotationIds.addAll(r);
     					wellSampleIds.add(field.getId().getValue());
     					assertNotNull(field.getImage());
@@ -1750,9 +1889,12 @@ public class DeleteServiceTest
     	        	r = createNonSharableAnnotation(pa);
     				if (r.size() > 0) annotationIds.addAll(r);
     	        }
-    	        //Now delete the plate TODO check options
-    	        delete(new DeleteCommand(REF_PLATE, p.getId().getValue(), 
-    	        		null));
+    	        if (annotations[k]) 
+    	        	delete(new DeleteCommand(REF_PLATE, p.getId().getValue(), 
+        	        		SHARABLE_TO_KEEP));
+    	        else
+	    	        delete(new DeleteCommand(REF_PLATE, p.getId().getValue(), 
+	    	        		null));
     	        
     	        param = new ParametersI();
     	        param.addId(p.getId().getValue());
@@ -1901,8 +2043,6 @@ public class DeleteServiceTest
     	param.addIds(ids);
     	sql = "select d from Dataset d where d.id in (:ids)";
     	assertTrue(iQuery.findAllByQuery(sql, param).size() == 0);
-
-
     	ids.clear();
     	ids.add(img1.getId().getValue());
     	ids.add(img2.getId().getValue());
@@ -1965,4 +2105,201 @@ public class DeleteServiceTest
 		}
     }
 
+    /**
+     * Tests to delete an image with a companion file. This is usually
+     * the case when the image is imported.
+     * The <code>queueDelete</code> method is tested.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = false)
+    public void testImportedImage() 
+    	throws Exception
+    {
+    	Image img = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.createImage());
+    	OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
+    			mmFactory.createOriginalFile());
+    	FileAnnotation fa = new FileAnnotationI();
+    	fa.setNs(omero.rtypes.rstring(FileAnnotationData.COMPANION_FILE_NS));
+    	fa.setFile(of);
+    	fa = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
+    	ImageAnnotationLink l = new ImageAnnotationLinkI();
+    	l.setChild(fa);
+    	l.setParent(img);
+    	iUpdate.saveAndReturnObject(l);
+    	
+    	long id = fa.getId().getValue();
+    	Map<String, String> map = new HashMap<String, String>();
+    	map.put(REF_FILE, KEEP);
+    	delete(new DeleteCommand(REF_IMAGE, img.getId().getValue(), map));
+    	
+    	//File annotation should be deleted even if 
+    	//required to keep file annotation
+    	ParametersI param = new ParametersI();
+    	param.addId(id);
+    	String sql = "select a from Annotation as a where a.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    }
+    
+    /**
+     * Tests to delete an image with a shared Tag. 
+     * The tag should not be deleted b/c of the <code>Soft</code> option
+     * i.e. default option.
+     * The <code>queueDelete</code> method is tested.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteObjectWithSharedAnnotationSoftOption() 
+    	throws Exception
+    { 
+    	int n = SHARABLE_TO_KEEP.size();
+    	//images
+    	Image img1 = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(0));
+    	Image img2 = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(0));
+    	List<Long> ids = createSharableAnnotation(img1, img2);
+    	//now delete the image 1.
+    	delete(new DeleteCommand(REF_IMAGE, img1.getId().getValue(), null));
+    	ParametersI param = new ParametersI();
+    	param.addIds(ids);
+    	String sql = "select a from Annotation as a where a.id in (:ids)";
+    	List<IObject> results = iQuery.findAllByQuery(sql, param);
+    	assertEquals(n, results.size());
+    	
+    	//datasets
+    	Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	Dataset d2 = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	ids = createSharableAnnotation(d1, d2);
+    	//now delete the dataset 1.
+    	delete(new DeleteCommand(REF_DATASET, d1.getId().getValue(), null));
+    	param = new ParametersI();
+    	param.addIds(ids);
+    	results = iQuery.findAllByQuery(sql, param);
+    	assertEquals(n, results.size());
+    	
+    	//projects
+    	Project p1 = (Project) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleProjectData().asIObject());
+    	Project p2 = (Project) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleProjectData().asIObject());
+    	ids = createSharableAnnotation(p1, p2);
+    	//now delete the project 1.
+    	delete(new DeleteCommand(REF_PROJECT, p1.getId().getValue(), null));
+    	param = new ParametersI();
+    	param.addIds(ids);
+    	results = iQuery.findAllByQuery(sql, param);
+    	assertEquals(n, results.size());
+    	
+    	//screens
+    	Screen s1 = (Screen) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleScreenData().asIObject());
+    	Screen s2 = (Screen) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleScreenData().asIObject());
+    	ids = createSharableAnnotation(s1, s2);
+    	//now delete the screen 1.
+    	delete(new DeleteCommand(REF_SCREEN, s1.getId().getValue(), null));
+    	param = new ParametersI();
+    	param.addIds(ids);
+    	results = iQuery.findAllByQuery(sql, param);
+    	assertEquals(n, results.size());
+    	
+    	//Plates
+    	Plate plate1 = (Plate) iUpdate.saveAndReturnObject(
+    			mmFactory.simplePlateData().asIObject());
+    	Plate plate2 = (Plate) iUpdate.saveAndReturnObject(
+    			mmFactory.simplePlateData().asIObject());
+    	ids = createSharableAnnotation(plate1, plate2);
+    	//now delete the screen 1.
+    	delete(new DeleteCommand(REF_PLATE, plate1.getId().getValue(), null));
+    	param = new ParametersI();
+    	param.addIds(ids);
+    	results = iQuery.findAllByQuery(sql, param);
+    	assertEquals(n, results.size());
+    }
+    
+    /**
+     * Tests to delete an image with a shared Tag. 
+     * The tag should be deleted b/c of the <code>Hard</code> option.
+     * The <code>queueDelete</code> method is tested.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = false)
+    public void testDeleteObjectWithSharedAnnotationHardOption() 
+    	throws Exception
+    {
+    	int n = 0;
+    	//images
+    	Map<String, String> options = new HashMap<String, String>();
+    	options.put(REF_TAG, HARD);
+    	options.put(REF_TERM, HARD);
+    	options.put(REF_FILE, HARD);
+    	Image img1 = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(0));
+    	Image img2 = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(0));
+    	List<Long> ids = createSharableAnnotation(img1, img2);
+    	//now delete the image 1.
+    	delete(new DeleteCommand(REF_IMAGE, img1.getId().getValue(), options));
+    	ParametersI param = new ParametersI();
+    	param.addIds(ids);
+    	String sql = "select a from Annotation as a where a.id in (:ids)";
+    	List<IObject> results = iQuery.findAllByQuery(sql, param);
+    	assertEquals(n, results.size());
+    	
+    	//datasets
+    	Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	Dataset d2 = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	ids = createSharableAnnotation(d1, d2);
+    	//now delete the dataset 1.
+    	delete(new DeleteCommand(REF_DATASET, d1.getId().getValue(), null));
+    	param = new ParametersI();
+    	param.addIds(ids);
+    	results = iQuery.findAllByQuery(sql, param);
+    	assertEquals(n, results.size());
+    	
+    	//projects
+    	Project p1 = (Project) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleProjectData().asIObject());
+    	Project p2 = (Project) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleProjectData().asIObject());
+    	ids = createSharableAnnotation(p1, p2);
+    	//now delete the project 1.
+    	delete(new DeleteCommand(REF_PROJECT, p1.getId().getValue(), null));
+    	param = new ParametersI();
+    	param.addIds(ids);
+    	results = iQuery.findAllByQuery(sql, param);
+    	assertEquals(n, results.size());
+    	
+    	//screens
+    	Screen s1 = (Screen) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleScreenData().asIObject());
+    	Screen s2 = (Screen) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleScreenData().asIObject());
+    	ids = createSharableAnnotation(s1, s2);
+    	//now delete the screen 1.
+    	delete(new DeleteCommand(REF_SCREEN, s1.getId().getValue(), null));
+    	param = new ParametersI();
+    	param.addIds(ids);
+    	results = iQuery.findAllByQuery(sql, param);
+    	assertEquals(n, results.size());
+    	
+    	//Plates
+    	Plate plate1 = (Plate) iUpdate.saveAndReturnObject(
+    			mmFactory.simplePlateData().asIObject());
+    	Plate plate2 = (Plate) iUpdate.saveAndReturnObject(
+    			mmFactory.simplePlateData().asIObject());
+    	ids = createSharableAnnotation(plate1, plate2);
+    	//now delete the screen 1.
+    	delete(new DeleteCommand(REF_PLATE, plate1.getId().getValue(), null));
+    	param = new ParametersI();
+    	param.addIds(ids);
+    	results = iQuery.findAllByQuery(sql, param);
+    	assertEquals(n, results.size());
+    }
+    
 }
