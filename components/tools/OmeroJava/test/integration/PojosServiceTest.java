@@ -44,7 +44,6 @@ import omero.model.Instrument;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.PermissionsI;
-import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;

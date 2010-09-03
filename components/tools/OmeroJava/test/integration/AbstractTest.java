@@ -6,30 +6,18 @@
  */
 package integration;
 
-import static omero.rtypes.rstring;
-import static omero.rtypes.rtime;
-
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import junit.framework.TestCase;
-import ome.testing.ObjectFactory;
-import omero.OptimisticLockException;
-import omero.RInt;
-import omero.RLong;
 import omero.api.IAdminPrx;
-import omero.api.IPixelsPrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.model.*;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
-import omero.util.IceMapper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -164,21 +152,6 @@ public class AbstractTest
         iAdmin = factory.getAdminService();
         mmFactory = new ModelMockFactory(factory.getPixelsService());
         return iAdmin.getEventContext();
-    }
-    /**
-     * Creates a channel.
-     * 
-     * @return See above.
-     * @throws Exception Thrown if an error occurred.
-     */
-    protected Channel createChannel() 
-    	throws Exception
-    {
-    	/*
-        IceMapper mapper = new IceMapper();
-        return (Channel) mapper.map(ObjectFactory.createChannel(null));
-        */
-    	return mmFactory.createChannel(0);
     }
     
     /**

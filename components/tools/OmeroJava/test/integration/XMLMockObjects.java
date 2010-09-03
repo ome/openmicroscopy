@@ -38,7 +38,6 @@ import ome.xml.model.Dataset;
 import ome.xml.model.Detector;
 import ome.xml.model.DetectorSettings;
 import ome.xml.model.Dichroic;
-import ome.xml.model.DoubleAnnotation;
 import ome.xml.model.Ellipse;
 import ome.xml.model.Filament;
 import ome.xml.model.FileAnnotation;
@@ -62,6 +61,7 @@ import ome.xml.model.ObjectiveSettings;
 import ome.xml.model.OME;
 import ome.xml.model.OTF;
 import ome.xml.model.Pixels;
+import ome.xml.model.Plane;
 import ome.xml.model.Plate;
 import ome.xml.model.PlateAcquisition;
 import ome.xml.model.Point;
@@ -85,7 +85,6 @@ import ome.xml.model.enums.Compression;
 import ome.xml.model.enums.Correction;
 import ome.xml.model.enums.DetectorType;
 import ome.xml.model.enums.DimensionOrder;
-import ome.xml.model.enums.ExperimentType;
 import ome.xml.model.enums.FilamentType;
 import ome.xml.model.enums.FilterType;
 import ome.xml.model.enums.Medium;
@@ -218,6 +217,12 @@ public class XMLMockObjects
 	/** The default pixels type. */
 	public static final PixelType PIXEL_TYPE = PixelType.UINT16;
 
+	/** The number of detectors created. */
+	public static final int NUMBER_OF_DECTECTORS = 1;
+	
+	/** The number of objectives created. */
+	public static final int NUMBER_OF_OBJECTIVES = 1;
+	
 	/** The number of filters created. */
 	public static final int NUMBER_OF_FILTERS = 2;
 	
@@ -226,6 +231,12 @@ public class XMLMockObjects
 	
 	/** Points used to create Polyline and Polygon shape. */
 	public static final String POINTS = "0,0 10,10";
+	
+	/** The default cut-in. */
+	public static final int CUT_IN = 200;
+	
+	/** The default cut-out. */
+	public static final int CUT_OUT = 300;
 	
 	/** Root of the file. */
 	private OME ome;
@@ -367,6 +378,7 @@ public class XMLMockObjects
 			laser.setID("LightSource:"+index);
 			laser.setModel(COMPONENT_MODEL);
 			laser.setManufacturer(COMPONENT_MANUFACTURER);
+			laser.setSerialNumber(COMPONENT_SERIAL_NUMBER);
 			laser.setPower(LIGHTSOURCE_POWER);
 			laser.setType(LASER_TYPE);
 			return laser;
@@ -374,6 +386,7 @@ public class XMLMockObjects
 			Arc arc = new Arc();
 			arc.setID("LightSource:"+index);
 			arc.setManufacturer(COMPONENT_MANUFACTURER);
+			arc.setSerialNumber(COMPONENT_SERIAL_NUMBER);
 			arc.setModel(COMPONENT_MODEL);
 			arc.setPower(LIGHTSOURCE_POWER);
 			arc.setType(ARC_TYPE);
@@ -382,6 +395,7 @@ public class XMLMockObjects
 			Filament filament = new Filament();
 			filament.setID("LightSource:"+index);
 			filament.setManufacturer(COMPONENT_MANUFACTURER);
+			filament.setSerialNumber(COMPONENT_SERIAL_NUMBER);
 			filament.setModel(COMPONENT_MODEL);
 			filament.setPower(LIGHTSOURCE_POWER);
 			filament.setType(FILAMENT_TYPE);
@@ -390,6 +404,7 @@ public class XMLMockObjects
 			LightEmittingDiode light = new LightEmittingDiode();
 			light.setID("LightSource:"+index);
 			light.setManufacturer(COMPONENT_MANUFACTURER);
+			light.setSerialNumber(COMPONENT_SERIAL_NUMBER);
 			light.setModel(COMPONENT_MODEL);
 			light.setPower(LIGHTSOURCE_POWER);
 			return light;
@@ -473,7 +488,7 @@ public class XMLMockObjects
 	protected LightSourceSettings createLightSourceSettings(int ref)
 	{
 		LightSourceSettings settings = new LightSourceSettings();
-		settings.setID("LigthSource:"+ref);
+		settings.setID("LightSource:"+ref);
 		settings.setAttenuation(new PercentFraction(1.0f));
 		settings.setWavelength(new PositiveInteger(200));
 		return settings;
@@ -776,6 +791,29 @@ public class XMLMockObjects
 		return plate;
 	}
 	
+	/**
+	 * Creates a plane information object.
+	 * 
+	 * @param z The z-section.
+	 * @param c The channel.
+	 * @param t The time-point.
+	 * @return See above.
+	 */
+	protected Plane createPlane(int z, int c, int t)
+	{
+		Plane plane = new Plane();
+		plane.setDeltaT(0.1);
+		plane.setExposureTime(10.0);
+		plane.setPositionX(1.0);
+		plane.setPositionY(1.0);
+		plane.setPositionZ(1.0);
+		plane.setTheZ(new NonNegativeInteger(z));
+		plane.setTheC(new NonNegativeInteger(c));
+		plane.setTheT(new NonNegativeInteger(z));
+		plane.setHashSHA1("1234567890ABCDEF1234567890ABCDEF12345678");
+		return plane;
+	}
+	
 	/** 
 	 * Creates a new image.
 	 * 
@@ -788,7 +826,6 @@ public class XMLMockObjects
 	{
 		if (metadata && instrument == null)
 			populateInstrument();
-		
 		Image image = new Image();
 		image.setID("Image:"+index);
 		image.setName("Image Name "+index);
@@ -799,8 +836,8 @@ public class XMLMockObjects
 			image.setStageLabel(createStageLabel());
 			//instrument has one objective.
 			ObjectiveSettings settings = createObjectiveSettings(0);
-			otf = createOTF(0, instrument.getFilterSet(0), settings);
-			instrument.addOTF(otf);
+			//otf = createOTF(0, instrument.getFilterSet(0), settings);
+			//instrument.addOTF(otf);
 			image.setObjectiveSettings(settings); 
 		}
 		Pixels pixels = new Pixels();
@@ -817,20 +854,27 @@ public class XMLMockObjects
 			data = createBinData(SIZE_X, SIZE_Y, BYTES_PER_PIXEL);
 			pixels.addBinData(data);
 		}
+		for (int z = 0; z < SIZE_Z; z++) {
+			for (int t = 0; t < SIZE_T; t++) {
+				for (int c = 0; c < SIZE_C; c++) {
+					pixels.addPlane(createPlane(z, c, t));
+				}
+			}
+		}
 		Channel channel;
 		int j = 0;
-		int n = LIGHT_SOURCES.length;
-		LightPath lp;
+		int n = LIGHT_SOURCES.length-1;
+		DetectorSettings ds = createDetectorSettings(0);
 		for (int i = 0; i < SIZE_C; i++) {
-			channel = channel = new Channel();
+			channel = new Channel();
 			channel.setID("Channel:"+i);
 			if (metadata) {
 				if (j == n) j = 0;
 				channel.setLightSourceSettings(createLightSourceSettings(j));
 				channel.setLightPath(createLightPath());
+				channel.setDetectorSettings(ds);
 				//link the channel to the OTF
-				if (otf != null)
-					otf.linkChannel(channel);
+				//if (otf != null) otf.linkChannel(channel);
 				j++;
 			}
 			pixels.addChannel(channel);
@@ -865,11 +909,15 @@ public class XMLMockObjects
 		instrument.setID("Instrument:"+index);
 		instrument.setMicroscope(createMicroscope());
 		if (populate) {
-			instrument.addDetector(createDetector(index));
-			instrument.addObjective(createObjective(index));
+			for (int i = 0; i < NUMBER_OF_OBJECTIVES; i++) {
+				instrument.addObjective(createObjective(i));
+			}
+			for (int i = 0; i < NUMBER_OF_DECTECTORS; i++) {
+				instrument.addDetector(createDetector(i));
+			}
 			instrument.addFilterSet(createFilterSet(index));
 			for (int i = 0; i < NUMBER_OF_FILTERS; i++) {
-				instrument.addFilter(createFilter(i, 200, 300));
+				instrument.addFilter(createFilter(i, CUT_IN, CUT_OUT));
 			}
 			for (int i = 0; i < NUMBER_OF_DICHROICS; i++) {
 				instrument.addDichroic(createDichroic(i));
@@ -1092,7 +1140,9 @@ public class XMLMockObjects
 	public OME createImageWithAcquisitionData()
 	{
 		populateInstrument();
-		ome.addImage(createImage(0, true));
+		Image image = createImage(0, true);
+		image.linkInstrument(instrument);
+		ome.addImage(image);
 		return ome;
 	}
 	

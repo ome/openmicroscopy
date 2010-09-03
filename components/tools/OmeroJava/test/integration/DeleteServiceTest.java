@@ -1353,7 +1353,7 @@ public class DeleteServiceTest
     	sql = "select d from Objective as d where d.instrument.id = :iid";
     	Objective objective = (Objective) iQuery.findByQuery(sql, param);
     	
-	img.setInstrument(instrument);
+    	img.setInstrument(instrument);
     	img.setImagingEnvironment(mmFactory.createImageEnvironment());
     	img.setObjectiveSettings(mmFactory.createObjectiveSettings(objective));
     	img.setStageLabel(mmFactory.createStageLabel());
@@ -1403,7 +1403,7 @@ public class DeleteServiceTest
     	sql = "select d from DetectorSettings as d where d.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));
     	param.addId(lightSourceSettingsID);
-	sql = "select d from LightSettings as d where d.id = :id";
+    	sql = "select d from LightSettings as d where d.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));
     	param.addId(ligthPathID);
     	sql = "select d from LightPath as d where d.id = :id";
@@ -1500,7 +1500,7 @@ public class DeleteServiceTest
     }
     
     /**
-     * Test to deletes rois.
+     * Test to deletes rois as root.
      * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
@@ -1551,8 +1551,7 @@ public class DeleteServiceTest
     	param = new ParametersI();
     	param.addIds(shapeIds);
     	sql = "select d from Shape as d where d.id in (:ids)";
-    	List results = iQuery.findAllByQuery(sql, param);
-    	assertTrue(results.size() == 0);
+    	assertEquals(iQuery.findAllByQuery(sql, param).size(), 0);
     }
 
     /**

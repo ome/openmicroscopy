@@ -1114,7 +1114,7 @@ public class UpdateServiceTest
         }
 
         // Now add another channel
-        Channel extra = createChannel(); // Copies dimension orders, etc.
+        Channel extra = mmFactory.createChannel(0); // Copies dimension orders, etc.
         p.addChannel(extra);
 
         i = (Image) iUpdate.saveAndReturnObject(i);
@@ -1165,7 +1165,7 @@ public class UpdateServiceTest
         p.setChannel(1, old);
         
         p = (Pixels) iUpdate.saveAndReturnObject(p);
-        Channel extra = createChannel();
+        Channel extra =  mmFactory.createChannel(0);
         p.setChannel(0, extra);
         
         p = (Pixels) iUpdate.saveAndReturnObject(p);
@@ -1206,7 +1206,7 @@ public class UpdateServiceTest
         ids.add(p.getChannel(2).getId().getValue());
 
         // Now add a channel to the space
-        Channel extra = createChannel();
+        Channel extra =  mmFactory.createChannel(0);
         p.setChannel(1, extra);
 
         p = (Pixels) iUpdate.saveAndReturnObject(p);
