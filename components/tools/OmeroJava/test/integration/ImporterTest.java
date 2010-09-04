@@ -24,8 +24,10 @@ package integration;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -43,6 +45,7 @@ import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
+import ome.xml.model.OME;
 import omero.api.IRoiPrx;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
@@ -75,12 +78,14 @@ import omero.model.ObjectiveSettings;
 import omero.model.Pixels;
 import omero.model.PlaneInfo;
 import omero.model.Plate;
+import omero.model.PlateAcquisition;
 import omero.model.Roi;
 import omero.model.Shape;
 import omero.model.StageLabel;
 import omero.model.TagAnnotation;
 import omero.model.TermAnnotation;
 import omero.model.TransmittanceRange;
+import omero.model.Well;
 import omero.model.WellSample;
 import omero.sys.ParametersI;
 
@@ -415,7 +420,99 @@ public class ImporterTest
 		assertEquals(lc.getNdFilter().getValue(), xml.getNDFilter());
 		assertEquals(lc.getPockelCellSetting().getValue(), 
 				xml.getPockelCellSetting().intValue());
-		
+	}
+	
+	/**
+	 * Validates if the inserted object corresponds to the XML object.
+	 * 
+	 * @param plate The plate to check.
+	 * @param xml The XML version.
+	 */
+	private void validatePlate(Plate plate, ome.xml.model.Plate xml)
+	{
+		assertEquals(plate.getName().getValue(), xml.getName());
+		assertEquals(plate.getDescription().getValue(), xml.getDescription());
+		assertEquals(plate.getRowNamingConvention().getValue(), 
+				xml.getRowNamingConvention().getValue());
+		assertEquals(plate.getColumnNamingConvention().getValue(), 
+				xml.getColumnNamingConvention().getValue());
+		assertEquals(plate.getRows().getValue(), 
+				xml.getRows().getValue().intValue());
+		assertEquals(plate.getCols().getValue(), 
+				xml.getColumns().getValue().intValue());
+		assertEquals(plate.getExternalIdentifier().getValue(),
+				xml.getExternalIdentifier());
+	}
+	
+	/**
+	 * Validates if the inserted object corresponds to the XML object.
+	 * 
+	 * @param well The plate to check.
+	 * @param xml The XML version.
+	 */
+	private void validateWell(Well well, ome.xml.model.Well xml)
+	{
+		assertEquals(well.getColumn().getValue(), 
+				xml.getColumn().getValue().intValue());
+		assertEquals(well.getRow().getValue(), 
+				xml.getRow().getValue().intValue());
+		assertEquals(well.getExternalDescription().getValue(), 
+				xml.getExternalDescription());
+		assertEquals(well.getExternalIdentifier().getValue(), 
+				xml.getExternalIdentifier());
+		Color xmlColor = new Color(xml.getColor());
+		assertEquals(well.getAlpha().getValue(), xmlColor.getAlpha());
+		assertEquals(well.getRed().getValue(), xmlColor.getRed());
+		assertEquals(well.getGreen().getValue(), xmlColor.getGreen());
+		assertEquals(well.getBlue().getValue(), xmlColor.getBlue());
+	}
+
+	/**
+	 * Validates if the inserted object corresponds to the XML object.
+	 * 
+	 * @param ws The well sample to check.
+	 * @param xml The XML version.
+	 */
+	private void validateWellSample(WellSample ws, ome.xml.model.WellSample xml)
+	{
+		assertEquals(ws.getPosX().getValue(), 
+				xml.getPositionX().doubleValue());
+		assertEquals(ws.getPosY().getValue(), 
+				xml.getPositionY().doubleValue());
+		String time = xml.getTimepoint();
+		time = time.replace("T", " ");
+		time = time.replace("Z", " ");
+		Timestamp ts = Timestamp.valueOf(time);
+		assertEquals(ws.getTimepoint().getValue(), ts.getTime());
+	}
+	
+	/**
+	 * Validates if the inserted object corresponds to the XML object.
+	 * 
+	 * @param pa The plate acquisition to check.
+	 * @param xml The XML version.
+	 */
+	private void validatePlateAcquisition(PlateAcquisition pa, 
+			ome.xml.model.PlateAcquisition xml)
+	{
+		assertEquals(pa.getName().getValue(), xml.getName());
+		assertEquals(pa.getDescription().getValue(), 
+				xml.getDescription());
+		/*
+		String time = xml.getEndTime();
+		time = time.replace("T", " ");
+		time = time.replace("Z", " ");
+		Timestamp ts = Timestamp.valueOf(time);
+		assertNotNull(ts);
+		assertNotNull(pa.getEndTime());
+		assertEquals(pa.getEndTime().getValue(), ts.getTime());
+		ts = Timestamp.valueOf(xml.getStartTime());
+		time = xml.getStartTime();
+		time = time.replace("T", " ");
+		time = time.replace("Z", " ");
+		ts = Timestamp.valueOf(time);
+		assertEquals(pa.getStartTime().getValue(), ts.getTime());
+		*/
 	}
 	
 	/**
@@ -583,6 +680,8 @@ public class ImporterTest
 		assertTrue(p.getSizeT().getValue() == XMLMockObjects.SIZE_T);
 		assertTrue(p.getPixelsType().getValue().getValue().equals(
 				XMLMockObjects.PIXEL_TYPE.getValue()));
+		assertTrue(p.getDimensionOrder().getValue().getValue().equals(
+				XMLMockObjects.DIMENSION_ORDER.getValue()));
 		//Check the plane info
 		
 		String sql = "select p from PlaneInfo as p where pixels.id = :pid";
@@ -813,11 +912,16 @@ public class ImporterTest
     	ids.clear();
     	
     	ome.xml.model.Channel xmlChannel = xml.createChannel(0);
+    	Color xmlColor = new Color(xmlChannel.getColor());
     	Channel channel;
     	List<Channel> channels = p.copyChannels();
     	Iterator<Channel> i = channels.iterator();
     	while (i.hasNext()) {
 			channel = i.next();
+			assertEquals(channel.getAlpha().getValue(), xmlColor.getAlpha());
+			assertEquals(channel.getRed().getValue(), xmlColor.getRed());
+			assertEquals(channel.getGreen().getValue(), xmlColor.getGreen());
+			assertEquals(channel.getBlue().getValue(), xmlColor.getBlue());
 			ids.add(channel.getId().getValue());
 		}
     	List<LogicalChannel> l = 
@@ -906,7 +1010,8 @@ public class ImporterTest
 		files.add(f);
 		XMLMockObjects xml = new XMLMockObjects();
 		XMLWriter writer = new XMLWriter();
-		writer.writeFile(f, xml.createBasicPlate(), true);
+		OME ome = xml.createBasicPlate();
+		writer.writeFile(f, ome, true);
 		List<Pixels> pixels = null;
 		try {
 			pixels = importFile(f, OME_FORMAT);
@@ -924,8 +1029,14 @@ public class ImporterTest
 		List<IObject> results = iQuery.findAllByQuery(sql, param);
 		assertTrue(results.size() == 1);
 		WellSample ws = (WellSample) results.get(0);
-		assertNotNull(ws.getWell());
-		assertNotNull(ws.getWell().getPlate());
+		assertNotNull(ws);
+		validateWellSample(ws, ome.getPlate(0).getWell(0).getWellSample(0));
+		Well well = ws.getWell();
+		assertNotNull(well);
+		validateWell(well, ome.getPlate(0).getWell(0));
+		Plate plate = ws.getWell().getPlate();
+		assertNotNull(plate);
+		validatePlate(plate, ome.getPlate(0));
 	}
 	
 	/**
@@ -939,9 +1050,11 @@ public class ImporterTest
 	{
 		File f = File.createTempFile("testImportPlateWithPlateAcquisition", 
 				"."+OME_FORMAT);
+		files.add(f);
 		XMLMockObjects xml = new XMLMockObjects();
 		XMLWriter writer = new XMLWriter();
-		writer.writeFile(f, xml.createBasicPlateWithPlateAcquistion(), true);
+		OME ome =  xml.createBasicPlateWithPlateAcquistion();
+		writer.writeFile(f, ome, true);
 		List<Pixels> pixels = null;
 		try {
 			pixels = importFile(f, OME_FORMAT);
@@ -963,6 +1076,9 @@ public class ImporterTest
 		//assertNotNull(ws.getPlateAcquisition());
 		assertNotNull(ws.getWell());
 		assertNotNull(ws.getWell().getPlate());
+		PlateAcquisition pa = ws.getPlateAcquisition();
+		assertNotNull(pa);
+		validatePlateAcquisition(pa, ome.getPlate(0).getPlateAcquisition(0));
 	}
 	
 }

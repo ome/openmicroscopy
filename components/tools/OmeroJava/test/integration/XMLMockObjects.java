@@ -750,6 +750,7 @@ public class XMLMockObjects
 		plate.setID("Plate:"+index);
 		plate.setName("Plate Name "+index);
 		plate.setDescription("Plate Description "+index);
+		plate.setExternalIdentifier("External Identifier");
 		plate.setRows(new PositiveInteger(rows));
 		plate.setColumns(new PositiveInteger(columns));
 		plate.setRowNamingConvention(ROW_NAMING_CONVENTION);
@@ -761,6 +762,8 @@ public class XMLMockObjects
 			pa.setID("PlateAcquistion:"+index);
 			pa.setName("PlateAcquistion Name "+index);
 			pa.setDescription("PlateAcquistion Description "+index);
+			pa.setEndTime("2006-05-04T18:13:51.0Z");
+			pa.setStartTime("2006-05-04T18:13:51.0Z");
 			plate.addPlateAcquisition(pa);
 		}
 		//now populate the plate
@@ -774,8 +777,16 @@ public class XMLMockObjects
 				well.setID(String.format("Well:%d_%d", row, column));
 				well.setRow(new NonNegativeInteger(row));
 				well.setColumn(new NonNegativeInteger(column));
+				//well.setStatus("Well status");
+				well.setExternalDescription("External Description");
+				well.setExternalIdentifier("External Identifier");
+				well.setColor(255);
 				for (int field = 0; field < fields; field++) {
 					sample = new WellSample();
+					sample.setPositionX(0.0);
+					sample.setPositionY(1.0);
+					sample.setTimepoint("2006-05-04T18:13:51.0Z");
+					//sample.setTimepoint("2006-05-04T18:13:51.0Z");
 					sample.setID(String.format("WellSample:%d_%d", row, column));
 					sample.setIndex(new NonNegativeInteger(i));
 					//create an image. and register it
