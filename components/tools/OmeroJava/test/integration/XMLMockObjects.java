@@ -777,7 +777,7 @@ public class XMLMockObjects
 				well.setID(String.format("Well:%d_%d", row, column));
 				well.setRow(new NonNegativeInteger(row));
 				well.setColumn(new NonNegativeInteger(column));
-				//well.setStatus("Well status");
+				//well.setStatus("Transfection: done");
 				well.setExternalDescription("External Description");
 				well.setExternalIdentifier("External Identifier");
 				well.setColor(255);
