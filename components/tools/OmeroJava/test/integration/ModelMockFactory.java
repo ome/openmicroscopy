@@ -88,6 +88,8 @@ import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionI;
 import omero.model.PlateI;
 import omero.model.Pulse;
+import omero.model.Reagent;
+import omero.model.ReagentI;
 import omero.model.StageLabel;
 import omero.model.StageLabelI;
 import omero.model.StatsInfo;
@@ -821,7 +823,6 @@ class ModelMockFactory
 		image.addPixels(pixels);
 		return image;
 	}
-	
 
 	/**
 	 * Creates a plate.
@@ -871,4 +872,17 @@ class ModelMockFactory
         return p;
     }
 	
+    /**
+     * Returns the reagent.
+     * 
+     * @return See above.
+     */
+    Reagent createReagent()
+    {
+    	Reagent reagent = new ReagentI();
+    	reagent.setDescription(omero.rtypes.rstring("Reagent Description"));
+    	reagent.setName(omero.rtypes.rstring("Reagent Name"));
+    	return reagent;
+    }
+    
 }

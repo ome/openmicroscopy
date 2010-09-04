@@ -79,6 +79,7 @@ import omero.model.Pixels;
 import omero.model.PlaneInfo;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
+import omero.model.Reagent;
 import omero.model.Roi;
 import omero.model.Shape;
 import omero.model.StageLabel;
@@ -442,6 +443,24 @@ public class ImporterTest
 				xml.getColumns().getValue().intValue());
 		assertEquals(plate.getExternalIdentifier().getValue(),
 				xml.getExternalIdentifier());
+		assertEquals(plate.getWellOriginX().getValue(), 
+				xml.getWellOriginX().doubleValue());
+		assertEquals(plate.getWellOriginY().getValue(), 
+				xml.getWellOriginY().doubleValue());
+	}
+	
+	/**
+	 * Validates if the inserted object corresponds to the XML object.
+	 * 
+	 * @param reagent The reagent to check.
+	 * @param xml The XML version.
+	 */
+	private void validateReagent(Reagent reagent, ome.xml.model.Reagent xml)
+	{
+		assertEquals(reagent.getName().getValue(), xml.getName());
+		assertEquals(reagent.getDescription().getValue(), xml.getDescription());
+		assertEquals(reagent.getReagentIdentifier().getValue(), 
+				xml.getReagentIdentifier());
 	}
 	
 	/**
@@ -1053,7 +1072,7 @@ public class ImporterTest
 		files.add(f);
 		XMLMockObjects xml = new XMLMockObjects();
 		XMLWriter writer = new XMLWriter();
-		OME ome =  xml.createBasicPlateWithPlateAcquistion();
+		OME ome =  xml.createBasicPlateWithPlateAcquisition();
 		writer.writeFile(f, ome, true);
 		List<Pixels> pixels = null;
 		try {
@@ -1079,6 +1098,55 @@ public class ImporterTest
 		PlateAcquisition pa = ws.getPlateAcquisition();
 		assertNotNull(pa);
 		validatePlateAcquisition(pa, ome.getPlate(0).getPlateAcquisition(0));
+	}
+	
+	/**
+     * Tests the import of an OME-XML file with a plate
+     * with wells linked to a reagent.
+     * @throws Exception Thrown if an error occurred.
+     */
+	@Test(enabled = false)
+	public void testImportPlateWithReagent()
+		throws Exception
+	{
+		File f = File.createTempFile("testImportPlateWithReagent", 
+				"."+OME_FORMAT);
+		files.add(f);
+		XMLMockObjects xml = new XMLMockObjects();
+		XMLWriter writer = new XMLWriter();
+		OME ome =  xml.createBasicPlateWithReagent();
+		writer.writeFile(f, ome, true);
+		List<Pixels> pixels = null;
+		try {
+			pixels = importFile(f, OME_FORMAT);
+		} catch (Throwable e) {
+			throw new Exception("cannot import the plate", e);
+		}
+		Pixels p = pixels.get(0);
+		long id = p.getImage().getId().getValue();
+		String sql = "select ws from WellSample as ws ";
+		sql += "join fetch ws.plateAcquisition as pa ";
+		sql += "join fetch ws.well as w ";
+		sql += "join fetch w.plate as p ";
+		sql += "where ws.image.id = :id";
+		ParametersI param = new ParametersI();
+		param.addId(id);
+		List<IObject> results = iQuery.findAllByQuery(sql, param);
+		assertTrue(results.size() == 1);
+		WellSample ws = (WellSample) results.get(0);
+		//assertNotNull(ws.getPlateAcquisition());
+		assertNotNull(ws.getWell());
+		id = ws.getWell().getId().getValue();
+		sql = "select l from WellReagentLink as l ";
+		sql += "join fetch l.child as c ";
+		sql += "join fetch l.parent as p ";
+		sql += "where c.id = :id";
+		param = new ParametersI();
+		param.addId(id);
+		Reagent r = (Reagent) iQuery.findByQuery(sql, param);
+		assertNotNull(r);
+		validateReagent(r, ome.getScreen(0).getReagent(0));
+		
 	}
 	
 }

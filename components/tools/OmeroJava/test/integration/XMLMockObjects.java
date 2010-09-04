@@ -67,6 +67,7 @@ import ome.xml.model.PlateAcquisition;
 import ome.xml.model.Point;
 import ome.xml.model.Polyline;
 import ome.xml.model.Project;
+import ome.xml.model.Reagent;
 import ome.xml.model.Rectangle;
 import ome.xml.model.Screen;
 import ome.xml.model.Shape;
@@ -755,7 +756,8 @@ public class XMLMockObjects
 		plate.setColumns(new PositiveInteger(columns));
 		plate.setRowNamingConvention(ROW_NAMING_CONVENTION);
 		plate.setColumnNamingConvention(COLUMN_NAMING_CONVENTION);
-		
+		plate.setWellOriginX(0.0);
+		plate.setWellOriginY(1.0);
 		PlateAcquisition pa = null;
 		if (plateAcquisition) {
 			pa = new PlateAcquisition();
@@ -780,6 +782,7 @@ public class XMLMockObjects
 				//well.setStatus("Transfection: done");
 				well.setExternalDescription("External Description");
 				well.setExternalIdentifier("External Identifier");
+				
 				well.setColor(255);
 				for (int field = 0; field < fields; field++) {
 					sample = new WellSample();
@@ -968,6 +971,22 @@ public class XMLMockObjects
 		return instrument;
 	}
 
+	/**
+	 * Creates a reagent.
+	 * 
+	 * @param index The index in the file.
+	 * @return See above.
+	 */
+	protected Reagent createReagent(int index)
+	{
+		Reagent reagent = new Reagent();
+		reagent.setID("Reagent:"+index);
+		reagent.setDescription("Reagent Description");
+		reagent.setName("Reagent Name");
+		reagent.setReagentIdentifier("Reagent Identifier");
+		return reagent;
+	}
+	
 	//annotations
 	/**
 	 * Create a comment annotation for the specified object.
@@ -1211,7 +1230,7 @@ public class XMLMockObjects
 	 * 
 	 * @return See above
 	 */
-	OME createBasicPlate()
+	public OME createBasicPlate()
 	{
 		populateInstrument();
 		ome.addPlate(createPlate(0, 1, 1, 1, false));
@@ -1225,10 +1244,31 @@ public class XMLMockObjects
 	 * 
 	 * @return See above
 	 */
-	OME createBasicPlateWithPlateAcquistion()
+	public OME createBasicPlateWithPlateAcquisition()
 	{
 		populateInstrument();
-		ome.addPlate(createPlate(1, 1, 1, 1, true));
+		ome.addPlate(createPlate(0, 1, 1, 1, true));
+		return ome;
+	}
+	
+	/**
+	 * Creates a plate with <code>1</code> row, <code>1</code> column
+	 * and <code>1</code> field. This plate will be added to a screen
+	 * and the well linked to a reagent.
+	 * 
+	 * @return See above
+	 */
+	public OME createBasicPlateWithReagent()
+	{
+		populateInstrument();
+		Plate plate = createPlate(0, 1, 1, 1, false);
+		Reagent r = createReagent(0);
+		plate.getWell(0).linkReagent(r);
+		Screen screen = createScreen(0);
+		screen.addReagent(r);
+		screen.linkPlate(plate);
+		ome.addPlate(plate);
+		ome.addScreen(screen);
 		return ome;
 	}
 	
@@ -1240,7 +1280,7 @@ public class XMLMockObjects
 	 * 
 	 * @return See above
 	 */
-	OME createFullPlate()
+	public OME createFullPlate()
 	{
 		populateInstrument();
 		ome.addPlate(createPlate(0, false));
