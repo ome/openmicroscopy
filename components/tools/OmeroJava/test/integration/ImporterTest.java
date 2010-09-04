@@ -1048,8 +1048,9 @@ public class ImporterTest
 	public void testImportPlateWithPlateAcquisition()
 		throws Exception
 	{
-		File f = new File("/OMERO/testImportPlateWithPlateAcquisition.ome");//File.createTempFile("testImportPlateWithPlateAcquisition", "."+OME_FORMAT);
-		//files.add(f);
+		File f = File.createTempFile("testImportPlateWithPlateAcquisition", 
+				"."+OME_FORMAT);
+		files.add(f);
 		XMLMockObjects xml = new XMLMockObjects();
 		XMLWriter writer = new XMLWriter();
 		OME ome =  xml.createBasicPlateWithPlateAcquistion();
