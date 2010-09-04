@@ -2884,7 +2884,6 @@ class _ImageWrapper (BlitzObjectWrapper):
         pid, rdid = self._getRDef(forcenew=forcenew)
         if pid is None:
             return None
-        print '#%s, %s' % (str(pid),str(rdid))
         logger.debug('#%s, %s' % (str(pid),str(rdid)))
         tb = self._conn.createThumbnailStore()
         tb.setPixelsId(pid)
@@ -3251,7 +3250,6 @@ class _ImageWrapper (BlitzObjectWrapper):
             watermark = Image.open(watermark)
             if minsize is not None:
                 ratio = min(float(w) / minsize[0], float(h) / minsize[1])
-                print ratio
                 if ratio > 1:
                     watermark = watermark.resize(map(lambda x: x*ratio, watermark.size), Image.ANTIALIAS)
             ww, wh = watermark.size
@@ -3624,7 +3622,6 @@ class _ImageWrapper (BlitzObjectWrapper):
         if not self.canWrite():
             return False
         ns = self._conn.CONFIG.get('IMG_ROPTSNS', None)
-        print ns
         if ns:
             opts = self._collectRenderOptions()
             self.removeAnnotations(ns)
@@ -3632,7 +3629,6 @@ class _ImageWrapper (BlitzObjectWrapper):
             ann.setNs(ns)
             ann.setValue('&'.join(['='.join(map(str, x)) for x in opts.items()]))
             self.linkAnnotation(ann)
-            print ann
         self._re.saveCurrentSettings()
         return True
 
