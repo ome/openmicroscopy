@@ -466,6 +466,23 @@ class WebGatewayCache (object):
 
 webgateway_cache = WebGatewayCache(FileCache)
 
+class AutoLockFile (file):
+    def __init__ (self, fn, mode):
+        super(AutoLockFile, self).__init__(fn, mode)
+        self._lock = os.path.join(os.path.dirname(fn), '.lock')
+        file(self._lock, 'a').close()
+    def __del__ (self):
+        try:
+            os.remove(self._lock)
+        except:
+            pass
+    def close (self):
+        try:
+            os.remove(self._lock)
+        except:
+            pass
+        super(AutoLockFile, self).close()
+
 class WebGatewayTempFile (object):
     def __init__ (self, tdir=TMPROOT):
         self._dir = tdir
@@ -482,30 +499,47 @@ class WebGatewayTempFile (object):
         now = time.time()
         for f in os.listdir(self._dir):
             try:
-                ft = float(f) + TMPDIR_TIME
+                ts = os.path.join(self._dir, f, '.timestamp')
+                if os.path.exists(ts):
+                    ft = float(file(ts).read()) + TMPDIR_TIME
+                else:
+                    ft = float(f) + TMPDIR_TIME
                 if ft < now:
                     shutil.rmtree(os.path.join(self._dir, f), ignore_errors=True)
             except ValueError:
                 continue
 
-    def newdir (self):
+    def newdir (self, key=None):
         if not self._dir:
             return None, None
         self._cleanup()
         stamp = str(time.time())
-        dn = os.path.join(self._dir, stamp)
-        while os.path.exists(dn):
-            stamp = str(time.time())
+        if key is None:
             dn = os.path.join(self._dir, stamp)
-        os.makedirs(dn)
-        return dn, stamp
+            while os.path.exists(dn):
+                stamp = str(time.time())
+                dn = os.path.join(self._dir, stamp)
+            key = stamp
+        dn = os.path.join(self._dir, key)
+        if not os.path.isdir(dn):
+            os.makedirs(dn)
+        file(os.path.join(dn, '.timestamp'), 'w').write(stamp)
+        return dn, key
 
-    def new (self, name):
+    def new (self, name, key=None):
         if not self._dir:
             return None, None, None
-        dn, stamp = self.newdir()
+        dn, stamp = self.newdir(key)
+        name = name.decode('utf8').encode('ascii', 'ignore')
         fn = os.path.join(dn, name)
         rn = os.path.join(stamp, name)
-        return fn, rn, file(fn, 'wb')
+        lf = os.path.join(dn, '.lock')
+        cnt = 60
+        while os.path.exists(lf) and cnt > 0:
+            time.sleep(1)
+            cnt -= 1
+        if os.path.exists(fn):
+            return fn, rn, True
+        return fn, rn, AutoLockFile(fn, 'wb')
 
 webgateway_tempfile = WebGatewayTempFile()

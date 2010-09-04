@@ -20,6 +20,7 @@ from django.core import template_loader
 from django.core.urlresolvers import reverse
 from django.template import RequestContext as Context
 
+import hashlib
 from cStringIO import StringIO
 
 from omero import client_wrapper, ApiUsageException
@@ -380,6 +381,15 @@ def render_thumbnail (request, iid, server_id=None, w=None, h=None, **kwargs):
     rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
     return rsp
 
+def _get_signature_from_request (request):
+    """
+    returns a string that identifies this image, along with the settings passed on the request.
+    Useful for using as img identifier key, for prepared image.
+    """
+    r = request.REQUEST
+    rv = r.get('m','_') + r.get('p','_')+r.get('c','_')+r.get('q', '_')
+    return rv
+
 def _get_prepared_image (request, iid, server_id=None, _conn=None, with_session=True, saveDefs=False, retry=True):
     """
     Fetches the Image object for image 'iid' and prepares it according to the request query, setting the channels,
@@ -480,13 +490,17 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
         imgs.append(obj)
 
     if len(imgs) == 1:
+        key = '_'.join((str(x.getId()) for x in obj.getAncestry())) + '_' + str(obj.getId()) + '_ome_tiff'
+        fpath, rpath, fobj = webgateway_tempfile.new(obj.getName() + '.ome.tiff', key=key)
+        if fobj is True:
+            # already exists
+            return HttpResponseRedirect('/appmedia/tfiles/' + rpath)
         tiff_data = webgateway_cache.getOmeTiffImage(request, server_id, imgs[0])
         if tiff_data is None:
             tiff_data = imgs[0].exportOmeTiff()
             if tiff_data is None:
                 raise Http404
             webgateway_cache.setOmeTiffImage(request, server_id, imgs[0], tiff_data)
-        fpath, rpath, fobj = webgateway_tempfile.new(obj.getName() + '.ome.tiff')
         if fobj is None:
             rsp = HttpResponse(tiff_data, mimetype='application/x-ome-tiff')
             rsp['Content-Disposition'] = 'attachment; filename="%s.ome.tiff"' % obj.getName()
@@ -498,7 +512,11 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
             return HttpResponseRedirect('/appmedia/tfiles/' + rpath)
     else:
         try:
-            fpath, rpath, fobj = webgateway_tempfile.new(name + '.zip')
+            img_ids = '+'.join((str(x.getId()) for x in imgs))
+            key = '_'.join((str(x.getId()) for x in imgs[0].getAncestry())) + '_' + hashlib.md5(img_ids).hexdigest() + '_ome_tiff_zip'
+            fpath, rpath, fobj = webgateway_tempfile.new(name + '.zip', key=key)
+            if fobj is True:
+                return HttpResponseRedirect('/appmedia/tfiles/' + rpath)
             logger.debug(fpath)
             if fobj is None:
                 fobj = StringIO()
@@ -524,30 +542,41 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
 def render_movie (request, iid, axis, pos, server_id=None, _conn=None, **kwargs):
     """ Renders a movie from the image with id iid """
     try:
+        # Prepare a filename we'll use for temp cache, and check if file is already there
+        opts = {}
+        opts['format'] = 'video/' + request.REQUEST.get('format', 'quicktime')
+        opts['fps'] = int(request.REQUEST.get('fps', 4))
+        opts['minsize'] = (512,512, '#222222')
+        ext = opts['format']== 'video/quicktime' and '.mov' or '.avi'
+        key = "%s-%s-%s-%d-%s-%s" % (iid, axis, pos, opts['fps'], _get_signature_from_request(request),
+                                  request.REQUEST.get('format', 'quicktime'))
+        
         USE_SESSION = False
         pos = int(pos)
         pi = _get_prepared_image(request, iid, server_id=server_id, _conn=_conn, with_session=USE_SESSION)
         if pi is None:
             raise Http404
         img, compress_quality = pi
-        opts = {}
-        opts['format'] = 'video/' + request.REQUEST.get('format', 'quicktime')
-        opts['fps'] = int(request.REQUEST.get('fps', 4))
-        opts['minsize'] = (512,512, '#222222')
+
+        fpath, rpath, fobj = webgateway_tempfile.new(img.getName() + ext, key=key)
+        print fpath, rpath, fobj
+        if fobj is True:
+            return HttpResponseRedirect('/appmedia/tfiles/' + rpath)#os.path.join(rpath, img.getName() + ext))
+
         if kwargs.has_key('optsCB'):
             opts.update(kwargs['optsCB'](img))
         opts.update(kwargs.get('opts', {}))
         logger.debug('rendering movie for img %s with axis %s, pos %i and opts %s' % (iid, axis, pos, opts))
-        fpath, rpath = webgateway_tempfile.newdir()
+        #fpath, rpath = webgateway_tempfile.newdir()
         if fpath is None:
             import tempfile
             fo, fn = tempfile.mkstemp()
         else:
-            fn = os.path.join(fpath, img.getName())
+            fn = fpath #os.path.join(fpath, img.getName())
         if axis.lower() == 'z':
-            ext, mimetype = img.createMovie(fn, 0, img.z_count()-1, pos-1, pos-1, opts)
+            dext, mimetype = img.createMovie(fn, 0, img.z_count()-1, pos-1, pos-1, opts)
         else:
-            ext, mimetype = img.createMovie(fn, pos-1, pos-1, 0, img.t_count()-1, opts)
+            dext, mimetype = img.createMovie(fn, pos-1, pos-1, 0, img.t_count()-1, opts)
         if fpath is None:
             movie = open(fn).read()
             os.close(fo)
@@ -556,8 +585,10 @@ def render_movie (request, iid, axis, pos, server_id=None, _conn=None, **kwargs)
             rsp['Content-Length'] = len(movie)
             return rsp
         else:
-            shutil.move(fn, fn + ext)
-            return HttpResponseRedirect('/appmedia/tfiles/' + os.path.join(rpath, img.getName() + ext))
+            print fn, fpath, rpath
+            fobj.close()
+            #shutil.move(fn, fn + ext)
+            return HttpResponseRedirect('/appmedia/tfiles/' + rpath)#os.path.join(rpath, img.getName() + ext))
     except:
         logger.debug(traceback.format_exc())
         raise
@@ -721,7 +752,7 @@ def imageMarshal (image, key=None):
             rv['pixel_range'] = (0, 0)
             rv['channels'] = ()
             rv['split_channel'] = ()
-            rv['rdefs'] = {'model': 'color', 'projection': image.getProjection,}
+            rv['rdefs'] = {'model': 'color', 'projection': image.getProjection(),}
     except AttributeError:
         rv = None
         raise
@@ -850,7 +881,6 @@ def search_json (request, server_id=None, _conn=None, **kwargs):
             sr = _conn.simpleSearch(opts['search'])
     except ApiUsageException:
         return HttpResponseServerError('"parse exception"', mimetype='application/javascript')
-    print opts
     def marshal ():
         rv = []
         if (opts['grabData'] and opts['ctx'] == 'imgs'):
