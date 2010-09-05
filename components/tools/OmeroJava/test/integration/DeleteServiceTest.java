@@ -70,6 +70,7 @@ import omero.model.ProjectAnnotationLinkI;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
+import omero.model.Reagent;
 import omero.model.Rect;
 import omero.model.RectI;
 import omero.model.Roi;
@@ -2462,6 +2463,118 @@ public class DeleteServiceTest
     	param.addId(plate1.getId().getValue());
     	sql = "select a from Plate as a where a.id = :id";
 		assertNotNull(iQuery.findByQuery(sql, param));
+    }
+    
+    /**
+     * Tests to delete screen with a plate and a reagent.
+     * The <code>queueDelete</code> method is tested.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = false)
+    public void testDeleteScreenWithReagent() 
+    	throws Exception
+    {
+    	Screen s = mmFactory.simpleScreenData().asScreen();
+    	Reagent r = mmFactory.createReagent();
+    	s.addReagent(r);
+    	Plate p = mmFactory.createPlateWithReagent(1, 1, 1, r);
+    	s.linkPlate(p);
+    	s = (Screen) iUpdate.saveAndReturnObject(s);
+    	long screenId = s.getId().getValue();
+    	//reagent first
+    	String sql = "select r from Reagent as r ";
+    	sql += "join fetch r.screen as s ";
+    	sql += "where s.id = :id";
+    	ParametersI param = new ParametersI();
+    	param.addId(screenId);
+    	r = (Reagent) iQuery.findByQuery(sql, param);
+    	long reagentID = r.getId().getValue();
+    	//
+    	sql = "select s from ScreenPlateLink as s ";
+    	sql += "join fetch s.child as c ";
+    	sql += "join fetch s.parent as p ";
+    	sql += "where p.id = :id";
+    	param = new ParametersI();
+    	param.addId(screenId);
+    	ScreenPlateLink link = (ScreenPlateLink) iQuery.findByQuery(sql, param);
+    	p = link.getChild();
+    	long plateID = p.getId().getValue();
+    	
+    	delete(new DeleteCommand(REF_SCREEN, screenId, null));
+    	
+    	sql = "select r from Screen as r "; 
+    	sql += "where r.id = :id";
+    	param = new ParametersI();
+    	param.addId(screenId);
+    	assertNull(iQuery.findByQuery(sql, param));
+    	
+    	sql = "select r from Reagent as r "; 
+    	sql += "where r.id = :id";
+    	param = new ParametersI();
+    	param.addId(reagentID);
+    	assertNull(iQuery.findByQuery(sql, param));
+    	
+    	sql = "select r from Plate as r "; 
+    	sql += "where r.id = :id";
+    	param = new ParametersI();
+    	param.addId(plateID);
+    	assertNull(iQuery.findByQuery(sql, param));
+    }
+    
+    /**
+     * Tests to delete plate with a reagent.
+     * The <code>queueDelete</code> method is tested.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = false)
+    public void testDeletePlateWithReagent() 
+    	throws Exception
+    {
+    	Screen s = mmFactory.simpleScreenData().asScreen();
+    	Reagent r = mmFactory.createReagent();
+    	s.addReagent(r);
+    	Plate p = mmFactory.createPlateWithReagent(1, 1, 1, r);
+    	s.linkPlate(p);
+    	s = (Screen) iUpdate.saveAndReturnObject(s);
+    	long screenId = s.getId().getValue();
+    	//reagent first
+    	String sql = "select r from Reagent as r ";
+    	sql += "join fetch r.screen as s ";
+    	sql += "where s.id = :id";
+    	ParametersI param = new ParametersI();
+    	param.addId(screenId);
+    	r = (Reagent) iQuery.findByQuery(sql, param);
+    	long reagentID = r.getId().getValue();
+    	//
+    	sql = "select s from ScreenPlateLink as s ";
+    	sql += "join fetch s.child as c ";
+    	sql += "join fetch s.parent as p ";
+    	sql += "where p.id = :id";
+    	param = new ParametersI();
+    	param.addId(screenId);
+    	ScreenPlateLink link = (ScreenPlateLink) iQuery.findByQuery(sql, param);
+    	p = link.getChild();
+    	long plateID = p.getId().getValue();
+    	
+    	delete(new DeleteCommand(REF_PLATE, plateID, null));
+    	
+    	sql = "select r from Screen as r "; 
+    	sql += "where r.id = :id";
+    	param = new ParametersI();
+    	param.addId(screenId);
+    	assertNotNull(iQuery.findByQuery(sql, param));
+    	
+    	sql = "select r from Reagent as r "; 
+    	sql += "where r.id = :id";
+    	param = new ParametersI();
+    	param.addId(reagentID);
+    	assertNotNull(iQuery.findByQuery(sql, param));
+    	
+    	sql = "select r from Plate as r "; 
+    	sql += "where r.id = :id";
+    	param = new ParametersI();
+    	param.addId(plateID);
+    	assertNull(iQuery.findByQuery(sql, param));
     }
     
 }

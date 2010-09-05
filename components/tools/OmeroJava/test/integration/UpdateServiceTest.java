@@ -11,29 +11,12 @@ import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
-
-import junit.framework.TestCase;
-import ome.testing.ObjectFactory;
-import omero.OptimisticLockException;
-import omero.RInt;
-import omero.RLong;
-import omero.RString;
-import omero.RType;
-import omero.api.IAdminPrx;
-import omero.api.IQueryPrx;
-import omero.api.IUpdatePrx;
-import omero.api.RenderingEnginePrx;
-import omero.api.ServiceFactoryPrx;
-import omero.grid.Param;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLinkI;
-import omero.model.Arc;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
 import omero.model.Channel;
@@ -45,16 +28,9 @@ import omero.model.DatasetAnnotationLinkI;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
-import omero.model.Details;
 import omero.model.Detector;
 import omero.model.Dichroic;
-import omero.model.DimensionOrder;
 import omero.model.EllipseI;
-import omero.model.Experimenter;
-import omero.model.ExperimenterGroup;
-import omero.model.ExperimenterGroupI;
-import omero.model.ExperimenterI;
-import omero.model.Filament;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.Filter;
@@ -73,14 +49,11 @@ import omero.model.Mask;
 import omero.model.MaskI;
 import omero.model.Objective;
 import omero.model.OriginalFile;
-import omero.model.Permissions;
-import omero.model.PermissionsI;
 import omero.model.Pixels;
 import omero.model.PlaneInfo;
 import omero.model.Plate;
 import omero.model.PlateAnnotationLink;
 import omero.model.PlateAnnotationLinkI;
-import omero.model.PlateI;
 import omero.model.Point;
 import omero.model.PointI;
 import omero.model.Polygon;
@@ -93,6 +66,7 @@ import omero.model.ProjectAnnotationLinkI;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
+import omero.model.Reagent;
 import omero.model.Rect;
 import omero.model.RectI;
 import omero.model.Roi;
@@ -100,26 +74,13 @@ import omero.model.RoiI;
 import omero.model.Screen;
 import omero.model.ScreenAnnotationLink;
 import omero.model.ScreenAnnotationLinkI;
+import omero.model.ScreenPlateLink;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.TermAnnotation;
 import omero.model.TermAnnotationI;
-import omero.model.Well;
-import omero.model.WellI;
-import omero.model.WellSample;
-import omero.model.WellSampleI;
-import omero.sys.EventContext;
-import omero.sys.Parameters;
 import omero.sys.ParametersI;
-import omero.util.IceMapper;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import Ice.Current;
 
 import pojos.BooleanAnnotationData;
 import pojos.DatasetData;
@@ -134,7 +95,6 @@ import pojos.PolygonData;
 import pojos.PolylineData;
 import pojos.ProjectData;
 import pojos.ROIData;
-import pojos.RatingAnnotationData;
 import pojos.RectangleData;
 import pojos.ScreenData;
 import pojos.ShapeData;
@@ -1839,4 +1799,47 @@ public class UpdateServiceTest
     	assertNull(iQuery.findByQuery(sql, param));
     }
 
+    /**
+     * Tests the creation of a plate and reagent
+     * 
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testPlateAndReagent()
+		throws Exception
+    {
+    	Screen s = mmFactory.simpleScreenData().asScreen();
+    	Reagent r = mmFactory.createReagent();
+    	s.addReagent(r);
+    	Plate p = mmFactory.createPlateWithReagent(1, 1, 1, r);
+    	s.linkPlate(p);
+    	s = (Screen) iUpdate.saveAndReturnObject(s);
+    	assertNotNull(s);
+    	
+    	//reagent first
+    	String sql = "select r from Reagent as r ";
+    	sql += "join fetch r.screen as s ";
+    	sql += "where s.id = :id";
+    	ParametersI param = new ParametersI();
+    	param.addId(s.getId().getValue());
+    	r = (Reagent) iQuery.findByQuery(sql, param);
+    	assertNotNull(r);
+    	//
+    	sql = "select s from ScreenPlateLink as s ";
+    	sql += "join fetch s.child as c ";
+    	sql += "join fetch s.parent as p ";
+    	sql += "where p.id = :id";
+    	param = new ParametersI();
+    	param.addId(s.getId().getValue());
+    	ScreenPlateLink link = (ScreenPlateLink) iQuery.findByQuery(sql, param);
+    	assertNotNull(link);
+    	//check the reagent.
+    	sql = "select s from WellReagentLink as s ";
+    	sql += "join fetch s.child as c ";
+    	sql += "join fetch s.parent as p ";
+    	sql += "where c.id = :id";
+    	param = new ParametersI();
+    	param.addId(r.getId().getValue());
+    	assertNotNull(iQuery.findByQuery(sql, param));
+    }
 }

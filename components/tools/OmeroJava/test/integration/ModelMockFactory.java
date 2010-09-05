@@ -873,6 +873,42 @@ class ModelMockFactory
     }
 	
     /**
+     * Creates a basic plate and links the wells to the passed reagent.
+     * 
+	 * @param rows The number of rows.
+	 * @param columns The number of columns.
+	 * @param fields The number of fields.
+     * @param r The reagent.
+     * @return See above.
+     */
+    Plate createPlateWithReagent(int rows, int columns, int fields, Reagent r)
+    {
+    	Plate p = new PlateI();
+        p.setRows(omero.rtypes.rint(rows));
+        p.setCols(omero.rtypes.rint(columns));
+        p.setName(omero.rtypes.rstring("plate"));
+        //now make wells
+        Well well;
+        WellSample sample;
+
+        for (int row = 0; row < rows; row++) {
+            for (int column = 0; column < columns; column++) {
+                well = new WellI();
+                well.setRow(omero.rtypes.rint(row));
+                well.setColumn(omero.rtypes.rint(column));
+                well.linkReagent(r);
+                for (int field = 0; field < fields; field++) {
+                    sample = new WellSampleI();
+                    sample.setImage(simpleImage(0));
+                    well.addWellSample(sample);
+                }
+                p.addWell(well);
+            }
+        }
+        return p;
+    }
+    
+    /**
      * Returns the reagent.
      * 
      * @return See above.
