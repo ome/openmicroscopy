@@ -1234,21 +1234,22 @@ public class XMLMockObjects
 		Image image = createImage(0, true);
 		ObjectiveSettings settings = createObjectiveSettings(0);
 		image.setObjectiveSettings(settings);
-		//OTF otf = createOTF(0, instrument.getFilterSet(0), settings);
-		//instrument.addOTF(otf);
+		OTF otf = createOTF(0, instrument.getFilterSet(0), settings);
+		instrument.addOTF(otf);
 
 		//Add microbeam
+		/*
 		Experiment exp = createExperiment(0);
 		ome.addExperiment(exp);
 		MicrobeamManipulation mm = createMicrobeamManipulation(0);
 		exp.addMicrobeamManipulation(mm);
-		
+		*/
 		Pixels pixels = image.getPixels();
 		Channel c;
 		for (int i = 0; i < pixels.getSizeC().getValue().intValue(); i++) {
 			c = pixels.getChannel(i);
-			mm.addLightSourceSettings(c.getLightSourceSettings());
-			//c.linkOTF(otf);
+			//mm.addLightSourceSettings(c.getLightSourceSettings());
+			c.linkOTF(otf);
 		}
 		
 		image.linkInstrument(instrument);

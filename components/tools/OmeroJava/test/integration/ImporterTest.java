@@ -885,7 +885,7 @@ public class ImporterTest
      * Tests the import of an OME-XML file with an image with acquisition data.
      * @throws Exception Thrown if an error occurred.
      */
-	@Test(enabled = false)
+	@Test
 	public void testImportImageWithAcquisitionData()
 		throws Exception
 	{
@@ -1007,12 +1007,12 @@ public class ImporterTest
 			}
 		}
     	assertTrue(objectives.contains(objectiveID));
-    	assertEquals(detector, XMLMockObjects.NUMBER_OF_DECTECTORS);
-    	assertEquals(objective, XMLMockObjects.NUMBER_OF_OBJECTIVES);
-    	assertEquals(dichroic, XMLMockObjects.NUMBER_OF_DICHROICS);
-    	assertEquals(filter, XMLMockObjects.NUMBER_OF_FILTERS);
-    	assertEquals(filterSet, 1);
-    	//assertEquals(otf, 1);
+    	assertEquals(XMLMockObjects.NUMBER_OF_DECTECTORS, detector);
+    	assertEquals(XMLMockObjects.NUMBER_OF_OBJECTIVES, objective);
+    	assertEquals(XMLMockObjects.NUMBER_OF_DICHROICS, dichroic);
+    	assertEquals(XMLMockObjects.NUMBER_OF_FILTERS, filter);
+    	assertEquals(1, filterSet);
+    	assertEquals(1, otf);
     	
     	p = factory.getPixelsService().retrievePixDescription(
     			p.getId().getValue());
@@ -1077,7 +1077,7 @@ public class ImporterTest
 					path.getDichroic().getId().getValue()));
 		}
 	}
-	
+
 	/**
      * Tests the import of an OME-XML file with an image with ROI.
      * @throws Exception Thrown if an error occurred.

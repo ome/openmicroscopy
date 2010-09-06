@@ -24,7 +24,6 @@
 package ome.formats;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -51,7 +50,6 @@ import ome.model.acquisition.OTF;
 import ome.model.acquisition.Objective;
 import ome.model.acquisition.ObjectiveSettings;
 import ome.model.acquisition.StageLabel;
-import ome.model.acquisition.TransmittanceRange;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.FileAnnotation;
 import ome.model.containers.Dataset;
@@ -129,7 +127,7 @@ public class OMEROMetadataStore
 
     /** A map of wellIndex vs. Well object ordered by first access. */
     private Map<Integer, Well> wellList = new LinkedHashMap<Integer, Well>();
-    
+
     /** A map of instrumentIndex vs. Instrument object ordered by first access. */
     private Map<Integer, Instrument> instrumentList = 
     	new LinkedHashMap<Integer, Instrument>();
@@ -137,10 +135,17 @@ public class OMEROMetadataStore
     /** A map of experimentIndex vs. Experiment object ordered by first access. */
     private Map<Integer, Experiment> experimentList = 
     	new LinkedHashMap<Integer, Experiment>();
-    
+
+    /**
+     * A map of Instrument vs. a map of otfIndex vs. OTF object ordered by
+     * first access.
+     */
+    private Map<Instrument, Map<Integer, OTF>> otfList =
+        new LinkedHashMap<Instrument, Map<Integer, OTF>>();
+
     /** A list of all objects we've received from the client and their LSIDs. */
     private Map<LSID, IObject> lsidMap = new HashMap<LSID, IObject>();
-        
+
     /**
      * Updates a given model object in our object graph.
      * @param lsid LSID of model object.
@@ -374,6 +379,15 @@ public class OMEROMetadataStore
                         continue;
                     }
                 }
+                else if (targetObject instanceof Channel)
+                {
+                    if (referenceObject instanceof OTF)
+                    {
+                        handleReference((Channel) targetObject,
+                                        (OTF) referenceObject);
+                        continue;
+                    }
+                }
     			else if (targetObject instanceof LogicalChannel)
     			{
     				if (referenceObject instanceof Filter)
@@ -389,12 +403,6 @@ public class OMEROMetadataStore
     							        (FilterSet) referenceObject);
     					continue;
     				}
-    				if (referenceObject instanceof OTF)
-    				{
-    					handleReference((LogicalChannel) targetObject,
-    							(OTF) referenceObject);
-    					continue;
-    				}
     			}
     			else if (targetObject instanceof OTF)
     			{
@@ -404,6 +412,12 @@ public class OMEROMetadataStore
     							(Objective) referenceObject);
     					continue;
     				}
+                    if (referenceObject instanceof FilterSet)
+                    {
+                        handleReference((OTF) targetObject,
+                                        (FilterSet) referenceObject);
+                        continue;
+                    }
     			}
     			else if (targetObject instanceof ObjectiveSettings)
     			{
@@ -673,7 +687,7 @@ public class OMEROMetadataStore
     	Instrument i = instrumentList.get(indexes.get("instrumentIndex"));
     	i.addLightSource(sourceObject);
     }
-    
+
     /**
      * Handles inserting a specific type of model object into our object graph.
      * @param LSID LSID of the model object.
@@ -686,8 +700,15 @@ public class OMEROMetadataStore
     {
     	Instrument i = instrumentList.get(indexes.get("instrumentIndex"));
     	i.addOTF(sourceObject);
+    	Map<Integer, OTF> map = otfList.get(i);
+    	if (map == null)
+    	{
+    	    map = new HashMap<Integer, OTF>();
+    	    otfList.put(i, map);
+    	}
+    	map.put(indexes.get("otfIndex"), sourceObject);
     }
-    
+
     /**
      * Handles inserting a specific type of model object into our object graph.
      * @param LSID LSID of the model object.
@@ -773,7 +794,7 @@ public class OMEROMetadataStore
     			                              indexes.get("channelIndex"));
     	lc.setLightSourceSettings(sourceObject);
     }
-    
+
     /**
      * Handles inserting a specific type of model object into our object graph.
      * @param LSID LSID of the model object.
@@ -782,10 +803,21 @@ public class OMEROMetadataStore
      * object.
      */
     private void handle(String LSID, ObjectiveSettings sourceObject,
-    		            Map<String, Integer> indexes)
+                        Map<String, Integer> indexes)
     {
-    	Image i = getImage(indexes.get("imageIndex"));
-    	i.setObjectiveSettings(sourceObject);
+        Integer instrumentIndex = indexes.get("instrumentIndex");
+        Integer otfIndex = indexes.get("otfIndex");
+        Integer imageIndex = indexes.get("imageIndex");
+        if (instrumentIndex != null && otfIndex != null)
+        {
+            OTF o = getOTF(instrumentIndex, otfIndex);
+            o.setObjective(sourceObject.getObjective());
+        }
+        else
+        {
+            Image i = getImage(imageIndex);
+            i.setObjectiveSettings(sourceObject);
+        }
     }
 
     /**
@@ -1060,11 +1092,11 @@ public class OMEROMetadataStore
      * @param target Target model object.
      * @param reference Reference model object.
      */
-    private void handleReference(LogicalChannel target, OTF reference)
+    private void handleReference(Channel target, OTF reference)
     {
-    	target.setOtf(reference);
+        target.getLogicalChannel().setOtf(reference);
     }
-    
+
     /**
      * Handles linking a specific reference object to a target object in our
      * object graph.
@@ -1108,7 +1140,7 @@ public class OMEROMetadataStore
     				referenceLSID));
     	}
     }
-    
+
     /**
      * Handles linking a specific reference object to a target object in our
      * object graph.
@@ -1117,9 +1149,20 @@ public class OMEROMetadataStore
      */
     private void handleReference(OTF target, Objective reference)
     {
-    	target.setObjective(reference);
+        target.setObjective(reference);
     }
-    
+
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(OTF target, FilterSet reference)
+    {
+        target.setFilterSet(reference);
+    }
+
     /**
      * Handles linking a specific reference object to a target object in our
      * object graph.
@@ -1174,7 +1217,7 @@ public class OMEROMetadataStore
     {
         target.setDichroic(reference);
     }
-    
+
     /**
      * Handles linking a specific reference object to a target object in our
      * object graph.
@@ -1336,6 +1379,19 @@ public class OMEROMetadataStore
     private Instrument getInstrument(int instrumentIndex)
     {
     	return instrumentList.get(instrumentIndex);
+    }
+
+    /**
+     * Returns an OTF model object based on its indexes within the OMERO
+     * data model.
+     * @param instrumentIndex Instrument index.
+     * @param otfIndex OTF index.
+     * @return See above.
+     */
+    private OTF getOTF(int instrumentIndex, int otfIndex)
+    {
+        Instrument i = getInstrument(instrumentIndex);
+        return otfList.get(i).get(otfIndex);
     }
 
     /**
