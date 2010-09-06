@@ -1241,7 +1241,10 @@ public class OMEROMetadataStore
      */
     private void handleReference(Screen target, Plate reference)
     {
-        target.linkPlate(reference);
+        if (!target.linkedPlateList().contains(reference))
+        {
+            target.linkPlate(reference);
+        }
     }
 
     /**
@@ -1263,9 +1266,12 @@ public class OMEROMetadataStore
      */
     private void handleReference(Plate target, Screen reference)
     {
-        target.linkScreen(reference);
+        if (!target.linkedScreenList().contains(reference))
+        {
+            target.linkScreen(reference);
+        }
     }
-    
+
     /**
      * Handles linking a specific reference object to a target object in our
      * object graph.
@@ -1276,7 +1282,7 @@ public class OMEROMetadataStore
     {
         target.linkReagent(reference);
     }
-    
+
     /**
      * Handles linking a specific reference object to a target object in our
      * object graph.

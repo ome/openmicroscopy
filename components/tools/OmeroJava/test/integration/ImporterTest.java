@@ -47,6 +47,7 @@ import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
+import ome.model.screen.Screen;
 import ome.xml.model.OME;
 import omero.api.IRoiPrx;
 import omero.api.RoiOptions;
@@ -89,6 +90,7 @@ import omero.model.TagAnnotation;
 import omero.model.TermAnnotation;
 import omero.model.TransmittanceRange;
 import omero.model.Well;
+import omero.model.WellReagentLink;
 import omero.model.WellSample;
 import omero.sys.ParametersI;
 
@@ -451,7 +453,7 @@ public class ImporterTest
 		assertEquals(lc.getPockelCellSetting().getValue(), 
 				xml.getPockelCellSetting().intValue());
 	}
-	
+
 	/**
 	 * Validates if the inserted object corresponds to the XML object.
 	 * 
@@ -476,9 +478,9 @@ public class ImporterTest
 				xml.getWellOriginX().doubleValue());
 		assertEquals(plate.getWellOriginY().getValue(), 
 				xml.getWellOriginY().doubleValue());
-		assertEquals(plate.getStatus().getValue(), xml.getStatus());
+		//assertEquals(plate.getStatus().getValue(), xml.getStatus());
 	}
-	
+
 	/**
 	 * Validates if the inserted object corresponds to the XML object.
 	 * 
@@ -492,7 +494,7 @@ public class ImporterTest
 		assertEquals(reagent.getReagentIdentifier().getValue(), 
 				xml.getReagentIdentifier());
 	}
-	
+
 	/**
 	 * Validates if the inserted object corresponds to the XML object.
 	 * 
@@ -1115,13 +1117,13 @@ public class ImporterTest
 		assertNotNull(pa);
 		validatePlateAcquisition(pa, ome.getPlate(0).getPlateAcquisition(0));
 	}
-	
+
 	/**
      * Tests the import of an OME-XML file with a plate
      * with wells linked to a reagent.
      * @throws Exception Thrown if an error occurred.
      */
-	@Test(enabled = false)
+	@Test
 	public void testImportPlateWithReagent()
 		throws Exception
 	{
@@ -1141,14 +1143,14 @@ public class ImporterTest
 		Pixels p = pixels.get(0);
 		long id = p.getImage().getId().getValue();
 		String sql = "select ws from WellSample as ws ";
-		sql += "join fetch ws.plateAcquisition as pa ";
+		sql += "left outer join fetch ws.plateAcquisition as pa ";
 		sql += "join fetch ws.well as w ";
 		sql += "join fetch w.plate as p ";
 		sql += "where ws.image.id = :id";
 		ParametersI param = new ParametersI();
 		param.addId(id);
 		List<IObject> results = iQuery.findAllByQuery(sql, param);
-		assertTrue(results.size() == 1);
+		assertEquals(1, results.size());
 		WellSample ws = (WellSample) results.get(0);
 		//assertNotNull(ws.getPlateAcquisition());
 		assertNotNull(ws.getWell());
@@ -1156,12 +1158,26 @@ public class ImporterTest
 		sql = "select l from WellReagentLink as l ";
 		sql += "join fetch l.child as c ";
 		sql += "join fetch l.parent as p ";
-		sql += "where c.id = :id";
+		sql += "where p.id = :id";
 		param = new ParametersI();
 		param.addId(id);
-		Reagent r = (Reagent) iQuery.findByQuery(sql, param);
-		assertNotNull(r);
-		validateReagent(r, ome.getScreen(0).getReagent(0));
+		WellReagentLink wr = (WellReagentLink) iQuery.findByQuery(sql, param);
+		assertNotNull(wr);
+		assertNotNull(wr.getParent());
+		assertNotNull(wr.getChild());
+		validateReagent(wr.getChild(), ome.getScreen(0).getReagent(0));
+		id = wr.getChild().getId().getValue();
+		sql = "select s from Screen as s ";
+		sql += "join fetch s.reagent as r ";
+		sql += "where r.id = :id";
+		param = new ParametersI();
+		param.addId(id);
+		omero.model.Screen screen = 
+			(omero.model.Screen) iQuery.findByQuery(sql, param);
+		assertNotNull(screen);
+		assertEquals(1, screen.sizeOfReagent());
+		assertEquals(wr.getChild().getId().getValue(),
+				screen.copyReagent().get(0).getId().getValue());
 	}
-	
+
 }
