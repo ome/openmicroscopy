@@ -2,6 +2,20 @@
 
 {% block title %} {{ dataset.name }} {% endblock %}
 
+{% block jscript %}
+<script type="text/javascript">
+$(document).ready(function() {
+    $("#script_chooser").change(function() {
+        var $chooser = $(this);
+        var url = $chooser.val();  // the value attribute of the chosen option (url)
+        if (url.length > 0) {
+            var newWindow=window.open(url,'','height=550,width=600,right=50');
+        }
+    });
+});
+</script>
+{% endblock %}
+
 {% block link %}
 <link rel="stylesheet" href="{% url webemdb 'css/entry.css' %}" type="text/css" />
 
@@ -9,7 +23,7 @@
 #gif {
     float: left;
 }
-#dataHeader {
+.clear {
     clear: both;
 }
 
@@ -23,10 +37,10 @@
 .dsDescription {
     font-size: 80%;
 }
+#script_pane {
+    float: right;
+}
 </style>
-{% endblock %}
-
-{% block jscript %}
 {% endblock %}
 
 {% block content %}
@@ -42,14 +56,25 @@
         <a href="{% url webemdb_entry entryId %}">Entry {{ entryId }}</a> |
         <a href="{% url webemdb_data entryId %}">Data {{ entryId }}</a>
     </div>
-    <div id="dataHeader"></div>
+    <div id="script_pane">
+        <form>
+            <select name="scripts" id="script_chooser">
+                <option value="">Run Script...</option>
+                {% for s in scripts %}
+                    <option value="{% url webemdb_script_form s.id %}">{{ s.name }}</option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+    <div class="clear"></div>
 </div>
 {% endif %}
       
 <div class="pageTable">  
-    <div class="entryTitle">{{ dataset.getName }}</div>
-    
-    <div>
+
+    <div style="padding:10px">
+        <div class="entryTitle">{{ dataset.getName }}</div>
+       <p>{{ dataset.description|linebreaks }}</p>
        
     {% for img in dataset.listChildren %}
         <a href="{% url webemdb_image img.id %}">
@@ -58,6 +83,7 @@
     {% endfor %}
         
     </div>
+    
 </div>
 
     

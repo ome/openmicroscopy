@@ -1,13 +1,1 @@
-
-<script type="text/javascript">
-function openResultsPopup(url) {
-    owindow = window.open(url, 'anew', config='height=200,width=700,right=50,top=50,toolbar=no,menubar=no,scrollbars=no,resizable=yes,location=no,directories=no,status=no');
-    if(!owindow.closed) owindow.focus();
-    return false;
-}
-</script>
-
-<p>{{ scriptName }} running. <br />
-    Results window should open. If not,
-    Go to 
-    <a id="resultsLink" onclick="return openResultsPopup('{% url webemdb_script_results jobId %}')" href="{% url webemdb_script_results jobId %}"> results page</a> </p>
+{% url webemdb_script_results jobId %}

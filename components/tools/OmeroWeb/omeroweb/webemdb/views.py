@@ -33,8 +33,8 @@ RESOLUTION_NAMESPACE = "openmicroscopy.org/omero/emdb/resolutionByAuthor"
 
 EMAN2_IMPORTED = False
 try:
-    #from EMAN2 import *
-    EMAN2_IMPORTED = False
+    from EMAN2 import *
+    EMAN2_IMPORTED = True
 except:
     logger.warning("Failed to import EMAN2. Some features of webemdb will not be supported.")
 
@@ -109,6 +109,7 @@ def script_run(request, scriptId):
     for key, param in params.inputs.items():
         if key in request.POST:
             value = request.POST[key]
+            print key, value
             prototype = param.prototype
             pclass = prototype.__class__
             if pclass == omero.rtypes.RListI:
@@ -146,7 +147,7 @@ def script_run(request, scriptId):
                     # print "Invalid entry for '%s' : %s" % (key, value)
                     continue
                 
-    #print inputMap
+    print inputMap
     
     proc = scriptService.runScript(sId, inputMap, None)
     
@@ -242,6 +243,7 @@ def script_form(request, scriptId):
     
     paramData["id"] = long(scriptId)
     paramData["name"] = params.name.replace("_", " ")
+    paramData["description"] = params.description
     paramData["authors"] = ", ".join([a for a in params.authors])
     paramData["contact"] = params.contact
     paramData["version"] = params.version
@@ -403,11 +405,11 @@ def projection_axis(request, imageId, axis, get_slice=False):
     #import matplotlib.pyplot as plt
     #plt.savefig(tempJpg)
     
-    import scipy
-    scipy.misc.imsave(tempJpg, proj)
+    #import scipy
+    #scipy.misc.imsave(tempJpg, proj)
     
-    #em = EMNumPy.numpy2em(proj)
-    #em.write_image(tempJpg)
+    em = EMNumPy.numpy2em(proj)
+    em.write_image(tempJpg)
     
     originalFile_data = FileWrapper(file(tempJpg))
     rsp = HttpResponse(originalFile_data)
@@ -508,8 +510,22 @@ def dataset(request, datasetId):
             break
         except:
             pass
+    
+    # add some scripts that we can run on a dataset
+    scriptService = conn.getScriptService()
+    scripts = []
+    scriptNames = {"/EMAN2/Run_Spider_Procedure.py": "Run Spider Procedure",
+            "/EMAN2/Eman_Filters.py": "Process with EMAN2 Filter",
+            "/EMAN2/Ctf_Correction.py": "EMAN2 CTF Correction"}
+    for path, display in scriptNames.items():
+         scriptId = scriptService.getScriptID(path)
+         if scriptId and scriptId > 0:
+             s = {}
+             s["name"] = display
+             s["id"] = scriptId
+             scripts.append(s)
 
-    return render_to_response('webemdb/data/dataset.html', {'dataset': dataset, 'entryId': entryId})
+    return render_to_response('webemdb/data/dataset.html', {'dataset': dataset, 'entryId': entryId, 'scripts': scripts})
 
 
 def data(request, entryId):

@@ -33,7 +33,7 @@
         // try to open all the links in the parent window. 
         $("a").click(function() {
             var href = $(this).attr('href');
-            if (href != "#") {
+            if ((href != "#") && (opener != null)) {
                 opener.location = href;
                 return false;
             }

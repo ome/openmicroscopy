@@ -1,9 +1,33 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+    <title>Run Script</title>
     
-    <h3 class="scriptName">{{ paramData.name }}</h3>
-    <p>{{ paramData.description }}</p>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.3.2.js" %}"></script>
+    <script type="text/javascript" src="{% url webemdb 'javascript/scripts.js' %}"></script>
+    
+    <script type="text/javascript">
+    $(document).ready(function() {
+        
+        $('form').submit(function() {
+              $(this).runScript();  // method provided by scripts.js opens new window to display script results. 
+              $(this).hide();
+              return false;
+          });
+    });
+    </script>
+</head>
+    
+<body>
 
     <form method="post" action="{% url webemdb_script_run paramData.id %}">
+        <h3 class="scriptName">{{ paramData.name }}</h3>
+        <p>{{ paramData.description|linebreaks }}</p>
+        
         {% for i in paramData.inputs %}
             <dir {% if i.required %}class="required"{% endif %}>
             {{ i.name }}:
@@ -34,3 +58,6 @@
         {% endfor %}
         <input type="submit" value="Run Script" />
     </form>
+</body>
+
+</html>

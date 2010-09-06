@@ -9,7 +9,7 @@
 #gif {
     float: left;
 }
-#dataHeader {
+.clear {
     clear: both;
 }
 
@@ -39,7 +39,7 @@
     <div class="entryTitle">Data associated with EMDB {{ project.getName }}</div>
     <div>{{ project.getDescription }}</div>
     <div> <a href="{% url webemdb_entry project.getName %}">EMDB {{ project.getName }}</a> </div>
-    <div id="dataHeader"></div>
+    <div class="clear"></div>
 </div>
       
 <div class="pageTable">  
@@ -60,7 +60,7 @@
                             <img src="{% url webgateway.views.render_thumbnail img.id %}" border='0' />
                         </a>
                     {% endfor %}
-                    
+                    <div class="clear"></div>
               </div>
             
         {% empty %}
