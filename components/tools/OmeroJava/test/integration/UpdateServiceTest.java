@@ -431,6 +431,17 @@ public class UpdateServiceTest
     	Plate p = mmFactory.createPlate(1, 1, 1, true, false);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	assertNotNull(p);
+    	assertNotNull(p.getName().getValue());
+    	assertNotNull(p.getStatus().getValue());
+    	assertNotNull(p.getDescription().getValue());
+    	assertNotNull(p.getExternalIdentifier().getValue());
+    	String sql = "select l from PlateAcquisition as l ";
+    	sql += "join fetch l.plate as p ";
+    	sql += "where p.id = :id";
+    	ParametersI param = new ParametersI();
+    	param.addId(p.getId());
+    	assertNotNull(iQuery.findByQuery(sql, param));
+    	
     	p = mmFactory.createPlate(1, 1, 1, false, false);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	assertNotNull(p);
@@ -1815,6 +1826,12 @@ public class UpdateServiceTest
     	s.linkPlate(p);
     	s = (Screen) iUpdate.saveAndReturnObject(s);
     	assertNotNull(s);
+    	assertNotNull(s.getName().getValue());
+    	assertNotNull(s.getDescription().getValue());
+    	assertNotNull(s.getProtocolDescription().getValue());
+    	assertNotNull(s.getProtocolIdentifier().getValue());
+    	assertNotNull(s.getReagentSetDescription().getValue());
+    	assertNotNull(s.getReagentSetIdentifier().getValue());
     	
     	//reagent first
     	String sql = "select r from Reagent as r ";
@@ -1824,6 +1841,10 @@ public class UpdateServiceTest
     	param.addId(s.getId().getValue());
     	r = (Reagent) iQuery.findByQuery(sql, param);
     	assertNotNull(r);
+    	assertNotNull(r.getName().getValue());
+    	assertNotNull(r.getDescription().getValue());
+    	assertNotNull(r.getReagentIdentifier().getValue());
+    	
     	//
     	sql = "select s from ScreenPlateLink as s ";
     	sql += "join fetch s.child as c ";

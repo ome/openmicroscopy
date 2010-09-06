@@ -207,8 +207,12 @@ class ModelMockFactory
     ScreenData simpleScreenData()
     {
     	ScreenData data = new ScreenData();
-        data.setName("screen1");
-        data.setDescription("screen1");
+        data.setName("screen name");
+        data.setDescription("screen description");
+        data.setProtocolDescription("Protocol description");
+        data.setProtocolIdentifier("Protocol identifier");
+        data.setReagentSetDescripion("Reagent description");
+        data.setReagentSetIdentifier("Reagent identifier");
         return data;
     }
     
@@ -220,8 +224,10 @@ class ModelMockFactory
     PlateData simplePlateData()
     {
     	PlateData data = new PlateData();
-        data.setName("plate1");
-        data.setDescription("plate1");
+        data.setName("plate name");
+        data.setDescription("plate name");
+        data.setStatus("done");
+        data.setExternalIdentifier("External Identifier");
         return data;
     }
 
@@ -333,6 +339,8 @@ class ModelMockFactory
     	TransmittanceRangeI transmittance = new TransmittanceRangeI();
     	transmittance.setCutIn(omero.rtypes.rint(cutIn));
     	transmittance.setCutOut(omero.rtypes.rint(cutOut));
+    	transmittance.setCutInTolerance(omero.rtypes.rint(1));
+    	transmittance.setCutOutTolerance(omero.rtypes.rint(1));
     	filter.setTransmittanceRange(transmittance);
     	return filter;
     }
@@ -843,7 +851,10 @@ class ModelMockFactory
         Plate p = new PlateI();
         p.setRows(omero.rtypes.rint(rows));
         p.setCols(omero.rtypes.rint(columns));
-        p.setName(omero.rtypes.rstring("plate"));
+        p.setName(omero.rtypes.rstring("plate name"));
+        p.setDescription(omero.rtypes.rstring("plate description"));
+        p.setStatus(omero.rtypes.rstring("plate status"));
+        p.setExternalIdentifier(omero.rtypes.rstring("external identifier"));
         //now make wells
         Well well;
         WellSample sample;
@@ -918,6 +929,8 @@ class ModelMockFactory
     	Reagent reagent = new ReagentI();
     	reagent.setDescription(omero.rtypes.rstring("Reagent Description"));
     	reagent.setName(omero.rtypes.rstring("Reagent Name"));
+    	reagent.setReagentIdentifier(
+    			omero.rtypes.rstring("Reagent Identifier"));
     	return reagent;
     }
     
