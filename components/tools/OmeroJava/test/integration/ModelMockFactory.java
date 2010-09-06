@@ -18,12 +18,14 @@ import java.util.List;
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 import omero.api.IPixelsPrx;
+import omero.model.AcquisitionMode;
 import omero.model.Arc;
 import omero.model.ArcI;
 import omero.model.ArcType;
 import omero.model.Binning;
 import omero.model.Channel;
 import omero.model.ChannelI;
+import omero.model.ContrastMethod;
 import omero.model.Correction;
 import omero.model.Detector;
 import omero.model.DetectorI;
@@ -45,6 +47,7 @@ import omero.model.FilterSet;
 import omero.model.FilterSetI;
 import omero.model.FilterType;
 import omero.model.IObject;
+import omero.model.Illumination;
 import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.ImagingEnvironment;
@@ -776,6 +779,19 @@ class ModelMockFactory
 		Channel channel = new ChannelI();
 		LogicalChannel lc = new LogicalChannelI();
 		lc.setEmissionWave(omero.rtypes.rint(w));
+		List<IObject> types = pixelsService.getAllEnumerations(
+    			ContrastMethod.class.getName());
+		ContrastMethod cm = (ContrastMethod) types.get(0);
+    	
+    	types = pixelsService.getAllEnumerations(
+    			Illumination.class.getName());
+    	Illumination illumination = (Illumination) types.get(0);
+    	types = pixelsService.getAllEnumerations(
+    			AcquisitionMode.class.getName());
+    	AcquisitionMode mode = (AcquisitionMode) types.get(0);
+    	lc.setContrastMethod(cm);
+    	lc.setIllumination(illumination);
+    	lc.setMode(mode);
 		channel.setLogicalChannel(lc);
 		StatsInfo info = new StatsInfoI();
 		info.setGlobalMin(omero.rtypes.rdouble(0.0));

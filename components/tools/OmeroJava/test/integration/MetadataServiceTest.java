@@ -23,14 +23,17 @@ import org.testng.annotations.Test;
 import omero.api.IAdminPrx;
 import omero.api.IMetadataPrx;
 import omero.api.ServiceFactoryPrx;
+import omero.model.AcquisitionMode;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLinkI;
 import omero.model.Arc;
+import omero.model.ArcType;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
 import omero.model.Channel;
 import omero.model.CommentAnnotation;
 import omero.model.CommentAnnotationI;
+import omero.model.ContrastMethod;
 import omero.model.Dataset;
 import omero.model.DatasetAnnotationLinkI;
 import omero.model.Detector;
@@ -47,6 +50,7 @@ import omero.model.FileAnnotationI;
 import omero.model.Filter;
 import omero.model.FilterSet;
 import omero.model.IObject;
+import omero.model.Illumination;
 import omero.model.Image;
 import omero.model.ImageAnnotationLinkI;
 import omero.model.Instrument;
@@ -866,10 +870,27 @@ public class MetadataServiceTest
     	OTF otf = (OTF) iQuery.findByQuery(sql, param);
     	LogicalChannel lc;
     	Channel channel;
+    	ContrastMethod cm;
+    	Illumination illumination;
+    	AcquisitionMode mode;
+    	List<IObject> types = factory.getPixelsService().getAllEnumerations(
+    			ContrastMethod.class.getName());
+    	cm = (ContrastMethod) types.get(0);
+    	
+    	types = factory.getPixelsService().getAllEnumerations(
+    			Illumination.class.getName());
+    	illumination = (Illumination) types.get(0);
+    	types = factory.getPixelsService().getAllEnumerations(
+    			AcquisitionMode.class.getName());
+    	mode = (AcquisitionMode) types.get(0);
+    	
     	List<Long> ids = new ArrayList<Long>();
     	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
 			channel = pixels.getChannel(i);
 			lc = channel.getLogicalChannel();
+			lc.setContrastMethod(cm);
+			lc.setIllumination(illumination);
+			lc.setMode(mode);
 			lc.setOtf(otf);
 	    	lc.setDetectorSettings(mmFactory.createDetectorSettings(detector));
 	    	lc.setFilterSet(filterSet);
@@ -902,6 +923,9 @@ public class MetadataServiceTest
         	assertNotNull(loaded.getLightPath());
         	assertNotNull(data.getLightPath().getDichroic().getId() 
         			== dichroic.getId().getValue());
+        	assertNotNull(data.getContrastMethod());
+        	assertNotNull(data.getIllumination());
+        	assertNotNull(data.getMode());
         	//OTF support
         	/*
         	assertTrue(data.getOTF().getId() == otf.getId().getValue());

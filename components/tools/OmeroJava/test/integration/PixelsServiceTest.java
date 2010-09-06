@@ -38,6 +38,7 @@ import omero.model.Image;
 import omero.model.Immersion;
 import omero.model.LaserMedium;
 import omero.model.LaserType;
+import omero.model.LogicalChannel;
 import omero.model.Medium;
 import omero.model.MicrobeamManipulationType;
 import omero.model.MicroscopeType;
@@ -266,13 +267,18 @@ public class PixelsServiceTest
         assertTrue(pixels.getPixelsType().getValue().getValue().equals(
         	p.getPixelsType().getValue().getValue()));
         Channel channel;
+        LogicalChannel lc;
         List<Long> ids = new ArrayList<Long>();
         for (int j = 0; j < p.sizeOfChannels(); j++) {
 			channel = p.getChannel(j);
 			assertNotNull(channel);
 			ids.add(channel.getId().getValue());
 			assertNotNull(channel.getStatsInfo());
-			assertNotNull(channel.getLogicalChannel());
+			lc = channel.getLogicalChannel();
+			assertNotNull(lc);
+			assertNotNull(lc.getContrastMethod().getValue().getValue());
+			assertNotNull(lc.getIllumination().getValue().getValue());
+			assertNotNull(lc.getMode().getValue().getValue());
 		}
         for (int j = 0; j < pixels.sizeOfChannels(); j++) {
 			channel = pixels.getChannel(j);
