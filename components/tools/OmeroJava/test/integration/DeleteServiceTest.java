@@ -2207,7 +2207,7 @@ public class DeleteServiceTest
      * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test
     public void testDeleteSharableTagAsRoot() 
     	throws Exception
     { 
@@ -2288,7 +2288,7 @@ public class DeleteServiceTest
      * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test
     public void testDeleteSharableTermAsRoot() 
     	throws Exception
     { 
@@ -2369,7 +2369,7 @@ public class DeleteServiceTest
      * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test
     public void testDeleteSharableFileAsRoot() 
     	throws Exception
     { 

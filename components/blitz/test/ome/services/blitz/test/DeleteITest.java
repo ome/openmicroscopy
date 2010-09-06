@@ -23,6 +23,8 @@ import omero.api.AMD_IDelete_queueDelete;
 import omero.api.IDeletePrx;
 import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteHandlePrx;
+import omero.model.AnnotationAnnotationLink;
+import omero.model.AnnotationAnnotationLinkI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.ImageAnnotationLink;
@@ -363,6 +365,41 @@ public class DeleteITest extends AbstractServantTest {
         assertEquals(0, l.size());
         l = assertProjection("select a.id from Annotation a where a.id = "
                 + aid, null);
+        assertEquals(0, l.size());
+
+    }
+
+    /**
+     * Attempts to use the ILink type for deleting all links which point
+     * at an annotation.
+     */
+    @SuppressWarnings("rawtypes")
+    public void testDeleteAllAnnotationLinks() throws Exception {
+
+        // Create test data
+        AnnotationAnnotationLink link = new AnnotationAnnotationLinkI();
+        link.link(new TagAnnotationI(), new TagAnnotationI());
+        link = assertSaveAndReturn(link);
+
+        long lid = link.getId().getValue();
+        long pid = link.getParent().getId().getValue();
+        long cid = link.getChild().getId().getValue();
+
+        // Do Delete
+        DeleteCommand dc = new DeleteCommand("/Annotation", cid, null);
+        doDelete(dc);
+
+        // Make sure the parent annotation still exists, but both the annotation
+        // link and the annotation that was linked to (the child) are gone.
+        List l;
+        l = assertProjection("select p.id from Annotation p where p.id = " + pid,
+                null);
+        assertEquals(1, l.size());
+        l = assertProjection("select l.id from AnnotationAnnotationLink l where l.id = " + lid,
+                null);
+        assertEquals(0, l.size());
+        l = assertProjection("select c.id from Annotation c where c.id = "
+                + cid, null);
         assertEquals(0, l.size());
 
     }

@@ -19,6 +19,7 @@ import ome.tools.hibernate.QueryBuilder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.beans.FatalBeanException;
 
@@ -101,7 +102,15 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
     protected String execute(Session session, DeleteEntry entry, List<Long> ids)
             throws DeleteException {
         if (true) {
-            return super.execute(session, entry, ids);
+            if (ids != null && ids.size() > 0) {
+                Query q = session.createQuery("delete ome.model.IAnnotationLink where child.id in (:ids)");
+                q.setParameterList("ids", ids);
+                int count = q.executeUpdate();
+                log.info("Deleted " + count + " annotation links.");
+                return super.execute(session, entry, ids);
+            } else {
+                return "";
+            }
         }
         if (options != null) {
             String typeIncludes = options.get("type.includes");

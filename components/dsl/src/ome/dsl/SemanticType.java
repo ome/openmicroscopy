@@ -284,6 +284,16 @@ public abstract class SemanticType {
         return properties;
     }
 
+    public Property getProperty(String name) {
+        for (Property p : getProperties()) {
+            String fn = p.getName();
+            if (fn.equals(name)) {
+                return p;
+            }
+        }
+        return null;
+    }
+
     /**
      * Read-only method which currently filters out {@link EntryField}
      * 
@@ -356,6 +366,10 @@ public abstract class SemanticType {
         return false;
     }
 
+    public boolean getIsAnnotationLink() {
+        return false;
+    }
+
     /**
      * Read-only property to be overwritten by subclasses
      */
@@ -418,6 +432,16 @@ class LinkType extends SemanticType {
     @Override
     public boolean getIsLink() {
         return true;
+    }
+
+    @Override
+    public boolean getIsAnnotationLink() {
+        Property p = getProperty("child");
+        String t = p.getType();
+        if (t.equals("ome.model.annotations.Annotation")) {
+            return true;
+        }
+        return false;
     }
 }
 
