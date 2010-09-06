@@ -258,6 +258,10 @@ public class ImporterTest
 				xmlTr.getCutIn().getValue().intValue());
 		assertEquals(tr.getCutOut().getValue(), 
 				xmlTr.getCutOut().getValue().intValue());
+		assertEquals(tr.getCutInTolerance().getValue(), 
+				xmlTr.getCutInTolerance().getValue().intValue());
+		assertEquals(tr.getCutOutTolerance().getValue(), 
+				xmlTr.getCutOutTolerance().getValue().intValue());
 	}
 	
 	/**
@@ -517,7 +521,6 @@ public class ImporterTest
 		assertEquals(pa.getName().getValue(), xml.getName());
 		assertEquals(pa.getDescription().getValue(), 
 				xml.getDescription());
-		/*
 		String time = xml.getEndTime();
 		time = time.replace("T", " ");
 		time = time.replace("Z", " ");
@@ -531,7 +534,6 @@ public class ImporterTest
 		time = time.replace("Z", " ");
 		ts = Timestamp.valueOf(time);
 		assertEquals(pa.getStartTime().getValue(), ts.getTime());
-		*/
 	}
 	
 	/**
@@ -950,7 +952,6 @@ public class ImporterTest
     	LogicalChannel lc;
     	DetectorSettings ds;
     	LightSettings ls;
-    	Detector d;
     	ome.xml.model.DetectorSettings xmlDs = xml.createDetectorSettings(0);
     	ome.xml.model.LightSourceSettings xmlLs = 
     		xml.createLightSourceSettings(0);
@@ -1092,7 +1093,6 @@ public class ImporterTest
 		List<IObject> results = iQuery.findAllByQuery(sql, param);
 		assertTrue(results.size() == 1);
 		WellSample ws = (WellSample) results.get(0);
-		//assertNotNull(ws.getPlateAcquisition());
 		assertNotNull(ws.getWell());
 		assertNotNull(ws.getWell().getPlate());
 		PlateAcquisition pa = ws.getPlateAcquisition();

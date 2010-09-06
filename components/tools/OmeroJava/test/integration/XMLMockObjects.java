@@ -364,6 +364,8 @@ public class XMLMockObjects
 		TransmittanceRange transmittance = new TransmittanceRange();
 		transmittance.setCutIn(new PositiveInteger(cutIn));
 		transmittance.setCutOut(new PositiveInteger(cutOut));
+		transmittance.setCutInTolerance(new NonNegativeInteger(1));
+		transmittance.setCutOutTolerance(new NonNegativeInteger(1));
 		filter.setTransmittanceRange(transmittance);
 		return filter;
 	}
