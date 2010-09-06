@@ -760,6 +760,7 @@ public class XMLMockObjects
 		plate.setColumnNamingConvention(COLUMN_NAMING_CONVENTION);
 		plate.setWellOriginX(0.0);
 		plate.setWellOriginY(1.0);
+		plate.setStatus("Plate status");
 		PlateAcquisition pa = null;
 		if (plateAcquisition) {
 			pa = new PlateAcquisition();

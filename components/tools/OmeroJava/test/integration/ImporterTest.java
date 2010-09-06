@@ -476,6 +476,7 @@ public class ImporterTest
 				xml.getWellOriginX().doubleValue());
 		assertEquals(plate.getWellOriginY().getValue(), 
 				xml.getWellOriginY().doubleValue());
+		assertEquals(plate.getStatus().getValue(), xml.getStatus());
 	}
 	
 	/**
@@ -548,6 +549,8 @@ public class ImporterTest
 		assertNotNull(pa.getEndTime());
 		assertEquals(pa.getEndTime().getValue(), ts.getTime());
 		ts = timestampFromXmlString(xml.getStartTime());
+		assertNotNull(ts);
+		assertNotNull(pa.getStartTime());
 		assertEquals(pa.getStartTime().getValue(), ts.getTime());
 	}
 
@@ -612,9 +615,7 @@ public class ImporterTest
 		ImportLibrary library = new ImportLibrary(importer, 
 				new OMEROWrapper(new ImportConfig()));
 		library.setMetadataOnly(metadata);
-		List<Pixels> pixels = null;
-		//try to import the file
-		pixels = library.importImage(file, 0, 0, 1, format, null, 
+		List<Pixels> pixels = library.importImage(file, 0, 0, 1, format, null, 
 				false, true, null, null);
 		assertNotNull(pixels);
 		assertTrue(pixels.size() > 0);
@@ -750,7 +751,7 @@ public class ImporterTest
      * @throws Exception Thrown if an error occurred.
      */
 	@Test(enabled = false)
-	public void testImportSimpleImageWihtoutBinaryData()
+	public void testImportSimpleImageWithoutBinaryData()
 		throws Exception
 	{
 		File f = File.createTempFile("testImportSimpleImage", "."+OME_FORMAT);
@@ -1161,7 +1162,6 @@ public class ImporterTest
 		Reagent r = (Reagent) iQuery.findByQuery(sql, param);
 		assertNotNull(r);
 		validateReagent(r, ome.getScreen(0).getReagent(0));
-		
 	}
 	
 }
