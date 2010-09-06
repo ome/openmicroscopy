@@ -66,7 +66,7 @@ plus test REAP
             <list>
                 <value>/Roi/Shape</value>
                 <value>/Roi/RoiAnnotationLink</value>
-                <value>/Roi/RoiAnnotationLink/Annotation;SOFT</value>
+                <value>/Annotation;SOFT;/Roi/RoiAnnotationLink/</value>
                 <value>/Roi</value>
             </list>
         </constructor-arg>
@@ -142,7 +142,7 @@ plus test REAP
                 <value>/Image/Pixels/Thumbnail;REAP</value><!-- HARD -->
                 <value>/Image/Pixels</value>
                 <value>/Image/ImageAnnotationLink;REAP</value>
-                <value>/Image/ImageAnnotationLink/Annotation;SOFT</value>
+                <value>/Annotation;SOFT;/Image/ImageAnnotationLink</value>
                 <value>/Image/DatasetImageLink</value>
                 <value>/Image</value>
                 <value>/Image/ImagingEnvironment</value>
@@ -161,7 +161,7 @@ plus test REAP
                 <value>/Image;;/Dataset/DatasetImageLink</value><!-- assumes you can get in one jump with a link -->
                 <value>/Dataset/ProjectDatasetLink</value>
                 <value>/Dataset/DatasetAnnotationLink;REAP</value>
-                <value>/Dataset/DatasetAnnotationLink/Annotation;SOFT</value>
+                <value>/Annotation;SOFT;/Dataset/DatasetAnnotationLink</value>
                 <value>/Dataset</value>
             </list>
         </constructor-arg>
@@ -172,7 +172,7 @@ plus test REAP
             <list>
                 <value>/Dataset;;/Project/ProjectDatasetLink</value>
                 <value>/Project/ProjectAnnotationLink</value>
-                <value>/Project/ProjectAnnotationLink/Annotation;SOFT</value>
+                <value>/Annotation;SOFT;/Project/ProjectAnnotationLink</value>
                 <value>/Project</value>
             </list>
         </constructor-arg>
@@ -182,11 +182,12 @@ plus test REAP
         <constructor-arg>
             <list>
                 <value>/Well/WellSample/WellSampleAnnotationLink</value>
-                <value>/Well/WellSample/WellSampleAnnotationLink/Annotation;SOFT</value>
+                <value>/Annotation;SOFT;/Well/WellSample/WellSampleAnnotationLink</value>
                 <value>/Well/WellSample</value>
                 <value>/Image;;/Well/WellSample</value>
                 <value>/Well/WellAnnotationLink</value>
-                <value>/Well/WellAnnotationLink/Annotation;SOFT</value>
+                <value>/Annotation;SOFT;/Well/WellAnnotationLink</value>
+                <value>/Well/WellReagentLink</value>
                 <value>/Well</value>
             </list>
         </constructor-arg>
@@ -197,10 +198,10 @@ plus test REAP
             <list>
                 <value>/Well;;/Plate</value>
                 <value>/Plate/PlateAcquisition/PlateAcquisitionAnnotationLink</value>
-                <value>/Plate/PlateAcquisition/PlateAcquisitionAnnotationLink/Annotation;SOFT</value>
+                <value>/Annotation;SOFT;/Plate/PlateAcquisition/PlateAcquisitionAnnotationLink</value>
                 <value>/Plate/PlateAcquisition</value>
                 <value>/Plate/PlateAnnotationLink</value>
-                <value>/Plate/PlateAnnotationLink/Annotation;SOFT</value>
+                <value>/Annotation;SOFT;/Plate/PlateAnnotationLink</value>
                 <value>/Plate/ScreenPlateLink</value><!-- TODO: or do we need Plate+SPL -->
                 <value>/Plate</value>
             </list>
@@ -212,7 +213,10 @@ plus test REAP
             <list>
                 <value>/Plate;;/Screen/ScreenPlateLink</value>
                 <value>/Screen/ScreenAnnotationLink</value>
-                <value>/Screen/ScreenAnnotationLink/Annotation;SOFT</value>
+                <value>/Annotation;SOFT;/Screen/ScreenAnnotationLink</value>
+                <value>/Screen/Reagent/ReagentAnnotationLink</value>
+                <value>/Annotation;SOFT;/Screen/Reagent/ReagentAnnotationLink</value>
+                <value>/Screen/Reagent</value>
                 <value>/Screen</value>
             </list>
         </constructor-arg>

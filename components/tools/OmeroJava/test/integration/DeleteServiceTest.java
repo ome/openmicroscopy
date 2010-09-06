@@ -2470,7 +2470,7 @@ public class DeleteServiceTest
      * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test
     public void testDeleteScreenWithReagent() 
     	throws Exception
     {
@@ -2526,7 +2526,7 @@ public class DeleteServiceTest
      * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test
     public void testDeletePlateWithReagent() 
     	throws Exception
     {
