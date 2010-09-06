@@ -888,15 +888,9 @@ public class XMLMockObjects
 		image.setID("Image:"+index);
 		image.setName("Image Name "+index);
 		image.setDescription("Image Description "+index);
-		OTF otf = null;
 		if (metadata) {
 			image.setImagingEnvironment(createImageEnvironment());
 			image.setStageLabel(createStageLabel());
-			//instrument has one objective.
-			ObjectiveSettings settings = createObjectiveSettings(0);
-			//otf = createOTF(0, instrument.getFilterSet(0), settings);
-			//instrument.addOTF(otf);
-			image.setObjectiveSettings(settings); 
 		}
 		Pixels pixels = new Pixels();
 		pixels.setID("Pixels:"+index);
@@ -1238,16 +1232,24 @@ public class XMLMockObjects
 	{
 		populateInstrument();
 		Image image = createImage(0, true);
+		ObjectiveSettings settings = createObjectiveSettings(0);
+		image.setObjectiveSettings(settings);
+		
+		OTF otf = createOTF(0, instrument.getFilterSet(0), settings);
+		instrument.addOTF(otf);
+
 		//Add microbeam
 		Experiment exp = createExperiment(0);
 		ome.addExperiment(exp);
 		MicrobeamManipulation mm = createMicrobeamManipulation(0);
 		exp.addMicrobeamManipulation(mm);
+		
 		Pixels pixels = image.getPixels();
 		Channel c;
 		for (int i = 0; i < pixels.getSizeC().getValue().intValue(); i++) {
 			c = pixels.getChannel(i);
 			mm.addLightSourceSettings(c.getLightSourceSettings());
+			c.linkOTF(otf);
 		}
 		
 		image.linkInstrument(instrument);

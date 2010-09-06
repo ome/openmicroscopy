@@ -586,6 +586,24 @@ public class ImporterTest
 	}
 	
 	/**
+	 * Validates if the inserted object corresponds to the XML object.
+	 * 
+	 * @param otf The otf to check.
+	 * @param xml The XML version.
+	 */
+	private void validateOTF(OTF otf, ome.xml.model.OTF xml)
+	{
+		assertEquals(otf.getOpticalAxisAveraged().getValue(), 
+				xml.getOpticalAxisAveraged().booleanValue());
+		assertEquals(otf.getSizeX().getValue(), 
+				xml.getSizeX().getValue().intValue());
+		assertEquals(otf.getSizeY().getValue(), 
+				xml.getSizeY().getValue().intValue());
+		assertEquals(otf.getPixelsType().getValue().getValue(), 
+				xml.getType().getValue());
+	}
+	
+	/**
 	 * Creates a basic buffered image.
 	 * 
 	 * @return See above.
@@ -946,7 +964,6 @@ public class ImporterTest
     	ome.xml.model.Filter xmlFilter = xml.createFilter(0, 
     			XMLMockObjects.CUT_IN, XMLMockObjects.CUT_OUT);
     	ome.xml.model.Dichroic xmlDichroic = xml.createDichroic(0);
-    	
     	while (j.hasNext()) {
 			o = j.next();
 			if (o instanceof Detector) {
@@ -995,6 +1012,7 @@ public class ImporterTest
     	assertEquals(dichroic, XMLMockObjects.NUMBER_OF_DICHROICS);
     	assertEquals(filter, XMLMockObjects.NUMBER_OF_FILTERS);
     	assertEquals(filterSet, 1);
+    	assertEquals(otf, 1);
     	
     	p = factory.getPixelsService().retrievePixDescription(
     			p.getId().getValue());
@@ -1028,11 +1046,15 @@ public class ImporterTest
     	ome.xml.model.MicrobeamManipulation xmlMM = 
     		xml.createMicrobeamManipulation(0);
     	ome.xml.model.Experiment xmlExp = ome.getExperiment(0);
+    	ome.xml.model.OTF xmlOTF = ome.getInstrument(0).getOTF(0);
+    	
     	LightPath path;
     	Iterator<LogicalChannel> k = l.iterator();
     	while (k.hasNext()) {
 			lc = k.next();
 			validateChannel(lc, xmlChannel);
+			assertNotNull(lc.getOtf());
+			validateOTF(lc.getOtf(), xmlOTF);
 			ds = lc.getDetectorSettings();
 			assertNotNull(ds);
 			assertNotNull(ds.getDetector());
