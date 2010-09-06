@@ -31,8 +31,6 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import static omero.rtypes.*;
-import omero.model.PlateAcquisition;
 import omero.model.Screen;
 import omero.model.ScreenI;
 import omero.model.ScreenPlateLink;
@@ -102,7 +100,7 @@ public class ScreenData extends DataObject {
             throw new IllegalArgumentException("The name cannot be null.");
         }
         setDirty(true);
-        asScreen().setName(rstring(name));
+        asScreen().setName(omero.rtypes.rstring(name));
     }
 
     /**
@@ -127,7 +125,7 @@ public class ScreenData extends DataObject {
      */
     public void setDescription(String description) {
         setDirty(true);
-        asScreen().setDescription(rstring(description));
+        asScreen().setDescription(omero.rtypes.rstring(description));
     }
 
     /**
@@ -204,6 +202,18 @@ public class ScreenData extends DataObject {
     }
 
     /**
+     * Sets the description of the protocol.
+     * 
+     * @param value The value to set.
+     * @return See above.
+     */
+    public void setProtocolDescription(String value)
+    {
+    	if (value != null && value.trim().length() != 0)
+    		asScreen().setProtocolDescription(omero.rtypes.rstring(value));
+    }
+
+    /**
      * Returns the identifier of the protocol.
      * 
      * @return See above.
@@ -214,6 +224,18 @@ public class ScreenData extends DataObject {
         return d == null ? "" : d.getValue();
     }
 
+    /**
+     * Sets the identifier of the protocol.
+     * 
+     * @param value The value to set.
+     * @return See above.
+     */
+    public void setProtocolIdentifier(String value)
+    {
+    	if (value != null && value.trim().length() != 0)
+    		asScreen().setProtocolIdentifier(omero.rtypes.rstring(value));
+    }
+    
     /**
      * Returns the description of the reagent set.
      * 
@@ -226,6 +248,18 @@ public class ScreenData extends DataObject {
     }
 
     /**
+     * Sets the identifier of the reagent.
+     * 
+     * @param value The value to set.
+     * @return See above.
+     */
+    public void setReagentSetDescripion(String value)
+    {
+    	if (value != null && value.trim().length() != 0)
+    		asScreen().setReagentSetDescription(omero.rtypes.rstring(value));
+    }
+    
+    /**
      * Returns the identifier of the Reagent set.
      * 
      * @return See above.
@@ -234,6 +268,18 @@ public class ScreenData extends DataObject {
     {
     	omero.RString d = asScreen().getReagentSetIdentifier();
         return d == null ? "" : d.getValue();
+    }
+    
+    /**
+     * Sets the identifier of the reagent.
+     * 
+     * @param value The value to set.
+     * @return See above.
+     */
+    public void setReagentSetIdentifier(String value)
+    {
+    	if (value != null && value.trim().length() != 0)
+    		asScreen().setReagentSetIdentifier(omero.rtypes.rstring(value));
     }
     
 }

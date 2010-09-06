@@ -31,10 +31,13 @@ package pojos;
 //Application-internal dependencies
 import omero.RDouble;
 import omero.RInt;
+import omero.model.AcquisitionMode;
 import omero.model.Binning;
+import omero.model.ContrastMethod;
 import omero.model.DetectorSettings;
 import omero.model.DetectorSettingsI;
 import omero.model.FilterSet;
+import omero.model.Illumination;
 import omero.model.LightPath;
 import omero.model.LightSettings;
 import omero.model.LightSettingsI;
@@ -374,4 +377,46 @@ public class ChannelAcquisitionData
 	 */
 	public FilterSetData getFilterSet() { return filterSet; }
 	
+    /**
+     * Returns the illumination.
+     * 
+     * @return See above.
+     */
+    public String getIllumination()
+    { 
+    	LogicalChannel lc = (LogicalChannel) asIObject();
+    	if (lc == null) return null;
+    	Illumination value =  lc.getIllumination();
+    	if (value != null) return value.getValue().getValue();
+    	return null; 
+    }
+
+    /**
+     * Returns the contrast method.
+     * 
+     * @return See above.
+     */
+    public String getContrastMethod()
+    { 
+    	LogicalChannel lc = (LogicalChannel) asIObject();
+    	if (lc == null) return null;
+    	ContrastMethod value =  lc.getContrastMethod();
+    	if (value != null) return value.getValue().getValue();
+    	return null; 
+    }
+    
+    /**
+     * Returns the mode.
+     * 
+     * @return See above.
+     */
+    public String getMode()
+    { 
+    	LogicalChannel lc = (LogicalChannel) asIObject();
+    	if (lc == null) return null;
+    	AcquisitionMode value =  lc.getMode();
+    	if (value != null) return value.getValue().getValue();
+    	return null; 
+    }
+    
 }
