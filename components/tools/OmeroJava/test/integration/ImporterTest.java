@@ -28,6 +28,8 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -125,6 +127,29 @@ public class ImporterTest
 	
 	/** Reference to the importer store. */
 	private OMEROMetadataStoreClient importer;
+
+    /**
+     * Attempts to create a Java timestamp from an XML date/time string.
+     * @param value An <i>xsd:dateTime</i> string.
+     * @return A value Java timestamp for <code>value</code> or
+     * <code>null</code> if timestamp parsing failed. The error will be logged
+     * at the <code>ERROR</code> log level.
+     */
+    private Timestamp timestampFromXmlString(String value)
+    {
+        try
+        {
+            SimpleDateFormat sdf =
+                new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
+            return new Timestamp(sdf.parse(value).getTime());
+        }
+        catch (ParseException e)
+        {
+            log.error(String.format(
+                    "Parsing timestamp '%s' failed!", value), e);
+        }
+        return null;
+    }
 
 	/**
 	 * Validates if the inserted object corresponds to the XML object.
@@ -502,13 +527,10 @@ public class ImporterTest
 				xml.getPositionX().doubleValue());
 		assertEquals(ws.getPosY().getValue(), 
 				xml.getPositionY().doubleValue());
-		String time = xml.getTimepoint();
-		time = time.replace("T", " ");
-		time = time.replace("Z", " ");
-		Timestamp ts = Timestamp.valueOf(time);
+		Timestamp ts = timestampFromXmlString(xml.getTimepoint());
 		assertEquals(ws.getTimepoint().getValue(), ts.getTime());
 	}
-	
+
 	/**
 	 * Validates if the inserted object corresponds to the XML object.
 	 * 
@@ -521,21 +543,14 @@ public class ImporterTest
 		assertEquals(pa.getName().getValue(), xml.getName());
 		assertEquals(pa.getDescription().getValue(), 
 				xml.getDescription());
-		String time = xml.getEndTime();
-		time = time.replace("T", " ");
-		time = time.replace("Z", " ");
-		Timestamp ts = Timestamp.valueOf(time);
+		Timestamp ts = timestampFromXmlString(xml.getEndTime());
 		assertNotNull(ts);
 		assertNotNull(pa.getEndTime());
 		assertEquals(pa.getEndTime().getValue(), ts.getTime());
-		ts = Timestamp.valueOf(xml.getStartTime());
-		time = xml.getStartTime();
-		time = time.replace("T", " ");
-		time = time.replace("Z", " ");
-		ts = Timestamp.valueOf(time);
+		ts = timestampFromXmlString(xml.getStartTime());
 		assertEquals(pa.getStartTime().getValue(), ts.getTime());
 	}
-	
+
 	/**
 	 * Creates a basic buffered image.
 	 * 

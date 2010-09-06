@@ -777,6 +777,29 @@ public class OMEROMetadataStoreClient
         return value == null ? null : rstring(value.getValue());
     }
 
+    /**
+     * Attempts to create a Java timestamp from an XML date/time string.
+     * @param value An <i>xsd:dateTime</i> string.
+     * @return A value Java timestamp for <code>value</code> or
+     * <code>null</code> if timestamp parsing failed. The error will be logged
+     * at the <code>ERROR</code> log level.
+     */
+    private Timestamp timestampFromXmlString(String value)
+    {
+        try
+        {
+            SimpleDateFormat sdf =
+                new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
+            return new Timestamp(sdf.parse(value).getTime());
+        }
+        catch (ParseException e)
+        {
+            log.error(String.format(
+                    "Parsing timestamp '%s' failed!", value), e);
+        }
+        return null;
+    }
+
     private void closeQuietly(omero.api.StatefulServiceInterfacePrx prx)
     {
         if (prx != null) {
@@ -4179,19 +4202,8 @@ public class OMEROMetadataStoreClient
         {
             return;
         }
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
-            java.util.Date date = sdf.parse(acquiredDate);
-            Timestamp acquiredTimestamp = new Timestamp(date.getTime());
-
-            Image o = getImage(imageIndex);
-            o.setAcquisitionDate(toRType(acquiredTimestamp));
-        }
-        catch (ParseException e)
-        {
-            log.error(String.format(
-                    "Parsing Image.AcquiredDate '%s' failed!", acquiredDate), e);
-        }
+        Image o = getImage(imageIndex);
+        o.setAcquisitionDate(toRType(timestampFromXmlString(acquiredDate)));
     }
 
     /* (non-Javadoc)
@@ -6124,10 +6136,9 @@ public class OMEROMetadataStoreClient
     public void setPlateAcquisitionEndTime(String endTime, int plateIndex,
             int plateAcquisitionIndex)
     {
-        // TODO : should the type be changed to Timestamp?
-        //PlateAcquisition o =
-        //    getPlateAcquisition(plateIndex, plateAcquisitionIndex);
-        //o.setEndTime(toRType(endTime));
+        PlateAcquisition o =
+            getPlateAcquisition(plateIndex, plateAcquisitionIndex);
+        o.setEndTime(toRType(timestampFromXmlString(endTime)));
     }
 
     /* (non-Javadoc)
@@ -6175,10 +6186,9 @@ public class OMEROMetadataStoreClient
     public void setPlateAcquisitionStartTime(String startTime, int plateIndex,
             int plateAcquisitionIndex)
     {
-        // TODO : should the type be changed to Timestamp?
-        //PlateAcquisition o =
-        //    getPlateAcquisition(plateIndex, plateAcquisitionIndex);
-        //o.setStartTime(toRType(startTime));
+        PlateAcquisition o =
+            getPlateAcquisition(plateIndex, plateAcquisitionIndex);
+        o.setStartTime(toRType(timestampFromXmlString(startTime)));
     }
 
     /* (non-Javadoc)
@@ -7540,18 +7550,8 @@ public class OMEROMetadataStoreClient
     public void setTimestampAnnotationValue(String value,
             int timestampAnnotationIndex)
     {
-        try
-        {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
-            java.util.Date date = sdf.parse(value);
-            Timestamp creationTimestamp = new Timestamp(date.getTime());
-            TimestampAnnotation o = getTimestampAnnotation(timestampAnnotationIndex);
-            o.setTimeValue(toRType(creationTimestamp));
-        }
-        catch (ParseException e)
-        {
-            log.error(String.format("Parsing start time failed!"), e);
-        }
+        TimestampAnnotation o = getTimestampAnnotation(timestampAnnotationIndex);
+        o.setTimeValue(toRType(timestampFromXmlString(value)));
     }
 
     //////// TransmittanceRange /////////
@@ -7862,21 +7862,9 @@ public class OMEROMetadataStoreClient
         {
             return;
         }
-        try {
-            SimpleDateFormat sdf = 
-                new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
-            java.util.Date date = sdf.parse(timepoint);
-            Timestamp timepointTimestamp = new Timestamp(date.getTime());
-
-            WellSample o = 
-                getWellSample(plateIndex, wellIndex, wellSampleIndex);
-            o.setTimepoint(toRType(timepointTimestamp));
-        }
-        catch (ParseException e)
-        {
-            log.error(String.format(
-                    "Parsing WellSample.Timepoint '%s' failed!", timepoint), e);
-        }
+        WellSample o = 
+            getWellSample(plateIndex, wellIndex, wellSampleIndex);
+        o.setTimepoint(toRType(timestampFromXmlString(timepoint)));
     }
 
     //////// XMLAnnotation /////////
