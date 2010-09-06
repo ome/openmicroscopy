@@ -63,12 +63,8 @@ public class DeletableObject
 	 */
 	private boolean				content;
 	
-	/** 
-	 * Sets to <code>null</code> or <code>empty</code> if sharable
-	 * annotations have to be kept, otherwise contains the types of 
-	 * annotation to delete e.g. TagAnnotationData
-	 */
-	private List<Class> 		attachmentTypes;
+	/** The collection of annotations to keep e.g. TagAnnotationData. */
+	private List<Class> 		annotations;
 	
 	/** The report of the delete action. */
 	private List<String>		report;
@@ -111,21 +107,21 @@ public class DeletableObject
 	public boolean deleteContent() { return content; }
 	
 	/**
-	 * Returns the types of attachments to delete or <code>null</code>
-	 * if all types have to be deleted.
+	 * Returns the types of keep. All annotations will be deleted if 
+	 * empty or <code>null</code>.
 	 * 
 	 * @return See above.
 	 */
-	public List<Class> getAttachmentTypes() { return attachmentTypes; }
+	public List<Class> getAnnotations() { return annotations; }
 	
 	/**
-	 * Sets the types of attachments to delete.
+	 * Sets the types of annotations to keep.
 	 * 
-	 * @param attachmentTypes The types of attachments to delete.
+	 * @param annotations The types of annotations to keep.
 	 */
-	public void setAttachmentTypes(List<Class> attachmentTypes)
+	public void setAttachmentTypes(List<Class> annotations)
 	{
-		this.attachmentTypes = attachmentTypes;
+		this.annotations = annotations;
 	}
 	
 	/**
