@@ -839,7 +839,11 @@ class RendererModel
 	 * 
 	 * @return See above.
 	 */
-	int getMaxC() { return rndControl.getPixelsDimensionsC(); }
+	int getMaxC()
+	{ 
+		if (rndControl == null) return -1;
+		return rndControl.getPixelsDimensionsC();  
+	}
 	
 	/**
 	 * Returns the index associated to the renderer.

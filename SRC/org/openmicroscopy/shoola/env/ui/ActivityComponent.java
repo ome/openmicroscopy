@@ -679,7 +679,6 @@ public abstract class ActivityComponent
 				resultButton.setVisible(l.size() > 0);
 			}
 		}
-			
 		notifyActivityEnd();
 		firePropertyChange(UNREGISTER_ACTIVITY_PROPERTY, null, this);
 		//Post an event to 

@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -57,6 +58,9 @@ public class DeleteActivity
 	
 	/** The description of the activity when finished. */
 	private static final String		DESCRIPTION_END = "Objects deleted";
+	
+	/** The description of the activity when error occurred. */
+	private static final String		DESCRIPTION_ERROR = "Error occurred";
 	
 	/** The description of the activity when cancelled. */
 	private static final String		DESCRIPTION_CANCEL = "Deletion cancelled";
@@ -129,7 +133,9 @@ public class DeleteActivity
 	 */
 	protected void notifyActivityEnd()
 	{
-		type.setText(DESCRIPTION_END);
+		Collection l = (Collection) result;
+		if (l.size() > 0) type.setText(DESCRIPTION_ERROR);
+		else type.setText(DESCRIPTION_END);
 		//post an event to remove nodes
 		EventBus bus = registry.getEventBus();
 	}

@@ -575,7 +575,6 @@ class EditorComponent
 		}
 		model.setRenderingControl(rndControl);
 		if (loaded) view.onSettingsApplied(false);
-		//if (model.isNumerousChannel()) return;
 		FigureDialog d = controller.getFigureDialog();
 		if (d == null) view.setRenderer();
 		if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC)

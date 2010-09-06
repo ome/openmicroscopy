@@ -245,6 +245,18 @@ class OMEROGateway
 	/** Identifies the ROI as root. */
 	private static final String REF_ROI = "/Roi";
 	
+	/** Identifies the Tag. */
+	private static final String REF_TAG = "/TagAnnotation";
+	
+	/** Identifies the Term. */
+	private static final String REF_TERM = "/TermAnnotation";
+	
+	/** Identifies the File. */
+	private static final String REF_FILE= "/FileAnnotation";
+	
+	/** Indicates to keep a certain type of annotations. */
+	static final String KEEP = "KEEP";
+	
 	/** The default MIME type. */
 	private static final String				DEFAULT_MIMETYPE = 
 		"application/octet-stream";
@@ -1919,14 +1931,20 @@ class OMEROGateway
 	 * @param data The object to handle.
 	 * @return See above.
 	 */
-	String createDeleteCommand(DataObject data)
+	String createDeleteCommand(String data)
 	{
-		if (data instanceof ImageData) return REF_IMAGE;
-		else if (data instanceof DatasetData) return REF_DATASET;
-		else if (data instanceof ProjectData) return REF_PROJECT;
-		else if (data instanceof ScreenData) return REF_SCREEN;
-		else if (data instanceof PlateData) return REF_PLATE;
-		else if (data instanceof ROIData) return REF_ROI;
+		if (ImageData.class.getName().equals(data)) return REF_IMAGE;
+		else if (DatasetData.class.getName().equals(data)) return REF_DATASET;
+		else if (ProjectData.class.getName().equals(data)) return REF_PROJECT;
+		else if (ScreenData.class.getName().equals(data)) return REF_SCREEN;
+		else if (PlateData.class.getName().equals(data)) return REF_PLATE;
+		else if (ROIData.class.getName().equals(data)) return REF_ROI;
+		else if (TagAnnotationData.class.getName().equals(data)) 
+			return REF_TAG;
+		else if (TermAnnotationData.class.getName().equals(data)) 
+			return REF_TERM;
+		else if (FileAnnotationData.class.getName().equals(data)) 
+			return REF_FILE;
 		throw new IllegalArgumentException("Cannot delete the speficied type.");
 	}
 	

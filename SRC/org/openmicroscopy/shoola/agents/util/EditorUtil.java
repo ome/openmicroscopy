@@ -968,11 +968,7 @@ public class EditorUtil
 		if (s == null || s.trim().length() == 0) 
 			notSet.add(FLUOR);
         details.put(FLUOR, s);
-        try {
-        	s = data.getIllumination(); //Check how this can be null.
-		} catch (Exception e) {
-			s = null;
-		}
+        s = data.getIllumination(); 
 		if (s == null || s.trim().length() == 0) 
 			notSet.add(ILLUMINATION);
         details.put(ILLUMINATION, s);
@@ -980,11 +976,7 @@ public class EditorUtil
 		if (s == null || s.trim().length() == 0) 
 			notSet.add(CONTRAST_METHOD);
         details.put(CONTRAST_METHOD, s);
-        try {
-        	s = data.getMode();
-		} catch (Exception e) {
-			s = null;
-		}
+        s = data.getMode();
         
 		if (s == null || s.trim().length() == 0) 
 			notSet.add(MODE);

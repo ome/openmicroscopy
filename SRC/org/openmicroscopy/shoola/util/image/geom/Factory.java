@@ -243,8 +243,7 @@ public class Factory
         g.dispose();
         return thumbPix;
     }
-    
-    
+
     /**
      * Creates a default thumbnail image.
      * 

@@ -47,6 +47,8 @@ import javax.swing.event.ChangeListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.MessageBox;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
@@ -56,6 +58,7 @@ import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
+import pojos.TermAnnotationData;
 
 /** 
  * A modal dialog asking what the user wants to delete.
@@ -134,7 +137,7 @@ public class DeleteBox
 	private void initComponents(String annotationText)
 	{
 		withAnnotation = new JCheckBox("Also delete the annotations " +
-				"only linked to the "+annotationText+".");
+				"linked to the objects.");
 		withContent = new JRadioButton("Also delete contents.");
 		withoutContent = new JRadioButton("Do not delete contents.");
 		ButtonGroup group = new ButtonGroup();
@@ -144,7 +147,8 @@ public class DeleteBox
 		annotationTypes = new LinkedHashMap<JCheckBox, Class>();
 		annotationTypes.put(createBox("Tag"), TagAnnotationData.class);
 		annotationTypes.put(createBox("Attachment"), FileAnnotationData.class);
-		
+		annotationTypes.put(createBox("Ontology Terms"), 
+				TermAnnotationData.class);
 		withAnnotation.addChangeListener(new ChangeListener() {
 		
 			public void stateChanged(ChangeEvent e) {
@@ -194,6 +198,7 @@ public class DeleteBox
 		if (ImageData.class.equals(type)) {
 			add = true;
 			if (annotation) {
+				p.add(Box.createVerticalStrut(10));
 				p.add(withAnnotation);
 				p.add(typesPane);
 			}
@@ -207,6 +212,7 @@ public class DeleteBox
 				p.add(withoutContent);
 			}
 			if (annotation) {
+				p.add(Box.createVerticalStrut(10));
 				p.add(withAnnotation);
 				p.add(typesPane);
 			}
@@ -220,7 +226,7 @@ public class DeleteBox
 			}
 		}
 		if (add)
-			addBodyComponent(p);
+			addBodyComponent(UIUtilities.buildComponentPanel(p));
 	}
 	
 	/**
@@ -338,22 +344,27 @@ public class DeleteBox
     }
     
     /**
-     * Returns the types of annotations to delete.
+     * Returns the types of annotations to keep.
      * 
      * @return See above.
      */
     public List<Class> getAnnotationTypes()
     {
     	List<Class> types = new ArrayList<Class>();
-    	if (!withAnnotation.isSelected()) return types;
     	Iterator<JCheckBox> i = annotationTypes.keySet().iterator();
     	JCheckBox box;
-    	while (i.hasNext()) {
-    		box = i.next();
-			if (box.isSelected()) 
-				types.add(annotationTypes.get(box));
-		}
-    	//if (types.size() == annotationTypes.size()) return null;
+    	if (!withAnnotation.isSelected()) {
+    		while (i.hasNext()) {
+    			box = i.next();
+    			types.add(annotationTypes.get(box));
+			}
+    	} else {
+    		while (i.hasNext()) {
+        		box = i.next();
+    			if (!box.isSelected()) 
+    				types.add(annotationTypes.get(box));
+    		}
+    	}
     	return types;
     }
     

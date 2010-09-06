@@ -52,7 +52,6 @@ import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.LongAnnotation;
-import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.PlateAnnotationLink;
 import omero.model.Project;
@@ -922,12 +921,24 @@ class OmeroDataServiceImpl
 		Map<String, String> options;
 		DataObject data;
 		int index = 0;
+		List<Class> annotations;
+		Iterator<Class> j;
 		while (i.hasNext()) {
 			object = i.next();
 			data = object.getObjectToDelete();
-			options = null;//new HashMap<String, String>();
+			annotations = object.getAnnotations();
+			options = null;
+			if (annotations != null && annotations.size() > 0) {
+				options = new HashMap<String, String>();
+				j = annotations.iterator();
+				while (j.hasNext()) {
+					options.put(gateway.createDeleteCommand(j.next().getName()), 
+							OMEROGateway.KEEP);
+				}
+			}
 			data = object.getObjectToDelete();
-			cmd = new DeleteCommand(gateway.createDeleteCommand(data), 
+			cmd = new DeleteCommand(gateway.createDeleteCommand(
+					data.getClass().getName()), 
 					data.getId(), options);
 			commands[index] = cmd;
 			index++;
