@@ -332,6 +332,41 @@ public class DeleteITest extends AbstractServantTest {
 
     }
 
+    /**
+     * Deletes a very simple image/annotation graph, to guarantee that the
+     * basic options are working
+     */
+    @SuppressWarnings("rawtypes")
+    public void testSimpleImageWithAnnotation() throws Exception {
+
+        long iid = makeImage();
+
+        // Create test data
+        ImageAnnotationLink link = new ImageAnnotationLinkI();
+        link.link(new ImageI(iid, false), new TagAnnotationI());
+        link = assertSaveAndReturn(link);
+
+        long lid = link.getId().getValue();
+        long aid = link.getChild().getId().getValue();
+
+        // Do Delete
+        DeleteCommand dc = new DeleteCommand("/Image", iid, null);
+        doDelete(dc);
+
+        // Make sure its deleted
+        List l;
+        l = assertProjection("select i.id from Image i where i.id = " + iid,
+                null);
+        assertEquals(0, l.size());
+        l = assertProjection("select l.id from ImageAnnotationLink l where l.id = " + lid,
+                null);
+        assertEquals(0, l.size());
+        l = assertProjection("select a.id from Annotation a where a.id = "
+                + aid, null);
+        assertEquals(0, l.size());
+
+    }
+
     //
     // Specs
     //

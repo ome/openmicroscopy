@@ -99,12 +99,6 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
     private final Executor executor;
 
     /**
-     * Factory which contains all the {@link DeleteSpec} instances in the
-     * current application.
-     */
-    private final DeleteSpecFactory factory;
-
-    /**
      * {@link DeleteCommand} instances passed into this instance on creation. No
      * methods will modify this array, but they may be returned to the client.
      */
@@ -143,7 +137,6 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
         this.id = id;
         this.principal = sf.getPrincipal();
         this.executor = sf.getExecutor();
-        this.factory = factory;
         this.cancelTimeoutMs = cancelTimeoutMs;
         this.state.set(State.CREATED);
 
@@ -178,7 +171,7 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                 try {
                     report.steps = report.spec.initialize(
                             report.command.id,
-                            null,
+                            "",
                             report.command.options);
                     report.stepStarts = new long[report.steps];
                     report.stepStops = new long[report.steps];

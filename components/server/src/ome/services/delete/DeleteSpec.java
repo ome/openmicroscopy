@@ -14,6 +14,7 @@ import java.util.Map;
 import ome.api.IDelete;
 
 import org.hibernate.Session;
+import org.springframework.beans.factory.ListableBeanFactory;
 
 /**
  * Specification of a delete operation. These instances are defined in
@@ -45,7 +46,7 @@ public interface DeleteSpec {
     /**
      * Gives all specs a chance to reference subspecs.
      */
-    void postProcess(Map<String, DeleteSpec> speces);
+    void postProcess(ListableBeanFactory factory);
 
     /**
      * Called as each delete command is started. This instance will inly be used

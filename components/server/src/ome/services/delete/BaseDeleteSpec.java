@@ -19,6 +19,7 @@ import java.util.UUID;
 
 import ome.api.IDelete;
 import ome.model.IObject;
+import ome.services.delete.DeleteEntry.Op;
 import ome.services.messages.EventLogMessage;
 import ome.system.OmeroContext;
 import ome.tools.hibernate.ExtendedMetadata;
@@ -32,11 +33,12 @@ import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanNameAware;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 /**
- * {@link DeleteSpec} which takes the id of an image as the root of deletion.
+ * {@link DeleteSpec} which takes the id of some id as the root of deletion.
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.2.1
@@ -74,18 +76,18 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
      * being deleted as a part of "/Project" then the id refers to the project
      * and not the dataset.
      */
-    private long id = -1;
+    protected long id = -1;
 
     /**
      * Path of the superspec.
      */
-    private String superspec;
+    protected String superspec;
 
     /**
      * Options passed to the {@link #initialize(long, Map)} method, which may be
      * used during {@link #delete(Session, int)} to alter behavior.
      */
-    private Map<String, String> options;
+    protected Map<String, String> options;
 
     /**
      * Map of step numbers to the number of substeps for that step.
@@ -129,9 +131,9 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
         return this.superspec;
     }
 
-    public void postProcess(Map<String, DeleteSpec> specs) {
+    public void postProcess(ListableBeanFactory factory) {
         for (DeleteEntry entry : entries) {
-            entry.postProcess(specs);
+            entry.postProcess(factory);
         }
     }
 
@@ -181,8 +183,20 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
             int subStep = substeps.get(step);
             if (subSpec != null) {
                 for (int i = 0; i < subStep; i++) {
-                    // TODO handle the application of Entry.Op to the whole subgraph!
-                    sb.append(subSpec.delete(session, i, deleteIds));
+                    // TODO refactor this into a single location with
+                    // execute below. This may require setting the
+                    // "superOp" on subSpecs. Is there a need for
+                    // handling longer chains of ops??
+                    String cause = null;
+                    try {
+                        cause = subSpec.delete(session, i, deleteIds);
+                    } catch (ConstraintViolationException cve) {
+                        if (Op.SOFT.equals(entry.op)) {
+                            sb.append(cause);
+                        } else {
+                            throw cve;
+                        }
+                    }
                 }
             } else {
                 List<Long> ids = deleteIds.get(this, step);
@@ -200,6 +214,57 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
             }
 
         }
+    }
+
+
+    /**
+     * If ids are non-empty, then calls a simple
+     * "delete TABLE where id in (:ids)"; otherwise, generates a query via
+     * {@link #buildQuery(DeleteEntry)} and uses the root "id"
+     *
+     * Originally copied from DeleteBean.
+     */
+    protected String execute(final Session session, DeleteEntry entry, List<Long> ids)
+            throws DeleteException {
+
+        Query q;
+        final String[] path = entry.path(superspec);
+        final String table = path[path.length - 1];
+        final String str = StringUtils.join(path, "/");
+        final String which = ids != null ? ids.toString() : ("root id=" + id);
+
+        if (ids.size() == 0) {
+            if (log.isDebugEnabled()) {
+                log.debug("No ids found for " + str);
+            }
+            return ""; // Early exit!
+        }
+        q = session.createQuery("delete " + table + " where id in (:ids)");
+        q.setParameterList("ids", ids);
+
+        String sp = savepoint(session);
+        try {
+            int count = q.executeUpdate();
+            saveLogs(table, ids);
+            release(session, sp);
+
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Deleted %s from %s: %s", count, str, which));
+            }
+
+            return "";
+        } catch (ConstraintViolationException cve) {
+            rollback(session, sp);
+            String cause = "ConstraintViolation: " + cve.getConstraintName();
+            log.info(String.format("Failed to delete %s: %s due to %s",
+                    str, which, cause));
+            if (DeleteEntry.Op.SOFT.equals(entry.op)) {
+                return cause;
+            } else {
+                throw cve;
+            }
+        }
+
     }
 
     //
@@ -233,7 +298,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
             // we should store its ids. In the example above, /Well/Image
             // and /Well.
             final DeleteEntry current = entries.get(s);
-            final List<Long> allIds = queryBackupIds(session, current);
+            final List<Long> allIds = queryBackupIds(session, current, null);
             rv.set(s, allIds);
 
             /*
@@ -331,7 +396,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
      * where ROOT0.id = :id
      * </pre>
      */
-    protected List<Long> queryBackupIds(Session session, DeleteEntry subpath)
+    protected List<Long> queryBackupIds(Session session, DeleteEntry subpath, QueryBuilder and)
             throws DeleteException {
 
         final String[] sub = subpath.path(superspec);
@@ -344,6 +409,10 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
         qb.where();
         qb.and("ROOT0.id = :id");
         qb.param("id", id);
+        if (and != null) {
+            qb.and("");
+            qb.subselect(and);
+        }
 
         Query q = qb.query(session);
         @SuppressWarnings("unchecked")
@@ -430,56 +499,6 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
         qb.and("id in ");
         qb.subselect(sub);
         return qb;
-    }
-
-    /**
-     * If ids are non-empty, then calls a simple
-     * "delete TABLE where id in (:ids)"; otherwise, generates a query via
-     * {@link #buildQuery(DeleteEntry)} and uses the root "id"
-     *
-     * Originally copied from DeleteBean.
-     */
-    private String execute(final Session session, DeleteEntry entry, List<Long> ids)
-            throws DeleteException {
-
-        Query q;
-        final String[] path = entry.path(superspec);
-        final String table = path[path.length - 1];
-        final String str = StringUtils.join(path, "/");
-        final String which = ids != null ? ids.toString() : ("root id=" + id);
-
-        if (ids.size() == 0) {
-            if (log.isDebugEnabled()) {
-                log.debug("No ids found for " + str);
-            }
-            return ""; // Early exit!
-        }
-        q = session.createQuery("delete " + table + " where id in (:ids)");
-        q.setParameterList("ids", ids);
-
-        String sp = savepoint(session);
-        try {
-            int count = q.executeUpdate();
-            saveLogs(table, ids);
-            release(session, sp);
-
-            if (log.isDebugEnabled()) {
-                log.debug(String.format("Deleted %s from %s: %s", count, str, which));
-            }
-
-            return "";
-        } catch (ConstraintViolationException cve) {
-            rollback(session, sp);
-            String cause = "ConstraintViolation: " + cve.getConstraintName();
-            log.info(String.format("Failed to delete %s: %s due to %s",
-                    str, which, cause));
-            if (DeleteEntry.Op.SOFT.equals(entry.op)) {
-                return cause;
-            } else {
-                throw cve;
-            }
-        }
-
     }
 
     void saveLogs(String table, List<Long> ids) throws DeleteException {

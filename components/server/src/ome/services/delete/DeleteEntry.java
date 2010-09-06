@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 import ome.api.IDelete;
 
 import org.springframework.beans.FatalBeanException;
+import org.springframework.beans.factory.ListableBeanFactory;
 
 /**
  * Single value of the map entries from spec.xml. A value such as "HARD;/Roi"
@@ -77,6 +78,14 @@ public class DeleteEntry {
         this.parts = split(name);
     }
 
+    public DeleteEntry(DeleteSpec self, String name, Op op, String path) {
+        this.self = self;
+        this.name = name;
+        this.op = op;
+        this.path = path;
+        this.parts = split(name);
+    }
+
     /**
      * Splits the name of the entry into the path components. Any suffixes
      * prefixed with a "+" are stripped.
@@ -98,9 +107,6 @@ public class DeleteEntry {
 
     private static String[] prepend(String superspec, String path,
             String[] ownParts) {
-        if (superspec == null || superspec.length() == 0) {
-            return ownParts;
-        }
         String[] superParts = split(superspec);
         String[] pathParts = split(path);
         String[] totalParts = new String[superParts.length + pathParts.length
@@ -178,11 +184,13 @@ public class DeleteEntry {
      * Load the spec which has the same name as this entry, but do not load the
      * spec if the name matches {@link #name}
      */
-    protected void postProcess(Map<String, DeleteSpec> specs) {
+    protected void postProcess(ListableBeanFactory factory) {
         if (name.equals(self.getName())) {
             return;
+        } else if (factory.containsBean(name)) {
+            this.subSpec = factory.getBean(name, DeleteSpec.class);
+            this.subSpec.postProcess(factory);
         }
-        this.subSpec = specs.get(name);
     }
 
     @Override

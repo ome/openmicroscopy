@@ -300,7 +300,7 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes {
     @RolesAllowed("user")
     public List<Class<IAnnotated>> getAnnotationTypes() {
         return new ArrayList<Class<IAnnotated>>(this.metadata
-                .getAnnotationTypes());
+                .getAnnotatableTypes());
     }
 
     // Removed from interface

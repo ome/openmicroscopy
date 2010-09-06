@@ -138,9 +138,14 @@ public class DeleteServiceTest
 	
 	/** Identifies the ROI as root. */
 	private static final String REF_ROI = "/Roi";
-	
-	/** Identifies the Tag. */
-	private static final String REF_TAG = "/TagAnnotation";
+
+   /** Identifies annotation paths. This should be used in the {@link DeleteCommand#type}
+    * string, while the other paths can be used in for {@link DeleteCommand#options} keys.
+    */
+    private static final String REF_ANN = "/Annotation";
+
+    /** Identifies the Tag. */
+    private static final String REF_TAG = "/TagAnnotation";
 	
 	/** Identifies the Term. */
 	private static final String REF_TERM = "/TermAnnotation";
@@ -1600,7 +1605,7 @@ public class DeleteServiceTest
      * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test
     public void testDeleteObjectWithSharableAnnotations() 
     	throws Exception
     {
@@ -1743,7 +1748,7 @@ public class DeleteServiceTest
      * measurements.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test
     public void testPlateWithROIMeasurements() 
 		throws Exception
 	{
@@ -2087,7 +2092,7 @@ public class DeleteServiceTest
      * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test
     public void testImportedImage() 
     	throws Exception
     {
@@ -2244,7 +2249,7 @@ public class DeleteServiceTest
 		links.add(platel);
 		iUpdate.saveAndReturnArray(links);
 		//delete the tag
-		delete(new DeleteCommand(REF_TAG, tagId, null));
+		delete(new DeleteCommand(REF_ANN, tagId, null));
 		ParametersI param = new ParametersI();
     	param.addId(tagId);
 		String sql = "select a from Annotation as a where a.id = :id";
@@ -2325,7 +2330,7 @@ public class DeleteServiceTest
 		links.add(platel);
 		iUpdate.saveAndReturnArray(links);
 		//delete the tag
-		delete(new DeleteCommand(REF_TERM, tagId, null));
+		delete(new DeleteCommand(REF_ANN, tagId, null));
 		ParametersI param = new ParametersI();
     	param.addId(tagId);
 		String sql = "select a from Annotation as a where a.id = :id";
@@ -2408,7 +2413,7 @@ public class DeleteServiceTest
 		links.add(platel);
 		iUpdate.saveAndReturnArray(links);
 		//delete the tag
-		delete(new DeleteCommand(REF_FILE, tagId, null));
+		delete(new DeleteCommand(REF_ANN, tagId, null));
 		ParametersI param = new ParametersI();
     	param.addId(tagId);
 		String sql = "select a from Annotation as a where a.id = :id";

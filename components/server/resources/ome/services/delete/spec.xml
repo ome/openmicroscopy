@@ -58,6 +58,41 @@ plus test REAP
 
    <!-- SPECIFCATIONS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
+    <bean parent="delSpec" name="/Annotation" class="ome.services.delete.AnnotationDeleteSpec">
+        <description>
+        Lists all abstract and concrete annotation types as steps with their default operations.
+
+        This list is checked at startup to make sure that no values have been omitted.
+        In the implementation, the type hierarchy is used to apply user options to
+        the given type and all subtypes.
+
+        For example, if /BasicAnnotation=KEEP is applied,
+        then boolean, double, long, term, and timestamp
+        annotations will all be marked KEEP.
+
+        Indentation and order represent the hierarchy, from bottom to type.
+        </description>
+        <constructor-arg>
+            <list>
+                        <value>/FileAnnotation</value>
+                    <value>/TypeAnnotation</value>
+                    <value>/ListAnnotation</value>
+                        <value>/XmlAnnotation</value>
+                        <value>/TagAnnotation</value>
+                        <value>/CommentAnnotation</value>
+                    <value>/TextAnnotation</value>
+                        <value>/TimestampAnnotation</value>
+                        <value>/TermAnnotation</value>
+                            <value>/LongAnnotation</value>
+                            <value>/DoubleAnnotation</value>
+                        <value>/NumericAnnotation</value>
+                        <value>/BooleanAnnotation</value>
+                    <value>/BasicAnnotation</value>
+                <value>/Annotation</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
     <bean parent="delSpec" name="/Roi">
         <description>
         Deletes a

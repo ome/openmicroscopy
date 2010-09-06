@@ -12,6 +12,9 @@ import java.util.Set;
 import ome.model.IAnnotated;
 import ome.model.ILink;
 import ome.model.IObject;
+import ome.model.annotations.Annotation;
+import ome.model.annotations.BasicAnnotation;
+import ome.model.annotations.LongAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.DatasetImageLink;
 import ome.model.containers.Project;
@@ -42,9 +45,19 @@ public class ExtendedMetadataTest extends AbstractManagedContextTest {
 
     @Test
     public void testAnnotatedAreFound() throws Exception {
-        Set<Class<IAnnotated>> anns = metadata.getAnnotationTypes();
-        assertTrue(anns.contains(Image.class.getSimpleName()));
-        assertTrue(anns.contains(Project.class.getSimpleName()));
+        Set<Class<IAnnotated>> anns = metadata.getAnnotatableTypes();
+        assertTrue(anns.contains(Image.class));
+        assertTrue(anns.contains(Project.class));
+        // And several others
+    }
+
+
+    @Test
+    public void testAnnotationsAreFound() throws Exception {
+        Set<Class<Annotation>> anns = metadata.getAnnotationTypes();
+        assertTrue(anns.toString(), anns.contains(Annotation.class));
+        assertTrue(anns.toString(), anns.contains(BasicAnnotation.class));
+        assertTrue(anns.toString(), anns.contains(LongAnnotation.class));
         // And several others
     }
 
@@ -55,7 +68,7 @@ public class ExtendedMetadataTest extends AbstractManagedContextTest {
      */
     @Test(groups = {"broken","fixme"})
     public void testAnnotatedAreFoundByFQN() throws Exception {
-        Set<Class<IAnnotated>> anns = metadata.getAnnotationTypes();
+        Set<Class<IAnnotated>> anns = metadata.getAnnotatableTypes();
         assertTrue(anns.contains(Image.class));
         assertTrue(anns.contains(Project.class));
         // And several others
@@ -184,9 +197,9 @@ public class ExtendedMetadataTest extends AbstractManagedContextTest {
     @Test(groups = "ticket:2665")
     public void testRelationships() {
         String rel;
-        rel = metadata.getRelationship(Pixels.class.getName(), Image.class.getName());
+        rel = metadata.getRelationship(Pixels.class.getSimpleName(), Image.class.getSimpleName());
         assertEquals("image", rel);
-        rel = metadata.getRelationship(Image.class.getName(), Pixels.class.getName());
+        rel = metadata.getRelationship(Image.class.getSimpleName(), Pixels.class.getSimpleName());
         assertEquals("pixels", rel);
     }
 

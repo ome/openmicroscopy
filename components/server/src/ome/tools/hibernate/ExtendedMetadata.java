@@ -20,6 +20,7 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.model.IAnnotated;
 import ome.model.IObject;
+import ome.model.annotations.Annotation;
 import ome.model.internal.Permissions;
 
 import org.apache.commons.logging.Log;
@@ -54,7 +55,12 @@ public interface ExtendedMetadata {
     /**
      * Returns all the classes which implement {@link IAnnotated}
      */
-    Set<Class<IAnnotated>> getAnnotationTypes();
+    Set<Class<IAnnotated>> getAnnotatableTypes();
+
+    /**
+     * Returns all the classes which subclass {@link Annotation}
+     */
+    Set<Class<Annotation>> getAnnotationTypes();
 
     /**
      * Returns the query for obtaining the number of collection items to a
@@ -106,7 +112,7 @@ public interface ExtendedMetadata {
 
     /**
      * Walks both the {@link #locksHolder} and the {@link #lockedByHolder} data
-     * for "from" argument to see if there is any direct relationship to th
+     * for "from" argument to see if there is any direct relationship to the
      * "to" argument. If there is, the name will be returned. Otherwise, null.
      */
     String getRelationship(String from, String to);
@@ -129,7 +135,9 @@ public static class Impl implements ExtendedMetadata, ApplicationListener {
 
     private final Map<String, Class<IObject>> targetHolder = new HashMap<String, Class<IObject>>();
 
-    private final Set<Class<IAnnotated>> annotationTypes = new HashSet<Class<IAnnotated>>();
+    private final Set<Class<IAnnotated>> annotatableTypes = new HashSet<Class<IAnnotated>>();
+
+    private final Set<Class<Annotation>> annotationTypes = new HashSet<Class<Annotation>>();
 
     private final Map<String, Map<String, String>> relationships = new HashMap<String, Map<String, String>>();
 
@@ -228,6 +236,7 @@ public static class Impl implements ExtendedMetadata, ApplicationListener {
         }
 
         Set<Class<IAnnotated>> anns = new HashSet<Class<IAnnotated>>();
+        Set<Class<Annotation>> anns2 = new HashSet<Class<Annotation>>();
         for (String key : m.keySet()) {
             ClassMetadata cm = m.get(key);
             Map<String, String> queries = countQueriesAndEditTargets(key,
@@ -239,8 +248,12 @@ public static class Impl implements ExtendedMetadata, ApplicationListener {
             if (IAnnotated.class.isAssignableFrom(c)) {
                 anns.add(c);
             }
+            if (Annotation.class.isAssignableFrom(c)) {
+                anns2.add(c);
+            }
         }
-        annotationTypes.addAll(anns);
+        annotatableTypes.addAll(anns);
+        annotationTypes.addAll(anns2);
         initialized = true;
     }
 
@@ -266,10 +279,11 @@ public static class Impl implements ExtendedMetadata, ApplicationListener {
         return null;
     }
 
-    /**
-     * Returns all the classes which implement {@link IAnnotated}
-     */
-    public Set<Class<IAnnotated>> getAnnotationTypes() {
+    public Set<Class<IAnnotated>> getAnnotatableTypes() {
+        return Collections.unmodifiableSet(annotatableTypes);
+    }
+
+    public Set<Class<Annotation>> getAnnotationTypes() {
         return Collections.unmodifiableSet(annotationTypes);
     }
 

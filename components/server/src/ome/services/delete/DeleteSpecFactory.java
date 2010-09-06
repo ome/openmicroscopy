@@ -38,7 +38,7 @@ public class DeleteSpecFactory implements ApplicationContextAware {
         specs = ctx.getBeansOfType(DeleteSpec.class);
 
         for (DeleteSpec spec : specs.values()) {
-            spec.postProcess(specs);
+            spec.postProcess(ctx);
         }
 
     }

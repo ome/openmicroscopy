@@ -15,11 +15,14 @@ import java.util.List;
 import java.util.Map;
 
 import ome.services.delete.DeleteEntry.Op;
+import ome.system.OmeroContext;
 import ome.tools.hibernate.ExtendedMetadata;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
+import org.jmock.core.stub.DefaultResultStub;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.config.ConstructorArgumentValues;
 import org.springframework.beans.factory.support.RootBeanDefinition;
@@ -32,6 +35,8 @@ import org.testng.annotations.Test;
 public class DeleteSpecUnitTest extends MockObjectTestCase {
 
     private ClassPathXmlApplicationContext specXml;
+
+    private Mock emMock;
 
     @BeforeMethod
     public void setup() {
@@ -50,8 +55,9 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
         sac.registerBeanDefinition("extendedMetadata", em);
         sac.refresh();
 
-        specXml = new ClassPathXmlApplicationContext(
+        specXml = new OmeroContext(
                 new String[]{"classpath:ome/services/delete/spec.xml"}, sac);
+        emMock = specXml.getBean("mock", Mock.class);
     }
 
     /**
@@ -85,7 +91,7 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
     private void assertValidEntry(DeleteSpec spec, String string, String name,
             Op op, boolean hasSubSpec) {
         DeleteEntry de = new DeleteEntry(spec, string);
-        de.postProcess(specXml.getBeansOfType(DeleteSpec.class));
+        de.postProcess(specXml);
         assertEquals(name, de.name);
         assertEquals(op, de.op);
         // assertEquals(hasSubSpec, de.getSubSpec() != null);
@@ -117,10 +123,21 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
      */
     @Test
     public void testUsage() throws Exception {
+
+        // Setup
+        Mock sessionMock = mock(Session.class);
+        Session session = (Session) sessionMock.proxy();
+
+        Mock queryMock = mock(Query.class);
+        queryMock.setDefaultStub(new DefaultResultStub());
+        Query query = (Query) queryMock.proxy();
+
+        sessionMock.expects(atLeastOnce()).method("createQuery").will(returnValue(query));
+        emMock.expects(once()).method("getRelationship").will(returnValue("shapes"));
+        emMock.expects(once()).method("getRelationship").will(returnValue("annotationLinks"));
+
         DeleteSpec roi = specXml
-                .getBean("/Roi", BaseDeleteSpec.class);
-        Mock mock = mock(Session.class);
-        Session session = (Session) mock.proxy();
+        .getBean("/Roi", BaseDeleteSpec.class);
         DeleteIds ids = new DeleteIds(session, roi);
         roi.initialize(1, null, null);
         // roi.delete(session, 0, ids); // Requires mock setup
@@ -133,7 +150,7 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
     public void testSubSpecIterator() throws Exception {
         Map<String, DeleteSpec> specs = specXml.getBeansOfType(DeleteSpec.class);
         DeleteSpec image = specs.get("/Image");
-        image.postProcess(specs);
+        image.postProcess(specXml);
         image.initialize(1, null, null);
 
         Iterator<DeleteSpec> it = image.walk();
@@ -141,11 +158,16 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
         expected.add(specs.get("/Roi"));
         expected.add(specs.get("/Image/Pixels/RenderingDef"));
         expected.add(specs.get("/Image/Pixels/Channel"));
+        expected.add(specs.get("/Annotation"));
         expected.add(image);
+        expected.add(specs.get("/Instrument"));
         while (it.hasNext()) {
-            DeleteSpec want = expected.remove(0);
             DeleteSpec found = it.next();
-            assertEquals(want, found);
+            assertTrue(found.toString() + " not expected", expected.size() > 0);
+            DeleteSpec want = expected.remove(0);
+            // assertEquals(want, found);
+            // No longer able to test by equality
+            assertEquals(want.getName(), found.getName());
         }
         assertEquals(expected.toString(), 0, expected.size());
     }
