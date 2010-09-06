@@ -7761,10 +7761,9 @@ public class OMEROMetadataStoreClient
      */
     public void setWellStatus(String status, int plateIndex, int wellIndex)
     {
-        LSID key = new LSID(Well.class, plateIndex, wellIndex);
-        addReference(key, new LSID(status));
+        //TODO missing from omero model
     }
-    
+
     //////// WellSample /////////
     
     /**

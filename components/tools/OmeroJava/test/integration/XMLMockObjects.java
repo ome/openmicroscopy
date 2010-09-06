@@ -781,7 +781,7 @@ public class XMLMockObjects
 				well.setID(String.format("Well:%d_%d", row, column));
 				well.setRow(new NonNegativeInteger(row));
 				well.setColumn(new NonNegativeInteger(column));
-				//well.setStatus("Transfection: done");
+				well.setStatus("Transfection: done");
 				well.setExternalDescription("External Description");
 				well.setExternalIdentifier("External Identifier");
 				
@@ -791,7 +791,6 @@ public class XMLMockObjects
 					sample.setPositionX(0.0);
 					sample.setPositionY(1.0);
 					sample.setTimepoint("2006-05-04T18:13:51.0Z");
-					//sample.setTimepoint("2006-05-04T18:13:51.0Z");
 					sample.setID(String.format("WellSample:%d_%d", row, column));
 					sample.setIndex(new NonNegativeInteger(i));
 					//create an image. and register it
