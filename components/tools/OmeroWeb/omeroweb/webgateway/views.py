@@ -20,7 +20,11 @@ from django.core import template_loader
 from django.core.urlresolvers import reverse
 from django.template import RequestContext as Context
 
-import hashlib
+try:
+    from hashlib import md5
+except:
+    from md5 import md5
+    
 from cStringIO import StringIO
 
 from omero import client_wrapper, ApiUsageException
