@@ -39,6 +39,7 @@ import ome.xml.model.Detector;
 import ome.xml.model.DetectorSettings;
 import ome.xml.model.Dichroic;
 import ome.xml.model.Ellipse;
+import ome.xml.model.Experiment;
 import ome.xml.model.Filament;
 import ome.xml.model.FileAnnotation;
 import ome.xml.model.Filter;
@@ -54,6 +55,7 @@ import ome.xml.model.LightSourceSettings;
 import ome.xml.model.Line;
 import ome.xml.model.LongAnnotation;
 import ome.xml.model.Mask;
+import ome.xml.model.MicrobeamManipulation;
 import ome.xml.model.Microscope;
 import ome.xml.model.OMEModelObject;
 import ome.xml.model.Objective;
@@ -88,12 +90,14 @@ import ome.xml.model.enums.ContrastMethod;
 import ome.xml.model.enums.Correction;
 import ome.xml.model.enums.DetectorType;
 import ome.xml.model.enums.DimensionOrder;
+import ome.xml.model.enums.ExperimentType;
 import ome.xml.model.enums.FilamentType;
 import ome.xml.model.enums.FilterType;
 import ome.xml.model.enums.IlluminationType;
 import ome.xml.model.enums.Medium;
 import ome.xml.model.enums.Immersion;
 import ome.xml.model.enums.LaserType;
+import ome.xml.model.enums.MicrobeamManipulationType;
 import ome.xml.model.enums.MicroscopeType;
 import ome.xml.model.enums.NamingConvention;
 import ome.xml.model.enums.PixelType;
@@ -156,6 +160,13 @@ public class XMLMockObjects
 	
 	/** The default type of a microscope. */
 	public static final MicroscopeType MICROSCOPE_TYPE = MicroscopeType.UPRIGHT;
+	
+	/** The default type of a microscope. */
+	public static final ExperimentType EXPERIMENT_TYPE = ExperimentType.FISH;
+	
+	/** The default type of a microbeam manipulation. */
+	public static final MicrobeamManipulationType 
+		MICROBEAM_MANIPULATION_TYPE = MicrobeamManipulationType.FLIP;
 	
 	/** The default binning value. */
 	public static final Binning BINNING = Binning.TWOXTWO;
@@ -501,6 +512,35 @@ public class XMLMockObjects
 	}
 	
 	/**
+	 * Creates a microbeam manipulation.
+	 * 
+	 * @param index The index in the file.
+	 * @return See above.
+	 */
+	protected MicrobeamManipulation createMicrobeamManipulation(int index)
+	{
+		MicrobeamManipulation mm = new MicrobeamManipulation();
+		mm.setID("MicrobeamManipulation:"+index);
+		
+		mm.setType(MICROBEAM_MANIPULATION_TYPE);
+		return mm;
+	}
+	
+	/**
+	 * Creates an experiment.
+	 * 
+	 * @param index The index in the file.
+	 * @return See above.
+	 */
+	protected Experiment createExperiment(int index)
+	{
+		Experiment exp = new Experiment();
+		exp.setDescription("Experiment");
+		exp.setID("Experiment:"+index);
+		return exp;
+	}
+	
+	/**
 	 * Creates a detector settings.
 	 * 
 	 * @param ref Reference to the detector.
@@ -785,7 +825,6 @@ public class XMLMockObjects
 				well.setStatus("Transfection: done");
 				well.setExternalDescription("External Description");
 				well.setExternalIdentifier("External Identifier");
-				
 				well.setColor(255);
 				for (int field = 0; field < fields; field++) {
 					sample = new WellSample();
@@ -925,8 +964,7 @@ public class XMLMockObjects
 		channel.setPockelCellSetting(0);
 		return channel;
 	}
-	
-	
+
 	/** 
 	 * Creates a new image.
 	 * 
@@ -1200,6 +1238,18 @@ public class XMLMockObjects
 	{
 		populateInstrument();
 		Image image = createImage(0, true);
+		//Add microbeam
+		Experiment exp = createExperiment(0);
+		ome.addExperiment(exp);
+		MicrobeamManipulation mm = createMicrobeamManipulation(0);
+		exp.addMicrobeamManipulation(mm);
+		Pixels pixels = image.getPixels();
+		Channel c;
+		for (int i = 0; i < pixels.getSizeC().getValue().intValue(); i++) {
+			c = pixels.getChannel(i);
+			mm.addLightSourceSettings(c.getLightSourceSettings());
+		}
+		
 		image.linkInstrument(instrument);
 		ome.addImage(image);
 		return ome;

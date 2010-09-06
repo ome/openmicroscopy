@@ -47,7 +47,6 @@ import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
-import ome.model.screen.Screen;
 import ome.xml.model.OME;
 import omero.api.IRoiPrx;
 import omero.api.RoiOptions;
@@ -60,6 +59,7 @@ import omero.model.CommentAnnotation;
 import omero.model.Detector;
 import omero.model.DetectorSettings;
 import omero.model.Dichroic;
+import omero.model.Experiment;
 import omero.model.Filament;
 import omero.model.Filter;
 import omero.model.FilterSet;
@@ -74,6 +74,7 @@ import omero.model.LightPath;
 import omero.model.LightSettings;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
+import omero.model.MicrobeamManipulation;
 import omero.model.Microscope;
 import omero.model.OTF;
 import omero.model.Objective;
@@ -478,7 +479,7 @@ public class ImporterTest
 				xml.getWellOriginX().doubleValue());
 		assertEquals(plate.getWellOriginY().getValue(), 
 				xml.getWellOriginY().doubleValue());
-		//assertEquals(plate.getStatus().getValue(), xml.getStatus());
+		assertEquals(plate.getStatus().getValue(), xml.getStatus());
 	}
 
 	/**
@@ -556,6 +557,34 @@ public class ImporterTest
 		assertEquals(pa.getStartTime().getValue(), ts.getTime());
 	}
 
+	/**
+	 * Validates if the inserted object corresponds to the XML object.
+	 * 
+	 * @param mm The microbeam manipulation to check.
+	 * @param xml The XML version.
+	 */
+	private void validateMicrobeamManipulation(MicrobeamManipulation mm, 
+			ome.xml.model.MicrobeamManipulation xml)
+	{
+		assertEquals(mm.getType().getValue().getValue(), 
+				xml.getType().getValue());
+	}
+	
+	/**
+	 * Validates if the inserted object corresponds to the XML object.
+	 * 
+	 * @param experiment The microbeam manipulation to check.
+	 * @param xml The XML version.
+	 */
+	private void validateExperiment(Experiment experiment, 
+			ome.xml.model.Experiment xml)
+	{
+		assertEquals(experiment.getType().getValue().getValue(), 
+				xml.getType().getValue());
+		assertEquals(experiment.getDescription().getValue(), 
+				xml.getDescription());
+	}
+	
 	/**
 	 * Creates a basic buffered image.
 	 * 
@@ -752,8 +781,28 @@ public class ImporterTest
      * Tests the import of an OME-XML file with one image w/o binary data.
      * @throws Exception Thrown if an error occurred.
      */
+	@Test(enabled = true)
+	public void testImportSimpleImageMetadataOnly()
+		throws Exception
+	{
+		File f = File.createTempFile("testImportSimpleImage", "."+OME_FORMAT);
+		files.add(f);
+		XMLMockObjects xml = new XMLMockObjects();
+		XMLWriter writer = new XMLWriter();
+		writer.writeFile(f, xml.createImage(), true);
+		try {
+			importFile(f, OME_FORMAT, true);
+		} catch (Throwable e) {
+			throw new Exception("cannot import image", e);
+		}
+	}
+	
+	/**
+     * Tests the import of an OME-XML file with one image w/o binary data.
+     * @throws Exception Thrown if an error occurred.
+     */
 	@Test(enabled = false)
-	public void testImportSimpleImageWithoutBinaryData()
+	public void testImportSimpleImageMetadataOnlyNoBinaryInFile()
 		throws Exception
 	{
 		File f = File.createTempFile("testImportSimpleImage", "."+OME_FORMAT);
@@ -818,6 +867,7 @@ public class ImporterTest
      * Tests the import of an OME-XML file with an image with acquisition data.
      * @throws Exception Thrown if an error occurred.
      */
+	@Test(enabled = false)
 	public void testImportImageWithAcquisitionData()
 		throws Exception
 	{
@@ -826,7 +876,8 @@ public class ImporterTest
 		files.add(f);
 		XMLMockObjects xml = new XMLMockObjects();
 		XMLWriter writer = new XMLWriter();
-		writer.writeFile(f, xml.createImageWithAcquisitionData(), true);
+		OME ome = xml.createImageWithAcquisitionData();
+		writer.writeFile(f, ome, true);
 		List<Pixels> pixels = null;
 		try {
 			pixels = importFile(f, OME_FORMAT);
@@ -974,6 +1025,9 @@ public class ImporterTest
     	ome.xml.model.LightSourceSettings xmlLs = 
     		xml.createLightSourceSettings(0);
     	
+    	ome.xml.model.MicrobeamManipulation xmlMM = 
+    		xml.createMicrobeamManipulation(0);
+    	ome.xml.model.Experiment xmlExp = ome.getExperiment(0);
     	LightPath path;
     	Iterator<LogicalChannel> k = l.iterator();
     	while (k.hasNext()) {
@@ -989,6 +1043,11 @@ public class ImporterTest
 			assertNotNull(ls.getLightSource());
 			assertTrue(lights.contains(ls.getLightSource().getId().getValue()));
 			validateLightSourceSettings(ls, xmlLs);
+			assertNotNull(ls.getMicrobeamManipulation());
+			validateMicrobeamManipulation(ls.getMicrobeamManipulation(), xmlMM);
+			assertNotNull(ls.getMicrobeamManipulation().getExperiment());
+			validateExperiment(ls.getMicrobeamManipulation().getExperiment(), 
+					xmlExp);
 			path = lc.getLightPath();
 			assertNotNull(lc);
 			assertNotNull(path.getDichroic());
