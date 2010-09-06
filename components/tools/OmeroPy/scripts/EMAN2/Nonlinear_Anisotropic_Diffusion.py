@@ -28,7 +28,7 @@ nad_eed_3d -i 3,6 -k 102 BB-rec.mrc BB-rec-nad.mrc
 
 See http://bio3d.colorado.edu/imod/doc/man/nad_eed_3d.html
 
-The results of the script (Images) can then be uploaded back to OMERO in a new dataset (or same dataset)
+The results of the script (Images) can then be uploaded back to OMERO in the same dataset
     
 @author  Will Moore &nbsp;&nbsp;&nbsp;&nbsp;
 <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -198,7 +198,7 @@ def runNAD(session, parameterMap):
             outputImages.append(image)
 
     outputImages.sort(key=lambda image: image.getName().getValue())     # sort by name
-    return outputImages
+    return (outputImages, dataset)
     
 
 def runAsScript():
@@ -210,7 +210,7 @@ def runAsScript():
     
     client = scripts.client('Nonlinear_Anisotropic_Diffusion.py', """Nonlinear Anisotropic Diffusion against Images on OMERO.
 Uses command line functionality from IMOD. See http://bio3d.colorado.edu/imod/doc/man/nad_eed_3d.html""", 
-    scripts.String("Image_ID", optional=False, grouping="1",
+    scripts.Long("Image_ID", optional=False, grouping="1",
         description="ID of the image you want to work with."),
     scripts.Float("K_Value", optional=False, grouping="2",
         description="The K value, or lambda to apply to the processing."),
@@ -227,14 +227,17 @@ Uses command line functionality from IMOD. See http://bio3d.colorado.edu/imod/do
             if client.getInput(key):
                 parameterMap[key] = client.getInput(key).getValue()
     
-        images = runNAD(session, parameterMap)
+        images, dataset = runNAD(session, parameterMap)
         
         if len(images) == 0:
             client.setOutput("Message", rstring("Script failed. IMOD not installed on server? See Errors"))
         else:
             print [i.getName().getValue() for i in images]
-            client.setOutput("Message", rstring("Script created %s images. Refresh Dataset to see" % len(images)))
-            client.setOutput("Last_Image",robject(images[-1]))
+            client.setOutput("Message", rstring("Script created %s images in current Dataset" % len(images)))
+            for i in images:    # return all the images 
+                client.setOutput("Image_%s" % i.getId().getValue(),robject(i))
+            if dataset:
+                client.setOutput("Dataset",robject(dataset))
     except: raise
     finally: client.closeSession()
     

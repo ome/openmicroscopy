@@ -39,8 +39,6 @@ import os
 
 import numpy
 
-import Image     # for saving tiff locally. Maybe better to use EMAN2? 
-
 import omero
 import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
 import omero.scripts as scripts

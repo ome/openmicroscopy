@@ -126,7 +126,7 @@ def uploadBdbAsDataset(infile, dataset):
     fileName = "original_metadata.txt"
     
     # loop through all the images.
-    if demo: nimg = min(50, nimg) 
+    nimg = min(5, nimg) 
     for i in range(nimg):
         description = "Imported from EMAN2 bdb: %s" % infile
         newImageName = ""
@@ -278,7 +278,7 @@ def importMicrographs(path, datasetName="raw_data", project=None):
     uploadBdbAsDataset(imageList, dataset)
                 
 
-def importParticles(dbpath, bdbExt=None, datasetName=None, project=None):
+def importParticles(dbpath, bdbExt=None, datasetName=None, project=None, desc=None):
     """ 
     Imports particles from bdbs in the specified folder into a new dataset. 
     If datasetName is not specified, a dataset is created for each bdb.
@@ -294,22 +294,23 @@ def importParticles(dbpath, bdbExt=None, datasetName=None, project=None):
     dataset = None
     # create dataset
     if datasetName:
-        dataset = createDataset(datasetName, project)
+        dataset = createDataset(datasetName, project, desc=desc)
     
     # import selected folders
     print "Uploading bdbs ", dbs
     for db in dbs:
         if bdbExt == None or db.endswith(bdbExt):
             infile = dbpath + db
-            if datasetName == None: dataset = createDataset(db, project)
+            if datasetName == None: dataset = createDataset(db, project)    #TODO: need description!
             uploadBdbAsDataset(infile, dataset)
 
 
-def createDataset(datasetName, project=None, imageIds=None):
+def createDataset(datasetName, project=None, imageIds=None, desc=None):
     """ Simply creates a new dataset. Linked to project and imageIds if specified """
     
     dataset = omero.model.DatasetI()
     dataset.name = rstring(datasetName)
+    if desc:    dataset.description = rstring(desc)
     dataset = gateway.saveAndReturnObject(dataset)
     if project:        # and put it in a new project
         link = omero.model.ProjectDatasetLinkI()
@@ -367,12 +368,15 @@ def emanToOmero(commandArgs):
         return
     
     # import the micrographs in the root folder  
-    importMicrographs(path, project=project)
+    #importMicrographs(path, project=project)
     
     # import particles into 3 datasets, "particles", "ctf", "wiener"
-    importParticles(path + "particles", bdbExt="ptcls", datasetName="particles", project=project)
-    importParticles(path + "particles", bdbExt="ctf_flip", datasetName="ctf", project=project)
-    importParticles(path + "particles", bdbExt="ctf_wiener", datasetName="wiener", project=project)
+    d = "Raw particle images picked from original micrographs"
+    importParticles(path + "particles", bdbExt="ptcls", datasetName="particles", project=project, desc=d)
+    d = "Ctf-corrected particle images, phase flipped"
+    importParticles(path + "particles", bdbExt="ctf_flip", datasetName="ctf", project=project, desc=d)
+    d = "Ctf-corrected particles, weiner filtered"
+    importParticles(path + "particles", bdbExt="ctf_wiener", datasetName="wiener", project=project, desc=d)
     
     # make a dataset from each particle set (only do '...flipped' particle sets)
     importParticles(path + "sets", bdbExt="flipped", project=project)

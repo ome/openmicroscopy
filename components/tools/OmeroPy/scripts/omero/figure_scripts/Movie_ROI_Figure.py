@@ -728,7 +728,7 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIMovieFigure"""
     scripts.Int("Max_Columns", grouping="4.1", default=10,
         description="The maximum number of columns in the figure, for ROI-movie frames.", min=1),
     
-    scripts.Bool("Resize_Images", grouping="5", default=False,
+    scripts.Bool("Resize_Images", grouping="5", default=True,
         description="Images are shown full-size by default, but can be resized below"),
         
     scripts.Int("Width", grouping="5.1",
