@@ -246,6 +246,9 @@ class OMEROGateway
 	private static final String REF_ROI = "/Roi";
 	
 	/** Identifies the Tag. */
+	private static final String REF_ANNOTATION = "/Annotation";
+	
+	/** Identifies the Tag. */
 	private static final String REF_TAG = "/TagAnnotation";
 	
 	/** Identifies the Term. */
@@ -1939,7 +1942,26 @@ class OMEROGateway
 		else if (ScreenData.class.getName().equals(data)) return REF_SCREEN;
 		else if (PlateData.class.getName().equals(data)) return REF_PLATE;
 		else if (ROIData.class.getName().equals(data)) return REF_ROI;
-		else if (TagAnnotationData.class.getName().equals(data)) 
+		else if (TagAnnotationData.class.getName().equals(data) || 
+				TermAnnotationData.class.getName().equals(data) ||
+				FileAnnotationData.class.getName().equals(data)) 
+			return REF_ANNOTATION;
+		else if (TermAnnotationData.class.getName().equals(data)) 
+			return REF_TERM;
+		else if (FileAnnotationData.class.getName().equals(data)) 
+			return REF_FILE;
+		throw new IllegalArgumentException("Cannot delete the speficied type.");
+	}
+	
+	/**
+	 * Creates the string corresponding to the object to delete.
+	 * 
+	 * @param data The object to handle.
+	 * @return See above.
+	 */
+	String createDeleteOption(String data)
+	{
+		if (TagAnnotationData.class.getName().equals(data))
 			return REF_TAG;
 		else if (TermAnnotationData.class.getName().equals(data)) 
 			return REF_TERM;

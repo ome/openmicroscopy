@@ -932,7 +932,7 @@ class OmeroDataServiceImpl
 				options = new HashMap<String, String>();
 				j = annotations.iterator();
 				while (j.hasNext()) {
-					options.put(gateway.createDeleteCommand(j.next().getName()), 
+					options.put(gateway.createDeleteOption(j.next().getName()), 
 							OMEROGateway.KEEP);
 				}
 			}
