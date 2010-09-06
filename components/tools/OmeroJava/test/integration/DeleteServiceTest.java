@@ -444,15 +444,15 @@ public class DeleteServiceTest
     	List<IObject> links = new ArrayList<IObject>();
     	if (parent1 instanceof Image) {
     		ImageAnnotationLink link = new ImageAnnotationLinkI();
-    		link.setChild(c);
+    		link.setChild(new TagAnnotationI(c.getId().getValue(), false));
     		link.setParent((Image) parent1);
     		links.add(link);
     		link = new ImageAnnotationLinkI();
-    		link.setChild(t);
+    		link.setChild(new TermAnnotationI(t.getId().getValue(), false));
     		link.setParent((Image) parent1);
     		links.add(link);
     		link = new ImageAnnotationLinkI();
-    		link.setChild(f);
+    		link.setChild(new FileAnnotationI(f.getId().getValue(), false));
     		link.setParent((Image) parent1);
     		links.add(link);
     		if (parent2 != null) {
@@ -470,15 +470,15 @@ public class DeleteServiceTest
     		}
     	} else if (parent1 instanceof Project) {
     		ProjectAnnotationLink link = new ProjectAnnotationLinkI();
-    		link.setChild(c);
+    		link.setChild(new TagAnnotationI(c.getId().getValue(), false));
     		link.setParent((Project) parent1);
     		links.add(link);
     		link = new ProjectAnnotationLinkI();
-    		link.setChild(t);
+    		link.setChild(new TermAnnotationI(t.getId().getValue(), false));
     		link.setParent((Project) parent1);
     		links.add(link);
     		link = new ProjectAnnotationLinkI();
-    		link.setChild(f);
+    		link.setChild(new FileAnnotationI(f.getId().getValue(), false));
     		link.setParent((Project) parent1);
     		links.add(link);
     		if (parent2 != null) {
@@ -496,15 +496,15 @@ public class DeleteServiceTest
     		}
     	} else if (parent1 instanceof Dataset) {
     		DatasetAnnotationLink link = new DatasetAnnotationLinkI();
-    		link.setChild(c);
+    		link.setChild(new TagAnnotationI(c.getId().getValue(), false));
     		link.setParent((Dataset) parent1);
     		links.add(link);
     		link = new DatasetAnnotationLinkI();
-    		link.setChild(t);
+    		link.setChild(new TermAnnotationI(t.getId().getValue(), false));
     		link.setParent((Dataset) parent1);
     		links.add(link);
     		link = new DatasetAnnotationLinkI();
-    		link.setChild(f);
+    		link.setChild(new FileAnnotationI(f.getId().getValue(), false));
     		link.setParent((Dataset) parent1);
     		links.add(link);
     		if (parent2 != null) {
@@ -522,15 +522,15 @@ public class DeleteServiceTest
     		}
     	} else if (parent1 instanceof Plate) {
     		PlateAnnotationLink link = new PlateAnnotationLinkI();
-    		link.setChild(c);
+    		link.setChild(new TagAnnotationI(c.getId().getValue(), false));
     		link.setParent((Plate) parent1);
     		links.add(link);
     		link = new PlateAnnotationLinkI();
-    		link.setChild(t);
+    		link.setChild(new TermAnnotationI(t.getId().getValue(), false));
     		link.setParent((Plate) parent1);
     		links.add(link);
     		link = new PlateAnnotationLinkI();
-    		link.setChild(f);
+    		link.setChild(new FileAnnotationI(f.getId().getValue(), false));
     		link.setParent((Plate) parent1);
     		links.add(link);
     		if (parent2 != null) {
@@ -548,15 +548,15 @@ public class DeleteServiceTest
     		}
     	} else if (parent1 instanceof Screen) {
     		ScreenAnnotationLink link = new ScreenAnnotationLinkI();
-    		link.setChild(c);
+    		link.setChild(new TagAnnotationI(c.getId().getValue(), false));
     		link.setParent((Screen) parent1);
     		links.add(link);
     		link = new ScreenAnnotationLinkI();
-    		link.setChild(t);
+    		link.setChild(new TermAnnotationI(t.getId().getValue(), false));
     		link.setParent((Screen) parent1);
     		links.add(link);
     		link = new ScreenAnnotationLinkI();
-    		link.setChild(f);
+    		link.setChild(new FileAnnotationI(f.getId().getValue(), false));
     		link.setParent((Screen) parent1);
     		links.add(link);
     		if (parent2 != null) {
@@ -574,15 +574,15 @@ public class DeleteServiceTest
     		}
     	} else if (parent1 instanceof Well) {
     		WellAnnotationLink link = new WellAnnotationLinkI();
-    		link.setChild(c);
+    		link.setChild(new TagAnnotationI(c.getId().getValue(), false));
     		link.setParent((Well) parent1);
     		links.add(link);
     		link = new WellAnnotationLinkI();
-    		link.setChild(t);
+    		link.setChild(new TermAnnotationI(t.getId().getValue(), false));
     		link.setParent((Well) parent1);
     		links.add(link);
     		link = new WellAnnotationLinkI();
-    		link.setChild(f);
+    		link.setChild(new FileAnnotationI(f.getId().getValue(), false));
     		link.setParent((Well) parent1);
     		links.add(link);
     		if (parent2 != null) {
@@ -600,15 +600,15 @@ public class DeleteServiceTest
     		}
     	} else if (parent1 instanceof WellSample) {
     		WellSampleAnnotationLink link = new WellSampleAnnotationLinkI();
-    		link.setChild(c);
+    		link.setChild(new TagAnnotationI(c.getId().getValue(), false));
     		link.setParent((WellSample) parent1);
     		links.add(link);
     		link = new WellSampleAnnotationLinkI();
-    		link.setChild(t);
+    		link.setChild(new TermAnnotationI(t.getId().getValue(), false));
     		link.setParent((WellSample) parent1);
     		links.add(link);
     		link = new WellSampleAnnotationLinkI();
-    		link.setChild(f);
+    		link.setChild(new FileAnnotationI(f.getId().getValue(), false));
     		link.setParent((WellSample) parent1);
     		links.add(link);
     		if (parent2 != null) {
@@ -627,15 +627,15 @@ public class DeleteServiceTest
     	} else if (parent1 instanceof PlateAcquisition) {
     		PlateAcquisitionAnnotationLink link = 
     			new PlateAcquisitionAnnotationLinkI();
-    		link.setChild(c);
+    		link.setChild(new TagAnnotationI(c.getId().getValue(), false));
     		link.setParent((PlateAcquisition) parent1);
     		links.add(link);
     		link = new PlateAcquisitionAnnotationLinkI();
-    		link.setChild(t);
+    		link.setChild(new TermAnnotationI(t.getId().getValue(), false));
     		link.setParent((PlateAcquisition) parent1);
     		links.add(link);
     		link = new PlateAcquisitionAnnotationLinkI();
-    		link.setChild(f);
+    		link.setChild(new FileAnnotationI(f.getId().getValue(), false));
     		link.setParent((PlateAcquisition) parent1);
     		links.add(link);
     		if (parent2 != null) {
@@ -2129,7 +2129,7 @@ public class DeleteServiceTest
      * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(enabled = false)
     public void testDeleteObjectWithSharedAnnotationSoftOption() 
     	throws Exception
     { 
@@ -2140,6 +2140,7 @@ public class DeleteServiceTest
     	Image img2 = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.simpleImage(0));
     	List<Long> ids = createSharableAnnotation(img1, img2);
+    	assertEquals(n, ids.size());
     	//now delete the image 1.
     	delete(new DeleteCommand(REF_IMAGE, img1.getId().getValue(), null));
     	ParametersI param = new ParametersI();
@@ -2556,6 +2557,41 @@ public class DeleteServiceTest
     	param = new ParametersI();
     	param.addId(plateID);
     	assertNull(iQuery.findByQuery(sql, param));
+    }
+    
+    /**
+     * Test to delete a plate with sharable annotations linked to the well and 
+     * well samples and plate with Plate acquisition and annotation.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = true) 
+    public void testPlateAcquisitionWithNonSharableAnnotations() 
+    	throws Exception
+    {
+    	Plate p;
+    	PlateAcquisition pa = null;
+    	StringBuilder sb;
+		ParametersI param;
+		List<Long> annotationIds = new ArrayList<Long>();
+		p = (Plate) iUpdate.saveAndReturnObject(
+				mmFactory.createPlate(1, 1, 1, true, false));
+        sb = new StringBuilder();
+        param = new ParametersI();
+		param.addLong("plateID", p.getId().getValue());
+        sb.append("select pa from PlateAcquisition as pa " +
+        		"where pa.plate.id = :plateID"); 
+        pa = (PlateAcquisition) iQuery.findByQuery(sb.toString(), param);
+        annotationIds.addAll(createSharableAnnotation(pa, null));
+        
+        delete(new DeleteCommand(REF_PLATE, p.getId().getValue(), 
+        		null));
+        //Check if annotations have been deleted.
+        param = new ParametersI();
+    	param.addIds(annotationIds);
+    	sb = new StringBuilder();
+    	sb.append("select i from Annotation as i where i.id in (:ids)");
+    	List l = iQuery.findAllByQuery(sb.toString(), param);
+    	assertEquals(l.toString(), 0, l.size());
     }
     
 }
