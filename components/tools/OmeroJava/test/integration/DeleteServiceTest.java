@@ -1557,7 +1557,7 @@ public class DeleteServiceTest
 
     /**
      * Test to delete object with annotations that cannot be shared
-     * e.g. tags terms. 
+     * e.g. Comments.
      * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
@@ -1588,8 +1588,8 @@ public class DeleteServiceTest
     		param.addIds(annotationIds);
     		assertTrue(annotationIds.size() > 0);
     		sql = "select i from Annotation as i where i.id in (:ids)";
-		List<IObject> l = iQuery.findAllByQuery(sql, param);
-		assertEquals(obj + "-->" + l.toString(), 0, l.size());
+			List<IObject> l = iQuery.findAllByQuery(sql, param);
+			assertEquals(obj + "-->" + l.toString(), 0, l.size());
     	}
     }
     
@@ -1652,12 +1652,8 @@ public class DeleteServiceTest
     public void testPlateWithNonSharableAnnotations() 
     	throws Exception
     {
-    	Boolean[] values = {Boolean.valueOf(false), Boolean.valueOf(true)};
-
-    	Boolean b;
     	Plate p;
     	List results;
-    	PlateAcquisition pa = null;
     	StringBuilder sb;
     	Well well;
     	WellSample field;
@@ -1668,98 +1664,78 @@ public class DeleteServiceTest
 		List<Long> annotationIds = new ArrayList<Long>();
 		List<Long> r;
 		List l;
-    	for (int i = 0; i < values.length; i++) {
-    		b = values[i];
-			p = (Plate) iUpdate.saveAndReturnObject(
-					mmFactory.createPlate(1, 1, 1, b, false));
-			param = new ParametersI();
-			param.addLong("plateID", p.getId().getValue());
-			sb = new StringBuilder();
-			sb.append("select well from Well as well ");
-			sb.append("left outer join fetch well.plate as pt ");
-			sb.append("left outer join fetch well.wellSamples as ws ");
-			sb.append("left outer join fetch ws.image as img ");
-	        sb.append("where pt.id = :plateID");
-	        results = iQuery.findAllByQuery(sb.toString(), param);
-	        
-	        sb = new StringBuilder();
-	        sb.append("select pa from PlateAcquisition as pa " +
-	        		"where pa.plate.id = :plateID"); 
-	        pa = (PlateAcquisition) iQuery.findByQuery(sb.toString(), param);
-	        
-	        j = results.iterator();
-	        wellSampleIds = new ArrayList<Long>();
-	        imageIds = new ArrayList<Long>();
-	        while (j.hasNext()) {
-				well = (Well) j.next();
-				r = createNonSharableAnnotation(well);
-				if (r.size() > 0) annotationIds.addAll(r);
-				for (int f = 0; f < well.sizeOfWellSamples(); f++) {
-					field = well.getWellSample(f);
-					r = createSharableAnnotation(field, null);
-					if (r.size() > 0) annotationIds.addAll(r);
-					wellSampleIds.add(field.getId().getValue());
-					assertNotNull(field.getImage());
-					imageIds.add(field.getImage().getId().getValue());
-				}
-			}
-	        if (pa != null && b) {
-	        	r = createNonSharableAnnotation(pa);
-				if (r.size() > 0) annotationIds.addAll(r);
-	        }
-	        //Now delete the plate
-	        delete(new DeleteCommand(REF_PLATE, p.getId().getValue(), null));
+		p = (Plate) iUpdate.saveAndReturnObject(
+				mmFactory.createPlate(1, 1, 1, false, false));
+		param = new ParametersI();
+		param.addLong("plateID", p.getId().getValue());
+		sb = new StringBuilder();
+		sb.append("select well from Well as well ");
+		sb.append("left outer join fetch well.plate as pt ");
+		sb.append("left outer join fetch well.wellSamples as ws ");
+		sb.append("left outer join fetch ws.image as img ");
+		sb.append("where pt.id = :plateID");
+		results = iQuery.findAllByQuery(sb.toString(), param);
 
-	        param = new ParametersI();
-	        param.addId(p.getId().getValue());
-	        sb = new StringBuilder();
-	        //check the plate
-	        sb.append("select p from Plate as p where p.id = :id");
-	        assertNull(iQuery.findByQuery(sb.toString(), param));
-	        
-	        //check the well
-	        param = new ParametersI();
-	        param.addLong("plateID", p.getId().getValue());
-	        sb = new StringBuilder();
-			sb.append("select well from Well as well ");
-			sb.append("left outer join fetch well.plate as pt ");
-			sb.append("where pt.id = :plateID");
-			results = iQuery.findAllByQuery(sb.toString(), param);
-	        assertTrue(results.size() == 0);
-	        
-	        //check the well samples.
-	        sb = new StringBuilder();
-	        param = new ParametersI();
-	        param.addIds(wellSampleIds);
-	        sb.append("select p from WellSample as p where p.id in (:ids)");
-	        results = iQuery.findAllByQuery(sb.toString(), param);
-	        assertTrue(results.size() == 0);
-	        
-	        //check the image.
-	        sb = new StringBuilder();
-	        param = new ParametersI();
-	        param.addIds(imageIds);
-	        sb.append("select p from Image as p where p.id in (:ids)");
-	        results = iQuery.findAllByQuery(sb.toString(), param);
-	        assertTrue(results.size() == 0);
-	        if (pa != null && b) {
-	        	param = new ParametersI();
-		        param.addId(pa.getId().getValue());
-		        sb = new StringBuilder();
-		        //check the plate
-		        sb.append("select p from PlateAcquisition as p " +
-		        		"where p.id = :id");
-		        assertNull(iQuery.findByQuery(sb.toString(), param));
-	        }
-	        //Check if annotations have been deleted.
-	        param = new ParametersI();
-	    	param.addIds(annotationIds);
-	    	assertTrue(annotationIds.size() > 0);
-	    	sb = new StringBuilder();
-	    	sb.append("select i from Annotation as i where i.id in (:ids)");
-	    	l = iQuery.findAllByQuery(sb.toString(), param);
-            assertEquals(l.toString(), 0, l.size());
+		j = results.iterator();
+		wellSampleIds = new ArrayList<Long>();
+		imageIds = new ArrayList<Long>();
+		while (j.hasNext()) {
+			well = (Well) j.next();
+			r = createNonSharableAnnotation(well);
+			if (r.size() > 0) annotationIds.addAll(r);
+			for (int f = 0; f < well.sizeOfWellSamples(); f++) {
+				field = well.getWellSample(f);
+				r = createSharableAnnotation(field, null);
+				if (r.size() > 0) annotationIds.addAll(r);
+				wellSampleIds.add(field.getId().getValue());
+				assertNotNull(field.getImage());
+				imageIds.add(field.getImage().getId().getValue());
+			}
 		}
+		//Now delete the plate
+		delete(new DeleteCommand(REF_PLATE, p.getId().getValue(), null));
+
+		param = new ParametersI();
+		param.addId(p.getId().getValue());
+		sb = new StringBuilder();
+		//check the plate
+		sb.append("select p from Plate as p where p.id = :id");
+		assertNull(iQuery.findByQuery(sb.toString(), param));
+
+		//check the well
+		param = new ParametersI();
+		param.addLong("plateID", p.getId().getValue());
+		sb = new StringBuilder();
+		sb.append("select well from Well as well ");
+		sb.append("left outer join fetch well.plate as pt ");
+		sb.append("where pt.id = :plateID");
+		results = iQuery.findAllByQuery(sb.toString(), param);
+		assertTrue(results.size() == 0);
+
+		//check the well samples.
+		sb = new StringBuilder();
+		param = new ParametersI();
+		param.addIds(wellSampleIds);
+		sb.append("select p from WellSample as p where p.id in (:ids)");
+		results = iQuery.findAllByQuery(sb.toString(), param);
+		assertTrue(results.size() == 0);
+
+		//check the image.
+		sb = new StringBuilder();
+		param = new ParametersI();
+		param.addIds(imageIds);
+		sb.append("select p from Image as p where p.id in (:ids)");
+		results = iQuery.findAllByQuery(sb.toString(), param);
+		assertTrue(results.size() == 0);
+		
+		//Check if annotations have been deleted.
+		param = new ParametersI();
+		param.addIds(annotationIds);
+		assertTrue(annotationIds.size() > 0);
+		sb = new StringBuilder();
+		sb.append("select i from Annotation as i where i.id in (:ids)");
+		l = iQuery.findAllByQuery(sb.toString(), param);
+		assertEquals(l.toString(), 0, l.size());
     }
     
     /**

@@ -408,10 +408,6 @@ public class RenderingSettingsServiceTest
     		prx.applySettingsToSet(id, Dataset.class.getName(), 
     			ids);
     	assertNotNull(m);
-    	List<Long> success = (List<Long>) m.get(Boolean.valueOf(true));
-    	List<Long> failure = (List<Long>) m.get(Boolean.valueOf(false));
-    	assertTrue(success.size() == 0);
-    	assertTrue(failure.size() == 0);
     }
     
     /**
