@@ -122,7 +122,11 @@ public class DeleteCallbackI {
      * Client method to be overwritten when block is returning a non-null.
      */
     public void finished(int errors) {
-        q.put(errors);
+        try {
+            q.put(errors);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public void close() {
