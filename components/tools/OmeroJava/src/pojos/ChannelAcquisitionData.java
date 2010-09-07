@@ -85,6 +85,9 @@ public class ChannelAcquisitionData
 	/** The detector used. */
 	private DetectorData		detector;
 	
+	/** The otf used. */
+	private OTFData				otf;
+	
 	/** The binning factor. */
 	private Binning 			binning;
 	
@@ -105,6 +108,8 @@ public class ChannelAcquisitionData
         if (set != null) filterSet = new FilterSetData(set);
         LightPath path = channel.getLightPath();
         if (path != null) lightPath = new LightPathData(path);
+        if (channel.getOtf() != null) 
+			otf = new OTFData(channel.getOtf());
 	}
 	
 	/**
@@ -119,6 +124,13 @@ public class ChannelAcquisitionData
 			detector = new DetectorData(detectorSettings.getDetector());
 		return detector;
 	}
+	
+	/**
+	 * Returns the OTF used for that channel.
+	 * 
+	 * @return See above.
+	 */
+	public OTFData getOTF() { return otf; }
 	
 	/**
 	 * Returns the offset set on the detector.

@@ -77,6 +77,9 @@ public class InstrumentData
 	/** The collection of detectors. */
 	private List<DetectorData> detectors;
 	
+	/** The collection of detectors. */
+	private List<OTFData> otfs;
+	
 	/** Initializes the components. */
 	private void initialize()
 	{
@@ -86,6 +89,7 @@ public class InstrumentData
 		dichroics = new ArrayList<DichroicData>(); 
 		detectors = new ArrayList<DetectorData>(); 
 		filterSets = new ArrayList<FilterSetData>(); 
+		otfs = new ArrayList<OTFData>(); 
 	}
 	
 	/**
@@ -205,6 +209,13 @@ public class InstrumentData
 		if (v == null) return "";
 		return v.getValue();
 	}
+	
+	/**
+	 * Returns the collection of OTFs.
+	 * 
+	 * @return See above.
+	 */
+	public List<OTFData> getOTF() { return otfs; }
 	
 	/**
 	 * Returns the collection of objectives.
