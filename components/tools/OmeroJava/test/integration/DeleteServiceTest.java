@@ -161,6 +161,15 @@ public class DeleteServiceTest
 	/** Indicates to keep a certain type of annotations. */
 	private static final String KEEP = "KEEP";
 	
+	/** Indicates to exclude name space. */
+	private static final String EXCLUDE = "excludes=";
+	
+	/** Indicates to exclude name space. */
+	private static final String INCLUDE = "includes=";
+	
+	/** Separator between option and include/exclude condition. */
+	private static final String SEPARATOR = ";";
+	
 	/** 
 	 * Indicates to delete the annotation even if it is linked
 	 * to another object. */
@@ -2646,6 +2655,7 @@ public class DeleteServiceTest
         ParametersI param;
         String sql;
         List<IObject> l;
+        Map<String, String> options;
         for (Map.Entry<IObject, String> entry : objects.entrySet()) {
             obj = entry.getKey();
             type = entry.getValue();
@@ -2653,8 +2663,8 @@ public class DeleteServiceTest
             annotationIds = createNonSharableAnnotation(obj, null);
             annotationIdsNS = createNonSharableAnnotation(obj, NAMESPACE);
 
-            Map<String, String> options = new HashMap<String, String>();
-            options.put("/Annotation", "KEEP;includes="+NAMESPACE);
+            options = new HashMap<String, String>();
+            options.put(REF_ANN, KEEP+SEPARATOR+INCLUDE+NAMESPACE);
             delete(new DeleteCommand(type, id, options));
 
             param = new ParametersI();
@@ -2674,13 +2684,11 @@ public class DeleteServiceTest
             l = iQuery.findAllByQuery(sql, param);
             assertEquals(obj + "-->" + l.toString(), annotationIdsNS.size(),
                     l.size());
-
-
         }
     }
     
     /**
-     * Test to delete an object with annotations with namespace. All tags
+     * Test to delete an object with annotations with namespace. All annotations
      * which do not have the given namespace should be deleted; others should
      * be kept.
      *
@@ -2701,6 +2709,7 @@ public class DeleteServiceTest
         ParametersI param;
         String sql;
         List<IObject> l;
+        Map<String, String> options;
         for (Map.Entry<IObject, String> entry : objects.entrySet()) {
             obj = entry.getKey();
             type = entry.getValue();
@@ -2708,8 +2717,8 @@ public class DeleteServiceTest
             annotationIds = createNonSharableAnnotation(obj, null);
             annotationIdsNS = createNonSharableAnnotation(obj, NAMESPACE);
 
-            Map<String, String> options = new HashMap<String, String>();
-            options.put("/Annotation", "KEEP;excludes="+NAMESPACE);
+            options = new HashMap<String, String>();
+            options.put(REF_ANN, KEEP+SEPARATOR+EXCLUDE+NAMESPACE);
             delete(new DeleteCommand(type, id, options));
 
             param = new ParametersI();
@@ -2721,15 +2730,152 @@ public class DeleteServiceTest
             assertTrue(annotationIds.size() > 0);
             sql = "select i from Annotation as i where i.id in (:ids)";
             l = iQuery.findAllByQuery(sql, param);
-            assertEquals(obj + "-->" + l.toString(), annotationIds.size(), l.size());
+            assertEquals(obj + "-->" + l.toString(), 
+            		annotationIds.size(), l.size());
             param = new ParametersI();
             param.addIds(annotationIdsNS);
             assertTrue(annotationIdsNS.size() > 0);
             sql = "select i from Annotation as i where i.id in (:ids)";
             l = iQuery.findAllByQuery(sql, param);
             assertEquals(obj + "-->" + l.toString(), 0, l.size());
-
-
         }
     }
+    
+    /**
+     * Test to delete an image with acquisition data.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteImageWithAcquisitionDataUsingQueue() 
+    	throws Exception
+    {
+    	Image img = mmFactory.createImage();
+    	img = (Image) iUpdate.saveAndReturnObject(img);
+    	Pixels pixels = img.getPrimaryPixels();
+    	long pixId = pixels.getId().getValue();
+    	//method already tested in PixelsServiceTest
+    	//make sure objects are loaded.
+    	pixels = factory.getPixelsService().retrievePixDescription(pixId);
+    	//create an instrument.
+    	Instrument instrument = mmFactory.createInstrument(
+    			ModelMockFactory.LASER);
+    	instrument = (Instrument) iUpdate.saveAndReturnObject(instrument);
+    	assertNotNull(instrument);
+
+    	//retrieve the elements we need for the settings.
+    	//retrieve the detector.
+    	ParametersI param = new ParametersI();
+    	param.addLong("iid", instrument.getId().getValue());
+    	String sql = "select d from Detector as d where d.instrument.id = :iid";
+    	Detector detector = (Detector) iQuery.findByQuery(sql, param);
+    	sql = "select d from FilterSet as d where d.instrument.id = :iid";
+    	FilterSet filterSet = (FilterSet) iQuery.findByQuery(sql, param);
+    	sql = "select d from Laser as d where d.instrument.id = :iid";
+    	Laser laser = (Laser) iQuery.findByQuery(sql, param);
+    	sql = "select d from Dichroic as d where d.instrument.id = :iid";
+    	Dichroic dichroic = (Dichroic) iQuery.findByQuery(sql, param);
+    	sql = "select d from OTF as d where d.instrument.id = :iid";
+    	OTF otf = (OTF) iQuery.findByQuery(sql, param);
+    	sql = "select d from Objective as d where d.instrument.id = :iid";
+    	Objective objective = (Objective) iQuery.findByQuery(sql, param);
+    	
+    	img.setInstrument(instrument);
+    	img.setImagingEnvironment(mmFactory.createImageEnvironment());
+    	img.setObjectiveSettings(mmFactory.createObjectiveSettings(objective));
+    	img.setStageLabel(mmFactory.createStageLabel());
+    	iUpdate.saveAndReturnObject(img);
+    	param = new ParametersI();
+    	param.acquisitionData();
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(img.getId().getValue());
+    	//method already tested in PojosService test
+    	List results = factory.getContainerService().getImages(
+    			Image.class.getName(), ids, param);
+    	img = (Image) results.get(0);
+    	ObjectiveSettings settings = img.getObjectiveSettings();
+    	StageLabel label = img.getStageLabel();
+    	ImagingEnvironment env = img.getImagingEnvironment();
+    	
+    	LogicalChannel lc;
+    	Channel channel;
+    	ids = new ArrayList<Long>();
+    	long detectorSettingsID = 0;
+    	long lightSourceSettingsID = 0;
+    	long ligthPathID = 0;
+    	for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
+			channel = pixels.getChannel(i);
+			lc = channel.getLogicalChannel();
+			lc.setOtf(otf);
+	    	lc.setDetectorSettings(mmFactory.createDetectorSettings(detector));
+	    	lc.setFilterSet(filterSet);
+	    	lc.setLightSourceSettings(mmFactory.createLightSettings(laser));
+	    	lc.setLightPath(mmFactory.createLightPath(null, dichroic, null));
+	    	lc = (LogicalChannel) iUpdate.saveAndReturnObject(lc);
+	    	assertNotNull(lc);
+	    	ids.add(lc.getId().getValue());
+	    	detectorSettingsID = lc.getDetectorSettings().getId().getValue();
+	    	lightSourceSettingsID = 
+	    		lc.getLightSourceSettings().getId().getValue();
+	    	ligthPathID = lc.getLightPath().getId().getValue();
+		}
+    	
+    	//Now we try to delete the image.
+    	delete(new DeleteCommand(REF_IMAGE, img.getId().getValue(), null));
+    	
+    	//Follow the section with acquisition data.
+    	//Now check if the settings are still there.
+
+    	param = new ParametersI();
+    	param.addId(detectorSettingsID);
+    	sql = "select d from DetectorSettings as d where d.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	param.addId(lightSourceSettingsID);
+    	sql = "select d from LightSettings as d where d.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	param.addId(ligthPathID);
+    	sql = "select d from LightPath as d where d.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	
+    	//instrument
+    	param.addId(instrument.getId().getValue());
+    	sql = "select d from Instrument as d where d.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	param.addId(detector.getId().getValue());
+    	sql = "select d from Detector as d where d.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	
+    	param.addId(otf.getId().getValue());
+    	sql = "select d from OTF as d where d.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	
+    	param.addId(objective.getId().getValue());
+    	sql = "select d from Objective as d where d.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	
+    	param.addId(dichroic.getId().getValue());
+    	sql = "select d from Dichroic as d where d.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	
+    	param.addId(filterSet.getId().getValue());
+    	sql = "select d from FilterSet as d where d.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	
+    	param.addId(laser.getId().getValue());
+    	sql = "select d from Laser as d where d.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	
+    	param.addId(settings.getId().getValue());
+    	sql = "select d from ObjectiveSettings as d where d.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	
+    	param.addId(env.getId().getValue());
+    	sql = "select d from ImagingEnvironment as d where d.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	
+    	param.addId(env.getId().getValue());
+    	sql = "select d from StageLabel as d where d.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    }
+    
+
 }

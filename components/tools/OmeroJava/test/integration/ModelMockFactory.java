@@ -779,7 +779,7 @@ class ModelMockFactory
 	{
 		Channel channel = new ChannelI();
 		LogicalChannel lc = new LogicalChannelI();
-		lc.setEmissionWave(omero.rtypes.rint(w));
+		lc.setEmissionWave(omero.rtypes.rint(200));
 		List<IObject> types = pixelsService.getAllEnumerations(
     			ContrastMethod.class.getName());
 		ContrastMethod cm = (ContrastMethod) types.get(0);
@@ -842,7 +842,6 @@ class ModelMockFactory
 			int sizeT, int sizeC)
 		throws Exception
 	{
-		
 		Image image = simpleImage(new Date().getTime());
 		Pixels pixels = createPixels(sizeX, sizeY, sizeZ, sizeT, sizeC);
 		image.addPixels(pixels);
