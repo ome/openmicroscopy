@@ -29,6 +29,7 @@ def additional_tests():
     suite.addTest(load("integration.client_ctors"))
     suite.addTest(load("integration.clientusage"))
     suite.addTest(load("integration.counts"))
+    suite.addTest(load("integration.delete"))
     suite.addTest(load("integration.gateway"))
     suite.addTest(load("integration.icontainer"))
     suite.addTest(load("integration.isession"))
