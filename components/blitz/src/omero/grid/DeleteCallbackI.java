@@ -104,12 +104,11 @@ public class DeleteCallbackI {
             try {
                 if (handle.finished()) {
                     try {
-                        finished();
+                        finished(handle.errors());
                     } catch (Exception e) {
                         System.err.println("Error calling DeleteCallbackI.finished:" + handle);
                         e.printStackTrace();
                     }
-                    return handle.errors();
                 }
             } catch (Exception e) {
                 System.err.println("Error polling DeleteHandle:" + handle);
@@ -122,8 +121,8 @@ public class DeleteCallbackI {
     /**
      * Client method to be overwritten when block is returning a non-null.
      */
-    public void finished() {
-        // no-op
+    public void finished(int errors) {
+        q.put(errors);
     }
 
     public void close() {
