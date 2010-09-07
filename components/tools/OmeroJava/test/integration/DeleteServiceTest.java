@@ -1587,6 +1587,7 @@ public class DeleteServiceTest
     	List<Long> annotationIds;
     	ParametersI param;
     	String sql;
+    	List<IObject> l;
     	for (Map.Entry<IObject, String> entry : objects.entrySet()) {
     		obj = entry.getKey();
     		type = entry.getValue();
@@ -1603,7 +1604,7 @@ public class DeleteServiceTest
     		param.addIds(annotationIds);
     		assertTrue(annotationIds.size() > 0);
     		sql = "select i from Annotation as i where i.id in (:ids)";
-			List<IObject> l = iQuery.findAllByQuery(sql, param);
+			l = iQuery.findAllByQuery(sql, param);
 			assertEquals(obj + "-->" + l.toString(), 0, l.size());
     	}
     }
@@ -1850,6 +1851,7 @@ public class DeleteServiceTest
     	for (int i = 0; i < values.length; i++) {
     		b = values[i];
     		for (int k = 0; k < annotations.length; k++) {
+    			annotationIds.clear();
     			p = (Plate) iUpdate.saveAndReturnObject(
     					mmFactory.createPlate(1, 1, 1, b, false));
     	        results = loadWells(p.getId().getValue());
@@ -2152,7 +2154,8 @@ public class DeleteServiceTest
     	List<Long> ids = createSharableAnnotation(img1, img2);
     	assertEquals(n, ids.size());
     	//now delete the image 1.
-	delete(new DeleteCommand(REF_IMAGE, img1.getId().getValue(), SHARABLE_TO_KEEP));
+    	delete(new DeleteCommand(REF_IMAGE, img1.getId().getValue(), 
+    			SHARABLE_TO_KEEP));
     	ParametersI param = new ParametersI();
     	param.addIds(ids);
     	String sql = "select a from Annotation as a where a.id in (:ids)";
@@ -2166,7 +2169,8 @@ public class DeleteServiceTest
     			mmFactory.simpleDatasetData().asIObject());
     	ids = createSharableAnnotation(d1, d2);
     	//now delete the dataset 1.
-	delete(new DeleteCommand(REF_DATASET, d1.getId().getValue(), SHARABLE_TO_KEEP));
+    	delete(new DeleteCommand(REF_DATASET, d1.getId().getValue(), 
+    			SHARABLE_TO_KEEP));
     	param = new ParametersI();
     	param.addIds(ids);
     	results = iQuery.findAllByQuery(sql, param);
