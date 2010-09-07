@@ -44,6 +44,7 @@ import ome.util.Utils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -195,13 +196,19 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
             throw new ApiUsageException(
                     "Non-managed IObject entity cannot be deleted. Must have an id.");
         }
-        doAction(row, new UpdateAction<IObject>() {
-            @Override
-            public IObject run(IObject value, UpdateFilter filter, Session s) {
-                internalDelete(value, filter, s);
-                return null;
-            }
-        });
+        try {
+            doAction(row, new UpdateAction<IObject>() {
+                @Override
+                public IObject run(IObject value, UpdateFilter filter, Session s) {
+                    internalDelete(value, filter, s);
+                    return null;
+                }
+            });
+        } catch (InvalidDataAccessApiUsageException idaaue) {
+            throw new ApiUsageException("Cannot delete " + row + "\n" +
+			"Original message: " + idaaue.getMessage() + "\n" +
+			"Consider using IDelete instead.");
+        }
     }
 
     @RolesAllowed("system")

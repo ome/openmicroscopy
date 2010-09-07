@@ -9,35 +9,21 @@ import static omero.rtypes.rstring;
 
 import java.util.List;
 
-import junit.framework.TestCase;
-import ome.logic.HardWiredInterceptor;
 import ome.model.annotations.ProjectAnnotationLink;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
-import ome.security.SecuritySystem;
-import ome.services.blitz.fire.AopContextInitializer;
-import ome.services.blitz.impl.AbstractAmdServant;
-import ome.services.blitz.impl.QueryI;
-import ome.services.blitz.impl.ServiceFactoryI;
-import ome.services.blitz.impl.UpdateI;
-import ome.services.blitz.util.BlitzExecutor;
-import ome.services.sessions.SessionManager;
-import ome.services.throttling.InThreadThrottlingStrategy;
-import ome.system.OmeroContext;
-import ome.system.ServiceFactory;
-import omero.api.AMD_IQuery_findAllByQuery;
-import omero.api.AMD_IUpdate_saveAndReturnObject;
+import omero.ApiUsageException;
+import omero.api.AMD_IUpdate_deleteObject;
 import omero.model.Annotation;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.IObject;
+import omero.model.ImageI;
 import omero.model.Project;
 import omero.model.ProjectI;
 import omero.sys.ParametersI;
 
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -73,6 +59,7 @@ public class UpdateITest extends AbstractServantTest {
         }
     }
     
+    @Test(expectedExceptions = ApiUsageException.class)
     public void testNPEOnMissingQuotes() throws Exception {
         Project p = new ProjectI();
         p.setName(rstring(""));
@@ -101,6 +88,24 @@ public class UpdateITest extends AbstractServantTest {
         omero.sys.Parameters p = new ParametersI().page(0, 2);
         List<IObject> objects = assertFindByQuery(q, p);
         assertNotNull(objects.get(0).getDetails());
+    }
+
+    @Test(groups = "ticket:587", expectedExceptions = ApiUsageException.class)
+    public void testDeleteImageNotPixels() throws Exception {
+        final long iid = makeImage();
+        final RV rv = new RV();
+        user_update.deleteObject_async(new AMD_IUpdate_deleteObject() {
+            public void ice_response() {
+                rv.rv = Boolean.TRUE;
+            }
+
+            public void ice_exception(Exception ex) {
+                rv.ex = ex;
+            }
+        }, new ImageI(iid, false), current("deleteObject"));
+        assertNull(rv.rv);
+        assertNotNull(rv.ex);
+        throw rv.ex;
     }
 
 }
