@@ -36,10 +36,10 @@ import omero.model.Dichroic;
 import omero.model.Filter;
 import omero.model.FilterSet;
 import omero.model.Instrument;
-import omero.model.IObject;
 import omero.model.LightSource;
 import omero.model.Microscope;
 import omero.model.MicroscopeType;
+import omero.model.OTF;
 import omero.model.Objective;
 
 /**
@@ -80,18 +80,6 @@ public class InstrumentData
 	/** The collection of detectors. */
 	private List<OTFData> otfs;
 	
-	/** Initializes the components. */
-	private void initialize()
-	{
-		objectives = new ArrayList<ObjectiveData>();
-		lightSources = new ArrayList<LightSourceData>(); 
-		filters = new ArrayList<FilterData>(); 
-		dichroics = new ArrayList<DichroicData>(); 
-		detectors = new ArrayList<DetectorData>(); 
-		filterSets = new ArrayList<FilterSetData>(); 
-		otfs = new ArrayList<OTFData>(); 
-	}
-	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -102,42 +90,6 @@ public class InstrumentData
 		 if (instrument == null)
 	            throw new IllegalArgumentException("Object cannot null.");
 	     setValue(instrument);
-	     initialize();
-	}
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param components The instrument and its components.
-	 */
-	public InstrumentData(List<IObject> components)
-	{
-		if (components == null || components.size() < 1)
-			throw new IllegalArgumentException("No components specified.");
-		initialize();
-		Iterator<IObject> i = components.iterator();
-		IObject obj;
-		boolean instrument = false;
-		while (i.hasNext()) {
-			obj = (IObject) i.next();
-			if (obj instanceof Instrument) {
-				setValue(obj);
-				instrument = true;
-			} else if (obj instanceof Detector)
-				detectors.add(new DetectorData((Detector) obj));
-			else if (obj instanceof Objective)
-				objectives.add(new ObjectiveData((Objective) obj));
-			else if (obj instanceof Filter)
-				filters.add(new FilterData((Filter) obj));
-			else if (obj instanceof LightSource)
-				lightSources.add(new LightSourceData((LightSource) obj));
-			else if (obj instanceof Dichroic)
-				dichroics.add(new DichroicData((Dichroic) obj));
-			else if (obj instanceof FilterSet)
-				filterSets.add(new FilterSetData((FilterSet) obj));
-		}
-		if (!instrument)
-			throw new IllegalArgumentException("No instrument specified.");
 	}
 	
 	/**
@@ -215,48 +167,139 @@ public class InstrumentData
 	 * 
 	 * @return See above.
 	 */
-	public List<OTFData> getOTF() { return otfs; }
+	public List<OTFData> getOTF()
+	{ 
+		if (otfs != null) return otfs;
+		otfs = new ArrayList<OTFData>(); 
+		Instrument instrument = (Instrument) asIObject();
+		if (instrument.sizeOfOtf() > 0) {
+			List<OTF> list = instrument.copyOtf();
+			Iterator<OTF> i = list.iterator();
+			while (i.hasNext()) {
+				otfs.add(new OTFData(i.next()));
+			}
+		}
+		return otfs; 
+	}
 	
 	/**
 	 * Returns the collection of objectives.
 	 * 
 	 * @return See above.
 	 */
-	public List<ObjectiveData> getObjectives() { return objectives; }
+	public List<ObjectiveData> getObjectives()
+	{ 
+		if (objectives != null) return objectives;
+		objectives = new ArrayList<ObjectiveData>(); 
+		Instrument instrument = (Instrument) asIObject();
+		if (instrument.sizeOfObjective() > 0) {
+			List<Objective> list = instrument.copyObjective();
+			Iterator<Objective> i = list.iterator();
+			while (i.hasNext()) {
+				objectives.add(new ObjectiveData(i.next()));
+			}
+		}
+		return objectives; 
+	}
 	
 	/**
 	 * Returns the collection of filters.
 	 * 
 	 * @return See above.
 	 */
-	public List<FilterData> getFilters() { return filters; }
+	public List<FilterData> getFilters()
+	{ 
+		if (filters != null) return filters;
+		filters = new ArrayList<FilterData>(); 
+		Instrument instrument = (Instrument) asIObject();
+		if (instrument.sizeOfFilter() > 0) {
+			List<Filter> list = instrument.copyFilter();
+			Iterator<Filter> i = list.iterator();
+			while (i.hasNext()) {
+				filters.add(new FilterData(i.next()));
+			}
+		}
+		return filters; 
+	}
 	
 	/**
 	 * Returns the collection of filter sets.
 	 * 
 	 * @return See above.
 	 */
-	public List<FilterSetData> getFilterSets() { return filterSets; }
+	public List<FilterSetData> getFilterSets()
+	{ 
+		if (filterSets != null) return filterSets;
+		filterSets = new ArrayList<FilterSetData>(); 
+		Instrument instrument = (Instrument) asIObject();
+		if (instrument.sizeOfFilterSet() > 0) {
+			List<FilterSet> list = instrument.copyFilterSet();
+			Iterator<FilterSet> i = list.iterator();
+			while (i.hasNext()) {
+				filterSets.add(new FilterSetData(i.next()));
+			}
+		}
+		return filterSets; 
+	}
 	
 	/**
 	 * Returns the collection of light sources.
 	 * 
 	 * @return See above.
 	 */
-	public List<LightSourceData> getLightSources() { return lightSources; }
+	public List<LightSourceData> getLightSources()
+	{ 
+		if (lightSources != null) return lightSources;
+		lightSources = new ArrayList<LightSourceData>(); 
+		Instrument instrument = (Instrument) asIObject();
+		if (instrument.sizeOfLightSource() > 0) {
+			List<LightSource> list = instrument.copyLightSource();
+			Iterator<LightSource> i = list.iterator();
+			while (i.hasNext()) {
+				lightSources.add(new LightSourceData(i.next()));
+			}
+		}
+		return lightSources; 
+	}
 	
 	/**
 	 * Returns the collection of detectors.
 	 * 
 	 * @return See above.
 	 */
-	public List<DetectorData> getDetectors() { return detectors; }
+	public List<DetectorData> getDetectors()
+	{ 
+		if (detectors != null) return detectors;
+		detectors = new ArrayList<DetectorData>(); 
+		Instrument instrument = (Instrument) asIObject();
+		if (instrument.sizeOfDetector() > 0) {
+			List<Detector> list = instrument.copyDetector();
+			Iterator<Detector> i = list.iterator();
+			while (i.hasNext()) {
+				detectors.add(new DetectorData(i.next()));
+			}
+		}
+		return detectors; 
+	}
 	
 	/**
 	 * Returns the collection of dichroics.
 	 * 
 	 * @return See above.
 	 */
-	public List<DichroicData> getDichroics() { return dichroics; }
+	public List<DichroicData> getDichroics()
+	{ 
+		if (dichroics != null) return dichroics;
+		dichroics = new ArrayList<DichroicData>(); 
+		Instrument instrument = (Instrument) asIObject();
+		if (instrument.sizeOfDichroic() > 0) {
+			List<Dichroic> list = instrument.copyDichroic();
+			Iterator<Dichroic> i = list.iterator();
+			while (i.hasNext()) {
+				dichroics.add(new DichroicData(i.next()));
+			}
+		}
+		return dichroics; 
+	}
 	
 }
