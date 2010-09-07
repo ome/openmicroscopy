@@ -248,7 +248,7 @@ public class ManageObjectAction
 				break;
 			case REMOVE:
 				if (ho instanceof ProjectData || ho instanceof DatasetData ||
-					//ho instanceof ScreenData || ho instanceof PlateData ||
+					ho instanceof ScreenData || ho instanceof PlateData ||
 					ho instanceof FileAnnotationData || 
 					ho instanceof TagAnnotationData ||
 					ho instanceof ImageData) {
