@@ -74,6 +74,8 @@ import pojos.BooleanAnnotationData;
 import pojos.ChannelAcquisitionData;
 import pojos.DoubleAnnotationData;
 import pojos.FileAnnotationData;
+import pojos.InstrumentData;
+import pojos.LightSourceData;
 import pojos.LongAnnotationData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
@@ -618,221 +620,112 @@ public class MetadataServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testLoadInstrumentNewQuery() 
-    	throws Exception
-    {
-    	Instrument instrument = mmFactory.createInstrument(
-				ModelMockFactory.LIGHT_SOURCES[0]);
-    	instrument = (Instrument) iUpdate.saveAndReturnObject(instrument);
-    	//instrument.co
-    	assertNotNull(instrument);
-    	StringBuilder sb = new StringBuilder();
-    	sb.append("select inst from Instrument as inst ");
-    	sb.append("left outer join fetch inst.microscope as m ");
-    	sb.append("left outer join fetch m.type as mt ");
-    	//objective
-    	sb.append("left outer join fetch inst.objective as o ");
-    	sb.append("join fetch o.immersion as oi ");
-    	sb.append("join fetch o.correction as oc ");
-    	//detector
-    	sb.append("left outer join fetch inst.detector as d ");
-    	sb.append("left outer join fetch d.type as dt ");
-    	//filter
-    	sb.append("left outer join fetch inst.filter as f ");
-    	sb.append("left outer join fetch f.type as ft ");
-    	sb.append("left outer join fetch f.transmittanceRange as trans ");
-    	//filterset
-    	sb.append("left outer join fetch inst.filterSet as fs ");
-    	sb.append("left outer join fetch fs.dichroic as dichroic ");
-    	//dichroic
-    	sb.append("left outer join fetch inst.dichroic as di ");
-    	//OTF
-    	sb.append("left outer join fetch inst.otf as otf ");
-    	sb.append("join fetch otf.pixelsType as type ");
-    	sb.append("join fetch otf.objective as obj ");
-    	sb.append("join fetch obj.immersion ");
-    	sb.append("join fetch obj.correction");
-    	sb.append("left outer join fetch o.filterSet ");
-    	
-    	sb.append("where instrument.id = :id");
-    	ParametersI param = new ParametersI();
-    	param.addId(instrument.getId().getValue());
-    }
-    
-    /**
-     * Tests the retrieval of an instrument light sources of different types.
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
     public void testLoadInstrument() 
     	throws Exception
     {
     	Instrument instrument;
+    	List<Detector> detectors;
+    	List<Filter> filters;
+    	List<FilterSet> filterSets;
+    	List<Objective> objectives;
+    	List<LightSource> lights;
+    	List<OTF> otfs;
     	Detector detector;
-    	Dichroic dichroic;
     	Filter filter;
-    	FilterSet filterSet;
-    	OTF otf;
-    	Laser laser = null;
-    	Filament filament = null;
-    	Arc arc = null;
-    	LightEmittingDiode light = null;
+    	FilterSet fs;
     	Objective objective;
-    	ParametersI param;
-    	String sql;
-    	IObject test;
-    	List<IObject> result;
-    	boolean instrumentFound = false;
-    	boolean objectiveFound = false;
-    	boolean detectorFound = false;
-    	boolean filterFound = false;
-    	boolean dichroicFound = false;
-    	boolean lightFound = false;
-    	boolean filterSetFound = false;
-    	boolean otfFound = false;
-    	Iterator<IObject> j;
-    	IObject o;
+    	OTF otf;
+    	LightSource light;
+    	Laser laser;
+    	Iterator j; 
+    	InstrumentData data;
     	for (int i = 0; i < ModelMockFactory.LIGHT_SOURCES.length; i++) {
     		instrument = mmFactory.createInstrument(
-    				ModelMockFactory.LIGHT_SOURCES[i]);
-        	instrument = (Instrument) iUpdate.saveAndReturnObject(instrument);
-        	//instrument.co
-        	assertNotNull(instrument);
-    		param = new ParametersI();
-        	param.addLong("iid", instrument.getId().getValue());
-        	sql = "select d from Detector as d where d.instrument.id = :iid";
-        	detector = (Detector) iQuery.findByQuery(sql, param);
-            sql = "select d from Dichroic as d where d.instrument.id = :iid";
-            dichroic = (Dichroic) iQuery.findByQuery(sql, param);
-            sql = "select d from Filter as d where d.instrument.id = :iid";
-            filter = (Filter) iQuery.findByQuery(sql, param);
-            sql = "select d from Objective as d where d.instrument.id = :iid";
-            objective = (Objective) iQuery.findByQuery(sql, param);
-            sql = "select d from FilterSet as d where d.instrument.id = :iid";
-            filterSet = (FilterSet) iQuery.findByQuery(sql, param);
-            sql = "select d from OTF as d where d.instrument.id = :iid";
-            otf = (OTF) iQuery.findByQuery(sql, param);
-            if (ModelMockFactory.LASER.equals(
-            		ModelMockFactory.LIGHT_SOURCES[i])) {
-            	sql = "select d from Laser as d where d.instrument.id = :iid";
-            	laser = (Laser) iQuery.findByQuery(sql, param);
-            } else if (ModelMockFactory.FILAMENT.equals(
-            		ModelMockFactory.LIGHT_SOURCES[i])) {
-            	sql = "select d from Filament as d where d.instrument.id = :iid";
-            	filament = (Filament) iQuery.findByQuery(sql, param);
-            } else if (ModelMockFactory.ARC.equals(
-            		ModelMockFactory.LIGHT_SOURCES[i])) {
-            	sql = "select d from Arc as d where d.instrument.id = :iid";
-            	arc = (Arc) iQuery.findByQuery(sql, param);
-            } else if (ModelMockFactory.LIGHT_EMITTING_DIODE.equals(
-            		ModelMockFactory.LIGHT_SOURCES[i])) {
-            	sql = "select d from LightEmittingDiode as d where " +
-            			"d.instrument.id = :iid";
-            	light = (LightEmittingDiode) iQuery.findByQuery(sql, param);
-            }
-
-            result = iMetadata.loadInstrument(
-        			instrument.getId().getValue());
-        	assertNotNull(result);
-        	assertTrue(result.size() > 0);
-        	j = result.iterator();
-        	while (j.hasNext()) {
-    			o = j.next();
-    			if (o instanceof Instrument) {
-    				instrumentFound = true;
-    				assertTrue(o.getId().getValue() == 
-    					instrument.getId().getValue());
-    			} else if (o instanceof Detector) {
-    				detectorFound = true;
-    				assertTrue(o.getId().getValue() == 
-    					detector.getId().getValue());
-    			} else if (o instanceof Filter) {
-    				filterFound = true;
-    				assertTrue(o.getId().getValue() == 
-    					filter.getId().getValue());
-    				filter = (Filter) o; 
-    			} else if (o instanceof FilterSet) {
-    				filterSetFound = true;
-    				assertTrue(o.getId().getValue() == 
-    					filterSet.getId().getValue());
-    			} else if (o instanceof Dichroic) {
-    				dichroicFound = true;
-    				assertTrue(o.getId().getValue() == 
-    					dichroic.getId().getValue());
-    			} else if (o instanceof Objective) {
-    				objectiveFound = true;
-    				assertTrue(o.getId().getValue() == 
-    					objective.getId().getValue());
-    				objective = (Objective) o;
-    			} else if (o instanceof Laser) {
-    				assertNotNull(laser);
-    				lightFound = true;
-    				assertTrue(o.getId().getValue() == 
-    					laser.getId().getValue());
-    				laser = (Laser) o;
-    			} else if (o instanceof Filament) {
-    				assertNotNull(filament);
-    				lightFound = true;
-    				assertTrue(o.getId().getValue() == 
-    					filament.getId().getValue());
-    				filament = (Filament) o;
-    			} else if (o instanceof Arc) {
-    				assertNotNull(arc);
-    				lightFound = true;
-    				assertTrue(o.getId().getValue() == 
-    					arc.getId().getValue());
-    				arc = (Arc) o;
-    			} else if (o instanceof LightEmittingDiode) {
-    				assertNotNull(light);
-    				lightFound = true;
-    				assertTrue(o.getId().getValue() == 
-    					light.getId().getValue());
-    			} else if (o instanceof OTF) {
-    				otf = (OTF) o;
-    				otfFound = true;
-    			}
-    		}
-        	assertTrue(instrumentFound);
-        	assertTrue(objectiveFound);
-        	assertTrue(detectorFound);
-        	assertTrue(filterFound);
-        	assertTrue(dichroicFound);
-        	assertTrue(lightFound);
-        	assertTrue(filterSetFound);
-        	//not yet implemented
-        	assertTrue(otfFound);
-        	//make sure everything is loaded properly
-        	//objective
-        	assertNotNull(objective.getCorrection());
-        	assertNotNull(objective.getImmersion());
-        	//filter
-        	assertNotNull(filter.getType());
-        	assertNotNull(filter.getTransmittanceRange());
-        	
-        	//light source
-        	if (laser != null) {
-        		assertNotNull(laser.getType());
-        		assertNotNull(laser.getLaserMedium());
-        		assertNotNull(laser.getPulse());
-        	}
-        	if (filament != null) {
-        		assertNotNull(filament.getType());
-        	}
-        	if (arc != null) {
-        		assertNotNull(arc.getType());
-        	}
-        	if (otf != null) {
-        		assertNotNull(otf.getFilterSet());
-        		assertNotNull(otf.getObjective());
-        		assertNotNull(otf.getPixelsType());
-        		assertTrue(otf.getObjective().getId().getValue() == 
-        			objective.getId().getValue());
-        		assertTrue(otf.getFilterSet().getId().getValue() == 
-        			filterSet.getId().getValue());
-        	}
-		}
+    				ModelMockFactory.LIGHT_SOURCES[0]);
+    		instrument = (Instrument) iUpdate.saveAndReturnObject(instrument);
+    		data = new InstrumentData(instrument);
+    		instrument = iMetadata.loadInstrument(
+         			instrument.getId().getValue());
+    		data = new InstrumentData(instrument);
+    		assertTrue(instrument.sizeOfDetector() > 0);
+    		assertTrue(instrument.sizeOfDichroic() > 0);
+    		assertTrue(instrument.sizeOfFilter() > 0);
+    		assertTrue(instrument.sizeOfFilterSet() > 0);
+    		assertTrue(instrument.sizeOfLightSource() == 1);
+    		assertTrue(instrument.sizeOfObjective() > 0);
+    		assertTrue(instrument.sizeOfOtf() > 0);
+    		
+    		assertTrue(instrument.sizeOfDetector() == 
+    			data.getDetectors().size());
+    		assertTrue(instrument.sizeOfDichroic() == 
+    			data.getDichroics().size());
+    		assertTrue(instrument.sizeOfFilter() == 
+    			data.getFilters().size());
+    		assertTrue(instrument.sizeOfFilterSet() == 
+    			data.getFilterSets().size());
+    		assertTrue(instrument.sizeOfLightSource() == 
+    			data.getLightSources().size());
+    		assertTrue(instrument.sizeOfObjective() == 
+    			data.getObjectives().size());
+    		assertTrue(instrument.sizeOfOtf() == 
+    			data.getOTF().size());
+    		
+    		
+    		detectors = instrument.copyDetector();
+    		j = detectors.iterator();
+    		while (j.hasNext()) {
+    			detector = (Detector) j.next();
+				assertNotNull(detector.getType());
+			}
+    		filters = instrument.copyFilter();
+    		j = filters.iterator();
+    		while (j.hasNext()) {
+				filter = (Filter) j.next();
+				assertNotNull(filter.getType());
+				assertNotNull(filter.getTransmittanceRange());
+			}
+    		filterSets = instrument.copyFilterSet();
+    		j = filterSets.iterator();
+    		while (j.hasNext()) {
+				fs = (FilterSet) j.next();
+				//assertNotNull(fs.getDichroic());
+			}
+    		objectives = instrument.copyObjective();
+    		j = objectives.iterator();
+    		while (j.hasNext()) {
+				objective = (Objective) j.next();
+				assertNotNull(objective.getCorrection());
+				assertNotNull(objective.getImmersion());
+			}
+    		otfs = instrument.copyOtf();
+    		j = otfs.iterator();
+    		while (j.hasNext()) {
+				otf = (OTF) j.next();
+				objective = otf.getObjective();
+				assertNotNull(otf.getPixelsType());
+				assertNotNull(otf.getFilterSet());
+				assertNotNull(objective);
+				assertNotNull(objective.getCorrection());
+				assertNotNull(objective.getImmersion());
+			}
+    		lights = instrument.copyLightSource();
+    		j = lights.iterator();
+    		while (j.hasNext()) {
+    			light = (LightSource) j.next();
+				if (light instanceof Laser) {
+					laser = (Laser) light;
+					assertNotNull(laser.getType());
+					assertNotNull(laser.getLaserMedium());
+					assertNotNull(laser.getPulse());
+				} else if (light instanceof Filament) {
+					assertNotNull(((Filament) light).getType());
+				} else if (light instanceof Arc) {
+					assertNotNull(((Arc) light).getType());
+				}
+			}
+    	} 	
     }
-    
+
     /**
      * Tests the retrieval of channel acquisition data.
      * @throws Exception Thrown if an error occurred.
@@ -913,6 +806,7 @@ public class MetadataServiceTest
     	assertTrue(channels.size() == pixels.getSizeC().getValue());
     	LogicalChannel loaded;
     	Iterator<LogicalChannel> j = channels.iterator();
+    	LightSourceData l;
     	while (j.hasNext()) {
     		loaded = j.next();
     		assertNotNull(loaded);
@@ -921,8 +815,10 @@ public class MetadataServiceTest
         		detector.getId().getValue());
         	assertTrue(data.getFilterSet().getId() == 
         		filterSet.getId().getValue());
-        	assertTrue(data.getLightSource().getId() == 
-        		laser.getId().getValue());
+        	l = (LightSourceData) data.getLightSource();
+        	assertTrue(l.getId() == laser.getId().getValue());
+        	assertNotNull(l.getLaserMedium());
+        	assertNotNull(l.getType());
         	assertNotNull(loaded.getDetectorSettings());
         	assertNotNull(loaded.getLightSourceSettings());
         	assertNotNull(loaded.getDetectorSettings().getBinning());

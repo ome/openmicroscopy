@@ -72,6 +72,7 @@ import omero.model.Laser;
 import omero.model.LightEmittingDiode;
 import omero.model.LightPath;
 import omero.model.LightSettings;
+import omero.model.LightSource;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
 import omero.model.MicrobeamManipulation;
@@ -930,10 +931,9 @@ public class ImporterTest
 		Instrument instrument = image.getInstrument();
 		assertNotNull(instrument);
 		//check the instrument
-		List<IObject> result = factory.getMetadataService().loadInstrument(
+		instrument = factory.getMetadataService().loadInstrument(
 				instrument.getId().getValue());
-		assertTrue(result.size() > 0);
-		Iterator<IObject> j = result.iterator();
+		assertNotNull(instrument);
 		IObject o;
     	int objective = 0;
     	int detector = 0;
@@ -942,12 +942,6 @@ public class ImporterTest
     	int light = 0;
     	int filterSet = 0;
     	int otf = 0;
-    	List<Long> objectives = new ArrayList<Long>();
-    	List<Long> detectors = new ArrayList<Long>();
-    	List<Long> lights = new ArrayList<Long>();
-    	List<Long> dichroics = new ArrayList<Long>();
-    	List<Long> filters = new ArrayList<Long>();
-    	
     	ome.xml.model.Laser xmlLaser = (ome.xml.model.Laser) 
     		xml.createLightSource(ome.xml.model.Laser.class.getName(), 0);
     	ome.xml.model.Arc xmlArc = (ome.xml.model.Arc) 
@@ -964,6 +958,7 @@ public class ImporterTest
     	ome.xml.model.Filter xmlFilter = xml.createFilter(0, 
     			XMLMockObjects.CUT_IN, XMLMockObjects.CUT_OUT);
     	ome.xml.model.Dichroic xmlDichroic = xml.createDichroic(0);
+    	/*
     	while (j.hasNext()) {
 			o = j.next();
 			if (o instanceof Detector) {
@@ -1006,13 +1001,46 @@ public class ImporterTest
 				validateMicroscope((Microscope) o, xml.createMicroscope());
 			}
 		}
-    	assertTrue(objectives.contains(objectiveID));
-    	assertEquals(XMLMockObjects.NUMBER_OF_DECTECTORS, detector);
-    	assertEquals(XMLMockObjects.NUMBER_OF_OBJECTIVES, objective);
-    	assertEquals(XMLMockObjects.NUMBER_OF_DICHROICS, dichroic);
-    	assertEquals(XMLMockObjects.NUMBER_OF_FILTERS, filter);
-    	assertEquals(1, filterSet);
-    	assertEquals(1, otf);
+    	*/
+    	//assertTrue(objectives.contains(objectiveID));
+    	assertEquals(XMLMockObjects.NUMBER_OF_OBJECTIVES, 
+    			instrument.sizeOfObjective());
+    	assertEquals(XMLMockObjects.NUMBER_OF_DECTECTORS, 
+    			instrument.sizeOfDetector());
+    	assertEquals(XMLMockObjects.NUMBER_OF_DICHROICS, 
+    			instrument.sizeOfDichroic());
+    	assertEquals(XMLMockObjects.NUMBER_OF_FILTERS, 
+    			instrument.sizeOfFilter());
+    	assertEquals(1, instrument.sizeOfFilterSet());
+    	assertEquals(1, instrument.sizeOfOtf());
+    	
+    	List<Detector> detectors = instrument.copyDetector();
+    	Iterator j = detectors.iterator();
+    	while (j.hasNext()) {
+    		validateDetector((Detector) j.next(), xmlDetector);
+		}
+    	List<Objective> objectives = instrument.copyObjective();
+    	j = objectives.iterator();
+    	while (j.hasNext()) {
+    		validateObjective((Objective) j.next(), xmlObjective);
+		}
+    	List<Filter> filters = instrument.copyFilter();
+    	j = filters.iterator();
+    	while (j.hasNext()) {
+    		validateFilter((Filter) j.next(), xmlFilter);
+		}
+    	List<Dichroic> dichroics = instrument.copyDichroic();
+    	j = dichroics.iterator();
+    	while (j.hasNext()) {
+    		validateDichroic((Dichroic) j.next(), xmlDichroic);
+		}
+    	
+    	List<LightSource> lights = instrument.copyLightSource();
+    	j = lights.iterator();
+    	List<Long> lightIds = new ArrayList<Long>();
+    	while (j.hasNext()) {
+    		lightIds.add(((LightSource) j.next()).getId().getValue());
+		}
     	
     	p = factory.getPixelsService().retrievePixDescription(
     			p.getId().getValue());
@@ -1063,7 +1091,8 @@ public class ImporterTest
 			ls = lc.getLightSourceSettings();
 			assertNotNull(ls);
 			assertNotNull(ls.getLightSource());
-			assertTrue(lights.contains(ls.getLightSource().getId().getValue()));
+			assertTrue(lightIds.contains(
+					ls.getLightSource().getId().getValue()));
 			validateLightSourceSettings(ls, xmlLs);
 			/*
 			assertNotNull(ls.getMicrobeamManipulation());
@@ -1262,4 +1291,19 @@ public class ImporterTest
 				screen.copyReagent().get(0).getId().getValue());
 	}
 
+	/**
+     * Tests the import of an OME-XML file with a plate
+     * with wells linked to a reagent.
+     * @throws Exception Thrown if an error occurred.
+     */
+	@Test
+	public void testFullPlate()
+		throws Exception
+	{
+		File f = new File("/OMERO/16x24x3Plate.ome");
+		XMLMockObjects xml = new XMLMockObjects();
+		XMLWriter writer = new XMLWriter();
+		writer.writeFile(f, xml.createFullPlate(), true);
+		
+	}
 }

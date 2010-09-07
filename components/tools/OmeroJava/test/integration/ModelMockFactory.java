@@ -658,7 +658,8 @@ class ModelMockFactory
     	Instrument instrument = createInstrument();
     	instrument.addDetector(createDetector());
     	instrument.addFilter(createFilter(500, 560));
-    	instrument.addDichroic(createDichroic());
+    	Dichroic dichroic = createDichroic();
+    	instrument.addDichroic(dichroic);
     	Objective objective = createObjective();
     	FilterSet filterSet = createFilterSet();
     	instrument.addObjective(objective);
