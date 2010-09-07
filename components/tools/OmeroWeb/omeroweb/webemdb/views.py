@@ -350,7 +350,7 @@ def projection_axis(request, imageId, axis, get_slice=False):
         #print "doing projection"
         #print "    %s secs" % (time.time() - startTime)
         
-        proj_z = zeros( (sizeX,sizeY) )
+        proj_z = zeros( (sizeY,sizeX) )
         for z in range(sizeZ):
             zPlane = cube[z, :, :]
             proj_z += zPlane
@@ -576,17 +576,18 @@ def entry (request, entryId):
     img = get_entry_map(project)
     mrcMap = None
     smallMap = None
+    segFiles = []  # Segger file.seg
     namespace = omero.constants.namespaces.NSCOMPANIONFILE 
     smallMapName = "small_%s.map" % entryName
     if img:
         imgName = img.getName()
         for a in img.listAnnotations():
-            if imgName == a.getFileName() and a.getNs() == namespace:
+            if a.getFileName().endswith(".seg"):
+                segFiles.append(a)
+            elif imgName == a.getFileName() and a.getNs() == namespace:
                 mrcMap = a
-                break
             elif smallMapName == a.getFileName():
                 smallMap = a
-                break
     
     xml = None
     gif = None
@@ -616,7 +617,7 @@ def entry (request, entryId):
     
     return render_to_response('webemdb/entries/entry.html', 
         {'project':project, 'xml': xml, 'gif': gif, 'img': img, 'map': mrcMap, 'smallMap': smallMap, 'bit': bit, 'pdbs': pdbs, 
-            'sizeWarning':sizeWarning, 'data': data})
+            'sizeWarning':sizeWarning, 'data': data, 'segFiles': segFiles})
         
         
 def oa_viewer(request, fileId): 
@@ -686,7 +687,7 @@ def getFile (request, fileId):
         fileName = ann.getFileName()
         mimetype = "text/plain"
         
-        if fileName.endswith(".bit") or fileName.endswith(".pdb.gz") or fileName.endswith(".map"): 
+        if fileName.endswith(".bit") or fileName.endswith(".pdb.gz") or fileName.endswith(".map") or fileName.endswith(".seg"): 
             mimetype='application/octet-stream'
         if fileName.endswith(".xml"): mimetype='text/xml'
         if fileName.endswith(".gif"): mimetype='image/gif'
