@@ -553,7 +553,7 @@ public class MetadataImpl
         sb.append("left outer join fetch ds.binning as binning ");
         sb.append("left outer join fetch lss.lightSource as light ");
         sb.append("left outer join fetch light.instrument as instrument ");
-        sb.append("left outer join fetch instrument.lightSource ");
+        //sb.append("left outer join fetch instrument.lightSource ");
         sb.append("where channel.id in (:ids)");
         List<LogicalChannel> list = iQuery.findAllByQuery(sb.toString(), 
         		new Parameters().addIds(ids));
@@ -563,57 +563,6 @@ public class MetadataImpl
         LightSource src;
         IObject object;
         Parameters params; 
-        LightSource ls, ls1;
-    	Laser laser;
-    	Instrument instrument;
-    	List<LightSource> lights;
-    	Iterator<LightSource> k;
-    	while (i.hasNext()) {
-    		channel = i.next();
-    		light = channel.getLightSourceSettings();
-    		if (light != null) {
-    			ls = light.getLightSource();
-    			instrument = ls.getInstrument();
-    			if (instrument.sizeOfLightSource() > 0) {
-    				k = instrument.iterateLightSource();
-    		    	while (k.hasNext()) {
-    					ls1 = k.next();
-    					if (ls.getId().longValue() == ls1.getId().longValue()) {
-    						if (ls1 instanceof Laser) {
-        						laser = (Laser) ls1;
-        						laser.getLaserMedium();
-        						laser.getType();
-        						laser.getPump();
-        						laser.getPulse();
-        					} else if (ls1 instanceof Arc) {
-        						((Arc) ls1).getType();
-        					} else if (ls instanceof Filament) {
-        						((Filament) ls1).getType();
-        					}
-    						light.setLightSource(ls1);
-    					}
-    					
-    				}
-    			}
-    		}
-    		/*
-    		if (light != null) {
-    			ls = light.getLightSource();
-    			if (ls instanceof Laser) {
-    				laser = (Laser) ls;
-    				laser.getLaserMedium();
-    				laser.getType();
-    				laser.getPump();
-    				laser.getPulse();
-    			} else if (ls instanceof Arc) {
-    				((Arc) ls).getType();
-    			} else if (ls instanceof Filament) {
-    				((Filament) ls).getType();
-    			}
-    		}
-    		*/
-    	}
-    	/*
         while (i.hasNext()) {
         	channel = i.next();
 			light = channel.getLightSourceSettings();
@@ -635,7 +584,6 @@ public class MetadataImpl
 				}
 			}
 		}
-		*/
     	return new HashSet<LogicalChannel>(list);
     }
 
