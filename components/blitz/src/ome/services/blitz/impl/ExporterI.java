@@ -356,6 +356,15 @@ public class ExporterI extends AbstractAmdServant implements
                                     writer.saveBytes(i, plane);
                                 }
                                 retrieve = null;
+
+                                //
+                                try {
+                                    writer.close();
+                                } finally {
+                                    // Nulling to prevent another exception
+                                    writer = null;
+                                }
+
                                 cleanup(null, null, writer);
                                 __cb.ice_response(file.length());
                             } catch (Exception e) {
