@@ -751,10 +751,12 @@ public class DeleteServiceTest
 		ParametersI param;
 		List<Long> wellSampleIds;
 		List<Long> imageIds;
+		int n = 0;
     	for (int i = 0; i < values.length; i++) {
 			b = values[i];
+			if (b) n = 1;
 			p = (Plate) iUpdate.saveAndReturnObject(
-					mmFactory.createPlate(1, 1, 1, b, false));
+					mmFactory.createPlate(1, 1, 1, n, false));
 			param = new ParametersI();
 			param.addLong("plateID", p.getId().getValue());
 			sb = new StringBuilder();
@@ -839,8 +841,8 @@ public class DeleteServiceTest
     public void testDeletePlateUsingQueue() 
     	throws Exception
     {
-    	Boolean[] values = {Boolean.valueOf(false), Boolean.valueOf(true)};
-    	Boolean b;
+    	int[] values = {0, 1};
+    	int b;
     	Plate p;
     	List results;
     	PlateAcquisition pa = null;
@@ -917,7 +919,7 @@ public class DeleteServiceTest
 	        sb.append("select p from Image as p where p.id in (:ids)");
 	        results = iQuery.findAllByQuery(sb.toString(), param);
 	        assertTrue(results.size() == 0);
-	        if (pa != null && b) {
+	        if (pa != null && b > 0) {
 	        	param = new ParametersI();
 		        param.addId(pa.getId().getValue());
 		        sb = new StringBuilder();
@@ -1052,10 +1054,10 @@ public class DeleteServiceTest
     			mmFactory.simpleScreenData().asIObject());
     	//Plate w/o plate acquisition
     	Plate p1 = (Plate) iUpdate.saveAndReturnObject(
-    			mmFactory.createPlate(1, 1, 1, false, false)); 
+    			mmFactory.createPlate(1, 1, 1, 0, false)); 
     	//Plate with plate acquisition
     	Plate p2 = (Plate) iUpdate.saveAndReturnObject(
-    			mmFactory.createPlate(1, 1, 1, true, false));
+    			mmFactory.createPlate(1, 1, 1, 1, false));
     	List<IObject> links = new ArrayList<IObject>();
     	ScreenPlateLink link = new ScreenPlateLinkI();
     	link.setChild(p1);
@@ -1696,7 +1698,7 @@ public class DeleteServiceTest
 		List<Long> r;
 		List l;
 		p = (Plate) iUpdate.saveAndReturnObject(
-				mmFactory.createPlate(1, 1, 1, false, false));
+				mmFactory.createPlate(1, 1, 1, 0, false));
 		param = new ParametersI();
 		param.addLong("plateID", p.getId().getValue());
 		sb = new StringBuilder();
@@ -1779,7 +1781,7 @@ public class DeleteServiceTest
 		throws Exception
 	{
     	Plate p = (Plate) iUpdate.saveAndReturnObject(
-				mmFactory.createPlate(1, 1, 1, false, false));
+				mmFactory.createPlate(1, 1, 1, 0, false));
     	List<IObject> results = loadWells(p.getId().getValue());
     	Well well = (Well) results.get(0);
     	//create the roi.
@@ -1846,9 +1848,9 @@ public class DeleteServiceTest
     public void testPlateWithSharableAnnotations() 
     	throws Exception
     {
-    	Boolean[] values = {Boolean.valueOf(false), Boolean.valueOf(true)};
+    	int[] values = {0, 1};
     	Boolean[] annotations = {Boolean.valueOf(false), Boolean.valueOf(true)};
-    	Boolean b;
+    	int b;
     	Plate p;
     	List results;
     	PlateAcquisition pa = null;
@@ -1893,8 +1895,8 @@ public class DeleteServiceTest
     					imageIds.add(field.getImage().getId().getValue());
     				}
     			}
-    	        if (pa != null && b) {
-			r = createSharableAnnotation(pa, null);
+    	        if (pa != null && b > 0) {
+    	        	r = createSharableAnnotation(pa, null);
     				if (r.size() > 0) annotationIds.addAll(r);
     	        }
     	        if (annotations[k]) 
@@ -1936,7 +1938,7 @@ public class DeleteServiceTest
     	        sb.append("select p from Image as p where p.id in (:ids)");
     	        results = iQuery.findAllByQuery(sb.toString(), param);
     	        assertTrue(results.size() == 0);
-    	        if (pa != null && b) {
+    	        if (pa != null && b > 0) {
     	        	param = new ParametersI();
     		        param.addId(pa.getId().getValue());
     		        sb = new StringBuilder();
@@ -2069,7 +2071,7 @@ public class DeleteServiceTest
     public void testCascadingDeleteScreenAsRoot() 
     	throws Exception
     {
-    	Boolean[] values = {Boolean.valueOf(false), Boolean.valueOf(true)};
+    	int[] values = {0, 1};
     	Plate plate;
     	String sql;
     	PlateAcquisition pa = null;
@@ -2103,7 +2105,7 @@ public class DeleteServiceTest
 			sql = "select p from Plate as p where p.id = :id";
 			param.addId(plate.getId().getValue());
 			assertNull(iQuery.findByQuery(sql, param));
-			if (values[i] && pa != null) {
+			if (values[i] > 0 && pa != null) {
 				param = new ParametersI();
 				sql = "select pa from PlateAcquisition as pa " +
 	    		 "where pa.plate.id = :plateID"; 
@@ -2603,7 +2605,7 @@ public class DeleteServiceTest
 		ParametersI param;
 		List<Long> annotationIds = new ArrayList<Long>();
 		p = (Plate) iUpdate.saveAndReturnObject(
-				mmFactory.createPlate(1, 1, 1, true, false));
+				mmFactory.createPlate(1, 1, 1, 1, false));
         sb = new StringBuilder();
         param = new ParametersI();
 		param.addLong("plateID", p.getId().getValue());

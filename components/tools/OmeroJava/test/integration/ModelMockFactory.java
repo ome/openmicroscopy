@@ -855,16 +855,17 @@ class ModelMockFactory
 	 * @param rows The number of rows.
 	 * @param columns The number of columns.
 	 * @param fields The number of fields.
-	 * @param plateAcquisition Pass <code>true</code> to add a plate acquisition,
-	 * 					       <code>false</code> otherwise.
+	 * @param numberOfPlateAcquisition The number of plate acquisitions.
 	 * @param fullImage Pass <code>true</code> to add image with pixels, 
 	 * 					<code>false</code> to create a simple image.
 	 * @return See above.
 	 */
-    Plate createPlate(int rows, int columns, int fields, boolean
-            plateAcquisition, boolean fullImage)
+    Plate createPlate(int rows, int columns, int fields, 
+    		int numberOfPlateAcquisition, boolean fullImage)
         throws Exception
     {
+    	if (numberOfPlateAcquisition < 0)
+    		numberOfPlateAcquisition = 0;
         Plate p = new PlateI();
         p.setRows(omero.rtypes.rint(rows));
         p.setCols(omero.rtypes.rint(columns));
@@ -875,25 +876,41 @@ class ModelMockFactory
         //now make wells
         Well well;
         WellSample sample;
-        PlateAcquisition pa = null;
-        if (plateAcquisition) {
-            pa = new PlateAcquisitionI();
-            pa.setName(omero.rtypes.rstring("plate acquisition"));
-            pa.setPlate(p);
-        }
-
+        List<PlateAcquisition> pas = new ArrayList<PlateAcquisition>();
+        PlateAcquisition pa;
+        for (int i = 0; i < numberOfPlateAcquisition; i++) {
+        	 pa = new PlateAcquisitionI();
+             pa.setName(omero.rtypes.rstring("plate acquisition"));
+             pa.setPlate(p);
+             pas.add(pa);
+		}
+        Iterator<PlateAcquisition> i;
         for (int row = 0; row < rows; row++) {
             for (int column = 0; column < columns; column++) {
                 well = new WellI();
                 well.setRow(omero.rtypes.rint(row));
                 well.setColumn(omero.rtypes.rint(column));
-                for (int field = 0; field < fields; field++) {
-                    sample = new WellSampleI();
-                    if (fullImage) sample.setImage(createImage());
-                    else sample.setImage(simpleImage(0));
-                    well.addWellSample(sample);
-                    if (plateAcquisition) pa.addWellSample(sample);
+                if (pas.size() == 0) {
+                	for (int field = 0; field < fields; field++) {
+                        sample = new WellSampleI();
+                        if (fullImage) sample.setImage(createImage());
+                        else sample.setImage(simpleImage(0));
+                        well.addWellSample(sample);
+                    }
+                } else {
+                	i = pas.iterator();
+                	while (i.hasNext()) {
+						pa = i.next();
+						for (int field = 0; field < fields; field++) {
+	                        sample = new WellSampleI();
+	                        if (fullImage) sample.setImage(createImage());
+	                        else sample.setImage(simpleImage(0));
+	                        well.addWellSample(sample);
+	                        pa.addWellSample(sample);
+	                    }
+					}
                 }
+                
                 p.addWell(well);
             }
         }

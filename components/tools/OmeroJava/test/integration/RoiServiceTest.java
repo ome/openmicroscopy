@@ -146,7 +146,7 @@ public class RoiServiceTest
     public void testRoisMeasurementRetrieval() 
     	throws Exception
     {
-    	Plate p = mmFactory.createPlate(1, 1, 1, false, true);
+    	Plate p = mmFactory.createPlate(1, 1, 1, 0, true);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	List<IObject> results = loadWells(p.getId().getValue());
     	Well well = (Well) results.get(0);
@@ -235,7 +235,7 @@ public class RoiServiceTest
     public void testMeasuredRoisMap() 
     	throws Exception
     {
-    	Plate p = mmFactory.createPlate(1, 1, 1, false, true);
+    	Plate p = mmFactory.createPlate(1, 1, 1, 0, true);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	List<IObject> results = loadWells(p.getId().getValue());
     	Well well = (Well) results.get(0);
@@ -316,7 +316,7 @@ public class RoiServiceTest
     public void testTableResult() 
     	throws Exception
     {
-    	Plate p = mmFactory.createPlate(1, 1, 1, false, true);
+    	Plate p = mmFactory.createPlate(1, 1, 1, 0, true);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	List<IObject> results = loadWells(p.getId().getValue());
     	Well well = (Well) results.get(0);

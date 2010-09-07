@@ -229,7 +229,7 @@ public class RenderingSettingsServiceTest
     {
     	Screen screen = (Screen) iUpdate.saveAndReturnObject(
     			mmFactory.simpleScreenData().asIObject());
-    	Plate p = mmFactory.createPlate(1, 1, 1, false, true);
+    	Plate p = mmFactory.createPlate(1, 1, 1, 0, true);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	
     	ScreenPlateLink link = new ScreenPlateLinkI();
@@ -481,7 +481,7 @@ public class RenderingSettingsServiceTest
     public void testApplySettingsToSetForPlate() 
     	throws Exception 
     {
-    	Plate p = mmFactory.createPlate(1, 1, 1, false, true);
+    	Plate p = mmFactory.createPlate(1, 1, 1, 0, true);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	//load the well
     	List<IObject> results = loadWells(p.getId().getValue());
@@ -503,7 +503,7 @@ public class RenderingSettingsServiceTest
     	
     	
     	//Create a second plate
-    	p = mmFactory.createPlate(1, 1, 1, false, true);
+    	p = mmFactory.createPlate(1, 1, 1, 0, true);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	results = loadWells(p.getId().getValue());
     	well = (Well) results.get(0);
@@ -537,7 +537,7 @@ public class RenderingSettingsServiceTest
     {
     	Screen screen = (Screen) iUpdate.saveAndReturnObject(
     			mmFactory.simpleScreenData().asIObject());
-    	Plate p = mmFactory.createPlate(1, 1, 1, false, true);
+    	Plate p = mmFactory.createPlate(1, 1, 1, 0, true);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	
     	ScreenPlateLink link = new ScreenPlateLinkI();
@@ -565,7 +565,7 @@ public class RenderingSettingsServiceTest
     	
     	
     	//Create a second plate
-    	p = mmFactory.createPlate(1, 1, 1, false, true);
+    	p = mmFactory.createPlate(1, 1, 1, 0, true);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	
     	link = new ScreenPlateLinkI();
@@ -604,7 +604,7 @@ public class RenderingSettingsServiceTest
     public void testResetDefaultInSetForPlate() 
     	throws Exception 
     {
-    	Plate p = mmFactory.createPlate(1, 1, 1, false, true);
+    	Plate p = mmFactory.createPlate(1, 1, 1, 0, true);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	//load the well
     	List<IObject> results = loadWells(p.getId().getValue());
@@ -837,7 +837,7 @@ public class RenderingSettingsServiceTest
     public void testResetMinMaxForSetForPlate() 
     	throws Exception 
     {
-    	Plate plate = mmFactory.createPlate(1, 1, 1, false, true);
+    	Plate plate = mmFactory.createPlate(1, 1, 1, 0, true);
     	plate = (Plate) iUpdate.saveAndReturnObject(plate);
     	//load the well
     	List<IObject> results = loadWells(plate.getId().getValue());
@@ -896,7 +896,7 @@ public class RenderingSettingsServiceTest
     {
     	Screen screen = (Screen) iUpdate.saveAndReturnObject(
     			mmFactory.simpleScreenData().asIObject());
-    	Plate plate = mmFactory.createPlate(1, 1, 1, false, true);
+    	Plate plate = mmFactory.createPlate(1, 1, 1, 0, true);
     	plate = (Plate) iUpdate.saveAndReturnObject(plate);
     	
     	ScreenPlateLink link = new ScreenPlateLinkI();

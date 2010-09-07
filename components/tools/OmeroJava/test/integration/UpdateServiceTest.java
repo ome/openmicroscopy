@@ -428,7 +428,7 @@ public class UpdateServiceTest
     public void testPopulatedPlate()
 		throws Exception
     {
-    	Plate p = mmFactory.createPlate(1, 1, 1, true, false);
+    	Plate p = mmFactory.createPlate(1, 1, 1, 1, false);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	assertNotNull(p);
     	assertNotNull(p.getName().getValue());
@@ -442,10 +442,10 @@ public class UpdateServiceTest
     	param.addId(p.getId());
     	assertNotNull(iQuery.findByQuery(sql, param));
     	
-    	p = mmFactory.createPlate(1, 1, 1, false, false);
+    	p = mmFactory.createPlate(1, 1, 1, 0, false);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	assertNotNull(p);
-    	p = mmFactory.createPlate(1, 1, 1, true, true);
+    	p = mmFactory.createPlate(1, 1, 1, 1, true);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	assertNotNull(p);
     }

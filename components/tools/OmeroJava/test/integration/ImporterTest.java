@@ -62,7 +62,6 @@ import omero.model.Dichroic;
 import omero.model.Experiment;
 import omero.model.Filament;
 import omero.model.Filter;
-import omero.model.FilterSet;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
@@ -1015,9 +1014,13 @@ public class ImporterTest
     	assertEquals(1, instrument.sizeOfOtf());
     	
     	List<Detector> detectors = instrument.copyDetector();
+    	List<Long> detectorIds = new ArrayList<Long>();
+    	Detector de;
     	Iterator j = detectors.iterator();
     	while (j.hasNext()) {
-    		validateDetector((Detector) j.next(), xmlDetector);
+    		de = (Detector) j.next();
+    		detectorIds.add(de.getId().getValue());
+    		validateDetector(de, xmlDetector);
 		}
     	List<Objective> objectives = instrument.copyObjective();
     	j = objectives.iterator();
@@ -1086,7 +1089,8 @@ public class ImporterTest
 			ds = lc.getDetectorSettings();
 			assertNotNull(ds);
 			assertNotNull(ds.getDetector());
-			assertTrue(detectors.contains(ds.getDetector().getId().getValue()));
+			assertTrue(detectorIds.contains(
+					ds.getDetector().getId().getValue()));
 			validateDetectorSettings(ds, xmlDs);
 			ls = lc.getLightSourceSettings();
 			assertNotNull(ls);
@@ -1103,8 +1107,6 @@ public class ImporterTest
 			path = lc.getLightPath();
 			assertNotNull(lc);
 			assertNotNull(path.getDichroic());
-			assertTrue(dichroics.contains(
-					path.getDichroic().getId().getValue()));
 		}
 	}
 
@@ -1291,19 +1293,4 @@ public class ImporterTest
 				screen.copyReagent().get(0).getId().getValue());
 	}
 
-	/**
-     * Tests the import of an OME-XML file with a plate
-     * with wells linked to a reagent.
-     * @throws Exception Thrown if an error occurred.
-     */
-	@Test
-	public void testFullPlate()
-		throws Exception
-	{
-		File f = new File("/OMERO/16x24x3Plate.ome");
-		XMLMockObjects xml = new XMLMockObjects();
-		XMLWriter writer = new XMLWriter();
-		writer.writeFile(f, xml.createFullPlate(), true);
-		
-	}
 }
