@@ -10,10 +10,27 @@ import static ome.services.delete.DeleteEntry.Op.REAP;
 import static ome.services.delete.DeleteEntry.Op.SOFT;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import ome.model.annotations.Annotation;
+import ome.model.annotations.BasicAnnotation;
+import ome.model.annotations.BooleanAnnotation;
+import ome.model.annotations.CommentAnnotation;
+import ome.model.annotations.DoubleAnnotation;
+import ome.model.annotations.FileAnnotation;
+import ome.model.annotations.ListAnnotation;
+import ome.model.annotations.LongAnnotation;
+import ome.model.annotations.NumericAnnotation;
+import ome.model.annotations.TermAnnotation;
+import ome.model.annotations.TextAnnotation;
+import ome.model.annotations.TimestampAnnotation;
+import ome.model.annotations.TypeAnnotation;
+import ome.model.annotations.XmlAnnotation;
 import ome.services.delete.DeleteEntry.Op;
 import ome.system.OmeroContext;
 import ome.tools.hibernate.ExtendedMetadata;
@@ -44,8 +61,7 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
 
         ConstructorArgumentValues cav = new ConstructorArgumentValues();
         cav.addGenericArgumentValue(ExtendedMetadata.class);
-        RootBeanDefinition mock = new RootBeanDefinition(
-                Mock.class, cav, null);
+        RootBeanDefinition mock = new RootBeanDefinition(Mock.class, cav, null);
 
         RootBeanDefinition em = new RootBeanDefinition();
         em.setFactoryBeanName("mock");
@@ -55,9 +71,27 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
         sac.registerBeanDefinition("extendedMetadata", em);
         sac.refresh();
 
+        emMock = sac.getBean("mock", Mock.class);
+        emMock.expects(atLeastOnce())
+                .method("getAnnotationTypes")
+                .will(returnValue(new HashSet<Class<?>>(Arrays
+                        .<Class<?>> asList(Annotation.class,
+                                BasicAnnotation.class,
+                                BooleanAnnotation.class,
+                                NumericAnnotation.class,
+                                DoubleAnnotation.class,
+                                LongAnnotation.class,
+                                TermAnnotation.class,
+                                TimestampAnnotation.class,
+                                ListAnnotation.class,
+                                TextAnnotation.class,
+                                CommentAnnotation.class,
+                                ome.model.annotations.TagAnnotation.class,
+                                XmlAnnotation.class,
+                                TypeAnnotation.class,
+                                FileAnnotation.class))));
         specXml = new OmeroContext(
-                new String[]{"classpath:ome/services/delete/spec.xml"}, sac);
-        emMock = specXml.getBean("mock", Mock.class);
+                new String[] { "classpath:ome/services/delete/spec.xml" }, sac);
     }
 
     /**
@@ -66,15 +100,16 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
      * spec.xml
      *
      * Here we create a spec of "/Image" which serves as the basis. Any entry
-     * also named "/Image" should not count as a subspec. A different path
-     * which is also in spec.xml <em>will</em> count as a subspec, and finally,
-     * if the value is neither the name of the top spec ("self") or of a value
-     * in spec.xml, then again, it does <em>not</em> get a subspec.
+     * also named "/Image" should not count as a subspec. A different path which
+     * is also in spec.xml <em>will</em> count as a subspec, and finally, if the
+     * value is neither the name of the top spec ("self") or of a value in
+     * spec.xml, then again, it does <em>not</em> get a subspec.
      */
     @Test
     public void testDeleteEntry() throws Exception {
 
-        DeleteSpec spec = new BaseDeleteSpec(null, "/Image", "/Image", "/Image/Roi");
+        DeleteSpec spec = new BaseDeleteSpec(null, "/Image", "/Image",
+                "/Image/Roi");
         assertValidEntry(spec, "/Image", "/Image", DEFAULT, false);
         assertValidEntry(spec, "/Image;REAP", "/Image", REAP, false);
         assertValidEntry(spec, "/Image/Roi;SOFT", "/Image/Roi", SOFT, true);
@@ -132,12 +167,14 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
         queryMock.setDefaultStub(new DefaultResultStub());
         Query query = (Query) queryMock.proxy();
 
-        sessionMock.expects(atLeastOnce()).method("createQuery").will(returnValue(query));
-        emMock.expects(once()).method("getRelationship").will(returnValue("shapes"));
-        emMock.expects(once()).method("getRelationship").will(returnValue("annotationLinks"));
+        sessionMock.expects(atLeastOnce()).method("createQuery")
+                .will(returnValue(query));
+        emMock.expects(once()).method("getRelationship")
+                .will(returnValue("shapes"));
+        emMock.expects(once()).method("getRelationship")
+                .will(returnValue("annotationLinks"));
 
-        DeleteSpec roi = specXml
-        .getBean("/Roi", BaseDeleteSpec.class);
+        DeleteSpec roi = specXml.getBean("/Roi", BaseDeleteSpec.class);
         DeleteIds ids = new DeleteIds(session, roi);
         roi.initialize(1, null, null);
         // roi.delete(session, 0, ids); // Requires mock setup
@@ -148,7 +185,8 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
      */
     @Test
     public void testSubSpecIterator() throws Exception {
-        Map<String, DeleteSpec> specs = specXml.getBeansOfType(DeleteSpec.class);
+        Map<String, DeleteSpec> specs = specXml
+                .getBeansOfType(DeleteSpec.class);
         DeleteSpec image = specs.get("/Image");
         image.postProcess(specXml);
         image.initialize(1, null, null);
@@ -171,4 +209,66 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
         }
         assertEquals(expected.toString(), 0, expected.size());
     }
+
+    /**
+     * Tests that option strings get appropriately applied to each element. For
+     * sub elements, either the full path can be given. E.g. for
+     *
+     * <pre>
+     * delSpec: /Image
+     *      value: /Annotation;;/Image/AnnotationLink/Annotation
+     *
+     * delSpec: /Annotation
+     *      value: /FileAnnotation
+     *      value: /LongAnnotation
+     *      ...
+     * </pre>
+     *
+     * to set an option on LongAnnotation one would pass:
+     *
+     * <pre>
+     * {"/Image/AnnotationLink/FileAnnotation":"ns.includes=%example%"}
+     * </pre>
+     *
+     * or pass only the last element:
+     *
+     * <pre>
+     * {"/FileAnnotation":"ns.includes=%example%"}
+     * </pre>
+     *
+     * In the case of annotations, setting an option on a supertype will apply
+     * to all subclasses:
+     *
+     * <pre>
+     * {"/NumericAnnotation":"..."}
+     * </pre>
+     *
+     * will count for {@link LongAnnotation} and {@link DoubleAnnotation}.
+     *
+     */
+    @Test
+    public void testOptions() throws Exception {
+        BaseDeleteSpec spec;
+        Map<String, String> options;
+
+        spec = new BaseDeleteSpec(Arrays.asList("/Image;SOFT"));
+        options = new HashMap<String, String>();
+        options.put("/Image", "KEEP");
+        spec.initialize(1, "", options);
+        assertEquals(Op.KEEP, spec.entries.get(0).op);
+
+        spec = new BaseDeleteSpec(Arrays.asList("/Project/Dataset/Image;SOFT"));
+        options = new HashMap<String, String>();
+        options.put("/Project/Dataset/Image", "KEEP");
+        spec.initialize(1, "", options);
+        assertEquals(Op.KEEP, spec.entries.get(0).op);
+
+        spec = new BaseDeleteSpec(Arrays.asList("/Project/Dataset/Image;SOFT"));
+        options = new HashMap<String, String>();
+        options.put("/", "KEEP");
+        spec.initialize(1, "", options);
+        assertEquals(Op.KEEP, spec.entries.get(0).op);
+
+    }
+
 }

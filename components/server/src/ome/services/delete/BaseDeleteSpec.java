@@ -146,6 +146,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
 
         for (int i = 0; i < entries.size(); i++) {
             DeleteEntry entry = entries.get(i);
+            entry.initialize(superspec, options);
             DeleteSpec subSpec = entry.getSubSpec();
             int subStepCount = 0;
             if (subSpec != null) {
@@ -179,6 +180,13 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
         try {
             StringBuilder sb = new StringBuilder();
             DeleteEntry entry = entries.get(step);
+            if (Op.KEEP.equals(entry.op)) {
+                if (log.isDebugEnabled()) {
+                    log.debug("KEEP'ing " + entry);
+                }
+                return ""; // EARLY EXIT!
+            }
+
             DeleteSpec subSpec = entry.getSubSpec();
             int subStep = substeps.get(step);
             if (subSpec != null) {
@@ -431,9 +439,10 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
     }
 
     private String logmsg(DeleteEntry subpath, List<Long> results) {
-        String msg = String.format("Found %s id(s) for %s",
+        String msg = String.format("Found %s id(s) for %s (%s)",
                 (results == null ? "null" : results.size()),
-                Arrays.asList(subpath.path(superspec)));
+                Arrays.asList(subpath.path(superspec)),
+                subpath.op);
         return msg;
     }
 

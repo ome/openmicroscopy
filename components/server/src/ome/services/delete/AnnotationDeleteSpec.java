@@ -7,13 +7,18 @@
 
 package ome.services.delete;
 
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import ome.api.IDelete;
+import ome.model.annotations.Annotation;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.QueryBuilder;
 
@@ -51,22 +56,55 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
     public static final Set<String> nsExcludes = Collections
             .unmodifiableSet(new HashSet<String>(Arrays.asList("foo")));
 
+    private final boolean[] isAbstract;
+
+    private final Map<String, Integer> order = new HashMap<String, Integer>();
+
     //
     // Initialization-time values
     //
 
     public AnnotationDeleteSpec(List<String> entries) {
         super(entries);
+        isAbstract = new boolean[entries.size()];
     }
 
     @Override
     public void setExtendedMetadata(ExtendedMetadata em) {
         super.setExtendedMetadata(em);
-        if (em.getAnnotationTypes().size() != entries.size()) {
+        Set<Class<Annotation>> types = em.getAnnotationTypes();
+        if (types.size() != entries.size()) {
             throw new FatalBeanException(
                     "Mismatch between anntotations defined and those found: "
                             + entries + "<> " + em.getAnnotationTypes());
         }
+
+        for(int i = 0; i < entries.size(); i++) {
+            DeleteEntry entry = entries.get(i);
+            order.put(entry.name.substring(1), i);
+        }
+
+        for (Class<Annotation> type : types) {
+            String simpleName = type.getSimpleName();
+            Integer idx = order.get(simpleName);
+            if (idx == null) {
+                throw new FatalBeanException("Could not find entry: " + simpleName);
+            }
+            if (Modifier.isAbstract(type.getModifiers())) {
+                isAbstract[idx] = true;
+            }
+        }
+
+    }
+
+    @Override
+    public int initialize(long id, String superspec, Map<String, String> options)
+            throws DeleteException {
+        int steps = super.initialize(id, superspec, options);
+        if (this.options != null) {
+
+        }
+        return steps;
     }
 
     @Override
@@ -80,18 +118,33 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
         // Copying the entry since we cannot currently find relationships
         // to subclasses, i.e. getRelationship(ImageAnnotationLink, LongAnnotation)==null.
         final DeleteEntry copy = new DeleteEntry(this, "/Annotation", subpath.op, subpath.path);
-        final QueryBuilder qb = new QueryBuilder();
 
         final String[] sub = copy.path(superspec);
         int which = sub.length - 1;
         final String klass = subpath.name.substring(1);
 
-        qb.skipFrom();
-        qb.skipWhere();
-        qb.append("ROOT" + which + ".class = " + klass);
+        and = new QueryBuilder();
+        and.skipFrom();
+        and.skipWhere();
+        and.append("ROOT" + which + ".class = " + klass);
 
         return super.queryBackupIds(session, copy, and);
     }
+
+    @Override
+    public String delete(Session session, int step, DeleteIds deleteIds)
+            throws DeleteException {
+
+        if (isAbstract[step]) {
+            if (log.isDebugEnabled()) {
+                log.debug("Step " + step + " is abstract.");
+            }
+            return "";
+        }
+        return super.delete(session, step, deleteIds);
+
+    }
+
 
     /**
      * Overrides {@link BaseDeleteSpec#execute(Session, DeleteEntry, List) in
@@ -101,6 +154,7 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
     @Override
     protected String execute(Session session, DeleteEntry entry, List<Long> ids)
             throws DeleteException {
+
         if (true) {
             if (ids != null && ids.size() > 0) {
                 Query q = session.createQuery("delete ome.model.IAnnotationLink where child.id in (:ids)");

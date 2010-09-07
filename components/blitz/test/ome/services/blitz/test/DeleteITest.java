@@ -12,6 +12,7 @@ import java.util.Map;
 
 import ome.services.blitz.impl.DeleteHandleI;
 import ome.services.delete.BaseDeleteSpec;
+import ome.services.delete.DeleteEntry;
 import ome.services.delete.DeleteIds;
 import ome.services.delete.DeleteSpecFactory;
 import ome.services.util.Executor;
@@ -401,6 +402,81 @@ public class DeleteITest extends AbstractServantTest {
         l = assertProjection("select c.id from Annotation c where c.id = "
                 + cid, null);
         assertEquals(0, l.size());
+
+    }
+
+    /**
+     * Uses the {@link DeleteEntry.Op#KEEP} setting to prevent a delete
+     * from happening.
+     */
+    @SuppressWarnings("rawtypes")
+    public void testKeepAnnotation() throws Exception {
+
+        // Create test data
+        AnnotationAnnotationLink link = new AnnotationAnnotationLinkI();
+        link.link(new TagAnnotationI(), new TagAnnotationI());
+        link = assertSaveAndReturn(link);
+
+        long lid = link.getId().getValue();
+        long pid = link.getParent().getId().getValue();
+        long cid = link.getChild().getId().getValue();
+
+        // Do Delete
+        Map<String, String> options = new HashMap<String, String>();
+        options.put("/TagAnnotation", "KEEP");
+        DeleteCommand dc = new DeleteCommand("/Annotation", cid, options);
+        doDelete(dc);
+
+        // Make sure the parent annotation still exists, but both the annotation
+        // link and the annotation that was linked to (the child) are gone.
+        List l;
+        l = assertProjection("select p.id from Annotation p where p.id = " + pid,
+                null);
+        assertEquals(1, l.size());
+        l = assertProjection("select l.id from AnnotationAnnotationLink l where l.id = " + lid,
+                null);
+        assertEquals(1, l.size());
+        l = assertProjection("select c.id from Annotation c where c.id = "
+                + cid, null);
+        assertEquals(1, l.size());
+
+    }
+
+    /**
+     * Uses the {@link DeleteEntry.Op#KEEP} setting to prevent a delete
+     * from happening.
+     */
+    @SuppressWarnings("rawtypes")
+    public void testKeepImageAnnotation() throws Exception {
+
+        // Create test data
+        long iid = makeImage();
+        ImageAnnotationLink link = new ImageAnnotationLinkI();
+        link.link(new ImageI(iid, false), new TagAnnotationI());
+        link = assertSaveAndReturn(link);
+
+        long lid = link.getId().getValue();
+        long pid = link.getParent().getId().getValue();
+        long cid = link.getChild().getId().getValue();
+
+        // Do Delete
+        Map<String, String> options = new HashMap<String, String>();
+        options.put("/TagAnnotation", "KEEP");
+        DeleteCommand dc = new DeleteCommand("/Image", pid, options);
+        doDelete(dc);
+
+        // Make sure the parent annotation still exists, but both the annotation
+        // link and the annotation that was linked to (the child) are gone.
+        List l;
+        l = assertProjection("select p.id from Image p where p.id = " + pid,
+                null);
+        assertEquals(0, l.size());
+        l = assertProjection("select l.id from ImageAnnotationLink l where l.id = " + lid,
+                null);
+        assertEquals(0, l.size());
+        l = assertProjection("select c.id from Annotation c where c.id = "
+                + cid, null);
+        assertEquals(1, l.size());
 
     }
 

@@ -1758,7 +1758,7 @@ public class DeleteServiceTest
      * measurements.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(enabled = false, groups = "ticket:2797") // NS TBD
     public void testPlateWithROIMeasurements() 
 		throws Exception
 	{
@@ -1826,7 +1826,7 @@ public class DeleteServiceTest
      * well samples and plate with Plate acquisition and annotation.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false) 
+    @Test
     public void testPlateWithSharableAnnotations() 
     	throws Exception
     {
@@ -2102,7 +2102,7 @@ public class DeleteServiceTest
      * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(enabled = false, groups = "ticket:2797") // NS TBD
     public void testImportedImage() 
     	throws Exception
     {
@@ -2139,7 +2139,7 @@ public class DeleteServiceTest
      * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test
     public void testDeleteObjectWithSharedAnnotationSoftOption() 
     	throws Exception
     { 
@@ -2152,7 +2152,7 @@ public class DeleteServiceTest
     	List<Long> ids = createSharableAnnotation(img1, img2);
     	assertEquals(n, ids.size());
     	//now delete the image 1.
-    	delete(new DeleteCommand(REF_IMAGE, img1.getId().getValue(), null));
+	delete(new DeleteCommand(REF_IMAGE, img1.getId().getValue(), SHARABLE_TO_KEEP));
     	ParametersI param = new ParametersI();
     	param.addIds(ids);
     	String sql = "select a from Annotation as a where a.id in (:ids)";
@@ -2166,7 +2166,7 @@ public class DeleteServiceTest
     			mmFactory.simpleDatasetData().asIObject());
     	ids = createSharableAnnotation(d1, d2);
     	//now delete the dataset 1.
-    	delete(new DeleteCommand(REF_DATASET, d1.getId().getValue(), null));
+	delete(new DeleteCommand(REF_DATASET, d1.getId().getValue(), SHARABLE_TO_KEEP));
     	param = new ParametersI();
     	param.addIds(ids);
     	results = iQuery.findAllByQuery(sql, param);
@@ -2179,7 +2179,7 @@ public class DeleteServiceTest
     			mmFactory.simpleProjectData().asIObject());
     	ids = createSharableAnnotation(p1, p2);
     	//now delete the project 1.
-    	delete(new DeleteCommand(REF_PROJECT, p1.getId().getValue(), null));
+	delete(new DeleteCommand(REF_PROJECT, p1.getId().getValue(), SHARABLE_TO_KEEP));
     	param = new ParametersI();
     	param.addIds(ids);
     	results = iQuery.findAllByQuery(sql, param);
@@ -2192,7 +2192,7 @@ public class DeleteServiceTest
     			mmFactory.simpleScreenData().asIObject());
     	ids = createSharableAnnotation(s1, s2);
     	//now delete the screen 1.
-    	delete(new DeleteCommand(REF_SCREEN, s1.getId().getValue(), null));
+	delete(new DeleteCommand(REF_SCREEN, s1.getId().getValue(), SHARABLE_TO_KEEP));
     	param = new ParametersI();
     	param.addIds(ids);
     	results = iQuery.findAllByQuery(sql, param);
@@ -2205,7 +2205,7 @@ public class DeleteServiceTest
     			mmFactory.simplePlateData().asIObject());
     	ids = createSharableAnnotation(plate1, plate2);
     	//now delete the plate 1.
-    	delete(new DeleteCommand(REF_PLATE, plate1.getId().getValue(), null));
+	delete(new DeleteCommand(REF_PLATE, plate1.getId().getValue(), SHARABLE_TO_KEEP));
     	param = new ParametersI();
     	param.addIds(ids);
     	results = iQuery.findAllByQuery(sql, param);
@@ -2574,7 +2574,7 @@ public class DeleteServiceTest
      * well samples and plate with Plate acquisition and annotation.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = true) 
+    @Test
     public void testPlateAcquisitionWithNonSharableAnnotations() 
     	throws Exception
     {

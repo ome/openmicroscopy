@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 
 import ome.api.IDelete;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.ListableBeanFactory;
 
@@ -44,6 +45,11 @@ public class DeleteEntry {
          */
         SOFT,
 
+        /**
+         * Prevents the delete from being carried out.
+         */
+        KEEP,
+
         REAP,
 
         ORPHAN,
@@ -62,9 +68,15 @@ public class DeleteEntry {
 
     final protected String[] parts;
 
-    final protected Op op;
-
     final protected String path;
+
+    /**
+     * Operation which should be performed for this entry.
+     *
+     * No longer protected since the {@link #initialize(String, Map)} phase
+     * can change the operation based on the options map.
+     */
+    protected Op op;
 
     /* final */private DeleteSpec subSpec;
 
@@ -91,6 +103,9 @@ public class DeleteEntry {
      * prefixed with a "+" are stripped.
      */
     private static String[] split(String name) {
+        if (name == null) {
+            return new String[0];
+        }
         String[] parts0 = name.split("/");
         String part = null;
         for (int i = 0; i < parts0.length; i++) {
@@ -182,7 +197,8 @@ public class DeleteEntry {
 
     /**
      * Load the spec which has the same name as this entry, but do not load the
-     * spec if the name matches {@link #name}
+     * spec if the name matches {@link #name}. This is called early in the
+     * {@link DeleteEntry} lifecycle, by {@link DeleteSpec}.
      */
     protected void postProcess(ListableBeanFactory factory) {
         if (name.equals(self.getName())) {
@@ -193,6 +209,43 @@ public class DeleteEntry {
         }
     }
 
+    /**
+     * Called during {@link DeleteSpec#initialize(long, String, Map)} to give
+     * the entry a chance to modify its {@link #op} based on the options.
+     * The superspec is passed in so that both the absolute path as well as
+     * the last path element can be checked. Further, a key of "/"
+     * apply to all entries.
+     */
+    public void initialize(String superspec, Map<String, String> options) {
+
+        if (options == null) {
+            return;
+        }
+
+        final String[] path = path(superspec);
+        final String absolute = "/" + StringUtils.join(path, "/");
+        final String last = "/" + path[path.length-1];
+
+        String option = options.get(absolute);
+        if (option != null) {
+            op = Op.valueOf(option);
+            return;
+        }
+
+        option = options.get(last);
+        if (option != null) {
+            op = Op.valueOf(option);
+            return;
+        }
+
+        option = options.get("/");
+        if (option != null) {
+            op = Op.valueOf(option);
+            return;
+        }
+
+    }
+
     @Override
     public String toString() {
         return "DeleteEntry [name=" + name + ", parts="
@@ -200,4 +253,5 @@ public class DeleteEntry {
                 + (subSpec == null ? "" : ", subSpec=" + subSpec.getName())
                 + "]";
     }
+
 }
