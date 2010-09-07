@@ -110,18 +110,17 @@ public class MetadataImpl
     	StringBuilder sb = new StringBuilder();
     	if (src instanceof Laser) {
 			sb.append("select l from Laser as l ");
-			sb.append("left outer join fetch l.type as type ");
-			sb.append("left outer join fetch l.laserMedium as " +
-					"medium ");
+			sb.append("join fetch l.type ");
+			sb.append("join fetch l.laserMedium ");
 			sb.append("left outer join fetch l.pulse as pulse ");
 	        sb.append("where l.instrument.id = :instrumentId");
 		} else if (src instanceof Filament) {
 			sb.append("select l from Filament as l ");
-			sb.append("left outer join fetch l.type as type ");
+			sb.append("join fetch l.type ");
 	        sb.append("where l.instrument.id = :instrumentId");
 		} else if (src instanceof Arc) {
 			sb.append("select l from Arc as l ");
-			sb.append("left outer join fetch l.type as type ");
+			sb.append("join fetch l.type ");
 	        sb.append("where l.instrument.id = :instrumentId");
 		}
     	return sb;
@@ -337,9 +336,63 @@ public class MetadataImpl
      */
     @RolesAllowed("user")
     @Transactional(readOnly = true)
-    public Set<IObject> loadInstrument(long id)
+    public Instrument loadInstrument(long id)
     {
-    	Set<IObject> results = new HashSet<IObject>();
+    	//Set<IObject> results = new HashSet<IObject>();
+    	StringBuilder sb = new StringBuilder();
+    	sb.append("select inst from Instrument as inst ");
+    	sb.append("left outer join fetch inst.microscope as m ");
+    	sb.append("join fetch m.type ");
+    	//objective
+    	sb.append("left outer join fetch inst.objective as o ");
+    	sb.append("join fetch o.immersion ");
+    	sb.append("join fetch o.correction ");
+    	//detector
+    	sb.append("left outer join fetch inst.detector as d ");
+    	sb.append("join fetch d.type ");
+    	//filter
+    	sb.append("left outer join fetch inst.filter as f ");
+    	sb.append("left outer join fetch f.type ");
+    	sb.append("left outer join fetch f.transmittanceRange as trans ");
+    	//filterset
+    	sb.append("left outer join fetch inst.filterSet as fs ");
+    	sb.append("left outer join fetch fs.dichroic as dichroic ");
+    	//dichroic
+    	sb.append("left outer join fetch inst.dichroic as di ");
+    	//OTF
+    	sb.append("left outer join fetch inst.otf as otf ");
+    	sb.append("join fetch otf.pixelsType as type ");
+    	sb.append("join fetch otf.objective as obj ");
+    	sb.append("join fetch obj.immersion ");
+    	sb.append("join fetch obj.correction ");
+    	sb.append("left outer join fetch otf.filterSet ");
+    	
+    	//light source
+    	sb.append("left outer join fetch inst.lightSource as ls ");
+    	sb.append("where inst.id = :id ");
+    	
+    	Parameters params = new Parameters(); 
+    	Instrument value = iQuery.findByQuery(sb.toString(), 
+    			params.addId(id));
+    	LightSource ls;
+    	Iterator<LightSource> i = value.iterateLightSource();
+    	Laser laser;
+    	while (i.hasNext()) {
+			ls = i.next();
+			if (ls instanceof Laser) {
+				laser = (Laser) ls;
+				laser.getLaserMedium();
+				laser.getType();
+				laser.getPump();
+				laser.getPulse();
+			} else if (ls instanceof Arc) {
+				((Arc) ls).getType();
+			} else if (ls instanceof Filament) {
+				((Filament) ls).getType();
+			}
+		}
+    	//results.add(value);
+    	/*
     	StringBuilder sb = new StringBuilder();
     	Parameters params = new Parameters(); 
     	sb.append("select inst from Instrument as inst ");
@@ -434,7 +487,8 @@ public class MetadataImpl
             	}
     		}
     	}
-    	return results;
+    	*/
+    	return value;//results;
     }
     
     /**
@@ -458,8 +512,8 @@ public class MetadataImpl
         sb.append("left outer join fetch channel.otf as otf ");
         sb.append("join fetch otf.pixelsType ");
         sb.append("join fetch otf.objective as objective ");
-        sb.append("left outer join fetch objective.immersion ");
-        sb.append("left outer join fetch objective.correction ");
+        sb.append("join fetch objective.immersion ");
+        sb.append("join fetch objective.correction ");
         sb.append("left outer join fetch otf.filterSet as otffilter ");
         sb.append("left outer join fetch otffilter.dichroic as otfdichroic ");
         
@@ -495,10 +549,11 @@ public class MetadataImpl
         sb.append("left outer join fetch exfLp.type as type4 ");
 
         sb.append("left outer join fetch ds.detector as detector ");
-        sb.append("left outer join fetch detector.type as dt ");
+        sb.append("join fetch detector.type ");
         sb.append("left outer join fetch ds.binning as binning ");
         sb.append("left outer join fetch lss.lightSource as light ");
         sb.append("left outer join fetch light.instrument as instrument ");
+        sb.append("left outer join fetch instrument.lightSource ");
         sb.append("where channel.id in (:ids)");
         List<LogicalChannel> list = iQuery.findAllByQuery(sb.toString(), 
         		new Parameters().addIds(ids));
@@ -508,7 +563,57 @@ public class MetadataImpl
         LightSource src;
         IObject object;
         Parameters params; 
-    	
+        LightSource ls, ls1;
+    	Laser laser;
+    	Instrument instrument;
+    	List<LightSource> lights;
+    	Iterator<LightSource> k;
+    	while (i.hasNext()) {
+    		channel = i.next();
+    		light = channel.getLightSourceSettings();
+    		if (light != null) {
+    			ls = light.getLightSource();
+    			instrument = ls.getInstrument();
+    			if (instrument.sizeOfLightSource() > 0) {
+    				k = instrument.iterateLightSource();
+    		    	while (k.hasNext()) {
+    					ls1 = k.next();
+    					if (ls.getId().longValue() == ls1.getId().longValue()) {
+    						if (ls1 instanceof Laser) {
+        						laser = (Laser) ls1;
+        						laser.getLaserMedium();
+        						laser.getType();
+        						laser.getPump();
+        						laser.getPulse();
+        					} else if (ls1 instanceof Arc) {
+        						((Arc) ls1).getType();
+        					} else if (ls instanceof Filament) {
+        						((Filament) ls1).getType();
+        					}
+    						light.setLightSource(ls1);
+    					}
+    					
+    				}
+    			}
+    		}
+    		/*
+    		if (light != null) {
+    			ls = light.getLightSource();
+    			if (ls instanceof Laser) {
+    				laser = (Laser) ls;
+    				laser.getLaserMedium();
+    				laser.getType();
+    				laser.getPump();
+    				laser.getPulse();
+    			} else if (ls instanceof Arc) {
+    				((Arc) ls).getType();
+    			} else if (ls instanceof Filament) {
+    				((Filament) ls).getType();
+    			}
+    		}
+    		*/
+    	}
+    	/*
         while (i.hasNext()) {
         	channel = i.next();
 			light = channel.getLightSourceSettings();
@@ -530,6 +635,7 @@ public class MetadataImpl
 				}
 			}
 		}
+		*/
     	return new HashSet<LogicalChannel>(list);
     }
 
