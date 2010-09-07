@@ -394,6 +394,16 @@ public class MetadataImpl
     	list = iQuery.findAllByQuery(sb.toString(), params);
     	if (list != null) results.addAll(list);
     	
+    	//OTF
+    	sb = new StringBuilder();
+    	sb.append("select o from OTF as o ");
+    	sb.append("join fetch o.pixelsType as type ");
+    	sb.append("left outer join fetch o.objective as obj ");
+    	sb.append("left outer join fetch o.filterSet as set ");
+    	sb.append("where o.instrument.id = :instrumentId");
+    	list = iQuery.findAllByQuery(sb.toString(), params);
+    	if (list != null) results.addAll(list);
+    	
     	//light sources
     	sb = new StringBuilder();
     	sb.append("select light from LightSource as light ");
@@ -443,6 +453,17 @@ public class MetadataImpl
         sb.append("left outer join fetch channel.contrastMethod as cm ");
 		sb.append("left outer join fetch channel.detectorSettings as ds ");
         sb.append("left outer join fetch channel.lightSourceSettings as lss ");
+        
+        //
+        sb.append("left outer join fetch channel.otf as otf ");
+        sb.append("join fetch otf.pixelsType ");
+        sb.append("join fetch otf.objective as objective ");
+        sb.append("left outer join fetch objective.immersion ");
+        sb.append("left outer join fetch objective.correction ");
+        sb.append("left outer join fetch otf.filterSet as otffilter ");
+        sb.append("left outer join fetch otffilter.dichroic as otfdichroic ");
+        
+        
         sb.append("left outer join fetch channel.filterSet as filter ");
         sb.append("left outer join fetch filter.dichroic as dichroic ");
         
@@ -461,7 +482,7 @@ public class MetadataImpl
         sb.append("left outer join fetch channel.lightPath as lp ");
         sb.append("left outer join fetch lp.dichroic as dichroic ");
         
-      //emission filters
+        //emission filters
         sb.append("left outer join fetch lp.emissionFilterLink as efLpl ");
         sb.append("left outer join fetch efLpl.child as efLp ");
         sb.append("left outer join fetch efLp.transmittanceRange as efLpTrans ");
